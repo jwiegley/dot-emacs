@@ -15,15 +15,20 @@
 		("ab" "absurd " holes-abbrev-complete 0)
 		("abs" "absurd " holes-abbrev-complete 0)
 		("ap" "apply " holes-abbrev-complete 16)
+		("argsc" "Arguments Scope @{id} [ @{_} ]" holes-abbrev-complete 4)
 		("as" "assumption" holes-abbrev-complete 4)
 		("ass" "assert ( # : # )" holes-abbrev-complete 4)
 		("au" "auto" holes-abbrev-complete 1)
 		("aw" "auto with " holes-abbrev-complete 1)
 		("awa" "auto with arith" holes-abbrev-complete 4)
 		("c" "cases " holes-abbrev-complete 1)
+		("bndsc" "Bind Scope @{scope} with @{type}" holes-abbrev-complete 1)
 		("ch" "change " holes-abbrev-complete 1)
 		("chi" "change # in #" holes-abbrev-complete 1)
 		("chwi" "change # with # in #" holes-abbrev-complete 1)
+		("cllsc" "Close Local Scope #" holes-abbrev-complete 0)
+		("clsc" "Close Scope #" holes-abbrev-complete 0)
+		("coerc" "Coercion @{id} : @{typ1} >-> @{typ2}." holes-abbrev-complete 3)
 		("con" "constructor" holes-abbrev-complete 3)
 		("cong" "congruence" holes-abbrev-complete 3)
 		("dec" "decompose [#] @{hyp}" holes-abbrev-complete 3)
@@ -32,6 +37,7 @@
 		("def3" "Definition # (# : #) (# : #) (# : #):# := #." holes-abbrev-complete 5)
 		("def4" "Definition # (# : #) (# : #) (# : #) (# : #):# := #." holes-abbrev-complete 5)
 		("deg" "decide equality" holes-abbrev-complete 3)
+		("delsc" "Delimit Scope @{scope} with @{id}" holes-abbrev-complete 3) 
 		("des" "destruct " holes-abbrev-complete 0)
 		("desu" "destruct # using #" holes-abbrev-complete 0)
 		("desa" "destruct # as #" holes-abbrev-complete 0)
@@ -102,7 +108,9 @@
 		("moi" "Module # : #.\n#\nEnd #." holes-abbrev-complete 0)
 		("moi2" "Module # <: #.\n#\nEnd #." holes-abbrev-complete 0)
 		("nots" "Notation # := #." holes-abbrev-complete 0)
+		("notsp" "Notation # := # (only parsing)." holes-abbrev-complete 0)
 		("notsl" "Notation Local # := #." holes-abbrev-complete 0)
+		("notslp" "Notation Local # := # (only parsing)." holes-abbrev-complete 0)
 		("not" "Notation \"#\" := # (at level #, # at level #)." holes-abbrev-complete 0)
 		("nota" "Notation \"#\" := # (at level #, # at level #)." holes-abbrev-complete 0)
 		("notas" "Notation \"#\" := # (at level #, # associativity)." holes-abbrev-complete 0)
@@ -110,6 +118,8 @@
 		("notassc" "Notation \"#\" := # (at level #, # associativity) : @{scope}." holes-abbrev-complete 0)
 		("o" "omega" holes-abbrev-complete 0)
 		("om" "omega" holes-abbrev-complete 0)
+		("oplsc" "Open Local Scope #" holes-abbrev-complete 0)
+		("opsc" "Open Scope #" holes-abbrev-complete 0)
 		("p" "Print #" holes-abbrev-complete 3)
 		("po" "pose ( # := # )" nil 0)
 		("pr" "print #" holes-abbrev-complete 2)
@@ -135,6 +145,10 @@
 		("sp" "Split" holes-abbrev-complete 1)
 		("sy" "symmetry" holes-abbrev-complete 0)
 		("sym" "symmetry" holes-abbrev-complete 0)
+		("sprall" "Set Printing All" holes-abbrev-complete 1)
+		("unsprall" "Unset Printing All" holes-abbrev-complete 1)
+		("sprn" "Set Printing Notations" holes-abbrev-complete 1)
+		("unsprn" "Unset Printing Notations" holes-abbrev-complete 1)
 		("t" "trivial" holes-abbrev-complete 1)
 		("tr" "trivial" holes-abbrev-complete 1)
 		("trans" "transitivity #" holes-abbrev-complete 1)
@@ -150,7 +164,30 @@
 ;TODO: build the command submenu automatically from abbrev table
 (defpgdefault menu-entries
   '(
-    ("Insert Command" 
+    ["Print..." coq-Print t]
+    ["Check..." coq-Check t]
+    ["About..." coq-About t]
+    ("OTHER QUERIES"
+     ["Print Hint" coq-PrintHint t]
+     ["Show ith goal..." coq-Show t]
+     ["Show Tree" coq-show-tree t]
+     ["Show Proof" coq-show-proof t]
+     ["Show Conjectures" coq-show-conjectures t] ;; maybe not so useful with editing in PG?
+     ""
+     ["Print..." coq-Print t]
+     ["Check..." coq-Check t]
+     ["About..." coq-About t]
+     ["Search isos/pattern..." coq-SearchIsos t]
+     ["Locate constant..." coq-LocateConstant t]
+     ["Locate Library..." coq-LocateLibrary t]
+     ""
+     ["Locate notation..." coq-LocateNotation t]
+     ["Print Implicit..." coq-Print t]
+     ["Print Scope/Visibility..." coq-PrintScope t]
+     )
+    ["Smart intros" coq-intros t]
+    ["Require/Export/Import" coq-insert-requires t]
+    ("INSERT COMMAND" 
       "COMMAND               ABBREVIATION"
      ["Definition            def<C-BS>" (holes-insert-and-expand "def") t]
      ["Fixpoint              fix<C-BS>" (holes-insert-and-expand "fix") t]
@@ -163,6 +200,7 @@
      ["Inductive4            indv4<C-BS>" (holes-insert-and-expand "indv4") t]
      ""
      ["Section/Module (interactive)..." coq-insert-section-or-module t]
+     ["Require/Export/Import" coq-insert-requires t]
      ""
      ("Modules"
       "COMMAND               ABBREVIATION"
@@ -189,25 +227,46 @@
      )
      ("Schemes"
       "COMMAND               ABBREVIATION"
-      ["Scheme                sc<C-BS>" (holes-insert-and-expand "sc") t]
-      ["Functional Scheme     fs<C-BS>" (holes-insert-and-expand "fs") t]
-      ["Functional Scheme with    fsw<C-BS>" (holes-insert-and-expand "fsw") t]
+      ["Scheme                 sc<C-BS>" (holes-insert-and-expand "sc") t]
+      ["Functional Scheme      fs<C-BS>" (holes-insert-and-expand "fs") t]
+      ["Functional Scheme with fsw<C-BS>" (holes-insert-and-expand "fsw") t]
       )
      ("Notations"
       "COMMAND               ABBREVIATION"
+      ""
+      ["Open Scope                opsc<C-BS>" (holes-insert-and-expand "opsc") t]     
+      ["Open Local Scope          oplsc<C-BS>" (holes-insert-and-expand "oplsc") t]     
+      ["Close Scope               clsc<C-BS>" (holes-insert-and-expand "clsc") t]     
+      ["Open Local Scope          cllsc<C-BS>" (holes-insert-and-expand "cllsc") t]     
+      ""
+      ["Set Printing Notations     sprn<C-BS>" (holes-insert-and-expand "sprn") t]
+      ["Unset Printing Notations   unsprn<C-BS>" (holes-insert-and-expand "unsprn") t]
+      ["Set Printing All           sprall<C-BS>" (holes-insert-and-expand "sprall") t]
+      ["Unset Printing All         unsprall<C-BS>" (holes-insert-and-expand "unsprall") t]
+      ""
+      ["Print Scope/Visibility..." coq-PrintScope t]
+      ["Locate..." coq-LocateNotation t]
+
+      ""
       ["Infix                      inf<C-BS>" (holes-insert-and-expand "inf") t]     
+      ["Notation (simple)          nots<C-BS>" (holes-insert-and-expand "nots") t]     
+      ["Notation (simple,only parsing) notsp<C-BS>" (holes-insert-and-expand "notsp") t]
+      ["Notation (simple,local)    notsl<C-BS>" (holes-insert-and-expand "notsl") t]     
+      ["Notation (simple,local,only parsing) notslp<C-BS>" (holes-insert-and-expand "notslp") t]
+      ""
       ["Notation (no assoc)        nota<C-BS>" (holes-insert-and-expand "nota") t]     
       ["Notation (assoc)           notas<C-BS>" (holes-insert-and-expand "notas") t] 
       ["Notation (no assoc, scope) notasc<C-BS>" (holes-insert-and-expand "notasc") t] 
       ["Notation (assoc, scope)    notassc<C-BS>" (holes-insert-and-expand "notassc") t]
-      ""
-      ["Notation (simple)          nots<C-BS>" (holes-insert-and-expand "nots") t]     
-      ["Notation (simple,local)    notsl<C-BS>" (holes-insert-and-expand "nots") t]     
-
+      ["Delimit Scope              delsc<C-BS>" (holes-insert-and-expand "delsc") t]
+      ["Arguments Scope            argsc<C-BS>" (holes-insert-and-expand "argsc") t]
+      ["Bind Scope                 bndsc<C-BS>" (holes-insert-and-expand "bndsc") t]
       )
+     ""
+     ["Coercion          coerc<C-BS>" (holes-insert-and-expand "coerc") t]
      )
 
-    ("Insert Term" 
+    ("INSERT TERM" 
      "FORM           ABBREVIATION"
      ["forall        fo<C-BS>"  (holes-insert-and-expand "fo") t]
      ["forall1       fo1<C-BS>"  (holes-insert-and-expand "fo1") t]
@@ -231,7 +290,7 @@
      ["match4        m4<C-BS>"  (holes-insert-and-expand "m4") t]
      )
 
-    ("Insert Tactic (a-f)" 
+    ("INSERT TACTIC (a-f)" 
      "TACTIC           ABBREVIATION"
      ["absurd                 abs<C-BS>"  (holes-insert-and-expand "abs") t]
      ["assumption              as<C-BS>"  (holes-insert-and-expand "as") t]
@@ -263,7 +322,7 @@
      ["functional induction    fi<C-BS>"  (holes-insert-and-expand "fi") t]
      )
 
-    ("Insert Tactic (g-z)" 
+    ("INSERT TACTIC (g-z)" 
      "TACTIC           ABBREVIATION"
      ["generalize             g<C-BS>"  (holes-insert-and-expand "g") t]
      ["induction              ind<C-BS>"  (holes-insert-and-expand "ind") t]
@@ -298,12 +357,6 @@
     ;; da: I added Show sub menu, not sure if it's helpful, but why not.
     ;; FIXME: submenus should be split off here.  Also, these commands
     ;; should only be available when a proof is open.
-    ("Show"
-     ["ith goal..." coq-Show t]
-     ["Tree" coq-show-tree t]
-     ["Proof" coq-show-proof t]
-     ["Conjectures" coq-show-conjectures t] ;; maybe not so useful with editing in PG?
-     ["Hints" coq-PrintHint t])
 
     ("Holes" 
      ;; da: I tidied this menu a bit.  I personally think this "trick"
@@ -336,14 +389,9 @@
       :selected (and (boundp 'abbrev-mode) abbrev-mode)])
     ;; With all these submenus you have to wonder if these things belong
     ;; on the main menu.  Are they the most often used?
-    ["Smart intros" coq-intros t]
-    ["Print..." coq-Print t]
-    ["Print Implicit..." coq-Print t]
-    ["About..." coq-About t]
-    ["Check..." coq-Check t]
-    ["Hints" coq-PrintHint t]
-    ["Search isos/pattern..." coq-SearchIsos t]
-    ["Compile" coq-Compile t] ))
+    ["Compile" coq-Compile t]
+    ["Set coq prog name for this file persistently" coq-ask-insert-coq-prog-name t]
+    ))
 
 ;; da: Moved this from the main menu to the Help submenu.  
 ;; It also appears under Holes, anyway.

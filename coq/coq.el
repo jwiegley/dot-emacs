@@ -58,7 +58,7 @@ To disable coqc being called (and use only make), set this to nil."
   :group 'coq)
 
 (defconst coq-shell-init-cmd 
-  (format "Set Undo %s. " coq-default-undo-limit))
+  (format "Set Undo %s . " coq-default-undo-limit))
 
 ;; da 15/02/03: moved setting of coq-version-is-vX to coq-syntax to
 ;; fix compilation
@@ -159,6 +159,98 @@ To disable coqc being called (and use only make), set this to nil."
     )
   )
 
+(defconst reqkinds-kinds-table
+  '(("Require" 1) ("Require Export" 2) ("Import" 3))
+  "Enumerates the different kinds of requiring a module.")
+
+
+(defun coq-insert-requires ()
+  "Insert requires to modules, iteratively."
+  (interactive)
+  (let* ((s) 
+         (reqkind 
+          (completing-read "Command (tab to see list, default Require Export) : " 
+                           reqkinds-kinds-table nil nil nil nil "Require Export"))
+         )
+    (setq s (read-string  "Name (empty to stop) : "))
+    (while (not (string-equal s ""))
+      (insert (format "%s %s.\n" reqkind s))
+      (setq s (read-string  "Name (empty to stop) : ")))
+    )
+  )
+
+
+
+
+
+(defun coq-insert-coq-prog-name (progname progargs)
+  "Insert the local variables coq-prog-name and coq-prog-args.
+These variables describe the coqtop command to be launched on this file."
+  (save-excursion
+    (goto-char (point-max))
+    (insert 
+     (format
+      "
+(* 
+   *** Local Variables: ***
+   *** coq-prog-name: %s ***
+   *** coq-prog-args: %s ***
+   *** End: ***
+*)"
+      progname progargs))))
+
+
+(defun coq-ask-build-addpath-option ()
+  "Ask for and return a directory name."
+  (let* 
+      ;; read-file-name here because it is convenient to see .v files when selecting
+      ;; directories to add to the path
+      ((path (read-file-name "library path to add (empty to stop) : "
+                             "" "" t)))
+    (if (and (string-match " " path)
+             (not (y-or-n-p "The path contains spaces, are you sure? (y or n) :")))
+        (coq-ask-build-addpath-option) ; retry
+      path)))
+
+(defun coq-ask-prog-args ()
+  "Ask for and return the information to put into variables coq-prog-args.
+These variable describes the coqtop arguments to be launched on this file."  
+  (let ((progargs '("-emacs"))
+        (option (coq-ask-build-addpath-option)))
+    (message "progargs = %s" progargs)
+    (while (not (string-equal option ""))
+      (setq progargs (cons option (cons "-I" progargs))) ;reversed
+      (message "progargs = %s" progargs)
+      (setq option (coq-ask-build-addpath-option)))
+    (message "progargs = %s" progargs)
+    (reverse progargs)))
+
+(defun coq-ask-prog-name ()
+  "Ask for and return the local variables coq-prog-name.
+These variable describes the coqtop command to be launched on this file."  
+  (let ((cmd (read-string "coq program name (default coqtop) : " "coqtop")))
+    (if (and 
+         (string-match " " cmd)
+         (not (y-or-n-p "The prog name contains spaces, are you sure? (y or n) :")))
+        (coq-ask-prog-name) ; retry
+      cmd)
+    ))
+
+
+(defun coq-ask-insert-coq-prog-name ()
+  "Ask for and insert the local variables coq-prog-name and coq-prog-args.
+These variables describe the coqtop command to be launched on this file."  
+  (interactive)
+  (let ((progname (coq-ask-prog-name))
+         (progargs (coq-ask-prog-args)))
+    (coq-insert-coq-prog-name 
+     (concat "\"" progname "\"") 
+     (concat "(\"" (proof-splice-separator "\" \"" progargs) "\")"))
+    (setq coq-prog-name progname)
+    (setq coq-prog-args progargs)))
+
+
+
 ;; ----- outline
 
 (defvar coq-outline-regexp
@@ -175,8 +267,8 @@ To disable coqc being called (and use only make), set this to nil."
 ;; all these are to be remove when coq > 8.0
 
 (defconst coq-kill-goal-command "Abort. ")
-(defconst coq-forget-id-command "Reset %s. ")
-(defconst coq-back-n-command "Back %s. ")
+(defconst coq-forget-id-command "Reset %s . ")
+(defconst coq-back-n-command "Back %s . ")
 
 
 (defconst coq-state-preserving-tactics-regexp 
@@ -228,7 +320,7 @@ To disable coqc being called (and use only make), set this to nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-set-undo-limit (undos)
-  (proof-shell-invisible-command (format "Set Undo %s. " undos)))
+  (proof-shell-invisible-command (format "Set Undo %s . " undos)))
 
 ;; da: have now combined count-undos and find-and-forget, they're the
 ;; same now we deal with nested proofs and send general sequence
@@ -479,7 +571,7 @@ If locked span already has a state number, thne do nothing. Also updates
             (naborts (count-not-intersection coq-last-but-one-proofstack proofstack))
             )
     (setq ans
-          (format "Backtrack %s %s %s. " 
+          (format "Backtrack %s %s %s . " 
                   (int-to-string span-staten)
                   (int-to-string proofdepth)
                   naborts)
@@ -631,28 +723,63 @@ This is specific to `coq-mode'."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (read-string "SearchPattern ex: (?X1 + _ = _ + ?X1) : " "(" 'proof-minibuffer-history))
-    (proof-shell-invisible-command (format "SearchPattern %s. " cmd))))
+    (setq cmd (read-string "SearchPattern (parenthesis mandatory), ex: (?X1 + _ = _ + ?X1) : " "" 'proof-minibuffer-history))
+    (proof-shell-invisible-command (format "SearchPattern %s . " cmd))))
 
 
-(defun coq-guess-or-ask-for-string (s)
+;
+;(defun coq-LocateNotation ()
+;  "Search a a notation.
+;This is specific to `coq-mode'."
+;  (interactive)
+;  (let (cmd)
+;    (proof-shell-ready-prover) 
+;    (setq cmd (read-string "Locate ex: \'exists\' _ , _) : " "" 'proof-minibuffer-history))
+;    (proof-shell-invisible-command (format "Locate %s%s%s . " "\"" cmd "\""))))
+;
+
+
+(defconst notation-print-kinds-table 
+  '(("Print Scope(s)" 0) ("Print Visibility" 1))
+  "Enumerates the different kinds of notation information one can ask to coq.")
+
+(defun coq-PrintScope ()
+  "Show information on notations. Coq specific."
+  (interactive)
+  (let* 
+      ((mods 
+        (completing-read "Infos on notation (tab to see list): " 
+                         notation-print-kinds-table))
+       (s (read-string  "Name (empty for all): "))
+       (all (string-equal s "")))
+    (cond 
+     ((and (string-equal mods "Print Scope(s)") (string-equal s "")) 
+      (proof-shell-invisible-command (format "Print Scopes.")))
+     (t 
+      (proof-shell-invisible-command (format "%s %s ." mods s)))
+     )
+    )
+  )
+
+(defun coq-guess-or-ask-for-string (s &optional dontguess)
   (let ((guess
+         (and (not dontguess)
          (if (region-exists-p) 
              (buffer-substring-no-properties (region-beginning) (region-end))
-           (symbol-near-point))))
+           (symbol-near-point)))))
     (read-string 
-     (if guess (concat s " (" guess "):")(concat s ":"))
+     (if guess (concat s " (" guess "):") (concat s ":"))
      nil 'proof-minibuffer-history guess))
   )
 
-(defun coq-ask-do (ask do)
+(defun coq-ask-do (ask do &optional dontguess postformatcmd)
   "Ask for an ident and print the corresponding term."
-  (let (cmd)
+  (let* ((cmd) (postform (if (eq postformatcmd nil) 'identity postformatcmd)))
     (proof-shell-ready-prover) 
-    (setq cmd (coq-guess-or-ask-for-string ask))
+    (setq cmd (coq-guess-or-ask-for-string ask dontguess))
     (proof-shell-invisible-command
-     (format (concat do " %s. ") cmd)))  
-  ) 
+     (format (concat do " %s . ") (funcall postform cmd))))  
+  )
 
 (defun coq-Print () "Ask for an ident and print the corresponding term."
   (interactive)
@@ -661,6 +788,27 @@ This is specific to `coq-mode'."
 (defun coq-About () "Ask for an ident and print information on it."
   (interactive)
   (coq-ask-do "About: " "About"))
+
+(defun coq-LocateConstant ()
+  "Locate a constant.
+This is specific to `coq-mode'."
+  (interactive)
+  (coq-ask-do "Locate : " "Locate"))
+
+(defun coq-LocateLibrary ()
+  "Locate a constant.
+This is specific to `coq-mode'."
+  (interactive)
+  (coq-ask-do "Locate Library : " "Locate Library"))
+
+(defun coq-addquotes (s) (concat "\"" s "\""))
+
+(defun coq-LocateNotation ()
+  "Locate a notation.
+This is specific to `coq-mode'."
+  (interactive)
+  (coq-ask-do "Locate (ex: \'exists\' _ , _)" "Locate" 
+              'coq-addquotes))
 
 (defun coq-Print-implicit ()
   "Ask for an ident and print the corresponding term."
@@ -768,6 +916,7 @@ positions."
 ;(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
 (define-key coq-keymap [(control ?i)] 'coq-intros)
 (define-key coq-keymap [(control ?s)] 'coq-insert-section-or-module)
+(define-key coq-keymap [(control ?r)] 'coq-insert-requires)
 (define-key coq-keymap [(control ?m)] 'coq-match)
 (define-key coq-keymap [(control ?e)] 'coq-end-Section)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
@@ -775,6 +924,9 @@ positions."
 (define-key coq-keymap [(control ?b)] 'coq-About)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
+(define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
+(define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
+(define-key coq-keymap [(control ?g)] 'coq-Show)
 ;; da: I've moved this three buffer layout into the main code now,
 ;; making it default for three bufer mode.  The function 
 ;; `proof-layout-windows' lays out according to current display
@@ -845,9 +997,9 @@ positions."
   ;; Commands sent to proof engine
   (setq proof-showproof-command "Show. "
 	proof-context-command "Print All. "
-	proof-goal-command "Goal %s. "
-	proof-save-command "Save %s. "
-	proof-find-theorems-command "Search %s. ")
+	proof-goal-command "Goal %s . "
+	proof-save-command "Save %s . "
+	proof-find-theorems-command "Search %s . ")
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 
@@ -967,7 +1119,7 @@ positions."
   (proof-shell-config-done))
 
 (defun coq-goals-mode-config ()
-  (setq pg-goals-change-goal "Show %s. ")
+  (setq pg-goals-change-goal "Show %s . ")
   (setq pg-goals-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
@@ -1151,7 +1303,7 @@ Group number 1 matches the name of the library which is required.")
 (defpacustom printing-depth 50
   "*Depth of pretty printer formatting, beyond which dots are displayed."
   :type 'integer
-  :setting "Set Printing Depth %i. ")
+  :setting "Set Printing Depth %i . ")
 
 (defpacustom time-commands nil
   "*Whether to display timing information for each command."
