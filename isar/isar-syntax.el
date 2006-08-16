@@ -400,6 +400,7 @@ matches contents of quotes for quoted identifiers.")
     "^prems:"
     "^fixed variables:"
     "^structures:"
+    "^abbreviations:"
     "^type constraints:"
     "^default sorts:"
     "^used type variable names:"
