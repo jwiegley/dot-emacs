@@ -5,6 +5,10 @@
   (interactive)
   (describe-variable 'holes-doc))
 
+(defun coq-local-vars-list-show-doc ()
+  (interactive)
+  (describe-variable 'coq-local-vars-doc))
+
 ;#s and @{..} are replaced by holes by holes-abbrev-complete
 (if (boundp 'holes-abbrev-complete)
 	 ()
@@ -390,7 +394,8 @@
     ;; With all these submenus you have to wonder if these things belong
     ;; on the main menu.  Are they the most often used?
     ["Compile" coq-Compile t]
-    ["Set coq prog name for this file persistently" coq-ask-insert-coq-prog-name t]
+    ["Set coq prog name *for this file persistently*" coq-ask-insert-coq-prog-name t]
+    ["help on setting prog name persistently for a file" coq-local-vars-list-show-doc t]
     ))
 
 ;; da: Moved this from the main menu to the Help submenu.  
