@@ -126,111 +126,6 @@ To disable coqc being called (and use only make), set this to nil."
   :group 'coq)
 
 
-;; ----- coq specific menu is defined in coq-abbrev.el
-
-(require 'coq-abbrev)
-
-(defconst module-kinds-table 
-  '(("Section" 0) ("Module" 1) ("Module Type" 2) ("Declare Module" 3))
-  "Enumerates the different kinds of modules.")
-
-(defconst modtype-kinds-table
-  '(("" 1) (":" 2) ("<:" 3))
-  "Enumerates the different kinds of type information for modules.")
-
-(defun coq-insert-section-or-module ()
-  "Insert a module or a section after asking right questions."
-  (interactive)
-  (let* 
-      ((mods (completing-read "kind of module (tab to see list): " module-kinds-table))
-       (s (read-string  "Name: "))
-       (typkind (if (string-equal mods "Section")
-                    "" ;; if not a section
-                  (completing-read "kind of type (optional, tab to see list): " 
-                                   modtype-kinds-table)))
-       (p (point)))
-    (if (string-equal typkind "")
-        (progn
-          (insert mods " " s ".\n#\nEnd " s ".")
-          (holes-replace-string-by-holes-backward p)
-          (goto-char p))
-      (insert mods " " s " " typkind " #.\n#\nEnd " s ".")
-      (holes-replace-string-by-holes-backward p)
-      (goto-char p)
-      (holes-set-point-next-hole-destroy))
-    )
-  )
-
-(defconst reqkinds-kinds-table
-  '(("Require" 1) ("Require Export" 2) ("Import" 3))
-  "Enumerates the different kinds of requiring a module.")
-
-
-(defun coq-insert-requires ()
-  "Insert requires to modules, iteratively."
-  (interactive)
-  (let* ((s) 
-         (reqkind 
-          (completing-read "Command (tab to see list, default Require Export) : " 
-                           reqkinds-kinds-table nil nil nil nil "Require Export"))
-         )
-    (setq s (read-string  "Name (empty to stop) : "))
-    (while (not (string-equal s ""))
-      (insert (format "%s %s.\n" reqkind s))
-      (setq s (read-string  "Name (empty to stop) : ")))
-    )
-  )
-
-
-;;;;;;;;;;;;;;;;;;;;;
-; defining a completion list for tactics
-;;;;;;;;;;;;;;;;;;;;;;
-
-;(defun coq-assoc-from-list)
-
-;(defvar coq-tactics-completion-list
-;  (concat coq-tactics coq-tacticals))
-
-(defvar coq-tactics-completion-list 
-;  (concat
-  '(
-    ("autorewrite with" "autorewrite with @{db,db...}")
-    ("autorewrite in" "autorewrite in @{hyp}")
-    ("autorewrite with in" "autorewrite with @{db,db...} in @{hyp}")
-    ("autorewrite with using" "autorewrite with @{db,db...} using @{tac}")
-    ("autorewrite in using" "autorewrite in @{hyp} using @{tac}")
-    ("autorewrite with in using" "autorewrite with @{db,db...} in @{hyp} using @{tac}")
-    ("assert" "assert ( # : # )")
-    ("assert by" "assert ( # : # ) by #")
-    ("change in" "change # in #")
-    ("change with" "change # with")
-    ("change with in" "change # with # in #")
-    ("decompose" "decompose [#] @{hyp}")
-    ("auto" "auto with @{db}")
-    ("eauto" "eauto with @{db}")
-    ("functional induction" "functional induction @{f} @{args}")
-    ("pose" "pose ( # := # )")
-    ("replace with" "replace # with #")
-    ("rewrite <-" "rewrite <- #")
-    ("rewrite in" "rewrite # in #")
-    ("rewrite <- in" "rewrite <- # in #")
-    ("set" "set ( # := #)")
-    ("set in" "set ( # := #) in #")
-    ("set in |-" "set ( # := #) in # |- #")
-    )
-;  coq-tactics coq-tacticals)
-  )
-
-
-(defun coq-insert-tactic ()
-  (interactive)
-  (let* ((tac (completing-read "tactic (tab to see list, not exhaustive) : "
-                               coq-tactics-completion-list))
-         (s (cadr (assoc tac coq-tactics-completion-list)))
-         (pt (point)))
-    (insert s)
-    (holes-replace-string-by-holes-backward-jump pt)))
-
 
 
 ;; ----- outline
@@ -814,7 +709,7 @@ This is specific to `coq-mode'."
 (proof-definvisible coq-show-tree "Show Tree.")
 (proof-definvisible coq-show-proof "Show Proof.")
 (proof-definvisible coq-show-conjectures "Show Conjectures.")
-(proof-definvisible coq-show-intros "Show Intros.") ; see coq-intros below
+(proof-definvisible coq-show-intros "Show Intros.") ; see coq-insert-intros below
 
 
 (defun coq-PrintHint ()
@@ -823,23 +718,7 @@ This is specific to `coq-mode'."
   (proof-shell-invisible-command "Print Hint. "))
 
 
-(defun coq-end-Section ()
-  "Ends a Coq section."
-  (interactive)
-  (let ((count 1)) ; The number of section already "Ended" + 1
-    (let ((section 
-	   (save-excursion 
-	     (progn 
-	       (while (and (> count 0) 
-			   (search-backward-regexp 
-			    "Chapter\\|Section\\|End" 0 t))
-		 (if (char-equal (char-after (point)) ?E)
-		     (setq count (1+ count))
-		   (setq count (1- count))))
-	       (buffer-substring-no-properties
-          (progn (beginning-of-line) (forward-word 1) (point)) 
-          (progn (end-of-line) (point)))))))
-      (insert (concat "End" section)))))
+
 
 (defun coq-Compile ()
   "Compiles current buffer."
@@ -848,51 +727,14 @@ This is specific to `coq-mode'."
 	 (l (string-match ".v" n)))
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
-(defun coq-intros ()
-  "Insert successive Intros commands with names given by Show Intros.
-Based on idea mentioned in Coq reference manual."
-  (interactive)
-  (let* ((shints (proof-shell-invisible-cmd-get-result "Show Intros."))
-         (replace-in-string shints "^\\([^\n]+\\)\n" "intros \\1.\n"))
-    (unless (< (length shints) 2)       ;; empty response is just NL
-      (insert intros)
-      (indent-according-to-mode))))
-
-(defun coq-match ()
-  "Insert a match expression from a type name by Show Intros.
-Based on idea mentioned in Coq reference manual. Also insert holes at insertion
-positions."
-  (interactive)
-  (proof-shell-ready-prover) 
-  (let* ((cmd))
-    (setq cmd (read-string "Build match for type:"))
-    (let* ((thematch 
-           (proof-shell-invisible-cmd-get-result (concat "Show Match " cmd ".")))
-          (match (replace-in-string thematch "=> \n" "=> #\n")))
-      ;; if error, it will be displayed in response buffer (see def of 
-      ;; proof-shell-invisible-cmd-get-result), otherwise:
-      (unless (proof-string-match coq-error-regexp match)
-        (let ((start (point)))
-          (insert match)
-          (indent-region start (point) nil)
-          (let ((n (holes-replace-string-by-holes-backward start)))
-            (case n
-	(0 nil)				; no hole, stay here.
-	(1
-	 (goto-char start)
-	 (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
-	(t
-	 (goto-char start)
-	 (message 
-          (substitute-command-keys
-           "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))
-          )))))
 
 
-(define-key coq-keymap [(control ?i)] 'coq-intros)
+(define-key coq-keymap [(control ?i)] 'coq-insert-intros)
 (define-key coq-keymap [(control ?s)] 'coq-insert-section-or-module)
+(define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
+(define-key coq-keymap [(control return)] 'coq-insert-command)
 (define-key coq-keymap [(control ?r)] 'coq-insert-requires)
-(define-key coq-keymap [(control ?m)] 'coq-match)
+(define-key coq-keymap [(control ?m)] 'coq-insert-match)
 (define-key coq-keymap [(control ?e)] 'coq-end-Section)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 (define-key coq-keymap [(control ?p)] 'coq-Print)
@@ -1370,6 +1212,155 @@ mouse activation."
   )
 
 
+;;;;;;;;;;;;;;;;;;;;;
+; Some smart insertion function
+;;;;;;;;;;;;;;;;;;;;;;
+
+;; ----- coq specific menu is defined in coq-abbrev.el
+
+(require 'coq-abbrev)
+
+(defconst module-kinds-table 
+  '(("Section" 0) ("Module" 1) ("Module Type" 2) ("Declare Module" 3))
+  "Enumerates the different kinds of modules.")
+
+(defconst modtype-kinds-table
+  '(("" 1) (":" 2) ("<:" 3))
+  "Enumerates the different kinds of type information for modules.")
+
+(defun coq-insert-section-or-module ()
+  "Insert a module or a section after asking right questions."
+  (interactive)
+  (let* 
+      ((mods (completing-read "kind of module (tab to see list): " module-kinds-table))
+       (s (read-string  "Name: "))
+       (typkind (if (string-equal mods "Section")
+                    "" ;; if not a section
+                  (completing-read "kind of type (optional, tab to see list): " 
+                                   modtype-kinds-table)))
+       (p (point)))
+    (if (string-equal typkind "")
+        (progn
+          (insert mods " " s ".\n#\nEnd " s ".")
+          (holes-replace-string-by-holes-backward p)
+          (goto-char p))
+      (insert mods " " s " " typkind " #.\n#\nEnd " s ".")
+      (holes-replace-string-by-holes-backward p)
+      (goto-char p)
+      (holes-set-point-next-hole-destroy))
+    )
+  )
+
+(defconst reqkinds-kinds-table
+  '(("Require" 1) ("Require Export" 2) ("Import" 3))
+  "Enumerates the different kinds of requiring a module.")
+
+
+(defun coq-insert-requires ()
+  "Insert requires to modules, iteratively."
+  (interactive)
+  (let* ((s) 
+         (reqkind 
+          (completing-read "Command (tab to see list, default Require Export) : " 
+                           reqkinds-kinds-table nil nil nil nil "Require Export"))
+         )
+    (setq s (read-string  "Name (empty to stop) : "))
+    (while (not (string-equal s ""))
+      (insert (format "%s %s.\n" reqkind s))
+      (setq s (read-string  "Name (empty to stop) : ")))
+    )
+  )
+
+
+(defun coq-end-Section ()
+  "Ends a Coq section."
+  (interactive)
+  (let ((count 1)) ; The number of section already "Ended" + 1
+    (let ((section 
+	   (save-excursion 
+	     (progn 
+	       (while (and (> count 0) 
+			   (search-backward-regexp 
+			    "Chapter\\|Section\\|End" 0 t))
+		 (if (char-equal (char-after (point)) ?E)
+		     (setq count (1+ count))
+		   (setq count (1- count))))
+	       (buffer-substring-no-properties
+          (progn (beginning-of-line) (forward-word 1) (point)) 
+          (progn (end-of-line) (point)))))))
+      (insert (concat "End" section)))))
+
+(defun coq-insert-intros ()
+  "Insert an intros command with names given by Show Intros.
+Based on idea mentioned in Coq reference manual."
+  (interactive)
+  (let* ((shints (proof-shell-invisible-cmd-get-result "Show Intros."))
+         (intros (replace-in-string shints "^\\([^\n]+\\)\n" "intros \\1.")))
+    (unless (< (length shints) 2)       ;; empty response is just NL
+      (insert intros)
+      (indent-according-to-mode))))
+
+(defun coq-insert-match ()
+  "Insert a match expression from a type name by Show Intros.
+Based on idea mentioned in Coq reference manual. Also insert holes at insertion
+positions."
+  (interactive)
+  (proof-shell-ready-prover) 
+  (let* ((cmd))
+    (setq cmd (read-string "Build match for type:"))
+    (let* ((thematch 
+           (proof-shell-invisible-cmd-get-result (concat "Show Match " cmd ".")))
+          (match (replace-in-string thematch "=> \n" "=> #\n")))
+      ;; if error, it will be displayed in response buffer (see def of 
+      ;; proof-shell-invisible-cmd-get-result), otherwise:
+      (unless (proof-string-match coq-error-regexp match)
+        (let ((start (point)))
+          (insert match)
+          (indent-region start (point) nil)
+          (let ((n (holes-replace-string-by-holes-backward start)))
+            (case n
+	(0 nil)				; no hole, stay here.
+	(1
+	 (goto-char start)
+	 (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
+	(t
+	 (goto-char start)
+	 (message 
+          (substitute-command-keys
+           "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))
+          )))))
+
+(defun coq-insert-from-db (db)
+  "Ask for a tactic name, with completion on a quasi-exhaustive list of coq
+tactics and insert it at point.  Questions may be asked to the user."
+  (let* ((tac (completing-read "tactic (tab for completion) : "
+                               db nil nil))
+         (infos (cddr (assoc tac db)))
+         (s (car infos))
+         (f (car-safe (cdr-safe (cdr infos))))
+         (pt (point)))
+    (if f (funcall f)
+      (insert (or s tac))
+      (holes-replace-string-by-holes-backward-jump pt)
+      (indent-according-to-mode))))
+
+(defun coq-insert-tactic ()
+  "Ask for a tactic name, with completion on a quasi-exhaustive list of coq
+tactics and insert it at point.  Questions may be asked to the user."
+  (interactive)
+  (coq-insert-from-db coq-tactics-db))
+
+(defun coq-insert-command ()
+  "Ask for a command name, with completion on a quasi-exhaustive list of coq
+commands and insert it at point.  Questions may be asked to the user."
+  (interactive)
+  (coq-insert-from-db coq-commands-db))
+
+(defun coq-insert-term ()
+  "Ask for a term kind, with completion and insert it at point.  Questions may
+be asked to the user."
+  (interactive)
+  (coq-insert-from-db coq-terms-db))
 
 (provide 'coq)
 

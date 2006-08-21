@@ -1,6 +1,8 @@
 ;; default abbrev table
 ; This is for coq V8, you should test coq version before loading
 
+(require 'proof)
+
 (defun holes-show-doc () 
   (interactive)
   (describe-variable 'holes-doc))
@@ -9,11 +11,383 @@
   (interactive)
   (describe-variable 'coq-local-vars-doc))
 
+
+;;; We store all information on keywords (tactics or command) in big
+;;; tables (ex: `coq-tactics-db') From there we get: menus including
+;;; "smart" commands, completions for command coq-insert-... 
+;;; and abbrev tables
+
+
+;;; real value defined below
+(defvar coq-tactics-db nil
+  "The coq tactics information database.  This is a list of tactics
+information lists. Each element is a list of the form 
+
+(TAC-MENUNAME ABBREVIATION COMPLETION TO-COLORIZE INSERTION-FUN HIDE-IN-MENU)
+
+TAC-MENUNAME is the name of tactic (or tactic variant) as it should
+appear in menus.
+
+ABBREVIATION is the abbreviation for completion via `expand-abbrev'.
+
+COMPLETION is the complete text of the tactic, which may contain hole
+denoted by \"#\" or \"@{}\".
+
+If non-nil the optional TO-COLORIZE specifies the regexp to colorize
+correponding to this tactic. ex: \"simple\\\\s-+destruct\"
+
+If non-nil the optional INSERTION-FUN is the function to be called
+when inserting the tactic. This allows to ask for more information to
+assist tactic writing. This function is not called when using
+completion, it is used when using menu or `coq-insert-tactic'.
+
+If non-nil the optional HIDE-IN-MENU specifies that this tactic should
+not appear in the menu but only in when calling `coq-insert-tactic'." )
+
+
+;; Computes the max length of strings in a list
+(defun max-length-db (l)
+  (if (not l) 0
+    (let ((lgth (length (car (car l))))
+	  (lgthrest (max-length-db (cdr l))))
+      (max lgth lgthrest))))
+
+
+(defun coq-build-menu-from-db-internal (l size menuwidth)
+  "Take a keyword database L and return insertion menus for them."
+  (when (and l (> size 0))
+    (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
+	   (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
+	   (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
+	   (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
+	   (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = colorization string
+	   (e5 (car-safe tl4))		; e5 = function for smart insertion
+	   (e6 (car-safe (cdr-safe tl4))) ; e6 = if non-nil : hide in menu 
+	   (entry-with (max (- menuwidth (length e1)) 0))
+	   (spaces (make-string entry-with ? ))
+	   (restofmenu (coq-build-menu-from-db-internal tl (- size 1) menuwidth)))
+
+      (if (not e6)			; if not hidden
+	  (cons 
+	   (vector 
+	    (concat e1
+		    (if (not e2) ""
+		      (concat spaces "("  e2
+			      (substitute-command-keys " \\[expand-abbrev]") ")")))
+	    (if e5 e5			; insertion function if present
+	      `(holes-insert-and-expand ,e3)) ; otherwise insert completion
+	    t)
+	   restofmenu)
+	restofmenu))))
+
+(defun coq-build-title-menu (l size)
+    (concat (car-safe (car-safe l))
+	  " ... "
+	  (car-safe (car-safe (nthcdr (- size 1) l)))))
+
+
+(defun coq-build-menu-from-db (l &optional size)
+  "Take a keyword database L and return a list of insertion menus for
+ them.
+Submenus contain SIZE entries (default 30)."
+  (let ((lgth (length l)) (sz (or size 30)) (wdth (+ 2 (max-length-db coq-tactics-db))))
+    (when l
+      (if (<= lgth sz) 
+	  (cons (cons (coq-build-title-menu l lgth)
+		      (coq-build-menu-from-db-internal l lgth wdth)) nil)
+	(cons (cons (coq-build-title-menu l sz)
+		    (coq-build-menu-from-db-internal l sz wdth))
+	      (coq-build-menu-from-db (nthcdr sz l) sz))))))
+
+
+(defun coq-build-abbrev-table-from-db (l)
+  (when l
+    (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
+	   (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
+	   (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
+	   (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
+	   )
+      (if e2 (cons `(,e2 ,e3 holes-abbrev-complete) 
+		   (coq-build-abbrev-table-from-db tl))
+	(coq-build-abbrev-table-from-db tl)))))
+
+
+
+
+
+
+
+(setq coq-tactics-db
+  '(
+    ("absurd " "abs" "absurd " "absurd")
+    ("apply" "ap" "apply " "apply")
+    ("assert by" "assb" "assert ( # : # ) by #" "assert")
+    ("assert" "ass" "assert ( # : # )" "assert")
+    ("assumption" "as" "assumption" "assumption")
+    ("auto with arith" "awa" "auto with arith")
+    ("auto with" "aw" "auto with @{db}")
+    ("auto" "a" "auto" "auto")
+    ("autorewrite with in using" "arwiu" "autorewrite with @{db,db...} in @{hyp} using @{tac}")
+    ("autorewrite with in" "arwi" "autorewrite with @{db,db...} in @{hyp}")
+    ("autorewrite with using" "arwu" "autorewrite with @{db,db...} using @{tac}")
+    ("autorewrite with" "ar" "autorewrite with @{db,db...}" "autorewrite")
+    ("cases" "c" "cases " "cases")
+    ("cbv" "cbv" "cbv beta [#] delta iota zeta" "cbv")
+    ("change in" "chi" "change # in #")
+    ("change with in" "chwi" "change # with # in #")
+    ("change with" "chw" "change # with")
+    ("change" "ch" "change " "change")
+    ("clear" "cl" "clear" "clear")
+    ("clearbody" "cl" "clearbody" "clearbody")
+    ("cofix" "cof" "cofix" "cofix")
+    ("coinduction" "coind" "coinduction" "coinduction")
+    ("compare" "cmpa" "compare # #" "compare")
+    ("compute" "cmpu" "compute" "compute")
+    ("congruence" "cong" "congruence" "congruence")
+    ("constructor" "cons" "constructor" "constructor")
+    ("contradiction" "contr" "contradiction" "contradiction")
+    ("cut" "cut" "cut" "cut")
+    ("cutrewrite" "cutr" "cutrewrite -> # = #" "cutrewrite")
+    ("decide equality" "deg" "decide equality" "decide\\-+equality")
+    ("decompose" "dec" "decompose [#] #" "decompose")
+    ("decompose record" "decr" "decompose record #" "decompose\\s-+record")
+    ("decompose sum" "decs" "decompose sum #" "decompose\\-+sum")
+    ("dependent inversion" "depinv" "dependent inversion" "dependent\\s-+inversion")
+    ("dependent inversion with" "depinvw" "dependent inversion # with #")
+    ("dependent inversion_clear" "depinvc" "dependent inversion_clear" "dependent\\s-+inversion_clear")
+    ("dependent inversion_clear with" "depinvw" "dependent inversion_clear # with #")
+    ("dependent rewrite ->" "depr" "dependent rewrite -> @{id}" "dependent\\s-+rewrite")
+    ("dependent rewrite <-" "depr<" "dependent rewrite <- @{id}")
+    ("destruct as" "desa" "destruct # as #")
+    ("destruct using" "desu" "destruct # using #")
+    ("destruct" "des" "destruct "  "destruct")
+    ("discriminate" "dis" "discriminate" "discriminate")
+    ("discrR" "discrR" "discrR" "discrR")
+    ("double induction" "dind" "double induction # #" "double\\s-+induction")
+    ("eapply" "eap" "eapply #" "eapply")
+    ("eauto with arith" "eawa" "eauto with arith")
+    ("eauto with" "eaw" "eauto with @{db}")
+    ("eauto" "ea" "eauto" "eauto")
+    ("econstructor" "econs" "econstructor" "econstructor")
+    ("eexists" "eex" "eexists" "eexists")
+    ("eleft" "eleft" "eleft" "eleft")
+    ("elim using" "elu" "elim # using #")
+    ("elim" "e" "elim #" "elim")
+    ("elimtype" "elt" "elimtype" "elimtype")
+    ("eright" "erig" "eright" "eright")
+    ("esplit" "esp" "esplit" "esplit")
+    ("exact" "exa" "exact" "exact")
+    ("exists" "ex" "exists #" "exists")
+    ("fail" "fail" "fail" "fail")
+    ("field" "field" "field" "field")
+    ("firstorder" "fsto" "firstorder" "firstorder")
+    ("firstorder with" "fsto" "firstorder with #")
+    ("firstorder with using" "fsto" "firstorder # with #")
+    ("fold" "fold" "fold #" "fold")
+    ("fourier" "four" "fourier" "fourier")
+    ("functional induction" "fi" "functional induction @{f} @{args}" "functional\\s-+induction")
+    ("generalize" "g" "generalize #" "generalize")
+    ("generalize dependent" "gd" "generalize dependent #" "generalize\\s-+dependent")
+    ("hnf" "hnf" "hnf" "hnf")
+    ("induction" "ind" "induction #" "induction")
+    ("induction using" "indu" "induction # using #")
+    ("injection" "inj" "injection #" "injection")
+    ("instantiate" "inst" "instantiate" "instantiate")
+    ("intro" "i" "intro" "intro")
+    ("intro after" "ia" "intro # after #")
+    ("intros" "is" "intros #" "intros")
+    ("intros! (guess names)" nil "intros #" nil coq-insert-intros)
+    ("intros until" "isu" "intros until #")
+    ("intuition" "intu" "intuition #" "intuition")
+    ("inversion" "inv" "inversion #" "inversion")
+    ("inversion in" "invi" "inversion # in #")
+    ("inversion using" "invu" "inversion # using #")
+    ("inversion using in" "invui" "inversion # using # in #")
+    ("inversion_clear" "invcl" "inversion_clear" "inversion_clear")
+;    ("jp")
+    ("lapply" "lap" "lapply" "lapply")
+    ("lazy" "lazy" "lazy beta [#] delta iota zeta" "lazy")
+    ("left" "left" "left" "left")
+;    ("lettac" "" "lettac" "lettac")
+    ("linear" "lin" "linear" "linear")
+    ("load" "load" "load" "load")
+    ("move after" "mov" "move # after #" "move")
+    ("omega" "o" "omega" "omega")
+    ("pattern" "pat" "pattern" "pattern")
+    ("pattern(s)" "pats" "pattern # , #")
+    ("pattern at" "pata" "pattern # at #")
+    ("pose" "po" "pose ( # := # )" "pose")
+    ("prolog" "prol" "prolog" "prolog")
+    ("quote" "quote" "quote" "quote")
+    ("quote []" "quote2" "quote # [#]")
+    ("red" "red" "red" "red")
+    ("refine" "ref" "refine" "refine")
+    ("reflexivity" "refl" "reflexivity #" "reflexivity")
+    ("rename into" "ren" "rename # into #" "rename")
+    ("replace with" "rep" "replace # with #")
+    ("replace with in" "repi" "replace # with # in #")
+    ("rewrite <- in" "ri<" "rewrite <- # in #")
+    ("rewrite <-" "r<" "rewrite <- #")
+    ("rewrite in" "ri" "rewrite # in #")
+    ("rewrite" "r" "rewrite #" "rewrite")
+    ("right" "rig" "right" "right")
+    ("ring" "ring" "ring #" "ring")
+    ("set in * |-" "seth" "set ( # := #) in * |-")
+    ("set in *" "set*" "set ( # := #) in *")
+    ("set in |- *" "setg" "set ( # := #) in |- *")
+    ("set in" "seti" "set ( # := #) in #")
+    ("set" "set" "set ( # := #)" "set")
+    ("setoid_replace with" "strep" "setoid_replace # with #" "setoid_replace")
+    ("simpl" "s" "simpl" "simpl")
+    ("simpl" "sa" "simpl # at #")
+    ("simple destruct" "sdes" "simple destruct" "simple\\s-+destruct")
+    ("simple inversion" "sinv" "simple inversion" "simple\\s-+inversion")
+    ("simple induction" "sind" "simple induction" "simple\\s-+induction")
+    ("simplify_eq" "simeq" "simplify_eq @{hyp}" "simplify_eq")
+    ("specialize" "spec" "specialize" "specialize")
+    ("split" "sp" "split" "split")
+    ("split_Rabs" "spra" "splitRabs" "split_Rabs")
+    ("split_Rmult" "sprm" "splitRmult" "split_Rmult")
+    ("stepl" "stl" "stepl #" "stepl")
+    ("stepl by" "stlb" "stepl # by #")
+    ("stepr" "str" "stepr #" "stepr")
+    ("stepr by" "strb" "stepr # by #")
+    ("subst" "su" "subst #" "subst")
+    ("symmetry" "sy" "symmetry" "symmetry")
+    ("symmetry in" "sy" "symmetry in #")
+    ("tauto" "ta" "tauto" "tauto")
+    ("transitivity" "trans" "transitivity #" "transitivity")
+    ("trivial" "t" "trivial" "trivial")
+    ("trivial with" "t" "trivial with @{db}")
+    ("unfold" "u" "unfold #" "unfold")
+    ("unfold(s)" "us" "unfold # , #")
+    ("unfold in" "unfi" "unfold # in #")
+    ("unfold at" "unfa" "unfold # at #")
+    )
+  )
+
+
+(defconst coq-tactics-menu 
+  (append '("INSERT TACTICS" 
+	    ["Intros (smart)" coq-insert-intros t])
+	  (coq-build-menu-from-db coq-tactics-db)))
+
+(defconst coq-tactics-abbrev-table 
+  (coq-build-abbrev-table-from-db coq-tactics-db))
+
+
+
+(defvar coq-commands-db
+  '(
+    ("Arguments Scope" "argsc" "Arguments Scope @{id} [ @{_} ]" "Arguments\\s-+Scope")
+    ("Bind Scope" "bndsc" "Bind Scope @{scope} with @{type}" "Bind\\s-+Scope")
+    ("Close Local Scope" "cllsc" "Close Local Scope #" "Close\\s-+Local\\s-+Scope")
+    ("Close Scope" "clsc" "Close Scope #" "Close\\s-+Scope")
+    ("Coercion" "coerc" "Coercion @{id} : @{typ1} >-> @{typ2}." "Coercion")
+    ("Declare Module : :=" "dm" "Declare Module # : # := #." "Declare\\s-+Module")
+    ("Declare Module :" "dmi" "Declare Module # : #.\n#\nEnd #.")
+    ("Declare Module <: :=" "dm2" "Declare Module # <: # := #.")
+    ("Declare Module <:" "dmi2" "Declare Module # <: #.\n#\nEnd #.")
+    ("Definition (2 args)" "def2" "Definition # (# : #) (# : #):# := #.")
+    ("Definition (3 args)" "def3" "Definition # (# : #) (# : #) (# : #):# := #.")
+    ("Definition (4 args)" "def4" "Definition # (# : #) (# : #) (# : #) (# : #):# := #.")
+    ("Definition" "def" "Definition #:# := #." "Definition")
+    ("Delimit Scope" "delsc" "Delimit Scope @{scope} with @{id}" "Delimit\\s-+Scope" )
+    ("Fixpoint" "fix" "Fixpoint # (#:#) {struct @{arg}} : # :=\n#." "Fixpoint")
+    ("Fixpoint measure" "fix" "Fixpoint # (#:#) {Measure @{f} @{arg}} : # :=\n#.")
+    ("Fixpoint wf" "fix" "Fixpoint # (#:#) {struct @{R} @{arg}} : # :=\n#." )
+    ("Functional Scheme" "fs" "Functional Scheme @{name} := Induction for @{fun}." "Functional\\s-+Scheme")
+    ("Functional Scheme with" "fsw" "Functional Scheme @{name} := Induction for @{fun} with @{mutfuns}." )
+    ("Hint Constructors" "hc" "Hint Constructors # : #." "Hint\\s-+Constructors")
+    ("Hint Extern" "he" "Hint Extern @{cost} @{pat} => @{tac} : @{db}." "Hint\\s-+Extern")
+    ("Hint Immediate" "hi" "Hint Immediate # : @{db}." "Hint\\s-+Immediate")
+    ("Hint Resolve" "hr" "Hint Resolve # : @{db}." "Hint\\s-+Resolve")
+    ("Hint Rewrite ->" "hrw" "Hint Rewrite -> @{t1,t2...} using @{tac} : @{db}." "Hint\\s-+Rewrite")
+    ("Hint Rewrite <-" "hrw" "Hint Rewrite <- @{t1,t2...} using @{tac} : @{db}." )
+    ("Hint Unfold" "hu" "Hint Unfold # : #." "Hint\\s-+Unfold")
+    ("Inductive" "indv" "Inductive # : # := # : #." "Inductive")
+    ("Inductive (2 args)" "indv2" "Inductive # : # :=\n| # : #\n| # : #." )
+    ("Inductive (3 args)" "indv3" "Inductive # : # :=\n| # : #\n| # : #\n| # : #." )
+    ("Inductive (4 args)" "indv4" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #." )
+    ("Inductive (5 args)" "indv5" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #\n| # : #." )
+    ("Infix" "inf" "Infix \"#\" := # (at level #) : @{scope}." "Infix")
+    ("Lemma" "l" "Lemma # : #." "Lemma")
+    ("Module! (interactive)" nil "Module # : #.\n#\nEnd #." nil coq-insert-section-or-module)
+    ("Module :" "moi" "Module # : #.\n#\nEnd #." "Module")
+    ("Module :=" "mo" "Module # : # := #." )
+    ("Module <: :=" "mo2" "Module # <: # := #." )
+    ("Module <:" "moi2" "Module # <: #.\n#\nEnd #." )
+    ("Module Type" "mti" "Module Type #.\n#\nEnd #." "Module\\s-+Type")
+    ("Notation (assoc)" "notas" "Notation \"#\" := # (at level #, # associativity)." )
+    ("Notation (at assoc)" "notassc" "Notation \"#\" := # (at level #, # associativity) : @{scope}." )
+    ("Notation (at at scope)" "notasc" "Notation \"#\" := # (at level #, # at level #) : @{scope}." )
+    ("Notation (at at)" "nota" "Notation \"#\" := # (at level #, # at level #)." )
+    ("Notation (only parsing)" "notsp" "Notation # := # (only parsing)." )
+    ("Notation (simple)" "nots" "Notation # := #." "Notation")
+    ("Notation Local (only parsing)" "notslp" "Notation Local # := # (only parsing)." )
+    ("Notation Local" "notsl" "Notation Local # := #." "Notation\\s-+Local")
+    ("Open Local Scope" "oplsc" "Open Local Scope #" "Open\\s-+Local\\s-+Scope")
+    ("Open Scope" "opsc" "Open Scope #" "Open\\s-+Scope")
+    ("Print" "p" "Print #" "Print")
+    ("Scheme Induction" "sc" "Scheme @{name} := Induction for # Sort #.""Scheme")
+    ("Set Printing All" "sprall" "Set Printing All" "Set\\s-+Printing\\s-+All")
+    ("Set Printing Notations" "sprn" "Set Printing Notations" "Set\\s-+Printing\\s-+Notations")
+    ("Unset Printing All" "unsprall" "Unset Printing All" "Unset\\s-+Printing\\s-+All")
+    ("Unset Printing Notations" "unsprn" "Unset Printing Notations" "Unset\\s-+Printing\\s-+Notations")
+    ("Variable" "v" "Variable # : #." "Variable")
+    ("Variables" "vs" "Variables # , # : #." "Variables")
+    ("print" "pr" "print #" "print")
+    ))
+
+(defconst coq-commands-menu 
+  (append '("INSERT COMMAND" 
+	    ["Module/Section (smart)" coq-insert-section-or-module t]
+	    ["Require (smart)" coq-insert-requires t])
+	  (coq-build-menu-from-db coq-commands-db)))
+
+(defconst coq-commands-abbrev-table 
+  (coq-build-abbrev-table-from-db coq-commands-db))
+
+
+(defvar coq-terms-db
+  '(
+    ("fun (1 args)" "f" "fun #:# => #" "fun")
+    ("fun (2 args)" "f2" "fun (#:#) (#:#) => #")
+    ("fun (3 args)" "f3" "fun (#:#) (#:#) (#:#) => #")
+    ("fun (4 args)" "f4" "fun (#:#) (#:#) (#:#) (#:#) => #" )
+    ("forall" "fo" "forall #:#,#" "forall")
+    ("forall (2 args)" "fo2" "forall (#:#) (#:#), #" )
+    ("forall (3 args)" "fo3" "forall (#:#) (#:#) (#:#), #" )
+    ("forall (4 args)" "fo4" "forall (#:#) (#:#) (#:#) (#:#), #" )
+    ("if" "if" "if # then # else #" "if")
+    ("let in" "li" "let # := # in #" "let")
+    ("match! (from type)" nil "" "match" coq-insert-match)
+    ("match with" "m" "match # with\n| # => #\nend")
+    ("match with 2" "m2" "match # with\n| # => #\n| # => #\nend" )
+    ("match with 3" "m3" "match # with\n| # => #\n| # => #\n| # => #\nend" )
+    ("match with 4" "m4" "match # with\n| # => #\n| # => #\n| # => #\n| # => #\nend" )
+    ("match with 5" "m5" "match # with\n| # => #\n| # => #\n| # => #\n| # => #\n| # => #\nend" )
+    ))
+
+
+(defconst coq-terms-menu 
+  (append '("INSERT TERM" 
+	    ["Match!" coq-insert-match t])
+	  (coq-build-menu-from-db coq-terms-db)))
+
+(defconst coq-terms-abbrev-table 
+  (coq-build-abbrev-table-from-db coq-terms-db))
+
+
+
 ;#s and @{..} are replaced by holes by holes-abbrev-complete
 (if (boundp 'holes-abbrev-complete)
 	 ()
   (define-abbrev-table 'coq-mode-abbrev-table
-	 '(
+    coq-tactics-abbrev-table))
+
+(when t (setq dummy
+      '(
 		("a" "auto" holes-abbrev-complete 4)
 		("ar" "autorewrite with @{db,db...} using @{tac}" holes-abbrev-complete 1)
 		("ab" "absurd " holes-abbrev-complete 0)
@@ -26,6 +400,7 @@
 		("aw" "auto with " holes-abbrev-complete 1)
 		("awa" "auto with arith" holes-abbrev-complete 4)
 		("c" "cases " holes-abbrev-complete 1)
+		("cbv" "cbv beta delta iota zeta" holes-abbrev-complete 0)
 		("bndsc" "Bind Scope @{scope} with @{type}" holes-abbrev-complete 1)
 		("ch" "change " holes-abbrev-complete 1)
 		("chi" "change # in #" holes-abbrev-complete 1)
@@ -166,222 +541,83 @@
   )
 
 ;TODO: build the command submenu automatically from abbrev table
-(defpgdefault menu-entries
-  '(
-    ["Print..." coq-Print t]
-    ["Check..." coq-Check t]
-    ["About..." coq-About t]
-    ("OTHER QUERIES"
-     ["Print Hint" coq-PrintHint t]
-     ["Show ith goal..." coq-Show t]
-     ["Show Tree" coq-show-tree t]
-     ["Show Proof" coq-show-proof t]
-     ["Show Conjectures" coq-show-conjectures t] ;; maybe not so useful with editing in PG?
-     ""
+(defpgdefault menu-entries 
+;  (append
+;   coq-tactics-menu
+   `(
      ["Print..." coq-Print t]
      ["Check..." coq-Check t]
      ["About..." coq-About t]
-     ["Search isos/pattern..." coq-SearchIsos t]
-     ["Locate constant..." coq-LocateConstant t]
-     ["Locate Library..." coq-LocateLibrary t]
-     ""
-     ["Locate notation..." coq-LocateNotation t]
-     ["Print Implicit..." coq-Print t]
-     ["Print Scope/Visibility..." coq-PrintScope t]
-     )
-    ["Smart intros" coq-intros t]
-    ["Require/Export/Import..." coq-insert-requires t]
-    ("INSERT COMMAND" 
-      "COMMAND               ABBREVIATION"
-     ["Definition            def<C-BS>" (holes-insert-and-expand "def") t]
-     ["Fixpoint              fix<C-BS>" (holes-insert-and-expand "fix") t]
-     ["Lemma                 l<C-BS>" (holes-insert-and-expand "l") t]
-     ""
-     ["Inductive             indv<C-BS>" (holes-insert-and-expand "indv") t]
-     ["Inductive1            indv1<C-BS>" (holes-insert-and-expand "indv1") t]
-     ["Inductive2             indv2<C-BS>" (holes-insert-and-expand "indv2") t]
-     ["Inductive3            indv3<C-BS>" (holes-insert-and-expand "indv3") t]
-     ["Inductive4            indv4<C-BS>" (holes-insert-and-expand "indv4") t]
-     ""
-     ["Section/Module (interactive)..." coq-insert-section-or-module t]
-     ["Require/Export/Import (interactive)..." coq-insert-requires t]
-     ""
-     ("Hints"
-      "COMMAND               ABBREVIATION"
-      ["Hint Constructors     hc<C-BS>" (holes-insert-and-expand "hc") t]
-      ["Hint Immediate        hi<C-BS>" (holes-insert-and-expand "hi") t]
-      ["Hint Resolve          hr<C-BS>" (holes-insert-and-expand "hr") t]
-      ["Hint Rewrite          hrw<C-BS>" (holes-insert-and-expand "hrw") t]
-      ["Hint Extern           he<C-BS>" (holes-insert-and-expand "he") t]
-     )
-     ("Schemes"
-      "COMMAND               ABBREVIATION"
-      ["Scheme                 sc<C-BS>" (holes-insert-and-expand "sc") t]
-      ["Functional Scheme      fs<C-BS>" (holes-insert-and-expand "fs") t]
-      ["Functional Scheme with fsw<C-BS>" (holes-insert-and-expand "fsw") t]
+     ("OTHER QUERIES"
+      ["Print Hint" coq-PrintHint t]
+      ["Show ith goal..." coq-Show t]
+      ["Show Tree" coq-show-tree t]
+      ["Show Proof" coq-show-proof t]
+      ["Show Conjectures" coq-show-conjectures t];; maybe not so useful with editing in PG?
+      ""
+      ["Print..." coq-Print t]
+      ["Check..." coq-Check t]
+      ["About..." coq-About t]
+      ["Search isos/pattern..." coq-SearchIsos t]
+      ["Locate constant..." coq-LocateConstant t]
+      ["Locate Library..." coq-LocateLibrary t]
+      ""
+      ["Locate notation..." coq-LocateNotation t]
+      ["Print Implicit..." coq-Print t]
+      ["Print Scope/Visibility..." coq-PrintScope t]
       )
-     ("Notations"
-      "COMMAND               ABBREVIATION"
-      ""
-      ["Open Scope                opsc<C-BS>" (holes-insert-and-expand "opsc") t]     
-      ["Open Local Scope          oplsc<C-BS>" (holes-insert-and-expand "oplsc") t]     
-      ["Close Scope               clsc<C-BS>" (holes-insert-and-expand "clsc") t]     
-      ["Open Local Scope          cllsc<C-BS>" (holes-insert-and-expand "cllsc") t]     
-      ""
-      ["Set Printing Notations     sprn<C-BS>" (holes-insert-and-expand "sprn") t]
-      ["Unset Printing Notations   unsprn<C-BS>" (holes-insert-and-expand "unsprn") t]
-      ["Set Printing All           sprall<C-BS>" (holes-insert-and-expand "sprall") t]
-      ["Unset Printing All         unsprall<C-BS>" (holes-insert-and-expand "unsprall") t]
-      ""
-      ["Print Scope/Visibility (interactive)..." coq-PrintScope t]
-      ["Locate (interactive)..." coq-LocateNotation t]
 
-      ""
-      ["Infix                      inf<C-BS>" (holes-insert-and-expand "inf") t]     
-      ["Notation (simple)          nots<C-BS>" (holes-insert-and-expand "nots") t]     
-      ["Notation (simple,only parsing) notsp<C-BS>" (holes-insert-and-expand "notsp") t]
-      ["Notation (simple,local)    notsl<C-BS>" (holes-insert-and-expand "notsl") t]     
-      ["Notation (simple,local,only parsing) notslp<C-BS>" (holes-insert-and-expand "notslp") t]
-      ""
-      ["Notation (no assoc)        nota<C-BS>" (holes-insert-and-expand "nota") t]     
-      ["Notation (assoc)           notas<C-BS>" (holes-insert-and-expand "notas") t] 
-      ["Notation (no assoc, scope) notasc<C-BS>" (holes-insert-and-expand "notasc") t] 
-      ["Notation (assoc, scope)    notassc<C-BS>" (holes-insert-and-expand "notassc") t]
-      ["Delimit Scope              delsc<C-BS>" (holes-insert-and-expand "delsc") t]
-      ["Arguments Scope            argsc<C-BS>" (holes-insert-and-expand "argsc") t]
-      ["Bind Scope                 bndsc<C-BS>" (holes-insert-and-expand "bndsc") t]
+     ["insert command (interactive)" coq-insert-command t]
+     ,coq-commands-menu
+
+     
+     ["insert term (interactive)" coq-insert-term t]
+     ,coq-terms-menu
+
+
+     ["insert tactic (interactive)" coq-insert-tactic t]
+     ,coq-tactics-menu
+
+     ;; da: I added Show sub menu, not sure if it's helpful, but why not.
+     ;; FIXME: submenus should be split off here.  Also, these commands
+     ;; should only be available when a proof is open.
+
+     ("Holes" 
+      ;; da: I tidied this menu a bit.  I personally think this "trick"
+      ;; of inserting strings to add documentation looks like a real
+      ;; mess in menus ... I've removed it for the three below since 
+      ;; the docs below appear in popup in messages anyway.
+      ;; 
+      ;; "Make a hole active   click on it"
+      ;; "Disable a hole   click on it (button 2)"
+      ;; "Destroy a hole   click on it (button 3)"
+      ["Make hole at point"  holes-set-make-active-hole t]
+      ["Make selection a hole"  holes-set-make-active-hole t]
+      ["Replace active hole by selection"  holes-replace-update-active-hole t]
+      ["Jump to active hole"  holes-set-point-next-hole-destroy t]
+      ["Forget all holes in buffer"  holes-clear-all-buffer-holes t]
+      ["Tell me about holes?" holes-show-doc t]
+      ;; look a bit better at the bottom
+      "Make hole with mouse: C-M-select"
+      "Replace hole with mouse: C-M-Shift select";; da: does this one work??
       )
-     ""
-     ["Coercion          coerc<C-BS>" (holes-insert-and-expand "coerc") t]
-     )
 
-    ("INSERT TERM" 
-     "FORM           ABBREVIATION"
-     ["forall        fo<C-BS>"  (holes-insert-and-expand "fo") t]
-     ["forall1       fo1<C-BS>"  (holes-insert-and-expand "fo1") t]
-     ["forall2       fo2<C-BS>" (holes-insert-and-expand "fo2") t]
-     ["forall3       fo3<C-BS>" (holes-insert-and-expand "fo3") t]
-     ["forall4       fo4<C-BS>" (holes-insert-and-expand "fo4") t]
-     ""
-     ["fun           f<ctrl-bacspace>"  (holes-insert-and-expand "f") t]
-     ["fun1          f1<ctrl-bacspace>"  (holes-insert-and-expand "f1") t]
-     ["fun2          f2<C-BS>" (holes-insert-and-expand "f2") t]
-     ["fun3          f3<C-BS>" (holes-insert-and-expand "f3") t]
-     ["fun4          f4<C-BS>" (holes-insert-and-expand "f4") t]
-     ""
-     ["if then else  if<C-BS>"  (holes-insert-and-expand "if") t]
-     ["let in        li<C-BS>"  (holes-insert-and-expand "li") t]
-     ""
-     ["match (smart)        "  coq-match t]
-     ["match         m<C-BS>"  (holes-insert-and-expand "m") t]
-     ["match2        m2<C-BS>"  (holes-insert-and-expand "m2") t]
-     ["match3        m3<C-BS>"  (holes-insert-and-expand "m3") t]
-     ["match4        m4<C-BS>"  (holes-insert-and-expand "m4") t]
-     )
-
-    ("INSERT TACTIC (a-f)" 
-     "TACTIC           ABBREVIATION"
-     ["absurd                 abs<C-BS>"  (holes-insert-and-expand "abs") t]
-     ["assumption              as<C-BS>"  (holes-insert-and-expand "as") t]
-     ["assert                 ass<C-BS>"  (holes-insert-and-expand "ass") t]
-     ["auto                     a<C-BS>"  (holes-insert-and-expand "a") t]
-     ["auto with               aw<C-BS>"  (holes-insert-and-expand "aw") t]
-     ["auto with arith        awa<C-BS>"  (holes-insert-and-expand "awa") t]
-     ["autorewrite             ar<C-BS>"  (holes-insert-and-expand "ar") t]
-     ["cases                    c<C-BS>"  (holes-insert-and-expand "c") t]
-     ["change                  ch<C-BS>"  (holes-insert-and-expand "ch") t]
-     ["change in              chi<C-BS>"  (holes-insert-and-expand "chi") t]
-     ["change with in        chwi<C-BS>"  (holes-insert-and-expand "chwi") t]
-     ["constructor            con<C-BS>"  (holes-insert-and-expand "con") t]
-     ["congruence            cong<C-BS>"  (holes-insert-and-expand "cong") t]
-     ["decompose              dec<C-BS>"  (holes-insert-and-expand "dec") t]
-     ["decide equality        deg<C-BS>"  (holes-insert-and-expand "deg") t]
-     ["destruct               des<C-BS>"  (holes-insert-and-expand "des") t]
-     ["destruct using        desu<C-BS>"  (holes-insert-and-expand "desu") t]
-     ["destruct as           desa<C-BS>"  (holes-insert-and-expand "desa") t]
-     ["discriminate           dis<C-BS>"  (holes-insert-and-expand "dis") t]
-     ["eauto                   ea<C-BS>"  (holes-insert-and-expand "ea") t]
-     ["eauto with             eaw<C-BS>"  (holes-insert-and-expand "dec") t]
-     ["elim                     e<C-BS>"  (holes-insert-and-expand "e") t]
-     ["elim using             elu<C-BS>"  (holes-insert-and-expand "elu") t]
-     ["exists                  ex<C-BS>"  (holes-insert-and-expand "ex") t]
-     ["field                  fld<C-BS>"  (holes-insert-and-expand "fld") t]
-     ["firstorder            fsto<C-BS>"  (holes-insert-and-expand "fsto") t]
-     ["fourier                fou<C-BS>"  (holes-insert-and-expand "fou") t]
-     ["functional induction    fi<C-BS>"  (holes-insert-and-expand "fi") t]
-     )
-
-    ("INSERT TACTIC (g-z)" 
-     "TACTIC           ABBREVIATION"
-     ["generalize             g<C-BS>"  (holes-insert-and-expand "g") t]
-     ["induction              ind<C-BS>"  (holes-insert-and-expand "ind") t]
-     ["injection              inj<C-BS>"  (holes-insert-and-expand "inj") t]
-     ["intro (smart)" coq-intros t]
-     ["intro                  i<C-BS>"  (holes-insert-and-expand "i") t]
-     ["intros                 is<C-BS>"  (holes-insert-and-expand "is") t]
-     ["intuition              intu<C-BS>"  (holes-insert-and-expand "intu") t]
-     ["inversion              inv<C-BS>"  (holes-insert-and-expand "inv") t]
-     ["omega                  om<C-BS>"  (holes-insert-and-expand "om") t]
-     ["pose                   po<C-BS>"  (holes-insert-and-expand "om") t]
-     ["reflexivity            refl<C-BS>"  (holes-insert-and-expand "refl") t]
-     ["replace                rep<C-BS>"  (holes-insert-and-expand "rep") t]
-     ["rewrite                r<C-BS>"  (holes-insert-and-expand "r") t]
-     ["rewrite in             ri<C-BS>"  (holes-insert-and-expand "ri") t]
-     ["rewrite <-             r<<C-BS>"  (holes-insert-and-expand "rl") t]
-     ["rewrite <- in          ri<<C-BS>"  (holes-insert-and-expand "ril") t]
-     ["set                    set<C-BS>"  (holes-insert-and-expand "set") t]
-     ["set in hyp             seth<C-BS>"  (holes-insert-and-expand "seth") t]
-     ["set in goal            setg<C-BS>"  (holes-insert-and-expand "setg") t]
-     ["set in                 seti<C-BS>"  (holes-insert-and-expand "seti") t]
-     ["simpl                  s<C-BS>"  (holes-insert-and-expand "s") t]
-     ["simpl                  si<C-BS>"  (holes-insert-and-expand "si") t]
-     ["split                  sp<C-BS>"  (holes-insert-and-expand "sp") t]
-     ["subst                  su<C-BS>"  (holes-insert-and-expand "su") t]
-     ["symmetry               sym<C-BS>"  (holes-insert-and-expand "sym") t]
-     ["transitivity           trans<C-BS>"  (holes-insert-and-expand "trans") t]
-     ["trivial                t<C-BS>"  (holes-insert-and-expand "t") t]
-     ["tauto                  ta<C-BS>"  (holes-insert-and-expand "ta") t]
-     ["unfold                 u<C-BS>"  (holes-insert-and-expand "u") t]
-     )
-    ;; da: I added Show sub menu, not sure if it's helpful, but why not.
-    ;; FIXME: submenus should be split off here.  Also, these commands
-    ;; should only be available when a proof is open.
-
-    ("Holes" 
-     ;; da: I tidied this menu a bit.  I personally think this "trick"
-     ;; of inserting strings to add documentation looks like a real
-     ;; mess in menus ... I've removed it for the three below since 
-     ;; the docs below appear in popup in messages anyway.
-     ;; 
-     ;; "Make a hole active   click on it"
-     ;; "Disable a hole   click on it (button 2)"
-     ;; "Destroy a hole   click on it (button 3)"
-     ["Make hole at point"  holes-set-make-active-hole t]
-     ["Make selection a hole"  holes-set-make-active-hole t]
-     ["Replace active hole by selection"  holes-replace-update-active-hole t]
-     ["Jump to active hole"  holes-set-point-next-hole-destroy t]
-     ["Forget all holes in buffer"  holes-clear-all-buffer-holes t]
-     ["Tell me about holes?" holes-show-doc t]
-     ;; look a bit better at the bottom
-     "Make hole with mouse: C-M-select"
-     "Replace hole with mouse: C-M-Shift select"  ;; da: does this one work??
-     )
-
-    ;; da: I also added abbrev submenu.  Surprising Emacs doesn't have one?
-    ("Abbrevs"
-     ["Expand at point" expand-abbrev t]
-     ["Unexpand last" unexpand-abbrev t]
-     ["List abbrevs" list-abbrevs t]
-     ["Edit abbrevs" edit-abbrevs t]    ;; da: is it OK to add edit?
-     ["Abbrev mode" abbrev-mode 
-      :style toggle
-      :selected (and (boundp 'abbrev-mode) abbrev-mode)])
-    ;; With all these submenus you have to wonder if these things belong
-    ;; on the main menu.  Are they the most often used?
-    ["Compile" coq-Compile t]
-    ["Set coq prog name *for this file persistently*" coq-ask-insert-coq-prog-name t]
-    ["help on setting prog name persistently for a file" coq-local-vars-list-show-doc t]
-    ))
+     ;; da: I also added abbrev submenu.  Surprising Emacs doesn't have one?
+     ("Abbrevs"
+      ["Expand at point" expand-abbrev t]
+      ["Unexpand last" unexpand-abbrev t]
+      ["List abbrevs" list-abbrevs t]
+      ["Edit abbrevs" edit-abbrevs t];; da: is it OK to add edit?
+      ["Abbrev mode" abbrev-mode 
+       :style toggle
+       :selected (and (boundp 'abbrev-mode) abbrev-mode)])
+     ;; With all these submenus you have to wonder if these things belong
+     ;; on the main menu.  Are they the most often used?
+     ["Compile" coq-Compile t]
+     ["Set coq prog name *for this file persistently*" coq-ask-insert-coq-prog-name t]
+     ["help on setting prog name persistently for a file" coq-local-vars-list-show-doc t]
+     ))
+;)
 
 ;; da: Moved this from the main menu to the Help submenu.  
 ;; It also appears under Holes, anyway.

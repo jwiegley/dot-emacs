@@ -443,15 +443,10 @@ Print and Check commands, put the following line in your .emacs:
   "All commands keyword.")
 
 (defvar coq-tacticals
-  '("info" "solve" "first"
-         "abstract"
-	 "do"
-	 "idtac" ;; also in state-preserving-tactic
-	 "fail"
-	 "orelse"
-	 "repeat"
-	 "try"
-	 "Time")
+  '("info" "solve" "first"    "abstract" "do" "idtac" ;; also in
+						      ;; state-preserving-tactic
+						      ;; "fail"
+    "orelse" "repeat" "try" "Time")
   "Keywords for tacticals in a Coq script.")
 
 ; From JF Monin:
@@ -476,6 +471,8 @@ Print and Check commands, put the following line in your .emacs:
     "then"
     "using"
     "with"
+    "by"
+    "beta" "delta" "iota" "zeta" "after" "until" "at"
 	 )
   "Reserved keywords of Coq.")
 
@@ -500,7 +497,7 @@ Intro and Elim tactics, put the following line in your .emacs:
 	  "assumption"
 	  "auto"
 	  "autorewrite"
-	  "case"
+	  "cases"
 	  "cbv"
 	  "change"
 	  "clear"
@@ -601,12 +598,12 @@ Intro and Elim tactics, put the following line in your .emacs:
 
 (defcustom coq-user-state-preserving-tactics nil
   "List of user defined Coq tactics that do not need to be backtracked;
-like \"Idtac\" (no other one to my knowledge ?).
+like \"idtac\" (no other one to my knowledge ?).
 
-For example if MyIdtac and Do_nthing are user defined variants of the
-Idtac (Nop) tactic, put the following line in your .emacs:
+For example if myidtac and do_nthing are user defined variants of the
+idtac (Nop) tactic, put the following line in your .emacs:
 
- (setq coq-user-state-preserving-tactics '(\"MyIdtac\" \"Do_nthing\"))"
+ (setq coq-user-state-preserving-tactics '(\"myidtac\" \"do_nthing\"))"
   :type '(repeat regexp)
   :group 'coq)
 
