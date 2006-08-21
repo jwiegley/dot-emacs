@@ -443,7 +443,8 @@ Print and Check commands, put the following line in your .emacs:
   "All commands keyword.")
 
 (defvar coq-tacticals
-  '("abstract"
+  '("info" "solve" "first"
+         "abstract"
 	 "do"
 	 "idtac" ;; also in state-preserving-tactic
 	 "fail"

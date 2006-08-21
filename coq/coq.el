@@ -182,6 +182,56 @@ To disable coqc being called (and use only make), set this to nil."
   )
 
 
+;;;;;;;;;;;;;;;;;;;;;
+; defining a completion list for tactics
+;;;;;;;;;;;;;;;;;;;;;;
+
+;(defun coq-assoc-from-list)
+
+;(defvar coq-tactics-completion-list
+;  (concat coq-tactics coq-tacticals))
+
+(defvar coq-tactics-completion-list 
+;  (concat
+  '(
+    ("autorewrite with" "autorewrite with @{db,db...}")
+    ("autorewrite in" "autorewrite in @{hyp}")
+    ("autorewrite with in" "autorewrite with @{db,db...} in @{hyp}")
+    ("autorewrite with using" "autorewrite with @{db,db...} using @{tac}")
+    ("autorewrite in using" "autorewrite in @{hyp} using @{tac}")
+    ("autorewrite with in using" "autorewrite with @{db,db...} in @{hyp} using @{tac}")
+    ("assert" "assert ( # : # )")
+    ("assert by" "assert ( # : # ) by #")
+    ("change in" "change # in #")
+    ("change with" "change # with")
+    ("change with in" "change # with # in #")
+    ("decompose" "decompose [#] @{hyp}")
+    ("auto" "auto with @{db}")
+    ("eauto" "eauto with @{db}")
+    ("functional induction" "functional induction @{f} @{args}")
+    ("pose" "pose ( # := # )")
+    ("replace with" "replace # with #")
+    ("rewrite <-" "rewrite <- #")
+    ("rewrite in" "rewrite # in #")
+    ("rewrite <- in" "rewrite <- # in #")
+    ("set" "set ( # := #)")
+    ("set in" "set ( # := #) in #")
+    ("set in |-" "set ( # := #) in # |- #")
+    )
+;  coq-tactics coq-tacticals)
+  )
+
+
+(defun coq-insert-tactic ()
+  (interactive)
+  (let* ((tac (completing-read "tactic (tab to see list, not exhaustive) : "
+                               coq-tactics-completion-list))
+         (s (cadr (assoc tac coq-tactics-completion-list)))
+         (pt (point)))
+    (insert s)
+    (holes-replace-string-by-holes-backward-jump pt)))
+
+
 
 ;; ----- outline
 
@@ -802,15 +852,11 @@ This is specific to `coq-mode'."
   "Insert successive Intros commands with names given by Show Intros.
 Based on idea mentioned in Coq reference manual."
   (interactive)
-  (let* ((shints  (proof-shell-invisible-cmd-get-result 
-                   "Show Intros."))
-         (intros  (replace-in-string shints "^\\([^\n]+\\)\n" "intros \\1.\n")))
-    (proof-goto-end-of-locked)
+  (let* ((shints (proof-shell-invisible-cmd-get-result "Show Intros."))
+         (replace-in-string shints "^\\([^\n]+\\)\n" "intros \\1.\n"))
     (unless (< (length shints) 2)       ;; empty response is just NL
-      (newline)
-      (let ((start (point)))
-        (insert intros)
-        (indent-region start (point) nil)))))
+      (insert intros)
+      (indent-according-to-mode))))
 
 (defun coq-match ()
   "Insert a match expression from a type name by Show Intros.
@@ -843,9 +889,6 @@ positions."
           )))))
 
 
-(proof-defshortcut coq-Apply         "Apply "   [(control ?a)])
-
-;(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
 (define-key coq-keymap [(control ?i)] 'coq-intros)
 (define-key coq-keymap [(control ?s)] 'coq-insert-section-or-module)
 (define-key coq-keymap [(control ?r)] 'coq-insert-requires)
@@ -859,20 +902,7 @@ positions."
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
 (define-key coq-keymap [(control ?g)] 'coq-Show)
-;; da: I've moved this three buffer layout into the main code now,
-;; making it default for three bufer mode.  The function 
-;; `proof-layout-windows' lays out according to current display
-;; mode: you can use this (C-c C-l) to do what binding below did.
-;;(define-key coq-keymap [(control f3)] 'coq-three-b)
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Indentation                                                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; FIXME mmw: code disabled; Is the new indentation scheme general
-;; enough to handle Coq as well?
-;; pc: no, this is now in coq-indent
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;    To guess the command line options   ;;

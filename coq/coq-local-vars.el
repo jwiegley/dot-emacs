@@ -80,35 +80,57 @@ launched on this file."
   )
 
 
-(defun coq-ask-build-addpath-option ()
+(defun coq-read-directory (prompt)
   "Ask for and return a directory name."
   (let* 
-      ;; read-file-name here because it is convenient to see .v files when selecting
-      ;; directories to add to the path
-      ((path (read-file-name "library path to add (empty to stop) : "
-                             "" "" t)))
-    (if (and (string-match " " path)
-             (not (y-or-n-p "The path contains spaces, are you sure? (y or n) :")))
-        (coq-ask-build-addpath-option) ; retry
-      path)))
+      ;; read-file-name here because it is convenient to see .v files
+      ;; when selecting directories to add to the path. Moreover
+      ;; read-directory-name does not seem to exist in fsf emacs??
+      ((path (read-file-name prompt "" "" t)))
+    path))
 
-(defun coq-ask-prog-args ()
+;(read-from-minibuffer 
+;         PROMPT &optional INITIAL-CONTENTS KEYMAP READP HISTORY ABBREV-TABLE DEFAULT)
+;(read-directory-name 
+;         PROMPT &optional DIR DEFAULT MUST-MATCH INITIAL-CONTENTS HISTORY)
+
+(defun coq-extract-directories-from-args (args)
+  (if (not args) ()
+    (let ((hd (car args)) (tl (cdr args)))
+      (cond
+       ((string-equal hd "-I") 
+	(cond 
+	 ((not tl) nil)
+	 ; if the option following -I starts with '-', forget the -I :
+	 ((char-equal ?- (string-to-char (car tl))) 
+	  (coq-extract-directories-from-args tl))
+	 (t (cons (car tl) (coq-extract-directories-from-args (cdr tl))))))
+       (t (coq-extract-directories-from-args tl))))))
+
+
+(defun coq-ask-prog-args (&optional oldvalue)
   "Ask for and return the information to put into variables coq-prog-args.
 These variable describes the coqtop arguments to be launched on this file."  
-  (let ((progargs '("-emacs"))
-        (option (coq-ask-build-addpath-option)))
-    (message "progargs = %s" progargs)
+  (let* ((olddirs (coq-extract-directories-from-args oldvalue))
+	 (progargs '("-emacs"))
+	 (option))
+    ;; first suggest preious directories
+    (while olddirs
+      (if (y-or-n-p (format "keep the directory %s?" (car olddirs)))
+	  (setq progargs (cons (car olddirs) (cons "-I" progargs))))
+      (setq olddirs (cdr olddirs)))
+    ;; then ask for more
+    (setq option (coq-read-directory "Add directory (empty to stop) :"))
     (while (not (string-equal option ""))
       (setq progargs (cons option (cons "-I" progargs))) ;reversed
-      (message "progargs = %s" progargs)
-      (setq option (coq-ask-build-addpath-option)))
-    (message "progargs = %s" progargs)
+      (setq option (coq-read-directory "Add directory (empty to stop) -I :")))
     (reverse progargs)))
 
-(defun coq-ask-prog-name ()
+(defun coq-ask-prog-name (&optional oldvalue)
   "Ask for and return the local variables coq-prog-name.
 These variable describes the coqtop command to be launched on this file."  
-  (let ((cmd (read-string "coq program name (default coqtop) : " "coqtop")))
+  (let ((cmd (read-string "coq program name (default coqtop) : " 
+			  (or oldvalue "coqtop"))))
     (if (and 
          (string-match " " cmd)
          (not (y-or-n-p "The prog name contains spaces, are you sure? (y or n) :")))
@@ -120,11 +142,15 @@ These variable describes the coqtop command to be launched on this file."
   "Ask for and insert the local variables coq-prog-name and coq-prog-args.
 These variables describe the coqtop command to be launched on this file."  
   (interactive)
-  (let ((progname (coq-ask-prog-name))
-        (progargs (coq-ask-prog-args)))
+  (let* ((oldname (local-vars-list-get-safe 'coq-prog-name))
+	 (oldargs (local-vars-list-get-safe 'coq-prog-args))
+	 (progname (coq-ask-prog-name oldname))
+        (progargs (coq-ask-prog-args oldargs)))
     (coq-insert-coq-prog-name progname progargs)
     (setq coq-prog-name progname)
     (setq coq-prog-args progargs)))
+
+
 
 (provide 'coq-local-vars)
 

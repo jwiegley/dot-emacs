@@ -820,33 +820,44 @@ created.  Return the number of holes created."
 	  "to active hole.  C-h v holes-doc to see holes doc.")
   "Shortcut reminder string for jumping to active hole.")
 
+
+
+(defun holes-replace-string-by-holes-backward-jump (pos)
+  "Put holes between POS and point, backward, indenting.
+\"#\" and \"@{..}\" between this positions will become holes."
+  (save-excursion (indent-region pos (point) nil))
+  (let ((n (holes-replace-string-by-holes-backward pos)))
+    (case n
+      (0 nil)				; no hole, stay here.
+      (1
+       (goto-char pos)
+       (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
+      (t
+       (goto-char pos)
+       (message (substitute-command-keys
+		 "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc."))))))
+
+
+
 (defun holes-abbrev-complete ()
   "Complete abbrev by putting holes and indenting.
 Moves point at beginning of expanded text.  Put this function as
 call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
 become holes."
-  (let ((pos last-abbrev-location))
-    (save-excursion (indent-region pos (point) nil))
-    (let ((n (holes-replace-string-by-holes-backward pos)))
-      (case n
-	(0 nil)				; no hole, stay here.
-	(1
-	 (goto-char pos)
-	 (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
-	(t
-	 (goto-char pos)
-	 (message (substitute-command-keys
-		   "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))))
+  (holes-replace-string-by-holes-backward-jump last-abbrev-location))
+
+
 
 (defun holes-insert-and-expand (s)
   "Insert S, expand it and replace #s and @{]s by holes."
   ;; insert the expansion of abbrev s, and replace #s by holes.  It was
   ;; possible to implement it with a simple ((insert s) (expand-abbrev))
   ;; but undo would show the 2 steps, which is bad.
-  (let ((pos (point)))
-    (insert (abbrev-expansion s))
-    (let ((last-abbrev-location pos))
-      (holes-abbrev-complete))))
+  (let ((pos (point))
+	(ins (abbrev-expansion s)))
+    (insert (or ins s))
+    (setq last-abbrev-location pos)
+    (holes-abbrev-complete)))
 
 (defvar holes-mode nil
   "Is equal to t if holes mode is on, nil otherwise.")

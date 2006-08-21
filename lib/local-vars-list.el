@@ -118,15 +118,10 @@ variable definition (or at the \"End:\" line)."
       (search-forward lpat eol)
       (re-search-forward "\\([^ :]+\\):" eol)
       (let ((varname (match-string 1)))
-	(message "varname = %s" varname)
 	(cond 
 	 ((string-equal varname "End") (setq endreached t) (beginning-of-line))
 	 ((string-equal varname symbname) (setq found t))
-	 (t (forward-line 1) (beginning-of-line))
-	 ))
-      (message "found %s" found)
-      (message "endreached %s" endreached)
-      )
+	 (t (forward-line 1) (beginning-of-line)))))
     (if found t nil)))
 
 
@@ -191,6 +186,11 @@ Raises an error if symb is not in the list."
 	(error "variable %s not found" symb))
       (beginning-of-line)
       (local-vars-list-get-current lpat rpat))))
+
+(defun local-vars-list-get-safe (symb)
+  "Return true if variable SYMB belongs to the local variable list of the current
+buffer."
+  (condition-case nil (local-vars-list-get symb) (error nil)))
 
 (defun local-vars-list-set (symb val)
   "Write the value val in the local variable list for variable symb.

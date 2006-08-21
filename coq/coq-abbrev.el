@@ -141,7 +141,7 @@
 		("s" "simpl" holes-abbrev-complete 23)
 		("set" "set ( # := #)" holes-abbrev-complete 23)
 		("seth" "set ( # := #) in * |-" holes-abbrev-complete 23)
-		("setg" "set ( # := #) in |-*" holes-abbrev-complete 23)
+		("setg" "set ( # := #) in |- *" holes-abbrev-complete 23)
 		("seti" "set ( # := #) in #" holes-abbrev-complete 23)
 		("su" "subst #" holes-abbrev-complete 23)
 		("sc" "Scheme @{name} := Induction for # Sort #." nil 0)
@@ -190,7 +190,7 @@
      ["Print Scope/Visibility..." coq-PrintScope t]
      )
     ["Smart intros" coq-intros t]
-    ["Require/Export/Import" coq-insert-requires t]
+    ["Require/Export/Import..." coq-insert-requires t]
     ("INSERT COMMAND" 
       "COMMAND               ABBREVIATION"
      ["Definition            def<C-BS>" (holes-insert-and-expand "def") t]
@@ -204,23 +204,8 @@
      ["Inductive4            indv4<C-BS>" (holes-insert-and-expand "indv4") t]
      ""
      ["Section/Module (interactive)..." coq-insert-section-or-module t]
-     ["Require/Export/Import" coq-insert-requires t]
+     ["Require/Export/Import (interactive)..." coq-insert-requires t]
      ""
-     ("Modules"
-      "COMMAND               ABBREVIATION"
-      ["Module (interactive)... " coq-insert-section-or-module t]
-      ["Module                mo<C-BS>" (holes-insert-and-expand "mo") t]
-      ["Module (<:)           mo2<C-BS>" (holes-insert-and-expand "mo") t]
-;      ["Module (interactive)  moi<C-BS>" (holes-insert-and-expand "moi") t]
-;      ["Module (interactive <:) moi2<C-BS>" (holes-insert-and-expand "moi2") t]
-      ["Module Type           mt<C-BS>" (holes-insert-and-expand "mt") t]
-;      ["Module Type (interactive) mti<C-BS>" (holes-insert-and-expand "mti") t]
-;      ""
-      ["Declare Module        dm<C-BS>" (holes-insert-and-expand "dm") t]
-      ["Declare Module (<:)   dm2<C-BS>" (holes-insert-and-expand "dm") t]
-;      ["Declare Module (inter.) dmi<C-BS>" (holes-insert-and-expand "dmi") t]
-;      ["Declare Module (inter. <:) dmi2<C-BS>" (holes-insert-and-expand "dmi2") t]
-      )
      ("Hints"
       "COMMAND               ABBREVIATION"
       ["Hint Constructors     hc<C-BS>" (holes-insert-and-expand "hc") t]
@@ -248,8 +233,8 @@
       ["Set Printing All           sprall<C-BS>" (holes-insert-and-expand "sprall") t]
       ["Unset Printing All         unsprall<C-BS>" (holes-insert-and-expand "unsprall") t]
       ""
-      ["Print Scope/Visibility..." coq-PrintScope t]
-      ["Locate..." coq-LocateNotation t]
+      ["Print Scope/Visibility (interactive)..." coq-PrintScope t]
+      ["Locate (interactive)..." coq-LocateNotation t]
 
       ""
       ["Infix                      inf<C-BS>" (holes-insert-and-expand "inf") t]     
