@@ -594,26 +594,6 @@ This function calls `coq-find-and-forget-v81' or
 ;;   Commands specific to coq                                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun coq-SearchIsos ()
-  "Search a term whose type is isomorphic to given type.
-This is specific to `coq-mode'."
-  (interactive)
-  (let (cmd)
-    (proof-shell-ready-prover) 
-    (setq cmd (read-string "SearchPattern (parenthesis mandatory), ex: (?X1 + _ = _ + ?X1) : " "" 'proof-minibuffer-history))
-    (proof-shell-invisible-command (format "SearchPattern %s . " cmd))))
-
-
-;
-;(defun coq-LocateNotation ()
-;  "Search a a notation.
-;This is specific to `coq-mode'."
-;  (interactive)
-;  (let (cmd)
-;    (proof-shell-ready-prover) 
-;    (setq cmd (read-string "Locate ex: \'exists\' _ , _) : " "" 'proof-minibuffer-history))
-;    (proof-shell-invisible-command (format "Locate %s%s%s . " "\"" cmd "\""))))
-;
 
 
 (defconst notation-print-kinds-table 
@@ -645,7 +625,7 @@ This is specific to `coq-mode'."
              (buffer-substring-no-properties (region-beginning) (region-end))
            (symbol-near-point)))))
     (read-string 
-     (if guess (concat s " (" guess "):") (concat s ":"))
+     (if guess (concat s " (" guess "): ") (concat s " : "))
      nil 'proof-minibuffer-history guess))
   )
 
@@ -658,25 +638,43 @@ This is specific to `coq-mode'."
      (format (concat do " %s . ") (funcall postform cmd))))  
   )
 
+(defun coq-SearchIsos ()
+  "Search a term whose type is isomorphic to given type.
+This is specific to `coq-mode'."
+  (interactive)
+  (coq-ask-do "SearchPattern (parenthesis mandatory), ex: (?X1 + _ = _ + ?X1)" "SearchPattern" nil))
+
+(defun coq-SearchConstant ()
+  (interactive)
+  (coq-ask-do "Search constant" "Search" nil))
+
+(defun coq-SearchRewrite ()
+  (interactive)
+  (coq-ask-do "Search Rewrite :" "Search Rewrite" nil))
+
+(defun coq-SearchAbout ()
+  (interactive)
+  (coq-ask-do "Search About :" "Search About" nil))
+
 (defun coq-Print () "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do "Print: " "Print"))
+  (coq-ask-do "Print:" "Print"))
 
 (defun coq-About () "Ask for an ident and print information on it."
   (interactive)
-  (coq-ask-do "About: " "About"))
+  (coq-ask-do "About:" "About"))
 
 (defun coq-LocateConstant ()
   "Locate a constant.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do "Locate : " "Locate"))
+  (coq-ask-do "Locate :" "Locate"))
 
 (defun coq-LocateLibrary ()
   "Locate a constant.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do "Locate Library : " "Locate Library"))
+  (coq-ask-do "Locate Library" "Locate Library"))
 
 (defun coq-addquotes (s) (concat "\"" s "\""))
 
@@ -686,6 +684,20 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do "Locate (ex: \'exists\' _ , _)" "Locate" 
               'coq-addquotes))
+
+(defun coq-Pwd ()
+  "Locate a notation.
+This is specific to `coq-mode'."
+  (interactive)
+  (proof-shell-invisible-command "Pwd."))
+
+(defun coq-Inspect ()
+  (interactive)
+  (coq-ask-do "Inspect how many objects back?" "Inspect" t))
+
+(defun coq-PrintSection()
+  (interactive)
+  (coq-ask-do "Print Section " "Print Section" t))
 
 (defun coq-Print-implicit ()
   "Ask for an ident and print the corresponding term."
@@ -728,22 +740,6 @@ This is specific to `coq-mode'."
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
 
-
-(define-key coq-keymap [(control ?i)] 'coq-insert-intros)
-(define-key coq-keymap [(control ?s)] 'coq-insert-section-or-module)
-(define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
-(define-key coq-keymap [(control return)] 'coq-insert-command)
-(define-key coq-keymap [(control ?r)] 'coq-insert-requires)
-(define-key coq-keymap [(control ?m)] 'coq-insert-match)
-(define-key coq-keymap [(control ?e)] 'coq-end-Section)
-(define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
-(define-key coq-keymap [(control ?p)] 'coq-Print)
-(define-key coq-keymap [(control ?b)] 'coq-About)
-(define-key coq-keymap [(control ?c)] 'coq-Check)
-(define-key coq-keymap [(control ?h)] 'coq-PrintHint)
-(define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
-(define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
-(define-key coq-keymap [(control ?g)] 'coq-Show)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1296,7 +1292,9 @@ Based on idea mentioned in Coq reference manual."
   (interactive)
   (let* ((shints (proof-shell-invisible-cmd-get-result "Show Intros."))
          (intros (replace-in-string shints "^\\([^\n]+\\)\n" "intros \\1.")))
-    (unless (< (length shints) 2)       ;; empty response is just NL
+    (if (or (< (length shints) 2);; empty response is just NL
+            (string-match coq-error-regexp shints)) 
+        (error "Don't know what to intro. ")
       (insert intros)
       (indent-according-to-mode))))
 
@@ -1331,16 +1329,17 @@ positions."
           )))))
 
 (defun coq-insert-from-db (db)
-  "Ask for a tactic name, with completion on a quasi-exhaustive list of coq
-tactics and insert it at point.  Questions may be asked to the user."
+  "Ask for a keyword, with completion on list DB tactics and insert
+corresponding string with holes at point.  If a insertion function is presnet
+for the keyword, call it instead."
   (let* ((tac (completing-read "tactic (tab for completion) : "
                                db nil nil))
          (infos (cddr (assoc tac db)))
-         (s (car infos))
-         (f (car-safe (cdr-safe (cdr infos))))
+         (s (car infos)) ; completion to insert
+         (f (car-safe (cdr-safe (cdr-safe (cdr infos))))) ; insertion function
          (pt (point)))
-    (if f (funcall f)
-      (insert (or s tac))
+    (if f (funcall f) ; call f if present
+      (insert (or s tac)) ; insert completion and indent otherwise 
       (holes-replace-string-by-holes-backward-jump pt)
       (indent-according-to-mode))))
 
@@ -1349,6 +1348,12 @@ tactics and insert it at point.  Questions may be asked to the user."
 tactics and insert it at point.  Questions may be asked to the user."
   (interactive)
   (coq-insert-from-db coq-tactics-db))
+
+(defun coq-insert-tactical ()
+  "Ask for a tactical name, with completion on a quasi-exhaustive list of coq
+tacticals and insert it at point.  Questions may be asked to the user."
+  (interactive)
+  (coq-insert-from-db coq-tacticals-db))
 
 (defun coq-insert-command ()
   "Ask for a command name, with completion on a quasi-exhaustive list of coq
@@ -1361,6 +1366,28 @@ commands and insert it at point.  Questions may be asked to the user."
 be asked to the user."
   (interactive)
   (coq-insert-from-db coq-terms-db))
+
+
+(define-key coq-keymap [(control ?i)] 'coq-insert-intros)
+(define-key coq-keymap [(control ?s)] 'coq-insert-section-or-module)
+(define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
+(define-key coq-keymap [(control ?y)] 'coq-insert-tactical)
+(define-key coq-keymap [(control space)] 'coq-insert-term)
+(define-key coq-keymap [(control return)] 'coq-insert-command)
+(define-key coq-keymap [(control ?r)] 'coq-insert-requires)
+(define-key coq-keymap [(control ?m)] 'coq-insert-match)
+(define-key coq-keymap [(control ?e)] 'coq-end-Section)
+(define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
+(define-key coq-keymap [(control ?p)] 'coq-Print)
+(define-key coq-keymap [(control ?b)] 'coq-About)
+(define-key coq-keymap [(control ?c)] 'coq-Check)
+(define-key coq-keymap [(control ?h)] 'coq-PrintHint)
+(define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
+(define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
+(define-key coq-keymap [(control ?g)] 'coq-Show)
+
+
+
 
 (provide 'coq)
 
