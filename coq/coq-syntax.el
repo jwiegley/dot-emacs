@@ -36,36 +36,35 @@ version of coq by doing 'coqtop -v'." )
 ;;FIXME: how to make compilable?
 (unless (noninteractive);; DA: evaluating here gives error during compile
   (let* 
-		(
-		 (seedoc (concat " (to force another version, see for example"
-							  " C-h v `coq-version-is-V8-0)'."))
-		 (v80 (concat "proofgeneral is in coq 8.0 mode" seedoc))
-		 (v81 (concat "proofgeneral is in coq 8.1 mode" seedoc))
-		 (err (concat "Both config variables coq-version-is-V8-1 and"
-						  " coq-version-is-V8-0 are set to true. This is"
-						  "contradictory.")))
-	 
-	 (cond
-	  ((and coq-version-is-V8-1 coq-version-is-V8-0) 
-		(error err))
-	  (coq-version-is-V8-1 (message v81))
-	  (coq-version-is-V8-0 (message v80))
-	  (coq-version-is-V8 (setq coq-version-is-V8-0 t coq-version-is-V8-1 nil)
-								(message v80))
-	  (t;; otherwise do coqtop -v and see which version we have
-		(let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
-		       ;; this match sets match-string below
-		       (ver (string-match "version \\([.0-9]*\\)" str)))
-		  (message str)
-		  (let ((num (and ver (match-string 1 str))))
-		    (cond
-		     ((and num (string-match "\\<8.1" num))
-		      (message v81)
-		      (setq coq-version-is-V8-1 t))
-		     (t ;; temporary, should be 8.1 when it is officially out
-		      (message (concat "Falling back to default: " v80))
-		      (setq coq-version-is-V8-0 t)))))))))
-		      
+      (
+       (seedoc (concat " (to force another version, see for example"
+                       " C-h v `coq-version-is-V8-0)'."))
+       (v80 (concat "proofgeneral is in coq 8.0 mode" seedoc))
+       (v81 (concat "proofgeneral is in coq 8.1 mode" seedoc))
+       (err (concat "Both config variables coq-version-is-V8-1 and"
+                    " coq-version-is-V8-0 are set to true. This is"
+                    "contradictory.")))
+    (cond
+     ((and coq-version-is-V8-1 coq-version-is-V8-0) 
+      (error err))
+     (coq-version-is-V8-1 (message v81))
+     (coq-version-is-V8-0 (message v80))
+     (coq-version-is-V8 (setq coq-version-is-V8-0 t coq-version-is-V8-1 nil)
+                        (message v80))
+     (t;; otherwise do coqtop -v and see which version we have
+      (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+             ;; this match sets match-string below
+             (ver (string-match "version \\([.0-9]*\\)" str)))
+        (message str)
+        (let ((num (and ver (match-string 1 str))))
+          (cond
+           ((and num (string-match "\\<8.1" num))
+            (message v81)
+            (setq coq-version-is-V8-1 t))
+           (t;; temporary, should be 8.1 when it is officially out
+            (message (concat "Falling back to default: " v80))
+            (setq coq-version-is-V8-0 t)))))))))
+
 
 ;;; keyword databases
 
@@ -106,22 +105,23 @@ not appear in the menu but only in when calling `coq-insert-tactic'." )
 
 
 
-
-(defun coq-build-regexp-list-from-db (l &optional filter)
+(defun coq-build-regexp-list-from-db (db &optional filter)
   "Take a keyword database L and return the list of regexps for font-lock."
-  (when l
-    (let* ((hd (car l))(tl (cdr l))	; hd is the first infos list
-	   (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-	   (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-	   (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
-	   (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
-	   (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
-	   )
-      (when filter (message "funcall %S %S = %s" filter hd (funcall filter hd)))
-      ;; TODO delete doublons
-      (if (and e5 (or (not filter) (funcall filter hd)))
-	  (cons e5 (coq-build-regexp-list-from-db tl filter))
-	(coq-build-regexp-list-from-db tl filter)))))
+  (let ((l db) (res ()))
+    (while l
+      (let* ((hd (car l))(tl (cdr l))	; hd is the first infos list
+             (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
+             (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
+             (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
+             (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
+             (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
+             )
+        ;; TODO delete doublons
+        (when (and e5 (or (not filter) (funcall filter hd)))
+          (setq res (nconc res (list e5))))
+        (setq l tl)))
+    res
+    ))
 
 (defun filter-state-preserving (l)
   (not (nth 3 l))) ; fourth argument is nil --> state preserving command
@@ -698,10 +698,10 @@ Used by `coq-goal-command-p'"
 (defvar coq-keywords-kill-goal 
   '("Abort"))
 
-
 ;; Following regexps are all state changing
 (defvar coq-keywords-state-changing-misc-commands
   (coq-build-regexp-list-from-db coq-commands-db 'filter-state-changing))
+
 
 (defvar coq-user-keywords-state-changing-commands
   (coq-build-regexp-list-from-db coq-user-commands-db 'filter-state-changing))
@@ -723,6 +723,7 @@ Used by `coq-goal-command-p'"
 	coq-keywords-defn
 	coq-keywords-goal
 	coq-user-keywords-state-changing-commands))
+
 
 ;; 
 (defvar coq-keywords-state-preserving-commands
@@ -861,6 +862,8 @@ idtac (Nop) tactic, put the following line in your .emacs:
    (cons "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>" 'font-lock-type-face))
   "*Font-lock table for Coq terms.")
 
+
+
 ;; According to Coq, "Definition" is both a declaration and a goal.
 ;; It is understood here as being a goal.  This is important for
 ;; recognizing global identifiers, see coq-global-p.
@@ -901,6 +904,7 @@ idtac (Nop) tactic, put the following line in your .emacs:
 	  "\\)\\s-*\\)*"
 	  ":" ; : or :=
 	  ))
+
 
 
 (defvar coq-font-lock-keywords-1
@@ -963,6 +967,9 @@ idtac (Nop) tactic, put the following line in your .emacs:
 		  1))
 	  (append coq-keywords-decl coq-keywords-defn coq-keywords-goal)))
 
-
 (provide 'coq-syntax)
 ;;; coq-syntax.el ends here
+
+;;; Local Variables: ***
+;;; indent-tabs-mode: nil ***
+;;; End: ***

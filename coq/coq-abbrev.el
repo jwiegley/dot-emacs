@@ -21,33 +21,40 @@
 	  (lgthrest (max-length-db (cdr l))))
       (max lgth lgthrest))))
 
+; this make emacs accept recursive versiond of these functions 
+;(setq max-lisp-eval-depth 10000)
+;(setq max-specpdl-size 30000)
 
-(defun coq-build-menu-from-db-internal (l size menuwidth)
-  "Take a keyword database L and return insertion menus for them."
-  (when (and l (> size 0))
-    (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
-	   (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-	   (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-	   (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
-	   (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
-	   (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
-	   (e6 (car-safe tl5))		; e6 = function for smart insertion
-	   (e7 (car-safe (cdr-safe tl5))) ; e7 = if non-nil : hide in menu 
-	   (entry-with (max (- menuwidth (length e1)) 0))
-	   (spaces (make-string entry-with ? ))
-	   (restofmenu (coq-build-menu-from-db-internal tl (- size 1) menuwidth)))
-      (if (not e7)			; if not hidden
-	  (cons 
-	   (vector 
-	    (concat e1
-		    (if (not e2) ""
-		      (concat spaces "("  e2
-			      (substitute-command-keys " \\[expand-abbrev]") ")")))
-	    (if e6 e6			; insertion function if present
-	      `(holes-insert-and-expand ,e3)) ; otherwise insert completion
-	    t)
-	   restofmenu)
-	restofmenu))))
+(defun coq-build-menu-from-db-internal (db lgth menuwidth)
+  "Take a keyword database DB and return insertion menus for them."
+  (let ((l db) (res ()) (size lgth)
+	(keybind-abbrev (substitute-command-keys " \\[expand-abbrev]")))
+    (while (and l (> size 0))
+      (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
+	     (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
+	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
+	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
+	     (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
+	     (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
+	     (e6 (car-safe tl5))	; e6 = function for smart insertion
+	     (e7 (car-safe (cdr-safe tl5))) ; e7 = if non-nil : hide in menu 
+	     (entry-with (max (- menuwidth (length e1)) 0))
+	     (spaces (make-string entry-with ? ))
+	     ;;(restofmenu (coq-build-menu-from-db-internal tl (- size 1) menuwidth))
+	     )
+	(when (not e7)			; if not hidden
+	  (let ((menu-entry 
+		 (vector 
+		  ;; menu entry label
+		  (concat e1 (if (not e2) "" (concat spaces "(" e2 keybind-abbrev ")")))
+		   ;;insertion function if present otherwise insert completion
+		   (if e6 e6 `(holes-insert-and-expand ,e3))
+		   t)))
+	    (setq res (nconc res (list menu-entry)))));; append *in place*
+	(setq l tl)
+	(setq size (- size 1))))
+    res))
+
 
 (defun coq-build-title-menu (l size)
     (concat (car-safe (car-safe l))
@@ -55,47 +62,51 @@
 	  (car-safe (car-safe (nthcdr (- size 1) l)))))
 
 
-(defun coq-build-menu-from-db (l &optional size)
-  "Take a keyword database L and return a list of insertion menus for
+(defun coq-build-menu-from-db (db &optional size)
+  "Take a keyword database DB and return a list of insertion menus for
  them.
 Submenus contain SIZE entries (default 30)."
-  (let ((lgth (length l)) (sz (or size 30)) (wdth (+ 2 (max-length-db coq-tactics-db))))
-    (when l
-      (if (<= lgth sz) 
-	  (cons (cons (coq-build-title-menu l lgth)
-		      (coq-build-menu-from-db-internal l lgth wdth)) nil)
-	(cons (cons (coq-build-title-menu l sz)
-		    (coq-build-menu-from-db-internal l sz wdth))
-	      (coq-build-menu-from-db (nthcdr sz l) sz))))))
+  (let* ((l db) (res ())
+	(wdth (+ 2 (max-length-db coq-tactics-db)))
+	(sz (or size 30)) (lgth (length l)))
+    (while l
+      (if (<= lgth sz)
+	  (setq res 
+		(nconc res (list (cons (coq-build-title-menu l lgth)
+				       (coq-build-menu-from-db-internal l lgth wdth)))))
+	(setq res 
+	      (nconc res (list (cons (coq-build-title-menu l sz)
+				     (coq-build-menu-from-db-internal l sz wdth))))))
+      (setq l (nthcdr sz l))
+      (setq lgth (length l)))
+    res))
 
+(defun coq-build-abbrev-table-from-db (db)
+  (let ((l db) (res ()))
+    (while l
+      (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
+	     (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
+	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
+	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
+	     )
+	(when e2 (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete)))))
+	(setq l tl)))
+    res))
 
-(defun coq-build-abbrev-table-from-db (l)
-  (when l
-    (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
-	   (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-	   (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-	   (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
-	   )
-      (if e2 (cons `(,e2 ,e3 holes-abbrev-complete) 
-		   (coq-build-abbrev-table-from-db tl))
-	(coq-build-abbrev-table-from-db tl)))))
-
-
-
-
-
-
-
-
-
+(message "coq-abbrev partly loaded 12")
 
 (defconst coq-tactics-menu 
   (append '("INSERT TACTICS" 
 	    ["Intros (smart)" coq-insert-intros t])
 	  (coq-build-menu-from-db coq-tactics-db)))
 
+(message "coq-abbrev partly loaded 13")
+
+
 (defconst coq-tactics-abbrev-table 
   (coq-build-abbrev-table-from-db coq-tactics-db))
+
+(message "coq-abbrev partly loaded 14")
 
 (defconst coq-tacticals-menu 
   (append '("INSERT TACTICALS" 

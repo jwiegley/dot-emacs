@@ -1213,7 +1213,6 @@ mouse activation."
 ;;;;;;;;;;;;;;;;;;;;;;
 
 ;; ----- coq specific menu is defined in coq-abbrev.el
-
 (require 'coq-abbrev)
 
 (defconst module-kinds-table 
@@ -1328,6 +1327,7 @@ positions."
            "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))
           )))))
 
+
 (defun coq-insert-from-db (db)
   "Ask for a keyword, with completion on list DB tactics and insert
 corresponding string with holes at point.  If a insertion function is presnet
@@ -1342,6 +1342,7 @@ for the keyword, call it instead."
       (insert (or s tac)) ; insert completion and indent otherwise 
       (holes-replace-string-by-holes-backward-jump pt)
       (indent-according-to-mode))))
+
 
 (defun coq-insert-tactic ()
   "Ask for a tactic name, with completion on a quasi-exhaustive list of coq
