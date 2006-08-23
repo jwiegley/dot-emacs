@@ -693,18 +693,6 @@ The corresponding face should be set using `edit-faces' or the
 ;; Future GNU Emacs versions
 ;;
 
-;; sit-for maybe has disappeared in GNU Emacs CVS, tested 23.8.06
-(unless (fboundp 'sit-for)
-  (defun sit-for (arg &rest noredisplay)
-    "Compatible sit-for for newer GNU Emacs"
-    (cond
-     ((eq arg 0) ;; only called like this for redisplay immediately
-      (redisplay 'forceit))
-     (noredisplay
-      (sleep-for arg))
-     (t					;; sit-for was interrupted by input,
-      (sleep-for arg)			;; this isn't quite the same
-      (redisplay)))))
 
 ;; End of proof-compat.el
 (provide 'proof-compat)
