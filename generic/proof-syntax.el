@@ -115,8 +115,8 @@ nil if a region cannot be found."
 If so, return non-nil."
   (or
    (proof-buffer-syntactic-context)
-   (proof-looking-at-safe proof-script-comment-start-regexp)
-   (proof-looking-at-safe proof-string-start-regexp)))
+   (when (proof-looking-at-safe proof-script-comment-start-regexp) 'comment)
+   (when (proof-looking-at-safe proof-string-start-regexp) 'string)))
 
 
 
