@@ -1512,25 +1512,35 @@ See pg-user.el: pg-create-in-span-context-menu for more hints."
 (defcustom proof-prog-name nil
   "System command to run the proof assistant in the proof shell.
 May contain arguments separated by spaces, but see also `proof-prog-args'.
-Suggestion: this can be set in proof-pre-shell-start-hook from
-a variable which is in the proof assistant's customization
-group.  This allows different proof assistants to coexist
-\(albeit in separate Emacs sessions)."
+Suggestion: this can be set in proof-pre-shell-start-hook from a variable
+which is in the proof assistant's customization group.  This allows
+different proof assistants to coexist \(albeit in separate Emacs sessions).
+
+Remark: if `proof-prog-args' is non-nil, then proof-prog-name is considered
+strictly: it must contain *only* the program name with no option, spaces
+are interpreted literally as part of the program name."
   :type 'string
   :group 'proof-shell)
 
 (defpgcustom prog-args nil
   "Arguments to be passed to `proof-prog-name' to run the proof assistant.
-If non-nil, will be treated as a list of arguments for `proof-prog-name'.
-Otherwise `proof-prog-name' will be split on spaces to form arguments."
+If non-nil, will be treated as a list of arguments for`proof-prog-name'.
+Otherwise `proof-prog-name' will be split on spaces to form arguments.
+
+Remark: Arguments are interpreted strictly: each one must contain only one
+word, with no space (unless it is the same word). For example if the
+arguments are -x foo -y bar, then the list should be '(\"-x\" \"foo\"
+\"-y\" \"bar\"), notice that '(\"-x foo\" \"-y bar\") is *wrong*"
+
   :type '(list string)
   :group 'proof-shell)
 
 (defpgcustom prog-env nil
   "Modifications to `process-environment' made before running `proof-prog-name'.
-Each element should be a string of the form ENVVARNAME=VALUE.
-They will be added to the environment before launching the prover (but
-not pervasively)"
+Each element should be a string of the form ENVVARNAME=VALUE.  They will be
+added to the environment before launching the prover (but not pervasively).
+For example for coq on Windows you might need something like:
+(setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
   :type '(list string)
   :group 'proof-shell)
 

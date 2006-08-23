@@ -13,12 +13,9 @@
 ;; 
 ;; See the GNU General Public License version 2 for more details
 ;; (enclosed in the file GPL).
-;;
-;; See documentation in variable holes-short-doc.
-;;
 
 ;;; Commentary:
-;; See documentation in variable holes-doc.
+;; See documentation in variable local-var-list-doc
 
 ;;; History:
 ;; 
