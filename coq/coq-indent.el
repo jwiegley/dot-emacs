@@ -80,7 +80,7 @@
 ;another symbol the following char must not be a symbol (tokens of coq
 ;are the biggest symbol cocateantions)
 
-(defconst coq-indent-pattern-regexp "|\\(?:\\s-\\|\\w\\|\n\\)")
+(defconst coq-indent-pattern-regexp "\\(|\\(?:\\s-\\|\\w\\|\n\\)\\|with\\)")
 
 ;;;; End of regexps
 
@@ -177,11 +177,11 @@ The point is put exactly before first non comment letter of the command."
   )
 
 (defun only-spaces-on-line ()
-  "t if there is only spaces (or nothing) on the current line after point.  Moves point to first non space char if present."
-  (while (and (char-after) (is-at-a-space-or-tab))
-    (forward-char 1))
-  (if (or (not (char-after)) (char-equal (char-after) ?\n)) t nil)
-)
+  "t if there is only spaces (or nothing) on the current line after point.
+Moves point to first non space char if present, to the end of line otherwise."
+  (skip-chars-forward " \t" (save-excursion (end-of-line) (point)))
+  (eolp)      
+  )
 
 (defun find-reg (lim reg)
   "Return non nil if there is an occurrence of reg between point and lim which is not
@@ -190,19 +190,20 @@ is moved at the end of the match if found, at LIM otherwise."
   (let ((oldpt (point)) (limit lim))
     (if (= limit (point)) nil
       ;;swap limit and point if necessary
-      (message "find-reg...")
+;      (message "find-reg...")
       (when (< limit (point)) (let ((x limit)) (setq limit (point)) (goto-char x)))
       (let ((pos nil))
         (while 
             (and (not pos)
                  (setq pos (proof-string-match reg (buffer-substring (point) limit))))
-          (message "while body...")
+;          (message "while body...")
           (forward-char (- (match-end 0) 1))          
           (when (save-excursion (forward-char -1)
                                 (proof-looking-at-syntactic-context))
             (setq pos nil))
-          (message "while body... done"))
-        (message "find-reg... after while")
+;          (message "while body... done")
+          )
+;        (message "find-reg... after while")
         (and pos (point))))))
 
 
@@ -217,6 +218,22 @@ is moved at the end of the match if found, at LIM otherwise."
       (forward-char 1))
     (not (eq (point) eol))))
 
+(defun coq-find-no-syntactic-on-line ()
+  (let ((bol (save-excursion (beginning-of-line) (point)))
+        (eol (save-excursion (end-of-line) (point))))
+    (back-to-indentation)
+    (while (and (coq-looking-at-syntactic-context)
+                (re-search-forward coq-comment-end-regexp eol 'dummy)))
+    (not (eq (point) eol))))
+
+
+;    (while (and (or (coq-looking-at-syntactic-context)
+;                    (is-at-a-space-or-tab))
+;                    (not (eq (point) eol)))
+;      (forward-char 1))
+;    (not (eq (point) eol))))
+
+
 (defun coq-back-to-indentation-prevline ()
   "Moves point back to previous pertinent line for indentation. Move point to the first non white space character. Returns 0 if top of buffer was reached, 3 if inside a comment or string, 4 if inside the {} of a record, 1 if the line found is not in the same command as the point before the function was called, 2 otherwise (point and previous line are in the same command, and not inside the {} of a record)."
   (if (proof-looking-at-syntactic-context) 3
@@ -230,17 +247,17 @@ is moved at the end of the match if found, at LIM otherwise."
                   )
         (setq topnotreached (= (forward-line -1) 0)))
       (back-to-indentation)
-      (message "coq-back-to-indentation-prevline... after while")
+;      (message "coq-back-to-indentation-prevline... after while")
       (if (not topnotreached) 0 ;; returns nil if top of buffer was reached
         ;; if we are at end of a command (dot) find this command
         (if (find-reg oldpt coq-end-command-regexp) 
             (progn (forward-char -2)
-                   (message "coq-back-to-indentation-prevline... coq-find-real-start")
+;                   (message "coq-back-to-indentation-prevline... coq-find-real-start")
                    (coq-find-real-start)
-                   (message "coq-back-to-indentation-prevline... coq-find-real-start2")
+;                   (message "coq-back-to-indentation-prevline... coq-find-real-start2")
                    1)
           (if (save-excursion 
-                (message "coq-back-to-indentation-prevline... if 3")
+;                (message "coq-back-to-indentation-prevline... if 3")
                 (and (or (forward-char -1) t)
                      (coq-find-real-start)
                      (proof-looking-at-safe "Record")
@@ -458,16 +475,20 @@ argument must be t if inside the {}s of a record, nil otherwise."
 
   ; at a end -> same indent as the corresponding match or Case
 	  ((proof-looking-at-safe coq-indent-closematch-regexp)
-		(save-excursion (coq-find-unclosed 1 real-start)
-							 (current-column)))
+     (save-excursion (coq-find-unclosed 1 real-start)
+                     (current-column)))
 
   ; if we find a "|" we indent from the first unclosed 
   ; or from the command start (if we are in an Inductive type)
 	  ((proof-looking-at-safe coq-indent-pattern-regexp) 
-		(save-excursion (coq-find-unclosed 1 real-start)
-							 (if (proof-looking-at-safe "\\s(")
-								  (+ (current-indentation) proof-indent)
-								  (+ (current-column) proof-indent))))
+     (save-excursion 
+       (coq-find-unclosed 1 real-start)
+       (cond 
+        ((proof-looking-at-safe "\\s(")
+         (+ (current-indentation) proof-indent))
+        ((proof-looking-at-safe (proof-ids-to-regexp coq-keywords-defn))
+         (current-column))
+         (t (+ (current-column) proof-indent)))))
 
   ; if we find a "then" we indent from the first unclosed if
   ; or from the command start (should not happen)
@@ -555,34 +576,45 @@ argument must be t if inside the {}s of a record, nil otherwise."
 
 (defun coq-indent-comment-offset ()
   (save-excursion
+    (back-to-indentation)
     (let ((oldpt (point))
-          ;; atstart is true if the line to indent is a comment start
+          ;; atstart is true if the line to indent starts with a comment start
           (atstart (proof-looking-at coq-comment-start-regexp)))
+      ;; go back looking for a non empty line
       (if (/= (forward-line -1) 0) 0 ; we are at beginning of buffer
         ;; only-space on a non empty line moves the point to first non space char
         (while (and (only-spaces-on-line) (= (forward-line -1) 0)) ())
+        ;; now we found the previous non empty line
         (let ((eol (save-excursion (end-of-line) (point))))
-        (if (and (not atstart)
-                 (string-match coq-comment-start-regexp 
-                               (buffer-substring (point) eol)))
-            (progn (proof-re-search-forward coq-comment-start-regexp) (forward-char 1))
-          (if (and (not atstart) (proof-looking-at-syntactic-context))
-              (progn (proof-re-search-forward "\\S-")
-                     (goto-char (match-beginning 0)))
-            ;;we are at the first line of a comment
-            (goto-char oldpt)
+        (cond
+         ;; The previous line is a comment start
+         ((and (not atstart) (string-match coq-comment-start-regexp 
+                                           (buffer-substring (point) eol)))
+          (message "indenting... point = %s" (point))
+          (proof-re-search-forward coq-comment-start-regexp) 
+          (+ 1 (current-column)))
+
+         ((and (not atstart) (proof-looking-at-syntactic-context))
+          (message "coq-indent-comment-offset \\S-")
+          (proof-re-search-forward "\\S-")
+          (goto-char (match-beginning 0))
+          (current-column))
+         
+            ;;we were at the first line of a comment and the current line is the
+            ;;previous one
+         (t (goto-char oldpt)
             (coq-find-command-end-backward)
-            (coq-find-real-start))))
-        (current-column)))))
+            (coq-find-real-start)
+            (current-column))))))))
 
 
-(defun coq-indent-offset ()
+(defun coq-indent-offset (&optional notcomments)
   (let (kind prevcol prevpoint)
 	 (save-excursion
 		(setq kind (coq-back-to-indentation-prevline) ;go to previous *command* (assert)
 				prevcol (current-column)
 				prevpoint (point)))
-   (message "coq-indent-offset... kind = %s ; prevcol = %s; prevpoint = %s" kind prevcol prevpoint)
+;   (message "coq-indent-offset... kind = %s ; prevcol = %s; prevpoint = %s" kind prevcol prevpoint)
 	 (cond 
 	  ((= kind 0) 0) ; top of the buffer reached
 	  ((= kind 1) ; we are at the command level
@@ -591,10 +623,10 @@ argument must be t if inside the {}s of a record, nil otherwise."
      (coq-indent-expr-offset kind prevcol prevpoint nil))
 	  ((= kind 4) ; we are at the expression level inside {}s of a record
      (coq-indent-expr-offset kind prevcol prevpoint t))
-	  ((= kind 3) (coq-indent-comment-offset)))))
+	  ((= kind 3) (if notcomments nil (coq-indent-comment-offset))))))
 
-(defun coq-indent-calculate () 
-  (coq-indent-offset)
+(defun coq-indent-calculate (&optional notcomments) 
+  (coq-indent-offset notcomments)
 
 ;  (let ((oldpt (point)) (prvfound nil) (res 0))
 ;    (setq res
@@ -611,21 +643,36 @@ argument must be t if inside the {}s of a record, nil otherwise."
   "Indent current line of proof script, if indentation enabled."
   (interactive)
   (unless (not (proof-ass script-indent))
-    (if (< (point) (proof-locked-end))
-        (if (< (current-column) (current-indentation))
-            (skip-chars-forward "\t "))
-      (save-excursion
-        (indent-line-to
-         (max 
-          0 
-          (save-excursion
-            (back-to-indentation)
-            (coq-indent-calculate)
-            ))))
-      (if (< (current-column) (current-indentation))
-          (back-to-indentation))))
+    (save-excursion
+      (let ((ind (save-excursion (back-to-indentation) (coq-indent-calculate))))
+        (indent-line-to (max 0 ind))))
+    (if (< (current-column) (current-indentation))
+        (back-to-indentation)))
   (if proof-indent-pad-eol (proof-indent-pad-eol)))
 
+(defun proof-indent-line-not-comments ()
+  "Same as  `proof-indent-line' but comments are not indented."
+  (interactive)
+  (unless (not (proof-ass script-indent))
+    (save-excursion
+      (let ((ind (save-excursion (back-to-indentation) (coq-indent-calculate t))))
+        (when ind (indent-line-to (max 0 ind)))))
+    (if (< (current-column) (current-indentation))
+        (back-to-indentation)))
+  (if proof-indent-pad-eol (proof-indent-pad-eol)))
+
+(defun coq-indent-region (start end)
+  (let ((deb (min start end)) (fin (max start end)))
+    (goto-char end)
+    (setq fin (point-marker)) ; to go back there even if shifted
+    (goto-char deb)
+    (while (< (point) fin)
+      (or (and (bolp) (eolp))
+          (proof-indent-line-not-comments))
+      (forward-line 1))
+    (goto-char fin)))
+
+(setq indent-region-function 'coq-indent-region)
 
 (provide 'coq-indent)
 

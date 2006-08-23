@@ -836,24 +836,38 @@ idtac (Nop) tactic, put the following line in your .emacs:
 
 ;;; 'with' is used in tactics too... and ":=" can appear too!! But only
 ;;; inside parenthesis
+
+
+;too slow
+;(defconst coq-with-with-hole-regexp
+;  (concat "\\(" "with"
+;          "\\)\\s-+\\(" coq-id "\\)\\s-*"
+;	  "\\(?:\\(?:"
+;          coq-ids
+;          "\\|(" coq-ids ":[^=][^)]*)"
+;	  "\\)\\s-*\\)*"
+;	  ":" ; : or :=
+;	  ))
+
+; faux
+;(defconst coq-with-with-hole-regexp
+;  (concat "\\(" "with" "\\)\\s-+\\(" coq-id "\\)"))
+
+;faux
+;(defconst coq-with-with-hole-regexp
+;  (concat "\\(" "with" "\\)\\s-+\\(" coq-ids "\\)" "\\(?:[^:]+\\|:[^=]\\)*:="))
+
 (defconst coq-with-with-hole-regexp
-  (concat "\\(" "with"
-          "\\)\\s-+\\(" coq-id "\\)\\s-*"
-	  "\\(?:\\(?:"
-	  "([^)]*:[^=][^)]*)" ;; (x:y)
-	  "\\|" coq-id ; x
-	  "\\)\\s-*\\)*"
-	  ":" ; : or :=
-	  ))
-
-
+  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(]*:\\|.*)[^(.]*:=\\)")
+  ;(concat "\\(" "with" "\\)\\s-+\\(" coq-id "\\)" ".*?)[^(.]*:=")
+  )
 
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
     (list
      (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
-     (cons (proof-ids-to-regexp coq-tactics) 'proof-tactics-name-face)
+     (cons (proof-ids-to-regexp coq-tactics ) 'proof-tactics-name-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
      (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
      (cons "============================" 'font-lock-keyword-face)
