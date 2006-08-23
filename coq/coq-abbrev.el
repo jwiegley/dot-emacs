@@ -15,15 +15,15 @@
 
 
 ;; Computes the max length of strings in a list
-(defun max-length-db (l)
-  (if (not l) 0
-    (let ((lgth (length (car (car l))))
-	  (lgthrest (max-length-db (cdr l))))
-      (max lgth lgthrest))))
+(defun max-length-db (db)
+  (let ((l db) (res 0))
+    (while l
+      (let ((lgth (length (car (car l)))))
+	(setq res (max lgth res))
+	(setq l (cdr l))))
+    res))
 
-; this make emacs accept recursive versiond of these functions 
-;(setq max-lisp-eval-depth 10000)
-;(setq max-specpdl-size 30000)
+
 
 (defun coq-build-menu-from-db-internal (db lgth menuwidth)
   "Take a keyword database DB and return insertion menus for them."
@@ -93,20 +93,13 @@ Submenus contain SIZE entries (default 30)."
 	(setq l tl)))
     res))
 
-(message "coq-abbrev partly loaded 12")
-
 (defconst coq-tactics-menu 
   (append '("INSERT TACTICS" 
 	    ["Intros (smart)" coq-insert-intros t])
 	  (coq-build-menu-from-db coq-tactics-db)))
 
-(message "coq-abbrev partly loaded 13")
-
-
 (defconst coq-tactics-abbrev-table 
   (coq-build-abbrev-table-from-db coq-tactics-db))
-
-(message "coq-abbrev partly loaded 14")
 
 (defconst coq-tacticals-menu 
   (append '("INSERT TACTICALS" 
