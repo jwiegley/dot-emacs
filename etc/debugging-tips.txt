@@ -5,18 +5,26 @@ Emacs debug flags
 =================
 
 If Proof General gives an error, you can set the Emacs debug
-flag to find out where in the code it occurs, showing a
-stack trace:
+flags to find out where in the code it occurs, showing a
+stack trace.
+
+On Emacs, check the boxes in the Options menu:
+
+   Options -> Enter Debugger on Error 
+   Options -> Enter Debugger on Quit  
+
+On XEmacs you can find the check boxes under the menu Options ->
+Troubleshooting.
+
+You can also set these variables directly in lisp:
 
  (setq debug-on-error t)    ; debug on errors
- (setq debug-on-quit t)   ; debug on CTRL-G for looping code
+ (setq debug-on-quit t)     ; debug on CTRL-G for looping code
 
 You can make settings like this using M-x set-variable, or writing Lisp
 code as above in the *scratch* buffer, and typing C-x C-e to evaluate
 the expressions, or using M-x eval-expression (ESC-:).
 
-On XEmacs you can also find the above settings under the
-menu Options -> Troubleshooting.
 
 Debugging start-up problems
 ===========================
