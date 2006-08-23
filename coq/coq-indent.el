@@ -129,7 +129,7 @@ detect if they start something or not."
 
 
 (defun coq-find-command-end (direction)
-  "Moves to the first end of command found looking at direction.  The opint is put exactly before the last \".\" of the ending token.  If no end command is found, go as far as possible and return nil."
+  "Moves to the first end of command found looking at direction.  The point is put exactly before the last \".\" of the ending token.  If no end command is found, go as far as possible and return nil."
   (if (< direction 0)
       (coq-find-command-end-backward)
     (coq-find-command-end-forward)))

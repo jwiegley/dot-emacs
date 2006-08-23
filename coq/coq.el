@@ -620,16 +620,17 @@ This function calls `coq-find-and-forget-v81' or
     )
   )
 
+
 (defun coq-guess-or-ask-for-string (s &optional dontguess)
   (let ((guess
          (and (not dontguess)
          (if (region-exists-p) 
              (buffer-substring-no-properties (region-beginning) (region-end))
-           (symbol-near-point)))))
+           (thing-at-point 'word)))))
     (read-string 
      (if guess (concat s " (" guess "): ") (concat s " : "))
-     nil 'proof-minibuffer-history guess))
-  )
+     nil 'proof-minibuffer-history guess)))
+
 
 (defun coq-ask-do (ask do &optional dontguess postformatcmd)
   "Ask for an ident and print the corresponding term."
