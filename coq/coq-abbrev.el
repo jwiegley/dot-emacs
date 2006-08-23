@@ -1,5 +1,8 @@
-;; default abbrev table
-; This is for coq V8, you should test coq version before loading
+;;; coq-abbrev.el --- coq abbrev table and menus for ProofGeneral mode
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Authors: Healfdene Goguen, Pierre Courtieu
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
+;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
 
 (require 'proof)
 (require 'coq-syntax)
@@ -12,86 +15,6 @@
   (interactive)
   (describe-variable 'coq-local-vars-doc))
 
-
-
-;; Computes the max length of strings in a list
-(defun max-length-db (db)
-  (let ((l db) (res 0))
-    (while l
-      (let ((lgth (length (car (car l)))))
-	(setq res (max lgth res))
-	(setq l (cdr l))))
-    res))
-
-
-
-(defun coq-build-menu-from-db-internal (db lgth menuwidth)
-  "Take a keyword database DB and return insertion menus for them."
-  (let ((l db) (res ()) (size lgth)
-	(keybind-abbrev (substitute-command-keys " \\[expand-abbrev]")))
-    (while (and l (> size 0))
-      (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
-	     (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
-	     (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
-	     (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
-	     (e6 (car-safe tl5))	; e6 = function for smart insertion
-	     (e7 (car-safe (cdr-safe tl5))) ; e7 = if non-nil : hide in menu 
-	     (entry-with (max (- menuwidth (length e1)) 0))
-	     (spaces (make-string entry-with ? ))
-	     ;;(restofmenu (coq-build-menu-from-db-internal tl (- size 1) menuwidth))
-	     )
-	(when (not e7)			; if not hidden
-	  (let ((menu-entry 
-		 (vector 
-		  ;; menu entry label
-		  (concat e1 (if (not e2) "" (concat spaces "(" e2 keybind-abbrev ")")))
-		   ;;insertion function if present otherwise insert completion
-		   (if e6 e6 `(holes-insert-and-expand ,e3))
-		   t)))
-	    (setq res (nconc res (list menu-entry)))));; append *in place*
-	(setq l tl)
-	(setq size (- size 1))))
-    res))
-
-
-(defun coq-build-title-menu (l size)
-    (concat (car-safe (car-safe l))
-	  " ... "
-	  (car-safe (car-safe (nthcdr (- size 1) l)))))
-
-
-(defun coq-build-menu-from-db (db &optional size)
-  "Take a keyword database DB and return a list of insertion menus for
- them.
-Submenus contain SIZE entries (default 30)."
-  (let* ((l db) (res ())
-	(wdth (+ 2 (max-length-db coq-tactics-db)))
-	(sz (or size 30)) (lgth (length l)))
-    (while l
-      (if (<= lgth sz)
-	  (setq res 
-		(nconc res (list (cons (coq-build-title-menu l lgth)
-				       (coq-build-menu-from-db-internal l lgth wdth)))))
-	(setq res 
-	      (nconc res (list (cons (coq-build-title-menu l sz)
-				     (coq-build-menu-from-db-internal l sz wdth))))))
-      (setq l (nthcdr sz l))
-      (setq lgth (length l)))
-    res))
-
-(defun coq-build-abbrev-table-from-db (db)
-  (let ((l db) (res ()))
-    (while l
-      (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
-	     (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
-	     )
-	(when e2 (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete)))))
-	(setq l tl)))
-    res))
 
 (defconst coq-tactics-menu 
   (append '("INSERT TACTICS" 
@@ -119,11 +42,9 @@ Submenus contain SIZE entries (default 30)."
 (defconst coq-commands-abbrev-table 
   (coq-build-abbrev-table-from-db coq-commands-db))
 
-
-
 (defconst coq-terms-menu 
   (append '("INSERT TERM" 
-	    ["Match!" coq-insert-match t])
+	    ["Match (smart)" coq-insert-match t])
 	  (coq-build-menu-from-db coq-terms-db)))
 
 (defconst coq-terms-abbrev-table 
@@ -219,14 +140,15 @@ Submenus contain SIZE entries (default 30)."
      ;; With all these submenus you have to wonder if these things belong
      ;; on the main menu.  Are they the most often used?
      ["Compile" coq-Compile t]
-     ["Set coq prog name *for this file persistently*" coq-ask-insert-coq-prog-name t]
-     ["help on setting prog name persistently for a file" coq-local-vars-list-show-doc t]
+     ["Set coq prog *persistently*" coq-ask-insert-coq-prog-name t]
+     ["help on setting persistently" coq-local-vars-list-show-doc t]
      ))
 
 ;; da: Moved this from the main menu to the Help submenu.  
 ;; It also appears under Holes, anyway.
 (defpgdefault help-menu-entries
-  '(["Tell me about holes?" holes-show-doc t]))
+  '(["Tell me about holes?" holes-show-doc t]
+    ["help on setting prog name persistently for a file" coq-local-vars-list-show-doc t]))
 
 
 (provide 'coq-abbrev)

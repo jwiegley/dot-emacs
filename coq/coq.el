@@ -1,6 +1,7 @@
 ;;; coq.el --- Major mode for Coq proof assistant
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Authors: Healfdene Goguen, Pierre Courtieu
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
 
 ;; $Id$ 
@@ -30,13 +31,14 @@
 ;; On Windows with latest Coq package you might need something like:
 ;;  "C:/Program Files/Coq/bin/coqtop.opt.exe"
 ;; instead of just "coqtop".  See also coq-prog-env below.
-  "*Name of program to run as Coq."
+  "*Name of program to run as Coq. Important: See `proof-prog-name'."
   :type 'string
   :group 'coq)
 
 ;; List of arguments to pass to Coq process.  Should contain -emacs.
 ;; -translate will be added automatically to this list if `coq-translate-to-v8'
 ;; is set.
+;; coq-prog-args is set by defpgcustom in proof-config
 (setq coq-prog-args  '("-emacs"))
 
 ;; List of environment settings d to pass to Coq process.
@@ -1327,21 +1329,6 @@ positions."
            "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))
           )))))
 
-
-(defun coq-insert-from-db (db)
-  "Ask for a keyword, with completion on list DB tactics and insert
-corresponding string with holes at point.  If a insertion function is presnet
-for the keyword, call it instead."
-  (let* ((tac (completing-read "tactic (tab for completion) : "
-                               db nil nil))
-         (infos (cddr (assoc tac db)))
-         (s (car infos)) ; completion to insert
-         (f (car-safe (cdr-safe (cdr-safe (cdr infos))))) ; insertion function
-         (pt (point)))
-    (if f (funcall f) ; call f if present
-      (insert (or s tac)) ; insert completion and indent otherwise 
-      (holes-replace-string-by-holes-backward-jump pt)
-      (indent-according-to-mode))))
 
 
 (defun coq-insert-tactic ()

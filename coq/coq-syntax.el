@@ -1,11 +1,13 @@
 ;; coq-syntax.el Font lock expressions for Coq
 ;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
 ;; Authors: Thomas Kleymann and Healfdene Goguen
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
 ;; $Id$
 
 (require 'proof-syntax)
+(require 'coq-db)
 
 ;; da 15/2/03: without defvars compilation breaks
 ;; This may have broken some of logic below
@@ -67,67 +69,6 @@ version of coq by doing 'coqtop -v'." )
 
 
 ;;; keyword databases
-
-;;; We store all information on keywords (tactics or command) in big
-;;; tables (ex: `coq-tactics-db') From there we get: menus including
-;;; "smart" commands, completions for command coq-insert-... 
-;;; abbrev tables and font-lock keyword
-
-;;; real value defined below
-(defconst coq-syntax-db nil
-  "This variable is only used for documentation for lists of keyword
-information lists, like for example `coq-user-tactics-db'. Each
-element is a list of the form
-
-(MENUNAME ABBREVIATION COMPLETION STATE-CHANGE TO-COLORIZE INSERTION-FUN HIDE-IN-MENU)
-
-MENUNAME is the name of tactic (or tactic variant) as it should
-appear in menus.
-
-ABBREVIATION is the abbreviation for completion via `expand-abbrev'.
-
-COMPLETION is the complete text of the tactic, which may contain holes
-denoted by \"#\" or \"@{}\".
-
-If non-nil the optional STATE-CHANGE specifies that the command is not
-state preserving for coq.
-
-If non-nil the optional TO-COLORIZE is the regexp to colorize
-correponding to this tactic. ex: \"simple\\\\s-+destruct\"
-
-If non-nil the optional INSERTION-FUN is the function to be called
-when inserting the tactic. This allows to ask for more information to
-assist tactic writing. This function is not called when using
-completion, it is used when using menu or `coq-insert-tactic'.
-
-If non-nil the optional HIDE-IN-MENU specifies that this tactic should
-not appear in the menu but only in when calling `coq-insert-tactic'." )
-
-
-
-(defun coq-build-regexp-list-from-db (db &optional filter)
-  "Take a keyword database L and return the list of regexps for font-lock."
-  (let ((l db) (res ()))
-    (while l
-      (let* ((hd (car l))(tl (cdr l))	; hd is the first infos list
-             (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-             (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-             (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion 
-             (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
-             (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
-             )
-        ;; TODO delete doublons
-        (when (and e5 (or (not filter) (funcall filter hd)))
-          (setq res (nconc res (list e5))))
-        (setq l tl)))
-    res
-    ))
-
-(defun filter-state-preserving (l)
-  (not (nth 3 l))) ; fourth argument is nil --> state preserving command
-
-(defun filter-state-changing (l)
-  (nth 3 l)) ; fourth argument is nil --> state preserving command
 
 
 (defcustom coq-user-tactics-db nil
@@ -324,7 +265,7 @@ so for the following reasons:
     ("idtac" nil "idtac") ; also in tactics
 ;    ("idtac \"" nil "idtac \"#\"") ; also in tactics
     ("fail" "fa" "fail" nil "fail")
-    ("fail \"" "fa\"" "fail" nil)
+;    ("fail \"" "fa\"" "fail" nil) ;
 ;    ("orelse" nil "orelse #" t "orelse")
     ("repeat" nil "repeat #" nil "repeat")
     ("try" nil "try #" nil "try")
