@@ -160,6 +160,8 @@ To disable coqc being called (and use only make), set this to nil."
   (proof-ids-to-regexp coq-keywords-commands))
 (defvar coq-retractable-instruct-regexp 
   (proof-ids-to-regexp coq-retractable-instruct))
+(defvar coq-non-retractable-instruct-regexp 
+  (proof-ids-to-regexp coq-non-retractable-instruct))
 
 (defvar coq-keywords-section
   '("Section" "Module\\s-+Type" "Declare\\s-+Module" "Module"))
@@ -592,6 +594,14 @@ This function calls `coq-find-and-forget-v81' or
     (cons 'hyp (match-string 1)))
    (t nil)))
 
+(defun coq-state-preserving-p (cmd)
+;  (or 
+   (proof-string-match coq-non-retractable-instruct-regexp cmd)) 
+;   (and 
+;    (not (proof-string-match coq-retractable-instruct-regexp cmd))
+;    (or 
+;     (message "Unknown command, hopes this won't desynchronize ProofGeneral")
+;     t))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                       ;;
@@ -814,6 +824,7 @@ This is specific to `coq-mode'."
   (setq proof-goal-command-p 'coq-goal-command-p
         proof-find-and-forget-fn 'coq-find-and-forget
         pg-topterm-goalhyp-fn 'coq-goal-hyp
+        proof-state-preserving-p 'coq-state-preserving-p
         )
 
   (setq proof-save-command-regexp coq-save-command-regexp
