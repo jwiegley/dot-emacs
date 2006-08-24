@@ -450,14 +450,18 @@ If locked span already has a state number, thne do nothing. Also updates
             (naborts (count-not-intersection coq-last-but-one-proofstack proofstack))
             )
     (setq ans
-          (format "Backtrack %s %s %s . " 
-                  (int-to-string span-staten)
-                  (int-to-string proofdepth)
-                  naborts)
-          )
+          (if (and ; this is more efficient as backtrack x y z may be slow
+               (equal coq-last-but-one-proofstack proofstack)
+               (= coq-last-but-one-proofnum proofdepth)
+               (= coq-last-but-one-statenum span-staten))
+              ""
+            (format "Backtrack %s %s %s . " 
+                    (int-to-string span-staten)
+                    (int-to-string proofdepth)
+                    naborts)))
     (if (string-equal ans "") proof-no-command ; not here because if
       ;; we backtrack a state preserving command, we must do
-      ;; *nothing*, not even a CR (in v74, no prompt is returned
+      ;; *nothing*, not even a CR (in > v74, no prompt is returned
       ;; with "\n")
       ans)
     )
@@ -588,9 +592,6 @@ This function calls `coq-find-and-forget-v81' or
     (cons 'hyp (match-string 1)))
    (t nil)))
 
-;; ??? remove when coq > 8.0 ???
-(defun coq-state-preserving-p (cmd)
-  (not (proof-string-match coq-retractable-instruct-regexp cmd)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                       ;;
@@ -813,7 +814,7 @@ This is specific to `coq-mode'."
   (setq proof-goal-command-p 'coq-goal-command-p
         proof-find-and-forget-fn 'coq-find-and-forget
         pg-topterm-goalhyp-fn 'coq-goal-hyp
-        proof-state-preserving-p 'coq-state-preserving-p)
+        )
 
   (setq proof-save-command-regexp coq-save-command-regexp
         proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
