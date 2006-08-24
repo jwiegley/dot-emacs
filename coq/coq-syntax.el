@@ -627,7 +627,7 @@ Used by `coq-goal-command-p'"
   (append coq-keywords-save-strict '("Proof"))
 )
 
-(defun coq-save-command-p (str)
+(defun coq-save-command-p (span str)
   "Decide whether argument is a Save command or not"
   (or (proof-string-match coq-save-command-regexp-strict str)
       (and (proof-string-match "\\`Proof\\>" str)

@@ -416,7 +416,7 @@ is moved at the end of the match if found, at LIM otherwise."
 
    ;; we are at an end command -> one ident left
    ;; FIX: we should count the number of closing item on the line
-   ((coq-save-command-p (or (coq-command-at-point) "")) 
+   ((coq-save-command-p nil (or (coq-command-at-point) "")) 
     (- proof-indent))
 
 
@@ -426,7 +426,7 @@ is moved at the end of the match if found, at LIM otherwise."
          (or (and;;"Proof ..." is a proof start (but not really a goal command)
               ;;  unless followed by a term (catch by coq-save-command-p above
               (proof-looking-at-safe "\\<Proof\\>")
-              (not (coq-save-command-p (coq-command-at-point))))
+              (not (coq-save-command-p nil (coq-command-at-point))))
              (coq-indent-goal-command-p (coq-command-at-point))
              ))
     proof-indent)
