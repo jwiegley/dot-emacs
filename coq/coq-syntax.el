@@ -36,6 +36,7 @@ none of these 2 variables is set to t, then ProofGeneral guesses the
 version of coq by doing 'coqtop -v'." )
 
 ;;FIXME: how to make compilable?
+;; post-cond: one of the variables is set to t
 (unless (noninteractive);; DA: evaluating here gives error during compile
   (let* 
       (
@@ -47,11 +48,10 @@ version of coq by doing 'coqtop -v'." )
                     " coq-version-is-V8-0 are set to true. This is"
                     "contradictory.")))
     (cond
-     ((and coq-version-is-V8-1 coq-version-is-V8-0) 
-      (error err))
+     ((and coq-version-is-V8-1 coq-version-is-V8-0) (error err))
      (coq-version-is-V8-1 (message v81))
      (coq-version-is-V8-0 (message v80))
-     (coq-version-is-V8 (setq coq-version-is-V8-0 t coq-version-is-V8-1 nil)
+     (coq-version-is-V8 (setq coq-version-is-V8-0 nil coq-version-is-V8-1 t)
                         (message v80))
      (t;; otherwise do coqtop -v and see which version we have
       (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))

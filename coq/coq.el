@@ -149,7 +149,8 @@ To disable coqc being called (and use only make), set this to nil."
 (defconst coq-forget-id-command "Reset %s . ")
 (defconst coq-back-n-command "Back %s . ")
 
-
+;; some of them must kept when v8.1 because they are used by state preserving
+;; check when C-c C-v
 (defconst coq-state-preserving-tactics-regexp 
   (proof-ids-to-regexp coq-state-preserving-tactics))
 (defconst coq-state-changing-commands-regexp
@@ -568,13 +569,14 @@ If locked span already has a state number, thne do nothing. Also updates
 ;; when > 8.0: adapt
 (defun coq-find-and-forget (span)
   "Go back to SPAN.
-This function calls `coq-find-and-forget-v81' or
-`coq-find-and-forget-v80' depending on the variables `coq-version-is-V8-1' and
-`coq-version-is-V8-0', if none is set, then it default to `coq-find-and-forget-v80'."
+This function calls `coq-find-and-forget-v81' or `coq-find-and-forget-v80'
+depending on the variables `coq-version-is-V8-1' and `coq-version-is-V8-0', if
+none is set, then it default to `coq-find-and-forget-v81' but this should not
+happen since one of them is necessarily set to t in coq-syntax.el."
  (cond 
   (coq-version-is-V8-1 (coq-find-and-forget-v81 span))
   (coq-version-is-V8-0 (coq-find-and-forget-v80 span))
-  (t (coq-find-and-forget-v80 span)) ;; this is temporary
+  (t (coq-find-and-forget-v81 span)) ;; should not happen
   )
  )  
 
@@ -1337,25 +1339,25 @@ positions."
   "Ask for a tactic name, with completion on a quasi-exhaustive list of coq
 tactics and insert it at point.  Questions may be asked to the user."
   (interactive)
-  (coq-insert-from-db coq-tactics-db))
+  (coq-insert-from-db coq-tactics-db "Tactic"))
 
 (defun coq-insert-tactical ()
   "Ask for a tactical name, with completion on a quasi-exhaustive list of coq
 tacticals and insert it at point.  Questions may be asked to the user."
   (interactive)
-  (coq-insert-from-db coq-tacticals-db))
+  (coq-insert-from-db coq-tacticals-db "Tactical"))
 
 (defun coq-insert-command ()
   "Ask for a command name, with completion on a quasi-exhaustive list of coq
 commands and insert it at point.  Questions may be asked to the user."
   (interactive)
-  (coq-insert-from-db coq-commands-db))
+  (coq-insert-from-db coq-commands-db "Command"))
 
 (defun coq-insert-term ()
   "Ask for a term kind, with completion and insert it at point.  Questions may
 be asked to the user."
   (interactive)
-  (coq-insert-from-db coq-terms-db))
+  (coq-insert-from-db coq-terms-db "Kind of term"))
 
 
 (define-key coq-keymap [(control ?i)] 'coq-insert-intros)
