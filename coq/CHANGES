@@ -1,0 +1,50 @@
+-*- outline -*-
+
+* Summary of Changes for coq / Proof General 3.7
+
+*** Much better PG/Coq synchronizing system
+
+    Synchronization is not based on script parsing anymore, which
+    makes it much more reliable. 
+
+    In particular you don't need to set
+    coq-user-state-changing-commands and others anymore (was needed
+    for your own tactics/commands). See next point.
+
+*** new variables coq-user-commands-db and coq-user-tactics-db
+
+    User defined tactics/commands information.  See C-h v coq-syntax-db
+    for syntax. It is not necessary to add your own tactics here (it is
+    not needed by the synchronizing/backtracking system). You may
+    however do so for the following reasons:
+
+    1 your tactics/commands will be colorized by font-lock
+
+    2 your tactics/commands will be added to the menu and to completion
+    when calling \\[coq-insert-tactic/command] (see below)
+
+    3 you may define an abbreviation for your tactic/command.
+
+*** Much better indentation
+
+*** better font-lock coloration
+
+*** new coq-insert-tactic and coq-insert-command function
+
+    These two functions allow to insert a tactic or command with
+    completion in the mini-buffer.
+
+*** Local Variables List semi automatic filling
+
+    Local Variables Lists are used to set coq program name and arguments
+    persistently for a given file. The menu entry "set coq prog
+    persistently" helps you to define or change the values in this list
+    (which are store as a comment at the end of the file, see info
+    manual at node ((emacs)File Variables).
+
+*** automatic insertion of "match...with" for a given type
+
+    This coqide great feature has been added
+
+*** new "queries" menu
+

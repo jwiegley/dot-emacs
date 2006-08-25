@@ -80,7 +80,7 @@ so for the following reasons:
   1 your tactics will be colorized by font-lock
 
   2 your tactics will be added to the menu and to completion when
-  calling \\[coq-insert-tactics]
+  calling \\[coq-insert-tactic]
 
   3 you may define an abbreviation for your tactic."
 
@@ -97,7 +97,7 @@ so for the following reasons:
   1 your commands will be colorized by font-lock
 
   2 your commands will be added to the menu and to completion when
-  calling \\[coq-insert-commands]
+  calling \\[coq-insert-command]
 
   3 you may define an abbreviation for your command."
 
