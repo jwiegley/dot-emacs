@@ -164,6 +164,7 @@ To disable coqc being called (and use only make), set this to nil."
 (defvar coq-non-retractable-instruct-regexp 
   (proof-ids-to-regexp coq-non-retractable-instruct))
 
+; delete when no more support for 8.0 ?
 (defvar coq-keywords-section
   '("Section" "Module\\s-+Type" "Declare\\s-+Module" "Module"))
 
@@ -264,6 +265,7 @@ toplevel \"Coq <\".  Returns nil if yes.  This assumes that no
 ; if no second id --> name of the module/section is (match-string 2 str)
 ; otherwise it is (match-string 5 str) 
 ; to know if there is a second id: (match-string 2 str)="Type" ?
+; delete when no more support for 8.0
 (defun coq-section-or-module-start-p (str)
   (proof-string-match 
    (concat "\\`" coq-section-regexp 
