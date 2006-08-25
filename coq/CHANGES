@@ -2,7 +2,9 @@
 
 * Summary of Changes for coq / Proof General 3.7
 
-*** Much better PG/Coq synchronizing system
+*** No more support for coq 7.x
+
+*** Much better PG/Coq synchronizing system for coq >= 8.1
 
     Synchronization is not based on script parsing anymore, which
     makes it much more reliable. 
@@ -11,7 +13,12 @@
     coq-user-state-changing-commands and others anymore (was needed
     for your own tactics/commands). See next point.
 
-*** new variables coq-user-commands-db and coq-user-tactics-db
+    Coq v8.0 is still supported, if for some reason PG does not see
+    that your coq version is a 8.0 (read *Message* after loading a .v
+    file), then set variable coq-version-is-V8-0 to t in your emacs
+    init file. Otherwise PG will hang at first line when scripting.
+
+*** New variables coq-user-commands-db and coq-user-tactics-db
 
     User defined tactics/commands information.  See C-h v coq-syntax-db
     for syntax. It is not necessary to add your own tactics here (it is
@@ -21,13 +28,18 @@
     1 your tactics/commands will be colorized by font-lock
 
     2 your tactics/commands will be added to the menu and to completion
-    when calling \\[coq-insert-tactic/command] (see below)
+    when calling coq-insert-tactic/command (see below)
 
     3 you may define an abbreviation for your tactic/command.
 
 *** Much better indentation
 
-*** better font-lock coloration
+    Faster.
+
+    indent-region won't touch comments, but indenting comments with
+    tab (indent-according-to-mode) will.
+
+*** Better font-lock coloration
 
 *** new coq-insert-tactic and coq-insert-command function
 

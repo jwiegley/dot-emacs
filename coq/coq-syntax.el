@@ -60,12 +60,12 @@ version of coq by doing 'coqtop -v'." )
         (message str)
         (let ((num (and ver (match-string 1 str))))
           (cond
-           ((and num (string-match "\\<8.1" num))
-            (message v81)
-            (setq coq-version-is-V8-1 t))
-           (t;; temporary, should be 8.1 when it is officially out
-            (message (concat "Falling back to default: " v80))
-            (setq coq-version-is-V8-0 t)))))))))
+           ((and num (string-match "\\<8.0" num))
+            (message v80)
+            (setq coq-version-is-V8-0 t))
+           (t ; 8.1 by default now
+            (message (concat "Falling back to default: " v81))
+            (setq coq-version-is-V8-1 t)))))))))
 
 
 ;;; keyword databases
@@ -106,152 +106,154 @@ so for the following reasons:
 
 
 (defvar coq-tactics-db
-  '(
-    ("absurd " "abs" "absurd " t "absurd")
-    ("apply" "ap" "apply " t "apply")
-    ("assert by" "assb" "assert ( # : # ) by #" t "assert")
-    ("assert" "ass" "assert ( # : # )" t "assert")
-    ("assumption" "as" "assumption" t "assumption")
-    ("auto with arith" "awa" "auto with arith" t)
-    ("auto with" "aw" "auto with @{db}" t)
-    ("auto" "a" "auto" t "auto")
-    ("autorewrite with in using" "arwiu" "autorewrite with @{db,db...} in @{hyp} using @{tac}" t)
-    ("autorewrite with in" "arwi" "autorewrite with @{db,db...} in @{hyp}" t)
-    ("autorewrite with using" "arwu" "autorewrite with @{db,db...} using @{tac}" t)
-    ("autorewrite with" "ar" "autorewrite with @{db,db...}" t "autorewrite")
-    ("cases" "c" "cases " t "cases")
-    ("cbv" "cbv" "cbv beta [#] delta iota zeta" t "cbv")
-    ("change in" "chi" "change # in #" t)
-    ("change with in" "chwi" "change # with # in #" t)
-    ("change with" "chw" "change # with" t)
-    ("change" "ch" "change " t "change")
-    ("clear" "cl" "clear" t "clear")
-    ("clearbody" "cl" "clearbody" t "clearbody")
-    ("cofix" "cof" "cofix" t "cofix")
-    ("coinduction" "coind" "coinduction" t "coinduction")
-    ("compare" "cmpa" "compare # #" t "compare")
-    ("compute" "cmpu" "compute" t "compute")
-    ("congruence" "cong" "congruence" t "congruence")
-    ("constructor" "cons" "constructor" t "constructor")
-    ("contradiction" "contr" "contradiction" t "contradiction")
-    ("cut" "cut" "cut" t "cut")
-    ("cutrewrite" "cutr" "cutrewrite -> # = #" t "cutrewrite")
-    ("decide equality" "deg" "decide equality" t "decide\\-+equality")
-    ("decompose" "dec" "decompose [#] #" t "decompose")
-    ("decompose record" "decr" "decompose record #" t "decompose\\s-+record")
-    ("decompose sum" "decs" "decompose sum #" t "decompose\\-+sum")
-    ("dependent inversion" "depinv" "dependent inversion" t "dependent\\s-+inversion")
-    ("dependent inversion with" "depinvw" "dependent inversion # with #" t)
-    ("dependent inversion_clear" "depinvc" "dependent inversion_clear" t "dependent\\s-+inversion_clear")
-    ("dependent inversion_clear with" "depinvw" "dependent inversion_clear # with #" t)
-    ("dependent rewrite ->" "depr" "dependent rewrite -> @{id}" t "dependent\\s-+rewrite")
-    ("dependent rewrite <-" "depr<" "dependent rewrite <- @{id}" t)
-    ("destruct as" "desa" "destruct # as #" t)
-    ("destruct using" "desu" "destruct # using #" t)
-    ("destruct" "des" "destruct " t  "destruct")
-    ("discriminate" "dis" "discriminate" t "discriminate")
-    ("discrR" "discrR" "discrR" t "discrR")
-    ("double induction" "dind" "double induction # #" t "double\\s-+induction")
-    ("eapply" "eap" "eapply #" t "eapply")
-    ("eauto with arith" "eawa" "eauto with arith" t)
-    ("eauto with" "eaw" "eauto with @{db}" t)
-    ("eauto" "ea" "eauto" t "eauto")
-    ("econstructor" "econs" "econstructor" t "econstructor")
-    ("eexists" "eex" "eexists" t "eexists")
-    ("eleft" "eleft" "eleft" t "eleft")
-    ("elim using" "elu" "elim # using #" t)
-    ("elim" "e" "elim #" t "elim")
-    ("elimtype" "elt" "elimtype" "elimtype")
-    ("eright" "erig" "eright" "eright")
-    ("esplit" "esp" "esplit" t "esplit")
-    ("exact" "exa" "exact" t "exact")
-    ("exists" "ex" "exists #" t "exists")
-    ("fail" "fa" "fail" nil)
-    ("field" "field" "field" t "field")
-    ("firstorder" "fsto" "firstorder" t "firstorder")
-    ("firstorder with" "fsto" "firstorder with #" t)
-    ("firstorder with using" "fsto" "firstorder # with #" t)
-    ("fold" "fold" "fold #" t "fold")
-    ("fourier" "four" "fourier" t "fourier")
-    ("functional induction" "fi" "functional induction @{f} @{args}" t "functional\\s-+induction")
-    ("generalize" "g" "generalize #" t "generalize")
-    ("generalize dependent" "gd" "generalize dependent #" t "generalize\\s-+dependent")
-    ("hnf" "hnf" "hnf" t "hnf")
-    ("idtac" "id" "idtac" nil "idtac") ; also in tacticals with abbrev id
-    ("idtac \"" "id\"" "idtac \"#\"") ; also in tacticals
-    ("induction" "ind" "induction #" t "induction")
-    ("induction using" "indu" "induction # using #" t)
-    ("injection" "inj" "injection #" t "injection")
-    ("instantiate" "inst" "instantiate" t "instantiate")
-    ("intro" "i" "intro" t "intro")
-    ("intro after" "ia" "intro # after #" t)
-    ("intros" "is" "intros #" t "intros")
-    ("intros! (guess names)" nil "intros #" nil nil coq-insert-intros)
-    ("intros until" "isu" "intros until #" t)
-    ("intuition" "intu" "intuition #" t "intuition")
-    ("inversion" "inv" "inversion #" t "inversion")
-    ("inversion in" "invi" "inversion # in #" t)
-    ("inversion using" "invu" "inversion # using #" t)
-    ("inversion using in" "invui" "inversion # using # in #" t)
-    ("inversion_clear" "invcl" "inversion_clear" t "inversion_clear")
-    ("lapply" "lap" "lapply" t "lapply")
-    ("lazy" "lazy" "lazy beta [#] delta iota zeta" t "lazy")
-    ("left" "left" "left" t "left")
-    ("linear" "lin" "linear" t "linear")
-    ("load" "load" "load" t "load")
-    ("move after" "mov" "move # after #" t "move")
-    ("omega" "o" "omega" t "omega")
-    ("pattern" "pat" "pattern" t "pattern")
-    ("pattern(s)" "pats" "pattern # , #" t)
-    ("pattern at" "pata" "pattern # at #" t)
-    ("pose" "po" "pose ( # := # )" t "pose")
-    ("prolog" "prol" "prolog" t "prolog")
-    ("quote" "quote" "quote" t "quote")
-    ("quote []" "quote2" "quote # [#]" t)
-    ("red" "red" "red" t "red")
-    ("refine" "ref" "refine" t "refine")
-    ("reflexivity" "refl" "reflexivity #" t "reflexivity")
-    ("rename into" "ren" "rename # into #" t "rename")
-    ("replace with" "rep" "replace # with #" t)
-    ("replace with in" "repi" "replace # with # in #" t)
-    ("rewrite <- in" "ri<" "rewrite <- # in #" t)
-    ("rewrite <-" "r<" "rewrite <- #" t)
-    ("rewrite in" "ri" "rewrite # in #" t)
-    ("rewrite" "r" "rewrite #" t "rewrite")
-    ("right" "rig" "right" t "right")
-    ("ring" "ring" "ring #" t "ring")
-    ("set in * |-" "seth" "set ( # := #) in * |-" t)
-    ("set in *" "set*" "set ( # := #) in *" t)
-    ("set in |- *" "setg" "set ( # := #) in |- *" t)
-    ("set in" "seti" "set ( # := #) in #" t)
-    ("set" "set" "set ( # := #)" t "set")
-    ("setoid_replace with" "strep" "setoid_replace # with #" t "setoid_replace")
-    ("simpl" "s" "simpl" t "simpl")
-    ("simpl" "sa" "simpl # at #" t)
-    ("simple destruct" "sdes" "simple destruct" t "simple\\s-+destruct")
-    ("simple inversion" "sinv" "simple inversion" t "simple\\s-+inversion")
-    ("simple induction" "sind" "simple induction" t "simple\\s-+induction")
-    ("simplify_eq" "simeq" "simplify_eq @{hyp}" t "simplify_eq")
-    ("specialize" "spec" "specialize" t "specialize")
-    ("split" "sp" "split" t "split")
-    ("split_Rabs" "spra" "splitRabs" t "split_Rabs")
-    ("split_Rmult" "sprm" "splitRmult" t "split_Rmult")
-    ("stepl" "stl" "stepl #" t "stepl")
-    ("stepl by" "stlb" "stepl # by #" t)
-    ("stepr" "str" "stepr #" t "stepr")
-    ("stepr by" "strb" "stepr # by #" t)
-    ("subst" "su" "subst #" t "subst")
-    ("symmetry" "sy" "symmetry" t "symmetry")
-    ("symmetry in" "sy" "symmetry in #" t)
-    ("tauto" "ta" "tauto" t "tauto")
-    ("transitivity" "trans" "transitivity #" t "transitivity")
-    ("trivial" "t" "trivial" t "trivial")
-    ("trivial with" "t" "trivial with @{db}" t)
-    ("unfold" "u" "unfold #" t "unfold")
-    ("unfold(s)" "us" "unfold # , #" t)
-    ("unfold in" "unfi" "unfold # in #" t)
-    ("unfold at" "unfa" "unfold # at #" t)
-    )
+  (append 
+   coq-user-tactics-db
+   '(
+     ("absurd " "abs" "absurd " t "absurd")
+     ("apply" "ap" "apply " t "apply")
+     ("assert by" "assb" "assert ( # : # ) by #" t "assert")
+     ("assert" "ass" "assert ( # : # )" t "assert")
+     ("assumption" "as" "assumption" t "assumption")
+     ("auto with arith" "awa" "auto with arith" t)
+     ("auto with" "aw" "auto with @{db}" t)
+     ("auto" "a" "auto" t "auto")
+     ("autorewrite with in using" "arwiu" "autorewrite with @{db,db...} in @{hyp} using @{tac}" t)
+     ("autorewrite with in" "arwi" "autorewrite with @{db,db...} in @{hyp}" t)
+     ("autorewrite with using" "arwu" "autorewrite with @{db,db...} using @{tac}" t)
+     ("autorewrite with" "ar" "autorewrite with @{db,db...}" t "autorewrite")
+     ("cases" "c" "cases " t "cases")
+     ("cbv" "cbv" "cbv beta [#] delta iota zeta" t "cbv")
+     ("change in" "chi" "change # in #" t)
+     ("change with in" "chwi" "change # with # in #" t)
+     ("change with" "chw" "change # with" t)
+     ("change" "ch" "change " t "change")
+     ("clear" "cl" "clear" t "clear")
+     ("clearbody" "cl" "clearbody" t "clearbody")
+     ("cofix" "cof" "cofix" t "cofix")
+     ("coinduction" "coind" "coinduction" t "coinduction")
+     ("compare" "cmpa" "compare # #" t "compare")
+     ("compute" "cmpu" "compute" t "compute")
+     ("congruence" "cong" "congruence" t "congruence")
+     ("constructor" "cons" "constructor" t "constructor")
+     ("contradiction" "contr" "contradiction" t "contradiction")
+     ("cut" "cut" "cut" t "cut")
+     ("cutrewrite" "cutr" "cutrewrite -> # = #" t "cutrewrite")
+     ("decide equality" "deg" "decide equality" t "decide\\-+equality")
+     ("decompose" "dec" "decompose [#] #" t "decompose")
+     ("decompose record" "decr" "decompose record #" t "decompose\\s-+record")
+     ("decompose sum" "decs" "decompose sum #" t "decompose\\-+sum")
+     ("dependent inversion" "depinv" "dependent inversion" t "dependent\\s-+inversion")
+     ("dependent inversion with" "depinvw" "dependent inversion # with #" t)
+     ("dependent inversion_clear" "depinvc" "dependent inversion_clear" t "dependent\\s-+inversion_clear")
+     ("dependent inversion_clear with" "depinvw" "dependent inversion_clear # with #" t)
+     ("dependent rewrite ->" "depr" "dependent rewrite -> @{id}" t "dependent\\s-+rewrite")
+     ("dependent rewrite <-" "depr<" "dependent rewrite <- @{id}" t)
+     ("destruct as" "desa" "destruct # as #" t)
+     ("destruct using" "desu" "destruct # using #" t)
+     ("destruct" "des" "destruct " t  "destruct")
+     ("discriminate" "dis" "discriminate" t "discriminate")
+     ("discrR" "discrR" "discrR" t "discrR")
+     ("double induction" "dind" "double induction # #" t "double\\s-+induction")
+     ("eapply" "eap" "eapply #" t "eapply")
+     ("eauto with arith" "eawa" "eauto with arith" t)
+     ("eauto with" "eaw" "eauto with @{db}" t)
+     ("eauto" "ea" "eauto" t "eauto")
+     ("econstructor" "econs" "econstructor" t "econstructor")
+     ("eexists" "eex" "eexists" t "eexists")
+     ("eleft" "eleft" "eleft" t "eleft")
+     ("elim using" "elu" "elim # using #" t)
+     ("elim" "e" "elim #" t "elim")
+     ("elimtype" "elt" "elimtype" "elimtype")
+     ("eright" "erig" "eright" "eright")
+     ("esplit" "esp" "esplit" t "esplit")
+     ("exact" "exa" "exact" t "exact")
+     ("exists" "ex" "exists #" t "exists")
+     ("fail" "fa" "fail" nil)
+     ("field" "field" "field" t "field")
+     ("firstorder" "fsto" "firstorder" t "firstorder")
+     ("firstorder with" "fsto" "firstorder with #" t)
+     ("firstorder with using" "fsto" "firstorder # with #" t)
+     ("fold" "fold" "fold #" t "fold")
+     ("fourier" "four" "fourier" t "fourier")
+     ("functional induction" "fi" "functional induction @{f} @{args}" t "functional\\s-+induction")
+     ("generalize" "g" "generalize #" t "generalize")
+     ("generalize dependent" "gd" "generalize dependent #" t "generalize\\s-+dependent")
+     ("hnf" "hnf" "hnf" t "hnf")
+     ("idtac" "id" "idtac" nil "idtac") ; also in tacticals with abbrev id
+     ("idtac \"" "id\"" "idtac \"#\"")  ; also in tacticals
+     ("induction" "ind" "induction #" t "induction")
+     ("induction using" "indu" "induction # using #" t)
+     ("injection" "inj" "injection #" t "injection")
+     ("instantiate" "inst" "instantiate" t "instantiate")
+     ("intro" "i" "intro" t "intro")
+     ("intro after" "ia" "intro # after #" t)
+     ("intros" "is" "intros #" t "intros")
+     ("intros! (guess names)" nil "intros #" nil nil coq-insert-intros)
+     ("intros until" "isu" "intros until #" t)
+     ("intuition" "intu" "intuition #" t "intuition")
+     ("inversion" "inv" "inversion #" t "inversion")
+     ("inversion in" "invi" "inversion # in #" t)
+     ("inversion using" "invu" "inversion # using #" t)
+     ("inversion using in" "invui" "inversion # using # in #" t)
+     ("inversion_clear" "invcl" "inversion_clear" t "inversion_clear")
+     ("lapply" "lap" "lapply" t "lapply")
+     ("lazy" "lazy" "lazy beta [#] delta iota zeta" t "lazy")
+     ("left" "left" "left" t "left")
+     ("linear" "lin" "linear" t "linear")
+     ("load" "load" "load" t "load")
+     ("move after" "mov" "move # after #" t "move")
+     ("omega" "o" "omega" t "omega")
+     ("pattern" "pat" "pattern" t "pattern")
+     ("pattern(s)" "pats" "pattern # , #" t)
+     ("pattern at" "pata" "pattern # at #" t)
+     ("pose" "po" "pose ( # := # )" t "pose")
+     ("prolog" "prol" "prolog" t "prolog")
+     ("quote" "quote" "quote" t "quote")
+     ("quote []" "quote2" "quote # [#]" t)
+     ("red" "red" "red" t "red")
+     ("refine" "ref" "refine" t "refine")
+     ("reflexivity" "refl" "reflexivity #" t "reflexivity")
+     ("rename into" "ren" "rename # into #" t "rename")
+     ("replace with" "rep" "replace # with #" t)
+     ("replace with in" "repi" "replace # with # in #" t)
+     ("rewrite <- in" "ri<" "rewrite <- # in #" t)
+     ("rewrite <-" "r<" "rewrite <- #" t)
+     ("rewrite in" "ri" "rewrite # in #" t)
+     ("rewrite" "r" "rewrite #" t "rewrite")
+     ("right" "rig" "right" t "right")
+     ("ring" "ring" "ring #" t "ring")
+     ("set in * |-" "seth" "set ( # := #) in * |-" t)
+     ("set in *" "set*" "set ( # := #) in *" t)
+     ("set in |- *" "setg" "set ( # := #) in |- *" t)
+     ("set in" "seti" "set ( # := #) in #" t)
+     ("set" "set" "set ( # := #)" t "set")
+     ("setoid_replace with" "strep" "setoid_replace # with #" t "setoid_replace")
+     ("simpl" "s" "simpl" t "simpl")
+     ("simpl" "sa" "simpl # at #" t)
+     ("simple destruct" "sdes" "simple destruct" t "simple\\s-+destruct")
+     ("simple inversion" "sinv" "simple inversion" t "simple\\s-+inversion")
+     ("simple induction" "sind" "simple induction" t "simple\\s-+induction")
+     ("simplify_eq" "simeq" "simplify_eq @{hyp}" t "simplify_eq")
+     ("specialize" "spec" "specialize" t "specialize")
+     ("split" "sp" "split" t "split")
+     ("split_Rabs" "spra" "splitRabs" t "split_Rabs")
+     ("split_Rmult" "sprm" "splitRmult" t "split_Rmult")
+     ("stepl" "stl" "stepl #" t "stepl")
+     ("stepl by" "stlb" "stepl # by #" t)
+     ("stepr" "str" "stepr #" t "stepr")
+     ("stepr by" "strb" "stepr # by #" t)
+     ("subst" "su" "subst #" t "subst")
+     ("symmetry" "sy" "symmetry" t "symmetry")
+     ("symmetry in" "sy" "symmetry in #" t)
+     ("tauto" "ta" "tauto" t "tauto")
+     ("transitivity" "trans" "transitivity #" t "transitivity")
+     ("trivial" "t" "trivial" t "trivial")
+     ("trivial with" "t" "trivial with @{db}" t)
+     ("unfold" "u" "unfold #" t "unfold")
+     ("unfold(s)" "us" "unfold # , #" t)
+     ("unfold in" "unfi" "unfold # in #" t)
+     ("unfold at" "unfa" "unfold # at #" t)
+     ))
   "Coq tactics information list. See `coq-syntax-db' for syntax. "
   )
 
@@ -358,7 +360,9 @@ so for the following reasons:
 
 (defvar coq-commands-db
   (append 
+   coq-user-commands-db
    '(
+     ;; ("Abort" nil "Abort." t "Abort" nil nil);don't appear in menu
      ("Add Abstract Ring" nil "Add Abstract Ring #." t "Add\\s-+Abstract\\s-+Ring")
      ("Add Abstract Semi Ring" nil "Add Abstract Semi Ring #." t "Add\\s-+Abstract\\s-+Semi\\s-+Ring")
      ("Add Field" nil "Add Field #." t "Add\\s-+Field")
@@ -646,10 +650,6 @@ Used by `coq-goal-command-p'"
 (defvar coq-keywords-state-changing-misc-commands
   (coq-build-regexp-list-from-db coq-commands-db 'filter-state-changing))
 
-
-(defvar coq-user-keywords-state-changing-commands
-  (coq-build-regexp-list-from-db coq-user-commands-db 'filter-state-changing))
-
 (defvar coq-keywords-goal
   (coq-build-regexp-list-from-db coq-goal-starters-db))
 
@@ -663,19 +663,17 @@ Used by `coq-goal-command-p'"
 (defvar coq-keywords-state-changing-commands
   (append
 	coq-keywords-state-changing-misc-commands
-	coq-keywords-decl
-	coq-keywords-defn
-	coq-keywords-goal
-	coq-user-keywords-state-changing-commands))
+	coq-keywords-decl ; all state changing
+	coq-keywords-defn ; idem
+	coq-keywords-goal)) ; idem
 
 
 ;; 
 (defvar coq-keywords-state-preserving-commands
-  (coq-build-regexp-list-from-db 
-   (append coq-user-commands-db coq-commands-db)
-   'filter-state-preserving))
+  (coq-build-regexp-list-from-db coq-commands-db 'filter-state-preserving))
 
-
+;; concat this is faster that redoing coq-build-regexp-list-from-db on
+;; whole commands-db
 (defvar coq-keywords-commands
   (append coq-keywords-state-changing-commands
 	  coq-keywords-state-preserving-commands)
@@ -687,54 +685,19 @@ Used by `coq-goal-command-p'"
 
 ; From JF Monin:
 (defvar coq-reserved
-  '("False"
-	 "True"
-	 "after"
-	 "as"
-	 "cofix"
-	 "fix"
-	 "forall"
-	 "fun"
-	 "match"
-	 "return"
-	 "struct"
-    "else"
-    "end"
-    "if"
-    "in"
-    "into"
-    "let"
-    "then"
-    "using"
-    "with"
-    "by"
-    "beta" "delta" "iota" "zeta" "after" "until" "at"
-    "Sort"
-    "Time")
+  '(
+    "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
+    "return" "struct" "else" "end" "if" "in" "into" "let" "then"
+    "using" "with" "by" "beta" "delta" "iota" "zeta" "after" "until"
+    "at" "Sort" "Time")
   "Reserved keywords of Coq.")
 
 
 (defvar coq-state-changing-tactics
-  (coq-build-regexp-list-from-db 
-   (append coq-user-tactics-db coq-tactics-db)
-   'filter-state-changing))
-
-
-(defcustom coq-user-state-preserving-tactics nil
-  "List of user defined Coq tactics that do not need to be backtracked;
-like \"idtac\" (no other one to my knowledge ?).
-
-For example if myidtac and do_nthing are user defined variants of the
-idtac (Nop) tactic, put the following line in your .emacs:
-
- (setq coq-user-state-preserving-tactics '(\"myidtac\" \"do_nthing\"))"
-  :type '(repeat regexp)
-  :group 'coq)
+  (coq-build-regexp-list-from-db coq-tactics-db 'filter-state-changing))
 
 (defvar coq-state-preserving-tactics
-  (coq-build-regexp-list-from-db 
-   (append coq-user-tactics-db coq-tactics-db)
-   'filter-state-preserving))
+  (coq-build-regexp-list-from-db coq-tactics-db 'filter-state-preserving))
 
 
 (defvar coq-tactics

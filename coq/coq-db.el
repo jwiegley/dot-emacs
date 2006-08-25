@@ -26,7 +26,7 @@ form:
 MENUNAME is the name of form (or form variant) as it should appear in menus or
 completion lists.
 
-ABBREV is the abbreviation for completion via `expand-abbrev'.
+ABBREV is the abbreviation for completion via \\[expand-abbrev].
 
 INSERT is the complete text of the form, which may contain holes denoted by
 \"#\" or \"@{xxx}\".
@@ -35,14 +35,26 @@ If non-nil the optional STATECH specifies that the command is not state
 preserving for coq.
 
 If non-nil the optional KWREG is the regexp to colorize correponding to the
-keyword.  ex: \"simple\\\\s-+destruct\"
+keyword.  ex: \"simple\\\\s-+destruct\" (\\\\s-+ meaning \"one or more spaces\")
 
 If non-nil the optional INSERT-FUN is the function to be called when inserting
-the form (instead of inserting INSERT, except when using `expand-abbrev'). This
+the form (instead of inserting INSERT, except when using \\[expand-abbrev]). This
 allows to write functions asking for more information to assist the user.
 
 If non-nil the optional HIDE specifies that this form should not appear in the
-menu but only in completions." )
+menu but only in interactive completions.
+
+Example of what could be in your emacs init file:
+
+(defvar coq-user-tactics-db
+  '(
+    (\"mytac\" \"mt\" \"mytac # #\" t \"mytac\")
+    (\"myassert by\" \"massb\" \"myassert ( # : # ) by #\" t \"assert\")
+    ))
+
+Explanation of the first line: the tactic menu entry mytac, abbreviated by mt,
+will insert \"mytac # #\" where #s are holes to fill, and \"mytac\" becomes a
+new keyword to colorize." )
 
 (defun coq-insert-from-db (db)
   "Ask for a keyword, with completion on keyword database DB and insert.
@@ -78,7 +90,7 @@ regexp.  See `coq-syntax-db' for DB structure."
              )
         ;; TODO delete doublons
         (when (and e5 (or (not filter) (funcall filter hd)))
-          (setq res (nconc res (list e5))))
+          (setq res (nconc res (list e5)))) ; careful: nconc destructive!
         (setq l tl)))
     res
     ))
@@ -151,10 +163,10 @@ structure."
 	 (sz (or size 30)) (lgth (length l)))
     (while l
       (if (<= lgth sz)
-	  (setq res
+	  (setq res ;; careful: nconc destructive!
 		(nconc res (list (cons (coq-build-title-menu l lgth)
 				       (coq-build-menu-from-db-internal l lgth wdth)))))
-	(setq res
+	(setq res ; careful: nconc destructive!
 	      (nconc res (list (cons (coq-build-title-menu l sz)
 				     (coq-build-menu-from-db-internal l sz wdth))))))
       (setq l (nthcdr sz l))
@@ -171,6 +183,7 @@ See `coq-syntax-db' for DB structure."
 	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
 	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
 	     )
+	;; careful: nconc destructive!
 	(when e2 (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete)))))
 	(setq l tl)))
     res))
@@ -188,7 +201,6 @@ See `coq-syntax-db' for DB structure."
 
 
 
-(provide 'coq-db)
 (provide 'coq-db)
 
 ;;; coq-db.el ends here
