@@ -448,7 +448,7 @@ If locked span already has a state number, thne do nothing. Also updates
 
 (defun  coq-find-and-forget-v81 (span)
   "Backtrack to SPAN.  Using the \"Backtrack n m p\" coq command."
-  (let* (str ans (naborts 0) (nundos 0)
+  (let* (ans (naborts 0) (nundos 0)
             (proofdepth (coq-get-span-proofnum span))
             (proofstack (coq-get-span-proofstack span))
             (span-staten (coq-get-span-statenum span))

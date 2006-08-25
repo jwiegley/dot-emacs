@@ -228,6 +228,9 @@ so for the following reasons:
      ("set in" "seti" "set ( # := #) in #" t)
      ("set" "set" "set ( # := #)" t "set")
      ("setoid_replace with" "strep" "setoid_replace # with #" t "setoid_replace")
+     ("setoid replace with" "strep" "setoid replace # with #" t "setoid\\s-+replace")
+     ("setoid_rewrite" "strew" "setoid_rewrite #" t "setoid_rewrite")
+     ("setoid rewrite" "strew" "setoid rewrite #" t "setoid\\s-+rewrite")
      ("simpl" "s" "simpl" t "simpl")
      ("simpl" "sa" "simpl # at #" t)
      ("simple destruct" "sdes" "simple destruct" t "simple\\s-+destruct")
@@ -345,7 +348,7 @@ so for the following reasons:
     ("Declare Module :" "dmi" "Declare Module # : #.\n#\nEnd #." t)
     ("Declare Module <:" "dmi2" "Declare Module # <: #.\n#\nEnd #." t)
     ("Definition" "def" "Definition #:# := #." t "Definition");; careful
-    ("Fact" "l" "Fact # : #." t "Fact")
+    ("Fact" "fct" "Fact # : #." t "Fact")
     ("Lemma" "l" "Lemma # : #.\nProof.\n#\nQed." t "Lemma")
     ("Module! (interactive)" nil "Module # : #.\n#\nEnd #." nil nil coq-insert-section-or-module)
     ("Module :" "moi" "Module # : #.\n#\nEnd #." t "Module") ; careful
@@ -353,7 +356,7 @@ so for the following reasons:
     ("Module Type" "mti" "Module Type #.\n#\nEnd #." t "Module\\s-+Type") ; careful
     ("Remark" "l" "Remark # : #.\n#\nQed." t "Remark")
     ("Section" "sec" "Section #." t "Section")
-    ("Theorem" "l" "Theorem # : #.\n#\nQed." t "Theorem")
+    ("Theorem" "t" "Theorem # : #.\n#\nQed." t "Theorem")
     )
   "Coq goal starters keywords information list. See `coq-syntax-db' for syntax. "
   )
