@@ -344,7 +344,7 @@ so for the following reasons:
 (defvar coq-goal-starters-db
   '(
     ("Add Morphism" "addmor" "Add Morphism @{f} : @{id}" t "Add\\s-+Morphism")
-    ("Chapter" "l" "Chapter # : #." t "Chapter")
+    ("Chapter" "chp" "Chapter # : #." t "Chapter")
     ("Declare Module :" "dmi" "Declare Module # : #.\n#\nEnd #." t)
     ("Declare Module <:" "dmi2" "Declare Module # <: #.\n#\nEnd #." t)
     ("Definition" "def" "Definition #:# := #." t "Definition");; careful
@@ -354,9 +354,9 @@ so for the following reasons:
     ("Module :" "moi" "Module # : #.\n#\nEnd #." t "Module") ; careful
     ("Module <:" "moi2" "Module # <: #.\n#\nEnd #." t ) ; careful
     ("Module Type" "mti" "Module Type #.\n#\nEnd #." t "Module\\s-+Type") ; careful
-    ("Remark" "l" "Remark # : #.\n#\nQed." t "Remark")
+    ("Remark" "rk" "Remark # : #.\n#\nQed." t "Remark")
     ("Section" "sec" "Section #." t "Section")
-    ("Theorem" "t" "Theorem # : #.\n#\nQed." t "Theorem")
+    ("Theorem" "th" "Theorem # : #.\n#\nQed." t "Theorem")
     )
   "Coq goal starters keywords information list. See `coq-syntax-db' for syntax. "
   )
