@@ -124,10 +124,10 @@ will be used to suggest values to the user."
 	  (setq progargs (cons (car olddirs) (cons "-I" progargs))))
       (setq olddirs (cdr olddirs)))
     ;; then ask for more
-    (setq option (coq-read-directory "Add directory (empty to stop) :"))
+    (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) :"))
     (while (not (string-equal option ""))
       (setq progargs (cons option (cons "-I" progargs))) ;reversed
-      (setq option (coq-read-directory "Add directory (empty to stop) -I :")))
+      (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) -I :")))
     (reverse progargs)))
 
 (defun coq-ask-prog-name (&optional oldvalue)

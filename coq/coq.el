@@ -1212,17 +1212,6 @@ mouse activation."
   )
 
 
-;load the default coq abbrev file if no coq abbrev file is already read
-
-(if (and (boundp 'coq-mode-abbrev-table)
-         (not (equal coq-mode-abbrev-table (make-abbrev-table))))
-    (message "An abbrev table exists for coq, no default loaded")
-  (progn
-    (quietly-read-abbrev-file "coq-abbrev.el")
-    (message "coq default abbreviations loaded"))
-  )
-
-
 ;;;;;;;;;;;;;;;;;;;;;
 ; Some smart insertion function
 ;;;;;;;;;;;;;;;;;;;;;;
