@@ -61,6 +61,8 @@ BROKENELC=
 
 default: all
 
+FORCE:
+
 ## 
 ## compile : byte compile files in working directory:
 ##           Clearout old .elc's and re-compile in a
