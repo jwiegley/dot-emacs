@@ -15,7 +15,7 @@
 
 # Set this to "emacs" or "xemacs" according to your version of Emacs.
 # NB: this is also used to set default install path names below.
-EMACS=$(shell if [ -z "`which xemacs`"]; then echo emacs; else echo xemacs; fi)
+EMACS=$(shell if [ -z "`which xemacs`" ]; then echo emacs; else echo xemacs; fi)
 
 # We default to /usr rather than /usr/local because installs of
 # desktop and doc files under /usr/local are unlikely to work with
@@ -203,7 +203,10 @@ install-doc: doc.info
 	/sbin/install-info ${INFODIR}/ProofGeneral.info* ${INFODIR}/dir
 	/sbin/install-info ${INFODIR}/PG-adapting.info* ${INFODIR}/dir
 
-doc.%: 
+doc: FORCE
+	(cd doc; make $*)
+
+doc.%: FORCE
 	(cd doc; make $*)
 
 ##
@@ -238,30 +241,22 @@ perlscripts:
 # FIXME: this next edit is really for install case, shouldn't be made
 # just when user types 'make'
 pgscripts:
-	@(pghome=${DEST_ELISP}; \
-	 for i in $(PG_SCRIPTS); do \
-	   sed "s|PGHOMEDEFAULT=.*$$|PGHOMEDEFAULT=$$pghome|" < $$i > .tmp \
+	@(for i in $(PG_SCRIPTS); do \
+	   sed "s|PGHOMEDEFAULT=.*$$|PGHOMEDEFAULT=${DEST_ELISP}|" < $$i > .tmp \
 	   && cat .tmp > $$i; \
 	 done; \
 	 rm -f .tmp)
 
 # Set PGHOME path in scripts back to default location.
 cleanpgscripts:
-	make pgscripts DEST_ELISP='$$$$HOME/ProofGeneral'
-
-
-##
-## This special target lets us use targets defined 
-## in developer's makefile Makefile.devel conveniently,
-## via make devel.<target>
-##
-
-devel.%:
-	make -f Makefile.devel $*
+	@(for i in $(PG_SCRIPTS); do \
+	   sed "s|PGHOMEDEFAULT=.*$$|PGHOMEDEFAULT=\$$HOME/ProofGeneral|" < $$i > .tmp \
+	   && cat .tmp > $$i; \
+	 done; \
+	 rm -f .tmp)
 
 ##
-## Similarly for xemacs Makefile.
+## Include developer's makefile if it exists here.
 ##
 
-xemacs.%:
-	make -f Makefile.xemacs $*
+-include Makefile.devel
