@@ -166,9 +166,6 @@ TAR=tar
 # zip utility
 ZIP=zip
 
-# For recursive make
-DEVELMAKE=make -f Makefile.devel
-
 # Files not to include the distribution area or tarball 
 # FIXME: really this should be an opt-in list!
 UNFINISHED_ELISP=generic/pg-metadata.el generic/pg-xhhtml.el generic/_pkg.el
@@ -413,8 +410,8 @@ dist:
 	@echo "*************************************************"
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
-	(cd $(DISTBUILDIR)/$(RELEASENAME); $(DEVELMAKE) alldist)
-	(cd $(DISTBUILDIR)/$(RELEASENAME); $(DEVELMAKE) clean)
+	(cd $(DISTBUILDIR)/$(RELEASENAME); $(MAKE) alldist)
+	(cd $(DISTBUILDIR)/$(RELEASENAME); $(MAKE) clean)
 	@echo "*************************************************"
 #	@echo " Copying doc files .."
 #	@echo "*************************************************"
