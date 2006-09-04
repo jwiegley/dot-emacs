@@ -798,7 +798,8 @@ This is specific to `coq-mode'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-mode-config ()
-
+  ;; Coq error messages are thrown off by TAB chars.
+  (set (make-local-variable 'indent-tabs-mode) nil)
   (setq proof-terminal-char ?\.)
   (setq proof-script-command-end-regexp 
         "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
@@ -859,7 +860,8 @@ This is specific to `coq-mode'."
         proof-shell-stop-silent-cmd "Unset Silent. ")
 
   (coq-init-syntax-table)
-  (setq comment-quote-nested nil) ;; we can cope with nested comments
+  ;(setq comment-quote-nested nil) ;; we can cope with nested comments
+  (set (make-local-variable 'comment-quote-nested) nil) ;; we can cope with nested comments
 
   ;; font-lock
   (setq font-lock-keywords coq-font-lock-keywords-1)
@@ -882,7 +884,9 @@ This is specific to `coq-mode'."
                        ("coq"  . coq-tags))
                      tag-table-alist)))
 
-  (setq blink-matching-paren-dont-ignore-comments t)
+;  (setq blink-matching-paren-dont-ignore-comments t)
+  (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
+
   ;; multiple file handling
   (setq proof-cannot-reopen-processed-files t
         ;; proof-shell-inform-file-retracted-cmd 'coq-retract-file

@@ -827,20 +827,16 @@ Used by `coq-goal-command-p'"
 ;  (concat "\\(" "with" "\\)\\s-+\\(" coq-ids "\\)" "\\(?:[^:]+\\|:[^=]\\)*:="))
 
 ; must match:
-; with f :=
-; with f : foo :=
-; with f x y :=
-; with f x y : t :=
-; with f (x:tx) y :=
-; with f (x:tx) (y:ty) :=
+; "with f x y :" (followed by = or not)
+; "with f x y (z:" (not followed by =)
 ; BUT NOT:
-; with f ...(x:=t)...
-; the simplest is : 
-; either no '(' before the first ':' 
-;     OR the first := found follows a ')[^(.]*'
-; actually this wont colorize f in 'with f (x:t) : foo.bar :="' but that is acceptable
+; "with f ... (x:=" 
+; "match ... with .. => "
 (defconst coq-with-with-hole-regexp
-  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(]*:\\|.*)[^(.]*:=\\)"))
+  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^=(.]*:\\|[^(]*(\\s-*" 
+          coq-id "\\s-*:[^=]\\)"))
+; marche aussi a peu pres
+;  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(.]*:\\|.*)[^(.]*:=\\)"))
 
 (defvar coq-font-lock-keywords-1
    (append

@@ -11,82 +11,56 @@
 (defconst coq-any-command-regexp
   (proof-regexp-alt (proof-ids-to-regexp coq-keywords)))
 
-
 (defconst coq-indent-inner-regexp
-  (proof-regexp-alt "[[]()]" "|" "ö’" ; forall with x-symbol (nomule) 
-                                         ; must not be enclosed by \\<and \\>
-                                        ;"~" forall x-symb mule but interacts with 'not'
+  (proof-regexp-alt 
+   "[[]()]" "|" "ö’" ;; forall with x-symbol (nomule) must not be enclosed by \\<and
+                                        ;\\> . "~" forall x-symb mule but interacts
+                                        ;with 'not'
+   (proof-ids-to-regexp   
+    '("as" "Cases" "match" "else" "Fix" "forall" "fun" "if" "into" "let" "then"
+      "using" "after"))))
+; "ALL" "True" "False" "EX" "end" "in" "of" "with"
 
-						  (proof-ids-to-regexp   '("as"
-;															"ALL"
-;															"True"
-;															"False"
-															"Cases"
-															"match"
-;															"EX"
-															"else"
-;															"end"
-															"Fix"
-															"forall"
-															"fun"
-															"if"
-;															"in"
-															"into"
-															"let"
-;															"of"
-															"then"
-															"using"
-;															"with"
-															"after"))))
-
-(defconst coq-comment-start-regexp "(\\(*\\)+")
-(defconst coq-comment-end-regexp "\\(*\\)+)")
-
+(defconst coq-comment-start-regexp "(\\*")
+(defconst coq-comment-end-regexp "\\*)")
+(defconst coq-comment-start-or-end-regexp 
+  (concat coq-comment-start-regexp "\\|" coq-comment-end-regexp))
 (defconst coq-indent-open-regexp
   (proof-regexp-alt ;(proof-ids-to-regexp coq-keywords-goal) goal-command-p instead
-	(proof-ids-to-regexp '("Cases" "match"))
-	"\\s("))
+   (proof-ids-to-regexp '("Cases" "match"))
+   "\\s("))
 
 (defconst coq-indent-close-regexp
   (proof-regexp-alt (proof-ids-to-regexp coq-keywords-save) 
-						  (proof-ids-to-regexp '("end" "End"))
-						  "\\s)"))
+                    (proof-ids-to-regexp '("end" "End")) 
+                    "\\s)"))
 
 (defconst coq-indent-closepar-regexp "\\s)")
-
 (defconst coq-indent-closematch-regexp (proof-ids-to-regexp '("end")))
-
 (defconst coq-indent-openpar-regexp "\\s(")
-
 (defconst coq-indent-openmatch-regexp (proof-ids-to-regexp '("match" "Cases")))
-
 (defconst coq-indent-any-regexp
-  (proof-regexp-alt 
-	coq-indent-close-regexp 
-	coq-indent-open-regexp 
-	coq-indent-inner-regexp
-	coq-any-command-regexp 
-	(proof-ids-to-regexp coq-tacticals)
-	(proof-ids-to-regexp coq-tactics)))
-
+  (proof-regexp-alt coq-indent-close-regexp coq-indent-open-regexp
+                    coq-indent-inner-regexp coq-any-command-regexp
+                    (proof-ids-to-regexp coq-tacticals)
+                    (proof-ids-to-regexp coq-tactics)))
 (defconst coq-indent-kw 
-  (proof-regexp-alt  
-	coq-any-command-regexp coq-indent-inner-regexp
-	(proof-ids-to-regexp coq-tacticals)
-	(proof-ids-to-regexp coq-tactics)))
+  (proof-regexp-alt coq-any-command-regexp coq-indent-inner-regexp
+                    (proof-ids-to-regexp coq-tacticals)
+                    (proof-ids-to-regexp coq-tactics)))
 
 ; pattern matching detection, will be tested only at beginning of a
-;line (only white sapces before "|") must not match "|" followed by
-;another symbol the following char must not be a symbol (tokens of coq
-;are the biggest symbol cocateantions)
+; line (only white sapces before "|") must not match "|" followed by
+; another symbol the following char must not be a symbol (tokens of coq
+; are the biggest symbol cocateantions)
 
-(defconst coq-indent-pattern-regexp "\\(|\\(?:\\s-\\|\\w\\|\n\\)\\|with\\)")
+(defconst coq-indent-pattern-regexp "\\(|\\(?:(\\|\\s-\\|\\w\\|\n\\)\\|with\\)")
 
 ;;;; End of regexps
 
 (defun coq-indent-goal-command-p (str)
   "Syntactical detection of a coq goal opening.  Only used in indentation code and in
-v8.0 compatibility mode.  Module, Definition and Function needs a special parsing to
+v8.0 compatibility mode.  Module, Definition and Function need a special parsing to
 detect if they start something or not."
   (let* ((match (coq-count-match "\\<match\\>" str))
          (with (coq-count-match "\\<with\\>" str))
@@ -106,30 +80,140 @@ detect if they start something or not."
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-end-command-regexp 
-  "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\(\\.\\)\\(?:\\s-\\|\\'\\)")
+  "\\(?:[^.]\\|\\.\\.\\)\\(\\.\\)\\(?:\\s-\\|\\'\\)")
+;  "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\(\\.\\)\\(?:\\s-\\|\\'\\)")
 
+
+(defun coq-search-comment-delimiter-forward ()
+  "Search forward for a comment start (return 1) or end (return -1).  Return
+nil if not found."
+  (when (re-search-forward coq-comment-start-or-end-regexp nil 'dummy)
+    (save-excursion 
+      (goto-char (match-beginning 0))
+      (if (looking-at coq-comment-start-regexp) 1 -1))))
+
+
+(defun coq-search-comment-delimiter-backward ()
+  "Search backward for a comment start (return 1) or end (return -1). Return
+nil if not found."
+  (when (re-search-backward coq-comment-start-or-end-regexp nil 'dummy)
+      (if (looking-at coq-comment-start-regexp) 1 -1)))
+
+
+(defun coq-skip-until-one-comment-backward ()
+  "Skips comments and normal text until finding an unclosed comment start. Return nil if not found. Point is moved to the the unclosed comment start if found, to (point-max) otherwise."
+  (ignore-errors (backward-char 1))       ; if point is between '(' and '*'
+  (if (looking-at coq-comment-start-regexp) t
+    (forward-char 1)
+    (let ((nbopen 1) (kind nil))
+      (while (and (> nbopen 0) (setq kind (coq-search-comment-delimiter-backward)))
+        (if (< kind 0)
+            (setq nbopen (+ 1 nbopen))
+          (setq nbopen (- nbopen 1))))
+      (= nbopen 0))))
+
+(defun coq-skip-until-one-comment-forward ()
+  "Skips comments and normal text until finding an unopened comment end."
+  (ignore-errors (backward-char 1))            ; if point is between '*' and ')'
+  (if (looking-at coq-comment-end-regexp) (progn (forward-char 2) t)
+    (forward-char 1)
+    (let ((nbopen 1) (kind nil))
+      (while (and (> nbopen 0) (setq kind (coq-search-comment-delimiter-forward)))
+        (if (> kind 0) (setq nbopen (+ 1 nbopen))
+          (setq nbopen (- nbopen 1))))
+      (= nbopen 0))))
+
+(defun coq-looking-at-comment ()
+  "Return non-nil if point is inside a comment."
+  (save-excursion (coq-skip-until-one-comment-backward)))
+
+(defun coq-find-comment-start ()
+  "Go to the current comment start. If inside nested comments, go to the start of the
+outer most comment. Return the position of the comment start. If not inside a
+comment, return nil and does not move the point."
+  (let ((prevpos (point)) (init (point)))
+    (while (coq-skip-until-one-comment-backward)
+      (setq prevpos (point)))
+    (goto-char prevpos)
+    (if (= prevpos init) nil prevpos)))
+
+(defun coq-find-comment-end ()
+  "Go to the current comment end. If inside nested comments, go to the end of the
+outer most comment. Return the position of the end of comment end. If not inside a
+comment, return nil and does not move the point."
+  (let ((prevpos (point)) (init (point)))
+    (while (coq-skip-until-one-comment-forward)
+      (setq prevpos (point)))
+    (goto-char prevpos)
+    (if (= prevpos init) nil prevpos)))
+
+; generic function is wrong when the point in between ( and *
+; moreover xemacs does not deal with nested comments
 (defun coq-looking-at-syntactic-context ()
-  (or (proof-looking-at-syntactic-context)
-      (when (not (eq (point) (point-min)))
-        (save-excursion 
-          (forward-char -1)
-          (when (proof-looking-at-safe proof-script-comment-start-regexp) 'comment)))))
+  "See `proof-looking-at-syntactic-context'. Use this one for coq instead of the
+generic one."
+  (if (coq-looking-at-comment) 'comment
+    (proof-looking-at-syntactic-context)))
+
+(defconst coq-end-command-or-comment-regexp
+  (concat coq-comment-end-regexp "\\|" coq-end-command-regexp))
+
+(defconst coq-end-command-or-comment-start-regexp
+  (concat coq-comment-start-regexp "\\|" coq-end-command-regexp))
+
+
+(defun coq-find-not-in-comment-backward (reg &optional lim submatch)
+  "Moves to the first not commented occurrence of REG found looking up.  The point is
+put exactly before the occurrence if SUBMATCH is nil, otherwise the point is put
+before SUBMATCHnth matched sub-expression (see `match-string').  If no occurrence is
+found, go as far as possible and return nil."
+  (coq-find-comment-start) ; first go out of comment if inside some
+  (let ((found nil) (continue t) 
+        (regexp (concat coq-comment-end-regexp "\\|" reg)))
+    (while (and (not found) continue)
+      (setq continue (re-search-backward regexp lim 'dummy))
+      (when continue
+        (if (looking-at coq-comment-end-regexp)
+            (progn (coq-skip-until-one-comment-backward))
+          (progn (when submatch (goto-char (match-beginning submatch)))
+                 (setq found t))
+          )))
+    (when found (point))))
+
+
+(defun coq-find-not-in-comment-forward (reg &optional lim submatch)
+  "Moves to the first not commented occurrence of REG found looking down.  The point
+is put exactly before the occurrence if SUBMATCH is nil, otherwise the point is put
+before SUBMATCHnth matched sub-expression (see `match-string').  If no occurrence is
+found, go as far as possible and return nil."
+  (coq-find-comment-end)
+  (let ((found nil) (continue t) 
+        (regexp (concat coq-comment-start-regexp "\\|" reg)))
+    (while (and (not found) continue)
+      (setq continue (re-search-forward regexp lim 'dummy))
+      (when continue
+        (goto-char (match-beginning 0))
+        (if (looking-at coq-comment-start-regexp)
+            (progn (forward-char 2) (coq-skip-until-one-comment-forward))
+          (progn (when submatch (goto-char (match-beginning submatch)))
+                 (setq found t))
+          )))
+    (when found (point))))
 
 (defun coq-find-command-end-backward ()
-  "Moves to the first end of command found looking up.  The point is put exactly
-before the last \".\" of the ending token.  If no end command is found, go as far as
-possible and return nil."
-  (forward-char 1); because regexp looks one char after last "."
-  (when (proof-re-search-backward coq-end-command-regexp nil 'dummy)
-    (goto-char (match-beginning 1))))
+  "Moves to the first end of command (not commented) found looking up.  The point is
+put exactly before the last \".\" of the ending token.  If no end command is found,
+go as far as possible and return nil."
+  (ignore-errors (forward-char 1)); because regexp looks one char after last "."
+  (coq-find-not-in-comment-backward coq-end-command-regexp nil 1))
+
 
 (defun coq-find-command-end-forward ()
   "Moves to the first end of command found looking down.  The point is put exactly
 before the last \".\" of the ending token.  If no end command is found, go as far as
 possible and return nil."
-;  (if (string-match coq-end-command-regexp (buffer-substring (point) (point-max)))
-  (when (proof-re-search-forward coq-end-command-regexp nil 'dummy)
-    (goto-char (match-beginning 1))))
+  (ignore-errors (backward-char 1)); because regexp looks one char before "."
+  (coq-find-not-in-comment-forward coq-end-command-regexp nil 1))
 
 
 (defun coq-find-command-end (direction)
@@ -144,24 +228,16 @@ far as possible and return nil."
 The point is put exactly after the end of previous command, or at the (point-min if
 there is no previous command)."
   (coq-find-command-end-backward)
-  (while (and (proof-looking-at-syntactic-context)
-				  (> (point) (point-min)))
-    (coq-find-command-end-backward))
   (if (proof-looking-at "\\.\\s-") (forward-char 1))
   (point))
+
 
 (defun coq-find-real-start ()
   "Move to the start of command at point.
 The point is put exactly before first non comment letter of the command."
   (coq-find-current-start)
-  (proof-re-search-forward "\\w\\|\\s(\\|\\s)\\|\\'")
-  (backward-char 1)
-  (while (and (proof-looking-at-syntactic-context)
-				  (<= (point) (- (point-max) 1)))
-    (proof-re-search-forward "\\*\\s)");this does not deal with nested comments
-    (proof-re-search-forward "\\w\\|\\s(\\|\\s)\\|\\'")
-    (backward-char 1))
-  (point))
+  (coq-find-not-in-comment-forward "\\S-"))
+
 
 (defun coq-command-at-point ()
   "Return the string of the command at point."
@@ -170,12 +246,6 @@ The point is put exactly before first non comment letter of the command."
           (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
       (buffer-substring st (+ nd 1)))))
 
-(defun is-at-a-space-or-tab ()
-  "t si le caractere courant est un blanc ou un tab, nil sinon"
-  (if (or (not (char-after)) (char-equal (char-after) ?\ ) (char-equal (char-after) ?\t ))
-      t nil)
-  )
-
 (defun only-spaces-on-line ()
   "t if there is only spaces (or nothing) on the current line after point.
 Moves point to first non space char if present, to the end of line otherwise."
@@ -183,39 +253,33 @@ Moves point to first non space char if present, to the end of line otherwise."
   (eolp)      
   )
 
+
+
 (defun find-reg (lim reg)
   "Return non nil if there is an occurrence of reg between point and lim which is not
-a comment or a string.  Actually returns the position of the occurrence found.  Point
-is moved at the end of the match if found, at LIM otherwise."
-  (let ((oldpt (point)) (limit lim))
+a comment or a string.  Point is moved at the end of the match if found, at LIM
+otherwise."
+  (let ((oldpt (point)) (limit lim) (found nil))
     (if (= limit (point)) nil
       ;;swap limit and point if necessary
 ;      (message "find-reg...")
       (when (< limit (point)) (let ((x limit)) (setq limit (point)) (goto-char x)))
-      (let ((pos nil))
-        (while 
-            (and (not pos)
-                 (setq pos (proof-string-match reg (buffer-substring (point) limit))))
-          (forward-char (- (match-end 0) 1))          
-          (when (save-excursion (forward-char -1)
-                                (proof-looking-at-syntactic-context))
-            (setq pos nil))
-          )
-;        (message "find-reg... after while")
-        (and pos (point))))))
+      (prog1 
+          (coq-find-not-in-comment-forward reg limit)
+        (goto-char (match-end 0))))))
+
 
 
 (defun coq-find-no-syntactic-on-line ()
   "Return non-nil if there is a not commented non white character on the line.
 Moves point to this char or to the end of the line if not found (and return nil in
 this case)."
-  (let ((bol (save-excursion (beginning-of-line) (point)))
-        (eol (save-excursion (end-of-line) (point))))
+  (let ((eol (save-excursion (end-of-line) (point))))
     (back-to-indentation)
     (while (and (coq-looking-at-syntactic-context)
                 (re-search-forward coq-comment-end-regexp eol 'dummy))
       (skip-chars-forward " \t"))
-    (not (eq (point) eol))))
+    (not (eolp))))
 
 
 
@@ -226,7 +290,7 @@ a comment or string, 4 if inside the {} of a record, 1 if the line found is not 
 the same command as the point before the function was called, 2 otherwise (point and
 previous line are in the same command, and not inside the {} of a record)."
 
-  (if (proof-looking-at-syntactic-context) 3
+  (if (coq-looking-at-syntactic-context) 3
     (let ((oldpt (point))
           (topnotreached (= (forward-line -1) 0))) ;;; nil if going one line backward
                                                    ;;; is not possible
@@ -235,21 +299,30 @@ previous line are in the same command, and not inside the {} of a record)."
                   (not (coq-find-no-syntactic-on-line))
                   t ;;(> (line-number (point)) (line-number (point-min)))
                   )
-        (setq topnotreached (= (forward-line -1) 0)))
+        (setq topnotreached (= (forward-line -1) 0))
+        (end-of-line)
+        (if (proof-looking-at-syntactic-context)
+            (coq-find-comment-start) ; (re-search-backward coq-comment-start-regexp nil 'dummy)
+          ))
       (back-to-indentation)
       (if (not topnotreached) 0 ;; returns nil if top of buffer was reached
         ;; if we are at end of a command (dot) find this command
-        (if (find-reg oldpt coq-end-command-regexp) 
-            (progn (forward-char -2)
-                   (coq-find-real-start)
-                   1)
-          (if (save-excursion 
-                (and (or (forward-char -1) t)
+        ; if there is a "." alone on the line
+        (let ((pos (point)))
+          (ignore-errors (forward-char -1))
+          (if (find-reg oldpt coq-end-command-regexp) 
+              (progn (forward-char -2)
                      (coq-find-real-start)
-                     (proof-looking-at-safe "Record")
-                     (find-reg oldpt "{"))) 
-              4 
-            2))))))
+                     (back-to-indentation)
+                     1)
+            (goto-char pos)
+            (if (save-excursion 
+                  (and (or (forward-char -1) t)
+                       (coq-find-real-start)
+                       (proof-looking-at-safe "Record")
+                       (find-reg oldpt "{"))) 
+                4 
+              2)))))))
 
 
 (defun coq-find-unclosed (&optional optlvl limit openreg closereg)
@@ -277,6 +350,9 @@ previous line are in the same command, and not inside the {} of a record)."
     (if (= lvl 0) t 
 		(goto-char (or limit (point-min)))
       nil)))
+
+
+
 
 
 (defun coq-find-at-same-level-zero (limit openreg)
@@ -351,6 +427,7 @@ previous line are in the same command, and not inside the {} of a record)."
       nil)
     )
   )
+
 
 
 (defun coq-find-last-unopened (&optional optlvl limit)
@@ -573,15 +650,15 @@ argument must be t if inside the {}s of a record, nil otherwise."
         ;; now we found the previous non empty line
         (let ((eol (save-excursion (end-of-line) (point))))
         (cond
-         ;; The previous line is a comment start
+         ;; The previous line contains is the comment start
          ((and (not atstart) (string-match coq-comment-start-regexp 
                                            (buffer-substring (point) eol)))
-          (proof-re-search-forward coq-comment-start-regexp) 
+          (re-search-forward coq-comment-start-regexp) ;first '(*' in the line?
           (+ 1 (current-column)))
 
+         ;; the previous is in the same comment start or a comment started at that line
          ((and (not atstart) (proof-looking-at-syntactic-context))
-          (proof-re-search-forward "\\S-")
-          (goto-char (match-beginning 0))
+          (skip-chars-forward " \t")
           (current-column))
          
             ;;we were at the first line of a comment and the current line is the
