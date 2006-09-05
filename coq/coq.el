@@ -1401,13 +1401,17 @@ be asked to the user."
            (lgth (length (match-string 2))))
 ;    (message "pos = %d ; lgth = %d " pos lgth)
       (goto-char (+ (proof-locked-end) 1))
+      (coq-find-real-start)
       (forward-char pos)
-      (push-mark (+ (point)lgth) t t)
-      )))
+      (let ((sp (make-span (point) (+ (point) lgth))))
+        (set-span-face sp 'proof-mouse-highlight-face)
+        (sit-for 20)
+        (delete-span sp)
+        ))))
 
 ; does not show the region from there, something must be deactivating the
 ; region before going out...
-;(setq proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error)
+(setq proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error)
 
 ;(add-hook 'proof-shell-handle-error 
 ;          'zmacs-region-stays
