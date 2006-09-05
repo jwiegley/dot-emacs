@@ -2314,7 +2314,10 @@ values for this hook include:
  proof-goto-end-of-locked-if-pos-not-visible-in-window
 
 which move the cursor in the scripting buffer on an error or
-error/interrupt."
+error/interrupt.
+
+Remark: This hook is called from response buffer. If you want to do
+something in scripting buffer, save excursion and switch buffer."
   :type '(repeat function)
   :group 'proof-shell)
 

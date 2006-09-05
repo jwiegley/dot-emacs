@@ -1393,29 +1393,21 @@ be asked to the user."
 
 
 (defun coq-highlight-error ()
-  (interactive "_")
-  (message "hook!")
-  (let ((s proof-shell-last-output))
-    (string-match "> \\( *\\)\\(\\^+\\)\n" s)
-    (let* ((pos (length (match-string 1)))
-           (lgth (length (match-string 2))))
-;    (message "pos = %d ; lgth = %d " pos lgth)
-      (goto-char (+ (proof-locked-end) 1))
-      (coq-find-real-start)
-      (forward-char pos)
-      (let ((sp (make-span (point) (+ (point) lgth))))
-        (set-span-face sp 'proof-mouse-highlight-face)
-        (sit-for 20)
-        (delete-span sp)
-        ))))
+  "Parses the last coq output looking at an error message. put mark and point
+around the text pointed by it."
+  (let ((mtch (string-match "> \\( *\\)\\(\\^+\\)\n" proof-shell-last-output)))
+    (when mtch 
+      (let ((pos (length (match-string 1)))
+            (lgth (length (match-string 2))))
+        (save-excursion
+          ;; proof-shell-handle-error-or-interrupt-hook is called from response buffer
+          (switch-to-buffer proof-script-buffer) 
+          (goto-char (+ (proof-locked-end) 1))
+          (coq-find-real-start)
+          (forward-char pos)
+          (push-mark (+ (point) lgth) t t))))))
 
-; does not show the region from there, something must be deactivating the
-; region before going out...
-(setq proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error)
-
-;(add-hook 'proof-shell-handle-error 
-;          'zmacs-region-stays
-;          t)
+(add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error t)
 
 (provide 'coq)
 
