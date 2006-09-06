@@ -2316,8 +2316,8 @@ values for this hook include:
 which move the cursor in the scripting buffer on an error or
 error/interrupt.
 
-Remark: This hook is called from response buffer. If you want to do
-something in scripting buffer, save excursion and switch buffer."
+Remark: This hook is called from shell buffer. If you want to do
+something in scripting buffer, `save-excursion' and/or `set-buffer'."
   :type '(repeat function)
   :group 'proof-shell)
 

@@ -1383,7 +1383,7 @@ be asked to the user."
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
 (define-key coq-keymap [(control ?g)] 'coq-Show)
-(define-key coq-keymap [?'] 'coq-highlight-error)
+;(define-key coq-keymap [?'] 'coq-highlight-error)
 
 
 
@@ -1392,22 +1392,86 @@ be asked to the user."
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun coq-highlight-error ()
-  "Parses the last coq output looking at an error message. put mark and point
-around the text pointed by it."
-  (let ((mtch (string-match "> \\( *\\)\\(\\^+\\)\n" proof-shell-last-output)))
-    (when mtch 
-      (let ((pos (length (match-string 1)))
-            (lgth (length (match-string 2))))
-        (save-excursion
-          ;; proof-shell-handle-error-or-interrupt-hook is called from response buffer
-          (switch-to-buffer proof-script-buffer) 
-          (goto-char (+ (proof-locked-end) 1))
-          (coq-find-real-start)
-          (forward-char pos)
-          (push-mark (+ (point) lgth) t t))))))
+(defvar last-coq-error-location nil
+  "The last error message seen by `coq-get-last-error-location' and
+`coq-highlight-error'.")
 
-(add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error t)
+
+;; I don't use proof-shell-last-ouput here since it is not always set to the
+;; really last ouptut (specially when a *tactic* gives an error) instead I go
+;; directly to the response buffer. This allows also to clean the response
+;; buffer (better to only scroll it?)
+(defun coq-get-last-error-location (&optional parseresp clean)
+ "Return location information on last error sent by coq.  Return a three
+elements list (pos lgth) if successful, nil otherwise.  pos is the number of
+characters preceding the underlined expression, and lgth is its length.
+Coq error message must be like this:
+
+\"
+> command with an error here ...
+>                       ^^^^
+\"
+
+If PARSERESP is nil, don't really parse response buffer but take the value of
+`last-coq-error-location' instead, otherwise parse response buffer and updates
+`last-coq-error-location'.
+
+If PARSERESP and CLEAN are non-nil, delete the error location from the response
+buffer."
+  (if (not parseresp) last-coq-error-location
+    (save-excursion
+      ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
+      (set-buffer proof-response-buffer)
+      (goto-char (point-max))
+      (let ((mtch (re-search-backward "\n>[^\n]+\n> \\( *\\)\\(\\^+\\)\n" nil 'dummy)))
+        ;; clean the response buffer from ultra-ugly underlined command line
+        ;; parsed above. Don't kill the first \n
+        (when (and clean mtch) (delete-region (+ mtch 1) (match-end 0)))
+        (goto-char (point-max))
+        (when mtch 
+          (let* ((pos (length (match-string 1)))
+                 (lgth (length (match-string 2)))
+                 (res (list pos lgth)))
+            (setq last-coq-error-location res)
+            res))))))
+
+(defun coq-highlight-error (&optional parseresp clean)
+  "Parses the last coq output looking at an error message. Highlight the text
+pointed by it. Coq error message must be like this:
+
+\"
+> command with an error here ...
+>                       ^^^^
+\"
+
+If PARSERESP is nil, don't really parse response buffer but take the value of
+`last-coq-error-location' instead, otherwise parse response buffer and updates
+`last-coq-error-location'.
+
+If PARSERESP and CLEAN are non-nil, delete the error location from the response
+buffer."
+  (interactive)
+  (let ((mtch (coq-get-last-error-location parseresp clean)))
+    (when mtch 
+      (let ((pos (car mtch))
+            (lgth (cadr mtch)))
+        (set-buffer proof-script-buffer) 
+        (goto-char (+ (proof-locked-end) 1))
+        (coq-find-real-start)
+        (forward-char pos)
+        (let ((sp (make-span (point) (+ (point) lgth))))
+          (set-span-face sp 'proof-warning-face)
+          ;; delete timer if exist
+          ;;(setq coq-highlight-error-timer (run-with-timer 10 nil 'delete-span sp))
+          (ignore-errors (sit-for 20)) ; errors here would skip the next delete
+          (delete-span sp)
+          )))))
+
+(defun coq-highlight-error-hook ()
+  (save-excursion (coq-highlight-error t t)))
+
+
+(add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error-hook t)
 
 (provide 'coq)
 
