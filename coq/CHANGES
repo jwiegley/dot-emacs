@@ -34,7 +34,8 @@
 
 *** Much better indentation
 
-    Faster.
+    More robust. nested comments are OK even in xemacs. Still a bit
+    slow on big files. 
 
     indent-region won't touch comments, but indenting comments with
     tab (indent-according-to-mode) will.
@@ -56,7 +57,13 @@
 
 *** automatic insertion of "match...with" for a given type
 
-    This coqide great feature has been added
+    This coqide great feature has been added.
+
+*** error highlighting
+
+    When scripting, error with location information are parsed and the
+    corresponding part of the scripting buffer is highlighted. Also
+    inpsired from coqide.
 
 *** new "queries" menu
 
