@@ -31,6 +31,73 @@ General.  Support for Isabelle 2003 has been removed.
 Including patches from Stefan Monnier.
 
 
+** Changes for Coq
+
+*** No more support for coq 7.x
+
+*** Much better PG/Coq synchronizing system for coq >= 8.1
+
+    Synchronization is not based on script parsing anymore, which
+    makes it much more reliable. 
+
+    In particular you don't need to set
+    coq-user-state-changing-commands and others anymore (was needed
+    for your own tactics/commands). See next point.
+
+    Coq v8.0 is still supported, if for some reason PG does not see
+    that your coq version is a 8.0 (read *Message* after loading a .v
+    file), then set variable coq-version-is-V8-0 to t in your emacs
+    init file. Otherwise PG will hang at first line when scripting.
+
+*** error highlighting
+
+    When scripting, error with location information are parsed and the
+    corresponding part of the scripting buffer is highlighted. Also
+    inpsired from coqide.
+
+*** Much better indentation
+
+    More robust. nested comments are OK even in xemacs. Still a bit
+    slow on big files. 
+
+    indent-region won't touch comments, but indenting comments with
+    tab (indent-according-to-mode) will.
+
+*** new coq-insert-tactic and coq-insert-command function
+
+    These two functions allow to insert a tactic or command with
+    completion in the mini-buffer.
+
+*** New variables coq-user-commands-db and coq-user-tactics-db
+
+    User defined tactics/commands information.  See C-h v
+    coq-syntax-db for syntax. It is not necessary to add your own
+    tactics here if you have coq v8.1 (it is not needed by the
+    synchronizing/backtracking system). You may however do so for the
+    following reasons:
+
+    1 your tactics/commands will be colorized by font-lock
+
+    2 your tactics/commands will be added to the menu and to completion
+    when calling coq-insert-tactic/command (see below)
+
+    3 you may define an abbreviation for your tactic/command.
+
+*** automatic insertion of "match...with" for a given type
+
+    This coqide great feature has been added.
+
+*** Local Variables List semi automatic filling
+
+    Local Variables Lists are used to set coq program name and arguments
+    persistently for a given file. The menu entry "set coq prog
+    persistently" helps you to define or change the values in this list
+    (which are store as a comment at the end of the file, see info
+    manual at node ((emacs)File Variables).
+
+*** Better font-lock coloration
+
+*** new "queries" menu
 
 
 * Summary of Changes for Proof General 3.5 from 3.4
