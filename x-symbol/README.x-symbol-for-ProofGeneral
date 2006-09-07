@@ -5,8 +5,11 @@ The code in this directory is taken from
 This is version 4.5.1-beta (dated 2003-05-11 15:00)
 
 No changes have been made for Proof General except the addition of the
-string "[Proof General]" to x-symbol-version.  The following
-rearrangements from the package directory layout have been made:
+string "[Proof General]" to x-symbol-version and the addition of
+18pt and 24pt fonts [see etc/bigfonts] (thanks to Clemens Ballarin).  
+
+The following rearrangements from the package directory layout have
+been made:
 
   for f in etc lisp man; do mv $f/x-symbol/* $f; rmdir $f/x-symbol; done
 

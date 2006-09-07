@@ -1,8 +1,7 @@
 ;;; coq-db.el --- coq keywords database utility functions
-;; Copyright (C) 1997, 1998 LFCS Edinburgh.
-;; Authors: Thomas Kleymann and Healfdene Goguen
+;;
+;; Author: Pierre Courtieu <courtieu@lri.fr>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
-;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
 
 ;;; We store all information on keywords (tactics or command) in big
