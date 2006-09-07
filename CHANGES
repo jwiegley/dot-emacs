@@ -35,6 +35,15 @@ Including patches from Stefan Monnier.
 
 *** No more support for coq 7.x
 
+*** coq 8.0 compatibility mode
+
+    If coq does not detect the good coq version at startup put one of
+    the following in your .emacs:
+
+    (setq coq-version-is-V8-1 t)   or    (setq coq-version-is-V8-0 t)
+
+    Default is now 8.1 (if no coqtop is found the path).
+
 *** Much better PG/Coq synchronizing system for coq >= 8.1
 
     Synchronization is not based on script parsing anymore, which
@@ -42,7 +51,7 @@ Including patches from Stefan Monnier.
 
     In particular you don't need to set
     coq-user-state-changing-commands and others anymore (was needed
-    for your own tactics/commands). See next point.
+    for your own tactics/commands). See below coq-insert-tactic.
 
     Coq v8.0 is still supported, if for some reason PG does not see
     that your coq version is a 8.0 (read *Message* after loading a .v
