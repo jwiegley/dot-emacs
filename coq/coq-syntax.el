@@ -349,6 +349,7 @@ so for the following reasons:
     ("Declare Module <:" "dmi2" "Declare Module # <: #.\n#\nEnd #." t)
     ("Definition" "def" "Definition #:# := #." t "Definition");; careful
     ("Fact" "fct" "Fact # : #." t "Fact")
+    ("Goal" nil "Goal #." t "Goal")
     ("Lemma" "l" "Lemma # : #.\nProof.\n#\nQed." t "Lemma")
     ("Module! (interactive)" nil "Module # : #.\n#\nEnd #." nil nil coq-insert-section-or-module)
     ("Module :" "moi" "Module # : #.\n#\nEnd #." t "Module") ; careful
