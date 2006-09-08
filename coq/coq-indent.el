@@ -223,6 +223,16 @@ far as possible and return nil."
   (if (< direction 0) (coq-find-command-end-backward)
     (coq-find-command-end-forward)))
 
+;; This one to deal with nested comments in xemacs
+(defun coq-parse-function ()
+  (skip-chars-forward " \n\t")
+  (forward-char 1)
+  (if (coq-find-comment-end) 
+      'comment
+    (when (coq-find-command-end-forward)
+      (forward-char 1)
+      'cmd)))
+
 (defun coq-find-current-start ()
   "Move to the start of command at point.
 The point is put exactly after the end of previous command, or at the (point-min if

@@ -832,6 +832,11 @@ This is specific to `coq-mode'."
         proof-state-preserving-p 'coq-state-preserving-p
         )
 
+  ;; This one to deal with nested comments in xemacs
+  (if (string-match "XEmacs" emacs-version)
+      (setq proof-script-parse-function 'coq-parse-function)
+      )
+
   (setq proof-save-command-regexp coq-save-command-regexp
         proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
@@ -1427,7 +1432,6 @@ buffer."
         ;; clean the response buffer from ultra-ugly underlined command line
         ;; parsed above. Don't kill the first \n
         (when (and clean mtch) (delete-region (+ mtch 1) (match-end 0)))
-        (goto-char (point-max))
         (when mtch 
           (let* ((pos (length (match-string 1)))
                  (lgth (length (match-string 2)))
