@@ -17,10 +17,11 @@ interface wrapper.
 
 Several fixes.  Also, removed support for Coq 6, 7.
 
-*** Support for Isabelle2005.  
+*** Support for Isabelle2005 and current development version of Isabelle.  
 
 Additional menu functions and PGIP support for settings configuration
-controlled by Isabelle.   
+now controlled directly by Isabelle.  Support for Unicode-safe
+interaction (`proof-shell-unicode' variable).
 
 Isabelle2004 should still be functional with this version of Proof
 General.  Support for Isabelle 2003 has been removed.
@@ -28,7 +29,7 @@ General.  Support for Isabelle 2003 has been removed.
 
 *** Miscellaneous fixes
 
-Including patches from Stefan Monnier.
+Including numerous improvements from Stefan Monnier.
 
 
 ** Changes for Coq
@@ -145,7 +146,7 @@ function `proof-layout-windows' which displays windows in a default
 form for the current display mode.  This uses a vertical-horizontal
 split scheme for three-pane mode (due to Pierre Courtieu), but
 three-pane mode also works with three-way horizontal split as before.
-But see note in BUGS for remaining issues.
+See note in BUGS for remaining issues.
 
 *** More example proofs included
 
