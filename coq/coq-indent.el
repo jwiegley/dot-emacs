@@ -711,7 +711,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
         (back-to-indentation)))
   (if proof-indent-pad-eol (proof-indent-pad-eol)))
 
-(defun proof-indent-line-not-comments ()
+(defun coq-indent-line-not-comments ()
   "Same as  `proof-indent-line' but comments are not indented."
   (interactive)
   (unless (not (proof-ass script-indent))
