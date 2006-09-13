@@ -733,12 +733,11 @@ argument must be t if inside the {}s of a record, nil otherwise."
       (forward-line 1))
     (goto-char fin)))
 
-(setq indent-region-function 'coq-indent-region)
+(set (make-local-variable 'indent-region-function) 'coq-indent-region)
 
 (provide 'coq-indent)
 
 ;;;   Local Variables: ***
-;;;   tab-width:2 ***
 ;;;   fill-column: 85 ***
 ;;;   indent-tabs-mode:nil ***
 ;;;   End: ***
