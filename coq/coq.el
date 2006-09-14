@@ -1432,16 +1432,16 @@ buffer."
       ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
       (set-buffer proof-response-buffer)
       (goto-char (point-max))
-      (let ((mtch (re-search-backward "\n>[^\n]+\n> \\( *\\)\\(\\^+\\)\n" nil 'dummy)))
+      (let* ((mtch (re-search-backward "\n>[^\n]+\n> \\( *\\)\\(\\^+\\)\n" nil 'dummy))
+             (pos (and mtch (length (match-string 1))))
+             (lgth (and (length (match-string 2))))
+             (res (list pos lgth)))
         ;; clean the response buffer from ultra-ugly underlined command line
         ;; parsed above. Don't kill the first \n
         (when (and clean mtch) (delete-region (+ mtch 1) (match-end 0)))
         (when mtch 
-          (let* ((pos (length (match-string 1)))
-                 (lgth (length (match-string 2)))
-                 (res (list pos lgth)))
-            (setq last-coq-error-location res)
-            res))))))
+          (setq last-coq-error-location res)
+          res)))))
 
 (defun coq-highlight-error (&optional parseresp clean)
   "Parses the last coq output looking at an error message. Highlight the text
