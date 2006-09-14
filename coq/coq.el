@@ -858,6 +858,10 @@ This is specific to `coq-mode'."
    proof-indent-close-regexp    coq-indent-close-regexp
    )
 
+  (make-local-variable 'indent-region-function)
+  (setq indent-region-function 'coq-indent-region)
+
+
   ;; span menu 
   (setq proof-script-span-context-menu-extensions 'coq-create-span-menu)
 
