@@ -732,7 +732,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
           (proof-indent-line-not-comments))
       (forward-line 1))
     (goto-char fin)))
-
+ 
 
 (provide 'coq-indent)
 
