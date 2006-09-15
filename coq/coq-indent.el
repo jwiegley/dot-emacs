@@ -729,7 +729,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
     (goto-char deb)
     (while (< (point) fin)
       (or (and (bolp) (eolp))
-          (proof-indent-line-not-comments))
+          (coq-indent-line-not-comments))
       (forward-line 1))
     (goto-char fin)))
  
