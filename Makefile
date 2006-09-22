@@ -28,19 +28,26 @@ DEST_PREFIX=/usr
 
 PWD=$(shell pwd)
 
-ELISP_DIRS=acl2 coq demoisa generic hol98 isa isar lclam lego lib mmm phox plastic twelf x-symbol/lisp
+PROVERS=acl2 ccc coq demoisa hol98 isa isar lclam lego pgshell phox plastic twelf
+OTHER_ELISP=generic lib mmm
+ELISP_DIRS=${PROVERS} ${OTHER_ELISP}
+ELISP_EXTRAS=isar/interface isar/isartags
 EXTRA_DIRS = images x-symbol
+
+DOC_FILES=AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/*.pdf
+DOC_EXAMPLES=acl2/*.acl2 hol98/*.sml isa/*.ML isa/*.thy isar/*.thy lclam/*.lcm lego/*.l pgshell/*.pgsh phox/*.phx plastic/*.lf twelf/*.elf
+DOC_SUBDIRS=${DOC_EXAMPLES} */README.* */CHANGES */BUGS 
 
 BATCHEMACS=${EMACS} -batch -q -no-site-file
 
 # Scripts to edit paths to shells
 BASH_SCRIPTS = isar/interface bin/proofgeneral
-PERL_SCRIPTS = lego/legotags coq/coqtags
+PERL_SCRIPTS = lego/legotags coq/coqtags isar/isartags
 # Scripts to edit path to PG
 PG_SCRIPTS = bin/proofgeneral
 
 # Scripts to install to bin directory
-BIN_SCRIPTS = ${BASH_SCRIPTS} ${PERL_SCRIPTS}
+BIN_SCRIPTS = bin/proofgeneral lego/legotags coq/cogtags isar/isartags
 
 # FIXME: would rather set load path in Elisp,
 # but seems tricky to do only during compilation.
@@ -144,7 +151,7 @@ BINDIR=${PREFIX}/bin
 DESKTOP=${PREFIX}/share
 DOCDIR=${PREFIX}/share/doc/ProofGeneral
 MANDIR=${PREFIX}/share/man/man1
-INFODIR=${PREFIX}/share/info/
+INFODIR=${PREFIX}/share/info
 
 install: install-desktop install-elisp install-bin install-init
 
@@ -162,6 +169,7 @@ install-desktop:
 	mkdir -p ${DESKTOP}/mime-info
 	cp etc/desktop/mime-info/proofgeneral.mime ${DESKTOP}/mime-info
 	cp etc/desktop/mime-info/proofgeneral.keys ${DESKTOP}/mime-info
+# backwards compatibility with old linuxes
 	mkdir -p ${DESKTOP}/application-registry
 	cp etc/desktop/application-registry/proofgeneral.applications ${DESKTOP}/application-registry
 
@@ -180,12 +188,13 @@ install-el:
 	for f in ${ELISP_DIRS} ${EXTRA_DIRS}; do mkdir -p ${ELISP}/$$f; done
 	for f in ${ELISP_DIRS}; do cp -pf $$f/*.el ${ELISP}/$$f; done
 	for f in ${EXTRA_DIRS}; do cp -prf $$f/* ${ELISP}/$$f; done
+	for f in ${ELISP_EXTRAS}; do cp -pf $$f ${ELISP}/$$f; done
 
 install-elc: compile
 	mkdir -p ${ELISP}
 	for f in ${ELISP_DIRS} ${EXTRA_DIRS}; do mkdir -p ${ELISP}/$$f; done
 	for f in ${ELISP_DIRS}; do cp -pf $$f/*.elc ${ELISP}/$$f; done
-	for f in ${EXTRA_DIRS}; do cp -prf $$f/* ${ELISP}/$$f; done
+	for f in ${ELISP_EXTRAS}; do cp -pf $$f ${ELISP}/$$f; done
 
 install-init:
 	mkdir -p ${ELISP_START}
@@ -197,13 +206,16 @@ install-bin: scripts
 	mkdir -p ${BINDIR}
 	cp -pf ${BIN_SCRIPTS} ${BINDIR}
 
-install-doc: doc.info
+install-doc: doc.info doc.pdf
 	mkdir -p ${MANDIR}
 	cp -pf doc/proofgeneral.1 ${MANDIR}
 	mkdir -p ${INFODIR}
 	cp -pf doc/*.info ${INFODIR}
 	/sbin/install-info ${INFODIR}/ProofGeneral.info* ${INFODIR}/dir
 	/sbin/install-info ${INFODIR}/PG-adapting.info* ${INFODIR}/dir
+	mkdir -p ${DOCDIR}
+	for f in ${DOC_FILES}; do cp -pf $$f ${DOCDIR}; done
+	for f in ${DOC_EXAMPLES}; do mkdir -p ${DOCDIR}/`dirname $$f`; cp -pf $$f ${DOCDIR}/$$f; done
 
 doc: FORCE
 	(cd doc; make $*)

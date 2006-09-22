@@ -72,7 +72,7 @@ make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr  EMACS=xemacs DEST_PR
 make install-desktop install-el install-bin PREFIX=${RPM_BUILD_ROOT}/usr ELISPP=share/ProofGeneral DEST_PREFIX=/usr
 
 # Install docs too
-make install-doc PREFIX=${RPM_BUILD_ROOT}/usr DEST_PREFIX=/usr
+make install-doc PREFIX=${RPM_BUILD_ROOT}/usr DEST_PREFIX=/usr DOCDIR=%{_docdir}
 rm -f ${RPM_BUILD_ROOT}/usr/share/info/dir
 gzip ${RPM_BUILD_ROOT}/usr/share/info/*
 
@@ -106,16 +106,13 @@ fi
 
 %files
 %defattr(-,root,root)
-# FIXME: warning: source file `doc/README.doc' specified more than once
-%doc AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/* */README.*
 %{_bindir}/*
-# no man page yet
-# %{_mandir}/man1/*
+%doc %{_datadir}/man/man1/*
+%doc %{_datadir}/info/*.info*
+%doc %{_datadir}/doc/*
 %{_datadir}/pixmaps/proofgeneral.png
 %{_datadir}/icons/hicolor/*/proofgeneral.png
 %{_datadir}/ProofGeneral/*
-%{_datadir}/man/man1/*
-%{_datadir}/info/*.info*
 %{_datadir}/mime-info/proofgeneral.*
 %{_datadir}/applications/proofgeneral.desktop
 %{_datadir}/application-registry/proofgeneral.applications

@@ -208,10 +208,6 @@ RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 # value for dcs.ed.ac.uk:
 DISTINSTALLDIR=/export/local/share/elisp
 
-# Copied from distributed Makefile
-PROVERS=acl2 coq demoisa generic hol98 isa isar lclam lego phox plastic twelf
-OTHER_ELISP=lib mmm
-ELISP_DIRS=$(PROVERS) $(OTHER_ELISP)
 SUBDIRS=$(ELISP_DIRS) etc doc images
 
 PWD=$(shell pwd)
