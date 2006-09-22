@@ -2048,7 +2048,6 @@ usual, unless NOERROR is non-nil."
   (setq proof-shell-urgent-message-scanner (make-marker))
   (set-marker proof-shell-urgent-message-scanner (point-min))
 
-  ;; easy-menu-add must be in the mode function for XEmacs.
   (easy-menu-add proof-shell-mode-menu proof-shell-mode-map)
 
   ;; [ Should already be in proof-goals-buffer, really.]
