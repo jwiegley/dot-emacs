@@ -1,4 +1,4 @@
-;; texi-docstring-magic.el -- munge internal docstrings into texi
+;; texi-docstring-magic.el --- munge internal docstrings into texi
 ;;
 ;; Keywords: lisp, docs, tex
 ;; Author:     David Aspinall <David.Aspinall@ed.ac.uk>
