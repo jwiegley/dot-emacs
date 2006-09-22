@@ -47,7 +47,7 @@ PERL_SCRIPTS = lego/legotags coq/coqtags isar/isartags
 PG_SCRIPTS = bin/proofgeneral
 
 # Scripts to install to bin directory
-BIN_SCRIPTS = bin/proofgeneral lego/legotags coq/cogtags isar/isartags
+BIN_SCRIPTS = bin/proofgeneral lego/legotags coq/coqtags isar/isartags
 
 # FIXME: would rather set load path in Elisp,
 # but seems tricky to do only during compilation.
