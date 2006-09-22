@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2000 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -81,22 +81,24 @@ substituted for the corresponding REGEXP wherever it matches."
           (setq string (replace-match (cdr pair) t t string))))))
   string)
 
-(defun mmm-format-matches (string)
+(defun mmm-format-matches (string &optional on-string)
   "Format STRING by matches from the current match data.
 Strings like ~N are replaced by the Nth subexpression from the last
-global match.  Does nothing if STRING is not a string."
+global match.  Does nothing if STRING is not a string.
+
+ON-STRING, if supplied, means to use the match data from a
+`string-match' on that string, rather than the global match data."
   (when (stringp string)
     (let ((old-data (match-data))
           subexp)
       (save-match-data
         (while (string-match "~\\([0-9]\\)" string)
-          (setq subexp (string-to-int (match-string 1 string))
-                string
-                (replace-match
-                 (save-match-data
-                   (set-match-data old-data)
-                   (match-string subexp))
-                 t t string))))))
+          (setq subexp (string-to-int (match-string-no-properties 1 string))
+                string (replace-match
+			(save-match-data
+			  (set-match-data old-data)
+			  (match-string-no-properties subexp on-string))
+			t t string))))))
   string)
 
 ;;}}}
@@ -105,7 +107,7 @@ global match.  Does nothing if STRING is not a string."
 (defmacro mmm-save-keyword (param)
   "If the value of PARAM as a variable is non-nil, return the list
 \(:PARAM (symbol-value PARAM)), otherwise NIL. Best used only when it
-is important that nil valuess disappear."
+is important that nil values disappear."
   `(if (and (boundp ',param) ,param)
        (list (intern (concat ":" (symbol-name ',param))) ,param)
      nil))
@@ -115,7 +117,7 @@ is important that nil valuess disappear."
 \(let \(\(a 1) \(c 2)) \(mmm-save-keywords a b c))  ==>  \(:a 1 :c 2)
 Use of this macro can make code more readable when there are a lot of
 PARAMS, but less readable when there are only a few. Also best used
-only when it is important that nil valuess disappear."
+only when it is important that nil values disappear."
   `(append ,@(mapcar #'(lambda (param)
                          (macroexpand `(mmm-save-keyword ,param)))
                      params)))
@@ -135,6 +137,19 @@ string."
                (- (point) (or bound (length regexp)))
                t)
              (match-end 0)))))
+
+;;}}}
+;;{{{ Markers
+
+;; Mostly for remembering interactively made regions
+(defun mmm-make-marker (pos beg-p sticky-p)
+  "Make, and return, a marker at POS that is or isn't sticky.
+BEG-P represents whether the marker delimits the beginning of a
+region \(or the end of it). STICKY-P is whether it should be sticky,
+i.e. whether text inserted at the marker should be inside the region."
+  (let ((mkr (set-marker (make-marker) pos)))
+    (set-marker-insertion-type mkr (if beg-p (not sticky-p) sticky-p))
+    mkr))
 
 ;;}}}
 

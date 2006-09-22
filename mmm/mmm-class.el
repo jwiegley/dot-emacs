@@ -1,8 +1,8 @@
 ;;; mmm-class.el --- MMM submode class variables and functions
 
-;; Copyright (C) 2000 by Michael Abraham Shulman
+;; Copyright (C) 2000, 2004 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -36,6 +36,7 @@
 (require 'mmm-vars)
 (require 'mmm-region)
 
+;;; CLASS SPECIFICATIONS
 ;;{{{ Get Class Specifications
 
 (defun mmm-get-class-spec (class)
@@ -81,7 +82,10 @@ none is specified by CLASS."
   (unless (eq class t)
     (apply #'mmm-ify :start start :stop stop
            (append (mmm-get-class-spec class)
-                  (list :face face)))))
+                  (list :face face)))
+    (mmm-run-class-hook class)
+    ;; Hack in case class hook sets mmm-buffer-mode-display-name etc.
+    (mmm-set-mode-line)))
 
 (defun* mmm-apply-classes
     (classes &key (start (point-min)) (stop (point-max)) face)
@@ -109,27 +113,34 @@ The classes come from mode/ext, `mmm-classes', `mmm-global-classes',
 and interactive history."
   (mmm-clear-overlays start stop 'strict)
   (mmm-apply-classes (mmm-get-all-classes t) :start start :stop stop)
-  (mmm-update-current-submode)
+  (mmm-update-submode-region)
   (mmm-refontify-maybe start stop))
 
 ;;}}}
+
+;;; BUFFER SCANNING
 ;;{{{ Scan for Regions
 
 (defun* mmm-ify
-    (&rest all &key classes handler submode face
+    (&rest all &key classes handler
+	   submode match-submode
            (start (point-min)) (stop (point-max))
            front back save-matches (case-fold-search t)
            (beg-sticky (not (number-or-marker-p front)))
            (end-sticky (not (number-or-marker-p back)))
            include-front include-back
            (front-offset 0) (back-offset 0)
+	   (front-delim nil) (back-delim nil)
+	   (delimiter-mode mmm-delimiter-mode)
+	   front-face back-face
            front-verify back-verify
-           front-form back-form creation-hook
-           match-submode match-face
-	   (front-match 0)
-	   (back-match 0)
+           front-form back-form
+	   creation-hook
+           face match-face
+	   save-name match-name
+	   (front-match 0) (back-match 0)
 	   end-not-begin
-           ;insert
+           ;insert private
            &allow-other-keys
            )
   "Create submode regions from START to STOP according to arguments.
@@ -139,11 +150,12 @@ the rest of the arguments are for an actual class being applied. See
   ;; Make sure we get the default values in the `all' list.
   (setq all (append
              all
-             (list :start start :stop stop :beg-sticky beg-sticky
-                   :end-sticky end-sticky :front-offset front-offset
-                   :back-offset back-offset
-		   :front-match 0
-		   :back-match 0)))
+             (list :start start :stop stop
+		   :beg-sticky beg-sticky :end-sticky end-sticky
+		   :front-offset front-offset :back-offset back-offset
+		   :front-delim front-delim :back-delim back-delim
+		   :front-match 0 :back-match 0
+		   )))
   (cond
    ;; If we have a class list, apply them all.
    (classes
@@ -158,24 +170,34 @@ the rest of the arguments are for an actual class being applied. See
    (t
     (mmm-save-all
      (goto-char start)
-     (loop for (beg end matched-front matched-back
-                    matched-submode matched-face back-to resume-at) =
+     (loop for (beg end front-pos back-pos matched-front matched-back
+                    matched-submode matched-face matched-name
+                    invalid-resume ok-resume) =
                     (apply #'mmm-match-region :start (point) all)
            while beg
-           while (or (not end) (/= beg end)) ; Sanity check
-           if end do            ; match-submode, if present, succeeded.
+           if end	       ; match-submode, if present, succeeded.
+           do
            (condition-case nil
                (progn
-                 (apply #'mmm-make-region (or matched-submode submode)
-                        beg end :front matched-front :back matched-back
-                        :face (or matched-face face) all)
-		 (goto-char resume-at))
+                 (mmm-make-region
+		  (or matched-submode submode) beg end
+		  :face (or matched-face face)
+		  :front front-pos :back back-pos
+		  :evaporation 'front
+		  :match-front matched-front :match-back matched-back
+		  :beg-sticky beg-sticky :end-sticky end-sticky
+		  :name matched-name
+		  :delimiter-mode delimiter-mode
+		  :front-face front-face :back-face back-face
+		  :creation-hook creation-hook
+		  )
+		 (goto-char ok-resume))
              ;; If our region is invalid, go back to the end of the
              ;; front match and continue on.
-             (mmm-invalid-parent (goto-char back-to)))
+             (mmm-error (goto-char invalid-resume)))
            ;; If match-submode was unable to find a match, go back to
            ;; the end of the front match and continue on.
-           else do (goto-char back-to)
+           else do (goto-char invalid-resume)
            )))))
 
 ;;}}}
@@ -186,17 +208,22 @@ the rest of the arguments are for an actual class being applied. See
           include-front include-back front-offset back-offset
           front-form back-form save-matches match-submode match-face
 	  front-match back-match end-not-begin
+	  save-name match-name
           &allow-other-keys)
   "Find the first valid region between point and STOP.
-Return \(BEG END FRONT-FORM BACK-FORM SUBMODE FACE BACK-TO) specifying
-the region.  See `mmm-match-and-verify' for the valid values of FRONT
-and BACK \(markers, regexps, or functions).  A nil value for END means
-that MATCH-SUBMODE failed to find a valid submode.  BACK-TO is the
-point at which the search should continue if the region is invalid."
+Return \(BEG END FRONT-POS BACK-POS FRONT-FORM BACK-FORM SUBMODE FACE
+NAME INVALID-RESUME OK-RESUME) specifying the region.  See
+`mmm-match-and-verify' for the valid values of FRONT and BACK
+\(markers, regexps, or functions).  A nil value for END means that
+MATCH-SUBMODE failed to find a valid submode.  INVALID-RESUME is the
+point at which the search should continue if the region is invalid,
+and OK-RESUME if the region is valid."
   (when (mmm-match-and-verify front start stop front-verify)
-    (let ((beg (mmm-match->point include-front front-offset 
-				 front-match back-match))
-          (back-to (match-end front-match))
+    (let ((beg (mmm-match->point include-front front-offset front-match))
+	  (front-pos (if front-delim
+			 (mmm-match->point t front-delim front-match)
+		       nil))
+          (invalid-resume (match-end front-match))
           (front-form (mmm-get-form front-form)))
       (let ((submode (if match-submode
                          (condition-case nil
@@ -205,8 +232,15 @@ point at which the search should continue if the region is invalid."
                            (mmm-no-matching-submode
                             (return-from
                                 mmm-match-region
-                              (values nil nil nil nil nil back-to))))
+                              (values beg nil nil nil nil nil nil nil nil
+                                      invalid-resume nil))))
                        nil))
+	    (name (cond ((functionp match-name)
+			 (mmm-save-all (funcall match-name front-form)))
+			((stringp match-name)
+			 (if save-name
+			     (mmm-format-matches match-name)
+			   match-name))))
             (face (cond ((functionp match-face)
                          (mmm-save-all
                           (funcall match-face front-form)))
@@ -217,21 +251,27 @@ point at which the search should continue if the region is invalid."
                    (mmm-format-matches back)
                  back)
                beg stop back-verify)
-          (let* ((end (mmm-match->point (not include-back) back-offset 
-					front-match back-match))
+          (let* ((end (mmm-match->point (not include-back)
+					back-offset back-match))
+		 (back-pos (if back-delim
+			       (mmm-match->point nil back-delim back-match)
+			     nil))
 		 (back-form (mmm-get-form back-form))
-		 (resume-at (if end-not-begin 
+		 (ok-resume (if end-not-begin 
 				(match-end back-match)
 			      end)))
-            (values beg end front-form back-form submode face back-to resume-at)))))))
+            (values beg end front-pos back-pos front-form back-form
+		    submode face name
+                    invalid-resume ok-resume)))))))
 
-(defun mmm-match->point (beginp offset front-match back-match)
+(defun mmm-match->point (beginp offset match)
   "Find a point of starting or stopping from the match data.  If
-BEGINP, start at \(match-beginning FRONT-MATCH), else \(match-end
-BACK-MATCH), and move OFFSET.  Handles all values for OFFSET--see
-`mmm-classes-alist'."
+BEGINP, start at \(match-beginning MATCH), else \(match-end MATCH),
+and move OFFSET.  Handles all values of OFFSET--see `mmm-classes-alist'."
   (save-excursion
-    (goto-char (if beginp (match-beginning front-match) (match-end back-match)))
+    (goto-char (if beginp
+		   (match-beginning front-match)
+		 (match-end back-match)))
     (dolist (spec (if (listp offset) offset (list offset)))
       (if (numberp spec)
           (forward-char (or spec 0))

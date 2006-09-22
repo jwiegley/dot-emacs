@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2000 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -28,8 +28,8 @@
 
 ;; This file provides a number of hacks that are necessary for MMM
 ;; Mode to function in different Emacsen.  MMM Mode is designed for
-;; Emacs 20, but these hacks usually enable it to work almost
-;; perfectly in Emacs 19 and XEmacs 20 or 21.
+;; FSF Emacs 20 and 21, but these hacks usually enable it to work
+;; almost perfectly in Emacs 19 and XEmacs 20 or 21.
 
 ;;; Code:
 

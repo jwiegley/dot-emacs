@@ -3,6 +3,10 @@ Hey Emacs, this is a -*-text-*- file!
                        To Do List for MMM Mode
                        =======================
 
+It would be nice to have a "split region" command which would insert
+a _back_ delimiter followed by a _front_ delimiter at point and split
+the current region into two regions.  Say for PHP.
+
 Custom mode functions like `mason-mode'.
 
 Make Mason work a little better with PSGML.  The fix I've found works,

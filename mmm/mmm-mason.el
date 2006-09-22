@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2000 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -96,6 +96,8 @@ Saves the name of the tag matched.")
     :front ,mmm-mason-perl-tags-regexp
     :back "</%~1>"
     :save-matches 1
+    :match-name "~1"
+    :save-name 1
     :insert ((?, mason-<%TAG> "Perl section: " @ "<%" str ">" @
                  ";\n" _ "\n" @ "</%" str ">" @)
              (?< mason-<%TAG> ?, . nil)
@@ -159,6 +161,13 @@ Saves the name of the tag matched.")
 (defun mmm-mason-end-line ()
   (if (eolp)
       (delete-char 1)))
+
+;;}}}
+;;{{{ Set Mode Line
+
+(defun mmm-mason-set-mode-line ()
+  (setq mmm-buffer-mode-display-name "Mason"))
+(add-hook 'mmm-mason-class-hook 'mmm-mason-set-mode-line)
 
 ;;}}}
 

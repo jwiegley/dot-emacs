@@ -1,8 +1,35 @@
 MMM Mode NEWS -- history of user-visible changes.  -*-outline-*-
-Copyright (C) 2000 Michael Abraham Shulman
+Copyright (C) 2003, 2004 Michael Abraham Shulman
 See the file COPYING for copying conditions.
 
-Please send MMM Mode bug reports to viritrilbia@users.sourceforge.net
+Please submit bug reports at http://sourceforge.net/projects/mmm-mode/
+
+* Changes in MMM Mode 0.4.8
+
+** Delimiter Regions
+
+The delimiters which mark off submode regions now have their own
+overlays.  They can be highlighted if you so desire using appropriate
+class arguments and/or the variable mmm-delimiter-face.  They are also
+in an appropriate major mode, or non-mode as the case may be.
+
+** Nested Submodes
+
+Nested submodes are now vaguely supported.
+
+** RPM Spec File
+
+An RPM spec file, contributed by <bishop@platypus.bc.ca>, is now
+included for people who wish to build their own SRPM to install from.
+
+** New Submode Classes
+
+Many thanks to Joe Kelsey for writing a very intelligent class for
+editing Noweb files, and to Alan Shutko for one for CWeb files.  We
+also have a mode for SGML DTD definitions from Yann Dirson.
+
+** Numerous bugfixes and small improvements
+
 
 * Changes in MMM Mode 0.4.7
 

@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2000 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -35,6 +35,7 @@
 (require 'mmm-vars)
 (require 'mmm-class)
 
+;; APPLYING CLASSES
 ;;{{{ Applying Predefined Classes
 
 (defun mmm-ify-by-class (class)
@@ -44,18 +45,12 @@
           (completing-read
            "Submode Class: "
            (remove-duplicates
-            (remove nil
-                    (nconc
-                     (mapcar #'(lambda (spec)
-                                 (if (plist-get (cdr spec) :private)
-                                     nil
-                                   (list (symbol-name (car spec)))))
-                             mmm-classes-alist)
-                     (mapcar #'(lambda (spec)
-                                 (if (caddr spec)
-                                     nil
-                                   (list (symbol-name (car spec)))))
-                             mmm-autoloaded-classes))))
+            (mapcar #'(lambda (spec) (list (symbol-name (car spec))))
+                    (append
+                     (remove-if #'(lambda (spec) (plist-get (cdr spec) :private))
+                                mmm-classes-alist)
+                     (remove-if #'caddr mmm-autoloaded-classes)))
+            :test #'equal)
            nil t))))
   (unless (eq class (intern ""))
     (mmm-apply-class class)
@@ -95,6 +90,8 @@ nNumber of matched substrings to save: ")
   (mmm-enable-font-lock submode))
 
 ;;}}}
+
+;; EDITING WITH REGIONS
 ;;{{{ Re-parsing Areas
 
 (defun mmm-parse-buffer ()
@@ -144,6 +141,25 @@ delimiter auto-insertion that MMM Mode provides. See, for example,
             (point)))))
 
 ;;}}}
+;;{{{ Reparse Current Region
+
+(defun mmm-reparse-current-region ()
+  "Clear and reparse the area of the current submode region.
+Use this command if a submode region's boundaries have become wrong."
+  (interactive)
+  (let ((ovl (mmm-overlay-at (point) 'all)))
+    (when ovl
+      (let ((beg (save-excursion
+                   (goto-char (mmm-front-start ovl))
+                   (forward-line -1)
+                   (point)))
+            (end (save-excursion
+                   (goto-char (mmm-back-end ovl))
+                   (forward-line 1)
+                   (point))))
+        (mmm-parse-region beg end)))))
+
+;;}}}
 ;;{{{ Clear Submode Regions
 
 ;; See also `mmm-clear-history' which is interactive.
@@ -162,25 +178,6 @@ delimiter auto-insertion that MMM Mode provides. See, for example,
   "Deletes all submode regions in the current buffer."
   (interactive)
   (mmm-clear-overlays))
-
-;;}}}
-;;{{{ Reparse Current Region
-
-(defun mmm-reparse-current-region ()
-  "Clear and reparse the area of the current submode region.
-Use this command if a submode region's boundaries have become wrong."
-  (interactive)
-  (let ((ovl (mmm-overlay-at (point) 'all)))
-    (when ovl
-      (let ((beg (save-excursion
-                   (goto-char (mmm-front-start ovl))
-                   (forward-line -1)
-                   (point)))
-            (end (save-excursion
-                   (goto-char (mmm-back-end ovl))
-                   (forward-line 1)
-                   (point))))
-        (mmm-parse-region beg end)))))
 
 ;;}}}
 ;;{{{ End Current Region
@@ -218,6 +215,22 @@ entire job of this function."
                            (save-excursion (forward-line 1) (point))))))
 
 ;;}}}
+;;{{{ Narrow to Region
+
+(defun mmm-narrow-to-submode-region (&optional pos)
+  "Narrow to the submode region at point."
+  (interactive)
+  ;; Probably don't use mmm-current-overlay here, because this is
+  ;; sometimes called from inside messy functions.
+  (let ((ovl (mmm-overlay-at pos)))
+    (when ovl
+      (narrow-to-region (overlay-start ovl) (overlay-end ovl)))))
+
+;; The inverse command is `widen', usually on `C-x n w'
+
+;;}}}
+
+;; INSERTING REGIONS
 ;;{{{ Insert regions by keystroke
 
 ;; This is the "default" binding in the MMM Mode keymap. Keys defined
@@ -254,7 +267,8 @@ or a symbol such as tab, return, etc. Note that if there are no
 MODIFIERS, the dotted list becomes simply BASIC-KEY."
   (multiple-value-bind (class skel str) (mmm-get-insertion-spec key)
     (when skel
-      (let ((after-change-functions nil))
+      (let ((after-change-functions nil)
+            (old-undo buffer-undo-list) undo)
         ;; XEmacs' skeleton doesn't manage positions by itself, so we
         ;; have to do it.
         (if mmm-xemacs (setq skeleton-positions nil))
@@ -262,31 +276,65 @@ MODIFIERS, the dotted list becomes simply BASIC-KEY."
         (destructuring-bind (back end beg front) skeleton-positions
           ;; TODO: Find a way to trap invalid-parent signals from
           ;; make-region and undo the skeleton insertion.
-          (let* ((match-submode (plist-get class :match-submode))
-                 (front-str (buffer-substring front beg))
-                 (back-str (buffer-substring end back))
-                 (submode
-                  (if match-submode
-                      (mmm-save-all (funcall match-submode front-str))
-                    (plist-get class :submode)))
-                 (match-face (plist-get class :match-face))
-                 (face
+          (let ((match-submode (plist-get class :match-submode))
+		(match-face (plist-get class :match-face))
+		(match-name (plist-get class :match-name))
+		(front-form (regexp-quote (buffer-substring front beg)))
+		(back-form (regexp-quote (buffer-substring end back)))
+		submode face name)
+	    (setq submode
+		  (mmm-modename->function
+		   (if match-submode
+		       (mmm-save-all (funcall match-submode front-form))
+		     (plist-get class :submode))))
+	    (setq face
                   (cond ((functionp match-face)
                          (mmm-save-all
-                          (funcall match-face front-str)))
+                          (funcall match-face front-form)))
                         (match-face
-                         (cdr (assoc front-str match-face)))
+                         (cdr (assoc front-form match-face)))
                         (t
-                         (plist-get class :face)))))
-            (setq submode (mmm-modename->function submode))
+                         (plist-get class :face))))
+	    (setq name
+		  (cond ((plist-get class :skel-name)
+			 ;; Optimize the name to the user-supplied str
+			 ;; if we are so instructed.
+			 str)
+			;; Call it if it is a function
+			((functionp match-name)
+			 (mmm-save-all (funcall match-name front-form)))
+			;; Now we know it's a string, does it need to
+			;; be formatted?
+			((plist-get class :save-name)
+			 ;; Yes.  Haven't done a match before, so
+			 ;; match the front regexp against the given
+			 ;; form to format the string
+			 (string-match (plist-get class :front)
+				       front-form)
+			 (mmm-format-matches match-name front-form))
+			(t
+			 ;; No, just use it as-is
+			 match-name)))
             (mmm-make-region
-             submode beg end :front front-str :back back-str
-             :face face
+             submode beg end 
+	     :face face
+	     :name name
+	     :front front :back back
+	     :match-front front-form :match-back back-form
+	     :evaporation 'front
 ;;;             :beg-sticky (plist-get class :beg-sticky)
 ;;;             :end-sticky (plist-get class :end-sticky)
              :beg-sticky t :end-sticky t
              :creation-hook (plist-get class :creation-hook))
-            (mmm-enable-font-lock submode)))))))
+            (mmm-enable-font-lock submode)))
+        ;; Now get rid of intermediate undo boundaries, so that the entire
+        ;; insertion can be undone as one action.  This should really be
+        ;; skeleton's job, but it doesn't do it.
+        (setq undo buffer-undo-list)
+        (while (not (eq (cdr undo) old-undo))
+          (when (eq (cadr undo) nil)
+            (setcdr undo (cddr undo)))
+          (setq undo (cdr undo)))))))
 
 (defun mmm-get-insertion-spec (key &optional classlist)
   "Get the insertion info for KEY from all classes in CLASSLIST.

@@ -1,12 +1,12 @@
 ;;; mmm-mode.el --- Allow Multiple Major Modes in a buffer
 
-;; Copyright (C) 1999 by Michael Abraham Shulman
+;; Copyright (C) 1999, 2004 by Michael Abraham Shulman
 
 ;; Emacs Lisp Archive Entry
 ;; Package: mmm-mode
 ;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Keywords: convenience, faces, languages, tools
-;; Version: 0.4.7
+;; Version: 0.4.8
 
 ;; Revision: $Id$
 
@@ -78,11 +78,6 @@
 ;;; any default specified in the arglist will be ignored. Confusion of
 ;;; this type should be avoided when at all possible.
 
-;;; By the way, in Elisp CL, there is no reason to use `mapc' over
-;;; `mapcar' unless you need keyword parameters, in which case you
-;;; might as well use `mapcar*'. `mapcar' is an Elisp primitive, so
-;;; it's fast, and `mapc' uses it internally anyway.
-
 ;;}}}
 
 ;;; Code:
@@ -115,196 +110,29 @@ Commands Available:
 BASIC CONCEPTS
 
 The idea of MMM Mode is to allow multiple major modes to coexist in
-the same buffer. There is one \"dominant\" or \"default\" major mode
-that controls most of the buffer, and a number of \"submodes\" that
-each hold sway over certain regions. While the point is in a submode
-region, the following changes occur:
+the same buffer.  There is one \"primary\" major mode that controls
+most of the buffer, and a number of \"submodes\" that each hold sway
+over certain regions.  The submode regions are usually highlighted by
+a background color for ease of recognition.  While the point is in a
+submode region, the following changes \(are supposed to) occur:
 
 1. The local keymap is that of the submode.
 2. The mode line changes to show what submode region is active.
-3. The major mode menu and popup are that of the submode.
+3. The major mode menu and mouse popup menu are that of the submode.
 4. Some local variables of the submode shadow the default mode's.
 5. The syntax table and indentation are those of the submode.
 6. Font-lock fontifies correctly for the submode.
-7. The submode regions are highlighted by a background color.
 
-These changes are accomplished by adding Emacs Lisp objects called
-\"overlays\" to the buffer to mark the submode regions, and adding a
-`post-command-hook' to update the submode changes that Emacs won't do
-automatically. There are two ways to create the submode regions:
-interactively and automatically. Creating submode regions is referred
-to as \"mmm-ification.\"
-
-
-THE MMM MINOR MODE
-
-The MMM Minor Mode must be on in a buffer for submode regions to be
-effective. Fortunately, it is automagically turned on by any
-mmm-ification, interactive or automatic. When activated, it is denoted
-by \"MMM\" in the mode line. You can also turn it on manually with the
-function `mmm-mode', in which case it mmm-ifies the buffer
-automatically. Do not set the variable `mmm-mode' directly. Turning
-MMM Mode off automatically removes all submode regions from the
-buffer.
-
-MMM Mode has its own keymap, which is bound by default to the prefix
-key \"\\C-c%\". This is a good mnemonic for me since I use MMM Mode to
-edit HTML files with embedded languages such as HTML::Mason, which
-uses the character \"%\" to introduce server-side code. You can
-customize this with the variable `mmm-prefix-key'. When MMM Mode is
-activated, many of the functions discussed below have keyboard
-equivalents, given in parentheses after their name.
-
-
-GETTING STARTED
-
-There are six sample submode classes that come with MMM Mode: Embedded
-CSS in HTML \(requires `css-mode'), Embedded Javascript in HTML
-\(requires `javascript-mode'), HTML in Perl here-documents, the
-HTML::Mason syntax for server-side Perl in HTML, Emacs Lisp in
-\"eval\" file variables, and HTML in PL/SQL \(helpful to have some
-PL/SQL mode).
-
-If one of these is what you need, then all that's necessary is to put
-a line containing \"-*- mmm-classes: CLASS -*-\" at the top of each
-file you want to use MMM Mode in, where CLASS is one of embedded-css,
-javascript, html-here, mason, eval-elisp, or htp-p. After this edit
-you can type M-x normal-mode \(in order to re-parse the file
-variables) and then M-x mmm-mode to activate the appropriate submode
-regions \(assuming MMM Mode is loaded).
-
-I suggest reading my comments on whatever classes you are using. These
-can be found in the file \"mmm-mode\" at the bottom in the appropriate
-section. Hopefully in the future, these will become doc-strings.
-
-If you want to use more than one class in a file, simply set
-`mmm-classes' to a list of symbols rather than a single symbol. If you
-want MMM Mode to be activated automatically whenever you find a file
-with `mmm-classes' set, call `mmm-add-find-file-hook' in your Emacs
-initialization file. \(See \"Loading MMM Mode \", below)
-
-If you want to use one of these submode classes in all buffers with a
-certain major mode or file extension, call `mmm-add-mode-ext-class' in
-your Emacs initialization file. For example, if you want all files
-with the extension .mason to be in html-mode with the MMM class mason
-activated, try this:
-
-\(add-to-list 'auto-mode-alist '(\"\\\\.mason\\\\'\" . html-mode))
-\(mmm-add-mode-ext-class 'html-mode \"\\\\.mason\\\\'\" 'mason)
-
-If none of the supplied classes is what you need, you'll have to write
-your own. Reading through the documentation and looking at the
-supplied classes should help you. You may want to try interactive
-mmm-ification until your regexps or functions are perfected. If your
-class works well and you think others might find it useful, send it to
-me and maybe I'll include it in the next release.
-
-
-INTERACTIVE MMM-IFICATION
-
-There are four functions that create regions interactively:
-`mmm-ify-region' \(\\[mmm-ify-region]), `mmm-ify-by-regexp' \(\\[mmm-ify-by-regexp]),
-`mmm-ify-by-function' \(\\[mmm-ify-by-function]), and `mmm-ify-by-class' \(\\[mmm-ify-by-class]).
-The first adds a region between point and mark. The second adds
-regions throughout the file delimited by regexps. The third adds
-regions as computed by a user-defined function. The fourth adds
-regions as appropriate for a submode class. For more info, see the
-documentation for these functions.
-
-
-AUTOMATIC MMM-IFICATION
-
-Automatic mmm-ification is done by means of \"submode classes.\" A
-submode class is a set of submodes along with methods of adding
-regions for them. These methods can be either a set of regexps
-analogous to the arguments of `mmm-ify-by-regexp', a function which
-could be passed to `mmm-ify-by-function', or another submode class to
-invoke. Whenever automatic mmm-ification takes place \(see below for
-when this occurs), three things happen:
-
-1. All existing submode regions are removed.
-2. All recent interactive mmm-ification is reapplied.
-3. The buffer-local variables `mmm-classes' and `mmm-mode-ext-classes'
-   are inspected for classes to mmm-ify the buffer with.
-
-Each class found in the third step is looked up in `mmm-classes-alist'
-to find its associated submode(s), method(s), and face(s), and
-appropriate submode regions are added. To create a class, simply add
-an element to `mmm-classes-alist'. See the documentation for that
-variable for the correct format of elements. The variable
-`mmm-classes' is suitable for setting in a file variables list.
-
-Automatic mmm-ification is done by the functions `mmm-parse-buffer'
-\(\\[mmm-parse-buffer]) and `mmm-parse-region'. These functions can be called
-interactively, and the first has a default key binding. The function
-`mmm-ify-by-all' sets `mmm-mode-ext-classes' appropriately for the
-current buffer by looking in `mmm-mode-ext-classes-alist'. The
-function `mmm-add-find-file-hook' adds `mmm-ify-by-all' to
-`find-file-hooks' for which it is well suited.
-
-
-LOADING MMM MODE
-
-Suggested lines for a .emacs file are:
-
-\(require 'mmm-mode)
-\(mmm-add-find-file-hook)
-
-Autoloading MMM Mode is not particularly useful if you want Automatic
-MMM-ification by classes to occur whenever you find a file which has
-the local variable `mmm-classes' set or a mode/extension in
-`mmm-mode-ext-classes-alist', since MMM Mode would have to be loaded
-as soon as you find a file. But if you only activate MMM Mode
-interactively, you can autoload it as follows:
-
-\(autoload 'mmm-mode \"mmm-mode\" \"Multiple Major Modes\" t)
-\(autoload 'mmm-parse-buffer \"mmm-mode\" \"Automatic MMM-ification\" t)
-
-and similar lines for any other functions you want to call directly.
-
-
-MISCELLANY
-
-After you type a new region that should be a submode, you can run the
-function `mmm-parse-block' \(\\[mmm-parse-block]) to detect it with automatic
-mmm-ification.
-
-The function `mmm-clear-overlays' \(\\[mmm-clear-overlays]) removes all submode regions
-in the current buffer, without turning off MMM Mode. It clears the
-history of interactive mmm-ification, but does not change the value of
-`mmm-classes'.
-
-
-CUSTOMIZATION
-
-Besides those already discussed, there are a number of variables that
-can be used to customize MMM Mode. The appearance can be customized
-with the variables `mmm-default-submode-face', `mmm-mode-string', and
-`mmm-submode-mode-line-format', which see for further information.
-
-The variable `mmm-save-local-variables' controls what buffer-local
-variables are saved for submodes.  This is how comments are handled,
-for instance.  You can add variable names to this list--see its
-documentation for details.  Often something that seems like a problem
-with MMM Mode can be solved by simply saving an extra variable.
-
-When entering MMM Mode, the hook `mmm-mode-hook' is run. A hook named
-<major-mode>-mmm-hook is also run, if it exists. For example,
-`html-mode-mmm-hook' is run whenever MMM Mode is entered in HTML mode.
-
-Furhermore, a hook named <submode>-submode-hook is run whenever a
-submode region of a given mode is created. For example,
-`cperl-mode-submode-hook' is run whenever a CPerl mode submode region
-is created, in any buffer. When submode hooks are run, point is
-guaranteed to be at the start of the newly created submode region.
-
-All these, and some others, can be reached through M-x customize under
-Programming | Tools | Mmm, except the major mode and submode hooks
-\(obviously)."
+For further information, including installation and configuration
+instructions, see the Info file mmm.info which is included with the
+distribution of MMM Mode.  Many of MMM's configuration variables are
+available through M-x customize under Programming | Tools | Mmm."
   (interactive "P")
   (if (if arg (> (prefix-numeric-value arg) 0) (not mmm-mode))
       (mmm-mode-on)
     (mmm-mode-off)))
+
+(add-to-list 'minor-mode-alist (list 'mmm-mode mmm-mode-string))
 
 ;;}}}
 ;;{{{ Mode On
@@ -319,6 +147,8 @@ Programming | Tools | Mmm, except the major mode and submode hooks
   (mmm-valid-buffer
    (unless mmm-mode
      (setq mmm-primary-mode major-mode)
+     (when (fboundp 'c-make-styles-buffer-local)
+       (c-make-styles-buffer-local t))
      (mmm-update-mode-info major-mode)
      (setq mmm-region-saved-locals-for-dominant
            (list* (list 'font-lock-cache-state nil)
@@ -336,13 +166,12 @@ Programming | Tools | Mmm, except the major mode and submode hooks
      (setq mmm-mode t)
      (condition-case err
          (mmm-apply-all)
-       (mmm-invalid-submode-class
+       (mmm-error
         ;; Complain, but don't die, since we want files to go ahead
         ;; and be opened anyway, and the mode to go ahead and be
         ;; turned on. Should we delete all previously made submode
         ;; regions when we find an invalid one?
         (message "%s" (error-message-string err))))
-     (mmm-update-current-submode)
      (run-hooks 'mmm-mode-hook)
      (mmm-run-major-hook))))
 
@@ -365,9 +194,11 @@ Programming | Tools | Mmm, except the major mode and submode hooks
           (get mmm-primary-mode 'mmm-beginning-of-syntax-function))
     (mmm-update-font-lock-buffer)
     (mmm-refontify-maybe)
-    (setq mmm-mode nil)))
-
-(add-to-list 'minor-mode-alist (list 'mmm-mode mmm-mode-string))
+    (setq mmm-mode nil)
+    ;; Restore the mode line
+    (setq mmm-primary-mode-display-name nil
+	  mmm-buffer-mode-display-name nil)
+    (mmm-set-mode-line)))
 
 ;;}}}
 ;;{{{ Mode Keymap
@@ -381,8 +212,8 @@ Programming | Tools | Mmm, except the major mode and submode hooks
 (defvar mmm-mode-menu-map (make-sparse-keymap "MMM")
   "Keymap for MMM Minor Mode menu.")
 
-(defun mmm-define-key (key binding)
-  (define-key mmm-mode-prefix-map
+(defun mmm-define-key (key binding &optional keymap)
+  (define-key (or keymap mmm-mode-prefix-map)
     (vector (append mmm-command-modifiers (list key)))
     binding))
 
@@ -401,6 +232,8 @@ Programming | Tools | Mmm, except the major mode and submode hooks
 (mmm-define-key ?k 'mmm-clear-current-region)
 (mmm-define-key ?\  'mmm-reparse-current-region)
 (mmm-define-key ?e 'mmm-end-current-region)
+
+(mmm-define-key ?z 'mmm-narrow-to-submode-region)
 
 ;; This one is exact, since C-h is (usually) already used for help.
 (define-key mmm-mode-prefix-map [?h] 'mmm-insertion-help)

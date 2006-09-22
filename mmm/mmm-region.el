@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2000 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -31,6 +31,9 @@
 ;; behave like the submode with respect to syntax tables, local maps,
 ;; font lock, etc.
 
+;; See mmm-class.el for functions which scan the buffer and decide
+;; where to create regions.
+
 ;;; Code:
 
 (require 'cl)
@@ -48,54 +51,100 @@
 ;; end-stickiness to determine whether an endpoint is within an
 ;; extent. Here we want to act like XEmacs does.
 
-(defun mmm-overlay-at (&optional pos type)
+(defsubst mmm-overlay-at (&optional pos type)
   "Return the highest-priority MMM Mode overlay at POS.
-TYPE is passed on to `mmm-overlays-at', which see."
-  (car (mmm-overlays-at (or pos (point)) type)))
+See `mmm-included-p' for the values of TYPE."
+  (car (mmm-overlays-at pos type)))
 
 (defun mmm-overlays-at (&optional pos type)
   "Return a list of the MMM overlays at POS, in decreasing priority.
-TYPE should be nil, `beg', `end', `none', or `all'. If `none', return
-only overlays strictly including POS. If nil, return overlays starting
-at POS only if they are beg-sticky, and those ending at POS only if
-they are end-sticky. If `beg', return all overlays starting at POS but
-none ending at POS, if `end', return all overlays ending at POS
-but none starting at POS, and if `all', return both."
+See `mmm-included-p' for the values of TYPE."
   (or pos (setq pos (point)))
-  (remove-if-not #'(lambda (ovl)
-                     (mmm-included-p ovl pos type))
-                 (mmm-overlays-in (1- pos) (1+ pos))))
-
-(defun mmm-included-p (ovl pos type)
-  (cond ((eql (overlay-start ovl) pos)
-         (case type
-           ((none end) nil)
-           ((nil) (overlay-get ovl 'beg-sticky))
-           ((beg all) t)))
-        ((eql (overlay-end ovl) pos)
-         (case type
-           ((none beg) nil)
-           ((nil) (overlay-get ovl 'end-sticky))
-           ((end all) t)))
-        (t t)))
-
-(defun mmm-overlays-in (start stop &optional strict delim)
-  "Return the MMM overlays in START to STOP, in decreasing priority.
-If STRICT is non-nil, include only those overlays which are entirely
-contained in the region.  In this case, if DELIM is non-nil, the
-region delimiters, if any, must also be included."
   (mmm-sort-overlays
-   (remove-if-not #'(lambda (ovl)
-                      (and (overlay-get ovl 'mmm)
-                           (or (not strict)
-                               (>= stop (if delim
-                                            (mmm-back-end ovl)
-                                          (overlay-end ovl)))
-                               (<= start (if delim
-                                             (mmm-front-start ovl)
-                                           (overlay-start ovl))))))
-                  (overlays-in (max start (point-min))
-                               (min stop (point-max))))))
+   (remove-if-not
+    #'(lambda (ovl)
+	(and (overlay-get ovl 'mmm)
+	     (mmm-included-p ovl pos type)))
+    ;; XEmacs complains about positions outside the buffer
+    (overlays-in (max (1- pos) (point-min))
+		 (min (1+ pos) (point-max))))))
+
+(defun mmm-included-p (ovl pos &optional type)
+  "Return true if the overlay OVL contains POS.
+
+If OVL strictly contains POS, always return true.  If OVL starts or
+ends at POS, return true or false based on the value of TYPE, which
+should be one of nil, `beg', `end', `none', or `all'.
+* If TYPE is nil, return true for an overlay starting at POS only if
+  it is beg-sticky, and for one ending at POS only if it is end-sticky.
+* If TYPE is `beg', return true for any overlay starting at POS but
+  false for any ending at POS.
+* If TYPE is `end', return true for any overlay ending at POS but
+  false for any starting at POS.
+* If TYPE is `all', return true for any overlay starting or ending at POS.
+* If TYPE is `none' \(or any other value), return false for any
+  overlay starting or ending at POS."
+  (let ((beg (overlay-start ovl))
+	(end (overlay-end ovl)))
+    (cond ((and (= beg pos) (= end pos))
+	   ;; Do the Right Thing for zero-width overlays
+	   (case type
+	     ((nil) (and (overlay-get ovl 'beg-sticky)
+			 (overlay-get ovl 'end-sticky)))
+	     ((none) nil)
+	     (t t)))
+	  ((= beg pos)
+	   (case type
+	     ((nil) (overlay-get ovl 'beg-sticky))
+	     ((beg all) t)
+	     (t nil)))
+	  ((= end pos)
+	   (case type
+	     ((nil) (overlay-get ovl 'end-sticky))
+	     ((end all) t)
+	     (t nil)))
+	  ((and (> end pos) (< beg pos))
+	   t))))
+
+;;; `mmm-overlays-in' has been retired as altogether too confusing a
+;;; name, when what is really meant is one of the following three:
+
+(defun mmm-overlays-containing (start stop)
+  "Return all MMM overlays containing the region START to STOP.
+The overlays are returned in order of decreasing priority.  No
+attention is paid to stickiness."
+  (mmm-sort-overlays
+   (remove-if-not
+    #'(lambda (ovl)
+	(and (overlay-get ovl 'mmm)
+	     (<= (overlay-start ovl) start)
+	     (>= (overlay-end ovl) stop)))
+    (overlays-in (max start (point-min))
+		 (min stop (point-max))))))
+
+(defun mmm-overlays-contained-in (start stop)
+  "Return all MMM overlays entirely contained in START to STOP.
+The overlays are returned in order of decreasing priority.  No
+attention is paid to stickiness."
+  (mmm-sort-overlays
+   (remove-if-not
+    #'(lambda (ovl)
+	(and (overlay-get ovl 'mmm)
+	     (>= (overlay-start ovl) start)
+	     (<= (overlay-end ovl) stop)))
+    (overlays-in (max start (point-min))
+		 (min stop (point-max))))))
+
+(defun mmm-overlays-overlapping (start stop)
+  "Return all MMM overlays overlapping the region START to STOP.
+The overlays are returned in order of decreasing priority.  No
+attention is paid to stickiness."
+  (mmm-sort-overlays
+   (remove-if-not
+    #'(lambda (ovl)
+	(overlay-get ovl 'mmm))
+    (overlays-in (max start (point-min))
+		 (min stop (point-max))))))
 
 (defun mmm-sort-overlays (overlays)
   "Sort OVERLAYS in order of decreasing priority."
@@ -127,9 +176,17 @@ Set by `mmm-update-current-submode'.")
 (make-variable-buffer-local 'mmm-previous-submode)
 
 (defun mmm-update-current-submode (&optional pos)
-  "Update current and previous position variables to POS.
-Return non-nil if the current region changed."
-  (let ((ovl (mmm-overlay-at (or pos (point)))))
+  "Update current and previous position variables to POS, or point.
+Return non-nil if the current region changed.
+
+Also deletes overlays that ought to evaporate because their delimiters
+have disappeared."
+  (mapc #'delete-overlay
+	(remove-if #'(lambda (ovl)
+		       (or (not (eq (overlay-get ovl 'mmm-evap) 'front))
+			   (overlay-buffer (overlay-get ovl 'front))))
+		   (mmm-overlays-at pos)))
+  (let ((ovl (mmm-overlay-at pos)))
     (if (eq ovl mmm-current-overlay)
         nil
       (setq mmm-previous-overlay mmm-current-overlay
@@ -138,6 +195,7 @@ Return non-nil if the current region changed."
             mmm-current-submode (if ovl (overlay-get ovl 'mmm-mode)))
       t)))
 
+;; This function is, I think, mostly for hacking font-lock.
 (defun mmm-set-current-submode (mode &optional pos)
   "Set the current submode to MODE and the current region to whatever
 region of that mode is present at POS, or nil if none."
@@ -151,146 +209,258 @@ region of that mode is present at POS, or nil if none."
 
 (defun mmm-submode-at (&optional pos type)
   "Return the submode at POS \(or point), or NIL if none.
-TYPE is passed on to `mmm-overlays-at', which see."
-  (let ((ovl (mmm-overlay-at (or pos (point)) type)))
+See `mmm-included-p' for values of TYPE."
+  (let ((ovl (mmm-overlay-at pos type)))
     (if ovl (overlay-get ovl 'mmm-mode))))
 
 ;;}}}
-;;{{{ Match Front & Back
+;;{{{ Delimiter Matching and Boundaries
 
 (defun mmm-match-front (ovl)
   "Return non-nil if the front delimiter of OVL matches as it should.
-Sets the match data to the front delimiter, if it is a regexp,
-otherwise calls it as a function with point at the beginning of the
-overlay and one argument being the overlay. The function should return
-non-nil if the front delimiter matches correctly, and set the match
-data appropriately."
-  (let ((front (overlay-get ovl 'front)))
-    (save-excursion
-      (goto-char (overlay-start ovl))
-      (if (stringp front)
-          ;; It's a regexp
-          (mmm-looking-back-at front)
-        ;; It's a function
-        (funcall front ovl)))))
+Sets the match data to the front delimiter, if it is a regexp.
+Otherwise, calls it as a function with point at the beginning of the
+front delimiter overlay \(i.e. where the front delimiter ought to
+start) and one argument being the region overlay. The function should
+return non-nil if the front delimiter matches correctly, and set the
+match data appropriately."
+  (let* ((front-ovl (overlay-get ovl 'front))
+	 (front (if front-ovl (overlay-get front-ovl 'match))))
+    (when front
+      (save-excursion
+	(goto-char (overlay-start front-ovl))
+	(if (stringp front)
+	    ;; It's a regexp
+	    (looking-at front)
+	  ;; It's a function
+	  (funcall front ovl))))))
 
 (defun mmm-match-back (ovl)
   "Return non-nil if the back delimiter of OVL matches as it should.
-Sets the match data to the back delimiter, if it is a regexp,
-otherwise calls it as a function with point at the end of the overlay
-and one argument being the overlay. The function should return non-nil
-if the back delimiter matches correctly, and set the match data
-appropriately."
-  (let ((back (overlay-get ovl 'back)))
-    (save-excursion
-      (goto-char (overlay-end ovl))
-      (if (stringp back)
-          ;; It's a regexp
-          (looking-at back)
-        (funcall back ovl)))))
-
-;;}}}
-;;{{{ Delimiter Boundaries
+Sets the match data to the back delimiter, if it is a regexp.
+Otherwise, calls it as a function with point at the beginning of the
+back delimiter overlay \(i.e. where the back delimiter ought to start)
+and one argument being the region overlay. The function should return
+non-nil if the back delimiter matches correctly, and set the match
+data appropriately."
+  (let* ((back-ovl (overlay-get ovl 'back))
+	 (back (if back-ovl (overlay-get back-ovl 'match))))
+    (when back
+      (save-excursion
+	(goto-char (overlay-start back-ovl))
+	(if (stringp back)
+	    ;; It's a regexp
+	    (looking-at back)
+	  ;; It's a function
+	  (funcall back ovl))))))
 
 (defun mmm-front-start (ovl)
-  "Return the position at which the front delimiter of OVL starts.
-If OVL is not front-bounded correctly, return its start position."
-  (save-match-data
-    (if (mmm-match-front ovl)
-        (match-beginning 0)
+  "Return the position at which the front delimiter of OVL starts."
+  (let ((front (overlay-get ovl 'front)))
+    ;; Overlays which have evaporated become "overlays in no buffer"
+    (if (and front (overlay-buffer front))
+	(overlay-start front)
       (overlay-start ovl))))
 
 (defun mmm-back-end (ovl)
-  "Return the position at which the back delimiter of OVL ends.
-If OVL is not back-bounded correctly, return its end position."
-  (save-match-data
-    (if (mmm-match-back ovl)
-        (match-end 0)
+  "Return the position at which the back delimiter of OVL ends."
+  (let ((back (overlay-get ovl 'back)))
+    ;; Overlays which have evaporated become "overlays in no buffer"
+    (if (and back (overlay-buffer back))
+	(overlay-end back)
       (overlay-end ovl))))
 
 ;;}}}
 
 ;; CREATION & DELETION
-;;{{{ Markers
-
-(defun mmm-make-marker (pos beg-p sticky-p)
-  "Make a marker at POS that is or isn't sticky.
-BEG-P represents whether the marker delimits the beginning of a
-region \(or the end of it). STICKY-P is whether it should be sticky,
-i.e. whether text inserted at the marker should be inside the region."
-  (let ((mkr (set-marker (make-marker) pos)))
-    (set-marker-insertion-type mkr (if beg-p (not sticky-p) sticky-p))
-    mkr))
-
-;;}}}
 ;;{{{ Make Submode Regions
 
+(defun mmm-valid-submode-region (submode beg end)
+  "Check if the region between BEG and END is valid for SUBMODE.
+This region must be entirely contained within zero or more existing
+submode regions, none of which start or end inside it, and it must be
+a valid child of the highest-priority of those regions, if any.
+Signals errors, returns `t' if no error."
+  ;; First check if the placement is valid.  Every existing region
+  ;; that overlaps this one must contain it in its entirety.
+  (let ((violators (set-difference
+		    (mmm-overlays-overlapping beg end)
+		    (mmm-overlays-containing beg end))))
+    (if violators
+	(signal 'mmm-subregion-invalid-placement
+		violators)))
+  ;; Now check if it is inside a valid parent
+  (let ((parent-mode (mmm-submode-at beg 'beg)))
+    (and parent-mode
+	 ;; TODO: Actually check parents here.  For present purposes,
+	 ;; we just make sure we aren't putting a submode inside one
+	 ;; of the same type.  Actually, what we should really be
+	 ;; doing is checking classes/names of regions, not just the
+	 ;; submodes.
+	 (eq submode parent-mode)
+	 (signal 'mmm-subregion-invalid-parent
+		 (list parent-mode))))
+  t)
+
 (defun* mmm-make-region
-    (submode beg end &rest rest &key (front "") (back "")
-             (beg-sticky t) (end-sticky t) face creation-hook
-             &allow-other-keys
+    (submode beg end &key face
+	     front back (evaporation 'front)
+	     delimiter-mode front-face back-face
+	     display-name
+	     (match-front "") (match-back "")
+             (beg-sticky t) (end-sticky t)
+	     name creation-hook
              )
-  "Make a submode region from BEG to END of SUBMODE in FACE.
-FRONT and BACK are regexps or functions to match the correct
-delimiters--see `mmm-match-front' and `mmm-match-back'.  BEG-STICKY
-and END-STICKY determine whether the front and back of the region,
-respectively, are sticky with respect to new insertion.  CREATION-HOOK
-should be a function to run after the region is created.  All other
-keyword arguments are stored as properties of the overlay,
-un-keyword-ified."
-  (setq rest (append rest (list :front front :back back :beg-sticky
-                                beg-sticky :end-sticky end-sticky)))
-  (mmm-mode-on)
-  ;; For now, complain about overlapping regions. Most callers should
-  ;; trap this and continue on. In future, submode regions will be
-  ;; allowed to sit inside others.
-  (when (mmm-overlays-in beg end)
-    (signal 'mmm-invalid-parent nil))
+  "Make a submode region from BEG to END of SUBMODE.
+
+BEG and END are buffer positions or markers with BEG <= END \(although
+see EVAPORATION below).  SUBMODE is a major mode function or a valid
+argument to `mmm-modename->function'.  FACE is a valid display face.
+
+FRONT and BACK specify the positions of the front and back delimiters
+for this region, if any.  If FRONT is a buffer position or marker, the
+front delimiter runs from it to BEG.  FRONT can also be a two-element
+list \(FRONT-BEG FRONT-END) specifying the exact position of the front
+delimiter.  One must have FRONT-BEG < FRONT-END <= BEG.
+
+Similarly, BACK may be a buffer position or marker, in which case the
+back delimiter runs from END to BACK.  BACK can also be a two-element
+list \(BACK-BEG BACK-END) specifying the exact position, in which case
+we must have END <= BACK-BEG < BACK-END.
+
+EVAPORATION specifies under what conditions this submode region should
+disappear.
+* If `nil', the region never disappears.  This can cause serious
+  problems when using cut-and-paste and is not recommended.
+* If the value is t, the region disappears whenever it has zero
+  length.  This is recommended for manually created regions used for
+  temporary editing convenience.
+* If the value is `front', the region will disappear whenever the text
+  in its front delimiter disappears, that is, whenever the overlay
+  which marks its front delimiter has zero width.
+The default value is `front'.  However, if the parameter FRONT is nil,
+then this makes no sense, so the default becomes `t'.  Note that if
+EVAPORATION is `t', then an error is signalled if BEG = END.
+
+MATCH-FRONT \(resp. MATCH-BACK) is a regexp or function to match the
+correct delimiters, see `mmm-match-front' \(resp. `mmm-match-back').
+It is ignored if FRONT \(resp. BACK) is nil.  At present these are not
+used much.
+
+DELIMITER-MODE specifies the major mode to use for delimiter regions.
+A `nil' value means they remain in the primary mode.
+
+FACE, FRONT-FACE, and BACK-FACE, are faces to use for the region, the
+front delimiter, and the back delimiter, respectively, under high
+decoration \(see `mmm-submode-decoration-level').
+
+BEG-STICKY and END-STICKY determine whether the front and back of the
+region, respectively, are sticky with respect to new insertion.  The
+default is yes.
+
+NAME is a string giving the \"name\" of this submode region.  Submode
+regions with the same name are considered part of the same code
+fragment and formatted accordingly.
+
+DISPLAY-NAME is a string to display in the mode line when point is in
+this submode region.  If nil or not given, the name associated with
+SUBMODE is used.  In delimiter regions, \"--\" is shown.
+
+CREATION-HOOK should be a function to run after the region is created,
+with point at the start of the new region."
+  ;; Check placement of region and delimiters
+  (unless (if (eq evaporation t)
+	    (< beg end)
+	  (<= beg end))
+    (signal 'mmm-subregion-invalid-placement (list beg end)))
+  (when front
+    (unless (listp front)
+      (setq front (list front beg)))
+    (unless (and (< (car front) (cadr front))
+		 (<= (cadr front) beg))
+      (signal 'mmm-subregion-invalid-placement front)))
+  (when back
+    (unless (listp back)
+      (setq back (list end back)))
+    (unless (and (< (car back) (cadr back))
+		 (<= end (car back)))
+      (signal 'mmm-subregion-invalid-placement back)))
   (setq submode (mmm-modename->function submode))
+  ;; Check embedding in existing regions
+  (mmm-valid-submode-region submode beg end)
+  (mmm-mode-on)
   (when submode
     (mmm-update-mode-info submode))
-  ;; Conditionally sticky overlays are by default sticky. Then the
-  ;; insert-in-front and -behind functions fix them.
-  (let ((ovl (make-overlay beg end nil (not beg-sticky) end-sticky)))
-    ;; Put our properties on the overlay
-    (dolist (prop '(front back beg-sticky end-sticky))
-      (overlay-put ovl prop (symbol-value prop)))
-    ;; Put anything else the caller wants on the overlay
-    (loop for (var val) on rest by #'cddr
-          do (overlay-put ovl (intern (substring (symbol-name var) 1)) val))
-    (mapcar #'(lambda (pair) (overlay-put ovl (car pair) (cadr pair)))
-            `((mmm t)           ; Mark our overlays
-              (mmm-mode ,submode)
-              (mmm-local-variables
-               ;; Have to be careful to make new list structure here
-               ,(list* (list 'font-lock-cache-state nil)
-                       (list 'font-lock-cache-position (make-marker))
-                       (copy-tree (cdr (assq submode mmm-region-saved-locals-defaults)))))
-              ;; These have special meaning to Emacs
-              (,mmm-evaporate-property t)
-              (face ,(mmm-get-face face submode))
-              ))
-    (save-excursion
-      (goto-char (overlay-start ovl))
-      (mmm-set-current-submode submode)
-      (mmm-set-local-variables submode)
-      (mmm-run-submode-hook submode)
-      (when creation-hook
-        (funcall creation-hook))
-      (mmm-save-changed-local-variables ovl submode))
+  (and (not front) (eq evaporation 'front) (setq evaporation t))
+  (let ((region-ovl
+	 (mmm-make-overlay submode beg end name face beg-sticky end-sticky
+			   (or (eq evaporation t) nil) display-name)))
+    ;; Save evaporation type for checking later
+    (overlay-put region-ovl 'mmm-evap evaporation)
+    ;; Calculate priority to supersede anything already there.
+    (overlay-put region-ovl 'priority (length (mmm-overlays-at beg)))
+    ;; Make overlays for the delimiters, with appropriate pointers.
+    (when front
+      (let ((front-ovl
+	     (mmm-make-overlay delimiter-mode (car front) (cadr front)
+			       nil front-face nil nil t "--" t)))
+	(overlay-put region-ovl 'front front-ovl)
+	(overlay-put front-ovl 'region region-ovl)
+	(overlay-put front-ovl 'match match-front)))
+    (when back
+      (let ((back-ovl
+	     (mmm-make-overlay delimiter-mode (car back) (cadr back)
+			       nil back-face nil nil t "--" t)))
+	(overlay-put region-ovl 'back back-ovl)
+	(overlay-put back-ovl 'region region-ovl)
+	(overlay-put back-ovl 'match match-back)))
+    ;; Update everything and run all the hooks
+    (mmm-save-all
+     (goto-char (overlay-start region-ovl))
+     (mmm-set-current-submode submode)
+     (mmm-set-local-variables submode)
+     (mmm-run-submode-hook submode)
+     (when creation-hook
+       (funcall creation-hook))
+     (mmm-save-changed-local-variables region-ovl submode))
     (setq mmm-previous-submode submode
-          mmm-previous-overlay ovl)
+          mmm-previous-overlay region-ovl)
     (mmm-update-submode-region)
+    region-ovl))
+
+(defun mmm-make-overlay (submode beg end name face beg-sticky end-sticky evap
+				 &optional display-name delim)
+  "Internal function to make submode overlays.
+Does not handle delimiters.  Use `mmm-make-region'."
+  (let ((ovl (make-overlay beg end nil (not beg-sticky) end-sticky)))
+    (mapc
+     #'(lambda (pair) (overlay-put ovl (car pair) (cadr pair)))
+     `((mmm t)				; Mark all submode overlays
+       (mmm-mode ,submode)
+       ,@(if delim '((delim t)) nil)
+       (mmm-local-variables
+	;; Have to be careful to make new list structure here
+	,(list* (list 'font-lock-cache-state nil)
+		(list 'font-lock-cache-position (make-marker))
+		(copy-tree
+		 (cdr (assq submode mmm-region-saved-locals-defaults)))))
+       (name ,name)
+       (display-name ,display-name)
+       ;; Need to save these, because there's no way of accessing an
+       ;; overlay's official "front-advance" parameter once it's created.
+       (beg-sticky ,beg-sticky)
+       (end-sticky ,end-sticky)
+       ;; These have special meaning to Emacs
+       (,mmm-evaporate-property ,evap)
+       (face ,(mmm-get-face face submode delim))
+       ))
     ovl))
 
-(defun mmm-get-face (face submode)
-  (case mmm-submode-decoration-level
-    ((0) nil)
-    ((1) (when submode
-           'mmm-default-submode-face))
-    ((2) (or face
-             (when submode
-               'mmm-default-submode-face)))))
+(defun mmm-get-face (face submode &optional delim)
+  (cond ((= mmm-submode-decoration-level 0) nil)
+	((and (= mmm-submode-decoration-level 2) face) face)
+	(delim 'mmm-delimiter-face)
+	(submode 'mmm-default-submode-face)))
 
 ;;}}}
 ;;{{{ Clear Overlays
@@ -298,13 +468,15 @@ un-keyword-ified."
 ;; See also `mmm-clear-current-region'.
 
 (defun mmm-clear-overlays (&optional start stop strict)
-  "Clears all MMM overlays between START and STOP.
-If STRICT, only clear those strictly included, rather than partially."
+  "Clears all MMM overlays overlapping START and STOP.
+If STRICT, only clear those entirely included in that region."
   (mapcar #'delete-overlay
-        (mmm-overlays-in (or start (point-min))
-                         (or stop (point-max))
-                         strict))
-  (mmm-update-current-submode))
+	  (if strict
+	      (mmm-overlays-contained-in (or start (point-min))
+					 (or stop (point-max)))
+	    (mmm-overlays-overlapping (or start (point-min))
+				      (or stop (point-max)))))
+  (mmm-update-submode-region))
 
 ;;}}}
 
@@ -340,6 +512,7 @@ is non-nil, don't quit if the info is already there."
           ;; Now make a new temporary buffer.
           (set-buffer (mmm-make-temp-buffer (current-buffer)
                                             mmm-temp-buffer-name))
+	  ;; Handle stupid modes that need the file name set
           (if (memq mode mmm-set-file-name-for-modes)
               (setq buffer-file-name filename)))
         (funcall mode)
@@ -357,7 +530,8 @@ is non-nil, don't quit if the info is already there."
                                  (not (memq major-mode
                                             (cdr font-lock-global-modes)))
                                (memq major-mode font-lock-global-modes)))))
-            ;; Don't actually fontify, but note that we should.
+            ;; Don't actually fontify in the temp buffer, but note
+            ;; that we should fontify when we use this mode.
             (put mode 'mmm-font-lock-mode t))
           ;; Get the font-lock variables
           (when mmm-font-lock-available-p
@@ -405,14 +579,11 @@ different keymaps, syntax tables, local variables, etc. for submodes."
       (mmm-update-mode-info mode)
       (mmm-set-local-variables mode)
       (mmm-enable-font-lock mode))
-    (if mmm-current-submode
-        (setq mode-name
-              (mmm-format-string
-               mmm-submode-mode-line-format
-               `(("~M" . ,(get mmm-primary-mode 'mmm-mode-name))
-                 ("~m" . ,(get mmm-current-submode 'mmm-mode-name)))))
-      (setq mode-name (get mmm-primary-mode 'mmm-mode-name)))
-    (force-mode-line-update)))
+    (mmm-set-mode-line)
+    (dolist (func (if mmm-current-overlay
+		      (overlay-get mmm-current-overlay 'entry-hook)
+		    mmm-primary-mode-entry-hook))
+      (ignore-errors (funcall func)))))
 
 (defun mmm-add-hooks ()
   (make-local-hook 'post-command-hook)
@@ -523,11 +694,11 @@ region and mode for the previous position."
   (when mmm-font-lock-available-p
     (if (some #'(lambda (mode)
                   (get mode 'mmm-font-lock-mode))
-              (remove-duplicates
-               (cons mmm-primary-mode
-                     (mapcar #'(lambda (ovl)
-                                 (overlay-get ovl 'mmm-mode))
-                             (mmm-overlays-in (point-min) (point-max))))))
+	      (cons mmm-primary-mode
+		    (mapcar #'(lambda (ovl)
+				(overlay-get ovl 'mmm-mode))
+			    (mmm-overlays-overlapping
+			     (point-min) (point-max)))))
         (font-lock-mode 1)
       (font-lock-mode 0))))
 
@@ -542,22 +713,24 @@ region and mode for the previous position."
 ;;}}}
 ;;{{{ Get Submode Regions
 
+;;; In theory, these are general functions that have nothing to do
+;;; with font-lock, but they aren't used anywhere else, so we might as
+;;; well have them close.
+
 (defun mmm-submode-changes-in (start stop)
   "Return a list of all submode-change positions from START to STOP.
-The list is sorted in order of increasing buffer position, and the
-boundary positions are included."
+The list is sorted in order of increasing buffer position."
   (sort (remove-duplicates
          (list* start stop
                 (mapcan #'(lambda (ovl)
                             `(,(overlay-start ovl)
                               ,(overlay-end ovl)))
-                        (mmm-overlays-in start stop t t))))
-
+                        (mmm-overlays-overlapping start stop))))
         #'<))
 
 (defun mmm-regions-in (start stop)
   "Return a list of regions of the form (MODE BEG END) whose disjoint
-union covers the region from START to STOP."
+union covers the region from START to STOP, including delimiters."
   (let ((regions 
          (maplist #'(lambda (pos-list)
                       (if (cdr pos-list)
@@ -597,11 +770,13 @@ of the REGIONS covers START to STOP."
   ;; preventing `mmm-beginning-of-syntax' from doing The Right Thing.
   ;; I don't know why it does this, but let's undo it here.
   (let ((font-lock-beginning-of-syntax-function 'mmm-beginning-of-syntax))
-    (mapcar #'(lambda (elt)
+    (mapc #'(lambda (elt)
                 (when (get (car elt) 'mmm-font-lock-mode)
                   (mmm-fontify-region-list (car elt) (cdr elt))))
             (mmm-regions-alist start stop)))
-  (mmm-update-submode-region)
+  ;; With jit-lock, this causes blips in the mode line and menus.
+  ;; Shouldn't be necessary here, since it's in post-command-hook too.
+  ;;(mmm-update-submode-region)
   (when loudly (message nil)))
 
 (defun mmm-fontify-region-list (mode regions)
@@ -609,7 +784,7 @@ of the REGIONS covers START to STOP."
   (save-excursion
     (let (;(major-mode mode)
           (func (get mode 'mmm-fontify-region-function)))
-      (mapcar #'(lambda (reg)
+      (mapc #'(lambda (reg)
                   (goto-char (car reg))
                   ;; Here we do the same sort of thing that
                   ;; `mmm-update-submode-region' does, but we force it

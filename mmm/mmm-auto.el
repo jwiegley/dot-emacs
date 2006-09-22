@@ -75,6 +75,10 @@
     (file-variables "mmm-sample" nil)
     (rpm-sh "mmm-rpm" t)
     (rpm "mmm-rpm" nil)
+    (cweb "mmm-cweb" nil)
+    (sgml-dtd "mmm-sample" nil)
+    (noweb "mmm-noweb" nil)
+    (html-php "mmm-sample" nil)
     )
   "Alist of submode classes autoloaded from files.
 Elements look like \(CLASS FILE PRIVATE) where CLASS is a submode

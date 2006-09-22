@@ -1,8 +1,8 @@
 ;;; mmm-sample.el --- Sample MMM submode classes
 
-;; Copyright (C) 2000 by Michael Abraham Shulman
+;; Copyright (C) 2003, 2004 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -42,6 +42,7 @@
  '((embedded-css
     :submode css
     :face mmm-declaration-submode-face
+    :delimiter-mode nil
     :front "<style[^>]*>"
     :back "</style>")))
 
@@ -56,7 +57,8 @@
  '((js-tag
     :submode javascript
     :face mmm-code-submode-face
-    :front "<script\[^>\]*>"
+    :delimiter-mode nil
+    :front "<script\[^>\]*\\(language=\"javascript\\([0-9.]*\\)\"\\|type=\"text/javascript\"\\)\[^>\]*>"
     :back"</script>"
     :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
                  @ "\n" _ "\n" @ "</script>" @))
@@ -64,7 +66,8 @@
    (js-inline
     :submode javascript
     :face mmm-code-submode-face
-    :front "on\w+=\""
+    :delimiter-mode nil
+    :front "on\\w+=\""
     :back "\"")))
 
 ;;}}}
@@ -72,7 +75,7 @@
 
 ;; Here we match the here-document syntax used by Perl and shell
 ;; scripts.  We try to be automagic about recognizing what mode the
-;; here-document should be in; to make sure that it is recognized
+;; here-document should be in.  To make sure that it is recognized
 ;; correctly, the name of the mode, perhaps minus `-mode', in upper
 ;; case, and/or with hyphens converted to underscores, should be
 ;; separated from the rest of the here-document name by hyphens or
@@ -125,10 +128,11 @@ and MODE is a major mode function symbol.")
 
 (mmm-add-classes
  '((here-doc
-    :front "<<\\([a-zA-Z0-9_-]+\\)"
+    :front "<<[\"\'\`]?\\([a-zA-Z0-9_-]+\\)"
     :front-offset (end-of-line 1)
     :back "^~1$"
     :save-matches 1
+    :delimiter-mode nil
     :match-submode mmm-here-doc-get-mode
     :insert ((?d here-doc "Here-document Name: " @ "<<" str _ "\n"
                  @ "\n" @ str "\n" @))
@@ -144,6 +148,7 @@ and MODE is a major mode function symbol.")
     :front "\\[\\([-\\+!\\*\\$]\\)"
     :back "~1\\]"
     :save-matches 1
+    :match-name "embperl"
     :match-face (("[+" . mmm-output-submode-face)
                  ("[-" . mmm-code-submode-face)
                  ("[!" . mmm-init-submode-face)
@@ -171,20 +176,27 @@ and MODE is a major mode function symbol.")
 
 (mmm-add-group
  'eperl
- '((eperl-code
-    :submode perl
-    :face mmm-code-submode-face
-    :front "<:"
-    :back "_?:>"
-    :insert ((?p eperl-code nil @ "<:" @ " " _ " " @ ":>" @)
-             (?: eperl-code ?p . nil)
-             (?_ eperl-code_ nil @ "<:" @ " " _ " " @ "_:>" @)))
-   (eperl-expr
+ '((eperl-expr
     :submode perl
     :face mmm-output-submode-face
     :front "<:="
     :back ":>"
-    :insert ((?= eperl-expr nil @ "<:=" @ " " _ " " @ ":>" @)))))
+    :insert ((?= eperl-expr nil @ "<:=" @ " " _ " " @ ":>" @)))
+   (eperl-code
+    :submode perl
+    :face mmm-code-submode-face
+    :front "<:"
+    :back "_?:>"
+    :match-name "eperl"
+    :insert ((?p eperl-code nil @ "<:" @ " " _ " " @ ":>" @)
+             (?: eperl-code ?p . nil)
+             (?_ eperl-code_ nil @ "<:" @ " " _ " " @ "_:>" @)))
+   (eperl-comment
+    :submode text
+    :face mmm-comment-submode-face
+    :front ":>//"
+    :back "\n")
+   ))
 
 ;;}}}
 ;;{{{ File Variables
@@ -229,19 +241,28 @@ and MODE is a major mode function symbol.")
     :front-verify mmm-file-variables-verify
     :back mmm-file-variables-find-back
     :submode emacs-lisp-mode
+    :delimiter-mode nil
     )))
 
 ;;}}}
 ;;{{{ JSP Pages
 
 (mmm-add-group 'jsp
- `((jsp-code
+ `((jsp-comment
+    :submode text-mode
+    :face mmm-comment-submode-face
+    :front "<%--"
+    :back "--%>"
+    :insert ((?- jsp-comment nil @ "<%--" @ " " _ " " @ "--%>" @))
+    )
+   (jsp-code
     :submode java
     :match-face (("<%!" . mmm-declaration-submode-face)
                  ("<%=" . mmm-output-submode-face)
                  ("<%"  . mmm-code-submode-face))
     :front "<%[!=]?"
     :back "%>"
+    :match-name "jsp"
     :insert ((?% jsp-code nil @ "<%" @ " " _ " " @ "%>" @)
              (?! jsp-declaration nil @ "<%!" @ " " _ " " @ "%>" @)
              (?= jsp-expression nil @ "<%=" @ " " _ " " @ "%>" @))
@@ -252,6 +273,55 @@ and MODE is a major mode function symbol.")
     :front "<%@"
     :back "%>"
     :insert ((?@ jsp-directive nil @ "<%@" @ " " _ " " @ "%>" @))
+    )))
+
+;;}}}
+;;{{{ SGML DTD
+
+;; Thanks to Yann Dirson <ydirson@fr.alcove.com> for writing and
+;; contributing this submode class.
+
+(mmm-add-classes
+ '((sgml-dtd
+    :submode dtd-mode
+    :face mmm-declaration-submode-face
+    :delimiter-mode nil
+    :front "<! *doctype[^>[]*\\["
+    :back "]>")))
+
+;;}}}
+;;{{{ <Perl> in httpd.conf
+
+(mmm-add-classes
+ '((httpd-conf-perl
+    :submode perl
+    :delimiter-mode nil
+    :front "<Perl>"
+    :back "</Perl>")))
+
+;; Suggested Use:
+;; (mmm-add-mode-ext-class 'apache-generic-mode nil 'httpd-conf-perl)
+
+;;}}}
+;;{{{ PHP in HTML
+
+(mmm-add-group 'html-php
+ '((html-php-output
+    :submode php-mode
+    :face mmm-output-submode-face
+    :front "<\\?php *echo "
+    :back "\\?>"
+    :include-front t
+    :front-offset 5
+    :insert ((?e php-echo nil @ "<?php" @ " echo " _ " " @ "?>" @))
+    )
+   (html-php-code
+    :submode php-mode
+    :face mmm-code-submode-face
+    :front "<\\?\\(php\\)?"
+    :back "\\?>"
+    :insert ((?p php-section nil @ "<?php" @ " " _ " " @ "?>" @)
+             (?b php-block nil @ "<?php" @ "\n" _ "\n" @ "?>" @))
     )))
 
 ;;}}}
@@ -300,9 +370,5 @@ and MODE is a major mode function symbol.")
 ;;}}}
 
 (provide 'mmm-sample)
-
-
-;;; Local Variables:
-;;; End:
 
 ;;; mmm-sample.el ends here

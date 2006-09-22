@@ -1,8 +1,8 @@
 ;;; mmm-vars.el --- Variables for MMM Mode
 
-;; Copyright (C) 2000 by Michael Abraham Shulman
+;; Copyright (C) 2000, 2004 by Michael Abraham Shulman
 
-;; Author: Michael Abraham Shulman <mas@kurukshetra.cjb.net>
+;; Author: Michael Abraham Shulman <viritrilbia@users.sourceforge.net>
 ;; Version: $Id$
 
 ;;{{{ GPL
@@ -39,6 +39,7 @@
 
 ;; Otherwise it complains about undefined variables.
 (eval-when-compile
+  (defvar mmm-current-submode)
   (defvar mmm-save-local-variables)
   (defvar mmm-mode-string)
   (defvar mmm-submode-mode-line-format)
@@ -51,14 +52,26 @@
 ;;}}}
 ;;{{{ Error Conditions
 
+;; Most of these should be caught internally and never seen by the
+;; user, except when the user is creating submode regions manually.
+
 ;; Signalled when we try to put a submode region inside one where it
 ;; isn't meant to go.
-(put 'mmm-invalid-parent
+(put 'mmm-subregion-invalid-parent
      'error-conditions
-     '(mmm-invalid-parent mmm-error error))
-(put 'mmm-invalid-parent
+     '(mmm-subregion-invalid-parent mmm-error error))
+(put 'mmm-subregion-invalid-parent
      'error-message
      "Invalid submode region parent")
+
+;; Signalled when we try to put a submode region overlapping others in
+;; an invalid way.
+(put 'mmm-subregion-invalid-placement
+     'error-conditions
+     '(mmm-subregion-invalid-placement mmm-error error))
+(put 'mmm-subregion-invalid-placement
+     'error-message
+     "Submode region placement invalid")
 
 ;; Signalled when we try to apply a submode class that doesn't exist.
 (put 'mmm-invalid-submode-class
@@ -69,8 +82,8 @@
      "Invalid or undefined submode class")
 
 ;; Signalled by :match-submode functions when they are unable to
-;; resolve a submode.  Should always be caught and never seen by the
-;; user.
+;; resolve a submode.  This error should *always* be caught internally
+;; and never seen by the user.
 (put 'mmm-no-matching-submode
      'error-conditions
      '(mmm-no-matching-submode mmm-error error))
@@ -91,7 +104,8 @@
 ;;{{{ Save Local Variables
 
 (defvar mmm-c-derived-modes
-  '(c-mode c++-mode objc-mode pike-mode java-mode jde-mode javascript-mode))
+  '(c-mode c++-mode objc-mode pike-mode java-mode jde-mode javascript-mode
+    php-mode))
 
 (defvar mmm-save-local-variables 
   `(;; Don't use `function' (#') here!!  We're already inside `quote'!
@@ -124,12 +138,156 @@
     (c-extra-toplevel-key nil ,mmm-c-derived-modes)
     (c-inexpr-class-key nil ,mmm-c-derived-modes)
     (c-conditional-key nil ,mmm-c-derived-modes)
-    ;; User indentation style control
-    (((lambda () c-indentation-style) . c-set-style)
-     nil ,mmm-c-derived-modes)
-    ;; XEmacs makes this a local variable
-    ,@(when mmm-xemacs
-        '((c-offsets-alist nil ,mmm-c-derived-modes)))
+    semantic-bovinate-toplevel-override
+    semantic-toplevel-bovine-table
+    ;; Indentation style control variables.
+    ;; These have to be localized in Emacs: see `mmm-mode-on'.
+    ,@(mapcar
+       #'(lambda (var) (list var nil mmm-c-derived-modes))
+       '(c++-template-syntax-table
+	 c-<-op-cont-regexp 
+	 c->-op-cont-regexp 
+	 c-after-suffixed-type-decl-key
+	 c-after-suffixed-type-maybe-decl-key
+	 c-any-class-key
+	 c-any-class-key 
+	 c-asm-stmt-kwds
+	 c-assignment-op-regexp
+	 c-backslash-column
+	 c-basic-offset
+	 c-bitfield-kwds
+	 c-block-comment-prefix
+	 c-block-decls-with-vars
+	 c-block-stmt-1-key
+	 c-block-stmt-1-key 
+	 c-block-stmt-1-kwds
+	 c-block-stmt-2-key
+	 c-block-stmt-2-key 
+	 c-block-stmt-2-kwds
+	 c-brace-list-key 
+	 c-cast-parens 
+	 c-class-key
+	 c-class-key 
+	 c-class-kwds
+	 c-cleanup-list
+	 c-colon-type-list-re 
+	 c-comment-only-line-offset
+	 c-comment-prefix-regexp
+	 c-comment-start-regexp
+	 c-comment-start-regexp 
+	 c-cpp-defined-fns
+	 c-current-comment-prefix
+	 c-decl-block-key
+	 c-decl-block-key 
+	 c-decl-prefix-re 
+	 c-decl-spec-kwds
+	 c-doc-comment-start-regexp
+	 c-expr-kwds
+	 c-file-offsets
+	 c-file-style
+	 c-hanging-braces-alist
+	 c-hanging-colons-alist
+	 c-hanging-comment-ender-p
+	 c-hanging-comment-starter-p
+	 c-hanging-semi\&comma-criteria
+	 c-identifier-key 
+	 c-identifier-last-sym-match
+	 c-identifier-start 
+	 c-identifier-syntax-modifications
+	 c-identifier-syntax-table
+	 c-in-comment-lc-prefix
+	 c-indent-comment-alist
+	 c-indent-comments-syntactically-p
+	 c-indentation-style
+	 c-inexpr-block-kwds
+	 c-inexpr-class-kwds
+	 c-keywords
+	 c-keywords-obarray
+	 c-keywords-regexp
+	 c-keywords-regexp 
+	 c-known-type-key
+	 c-label-key
+	 c-label-key 
+	 c-label-kwds
+	 c-label-kwds-regexp
+	 c-label-kwds-regexp 
+	 c-label-minimum-indentation
+	 c-lambda-kwds
+	 c-literal-start-regexp 
+	 c-nonsymbol-chars 
+	 c-nonsymbol-token-regexp
+	 c-not-decl-init-keywords
+	 c-offsets-alist
+	 c-opt-<>-arglist-start 
+	 c-opt-<>-arglist-start-in-paren
+	 c-opt-<>-sexp-key 
+	 c-opt-access-key
+	 c-opt-access-key 
+	 c-opt-asm-stmt-key
+	 c-opt-asm-stmt-key 
+	 c-opt-bitfield-key
+	 c-opt-bitfield-key 
+	 c-opt-block-decls-with-vars-key
+	 c-opt-block-stmt-key
+	 c-opt-block-stmt-key 
+	 c-opt-cpp-prefix 
+	 c-opt-cpp-start 
+	 c-opt-decl-spec-key
+	 c-opt-friend-key
+	 c-opt-friend-key 
+	 c-opt-identifier-concat-key
+	 c-opt-inexpr-block-key
+	 c-opt-inexpr-block-key 
+	 c-opt-inexpr-brace-list-key
+	 c-opt-inexpr-class-key
+	 c-opt-inexpr-class-key 
+	 c-opt-lambda-key
+	 c-opt-lambda-key 
+	 c-opt-method-key
+	 c-opt-method-key 
+	 c-opt-postfix-decl-spec-key
+	 c-opt-type-component-key
+	 c-opt-type-concat-key 
+	 c-opt-type-modifier-key 
+	 c-opt-type-suffix-key 
+	 c-other-decl-block-key
+	 c-other-decl-block-key 
+	 c-other-decl-block-kwds
+	 c-other-decl-kwds
+	 c-overloadable-operators-regexp
+	 c-paragraph-separate 
+	 c-paragraph-start 
+	 c-paren-stmt-key 
+	 c-primary-expr-regexp 
+	 c-primitive-type-key 
+	 c-primitive-type-kwds
+	 c-protection-kwds
+	 c-recognize-<>-arglists 
+	 c-recognize-knr-p
+	 c-recognize-knr-p 
+	 c-recognize-paren-inits 
+	 c-recognize-typeless-decls
+	 c-regular-keywords-regexp
+	 c-simple-stmt-key 
+	 c-simple-stmt-kwds
+	 c-special-brace-lists
+	 c-special-brace-lists 
+	 c-specifier-key 
+	 c-specifier-kwds
+	 c-stmt-delim-chars 
+	 c-stmt-delim-chars-with-comma
+	 c-symbol-key
+	 c-symbol-key 
+	 c-symbol-start 
+	 c-syntactic-eol
+	 c-syntactic-ws-end 
+	 c-syntactic-ws-start 
+	 c-type-decl-prefix-key 
+	 c-type-decl-suffix-key 
+	 c-type-prefix-key 
+	 comment-end 
+	 comment-start 
+	 comment-start-skip))
     ;; Skeleton insertion
     skeleton-transformation
     ;; Abbrev mode
@@ -138,6 +296,8 @@
     ;; And finally the syntax table and local map.
     ((syntax-table . set-syntax-table))
     ((current-local-map . use-local-map) buffer)
+    paragraph-separate
+    paragraph-start
     )
   "Which local variables to save for major mode regions.
 Each element has the form \(VARIABLE [TYPE [MODES]]), causing VARIABLE
@@ -203,12 +363,16 @@ with font-lock."
 (defcustom mmm-submode-decoration-level 1
   "*Amount of coloring to use in submode regions.
 Should be either 0, 1, or 2, representing None, Low, and High amounts
-of coloring.  None means to use no coloring at all.  Low means to use
-a single face \(`mmm-default-submode-face') for all submode regions,
-\(except for \"non-submode\" regions).  High means to use different
-faces for different types of submode regions, such as initialization
-code, expressions that are output, declarations, and so on.  The
-default face is still used for regions that do not specify a face."
+of coloring respectively.
+* None (0) means to use no coloring at all.
+* Low (1) means to use `mmm-default-submode-face' for all submode
+  regions \(except for \"non-submode\" regions, i.e. those that are of
+  the primary mode) and `mmm-delimiter-face' for region delimiters.
+* High (2) means to use different faces for different types of submode
+  regions and delimiters, such as initialization code, expressions that
+  are output, declarations, and so on, as specified by the submode
+  class.  The default faces are still used for regions that do not
+  specify a face."
   :group 'mmm-faces
   :type '(choice (const :tag "None" 0)
                  (const :tag "Low" 1)
@@ -247,6 +411,10 @@ default face is still used for regions that do not specify a face."
 Also used at decoration level 2 for submodes not specifying a type."
   :group 'mmm-faces)
 
+(defface mmm-delimiter-face nil
+  "Face used to mark submode delimiters."
+  :group 'mmm-faces)
+
 ;;}}}
 ;;{{{ Mode Line Format
 
@@ -256,11 +424,53 @@ Also used at decoration level 2 for submodes not specifying a type."
   :type 'string)
 
 (defcustom mmm-submode-mode-line-format "~M[~m]"
-  "*Format of the Major Mode Mode-line display when point is in a
-submode region. ~M means the name of the default major mode, ~m means
-the name of the submode."
+  "*Format of the mode-line display when point is in a submode region.
+
+~M is replaced by the name of the primary major mode \(which may be
+replaced by a combined-mode function, see the info documentation).
+
+~m is replaced by the submode region overlay's `display-name'
+property, if it has one.  Otherwise it is replaced by the mode name of
+the submode region.
+
+If `mmm-primary-mode-display-name' is non-nil, then this variable is
+used even when point is not in a submode region \(i.e. it is in a
+primary mode region), with ~m being replaced by the value of that
+variable."
   :group 'mmm
   :type 'string)
+
+(defvar mmm-primary-mode-display-name nil
+  "If non-nil, displayed as the primary mode name in the mode line.
+See also `mmm-buffer-mode-display-name'.")
+(make-variable-buffer-local 'mmm-primary-mode-display-name)
+
+(defvar mmm-buffer-mode-display-name nil
+  "If non-nil, displayed in the mode line instead of the primary mode
+name, which is then shown next to it as if it were a submode when in a
+primary mode region, i.e. outside all submode regions.")
+(make-variable-buffer-local 'mmm-buffer-mode-display-name)
+
+(defun mmm-set-mode-line ()
+  "Set the mode line display correctly for the current submode,
+according to `mmm-submode-mode-line-format'."
+  (let ((primary (or mmm-primary-mode-display-name
+		     (get mmm-primary-mode 'mmm-mode-name)))
+	(submode (and mmm-current-overlay
+		      (or (overlay-get mmm-current-overlay 'display-name)
+			  (get mmm-current-submode 'mmm-mode-name)))))
+    (if mmm-buffer-mode-display-name
+	(setq mode-name
+	      (mmm-format-string mmm-submode-mode-line-format
+				 `(("~M" . ,mmm-buffer-mode-display-name)
+				   ("~m" . ,(or submode primary)))))
+      (if submode
+	  (setq mode-name
+		(mmm-format-string mmm-submode-mode-line-format
+				   `(("~M" . ,primary)
+				     ("~m" . ,submode))))
+	(setq mode-name primary))))
+  (force-mode-line-update))
 
 ;;}}}
 ;;{{{ Submode Classes
@@ -361,6 +571,16 @@ first `fboundp' element of the `cdr' is returned, or nil if none."
           (cdr (assq mode mmm-major-mode-preferences))))))
 
 ;;}}}
+;;{{{ Delimiter Regions
+
+(defcustom mmm-delimiter-mode 'fundamental-mode
+  "Major mode used by default for delimiter regions.
+Classes are encouraged to override this by providing a delimiter-mode
+parameter-- see `mmm-classes-alist'."
+  :group 'mmm
+  :type 'function)
+
+;;}}}
 ;;{{{ Key Bindings
 
 (defcustom mmm-mode-prefix-key [(control ?c) ?%]
@@ -425,7 +645,7 @@ HTML mode the dominant mode.
 A hook named mmm-<submode>-submode-hook is run when a submode region
 of a given mode is created. For example, `mmm-cperl-mode-submode-hook'
 is run whenever a CPerl mode submode region is created, in any buffer.
-When submode hooks are run, point is guaranteed to be at the start of
+When this hooks are run, point is guaranteed to be at the start of
 the newly created submode region.
 
 Finally, a hook named mmm-<class>-class-hook is run whenever a buffer
@@ -459,6 +679,18 @@ the current buffer.")
     (mmm-run-constructed-hook class "class")
     (add-to-list 'mmm-class-hooks-run class)))
 
+(defvar mmm-primary-mode-entry-hook nil
+  "Hook run when point moves into a region of the primary mode.
+Each submode region can have an `entry-hook' property which is run
+when they are entered, but since primary mode regions have no overlay
+to store properties, this is a buffer-local variable.
+
+N.B. This variable is not a standard Emacs hook.  Unlike Emacs'
+\"local hooks\" it has *no* global value, only a local one.  Its value
+should always be a list of functions \(possibly empty) and never a
+single function.  It may be used with `add-hook', however.")
+(make-variable-buffer-local 'mmm-primary-mode-entry-hook)
+
 ;;}}}
 ;;{{{ Major Mode Hook
 
@@ -483,6 +715,12 @@ an existing buffer."
 ;;}}}
 ;;{{{ MMM Global Mode
 
+;;; There's a point to be made that this variable should default to
+;;; `maybe' (i.e. not nil and not t), because that's what practically
+;;; everyone wants.  I subscribe, however, to the view that simply
+;;; *loading* a lisp extension should not change the (user-visible)
+;;; behavior of Emacs, until it is configured or turned on in some
+;;; way, which dictates that the default for this must be nil.
 (defcustom mmm-global-mode nil
   "*Specify in which buffers to turn on MMM Mode automatically.
 
@@ -497,9 +735,8 @@ an existing buffer."
                  (other :tag "Maybe" maybe))
   :require 'mmm-mode)
 
-;;}}}
-;;{{{ "Never" Modes
-
+;; These are not traditional editing modes, so mmm makes no sense, and
+;; can mess things up seriously if it doesn't know not to try.
 (defcustom mmm-never-modes
   '(
     help-mode
@@ -519,10 +756,10 @@ an existing buffer."
 ;;{{{ Buffer File Name
 
 (defvar mmm-set-file-name-for-modes '(mew-draft-mode)
-  "List of modes for which temporary buffers have a file name.
-If so, it is the same as that of the parent buffer.  In general, this
-has been found to cause more problems than it solves, but some modes
-require it.")
+  "List of modes for which the temporary buffers MMM creates have a
+file name.  In these modes, this file name is the same as that of the
+parent buffer.  In general, this has been found to cause more problems
+than it solves, but some modes require it.")
 
 ;;}}}
 
@@ -544,33 +781,42 @@ Do not set this variable directly; use the function `mmm-mode'.")
 ;;}}}
 ;;{{{ Classes Alist
 
-;; :parent could be an all-class argument.  Same with :keymap.
+;; Notes:
+;; 1. :parent could be an all-class argument.  Same with :keymap.
+;; 2. :match-submode really does have to be distinct from :submode,
+;; because 'functionp' isn't enough to distinguish which is meant.
 (defvar mmm-classes-alist nil
   "Alist containing all defined mmm submode classes.
-Each element looks like \(CLASS . ARGS) where CLASS is a symbol
-representing the submode class and ARGS is a list of keyword
+A submode class is a named recipe for parsing a document into submode
+regions, and sometimes for inserting new ones while editing.
+
+Each element of this alist looks like \(CLASS . ARGS) where CLASS is a
+symbol naming the submode class and ARGS is a list of keyword
 arguments, called a \"class specifier\". There are a large number of
-accepted keyword arguments.
+accepted keyword arguments in the class specifier.
 
 The argument CLASSES, if supplied, must be a list of other submode
-classes \(or class specifiers), representing other classes to call.
-FACE, if supplied, overrides FACE arguments to these classes, but all
-other arguments to this class are ignored.
+class names, or class specifiers, representing other classes to call
+recursively.  The FACE arguments of these classes are overridden by
+the FACE argument of this class.  If the argument CLASSES is supplied,
+all other arguments to this class are ignored.  That is, \"grouping\"
+classes can do nothing but group other classes.
 
-The argument HANDLER, if supplied, overrides any other processing. It
-must be a function, and all the arguments are passed to it as
+The argument HANDLER, if supplied, also overrides any other processing.
+It must be a function, and all the arguments are passed to it as
 keywords, and it must do everything. See `mmm-ify' for what sorts of
 things it must do. This back-door interface should be cleaned up.
 
-The argument FACE, if supplied, specifies the display face of the
-submode regions under decoration level 2.  It must be a valid face.
-The standard faces used for submode regions are `mmm-*-submode-face'
-where * is one of `init', `cleanup', `declaration', `comment',
-`output', `special', or `code'.  A more flexible alternative is the
-argument MATCH-FACE.  MATCH-FACE can be a function, which is called
-with one argument, the form of the front delimiter \(found from
-FRONT-FORM, below), and should return the face to use.  It can also be
-an alist, each element of the form \(DELIM . FACE).
+The optional argument FACE gives the display face of the submode
+regions under high decoration (see `mmm-submode-decoration-level').
+It must be a valid face.  The standard faces used for submode regions
+are `mmm-*-submode-face' where * is one of `init', `cleanup',
+`declaration', `comment', `output', `special', or `code'.  A more
+flexible alternative is the argument MATCH-FACE.  MATCH-FACE can be a
+function, which is called with one argument, the form of the front
+delimiter \(found from FRONT-FORM, below), and should return the face
+to use.  It can also be an alist, with each element of the form
+\(DELIM . FACE).
 
 If neither CLASSES nor HANDLER are supplied, either SUBMODE or
 MATCH-SUBMODE must be.  SUBMODE specifies the submode to use for the
@@ -590,14 +836,19 @@ named classes. \(Unnamed classes are created by interactive commands
 in `mmm-interactive-history').
 
 If FRONT is a regexp, then that regexp is searched for, and the end of
-its match \(or the beginning, if INCLUDE-FRONT is non-nil), plus
-FRONT-OFFSET, becomes the beginning of the submode region.  If FRONT
-is a function, that function is called instead, and must act somewhat
-like a search, in that it should start at point, take one argument as
-a search bound, and set the match data.  A similar pattern is followed
-for BACK \(the search starts at the beginning of the submode region),
-save that the beginning of its match \(or the end, if INCLUDE-BACK is
-non-nil) becomes the end of the submode region, plus BACK-OFFSET.
+its FRONT-MATCH'th match \(or the beginning thereof, if INCLUDE-FRONT
+is non-nil), plus FRONT-OFFSET, becomes the beginning of the submode
+region.  If FRONT is a function, that function is called instead, and
+must act somewhat like a search, in that it should start at point,
+take one argument as a search bound, and set the match data.  A
+similar pattern is followed for BACK \(the search starts at the
+beginning of the submode region), save that the beginning of its
+BACK-MATCH'th match \(or the end, if INCLUDE-BACK is non-nil) becomes
+the end of the submode region, plus BACK-OFFSET.
+
+If SAVE-MATCHES is non-nil, then BACK, if it is a regexp, is formatted
+by replacing strings of the form \"~N\" by the corresponding value of
+\(match-string n) after matching FRONT.
 
 FRONT-MATCH and BACK-MATCH default to zero.  They specify which
 sub-match of the FRONT and BACK regexps to treat as the delimiter.
@@ -616,9 +867,19 @@ FRONT-VERIFY and BACK-VERIFY, if supplied, must be functions that
 inspect the match data to see if a match found by FRONT or BACK
 respectively is valid.
 
-If SAVE-MATCHES is non-nil, BACK, if it is a regexp, is formatted by
-replacing strings of the form \"~N\" by the corresponding value of
-\(match-string n) after matching FRONT.
+FRONT-DELIM \(resp. BACK-DELIM), if supplied, can take values like
+those of FRONT-OFFSET \(resp. BACK-OFFSET), specifying the offset from
+the start \(resp. end) of the match for FRONT \(resp. BACK) to use as
+the starting \(resp. ending) point for the front \(resp. back)
+delimiter.  If nil, it means not to make a region for the respective
+delimiter at all.
+
+DELIMITER-MODE, if supplied, specifies what submode to use for the
+delimiter regions, if any.  If `nil', the primary mode is used.  If
+not supplied, `mmm-delimiter-mode' is used.
+
+FRONT-FACE and BACK-FACE specify faces to use for displaying the
+delimiter regions, under high decoration.
 
 FRONT-FORM and BACK-FORM, if given, must supply a regexp used to match
 the *actual* delimiter.  If they are strings, they are used as-is.  If
@@ -661,6 +922,20 @@ the end of the submode region, and the end of the back delimiter.
 If END-NOT-BEGIN is non-nil, it specifies that a BACK delimiter cannot
 begin a new submode region.
 
+MATCH-NAME, if supplied, specifies how to determine the \"name\" for
+each submode region.  It must be a string or a function.  If it is a
+function, it is passed the value of FRONT-FORM and must return the
+name to use.  If it is a string, it is used as-is unless SAVE-NAME has
+a non-nil value, in which case, the string is interpreted the same as
+BACK when SAVE-MATCHES is non-nil.  If MATCH-NAME is not specified,
+the regions are unnamed.  Regions with the same name are considered
+part of the same chunk of code, and formatted as such, while unnamed
+regions are not grouped with any others.
+
+As a special optimization for insertion, if SKEL-NAME is non-nil, the
+insertion code will use the user-prompted string value as the region
+name, instead of going through the normal matching procedure.
+
 PRIVATE, if supplied and non-nil, means that this class is a private
 or internal class, usually one invoked by another class via :classes,
 and is not for the user to see.")
@@ -671,7 +946,7 @@ and is not for the user to see.")
     (add-to-list 'mmm-classes-alist class)))
 
 (defun mmm-add-group (group classes)
-  "Add CLASSES and a group named GROUP containing them all.
+  "Add CLASSES and a \"grouping class\" named GROUP which calls them all.
 The CLASSES are all made private, i.e. non-user-visible."
   (mmm-add-classes (mapcar #'(lambda (class)
                                (append class
@@ -680,10 +955,21 @@ The CLASSES are all made private, i.e. non-user-visible."
   (add-to-list 'mmm-classes-alist
                (list group :classes (mapcar #'first classes))))
 
+(defun mmm-add-to-group (group classes)
+  "Add CLASSES to the \"grouping class\" named GROUP.
+The CLASSES are all made private, i.e. non-user-visible."
+  (mmm-add-classes (mapcar #'(lambda (class)
+                               (append class
+                                       '(:private t)))
+                           classes))
+  (mmm-set-class-parameter group :classes
+			   (append  (mmm-get-class-parameter group :classes)
+				    (mapcar #'first classes))))
+
 ;;}}}
 ;;{{{ Version Number
 
-(defconst mmm-version "0.4.7"
+(defconst mmm-version "0.4.8"
   "Current version of MMM Mode.")
 
 (defun mmm-version ()
