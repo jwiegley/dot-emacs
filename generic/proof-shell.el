@@ -2032,6 +2032,10 @@ usual, unless NOERROR is non-nil."
   (add-hook 'comint-output-filter-functions 'proof-shell-filter nil 'local)
   (setq comint-get-old-input (function (lambda () "")))
 
+  ;; For a bit of memory saving in case of large inputs, don't keep history ring
+  (setq comint-input-ring-size 1)
+  (setq comint-input-ring (make-ring comint-input-ring-size))
+
   ;; FIXME: this is a work-around for a nasty GNU Emacs 21.2
   ;; bug which HANGS Emacs sometimes if special characters
   ;; are hidden.  (e.g. try M-x column-number-mode)
