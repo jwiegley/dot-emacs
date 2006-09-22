@@ -72,7 +72,7 @@ make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr  EMACS=xemacs DEST_PR
 make install-desktop install-el install-bin PREFIX=${RPM_BUILD_ROOT}/usr ELISPP=share/ProofGeneral DEST_PREFIX=/usr
 
 # Install docs too
-make install-doc PREFIX=${RPM_BUILD_ROOT}/usr DEST_PREFIX=/usr DOCDIR=%{_docdir}
+make install-doc PREFIX=${RPM_BUILD_ROOT}/usr DEST_PREFIX=/usr DOCDIR=${RPM_BUILD_ROOT}%{_docdir}
 rm -f ${RPM_BUILD_ROOT}/usr/share/info/dir
 gzip ${RPM_BUILD_ROOT}/usr/share/info/*
 
