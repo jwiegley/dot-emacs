@@ -690,8 +690,14 @@ The corresponding face should be set using `edit-faces' or the
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Future GNU Emacs versions
+;; Workaround GNU Emacs problems in easymenu-add
 ;;
+
+(if proof-running-on-Emacs21
+    ;; This has a nasty side effect of removing accelerators
+    ;; from existing menus when easy-menu-add is called.
+    ;; Problem confirmed in versions: 21.4.1
+    (setq easy-menu-precalculate-equivalent-keybindings nil))
 
 
 ;; End of proof-compat.el
