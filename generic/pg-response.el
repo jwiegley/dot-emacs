@@ -10,9 +10,10 @@
 ;; This mode is used for the response buffer proper, and
 ;; also the trace and theorems buffer.
 
-
 ;; A sub-module of proof-shell; assumes proof-script loaded.
 (require 'pg-assoc)
+
+(require 'bufhist)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -36,6 +37,7 @@
   (setq pg-response-next-error nil)
   (erase-buffer)
   (buffer-disable-undo)
+  (if proof-keep-response-history (bufhist-mode)) ; history for contents
   (set-buffer-modified-p nil)))
 
 (easy-menu-define proof-response-mode-menu
@@ -264,7 +266,7 @@ Returns non-nil if response buffer was cleared."
 	  ;; (erase-buffer proof-response-buffer)
 	    (with-current-buffer proof-response-buffer
 	      (setq pg-response-next-error nil)	; all error msgs lost!
-	      (erase-buffer)
+	      (bufhist-checkpoint-and-erase)
 	      (set-buffer-modified-p nil))))
       (setq pg-response-erase-flag erase-next-time)
       doit)))
@@ -328,7 +330,8 @@ it becomes overly long.  Particularly useful when `proof-tidy-response'
 is set to nil, so responses are not cleared automatically."
   (interactive)
   (proof-map-buffers (list proof-response-buffer proof-trace-buffer)
-    (erase-buffer)
+    (if (> (buffer-size) 0)		     
+	(bufhist-checkpoint-and-erase))
     (set-buffer-modified-p nil)))
 
 

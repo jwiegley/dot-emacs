@@ -56,11 +56,15 @@ All of these settings are optional." nil 'macro)
 
 ;;;***
 
-;;;### (autoloads (proof-define-assistant-command-witharg) "pg-user" "generic/pg-user.el")
+;;;### (autoloads (proof-define-assistant-command-witharg proof-define-assistant-command) "pg-user" "generic/pg-user.el")
+
+(autoload 'proof-define-assistant-command "pg-user" "\
+Define command FN to send string BODY to proof assistant, based on CMDVAR.
+BODY defaults to CMDVAR, a variable." nil 'macro)
 
 (autoload 'proof-define-assistant-command-witharg "pg-user" "\
 Define command FN to prompt for string CMDVAR to proof assistant.
-CMDVAR is a function or string.  Automatically has history." nil 'macro)
+CMDVAR is a variable holding a function or string.  Automatically has history." nil 'macro)
 
 ;;;***
 
@@ -226,7 +230,7 @@ may be a string or sexp evaluated to get a string." nil nil)
 
 (autoload 'proof-toolbar-setup "proof-toolbar" "\
 Initialize Proof General toolbar and enable it for current buffer.
-If proof-mode-use-toolbar is nil, change the current buffer toolbar
+If `proof-toolbar-enable' is nil, change the current buffer toolbar
 to the default toolbar." t nil)
 
 ;;;***
@@ -251,6 +255,48 @@ Assumes that the current buffer is the proof shell buffer." nil nil)
 
 (autoload 'proof-x-symbol-config-output-buffer "proof-x-symbol" "\
 Configure the current output buffer (goals/response/trace) for X-Symbol." nil nil)
+
+;;;***
+
+;;;### (autoloads (bufhist-checkpoint) "bufhist" "lib/bufhist.el")
+
+(autoload 'bufhist-checkpoint "bufhist" "\
+Add the current buffer contents to the ring history." t nil)
+
+(autoload 'bufhist-mode "bufhist" "\
+Minor mode retaining an in-memory history of the buffer contents.")
+
+;;;***
+
+;;;### (autoloads nil "bufregring" "lib/bufregring.el")
+
+(autoload 'bufhist-mode "bufhist" "\
+Minor mode retaining an in-memory history of the buffer contents.")
+
+;;;***
+
+;;;### (autoloads nil "bufregs" "lib/bufregs.el")
+
+(autoload 'bufregs-mode "bufregs" "\
+Minor mode retaining an in-memory history of the buffer contents.")
+
+;;;***
+
+;;;### (autoloads (holes-mode) "holes" "lib/holes.el")
+
+(autoload 'holes-mode "holes" "\
+If ARG is nil, then toggle holes mode on/off.
+If arg is positive, then turn holes mode on.  If arg is negative, then
+turn it off." t nil)
+
+;;;***
+
+;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "lib/texi-docstring-magic.el")
+
+(autoload 'texi-docstring-magic "texi-docstring-magic" "\
+Update all texi docstring magic annotations in buffer.
+With prefix arg, no errors on unknown symbols.  (This results in
+@def .. @end being deleted if not known)." t nil)
 
 ;;;***
 

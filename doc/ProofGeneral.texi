@@ -2833,6 +2833,16 @@ Otherwise the response buffer will accumulate output from the prover.
 The default value is @code{t}.
 @end defopt
 
+@c TEXI DOCSTRING MAGIC: proof-keep-response-history
+@defopt proof-keep-response-history
+Whether to keep a browsable history of responses.@*
+With this feature enabled, the buffers used for prover responses will have a
+history that can be browsed without processing/undoing in the prover. 
+(Changes to this variable take effect after restarting the prover).
+
+The default value is @code{nil}.
+@end defopt
+
 @c TEXI DOCSTRING MAGIC: proof-show-debug-messages
 @defopt proof-show-debug-messages 
 Whether to display debugging messages in the response buffer.@*

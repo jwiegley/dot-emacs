@@ -571,7 +571,8 @@ frame is the one showing the script buffer.)
 No effect if buffer is dead."
   (if (buffer-live-p buffer)
       (with-current-buffer buffer
-	(erase-buffer)
+	(unless (eq 0 (buffer-size)) ;; checkpoint unless already empty
+	  (bufhist-checkpoint-and-erase))
 	(set-buffer-modified-p nil)
 	(if (eq buffer proof-response-buffer)
 	    (setq pg-response-next-error nil))	; all error msgs lost!

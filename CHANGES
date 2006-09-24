@@ -4,6 +4,21 @@ See also etc/release-log.txt for minor patches.
 
 * Summary of Changes for Proof General 3.6 from 3.5
 
+** Generic changes
+
+*** History mechanism for prover responses
+
+Proof General will keep a history of the last 10 responses from the
+prover in each of the buffers used to display messages.  This is handy
+for examining previous proof state outputs without actually issuing
+undo/redo commands to the prover, for example.  Of for browsing
+previous displays of theorems or rules.
+
+To use this, enable Proof General -> Option -> Response History.
+
+Then the keys M-left, M-right will browse the history in
+each buffer.  See "C-h m" for more documentation.
+
 *** Large X-Symbol fonts added, courtesy of Clemens Ballarin
 
 May use option -f 18 or -f 24 of the Isabelle interface wrapper.
@@ -13,9 +28,13 @@ May use option -f 18 or -f 24 of the Isabelle interface wrapper.
 See proof-shell-unicode (default nil), or option -U of the Isabelle
 interface wrapper.
 
-*** Improved compatibility with Coq 8
+*** Minor fixes and tweaks
 
-Several fixes.  Also, removed support for Coq 6, 7.
+Including numerous improvements from Stefan Monnier.
+
+
+
+** Changes for Isabelle
 
 *** Support for Isabelle2005 and current development version of Isabelle.  
 
@@ -26,10 +45,6 @@ interaction (`proof-shell-unicode' variable).
 Isabelle2004 should still be functional with this version of Proof
 General.  Support for Isabelle 2003 has been removed.
 
-
-*** Miscellaneous fixes
-
-Including numerous improvements from Stefan Monnier.
 
 
 ** Changes for Coq
@@ -108,6 +123,9 @@ Including numerous improvements from Stefan Monnier.
 *** Better font-lock coloration
 
 *** new "queries" menu
+
+
+
 
 
 * Summary of Changes for Proof General 3.5 from 3.4

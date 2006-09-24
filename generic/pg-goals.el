@@ -9,8 +9,9 @@
 ;;
 
 ;; A sub-module of proof-shell; assumes proof-script loaded.
-
 (require 'pg-assoc)
+
+(require 'bufhist)
 
 ;; Nuke some byte compiler warnings.
 (eval-when-compile
@@ -40,6 +41,7 @@ May enable proof-by-pointing or similar features.
   (proof-toolbar-setup)
   (erase-buffer)
   (buffer-disable-undo)
+  (if proof-keep-response-history (bufhist-mode)) ; history for contents
   (set-buffer-modified-p nil)))
 
 ;;
@@ -112,7 +114,9 @@ and properly fontifies STRING using proof-fontify-region."
 
     ;; Erase the goals buffer and add in the new string
     (set-buffer proof-goals-buffer)
-    (erase-buffer)
+
+    (unless (eq 0 (buffer-size))
+      (bufhist-checkpoint-and-erase))
     ;; Only bother processing and displaying, etc, if string is
     ;; non-empty.
     (unless (string-equal string "")

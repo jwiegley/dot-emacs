@@ -270,6 +270,9 @@ without adjusting window layout."
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
 
+;; TODO (low priority): add dynamic enable-disable
+(proof-deftoggle proof-keep-response-history)
+
 ;; Here is the menu
 
 (defconst proof-quick-opts-menu
@@ -317,6 +320,11 @@ without adjusting window layout."
 			 (eq proof-buffer-type 'script))
       :style toggle
       :selected proof-toolbar-enable]
+
+     ["Response history" proof-keep-response-history-toggle
+      :style toggle
+      :selected proof-keep-response-history]
+
      ["Index Menu" proof-imenu-toggle
       :active (stringp (locate-library "imenu"))
       :style toggle
@@ -391,6 +399,7 @@ without adjusting window layout."
    (proof-ass-sym x-symbol-enable)
    (proof-ass-sym mmm-enable)
    'proof-toolbar-enable
+   'proof-keep-response-history
    'proof-imenu-enable
    ;; Display sub-menu
    'proof-three-window-enable

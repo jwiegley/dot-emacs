@@ -303,6 +303,15 @@ Otherwise the response buffer will accumulate output from the prover."
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-keep-response-history
+  nil
+  "*Whether to keep a browsable history of responses.
+With this feature enabled, the buffers used for prover responses will have a
+history that can be browsed without processing/undoing in the prover.
+(Changes to this variable take effect after restarting the prover)."
+  :type 'boolean
+  :group 'proof-user-options)
+
 (defcustom proof-show-debug-messages nil
   "*Whether to display debugging messages in the response buffer.
 If non-nil, debugging messages are displayed in the response giving
