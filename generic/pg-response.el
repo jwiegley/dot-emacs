@@ -266,7 +266,8 @@ Returns non-nil if response buffer was cleared."
 	  ;; (erase-buffer proof-response-buffer)
 	    (with-current-buffer proof-response-buffer
 	      (setq pg-response-next-error nil)	; all error msgs lost!
-	      (bufhist-checkpoint-and-erase)
+	      (if (> (buffer-size) 0)		     
+		  (bufhist-checkpoint-and-erase))
 	      (set-buffer-modified-p nil))))
       (setq pg-response-erase-flag erase-next-time)
       doit)))

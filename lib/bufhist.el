@@ -18,13 +18,14 @@
 ;; browsing is useful.
 ;;
 
-;; TODO: a more PG-specific and efficient approach would be to keep
-;; regions within a single buffer rather than copying strings in and out.
-;; That way we could use cloned (indirect) buffers which allow independent
-;; browsing of the history.
+;; TODO: this will be replaced by a more PG-specific and efficient
+;; approach which keep regions within a single buffer rather than
+;; copying strings in and out.  That way we can use cloned (indirect)
+;; buffers which allow independent browsing of the history.
 ;;
-;; FIXME: autoloading this doesn't work too well.  
-;; Advice on erase-buffer doesn't work. 
+;; FIXMEs: autoloading this doesn't work too well.  
+;;         advice on erase-buffer doesn't work
+;;         duplicated first item in ring after clear (& on startup).
 
 ;;; First a function which ought to be in ring.el
 
@@ -98,14 +99,12 @@
   (if bufhist-mode ;; safety
       (ring-insert bufhist-ring (bufhist-get-buffer-contents))))
 
+;; Unfortunately, erase-buffer doesn't call before-change-functions.
+;; We could provide advice for erase-buffer, but instead make this part of API.
 (defun bufhist-erase-buffer ()
   "Erase buffer contents, maybe running bufhist-before-change-function first."
-  ;; Unfortunately on XEmacs, erase-buffer doesn't call
-  ;; before-change-functions (it does on GNU Emacs)
-  ;; This would be easier with advice 
   (if (and 
        bufhist-mode
-       (string-match "XEmacs" emacs-version)
        (memq 'bufhist-before-change-function before-change-functions))
       (let ((before-change-functions nil)
 	    (after-change-functions nil))
@@ -121,10 +120,6 @@
 (defun bufhist-switch-to-index (n &optional nosave browsing)
   "Switch to position N in buffer history, maybe updating history.
 If optional NOSAVE is non-nil, do not try to save current contents."
-  (if browsing
-      (message "History position %d of %d" 
-	       (- (ring-length bufhist-ring) n)
-	       (ring-length bufhist-ring)))
   (unless (equal n bufhist-ring-pos) 
     ;; we're moving to different position
     (let ((tick (buffer-modified-tick)))
@@ -154,7 +149,12 @@ If optional NOSAVE is non-nil, do not try to save current contents."
 	  (setq buffer-read-only 
 		(if (eq n 0) bufhist-normal-read-only t)))
       (setq bufhist-ring-pos n)
-      (force-mode-line-update))))
+      (force-mode-line-update)
+      (if browsing
+	  (message "History position %d of %d in %s" 
+		   (- (ring-length bufhist-ring) n)
+		   (ring-length bufhist-ring)
+		   (buffer-name))))))
 
 (defun bufhist-first ()
   "Switch to most oldest buffer contents."
@@ -182,19 +182,25 @@ If optional NOSAVE is non-nil, do not try to save current contents."
 (defun bufhist-delete ()
   "Delete the current item in the buffer history."
   (interactive)
+  (message "History item deleted from buffer %s." (buffer-name))
   (unless (eq 0 bufhist-ring-pos)
     (ring-remove bufhist-ring bufhist-ring-pos)
     (bufhist-switch-to-index (1- bufhist-ring-pos) 'nosave)))
 
-;; FIXME: bug here, we get duplicated first item after clear
+;; FIXME: glitch here: we get duplicated first item after clear.
+;; Bit like on startup: we always get empty buffer/current contents
+;; twice.  Reason is because of invariant of non-empty ring; 
+;; when we checkpoint we always add to ring. 
 (defun bufhist-clear ()
   "Clear history."
   (interactive)
+  (message "Buffer history in %s cleared." (buffer-name))
   (bufhist-switch-to-index 0 'nosave) 
   (setq bufhist-ring (make-ring (ring-size bufhist-ring)))
   (setq bufhist-ring-pos 0)
   (bufhist-checkpoint)
-  (setq bufhist-lastswitch-modified-tick (buffer-modified-tick)))
+  (setq bufhist-lastswitch-modified-tick (buffer-modified-tick))
+  (force-mode-line-update))
 
 
 ;; Setup functions
@@ -240,12 +246,10 @@ The size defaults to `bufhist-ring-size'."
       (progn
 	(setq before-change-functions
 	      (remq 'bufhist-before-change-function before-change-functions)))
-;	(if (string-match "XEmacs" emacs-version)
 ;	    (ad-disable-advice 'erase-buffer 'before 'bufhist-last-advice)))
     ;; readonly history: switch to latest contents
     (setq before-change-functions
 	  (cons 'bufhist-before-change-function before-change-functions))))
-;	(if (string-match "XEmacs" emacs-version)
 ;	    (ad-enable-advice 'erase-buffer 'before 'bufhist-last-advice))))
 
 ;; Restore the latest buffer contents before changes from elsewhere.
@@ -254,9 +258,7 @@ The size defaults to `bufhist-ring-size'."
   "Restore the most recent contents of the buffer before changes."
   (bufhist-switch-to-index 0))
 
-;; On XEmacs, erase-buffer does not call before-change-function
-;(if (string-match "XEmacs" emacs-version)
-;    (progn
+;; Unfortunately, erase-buffer does not call before-change-function
 ;      (defadvice erase-buffer (before bufhist-last-advice activate)
 ;	(if (and bufhist-mode bufhist-read-only-history)
 ;	    (bufhist-last)))

@@ -287,7 +287,7 @@ user accidently killing an associated buffer."
   (if (and (proof-shell-live-buffer) proof-buffer-type)
       (progn
 	(let ((bufname (buffer-name)))
-	  (erase-buffer)
+	  (bufhist-erase-buffer)
 	  (set-buffer-modified-p nil)
 	  (bury-buffer)
 	  (error
