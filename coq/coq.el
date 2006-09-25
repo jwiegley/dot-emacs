@@ -922,7 +922,7 @@ This is specific to `coq-mode'."
    proof-shell-interrupt-regexp coq-interrupt-regexp
    proof-shell-assumption-regexp coq-id
    pg-subterm-first-special-char ?\360
-   proof-shell-wakeup-char ?\371 ; done: prompt
+   proof-shell-wakeup-char nil ; ?\x6 ;?\371 ; done: prompt
    ;; The next three represent path annotation information
    pg-subterm-start-char ?\372 ; not done
    pg-subterm-sep-char ?\373 ; not done
