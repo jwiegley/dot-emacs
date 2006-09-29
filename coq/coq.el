@@ -39,9 +39,10 @@
 ;; -translate will be added automatically to this list if `coq-translate-to-v8'
 ;; is set.
 ;; coq-prog-args is set by defpgcustom in proof-config
-(defcustom coq-prog-args '("-emacs") "")
-(if proof-shell-unicode 
-    (setq coq-prog-args '("-emacs-U"))
+(defcustom coq-prog-args '("-emacs") 
+  "The arguments passed to coqtop, important: see `proof-prog-name'.")
+
+(if coq-utf-safe (setq coq-prog-args '("-emacs-U"))
   (setq coq-prog-args '("-emacs")))
 
 ;; List of environment settings d to pass to Coq process.
@@ -780,7 +781,7 @@ This is specific to `coq-mode'."
 				"| sed s/coqc/coqtop/"))))
 	  (concat 
 	   (substring command 0 (string-match " [^ ]*$" command))
-	   (if proof-shell-unicode '("-emacs-U") '("-emacs"))))
+	   (if coq-utf-safe '("-emacs-U") '("-emacs"))))
       coq-prog-name)))
 
 
@@ -925,7 +926,7 @@ This is specific to `coq-mode'."
    proof-shell-interrupt-regexp coq-interrupt-regexp
    proof-shell-assumption-regexp coq-id
    pg-subterm-first-special-char ?\360
-   proof-shell-wakeup-char nil ; ?\x6 ;?\371 ; done: prompt
+   proof-shell-wakeup-char nil ;?\x6 ; ?\371 ; done: prompt
    ;; The next three represent path annotation information
    pg-subterm-start-char ?\372 ; not done
    pg-subterm-sep-char ?\373 ; not done
@@ -935,7 +936,6 @@ This is specific to `coq-mode'."
    proof-shell-eager-annotation-start-length 12
    proof-shell-eager-annotation-end "\377\\|done\\]" ; done
    proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern
-;   (concat proof-shell-prompt-pattern (char-to-string proof-shell-wakeup-char)) ; done
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
    proof-shell-start-goals-regexp "[0-9]+ subgoals?"
