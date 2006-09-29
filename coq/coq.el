@@ -81,7 +81,7 @@ To disable coqc being called (and use only make), set this to nil."
 
 (defvar coq-shell-prompt-pattern 
   (concat "^\n?" proof-id " < \\(?:[0-9]+ |\\(?:" proof-id "|?\\)*| " 
-          "[0-9]+ < \\)?")
+          "[0-9]+ < \\)?\\(?:\x6\\|\371\\)")
   "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
@@ -931,9 +931,8 @@ This is specific to `coq-mode'."
    proof-shell-eager-annotation-start "\376\\|\\[Reinterning"
    proof-shell-eager-annotation-start-length 12
    proof-shell-eager-annotation-end "\377\\|done\\]" ; done
-   proof-shell-annotated-prompt-regexp
-   (concat proof-shell-prompt-pattern
-	   (char-to-string proof-shell-wakeup-char)) ; done
+   proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern
+;   (concat proof-shell-prompt-pattern (char-to-string proof-shell-wakeup-char)) ; done
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
    proof-shell-start-goals-regexp "[0-9]+ subgoals?"
