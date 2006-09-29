@@ -116,7 +116,7 @@ These variable describes the coqtop arguments to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-args', it
 will be used to suggest values to the user."
   (let* ((olddirs (coq-extract-directories-from-args oldvalue))
-	 (progargs '("-emacs"))
+	 (progargs (if proof-shell-unicode '("-emacs-U") '("-emacs")))
 	 (option))
     ;; first suggest preious directories
     (while olddirs

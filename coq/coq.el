@@ -39,7 +39,10 @@
 ;; -translate will be added automatically to this list if `coq-translate-to-v8'
 ;; is set.
 ;; coq-prog-args is set by defpgcustom in proof-config
-(setq coq-prog-args  '("-emacs"))
+(defcustom coq-prog-args '("-emacs") "")
+(if proof-shell-unicode 
+    (setq coq-prog-args '("-emacs-U"))
+  (setq coq-prog-args '("-emacs")))
 
 ;; List of environment settings d to pass to Coq process.
 ;; On Windows you might need something like:
@@ -777,7 +780,7 @@ This is specific to `coq-mode'."
 				"| sed s/coqc/coqtop/"))))
 	  (concat 
 	   (substring command 0 (string-match " [^ ]*$" command))
-	   " -emacs"))
+	   (if proof-shell-unicode '("-emacs-U") '("-emacs"))))
       coq-prog-name)))
 
 
