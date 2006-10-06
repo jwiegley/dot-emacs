@@ -42,6 +42,7 @@
 (defcustom coq-prog-args '("-emacs") 
   "The arguments passed to coqtop, important: see `proof-prog-name'.")
 
+(defcustom coq-utf-safe "" nil)
 (if coq-utf-safe (setq coq-prog-args '("-emacs-U"))
   (setq coq-prog-args '("-emacs")))
 
