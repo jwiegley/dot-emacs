@@ -58,45 +58,6 @@ See -k option for Isabelle interface script."
 	  (remassoc 'qed (remassoc 'goal isar-toolbar-entries))))
 
 
-;;;
-;;; theory header
-;;;
-
-(defun isar-detect-header ()
-  "Detect new-style theory header in current buffer"
-  (let ((header-regexp (isar-ids-to-regexp '("header" "theory")))
-        (white-space-regexp "\\(\\s-\\|\n\\)+")
-        (cmt-end-regexp (regexp-quote proof-script-comment-end))
-        (cmt-start-regexp (regexp-quote proof-script-comment-start))
-        (found-header nil) forward-amount
-        (end (point-max)) (cont t) (cmt-level 0))
-    (save-excursion
-      (goto-char (point-min))
-      (while (and cont (< (point) end))
-        (setq forward-amount 1)
-        (cond
-         ;; comments
-         ((proof-looking-at cmt-start-regexp)
-          (setq forward-amount (length (match-string 0)))
-          (incf cmt-level))
-         ((proof-looking-at cmt-end-regexp)
-          (setq forward-amount (length (match-string 0)))
-          (decf cmt-level))
-         ((> cmt-level 0))
-         ;; white space
-         ((proof-looking-at white-space-regexp)
-          (setq forward-amount (length (match-string 0))))
-         ;; theory header
-         ((proof-looking-at header-regexp)
-          (setq found-header t)
-          (setq cont nil))
-         ;; bad stuff
-         (t
-          (setq cont nil)))
-        (and cont (forward-char forward-amount)))
-      found-header)))
-
-
 (defun isar-strip-terminators ()
   "Remove explicit Isabelle/Isar command terminators `;' from the buffer."
   (interactive)
@@ -412,7 +373,7 @@ proof-shell-retract-files-regexp."
       ((case-fold-search nil)       ;FIXME ??
        (ct 0) str i)
     (while span
-      (setq str (span-property span 'cmd))
+      (setq str (or (span-property span 'cmd) ""))
       (cond ((eq (span-property span 'type) 'vanilla)
              (or (proof-string-match isar-undo-skip-regexp str)
 		 (proof-string-match isar-undo-ignore-regexp str)
@@ -431,12 +392,41 @@ proof-shell-retract-files-regexp."
       (setq span (next-span span 'type)))
     (isar-undos ct)))
 
+;; begin keyword
+(defun isar-detect-begin (span)
+  "Detect the begin keyword within a command span"
+  (let ((found nil)
+	(start (span-start span))
+	(end (span-end span)))
+    (save-excursion
+      (goto-char start)
+      (while (and (not found) (search-forward-regexp isar-begin-regexp end t))
+	(or (proof-buffer-syntactic-context) (setq found t))))
+    found))
+
+;; command nesting
+(defun isar-command-nested (span)
+  "Determine theory command nesting"
+  (let ((nesting 0) str)
+    (while span
+      (setq str (or (span-property span 'cmd) ""))
+      (cond
+       ;; end
+       ((proof-string-match isar-end-regexp str)
+	(decf nesting))
+       ;; begin
+       ((or (proof-string-match isar-theory-start-regexp str)
+	    (isar-detect-begin span))
+	(incf nesting)))
+      (setq span (prev-span span 'type)))
+    (> nesting 0)))
+
 ;; undo theory commands
 (defun isar-find-and-forget (span)
   "Return commands to be used to forget SPAN."
   (let (str ans answers)
     (while span
-      (setq str (span-property span 'cmd))
+      (setq str (or (span-property span 'cmd) ""))
       (setq ans nil)
       (cond
        ;; comment, diagnostic, nested proof command: skip
@@ -459,7 +449,9 @@ proof-shell-retract-files-regexp."
        ;; [da: this is an odd case: it issues cannot_undo command to Isar,
        ;;  which immediately generates an error, I think it's a bit confusing
        ;; for the user]
-       ((proof-string-match isar-undo-fail-regexp str)
+       ((and (proof-string-match isar-undo-fail-regexp str)
+	     (not (and (proof-string-match isar-end-regexp str)
+		       (isar-command-nested span))))
         (setq answers nil)
         (setq ans (isar-cannot-undo str))
         (setq span nil))
@@ -490,7 +482,7 @@ proof-shell-retract-files-regexp."
    (proof-string-match isar-global-save-command-regexp str)
    (let ((ans nil) (lev 0) cmd)
      (while (and (not ans) span (setq span (prev-span span 'type)))
-       (setq cmd (span-property span 'cmd))
+       (setq cmd (or (span-property span 'cmd) ""))
        (cond
         ;; comment: skip
         ((eq (span-property span 'type) 'comment))
