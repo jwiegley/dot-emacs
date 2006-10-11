@@ -153,7 +153,8 @@ This list is in the right format for proof-easy-config.")
 (defconst isar-keywords-indent-enclose
   (append isar-keywords-proof-block
           isar-keywords-proof-close
-          isar-keywords-qed-block))
+          isar-keywords-qed-block
+	  '("begin")))
 
 
 ;; ----- regular expressions
@@ -416,7 +417,6 @@ matches contents of quotes for quoted identifiers.")
 ;; ----- variations on undo
 
 (defconst isar-undo "ProofGeneral.undo;")  ;; no output undo 
-(defconst isar-kill "kill;")
 
 (defun isar-remove (name)
   (concat "init_toplevel; kill_thy " name ";"))
@@ -455,9 +455,6 @@ matches contents of quotes for quoted identifiers.")
   (concat
    (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-begin))
    isar-name-regexp))
-
-(defconst isar-undo-kill-regexp
-  (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-switch)))
 
 
 ;; ----- function-menu and imenu
