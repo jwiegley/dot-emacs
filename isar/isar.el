@@ -143,6 +143,7 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
+   pg-subterm-first-special-char	?\350
    proof-shell-wakeup-char              nil
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \372\\|^\\w*[>#] \^AS"
 
@@ -445,13 +446,15 @@ proof-shell-retract-files-regexp."
        ;; open goal: skip and exit
        ((proof-string-match isar-goal-command-regexp str)
         (setq span nil))
+       ;; nested end: undo
+       ((and (proof-string-match isar-end-regexp str)
+	     (isar-command-nested span))
+        (setq ans isar-undo))
        ;; not undoable: fail and exit 
        ;; [da: this is an odd case: it issues cannot_undo command to Isar,
        ;;  which immediately generates an error, I think it's a bit confusing
        ;; for the user]
-       ((and (proof-string-match isar-undo-fail-regexp str)
-	     (not (and (proof-string-match isar-end-regexp str)
-		       (isar-command-nested span))))
+       ((and (proof-string-match isar-undo-fail-regexp str))
         (setq answers nil)
         (setq ans (isar-cannot-undo str))
         (setq span nil))
@@ -459,9 +462,6 @@ proof-shell-retract-files-regexp."
        ((proof-string-match isar-undo-remove-regexp str)
         (setq ans (isar-remove (match-string 2 str)))
         (setq span nil))
-       ;; context switch: kill
-       ((proof-string-match isar-undo-kill-regexp str)
-        (setq ans isar-kill))
        ;; else: undo
        (t
         (setq ans isar-undo)))
