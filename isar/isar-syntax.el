@@ -233,7 +233,7 @@ matches contents of quotes for quoted identifiers.")
 
 (defconst isar-improper-regexp
   "\\(\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>\\|\\<goal[0-9]+\\>\\)"
-  "Regexp matching old-style tactic names")
+  "Regexp matching low-level features")
 
 (defconst isar-save-command-regexp
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-save)))
@@ -428,6 +428,18 @@ matches contents of quotes for quoted identifiers.")
 (defun isar-cannot-undo (cmd)
   (concat "cannot_undo \"" cmd "\";"))
 
+(defconst isar-theory-start-regexp
+  (proof-anchor-regexp
+   (isar-ids-to-regexp
+    (append isar-keywords-theory-begin
+	    isar-keywords-theory-switch))))
+
+(defconst isar-begin-regexp
+  (isar-ids-to-regexp '("begin")))  ;; no anchor!
+
+(defconst isar-end-regexp
+  (proof-anchor-regexp
+   (isar-ids-to-regexp isar-keywords-theory-end)))
 
 (defconst isar-undo-fail-regexp
   (proof-anchor-regexp
