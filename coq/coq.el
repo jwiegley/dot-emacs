@@ -1478,11 +1478,22 @@ buffer."
           (delete-span sp)
           )))))
 
+
+(setq coq-allow-highlight-error t)
+
+;; if a command is sent to coq without being in the script, then don't
+;; higilight the error
+(defun coq-decide-highlight-error ()
+  (if (eq action 'proof-done-invisible)
+      (setq coq-allow-highlight-error nil)
+    (setq coq-allow-highlight-error t)))
+
 (defun coq-highlight-error-hook ()
-  (save-excursion (coq-highlight-error t t)))
+  (if coq-allow-highlight-error (save-excursion (coq-highlight-error t t))))
 
-
+;; We need this two hooks to highlight only when scripting
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error-hook t)
+(add-hook 'proof-shell-insert-hook 'coq-decide-highlight-error t)
 
 (provide 'coq)
 
