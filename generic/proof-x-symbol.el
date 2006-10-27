@@ -64,7 +64,7 @@
   "A test to see whether x-symbol support may be available."
   (and
    (or (featurep 'x-symbol-hooks)
-       (and window-system		; Not on a tty
+       (and (pg-window-system)		; Not on a tty
 	    (progn
 	      ;; put bundled version on load path
 	      (setq load-path
@@ -104,7 +104,7 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
 The package is available at http://x-symbol.sourceforge.net/"))
-       ((not window-system)
+       ((not (pg-window-system))
 	(funcall error-or-warn 
  "Proof General: x-symbol package only runs under a window system!"))
        ((or (not (fboundp 'x-symbol-initialize))

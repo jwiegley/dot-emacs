@@ -71,6 +71,7 @@
 ;; ==================================================
 
 (require 'proof-utils)			;; Macros used below
+(require 'proof-compat)			;; For pg-defface-window-systems
 
 
 ;;
@@ -456,7 +457,8 @@ signals to the remote host."
 		     (list (list (list 'type ty) '(class color)
 				 (list 'background 'dark))
 			   (quote ,bd))))
-     '(x mswindows gtk mac)))
+     ;; NOTE: see proof-compat.el for possible window-system values
+     pg-defface-window-systems))
     (list (list t (quote ,ow)))))
 
 (defface proof-queue-face 

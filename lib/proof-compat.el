@@ -95,17 +95,54 @@ with `path-separator'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Window systems
+;;;
+
+;; A useful function of GNU Emacs: support it in XEmacs if not already there
+;; NOTE!  Unfortunately this is present in some XEmacs versions but
+;; returns the wrong value (e.g. nil on a graphic display).
+; (or (fboundp 'display-graphic-p)
+;     (defun display-graphic-p ()
+;       "Return non-nil if DISPLAY is a graphic display.
+; Graphical displays are those which are capable of displaying several
+; frames and several different fonts at once.  This is true for displays
+; that use a window system such as X, and false for text-only terminals."
+;       (not (memq (console-type) '(tty stream dead)))))
+
+;; Let's define our own version based on window-system.  
+;; Even though this is deprecated on XEmacs, it seems more likely
+;; that things will go wrong on badly ported Emacs than users
+;; using multiple devices, some of which are ttys...
+(defun pg-window-system ()
+  "Return non-nil if we're on a window system.  Simply use `window-system'."
+  (and window-system t))
+
+;; The next constant is used in proof-config for defface calls.
+;; Unfortunately defface uses window-system, which Emacs porters like
+;; to invent new symbols for each time, which is a pain.
+;; This list has the ones I know about so far.  
+
+(defconst pg-defface-window-systems 
+  '(x            ;; bog standard
+    mswindows    ;; Windows
+    gtk          ;; gtk emacs (obsolete?)
+    mac          ;; used by Aquamacs
+    carbon       ;; used by Carbon XEmacs
+    ns           ;; NeXTstep Emacs (Emacs.app)
+    x-toolkit)   ;; possible catch all (but probably not)
+  "A list of possible values for `window-system'.
+If you are on a window system and your value of `window-system' is
+not listed here, you may not get the correct syntax colouring behaviour.")
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; XEmacs compatibility with GNU Emacs
 ;;;
 
-(or (fboundp 'display-graphic-p)
-    (defun display-graphic-p ()
-      "Return non-nil if DISPLAY is a graphic display.
-Graphical displays are those which are capable of displaying several
-frames and several different fonts at once.  This is true for displays
-that use a window system such as X, and false for text-only terminals."
-      (or (eq (console-type) 'x)
-	  (eq (console-type) 'mswindows))))
 
 (or (fboundp 'subst-char-in-string)
 ;; Code is taken from Emacs 21.2.1/subr.el 

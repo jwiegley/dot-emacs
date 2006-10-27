@@ -339,7 +339,7 @@ without adjusting window layout."
       ;; non-Emacs users.  Cf. Gnome usability studies: menus saying
       ;; "Web Browser" more useful to novices than menus saying "Mozilla"!!
       ["Multiple Windows" proof-multiple-frames-toggle
-       :active (display-graphic-p)
+       :active (pg-window-system)
        :style toggle
        :selected proof-multiple-frames-enable]
       ["Delete Empty Panes" proof-delete-empty-windows-toggle

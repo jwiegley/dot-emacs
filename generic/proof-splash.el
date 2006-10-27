@@ -108,17 +108,20 @@ DEFAULT gives return value in case image not valid."
 			(file-readable-p (aref inst 2)))))
 	img)
   (cond
-   ((and window-system proof-running-on-XEmacs (featurep 'jpeg) (not nojpeg)
+   ((and proof-running-on-XEmacs (pg-window-system) 
+	 (featurep 'jpeg) (not nojpeg)
 	 (funcall validfn jpg))
     jpg)
-   ((and window-system proof-running-on-XEmacs (featurep 'gif) (funcall validfn gif))
+   ((and proof-running-on-XEmacs (pg-window-system)
+	 (featurep 'gif) (funcall validfn gif))
     gif)
-   ((and window-system proof-running-on-XEmacs (featurep 'xpm) (funcall validfn xpm))
+   ((and proof-running-on-XEmacs (pg-window-system)
+	 (featurep 'xpm) (funcall validfn xpm))
     xpm)
    ;; Support GNU Emacs 21
    ((and
      proof-running-on-Emacs21
-     window-system
+     (pg-window-system)
      (setq img
 	   (find-image
 	    (list

@@ -133,14 +133,13 @@ If `proof-toolbar-enable' is nil, change the current buffer toolbar
 to the default toolbar."
   (interactive)
   (if
-   (and ;; Check support in Emacs
+   (and ;; Check toolbar support in Emacs
     (or (and (featurep 'tool-bar)	; GNU Emacs tool-bar library
 	     (member 'xpm image-types))	; and XPM support
 	(and (featurep 'toolbar)	; or XEmacs toolbar library
 	     (featurep 'xpm)))		; and XPM support
-    ;; Check support in Window system
-    (memq (if proof-running-on-XEmacs (console-type) window-system)
-	  '(x mswindows gtk mac)))
+    ;; Check we're running in a windowing system
+    (pg-window-system))
 
       ;; Toolbar support is possible.  
       (progn
