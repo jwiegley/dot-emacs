@@ -2084,5 +2084,14 @@ VAR's options has been defined with `x-symbol-define-user-options'."
 	      (symbol-value var)
 	    (cdr (assoc val alist))))))
 
+;;;===========================================================================
+;;; DA's crude unicode hack
+;;;===========================================================================
+
+(defvar x-symbol-use-unicode nil ; (eq window-system 'mac) ;; v. approx!
+  "*Non-nil to use default font as unicode font.")
+
+
+
 ;;; Local IspellPersDict: .ispell_xsymb
 ;;; x-symbol-vars.el ends here
