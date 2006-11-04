@@ -63,7 +63,7 @@ See -k option for Isabelle interface script."
   (interactive)
   (save-excursion
     (goto-char (point-min))
-    (while (search-forward ";" (point-max) t)
+    (while (proof-search-forward ";" (point-max) t)
       (if (not (proof-buffer-syntactic-context))
 	  (progn
 	    (delete-backward-char 1)
@@ -401,7 +401,7 @@ proof-shell-retract-files-regexp."
 	(end (span-end span)))
     (save-excursion
       (goto-char start)
-      (while (and (not found) (search-forward-regexp isar-begin-regexp end t))
+      (while (and (not found) (proof-search-forward isar-keyword-begin end t))
 	(or (proof-buffer-syntactic-context) (setq found t))))
     found))
 
