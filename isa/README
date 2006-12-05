@@ -1,0 +1,6 @@
+Support for Isabelle/classic has been removed from Proof General.
+The default and only supported interface is now Isabelle/Isar.
+
+If you need to use an older version of Isabelle, you will have
+to use an older version of Proof General (and so perhaps an older
+version of Emacs...).  Apologies for the incovnenience.
