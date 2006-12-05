@@ -16,10 +16,7 @@
 
 (require 'proof)
 
-;;
-;; Add generic code for Isabelle and Isabelle/Isar
-;;
-(setq load-path (cons (concat proof-home-directory "isa/") load-path))
+;; System code
 (require 'isabelle-system)
 
 ;;
