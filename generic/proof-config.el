@@ -2334,11 +2334,9 @@ something in scripting buffer, `save-excursion' and/or `set-buffer'."
 
 (defcustom proof-shell-pre-interrupt-hook
   nil
-  "Run immediately after `comint-interrupt-subjob' is called.
-This hook is added to allow customization for Poly/ML and other
-systems where the system queries the user before returning to
-the top level.  For Poly/ML it can be used to send the string \"f\",
-for example."
+  "Run immediately after `comint-interrupt-subjob' is called.  This
+hook is added to allow customization for systems that query the user
+before returning to the top level."
   :type '(repeat function)
   :group 'proof-shell)
 
