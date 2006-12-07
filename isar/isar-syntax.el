@@ -94,6 +94,7 @@ This list is in the right format for proof-easy-config.")
 
 (defconst isar-keywords-theory-enclose
   (append isar-keywords-theory-begin
+	  isar-keywords-theory-switch
           isar-keywords-theory-end))
 
 (defconst isar-keywords-theory
@@ -129,7 +130,6 @@ This list is in the right format for proof-easy-config.")
 
 (defconst isar-keywords-proper
   (append isar-keywords-theory
-          isar-keywords-theory-switch
           isar-keywords-proof-enclose
           isar-keywords-proof))
 
