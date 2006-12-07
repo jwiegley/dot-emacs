@@ -106,9 +106,6 @@ You can use customize to set this variable."
 	    (list dne)
 	  nil)))
    '(
-;; To use classic Isabelle instead of Isabelle/Isar,
-;; uncomment appropriate line below and set
-;; export PROOFGENERAL_ASSISTANTS=isar
 ;;
 ;; To Use HOL, uncomment the line below.  It's disabled
 ;; by default because of clash with SML mode (same for .ML).
@@ -118,7 +115,6 @@ You can use customize to set this variable."
 ;; export PROOFGENERAL_ASSISTANTS=demoisa. 
 ;;
 ;;    (demoisa    "Isabelle Demo"	"\\.ML$")
-;;    (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (isar       "Isabelle"      "\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$\\|\\.v8$\\|\\.v7$")

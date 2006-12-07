@@ -28,14 +28,14 @@ DEST_PREFIX=/usr
 
 PWD=$(shell pwd)
 
-PROVERS=acl2 ccc coq demoisa hol98 isa isar lclam lego pgshell phox plastic twelf
+PROVERS=acl2 ccc coq demoisa hol98 isar lclam lego pgshell phox plastic twelf
 OTHER_ELISP=generic lib mmm
 ELISP_DIRS=${PROVERS} ${OTHER_ELISP}
 ELISP_EXTRAS=isar/interface isar/isartags
 EXTRA_DIRS = images x-symbol
 
 DOC_FILES=AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/*.pdf
-DOC_EXAMPLES=acl2/*.acl2 hol98/*.sml isa/*.ML isa/*.thy isar/*.thy lclam/*.lcm lego/*.l pgshell/*.pgsh phox/*.phx plastic/*.lf twelf/*.elf
+DOC_EXAMPLES=acl2/*.acl2 hol98/*.sml isar/*.thy lclam/*.lcm lego/*.l pgshell/*.pgsh phox/*.phx plastic/*.lf twelf/*.elf
 DOC_SUBDIRS=${DOC_EXAMPLES} */README.* */CHANGES */BUGS 
 
 BATCHEMACS=${EMACS} -batch -q -no-site-file

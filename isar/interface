@@ -9,13 +9,6 @@
 
 THIS=$(cd "$(dirname "$0")"; pwd)
 SUPER=$(cd "$THIS/.."; pwd)
-KIND=$(basename "$(dirname "$0")")
-
-if [ "$KIND" = isar ]; then
-  ISAR=true
-else
-  ISAR=false
-fi
 
 
 ## diagnostics
@@ -26,7 +19,7 @@ usage()
   echo "Usage: Isabelle [OPTIONS] [FILES ...]"
   echo
   echo "  Options are:"
-  echo "    -I BOOL      use Isabelle/Isar instead of classic Isabelle (default $ISAR)"
+  echo "    -I BOOL      use Isabelle/Isar (default: true, implied by -P true)"
   echo "    -L NAME      abbreviates -l NAME -k NAME"
   echo "    -P BOOL      actually start Proof General (default true), otherwise"
   echo "                 run plain tty session"
@@ -62,6 +55,7 @@ fail()
 # options
 
 ISABELLE_OPTIONS=""
+ISAR="true"
 START_PG="true"
 GEOMETRY=""
 KEYWORDS=""
@@ -139,19 +133,11 @@ getoptions $PROOFGENERAL_OPTIONS
 getoptions "$@"
 shift $(($OPTIND - 1))
 
-if [ "$ISAR" = true ]; then
-  KIND=isar
-  DEFAULT_FILES="Scratch.thy"
-else
-  KIND=isa
-  DEFAULT_FILES="Scratch.thy Scratch.ML"
-fi
-
 
 # args
 
 if [ "$#" -eq 0 ]; then
-  FILES="$DEFAULT_FILES"
+  FILES="Scratch.thy"
 else
   FILES=""
   while [ "$#" -gt 0 ]; do
@@ -204,7 +190,7 @@ else
     XSYMBOL=false
   fi
 
-  ARGS="$ARGS -l '$SUPER/isa/interface-setup.el'"
+  ARGS="$ARGS -l '$SUPER/isar/interface-setup.el'"
 
   if [ -n "$KEYWORDS" ]; then
     if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el" ]; then
@@ -235,7 +221,7 @@ else
   esac
 
   export PROOFGENERAL_HOME="$SUPER"
-  export PROOFGENERAL_ASSISTANTS="$KIND"
+  export PROOFGENERAL_ASSISTANTS="isar"
   export PROOFGENERAL_LOGIC="$LOGIC"
   export PROOFGENERAL_XSYMBOL="$XSYMBOL"
   export PROOFGENERAL_UNICODE="$UNICODE"
