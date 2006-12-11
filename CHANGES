@@ -42,8 +42,8 @@ Additional menu functions and PGIP support for settings configuration
 now controlled directly by Isabelle.  Support for Unicode-safe
 interaction (`proof-shell-unicode' variable).
 
-Isabelle2004 should still be functional with this version of Proof
-General.  Support for Isabelle 2003 has been removed.
+Support for Isabelle 2003 has been removed; results with Isabelle 2004
+are not guaranteed.  Code works with PolyML 5 versions of Isabelle.
 
 
 
