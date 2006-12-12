@@ -56,13 +56,16 @@ version of coq by doing 'coqtop -v'." )
      (t;; otherwise do coqtop -v and see which version we have
       (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
              ;; this match sets match-string below
-             (ver (string-match "version \\([.0-9]*\\)" str)))
+             (ver (string-match "version v?\\([.0-9]*\\)" str)))
         (message str)
         (let ((num (and ver (match-string 1 str))))
           (cond
            ((and num (string-match "\\<8.0" num))
             (message v80)
             (setq coq-version-is-V8-0 t))
+           ((and num (string-match "\\<8.1" num))
+            (message v81)
+            (setq coq-version-is-V8-1 t))
            (t ; 8.1 by default now
             (message (concat "Falling back to default: " v81))
             (setq coq-version-is-V8-1 t)))))))))

@@ -85,8 +85,11 @@ To disable coqc being called (and use only make), set this to nil."
 ;; quarter of 2005).
 
 (defvar coq-shell-prompt-pattern 
-  (concat "\\(?:\n" proof-id " < [^\n]+\371\\|\n<prompt>[^\n]+</prompt>\\)")
-  "*The prompt pattern for the inferior shell running coq.")
+  (if coq-version-is-V8-0
+      (concat "\\(?:\n" proof-id " < \\)")
+    (concat "\\(?:\n" proof-id " < [^\n]+\371\\|\n<prompt>[^\n]+</prompt>\\)")
+    )
+    "*The prompt pattern for the inferior shell running coq.")
 ;  (concat "^\n?" proof-id " < \\(?:[0-9]+ |\\(?:" proof-id "|?\\)*| " "[0-9]+ < \\)?\\(?:\x6\\|\371\\)")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
