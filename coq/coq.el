@@ -42,15 +42,6 @@
 (defcustom coq-prog-args '("-emacs") 
   "The arguments passed to coqtop, important: see `proof-prog-name'.")
 
-(defcustom coq-utf-safe "" nil)
-(if coq-utf-safe (setq coq-prog-args '("-emacs-U"))
-  (setq coq-prog-args '("-emacs")))
-
-;; List of environment settings d to pass to Coq process.
-;; On Windows you might need something like:
-;; (setq coq-prog-env '("HOME=C:\\Program Files\\Coq\\"))
-(setq coq-prog-env nil)
-
 (defcustom coq-compile-file-command "coqc %s"
   "*Command to compile a coq file.
 This is called when `coq-auto-compile-vos' is set, unless a Makefile
@@ -74,6 +65,15 @@ To disable coqc being called (and use only make), set this to nil."
 
 (require 'coq-syntax)
 (require 'coq-indent)
+
+(defcustom coq-utf-safe "" nil)
+(if (and coq-utf-safe coq-version-is-V8-1) (setq coq-prog-args '("-emacs-U"))
+  (setq coq-prog-args '("-emacs")))
+
+;; List of environment settings d to pass to Coq process.
+;; On Windows you might need something like:
+;; (setq coq-prog-env '("HOME=C:\\Program Files\\Coq\\"))
+(setq coq-prog-env nil)
 
 ;; Command to reset the Coq Proof Assistant
 (defconst coq-shell-restart-cmd "Reset Initial.\n ")
@@ -708,8 +708,8 @@ This is specific to `coq-mode'."
   "Locate a notation.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do "Locate (ex: \'exists\' _ , _)" "Locate" 
-              'coq-addquotes))
+  (coq-ask-do "Locate Notation (ex: \'exists\' _ , _)" "Locate" 
+              t 'coq-addquotes))
 
 (defun coq-Pwd ()
   "Locate a notation.
@@ -738,7 +738,7 @@ This is specific to `coq-mode'."
 (defun coq-Show ()
   "Ask for a number i and show the ith goal."
   (interactive)
-  (coq-ask-do "Show goal number: " "Show"))
+  (coq-ask-do "Show goal number: " "Show" t))
 
 
 (proof-definvisible coq-PrintHint "Print Hint. ")
@@ -1382,22 +1382,25 @@ be asked to the user."
 
 
 (define-key coq-keymap [(control ?i)] 'coq-insert-intros)
-(define-key coq-keymap [(control ?s)] 'coq-insert-section-or-module)
+(define-key coq-keymap [(control ?m)] 'coq-insert-match)
+(define-key coq-keymap [(control ?()] 'coq-insert-section-or-module)
+(define-key coq-keymap [(control ?))] 'coq-end-Section)
+(define-key coq-keymap [(control ?s)] 'coq-Show)
 (define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
-(define-key coq-keymap [(control ?y)] 'coq-insert-tactical)
+(define-key coq-keymap [(control ?T)] 'coq-insert-tactical)
+
 (define-key coq-keymap [(control space)] 'coq-insert-term)
 (define-key coq-keymap [(control return)] 'coq-insert-command)
+
 (define-key coq-keymap [(control ?r)] 'coq-insert-requires)
-(define-key coq-keymap [(control ?m)] 'coq-insert-match)
-(define-key coq-keymap [(control ?e)] 'coq-end-Section)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
+
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
-(define-key coq-keymap [(control ?g)] 'coq-Show)
 ;(define-key coq-keymap [?'] 'coq-highlight-error)
 
 
