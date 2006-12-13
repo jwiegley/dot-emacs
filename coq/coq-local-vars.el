@@ -81,13 +81,13 @@ coqtop command to be launched on this file."
   )
 
 
-(defun coq-read-directory (prompt)
+(defun coq-read-directory (prompt &optional maynotmatch initialcontent)
   "Ask for (using PROMPT) and return a directory name."
   (let*
       ;; read-file-name here because it is convenient to see .v files
       ;; when selecting directories to add to the path. Moreover
       ;; read-directory-name does not seem to exist in fsf emacs??
-      ((path (read-file-name prompt "" "" t)))
+      ((path (read-file-name prompt "" "" (not maynotmatch) initialcontent)))
     path))
 
 ;(read-from-minibuffer
@@ -135,7 +135,7 @@ will be used to suggest values to the user."
 These variable describes the coqtop command to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-name', it
 will be used to suggest a value to the user."
-  (let ((cmd (read-string "coq program name (default coqtop) : "
+  (let ((cmd (coq-read-directory "coq program name (default coqtop) : " t
 			  (or oldvalue "coqtop"))))
     (if (and
          (string-match " " cmd)

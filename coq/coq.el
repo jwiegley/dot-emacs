@@ -66,7 +66,9 @@ To disable coqc being called (and use only make), set this to nil."
 (require 'coq-syntax)
 (require 'coq-indent)
 
-(defcustom coq-utf-safe "" nil)
+(defcustom coq-utf-safe nil 
+  "Should be t if one wants no multibyte characters be used for 
+controling coq prompt. Only for coq >= 8.1 (and 8.1 beta)")
 (if (and coq-utf-safe coq-version-is-V8-1) (setq coq-prog-args '("-emacs-U"))
   (setq coq-prog-args '("-emacs")))
 
