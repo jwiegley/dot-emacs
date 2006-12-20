@@ -212,7 +212,7 @@ SUBDIRS=$(ELISP_DIRS) etc doc images
 
 PWD=$(shell pwd)
 
-BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lib" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar") load-path))' -f batch-byte-compile
+BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lib" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isar") load-path))' -f batch-byte-compile
 
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
