@@ -54,7 +54,6 @@
 
 
 ;; These next few are autoloaded usually
-(load "thy-mode.el")
 (load "proof-menu.el")
 (load "proof-toolbar.el")
 (load "proof-script.el")
