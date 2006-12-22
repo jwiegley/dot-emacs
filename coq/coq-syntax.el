@@ -313,6 +313,10 @@ so for the following reasons:
     ("Coinductive" "coindv" "Coinductive # : # :=\n|# : #." t "Coinductive") 
     ("Declare Module : :=" "dm" "Declare Module # : # := #." t "Declare\\s-+Module")
     ("Declare Module <: :=" "dm2" "Declare Module # <: # := #." t);; careful
+    ("Declare Module Import : :=" "dmi" "Declare Module # : # := #." t "Declare\\s-+Module")
+    ("Declare Module Import <: :=" "dmi2" "Declare Module # <: # := #." t);; careful
+    ("Declare Module Export : :=" "dme" "Declare Module # : # := #." t "Declare\\s-+Module")
+    ("Declare Module Export <: :=" "dme2" "Declare Module # <: # := #." t);; careful
     ("Definition" "def" "Definition #:# := #." t "Definition");; careful
     ("Definition (2 args)" "def2" "Definition # (# : #) (# : #):# := #." t)
     ("Definition (3 args)" "def3" "Definition # (# : #) (# : #) (# : #):# := #." t)
@@ -335,6 +339,10 @@ so for the following reasons:
     ("Ltac" "ltac" "Ltac # := #" t "Ltac")
     ("Module :=" "mo" "Module # : # := #." t ) ; careful
     ("Module <: :=" "mo2" "Module # <: # := #." t ) ; careful
+    ("Module Import :=" "moi" "Module Import # : # := #." t ) ; careful
+    ("Module Import <: :=" "moi2" "Module Import # <: # := #." t ) ; careful
+    ("Module Export :=" "moe" "Module Export # : # := #." t ) ; careful
+    ("Module Export <: :=" "moe2" "Module Export# <: # := #." t ) ; careful
     ("Record" "rec" "Record # : # := {\n# : #;\n# : # }" t "Record")
     ("Scheme" "sc" "Scheme @{name} := #." t "Scheme")
     ("Scheme Induction" "sci" "Scheme @{name} := Induction for # Sort #." t)
