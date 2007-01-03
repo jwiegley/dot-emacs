@@ -88,6 +88,28 @@ A. You're missing some Emacs (probably XEmacs) packages.  See
 
 -----------------------------------------------------------------
 
+Q. Proof General shows a warning like this when started:
+
+      (1) (file-mode-spec/warning) Error in File mode specification: Invalid argument: Invalid tag set, (mule-fonts)
+
+  Backtrace follows:
+
+    canonicalize-tag-set((mule-fonts))
+
+   Also/alternatively, I notice junk in the output display with funny
+   accented characters.  What's wrong?
+
+A. You're probably using a 21.5.x beta version of XEmacs which is
+   incompatible with X-Symbol (both the version distributed with
+   XEmacs and the version distributed with Proof General).  
+   Please update to a 2007 development release of Proof General
+   which has added some compatibility patches for XEmacs 21.5.
+
+-----------------------------------------------------------------
+
+
+
+
 Q. Where have my buffers gone?   They used to be on the Buffers menu!
 
 A. The PG "associated buffers" which display the proof state and
