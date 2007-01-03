@@ -1,0 +1,14 @@
+This version of Proof General has been tested with Emacs versions:
+
+ Emacs 21.4.1		 -- recommended
+ XEmacs 21.4.XX		 -- stable
+ XEmacs 21.5 (beta27)    -- potentially troublesome 
+
+and prover versions:
+
+ Isabelle2005
+ Isabelle CVS versions up to 04.01.2007.
+
+For more possibilities, please check and contribute here:
+  
+   http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsVer37Final
