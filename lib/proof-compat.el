@@ -28,7 +28,8 @@
   "Non-nil if Proof General is running on GNU Emacs 21 or later.")
 ;; rough test for XEmacs on win32, anyone know about GNU Emacs on win32?
 (defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
-  "Non-nil if Proof General is running on a win32 system."))
+  "Non-nil if Proof General is running on a win32 system.")
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -736,6 +737,15 @@ The corresponding face should be set using `edit-faces' or the
     ;; Problem confirmed in versions: 21.4.1
     (setq easy-menu-precalculate-equivalent-keybindings nil))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; XEmacs/x-symbol compatibility for XEmacs 21.5
+;;
+;; See http://thread.gmane.org/gmane.emacs.xemacs.beta/20171/focus=20172
+
+(if (and (fboundp 'valid-specifier-tag-p)
+	 (not (valid-specifier-tag-p 'mule-fonts)))
+    (define-specifier-tag 'mule-fonts))
 
 ;; End of proof-compat.el
 (provide 'proof-compat)
