@@ -256,7 +256,7 @@ testall.%:
 # with a way of cleaning the last day from the ChangeLog.
 #
 ChangeLog:	FORCE
-	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) -i 4 | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
+	rcs2log -h "inf.ed.ac.uk" $(DEVELOPERS) -i 4 | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
 	if [ -f ChangeLog ]; then mv ChangeLog ChangeLog.old; else echo > ChangeLog.old; fi
 	cat ChangeLog.prefix ChangeLog.old | sed 's|/disk/cvs/proofgen/ProofGeneral/||g' > ChangeLog
 	rm ChangeLog.prefix ChangeLog.old
