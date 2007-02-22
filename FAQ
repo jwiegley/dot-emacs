@@ -47,6 +47,14 @@ A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
    Notice that the variable `buffer-file-coding-system' may determine
    the format that files are saved in.  
 
+   Another way to affect this which has been suggested is to add a line
+   like this to the init.el file on XEmacs:
+  
+     (prefer-coding-system 'ctext)
+
+   but I haven't tried this.
+
+
    UPDATE for PG Version 3.6:
 
    Some provers have a Unicode-safe interaction mode.  You can set
