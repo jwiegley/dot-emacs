@@ -183,6 +183,9 @@ install-elisp: install-el install-elc
 # FIXME 2: should deal with x-symbol properly and avoid duplication
 # with images, and also to avoid including .elc and .el files in
 # x-symbol subdirectory.
+# FIMXE 3: Michaël Cadilhac pointed out that 'cp -p' when used with
+# sudo to install will give users ownership instead of root. 
+# Should use install program or fix ownerships afterwards here.
 install-el:
 	mkdir -p ${ELISP}
 	for f in ${ELISP_DIRS} ${EXTRA_DIRS}; do mkdir -p ${ELISP}/$$f; done
