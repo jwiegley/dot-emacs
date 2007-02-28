@@ -1,6 +1,6 @@
 ;; isar-autotest.el: tests of Isar Proof General.
 ;;
-;; You can run these by issuing "make devel.test.isar" in PG home dir.
+;; You can run these by issuing "make test.isar" in PG home dir.
 ;;
 ;; $Id$
 ;;
@@ -8,7 +8,7 @@
 (require 'pg-autotest)
 
 ;; The included test files
-(pg-autotest  message "Testing standard Example.thy, Example-Xsym.thy")
+(pg-autotest message "Testing standard Example.thy, Example-Xsym.thy")
 (pg-autotest script-wholefile "isar/Example.thy")
 (pg-autotest script-wholefile "isar/Example-Xsym.thy")
 
