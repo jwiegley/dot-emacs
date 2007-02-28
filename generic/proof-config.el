@@ -1404,14 +1404,6 @@ assistant, for example, to compile a completed file."
   :type 'number
   :group 'proof-script)
 
-;; FIXME: perhaps remove this setting?  Users rather object to it.
-(defcustom proof-indent-pad-eol nil
-  "*Whether to add spaces to end of lines.
-If enabled, spaces are added to the end of lines in an attempt to improve
-the appearance of locked regions in XEmacs."
-  :type 'boolean
-  :group 'proof-script)
-
 (defcustom proof-indent-hang nil
   "Enable 'hanging' indentation for proof script."
   :type 'boolean

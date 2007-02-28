@@ -84,45 +84,6 @@
                         (back-to-indentation)
                         (proof-indent-calculate (proof-indent-offset) (proof-indent-inner-p))))))
             (if (< (current-column) (current-indentation))
-                (back-to-indentation))))
-  (if proof-indent-pad-eol
-      (proof-indent-pad-eol)))
+                (back-to-indentation)))))
       
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Useless spaces
-;;
-
-(defun proof-indent-pad-eol (&optional col)
-  "Add padding to end of current line to match the previous line or COL.
-This function adds useless space to buffers, but it cleans up the appearance
-of locked regions in XEmacs."
-  ;; A hook for TAB?
-  (interactive)
-  (save-excursion
-    (let ((descol (or col
-		     (save-excursion
-		       (end-of-line 0)
-		       (current-column)))))
-      (save-excursion
-	(end-of-line 1)
-	(if (or (equal (current-column) 0) ;; special case for empty lines
-		(> descol (current-column)))
-	    (progn
-	      (insert-char ?\   (- descol (current-column)))))))))
-
-(defun proof-indent-pad-eol-region (start end)
-  "Pad a region with extra spaces to the length of the longest line."
-  (interactive)
-  ;; Find the longest line..
-  ;; pad others to the same length
-  )
-	  
-
-
-
-
-
 (provide 'proof-indent)

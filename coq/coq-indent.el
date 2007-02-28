@@ -708,8 +708,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
       (let ((ind (save-excursion (back-to-indentation) (coq-indent-calculate))))
         (indent-line-to (max 0 ind))))
     (if (< (current-column) (current-indentation))
-        (back-to-indentation)))
-  (if proof-indent-pad-eol (proof-indent-pad-eol)))
+        (back-to-indentation))))
 
 (defun coq-indent-line-not-comments ()
   "Same as  `proof-indent-line' but comments are not indented."
@@ -719,8 +718,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
       (let ((ind (save-excursion (back-to-indentation) (coq-indent-calculate t))))
         (when ind (indent-line-to (max 0 ind)))))
     (if (< (current-column) (current-indentation))
-        (back-to-indentation)))
-  (if proof-indent-pad-eol (proof-indent-pad-eol)))
+        (back-to-indentation))))
 
 (defun coq-indent-region (start end)
   (let ((deb (min start end)) (fin (max start end)))
