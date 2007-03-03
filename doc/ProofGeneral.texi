@@ -69,10 +69,10 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.6
-@set xemacsversion 21.4.15
-@set fsfversion 21.3.1
-@set last-update June 2004
+@set version 3.7pre
+@set xemacsversion 21.4.20
+@set fsfversion 21.4
+@set last-update March 2007
 @set rcsid $Id$
 
 @ifinfo
@@ -126,7 +126,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2004 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2007 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -146,9 +146,9 @@ preserved on all copies.
 
 This manual documents Proof General, Version @value{version}, for use
 with XEmacs @value{xemacsversion} and GNU Emacs @value{fsfversion} or
-later versions.  Proof General is distributed under the terms of the GNU
-General Public License (GPL); please check the accompanying file
-@file{COPYING} for more details.
+later versions (subject to Emacs API changes).  Proof General is
+distributed under the terms of the GNU General Public License (GPL);
+please check the accompanying file @file{COPYING} for more details.
 
 @sp 1
 
@@ -218,24 +218,23 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news for 3.5 and 3.6::
+* Latest news for version 3.7::
 * Future::
 * Credits::                     
 @end menu
 
-@node Latest news for 3.5 and 3.6
-@unnumberedsec Latest news for 3.6
+@node Latest news for version 3.7
+@unnumberedsec Latest news for version 3.7
 @cindex news
 
-Proof General versions 3.6 (and 3.5 shortly before it) collect together
-a cummulative set of improvements to Proof General 3.4.  There are
-compatibility fixes for newer Emacs versions, and particularly for GNU
-Emacs: credit is due to Stefan Monnier for an intense period of
-debugging and patching.  The options menu has been simplified and
-extended, and the display management is improved and repaired for Emacs
-API changes.  There are some other usability improvements, prompted in
-part by feedback after Proof General's appearance at the TYPES 2002
-Summer School.
+Proof General version 3.7 collects together a cummulative set of
+improvements to Proof General 3.5.  There are compatibility fixes for
+newer Emacs versions, and particularly for GNU Emacs: credit is due to
+Stefan Monnier for an intense period of debugging and patching.  The
+options menu has been simplified and extended, and the display
+management is improved and repaired for Emacs API changes.  There are
+some other usability improvements, prompted in part by feedback after
+Proof General's appearance at the TYPES 2002 Summer School.
 
 Support has been added for the useful Emacs packages Speedbar
 @c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
@@ -248,7 +247,7 @@ bundled with Proof General to save the need for additional downloads.
 @c friendly and the display in multiple-window mode is trimmed to
 @c allow more text space for display.  
 
-Proof General 3.6 runs reliably as compiled Elisp code, and is available
+Proof General 3.7 runs reliably as compiled Elisp code, and is available
 in RPM package format which includes desktop integration on
 freedesktop.org compliant desktops (including, for example, many recent
 Linux distributions).
@@ -267,31 +266,27 @@ details of changes since version 3.4, and the appendix
 @cindex Proof General Kit
 @cindex Future
 
-The aim of the Proof General project is to provide a powerful and
-configurable interfaces which help user-interaction with interactive
-proof assistants.  
-The strategy Proof General uses is to targets power users rather than
-novices; other interfaces have often neglected this class of users.  But
-we do include general user interface niceties, such as toolbar and
-menus, which make use easier for all.
+The aim of the Proof General project is to provide powerful environments
+and tools for interactive proof.
 
-Proof General has been Emacs based so far, but plans are afoot to
-liberate it from the points and parentheses of Emacs Lisp.  The
-successor project Proof General Kit proposes that proof assistants use a
-@i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
-PGIP will enable middleware for interactive proof tools and interface
-components.  Rather than configuring Proof General for your proof
-assistant, you will need to configure your proof assistant to understand
-PGIP.  There is a similarity however; the design of PGIP was based
-heavily on the Emacs Proof General framework.
+Proof General has been Emacs based so far and uses heavy per-prover
+customisation.  The new @b{Proof General Kit} project proposes that
+proof assistants use a @i{standard} XML-based protocol for interactive
+proof, dubbed @b{PGIP}.  PGIP will enable middleware for interactive
+proof tools and interface components.  Rather than configuring Proof
+General for your proof assistant, you will need to configure your proof
+assistant to understand PGIP.  There is a similarity however; the design
+of PGIP was based heavily on the Emacs Proof General framework.
 
-In 2004 a project to develop PGIP inside the Eclipse IDE will begin.
-There is also a prototype version of a PGIP-enabled Isabelle under
-development, and a middleware component for co-ordinating proof written
-in Haskell.  Further collaborations are sought for more developments,
-especially the PGIP enabling of other provers.  For more details, see
-@uref{http://proofgeneral.inf.ed.ac.uk/kit, the Proof General Kit webpage}.
-Help us to help you organize your proofs!
+At the time of writing, the Proof General Kit software is in a prototype
+stage.  We have a prototype Proof General plugin for the Eclipse IDE and
+a prototype version of a PGIP-enabled Isabelle.  There is also a
+middleware component for co-ordinating proof written in Haskell, the
+@i{Proof General Broker}.  Further collaborations are sought for more
+developments, especially the PGIP enabling of other provers.  For more
+details, see 
+@uref{http://proofgeneral.inf.ed.ac.uk/kit, the Proof General Kit webpage}. 
+ Help us to help you organize your proofs!
 
 
 
@@ -460,8 +455,7 @@ Proof General mode will be invoked automatically:
 @item       @b{Prover}    @tab @b{Extensions} @tab @b{Mode}
 @item       LEGO          @tab @file{.l}      @tab @code{lego-mode}
 @item       Coq           @tab @file{.v}      @tab @code{coq-mode}
-@item       Isabelle/Isar @tab @file{.thy}    @tab @code{isar-mode}
-@item       Isabelle      @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
+@item       Isabelle      @tab @file{.thy}    @tab @code{isar-mode}
 @item       Phox          @tab @file{.phx}    @tab @code{phox-mode}
 @item       HOL98         @tab @file{.sml}    @tab @code{hol98-mode}
 @item       ACL2          @tab @file{.acl2}   @tab @code{acl2-mode}
@@ -488,7 +482,7 @@ processed.  You can start the proof assistant manually with the
 menu command "Start proof assistant".
 
 To follow an example use of Proof General on a Isabelle proof, 
-@pxref{Walkthrough example in Isabelle/Isar}.  If you know the syntax for proof
+@pxref{Walkthrough example in Isabelle}.  If you know the syntax for proof
 scripts in another theorem prover, you can easily adapt the details 
 given there.
 
@@ -608,10 +602,7 @@ proof assistants, including these:
 @b{Coq Proof General} for Coq Version 6.3, 7.x, 8.x@*
 @xref{Coq Proof General}, for more details.
 @item 
-@b{Isabelle Proof General} for Isabelle2004@*
-@xref{Isabelle Proof General}, for more details.
-@item 
-@b{Isabelle/Isar Proof General} for Isabelle2004@*
+@b{Isabelle Proof General} for Isabelle2005 and Isabelle2007@*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
 @c @item
@@ -723,7 +714,7 @@ facilities of Proof General.  We begin with a quick walkthrough example,
 then describe the concepts and functions in more detail.
 
 @menu
-* Walkthrough example in Isabelle/Isar::  
+* Walkthrough example in Isabelle::  
 * Proof scripts::               
 * Script buffers::              
 * Summary of Proof General buffers::               
@@ -734,10 +725,10 @@ then describe the concepts and functions in more detail.
 * Interrupting during trace output::
 @end menu
 
-@node Walkthrough example in Isabelle/Isar
-@section Walkthrough example in Isabelle/Isar
+@node Walkthrough example in Isabelle
+@section Walkthrough example in Isabelle
 
-Here's a short example in Isabelle/Isar to see how script management
+Here's a short example in Isabelle to see how script management
 is used.  The file you are asked to type below is included in the
 distribution as @file{isar/Example.thy}.  If you're not using
 Isabelle, substitute some lines from a simple proof for your proof
@@ -3513,348 +3504,41 @@ want to save abbrevs; answer yes.
 @chapter Isabelle Proof General
 @cindex Isabelle Proof General
 
-Isabelle Proof General supports all major generic features of Proof
-General, including integration with Isabelle's theory loader for proper
-automatic multiple file handling.  Only support for tags and
-proof-by-pointing is missing.
+Isabelle Proof General supports major generic features of Proof General,
+including integration with Isabelle's theory loader for proper automatic
+multiple file handling.  Support for tags and proof-by-pointing is
+missing.
 
-It is important to note that there are actually two different versions
-of Isabelle Proof General: for ``classic'' Isabelle and for
-Isabelle/Isar.  An old-style Isabelle theory typically consists of
-@file{.thy} and correspondent @file{.ML} files, while Isabelle/Isar
-theories usually have a new-style @file{.thy} only, which has a slightly
-different syntax and may contain both definitions and proofs.
+In this version, support for the old-style ``classic'' Isabelle theory
+files has been removed; in Isabelle2007 only Isar style theory files are
+supported.
 
-While Isabelle is able to manage both classic and Isar theories at the
-same time (the theory loader determines the source format
-automatically), Proof General does @b{not} admit to work on both kinds
-of Isabelle source files at the same time!  Proof General treats
-@code{isa} and @code{isar} as different instances; there is no way to
-switch modes once Proof General has been started.
-
-The classic version of Isabelle Proof General includes a mode for
-editing theory files taken from David Aspinall's Isamode interface, see
-@uref{http://proofgeneral.inf.ed.ac.uk/~isamode}.  Detailed documentation for
-the theory file mode is included with @code{Isamode}, there are some
-notes on the special functions available and customization settings
-below.
-
-Note that in ``classic'' Isabelle, @file{.thy} files contain definitions
-and declarations for a theory, while @file{.ML} contain proof scripts.
-So most of Proof General's functions only make sense in @file{.ML}
-files, and there is no toolbar and only a short menu for @file{.thy} files.
-
-In Isabelle/Isar, on the other hand, @file{.thy} files contain proofs as
-well as definitions for theories, so scripting takes place there and you
-see the usual toolbar and scripting functions of Proof General.
-
-Most Isabelle users now use Isabelle/Isar because it is more convenient,
-even if working with tactic-based scripts.  For this reason, the default
-Emacs mode setup of Proof General prefers the @code{isar} instance over
-the @code{isa} instance.  To load the ``classic'' Isabelle mode, you can
-either make sure to visit a @file{.ML} before a @file{.thy} file, or set
-the environment variable @code{PROOFGENERAL_ASSISTANTS=isa} before
-starting Emacs in order to prevent loading of the Isabelle/Isar mode.
-Another way of forcing classic Isabelle is to put a special modeline
-like this:
-@lisp
-  (* -*- isa -*- *)
-@end lisp
-near the top of your Isabelle @file{.thy} files (or at least, the
-first file you visit).  This Emacs feature overrides the default
-choice of mode based on the file extension.
-
-Isabelle provides yet another way to invoke Proof General via the
-@code{Isabelle} script.  The standard installation of Isabelle also
-makes the @code{isar} version of Proof General its default user
-interface: running plain @code{Isabelle} starts an Emacs session with
-Isabelle/Isar Proof General; giving an option @code{-I false} refers to
-the classic version instead.  The defaults may be changed by editing the
+Isabelle provides its own way to invoke Proof General via the
+@code{Isabelle} script.  Running @code{Isabelle} starts an Emacs session
+with Isabelle Proof General.  The defaults may be changed by editing the
 Isabelle settings, see the Isabelle documentation for details.
 
+Proof General for Isabelle manages Isar @file{.thy} files.  The syntax
+of Isabelle input is technically simple, enabling Proof General to
+provide reliable control over incremental execution of the text.  Thus
+it is very hard to let Proof General lose synchronization with the
+Isabelle process.
+
 @menu
-* Classic Isabelle::
-* Isabelle/Isar::
+* Isabelle commands::
 * Logics and Settings::
+* Isabelle customizations::
 @end menu
 
-@node Classic Isabelle
-@section Classic Isabelle
-@cindex Classic Isabelle
+@node Isabelle commands
+@section Isabelle commands
+@cindex Isabelle commands
 
-Proof General for classic Isabelle primarily manages @file{.ML} files
-containing proof scripts.  There is a separate mode for editing
-old-style @file{.thy} files, which supports batch mode only.
-
-@menu
-* ML files::
-* Theory files::                
-* General commands for Isabelle::
-* Specific commands for Isabelle::  
-* Isabelle customizations::     
-@end menu
-
-@node ML files
-@subsection ML files
-@cindex ML files (in Isabelle)
-@cindex Isabelle proof scripts
-
-In Isabelle, ML files are used to hold proof scripts, as well as
-definitions of tactics, proof procedures, etc.  So ML files are the
-normal domain of Proof General.  But there are some things to be wary
-of.
-
-Proof General does not understand full ML syntax, so ideally you should
-only use Proof General's scripting commands on @file{.ML} files which
-contain proof commands (no ML functions, structures, etc).
-
-If you do use files with Proof General which declare functions,
-structures, etc, you should be okay provided your code doesn't include
-non top-level semi-colons (which will confuse Proof General's simplistic
-parser), and provided all value declarations (and other non proof-steps)
-occur outside proofs.  This is because within proofs, Proof General
-considers every ML command to be a proof step which is undoable.
-
-For example, do this:
-@lisp
-   structure S = struct
-     val x = 3
-     val y = 4
-   end;
-@end lisp
-instead of this:
-@lisp
-   structure S = struct
-     val x = 3;
-     val y = 4;
-   end
-@end lisp
-In the second case, just the first binding in the structure body will be
-sent to Isabelle and Proof General will wait indefinitely.
-
-And do this:
-@lisp
-    val intros1 = REPEAT (resolve_tac [impI,allI] 1);
-    Goal "Q(x) --> (ALL x. P(x) --> P(x))";
-    br impI 1;
-    by intros1;
-    ba 1;
-    qed "mythm";
-@end lisp
-instead of this:
-@lisp
-    Goal "Q(x) --> (ALL x. P(x) --> P(x))";
-    br impI 1;
-    val intros1 = REPEAT (resolve_tac [impI,allI] 1);
-    by intros1;
-    ba 1;
-    qed "mythm";
-@end lisp
-In the last case, when you undo, Proof General wrongly considers the
-@code{val} declaration to be a proof step, and it will issue an
-@code{undo} to Isabelle to undo it.  This leads to a loss of
-synchronization.  To fix things when this happens, simply retract to
-some point before the @code{Goal} command and rearrange your script.
-
-Having ML as a top-level, Isabelle even lets you redefine the entire
-proof command language, which will certainly confuse Proof General.
-Stick to using the standard functions, tactics, and tacticals and there
-should be no problems.  (In fact, there should be no problems provided
-you don't use your own "goal" or "qed" forms, which Proof General
-recognizes.  As the example above shows, Proof General makes no
-attempt to recognize arbitrary tactic applications).
-
-
-@node Theory files
-@subsection Theory files
-@cindex Theory files (in Isabelle)
-@cindex ML files (in Isabelle)
-
-As well as locking ML files, Isabelle Proof General locks theory files
-when they are loaded.  Theory files are always completely locked or
-completely unlocked, because they are processed atomically.
-
-Proof General tries to load the theory file for a @file{.ML} file
-automatically before you start scripting.  This relies on support
-especially for Proof General built into Isabelle's theory loader.
-
-However, because scripting cannot begin until the theory is loaded, and
-it should not begin if an error occurs during loading the theory, Proof
-General @strong{blocks} waiting for the theory loader to finish.  If you
-have a theory file which takes a long time to load, you might want to
-load it directly, from the @file{.thy} buffer.  Extra commands are
-provided in theory mode for this:
-
-@c FIXME: should say something about this:
-@c This can cause confusion in the theory loader later,
-@c especially with @code{update()}.  To be safe, try to use just the Proof
-@c General interface, and report any repeatable problems to
-@c @code{da+pg-feedback@inf.ed.ac.uk}.
-
-@c Compared to Isamode's theory editing mode, some of the functions and key
-@c bindings for interacting with Isabelle have been removed, and two new
-@c functions are available.  
-
-The key @kbd{C-c C-b} (@code{isa-process-thy-file}) will cause Isabelle
-to read the theory file being edited.  This causes the file and all its
-children (both theory and ML files) to be read.  Any top-level ML file
-associated with this theory file is @emph{not} read, in contrast
-with the @code{use_thy} command of Isabelle.
-
-The key @kbd{C-c C-u} (@code{isa-retract-thy-file}) will retract
-(unlock) the theory file being edited.  This unlocks the file and all
-its children (theory and ML files); no changes occur in Isabelle itself.
-
-@c TEXI DOCSTRING MAGIC: isa-process-thy-file
-@deffn Command isa-process-thy-file file
-Process the theory file @var{file}.  If interactive, use @code{buffer-file-name}.
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: isa-retract-thy-file
-@deffn Command isa-retract-thy-file file
-Retract the theory file @var{file}. If interactive, use @code{buffer-file-name}.@*
-To prevent inconsistencies, scripting is deactivated before doing this. 
-So if scripting is active in an ML file which is not completely processed, 
-you will be asked to retract the file or process the remainder of it.
-@end deffn
-
-
-@node General commands for Isabelle
-@subsection General commands for Isabelle
-
-This section has some notes on the instantiation of the generic part of
-Proof General for Isabelle.  (The generic part of Proof General applies
-to all proof assistants supported, and is described in detail in the
-rest of this manual).
-
-@strong{Find theorems}.  This toolbar/menu command invokes a special
-version of @code{thms_containing}.  To give several constants, separate
-their names with commas.
-
-@node Specific commands for Isabelle
-@subsection Specific commands for Isabelle
-
-This section mentions some commands which are added specifically
-to the Isabelle Proof General instance.
-
-@cindex Switching to theory files
-@kindex C-c C-o
-
-In Isabelle proof script mode, @kbd{C-c C-o} (@code{thy-find-other-file})
-finds and switches to the associated theory file, that is, the file with
-the same base name but extension @file{.thy} swapped for @file{.ML}.
-
-The same function (and key-binding) switches back to an ML file from the
-theory file.
-
-
-@c TEXI DOCSTRING MAGIC: thy-find-other-file
-@deffn Command thy-find-other-file &optional samewindow
-Find associated .ML or .thy file.@*
-Finds and switch to the associated ML file (when editing a theory file)
-or theory file (when editing an ML file).  
-If @var{samewindow} is non-nil (interactively, with an optional argument)
-the other file replaces the one in the current window.
-@end deffn
-
-
-
-
-@node Isabelle customizations
-@subsection Isabelle customizations
-
-Here are some of the user options specific to Isabelle.  You can set
-these as usual with the customization mechanism.
-
-@c TEXI DOCSTRING MAGIC: isabelle-web-page
-@defvar isabelle-web-page 
-URL of web page for Isabelle.
-@end defvar
-
-
-@c @unnumberedsubsec Theory file editing customization
-
-@c TEXI DOCSTRING MAGIC: thy-use-sml-mode
-@defopt thy-use-sml-mode 
-If non-nil, invoke @code{sml-mode} inside "ML" section of theory files.@*
-This option is left-over from Isamode.  Really, it would be more
-useful if the script editing mode of Proof General itself could be based 
-on @code{sml-mode}, but at the moment there is no way to do this.
-
-The default value is @code{nil}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: thy-indent-level
-@defopt thy-indent-level 
-Indentation level for Isabelle theory files.  An integer.
-
-The default value is @code{2}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: thy-sections
-@defvar thy-sections 
-Names of theory file sections and their templates.@*
-Each item in the list is a pair of a section name and a template.
-A template is either a string to insert or a function. Useful functions are:
-@lisp
-  @code{thy-insert-header}, @code{thy-insert-class}, @code{thy-insert-default-sort},
-  @code{thy-insert-const}, @code{thy-insert-rule}.
-@end lisp
-The nil template does nothing.
-You can add extra sections to theory files by extending this variable.
-@end defvar
-
-@c TEXI DOCSTRING MAGIC: thy-template
-@defvar thy-template 
-Template for theory files.@*
-Contains a default selection of sections in a traditional order.
-You can use the following format characters:
-
-@samp{%t} --- replaced by theory name.
-
-@samp{%p} --- replaced by names of parents, separated by @samp{+} characters.
-@end defvar
-
-@c ideal for above:
-@c @defopt thy-template
-@c Template for theory files.
-@c Contains a default selection of sections in a traditional order.
-@c You can use the following format characters:
-@c   @code{%t}  -- replaced by theory name
-@c   @code{%p}  -- replaced by names of parents, separated by @code{+}'s
-@c @end defopt
-
-
-@node Isabelle/Isar
-@section Isabelle/Isar
-@cindex Isabelle/Isar
-
-Proof General for Isabelle/Isar manages Isar @file{.thy} files, which
-may contain both definitions and proofs.  Proofs may be human readable
-proof texts as well as traditional tactic scripts adjusted to follow the
-Isar syntax.
-
-The syntax of Isabelle/Isar input is technically simple, enabling Proof
-General to provide reliable control over incremental execution of the
-text.  Thus it is very hard to let Proof General lose synchronization
-with the Isabelle/Isar process.  The caveats of @file{.ML} files
-discussed for the classic Isabelle version (@pxref{Classic Isabelle}) do
-@b{not} apply here.
-
-@menu
-* General commands for Isabelle/Isar::
-* Specific commands for Isabelle/Isar::  
-@end menu
-
-@node General commands for Isabelle/Isar
-@subsection General commands for Isabelle/Isar
 
 @strong{Find theorems}.  This toolbar/menu command invokes
 @code{thms_containing}.  Several term arguments may be given, separated
 by white space as usual in Isar.
 
-@node Specific commands for Isabelle/Isar
-@subsection Specific commands for Isabelle/Isar
 @kindex C-c C-a r
 @kindex C-c C-a C-q
 @kindex C-c C-a C-d
@@ -3872,7 +3556,7 @@ by white space as usual in Isar.
 @kindex C-c C-a h o
 @kindex C-c C-a h t
 
-The Isabelle/Isar instance of Proof General supplies several specific
+The Isabelle instance of Proof General supplies several specific
 help key bindings; these functions are offered within the prover help
 menu as well.
 
@@ -3907,7 +3591,7 @@ Shows inner syntax of the current theory context (for types and terms).
 @item C-c C-a h m
 Shows proof methods available in current theory context.
 @item C-c C-a h o
-Shows all available commands of Isabelle/Isar's outer syntax.
+Shows all available commands of Isabelle's outer syntax.
 @item C-c C-a h t
 Shows theorems stored in the current theory node.
 @end table
@@ -3943,13 +3627,13 @@ Inserts "\<^raw:>"  (raw LaTeX text).
 @end table
 
 Command termination via `@code{;}' is an optional feature of Isar
-syntax.  Neither Isabelle/Isar nor Proof General require semicolons to
+syntax.  Neither Isabelle nor Proof General require semicolons to
 do their job.  The following command allows to get rid of command
 terminators in existing texts.
 
 @c TEXI DOCSTRING MAGIC: isar-strip-terminators
 @deffn Command isar-strip-terminators 
-Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
+Remove explicit Isabelle command terminators @samp{;} from the buffer.
 @end deffn
 
 
@@ -3987,6 +3671,23 @@ select @code{Isabelle -> Settings -> Save Settings}.  They are stored
 along with the other Emacs customization settings.
 
 
+@node Isabelle customizations
+@section Isabelle customizations
+@cindex Isabelle customizations
+
+
+Here are some of the user options specific to Isabelle.  You can set
+these as usual with the customization mechanism.
+
+@c TEXI DOCSTRING MAGIC: isabelle-web-page
+@defvar isabelle-web-page 
+URL of web page for Isabelle.
+@end defvar
+
+
+
+
+
 @c FIXME todo: theorem dependencies, MMM
 
 
@@ -4018,7 +3719,8 @@ kind of proofs.  They will replay simply as a single step proof and you
 will need to convert from the interactive to batch form as usual if you
 wish to obtain batch proofs.  Also note that Proof General does not
 contain an SML parser, so there can be problems if you write complex ML
-in proof scripts. @xref{ML files}, for the same issue with Isabelle.
+in proof scripts. 
+@c Old section was helpful on this: @xref{ML files}, for the same issue with Isabelle.
 
 HOL Proof General may work with variants of HOL other than HOL98, but is
 untested.  Probably a few of the settings would need to be changed in a
