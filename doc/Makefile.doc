@@ -18,6 +18,7 @@
 
 MAKE = make -f Makefile.doc 
 MAKEINFO = makeinfo
+# `texinfo-tex' package contains texi2dvi and texi2pdf
 TEXI2DVI = texi2dvi
 
 # `dviutils' package contains these useful utilities.
@@ -37,13 +38,12 @@ TOC = :_1
 DVI2PS = dvips -Pcmz
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html -expandinfo -number -split_chapter
-# FIXME: choose emacs automatically if xemacs not available
-EMACS = xemacs
+EMACS = emacs
 EMACSFLAGS = -q -no-site-file -batch
 
 TMPFILE=pgt
 
-.SUFFIXES:  .texi .info .dvi .html .pdf .ps .eps .tiff .gz
+.SUFFIXES:  .texi .info .html .pdf .ps .eps .tiff .gz
 
 default: doc
 
@@ -109,7 +109,7 @@ ProofGeneralPortrait.pdf:
 ## 
 ## doc : build info and dvi files from $(DOCNAME).texi
 ##
-doc:	dvi info
+doc:	pdf info
 
 
 ## 
