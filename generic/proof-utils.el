@@ -467,7 +467,7 @@ Leave point at END."
     (if (and start end) 
 	(narrow-to-region start end))
     (goto-char (or start (point-min)))
-    (proof-replace-regexp pg-special-char-regexp "")
+    (replace-regexp pg-special-char-regexp "")
     (goto-char (point-max))))
 
 (defun pg-remove-specials-in-string (string)
