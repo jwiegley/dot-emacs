@@ -214,8 +214,12 @@ See -k option for Isabelle interface script."
    ;; Allow font-locking for output based on hidden annotations, see
    ;; isar-output-font-lock-keywords-1
    pg-use-specials-for-fontify		t
-   pg-special-char-regexp               "[\200-\377]\\|\^A[A-Z]"
-
+   pg-special-char-regexp               ;; should be: "[\200-\377]\\|\^A[A-Z]"
+   ;; da: the character range here fails to match (actually, fails
+   ;; to match-replace) in xemacs 21.5 betas, so I'm listing the 
+   ;; characters instead, which works.
+   ;; This should probably be tuned to the ones actually used by Isabelle
+   "€\\|\\|‚\\|ƒ\\|„\\|…\\|†\\|‡\\|ˆ\\|‰\\|Š\\|‹\\|Œ\\|\\|\\|\\|\\|‘\\|’\\|“\\|”\\|•\\|–\\|—\\|˜\\|™\\|š\\|›\\|œ\\|\\|\\|Ÿ\\| \\|¡\\|¢\\|£\\|¤\\|¥\\|¦\\|§\\|¨\\|©\\|ª\\|«\\|¬\\|­\\|®\\|¯\\|°\\|±\\|²\\|³\\|´\\|µ\\|¶\\|·\\|¸\\|¹\\|º\\|»\\|¼\\|½\\|¾\\|¿\\|À\\|Á\\|Â\\|Ã\\|Ä\\|Å\\|Æ\\|Ç\\|È\\|É\\|Ê\\|Ë\\|Ì\\|Í\\|Î\\|Ï\\|Ğ\\|Ñ\\|Ò\\|Ó\\|Ô\\|Õ\\|Ö\\|×\\|Ø\\|Ù\\|Ú\\|Û\\|Ü\\|İ\\|Ş\\|ß\\|à\\|á\\|â\\|ã\\|ä\\|å\\|æ\\|ç\\|è\\|é\\|ê\\|ë\\|ì\\|í\\|î\\|ï\\|ğ\\|ñ\\|ò\\|ó\\|ô\\|õ\\|ö\\|÷\\|ø\\|ù\\|ú\\|û\\|ü\\|ı\\|ş\\|ÿ\\|[A-Z]"
    pg-after-fontify-output-hook	        'pg-remove-specials
    pg-subterm-help-cmd			"term %s" 
 
