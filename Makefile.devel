@@ -89,8 +89,8 @@ DEVELOPERS=\
 # The prereltag.txt is kept as a record in the distrib area
 # of the current pre-release version (currently not used explicitly 
 # anywhere for web pages/whatever).
-PRERELEASE_PREFIX=3\.6pre
-PRERELEASE_TAG=3.6pre$(shell date "+%y%m%d")
+PRERELEASE_PREFIX=3\.7pre
+PRERELEASE_TAG=3.7pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
 # Path to web pages in repository, used for automatically 
