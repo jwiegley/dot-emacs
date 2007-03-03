@@ -190,7 +190,7 @@ Experimental support is provided for several other provers.
 * Shell Proof General::
 @c * PhoX Proof General::
 * Obtaining and Installing::  
-* Known Bugs::  
+* Bugs and Enhancements::
 * References::                  
 * History of Proof General::
 * Function Index::              
@@ -3958,20 +3958,28 @@ the @file{coq} directory in the Proof General home directory.
 
 @c =================================================================
 @c
-@c APPENDIX: Known Bugs
+@c APPENDIX: Reporting Bugs
 @c
 @c
-@node Known Bugs
-@appendix Known Bugs
+@node Bugs and Enhancements
+@appendix Bugs and Enhancements
 
-This appendix has been removed.
-
-Please consult the file
-@uref{http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-latest/BUGS,@file{BUGS}} in the
-distribution for an up-to-date description of bugs and other issues.
+For an up-to-date description of bugs and other issues, please consult
+the bugs file included in the distribution:
+@uref{http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-latest/BUGS,@file{BUGS}}.
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
-let us know by sending a note to @code{da+pg-support@@inf.ed.ac.uk}.
+use the search facility on our Trac tracking system at
+@uref{http://proofgeneral.inf.ed.ac.uk/trac}.  If you cannot find the
+problem mentioned, please add a ticket, giving a careful description of
+how to repeat your problem, and saying @b{exactly} which versions of all
+Emacs and theorem prover you are using.
+
+@sp 1
+
+If you have some suggested enhancements to request or contribute, please
+also use the tracking system at
+@uref{http://proofgeneral.inf.ed.ac.uk/trac} for this.
 
 
 @node References
