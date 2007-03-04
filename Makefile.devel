@@ -152,9 +152,6 @@ CVSNAME = ProofGeneral
 # make clean in a non cvs directory.
 CVSROOT=$(shell cat CVS/Root)
 
-# Default emacs for compiling/testing
-EMACS=$(shell if [ -z "`which xemacs`" ]; then echo emacs; else echo xemacs; fi)
-
 # Emacs for batch compiling
 BATCHEMACS=$(EMACS) -batch -q -no-site-file
 
