@@ -15,7 +15,7 @@
 
 # Set this to "emacs" or "xemacs" according to your version of Emacs.
 # NB: this is also used to set default install path names below.
-EMACS=$(shell if [ -z "`which xemacs`" ]; then echo emacs; else echo xemacs; fi)
+EMACS=$(shell if [ -z "`which emacs`" ]; then echo xemacs; else echo emacs; fi)
 
 # We default to /usr rather than /usr/local because installs of
 # desktop and doc files under /usr/local are unlikely to work with
@@ -221,10 +221,10 @@ install-doc: doc.info doc.pdf
 	for f in ${DOC_EXAMPLES}; do mkdir -p ${DOCDIR}/`dirname $$f`; cp -pf $$f ${DOCDIR}/$$f; done
 
 doc: FORCE
-	(cd doc; make $*)
+	(cd doc; make EMACS=$(EMACS) $*)
 
 doc.%: FORCE
-	(cd doc; make $*)
+	(cd doc; make EMACS=$(EMACS) $*)
 
 ##
 ## scripts: try to patch bash and perl scripts with correct paths
