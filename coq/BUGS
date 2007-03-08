@@ -20,3 +20,5 @@ rely too much on the etags mechanism.
 ** Surely others that aren't mentioned here...
   
 Please report them to da+pg-bugs@inf.ed.ac.uk
+
+** C-c C-a C-i on long intro lines breaks line the wrong way.
