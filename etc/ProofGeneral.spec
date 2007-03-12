@@ -1,12 +1,12 @@
 Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
-Version:	3.7pre070304
+Version:	3.7pre070312
 Release:	1
 Group:		Text Editors/Integrated Development Environments (IDE)
 License:	GPL
 Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
-Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.7pre070304.tar.gz
+Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.7pre070312.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 BuildRequires:  emacs, xemacs
 PreReq:		/sbin/install-info
