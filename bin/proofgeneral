@@ -3,7 +3,7 @@
 # Simple shell script for launching Proof General.
 #
 # Set EMACS to override choice of Emacs version
-# (otherwise script chooses xemacs in preference to emacs)
+# (otherwise script chooses emacs in preference to xemacs)
 #
 # PGHOME must be set to the directory where the lisp files of
 # Proof General are installed.  Script checks standard locations
@@ -24,10 +24,10 @@ PGHOMEDEFAULT=$HOME/ProofGeneral
 
 # Try to find a default Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
-    if which xemacs > /dev/null; then 
-	EMACS=`which xemacs`
-    else 
+    if which emacs > /dev/null; then 
 	EMACS=`which emacs`
+    else 
+	EMACS=`which xemacs`
     fi
 fi
 
