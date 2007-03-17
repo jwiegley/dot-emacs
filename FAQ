@@ -55,13 +55,20 @@ A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
    but I haven't tried this.
 
 
-   UPDATE for PG Version 3.6:
+   UPDATE for PG Version 3.6pre and 3.7:
 
-   Some provers have a Unicode-safe interaction mode.  You can set
+   Some provers now have a Unicode-safe interaction mode.  You can set
    `proof-shell-unicode' to try to enable communication with the 
    prover which does not use non-ASCII 8-bit characters for markup.
    This is supported in Isabelle > Isabelle 2005.  Then the locale
    setting will not matter.
+
+   In Coq, set coq-utf-safe by 
+
+   (setq coq-utf-safe t)
+
+   in your .emacs or init.el file.  (This mechanism may be integrated
+   with `proof-shell-unicode' soon.)
   
 
 -----------------------------------------------------------------
