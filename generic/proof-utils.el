@@ -759,11 +759,19 @@ or if the window is the only window of its frame."
      (list 'proof-general-version 'proof-assistant 
 	   'x-symbol-version)
      nil nil
-     "[ When reporting a bug, please include a small test case for us to repeat it.
- Please also check that it is not already covered in the BUGS or FAQ files that came with
- the distribution, or the latest versions at 
- http://proofgeneral.inf.ed.ac.uk/ProofGeneral/BUGS  and 
- http://proofgeneral.inf.ed.ac.uk/ProofGeneral/FAQ ]")))
+     "*** Proof General now uses Trac for project management and bug reporting, please go to:
+***
+***    http://proofgeneral.inf.ed.ac.uk/trac/search
+***
+*** To see if your bug has been reported already, and a new ticket if not (you need to
+*** register first).  Please only use this email mechanism instead IF YOU REALLY MUST.  
+*** The address is not monitored very often.  
+***
+*** When reporting a bug, please include a small test case for us to repeat it.
+*** Please also check that it is not already covered in the BUGS or FAQ files that came with
+*** the distribution, or the latest versions at 
+***    http://proofgeneral.inf.ed.ac.uk/BUGS  and 
+***    http://proofgeneral.inf.ed.ac.uk/FAQ ")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
