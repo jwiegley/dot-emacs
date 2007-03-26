@@ -83,13 +83,12 @@ controling coq prompt. Only for coq >= 8.1 (and 8.1 beta)")
 
 ;; NB: da: PG 3.5: added \n here to account for blank line in Coq output. 
 ;; Better result for shrinking windows, grabbing shell output.
-;; Pierre added the infos in the prompt, this is new in Coq v8-1 (to be released last
-;; quarter of 2005).
+;; Pierre added the infos in the prompt, this is new in Coq v8-1 
 
 (defvar coq-shell-prompt-pattern 
   (if coq-version-is-V8-0
-      (concat "\\(?:\n" proof-id " < \\)")
-    (concat "\\(?:\n" proof-id " < [^\n]+\371\\|\n<prompt>[^\n]+</prompt>\\)")
+      (concat "\\(?:\n" proof-id " < \371\\)")
+    (concat "\\(?:\n" proof-id " < [^\n\371]+\\|\n<prompt>[^\n]+</prompt>\\)")
     )
     "*The prompt pattern for the inferior shell running coq.")
 ;  (concat "^\n?" proof-id " < \\(?:[0-9]+ |\\(?:" proof-id "|?\\)*| " "[0-9]+ < \\)?\\(?:\x6\\|\371\\)")
