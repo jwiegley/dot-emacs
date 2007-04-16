@@ -2459,14 +2459,16 @@ command."
   (proof-script-set-buffer-hooks)
 
   (make-local-hook 'after-set-visited-file-name-hooks)
-  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name))
+  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name)
 
   ;; FIXME 3.5: noticed 22.04.04 that 'proof-activate-scripting-hook is
   ;; no longer inherited for some reason!  
+  ;; pc: it seems to be a bad parenthese, fixed on 16/04/07
   (make-local-hook 'proof-activate-scripting-hook)
   (make-local-hook 'proof-deactivate-scripting-hook)
-  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
+  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)))
 
+;;pc: should this be inside the eval-and-compile above ??
 ;; NB: proof-mode-map declared by define-derived-mode above
 (proof-menu-define-keys proof-mode-map)   ;; NB: top-level form
 
