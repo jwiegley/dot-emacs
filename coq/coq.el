@@ -299,18 +299,14 @@ toplevel \"Coq <\".  Returns nil if yes.  This assumes that no
 ;; This function returns
 (defun coq-last-prompt-info (s)
   "Extract informations from the coq prompt S.  See `coq-last-prompt-info-safe'."
-  (let* ((lastprompt (or s (error "no prompt !!?")))
-         (regex 
-          (concat "\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
-                  "|?\\)*\\)| \\([0-9]+\\) < "))
-         (s (string-match regex lastprompt))
-         (lprf (match-string 3 lastprompt))
-         )
-    (cons (string-to-int (match-string 2 lastprompt))
-          (cons (string-to-int (match-string 4 lastprompt))
-                (cons (build-list-id-from-string lprf) nil)))
-    )
-  )
+  (let ((lastprompt (or s (error "no prompt !!?")))
+        (regex 
+         (concat "\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
+                 "|?\\)*\\)| \\([0-9]+\\) < ")))
+    (when (string-match regex lastprompt)
+      (list (string-to-number (match-string 2 lastprompt))
+            (string-to-number (match-string 4 lastprompt))
+            (build-list-id-from-string (match-string 3 lastprompt))))))
 
 
 (defun coq-last-prompt-info-safe ()
