@@ -941,6 +941,7 @@ To be used in `proof-shell-process-output-system-specific'."
       ;; (proof-shell-process-output cmd goalstring)
       (pg-goals-display goalstring) ;; this erases response buffer
       (pg-response-display prestring);; this does not erase goals buffer
+      ;(proof-shell-handle-delayed-output-hook)
       )))
 
 
@@ -957,12 +958,12 @@ To be used in `proof-shell-process-output-system-specific'."
    proof-shell-interrupt-regexp coq-interrupt-regexp
    proof-shell-assumption-regexp coq-id
    pg-subterm-first-special-char ?\360
-   proof-shell-wakeup-char nil ;?\x6 ; ?\371 ; done: prompt
+   proof-shell-wakeup-char nil          ;?\x6 ; ?\371 ; done: prompt
    ;; The next three represent path annotation information
-   pg-subterm-start-char ?\372 ; not done
-   pg-subterm-sep-char ?\373 ; not done
-   pg-subterm-end-char ?\374 ; not done
-   pg-topterm-char ?\375 ; done
+   pg-subterm-start-char ?\372          ; not done
+   pg-subterm-sep-char ?\373            ; not done
+   pg-subterm-end-char ?\374            ; not done
+   pg-topterm-char ?\375                ; done
    proof-shell-eager-annotation-start "\376\\|\\[Reinterning"
    proof-shell-eager-annotation-start-length 12
    proof-shell-eager-annotation-end "\377\\|done\\]" ; done
@@ -971,15 +972,15 @@ To be used in `proof-shell-process-output-system-specific'."
    proof-shell-result-end "\372 End Pbp result \373"
    proof-shell-start-goals-regexp "\\`[0-9]+ subgoals?"
    proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-   proof-shell-init-cmd  ; (concat
-			 coq-shell-init-cmd
-	                 ; Coq has no global settings?
-			 ; (proof-assistant-settings-cmd))
+   proof-shell-init-cmd                 ; (concat
+   coq-shell-init-cmd
+                                        ; Coq has no global settings?
+                                        ; (proof-assistant-settings-cmd))
    proof-shell-restart-cmd coq-shell-restart-cmd
    pg-subterm-anns-use-stack t
    proof-shell-process-output-system-specific
-    '(coq-hybrid-ouput-goals-response-p . coq-hybrid-ouput-goals-response)
-)
+   '(coq-hybrid-ouput-goals-response-p . coq-hybrid-ouput-goals-response)
+   )
   
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
@@ -992,14 +993,12 @@ To be used in `proof-shell-process-output-system-specific'."
   (setq pg-goals-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
-  (holes-mode 1)
   (proof-goals-config-done))
 
 (defun coq-response-config ()
-   (coq-init-syntax-table)
-   (setq font-lock-keywords coq-font-lock-keywords-1)
-   (holes-mode 1)
-   (proof-response-config-done))
+  (coq-init-syntax-table)
+  (setq font-lock-keywords coq-font-lock-keywords-1)
+  (proof-response-config-done))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1531,6 +1530,25 @@ buffer."
 ;; We need this two hooks to highlight only when scripting
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error-hook t)
 (add-hook 'proof-shell-insert-hook 'coq-decide-highlight-error t)
+
+
+
+
+;; Experimental
+(defun optim-resp-windows ()
+  (when proof-three-window-enable
+    (let (hgt-resp nline-resp (curwin (selected-window)))
+      (select-window (car (windows-of-buffer proof-response-buffer)))
+      (setq hgt-resp (window-height))
+      (setq nline-resp (max 5 (count-lines (point-max) (point-min))))
+      (shrink-window (- hgt-resp nline-resp))
+      (goto-char (point-min))
+      (select-window curwin))))
+
+(add-hook 'proof-shell-handle-delayed-output-hook
+          'optim-resp-windows)
+
+
 
 (provide 'coq)
 
