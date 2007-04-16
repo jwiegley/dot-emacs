@@ -920,6 +920,35 @@ This is specific to `coq-mode'."
   
 
 
+;; pc: TODO: Have a generic way to split one output into several outputs
+;; Actually this could be done by adapting process-delayed-output.
+(defun coq-hybrid-ouput-goals-response-p (cmd string)
+  "Specific test function to detect hybrid response/goal output from coq. 
+To be used in `proof-shell-process-output-system-specific'. "
+  (proof-shell-string-match-safe "[0-9]+ subgoals?" string)  
+  )
+
+(defun coq-hybrid-ouput-goals-response (cmd string)
+  "Specific function to deal with hybrid response/goal output from coq. 
+To be used in `proof-shell-process-output-system-specific'."
+  ;; match subgoal list anywhere in the ouput
+  ;; then display the message before it, and then do as a normal goal
+  ;; output.
+  (proof-shell-string-match-safe "[0-9]+ subgoals?" string) 
+  (let* ((start (match-beginning 0))
+         (prestring (substring string 0 start))
+         (goalstring (substring string start)))
+    (unless nil ;(not (null proof-action-list)) 
+      ;(setq proof-shell-last-output goalstring)
+      ;(setq proof-shell-last-output-kind 'goals)
+      ;; (proof-shell-process-output cmd goalstring)
+      (pg-goals-display goalstring) ;; this erases response buffer
+      (pg-response-display prestring);; this does not erase goals buffer
+      )))
+
+
+
+
 (defun coq-shell-mode-config ()
   (setq 
    proof-shell-prompt-pattern coq-shell-prompt-pattern
@@ -943,19 +972,23 @@ This is specific to `coq-mode'."
    proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
-   proof-shell-start-goals-regexp "[0-9]+ subgoals?"
+   proof-shell-start-goals-regexp "\\`[0-9]+ subgoals?"
    proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
    proof-shell-init-cmd  ; (concat
 			 coq-shell-init-cmd
 	                 ; Coq has no global settings?
 			 ; (proof-assistant-settings-cmd))
    proof-shell-restart-cmd coq-shell-restart-cmd
-   pg-subterm-anns-use-stack t)
+   pg-subterm-anns-use-stack t
+   proof-shell-process-output-system-specific
+    '(coq-hybrid-ouput-goals-response-p . coq-hybrid-ouput-goals-response)
+)
   
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
   (holes-mode 1)
-  (proof-shell-config-done))
+  (proof-shell-config-done)
+  )
 
 (defun coq-goals-mode-config ()
   (setq pg-goals-change-goal "Show %s . ")
