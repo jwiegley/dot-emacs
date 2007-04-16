@@ -54,7 +54,7 @@ ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
      (coq-version-is-V8 (setq coq-version-is-V8-0 nil coq-version-is-V8-1 t)
                         (message v80))
      (t;; otherwise do coqtop -v and see which version we have
-      (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+      (let* ((str (shell-command-to-string (concat "cd ~; " coq-prog-name " -v")))
              ;; this match sets match-string below
              (ver (string-match "version v?\\([.0-9]*\\)" str)))
         (message str)
@@ -127,7 +127,7 @@ so for the following reasons:
      ("autorewrite with in" "arwi" "autorewrite with @{db,db...} in @{hyp}" t)
      ("autorewrite with using" "arwu" "autorewrite with @{db,db...} using @{tac}" t)
      ("autorewrite with" "ar" "autorewrite with @{db,db...}" t "autorewrite")
-     ("cases" "c" "cases " t "cases")
+     ("case" "c" "case " t "case")
      ("cbv" "cbv" "cbv beta [#] delta iota zeta" t "cbv")
      ("change in" "chi" "change # in #" t)
      ("change with in" "chwi" "change # with # in #" t)
@@ -144,10 +144,10 @@ so for the following reasons:
      ("contradiction" "contr" "contradiction" t "contradiction")
      ("cut" "cut" "cut" t "cut")
      ("cutrewrite" "cutr" "cutrewrite -> # = #" t "cutrewrite")
-     ("decide equality" "deg" "decide equality" t "decide\\-+equality")
+     ("decide equality" "deg" "decide equality" t "decide\\s-+equality")
      ("decompose" "dec" "decompose [#] #" t "decompose")
      ("decompose record" "decr" "decompose record #" t "decompose\\s-+record")
-     ("decompose sum" "decs" "decompose sum #" t "decompose\\-+sum")
+     ("decompose sum" "decs" "decompose sum #" t "decompose\\s-+sum")
      ("dependent inversion" "depinv" "dependent inversion" t "dependent\\s-+inversion")
      ("dependent inversion with" "depinvw" "dependent inversion # with #" t)
      ("dependent inversion_clear" "depinvc" "dependent inversion_clear" t "dependent\\s-+inversion_clear")
@@ -754,7 +754,7 @@ Used by `coq-goal-command-p'"
   "Punctuation Symbols used by Coq.")
 
 ;; ----- regular expressions
-(defvar coq-error-regexp "^\\(Error[:]\\|Discarding pattern\\|Syntax error[:]\\|System Error[:]\\|User Error[:]\\|User error[:]\\|Anomaly[:.]\\|Toplevel input[,]\\)"
+(defvar coq-error-regexp "^\\(Error:\\|Discarding pattern\\|Syntax error:\\|System Error:\\|User Error:\\|User error:\\|Anomaly[:.]\\|Toplevel input[,]\\)"
   "A regexp indicating that the Coq process has identified an error.")
 
 (defvar coq-id proof-id)
@@ -798,24 +798,24 @@ Used by `coq-goal-command-p'"
   (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-save)))
 (defconst coq-save-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-save-strict)
-	  "\\)\\s-+\\(" coq-id "\\)\\s-*\."))
+	  "\\)\\s-+\\(" coq-id "\\)\\s-*\\."))
 
 (defconst coq-goal-command-regexp
   (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-goal)))
 
 (defconst coq-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-goal)
-	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:]?"))
+	  "\\)\\s-+\\(" coq-id "\\)\\s-*:?"))
           ;; Papageno : ce serait plus propre d'omettre le `:'
           ;; uniquement pour Correctness
           ;; et pour Definition f [x,y:nat] := body
 (defconst coq-decl-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
-	  "\\)\\s-+\\(" coq-ids "\\)\\s-*[:]"))
+	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
 
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
-          "\\)\\s-+\\(" coq-id "\\)\\s-*\\S-"))
+          "\\)\\s-+\\(" coq-id "\\)"))
 
 
 ;;; 'with' is used in tactics too... and ":=" can appear too!! But only

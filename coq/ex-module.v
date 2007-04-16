@@ -1,4 +1,4 @@
-
+(*  *)
 Module Type O1.
   Parameter A:Set.
   Parameter B:Set.
@@ -24,18 +24,22 @@ End R4.
 
 
 Module M.
+
   Module Type SIG.
     Parameter T:Set.
     Parameter x:T.
   End SIG.
+
   Module Type SIG'.
     Parameter T:Set.
     Parameter x:T.
   End SIG'.
+
   Lemma toto : O=O.
     Definition t:=nat.
     trivial.
   Save.
+
   Module N:SIG.
     Definition T:=nat.
     Definition x:=O.
@@ -71,16 +75,16 @@ Module Type N'.
     Declare Module K:N.SIG.
   End M'.
 (*   Declare Module N''. *)
-    Definition T:=nat.
-    Definition x:=O.
+  Definition T:=nat.
+  Definition x:=O.
 (*   End N''. *)
   
   Declare Module N':M.SIG. (* no interactive def started *)
   Declare Module N''' :M.SIG. (* no interactive def started *)
 End N'.
 
-    
-    
+
+
 Lemma titi : O=O.
   trivial.
   Module Type K:=N'.
@@ -88,9 +92,9 @@ Lemma titi : O=O.
 Save.
 
 	 (* Here is a bug of Coq: *)
-    
+
 Lemma bar:O=O.
   Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
-  End L. (* fails --> if we go back to Module Type: unsync *)
-  Module I.
+End L. (* fails --> if we go back to Module Type: unsync *)
+Module I.
 End I.

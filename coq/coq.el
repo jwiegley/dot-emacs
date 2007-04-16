@@ -15,7 +15,6 @@
 ;; 
 
 (require 'proof)
-(require 'holes-load) ; in lib directory
 (require 'local-vars-list) ; in lib directory
 (require 'coq-local-vars) ; in coq directory
 ;; coq-syntaxe is required below
@@ -140,13 +139,15 @@ controling coq prompt. Only for coq >= 8.1 (and 8.1 beta)")
 
 
 ;; ----- outline
-
+;; FIXME, deal with interacive "Definition"
 (defvar coq-outline-regexp
-  (concat "(\\*\\|" (proof-ids-to-regexp 
+;;  (concat "(\\*\\|" 
+  (concat "[ ]*" (regexp-opt 
 	   '(
-"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Import" "Hint" "Hints" "Hypothesis" "Correctness" "Module" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint" "Save" "Qed" "Defined" "End" "Coercion"))))
+             "Ltac" "Corr" "Modu" "Sect" "Chap" "Goal" "Definition" "Lemm" "Theo" "Fact" "Rema" "Mutu" "Fixp") t)))
+;)
 
-(defvar coq-outline-heading-end-regexp "\\*\)\n\\|\\.\n")
+(defvar coq-outline-heading-end-regexp "\\*\)\n\\|\\.[ \t\n]\\|:=")
 
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
@@ -648,7 +649,7 @@ happen since one of them is necessarily set to t in coq-syntax.el."
              (buffer-substring-no-properties (region-beginning) (region-end))
            (thing-at-point 'word)))))
     (read-string 
-     (if guess (concat s " (" guess "): ") (concat s " : "))
+     (if guess (concat s " (default " guess "): ") (concat s " : "))
      nil 'proof-minibuffer-history guess)))
 
 
@@ -673,25 +674,25 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchRewrite ()
   (interactive)
-  (coq-ask-do "Search Rewrite :" "Search Rewrite" nil))
+  (coq-ask-do "Search Rewrite" "Search Rewrite" nil))
 
 (defun coq-SearchAbout ()
   (interactive)
-  (coq-ask-do "Search About :" "Search About" nil))
+  (coq-ask-do "Search About" "Search About" nil))
 
 (defun coq-Print () "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do "Print:" "Print"))
+  (coq-ask-do "Print" "Print"))
 
 (defun coq-About () "Ask for an ident and print information on it."
   (interactive)
-  (coq-ask-do "About:" "About"))
+  (coq-ask-do "About" "About"))
 
 (defun coq-LocateConstant ()
   "Locate a constant.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do "Locate :" "Locate"))
+  (coq-ask-do "Locate" "Locate"))
 
 (defun coq-LocateLibrary ()
   "Locate a constant.
@@ -725,7 +726,7 @@ This is specific to `coq-mode'."
 (defun coq-Print-implicit ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do "Print Implicit: " "Print Implicit"))
+  (coq-ask-do "Print Implicit " "Print Implicit"))
 
 (defun coq-Check ()
   "Ask for a term and print its type."
