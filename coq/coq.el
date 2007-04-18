@@ -1534,19 +1534,23 @@ buffer."
 
 
 
-;; Experimental
+;; *Experimental* Adapt response buffer height. Things get a bit messed up if
+;; the response buffer is not at the right place (below goals buffer)
 (defun optim-resp-windows ()
-  (when proof-three-window-enable
-    (let (hgt-resp nline-resp (curwin (selected-window)))
+  (when (and proof-three-window-enable (> (frame-height) 10)
+             (windows-of-buffer proof-response-buffer))
+    (let ((curwin (selected-window)) 
+          (maxhgth (- (window-height) 5)) hgt-resp nline-resp)
       (select-window (car (windows-of-buffer proof-response-buffer)))
       (setq hgt-resp (window-height))
-      (setq nline-resp (max 5 (count-lines (point-max) (point-min))))
+      (setq nline-resp 
+            (min maxhgth (max 5 (count-lines (point-max) (point-min)))))
       (shrink-window (- hgt-resp nline-resp))
-      (goto-char (point-min))
+      (beginning-of-buffer)
+      (recenter)
       (select-window curwin))))
 
-(add-hook 'proof-shell-handle-delayed-output-hook
-          'optim-resp-windows)
+(add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
 
 
 
