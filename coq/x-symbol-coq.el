@@ -96,7 +96,7 @@ See `x-symbol-header-groups-alist'."
 ;;;===========================================================================
 
 (defcustom x-symbol-coq-subscript-matcher 'x-symbol-coq-subscript-matcher
-  "Function matching super-/subscripts for language `isa'.
+  "Function matching super-/subscripts for language `coq'.
 See language access `x-symbol-LANG-subscript-matcher'."
   :group 'x-symbol-coq
   :type 'function)

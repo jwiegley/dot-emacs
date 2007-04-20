@@ -144,10 +144,10 @@ controling coq prompt. Only for coq >= 8.1 (and 8.1 beta)")
 ;;  (concat "(\\*\\|" 
   (concat "[ ]*" (regexp-opt 
 	   '(
-             "Ltac" "Corr" "Modu" "Sect" "Chap" "Goal" "Definition" "Lemm" "Theo" "Fact" "Rema" "Mutu" "Fixp") t)))
+             "Ltac" "Corr" "Modu" "Sect" "Chap" "Goal" "Definition" "Lemm" "Theo" "Fact" "Rema" "Mutu" "Fixp" "Func") t)))
 ;)
 
-(defvar coq-outline-heading-end-regexp "\\*\)\n\\|\\.[ \t\n]\\|:=")
+(defvar coq-outline-heading-end-regexp "\\.[ \t\n]")
 
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
@@ -1545,12 +1545,16 @@ buffer."
       (setq hgt-resp (window-height))
       (setq nline-resp 
             (min maxhgth (max 5 (count-lines (point-max) (point-min)))))
-      (shrink-window (- hgt-resp nline-resp))
+      (shrink-window (- hgt-resp (+ 1 nline-resp)))
       (beginning-of-buffer)
       (recenter)
       (select-window curwin))))
 
+;; TODO: I would rather have a response-insert-hook thant this two hooks
+;; Adapt when displaying a normal message
 (add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
+;; Adapt when displaying an error or interrupt
+(add-hook 'proof-shell-handle-error-or-interrupt-hook 'optim-resp-windows)
 
 
 
