@@ -1450,7 +1450,7 @@ be asked to the user."
 ;; directly to the response buffer. This allows also to clean the response
 ;; buffer (better to only scroll it?)
 (defun coq-get-last-error-location (&optional parseresp clean)
- "Return location information on last error sent by coq.  Return a three
+ "Return location information on last error sent by coq.  Return a two
 elements list (pos lgth) if successful, nil otherwise.  pos is the number of
 characters preceding the underlined expression, and lgth is its length.
 Coq error message must be like this:
@@ -1505,6 +1505,38 @@ buffer."
         (set-buffer proof-script-buffer) 
         (goto-char (+ (proof-locked-end) 1))
         (coq-find-real-start)
+        ;; Here start som ugly code to adapt pos and lgth to x-symbol
+        (when (and (boundp 'x-symbol-mode) x-symbol-mode)
+          (let* 
+              ((comstart (point))
+               (comend (coq-find-command-end-forward))
+               (reg1 100) (reg2 101) errpoint
+                ;(x-symbol-encode-string (coq-command-at-point) (proof-script-buffer)))
+;               (s2 (substring s 0 pos))
+;               (s3 (x-symbol-decode))
+               )
+            ; remove x-symbols
+            (x-symbol-encode comstart comend)
+            ;; update comend
+            (setq comend (progn (goto-char comstart) (coq-find-command-end-forward)) )
+            ;; go to error start and put register at start and end of error
+            (goto-char comstart) (forward-char pos)
+            (point-to-register reg1)
+            (forward-char lgth)
+            (point-to-register reg2)
+            ;; put symbols back, registers are moved accordingly
+            (x-symbol-decode-recode comstart comend)
+            (register-to-point reg1)
+            (setq errpoint (point))
+            ;; adapt pos
+            (setq pos (- (point) comstart))
+            (register-to-point reg2)
+            ;; adapt lgth
+            (setq lgth (- (point) errpoint))
+            ;; go back at command start
+            (goto-char comstart)
+            ;(setq legth ??))
+          ))
         (forward-char pos)
         (let ((sp (make-span (point) (+ (point) lgth))))
           (set-span-face sp 'proof-warning-face)
@@ -1534,17 +1566,20 @@ buffer."
 
 
 
-;; *Experimental* Adapt response buffer height. Things get a bit messed up if
-;; the response buffer is not at the right place (below goals buffer)
+;; *Experimental* auto shrink response buffer in three indows mode. Things get
+;; a bit messed up if the response buffer is not at the right place (below
+;; goals buffer) TODO: Have this linked to proof-resize-window-tofit in
+;; proof-utils.el + customized by the "shrink to fit" menu entry
+;;  + have it on by default when in three windows mode.
 (defun optim-resp-windows ()
   (when (and proof-three-window-enable (> (frame-height) 10)
              (windows-of-buffer proof-response-buffer))
     (let ((curwin (selected-window)) 
-          (maxhgth (- (window-height) 5)) hgt-resp nline-resp)
+          (maxhgth (- (window-height) window-min-height)) hgt-resp nline-resp)
       (select-window (car (windows-of-buffer proof-response-buffer)))
       (setq hgt-resp (window-height))
       (setq nline-resp 
-            (min maxhgth (max 5 (count-lines (point-max) (point-min)))))
+            (min maxhgth (max window-min-height (count-lines (point-max) (point-min)))))
       (shrink-window (- hgt-resp (+ 1 nline-resp)))
       (beginning-of-buffer)
       (recenter)
