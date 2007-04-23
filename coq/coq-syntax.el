@@ -220,7 +220,7 @@ so for the following reasons:
      ("refine" "ref" "refine" t "refine")
      ("reflexivity" "refl" "reflexivity #" t "reflexivity")
      ("rename into" "ren" "rename # into #" t "rename")
-     ("replace with" "rep" "replace # with #" t)
+     ("replace with" "rep" "replace # with #" t "replace")
      ("replace with in" "repi" "replace # with # in #" t)
      ("rewrite <- in" "ri<" "rewrite <- # in #" t)
      ("rewrite <-" "r<" "rewrite <- #" t)
