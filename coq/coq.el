@@ -674,11 +674,11 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchRewrite ()
   (interactive)
-  (coq-ask-do "Search Rewrite" "Search Rewrite" nil))
+  (coq-ask-do "Search Rewrite" "SearchRewrite" nil))
 
 (defun coq-SearchAbout ()
   (interactive)
-  (coq-ask-do "Search About" "Search About" nil))
+  (coq-ask-do "Search About" "SearchAbout" nil))
 
 (defun coq-Print () "Ask for an ident and print the corresponding term."
   (interactive)
