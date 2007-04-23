@@ -1592,6 +1592,39 @@ buffer."
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'optim-resp-windows)
 
 
+;; What follows allows to scroll response buffer to maximize display of first
+;; goal
+(defun first-word-of-buffer ()
+  "get the first word of a buffer"
+  (save-excursion 
+    (goto-char (point-min))
+    (let ((debut (point)))
+      (forward-word 1)
+      (substring (buffer-string) (- debut 1) (- (point) 1))))
+  )
+
+(defun proof-show-first-goal ()
+  "Scroll the goal buffer so that the first goal is visible.
+First goal is displayed on the bottom of its window, maximizing the
+number of hypothesis displayed, without hiding the goal"
+  (interactive)
+  (let* ((curwin (selected-window))
+	 (goalbuf (get-buffer-window proof-goals-buffer)))
+    (if (eq goalbuf nil) ()
+      (select-window goalbuf)
+      (search-forward-regexp "subgoal 2\\|\\'"); find snd goal or buffer end
+      (recenter (- (window-height) 2))	; scroll 
+      (let ((msg (concat (first-word-of-buffer) " subgoals")))
+	(select-window curwin)		; go back to current window
+	(message msg)                   ; display the number of goals
+	)
+      )
+    )
+  )
+
+
+(add-hook 'proof-shell-handle-delayed-output-hook
+	  'proof-show-first-goal)
 
 (provide 'coq)
 
