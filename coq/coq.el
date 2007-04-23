@@ -1573,10 +1573,10 @@ buffer."
 ;;  + have it on by default when in three windows mode.
 (defun optim-resp-windows ()
   (when (and proof-three-window-enable (> (frame-height) 10)
-             (windows-of-buffer proof-response-buffer))
+             (get-buffer-window proof-response-buffer))
     (let ((curwin (selected-window)) 
           (maxhgth (- (window-height) window-min-height)) hgt-resp nline-resp)
-      (select-window (car (windows-of-buffer proof-response-buffer)))
+      (select-window (get-buffer-window proof-response-buffer))
       (setq hgt-resp (window-height))
       (setq nline-resp 
             (min maxhgth (max window-min-height (count-lines (point-max) (point-min)))))
