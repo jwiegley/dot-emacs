@@ -1,5 +1,9 @@
 -*- outline -*-
 
-* Summary of Changes for coq / Proof General 3.6
+* Summary of Changes since pg 3.6
 
-moved to ../CHANGES
+** Adapted error highlighting to x-symbol
+
+** Response windows shrinking to fit in three window mode
+
+** Outline mode cleaner
