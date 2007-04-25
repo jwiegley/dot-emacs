@@ -242,7 +242,7 @@ See `x-symbol-language-access-alist' for details."
     (logicaland "/\\")
     (logicalor "\\/")
     (universal1 "forall")
-;    (existential1 "ex")
+    (existential1 "exists")
     (biglogicaland "And")
     (ceilingleft "lceil")
     (ceilingright "rceil")

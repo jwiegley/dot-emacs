@@ -1557,7 +1557,7 @@ buffer."
     (setq coq-allow-highlight-error t)))
 
 (defun coq-highlight-error-hook ()
-  (if coq-allow-highlight-error (save-excursion (coq-highlight-error t t))))
+  (if coq-allow-highlight-error (coq-highlight-error t t)))
 
 ;; We need this two hooks to highlight only when scripting
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error-hook t)
@@ -1565,37 +1565,10 @@ buffer."
 
 
 
-
-;; *Experimental* auto shrink response buffer in three indows mode. Things get
-;; a bit messed up if the response buffer is not at the right place (below
-;; goals buffer) TODO: Have this linked to proof-resize-window-tofit in
-;; proof-utils.el + customized by the "shrink to fit" menu entry
-;;  + have it on by default when in three windows mode.
-(defun optim-resp-windows ()
-  (when (and proof-three-window-enable (> (frame-height) 10)
-             (get-buffer-window proof-response-buffer))
-    (let ((curwin (selected-window)) 
-          (maxhgth (- (window-height) window-min-height)) hgt-resp nline-resp)
-      (select-window (get-buffer-window proof-response-buffer))
-      (setq hgt-resp (window-height))
-      (setq nline-resp 
-            (min maxhgth (max window-min-height (count-lines (point-max) (point-min)))))
-      (shrink-window (- hgt-resp (+ 1 nline-resp)))
-      (beginning-of-buffer)
-      (recenter)
-      (select-window curwin))))
-
-;; TODO: I would rather have a response-insert-hook thant this two hooks
-;; Adapt when displaying a normal message
-(add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
-;; Adapt when displaying an error or interrupt
-(add-hook 'proof-shell-handle-error-or-interrupt-hook 'optim-resp-windows)
-
-
 ;; What follows allows to scroll response buffer to maximize display of first
 ;; goal
 (defun first-word-of-buffer ()
-  "get the first word of a buffer"
+  "Get the first word of a buffer."
   (save-excursion 
     (goto-char (point-min))
     (let ((debut (point)))
@@ -1603,7 +1576,7 @@ buffer."
       (substring (buffer-string) (- debut 1) (- (point) 1))))
   )
 
-(defun proof-show-first-goal ()
+(defun coq-show-first-goal ()
   "Scroll the goal buffer so that the first goal is visible.
 First goal is displayed on the bottom of its window, maximizing the
 number of hypothesis displayed, without hiding the goal"
@@ -1613,7 +1586,7 @@ number of hypothesis displayed, without hiding the goal"
     (if (eq goalbuf nil) ()
       (select-window goalbuf)
       (search-forward-regexp "subgoal 2\\|\\'"); find snd goal or buffer end
-      (recenter (- (window-height) 2))	; scroll 
+      (recenter (- (window-height) 1))	; scroll 
       (let ((msg (concat (first-word-of-buffer) " subgoals")))
 	(select-window curwin)		; go back to current window
 	(message msg)                   ; display the number of goals
@@ -1622,9 +1595,47 @@ number of hypothesis displayed, without hiding the goal"
     )
   )
 
-
+;; This hook must be added before optim-resp-window, in order to be evaluated
+;; *after* windows resizing.
 (add-hook 'proof-shell-handle-delayed-output-hook
-	  'proof-show-first-goal)
+	  'coq-show-first-goal)
+
+
+(defun is-not-split-vertic (selected-window)
+  (<= (- (frame-height) (window-height)) 2))
+
+
+;; *Experimental* auto shrink response buffer in three indows mode. Things get
+;; a bit messed up if the response buffer is not at the right place (below
+;; goals buffer) TODO: Have this linked to proof-resize-window-tofit in
+;; proof-utils.el + customized by the "shrink to fit" menu entry
+;;  + have it on by default when in three windows mode.
+(defun optim-resp-windows ()
+  "Resize response buffer to optimal size.
+Only when three-buffer-mode is enabled."
+  (when (and proof-three-window-enable 
+             (> (frame-height) 10)
+             (get-buffer-window proof-response-buffer))
+    (let ((curwin (selected-window)) 
+          (maxhgth (- (window-height) window-min-height)) hgt-resp nline-resp)
+      (select-window (get-buffer-window proof-response-buffer))
+      (setq hgt-resp (window-height))
+      (setq nline-resp 
+            (min maxhgth (max window-min-height (count-lines (point-max) (point-min)))))
+      (unless (is-not-split-vertic (selected-window))
+        (shrink-window (- hgt-resp (+ 1 nline-resp))))
+      (beginning-of-buffer)
+      (recenter)
+      (select-window curwin)
+      )))
+
+;; TODO: I would rather have a response-insert-hook thant this two hooks
+;; Adapt when displaying a normal message
+(add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
+;; Adapt when displaying an error or interrupt
+(add-hook 'proof-shell-handle-error-or-interrupt-hook 'optim-resp-windows)
+
+
 
 (provide 'coq)
 
