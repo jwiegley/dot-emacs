@@ -1617,13 +1617,17 @@ Only when three-buffer-mode is enabled."
              (> (frame-height) 10)
              (get-buffer-window proof-response-buffer))
     (let ((curwin (selected-window)) 
-          (maxhgth (- (window-height) window-min-height)) hgt-resp nline-resp)
+          ;; maxhgth is the max height of both resp and goals buffers to avoid
+          ;; make the other disappear
+          (maxhgth (- (window-height) window-min-height))
+          hgt-resp nline-resp)
       (select-window (get-buffer-window proof-response-buffer))
       (setq hgt-resp (window-height))
-      (setq nline-resp 
-            (min maxhgth (max window-min-height (count-lines (point-max) (point-min)))))
+      (setq nline-resp ; number of lines we want for response buffer
+            (min maxhgth (max window-min-height ; + 1 here for comfort
+                              (+ 1 (count-lines (point-max) (point-min))))))
       (unless (is-not-split-vertic (selected-window))
-        (shrink-window (- hgt-resp (+ 1 nline-resp))))
+        (shrink-window (- hgt-resp nline-resp)))
       (beginning-of-buffer)
       (recenter)
       (select-window curwin)
