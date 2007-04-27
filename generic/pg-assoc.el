@@ -38,6 +38,14 @@ Some may be dead/nil."
 	proof-thms-buffer))
 
 
+(defun proof-associated-windows ()
+  "Return a list of the associated buffers windows.  
+dead or nil buffers are not represented in the list."
+  (let ((lwin (mapcar '(lambda (b) (and b (get-buffer-window b))) 
+		     (proof-associated-buffers))))
+    (proof-list-filter lwin '(lambda (x) (not (null x))))
+    ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Manipulating prover output

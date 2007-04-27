@@ -59,6 +59,16 @@ Return nil if not a script buffer or if no active scripting buffer."
     (file-error nil))
   (featurep symbol))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Handy functions ; should perhaps be elsewhere ?
+
+(defun proof-list-filter (l test)
+  "Build a list containing elements of L satifying predicate test."
+  (if (null l) nil 
+    (if (funcall test (car l)) (cons (car l) (proof-list-filter (cdr l) test))
+      (proof-list-filter (cdr l) test))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -527,8 +537,22 @@ NB: may change the selected window."
 		  (set-window-buffer (selected-window) buffer) 
 		;; switch other window
 		(set-window-buffer (next-window nil 'ignoreminibuf) buffer)))
-	  ;; o/w: call display buffer to configure windows nicely.
-	    (display-buffer buffer)))
+	    ;; o/w: call display buffer to configure windows nicely.
+	    ;; PC: Experimental this was simply (display-buffer buffer) but I am
+	    ;; experimenting the following policy: when in three windows
+	    ;; mode, always make new windo on the right pane, that is:
+	    ;; always split one of the associated buffers windows
+	    ;; this is not perfect, let's see if people like it
+	    (let ((associated-windows (proof-associated-windows)))
+	      (if (not (and proof-three-window-enable associated-windows))
+		  (display-buffer buffer)
+		(select-window (car associated-windows)) ; take on assoc. win
+		(split-window-vertically)
+		(set-window-dedicated-p (selected-window) nil)
+		(switch-to-buffer buffer)
+		(set-window-dedicated-p (selected-window) t)
+		))
+	    ))
   ;; Return the window, hopefully the one we first thought of.
   (get-buffer-window buffer 0))
 
