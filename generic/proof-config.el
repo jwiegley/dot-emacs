@@ -2177,10 +2177,11 @@ response buffer."
 ;; 5c. hooks and other miscellaneous customizations
 ;;
 
-(defcustom proof-shell-unicode nil
+(defcustom proof-shell-unicode t
+  ;; true by default for PG 3.7; set to nil for old systems
   "Tell whether communication between Proof General and the prover
 process is 8bit clean, without using any special non-ASCII characters.
-If so, the process coding system will be set to utf-8."
+If so, the process coding system will be set to UTF-8."
   :type 'boolean
   :group 'proof-shell)
 
