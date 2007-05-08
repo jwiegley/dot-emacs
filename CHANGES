@@ -36,14 +36,14 @@ Including numerous improvements from Stefan Monnier.
 
 ** Changes for Isabelle
 
-*** Support for Isabelle2005 and current development version of Isabelle.  
+*** Support for Isabelle2005 and later development snapshots of Isabelle.  
 
 Additional menu functions and PGIP support for settings configuration
 now controlled directly by Isabelle.  Support for Unicode-safe
 interaction (`proof-shell-unicode' variable).
 
-Support for Isabelle 2003 has been removed; results with Isabelle 2004
-are not guaranteed.  Code works with PolyML 5 versions of Isabelle.
+Support for Isabelle2003 has been removed; results with Isabelle2004
+are not guaranteed.  Code now works with PolyML 5 versions of Isabelle.
 
 
 
@@ -82,7 +82,7 @@ are not guaranteed.  Code works with PolyML 5 versions of Isabelle.
 
 *** Much better indentation
 
-    More robust. nested comments are OK even in xemacs. Still a bit
+    More robust. Nested comments are OK even in xemacs. Still a bit
     slow on big files. 
 
     indent-region won't touch comments, but indenting comments with
