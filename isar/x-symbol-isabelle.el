@@ -91,7 +91,7 @@ See language access `x-symbol-LANG-subscript-matcher'."
   :group 'x-symbol-isabelle
   :type 'function)
 
-(defcustom x-symbol-isabelle-font-lock-regexp "\\\\<\\^[ib]?su[bp]>"
+(defcustom x-symbol-isabelle-font-lock-regexp "\\(\\\\<\\^[ib]?su[bp]>\\)\\S-"
   "Regexp matching the start tag of Isabelle super- and subscripts."
   :group 'x-symbol-isabelle
   :type 'regexp)
@@ -122,8 +122,8 @@ or subscript tag."
   (block nil
     (let (open-beg open-end close-end close-beg script-type)
       (while (re-search-forward x-symbol-isabelle-font-lock-regexp limit t)
-        (setq open-beg (match-beginning 0)
-              open-end (match-end 0)
+        (setq open-beg (match-beginning 1)
+              open-end (match-end 1)
               script-type (if (eq (char-after (- open-end 2)) ?b)
                               'x-symbol-sub-face
                            'x-symbol-sup-face))
