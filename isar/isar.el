@@ -452,13 +452,10 @@ proof-shell-retract-files-regexp."
        ((and (proof-string-match isar-end-regexp str)
 	     (isar-command-nested span))
         (setq ans isar-undo))
-       ;; not undoable: fail and exit 
-       ;; [da: this is an odd case: it issues cannot_undo command to Isar,
-       ;;  which immediately generates an error, I think it's a bit confusing
-       ;; for the user]
+       ;; non-nested end: undoable in Isabelle2007
        ((and (proof-string-match isar-undo-fail-regexp str))
+        (setq ans (isar-cannot-undo (match-string 1 str)))
         (setq answers nil)
-        (setq ans (isar-cannot-undo str))
         (setq span nil))
        ;; theory: remove and exit
        ((proof-string-match isar-undo-remove-regexp str)
