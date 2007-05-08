@@ -452,12 +452,6 @@ matches contents of quotes for quoted identifiers.")
 ;; ----- variations on undo
 
 (defconst isar-undo "ProofGeneral.undo;")  ;; no output undo
-;(defconst isar-undo "undo;")  ;; da: ordinary undo: seems more desirable to use this except
-			       ;; for many composed undos undo;undo;undo; we get output
-			       ;; every time which is a bit inefficient (although not that bad
-			       ;; because the print of the theory is short by default).  
-			       ;; TODO for Isabelle2007: add
-			       ;; times argument to undo and supress intermediate output.
 
 (defun isar-remove (name)
   (concat "init_toplevel; kill_thy " name ";"))
