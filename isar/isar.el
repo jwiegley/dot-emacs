@@ -338,6 +338,7 @@ proof-shell-retract-files-regexp."
 
 (proof-definvisible isar-cmd-refute	"refute" [r])
 (proof-definvisible isar-cmd-quickcheck "quickcheck" [(control q)])
+(proof-definvisible isar-cmd-sledgehammer "sledgehammer" [(control s)])
 
 (defpgdefault menu-entries
   (append
@@ -347,6 +348,7 @@ proof-shell-retract-files-regexp."
           (list
            ["refute"             isar-cmd-refute         t]
            ["quickcheck"         isar-cmd-quickcheck     t]
+           ["sledgehammer"       isar-cmd-sledgehammer   t]
 	   ["display draft"	 isar-cmd-display-draft  t])))
    (list
     (cons "Show me ..."
