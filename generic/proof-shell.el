@@ -335,9 +335,12 @@ Does nothing if proof assistant is already running."
 	    ;;  i) coding-system-for-read/write is not available (e.g. MacOS XEmacs non-mule)
 	    ;; ii) 'rawtext gives wrong behaviour anyway (e.g. Mac OS GNU Emacs, maybe Windows)
 	    ;;     probably because of line-feed conversion.
+	    ;; FIXME 3.7: check behaviour of coding-system-for-read in xemacs-21.5, seems to
+	    ;; have API change.
 	    (coding-system-for-read
-	     (if proof-shell-unicode 
-		 'utf-8 
+	     (if (and proof-shell-unicode 
+		      (find-coding-system 'utf-8))
+		 'utf-8 ;; if available
 	       (if (string-match "Linux" 
 				 (shell-command-to-string "uname"))
 		   ;; raw-text seems to be useful/needed here.  Overrides
