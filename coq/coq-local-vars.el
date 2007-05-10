@@ -80,14 +80,14 @@ coqtop command to be launched on this file."
   (local-vars-list-set 'coq-prog-args progargs)
   )
 
-
-(defun coq-read-directory (prompt &optional maynotmatch initialcontent)
-  "Ask for (using PROMPT) and return a directory name."
+(defun coq-read-directory (prompt &optional default maynotmatch initialcontent)
+  "Ask for (using PROMPT) and return a directory name.  
+Do not insert the default directory."
   (let*
       ;; read-file-name here because it is convenient to see .v files
       ;; when selecting directories to add to the path. Moreover
       ;; read-directory-name does not seem to exist in fsf emacs??
-      ((path (read-file-name prompt "" "" (not maynotmatch) initialcontent)))
+      ((path (read-file-name prompt "" default (not maynotmatch) initialcontent)))
     path))
 
 ;(read-from-minibuffer
@@ -124,10 +124,10 @@ will be used to suggest values to the user."
 	  (setq progargs (cons (car olddirs) (cons "-I" progargs))))
       (setq olddirs (cdr olddirs)))
     ;; then ask for more
-    (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) :"))
+    (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) :" ""))
     (while (not (string-equal option ""))
       (setq progargs (cons option (cons "-I" progargs))) ;reversed
-      (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) -I :")))
+      (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) -I :" "")))
     (reverse progargs)))
 
 (defun coq-ask-prog-name (&optional oldvalue)
@@ -135,8 +135,9 @@ will be used to suggest values to the user."
 These variable describes the coqtop command to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-name', it
 will be used to suggest a value to the user."
-  (let ((cmd (coq-read-directory "coq program name (default coqtop) : " t
-			  (or oldvalue "coqtop"))))
+  (let* ((deflt (or oldvalue "coqtop"))
+        (cmd (coq-read-directory "coq program name (default \"coqtop\"): " 
+                                 deflt t deflt)))
     (if (and
          (string-match " " cmd)
          (not (y-or-n-p "The prog name contains spaces, are you sure ? ")))
@@ -151,7 +152,7 @@ These variables describe the coqtop command to be launched on this file."
   (let* ((oldname (local-vars-list-get-safe 'coq-prog-name))
 	 (oldargs (local-vars-list-get-safe 'coq-prog-args))
 	 (progname (coq-ask-prog-name oldname))
-        (progargs (coq-ask-prog-args oldargs)))
+         (progargs (coq-ask-prog-args oldargs)))
     (coq-insert-coq-prog-name progname progargs)
     (setq coq-prog-name progname)
     (setq coq-prog-args progargs)))
