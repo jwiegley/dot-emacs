@@ -477,7 +477,7 @@ Leave point at END."
     (if (and start end) 
 	(narrow-to-region start end))
     (goto-char (or start (point-min)))
-    (replace-regexp pg-special-char-regexp "")
+    (proof-replace-regexp-nocasefold pg-special-char-regexp "")
     (goto-char (point-max))))
 
 (defun pg-remove-specials-in-string (string)
