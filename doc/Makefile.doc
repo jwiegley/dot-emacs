@@ -156,7 +156,7 @@ distclean:   clean
 $(DOCNAME).texi: ../*/*.el 
 	$(MAKE) magic
 magic:
-	$(EMACS) $(EMACSFLAGS) -l docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
+	$(EMACS) $(EMACSFLAGS) -l texi-docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
 
 
 
