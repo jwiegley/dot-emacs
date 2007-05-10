@@ -16,6 +16,9 @@
 
 (require 'proof)
 
+;; "Find Theorems" search form
+(require 'find-theorems)
+
 ;; System code
 (require 'isabelle-system)
 
@@ -123,7 +126,9 @@ See -k option for Isabelle interface script."
    proof-context-command        "print_context"
    proof-info-command           "welcome"
    proof-kill-goal-command      "ProofGeneral.kill_proof"
-   proof-find-theorems-command  "find_theorems %s"
+;   proof-find-theorems-command  "find_theorems %s"               ;; minibuffer
+;   proof-find-theorems-command  'proof-find-theorems-minibuffer  ;; equivalent
+   proof-find-theorems-command  'proof-find-theorems-form        ;; search form
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
    ;; command hooks
@@ -135,7 +140,6 @@ See -k option for Isabelle interface script."
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    ;; span menu 
    proof-script-span-context-menu-extensions 'isabelle-create-span-menu))
-
 
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
@@ -168,7 +172,6 @@ See -k option for Isabelle interface script."
    proof-shell-error-regexp             "\364\\*\\*\\*\\|\^AM\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
-   ;; 
    pg-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
    pg-next-error-filename-regexp "\\((line [0-9]+ of \"\\([^\"]+\\)\")\\)"
 
