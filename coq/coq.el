@@ -65,11 +65,15 @@ To disable coqc being called (and use only make), set this to nil."
 (require 'coq-syntax)
 (require 'coq-indent)
 
-(defcustom coq-utf-safe t
-  "Should be t if one wants no multibyte characters be used for 
-controling coq prompt. Only for coq >= 8.1 (and 8.1 beta)")
-(if (and coq-utf-safe coq-version-is-V8-1) (setq coq-prog-args '("-emacs-U"))
+(defcustom coq-utf-safe coq-version-is-V8-1
+  "Obsolete, coq >= 8.1 does not use special symbols for delimiting prompts.")
+(if coq-version-is-V8-1 (setq coq-prog-args '("-emacs-U"))
   (setq coq-prog-args '("-emacs")))
+
+;; utf-8 is not yet well accepted (especially by xemacs)
+;Set to t in your .emacs to enable it. Needs to load library `un-define' to
+;work on xemacs."
+(setq proof-shell-unicode nil)
 
 ;; List of environment settings d to pass to Coq process.
 ;; On Windows you might need something like:
@@ -85,12 +89,9 @@ controling coq prompt. Only for coq >= 8.1 (and 8.1 beta)")
 ;; Pierre added the infos in the prompt, this is new in Coq v8-1 
 
 (defvar coq-shell-prompt-pattern 
-  (if coq-version-is-V8-0
-      (concat "\\(?:\n" proof-id " < \371\\)")
-    (concat "\\(?:\n" proof-id " < [^\n\371]+\\|\n<prompt>[^\n]+</prompt>\\)")
-    )
+  (if coq-version-is-V8-1 (concat "\\(?:\n<prompt>[^\n]+</prompt>\\)")
+    (concat "\\(?:\n" proof-id " < \371\\)"))
     "*The prompt pattern for the inferior shell running coq.")
-;  (concat "^\n?" proof-id " < \\(?:[0-9]+ |\\(?:" proof-id "|?\\)*| " "[0-9]+ < \\)?\\(?:\x6\\|\371\\)")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
 ;; da: 3.5: add experimetntal
@@ -783,7 +784,7 @@ This is specific to `coq-mode'."
 				"| sed s/coqc/coqtop/"))))
 	  (concat 
 	   (substring command 0 (string-match " [^ ]*$" command))
-	   (if coq-utf-safe '("-emacs-U") '("-emacs"))))
+	   (if coq-version-is-V8-1 '("-emacs-U") '("-emacs"))))
       coq-prog-name)))
 
 
