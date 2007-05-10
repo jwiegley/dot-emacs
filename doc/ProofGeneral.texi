@@ -70,9 +70,9 @@
 @c
 
 @set version 3.7pre
-@set xemacsversion 21.4.20
-@set fsfversion 21.4
-@set last-update March 2007
+@set xemacsversion 21.5.27
+@set fsfversion 21.4.1
+@set last-update May 2007
 @set rcsid $Id$
 
 @ifinfo
@@ -365,6 +365,7 @@ James Brotherston,
 Martin Buechi,
 Lucas Dixon,
 Matt Fairtlough, 
+Ivan Filippenko, 
 Kim Hyung Ho,
 Greg O'Keefe,
 Pierre Lescanne,
@@ -770,7 +771,7 @@ assistants and file extensions.
 Turn on @dfn{electric terminator} by typing @kbd{C-c ;} and
 enter:
 @lisp
-theory Walkthrough = Main:;
+theory Walkthrough imports Main begin;
 @end lisp
 This first command begins the definition of a new theory inside
 Isabelle, which extends the theory @code{Main}.  (We're assuming that
@@ -783,13 +784,22 @@ Electric terminator sends commands to the proof assistant as you type
 them.  The exact key binding is based on the terminator used for your
 proof assistant, but you can always check the menu if you're not sure.
 
-Electric terminator mode is popular, but not enabled by default
-because of the principle of least surprise.  You can customize Proof
-General to enable it everytime if you want, @xref{Customizing Proof
-General}.  For this option, customization is particularly easy: just
-use the menu item @code{Proof General -> Options} to select some
+Electric terminator mode is popular, but not enabled by default because
+of the principle of least surprise.  Moreover, in Isabelle, the
+semicolon terminators are strictly optional so proof scripts are usually
+written without them to avoid clutter.  Without electric terminator, you
+can trigger processing the text up to the current position of the point
+with the key @kbd{C-c C-RET}, or just up to the next command with
+@kbd{C-c C-n}.  We show the rest of the example in Isabelle with
+semi-colons, but you can miss them out.
+
+Coq, on the other hand, requires a full-stop terminator at the end of
+each line.  If you want to use electric terminator, you can customize
+Proof General to enable it everytime if you want, @xref{Customizing
+Proof General}.  For this option, customization is particularly easy:
+just use the menu item @code{Proof General -> Options} to select some
 common options, and @code{Proof General -> Options -> Save Options} to
-save your choices.  
+save your choices.
 
 At the moment you type the semicolon, the @code{theory} command will
 be sent to Isabelle behind the scenes.  First, there is a short delay
@@ -824,7 +834,7 @@ reason it is made read-only, by default.
 
 @itemize @bullet
 @item
-Next type (on a new line if you like):
+Next type on a new line:
 @lisp
 theorem my_theorem: "A & B --> B & A";
 @end lisp
@@ -863,20 +873,21 @@ Instead, let's try:
 @end lisp
 Which is better.  
 
+@item
 From this assumption we can get @code{B} and @code{A} by the
-trivial step @code{..}
+trivial step @code{..} which splits the assumption using an elimination
+step:
 @lisp
-  then obtain B and A ..
+  then obtain B and A ..;
+@end lisp
+
+@item
+Finally, we establish the goal by the trivial step
+@code{..} again, which triggers an introduction rule:
+@lisp
+  then show "B & A" ..;
 @end lisp
 @end itemize
-
-Notice that this line doesn't have a terminator character --- but in
-fact, Isar does not need them to parse the file, and neither does Proof
-General (except for the electric effect).  You can process the text up
-to the current position of the point with the key @kbd{C-c C-RET}.  This
-is probably a more common way of working in Isabelle Proof General than
-using the electric terminator, to avoid cluttering the proof script with
-semicolons.
 
 After this proof step, the message from Isabelle indicates that the
 proof has succeeded, so we can conclude the proof with the @code{qed}
@@ -886,7 +897,7 @@ command.
 @item
 Finally, type:
 @lisp
-qed
+qed;
 @end lisp
 @end itemize
 
@@ -913,7 +924,10 @@ cursor position, or as near as possible above or below it, sending
 undoing commands or proof commands as necessary.  In this case, the
 locked region will always be moved back to the end of the @code{theory}
 line, since that is the closest possible position to the cursor that
-appears before it.
+appears before it.  If you simply want to @i{retract} the whole file in
+one go, you can use the key @kbd{C-c C-r} (which corresponds to the up
+arrow on the toolbar), which will automatically move the cursor to
+the top of the file.
 
 @itemize @bullet
 @item 
@@ -930,21 +944,30 @@ end
 @end lisp
 to complete the theory.  
 @end itemize
-Note that once a theory is completed in Isabelle, you cannot undo into
-it, again because Isabelle discards the history of the theory's
-creation.  Just like completed proofs, there is no option other than
-undoing the whole theory.  To prevent you doing this inadvertently,
-however (maybe undoing many proofs which are time-consuming to replay),
-the @kbd{C-c C-u} or @kbd{C-c C-RET} commands will generate an error
-message, typically:
 
-@lisp
-*** Cannot undo "end"
-*** At command "cannot_undo".
-@end lisp
-If you really want to retract the theory for editing once more, you can
-use the key @kbd{C-c C-r} (which corresponds to the up arrow on the
-toolbar).
+Notice that if you right-click on one of the highlighted regions in the
+blue area you will see a context menu for the region.  This includes a
+``show/hide'' option for @i{folding} a proof, as well as some editing
+commands for copying the region or rearranging its order in the
+processed text: ``move up/move down''. (These latter commands
+occasionally help you reorder text without needing to reprove it,
+although they risk breaking the proof!)
+
+@c da: no longer true with Isabelle2007
+@c Note that once a theory is completed in Isabelle, you cannot undo into
+@c it, again because Isabelle discards the history of the theory's
+@c creation.  Just like completed proofs, there is no option other than
+@c undoing the whole theory.  To prevent you doing this inadvertently,
+@c however (maybe undoing many proofs which are time-consuming to replay),
+@c the @kbd{C-c C-u} or @kbd{C-c C-RET} commands will generate an error
+@c message, typically:
+@c @lisp
+@c *** Cannot undo "end"
+@c *** At command "cannot_undo".
+@c @end lisp
+@c If you really want to retract the theory for editing once more, you can
+@c use the key @kbd{C-c C-r} (which corresponds to the up arrow on the
+@c toolbar).
 
 Finally, once you are happy with your theory, you should save the file
 with @kbd{C-x C-s} before moving on to edit another file or exiting
