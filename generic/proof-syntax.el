@@ -123,15 +123,20 @@ If so, return non-nil."
 ;; Replacing matches
 
 (defun proof-replace-string (string to-string)
-  "Non-interactive version of `replace-string', which see."
+  "Non-interactive `replace-string', using `proof-case-fold-search'."
   (while (proof-search-forward string nil t)
     (replace-match to-string nil t)))
 
 (defun proof-replace-regexp (regexp to-string)
-  "Non-interactive version of `replace-regexp', which see."
+  "Non-interactive `replace-regexp', using `proof-case-fold-search'."
   (while (proof-re-search-forward regexp nil t)
     (replace-match to-string nil nil)))
 
+(defun proof-replace-regexp-nocasefold (regexp to-string)
+  "Non-interactive `replace-regexp', forcing `case-fold-search' to nil."
+  (let ((case-fold-search nil))
+    (while (proof-re-search-forward regexp nil t)
+      (replace-match to-string nil nil))))
 
 ;; Generic font-lock
 
