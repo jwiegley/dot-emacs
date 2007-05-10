@@ -787,9 +787,12 @@ or if the window is the only window of its frame."
 ***
 ***    http://proofgeneral.inf.ed.ac.uk/trac/search
 ***
-*** To see if your bug has been reported already, and a new ticket if not (you need to
-*** register first).  Please only use this email mechanism instead IF YOU REALLY MUST.  
-*** The address is not monitored very often.  
+*** To see if your bug has been reported already, and a new ticket if not.
+*** To report a bug, either register yourself as a user, or use the generic account
+*** username "pgemacs" with password "pgemacs"
+***
+*** Please only continue with this email mechanism instead IF YOU REALLY MUST.  
+*** The address is not monitored very often and quite possibly will be ignored.  
 ***
 *** When reporting a bug, please include a small test case for us to repeat it.
 *** Please also check that it is not already covered in the BUGS or FAQ files that came with
