@@ -419,6 +419,9 @@ We assume that module identifiers coincide with file names."
 	proof-shell-process-output-system-specific lego-shell-process-output
         lego-shell-current-line-width nil
 
+	;; LEGO uses Unicode escape prefix: liable to create problems
+	proof-shell-unicode nil 
+
 	proof-shell-process-file
 	(cons "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]"  
 	  (lambda (str) (let ((match (match-string 2 str)))
