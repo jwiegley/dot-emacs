@@ -501,7 +501,7 @@ is first in the list.  VISIBLE-ONLY will only list non-iconified frames."
       (>= (nth 2 (window-edges window))
 	  (frame-width (window-frame window)))))
 
-;; with-selected-windown from XEmacs 21.4.12
+;; with-selected-window from XEmacs 21.4.12
 (or (fboundp 'with-selected-window)
 (defmacro with-selected-window (window &rest body)
   "Execute forms in BODY with WINDOW as the selected window.
@@ -511,6 +511,13 @@ The value returned is the value of the last form in BODY."
      ,@body)))
 
 
+;; find-coding-system emulation for GNU Emacs
+(unless (fboundp 'find-coding-system)
+  (defun find-coding-system (name)
+    "Retrieve the coding system of the given name, or nil if non-such."
+    (condition-case nil
+	(check-coding-system name)
+      (error nil))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
