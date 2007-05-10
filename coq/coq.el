@@ -89,7 +89,7 @@ To disable coqc being called (and use only make), set this to nil."
 ;; Pierre added the infos in the prompt, this is new in Coq v8-1 
 
 (defvar coq-shell-prompt-pattern 
-  (if coq-version-is-V8-1 (concat "\\(?:\n<prompt>[^\n]+</prompt>\\)")
+  (if coq-version-is-V8-1 (concat "\\(?:\n\\(?:[^\n\371]+\371\\|<prompt>[^\n]+</prompt>\\)\\)")
     (concat "\\(?:\n" proof-id " < \371\\)"))
     "*The prompt pattern for the inferior shell running coq.")
 
