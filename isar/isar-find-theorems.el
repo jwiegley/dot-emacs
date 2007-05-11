@@ -350,10 +350,10 @@
         (list num_ pattern_ intro_ elim_ dest_ name_ simp_))
       " ")))
 
-  ;; note that isar-find-theorems with an argument provided
+  ;; note that proof-find-theorems with an argument provided
   ;; will merely pass this on to Isabelle, and NOT display
   ;; the search form again
-  (isar-find-theorems searchstring))))))
+  (proof-find-theorems searchstring))))))
 )
 
 ;; "Multiple search patterns, theorem names and simplification terms can be
