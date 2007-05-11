@@ -4886,8 +4886,9 @@ uses it with TOKEN and CHARSYM."
   (x-symbol-initialize)
   (setq x-symbol-all-charsyms nil)
 
-  ;; temp hack for console.  TODO: find better ways to prevent warnings etc
-  (unless (console-type)
+  (cond
+   ;; temp hack for console.  TODO: find better ways to prevent warnings etc
+   ((not (console-type))
     (unless x-symbol-default-coding
       (warn "X-Symbol: only limited support on a console"))
     (unless (eq x-symbol-latin-force-use 'console-user)
@@ -4898,9 +4899,38 @@ uses it with TOKEN and CHARSYM."
       (setq x-symbol-latin9-fonts nil)
       (setq x-symbol-xsymb0-fonts nil)
       (setq x-symbol-xsymb1-fonts nil)))
-  
+
+   ;; da: similar crude hack to disable other fonts in case of unicode.
+   (x-symbol-use-unicode
+    (require 'x-symbol-unicode)
+    (setq x-symbol-latin1-fonts nil)
+    (setq x-symbol-latin2-fonts nil)
+    (setq x-symbol-latin3-fonts nil)
+    (setq x-symbol-latin5-fonts nil)
+    (setq x-symbol-latin9-fonts nil)
+    (setq x-symbol-xsymb0-fonts nil)
+    (setq x-symbol-xsymb1-fonts nil))
+
+   ;; Patch with help from YAMAMOTO Mitsuharu <mituharu@math.s.chiba-u.ac.jp>
+   ;; for Carbon Emacs.
+   ((eq window-system 'mac)
+; Use David Aspinall's xsymb1.ttf font
+;    (setq x-symbol-xsymb1-name "xsymb1_ttf")
+; Use Norbert Voelker's isaxsymb1.ttf font
+    (setq x-symbol-xsymb1-name "isaxsym")
+    (setq x-symbol-latin1-fonts nil)
+    (setq x-symbol-latin2-fonts nil)
+    (setq x-symbol-latin3-fonts nil)
+    (setq x-symbol-latin5-fonts nil)
+    (setq x-symbol-latin9-fonts nil)
+    (setq x-symbol-xsymb0-fonts
+	  '("-apple-symbol-medium-r-normal--%d-%d0-*-*-*-*-adobe-fontspecific"))
+    (setq x-symbol-xsymb1-fonts
+	  (list (concat "-apple-" x-symbol-xsymb1-name
+			"-medium-r-normal--%d-%d0-*-*-*-*-iso10646-1")))))
+
   (x-symbol-init-cset x-symbol-latin1-cset x-symbol-latin1-fonts
-		      x-symbol-latin1-table)
+		       x-symbol-latin1-table)
   (x-symbol-init-cset x-symbol-latin2-cset x-symbol-latin2-fonts
 		      x-symbol-latin2-table)
   (x-symbol-init-cset x-symbol-latin3-cset x-symbol-latin3-fonts
@@ -4914,8 +4944,29 @@ uses it with TOKEN and CHARSYM."
   (x-symbol-init-cset x-symbol-xsymb0-cset x-symbol-xsymb0-fonts
 		      x-symbol-xsymb0-table)
   (x-symbol-init-cset x-symbol-xsymb1-cset x-symbol-xsymb1-fonts
-		      x-symbol-xsymb1-table))
+		      x-symbol-xsymb1-table)
 
+  ;; Patch from YAMAMOTO Mitsuharu <mituharu@math.s.chiba-u.ac.jp>
+  ;; continued.
+  (when (eq window-system 'mac)
+    (define-ccl-program ccl-encode-fake-xsymb1-font
+      `(0
+	((r2 = r1)
+	 (r1 = 0)
+	 (if (r0 == ,(charset-id 'xsymb1-right))
+	     (r2 |= 128))))
+      "CCL program for fake xsymb1 font")
+    (setq font-ccl-encoder-alist
+	  (cons (cons x-symbol-xsymb1-name ccl-encode-fake-xsymb1-font)
+		font-ccl-encoder-alist))
+    (set-fontset-font nil 'xsymb1-left 
+		      (cons x-symbol-xsymb1-name "iso10646-1"))
+    (set-fontset-font nil 'xsymb1-right
+		      (cons x-symbol-xsymb1-name "iso10646-1"))
+    (dolist (face '(x-symbol-face x-symbol-sub-face x-symbol-sup-face))
+      (set-face-attribute face nil
+			  :family 'unspecified :font 'unspecified))))
+   
 ;; (when x-symbol-mule-change-default-face
 ;;   (set-face-font 'default (face-attribute 'x-symbol-face :font)))
 
