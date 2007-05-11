@@ -73,6 +73,12 @@ $(GENFONTS)/%sub.bdf: %.bdf
 $(GENFONTS)/%sup.bdf: %.bdf
 	$(PERL) ./makesub $< $@
 
+## da: Make a Mac OS X dfont file.  Experimental, added in Proof General.
+%.dfont: *.bdf
+	ufond -dfont $**.bdf
+
+dfonts: 2hevlR.dfont 3hevlR.dfont 5etl.dfont heriR.dfont xsymb0.dfont xsymb1.dfont 
+
 ## vpath and VPATH don't accept a dir which doesn't exists yet...
 all:
 	$(MAKE) mkdirs
