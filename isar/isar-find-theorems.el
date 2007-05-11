@@ -120,9 +120,7 @@
   (switch-to-buffer "*Find Theorems*")
 
   (widget-insert
-    (concat "\n  " (propertize "Find Theorems"
-      'face (list :height 200 :weight 'extra-bold))
-      "\n\n"))
+    (concat "\n  " (propertize "Find Theorems" 'face 'bold) "\n\n"))
 
   ;; pattern
   (widget-insert "  Search pattern: ")
