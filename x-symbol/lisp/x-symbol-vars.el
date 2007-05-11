@@ -1611,7 +1611,8 @@ and STRING is its string representation.")
 ;;;  Fonts
 ;;;===========================================================================
 
-(defvar x-symbol-latin-force-use nil
+(defvar x-symbol-latin-force-use 
+  (equal window-system 'mac) ;; da: very approximate
   "If non-nil, define latin characters even when fonts are missing.
 If nil, it is a bad idea to decode a file when its `x-symbol-coding'
 corresponds to a missing font, i.e., 8bit characters are assumed to have
@@ -1669,7 +1670,8 @@ See `x-symbol-latin9-cset' and `x-symbol-init-cset'.")
 See `x-symbol-xsymb0-cset' and `x-symbol-init-cset'.")
 
 (defvar x-symbol-xsymb1-fonts
-  '("-xsymb-xsymb1%s-medium-r-normal--%d-%d0-75-75-p-*-xsymb-xsymb1")
+  '("-xsymb-xsymb1%s-medium-r-normal--%d-%d0-75-75-p-*-xsymb-xsymb1"
+    "-apple-isaxsym-medium-r-normal--%d-%d0-75-75-p-*-xsymb-xsymb1")
   "Fonts with registry/encoding \"xsymb-xsymb1\".
 See `x-symbol-xsymb1-cset' and `x-symbol-init-cset'.")
 
@@ -2088,7 +2090,7 @@ VAR's options has been defined with `x-symbol-define-user-options'."
 ;;; DA's crude unicode hack
 ;;;===========================================================================
 
-(defvar x-symbol-use-unicode nil ; (eq window-system 'mac) ;; v. approx!
+(defvar x-symbol-use-unicode nil 
   "*Non-nil to use default font as unicode font.")
 
 
