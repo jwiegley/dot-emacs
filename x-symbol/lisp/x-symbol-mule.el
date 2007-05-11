@@ -183,15 +183,28 @@ when character is presented in the grid."
   (unless (char-table-p x-symbol-mule-char-table)
     (setq x-symbol-mule-char-table (make-char-table 'generic))
     (put-char-table t nil x-symbol-mule-char-table))
-  (let* ((char (if (< encoding 128)
-		   (make-char (caadr cset) encoding)
-		 (make-char (caddr cset) (- encoding 128)))))
+  (let* ((char (cond 
+		((and (not x-symbol-use-unicode) (< encoding 128))
+		 (make-char (caadr cset) encoding))
+		((and (not x-symbol-use-unicode) (< encoding 256))
+		 (make-char (caddr cset) (- encoding 128)))
+		(t
+		 ;; it must be Unicode...
+		 (decode-char 'ucs encoding)))))
+;		 (make-char (caddr cset) 
+;			    (mod encoding 256)
+;			    (/ encoding 256))))))
     (put-char-table char charsym x-symbol-mule-char-table)
     (x-symbol-set-cstrings charsym coding char
-			   (and coding (>= encoding 160)
+			   (and coding 
+				(>= encoding 160)
+				(not x-symbol-use-unicode)
 				(make-char x-symbol-mule-default-charset
 					   (- encoding 128)))
 			   face)))
+
+;; (format "#x%x" (+ (* 3 256) 147)) = 0x393
+;; (make-char 'mule-unicode-2500-33ff 147 3)
 
 (defun x-symbol-mule-init-charsym-syntax (charsyms)
   "Initialize the syntax for the characters represented by CHARSYMS.
