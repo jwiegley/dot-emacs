@@ -18,15 +18,15 @@
 (defun isar-find-theorems-minibuffer ()
   "Search for items containing given constants (using the minibuffer)."
   (interactive)
-  (let ((isar-find-theorems-command "find_theorems %s"))
-    (call-interactively 'isar-find-theorems))
+  (let ((proof-find-theorems-command "find_theorems %s"))
+    (call-interactively 'proof-find-theorems))
   '(nil))
 
 ;; isar-find-theorems-form (just like isar-find-theorems-minibuffer) can be
 ;; called interactively, and can be used as a value for
-;; isar-find-theorems-command (returning '(nil) means that the actual
+;; proof-find-theorems-command (returning '(nil) means that the actual
 ;; "find_theorems" command will NOT be issued to Isabelle by
-;; isar-find-theorems in this case, but only later on by a handler function
+;; proof-find-theorems in this case, but only later on by a handler function
 ;; for the form's "Find" button)
 
 (defun isar-find-theorems-form ()
