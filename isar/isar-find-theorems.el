@@ -274,7 +274,7 @@
       "\n"
       "A minibuffer based \"Find Theorems\" command is available via (C-c C-a C-m). See\n"
       "the Isabelle NEWS file for up-to-date documentation. A search form is available\n"
-      "via (C-c C-a C-f). Variable isar-find-theorems-command (customizable via\n"
+      "via (C-c C-a C-f). Variable proof-find-theorems-command (customizable via\n"
       "Proof-General > Advanced > Internals > Prover Config) controls the default\n"
       "behavior of the \"Find Theorems\" command: set to isar-find-theorems-form or\n"
       "isar-find-theorems-minibuffer.\n"
