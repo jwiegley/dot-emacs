@@ -1,4 +1,4 @@
-;; find-theorems.el    A search form for Isabelle's find_theorems command.
+;; isar-find-theorems.el    A search form for Isabelle's find_theorems command.
 ;;
 ;; Copyright (C) 2007 Tjark Weber <tjark.weber@gmx.de>
 ;;
@@ -11,34 +11,34 @@
 ;;
 
 ;; make the original (minibuffer based) "Find theorems" command (from
-;; ../generic/pg-user.el) available as proof-find-theorems-minibuffer;
-;; return '(nil) so that proof-find-theorems-minibuffer works as a
-;; value for proof-find-theorems-command
+;; ../generic/pg-user.el) available as isar-find-theorems-minibuffer;
+;; return '(nil) so that isar-find-theorems-minibuffer works as a
+;; value for isar-find-theorems-command
 
-(defun proof-find-theorems-minibuffer ()
+(defun isar-find-theorems-minibuffer ()
   "Search for items containing given constants (using the minibuffer)."
   (interactive)
-  (let ((proof-find-theorems-command "find_theorems %s"))
-    (call-interactively 'proof-find-theorems))
+  (let ((isar-find-theorems-command "find_theorems %s"))
+    (call-interactively 'isar-find-theorems))
   '(nil))
 
-;; proof-find-theorems-form (just like proof-find-theorems-minibuffer) can be
+;; isar-find-theorems-form (just like isar-find-theorems-minibuffer) can be
 ;; called interactively, and can be used as a value for
-;; proof-find-theorems-command (returning '(nil) means that the actual
+;; isar-find-theorems-command (returning '(nil) means that the actual
 ;; "find_theorems" command will NOT be issued to Isabelle by
-;; proof-find-theorems in this case, but only later on by a handler function
+;; isar-find-theorems in this case, but only later on by a handler function
 ;; for the form's "Find" button)
 
-(defun proof-find-theorems-form ()
+(defun isar-find-theorems-form ()
   "Search for items containing given constants (using a search form)."
   (interactive)
-  (apply 'proof-find-theorems-create-searchform proof-find-theorems-data)
+  (apply 'isar-find-theorems-create-searchform isar-find-theorems-data)
   '(nil))
 
 ;; update the universal key bindings (see ../generic/proof-config.el)
 ;;
-;; C-c C-a C-m is bound to proof-find-theorems-minibuffer
-;; C-c C-a C-f is bound to proof-find-theorems-form
+;; C-c C-a C-m is bound to isar-find-theorems-minibuffer
+;; C-c C-a C-f is bound to isar-find-theorems-form
 ;;
 ;; Note that C-c C-a C-f, although C-c C-a usually invokes the prover
 ;; assistant specific keymap, is defined as a universal key binding here.
@@ -46,9 +46,9 @@
 
 (setq proof-universal-keys
   (cons
-    '([(control c) (control a) (control m)] . proof-find-theorems-minibuffer)
+    '([(control c) (control a) (control m)] . isar-find-theorems-minibuffer)
     (cons
-      '([(control c) (control a) (control f)] . proof-find-theorems-form)
+      '([(control c) (control a) (control f)] . isar-find-theorems-form)
       proof-universal-keys)))
 
 ;; Documentation, taken from isabelle/NEWS:
@@ -71,7 +71,7 @@
 
 ;; search form field values
 
-(defvar proof-find-theorems-data (list
+(defvar isar-find-theorems-data (list
   ""      ;; num
   ""      ;; pattern
   "none"  ;; intro
@@ -82,33 +82,33 @@
   )
   "Values of the Find Theorems search form's fields.")
 
-;; search form widgets (set in proof-find-theorems-create-searchform
+;; search form widgets (set in isar-find-theorems-create-searchform
 ;; and accessed in the "Find" handler)
 
-(defvar proof-find-theorems-widget-number nil
+(defvar isar-find-theorems-widget-number nil
   "Search form widget for the number of theorems.")
 
-(defvar proof-find-theorems-widget-pattern nil
+(defvar isar-find-theorems-widget-pattern nil
   "Search form widget for search patterns.")
 
-(defvar proof-find-theorems-widget-intro nil
+(defvar isar-find-theorems-widget-intro nil
   "Search form widget for intro rules.")
 
-(defvar proof-find-theorems-widget-elim nil
+(defvar isar-find-theorems-widget-elim nil
   "Search form widget for elim rules.")
 
-(defvar proof-find-theorems-widget-dest nil
+(defvar isar-find-theorems-widget-dest nil
   "Search form widget for dest rules.")
 
-(defvar proof-find-theorems-widget-name nil
+(defvar isar-find-theorems-widget-name nil
   "Search form widget for theorem names.")
 
-(defvar proof-find-theorems-widget-simp nil
+(defvar isar-find-theorems-widget-simp nil
   "Search form widget for simplification rules.")
 
 ;; creates (or switches to) the search form buffer
 
-(defun proof-find-theorems-create-searchform
+(defun isar-find-theorems-create-searchform
     (num pattern intro elim dest name simp &optional errmsg)
   "Create (or switch to) the Find Theorems search form buffer."
 
@@ -126,36 +126,36 @@
 
   ;; pattern
   (widget-insert "  Search pattern: ")
-  (setq proof-find-theorems-widget-pattern (widget-create 'editable-field
+  (setq isar-find-theorems-widget-pattern (widget-create 'editable-field
     :size 50
     :help-echo "A pattern to match in the theorem."
     pattern))
   (widget-insert " ")
   (widget-create 'push-button
     :help-echo "Click <mouse-2> for help."
-    :notify (lambda (&rest ignore) (proof-find-theorems-create-help))
+    :notify (lambda (&rest ignore) (isar-find-theorems-create-help))
     "?")
 
   ;; name
   (widget-insert "\n\n  Theorem name:   ")
-  (setq proof-find-theorems-widget-name (widget-create 'editable-field
+  (setq isar-find-theorems-widget-name (widget-create 'editable-field
     :size 50
     :help-echo "Part of the theorem's name."
     name))
   (widget-insert " ")
   (widget-create 'push-button
     :help-echo "Click <mouse-2> for help."
-    :notify (lambda (&rest ignore) (proof-find-theorems-create-help))
+    :notify (lambda (&rest ignore) (isar-find-theorems-create-help))
     "?")
 
   ;; intro
   (widget-insert "\n\n  Rules matching the current goal: ")
   (widget-create 'push-button
     :help-echo "Click <mouse-2> for help."
-    :notify (lambda (&rest ignore) (proof-find-theorems-create-help))
+    :notify (lambda (&rest ignore) (isar-find-theorems-create-help))
     "?")
   (widget-insert "\n\n    INTRO:\n      ")
-    (setq proof-find-theorems-widget-intro (widget-create 'radio-button-choice
+    (setq isar-find-theorems-widget-intro (widget-create 'radio-button-choice
     :value intro
     :indent 6
     :button-args (list :help-echo "Click <mouse-2> to select one option.")
@@ -163,7 +163,7 @@
 
   ;; elim
   (widget-insert "\n    ELIM:\n      ")
-  (setq proof-find-theorems-widget-elim (widget-create 'radio-button-choice
+  (setq isar-find-theorems-widget-elim (widget-create 'radio-button-choice
     :value elim
     :indent 6
     :button-args (list :help-echo "Click <mouse-2> to select one option.")
@@ -171,7 +171,7 @@
 
   ;; dest
   (widget-insert "\n    DEST:\n      ")
-  (setq proof-find-theorems-widget-dest (widget-create 'radio-button-choice
+  (setq isar-find-theorems-widget-dest (widget-create 'radio-button-choice
     :value dest
     :indent 6
     :button-args (list :help-echo "Click <mouse-2> to select one option.")
@@ -179,7 +179,7 @@
 
   ;; simp
   (widget-insert "\n  Simplification pattern: ")
-  (setq proof-find-theorems-widget-simp (widget-create 'editable-field
+  (setq isar-find-theorems-widget-simp (widget-create 'editable-field
     :size 42
     :help-echo
       "A pattern to match in the left-hand side of a simplification rule."
@@ -187,19 +187,19 @@
   (widget-insert " ")
   (widget-create 'push-button
     :help-echo "Click <mouse-2> for help."
-    :notify (lambda (&rest ignore) (proof-find-theorems-create-help))
+    :notify (lambda (&rest ignore) (isar-find-theorems-create-help))
     "?")  
 
   ;; num
   (widget-insert "\n\n  Number of results:      ")
-  (setq proof-find-theorems-widget-number (widget-create 'editable-field
+  (setq isar-find-theorems-widget-number (widget-create 'editable-field
     :size 10
     :help-echo "Maximum number of results to be displayed."
     num))
   (widget-insert " ")
   (widget-create 'push-button
     :help-echo "Click <mouse-2> for help."
-    :notify (lambda (&rest ignore) (proof-find-theorems-create-help))
+    :notify (lambda (&rest ignore) (isar-find-theorems-create-help))
     "?")
 
   ;; Find
@@ -207,15 +207,15 @@
     (widget-create 'push-button
     :help-echo "Click <mouse-2> to submit this form."
     :notify (lambda (&rest ignore)
-      (let ((num     (widget-value proof-find-theorems-widget-number))
-            (pattern (widget-value proof-find-theorems-widget-pattern))
-            (intro   (widget-value proof-find-theorems-widget-intro))
-            (elim    (widget-value proof-find-theorems-widget-elim))
-            (dest    (widget-value proof-find-theorems-widget-dest))
-            (name    (widget-value proof-find-theorems-widget-name))
-            (simp    (widget-value proof-find-theorems-widget-simp)))
+      (let ((num     (widget-value isar-find-theorems-widget-number))
+            (pattern (widget-value isar-find-theorems-widget-pattern))
+            (intro   (widget-value isar-find-theorems-widget-intro))
+            (elim    (widget-value isar-find-theorems-widget-elim))
+            (dest    (widget-value isar-find-theorems-widget-dest))
+            (name    (widget-value isar-find-theorems-widget-name))
+            (simp    (widget-value isar-find-theorems-widget-simp)))
       (kill-buffer "*Find Theorems*")
-      (proof-find-theorems-submit-searchform
+      (isar-find-theorems-submit-searchform
         num pattern intro elim dest name simp)))
     "Find")
 
@@ -225,7 +225,7 @@
     :help-echo "Click <mouse-2> to reset this form."
     :notify (lambda (&rest ignore)
       (kill-buffer "*Find Theorems*")
-      (proof-find-theorems-create-searchform
+      (isar-find-theorems-create-searchform
         "" "" "none" "none" "none" "" ""))
     "Reset Form")
     (widget-insert "\n")
@@ -244,7 +244,7 @@
 
 ;; creates the search form help buffer
 
-(defun proof-find-theorems-create-help ()
+(defun isar-find-theorems-create-help ()
   "Create a help text buffer for the Find Theorems search form."
 
   (with-output-to-temp-buffer "*Find Theorems - Help*"
@@ -276,58 +276,58 @@
       "\n"
       "A minibuffer based \"Find Theorems\" command is available via (C-c C-a C-m). See\n"
       "the Isabelle NEWS file for up-to-date documentation. A search form is available\n"
-      "via (C-c C-a C-f). Variable proof-find-theorems-command (customizable via\n"
+      "via (C-c C-a C-f). Variable isar-find-theorems-command (customizable via\n"
       "Proof-General > Advanced > Internals > Prover Config) controls the default\n"
-      "behavior of the \"Find Theorems\" command: set to proof-find-theorems-form or\n"
-      "proof-find-theorems-minibuffer.\n"
+      "behavior of the \"Find Theorems\" command: set to isar-find-theorems-form or\n"
+      "isar-find-theorems-minibuffer.\n"
   )))
 )
 
-;; parses the search form's data and calls proof-find-theorems
+;; parses the search form's data and calls isar-find-theorems
 ;; with an appropriate argument string, or displays the search
 ;; form again, but with an error message
 
-(defun proof-find-theorems-submit-searchform
+(defun isar-find-theorems-submit-searchform
     (num pattern intro elim dest name simp)
   "Parse the Find Theorems search form's data."
 
   (let (num_ pattern_ intro_ elim_ dest_ name_ simp_ searchstring)
 
   ;; pattern
-  (setq pattern_ (proof-find-theorems-parse-criteria "" pattern))
+  (setq pattern_ (isar-find-theorems-parse-criteria "" pattern))
 
   (if (not (pop pattern_))
-    (proof-find-theorems-create-searchform
+    (isar-find-theorems-create-searchform
       num pattern intro elim dest name simp
       (concat "Invalid search pattern: " (car pattern_)))
 
   (setq pattern_ (car pattern_))
 
   ;; name
-  (setq name_ (proof-find-theorems-parse-criteria "name: " name))
+  (setq name_ (isar-find-theorems-parse-criteria "name: " name))
 
   (if (not (pop name_))
-    (proof-find-theorems-create-searchform
+    (isar-find-theorems-create-searchform
       num pattern intro elim dest name simp
       (concat "Invalid theorem name: " (car name_)))
 
   (setq name_ (car name_))
 
   ;; simp
-  (setq simp_ (proof-find-theorems-parse-criteria "simp: " simp))
+  (setq simp_ (isar-find-theorems-parse-criteria "simp: " simp))
 
   (if (not (pop simp_))
-    (proof-find-theorems-create-searchform
+    (isar-find-theorems-create-searchform
       num pattern intro elim dest name simp
       (concat "Invalid simplification pattern: " (car simp_)))
 
   (setq simp_ (car simp_))
 
   ;; num
-  (setq num_ (proof-find-theorems-parse-number num))
+  (setq num_ (isar-find-theorems-parse-number num))
 
   (if (not num_)
-    (proof-find-theorems-create-searchform
+    (isar-find-theorems-create-searchform
       num pattern intro elim dest name simp
       "Number of results must be a positive integer.")
 
@@ -340,20 +340,20 @@
   ;; dest
   (setq dest_ (if (equal dest "none") "" dest))
 
-  ;; success: save data, call proof-find-theorems
-  (setq proof-find-theorems-data
+  ;; success: save data, call isar-find-theorems
+  (setq isar-find-theorems-data
     (list num pattern intro elim dest name simp))
 
   (setq searchstring (format "find_theorems %s"
     (mapconcat 'identity
-      (proof-find-theorems-filter-empty
+      (isar-find-theorems-filter-empty
         (list num_ pattern_ intro_ elim_ dest_ name_ simp_))
       " ")))
 
-  ;; note that proof-find-theorems with an argument provided
+  ;; note that isar-find-theorems with an argument provided
   ;; will merely pass this on to Isabelle, and NOT display
   ;; the search form again
-  (proof-find-theorems searchstring))))))
+  (isar-find-theorems searchstring))))))
 )
 
 ;; "Multiple search patterns, theorem names and simplification terms can be
@@ -365,7 +365,7 @@
 ;; returns (t parsed-string) (where parsed-string may be empty) or
 ;; (nil errmsg) in case of an error
 
-(defun proof-find-theorems-parse-criteria (option-string criteria-string)
+(defun isar-find-theorems-parse-criteria (option-string criteria-string)
   "Parse search patterns/theorem names/simplification terms,
 separated by \" \", possibly preceded by \"-\", and possibly
 escaped by double-quotes."
@@ -458,7 +458,7 @@ escaped by double-quotes."
 ;; returns "" if num is "", "(num)" if num is a string encoding a positive
 ;; integer, and nil otherwise
 
-(defun proof-find-theorems-parse-number (num)
+(defun isar-find-theorems-parse-number (num)
   "Parse the number of theorems to be displayed."
   (if (equal num "")
     ""
@@ -468,14 +468,14 @@ escaped by double-quotes."
   nil)))
 )
 
-(defun proof-find-theorems-filter-empty (strings)
+(defun isar-find-theorems-filter-empty (strings)
   "Build a new list by removing empty strings from a (non-circular) list."
   (if (not strings)
     nil
   (if (equal (car strings) "")
-    (proof-find-theorems-filter-empty (cdr strings))
+    (isar-find-theorems-filter-empty (cdr strings))
   (cons (car strings)
-    (proof-find-theorems-filter-empty (cdr strings)))))
+    (isar-find-theorems-filter-empty (cdr strings)))))
 )
 
-(provide 'find-theorems)
+(provide 'isar-find-theorems)
