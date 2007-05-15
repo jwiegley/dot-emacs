@@ -30,6 +30,10 @@ May use option -f 18 or -f 24 of the Isabelle interface wrapper.
 See proof-shell-unicode (default nil), or option -U of the Isabelle
 interface wrapper.
 
+*** proof-indent-pad-eol option removed
+
+Spurious spaces are objectionable in source files.
+
 *** Minor fixes and tweaks
 
 Including numerous improvements from Stefan Monnier.
