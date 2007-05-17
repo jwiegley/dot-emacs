@@ -120,7 +120,11 @@
   (switch-to-buffer "*Find Theorems*")
 
   (widget-insert
-    (concat "\n  " (propertize "Find Theorems" 'face 'bold) "\n\n"))
+    (concat "\n  "
+      (if (fboundp 'propertize)
+        (propertize "Find Theorems" 'face 'bold)
+      "Find Theorems")
+      "\n\n"))
 
   ;; pattern
   (widget-insert "  Search pattern: ")
@@ -230,9 +234,11 @@
 
   ;; errmsg
   (if errmsg
-    (widget-insert (concat "\n    " (propertize
-      (concat errmsg "\n    See help for details.")
-      'face (list :foreground "red")) "\n")))
+    (widget-insert (concat "\n    "
+      (if (fboundp 'propertize)
+        (propertize (concat errmsg "\n    See help for details.") 'face 'bold)
+      (concat errmsg "\n    See help for details."))
+      "\n")))
 
   (use-local-map widget-keymap)
   (widget-setup)
