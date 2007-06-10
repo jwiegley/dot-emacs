@@ -1,41 +1,25 @@
-Proof General --- Organize your proofs!  [proofgeneral.inf.ed.ac.uk]
-
-=========================================================================
-|									|
-|  IMPORTANT NOTE: Please note that proofgeneral.org is no longer owned |
-|  by the Proof General project; please update your links to use the    |
-|  new web address http://proofgeneral.inf.ed.ac.uk.                    |
-|									|
-|  Report bugs, feedback, suggestions directly to me.  It helps if you  |
-|  use one of the suggested + extensions to my mail address, e.g.	|
-|									|
-|	David Aspinall <da+pg-feedback@inf.ed.ac.uk>			|
-|									|
-=========================================================================
+	    Proof General --- Organize your proofs! 
 
 Proof General is a generic Emacs interface for proof assistants.
 
-This is version 3.6 of Proof General.   
-(Check About screen for a precise version number; also see CHANGES).
+This is version 3.7 of Proof General (see about screen for exact version).   
 
-The aim of the Proof General project is to provide a powerful and
-configurable interfaces which help user-interaction with interactive
-proof assistants.  Proof General targets power users rather than
-novices, but we include general user interface niceties, such as
-toolbar and menus, which make use easier for all.
+The aim of the Proof General project is to provide a powerful, generic
+environment for using interactive proof assistants.
 
-Please help us with this aim!  Configure Proof General for your proof
-assistant, by adding features at the generic level wherever possible.
-Send ideas, comments, patches, code to da+pg-feedback@inf.ed.ac.uk
+See
 
-See INSTALL   for installation details.
+    INSTALL   for installation details.
     COPYING   for license details.
     REGISTER  for registration information (please register).
     FAQ, doc/ for documentation of Proof General.
 
-See http://proofgeneral.inf.ed.ac.uk/mailinglist for the Proof General
-mailing lists.  If you have problems, please contact
-da+pg-support@inf.ed.ac.uk after checking the BUGS and CHANGES files.
+Links:
+
+    Bug/feature reports:  http://proofgeneral.inf.ed.ac.uk/trac 
+    Wiki:		  http://proofgeneral.inf.ed.ac.uk/wiki
+    Lists:		  http://proofgeneral.inf.ed.ac.uk/mailinglist
+
 
 For notes on the supported assistants, see the README files
 in the subdirectories:
@@ -61,12 +45,11 @@ to a challenge of Freek Wiedijk in his comparison of different
 theorem provers, see http://www.cs.kun.nl/~freek/comparison/.
 Those proof scripts are copyright by their named authors.
 
-Check BUGS files for problems and issues, in this directory, and for
-specific issues, in each prover subdirectory.  Please report bugs
-not mentioned in any of these files to da+pg-bugs@inf.ed.ac.uk
+Check BUGS files for problems and issues.  Please report new bugs
+on the Trac site at http://proofgeneral.inf.ed.ac.uk/trac.
 
 For the latest news and downloads, visit Proof General on the web 
 at: http://proofgeneral.inf.ed.ac.uk
 
 David Aspinall <da+pg-feedback@inf.ed.ac.uk>
-September 2004.
+June 2007.
