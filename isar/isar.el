@@ -127,8 +127,8 @@ See -k option for Isabelle interface script."
    proof-info-command           "welcome"
    proof-kill-goal-command      "ProofGeneral.kill_proof"
 ;   proof-find-theorems-command  "find_theorems %s"               ;; minibuffer
-;   proof-find-theorems-command  'isar-find-theorems-minibuffer  ;; equivalent
-   proof-find-theorems-command  'isar-find-theorems-form        ;; search form
+   proof-find-theorems-command  'isar-find-theorems-minibuffer  ;; equivalent
+;   proof-find-theorems-command  'isar-find-theorems-form        ;; search form
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
    ;; command hooks
