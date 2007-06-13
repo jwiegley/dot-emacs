@@ -42,14 +42,22 @@ Including numerous improvements from Stefan Monnier.
 
 ** Changes for Isabelle
 
-*** Support for Isabelle2005 and later development snapshots of Isabelle.  
+*** Support for Isabelle2005 and later development snapshots of Isabelle 2007.
 
 Additional menu functions and PGIP support for settings configuration
 now controlled directly by Isabelle.  Support for Unicode-safe
 interaction (`proof-shell-unicode' variable).
 
 Support for Isabelle2003 has been removed; results with Isabelle2004
-are not guaranteed.  Code now works with PolyML 5 versions of Isabelle.
+are not guaranteed.  Code now works with PolyML 5 versions of
+Isabelle.
+
+Optional search form for the "Find Theorems" command is available via
+C-c C-a C-f, the minibuffer interface is available via C-c C-a C-m.
+Variable proof-find-theorems-command (customizable via 'Proof-General
+-> Advanced -> Internals -> Prover Config') controls the default
+behavior of 'ProofGeneral -> Find Theorems' (C-c C-f): set to
+isar-find-theorems-form or isar-find-theorems-minibuffer.
 
 
 
