@@ -374,7 +374,7 @@ matches contents of quotes for quoted identifiers.")
 
 
 (defconst isar-font-lock-local
-  '("\\(\\\\<\\^loc>\\)\\(\\\\+<[A-Za-z]+>\\|.\\)"
+  '("\\(\\\\<\\^loc>\\)\\([^\\]\\|\\\\<[A-Za-z]+>\\)"
     (1 x-symbol-invisible-face t)
     (2 proof-declaration-name-face prepend)))
 
