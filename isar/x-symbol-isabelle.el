@@ -91,7 +91,7 @@ See language access `x-symbol-LANG-subscript-matcher'."
   :group 'x-symbol-isabelle
   :type 'function)
 
-(defcustom x-symbol-isabelle-font-lock-regexp "\\(\\\\<\\^[ib]?su[bp]>\\)\\S-"
+(defcustom x-symbol-isabelle-font-lock-regexp "\\\\<\\^[ib]?su[bp]>"
   "Regexp matching the start tag of Isabelle super- and subscripts."
   :group 'x-symbol-isabelle
   :type 'regexp)
@@ -113,7 +113,7 @@ or subscript tag."
 ;; the [\350-\357].\350\\|\^A[A-H].\^AA part is there to enable single
 ;; char sub/super scripts with coloured Isabelle output.
 (defcustom x-symbol-isabelle-single-char-regexp 
-  "[\350-\357].\350\\|\^A[A-H].\^AA\\|[^\\]\\|\\\\\\\\?<[A-Za-z0-9_']+>"
+  "\\([^\\]\\|\\\\<[A-Za-z]+>\\)\\|[\350-\357]\\([^\\]\\|\\\\<[A-Za-z]+>\\)\350\\|\^A[A-H]\\([^\\]\\|\\\\<[A-Za-z]+>\\)\^AA"
   "Return regexp matching \<ident> or c for some char c."
   :group 'x-symbol-isabelle
   :type 'regexp)
@@ -122,43 +122,43 @@ or subscript tag."
   (block nil
     (let (open-beg open-end close-end close-beg script-type)
       (while (re-search-forward x-symbol-isabelle-font-lock-regexp limit t)
-        (setq open-beg (match-beginning 1)
-              open-end (match-end 1)
+        (setq open-beg (match-beginning 0)
+              open-end (match-end 0)
               script-type (if (eq (char-after (- open-end 2)) ?b)
                               'x-symbol-sub-face
                            'x-symbol-sup-face))
-        (if (eq (char-after (- open-end 5)) ?b) ; if is spanning sup-/subscript
-            (let ((depth 1)) ; level of nesting
-              (while (and (not (eq depth 0))
-                          (re-search-forward x-symbol-isabelle-font-lock-limit-regexp
-                                             limit 'limit))
-                (setq close-beg (match-beginning 0)
-                      close-end (match-end 0))
-                (if (eq (char-after (- close-end 1)) ?\n) ; if eol
-                    (setq depth 0)
-                  (if (eq (char-after (- close-end 5)) ?b) ; if end of span
-                      (setq depth (+ depth 1))
-                    (setq depth (- depth 1)))))
-              (when (eq depth 0)
-                (when
-                    (save-excursion
-                      (goto-char open-end)
-                      (re-search-forward x-symbol-isabelle-font-lock-contents-regexp
-                                         close-beg t))
-                  (store-match-data (list open-beg close-end
-                                          open-beg open-end
-                                          open-end close-beg
-                                          close-beg close-end))
-                  (return script-type)))
-              (goto-char close-beg))
-          (when (re-search-forward x-symbol-isabelle-single-char-regexp
-                                   limit 'limit)
-            (setq close-end (match-end 0))
-            (store-match-data (list open-beg close-end
-                                    open-beg open-end
-                                    open-end close-end))
-            (return script-type))
-      )))))
+	(when (not (proof-string-match "[ \t\n]" (string (char-after open-end))))
+	  (if (eq (char-after (- open-end 5)) ?b) ; if is spanning sup-/subscript
+	      (let ((depth 1)) ; level of nesting
+		(while (and (not (eq depth 0))
+			    (re-search-forward x-symbol-isabelle-font-lock-limit-regexp
+					       limit 'limit))
+		  (setq close-beg (match-beginning 0)
+			close-end (match-end 0))
+		  (if (eq (char-after (- close-end 1)) ?\n) ; if eol
+		      (setq depth 0)
+		    (if (eq (char-after (- close-end 5)) ?b) ; if end of span
+			(setq depth (+ depth 1))
+		      (setq depth (- depth 1)))))
+		(when (eq depth 0)
+		  (when
+		      (save-excursion
+			(goto-char open-end)
+			(re-search-forward x-symbol-isabelle-font-lock-contents-regexp
+					   close-beg t))
+		    (store-match-data (list open-beg close-end
+					    open-beg open-end
+					    open-end close-beg
+					    close-beg close-end))
+		    (return script-type)))
+		(goto-char close-beg))
+	    (when (re-search-forward x-symbol-isabelle-single-char-regexp
+				     limit 'limit)
+	      (setq close-end (match-end 0))
+	      (store-match-data (list open-beg close-end
+				      open-beg open-end
+				      open-end close-end))
+	      (return script-type))))))))
    
 (defun isabelle-match-subscript (limit)
   (if (proof-ass x-symbol-enable)
