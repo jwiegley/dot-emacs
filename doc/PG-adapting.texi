@@ -363,23 +363,21 @@ more details.
 Proof General's table of supported proof assistants.@*
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
-
+@lisp
     (@var{symbol} @var{name} @var{automode-regexp})
-
+@end lisp
 The @var{name} is a string, naming the proof assistant.
 The @var{symbol} is used to form the name of the mode for the
 assistant, @samp{SYMBOL-mode}, run when files with @var{automode-regexp}
 are visited.  @var{symbol} is also used to form the name of the
 directory and elisp file for the mode, which will be
 @lisp
- 
     @var{proof-home-directory}/@var{symbol}/@var{symbol}.el
 @end lisp
-
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((isar "Isabelle" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (ccc "CASL Consistency Checker" "\\.ccc$") (acl2 "ACL2" "\\.acl2$") (plastic "Plastic" "\\.lf$") (lclam "Lambda-CLAM" "\\.lcm$") (pgshell "PG-Shell" "\\.pgsh$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (isar "Isabelle/Isar" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (ccc "CASL Consistency Checker" "\\.ccc$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (twelf "Twelf" "\\.elf$") (plastic "Plastic" "\\.lf$") (lclam "Lambda-CLAM" "\\.lcm$") (pgshell "PG-Shell" "\\.pgsh$"))}.
 @end defopt
 
 
@@ -893,7 +891,7 @@ The name of the theorem is build from the variable
 @code{proof-save-with-hole-result} using the same convention as 
 @code{query-replace-regexp}. 
 Used for setting names of goal..save and proof regions and for 
-default function-menu configuration in @code{proof-script-find-next-entity}.
+default @code{function-menu} configuration in @code{proof-script-find-next-entity}.
 
 It's safe to leave this setting as nil.
 @end defvar
@@ -909,14 +907,12 @@ script management since once a new goal arrives the old undo history
 may be lost in the prover.  So we allow Proof General to close 
 off the goal..[save] region in more flexible ways.  
 The possibilities are:
-
-        nil  -  nothing special; close only when a save arrives
 @lisp
+        nil  -  nothing special; close only when a save arrives
   @code{'closeany}  -  close as soon as the next command arrives, save or not
  @code{'closegoal}  -  close when the next "goal" command arrives
     @code{'extend}  -  keep extending the closed region until a save or goal.
 @end lisp
-
 If your proof assistant allows nested goals, it will be wrong to close
 off the portion of proof so far, so this variable should be set to nil.
 
@@ -1008,24 +1004,20 @@ in favour of Imenu only in the next release of Proof General).
 @defvar proof-script-next-entity-regexps 
 Regular expressions to help find definitions and proofs in a script.@*
 This is the list of the form
-
-   (@var{anyentity-regexp}
 @lisp
+   (@var{anyentity-regexp}
     @var{discriminator-regexp}  ... @var{discriminator-regexp})
 @end lisp
-
 The idea is that @var{anyentity-regexp} matches any named entity in the
 proof script, on a line where the name appears.  This is assumed to be
 the start or the end of the entity.  The discriminators then test
 which kind of entity has been found, to get its name.  A
 @var{discriminator-regexp} has one of the forms
-
-  (@var{regexp} @var{matchnos})
 @lisp
+  (@var{regexp} @var{matchnos})
   (@var{regexp} @var{matchnos} @code{'backward} @var{backregexp})
   (@var{regexp} @var{matchnos} @code{'forward} @var{forwardregexp})
 @end lisp
-
 If @var{regexp} matches the string captured by @var{anyentity-regexp}, then
 @var{matchnos} are the match numbers for the substrings which name the entity
 (these may be either a single number or a list of numbers).
@@ -1195,9 +1187,8 @@ Command to kill the currently open goal.
 If this is set to nil, PG will expect @code{proof-find-and-forget-fn}
 to do all the work of retracting to an arbitrary point in a file.
 Otherwise, the generic split-phase mechanism will be used:
-
-  1. If inside an unclosed proof, use proof-count-undos.
 @lisp
+  1. If inside an unclosed proof, use proof-count-undos.
   2. If retracting to before an unclosed proof, use 
      @code{proof-kill-goal-command}, followed by @code{proof-find-and-forget-fn}
      if necessary.
@@ -1337,7 +1328,7 @@ you may want to call at other times.
 @c TEXI DOCSTRING MAGIC: PA-completion-table
 @defvar PA-completion-table 
 List of identifiers to use for completion for this proof assistant.@*
-Completion is activated with @var{c-ret}.
+Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
 @samp{@code{customize-variable}} and send suggestions to da+pg-support@@@@inf.ed.ac.uk
@@ -1599,7 +1590,6 @@ suggests what class of command is about to be inserted:
  @code{'init-cmd}                   Initialization command sent to prover
  @code{'interactive-input}          Special interactive input direct to prover
 @end lisp
-
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between
 inputs and outputs.  It expects to see a prompt for each input it
@@ -1873,9 +1863,9 @@ settings.
 Matches output telling Proof General about dependencies.@*
 This is to allow navigation and display of dependency information.
 The output from the prover should be a message with the form
-
+@lisp
    @var{dependencies} OF  X Y Z   ARE  A B C
-
+@end lisp
 with X Y Z, A B C separated by whitespace or somehow else (see
 @samp{@code{proof-shell-theorem-dependency-list-split}}.  This variable should
 be set to a regexp to match the overall message (which should
@@ -2001,15 +1991,13 @@ We do not force pipes everywhere because this risks loss of data.
 Hooks run before proof shell is started.@*
 Suggestion: set this to a function which configures just these proof
 shell variables: 
-
-   @code{proof-prog-name}
 @lisp
+   @code{proof-prog-name}
    @code{proof-mode-for-shell}
    @code{proof-mode-for-response}
    @code{proof-mode-for-goals}
    @code{proof-shell-trace-output-regexp}
 @end lisp
-
 This is the bare minimum needed to get a shell buffer and
 its friends configured in the function @code{proof-shell-start}.
 @end defvar
@@ -2020,12 +2008,10 @@ Run after an error or interrupt has been reported in the response buffer.@*
 Hook functions may inspect @samp{@code{proof-shell-error-or-interrupt-seen}} to 
 determine whether the cause was an error or interrupt.  Possible
 values for this hook include:
-
- @code{proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window}
 @lisp
+ @code{proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window}
  @code{proof-goto-end-of-locked-if-pos-not-visible-in-window}
 @end lisp
-
 which move the cursor in the scripting buffer on an error or
 error/interrupt.
 
@@ -2035,9 +2021,11 @@ something in scripting buffer, @samp{@code{save-excursion}} and/or @samp{@code{s
 
 @c TEXI DOCSTRING MAGIC: proof-shell-pre-interrupt-hook
 @defvar proof-shell-pre-interrupt-hook 
-Run immediately after @samp{@code{comint-interrupt-subjob}} is called.  This@*
-hook is added to allow customization for systems that query the user
-before returning to the top level.
+Run immediately after @samp{@code{comint-interrupt-subjob}} is called.@*
+This hook is added to allow customization for Poly/ML and other
+systems where the system queries the user before returning to
+the top level.  For Poly/ML it can be used to send the string "f",
+for example.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output-system-specific
@@ -2362,10 +2350,8 @@ takes place).
 List of syntax table entries for proof script mode.@*
 A flat list of the form
 @lisp
- 
   (@var{char} @var{syncode} @var{char} @var{syncode} ...)
 @end lisp
-
 See doc of @samp{@code{modify-syntax-entry}} for details of characters
 and syntax codes.
 
@@ -2376,10 +2362,8 @@ At present this is used only by the @samp{@code{proof-easy-config}} macro.
 List of syntax table entries for proof script mode.@*
 A flat list of the form
 @lisp
- 
   (@var{char} @var{syncode} @var{char} @var{syncode} ...)
 @end lisp
-
 See doc of @samp{@code{modify-syntax-entry}} for details of characters
 and syntax codes.
 
@@ -2481,7 +2465,7 @@ Meant to be used from @samp{@code{font-lock-keywords}}.
 This hook is called before fontifying a region in an output buffer.@*
 A function on this hook can alter the region of the buffer within
 the current restriction, and must return the final value of (@code{point-max}).
-[This hook is presently only used by phox-sym-lock].
+[This hook is presently only used by @code{phox-sym-lock}].
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: pg-after-fontify-output-hook
@@ -2690,8 +2674,8 @@ Insert @var{text} into the current buffer.@*
 @var{text} may include these special characters:
 @lisp
   %p  - place the point here after input
-Any other %-prefixed character inserts itself.
 @end lisp
+Any other %-prefixed character inserts itself.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-defshortcut
@@ -3372,10 +3356,10 @@ Marker in proof shell buffer pointing to previous command input.
 
 @c TEXI DOCSTRING MAGIC: proof-action-list
 @defvar proof-action-list 
-A list of
-
+A list of@*
+@lisp
   (@var{span} @var{command} @var{action})
-
+@end lisp
 triples, which is a queue of things to do.
 See the functions @samp{@code{proof-start-queue}} and @samp{proof-exec-loop}.
 @end defvar
@@ -3597,9 +3581,8 @@ A record of the last string seen from the proof system.
 @defvar proof-shell-last-output-kind 
 A symbol denoting the type of the last output string from the proof system.@*
 Specifically:
-
- @code{'interrupt}      An interrupt message
 @lisp
+ @code{'interrupt}      An interrupt message
  @code{'error}          An error message
  @code{'abort}          A proof abort message
  @code{'loopback}       A command sent from the PA to be inserted into the script
@@ -3608,7 +3591,6 @@ Specifically:
  @code{'systemspecific} Something specific to a particular system,
                   -- see @samp{@code{proof-shell-process-output-system-specific}}
 @end lisp
-
 The output corresponding to this will be in @code{proof-shell-last-output}.
 
 See also @samp{@code{proof-shell-proof-completed}} for further information about
@@ -3639,14 +3621,12 @@ Here is where we recognizes interrupts, abortions of proofs, errors,
 completions of proofs, and proof step hints (proof by pointing results).
 They are checked for in this order, using
 @lisp
- 
   @samp{@code{proof-shell-interrupt-regexp}}
   @samp{@code{proof-shell-error-regexp}}
   @samp{@code{proof-shell-abort-goal-regexp}}
   @samp{@code{proof-shell-proof-completed-regexp}}
   @samp{@code{proof-shell-result-start}}
 @end lisp
-
 All other output from the proof engine will be reported to the user in
 the response buffer by setting @samp{@code{proof-shell-delayed-output}} to a cons
 cell of ('insert . @var{text}) where @var{text} is the text string to be inserted.
@@ -3703,15 +3683,13 @@ between the new prompt and the last input (position of @samp{@code{proof-marker}
 or the last urgent message (position of
 @samp{@code{proof-shell-urgent-message-marker}}), whichever is later.
 For example, in this case:
-
- PROMPT> @var{input}
 @lisp
+ PROMPT> @var{input}
  @var{output-1}
  @var{urgent-message}
  @var{output-2}
  PROMPT>
 @end lisp
-
 @samp{@code{proof-marker}} is set after @var{input} by @samp{@code{proof-shell-insert}} and
 @samp{@code{proof-shell-urgent-message-marker}} is set after @var{urgent-message}.
 Only @var{output-2} will be processed.  For this reason, error

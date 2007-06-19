@@ -1334,7 +1334,7 @@ highlighted command under the mouse:
 @c TEXI DOCSTRING MAGIC: proof-mouse-track-insert
 @deffn Command proof-mouse-track-insert event
 Copy highlighted command under the mouse to point.  Ignore comments.@*
-If there is no command under the mouse, behaves like mouse-track-insert.
+If there is no command under the mouse, behaves like @code{mouse-track-insert}.
 @end deffn
 
 Read the documentation in Emacs to find out about the normal behaviour
@@ -2923,9 +2923,9 @@ The default value is @code{" "}.
 @defopt proof-rsh-command 
 Shell command prefix to run a command on a remote host.  @*
 For example,
-
+@lisp
    ssh bigjobs
-
+@end lisp
 Would cause Proof General to issue the command @samp{ssh bigjobs isabelle}
 to start Isabelle remotely on our large compute server called @samp{bigjobs}.
 
