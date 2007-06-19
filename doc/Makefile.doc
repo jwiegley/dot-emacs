@@ -107,7 +107,7 @@ ProofGeneralPortrait.pdf:
 	gzip -f -9 $*
 
 ## 
-## doc : build info and dvi files from $(DOCNAME).texi
+## doc : build pdf, info files from $(DOCNAME).texi
 ##
 doc:	pdf info
 
