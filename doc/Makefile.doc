@@ -126,7 +126,8 @@ dvi:    ProofGeneralPortrait.eps $(DOCNAME).dvi
 ps:	dvi $(DOCNAME).ps
 psz:	ps $(DOCNAME).ps.gz
 pdf:    ProofGeneralPortrait.pdf $(DOCNAME).pdf
-html:   $(DOCNAME)/$(DOCNAME).html
+# da: target is a fake: we actually make in a subdir
+html:   $(DOCNAME).html
 	ln -sf $(DOCNAME)/$(DOCNAME)_toc.html index.html
 info:   ProofGeneral.txt $(DOCNAME).info
 
