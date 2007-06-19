@@ -1334,7 +1334,7 @@ highlighted command under the mouse:
 @c TEXI DOCSTRING MAGIC: proof-mouse-track-insert
 @deffn Command proof-mouse-track-insert event
 Copy highlighted command under the mouse to point.  Ignore comments.@*
-If there is no command under the mouse, behaves like @code{mouse-track-insert}.
+If there is no command under the mouse, behaves like mouse-track-insert.
 @end deffn
 
 Read the documentation in Emacs to find out about the normal behaviour
@@ -2356,7 +2356,7 @@ database.
 @c TEXI DOCSTRING MAGIC: PA-completion-table
 @defvar PA-completion-table 
 List of identifiers to use for completion for this proof assistant.@*
-Completion is activated with C-return.
+Completion is activated with @var{c-ret}.
 
 If this table is empty or needs adjusting, please make changes using
 @samp{@code{customize-variable}} and send suggestions to da+pg-support@@@@inf.ed.ac.uk
@@ -2848,10 +2848,10 @@ The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-keep-response-history
-@defopt proof-keep-response-history
+@defopt proof-keep-response-history 
 Whether to keep a browsable history of responses.@*
 With this feature enabled, the buffers used for prover responses will have a
-history that can be browsed without processing/undoing in the prover. 
+history that can be browsed without processing/undoing in the prover.
 (Changes to this variable take effect after restarting the prover).
 
 The default value is @code{nil}.
@@ -2923,9 +2923,9 @@ The default value is @code{" "}.
 @defopt proof-rsh-command 
 Shell command prefix to run a command on a remote host.  @*
 For example,
-@lisp
+
    ssh bigjobs
-@end lisp
+
 Would cause Proof General to issue the command @samp{ssh bigjobs isabelle}
 to start Isabelle remotely on our large compute server called @samp{bigjobs}.
 
@@ -2934,7 +2934,7 @@ The protocol used should be configured so that no user interaction
 behaviour with interrupts, the program should also communicate
 signals to the remote host.
 
-The default value is @code{""}.
+The default value is @code{nil}.
 @end defopt
 
 
@@ -3656,7 +3656,7 @@ terminators in existing texts.
 
 @c TEXI DOCSTRING MAGIC: isar-strip-terminators
 @deffn Command isar-strip-terminators 
-Remove explicit Isabelle command terminators @samp{;} from the buffer.
+Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
 @end deffn
 
 
