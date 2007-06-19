@@ -18,10 +18,8 @@ ProofGeneral.fns
 ProofGeneral.vrs           
 ProofGeneral.info-*
 ProofGeneral.txt
-ProofGeneral_*.html
-ProofGeneral_toc.html
-ProofGeneral_foot.html
-PG-adapting.log
+ProofGeneral
+PG-adapting
 PG-adapting.dvi
 PG-adapting.ps
 PG-adapting.pdf
