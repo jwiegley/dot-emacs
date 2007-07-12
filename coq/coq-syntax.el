@@ -324,10 +324,17 @@ so for the following reasons:
     ("Definition (2 args)" "def2" "Definition # (# : #) (# : #):# := #." t)
     ("Definition (3 args)" "def3" "Definition # (# : #) (# : #) (# : #):# := #." t)
     ("Definition (4 args)" "def4" "Definition # (# : #) (# : #) (# : #) (# : #):# := #." t)
+    ("Program Definition" "pdef" "Program Definition #:# := #." t "Program\\s-+Definition");; careful ?
+    ("Program Definition (2 args)" "pdef2" "Program Definition # (# : #) (# : #):# := #." t)
+    ("Program Definition (3 args)" "pdef3" "Program Definition # (# : #) (# : #) (# : #):# := #." t)
+    ("Program Definition (4 args)" "pdef4" "Program Definition # (# : #) (# : #) (# : #) (# : #):# := #." t)
     ("Derive Inversion" nil "Derive Inversion @{id} with # Sort #." t "Derive\\s-+Inversion")
     ("Derive Dependent Inversion" nil "Derive Dependent Inversion @{id} with # Sort #." t "Derive\\s-+Dependent\\s-+Inversion")
     ("Derive Inversion_clear" nil "Derive Inversion_clear @{id} with # Sort #." t "Derive\\s-+Inversion")
     ("Fixpoint" "fix" "Fixpoint # (#:#) {struct @{arg}} : # :=\n#." t "Fixpoint")
+    ("Program Fixpoint" "pfix" "Program Fixpoint # (#:#) {struct @{arg}} : # :=\n#." t "Program\\s-+Fixpoint")
+    ("Program Fixpoint measure" "pfixm" "Program Fixpoint # (#:#) {measure @{arg} @{f}} : # :=\n#." t)
+    ("Program Fixpoint wf" "pfixwf" "Program Fixpoint # (#:#) {wf @{arg} @{f}} : # :=\n#." t)
     ("Function" "func" "Function # (#:#) {struct @{arg}} : # :=\n#." t "Function")
     ("Function measure" "funcm" "Function # (#:#) {measure @{f} @{arg}} : # :=\n#." t)
     ("Function wf" "func wf" "Function # (#:#) {wf @{R} @{arg}} : # :=\n#." t)
@@ -365,6 +372,7 @@ so for the following reasons:
     ("Fact" "fct" "Fact # : #." t "Fact")
     ("Goal" nil "Goal #." t "Goal")
     ("Lemma" "l" "Lemma # : #.\nProof.\n#\nQed." t "Lemma")
+    ("Program Lemma" "pl" "Program Lemma # : #.\nProof.\n#\nQed." t "Program\\s-+Lemma")
     ("Module! (interactive)" nil "Module # : #.\n#\nEnd #." nil nil coq-insert-section-or-module)
     ("Module :" "moi" "Module # : #.\n#\nEnd #." t "Module") ; careful
     ("Module <:" "moi2" "Module # <: #.\n#\nEnd #." t ) ; careful
@@ -372,6 +380,9 @@ so for the following reasons:
     ("Remark" "rk" "Remark # : #.\n#\nQed." t "Remark")
     ("Section" "sec" "Section #." t "Section")
     ("Theorem" "th" "Theorem # : #.\n#\nQed." t "Theorem")
+    ("Program Theorem" "pth" "Program Theorem # : #.\nProof.\n#\nQed." t "Program\\s-+Theorem")
+    ("Obligation" "obl" "Obligation #.\n#\nQed." t "Obligation")
+    ("Next Obligation" "nobl" "Next Obligation.\n#\nQed." t "Next Obligation")
     )
   "Coq goal starters keywords information list. See `coq-syntax-db' for syntax. "
   )
@@ -397,6 +408,7 @@ so for the following reasons:
      ("Add Ring" nil "Add Ring #." t "Add\\s-+Ring")
      ("Add Semi Ring" nil "Add Semi Ring #." t "Add\\s-+Semi\\s-+Ring")
      ("Add Setoid" nil "Add Setoid #." t "Add\\s-+Setoid")
+     ("Admit Obligations" "oblsadmit" "Admit Obligations." nil "Admit\\s-+Obligations")
      ("Arguments Scope" "argsc" "Arguments Scope @{id} [ @{_} ]" t "Arguments\\s-+Scope")
      ("Bind Scope" "bndsc" "Bind Scope @{scope} with @{type}" t "Bind\\s-+Scope")
      ("Canonical Structure" nil "Canonical Structure #." t "Canonical\\s-+Structure")
@@ -435,6 +447,7 @@ so for the following reasons:
      ("Notation Local (only parsing)" "notslp" "Notation Local # := # (only parsing)." t)
      ("Notation Local" "notsl" "Notation Local # := #." t "Notation\\s-+Local")
      ("Opaque" nil "Opaque #." nil "Opaque")
+     ("Obligations Tactic" nil "Obligations Tactic := #." t "Obligations\\s-+Tactic")
      ("Open Local Scope" "oplsc" "Open Local Scope #" t "Open\\s-+Local\\s-+Scope")
      ("Open Scope" "opsc" "Open Scope #" t "Open\\s-+Scope")
      ("Print" "p" "Print #." nil "Print")
@@ -468,6 +481,7 @@ so for the following reasons:
      ("Set Printing Notations" "sprn" "Set Printing Notations" t "Printing\\s-+Notations")
      ("Set Undo" nil "Set Undo #." nil "Undo")
      ("Show" nil "Show #." nil "Show")
+     ("Solve Obligations" "oblssolve" "Solve Obligations using #." nil "Solve\\s-+Obligations")
      ("Test" nil "Test" nil "Test" nil t)
      ("Test Printing Depth" nil "Test Printing Depth." nil "Test\\s-+Printing\\s-+Depth")
      ("Test Printing If" nil "Test Printing If #." nil "Test\\s-+Printing\\s-+If")
@@ -727,7 +741,7 @@ Used by `coq-goal-command-p'"
     "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
     "return" "struct" "else" "end" "if" "in" "into" "let" "then"
     "using" "with" "by" "beta" "delta" "iota" "zeta" "after" "until"
-    "at" "Sort" "Time")
+    "at" "Sort" "Time" "dest")
   "Reserved keywords of Coq.")
 
 
