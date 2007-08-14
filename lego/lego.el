@@ -321,7 +321,7 @@ Checks the width in the `proof-goals-buffer'"
 	proof-completed-proof-behaviour 'closeany ; new in 3.0
 	proof-count-undos-fn 'lego-count-undos
 	proof-find-and-forget-fn 'lego-find-and-forget
-        pg-topterm-goalhyp-fn 'lego-goal-hyp
+        pg-topterm-goalhyplit-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
@@ -403,7 +403,7 @@ We assume that module identifiers coincide with file names."
         pg-subterm-start-char ?\372
         pg-subterm-sep-char ?\373
         pg-subterm-end-char ?\374
-        pg-topterm-char ?\375
+        pg-topterm-regexp "\375"
 	proof-shell-eager-annotation-start "\376"
 	proof-shell-eager-annotation-start-length 1
 	proof-shell-eager-annotation-end "\377"

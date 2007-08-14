@@ -144,7 +144,9 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   pg-subterm-first-special-char	?\350
+   pg-topterm-regexp			"\375\\|\^AV"
+
+   pg-topterm-goalhyplit-fn		'isar-goalhyplit-test
    proof-shell-wakeup-char              nil
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \372\\|^\\w*[>#] \^AS"
 
@@ -384,12 +386,13 @@ proof-shell-retract-files-regexp."
              (or (proof-string-match isar-undo-skip-regexp str)
 		 (proof-string-match isar-undo-ignore-regexp str)
                  (setq ct (+ 1 ct))))
-            ((eq (span-property span 'type) 'pbp)  ;FIXME dead code?
-             ;; this case probably redundant for Isabelle, unless
-             ;; we think of some nice ways of matching non-undoable
-             ;; commands.
+            ((eq (span-property span 'type) 'pbp)  
+             ;; this case for automatically inserted text (e.g. sledgehammer)
              (cond ((not (proof-string-match isar-undo-skip-regexp str))
+		    (setq ct 1)
                     (setq i 0)
+		    ;; If we find a semicolon, assume several commands,
+		    ;; and increment the undo count.
                     (while (< i (length str))
                       (if (= (aref str i) proof-terminal-char)
                           (setq ct (+ 1 ct)))
@@ -621,8 +624,7 @@ Checks the width in the `proof-goals-buffer'"
   (proof-response-config-done))
 
 (defun isar-goals-mode-config ()
-  ;; FIXME: next two broken, of course, as is PBP everywhere except LEGO.
-  (setq pg-goals-change-goal "show %s.")
+  (setq pg-goals-change-goal "prefer %s")
   (setq pg-goals-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
   (setq font-lock-keywords  
@@ -632,6 +634,14 @@ Checks the width in the `proof-goals-buffer'"
 	     x-symbol-isabelle-font-lock-keywords)))
   (proof-goals-config-done))
 
+(defun isar-goalhyplit-test ()
+  "This is a value for pg-topterm-goalhyplit-fn, see proof-config.el for docs."
+  ;; We need to find the end of the proof command on the current line.
+  (let ((bol (point)))
+    (end-of-line) ;; could search backwards for regexps here, return nil to fail
+    ;; Indicate that this is a literal command to send back
+    (cons 'lit (buffer-substring bol (point)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Remove isa-mode from auto-mode-alist, 
@@ -640,7 +650,7 @@ Checks the width in the `proof-goals-buffer'"
 
 (setq auto-mode-alist
       (delete-if 
-       (lambda (strmod) (memq (cdr strmod) '(isa-mode demoisa-mode)))
+       (lambda (strmod) (memq (cdr strmod) '(demoisa-mode)))
        auto-mode-alist))
 
 (provide 'isar)

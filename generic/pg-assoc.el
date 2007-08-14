@@ -95,8 +95,8 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
 	  (goto-char start)
 	  (proof-replace-string (char-to-string pg-subterm-end-char) "")
 	  (goto-char start)
-	  (if pg-topterm-char
-	      (proof-replace-string (char-to-string pg-topterm-char) ""))))))
+	  (if pg-topterm-regexp
+	      (proof-replace-regexp pg-topterm-regexp ""))))))
 	  
 	 
 (defun pg-assoc-strip-subterm-markup-buf-old (start end)

@@ -176,8 +176,8 @@ optimisation.)
 For subterm markup without communication back to the prover, the
 annotation is not needed, but the first character must still be given.
 
-For proof-by-pointing (PBP) oriented markup, `pg-topterm-char' and
-`pg-topterm-goalhyp-fn' should be set.  Together these allow
+For proof-by-pointing (PBP) oriented markup, `pg-topterm-regexp' and
+`pg-topterm-goalhyplit-fn' should be set.  Together these allow
 further active regions to be defined, corresponding to \"top elements\"
 in the proof-state display.  A \"top element\" is currently assumed
 to be either a hypothesis or a subgoal, and is assumed to occupy 
@@ -186,13 +186,13 @@ a line (or at least a line).  The markup is simply
                  & <goal or hypthesis line in proof state>
                  ^
 		 |
-   pg-topterm-char
+   pg-topterm-regexp
 
-And the function `pg-topterm-goalhyp-fn' is called to do the
+And the function `pg-topterm-goalhyplit-fn' is called to do the
 further analysis, to return an indication of the goal/hyp and
 record a name value.  These values are used to construct PBP
 commands which can be sent to the prover."
-  (if pg-subterm-start-char
+  (if (or pg-subterm-start-char pg-topterm-regexp) ;; markup for topterm alone
   (let* 
       ((cur start)
        (len (- end start))
@@ -203,16 +203,19 @@ commands which can be sent to the prover."
     (while (< cur end)
       (setq c (char-after cur))
       (cond
-       ;; Seen goal char: this is the start of a top extent
-       ;; (assumption or goal)
-       ((= c pg-topterm-char)
+       ;; Seen goal regexp: this is the start of a top extent
+       ;; (assumption, goal, literal command)
+       ((save-excursion
+	  (goto-char cur)
+	  (looking-at pg-topterm-regexp))
 	(setq topl (cons cur topl))
 	(setq ap 0))
 
        ;; Seen subterm start char: it's followed by a char
        ;; indicating the length of the annotation prefix
        ;; which can be shared with the previous subterm.
-       ((= c pg-subterm-start-char)
+       ((and pg-subterm-start-char ;; ignore if subterm start not set
+	     (= c pg-subterm-start-char))
 	(incf cur)
 	(if pg-subterm-anns-use-stack
 	    (setq ap (- ap (- (char-after cur) 128)))
@@ -256,9 +259,9 @@ commands which can be sent to the prover."
     ;; Proof-by-pointing markup assumes "top" elements which define a
     ;; context for a marked-up (sub)term: we assume these contexts to
     ;; be either a subgoal to be solved or a hypothesis.  
-    ;; Top element spans are only made if pg-topterm-goalhyp-fn is set.
+    ;; Top element spans are only made if pg-topterm-goalhyplit-fn is set.
     ;; NB: If we want Coq pbp: (setq coq-current-goal 1) 
-    (if pg-topterm-goalhyp-fn
+    (if pg-topterm-goalhyplit-fn
 	(while (setq ap (car topl) 
 		     topl (cdr topl))
 	  (pg-goals-make-top-span ap (car topl))))
@@ -272,17 +275,26 @@ commands which can be sent to the prover."
   "Make a top span (goal/hyp area) for mouse active output."
   (let (span typname)
     (goto-char start)
-    ;; skip the pg-topterm-char itself
-    (forward-char)
+    ;; skip the pg-topterm-regexp itself
+    (if (looking-at pg-topterm-regexp) 
+	(forward-char (- (match-end 0) (match-beginning 0))))
     ;; typname is expected to be a cons-cell of a type (goal/hyp)
     ;; with a name, retrieved from the text immediately following
-    ;; the topterm-char annotation.
-    (setq typname (funcall pg-topterm-goalhyp-fn))
-    (beginning-of-line) ;; any reason why?
+    ;; the topterm-regexp annotation.
+    (let ((topterm (point))) 
+      (setq typname (funcall pg-topterm-goalhyplit-fn)) ;; should be non-nil!
+      (goto-char topterm))
     (setq start (point))
-    (goto-char end)
-    (beginning-of-line)
-    (backward-char)
+    (if (eq (car-safe typname) 'lit)
+	;; Use length of literal command for end point
+	(forward-char (length (cdr typname)))
+      ;; Otherwise, use start/end of line before next annotation/buffer end
+      (goto-char start)
+      (beginning-of-line)
+      (setq start (point))
+      (goto-char end) ;; next annotation/end of buffer
+      (beginning-of-line)
+      (backward-char))
     (setq span (make-span start (point)))
     (set-span-property span 'mouse-face 'highlight)
     (set-span-property span 'proof-top-element typname)))
@@ -374,9 +386,14 @@ user types by hand."
 	;; Switch focus to another subgoal; a non-scripting command
 	(proof-shell-invisible-command
 	 (format pbp-hyp-command (cdr top-info))))
-       (t
+       ((eq (car top-info) 'goal)
+	;; A scripting command to change goal
 	 (proof-insert-pbp-command
-	  (format pg-goals-change-goal (cdr top-info))))))))
+	  (format pg-goals-change-goal (cdr top-info))))
+       ((eq (car top-info) 'lit)
+	;; A literal command to insert
+	(proof-insert-pbp-command (cdr top-info)))))))
+
 
 
 (defun pg-goals-get-subterm-help (spanorwin &optional obj pos)

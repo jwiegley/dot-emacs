@@ -2209,6 +2209,7 @@ appropriate."
   (proof-activate-scripting)
   (let (span)
     (proof-goto-end-of-locked)
+    (insert "\n") ;; could be user opt 
     (insert cmd)
     (setq span (make-span (proof-locked-end) (point)))
     (set-span-property span 'type 'pbp)

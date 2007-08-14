@@ -27,6 +27,7 @@
   (setq proof-buffer-type 'response)
   ;; font-lock-keywords isn't automatically buffer-local in Emacs 21.2
   (make-local-variable 'font-lock-keywords)
+  (define-key proof-response-mode-map [(button1)] 'pg-goals-button-action)
   (define-key proof-response-mode-map [q] 'bury-buffer)
   (define-key proof-response-mode-map [c] 'pg-response-clear-displays)
   (make-local-hook 'kill-buffer-hook)
@@ -309,6 +310,13 @@ Returns non-nil if response buffer was cleared."
 	(setq start (point))
 	(insert str)
 	(unless (bolp) (newline))
+
+	;; Do pbp markup here
+	;; This is added for recommender/sledgehammer like features
+	;; NB: bad (slow) behaviour in case user has response buffer
+	;; accumulating output and not cleared automatically
+	(pg-goals-analyse-structure (point-min) (point-max))
+	
 	(proof-fontify-region start (point))
 	;; This is one reason why we don't keep the buffer in font-lock
 	;; minor mode: it destroys this hacky property as soon as it's

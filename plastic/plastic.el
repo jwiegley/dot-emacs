@@ -377,7 +377,7 @@ Given is the first SPAN which needs to be undone."
   (setq proof-goal-command-p 'plastic-goal-command-p
 	proof-count-undos-fn 'plastic-count-undos
 	proof-find-and-forget-fn 'plastic-find-and-forget
-        pg-topterm-goalhyp-fn 'plastic-goal-hyp
+        pg-topterm-goalhyplit-fn 'plastic-goal-hyp
 	proof-state-preserving-p 'plastic-state-preserving-p)
 
   (setq	proof-save-command-regexp plastic-save-command-regexp
@@ -491,7 +491,7 @@ We assume that module identifiers coincide with file names."
         pg-subterm-start-char ?\372
         pg-subterm-sep-char ?\373
         pg-subterm-end-char ?\374
-        pg-topterm-char ?\375
+        pg-topterm-regexp "\375"
         proof-shell-eager-annotation-start "\376"
 	;; FIXME da: if p-s-e-a-s is implemented, you should set
 	;; proof-shell-eager-annotation-start-length=1 to

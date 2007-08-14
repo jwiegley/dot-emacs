@@ -1308,12 +1308,12 @@ you only need to set if you use that function (by not customizing
   :type 'string
   :group 'proof-script)
 
-(defcustom pg-topterm-goalhyp-fn nil
-  "Function which returns cons cell if point is at a goal/hypothesis.
+(defcustom pg-topterm-goalhyplit-fn nil
+  "Function which returns cons cell if point is at a goal/hypothesis/literal command.
 This is used to parse the proofstate output to mark it up for
-proof-by-pointing.  It should return a cons or nil.  First element of
-the cons is a symbol, 'goal' or 'hyp'.  The second element is a
-string: the goal or hypothesis itself.
+proof-by-pointing or literal command insertion.  It should return a cons or nil.  
+First element of the cons is a symbol, 'goal', 'hyp' or 'lit'.  
+The second element is a string: the goal, hypothesis, or literal command itself.
 
 If you leave this variable unset, no proof-by-pointing markup
 will be attempted."
@@ -1974,7 +1974,7 @@ The default value is \"\\n\" to match up to the end of the line."
 
 At the moment, this setting is not used in the generic Proof General.
 
-In the future it will be used for a generic implementation for `pg-topterm-goalhyp-fn',
+In the future it will be used for a generic implementation for `pg-topterm-goalhyplit-fn',
 used to help parse the goals buffer to annotate it for proof by pointing."
   :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)
@@ -2476,13 +2476,13 @@ See `pg-subterm-start-char'."
   :type 'character
   :group 'proof-goals)
 
-(defcustom pg-topterm-char nil
-  "Annotation character that indicates the beginning of a \"top\" element.
+(defcustom pg-topterm-regexp nil
+  "Annotation regexp that indicates the beginning of a \"top\" element.
 A \"top\" element may be a sub-goal to be proved or a named hypothesis,
-for example.  It is currently assumed (following LEGO/Coq conventions)
-to span a whole line.
+for example.  It could also be a literal command to insert and
+send back to the prover.
 
-The function `pg-topterm-goalhyp-fn' examines text following this
+The function `pg-topterm-goalhyplit-fn' examines text following this
 special character, to determine what kind of top element it is.
 
 This setting is also used to see if proof-by-pointing features

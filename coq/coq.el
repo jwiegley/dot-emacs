@@ -835,7 +835,7 @@ This is specific to `coq-mode'."
 
   (setq proof-goal-command-p 'coq-goal-command-p
         proof-find-and-forget-fn 'coq-find-and-forget
-        pg-topterm-goalhyp-fn 'coq-goal-hyp
+        pg-topterm-goalhyplit-fn 'coq-goal-hyp
         proof-state-preserving-p 'coq-state-preserving-p
         )
 
@@ -964,7 +964,7 @@ To be used in `proof-shell-process-output-system-specific'."
    pg-subterm-start-char ?\372          ; not done
    pg-subterm-sep-char ?\373            ; not done
    pg-subterm-end-char ?\374            ; not done
-   pg-topterm-char ?\375                ; done
+   pg-topterm-regexp "\375"
    proof-shell-eager-annotation-start "\376\\|\\[Reinterning"
    proof-shell-eager-annotation-start-length 12
    proof-shell-eager-annotation-end "\377\\|done\\]" ; done

@@ -1168,8 +1168,8 @@ you only need to set if you use that function (by not customizing
 @samp{@code{proof-find-and-forget-fn}}.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: pg-topterm-goalhyp-fn
-@defvar pg-topterm-goalhyp-fn 
+@c TEXI DOCSTRING MAGIC: pg-topterm-goalhyplit-fn
+@defvar pg-topterm-goalhyplit-fn 
 Function which returns cons cell if point is at a goal/hypothesis.@*
 This is used to parse the proofstate output to mark it up for
 proof-by-pointing.  It should return a cons or nil.  First element of
@@ -1736,7 +1736,7 @@ A regular expression matching the name of assumptions.
 
 At the moment, this setting is not used in the generic Proof General.
 
-In the future it will be used for a generic implementation for @samp{@code{pg-topterm-goalhyp-fn}},
+In the future it will be used for a generic implementation for @samp{@code{pg-topterm-goalhyplit-fn}},
 used to help parse the goals buffer to annotate it for proof by pointing.
 @end defvar
 
@@ -2114,7 +2114,7 @@ A "top" element may be a sub-goal to be proved or a named hypothesis,
 for example.  It is currently assumed (following @var{lego}/Coq conventions)
 to span a whole line.
 
-The function @samp{@code{pg-topterm-goalhyp-fn}} examines text following this
+The function @samp{@code{pg-topterm-goalhyplit-fn}} examines text following this
 special character, to determine what kind of top element it is.
 
 This setting is also used to see if proof-by-pointing features
