@@ -116,5 +116,32 @@ of the proof (starting from 1).")
 (require 'proof-system)
 
 
+;;;
+;;; Unload utility (not wholly successful)
+;;;
+
+(defun unload-pg ()
+  (interactive)
+  (mapcar 
+   (lambda (feat) (condition-case nil
+		    (unload-feature feat 'force)
+		    (error nil)))
+   '(proof-splash pg-assoc pg-xml proof-depends proof-indent proof-site
+     proof-shell pg-metadata proof-menu pg-pbrpm pg-pgip proof-script
+     proof-autoloads pg-response pg-goals pg-pgip-old proof-toolbar
+     proof-easy-config proof-config proof-mmm proof pg-xhtml
+     proof-utils proof-syntax proof-system _pkg pg-user proof-x-symbol
+     pg-thymodes pg-autotest
+     ;; 
+     isar-syntax isar-find-theorems x-symbol-isabelle x-symbol-isar
+     isar-autotest interface-setup isabelle-system isar isar-mmm
+     isar-keywords
+     ;;
+     coq-abbrev coq-db x-symbol-coq coq-local-vars coq coq-syntax
+     coq-indent coq-autotest)))
+
+     
+
+
 (provide 'proof)
 ;; proof.el ends here
