@@ -637,10 +637,9 @@ Checks the width in the `proof-goals-buffer'"
 (defun isar-goalhyplit-test ()
   "This is a value for pg-topterm-goalhyplit-fn, see proof-config.el for docs."
   ;; We need to find the end of the proof command on the current line.
-  (let ((bol (point)))
-    (end-of-line) ;; could search backwards for regexps here, return nil to fail
-    ;; Indicate that this is a literal command to send back
-    (cons 'lit (buffer-substring bol (point)))))
+  (let ((start (point)))
+    (and (proof-re-search-forward "\375\\|\^AW" nil t)
+      (cons 'lit (buffer-substring start (match-beginning 0))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
