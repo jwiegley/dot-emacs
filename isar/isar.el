@@ -144,7 +144,7 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   pg-topterm-regexp			"\375\\|\^AV"
+   pg-topterm-regexp			"\376\\|\^AW"
 
    pg-topterm-goalhyplit-fn		'isar-goalhyplit-test
    proof-shell-wakeup-char              nil
@@ -635,10 +635,13 @@ Checks the width in the `proof-goals-buffer'"
   (proof-goals-config-done))
 
 (defun isar-goalhyplit-test ()
-  "This is a value for pg-topterm-goalhyplit-fn, see proof-config.el for docs."
+  "Value for `pg-topterm-goalhyplit-fn' (see that variable for documentation)."
   (let ((start (point)))
-    (and (proof-re-search-forward "\375\\|\^AW" nil t)
-      (cons 'lit (buffer-substring start (match-beginning 0))))))
+    (if (proof-re-search-forward "\377\\|\^AX" nil t) ;; end of literal command (non-standard)
+	(progn
+	  (delete-region (match-beginning 0) (match-end 0))
+	  (cons 'lit (buffer-substring start (match-beginning 0)))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
