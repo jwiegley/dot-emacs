@@ -837,9 +837,11 @@ Args as for the macro `proof-defintset', except will be evaluated."
 	      ,(concat "Set `" (symbol-name var) "' to ARG.
 This function simply uses customize-set-variable to set the variable.
 It was constructed with `proof-defintset-fn'.")
-	      (interactive ,(format "nValue for %s (int, currently %s):" 
-				     (symbol-name var)  
-				     (symbol-value var)))
+	      (interactive (list 
+			    (read-number 
+			     (format "Value for %s (int, currently %s): " 
+				     (symbol-name (quote ,var))
+				     (symbol-value (quote ,var))))))
 	      (customize-set-variable (quote ,var) arg))))
 
 (defmacro proof-defintset (var &optional othername)
