@@ -77,21 +77,25 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
 	(substring out 0 op))
     string))
 
+(defvar pg-assoc-ann-regexp nil
+  "Cache of regexp for `pg-assoc-strip-subterm-markup-buf'.")
+
 (defun pg-assoc-strip-subterm-markup-buf (start end)
   "Remove subterm and pbp annotations from region."
-  ;; FIXME: create these regexps ahead of time.
   (if pg-subterm-start-char
-      (let ((ann-regexp 
-	     (concat 
-	      (regexp-quote (char-to-string pg-subterm-start-char))
-	      "[^" 
-	      (regexp-quote (char-to-string pg-subterm-sep-char))
-	      "]*"
-	      (regexp-quote (char-to-string pg-subterm-sep-char)))))
+      (progn
+	(unless pg-assoc-ann-regexp
+	  (setq pg-assoc-ann-regexp
+		(concat 
+		 (regexp-quote (char-to-string pg-subterm-start-char))
+		 "[^" 
+		 (regexp-quote (char-to-string pg-subterm-sep-char))
+		 "]*"
+		 (regexp-quote (char-to-string pg-subterm-sep-char)))))
 	(save-restriction
 	  (narrow-to-region start end)
 	  (goto-char start)
-	  (proof-replace-regexp ann-regexp "")
+	  (proof-replace-regexp pg-assoc-ann-regexp "")
 	  (goto-char start)
 	  (proof-replace-string (char-to-string pg-subterm-end-char) "")
 	  (goto-char start)
