@@ -6,7 +6,12 @@ ML {* val pgasciiN = "PGASCII";
 fun special oct =
   if print_mode_active pgasciiN then chr 1 ^ chr (ord (oct_char oct) - 167)
   else oct_char oct; 
-fun sendback cmd = writeln ("Try this: \n   " ^ (special "375") ^ cmd ^ "\n\n")
+fun sendback cmd = writeln ("Try this: \n   " ^ (special "376") ^ cmd ^ (special "377") ^ "\n\n")
+*}
+
+ML {*
+fun sendback2 cmd = (writeln "Try this: "; 
+		    ProofGeneral.sendback cmd [])
 *}
 
 theorem and_comms: "A & B --> B & A"
