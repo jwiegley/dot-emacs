@@ -594,9 +594,9 @@ Warning messages can come from proof assistant or from Proof General itself."
 
 (defface proof-active-area-face 
   (proof-face-specs
-   (:underlined t)
-   (:underlined t)
-   (:underlined t))
+   (:underline t)
+   (:underline t)
+   (:underline t))
   "*Face for showing active areas (clickable regions), outside of subterm markup."
   :group 'proof-faces)
 
