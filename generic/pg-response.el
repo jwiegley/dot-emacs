@@ -311,24 +311,20 @@ Returns non-nil if response buffer was cleared."
 	(insert str)
 	(unless (bolp) (newline))
 
-	;; Do pbp markup here
-	;; This is added for recommender/sledgehammer like features
-	;; NB: bad (slow) behaviour in case user has response buffer
-	;; accumulating output and not cleared automatically
-	(pg-goals-analyse-structure (point-min) (point-max))
+	;; Do pbp markup here, e.g. for "sendback" commands.
+	;; NB: we might loose if markup has been split between chunks, but this
+	;; will could only happen in cases of huge (spilled) output
+	(pg-goals-analyse-structure start (point-max))
 	
 	(proof-fontify-region start (point))
+
 	;; This is one reason why we don't keep the buffer in font-lock
 	;; minor mode: it destroys this hacky property as soon as it's
 	;; made!  (Using the minor mode is much more convenient, tho')
 	(if (and face proof-output-fontify-enable)
 	    (font-lock-append-text-property 
 	     start (point-max) 'face face))
-	;; This returns the decorated string, but it doesn't appear 
-	;; decorated in the minibuffer, unfortunately.
-	;; [ FIXME: users have asked for that to be fixed ]
-	;; 3.4: remove this for efficiency.
-	;; (buffer-substring start (point-max))
+
 	(set-buffer-modified-p nil))))))
 
 
