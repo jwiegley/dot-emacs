@@ -2107,8 +2107,8 @@ subterm and proof-by-pointing markup mechanisms..
 Finishing special for a subterm markup.@*
 See doc of @samp{@code{pg-subterm-start-char}}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: pg-topterm-char
-@defvar pg-topterm-char 
+@c TEXI DOCSTRING MAGIC: pg-topterm-regexp
+@defvar pg-topterm-regexp
 Annotation character that indicates the beginning of a "top" element.@*
 A "top" element may be a sub-goal to be proved or a named hypothesis,
 for example.  It is currently assumed (following @var{lego}/Coq conventions)
