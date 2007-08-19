@@ -217,10 +217,6 @@ scripting buffer may have an active queue span.")
   ;; the default/global setting.   This would be consistent with
   ;; behaviour of "expensive" x-symbol/mmm options.
   (interactive)
-  ;; NB: might be nice to have queue region non read-only too, but
-  ;; since the queue is constructed ahead of time, that wouldn't
-  ;; work.  (Better might be to refactor so that the region is
-  ;; parsed as we go)
   (proof-map-buffers
    (proof-buffers-in-mode proof-mode-for-script)
    (if (span-live-p proof-locked-span)
@@ -251,8 +247,8 @@ scripting buffer may have an active queue span.")
   "Set the end of the locked region to be END.
 If END is at or before (point-min), remove the locked region.
 Otherwise set the locked region to be from (point-min) to END."
-  ;; FIXME: is it really needed to detach the span here?
   (if (>= (point-min) end)
+      ;; Detach the queue span, otherwise there can be a read-only character at the end.
       (proof-detach-locked)
     (set-span-endpoints
      proof-locked-span
@@ -1287,8 +1283,9 @@ With ARG, turn on scripting iff ARG is positive."
     ;; otherwise...
     (let ((end     (span-end span))
 	  (cmd     (span-property span 'cmd)))
-      ;; State of spans after advancing:
+
       (proof-set-locked-end end)
+
       ;; FIXME: buglet here, can sometimes arrive with queue span already detached.
       ;; (I think when complete file process is requested during scripting)
       (if (span-live-p proof-queue-span)
