@@ -23,7 +23,7 @@
 ;;; Help:
 
 (defconst local-vars-list-doc nil
-  "Quoting emacs info:
+"From Emacs Info:
 
 A file can contain a \"local variables list\", which specifies the values to use for
 certain Emacs variables when that file is edited. See info node \"(xemacs)File
@@ -34,8 +34,6 @@ local-vars-list provides two useful functions:
 \\[local-vars-list-get] that reads a local variable value at the end of the file.
 
 \\[local-vars-list-set] that writes a local variable value at the end of the file.")
-
-(defun local-vars-list-help (describe-variable 'local-vars-list-doc))
 
 ;;TOTO: use the code in xemacs-sources/lisp/files.el
 ;; in particular the function hack-local-variables-last-page
