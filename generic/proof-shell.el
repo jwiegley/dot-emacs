@@ -1096,13 +1096,16 @@ If the proof shell is busy when this function is called,
 then QUEUEMODE must match the mode of the queue currently
 being processed."
   (let (item)
-    ;; FIXME: may be wrong time to invoke callbacks for no-op commands,
-    ;; if the queue is not empty.
+    ;; NB: wrong time for callbacks for no-op commands, if queue non-empty.
     (while (and alist (string= 
 		       (nth 1 (setq item (car alist))) 
 		       proof-no-command))
       (funcall (nth 2 item) (car item))
       (setq alist (cdr alist)))
+    (if (and (null alist) (null proof-action-list))
+	;; remove the queue (otherwise done in proof-shell-exec-loop)
+	(proof-detach-queue))
+	
     (if alist
 	(if proof-action-list
 	    (progn
@@ -1234,9 +1237,6 @@ and indentation.  Assumes proof-script-buffer is active."
     (with-current-buffer proof-script-buffer
       (let (span)
 	(proof-goto-end-of-locked)
-	;; Fix 16.11.99.  This attempts to indent current line which can
-	;; be read-only.  
-	;; (newline-and-indent)
 	(let ((proof-one-command-per-line t)) ; because pbp several commands
 	  (proof-script-new-command-advance))
 	(insert cmd)
@@ -1256,12 +1256,6 @@ and indentation.  Assumes proof-script-buffer is active."
 	      (cons (car proof-action-list) 
 		    (cons (list span cmd 'proof-done-advancing)
 			  (cdr proof-action-list))))))))
-
-;; da: first note of this sentence is false!
-;; ******** NB **********
-;;  While we're using pty communication, this code is OK, since all
-;; eager annotations are one line long, and we get input a line at a
-;; time. If we go over to piped communication, it will break.
 
 (defun proof-shell-message (str)
   "Output STR in minibuffer."
