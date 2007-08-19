@@ -592,6 +592,13 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*Face for showing (forwards) dependencies."
   :group 'proof-faces)
 
+(defface proof-active-area-face 
+  (proof-face-specs
+   (:underlined t)
+   (:underlined t)
+   (:underlined t))
+  "*Face for showing active areas (clickable regions), outside of subterm markup."
+  :group 'proof-faces)
 
 
 

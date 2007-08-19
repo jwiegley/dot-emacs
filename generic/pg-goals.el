@@ -101,7 +101,7 @@ and properly fontifies STRING using proof-fontify-region."
     ;; Response buffer may be out of date. It may contain (error)
     ;; messages relating to earlier proof states
     
-    ;; FIXME da: this isn't always the case.  In Isabelle
+    ;; NB: this isn't always the case.  In Isabelle
     ;; we get <WARNING MESSAGE> <CURRENT GOALS> output,
     ;; or <WARNING MESSAGE> <ORDINARY MESSAGE>.  Both times
     ;; <WARNING MESSAGE> would be relevant.
@@ -117,8 +117,8 @@ and properly fontifies STRING using proof-fontify-region."
 
     (unless (eq 0 (buffer-size))
       (bufhist-checkpoint-and-erase))
-    ;; Only bother processing and displaying, etc, if string is
-    ;; non-empty.
+
+    ;; Only display if string is non-empty.
     (unless (string-equal string "")
       (insert string)
 
@@ -126,6 +126,8 @@ and properly fontifies STRING using proof-fontify-region."
 	  ;; With special chars for fontification, do that first,
 	  ;; but keep specials in case also used for subterm markup.
 	  (proof-fontify-region (point-min) (point-max) 'keepspecials))
+	
+      ;; Markup for PBP-style interaction
       (pg-goals-analyse-structure (point-min) (point-max))
 
       (unless pg-use-specials-for-fontify
@@ -136,7 +138,7 @@ and properly fontifies STRING using proof-fontify-region."
       ;; Record a cleaned up version of output string
       (setq proof-shell-last-output 
 	    (buffer-substring (point-min) (point-max)))
-    
+      
       (set-buffer-modified-p nil)	; nicety
       
       ;; Keep point at the start of the buffer.  
@@ -297,6 +299,7 @@ commands which can be sent to the prover."
       (backward-char))
     (setq span (make-span start (point)))
     (set-span-property span 'mouse-face 'highlight)
+    (set-span-property span 'face 'proof-active-area-face)
     (set-span-property span 'proof-top-element typname)))
 
 
