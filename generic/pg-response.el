@@ -27,7 +27,7 @@
   (setq proof-buffer-type 'response)
   ;; font-lock-keywords isn't automatically buffer-local in Emacs 21.2
   (make-local-variable 'font-lock-keywords)
-  (define-key proof-response-mode-map [(button1)] 'pg-goals-button-action)
+  (define-key proof-response-mode-map [(button2)] 'pg-goals-button-action)
   (define-key proof-response-mode-map [q] 'bury-buffer)
   (define-key proof-response-mode-map [c] 'pg-response-clear-displays)
   (make-local-hook 'kill-buffer-hook)
