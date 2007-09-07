@@ -223,7 +223,7 @@ See -k option for Isabelle interface script."
 
    ;; should be: "[\350-\377]\\|\^A[A-Z]", but literal chars
    ;; prevent problems with XEmacs 21.5 (beta)
-   "è\\|é\\|ê\\|ë\\|ì\\|í\\|î\\|ï\\|ð\\|ñ\\|ò\\|ó\\|ô\\|õ\\|ö\\|÷\\|ø\\|ù\\|ú\\|û\\|ü\\|ý\\|þ\\|ÿ\\|[A-Z]"
+   "×\\|Ø\\|Ù\\|Ú\\|Û\\|Ü\\|Ý\\|Þ\\|ß\\|8\\|è\\|é\\|ê\\|ë\\|ì\\|í\\|î\\|ï\\|ð\\|ñ\\|ò\\|ó\\|ô\\|õ\\|ö\\|÷\\|ø\\|ù\\|ú\\|û\\|ü\\|ý\\|þ\\|ÿ\\|[0-9A-Z]"
    pg-after-fontify-output-hook	        'pg-remove-specials
    pg-subterm-help-cmd			"term %s" 
 
