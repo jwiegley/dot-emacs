@@ -321,7 +321,7 @@ Note: to change proof assistant, you must start a new Emacs session.")
       )))
 
 ;; WARNING: do not edit below here (the next constant is set automatically)
-(defconst proof-general-version "Proof General Version 3.7pre070819. Released by da."
+(defconst proof-general-version "Proof General Version 3.7pre070910. Released by da."
  "Version string identifying Proof General release.")
 
 (defconst proof-general-short-version 
