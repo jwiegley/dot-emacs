@@ -477,7 +477,7 @@ matches contents of quotes for quoted identifiers.")
 
 (defconst isar-undo-fail-regexp
   (proof-anchor-regexp
-   (isar-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
+   (isar-ids-to-regexp isar-keywords-control)))
 
 (defconst isar-undo-skip-regexp
   (proof-anchor-regexp (proof-regexp-alt (isar-ids-to-regexp isar-keywords-diag) ";")))
