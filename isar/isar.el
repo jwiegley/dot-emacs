@@ -401,35 +401,6 @@ proof-shell-retract-files-regexp."
       (setq span (next-span span 'type)))
     (isar-undos ct)))
 
-;; begin keyword
-(defun isar-detect-begin (span)
-  "Detect the begin keyword within a command span"
-  (let ((found nil)
-	(start (span-start span))
-	(end (span-end span)))
-    (save-excursion
-      (goto-char start)
-      (while (and (not found) (proof-search-forward isar-keyword-begin end t))
-	(or (proof-buffer-syntactic-context) (setq found t))))
-    found))
-
-;; command nesting
-(defun isar-command-nested (span)
-  "Determine theory command nesting"
-  (let ((nesting 0) str)
-    (while span
-      (setq str (or (span-property span 'cmd) ""))
-      (cond
-       ;; end
-       ((proof-string-match isar-end-regexp str)
-	(decf nesting))
-       ;; begin
-       ((or (proof-string-match isar-theory-start-regexp str)
-	    (isar-detect-begin span))
-	(incf nesting)))
-      (setq span (prev-span span 'type)))
-    (> nesting 0)))
-
 ;; undo theory commands
 (defun isar-find-and-forget (span)
   "Return commands to be used to forget SPAN."
@@ -454,11 +425,7 @@ proof-shell-retract-files-regexp."
        ;; open goal: skip and exit
        ((proof-string-match isar-goal-command-regexp str)
         (setq span nil))
-       ;; nested end: undo
-       ((and (proof-string-match isar-end-regexp str)
-	     (isar-command-nested span))
-        (setq ans isar-undo))
-       ;; non-nested end: undoable in Isabelle2007
+       ;; control command: cannot undo
        ((and (proof-string-match isar-undo-fail-regexp str))
         (setq ans (isar-cannot-undo (match-string 1 str)))
         (setq answers nil)
