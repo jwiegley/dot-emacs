@@ -183,13 +183,6 @@ See -k option for Isabelle interface script."
    proof-shell-start-goals-regexp       "\366\n\\|\^AO\n"
    proof-shell-end-goals-regexp         "\367\\|\^AP"
 
-   ;; FIXME: next one is needed for backward compatibility.  
-   ;; Would be nice to remove this somehow else, it's only used for 
-   ;; Isar and pre-PGIP.  One way would be to hack the 
-   ;; (now obsolete) defpacustom calls.
-   proof-assistant-setting-format       
-   (unless isa-supports-pgip 'isar-markup-ml)
-
    proof-shell-init-cmd			nil
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
@@ -200,8 +193,7 @@ See -k option for Isabelle interface script."
 
    ;; Isabelle is learning to talk PGIP...
    proof-shell-match-pgip-cmd		"<pgip"
-   proof-shell-issue-pgip-cmd		
-	(if isa-supports-pgip 'isabelle-process-pgip nil)
+   proof-shell-issue-pgip-cmd		'isabelle-process-pgip
 
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
