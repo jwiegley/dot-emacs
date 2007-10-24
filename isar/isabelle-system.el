@@ -195,28 +195,6 @@ ISABELLE will always override this setting."
 	     "isa-view-doc" nil
 	     (list isa-isatool-command "doc" docname))))
 
-(defvar isabelle-version-string 'unset)
-
-(defun isa-version ()
-  "Try to retrieve a version value for Isabelle."
-  (unless (stringp isabelle-version-string)
-    (setq isabelle-version-string
-	  (if (isa-set-isatool-command)
-	      (isa-shell-command-to-string
-	       ;; This may return the string "Unknown Isabelle tool:
-	       ;; version", but that's fine.
-	       (concat isa-isatool-command " version"))
-	    "Unknown")))
-  isabelle-version-string)
-
-;; We're going to need to know this pretty soon, so let's do it now.
-(defconst isa-supports-pgip 
-  ;; PGIP-aware Isabelle versions are also aware of their own version
-  (not (string-match "^Unknown" (isa-version)))
-  "Whether the currently configured version of Isabelle supports PGIP.")
-
-      
-
 
 (defun isa-tool-list-docs ()
   "Generate a list of documentation files available, with descriptions.
