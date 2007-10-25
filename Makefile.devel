@@ -96,8 +96,7 @@ PREREL_TAG_FILE=prereltag.txt
 # Path to web pages in repository, used for automatically 
 # updating with release information.
 HTMLDIR=../web
-DOWNLOADHTML=develdownload.html
-DOWNLOADINFOHTML=devel.html
+DOWNLOADHTMLS=develdownload.html devel.html
 
 # This is used for full releases to control the tag name
 # and distribution name.  No editing of html is done
@@ -140,7 +139,7 @@ RELEASEDIR = /tmp/proofgeneral-www
 # was: GOLIVE=true
 # GOLIVE=scp -pr $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
 # Use rsync instead of scp: it copies links.  Also clean releasedir
-GOLIVE=(rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/; rm -rf $(RELEASEDIR); cd $(HTMLDIR); make pub.$(DOWNLOADHTML); make pub.${DOWNLOADINFOHTML}; rm -rf ${RELEASEDIR})
+GOLIVE=(rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/; rm -rf $(RELEASEDIR); cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do make pub.$f; done; rm -rf ${RELEASEDIR})
 
 
 CVSNAME = ProofGeneral
@@ -338,8 +337,8 @@ images:	FORCE
 ##
 ## tag:    tag the CVS sources of working directory with CVS_RELEASENAME,
 ##	   set version stamp in proof-site.el and ProofGeneral.spec 
-##         to VERSION, and edit $(DOWNLOADHTML) and $(DOWNLOADINFOHTML)
-##         if VERSION matches PRERELEASE_TAG.
+##         to VERSION, and edit $(DOWNLOADHTMLS)
+##	   if VERSION matches PRERELEASE_TAG.
 ##
 tag:		
 	@echo "*************************************************"
@@ -347,23 +346,21 @@ tag:
 	@echo "*************************************************"
 # Update the sources, this is almost always what we want to do.
 	if [ -z "$(NOCVS)" ] && [ -n "`cvs -n -q update -Pd | grep '^[MC] '`" ]; then cvs update -Pd; exit 1; fi
-# Tag proof-site.el and ProofGeneral.spec
+# Update version in proof-site.el
 	(cd generic; mv $(VERSIONFILE) $(VERSIONFILE).old; sed -e 's/defconst $(VERSIONVARIABLE) \".*\"/defconst $(VERSIONVARIABLE) \"Proof General Version $(FULLVERSION). Released by da$(DATEMSG).\"/g' $(VERSIONFILE).old > $(VERSIONFILE); rm $(VERSIONFILE).old)
+# Tag ProofGeneral.spec
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-# Edit $(DOWNLOADHTML) only for prereleases.
+# Edit $(DOWNLOADHTMLS) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
-	  (cd $(HTMLDIR); mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old); \
-	  (cd $(HTMLDIR); mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-emacs-elc-$(PRERELEASE_PREFIX)......|ProofGeneral-emacs-elc-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old); \
-	  (cd $(HTMLDIR); mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-xemacs-elc-$(PRERELEASE_PREFIX)......|ProofGeneral-xemacs-elc-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old); \
-	  (cd $(HTMLDIR); mv $(DOWNLOADINFOHTML) $(DOWNLOADINFOHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADINFOHTML).old > $(DOWNLOADINFOHTML); rm $(DOWNLOADINFOHTML).old) \
+	  (cd $(HTMLDIR); \
+	   for f in $(DOWNLOADHTMLS); do \
+		mv $$f $$f.old; \
+		sed -e 's|ProofGeneral\([xemacselc-]*\)-$(PRERELEASE_PREFIX)......|ProofGeneral\1-$(PRERELEASE_TAG)|g' $$f.old > $$f; \
+		rm $$f.old; \
+	   done) \
 	fi
-# This hack to SOURCE: name is only needed because we have an obsolete version
-# of rpm installed on standard machines at dcs.ed, and we have to build with
-# that version.  Otherwise we could use the %{version} macro in the spec file.
-	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/$(RELEASENAMETARGZ)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.zip/$(RELEASENAMEZIP)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-	if [ -z "$(NOCVS)" ]; then cvs commit -m"Set version tag for new release." generic/$(VERSIONFILE) etc/ProofGeneral.spec; (cd $(HTMLDIR); cvs commit -m"Set version tag for new release." $(DOWNLOADHTML) $(DOWNLOADINFOHTML)); fi
+	if [ -z "$(NOCVS)" ]; then cvs commit -m"Set version tag for new release." generic/$(VERSIONFILE) etc/ProofGeneral.spec; (cd $(HTMLDIR); cvs commit -m"Set version tag for new release." $(DOWNLOADHTMLS)); fi
 	if [ -z "$(NOCVS)" ]; then cvs tag -cF "$(CVS_RELEASENAME)"; fi
 
 ############################################################
