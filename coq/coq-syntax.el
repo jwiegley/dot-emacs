@@ -90,7 +90,7 @@ so for the following reasons:
 
   3 you may define an abbreviation for your tactic."
 
-  :type '(repeat string)
+  :type '(repeat sexp)
   :group 'coq)
 
 
@@ -107,8 +107,25 @@ so for the following reasons:
 
   3 you may define an abbreviation for your command."
 
-  :type '(repeat string)
+  :type '(repeat sexp)
   :group 'coq)
+
+(defcustom coq-user-tacticals-db nil
+  "User defined tactical information.  See `coq-syntax-db' for
+syntax. It is not necessary to add your own commands here (it is not
+needed by the synchronizing/backtracking system). You may however do
+so for the following reasons:
+
+  1 your commands will be colorized by font-lock
+
+  2 your commands will be added to the menu and to completion when
+  calling \\[coq-insert-command]
+
+  3 you may define an abbreviation for your command."
+
+  :type '(repeat sexp)
+  :group 'coq)
+
 
 
 (defvar coq-tactics-db
@@ -267,23 +284,25 @@ so for the following reasons:
   )
 
 (defvar coq-tacticals-db
-  '(
-    ("info" nil "info #" nil "info")
-    ("solve" nil "solve [ # | # ]" nil "solve")
-    ("first" nil "first [ # | # ]" nil "first")
-    ("abstract" nil "abstract @{tac} using @{name}." nil "abstract")
-    ("do" nil "do @{num} @{tac}" nil "do")
-    ("idtac" nil "idtac") ; also in tactics
+  (append 
+   coq-user-tacticals-db
+   '(
+     ("info" nil "info #" nil "info")
+     ("solve" nil "solve [ # | # ]" nil "solve")
+     ("first" nil "first [ # | # ]" nil "first")
+     ("abstract" nil "abstract @{tac} using @{name}." nil "abstract")
+     ("do" nil "do @{num} @{tac}" nil "do")
+     ("idtac" nil "idtac")              ; also in tactics
 ;    ("idtac \"" nil "idtac \"#\"") ; also in tactics
-    ("fail" "fa" "fail" nil "fail")
+     ("fail" "fa" "fail" nil "fail")
 ;    ("fail \"" "fa\"" "fail" nil) ;
 ;    ("orelse" nil "orelse #" t "orelse")
-    ("repeat" nil "repeat #" nil "repeat")
-    ("try" nil "try #" nil "try")
-    ("progress" nil "progress #" nil "progress")
-    ("|" nil "[ # | # ]" nil)
-    ("||" nil "# || #" nil)
-    )
+     ("repeat" nil "repeat #" nil "repeat")
+     ("try" nil "try #" nil "try")
+     ("progress" nil "progress #" nil "progress")
+     ("|" nil "[ # | # ]" nil)
+     ("||" nil "# || #" nil)
+     ))
   "Coq tacticals information list.  See `coq-syntax-db' for syntax.")
 
 
