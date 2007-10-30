@@ -80,7 +80,7 @@ For each line if FILTER returns nil, then the keyword is not added to the
 regexp.  See `coq-syntax-db' for DB structure."
   (let ((l db) (res ()))
     (while l
-      (let* ((hd (car l))(tl (cdr l))	; hd is the first infos list
+      (let* ((hd (car l)) (tl (cdr l))	; hd is the first infos list
              (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
              (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
              (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
