@@ -1,4 +1,4 @@
-;; coq-syntax.el Font lock expressions for Coq
+        ;; coq-syntax.el Font lock expressions for Coq
 ;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
 ;; Authors: Thomas Kleymann and Healfdene Goguen
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
@@ -488,17 +488,17 @@ so for the following reasons:
      ("SearchAbout" nil "SearchAbout #" nil "SearchAbout")
      ("SearchPattern" nil "SearchPattern #" nil "SearchPattern")
      ("SearchRewrite" nil "SearchRewrite #" nil "SearchRewrite")
-     ("Set Extraction AutoInline" nil "Set Extraction AutoInline" t "Extraction\\s-+AutoInline")
-     ("Set Extraction Optimize" nil "Set Extraction Optimize" t "Extraction\\s-+Optimize")
-     ("Set Implicit Arguments" nil "Set Implicit Arguments" t "Implicit\\s-+Arguments")
-     ("Set Printing Synth" nil "Set Printing Synth" t "Printing\\s-+Synth")
-     ("Set Printing Wildcard" nil "Set Printing Wildcard" t "Printing\\s-+Wildcard")
-     ("Set Printing All" "sprall" "Set Printing All" t "Printing\\s-+All")
-     ("Set Hyps Limit" nil "Set Hyps Limit #." nil "Hyps\\s-+Limit")
-     ("Set Printing Coercion" nil "Set Printing Coercion" t "Printing\\s-+Coercions?")
-     ("Set Printing Coercions" nil "Set Printing Coercions." t)
-     ("Set Printing Notations" "sprn" "Set Printing Notations" t "Printing\\s-+Notations")
-     ("Set Undo" nil "Set Undo #." nil "Undo")
+     ("Set Extraction AutoInline" nil "Set Extraction AutoInline" t "Set\\s-+Extraction\\s-+AutoInline")
+     ("Set Extraction Optimize" nil "Set Extraction Optimize" t "Set\\s-+Extraction\\s-+Optimize")
+     ("Set Implicit Arguments" nil "Set Implicit Arguments" t "Set\\s-+Implicit\\s-+Arguments")
+     ("Set Printing Synth" nil "Set Printing Synth" t "Set\\s-+Printing\\s-+Synth")
+     ("Set Printing Wildcard" nil "Set Printing Wildcard" t "Set\\s-+Printing\\s-+Wildcard")
+     ("Set Printing All" "sprall" "Set Printing All" t "Set\\s-+Printing\\s-+All")
+     ("Set Hyps Limit" nil "Set Hyps Limit #." nil "Set\\s-+Hyps\\s-+Limit")
+     ("Set Printing Coercion" nil "Set Printing Coercion" t "Set\\s-+Printing\\s-+Coercions?")
+     ("Set Printing Coercions" nil "Set\\s-+Set Printing Coercions." t)
+     ("Set Printing Notations" "sprn" "Set Printing Notations" t "Set\\s-+Printing\\s-+Notations")
+     ("Set Undo" nil "Set Undo #." nil "Set\\s-+Undo")
      ("Show" nil "Show #." nil "Show")
      ("Solve Obligations" "oblssolve" "Solve Obligations using #." nil "Solve\\s-+Obligations")
      ("Test" nil "Test" nil "Test" nil t)
@@ -914,10 +914,13 @@ Used by `coq-goal-command-p'"
    (append
     coq-font-lock-terms
     (list
-     (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
+     ; This make complex keyword containing other keywords to be
+     ; uniformly colorized (typically in "Set Printing All" "Set" is
+     ; not colorized as a Type name)
+     (list (proof-ids-to-regexp coq-keywords) 0 'font-lock-keyword-face t)
+     (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
      (cons (proof-ids-to-regexp coq-tactics ) 'proof-tactics-name-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
-     (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
      (cons "============================" 'font-lock-keyword-face)
      (cons "Subtree proved!" 'font-lock-keyword-face)
      (cons "subgoal [0-9]+ is:" 'font-lock-keyword-face)
