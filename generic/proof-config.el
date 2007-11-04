@@ -544,6 +544,8 @@ both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 Warning messages can come from proof assistant or from Proof General itself."
   :group 'proof-faces)
 
+(defconst proof-warning-face 'proof-warning-face)
+
 (defface proof-eager-annotation-face
   (proof-face-specs
    (:background "palegoldenrod")
