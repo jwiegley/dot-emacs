@@ -451,6 +451,7 @@ so for the following reasons:
      ("Identity Coercion" nil "Identity Coercion #." t "Identity\\s-+Coercion")
      ("Implicit Arguments Off" nil "Implicit Arguments Off." t "Implicit\\s-+Arguments\\s-+Off")
      ("Implicit Arguments On" nil "Implicit Arguments On." t "Implicit\\s-+Arguments\\s-+On")
+     ("Implicit Arguments" nil "Implicit Arguments # [#]." t "Implicit\\s-+Arguments")
      ("Import" nil "Import #." t "Import")
      ("Infix" "inf" "Infix \"#\" := # (at level #) : @{scope}." t "Infix")
      ("Inspect" nil "Inspect #." nil "Inspect")

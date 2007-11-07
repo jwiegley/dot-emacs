@@ -157,12 +157,14 @@ for DB structure."
 	  " ... "
 	  (car-safe (car-safe (nthcdr (- size 1) db)))))
 
+(defun coq-sort-menu-entries (menu)
+  (sort menu '(lambda (x y) (string< (downcase (elt x 0)) (downcase (elt y 0))))))
 
 (defun coq-build-menu-from-db (db &optional size)
   "Take a keyword database DB and return a list of insertion menus for them.
 Submenus contain SIZE entries (default 30).  See `coq-syntax-db' for DB
 structure."
-  (let* ((l db) (res
+  (let* ((l (coq-sort-menu-entries db)) (res
 		 ())
 	 (wdth (+ 2 (max-length-db coq-tactics-db)))
 	 (sz (or size 30)) (lgth (length l)))
