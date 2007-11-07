@@ -813,9 +813,6 @@ Used by `coq-goal-command-p'"
 
 (defvar coq-ids (proof-ids coq-id " "))
 
-(defun coq-first-abstr-regexp (paren)
-  (concat paren "\\s-*\\(" coq-ids "\\)\\s-*:[^:]")) ; [^: to avoid color on (x::l)]
-
 (defun coq-first-abstr-regexp (paren end)
   (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end)) 
 
@@ -827,9 +824,9 @@ Used by `coq-goal-command-p'"
 (defvar coq-font-lock-terms
   (list
    ;; lambda binders
-   (list (coq-first-abstr-regexp "fun\>" "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp "\\<fun\\>" "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
    ;; forall binder
-   (list (coq-first-abstr-regexp "forall\>" "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp "\\<forall\\>" "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
    ;; Pi binders
    (list (coq-first-abstr-regexp "(" ":[^:=]") 1 'font-lock-variable-name-face)
    ;; second, third, etc. abstraction for Lambda of Pi binders
