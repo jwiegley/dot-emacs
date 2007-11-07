@@ -493,6 +493,7 @@ so for the following reasons:
      ("Set Extraction AutoInline" nil "Set Extraction AutoInline" t "Set\\s-+Extraction\\s-+AutoInline")
      ("Set Extraction Optimize" nil "Set Extraction Optimize" t "Set\\s-+Extraction\\s-+Optimize")
      ("Set Implicit Arguments" nil "Set Implicit Arguments" t "Set\\s-+Implicit\\s-+Arguments")
+     ("Set Strict Implicit" nil "Set Strict Implicit" t "Set\\s-+Strict\\s-+Implicit")
      ("Set Printing Synth" nil "Set Printing Synth" t "Set\\s-+Printing\\s-+Synth")
      ("Set Printing Wildcard" nil "Set Printing Wildcard" t "Set\\s-+Printing\\s-+Wildcard")
      ("Set Printing All" "sprall" "Set Printing All" t "Set\\s-+Printing\\s-+All")
@@ -514,6 +515,7 @@ so for the following reasons:
      ("Unset Extraction AutoInline" nil "Unset Extraction AutoInline" t "Unset\\s-+Extraction\\s-+AutoInline")
      ("Unset Extraction Optimize" nil "Unset Extraction Optimize" t "Unset\\s-+Extraction\\s-+Optimize")
      ("Unset Implicit Arguments" nil "Unset Implicit Arguments" t "Unset\\s-+Implicit\\s-+Arguments")
+     ("Unset Strict Implicit" nil "Unset Strict Implicit" t "Unset\\s-+Strict\\s-+Implicit")
      ("Unset Printing Synth" nil "Unset Printing Synth" t "Unset\\s-+Printing\\s-+Synth")
      ("Unset Printing Wildcard" nil "Unset Printing Wildcard" t "Unset\\s-+Printing\\s-+Wildcard")
      ("Unset Hyps Limit" nil "Unset Hyps Limit" nil "Unset\\s-+Hyps\\s-+Limit")
@@ -817,27 +819,16 @@ Used by `coq-goal-command-p'"
 (defun coq-first-abstr-regexp (paren end)
   (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end)) 
 
-
-;; useless now
-;(defun coq-next-abstr-regexp ()
-;  (concat ";[ \t]*\\(" coq-ids "\\)\\s-*:"))
-
 (defvar coq-font-lock-terms
   (list
    ;; lambda binders
    (list (coq-first-abstr-regexp "\\<fun\\>" "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
    ;; forall binder
    (list (coq-first-abstr-regexp "\\<forall\\>" "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
-   ;; Pi binders
+   ;; parenthesized binders
    (list (coq-first-abstr-regexp "(" ":[^:=]") 1 'font-lock-variable-name-face)
-   ;; second, third, etc. abstraction for Lambda of Pi binders
-;   (list (coq-next-abstr-regexp) 1 'font-lock-variable-name-face)
-   ;; Kinds
-;   (cons "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>" 'font-lock-type-face)
    )
   "*Font-lock table for Coq terms.")
-
-
 
 ;; According to Coq, "Definition" is both a declaration and a goal.
 ;; It is understood here as being a goal.  This is important for
@@ -860,9 +851,7 @@ Used by `coq-goal-command-p'"
 (defconst coq-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-goal)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*:?"))
-          ;; Papageno : ce serait plus propre d'omettre le `:'
-          ;; uniquement pour Correctness
-          ;; et pour Definition f [x,y:nat] := body
+
 (defconst coq-decl-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
 	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
@@ -871,29 +860,6 @@ Used by `coq-goal-command-p'"
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
           "\\)\\s-+\\(" coq-id "\\)"))
 
-
-;;; 'with' is used in tactics too... and ":=" can appear too!! But only
-;;; inside parenthesis
-
-
-;too slow
-;(defconst coq-with-with-hole-regexp
-;  (concat "\\(" "with"
-;          "\\)\\s-+\\(" coq-id "\\)\\s-*"
-;	  "\\(?:\\(?:"
-;          coq-ids
-;          "\\|(" coq-ids ":[^=][^)]*)"
-;	  "\\)\\s-*\\)*"
-;	  ":" ; : or :=
-;	  ))
-
-; faux
-;(defconst coq-with-with-hole-regexp
-;  (concat "\\(" "with" "\\)\\s-+\\(" coq-id "\\)"))
-
-;faux
-;(defconst coq-with-with-hole-regexp
-;  (concat "\\(" "with" "\\)\\s-+\\(" coq-ids "\\)" "\\(?:[^:]+\\|:[^=]\\)*:="))
 
 ; must match:
 ; "with f x y :" (followed by = or not)
