@@ -34,7 +34,13 @@ If non-nil the optional STATECH specifies that the command is not state
 preserving for coq.
 
 If non-nil the optional KWREG is the regexp to colorize correponding to the
-keyword.  ex: \"simple\\\\s-+destruct\" (\\\\s-+ meaning \"one or more spaces\")
+keyword.  ex: \"simple\\\\s-+destruct\" (\\\\s-+ meaning \"one or more spaces\").
+*WARNING*: A regexp longer than another one should be put FIRST. For example:
+
+  (\"Module Type\" ... ... t \"Module\\s-+Type\")
+  (\"Module\" ... ... t \"Module\")
+
+Is ok because the longer regexp is recognized first.
 
 If non-nil the optional INSERT-FUN is the function to be called when inserting
 the form (instead of inserting INSERT, except when using \\[expand-abbrev]). This

@@ -135,7 +135,7 @@ so for the following reasons:
      ("absurd " "abs" "absurd " t "absurd")
      ("apply" "ap" "apply " t "apply")
      ("assert by" "assb" "assert ( # : # ) by #" t "assert")
-     ("assert" "ass" "assert ( # : # )" t "assert")
+     ("assert" "ass" "assert ( # : # )" t)
      ("assumption" "as" "assumption" t "assumption")
      ("auto with arith" "awa" "auto with arith" t)
      ("auto with" "aw" "auto with @{db}" t)
@@ -162,9 +162,9 @@ so for the following reasons:
      ("cut" "cut" "cut" t "cut")
      ("cutrewrite" "cutr" "cutrewrite -> # = #" t "cutrewrite")
      ("decide equality" "deg" "decide equality" t "decide\\s-+equality")
-     ("decompose" "dec" "decompose [#] #" t "decompose")
      ("decompose record" "decr" "decompose record #" t "decompose\\s-+record")
      ("decompose sum" "decs" "decompose sum #" t "decompose\\s-+sum")
+     ("decompose" "dec" "decompose [#] #" t "decompose")
      ("dependent inversion" "depinv" "dependent inversion" t "dependent\\s-+inversion")
      ("dependent inversion with" "depinvw" "dependent inversion # with #" t)
      ("dependent inversion_clear" "depinvc" "dependent inversion_clear" t "dependent\\s-+inversion_clear")
@@ -199,8 +199,8 @@ so for the following reasons:
      ("fold" "fold" "fold #" t "fold")
      ("fourier" "four" "fourier" t "fourier")
      ("functional induction" "fi" "functional induction @{f} @{args}" t "functional\\s-+induction")
-     ("generalize" "g" "generalize #" t "generalize")
      ("generalize dependent" "gd" "generalize dependent #" t "generalize\\s-+dependent")
+     ("generalize" "g" "generalize #" t "generalize")
      ("hnf" "hnf" "hnf" t "hnf")
      ("idtac" "id" "idtac" nil "idtac") ; also in tacticals with abbrev id
      ("idtac \"" "id\"" "idtac \"#\"")  ; also in tacticals
@@ -335,9 +335,9 @@ so for the following reasons:
     ("CoInductive" "coindv" "CoInductive # : # :=\n|# : #." t "CoInductive") 
     ("Declare Module : :=" "dm" "Declare Module # : # := #." t "Declare\\s-+Module")
     ("Declare Module <: :=" "dm2" "Declare Module # <: # := #." t);; careful
-    ("Declare Module Import : :=" "dmi" "Declare Module # : # := #." t "Declare\\s-+Module")
+    ("Declare Module Import : :=" "dmi" "Declare Module # : # := #." t)
     ("Declare Module Import <: :=" "dmi2" "Declare Module # <: # := #." t);; careful
-    ("Declare Module Export : :=" "dme" "Declare Module # : # := #." t "Declare\\s-+Module")
+    ("Declare Module Export : :=" "dme" "Declare Module # : # := #." t)
     ("Declare Module Export <: :=" "dme2" "Declare Module # <: # := #." t);; careful
     ("Definition" "def" "Definition #:# := #." t "Definition");; careful
     ("Definition (2 args)" "def2" "Definition # (# : #) (# : #):# := #." t)
@@ -349,7 +349,7 @@ so for the following reasons:
     ("Program Definition (4 args)" "pdef4" "Program Definition # (# : #) (# : #) (# : #) (# : #):# := #." t)
     ("Derive Inversion" nil "Derive Inversion @{id} with # Sort #." t "Derive\\s-+Inversion")
     ("Derive Dependent Inversion" nil "Derive Dependent Inversion @{id} with # Sort #." t "Derive\\s-+Dependent\\s-+Inversion")
-    ("Derive Inversion_clear" nil "Derive Inversion_clear @{id} with # Sort #." t "Derive\\s-+Inversion")
+    ("Derive Inversion_clear" nil "Derive Inversion_clear @{id} with # Sort #." t)
     ("Fixpoint" "fix" "Fixpoint # (#:#) {struct @{arg}} : # :=\n#." t "Fixpoint")
     ("Program Fixpoint" "pfix" "Program Fixpoint # (#:#) {struct @{arg}} : # :=\n#." t "Program\\s-+Fixpoint")
     ("Program Fixpoint measure" "pfixm" "Program Fixpoint # (#:#) {measure @{arg} @{f}} : # :=\n#." t)
@@ -393,9 +393,9 @@ so for the following reasons:
     ("Lemma" "l" "Lemma # : #.\nProof.\n#\nQed." t "Lemma")
     ("Program Lemma" "pl" "Program Lemma # : #.\nProof.\n#\nQed." t "Program\\s-+Lemma")
     ("Module! (interactive)" nil "Module # : #.\n#\nEnd #." nil nil coq-insert-section-or-module)
+    ("Module Type" "mti" "Module Type #.\n#\nEnd #." t "Module\\s-+Type") ; careful
     ("Module :" "moi" "Module # : #.\n#\nEnd #." t "Module") ; careful
     ("Module <:" "moi2" "Module # <: #.\n#\nEnd #." t ) ; careful
-    ("Module Type" "mti" "Module Type #.\n#\nEnd #." t "Module\\s-+Type") ; careful
     ("Remark" "rk" "Remark # : #.\n#\nQed." t "Remark")
     ("Section" "sec" "Section #." t "Section")
     ("Theorem" "th" "Theorem # : #.\n#\nQed." t "Theorem")
@@ -462,15 +462,15 @@ so for the following reasons:
      ("Notation (at at scope)" "notasc" "Notation \"#\" := # (at level #, # at level #) : @{scope}." t)
      ("Notation (at at)" "nota" "Notation \"#\" := # (at level #, # at level #)." t)
      ("Notation (only parsing)" "notsp" "Notation # := # (only parsing)." t)
-     ("Notation (simple)" "nots" "Notation # := #." t "Notation")
      ("Notation Local (only parsing)" "notslp" "Notation Local # := # (only parsing)." t)
      ("Notation Local" "notsl" "Notation Local # := #." t "Notation\\s-+Local")
+     ("Notation (simple)" "nots" "Notation # := #." t "Notation")
      ("Opaque" nil "Opaque #." nil "Opaque")
      ("Obligations Tactic" nil "Obligations Tactic := #." t "Obligations\\s-+Tactic")
      ("Open Local Scope" "oplsc" "Open Local Scope #" t "Open\\s-+Local\\s-+Scope")
      ("Open Scope" "opsc" "Open Scope #" t "Open\\s-+Scope")
-     ("Print" "p" "Print #." nil "Print")
      ("Print Hint" nil "Print Hint." nil "Print\\s-+Hint" coq-PrintHint)
+     ("Print" "p" "Print #." nil "Print")
      ("Qed" nil "Qed." nil "Qed")
      ("Pwd" nil "Pwd." nil "Pwd")
      ("Recursive Extraction" "recextr" "Recursive Extraction @{id}." nil "Recursive\\s-+Extraction")
@@ -480,8 +480,9 @@ so for the following reasons:
      ("Remove LoadPath" nil "Remove LoadPath" nil "Remove\\s-+LoadPath")
      ("Remove Printing If" nil "Remove Printing If #." t "Remove\\s-+Printing\\s-+If")
      ("Remove Printing Let" nil "Remove Printing Let #." t "Remove\\s-+Printing\\s-+Let")
-     ("Require" nil "Require #." t "Require")
      ("Require Export" nil "Require Export #." t "Require\\s-+Export")
+     ("Require Import" nil "Require Import #." t "Require\\s-+Import")
+     ("Require" nil "Require #." t "Require")
      ("Reset Extraction Inline" nil "Reset Extraction Inline." t "Reset\\s-+Extraction\\s-+Inline")
      ("Save" nil "Save." t "Save")
      ("Search" nil "Search #" nil "Search")
@@ -495,8 +496,7 @@ so for the following reasons:
      ("Set Printing Wildcard" nil "Set Printing Wildcard" t "Set\\s-+Printing\\s-+Wildcard")
      ("Set Printing All" "sprall" "Set Printing All" t "Set\\s-+Printing\\s-+All")
      ("Set Hyps Limit" nil "Set Hyps Limit #." nil "Set\\s-+Hyps\\s-+Limit")
-     ("Set Printing Coercion" nil "Set Printing Coercion" t "Set\\s-+Printing\\s-+Coercions?")
-     ("Set Printing Coercions" nil "Set\\s-+Set Printing Coercions." t)
+     ("Set Printing Coercions" nil "Set Printing Coercions." t "Set\\s-+Printing\\s-+Coercions")
      ("Set Printing Notations" "sprn" "Set Printing Notations" t "Set\\s-+Printing\\s-+Notations")
      ("Set Undo" nil "Set Undo #." nil "Set\\s-+Undo")
      ("Show" nil "Show #." nil "Show")
@@ -508,8 +508,6 @@ so for the following reasons:
      ("Test Printing Synth" nil "Test Printing Synth." nil "Test\\s-+Printing\\s-+Synth")
      ("Test Printing Width" nil "Test Printing Width." nil "Test\\s-+Printing\\s-+Width")
      ("Test Printing Wildcard" nil "Test Printing Wildcard." nil "Test\\s-+Printing\\s-+Wildcard")
-
-
      ("Transparent" nil "Transparent #." nil "Transparent")
      ("Unfocus" nil "Unfocus." nil "Unfocus")
      ("Unset Extraction AutoInline" nil "Unset Extraction AutoInline" t "Unset\\s-+Extraction\\s-+AutoInline")
@@ -837,7 +835,8 @@ Used by `coq-goal-command-p'"
    ;; second, third, etc. abstraction for Lambda of Pi binders
 ;   (list (coq-next-abstr-regexp) 1 'font-lock-variable-name-face)
    ;; Kinds
-   (cons "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>" 'font-lock-type-face))
+;   (cons "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>" 'font-lock-type-face)
+   )
   "*Font-lock table for Coq terms.")
 
 
@@ -909,18 +908,16 @@ Used by `coq-goal-command-p'"
           coq-id "\\s-*:[^=]\\)"))
 ; marche aussi a peu pres
 ;  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(.]*:\\|.*)[^(.]*:=\\)"))
-
+;"\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>"
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
     (list
-     ; This make complex keyword containing other keywords to be
-     ; uniformly colorized (typically in "Set Printing All" "Set" is
-     ; not colorized as a Type name)
-     (list (proof-ids-to-regexp coq-keywords) 0 'font-lock-keyword-face t)
+     (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
      (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
      (cons (proof-ids-to-regexp coq-tactics ) 'proof-tactics-name-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
+     (cons (proof-ids-to-regexp (list "Set" "Type" "Prop")) 'font-lock-type-face)
      (cons "============================" 'font-lock-keyword-face)
      (cons "Subtree proved!" 'font-lock-keyword-face)
      (cons "subgoal [0-9]+ is:" 'font-lock-keyword-face)
