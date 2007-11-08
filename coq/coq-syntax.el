@@ -826,7 +826,7 @@ Used by `coq-goal-command-p'"
    ;; forall binder
    (list (coq-first-abstr-regexp "\\<forall\\>" "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
    ;; parenthesized binders
-   (list (coq-first-abstr-regexp "(" ":[^:=]") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
    )
   "*Font-lock table for Coq terms.")
 
