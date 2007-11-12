@@ -1,6 +1,6 @@
-        ;; coq-syntax.el Font lock expressions for Coq
-;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
-;; Authors: Thomas Kleymann and Healfdene Goguen
+;; coq-syntax.el Font lock expressions for Coq
+;; Copyright (C) 1997-2007 LFCS Edinburgh. 
+;; Authors: Thomas Kleymann, Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
@@ -700,6 +700,7 @@ Used by `coq-goal-command-p'"
     "Qed"
     "End"
     "Admitted"
+    "Abort"
 	 ))
 
 (defvar coq-keywords-save
