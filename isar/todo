@@ -24,12 +24,6 @@ See also ../todo for generic things to do, priority codes.
 
 ** C Electric terminator for non-terminator provers would be nice.
 
-** B theorem dependencies: using Isar's "thm" command does not
-   work at top level.  This is annoying for browsing the fully
-   qualified dependency names.  (Even the ML_command "thm"
-   returns unknown theory context error).  Can we use something
-   else?
-
 ** B Proof nesting depth calculation not right: see debug messages
 
 ** B Isabelle tweaks
@@ -46,4 +40,4 @@ See also ../todo for generic things to do, priority codes.
 
 ** C provide template for empty theory (or even just for Scratch.thy);
 
-** C proper proof-by-pointing support (vary hard);
+** C proper proof-by-pointing support (very hard);
