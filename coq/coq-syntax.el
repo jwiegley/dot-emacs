@@ -126,6 +126,22 @@ so for the following reasons:
   :type '(repeat sexp)
   :group 'coq)
 
+(defcustom coq-user-reserved-db nil
+  "User defined reserved keywords information.  See `coq-syntax-db' for
+syntax. It is not necessary to add your own commands here (it is not
+needed by the synchronizing/backtracking system). You may however do
+so for the following reasons:
+
+  1 your commands will be colorized by font-lock
+
+  2 your commands will be added to the menu and to completion when
+  calling \\[coq-insert-command]
+
+  3 you may define an abbreviation for your command."
+
+  :type '(repeat sexp)
+  :group 'coq)
+
 
 
 (defvar coq-tactics-db
@@ -759,11 +775,13 @@ Used by `coq-goal-command-p'"
 
 ; From JF Monin:
 (defvar coq-reserved
+(append 
+ coq-user-reserved-db
   '(
     "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
     "return" "struct" "else" "end" "if" "in" "into" "let" "then"
     "using" "with" "by" "beta" "delta" "iota" "zeta" "after" "until"
-    "at" "Sort" "Time" "dest")
+    "at" "Sort" "Time" "dest"))
   "Reserved keywords of Coq.")
 
 
