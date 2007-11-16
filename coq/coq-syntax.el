@@ -373,6 +373,7 @@ so for the following reasons:
     ("Module Export :=" "moe" "Module Export # : # := #." t ) ; careful
     ("Module Export <: :=" "moe2" "Module Export# <: # := #." t ) ; careful
     ("Record" "rec" "Record # : # := {\n# : #;\n# : # }" t "Record")
+    ("Structure" "str" "Structure # : # := {\n# : #;\n# : # }" t "Structure")
     ("Scheme" "sc" "Scheme @{name} := #." t "Scheme")
     ("Scheme Induction" "sci" "Scheme @{name} := Induction for # Sort #." t)
     ("Scheme Minimality" "scm" "Scheme @{name} := Minimality for # Sort #." t)	
