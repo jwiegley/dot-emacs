@@ -23,7 +23,7 @@ usage()
   echo "    -L NAME      abbreviates -l NAME -k NAME"
   echo "    -P BOOL      actually start Proof General (default true), otherwise"
   echo "                 run plain tty session"
-  echo "    -U BOOL      enable Unicode (UTF-8) communication (default false)"
+  echo "    -U BOOL      enable Unicode (UTF-8) communication (default true)"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
   echo "    -f SIZE      set X-Symbol font size (default 12)"
   echo "    -g GEOMETRY  specify Emacs geometry"
