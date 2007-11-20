@@ -324,6 +324,7 @@ so for the following reasons:
    coq-user-solve-tactics-db
    '(
      ("assumption" "as" "assumption" t "assumption")
+     ("by" "by" "by #" t "by")
      ("congruence" "cong" "congruence" t "congruence")
      ("constructor" "cons" "constructor" t "constructor")
      ("contradiction" "contr" "contradiction" t "contradiction")
@@ -829,7 +830,7 @@ Used by `coq-goal-command-p'"
   '(
     "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
     "return" "struct" "else" "end" "if" "in" "into" "let" "then"
-    "using" "with" "by" "beta" "delta" "iota" "zeta" "after" "until"
+    "using" "with" "beta" "delta" "iota" "zeta" "after" "until"
     "at" "Sort" "Time" "dest"))
   "Reserved keywords of Coq.")
 
@@ -946,9 +947,9 @@ Used by `coq-goal-command-p'"
    (append
     coq-font-lock-terms
     (list
+     (cons (proof-ids-to-regexp coq-solve-tactics) 'coq-solve-tactics-face)
      (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
      (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
-     (cons (proof-ids-to-regexp coq-solve-tactics) 'coq-solve-tactics-face)
      (cons (proof-ids-to-regexp coq-tactics ) 'proof-tactics-name-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
      (cons (proof-ids-to-regexp (list "Set" "Type" "Prop")) 'font-lock-type-face)
