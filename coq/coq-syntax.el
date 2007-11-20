@@ -35,6 +35,8 @@ emacs. This variable cannot be true simultaneously with
 coq-version-is-V8-0. If none of these 2 variables is set to t, then
 ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
 
+
+
 ;;FIXME: how to make compilable?
 ;; post-cond: one of the variables is set to t
 (unless (noninteractive);; DA: evaluating here gives error during compile
@@ -126,6 +128,24 @@ so for the following reasons:
   :type '(repeat sexp)
   :group 'coq)
 
+(defcustom coq-user-solve-tactics-db nil
+  "User defined closing tactics. See `coq-syntax-db' for
+syntax. It is not necessary to add your own commands here (it is not
+needed by the synchronizing/backtracking system). You may however do
+so for the following reasons:
+
+  1 your commands will be colorized by font-lock
+
+  2 your commands will be added to the menu and to completion when
+  calling \\[coq-insert-command]
+
+  3 you may define an abbreviation for your command."
+
+  :type '(repeat sexp)
+  :group 'coq)
+
+
+
 (defcustom coq-user-reserved-db nil
   "User defined reserved keywords information.  See `coq-syntax-db' for
 syntax. It is not necessary to add your own commands here (it is not
@@ -152,7 +172,7 @@ so for the following reasons:
      ("apply" "ap" "apply " t "apply")
      ("assert by" "assb" "assert ( # : # ) by #" t "assert")
      ("assert" "ass" "assert ( # : # )" t)
-     ("assumption" "as" "assumption" t "assumption")
+;;     ("assumption" "as" "assumption" t "assumption")
      ("auto with arith" "awa" "auto with arith" t)
      ("auto with" "aw" "auto with @{db}" t)
      ("auto" "a" "auto" t "auto")
@@ -172,12 +192,12 @@ so for the following reasons:
      ("coinduction" "coind" "coinduction" t "coinduction")
      ("compare" "cmpa" "compare # #" t "compare")
      ("compute" "cmpu" "compute" t "compute")
-     ("congruence" "cong" "congruence" t "congruence")
-     ("constructor" "cons" "constructor" t "constructor")
-     ("contradiction" "contr" "contradiction" t "contradiction")
+;;     ("congruence" "cong" "congruence" t "congruence")
+;;     ("constructor" "cons" "constructor" t "constructor")
+;;     ("contradiction" "contr" "contradiction" t "contradiction")
      ("cut" "cut" "cut" t "cut")
      ("cutrewrite" "cutr" "cutrewrite -> # = #" t "cutrewrite")
-     ("decide equality" "deg" "decide equality" t "decide\\s-+equality")
+;;     ("decide equality" "deg" "decide equality" t "decide\\s-+equality")
      ("decompose record" "decr" "decompose record #" t "decompose\\s-+record")
      ("decompose sum" "decs" "decompose sum #" t "decompose\\s-+sum")
      ("decompose" "dec" "decompose [#] #" t "decompose")
@@ -190,14 +210,14 @@ so for the following reasons:
      ("destruct as" "desa" "destruct # as #" t)
      ("destruct using" "desu" "destruct # using #" t)
      ("destruct" "des" "destruct " t  "destruct")
-     ("discriminate" "dis" "discriminate" t "discriminate")
+;;     ("discriminate" "dis" "discriminate" t "discriminate")
      ("discrR" "discrR" "discrR" t "discrR")
      ("double induction" "dind" "double induction # #" t "double\\s-+induction")
      ("eapply" "eap" "eapply #" t "eapply")
      ("eauto with arith" "eawa" "eauto with arith" t)
      ("eauto with" "eaw" "eauto with @{db}" t)
      ("eauto" "ea" "eauto" t "eauto")
-     ("econstructor" "econs" "econstructor" t "econstructor")
+;;     ("econstructor" "econs" "econstructor" t "econstructor")
      ("eexists" "eex" "eexists" t "eexists")
      ("eleft" "eleft" "eleft" t "eleft")
      ("elim using" "elu" "elim # using #" t)
@@ -205,15 +225,15 @@ so for the following reasons:
      ("elimtype" "elt" "elimtype" "elimtype")
      ("eright" "erig" "eright" "eright")
      ("esplit" "esp" "esplit" t "esplit")
-     ("exact" "exa" "exact" t "exact")
+;;     ("exact" "exa" "exact" t "exact")
      ("exists" "ex" "exists #" t "exists")
-     ("fail" "fa" "fail" nil)
-     ("field" "field" "field" t "field")
+;;     ("fail" "fa" "fail" nil)
+;;     ("field" "field" "field" t "field")
      ("firstorder" "fsto" "firstorder" t "firstorder")
      ("firstorder with" "fsto" "firstorder with #" t)
      ("firstorder with using" "fsto" "firstorder # with #" t)
      ("fold" "fold" "fold #" t "fold")
-     ("fourier" "four" "fourier" t "fourier")
+;;     ("fourier" "four" "fourier" t "fourier")
      ("functional induction" "fi" "functional induction @{f} @{args}" t "functional\\s-+induction")
      ("generalize dependent" "gd" "generalize dependent #" t "generalize\\s-+dependent")
      ("generalize" "g" "generalize #" t "generalize")
@@ -251,7 +271,7 @@ so for the following reasons:
      ("quote []" "quote2" "quote # [#]" t)
      ("red" "red" "red" t "red")
      ("refine" "ref" "refine" t "refine")
-     ("reflexivity" "refl" "reflexivity #" t "reflexivity")
+;;      ("reflexivity" "refl" "reflexivity #" t "reflexivity")
      ("rename into" "ren" "rename # into #" t "rename")
      ("replace with" "rep" "replace # with #" t "replace")
      ("replace with in" "repi" "replace # with # in #" t)
@@ -260,7 +280,7 @@ so for the following reasons:
      ("rewrite in" "ri" "rewrite # in #" t)
      ("rewrite" "r" "rewrite #" t "rewrite")
      ("right" "rig" "right" t "right")
-     ("ring" "ring" "ring #" t "ring")
+;;      ("ring" "ring" "ring #" t "ring")
      ("set in * |-" "seth" "set ( # := #) in * |-" t)
      ("set in *" "set*" "set ( # := #) in *" t)
      ("set in |- *" "setg" "set ( # := #) in |- *" t)
@@ -299,6 +319,29 @@ so for the following reasons:
   "Coq tactics information list. See `coq-syntax-db' for syntax. "
   )
 
+(defvar coq-solve-tactics-db
+  (append
+   coq-user-solve-tactics-db
+   '(
+     ("assumption" "as" "assumption" t "assumption")
+     ("congruence" "cong" "congruence" t "congruence")
+     ("constructor" "cons" "constructor" t "constructor")
+     ("contradiction" "contr" "contradiction" t "contradiction")
+     ("decide equality" "deg" "decide equality" t "decide\\s-+equality")
+     ("discriminate" "dis" "discriminate" t "discriminate")
+     ("econstructor" "econs" "econstructor" t "econstructor")
+     ("exact" "exa" "exact" t "exact")
+     ("fourier" "four" "fourier" t "fourier")
+     ("fail" "fa" "fail" nil)
+     ("field" "field" "field" t "field")
+     ("omega" "o" "omega" t "omega")
+     ("reflexivity" "refl" "reflexivity #" t "reflexivity")
+     ("ring" "ring" "ring #" t "ring")
+    ))
+  "Coq tactic(al)s that solve a subgoal." 
+  )
+
+
 (defvar coq-tacticals-db
   (append 
    coq-user-tacticals-db
@@ -320,6 +363,7 @@ so for the following reasons:
      ("||" nil "# || #" nil)
      ))
   "Coq tacticals information list.  See `coq-syntax-db' for syntax.")
+
 
 
 
@@ -389,10 +433,10 @@ so for the following reasons:
     ("Module Export :=" "moe" "Module Export # : # := #." t ) ; careful
     ("Module Export <: :=" "moe2" "Module Export# <: # := #." t ) ; careful
     ("Record" "rec" "Record # : # := {\n# : #;\n# : # }" t "Record")
-    ("Structure" "str" "Structure # : # := {\n# : #;\n# : # }" t "Structure")
     ("Scheme" "sc" "Scheme @{name} := #." t "Scheme")
     ("Scheme Induction" "sci" "Scheme @{name} := Induction for # Sort #." t)
-    ("Scheme Minimality" "scm" "Scheme @{name} := Minimality for # Sort #." t)	
+    ("Scheme Minimality" "scm" "Scheme @{name} := Minimality for # Sort #." t)
+    ("Structure" "str" "Structure # : # := {\n# : #;\n# : # }" t "Structure")	
     )
   "Coq definition keywords information list. See `coq-syntax-db' for syntax. "
   )
@@ -769,9 +813,14 @@ Used by `coq-goal-command-p'"
 	  coq-keywords-state-preserving-commands)
   "All commands keyword.")
 
+(defvar coq-solve-tactics
+  (coq-build-regexp-list-from-db coq-solve-tactics-db)
+  "Keywords for closing tactic(al)s.")
+
 (defvar coq-tacticals
   (coq-build-regexp-list-from-db coq-tacticals-db)
   "Keywords for tacticals in a Coq script.")
+  
 
 ; From JF Monin:
 (defvar coq-reserved
@@ -899,6 +948,7 @@ Used by `coq-goal-command-p'"
     (list
      (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
      (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
+     (cons (proof-ids-to-regexp coq-solve-tactics) 'coq-solve-tactics-face)
      (cons (proof-ids-to-regexp coq-tactics ) 'proof-tactics-name-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
      (cons (proof-ids-to-regexp (list "Set" "Type" "Prop")) 'font-lock-type-face)
