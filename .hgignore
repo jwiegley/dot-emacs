@@ -1,0 +1,5 @@
+\.elc$
+^site-lisp$
+^autoload.el$
+^cus-dirs.el$
+^paredit.patch$
