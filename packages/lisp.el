@@ -30,6 +30,17 @@
     (delete-backward-char (length sym))
     (insert "(format t \"" sym " = ~S~%\" " sym ")")))
 
+(mapc (lambda (major-mode)
+	(font-lock-add-keywords
+	 major-mode
+	 `(("(\\(lambda\\)\\>"
+	    (0 (ignore
+		(compose-region (match-beginning 1)
+				(match-end 1) ?λ)))))))
+      '(emacs-lisp-mode inferior-emacs-lisp-mode lisp-mode slime-repl-mode
+			inferior-lisp-mode scheme-mode scheme48-mode
+			inferior-scheme-mode))
+
 ;;;_ * paredit
 
 (autoload 'paredit-mode "paredit"
@@ -90,12 +101,15 @@
   (slime-eval-async
    '(cl:progn
      (asdf:oos 'asdf:load-op :ledger)
-     (asdf:oos 'asdf:load-op :ledger.textual))))
+     (asdf:oos 'asdf:load-op :ledger-textual)
+     (asdf:oos 'asdf:load-op :hunchentoot)
+     (asdf:oos 'asdf:load-op :cl-who)
+     (asdf:oos 'asdf:load-op :ledger-http))))
 
 ;;(setq slime-net-coding-system 'utf-8-unix)
 
 (setq slime-lisp-implementations
-      '((sbcl ("/usr/local/stow/sbcl-1.0.11-i386/bin/sbcl"
+      '((sbcl ("sbcl"
 	       "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86")
 	      :init (lambda (port-file _)
 		      (format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
