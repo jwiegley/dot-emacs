@@ -546,6 +546,7 @@ so for the following reasons:
      ("Require Export" nil "Require Export #." t "Require\\s-+Export")
      ("Require Import" nil "Require Import #." t "Require\\s-+Import")
      ("Require" nil "Require #." t "Require")
+     ("Reserved Notation" nil "Reserved Notation" nil "Reserved\\s-+Notation")
      ("Reset Extraction Inline" nil "Reset Extraction Inline." t "Reset\\s-+Extraction\\s-+Inline")
      ("Save" nil "Save." t "Save")
      ("Search" nil "Search #" nil "Search")
