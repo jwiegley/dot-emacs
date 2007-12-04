@@ -205,7 +205,8 @@
 	       (and (car entry)
 		    (or (eq (car entry) t)
 			(not (zerop (car entry)))))
-	       (string-match "^nnml:list" group))
+	       ;; (string-match "^nnml:list" group)
+	       )
 	  (ignore-errors
 	    (gnus-summary-read-group group nil t))
 	  (when (and gnus-summary-buffer
@@ -243,10 +244,7 @@
 		     (error nil)))
 	     (name (car data))
 	     (net (car (cdr data))))
-	(if name
-	    name
-	  (or (cdaar (eudc-query (list (cons 'email net)) '(name)))
-	      net)))))))
+	(or name net))))))
 
 (defsubst dot-gnus-tos (time)
   "Convert TIME to a floating point number."

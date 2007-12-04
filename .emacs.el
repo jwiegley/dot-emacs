@@ -62,6 +62,7 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(Info-additional-directory-list (quote ("~/Library/Lisp/ansicl")))
  '(abbrev-mode t)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
@@ -77,9 +78,12 @@
  '(browse-url-browser-function (quote (("\\.\\(gz\\|tgz\\|bz2\\|tbz\\|dmg\\|iso\\|pdf\\|mp3\\)\\'" . browse-url-download-file) (".*" . browse-url-default-macosx-browser))))
  '(calendar-latitude [12 1 north])
  '(calendar-longitude [61 46 west])
+ '(circe-fools-list (quote ("Xach" "Xof" "Krystof" "Zhivago" "dalias" "holycow")))
+ '(circe-ignore-list (quote ("jordanb_?")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode nil)
  '(compilation-scroll-output t)
+ '(completion-ignored-extensions (quote (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-raised-buttons nil)
  '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1"))))
@@ -95,6 +99,7 @@
  '(display-time-mail-function (quote check-mail))
  '(display-time-mode t)
  '(doxymacs-doxygen-dirs (quote (("/src/ledger/" "~/Products/ledger/docs/ledger.xml" "~/Products/ledger/docs"))))
+ '(dvc-select-priority (quote (xhg)))
  '(dvc-tips-enabled nil)
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
  '(enable-recursive-minibuffers t)
@@ -135,6 +140,7 @@
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
  '(line-number-mode t)
+ '(lui-time-stamp-position nil)
  '(mac-command-modifier (quote meta))
  '(mac-function-modifier (quote super))
  '(mac-option-modifier (quote alt))
@@ -168,7 +174,7 @@
  '(org-agenda-sorting-strategy (quote ((agenda time-up priority-down) (todo category-keep priority-down) (tags category-keep priority-down))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
- '(org-archive-location "notes.txt::")
+ '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-deadline-warning-days 14)
  '(org-default-notes-file "~/Documents/Pending/notes.txt")
@@ -202,6 +208,7 @@
  '(pabbrev-idle-timer-verbose nil)
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
+ '(prolog-program-name (quote (((getenv "EPROLOG") (eval (getenv "EPROLOG"))) (eclipse "eclipse") (mercury nil) (sicstus "sicstus") (swi "swipl") (gnu "gprolog") (t "swipl"))))
  '(ps-font-size (quote (8 . 10)))
  '(ps-footer-font-size (quote (12 . 14)))
  '(ps-header-font-size (quote (12 . 14)))
@@ -227,7 +234,7 @@
  '(show-paren-mode (quote paren))
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
- '(special-display-regexps (quote (("#(emacs|ledger|lisp)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--14-0-72-72-m-0-iso10646-1") (line-spacing . 3) (nil) (top . 295) (left . 10) (width . 80) (height . 34) (alpha . 0.5)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
+ '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--14-0-72-72-m-0-iso10646-1") (line-spacing . 3) (nil) (top . 295) (left . 2) (width . 80) (height . 34) (alpha . 0.5) (splittable . t) (unsplittable) (dedicated)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
  '(sql-sqlite-program "sqlite3")
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
@@ -259,9 +266,10 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(circe-highlight-all-nicks-face ((t (:foreground "dark blue"))))
  '(circe-originator-face ((t (:foreground "dark orange"))))
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
- '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray95")))))
+ '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98")))))
 
 ;;;_ * disabled commands
 
@@ -318,22 +326,94 @@
 (autoload 'circe "circe" "Connect to an IRC server" t)
 
 (setq circe-default-realname "http://www.newartisans.com/"
-      circe-ignore-list nil
       circe-server-coding-system '(utf-8 . undecided)
       circe-server-auto-join-channels '(("^freenode$" "#ledger"
 					 "#emacs" "#lisp"))
       circe-nickserv-passwords '(("freenode" "xco8imer")))
 
 (setq lui-max-buffer-size 30000
-      lui-flyspell-p t
+      lui-flyspell-p nil
       lui-flyspell-alist '(("." "american")))
 
 (eval-after-load "circe"
   '(progn
+     (require 'circe-highlight-all-nicks)
+     (enable-circe-highlight-all-nicks)
+
+     (add-to-list 'circe-receive-message-functions 'nickserv-auth)))
+
+(eval-after-load "lui"
+  '(progn
      (require 'lui-irc-colors)
      (add-to-list 'lui-pre-output-hook 'lui-irc-colors)
-     (add-to-list 'circe-receive-message-functions
-                  'nickserv-auth)))
+     (add-to-list 'lui-post-output-hook 'lui-hide-joins-and-quits)
+     (add-to-list 'lui-post-output-hook 'circe-thou-art-but-a-fool-sir)))
+
+(defun lui-hide-joins-and-quits ()
+  "Mark joins and quits with the `fool' property.
+This is an appropriate function for `lui-pre-output-hook'."
+  (goto-char (point-min))
+  (let ((inhibit-read-only t))
+    (while (re-search-forward "^\\*\\*\\* \\(Join\\|Quit\\|Part\\|Nick change\\)" nil t)
+      (let ((start (match-beginning 0)))
+	(save-excursion
+	  (goto-char start)
+	  (forward-line 1)
+	  (while (and (not (eobp)) (looking-at "    "))
+	    (forward-line 1))
+	  (delete-region start (point)))))))
+
+(defcustom circe-fools-list nil
+  "*List of nicks to mark as fools."
+  :type '(repeat regexp)
+  :group 'circe)
+
+(defun circe-command-FOOL (line)
+  "Add the regex on LINE to the `circe-fools-list'."
+  (with-current-buffer (circe-server-last-active-buffer)
+    (cond
+     ((string-match "\\S-+" line)
+      (let ((regex (match-string 0 line)))
+        (add-to-list 'circe-fools-list regex)
+        (circe-server-message
+	 (format "Fools list, meet %s (for now)" regex))))
+     ((not circe-fools-list)
+      (circe-server-message "Your fools list is empty"))
+     (t
+      (circe-server-message "Your fools list:")
+      (mapc (lambda (regex)
+              (circe-server-message (format "- %s" regex)))
+            circe-fools-list)))))
+
+(defun circe-command-UNFOOL (line)
+  "Remove an entry from `circe-fools-list'."
+  (with-current-buffer (circe-server-last-active-buffer)
+    (cond
+     ((string-match "\\S-+" line)
+      (let ((regex (match-string 0 line)))
+        (setq circe-fools-list (delete regex circe-fools-list))
+        (circe-server-message (format "Fools list forgot about %s"
+                                      regex))))
+     (t
+      (circe-server-message
+       "Who do you want to unfool? UNFOOL requires one argument")))))
+
+(defun circe-thou-art-but-a-fool-sir ()
+  (goto-char (point-min))
+  (let ((inhibit-read-only t))
+    (while (re-search-forward "^<\\([^>]+\\)>" nil t)
+      (let ((start (match-beginning 0))
+	    (nick (match-string 1))
+	    a-foolish-boy-p)
+	(if (dolist (regex circe-fools-list)
+	      (if (string-match regex nick)
+		  (return t)))
+	    (save-excursion
+	      (goto-char start)
+	      (forward-line 1)
+	      (while (and (not (eobp)) (looking-at " "))
+		(forward-line 1))
+	      (put-text-property start (point) 'lui-fool t)))))))
 
 (defun nickserv-auth (nick user host command args)
   "Authenticate to a bitlbee server."
@@ -370,13 +450,7 @@
 
 ;;;_ * darcsum
 
-(load "darcsum" t)
-
-;; vc-darcs
-
-(add-to-list 'vc-handled-backends 'DARCS)
-(autoload 'vc-darcs-find-file-hook "vc-darcs")
-(add-hook 'find-file-hooks 'vc-darcs-find-file-hook)
+;; (load "darcsum" t)
 
 ;;;_ * doxymacs
 
@@ -451,6 +525,8 @@
 ;;;_ * lisppaste
 
 (autoload 'lisppaste-new-paste "lisppaste")
+(autoload 'lisppaste-create-new-paste "lisppaste" nil t)
+(autoload 'lisppaste-create-new-annotation "lisppaste" nil t)
 
 (defun paste-region (beg end channel title)
   (interactive "r\nsPaste to channel: \nsTitle for new paste: ")
@@ -550,26 +626,26 @@
 
 ;;;_ * gnus
 
-;;(setq gnus-home-directory "~/Documents")
-;;
-;;(load ".gnus")
-;;(load "check-mail")
-;;
-;;(defun gnus-visit-article ()
-;;  (interactive)
-;;  (when (string-match "\\`[0-9]+\\.msg\\'" (file-name-nondirectory buffer-file-name))
-;;    (require 'gnus)
-;;    (let* ((path buffer-file-name)
-;;	   (article (file-name-sans-extension (file-name-nondirectory path)))
-;;	   (dir (file-name-directory path))
-;;	   (case-fold-search nil))
-;;      (when (string-match "/Mail/\\(.+?\\)/$" dir)
-;;	(let ((group (concat "nnml:" (match-string 1 dir))))
-;;	  (setq group (subst-char-in-string ?/ ?. group))
-;;	  (gnus-group-read-group 1 nil group)
-;;	  (gnus-summary-goto-article (string-to-number article) nil t))))))
-;;
-;;(add-hook 'find-file-hook 'gnus-visit-article t)
+(setq gnus-home-directory "~/Documents")
+
+(load ".gnus")
+(load "check-mail")
+
+(defun gnus-visit-article ()
+  (interactive)
+  (when (string-match "\\`[0-9]+\\.msg\\'" (file-name-nondirectory buffer-file-name))
+    (require 'gnus)
+    (let* ((path buffer-file-name)
+	   (article (file-name-sans-extension (file-name-nondirectory path)))
+	   (dir (file-name-directory path))
+	   (case-fold-search nil))
+      (when (string-match "/Mail/\\(.+?\\)/$" dir)
+	(let ((group (concat "nnml:" (match-string 1 dir))))
+	  (setq group (subst-char-in-string ?/ ?. group))
+	  (gnus-group-read-group 1 nil group)
+	  (gnus-summary-goto-article (string-to-number article) nil t))))))
+
+(add-hook 'find-file-hook 'gnus-visit-article t)
 
 ;;;_ * mudel
 
@@ -773,6 +849,18 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p" note-date))))))
 			      'face 'italic))))))))
 
 (add-hook 'org-finalize-agenda-hook 'org-fontify-priorities)
+
+;;;_ * remember
+
+(autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
+(autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
+(autoload 'mercury-mode "prolog" "Major mode for editing Mercury programs." t)
+
+(setq prolog-system 'swi)
+
+(setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
+                                ("\\.m$" . mercury-mode))
+			      auto-mode-alist))
 
 ;;;_ * remember
 
@@ -1047,7 +1135,7 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p" note-date))))))
 (define-key lisp-find-map [?k] 'find-function-on-key)
 
 (define-key global-map [(meta ?C)] 'calendar)
-;;(define-key global-map [(meta ?G)] 'gnus)
+(define-key global-map [(meta ?G)] 'gnus)
 (define-key global-map [(meta ?N)] 'winner-redo)
 (define-key global-map [(meta ?P)] 'winner-undo)
 (define-key global-map [(meta ?T)] 'tags-search)
@@ -1232,8 +1320,16 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key mode-specific-map [??] 'org-multi-occur)
 
+(defun clone-region-set-mode (start end &optional mode)
+  (interactive "r")
+  (with-current-buffer (clone-indirect-buffer "*clone*" t)
+    (narrow-to-region start end)
+    (if mode
+	(funcall mode)
+      (lisp-mode))))
+
 (define-key mode-specific-map [?a] 'org-agenda)
-(define-key mode-specific-map [?c] 'compile)
+(define-key mode-specific-map [?c] 'clone-region-set-mode)
 (define-key mode-specific-map [?d] 'delete-whitespace-rectangle)
 
 (define-key mode-specific-map [?e ?a] 'byte-recompile-directory)
@@ -1327,7 +1423,7 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key mode-specific-map [(shift ?v)] 'view-clipboard)
 
-(define-key mode-specific-map [?w] 'muse-project-find-file)
+(define-key mode-specific-map [?w] 'wdired-change-to-wdired-mode)
 (define-key mode-specific-map [(meta ?w)] 'org-store-link)
 (define-key mode-specific-map [(shift ?w)] 'org-kill-entry)
 (define-key mode-specific-map [(shift ?y)] 'org-yank-entry)
@@ -1352,13 +1448,20 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?x ?C] 'cvs-examine)
 (define-key mode-specific-map [?x ?S] 'svn-status)
 (define-key mode-specific-map [?x ?H] 'dvc-status)
-
-(define-key mode-specific-map [?x ?v] 'darcsum-whatsnew)
+(define-key mode-specific-map [?x ?v] 'dvc-status)
 
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
 (define-key mode-specific-map [?\[] 'align-regexp)
 (define-key mode-specific-map [?=]  'count-matches)
+(define-key mode-specific-map [?\;] 'comment-or-uncomment-region)
+
+;;;_ * special characters
+
+(define-key global-map [(alt ?=)]
+  (function (lambda () (interactive) (insert ?⇒))))
+(define-key global-map [(alt ?.)]
+  (function (lambda () (interactive) (insert ?…))))
 
 ;;;_ * footnote
 

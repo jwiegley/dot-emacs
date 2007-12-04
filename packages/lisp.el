@@ -30,6 +30,15 @@
     (delete-backward-char (length sym))
     (insert "(format t \"" sym " = ~S~%\" " sym ")")))
 
+(put 'iterate 'lisp-indent-function 1)
+(put 'mapping 'lisp-indent-function 1)
+(put 'producing 'lisp-indent-function 1)
+
+(eval-after-load "speedbar"
+ '(progn
+   (add-to-list 'speedbar-obj-alist '("\\.lisp$" . ".fasl"))
+   (speedbar-add-supported-extension ".lisp")))
+
 (mapc (lambda (major-mode)
 	(font-lock-add-keywords
 	 major-mode
@@ -40,6 +49,9 @@
       '(emacs-lisp-mode inferior-emacs-lisp-mode lisp-mode slime-repl-mode
 			inferior-lisp-mode scheme-mode scheme48-mode
 			inferior-scheme-mode))
+
+(require 'column-marker)
+(add-hook 'lisp-mode-hook (lambda () (interactive) (column-marker-1 80)))
 
 ;;;_ * paredit
 
@@ -90,22 +102,6 @@
    ;; slime-typeout-frame
    slime-xref-browser))
 
-(defun slime-load-periods ()
-  (interactive)
-  (slime-eval-async
-   '(cl:progn
-     (asdf:oos 'asdf:load-op :periods))))
-
-(defun slime-load-ledger ()
-  (interactive)
-  (slime-eval-async
-   '(cl:progn
-     (asdf:oos 'asdf:load-op :ledger)
-     (asdf:oos 'asdf:load-op :ledger-textual)
-     (asdf:oos 'asdf:load-op :hunchentoot)
-     (asdf:oos 'asdf:load-op :cl-who)
-     (asdf:oos 'asdf:load-op :ledger-http))))
-
 ;;(setq slime-net-coding-system 'utf-8-unix)
 
 (setq slime-lisp-implementations
@@ -121,7 +117,7 @@
 			  (format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
 				  port-file))
 		  :coding-system utf-8-unix)
-	(sbcl64 ("/usr/local/stow/sbcl-1.0.11-x86_64/bin/sbcl"
+	(sbcl64 ("/usr/local/stow/sbcl-X86-64/bin/sbcl"
 		 "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
 		:init (lambda (port-file _)
 			(format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
