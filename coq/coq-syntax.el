@@ -446,6 +446,7 @@ so for the following reasons:
   '(
     ("Add Morphism" "addmor" "Add Morphism @{f} : @{id}" t "Add\\s-+Morphism")
     ("Chapter" "chp" "Chapter # : #." t "Chapter")
+    ("Corollary" "cor" "Corollary # : #.\nProof.\n#\nQed." t "Corollary")
     ("Declare Module :" "dmi" "Declare Module # : #.\n#\nEnd #." t)
     ("Declare Module <:" "dmi2" "Declare Module # <: #.\n#\nEnd #." t)
     ("Definition" "def" "Definition #:# := #." t "Definition");; careful
