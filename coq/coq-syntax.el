@@ -532,6 +532,7 @@ so for the following reasons:
      ("Obligations Tactic" nil "Obligations Tactic := #." t "Obligations\\s-+Tactic")
      ("Open Local Scope" "oplsc" "Open Local Scope #" t "Open\\s-+Local\\s-+Scope")
      ("Open Scope" "opsc" "Open Scope #" t "Open\\s-+Scope")
+     ("Print Coercions" nil "Print Coercions." nil "Print\\s-+Coercions")
      ("Print Hint" nil "Print Hint." nil "Print\\s-+Hint" coq-PrintHint)
      ("Print" "p" "Print #." nil "Print")
      ("Qed" nil "Qed." nil "Qed")
