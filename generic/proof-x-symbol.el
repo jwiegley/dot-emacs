@@ -42,13 +42,10 @@
 ;;
 ;; =================================================================
 
-;; Current TODO here:
+;; Questions here:
 ;;
 ;; -- Is it possible to remove setting of language in x-symbol-enable?
 ;; -- Simplify proof-x-symbol-initialize
-;; -- Investigate font-lock errors (XEmacs 21.4.15):
-;;     Error caught in `font-lock-pre-idle-hook': (wrong-type-argument markerp nil)
-
 
 
 (defvar proof-x-symbol-initialized nil
