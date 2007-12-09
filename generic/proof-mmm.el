@@ -21,6 +21,8 @@
 ;; Configuration for the prover is expected to reside in <foo>-mmm.el
 ;; It should define an MMM submode class called <foo>.
 
+(require 'proof-utils)
+
 ;;;###autoload
 (defun proof-mmm-support-available ()
   "A test to see whether mmm support is available."
@@ -37,6 +39,8 @@
    ;; Load prover-specific config in <foo>-mmm.el
    (proof-try-require (proof-ass-sym mmm))))
 
+(eval-when-compile
+  (proof-mmm-support-available))
 
 ;; The following function is called by the menu item for
 ;; MMM-Mode.  It is an attempt at an intuitive behaviour
