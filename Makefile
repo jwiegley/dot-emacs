@@ -83,7 +83,7 @@ compile: .byte-compile
 
 .byte-compile: $(EL) x-symbol/lisp/*.el
 	@echo "*************************************************"
-	@echo " Byte compiling... (ignoring errors: watch for !!!)"
+	@echo " Byte compiling... (ignoring errors: watch for !!)"
 	@echo "*************************************************"
 	rm -f $(ELC) 
 	-$(BYTECOMP) $(EL)
