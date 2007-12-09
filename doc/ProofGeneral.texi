@@ -436,6 +436,7 @@ If your chosen proof assistant isn't supported, read the accompanying
 new prover.  
 
 @menu
+* Installing Proof General::           
 * Quick start guide::           
 * Features of Proof General::   
 * Supported proof assistants::  
@@ -446,12 +447,27 @@ new prover.
 
 
 
+@node Installing Proof General
+@section Installing Proof General
+
+If Proof General has not already been installed for you, you should 
+unpack it and insert the line:
+@lisp
+        (load "@var{proof-general-home}/generic/proof-site.el")
+@end lisp
+into your @file{~/.emacs} file, where @var{proof-general-home} is the
+top-level directory that was created when Proof General was unpacked.
+
+@xref{Obtaining and Installing} for much more information.
+
+
 @node Quick start guide
 @section Quick start guide
 
-Proof General may have been installed for you already. If so, when you
-visit a proof script file for your proof assistant, the corresponding
-Proof General mode will be invoked automatically: 
+Once Proof General is correctly installed, the corresponding Proof
+General mode will be invoked automatically when you visit a proof
+script file for your proof assistant:
+
 @multitable @columnfractions .35 .3 .35
 @item       @b{Prover}    @tab @b{Extensions} @tab @b{Mode}
 @item       LEGO          @tab @file{.l}      @tab @code{lego-mode}
@@ -466,7 +482,7 @@ Proof General mode will be invoked automatically:
 @item       CCC           @tab @file{.ccc}    @tab @code{ccc-mode}
 @item       PG-Shell      @tab @file{.pgsh}   @tab @code{pgshell-mode}
 @end multitable
-(The exact list of Proof Assistants supported may vary according to the
+(the exact list of Proof Assistants supported may vary according to the
 version of Proof General and its local configuration).  You can also
 invoke the mode command directly, e.g., type @kbd{M-x lego-mode}, to
 turn a buffer into a lego script buffer.
@@ -487,16 +503,6 @@ To follow an example use of Proof General on a Isabelle proof,
 scripts in another theorem prover, you can easily adapt the details 
 given there.
 
-If Proof General has not already been installed, you should insert the
-line:
-@lisp
-        (load "@var{proof-general-home}/generic/proof-site.el")
-@end lisp
-into your @file{~/.emacs} file, where @var{proof-general-home} is the
-top-level directory that was created when Proof General was unpacked.
-
-@xref{Obtaining and Installing}, if you need more
-information.
 
 
 @node Features of Proof General
