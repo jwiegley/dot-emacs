@@ -812,19 +812,20 @@ be sent to Isabelle behind the scenes.  First, there is a short delay
 while Isabelle is launched; you may see a welcome message.  Then, you
 may notice that the command briefly is given an orange/pink background
 (or shown in inverse video if you don't have a colour display), before
-you see a window @c like this:
-containing text like this:
+you see a window containing text like this:
 @lisp
-theory Walkthrough =
-  @{ProtoPure, CPure, HOL, Set, Typedef, Fun, Product_Type, Lfp, Gfp,
-    Sum_Type, Relation, Record, Inductive, Transitive_Closure,
-    Wellfounded_Recursion, Ring_and_Field, Nat, NatArith, Divides, Power,
-    Finite_Set, Equiv, IntDef, Datatype_Universe, Datatype, Numeral, Bin,
-    IntArith, Wellfounded_Relations, Recdef, IntDiv, NatBin, NatSimprocs,
-    SetInterval, Presburger, Relation_Power, Parity, PreList, List, Map,
-    Hilbert_Choice, Infinite_Set, Extraction, Refute, Main, #@}
+theory Walkthrough 
 @end lisp
-(Which gives you some idea of the theories that go to build up @code{Main}!).
+which reflects the command just executed.
+@c =
+@c   @{ProtoPure, CPure, HOL, Set, Typedef, Fun, Product_Type, Lfp, Gfp,
+@c     Sum_Type, Relation, Record, Inductive, Transitive_Closure,
+@c     Wellfounded_Recursion, Ring_and_Field, Nat, NatArith, Divides, Power,
+@c     Finite_Set, Equiv, IntDef, Datatype_Universe, Datatype, Numeral, Bin,
+@c     IntArith, Wellfounded_Relations, Recdef, IntDiv, NatBin, NatSimprocs,
+@c     SetInterval, Presburger, Relation_Power, Parity, PreList, List, Map,
+@c     Hilbert_Choice, Infinite_Set, Extraction, Refute, Main, #@}
+@c (Which gives you some idea of the theories that go to build up @code{Main}!).
 
 @c FIXME: explain window layouts a bit
 
@@ -846,7 +847,8 @@ theorem my_theorem: "A & B --> B & A";
 @end lisp
 @end itemize
 
-The goal should be displayed in the @i{goals buffer}.
+The goal we have set ourselves to prove
+should be displayed in the @i{goals buffer}.
 @c FIXME explain again
 
 @itemize @bullet
