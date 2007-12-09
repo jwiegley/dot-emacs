@@ -83,10 +83,9 @@ compile: .byte-compile
 
 .byte-compile: $(EL) x-symbol/lisp/*.el
 	@echo "*************************************************"
-	@echo " Byte compiling..."
+	@echo " Byte compiling... (ignoring errors: watch for !!!)"
 	@echo "*************************************************"
 	rm -f $(ELC) 
-## ignore errors for now: some files still have probs [x-symbol induced]
 	-$(BYTECOMP) $(EL)
 	rm -f $(BROKENELC)
 	@echo " Byte compiling X-Symbol..."
