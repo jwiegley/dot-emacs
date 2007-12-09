@@ -2442,6 +2442,21 @@ command."
   ;; font-lock-keywords isn't automatically buffer-local in Emacs 21.2
   (make-local-variable 'font-lock-keywords)
 
+  ;; Syntax table in XEmacs 21.5.b28 does not classify newline as space,
+  ;; breaking regexps using \\s- that rely on that (showed up for Coq).
+  ;; In fact it seems to be broken rather more seriously than that:
+  ;; default syntax table of fundamental mode is not merged at all!
+  (if (and proof-running-on-XEmacs
+	   ;; hopefully fixed for later versions but we don't know yet
+	   (>= 21 emacs-major-version)
+	   (>= 5 emacs-minor-version))
+      (progn
+	(derived-mode-merge-syntax-tables 
+	 (standard-syntax-table) (syntax-table))
+	;; We also need this
+	(modify-syntax-entry ?\n " ")))
+
+					
   ;; During write-file it can happen that we re-set the mode for
   ;; the currently active scripting buffer.  The user might also
   ;; do this for some reason.  We could maybe let

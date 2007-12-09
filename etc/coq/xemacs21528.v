@@ -1,4 +1,9 @@
-(* There are regexp problems with XEmacs 21.5.28 which break this example *)
+(* There are regexp problems with XEmacs 21.5.28 which break this example.
+
+   9.12.07: It turned out that the default syntax table wasn't merged 
+   properly with the default, suspect bugs in derived.el.
+   Patched in `proof-script.el' for now.
+*)
 
 Module Type T.
 
