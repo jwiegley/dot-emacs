@@ -228,9 +228,10 @@ alldist:	distcompile distdocs
 #
 # Make tags file
 #
+TAGS_EXTRAS=x-symbol/lisp/*.el
 ETAGS=etags
-tags:	$(EL)
-	$(ETAGS) $(EL) TODO.developer doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
+tags:	$(EL) $(TAGS_EXTRAS)
+	$(ETAGS) $(EL) $(TAGS_EXTRAS) TODO.developer doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
 
 
 ############################################################
