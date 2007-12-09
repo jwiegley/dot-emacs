@@ -39,7 +39,8 @@
 ;; is set.
 ;; coq-prog-args is set by defpgcustom in proof-config
 (defcustom coq-prog-args '("-emacs") 
-  "The arguments passed to coqtop, important: see `proof-prog-name'.")
+  "The arguments passed to coqtop, important: see `proof-prog-name'."
+  :group 'coq)
 
 (defcustom coq-compile-file-command "coqc %s"
   "*Command to compile a coq file.
@@ -65,9 +66,11 @@ To disable coqc being called (and use only make), set this to nil."
 (require 'coq-syntax)
 (require 'coq-indent)
 
-(defcustom coq-utf-safe coq-version-is-V8-1
+8(defvar coq-utf-safe coq-version-is-V8-1
   "Obsolete, coq >= 8.1 does not use special symbols for delimiting prompts.")
-(if coq-version-is-V8-1 (setq coq-prog-args '("-emacs-U"))
+
+(if coq-version-is-V8-1 
+    (setq coq-prog-args '("-emacs-U"))
   (setq coq-prog-args '("-emacs")))
 
 ;; utf-8 is not yet well accepted (especially by xemacs)
@@ -75,10 +78,12 @@ To disable coqc being called (and use only make), set this to nil."
 ;work on xemacs."
 (setq proof-shell-unicode nil)
 
-;; List of environment settings d to pass to Coq process.
-;; On Windows you might need something like:
-;; (setq coq-prog-env '("HOME=C:\\Program Files\\Coq\\"))
-(setq coq-prog-env nil)
+(defcustom coq-prog-env nil
+  "*List of environment settings d to pass to Coq process.
+On Windows you might need something like:
+  (setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
+  :group 'coq)
+  
 
 ;; Command to reset the Coq Proof Assistant
 (defconst coq-shell-restart-cmd "Reset Initial.\n ")
@@ -747,15 +752,6 @@ This is specific to `coq-mode'."
 (proof-definvisible coq-show-proof "Show Proof.")
 (proof-definvisible coq-show-conjectures "Show Conjectures.")
 (proof-definvisible coq-show-intros "Show Intros.") ; see coq-insert-intros below
-
-
-(defun coq-PrintHint ()
-  "Print all hints applicable to the current goal."
-  (interactive)
-  (proof-shell-invisible-command "Print Hint. "))
-
-
-
 
 (defun coq-Compile ()
   "Compiles current buffer."
@@ -1629,7 +1625,7 @@ Only when three-buffer-mode is enabled."
                               (+ 1 (count-lines (point-max) (point-min))))))
       (unless (is-not-split-vertic (selected-window))
         (shrink-window (- hgt-resp nline-resp)))
-      (beginning-of-buffer)
+      (goto-char (point-min))
       (recenter)
       (select-window curwin)
       )))
