@@ -214,12 +214,14 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 				  (substring docdes (match-end 0)))))))
 	   (split-string docs "\n"))))))
 
-(defun isa-quit (save)
-  "Quit / save the Isabelle session.
-Called with one argument: t to save database, nil otherwise."
-  (if (not save)
-      (isa-insert-ret "quit();"))
-  (comint-send-eof))
+; TODO: use this, add dialog to query user to save if DB is r/w?  Seems annoying.
+; (defun isa-quit (save)
+;   "Quit / save the Isabelle session.
+; Called with one argument: t to save database, nil otherwise."
+;   (interactive "p")
+;   (if (not save)
+;       (isa-insert-ret "quit();"))
+;   (comint-send-eof))
 
 (defconst isabelle-verbatim-regexp "\\`\^VERBATIM: \\(\\(.\\|\n\\)*\\)\\'"
   "Regexp matching internal marker for verbatim command output")
