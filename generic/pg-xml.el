@@ -169,6 +169,62 @@ Output with indentation INDENT-STRING (or none if nil)."
 (defun pg-xml-cdata (str)
   (concat "<!\\[CDATA\\[" str "\\]"))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Auxiliary functions for parsing common bits of PGIP
+;;
+
+(defun pg-pgip-get-icon (node &optional optional defaultval)
+  "Return the <icon> child of NODE, or nil if none."
+  (pg-xml-get-child 'icon node))
+
+(defsubst pg-pgip-get-name (node &optional optional defaultval)
+  (pg-xml-get-attr 'name node optional defaultval))
+
+(defsubst pg-pgip-get-version (node &optional optional defaultval)
+  (pg-xml-get-attr 'version node optional defaultval))
+
+(defsubst pg-pgip-get-descr (node &optional optional defaultval)
+  (pg-xml-get-attr 'descr node optional defaultval))
+
+(defsubst pg-pgip-get-thmname (node &optional optional defaultval)
+  (pg-xml-get-attr 'thmname node optional defaultval))
+
+(defsubst pg-pgip-get-thyname (node &optional optional defaultval)
+  (pg-xml-get-attr 'thmname node optional defaultval))
+
+(defsubst pg-pgip-get-url (node &optional optional defaultval)
+  (pg-xml-get-attr 'url node optional defaultval))
+
+(defsubst pg-pgip-get-srcid (node &optional optional defaultval)
+  (pg-xml-get-attr 'srcid node optional defaultval))
+
+(defsubst pg-pgip-get-proverid (node &optional optional defaultval)
+  (pg-xml-get-attr 'proverid node optional defaultval))
+
+(defsubst pg-pgip-get-symname (node &optional optional defaultval)
+  (pg-xml-get-attr 'name node optional defaultval))
+
+(defsubst pg-pgip-get-prefcat (node &optional optional defaultval)
+  (pg-xml-get-attr 'prefcategory node optional defaultval))
+
+(defsubst pg-pgip-get-default (node &optional optional defaultval)
+  (pg-xml-get-attr 'default node optional defaultval))
+
+(defsubst pg-pgip-get-objtype (node &optional optional defaultval)
+  (pg-xml-get-attr 'objtype node optional defaultval))
+
+(defsubst pg-pgip-get-value (node)
+  (pg-xml-get-text-content node))
+
+(defalias 'pg-pgip-get-displaytext 'pg-pgip-get-pgmltext)
+
+(defun pg-pgip-get-pgmltext (node)
+  ;; TODO: fetch text or markup XML with text properties
+  (pg-xml-get-text-content node))
+
+
+
 
 (provide 'pg-xml)
 ;; End of `pg-xml.el'
