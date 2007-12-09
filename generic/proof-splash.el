@@ -43,11 +43,11 @@ Proof General."
     (concat "(C) LFCS, University of Edinburgh " proof-general-version-year)
     nil
     nil
-"    Please send problems and suggestions to da+pg-support@inf.ed.ac.uk, 
-     or use the menu command Proof-General -> Submit bug report."
+"    Please report problems at http://proofgeneral.inf.ed.ac.uk/trac
+     Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki"
     nil
     (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)
-     "For a better Proof General experience, please use XEmacs or Emacs 21.X"))
+     "For a better Proof General experience, please use GNU Emacs 21 or XEmacs"))
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
