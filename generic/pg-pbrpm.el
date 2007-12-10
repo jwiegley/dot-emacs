@@ -20,7 +20,7 @@
     (set-buffer pg-pbrpm-buffer-menu)
     (mapc 'delete-span pg-pbrpm-spans)
     (setq pg-pbrpm-spans nil)
-    (erase-buffer pg-pbrpm-buffer-menu)))
+    (erase-buffer)))
 
 (defun pg-pbrpm-menu-change-hook (start end len)
   (save-excursion
