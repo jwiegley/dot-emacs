@@ -756,7 +756,7 @@ If a function, it should return the command string to insert."
     (lockedend  "Goto Locked End"     nil t)
     (find	"Find Theorems"	      "Find theorems" t proof-find-theorems-command)
     (command    "Issue Command"	      "Issue a non-scripting command" t)
-    (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
+    (interrupt  "Interrupt Prover"    "Interrupt the proof assistant" t)
     (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
     (visibility "Toggle Visibility"   nil t)
 ; PG 3.6: remove Info item from toolbar; it's not very useful and under PA->Help anyway
