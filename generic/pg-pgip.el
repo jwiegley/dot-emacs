@@ -122,11 +122,11 @@ Return a symbol representing the PGIP command processed, or nil."
 (defun pg-pgip-process-pgmlconfig (node)
   ;; symconfig specify an ascii alternative string for a named symbol;
   ;; we process it by storing a property 'pgml-alt on the elisp symbol.
-  (let ((pgmlconfigures (xml-get-children node)))
+  (let ((pgmlconfigures (xml-get-children node 'symconfig)))
     (dolist (config pgmlconfigures)
       (cond 
        ((and (not (stringp config))
-	     (eq (xml-node-name config "symconfig")))
+	     (eq (xml-node-name config) "symconfig"))
 	(let 
 	    ((symname   (pg-pgip-get-symname node))
 	     (asciialt  (pg-xml-get-attr 'alt node t)))
@@ -326,15 +326,15 @@ Return a symbol representing the PGIP command processed, or nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun pg-pgip-process-informfileloaded (node)
-  (let ((thyname    (pg-pgip-get-thyname node)) 
-	(url	    (pg-pgip-get-url node))
-	(filename   (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
+  (let* ((thyname   (pg-pgip-get-thyname node)) 
+	 (url	    (pg-pgip-get-url node))
+	 (filename  (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
     (proof-register-possibly-new-processed-file filename)))
     
 (defun pg-pgip-process-informfileretracted (node)
-  (let ((thyname    (pg-pgip-get-thyname node))
-	(url	    (pg-pgip-get-url node))
-	(filename   (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
+  (let* ((thyname    (pg-pgip-get-thyname node))
+	 (url	    (pg-pgip-get-url node))
+	 (filename   (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
     (proof-unregister-possibly-processed-file filename))) ;; FIXME: unimplemented!
 
 
@@ -459,8 +459,8 @@ Also sets local proverid and srcid variables for buffer."
 	    (list 'const :tag name val)
 	  (list 'const val))))
      ((eq tyname 'pgipchoice)
-      (let ((choicesnodes  (pg-xml-child-elts node))
-	    (choices       (mapcar 'pg-pgip-get-pgiptype choicesnodes)))
+      (let* ((choicesnodes  (pg-xml-child-elts node))
+	     (choices       (mapcar 'pg-pgip-get-pgiptype choicesnodes)))
 	(list 'choice choices)))
      (t
       (pg-pgip-warning "pg-pgip-get-pgiptype: unrecognized/missing typename \"%s\"" tyname)))))
@@ -532,7 +532,7 @@ Also sets local proverid and srcid variables for buffer."
     (or res
 	(pg-pgip-error 
 	 "pg-pgip-interpret-choice: mismatching value %s for choices %s" 
-	 value choices)))
+	 value choices))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
