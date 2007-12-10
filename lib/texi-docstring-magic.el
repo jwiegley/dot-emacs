@@ -381,7 +381,8 @@ With prefix arg, no errors on unknown symbols.  (This results in
 (defun texi-docstring-magic-insert-magic (symbol)
   (interactive 
    (let* ((v (or (variable-at-point)
-		 (function-at-point)
+		 (and (fboundp 'function-at-point (function-at-point)))
+		 (and (fboundp 'function-called-at-point (function-called-at-point)))
 		 (texi-docstring-magic-face-at-point)))
 	  (val (let ((enable-recursive-minibuffers t))
                  (completing-read
