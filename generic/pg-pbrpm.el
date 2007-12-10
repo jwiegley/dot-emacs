@@ -468,9 +468,10 @@ The prover command is processed via pg-pbrpm-run-command."
   (mapcar (lambda (span) (pg-pbrpm-process-region span)) pg-pbrpm-regions-list))
 
 (defun pg-pbrpm-region-expression (buffer start end)
-"Valid parenthesis'd expression."
-   ; an expression is valid if it has as many left paren' as right paren'
-    (buffer-substring start end buffer))
+  "Valid parenthesis'd expression."
+  ;; an expression is valid if it has as many left paren' as right paren'
+  (with-current-buffer buffer
+    (buffer-substring start end)))
 ;    (let
 ;      ((pbrpm-left-pars 0)
 ;      (pbrpm-right-pars 0)
