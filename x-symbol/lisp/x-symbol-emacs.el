@@ -71,8 +71,13 @@ test."
        (fboundp 'copy-tree)
        (locate-library "font-core")
        (locate-library "syntax")))
+
 ;; with the following line, "reveal invisible around point" won't work:
-;;   (setq x-symbol-emacs-has-font-lock-with-props 'invisible)
+(setq x-symbol-emacs-has-font-lock-with-props 'invisible)
+;; da: above seems no longer true with, e.g., Emacs 22.1.1.
+;; So enable this by default now since it results in better
+;; display, no space between text and sub/superscripts.
+
 
 ;; lisp/warnings.el,v 1.6(new): recommended
 (condition-case nil (require 'warnings) (error))
