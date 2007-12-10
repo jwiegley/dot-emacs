@@ -152,7 +152,7 @@ without adjusting window layout."
   (easy-menu-define 
     proof-assistant-menu 
     proof-mode-map
-    (concat "The menu for " proof-assistant)
+    `(concat "The menu for " proof-assistant)
     (cons proof-assistant
 	    (append
 	     (proof-ass menu-entries)

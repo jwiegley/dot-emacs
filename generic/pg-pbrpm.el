@@ -219,7 +219,7 @@ The prover command is processed via pg-pbrpm-run-command."
 		  (goto-char pos)
 		  (if (search-forward-regexp "\\\\|\\([0-9]\\)" start t)
 		      (progn
-			(setq goalnum (string-to-int (match-string 1)))
+			(setq goalnum (string-to-number (match-string 1)))
 			(let ((len (- (match-end 0) (match-beginning 0))))
 			  (setq end (- end len))
 			  (setq start (- start len)))
@@ -356,7 +356,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	     (buffer (event-buffer event))
 	     (r (pg-pbrpm-get-pos-info  (pg-pbrpm-translate-position buffer pos))))
 	(if r (list
-	       (string-to-int (car r)) ; should not be an int for other prover
+	       (string-to-number (car r)) ; should not be an int for other prover
 	       (if (eq proof-goals-buffer buffer) (cdr r) (auto-select-arround-pos))
 	       (if (and start end (eq proof-goals-buffer buffer) 
 			(<= (marker-position start) pos) (<= pos  (marker-position end)))
@@ -457,7 +457,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	       (setq r (pg-pbrpm-get-region-info start end))
 	       (if r 
 		   (list
-		    (string-to-int (car r)) ; should not be an int for other prover
+		    (string-to-number (car r)) ; should not be an int for other prover
 		    (cdr r)
 		    (pg-pbrpm-region-expression buffer start end))
 		 (list 0 "none" (pg-pbrpm-region-expression buffer start end))))

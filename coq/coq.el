@@ -605,7 +605,7 @@ happen since one of them is necessarily set to t in coq-syntax.el."
    ((looking-at "subgoal \\([0-9]+\\) is:\n")
     (goto-char (match-end 0))
     (cons 'goal (match-string 1))
-    (setq coq-current-goal (string-to-int (match-string 1))))
+    (setq coq-current-goal (string-to-number (match-string 1))))
    ((looking-at proof-shell-assumption-regexp)
     (cons 'hyp (match-string 1)))
    (t nil)))

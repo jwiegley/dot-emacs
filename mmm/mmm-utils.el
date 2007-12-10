@@ -93,7 +93,7 @@ ON-STRING, if supplied, means to use the match data from a
           subexp)
       (save-match-data
         (while (string-match "~\\([0-9]\\)" string)
-          (setq subexp (string-to-int (match-string-no-properties 1 string))
+          (setq subexp (string-to-number (match-string-no-properties 1 string))
                 string (replace-match
 			(save-match-data
 			  (set-match-data old-data)

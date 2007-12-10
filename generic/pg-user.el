@@ -750,7 +750,7 @@ last use time, to discourage saving these into the users database."
 	span
       (if noerr
 	  nil
-	(error "No region to move past" num)))))
+	(error "No region to move past")))))
 
 (defun pg-control-span-of (span)
   "Return the controlling span of SPAN, or SPAN itself."
@@ -814,8 +814,8 @@ If NUM is negative, move upwards.  Return new span."
 
 (defun pg-fixup-children-span (span)
   (if (span-property span 'controlspan)
-      ;; WARNING: dynamic binding for new-span
       (progn
+	;; WARNING: dynamic binding for new-span
 	(set-span-property span 'controlspan new-span)
 	(list span))))
       

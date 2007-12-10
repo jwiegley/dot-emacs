@@ -380,9 +380,9 @@ and start at the first error."
 			     (beginning-of-line)
 			     (point)))
 	      (setq line (match-string 2)) ; may be unset
-	      (if line (setq line (string-to-int line)))
+	      (if line (setq line (string-to-number line)))
 	      (setq column (match-string 3)) ; may be unset
-	      (if column (setq column (string-to-int column)))
+	      (if column (setq column (string-to-number column)))
 	      (setq pg-response-next-error wanted-error)
 	      (if (and
 		   pg-next-error-filename-regexp

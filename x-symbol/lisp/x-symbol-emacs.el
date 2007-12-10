@@ -43,7 +43,7 @@ test."
 	((< emacs-minor-version minor) nil)
 	((null patch))
 	((string-match "^[0-9]+\\.[0-9]+\\.\\([0-9]+\\)" emacs-version)
-	 (>= (string-to-int (match-string 1 emacs-version)) patch)))))
+	 (>= (string-to-number (match-string 1 emacs-version)) patch)))))
 
 
 ;;;===========================================================================

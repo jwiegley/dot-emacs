@@ -64,9 +64,9 @@
 	nil))))
 
 (defun pg-pgip-old-interpret-int (value)
-  ;; FIXME: string-to-int returns zero for non int string,
+  ;; FIXME: string-to-number returns zero for non int string,
   ;; should have better validation here.
-  (string-to-int value))
+  (string-to-number value))
 
 (defun pg-pgip-old-interpret-string (value)
   value)

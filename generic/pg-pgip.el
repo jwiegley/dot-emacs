@@ -500,7 +500,7 @@ Also sets local proverid and srcid variables for buffer."
      (t (progn
 	  (pg-pgip-warning "pg-pgip-interpret-value: received non-bool value %s" value)
 	  nil))))
-   ((eq type 'integer)		 (string-to-int value))
+   ((eq type 'integer)		 (string-to-number value))
    ((eq type 'string)		 value)
    ((eq (car-safe type) 'const)  value)
    ((eq (car-safe type) 'choice)

@@ -59,7 +59,7 @@ BODY should contain a sequence of pg-xml writing commands."
     (or (eq (car-safe (file-attributes dir)) 't)
 	(if (not (file-attributes dir))
 	    (make-directory (pg-xhtml-dir) t)
-	  (error "pg-xhtml-write-tempfile: cannot open temp dir " 
+	  (error "Cannot open temp dir %s (in pg-xhtml-write-tempfile)" 
 		 (pg-xhtml-dir))))
     `(with-temp-file ,file
       (pg-xml-begin-write t)
