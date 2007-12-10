@@ -7,11 +7,7 @@
 ;;
 ;; $Id$
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;               Bridging the emacs19/xemacs gulf                   ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; FIXME: NAMESPACE!!!!!!!
+;; XEmacs-Emacs compatibility: define "spans" in terms of overlays.
 
 (defalias 'span-start 'overlay-start)
 (defalias 'span-end 'overlay-end)
@@ -218,10 +214,9 @@ Behaviour is still worse than before."	;??? --Stef
   "set the face of a span"
   (overlay-put span 'face face))
 
-(defun set-span-keymap (span kmap)
-  "set the face of a span"
-  ;; In Emacs-20, the `keymap' does not exist, instead we could use the
-  ;; `local-map' property, tho it is not ideal.
-  (overlay-put span 'keymap kmap))
+(defun set-span-keymap (span map)
+  "Set the keymap of SPAN to MAP"
+  (overlay-put span 'keymap map)
+  (overlay-put span 'local-map map))
 
 (provide 'span-overlay)

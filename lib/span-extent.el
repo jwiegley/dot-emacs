@@ -7,11 +7,7 @@
 ;;
 ;; $Id$
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;               Bridging the emacs19/xemacs gulf                   ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Now define "spans" in terms of extents.
+;; XEmacs-Emacs compatibility: define "spans" in terms of extents.
 
 (defsubst make-span (start end)
   "Make a span for the range [START, END) in current buffer."
@@ -118,26 +114,22 @@ A span is before PT if it covers the character before PT."
 
 (defsubst set-span-face (span face)
   "set the face of a span"
-  (set-extent-face span face)
-)
+  (set-extent-face span face))
 
-(defsubst fold-spans (FUNCTION &optional OBJECT FROM TO MAPARG FLAGS PROPERTY VALUE)
+(defsubst fold-spans (function &optional object from to maparg flags property value)
   "map on span, see map-extent on xemacs"
-  (map-extents FUNCTION OBJECT FROM TO MAPARG FLAGS PROPERTY VALUE)
-)
+  (map-extents function object from to maparg flags property value))
 
 (defsubst set-span-properties (span plist)
   "see extent-properties"
-  (set-extent-properties span plist)
-)
+  (set-extent-properties span plist))
 
-(defsubst set-span-keymap (span kmap)
-  (set-extent-keymap span kmap)
-  )
+(defsubst set-span-keymap (span map)
+  "Set the keymap of SPAN to MAP"
+  (set-extent-keymap span map))
 
 ;there are more args to extent-at-event
 (defsubst span-at-event (event &optional prop)
-  (extent-at-event event prop)
-  )
+  (extent-at-event event prop))
 
 (provide 'span-extent)
