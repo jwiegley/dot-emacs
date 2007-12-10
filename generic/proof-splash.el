@@ -184,8 +184,7 @@ Borrowed from startup-center-spaces."
 		    (set-window-configuration (cdr proof-splash-timeout-conf)))
 		(if proof-running-on-XEmacs
 		    (redraw-frame nil t))))
-	  ;; Indicate that we have removed splash screen;
-	  ;; disable the timeout
+	  ;; Indicate removed splash screen; disable timeout
 	  (disable-timeout (car proof-splash-timeout-conf))
 	  (setq proof-splash-timeout-conf nil)
 	  (proof-splash-remove-buffer)))))
