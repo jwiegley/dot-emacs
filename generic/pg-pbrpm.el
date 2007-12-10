@@ -174,9 +174,9 @@ The prover command is processed via pg-pbrpm-run-command."
 		       (act (pop pbrpm-list-car))
 		       (pos (point)))
 		   (setq count (+ 1 count))
-		   (insert-string " ")
-		   (insert-string description)
-		   (insert-string " ") ; hack for renaming of last name
+		   (insert " ")
+		   (insert description)
+		   (insert " ") ; hack for renaming of last name
 		   (let ((spans (pg-pbrpm-setup-span pos (point))))
 		     (insert-gui-button (make-gui-button 
 					 (concat (int-to-string count) ")")
