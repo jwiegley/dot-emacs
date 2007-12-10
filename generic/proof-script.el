@@ -525,17 +525,13 @@ Also clear all visibility specifications."
   (setq pg-script-portions nil)
   (setq buffer-invisibility-spec
 	(if (listp buffer-invisibility-spec)
-	    ;; FIXME: inefficient
 	    (append
 	     (mapcar (lambda (propellips)
-		       (if (memq (car propellips) pg-visibility-specs)
+		       (if (memq (car-safe propellips) pg-visibility-specs)
 			   nil (list propellips)))
 		     buffer-invisibility-spec))
-	  ;; NB: if invisibility spec was t, we loose here: we need
-	  ;; it to be a list unfortunately, whereas other code may
-	  ;; want `t'.  That's annoying.
-	  ;; (FIXME: should tell GNU/X Emacs developers).
-	  nil)))
+	  ;; Default supports X-Symbol, see `x-symbol-hide-revealed-at-point'
+	  '((t . nil) (hide . nil)))))
 
 (defun pg-add-script-element (elt)
   (add-to-list pg-script-portions elt))
