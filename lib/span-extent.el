@@ -37,7 +37,7 @@
   "Set SPAN to be writeable."
   (set-span-property span 'read-only nil))
 
-(defun span-give-warning ()
+(defun span-give-warning (&rest args)
   "Give a warning message."
   (message "You should not edit here!"))
 
