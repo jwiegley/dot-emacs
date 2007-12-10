@@ -128,21 +128,17 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	    ((xs-xtra-modes  proof-xsym-extra-modes)
 	     (xs-std-modes   
 	      (list
-	       ;; NB: there is a problem with initialization order
-	       ;; here, these variables are set in script/shell mode
-	       ;; initialization.  They ought to be set earlier, and
-	       ;; enforced as part of the generic scheme.  For the
-	       ;; time being, we use default constructed names [which
-	       ;; every prover should follow]
+	       ;; NB: these variables are set in script/shell mode
+	       ;; initialization, maybe too late for here.  Backup:
+	       ;; default names, which everyone should follow.
 	       (or proof-mode-for-shell
-		   (intern (concat assistant "-shell-mode")))
+		   (intern (concat proof-assistant "-shell-mode")))
 	       (or proof-mode-for-response
-		   (intern (concat assistant "-response-mode")))
+		   (intern (concat proof-assistant "-response-mode")))
 	       (or proof-mode-for-script
-		   ;; FIXME: next one only correct for isabelle
-		   (intern (concat assistant "-proofscript-mode")))
+		   (intern (concat proof-assistant "-mode")))
 	       (or  proof-mode-for-goals
-		    (intern (concat assistant "-goals-mode")))))
+		    (intern (concat proof-assistant "-goals-mode")))))
 	     (all-xs-modes   (append xs-std-modes xs-xtra-modes))
 	     (am-entry       (list proof-xsym-extra-modes t 
 				   `(quote ,xs-lang)))
