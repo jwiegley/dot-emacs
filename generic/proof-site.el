@@ -19,8 +19,7 @@
 
 (defgroup proof-general nil
   "Customization of Proof General."
-  :group 'external
-  :group 'processes
+  :group 'applications
   :prefix "proof-")
 
 
@@ -32,6 +31,8 @@
 ;; not belong to 'proof-general (or any other group).
 (defgroup proof-general-internals nil
   "Customization of Proof General internals."
+  :group 'applications
+  :group 'proof-general
   :prefix "proof-")
 
 
@@ -270,8 +271,8 @@ Note: to change proof assistant, you must start a new Emacs session.")
 	   (cdr-safe 
 	    (assoc assistant
 		   proof-assistant-table))
-	   (error "proof-site: symbol " (symbol-name assistant) 
-		  "is not in proof-assistant-table")))
+	   (error "Symbol %s is not in proof-assistant-table (in proof-site)" 
+		  (symbol-name assistant))))
 	 (assistant-name (car nameregexp))
 	 (regexp	 (car (cdr nameregexp)))
 	 (sname		 (symbol-name assistant))
