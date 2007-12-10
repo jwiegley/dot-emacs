@@ -125,7 +125,8 @@
 		       (string-to-number (substring str (match-beginning 1)
 						    (match-end 1)))))))
 	  (maxsize 100) (size) (oldsize)
-	  (lf (list-fonts font-pat)))
+	  (lf (and (fboundp 'list-fonts) ; da: what is this function? not defined
+		   (list-fonts font-pat))))
     (while (and lf maxsize)
       (if 
 	  (string-match font-reg
