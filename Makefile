@@ -22,8 +22,9 @@ autoloads.el: autoloads.in $(SOURCE)
 		$(shell pwd)/autoloads.el $(DIRS)
 
 %.elc: %.el
-	$(EMACS) --no-init-file --no-site-file -batch \
-		-f batch-byte-compile $<
+	$(EMACS) --no-init-file --no-site-file -L . -L site-lisp \
+		-L site-lisp/epg \
+		-batch -f batch-byte-compile $<
 
 clean:
 	rm -f $(TARGET) *~

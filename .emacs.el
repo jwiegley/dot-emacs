@@ -62,7 +62,7 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(Info-additional-directory-list (quote ("~/Library/Lisp/ansicl")))
+ '(Info-additional-directory-list (quote ("~/Library/Info")))
  '(abbrev-mode t)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
@@ -80,6 +80,7 @@
  '(calendar-longitude [61 46 west])
  '(circe-fools-list (quote ("Xach" "Xof" "Krystof" "Zhivago" "dalias" "holycow")))
  '(circe-ignore-list (quote ("jordanb_?")))
+ '(cl-ledger-file "~/Documents/ledger.dat")
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode nil)
  '(compilation-scroll-output t)
@@ -327,8 +328,8 @@
 
 (setq circe-default-realname "http://www.newartisans.com/"
       circe-server-coding-system '(utf-8 . undecided)
-      circe-server-auto-join-channels '(("^freenode$" "#ledger"
-					 "#emacs" "#lisp"))
+      circe-server-auto-join-channels
+      '(("^freenode$" "#ledger" "#emacs" "#lisp"))
       circe-nickserv-passwords '(("freenode" "xco8imer")))
 
 (setq lui-max-buffer-size 30000
@@ -473,6 +474,11 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * elint
 
+(defun elint-current-buffer ()
+  (interactive)
+  (elint-initialize)
+  (elint-current-buffer))
+
 (eval-after-load "elint"
   '(progn
      (add-to-list 'elint-standard-variables 'current-prefix-arg)
@@ -517,10 +523,10 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * ledger
 
-(load "~/src/branches/ledger-2.6.1/ledger" t)
+(load "~/src/ledger/cl-ledger" t)
 
 (eval-after-load "whitespace"
-  '(add-to-list 'whitespace-modes 'ledger-mode))
+  '(add-to-list 'whitespace-modes 'cl-ledger-mode))
 
 ;;;_ * lisppaste
 
@@ -556,6 +562,11 @@ This is an appropriate function for `lui-pre-output-hook'."
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.m\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
+
+;;;_ * pcomplete
+
+(autoload 'pcomplete/ssh "pcmpl-ssh")
+(autoload 'pcomplete/scp "pcmpl-ssh")
 
 ;;;_ * python-mode
 
@@ -656,6 +667,11 @@ This is an appropriate function for `lui-pre-output-hook'."
   (interactive)
   (mudel "4dimensions" "4dimensions.org" 6000))
 
+;;;_ * multi-region
+
+(when (require 'multi-region nil t)
+  (define-key mode-specific-map [?2] multi-region-map))
+
 ;;;_ * muse
 
 (require 'muse-mode)
@@ -664,7 +680,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 ;;;_ * org-mode
 
 (require 'org-install)
-;;(require 'org-nnml)
+(require 'org-message)
 (require 'org-crypt)
 (require 'org-devonthink)
 
@@ -946,8 +962,8 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p" note-date))))))
 (load "psvn" t)
 (load "psvn-svk" t)
 (load "psvn-svn" t)
-					;(load "vc-svk" t)
-					;(load "svk-ediff" t)
+;;(load "vc-svk" t)
+;;(load "svk-ediff" t)
 
 ;;;_ * timestamp
 
@@ -993,6 +1009,17 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p" note-date))))))
       (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
 	(if (file-readable-p (concat base ext))
 	    (find-file (concat base ext))))))))
+
+;;;_ * trac-wik
+
+(autoload 'trac-wiki "trac-wiki"
+  "Trac wiki editing entry-point." t)
+
+(setq trac-projects
+      '(("ledger"
+	 :endpoint "http://trac.newartisans.com/ledger/login/xmlrpc"
+	 :login-name "johnw"
+	 :name "John Wiegley")))
 
 ;;;_ * whitespace
 
@@ -1307,6 +1334,8 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key ctl-x-map [(control ?f)] 'find-existing-file)
 
+(load "esh-toggle" t)
+
 (if (functionp 'eshell-toggle)
     (define-key ctl-x-map [(control ?z)] 'eshell-toggle)
   (define-key ctl-x-map [(control ?z)] 'eshell))
@@ -1372,6 +1401,7 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?j] 'org-clock-goto)
 (define-key mode-specific-map [?k] 'keep-lines)
 (define-key mode-specific-map [?l] 'slime-selector)
+(define-key mode-specific-map [?m] 'org-insert-message-link)
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
 (define-key mode-specific-map [?o] 'customize-option)
 (define-key mode-specific-map [?O] 'customize-group)
