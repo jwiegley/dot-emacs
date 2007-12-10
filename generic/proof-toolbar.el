@@ -194,9 +194,8 @@ to the default toolbar."
        (proof-toolbar-button-list
 	;; A toolbar descriptor evaluated in proof-toolbar-setup.
 	;; Specifically, a list of sexps which evaluate to entries in
-	;; a toolbar descriptor.  The default value
-	;; proof-toolbar-default-button-list will work for any proof
-	;; assistant.
+	;; a toolbar descriptor.  The default
+	;; `proof-toolbar-default-button-list' works for prover.
 	(append
 	 (apply 'append (mapcar 'proof-toolbar-make-toolbar-item 
 				(proof-ass toolbar-entries)))
@@ -210,17 +209,16 @@ to the default toolbar."
        (let ((var	(car buttons))
 	     (iconfiles 
 	      (mapcar (lambda (name)
-			(concat proof-images-directory
-				"pg-" ;; added 1.3.04 to avoid Emacs clashes
+			(concat proof-images-directory "pg-"
 				name
 				icontype)) (cdr buttons))))
 	 (set var 
 	      (if proof-running-on-XEmacs
 		  ;; On XEmacs, icon variable holds a list of glyphs
 		  (toolbar-make-button-list iconfiles)
-		;; On GNU emacs, it holds a filename for the icon,
-		;; without path or extension.  Warning!  This
-		;; can lead to name clashes with other packages.
+		;; On GNU Emacs, it holds a filename for the icon,
+		;; without path or extension.  Watch for clashes with
+		;; other packages!
 		(concat "pg-" (eval (cadr buttons)))))))
      proof-toolbar-icon-list)
 
