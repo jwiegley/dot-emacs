@@ -1,13 +1,15 @@
-This version of Proof General has been tested with Emacs versions:
+This version of Proof General has been tested with these Emacs versions
+on Linux:
 
  Emacs 21.4.1		 -- recommended
- XEmacs 21.4.XX		 -- stable
- XEmacs 21.5 (beta27)    -- potentially troublesome 
+ XEmacs 21.4.XX		 -- stable, but not recently tested
+ XEmacs 21.5 (beta28)    -- tested, has patches for several XEmacs bugs
 
 and prover versions:
 
+ Coq 8.1
  Isabelle2005
- Isabelle CVS versions up to 04.01.2007.
+ Isabelle2007
 
 For more possibilities, please check and contribute here:
   
