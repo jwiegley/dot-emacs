@@ -2666,8 +2666,6 @@ If this table is empty or needs adjusting, please make changes using
   :type 'string
   :group 'proof-general-internals)
 
-;; FIXME: da: could we put these into another keymap shared across the
-;; various PG modes?
 (defcustom proof-universal-keys
   (cons
    (if proof-running-on-XEmacs 
