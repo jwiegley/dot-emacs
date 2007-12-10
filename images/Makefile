@@ -92,10 +92,26 @@ install: webpix
 ## With '1' as first argument to indicate "non-interactive", things
 ## don't work.  With '0', we get popup menus and args are ignored!
 
-%.xpm: %.xcf
-	$(GIMP) '(script-fu-proofgeneral-make-buttons "$(CWD)/$*")' '(gimp-quit 0)'
+#%.xpm: %.xcf
+#	$(GIMP) '(script-fu-proofgeneral-make-buttons "$(CWD)/$*")' '(gimp-quit 0)'
 
 #%.jpg: %.xcf
 #	$(GIMP) '(script-fu-proofgeneral-save-jpg 0 "$(CWD)/$*")' '(gimp-quit 0)'
 #	cp -pf $*.jpg ../html
+
+
+##
+## Inkscape SVG sources
+##
+SVG:=$(shell ls *.svg 2>/dev/null)
+
+INKS=$(SVG:.svg=.png) $(SVG:.svg=.xpm) 
+
+inks:	${INKS} 
+
+%.png:  %.svg
+	inkscape --export-png $*.png $*.svg
+
+%.xpm:  %.png
+	convert -antialias -colors 256 $*.png $*.xpm
 
