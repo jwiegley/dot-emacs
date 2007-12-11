@@ -2090,8 +2090,10 @@ VAR's options has been defined with `x-symbol-define-user-options'."
 ;;; DA's crude unicode hack
 ;;;===========================================================================
 
-(defvar x-symbol-use-unicode nil 
-  "*Non-nil to use default font as unicode font.")
+(defcustom x-symbol-use-unicode nil 
+  "*Non-nil to use default font as unicode font."
+  :group 'x-symbol-miscellaneous
+  :type 'boolean)
 
 
 
