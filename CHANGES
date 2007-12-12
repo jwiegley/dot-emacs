@@ -6,6 +6,16 @@ See also etc/release-log.txt for minor patches.
 
 ** Generic changes
 
+*** Fixes and additions, patches for recent (X)Emacs versions
+
+- Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
+- Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
+- Cropped icons to better match style of GNU Emacs/Gnome.
+- Context menu for spans: options to move spans up/down (risky!) and undo.
+- Maths menu added for inserting Unicode math characters (originally by Dave Love)
+- Many code cleanups from Stefan Monnier.
+
+
 *** History mechanism for prover responses
 
 Proof General keeps a history of the last 10 responses from the prover
@@ -34,13 +44,6 @@ interface wrapper.
 
 Spurious spaces are objectionable in source files.
 
-*** Minor fixes, tweaks, patches for recent (X)Emacs versions
-
-- Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
-- Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
-- Cropped icons to better match style of GNU Emacs/Gnome.
-- Context menu for spans: options to move spans up/down (risky!) and undo.
-- Many code cleanups from Stefan Monnier.
 
 
 ** Changes for Isabelle

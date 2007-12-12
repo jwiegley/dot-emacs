@@ -268,6 +268,7 @@ without adjusting window layout."
 
 (proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
+(proof-deftoggle-fn (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
 (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
 
 ;; TODO (low priority): add dynamic enable-disable
@@ -304,6 +305,12 @@ without adjusting window layout."
       :active (proof-x-symbol-support-maybe-available)
       :style toggle
       :selected (and (boundp 'x-symbol-mode) x-symbol-mode)]
+
+     ["Maths Menu" (proof-maths-menu-toggle (if maths-menu-mode 0 1))
+      :active (proof-maths-menu-support-available)
+      :style toggle
+      :selected (and (boundp 'maths-menu-mode) maths-menu-mode)]
+ 
      ["Multiple Modes" (proof-mmm-toggle (if mmm-mode 0 1))
       :active (proof-mmm-support-available)
       :style toggle
@@ -397,6 +404,7 @@ without adjusting window layout."
    ;;'proof-output-fontify-enable
    'proof-strict-read-only
    (proof-ass-sym x-symbol-enable)
+   (proof-ass-sym maths-menu-enable)
    (proof-ass-sym mmm-enable)
    'proof-toolbar-enable
    'proof-keep-response-history
