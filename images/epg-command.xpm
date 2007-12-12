@@ -7,7 +7,7 @@ static char * epg_command_xpm[] = {
 "@ 	c #870D0D",
 "# 	c #942828",
 "$ 	c #AF5E5E",
-"% 	c #FFFFFF",
+"% 	c None",
 "& 	c #AA5E5F",
 "* 	c #861314",
 "= 	c #FDFDFD",

@@ -9,7 +9,7 @@ static char * epg_context_xpm[] = {
 "$ 	c #D7AFAF",
 "% 	c #D7B0B0",
 "& 	c #D8B1B1",
-"* 	c #FFFFFF",
+"* 	c None",
 "= 	c #DADADA",
 "- 	c #C1C1C1",
 "; 	c #C8C8C8",

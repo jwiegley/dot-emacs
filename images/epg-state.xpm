@@ -6,7 +6,7 @@ static char * epg_state_xpm[] = {
 "+ 	c #AF5E5E",
 "@ 	c #870D0D",
 "# 	c #952929",
-"$ 	c #FFFFFF",
+"$ 	c None",
 "% 	c #D7D7D7",
 "& 	c #B7B7B7",
 "* 	c #BBBBBB",

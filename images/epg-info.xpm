@@ -1,7 +1,7 @@
 /* XPM */
 static char * epg_info_xpm[] = {
 "24 23 46 1",
-" 	c #FFFFFF",
+" 	c None",
 ".	c #E5CACA",
 "+	c #D7AEAE",
 "@	c #AF5E5E",

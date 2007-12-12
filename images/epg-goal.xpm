@@ -9,7 +9,7 @@ static char * epg_goal_xpm[] = {
 "$ 	c #D7AFAF",
 "% 	c #D7B0B0",
 "& 	c #D8B1B1",
-"* 	c #FFFFFF",
+"* 	c None",
 "= 	c #ABE3A3",
 "- 	c #ABE49E",
 "; 	c #A5E097",

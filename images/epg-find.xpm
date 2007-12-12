@@ -9,7 +9,7 @@ static char * epg_find_xpm[] = {
 "$ 	c #D7AFAF",
 "% 	c #D7B0B0",
 "& 	c #D8B1B1",
-"* 	c #FFFFFF",
+"* 	c None",
 "= 	c #FDFDFD",
 "- 	c #EFEFEF",
 "; 	c #D1D3D4",
