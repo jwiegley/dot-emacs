@@ -1,4 +1,6 @@
-Add LoadPath "/home/courtieu/coq/actual/ide". 
+(* -*- coding: utf-8; -*- *)
+
+Add LoadPath "/usr/lib/coq/ide". 
 Require Import utf8.
 
 (* Printing of unicode notation, in *goals* *)
