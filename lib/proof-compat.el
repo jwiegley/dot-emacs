@@ -11,8 +11,9 @@
 ;; track of them.
 ;;
 ;; The development policy for Proof General is for the main codebase
-;; to be written for the latest stable version of XEmacs.  We follow
-;; XEmacs advice on removing obsolete function calls.
+;; to be written for the latest stable version of GNU Emacs (previously
+;; XEmacs, not yet reworked since 3.7). 
+;; We follow GNU Emacs advice on removing obsolete function calls.
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -604,59 +605,9 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Compatibility with Custom library function to create a menu
-;;
-;; For some unfathomable reason, customize-menu-create goes
-;; wrong with PG groups on Emacs 21.  (It works with 'customize
-;; though).  We just disable it there. It's not worth this hassle.
-;;
-;; PG 3.5: this was used in proof-menu.el.  Things seem okay again 
-;; as of GNU Emacs 21.3.1.
-;; (cond
-;;  (proof-running-on-XEmacs
-;;   (defun pg-customize-menu-create (grp &optional name)
-;;     (list (customize-menu-create grp name))))
-;;  (t
-;;   (defun pg-customize-menu-create (grp &optional name)
-;;     nil)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; General Emacs version compatibility
 ;;;
-
-
-;; These are internal functions of font-lock, autoload policy
-;; differs between Emacs versions
-
-;; Beware: font-lock-set-defaults does completely different things
-;; in Emacs from what it does in XEmacs.
-(or (fboundp 'font-lock-set-defaults)
-    (autoload 'font-lock-set-defaults "font-lock"))
-(or (fboundp 'font-lock-fontify-region)
-    (autoload 'font-lock-fontify-region "font-lock"))
-(or (fboundp 'font-lock-append-text-property)
-    (autoload 'font-lock-append-text-property "font-lock"))
-
-
-;; font-lock-preprocessor-face
-;; This face is missing from Emacs 21.2's font-lock,
-;; but used in Isabelle highlighting, at least.
-(eval-after-load "font-lock"
-(unless (boundp 'font-lock-preprocessor-face)
-  ;; Taken from font-lock.el in XEmacs 21.4.8 (V 1.52)
-  (defvar font-lock-preprocessor-face 'font-lock-preprocessor-face
-  "This variable should not be set.
-The corresponding face should be set using `edit-faces' or the
-`set-face-*' functions.")
-
-  (defface font-lock-preprocessor-face
-  '((((class color) (background dark)) (:foreground "steelblue1"))
-    (((class color) (background light)) (:foreground "blue3"))
-    (t (:underline t)))
-  "Font Lock Mode face used to highlight preprocessor conditionals."
-  :group 'font-lock-faces)))
 
 
 ;; Handle buggy buffer-syntactic-context workaround in XEmacs,
@@ -721,28 +672,17 @@ The corresponding face should be set using `edit-faces' or the
 )) ;; end running-on-XEmacs
       
 
-; with advice (let's not assume we have it):
-;(defadvice select-buffers-tab-buffers-by-mode (around remove-pg-aux-buffers activate)
-;      "Remove PG auxiliary buffers from tabs, otherwise added by nasty mode name matching"
-;      (let* ((mode1 (symbol-value-in-buffer 'major-mode (ad-get-arg 0))) ;; candidate buf
-;	     (mode2 (symbol-value-in-buffer 'major-mode (ad-get-arg 1))) ;; displayed buf
-;	     (auxes '(proof-goals-mode proof-shell-mode proof-response-mode))
-;	     (mode1aux (memq (get mode1 'derived-mode-parent) auxes))
-;	     (mode2aux (memq (get mode2 'derived-mode-parent) auxes)))
-;	(setq ad-return-value 
-;	      (if mode1aux (if mode2aux t nil)
-;		(if mode2aux nil ad-do-it)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Workaround GNU Emacs problems in easymenu-add
 ;;
 
 (if proof-running-on-Emacs21
-    ;; This has a nasty side effect of removing accelerators
-    ;; from existing menus when easy-menu-add is called.
-    ;; Problem confirmed in versions: 21.4.1
-    (setq easy-menu-precalculate-equivalent-keybindings nil))
+     ;; This has a nasty side effect of removing accelerators
+     ;; from existing menus when easy-menu-add is called.
+     ;; Problem confirmed in versions: 21.4.1, OK: 22.1.1
+    (or (< emacs-major-version 22)
+	(setq easy-menu-precalculate-equivalent-keybindings nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
