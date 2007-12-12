@@ -1,7 +1,7 @@
 This version of Proof General has been tested with these Emacs versions
 on Linux:
 
- Emacs 21.4.1		 -- recommended
+ Emacs 22.1.1		 -- recommended
  XEmacs 21.4.XX		 -- stable, but not recently tested
  XEmacs 21.5 (beta28)    -- tested, has patches for several XEmacs bugs
 
@@ -14,3 +14,12 @@ and prover versions:
 For more possibilities, please check and contribute here:
   
    http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsVer37Final
+
+-----
+
+Backward compatibility makes the code into a bad mess.  Some compatibility
+has been removed here, specifically affecting:
+
+ Isabelle 2004
+
+ Earlier buggy versions of Emacs 21  (21.4.1 should work)

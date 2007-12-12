@@ -36,10 +36,11 @@ Spurious spaces are objectionable in source files.
 
 *** Minor fixes, tweaks, patches for recent (X)Emacs versions
 
-Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
-Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
-Cropped icons to better match style of GNU Emacs/Gnome.
-Many code cleanups from Stefan Monnier.
+- Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
+- Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
+- Cropped icons to better match style of GNU Emacs/Gnome.
+- Context menu for spans: options to move spans up/down (risky!) and undo.
+- Many code cleanups from Stefan Monnier.
 
 
 ** Changes for Isabelle
@@ -67,12 +68,12 @@ isar-find-theorems-form or isar-find-theorems-minibuffer.
 
 *** coq 8.0 compatibility mode
 
-    If coq does not detect the good coq version at startup put one of
-    the following in your .emacs:
+If coq does not detect the good coq version at startup put one of
+the following in your .emacs:
 
-    (setq coq-version-is-V8-1 t)   or    (setq coq-version-is-V8-0 t)
+(setq coq-version-is-V8-1 t)   or    (setq coq-version-is-V8-0 t)
 
-    Default is now 8.1 (if no coqtop is found the path).
+Default is now 8.1 (if no coqtop is found the path).
 
 *** Much better PG/Coq synchronizing system for coq >= 8.1
 
