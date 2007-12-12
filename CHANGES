@@ -8,10 +8,10 @@ See also etc/release-log.txt for minor patches.
 
 *** History mechanism for prover responses
 
-Proof General will keep a history of the last 10 responses from the
-prover in each of the buffers used to display messages.  This is handy
-for examining previous proof state outputs without actually issuing
-undo/redo commands to the prover, for example.  Of for browsing
+Proof General keeps a history of the last 10 responses from the prover
+in each of the buffers used to display messages.  This is handy for
+examining previous proof state outputs without actually issuing
+undo/redo commands to the prover, for example.  Or for browsing
 previous displays of theorems or rules.
 
 To use this, enable Proof General -> Options -> Response History
@@ -34,23 +34,23 @@ interface wrapper.
 
 Spurious spaces are objectionable in source files.
 
-*** Minor fixes and tweaks
+*** Minor fixes, tweaks, patches for recent (X)Emacs versions
 
-Including numerous improvements from Stefan Monnier.
-
+Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
+Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
+Cropped icons to better match style of GNU Emacs/Gnome.
+Many code cleanups from Stefan Monnier.
 
 
 ** Changes for Isabelle
 
-*** Support for Isabelle2005 and later development snapshots of Isabelle 2007.
+*** Support for Isabelle2005 and Isabelle2007.
 
-Additional menu functions and PGIP support for settings configuration
-now controlled directly by Isabelle.  Support for Unicode-safe
-interaction (`proof-shell-unicode' variable).
+Menu functions now controlled directly by Isabelle.  Support for
+Unicode-safe interaction (`proof-shell-unicode' variable).
 
-Support for Isabelle2003 has been removed; results with Isabelle2004
-are not guaranteed.  Code now works with PolyML 5 versions of
-Isabelle.
+Support for Isabelle2003 removed; Isabelle2004 not guaranteed.  
+Code works with PolyML 5 versions of Isabelle.
 
 Optional search form for the "Find Theorems" command is available via
 C-c C-a C-f, the minibuffer interface is available via C-c C-a C-m.
