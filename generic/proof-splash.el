@@ -44,7 +44,7 @@ Proof General."
     nil
     nil
 "    Please report problems at http://proofgeneral.inf.ed.ac.uk/trac
-     Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki"
+    Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki"
     nil
     (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)
      "For a better Proof General experience, please use GNU Emacs 21 or XEmacs"))
@@ -82,7 +82,6 @@ If it is nil, a new line is inserted."
     (and (listp img) (eq (car img) 'image))))
 
 
-;; could be in proof-utils 
 (defun proof-get-image (name &optional nojpeg default)
   "Construct an image instantiator for an image, or string failing that.
 Different formats are chosen from according to what can be displayed.
@@ -92,45 +91,30 @@ DEFAULT gives return value in case image not valid."
   (let ((jpg (vector 'jpeg :file
 		     (concat proof-images-directory name ".jpg")))
 	(gif (vector 'gif :file
-		     (concat proof-images-directory 
-			     name
-			     (or (and
-				  (fboundp 'device-pixel-depth)
-				  (not (null (device-pixel-depth)))
-				  (> (device-pixel-depth) 8)
-				  ".gif")
-				 ;; Low colour gif for poor displays
-				 ".8bit.gif"))))
-	(xpm (vector 'xpm :file
-		     (concat proof-images-directory name ".xpm")))
+		     (concat proof-images-directory ".gif")))
 	(validfn (lambda (inst)
 		   (and (valid-instantiator-p inst 'image)
 			(file-readable-p (aref inst 2)))))
 	img)
   (cond
-   ((and proof-running-on-XEmacs (pg-window-system) 
+   ((and proof-running-on-XEmacs 
+	 (pg-window-system) 
 	 (featurep 'jpeg) (not nojpeg)
 	 (funcall validfn jpg))
     jpg)
    ((and proof-running-on-XEmacs (pg-window-system)
 	 (featurep 'gif) (funcall validfn gif))
     gif)
-   ((and proof-running-on-XEmacs (pg-window-system)
-	 (featurep 'xpm) (funcall validfn xpm))
-    xpm)
-   ;; Support GNU Emacs 21
    ((and
      proof-running-on-Emacs21
      (pg-window-system)
-     (setq img
+     (setq img 
 	   (find-image
 	    (list
 	     (list :type 'jpeg
 		   :file (concat proof-images-directory name ".jpg"))
 	     (list :type 'gif
-		   :file (concat proof-images-directory name ".gif"))
-	     (list :type 'xpm
-		   :file (concat proof-images-directory name ".xpm"))))))
+		   :file (concat proof-images-directory name ".gif"))))))
     img)
    (t
     (or default (concat "[ image " name " ]"))))))

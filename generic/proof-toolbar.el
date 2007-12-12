@@ -174,36 +174,29 @@ to the default toolbar."
 (defun proof-toolbar-build ()
   "Build proof-toolbar."
   (let 
-      ((icontype (if (and (boundp 'device-pixel-depth)
-			  (< (device-pixel-depth) 16))
-		     ;; Select 8bit xpm's if we've got a 
-		     ;; limited colour depth.
-		     ".8bit.xpm" ".xpm"))
+      ((icontype ".xpm")
 
-       (proof-toolbar-icon-list
 	;; List of icon variable names and their associated image
 	;; files.  A list of lists of the form (VAR IMAGE).  IMAGE is
-	;; the root name for ;an image file in proof-images-directory.
-	;; The toolbar code expects to find files IMAGE.xpm or
-	;; IMAGE.8bit.xpm and chooses the best one for the display
-	;; properites.
+	;; the root name for a file in proof-images-directory.  The
+	;; toolbar code expects to find files IMAGE.xpm
+       (proof-toolbar-icon-list
 	(apply 'append
 	       (mapcar 'proof-toolbar-make-icon 
 		       (proof-ass toolbar-entries))))
 
-       (proof-toolbar-button-list
 	;; A toolbar descriptor evaluated in proof-toolbar-setup.
 	;; Specifically, a list of sexps which evaluate to entries in
 	;; a toolbar descriptor.  The default
-	;; `proof-toolbar-default-button-list' works for prover.
+	;; `proof-toolbar-default-button-list' works for any prover.
+       (proof-toolbar-button-list
 	(append
 	 (apply 'append (mapcar 'proof-toolbar-make-toolbar-item 
 				(proof-ass toolbar-entries)))
 	 (if proof-running-on-XEmacs
 	     (list [:style 3d])))))
 
-    ;; First set the button variables to glyphs.  
-    ;; (NB: this is a bit long-winded).
+    ;; First set the button variables to glyphs (bit long-windedly).  
     (mapcar
      (lambda (buttons)
        (let ((var	(car buttons))
@@ -218,8 +211,8 @@ to the default toolbar."
 		  (toolbar-make-button-list iconfiles)
 		;; On GNU Emacs, it holds a filename for the icon,
 		;; without path or extension.  Watch for clashes with
-		;; other packages!
-		(concat "pg-" (eval (cadr buttons)))))))
+		;; icons from other packages!
+		(concat "epg-" (eval (cadr buttons)))))))
      proof-toolbar-icon-list)
 
     (if proof-running-on-XEmacs
