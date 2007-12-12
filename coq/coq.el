@@ -66,7 +66,7 @@ To disable coqc being called (and use only make), set this to nil."
 (require 'coq-syntax)
 (require 'coq-indent)
 
-8(defvar coq-utf-safe coq-version-is-V8-1
+(defvar coq-utf-safe coq-version-is-V8-1
   "Obsolete, coq >= 8.1 does not use special symbols for delimiting prompts.")
 
 (if coq-version-is-V8-1 
@@ -76,7 +76,7 @@ To disable coqc being called (and use only make), set this to nil."
 ;; utf-8 is not yet well accepted (especially by xemacs)
 ;Set to t in your .emacs to enable it. Needs to load library `un-define' to
 ;work on xemacs."
-(setq proof-shell-unicode nil)
+(or (boundp 'proof-shell-unicode) (setq proof-shell-unicode nil))
 
 (defcustom coq-prog-env nil
   "*List of environment settings d to pass to Coq process.
@@ -961,9 +961,12 @@ To be used in `proof-shell-process-output-system-specific'."
    pg-subterm-sep-char ?\373            ; not done
    pg-subterm-end-char ?\374            ; not done
    pg-topterm-regexp "\375"
-   proof-shell-eager-annotation-start "\376\\|\\[Reinterning"
+   proof-shell-eager-annotation-start "\376\\|\\[Reinterning\\|Warning:"
    proof-shell-eager-annotation-start-length 12
-   proof-shell-eager-annotation-end "\377\\|done\\]" ; done
+   ;; ****** is added at the end of warnings in emacs mode, this is temporary I
+   ;;        want xml like tags, and I want them removed before warning display.
+   ;; I want the same for errors -> pgip
+   proof-shell-eager-annotation-end "\377\\|done\\]\\|\\*\\*\\*\\*\\*\\*" ; done
    proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"

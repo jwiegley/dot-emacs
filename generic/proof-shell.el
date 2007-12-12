@@ -434,8 +434,8 @@ Does nothing if proof assistant is already running."
 		(setq proof-eagerly-raise nil))
 	      ;; Set mode for goals buffer
 	      (set-buffer proof-goals-buffer)
-	      (and (fboundp 'toggle-enable-multibyte-characters)
-		   (toggle-enable-multibyte-characters -1))
+;	      (and (fboundp 'toggle-enable-multibyte-characters)
+;		   (toggle-enable-multibyte-characters -1))
 	      (funcall proof-mode-for-goals)
 	      ;; Setting modes initialises local variables which
 	      ;; may affect frame/buffer appearance: so we fire up frames

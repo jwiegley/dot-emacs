@@ -897,6 +897,10 @@ Used by `coq-goal-command-p'"
    (list (coq-first-abstr-regexp "\\<fun\\>" "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
    ;; forall binder
    (list (coq-first-abstr-regexp "\\<forall\\>" "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+;   (list "\\<forall\\>"
+;         (list 0 font-lock-type-face)
+;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil 
+;               (list 0 font-lock-variable-name-face)))
    ;; parenthesized binders
    (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
    )
@@ -931,7 +935,6 @@ Used by `coq-goal-command-p'"
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
           "\\)\\s-+\\(" coq-id "\\)"))
-
 
 ; must match:
 ; "with f x y :" (followed by = or not)
