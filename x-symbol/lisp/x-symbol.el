@@ -1627,6 +1627,7 @@ It is not used if faces can have a property \"display table\", i.e., if
 				 x-symbol-invisible-display-table))
 	((and (fboundp 'create-fontset-from-ascii-font)
 	      x-symbol-invisible-font
+	      (not (eq x-symbol-emacs-has-font-lock-with-props 'invisible))
 	      (try-font-name x-symbol-invisible-font))
 	 ;; This is a mean and ugly hack.  Since Emacs seems unable to create a
 	 ;; face that makes text invisible, we simulate it by using a minuscule
