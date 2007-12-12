@@ -963,6 +963,9 @@ If NUM is negative, move upwards.  Return new span."
 	  (not (not idiom))))
    (list (vector
 	  "Copy"	(list 'pg-copy-span-contents span) t))
+   (list (vector
+	  "Undo"   
+	  (list 'pg-span-undo span) t))
    (if proof-experimental-features
        (list (vector
 	      "Move up"     (list 'pg-move-span-contents span -1)
@@ -977,7 +980,11 @@ If NUM is negative, move upwards.  Return new span."
 	    proof-shell-theorem-dependency-list-regexp)
        (proof-dependency-in-span-context-menu span))))
 
-
+(defun pg-span-undo (span)
+  "Undo to the start of the given SPAN."
+  (interactive)
+  (goto-char (span-start span))
+  (proof-retract-until-point))
 
   
 
