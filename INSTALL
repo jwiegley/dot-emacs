@@ -2,8 +2,7 @@ Instructions for installing Proof General
 =========================================
 
 Proof General runs on a variety of platforms and with a variety of
-Emacs versions; see notes below for particular hints.  Please send us
-additional hints for alternative platforms/Emacsen not mentioned.
+Emacs versions; see COMPATIBILITY for further notes.
 
 To install, unpack the distribution somewhere.  It will create a
 top-level directory containing Proof General, called
@@ -28,13 +27,13 @@ notes below, the README file for each prover, and the file BUGS.
 
 If none of these files help, then contact me via the address below.
 
-
-   David Aspinall <da+pg-support@inf.ed.ac.uk>
+   David Aspinall,
    LFCS, School Of Informatics,
    University of Edinburgh.
    Edinburgh.
    
    http://proofgeneral.inf.ed.ac.uk
+
 
 
 
