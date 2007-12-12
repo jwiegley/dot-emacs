@@ -1,3 +1,6 @@
+Compatibility of Proof General
+==============================
+
 This version of Proof General has been tested with these Emacs versions
 on Linux:
 
@@ -11,15 +14,17 @@ and prover versions:
  Isabelle2005
  Isabelle2007
 
-For more possibilities, please check and contribute here:
-  
-   http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsVer37Final
+Maintaining compatibility across proof assistant versions, Emacs
+versions and operating systems is a big challenge!  Please visit this
+wiki page to check on others experience and report your own:
 
------
+ http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsCompatibility  
 
-Backward compatibility makes the code into a bad mess.  Some compatibility
-has been removed here, specifically affecting:
 
+Backward compatibility and version-specific Emacs patches makes the
+code into a bad mess.  Some compatibility has been removed here,
+specifically affecting:
+
+ Coq 7
  Isabelle 2004
-
  Earlier buggy versions of Emacs 21  (21.4.1 should work)
