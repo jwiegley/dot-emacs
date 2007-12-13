@@ -11,6 +11,8 @@
 (require 'proof-syntax)
 (require 'proof-toolbar)     ; needed for proof-toolbar-scripting-menu
 
+(require 'proof-maths-menu)  ; for automatic invocation from saved option
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Miscellaneous commands

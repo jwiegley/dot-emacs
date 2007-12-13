@@ -5,8 +5,8 @@
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;;
-;; With thanks to Dave Love for the original maths menu code.
-;; The maths menu file is from XXXXXXXXX
+;; With thanks to Dave Love for the original maths menu code,
+;; provided at http://www.loveshack.ukfsn.org/emacs/
 ;;
 ;; $Id$
 ;;
@@ -33,24 +33,18 @@
 (eval-when-compile
   (proof-maths-menu-support-available))
 
-;; The following function is called by the menu item for
-;; maths-menu.  It is an attempt at an intuitive behaviour
-;; without confusing the user with extra "in this buffer" 
-;; and "everywhere" options.  We simply make the global
-;; option track the last setting made for any buffer.
-;; The menu toggle displays the status of the buffer
-;; (as seen in the modeline) rather than the PG setting.
-
-(defvar maths-menu-modes-list nil)
-
 (defun proof-maths-menu-set-global (flag)
-  "Set global status of maths-menu mode for PG buffers to be FLAG."
-  (let ((automode-entry (list (proof-ass-sym mode) nil
-			      proof-assistant-symbol)))
+  "Set global status of maths-menu mode for PG buffers to be FLAG.
+Turn on/off menu in all script buffers and ensure new buffers follow suit."
+  (let ((hook (proof-ass-sym mode-hook)))
     (if flag
-	(add-to-list 'maths-menu-mode automode-entry)
-      (setq maths-menu-modes-list 
-	    (delete automode-entry maths-menu-modes-list)))))
+	(add-hook hook 'maths-menu-mode)
+      (remove-hook hook 'maths-menu-mode))
+    (proof-map-buffers 
+      (proof-buffers-in-mode proof-mode-for-script)
+      (maths-menu-mode (if flag 1 0)))))
+
+  
   
 ;;;###autoload
 (defun proof-maths-menu-enable ()
@@ -61,12 +55,7 @@ Also we arrange to have maths menu mode turn itself on automatically
 in future if we have just activated it for this buffer."
   (interactive)
   (if (proof-maths-menu-support-available) ;; will load maths-menu-mode
-      (progn
-	;; Make sure auto mode follows PG's global setting. (NB: might
-	;; do this only if global state changes, but by the time we
-	;; get here, (proof-ass maths-menu-mode) has been set.
-	(proof-maths-menu-set-global (not maths-menu-mode))
-	(maths-menu-mode t))))
+      (proof-maths-menu-set-global (not maths-menu-mode))))
 
 ;;
 ;; On start up, adjust automode according to user setting
