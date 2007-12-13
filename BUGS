@@ -2,8 +2,8 @@
 
 * Known Bugs and Workarounds for Proof General.
 
-Contact:  mailto:da+pg-bugs@inf.ed.ac.uk
-For latest, see: http://proofgeneral.inf.ed.ac.uk/BUGS
+For latest, see: http://proofgeneral.inf.ed.ac.uk/trac
+
 See also FAQ:    http://proofgeneral.inf.ed.ac.uk/FAQ
 
 Generic bugs are listed here, which may affect all of the supported
@@ -228,3 +228,5 @@ Several (odd) circumstances cause this version of Emacs to loop,
 in particular, when moving the cursor into multi-byte characters.
 Workarounds have been added to avoid this: you may see junk
 characters in the shell buffer as a side effect. 
+
+

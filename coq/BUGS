@@ -4,21 +4,17 @@
 
 See also ../BUGS for generic bugs.
 
-** With new syntax in Coq 7, comments at end of files cannot be processed.
+** Multiple file handling and auto-compilation is incomplete
 
-Leads to annoying retract/process questions when switching buffers.
-Workaround: don't use a comment as the last line of the buffer, for now.
+** C-c C-a C-i on long intro lines breaks line the wrong way.
 
 ** coqtags doesn't find all declarations. 
 
 It cannot handle lists e.g., with "Parameter x,y:nat" it only tags x
 but not y. [The same problem exists for legotags] Workaround: don't
 rely too much on the etags mechanism.
-
-** With Coq 7, multiple file handling and auto-compilation is buggy
-
-** Surely others that aren't mentioned here...
   
-Please report them to da+pg-bugs@inf.ed.ac.uk
+** Others not mentioned...
 
-** C-c C-a C-i on long intro lines breaks line the wrong way.
+Please report further issues at http://proofgeneral.inf.ed.ac.uk/trac
+

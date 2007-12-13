@@ -2,14 +2,14 @@ This is our brief list of planned things to do to Proof General.
 
 $Id$
 
-See also the Proof General development page on the web.  Also, for
-low-level (possibly obsolete) detail, see the file TODO.developer.
+See also the Proof General development page on the web, and
+the issue tracker at http://proofgeneral.inf.ed.ac.uk/trac. 
 
 Please send any suggestions, comments, or offers of help to
-da+pg-feedback@inf.ed.ac.uk.  Thanks!
+da+pg-feedback@inf.ed.ac.uk.  
 
 
-Plans for upcoming versions
+Ideas for upcoming versions
 ---------------------------
 
 * Implement support for PG Kit.  Support PGIP provers fully, with/without 
