@@ -268,7 +268,10 @@ MODIFIERS, the dotted list becomes simply BASIC-KEY."
   (multiple-value-bind (class skel str) (mmm-get-insertion-spec key)
     (when skel
       (let ((after-change-functions nil)
-            (old-undo buffer-undo-list) undo)
+            (old-undo buffer-undo-list) undo
+	    ;; da: Proof General patch for compatibility with holes.el,
+	    ;; bind this variable to prevent inserting holes here.
+	    mmm-inside-insert-by-key)
         ;; XEmacs' skeleton doesn't manage positions by itself, so we
         ;; have to do it.
         (if mmm-xemacs (setq skeleton-positions nil))
