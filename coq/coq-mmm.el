@@ -33,7 +33,7 @@
    :face mmm-comment-submode-face
    :front "(\\*\\*[^#]*#"
    :back  "#[ \t]*\\*)"
-   :insert ((?h coqdoc-html nil @ "(** #" @ " _ " @ "# *)" @)))
+   :insert ((?w coqdoc-html nil @ "(** #" @ " _ " @ "# *)" @)))
 
    (coq-verbatim
    :submode text-mode
