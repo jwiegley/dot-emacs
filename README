@@ -9,10 +9,11 @@ environment for using interactive proof assistants.
 
 See
 
-    INSTALL   for installation details.
-    COPYING   for license details.
-    REGISTER  for registration information (please register).
-    FAQ, doc/ for documentation of Proof General.
+    INSTALL	   for installation details.
+    COPYING	   for license details.
+    COMPATIBILITY  for version compatibility information.
+    REGISTER	   for registration information (please register).
+    FAQ, doc/	   for documentation of Proof General.
 
 Links:
 
