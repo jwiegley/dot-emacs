@@ -16,21 +16,6 @@ See also etc/release-log.txt for minor patches.
 - Many code cleanups from Stefan Monnier.
 
 
-*** History mechanism for prover responses
-
-Proof General keeps a history of the last 10 responses from the prover
-in each of the buffers used to display messages.  This is handy for
-examining previous proof state outputs without actually issuing
-undo/redo commands to the prover, for example.  Or for browsing
-previous displays of theorems or rules.
-
-To use this, enable Proof General -> Options -> Response History
-before starting the proof assistant.
-
-Then the keys M-left, M-right will browse the history in
-each response buffer.  See "C-h m" for more documentation
-of "Bufhist minor mode" in a response buffer.
-
 *** Large X-Symbol fonts added, courtesy of Clemens Ballarin
 
 May use option -f 18 or -f 24 of the Isabelle interface wrapper.
