@@ -120,6 +120,12 @@ whether X-Symbol is installed in your Emacs."
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defpgcustom maths-menu-enable nil
+  "*Non-nil for Unicode maths menu in Proof General for this assistant."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
 (defpgcustom mmm-enable nil
   "*Whether to use MMM Mode in Proof General for this assistant.
 MMM Mode allows multiple modes to be used in the same buffer.
@@ -743,16 +749,17 @@ If a function, it should return the command string to insert."
 				      proof-showproof-command)
     (context	"Display Context"     "Display the current context" t 
 				      proof-context-command)
-    (goal	"Start a New Proof"   "Start a new proof" t
-				      proof-goal-command)
+;; PG 3.7: disable goal & qed, they're not so useful (& save-command never enabled).
+;;     (goal	"Start a New Proof"   "Start a new proof" t
+;;  				      proof-goal-command)
     (retract	"Retract Buffer"      "Retract (undo) whole buffer" t)
     (undo	"Undo Step"           "Undo the previous proof command" t)
     (delete	"Delete Step"         nil t)
     (next	"Next Step"           "Process the next proof command" t)
     (use	"Use Buffer"  	      "Process whole buffer" t)
     (goto	"Goto Point"	      "Process or undo to the cursor position" t)
-    (qed	"Finish Proof"        "Close/save proved theorem" t
-				      proof-save-command)
+;;     (qed	"Finish Proof"        "Close/save proved theorem" t
+;; 				      proof-save-command)
     (lockedend  "Goto Locked End"     nil t)
     (find	"Find Theorems"	      "Find theorems" t proof-find-theorems-command)
     (command    "Issue Command"	      "Issue a non-scripting command" t)
@@ -761,8 +768,9 @@ If a function, it should return the command string to insert."
     (visibility "Toggle Visibility"   nil t)
 ; PG 3.6: remove Info item from toolbar; it's not very useful and under PA->Help anyway
 ;    (info	nil		      "Show online proof assistant information" t
-;				      proof-info-command)
-    (help	nil		      "Proof General manual" t))
+;				       proof-info-command)
+; PG 3.7: use Info icon for info 
+    (info	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
 appropriate configuration variables are set.
