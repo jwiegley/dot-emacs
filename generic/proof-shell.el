@@ -374,7 +374,7 @@ Does nothing if proof assistant is already running."
 	)
 
       ;; Create the associated buffers and set buffer variables
-v      ;; 
+      ;; 
       ;; NB: 3.6 has reverted space in front of names, so buffers
       ;; are easier for users to find, was causing confusion.
       ;;
