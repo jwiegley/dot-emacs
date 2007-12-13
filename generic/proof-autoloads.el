@@ -4,15 +4,29 @@
 (provide 'proof-autoloads)
 
 
-;;;### (autoloads nil "bufhist" "../lib/bufhist.el" (17799 61158))
+;;;### (autoloads (bufhist-exit bufhist-init) "bufhist" "../lib/bufhist.el"
+;;;;;;  (18273 46153))
 ;;; Generated autoloads from ../lib/bufhist.el
+
+(autoload (quote bufhist-init) "bufhist" "\
+Initialise a ring history for the current buffer.
+The history will be read-only unless READWRITE is non-nil.
+For read-only histories, edits to the buffer switch to the latest version.
+The size defaults to `bufhist-ring-size'.
+
+\(fn &optional READWRITE RINGSIZE)" t nil)
+
+(autoload (quote bufhist-exit) "bufhist" "\
+Stop keeping ring history for current buffer.
+
+\(fn)" t nil)
 
 (autoload (quote bufhist-mode) "bufhist" "\
 Minor mode retaining an in-memory history of the buffer contents.")
 
 ;;;***
 
-;;;### (autoloads (holes-mode) "holes" "../lib/holes.el" (17641 26026))
+;;;### (autoloads (holes-mode) "holes" "../lib/holes.el" (18273 44800))
 ;;; Generated autoloads from ../lib/holes.el
 
 (autoload (quote holes-mode) "holes" "\
@@ -39,7 +53,7 @@ This mode is only useful with a font which can display the maths repertoire.
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (18269 10080))
+;;;;;;  "pg-pgip" "pg-pgip.el" (18269 20061))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload (quote pg-pgip-process-packet) "pg-pgip" "\
@@ -61,7 +75,7 @@ Send an <askprefs> message to the prover.
 ;;;***
 
 ;;;### (autoloads (pg-response-has-error-location proof-next-error)
-;;;;;;  "pg-response" "pg-response.el" (18269 10080))
+;;;;;;  "pg-response" "pg-response.el" (18269 20061))
 ;;; Generated autoloads from pg-response.el
 
 (autoload (quote proof-next-error) "pg-response" "\
@@ -104,7 +118,7 @@ All of these settings are optional.
 ;;;***
 
 ;;;### (autoloads (proof-define-assistant-command-witharg proof-define-assistant-command)
-;;;;;;  "pg-user" "pg-user.el" (18271 11570))
+;;;;;;  "pg-user" "pg-user.el" (18273 44800))
 ;;; Generated autoloads from pg-user.el
 
 (autoload (quote proof-define-assistant-command) "pg-user" "\
@@ -121,8 +135,8 @@ CMDVAR is a variable holding a function or string.  Automatically has history.
 
 ;;;***
 
-;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18268
-;;;;;;  11587))
+;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18269
+;;;;;;  5454))
 ;;; Generated autoloads from pg-xml.el
 
 (autoload (quote pg-xml-parse-string) "pg-xml" "\
@@ -175,7 +189,7 @@ Indent current line of proof script, if indentation enabled.
 ;;;***
 
 ;;;### (autoloads (proof-maths-menu-enable proof-maths-menu-support-available)
-;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18271 52951))
+;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18272 30666))
 ;;; Generated autoloads from proof-maths-menu.el
 
 (autoload (quote proof-maths-menu-support-available) "proof-maths-menu" "\
@@ -196,8 +210,8 @@ in future if we have just activated it for this buffer.
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn proof-definvisible
 ;;;;;;  proof-defshortcut proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (18271
-;;;;;;  52994))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (18273
+;;;;;;  46112))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload (quote proof-menu-define-keys) "proof-menu" "\
@@ -252,7 +266,7 @@ evaluate can be provided instead.
 ;;;***
 
 ;;;### (autoloads (proof-mmm-enable proof-mmm-support-available)
-;;;;;;  "proof-mmm" "proof-mmm.el" (18268 11505))
+;;;;;;  "proof-mmm" "proof-mmm.el" (18269 5455))
 ;;; Generated autoloads from proof-mmm.el
 
 (autoload (quote proof-mmm-support-available) "proof-mmm" "\
@@ -274,7 +288,7 @@ in future if we have just activated it for this buffer.
 ;;;### (autoloads (proof-shell-invisible-command proof-shell-wait
 ;;;;;;  proof-extend-queue proof-start-queue proof-shell-available-p
 ;;;;;;  proof-shell-live-buffer proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (18120 5775))
+;;;;;;  "proof-shell.el" (18273 44800))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload (quote proof-shell-ready-prover) "proof-shell" "\
@@ -360,7 +374,7 @@ Make sure the user gets welcomed one way or another.
 ;;;***
 
 ;;;### (autoloads (proof-format) "proof-syntax" "proof-syntax.el"
-;;;;;;  (17987 35833))
+;;;;;;  (17992 37184))
 ;;; Generated autoloads from proof-syntax.el
 
 (autoload (quote proof-format) "proof-syntax" "\
@@ -387,7 +401,7 @@ to the default toolbar.
 
 ;;;### (autoloads (proof-x-symbol-config-output-buffer proof-x-symbol-shell-config
 ;;;;;;  proof-x-symbol-enable proof-x-symbol-support-maybe-available)
-;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18269 9038))
+;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18269 20062))
 ;;; Generated autoloads from proof-x-symbol.el
 
 (autoload (quote proof-x-symbol-support-maybe-available) "proof-x-symbol" "\
@@ -420,7 +434,7 @@ Configure the current output buffer (goals/response/trace) for X-Symbol.
 ;;;***
 
 ;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "../lib/texi-docstring-magic.el"
-;;;;;;  (18269 10371))
+;;;;;;  (18269 20062))
 ;;; Generated autoloads from ../lib/texi-docstring-magic.el
 
 (autoload (quote texi-docstring-magic) "texi-docstring-magic" "\
@@ -435,11 +449,10 @@ With prefix arg, no errors on unknown symbols.  (This results in
 ;;;### (autoloads nil nil ("../lib/holes-load.el" "../lib/local-vars-list.el"
 ;;;;;;  "../lib/proof-compat.el" "../lib/span-extent.el" "../lib/span-overlay.el"
 ;;;;;;  "../lib/span.el" "../lib/unichars.el" "../lib/xml-fixed.el"
-;;;;;;  "../lib/xmlunicode.el" "pg-assoc.el" "pg-autotest.el" "pg-festival.el"
-;;;;;;  "pg-goals.el" "pg-metadata.el" "pg-pbrpm.el" "pg-pgip-old.el"
-;;;;;;  "pg-xhtml.el" "proof-config.el" "proof-script.el" "proof-site.el"
-;;;;;;  "proof-system.el" "proof-utils.el" "proof.el") (18271 52998
-;;;;;;  138163))
+;;;;;;  "../lib/xmlunicode.el" "pg-assoc.el" "pg-autotest.el" "pg-goals.el"
+;;;;;;  "pg-metadata.el" "pg-pbrpm.el" "pg-pgip-old.el" "pg-xhtml.el"
+;;;;;;  "proof-config.el" "proof-script.el" "proof-site.el" "proof-system.el"
+;;;;;;  "proof-utils.el" "proof.el") (18273 46162 919217))
 
 ;;;***
 
