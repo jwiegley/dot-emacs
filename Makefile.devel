@@ -81,7 +81,8 @@ DEVELOPERS=\
 -u "patrl	Patrick Loiseleur	da+pg-patrl@inf.ed.ac.uk" \
 -u "tms	Thomas Kleymann	da+pg-tms@inf.ed.ac.uk" \
 -u "djs	Dilip Sequiera	da+pg-djs@inf.ed.ac.uk" \
--u "hhg	Healfdene Goguen	da+pg-hhg@inf.ed.ac.uk"
+-u "hhg	Healfdene Goguen	da+pg-hhg@inf.ed.ac.uk" \
+-u "assia	Assia Mahboubi	assia.mahboubi@inria.fr"
 
 
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
@@ -173,7 +174,7 @@ NONDISTFILES=.cvsignore */.cvsignore Makefile.devel Makefile.xemacs doc/notes.tx
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/TODO.* ProofGeneral*/BUGS.* ProofGeneral*/ChangeLog* ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral*/doc/docstring-magic.el ProofGeneral*/*/todo ProofGeneral*/etc/TESTS ProofGeneral*/*.cvsignore ProofGeneral*/*/*.cvsignore
+IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/ChangeLog* ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral*/doc/docstring-magic.el ProofGeneral*/*/todo ProofGeneral*/etc/TESTS ProofGeneral*/*.cvsignore ProofGeneral*/*/*.cvsignore
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
