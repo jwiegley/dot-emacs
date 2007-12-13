@@ -272,9 +272,13 @@ without adjusting window layout."
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 (proof-deftoggle-fn (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
 (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
-
-;; TODO (low priority): add dynamic enable-disable
 (proof-deftoggle proof-keep-response-history)
+
+(defun proof-keep-response-history ()
+  "Enable associated buffer histories following `proof-keep-response-history'."
+  (if proof-keep-response-history
+      (proof-map-buffers (proof-associated-buffers) (bufhist-init))
+    (proof-map-buffers (proof-associated-buffers) (bufhist-exit))))
 
 ;; Here is the menu
 
