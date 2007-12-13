@@ -83,6 +83,7 @@ DEVELOPERS=\
 -u "tms	Thomas Kleymann	da+pg-tms@inf.ed.ac.uk" \
 -u "djs	Dilip Sequiera	da+pg-djs@inf.ed.ac.uk" \
 -u "hhg	Healfdene Goguen	da+pg-hhg@inf.ed.ac.uk" \
+-u "gklein	Gerwin Klein	gerwin.klein@nicta.com.au" \
 -u "assia	Assia Mahboubi	assia.mahboubi@inria.fr"
 
 
