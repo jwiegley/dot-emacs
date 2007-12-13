@@ -335,8 +335,9 @@ Does nothing if proof assistant is already running."
 	    ;;  i) coding-system-for-read/write is not available (e.g. MacOS XEmacs non-mule)
 	    ;; ii) 'rawtext gives wrong behaviour anyway (e.g. Mac OS GNU Emacs, maybe Windows)
 	    ;;     probably because of line-feed conversion.
-	    ;; FIXME 3.7: check behaviour of coding-system-for-read in xemacs-21.5, seems to
-	    ;; have API change.
+
+	    ;; FIXME 3.7: check behaviour of coding-system-for-read in
+	    ;; xemacs-21.5, seems to have API change.
 	    (coding-system-for-read
 	     (if (and proof-shell-unicode 
 		      (find-coding-system 'utf-8))
@@ -373,7 +374,7 @@ Does nothing if proof assistant is already running."
 	)
 
       ;; Create the associated buffers and set buffer variables
-      ;; 
+v      ;; 
       ;; NB: 3.6 has reverted space in front of names, so buffers
       ;; are easier for users to find, was causing confusion.
       ;;
@@ -397,6 +398,7 @@ Does nothing if proof assistant is already running."
 	(erase-buffer)
 
 	;; Disable multi-byte characters in GNU Emacs.
+	;;
 	;; We noticed that for LEGO, it otherwise converts annotations
 	;; to characters with (non-ASCII) code around 3000 which screws
 	;; up our conventions that annotations lie between 128 and 256.
@@ -404,6 +406,11 @@ Does nothing if proof assistant is already running."
 	;; Better solve this by explicitly encoding/decoding.
 	;; (and (fboundp 'toggle-enable-multibyte-characters)
 	;;      (toggle-enable-multibyte-characters -1))
+	;; 
+	;; PG 3.7: specific proof assistants which still use the old
+	;; fashioned latin-character markup should probably call
+	;; (toggle-enable-multibyte-characters -1) in their response
+	;; mode and goals mode setup.
 	
 	;; Initialise shell mode
 	;; Q: should this be done every time the process is started?
@@ -427,6 +434,7 @@ Does nothing if proof assistant is already running."
 	      ;; Set mode for response buffer
 	      (set-buffer proof-response-buffer)
 	      (funcall proof-mode-for-response)
+
 	      ;; Set mode for trace buffer
 	      (proof-with-current-buffer-if-exists proof-trace-buffer
 		(funcall proof-mode-for-response)
@@ -434,6 +442,7 @@ Does nothing if proof assistant is already running."
 		(setq proof-eagerly-raise nil))
 	      ;; Set mode for goals buffer
 	      (set-buffer proof-goals-buffer)
+; PG 3.7: move this to prover-specific mode config instead, see note above.
 ;	      (and (fboundp 'toggle-enable-multibyte-characters)
 ;		   (toggle-enable-multibyte-characters -1))
 	      (funcall proof-mode-for-goals)
