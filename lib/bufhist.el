@@ -42,7 +42,7 @@
   "In-memory history of buffer contents"
   :group 'tools)
 
-(defcustom bufhist-ring-size 10
+(defcustom bufhist-ring-size 30
   "*Default size of buffer history ring."
   :group 'bufhist
   :type 'integer)
@@ -62,11 +62,30 @@
 (defvar bufhist-saved-mode-line-format nil
   "Ordinary value of mode-line-format for this buffer.")
 
-(defconst bufhist-mode-line-format-entry
-  '(" [hist:" 
-    (:eval (int-to-string (- (ring-length bufhist-ring)
-			     bufhist-ring-pos))) "/" 
-    (:eval (int-to-string (ring-length bufhist-ring))) "]"))
+(defun bufhist-mode-line-format-entry ()
+  (when bufhist-ring-pos
+    (let* ((histpos   (- (ring-length bufhist-ring) bufhist-ring-pos))
+	   (histsize  (ring-length bufhist-ring))
+	   (desc      (format "History %d of %d; mouse-1 previous; mouse-3 next"
+			      histpos histsize))
+	   (indicator (format "[%d/%d]" histpos histsize)))
+      (propertize 
+       indicator
+       'help-echo desc
+       'keymap (eval-when-compile
+		 (let ((map (make-sparse-keymap)))
+		   (define-key map [mode-line mouse-1] 'bufhist-prev)
+		   (define-key map [mode-line mouse-3] 'bufhist-next)
+;		   (define-key map [mode-line control mouse-1] 'bufhist-first)
+;		   (define-key map [mode-line control mouse-3] 'bufhist-last)
+		   map))
+       'mouse-face 'mode-line-highlight))))
+     
+;simple:
+;  '(" [hist:" 
+;    (:eval (int-to-string (- (ring-length bufhist-)
+;			     bufhist-ring-pos))) "/" 
+;    (:eval (int-to-string (ring-length bufhist-ring))) "]"))
 
 (make-variable-buffer-local 'bufhist-ring)
 (make-variable-buffer-local 'bufhist-ring-pos)
@@ -205,6 +224,7 @@ If optional NOSAVE is non-nil, do not try to save current contents."
 
 ;; Setup functions
 
+;;;###autoload
 (defun bufhist-init (&optional readwrite ringsize)
   "Initialise a ring history for the current buffer.
 The history will be read-only unless READWRITE is non-nil.
@@ -218,7 +238,8 @@ The size defaults to `bufhist-ring-size'."
   (setq bufhist-saved-mode-line-format mode-line-format)
   (bufhist-checkpoint)
   (setq mode-line-format 
-	(cons (cons 'bufhist-mode (list bufhist-mode-line-format-entry))
+	(cons '(bufhist-mode 
+		(:eval (bufhist-mode-line-format-entry)))
 	      ;; surely it's always a list, but in case not
 	      (if (listp mode-line-format) 
 		  mode-line-format 
@@ -228,15 +249,15 @@ The size defaults to `bufhist-ring-size'."
   (bufhist-set-readwrite readwrite))
 
 
+;;;###autoload
 (defun bufhist-exit ()
   "Stop keeping ring history for current buffer."
   (interactive)
   (bufhist-switch-to-index 0)
+  (setq bufhist-ring-pos nil)
   (bufhist-set-readwrite t)
   (setq mode-line-format bufhist-saved-mode-line-format)
   (force-mode-line-update))
-
-
 
 
 (defun bufhist-set-readwrite (readwrite)
@@ -263,6 +284,19 @@ The size defaults to `bufhist-ring-size'."
 ;	(if (and bufhist-mode bufhist-read-only-history)
 ;	    (bufhist-last)))
 ;      (ad-activate-on 'erase-buffer)))
+
+;;; Buttons 
+
+(defun bufhist-make-buttons ()
+  (widget-create 'push-button
+                :notify (lambda (&rest ignore) 
+			   (bufhist-prev))
+                 "Prev")
+  (widget-create 'push-button
+                :notify (lambda (&rest ignore) 
+			   (bufhist-next))
+                 "Next")
+  (widget-setup))
 
 
 ;;; Minor mode 
