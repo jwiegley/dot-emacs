@@ -1009,10 +1009,10 @@ NB: This setting is not used for matching output from the prover."
 (defcustom proof-save-with-hole-regexp nil
   "Regexp which matches a command to save a named theorem.
 The name of the theorem is build from the variable
-proof-save-with-hole-result using the same convention as
+`proof-save-with-hole-result' using the same convention as
 `query-replace-regexp'.
 Used for setting names of goal..save and proof regions and for
-default function-menu configuration in proof-script-find-next-entity.
+default function-menu configuration in `proof-script-find-next-entity'.
 
 It's safe to leave this setting as nil."
   :type 'regexp
@@ -1143,15 +1143,15 @@ proof-goal-command-regexp, and proof-save-with-hole-regexp."
   'proof-script-find-next-entity
   "Name of function to find next interesting entity in a script buffer.
 This is used to configure func-menu.  The default value is
-proof-script-find-next-entity, which searches for the next entity
+`proof-script-find-next-entity', which searches for the next entity
 based on fume-function-name-regexp which by default is set from
-proof-script-next-entity-regexps.
+`proof-script-next-entity-regexps'.
 
 The function should move point forward in a buffer, and return a cons
 cell of the name and the beginning of the entity's region.
 
-Note that proof-script-next-entity-regexps is set to a default value
-from proof-goal-with-hole-regexp and proof-save-with-hole-regexp in
+Note that `proof-script-next-entity-regexps' is set to a default value
+from `proof-goal-with-hole-regexp' and `proof-save-with-hole-regexp' in
 the function proof-config-done, so you may not need to worry about any
 of this.  See whether function menu does something sensible by
 default."
