@@ -6,7 +6,19 @@
    $Id$
 *)
 
-theory XSymbolTests = Main:
+theory XSymbolTests imports Main begin
+
+(* Fri Dec 14 13:20:38 GMT 2007.
+   http://proofgeneral.inf.ed.ac.uk/trac/ticket/161
+   Sub/superscript output not handled properly when enabled using
+   menu. *)
+
+(* response output *)
+thm wf_trancl
+
+(* goals output *)
+lemma wf_trancl2 : "wf ?r \<Longrightarrow> wf (?r\<^sup>+)"
+by auto
 
 (* Thu Sep 25 16:26:47 BST 2003.  
    Problem reported by Norbert Schirmer <norbert.schirmer@web.de>
