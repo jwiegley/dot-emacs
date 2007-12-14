@@ -36,10 +36,8 @@ coq-version-is-V8-0. If none of these 2 variables is set to t, then
 ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
 
 
-
-;;FIXME: how to make compilable?
 ;; post-cond: one of the variables is set to t
-(unless (noninteractive);; DA: evaluating here gives error during compile
+(eval-when (load)
   (let* 
       (
        (seedoc (concat " (to force another version, see for example"
@@ -746,7 +744,7 @@ Used by `coq-goal-command-p'"
  (cond 
   (coq-version-is-V8-1 (coq-goal-command-str-v81-p str))
   (coq-version-is-V8-0 (coq-goal-command-str-v80-p str))
-  (t (coq-goal-command-p-str-v80 str)) ;; this is temporary
+  (t (coq-goal-command-p-str-v80-p str)) ;; this is temporary
   ))
 
 ;; This is used for backtracking
