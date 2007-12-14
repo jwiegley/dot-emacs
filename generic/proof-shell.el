@@ -250,13 +250,15 @@ present in later versions!"
 (deflocal proof-eagerly-raise t
   "Non-nil if this buffer will be eagerly raised/displayed on startup.")
 
-(defun proof-shell-set-output-encoding ()
-  "Adjust encoding for the current buffer to match `proof-shell-unicode'.
-Used for buffers displaying output."
+(defun proof-shell-set-text-representation ()
+  "Adjust representation for the current buffer to match `proof-shell-unicode'."
   (if proof-shell-unicode
       nil ;; leave at default for now; new Emacsen OK
     (and 
      ;; On GNU Emacs, prevent interpretation of multi-byte characters.
+     ;; If this isn't set, characters with codes 128-255 are apt to
+     ;; get remapped higher, and regexps for annotated prompt, etc,
+     ;; don't match any more.
      (fboundp 'toggle-enable-multibyte-characters)
      (toggle-enable-multibyte-characters -1))))
 
@@ -361,16 +363,16 @@ Does nothing if proof assistant is already running."
 		 (if (boundp 'coding-system-for-read) 
 		     coding-system-for-read))))
 
-	    (coding-system-for-write  
-	     coding-system-for-read))
+	    (coding-system-for-write coding-system-for-read))
 
 	;; PG 3.7: let's try to do this via another variable:
 	(unless 
-	    (assoc (concat proof-prog-name ".*") process-coding-system-alist)
+	    (assoc (concat proof-prog-name " .*") process-coding-system-alist)
 	  (setq process-coding-system-alist
-		(cons (car (concat proof-prog-name ".*") 
-			   (if proof-shell-unicode 'utf-8 'raw-text)))))
-	     
+		(cons (cons (concat proof-prog-name " .*")
+			    (if proof-shell-unicode 'utf-8 'raw-text))
+		      process-coding-system-alist)))
+
 	(message "Starting process: %s" prog-command-line)
 
 	;; An improvement here might be to catch failure of
@@ -443,6 +445,7 @@ Does nothing if proof assistant is already running."
 	;; things happen, it may cause looping!
 	;; FIXME: add flag to indicate "inside proof-shell-start"
 	;; to prevent this.
+	(proof-shell-set-text-representation)
 	(funcall proof-mode-for-shell)
 
 	;; Check to see that the process is still going.  If not,
@@ -454,16 +457,16 @@ Does nothing if proof assistant is already running."
 	;; Initialise associated buffers
 
 	(set-buffer proof-response-buffer)
-	(proof-shell-set-output-encoding)
+	(proof-shell-set-text-representation)
 	(funcall proof-mode-for-response)
 	
 	(proof-with-current-buffer-if-exists proof-trace-buffer
-	  (proof-shell-set-output-encoding)
+	  (proof-shell-set-text-representation)
 	  (funcall proof-mode-for-response)
 	  (setq proof-eagerly-raise nil))
 
 	(set-buffer proof-goals-buffer)
-	(proof-shell-set-output-encoding)
+	(proof-shell-set-text-representation)
 	(funcall proof-mode-for-goals)
 
 	;; Setting modes initialises local variables which
@@ -697,7 +700,8 @@ This is a subroutine of `proof-shell-handle-error'."
       ;; this string would contain X-Symbol characters, which
       ;; is not suitable for processing with proof-fontify-region.
       ;; Better not to use X-Symbol in the shell.
-      (unless pg-use-specials-for-fontify
+      (unless (or proof-shell-unicode
+		  pg-use-specials-for-fontify)
 	(setq string
 	      (pg-assoc-strip-subterm-markup string)))
       ;; Erase if need be, and erase next time round too.
@@ -1300,7 +1304,8 @@ MESSAGE should be a string annotated with
      ((and proof-shell-trace-output-regexp
 	   (string-match proof-shell-trace-output-regexp message))
       (proof-trace-buffer-display 
-       (if pg-use-specials-for-fontify
+       (if (or pg-use-specials-for-fontify
+	       proof-shell-unicode)
 	   message
 	 (pg-assoc-strip-subterm-markup message)))
       (unless (and proof-trace-output-slow-catchup
@@ -1473,8 +1478,10 @@ MESSAGE should be a string annotated with
       ;; Don't bother remove the window for the response buffer
       ;; because we're about to put a message in it.
       (proof-shell-maybe-erase-response nil nil)
-      (let ((stripped (pg-remove-specials-in-string
-		       (pg-assoc-strip-subterm-markup message))))
+      (let ((stripped (if proof-shell-unicode 
+			  message
+			(pg-remove-specials-in-string
+			 (pg-assoc-strip-subterm-markup message)))))
 	;; Display first chunk of output in minibuffer.
 	;; Maybe this should be configurable, it can get noisy.
 	(proof-shell-message 
@@ -1716,8 +1723,9 @@ however, are always processed; hence their name)."
 		      (goto-char (point-max))	
 		      ;; Process output string.
 		      (proof-shell-filter-process-output string)
-		      ;; Cleanup shell buffer (TODO: disable this for debug)
-		      (pg-remove-specials prev-prompt (point-max))
+		      ;; Cleanup shell buffer 
+		      (unless proof-general-debug
+			(pg-remove-specials prev-prompt (point-max)))
 		      )))
 	    ;; If proof-action-list is empty, make sure the process lock
 	    ;; is not held!  This should solve continual "proof shell busy"
