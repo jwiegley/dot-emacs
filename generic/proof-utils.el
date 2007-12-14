@@ -477,8 +477,8 @@ Leave point at END."
     (if (and start end) 
 	(narrow-to-region start end))
     (goto-char (or start (point-min)))
-    (proof-replace-regexp-nocasefold pg-special-char-regexp "")
-    (goto-char (point-max))))
+    (while (re-search-forward pg-special-char-regexp end t)
+      (replace-match ""))))
 
 (defun pg-remove-specials-in-string (string)
   (proof-replace-regexp-in-string pg-special-char-regexp "" string))
@@ -624,8 +624,8 @@ The warning is coloured with proof-warning-face."
 ;; could be a macro for efficiency in compiled code
 (defun proof-debug (msg &rest args)
   "Issue the debugging message (format MSG ARGS) in the response buffer, display it.
-If proof-show-debug-messages is nil, do nothing."
-  (if proof-show-debug-messages
+If proof-general-debug is nil, do nothing."
+  (if proof-general-debug
       (let ((formatted (apply 'format msg args)))
 	(if (fboundp 'display-warning) ;; use builtin warning system in XEmacs
 	    (display-warning 'proof-general formatted 'info)
