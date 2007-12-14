@@ -671,7 +671,6 @@ This is a subroutine of `proof-shell-handle-error'."
     (with-current-buffer proof-shell-buffer
       (goto-char (point-max))
       (setq end (re-search-backward 
-		 ;;end-regexp was always proof-shell-annotated-prompt-regexp
 		 proof-shell-annotated-prompt-regexp))
       (goto-char (marker-position proof-marker))
       (setq start (if start-regexp
@@ -679,19 +678,11 @@ This is a subroutine of `proof-shell-handle-error'."
 			 (length (match-string 0)))
 		    (point)))
       (setq string (buffer-substring start end))
-      ;; Strip off start-regexp --- if it matches 
-      ;; FIXME: if it doesn't we shouldn't be called, but some
-      ;;  other prob may cause this, so add a safety check.
-      ;;(if (and start-regexp (string-match start-regexp string))
-      ;;(setq string (substring string (match-beginning 0))))
 
-      ;; FIXME: if the shell buffer is x-symbol minor mode,
-      ;; this string can contain X-Symbol characters, which
+      ;; NB: if the shell buffer were in x-symbol minor mode,
+      ;; this string would contain X-Symbol characters, which
       ;; is not suitable for processing with proof-fontify-region.
-
-      ;; FIXME: if the shell buffer is x-symbol minor mode,
-      ;; this string can contain X-Symbol characters, which
-      ;; is not suitable for processing with proof-fontify-region.
+      ;; Better not to use X-Symbol in the shell.
       (unless pg-use-specials-for-fontify
 	(setq string
 	      (pg-assoc-strip-subterm-markup string)))
@@ -1645,8 +1636,9 @@ however, are always processed; hence their name)."
 	    ;; Initialisation of proof-marker:
 	    ;; Set marker to after the first prompt in the
 	    ;; output buffer if one can be found now.
-	    ;; FIXME da: we'd rather do this initialization outside
-	    ;; of the filter function for better efficiency!
+	    ;; NB: ideally, we'd rather do this initialization outside
+	    ;; of the filter function for slightly better efficiency.  
+	    ;; Could be achieved by switching between filter functions.
 	    (progn
 	      (goto-char (point-min))
 	      (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
@@ -1678,13 +1670,14 @@ however, are always processed; hence their name)."
 	  (if proof-action-list
 	      (let ((urgnt    (marker-position 
 			       proof-shell-urgent-message-marker))
-		    string startpos)
+		    string startpos prev-prompt)
 		;; Ignore any urgent messages that have already been
 		;; dealt with.  This loses in the case mentioned
 		;; above.  A more general way of doing this would be
 		;; to filter out or delete the urgent messages which
 		;; have been processed already.
-		(setq startpos (goto-char (marker-position proof-marker)))
+		(setq prev-prompt (goto-char (marker-position proof-marker)))
+		(setq startpos prev-prompt) 
 		(if (and urgnt
 			 (< startpos urgnt))
 		    (setq startpos (goto-char urgnt))
@@ -1699,15 +1692,18 @@ however, are always processed; hence their name)."
 		      (setq proof-shell-last-prompt
 			    (buffer-substring (match-beginning 0) (match-end 0)))
 		      (backward-char (- (match-end 0) (match-beginning 0)))
-		      ;; NB: decoding x-symbols here is perhaps a bit 
-		      ;;  expensive; moreover it leads to problems 
+		      ;; NB: decoding x-symbols here is probably too
+		      ;;  expensive; moreover it leads to problems
 		      ;;  processing special characters as annotations
-		      ;;  later on.  So no fontify or decode.
-		      ;;   (proof-fontify-region startpos (point))
+		      ;;  later on.  So do not fontify or decode.
+		      ;;  (proof-fontify-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
 		      ;; Process output string.
-		      (proof-shell-filter-process-output string))))
+		      (proof-shell-filter-process-output string)
+		      ;; Cleanup shell buffer
+		      (pg-remove-specials prev-prompt (point-max))
+		      )))
 	    ;; If proof-action-list is empty, make sure the process lock
 	    ;; is not held!  This should solve continual "proof shell busy"
 	    ;; error messages which sometimes occur during development,
