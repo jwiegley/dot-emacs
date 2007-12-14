@@ -295,18 +295,15 @@ Does nothing if proof assistant is already running."
     (let
 	((proc (downcase proof-assistant)))
 
-;pc: not showing the prog-args is confusing, right message is showed below
-;      (message "Starting process: %s" proof-prog-name)
-
       ;; Starting the inferior process (asynchronous)
       (let* ((prog-name-list1
 	      (if (proof-ass prog-args)
 		 ;; If argument list supplied in <PA>-prog-args, use that.
 		  (cons proof-prog-name (proof-ass prog-args))
-		;; Otherwise, cut prog name on spaces (FIXME: could be whitespace?)
+		;; Otherwise, cut prog name on spaces
 		(proof-string-to-list proof-prog-name " ")))
 	     (prog-name-list
-		;; Cut in proof-rsh-command if it's non-nil 
+	      ;; Splice in proof-rsh-command if it's non-nil 
 	      (if (and proof-rsh-command
 		       (> (length proof-rsh-command) 0))
 		  (cons proof-rsh-command prog-name-list1)
@@ -317,20 +314,15 @@ Does nothing if proof assistant is already running."
 	     (process-connection-type
 	      proof-shell-process-connection-type)
 
-	    ;; PG 3.5: adjust the LANG variable to remove UTF-8
-	    ;; encoding that may be there.  This fix is targeted at RH
-	    ;; 8 and later which has glibc 2.2, unicode encoding by
-	    ;; default.  FIXME: unfortunately this fix doesn't work;
-	    ;; it's not enough to alter process-environment to effect
-	    ;; a locale change.  In bash, LANG=x <prog> works though.
-	    ;; PG 3.6: allow other adjustments to environments from
-	    ;; <PA>-prog-env
+	     ;; Adjust the LANG variable to remove UTF-8 encoding 
+	     ;; if not wanted; it conflicts with using chars 128-255 for markup
+	     ;; and results in blocking in C libraries.
 	    (process-environment
-	     (append (proof-ass prog-env)
+	     (append (proof-ass prog-env)	       ;; custom environment
 		     (if proof-shell-unicode           ;; if specials not used,
 			 process-environment	       ;; leave it alone
 		       (cons
-			(if (getenv "LANG")
+			(if (getenv "LANG")            
 			    (format "LANG=%s"
 				    (replace-in-string (getenv "LANG")
 						       "\\.UTF-8" ""))
@@ -339,65 +331,58 @@ Does nothing if proof assistant is already running."
 			 (concat "LANG=" (getenv "LANG"))
 			 process-environment)))))
 
-	    ;; Since we use codes between 128 and 255 as special, we want to
+	    ;; If we use troublesome codes between 128 and 255, we want to
 	    ;; treat the output of the process as binary, except for
 	    ;; end-of-line conversion (hence `raw-text').
 	    ;; It is also the only sensible choice since we make the buffer
 	    ;; unibyte below.
 	    ;; Update: there are problems here with systems where
-	    ;;  i) coding-system-for-read/write is not available (e.g. MacOS XEmacs non-mule)
-	    ;; ii) 'rawtext gives wrong behaviour anyway (e.g. Mac OS GNU Emacs, maybe Windows)
+	    ;;  i) coding-system-for-read/write is not available 
+	    ;;  (e.g. MacOS XEmacs non-mule)
+	    ;; ii) 'rawtext can give wrong behaviour anyway 
+	    ;;     (e.g. Mac OS GNU Emacs, maybe Windows)
 	    ;;     probably because of line-feed conversion.
 
-	    ;; FIXME 3.7: check behaviour of coding-system-for-read in
-	    ;; xemacs-21.5, seems to have API change.
+	    (normal-coding-system-for-read (and (boundp 'coding-system-for-read)
+						coding-system-for-read))
 	    (coding-system-for-read
-	     (if (and proof-shell-unicode 
-		      (find-coding-system 'utf-8))
-		 'utf-8 ;; if available
+	     (if proof-shell-unicode 
+		 (if (find-coding-system 'utf-8)
+		     'utf-8 
+		   normal-coding-system-for-read)
+
 	       (if (string-match "Linux" 
 				 (shell-command-to-string "uname"))
-		   ;; raw-text seems to be useful/needed here.  Overrides
-		   ;; LANG mess above in some circumstances, it seems.
 		   'raw-text
-		 (if (boundp 'coding-system-for-read) 
-		     coding-system-for-read))))
+		 normal-coding-system-for-read)))
 
 	    (coding-system-for-write coding-system-for-read))
 
-	;; PG 3.7: let's try to do this via another variable:
-	(unless 
-	    (assoc (concat proof-prog-name " .*") process-coding-system-alist)
-	  (setq process-coding-system-alist
-		(cons (cons (concat proof-prog-name " .*")
-			    (if proof-shell-unicode 'utf-8 'raw-text))
-		      process-coding-system-alist)))
+	;; PG 3.7: there is now yet another way to influence this:
+	;; (unless 
+	;;    (assoc (concat proof-prog-name " .*") process-coding-system-alist)
+	;;  (setq process-coding-system-alist
+	;;	(cons (cons (concat proof-prog-name " .*")
+	;;		    (if proof-shell-unicode 'utf-8 'raw-text))
+	;;	      process-coding-system-alist)))
 
 	(message "Starting process: %s" prog-command-line)
 
-	;; An improvement here might be to catch failure of
-	;; make-comint and then kill off the buffer.  Then we
-	;; could add back code above for multiple shells <2> <3>, etc.
-	;; Seems hardly worth it.
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list)))
-
+	
 	(setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
 	(unless (proof-shell-live-buffer)
 	  ;; Give error now if shell buffer isn't live
 	  ;; Solves problem of make-comint succeeding but process
-	  ;; exiting immediately.
-	  ;; Might still be problems here if sentinels are set.
+	  ;; exiting immediately.  Sentinels may still trigger.
 	  (setq proof-shell-buffer nil)
 	  (error "Starting process: %s..failed" prog-command-line))
 	)
 
       ;; Create the associated buffers and set buffer variables
-      ;; 
-      ;; NB: 3.6 has reverted space in front of names, so buffers
-      ;; are easier for users to find, was causing confusion.
-      ;;
+
       (let ((goals	"*goals*")
 	    (resp	"*response*")
 	    (trace	"*trace*")
@@ -443,7 +428,7 @@ Does nothing if proof assistant is already running."
 	;; the process: should immediately exit because
 	;; (proof-shell-live-buffer) should succeed.  If bad,
 	;; things happen, it may cause looping!
-	;; FIXME: add flag to indicate "inside proof-shell-start"
+	;; TODO: add flag to indicate "inside proof-shell-start"
 	;; to prevent this.
 	(proof-shell-set-text-representation)
 	(funcall proof-mode-for-shell)
