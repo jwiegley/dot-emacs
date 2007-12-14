@@ -694,40 +694,6 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 	 (not (valid-specifier-tag-p 'mule-fonts)))
     (define-specifier-tag 'mule-fonts))
 
-;;
-;; Useful eval-when macro from cl-macs in XEmacs
-;;
-
-(unless (fboundp 'eval-when)
-  (defmacro eval-when (when &rest body)
-  "(eval-when (WHEN...) BODY...): control when BODY is evaluated.
-If `compile' is in WHEN, BODY is evaluated when compiled at top-level.
-If `load' is in WHEN, BODY is evaluated when loaded after top-level compile.
-If `eval' is in WHEN, BODY is evaluated when interpreted or at non-top-level."
-  (if (and (fboundp 'cl-compiling-file) (cl-compiling-file)
-	   (not cl-not-toplevel) (not (boundp 'for-effect)))  ; horrible kludge
-      (let ((comp (or (memq 'compile when) (memq :compile-toplevel when)))
-	    (cl-not-toplevel t))
-	(if (or (memq 'load when) (memq :load-toplevel when))
-	    (if comp (cons 'progn (mapcar 'cl-compile-time-too body))
-	      (list* 'if nil nil body))
-	  (progn (if comp (eval (cons 'progn body))) nil)))
-    (and (or (memq 'eval when) (memq :execute when))
-	 (cons 'progn body))))
-
-(defun cl-compile-time-too (form)
-  (or (and (symbolp (car-safe form)) (get (car-safe form) 'byte-hunk-handler))
-      (setq form (macroexpand
-		  form (cons '(eval-when) byte-compile-macro-environment))))
-  (cond ((eq (car-safe form) 'progn)
-	 (cons 'progn (mapcar 'cl-compile-time-too (cdr form))))
-	((eq (car-safe form) 'eval-when)
-	 (let ((when (nth 1 form)))
-	   (if (or (memq 'eval when) (memq :execute when))
-	       (list* 'eval-when (cons 'compile when) (cddr form))
-	     form)))
-	(t (eval form) form))))
-
 
 ;; End of proof-compat.el
 (provide 'proof-compat)

@@ -54,7 +54,7 @@
 
 ;;; The abbrev table built from keywords tables
 ;#s and @{..} are replaced by holes by holes-abbrev-complete
-(eval-when (load)
+(unless (noninteractive)
   (if (and (boundp 'coq-mode-abbrev-table)
 	   (not (equal coq-mode-abbrev-table (make-abbrev-table)))) 
       (message "Coq abbrevs already exists, default not loaded")    

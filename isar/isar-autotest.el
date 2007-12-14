@@ -7,7 +7,7 @@
 
 (require 'pg-autotest)
 
-(eval-when (load)
+(unless (noninteractive)
 
   ;; The included test files
   (pg-autotest message "Testing standard Example.thy, Example-Xsym.thy")
