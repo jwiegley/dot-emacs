@@ -71,7 +71,6 @@
 ;; ==================================================
 
 (require 'proof-utils)			;; Macros used below
-(require 'proof-compat)			;; For pg-defface-window-systems
 
 
 ;;
@@ -452,22 +451,6 @@ signals to the remote host."
   :group 'proof-general
   :prefix "proof-")
   
-(defmacro proof-face-specs (bl bd ow)
-  "Return a spec for `defface' with BL for light bg, BD for dark, OW o/w."
-  `(append
-    (apply 'append
-     (mapcar 
-     (lambda (ty) (list
-		     (list (list (list 'type ty) '(class color)
-			   (list 'background 'light))
-			   (quote ,bl))
-		     (list (list (list 'type ty) '(class color)
-				 (list 'background 'dark))
-			   (quote ,bd))))
-     ;; NOTE: see proof-compat.el for possible window-system values
-     pg-defface-window-systems))
-    (list (list t (quote ,ow)))))
-
 (defface proof-queue-face 
   (proof-face-specs 
    (:background "mistyrose") ;; was "darksalmon" in PG 3.4,3.5
@@ -2597,11 +2580,6 @@ If non-nil, this command is sent to the proof assistant when
 X-Symbol support is deactivated."
   :type 'string
   :group 'proof-x-symbol)
-
-(defpgcustom x-symbol-language proof-assistant-symbol
-  "Setting for x-symbol-language for the current proof assistant.
-It defaults to proof-assistant-symbol, which makes X Symbol
-look for files named x-symbol-<PA>.el.")
 
 
 

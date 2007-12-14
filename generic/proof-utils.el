@@ -10,6 +10,7 @@
 ;; Loading note: this file is required immediately from proof.el, so
 ;; no autoloads are used here.
 
+(require 'proof-compat)			;; for pg-defface-window-systems
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
