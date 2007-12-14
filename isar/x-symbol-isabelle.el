@@ -461,16 +461,12 @@ See `x-symbol-language-access-alist' for details."
     ))
 
 (defun x-symbol-isabelle-prepare-table (table)
-  "Account for differences in symbols between Isabelle/Isar and Isabelle."
-  (let*
-      ((is-isar (eq proof-assistant-symbol 'isar))
-       (prfx1 (if is-isar "" "\\"))
-       (prfx2 (if is-isar "\\" "")))
-    (mapcar (lambda (entry)
-              (list (car entry) nil
-		    (concat prfx1 (cadr entry)) 
-		    (concat prfx2 (cadr entry))))
-            table)))
+  "Prepare table for Isabelle/Isar."
+  (mapcar (lambda (entry)
+	    (list (car entry) nil
+		  (cadr entry) 
+		  (concat "\\" (cadr entry))))
+	  table))
 
 (defvar x-symbol-isabelle-table
   (x-symbol-isabelle-prepare-table
