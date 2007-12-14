@@ -103,17 +103,18 @@
     ("\\({\\)" t "@{")
     ("\\(}\\)" t "@}")
     ;; 1. Indented lines are gathered into @lisp environment.
-    ("\\(^.*\\S-.*$\\)"
+    ("^\\(\n\\|.+\\)$"
      t
      (let
 	 ((line (match-string 0 docstring)))
-       (if (eq (char-syntax (string-to-char line)) ?\ )
+       (if (save-match-data (string-match "^[ \t]" line))
 	   ;; whitespace
 	   (if in-quoted-region
 	       line
 	     (setq in-quoted-region t)
+	     (message "%s" line)
 	     (concat "@lisp\n" line))
-	 ;; non-white space
+	 ;; non-white space/carriage return
 	 (if in-quoted-region
 	     (progn
 	       (setq in-quoted-region nil)
