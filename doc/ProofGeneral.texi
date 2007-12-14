@@ -429,7 +429,7 @@ Please help us!
 
 Send us comments, suggestsions, or (the best) patches to improve support
 for your chosen proof assistant.  Contact us at
-@code{da+pg-support@@inf.ed.ac.uk}.
+@code{http://proofgeneral.inf.ed.ac.uk/trac}.
 
 If your chosen proof assistant isn't supported, read the accompanying
 @i{Adapting Proof General} manual to find out how to configure PG for a
@@ -1342,7 +1342,7 @@ highlighted command under the mouse:
 @c TEXI DOCSTRING MAGIC: proof-mouse-track-insert
 @deffn Command proof-mouse-track-insert event
 Copy highlighted command under the mouse to point.  Ignore comments.@*
-If there is no command under the mouse, behaves like @code{mouse-track-insert}.
+If there is no command under the mouse, behaves like mouse-track-insert.
 @end deffn
 
 Read the documentation in Emacs to find out about the normal behaviour
@@ -2108,7 +2108,7 @@ Enabling these will usually have no detrimental effects on using PG,
 but the features themselves may be buggy.
 
 We encourage users to set this flag and test the features, but being
-aware that the features may be buggy (problem reports and 
+aware that the features may be buggy (problem reports and
 suggestions for improvements are welcomed).
 
 The default value is @code{t}.
@@ -2367,7 +2367,8 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with @var{c-ret}.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to da+pg-support@@@@inf.ed.ac.uk
+@samp{@code{customize-variable}} and post suggestions at
+http://proofgeneral.inf.ed.ac.uk/trac
 @end defvar
 
 The completion facility uses a library @file{completion.el} which
@@ -2602,7 +2603,7 @@ This option can help manage your display.
 Setting this option triggers a three-buffer mode of interaction where
 the goals buffer and response buffer are both displayed, rather than
 the two-buffer mode where they are switched between.  It also prevents
-Emacs automatically resizing windows between proof steps.  
+Emacs automatically resizing windows between proof steps.
 
 If you use several frames (the same Emacs in several windows on the
 screen), you can force a frame to stick to showing the goals or
@@ -2723,7 +2724,7 @@ The default value is @code{t}.
 @c TEXI DOCSTRING MAGIC: proof-electric-terminator-enable
 @defopt proof-electric-terminator-enable 
 If non-nil, use electric terminator mode.@*
-If electric terminator mode is enabled, pressing a terminator will 
+If electric terminator mode is enabled, pressing a terminator will
 automatically issue @samp{@code{proof-assert-next-command}} for convenience,
 to send the command straight to the proof process.  If the command
 you want to send already has a terminator character, you don't
@@ -2755,7 +2756,7 @@ The default value is @code{nil}.
 Whether to fontify output from the proof assistant.@*
 If non-nil, output from the proof assistant will be highlighted
 in the goals and response buffers.
-(This is providing @code{font-lock-keywords} have been set for the 
+(This is providing @samp{@code{font-lock-keywords}} have been set for the
 buffer modes).
 
 The default value is @code{t}.
@@ -2778,11 +2779,11 @@ Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
 or if you find it unreliable.
 
-Notes: 
+Notes:
 * Toolbar enablers are only available with XEmacs 21 and later.
 * With this variable nil, buttons do nothing when they would
 otherwise be disabled.
-* If you change this variable it will only be noticed when you 
+* If you change this variable it will only be noticed when you
 next start Proof General.
 * The default value for XEmacs built for solaris is nil, because
 of unreliabilities with enablers there.
@@ -2799,11 +2800,11 @@ If non-nil, query user to save files when activating scripting.
 Often, activating scripting or executing the first scripting command
 of a proof script will cause the proof assistant to load some files
 needed by the current proof script.  If this option is non-nil, the
-user will be prompted to save some unsaved buffers in case any of 
+user will be prompted to save some unsaved buffers in case any of
 them corresponds to a file which may be loaded by the proof assistant.
 
 You can turn this option off if the save queries are annoying, but
-be warned that with some proof assistants this may risk processing 
+be warned that with some proof assistants this may risk processing
 files which are out of date with respect to the loaded buffers!
 
 The default value is @code{t}.
@@ -2844,11 +2845,11 @@ The default value is @code{nil}.
 @defopt proof-tidy-response 
 Non-nil indicates that the response buffer should be cleared often.@*
 The response buffer can be set either to accumulate output, or to
-clear frequently.  
+clear frequently.
 
 With this variable non-nil, the response buffer is kept tidy by
 clearing it often, typically between successive commands (just like the
-goals buffer).  
+goals buffer).
 
 Otherwise the response buffer will accumulate output from the prover.
 
@@ -2867,11 +2868,11 @@ The default value is @code{nil}.
 
 @c TEXI DOCSTRING MAGIC: proof-general-debug
 @defopt proof-general-debug 
-Whether to display debugging messages in the response buffer.@*
-If non-nil, debugging messages are displayed in the response giving
-information about what Proof General is doing.
-To avoid erasing the messages shortly after they're printed, 
-you should set @samp{@code{proof-tidy-response}} to nil.
+Non-nil to run Proof General in debug mode.@*
+This changes some behaviour (e.g. markup stripping) and displays
+debugging messages in the response buffer.  To avoid erasing
+messages shortly after they're printed, set @samp{@code{proof-tidy-response}} to nil.
+This is only useful for PG developers.
 
 The default value is @code{nil}.
 @end defopt
@@ -2899,8 +2900,8 @@ The default value is @code{locked}.
 @defopt proof-auto-action-when-deactivating-scripting 
 If @code{'retract} or @code{'process}, do that when deactivating scripting.
 
-With this option set to @code{'retract} or @code{'process}, when scripting 
-is turned off in a partly processed buffer, the buffer will be 
+With this option set to @code{'retract} or @code{'process}, when scripting
+is turned off in a partly processed buffer, the buffer will be
 retracted or processed automatically.
 
 With this option unset (nil), the user is questioned instead.
@@ -2920,7 +2921,7 @@ The default value is @code{nil}.
 @c TEXI DOCSTRING MAGIC: proof-script-command-separator
 @defopt proof-script-command-separator 
 String separating commands in proof scripts.@*
-For example, if a proof assistant prefers one command per line, then 
+For example, if a proof assistant prefers one command per line, then
 this string should be set to a newline.  Otherwise it should be
 set to a space.
 
@@ -2929,7 +2930,7 @@ The default value is @code{" "}.
 
 @c TEXI DOCSTRING MAGIC: proof-rsh-command
 @defopt proof-rsh-command 
-Shell command prefix to run a command on a remote host.  @*
+Shell command prefix to run a command on a remote host.@*
 For example,
 @lisp
    ssh bigjobs
