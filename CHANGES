@@ -12,13 +12,12 @@ See also etc/release-log.txt for minor patches.
 - Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
 - Cropped icons to better match style of GNU Emacs/Gnome.
 - Context menu for spans: options to move spans up/down (risky!) and undo.
-- Maths menu added for inserting Unicode math characters (originally by Dave Love)
+- Maths menu added for inserting Unicode math characters (GNU Emacs only)
 - Many code cleanups from Stefan Monnier.
-
 
 *** Large X-Symbol fonts added, courtesy of Clemens Ballarin
 
-May use option -f 18 or -f 24 of the Isabelle interface wrapper.
+Use option -f 18 or -f 24 of the Isabelle interface wrapper.
 
 *** UTF-8 support for 8-bit clean provers
 
