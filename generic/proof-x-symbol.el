@@ -47,6 +47,12 @@
 ;; -- Is it possible to remove setting of language in x-symbol-enable?
 ;; -- Simplify proof-x-symbol-initialize
 
+(require 'proof-site)			; for proof-assistant-symbol
+
+(defpgcustom x-symbol-language proof-assistant-symbol
+  "Setting for x-symbol-language for the current proof assistant.
+It defaults to proof-assistant-symbol, which makes X Symbol
+look for files named x-symbol-<PA>.el.")
 
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
