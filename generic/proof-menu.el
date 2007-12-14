@@ -334,14 +334,22 @@ without adjusting window layout."
       :style toggle
       :selected proof-toolbar-enable]
 
-     ["Response history" proof-keep-response-history-toggle
-      :style toggle
-      :selected proof-keep-response-history]
+;;; TODO: Add this in PG 3.7.1 once; see trac #169 
+;;;      ["Response history" proof-keep-response-history-toggle
+;;;       :style toggle
+;;;       :selected proof-keep-response-history]
 
      ["Index Menu" proof-imenu-toggle
       :active (stringp (locate-library "imenu"))
       :style toggle
       :selected proof-imenu-enable]
+
+     ;; NB: convenience; speedbar isn't saved/resumed automatically.
+     ["Speedbar" speedbar
+      :active (stringp (locate-library "speedbar"))
+      :style toggle
+      :selected (and (boundp 'speedbar-frame) speedbar-frame)]
+
      ("Display"
       ["Layout Windows" proof-layout-windows]
       ["Use Three Panes" proof-three-window-toggle
@@ -468,9 +476,6 @@ without adjusting window layout."
 (defconst proof-advanced-menu
   (cons "Advanced..."
 	(append
-	 (if proof-running-on-XEmacs	;; speedbar not on standard menus
-	     '(["Speedbar" speedbar
-		:active (stringp (locate-library "speedbar"))]))
 	 '(["Complete Identifier" proof-script-complete t]
 	   ["Insert last output" pg-insert-last-output-as-comment proof-shell-last-output])
 	 (list "-----")
