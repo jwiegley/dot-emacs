@@ -127,8 +127,11 @@ and properly fontifies STRING using proof-fontify-region."
 	  ;; but keep specials in case also used for subterm markup.
 	  (proof-fontify-region (point-min) (point-max) 'keepspecials))
 	
-      ;; Markup for PBP-style interaction
-      (pg-goals-analyse-structure (point-min) (point-max))
+      ;; Markup for PBP-style interaction.  This currently only works
+      ;; for special characters 128-255, which is inconsistent with
+      ;; UTF-8 interaction.
+      (unless proof-shell-unicode
+	(pg-goals-analyse-structure (point-min) (point-max)))
 
       (unless pg-use-specials-for-fontify
 	;; provers which use ordinary keywords to fontify output must

@@ -275,7 +275,8 @@ Returns non-nil if response buffer was cleared."
 
 (defun pg-response-display (str)
   "Show STR as a response in the response buffer."
-  (unless pg-use-specials-for-fontify
+  (unless (or proof-shell-unicode
+	      pg-use-specials-for-fontify)
     (setq str (pg-assoc-strip-subterm-markup str)))
   (proof-shell-maybe-erase-response t nil)
   ;;(unless (or (string-equal str "") (string-equal str "\n"))
