@@ -16,7 +16,7 @@
 
 ;;; Code:
 
-;(require 'proof-config)			; for proof-face-specs, a macro
+(require 'proof-utils)			; for proof-face-specs, a macro
 
 
 (defconst coq-syntax-db nil
@@ -162,7 +162,10 @@ for DB structure."
 	  (car-safe (car-safe (nthcdr (- size 1) db)))))
 
 (defun coq-sort-menu-entries (menu)
-  (sort menu '(lambda (x y) (string< (downcase (elt x 0)) (downcase (elt y 0))))))
+  (sort menu 
+	'(lambda (x y) (string< 
+			(downcase (elt x 0)) 
+			(downcase (elt y 0))))))
 
 (defun coq-build-menu-from-db (db &optional size)
   "Take a keyword database DB and return a list of insertion menus for them.
@@ -175,11 +178,13 @@ structure."
     (while l
       (if (<= lgth sz)
 	  (setq res ;; careful: nconc destructive!
-		(nconc res (list (cons (coq-build-title-menu l lgth)
-				       (coq-build-menu-from-db-internal l lgth wdth)))))
+		(nconc res (list (cons 
+				  (coq-build-title-menu l lgth)
+				  (coq-build-menu-from-db-internal l lgth wdth)))))
 	(setq res ; careful: nconc destructive!
-	      (nconc res (list (cons (coq-build-title-menu l sz)
-				     (coq-build-menu-from-db-internal l sz wdth))))))
+	      (nconc res (list (cons 
+				(coq-build-title-menu l sz)
+				(coq-build-menu-from-db-internal l sz wdth))))))
       (setq l (nthcdr sz l))
       (setq lgth (length l)))
     res))
