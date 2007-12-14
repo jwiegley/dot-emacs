@@ -4,8 +4,10 @@
 ;; Authors:   Jean-Roch SOTTY, Christophe Raffalli
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-
 ;; analysis of the goal buffer
+
+(require 'proof-utils)			;; for proof-face-specs
+
 
 
 (defvar pg-pbrpm-use-buffer-menu t
