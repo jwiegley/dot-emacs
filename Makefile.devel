@@ -229,7 +229,7 @@ alldist:	distcompile distdocs
 TAGS_EXTRAS=x-symbol/lisp/*.el
 ETAGS=etags
 tags:	$(EL) $(TAGS_EXTRAS)
-	$(ETAGS) $(EL) $(TAGS_EXTRAS) TODO.developer doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
+	$(ETAGS) $(EL) $(TAGS_EXTRAS) doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
 
 
 ############################################################
