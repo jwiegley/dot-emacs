@@ -250,6 +250,17 @@ present in later versions!"
 (deflocal proof-eagerly-raise t
   "Non-nil if this buffer will be eagerly raised/displayed on startup.")
 
+(defun proof-shell-set-output-encoding ()
+  "Adjust encoding for the current buffer to match `proof-shell-unicode'.
+Used for buffers displaying output."
+  (if proof-shell-unicode
+      nil ;; leave at default for now; new Emacsen OK
+    (and 
+     ;; On GNU Emacs, prevent interpretation of multi-byte characters.
+     (fboundp 'toggle-enable-multibyte-characters)
+     (toggle-enable-multibyte-characters -1))))
+
+
 (defun proof-shell-start ()
   "Initialise a shell-like buffer for a proof assistant.
 
@@ -352,6 +363,13 @@ Does nothing if proof assistant is already running."
 
 	    (coding-system-for-write  
 	     coding-system-for-read))
+
+	;; PG 3.7: let's try to do this via another variable:
+	(unless 
+	    (assoc (concat proof-prog-name ".*") process-coding-system-alist)
+	  (setq process-coding-system-alist
+		(cons (car (concat proof-prog-name ".*") 
+			   (if proof-shell-unicode 'utf-8 'raw-text)))))
 	     
 	(message "Starting process: %s" prog-command-line)
 
@@ -397,7 +415,7 @@ Does nothing if proof assistant is already running."
 	;; clear output from previous sessions.
 	(erase-buffer)
 
-	;; Disable multi-byte characters in GNU Emacs.
+	;; Disable multi-byte characters in GNU Emacs
 	;;
 	;; We noticed that for LEGO, it otherwise converts annotations
 	;; to characters with (non-ASCII) code around 3000 which screws
@@ -408,9 +426,11 @@ Does nothing if proof assistant is already running."
 	;;      (toggle-enable-multibyte-characters -1))
 	;; 
 	;; PG 3.7: specific proof assistants which still use the old
-	;; fashioned latin-character markup should probably call
+	;; fashioned latin-character markup may want to call
 	;; (toggle-enable-multibyte-characters -1) in their response
 	;; mode and goals mode setup.
+	;; (We could do this automatically if `proof-shell-unicode' is 
+	;; not set, maybe; but better leave to specific PAs for now).
 	
 	;; Initialise shell mode
 	;; Q: should this be done every time the process is started?
@@ -425,49 +445,45 @@ Does nothing if proof assistant is already running."
 	;; to prevent this.
 	(funcall proof-mode-for-shell)
 
-	;; Check to see that the process is still going.
-	;; Otherwise the sentinel will have killed off the
-	;; other buffers and there's no point initialising
-	;; them.
-	(if (proof-shell-live-buffer)
-	    (progn
-	      ;; Set mode for response buffer
-	      (set-buffer proof-response-buffer)
-	      (funcall proof-mode-for-response)
-
-	      ;; Set mode for trace buffer
-	      (proof-with-current-buffer-if-exists proof-trace-buffer
-		(funcall proof-mode-for-response)
-		;; don't display the trace buffer eagerly
-		(setq proof-eagerly-raise nil))
-	      ;; Set mode for goals buffer
-	      (set-buffer proof-goals-buffer)
-; PG 3.7: move this to prover-specific mode config instead, see note above.
-;	      (and (fboundp 'toggle-enable-multibyte-characters)
-;		   (toggle-enable-multibyte-characters -1))
-	      (funcall proof-mode-for-goals)
-	      ;; Setting modes initialises local variables which
-	      ;; may affect frame/buffer appearance: so we fire up frames
-	      ;; once this has been done.
-	      (if proof-shell-fiddle-frames
-		  ;; Call multiple-frames-enable in case we need to fire up
-		  ;; new frames (NB: sets specifiers to remove modeline)
-		  (save-selected-window
-		    (save-selected-frame
-		      (proof-multiple-frames-enable)))
-		;; Otherwise just try to remove modeline from PG buffers
-		;; in XEmacs (FIXME: hope to remove this and just have
-		;; previous case)
-		(if proof-running-on-XEmacs
-		    (proof-map-buffers
-		      (list proof-goals-buffer proof-response-buffer
-			    proof-trace-buffer proof-thms-buffer)
-		      (set-specifier has-modeline-p nil (current-buffer))))))
-	  ;; 
-	  ;; If the process died, switch to the buffer to
-	  ;; display the error messages to the user.
+	;; Check to see that the process is still going.  If not,
+	;; switch buffer to display the error messages to the user.
+	(unless (proof-shell-live-buffer)
 	  (switch-to-buffer proof-shell-buffer)
-	  (error "%s process exited!" proc)))
+	  (error "%s process exited!" proc))
+
+	;; Initialise associated buffers
+
+	(set-buffer proof-response-buffer)
+	(proof-shell-set-output-encoding)
+	(funcall proof-mode-for-response)
+	
+	(proof-with-current-buffer-if-exists proof-trace-buffer
+	  (proof-shell-set-output-encoding)
+	  (funcall proof-mode-for-response)
+	  (setq proof-eagerly-raise nil))
+
+	(set-buffer proof-goals-buffer)
+	(proof-shell-set-output-encoding)
+	(funcall proof-mode-for-goals)
+
+	;; Setting modes initialises local variables which
+	;; may affect frame/buffer appearance: so we fire up frames
+	;; once this has been done.
+	(if proof-shell-fiddle-frames
+	    ;; Call multiple-frames-enable in case we need to fire up
+	    ;; new frames (NB: sets specifiers to remove modeline)
+	    (save-selected-window
+	      (save-selected-frame
+	       (proof-multiple-frames-enable)))
+	  ;; Otherwise just try to remove modeline from PG buffers
+	  ;; in XEmacs (FIXME: hope to remove this and just have
+	  ;; previous case)
+	  (if proof-running-on-XEmacs
+	      (proof-map-buffers
+		(list proof-goals-buffer proof-response-buffer
+		      proof-trace-buffer proof-thms-buffer)
+		(set-specifier has-modeline-p nil (current-buffer))))))
+
 
       (message "Starting %s process... done." proc))))
 
@@ -483,11 +499,9 @@ Does nothing if proof assistant is already running."
   
 (defun proof-shell-kill-function ()
   "Function run when a proof-shell buffer is killed.
-Attempt to shut down the proof process nicely and
-clear up all the locked regions and state variables.
-Value for `kill-buffer-hook' in shell buffer.
-Also called by `proof-shell-bail-out' if the process is
-exited by hand (or exits by itself)."
+Try to shut down the proof process nicely and clear locked
+regions and state variables.  Value for `kill-buffer-hook' in
+shell buffer, alled by `proof-shell-bail-out' if process exits."
   (let* ((alive    (comint-check-proc (current-buffer)))
 	 (proc     (get-buffer-process (current-buffer)))
 	 (bufname  (buffer-name)))
@@ -1554,6 +1568,7 @@ This is a subroutine of `proof-shell-filter'."
 	(1- (process-mark (get-buffer-process (current-buffer)))))))
     (goto-char pt)))
 
+
 ;; NOTE da: proof-shell-filter does *not* update the proof-marker,
 ;; that's done in proof-shell-insert.  Previous docstring below was
 ;; wrong.  The one case where this function updates proof-marker is
@@ -1701,7 +1716,7 @@ however, are always processed; hence their name)."
 		      (goto-char (point-max))	
 		      ;; Process output string.
 		      (proof-shell-filter-process-output string)
-		      ;; Cleanup shell buffer
+		      ;; Cleanup shell buffer (TODO: disable this for debug)
 		      (pg-remove-specials prev-prompt (point-max))
 		      )))
 	    ;; If proof-action-list is empty, make sure the process lock
