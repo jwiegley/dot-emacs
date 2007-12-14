@@ -1,28 +1,28 @@
-;; proof-config.el  Proof General configuration for proof assistant
+;;; proof-config.el --- Proof General configuration for proof assistant
 ;;
-;; Copyright (C) 1998-2004 LFCS Edinburgh. 
+;; Copyright (C) 1998-2004 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Maintainer:  Proof General maintainer <da+pg-feedback@inf.ed.ac.uk>
 ;;
-;; proof-config.el,v 8.10 2005/09/14 19:11:42 makarius Exp
+;; $Id$
 ;;
 ;; This file declares all user options and prover-specific
 ;; configuration variables for Proof General.  The variables
-;; are used variously by the proof script mode and the 
+;; are used variously by the proof script mode and the
 ;; proof shell mode, menus, and toolbar.
 ;; 
 ;; To customize Proof General for a new proof assistant, you
-;; should read this file carefully! 
+;; should read this file carefully!
 ;;
-;;  1. User options 
+;;  1. User options
 ;;      1b.  Faces
 ;;
 ;;     CONFIGURATION VARIABLES
 ;;  2. Major modes
 ;;  3. Menus, user-level commands, toolbar
-;;  4. Script mode configuration 
+;;  4. Script mode configuration
 ;;  5. Shell mode configuration
 ;;     5a. commands
 ;;     5b. regexps
@@ -31,7 +31,7 @@
 ;;  [ 7. Splash screen settings  -- moved to proof-splash.el now ]
 ;;  8. X-Symbol support
 ;;  9. Prover specific settings
-;; 10. Global constants 
+;; 10. Global constants
 ;;
 ;; The user options don't need to be set on a per-prover basis,
 ;; and the global constants probably should not be touched.
@@ -47,7 +47,7 @@
 ;;    <ProverName>            : User options for proof assistant (9)
 ;;    <ProverName->-internals : Internal settings for proof assistant (9)
 ;;
-;;  proof-general-internals  :  Internal settings of Proof General 
+;;  proof-general-internals  :  Internal settings of Proof General
 ;;    prover-config	     :  Configuration for proof assistant (2,3)
 ;;      proof-script	     :     settings for proof script mode (4)
 ;;      proof-shell	     :     settings for proof shell mode (5)
@@ -62,13 +62,14 @@
 ;;       (a) put it in the right customize group, and
 ;;       (b) add a magical comment in NewDoc.texi to document it!
 ;;  ii. Presently the customize library seems a bit picky over the
-;;    	:type property and some correct but complex types don't work 
+;;    	:type property and some correct but complex types don't work
 ;;	properly.
 ;;    	If the type is ill-formed, editing the whole group will be broken.
 ;;    	Check after updates, by killing all customize buffers and
 ;;    	invoking customize-group
 ;;
 ;; ==================================================
+;; 
 
 (require 'proof-utils)			;; Macros used below
 
@@ -81,14 +82,15 @@
 ;; *not* normally be touched by prover specific code.
 ;;
 
+;;; Code:
 (defgroup proof-user-options nil
   "User options for Proof General."
   :group 'proof-general
   :prefix "proof-")
 
-(defcustom proof-electric-terminator-enable nil 
+(defcustom proof-electric-terminator-enable nil
   "*If non-nil, use electric terminator mode.
-If electric terminator mode is enabled, pressing a terminator will 
+If electric terminator mode is enabled, pressing a terminator will
 automatically issue `proof-assert-next-command' for convenience,
 to send the command straight to the proof process.  If the command
 you want to send already has a terminator character, you don't
@@ -143,13 +145,13 @@ support depends on whether your proof assistant supports it."
   "*Whether to fontify output from the proof assistant.
 If non-nil, output from the proof assistant will be highlighted
 in the goals and response buffers.
-\(This is providing font-lock-keywords have been set for the 
+\(This is providing `font-lock-keywords' have been set for the
 buffer modes)."
   :type 'boolean
   :group 'proof-user-options)
 
 ;; FIXME: next one could be integer value for catchup delay
-(defcustom proof-trace-output-slow-catchup t 
+(defcustom proof-trace-output-slow-catchup t
   "*If non-nil, try to redisplay less often during frequent trace output.
 Proof General will try to configure itself to update the display
 of tracing output infrequently when the prover is producing rapid,
@@ -192,12 +194,12 @@ This option can help manage your display.
 Setting this option triggers a three-buffer mode of interaction where
 the goals buffer and response buffer are both displayed, rather than
 the two-buffer mode where they are switched between.  It also prevents
-Emacs automatically resizing windows between proof steps.  
+Emacs automatically resizing windows between proof steps.
 
 If you use several frames (the same Emacs in several windows on the
 screen), you can force a frame to stick to showing the goals or
-response buffer."  
-  :type 'boolean 
+response buffer."
+  :type 'boolean
   :set 'proof-set-value
   :group 'proof-user-options)
 
@@ -205,8 +207,8 @@ response buffer."
   "*Whether response and goals buffers have separate frames.
 If non-nil, Emacs will make separate frames (screen windows) for
 the goals and response buffers, by altering the Emacs variable
-`special-display-regexps'."  
-  :type 'boolean 
+`special-display-regexps'."
+  :type 'boolean
   :set 'proof-set-value
   :group 'proof-user-options)
 
@@ -228,9 +230,9 @@ goals and response windows to fit their contents."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-toolbar-use-button-enablers 
+(defcustom proof-toolbar-use-button-enablers
   (not
-   (or 
+   (or
     ;; Disabled by default for win32 and solaris
     proof-running-on-win32
     (and (boundp 'system-configuration)
@@ -240,40 +242,40 @@ Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
 or if you find it unreliable.
 
-Notes: 
+Notes:
 * Toolbar enablers are only available with XEmacs 21 and later.
 * With this variable nil, buttons do nothing when they would
 otherwise be disabled.
-* If you change this variable it will only be noticed when you 
+* If you change this variable it will only be noticed when you
 next start Proof General.
 * The default value for XEmacs built for solaris is nil, because
 of unreliabilities with enablers there."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-query-file-save-when-activating-scripting 
+(defcustom proof-query-file-save-when-activating-scripting
   t
 "*If non-nil, query user to save files when activating scripting.
 
 Often, activating scripting or executing the first scripting command
 of a proof script will cause the proof assistant to load some files
 needed by the current proof script.  If this option is non-nil, the
-user will be prompted to save some unsaved buffers in case any of 
+user will be prompted to save some unsaved buffers in case any of
 them corresponds to a file which may be loaded by the proof assistant.
 
 You can turn this option off if the save queries are annoying, but
-be warned that with some proof assistants this may risk processing 
+be warned that with some proof assistants this may risk processing
 files which are out of date with respect to the loaded buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
 (defpgcustom script-indent t
   "*If non-nil, enable indentation code for proof scripts."
-  :type 'boolean 
+  :type 'boolean
   :group 'proof-user-options)
 
 ;; FIXME: implement it!  Use in indentation code.
-(defcustom proof-one-command-per-line 
+(defcustom proof-one-command-per-line
   nil
   "*If non-nil, format for newlines after each proof command in a script.
 This option is not fully-functional at the moment."
@@ -281,13 +283,13 @@ This option is not fully-functional at the moment."
   :group 'proof-user-options)
 
 
-(defcustom proof-prog-name-ask 
+(defcustom proof-prog-name-ask
   nil
   "*If non-nil, query user which program to run for the inferior process."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-prog-name-guess 
+(defcustom proof-prog-name-guess
   nil
   "*If non-nil, use `proof-guess-command-line' to guess proof-prog-name.
 This option is compatible with proof-prog-name-ask.
@@ -299,11 +301,11 @@ No effect if proof-guess-command-line is nil."
   t
   "*Non-nil indicates that the response buffer should be cleared often.
 The response buffer can be set either to accumulate output, or to
-clear frequently.  
+clear frequently.
 
 With this variable non-nil, the response buffer is kept tidy by
 clearing it often, typically between successive commands (just like the
-goals buffer).  
+goals buffer).
 
 Otherwise the response buffer will accumulate output from the prover."
   :type 'boolean
@@ -314,21 +316,21 @@ Otherwise the response buffer will accumulate output from the prover."
   "*Whether to keep a browsable history of responses.
 With this feature enabled, the buffers used for prover responses will have a
 history that can be browsed without processing/undoing in the prover.
-(Changes to this variable take effect after restarting the prover)."
+\(Changes to this variable take effect after restarting the prover)."
   :type 'boolean
   :set 'proof-set-value
   :group 'proof-user-options)
 
 (defcustom proof-general-debug nil
   "*Non-nil to run Proof General in debug mode.
-This changes some behaviour (e.g. markup stripping) and displays 
-debugging messages in the response buffer.  To avoid erasing 
+This changes some behaviour (e.g. markup stripping) and displays
+debugging messages in the response buffer.  To avoid erasing
 messages shortly after they're printed, set `proof-tidy-response' to nil.
 This is only useful for PG developers."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-experimental-features 
+(defcustom proof-experimental-features
   ;; Turn on experimental features for pre-releases.
   ;; (if (string-match "pre" proof-general-version) t)
   t  ;; Version 3.5: features classed as experimental have
@@ -339,12 +341,12 @@ Enabling these will usually have no detrimental effects on using PG,
 but the features themselves may be buggy.
 
 We encourage users to set this flag and test the features, but being
-aware that the features may be buggy (problem reports and 
+aware that the features may be buggy (problem reports and
 suggestions for improvements are welcomed)."
   :type 'boolean
   :group 'proof-user-options)
 
-;;; NON BOOLEAN OPTIONS 
+;;; NON BOOLEAN OPTIONS
 
 (defcustom proof-follow-mode 'locked
   "*Choice of how point moves with script processing commands.
@@ -375,8 +377,8 @@ If you choose 'ignore, you can find the end of the locked using
 (defcustom proof-auto-action-when-deactivating-scripting nil
   "*If 'retract or 'process, do that when deactivating scripting.
 
-With this option set to 'retract or 'process, when scripting 
-is turned off in a partly processed buffer, the buffer will be 
+With this option set to 'retract or 'process, when scripting
+is turned off in a partly processed buffer, the buffer will be
 retracted or processed automatically.
 
 With this option unset (nil), the user is questioned instead.
@@ -397,14 +399,14 @@ is no locked region."
 
 (defcustom proof-script-command-separator " "
   "*String separating commands in proof scripts.
-For example, if a proof assistant prefers one command per line, then 
+For example, if a proof assistant prefers one command per line, then
 this string should be set to a newline.  Otherwise it should be
 set to a space."
   :type 'string
   :group 'proof-user-options)
 
 (defcustom proof-rsh-command nil
-  "*Shell command prefix to run a command on a remote host.  
+  "*Shell command prefix to run a command on a remote host.
 For example,
 
    ssh bigjobs
@@ -413,7 +415,7 @@ Would cause Proof General to issue the command `ssh bigjobs isabelle'
 to start Isabelle remotely on our large compute server called `bigjobs'.
 
 The protocol used should be configured so that no user interaction
-(passwords, or whatever) is required to get going.  For proper
+\(passwords, or whatever) is required to get going.  For proper
 behaviour with interrupts, the program should also communicate
 signals to the remote host."
   :type '(choice string nil)
@@ -434,11 +436,11 @@ signals to the remote host."
 ;; We should test that settings work sensibly:
 ;;   a) with default colours
 ;;   b) with -rv
-;;   c) on console 
+;;   c) on console
 ;;   d) on win32
 ;;   e) all above with GNU Emacs and XEmacs.
-;; But it's difficult to keep track of all that!  
-;; Please report any bad/failing colour 
+;; But it's difficult to keep track of all that!
+;; Please report any bad/failing colour
 ;; combinations to da+pg-feedback@inf.ed.ac.uk
 ;;
 ;; Some of these faces aren't used by default in Proof General,
@@ -451,8 +453,8 @@ signals to the remote host."
   :group 'proof-general
   :prefix "proof-")
   
-(defface proof-queue-face 
-  (proof-face-specs 
+(defface proof-queue-face
+  (proof-face-specs
    (:background "mistyrose") ;; was "darksalmon" in PG 3.4,3.5
    (:background "mediumvioletred")
    (:foreground "white" :background "black"))
@@ -517,7 +519,7 @@ Exactly what uses this face depends on the proof assistant."
 Required so that 'proof-tactics-name-face is a proper facename in
 both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
-(defface proof-error-face 
+(defface proof-error-face
   (proof-face-specs
    (:background "indianred1" :bold t)
    (:background "brown" :bold t)
@@ -584,7 +586,7 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*Face for showing (forwards) dependencies."
   :group 'proof-faces)
 
-(defface proof-active-area-face 
+(defface proof-active-area-face
   (proof-face-specs
    (:underline t)
    (:underline t)
@@ -658,7 +660,7 @@ Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
 
 (defcustom proof-mode-for-script 'proof-mode
   "Mode for proof script buffers.
-This is used by Proof General to find out which buffers 
+This is used by Proof General to find out which buffers
 contain proof scripts.
 The regular name for this is <PA>-mode.  If you use any of the
 convenience macros Proof General provides for defining commands
@@ -670,8 +672,8 @@ Suggestion: this can be set in the script mode configuration."
 (defcustom proof-guess-command-line nil
   "Function to guess command line for proof assistant, given a filename.
 The function could take a filename as argument, run `make -n' to see
-how to compile the file non-interactively, then translate the result 
-into an interactive invocation of the proof assistant with the same 
+how to compile the file non-interactively, then translate the result
+into an interactive invocation of the proof assistant with the same
 command line options.  For an example, see coq/coq.el."
   :type 'function
   :group 'prover-config)
@@ -695,7 +697,7 @@ Used for Proof General's help menu."
 
 (defcustom proof-info-command nil
   "Command to ask for help or information in the proof assistant.
-String or fn.  If a string, the command to use. 
+String or fn.  If a string, the command to use.
 If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
@@ -708,7 +710,7 @@ If a function, it should return the command string to insert."
 (defcustom proof-goal-command nil
   "Command to set a goal in the proof assistant.  String or fn.
 If a string, the format character `%s' will be replaced by the
-goal string. 
+goal string.
 If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
@@ -716,22 +718,22 @@ If a function, it should return the command string to insert."
 (defcustom proof-save-command nil
   "Command to save a proved theorem in the proof assistant.  String or fn.
 If a string, the format character `%s' will be replaced by the
-theorem name. 
+theorem name.
 If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
 (defcustom proof-find-theorems-command nil
-  "Command to search for a theorem containing a given term. String or fn.
+  "Command to search for a theorem containing a given term.  String or fn.
 If a string, the format character `%s' will be replaced by the term.
 If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
 (defconst proof-toolbar-entries-default
-  `((state	"Display Proof State" "Display the current proof state" t 
+  `((state	"Display Proof State" "Display the current proof state" t
 				      proof-showproof-command)
-    (context	"Display Context"     "Display the current context" t 
+    (context	"Display Context"     "Display the current context" t
 				      proof-context-command)
 ;; PG 3.7: disable goal & qed, they're not so useful (& save-command never enabled).
 ;;     (goal	"Start a New Proof"   "Start a new proof" t
@@ -753,13 +755,13 @@ If a function, it should return the command string to insert."
 ; PG 3.6: remove Info item from toolbar; it's not very useful and under PA->Help anyway
 ;    (info	nil		      "Show online proof assistant information" t
 ;				       proof-info-command)
-; PG 3.7: use Info icon for info 
+; PG 3.7: use Info icon for info
     (info	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
 appropriate configuration variables are set.
-To add/remove prover specific buttons, adjust the `<PA>-toolbar-entries' 
-variable, and follow the pattern in `proof-toolbar.el' for 
+To add/remove prover specific buttons, adjust the `<PA>-toolbar-entries'
+variable, and follow the pattern in `proof-toolbar.el' for
 defining functions, images.")
 
 (defpgcustom toolbar-entries proof-toolbar-entries-default
@@ -767,7 +769,7 @@ defining functions, images.")
 Format of each entry is (TOKEN MENUNAME TOOLTIP DYNAMIC-ENABLER-P ENABLE).
 
 For each TOKEN, we expect an icon with base filename TOKEN,
-a function proof-toolbar-<TOKEN>, and (optionally) a dynamic enabler 
+a function proof-toolbar-<TOKEN>, and (optionally) a dynamic enabler
 proof-toolbar-<TOKEN>-enable-p.
 
 If ENABLEP is absent, item is enabled; if ENABLEP is present, item
@@ -837,7 +839,7 @@ conversion, etc.  (No changes are done if nil)."
   "Character which terminates every command sent to proof assistant.  nil if none.
 
 To configure command recognition properly, you must set at least one
-of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
 `proof-script-command-start-regexp', `proof-terminal-char',
 or `proof-script-parse-function'."
   :type 'character
@@ -848,7 +850,7 @@ or `proof-script-parse-function'."
 You should set this variable in script mode configuration.
 
 To configure command recognition properly, you must set at least one
-of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
 `proof-script-command-start-regexp', `proof-terminal-char',
 or `proof-script-parse-function'."
   :type 'boolean
@@ -861,12 +863,12 @@ You should set this variable in script mode configuration.
 The end of the command is considered to be the end of the match
 of this regexp.  The regexp may include a nested group, which
 can be used to recognize the start of the following command
-(or white space).  If there is a nested group, the end of the
+\(or white space).  If there is a nested group, the end of the
 command is considered to be the start of the nested group,
 i.e. (match-beginning 1), rather than (match-end 0).
 
 To configure command recognition properly, you must set at least one
-of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
 `proof-script-command-start-regexp', `proof-terminal-char',
 or `proof-script-parse-function'."
   :type 'string
@@ -877,19 +879,19 @@ or `proof-script-parse-function'."
 You should set this variable in script mode configuration.
 
 To configure command recognition properly, you must set at least one
-of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
 `proof-script-command-start-regexp', `proof-terminal-char',
 or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-script-use-old-parser nil ;;experiment and let folk complain 
+(defcustom proof-script-use-old-parser nil ;;experiment and let folk complain
   "Whether to use the old parsing mechanism.
-By default, this is set to nil in Proof General 3.5.  
-Please report any proof script parsing oddities to 
+By default, this is set to nil in Proof General 3.5.
+Please report any proof script parsing oddities to
 da+pg@@inf.ed.ac.uk.
 
-(NB: Specific example where new parser fails: Isar relies on certain
+\(NB: Specific example where new parser fails: Isar relies on certain
 text being sent to prover which according to syntax configuration
 are comments; new parser does not send these currently.)"
   :type 'boolean
@@ -921,15 +923,15 @@ prefered the old behaviour, customize this variable to t."
   "A function which parses a portion of the proof script.
 It is called with the proof script as the current buffer, and
 point the position where the parse should begin.  It should
-move point to the exact end of the next \"segment\", and return 
+move point to the exact end of the next \"segment\", and return
 a symbol indicating what has been parsed:
 
-  'comment	for a comment 
+  'comment	for a comment
   'cmd		for a proof script command
   nil		if there is no complete next segment in the buffer
 
 If this is left unset, it will be configured automatically to
-a generic function according to which of `proof-terminal-char' 
+a generic function according to which of `proof-terminal-char'
 and its friends are set."
   :type 'string
   :group 'prover-config)
@@ -937,7 +939,7 @@ and its friends are set."
 
 (defcustom proof-script-comment-start ""
   "String which starts a comment in the proof assistant command language.
-The script buffer's comment-start is set to this string plus a space.
+The script buffer's `comment-start' is set to this string plus a space.
 Moreover, comments are usually ignored during script management, and not
 sent to the proof process.
 
@@ -956,8 +958,8 @@ but you can set this variable to something else more precise if necessary."
 
 (defcustom proof-script-comment-end ""
   "String which ends a comment in the proof assistant command language.
-Should be an empty string if comments are terminated by end-of-line
-The script buffer's comment-end is set to a space plus this string,
+Should be an empty string if comments are terminated by `end-of-line'
+The script buffer's `comment-end' is set to a space plus this string,
 if it is non-empty.
 
 See also `proof-script-comment-start'.
@@ -991,34 +993,34 @@ If left as nil, the default behaviour is to insert and call `comment-region'."
   :group 'proof-script)
 
 (defcustom proof-case-fold-search nil
-  "Value for case-fold-search when recognizing portions of proof scripts.
+  "Value for `case-fold-search' when recognizing portions of proof scripts.
 Also used for completion, via `proof-script-complete'.
-The default value is `nil'.  If your prover has a case *insensitive*
-input syntax, proof-case-fold-search should be set to `t' instead.  
-NB: This setting is not used for matching output from the prover."  
+The default value is nil.  If your prover has a case *insensitive*
+input syntax, proof-case-fold-search should be set to t instead.
+NB: This setting is not used for matching output from the prover."
   :type 'boolean :group
   'proof-script)
 
-(defcustom proof-save-command-regexp nil 
+(defcustom proof-save-command-regexp nil
   "Matches a save command."
   :type 'regexp
   :group 'proof-script)
 
-(defcustom proof-save-with-hole-regexp nil 
+(defcustom proof-save-with-hole-regexp nil
   "Regexp which matches a command to save a named theorem.
 The name of the theorem is build from the variable
-proof-save-with-hole-result using the same convention as 
-query-replace-regexp. 
-Used for setting names of goal..save and proof regions and for 
+proof-save-with-hole-result using the same convention as
+`query-replace-regexp'.
+Used for setting names of goal..save and proof regions and for
 default function-menu configuration in proof-script-find-next-entity.
 
 It's safe to leave this setting as nil."
   :type 'regexp
   :group 'proof-script)
 
-(defcustom proof-save-with-hole-result 2 
+(defcustom proof-save-with-hole-result 2
   "String or Int: how to build the theorem name after matching
-with proof-save-with-hole-regexp. If it is an int N use match-string 
+with proof-save-with-hole-regexp. If it is an int N use match-string
 to recover the value of the Nth parenthesis matched. If it is a string
 use replace-match. It the later case, proof-save-with-hole-regexp should
 match the entire command"
@@ -1028,19 +1030,19 @@ match the entire command"
 
 ;; FIXME: unify uses so that proof-anchor-regexp works sensibly
 (defcustom proof-goal-command-regexp nil
-  "Matches a goal command in the proof script.   
+  "Matches a goal command in the proof script.
 This is used (1) to make the default value for `proof-goal-command-p',
 used as an important part of script management to find the start
-of an atomic undo block, and (2) to construct the default 
+of an atomic undo block, and (2) to construct the default
 for `proof-script-next-entity-regexps' used for function menus."
   :type 'regexp
   :group 'proof-script)
 
-(defcustom proof-goal-with-hole-regexp nil 
+(defcustom proof-goal-with-hole-regexp nil
   "Regexp which matches a command used to issue and name a goal.
 The name of the theorem is built from the variable
-proof-goal-with-hole-result using the same convention as 
-for `query-replace-regexp'. 
+proof-goal-with-hole-result using the same convention as
+for `query-replace-regexp'.
 Used for setting names of goal..save regions and for default
 configuration of other modes (function menu, imenu).
 
@@ -1050,7 +1052,7 @@ It's safe to leave this setting as nil."
 
 (defcustom proof-goal-with-hole-result 2
   "String or Int: how to build the theorem name after matching
-with proof-goal-with-hole-regexp. If it is an int N use match-string 
+with proof-goal-with-hole-regexp. If it is an int N use match-string
 to recover the value of the Nth parenthesis matched. If it is a string
 use replace-match. It the later case, proof-goal-with-hole-regexp should
 match the entire command"
@@ -1063,7 +1065,7 @@ match the entire command"
 These are commands which should not appear in proof scripts,
 for example, undo commands themselves (if the proof assistant
 cannot \"redo\" an \"undo\").
-Used in default functions `proof-generic-state-preserving-p' 
+Used in default functions `proof-generic-state-preserving-p'
 and `proof-generic-count-undos'.  If you don't use those,
 may be left as nil."
   :type '(choice nil regexp)
@@ -1112,7 +1114,7 @@ DISCRIMINATOR-REGEXP has one of the forms
 
 If REGEXP matches the string captured by ANYENTITY-REGEXP, then
 MATCHNOS are the match numbers for the substrings which name the entity
-(these may be either a single number or a list of numbers).
+\(these may be either a single number or a list of numbers).
 
 If 'backward BACKREGEXP is present, then the start of the entity
 is found by searching backwards for BACKREGEXP.
@@ -1143,7 +1145,7 @@ proof-goal-command-regexp, and proof-save-with-hole-regexp."
 This is used to configure func-menu.  The default value is
 proof-script-find-next-entity, which searches for the next entity
 based on fume-function-name-regexp which by default is set from
-proof-script-next-entity-regexps.  
+proof-script-next-entity-regexps.
 
 The function should move point forward in a buffer, and return a cons
 cell of the name and the beginning of the entity's region.
@@ -1169,8 +1171,8 @@ and that variable for details."
 ;; have just proof-goal-command regexp instead.  This was born to solve
 ;; problem that Coq can have goals which look like definitions, etc.
 ;; Perhaps we can generalise the matching to understand function
-;; values as well as regexps. 
-;; FIXME: could just as easily give default value of 
+;; values as well as regexps.
+;; FIXME: could just as easily give default value of
 ;; proof-std-goal-command-p here, why not?
 ;; Pierre: changed this to take the span as argument instead of the string,
 ;; This allows coq-mode to use a 'goalcmd attribute computed by looking at
@@ -1179,8 +1181,8 @@ and that variable for details."
   "A function to test: is this really a goal command span?
 
 This is added as a more refined addition to proof-goal-command-regexp,
-to solve the problem that Coq and some other provers can have goals which 
-look like definitions, etc.  (In the future we may generalize 
+to solve the problem that Coq and some other provers can have goals which
+look like definitions, etc.  (In the future we may generalize
 proof-goal-command-regexp instead)."
   :type 'function
   :group 'proof-script)
@@ -1197,9 +1199,9 @@ proof-goal-command-regexp instead)."
 ;;  Why not let PG track this as in spans, changing the value based
 ;;  on some regexps for 'open' / 'close' commands? This would basically
 ;;  move the code of isar-global-save-command-p to proof-done-advancing.
-;; FIXME da: sounds like a good idea, then that would give us a proper 
+;; FIXME da: sounds like a good idea, then that would give us a proper
 ;;  handling of nested proofs?
-;; FIXME: Pierre:Careful: in coq V8 I now need a function to detect save 
+;; FIXME: Pierre:Careful: in coq V8 I now need a function to detect save
 ;;  command. Because Proof <term>. is a term, but not Proof with ...
 ;;
 (defcustom proof-really-save-command-p (lambda (span cmd) t)
@@ -1208,7 +1210,7 @@ proof-goal-command-regexp instead)."
 This is a more refined addition to proof-save-command-regexp.
 It should be a function taking a span and command as argument,
 and can be used to track nested proofs.  (See what is done in
-isar/ for example). In the future, this setting should be
+isar/ for example).  In the future, this setting should be
 removed when the generic core is extended to handle nested
 proofs smoothly."
   :type 'function
@@ -1217,12 +1219,12 @@ proofs smoothly."
 (defcustom proof-completed-proof-behaviour nil
   "Indicates how Proof General treats commands beyond the end of a proof.
 Normally goal...save regions are \"closed\", i.e. made atomic for undo.
-But once a proof has been completed, there may be a delay before 
+But once a proof has been completed, there may be a delay before
 the \"save\" command appears --- or it may not appear at all.  Unless
 nested proofs are supported, this can spoil the undo-behaviour in
 script management since once a new goal arrives the old undo history
-may be lost in the prover.  So we allow Proof General to close 
-off the goal..[save] region in more flexible ways.  
+may be lost in the prover.  So we allow Proof General to close
+off the goal..[save] region in more flexible ways.
 The possibilities are:
 
         nil  -  nothing special; close only when a save arrives
@@ -1280,7 +1282,7 @@ settings `proof-non-undoables-regexp' and
 (defconst proof-no-command "COMMENT"
   "String used as a nullary action (send no command to the proof assistant).
 Only relevant for proof-find-and-forget-fn.
-(NB: this is a CONSTANT, don't change it).")
+\(NB: this is a CONSTANT, don't change it).")
 
 (defcustom proof-find-and-forget-fn 'proof-generic-find-and-forget
   "Function that returns a command to forget back to before its argument span.
@@ -1295,7 +1297,7 @@ The special string proof-no-command means there is nothing to do.
 This is an important function for script management.
 Study one of the existing instantiations for examples of how to write it,
 or leave it set to the default function `proof-generic-find-and-forget'
-(which see)."
+\(which see)."
   :type 'function
   :group 'proof-script)
 
@@ -1312,8 +1314,8 @@ you only need to set if you use that function (by not customizing
 (defcustom pg-topterm-goalhyplit-fn nil
   "Function which returns cons cell if point is at a goal/hypothesis/literal command.
 This is used to parse the proofstate output to mark it up for
-proof-by-pointing or literal command insertion.  It should return a cons or nil.  
-First element of the cons is a symbol, 'goal', 'hyp' or 'lit'.  
+proof-by-pointing or literal command insertion.  It should return a cons or nil.
+First element of the cons is a symbol, 'goal', 'hyp' or 'lit'.
 The second element is a string: the goal, hypothesis, or literal command itself.
 
 If you leave this variable unset, no proof-by-pointing markup
@@ -1328,10 +1330,10 @@ If this is set to nil, PG will expect proof-find-and-forget-fn
 to do all the work of retracting to an arbitrary point in a file.
 Otherwise, the generic split-phase mechanism will be used:
 
-  1. If inside an unclosed proof, use proof-count-undos.
-  2. If retracting to before an unclosed proof, use 
-     proof-kill-goal-command, followed by proof-find-and-forget-fn
-     if necessary."
+1. If inside an unclosed proof, use `proof-count-undos'.
+2. If retracting to before an unclosed proof, use
+`proof-kill-goal-command', followed by `proof-find-and-forget-fn'
+if necessary."
   :type 'string
   :group 'proof-script)
 
@@ -1339,7 +1341,7 @@ Otherwise, the generic split-phase mechanism will be used:
   "Command to undo n steps of the currently open goal.
 String or function.
 If this is set to a string, `%s' will be replaced by the number of
-undo steps to issue. 
+undo steps to issue.
 If this is set to a function, it should return the appropriate
 command when called with an integer (the number of undo steps).
 
@@ -1351,7 +1353,7 @@ need to set this variable."
 
 (defcustom proof-nested-goals-history-p nil
   "Whether the prover supports recovery of history for nested proofs.
-If it does (non-nil), Proof General will retain history inside 
+If it does (non-nil), Proof General will retain history inside
 nested proofs.
 If it does not, Proof General will amalgamate nested proofs into single
 steps within the outer proof."
@@ -1374,13 +1376,13 @@ The current buffer will be the newly active scripting buffer.
 
 This hook may be useful for synchronizing with the proof
 assistant, for example, to switch to a new theory
-(in case that isn't already done by commands in the proof
+\(in case that isn't already done by commands in the proof
 script).
 
 When functions in this hook are called, the variable
-`activated-interactively' will be non-nil if 
+`activated-interactively' will be non-nil if
 proof-activate-scripting was called interactively
-(rather than as a side-effect of some other action).
+\(rather than as a side-effect of some other action).
 If a hook function sends commands to the proof process,
 it should wait for them to complete (so the queue is cleared
 for scripting commands), unless activated-interactively is set."
@@ -1452,9 +1454,9 @@ assistant, for example, to compile a completed file."
 
 
 (defcustom proof-script-font-lock-keywords nil
-  "Value of font-lock-keywords used to fontify proof scripts.
-This is currently used only by proof-easy-config mechanism,
-to set font-lock-keywords before calling proof-config-done.
+  "Value of `font-lock-keywords' used to fontify proof scripts.
+This is currently used only by `proof-easy-config' mechanism,
+to set `font-lock-keywords' before calling proof-config-done.
 See also proof-{shell,resp,goals}-font-lock-keywords."
   :type 'sexp
   :group 'proof-script)
@@ -1490,7 +1492,7 @@ See pg-user.el: pg-create-in-span-context-menu for more hints."
 
 
 ;;
-;;  5. Configuration for proof shell	                            
+;;  5. Configuration for proof shell
 ;;
 ;; The variables in this section concern the proof shell mode.
 ;; The first group of variables are hooks invoked at various points.
@@ -1564,7 +1566,7 @@ mechanism is engaged, to allow customization inside the process
 to help gain syncrhonization (e.g. engaging special markup).
 
 It is better to configure the proof assistant for this purpose
-via command line options if possible, in which case this variable 
+via command line options if possible, in which case this variable
 does not need to be set.
 
 See also `proof-shell-init-cmd'."
@@ -1574,7 +1576,7 @@ See also `proof-shell-init-cmd'."
 (defcustom proof-shell-init-cmd nil
    "The command for initially configuring the proof process.
 This command is sent to the process as soon as synchronization is gained
-\(when an annotated prompt is first recognized).  It can be used to configure 
+\(when an annotated prompt is first recognized).  It can be used to configure
 the proof assistant in some way, or print a welcome message
 \(since output before the first prompt is discarded).
 
@@ -1605,10 +1607,10 @@ need to bump up this value."
 (defcustom proof-shell-cd-cmd nil
   "Command to the proof assistant to change the working directory.
 The format character `%s' is replaced with the directory, and
-the escape sequences in `proof-shell-filename-escapes' are 
+the escape sequences in `proof-shell-filename-escapes' are
 applied to the filename.
 
-This setting is used to define the function proof-cd which 
+This setting is used to define the function proof-cd which
 changes to the value of (default-directory) for script buffers.
 For files, the value of (default-directory) is simply the
 directory the file resides in.
@@ -1622,16 +1624,16 @@ script every time scripting begins."
 (defcustom proof-shell-start-silent-cmd nil
   "Command to turn prover goals output off when sending many script commands.
 If non-nil, Proof General will automatically issue this command
-to help speed up processing of long proof scripts.  
+to help speed up processing of long proof scripts.
 See also proof-shell-stop-silent-cmd.
 NB: terminator not added to command."
   :type '(choice string (const nil))
   :group 'proof-shell)
 
 (defcustom proof-shell-stop-silent-cmd nil
-  "Command to turn prover output on.  
+  "Command to turn prover output on.
 If non-nil, Proof General will automatically issue this command
-to help speed up processing of long proof scripts.  
+to help speed up processing of long proof scripts.
 See also proof-shell-start-silent-cmd.
 NB: Terminator not added to command."
   :type '(choice string (const nil))
@@ -1661,7 +1663,7 @@ issuing this command.
 
 If this is set to nil, no command is issued.
 
-See also: proof-shell-inform-file-retracted-cmd, 
+See also: proof-shell-inform-file-retracted-cmd,
 proof-shell-process-file, proof-shell-compute-new-files-list."
  :type '(choice string (const nil))
  :group 'proof-shell)
@@ -1676,20 +1678,20 @@ possibilities to process the filename.
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
 which files have been processed.  Specifically, when scripting
-is activated, the file is removed from Proof General's list of 
-processed files, and the prover is told about it by issuing this 
-command.  The action may cause the prover in turn to suggest to 
+is activated, the file is removed from Proof General's list of
+processed files, and the prover is told about it by issuing this
+command.  The action may cause the prover in turn to suggest to
 Proof General that files depending on this one are
 also unlocked.
 
 If this is set to nil, no command is issued.
 
 It is also possible to set this value to a function which will
-be invoked on the name of the retracted file, and should remove 
+be invoked on the name of the retracted file, and should remove
 the ancestor files from `proof-included-files-list' by some
 other calculation.
 
-See also: proof-shell-inform-file-processed-cmd, 
+See also: proof-shell-inform-file-processed-cmd,
 proof-shell-process-file, proof-shell-compute-new-files-list."
  :type '(choice string (const nil)) ;; FIXME: or function
  :group 'proof-shell)
@@ -1718,7 +1720,7 @@ corresponding to that file (provided it remains visited in Emacs).
 
 If the prover allows, it will be possible to undo to a position within
 this file.  If the prover does *not* allow this, this variable should
-be set non-nil, so that when a completed file is activated for 
+be set non-nil, so that when a completed file is activated for
 scripting (to do undo operations), the whole history is discarded."
   :type 'boolean
   :group 'proof-shell)  ;; not really proof shell
@@ -1753,7 +1755,7 @@ Normally error messages cause a beep.  Set this to nil to prevent that."
 ;; 5b. Regexp variables for matching output from proof process.
 ;;
 
-(defcustom proof-shell-prompt-pattern nil 
+(defcustom proof-shell-prompt-pattern nil
    "Proof shell's value for comint-prompt-pattern, which see.
 NB!! This pattern is just for interaction in comint (shell buffer).
 You don't really need to set it.  The important one to set is
@@ -1772,15 +1774,15 @@ Set to nil if proof assistant does not support annotated prompts."
 (defcustom proof-shell-annotated-prompt-regexp nil
   "Regexp matching a (possibly annotated) prompt pattern.
 
-THIS IS THE MOST IMPORTANT SETTING TO CONFIGURE!!   
+THIS IS THE MOST IMPORTANT SETTING TO CONFIGURE!!
 
 Output is grabbed between pairs of lines matching this regexp,
 and the appearance of this regexp is used by Proof General to
 recognize when the prover has finished processing a command.
 
-To help speed up matching you may be able to annotate the 
-proof assistant prompt with a special character not appearing 
-in ordinary output.  The special character should appear in 
+To help speed up matching you may be able to annotate the
+proof assistant prompt with a special character not appearing
+in ordinary output.  The special character should appear in
 this regexp, and should be the value of proof-shell-wakeup-char."
   :type 'regexp
   :group 'proof-shell)
@@ -1826,7 +1828,7 @@ See `proof-shell-error-regexp' and `proof-shell-interrupt-regexp'."
 
 (defcustom pg-next-error-regexp nil
   "Regular expression which matches an error message, perhaps with line/column.
-Used by `proof-next-error' to jump to line numbers causing 
+Used by `proof-next-error' to jump to line numbers causing
 errors during some batch processing of the proof assistant.
 \(During \"manual\" script processing, script usually automatically
 jumps to the end of the locked region)
@@ -1841,7 +1843,7 @@ which is assumed to precede pg-next-error-regexp."
 
 (defcustom pg-next-error-filename-regexp nil
   "Used to locate a filename that an error message refers to.
-Used by `proof-next-error' to jump to locations causing 
+Used by `proof-next-error' to jump to locations causing
 errors during some batch processing of the proof assistant.
 \(During \"manual\" script processing, the script usually automatically
 jumps to the end of the locked region).
@@ -1853,11 +1855,11 @@ Errors must first be matched by `pg-next-error-regexp'
 is then searched *backwards* for a regexp matching this variable,
 `pg-next-error-filename-regexp'.  (So if the
 filename appears after the line number, make the first regexp
-match the whole line).  Finally 
+match the whole line).  Finally
 `pg-next-error-extract-filename'
-may be used to extract the filename from 
+may be used to extract the filename from
 This regexp should be set to match messages also matched by
-`proof-shell-error-message-line-number-regexp'.  
+`proof-shell-error-message-line-number-regexp'.
 Match number 1 should be the filename."
   :type 'string
   :group 'proof-shell)
@@ -1882,7 +1884,7 @@ The engine matches interrupts before errors, see proof-shell-error-regexp.
 
 It is safe to leave this variable unset (as nil)."
   :type '(choice nil regexp)
-  :group 'proof-shell) 
+  :group 'proof-shell)
 
 (defcustom proof-shell-proof-completed-regexp nil
   "Regexp matching output indicating a finished proof.
@@ -1928,12 +1930,12 @@ If nil, just use the rest of the output following proof-shell-start-goals-regexp
 (defcustom proof-shell-eager-annotation-start nil
   "Eager annotation field start.  A regular expression or nil.
 An eager annotation indicates to Proof General that some following output
-should be displayed (or processed) immediately and not accumulated for 
-parsing later. 
+should be displayed (or processed) immediately and not accumulated for
+parsing later.
 
 It is nice to recognize (starts of) warnings or file-reading messages
 with this regexp.  You must also recognize any special messages
-from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp', 
+from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp',
 `proof-shell-retract-files-regexp', etc.)
 
 See also `proof-shell-eager-annotation-start-length',
@@ -1944,7 +1946,7 @@ Set to nil to disable this feature."
   :group 'proof-shell)
 
 (defcustom proof-shell-eager-annotation-start-length 10
-  "Maximum length of an eager annotation start. 
+  "Maximum length of an eager annotation start.
 Must be set to the maximum length of the text that may match
 `proof-shell-eager-annotation-start' (at least 1).
 If this value is too low, eager annotations may be lost!
@@ -1963,7 +1965,7 @@ See also `proof-shell-eager-annotation-start'.
 
 It is nice to recognize (ends of) warnings or file-reading messages
 with this regexp.  You must also recognize (ends of) any special messages
-from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp', 
+from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp',
 `proof-shell-retract-files-regexp', etc.)
 
 The default value is \"\\n\" to match up to the end of the line."
@@ -1984,15 +1986,15 @@ used to help parse the goals buffer to annotate it for proof by pointing."
   "A pair (REGEXP . FUNCTION) to match a processed file name.
 
 If REGEXP matches output, then the function FUNCTION is invoked on the
-output string chunk. It must return the name of a script file (with
-complete path) that the system has successfully processed. In
+output string chunk.  It must return the name of a script file (with
+complete path) that the system has successfully processed.  In
 practice, FUNCTION is likely to inspect the match data.  If it returns
 the empty string, the file name of the scripting buffer is used
 instead.  If it returns nil, no action is taken.
 
 Care has to be taken in case the prover only reports on compiled
-versions of files it is processing. In this case, FUNCTION needs to
-reconstruct the corresponding script file name. The new (true) file
+versions of files it is processing.  In this case, FUNCTION needs to
+reconstruct the corresponding script file name.  The new (true) file
 name is added to the front of `proof-included-files-list'."
   :type '(choice (cons regexp function) (const nil))
   :group 'proof-shell)
@@ -2014,10 +2016,10 @@ date and needs to be updated with the help of the function
 (defcustom proof-shell-compute-new-files-list nil
   "Function to update `proof-included-files list'.
 
-It needs to return an up to date list of all processed files. Its
-output is stored in `proof-included-files-list'. Its input is the
+It needs to return an up to date list of all processed files.  Its
+output is stored in `proof-included-files-list'.  Its input is the
 string of which `proof-shell-retract-files-regexp' matched a
-substring. In practice, this function is likely to inspect the
+substring.  In practice, this function is likely to inspect the
 previous (global) variable `proof-included-files-list' and the match
 data triggered by `proof-shell-retract-files-regexp'."
   :type '(choice function (const nil))
@@ -2045,17 +2047,17 @@ and dynamically.   (It's also a fantastic backdoor security risk).
 If the regexp matches output from the proof assistant, there should be
 two match strings: (match-string 1) should be the name of the elisp
 variable to be set, and (match-string 2) should be the value of the
-variable (which will be evaluated as a lisp expression).
+variable (which will be evaluated as a Lisp expression).
 
 A good markup for the second string is to delimit with #'s, since
 these are not valid syntax for elisp evaluation.
 
-Elisp errors will be trapped when evaluating; set 
+Elisp errors will be trapped when evaluating; set
 proof-general-debug to be informed when this happens.
 
 Example uses are to adjust PG's internal copies of proof assistant's
 settings, or to make automatic dynamic syntax adjustments in Emacs to
-match changes in theory, etc.  
+match changes in theory, etc.
 
 If you pick a dummy variable name (e.g. `proof-dummy-setting') you
 can just evaluation arbitrary elisp expressions for their side
@@ -2072,7 +2074,7 @@ settings."
 
 (defcustom proof-shell-match-pgip-cmd nil
   "Regexp used to match PGIP command from proof assistant.
-The matching string will be parsed as XML and then processed by 
+The matching string will be parsed as XML and then processed by
 `pg-pgip-process-cmd'."
   :type '(choice nil regexp)
   :group 'proof-shell)
@@ -2112,7 +2114,7 @@ This is an experimental feature, currently work-in-progress."
   :group 'proof-shell)
 
 (defcustom proof-shell-theorem-dependency-list-split nil
-  "Splits strings which match `proof-shell-theorem-dependency-list-regexp'.  
+  "Splits strings which match `proof-shell-theorem-dependency-list-regexp'.
 Used as an argument to `split-string'; nil defaults to whitespace.
 \(This setting is necessary for provers which allow whitespace in
 the names of theorems/definitions/constants), see setting for
@@ -2154,10 +2156,10 @@ list between values for `proof-buffer-syntactic-context' and strings."
   "Matches tracing output which should be displayed in trace buffer.
 Each line which matches this regexp but would otherwise be treated
 as an ordinary response, is sent to the trace buffer instead of the
-response buffer.   
+response buffer.
 
-This is intended for unusual debugging output from 
-the prover, rather than ordinary output from final proofs.  
+This is intended for unusual debugging output from
+the prover, rather than ordinary output from final proofs.
 
 Set to nil to disable.
 
@@ -2204,7 +2206,7 @@ This setting is used inside the function `proof-format-filename'."
   :type '(list (cons string string))
   :group 'proof-shell)
 
-(defcustom proof-shell-process-connection-type 
+(defcustom proof-shell-process-connection-type
   ;; Use ptys unless it seems like we're on Solaris.  Only have
   ;; a good chance to guess if shell-command-to-string and uname
   ;; available.
@@ -2230,9 +2232,9 @@ We do not force pipes everywhere because this risks loss of data."
 (defcustom proof-shell-strip-crs-from-input t
   "If non-nil, replace carriage returns in every input with spaces.
 This is enabled by default: it is appropriate for many systems
-based on human input, because several CR's can result in several 
-prompts, which may mess up the display (or even worse, the 
-synchronization).  
+based on human input, because several CR's can result in several
+prompts, which may mess up the display (or even worse, the
+synchronization).
 
 If the prover can be set to output only one prompt for every chunk of
 input, then newlines can be retained in the input."
@@ -2247,23 +2249,23 @@ if you don't need it (slight speed penalty)."
   :type 'boolean
   :group 'proof-shell)
 
-(defcustom proof-shell-insert-hook nil 
+(defcustom proof-shell-insert-hook nil
   "Hooks run by proof-shell-insert before inserting a command.
 Can be used to configure the proof assistant to the interface in
 various ways -- for example, to observe or alter the commands sent to
 the prover, or to sneak in extra commands to configure the prover.
 
-This hook is called inside a save-excursion with the proof-shell-buffer 
-current, just before inserting and sending the text in the 
-variable `string'.  The hook can massage `string' or insert additional 
-text directly into the proof-shell-buffer.  
+This hook is called inside a `save-excursion' with the proof-shell-buffer
+current, just before inserting and sending the text in the
+variable `string'.  The hook can massage `string' or insert additional
+text directly into the proof-shell-buffer.
 Before sending `string', it will be stripped of carriage returns.
 
 Additionally, the hook can examine the variable `action'.  It will be
 a symbol, set to the callback command which is executed in the proof
 shell filter once `string' has been processed.  The `action' variable
 suggests what class of command is about to be inserted:
-  
+
  'proof-done-invisible	     A non-scripting command
  'proof-done-advancing	     A \"forward\" scripting command
  'proof-done-retracting	     A \"backward\" scripting command
@@ -2281,7 +2283,7 @@ stripped of carriage returns before being sent.
 Example uses:
 LEGO uses this hook for setting the pretty printer width if
 the window width has changed;
-Plastic uses it to remove literate-style markup from `string'. 
+Plastic uses it to remove literate-style markup from `string'.
 The x-symbol support uses this hook to convert special characters
 into tokens for the proof assistant."
   :type '(repeat function)
@@ -2290,7 +2292,7 @@ into tokens for the proof assistant."
 (defcustom proof-pre-shell-start-hook nil
   "Hooks run before proof shell is started.
 Suggestion: set this to a function which configures just these proof
-shell variables: 
+shell variables:
 
    proof-prog-name
    proof-mode-for-shell
@@ -2312,7 +2314,7 @@ its friends configured in the function proof-shell-start."
 (defcustom proof-shell-handle-error-or-interrupt-hook
   '(proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window)
   "Run after an error or interrupt has been reported in the response buffer.
-Hook functions may inspect `proof-shell-error-or-interrupt-seen' to 
+Hook functions may inspect `proof-shell-error-or-interrupt-seen' to
 determine whether the cause was an error or interrupt.  Possible
 values for this hook include:
 
@@ -2322,7 +2324,7 @@ values for this hook include:
 which move the cursor in the scripting buffer on an error or
 error/interrupt.
 
-Remark: This hook is called from shell buffer. If you want to do
+Remark: This hook is called from shell buffer.  If you want to do
 something in scripting buffer, `save-excursion' and/or `set-buffer'."
   :type '(repeat function)
   :group 'proof-shell)
@@ -2343,31 +2345,31 @@ All other output from the proof engine is simply reported to the
 user in the RESPONSE buffer.
 
 To catch further special cases, set this variable to a pair of
-functions '(condf . actf). Both are given (cmd string) as arguments.
+functions '(condf . actf).  Both are given (cmd string) as arguments.
 `cmd' is a string containing the currently processed command.
-`string' is the response from the proof system. To change the
+`string' is the response from the proof system.  To change the
 behaviour of `proof-shell-process-output', (condf cmd string) must
-return a non-nil value. Then (actf cmd string) is invoked. 
+return a non-nil value.  Then (actf cmd string) is invoked.
 
 See the documentation of `proof-shell-process-output' for the required
-output format."  
-  :type '(repeat function) 
+output format."
+  :type '(repeat function)
   :group 'proof-shell)
 
 (defcustom proof-state-change-hook nil
-  "This hook is called when state change may have occurred. 
+  "This hook is called when state change may have occurred.
 Specifically, this hook is called after a region has been asserted or
 retracted, or after a command has been sent to the prover with
-proof-shell-invisible-command.
+`proof-shell-invisible-command'.
 
 This hook is used within Proof General to refresh the toolbar."
 
-  :type '(repeat function) 
+  :type '(repeat function)
   :group 'proof-shell)
 
 (defcustom proof-shell-font-lock-keywords nil
-  "Value of font-lock-keywords used to fontify the proof shell.
-This is currently used only by proof-easy-config mechanism, to set
+  "Value of `font-lock-keywords' used to fontify the proof shell.
+This is currently used only by `proof-easy-config' mechanism, to set
 `font-lock-keywords' before calling `proof-config-done'.
 See also proof-{script,resp,goals}-font-lock-keywords."
   :type 'sexp
@@ -2408,13 +2410,13 @@ Leave unset if no special characters are being used."
   "Choice of syntax tree encoding for terms.
 
 If nil, prover is expected to make no optimisations.
-If non-nil, the pretty printer of the prover only reports local changes. 
-For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'."
+If non-nil, the pretty printer of the prover only reports local changes.
+For LEGO 1.3.1 use nil, for Coq 6.2, use t."
   :type 'boolean
   :group 'proof-goals)
 
 (defcustom pg-goals-change-goal nil
-  "Command to change to the goal `%s'"
+  "Command to change to the goal `%s'."
   :type 'string
   :group 'proof-goals)
 
@@ -2454,8 +2456,8 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
 
 (defcustom pg-subterm-start-char nil
   "Opening special character for subterm markup.
-Subsequent special characters with values *below* 
-pg-subterm-first-special-char are assumed to be subterm position 
+Subsequent special characters with values *below*
+pg-subterm-first-special-char are assumed to be subterm position
 indicators.  Annotations should be finished with pg-subterm-sep-char; 
 the end of the concrete syntax is indicated by pg-subterm-end-char.
 
@@ -2488,7 +2490,7 @@ The function `pg-topterm-goalhyplit-fn' examines text following this
 special character, to determine what kind of top element it is.
 
 This setting is also used to see if proof-by-pointing features
-are configured.  If it is unset, some of the code 
+are configured.  If it is unset, some of the code
 for parsing the prover output is disabled."
   :type 'character
   :group 'proof-goals)
@@ -2496,13 +2498,13 @@ for parsing the prover output is disabled."
 
 
 (defcustom proof-goals-font-lock-keywords nil
-  "Value of font-lock-keywords used to fontify the goals output.
-NB: the goals output is not kept in font-lock-mode because the
+  "Value of `font-lock-keywords' used to fontify the goals output.
+NB: the goals output is not kept in font lock mode because the
 fontification may rely on annotations which are erased before
 displaying.  This means internal functions of PG must be used
 to display to the goals buffer to ensure fontification is done!
-This is currently used only by proof-easy-config mechanism,
-to set font-lock-keywords before calling proof-config-done.
+This is currently used only by `proof-easy-config' mechanism,
+to set `font-lock-keywords' before calling proof-config-done.
 See also proof-{script,shell,resp}-font-lock-keywords."
   :type 'sexp
   :group 'proof-goals)
@@ -2510,8 +2512,8 @@ See also proof-{script,shell,resp}-font-lock-keywords."
 ;; FIXME: perhaps we need new customize group here, "goals" is
 ;; not quite right for response buffer!
 (defcustom proof-resp-font-lock-keywords nil
-  "Value of font-lock-keywords used to fontify the response output.
-NB: the goals output is not kept in font-lock-mode because the
+  "Value of `font-lock-keywords' used to fontify the response output.
+NB: the goals output is not kept in font lock mode because the
 fontification may rely on annotations which are erased before
 displaying.  This means internal functions of PG must be used
 to display to the goals buffer to ensure fontification is done!
@@ -2551,7 +2553,7 @@ the current restriction, and must return the final value of (point-max).
 These modes will have X-Symbol enabled for the proof assistant token language,
 in addition to the four modes for Proof General (script, shell, response, pbp).
 
-Set this variable if you want additional modes to also display 
+Set this variable if you want additional modes to also display
 tokens (for example, editing documentation or source code files)."
   :type '(repeat symbol)
   :group 'proof-x-symbol)
@@ -2569,14 +2571,14 @@ keywords used for bold or superscript text: see isa/x-symbol-isabelle.el)"
 
 (defcustom proof-xsym-activate-command nil
   "Command to activate token input/output for X-Symbol.
-If non-nil, this command is sent to the proof assistant when 
+If non-nil, this command is sent to the proof assistant when
 X-Symbol support is activated."
   :type 'string
   :group 'proof-x-symbol)
 
 (defcustom proof-xsym-deactivate-command nil
   "Command to deactivate token input/output for X-Symbol.
-If non-nil, this command is sent to the proof assistant when 
+If non-nil, this command is sent to the proof assistant when
 X-Symbol support is deactivated."
   :type 'string
   :group 'proof-x-symbol)
@@ -2585,7 +2587,7 @@ X-Symbol support is deactivated."
 
 
 ;;
-;; 9. Prover specific settings 
+;; 9. Prover specific settings
 ;;
 ;; The settings defined here automatically use the current proof
 ;; assistant symbol as a prefix, i.e.  isa-favourites, coq-favourites,
@@ -2593,11 +2595,11 @@ X-Symbol support is deactivated."
 
 (defpgcustom favourites nil
   "*Favourite commands for this proof assistant.
-A list of lists of the form (COMMAND INSCRIPT MENUNAME KEY), 
+A list of lists of the form (COMMAND INSCRIPT MENUNAME KEY),
 arguments for `proof-add-favourite', which see.")
 
 (defpgcustom menu-entries nil
-  "Extra entries for proof assistant specific menu. 
+  "Extra entries for proof assistant specific menu.
 A list of menu items [NAME CALLBACK ENABLER ...].  See the documentation
 of `easy-menu-define' for more details."
   :type 'sexp
@@ -2620,7 +2622,8 @@ of `easy-menu-define' for more details."
 Completion is activated with \\[complete].
 
 If this table is empty or needs adjusting, please make changes using
-`customize-variable' and send suggestions to da+pg-support@@inf.ed.ac.uk"
+`customize-variable' and post suggestions at
+http://proofgeneral.inf.ed.ac.uk/trac"
   :type '(list string)
   :group 'prover-config)
 
@@ -2644,7 +2647,7 @@ If this table is empty or needs adjusting, please make changes using
 
 (defcustom proof-general-home-page
   "http://proofgeneral.inf.ed.ac.uk"
-  "*Web address for Proof General"
+  "*Web address for Proof General."
   :type 'string
   :group 'proof-general-internals)
 
@@ -2656,7 +2659,7 @@ If this table is empty or needs adjusting, please make changes using
 
 (defcustom proof-universal-keys
   (cons
-   (if proof-running-on-XEmacs 
+   (if proof-running-on-XEmacs
        '([(control c) \`] . proof-next-error)
      '("`" . proof-next-error))
    '(([(control c) (control c)]  . proof-interrupt-process)
@@ -2673,9 +2676,9 @@ If this table is empty or needs adjusting, please make changes using
      ([(control c) (control ?.)] . proof-goto-end-of-locked)
      ([(control c) (control f)]  . proof-find-theorems)
      ([(control c) (control o)]  . proof-display-some-buffers)))
-"List of key-bindings made for the script, goals and response buffer. 
-Elements of the list are tuples `(k . f)' 
-where `k' is a key-binding (vector) and `f' the designated function."
+"List of key bindings made for the script, goals and response buffer.
+Elements of the list are tuples `(k . f)'
+where `k' is a key binding (vector) and `f' the designated function."
   :type 'sexp
   :group 'proof-general-internals)
 
@@ -2686,3 +2689,7 @@ where `k' is a key-binding (vector) and `f' the designated function."
 
 ;; End of proof-config.el
 (provide 'proof-config)
+
+(provide 'proof-config)
+
+;;; proof-config.el ends here
