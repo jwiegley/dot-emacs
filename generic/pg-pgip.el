@@ -13,8 +13,8 @@
 ;; to process PGIP commands sent from the proof assistant
 ;; and to construct PGIP commands to send out.
 ;;
-;; TESTING NOTES: turn on `proof-show-debug-messages' for
-;; useful tracing messages: (setq proof-show-debug-messages t).
+;; TESTING NOTES: turn on `proof-general-debug' for
+;; useful tracing messages: (setq proof-general-debug t).
 ;;
 ;; TODO NEXT:
 ;; -- completion command for completion tables 
