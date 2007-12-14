@@ -54,15 +54,16 @@
 
 ;;; The abbrev table built from keywords tables
 ;#s and @{..} are replaced by holes by holes-abbrev-complete
-(if (and (boundp 'coq-mode-abbrev-table)
-	 (not (equal coq-mode-abbrev-table (make-abbrev-table)))) 
-    (message "Coq abbrevs already exists, default not loaded")    
-  (message "Coq default abbrevs loaded")
-  (define-abbrev-table 'coq-mode-abbrev-table
-    (append coq-tactics-abbrev-table coq-tacticals-abbrev-table 
-	    coq-commands-abbrev-table coq-terms-abbrev-table))
-  ;if we use default coq abbrev, never ask to save it
-  (setq save-abbrevs nil))
+(eval-when (load)
+  (if (and (boundp 'coq-mode-abbrev-table)
+	   (not (equal coq-mode-abbrev-table (make-abbrev-table)))) 
+      (message "Coq abbrevs already exists, default not loaded")    
+    (message "Coq default abbrevs loaded")
+    (define-abbrev-table 'coq-mode-abbrev-table
+      (append coq-tactics-abbrev-table coq-tacticals-abbrev-table 
+	      coq-commands-abbrev-table coq-terms-abbrev-table))
+    ;; if we use default coq abbrev, never ask to save it
+    (setq save-abbrevs nil)))
 
 ;;;;;
 

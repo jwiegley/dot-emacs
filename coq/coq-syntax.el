@@ -9,13 +9,22 @@
 (require 'proof-syntax)
 (require 'coq-db)
 
-;; da 15/2/03: without defvars compilation breaks
-;; This may have broken some of logic below
+(defcustom coq-prog-name   ;; da: moved from coq.el since needed here
+    "coqtop"
+;; On Windows with latest Coq package you might need something like:
+;;  "C:/Program Files/Coq/bin/coqtop.opt.exe"
+;; instead of just "coqtop".  See also coq-prog-env below.
+  "*Name of program to run as Coq. Important: See `proof-prog-name'."
+  :type 'string
+  :group 'coq)
 
 ;; Pierre: we will have both versions V8.0 and V8.1 during a while the
 ;; test with "coqtop -v" can be skipped if one of the variables
 ;; coq-version-is-V8-0/1 is already set (useful for people dealing
 ;; with several version of coq).
+
+;; DA: please ensure this file compiles!  top-level forms need to be delayed
+;; during compile explicitly so they are evaluated during load.
 
 ; this one is temporary, for compatibility
 (defvar coq-version-is-V8 nil "Obsolete, use `coq-version-is-V8-0' instead.")
@@ -36,8 +45,9 @@ coq-version-is-V8-0. If none of these 2 variables is set to t, then
 ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
 
 
-;; post-cond: one of the variables is set to t
-(eval-when (load)
+(defun coq-determine-version ()
+  "Intuit the version of Coq we're using and configure accordingly."
+  ;; post-cond: one of the variables is set to t
   (let* 
       (
        (seedoc (concat " (to force another version, see for example"
@@ -72,6 +82,9 @@ ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
            (t ; 8.1 by default now
             (message (concat "Falling back to default: " v81))
             (setq coq-version-is-V8-1 t)))))))))
+
+(eval-when (load)
+  (coq-determine-version))
 
 
 ;;; keyword databases
@@ -744,7 +757,7 @@ Used by `coq-goal-command-p'"
  (cond 
   (coq-version-is-V8-1 (coq-goal-command-str-v81-p str))
   (coq-version-is-V8-0 (coq-goal-command-str-v80-p str))
-  (t (coq-goal-command-p-str-v80-p str)) ;; this is temporary
+  (t (coq-goal-command-str-v80-p str)) ;; this is temporary
   ))
 
 ;; This is used for backtracking
