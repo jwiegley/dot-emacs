@@ -416,6 +416,15 @@ are separated with SEPARATOR (\", \" by default)."
 
 (defalias 'x-symbol-window-width 'window-width)
 
+;; emacs-u-22 version: problematic
+;; (defun x-symbol-set-face-font (face font charsets default)
+;;   (let ((fontset (replace-in-string  (symbol-name face) "-" "")))
+;;     (unless (query-fontset fontset)
+;;       (create-fontset-from-ascii-font font nil fontset))
+;;     (dolist (charset charsets)
+;;       (when charset (set-fontset-font fontset charset font)))
+;;     (set-face-font face fontset)))
+
 (defun x-symbol-set-face-font (face font charsets default)
   (let ((fontset (concat "fontset-" (symbol-name face))))
     (unless (query-fontset fontset)
