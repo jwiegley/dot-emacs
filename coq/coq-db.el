@@ -2,7 +2,7 @@
 ;;
 ;; Author: Pierre Courtieu <courtieu@lri.fr>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
-
+;;
 
 ;;; We store all information on keywords (tactics or command) in big
 ;; tables (ex: `coq-tactics-db') From there we get: menus including
@@ -15,6 +15,10 @@
 ;; 
 
 ;;; Code:
+
+;(require 'proof-config)			; for proof-face-specs, a macro
+
+
 (defconst coq-syntax-db nil
   "Documentation-only variable, for coq keyword databases.
 Each element of a keyword database contains the definition of a \"form\", of the
@@ -211,8 +215,8 @@ See `coq-syntax-db' for DB structure."
 (defface coq-solve-tactics-face 
   (proof-face-specs
    (:foreground "red" t) ; pour les fonds clairs
-   (:forground "red"  t) ; pour les fond foncés
-   t) ; pour le noir et blanc
+   (:foreground "red"  t) ; pour les fond foncés
+   ()) ; pour le noir et blanc
   "Face for names of closing tactics in proof scripts."
   :group 'proof-faces)
 

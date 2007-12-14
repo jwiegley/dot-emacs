@@ -9,15 +9,14 @@
 
 ;;; Commentary:
 ;; 
-
-
 ;;; History:
-;; 
 
 (require 'proof)
 (require 'local-vars-list) ; in lib directory
-(require 'coq-local-vars) ; in coq directory
-;; coq-syntaxe is required below
+
+(require 'coq-local-vars) 
+(require 'coq-syntax)      ; determines coq version
+
 ;; ----- coq-shell configuration options
 
 ;;; Code:
@@ -25,13 +24,27 @@
 ;; (defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
 ;; End debugging
 
-;; List of arguments to pass to Coq process.  Should contain -emacs.
+;; coq-prog-args is the user-set list of arguments to pass to Coq process,
+;; see 'defpacustom prog-args' in proof-config for documentation.
+
+;; For Coq, this should contain -emacs.
 ;; -translate will be added automatically to this list if `coq-translate-to-v8'
-;; is set.
-;; coq-prog-args is set by defpgcustom in proof-config
-(defcustom coq-prog-args '("-emacs") 
-  "The arguments passed to coqtop, important: see `proof-prog-name'."
+;; is set.  The list is not altered if the user has set this herself.
+
+(defcustom coq-translate-to-v8 nil
+  "*Whether to use -translate argument to Coq"
+  :type 'boolean
   :group 'coq)
+
+(unless (or (noninteractive) ;; compiling 
+            (not (equal 
+                  (default-value 'coq-prog-args) coq-prog-args)))
+  (setq coq-prog-args
+        (append coq-prog-args
+                (cond
+                 (coq-version-is-V8-0  '("-emacs"))
+                 (t                    '("-emacs-U")))
+                (if coq-translate-to-v8 " -translate"))))
 
 (defcustom coq-compile-file-command "coqc %s"
   "*Command to compile a coq file.
@@ -60,14 +73,11 @@ To disable coqc being called (and use only make), set this to nil."
 (defvar coq-utf-safe coq-version-is-V8-1
   "Obsolete, coq >= 8.1 does not use special symbols for delimiting prompts.")
 
-(if coq-version-is-V8-1 
-    (setq coq-prog-args '("-emacs-U"))
-  (setq coq-prog-args '("-emacs")))
-
 ;; utf-8 is not yet well accepted (especially by xemacs)
-;Set to t in your .emacs to enable it. Needs to load library `un-define' to
-;work on xemacs."
-(or (boundp 'proof-shell-unicode) (setq proof-shell-unicode nil))
+;; Set to t in your .emacs to enable it. Needs to load library `un-define' to
+;; work on xemacs."
+;; (or (boundp 'proof-shell-unicode) (setq proof-shell-unicode nil))
+;; da: I think the default t setting now works fine, at least for me.
 
 (defcustom coq-prog-env nil
   "*List of environment settings d to pass to Coq process.
@@ -85,7 +95,8 @@ On Windows you might need something like:
 ;; Pierre added the infos in the prompt, this is new in Coq v8-1 
 
 (defvar coq-shell-prompt-pattern 
-  (if coq-version-is-V8-1 (concat "\\(?:\n\\(?:[^\n\371]+\371\\|<prompt>[^\n]+</prompt>\\)\\)")
+  (if coq-version-is-V8-1 
+      (concat "\\(?:\n\\(?:[^\n\371]+\371\\|<prompt>[^\n]+</prompt>\\)\\)")
     (concat "\\(?:\n" proof-id " < \371\\)"))
     "*The prompt pattern for the inferior shell running coq.")
 
@@ -757,6 +768,7 @@ This is specific to `coq-mode'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;    To guess the command line options   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun coq-guess-command-line (filename)
   "Guess the right command line options to compile FILENAME using `make -n'."
   (let ((dir (file-name-directory filename)))
@@ -780,12 +792,10 @@ This is specific to `coq-mode'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-pre-shell-start ()
-  (setq proof-prog-name (concat coq-prog-name
-                                (if coq-translate-to-v8 " -translate")))
+  (setq proof-prog-name         coq-prog-name)
   (setq proof-mode-for-shell    'coq-shell-mode)
   (setq proof-mode-for-goals    'coq-goals-mode)
-  (setq proof-mode-for-response 'coq-response-mode)
-  )
+  (setq proof-mode-for-response 'coq-response-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
@@ -1182,17 +1192,6 @@ Group number 1 matches the name of the library which is required.")
 ;                proof-shell-process-file nil
 ;                proof-shell-inform-file-retracted-cmd nil)))
 
-;; da: what a shame -translate is a command line flag and not a
-;; command in Coq. Otherwise we could enable/disable interactively.  
-;; As it is, this setting will only work between restarts.
-;; Moreover, if we had collaborated on this we could easily have
-;; implemented a hook to translate automatically in PG with some
-;; extra markup.  Scanning the whitespace as formatted presently 
-;; is messy.
-
-(defpacustom translate-to-v8 nil
-  "*Whether to use -translate argument to Coq"
-  :type 'boolean)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
