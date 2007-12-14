@@ -29,7 +29,8 @@
 ;; more about symbol font ? check out: xfd -fn '-adobe-symbol-*--12-*'
 
 (require 'font-lock)
-(require 'atomic-extents)
+(if (string-match "XEmacs" emacs-version) 
+    (require 'atomic-extents))  ;; not available on GNU Emacs
 
 (defvar phox-sym-lock-sym-count 0
   "Counter for internal symbols.")
