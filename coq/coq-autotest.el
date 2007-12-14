@@ -1,6 +1,6 @@
-;; coq-autotest.el: tests of Isar Proof General.
+;; coq-autotest.el: tests of Coq Proof General (in progress).
 ;;
-;; You can run these by issuing "make devel.test.isar" in PG home dir.
+;; You can run these by issuing "make test.coq" in PG home dir.
 ;;
 ;; $Id$
 ;;
@@ -8,12 +8,13 @@
 (require 'pg-autotest)
 
 ;; The included test files
-(pg-autotest  message "Testing standard examples")
-(pg-autotest script-wholefile "coq/example.v")
-(pg-autotest script-wholefile "coq/example-x-symbol.v")
-(pg-autotest script-wholefile "coq/ex-module.v")
+(eval-when (load)
+  (pg-autotest  message "Testing standard examples")
+  (pg-autotest script-wholefile "coq/example.v")
+  (pg-autotest script-wholefile "coq/example-x-symbol.v")
+  (pg-autotest script-wholefile "coq/ex-module.v")
 
-(pg-autotest-quit-prover)
-(pg-autotest-finished)
+  (pg-autotest-quit-prover)
+  (pg-autotest-finished))
 
 

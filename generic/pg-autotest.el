@@ -16,6 +16,7 @@
 ;; $Id$
 
 (require 'proof-site)
+(require 'proof-compat)
 
 (defvar pg-autotest-success t)		;; success unless error caught
 
