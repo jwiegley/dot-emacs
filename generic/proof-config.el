@@ -1256,29 +1256,6 @@ settings `proof-non-undoables-regexp' and
   :type 'function
   :group 'proof-script)
 
-; Not yet implemented.
-;
-;(defcustom proof-atomic-sequence-lists nil
-;  "list of instructions for setting up atomic sequences of commands (ACS).
-
-;Each instruction is
-;a list of the form `(END START &optional FORGET-COMMAND)'. END is a
-;regular expression to recognise the last command in an ACS. START
-;is a function. Its input is the last command of an ACS. Its output
-;is a regular exression to recognise the first command of the ACS.
-;It is evaluated once and the output is successively matched agains
-;previously processed commands until a match occurs (or the
-;beginning of the current buffer is reached). The region determined
-;by (START,END) is locked as an ACS. Optionally, the ACS is
-;annotated with the actual command to retract the ACS. This is
-;computed by applying FORGET-COMMAND to the first and last command
-;of the ACS."
-;  ;; FIXME customize broken on choices with function in them?
-;  ;;:type '(repeat (cons regexp function (choice (const nil) function)))
-;  :type '(repeat (cons regexp function function))
-;  :group 'proof-shell)
-
-
 (defconst proof-no-command "COMMENT"
   "String used as a nullary action (send no command to the proof assistant).
 Only relevant for proof-find-and-forget-fn.
