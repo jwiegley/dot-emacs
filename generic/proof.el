@@ -133,7 +133,7 @@ of the proof (starting from 1).")
      proof-utils proof-syntax proof-system _pkg pg-user proof-x-symbol
      pg-thymodes pg-autotest
      ;; 
-     isar-syntax isar-find-theorems x-symbol-isabelle x-symbol-isar
+     isar-syntax isar-find-theorems x-symbol-isar
      isar-autotest interface-setup isabelle-system isar isar-mmm
      isar-keywords
      ;;
