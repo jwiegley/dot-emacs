@@ -569,8 +569,8 @@ Checks the width in the `proof-goals-buffer'"
   (setq font-lock-keywords  
 	(append 
 	 isar-output-font-lock-keywords-1
-	 (if (boundp 'x-symbol-isabelle-font-lock-keywords)
-	     x-symbol-isabelle-font-lock-keywords)))
+	 (if (boundp 'x-symbol-isar-font-lock-keywords)
+	     x-symbol-isar-font-lock-keywords)))
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
@@ -580,7 +580,7 @@ Checks the width in the `proof-goals-buffer'"
 	(append 
 	 isar-output-font-lock-keywords-1
 	 (if (proof-ass x-symbol-enable)
-	     x-symbol-isabelle-font-lock-keywords)))
+	     x-symbol-isar-font-lock-keywords)))
   (proof-response-config-done))
 
 (defun isar-goals-mode-config ()
@@ -591,7 +591,7 @@ Checks the width in the `proof-goals-buffer'"
 	(append 
 	 isar-goals-font-lock-keywords
 	 (if (proof-ass x-symbol-enable)
-	     x-symbol-isabelle-font-lock-keywords)))
+	     x-symbol-isar-font-lock-keywords)))
   (proof-goals-config-done))
 
 (defun isar-goalhyplit-test ()
