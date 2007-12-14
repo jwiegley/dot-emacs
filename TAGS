@@ -10,181 +10,179 @@ coq/coq-abbrev.el,468
 (defconst coq-commands-abbrev-table 42,1189
 (defconst coq-terms-menu 45,1279
 (defconst coq-terms-abbrev-table 50,1419
-(defpgdefault menu-entries 71,2121
-(defpgdefault help-menu-entries152,5542
+(defpgdefault menu-entries 72,2197
+(defpgdefault help-menu-entries153,5618
 
 coq/coq-db.el,559
-(defconst coq-syntax-db 18,455
-(defvar coq-user-tactics-db54,1828
-(defun coq-insert-from-db 64,2177
-(defun coq-build-regexp-list-from-db 82,2958
-(defun max-length-db 104,4011
-(defun coq-build-menu-from-db-internal 116,4286
-(defun coq-build-title-menu 151,5910
-(defun coq-sort-menu-entries 160,6278
-(defun coq-build-menu-from-db 163,6398
-(defun coq-build-abbrev-table-from-db 183,7169
-(defun filter-state-preserving 199,7723
-(defun filter-state-changing 204,7877
-(defface coq-solve-tactics-face 211,8098
-(defconst coq-solve-tactics-face 219,8358
+(defconst coq-syntax-db 22,519
+(defvar coq-user-tactics-db58,1892
+(defun coq-insert-from-db 68,2241
+(defun coq-build-regexp-list-from-db 86,3022
+(defun max-length-db 108,4075
+(defun coq-build-menu-from-db-internal 120,4350
+(defun coq-build-title-menu 155,5974
+(defun coq-sort-menu-entries 164,6342
+(defun coq-build-menu-from-db 167,6462
+(defun coq-build-abbrev-table-from-db 187,7233
+(defun filter-state-preserving 203,7787
+(defun filter-state-changing 208,7941
+(defface coq-solve-tactics-face 215,8162
+(defconst coq-solve-tactics-face 223,8424
 
-coq/coq.el,6118
-(defcustom coq-prog-name 28,654
-(defcustom coq-prog-args 41,1184
-(defcustom coq-compile-file-command 45,1308
-(defcustom coq-default-undo-limit 55,1677
-(defconst coq-shell-init-cmd 60,1805
-(defvar coq-utf-safe 69,2021
-(defcustom coq-prog-env 81,2461
-(defconst coq-shell-restart-cmd 89,2713
-(defvar coq-shell-prompt-pattern 96,2973
-(defvar coq-shell-cd 103,3295
-(defvar coq-shell-abort-goal-regexp 107,3450
-(defvar coq-shell-proof-completed-regexp 110,3576
-(defvar coq-goal-regexp113,3707
-(defun coq-library-directory 122,3896
-(defcustom coq-tags 129,4076
-(defconst coq-interrupt-regexp 134,4226
-(defcustom coq-www-home-page 139,4347
-(defvar coq-outline-regexp149,4518
-(defvar coq-outline-heading-end-regexp 156,4732
-(defvar coq-shell-outline-regexp 158,4786
-(defvar coq-shell-outline-heading-end-regexp 159,4836
-(defconst coq-kill-goal-command 164,4946
-(defconst coq-forget-id-command 165,4989
-(defconst coq-back-n-command 166,5036
-(defconst coq-state-preserving-tactics-regexp 170,5180
-(defconst coq-state-changing-commands-regexp172,5281
-(defconst coq-state-preserving-commands-regexp 174,5388
-(defconst coq-commands-regexp 176,5500
-(defvar coq-retractable-instruct-regexp 178,5578
-(defvar coq-non-retractable-instruct-regexp 180,5669
-(defvar coq-keywords-section184,5809
-(defvar coq-section-regexp 187,5903
-(defun coq-set-undo-limit 221,7003
-(defconst coq-keywords-decl-defn-regexp232,7442
-(defun coq-proof-mode-p 236,7592
-(defun coq-is-comment-or-proverprocp 247,8002
-(defun coq-is-goalsave-p 249,8106
-(defun coq-is-module-equal-p 250,8181
-(defun coq-is-def-p 253,8377
-(defun coq-is-decl-defn-p 255,8485
-(defun coq-state-preserving-command-p 260,8652
-(defun coq-command-p 263,8786
-(defun coq-state-preserving-tactic-p 266,8886
-(defun coq-state-changing-tactic-p 271,9034
-(defun coq-state-changing-command-p 278,9268
-(defun coq-section-or-module-start-p 285,9614
-(defun build-list-id-from-string 294,9855
-(defun coq-last-prompt-info 307,10385
-(defun coq-last-prompt-info-safe 319,10926
-(defvar coq-last-but-one-statenum 329,11441
-(defvar coq-last-but-one-proofnum 331,11508
-(defvar coq-last-but-one-proofstack 333,11571
-(defun coq-get-span-statenum 335,11613
-(defun coq-get-span-proofnum 340,11728
-(defun coq-get-span-proofstack 345,11843
-(defun coq-set-span-statenum 350,11987
-(defun coq-get-span-goalcmd 355,12118
-(defun coq-set-span-goalcmd 360,12232
-(defun coq-set-span-proofnum 365,12362
-(defun coq-set-span-proofstack 370,12493
-(defun proof-last-locked-span 375,12653
-(defun coq-set-state-infos 390,13257
-(defun count-not-intersection 430,15336
-(defun  coq-find-and-forget-v81 461,16590
-(defun coq-find-and-forget-v80 489,17722
-(defun coq-find-and-forget 584,22421
-(defvar coq-current-goal 597,22961
-(defun coq-goal-hyp 600,23026
-(defun coq-state-preserving-p 613,23459
-(defconst notation-print-kinds-table 628,23965
-(defun coq-PrintScope 632,24133
-(defun coq-guess-or-ask-for-string 651,24689
-(defun coq-ask-do 662,25074
-(defun coq-SearchIsos 671,25462
-(defun coq-SearchConstant 677,25695
-(defun coq-SearchRewrite 681,25788
-(defun coq-SearchAbout 685,25886
-(defun coq-Print 689,25978
-(defun coq-About 693,26100
-(defun coq-LocateConstant 697,26217
-(defun coq-LocateLibrary 703,26352
-(defun coq-addquotes 709,26502
-(defun coq-LocateNotation 711,26550
-(defun coq-Pwd 718,26749
-(defun coq-Inspect 724,26881
-(defun coq-PrintSection(728,26981
-(defun coq-Print-implicit 732,27075
-(defun coq-Check 737,27227
-(defun coq-Show 742,27337
-(defun coq-Compile 756,27782
-(defun coq-guess-command-line 769,28101
-(defun coq-pre-shell-start 791,28949
-(defun coq-mode-config 803,29473
-(defun coq-hybrid-ouput-goals-response-p 919,33683
-(defun coq-hybrid-ouput-goals-response 925,33941
-(defun coq-shell-mode-config 947,34853
-(defun coq-goals-mode-config 991,36924
-(defun coq-response-config 998,37156
-(defun coq-maybe-compile-buffer 1018,37862
-(defun coq-ancestors-of 1055,39396
-(defun coq-all-ancestors-of 1078,40363
-(defconst coq-require-command-regexp 1090,40756
-(defun coq-process-require-command 1095,40965
-(defun coq-included-children 1100,41092
-(defun coq-process-file 1121,41931
-(defpacustom print-fully-explicit 1146,42846
-(defpacustom print-implicit 1151,42995
-(defpacustom print-coercions 1156,43162
-(defpacustom print-match-wildcards 1161,43307
-(defpacustom print-elim-types 1166,43488
-(defpacustom printing-depth 1171,43655
-(defpacustom time-commands 1176,43817
-(defpacustom auto-compile-vos 1180,43928
-(defpacustom translate-to-v8 1202,44883
-(defun coq-preprocessing 1211,45099
-(defun coq-fake-constant-markup 1226,45518
-(defun coq-create-span-menu 1248,46325
-(defconst module-kinds-table 1275,47127
-(defconst modtype-kinds-table1279,47277
-(defun coq-insert-section-or-module 1283,47406
-(defconst reqkinds-kinds-table1306,48266
-(defun coq-insert-requires 1311,48411
-(defun coq-end-Section 1327,48917
-(defun coq-insert-intros 1345,49501
-(defun coq-insert-match 1357,50025
-(defun coq-insert-tactic 1389,51203
-(defun coq-insert-tactical 1395,51442
-(defun coq-insert-command 1401,51691
-(defun coq-insert-term 1407,51935
-(define-key coq-keymap 1414,52133
-(define-key coq-keymap 1415,52191
-(define-key coq-keymap 1416,52248
-(define-key coq-keymap 1417,52317
-(define-key coq-keymap 1418,52373
-(define-key coq-keymap 1419,52422
-(define-key coq-keymap 1420,52480
-(define-key coq-keymap 1422,52541
-(define-key coq-keymap 1423,52600
-(define-key coq-keymap 1425,52664
-(define-key coq-keymap 1426,52724
-(define-key coq-keymap 1428,52780
-(define-key coq-keymap 1429,52830
-(define-key coq-keymap 1430,52880
-(define-key coq-keymap 1431,52930
-(define-key coq-keymap 1432,52984
-(define-key coq-keymap 1433,53043
-(defvar last-coq-error-location 1443,53226
-(defun coq-get-last-error-location 1452,53625
-(defun coq-highlight-error 1485,55022
-(defun coq-decide-highlight-error 1554,57707
-(defun coq-highlight-error-hook 1559,57869
-(defun first-word-of-buffer 1570,58262
-(defun coq-show-first-goal 1579,58493
-(defun is-not-split-vertic 1604,59382
-(defun optim-resp-windows 1613,59821
+coq/coq.el,6050
+(defcustom coq-translate-to-v8 34,982
+(defcustom coq-compile-file-command 49,1471
+(defcustom coq-default-undo-limit 59,1840
+(defconst coq-shell-init-cmd 64,1968
+(defvar coq-utf-safe 73,2184
+(defcustom coq-prog-env 82,2600
+(defconst coq-shell-restart-cmd 90,2852
+(defvar coq-shell-prompt-pattern 97,3112
+(defvar coq-shell-cd 105,3441
+(defvar coq-shell-abort-goal-regexp 109,3596
+(defvar coq-shell-proof-completed-regexp 112,3722
+(defvar coq-goal-regexp115,3853
+(defun coq-library-directory 124,4042
+(defcustom coq-tags 131,4222
+(defconst coq-interrupt-regexp 136,4372
+(defcustom coq-www-home-page 141,4493
+(defvar coq-outline-regexp151,4664
+(defvar coq-outline-heading-end-regexp 158,4878
+(defvar coq-shell-outline-regexp 160,4932
+(defvar coq-shell-outline-heading-end-regexp 161,4982
+(defconst coq-kill-goal-command 166,5092
+(defconst coq-forget-id-command 167,5135
+(defconst coq-back-n-command 168,5182
+(defconst coq-state-preserving-tactics-regexp 172,5326
+(defconst coq-state-changing-commands-regexp174,5427
+(defconst coq-state-preserving-commands-regexp 176,5534
+(defconst coq-commands-regexp 178,5646
+(defvar coq-retractable-instruct-regexp 180,5724
+(defvar coq-non-retractable-instruct-regexp 182,5815
+(defvar coq-keywords-section186,5955
+(defvar coq-section-regexp 189,6049
+(defun coq-set-undo-limit 223,7149
+(defconst coq-keywords-decl-defn-regexp234,7588
+(defun coq-proof-mode-p 238,7738
+(defun coq-is-comment-or-proverprocp 249,8148
+(defun coq-is-goalsave-p 251,8252
+(defun coq-is-module-equal-p 252,8327
+(defun coq-is-def-p 255,8523
+(defun coq-is-decl-defn-p 257,8631
+(defun coq-state-preserving-command-p 262,8798
+(defun coq-command-p 265,8932
+(defun coq-state-preserving-tactic-p 268,9032
+(defun coq-state-changing-tactic-p 273,9180
+(defun coq-state-changing-command-p 280,9414
+(defun coq-section-or-module-start-p 287,9760
+(defun build-list-id-from-string 296,10001
+(defun coq-last-prompt-info 309,10531
+(defun coq-last-prompt-info-safe 321,11072
+(defvar coq-last-but-one-statenum 331,11587
+(defvar coq-last-but-one-proofnum 333,11654
+(defvar coq-last-but-one-proofstack 335,11717
+(defun coq-get-span-statenum 337,11759
+(defun coq-get-span-proofnum 342,11874
+(defun coq-get-span-proofstack 347,11989
+(defun coq-set-span-statenum 352,12133
+(defun coq-get-span-goalcmd 357,12264
+(defun coq-set-span-goalcmd 362,12378
+(defun coq-set-span-proofnum 367,12508
+(defun coq-set-span-proofstack 372,12639
+(defun proof-last-locked-span 377,12799
+(defun coq-set-state-infos 392,13403
+(defun count-not-intersection 432,15482
+(defun  coq-find-and-forget-v81 463,16736
+(defun coq-find-and-forget-v80 491,17868
+(defun coq-find-and-forget 586,22567
+(defvar coq-current-goal 599,23107
+(defun coq-goal-hyp 602,23172
+(defun coq-state-preserving-p 615,23605
+(defconst notation-print-kinds-table 630,24111
+(defun coq-PrintScope 634,24279
+(defun coq-guess-or-ask-for-string 653,24835
+(defun coq-ask-do 664,25220
+(defun coq-SearchIsos 673,25608
+(defun coq-SearchConstant 679,25841
+(defun coq-SearchRewrite 683,25934
+(defun coq-SearchAbout 687,26032
+(defun coq-Print 691,26124
+(defun coq-About 695,26246
+(defun coq-LocateConstant 699,26363
+(defun coq-LocateLibrary 705,26498
+(defun coq-addquotes 711,26648
+(defun coq-LocateNotation 713,26696
+(defun coq-Pwd 720,26895
+(defun coq-Inspect 726,27027
+(defun coq-PrintSection(730,27127
+(defun coq-Print-implicit 734,27221
+(defun coq-Check 739,27373
+(defun coq-Show 744,27483
+(defun coq-Compile 758,27928
+(defun coq-guess-command-line 772,28248
+(defun coq-pre-shell-start 794,29096
+(defun coq-mode-config 804,29545
+(defun coq-hybrid-ouput-goals-response-p 920,33755
+(defun coq-hybrid-ouput-goals-response 926,34013
+(defun coq-shell-mode-config 948,34925
+(defun coq-goals-mode-config 992,36996
+(defun coq-response-config 999,37228
+(defun coq-maybe-compile-buffer 1019,37934
+(defun coq-ancestors-of 1056,39468
+(defun coq-all-ancestors-of 1079,40435
+(defconst coq-require-command-regexp 1091,40828
+(defun coq-process-require-command 1096,41037
+(defun coq-included-children 1101,41164
+(defun coq-process-file 1122,42003
+(defpacustom print-fully-explicit 1147,42918
+(defpacustom print-implicit 1152,43067
+(defpacustom print-coercions 1157,43234
+(defpacustom print-match-wildcards 1162,43379
+(defpacustom print-elim-types 1167,43560
+(defpacustom printing-depth 1172,43727
+(defpacustom time-commands 1177,43889
+(defpacustom auto-compile-vos 1181,44000
+(defun coq-preprocessing 1201,44670
+(defun coq-fake-constant-markup 1216,45089
+(defun coq-create-span-menu 1238,45896
+(defconst module-kinds-table 1265,46698
+(defconst modtype-kinds-table1269,46848
+(defun coq-insert-section-or-module 1273,46977
+(defconst reqkinds-kinds-table1296,47837
+(defun coq-insert-requires 1301,47982
+(defun coq-end-Section 1317,48488
+(defun coq-insert-intros 1335,49072
+(defun coq-insert-match 1347,49596
+(defun coq-insert-tactic 1379,50774
+(defun coq-insert-tactical 1385,51013
+(defun coq-insert-command 1391,51262
+(defun coq-insert-term 1397,51506
+(define-key coq-keymap 1404,51704
+(define-key coq-keymap 1405,51762
+(define-key coq-keymap 1406,51819
+(define-key coq-keymap 1407,51888
+(define-key coq-keymap 1408,51944
+(define-key coq-keymap 1409,51993
+(define-key coq-keymap 1410,52051
+(define-key coq-keymap 1412,52112
+(define-key coq-keymap 1413,52171
+(define-key coq-keymap 1415,52235
+(define-key coq-keymap 1416,52295
+(define-key coq-keymap 1418,52351
+(define-key coq-keymap 1419,52401
+(define-key coq-keymap 1420,52451
+(define-key coq-keymap 1421,52501
+(define-key coq-keymap 1422,52555
+(define-key coq-keymap 1423,52614
+(defvar last-coq-error-location 1433,52797
+(defun coq-get-last-error-location 1442,53196
+(defun coq-highlight-error 1475,54593
+(defun coq-decide-highlight-error 1544,57278
+(defun coq-highlight-error-hook 1549,57440
+(defun first-word-of-buffer 1560,57833
+(defun coq-show-first-goal 1569,58064
+(defun is-not-split-vertic 1594,58953
+(defun optim-resp-windows 1603,59392
 
 coq/coq-indent.el,2241
 (defconst coq-any-command-regexp11,262
@@ -249,70 +247,8 @@ coq/coq-local-vars.el,279
 (defun coq-ask-prog-name 133,5426
 (defun coq-ask-insert-coq-prog-name 148,6067
 
-coq/coq-syntax.el,2498
-(defvar coq-version-is-V8 21,731
-(defvar coq-version-is-V8-0 23,810
-(defvar coq-version-is-V8-1 30,1182
-(defcustom coq-user-tactics-db 82,3395
-(defcustom coq-user-commands-db 99,3901
-(defcustom coq-user-tacticals-db 115,4413
-(defcustom coq-user-solve-tactics-db 131,4927
-(defcustom coq-user-reserved-db 149,5441
-(defvar coq-tactics-db167,5965
-(defvar coq-solve-tactics-db322,13974
-(defvar coq-tacticals-db345,14771
-(defvar coq-decl-db370,15587
-(defvar coq-defn-db392,16805
-(defvar coq-goal-starters-db445,20791
-(defvar coq-commands-db471,22282
-(defvar coq-terms-db597,31529
-(defun coq-count-match 661,34163
-(defun coq-goal-command-str-v80-p 680,35017
-(defun coq-module-opening-p 703,35883
-(defun coq-section-command-p 714,36295
-(defun coq-goal-command-str-v81-p 718,36392
-(defun coq-goal-command-p-v81 733,37060
-(defun coq-goal-command-str-p 743,37396
-(defun coq-goal-command-p 753,37757
-(defvar coq-keywords-save-strict761,38065
-(defvar coq-keywords-save770,38176
-(defun coq-save-command-p 774,38252
-(defvar coq-keywords-kill-goal 783,38546
-(defvar coq-keywords-state-changing-misc-commands787,38637
-(defvar coq-keywords-goal790,38762
-(defvar coq-keywords-decl793,38845
-(defvar coq-keywords-defn796,38919
-(defvar coq-keywords-state-changing-commands800,38994
-(defvar coq-keywords-state-preserving-commands809,39192
-(defvar coq-keywords-commands814,39408
-(defvar coq-solve-tactics819,39556
-(defvar coq-tacticals823,39677
-(defvar coq-reserved829,39816
-(defvar coq-state-changing-tactics840,40136
-(defvar coq-state-preserving-tactics843,40245
-(defvar coq-tactics847,40359
-(defvar coq-retractable-instruct850,40448
-(defvar coq-non-retractable-instruct853,40558
-(defvar coq-keywords857,40680
-(defvar coq-symbols864,40847
-(defvar coq-error-regexp 883,41060
-(defvar coq-id 886,41288
-(defvar coq-id-shy 887,41313
-(defvar coq-ids 889,41367
-(defun coq-first-abstr-regexp 891,41408
-(defvar coq-font-lock-terms894,41504
-(defconst coq-save-command-regexp-strict912,42305
-(defconst coq-save-command-regexp916,42472
-(defconst coq-save-with-hole-regexp920,42625
-(defconst coq-goal-command-regexp924,42783
-(defconst coq-goal-with-hole-regexp927,42883
-(defconst coq-decl-with-hole-regexp931,43015
-(defconst coq-defn-with-hole-regexp935,43147
-(defconst coq-with-with-hole-regexp945,43430
-(defvar coq-font-lock-keywords-1951,43720
-(defvar coq-font-lock-keywords 975,44992
-(defun coq-init-syntax-table 977,45050
-(defconst coq-generic-expression1006,45948
+coq/coq-syntax.el,33
+(defcustom coq-prog-name 12,355
 
 coq/x-symbol-coq.el,1746
 (defvar x-symbol-coq-required-fonts 16,384
@@ -402,36 +338,36 @@ isar/isabelle-system.el,1446
 (defun isabelle-process-pgip 441,15821
 
 isar/isar.el,1243
-(defcustom isar-keywords-name 28,586
-(defpgdefault completion-table 45,1110
-(defcustom isar-web-page47,1163
-(defun isar-strip-terminators 61,1500
-(defun isar-markup-ml 74,1877
-(defun isar-mode-config-set-variables 79,2012
-(defun isar-shell-mode-config-set-variables 144,5027
-(defun isar-remove-file 241,9187
-(defun isar-shell-compute-new-files-list 251,9550
-(defun isar-activate-scripting 262,10016
-(define-derived-mode isar-shell-mode 271,10186
-(define-derived-mode isar-response-mode 276,10309
-(define-derived-mode isar-goals-mode 281,10491
-(define-derived-mode isar-mode 286,10666
-(defpgdefault menu-entries340,12643
-(defun isar-count-undos 370,13882
-(defun isar-find-and-forget 397,15007
-(defun isar-goal-command-p 438,16590
-(defun isar-global-save-command-p 443,16762
-(defvar isar-current-goal 464,17607
-(defun isar-state-preserving-p 467,17673
-(defvar isar-shell-current-line-width 492,18832
-(defun isar-shell-adjust-line-width 498,19050
-(defun isar-pre-shell-start 518,19935
-(defun isar-preprocessing 530,20278
-(defun isar-mode-config 553,21544
-(defun isar-shell-mode-config 565,22114
-(defun isar-response-mode-config 576,22484
-(defun isar-goals-mode-config 585,22741
-(defun isar-goalhyplit-test 596,23087
+(defcustom isar-keywords-name 28,580
+(defpgdefault completion-table 45,1104
+(defcustom isar-web-page47,1157
+(defun isar-strip-terminators 61,1494
+(defun isar-markup-ml 74,1871
+(defun isar-mode-config-set-variables 79,2006
+(defun isar-shell-mode-config-set-variables 144,5021
+(defun isar-remove-file 242,9190
+(defun isar-shell-compute-new-files-list 252,9553
+(defun isar-activate-scripting 263,10019
+(define-derived-mode isar-shell-mode 272,10189
+(define-derived-mode isar-response-mode 277,10312
+(define-derived-mode isar-goals-mode 282,10494
+(define-derived-mode isar-mode 287,10669
+(defpgdefault menu-entries341,12646
+(defun isar-count-undos 371,13885
+(defun isar-find-and-forget 398,15010
+(defun isar-goal-command-p 439,16593
+(defun isar-global-save-command-p 444,16765
+(defvar isar-current-goal 465,17610
+(defun isar-state-preserving-p 468,17676
+(defvar isar-shell-current-line-width 493,18835
+(defun isar-shell-adjust-line-width 499,19053
+(defun isar-pre-shell-start 519,19938
+(defun isar-preprocessing 531,20281
+(defun isar-mode-config 554,21547
+(defun isar-shell-mode-config 566,22117
+(defun isar-response-mode-config 577,22487
+(defun isar-goals-mode-config 586,22744
+(defun isar-goalhyplit-test 597,23090
 
 isar/isar-find-theorems.el,778
 (defun isar-find-theorems-minibuffer 18,715
@@ -567,43 +503,43 @@ isar/isar-syntax.el,3471
 (defconst isar-outline-heading-end-regexp 546,17916
 
 isar/x-symbol-isabelle.el,1922
-(defvar x-symbol-isabelle-required-fonts 20,630
-(defvar x-symbol-isabelle-name 28,1034
-(defvar x-symbol-isabelle-modeline-name 29,1084
-(defcustom x-symbol-isabelle-header-groups-alist 31,1132
-(defcustom x-symbol-isabelle-electric-ignore 38,1360
-(defvar x-symbol-isabelle-required-fonts 46,1616
-(defvar x-symbol-isabelle-extra-menu-items 49,1725
-(defvar x-symbol-isabelle-token-grammar53,1823
-(defun x-symbol-isabelle-token-list 60,2029
-(defvar x-symbol-isabelle-user-table 63,2118
-(defvar x-symbol-isabelle-generated-data 66,2239
-(defvar x-symbol-isabelle-master-directory 74,2482
-(defvar x-symbol-isabelle-image-searchpath 75,2535
-(defvar x-symbol-isabelle-image-cached-dirs 76,2587
-(defvar x-symbol-isabelle-image-file-truename-alist 77,2657
-(defvar x-symbol-isabelle-image-keywords 78,2714
-(defcustom x-symbol-isabelle-subscript-matcher 88,3058
-(defcustom x-symbol-isabelle-font-lock-regexp 94,3305
-(defcustom x-symbol-isabelle-font-lock-limit-regexp 99,3489
-(defcustom x-symbol-isabelle-font-lock-contents-regexp 105,3721
-(defcustom x-symbol-isabelle-single-char-regexp 115,4113
-(defun x-symbol-isabelle-subscript-matcher 121,4391
-(defun isabelle-match-subscript 163,6063
-(defvar x-symbol-isabelle-font-lock-keywords172,6458
-(defvar x-symbol-isabelle-font-lock-allowed-faces 179,6726
-(defcustom x-symbol-isabelle-class-alist186,6958
-(defcustom x-symbol-isabelle-class-face-alist 197,7383
-(defvar x-symbol-isabelle-case-insensitive 212,7911
-(defvar x-symbol-isabelle-token-shape 213,7959
-(defvar x-symbol-isabelle-input-token-ignore 214,8002
-(defvar x-symbol-isabelle-token-list 215,8052
-(defvar x-symbol-isabelle-symbol-table 217,8101
-(defvar x-symbol-isabelle-xsymbol-table 317,10837
-(defun x-symbol-isabelle-prepare-table 463,15271
-(defvar x-symbol-isabelle-table475,15682
-(defcustom x-symbol-isabelle-auto-style489,16035
-(defcustom x-symbol-isabelle-auto-coding-alist 503,16545
+(defvar x-symbol-isabelle-required-fonts 20,624
+(defvar x-symbol-isabelle-name 28,1028
+(defvar x-symbol-isabelle-modeline-name 29,1078
+(defcustom x-symbol-isabelle-header-groups-alist 31,1126
+(defcustom x-symbol-isabelle-electric-ignore 38,1354
+(defvar x-symbol-isabelle-required-fonts 46,1610
+(defvar x-symbol-isabelle-extra-menu-items 49,1719
+(defvar x-symbol-isabelle-token-grammar53,1817
+(defun x-symbol-isabelle-token-list 60,2023
+(defvar x-symbol-isabelle-user-table 63,2112
+(defvar x-symbol-isabelle-generated-data 66,2233
+(defvar x-symbol-isabelle-master-directory 74,2476
+(defvar x-symbol-isabelle-image-searchpath 75,2529
+(defvar x-symbol-isabelle-image-cached-dirs 76,2581
+(defvar x-symbol-isabelle-image-file-truename-alist 77,2651
+(defvar x-symbol-isabelle-image-keywords 78,2708
+(defcustom x-symbol-isabelle-subscript-matcher 88,3052
+(defcustom x-symbol-isabelle-font-lock-regexp 94,3299
+(defcustom x-symbol-isabelle-font-lock-limit-regexp 99,3483
+(defcustom x-symbol-isabelle-font-lock-contents-regexp 105,3715
+(defcustom x-symbol-isabelle-single-char-regexp 115,4107
+(defun x-symbol-isabelle-subscript-matcher 121,4385
+(defun isabelle-match-subscript 163,6057
+(defvar x-symbol-isabelle-font-lock-keywords172,6452
+(defvar x-symbol-isabelle-font-lock-allowed-faces 179,6720
+(defcustom x-symbol-isabelle-class-alist186,6952
+(defcustom x-symbol-isabelle-class-face-alist 197,7377
+(defvar x-symbol-isabelle-case-insensitive 212,7905
+(defvar x-symbol-isabelle-token-shape 213,7953
+(defvar x-symbol-isabelle-input-token-ignore 214,7996
+(defvar x-symbol-isabelle-token-list 215,8046
+(defvar x-symbol-isabelle-symbol-table 217,8095
+(defvar x-symbol-isabelle-xsymbol-table 317,10831
+(defun x-symbol-isabelle-prepare-table 463,15265
+(defvar x-symbol-isabelle-table471,15465
+(defcustom x-symbol-isabelle-auto-style485,15818
+(defcustom x-symbol-isabelle-auto-coding-alist 499,16328
 
 lclam/lclam.el,563
 (defcustom lclam-prog-name 15,385
@@ -770,37 +706,37 @@ phox/phox-pbrpm.el,512
 (defalias 'proof-pbrpm-right-paren-p proof-pbrpm-right-paren-p289,10739
 
 phox/phox-sym-lock.el,1353
-(defvar phox-sym-lock-sym-count 34,1617
-(defvar phox-sym-lock-ext-start 37,1687
-(defvar phox-sym-lock-ext-end 39,1809
-(defvar phox-sym-lock-font-size 42,1928
-(defvar phox-sym-lock-keywords 47,2118
-(defvar phox-sym-lock-enabled 52,2294
-(defvar phox-sym-lock-color 57,2456
-(defvar phox-sym-lock-mouse-face 62,2674
-(defvar phox-sym-lock-mouse-face-enabled 67,2864
-(defconst phox-sym-lock-with-mule 72,3054
-(defun phox-sym-lock-gen-symbol 75,3138
-(defun phox-sym-lock-make-symbols-atomic 83,3441
-(defun phox-sym-lock-compute-font-size 110,4383
-(defvar phox-sym-lock-font-name148,5803
-(defun phox-sym-lock-set-foreground 186,7088
-(defun phox-sym-lock-translate-char 200,7697
-(defun phox-sym-lock-translate-char-or-string 208,7965
-(defun phox-sym-lock-remap-face 215,8192
-(defvar phox-sym-lock-clear-face235,9182
-(defun phox-sym-lock 247,9604
-(defun phox-sym-lock-rec 256,10008
-(defun phox-sym-lock-atom-face 262,10161
-(defun phox-sym-lock-pre-idle-hook-first 267,10457
-(defun phox-sym-lock-pre-idle-hook-last 275,10815
-(defun phox-sym-lock-enable 284,11190
-(defun phox-sym-lock-disable 297,11603
-(defun phox-sym-lock-mouse-face-enable 310,12021
-(defun phox-sym-lock-mouse-face-disable 317,12236
-(defun phox-sym-lock-font-lock-hook 324,12455
-(defun font-lock-set-defaults 339,13148
-(defun phox-sym-lock-patch-keywords 350,13526
+(defvar phox-sym-lock-sym-count 35,1696
+(defvar phox-sym-lock-ext-start 38,1766
+(defvar phox-sym-lock-ext-end 40,1888
+(defvar phox-sym-lock-font-size 43,2007
+(defvar phox-sym-lock-keywords 48,2197
+(defvar phox-sym-lock-enabled 53,2373
+(defvar phox-sym-lock-color 58,2535
+(defvar phox-sym-lock-mouse-face 63,2753
+(defvar phox-sym-lock-mouse-face-enabled 68,2943
+(defconst phox-sym-lock-with-mule 73,3133
+(defun phox-sym-lock-gen-symbol 76,3217
+(defun phox-sym-lock-make-symbols-atomic 84,3520
+(defun phox-sym-lock-compute-font-size 111,4462
+(defvar phox-sym-lock-font-name149,5882
+(defun phox-sym-lock-set-foreground 187,7167
+(defun phox-sym-lock-translate-char 201,7776
+(defun phox-sym-lock-translate-char-or-string 209,8044
+(defun phox-sym-lock-remap-face 216,8271
+(defvar phox-sym-lock-clear-face236,9261
+(defun phox-sym-lock 248,9683
+(defun phox-sym-lock-rec 257,10087
+(defun phox-sym-lock-atom-face 263,10240
+(defun phox-sym-lock-pre-idle-hook-first 268,10536
+(defun phox-sym-lock-pre-idle-hook-last 276,10894
+(defun phox-sym-lock-enable 285,11269
+(defun phox-sym-lock-disable 298,11682
+(defun phox-sym-lock-mouse-face-enable 311,12100
+(defun phox-sym-lock-mouse-face-disable 318,12315
+(defun phox-sym-lock-font-lock-hook 325,12534
+(defun font-lock-set-defaults 340,13227
+(defun phox-sym-lock-patch-keywords 351,13605
 
 phox/phox-tags.el,305
 (defun phox-tags-add-table(21,766
@@ -1160,23 +1096,23 @@ generic/pg-assoc.el,329
 (define-derived-mode proof-universal-keys-only-mode 20,563
 (defun proof-associated-buffers 32,987
 (defun proof-associated-windows 41,1184
-(defun pg-assoc-strip-subterm-markup 54,1600
-(defvar pg-assoc-ann-regexp 80,2533
-(defun pg-assoc-strip-subterm-markup-buf 83,2628
-(defun pg-assoc-strip-subterm-markup-buf-old 106,3347
+(defun pg-assoc-strip-subterm-markup 58,1665
+(defvar pg-assoc-ann-regexp 84,2598
+(defun pg-assoc-strip-subterm-markup-buf 87,2693
+(defun pg-assoc-strip-subterm-markup-buf-old 110,3412
 
 generic/pg-autotest.el,442
-(defvar pg-autotest-success 20,514
-(defun pg-autotest-find-file 24,598
-(defun pg-autotest-find-file-restart 31,869
-(defmacro pg-autotest 44,1317
-(defun pg-autotest-script-wholefile 58,1665
-(defun pg-autotest-retract-file 75,2278
-(defun pg-autotest-assert-processed 81,2414
-(defun pg-autotest-assert-unprocessed 88,2660
-(defun pg-autotest-message 95,2907
-(defun pg-autotest-quit-prover 102,3100
-(defun pg-autotest-finished 108,3282
+(defvar pg-autotest-success 21,538
+(defun pg-autotest-find-file 25,622
+(defun pg-autotest-find-file-restart 32,893
+(defmacro pg-autotest 45,1341
+(defun pg-autotest-script-wholefile 59,1689
+(defun pg-autotest-retract-file 76,2302
+(defun pg-autotest-assert-processed 82,2438
+(defun pg-autotest-assert-unprocessed 89,2684
+(defun pg-autotest-message 96,2931
+(defun pg-autotest-quit-prover 103,3124
+(defun pg-autotest-finished 109,3306
 
 generic/pg-goals.el,704
 (define-derived-mode proof-goals-mode 29,669
@@ -1189,13 +1125,13 @@ generic/pg-goals.el,704
 (define-key proof-goals-mode-map 71,2750
 (defun proof-goals-config-done 86,3014
 (defun pg-goals-display 96,3302
-(defun pg-goals-analyse-structure 149,5301
-(defun pg-goals-make-top-span 276,10348
-(defun pg-goals-yank-subterm 316,11852
-(defun pg-goals-button-action 343,12752
-(defun proof-expand-path 364,13725
-(defun pg-goals-construct-command 373,13969
-(defun pg-goals-get-subterm-help 402,14994
+(defun pg-goals-analyse-structure 152,5455
+(defun pg-goals-make-top-span 279,10502
+(defun pg-goals-yank-subterm 319,12006
+(defun pg-goals-button-action 346,12906
+(defun proof-expand-path 367,13879
+(defun pg-goals-construct-command 376,14123
+(defun pg-goals-get-subterm-help 405,15148
 
 generic/pg-metadata.el,128
 (defcustom pg-metadata-default-directory 23,628
@@ -1203,116 +1139,116 @@ generic/pg-metadata.el,128
 (defun pg-metadata-filename-for 39,1065
 
 generic/pg-pbrpm.el,1781
-(defvar pg-pbrpm-use-buffer-menu 11,259
-(defvar pg-pbrpm-buffer-menu 13,378
-(defvar pg-pbrpm-spans 14,412
-(defvar pg-pbrpm-goal-description 15,440
-(defvar pg-pbrpm-windows-dialog-bug 16,479
-(defun pg-pbrpm-erase-buffer-menu 18,521
-(defun pg-pbrpm-menu-change-hook 25,705
-(defun pg-pbrpm-create-reset-buffer-menu 43,1282
-(defun pg-pbrpm-analyse-goal-buffer 57,1896
-(defun pg-pbrpm-button-action 118,4316
-(defun pg-pbrpm-exists 125,4542
-(defun pg-pbrpm-eliminate-id 129,4654
-(defun pg-pbrpm-build-menu 137,4902
-(defun pg-pbrpm-setup-span 197,7219
-(defun pg-pbrpm-run-command 257,9550
-(defun pg-pbrpm-get-pos-info 286,10861
-(defun pg-pbrpm-get-region-info 322,12003
-(defun auto-select-arround-pos 332,12328
-(defun pg-pbrpm-translate-position 344,12772
-(defun pg-pbrpm-process-click 350,12996
-(defvar pg-pbrpm-remember-region-selected-region 370,14003
-(defvar pg-pbrpm-regions-list 371,14057
-(defun pg-pbrpm-erase-regions-list 373,14093
-(defun pg-pbrpm-filter-regions-list 382,14402
-(defface pg-pbrpm-multiple-selection-face389,14665
-(defface pg-pbrpm-menu-input-face397,14870
-(defun pg-pbrpm-do-remember-region 405,15063
-(defun pg-pbrpm-remember-region-drag-up-hook 426,15914
-(defun pg-pbrpm-remember-region-click-hook 430,16085
-(defun pg-pbrpm-remember-region 435,16270
-(defun pg-pbrpm-process-region 449,16985
-(defun pg-pbrpm-process-regions-list 466,17711
-(defun pg-pbrpm-region-expression 470,17894
-(define-key proof-goals-mode-map 495,18856
-(define-key proof-goals-mode-map 496,18926
-(define-key proof-goals-mode-map 497,19003
-(define-key pg-span-context-menu-keymap 498,19083
-(define-key pg-span-context-menu-keymap 499,19160
-(define-key proof-mode-map 500,19243
-(define-key proof-mode-map 501,19307
-(define-key proof-mode-map 502,19378
+(defvar pg-pbrpm-use-buffer-menu 13,309
+(defvar pg-pbrpm-buffer-menu 15,428
+(defvar pg-pbrpm-spans 16,462
+(defvar pg-pbrpm-goal-description 17,490
+(defvar pg-pbrpm-windows-dialog-bug 18,529
+(defun pg-pbrpm-erase-buffer-menu 20,571
+(defun pg-pbrpm-menu-change-hook 27,755
+(defun pg-pbrpm-create-reset-buffer-menu 45,1332
+(defun pg-pbrpm-analyse-goal-buffer 59,1946
+(defun pg-pbrpm-button-action 120,4366
+(defun pg-pbrpm-exists 127,4592
+(defun pg-pbrpm-eliminate-id 131,4704
+(defun pg-pbrpm-build-menu 139,4952
+(defun pg-pbrpm-setup-span 199,7269
+(defun pg-pbrpm-run-command 259,9600
+(defun pg-pbrpm-get-pos-info 288,10911
+(defun pg-pbrpm-get-region-info 324,12053
+(defun auto-select-arround-pos 334,12378
+(defun pg-pbrpm-translate-position 346,12822
+(defun pg-pbrpm-process-click 352,13046
+(defvar pg-pbrpm-remember-region-selected-region 372,14053
+(defvar pg-pbrpm-regions-list 373,14107
+(defun pg-pbrpm-erase-regions-list 375,14143
+(defun pg-pbrpm-filter-regions-list 384,14452
+(defface pg-pbrpm-multiple-selection-face391,14715
+(defface pg-pbrpm-menu-input-face399,14920
+(defun pg-pbrpm-do-remember-region 407,15113
+(defun pg-pbrpm-remember-region-drag-up-hook 428,15964
+(defun pg-pbrpm-remember-region-click-hook 432,16135
+(defun pg-pbrpm-remember-region 437,16320
+(defun pg-pbrpm-process-region 451,17035
+(defun pg-pbrpm-process-regions-list 468,17761
+(defun pg-pbrpm-region-expression 472,17944
+(define-key proof-goals-mode-map 497,18906
+(define-key proof-goals-mode-map 498,18976
+(define-key proof-goals-mode-map 499,19053
+(define-key pg-span-context-menu-keymap 500,19133
+(define-key pg-span-context-menu-keymap 501,19210
+(define-key proof-mode-map 502,19293
+(define-key proof-mode-map 503,19357
+(define-key proof-mode-map 504,19428
 
 generic/pg-pgip.el,2889
-(defalias 'pg-pgip-debug pg-pgip-debug29,894
-(defalias 'pg-pgip-error pg-pgip-error30,935
-(defalias 'pg-pgip-warning pg-pgip-warning31,970
-(defconst pg-pgip-version-supported 33,1020
-(defun pg-pgip-process-packet 37,1126
-(defvar pg-pgip-last-seen-id 47,1699
-(defvar pg-pgip-last-seen-seq 48,1733
-(defun pg-pgip-process-pgip 50,1769
-(defun pg-pgip-process-msg 69,2700
-(defvar pg-pgip-post-process-functions83,3270
-(defun pg-pgip-post-process 93,3757
-(defun pg-pgip-process-askpgip 109,4368
-(defun pg-pgip-process-usespgip 114,4527
-(defun pg-pgip-process-usespgml 118,4691
-(defun pg-pgip-process-pgmlconfig 122,4855
-(defun pg-pgip-process-proverinfo 138,5474
-(defun pg-pgip-process-hasprefs 155,6139
-(defun pg-pgip-haspref 169,6771
-(defun pg-pgip-process-prefval 188,7550
-(defun pg-pgip-process-guiconfig 215,8259
-(defvar proof-assistant-idtables 222,8376
-(defun pg-pgip-process-ids 225,8493
-(defun pg-complete-idtable-symbol 251,9572
-(defalias 'pg-pgip-process-setids pg-pgip-process-setids256,9664
-(defalias 'pg-pgip-process-addids pg-pgip-process-addids257,9720
-(defalias 'pg-pgip-process-delids pg-pgip-process-delids258,9776
-(defun pg-pgip-process-idvalue 261,9834
-(defun pg-pgip-process-menuadd 273,10171
-(defun pg-pgip-process-menudel 276,10214
-(defun pg-pgip-process-ready 285,10447
-(defun pg-pgip-process-cleardisplay 288,10488
-(defun pg-pgip-process-proofstate 302,10965
-(defun pg-pgip-process-normalresponse 306,11042
-(defun pg-pgip-process-errorresponse 310,11166
-(defun pg-pgip-process-scriptinsert 314,11289
-(defun pg-pgip-process-metainforesponse 319,11423
-(defun pg-pgip-process-informfileloaded 328,11664
-(defun pg-pgip-process-informfileretracted 334,11931
-(defun pg-pgip-process-brokerstatus 347,12408
-(defun pg-pgip-process-proveravailmsg 350,12456
-(defun pg-pgip-process-newprovermsg 353,12506
-(defun pg-pgip-process-proverstatusmsg 356,12554
-(defvar pg-pgip-srcids 365,12801
-(defun pg-pgip-process-newfile 369,12908
-(defun pg-pgip-process-filestatus 385,13496
-(defun pg-pgip-process-newobj 405,14151
-(defun pg-pgip-process-delobj 408,14193
-(defun pg-pgip-process-objectstatus 411,14235
-(defun pg-pgip-process-parsescript 425,14591
-(defun pg-pgip-get-pgiptype 448,15466
-(defun pg-pgip-default-for 468,16263
-(defun pg-pgip-subst-for 481,16658
-(defun pg-pgip-interpret-value 493,17001
-(defun pg-pgip-interpret-choice 511,17687
-(defun pg-pgip-string-of-command 542,18707
-(defconst pg-pgip-id559,19468
-(defvar pg-pgip-refseq 565,19748
-(defvar pg-pgip-refid 567,19846
-(defvar pg-pgip-seq 570,19940
-(defun pg-pgip-assemble-packet 572,20004
-(defun pg-pgip-issue 590,20819
-(defun pg-pgip-maybe-askpgip 607,21432
-(defun pg-pgip-askprefs 613,21623
-(defun pg-pgip-askids 617,21737
-(defun pg-pgip-reset 630,22028
-(defconst pg-pgip-start-element-regexp 661,22726
-(defconst pg-pgip-end-element-regexp 662,22778
+(defalias 'pg-pgip-debug pg-pgip-debug29,883
+(defalias 'pg-pgip-error pg-pgip-error30,924
+(defalias 'pg-pgip-warning pg-pgip-warning31,959
+(defconst pg-pgip-version-supported 33,1009
+(defun pg-pgip-process-packet 37,1115
+(defvar pg-pgip-last-seen-id 47,1688
+(defvar pg-pgip-last-seen-seq 48,1722
+(defun pg-pgip-process-pgip 50,1758
+(defun pg-pgip-process-msg 69,2689
+(defvar pg-pgip-post-process-functions83,3259
+(defun pg-pgip-post-process 93,3746
+(defun pg-pgip-process-askpgip 109,4357
+(defun pg-pgip-process-usespgip 114,4516
+(defun pg-pgip-process-usespgml 118,4680
+(defun pg-pgip-process-pgmlconfig 122,4844
+(defun pg-pgip-process-proverinfo 138,5463
+(defun pg-pgip-process-hasprefs 155,6128
+(defun pg-pgip-haspref 169,6760
+(defun pg-pgip-process-prefval 188,7539
+(defun pg-pgip-process-guiconfig 215,8248
+(defvar proof-assistant-idtables 222,8365
+(defun pg-pgip-process-ids 225,8482
+(defun pg-complete-idtable-symbol 251,9561
+(defalias 'pg-pgip-process-setids pg-pgip-process-setids256,9653
+(defalias 'pg-pgip-process-addids pg-pgip-process-addids257,9709
+(defalias 'pg-pgip-process-delids pg-pgip-process-delids258,9765
+(defun pg-pgip-process-idvalue 261,9823
+(defun pg-pgip-process-menuadd 273,10160
+(defun pg-pgip-process-menudel 276,10203
+(defun pg-pgip-process-ready 285,10436
+(defun pg-pgip-process-cleardisplay 288,10477
+(defun pg-pgip-process-proofstate 302,10954
+(defun pg-pgip-process-normalresponse 306,11031
+(defun pg-pgip-process-errorresponse 310,11155
+(defun pg-pgip-process-scriptinsert 314,11278
+(defun pg-pgip-process-metainforesponse 319,11412
+(defun pg-pgip-process-informfileloaded 328,11653
+(defun pg-pgip-process-informfileretracted 334,11920
+(defun pg-pgip-process-brokerstatus 347,12397
+(defun pg-pgip-process-proveravailmsg 350,12445
+(defun pg-pgip-process-newprovermsg 353,12495
+(defun pg-pgip-process-proverstatusmsg 356,12543
+(defvar pg-pgip-srcids 365,12790
+(defun pg-pgip-process-newfile 369,12897
+(defun pg-pgip-process-filestatus 385,13485
+(defun pg-pgip-process-newobj 405,14140
+(defun pg-pgip-process-delobj 408,14182
+(defun pg-pgip-process-objectstatus 411,14224
+(defun pg-pgip-process-parsescript 425,14580
+(defun pg-pgip-get-pgiptype 448,15455
+(defun pg-pgip-default-for 468,16252
+(defun pg-pgip-subst-for 481,16647
+(defun pg-pgip-interpret-value 493,16990
+(defun pg-pgip-interpret-choice 511,17676
+(defun pg-pgip-string-of-command 542,18696
+(defconst pg-pgip-id559,19457
+(defvar pg-pgip-refseq 565,19737
+(defvar pg-pgip-refid 567,19835
+(defvar pg-pgip-seq 570,19929
+(defun pg-pgip-assemble-packet 572,19993
+(defun pg-pgip-issue 590,20808
+(defun pg-pgip-maybe-askpgip 607,21421
+(defun pg-pgip-askprefs 613,21612
+(defun pg-pgip-askids 617,21726
+(defun pg-pgip-reset 630,22017
+(defconst pg-pgip-start-element-regexp 661,22715
+(defconst pg-pgip-end-element-regexp 662,22767
 
 generic/pg-pgip-old.el,456
 (defun pg-pgip-process-oldhaspref 18,633
@@ -1345,16 +1281,16 @@ generic/pg-response.el,1188
 (defvar pg-response-erase-flag 242,8936
 (defun proof-shell-maybe-erase-response245,9051
 (defun pg-response-display 276,10253
-(defun pg-response-display-with-face 293,11075
-(defun pg-response-clear-displays 331,12432
-(defvar pg-response-next-error 349,13011
-(defun proof-next-error 353,13133
-(defun pg-response-has-error-location 433,16073
-(defvar proof-trace-last-fontify-pos 456,16906
-(defun proof-trace-fontify-pos 458,16949
-(defun proof-trace-buffer-display 466,17263
-(defun proof-trace-buffer-finish 490,18236
-(defun pg-thms-buffer-clear 511,18815
+(defun pg-response-display-with-face 294,11107
+(defun pg-response-clear-displays 332,12464
+(defvar pg-response-next-error 350,13043
+(defun proof-next-error 354,13165
+(defun pg-response-has-error-location 434,16105
+(defvar proof-trace-last-fontify-pos 457,16938
+(defun proof-trace-fontify-pos 459,16981
+(defun proof-trace-buffer-display 467,17295
+(defun proof-trace-buffer-finish 491,18268
+(defun pg-thms-buffer-clear 512,18847
 
 generic/pg-thymodes.el,152
 (defmacro pg-defthymode 19,466
@@ -1463,238 +1399,237 @@ generic/pg-xml.el,1096
 (defun pg-pgip-get-pgmltext 222,7432
 
 generic/proof-autoloads.el,57
-(defalias (quote proof-x-symbol-decode-region)407,13794
+(defalias (quote proof-x-symbol-decode-region)421,14247
 
-generic/proof-config.el,11148
-(defgroup proof-user-options 85,3232
-(defcustom proof-electric-terminator-enable 90,3346
-(defcustom proof-toolbar-enable 102,3880
-(defcustom proof-imenu-enable 108,4053
-(defpgcustom x-symbol-enable 114,4224
-(defpgcustom mmm-enable 123,4574
-(defcustom pg-show-hints 132,4928
-(defcustom proof-output-fontify-enable 137,5063
-(defcustom proof-trace-output-slow-catchup 147,5445
-(defcustom proof-strict-state-preserving 157,5943
-(defcustom proof-strict-read-only 170,6552
-(defcustom proof-three-window-enable 180,6902
-(defcustom proof-multiple-frames-enable 199,7657
-(defcustom proof-delete-empty-windows 208,7993
-(defcustom proof-shrink-windows-tofit 219,8524
-(defcustom proof-toolbar-use-button-enablers 226,8796
-(defcustom proof-query-file-save-when-activating-scripting 249,9668
-(defpgcustom script-indent 265,10391
-(defcustom proof-one-command-per-line 271,10579
-(defcustom proof-prog-name-ask 279,10799
-(defcustom proof-prog-name-guess 285,10960
-(defcustom proof-tidy-response293,11220
-(defcustom proof-keep-response-history307,11687
-(defcustom proof-show-debug-messages 316,12050
-(defcustom proof-experimental-features 325,12428
-(defcustom proof-follow-mode 343,13190
-(defcustom proof-auto-action-when-deactivating-scripting 369,14385
-(defcustom proof-script-command-separator 392,15336
-(defcustom proof-rsh-command 400,15629
-(defcustom proof-disappearing-proofs 416,16180
-(defgroup proof-faces 443,16830
-(defmacro proof-face-specs 448,16936
-(defface proof-queue-face 464,17457
-(defface proof-locked-face472,17737
-(defface proof-declaration-name-face485,18240
-(defconst proof-declaration-name-face 497,18633
-(defface proof-tacticals-name-face502,18869
-(defconst proof-tacticals-name-face 511,19131
-(defface proof-tactics-name-face516,19361
-(defconst proof-tactics-name-face 525,19626
-(defface proof-error-face 530,19850
-(defface proof-warning-face538,20057
-(defconst proof-warning-face 547,20314
-(defface proof-eager-annotation-face549,20365
-(defface proof-debug-message-face557,20583
-(defface proof-boring-face565,20782
-(defface proof-mouse-highlight-face573,20974
-(defface proof-highlight-dependent-face581,21170
-(defface proof-highlight-dependency-face589,21379
-(defface proof-active-area-face 597,21576
-(defgroup prover-config 614,21852
-(defcustom proof-mode-for-shell 648,22971
-(defcustom proof-mode-for-response 655,23218
-(defcustom proof-mode-for-goals 662,23501
-(defcustom proof-mode-for-script 669,23756
-(defcustom proof-guess-command-line 680,24190
-(defcustom proof-assistant-home-page 695,24687
-(defcustom proof-context-command 701,24857
-(defcustom proof-info-command 706,24991
-(defcustom proof-showproof-command 713,25263
-(defcustom proof-goal-command 718,25399
-(defcustom proof-save-command 726,25697
-(defcustom proof-find-theorems-command 734,26007
-(defconst proof-toolbar-entries-default741,26316
-(defpgcustom toolbar-entries 775,28234
-(defcustom proof-assistant-true-value 793,28955
-(defcustom proof-assistant-false-value 799,29145
-(defcustom proof-assistant-format-int-fn 805,29339
-(defcustom proof-assistant-format-string-fn 812,29588
-(defcustom proof-assistant-setting-format 819,29855
-(defgroup proof-script 841,30550
-(defcustom proof-terminal-char 846,30680
-(defcustom proof-script-sexp-commands 856,31084
-(defcustom proof-script-command-end-regexp 867,31554
-(defcustom proof-script-command-start-regexp 885,32373
-(defcustom proof-script-use-old-parser 896,32835
-(defcustom proof-script-integral-proofs 908,33324
-(defcustom proof-script-fly-past-comments 923,33980
-(defcustom proof-script-parse-function 930,34297
-(defcustom proof-script-comment-start 948,34943
-(defcustom proof-script-comment-start-regexp 959,35378
-(defcustom proof-script-comment-end 967,35695
-(defcustom proof-script-comment-end-regexp 979,36113
-(defcustom pg-insert-output-as-comment-fn 987,36424
-(defcustom proof-string-start-regexp 993,36676
-(defcustom proof-string-end-regexp 998,36841
-(defcustom proof-case-fold-search 1003,37002
-(defcustom proof-save-command-regexp 1012,37418
-(defcustom proof-save-with-hole-regexp 1017,37529
-(defcustom proof-save-with-hole-result 1029,37981
-(defcustom proof-goal-command-regexp 1040,38445
-(defcustom proof-goal-with-hole-regexp 1049,38837
-(defcustom proof-goal-with-hole-result 1061,39281
-(defcustom proof-non-undoables-regexp 1071,39680
-(defcustom proof-nested-undo-regexp 1082,40136
-(defcustom proof-ignore-for-undo-count 1098,40848
-(defcustom proof-script-next-entity-regexps 1106,41151
-(defcustom proof-script-find-next-entity-fn1150,42885
-(defcustom proof-script-imenu-generic-expression 1170,43715
-(defcustom proof-goal-command-p 1188,44570
-(defcustom proof-really-save-command-p 1215,46011
-(defcustom proof-completed-proof-behaviour 1227,46472
-(defcustom proof-count-undos-fn 1255,47832
-(defconst proof-no-command 1290,49433
-(defcustom proof-find-and-forget-fn 1295,49637
-(defcustom proof-forget-id-command 1312,50348
-(defcustom pg-topterm-goalhyplit-fn 1322,50706
-(defcustom proof-kill-goal-command 1334,51262
-(defcustom proof-undo-n-times-cmd 1348,51772
-(defcustom proof-nested-goals-history-p 1362,52321
-(defcustom proof-state-preserving-p 1371,52659
-(defcustom proof-activate-scripting-hook 1381,53129
-(defcustom proof-deactivate-scripting-hook 1400,53907
-(defcustom proof-indent 1413,54272
-(defcustom proof-indent-hang 1418,54379
-(defcustom proof-indent-enclose-offset 1423,54505
-(defcustom proof-indent-open-offset 1428,54647
-(defcustom proof-indent-close-offset 1433,54784
-(defcustom proof-indent-any-regexp 1438,54922
-(defcustom proof-indent-inner-regexp 1443,55082
-(defcustom proof-indent-enclose-regexp 1448,55236
-(defcustom proof-indent-open-regexp 1453,55390
-(defcustom proof-indent-close-regexp 1458,55542
-(defcustom proof-script-font-lock-keywords 1464,55696
-(defcustom proof-script-syntax-table-entries 1472,56019
-(defcustom proof-script-span-context-menu-extensions 1490,56416
-(defgroup proof-shell 1516,57205
-(defcustom proof-prog-name 1526,57376
-(defpgcustom prog-args 1539,58011
-(defpgcustom prog-env 1552,58586
-(defcustom proof-shell-auto-terminate-commands 1561,59012
-(defcustom proof-shell-pre-sync-init-cmd 1570,59409
-(defcustom proof-shell-init-cmd 1584,59968
-(defcustom proof-shell-restart-cmd 1595,60438
-(defcustom proof-shell-quit-cmd 1600,60593
-(defcustom proof-shell-quit-timeout 1605,60760
-(defcustom proof-shell-cd-cmd 1615,61208
-(defcustom proof-shell-start-silent-cmd 1632,61875
-(defcustom proof-shell-stop-silent-cmd 1641,62251
-(defcustom proof-shell-silent-threshold 1650,62588
-(defcustom  proof-shell-inform-file-processed-cmd 1658,62922
-(defcustom  proof-shell-inform-file-retracted-cmd 1679,63845
-(defcustom proof-auto-multiple-files 1707,65116
-(defcustom proof-cannot-reopen-processed-files 1722,65837
-(defcustom proof-shell-require-command-regexp 1736,66504
-(defcustom proof-done-advancing-require-function 1747,66966
-(defcustom proof-shell-quiet-errors 1753,67206
-(defcustom proof-shell-prompt-pattern 1766,67540
-(defcustom proof-shell-wakeup-char 1776,67962
-(defcustom proof-shell-annotated-prompt-regexp 1782,68193
-(defcustom proof-shell-abort-goal-regexp 1798,68833
-(defcustom proof-shell-error-regexp 1803,68968
-(defcustom proof-shell-truncate-before-error 1823,69762
-(defcustom pg-next-error-regexp 1837,70305
-(defcustom pg-next-error-filename-regexp 1852,70915
-(defcustom pg-next-error-extract-filename 1876,71953
-(defcustom proof-shell-interrupt-regexp 1883,72196
-(defcustom proof-shell-proof-completed-regexp 1897,72788
-(defcustom proof-shell-clear-response-regexp 1910,73296
-(defcustom proof-shell-clear-goals-regexp 1917,73595
-(defcustom proof-shell-start-goals-regexp 1924,73888
-(defcustom proof-shell-end-goals-regexp 1932,74255
-(defcustom proof-shell-eager-annotation-start 1938,74497
-(defcustom proof-shell-eager-annotation-start-length 1956,75235
-(defcustom proof-shell-eager-annotation-end 1967,75662
-(defcustom proof-shell-assumption-regexp 1983,76338
-(defcustom proof-shell-process-file 1993,76753
-(defcustom proof-shell-retract-files-regexp 2015,77705
-(defcustom proof-shell-compute-new-files-list 2024,78041
-(defcustom pg-use-specials-for-fontify 2036,78586
-(defcustom pg-special-char-regexp 2044,78934
-(defcustom proof-shell-set-elisp-variable-regexp 2049,79078
-(defcustom proof-shell-match-pgip-cmd 2082,80550
-(defcustom proof-shell-issue-pgip-cmd 2091,80880
-(defcustom proof-shell-query-dependencies-cmd 2100,81236
-(defcustom proof-shell-theorem-dependency-list-regexp 2107,81496
-(defcustom proof-shell-theorem-dependency-list-split 2123,82156
-(defcustom proof-shell-show-dependency-cmd 2132,82581
-(defcustom proof-shell-identifier-under-mouse-cmd 2139,82850
-(defcustom proof-shell-trace-output-regexp 2162,83931
-(defcustom proof-shell-thms-output-regexp 2178,84475
-(defcustom proof-shell-unicode 2191,84861
-(defcustom proof-shell-filename-escapes 2199,85189
-(defcustom proof-shell-process-connection-type 2216,85869
-(defcustom proof-shell-strip-crs-from-input 2239,86916
-(defcustom proof-shell-strip-crs-from-output 2251,87405
-(defcustom proof-shell-insert-hook 2259,87773
-(defcustom proof-pre-shell-start-hook 2299,89737
-(defcustom proof-shell-handle-delayed-output-hook2315,90209
-(defcustom proof-shell-handle-error-or-interrupt-hook2321,90424
-(defcustom proof-shell-pre-interrupt-hook2339,91173
-(defcustom proof-shell-process-output-system-specific 2347,91445
-(defcustom proof-state-change-hook 2366,92310
-(defcustom proof-shell-font-lock-keywords 2377,92692
-(defcustom proof-shell-syntax-table-entries 2385,93020
-(defgroup proof-goals 2403,93392
-(defcustom pg-subterm-first-special-char 2408,93513
-(defcustom pg-subterm-anns-use-stack 2416,93825
-(defcustom pg-goals-change-goal 2425,94129
-(defcustom pbp-goal-command 2430,94244
-(defcustom pbp-hyp-command 2435,94400
-(defcustom pg-subterm-help-cmd 2440,94562
-(defcustom pg-goals-error-regexp 2447,94798
-(defcustom proof-shell-result-start 2452,94958
-(defcustom proof-shell-result-end 2458,95192
-(defcustom pg-subterm-start-char 2464,95405
-(defcustom pg-subterm-sep-char 2478,95987
-(defcustom pg-subterm-end-char 2484,96166
-(defcustom pg-topterm-regexp 2490,96323
-(defcustom proof-goals-font-lock-keywords 2507,96926
-(defcustom proof-resp-font-lock-keywords 2521,97605
-(defcustom pg-before-fontify-output-hook 2533,98183
-(defcustom pg-after-fontify-output-hook 2541,98543
-(defgroup proof-x-symbol 2553,98797
-(defcustom proof-xsym-extra-modes 2558,98925
-(defcustom proof-xsym-font-lock-keywords 2571,99554
-(defcustom proof-xsym-activate-command 2579,99931
-(defcustom proof-xsym-deactivate-command 2586,100167
-(defpgcustom x-symbol-language 2593,100409
-(defpgcustom favourites 2608,100856
-(defpgcustom menu-entries 2613,101046
-(defpgcustom help-menu-entries 2620,101283
-(defpgcustom keymap 2627,101546
-(defpgcustom completion-table 2632,101717
-(defpgcustom tags-program 2642,102082
-(defcustom proof-general-name 2654,102255
-(defcustom proof-general-home-page2659,102412
-(defcustom proof-unnamed-theorem-name2665,102571
-(defcustom proof-universal-keys2671,102755
+generic/proof-config.el,11099
+(defgroup proof-user-options 84,3173
+(defcustom proof-electric-terminator-enable 89,3287
+(defcustom proof-toolbar-enable 101,3821
+(defcustom proof-imenu-enable 107,3994
+(defpgcustom x-symbol-enable 113,4165
+(defpgcustom maths-menu-enable 122,4515
+(defpgcustom mmm-enable 128,4695
+(defcustom pg-show-hints 137,5049
+(defcustom proof-output-fontify-enable 142,5184
+(defcustom proof-trace-output-slow-catchup 152,5566
+(defcustom proof-strict-state-preserving 162,6064
+(defcustom proof-strict-read-only 175,6673
+(defcustom proof-three-window-enable 185,7023
+(defcustom proof-multiple-frames-enable 204,7778
+(defcustom proof-delete-empty-windows 213,8114
+(defcustom proof-shrink-windows-tofit 224,8645
+(defcustom proof-toolbar-use-button-enablers 231,8917
+(defcustom proof-query-file-save-when-activating-scripting 254,9789
+(defpgcustom script-indent 270,10512
+(defcustom proof-one-command-per-line 276,10700
+(defcustom proof-prog-name-ask 284,10920
+(defcustom proof-prog-name-guess 290,11081
+(defcustom proof-tidy-response298,11341
+(defcustom proof-keep-response-history312,11808
+(defcustom proof-general-debug 322,12195
+(defcustom proof-experimental-features 331,12568
+(defcustom proof-follow-mode 349,13330
+(defcustom proof-auto-action-when-deactivating-scripting 375,14525
+(defcustom proof-script-command-separator 398,15476
+(defcustom proof-rsh-command 406,15769
+(defcustom proof-disappearing-proofs 422,16320
+(defgroup proof-faces 449,16970
+(defface proof-queue-face 454,17076
+(defface proof-locked-face462,17356
+(defface proof-declaration-name-face475,17859
+(defconst proof-declaration-name-face 487,18252
+(defface proof-tacticals-name-face492,18488
+(defconst proof-tacticals-name-face 501,18750
+(defface proof-tactics-name-face506,18980
+(defconst proof-tactics-name-face 515,19245
+(defface proof-error-face 520,19469
+(defface proof-warning-face528,19676
+(defconst proof-warning-face 537,19933
+(defface proof-eager-annotation-face539,19984
+(defface proof-debug-message-face547,20202
+(defface proof-boring-face555,20401
+(defface proof-mouse-highlight-face563,20593
+(defface proof-highlight-dependent-face571,20789
+(defface proof-highlight-dependency-face579,20998
+(defface proof-active-area-face 587,21195
+(defgroup prover-config 604,21471
+(defcustom proof-mode-for-shell 638,22590
+(defcustom proof-mode-for-response 645,22837
+(defcustom proof-mode-for-goals 652,23120
+(defcustom proof-mode-for-script 659,23375
+(defcustom proof-guess-command-line 670,23809
+(defcustom proof-assistant-home-page 685,24306
+(defcustom proof-context-command 691,24476
+(defcustom proof-info-command 696,24610
+(defcustom proof-showproof-command 703,24882
+(defcustom proof-goal-command 708,25018
+(defcustom proof-save-command 716,25316
+(defcustom proof-find-theorems-command 724,25626
+(defconst proof-toolbar-entries-default731,25935
+(defpgcustom toolbar-entries 765,27853
+(defcustom proof-assistant-true-value 783,28574
+(defcustom proof-assistant-false-value 789,28764
+(defcustom proof-assistant-format-int-fn 795,28958
+(defcustom proof-assistant-format-string-fn 802,29207
+(defcustom proof-assistant-setting-format 809,29474
+(defgroup proof-script 831,30169
+(defcustom proof-terminal-char 836,30299
+(defcustom proof-script-sexp-commands 846,30703
+(defcustom proof-script-command-end-regexp 857,31173
+(defcustom proof-script-command-start-regexp 875,31992
+(defcustom proof-script-use-old-parser 886,32454
+(defcustom proof-script-integral-proofs 898,32943
+(defcustom proof-script-fly-past-comments 913,33599
+(defcustom proof-script-parse-function 920,33916
+(defcustom proof-script-comment-start 938,34562
+(defcustom proof-script-comment-start-regexp 949,34997
+(defcustom proof-script-comment-end 957,35314
+(defcustom proof-script-comment-end-regexp 969,35732
+(defcustom pg-insert-output-as-comment-fn 977,36043
+(defcustom proof-string-start-regexp 983,36295
+(defcustom proof-string-end-regexp 988,36460
+(defcustom proof-case-fold-search 993,36621
+(defcustom proof-save-command-regexp 1002,37037
+(defcustom proof-save-with-hole-regexp 1007,37148
+(defcustom proof-save-with-hole-result 1019,37600
+(defcustom proof-goal-command-regexp 1030,38064
+(defcustom proof-goal-with-hole-regexp 1039,38456
+(defcustom proof-goal-with-hole-result 1051,38900
+(defcustom proof-non-undoables-regexp 1061,39299
+(defcustom proof-nested-undo-regexp 1072,39755
+(defcustom proof-ignore-for-undo-count 1088,40467
+(defcustom proof-script-next-entity-regexps 1096,40770
+(defcustom proof-script-find-next-entity-fn1140,42504
+(defcustom proof-script-imenu-generic-expression 1160,43334
+(defcustom proof-goal-command-p 1178,44189
+(defcustom proof-really-save-command-p 1205,45630
+(defcustom proof-completed-proof-behaviour 1217,46091
+(defcustom proof-count-undos-fn 1245,47451
+(defconst proof-no-command 1280,49052
+(defcustom proof-find-and-forget-fn 1285,49256
+(defcustom proof-forget-id-command 1302,49967
+(defcustom pg-topterm-goalhyplit-fn 1312,50325
+(defcustom proof-kill-goal-command 1324,50881
+(defcustom proof-undo-n-times-cmd 1338,51391
+(defcustom proof-nested-goals-history-p 1352,51940
+(defcustom proof-state-preserving-p 1361,52278
+(defcustom proof-activate-scripting-hook 1371,52748
+(defcustom proof-deactivate-scripting-hook 1390,53526
+(defcustom proof-indent 1403,53891
+(defcustom proof-indent-hang 1408,53998
+(defcustom proof-indent-enclose-offset 1413,54124
+(defcustom proof-indent-open-offset 1418,54266
+(defcustom proof-indent-close-offset 1423,54403
+(defcustom proof-indent-any-regexp 1428,54541
+(defcustom proof-indent-inner-regexp 1433,54701
+(defcustom proof-indent-enclose-regexp 1438,54855
+(defcustom proof-indent-open-regexp 1443,55009
+(defcustom proof-indent-close-regexp 1448,55161
+(defcustom proof-script-font-lock-keywords 1454,55315
+(defcustom proof-script-syntax-table-entries 1462,55638
+(defcustom proof-script-span-context-menu-extensions 1480,56035
+(defgroup proof-shell 1506,56824
+(defcustom proof-prog-name 1516,56995
+(defpgcustom prog-args 1529,57630
+(defpgcustom prog-env 1542,58205
+(defcustom proof-shell-auto-terminate-commands 1551,58631
+(defcustom proof-shell-pre-sync-init-cmd 1560,59028
+(defcustom proof-shell-init-cmd 1574,59587
+(defcustom proof-shell-restart-cmd 1585,60057
+(defcustom proof-shell-quit-cmd 1590,60212
+(defcustom proof-shell-quit-timeout 1595,60379
+(defcustom proof-shell-cd-cmd 1605,60827
+(defcustom proof-shell-start-silent-cmd 1622,61494
+(defcustom proof-shell-stop-silent-cmd 1631,61870
+(defcustom proof-shell-silent-threshold 1640,62207
+(defcustom  proof-shell-inform-file-processed-cmd 1648,62541
+(defcustom  proof-shell-inform-file-retracted-cmd 1669,63464
+(defcustom proof-auto-multiple-files 1697,64735
+(defcustom proof-cannot-reopen-processed-files 1712,65456
+(defcustom proof-shell-require-command-regexp 1726,66123
+(defcustom proof-done-advancing-require-function 1737,66585
+(defcustom proof-shell-quiet-errors 1743,66825
+(defcustom proof-shell-prompt-pattern 1756,67159
+(defcustom proof-shell-wakeup-char 1766,67581
+(defcustom proof-shell-annotated-prompt-regexp 1772,67812
+(defcustom proof-shell-abort-goal-regexp 1788,68452
+(defcustom proof-shell-error-regexp 1793,68587
+(defcustom proof-shell-truncate-before-error 1813,69381
+(defcustom pg-next-error-regexp 1827,69924
+(defcustom pg-next-error-filename-regexp 1842,70534
+(defcustom pg-next-error-extract-filename 1866,71572
+(defcustom proof-shell-interrupt-regexp 1873,71815
+(defcustom proof-shell-proof-completed-regexp 1887,72407
+(defcustom proof-shell-clear-response-regexp 1900,72915
+(defcustom proof-shell-clear-goals-regexp 1907,73214
+(defcustom proof-shell-start-goals-regexp 1914,73507
+(defcustom proof-shell-end-goals-regexp 1922,73874
+(defcustom proof-shell-eager-annotation-start 1928,74116
+(defcustom proof-shell-eager-annotation-start-length 1946,74854
+(defcustom proof-shell-eager-annotation-end 1957,75281
+(defcustom proof-shell-assumption-regexp 1973,75957
+(defcustom proof-shell-process-file 1983,76372
+(defcustom proof-shell-retract-files-regexp 2005,77324
+(defcustom proof-shell-compute-new-files-list 2014,77660
+(defcustom pg-use-specials-for-fontify 2026,78205
+(defcustom pg-special-char-regexp 2034,78553
+(defcustom proof-shell-set-elisp-variable-regexp 2040,78698
+(defcustom proof-shell-match-pgip-cmd 2073,80212
+(defcustom proof-shell-issue-pgip-cmd 2082,80542
+(defcustom proof-shell-query-dependencies-cmd 2091,80898
+(defcustom proof-shell-theorem-dependency-list-regexp 2098,81158
+(defcustom proof-shell-theorem-dependency-list-split 2114,81818
+(defcustom proof-shell-show-dependency-cmd 2123,82243
+(defcustom proof-shell-identifier-under-mouse-cmd 2130,82512
+(defcustom proof-shell-trace-output-regexp 2153,83593
+(defcustom proof-shell-thms-output-regexp 2169,84137
+(defcustom proof-shell-unicode 2182,84523
+(defcustom proof-shell-filename-escapes 2190,84851
+(defcustom proof-shell-process-connection-type 2207,85531
+(defcustom proof-shell-strip-crs-from-input 2230,86578
+(defcustom proof-shell-strip-crs-from-output 2242,87067
+(defcustom proof-shell-insert-hook 2250,87435
+(defcustom proof-pre-shell-start-hook 2290,89399
+(defcustom proof-shell-handle-delayed-output-hook2306,89871
+(defcustom proof-shell-handle-error-or-interrupt-hook2312,90086
+(defcustom proof-shell-pre-interrupt-hook2330,90835
+(defcustom proof-shell-process-output-system-specific 2338,91107
+(defcustom proof-state-change-hook 2357,91972
+(defcustom proof-shell-font-lock-keywords 2368,92354
+(defcustom proof-shell-syntax-table-entries 2376,92682
+(defgroup proof-goals 2394,93054
+(defcustom pg-subterm-first-special-char 2399,93175
+(defcustom pg-subterm-anns-use-stack 2407,93487
+(defcustom pg-goals-change-goal 2416,93791
+(defcustom pbp-goal-command 2421,93906
+(defcustom pbp-hyp-command 2426,94062
+(defcustom pg-subterm-help-cmd 2431,94224
+(defcustom pg-goals-error-regexp 2438,94460
+(defcustom proof-shell-result-start 2443,94620
+(defcustom proof-shell-result-end 2449,94854
+(defcustom pg-subterm-start-char 2455,95067
+(defcustom pg-subterm-sep-char 2469,95649
+(defcustom pg-subterm-end-char 2475,95828
+(defcustom pg-topterm-regexp 2481,95985
+(defcustom proof-goals-font-lock-keywords 2498,96588
+(defcustom proof-resp-font-lock-keywords 2512,97267
+(defcustom pg-before-fontify-output-hook 2524,97845
+(defcustom pg-after-fontify-output-hook 2532,98205
+(defgroup proof-x-symbol 2544,98459
+(defcustom proof-xsym-extra-modes 2549,98587
+(defcustom proof-xsym-font-lock-keywords 2562,99216
+(defcustom proof-xsym-activate-command 2570,99593
+(defcustom proof-xsym-deactivate-command 2577,99829
+(defpgcustom favourites 2594,100296
+(defpgcustom menu-entries 2599,100486
+(defpgcustom help-menu-entries 2606,100723
+(defpgcustom keymap 2613,100986
+(defpgcustom completion-table 2618,101157
+(defpgcustom tags-program 2628,101522
+(defcustom proof-general-name 2640,101695
+(defcustom proof-general-home-page2645,101852
+(defcustom proof-unnamed-theorem-name2651,102011
+(defcustom proof-universal-keys2657,102195
 
 generic/proof-depends.el,824
 (defvar proof-thm-names-of-files 19,540
@@ -1747,86 +1682,86 @@ generic/proof-indent.el,219
 (defun proof-indent-calculate 55,1859
 (defun proof-indent-line 74,2575
 
-generic/proof-maths-menu.el,173
-(defun proof-maths-menu-support-available 24,770
-(defvar maths-menu-modes-list 44,1601
-(defun proof-maths-menu-set-global 46,1637
-(defun proof-maths-menu-enable 56,2005
+generic/proof-maths-menu.el,134
+(defun proof-maths-menu-support-available 24,782
+(defun proof-maths-menu-set-global 37,1275
+(defun proof-maths-menu-enable 51,1731
 
-generic/proof-menu.el,2739
-(defvar proof-display-some-buffers-count 19,468
-(defun proof-display-some-buffers 21,513
-(defun proof-menu-define-keys 80,2715
-(define-key map 83,2863
-(define-key map 84,2915
-(define-key map 85,2966
-(define-key map 86,3019
-(define-key map 87,3073
-(define-key map 88,3135
-(define-key map 89,3195
-(define-key map 90,3257
-(define-key map 93,3430
-(define-key map 97,3667
-(define-key map 98,3721
-(define-key map 99,3786
-(define-key map 100,3860
-(define-key map 103,4041
-(define-key map 104,4107
-(define-key map 107,4313
-(define-key map 108,4379
-(define-key map 110,4494
-(define-key map 111,4557
-(define-key map 113,4642
-(define-key map 120,4968
-(define-key map 121,5027
-(defun proof-menu-define-main 141,5617
-(defun proof-menu-define-specific 151,5818
-(defun proof-assistant-menu-update 186,6836
-(defvar proof-help-menu203,7444
-(defvar proof-show-hide-menu211,7722
-(defvar proof-buffer-menu220,8035
-(defconst proof-quick-opts-menu279,10205
-(defun proof-quick-opts-vars 398,14971
-(defun proof-quick-opts-changed-from-defaults-p 423,15722
-(defun proof-quick-opts-changed-from-saved-p 427,15827
-(defun proof-quick-opts-save 438,16179
-(defun proof-quick-opts-reset 443,16347
-(defconst proof-config-menu455,16615
-(defconst proof-advanced-menu462,16794
-(defvar proof-menu 478,17373
-(defvar proof-main-menu487,17657
-(defvar proof-aux-menu497,17883
-(defvar proof-menu-favourites 513,18205
-(defun proof-menu-define-favourites-menu 516,18312
-(defmacro proof-defshortcut 537,18983
-(defmacro proof-definvisible 553,19638
-(defun proof-def-favourite 574,20463
-(defvar proof-make-favourite-cmd-history 597,21438
-(defvar proof-make-favourite-menu-history 600,21523
-(defun proof-save-favourites 603,21609
-(defun proof-del-favourite 608,21757
-(defun proof-read-favourite 625,22318
-(defun proof-add-favourite 650,23121
-(defvar proof-assistant-settings 677,24172
-(defvar proof-menu-settings 684,24535
-(defun proof-menu-define-settings-menu 687,24609
-(defun proof-menu-entry-name 707,25353
-(defun proof-menu-entry-for-setting 719,25825
-(defun proof-settings-vars 737,26315
-(defun proof-settings-changed-from-defaults-p 742,26492
-(defun proof-settings-changed-from-saved-p 746,26598
-(defun proof-settings-save 750,26701
-(defun proof-settings-reset 755,26868
-(defun proof-defpacustom-fn 763,27114
-(defmacro defpacustom 839,29998
-(defun proof-assistant-invisible-command-ifposs 850,30639
-(defun proof-maybe-askprefs 872,31614
-(defun proof-assistant-settings-cmd 879,31818
-(defun proof-assistant-format 896,32478
-(defvar proof-assistant-format-table 920,33537
-(defun proof-assistant-format-bool 928,33906
-(defun proof-assistant-format-int 931,34019
-(defun proof-assistant-format-string 934,34111
+generic/proof-menu.el,2787
+(defvar proof-display-some-buffers-count 21,543
+(defun proof-display-some-buffers 23,588
+(defun proof-menu-define-keys 82,2790
+(define-key map 85,2938
+(define-key map 86,2990
+(define-key map 87,3041
+(define-key map 88,3094
+(define-key map 89,3148
+(define-key map 90,3210
+(define-key map 91,3270
+(define-key map 92,3332
+(define-key map 95,3505
+(define-key map 99,3742
+(define-key map 100,3796
+(define-key map 101,3861
+(define-key map 102,3935
+(define-key map 105,4116
+(define-key map 106,4182
+(define-key map 109,4388
+(define-key map 110,4454
+(define-key map 112,4569
+(define-key map 113,4632
+(define-key map 115,4717
+(define-key map 122,5043
+(define-key map 123,5102
+(defun proof-menu-define-main 143,5692
+(defun proof-menu-define-specific 153,5893
+(defun proof-assistant-menu-update 188,6911
+(defvar proof-help-menu205,7519
+(defvar proof-show-hide-menu213,7797
+(defvar proof-buffer-menu222,8110
+(defun proof-keep-response-history 277,10207
+(defconst proof-quick-opts-menu285,10517
+(defun proof-quick-opts-vars 412,15579
+(defun proof-quick-opts-changed-from-defaults-p 437,16330
+(defun proof-quick-opts-changed-from-saved-p 441,16435
+(defun proof-quick-opts-save 452,16787
+(defun proof-quick-opts-reset 457,16955
+(defconst proof-config-menu469,17223
+(defconst proof-advanced-menu476,17402
+(defvar proof-menu 489,17837
+(defvar proof-main-menu498,18121
+(defvar proof-aux-menu508,18347
+(defvar proof-menu-favourites 524,18669
+(defun proof-menu-define-favourites-menu 527,18776
+(defmacro proof-defshortcut 548,19447
+(defmacro proof-definvisible 564,20102
+(defun proof-def-favourite 585,20927
+(defvar proof-make-favourite-cmd-history 608,21902
+(defvar proof-make-favourite-menu-history 611,21987
+(defun proof-save-favourites 614,22073
+(defun proof-del-favourite 619,22221
+(defun proof-read-favourite 636,22782
+(defun proof-add-favourite 661,23585
+(defvar proof-assistant-settings 688,24636
+(defvar proof-menu-settings 695,24999
+(defun proof-menu-define-settings-menu 698,25073
+(defun proof-menu-entry-name 718,25817
+(defun proof-menu-entry-for-setting 730,26289
+(defun proof-settings-vars 748,26779
+(defun proof-settings-changed-from-defaults-p 753,26956
+(defun proof-settings-changed-from-saved-p 757,27062
+(defun proof-settings-save 761,27165
+(defun proof-settings-reset 766,27332
+(defun proof-defpacustom-fn 774,27578
+(defmacro defpacustom 850,30462
+(defun proof-assistant-invisible-command-ifposs 861,31103
+(defun proof-maybe-askprefs 883,32078
+(defun proof-assistant-settings-cmd 890,32282
+(defun proof-assistant-format 907,32942
+(defvar proof-assistant-format-table 931,34001
+(defun proof-assistant-format-bool 939,34370
+(defun proof-assistant-format-int 942,34483
+(defun proof-assistant-format-string 945,34575
 
 generic/proof-mmm.el,113
 (defun proof-mmm-support-available 27,933
@@ -1947,7 +1882,7 @@ generic/proof-script.el,5105
 (defun proof-setup-imenu 2878,113521
 (defun proof-setup-func-menu 2895,114126
 
-generic/proof-shell.el,3337
+generic/proof-shell.el,3390
 (defvar proof-shell-last-output 19,457
 (defvar proof-marker 63,1713
 (defvar proof-action-list 66,1810
@@ -1964,63 +1899,64 @@ generic/proof-shell.el,3337
 (defun proof-release-lock 223,7036
 (defcustom proof-shell-fiddle-frames 243,7592
 (deflocal proof-eagerly-raise 250,7833
-(defun proof-shell-start 253,7939
-(defvar proof-shell-kill-function-hooks 472,16420
-(defun proof-shell-kill-function 475,16518
-(defun proof-shell-clear-state 566,20378
-(defun proof-shell-exit 581,20821
-(defun proof-shell-bail-out 593,21266
-(defun proof-shell-restart 602,21743
-(defvar proof-shell-no-response-display 644,23127
-(defvar proof-shell-urgent-message-marker 647,23231
-(defvar proof-shell-urgent-message-scanner 650,23352
-(defun proof-shell-handle-output 654,23479
-(defun proof-shell-handle-delayed-output 727,26802
-(defvar proof-shell-no-error-display 762,28224
-(defun proof-shell-handle-error 768,28430
-(defun proof-shell-handle-interrupt 786,29266
-(defun proof-shell-error-or-interrupt-action 800,29888
-(defun proof-goals-pos 827,31093
-(defun proof-pbp-focus-on-first-goal 832,31298
-(defsubst proof-shell-string-match-safe 844,31833
-(defun proof-shell-process-output 849,32001
-(defvar proof-shell-insert-space-fudge 960,36641
-(defun proof-shell-insert 969,36950
-(defun proof-shell-command-queue-item 1043,39862
-(defun proof-shell-set-silent 1048,40019
-(defun proof-shell-start-silent-item 1054,40238
-(defun proof-shell-clear-silent 1060,40430
-(defun proof-shell-stop-silent-item 1066,40652
-(defun proof-shell-should-be-silent 1073,40924
-(defun proof-append-alist 1086,41480
-(defun proof-start-queue 1145,43717
-(defun proof-extend-queue 1156,44066
-(defun proof-shell-exec-loop 1167,44447
-(defun proof-shell-insert-loopback-cmd 1232,47035
-(defun proof-shell-message 1260,48361
-(defun proof-shell-process-urgent-message 1266,48577
-(defvar proof-shell-minibuffer-urgent-interactive-input-history 1475,57465
-(defun proof-shell-minibuffer-urgent-interactive-input 1477,57535
-(defun proof-shell-process-urgent-messages 1489,57905
-(defun proof-shell-filter 1561,61075
-(defun proof-shell-filter-process-output 1714,67412
-(defvar pg-last-tracing-output-time 1767,69466
-(defvar pg-tracing-slow-mode 1770,69572
-(defconst pg-slow-mode-duration 1773,69661
-(defconst pg-fast-tracing-mode-threshold 1776,69743
-(defvar pg-tracing-cleanup-timer 1779,69871
-(defun pg-tracing-tight-loop 1781,69910
-(defun pg-finish-tracing-display 1824,71628
-(defun proof-shell-dont-show-annotations 1837,71934
-(defun proof-shell-show-annotations 1853,72469
-(defun proof-shell-wait 1874,72966
-(defun proof-done-invisible 1894,73876
-(defun proof-shell-invisible-command 1937,75599
-(defun proof-shell-invisible-cmd-get-result 1970,76849
-(defun proof-shell-invisible-command-invisible-result 1987,77530
-(define-derived-mode proof-shell-mode 2007,78034
-(defconst proof-shell-important-settings2078,80705
-(defun proof-shell-config-done 2083,80805
+(defun proof-shell-set-text-representation 253,7939
+(defun proof-shell-start 266,8494
+(defvar proof-shell-kill-function-hooks 485,16486
+(defun proof-shell-kill-function 488,16584
+(defun proof-shell-clear-state 577,20387
+(defun proof-shell-exit 592,20830
+(defun proof-shell-bail-out 604,21275
+(defun proof-shell-restart 613,21752
+(defvar proof-shell-no-response-display 655,23136
+(defvar proof-shell-urgent-message-marker 658,23240
+(defvar proof-shell-urgent-message-scanner 661,23361
+(defun proof-shell-handle-output 665,23488
+(defun proof-shell-handle-delayed-output 730,26341
+(defvar proof-shell-no-error-display 765,27763
+(defun proof-shell-handle-error 771,27969
+(defun proof-shell-handle-interrupt 789,28805
+(defun proof-shell-error-or-interrupt-action 803,29427
+(defun proof-goals-pos 830,30632
+(defun proof-pbp-focus-on-first-goal 835,30837
+(defsubst proof-shell-string-match-safe 847,31372
+(defun proof-shell-process-output 852,31540
+(defvar proof-shell-insert-space-fudge 963,36180
+(defun proof-shell-insert 972,36489
+(defun proof-shell-command-queue-item 1046,39401
+(defun proof-shell-set-silent 1051,39558
+(defun proof-shell-start-silent-item 1057,39777
+(defun proof-shell-clear-silent 1063,39969
+(defun proof-shell-stop-silent-item 1069,40191
+(defun proof-shell-should-be-silent 1076,40463
+(defun proof-append-alist 1089,41019
+(defun proof-start-queue 1148,43256
+(defun proof-extend-queue 1159,43605
+(defun proof-shell-exec-loop 1170,43986
+(defun proof-shell-insert-loopback-cmd 1235,46574
+(defun proof-shell-message 1263,47900
+(defun proof-shell-process-urgent-message 1269,48116
+(defvar proof-shell-minibuffer-urgent-interactive-input-history 1481,57074
+(defun proof-shell-minibuffer-urgent-interactive-input 1483,57144
+(defun proof-shell-process-urgent-messages 1495,57514
+(defun proof-shell-filter 1568,60685
+(defun proof-shell-filter-process-output 1727,67274
+(defvar pg-last-tracing-output-time 1780,69328
+(defvar pg-tracing-slow-mode 1783,69434
+(defconst pg-slow-mode-duration 1786,69523
+(defconst pg-fast-tracing-mode-threshold 1789,69605
+(defvar pg-tracing-cleanup-timer 1792,69733
+(defun pg-tracing-tight-loop 1794,69772
+(defun pg-finish-tracing-display 1837,71490
+(defun proof-shell-dont-show-annotations 1850,71796
+(defun proof-shell-show-annotations 1866,72331
+(defun proof-shell-wait 1887,72828
+(defun proof-done-invisible 1907,73738
+(defun proof-shell-invisible-command 1950,75461
+(defun proof-shell-invisible-cmd-get-result 1983,76711
+(defun proof-shell-invisible-command-invisible-result 2000,77392
+(define-derived-mode proof-shell-mode 2020,77896
+(defconst proof-shell-important-settings2091,80567
+(defun proof-shell-config-done 2096,80667
 
 generic/proof-site.el,719
 (defgroup proof-general 20,594
@@ -2146,77 +2082,78 @@ generic/proof-toolbar.el,2877
 (defun proof-toolbar-make-menu-item 540,15471
 (defconst proof-toolbar-scripting-menu562,16159
 
-generic/proof-utils.el,2099
-(defmacro deflocal 18,472
-(defmacro proof-with-current-buffer-if-exists 25,710
-(defmacro proof-with-script-buffer 34,1087
-(defmacro proof-map-buffers 45,1474
-(defmacro proof-sym 50,1659
-(defun proof-try-require 55,1820
-(defun proof-list-filter 66,2135
-(defun proof-save-some-buffers 78,2513
-(defun proof-set-value 102,3204
-(defun proof-ass-symv 162,5381
-(defmacro proof-ass-sym 167,5568
-(defun proof-defpgcustom-fn 171,5707
-(defun undefpgcustom 196,6791
-(defmacro defpgcustom 202,7015
-(defmacro proof-ass 211,7432
-(defun proof-defpgdefault-fn 216,7608
-(defmacro defpgdefault 230,8067
-(defmacro defpgfun 241,8429
-(defun proof-file-truename 256,8723
-(defun proof-file-to-buffer 260,8906
-(defun proof-files-to-buffers 271,9235
-(defun proof-buffers-in-mode 278,9518
-(defun pg-save-from-death 292,9969
-(defun proof-define-keys 311,10587
-(deflocal proof-font-lock-keywords 340,11588
-(deflocal proof-font-lock-keywords-case-fold-search 346,11853
-(defun proof-font-lock-configure-defaults 349,11976
-(defun proof-font-lock-clear-font-lock-vars 397,14289
-(defun proof-font-lock-set-font-lock-vars 408,14662
-(defun proof-fontify-region 415,14875
-(defun pg-remove-specials 473,17103
-(defun pg-remove-specials-in-string 483,17448
-(defun proof-fontify-buffer 490,17635
-(defun proof-warn-if-unset 503,17876
-(defun proof-get-window-for-buffer 508,18094
-(defun proof-display-and-keep-buffer 559,20408
-(defun proof-clean-buffer 591,21717
-(defun proof-message 606,22338
-(defun proof-warning 611,22551
-(defun pg-internal-warning 617,22833
-(defun proof-debug 625,23152
-(defun proof-switch-to-buffer 640,23835
-(defun proof-resize-window-tofit 673,25527
-(defun proof-submit-bug-report 773,29539
-(defun proof-deftoggle-fn 809,30927
-(defmacro proof-deftoggle 824,31582
-(defun proof-defintset-fn 831,31956
-(defmacro proof-defintset 847,32664
-(defun proof-defstringset-fn 854,33041
-(defmacro proof-defstringset 867,33668
-(defun pg-custom-save-vars 881,34133
-(defun pg-custom-reset-vars 899,34859
-(defun proof-locate-executable 912,35196
-(defconst proof-extra-fls941,36377
+generic/proof-utils.el,2102
+(defmacro deflocal 19,531
+(defmacro proof-with-current-buffer-if-exists 26,769
+(defmacro proof-with-script-buffer 35,1146
+(defmacro proof-map-buffers 46,1533
+(defmacro proof-sym 51,1718
+(defun proof-try-require 56,1879
+(defmacro proof-face-specs 63,2073
+(defun proof-save-some-buffers 85,2728
+(defun proof-set-value 109,3419
+(defun proof-ass-symv 169,5596
+(defmacro proof-ass-sym 174,5783
+(defun proof-defpgcustom-fn 178,5922
+(defun undefpgcustom 203,7006
+(defmacro defpgcustom 209,7230
+(defmacro proof-ass 218,7647
+(defun proof-defpgdefault-fn 223,7823
+(defmacro defpgdefault 237,8282
+(defmacro defpgfun 248,8644
+(defun proof-file-truename 263,8938
+(defun proof-file-to-buffer 267,9121
+(defun proof-files-to-buffers 278,9450
+(defun proof-buffers-in-mode 285,9733
+(defun pg-save-from-death 299,10184
+(defun proof-define-keys 318,10802
+(deflocal proof-font-lock-keywords 347,11803
+(deflocal proof-font-lock-keywords-case-fold-search 353,12068
+(defun proof-font-lock-configure-defaults 356,12191
+(defun proof-font-lock-clear-font-lock-vars 404,14504
+(defun proof-font-lock-set-font-lock-vars 415,14877
+(defun proof-fontify-region 422,15090
+(defun pg-remove-specials 480,17318
+(defun pg-remove-specials-in-string 490,17657
+(defun proof-fontify-buffer 497,17844
+(defun proof-warn-if-unset 510,18085
+(defun proof-get-window-for-buffer 515,18303
+(defun proof-display-and-keep-buffer 566,20617
+(defun proof-clean-buffer 598,21926
+(defun proof-message 613,22547
+(defun proof-warning 618,22760
+(defun pg-internal-warning 624,23042
+(defun proof-debug 632,23361
+(defun proof-switch-to-buffer 647,24032
+(defun proof-resize-window-tofit 680,25724
+(defun proof-submit-bug-report 780,29736
+(defun proof-deftoggle-fn 816,31124
+(defmacro proof-deftoggle 831,31779
+(defun proof-defintset-fn 838,32153
+(defmacro proof-defintset 854,32861
+(defun proof-defstringset-fn 861,33238
+(defmacro proof-defstringset 874,33865
+(defun pg-custom-save-vars 888,34330
+(defun pg-custom-reset-vars 906,35056
+(defun proof-locate-executable 919,35393
+(defconst proof-extra-fls948,36574
 
-generic/proof-x-symbol.el,613
-(defvar proof-x-symbol-initialized 51,2010
-(defun proof-x-symbol-tokenlang-file 54,2105
-(defun proof-x-symbol-support-maybe-available 60,2287
-(defun proof-x-symbol-initialize 80,3037
-(defun proof-x-symbol-enable 171,6698
-(defun proof-x-symbol-refresh-output-buffers 201,8015
-(defun proof-x-symbol-mode-associated-buffers 216,8769
-(defalias 'proof-x-symbol-decode-region proof-x-symbol-decode-region238,9473
-(defun proof-x-symbol-encode-shell-input 240,9539
-(defun proof-x-symbol-set-language 257,10130
-(defun proof-x-symbol-shell-config 262,10301
-(defun proof-x-symbol-config-output-buffer 310,12468
+generic/proof-x-symbol.el,653
+(defpgcustom x-symbol-language 52,2063
+(defvar proof-x-symbol-initialized 57,2285
+(defun proof-x-symbol-tokenlang-file 60,2380
+(defun proof-x-symbol-support-maybe-available 66,2562
+(defun proof-x-symbol-initialize 86,3312
+(defun proof-x-symbol-enable 177,6973
+(defun proof-x-symbol-refresh-output-buffers 207,8290
+(defun proof-x-symbol-mode-associated-buffers 222,9044
+(defalias 'proof-x-symbol-decode-region proof-x-symbol-decode-region244,9748
+(defun proof-x-symbol-encode-shell-input 246,9814
+(defun proof-x-symbol-set-language 263,10405
+(defun proof-x-symbol-shell-config 268,10576
+(defun proof-x-symbol-config-output-buffer 316,12743
 
-lib/bufhist.el,1058
+lib/bufhist.el,1099
 (defun bufhist-ring-update 32,1226
 (defgroup bufhist 41,1548
 (defcustom bufhist-ring-size 45,1629
@@ -2225,26 +2162,27 @@ lib/bufhist.el,1058
 (defvar bufhist-lastswitch-modified-tick 56,1893
 (defvar bufhist-read-only-history 59,1999
 (defvar bufhist-saved-mode-line-format 62,2070
-(defconst bufhist-mode-line-format-entry65,2171
-(defun bufhist-get-buffer-contents 76,2588
-(defun bufhist-restore-buffer-contents 88,3072
-(defun bufhist-checkpoint 96,3359
-(defun bufhist-erase-buffer 104,3728
-(defun bufhist-checkpoint-and-erase 114,4073
-(defun bufhist-switch-to-index 120,4259
-(defun bufhist-first 159,5863
-(defun bufhist-last 164,6022
-(defun bufhist-prev 169,6168
-(defun bufhist-next 177,6391
-(defun bufhist-delete 182,6531
-(defun bufhist-clear 194,7074
-(defun bufhist-init 208,7455
-(defun bufhist-exit 231,8376
-(defun bufhist-set-readwrite 242,8612
-(defun bufhist-before-change-function 257,9232
-(defconst bufhist-minor-mode-map274,9773
-(define-minor-mode bufhist-mode286,10235
-(defun bufhist-toggle-fn 306,11020
+(defun bufhist-mode-line-format-entry 65,2171
+(defun bufhist-get-buffer-contents 97,3443
+(defun bufhist-restore-buffer-contents 109,3927
+(defun bufhist-checkpoint 117,4214
+(defun bufhist-erase-buffer 125,4583
+(defun bufhist-checkpoint-and-erase 135,4928
+(defun bufhist-switch-to-index 141,5114
+(defun bufhist-first 180,6718
+(defun bufhist-last 185,6877
+(defun bufhist-prev 190,7023
+(defun bufhist-next 198,7246
+(defun bufhist-delete 203,7386
+(defun bufhist-clear 215,7929
+(defun bufhist-init 230,8325
+(defun bufhist-exit 255,9262
+(defun bufhist-set-readwrite 265,9526
+(defun bufhist-before-change-function 280,10146
+(defun bufhist-make-buttons 292,10562
+(defconst bufhist-minor-mode-map310,11001
+(define-minor-mode bufhist-mode322,11463
+(defun bufhist-toggle-fn 342,12248
 
 lib/holes.el,2447
 (defvar holes-doc 35,993
@@ -2301,12 +2239,12 @@ lib/holes.el,2447
 (defvar holes-mode-map755,22835
 (defun holes-replace-string-by-holes-backward 792,24300
 (defun holes-skeleton-end-hook 810,25001
-(defconst holes-jump-doc 818,25365
-(defun holes-replace-string-by-holes-backward-jump 825,25572
-(defun holes-abbrev-complete 842,26203
-(defun holes-insert-and-expand 851,26510
-(defvar holes-mode 862,26942
-(defun holes-mode 868,27138
+(defconst holes-jump-doc 819,25410
+(defun holes-replace-string-by-holes-backward-jump 826,25617
+(defun holes-abbrev-complete 843,26248
+(defun holes-insert-and-expand 852,26555
+(defvar holes-mode 863,26987
+(defun holes-mode 869,27183
 
 lib/local-vars-list.el,372
 (defconst local-vars-list-doc 25,759
@@ -2326,31 +2264,31 @@ lib/maths-menu.el,153
 (define-minor-mode maths-menu-mode337,12521
 
 lib/proof-compat.el,1003
-(defvar proof-running-on-XEmacs 25,817
-(defvar proof-running-on-Emacs21 27,939
-(defvar proof-running-on-win32 31,1186
-(defun pg-custom-undeclare-variable 43,1620
-(defun pg-window-system 118,4102
-(defconst pg-defface-window-systems 127,4473
-(defun subst-char-in-string 151,5190
-(defun replace-regexp-in-string 165,5744
-(defconst menuvisiblep 227,8457
-(defun set-window-text-height 244,9076
-(defmacro save-selected-frame 270,10026
-(defun warn 309,11328
-(defun redraw-modeline 316,11583
-(defun replace-in-string 331,12150
-(defun proof-buffer-syntactic-context-emulate 380,13668
-(defvar read-shell-command-map413,14975
-(defun read-shell-command 431,15677
-(defun remassq 443,16158
-(defun remassoc 455,16547
-(defun frames-of-buffer 468,16992
-(defmacro with-selected-window 507,18254
-(defun pg-pop-to-buffer 550,19643
-(defun process-live-p 601,21495
-(defalias 'proof-buffer-syntactic-context proof-buffer-syntactic-context618,21998
-(defun select-buffers-tab-buffers-by-mode 662,23346
+(defvar proof-running-on-XEmacs 25,818
+(defvar proof-running-on-Emacs21 27,940
+(defvar proof-running-on-win32 31,1187
+(defun pg-custom-undeclare-variable 43,1621
+(defun pg-window-system 118,4103
+(defconst pg-defface-window-systems 127,4474
+(defun subst-char-in-string 151,5191
+(defun replace-regexp-in-string 165,5745
+(defconst menuvisiblep 227,8458
+(defun set-window-text-height 244,9077
+(defmacro save-selected-frame 270,10027
+(defun warn 309,11329
+(defun redraw-modeline 316,11584
+(defun replace-in-string 331,12151
+(defun proof-buffer-syntactic-context-emulate 380,13669
+(defvar read-shell-command-map413,14976
+(defun read-shell-command 431,15678
+(defun remassq 443,16159
+(defun remassoc 455,16548
+(defun frames-of-buffer 468,16993
+(defmacro with-selected-window 507,18255
+(defun pg-pop-to-buffer 550,19644
+(defun process-live-p 601,21496
+(defalias 'proof-buffer-syntactic-context proof-buffer-syntactic-context618,21999
+(defun select-buffers-tab-buffers-by-mode 662,23347
 
 lib/span.el,132
 (defsubst delete-spans 24,499
@@ -2539,10 +2477,10 @@ mmm/mmm-cmds.el,712
 (defun mmm-narrow-to-submode-region 220,7401
 (defun mmm-insert-region 239,8015
 (defun mmm-insert-by-key 258,8877
-(defun mmm-get-insertion-spec 339,12282
-(defun mmm-insertion-help 366,13361
-(defun mmm-display-insertion-key 376,13731
-(defun mmm-get-all-insertion-keys 398,14553
+(defun mmm-get-insertion-spec 342,12437
+(defun mmm-insertion-help 369,13516
+(defun mmm-display-insertion-key 379,13886
+(defun mmm-get-all-insertion-keys 401,14708
 
 mmm/mmm-compat.el,418
 (defvar mmm-xemacs 40,1312
@@ -3518,9 +3456,6 @@ x-symbol/lisp/x-symbol-xmacs.el,522
 (defun x-symbol-event-matches-key-specifier-p 163,7016
 (defun x-symbol-window-width 173,7418
 
-TODO.developer,26
-   function to 401,16137
-
 doc/ProofGeneral.texi,5379
 @node Top166,5052
 @node Preface203,6168
@@ -3570,46 +3505,46 @@ doc/ProofGeneral.texi,5379
 @node How to customizeHow to customize2511,97788
 @node Display customizationDisplay customization2562,99890
 @node User optionsUser options2687,105124
-@node Changing facesChanging faces2951,114535
-@node Tweaking configuration settingsTweaking configuration settings3026,117204
-@node Hints and TipsHints and Tips3083,119730
-@node Adding your own keybindingsAdding your own keybindings3102,120331
-@node Using file variablesUsing file variables3158,122864
-@node Using abbreviationsUsing abbreviations3217,125050
-@node LEGO Proof GeneralLEGO Proof General3256,126466
-@node LEGO specific commandsLEGO specific commands3297,127835
-@node LEGO tagsLEGO tags3317,128290
-@node LEGO customizationsLEGO customizations3327,128537
-@node Coq Proof GeneralCoq Proof General3359,129456
-@node Coq-specific commandsCoq-specific commands3375,129865
-@node Coq-specific variablesCoq-specific variables3397,130372
-@node Editing multiple proofsEditing multiple proofs3419,131030
-@node User-loaded tacticsUser-loaded tactics3443,132138
-@node Holes featureHoles feature3507,134612
-@node Isabelle Proof GeneralIsabelle Proof General3534,135899
-@node Isabelle commandsIsabelle commands3564,137029
-@node Logics and SettingsLogics and Settings3671,140077
-@node Isabelle customizationsIsabelle customizations3705,141617
-@node HOL Proof GeneralHOL Proof General3729,142099
-@node Shell Proof GeneralShell Proof General3771,143921
-@node Obtaining and InstallingObtaining and Installing3807,145380
-@node Obtaining Proof GeneralObtaining Proof General3823,145793
-@node Installing Proof General from tarballInstalling Proof General from tarball3854,147032
-@node Installing Proof General from RPM packageInstalling Proof General from RPM package3879,147864
-@node Setting the names of binariesSetting the names of binaries3894,148272
-@node Notes for syssiesNotes for syssies3922,149212
-@node Bugs and EnhancementsBugs and Enhancements3995,152150
-@node References4016,152965
-@node History of Proof GeneralHistory of Proof General4056,153989
-@node Old News for 3.0Old News for 3.04147,158091
-@node Old News for 3.1Old News for 3.14217,161785
-@node Old News for 3.2Old News for 3.24243,162957
-@node Old News for 3.3Old News for 3.34304,165960
-@node Old News for 3.4Old News for 3.44323,166857
-@node Function IndexFunction Index4346,167913
-@node Variable IndexVariable Index4350,167989
-@node Keystroke IndexKeystroke Index4354,168069
-@node Concept IndexConcept Index4358,168135
+@node Changing facesChanging faces2951,114523
+@node Tweaking configuration settingsTweaking configuration settings3026,117192
+@node Hints and TipsHints and Tips3083,119718
+@node Adding your own keybindingsAdding your own keybindings3102,120319
+@node Using file variablesUsing file variables3158,122852
+@node Using abbreviationsUsing abbreviations3217,125038
+@node LEGO Proof GeneralLEGO Proof General3256,126454
+@node LEGO specific commandsLEGO specific commands3297,127823
+@node LEGO tagsLEGO tags3317,128278
+@node LEGO customizationsLEGO customizations3327,128525
+@node Coq Proof GeneralCoq Proof General3359,129444
+@node Coq-specific commandsCoq-specific commands3375,129853
+@node Coq-specific variablesCoq-specific variables3397,130360
+@node Editing multiple proofsEditing multiple proofs3419,131018
+@node User-loaded tacticsUser-loaded tactics3443,132126
+@node Holes featureHoles feature3507,134600
+@node Isabelle Proof GeneralIsabelle Proof General3534,135887
+@node Isabelle commandsIsabelle commands3564,137017
+@node Logics and SettingsLogics and Settings3671,140065
+@node Isabelle customizationsIsabelle customizations3705,141605
+@node HOL Proof GeneralHOL Proof General3729,142087
+@node Shell Proof GeneralShell Proof General3771,143909
+@node Obtaining and InstallingObtaining and Installing3807,145368
+@node Obtaining Proof GeneralObtaining Proof General3823,145781
+@node Installing Proof General from tarballInstalling Proof General from tarball3854,147020
+@node Installing Proof General from RPM packageInstalling Proof General from RPM package3879,147852
+@node Setting the names of binariesSetting the names of binaries3894,148260
+@node Notes for syssiesNotes for syssies3922,149200
+@node Bugs and EnhancementsBugs and Enhancements3995,152138
+@node References4016,152953
+@node History of Proof GeneralHistory of Proof General4056,153977
+@node Old News for 3.0Old News for 3.04147,158079
+@node Old News for 3.1Old News for 3.14217,161773
+@node Old News for 3.2Old News for 3.24243,162945
+@node Old News for 3.3Old News for 3.34304,165948
+@node Old News for 3.4Old News for 3.44323,166845
+@node Function IndexFunction Index4346,167901
+@node Variable IndexVariable Index4350,167977
+@node Keystroke IndexKeystroke Index4354,168057
+@node Concept IndexConcept Index4358,168123
 
 doc/PG-adapting.texi,3776
 @node Top157,4775
@@ -3639,37 +3574,37 @@ doc/PG-adapting.texi,3776
 @node Script input to the shellScript input to the shell1547,62724
 @node Settings for matching various output from proof processSettings for matching various output from proof process1614,65767
 @node Settings for matching urgent messages from proof processSettings for matching urgent messages from proof process1745,71534
-@node Hooks and other settingsHooks and other settings1955,81087
-@node Goals Buffer SettingsGoals Buffer Settings2054,85084
-@node Splash Screen SettingsSplash Screen Settings2131,88198
-@node Global ConstantsGlobal Constants2157,88956
-@node Handling Multiple FilesHandling Multiple Files2183,89805
-@node Configuring Editing SyntaxConfiguring Editing Syntax2335,97589
-@node Configuring Font LockConfiguring Font Lock2392,99706
-@node Configuring X-SymbolConfiguring X-Symbol2479,103949
-@node Writing More Lisp CodeWriting More Lisp Code2539,106472
-@node Default values for generic settingsDefault values for generic settings2556,107117
-@node Adding prover-specific configurationsAdding prover-specific configurations2586,108200
-@node Useful variablesUseful variables2629,109482
-@node Useful functions and macrosUseful functions and macros2655,110276
-@node Internals of Proof GeneralInternals of Proof General2758,114239
-@node Spans2786,115147
-@node Proof General site configurationProof General site configuration2799,115521
-@node Configuration variable mechanismsConfiguration variable mechanisms2879,118609
-@node Global variablesGlobal variables2997,123845
-@node Proof script modeProof script mode3067,126395
-@node Proof shell modeProof shell mode3326,138050
-@node Debugging3732,154097
-@node Plans and IdeasPlans and Ideas3775,154992
-@node Proof by pointing and similar featuresProof by pointing and similar features3796,155714
-@node Granularity of atomic command sequencesGranularity of atomic command sequences3834,157372
-@node Browser mode for script files and theoriesBrowser mode for script files and theories3879,159597
-@node Demonstration InstantiationsDemonstration Instantiations3909,160628
-@node demoisa-easy.el3925,161059
-@node demoisa.el3988,163298
-@node Function IndexFunction Index4156,168827
-@node Variable IndexVariable Index4160,168903
-@node Concept IndexConcept Index4169,169082
+@node Hooks and other settingsHooks and other settings1955,81081
+@node Goals Buffer SettingsGoals Buffer Settings2054,85078
+@node Splash Screen SettingsSplash Screen Settings2131,88192
+@node Global ConstantsGlobal Constants2157,88950
+@node Handling Multiple FilesHandling Multiple Files2183,89799
+@node Configuring Editing SyntaxConfiguring Editing Syntax2335,97583
+@node Configuring Font LockConfiguring Font Lock2392,99700
+@node Configuring X-SymbolConfiguring X-Symbol2479,103943
+@node Writing More Lisp CodeWriting More Lisp Code2539,106466
+@node Default values for generic settingsDefault values for generic settings2556,107111
+@node Adding prover-specific configurationsAdding prover-specific configurations2586,108194
+@node Useful variablesUseful variables2629,109476
+@node Useful functions and macrosUseful functions and macros2655,110270
+@node Internals of Proof GeneralInternals of Proof General2758,114233
+@node Spans2786,115141
+@node Proof General site configurationProof General site configuration2799,115515
+@node Configuration variable mechanismsConfiguration variable mechanisms2879,118603
+@node Global variablesGlobal variables2997,123839
+@node Proof script modeProof script mode3067,126389
+@node Proof shell modeProof shell mode3326,138044
+@node Debugging3732,154091
+@node Plans and IdeasPlans and Ideas3775,154968
+@node Proof by pointing and similar featuresProof by pointing and similar features3796,155690
+@node Granularity of atomic command sequencesGranularity of atomic command sequences3834,157348
+@node Browser mode for script files and theoriesBrowser mode for script files and theories3879,159573
+@node Demonstration InstantiationsDemonstration Instantiations3909,160604
+@node demoisa-easy.el3925,161035
+@node demoisa.el3988,163274
+@node Function IndexFunction Index4156,168803
+@node Variable IndexVariable Index4160,168879
+@node Concept IndexConcept Index4169,169058
 
 x-symbol/lisp/_pkg.el,0
 
@@ -3681,8 +3616,6 @@ generic/proof-system.el,0
 
 generic/_pkg.el,0
 
-generic/pg-festival.el,0
-
 twelf/x-symbol-twelf.el,0
 
 pgshell/pgshell.el,0
@@ -3690,6 +3623,8 @@ pgshell/pgshell.el,0
 lego/x-symbol-lego.el,0
 
 isar/x-symbol-isar.el,0
+
+isar/isar-templates.el,0
 
 isar/isar-autotest.el,0
 
@@ -3700,6 +3635,8 @@ hol98/x-symbol-hol98.el,0
 hol98/hol98.el,0
 
 demoisa/demoisa-easy.el,0
+
+coq/coq-mmm.el,0
 
 coq/coq-autotest.el,0
 
