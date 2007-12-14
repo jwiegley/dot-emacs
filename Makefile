@@ -82,7 +82,7 @@ compile: .byte-compile
 	@echo "****************************************************************"
 	rm -f $(ELC)
 #	$(BYTECOMP) $(EL)
-	-make elc
+	make elc
 	@echo " Byte compiling X-Symbol..."
 	(cd x-symbol/lisp; rm -f *.elc; $(MAKE) EMACS="$(EMACS) -q -no-site-file")
 	echo $(EMACS) > $(@)
@@ -96,7 +96,7 @@ compile: .byte-compile
 ## to add proper requires in source files.
 ##
 .el.elc:
-	$(BYTECOMP) $*.el
+	-$(BYTECOMP) $*.el
 
 elc:	$(ELC)
 
