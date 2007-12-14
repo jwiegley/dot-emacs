@@ -59,15 +59,21 @@ Return nil if not a script buffer or if no active scripting buffer."
     (file-error nil))
   (featurep symbol))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Handy functions ; should perhaps be elsewhere ?
-
-(defun proof-list-filter (l test)
-  "Build a list containing elements of L satifying predicate test."
-  (if (null l) nil 
-    (if (funcall test (car l)) (cons (car l) (proof-list-filter (cdr l) test))
-      (proof-list-filter (cdr l) test))))
+(defmacro proof-face-specs (bl bd ow)
+  "Return a spec for `defface' with BL for light bg, BD for dark, OW o/w."
+  `(append
+    (apply 'append
+     (mapcar 
+     (lambda (ty) (list
+		     (list (list (list 'type ty) '(class color)
+			   (list 'background 'light))
+			   (quote ,bl))
+		     (list (list (list 'type ty) '(class color)
+				 (list 'background 'dark))
+			   (quote ,bd))))
+     ;; NOTE: see proof-compat.el for possible window-system values
+     pg-defface-window-systems))
+    (list (list t (quote ,ow)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
