@@ -49,20 +49,13 @@ PG_SCRIPTS = bin/proofgeneral
 # Scripts to install to bin directory
 BIN_SCRIPTS = bin/proofgeneral lego/legotags coq/coqtags isar/isartags
 
-# FIXME: would rather set load path in Elisp,
-# but seems tricky to do only during compilation.
-# Another idea: put a function in proof-site to
-# output the compile-time load path and
-# ELISP_DIRS so these are set just in that one
-# place.
+# Setting load path might be better in Elisp, but seems tricky to do
+# only during compilation.  Another idea: put a function in proof-site
+# to output the compile-time load path and ELISP_DIRS so these are set
+# just in that one place.
 BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (mapcar (lambda (d) (concat "${PWD}/" (symbol-name d))) (quote (${ELISP_DIRS}))) load-path))' -f batch-byte-compile
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
-
-# Some parts of code were not compile safe, because of macros
-# being expanded too early (e.g. proof-defshortcut, easy-menu-define)
-# This should be fixed for 3.5, although careful testing is required.
-BROKENELC=
 
 .SUFFIXES:	.el .elc
 
@@ -80,14 +73,16 @@ FORCE:
 compile: .byte-compile
 	lastemacs=`cat .byte-compile`; if [ "$$lastemacs" != "$(EMACS)" ]; then rm -f .byte-compile; make .byte-compile; fi
 
+## Compiling can show up errors in the code, but be wary of fixing obsoletion
+## warnings unless they're valid for both Emacsen.
 
 .byte-compile: $(EL) x-symbol/lisp/*.el
 	@echo "****************************************************************"
-	@echo " Byte compiling... (ignoring errors: watch for \"Error\" or \"!!\")"
+	@echo " Byte compiling..."
 	@echo "****************************************************************"
-	rm -f $(ELC) 
-	-$(BYTECOMP) $(EL)
-	rm -f $(BROKENELC)
+	rm -f $(ELC)
+#	$(BYTECOMP) $(EL)
+	make elc
 	@echo " Byte compiling X-Symbol..."
 	(cd x-symbol/lisp; rm -f *.elc; $(MAKE) EMACS="$(EMACS) -q -no-site-file")
 	echo $(EMACS) > $(@)
@@ -97,13 +92,11 @@ compile: .byte-compile
 
 
 ##
-## Make .elc's individually.  For testing only: it's a nuisance to
-## set compiling context properly in each .el file.
+## Make individual .elc.  Building separately means we need to be careful
+## to add proper requires in source files.
 ##
-
 .el.elc:
 	$(BYTECOMP) $*.el
-	rm -f $(BROKENELC)
 
 elc:	$(ELC)
 
