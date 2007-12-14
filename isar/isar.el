@@ -211,12 +211,13 @@ See -k option for Isabelle interface script."
    ;; Allow font-locking for output based on hidden annotations, see
    ;; isar-output-font-lock-keywords-1
    pg-use-specials-for-fontify		t
-   pg-special-char-regexp
-
-   ;; should be: "[\350-\377]\\|\^A[A-Z]", but literal chars
-   ;; prevent problems with XEmacs 21.5 (beta)
-   "×\\|Ø\\|Ù\\|Ú\\|Û\\|Ü\\|Ý\\|Þ\\|ß\\|8\\|è\\|é\\|ê\\|ë\\|ì\\|í\\|î\\|ï\\|ð\\|ñ\\|ò\\|ó\\|ô\\|õ\\|ö\\|÷\\|ø\\|ù\\|ú\\|û\\|ü\\|ý\\|þ\\|ÿ\\|[0-9A-Z]"
    pg-after-fontify-output-hook	        'pg-remove-specials
+
+   pg-special-char-regexp
+   (if proof-shell-unicode "[0-9A-Z]"
+     ;; next string could be: "[\350-\377]", but that's buggy with XEmacs 21.5 (beta)
+     "×\\|Ø\\|Ù\\|Ú\\|Û\\|Ü\\|Ý\\|Þ\\|ß\\|8\\|è\\|é\\|ê\\|ë\\|ì\\|í\\|î\\|ï\\|ð\\|ñ\\|ò\\|ó\\|ô\\|õ\\|ö\\|÷\\|ø\\|ù\\|ú\\|û\\|ü\\|ý\\|þ\\|ÿ\\|")
+
    pg-subterm-help-cmd			"term %s" 
 
    proof-cannot-reopen-processed-files  t
