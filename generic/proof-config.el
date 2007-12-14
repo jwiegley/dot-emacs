@@ -317,14 +317,15 @@ With this feature enabled, the buffers used for prover responses will have a
 history that can be browsed without processing/undoing in the prover.
 (Changes to this variable take effect after restarting the prover)."
   :type 'boolean
+  :set 'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-show-debug-messages nil
-  "*Whether to display debugging messages in the response buffer.
-If non-nil, debugging messages are displayed in the response giving
-information about what Proof General is doing.
-To avoid erasing the messages shortly after they're printed, 
-you should set `proof-tidy-response' to nil."
+(defcustom proof-general-debug nil
+  "*Non-nil to run Proof General in debug mode.
+This changes some behaviour (e.g. markup stripping) and displays 
+debugging messages in the response buffer.  To avoid erasing 
+messages shortly after they're printed, set `proof-tidy-response' to nil.
+This is only useful for PG developers."
   :type 'boolean
   :group 'proof-user-options)
 
@@ -2052,10 +2053,11 @@ invisible and can be used to do syntax highlighting with font-lock."
   :type 'string
   :group 'proof-shell)
 
+
 (defcustom proof-shell-set-elisp-variable-regexp nil
   "Matches output telling Proof General to set some variable.
 This allows the proof assistant to configure Proof General directly
-and dynamically.  
+and dynamically.   (It's also a fantastic backdoor security risk).
 
 If the regexp matches output from the proof assistant, there should be
 two match strings: (match-string 1) should be the name of the elisp
@@ -2066,7 +2068,7 @@ A good markup for the second string is to delimit with #'s, since
 these are not valid syntax for elisp evaluation.
 
 Elisp errors will be trapped when evaluating; set 
-proof-show-debug-messages to be informed when this happens.
+proof-general-debug to be informed when this happens.
 
 Example uses are to adjust PG's internal copies of proof assistant's
 settings, or to make automatic dynamic syntax adjustments in Emacs to
