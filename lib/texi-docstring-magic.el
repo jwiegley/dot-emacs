@@ -112,10 +112,9 @@
 	   (if in-quoted-region
 	       line
 	     (setq in-quoted-region t)
-	     (message "%s" line)
 	     (concat "@lisp\n" line))
 	 ;; non-white space/carriage return
-	 (if in-quoted-region
+	 (if (and in-quoted-region (not (equal line "\n")))
 	     (progn
 	       (setq in-quoted-region nil)
 	       (concat "@end lisp\n" line))
