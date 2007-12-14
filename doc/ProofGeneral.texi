@@ -2865,8 +2865,8 @@ history that can be browsed without processing/undoing in the prover.
 The default value is @code{nil}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-show-debug-messages
-@defopt proof-show-debug-messages 
+@c TEXI DOCSTRING MAGIC: proof-general-debug
+@defopt proof-general-debug 
 Whether to display debugging messages in the response buffer.@*
 If non-nil, debugging messages are displayed in the response giving
 information about what Proof General is doing.

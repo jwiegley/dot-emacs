@@ -1840,7 +1840,7 @@ A good markup for the second string is to delimit with #'s, since
 these are not valid syntax for elisp evaluation.
 
 Elisp errors will be trapped when evaluating; set 
-@code{proof-show-debug-messages} to be informed when this happens.
+@code{proof-general-debug} to be informed when this happens.
 
 Example uses are to adjust PG's internal copies of proof assistant's
 settings, or to make automatic dynamic syntax adjustments in Emacs to
@@ -3737,10 +3737,10 @@ by the filter is to send the next command from the queue.
 @c links to helpful docs.
 
 To debug Proof General, it may be helpful to set the
-configuration variable @code{proof-show-debug-messages}.
+configuration variable @code{proof-general-debug}.
 
-@c TEXI DOCSTRING MAGIC: proof-show-debug-messages
-@defopt proof-show-debug-messages 
+@c TEXI DOCSTRING MAGIC: proof-general-debug
+@defopt proof-general-debug 
 Whether to display debugging messages in the response buffer.@*
 If non-nil, debugging messages are displayed in the response giving
 information about what Proof General is doing.
