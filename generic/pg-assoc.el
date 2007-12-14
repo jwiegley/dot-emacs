@@ -40,11 +40,15 @@ Some may be dead/nil."
 
 (defun proof-associated-windows ()
   "Return a list of the associated buffers windows.  
-dead or nil buffers are not represented in the list."
-  (let ((lwin (mapcar '(lambda (b) (and b (get-buffer-window b))) 
-		     (proof-associated-buffers))))
-    (proof-list-filter lwin '(lambda (x) (not (null x))))
-    ))
+Dead or nil buffers are not represented in the list."
+  (let ((bufs (proof-associated-buffers))
+	buf wins)
+    (while bufs
+      (setq buf (car bufs))
+      (if (and buf (get-buffer-window buf))
+	  (setq wins (cons (get-buffer-window buf) wins)))
+      (setq bufs (cdr bufs)))
+    wins))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
