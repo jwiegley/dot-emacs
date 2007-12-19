@@ -72,7 +72,7 @@
 
 (autoload 'column-marker-1 "column-marker")
 
-(add-hook 'lisp-mode-hook (lambda () (interactive) (column-marker-1 80)))
+(add-hook 'lisp-mode-hook (lambda () (interactive) (column-marker-1 79)))
 
 ;;;_ * paredit
 

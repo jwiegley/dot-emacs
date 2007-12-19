@@ -119,8 +119,8 @@
 (eval-after-load "message"
   '(load "message-x"))
 
-(eval-after-load "gnus-sum"
-  '(defalias 'gnus-summary-refer-article 'gnus-goto-article))
+;;(eval-after-load "gnus-sum"
+;;  '(defalias 'gnus-summary-refer-article 'gnus-goto-article))
 
 ;;;_ + Determine layout of the summary windows
 
@@ -161,25 +161,25 @@
 
 ;;;_ + Record e-mail addresses that I send e-mail to
 
-(defun gnus-record-recipients ()
-  (save-excursion
-    (save-restriction
-      (message-narrow-to-headers)
-      (let ((addrs
-	     (append
-	      (mail-extract-address-components
-	       (concat (mail-fetch-field "to") ","
-		       (mail-fetch-field "cc") ","
-		       (mail-fetch-field "bcc")) t))))
-	(dolist (addr addrs)
-	  (if (and addr (cdr addr))
-	      (call-process-shell-command "/home/johnw/bin/addmail"
-					  nil nil nil (cadr addr))))))))
-
-(defun gnus-goto-article (message-id)
-  (let ((info (nnml-find-group-number message-id "nnml")))
-    (gnus-summary-read-group (concat "nnml:" (car info)) 100 t)
-    (gnus-summary-goto-article (cdr info) nil t)))
+;; (defun gnus-record-recipients ()
+;;   (save-excursion
+;;     (save-restriction
+;;       (message-narrow-to-headers)
+;;       (let ((addrs
+;; 	     (append
+;; 	      (mail-extract-address-components
+;; 	       (concat (mail-fetch-field "to") ","
+;; 		       (mail-fetch-field "cc") ","
+;; 		       (mail-fetch-field "bcc")) t))))
+;; 	(dolist (addr addrs)
+;; 	  (if (and addr (cdr addr))
+;; 	      (call-process-shell-command "/home/johnw/bin/addmail"
+;; 					  nil nil nil (cadr addr))))))))
+;; 
+;; (defun gnus-goto-article (message-id)
+;;   (let ((info (nnml-find-group-number message-id "nnml")))
+;;     (gnus-summary-read-group (concat "nnml:" (car info)) 100 t)
+;;     (gnus-summary-goto-article (cdr info) nil t)))
 
 ;;;_ + Saving articles from gnu.emacs.sources
 
