@@ -18,6 +18,7 @@
 	    (expand-file-name "~/Library/Emacs/site-lisp/org-mode")
 	    (expand-file-name "~/Library/Emacs/site-lisp/pydb/emacs")
 	    (expand-file-name "~/Library/Emacs/site-lisp/remember")
+	    (expand-file-name "~/Library/Emacs/site-lisp/ruby")
 	    (expand-file-name "/usr/local/share/emacs/site-lisp"))))
 
   (setq path (expand-file-name path))
@@ -97,7 +98,6 @@
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote top))
  '(dired-recursive-deletes (quote top))
- '(display-time-mail-function (quote check-mail))
  '(display-time-mode t)
  '(doxymacs-doxygen-dirs (quote (("/src/ledger/" "~/Products/ledger/docs/ledger.xml" "~/Products/ledger/docs"))))
  '(dvc-select-priority (quote (xhg)))
@@ -270,6 +270,7 @@
  '(circe-highlight-all-nicks-face ((t (:foreground "dark blue"))))
  '(circe-originator-face ((t (:foreground "dark orange"))))
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
+ '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98")))))
 
 ;;;_ * disabled commands
@@ -329,7 +330,7 @@
 (setq circe-default-realname "http://www.newartisans.com/"
       circe-server-coding-system '(utf-8 . undecided)
       circe-server-auto-join-channels
-      '(("^freenode$" "#ledger" "#emacs" "#lisp"))
+      '(("^freenode$" "#ledger" "#emacs"))
       circe-nickserv-passwords '(("freenode" "xco8imer")))
 
 (setq lui-max-buffer-size 30000
@@ -523,7 +524,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * ledger
 
-(load "~/src/ledger/cl-ledger" t)
+(load "~/src/cl-ledger/cl-ledger" t)
 
 (eval-after-load "whitespace"
   '(add-to-list 'whitespace-modes 'cl-ledger-mode))
@@ -640,7 +641,6 @@ This is an appropriate function for `lui-pre-output-hook'."
 (setq gnus-home-directory "~/Documents")
 
 (load ".gnus")
-(load "check-mail")
 
 (defun gnus-visit-article ()
   (interactive)
@@ -884,6 +884,22 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p" note-date))))))
 
 (add-hook 'remember-mode-hook 'org-remember-apply-template)
 
+;;;_ * ruby
+
+(autoload 'ruby-mode "ruby-mode"
+  "Mode for editing ruby source files")
+
+(add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
+(add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))
+
+(autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
+(autoload 'inf-ruby-keys "inf-ruby"
+  "Set local key defs for inf-ruby in ruby-mode")
+(add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
+(add-hook 'ruby-mode-hook 'turn-on-font-lock)
+
+(autoload 'rubydb "rdebug" "Ruby debugger" t)
+
 ;;;_ * session
 
 (when (load "session" t)
@@ -1018,8 +1034,98 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p" note-date))))))
 (setq trac-projects
       '(("ledger"
 	 :endpoint "http://trac.newartisans.com/ledger/login/xmlrpc"
-	 :login-name "johnw"
+	 :login "johnw"
 	 :name "John Wiegley")))
+
+(setq url-digest-auth-storage
+      '(("trac.newartisans.com:80"
+	 ("New Artisans LLC Trac Server" "johnw"
+	  "de2a014fa1e6267c60eda76dbdae225d"
+	  "403af2fae9e168e2631343a9cf7f6891"))))
+
+(eval-after-load "url-auth"
+  '(defun url-digest-auth (url &optional prompt overwrite realm args)
+     "Get the username/password for the specified URL.
+If optional argument PROMPT is non-nil, ask for the username/password
+to use for the url and its descendants.  If optional third argument
+OVERWRITE is non-nil, overwrite the old username/password pair if it
+is found in the assoc list.  If REALM is specified, use that as the realm
+instead of hostname:portnum."
+     (if args
+	 (let* ((href (if (stringp url)
+			  (url-generic-parse-url url)
+			url))
+		(server (url-host href))
+		(port (url-port href))
+		(path (url-filename href))
+		user pass byserv retval data)
+	   (setq path (cond
+		       (realm realm)
+		       ((string-match "/$" path) path)
+		       (t (url-basepath path)))
+		 server (format "%s:%d" server port)
+		 byserv (cdr-safe (assoc server url-digest-auth-storage)))
+	   (cond
+	    ((and prompt (not byserv))
+	     (setq user (read-string (url-auth-user-prompt url realm)
+				     (user-real-login-name))
+		   pass (read-passwd "Password: ")
+		   url-digest-auth-storage
+		   (cons (list server
+			       (cons path
+				     (setq retval
+					   (cons user
+						 (url-digest-auth-create-key
+						  user pass realm
+						  (or url-request-method "GET")
+						  url)))))
+			 url-digest-auth-storage)))
+	    (byserv
+	     (setq retval (cdr-safe (assoc path byserv)))
+	     (if (and (not retval)	; no exact match, check directories
+		      (string-match "/" path)) ; not looking for a realm
+		 (while (and byserv (not retval))
+		   (setq data (car (car byserv)))
+		   (if (or (not (string-match "/" data))
+			   (and
+			    (>= (length path) (length data))
+			    (string= data (substring path 0 (length data)))))
+		       (setq retval (cdr (car byserv))))
+		   (setq byserv (cdr byserv))))
+	     (if overwrite
+		 (if (and (not retval) prompt)
+		     (setq user (read-string (url-auth-user-prompt url realm)
+					     (user-real-login-name))
+			   pass (read-passwd "Password: ")
+			   retval (setq retval
+					(cons user
+					      (url-digest-auth-create-key
+					       user pass realm
+					       (or url-request-method "GET")
+					       url)))
+			   byserv (assoc server url-digest-auth-storage))
+		   (setcdr byserv
+			   (cons (cons path retval) (cdr byserv))))))
+	    (t (setq retval nil)))
+	   (if retval
+	       (if (cdr-safe (assoc "opaque" args))
+		   (let ((nonce (or (cdr-safe (assoc "nonce" args)) "nonegiven"))
+			 (opaque (cdr-safe (assoc "opaque" args))))
+		     (format
+		      (concat "Digest username=\"%s\", realm=\"%s\","
+			      "nonce=\"%s\", uri=\"%s\","
+			      "response=\"%s\", opaque=\"%s\"")
+		      (nth 0 retval) realm nonce (url-filename href)
+		      (md5 (concat (nth 1 retval) ":" nonce ":"
+				   (nth 2 retval))) opaque))
+		 (let ((nonce (or (cdr-safe (assoc "nonce" args)) "nonegiven")))
+		   (format
+		    (concat "Digest username=\"%s\", realm=\"%s\","
+			    "nonce=\"%s\", uri=\"%s\","
+			    "response=\"%s\"")
+		    (nth 0 retval) realm nonce (url-filename href)
+		    (md5 (concat (nth 1 retval) ":" nonce ":"
+				 (nth 2 retval)))))))))))
 
 ;;;_ * whitespace
 
