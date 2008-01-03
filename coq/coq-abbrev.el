@@ -19,14 +19,13 @@
 (defconst coq-tactics-menu 
   (append '("INSERT TACTICS" 
 	    ["Intros (smart)" coq-insert-intros t])
-	  (coq-build-menu-from-db coq-tactics-db)))
+	  (coq-build-menu-from-db (append coq-tactics-db coq-solve-tactics-db))))
 
 (defconst coq-tactics-abbrev-table 
-  (coq-build-abbrev-table-from-db coq-tactics-db))
+  (coq-build-abbrev-table-from-db (append coq-tactics-db coq-solve-tactics-db)))
 
 (defconst coq-tacticals-menu 
-  (append '("INSERT TACTICALS" 
-	    ["Intros (smart)" coq-insert-intros t])
+  (append '("INSERT TACTICALS")
 	  (coq-build-menu-from-db coq-tacticals-db)))
 
 (defconst coq-tacticals-abbrev-table 
@@ -54,17 +53,21 @@
 
 ;;; The abbrev table built from keywords tables
 ;#s and @{..} are replaced by holes by holes-abbrev-complete
-;; (unless (noninteractive)
-;;   (if (and (boundp 'coq-mode-abbrev-table)
-;; 	   (not (equal coq-mode-abbrev-table (make-abbrev-table)))) 
-;;       (message "Coq abbrevs already exists, default not loaded")    
-;;     (message "Coq default abbrevs loaded")
-;;     (define-abbrev-table 'coq-mode-abbrev-table
-;;       (append coq-tactics-abbrev-table coq-tacticals-abbrev-table 
-;; 	      coq-commands-abbrev-table coq-terms-abbrev-table))
-;;     ;; if we use default coq abbrev, never ask to save it
-;;     (setq save-abbrevs nil)))
+(defun coq-install-abbrevs () 
+  "install default abbrev table for coq if no other already is."
+  (if (and (boundp 'coq-mode-abbrev-table)
+ 	   (not (equal coq-mode-abbrev-table (make-abbrev-table)))) 
+      (message "Coq abbrevs already exists, default not loaded")    
+    (define-abbrev-table 'coq-mode-abbrev-table
+      (append coq-tactics-abbrev-table coq-tacticals-abbrev-table 
+ 	      coq-commands-abbrev-table coq-terms-abbrev-table))
+    ;; if we use default coq abbrev, never ask to save it
+    (setq save-abbrevs nil)
+    (message "Coq default abbrevs loaded")
+    ))
 
+(unless (noninteractive)
+  (coq-install-abbrevs))
 ;;;;;
 
 ;; The coq menu mainly built from tables

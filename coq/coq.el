@@ -36,15 +36,19 @@
   :type 'boolean
   :group 'coq)
 
-(unless (or (noninteractive) ;; compiling 
-            (not (equal 
-                  (default-value 'coq-prog-args) coq-prog-args)))
+;; Fixes default prog args, this is overridden by file variables
+(defun coq-build-prog-args ()
   (setq coq-prog-args
-        (append coq-prog-args
-                (cond
-                 (coq-version-is-V8-0  '("-emacs"))
-                 (t                    '("-emacs-U")))
-                (if coq-translate-to-v8 " -translate"))))
+        (append (remove-if (lambda (x) (string-match "\\-emacs" x)) coq-prog-args)
+                (cond 
+                 (coq-version-is-V8-0 '("-emacs"))
+                 (t '("-emacs-U")))
+                (if coq-translate-to-v8 " -translate")))
+  )
+
+;; fix it
+(unless (noninteractive) ;; compiling 
+  (coq-build-prog-args))
 
 (defcustom coq-compile-file-command "coqc %s"
   "*Command to compile a coq file.
@@ -236,7 +240,7 @@ On Windows you might need something like:
   "Declaration and definition regexp.")
 
 (defun coq-proof-mode-p ()
-  "Allow to know if we are currentlly in proof mode. 
+  "Return true if we are currentlly in proof mode. 
 Look at the last line of the *coq* buffer to see if the prompt is the
 toplevel \"Coq <\".  Returns nil if yes.  This assumes that no
 \"Resume\" or \"Suspend\" command has been used."
@@ -729,22 +733,22 @@ This is specific to `coq-mode'."
 
 (defun coq-PrintSection()
   (interactive)
-  (coq-ask-do "Print Section " "Print Section" t))
+  (coq-ask-do "Print Section" "Print Section" t))
 
 (defun coq-Print-implicit ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do "Print Implicit " "Print Implicit"))
+  (coq-ask-do "Print Implicit" "Print Implicit"))
 
 (defun coq-Check ()
   "Ask for a term and print its type."
   (interactive)
-  (coq-ask-do "Check: " "Check"))
+  (coq-ask-do "Check" "Check"))
 
 (defun coq-Show ()
   "Ask for a number i and show the ith goal."
   (interactive)
-  (coq-ask-do "Show goal number: " "Show" t))
+  (coq-ask-do "Show goal number" "Show" t))
 
 
 (proof-definvisible coq-PrintHint "Print Hint. ")
@@ -1198,6 +1202,7 @@ Group number 1 matches the name of the library which is required.")
 ;; Pre-processing of input string  (PG 3.5)
 ;;
 
+;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
 (defun coq-preprocessing () ;; NB: dynamic scoping of `string'
   (cond
    (coq-time-commands
@@ -1537,10 +1542,12 @@ buffer."
           )))))
 
 
-(setq coq-allow-highlight-error t)
+(defvar coq-allow-highlight-error t)
 
 ;; if a command is sent to coq without being in the script, then don't
-;; higilight the error
+;; higilight the error.  Remark: `action' and `string' are known by
+;; `proof-shell-insert-hook', but not by
+;; `proof-shell-handle-error-or-interrupt-hook'
 (defun coq-decide-highlight-error ()
   (if (eq action 'proof-done-invisible)
       (setq coq-allow-highlight-error nil)

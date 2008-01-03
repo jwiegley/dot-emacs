@@ -811,7 +811,7 @@ created.  Return the number of holes created."
   "Default hook after a skeleton insertion: put holes at each interesting position."
   ;; Not all versions of skeleton provide `skeleton-positions' and the
   ;; corresponding @ operation :-(
-  (unless (boundp 'mmm-inside-insert-by-key)
+  (unless (boundp 'mmm-inside-insert-by-key) ; pc: this hack is ok for me
     (when (boundp 'skeleton-positions)
       (dolist (pos skeleton-positions)	;; put holes here
 	(holes-set-make-active-hole pos pos)))))

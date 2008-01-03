@@ -17,7 +17,7 @@
 ;;; Code:
 
 (require 'proof-utils)			; for proof-face-specs, a macro
-
+(require 'holes)
 
 (defconst coq-syntax-db nil
   "Documentation-only variable, for coq keyword databases.
@@ -173,7 +173,7 @@ Submenus contain SIZE entries (default 30).  See `coq-syntax-db' for DB
 structure."
   (let* ((l (coq-sort-menu-entries db)) (res
 		 ())
-	 (wdth (+ 2 (max-length-db coq-tactics-db)))
+	 (wdth (+ 2 (max-length-db db)))
 	 (sz (or size 30)) (lgth (length l)))
     (while l
       (if (<= lgth sz)
@@ -200,7 +200,8 @@ See `coq-syntax-db' for DB structure."
 	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
 	     )
 	;; careful: nconc destructive!
-	(when e2 (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete)))))
+	(when e2 
+	  (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete)))))
 	(setq l tl)))
     res))
 

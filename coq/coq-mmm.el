@@ -19,28 +19,28 @@
    :face mmm-comment-submode-face
    :front "(\\*\\*[ \t]"
    :back  "[ ]?\\*)"
-   :insert ((?d coqdoc-text nil @ "(** " @ " _ " @ " *)" @)))
+   :insert ((?d coqdoc-text nil @ "(** " @ " " _ " " @ " *)" @)))
 
    (coq-latex
    :submode LaTeX-mode
    :face mmm-comment-submode-face
    :front "(\\*\\*[^%\\$]*[%\\$]"
    :back  "[%\\$][ \t]*\\*)"
-   :insert ((?l coqdoc-latex nil @ "(** %" @ " _ " @ "% *)" @)))
+   :insert ((?l coqdoc-latex nil @ "(** %" @ " " _ " " @ "% *)" @)))
 
    (coq-html
    :submode html-mode
    :face mmm-comment-submode-face
    :front "(\\*\\*[^#]*#"
    :back  "#[ \t]*\\*)"
-   :insert ((?w coqdoc-html nil @ "(** #" @ " _ " @ "# *)" @)))
+   :insert ((?w coqdoc-html nil @ "(** #" @ " " _ " " @ "# *)" @)))
 
    (coq-verbatim
    :submode text-mode
    :face mmm-code-submode-face
    :front "^[ \t]*<<"
    :back  ">>"
-   :insert ((?v coqdoc-verbatim nil @ "<<\n" @ " _ " @ "\n>>" @)))
+   :insert ((?v coqdoc-verbatim nil @ "<<\n" @ " " _ " " @ "\n>>" @)))
    ))
 
 
