@@ -113,7 +113,7 @@ of the proof (starting from 1).")
 ;;; Load other Proof General libraries
 ;;;
 
-(require 'proof-system)
+;(require 'proof-system) ; PC: buggy for now David please fix this.
 
 
 ;;;
