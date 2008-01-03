@@ -109,7 +109,7 @@ On Windows you might need something like:
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
   "*Regexp indicating that the current goal has been abandoned.")
 
-(defvar coq-shell-proof-completed-regexp "Subtree proved!"
+(defvar coq-shell-proof-completed-regexp "Subtree proved!\\|Proof Completed\\."
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar coq-goal-regexp
