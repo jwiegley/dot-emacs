@@ -233,15 +233,16 @@ newer Emacs versions, and particularly for GNU Emacs: credit is due to
 Stefan Monnier for an intense period of debugging and patching.  The
 options menu has been simplified and extended, and the display
 management is improved and repaired for Emacs API changes.  There are
-some other usability improvements, prompted in part by feedback after
-Proof General's appearance at the TYPES 2002 Summer School.
+some other usability improvements, some after feedback from use 
+at TYPES Summer Schools.
 
 Support has been added for the useful Emacs packages Speedbar
 @c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
 and Index Menu, both usually distributed with Emacs.
 Compatible versions of the Emacs packages X-Symbol (for mathematical
-symbols) and MMM Mode (for multiple modes in one buffer) are now
-bundled with Proof General to save the need for additional downloads.
+symbols in place of ASCII sequences), Math-Menu (for Unicode symbols)
+and MMM Mode (for multiple modes in one buffer) are 
+bundled with Proof General.
 
 @c The display handling functions have been improved to be more user
 @c friendly and the display in multiple-window mode is trimmed to
@@ -257,7 +258,7 @@ Linux distributions).
 @c Support for *thms* buffer??
 
 See the @file{CHANGES} file in the distribution for more complete
-details of changes since version 3.4, and the appendix
+details of changes since version 3.5, and the appendix
 @ref{History of Proof General} for old news.
 
 
@@ -2681,7 +2682,7 @@ prevent the horizontal split, and result in three windows spanning the
 full width of the Emacs frame.
 
 For multiple frame mode, this function obeys the setting of
-@samp{@code{proof-eagerly-raise}}, which see.
+@samp{@code{pg-response-eagerly-raise}}, which see.
 @end deffn
 
 
@@ -3966,15 +3967,17 @@ Proof General, and the buffer remains in fundamental mode.  If there are
 some assistants supported that you never want to use, you can adjust the
 variable @code{proof-assistants} in @file{proof-site.el} to remove the
 extra autoloads.  This is advisable in case the extensions clash with
-other Emacs modes, for example @code{sml-mode} for @file{.ML} files, or
-Verilog mode for @file{.v} files.  
+other Emacs modes, for example 
+@c @code{sml-mode} for @file{.ML} files, or
+Verilog mode for @file{.v} files clashes with Coq mode.  
 
 See @i{Proof General site configuration} in @i{Adapting Proof General},
 for more details of how to adjust the @code{proof-assistants} setting.
 
-A simple alternative is to delete the relevant directories from the PG
-distribution.  For example, to remove support for Coq, delete
-the @file{coq} directory in the Proof General home directory.
+Instead of altering @code{proof-assistants}, a simple way to disable
+support for some prover is to delete the relevant directories from the
+PG installation.  For example, to remove support for Coq, delete the
+@file{coq} directory in the Proof General home directory.
 
 
 @c Via the Customize mechanism, see the menu:
