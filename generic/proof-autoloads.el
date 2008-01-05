@@ -5,7 +5,7 @@
 
 
 ;;;### (autoloads (bufhist-exit bufhist-init) "bufhist" "../lib/bufhist.el"
-;;;;;;  (18273 46153))
+;;;;;;  (18274 23584))
 ;;; Generated autoloads from ../lib/bufhist.el
 
 (autoload (quote bufhist-init) "bufhist" "\
@@ -26,7 +26,7 @@ Minor mode retaining an in-memory history of the buffer contents.")
 
 ;;;***
 
-;;;### (autoloads (holes-mode) "holes" "../lib/holes.el" (18273 44800))
+;;;### (autoloads (holes-mode) "holes" "../lib/holes.el" (18300 51209))
 ;;; Generated autoloads from ../lib/holes.el
 
 (autoload (quote holes-mode) "holes" "\
@@ -53,7 +53,7 @@ This mode is only useful with a font which can display the maths repertoire.
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (18269 20061))
+;;;;;;  "pg-pgip" "pg-pgip.el" (18300 45960))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload (quote pg-pgip-process-packet) "pg-pgip" "\
@@ -74,9 +74,24 @@ Send an <askprefs> message to the prover.
 
 ;;;***
 
-;;;### (autoloads (pg-response-has-error-location proof-next-error)
-;;;;;;  "pg-response" "pg-response.el" (18269 20061))
+;;;### (autoloads (pg-response-has-error-location proof-next-error
+;;;;;;  pg-response-maybe-erase) "pg-response" "pg-response.el" (18301
+;;;;;;  62030))
 ;;; Generated autoloads from pg-response.el
+
+(autoload (quote pg-response-maybe-erase) "pg-response" "\
+Erase the response buffer according to pg-response-erase-flag.
+ERASE-NEXT-TIME is the new value for the flag.
+If CLEAN-WINDOWS is set, use proof-clean-buffer to do the erasing.
+If FORCE, override pg-response-erase-flag.
+
+If the user option proof-tidy-response is nil, then
+the buffer is only cleared when FORCE is set.
+
+No effect if there is no response buffer currently.
+Returns non-nil if response buffer was cleared.
+
+\(fn &optional ERASE-NEXT-TIME CLEAN-WINDOWS FORCE)" nil nil)
 
 (autoload (quote proof-next-error) "pg-response" "\
 Jump to location of next error reported in the response buffer.
@@ -118,7 +133,7 @@ All of these settings are optional.
 ;;;***
 
 ;;;### (autoloads (proof-define-assistant-command-witharg proof-define-assistant-command)
-;;;;;;  "pg-user" "pg-user.el" (18273 44800))
+;;;;;;  "pg-user" "pg-user.el" (18300 51209))
 ;;; Generated autoloads from pg-user.el
 
 (autoload (quote proof-define-assistant-command) "pg-user" "\
@@ -135,8 +150,8 @@ CMDVAR is a variable holding a function or string.  Automatically has history.
 
 ;;;***
 
-;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18269
-;;;;;;  5454))
+;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18300
+;;;;;;  42609))
 ;;; Generated autoloads from pg-xml.el
 
 (autoload (quote pg-xml-parse-string) "pg-xml" "\
@@ -147,7 +162,7 @@ Parse string in ARG, same as pg-xml-parse-buffer.
 ;;;***
 
 ;;;### (autoloads (proof-dependency-in-span-context-menu proof-depends-process-dependencies)
-;;;;;;  "proof-depends" "proof-depends.el" (16513 49231))
+;;;;;;  "proof-depends" "proof-depends.el" (18300 51209))
 ;;; Generated autoloads from proof-depends.el
 
 (autoload (quote proof-depends-process-dependencies) "proof-depends" "\
@@ -178,7 +193,7 @@ the `proof-assistant-table', which see.
 ;;;***
 
 ;;;### (autoloads (proof-indent-line) "proof-indent" "proof-indent.el"
-;;;;;;  (17893 29685))
+;;;;;;  (18274 49857))
 ;;; Generated autoloads from proof-indent.el
 
 (autoload (quote proof-indent-line) "proof-indent" "\
@@ -189,7 +204,7 @@ Indent current line of proof script, if indentation enabled.
 ;;;***
 
 ;;;### (autoloads (proof-maths-menu-enable proof-maths-menu-support-available)
-;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18272 30666))
+;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18300 42609))
 ;;; Generated autoloads from proof-maths-menu.el
 
 (autoload (quote proof-maths-menu-support-available) "proof-maths-menu" "\
@@ -208,10 +223,9 @@ in future if we have just activated it for this buffer.
 
 ;;;***
 
-;;;### (autoloads (defpacustom proof-defpacustom-fn proof-definvisible
-;;;;;;  proof-defshortcut proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (18273
-;;;;;;  46112))
+;;;### (autoloads (defpacustom proof-defpacustom-fn proof-aux-menu
+;;;;;;  proof-menu-define-specific proof-menu-define-main proof-menu-define-keys)
+;;;;;;  "proof-menu" "proof-menu.el" (18301 63081))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload (quote proof-menu-define-keys) "proof-menu" "\
@@ -229,22 +243,10 @@ Not documented
 
 \(fn)" nil nil)
 
-(autoload (quote proof-defshortcut) "proof-menu" "\
-Define shortcut function FN to insert STRING, optional keydef KEY.
-This is intended for defining proof assistant specific functions.
-STRING is inserted using `proof-insert', which see.
-KEY is added onto proof-assistant map.
+(autoload (quote proof-aux-menu) "proof-menu" "\
+Construct and return PG auxiliary menu used in non-scripting buffers.
 
-\(fn FN STRING &optional KEY)" nil (quote macro))
-
-(autoload (quote proof-definvisible) "proof-menu" "\
-Define function FN to send STRING to proof assistant, optional keydef KEY.
-This is intended for defining proof assistant specific functions.
-STRING is sent using proof-shell-invisible-command, which see.
-STRING may be a string or a function which returns a string.
-KEY is added onto proof-assistant map.
-
-\(fn FN STRING &optional KEY)" nil (quote macro))
+\(fn)" nil nil)
 
 (autoload (quote proof-defpacustom-fn) "proof-menu" "\
 As for macro `defpacustom' but evaluating arguments.
@@ -266,7 +268,7 @@ evaluate can be provided instead.
 ;;;***
 
 ;;;### (autoloads (proof-mmm-enable proof-mmm-support-available)
-;;;;;;  "proof-mmm" "proof-mmm.el" (18269 5455))
+;;;;;;  "proof-mmm" "proof-mmm.el" (18274 49936))
 ;;; Generated autoloads from proof-mmm.el
 
 (autoload (quote proof-mmm-support-available) "proof-mmm" "\
@@ -288,7 +290,7 @@ in future if we have just activated it for this buffer.
 ;;;### (autoloads (proof-shell-invisible-command proof-shell-wait
 ;;;;;;  proof-extend-queue proof-start-queue proof-shell-available-p
 ;;;;;;  proof-shell-live-buffer proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (18273 44800))
+;;;;;;  "proof-shell.el" (18301 64250))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload (quote proof-shell-ready-prover) "proof-shell" "\
@@ -355,7 +357,7 @@ In case CMD is (or yields) nil, do nothing.
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen)
-;;;;;;  "proof-splash" "proof-splash.el" (18271 10299))
+;;;;;;  "proof-splash" "proof-splash.el" (18301 63625))
 ;;; Generated autoloads from proof-splash.el
 
 (autoload (quote proof-splash-display-screen) "proof-splash" "\
@@ -374,7 +376,7 @@ Make sure the user gets welcomed one way or another.
 ;;;***
 
 ;;;### (autoloads (proof-format) "proof-syntax" "proof-syntax.el"
-;;;;;;  (17992 37184))
+;;;;;;  (18300 43162))
 ;;; Generated autoloads from proof-syntax.el
 
 (autoload (quote proof-format) "proof-syntax" "\
@@ -386,8 +388,8 @@ may be a string or sexp evaluated to get a string.
 
 ;;;***
 
-;;;### (autoloads (proof-toolbar-setup) "proof-toolbar" "proof-toolbar.el"
-;;;;;;  (18271 10299))
+;;;### (autoloads (proof-toolbar-scripting-menu proof-toolbar-setup)
+;;;;;;  "proof-toolbar" "proof-toolbar.el" (18299 42505))
 ;;; Generated autoloads from proof-toolbar.el
 
 (autoload (quote proof-toolbar-setup) "proof-toolbar" "\
@@ -396,12 +398,18 @@ If `proof-toolbar-enable' is nil, change the current buffer toolbar
 to the default toolbar.
 
 \(fn)" t nil)
+ (autoload 'proof-toolbar-toggle "proof-toolbar")
+
+(autoload (quote proof-toolbar-scripting-menu) "proof-toolbar" "\
+Menu made from the Proof General toolbar commands.
+
+\(fn)" nil nil)
 
 ;;;***
 
 ;;;### (autoloads (proof-x-symbol-config-output-buffer proof-x-symbol-shell-config
 ;;;;;;  proof-x-symbol-enable proof-x-symbol-support-maybe-available)
-;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18269 20062))
+;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18300 45870))
 ;;; Generated autoloads from proof-x-symbol.el
 
 (autoload (quote proof-x-symbol-support-maybe-available) "proof-x-symbol" "\
@@ -433,8 +441,18 @@ Configure the current output buffer (goals/response/trace) for X-Symbol.
 
 ;;;***
 
+;;;### (autoloads nil nil ("../lib/holes-load.el" "../lib/local-vars-list.el"
+;;;;;;  "../lib/proof-compat.el" "../lib/span-extent.el" "../lib/span-overlay.el"
+;;;;;;  "../lib/span.el" "../lib/unichars.el" "../lib/xml-fixed.el"
+;;;;;;  "../lib/xmlunicode.el" "pg-assoc.el" "pg-autotest.el" "pg-goals.el"
+;;;;;;  "pg-metadata.el" "pg-pbrpm.el" "pg-pgip-old.el" "pg-xhtml.el"
+;;;;;;  "proof-config.el" "proof-script.el" "proof-site.el" "proof-utils.el"
+;;;;;;  "proof.el" "test-compile.el") (18302 3569 810785))
+
+;;;***
+
 ;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "../lib/texi-docstring-magic.el"
-;;;;;;  (18269 20062))
+;;;;;;  (18274 48421))
 ;;; Generated autoloads from ../lib/texi-docstring-magic.el
 
 (autoload (quote texi-docstring-magic) "texi-docstring-magic" "\
@@ -443,22 +461,5 @@ With prefix arg, no errors on unknown symbols.  (This results in
 @def .. @end being deleted if not known).
 
 \(fn &optional NOERROR)" t nil)
-
-;;;***
-
-;;;### (autoloads nil nil ("../lib/holes-load.el" "../lib/local-vars-list.el"
-;;;;;;  "../lib/proof-compat.el" "../lib/span-extent.el" "../lib/span-overlay.el"
-;;;;;;  "../lib/span.el" "../lib/unichars.el" "../lib/xml-fixed.el"
-;;;;;;  "../lib/xmlunicode.el" "pg-assoc.el" "pg-autotest.el" "pg-goals.el"
-;;;;;;  "pg-metadata.el" "pg-pbrpm.el" "pg-pgip-old.el" "pg-xhtml.el"
-;;;;;;  "proof-config.el" "proof-script.el" "proof-site.el" "proof-system.el"
-;;;;;;  "proof-utils.el" "proof.el") (18273 46162 919217))
-
-;;;***
-
-;;;### (autoloads nil "_pkg" "_pkg.el" (16513 49231))
-;;; Generated autoloads from _pkg.el
-
-(package-provide (quote ProofGeneral) :version "3.3pre010320" :type (quote regular))
 
 ;;;***
