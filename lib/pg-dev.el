@@ -32,9 +32,9 @@
 (put 'proof-map-buffers 'lisp-indent-function 'defun)
 (put 'proof-with-current-buffer-if-exists 'lisp-indent-function 'defun)
 
-FIXME: see font-lock.el
 (defconst pg-dev-lisp-font-lock-keywords
   (list
+   ;; FIXME: used to work but now not quite right, see font-lock.el to fix
    (concat "(\\(def\\(" ;; also proof-def
 	   ;; Function like things
 	   "^(\\(proof-def.*\\|defpg.*\\|defpa.*\\|.*asscustom\\)"
@@ -49,10 +49,10 @@ FIXME: see font-lock.el
 	     (t 'font-lock-function-name-face))
        nil t)))
 
-(add-hook 'emacs-lisp-mode-hook
-	  '(lambda ()
-	     (font-lock-add-keywords 'emacs-lisp-mode
-				     pg-dev-lisp-font-lock-keywords)))
+;(add-hook 'emacs-lisp-mode-hook
+;	  '(lambda ()
+;	     (font-lock-add-keywords 'emacs-lisp-mode
+;				     pg-dev-lisp-font-lock-keywords)))
 
 
 ;;;
