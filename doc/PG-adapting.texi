@@ -493,49 +493,9 @@ It's important that each of your modes invokes one of the functions
 once it has set its configuration variables.  These functions
 finalize the configuration of the mode.
 
-For each mode, there is a configuration variable which names it so that
-Proof General can set buffers to the proper mode, or find buffers in
-that mode.  These are documented below, and set like this:
-@lisp
-  (setq proof-mode-for-script 'myass-mode)
-@end lisp
-where @code{myass-mode} is your major mode for scripts, derived from
-@code{proof-mode}.  You must set these variables before the proof shell
-is started; one way to do this is inside a function which is called from
-the hook @code{pre-shell-start-hook}.  See the file @file{demoisa.el}
-for details of how to do this.
-
-For future instantiations, it is recommended to follow the standard
-scheme: @code{@var{PA}-mode}, @code{@var{PA}-shell-mode}, etc.
-
-@c TEXI DOCSTRING MAGIC: proof-mode-for-script
-@defvar proof-mode-for-script 
-Mode for proof script buffers.@*
-This is used by Proof General to find out which buffers
-contain proof scripts.
-The regular name for this is <PA>-mode.  If you use any of the
-convenience macros Proof General provides for defining commands
-etc, then you should stick to this name.
-Suggestion: this can be set in the script mode configuration.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-mode-for-shell
-@defvar proof-mode-for-shell 
-Mode for proof shell buffers.@*
-Usually customised for specific prover.
-Suggestion: this can be set a function called by @samp{@code{proof-pre-shell-start-hook}}.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-mode-for-response
-@defvar proof-mode-for-response 
-Mode for proof response buffer (and trace buffer, if used).@*
-Usually customised for specific prover.
-Suggestion: this can be set a function called by @samp{@code{proof-pre-shell-start-hook}}.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-mode-for-goals
-@defvar proof-mode-for-goals 
-Mode for proof state display buffers.@*
-Usually customised for specific prover.
-Suggestion: this can be set a function called by @samp{@code{proof-pre-shell-start-hook}}.
-@end defvar
+The modes must be named standardly, replacing @code{proof-} with the
+prover's symbol name, @code{@var{PA}-}.  See the file @file{demoisa.el}
+for an example of the four calls to @code{define-derived-mode}.
 
 @node Menus and Toolbar and User-level Commands
 @chapter Menus, toolbar, and user-level commands
@@ -1987,22 +1947,6 @@ So we select pipes by default if it seems like we're on Solaris.
 We do not force pipes everywhere because this risks loss of data.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-pre-shell-start-hook
-@defvar proof-pre-shell-start-hook 
-Hooks run before proof shell is started.@*
-Suggestion: set this to a function which configures just these proof
-shell variables:
-@lisp
-   @code{proof-prog-name}
-   @code{proof-mode-for-shell}
-   @code{proof-mode-for-response}
-   @code{proof-mode-for-goals}
-   @code{proof-shell-trace-output-regexp}
-@end lisp
-This is the bare minimum needed to get a shell buffer and
-its friends configured in the function @code{proof-shell-start}.
-@end defvar
-
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-or-interrupt-hook
 @defvar proof-shell-handle-error-or-interrupt-hook 
 Run after an error or interrupt has been reported in the response buffer.@*
@@ -2098,7 +2042,7 @@ the end of the concrete syntax is indicated by @code{pg-subterm-end-char}.
 
 If @samp{@code{pg-subterm-start-char}} is nil, subterm markup is disabled.
 
-See doc of @samp{@code{pg-goals-analyse-structure}} for more details of
+See doc of @samp{@code{pg-assoc-analyse-structure}} for more details of
 subterm and proof-by-pointing markup mechanisms..
 @end defvar
 @c TEXI DOCSTRING MAGIC: pg-subterm-sep-char
@@ -2630,22 +2574,11 @@ a menu entry, for example.  The default value is the string
 @node Useful variables
 @section Useful variables
 
-In @file{proof-site}, several architecture flags are defined.  These
+In @file{proof-site}, some architecture flags are defined.  These
 can be used to write conditional pieces of code for different Emacs
 and operating systems.  They are referred to mainly in
 @file{proof-compat} (which helps to keep the architecture and version
 dependent code in one place).
-
-
-@c TEXI DOCSTRING MAGIC: proof-running-on-Emacs21
-@defvar proof-running-on-Emacs21 
-Non-nil if Proof General is running on GNU Emacs 21 or later.
-@end defvar
-
-@c TEXI DOCSTRING MAGIC: proof-running-on-XEmacs
-@defvar proof-running-on-XEmacs 
-Non-nil if Proof General is running on XEmacs.
-@end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-running-on-win32
 @defvar proof-running-on-win32 
