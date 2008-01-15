@@ -332,12 +332,11 @@ Returns non-nil if response buffer was cleared."
 	
 	(proof-fontify-region start (point))
 
-	;; This is one reason why we don't keep the buffer in font-lock
-	;; minor mode: it destroys this hacky property as soon as it's
-	;; made!  (Using the minor mode is much more convenient, tho')
+	;; Fontify message: one reason why we don't keep the buffer in
+	;; font-lock minor mode is these properties would be lost.
 	(if (and face proof-output-fontify-enable)
-	    (font-lock-append-text-property
-	     start (point-max) 'face face))
+	    (add-text-properties
+	     start (point-max) (list 'face face)))
 
 	(set-buffer-modified-p nil))))))
 
