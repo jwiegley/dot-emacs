@@ -225,14 +225,15 @@ A subroutine of proof-x-symbol-enable."
 (defun proof-x-symbol-decode-region (start end)
   (let ((newend (x-symbol-decode-region start end)))
     ;; subscripts in non-mule mode are done with fontification, see x-symbol-fontify
-    (let ((font-lock-keywords  x-symbol-font-lock-keywords) ;; TODO: compile keywords
-	  (font-lock-defaults '(x-symbol-font-lock-keywords t))
-	  (x-symbol-mode	t)
-	  (x-symbol-subscripts t))
-      (condition-case err
-	  (font-lock-fontify-keywords-region start newend nil)
-	(t (proof-debug "Caught condition %s in `font-lock-fontify-keywords-region'"
-			(car err)))))))
+    (if (featurep 'mule)
+	(let ((font-lock-keywords  x-symbol-font-lock-keywords) ;; TODO: compile keywords
+	      (font-lock-defaults '(x-symbol-font-lock-keywords t))
+	      (x-symbol-mode	t)
+	      (x-symbol-subscripts t))
+	  (condition-case err
+	      (font-lock-fontify-keywords-region start newend nil)
+	    (t (proof-debug "Caught condition %s in `font-lock-fontify-keywords-region'"
+			    (car err))))))))
     
 
 (defun proof-x-symbol-encode-shell-input ()
