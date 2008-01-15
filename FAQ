@@ -8,6 +8,44 @@ Please also check the BUGS file.
 
 -----------------------------------------------------------------
 
+Q. Proof General fails to load with an error message on start-up: 
+ 
+      Proof General was compiled for GNU Emacs 22.1 but running on XEmacs 21.5: please run "make clean; make"
+
+   or
+
+     error: "File `.../ProofGeneral/generic/proof-autoloads.elc' was 
+     not compiled in Emacs"
+
+   What's wrong?
+
+A. We distribute compiled .elcs for GNU Emacs, so you will have to
+   delete them and (optionally) recompile for XEmacs.  Using the
+   Makefile:
+
+     Use 'make clean' to remove all .elc files.  
+     Use 'make compile' to recompile .elc files.
+ 
+   Edit the Makefile to set EMACS to your Emacs executable,
+   or run, e.g., 'make compile EMACS=xemacs'.
+   
+   
+
+-----------------------------------------------------------------
+
+Q. Proof General fails to load with an error message like this: 
+
+     file mode specification error: 
+	(file-error "cannot open load file" "executable")
+
+   What's wrong?
+
+A. You're missing some Emacs (probably XEmacs) packages.  See
+   the section "Dependency on Other Emacs Packages" in INSTALL.
+   Quicker answer: install the "XEmacs Sumo" package collection.
+
+-----------------------------------------------------------------
+
 Q. Emacs appears to hang when the prover process is started.
 
 A. This is usually caused by UTF-8 support in recent linuxes with
@@ -61,36 +99,6 @@ A. This is usually caused by UTF-8 support in recent linuxes with
 
 -----------------------------------------------------------------
 
-Q. Proof General fails to load with an error message on start-up: 
-
-     error: "File `.../ProofGeneral/generic/proof-autoloads.elc' was 
-     not compiled in Emacs"
-
-   What's wrong?
-
-A. We distribute .elcs for GNU Emacs, so you will have to delete
-   them and (optionally) recompile for XEmacs.  Using the Makefile:
-
-     Use 'make clean' to remove all .elc files.  
-     Use 'make compile' to recompile .elc files.
- 
-   Check that the Makefile sets EMACS to your Emacs executable
-   (or simply run 'make compile EMACS=emacs')
-   
-
------------------------------------------------------------------
-
-Q. Proof General fails to load with an error message like this: 
-
-     file mode specification error: (file-error "cannot open load file" "executable")
-
-   What's wrong?
-
-A. You're missing some Emacs (probably XEmacs) packages.  See
-   the section "Dependency on Other Emacs Packages" in INSTALL.
-
------------------------------------------------------------------
-
 Q. Proof General shows a warning like this when started:
 
       (1) (file-mode-spec/warning) Error in File mode specification: Invalid argument: Invalid tag set, (mule-fonts)
@@ -107,28 +115,6 @@ A. You're probably using a 21.5.x beta version of XEmacs which is
    XEmacs and the version distributed with Proof General).  
    Please update to a 2007 development release of Proof General
    which has added some compatibility patches for XEmacs 21.5.
-
------------------------------------------------------------------
-
-
-
-
-Q. Where have my buffers gone?   They used to be on the Buffers menu!
-
-A. The PG "associated buffers" which display the proof state and
-prover responses (and trace information when used) are now hidden from
-the XEmacs tabs and buffer menus, to reduce clutter.
-
-The idea is that you should only rarely need to select the buffer to
-display explicitly.  Sometimes Emacs does its own thing, though!  To
-find the buffers you can use the convenient keystrokes `C-c C-o'
-(proof-display-some-buffers) or `C-c C-l' (proof-layout-windows).
-See the manual for more details about the display mechanisms.
-
-The buffers are hidden from menus by the standard Emacs mechanism of
-beginning their names with a space.  So if you are looking for
-"*prover-goals*" by keyboard `C-x b' the buffer is now called 
-" *prover-goals*".  
 
 
 -----------------------------------------------------------------
