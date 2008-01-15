@@ -19,16 +19,16 @@ Q. Proof General fails to load with an error message on start-up:
 
    What's wrong?
 
-A. We distribute compiled .elcs for GNU Emacs, so you will have to
-   delete them and (optionally) recompile for XEmacs.  Using the
-   Makefile:
+A. We distribute compiled .elcs for GNU Emacs 22.1, so you will have to
+   delete them and (optionally) recompile for your preferred 
+   Emacs version.  Using the Makefile:
 
      Use 'make clean' to remove all .elc files.  
-     Use 'make compile' to recompile .elc files.
+     Use 'make compile EMACS=xemacs' to recompile .elc files for "xemacs".
  
-   Edit the Makefile to set EMACS to your Emacs executable,
-   or run, e.g., 'make compile EMACS=xemacs'.
-   
+   Note: GNU Emacs is recommended.  To start Isabelle using the 
+   Isabelle command with GNU Emacs instead of the default xemacs, 
+   use "Isabelle -p emacs"
    
 
 -----------------------------------------------------------------
