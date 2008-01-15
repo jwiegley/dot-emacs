@@ -978,7 +978,7 @@ used in `proof-append-alist' when we start processing a queue, and in
     (unless (null (marker-position proof-marker))
       (set-marker proof-marker (point)))
 
-    ;; FIXME: consider as possible improvement.
+    ;; TODO: consider as possible improvement.
     ;; (set-marker proof-shell-urgent-message-marker (point))
     ;; (set-marker proof-shell-urgent-message-scanner (point))
 
@@ -1250,17 +1250,7 @@ If none of these apply, display MESSAGE.
 MESSAGE should be a string annotated with 
 `proof-shell-eager-annotation-start', `proof-shell-eager-annotation-end'."
     (cond
-     ;; A feature that could be added to support Isabelle's tracing of
-     ;; tactics.  Seems to be little used, so probably not worth adding.
-     ;;; CASE interactive input regexp: minibuffer prompt for user
-     ;;; FIXME: move this case lower down, for now it clashes with
-     ;;; tracing output in Isabelle
-     ;((and proof-shell-interactive-input-regexp
-     ;	   (string-match proof-shell-interactive-input-regexp message))
-     ;(proof-shell-minibuffer-urgent-interactive-input message))
-
-     ;; CASE tracing output: output in the tracing buffer instead
-     ;; of the response buffer
+     ;; CASE tracing output: use tracing buffer
      ((and proof-shell-trace-output-regexp
 	   (string-match proof-shell-trace-output-regexp message))
       (proof-trace-buffer-display 
@@ -1271,10 +1261,8 @@ MESSAGE should be a string annotated with
       (unless (and proof-trace-output-slow-catchup
 		   (pg-tracing-tight-loop))
 	(proof-display-and-keep-buffer proof-trace-buffer)
-	;; Force redisplay in case in a fast loop which keeps Emacs
-	;; fully-occupied processing prover output
-	;; FIXME: in case this is expensive, we should be adaptive
-	;; and redisplay only every so often.
+	;; Force redisplay to give feedback in case in a loop which
+	;; keeps Emacs busy processing output. Potentially costly.
 	(and (fboundp 'redisplay-frame)
 	     ;; XEmacs fn 
 	     (redisplay-frame)))
@@ -1284,34 +1272,11 @@ MESSAGE should be a string annotated with
 	  (proof-interrupt-process)))
 
        
-     ;; CASE processing file: the prover is reading a file directly
-     ;;
-     ;; FIXME da: this interface is quite restrictive: might be
-     ;; useful for one message to name several files, or include
-     ;; an instruction to purge the included files list, rather
-     ;; than erasing everything and re-adding it.
-     ;; Contrast retraction interface: there we compute whole
-     ;; new list.
-     ;; (Come to think of it, maybe we could unify the two
-     ;; cases: automatically find removed files and added files
-     ;; between two versions of proof-included-files-list)
+     ;; CASE processing file: update known files list
      ((and proof-shell-process-file 
 	   (string-match (car proof-shell-process-file) message))
       (let
 	  ((file (funcall (cdr proof-shell-process-file) message)))
-	;; Special hack: empty string indicates current scripting buffer
-	;; (not used anywhere presently?)
-	;; (if (and proof-script-buffer (string= file ""))
-	;;  (setq file (buffer-file-name proof-script-buffer)))
-	;; YES!  It *was* used by LEGO.
-	;; Now we avoid this in favour of altering the processed
-	;; files list when the current scripting buffer changes,
-	;; inside Proof General.  Attempt to harmonize behaviour
-	;; with Isabelle.  Seems wrong to add "example.l" to
-	;; list of processed files if it's only partly processed?
-	;; (On the other hand, for lego, it may have declared a 
-	;;  module heading, which is probably Lego's standard
-	;;  for what a processed file actually is).
 	(if (and file (not (string= file "")))
 	    (proof-register-possibly-new-processed-file file))))
 
@@ -1333,64 +1298,31 @@ MESSAGE should be a string annotated with
 	  (cond
 	   ;; Do nothing if there was no active scripting buffer
 	   ((not scrbuf))
-	   ;; Do nothing if active scripting buffer hasn't changed
-	   ;; (NB: it might have been nuked)
+	   ;; Do nothing if active buffer hasn't changed (may be nuked)
 	   ((eq scrbuf proof-script-buffer))
-	   ;; FIXME da: I've forgotten the next condition was needed?
-	   ;; 
-	   ;; In fact, it breaks the case that the current scripting
-	   ;; buffer should be deactivated if the prover retracts it.
-	   ;; When scripting begins again in the buffer, other
-	   ;; files may have to be re-read which may not happen unless
-	   ;; scripting is properly de-activated.
-	   ;;
 	   ;; Otherwise, active scripting buffer has been retracted.
-	   ;; Add it back!!  Why? Presumably because code likes to
-	   ;; have an active scripting buffer??
 	   (t
-	    ;; FIXME da: want to test disabling currently active scripting
-	    ;; buffer.  Unfortunately this doesn't work with current
-	    ;; use of proof-script-buffer-list: always have to have
-	    ;; *some* scripting buffer active.  ARGHH!
-	    ;; FIXME da: test not having this add-back.  Then
-	    ;; scripting buffer may change wrongly and randomly
-	    ;; to some other buffer, without running change functions.
-	    ;;
-	    ;; FIXME da: test setting this to nil, scary!
-	    (setq proof-script-buffer nil)
-	    ;;(setq proof-script-buffer-list 
-	    ;;	(cons scrbuf proof-script-buffer-list))
-	    ;; (with-current-buffer scrbuf
-	    ;;  (proof-init-segmentation)))))
-	    )))
-	))
+	    (setq proof-script-buffer nil))))))
      
      ;; CASE clear response: prover asks PG to clear response buffer
      ((and proof-shell-clear-response-regexp
 	   (string-match proof-shell-clear-response-regexp message))
-      ;; Erase response buffer and possibly its windows.
       (pg-response-maybe-erase nil t t))
      
      ;; CASE clear goals: prover asks PG to clear goals buffer
      ((and proof-shell-clear-goals-regexp
 	   (string-match proof-shell-clear-goals-regexp message))
-      ;; Erase goals buffer and possibly its windows
       (proof-clean-buffer proof-goals-buffer))
    
      ;; CASE variable setting: prover asks PG to set some variable 
-     ;; NB: no safety protection whatsoever here, we use blind faith
-     ;; that the prover will not send malicious elisp!!
      ((and proof-shell-set-elisp-variable-regexp
 	   (string-match proof-shell-set-elisp-variable-regexp message))
       (let 
 	  ((variable   (match-string 1 message))
-	   (expr	     (match-string 2 message)))
+	   (expr       (match-string 2 message)))
 	(condition-case nil
-	    ;; Easiest way to do this seems to be to dump the lisp
-	    ;; string into another buffer -- no direct way to eval
-	    ;; from a string?
 	    (with-temp-buffer
-	      (insert expr)
+	      (insert expr) ; massive risk from malicious provers!!
 	      (set (intern variable) (eval-last-sexp t)))
 	  (t (proof-debug 
 	      (concat
@@ -1406,15 +1338,7 @@ MESSAGE should be a string annotated with
       (unless (string-match (match-string 0 message)
 			    proof-shell-eager-annotation-start)
 	;; Assume that eager annotation regexps are _not_ part of PGIP
-	;; message, and strip them.  This allows hybrid PGIP/non PGIP
-	;; communication, with PGIP embedded in urgent messages.
-	(setq message
-	      (substring 
-	       message
-	       (progn
-		 (string-match proof-shell-eager-annotation-start message)
-		 (match-end 0))
-	       (string-match proof-shell-eager-annotation-end message))))
+	(setq message (proof-shell-strip-eager-annotations message)))
       (let
 	  ((parsed-pgip  (pg-xml-parse-string message)))
 	(pg-pgip-process-packet parsed-pgip)))
@@ -1422,7 +1346,7 @@ MESSAGE should be a string annotated with
      ;; CASE theorem dependency: prover lists thms used in last proof
      ((and proof-shell-theorem-dependency-list-regexp 
 	   (string-match proof-shell-theorem-dependency-list-regexp message))
-      (let ((names   (match-string 1 message))
+      (let ((names   (match- string 1 message))
 	    (deps    (match-string 2 message)))
 	(setq proof-last-theorem-dependencies 
 	      (cons 
@@ -1433,13 +1357,11 @@ MESSAGE should be a string annotated with
 
 	   
      (t
-      ;; We're about to display a message.  Clear the response buffer
-      ;; if necessary, but don't clear it the next time.
-      ;; Don't bother remove the window for the response buffer
-      ;; because we're about to put a message in it.
+      ;; CASE everything else.  We're about to display a message.  
+      ;; Clear the response buffer this time, but not next, leave window.
       (pg-response-maybe-erase nil nil)
       (let ((stripped (if proof-shell-unicode 
-			  message
+			  (proof-shell-strip-eager-annotations message)
 			(pg-remove-specials-in-string
 			 (pg-assoc-strip-subterm-markup message)))))
 	;; Display first chunk of output in minibuffer.
@@ -1452,6 +1374,17 @@ MESSAGE should be a string annotated with
 	     message
 	   stripped)
 	 'proof-eager-annotation-face)))))
+
+(defun proof-shell-strip-eager-annotations (string)
+  "Strip `proof-shell-eager-annotation-{start,end}' from STRING."
+  (save-match-data
+   (substring 
+    string
+    (if (string-match proof-shell-eager-annotation-start string)
+	(match-end 0) 0)
+    (if (string-match proof-shell-eager-annotation-end string)
+	(match-beginning 0)))))
+
 
 (defvar proof-shell-minibuffer-urgent-interactive-input-history nil)
 
@@ -1488,16 +1421,17 @@ This is a subroutine of `proof-shell-filter'."
       (setq start (match-beginning 0))
       (if (setq end
 		(re-search-forward proof-shell-eager-annotation-end nil t))
+
 	  ;; Process the text including annotations (stripped if specials)
 	  (save-excursion
 	    (setq lastend end)
 	    (proof-shell-process-urgent-message
 	     (buffer-substring start end)))))
+
     ;; Set the marker to the (character after) the end of the last
     ;; message found, if any.  Must take care to keep the marker
     ;; behind the process marker otherwise no output is seen!
     ;; (insert-before-markers in comint)
-    ;; FIXME: maybe we don't need to be as careful as these three checks?
     (if lastend
 	(set-marker
 	 proof-shell-urgent-message-marker
