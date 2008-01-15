@@ -5,7 +5,7 @@
 
 
 ;;;### (autoloads (bufhist-exit bufhist-init) "bufhist" "../lib/bufhist.el"
-;;;;;;  (18274 23584))
+;;;;;;  (18316 9979))
 ;;; Generated autoloads from ../lib/bufhist.el
 
 (autoload (quote bufhist-init) "bufhist" "\
@@ -26,7 +26,7 @@ Minor mode retaining an in-memory history of the buffer contents.")
 
 ;;;***
 
-;;;### (autoloads (holes-mode) "holes" "../lib/holes.el" (18300 51209))
+;;;### (autoloads (holes-mode) "holes" "../lib/holes.el" (18303 18645))
 ;;; Generated autoloads from ../lib/holes.el
 
 (autoload (quote holes-mode) "holes" "\
@@ -52,8 +52,19 @@ This mode is only useful with a font which can display the maths repertoire.
 
 ;;;***
 
+;;;### (autoloads (proof-goals-config-done) "pg-goals" "pg-goals.el"
+;;;;;;  (18316 8285))
+;;; Generated autoloads from pg-goals.el
+
+(autoload (quote proof-goals-config-done) "pg-goals" "\
+Initialise the goals buffer after the child has been configured.
+
+\(fn)" nil nil)
+
+;;;***
+
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (18300 45960))
+;;;;;;  "pg-pgip" "pg-pgip.el" (18303 28393))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload (quote pg-pgip-process-packet) "pg-pgip" "\
@@ -75,9 +86,19 @@ Send an <askprefs> message to the prover.
 ;;;***
 
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
-;;;;;;  pg-response-maybe-erase) "pg-response" "pg-response.el" (18301
-;;;;;;  62030))
+;;;;;;  pg-response-maybe-erase proof-response-config-done proof-response-mode)
+;;;;;;  "pg-response" "pg-response.el" (18316 44546))
 ;;; Generated autoloads from pg-response.el
+
+(autoload (quote proof-response-mode) "pg-response" "\
+Responses from Proof Assistant
+
+\(fn)" t nil)
+
+(autoload (quote proof-response-config-done) "pg-response" "\
+Complete initialisation of a response-mode derived buffer.
+
+\(fn)" nil nil)
 
 (autoload (quote pg-response-maybe-erase) "pg-response" "\
 Erase the response buffer according to pg-response-erase-flag.
@@ -98,7 +119,8 @@ Jump to location of next error reported in the response buffer.
 
 A prefix arg specifies how many error messages to move;
 negative means move back to previous error messages.
-Just C-u as a prefix means reparse the error message buffer
+
+Optional argument ARGP means reparse the error message buffer
 and start at the first error.
 
 \(fn &optional ARGP)" t nil)
@@ -112,7 +134,7 @@ See `pg-next-error-regexp'.
 ;;;***
 
 ;;;### (autoloads (pg-defthymode) "pg-thymodes" "pg-thymodes.el"
-;;;;;;  (16513 49231))
+;;;;;;  (18303 28745))
 ;;; Generated autoloads from pg-thymodes.el
 
 (autoload (quote pg-defthymode) "pg-thymodes" "\
@@ -133,7 +155,7 @@ All of these settings are optional.
 ;;;***
 
 ;;;### (autoloads (proof-define-assistant-command-witharg proof-define-assistant-command)
-;;;;;;  "pg-user" "pg-user.el" (18300 51209))
+;;;;;;  "pg-user" "pg-user.el" (18303 28857))
 ;;; Generated autoloads from pg-user.el
 
 (autoload (quote proof-define-assistant-command) "pg-user" "\
@@ -150,8 +172,8 @@ CMDVAR is a variable holding a function or string.  Automatically has history.
 
 ;;;***
 
-;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18300
-;;;;;;  42609))
+;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18303
+;;;;;;  28931))
 ;;; Generated autoloads from pg-xml.el
 
 (autoload (quote pg-xml-parse-string) "pg-xml" "\
@@ -180,7 +202,7 @@ Make a portion of a context-sensitive menu showing proof dependencies.
 ;;;***
 
 ;;;### (autoloads (proof-easy-config) "proof-easy-config" "proof-easy-config.el"
-;;;;;;  (16513 49231))
+;;;;;;  (18315 59949))
 ;;; Generated autoloads from proof-easy-config.el
 
 (autoload (quote proof-easy-config) "proof-easy-config" "\
@@ -204,7 +226,7 @@ Indent current line of proof script, if indentation enabled.
 ;;;***
 
 ;;;### (autoloads (proof-maths-menu-enable proof-maths-menu-support-available)
-;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18300 42609))
+;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18316 3560))
 ;;; Generated autoloads from proof-maths-menu.el
 
 (autoload (quote proof-maths-menu-support-available) "proof-maths-menu" "\
@@ -225,7 +247,7 @@ in future if we have just activated it for this buffer.
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn proof-aux-menu
 ;;;;;;  proof-menu-define-specific proof-menu-define-main proof-menu-define-keys)
-;;;;;;  "proof-menu" "proof-menu.el" (18301 63081))
+;;;;;;  "proof-menu" "proof-menu.el" (18316 43683))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload (quote proof-menu-define-keys) "proof-menu" "\
@@ -268,7 +290,7 @@ evaluate can be provided instead.
 ;;;***
 
 ;;;### (autoloads (proof-mmm-enable proof-mmm-support-available)
-;;;;;;  "proof-mmm" "proof-mmm.el" (18274 49936))
+;;;;;;  "proof-mmm" "proof-mmm.el" (18316 3588))
 ;;; Generated autoloads from proof-mmm.el
 
 (autoload (quote proof-mmm-support-available) "proof-mmm" "\
@@ -287,10 +309,29 @@ in future if we have just activated it for this buffer.
 
 ;;;***
 
-;;;### (autoloads (proof-shell-invisible-command proof-shell-wait
-;;;;;;  proof-extend-queue proof-start-queue proof-shell-available-p
-;;;;;;  proof-shell-live-buffer proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (18301 64250))
+;;;### (autoloads (proof-config-done proof-mode) "proof-script" "proof-script.el"
+;;;;;;  (18316 9094))
+;;; Generated autoloads from proof-script.el
+
+(autoload (quote proof-mode) "proof-script" "\
+Proof General major mode class for proof scripts.
+\\{proof-mode-map}
+
+\(fn)" t nil)
+
+(autoload (quote proof-config-done) "proof-script" "\
+Finish setup of Proof General scripting mode.
+Call this function in the derived mode for the proof assistant to
+finish setup which depends on specific proof assistant configuration.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (proof-shell-config-done proof-shell-mode proof-shell-invisible-command
+;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
+;;;;;;  proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover)
+;;;;;;  "proof-shell" "proof-shell.el" (18316 3097))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload (quote proof-shell-ready-prover) "proof-shell" "\
@@ -312,6 +353,21 @@ Returns non-nil if there is a proof shell active and available.
 No error messages.  Useful as menu or toolbar enabler.
 
 \(fn)" nil nil)
+
+(autoload (quote proof-shell-insert) "proof-shell" "\
+Insert STRING at the end of the proof shell, call `comint-send-input'.
+
+First call `proof-shell-insert-hook'.  The argument ACTION may be
+examined by the hook to determine how to process the STRING variable.
+
+Then strip STRING of carriage returns before inserting it and updating
+`proof-marker' to point to the end of the newly inserted text.
+
+Do not use this function directly, or output will be lost.  It is only
+used in `proof-append-alist' when we start processing a queue, and in
+`proof-shell-exec-loop', to process the next item.
+
+\(fn STRING ACTION)" nil nil)
 
 (autoload (quote proof-start-queue) "proof-shell" "\
 Begin processing a queue of commands in ALIST.
@@ -354,10 +410,22 @@ In case CMD is (or yields) nil, do nothing.
 
 \(fn CMD &optional WAIT)" nil nil)
 
+(autoload (quote proof-shell-mode) "proof-shell" "\
+Proof General shell mode class for proof assistant processes
+
+\(fn)" t nil)
+
+(autoload (quote proof-shell-config-done) "proof-shell" "\
+Initialise the specific prover after the child has been configured.
+Every derived shell mode should call this function at the end of
+processing.
+
+\(fn)" nil nil)
+
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen)
-;;;;;;  "proof-splash" "proof-splash.el" (18301 63625))
+;;;;;;  "proof-splash" "proof-splash.el" (18316 43933))
 ;;; Generated autoloads from proof-splash.el
 
 (autoload (quote proof-splash-display-screen) "proof-splash" "\
@@ -389,7 +457,7 @@ may be a string or sexp evaluated to get a string.
 ;;;***
 
 ;;;### (autoloads (proof-toolbar-scripting-menu proof-toolbar-setup)
-;;;;;;  "proof-toolbar" "proof-toolbar.el" (18299 42505))
+;;;;;;  "proof-toolbar" "proof-toolbar.el" (18316 44362))
 ;;; Generated autoloads from proof-toolbar.el
 
 (autoload (quote proof-toolbar-setup) "proof-toolbar" "\
@@ -409,7 +477,7 @@ Menu made from the Proof General toolbar commands.
 
 ;;;### (autoloads (proof-x-symbol-config-output-buffer proof-x-symbol-shell-config
 ;;;;;;  proof-x-symbol-enable proof-x-symbol-support-maybe-available)
-;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18300 45870))
+;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18316 43316))
 ;;; Generated autoloads from proof-x-symbol.el
 
 (autoload (quote proof-x-symbol-support-maybe-available) "proof-x-symbol" "\
@@ -442,12 +510,14 @@ Configure the current output buffer (goals/response/trace) for X-Symbol.
 ;;;***
 
 ;;;### (autoloads nil nil ("../lib/holes-load.el" "../lib/local-vars-list.el"
-;;;;;;  "../lib/proof-compat.el" "../lib/span-extent.el" "../lib/span-overlay.el"
-;;;;;;  "../lib/span.el" "../lib/unichars.el" "../lib/xml-fixed.el"
-;;;;;;  "../lib/xmlunicode.el" "pg-assoc.el" "pg-autotest.el" "pg-goals.el"
-;;;;;;  "pg-metadata.el" "pg-pbrpm.el" "pg-pgip-old.el" "pg-xhtml.el"
-;;;;;;  "proof-config.el" "proof-script.el" "proof-site.el" "proof-utils.el"
-;;;;;;  "proof.el" "test-compile.el") (18302 3569 810785))
+;;;;;;  "../lib/pg-dev.el" "../lib/proof-compat.el" "../lib/span-extent.el"
+;;;;;;  "../lib/span-overlay.el" "../lib/span.el" "../lib/unichars.el"
+;;;;;;  "../lib/xml-fixed.el" "../lib/xmlunicode.el" "pg-assoc.el"
+;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-metadata.el" "pg-pbrpm.el"
+;;;;;;  "pg-pgip-old.el" "pg-vars.el" "pg-xhtml.el" "proof-config.el"
+;;;;;;  "proof-site.el" "proof-vars.el" "proof.el" "test-compile.el"
+;;;;;;  "test-mac.el" "test-mac2.el" "test-req.el" "test-req2.el")
+;;;;;;  (18316 44551 721111))
 
 ;;;***
 

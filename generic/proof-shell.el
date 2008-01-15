@@ -8,8 +8,17 @@
 ;; proof-shell.el,v 8.15 2005/09/30 09:45:36 da Exp
 ;;
 
-(require 'proof-menu)
-(require 'span)
+(eval-when-compile
+  (require 'cl)
+  (require 'span)
+  (require 'comint)
+  (require 'font-lock)
+  (require 'proof-autoloads)
+  (require 'proof-utils))
+
+(require 'pg-response)
+(require 'pg-goals)
+(require 'proof-script)
 
 ;;
 ;; Internal variables used in sub-modules
@@ -20,40 +29,32 @@
   "A record of the last string seen from the proof system.")
 
 
-;; sub-modules
-
-(require 'pg-response)			; buffers for goals/response
-(require 'pg-goals)			; associated output
-
-;; Nuke some byte compiler warnings.
-(eval-when-compile
-  (require 'comint)
-  (require 'font-lock))
 
 
-;; FIXME:
-;; Autoloads for proof-script (added to nuke warnings,
-;; maybe should be 'official' exported functions in proof.el)
-;; This helps see interface between proof-script / proof-shell.
-;; FIXME 2: We can probably assume that proof-script is always
-;; loaded before proof-shell, so just put a require on 
-;; proof-script here.
-(eval-and-compile
-  (mapcar (lambda (f) 
-	    (autoload f "proof-script"))
-	  '(proof-goto-end-of-locked
-	    proof-insert-pbp-command
-	    proof-detach-queue 
-	    proof-locked-end 
-	    proof-set-queue-endpoints
-	    proof-script-clear-queue-spans
-	    proof-file-to-buffer 
-	    proof-register-possibly-new-processed-file
-	    proof-restart-buffers)))
+;; ;; FIXME:
+;; ;; Autoloads for proof-script (added to nuke warnings,
+;; ;; maybe should be 'official' exported functions in proof.el)
+;; ;; This helps see interface between proof-script / proof-shell.
+;; ;; FIXME 2: We can probably assume that proof-script is always
+;; ;; loaded before proof-shell, so just put a require on 
+;; ;; proof-script here.
+;; (eval-and-compile
+;;   (mapcar (lambda (f) 
+;; 	    (autoload f "proof-script"))
+;; 	  '(proof-goto-end-of-locked
+;; 	    proof-insert-pbp-command
+;; 	    proof-detach-queue 
+;; 	    proof-locked-end 
+;; 	    proof-set-queue-endpoints
+;; 	    proof-script-clear-queue-spans
+;; 	    proof-file-to-buffer 
+;; 	    proof-register-possibly-new-processed-file
+;; 	    proof-restart-buffers)))
 
 ;; FIXME:
 ;; Some variables from proof-shell are also used, in particular,
 ;; the menus.  These should probably be moved out to proof-menu.
+
 
 ;; ============================================================
 ;;
@@ -124,7 +125,7 @@ to examine proof-shell-last-output.")
 ;; 
 
 (defcustom proof-shell-active-scripting-indicator
-  (if proof-running-on-XEmacs
+  (if (featurep 'xemacs)
       (cons (make-extent nil nil) " Scripting ")
     " Scripting")
   "Modeline indicator for active scripting buffer.
@@ -213,7 +214,7 @@ If QUEUEMODE is supplied, set the lock to that value."
   (setq proof-shell-busy (or queuemode t))
   ;; Make modeline indicator follow state (on XEmacs at least)
   (cond
-   (proof-running-on-XEmacs
+   ((featurep 'xemacs)
     (if (extentp (car proof-shell-active-scripting-indicator))
 	(set-extent-properties
 	 (car proof-shell-active-scripting-indicator)
@@ -227,7 +228,7 @@ to err-or-int."
   (setq proof-shell-error-or-interrupt-seen err-or-int)
   (setq proof-shell-busy nil)
   (cond
-   (proof-running-on-XEmacs
+   ((featurep 'xemacs)
     (if (extentp (car proof-shell-active-scripting-indicator))
 	(set-extent-properties
 	 (car proof-shell-active-scripting-indicator)
@@ -246,9 +247,6 @@ NB: this is a temporary config variable in PG 3.5 and will not be
 present in later versions!"
   :type 'boolean
   :group 'proof-shell)
-
-(deflocal proof-eagerly-raise t
-  "Non-nil if this buffer will be eagerly raised/displayed on startup.")
 
 (defun proof-shell-set-text-representation ()
   "Adjust representation for the current buffer to match `proof-shell-unicode'."
@@ -271,19 +269,9 @@ Does nothing if proof assistant is already running."
   (interactive)
   (unless (proof-shell-live-buffer)
 
-    ;; This should configure the mode-setting variables
-    ;; proof-mode-for-<blah> so we can set the modes below.
-    ;; <blah>=shell,goals,response.  We also need to set
-    ;; proof-prog-name to start the program!
-    (run-hooks 'proof-pre-shell-start-hook)
+    (setq proof-included-files-list nil) ; clear some state
 
-    ;; Clear some state [ fixme: should clear more? ]
-    (setq proof-included-files-list nil)
-
-    ;; Added 05/99 by Patrick L.
     (let ((name (buffer-file-name (current-buffer))))
-      ;; FIXME : we check that the buffer corresponds to a file,
-      ;; but we do not check that it is in coq- or isa-mode
       (if (and name proof-prog-name-guess proof-guess-command-line)
 	  (setq proof-prog-name
 		(apply proof-guess-command-line (list name)))))
@@ -301,7 +289,7 @@ Does nothing if proof assistant is already running."
 		 ;; If argument list supplied in <PA>-prog-args, use that.
 		  (cons proof-prog-name (proof-ass prog-args))
 		;; Otherwise, cut prog name on spaces
-		(proof-string-to-list proof-prog-name " ")))
+		(split-string proof-prog-name)))
 	     (prog-name-list
 	      ;; Splice in proof-rsh-command if it's non-nil 
 	      (if (and proof-rsh-command
@@ -394,7 +382,7 @@ Does nothing if proof assistant is already running."
 	(if proof-shell-thms-output-regexp
 	    (setq proof-thms-buffer (get-buffer-create thms)))
 	;; Set the special-display-regexps now we have the buffer names
-	(setq proof-shell-special-display-regexp
+	(setq pg-response-special-display-regexp
 	      (proof-regexp-alt goals resp trace thms)))
 
       (with-current-buffer proof-shell-buffer
@@ -448,7 +436,7 @@ Does nothing if proof assistant is already running."
 	(proof-with-current-buffer-if-exists proof-trace-buffer
 	  (proof-shell-set-text-representation)
 	  (funcall proof-mode-for-response)
-	  (setq proof-eagerly-raise nil))
+	  (setq pg-response-eagerly-raise nil))
 
 	(set-buffer proof-goals-buffer)
 	(proof-shell-set-text-representation)
@@ -466,7 +454,7 @@ Does nothing if proof assistant is already running."
 	  ;; Otherwise just try to remove modeline from PG buffers
 	  ;; in XEmacs (FIXME: hope to remove this and just have
 	  ;; previous case)
-	  (if proof-running-on-XEmacs
+	  (if (featurep 'xemacs)
 	      (proof-map-buffers
 		(list proof-goals-buffer proof-response-buffer
 		      proof-trace-buffer proof-thms-buffer)
@@ -690,7 +678,7 @@ This is a subroutine of `proof-shell-handle-error'."
 	(setq string
 	      (pg-assoc-strip-subterm-markup string)))
       ;; Erase if need be, and erase next time round too.
-      (proof-shell-maybe-erase-response t nil)
+      (pg-response-maybe-erase t nil)
       (pg-response-display-with-face string append-face))))
       
   ;; We used to fetch the output from proof-shell-buffer.  I'm not sure what
@@ -703,27 +691,22 @@ This is a subroutine of `proof-shell-handle-error'."
   ;; This breaks Isabelle, for example, because special
   ;; characters have been stripped from proof-shell-last-output,
   ;; but start-regexp may contain them.
-  ;; For now, test _not_ removing specials (see proof-shell-process-output)
-  ;; 
-  ;; Sun Feb 16: test removing of specials again, to see if this
-  ;; fixes PG/Isabelle <^sync> problem.
-  ;;
 
 ;  ;; stef's version:
 ;   (let ((string proof-shell-last-output))
 ;     ;; Strip off start-regexp --- if it matches 
-;     ;; FIXME: if it doesn't we shouldn't be called, but something
+;     ;; NOTE: if it doesn't we shouldn't be called, but something
 ;     ;;  odd happens here now, so add a safety check.
 ;      (if (and start-regexp (string-match start-regexp string))
 ;	  (setq string (substring string (match-beginning 0))))
-;      ;; FIXME: if the shell buffer is x-symbol minor mode,
+;      ;; NOTE: if the shell buffer is x-symbol minor mode,
 ;      ;; this string can contain X-Symbol characters, which
 ;      ;; is not suitable for processing with proof-fontify-region.
 ;      (unless pg-use-specials-for-fontify
 ;	(setq string
 ;	      (pg-assoc-strip-subterm-markup string)))
 ;      ;; Erase if need be, and erase next time round too.
-;      (proof-shell-maybe-erase-response t nil)
+;      (pg-response-maybe-erase t nil)
 ;      (pg-response-display-with-face string append-face)))
 
 
@@ -734,17 +717,10 @@ are not dealt with eagerly during script processing, namely
 'abort, 'response, 'goals outputs."
   ;; NB: this function is important even when called with an empty
   ;; delayed output, since it serves to clear buffers.  
-
-  ;; FIXME: there's a display anomaly here with Isar/shrink mode which
-  ;; is tricky to find.  Error message causes an empty delayed output
-  ;; for goals buffer to split main window in two rather than
-  ;; shrinking to fit.  Running through the debugger the right
-  ;; thing happens (display in a correctly sized window).  Somewhere
-  ;; there is a spurious match not protected too: C-c C-n gives
   (cond
    ;; Response buffer output
    ((eq proof-shell-delayed-output-kind 'abort)
-     ;; Did display our own message "Aborted."  why??
+    ;; Previously we displayed a message here, let the prover do that now.
     (pg-response-display proof-shell-delayed-output))
    ((eq proof-shell-delayed-output-kind 'response)
     (unless proof-shell-no-response-display
@@ -766,7 +742,7 @@ are not dealt with eagerly during script processing, namely
   "If non-nil, do not display errors from the prover. 
 An internal setting used in `proof-shell-invisible-cmd-get-result'.")
 
-;; FIXME: combine next two functions?
+;; TODO: combine next two functions
 
 (defun proof-shell-handle-error (cmd)
   "React on an error message triggered by the prover.
@@ -790,7 +766,7 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
    "React on an interrupt message from the prover.
 Runs `proof-shell-error-or-interrupt-action'."
    (unless proof-shell-no-error-display
-     (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
+     (pg-response-maybe-erase t t t) ; force cleaned now & next
      (proof-shell-handle-output
       (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
       'proof-error-face)
@@ -815,16 +791,14 @@ Then we call `proof-shell-handle-error-or-interrupt-hook'."
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
     ;; 
-    (unless proof-shell-no-error-display ;; internal call
-      ;; Give a hint about C-c C-`.
-      ;; FIXME: this is rather approximate,
-      ;; we ought to check whether there is an error location in 
-      ;; the latest message, not just somewhere in the response buffer.
+    (unless proof-shell-no-error-display ; internal call
+      ;; Give a hint about C-c C-`.  NB: this is rather approximate,
+      ;; we ought to check whether there is an error location in the
+      ;; latest message, not just somewhere in the response buffer.
       (if (pg-response-has-error-location) 
 	  (pg-next-error-hint)))
     ;; Make sure that prover is outputting data now.
     ;; FIXME: put something here!
-    ;; New: this is called for interrupts too.
     (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
 
 (defun proof-goals-pos (span maparg)
@@ -835,7 +809,7 @@ Then we call `proof-shell-handle-error-or-interrupt-hook'."
 (defun proof-pbp-focus-on-first-goal ()
   "If the `proof-goals-buffer' contains goals, bring the first one into view.
 This is a hook function for proof-shell-handle-delayed-output-hook."
-  (and proof-running-on-XEmacs 		;; FIXME: map-extents exists on Emacs21
+  (and (featurep 'xemacs) 		;; FIXME: map-extents exists on Emacs21
        (fboundp 'map-extents)		;; but with different typing
        (let
 	   ((pos (map-extents 'proof-goals-pos proof-goals-buffer
@@ -963,12 +937,13 @@ which see."
 (defvar proof-shell-insert-space-fudge 
   (cond
    ((string-match "21.*XEmacs" emacs-version) " ")
-   (proof-running-on-XEmacs "")
+   ((featurep 'xemacs) "")
    (t " "))
   "String to insert after setting proof marker to prevent it moving.
 Allows for a difference between different versions of comint across
 different Emacs versions.")
 
+;;;###autoload
 (defun proof-shell-insert (string action)
   "Insert STRING at the end of the proof shell, call `comint-send-input'.
 
@@ -1251,9 +1226,9 @@ and indentation.  Assumes proof-script-buffer is active."
 	;; a unit, i.e. sent to the proof assistant together.
 	;; FIXME da: this seems very similar to proof-insert-pbp-command
 	;; in proof-script.el.  Should be unified, I suspect.
-	(setq span (make-span (proof-locked-end) (point)))
-	(set-span-property span 'type 'pbp)
-	(set-span-property span 'cmd cmd)
+	(setq span (span-make (proof-locked-end) (point)))
+	(span-set-property span 'type 'pbp)
+	(span-set-property span 'cmd cmd)
 	(proof-set-queue-endpoints (proof-locked-end) (point))
 	(setq proof-action-list 
 	      (cons (car proof-action-list) 
@@ -1394,7 +1369,7 @@ MESSAGE should be a string annotated with
      ((and proof-shell-clear-response-regexp
 	   (string-match proof-shell-clear-response-regexp message))
       ;; Erase response buffer and possibly its windows.
-      (proof-shell-maybe-erase-response nil t t))
+      (pg-response-maybe-erase nil t t))
      
      ;; CASE clear goals: prover asks PG to clear goals buffer
      ((and proof-shell-clear-goals-regexp
@@ -1462,7 +1437,7 @@ MESSAGE should be a string annotated with
       ;; if necessary, but don't clear it the next time.
       ;; Don't bother remove the window for the response buffer
       ;; because we're about to put a message in it.
-      (proof-shell-maybe-erase-response nil nil)
+      (pg-response-maybe-erase nil nil)
       (let ((stripped (if proof-shell-unicode 
 			  message
 			(pg-remove-specials-in-string
@@ -2014,8 +1989,7 @@ usual, unless NOERROR is non-nil."
 ;; Proof General shell mode definition
 ;;
 
-(eval-and-compile			; to define vars
-;;; NB: autoload tag below doesn't work for d-d-m, autoload is in proof.el
+;(eval-and-compile			; to define vars
 ;;;###autoload
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
@@ -2049,7 +2023,7 @@ usual, unless NOERROR is non-nil."
   ;; FIXME: this is a work-around for a nasty GNU Emacs 21.2
   ;; bug which HANGS Emacs sometimes if special characters
   ;; are hidden.  (e.g. try M-x column-number-mode)
-  (unless proof-running-on-Emacs21
+  (unless (not (featurep 'xemacs))
     (proof-shell-dont-show-annotations))
 
   ;; Proof marker is initialised in filter to first prompt found
@@ -2076,12 +2050,11 @@ usual, unless NOERROR is non-nil."
   ;; What actually happens: an obscure infinite loop somewhere
   ;; that can lead to "lisp nesting exceeded" somewhere, when
   ;; shell startup fails.  Ugly, but low priority to fix.
-  ))
+  );)
 
-(easy-menu-define proof-shell-mode-menu
-		  proof-shell-mode-map
-		  "Menu used in Proof General shell mode."
-		  proof-aux-menu)
+(easy-menu-define proof-shell-mode-menu proof-shell-mode-map
+  "Menu used in Proof General shell mode."
+  (proof-aux-menu))
 
 
 ;;
@@ -2093,6 +2066,7 @@ usual, unless NOERROR is non-nil."
     ))
 
 
+;;;###autoload
 (defun proof-shell-config-done ()
   "Initialise the specific prover after the child has been configured.
 Every derived shell mode should call this function at the end of
@@ -2108,7 +2082,6 @@ processing."
 
     (let ((proc (get-buffer-process proof-shell-buffer)))
       ;; Add the kill buffer function and process sentinel
-      (make-local-hook 'kill-buffer-hook)
       (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
       (set-process-sentinel proc 'proof-shell-bail-out)
 

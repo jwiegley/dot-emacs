@@ -9,7 +9,6 @@
 ;;
 
 (require 'font-lock)
-(require 'proof-config)
 
 ;; FIXME da: would regexp-opt be better here?  Or maybe
 ;;  (concat "\\<" (regexp-opt l) "\\>")
@@ -122,17 +121,17 @@ If so, return non-nil."
 
 ;; Replacing matches
 
-(defun proof-replace-string (string to-string)
+(defsubst proof-replace-string (string to-string)
   "Non-interactive `replace-string', using `proof-case-fold-search'."
   (while (proof-search-forward string nil t)
     (replace-match to-string nil t)))
 
-(defun proof-replace-regexp (regexp to-string)
+(defsubst proof-replace-regexp (regexp to-string)
   "Non-interactive `replace-regexp', using `proof-case-fold-search'."
   (while (proof-re-search-forward regexp nil t)
     (replace-match to-string nil nil)))
 
-(defun proof-replace-regexp-nocasefold (regexp to-string)
+(defsubst proof-replace-regexp-nocasefold (regexp to-string)
   "Non-interactive `replace-regexp', forcing `case-fold-search' to nil."
   (let ((case-fold-search nil))
     (while (proof-re-search-forward regexp nil t)

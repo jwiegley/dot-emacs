@@ -18,21 +18,21 @@
 ;; starting Emacs, with (require 'maths-menu).
 ;;
 
-(require 'proof-utils)
+(eval-when-compile
+  (require 'proof-utils)) ; proof-ass, proof-eval-when-ready-for-assistant
+
 
 ;;;###autoload
 (defun proof-maths-menu-support-available ()
   "A test to see whether maths-menu support is available."
   (and
-   (not proof-running-on-XEmacs) ;; not XEmacs compatible
+   (not (featurep 'xemacs)) ;; not XEmacs compatible
    (or (featurep 'maths-menu)
        ;; *should* always succeed unless bundled version broken
        (proof-try-require 'maths-menu))
    ;; Load any optional prover-specific config in <foo>-maths-menu.el
    (or (proof-try-require (proof-ass-sym maths-menu)) t)))
 
-(eval-when-compile
-  (proof-maths-menu-support-available))
 
 (defun proof-maths-menu-set-global (flag)
   "Set global status of maths-menu mode for PG buffers to be FLAG.
@@ -61,10 +61,10 @@ in future if we have just activated it for this buffer."
 ;;
 ;; On start up, adjust automode according to user setting
 ;;
-(if (and (proof-ass maths-menu-enable) 
-	 (proof-maths-menu-support-available))
-    (proof-maths-menu-set-global t))
-
+(proof-eval-when-ready-for-assistant 
+    (if (and (proof-ass maths-menu-enable) 
+	     (proof-maths-menu-support-available))
+	(proof-maths-menu-set-global t)))
 
 (provide 'proof-maths-menu)
 ;; End of proof-maths-menu.el

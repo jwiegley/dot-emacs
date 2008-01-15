@@ -6,10 +6,6 @@
 ;; $Id$
 ;;
 
-(require 'proof)                        ; loader
-(require 'proof-script)                 ; indent code is for script editing
-
-
 (defun proof-indent-indent ()
   "Determine indentation caused by syntax element at current point."
   (cond

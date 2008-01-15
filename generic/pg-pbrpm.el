@@ -1,4 +1,4 @@
-;; pg-pbrpm.el  Proof General - Proof By Rules Pop-up Menu - mode.
+;; pg-pbrpm.el --- Proof General - Proof By Rules Pop-up Menu - mode.
 ;;
 ;; Copyright (C) 2004 - Universite de Savoie, France.
 ;; Authors:   Jean-Roch SOTTY, Christophe Raffalli
@@ -6,12 +6,9 @@
 ;;
 ;; analysis of the goal buffer
 
-(require 'proof-utils)			;; for proof-face-specs
-
-
-
+;;; Code:
 (defvar pg-pbrpm-use-buffer-menu t
-  "if t, pbrpm will use a menu displayed in a dialog fram instead of a popup menu")
+  "If t, pbrpm will use a menu displayed in a dialog frame instead of a popup menu.")
 (defvar pg-pbrpm-buffer-menu nil)
 (defvar pg-pbrpm-spans nil)
 (defvar pg-pbrpm-goal-description nil)
@@ -20,13 +17,13 @@
 (defun pg-pbrpm-erase-buffer-menu ()
   (save-excursion
     (set-buffer pg-pbrpm-buffer-menu)
-    (mapc 'delete-span pg-pbrpm-spans)
+    (mapc 'span-delete pg-pbrpm-spans)
     (setq pg-pbrpm-spans nil)
     (erase-buffer)))
 
 (defun pg-pbrpm-menu-change-hook (start end len)
   (save-excursion
-    (let ((span (span-at (- start 1) 'editable)))	
+    (let ((span (span-at (- start 1) 'editable)))
       (if (not span) (setq span (span-at start 'editable)))
       (if span
 	  (let ((len (- (span-end span) (span-start span))))
@@ -43,22 +40,23 @@
 
  
 (defun pg-pbrpm-create-reset-buffer-menu ()
-  "Create if necessary and erase all text in the buffer menu"
+  "Create if necessary and erase all text in the buffer menu."
   (if (or (not pg-pbrpm-buffer-menu) (not (buffer-live-p pg-pbrpm-buffer-menu)))
       (progn
 	(setq pg-pbrpm-buffer-menu
 	      (generate-new-buffer (generate-new-buffer-name "*proof-menu*")))
 	(set-buffer pg-pbrpm-buffer-menu)
 ; needs to be fixed here, the mode could be some other prover
-	(phox-mode)
-	(make-local-hook 'after-change-functions)
-	(setq after-change-functions (cons 'pg-pbrpm-menu-change-hook after-change-functions)))
-    (pg-pbrpm-erase-buffer-menu))
+;	(phox-mode)
+; da: proof-mode-for-script should do it
+	(funcall 'proof-mode-for-script)
+	(add-hook 'after-change-functions 'pg-pbrpm-menu-change-hook nil t)
+    (pg-pbrpm-erase-buffer-menu)))
   (set-buffer pg-pbrpm-buffer-menu))
 
 (defun pg-pbrpm-analyse-goal-buffer ()
   "This function analyses the goal buffer and produces a table to find goals and hypothesis.
-   If stores, in the variable pg-pbrpm-goal-description, a list with shape
+If stores, in the variable pg-pbrpm-goal-description, a list with shape
 
    (start-goal end-goal goal-name start-concl hyps ...) with 5 elements for each goal:
 
@@ -72,14 +70,13 @@
      start-hyp: the position of the first char of the hypothesis (including its name)
      start-hyp-text: the position of the first char of the hypothesis formula (no name)
      end-hyp: the position of the last char of the hypothesis
-     hyp-name: then name of the hypothesis.
-"
+     hyp-name: then name of the hypothesis."
   (save-excursion
     (set-buffer proof-goals-buffer)
     (goto-char 0)
-    (let 
+    (let
 	((goals nil))
-      (progn 
+      (progn
 	(while (search-forward-regexp pg-pbrpm-start-goal-regexp nil t)
 	  (let
 	      ((hyps nil)
@@ -98,14 +95,14 @@
 			      (search-forward-regexp pg-pbrpm-start-concl-regexp end-goal t)
 			      (match-beginning 0)) 1)))
 		(goto-char start-hyp-text)
-		(setq hyps 
+		(setq hyps
 		      (append
-		       (list start-hyp start-hyp-text end-hyp hyp-name) 
+		       (list start-hyp start-hyp-text end-hyp hyp-name)
 		       hyps))))
 	    
-	    (setq goals 
+	    (setq goals
 		  (append
-		   (list start-goal end-goal goal-num 
+		   (list start-goal end-goal goal-num
 			 (search-forward-regexp pg-pbrpm-start-concl-regexp nil t) hyps)
 		   goals))))
 	  (setq pg-pbrpm-goal-description goals)))))
@@ -130,8 +127,8 @@
 
 (defun pg-pbrpm-eliminate-id (acc l)
   (if (null l) (reverse acc)
-    (if 
-	(pg-pbrpm-exists (lambda (x) 
+    (if
+	(pg-pbrpm-exists (lambda (x)
 			   (string= (car x) (car (car l)))) acc)
 	(pg-pbrpm-eliminate-id acc (cdr l))
       (pg-pbrpm-eliminate-id (cons (car l) acc) (cdr l)))))
@@ -143,9 +140,9 @@ The prover command is processed via pg-pbrpm-run-command."
    (setq click-info (pg-pbrpm-process-click event start end)) ; retrieve click informations
    (if click-info
        (let
-	 ((pbrpm-list 
+	 ((pbrpm-list
 	   (pg-pbrpm-eliminate-id nil (mapcar 'cdr
-					      (sort 
+					      (sort
 					       (proof-pbrpm-generate-menu
 						click-info
 						(pg-pbrpm-process-regions-list))
@@ -180,12 +177,12 @@ The prover command is processed via pg-pbrpm-run-command."
 		   (insert description)
 		   (insert " ") ; hack for renaming of last name
 		   (let ((spans (pg-pbrpm-setup-span pos (point))))
-		     (insert-gui-button (make-gui-button 
+		     (insert-gui-button (make-gui-button
 					 (concat (int-to-string count) ")")
 					 'pg-pbrpm-run-command (list command act spans)) pos))
 		   (insert "\n")))
-		 (insert-gui-button (make-gui-button 
-				   "Cancel" 
+		 (insert-gui-button (make-gui-button
+				   "Cancel"
 				   (lambda (n) (pg-pbrpm-erase-buffer-menu) (delete-frame)) nil))
 ; needs to be fixed for other prover than phox
 		 (if phox-sym-lock-enabled
@@ -198,20 +195,20 @@ The prover command is processed via pg-pbrpm-run-command."
 
 (defun pg-pbrpm-setup-span (start end)
   "Set up the span in the menu buffer."
-  (save-excursion 
-    (let ((rank 0) (spans nil) (allspan (make-span start end)))
+  (save-excursion
+    (let ((rank 0) (spans nil) (allspan (span-make start end)))
       (while (< start end)
-	(goto-char start)		    
+	(goto-char start)
 	(let ((pos (search-forward "\\[" end 0)) (goalnum 0))
-	  (if pos (progn 
+	  (if pos (progn
 		    (delete-backward-char 2)
 		    (setq end (- end 2))
 		    (setq pos (- pos 2))))
 ;	  (message "make l span %d %d" start (if pos pos end))
-	  (let ((span (make-span start (if pos pos end))))
-	    (set-span-property span 'pglock t)
+	  (let ((span (span-make start (if pos pos end))))
+	    (span-set-property span 'pglock t)
 	    (setq pg-pbrpm-spans (cons span pg-pbrpm-spans)))
-	  (if pos 
+	  (if pos
 	      (progn
 		(search-forward "\\]" end)
 		(delete-backward-char 2)
@@ -226,9 +223,9 @@ The prover command is processed via pg-pbrpm-run-command."
 			  (setq end (- end len))
 			  (setq start (- start len)))
 			(delete-region (match-beginning 0) (match-end 0)))))
-		(let* ((span (make-span pos start))
-		       (str (concat "\\{" (span-string span) 
-				    (if (= goalnum 0) "" 
+		(let* ((span (span-make pos start))
+		       (str (concat "\\{" (span-string span)
+				    (if (= goalnum 0) ""
 				      (concat "\\|" (int-to-string goalnum)))
 				    "\\}"))
 		       (len (- start pos))
@@ -240,20 +237,20 @@ The prover command is processed via pg-pbrpm-run-command."
 		    (delete-region (match-beginning 0) (match-end 0))
 		    (insert (span-string span))
 ;		    (message "span o %d %d"  (match-beginning 0) (+ (match-beginning 0) len))
-		    (setq occurrences (cons (make-span (match-beginning 0) (+ (match-beginning 0) len)) 
+		    (setq occurrences (cons (span-make (match-beginning 0) (+ (match-beginning 0) len))
 					   occurrences))))
 ;		(message "make w span %d %d %s %d" pos start (span-string span) goalnum)
 		(setq spans (cons span spans))
 		(setq rank (+ rank 1))
-		(set-span-property span 'editable t)
-		(set-span-property span 'rank rank)
-		(set-span-property span 'goalnum goalnum)
-		(set-span-property span 'occurrences occurrences)
-		(set-span-property span 'original-text (span-string span))
-		(set-span-property span 'face 'pg-pbrpm-menu-input-face)))
+		(span-set-property span 'editable t)
+		(span-set-property span 'rank rank)
+		(span-set-property span 'goalnum goalnum)
+		(span-set-property span 'occurrences occurrences)
+		(span-set-property span 'original-text (span-string span))
+		(span-set-property span 'face 'pg-pbrpm-menu-input-face)))
 	    (setq start (if pos pos end)))))
-      (cons allspan (sort (reverse spans) (lambda (sp1 sp2) 
-				  (< (span-property sp1 'goalnum) 
+      (cons allspan (sort (reverse spans) (lambda (sp1 sp2)
+				  (< (span-property sp1 'goalnum)
 				     (span-property sp1 'goalnum))))))))
   
 (defun pg-pbrpm-run-command (args)
@@ -264,7 +261,7 @@ The prover command is processed via pg-pbrpm-run-command."
      (if allspan (setq command (concat "(* " (span-string allspan) " *)\n" command ".")))
      ; delete buffer (and its span) after applying "act"
      (pg-pbrpm-erase-regions-list)
-     (if pg-pbrpm-use-buffer-menu 
+     (if pg-pbrpm-use-buffer-menu
 	 (progn
 	   (pg-pbrpm-erase-buffer-menu)
 	   (delete-frame)))
@@ -274,10 +271,10 @@ The prover command is processed via pg-pbrpm-run-command."
        (proof-goto-end-of-locked)
        (proof-activate-scripting)
        (insert (concat "\n" command))
-       (setq span (make-span (proof-locked-end) (point)))
+       (setq span (span-make (proof-locked-end) (point)))
       ; TODO : define the following properties for PBRPM, I don't understand their use ...
-       (set-span-property span 'type 'pbp)
-       (set-span-property span 'cmd command)
+       (span-set-property span 'type 'pbp)
+       (span-set-property span 'cmd command)
        (proof-start-queue (proof-unprocessed-begin) (point)
 			  (list (list span command 'proof-done-advancing))))))
 
@@ -291,7 +288,7 @@ The prover command is processed via pg-pbrpm-run-command."
     s if either the hypothesis name, \"none\" (for the conclusion) of \"whole\" in strange cases"
   (let ((l pg-pbrpm-goal-description)
 	(found nil))
-    (while (and pos l (not found)) 
+    (while (and pos l (not found))
       (setq start-goal (car l))
       (setq end-goal (cadr l))
       (setq goal-name (caddr l))
@@ -302,8 +299,8 @@ The prover command is processed via pg-pbrpm-run-command."
 	  (progn
 	    (setq found t)
 	    (setq the-goal-name goal-name))))
-    (if found 
-	(progn  
+    (if found
+	(progn
 	  (if (<= start-concl pos)
 	      (setq the-click-info "none")
 	    (setq found nil)
@@ -314,7 +311,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	      (setq hyp-name (cadddr hyps))
 	      (setq hyps (cddddr hyps))
 	      (if (and (<= start-hyp pos) (<= pos end-hyp))
-		  (progn 
+		  (progn
 		    (setq found t)
 		    (setq the-click-info hyp-name))))
 	    (if (not found)
@@ -344,7 +341,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	(return-from 'loop "")))))
     
 (defun pg-pbrpm-translate-position (buffer pos)
-  "return pos if buffer is goals-buffer otherwise, return the point position in 
+  "return pos if buffer is goals-buffer otherwise, return the point position in
    the goal buffer"
   (if (eq proof-goals-buffer buffer) pos
     (point proof-goals-buffer)))
@@ -360,9 +357,9 @@ The prover command is processed via pg-pbrpm-run-command."
 	(if r (list
 	       (string-to-number (car r)) ; should not be an int for other prover
 	       (if (eq proof-goals-buffer buffer) (cdr r) (auto-select-arround-pos))
-	       (if (and start end (eq proof-goals-buffer buffer) 
+	       (if (and start end (eq proof-goals-buffer buffer)
 			(<= (marker-position start) pos) (<= pos  (marker-position end)))
-		   (pg-pbrpm-region-expression buffer (marker-position start) 
+		   (pg-pbrpm-region-expression buffer (marker-position start)
 					       (marker-position end))
 		 (auto-select-arround-pos))))))))
 
@@ -373,11 +370,11 @@ The prover command is processed via pg-pbrpm-run-command."
 (defvar pg-pbrpm-regions-list nil)
 
 (defun pg-pbrpm-erase-regions-list ()
-  (mapc (lambda (span) (delete-span span)) pg-pbrpm-regions-list)
+  (mapc (lambda (span) (span-delete span)) pg-pbrpm-regions-list)
   (setq pg-pbrpm-regions-list nil)
   nil)
 
-(add-hook 'mouse-track-drag-up-hook (lambda (event count) 
+(add-hook 'mouse-track-drag-up-hook (lambda (event count)
 				      (if (not (member 'control (event-modifiers event)))
 					  (pg-pbrpm-erase-regions-list))))
 
@@ -386,12 +383,12 @@ The prover command is processed via pg-pbrpm-run-command."
     (setq pg-pbrpm-regions-list nil)
     (mapc (lambda (span) (if (span-live-p span)
 			     (setq pg-pbrpm-regions-list (cons span pg-pbrpm-regions-list))
-			   (delete-span span))) l)))
+			   (span-delete span))) l)))
 
 (defface pg-pbrpm-multiple-selection-face
   (proof-face-specs
    (:background "orange")
-   (:background "darkorange")   
+   (:background "darkorange")
    (:italic t))
   "*Face for showing (multiple) selection."
   :group 'proof-faces)
@@ -399,7 +396,7 @@ The prover command is processed via pg-pbrpm-run-command."
 (defface pg-pbrpm-menu-input-face
   (proof-face-specs
    (:background "Gray80")
-   (:background "Gray65")   
+   (:background "Gray65")
    (:italic t))
   "*Face for showing (multiple) selection."
   :group 'proof-faces)
@@ -407,9 +404,9 @@ The prover command is processed via pg-pbrpm-run-command."
 (defun pg-pbrpm-do-remember-region (start end)
   (pg-pbrpm-filter-regions-list)
    (if (and start end (not (eq start end))) ; if a region is selected
-       (let ((span (make-span start end))
+       (let ((span (span-make start end))
 	     (found nil))
-	 (setq pg-pbrpm-regions-list (reverse (mapcar (lambda (oldspan) 
+	 (setq pg-pbrpm-regions-list (reverse (mapcar (lambda (oldspan)
 		   (let ((oldstart (span-start oldspan))
 			 (oldend (span-end oldspan)))
 		     (if (and (eq (current-buffer) (span-buffer oldspan))
@@ -417,11 +414,11 @@ The prover command is processed via pg-pbrpm-run-command."
 				  (and (<= start oldend) (<= oldend end))))
 			 (progn
 			   (setq found t)
-			   (delete-span oldspan)
-			   span) 
+			   (span-delete oldspan)
+			   span)
 			 oldspan))) pg-pbrpm-regions-list)))
-	 (if (not found) (setq pg-pbrpm-regions-list (cons span pg-pbrpm-regions-list))) 
-	 (set-span-property span 'face 'pg-pbrpm-multiple-selection-face))))
+	 (if (not found) (setq pg-pbrpm-regions-list (cons span pg-pbrpm-regions-list)))
+	 (span-set-property span 'face 'pg-pbrpm-multiple-selection-face))))
 
 ; the follwing are adapted from mouse-track-insert from mouse.el
 
@@ -457,7 +454,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	 (if (eq proof-goals-buffer buffer)
 	     (progn
 	       (setq r (pg-pbrpm-get-region-info start end))
-	       (if r 
+	       (if r
 		   (list
 		    (string-to-number (car r)) ; should not be an int for other prover
 		    (cdr r)
@@ -493,15 +490,16 @@ The prover command is processed via pg-pbrpm-run-command."
 
 ;;--------------------------------------------------------------------------;;
 
-(require 'pg-goals)
-(define-key proof-goals-mode-map [(button3)] 'pg-pbrpm-button-action)
-(define-key proof-goals-mode-map [(control button3)] 'pg-goals-yank-subterm)
-(define-key proof-goals-mode-map [(control button1)] 'pg-pbrpm-remember-region)
-(define-key pg-span-context-menu-keymap [(button3)] 'pg-pbrpm-button-action)
-(define-key pg-span-context-menu-keymap [(control button3)] 'pg-span-context-menu)
-(define-key proof-mode-map [(button3)] 'pg-pbrpm-button-action)
-(define-key proof-mode-map [(control button3)] 'pg-goals-yank-subterm)
-(define-key proof-mode-map [(control button1)] 'pg-pbrpm-remember-region)
+(eval-after-load "pg-goals"
+  '(progn
+     (define-key proof-goals-mode-map [(button3)] 'pg-pbrpm-button-action)
+     (define-key proof-goals-mode-map [(control button3)] 'pg-goals-yank-subterm)
+     (define-key proof-goals-mode-map [(control button1)] 'pg-pbrpm-remember-region)
+     (define-key pg-span-context-menu-keymap [(button3)] 'pg-pbrpm-button-action)
+     (define-key pg-span-context-menu-keymap [(control button3)] 'pg-span-context-menu)
+     (define-key proof-mode-map [(button3)] 'pg-pbrpm-button-action)
+     (define-key proof-mode-map [(control button3)] 'pg-goals-yank-subterm)
+     (define-key proof-mode-map [(control button1)] 'pg-pbrpm-remember-region)))
 
 (provide 'pg-pbrpm)
-;; pg-pbrpm ends here
+;;; pg-pbrpm ends here

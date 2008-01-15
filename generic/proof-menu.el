@@ -7,11 +7,9 @@
 ;; $Id$
 ;;
 
-(require 'proof)
-(require 'proof-syntax)
-(require 'proof-toolbar)     ; needed for proof-toolbar-scripting-menu
-
-(require 'proof-maths-menu)  ; for automatic invocation from saved option
+(require 'pg-user)         ; user commands used here
+(require 'proof-utils)     ; proof-deftoggle, proof-eval-when-ready-for-assistant
+(require 'proof-autoloads) ; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -80,55 +78,57 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
-;; M-a and M-e are usually {forward,backward}-sentence.
-;; Some modes also override these with similar commands
-(define-key map [(meta a)] 'proof-backward-command)
-(define-key map [(meta e)] 'proof-forward-command)
-(define-key map [(meta up)] 'proof-backward-command)
-(define-key map [(meta down)] 'proof-forward-command)
-(define-key map [(control meta a)] 'proof-goto-command-start)
-(define-key map [(control meta e)] 'proof-goto-command-end)
-(define-key map [(control c) (control a)] (proof-ass keymap))
-(define-key map [(control c) (control b)] 'proof-process-buffer)
-;; C-c C-c is proof-interrupt-process in universal-keys
-;; C-c C-f is proof-find-theorems in universal-keys
-(define-key map [(control c) (control h)] 'proof-help)
-;; C-c C-l is proof-layout-windows in universal-keys
-;; C-c C-n is proof-assert-next-command-interactive in universal-keys
-;; C-c C-o is proof-display-some-buffers in universal-keys
-(define-key map [(control c) (control p)] 'proof-prf)
-(define-key map [(control c) (control r)] 'proof-retract-buffer)
-(define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
-(define-key map [(control c) (control t)] 'proof-ctxt)
-;; C-c C-u is proof-undo-last-successful-command in universal-keys
-;; C-c C-w is pg-response-clear-displays in universal-keys
-(define-key map [(control c) (control z)] 'proof-frob-locked-end)
-(define-key map [(control c) (control backspace)] 'proof-undo-and-delete-last-successful-command)
-; C-c C-v is proof-minibuffer-cmd in universal-keys
-; C-c C-. is proof-goto-end-of-locked in universal-keys
-(define-key map [(control c) (control return)] 'proof-goto-point)
-(define-key map [(control c) v] 'pg-toggle-visibility);; FIXME: FSF??
-(cond ((string-match "XEmacs" emacs-version)
-(define-key map [(control button3)]	  'proof-mouse-goto-point)
-(define-key map [(control button1)]	  'proof-mouse-track-insert)) ; no FSF
-      (t 
-(define-key map [(control mouse-3)]	  'proof-mouse-goto-point)))
- ; FSF
-;; NB: next binding overwrites comint-find-source-code.  
-;; FIXME: not implemented yet 
-;; (define-key map [(meta p)]		  'proof-previous-matching-command)
-;; (define-key map [(meta n)]		  'proof-next-matching-command)
-;; Standard binding for completion
-(define-key map [(control return)] 'proof-script-complete)
-(define-key map [(control c) (control ?\;)] 'pg-insert-last-output-as-comment)
-;;
-;; Experimental: span moving functions
-(if proof-experimental-features (progn
-      (define-key map [(control meta up)] 'pg-move-region-up)
-      (define-key map [(control meta down)] 'pg-move-region-down)))
-;; Add the universal keys bound in all PG buffers.
-;; C-c ` is next-error in universal-keys
-(proof-define-keys map proof-universal-keys))
+  (proof-eval-when-ready-for-assistant
+      (define-key map [(control c) (control a)] (proof-ass keymap)))
+  ;; M-a and M-e are usually {forward,backward}-sentence.
+  ;; Some modes also override these with similar commands
+  (define-key map [(meta a)] 'proof-backward-command)
+  (define-key map [(meta e)] 'proof-forward-command)
+  (define-key map [(meta up)] 'proof-backward-command)
+  (define-key map [(meta down)] 'proof-forward-command)
+  (define-key map [(control meta a)] 'proof-goto-command-start)
+  (define-key map [(control meta e)] 'proof-goto-command-end)
+  (define-key map [(control c) (control b)] 'proof-process-buffer)
+  ;; C-c C-c is proof-interrupt-process in universal-keys
+  ;; C-c C-f is proof-find-theorems in universal-keys
+  (define-key map [(control c) (control h)] 'proof-help)
+  ;; C-c C-l is proof-layout-windows in universal-keys
+  ;; C-c C-n is proof-assert-next-command-interactive in universal-keys
+  ;; C-c C-o is proof-display-some-buffers in universal-keys
+  (define-key map [(control c) (control p)] 'proof-prf)
+  (define-key map [(control c) (control r)] 'proof-retract-buffer)
+  (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
+  (define-key map [(control c) (control t)] 'proof-ctxt)
+  ;; C-c C-u is proof-undo-last-successful-command in universal-keys
+  ;; C-c C-w is pg-response-clear-displays in universal-keys
+  (define-key map [(control c) (control z)] 'proof-frob-locked-end)
+  (define-key map [(control c) (control backspace)] 
+    'proof-undo-and-delete-last-successful-command)
+  ;; C-c C-v is proof-minibuffer-cmd in universal-keys
+  ;; C-c C-. is proof-goto-end-of-locked in universal-keys
+  (define-key map [(control c) (control return)] 'proof-goto-point)
+  (define-key map [(control c) v] 'pg-toggle-visibility);; FIXME: Emacs binding?
+  (cond ((featurep 'xemacs)
+	 (define-key map [(control button3)] 'proof-mouse-goto-point)
+	 (define-key map [(control button1)] 'proof-mouse-track-insert)) ; no Emacs binding
+	(t 
+	 (define-key map [(control mouse-3)] 'proof-mouse-goto-point)))
+  ;; NB: next binding overwrites comint-find-source-code.  
+  ;; TODO: not implemented yet 
+  ;; (define-key map [(meta p)] 'proof-previous-matching-command)
+  ;; (define-key map [(meta n)] 'proof-next-matching-command)
+  ;; Standard binding for completion
+  (define-key map [(control return)] 'proof-script-complete)
+  (define-key map [(control c) (control ?\;)] 'pg-insert-last-output-as-comment)
+  ;;
+  ;; Experimental: span moving functions
+  (if proof-experimental-features 
+      (progn
+	(define-key map [(control meta up)] 'pg-move-region-up)
+	(define-key map [(control meta down)] 'pg-move-region-down)))
+  ;; Add the universal keys bound in all PG buffers.
+  ;; NB: C-c ` is next-error in universal-keys
+  (proof-define-keys map proof-universal-keys))
 
 
 
@@ -145,7 +145,7 @@ without adjusting window layout."
    proof-mode-menu  
    proof-mode-map
    "The main Proof General menu"
-   proof-main-menu))
+   (proof-main-menu)))
 
 ;; The proof assistant specific menu
 
@@ -154,42 +154,44 @@ without adjusting window layout."
   (easy-menu-define 
     proof-assistant-menu 
     proof-mode-map
-    `(concat "The menu for " proof-assistant)
+    (concat "The menu for " proof-assistant)
     (cons proof-assistant
-	    (append
-	     (proof-ass menu-entries)
-	     '("----")
-	     (or proof-menu-favourites
-		 (proof-menu-define-favourites-menu))
-	     (or proof-menu-settings
-		 (proof-menu-define-settings-menu))
-	     '("----")
-	    (list
-	     (vector
-	      (concat "Start " proof-assistant)
-	      'proof-shell-start
-	      ':active '(not (proof-shell-live-buffer)))
+	  (append
+	   (proof-ass menu-entries)
+	   '("----")
+	   (or proof-menu-favourites
+	       (proof-menu-define-favourites-menu))
+	   (or proof-menu-settings
+	       (proof-menu-define-settings-menu))
+	   '("----")
+	   (list
+	    (vector
+	     (concat "Start " proof-assistant)
+	     'proof-shell-start
+	     ':active '(not (proof-shell-live-buffer)))
 	    (vector
 	     (concat "Exit " proof-assistant)
 	     'proof-shell-exit
 	     ':active '(proof-shell-live-buffer)))
-	    '("----")
-	    (list
-	     (cons "Help"
-		   (append
-		    `([,(concat proof-assistant " information")
-		        (proof-help)
-		       ,menuvisiblep proof-info-command]
-		      [,(concat proof-assistant " web page")
-		        (browse-url proof-assistant-home-page)
-		       ,menuvisiblep proof-assistant-home-page])
-		    (proof-ass help-menu-entries))))))))
+	   '("----")
+	   (list
+	    (cons "Help"
+		  (append
+		   (list
+		    (vector
+		     (concat proof-assistant " information")
+		     'proof-help
+		     menuvisiblep proof-info-command)
+		    (vector
+		     (concat proof-assistant " web page")
+		     '(browse-url proof-assistant-home-page)
+		     menuvisiblep proof-assistant-home-page))
+		   (proof-ass help-menu-entries))))))))
 
 (defun proof-assistant-menu-update ()
   "Update proof assistant menu in scripting buffers."
   (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-    ;; NB: behaviour of easy-menu-remove here is odd in XEmacs, it
-    ;; considerably changes the mode popup menu.  
+    ;; NB: easy-menu-remove is odd in XEmacs, it considerably changes the mode popup menu.  
     ;; In GNU Emacs this first instruction does nothing.
     (easy-menu-remove proof-assistant-menu)
     (proof-menu-define-settings-menu)
@@ -269,10 +271,13 @@ without adjusting window layout."
 (proof-deftoggle proof-strict-read-only)
 
 (proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
-(proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
-(proof-deftoggle-fn (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
-(proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
 (proof-deftoggle proof-keep-response-history)
+
+(proof-eval-when-ready-for-assistant
+  (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
+  (proof-deftoggle-fn (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
+  (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle))
+
 
 (defun proof-keep-response-history ()
   "Enable associated buffer histories following `proof-keep-response-history'."
@@ -360,7 +365,7 @@ without adjusting window layout."
       ;; non-Emacs users.  Cf. Gnome usability studies: menus saying
       ;; "Web Browser" more useful to novices than menus saying "Mozilla"!!
       ["Multiple Windows" proof-multiple-frames-toggle
-       :active (pg-window-system)
+       :active (and window-system t)
        :style toggle
        :selected proof-multiple-frames-enable]
       ["Delete Empty Panes" proof-delete-empty-windows-toggle
@@ -495,23 +500,24 @@ without adjusting window layout."
   "The Proof General generic menu for scripting buffers.")
 
 
-(defvar proof-main-menu
+(defun proof-main-menu ()
+  "Construct and return PG main menu used in scripting buffers."
   (cons proof-general-name
 	(append
-	 proof-toolbar-scripting-menu
+	 (proof-toolbar-scripting-menu)
 	 proof-menu
 	 proof-config-menu
 	 (list proof-advanced-menu)
-	 (list proof-help-menu)))
-  "PG main menu used in scripting buffers.")
+	 (list proof-help-menu))))
 
-(defvar proof-aux-menu
+;;;###autoload
+(defun proof-aux-menu ()
+  "Construct and return PG auxiliary menu used in non-scripting buffers."
   (cons proof-general-name 
 	(append
-	 proof-toolbar-scripting-menu
+	 (proof-toolbar-scripting-menu)
 	 proof-config-menu
-	 (list proof-help-menu)))
-  "PG auxiliary menu used in non-scripting buffers.")
+	 (list proof-help-menu))))
 
 
 
@@ -543,44 +549,6 @@ without adjusting window layout."
 			    (proof-save-favourites) t])))))))
   
 ;;; Define stuff from favourites
-
-;;;###autoload
-(defmacro proof-defshortcut (fn string &optional key)
-  "Define shortcut function FN to insert STRING, optional keydef KEY.
-This is intended for defining proof assistant specific functions.
-STRING is inserted using `proof-insert', which see.
-KEY is added onto proof-assistant map."
-  `(progn
-     (if ,key
-	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
-     (defun ,fn ()
-       ,(concat "Shortcut command to insert " 
-		(replace-in-string  string "\\\\" "\\\\=") ;; for substitute-command-keys
-		" into the current buffer.\nThis simply calls `proof-insert', which see.")
-       (interactive)
-       (proof-insert ,string))))
-
-;;;###autoload
-(defmacro proof-definvisible (fn string &optional key)
-  "Define function FN to send STRING to proof assistant, optional keydef KEY.
-This is intended for defining proof assistant specific functions.
-STRING is sent using proof-shell-invisible-command, which see.
-STRING may be a string or a function which returns a string.
-KEY is added onto proof-assistant map."
-  `(progn
-     (if ,key
-	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
-     (defun ,fn ()
-       ,(concat "Command to send " 
-		(if (stringp string)
-		    (replace-in-string  
-		     string "\\\\" "\\\\=") ;; for substitute-command-keys
-		  "an instruction")
-		" to the proof assistant.")
-       (interactive)
-       ,(if (stringp string)
-	    (list 'proof-shell-invisible-command string)
-	  (list 'proof-shell-invisible-command (eval string))))))
 
 (defun proof-def-favourite (command inscript menuname &optional key new)
   "Define and a \"favourite\" proof assisant function.
@@ -768,7 +736,6 @@ the form of the menu entry for the setting.")
   (interactive)
   (apply 'pg-custom-reset-vars (proof-settings-vars)))
 
-
 ;;; autoload for compiled version: used in macro proof-defpacustom
 ;;;###autoload
 (defun proof-defpacustom-fn (name val args)
@@ -856,6 +823,10 @@ The customization variable is automatically in group `proof-assistant-setting'.
 The function `proof-assistant-format' is used to format VAL.
 If NAME corresponds instead to a PG internal setting, then a form :eval to
 evaluate can be provided instead."
+  (eval-when-compile
+    (if (boundp 'proof-assistant-symbol)
+	;; declare variable to compiler to prevent warnings
+	(eval `(defvar ,(proof-ass-sym name) nil "Dummy for compilation."))))
   `(proof-defpacustom-fn (quote ,name) (quote ,val) (quote ,args)))
 
 (defun proof-assistant-invisible-command-ifposs (cmd)

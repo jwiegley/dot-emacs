@@ -1,14 +1,17 @@
-;; pg-metadata.el   Persistant storage of metadata for proof scripts
+;; pg-metadata.el ---  Persistant storage of metadata for proof scripts
 ;;
-;; Copyright (C) 2001-2 LFCS Edinburgh. 
+;; Copyright (C) 2001-2 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
+
+;;; Commentary:
+;; 
 ;; Status: incomplete; experimental
 ;;
-;; TODO: 
+;; TODO:
 ;;  - add file dependency information to proof scripts individually
 ;;    (can approximate from the transitive closure that is included files list)
 ;;
@@ -16,16 +19,16 @@
 ;; must be added to main dist by editing Makefile.devel
 ;;
 
-(require 'pg-xml)
+;;; Code:
 
-;; Variables
+(require 'pg-xml)
 
 (defcustom pg-metadata-default-directory "~/.proofgeneral/"
   "*Directory for storing metadata information about proof scripts."
   :type 'file
   :group 'proof-user-options)
 
-(defface proof-preparsed-span 
+(defface proof-preparsed-span
   (proof-face-specs
    (:background "lightgoldenrodyellow")
    (:background "darkgoldenrod")
@@ -42,7 +45,7 @@
   ;; Clashes are possible, hopefully unlikely.
   (concat
    (file-name-as-directory pg-metadata-default-directory)
-   (replace-in-string 
+   (replace-in-string
     (file-name-sans-extension filename)
     (regexp-quote (char-to-string directory-sep-char))
     "__")
@@ -63,7 +66,7 @@
 ;	     (span	   (span-at (point-min) 'type))
 ;	     type)
 ;	(pg-xml-begin-write)
-;	(pg-xml-openelt 'script-file 
+;	(pg-xml-openelt 'script-file
 ;			(list (list 'filename scriptfile)
 ;			      (list 'filedate modtime)))
 ;	(pg-xml-closeelt)
@@ -72,7 +75,7 @@
 ;		(name  (span-property span 'name))
 ;		(start (span-start span))
 ;		(end   (span-end span)))
-;	  (pg-xml-openelt 
+;	  (pg-xml-openelt
 ;	   'span
 ;	   (list (list 'type type)
 ;		 (list 'name name)
@@ -106,11 +109,4 @@
 
 
 (provide 'pg-metadata)
-;; pg-metadata.el ends here.
-  
-	
-	  
-
-	  
-		     
-  
+;;; pg-metadata.el ends here

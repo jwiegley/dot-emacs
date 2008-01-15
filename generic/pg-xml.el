@@ -1,6 +1,6 @@
-;; pg-xml.el	 XML functions for Proof General
+;; pg-xml.el --- XML functions for Proof General
 ;;
-;; Copyright (C) 2000-2002 LFCS Edinburgh. 
+;; Copyright (C) 2000-2002 LFCS Edinburgh.
 ;; Author:     David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -11,9 +11,9 @@
 
 (require 'proof-utils) ;; for pg-internal-warning
 
-(cond 
+(cond
  ;; We want to find a good version of xml.el
- (proof-running-on-XEmacs
+ ((featurep 'xemacs)
   (require 'xml-fixed))			;; XEmacs: used PG bundled fixed version
  (t					;; Otherwise use GNU Emacs distrib version.
   (require 'xml)))
@@ -41,7 +41,7 @@
   "Parse string in ARG, same as pg-xml-parse-buffer."
   (let
       ((tempbuffer (get-buffer-create " *xml-parse*")))
-    (save-excursion 
+    (save-excursion
       (set-buffer tempbuffer)
       (delete-region (point-min) (point-max))
       (insert-string arg)
@@ -75,7 +75,7 @@ Parsing according to `xml-parse-file' of xml.el."
     (or val
 	(if optional
 	    defaultval
-	  (pg-pgip-error "pg-xml-get-attr: Didn't find required %s attribute in %s element" 
+	  (pg-pgip-error "pg-xml-get-attr: Didn't find required %s attribute in %s element"
 		 attribute (xml-node-name node))))))
 
 (defun pg-xml-child-elts (node)
@@ -88,7 +88,7 @@ Parsing according to `xml-parse-file' of xml.el."
   (let ((children (pg-xml-child-elts node)))
     (if (= (length children) 1)
 	(car children)
-      (pg-internal-warning  "pg-xml-child-elt: expected single element child of %s" 
+      (pg-internal-warning  "pg-xml-child-elt: expected single element child of %s"
 			    (xml-node-name node)))))
 
 (defun pg-xml-get-child (child node)
@@ -114,10 +114,10 @@ Parsing according to `xml-parse-file' of xml.el."
 
 (defmacro pg-xml-attr (name val) `(cons (quote ,name) ,val))
 
-(defmacro pg-xml-node (name atts children) 
+(defmacro pg-xml-node (name atts children)
   `(cons (quote ,name) (cons ,atts ,children)))
 
-(defconst pg-xml-header 
+(defconst pg-xml-header
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 
 
@@ -126,7 +126,7 @@ Parsing according to `xml-parse-file' of xml.el."
   (let ((insertfn    (lambda (&rest args)
 		       (setq strs (cons (reduce 'concat args) strs))))
 	strs)
-    (dolist (xml xmls) 
+    (dolist (xml xmls)
       (pg-xml-output-internal xml nil insertfn))
     (reduce 'concat (reverse strs))))
 
@@ -227,4 +227,4 @@ Output with indentation INDENT-STRING (or none if nil)."
 
 
 (provide 'pg-xml)
-;; End of `pg-xml.el'
+;;; pg-xml.el ends here

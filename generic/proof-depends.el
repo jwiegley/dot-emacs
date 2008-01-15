@@ -73,7 +73,7 @@ This is done using `proof-depends-module-name-for-buffer' and
 Called from `proof-done-advancing' when a save is processed and
 proof-last-theorem-dependencies is set."
 
-  (set-span-property gspan 'dependencies
+  (span-set-property gspan 'dependencies
 		     ;; Ancestors of NAME are in the second component.
 		     ;; FIXME: for now we ignore the first component:
 		     ;; NAME may not be enough [Isar allows proof regions
@@ -89,7 +89,7 @@ proof-last-theorem-dependencies is set."
 	 ;; and return resulting list paired up with names.
 	 (depspans    
 	  (apply 'append
-		 (mapcar-spans 
+		 (span-mapcar-spans 
 		  (lambda (depspan)
 		    (let ((dname (span-property depspan 'name)))
 		      (if (and
@@ -97,7 +97,7 @@ proof-last-theorem-dependencies is set."
 			   (member dname samefilenames))
 			  (let ((forwarddeps 
 				 (span-property depspan 'dependents)))
-			    (set-span-property depspan 'dependents
+			    (span-set-property depspan 'dependents
 					       (cons
 						(list name gspan) forwarddeps))
 			    ;; return list of args for menu fun: name and span
@@ -106,7 +106,7 @@ proof-last-theorem-dependencies is set."
 		  (span-start gspan)
 		  'type))))
     
-    (set-span-property gspan 'dependencies-within-file depspans)
+    (span-set-property gspan 'dependencies-within-file depspans)
     (setq proof-last-theorem-dependencies nil)))
 
 
@@ -146,7 +146,7 @@ proof-last-theorem-dependencies is set."
 
 (defun proof-dep-alldeps-menu (span)
   (or (span-property span 'dependencies-menu) ;; cached value
-      (set-span-property span 'dependencies-menu
+      (span-set-property span 'dependencies-menu
 			 (proof-dep-make-alldeps-menu 
 			  (span-property span 'dependencies)))))
 
@@ -229,21 +229,21 @@ This is simply to display the dependency somehow."
   (let ((helpmsg  (concat "This item is a dependency (ancestor) of " name)))
     (while nmspans
       (let ((span (cadar nmspans)))
-	(set-span-property span 'face 'proof-highlight-dependency-face)
-	(set-span-property span 'priority pg-dep-span-priority)
-	(set-span-property span 'mouse-highlight nil)
-	(set-span-property span 'help-echo helpmsg))
+	(span-set-property span 'face 'proof-highlight-dependency-face)
+	(span-set-property span 'priority pg-dep-span-priority)
+	(span-set-property span 'mouse-highlight nil)
+	(span-set-property span 'help-echo helpmsg))
       (setq nmspans (cdr nmspans)))))
 
 (defun proof-highlight-depts (name nmspans)
   (let ((helpmsg  (concat "This item depends on (is a child of) " name)))
     (while nmspans
       (let ((span (cadar nmspans)))
-	(set-span-property span 'face 'proof-highlight-dependent-face)
-	(set-span-property span 'priority pg-dep-span-priority)
-	(set-span-property span 'mouse-highlight nil)
-	(set-span-property span 'help-echo helpmsg)
-	(set-span-property span 'balloon-help helpmsg))
+	(span-set-property span 'face 'proof-highlight-dependent-face)
+	(span-set-property span 'priority pg-dep-span-priority)
+	(span-set-property span 'mouse-highlight nil)
+	(span-set-property span 'help-echo helpmsg)
+	(span-set-property span 'balloon-help helpmsg))
       (setq nmspans (cdr nmspans)))))
 
 (defun proof-dep-unhighlight ()
@@ -255,8 +255,8 @@ This is simply to display the dependency somehow."
     (let ((span (span-at (point-min) 'type)))
       (while span
 	(pg-set-span-helphighlights span 'nohighlight)
-	(set-span-property span 'face 'proof-locked-face)
-	(set-span-property span 'priority pg-ordinary-span-priority)
+	(span-set-property span 'face 'proof-locked-face)
+	(span-set-property span 'priority pg-ordinary-span-priority)
 	(setq span (next-span span 'type))))))
 
 

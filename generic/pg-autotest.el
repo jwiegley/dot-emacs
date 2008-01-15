@@ -1,4 +1,4 @@
-;; pg-autotest.el: Simple testing framework for Proof General
+;;; pg-autotest.el --- Simple testing framework for Proof General
 ;;
 ;; Copyright (C) 2005 LFCS Edinburgh, David Aspinall.
 ;; Authors:   David Aspinall
@@ -8,7 +8,7 @@
 ;; TODO:
 ;; -- fix failure handling for scriptfile
 ;; -- force re
-;; -- add macros for defining test suites 
+;; -- add macros for defining test suites
 ;; -- add more precise functional tests to check results
 ;; -- add negative tests
 ;; -- output test results to stdout
@@ -18,6 +18,11 @@
 (require 'proof-site)
 (require 'proof-compat)
 
+
+;;; Commentary:
+;; 
+
+;;; Code:
 (defvar pg-autotest-success t)		;; success unless error caught
 
 ;;; Some utilities
@@ -27,7 +32,7 @@
   (let* ((name   (concat proof-home-directory file)))
     (if (file-exists-p name)
 	(find-file name)
-      (error "autotest: requested file %s does not exist" name))))
+      (error (format "autotest: requested file %s does not exist" name)))))
 
 (defun pg-autotest-find-file-restart (file)
   "Find FILE and make ready to script there."
@@ -49,7 +54,7 @@
      (error
       (progn
 	(setq pg-autotest-success nil)
-	(princ (format "Error in test %s: %s" (symbol-name (quote ,fn)) 
+	(princ (format "Error in test %s: %s" (symbol-name (quote ,fn))
 		       err)))))) ;; display-error stdout?
 
 
@@ -84,14 +89,14 @@ An error is signalled if scripting doesn't complete."
   (save-excursion
     (pg-autotest-find-file file)
     (unless (proof-locked-region-full-p)
-      (error "Locked region in file `%s' is not full." file))))
+      (error (format "Locked region in file `%f' is not full" file)))))
 
 (defun pg-autotest-assert-unprocessed (file)
   "Check that FILE has been fully unprocessed."
   (save-excursion
     (pg-autotest-find-file file)
     (unless (proof-locked-region-empty-p)
-      (error "Locked region in file `%f' is not empty."))))
+      (error (format "Locked region in file `%f' is not empty" file)))))
 
 (defun pg-autotest-message (msg)
   "Give message MSG on std out & on display."
@@ -104,7 +109,7 @@ An error is signalled if scripting doesn't complete."
   "Exit prover process."
   (if (buffer-live-p proof-shell-buffer)
 	(kill-buffer proof-shell-buffer)
-    (error "No proof shell buffer to kill!")))
+    (error "No proof shell buffer to kill")))
 
 (defun pg-autotest-finished ()
   "Exit Emacs returning Unix success 0 if all tests succeeded."

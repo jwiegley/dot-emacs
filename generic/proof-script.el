@@ -11,23 +11,15 @@
 
 ;;; Code:
 
+(eval-when-compile 
+  (require 'proof-utils))		; for macros
+
+(require 'cl)				; various
 (require 'proof)			; loader
-(require 'proof-syntax)			; utils for manipulating syntax
+(require 'proof-syntax)		        ; utils for manipulating syntax
 (require 'span)				; abstraction of overlays/extents
 (require 'pg-user)			; user-level commands
 (require 'proof-menu)			; menus for script mode
-(require 'proof-x-symbol)		; x-symbol (maybe initialize)
-(require 'proof-mmm)			; mmm (maybe put on automode list)
-
-
-;; Nuke some byte-compiler warnings
-;; NB: eval-when (compile) is different to eval-when-compile!!
-
-(eval-when (compile)
-  (proof-try-require 'func-menu)
-  (require 'comint))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -95,7 +87,7 @@ This uses and updates `proof-element-counters'."
 ;;
 ;; Configuration of function-menu (aka "fume")
 ;;
-;; FIXME: we would like this code only enabled if the user loads
+;; Ideally we would like this code only enabled if the user loads
 ;; func-menu into Emacs.
 ;;
 
@@ -225,23 +217,23 @@ scripting buffer may have an active queue span.")
    
 (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END."
-  (set-span-endpoints proof-queue-span start end))
+  (span-set-endpoints proof-queue-span start end))
 
 (defsubst proof-set-locked-endpoints (start end)
   "Set the locked span to be START, END."
-  (set-span-endpoints proof-locked-span start end))
+  (span-set-endpoints proof-locked-span start end))
 
 (defsubst proof-detach-queue ()
   "Remove the span for the queue region."
-  (and proof-queue-span (detach-span proof-queue-span)))
+  (and proof-queue-span (span-detach proof-queue-span)))
 
 (defsubst proof-detach-locked ()
   "Remove the span for the locked region."
-  (and proof-locked-span (detach-span proof-locked-span)))
+  (and proof-locked-span (span-detach proof-locked-span)))
 
 (defsubst proof-set-queue-start (start)
   "Set the queue span to begin at START."
-  (set-span-start proof-queue-span start))
+  (span-set-start proof-queue-span start))
 
 (defsubst proof-set-locked-end (end)
   "Set the end of the locked region to be END.
@@ -250,7 +242,7 @@ Otherwise set the locked region to be from (point-min) to END."
   (if (>= (point-min) end)
       ;; Detach the queue span, otherwise there can be a read-only character at the end.
       (proof-detach-locked)
-    (set-span-endpoints
+    (span-set-endpoints
      proof-locked-span
      (point-min)
      (min (point-max) end) ;; safety: sometimes called with end>point-max(?)
@@ -263,7 +255,7 @@ Otherwise set the locked region to be from (point-min) to END."
   (if (or (>= (point-min) end)
 	  (<= end (span-start proof-queue-span)))
       (proof-detach-queue)
-    (set-span-end proof-queue-span end)))
+    (span-set-end proof-queue-span end)))
 
 
 ;; ** Initialise spans for a buffer
@@ -275,24 +267,24 @@ buffer, so the regions are made empty by this function.
 Also clear list of script portions."
   ;; Initialise queue span, remove it from buffer.
   (unless proof-queue-span
-      (setq proof-queue-span (make-span 1 1))
+      (setq proof-queue-span (span-make 1 1))
       ;; FIXME: span-raise is an GNU hack to make locked span appear.
       ;; overlays still don't work as well as they did/should pre 99.
       (span-raise proof-queue-span))
-  (set-span-property proof-queue-span 'start-closed t)
-  (set-span-property proof-queue-span 'end-open t)
+  (span-set-property proof-queue-span 'start-closed t)
+  (span-set-property proof-queue-span 'end-open t)
   (proof-span-read-only proof-queue-span 'always)
-  (set-span-property proof-queue-span 'face 'proof-queue-face)
-  (detach-span proof-queue-span)
+  (span-set-property proof-queue-span 'face 'proof-queue-face)
+  (span-detach proof-queue-span)
   ;; Initialise locked span, remove it from buffer
   (unless proof-locked-span
-      (setq proof-locked-span (make-span 1 1))
+      (setq proof-locked-span (span-make 1 1))
       (span-raise proof-locked-span))
-  (set-span-property proof-locked-span 'start-closed t)
-  (set-span-property proof-locked-span 'end-open t)
+  (span-set-property proof-locked-span 'start-closed t)
+  (span-set-property proof-locked-span 'end-open t)
   (proof-span-read-only proof-locked-span)
-  (set-span-property proof-locked-span 'face 'proof-locked-face)
-  (detach-span proof-locked-span)
+  (span-set-property proof-locked-span 'face 'proof-locked-face)
+  (span-detach proof-locked-span)
   (setq proof-last-theorem-dependencies nil)
   (setq proof-element-counters nil)
   (pg-clear-script-portions))
@@ -312,8 +304,8 @@ will deactivated."
 	   (with-current-buffer buffer
 	     (if proof-active-buffer-fake-minor-mode
 		 (setq proof-active-buffer-fake-minor-mode nil))
-	     (delete-spans (point-min) (point-max) 'type)  ;; remove top-level spans
-	     (delete-spans (point-min) (point-max) 'idiom) ;; and embedded spans
+	     (span-delete-spans (point-min) (point-max) 'type)  ;; remove top-level spans
+	     (span-delete-spans (point-min) (point-max) 'idiom) ;; and embedded spans
 	     (setq pg-script-portions nil)		   ;; also the record of them
 	     (proof-detach-queue)	                   ;; remove queue and locked
 	     (proof-detach-locked)
@@ -344,7 +336,7 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	(proof-detach-queue)
 	;; FIXME da: point-max seems a bit excessive here,
 	;; proof-queue-or-locked-end should be enough.
-	(delete-spans (proof-locked-end) (point-max) 'type))))
+	(span-delete-spans (proof-locked-end) (point-max) 'type))))
 
 
 
@@ -569,17 +561,17 @@ NAME does not need to be unique."
       (setq pg-script-portions (cons (cons idiomsym (list idsym))
 				     pg-script-portions)))
     ;; Idiom and ID are stored in the span as symbols; name as a string.
-    (set-span-property span 'idiom idiomsym)
-    (set-span-property span 'id idsym)
-    (set-span-property span 'name name)
-    (set-span-property span 'span-delete-action delfn)
-    (set-span-property span 'invisible visname)
+    (span-set-property span 'idiom idiomsym)
+    (span-set-property span 'id idsym)
+    (span-set-property span 'name name)
+    (span-set-property span 'span-delete-action delfn)
+    (span-set-property span 'invisible visname)
     ;; Bad behaviour if span gets copied: unique ID shouldn't be duplicated.
-    (set-span-property span 'duplicable nil) ;; NB: not supported in Emacs
+    (span-set-property span 'duplicable nil) ;; NB: not supported in Emacs
     ;; Nice behaviour in with isearch: open invisible regions temporarily.
-    (set-span-property span 'isearch-open-invisible
+    (span-set-property span 'isearch-open-invisible
 		       'pg-open-invisible-span)
-    (set-span-property span 'isearch-open-invisible-temporary
+    (span-set-property span 'isearch-open-invisible-temporary
 		       'pg-open-invisible-span)))
 
 (defun pg-open-invisible-span (span &optional invisible)
@@ -621,7 +613,7 @@ NAME does not need to be unique."
 
 (defun pg-redisplay-for-gnuemacs ()
   "GNU Emacs requires redisplay for changes in buffer-invisibility-spec."
-  (if proof-running-on-Emacs21
+  (if (not (featurep 'xemacs))
       ;; GNU Emacs requires redisplay here to see result
       ;; (sit-for 0) not enough
       (redraw-frame (selected-frame))))
@@ -659,10 +651,10 @@ NAME does not need to be unique."
   (let ((proofid   (proof-next-element-id 'proof)))
     (pg-add-element "proof"  proofid span name)
     ;; Set id in controlspan
-    (set-span-property controlspan 'id (intern proofid))
+    (span-set-property controlspan 'id (intern proofid))
     ;; Make a navigable link between the two spans.
-    (set-span-property span 'controlspan controlspan)
-    (set-span-property controlspan 'children
+    (span-set-property span 'controlspan controlspan)
+    (span-set-property controlspan 'children
 		       (cons span (span-property controlspan 'children)))
     (pg-set-span-helphighlights span 'nohighlight)
     (if proof-disappearing-proofs
@@ -692,9 +684,9 @@ NAME does not need to be unique."
 (defun pg-set-span-helphighlights (span &optional nohighlight)
   "Set the help echo message, default highlight, and keymap for SPAN."
   (let ((helpmsg (concat (pg-span-name span) ""))) ;;   " region"
-    (set-span-property span 'balloon-help helpmsg)
+    (span-set-property span 'balloon-help helpmsg)
     (if pg-show-hints ;; only message in minibuf if hints on
-	(set-span-property
+	(span-set-property
 	 span 'help-echo
 	 (substitute-command-keys
 	  (concat
@@ -703,9 +695,9 @@ NAME does not need to be unique."
 	   (if (span-property span 'idiom)
 	       "with point in region, \\[pg-toggle-visibility] to show/hide; ")
 	   "\\[popup-mode-menu] for menu)"))))
-    (set-span-property span 'keymap pg-span-context-menu-keymap)
+    (span-set-property span 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
-      (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))
+      (span-set-property span 'mouse-face 'proof-mouse-highlight-face))))
 
 
 
@@ -735,7 +727,7 @@ to allow other files loaded by proof assistants to be marked read-only."
     (set-buffer buffer)
     (save-excursion ;; prevent point moving if user viewing file
       (if (< (proof-unprocessed-begin) (proof-script-end))
-	(let ((span (make-span (proof-unprocessed-begin)
+	(let ((span (span-make (proof-unprocessed-begin)
 			       (proof-script-end)))
 	      dummycmd)
 	  ;; Reset queue and locked regions.
@@ -743,10 +735,10 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  ;; End of locked region is always end of buffer
 	  (proof-set-locked-end (proof-script-end))
 	  ;; Configure the overlay span
-	  (set-span-property span 'type 'proverproc)
+	  (span-set-property span 'type 'proverproc)
 	  ;; A dummy command for retraction which examines it
 	  ;; FIXME: shouldn't be necessary really
-	  (set-span-property span 'dummycmd "")
+	  (span-set-property span 'dummycmd "")
 	  (pg-set-span-helphighlights span 'nohighlight))))))
 
 
@@ -1361,14 +1353,14 @@ With ARG, turn on scripting iff ARG is positive."
   ;; start/end of comments, rather than comment-start and
   ;; comment-end skip (which assumes comments are nicely formatted).
   ;; 
-  (let ((bodyspan  (make-span
+  (let ((bodyspan  (span-make
 		    (+ (length comment-start) (span-start span))
 		    (- (span-end span) 
 		       (max 1 (length comment-end)))))
 	(id        (proof-next-element-id 'comment)))
     (pg-add-element "comment" id bodyspan)
-    (set-span-property span 'id (intern id))
-    (set-span-property span 'idiom 'comment)
+    (span-set-property span 'id (intern id))
+    (span-set-property span 'idiom 'comment)
     (pg-set-span-helphighlights span)))
 
 
@@ -1415,7 +1407,7 @@ With ARG, turn on scripting iff ARG is positive."
     (setq nestedundos 0)
     (while (and gspan (> lev 0))
       (setq next (prev-span gspan 'type))
-      (delete-span gspan)
+      (span-delete gspan)
       (setq gspan next)
       (if gspan
 	  (progn
@@ -1467,16 +1459,16 @@ With ARG, turn on scripting iff ARG is positive."
 
 (defun proof-make-goalsave (gspan goalend savestart saveend nam &optional nestedundos)
   "Make new goal-save span, using GSPAN. Subroutine of `proof-done-advancing-save'."
-  (set-span-end gspan saveend)
-  (set-span-property gspan 'type 'goalsave)
-  (set-span-property gspan 'idiom 'proof);; links to nested proof element
-  (set-span-property gspan 'name nam)
-  (and nestedundos (set-span-property gspan 'nestedundos nestedundos))
+  (span-set-end gspan saveend)
+  (span-set-property gspan 'type 'goalsave)
+  (span-set-property gspan 'idiom 'proof);; links to nested proof element
+  (span-set-property gspan 'name nam)
+  (and nestedundos (span-set-property gspan 'nestedundos nestedundos))
   (pg-set-span-helphighlights gspan)
   ;; Now make a nested span covering the purported body of the
   ;; proof, and add to buffer-local list of elements.
   (let ((proofbodyspan
-	 (make-span goalend (if proof-script-integral-proofs
+	 (span-make goalend (if proof-script-integral-proofs
 				saveend savestart))))
     (pg-add-proof-element nam proofbodyspan gspan)))
   
@@ -1549,7 +1541,7 @@ With ARG, turn on scripting iff ARG is positive."
       ;; start of the buffer, we make a fake goal-save region.
 
       ;; Delete spans between the previous goal and new command
-      (mapcar 'delete-span dels)
+      (mapcar 'span-delete dels)
 
       ;; Try to set the name from the goal... [as above]
       (setq nam (or (proof-get-name-from-goal gspan)
@@ -1968,16 +1960,16 @@ Set the callback to CALLBACK-FN or 'proof-done-advancing by default."
   (let ((ct (proof-queue-or-locked-end)) span alist semi)
     (while (not (null semis))
       (setq semi (car semis)
-            span (make-span ct (nth 2 semi))
+            span (span-make ct (nth 2 semi))
 	    ct (nth 2 semi))
       (if (eq (car (car semis)) 'cmd)
 	  (progn
-	    (set-span-property span 'type 'vanilla)
-	    (set-span-property span 'cmd (nth 1 semi))
+	    (span-set-property span 'type 'vanilla)
+	    (span-set-property span 'cmd (nth 1 semi))
 	    (setq alist (cons (list span (nth 1 semi)
 				    (or callback-fn 'proof-done-advancing))
 			      alist)))
-	(set-span-property span 'type 'comment)
+	(span-set-property span 'type 'comment)
 	(setq alist (cons (list span proof-no-command 'proof-done-advancing)
 			  alist)))
 	(setq semis (cdr semis)))
@@ -2204,9 +2196,9 @@ appropriate."
     (proof-goto-end-of-locked)
     (insert "\n") ;; could be user opt 
     (insert cmd)
-    (setq span (make-span (proof-locked-end) (point)))
-    (set-span-property span 'type 'pbp)
-    (set-span-property span 'cmd cmd)
+    (setq span (span-make (proof-locked-end) (point)))
+    (span-set-property span 'type 'pbp)
+    (span-set-property span 'cmd cmd)
     (proof-start-queue (proof-unprocessed-begin) (point)
 		       (list (list span cmd 'proof-done-advancing)))))
 
@@ -2250,9 +2242,9 @@ others)."
 	(unless (proof-locked-region-empty-p)
 	  (proof-set-locked-end start)
 	  (proof-set-queue-end start))
-	(delete-spans start end 'type)
-	(delete-spans start end 'idiom)
-	(delete-span span)
+	(span-delete-spans start end 'type)
+	(span-delete-spans start end 'idiom)
+	(span-delete span)
 	(if kill (kill-region start end))))
   ;; State of scripting may have changed now
   (run-hooks 'proof-state-change-hook))
@@ -2262,8 +2254,8 @@ others)."
 Returns retraction action destined for proof shell queue, and make span.
 Action holds PROOF-COMMAND and `proof-done-retracting' callback.
 Span deletion property set to flag DELETE-REGION."
-  (let ((span (make-span start end)))
-    (set-span-property span 'delete-me delete-region)
+  (let ((span (span-make start end)))
+    (span-set-property span 'delete-me delete-region)
     (list (list span proof-command 'proof-done-retracting))))
 
 
@@ -2425,8 +2417,6 @@ command."
 ;; Proof General scripting mode definition, part 1.
 ;;
 
-(eval-and-compile			; to define vars
-;;; NB: autoload tag below doesn't work for d-d-m, autoload is in proof.el
 ;;;###autoload
 (define-derived-mode proof-mode fundamental-mode
   proof-general-name
@@ -2442,7 +2432,7 @@ command."
   ;; breaking regexps using \\s- that rely on that (showed up for Coq).
   ;; In fact it seems to be broken rather more seriously than that:
   ;; default syntax table of fundamental mode is not merged at all!
-  (if (and proof-running-on-XEmacs
+  (if (and (featurep 'xemacs)
 	   ;; hopefully fixed for later versions but we don't know yet
 	   (>= 21 emacs-major-version)
 	   (>= 5 emacs-minor-version))
@@ -2467,15 +2457,11 @@ command."
   ;; that they can be adjusted by prover specific code if need be.
   (proof-script-set-buffer-hooks)
 
-  (make-local-hook 'after-set-visited-file-name-hooks)
-  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name)
+  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name nil t)
 
-  (make-local-hook 'proof-activate-scripting-hook)
-  (make-local-hook 'proof-deactivate-scripting-hook)
-  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)))
+  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
 
-;; NB: proof-mode-map declared by define-derived-mode above
-(proof-menu-define-keys proof-mode-map)   ;; NB: top-level form
+(proof-menu-define-keys proof-mode-map) ;; NB: proof-mode-map declared above
 
 (defun proof-script-set-visited-file-name ()
   "Called when visited file name is changed.
@@ -2505,10 +2491,8 @@ This hook also gives a warning in case this is the active scripting buffer."
   "Set the hooks for a proof script buffer.
 The hooks set here are cleared by `write-file', so we use this function
 to restore them using `after-set-visited-file-name-hooks'."
-  (make-local-hook 'kill-buffer-hook)
   (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn t t)
   ;; Reverting buffer is same as killing it as far as PG is concerned
-  (make-local-hook 'before-revert-hook)
   (add-hook 'before-revert-hook 'proof-script-kill-buffer-fn t t))
 
 (defun proof-script-kill-buffer-fn ()
@@ -2734,6 +2718,8 @@ with something different."
 ;    proof-kill-goal-command		; do
     ))
 
+
+;;;###autoload
 (defun proof-config-done ()
   "Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
@@ -2756,10 +2742,6 @@ finish setup which depends on specific proof assistant configuration."
   ;; Make X-symbol ignore that we've asked for fixed mode
   (put major-mode 'x-symbol-mode-disable 'ignore)
   
-  ;; Now, define some values if they aren't defined already.
-  (unless proof-mode-for-script
-      (setq proof-mode-for-script major-mode))
-
   (if (and proof-non-undoables-regexp
 	   (not proof-ignore-for-undo-count))
       (setq proof-ignore-for-undo-count
@@ -2789,7 +2771,7 @@ finish setup which depends on specific proof assistant configuration."
   (setq indent-line-function 'proof-indent-line)
 
   ;; Toolbar and scripting menu
-  ;; NB: autloads proof-toolbar, which defines proof-toolbar-scripting-menu.
+  ;; NB: autoloads proof-toolbar, which defines proof-toolbar-scripting-menu.
   (proof-toolbar-setup)
 
   ;; Menus: the Proof-General and the specific menu
@@ -2816,7 +2798,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; Localise the invisibility glyph (XEmacs only):
   (let ((img (proof-get-image "hiddenproof" t "<proof>")))
     (cond
-     ((and img proof-running-on-XEmacs)
+     ((and img (featurep 'xemacs))
       (set-glyph-image invisible-text-glyph img (current-buffer)))))
 
   (if (proof-ass x-symbol-enable)
@@ -2900,9 +2882,6 @@ Choice of function depends on configuration setting."
   ;; wouldn't need "pushnew").
   (if (proof-try-require 'func-menu)
    (progn
-     ;; FIXME: we'd like to let the library load later, but
-     ;; it's a bit tricky: this stuff doesn't seem to work
-     ;; in an eval-after-load body (local vars?).
      (unless proof-script-next-entity-regexps ; unless already set
        ;; Try to calculate a useful default value.
        ;; FIXME: this is rather complicated!  The use of the regexp

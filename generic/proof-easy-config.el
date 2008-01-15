@@ -10,7 +10,6 @@
 ;; interface with customization mechanism so a new prover can be
 ;; configured by editing inside custom buffers.
 ;;
-(require 'proof)
 
 (defconst proof-easy-config-derived-modes-table
   '((""         "script"     proof-mode (proof-config-done))
@@ -30,7 +29,6 @@
 	   (hyphen    (if (string-equal prefixsym "") "" "-"))
 	   (mode      (intern (concat modert hyphen "mode")))
 	   (modename  (concat proof-assistant " " suffixnm))
-	   (varname   (intern (concat "proof-mode-for-" suffixnm)))
 	   ;; FIXME: declare these variables in proof-config:
 	   ;;	proof-{goals,resp,trace}-font-lock-keywords,
 	   ;;   proof-{goals,resp,trace}-syntax-table-entries
@@ -51,10 +49,7 @@
 				      (setq syn (cddr syn))))))
 		       body)))
       (eval
-       `(define-derived-mode ,mode ,parent ,modename nil ,@fullbody))
-      ;; Set proof-mode-for-script and friends
-      ;; NB: top-level, so we don't need proof-pre-shell-start-hook.
-      (set varname mode))))
+       `(define-derived-mode ,mode ,parent ,modename nil ,@fullbody)))))
 
 (defun proof-easy-config-check-setup (sym name)
   "A number of simple checks."

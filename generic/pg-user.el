@@ -1,21 +1,22 @@
-;; pg-user.el   User level commands for Proof General
+;; pg-user.el --- User level commands for Proof General
 ;;
-;; Copyright (C) 2000-2002 LFCS Edinburgh. 
+;; Copyright (C) 2000-2002 LFCS Edinburgh.
 ;; Author:     David Aspinall and others
 ;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
 ;;
+;;; Commentary:
+;; 
 
-(require 'proof-config)			; for proof-follow-mode
+;;; Code:
 
-
-
+(require 'proof-utils)			; deflocal, proof-deftoggle
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; first a couple of helper functions 
+;; first a couple of helper functions
 ;;
 
 (defmacro proof-maybe-save-point (&rest body)
@@ -84,7 +85,7 @@ deleted text."
   ;; when deleting.
   ;; Unfortunately nasty problem with read only flag when
   ;; inserting at (proof-locked-end) sometimes behaves as if
-  ;; point is inside locked region  (prob because span is 
+  ;; point is inside locked region  (prob because span is
   ;;  [ ) and not [ ] -- why??).
   ;; (proof-script-new-command-advance)
   )
@@ -137,7 +138,7 @@ the proof script."
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General.
 This sends an interrupt signal to the proof assistant, if Proof General
-thinks it is busy.  
+thinks it is busy.
 
 This command is risky because when an interrupt is trapped in the
 proof assistant, we don't know whether the last command succeeded or
@@ -150,7 +151,7 @@ handling of interrupt signals."
   (unless proof-shell-busy
     (error "Proof Process Not Active!"))
   (with-current-buffer proof-shell-buffer
-    ;; Just send an interrrupt.  
+    ;; Just send an interrrupt.
     ;; Action on receiving one is triggered in proof-shell
     (comint-interrupt-subjob)
     (run-hooks 'proof-shell-pre-interrupt-hook)))
@@ -166,12 +167,12 @@ handling of interrupt signals."
   (interactive)
   (let* ((cmd (span-at (point) 'type))
 	 (start (if cmd (span-start cmd))))
-    (if start 
+    (if start
 	(progn
 	  ;; BUG: only works for unclosed proofs.
 	  (goto-char start))
       (let ((semis (nth 1 (proof-segment-up-to (point) t))))
-	(if (eq 'unclosed-comment (car-safe semis)) 
+	(if (eq 'unclosed-comment (car-safe semis))
 	    (setq semis (cdr-safe semis)))
 	(if (nth 2 semis) ; fetch end point of previous command
 	      (goto-char (nth 2 semis))
@@ -190,8 +191,8 @@ handling of interrupt signals."
   (let ((cmd (span-at (point) 'type)))
     (if cmd (goto-char (span-end cmd))
 ;      (and (re-search-forward "\\S-" nil t)
-;	   (proof-assert-until-point nil 'ignore-proof-process)) 
-      (proof-assert-next-command nil 
+;	   (proof-assert-until-point nil 'ignore-proof-process))
+      (proof-assert-next-command nil
 				 'ignore-proof-process
 				 'dontmoveforward))
     (skip-chars-backward " \t\n")
@@ -218,7 +219,7 @@ handling of interrupt signals."
   
 
 ;; FIXME da: this is an oddity.  It copies the span, but does not
-;; send it, contrary to it's old name ("proof-send-span").   
+;; send it, contrary to it's old name ("proof-send-span").
 ;; Now made more general to behave like mouse-track-insert
 ;; when not over a span.
 ;; FIXME da: improvement would be to allow selection of part
@@ -246,9 +247,9 @@ If there is no command under the mouse, behaves like mouse-track-insert."
 		;; comments, and supresses leading spaces, at least.
 		;; Odd.
 		(span-property span 'cmd)))))))
-    ;; Insert copied command in original window, 
+    ;; Insert copied command in original window,
     ;; buffer, point position.
-    (if str 
+    (if str
 	(insert str proof-script-command-separator)
       (mouse-track-insert event))))
 
@@ -260,7 +261,7 @@ If there is no command under the mouse, behaves like mouse-track-insert."
 ;;
 
 (defvar proof-minibuffer-history nil
-  "History of proof commands read from the minibuffer")
+  "History of proof commands read from the minibuffer.")
 
 (defun proof-minibuffer-cmd (cmd)
   "Prompt for a command in the minibuffer and send it to proof assistant.
@@ -270,7 +271,7 @@ If a prefix arg is given and there is a selected region, that is
 pasted into the command.  This is handy for copying terms, etc from
 the script.
 
-If `proof-strict-state-preserving' is set, and `proof-state-preserving-p' 
+If `proof-strict-state-preserving' is set, and `proof-state-preserving-p'
 is configured, then the latter is used as a check that the command
 will be safe to execute, in other words, that it won't ruin
 synchronization.  If when applied to the command it returns false,
@@ -281,9 +282,9 @@ WARNING: this command risks spoiling synchronization if the test
 only an approximate test, or if `proof-strict-state-preserving'
 is off (nil)."
   (interactive
-   (list (read-string "Command: " 
+   (list (read-string "Command: "
 		      (if (and current-prefix-arg (region-exists-p))
-			  (replace-in-string 
+			  (replace-in-string
 			   (buffer-substring (region-beginning) (region-end))
 			   "[ \t\n]+" " "))
 		      'proof-minibuffer-history)))
@@ -304,7 +305,7 @@ is off (nil)."
 ;; pear-shaped.
 
 ;; In fact, it's so risky, we'll disable it by default
-(if (if proof-running-on-XEmacs
+(if (if (featurep 'xemacs)
 	(get 'proof-frob-locked-end 'disabled t)
       ;; FSF code more approximate
       (not (member 'disabled (symbol-plist 'proof-frob-locked-end))))
@@ -325,14 +326,14 @@ a proof command."
    (proof-shell-busy
     (error "You can't use this command while %s is busy!" proof-assistant))
    ((not (eq (current-buffer) proof-script-buffer))
-    (error "Must be in the active scripting buffer."))
+    (error "Must be in the active scripting buffer"))
    ;; Sometimes may need to move point forwards, when locked region
    ;; is editable.
    ;; ((> (point) (proof-locked-end))
    ;; (error "You can only move point backwards."))
    ;; FIXME da: should move to a command boundary, really!
-   (t (proof-set-locked-end (point))	
-      (delete-spans (proof-locked-end) (point-max) 'type))))
+   (t (proof-set-locked-end (point))
+      (span-delete-spans (proof-locked-end) (point-max) 'type))))
 
 
 
@@ -379,7 +380,7 @@ a proof command."
 ;;; Non-scripting proof assistant commands.
 ;;;
 
-;;; These are based on defcustom'd settings so that users may 
+;;; These are based on defcustom'd settings so that users may
 ;;; re-configure the system to their liking.
 
 
@@ -407,7 +408,7 @@ a proof command."
   "Give error if a configuration setting VAR is unset, otherwise eval BODY."
   `(if ,var
        (progn ,@body)
-     (error "Proof General not configured for this: set %s" 
+     (error "Proof General not configured for this: set %s"
 	    ,(symbol-name var))))
 
 ;;;###autoload
@@ -415,9 +416,9 @@ a proof command."
   "Define command FN to send string BODY to proof assistant, based on CMDVAR.
 BODY defaults to CMDVAR, a variable."
   `(defun ,fn ()
-     ,(concat doc 
-	      (concat "\nIssues a command to the assistant based on " 
-		      (symbol-name cmdvar) ".") 
+     ,(concat doc
+	      (concat "\nIssues a command to the assistant based on "
+		      (symbol-name cmdvar) ".")
 		"")
      (interactive)
      (proof-if-setting-configured ,cmdvar
@@ -431,14 +432,14 @@ CMDVAR is a variable holding a function or string.  Automatically has history."
      (defvar ,(intern (concat (symbol-name fn) "-history")) nil
        ,(concat "History of arguments for " (symbol-name fn) "."))
      (defun ,fn (arg)
-     ,(concat doc "\nIssues a command based on ARG to the assistant, using " 
+     ,(concat doc "\nIssues a command based on ARG to the assistant, using "
 	      (symbol-name cmdvar) ".\n"
 	      "The user is prompted for an argument.")
       (interactive
        (proof-if-setting-configured ,cmdvar
 	   (if (stringp ,cmdvar)
 	       (list (format ,cmdvar
-		 	 (read-string 
+		 	 (read-string
 			   ,(concat prompt ": ") ""
 			   ,(intern (concat (symbol-name fn) "-history")))))
 	     (funcall ,cmdvar))))
@@ -469,15 +470,15 @@ Start up the proof assistant if necessary."
 (proof-define-assistant-command proof-prf
   "Show the current proof state."
   proof-showproof-command
-  (progn 
+  (progn
     (pg-goals-buffers-hint)
     proof-showproof-command))
 
-(proof-define-assistant-command proof-ctxt 
+(proof-define-assistant-command proof-ctxt
   "Show the current context."
   proof-context-command)
 
-(proof-define-assistant-command proof-help 
+(proof-define-assistant-command proof-help
   "Show a help or information message from the proof assistant.
 Typically, a list of syntax of commands available."
   proof-info-command)
@@ -485,7 +486,7 @@ Typically, a list of syntax of commands available."
 (proof-define-assistant-command proof-cd
   "Change directory to the default directory for the current buffer."
   proof-shell-cd-cmd
-  (proof-format-filename proof-shell-cd-cmd 
+  (proof-format-filename proof-shell-cd-cmd
 	  ;; FSF fix: use default-directory rather than fn
 	  default-directory))
 
@@ -493,8 +494,8 @@ Typically, a list of syntax of commands available."
   "If proof-shell-cd-cmd is set, do proof-cd and wait for prover ready.
 This is intended as a value for proof-activate-scripting-hook"
   ;; The hook is set in proof-mode before proof-shell-cd-cmd may be set,
-  ;; so we explicitly test it here.  
-  (if proof-shell-cd-cmd 
+  ;; so we explicitly test it here.
+  (if proof-shell-cd-cmd
       (progn
 	(proof-cd)
 	(proof-shell-wait))))
@@ -518,7 +519,7 @@ This is intended as a value for proof-activate-scripting-hook"
  (let ((proof-one-command-per-line t))   ; Goals always start at a new line
    (proof-issue-new-command arg)))
 
-(proof-define-assistant-command-witharg proof-issue-save 
+(proof-define-assistant-command-witharg proof-issue-save
  "Write a save/qed command in the script, prompting for the theorem name."
  proof-save-command
  "Save as"
@@ -555,7 +556,7 @@ This is intended as a value for proof-activate-scripting-hook"
 Make sure the modeline is updated to display new value for electric terminator."
   (if proof-mode-for-script
       (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-			 (setq proof-electric-terminator 
+			 (setq proof-electric-terminator
 			       proof-electric-terminator-enable)))
   (redraw-modeline))
 
@@ -564,21 +565,21 @@ Make sure the modeline is updated to display new value for electric terminator."
 (defun proof-electric-term-incomment-fn ()
   "Used as argument to proof-assert-until-point."
   ;; CAREFUL: (1) dynamic scoping here  (incomment, ins, mrk)
-  ;;          (2) needs this name to be recognized in 
+  ;;          (2) needs this name to be recognized in
   ;;		  proof-assert-until-point
   (setq incomment t)
   (if ins (backward-delete-char 1))
   (goto-char mrk)
   (insert proof-terminal-string))
 
-;; FIXME da: this function is a mess and needs rewriting.  
+;; FIXME da: this function is a mess and needs rewriting.
 ;;  (proof-assert-until-point process needs cleaning up)
 ;;
-;; What it should do: 
+;; What it should do:
 ;;   * parse FIRST.  If we're inside a comment or string,
 ;;     then insert the terminator where we are.  Otherwise
 ;;     can skip backwards and insert the terminator at the
-;;     command end (perhaps optionally), and look for 
+;;     command end (perhaps optionally), and look for
 ;;     existing terminator.
 
 (defun proof-process-electric-terminator ()
@@ -595,14 +596,14 @@ comment, and insert or skip to the next semi)."
       ;; Otherwise, do other thing.
       ;; Old idea: only shift terminator wildly if we're looking at
       ;; whitespace.  Why?
-      ;; (if (looking-at "\\s-\\|\\'\\|\\w") 
+      ;; (if (looking-at "\\s-\\|\\'\\|\\w")
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
 
       (if (not (= (char-after (point)) proof-terminal-char))
-	  (progn 
+	  (progn
 	    (forward-char) ;; immediately after command end.
-	    (insert proof-terminal-string) 
+	    (insert proof-terminal-string)
 	    (setq ins t)))
       (proof-assert-until-point 'proof-electric-term-incomment-fn)
       (or incomment
@@ -613,7 +614,7 @@ comment, and insert or skip to the next semi)."
 If proof-electric-terminator-enable is non-nil, the command will be
 sent to the assistant."
   (interactive)
-  (if proof-electric-terminator-enable 
+  (if proof-electric-terminator-enable
       (proof-process-electric-terminator)
     (self-insert-command 1)))
 
@@ -628,7 +629,7 @@ sent to the assistant."
 ;; a hand-wavy thing, so we don't make any attempt to maintain
 ;; a precise completion table or anything.
 ;;
-;; New in 3.2.  
+;; New in 3.2.
 ;;
 (defun proof-add-completions ()
   "Add completions from <PA>-completion-table to completion database.
@@ -636,7 +637,7 @@ Uses `add-completion' with a negative number of uses and ancient
 last use time, to discourage saving these into the users database."
   (interactive)
   (require 'completion)
-  (mapcar (lambda (cmpl) 
+  (mapcar (lambda (cmpl)
 	    ;; completion gives error in this case; trapping
 	    ;; the error here is tricky in FSF Emacs so duplicate
 	    ;; the test.
@@ -644,10 +645,10 @@ last use time, to discourage saving these into the users database."
 		(add-completion cmpl -1000 0)))
 	  (proof-ass completion-table)))
 
-;; NB: completion table is expected to be set when proof-script 
+;; NB: completion table is expected to be set when proof-script
 ;; is loaded!  Can call proof-script-add-completions if the table
 ;; is updated.
-(eval-after-load "completion" 
+(eval-after-load "completion"
   '(proof-add-completions))
 
 (defun proof-script-complete (&optional arg)
@@ -692,7 +693,7 @@ last use time, to discourage saving these into the users database."
 	  (insert proof-shell-last-output)
 	  ;; 3.4: add fontification. Questionable since comments will
 	  ;; probably be re-highlighted, so colouration, especially
-	  ;; based on removed specials, will be lost.  
+	  ;; based on removed specials, will be lost.
 	  ;; X-Symbol conversion is useful, but a surprising nuisance
 	  ;; to achieve, mainly because x-symbol doesn't give us back
 	  ;; a useful pointer to end of region after converting, and
@@ -711,8 +712,8 @@ last use time, to discourage saving these into the users database."
 
 (defun pg-copy-span-contents (span)
   "Copy contents of SPAN to kill ring, sans surrounding whitespace."
-  (copy-region-as-kill 
-   (save-excursion 
+  (copy-region-as-kill
+   (save-excursion
      (goto-char (span-start span))
      (skip-chars-forward " \t\n")
      (point))
@@ -729,7 +730,7 @@ last use time, to discourage saving these into the users database."
 (defun pg-numth-span-higher-or-lower (span num &optional noerr)
   "Find NUM'th span after/before SPAN.  NUM is positive for after."
   (unless (and span (<= (span-end span) (proof-unprocessed-begin)))
-    (if noerr 
+    (if noerr
 	nil
       (error "No processed region under point")))
   (let ((downflag (> num 0))
@@ -771,22 +772,22 @@ If NUM is negative, move upwards.  Return new span."
       ;; We're going to move the span to before/after nextspan.
       ;; First make sure inserting there doesn't extend the span.
       (if downflag
-	  (set-span-property nextspan 'end-open t)
-	(set-span-property nextspan 'start-open t))
+	  (span-set-property nextspan 'end-open t)
+	(span-set-property nextspan 'start-open t))
       ;; When we delete the span, we want to duplicate it
       ;; to recreate in the new position.
-      (set-span-property span 'duplicable 't)
+      (span-set-property span 'duplicable 't)
       ;; FIXME: this is faulty: moving span up gives children
       ;; list with single nil element.  Hence liveness test
       (mapcar (lambda (s) (if (span-live-p s)
-			      (set-span-property s 'duplicable 't)))
+			      (span-set-property s 'duplicable 't)))
 	      (span-property span 'children))
       (let* ((start     (span-start span))
 	     (end       (span-end span))
 	     (contents  (buffer-substring start end))
 	     ;; Locked end may move up when we delete
 	     ;; region: we'll make sure to reset it
-	     ;; again later, it shouldn't change.  
+	     ;; again later, it shouldn't change.
 	     ;; NB: (rely on singlethreadedness here, so
 	     ;; lockedend doesn't move while in this code).
 	     (lockedend (span-end proof-locked-span)))
@@ -801,14 +802,14 @@ If NUM is negative, move upwards.  Return new span."
 	    ;; Let XEmacs duplicate extents as needed, then repair
 	    ;; their associations
 	    (insert contents)
-	    (let ((new-span 
+	    (let ((new-span
 		   (span-at insertpos 'type)));should be one we deleted.
-	      (set-span-property 
+	      (span-set-property
 	       new-span 'children
-	       (append 
-		(mapcar-spans 'pg-fixup-children-span 
+	       (append
+		(span-mapcar-spans 'pg-fixup-children-span
 			      insertpos (point) 'type)))
-	      (set-span-end proof-locked-span lockedend)
+	      (span-set-end proof-locked-span lockedend)
 	      (undo-boundary)
 	      new-span)))))))
 
@@ -816,14 +817,14 @@ If NUM is negative, move upwards.  Return new span."
   (if (span-property span 'controlspan)
       (progn
 	;; WARNING: dynamic binding for new-span
-	(set-span-property span 'controlspan new-span)
+	(span-set-property span 'controlspan new-span)
 	(list span))))
       
 (defun pg-move-region-down (&optional num)
   "Move the region under point downwards in the buffer, past NUM spans."
   (interactive "p")
   (let ((span  (span-at (point) 'type)))
-    (and span 
+    (and span
 	 (goto-char (span-start
 		     (pg-move-span-contents span num)))
 	 (skip-chars-forward " \t\n"))))
@@ -835,7 +836,7 @@ If NUM is negative, move upwards.  Return new span."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Dragging regions around 
+;; Dragging regions around
 ;;
 ;; FIXME: unfinished
 
@@ -845,7 +846,7 @@ If NUM is negative, move upwards.  Return new span."
 ;(defun pg-mouse-drag-move-region-function (event click-count dragp)
 ;  (save-excursion
 ;    (let* ((span (span-at (mouse-set-point event) 'type)))
-;      (if span 
+;      (if span
 ;	  (if pg-drag-region-point
 ;	      ;; Move the region at point to region here.
 	      
@@ -866,7 +867,7 @@ If NUM is negative, move upwards.  Return new span."
 		    (and (skip-chars-backward " \t\n")
 			 (> (point) (point-min))
 			 (span-at (1- (point)) 'type))))
-	 (nextspan (and span (pg-numth-span-higher-or-lower 
+	 (nextspan (and span (pg-numth-span-higher-or-lower
 			      (pg-control-span-of span) num 'noerr))))
     (cond
      ((and nextspan (> num 0))
@@ -899,9 +900,9 @@ If NUM is negative, move upwards.  Return new span."
     (let ((map (make-sparse-keymap
 		"Keymap for context-sensitive menus on spans")))
       (cond
-       (proof-running-on-XEmacs
+       ((featurep 'xemacs)
 	(define-key map [button3] 'pg-span-context-menu))
-       (proof-running-on-Emacs21
+       ((not (featurep 'xemacs))
 	(define-key map [down-mouse-3] 'pg-span-context-menu)))
       map))
 
@@ -914,11 +915,11 @@ If NUM is negative, move upwards.  Return new span."
 (defun pg-span-for-event (event)
   "Return span corresponding to position of a mouse click EVENT."
   (cond
-   (proof-running-on-XEmacs
+   ((featurep 'xemacs)
     (select-window (event-window event))
     (span-at (event-point event) 'type))
-   (proof-running-on-Emacs21
-    (with-current-buffer 
+   ((not (featurep 'xemacs))
+    (with-current-buffer
 	(window-buffer (posn-window (event-start event)))
       (span-at  (posn-point (event-start event)) 'type)))))
 
@@ -926,14 +927,14 @@ If NUM is negative, move upwards.  Return new span."
   (interactive "e")
   (let ((span (pg-span-for-event event))
 	cspan)
-    ;; Find controlling span 
+    ;; Find controlling span
     (while (setq cspan (span-property span 'controlspan))
       (setq span cspan))
-    (let*  
+    (let*
 	((idiom (and span (span-property span 'idiom)))
 	 (id    (and span (span-property span 'id))))
-      (popup-menu (pg-create-in-span-context-menu 
-		   span 
+      (popup-menu (pg-create-in-span-context-menu
+		   span
 		   (if idiom (symbol-name idiom))
 		   (if id (symbol-name id)))))))
 
@@ -957,14 +958,14 @@ If NUM is negative, move upwards.  Return new span."
   (append
    (list (pg-span-name span))
    (list (vector
-	  "Show/hide"   
-	  (if idiom (list `pg-toggle-element-visibility idiom name) 
+	  "Show/hide"
+	  (if idiom (list `pg-toggle-element-visibility idiom name)
 	    idiom)
 	  (not (not idiom))))
    (list (vector
 	  "Copy"	(list 'pg-copy-span-contents span) t))
    (list (vector
-	  "Undo"   
+	  "Undo"
 	  (list 'pg-span-undo span) t))
    (if proof-experimental-features
        (list (vector
@@ -976,7 +977,7 @@ If NUM is negative, move upwards.  Return new span."
 	      (pg-numth-span-higher-or-lower (pg-control-span-of span) 1 'noerr))))
    (if proof-script-span-context-menu-extensions
        (funcall proof-script-span-context-menu-extensions span idiom name))
-   (if (and proof-experimental-features 
+   (if (and proof-experimental-features
 	    proof-shell-theorem-dependency-list-regexp)
        (proof-dependency-in-span-context-menu span))))
 
@@ -1036,7 +1037,7 @@ If NUM is negative, move upwards.  Return new span."
   (pg-hint
    (format
     "\\[proof-prf] for goals;%s \\[proof-layout-windows] refreshes"
-    (if (not proof-multiple-frames-enable) ;; and not proof-three-window-enable? 
+    (if (not proof-multiple-frames-enable) ;; and not proof-three-window-enable
 	(format " \\[proof-display-some-buffers] rotates output%s;"
 		(if nextbuf (concat " (next:" nextbuf ")") ""))
       ""))))
@@ -1050,12 +1051,12 @@ If NUM is negative, move upwards.  Return new span."
       (let ((win (get-buffer-window proof-script-buffer)))
 	(unless ;; end of locked already displayed
 	    (and win (pos-visible-in-window-p (proof-unprocessed-begin)))
-	  (save-excursion 
+	  (save-excursion
 	    (set-buffer proof-script-buffer)
 	    (cond
 	     ((proof-locked-region-empty-p)) ;; nothing if empty
 	     ((proof-locked-region-full-p)
-	      (pg-hint 
+	      (pg-hint
 	       (concat "Processing complete in " (buffer-name proof-script-buffer))))
 	     (t ;; partly complete: hint about displaying the locked end
 	      (pg-jump-to-end-hint))))))))
@@ -1077,16 +1078,16 @@ The function `substitute-command-keys' is called on the argument."
 
 ;; FIXME: making the binding globally is perhaps a bit obnoxious, but
 ;; this modifier combination is currently unused.
-(cond 
- (proof-running-on-Emacs21
+(cond
+ ((not (featurep 'xemacs))
   (global-set-key [C-M-mouse-2] 'pg-identifier-under-mouse-query))
- (proof-running-on-XEmacs
+ ((featurep 'xemacs)
   (global-set-key '(control meta button2) 'pg-identifier-under-mouse-query)))
 
 (defun pg-identifier-under-mouse-query (event)
   (interactive "e")
   (if proof-shell-identifier-under-mouse-cmd
-      (let (identifier ctxt oldend) 
+      (let (identifier ctxt oldend)
 	(save-selected-window
 	  (save-selected-frame
 	    (save-excursion
@@ -1099,16 +1100,16 @@ The function `substitute-command-keys' is called on the argument."
 	      (setq identifier
 		    ;; If there's an active region in this buffer, use that
 		    ;; instead of the identifier under point.  Since
-		    ;; region-end moves immediately to new point with 
+		    ;; region-end moves immediately to new point with
 		    ;; zmacs-regions we use oldend instead of current.
 		    (if (region-exists-p)
-			(buffer-substring (region-beginning) 
+			(buffer-substring (region-beginning)
 					  (or oldend (region-end)))
 		     (setq identifier (current-word))))
 	      (setq ctxt (proof-buffer-syntactic-context)))))
 	(unless (or (null identifier)
 		    (string-equal identifier ""))
-	  (proof-shell-invisible-command 
+	  (proof-shell-invisible-command
 	   (if (stringp proof-shell-identifier-under-mouse-cmd)
 	       ;; simple customization
 	       (format proof-shell-identifier-under-mouse-cmd identifier)
@@ -1125,24 +1126,24 @@ The function `substitute-command-keys' is called on the argument."
 
 (eval-after-load "speedbar"
   '(and proof-assistant-symbol ;; *should* be set by now
-	(speedbar-add-supported-extension 
+	(speedbar-add-supported-extension
 	 (nth 2 (assoc proof-assistant-symbol proof-assistant-table)))))
 
 (defun proof-imenu-enable ()
   "Add or remove index menu."
   (if proof-imenu-enable
       (imenu-add-to-menubar "Index")
-    (if proof-running-on-XEmacs
+    (if (featurep 'xemacs)
 	(easy-menu-remove (list "Index" :filter 'imenu-menu-filter))
       (progn
 	(let ((oldkeymap (keymap-parent (current-local-map))))
 	  (if ;; sanity checks in case someone else set local keymap
 	      (and oldkeymap
 		   (lookup-key (current-local-map) [menu-bar index])
-		   (not 
+		   (not
 		    (lookup-key oldkeymap [menu-bar index])))
 	      (use-local-map oldkeymap)))
 	(remove-hook 'menu-bar-update-hook 'imenu-update-menubar)))))
 
 (provide 'pg-user)
-;; pg-user.el ends here.
+;;; pg-user.el ends here

@@ -1,21 +1,25 @@
-;; pg-thymodes.el  Proof General "theory" modes.
+;; pg-thymodes.el --- Proof General "theory" modes.
 ;;
-;; Copyright (C) 2002 LFCS Edinburgh. 
+;; Copyright (C) 2002 LFCS Edinburgh.
 ;; Author:   David Aspinall
 ;; License:  GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
+;;; Commentary:
+;; 
 ;; Functions for defining "theory" modes, i.e.  modes for
 ;; non-interactive proof assistant files which do not contain proof
 ;; scripts.
 ;;
 ;; STATUS: in progress, experimental; needs macro debugging.
 
+
 (require 'proof)
 
 
 ;;;###autoload
+;;; Code:
 (defmacro pg-defthymode (sym name &rest body)
   "Define a Proof General mode for theory files.
 Mode name is SYM-mode, named NAMED.  BODY is the body of a setq and
@@ -30,7 +34,7 @@ can define a number of variables for the mode, viz:
 All of these settings are optional."
   (progn
     (eval `(setq ,@body))
-    (let* 
+    (let*
 	;; See what was defined
 	((mode	      (intern (concat (symbol-name sym) "-mode")))
 	 (parentmode  (pg-modesymval sym 'parent-mode 'fundamental-mode))
@@ -53,9 +57,9 @@ All of these settings are optional."
 	  (pg-do-unless-null ,syntaxes (mapcar 'modify-syntax-entry ,syntaxes))))
        ;; Define the menu (final value of macro to be evaluated)
        `(pg-do-unless-null ,menu
-			   `(easy-menu-define 
+			   `(easy-menu-define
 			     ,menusym ,keymap
-			     ,(concat "Menu for " 
+			     ,(concat "Menu for "
 				      (symbol-name mode)
 				      " defined by `pg-defthymode'.")
 			     ,menu)))))
@@ -71,7 +75,7 @@ All of these settings are optional."
 
 (defun pg-symval (sym &optional other)
   "Return (symbol-value SYM) or nil/OTHER if SYM unbound."
-  (if (boundp sym) 
+  (if (boundp sym)
       (symbol-value sym)
     other))
 
@@ -90,4 +94,4 @@ All of these settings are optional."
   
 
 (provide 'pg-thymodes)
-;; pg-thymodes.el ends here.
+;;; pg-thymodes.el ends here

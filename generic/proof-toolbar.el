@@ -6,7 +6,6 @@
 ;;
 ;; $Id$
 ;;
-;; TODO (minor things):
 ;;
 ;; 1. edit-toolbar cannot edit proof toolbar (even in a proof mode)
 ;; Need a variable containing  a specifier or similar.
@@ -23,25 +22,14 @@
 ;; 3. We could consider automatically disabling buttons which are
 ;; not configured for the prover, e.g. if proof-info-command is
 ;; not set, then the Info button should not be shown. 
-
-
-;;; IMPORT declaration  (only to suppress warnings for byte compile)
-;;; NB: can't put require proof-script here: leads to circular
-;;; requirement via proof-menu.
-;; (require 'proof-script)
-;; (autoload 'proof-shell-live-buffer "proof-shell")
-;; (autoload 'proof-shell-restart "proof-shell")
-
-
-(require 'proof-config)			; for <PA>-toolbar-entries
-
 ;;
-;; See `proof-toolbar-entries-default' and
-;;     `<PA>-toolbar-entries' in proof-config
-;; for the default generic toolbar and 
+;; See `proof-toolbar-entries-default' and `<PA>-toolbar-entries' 
+;; in pg-custom for the default generic toolbar and 
 ;; the per-prover toolbar contents variable.
 ;;
 
+(eval-when-compile
+  (require 'proof-utils))
 ;;
 ;; Function, icon, button names
 ;; 
@@ -107,7 +95,7 @@
 		     (message "Button \"%s\" disabled" ,menuname))))
 	  buttonfnwe)))
     (if tooltip	;; no tooltip means menu-only item
-	(if proof-running-on-XEmacs
+	(if (featurep 'xemacs)
 	    (list (vector icon actualfn enableritem tooltip))
 	  (list (append (list icon actualfn token
 			      :help tooltip)
@@ -133,25 +121,24 @@ If `proof-toolbar-enable' is nil, change the current buffer toolbar
 to the default toolbar."
   (interactive)
   (if
-   (and ;; Check toolbar support in Emacs
+   (and ;; Check toolbar support...
+    window-system
     (or (and (featurep 'tool-bar)	; GNU Emacs tool-bar library
-	     (member 'xpm image-types))	; and XPM support
+	     (or (image-type-available-p 'xpm)   ;; and XPM
+		 (image-type-available-p 'png))) ;; or PNG
 	(and (featurep 'toolbar)	; or XEmacs toolbar library
-	     (featurep 'xpm)))		; and XPM support
-    ;; Check we're running in a windowing system
-    (pg-window-system))
+	     (featurep 'xpm))))		; and XPM support
 
       ;; Toolbar support is possible.  
       (progn
 	;; Check the toolbar has been built.
 	(or proof-toolbar (proof-toolbar-build))
 
-	;; Now see if user wants toolbar
-	;; or not (this can be changed dyamically).
+	;; Now see if user wants toolbar (this can be changed dyamically).
 	(if proof-toolbar-enable
 
 	    ;; Enable the toolbar in this buffer
-	    (if proof-running-on-Emacs21
+	    (if (not (featurep 'xemacs))
 		;; For GNU Emacs, we make a local tool-bar-map
 		(set (make-local-variable 'tool-bar-map) proof-toolbar)
 	      
@@ -161,7 +148,7 @@ to the default toolbar."
 	      (proof-toolbar-setup-refresh))
 
 	  ;; Disable the toolbar in this buffer
-	  (if proof-running-on-Emacs21
+	  (if (not (featurep 'xemacs))
 	      ;; For GNU Emacs, we remove local value of tool-bar-map
 	      (kill-local-variable 'tool-bar-map)
 	    ;; For XEmacs, we remove specifier and disable refresh.
@@ -193,7 +180,7 @@ to the default toolbar."
 	(append
 	 (apply 'append (mapcar 'proof-toolbar-make-toolbar-item 
 				(proof-ass toolbar-entries)))
-	 (if proof-running-on-XEmacs
+	 (if (featurep 'xemacs)
 	     (list [:style 3d])))))
 
     ;; First set the button variables to glyphs (bit long-windedly).  
@@ -206,7 +193,7 @@ to the default toolbar."
 				name
 				icontype)) (cdr buttons))))
 	 (set var 
-	      (if proof-running-on-XEmacs
+	      (if (featurep 'xemacs)
 		  ;; On XEmacs, icon variable holds a list of glyphs
 		  (toolbar-make-button-list iconfiles)
 		;; On GNU Emacs, it holds a filename for the icon,
@@ -215,7 +202,7 @@ to the default toolbar."
 		(concat "epg-" (eval (cadr buttons)))))))
      proof-toolbar-icon-list)
 
-    (if proof-running-on-XEmacs
+    (if (featurep 'xemacs)
 	;; For XEmacs, we evaluate the specifier.
 	(setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
 
@@ -237,6 +224,8 @@ to the default toolbar."
 
 ;; Action to take after altering proof-toolbar-enable
 (defalias 'proof-toolbar-enable 'proof-toolbar-setup)
+
+;;;###autoload (autoload 'proof-toolbar-toggle "proof-toolbar")
 (proof-deftoggle proof-toolbar-enable proof-toolbar-toggle)
 
 
@@ -558,14 +547,16 @@ changed state."
 	    (list menuname fnval)
 	    (if enablep 
 		(list ':active (list (proof-toolbar-enabler token))))))))))
-   
-(defconst proof-toolbar-scripting-menu
-  ;; Toolbar contains commands to manipulate script and
-  ;; other handy stuff.  
+
+;;;###autoload
+(defun proof-toolbar-scripting-menu ()
+  "Menu made from the Proof General toolbar commands."
+  ;; Prevent evaluation too early here, otherwise this is called
+  ;; during compilation when loading files with expanded easy-menu-define
+  ;; (e.g. pg-response/proof-aux-menu call)
   (apply 'append
-	  (mapcar 'proof-toolbar-make-menu-item 
-		  (proof-ass toolbar-entries)))
-  "Menu made from the Proof General toolbar commands.")
+	 (mapcar 'proof-toolbar-make-menu-item 
+		 (proof-ass toolbar-entries))))
 
  
 ;; 

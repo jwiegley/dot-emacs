@@ -21,7 +21,10 @@
 ;; Configuration for the prover is expected to reside in <foo>-mmm.el
 ;; It should define an MMM submode class called <foo>.
 
-(require 'proof-utils)
+(eval-when-compile
+  (require 'proof-utils)) ; for proof-ass, proof-eval-when-ready-for-assistant
+
+(require 'proof-site)
 
 ;;;###autoload
 (defun proof-mmm-support-available ()
@@ -39,8 +42,6 @@
    ;; Load prover-specific config in <foo>-mmm.el
    (proof-try-require (proof-ass-sym mmm))))
 
-(eval-when-compile
-  (proof-mmm-support-available))
 
 ;; The following function is called by the menu item for
 ;; MMM-Mode.  It is an attempt at an intuitive behaviour
@@ -83,10 +84,10 @@ in future if we have just activated it for this buffer."
 ;;
 ;; On start up, adjust automode according to user setting
 ;;
-(if (and (proof-ass mmm-enable) 
-	 (proof-mmm-support-available))
-    (proof-mmm-set-global t))
-
+(proof-eval-when-ready-for-assistant 
+    (if (and (proof-ass mmm-enable) 
+	     (proof-mmm-support-available))
+        (proof-mmm-set-global t)))
 
 (provide 'proof-mmm)
 ;; End of proof-mmm.el

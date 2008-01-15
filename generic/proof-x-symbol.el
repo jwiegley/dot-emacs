@@ -47,12 +47,8 @@
 ;; -- Is it possible to remove setting of language in x-symbol-enable?
 ;; -- Simplify proof-x-symbol-initialize
 
-(require 'proof-site)			; for proof-assistant-symbol
-
-(defpgcustom x-symbol-language proof-assistant-symbol
-  "Setting for x-symbol-language for the current proof assistant.
-It defaults to proof-assistant-symbol, which makes X Symbol
-look for files named x-symbol-<PA>.el.")
+(eval-when-compile
+  (require 'proof-utils))	 ; proof-eval-when-ready-for-assistant
 
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
@@ -67,7 +63,7 @@ look for files named x-symbol-<PA>.el.")
   "A test to see whether x-symbol support may be available."
   (and
    (or (featurep 'x-symbol-hooks)
-       (and (pg-window-system)		; Not on a tty
+       (and window-system
 	    (progn
 	      ;; put bundled version on load path
 	      (setq load-path
@@ -87,8 +83,8 @@ look for files named x-symbol-<PA>.el.")
   "Initialize x-symbol support for Proof General, if possible.
 If ERROR is non-nil, give error on failure, otherwise a warning."
   (interactive)
-  (unless (or proof-x-symbol-initialized ;; already done
-	      ;; or can't be done
+  (unless (or proof-x-symbol-initialized   ; already done
+	      (not proof-assistant-symbol) ; too early
 	      (not (proof-x-symbol-support-maybe-available)))
     (let*
 	((xs-lang        (proof-ass x-symbol-language))
@@ -107,7 +103,7 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
 The package is available at http://x-symbol.sourceforge.net/"))
-       ((not (pg-window-system))
+       ((not window-system)
 	(funcall error-or-warn 
  "Proof General: x-symbol package only runs under a window system!"))
        ((or (not (fboundp 'x-symbol-initialize))
@@ -132,19 +128,11 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	(require 'x-symbol-vars)  ;; [new requirement to require this]
 	(let*
 	    ((xs-xtra-modes  proof-xsym-extra-modes)
-	     (xs-std-modes   
-	      (list
-	       ;; NB: these variables are set in script/shell mode
-	       ;; initialization, maybe too late for here.  Backup:
-	       ;; default names, which everyone should follow.
-	       (or proof-mode-for-shell
-		   (intern (concat proof-assistant "-shell-mode")))
-	       (or proof-mode-for-response
-		   (intern (concat proof-assistant "-response-mode")))
-	       (or proof-mode-for-script
-		   (intern (concat proof-assistant "-mode")))
-	       (or  proof-mode-for-goals
-		    (intern (concat proof-assistant "-goals-mode")))))
+	     (xs-std-modes   (list
+			      proof-mode-for-shell
+			      proof-mode-for-response
+			      proof-mode-for-script
+			      proof-mode-for-goals))
 	     (all-xs-modes   (append xs-std-modes xs-xtra-modes))
 	     (am-entry       (list proof-xsym-extra-modes t 
 				   `(quote ,xs-lang)))
@@ -180,32 +168,29 @@ This invokes `x-symbol-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
 Also we arrange to have X-Symbol mode turn itself on automatically 
 in future if we have just activated it for this buffer."
-;; Calls proof-x-symbol-toggle-clean-buffers afterwards.
-  (if (not proof-x-symbol-initialized) ;; Check inited
-      (progn
-	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
-	(proof-x-symbol-initialize 'giveerrors)
-	(set (proof-ass-sym x-symbol-enable) t)))
+  (if (proof-ass-sym x-symbol-enable) 
+      ;; We're trying to initialise it
+      (if (not proof-x-symbol-initialized) ;; Check inited
+	  (progn
+	    (set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
+	    (proof-x-symbol-initialize 'giveerrors)
+	    (set (proof-ass-sym x-symbol-enable) t))))
 
-;; C RAFFALLI: we need to set x-symbol-language even for the script buffer
-;; and I think this is a good place ... may be a variable should control
-;; an option to have x-symbol only in the output buffer but not in the script
-;; buffer ?
-;;  (proof-x-symbol-set-language)
-;; DA: this is done already I believe, PhoX used a funny startup perhaps.
-
-  (x-symbol-mode)
-  (proof-x-symbol-mode-associated-buffers))
-
+  (if proof-x-symbol-initialized
+      (if (fboundp 'x-symbol-mode)
+	  (progn
+	    (x-symbol-mode)
+	    (proof-x-symbol-mode-associated-buffers)))))
+  
 ;; Old behaviour for proof-x-symbol-enable was to update state in all
 ;; buffers --- but this can take ages if there are many buffers!  
-;; We also used to refresh the output, but this doesn't always work.
+;; Refreshing output buffers also causes glitches
 ;; (proof-x-symbol-mode-all-buffers)
 ;; (proof-x-symbol-refresh-output-buffers))
 
 
 (defun proof-x-symbol-refresh-output-buffers ()
-  ;; FIXME: this isn't used.  Might be nice to do so again, turning
+  ;; NB: this isn't used.  Might be nice to do so again, turning
   ;; off X-Sym can leave junk displayed.  OTOH, sending messages to PA
   ;; can give errors, because there is no generic "refresh" or
   ;; "repeat" option.  (Isar: gives errors outside proof mode).
@@ -214,7 +199,7 @@ in future if we have just activated it for this buffer."
 This function is intended to clean the display after a change
 in the status of X-Symbol display.
 This is a subroutine of proof-x-symbol-enable."
-  (proof-shell-maybe-erase-response nil t t)
+  (pg-response-maybe-erase nil t t)
   (if (and proof-showproof-command (proof-shell-available-p))
     (proof-shell-invisible-command proof-showproof-command)))
 
@@ -347,14 +332,6 @@ Assumes that the current buffer is the proof shell buffer."
   ;     (x-symbol-encode))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Initialize x-symbol-support on load-up if user has asked for it
-;;
-;; FIXME: this initialization seems to result in x-symbol-language not
-;; being set properly.  We let this be called on demand instead.
-;(if (proof-ass x-symbol-enable) 
-;      (proof-x-symbol-initialize))
 
 (provide 'proof-x-symbol)
 ;; End of proof-x-symbol.el

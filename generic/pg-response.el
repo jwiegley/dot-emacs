@@ -1,19 +1,35 @@
-;; pg-response.el  Proof General response buffer mode.
+;; pg-response.el --- Proof General response buffer mode.
 ;;
-;; Copyright (C) 1994-2004 LFCS Edinburgh. 
-;; Authors:   David Aspinall, Healfdene Goguen, 
+;; Copyright (C) 1994-2008 LFCS Edinburgh.
+;; Authors:   David Aspinall, Healfdene Goguen,
 ;;		Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
+;;; Commentary:
+;; 
 ;; This mode is used for the response buffer proper, and
-;; also the trace and theorems buffer.
+;; also the trace and theorems buffer. A sub-module of proof-shell.
+;;
 
-;; A sub-module of proof-shell; assumes proof-script loaded.
-(require 'pg-assoc)
+;;; Code:
+
+(eval-when-compile
+  (require 'easymenu)			; easy-menu-add
+  (require 'proof-utils))		; deflocal, proof-eval-when-ready-for-assistant
 
 (require 'bufhist)
+(require 'pg-assoc)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Local variables
+;;
+
+(deflocal pg-response-eagerly-raise t
+  "Non-nil if this buffer will be eagerly raised/displayed on startup.")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -21,7 +37,7 @@
 ;; Response buffer mode
 ;;
 
-(eval-and-compile
+;;;###autoload
 (define-derived-mode proof-response-mode proof-universal-keys-only-mode
   "PGResp" "Responses from Proof Assistant"
   (setq proof-buffer-type 'response)
@@ -30,7 +46,6 @@
   (define-key proof-response-mode-map [(button2)] 'pg-goals-button-action)
   (define-key proof-response-mode-map [q] 'bury-buffer)
   (define-key proof-response-mode-map [c] 'pg-response-clear-displays)
-  (make-local-hook 'kill-buffer-hook)
   (add-hook 'kill-buffer-hook 'pg-save-from-death nil t)
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)
   (easy-menu-add proof-assistant-menu proof-response-mode-map)
@@ -39,14 +54,15 @@
   (erase-buffer)
   (buffer-disable-undo)
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
-  (set-buffer-modified-p nil)))
+  (set-buffer-modified-p nil))
 
-(easy-menu-define proof-response-mode-menu
-		  proof-response-mode-map
-		  "Menu for Proof General response buffer."
-		  proof-aux-menu)
+(proof-eval-when-ready-for-assistant ; proof-aux-menu depends on <PA>
+    (easy-menu-define proof-response-mode-menu
+      proof-response-mode-map
+      "Menu for Proof General response buffer."
+      (proof-aux-menu)))
 
-
+;;;###autoload
 (defun proof-response-config-done ()
   "Complete initialisation of a response-mode derived buffer."
   (proof-font-lock-configure-defaults nil)
@@ -68,17 +84,17 @@
 ;; "#### Change, not compatible with FSF: This stuff is all so incredibly
 ;; junky anyway that I doubt it makes any difference."
 
-(defvar proof-shell-special-display-regexp nil
-  "Regexp for special-display-regexps for multiple frame use.
+(defvar pg-response-special-display-regexp nil
+  "Regexp for `special-display-regexps' for multiple frame use.
 Internal variable, setting this will have no effect!")
 
 ;; NB: this list uses XEmacs defaults in the non-multiframe case.
-;; We handle specifiers quit crudely, bute (1) to set for the 
+;; We handle specifiers quit crudely, bute (1) to set for the
 ;; frame specifically we'd need to get hold of the frame,
 ;; (2) specifiers have been (still are) quite buggy.
-(defconst proof-multiframe-specifiers 
-  (if proof-running-on-XEmacs
-      (list 
+(defconst proof-multiframe-specifiers
+  (if (featurep 'xemacs)
+      (list
        (list has-modeline-p nil nil) ;; nil even in ordinary case.
        (list menubar-visible-p nil t)
        (list default-gutter-visible-p nil t)
@@ -91,9 +107,10 @@ Internal variable, setting this will have no effect!")
     ;; FIXME: Unfortunately these specifiers seem to get lost very
     ;; easily --- the toolbar, gutter, modeline all come back
     ;; for no good reason.  Can we construct a simple bug example?
-    (set-specifier (car spec) 
-		   (if multiframep (cadr spec) (caddr spec))
-		    locale)))
+    (if (fboundp 'set-specifier) ; nuke compile warning
+	(set-specifier (car spec)
+		       (if multiframep (cadr spec) (caddr spec))
+		       locale))))
 
 (defconst proof-multiframe-parameters
   '((minibuffer . nil)
@@ -105,25 +122,21 @@ Internal variable, setting this will have no effect!")
   "List of GNU Emacs frame parameters for secondary frames.")
 
 (defun proof-multiple-frames-enable ()
-  (if proof-running-on-XEmacs
+  (if (featurep 'xemacs)
       (proof-map-buffers
        (proof-associated-buffers)
        (proof-map-multiple-frame-specifiers proof-multiple-frames-enable
 					    (current-buffer))))
-  (let ((spdres 
-	 (if proof-running-on-XEmacs
-	     proof-shell-special-display-regexp
-	   ;; GNU Emacs uses this to set frame params too, handily
-	   (cons 
-	    proof-shell-special-display-regexp
+  (let ((spdres
+	 (if (featurep 'xemacs)
+	     pg-response-special-display-regexp
+	   (cons ; GNU Emacs uses this to set frame params too, handily
+	    pg-response-special-display-regexp
 	    proof-multiframe-parameters))))
-    (cond
-     (proof-multiple-frames-enable
+    (if proof-multiple-frames-enable
+	(add-to-list 'special-display-regexps spdres)
       (setq special-display-regexps
-	    (union special-display-regexps (list spdres))))
-     (t
-      (setq special-display-regexps
-	    (delete spdres special-display-regexps)))))
+	    (delete spdres special-display-regexps))))
   (proof-layout-windows))
 
 (defun proof-three-window-enable ()
@@ -152,9 +165,9 @@ Internal variable, setting this will have no effect!")
    (or proof-script-buffer (first (buffer-list)))
    ;; Pierre had response buffer first, I think goals
    ;; is a bit nicer though?
-   (if (buffer-live-p proof-goals-buffer) 
+   (if (buffer-live-p proof-goals-buffer)
        proof-goals-buffer (first (buffer-list)))
-   (if (buffer-live-p proof-response-buffer) 
+   (if (buffer-live-p proof-response-buffer)
        proof-response-buffer (first (buffer-list)))
    nohorizontalsplit))
    
@@ -180,7 +193,7 @@ prevent the horizontal split, and result in three windows spanning the
 full width of the Emacs frame.
 
 For multiple frame mode, this function obeys the setting of
-`proof-eagerly-raise', which see."
+`pg-response-eagerly-raise', which see."
   (interactive "P")
   (cond
    (proof-multiple-frames-enable
@@ -188,7 +201,7 @@ For multiple frame mode, this function obeys the setting of
     (if proof-script-buffer
 	(switch-to-buffer proof-script-buffer))
     (proof-map-buffers (proof-associated-buffers)
-      (if proof-eagerly-raise
+      (if pg-response-eagerly-raise
 	  (proof-display-and-keep-buffer (current-buffer))))
     ;; Restore an existing frame configuration (seems buggy, typical)
     (if pg-frame-configuration
@@ -198,7 +211,7 @@ For multiple frame mode, this function obeys the setting of
     (proof-delete-other-frames)
     (set-window-dedicated-p (selected-window) nil)
     (proof-display-three-b nohorizontalsplit))
-   ;; Two-of-three window mode.  
+   ;; Two-of-three window mode.
    ;; Show the response buffer as first in preference order.
    (t
     (proof-delete-other-frames)
@@ -215,17 +228,17 @@ For multiple frame mode, this function obeys the setting of
     ;; frame for the associated buffer, we may delete
     ;; the main frame!!
     (let ((mainframe
-	   (window-frame 
+	   (window-frame
 	    (if proof-script-buffer
 		(proof-get-window-for-buffer proof-script-buffer)
 	      ;; We may lose with just selected window
 	      (selected-window)))))
       (proof-map-buffers (proof-associated-buffers)
-	(let* ((win  
+	(let* ((win
 		;; NB: g-w-f-b will re-display in new frame if
 		;; the buffer isn't selected/visible.  This causes
 		;; new frame to flash up and be deleted if already
-		;; deleted!  
+		;; deleted!
 		;; (proof-get-window-for-buffer (current-buffer))
 		;; This next choice is probably better:
 		(get-buffer-window (current-buffer) 'visible))
@@ -240,9 +253,10 @@ For multiple frame mode, this function obeys the setting of
 
 ;; Flag and function to keep response buffer tidy.
 (defvar pg-response-erase-flag nil
-  "Indicates that the response buffer should be cleared before next message.")
+  "Non-nil means the response buffer should be cleared before next message.")
 
-(defun proof-shell-maybe-erase-response
+;;;###autoload
+(defun pg-response-maybe-erase
   (&optional erase-next-time clean-windows force)
   "Erase the response buffer according to pg-response-erase-flag.
 ERASE-NEXT-TIME is the new value for the flag.
@@ -258,7 +272,7 @@ Returns non-nil if response buffer was cleared."
     (let ((doit (or (and
 		     proof-tidy-response
 		     (not (eq pg-response-erase-flag 'invisible))
-		     pg-response-erase-flag) 
+		     pg-response-erase-flag)
 		    force)))
       (if doit
 	  (if clean-windows
@@ -267,7 +281,7 @@ Returns non-nil if response buffer was cleared."
 	  ;; (erase-buffer proof-response-buffer)
 	    (with-current-buffer proof-response-buffer
 	      (setq pg-response-next-error nil)	; all error msgs lost!
-	      (if (> (buffer-size) 0)		     
+	      (if (> (buffer-size) 0)
 		  (bufhist-checkpoint-and-erase))
 	      (set-buffer-modified-p nil))))
       (setq pg-response-erase-flag erase-next-time)
@@ -278,22 +292,21 @@ Returns non-nil if response buffer was cleared."
   (unless (or proof-shell-unicode
 	      pg-use-specials-for-fontify)
     (setq str (pg-assoc-strip-subterm-markup str)))
-  (proof-shell-maybe-erase-response t nil)
+  (pg-response-maybe-erase t nil)
   ;;(unless (or (string-equal str "") (string-equal str "\n"))
     ;; don't display an empty buffer [ NB: above test repeated below,
     ;; but response-display reused elsewhere ]
   (pg-response-display-with-face str)
   ;; NB: this displays an empty buffer sometimes when it's not
   ;; so useful.  It _is_ useful if the user has requested to
-  ;; see the proof state and there is none 
+  ;; see the proof state and there is none
   ;; (Isabelle/Isar displays nothing: might be better if it did).
   (proof-display-and-keep-buffer proof-response-buffer))
   
-;; FIXME: this function should be combined with
-;; proof-shell-maybe-erase-response-buffer. 
+;; TODO: this function should be combined with
+;; pg-response-maybe-erase-buffer.
 (defun pg-response-display-with-face (str &optional face)
   "Display STR with FACE in response buffer."
-  ;; 3.4: no longer return fontified STR, it wasn't used.
   (cond
    ((string-equal str ""))
    ((string-equal str "\n"))		; quick exit, no display.
@@ -315,7 +328,7 @@ Returns non-nil if response buffer was cleared."
 	;; Do pbp markup here, e.g. for "sendback" commands.
 	;; NB: we might loose if markup has been split between chunks, but this
 	;; will could only happen in cases of huge (spilled) output
-	(pg-goals-analyse-structure start (point-max))
+	(pg-assoc-analyse-structure start (point-max))
 	
 	(proof-fontify-region start (point))
 
@@ -323,7 +336,7 @@ Returns non-nil if response buffer was cleared."
 	;; minor mode: it destroys this hacky property as soon as it's
 	;; made!  (Using the minor mode is much more convenient, tho')
 	(if (and face proof-output-fontify-enable)
-	    (font-lock-append-text-property 
+	    (font-lock-append-text-property
 	     start (point-max) 'face face))
 
 	(set-buffer-modified-p nil))))))
@@ -336,7 +349,7 @@ it becomes overly long.  Particularly useful when `proof-tidy-response'
 is set to nil, so responses are not cleared automatically."
   (interactive)
   (proof-map-buffers (list proof-response-buffer proof-trace-buffer)
-    (if (> (buffer-size) 0)		     
+    (if (> (buffer-size) 0)
 	(bufhist-checkpoint-and-erase))
     (set-buffer-modified-p nil)))
 
@@ -347,16 +360,14 @@ is set to nil, so responses are not cleared automatically."
 ;; Next error function.
 ;;
 
-(defvar pg-response-next-error nil
-  "Error counter in response buffer to count for next error message.")
-
 ;;;###autoload
 (defun proof-next-error (&optional argp)
   "Jump to location of next error reported in the response buffer.
 
 A prefix arg specifies how many error messages to move;
 negative means move back to previous error messages.
-Just C-u as a prefix means reparse the error message buffer
+
+Optional argument ARGP means reparse the error message buffer
 and start at the first error."
   (interactive "P")
   (if (and ;; At least one setting must be configured
@@ -364,7 +375,7 @@ and start at the first error."
        ;; Response buffer must be live
        (or
 	(buffer-live-p proof-response-buffer)
-	(error "proof-next-error: no response buffer to parse!")))
+	(error "Next error: no response buffer to parse!")))
       (let ((wanted-error    (or (and (not (consp argp))
 				      (+ (prefix-numeric-value argp)
 					 (or pg-response-next-error 0)))
@@ -373,7 +384,7 @@ and start at the first error."
 	    line column file errpos)
 	(set-buffer proof-response-buffer)
 	(goto-char (point-min))
-	(if (re-search-forward pg-next-error-regexp 
+	(if (re-search-forward pg-next-error-regexp
 			       nil t wanted-error)
 	    (progn
 	      (setq errpos (save-excursion
@@ -390,25 +401,25 @@ and start at the first error."
 		     ;; Look for the most recently mentioned filename
 		     (re-search-backward
 		      pg-next-error-filename-regexp nil t))
-		    (setq file 
+		    (setq file
 			  (if (file-exists-p (match-string 2))
 			      (match-string 2)
 			    ;; May need post-processing to extract filename
 			    (if pg-next-error-extract-filename
-				(format 
-				 pg-next-error-extract-filename 
+				(format
+				 pg-next-error-extract-filename
 				 (match-string 2))))))
 		;; Now find the other buffer we need to display
 		(let*
-		    ((errbuf	
+		    ((errbuf
 		      (if file
 			  (find-file-noselect file)
-			(or proof-script-buffer 
+			(or proof-script-buffer
 			    ;; We could make more guesses here,
-			    ;; e.g. last script buffer active 
+			    ;; e.g. last script buffer active
 			    ;; (keep a record of it?)
-			    (error 
-			     "proof-next-error: can't guess file for error message"))))
+			    (error
+			     "Next error: can't guess file for error message"))))
 		     (pop-up-windows t)
 		     (rebufwindow
 		      (or (get-buffer-window proof-response-buffer 'visible)
@@ -428,7 +439,7 @@ and start at the first error."
 		  (if (and column (> column 1))
 		      (move-to-column (1- column)))))
 	    (setq pg-response-next-error nil)
-	    (error "proof-next-error: couldn't find a next error.")))))
+	    (error "Next error: couldn't find a next error")))))
 
 ;;;###autoload
 (defun pg-response-has-error-location ()
@@ -463,21 +474,21 @@ See `pg-next-error-regexp'."
 	  (point-min);; in case buffer cleared
 	proof-trace-last-fontify-pos)))
 
-;; An analogue of pg-response-display-with-face 
+;; An analogue of pg-response-display-with-face
 (defun proof-trace-buffer-display (str)
   "Output STR in the trace buffer, moving the pointer downwards.
 We fontify the output only if we're not too busy to do so."
   (with-current-buffer proof-trace-buffer
     (goto-char (point-max))
     (newline)
-    (or proof-trace-last-fontify-pos 
+    (or proof-trace-last-fontify-pos
 	(setq proof-trace-last-fontify-pos (point)))
     (insert str)
     (unless (bolp)
       (newline))
     ;; If tracing output is prolific, we try to avoid
     ;; fontifying every chunk and batch it up instead.
-    (unless pg-tracing-slow-mode
+    (unless pg-tracing-slow-mode ; defined in proof-shell.el
       (let ((fontifystart (proof-trace-fontify-pos)))
 	;; Catch errors here: this is to deal with ugly problem when
 	;; fontification of large output gives error Nesting too deep
@@ -502,19 +513,19 @@ We fontify the output only if we're not too busy to do so."
 ;;
 ;; Theorems buffer
 ;;
-;; New in PG 3.5.  
+;; [ INCOMPLETE ]
 ;;
 ;; Revives an old idea from Isamode: a buffer displaying a bunch
 ;; of theorem names.
 ;;
-
+;; 
 
 (defun pg-thms-buffer-clear ()
   "Clear the theorems buffer."
   (with-current-buffer proof-thms-buffer
     (let (start str)
       (goto-char (point-max))
-      (newline)				
+      (newline)
       (setq start (point))
       (insert str)
       (unless (bolp) (newline))
@@ -522,11 +533,5 @@ We fontify the output only if we're not too busy to do so."
       (set-buffer-modified-p nil))))
 
 
-
-
-
-
-
-
 (provide 'pg-response)
-;; pg-response.el ends here.
+;;; pg-response.el ends here

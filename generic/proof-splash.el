@@ -8,8 +8,6 @@
 ;;
 ;;
 
-(require 'proof-compat)			;; for Emacs version flags
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customization of splash screen (was in proof-config)
 
@@ -44,10 +42,7 @@ Proof General."
     nil
     nil
 "    Please report problems at http://proofgeneral.inf.ed.ac.uk/trac
-    Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki"
-    nil
-    (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)
-     "For a better Proof General experience, please use GNU Emacs 21 or XEmacs"))
+    Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki")
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
@@ -72,14 +67,15 @@ If it is nil, a new line is inserted."
 
 
 ;; Compatibility between Emacs/XEmacs.
-(if (string-match "XEmacs" emacs-version)
-  ;; Constant nil function
-  (defun proof-emacs-imagep (img)
-    "See if IMG is an Emacs 21 image descriptor (returns nil since not E21)."
-    nil)
-  (defun proof-emacs-imagep (img)
-    "See if IMG is an Emacs 21 image descriptor."
-    (and (listp img) (eq (car img) 'image))))
+(eval-and-compile
+  (if (featurep 'xemacs)
+      ;; Constant nil function
+      (defsubst proof-emacs-imagep (img)
+	"See if IMG is an Emacs image descriptor (returns nil here on XEmacs)."
+	nil)
+    (defsubst proof-emacs-imagep (img)
+      "See if IMG is an Emacs image descriptor."
+      (and (listp img) (eq (car img) 'image)))))
 
 
 (defun proof-get-image (name &optional nojpeg default)
@@ -93,21 +89,20 @@ DEFAULT gives return value in case image not valid."
 	(gif (vector 'gif :file
 		     (concat proof-images-directory ".gif")))
 	(validfn (lambda (inst)
-		   (and (valid-instantiator-p inst 'image)
+		   (and (featurep 'xemacs)
+			(valid-instantiator-p inst 'image)
 			(file-readable-p (aref inst 2)))))
 	img)
   (cond
-   ((and proof-running-on-XEmacs 
-	 (pg-window-system) 
+   ((and (featurep 'xemacs) window-system
 	 (featurep 'jpeg) (not nojpeg)
 	 (funcall validfn jpg))
     jpg)
-   ((and proof-running-on-XEmacs (pg-window-system)
+   ((and (featurep 'xemacs) window-system
 	 (featurep 'gif) (funcall validfn gif))
     gif)
    ((and
-     proof-running-on-Emacs21
-     (pg-window-system)
+     (not (featurep 'xemacs)) window-system
      (setq img 
 	   (find-image
 	    (list
@@ -132,7 +127,7 @@ Borrowed from startup-center-spaces."
 	 (fill-area-width  (* avg-pixwidth (- fill-column left-margin)))
 	 (glyph-pixwidth   (cond ((stringp glyph) 
 				  (* avg-pixwidth (length glyph)))
-				 ((and (fboundp 'glyphp)
+				 ((and (featurep 'xemacs)
 				       (glyphp glyph))
 				  (glyph-width glyph))
 				 ((proof-emacs-imagep glyph)
@@ -166,7 +161,7 @@ Borrowed from startup-center-spaces."
 	      (progn
 		(if (cdr proof-splash-timeout-conf)
 		    (set-window-configuration (cdr proof-splash-timeout-conf)))
-		(if proof-running-on-XEmacs
+		(if (featurep 'xemacs)
 		    (redraw-frame nil t))))
 	  ;; Indicate removed splash screen; disable timeout
 	  (disable-timeout (car proof-splash-timeout-conf))
@@ -222,7 +217,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
       (while splash-contents
 	(setq s (car splash-contents))
 	(cond
-	 ((and proof-running-on-XEmacs
+	 ((and (featurep 'xemacs)
 	       (vectorp s)
 	       (valid-instantiator-p s 'image))
 	  (let ((gly (make-glyph s)))
@@ -271,7 +266,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
 (defun proof-splash-message ()
   "Make sure the user gets welcomed one way or another."
   (interactive)
-  (unless (or proof-splash-seen (noninteractive))
+  (unless (or proof-splash-seen noninteractive)
     (if proof-splash-enable
 	(proof-splash-display-screen (not (interactive-p)))
       ;; Otherwise, a message
@@ -282,17 +277,16 @@ Otherwise, timeout inside this function after 10 seconds or so."
   "Wait for proof-splash-timeout or input, then remove self from hook."
   (while (and proof-splash-timeout-conf ;; timeout still active
 	      (not (input-pending-p)))
-    (if proof-running-on-XEmacs
+    (if (featurep 'xemacs)
 	(sit-for 0 t)			; XEmacs: wait without redisplay
       ; (sit-for 1 0 t)))		; FSF: NODISP arg seems broken
       (sit-for 0)))
   (if proof-splash-timeout-conf         ;; not removed yet
       (proof-splash-remove-screen))
-  (if (and (input-pending-p)
-	   (fboundp 'next-command-event)) ; 3.3: this function
-					  ; disappeared from emacs, sigh
-      (setq unread-command-events
-	    (cons (next-command-event) unread-command-events)))
+  (if (fboundp 'next-command-event) ; 3.3: Emacs removed this
+      (if (input-pending-p)
+	  (setq unread-command-events
+		(cons (next-command-event) unread-command-events))))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (defvar proof-splash-old-frame-title-format nil)
