@@ -316,14 +316,11 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 
 (deflocal proof-font-lock-keywords nil
   "Value of font-lock-keywords in this buffer.
-We set `font-lock-defaults' to '(proof-font-lock-keywords t) for
-compatibility with X-Symbol, which may hack `proof-font-lock-keywords'
+We set `font-lock-defaults' to '(proof-font-lock-keywords) for
+compatibility with X-Symbol, which may hack `font-lock-keywords'
 with extra patterns (in non-mule mode).")
 
-(deflocal proof-font-lock-keywords-case-fold-search nil
-  "Value of font-lock-keywords-case-fold-search in this buffer.")
-
-(defun proof-font-lock-configure-defaults (autofontify &optional case-fold)
+(defun proof-font-lock-configure-defaults (autofontify)
   "Set defaults for font-lock based on current font-lock-keywords.
 This is a delicate operation, because we only want to use font-lock-mode
 in some buffers, so we have to tread carefully around the font-lock
@@ -331,7 +328,7 @@ code to avoid it turning itself on in the buffers where that actually
 *breaks* fontification.
 
 AUTOFONTIFY must be nil for buffers where we may want to really use
-font-lock-mode."
+font-lock-mode; in those buffers, we enable syntactic fontification also."
   ;;
   ;; At the moment, the specific assistant code hacks
   ;; font-lock-keywords.  Here we use that value to hack
@@ -343,17 +340,15 @@ font-lock-mode."
   ;; edits font-lock-keywords and loses the setting.  So we make a
   ;; copy of it in a new local variable, proof-font-lock-keywords.
   ;;
-  (make-local-variable 'proof-font-lock-keywords)
-  (make-local-variable 'proof-font-lock-keywords-case-fold-search)
   (setq proof-font-lock-keywords font-lock-keywords)
-  (setq proof-font-lock-keywords-case-fold-search case-fold)
+
     ;; Setting font-lock-defaults explicitly is required by FSF Emacs
   ;; 20.4's version of font-lock in any case.
 
   (if autofontify
       (progn
 	(make-local-variable 'font-lock-defaults) ; needed??
-	(setq font-lock-defaults `(proof-font-lock-keywords nil ,case-fold))
+	(setq font-lock-defaults '(proof-font-lock-keywords))
 	;; 12.1.99: For XEmacs, we must also set the mode property.
 	;; This is needed for buffers which are put into font-lock-mode
 	;; (rather than fontified by hand).
@@ -375,23 +370,15 @@ font-lock-mode."
   (kill-local-variable 'font-lock-defaults)
   (kill-local-variable 'font-lock-keywords)
   (setq font-lock-keywords nil)
-  (put major-mode 'font-lock-defaults nil)
-  ;; Ensure it's switched off, too.
-  ;; NB: this tends to undo the hard work we've done
-  ;; by unfontifying, so don't do that now
-  ;; (font-lock-mode -1))
-  )
+  (put major-mode 'font-lock-defaults nil))
 
 (defun proof-font-lock-set-font-lock-vars ()
-  (setq font-lock-defaults
-	`(proof-font-lock-keywords
-	  nil
-	  ,proof-font-lock-keywords-case-fold-search))
+  (setq font-lock-defaults '(proof-font-lock-keywords))
   (setq font-lock-keywords proof-font-lock-keywords))
 
 (defun proof-fontify-region (start end &optional keepspecials)
   "Fontify and decode X-Symbols in region START...END.
-Fontifies according to the buffer's font lock defaults.
+Fontifies (keywords only) according to the buffer's font lock defaults.
 Uses `proof-x-symbol-decode-region' to decode tokens
 if X-Symbol is enabled.
 
@@ -406,8 +393,8 @@ Returns new END value."
   ;; to X-Symbol characters.
   ;; NB: perhaps we can narrow within the whole function, but there
   ;; was an earlier problem with doing that.
-  (if proof-output-fontify-enable
-      (progn
+  (when proof-output-fontify-enable
+
 	;; Temporarily set font-lock defaults
 	(proof-font-lock-set-font-lock-vars)
 
@@ -432,15 +419,16 @@ Returns new END value."
 	  (condition-case err
 	      (font-lock-default-fontify-region start end nil)
 	    (t (proof-debug "Caught condition %s in `font-lock-default-fontify-region'"
-			    (car err)))))))
+			    (car err))))))
   (save-restriction
     (narrow-to-region start end)
     (run-hooks 'pg-after-fontify-output-hook)
     (setq end (point-max)))
-  (if (and pg-use-specials-for-fontify (not keepspecials))
-      (progn
-	(pg-remove-specials start end)
-	(setq end (point))))
+; PG 3.7: remove this, now done in pg-after-fontify-output-hook (isar only)
+;  (if (and pg-use-specials-for-fontify (not keepspecials))
+;      (progn
+;	(pg-remove-specials start end)
+;	(setq end (point))))
   (prog1
       ;; prog1 because we return new END value.
       (if (proof-ass x-symbol-enable)
