@@ -81,12 +81,9 @@ To disable coqc being called (and use only make), set this to nil."
 (require 'coq-syntax)
 (require 'coq-indent)
 
-(defvar coq-utf-safe coq-version-is-V8-1
-  "Obsolete, coq >= 8.1 does not use special symbols for delimiting prompts.")
-
 ;; utf-8 is not yet well accepted (especially by xemacs)
-;; Set to t in your .emacs to enable it. Needs to load library `un-define' to
-;; work on xemacs."
+;; Set to t in your .emacs to enable it. Needs to load 
+;; library `un-define' to work on xemacs."
 ;; (or (boundp 'proof-shell-unicode) (setq proof-shell-unicode nil))
 ;; da: I think the default t setting now works fine, at least for me.
 
