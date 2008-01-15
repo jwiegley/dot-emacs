@@ -2,14 +2,15 @@
 
 See also etc/release-log.txt for minor patches.
 
-* Summary of Changes for Proof General 3.7 from 3.5 (via many 3.6preXXXX)
+* Summary of Changes for Proof General 3.7 from 3.5  (via 3.6pre)
 
 ** Generic changes
 
 *** Fixes and additions, patches for recent (X)Emacs versions
 
 - Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
-- Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
+- Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs
+  now preferred).
 - Cropped icons to better match style of GNU Emacs/Gnome.
 - Context menu for spans: options to move spans up/down (risky!) and undo.
 - Maths menu added for inserting Unicode math characters (GNU Emacs only)
@@ -21,6 +22,8 @@ Use option -f 18 or -f 24 of the Isabelle interface wrapper.
 
 *** UTF-8 support for 8-bit clean provers
 
+Support for Unicode-safe interaction modes has been added (i.e.,
+not using Unicode-prefix characters as special escape sequences).
 See proof-shell-unicode (default nil), or option -U of the Isabelle
 interface wrapper.
 
@@ -126,6 +129,11 @@ Default is now 8.1 (if no coqtop is found the path).
 
 *** new "queries" menu
 
+** Adapted error highlighting to x-symbol
+
+** Response windows shrinking to fit in three window mode
+
+** Outline mode cleaner
 
 
 
