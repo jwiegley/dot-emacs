@@ -10,21 +10,17 @@ Please also check the BUGS file.
 
 Q. Emacs appears to hang when the prover process is started.
 
-A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
-   (e.g in Red Hat 8.0, 9, Fedora Core 1,2,3, Suse 9.1, ...)
+A. This is usually caused by UTF-8 support in recent linuxes with
+   Glibc 2.2 or later, probably enabled with UTF8 encoded output in
+   your default locale.  Unfortunately Proof General traditionally
+   relied on 8-bit characters which are UTF8 prefixes in the output of
+   proof assistants (inc Coq, Isabelle).  These prefix characters are
+   not flushed to stdout individually.  As a workaround we can disable
+   interpretation of UTF8 in the C libraries.
 
-   Glibc 2.2 and later may be enabled with UTF8 encoded output in your
-   default locale.  Unfortunately Proof General relies on 8-bit
-   characters which are UTF8 prefixes in the output of proof
-   assistants (inc Coq, Isabelle).  These prefix characters are not
-   flushed to stdout individually.  As a workaround we must find a way
-   to disable interpretation of UTF8 in the C libraries that Coq and
-   friends use.
-
-   Doing this inside PG/Emacs seems tricky; locale settings are
+   Doing this inside PG/Emacs is unreliable; locale settings are
    set/inherited in strange ways.  One solution is to run the Emacs
-   process itself with an altered locale setting, for example,
-   starting XEmacs by typing:
+   process itself with an altered locale setting, e.g., 
 
    $  LC_CTYPE=en_GB xemacs &
 
@@ -32,10 +28,9 @@ A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
     by default is "en_GB.UTF-8": I see this by typing "locale" at
     the prompt).
 
-   This is fixed in the startup shell script in recent development
-   versions of Proof General: the supplied "proofgeneral" script makes an
-   adjustment if it sees the string UTF in the current value of
-   LC_CTYPE and an adjustment is made inside the Emacs environment.
+   (This fix is attempted in the supplied "proofgeneral" script, as
+    well as making an adjustment in Proof General when the string UTF
+    appears in the current value of LC_CTYPE).
 
    Alternatively you can set LC_CTYPE inside a file ~/.i18n, which will
    be read the shell.  Put a line such as "LC_CTYPE=en_GB" into this file.
@@ -54,21 +49,14 @@ A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
 
    but I haven't tried this.
 
+   ** Update for PG 3.7 **
 
-   UPDATE for PG Version 3.6pre and 3.7:
+   The above fixes should not be necessary with most recent prover
+   versions.  Isabelle 2007 has a "Unicode-safe" interaction mode,
+   enabled by default (to disable, customise `proof-shell-unicode').
+   This is also used by the Isabelle startup scripts.  Coq 8.1 and
+   later do not use non-ASCII characters in output.
 
-   Some provers now have a Unicode-safe interaction mode.  You can set
-   `proof-shell-unicode' to try to enable communication with the 
-   prover which does not use non-ASCII 8-bit characters for markup.
-   This is supported in Isabelle > Isabelle 2005.  Then the locale
-   setting will not matter.
-
-   In Coq, set coq-utf-safe by 
-
-   (setq coq-utf-safe t)
-
-   in your .emacs or init.el file.  (This mechanism may be integrated
-   with `proof-shell-unicode' soon.)
   
 
 -----------------------------------------------------------------

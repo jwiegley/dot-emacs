@@ -1,18 +1,19 @@
 Current Authors/Maintainers:
 
    David Aspinall     (all)
-   Markus Wenzel      (isar)
-   Stefan Berghofer   (isar)
    Paul Callaghan     (plastic,lego)
+   Stefan Berghofer   (isar)
    Pierre Courtieu    (coq)
    Christoph Raffalli (phox)
+   Markarius Wenzel   (isar)
  
 Previous Authors:
 
-   Thomas Kleymann   (lego, doc, generic)
    Healfdene Goguen  (coq, generic, doc)
-   Dilip Sequeira    (lego)
+   Thomas Kleymann   (lego, doc, generic)
    Patrick Loiseleur (coq)
+   Dilip Sequeira    (lego)
+
 
 Assistance also from:
 
