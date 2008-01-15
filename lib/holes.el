@@ -143,7 +143,7 @@ is), which is annoying.
 (defvar holes-default-hole (make-detached-span)
   "An empty detached hole used as the default hole.
 You should not use this variable.")
-(detach-span holes-default-hole)
+(span-detach holes-default-hole)
 (defvar holes-active-hole holes-default-hole
   "The current active hole.
 There can be only one active hole at a time,
@@ -366,7 +366,7 @@ Error if HOLE is not a hole."
 
 (defun holes-make-hole (start end)
   "Make and return an (span) hole from START to END."
-  (let ((ext (make-span start end)))
+  (let ((ext (span-make start end)))
     (set-span-properties
      ext `(
 	   hole t
@@ -419,7 +419,7 @@ the span."
   (if (and (holes-active-hole-exist-p) (eq holes-active-hole HOLE))
       (holes-disable-active-hole)
     )
-  (delete-span HOLE)
+  (span-delete HOLE)
   )
 
 (defun holes-clear-hole-at (&optional pos)
@@ -442,7 +442,7 @@ the span."
 (defun holes-mapcar-holes (FUNCTION &optional FROM TO PROP)
 					; checkdoc-params: (FUNCTION FROM TO PROP)
   "Internal."
-  (mapcar-spans FUNCTION FROM TO 'hole)
+  (span-mapcar-spans FUNCTION FROM TO 'hole)
   )
 
 (defun holes-clear-all-buffer-holes (&optional start end)
@@ -524,7 +524,7 @@ goal(FIXME?).  Use `replace-active-hole' instead."
 			     (or str (car kill-ring)) ;kill ring?
 			     (span-buffer exthole)
 			     )
-      (detach-span exthole) ;; this seems necessary for span overlays,
+      (span-detach exthole) ;; this seems necessary for span overlays,
       ;; where the buffer attached to the span is
       ;; not removed automatically by the fact
       ;; that the span is removed from the buffer
@@ -648,7 +648,7 @@ Sets `holes-active-hole' to the next hole if it exists."
 	       (eq sp holes-active-hole))
 	  (holes-disable-active-hole))
       (holes-replace "" sp)
-      (detach-span sp)
+      (span-detach sp)
       )
     (message "hole killed")
     )
@@ -678,7 +678,7 @@ Sets `holes-active-hole' to the next hole if it exists."
     (let ((ext (holes-hole-at-event event)))
       (if (eq ext holes-active-hole)
 	  (holes-disable-active-hole))
-      (detach-span ext)
+      (span-detach ext)
       )
     )
   (message "hole deleted")

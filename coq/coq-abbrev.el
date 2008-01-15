@@ -66,7 +66,7 @@
     (message "Coq default abbrevs loaded")
     ))
 
-(unless (noninteractive)
+(unless noninteractive
   (coq-install-abbrevs))
 ;;;;;
 

@@ -1,13 +1,13 @@
 ;; $State$ $Date$ $Revision$ 
 
 (require 'proof)			; load generic parts
-(require 'proof-config)
 
-;; Adjust toolbar entries.  (Must be done
-;; before proof-toolbar is loaded).
+;; Adjust toolbar entries.  (Must be done before proof-toolbar is
+;; loaded).
 
-(if proof-running-on-XEmacs (setq phox-toolbar-entries
-      (remassoc 'context phox-toolbar-entries)))
+(eval-after-load "pg-custom"
+  '(setq phox-toolbar-entries
+    (remassoc 'context phox-toolbar-entries)))
 
 
 ;; ======== User settings for PhoX ========
@@ -225,26 +225,9 @@
   (proof-goals-config-done))
 
 
-;; The response buffer and goals buffer modes defined above are
-;; trivial.  In fact, we don't need t²o define them at all -- they
-;; would simply default to "proof-response-mode" and "pg-goals-mode".
-
 ;; A more sophisticated instantiation might set font-lock-keywords to
 ;; add highlighting, or some of the proof by pointing markup
 ;; configuration for the goals buffer.
-
-;; The final piece of magic here is a hook which configures settings
-;; to get the proof shell running.  Proof General needs to know the
-;; name of the program to run, and the modes for the shell, response,
-;; and goals buffers.
-
-(add-hook 'proof-pre-shell-start-hook 'phox-pre-shell-start)
-
-(defun phox-pre-shell-start ()
-  (setq proof-prog-name		phox-prog-name)
-  (setq proof-mode-for-shell    'phox-shell-mode)
-  (setq proof-mode-for-response 'phox-response-mode)
-  (setq proof-mode-for-goals	'phox-goals-mode))
 
 ; completions
 ; dans completions.el

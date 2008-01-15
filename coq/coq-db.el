@@ -16,7 +16,7 @@
 
 ;;; Code:
 
-(require 'proof-utils)			; for proof-face-specs, a macro
+(require 'proof-config)			; for proof-face-specs, a macro
 (require 'holes)
 
 (defconst coq-syntax-db nil

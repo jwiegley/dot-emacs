@@ -11,6 +11,8 @@
 ;; NB: Part of Proof General distribution.
 ;;
 
+(require 'proof-utils)
+
 (defvar x-symbol-phox-required-fonts nil)
 
 ;;;===========================================================================

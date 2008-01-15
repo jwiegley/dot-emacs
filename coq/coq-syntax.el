@@ -86,7 +86,7 @@
             (message (concat "Falling back to default: " v81))
             (setq coq-version-is-V8-1 t)))))))))
 
-(unless (noninteractive)
+(unless noninteractive
   (coq-determine-version))
 
 

@@ -21,7 +21,7 @@
 (defun phox-tags-add-table(table)
   "add tags table"
   (interactive "D directory, location of a file named TAGS to add : ")
-  (if proof-running-on-XEmacs
+  (if (featurep 'xemacs)
       (let ((association (cons buffer-file-name table)))
 	(if (member association tag-table-alist)
 	    (message "%s already loaded." table)
@@ -39,7 +39,7 @@
   "Set tags-table-list to nil."
   (interactive)
 ;  (make-local-variable 'tags-table-list)
-  (if proof-running-on-XEmacs
+  (if (featurep 'xemacs)
       (progn
 	(setq tag-table-alist (remassoc buffer-file-name tag-table-alist)))
     (setq tags-table-list nil))
@@ -85,7 +85,7 @@
 ;; hook for that.
 ;; 
 (interactive)
-(if proof-running-on-XEmacs
+(if (featurep 'xemacs)
      (tag-complete-symbol)
   (complete-tag)
   )

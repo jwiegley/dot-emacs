@@ -9,29 +9,29 @@
 
 ;; XEmacs-Emacs compatibility: define "spans" in terms of extents.
 
-(defsubst make-span (start end)
+(defsubst span-make (start end)
   "Make a span for the range [START, END) in current buffer."
   (make-extent start end))
 
-(defsubst detach-span (span)
+(defsubst span-detach (span)
   "Remove SPAN from its buffer."
   (detach-extent span))
 
-(defsubst set-span-endpoints (span start end)
+(defsubst span-set-endpoints (span start end)
   "Set the endpoints of SPAN to START, END."
   (set-extent-endpoints span start end))
 
-(defsubst set-span-property (span name value)
+(defsubst span-set-property (span name value)
   "Set SPAN's property NAME to VALUE."
   (set-extent-property span name value))
 
 (defsubst span-read-only (span)
   "Set SPAN to be read only."
-  (set-span-property span 'read-only t))
+  (span-set-property span 'read-only t))
 
 (defsubst span-read-write (span)
   "Set SPAN to be writeable."
-  (set-span-property span 'read-only nil))
+  (span-set-property span 'read-only nil))
 
 (defun span-give-warning (&rest args)
   "Give a warning message."
@@ -40,19 +40,19 @@
 (defun span-write-warning (span)
   "Give a warning message when SPAN is changed."
   ;; FIXME: implement this in XEmacs, perhaps with after-change-functions
-  (set-span-property span 'read-only nil))
+  (span-set-property span 'read-only nil))
 
 (defsubst span-property (span name)
   "Return SPAN's value for property PROPERTY."
   (extent-property span name))
 
-(defsubst delete-span (span)
+(defsubst span-delete (span)
   "Delete SPAN."
   (let ((predelfn (span-property span 'span-delete-action)))
     (and predelfn (funcall predelfn)))
   (delete-extent span))
 
-(defsubst mapcar-spans (fn start end prop &optional val)
+(defsubst span-mapcar-spans (fn start end prop &optional val)
   "Apply function FN to all spans between START and END with property PROP set"
   (mapcar-extents fn nil (current-buffer) start end  nil prop val))
 

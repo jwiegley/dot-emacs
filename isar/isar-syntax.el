@@ -9,6 +9,8 @@
 ;; $Id$
 ;;
 
+(require 'cl)				; remove-if, remove-if-not
+
 (require 'proof-syntax)
 (require 'isar-keywords)
 
@@ -35,7 +37,7 @@
          ?\( "()1"
          ?\) ")(4")
    (cond
-    (proof-running-on-XEmacs
+    ((featurep 'xemacs)
      ;; We classify {* sequences *} as comments, although
      ;; they need to be passed as command args as text.
      ;; NB: adding a comment sequence b seems to break
@@ -49,7 +51,7 @@
     ;;(?\{ "(}1")
     ;;(?\} "){4")
     ;;(?\* ". 23"))
-    (proof-running-on-Emacs21
+    ((not (featurep 'xemacs))
      '(?\{ "(}1b"
        ?\} "){4b"
        ?\* ". 23n"))))
@@ -460,7 +462,7 @@ matches contents of quotes for quoted identifiers.")
 
 (defun isar-undos (i)
   (if (> i 0) (concat "undos_proof " (int-to-string i) ";")
-    proof-no-command))
+    nil))
 
 (defun isar-cannot-undo (cmd)
   (concat "cannot_undo \"" cmd "\";"))

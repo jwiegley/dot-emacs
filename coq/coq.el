@@ -12,7 +12,14 @@
 ;;; History:
 
 (require 'proof)
-(require 'local-vars-list) ; in lib directory
+
+(require 'local-vars-list)              ; in lib directory
+
+(eval-when-compile
+  (proof-ready-for-assistant 'coq)      ; compile for coq
+  (require 'proof-menu)                 ; for defpacustom
+  (require 'cl)                         ; remove-if
+  (require 'span))
 
 (require 'coq-local-vars) 
 (require 'coq-syntax)      ; determines coq version
@@ -47,7 +54,7 @@
   )
 
 ;; fix it
-(unless (noninteractive) ;; compiling 
+(unless noninteractive ;; compiling 
   (coq-build-prog-args))
 
 (defcustom coq-compile-file-command "coqc %s"
@@ -326,17 +333,19 @@ toplevel \"Coq <\".  Returns nil if yes.  This assumes that no
   "Return a list with all informations from the last prompt.
 The list contains the state number, the proof stack depth, and the names of all
 pending proofs (in a list)."
+  (coq-last-prompt-info proof-shell-last-prompt))
 
-(coq-last-prompt-info proof-shell-last-prompt) )
+(defvar coq-last-but-one-statenum 1
+  "The state number we want to put in a span.
+This is the prompt number given *just before* the command was sent. 
+This variable remembers this number and will be updated when
+used see coq-set-state-number. Initially 1 because Coq initial state has number 1.")
 
-;; The state number we want to put in a span is the prompt number given *just before*
-;; the command was sent. This variable remembers this number and will be updated when
-;; used see coq-set-state-number. Initially 1 because Coq initial state has number 1.
-(defvar coq-last-but-one-statenum 1)
-;; same for proof stack depth
-(defvar coq-last-but-one-proofnum 1)
-;;same for pending proofs
-(defvar coq-last-but-one-proofstack '())
+(defvar coq-last-but-one-proofnum 1
+  "As for `coq-last-but-one-statenum' but for stack depth.")
+
+(defvar coq-last-but-one-proofstack '()
+  "As for `coq-last-but-one-statenum' but for proof stack symbols.")
 
 (defun coq-get-span-statenum (span)
   "Return the state number of the SPAN."
@@ -355,7 +364,7 @@ pending proofs (in a list)."
 
 (defun coq-set-span-statenum (span val)
   "Set the state number of the SPAN to VAL."
-  (set-span-property span 'statenum val)
+  (span-set-property span 'statenum val)
   )
 
 (defun coq-get-span-goalcmd (span)
@@ -365,17 +374,17 @@ pending proofs (in a list)."
 
 (defun coq-set-span-goalcmd (span val)
   "Set the 'goalcmd flag of the SPAN to VAL."
-  (set-span-property span 'goalcmd val)
+  (span-set-property span 'goalcmd val)
   )
 
 (defun coq-set-span-proofnum (span val)
   "Set the proof number of the SPAN to VAL."
-  (set-span-property span 'proofnum val)
+  (span-set-property span 'proofnum val)
   )
 
 (defun coq-set-span-proofstack (span val)
   "Set the proof stack (names of pending proofs) of the SPAN to VAL."
-  (set-span-property span 'proofstack val)
+  (span-set-property span 'proofstack val)
   )
 
 (defun proof-last-locked-span () 
@@ -790,17 +799,6 @@ This is specific to `coq-mode'."
 	   (if coq-version-is-V8-1 '("-emacs-U") '("-emacs"))))
       coq-prog-name)))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Coq shell startup and exit hooks                               ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun coq-pre-shell-start ()
-  (setq proof-prog-name         coq-prog-name)
-  (setq proof-mode-for-shell    'coq-shell-mode)
-  (setq proof-mode-for-goals    'coq-goals-mode)
-  (setq proof-mode-for-response 'coq-response-mode))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -817,8 +815,7 @@ This is specific to `coq-mode'."
 
   (setq proof-assistant-home-page coq-www-home-page)
 
-  (setq proof-mode-for-script 'coq-mode)
-
+  (setq proof-prog-name           coq-prog-name)
   (setq proof-guess-command-line 'coq-guess-command-line)
 
   ;; Commands sent to proof engine
@@ -910,8 +907,6 @@ This is specific to `coq-mode'."
         proof-shell-require-command-regexp coq-require-command-regexp
         proof-done-advancing-require-function 'coq-process-require-command)
 
-  ;; hooks and callbacks
-  (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t)
   ;; FIXME: PG 3.5, next one shouldn't be needed but setting is
   ;; now lost in define-derived-mode for some reason.
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
@@ -1004,6 +999,72 @@ To be used in `proof-shell-process-output-system-specific'."
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
   (proof-response-config-done))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Flags and other settings for Coq.
+;; These appear on the Coq -> Setting menu.
+;;
+
+; FIXME da: we should send this command only inside a proof,
+; otherwise it gives an error message.  It should be on
+; a different menu command.
+;(defpacustom print-only-first-subgoal  nil
+;  "Whether to just print the first subgoal in Coq."
+;  :type 'boolean
+;  :setting ("Focus. " . "Unfocus. "))
+
+
+;; FIXME: to handle "printing all" properly, we should change the state
+;; of the variables that also depend on it.
+(defpacustom print-fully-explicit nil
+  "*Print fully explicit terms."
+  :type 'boolean
+  :setting ("Set Printing All. " . "Unset Printing All. "))
+
+(defpacustom print-implicit nil
+  "*Print implicit arguments in applications."
+  :type 'boolean
+  :setting ("Set Printing Implicit. " . "Unset Printing Implicit. "))
+
+(defpacustom print-coercions nil
+  "*Print coercions."
+  :type 'boolean
+  :setting ("Set Printing Coercions. " . "Unset Printing Coercions. "))
+
+(defpacustom print-match-wildcards t
+  "*Print underscores for unused variables in matches."
+  :type 'boolean
+  :setting ("Set Printing Wildcard. " . "Unset Printing Wildcard. "))
+
+(defpacustom print-elim-types t
+  "*Print synthesised result type for eliminations."
+  :type 'boolean
+  :setting ("Set Printing Synth. " . "Unset Printing Synth. "))
+
+(defpacustom printing-depth 50
+  "*Depth of pretty printer formatting, beyond which dots are displayed."
+  :type 'integer
+  :setting "Set Printing Depth %i . ")
+
+(defpacustom time-commands nil
+  "*Whether to display timing information for each command."
+  :type 'boolean)
+
+(defpacustom auto-compile-vos nil
+  "Whether to automatically compile vos and track dependencies."
+  :type 'boolean)
+
+;; old adjustments:
+;;  :eval (if coq-auto-compile-vos
+;            (setq proof-shell-process-file
+;                  coq-proof-shell-process-file
+;                  proof-shell-inform-file-retracted-cmd
+;                  coq-proof-shell-inform-file-retracted-cmd)
+;          (setq proof-shell-inform-file-processed-cmd nil
+;                proof-shell-process-file nil
+;                proof-shell-inform-file-retracted-cmd nil)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1131,71 +1192,6 @@ Group number 1 matches the name of the library which is required.")
         ;; recursively call on ancestors: we hope coqdep doesn't give loop!
         (coq-process-file (coq-ancestors-of rfilename)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Flags and other settings for Coq.
-;; These appear on the Coq -> Setting menu.
-;;
-
-; FIXME da: we should send this command only inside a proof,
-; otherwise it gives an error message.  It should be on
-; a different menu command.
-;(defpacustom print-only-first-subgoal  nil
-;  "Whether to just print the first subgoal in Coq."
-;  :type 'boolean
-;  :setting ("Focus. " . "Unfocus. "))
-
-
-;; FIXME: to handle "printing all" properly, we should change the state
-;; of the variables that also depend on it.
-(defpacustom print-fully-explicit nil
-  "*Print fully explicit terms."
-  :type 'boolean
-  :setting ("Set Printing All. " . "Unset Printing All. "))
-
-(defpacustom print-implicit nil
-  "*Print implicit arguments in applications."
-  :type 'boolean
-  :setting ("Set Printing Implicit. " . "Unset Printing Implicit. "))
-
-(defpacustom print-coercions nil
-  "*Print coercions."
-  :type 'boolean
-  :setting ("Set Printing Coercions. " . "Unset Printing Coercions. "))
-
-(defpacustom print-match-wildcards t
-  "*Print underscores for unused variables in matches."
-  :type 'boolean
-  :setting ("Set Printing Wildcard. " . "Unset Printing Wildcard. "))
-
-(defpacustom print-elim-types t
-  "*Print synthesised result type for eliminations."
-  :type 'boolean
-  :setting ("Set Printing Synth. " . "Unset Printing Synth. "))
-
-(defpacustom printing-depth 50
-  "*Depth of pretty printer formatting, beyond which dots are displayed."
-  :type 'integer
-  :setting "Set Printing Depth %i . ")
-
-(defpacustom time-commands nil
-  "*Whether to display timing information for each command."
-  :type 'boolean)
-
-(defpacustom auto-compile-vos nil
-  "Whether to automatically compile vos and track dependencies."
-  :type 'boolean)
-
-;; old adjustments:
-;;  :eval (if coq-auto-compile-vos
-;            (setq proof-shell-process-file
-;                  coq-proof-shell-process-file
-;                  proof-shell-inform-file-retracted-cmd
-;                  coq-proof-shell-inform-file-retracted-cmd)
-;          (setq proof-shell-inform-file-processed-cmd nil
-;                proof-shell-process-file nil
-;                proof-shell-inform-file-retracted-cmd nil)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1250,14 +1246,7 @@ mouse activation."
               (vector
                "Print Proof"
                `(proof-shell-invisible-command 
-                 ,(format "Print Proof %s." thm))))))
-  (if (string-equal idiom "proof")
-      (let ((thm (span-property span 'name)))
-        (list (vector
-               "Check"
-               `(proof-shell-invisible-command 
-                 ,(format "Check %s." thm))))))
-  )
+                 ,(format "Print Proof %s." thm)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -1533,12 +1522,12 @@ buffer."
             ;(setq legth ??))
           ))
         (forward-char pos)
-        (let ((sp (make-span (point) (+ (point) lgth))))
+        (let ((sp (span-make (point) (+ (point) lgth))))
           (set-span-face sp 'proof-warning-face)
           ;; delete timer if exist
-          ;;(setq coq-highlight-error-timer (run-with-timer 10 nil 'delete-span sp))
+          ;;(setq coq-highlight-error-timer (run-with-timer 10 nil 'span-delete sp))
           (ignore-errors (sit-for 20)) ; errors here would skip the next delete
-          (delete-span sp)
+          (span-delete sp)
           )))))
 
 

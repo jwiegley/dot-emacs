@@ -84,6 +84,7 @@
    proof-save-command		"qed \"%s\";"
    proof-kill-goal-command	"Goal \"PROP no_goal_set\";"
    proof-assistant-home-page	isabelledemo-web-page
+   proof-prog-name		isabelledemo-prog-name
    proof-auto-multiple-files    t))
 
 
@@ -110,9 +111,6 @@
 ;; ======== Defining the derived modes ========
 ;;
 
-;; The name of the script mode is always <proofsym>-script,
-;; but the others can be whatever you like.
-;;
 ;; The derived modes set the variables, then call the
 ;; <mode>-config-done function to complete configuration.
 
@@ -134,25 +132,8 @@
   "Isabelle Demo goals" nil
   (proof-goals-config-done))
 
-;; The response buffer and goals buffer modes defined above are
-;; trivial.  In fact, we don't need to define them at all -- they
-;; would simply default to "proof-response-mode" and "pg-goals-mode".
-
 ;; A more sophisticated instantiation might set font-lock-keywords to
 ;; add highlighting, or some of the proof by pointing markup
 ;; configuration for the goals buffer.
-
-;; The final piece of magic here is a hook which configures settings
-;; to get the proof shell running.  Proof General needs to know the
-;; name of the program to run, and the modes for the shell, response,
-;; and goals buffers.
-
-(add-hook 'proof-pre-shell-start-hook 'demoisa-pre-shell-start)
-
-(defun demoisa-pre-shell-start ()
-  (setq proof-prog-name		isabelledemo-prog-name)
-  (setq proof-mode-for-shell    'demoisa-shell-mode)
-  (setq proof-mode-for-response 'demoisa-response-mode)
-  (setq proof-mode-for-goals	'demoisa-goals-mode))
 
 (provide 'demoisa)

@@ -17,6 +17,7 @@
 
 
 (require 'proof)
+(require 'span)
 (require 'plastic-syntax)
 
 
@@ -36,9 +37,10 @@
   :type 'string
   :group 'plastic)
 
+(eval-and-compile
 (defvar plastic-lit-string 
   ">" 
-  "*Prefix of literate lines. Set to empty string to get non-literate mode")
+  "*Prefix of literate lines. Set to empty string to get non-literate mode"))
 
 (defcustom plastic-help-menu-list
   '(["The PLASTIC Reference Card" (browse-url plastic-www-refcard) t]
@@ -292,14 +294,15 @@ Given is the first SPAN which needs to be undone."
 ;;   Commands specific to plastic                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; da: FIXME added quoting/eval here because of macros.  Probably better
-;; to turn proof-defshortcut and co into functions.
-`(proof-defshortcut plastic-Intros 
-		   ,(concat plastic-lit-string "Intros ")  ?i)
-`(proof-defshortcut plastic-Refine
-		   ,(concat plastic-lit-string "Refine ")  ?r)
-`(proof-defshortcut plastic-ReturnAll
-		   ,(concat plastic-lit-string "ReturnAll ") ?u)
+(eval-after-load "plastic" ;; da: so that plastic-lit-string can be changed
+  '(progn
+     (eval `(proof-defshortcut plastic-Intros 
+			       ,(concat plastic-lit-string "Intros ")  ?i))
+     (eval `(proof-defshortcut plastic-Refine
+			       ,(concat plastic-lit-string "Refine ")  ?r))
+     (eval `(proof-defshortcut plastic-ReturnAll
+			       ,(concat plastic-lit-string "ReturnAll ") ?u))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -335,15 +338,6 @@ Given is the first SPAN which needs to be undone."
 	     (insert (format plastic-pretty-set-width (- current-width 1)))
 	     )))))
 
-(defun plastic-pre-shell-start ()
-  (setq proof-prog-name (concat plastic-prog-name "")
-        ;; set cmd-line flag 
-        proof-mode-for-shell    'plastic-shell-mode
-        proof-mode-for-response 'plastic-response-mode
-        proof-mode-for-goals    'plastic-goals-mode)
-
-  (setenv "PROOF_GENERAL" "")		;; signal to plastic, use annotations
-  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -351,16 +345,15 @@ Given is the first SPAN which needs to be undone."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun plastic-mode-config ()
-  ;; da: this is now a user-option, please set it in your .emacs
-  ;; via customize mechanism.
-  ;; (setq proof-electric-terminator-enable t)	;; force semicolons active.
 
   (setq proof-terminal-char ?\;)
   (setq proof-script-comment-start "(*")			;; these still active
   (setq proof-script-comment-end "*)")
 
+  (setq proof-prog-name (concat plastic-prog-name ""))
+  (setenv "PROOF_GENERAL" "") ;; signal to plastic, use annotations
+
   (setq proof-assistant-home-page plastic-www-home-page)
-  (setq proof-mode-for-script 'plastic-mode)
 
   (setq proof-showproof-command (concat plastic-lit-string " &S PrfCtxt")
 	proof-goal-command      (concat plastic-lit-string " Claim %s;")
@@ -400,12 +393,6 @@ Given is the first SPAN which needs to be undone."
 
   (setq font-lock-keywords plastic-font-lock-keywords-1)
 
-;; FIXME da: this is done generically now.  If you want
-;; the zap commas behaviour, set proof-font-lock-zap-commas=t here.
-;;  (and (boundp 'font-lock-always-fontify-immediately)
-;;       (setq font-lock-always-fontify-immediately t))
-
-
   (proof-config-done)
 
 ;; outline
@@ -431,7 +418,6 @@ Given is the first SPAN which needs to be undone."
 
 ;; hooks and callbacks
 
-  (add-hook 'proof-pre-shell-start-hook    'plastic-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook       'plastic-shell-adjust-line-width)
   (add-hook 'proof-shell-handle-error-or-interrupt-hook 'plastic-had-error)
   (add-hook 'proof-shell-insert-hook       'plastic-preprocessing)

@@ -8,7 +8,7 @@
 (require 'pg-autotest)
 
 ;; The included test files
-(unless (noninteractive)
+(unless noninteractive
   (pg-autotest  message "Testing standard examples")
   (pg-autotest script-wholefile "coq/example.v")
   (pg-autotest script-wholefile "coq/example-x-symbol.v")

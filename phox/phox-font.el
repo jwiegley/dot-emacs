@@ -58,7 +58,7 @@
 ;;                       phox-sym-lock tables
 ;;--------------------------------------------------------------------------;;
 
-(if proof-running-on-XEmacs (require 'phox-sym-lock))
+(if (featurep 'xemacs) (require 'phox-sym-lock))
 
 ;; to change this table, xfd -fn '-adobe-symbol-*--12-*' may be
 ;; used to determine the symbol character codes.

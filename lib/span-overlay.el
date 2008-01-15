@@ -11,11 +11,11 @@
 
 (defalias 'span-start 'overlay-start)
 (defalias 'span-end 'overlay-end)
-(defalias 'set-span-property 'overlay-put)
+(defalias 'span-set-property 'overlay-put)
 (defalias 'span-property 'overlay-get)
-(defalias 'make-span 'make-overlay)
-(defalias 'detach-span 'delete-overlay)
-(defalias 'set-span-endpoints 'move-overlay)
+(defalias 'span-make 'make-overlay)
+(defalias 'span-detach 'delete-overlay)
+(defalias 'span-set-endpoints 'move-overlay)
 (defalias 'span-buffer 'overlay-buffer)
 
 (defun span-read-only-hook (overlay after start end &optional len)
@@ -34,14 +34,14 @@
   ;; the buffer.  (Maybe read-only is only a text property, not an
   ;; overlay property?).
   ;; (overlay-put span 'read-only t))
-  (set-span-property span 'modification-hooks '(span-read-only-hook))
-  (set-span-property span 'insert-in-front-hooks '(span-read-only-hook)))
+  (span-set-property span 'modification-hooks '(span-read-only-hook))
+  (span-set-property span 'insert-in-front-hooks '(span-read-only-hook)))
 
 (defun span-read-write (span)
   "Set SPAN to be writeable."
   ;; See comment above for text properties problem.
-  (set-span-property span 'modification-hooks nil)
-  (set-span-property span 'insert-in-front-hooks nil))
+  (span-set-property span 'modification-hooks nil)
+  (span-set-property span 'insert-in-front-hooks nil))
 
 (defun span-give-warning (&rest args)
   "Give a warning message."
@@ -49,8 +49,8 @@
 
 (defun span-write-warning (span)
   "Give a warning message when SPAN is changed."
-  (set-span-property span 'modification-hooks '(span-give-warning))
-  (set-span-property span 'insert-in-front-hooks '(span-give-warning)))
+  (span-set-property span 'modification-hooks '(span-give-warning))
+  (span-set-property span 'insert-in-front-hooks '(span-give-warning)))
 
 ;; We use end first because proof-locked-queue is often changed, and
 ;; its starting point is always 1
@@ -79,14 +79,14 @@ For XEmacs, span-at gives smallest extent at pos.
 For Emacs, we assume that spans don't overlap."
   (car (spans-at-point-prop pt prop)))
 
-(defsubst delete-span (span)
+(defsubst span-delete (span)
   "Delete SPAN."
   (let ((predelfn (span-property span 'span-delete-action)))
     (and predelfn (funcall predelfn)))
   (delete-overlay span))
 
 ;; The next two change ordering of list of spans:
-(defsubst mapcar-spans (fn start end prop &optional val)
+(defsubst span-mapcar-spans (fn start end prop &optional val)
   "Apply function FN to all spans between START and END with property PROP set"
   (mapcar fn (spans-at-region-prop start end prop (or val nil))))
 
@@ -152,7 +152,7 @@ A span is before PT if it begins before the character before PT."
   "Set priority of span to make it appear above other spans.
 FIXME: new hack added nov 99 because of disappearing overlays.
 Behaviour is still worse than before."	;??? --Stef
-  (set-span-property span 'priority 100))
+  (span-set-property span 'priority 100))
 
 (defalias 'span-object 'overlay-buffer)
 

@@ -1,6 +1,6 @@
-;; demoisa-easy.el Example Proof General instance for Isabelle
+;; demoisa-easy.el --- Example Proof General instance for Isabelle
 ;;
-;; Copyright (C) 1999 LFCS Edinburgh. 
+;; Copyright (C) 1999 LFCS Edinburgh.
 ;;
 ;; Author: David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
@@ -12,10 +12,10 @@
 ;; This mechanism is recommended for new instantiations of
 ;; Proof General since it follows a regular pattern, and we can more
 ;; easily adapt it in the future to new versions of Proof General
-;; using alternative architectures. It is still easy to augment 
+;; using alternative architectures. It is still easy to augment
 ;; with additional elisp functions and other settings.
 ;;
-;; The most important setting is `proof-shell-annotated-prompt-regexp' 
+;; The most important setting is `proof-shell-annotated-prompt-regexp'
 ;; used to recognize prompt texts from the prover.
 ;;
 ;; See demoisa.el and the Adapting Proof General manual for more
@@ -25,10 +25,15 @@
 ;; To test this file you must rename it demoisa.el.
 ;;
 
+(eval-when-compile
+  (require 'proof-site)			; compilation for demoisa
+  (proof-ready-for-assistant 'demoisa))
+
+(require 'proof)
 (require 'proof-easy-config)            ; easy configure mechanism
 
-(proof-easy-config 
- 'demoisa "Isabelle Demo" 
+(proof-easy-config
+ 'demoisa "Isabelle Demo"
  proof-prog-name		 "isabelle"
  proof-terminal-char             ?\;
  proof-script-comment-start             "(*"
@@ -58,3 +63,5 @@
  proof-shell-eager-annotation-start "^\\[opening \\|^###\\|^Reading")
 
 (provide 'demoisa)
+
+;;; demoisa-easy.el ends here

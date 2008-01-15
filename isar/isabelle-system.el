@@ -1,6 +1,6 @@
-;; isabelle-system.el Interface with Isabelle system
+;; isabelle-system.el --- Interface with Isabelle system
 ;;
-;; Copyright (C) 2000 LFCS Edinburgh, David Aspinall. 
+;; Copyright (C) 2000 LFCS Edinburgh, David Aspinall.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
@@ -10,6 +10,11 @@
 ;; Most of this code is taken from the final version of Isamode.
 ;; --------------------------------------------------------------
 ;;
+
+;;; Code:
+(eval-when-compile
+  (require 'proof-site)			; compile for isar (defpgdefault, etc)
+  (proof-ready-for-assistant 'isar))
 
 (require 'proof)			; for proof-assistant-symbol, etc.
 (require 'proof-syntax)			; for proof-string-match
@@ -32,7 +37,7 @@
 ;;; ================ Extract Isabelle settings ================
 
 (defcustom isa-isatool-command
-  (or (getenv "ISATOOL") 
+  (or (getenv "ISATOOL")
       (proof-locate-executable "isatool")
       ;; FIXME: use same mechanism as isabelle-program-name below.
       (let ((possibilities
@@ -53,7 +58,7 @@
   "Command to invoke Isabelle tool 'isatool'.
 XEmacs should be able to find `isatool' if it is on the PATH when
 started.  Then several standard locations are attempted.
-Otherwise you should set this, using a full path name here for reliable 
+Otherwise you should set this, using a full path name here for reliable
 working."
   :type 'file
   :group 'isabelle)
@@ -88,7 +93,7 @@ with full path."
       (substring s 0 -1))))
 
 (defun isa-getenv (envvar &optional default)
-  "Extract an environment variable setting using the `isatool' program.
+  "Extract environment variable ENVVAR setting using the `isatool' program.
 If the isatool command is not available, try using elisp's getenv
 to extract the value from Emacs' environment.
 If there is no setting for the variable, DEFAULT will be returned"
@@ -106,8 +111,8 @@ If there is no setting for the variable, DEFAULT will be returned"
 ;;; ======= Interaction with System using Isabelle tools =======
 ;;;
 
-(defcustom isabelle-program-name 
-  (if (fboundp 'proof-running-on-win32)	
+(defcustom isabelle-program-name
+  (if proof-running-on-win32
       "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\"
     (proof-locate-executable "isabelle" t
 			     '("/usr/local/Isabelle/bin/"
@@ -118,14 +123,14 @@ If there is no setting for the variable, DEFAULT will be returned"
 
 The default value except when running under Windows is \"isabelle\",
 which will get expanded using PATH if possible, or in a number
-of standard locations (/usr/local/Isabelle/, /opt/Isabelle, etc). 
+of standard locations (/usr/local/Isabelle/, /opt/Isabelle, etc).
 
 The default value when running under Windows is:
 
   C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\
 
-This expects SML/NJ in C:\\sml and Isabelle images in C:\Isabelle.  
-The logic image name is tagged onto the end.  
+This expects SML/NJ in C:\\sml and Isabelle images in C:\Isabelle.
+The logic image name is tagged onto the end.
 
 NB: The Isabelle settings mechanism or the environment variable
 ISABELLE will always override this setting."
@@ -136,7 +141,7 @@ ISABELLE will always override this setting."
   "Set from `isabelle-program-name', has name of logic appended sometimes.")
 
 (defun isabelle-command-line ()
-  "Make proper command line for running Isabelle"
+  "Make proper command line for running Isabelle."
   (let*
       ;; The ISABELLE and PROOFGENERAL_LOGIC values (as set when run
       ;; under the interface wrapper script) indicate that we should
@@ -161,22 +166,22 @@ ISABELLE will always override this setting."
 
 (defun isabelle-choose-logic (logic)
   "Adjust isabelle-prog-name and proof-prog-name for running LOGIC."
-  (interactive 
-   (list (completing-read 
+  (interactive
+   (list (completing-read
 	  "Use logic: "
-	  (mapcar 'list (cons "Default" 
+	  (mapcar 'list (cons "Default"
 			      isabelle-logics-available)))))
   ;; a little bit obnoxious maybe (but maybe what naive user would expect)
   ;; (customize-save-variable 'isabelle-chosen-logic logic)
   (if (proof-shell-live-buffer)
       (error "Can't change logic while Isabelle is running, please exit process first!"))
-  (customize-set-variable 'isabelle-chosen-logic 
+  (customize-set-variable 'isabelle-chosen-logic
 			  (unless (string-equal logic "Default") logic))
   (setq isabelle-prog-name (isabelle-command-line))
   (setq proof-prog-name isabelle-prog-name)
   ;; Settings are potentially different between logics, and
   ;; so are Isar keywords.  Set these to nil so they get
-  ;; automatically re-initialised.  
+  ;; automatically re-initialised.
   ;; FIXME: Isar keywords change not handled yet.
   (setq proof-assistant-settings nil)
   (setq proof-menu-settings nil))
@@ -184,7 +189,7 @@ ISABELLE will always override this setting."
 (defun isa-tool-list-logics ()
   "Generate a list of available object logics."
   (if (isa-set-isatool-command)
-      (delete "" (split-string 
+      (delete "" (split-string
 		  (isa-shell-command-to-string
 		   (concat isa-isatool-command " findlogics")) "[ \t]"))))
 
@@ -209,7 +214,7 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 	  (mapcan
 	   (function (lambda (docdes)
 		       (if (proof-string-match "^[ \t]+\\(\\S-+\\)[ \t]+" docdes)
-			   (list (list 
+			   (list (list
 				  (substring docdes (match-beginning 1) (match-end 1))
 				  (substring docdes (match-end 0)))))))
 	   (split-string docs "\n"))))))
@@ -224,10 +229,10 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 ;   (comint-send-eof))
 
 (defconst isabelle-verbatim-regexp "\\`\^VERBATIM: \\(\\(.\\|\n\\)*\\)\\'"
-  "Regexp matching internal marker for verbatim command output")
+  "Regexp matching internal marker for verbatim command output.")
 
 (defun isabelle-verbatim (str)
-  "Mark internal command for verbatim output"
+  "Mark internal command STR for verbatim output."
   (concat "\^VERBATIM: " str))
 
 
@@ -244,7 +249,7 @@ for you, you should disable this behaviour."
 (defcustom isabelle-logics-available (isa-tool-list-logics)
   "*List of logics available to use with Isabelle.
 If the `isatool' program is available, this is automatically
-generated with the lisp form `(isa-tool-list-logics)'."
+generated with the Lisp form `(isa-tool-list-logics)'."
   :type (list 'string)
   :group 'isabelle)
 
@@ -262,7 +267,7 @@ until Proof General is restarted."
 	       '(const :tag "Unset (use default)" nil)))
   :group 'isabelle)
 
-(defconst isabelle-docs-menu 
+(defconst isabelle-docs-menu
   (let ((vc '(lambda (docdes)
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
@@ -276,12 +281,12 @@ until Proof General is restarted."
   (setq isabelle-logics-menu-entries
 	(cons "Logics"
 	      (append
-	       '(["Default" 
+	       '(["Default"
 		  (isabelle-choose-logic nil)
 		  :active (not (proof-shell-live-buffer))
 		  :style radio
 		  :selected (not isabelle-chosen-logic)])
-	       (mapcar (lambda (l) 
+	       (mapcar (lambda (l)
 		   (vector l (list 'isabelle-choose-logic l)
 			   :active '(not (proof-shell-live-buffer))
 			   :style 'radio
@@ -289,7 +294,7 @@ until Proof General is restarted."
 		       isabelle-logics-available)))))
 
 (defvar isabelle-time-to-refresh-logics t
-  "Non-nil if we should refresh the logics list")
+  "Non-nil if we should refresh the logics list.")
 
 (defun isabelle-logics-menu-refresh ()
   "Refresh isabelle-logics-menu-entries, returning new entries."
@@ -299,9 +304,9 @@ until Proof General is restarted."
       (progn
 	(setq isabelle-logics-available (isa-tool-list-logics))
 	(isabelle-logics-menu-calculate)
-	(if proof-running-on-Emacs21 
+	(if (not (featurep 'xemacs))
 	    ;; update the menu manually
-	    (easy-menu-add-item proof-assistant-menu nil 
+	    (easy-menu-add-item proof-assistant-menu nil
 				isabelle-logics-menu-entries))
 	(setq isabelle-time-to-refresh-logics nil) ;; just done it, don't repeat!
 	(run-with-timer 2 nil ;; short delay to avoid doing this too often
@@ -313,22 +318,22 @@ until Proof General is restarted."
   (cdr isabelle-logics-menu-entries))
 
 ;; Functions for GNU Emacs only to update logics menu
-(if proof-running-on-Emacs21
+(if (not (featurep 'xemacs))
 (defun isabelle-menu-bar-update-logics ()
-  ;; standard check we're being invoked
+  "Update logics menu."
   (and (current-local-map)
-       (keymapp (lookup-key (current-local-map) 
+       (keymapp (lookup-key (current-local-map)
  			    (vector 'menu-bar (intern proof-assistant))))
        (isabelle-logics-menu-refresh))))
 
-(if proof-running-on-Emacs21
+(if (not (featurep 'xemacs))
     (add-hook 'menu-bar-update-hook 'isabelle-menu-bar-update-logics))
 
 
 (defvar isabelle-logics-menu-entries (isabelle-logics-menu-calculate))
 
-(defvar isabelle-logics-menu 
-   (if proof-running-on-XEmacs
+(defvar isabelle-logics-menu
+   (if (featurep 'xemacs)
        (cons (car isabelle-logics-menu-entries)
 	     (list :filter 'isabelle-logics-menu-filter)) ;; generates menu on click
      isabelle-logics-menu-entries)
@@ -373,17 +378,17 @@ until Proof General is restarted."
 ;;
 
 (eval-after-load "x-symbol-isar"
- ;; Add x-symbol tokens to isa-completion-table and rebuild
- ;; internal completion table if completion is already active
-'(progn
-   (defpgdefault completion-table
-     (append (proof-ass completion-table)
-	     (mapcar (lambda (xsym) (nth 2 xsym))
-		     x-symbol-isar-table)))
-   (setq proof-xsym-font-lock-keywords
-	 x-symbol-isar-font-lock-keywords)
-   (if (featurep 'completion)
-       (proof-add-completions))))
+  ;; Add x-symbol tokens to isa-completion-table and rebuild
+  ;; internal completion table if completion is already active
+  '(progn
+     (defpgdefault completion-table
+       (append isar-completion-table
+	       (mapcar (lambda (xsym) (nth 2 xsym))
+		       x-symbol-isar-table)))
+     (setq proof-xsym-font-lock-keywords
+	   x-symbol-isar-font-lock-keywords)
+     (if (featurep 'completion)
+	 (proof-add-completions))))
 
 
 
@@ -413,15 +418,15 @@ the function `pg-remove-specials' can be used instead)."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Context-senstive in-span menu additions 
+;; Context-senstive in-span menu additions
 ;;
 
 (defun isabelle-create-span-menu (span idiom name)
   (if (string-equal idiom "proof")
       (let ((thm (span-property span 'name)))
-	(list (vector 
-	       "Visualise dependencies" 
-	       `(proof-shell-invisible-command 
+	(list (vector
+	       "Visualise dependencies"
+	       `(proof-shell-invisible-command
 		 ,(format "thm_deps %s;" thm))
 	       (not (string-equal thm proof-unnamed-theorem-name)))))))
 
@@ -442,4 +447,4 @@ the function `pg-remove-specials' can be used instead)."
 
 
 (provide 'isabelle-system)
-;; End of isabelle-system.el
+;;; isabelle-system.el ends here

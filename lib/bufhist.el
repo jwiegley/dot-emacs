@@ -73,14 +73,18 @@
        indicator
        'help-echo desc
        'keymap (eval-when-compile
-		 (let ((map (make-sparse-keymap)))
-		   ;; FIXME: clicking can go wrong here because the
-		   ;; current buffer can be something else which has no hist!
-		   (define-key map [mode-line mouse-1] 'bufhist-prev)
-		   (define-key map [mode-line mouse-3] 'bufhist-next)
-;		   (define-key map [mode-line control mouse-1] 'bufhist-first)
-;		   (define-key map [mode-line control mouse-3] 'bufhist-last)
-		   map))
+		 (cond 
+		  ((featurep 'xemacs)
+		   nil)
+		  (t
+		   (let ((map (make-sparse-keymap)))
+		     ;; FIXME: clicking can go wrong here because the
+		     ;; current buffer can be something else which has no hist!
+		     (define-key map [mode-line mouse-1] 'bufhist-prev)
+		     (define-key map [mode-line mouse-3] 'bufhist-next)
+		     ;; (define-key map [mode-line control mouse-1] 'bufhist-first)
+		     ;; (define-key map [mode-line control mouse-3] 'bufhist-last)
+		   map))))
        'mouse-face 'mode-line-highlight))))
      
 ;simple:

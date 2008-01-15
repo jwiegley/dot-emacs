@@ -505,10 +505,10 @@ variable `x-symbol-auto-coding-alist' for details."
 ;;
 
 (eval-after-load "isar" ;; allow use outside PG
-  (setq 
-   proof-xsym-activate-command
-   (isar-markup-ml "change print_mode (insert (op =) \"xsymbols\")")
-   proof-xsym-deactivate-command
-   (isar-markup-ml "change print_mode (remove (op =) \"xsymbols\")")))
+  '(setq 
+    proof-xsym-activate-command
+    (isar-markup-ml "change print_mode (insert (op =) \"xsymbols\")")
+    proof-xsym-deactivate-command
+    (isar-markup-ml "change print_mode (remove (op =) \"xsymbols\")")))
 
 (provide 'x-symbol-isar)

@@ -1,5 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; phox-sym-lock.el - Extension of Font-Lock mode for symbol fontification.
+;; phox-sym-lock.el --- Extension of Font-Lock mode for symbol fontification.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;        Copyright © 1997-1998 Albert Cohen, all rights reserved.
@@ -29,7 +28,7 @@
 ;; more about symbol font ? check out: xfd -fn '-adobe-symbol-*--12-*'
 
 (require 'font-lock)
-(if (string-match "XEmacs" emacs-version) 
+(if (featurep 'xemacs)
     (require 'atomic-extents))  ;; not available on GNU Emacs
 
 (defvar phox-sym-lock-sym-count 0
@@ -169,7 +168,11 @@
 		    (list 'registry "adobe-fontspecific"
 			  'dimension 1
 			  'chars 94
-			  'final 53
+;;			  'final 53
+;; DA PG 3.7: above line doesn't work on XEmacs 21.5b28, gives
+;; Character set already defined for this DIMENSION/CHARS/FINAL/DIRECTION combo (indian-is13194)
+;; DA: Will 55 work?  
+			  'final 55 
 			  'graphic 0))
       (make-charset 'phox-sym-lock-cset-right "Char set for symbol font"
 		    (list 'registry "adobe-fontspecific"

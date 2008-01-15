@@ -1,3 +1,16 @@
+Please follow Emacs Lisp conventions as documented in the Emacs Lisp
+manual.  The 'checkdoc' mode helps with this, enabled automatically,
+alongside eldoc and Flyspell, in the development file:
+
+ M-x load-file RET generic/pg-dev.el RET
+
+ (load-file "../generic/pg-dev.el")
+
+
+
+
+
+
 Some Emacs Resources
 ====================
 

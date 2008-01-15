@@ -24,8 +24,7 @@
  proof-prog-name		 "acl2"
 
  proof-script-sexp-commands	 t
- proof-script-comment-start             ";"
- proof-script-comment-start             ";"
+ proof-script-comment-start	";"
 
  proof-shell-annotated-prompt-regexp "ACL2[ !]*>+"
 
@@ -84,9 +83,6 @@
 
  ;; End of easy config.
  )
-
-(eval-when-compile 
-  (require 'proof-shell))		; nuke warning
 
 ;; Interrupts and errors enter another loop; break out of it
 (add-hook

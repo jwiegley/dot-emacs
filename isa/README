@@ -1,4 +1,5 @@
 Support for Isabelle/classic has been removed from Proof General.
+
 The default and only supported interface is now Isabelle/Isar.
 
 If you need to use an older version of Isabelle, you will have

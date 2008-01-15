@@ -195,7 +195,7 @@ Given is the first SPAN which needs to be undone."
     ;; FIXME: make this stuff generic.  This should be undo-n-times-cmd
     (concat "Undo " (int-to-string ct) ";")))
 
-(defun lego-goal-command-p (str)
+(defun lego-goal-command-p (span)
   "Decide whether argument is a goal or not"
   (proof-string-match lego-goal-command-regexp
 		      (or (span-property span 'cmd) "")))
@@ -294,13 +294,6 @@ Checks the width in the `proof-goals-buffer'"
 	     (insert (format lego-pretty-set-width (- current-width 1)))
 	     )))))
 
-(defun lego-pre-shell-start ()
-  (setq proof-prog-name lego-prog-name
-	proof-mode-for-shell 'lego-shell-mode
-	proof-mode-for-response 'lego-response-mode
-	proof-mode-for-goals 'lego-goals-mode))
-
-
 (defun lego-mode-config ()
 
   (setq proof-terminal-char ?\;)
@@ -309,13 +302,13 @@ Checks the width in the `proof-goals-buffer'"
 
   (setq proof-assistant-home-page lego-www-home-page)
   
-  (setq proof-mode-for-script 'lego-mode)
-
   (setq proof-showproof-command "Prf;"
 	proof-goal-command "Goal %s;"
 	proof-save-command "Save %s;"
 	proof-context-command "Ctxt;"
 	proof-info-command "Help;")
+
+  (setq proof-prog-name lego-prog-name)
 
   (setq proof-goal-command-p 'lego-goal-command-p
 	proof-completed-proof-behaviour 'closeany ; new in 3.0
@@ -367,7 +360,6 @@ Checks the width in the `proof-goals-buffer'"
 
 ;; hooks and callbacks
 
-  (add-hook 'proof-pre-shell-start-hook 'lego-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook 'lego-shell-adjust-line-width))
 
 (defun lego-equal-module-filename (module filename)

@@ -289,7 +289,7 @@
 (defalias 'proof-pbrpm-right-paren-p 'phox-pbrpm-right-paren-p)
 
 ;;--------------------------------------------------------------------------;;
-(require 'pg-pbrpm)
+;(require 'pg-pbrpm)  da: causes compile error
 (require 'phox-lang)
 (provide 'phox-pbrpm)
 ;; phox-pbrpm ends here

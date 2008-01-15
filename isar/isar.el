@@ -1,9 +1,9 @@
-; isar.el	  Major mode for Isabelle/Isar proof assistant
+; isar.el --- Major mode for Isabelle/Isar proof assistant
 ;; Copyright (C) 1994-2004 LFCS Edinburgh.
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; Maintainers:   David Aspinall, Stefan Berghofer
+;; Maintainers:   David Aspinall, Makarius, Stefan Berghofer
 ;;
 ;; Authors:       David Aspinall <David.Aspinall@ed.ac.uk>
 ;;   	          Markus Wenzel <wenzelm@in.tum.de>
@@ -14,13 +14,16 @@
 ;; $Id$
 ;;
 
+;;; Code:
 (require 'proof)
 
-;; System code
-(require 'isabelle-system)
+(eval-when-compile
+  (require 'span)
+  (require 'proof-syntax)
+  (proof-ready-for-assistant 'isar))	; compile for isar
 
-;; "Find Theorems" search form
-(require 'isar-find-theorems)
+(require 'isabelle-system)		; system code
+(require 'isar-find-theorems)		; "Find Theorems" search form
 
 ;;
 ;; Load syntax
@@ -35,7 +38,7 @@ See -k option for Isabelle interface script."
     ;; Pickup isar-keywords file from somewhere appropriate,
     ;; giving user chance to set name of file, or based on
     ;; name of logic.
-    (isabelle-load-isar-keywords 
+    (isabelle-load-isar-keywords
      (or isar-keywords-name
 	 isabelle-chosen-logic)))
 (require 'isar-syntax)
@@ -53,9 +56,9 @@ See -k option for Isabelle interface script."
 
 ;; Adjust toolbar entries (must be done before proof-toolbar is loaded).
 
-(if proof-running-on-XEmacs
-    (setq isar-toolbar-entries
-	  (remassoc 'qed (remassoc 'goal isar-toolbar-entries))))
+(eval-after-load "pg-custom"
+  '(setq isar-toolbar-entries
+	 (remassoc 'qed (remassoc 'goal isar-toolbar-entries))))
 
 
 (defun isar-strip-terminators ()
@@ -80,10 +83,10 @@ See -k option for Isabelle interface script."
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
    proof-assistant-home-page    isar-web-page
-   proof-mode-for-script        'isar-mode
+   proof-prog-name		(isabelle-command-line)
    ;; proof script syntax
    proof-terminal-char          ?\;     ; forcibly ends a command
-   proof-script-command-start-regexp 
+   proof-script-command-start-regexp
    (proof-regexp-alt
     ;; FIXME: this gets { and } wrong: they must _not_ appear as {* *}
     ;; because that's lexically a kind of comment.
@@ -138,7 +141,7 @@ See -k option for Isabelle interface script."
    proof-find-and-forget-fn     'isar-find-and-forget
    proof-state-preserving-p     'isar-state-preserving-p
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
-   ;; span menu 
+   ;; span menu
    proof-script-span-context-menu-extensions 'isabelle-create-span-menu))
 
 (defun isar-shell-mode-config-set-variables ()
@@ -189,7 +192,7 @@ See -k option for Isabelle interface script."
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362\\|\^AI\\|\^AK"
    proof-shell-eager-annotation-end     "\361\\|\363\\|\^AJ\\|\^AL"
-   ;; see isar-pre-shell-start for proof-shell-trace-output-regexp
+   proof-shell-trace-output-regexp	"\375\\|\^AV"
 
    ;; Isabelle is learning to talk PGIP...
    proof-shell-match-pgip-cmd		"<pgip"
@@ -203,7 +206,7 @@ See -k option for Isabelle interface script."
    proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\361\\|\^AJ\\)"
    proof-shell-theorem-dependency-list-split "\" \""
    proof-shell-show-dependency-cmd "thm %s;"
-   proof-shell-identifier-under-mouse-cmd 
+   proof-shell-identifier-under-mouse-cmd
    '((nil     "thm %s;")
      (string  "term \"%s\";")
      (comment "term \"%s\";"))
@@ -218,7 +221,7 @@ See -k option for Isabelle interface script."
      ;; next string could be: "[\350-\377]", but that's buggy with XEmacs 21.5 (beta)
      "×\\|Ø\\|Ù\\|Ú\\|Û\\|Ü\\|Ý\\|Þ\\|ß\\|8\\|è\\|é\\|ê\\|ë\\|ì\\|í\\|î\\|ï\\|ð\\|ñ\\|ò\\|ó\\|ô\\|õ\\|ö\\|÷\\|ø\\|ù\\|ú\\|û\\|ü\\|ý\\|þ\\|ÿ")
 
-   pg-subterm-help-cmd			"term %s" 
+   pg-subterm-help-cmd			"term %s"
 
    proof-cannot-reopen-processed-files  t
    proof-shell-process-file
@@ -295,7 +298,7 @@ proof-shell-retract-files-regexp."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;
-;;; help menu  
+;;; help menu
 ;;;
 
 ;;; da: how about a `C-c C-a h ?' for listing available keys?
@@ -320,15 +323,15 @@ proof-shell-retract-files-regexp."
 ;; Command menu
 ;;
 
-;; NB: would be nice to query save of the buffer first for these 
+;; NB: would be nice to query save of the buffer first for these
 ;; next two: but only convenient emacs functions offer save for
 ;; all buffers.
 (proof-definvisible isar-cmd-display-draft
  '(format "display_drafts \"%s\"" buffer-file-name)
  [(control d)])
 
-(proof-definvisible isar-cmd-print-draft 
-  '(if (y-or-n-p 
+(proof-definvisible isar-cmd-print-draft
+  '(if (y-or-n-p
 	(format "Print draft of file %s ?" buffer-file-name))
        (format "print_drafts \"%s\"" buffer-file-name)
      (error "Aborted."))
@@ -369,7 +372,7 @@ proof-shell-retract-files-regexp."
 
 ;; undo proof commands
 (defun isar-count-undos (span)
-  "Count number of undos in a span, return the command needed to undo that far."
+  "Count number of undos SPAN, return command needed to undo that far."
   (let
       ((case-fold-search nil)       ;FIXME ??
        (ct 0) str i)
@@ -379,7 +382,7 @@ proof-shell-retract-files-regexp."
              (or (proof-string-match isar-undo-skip-regexp str)
 		 (proof-string-match isar-undo-ignore-regexp str)
                  (setq ct (+ 1 ct))))
-            ((eq (span-property span 'type) 'pbp)  
+            ((eq (span-property span 'type) 'pbp)
              ;; this case for automatically inserted text (e.g. sledgehammer)
              (cond ((not (proof-string-match isar-undo-skip-regexp str))
 		    (setq ct 1)
@@ -404,7 +407,7 @@ proof-shell-retract-files-regexp."
       (cond
        ;; comment, diagnostic, nested proof command: skip
        ;; (da: adding new span types may break this code,
-       ;;  ought to test for type 'cmd before looking at 
+       ;;  ought to test for type 'cmd before looking at
        ;;  str below)
        ;; FIXME: should adjust proof-nesting-depth here.
        ((or (eq (span-property span 'type) 'comment)
@@ -434,15 +437,13 @@ proof-shell-retract-files-regexp."
       (if span (setq span (next-span span 'type))))
     (if (null answers) proof-no-command (apply 'concat answers))))
 
-
-
 (defun isar-goal-command-p (span)
-  "Decide whether argument is a goal or not"
-  (proof-string-match isar-goal-command-regexp 
+  "Decide whether argument SPAN is a goal or not."
+  (proof-string-match isar-goal-command-regexp
 		      (or (span-property span 'cmd) "")))
 
 (defun isar-global-save-command-p (span str)
-  "Decide whether argument really is a global save command"
+  "Decide whether argument SPAN with command STR is a global save command."
   (or
    (proof-string-match isar-global-save-command-regexp str)
    (let ((ans nil) (lev 0) cmd)
@@ -463,10 +464,10 @@ proof-shell-retract-files-regexp."
      (eq ans 'yes))))
 
 (defvar isar-current-goal 1
-  "Last goal that emacs looked at.")
+  "Last goal that Emacs looked at.")
 
 (defun isar-state-preserving-p (cmd)
-  "Non-nil if command preserves the proofstate."
+  "Non-nil if command CMD preserves the proofstate."
   (proof-string-match isar-undo-skip-regexp cmd))
 
 
@@ -489,13 +490,11 @@ proof-shell-retract-files-regexp."
 ;;   Isar shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;borrowed from plastic.el
 (defvar isar-shell-current-line-width nil
   "Current line width of the Isabelle process's pretty printing module.
 Its value will be updated whenever the corresponding screen gets
 selected.")
 
-;borrowed from plastic.el
 (defun isar-shell-adjust-line-width ()
   "Use Isabelle's pretty printing facilities to adjust output line width.
 Checks the width in the `proof-goals-buffer'"
@@ -505,9 +504,8 @@ Checks the width in the `proof-goals-buffer'"
          (save-excursion
            (set-buffer proof-goals-buffer)
            (let ((current-width
-                  ;; Actually, one might sometimes
-                  ;; want to get the width of the proof-response-buffer
-                  ;; instead. Never mind.
+                  ;; Actually, one might want the width of the
+                  ;; proof-response-buffer instead. Never mind.
                   (max 20 (window-width (get-buffer-window proof-goals-buffer t)))))
 
              (if (equal current-width isar-shell-current-line-width) ()
@@ -516,20 +514,12 @@ Checks the width in the `proof-goals-buffer'"
                (setq ans (format "pretty_setmargin %d;" (- current-width 4)))))))
     ans))
 
-(defun isar-pre-shell-start ()
-  (setq proof-prog-name         (isabelle-command-line))
-  (setq proof-mode-for-shell    'isar-shell-mode)
-  (setq proof-mode-for-goals    'isar-goals-mode)
-  (setq proof-mode-for-response 'isar-response-mode)
-  (setq proof-shell-trace-output-regexp "\375\\|\^AV"))
-
-
 ;;
 ;;   Configuring proof output buffer
 ;;
 
 (defun isar-preprocessing ()  ;dynamic scoping of `string'
-  "Insert sync markers - acts on variable STRING by dynamic scoping"
+  "Insert sync markers - acts on variable STRING by dynamic scoping."
   (if (proof-string-match isabelle-verbatim-regexp string)
       (setq string (match-string 1 string))
     (unless (proof-string-match ";[ \t]*\\'" string)
@@ -556,18 +546,17 @@ Checks the width in the `proof-goals-buffer'"
   (isar-init-syntax-table)
   (setq font-lock-keywords isar-font-lock-keywords-1)
   (setq comment-quote-nested nil) ;; can cope with nested comments
-  (proof-config-done)
   (set (make-local-variable 'outline-regexp) isar-outline-regexp)
   (set (make-local-variable 'outline-heading-end-regexp) isar-outline-heading-end-regexp)
   (setq blink-matching-paren-dont-ignore-comments t)
-  (add-hook 'proof-pre-shell-start-hook 'isar-pre-shell-start nil t)
-  (add-hook 'proof-shell-insert-hook 'isar-preprocessing))
+  (add-hook 'proof-shell-insert-hook 'isar-preprocessing)
+  (proof-config-done))
 
 (defun isar-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords  
-	(append 
+  (setq font-lock-keywords
+	(append
 	 isar-output-font-lock-keywords-1
 	 (if (boundp 'x-symbol-isar-font-lock-keywords)
 	     x-symbol-isar-font-lock-keywords)))
@@ -576,10 +565,10 @@ Checks the width in the `proof-goals-buffer'"
 
 (defun isar-response-mode-config ()
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords  
-	(append 
+  (setq font-lock-keywords
+	(append
 	 isar-output-font-lock-keywords-1
-	 (if (proof-ass x-symbol-enable)
+	 (if isar-x-symbol-enable
 	     x-symbol-isar-font-lock-keywords)))
   (proof-response-config-done))
 
@@ -587,31 +576,23 @@ Checks the width in the `proof-goals-buffer'"
   (setq pg-goals-change-goal "prefer %s")
   (setq pg-goals-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords  
-	(append 
+  (setq font-lock-keywords
+	(append
 	 isar-goals-font-lock-keywords
-	 (if (proof-ass x-symbol-enable)
+	 (if isar-x-symbol-enable
 	     x-symbol-isar-font-lock-keywords)))
   (proof-goals-config-done))
 
 (defun isar-goalhyplit-test ()
   "Value for `pg-topterm-goalhyplit-fn' (see that variable for documentation)."
   (let ((start (point)))
-    (if (proof-re-search-forward "\377\\|\^AX" nil t) ;; end of literal command (non-standard)
+    (if (proof-re-search-forward
+	 "\377\\|\^AX" nil t) ; end of literal command (non-standard)
 	(progn
 	  (delete-region (match-beginning 0) (match-end 0))
 	  (cons 'lit (buffer-substring start (match-beginning 0)))))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Remove isa-mode from auto-mode-alist, 
-;; to allow SML mode to work in preference to isa-mode.
-;;
-
-(setq auto-mode-alist
-      (delete-if 
-       (lambda (strmod) (memq (cdr strmod) '(demoisa-mode)))
-       auto-mode-alist))
-
 (provide 'isar)
+
+;;; isar.el ends here

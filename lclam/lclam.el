@@ -47,6 +47,8 @@
    proof-kill-goal-command         nil
    proof-assistant-homepage        lclam-web-page
    proof-auto-multiple-files       nil 
+   proof-prog-name		   lclam-prog-name
+   proof-shell-process-connection-type t
    ))
 
 (defun lclam-shell-config ()
@@ -100,16 +102,6 @@
     (lclam-proofscript-mode)))
 )
 
-;; Hook which configures settings to get the proof shell running 
-
-(add-hook 'proof-pre-shell-start-hook 'lclam-pre-shell-start)
-
-(defun lclam-pre-shell-start ()
-  (setq proof-prog-name         lclam-prog-name)
-  (setq proof-mode-for-shell    'lclam-shell-mode)
-  (setq proof-mode-for-response 'lclam-response-mode)
-  (setq proof-mode-for-goals    'lclam-goals-mode)
-  (setq proof-shell-process-connection-type t))
 
 
 ;;
@@ -197,7 +189,7 @@
   (proof-shell-invisible-command
    (proof-format-filename
     ;; %r parameter means relative (don't expand) path
-    (format "use_thy \"%%r\"." (if try "try_" ""))
+    (format "use_thy \"%s%%r\"." (if try "try_" ""))
     (file-name-nondirectory file))
    wait))
 

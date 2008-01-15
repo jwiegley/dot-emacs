@@ -38,7 +38,7 @@ DOC_FILES=AUTHORS BUGS COMPATIBILITY CHANGES COPYING INSTALL README.* REGISTER d
 DOC_EXAMPLES=acl2/*.acl2 hol98/*.sml isar/*.thy lclam/*.lcm lego/*.l pgshell/*.pgsh phox/*.phx plastic/*.lf twelf/*.elf
 DOC_SUBDIRS=${DOC_EXAMPLES} */README.* */CHANGES */BUGS 
 
-BATCHEMACS=${EMACS} -batch -q -no-site-file
+BATCHEMACS=${EMACS} --batch --no-site-file -q 
 
 # Scripts to edit paths to shells
 BASH_SCRIPTS = isar/interface bin/proofgeneral
@@ -64,39 +64,39 @@ default: all
 FORCE:
 
 ## 
-## compile : byte compile files in working directory:
-##           Clearout old .elc's and re-compile in a
-##           single Emacs process.  This is faster than "make elc",
-##	     but can have artefacts because of context between
-##	     compiles.
+## compile : byte compile all lisp files
+##           If EMACS variable has changed since last call, clearout 
+##	     old .elc's and re-compile.
 ##
-compile: .byte-compile
-	lastemacs=`cat .byte-compile`; if [ "$$lastemacs" != "$(EMACS)" ]; then rm -f .byte-compile; make .byte-compile; fi
+compile: $(EL) x-symbol/lisp/*.el
+	lastemacs=`cat .byte-compile 2>/dev/null || echo `; if [ "$$lastemacs" != "" ] && [ "$$lastemacs" != "$(EMACS)" ]; then rm -f .byte-compile $(ELC) x-symbol/lisp/*.elc; fi
+	make .byte-compile
 
 ## Compiling can show up errors in the code, but be wary of fixing obsoletion
-## warnings unless they're valid for both Emacsen.
+## or argument call warnings unless they're valid for both Emacsen.
 
 .byte-compile: $(EL) x-symbol/lisp/*.el
 	@echo "****************************************************************"
-	@echo " Byte compiling... IGNORING ERRORS FOR NOW; COMPILATION IS CURRENTLY BROKEN"
+	@echo " Byte compiling... "
 	@echo "****************************************************************"
-	rm -f $(ELC)
-#	$(BYTECOMP) $(EL)
 	make elc
 	@echo " Byte compiling X-Symbol..."
-	(cd x-symbol/lisp; rm -f *.elc; $(MAKE) EMACS="$(EMACS) -q -no-site-file")
+	(cd x-symbol/lisp; $(MAKE) EMACS="$(EMACS) -q -no-site-file")
 	echo $(EMACS) > $(@)
-	@echo "*************************************************"
+	@echo "****************************************************************"
 	@echo " Finished."
-	@echo "*************************************************"
+	@echo "****************************************************************"
 
 
 ##
-## Make individual .elc.  Building separately means we need to be careful
-## to add proper requires in source files.
+## Make an individual .elc.  Building separately means we need to be
+## careful to add proper requires in source files and prevent
+## evaluating/optimising top-level forms too early.  Using a separate
+## emacs process for each file is slower but avoids any chance of
+## accidently polluting the compilation environment.
 ##
 .el.elc:
-	-$(BYTECOMP) $*.el
+	$(BYTECOMP) $*.el
 
 elc:	$(ELC)
 

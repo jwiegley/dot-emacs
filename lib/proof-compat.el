@@ -10,27 +10,22 @@
 ;; operating systems and Emacs versions.  This is to help keep
 ;; track of them.
 ;;
-;; The development policy for Proof General is for the main codebase
-;; to be written for the latest stable version of GNU Emacs (previously
-;; XEmacs, not yet reworked since 3.7). 
-;; We follow GNU Emacs advice on removing obsolete function calls.
+;; The development policy for Proof General (since v3.7) is for the
+;; main codebase to be written for the latest stable version of GNU
+;; Emacs, following GNU Emacs advice on obsolete function calls.
 ;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Architecture flags
 ;;;
 
-(eval-and-compile
-(defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
-  "Non-nil if Proof General is running on XEmacs.")
-(defvar proof-running-on-Emacs21 (and (not proof-running-on-XEmacs)
-				      (>= emacs-major-version 21))
-  "Non-nil if Proof General is running on GNU Emacs 21 or later.")
-;; rough test for XEmacs on win32, anyone know about GNU Emacs on win32?
-(defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
-  "Non-nil if Proof General is running on a win32 system.")
-)
+;; can use eval-and-compile to allow optimisation, but that would
+;; require recompilation for Windows
+(defvar proof-running-on-win32 (memq system-type '(win32 windows-nt cygwin))
+  "Non-nil if Proof General is running on a windows variant system.")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -83,59 +78,13 @@ Search for COMMAND in exec-path and return the absolute file name.
 Return nil if COMMAND is not found anywhere in `exec-path'." nil nil))
 
 
-;; Compatibility with XEmacs 20.3/4
-(or (boundp 'path-separator)
-    (setq path-separator (if proof-running-on-win32 ";" ":")))
+;; Compatibility with XEmacs 20.3
 (or (fboundp 'split-path)
     (defun split-path (path)
       "Explode a search path into a list of strings.
 The path components are separated with the characters specified
 with `path-separator'."
       (split-string path (regexp-quote path-separator))))
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Window systems
-;;;
-
-;; A useful function of GNU Emacs: support it in XEmacs if not already there
-;; NOTE!  Unfortunately this is present in some XEmacs versions but
-;; returns the wrong value (e.g. nil on a graphic display).
-; (or (fboundp 'display-graphic-p)
-;     (defun display-graphic-p ()
-;       "Return non-nil if DISPLAY is a graphic display.
-; Graphical displays are those which are capable of displaying several
-; frames and several different fonts at once.  This is true for displays
-; that use a window system such as X, and false for text-only terminals."
-;       (not (memq (console-type) '(tty stream dead)))))
-
-;; Let's define our own version based on window-system.  
-;; Even though this is deprecated on XEmacs, it seems more likely
-;; that things will go wrong on badly ported Emacs than users
-;; using multiple devices, some of which are ttys...
-(defun pg-window-system ()
-  "Return non-nil if we're on a window system.  Simply use `window-system'."
-  (and window-system t))
-
-;; The next constant is used in proof-config for defface calls.
-;; Unfortunately defface uses window-system, which Emacs porters like
-;; to invent new symbols for each time, which is a pain.
-;; This list has the ones I know about so far.  
-
-(defconst pg-defface-window-systems 
-  '(x            ;; bog standard
-    mswindows    ;; Windows
-    gtk          ;; gtk emacs (obsolete?)
-    mac          ;; used by Aquamacs
-    carbon       ;; used by Carbon XEmacs
-    ns           ;; NeXTstep Emacs (Emacs.app)
-    x-toolkit)   ;; possible catch all (but probably not)
-  "A list of possible values for `window-system'.
-If you are on a window system and your value of `window-system' is
-not listed here, you may not get the correct syntax colouring behaviour.")
-
 
 
 
@@ -161,7 +110,8 @@ Unless optional argument INPLACE is non-nil, return a new string."
 
 ;; Required by xmltok.el [not used at present], proof-shell.el
 (or (fboundp 'replace-regexp-in-string)
-;; Code is taken from Emacs 21.1.1/subr.el 
+
+;; Code is taken from Emacs 21.1.1/subr.el. Now in XEmacs (21.5b28, at least)
 (defun replace-regexp-in-string (regexp rep string &optional
 					fixedcase literal subexp start)
   "Replace all matches for REGEXP with REP in STRING.
@@ -224,7 +174,7 @@ and replace a sub-expression, e.g.
 ;; :visible keyword.  To use that when it's available, we set a
 ;; constant to be :visible or :active
 
-(defconst menuvisiblep (if proof-running-on-Emacs21 :visible :active)
+(defconst menuvisiblep (if (featurep 'xemacs) :active :visible)
   ":visible (on GNU Emacs) or :active (otherwise). 
 The GNU Emacs implementation of easy-menu-define has a very handy
 :visible keyword.  To use that when it's available, we use this constant.")
@@ -294,7 +244,7 @@ The value returned is the value of the last form in BODY."
 ;; dynamic-completion-mode after loading it.
 (or (fboundp 'complete)
     (autoload 'complete "completion"))
-(unless proof-running-on-XEmacs
+(unless (featurep 'xemacs)
   (eval-after-load "completion"
     '(dynamic-completion-mode)))
 
@@ -317,64 +267,11 @@ The value returned is the value of the last form in BODY."
   "Dummy function for Proof General on GNU Emacs."
   (force-mode-line-update)))
 
-;; Interactive flag
-(or (fboundp 'noninteractive)
-    (defun noninteractive ()
-      "Dummy function for Proof General on GNU Emacs."
-      noninteractive))
-
-;; Replacing in string (useful function from subr.el in XEmacs 21.1.9)
+;; Replace in string: XEmacs original now in GNU Emacs as replace-regexp-in-string
 (or (fboundp 'replace-in-string)
-    (if (fboundp 'replace-regexp-in-string)
-      (defun replace-in-string (str regexp newtext &optional literal)
-        (replace-regexp-in-string regexp newtext str 'fixedcase literal))
-(defun replace-in-string (str regexp newtext &optional literal)
-  "Replace all matches in STR for REGEXP with NEWTEXT string,
- and returns the new string.
-Optional LITERAL non-nil means do a literal replacement.
-Otherwise treat \\ in NEWTEXT string as special:
-  \\& means substitute original matched text,
-  \\N means substitute match for \(...\) number N,
-  \\\\ means insert one \\."
-  ;; Not present in GNU
-  ;; (check-argument-type 'stringp str)
-  ;; (check-argument-type 'stringp newtext)
-  (let ((rtn-str "")
-	(start 0)
-	(special)
-	match prev-start)
-    (while (setq match (string-match regexp str start))
-      (setq prev-start start
-	    start (match-end 0)
-	    rtn-str
-	    (concat
-	      rtn-str
-	      (substring str prev-start match)
-	      (cond (literal newtext)
-		    (t (mapconcat
-			(lambda (c)
-			  (if special
-			      (progn
-				(setq special nil)
-				(cond ((eq c ?\\) "\\")
-				      ((eq c ?&)
-				       (substring str
-						  (match-beginning 0)
-						  (match-end 0)))
-				      ((and (>= c ?0) (<= c ?9))
-				       (if (> c (+ ?0 (length
-						       (match-data))))
-					   ;; Invalid match num
-					   (error "Invalid match num: %c" c)
-					 (setq c (- c ?0))
-					 (substring str
-						    (match-beginning c)
-						    (match-end c))))
-				      (t (char-to-string c))))
-			    (if (eq c ?\\) (progn (setq special t) nil)
-			      (char-to-string c))))
-			 newtext ""))))))
-    (concat rtn-str (substring str start))))))
+    (defun replace-in-string (str regexp newtext &optional literal)
+      (replace-regexp-in-string regexp newtext str 'fixedcase literal)))
+
 
 ;; An implemenation of buffer-syntactic-context for GNU Emacs
 (defun proof-buffer-syntactic-context-emulate (&optional buffer)
@@ -540,11 +437,11 @@ The value returned is the value of the last form in BODY."
 ;;; Attempt to harmonise pop-to-buffer behaviour 
 ;;;
 
-(if proof-running-on-Emacs21
+(or (featurep 'xemacs)
     ;; NB: GNU Emacs version has fewer args
     (defalias 'pg-pop-to-buffer 'pop-to-buffer))
 
-(if proof-running-on-XEmacs
+(if (featurep 'xemacs)
 ;; Version from XEmacs 21.4.12, with args to match GNU Emacs
 ;; NB: GNU Emacs version has fewer args, we don't use ON-FRAME
 (defun pg-pop-to-buffer (bufname &optional not-this-window-p no-record on-frame)
@@ -585,7 +482,7 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
       ;; select-window will modify the internal keyboard focus of XEmacs
       (select-window window))
     buf))
-);;; End XEmacs only
+)
 
   
 
@@ -630,7 +527,7 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 ;; PG 3.5.1: add hack in proof-compat.el to deal with this
 (if
     (and
-     proof-running-on-Emacs21
+     (not (featurep 'xemacs))
      (or
       (string-equal emacs-version "21.2.1")
       (string-equal emacs-version "21.1.0")))
@@ -653,23 +550,23 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 ;; in this function.  In XEmacs post 21.5 one can set names of buffers
 ;; to omit just from tabs list.
 
-(if proof-running-on-XEmacs
+(if (featurep 'xemacs)
     (progn
 
-(fset 'select-buffers-tab-buffers-by-mode-old 
-      (symbol-function 'select-buffers-tab-buffers-by-mode))
+      (fset 'select-buffers-tab-buffers-by-mode-old 
+	    (symbol-function 'select-buffers-tab-buffers-by-mode))
 
-(defun select-buffers-tab-buffers-by-mode (buf1 buf2)
-      (let* ((mode1 (symbol-value-in-buffer 'major-mode buf1)) ;; candidate buf
-	     (mode2 (symbol-value-in-buffer 'major-mode buf2)) ;; displayed buf
-	     (auxes '(proof-goals-mode proof-shell-mode proof-response-mode))
-	     (mode1aux (memq (get mode1 'derived-mode-parent) auxes))
-	     (mode2aux (memq (get mode2 'derived-mode-parent) auxes)))
-	(cond
-	 (mode1aux	mode2aux)
-	 (mode2aux	nil)
-	 (t             (select-buffers-tab-buffers-by-mode-old buf1 buf2)))))
-)) ;; end running-on-XEmacs
+      (defun select-buffers-tab-buffers-by-mode (buf1 buf2)
+	(let* ((mode1 (symbol-value-in-buffer 'major-mode buf1)) ;; candidate buf
+	       (mode2 (symbol-value-in-buffer 'major-mode buf2)) ;; displayed buf
+	       (auxes '(proof-goals-mode proof-shell-mode proof-response-mode))
+	       (mode1aux (memq (get mode1 'derived-mode-parent) auxes))
+	       (mode2aux (memq (get mode2 'derived-mode-parent) auxes)))
+	  (cond
+	   (mode1aux	mode2aux)
+	   (mode2aux	nil)
+	   (t             (select-buffers-tab-buffers-by-mode-old buf1 buf2)))))
+      )) ;; end XEmacs featurep
       
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -677,10 +574,10 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 ;; Workaround GNU Emacs problems in easymenu-add
 ;;
 
-(if proof-running-on-Emacs21
-     ;; This has a nasty side effect of removing accelerators
-     ;; from existing menus when easy-menu-add is called.
-     ;; Problem confirmed in versions: 21.4.1, OK: 22.1.1
+(if (not (featurep 'xemacs))
+    ;; This has a nasty side effect of removing accelerators
+    ;; from existing menus when easy-menu-add is called.
+    ;; Problem confirmed in versions: 21.4.1, OK: 22.1.1
     (or (< emacs-major-version 22)
 	(setq easy-menu-precalculate-equivalent-keybindings nil)))
 
