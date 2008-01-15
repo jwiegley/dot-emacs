@@ -16,10 +16,10 @@
 (eval-when-compile 
   (require 'proof)				; globals
   (require 'proof-syntax)			; proof-replace-{string,regexp}
-  (require 'span)
+  (require 'span)				; spans
   (require 'cl))				; incf
 
-(eval-and-compile ; to define proof-universal-keys-only-mode-map at compile time
+(eval-and-compile ; defines proof-universal-keys-only-mode-map at compile time
   (define-derived-mode proof-universal-keys-only-mode fundamental-mode
     proof-general-name "Universal keymaps only"
     ;; Doesn't seem to supress TAB, RET
