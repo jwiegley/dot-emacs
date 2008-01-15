@@ -11,7 +11,9 @@ theory XSymbolTests imports Main begin
 (* Fri Dec 14 13:20:38 GMT 2007.
    http://proofgeneral.inf.ed.ac.uk/trac/ticket/161
    Sub/superscript output not handled properly when enabled using
-   menu. *)
+   menu.   Fix: add fontification to proof-x-symbol-decode-region,
+   fix in proof-x-symbol.el 8.10.
+*)
 
 (* response output *)
 thm wf_trancl
@@ -43,7 +45,7 @@ term "k\<^bsup>long\<^esup>"  (* k black, long is blue *)
 lemma "A ==> A" .  -- OK
 
 consts A :: bool
-lemma "A ==> A" .  -- "xsymbols shuld be displayed!"
+lemma "A ==> A" .  -- "xsymbols should be displayed!"
 
 
 (* Test electric token input: writing a token 
@@ -89,6 +91,8 @@ consts
 consts
  intof :: "nat \<Rightarrow> int"  ("_\<^sub>\<int>" 50)
  mynat :: nat ("\<gamma>")
+
+term "intof 3"
 
 constdefs
  myint :: int
