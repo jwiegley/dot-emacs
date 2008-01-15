@@ -1,9 +1,0 @@
--*- outline -*-
-
-* Summary of Changes since pg 3.6
-
-** Adapted error highlighting to x-symbol
-
-** Response windows shrinking to fit in three window mode
-
-** Outline mode cleaner
