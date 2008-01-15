@@ -4,9 +4,9 @@ Compatibility of Proof General
 This version of Proof General has been tested with these Emacs versions
 on Linux:
 
- Emacs 22.1.1		 -- recommended
- XEmacs 21.4.XX		 -- stable, but not recently tested
- XEmacs 21.5 (beta28)    -- tested, has patches for several XEmacs bugs
+ Emacs 22.1.1	       -- recommended
+ XEmacs 21.4.XX	       -- stable, but not recently tested
+ XEmacs 21.5 (beta28)  -- tested, PG has workarounds for several bugs
 
 and prover versions:
 
@@ -19,7 +19,6 @@ versions and operating systems is a big challenge!  Please visit this
 wiki page to check on others experience and report your own:
 
  http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsCompatibility  
-
 
 Backward compatibility and version-specific Emacs patches makes the
 code into a bad mess.  Some compatibility has been removed here,

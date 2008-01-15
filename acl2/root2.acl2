@@ -1,4 +1,5 @@
-(* Example proof by Ruben Gamboa.  See http://www.cs.kun.nl/~freek/comparison/ *)
+(* Example proof by Ruben Gamboa.  
+   See http://www.cs.kun.nl/~freek/comparison/ *)
 
 
 (in-package "ACL2")

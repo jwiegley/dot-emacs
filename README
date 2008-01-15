@@ -8,7 +8,6 @@ The aim of the Proof General project is to provide a powerful, generic
 environment for using interactive proof assistants.
 
 See
-
     INSTALL	   for installation details.
     COPYING	   for license details.
     COMPATIBILITY  for version compatibility information.
@@ -53,4 +52,4 @@ For the latest news and downloads, visit Proof General on the web
 at: http://proofgeneral.inf.ed.ac.uk
 
 David Aspinall <da+pg-feedback@inf.ed.ac.uk>
-June 2007.
+January 2008.
