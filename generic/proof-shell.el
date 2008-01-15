@@ -1370,9 +1370,7 @@ MESSAGE should be a string annotated with
 	 (substring stripped 0 (or (string-match "\n" stripped)
 				   (min (length stripped) 75))))
 	(pg-response-display-with-face 
-	 (if pg-use-specials-for-fontify
-	     message
-	   stripped)
+	 (proof-shell-strip-eager-annotations message)
 	 'proof-eager-annotation-face)))))
 
 (defun proof-shell-strip-eager-annotations (string)
