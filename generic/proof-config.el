@@ -1818,11 +1818,16 @@ If nil, just use the rest of the output following proof-shell-start-goals-regexp
 
 (defcustom proof-shell-eager-annotation-start nil
   "Eager annotation field start.  A regular expression or nil.
-An eager annotation indicates to Proof General that some following output
+An \"eager annotation indicates\" to Proof General that some following output
 should be displayed (or processed) immediately and not accumulated for
-parsing later.
+parsing later.  Note that this affects processing of output which is
+ordinarily accumulated: output which appears before the eager annotation 
+start will be discarded.
 
-It is nice to recognize (starts of) warnings or file-reading messages
+The start/end annotations can be used to hilight the output, but
+are stripped from display of the message in the minibuffer.
+
+It is useful to recognize (starts of) warnings or file-reading messages
 with this regexp.  You must also recognize any special messages
 from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp',
 `proof-shell-retract-files-regexp', etc.)

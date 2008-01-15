@@ -207,14 +207,10 @@ This is a subroutine of proof-x-symbol-enable."
 (defun proof-x-symbol-mode-associated-buffers ()
   "Activate/deactivate x-symbols in all Proof General associated buffers.
 A subroutine of proof-x-symbol-enable."
-  ;; Response and goals buffer are fontified/decoded 
-  ;; manually in the code, configuration only sets
-  ;; x-symbol-language.
   (proof-map-buffers (list proof-goals-buffer 
 			   proof-response-buffer
 			   proof-trace-buffer)
    (proof-x-symbol-config-output-buffer))
-  ;; Shell has its own configuration
   (proof-with-current-buffer-if-exists proof-shell-buffer
    (proof-x-symbol-shell-config)))
 
@@ -264,8 +260,7 @@ Assumes that the current buffer is the proof shell buffer."
   ;; NB: after changing X-Symbols in output it would be nice to
   ;; refresh display, but there's no robust way of doing that yet
   ;; (see proof-x-symbol-refresh-output-buffers above)
-  ;; [ Actually, we could ask that the activate/decativate command
-  ;;   itself does this ]
+  ;; [ The activate/decativate prover command itself could do it ]
   ;;
   (if proof-x-symbol-initialized
       (progn
@@ -320,9 +315,9 @@ Assumes that the current buffer is the proof shell buffer."
 	      (set-buffer-modified-p modified))))
 	;; END code from x-symbol.el/x-symbol-mode-internal
 
-	;; If we're turning on x-symbol, attempt to convert to 
-	;; characters.  (Only works if the buffer already
-	;; contains tokens!)
+	;; If we're turning on x-symbol, attempt to convert to
+	;; characters.  (Only works if the buffer already contains
+	;; tokens!)  This breaks manual fontification, too.
 	(x-symbol-decode))))
   ;; Encoding back to tokens doesn't work too well: needs to 
   ;; do some de-fontification to remove font properties, and
