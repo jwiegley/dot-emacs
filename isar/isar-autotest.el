@@ -7,7 +7,7 @@
 
 (require 'pg-autotest)
 
-(unless (noninteractive)
+(unless noninteractive
 
   ;; The included test files
   (pg-autotest message "Testing standard Example.thy, Example-Xsym.thy")
