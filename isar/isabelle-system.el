@@ -14,10 +14,12 @@
 ;;; Code:
 (eval-when-compile
   (require 'proof-site)			; compile for isar (defpgdefault, etc)
+  (require 'span)
   (proof-ready-for-assistant 'isar))
 
 (require 'proof)			; for proof-assistant-symbol, etc.
 (require 'proof-syntax)			; for proof-string-match
+(require 'cl)				; mapcan
 
 
 ;; The isabelle custom group won't have been defined yet.
@@ -140,6 +142,37 @@ ISABELLE will always override this setting."
 (defvar isabelle-prog-name isabelle-program-name
   "Set from `isabelle-program-name', has name of logic appended sometimes.")
 
+(defun isa-tool-list-logics ()
+  "Generate a list of available object logics."
+  (if (isa-set-isatool-command)
+      (delete "" (split-string
+		  (isa-shell-command-to-string
+		   (concat isa-isatool-command " findlogics")) "[ \t]"))))
+
+(defcustom isabelle-logics-available nil
+  "*List of logics available to use with Isabelle.
+If the `isatool' program is available, this is automatically
+generated with the Lisp form `(isa-tool-list-logics)'."
+  :type (list 'string)
+  :group 'isabelle)
+
+(unless noninteractive
+  (setq isabelle-logics-available (isa-tool-list-logics)))
+
+;; FIXME: document this one
+(defcustom isabelle-chosen-logic nil
+  "*Choice of logic to use with Isabelle.
+If non-nil, will be added into isabelle-prog-name as default value.
+
+NB: you have saved a new logic image, it may not appear in the choices
+until Proof General is restarted."
+  :type (append
+	 (list 'choice)
+	 (mapcar (lambda (str) (list 'const str)) isabelle-logics-available)
+	 (list '(string :tag "Choose another")
+	       '(const :tag "Unset (use default)" nil)))
+  :group 'isabelle)
+
 (defun isabelle-command-line ()
   "Make proper command line for running Isabelle."
   (let*
@@ -163,7 +196,6 @@ ISABELLE will always override this setting."
 		     (concat " " logic) "")))
     (concat isabelle opts logicarg)))
 
-
 (defun isabelle-choose-logic (logic)
   "Adjust isabelle-prog-name and proof-prog-name for running LOGIC."
   (interactive
@@ -185,13 +217,6 @@ ISABELLE will always override this setting."
   ;; FIXME: Isar keywords change not handled yet.
   (setq proof-assistant-settings nil)
   (setq proof-menu-settings nil))
-
-(defun isa-tool-list-logics ()
-  "Generate a list of available object logics."
-  (if (isa-set-isatool-command)
-      (delete "" (split-string
-		  (isa-shell-command-to-string
-		   (concat isa-isatool-command " findlogics")) "[ \t]"))))
 
 (defun isa-view-doc (docname)
   "View Isabelle document DOCNAME, using Isabelle tools."
@@ -246,28 +271,7 @@ for you, you should disable this behaviour."
   :type 'boolean
   :group 'isabelle)
 
-(defcustom isabelle-logics-available (isa-tool-list-logics)
-  "*List of logics available to use with Isabelle.
-If the `isatool' program is available, this is automatically
-generated with the Lisp form `(isa-tool-list-logics)'."
-  :type (list 'string)
-  :group 'isabelle)
-
-;; FIXME: document this one
-(defcustom isabelle-chosen-logic nil
-  "*Choice of logic to use with Isabelle.
-If non-nil, will be added into isabelle-prog-name as default value.
-
-NB: you have saved a new logic image, it may not appear in the choices
-until Proof General is restarted."
-  :type (append
-	 (list 'choice)
-	 (mapcar (lambda (str) (list 'const str)) isabelle-logics-available)
-	 (list '(string :tag "Choose another")
-	       '(const :tag "Unset (use default)" nil)))
-  :group 'isabelle)
-
-(defconst isabelle-docs-menu
+(defvar isabelle-docs-menu 
   (let ((vc '(lambda (docdes)
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
@@ -275,8 +279,9 @@ until Proof General is restarted."
   "Isabelle documentation menu.  Constructed when PG is loaded.")
 
 
-;; PG 3.5: logics menu is now refreshed automatically.  Rather
-;; a big effort for such a small effect.
+(defvar isabelle-logics-menu-entries nil
+  "Menu of logics available.")
+
 (defun isabelle-logics-menu-calculate ()
   (setq isabelle-logics-menu-entries
 	(cons "Logics"
@@ -287,14 +292,18 @@ until Proof General is restarted."
 		  :style radio
 		  :selected (not isabelle-chosen-logic)])
 	       (mapcar (lambda (l)
-		   (vector l (list 'isabelle-choose-logic l)
-			   :active '(not (proof-shell-live-buffer))
-			   :style 'radio
-			   :selected (list 'equal 'isabelle-chosen-logic l)))
+			 (vector l (list 'isabelle-choose-logic l)
+				 :active '(not (proof-shell-live-buffer))
+				 :style 'radio
+				 :selected (list 'equal 'isabelle-chosen-logic l)))
 		       isabelle-logics-available)))))
+
+(unless noninteractive
+  (isabelle-logics-menu-calculate))
 
 (defvar isabelle-time-to-refresh-logics t
   "Non-nil if we should refresh the logics list.")
+
 
 (defun isabelle-logics-menu-refresh ()
   "Refresh isabelle-logics-menu-entries, returning new entries."
@@ -329,8 +338,6 @@ until Proof General is restarted."
 (if (not (featurep 'xemacs))
     (add-hook 'menu-bar-update-hook 'isabelle-menu-bar-update-logics))
 
-
-(defvar isabelle-logics-menu-entries (isabelle-logics-menu-calculate))
 
 (defvar isabelle-logics-menu
    (if (featurep 'xemacs)

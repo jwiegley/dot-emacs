@@ -9,6 +9,9 @@
 ;;
 ;; This file is part of the Proof General distribution.
 
+(eval-when-compile
+  (require 'cl))			; to properly compile 'block'
+
 (defvar x-symbol-isar-required-fonts nil)
 
 ;;;===========================================================================
