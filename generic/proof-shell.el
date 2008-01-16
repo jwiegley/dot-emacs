@@ -13,9 +13,9 @@
   (require 'span)
   (require 'comint)
   (require 'font-lock)
-  (require 'proof-autoloads)
   (require 'proof-utils))
 
+(require 'proof-autoloads)
 (require 'pg-response)
 (require 'pg-goals)
 (require 'proof-script)
@@ -1346,7 +1346,7 @@ MESSAGE should be a string annotated with
      ;; CASE theorem dependency: prover lists thms used in last proof
      ((and proof-shell-theorem-dependency-list-regexp 
 	   (string-match proof-shell-theorem-dependency-list-regexp message))
-      (let ((names   (match- string 1 message))
+      (let ((names   (match-string 1 message))
 	    (deps    (match-string 2 message)))
 	(setq proof-last-theorem-dependencies 
 	      (cons 
@@ -1390,9 +1390,7 @@ MESSAGE should be a string annotated with
   "Issue MSG as a prompt and receive user input."
   (let ((input
 	 (ignore-errors
-	   (read-input 
-	    msg 
-	    nil 
+	   (read-string msg nil 
 	    'proof-shell-minibuffer-urgent-interactive-input-history))))
     ;; Always send something, even if read-input was errorful
     (proof-shell-insert (or input "") 'interactive-input)))
@@ -1765,7 +1763,7 @@ Annotations are characters 128-255."
       (while (< i 256)
 	(aset disp i [])
 	(incf i))
-      (cond ((fboundp 'add-spec-to-specifier)
+      (cond ((featurep 'xemacs)
 	     (add-spec-to-specifier current-display-table disp (current-buffer)))
 	    ((boundp 'buffer-display-table)
 	     (setq buffer-display-table disp))))))
@@ -1777,7 +1775,8 @@ in the shell buffer.  Use proof-shell-dont-show-annotations to turn
 them off again.
 XEmacs only."
   (interactive)
-  (remove-specifier current-display-table (current-buffer)))
+  (if (featurep 'xemacs)
+      (remove-specifier current-display-table (current-buffer))))
 
 
 
@@ -1904,6 +1903,7 @@ usual, unless NOERROR is non-nil."
     (setq proof-shell-no-response-display nil))
   proof-shell-last-output)
 
+;;;###autoload
 (defun proof-shell-invisible-command-invisible-result (cmd &optional noerror)
   "Execute CMD, wait for but do not display result."
   ;; Just same as previous function, except we discard result

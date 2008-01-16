@@ -43,7 +43,14 @@
 ;; =================================================================
 
 (eval-when-compile
-  (require 'proof-utils))	 ; proof-ass
+  (add-to-list 'load-path "../x-symbol/lisp")
+  (require 'x-symbol-hooks)		; <reduce compiler warnings>
+  (require 'x-symbol-autoloads)		; <reduce compiler warnings>
+  (require 'proof-utils))		; proof-ass
+
+(require 'proof-config)			; variables 
+(require 'proof-autoloads)		; 
+
 
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
