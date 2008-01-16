@@ -10,10 +10,10 @@
 ;;
 
 (eval-and-compile
-  (cond ((string-match "XEmacs" emacs-version)  
-	 (require 'span-extent))
- 	(t 
-	 (require 'span-overlay))))
+  (if (featurep 'xemacs)
+      (require 'span-extent))
+  (if (not (featurep 'xemacs))
+      (require 'span-overlay)))
 
 ;;
 ;; Generic functions built on low-level concrete ones.
