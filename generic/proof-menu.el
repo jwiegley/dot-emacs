@@ -7,9 +7,11 @@
 ;; $Id$
 ;;
 
-(require 'pg-user)         ; user commands used here
-(require 'proof-utils)     ; proof-deftoggle, proof-eval-when-ready-for-assistant
-(require 'proof-autoloads) ; 
+(eval-when-compile
+  (defvar proof-mode-map nil)
+  (defvar proof-assistant-menu nil))	; avoid compile warnings
+
+(require 'proof)           ; proof-deftoggle, proof-eval-when-ready-for-assistant
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -148,6 +150,9 @@ without adjusting window layout."
    (proof-main-menu)))
 
 ;; The proof assistant specific menu
+
+(defvar proof-menu-favourites nil
+  "The Proof General favourites menu for the current proof assistant.")
 
 ;;;###autoload
 (defun proof-menu-define-specific ()
@@ -527,9 +532,6 @@ without adjusting window layout."
 ;;; Favourites mechanism for prover-specific menu
 ;;;
 
-(defvar proof-menu-favourites nil
-  "The Proof General favourites menu for the current proof assistant.")
-
 (defun proof-menu-define-favourites-menu ()
   "Return menu generated from `PA-favourites'."
   (let ((favs (reverse (proof-ass favourites))) ents)
@@ -652,13 +654,6 @@ KEY is the optional key binding."
 ;;;
 ;;; Proof assistant settings mechanism.
 ;;;
-
-(defvar proof-assistant-settings nil
- "A list of default values kept in Proof General for current proof assistant.
-A list of lists (SYMBOL SETTING TYPE) where SETTING is a string value
-to send to the proof assistant using the value of SYMBOL and 
-and the function `proof-assistant-format'.  The TYPE item determines
-the form of the menu entry for the setting.")
 
 (defvar proof-menu-settings nil
   "Settings submenu for Proof General.")
@@ -875,6 +870,23 @@ NB: if no settings are configured, this has no effect."
 	(apply 'concat (mapcar evalifneeded 
 			       proof-assistant-settings)))))
 
+(defvar proof-assistant-format-table 
+  (list
+   (cons "%b" '(proof-assistant-format-bool curvalue))
+   (cons "%i" '(proof-assistant-format-int curvalue))
+   (cons "%s" '(proof-assistant-format-string curvalue)))
+  "Table to use with `proof-format' for formatting CURVALUE for assistant.
+NB: variable curvalue is dynamically scoped (used in proof-assistant-format).")
+
+(defun proof-assistant-format-bool (value)
+  (if value proof-assistant-true-value proof-assistant-false-value))
+
+(defun proof-assistant-format-int (value)
+  (funcall proof-assistant-format-int-fn value))
+
+(defun proof-assistant-format-string (value)
+  (funcall proof-assistant-format-string-fn value))
+
 (defun proof-assistant-format (string curvalue)
   "Replace a format characters %b %i %s in STRING by formatted CURVALUE.
 Formatting suitable for current proof assistant, controlled by
@@ -899,22 +911,6 @@ value) and the second for false."
 	(funcall proof-assistant-setting-format setting)
       setting)))
 
-(defvar proof-assistant-format-table 
-  (list
-   (cons "%b" '(proof-assistant-format-bool curvalue))
-   (cons "%i" '(proof-assistant-format-int curvalue))
-   (cons "%s" '(proof-assistant-format-string curvalue)))
-  "Table to use with `proof-format' for formatting CURVALUE for assistant.
-NB: variable curvalue is dynamically scoped (used in proof-assistant-format).")
-
-(defun proof-assistant-format-bool (value)
-  (if value proof-assistant-true-value proof-assistant-false-value))
-
-(defun proof-assistant-format-int (value)
-  (funcall proof-assistant-format-int-fn value))
-
-(defun proof-assistant-format-string (value)
-  (funcall proof-assistant-format-string-fn value))
 
 
 

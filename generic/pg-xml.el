@@ -9,6 +9,9 @@
 ;; XML functions for Proof General.
 ;;
 
+(eval-when-compile
+  (require 'xml-fixed))			; for compile only
+
 (require 'proof-utils) ;; for pg-internal-warning
 
 (cond
@@ -18,6 +21,10 @@
  (t					;; Otherwise use GNU Emacs distrib version.
   (require 'xml)))
 
+(defalias 'pg-xml-error 'error)
+
+
+;;
 ;; Elisp format of XML trees (see xml.el)
 ;;
 ;;    xml-list   ::= (node node ...)
@@ -44,7 +51,7 @@
     (save-excursion
       (set-buffer tempbuffer)
       (delete-region (point-min) (point-max))
-      (insert-string arg)
+      (insert arg)
       (pg-xml-parse-buffer (current-buffer) 'nomessage))))
 
 
@@ -75,7 +82,7 @@ Parsing according to `xml-parse-file' of xml.el."
     (or val
 	(if optional
 	    defaultval
-	  (pg-pgip-error "pg-xml-get-attr: Didn't find required %s attribute in %s element"
+	  (pg-xml-error "pg-xml-get-attr: Didn't find required %s attribute in %s element"
 		 attribute (xml-node-name node))))))
 
 (defun pg-xml-child-elts (node)
@@ -123,9 +130,9 @@ Parsing according to `xml-parse-file' of xml.el."
 
 (defun pg-xml-string-of (xmls)
   "Convert the XML trees in XMLS into a string (without additional indentation)."
-  (let ((insertfn    (lambda (&rest args)
-		       (setq strs (cons (reduce 'concat args) strs))))
-	strs)
+  (let* (strs
+	 (insertfn    (lambda (&rest args)
+			(setq strs (cons (reduce 'concat args) strs)))))
     (dolist (xml xmls)
       (pg-xml-output-internal xml nil insertfn))
     (reduce 'concat (reverse strs))))

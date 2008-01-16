@@ -19,6 +19,7 @@
 ;;
 
 (eval-when-compile
+  (require 'maths-menu)	  ; dynamically loaded at runtime
   (require 'proof-utils)) ; proof-ass, proof-eval-when-ready-for-assistant
 
 

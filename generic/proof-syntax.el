@@ -9,8 +9,10 @@
 ;;
 
 (require 'font-lock)
+(require 'proof-config)			; proof-case-fold-search
+(require 'proof-compat)			; proof-buffer-syntactic-context
 
-;; FIXME da: would regexp-opt be better here?  Or maybe
+;; TODO da: would regexp-opt be better here?  Or maybe
 ;;  (concat "\\<" (regexp-opt l) "\\>")
 (defun proof-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching any element"
@@ -280,6 +282,7 @@ Any other %-prefixed character inserts itself."
     (if acc (insert acc))
     (if pos (goto-char pos))))
 
+;;;###autoload
 (defun proof-splice-separator (sep strings)
   "Splice SEP into list of STRINGS."
   (let (stringsep)

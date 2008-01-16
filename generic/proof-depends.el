@@ -12,7 +12,11 @@
 ;; within proofs.  Code rewritten by David Aspinall.
 ;; 
 
+(require 'cl)
 (require 'span)
+(require 'pg-vars)
+(require 'proof-config)
+(require 'proof-autoloads)
 
 ;; Variables
 
@@ -71,7 +75,7 @@ This is done using `proof-depends-module-name-for-buffer' and
 (defun proof-depends-process-dependencies (name gspan)
   "Process dependencies reported by prover, for NAME in span GSPAN.
 Called from `proof-done-advancing' when a save is processed and
-proof-last-theorem-dependencies is set."
+`proof-last-theorem-dependencies' is set."
 
   (span-set-property gspan 'dependencies
 		     ;; Ancestors of NAME are in the second component.

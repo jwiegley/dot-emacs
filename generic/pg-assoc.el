@@ -34,6 +34,7 @@
 ;; Return a list of associated buffers
 ;;
 
+;;;###autoload
 (defun proof-associated-buffers ()
   "Return a list of the associated buffers.  
 Some may be dead/nil."
@@ -43,6 +44,7 @@ Some may be dead/nil."
 	proof-thms-buffer))
 
 
+;;;###autoload
 (defun proof-associated-windows ()
   "Return a list of the associated buffers windows.  
 Dead or nil buffers are not represented in the list."

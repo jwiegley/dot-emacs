@@ -11,14 +11,10 @@
 
 ;;; Code:
 
-(eval-when-compile 
-  (require 'proof-utils))		; for macros
-
 (require 'cl)				; various
-(require 'proof)			; loader
-(require 'proof-syntax)		        ; utils for manipulating syntax
 (require 'span)				; abstraction of overlays/extents
-(require 'pg-user)			; user-level commands
+(require 'proof)			; loader (& proof-utils macros)
+(require 'proof-syntax)		        ; utils for manipulating syntax
 (require 'proof-menu)			; menus for script mode
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -29,17 +25,6 @@
 ;;
 
 ;; Scripting variables
-
-(defvar proof-last-theorem-dependencies nil
-  "Contains the dependencies of the last theorem.  A list of strings.
-Set in `proof-shell-process-urgent-message'.")
-
-(defvar proof-nesting-depth 0
-  "Current depth of a nested proof.
-Zero means outside a proof, 1 means inside a top-level proof, etc.
-
-This variable is maintained in proof-done-advancing; it is zeroed
-in proof-shell-clear-state.")
 
 (defvar proof-element-counters nil
   "Table of (name .  count) pairs, counting elements in scripting buffer.")
@@ -349,6 +334,7 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 ;; Buffer position functions
 ;;
 
+;;;###autoload
 (defun proof-unprocessed-begin ()
   "Return end of locked region in current buffer or (point-min) otherwise.
 The position is actually one beyond the last locked character."
@@ -380,6 +366,7 @@ when a queue of commands is being processed."
 ;; FIXME: get rid of/rework this function.  Some places expect this to
 ;; return nil if locked region is empty. Moreover, it confusingly
 ;; returns the point past the end of the locked region.
+;;;###autoload
 (defun proof-locked-end ()
   "Return end of the locked region of the current buffer.
 Only call this from a scripting buffer."
@@ -396,6 +383,7 @@ Only call this from a scripting buffer."
 ;; (as processed files) too.
 ;;
 
+;;;###autoload
 (defun proof-locked-region-full-p ()
   "Non-nil if the locked region covers all the buffer's non-whitespace.
 Works on any buffer."
@@ -404,6 +392,7 @@ Works on any buffer."
     (skip-chars-backward " \t\n")
     (>= (proof-unprocessed-begin) (point))))
 
+;;;###autoload
 (defun proof-locked-region-empty-p ()
   "Non-nil if the locked region is empty.  Works on any buffer."
   (eq (proof-unprocessed-begin) (point-min)))
@@ -681,6 +670,19 @@ NAME does not need to be unique."
      ((eq type 'proverproc)
 		           "Prover-processed"))))
 
+(defvar pg-span-context-menu-keymap
+    (let ((map (make-sparse-keymap
+		"Keymap for context-sensitive menus on spans")))
+      (cond
+       ((featurep 'xemacs)
+	(define-key map [button3] 'pg-span-context-menu))
+       ((not (featurep 'xemacs))
+	(define-key map [down-mouse-3] 'pg-span-context-menu)))
+      map)
+    "Keymap for the span context menu.")
+
+
+;;;###autoload
 (defun pg-set-span-helphighlights (span &optional nohighlight)
   "Set the help echo message, default highlight, and keymap for SPAN."
   (let ((helpmsg (concat (pg-span-name span) ""))) ;;   " region"
@@ -694,7 +696,10 @@ NAME does not need to be unique."
 	   " ("
 	   (if (span-property span 'idiom)
 	       "with point in region, \\[pg-toggle-visibility] to show/hide; ")
-	   "\\[popup-mode-menu] for menu)"))))
+	   (if (featurep 'xemacs)
+	       "\\[popup-mode-menu]"
+	     "\\<pg-span-context-menu-keymap>\\[pg-span-context-menu]")
+	     " for menu)"))))
     (span-set-property span 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
       (span-set-property span 'mouse-face 'proof-mouse-highlight-face))))
@@ -1896,6 +1901,7 @@ This version is used when `proof-script-command-end-regexp' is set."
   (save-excursion
     (let*
 	((commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
+	 prev alist			; used below
 	 (add-segment-for-cmd		; local function: advances "prev"
 	  (lambda ()
 	    (let ((cmdend (point)) start)
@@ -1929,7 +1935,7 @@ This version is used when `proof-script-command-end-regexp' is set."
 				      cmdend) alist))
 	      (setq prev cmdend)
 	      (goto-char cmdend))))
-	 alist prev cmdfnd startpos tmp)
+	  cmdfnd startpos tmp)
       (goto-char (proof-queue-or-locked-end))
       (setq prev (point))
       (skip-chars-forward " \t\n")
@@ -2761,10 +2767,7 @@ finish setup which depends on specific proof assistant configuration."
 	  (vconcat [(control c)] (vector proof-terminal-char))
 	  'proof-electric-terminator-toggle)
 	(define-key proof-mode-map (vector proof-terminal-char)
-	  'proof-electric-terminator)))
-  ;; It's ugly, but every script buffer has a local copy changed in
-  ;; sync by the fn proof-electric-terminator-enable
-  (setq proof-electric-terminator proof-electric-terminator-enable)
+	  'proof-electric-terminator-toggle)))
 
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'proof-indent-line)

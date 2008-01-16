@@ -306,6 +306,7 @@ Returns non-nil if response buffer was cleared."
   
 ;; TODO: this function should be combined with
 ;; pg-response-maybe-erase-buffer.
+;;;###autoload
 (defun pg-response-display-with-face (str &optional face)
   "Display STR with FACE in response buffer."
   (cond
@@ -488,7 +489,7 @@ We fontify the output only if we're not too busy to do so."
       (newline))
     ;; If tracing output is prolific, we try to avoid
     ;; fontifying every chunk and batch it up instead.
-    (unless pg-tracing-slow-mode ; defined in proof-shell.el
+    (unless pg-tracing-slow-mode
       (let ((fontifystart (proof-trace-fontify-pos)))
 	;; Catch errors here: this is to deal with ugly problem when
 	;; fontification of large output gives error Nesting too deep

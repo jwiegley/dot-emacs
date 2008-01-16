@@ -6,10 +6,12 @@
 ;;
 ;; $Id$
 ;;
-;; Future version might copy settings instead; consider how best to
+;; Future versions might copy settings instead; consider how best to
 ;; interface with customization mechanism so a new prover can be
 ;; configured by editing inside custom buffers.
 ;;
+
+(require 'proof-site)			; proof-assistant, proof-assistant-symbol
 
 (defconst proof-easy-config-derived-modes-table
   '((""         "script"     proof-mode (proof-config-done))
@@ -58,11 +60,11 @@
     ;; in the macro matches that in `proof-assistant-table'
     ;; and have the right type.
     (unless (symbolp sym)
-      (error "proof-easy-config: first argument (%s) should be a symbol"
+      (error "Macro proof-easy-config: first argument (%s) should be a symbol"
 	     sym))
     (unless (stringp name)
-      (error "proof-easy-config: second argument (%s) should be a string"
-	     string))
+      (error "Macro proof-easy-config: second argument (%s) should be a string"
+	     name))
     (cond
      ((or 
        (and (boundp 'proof-assistant) proof-assistant 

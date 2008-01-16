@@ -6,6 +6,11 @@
 ;; $Id$
 ;;
 
+(require 'proof-config)			; config variables
+(require 'proof-utils)			; proof-ass
+(require 'proof-syntax)			; p-looking-at-safe, p-re-search
+(require 'proof-autoloads)		; p-locked-end
+
 (defun proof-indent-indent ()
   "Determine indentation caused by syntax element at current point."
   (cond

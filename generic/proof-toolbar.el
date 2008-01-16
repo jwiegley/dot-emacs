@@ -30,6 +30,11 @@
 
 (eval-when-compile
   (require 'proof-utils))
+
+(require 'span)
+(require 'proof-config)
+(require 'proof-autoloads)
+
 ;;
 ;; Function, icon, button names
 ;; 
@@ -236,8 +241,8 @@ to the default toolbar."
 
 (defun proof-toolbar-setup-refresh ()
   "Enable the XEmacs hackery to update the toolbar."
-  (if  proof-toolbar-use-button-enablers
-      (progn
+  (if (featurep 'xemacs) ; skip compilation on GNU Emacs
+      (when  proof-toolbar-use-button-enablers 
 	;; Set the callback for updating the enablers
 	(add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
 	;; Also call it whenever text changes in this buffer,
@@ -257,10 +262,11 @@ to the default toolbar."
 
 (defun proof-toolbar-disable-refresh ()
   "Disable the XEmacs hackery to update the toolbar."
-  (remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
-  (remove-hook 'after-change-functions 'proof-toolbar-refresh)
-  (if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
-  (setq proof-toolbar-itimer nil))
+  (when (featurep 'xemacs) ; skip compilation on GNU Emacs
+    (remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
+    (remove-hook 'after-change-functions 'proof-toolbar-refresh)
+    (if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
+    (setq proof-toolbar-itimer nil)))
 
 (deflocal proof-toolbar-refresh-flag nil
   "Flag indicating that the toolbar should be refreshed.")
@@ -286,24 +292,26 @@ to the default toolbar."
   "Force refresh of toolbar display to re-evaluate enablers.
 This function needs to be called anytime that enablers may have 
 changed state."
-  (if ;; Be careful to only add to correct buffer, and if it's live
-       (buffer-live-p buf)
-      (let ((enabler-state (mapcar 'eval proof-toolbar-enablers)))
-	(if 
-	    (not (equal enabler-state proof-toolbar-enablers-last-state))
-	    (progn
-	      (setq proof-toolbar-enablers-last-state enabler-state)
-	      ;; The official way to do this should be 
-	      ;; (set-specifier-dirty-flag default-toolbar)
-	      ;; but it doesn't work, so we do what VM does instead,
-	      ;; removing and re-adding.  
-	      (remove-specifier default-toolbar buf)
-	      (set-specifier default-toolbar proof-toolbar buf)
-	      ;; We set the dirty flag as well just in case it helps...
-	      (set-specifier-dirty-flag default-toolbar)
-	      (setq proof-toolbar-refresh-flag nil))))
-    ;; Kill off this itimer if it's owning buffer has died
-    (delete-itimer current-itimer)))
+  (if (featurep 'xemacs)		; skip compilation on GNU Emacs
+      (if ;; Be careful to only add to correct buffer, and if it's live
+	  (buffer-live-p buf)
+	  (let ((enabler-state (mapcar 'eval proof-toolbar-enablers)))
+	    (if 
+		(not (equal enabler-state proof-toolbar-enablers-last-state))
+		(progn
+		  (setq proof-toolbar-enablers-last-state enabler-state)
+		  (when (featurep 'xemacs)
+		    ;; The official way to do this should be 
+		    ;; (set-specifier-dirty-flag default-toolbar)
+		    ;; but it doesn't work, so we do what VM does instead,
+		    ;; removing and re-adding.  
+		    (remove-specifier default-toolbar buf)
+		    (set-specifier default-toolbar proof-toolbar buf)
+		    ;; We set the dirty flag as well just in case it helps...
+		    (set-specifier-dirty-flag default-toolbar))
+		  (setq proof-toolbar-refresh-flag nil))))
+	;; Kill off this itimer if it's owning buffer has died
+	(delete-itimer current-itimer))))
 
 ;;
 ;; =================================================================

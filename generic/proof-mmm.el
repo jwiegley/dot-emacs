@@ -22,6 +22,7 @@
 ;; It should define an MMM submode class called <foo>.
 
 (eval-when-compile
+  (require 'mmm-auto)	  ; loaded dynamically at runtime
   (require 'proof-utils)) ; for proof-ass, proof-eval-when-ready-for-assistant
 
 (require 'proof-site)

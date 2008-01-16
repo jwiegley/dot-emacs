@@ -9,10 +9,19 @@
 ;;
 ;;; Commentary:
 ;; 
+;; This file defines some user-level commands.  Most of them
+;; are script-based operations.  Exported user-level commands
+;; are defined here as autoloads to avoid circular requires.
 
 ;;; Code:
 
-(require 'proof-utils)			; deflocal, proof-deftoggle
+(require 'span)
+(require 'proof)			; loader
+(require 'proof-script)			; we build on proof-script
+(require 'comint)			; comint-interrupt-subjob
+
+(eval-when-compile
+  (require 'completion))		; loaded dynamically at runtime
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -135,6 +144,7 @@ the proof script."
 ;; Interrupt
 ;;
 
+;;;###autoload
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General.
 This sends an interrupt signal to the proof assistant, if Proof General
@@ -225,6 +235,7 @@ handling of interrupt signals."
 ;; FIXME da: improvement would be to allow selection of part
 ;; of command by dragging, as in ordinary mouse-track-insert.
 ;; Maybe by setting some of the mouse track hooks.
+;; TODO: mouse-track-insert is XEmacs specific anyway.
 (defun proof-mouse-track-insert (event)
   "Copy highlighted command under the mouse to point.  Ignore comments.
 If there is no command under the mouse, behaves like mouse-track-insert."
@@ -251,7 +262,8 @@ If there is no command under the mouse, behaves like mouse-track-insert."
     ;; buffer, point position.
     (if str
 	(insert str proof-script-command-separator)
-      (mouse-track-insert event))))
+      (if (featurep 'xemacs)
+	  (mouse-track-insert event)))))
 
 
 
@@ -541,27 +553,22 @@ This is intended as a value for proof-activate-scripting-hook"
 
 ;; Register proof-electric-terminator as a minor mode.
 
-(deflocal proof-electric-terminator nil
-  "Fake minor mode for electric terminator.")
-
-(or (assq 'proof-electric-terminator minor-mode-alist)
+(or (assq 'proof-electric-terminator-enable minor-mode-alist)
     (setq minor-mode-alist
 	  (append minor-mode-alist
-		  (list '(proof-electric-terminator
+		  (list '(proof-electric-terminator-enable
 			  (concat " " proof-terminal-string))))))
 
-;; This is a value used by custom-set property = proof-set-value.
+;; This is a function called by custom-set property = proof-set-value.
+;;;###autoload
 (defun proof-electric-terminator-enable ()
-  "Copy proof-electric-terminator-enable to all script mode copies of it.
-Make sure the modeline is updated to display new value for electric terminator."
-  (if proof-mode-for-script
-      (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-			 (setq proof-electric-terminator
-			       proof-electric-terminator-enable)))
+  "Make sure the modeline is updated to display new value for electric terminator."
+  ;; TODO: probably even this isn't necessary
   (redraw-modeline))
 
 (proof-deftoggle proof-electric-terminator-enable proof-electric-terminator-toggle)
 
+;;;###autoload
 (defun proof-electric-term-incomment-fn ()
   "Used as argument to proof-assert-until-point."
   ;; CAREFUL: (1) dynamic scoping here  (incomment, ins, mrk)
@@ -685,7 +692,7 @@ last use time, to discourage saving these into the users database."
   (if proof-shell-last-output
       ;; There may be a system specific function to insert the comment
       (if pg-insert-output-as-comment-fn
-	  (pg-insert-output-as-comment-fn proof-shell-last-output)
+	  (funcall pg-insert-output-as-comment-fn proof-shell-last-output)
 	;; Otherwise the default behaviour is to use comment-region
 	(let  ((beg (point)) end)
 	  ;; pg-assoc-strip-subterm-markup: should be done
@@ -762,7 +769,7 @@ last use time, to discourage saving these into the users database."
 (defun pg-move-span-contents (span num)
   "Move SPAN up/downwards in the buffer, past NUM spans.
 If NUM is negative, move upwards.  Return new span."
-  ;; FIXME: maybe num arg is overkill, should only have 1?
+  ;; TODO: maybe num arg is overkill, should only have 1?
   (save-excursion
     (let  ((downflag (> num 0)) nextspan)
       ;; Always move a control span instead; it contains
@@ -777,7 +784,7 @@ If NUM is negative, move upwards.  Return new span."
       ;; When we delete the span, we want to duplicate it
       ;; to recreate in the new position.
       (span-set-property span 'duplicable 't)
-      ;; FIXME: this is faulty: moving span up gives children
+      ;; TODO: this is faulty: moving span up gives children
       ;; list with single nil element.  Hence liveness test
       (mapcar (lambda (s) (if (span-live-p s)
 			      (span-set-property s 'duplicable 't)))
@@ -792,7 +799,7 @@ If NUM is negative, move upwards.  Return new span."
 	     ;; lockedend doesn't move while in this code).
 	     (lockedend (span-end proof-locked-span)))
 	(let ((inhibit-read-only t))
-	  ;; FIXME: undo behaviour isn't quite right yet.
+	  ;; TODO: undo behaviour isn't quite right yet.
 	  (undo-boundary)
 	  (delete-region start end)
 	  (let ((insertpos (if downflag
@@ -804,21 +811,22 @@ If NUM is negative, move upwards.  Return new span."
 	    (insert contents)
 	    (let ((new-span
 		   (span-at insertpos 'type)));should be one we deleted.
-	      (span-set-property
-	       new-span 'children
-	       (append
-		(span-mapcar-spans 'pg-fixup-children-span
-			      insertpos (point) 'type)))
+	      (span-set-property new-span 'children
+				 (pg-fixup-children-spans 
+				  new-span insertpos (point)))
 	      (span-set-end proof-locked-span lockedend)
 	      (undo-boundary)
 	      new-span)))))))
 
-(defun pg-fixup-children-span (span)
-  (if (span-property span 'controlspan)
-      (progn
-	;; WARNING: dynamic binding for new-span
-	(span-set-property span 'controlspan new-span)
-	(list span))))
+(defun pg-fixup-children-spans (new-parent start end)
+  (append
+   (span-mapcar-spans 
+    (lambda (span)
+      (if (span-property span 'controlspan)
+	  (progn
+	    (span-set-property span 'controlspan new-parent)
+	    (list span))))
+    start end 'type)))
       
 (defun pg-move-region-down (&optional num)
   "Move the region under point downwards in the buffer, past NUM spans."
@@ -896,32 +904,27 @@ If NUM is negative, move upwards.  Return new span."
 ;; Span menus and keymaps  (maybe belongs in pg-menu)
 ;;
 
-(defvar pg-span-context-menu-keymap
-    (let ((map (make-sparse-keymap
-		"Keymap for context-sensitive menus on spans")))
-      (cond
-       ((featurep 'xemacs)
-	(define-key map [button3] 'pg-span-context-menu))
-       ((not (featurep 'xemacs))
-	(define-key map [down-mouse-3] 'pg-span-context-menu)))
-      map))
-
 ;; FIXME: TODO here:
 ;;
 ;; Check for a 'type which is one of the elements we know about
 ;; (pgidioms).
 ;;
 
-(defun pg-span-for-event (event)
-  "Return span corresponding to position of a mouse click EVENT."
+(defun pg-pos-for-event (event)
+  "Return position corresponding to position of a mouse click EVENT."
   (cond
    ((featurep 'xemacs)
-    (select-window (event-window event))
-    (span-at (event-point event) 'type))
-   ((not (featurep 'xemacs))
+    (when (event-window event)
+      (select-window (event-window event))
+      (event-point event)))
+   (t
     (with-current-buffer
 	(window-buffer (posn-window (event-start event)))
-      (span-at  (posn-point (event-start event)) 'type)))))
+      (posn-point (event-start event))))))
+
+(defun pg-span-for-event (event)
+  "Return span corresponding to position of a mouse click EVENT."
+  (span-at (pg-pos-for-event event) 'type))
 
 (defun pg-span-context-menu (event)
   (interactive "e")
@@ -1030,9 +1033,11 @@ If NUM is negative, move upwards.  Return new span."
 (defun pg-goals-buffers-hint ()
   (pg-hint "Use \\[proof-display-some-buffers] to rotate output buffers; \\[pg-response-clear-displays] to clear response & trace."))
 
+;;;###autoload
 (defun pg-slow-fontify-tracing-hint ()
   (pg-hint "Large tracing output; decorating intermittently.  Use \\[pg-response-clear-displays] to clear trace."))
 
+;;;###autoload
 (defun pg-response-buffers-hint (&optional nextbuf)
   (pg-hint
    (format
@@ -1042,9 +1047,11 @@ If NUM is negative, move upwards.  Return new span."
 		(if nextbuf (concat " (next:" nextbuf ")") ""))
       ""))))
 
+;;;###autoload
 (defun pg-jump-to-end-hint ()
   (pg-hint "Use \\[proof-goto-end-of-locked] to jump to end of processed region"))
   
+;;;###autoload
 (defun pg-processing-complete-hint ()
   "Display hint for showing end of locked region or processing complete."
   (if (buffer-live-p proof-script-buffer)
@@ -1061,10 +1068,12 @@ If NUM is negative, move upwards.  Return new span."
 	     (t ;; partly complete: hint about displaying the locked end
 	      (pg-jump-to-end-hint))))))))
 
+;;;###autoload
 (defun pg-next-error-hint ()
   "Display hint for locating error."
   (pg-hint "Use \\[proof-next-error] to go to next error location."))
 
+;;;###autoload
 (defun pg-hint (hintmsg)
   "Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
 The function `substitute-command-keys' is called on the argument."
@@ -1076,7 +1085,7 @@ The function `substitute-command-keys' is called on the argument."
 ;; Identifier under mouse query  (added in PG 3.5)
 ;;
 
-;; FIXME: making the binding globally is perhaps a bit obnoxious, but
+;; Note: making the binding globally is perhaps a bit obnoxious, but
 ;; this modifier combination is currently unused.
 (cond
  ((not (featurep 'xemacs))
@@ -1091,8 +1100,8 @@ The function `substitute-command-keys' is called on the argument."
 	(save-selected-window
 	  (save-selected-frame
 	    (save-excursion
-	      (if (event-window event)
-		  (progn
+	      (if (featurep 'xemacs)
+		  (when (event-window event)
 		    (select-window (event-window event))
 		    (setq oldend (if (region-exists-p)
 				     (region-end)))))
@@ -1129,6 +1138,7 @@ The function `substitute-command-keys' is called on the argument."
 	(speedbar-add-supported-extension
 	 (nth 2 (assoc proof-assistant-symbol proof-assistant-table)))))
 
+;;;###autoload
 (defun proof-imenu-enable ()
   "Add or remove index menu."
   (if proof-imenu-enable

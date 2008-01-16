@@ -30,6 +30,7 @@
 (require 'cl)				; incf
 (require 'pg-xml)
 (require 'pg-pgip-old)			;; Handle some PGIP 1.X format messages
+(require 'proof-config)			;; config variables
 
 ;;; Code:
 (defalias 'pg-pgip-debug   'proof-debug)
@@ -80,7 +81,7 @@ Return a symbol representing the PGIP command processed, or nil."
     (if (fboundp fname)
 	(progn
 	  (pg-pgip-debug "Processing PGIP message seq %s, type %s"
-			 (pg-xml-get-attr 'seq pgip 'notreallyoptional) name)
+			 (pg-xml-get-attr 'seq pgipmsg 'notreallyoptional) name)
 	  (funcall fname pgipmsg)
 	  name)
       (pg-internal-warning "!!! unrecognized/unimplemented PGIP message element `%s'" name)
@@ -113,8 +114,9 @@ Return a symbol representing the PGIP command processed, or nil."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun pg-pgip-process-askpgip (node)
-  (pg-pgip-debug "Received <askpgip> message with version `%s'" version)
-  ;; FIXME: send a uses PGIP message back?
+  (pg-pgip-debug "Received <askpgip> message with version `%s'" 
+		 (pg-xml-get-attr 'version node 'notreallyoptional))
+  ;; TODO: send a uses PGIP message back?
   )
 
 (defun pg-pgip-process-usespgip (node)

@@ -5,8 +5,9 @@
 ;; needed is for interim backward compatibility with Isabelle2003 and
 ;; Isabelle2004, for processing preference settings.
 ;;
+;; This will be removed in the next version of Proof General.
 
-;; FIXME: resurrect pg-prover-interpret-pgip-command (could try with pg-pgip-string-of-command)
+(require 'pg-xml)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 

@@ -8,8 +8,11 @@
 ;;
 ;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Customization of splash screen (was in proof-config)
+(require 'proof-site)
+
+;;
+;; Customization of splash screen 
+;;
 
 (defcustom proof-splash-enable t
   "*If non-nil, display a splash screen when Proof General is loaded."

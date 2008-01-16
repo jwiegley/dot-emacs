@@ -18,6 +18,11 @@
 
 (require 'proof-site)			; basic vars
 (require 'proof-compat)		        ; for pg-defface-window-systems
+(require 'proof-config)			; config vars
+(require 'bufhist)			; bufhist 
+(require 'proof-syntax)			; syntax utils
+(require 'proof-autoloads)		; interface fns
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

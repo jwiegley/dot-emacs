@@ -34,7 +34,7 @@
 		    "pg"
 		    (getenv "USER")
 		    (int-to-string (emacs-pid))
-		    (char-to-string directory-sep-char)))))
+		    "/"))))
 
 (defvar pg-xhtml-file-count 0
   "Counter for generating XHTML files.")

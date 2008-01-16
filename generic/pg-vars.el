@@ -139,10 +139,6 @@ assistant during the last group of commands.")
 If non-nil, the value counts the commands from the last command
 of the proof (starting from 1).")
 
-(defvar proof-shell-last-output nil
-  "A record of the last string seen from the proof system.
-This is raw string, for internal use only.")
-
 ;; TODO da: remove proof-terminal-string.  At the moment some
 ;; commands need to have the terminal string, some don't.
 ;; It's used variously in proof-script and proof-shell, which
@@ -153,6 +149,37 @@ This is raw string, for internal use only.")
 (defvar proof-terminal-string nil
   "End-of-line string for proof process.")
 
+
+;;
+;; Internal variables
+;; -- usually local to a couple of modules but here to avoid 
+;; compile warnings
+;;
+
+(defvar proof-shell-last-output nil
+  "A record of the last string seen from the proof system.
+This is raw string, for internal use only.")
+
+(defvar proof-assistant-settings nil
+ "A list of default values kept in Proof General for current proof assistant.
+A list of lists (SYMBOL SETTING TYPE) where SETTING is a string value
+to send to the proof assistant using the value of SYMBOL and 
+and the function `proof-assistant-format'.  The TYPE item determines
+the form of the menu entry for the setting.")
+
+(defvar pg-tracing-slow-mode nil
+  "Non-nil for slow refresh mode for tracing output.")
+
+(defvar proof-nesting-depth 0
+  "Current depth of a nested proof.
+Zero means outside a proof, 1 means inside a top-level proof, etc.
+
+This variable is maintained in `proof-done-advancing'; it is zeroed
+in `proof-shell-clear-state'.")
+
+(defvar proof-last-theorem-dependencies nil
+  "Contains the dependencies of the last theorem.  A list of strings.
+Set in `proof-shell-process-urgent-message'.")
 
 (provide 'pg-vars)
 ;; pg-vars.el ends here

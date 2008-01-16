@@ -1649,9 +1649,6 @@ by the filter is to send the next command from the queue."
 (defvar pg-last-tracing-output-time nil
   "Time of last tracing output, as recorded by (current-time).")
 
-(defvar pg-tracing-slow-mode nil
-  "Non-nil for slow refresh mode for tracing output.")
-
 (defconst pg-slow-mode-duration 2
   "Maximum duration of slow mode in seconds.")
 
