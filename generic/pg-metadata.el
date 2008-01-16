@@ -18,10 +18,13 @@
 ;; NB: THIS FILE NOT YET USED: once required by PG,
 ;; must be added to main dist by editing Makefile.devel
 ;;
+;; TODO:
+;;  - look at using cookies for this (Elib)
 
 ;;; Code:
 
 (require 'pg-xml)
+(require 'proof-config)			; proof-face-specs
 
 (defcustom pg-metadata-default-directory "~/.proofgeneral/"
   "*Directory for storing metadata information about proof scripts."
@@ -45,10 +48,7 @@
   ;; Clashes are possible, hopefully unlikely.
   (concat
    (file-name-as-directory pg-metadata-default-directory)
-   (replace-in-string
-    (file-name-sans-extension filename)
-    (regexp-quote (char-to-string directory-sep-char))
-    "__")
+   (replace-in-string (file-name-sans-extension filename) "/" "__")
    ".pgm"))
 
 

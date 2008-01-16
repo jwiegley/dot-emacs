@@ -57,6 +57,9 @@ The `find-alternative-file' function has a nasty habit of setting the
 buffer file name to nil before running kill buffer, which breaks PG's
 kill buffer hook.  This variable is used when buffer-file-name is nil.")
 
+(deflocal pg-script-portions nil
+  "Table of lists of symbols naming script portions which have been processed so far.")
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -507,9 +510,6 @@ Assumes script buffer is current"
   "Cache of visibility spec symbols used by PG.
 This is used for cleaning `buffer-invisibility-spec' in
 `pg-clear-script-portions': it doesn't need to be exactly accurate.")
-
-(deflocal pg-script-portions nil
-  "Table of lists of symbols naming script portions which have been processed so far.")
 
 (defun pg-clear-script-portions ()
   "Clear record of script portion names and types from internal list.
@@ -2189,6 +2189,7 @@ appropriate."
 ;;      
 ;; PBP call-backs
 ;;
+;;;###autoload
 (defun proof-insert-pbp-command (cmd)
   "Insert CMD into the proof queue."
   (proof-activate-scripting)
@@ -2794,10 +2795,11 @@ finish setup which depends on specific proof assistant configuration."
       (setq buffer-offer-save t))
 
   ;; Localise the invisibility glyph (XEmacs only):
-  (let ((img (proof-get-image "hiddenproof" t "<proof>")))
-    (cond
-     ((and img (featurep 'xemacs))
-      (set-glyph-image invisible-text-glyph img (current-buffer)))))
+  (if (featurep 'xemacs)
+      (let ((img (proof-get-image "hiddenproof" t "<proof>")))
+	(if img
+	    (set-glyph-image invisible-text-glyph 
+			     img (current-buffer)))))
 
   (if (proof-ass x-symbol-enable)
       (proof-x-symbol-enable))

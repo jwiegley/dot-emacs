@@ -12,16 +12,13 @@
 (eval-when-compile
   (require 'easymenu)			; easy-menu-add, etc
   (require 'cl)				; incf
-  (require 'span)			; span-*
-  (require 'proof-utils))
-
+  (require 'span))			; span-*
 
 ;;; Commentary:
-;; 
 
-(require 'proof-site)
+(require 'proof)
+(require 'pg-assoc)
 (require 'bufhist)
-;(require 'pg-assoc)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -45,7 +42,8 @@ May enable proof-by-pointing or similar features.
   (erase-buffer)
   (buffer-disable-undo)
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
-  (set-buffer-modified-p nil))
+  (set-buffer-modified-p nil)
+  (setq cursor-type nil))
 
 ;;
 ;; Menu for goals buffer

@@ -20,42 +20,6 @@
 (require 'pg-goals)
 (require 'proof-script)
 
-;;
-;; Internal variables used in sub-modules
-;;
-
-;; A raw record of the last output from the proof system
-(defvar proof-shell-last-output nil
-  "A record of the last string seen from the proof system.")
-
-
-
-
-;; ;; FIXME:
-;; ;; Autoloads for proof-script (added to nuke warnings,
-;; ;; maybe should be 'official' exported functions in proof.el)
-;; ;; This helps see interface between proof-script / proof-shell.
-;; ;; FIXME 2: We can probably assume that proof-script is always
-;; ;; loaded before proof-shell, so just put a require on 
-;; ;; proof-script here.
-;; (eval-and-compile
-;;   (mapcar (lambda (f) 
-;; 	    (autoload f "proof-script"))
-;; 	  '(proof-goto-end-of-locked
-;; 	    proof-insert-pbp-command
-;; 	    proof-detach-queue 
-;; 	    proof-locked-end 
-;; 	    proof-set-queue-endpoints
-;; 	    proof-script-clear-queue-spans
-;; 	    proof-file-to-buffer 
-;; 	    proof-register-possibly-new-processed-file
-;; 	    proof-restart-buffers)))
-
-;; FIXME:
-;; Some variables from proof-shell are also used, in particular,
-;; the menus.  These should probably be moved out to proof-menu.
-
-
 ;; ============================================================
 ;;
 ;; Internal variables used by proof shell
@@ -1886,6 +1850,7 @@ In case CMD is (or yields) nil, do nothing."
 				  cmd 'proof-done-invisible)))
 	(if wait (proof-shell-wait)))))
 
+;;;###autoload
 (defun proof-shell-invisible-cmd-get-result (cmd &optional noerror)
   "Execute CMD and return result as a string.
 This expects CMD to print something to the response buffer.

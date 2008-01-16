@@ -14,10 +14,12 @@
 ;;; Code:
 
 (eval-when-compile 
-  (require 'proof)				; globals
   (require 'proof-syntax)			; proof-replace-{string,regexp}
   (require 'span)				; spans
   (require 'cl))				; incf
+
+(require 'proof)				; globals
+
 
 (eval-and-compile ; defines proof-universal-keys-only-mode-map at compile time
   (define-derived-mode proof-universal-keys-only-mode fundamental-mode

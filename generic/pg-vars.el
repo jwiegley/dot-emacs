@@ -139,6 +139,10 @@ assistant during the last group of commands.")
 If non-nil, the value counts the commands from the last command
 of the proof (starting from 1).")
 
+(defvar proof-shell-last-output nil
+  "A record of the last string seen from the proof system.
+This is raw string, for internal use only.")
+
 ;; TODO da: remove proof-terminal-string.  At the moment some
 ;; commands need to have the terminal string, some don't.
 ;; It's used variously in proof-script and proof-shell, which

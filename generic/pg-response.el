@@ -54,7 +54,8 @@
   (erase-buffer)
   (buffer-disable-undo)
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
-  (set-buffer-modified-p nil))
+  (set-buffer-modified-p nil)
+  (setq cursor-type nil))
 
 (proof-eval-when-ready-for-assistant ; proof-aux-menu depends on <PA>
     (easy-menu-define proof-response-mode-menu

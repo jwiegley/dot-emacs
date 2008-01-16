@@ -53,7 +53,7 @@ This mode is only useful with a font which can display the maths repertoire.
 ;;;***
 
 ;;;### (autoloads (proof-goals-config-done) "pg-goals" "pg-goals.el"
-;;;;;;  (18316 44932))
+;;;;;;  (18317 59757))
 ;;; Generated autoloads from pg-goals.el
 
 (autoload (quote proof-goals-config-done) "pg-goals" "\
@@ -87,7 +87,7 @@ Send an <askprefs> message to the prover.
 
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-maybe-erase proof-response-config-done proof-response-mode)
-;;;;;;  "pg-response" "pg-response.el" (18317 3795))
+;;;;;;  "pg-response" "pg-response.el" (18317 22894))
 ;;; Generated autoloads from pg-response.el
 
 (autoload (quote proof-response-mode) "pg-response" "\
@@ -309,9 +309,14 @@ in future if we have just activated it for this buffer.
 
 ;;;***
 
-;;;### (autoloads (proof-config-done proof-mode) "proof-script" "proof-script.el"
-;;;;;;  (18317 16156))
+;;;### (autoloads (proof-config-done proof-mode proof-insert-pbp-command)
+;;;;;;  "proof-script" "proof-script.el" (18317 59727))
 ;;; Generated autoloads from proof-script.el
+
+(autoload (quote proof-insert-pbp-command) "proof-script" "\
+Insert CMD into the proof queue.
+
+\(fn CMD)" nil nil)
 
 (autoload (quote proof-mode) "proof-script" "\
 Proof General major mode class for proof scripts.
@@ -328,10 +333,11 @@ finish setup which depends on specific proof assistant configuration.
 
 ;;;***
 
-;;;### (autoloads (proof-shell-config-done proof-shell-mode proof-shell-invisible-command
+;;;### (autoloads (proof-shell-config-done proof-shell-mode proof-shell-invisible-command-invisible-result
+;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover)
-;;;;;;  "proof-shell" "proof-shell.el" (18317 3795))
+;;;;;;  "proof-shell" "proof-shell.el" (18317 59753))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload (quote proof-shell-ready-prover) "proof-shell" "\
@@ -410,6 +416,23 @@ In case CMD is (or yields) nil, do nothing.
 
 \(fn CMD &optional WAIT)" nil nil)
 
+(autoload (quote proof-shell-invisible-cmd-get-result) "proof-shell" "\
+Execute CMD and return result as a string.
+This expects CMD to print something to the response buffer.
+The output in the response buffer is disabled, and the result
+\(contents of `proof-shell-last-output') is returned as a 
+string instead.  
+
+Errors are not supressed and will result in a display as 
+usual, unless NOERROR is non-nil.
+
+\(fn CMD &optional NOERROR)" nil nil)
+
+(autoload (quote proof-shell-invisible-command-invisible-result) "proof-shell" "\
+Execute CMD, wait for but do not display result.
+
+\(fn CMD &optional NOERROR)" nil nil)
+
 (autoload (quote proof-shell-mode) "proof-shell" "\
 Proof General shell mode class for proof assistant processes
 
@@ -477,7 +500,7 @@ Menu made from the Proof General toolbar commands.
 
 ;;;### (autoloads (proof-x-symbol-config-output-buffer proof-x-symbol-shell-config
 ;;;;;;  proof-x-symbol-decode-region proof-x-symbol-enable proof-x-symbol-support-maybe-available)
-;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18317 16630))
+;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18317 59366))
 ;;; Generated autoloads from proof-x-symbol.el
 
 (autoload (quote proof-x-symbol-support-maybe-available) "proof-x-symbol" "\
@@ -520,7 +543,7 @@ Configure the current output buffer (goals/response/trace) for X-Symbol.
 ;;;;;;  "pg-pgip-old.el" "pg-vars.el" "pg-xhtml.el" "proof-config.el"
 ;;;;;;  "proof-site.el" "proof-utils.el" "proof.el" "test-compile.el"
 ;;;;;;  "test-mac.el" "test-mac2.el" "test-req.el" "test-req2.el")
-;;;;;;  (18317 18440 719057))
+;;;;;;  (18317 59766 407486))
 
 ;;;***
 
