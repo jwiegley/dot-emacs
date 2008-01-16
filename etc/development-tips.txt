@@ -4,11 +4,7 @@ alongside eldoc and Flyspell, in the development file:
 
  M-x load-file RET generic/pg-dev.el RET
 
- (load-file "../generic/pg-dev.el")
-
-
-
-
+ (load-file "../lib/pg-dev.el")
 
 
 Some Emacs Resources

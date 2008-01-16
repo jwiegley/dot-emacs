@@ -42,14 +42,6 @@
 ;;
 ;; =================================================================
 
-;; Questions here:
-;;
-;; -- Is it possible to remove setting of language in x-symbol-enable?
-;; -- Simplify proof-x-symbol-initialize
-
-(eval-when-compile
-  (require 'proof-utils))	 ; proof-eval-when-ready-for-assistant
-
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
 
