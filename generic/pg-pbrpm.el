@@ -4,15 +4,57 @@
 ;; Authors:   Jean-Roch SOTTY, Christophe Raffalli
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; analysis of the goal buffer
+;; Analyse the goal buffer to produce a popup menu.
+;;
+;; NB: this code is currently XEmacs specific 
+;; (uses make-gui-button, insert-gui-button, make-dialog-frame)
 
 ;;; Code:
+(require 'proof)
+(require 'span)
+(require 'proof-script)
+
+;;;
+;;; Configuration
+;;;
 (defvar pg-pbrpm-use-buffer-menu t
   "If t, pbrpm will use a menu displayed in a dialog frame instead of a popup menu.")
+
+(defvar pg-pbrpm-start-goal-regexp nil
+  "Regexp to match start of goals.
+Used to produce a table of goal descriptions in `pg-pbrpm-analyse-goal-buffer'.")
+
+(defvar pg-pbrpm-start-goal-regexp-par-num nil
+  "Match number for `pg-pbrpm-start-goal-regexp' to extract goal number.")
+
+(defvar pg-pbrpm-end-goal-regexp nil
+  "Regexp to match end of goal.
+Used to produce a table of goal descriptions in `pg-pbrpm-analyse-goal-buffer'.")
+
+(defvar pg-pbrpm-start-hyp-regexp nil
+  "Regexp to match start of hypothesis.
+Used to produce a table of goal descriptions in `pg-pbrpm-analyse-goal-buffer'.")
+
+(defvar pg-pbrpm-start-hyp-regexp-par-num nil
+  "Match number for `pg-pbrpm-start-hyp-regexp' to extract hypothesis number.
+Used to produce a table of goal descriptions in `pg-pbrpm-analyse-goal-buffer'.")
+
+(defvar pg-pbrpm-start-concl-regexp nil
+  "Regexp to match start of conclusions.
+Used to produce a table of goal descriptions in `pg-pbrpm-analyse-goal-buffer'.")
+
+(defvar pg-pbrpm-auto-select-regexp nil
+  "Regexp used to select regions of text around point.
+Matches the region to be returned.")
+
+;;;
+;;; Local variables
+;;;
 (defvar pg-pbrpm-buffer-menu nil)
 (defvar pg-pbrpm-spans nil)
 (defvar pg-pbrpm-goal-description nil)
 (defvar pg-pbrpm-windows-dialog-bug nil)
+(defvar pbrpm-menu-desc nil)
 
 (defun pg-pbrpm-erase-buffer-menu ()
   (save-excursion
@@ -136,59 +178,72 @@ If stores, in the variable pg-pbrpm-goal-description, a list with shape
 (defun pg-pbrpm-build-menu (event start end)
 "Build a Proof By Rules pop-up menu according to the state of the proof, the event and a selected region (between the start and end markers).
 The prover command is processed via pg-pbrpm-run-command."
-   ;first, run the prover specific (name, rule)'s list generator
-   (setq click-info (pg-pbrpm-process-click event start end)) ; retrieve click informations
-   (if click-info
-       (let
-	 ((pbrpm-list
-	   (pg-pbrpm-eliminate-id nil (mapcar 'cdr
-					      (sort
-					       (proof-pbrpm-generate-menu
-						click-info
-						(pg-pbrpm-process-regions-list))
-					       (lambda (l1 l2) (< (car l1) (car l2)))))))
-	  (count 0))
-					; retrieve selected region informations
-					; then make that list a menu description
-	 (if pbrpm-list
-	     (if (not pg-pbrpm-use-buffer-menu)
-		 (progn
-		   (setq pbrpm-menu-desc '("PBRPM-menu"))
-		   (while pbrpm-list
-		     (let* ((pbrpm-list-car (pop pbrpm-list))
-			    (description (pop pbrpm-list-car))
-			    (command (concat "(*" description "*)\n" (pop pbrpm-list-car))))
-		       (setq pbrpm-menu-desc
-			     (append pbrpm-menu-desc
-				     (list (vector
-					    description
-					    (list 'pg-pbrpm-run-command (list command nil nil))))))))
-					; finally display the pop-up-menu
-		   (popup-menu pbrpm-menu-desc))
-	       (pg-pbrpm-create-reset-buffer-menu)
-	       (while pbrpm-list
-		 (let* ((pbrpm-list-car (pop pbrpm-list))
-		       (description (pop pbrpm-list-car))
-		       (command (pop pbrpm-list-car))
-		       (act (pop pbrpm-list-car))
-		       (pos (point)))
-		   (setq count (+ 1 count))
-		   (insert " ")
-		   (insert description)
-		   (insert " ") ; hack for renaming of last name
-		   (let ((spans (pg-pbrpm-setup-span pos (point))))
-		     (insert-gui-button (make-gui-button
-					 (concat (int-to-string count) ")")
-					 'pg-pbrpm-run-command (list command act spans)) pos))
-		   (insert "\n")))
-		 (insert-gui-button (make-gui-button
-				   "Cancel"
-				   (lambda (n) (pg-pbrpm-erase-buffer-menu) (delete-frame)) nil))
-; needs to be fixed for other prover than phox
-		 (if phox-sym-lock-enabled
-		     (font-lock-fontify-buffer)
-		   (if phox-x-symbol-enable
-		       (x-symbol-decode)))
+;; first, run the prover specific (name, rule)'s list generator
+   (let ((click-info (pg-pbrpm-process-click event start end))) ; retrieve click informations
+     (if click-info
+	 (let ((pbrpm-list
+		(pg-pbrpm-eliminate-id 
+		 nil 
+		 (mapcar 'cdr
+			 (sort
+			  (proof-pbrpm-generate-menu
+			   click-info
+			   (pg-pbrpm-process-regions-list))
+			  (lambda (l1 l2) (< (car l1) (car l2)))))))
+	       (count 0))
+	   ;; retrieve selected region informations
+	   ;; then make that list a menu description
+	   (if pbrpm-list
+	       (if (not pg-pbrpm-use-buffer-menu)
+		   (progn
+		     (setq pbrpm-menu-desc '("PBRPM-menu"))
+		     (while pbrpm-list
+		       (let* ((pbrpm-list-car (pop pbrpm-list))
+			      (description (pop pbrpm-list-car))
+			      (command (concat "(*" description "*)\n" 
+					       (pop pbrpm-list-car))))
+			 (setq pbrpm-menu-desc
+			       (append pbrpm-menu-desc
+				       (list (vector
+					      description
+					      (list 'pg-pbrpm-run-command 
+						    (list command nil nil))))))))
+		     ;; finally display the pop-up-menu
+		     (popup-menu pbrpm-menu-desc))
+		 (pg-pbrpm-create-reset-buffer-menu)
+		 (while pbrpm-list
+		   (let* ((pbrpm-list-car (pop pbrpm-list))
+			  (description (pop pbrpm-list-car))
+			  (command (pop pbrpm-list-car))
+			  (act (pop pbrpm-list-car))
+			  (pos (point)))
+		     (setq count (+ 1 count))
+		     (insert " ")
+		     (insert description)
+		     (insert " ") ; hack for renaming of last name
+		     (let ((spans (pg-pbrpm-setup-span pos (point))))
+		       (insert-gui-button (make-gui-button
+					   (concat (int-to-string count) ")")
+					   'pg-pbrpm-run-command 
+					   (list command act spans)) pos))
+		     (insert "\n")))
+		 (insert-gui-button 
+		  (make-gui-button
+		   "Cancel"
+		   (lambda (n) (pg-pbrpm-erase-buffer-menu) (delete-frame)) nil))
+		 ;; needs to be fixed for other prover than phox 
+		 ;; da: here's a possible fix, perhaps we can simply use
+		 ;; `proof-fontify-region' which has been configured
+		 ;; by phox mode appropriately with hooks (new second case).
+		 (cond
+		  ((featurep 'phox)
+		   (if phox-sym-lock-enabled
+		       (font-lock-fontify-buffer)
+		     (if phox-x-symbol-enable
+			 (x-symbol-decode))))
+		  (t
+		   (proof-fontify-region (point-min) (point-max))))
+
 		 (mapc 'span-read-only pg-pbrpm-spans)
 		 (make-dialog-frame '(width 80 height 30)))
 	       (beep)))))
@@ -251,7 +306,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	    (setq start (if pos pos end)))))
       (cons allspan (sort (reverse spans) (lambda (sp1 sp2)
 				  (< (span-property sp1 'goalnum)
-				     (span-property sp1 'goalnum))))))))
+				     (span-property sp1 'goalnum)))))))))
   
 (defun pg-pbrpm-run-command (args)
 "Insert COMMAND into the proof queue and then run it.
@@ -283,11 +338,17 @@ The prover command is processed via pg-pbrpm-run-command."
 ;;--------------------------------------------------------------------------;;
 
 (defun pg-pbrpm-get-pos-info (pos)
-  "return (n . s) where
+  "Get position information for POS.
+Returns (n . s) where
     n is the goal name
-    s if either the hypothesis name, \"none\" (for the conclusion) of \"whole\" in strange cases"
+    s if either the hypothesis name, 
+         \"none\" (for the conclusion),
+	 or \"whole\" in strange cases."
   (let ((l pg-pbrpm-goal-description)
-	(found nil))
+	(found nil)
+	start-goal end-goal goal-name start-concl hyps
+	the-goal-name the-click-info start-hyp end-hyp
+	start-hyp-text hyp-name)
     (while (and pos l (not found))
       (setq start-goal (car l))
       (setq end-goal (cadr l))
@@ -319,32 +380,38 @@ The prover command is processed via pg-pbrpm-run-command."
 	  (cons the-goal-name the-click-info)))))
 
 (defun pg-pbrpm-get-region-info (start end)
-   "see pg-pbrpm-get-pos-info and source code :-)"
-   (setq r1 (pg-pbrpm-get-pos-info start))
-   (setq r2 (pg-pbrpm-get-pos-info start))
-   (if (and r1 r2 (string-equal (car r1) (car r2)))
-       (if (string-equal (cdr r1) (cdr r2))
-	   r1
-	 (cons (car r1) "whole"))
-     nil))
+  "Get position info for a region, if region is within a single position.
+See `pg-pbrpm-get-pos-info'."
+   (let ((r1 (pg-pbrpm-get-pos-info start))
+	 (r2 (pg-pbrpm-get-pos-info end))) ;; da: this said start, surely wrong?
+     (if (and r1 r2 (string-equal (car r1) (car r2)))
+	 (if (string-equal (cdr r1) (cdr r2))
+	     r1
+	   (cons (car r1) "whole"))
+       nil)))
 	 
-(defun auto-select-arround-pos ()
-  "extract some text arround the current  cursor position"
+(defun pg-pbrpm-auto-select-around-point ()
+  "Extract some text arround point, according to `pg-pbrpm-auto-select-regexp'.
+If no match found, return the empty string." 
   (save-excursion
     (let ((pos (point)))
       (beginning-of-line)
       (block 'loop
 	(while (< (point) pos)
-	  (if (not (search-forward-regexp pg-pbrpm-auto-select-regexp nil t)) (return-from 'loop ""))
-	  (if (and (<= (match-beginning 0) pos) (<= pos (match-end 0)))
+	  (unless (search-forward-regexp pg-pbrpm-auto-select-regexp nil t)
+	    (return-from 'loop ""))
+	  (if (and (<= (match-beginning 0) pos) 
+		   (<= pos (match-end 0)))
 	      (return-from 'loop (match-string 0))))
 	(return-from 'loop "")))))
     
 (defun pg-pbrpm-translate-position (buffer pos)
   "return pos if buffer is goals-buffer otherwise, return the point position in
    the goal buffer"
-  (if (eq proof-goals-buffer buffer) pos
-    (point proof-goals-buffer)))
+  (if (eq proof-goals-buffer buffer) 
+      pos
+    (with-current-buffer proof-goals-buffer
+      (point))))
 
 (defun pg-pbrpm-process-click (event start end)
 "Returns the list of informations about the click needed to call generate-menu. EVENT is an event."
@@ -356,12 +423,12 @@ The prover command is processed via pg-pbrpm-run-command."
 	     (r (pg-pbrpm-get-pos-info  (pg-pbrpm-translate-position buffer pos))))
 	(if r (list
 	       (string-to-number (car r)) ; should not be an int for other prover
-	       (if (eq proof-goals-buffer buffer) (cdr r) (auto-select-arround-pos))
+	       (if (eq proof-goals-buffer buffer) (cdr r) (pg-pbrpm-auto-select-around-point))
 	       (if (and start end (eq proof-goals-buffer buffer)
 			(<= (marker-position start) pos) (<= pos  (marker-position end)))
 		   (pg-pbrpm-region-expression buffer (marker-position start)
 					       (marker-position end))
-		 (auto-select-arround-pos))))))))
+		 (pg-pbrpm-auto-select-around-point))))))))
 
 ;;--------------------------------------------------------------------------;;
 ;; Selected Region informations extractors
@@ -449,7 +516,8 @@ The prover command is processed via pg-pbrpm-run-command."
 "Returns the list of informations about the the selected region needed to call generate-menu. span is a span covering the selected region"
    (let ((start (span-start span))
 	 (end (span-end span))
-	 (buffer (span-buffer span)))
+	 (buffer (span-buffer span))
+	 r)
      (if (and start end) ; if a region is selected
 	 (if (eq proof-goals-buffer buffer)
 	     (progn
