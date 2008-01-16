@@ -418,8 +418,9 @@ Returns new END value."
 	  ;; which may be raised by XEmacs' crummy `parse-partial-sexp'.
 	  (condition-case err
 	      (font-lock-default-fontify-region start end nil)
-	    (t (proof-debug "Caught condition %s in `font-lock-default-fontify-region'"
-			    (car err))))))
+	    (t (proof-debug 
+		"Caught condition %s in `font-lock-default-fontify-region'"
+		(car err))))))
   (save-restriction
     (narrow-to-region start end)
     (run-hooks 'pg-after-fontify-output-hook)
