@@ -12,6 +12,8 @@
 ;; NB: This file is part of the Proof General distribution.
 ;;
 
+(eval-when-compile
+  (require 'cl))			; to properly compile 'block'
 
 (defvar x-symbol-coq-required-fonts nil)
   
