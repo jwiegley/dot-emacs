@@ -248,10 +248,10 @@ bundled with Proof General.
 @c friendly and the display in multiple-window mode is trimmed to
 @c allow more text space for display.  
 
-Proof General 3.7 runs reliably as compiled Elisp code, and is available
-in RPM package format which includes desktop integration on
-freedesktop.org compliant desktops (including, for example, many recent
-Linux distributions).
+Proof General 3.7 is available in RPM package format which includes
+pre-compiled code for GNU Emacs or XEmacs and 
+desktop integration on freedesktop.org compliant desktops (including,
+for example, many recent Linux distributions).
 
 @c Other stuff pending:
 @c X-Symbol 4.4 support??
