@@ -335,8 +335,8 @@ Returns non-nil if response buffer was cleared."
 	;; Fontify message: one reason why we don't keep the buffer in
 	;; font-lock minor mode is these properties would be lost.
 	(if (and face proof-output-fontify-enable)
-	    (add-text-properties
-	     start (point-max) (list 'face face)))
+	    (font-lock-append-text-property 
+	     start (point-max) 'face face))
 
 	(set-buffer-modified-p nil))))))
 
