@@ -321,18 +321,9 @@ Assumes that the current buffer is the proof shell buffer."
 	  (set-buffer-modified-p modified))))
     ;; END code from x-symbol.el/x-symbol-mode-internal
     
-    ;; If we're turning on x-symbol, attempt to convert to
-    ;; characters.  (Only works if the buffer already contains
-    ;; tokens!)  NB: this removes previous fontification, too.
-    (x-symbol-decode)))
-  ;; Encoding back to tokens doesn't work too well: needs to 
-  ;; do some de-fontification to remove font properties, and
-  ;; is flaky anyway because token -> char not nec injective.
-  ;  (if (boundp 'x-symbol-language)
-  ;	;; If we're turning off x-symbol, convert back to tokens.
-  ;     (x-symbol-encode))))
-
-
+    ;; If we're turning on x-symbol, attempt to convert current contents.
+    ;; (reverse doesn't work so cleanly so we don't try it)
+    (proof-x-symbol-decode-region (point-min) (point-max))))
 
 (provide 'proof-x-symbol)
 ;; End of proof-x-symbol.el
