@@ -108,7 +108,9 @@ generic individual settings.
 The dynamic action call only happens when values *change*: as an
 approximation we test whether proof-config is fully-loaded yet."
   (set-default sym value)
-  (if (featurep 'proof-config)
+  (when (and
+	 (not noninteractive)
+	 (featurep 'proof-config))
       (if (fboundp sym)
 	  (funcall sym)
 	(if (boundp 'proof-assistant-symbol)
