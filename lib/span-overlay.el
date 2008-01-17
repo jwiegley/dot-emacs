@@ -66,6 +66,7 @@
     ols))
 
 (defun spans-at-region-prop (start end prop &optional val)
+  "Return a list of the spans in START END with PROP [set to VAL]."
   (let ((ols ()))
     (dolist (ol (overlays-in start end))
       (if (or (null prop)
@@ -182,8 +183,7 @@ Behaviour is still worse than before."	;??? --Stef
     (car l)))
 
 (defsubst span-at-event (event &optional prop)
-  (span-find-span (overlays-at (posn-point (event-start event))) prop)
-  )
+  (span-find-span (overlays-at (posn-point (event-start event))) prop))
 
 
 (defun make-detached-span ()
