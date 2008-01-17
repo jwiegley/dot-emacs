@@ -15,12 +15,11 @@
 (require 'proof-compat)
 (require 'proof-utils)
 
-; need these?
-;(require 'pg-user)
-;(require 'pg-goals)
-;(require 'pg-response)
 
-;; FIXME: Loading several prover files at once is a bit of a problem
+;; Prevent loading some files normally loaded in compilation
+
+
+;; NB: Loading several prover files at once is a bit of a problem
 ;; with new config mechanism.
 ;; Could abstract more code in proof-site.el to avoid duplication here.
 (let ((assistants (mapcar (function car) proof-assistant-table)))
@@ -38,19 +37,19 @@
 	 (assistant-name (car nameregexp))
 	 (sname		 (symbol-name assistant))
 	 (elisp-file   sname))
-      (proof-ready-for-assistant assistant-name assistant)
+      (proof-ready-for-assistant assistant assistant-name)
       ;; Must load proof-config each time to define proof assistant
       ;; specific variables
-      (setq features (delete 'proof-config features))
-      (load "proof-config.el")
+      (setq features (delete 'pg-custom features))
+      (load "pg-custom.el")
       (load-library elisp-file)
       (setq assistants (cdr assistants)))))
 
 ;; Now a fake proof assistant to document the automatically
 ;; specific variables
-(proof-ready-for-assistant "PROOF ASSISTANT" 'PA)
-(setq features (delete 'proof-config features))
-(load "proof-config.el")
+(proof-ready-for-assistant 'PA "PROOF ASSISTANT")
+(setq features (delete 'pg-custom features))
+(load "pg-custom.el")
 
 
 ;; These next few are autoloaded usually
@@ -58,6 +57,9 @@
 (load "proof-toolbar.el")
 (load "proof-script.el")
 (load "proof-shell.el")
+(load "pg-user.el")
+(load "pg-goals.el")
+(load "pg-response.el")
 
 ;; A couple of comint symbols are mentioned in the docs
 (require 'comint)
