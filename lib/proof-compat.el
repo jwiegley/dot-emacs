@@ -15,6 +15,9 @@
 ;; Emacs, following GNU Emacs advice on obsolete function calls.
 ;;
 
+(eval-when-compile
+  (require 'cl)
+  (require 'easymenu))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -309,14 +312,14 @@ The returned value is one of the following symbols:
 (or (fboundp 'read-shell-command)
 (defvar read-shell-command-map
   (let ((map (make-sparse-keymap 'read-shell-command-map)))
-    (if (not (fboundp 'set-keymap-parents))
-	(if (fboundp 'set-keymap-parent)
-	    ;; GNU Emacs 20.2
-	    (set-keymap-parent map minibuffer-local-map)
-	  ;; Earlier GNU Emacs
-	  (setq map (append minibuffer-local-map map)))
+    (if (fboundp 'set-keymap-parents)
       ;; XEmacs versions without read-shell-command?
-      (set-keymap-parents map minibuffer-local-map))
+	(set-keymap-parents map minibuffer-local-map)
+      (if (fboundp 'set-keymap-parent)
+	  ;; GNU Emacs 20.2
+	  (set-keymap-parent map minibuffer-local-map)
+	;; Earlier GNU Emacs
+	(setq map (append minibuffer-local-map map))))
     (define-key map "\t" 'comint-dynamic-complete)
     (define-key map "\M-\t" 'comint-dynamic-complete)
     (define-key map "\M-?" 'comint-dynamic-list-completions)
@@ -589,7 +592,8 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 
 (if (and (fboundp 'valid-specifier-tag-p)
 	 (not (valid-specifier-tag-p 'mule-fonts)))
-    (define-specifier-tag 'mule-fonts))
+    (if (fboundp 'define-specifier-tag)
+	(define-specifier-tag 'mule-fonts)))
 
 
 ;; End of proof-compat.el
