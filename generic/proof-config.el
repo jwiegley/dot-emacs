@@ -337,7 +337,10 @@ but the features themselves may be buggy.
 
 We encourage users to set this flag and test the features, but being
 aware that the features may be buggy (problem reports and
-suggestions for improvements are welcomed)."
+suggestions for improvements are welcomed).
+
+In the current 3.7 release, there are no features classed as experimental
+so this option is set by default."
   :type 'boolean
   :group 'proof-user-options)
 
