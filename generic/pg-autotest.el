@@ -16,9 +16,6 @@
 ;; $Id$
 
 (require 'proof)
-(require 'proof-script)
-(require 'pg-user)
-
 
 ;;; Commentary:
 ;; 
