@@ -265,16 +265,12 @@ files which are out of date with respect to the loaded buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
-
-
-;; TODO: implement this!  Use in indentation code.
 (defcustom proof-one-command-per-line
   nil
   "*If non-nil, format for newlines after each proof command in a script.
-This option is not fully-functional at the moment."
+This option is not fully-functional at the moment."  ;; TODO
   :type 'boolean
   :group 'proof-user-options)
-
 
 (defcustom proof-prog-name-ask
   nil
@@ -314,6 +310,11 @@ history that can be browsed without processing/undoing in the prover.
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defcustom pg-input-ring-size 32
+  "*Size of history ring of previous successfully processed commands."
+  :type 'integer
+  :group 'proof-user-options)
+
 (defcustom proof-general-debug nil
   "*Non-nil to run Proof General in debug mode.
 This changes some behaviour (e.g. markup stripping) and displays
@@ -328,6 +329,7 @@ This is only useful for PG developers."
   ;; (if (string-match "pre" proof-general-version) t)
   t  ;; Version 3.7: features classed as experimental have
      ;; actually been tested for a while, so we enable them.
+     ;; To disable, customise this to nil
   "*Whether to enable certain features regarded as experimental.
 Proof General includes a few features designated as \"experimental\".
 Enabling these will usually have no detrimental effects on using PG,
