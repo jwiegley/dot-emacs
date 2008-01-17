@@ -23,8 +23,10 @@
 
 (eval-when-compile
   (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant
-  (if noninteractive		  ; batch byte compilation
-      (require 'mmm-auto)))	  ; it's loaded dynamically at runtime
+  (require 'cl))
+
+(eval-when (compile)
+   (require 'mmm-auto))  ; it's loaded dynamically at runtime
 
 (require 'proof-site)
 

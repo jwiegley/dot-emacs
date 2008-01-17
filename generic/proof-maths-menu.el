@@ -20,9 +20,10 @@
 
 (eval-when-compile
   (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant
-  (if noninteractive		  ; batch byte compilation
-      (unless (featurep 'xemacs)
-	(require 'maths-menu))))  ; it's loaded dynamically at runtime
+  (require 'cl))
+
+(eval-when (compile)
+   (require 'maths-menu)) ; it's loaded dynamically at runtime
 
 
 ;;;###autoload
