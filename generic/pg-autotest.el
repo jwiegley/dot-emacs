@@ -15,8 +15,9 @@
 ;; 
 ;; $Id$
 
-(require 'proof-site)
-(require 'proof-compat)
+(require 'proof)
+(require 'proof-script)
+(require 'pg-user)
 
 
 ;;; Commentary:
