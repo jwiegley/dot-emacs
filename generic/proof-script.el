@@ -1261,8 +1261,6 @@ With ARG, turn on scripting iff ARG is positive."
   "The callback function for assert-until-point."
   ;; FIXME da: if the buffer dies, this function breaks horribly.
   (if (not (span-live-p span))
-      ;; NB: Sometimes this function is called with a destroyed
-      ;; extent as argument.  Seems odd.
       (proof-debug
        "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
 
@@ -1272,12 +1270,18 @@ With ARG, turn on scripting iff ARG is positive."
 
       (proof-set-locked-end end)
 
-      ;; FIXME: buglet here, can sometimes arrive with queue span already detached.
-      ;; (I think when complete file process is requested during scripting)
+      ;; FIXME: buglet here, can sometimes arrive with queue span
+      ;; already detached.  (I think when complete file process is
+      ;; requested during scripting)
       (if (span-live-p proof-queue-span)
 	  (proof-set-queue-start end))
 
       (cond
+       ;; CASE 0: span has died after above (shouldn't happen)
+       ((not (span-live-p span))
+	(proof-debug
+	 "Proof General idiosyncrasy: proof-done-advancing killed span before processing it!"))
+	
        ;; CASE 1: Comments just get highlighted
        ((eq (span-property span 'type) 'comment)
 	(proof-done-advancing-comment span))
@@ -1339,7 +1343,8 @@ With ARG, turn on scripting iff ARG is positive."
 	(proof-done-advancing-other span)))
 
       ;; Add the processed command to the input ring
-      (unless (eq (span-property span 'type) 'comment)
+      (unless (or (not (span-live-p span))
+		  (eq (span-property span 'type) 'comment))
 	(pg-add-to-input-history cmd)))
 
   ;; Finally: state of scripting may have changed now, run hooks.
@@ -2246,12 +2251,13 @@ others)."
 	  (proof-set-locked-end start)
 	  (proof-set-queue-end start))
 	;; Try to clean input history (NB: rely on order here)
-	(let ((cmds (spans-at-region-prop start end 'cmd))
-	      (fn   (lambda (span)
-		      (unless (eq (span-property span 'type) 'comment)
-			(pg-remove-from-input-history
-			 (span-property span 'cmd))))))
-	  (mapcar fn (reverse cmds)))
+;; PG 3.7 release: disable this, it's not yet robust.
+;; 	(let ((cmds (spans-at-region-prop start end 'cmd))
+;; 	      (fn   (lambda (span)
+;; 		      (unless (eq (span-property span 'type) 'comment)
+;; 			(pg-remove-from-input-history
+;; 			 (span-property span 'cmd))))))
+;; 	  (mapcar fn (reverse cmds)))
 	
 	(span-delete-spans start end 'type)
 	(span-delete-spans start end 'idiom)

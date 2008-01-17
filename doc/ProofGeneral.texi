@@ -2120,7 +2120,9 @@ edit of it.  The feature is reminiscent of history mechanisms provided
 in shell terminals (and the implementation is borrowed from the Emacs
 Comint package).  The input ring only contains commands which have been
 successfully processed (coloured blue).  Duplicated commands are only
-entered once.  When commands are undone, they are removed from the ring.
+entered once.  
+@c this is disabled for now, it's not robust
+@c When commands are undone, they are removed from the ring.
 The size of the ring is set by the variable @code{pg-input-ring-size}.
 
 @kindex M-p
