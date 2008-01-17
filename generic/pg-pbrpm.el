@@ -563,11 +563,14 @@ If no match found, return the empty string."
      (define-key proof-goals-mode-map [(button3)] 'pg-pbrpm-button-action)
      (define-key proof-goals-mode-map [(control button3)] 'pg-goals-yank-subterm)
      (define-key proof-goals-mode-map [(control button1)] 'pg-pbrpm-remember-region)
-     (define-key pg-span-context-menu-keymap [(button3)] 'pg-pbrpm-button-action)
-     (define-key pg-span-context-menu-keymap [(control button3)] 'pg-span-context-menu)
      (define-key proof-mode-map [(button3)] 'pg-pbrpm-button-action)
      (define-key proof-mode-map [(control button3)] 'pg-goals-yank-subterm)
      (define-key proof-mode-map [(control button1)] 'pg-pbrpm-remember-region)))
+
+(eval-after-load "proof-script"
+  '(progn
+     (define-key pg-span-context-menu-keymap [(button3)] 'pg-pbrpm-button-action)
+     (define-key pg-span-context-menu-keymap [(control button3)] 'pg-span-context-menu)))
 
 (provide 'pg-pbrpm)
 ;;; pg-pbrpm ends here
