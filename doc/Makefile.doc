@@ -160,6 +160,9 @@ $(DOCNAME).texi:
 magic:
 	$(EMACS) $(EMACSFLAGS) -l ./docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
 
+debugmagic:
+	$(EMAC) $(EMACFLAGS)  -eval '(setq debug-on-error t)' -l ./docstring-magic.el PG-adapting.texi -f texi-docstring-magic -f save-buffer
+
 
 
 
