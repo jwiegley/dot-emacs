@@ -9,12 +9,12 @@ See also etc/release-log.txt for minor patches.
 *** Fixes and additions, patches for recent (X)Emacs versions
 
 - Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
-- Workarounds added for some bugs in XEmacs 21.5 beta (but GNU Emacs
-  now preferred).
-- Cropped icons to better match style of GNU Emacs/Gnome.
+- Workarounds for bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
+- Reworked icons to better match style of GNU Emacs/Gnome.
 - Context menu for spans: options to move spans up/down (risky!) and undo.
+- History for processed commands in active script buffer (M-n, M-p)
 - Maths menu added for inserting Unicode math characters (GNU Emacs only)
-- Many code cleanups from Stefan Monnier.
+- Many minor fixes and code cleanups.
 
 *** Large X-Symbol fonts added, courtesy of Clemens Ballarin
 
