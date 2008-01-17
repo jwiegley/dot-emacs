@@ -3932,7 +3932,7 @@ Proof General.
 
 @lisp
 @c FIXME: MAGIC NEEDED TO INCLUDE FILE VERBATIM
-@c @includeverbatim ../demoisa/demoisa-easy.el
+@c @includeverbatim ../demoisa/demoisa.el
 ;; demoisa.el Example Proof General instance for Isabelle
 ;;
 ;; Copyright (C) 1999 LFCS Edinburgh. 
@@ -4075,19 +4075,6 @@ Proof General.
 ;; A more sophisticated instantiation might set font-lock-keywords to
 ;; add highlighting, or some of the proof by pointing markup
 ;; configuration for the goals buffer.
-
-;; The final piece of magic here is a hook which configures settings
-;; to get the proof shell running.  Proof General needs to know the
-;; name of the program to run, and the modes for the shell, response,
-;; and goals buffers.
-
-(add-hook 'proof-pre-shell-start-hook 'demoisa-pre-shell-start)
-
-(defun demoisa-pre-shell-start ()
-  (setq proof-prog-name		isabelledemo-prog-name)
-  (setq proof-mode-for-shell    'demoisa-shell-mode)
-  (setq proof-mode-for-response 'demoisa-response-mode)
-  (setq proof-mode-for-goals	'demoisa-goals-mode))
 
 (provide 'demoisa)
 @end lisp
