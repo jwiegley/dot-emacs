@@ -61,10 +61,10 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.6
-@set xemacsversion 21.4.15
-@set fsfversion 21.3.1
-@set last-update June 2004
+@set version 3.7
+@set xemacsversion 21.5.28
+@set fsfversion 22.1.1
+@set last-update January 2008
 @set rcsid $Id$
 
 @ifinfo
@@ -361,7 +361,10 @@ more details.
 @c TEXI DOCSTRING MAGIC: proof-assistant-table
 @defopt proof-assistant-table 
 Proof General's table of supported proof assistants.@*
-Extend this table to add a new proof assistant.
+This is copied from @samp{@code{proof-assistant-table-default}} at load time,
+removing any entries that do not have a corresponding directory
+under @samp{@code{proof-home-directory}}.
+
 Each entry is a list of the form
 @lisp
     (@var{symbol} @var{name} @var{automode-regexp})
@@ -375,10 +378,10 @@ directory and elisp file for the mode, which will be
  
     @var{proof-home-directory}/@var{symbol}/@var{symbol}.el
 @end lisp
-where @samp{PROOF-HOME-DIRECTORY} is the value of the
-variable @code{proof-home-directory}.
+where @var{proof-home-directory} is the value of the
+variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (ccc "CASL Consistency Checker" "\\.ccc$") (acl2 "ACL2" "\\.acl2$") (plastic "Plastic" "\\.lf$") (lclam "Lambda-CLAM" "\\.lcm$") (pgshell "PG-Shell" "\\.pgsh$"))}.
+The default value is @code{((isar "Isabelle" "\\.thy$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (lego "LEGO" "\\.l$") (plastic "Plastic" "\\.lf$"))}.
 @end defopt
 
 
@@ -680,7 +683,7 @@ functions.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
-Character which terminates every command sent to proof assistant.  nil if none.
+Character that terminates commands sent to prover; nil if none.
 
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}},
@@ -690,7 +693,7 @@ or @samp{@code{proof-script-parse-function}}.
 
 @c TEXI DOCSTRING MAGIC: proof-script-sexp-commands
 @defvar proof-script-sexp-commands 
-Non-nil if proof script has a LISP-like syntax, and commands are @code{top-level} sexps.@*
+Non-nil if script has LISP-like syntax: commands are @code{top-level} sexps.@*
 You should set this variable in script mode configuration.
 
 To configure command recognition properly, you must set at least one
@@ -833,11 +836,11 @@ It's safe to leave this setting as nil.
 
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-result
 @defvar proof-goal-with-hole-result 
-String or Int: how to build the theorem name after matching@*
-with @code{proof-goal-with-hole-regexp}. If it is an int N use @code{match-string}
-to recover the value of the Nth parenthesis matched. If it is a string
-use @code{replace-match}. It the later case, @code{proof-goal-with-hole-regexp} should
-match the entire command
+How to build theorem name after matching with @samp{@code{proof-goal-with-hole-regexp}}.@*
+String or Int. 
+If an int N use @code{match-string} to recover the value of the Nth parenthesis matched. 
+If it is a string use @code{replace-match}. In this case, @code{proof-save-with-hole-regexp} 
+should match the entire command
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-save-command-regexp
@@ -1131,7 +1134,7 @@ you only need to set if you use that function (by not customizing
 
 @c TEXI DOCSTRING MAGIC: pg-topterm-goalhyplit-fn
 @defvar pg-topterm-goalhyplit-fn 
-Function which returns cons cell if point is at a goal/hypothesis/literal command.@*
+Function to return cons if point is at a goal/hypothesis/literal.@*
 This is used to parse the proofstate output to mark it up for
 proof-by-pointing or literal command insertion.  It should return a cons or nil.
 First element of the cons is a symbol, @code{'goal'}, @code{'hyp'} or @code{'lit'}.
@@ -1348,9 +1351,6 @@ to send to the prover to activate certain actions.
 @defvar proof-prog-name 
 System command to run the proof assistant in the proof shell.@*
 May contain arguments separated by spaces, but see also @samp{proof-prog-args}.
-Suggestion: this can be set in @code{proof-pre-shell-start-hook} from a variable
-which is in the proof assistant's customization group.  This allows
-different proof assistants to coexist (albeit in separate Emacs sessions).
 
 Remark: if @samp{proof-prog-args} is non-nil, then @code{proof-prog-name} is considered
 strictly: it must contain @strong{only} the program name with no option, spaces
@@ -1697,7 +1697,7 @@ A regular expression matching the name of assumptions.
 
 At the moment, this setting is not used in the generic Proof General.
 
-In the future it will be used for a generic implementation for @samp{@code{pg-topterm-goalhyplit-fn}},
+Future use may providea generic implementation for @samp{@code{pg-topterm-goalhyplit-fn}},
 used to help parse the goals buffer to annotate it for proof by pointing.
 @end defvar
 
@@ -1721,11 +1721,16 @@ with "eager" annotations.
 @c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-start
 @defvar proof-shell-eager-annotation-start 
 Eager annotation field start.  A regular expression or nil.@*
-An eager annotation indicates to Proof General that some following output
+An "eager annotation indicates" to Proof General that some following output
 should be displayed (or processed) immediately and not accumulated for
-parsing later.
+parsing later.  Note that this affects processing of output which is
+ordinarily accumulated: output which appears before the eager annotation 
+start will be discarded.
 
-It is nice to recognize (starts of) warnings or file-reading messages
+The start/end annotations can be used to hilight the output, but
+are stripped from display of the message in the minibuffer.
+
+It is useful to recognize (starts of) warnings or file-reading messages
 with this regexp.  You must also recognize any special messages
 from the prover to PG with this regexp (e.g. @samp{@code{proof-shell-clear-goals-regexp}},
 @samp{@code{proof-shell-retract-files-regexp}}, etc.)
@@ -1910,7 +1915,7 @@ on information from the prover.
 
 @c TEXI DOCSTRING MAGIC: proof-done-advancing-require-function
 @defvar proof-done-advancing-require-function 
-Invoked from @samp{@code{proof-done-advancing}}, see @samp{@code{proof-shell-require-command-regexp}}.@*
+Used in @samp{@code{proof-done-advancing}}, see @samp{@code{proof-shell-require-command-regexp}}.@*
 The function is passed the span and the command as arguments.
 @end defvar
 @node Hooks and other settings
@@ -2155,7 +2160,7 @@ This list contains files in canonical truename format
 Whenever a new file is being processed, it gets added to this list
 via the @code{proof-shell-process-file} configuration settings.
 When the prover retracts a file, this list is resynchronised via the
-@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list} 
+@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list}
 configuration settings.
 
 Only files which have been @strong{fully} processed should be included here.
@@ -2582,7 +2587,7 @@ dependent code in one place).
 
 @c TEXI DOCSTRING MAGIC: proof-running-on-win32
 @defvar proof-running-on-win32 
-Non-nil if Proof General is running on a win32 system.
+Non-nil if Proof General is running on a windows variant system.
 @end defvar
 
 
@@ -2655,7 +2660,7 @@ KEY is added onto @code{proof-assistant} map.
 
 @c TEXI DOCSTRING MAGIC: proof-define-assistant-command
 @deffn Macro proof-define-assistant-command 
-Define command FN to send string @var{body} to proof assistant, based on @var{cmdvar}.@*
+Define FN (docstring DOC) to send @var{body} to prover, based on @var{cmdvar}.@*
 @var{body} defaults to @var{cmdvar}, a variable.
 @end deffn
 
@@ -2745,7 +2750,7 @@ is located in, or to the variable of the environment variable
 
 @c TEXI DOCSTRING MAGIC: proof-home-directory
 @defvar proof-home-directory 
-Directory where Proof General is installed. Ends with slash.@*
+Directory where Proof General is installed.  Ends with slash.@*
 Default value taken from environment variable @samp{PROOFGENERAL_HOME} if set, 
 otherwise based on where the file @samp{proof-site.el} was loaded from.
 You can use customize to set this variable.
@@ -2761,12 +2766,12 @@ up and installed across a system if need be, rather than under the
 
 @c TEXI DOCSTRING MAGIC: proof-images-directory
 @defvar proof-images-directory 
-Where Proof General image files are installed. Ends with slash.
+Where Proof General image files are installed.  Ends with slash.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-info-directory
 @defvar proof-info-directory 
-Where Proof General Info files are installed. Ends with slash.
+Where Proof General Info files are installed.  Ends with slash.
 @end defvar
 
 
@@ -2781,8 +2786,8 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'lego} @code{'coq} @code{'phox} @code{'ccc} @code{'acl2} @code{'plastic} @code{'lclam} @code{'pgshell}.
-If nil, the default will be ALL proof assistants.
+A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego} @code{'plastic}.
+If nil, the default will be ALL available proof assistants.
 
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
@@ -2837,7 +2842,7 @@ automatically be prefixed by the current proof assistant symbol.
 @c TEXI DOCSTRING MAGIC: defpgcustom
 @deffn Macro defpgcustom 
 Define a new customization variable <PA>@var{-sym} for the current proof assistant.@*
-The function proof-assistant-<SYM> is also defined, which can be used in the 
+The function proof-assistant-<SYM> is also defined, which can be used in the
 generic portion of Proof General to set and retrieve the value for the current p.a.
 Arguments as for @samp{defcustom}, which see.
 
@@ -2868,16 +2873,19 @@ macros are useful.
 
 @c TEXI DOCSTRING MAGIC: proof-ass
 @deffn Macro proof-ass 
-Return the value for SYM for the current prover.
+Return the value for SYM for the current prover.@*
+This macro should only be invoked once a specific prover is engaged.
 @end deffn
 @c TEXI DOCSTRING MAGIC: proof-ass-sym
 @deffn Macro proof-ass-sym 
-Return the symbol for SYM for the current prover.  SYM not evaluated.
+Return the symbol for SYM for the current prover.  SYM not evaluated.@*
+This macro should only be called once a specific prover is known.
 @end deffn
 @c TEXI DOCSTRING MAGIC: proof-ass-symv
-@defun proof-ass-symv sym
-Return the symbol for @var{sym} for the current prover.  @var{sym} is evaluated.
-@end defun
+@deffn Macro proof-ass-symv 
+Return the symbol for SYM for the current prover.  SYM evaluated.@*
+This macro should only be invoked once a specific prover is engaged.
+@end deffn
 
 If changing a user option setting amounts to more than just setting a
 variable (it may have some dynamic effect), we can set the
@@ -2910,9 +2918,9 @@ Set a customize variable using @code{set-default} and a function.@*
 We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
 Then if there is a function @var{sym} (i.e. with the same name as the
 variable @var{sym}), it is called to take some dynamic action for the new
-setting.  
+setting.
 
-If there is no function @var{sym}, we try stripping 
+If there is no function @var{sym}, we try stripping
 @code{proof-assistant-symbol} and adding "proof-" instead to get
 a function name.  This extends @code{proof-set-value} to work with
 generic individual settings.
@@ -2968,7 +2976,7 @@ This list contains files in canonical truename format
 Whenever a new file is being processed, it gets added to this list
 via the @code{proof-shell-process-file} configuration settings.
 When the prover retracts a file, this list is resynchronised via the
-@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list} 
+@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list}
 configuration settings.
 
 Only files which have been @strong{fully} processed should be included here.
@@ -2993,7 +3001,7 @@ of the proof (starting from 1).
 @c TEXI DOCSTRING MAGIC: proof-shell-error-or-interrupt-seen
 @defvar proof-shell-error-or-interrupt-seen 
 Flag indicating that an error or interrupt has just occurred.@*
-Set to @code{'error} or @code{'interrupt} if one was observed from the proof 
+Set to @code{'error} or @code{'interrupt} if one was observed from the proof
 assistant during the last group of commands.
 @end defvar
 
@@ -3506,7 +3514,8 @@ This is the string matched by @samp{@code{proof-shell-annotated-prompt-regexp}}.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-last-output
 @defvar proof-shell-last-output 
-A record of the last string seen from the proof system.
+A record of the last string seen from the proof system.@*
+This is raw string, for internal use only.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-last-output-kind
