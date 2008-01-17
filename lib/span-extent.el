@@ -56,6 +56,10 @@
   "Apply function FN to all spans between START and END with property PROP set"
   (mapcar-extents fn nil (current-buffer) start end  nil prop val))
 
+(defsubst spans-at-region-prop (start end prop &optional val)
+  "Return a list of the spans in START END with PROP [set to VAL]."
+  (extent-list (current-buffer) start end nil prop val))
+
 (defsubst span-at (pt prop)
   "Return the smallest SPAN at point PT with property PROP."
   (extent-at pt nil prop))
