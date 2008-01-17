@@ -39,7 +39,7 @@ DVI2PS = dvips -Pcmz
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html -expandinfo -number -split_chapter
 EMACS = emacs
-EMACSFLAGS = -q -no-site-file -batch
+EMACSFLAGS = -q -no-site-file 
 
 TMPFILE=pgt
 
@@ -158,7 +158,7 @@ distclean:   clean
 $(DOCNAME).texi: 
 	$(MAKE) magic
 magic:
-	$(EMACS) $(EMACSFLAGS) -l ./docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
+	$(EMACS) $(EMACSFLAGS) -batch -l ./docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
 
 debugmagic:
 	$(EMACS) $(EMACFLAGS)  -eval '(setq debug-on-error t)' -l ./docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
