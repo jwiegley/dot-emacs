@@ -19,7 +19,7 @@
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-splash-time 2
+(defcustom proof-splash-time 3
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a wee while longer than
 this, depending on how long it takes the machine to initialise 
@@ -45,7 +45,9 @@ Proof General."
     nil
     nil
 "    Please report problems at http://proofgeneral.inf.ed.ac.uk/trac
-    Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki")
+    Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki"
+    nil
+    "Find out more about Emacs via the Help menu.")
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
@@ -271,7 +273,10 @@ Otherwise, timeout inside this function after 10 seconds or so."
   (interactive)
   (unless (or proof-splash-seen noninteractive)
     (if proof-splash-enable
-	(proof-splash-display-screen (not (interactive-p)))
+	(progn
+	  ;; disable ordinary emacs splash
+	  (setq inhibit-startup-message t)
+	  (proof-splash-display-screen (not (interactive-p))))
       ;; Otherwise, a message
       (message "Welcome to %s Proof General!" proof-assistant))
     (setq proof-splash-seen t)))
