@@ -171,7 +171,7 @@ handling of interrupt signals."
 ;; Movement commands
 ;;
 
-;; FIXME da: the next function is messy.  Also see notes in 'todo'
+;; TODO da: the next function is messy.
 (defun proof-goto-command-start ()
   "Move point to start of current (or final) command of the script."
   (interactive)
@@ -221,7 +221,7 @@ handling of interrupt signals."
 ;; be nicer behaviour than actually moving point into locked region
 ;; which is only useful for cut and paste, really.
 (defun proof-mouse-goto-point (event)
-  "Call proof-goto-point on the click position."
+  "Call proof-goto-point on the click position EVENT."
   (interactive "e")
   (proof-maybe-save-point
    (mouse-set-point event)
@@ -237,7 +237,7 @@ handling of interrupt signals."
 ;; Maybe by setting some of the mouse track hooks.
 ;; TODO: mouse-track-insert is XEmacs specific anyway.
 (defun proof-mouse-track-insert (event)
-  "Copy highlighted command under the mouse to point.  Ignore comments.
+  "Copy highlighted command under mouse EVENT to point.  Ignore comments.
 If there is no command under the mouse, behaves like mouse-track-insert."
   (interactive "e")
   (let ((str
@@ -276,7 +276,7 @@ If there is no command under the mouse, behaves like mouse-track-insert."
   "History of proof commands read from the minibuffer.")
 
 (defun proof-minibuffer-cmd (cmd)
-  "Prompt for a command in the minibuffer and send it to proof assistant.
+  "Send CMD to proof assistant.  Interactively, read from minibuffer.
 The command isn't added to the locked region.
 
 If a prefix arg is given and there is a selected region, that is
@@ -342,7 +342,7 @@ a proof command."
    ;; Sometimes may need to move point forwards, when locked region
    ;; is editable.
    ;; ((> (point) (proof-locked-end))
-   ;; (error "You can only move point backwards."))
+   ;; (error "You can only move point backwards"))
    ;; FIXME da: should move to a command boundary, really!
    (t (proof-set-locked-end (point))
       (span-delete-spans (proof-locked-end) (point-max) 'type))))
@@ -351,38 +351,6 @@ a proof command."
 
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; command history  (unfinished)
-;;
-;; da: below functions for input history simulation are quick hacks.
-;; Could certainly be made more efficient.
-
-;(defvar proof-command-history nil
-;  "History used by proof-previous-matching-command and friends.")
-
-;(defun proof-build-command-history ()
-;  "Construct proof-command-history from script buffer.
-;Based on position of point."
-;  ;; let
-;  )
-
-;(defun proof-previous-matching-command (arg)
-;  "Search through previous commands for new command matching current input."
-;  (interactive))
-;  ;;(if (not (memq last-command '(proof-previous-matching-command
-;  ;; proof-next-matching-command)))
-;      ;; Start a new search
-      
-;(defun proof-next-matching-command (arg)
-;  "Search through following commands for new command matching current input."
-;  (interactive "p")
-;  (proof-previous-matching-command (- arg)))
-
-;;
-;; end command history stuff
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	  
 
 
@@ -425,7 +393,7 @@ a proof command."
 
 ;;;###autoload
 (defmacro proof-define-assistant-command (fn doc cmdvar &optional body)
-  "Define command FN to send string BODY to proof assistant, based on CMDVAR.
+  "Define FN (docstring DOC) to send BODY to prover, based on CMDVAR.
 BODY defaults to CMDVAR, a variable."
   `(defun ,fn ()
      ,(concat doc
@@ -618,7 +586,7 @@ comment, and insert or skip to the next semi)."
 
 (defun proof-electric-terminator ()
   "Insert the terminator, perhaps sending the command to the assistant.
-If proof-electric-terminator-enable is non-nil, the command will be
+If `proof-electric-terminator-enable' is non-nil, the command will be
 sent to the assistant."
   (interactive)
   (if proof-electric-terminator-enable
@@ -812,7 +780,7 @@ If NUM is negative, move upwards.  Return new span."
 	    (let ((new-span
 		   (span-at insertpos 'type)));should be one we deleted.
 	      (span-set-property new-span 'children
-				 (pg-fixup-children-spans 
+				 (pg-fixup-children-spans
 				  new-span insertpos (point)))
 	      (span-set-end proof-locked-span lockedend)
 	      (undo-boundary)
@@ -820,7 +788,7 @@ If NUM is negative, move upwards.  Return new span."
 
 (defun pg-fixup-children-spans (new-parent start end)
   (append
-   (span-mapcar-spans 
+   (span-mapcar-spans
     (lambda (span)
       (if (span-property span 'controlspan)
 	  (progn
@@ -1154,6 +1122,241 @@ The function `substitute-command-keys' is called on the argument."
 		    (lookup-key oldkeymap [menu-bar index])))
 	      (use-local-map oldkeymap)))
 	(remove-hook 'menu-bar-update-hook 'imenu-update-menubar)))))
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Command history  (added in PG 3.7)
+;;
+;; This implements a history ring for commands in the locked region.
+;; Inspired by (and code heavily copied from) comint in XEmacs.
+;;
+;; The current behaviour is not ideal: we only extend the input ring as
+;; we process (so history does not browse pink text while the
+;; prover is busy).  Moreover, instead of using a history, we might
+;; simply parse commands backwards (or forwards) in the buffer.
+;; (i.e, more like the copying behaviour implemented in Bibtex mode).
+;;
+
+(defvar pg-input-ring nil
+  "Ring of previous inputs")
+
+(defvar pg-input-ring-index nil
+  "Position of last matched command")
+
+(defvar pg-stored-incomplete-input nil
+  "Stored incomplete input: string between point and locked")
+
+(defun pg-previous-input (arg)
+  "Cycle backwards through input history, saving input."
+  (interactive "*p")
+  (if (and pg-input-ring-index
+	   (or		       ;; leaving the "end" of the ring
+	    (and (< arg 0)		; going down
+		 (eq pg-input-ring-index 0))
+	    (and (> arg 0)		; going up
+		 (eq pg-input-ring-index
+		     (1- (ring-length pg-input-ring)))))
+	   pg-stored-incomplete-input)
+      (pg-restore-input)
+    (pg-previous-matching-input "." arg)))
+
+(defun pg-next-input (arg)
+  "Cycle forwards through input history."
+  (interactive "*p")
+  (pg-previous-input (- arg)))
+
+(defun pg-delete-input ()
+  (let* ((unproc (proof-unprocessed-begin))
+	 (start  (save-excursion
+		   (goto-char unproc)
+		   (skip-chars-forward " \t\n")
+		   (point)))
+	 (end    (point-at-eol)))
+    (cond
+     ((< start end)
+      (delete-region start end))
+     ((< start (point-at-eol))
+      (delete-region start (point-at-eol))))))
+
+(defun pg-get-old-input ()
+  "Return text between end of locked region and point, up to EOL.
+If there is no text, return the empty string."
+  (let* ((unproc (proof-unprocessed-begin))
+	 (start  (save-excursion
+		   (goto-char unproc)
+		   (skip-chars-forward " \t\n")
+		   (point)))
+	 (end    (point-at-eol)))
+    (if (< start end)
+	(buffer-substring-no-properties start end)
+      nil)))
+
+
+(defun pg-restore-input ()
+  "Restore unfinished input."
+  (interactive)
+  (when pg-input-ring-index
+    (pg-delete-input)
+    (when (> (length pg-stored-incomplete-input) 0)
+      (insert pg-stored-incomplete-input)
+      (message "Input restored"))
+    (setq pg-input-ring-index nil)))
+
+
+(defun pg-search-start (arg)
+  "Index to start a directional search, starting at `pg-input-ring-index'."
+  (if pg-input-ring-index
+      ;; If a search is running, offset by 1 in direction of arg
+      (mod (+ pg-input-ring-index (if (> arg 0) 1 -1))
+	   (ring-length pg-input-ring))
+    ;; For a new search, start from beginning or end, as appropriate
+    (if (>= arg 0)
+	0				       ; First elt for forward search
+      (1- (ring-length pg-input-ring)))))  ; Last elt for backward search
+
+
+(defun pg-regexp-arg (prompt)
+  "Return list of regexp and prefix arg using PROMPT."
+  (let* (;; Don't clobber this.
+	 (last-command last-command)
+	 (regexp (read-from-minibuffer prompt nil nil nil
+				       'minibuffer-history-search-history)))
+    (list (if (string-equal regexp "")
+	      (setcar minibuffer-history-search-history
+		      (nth 1 minibuffer-history-search-history))
+	    regexp)
+	  (prefix-numeric-value current-prefix-arg))))
+
+(defun pg-search-arg (arg)
+  ;; First make sure there is a ring and that we are after the process mark
+  (cond ((not (>= (point) (proof-unprocessed-begin)))
+	 (error "Not in unlocked region"))
+	((or (null pg-input-ring)
+	     (ring-empty-p pg-input-ring))
+	 (error "Empty input ring"))
+	((zerop arg)
+	 ;; arg of zero resets search from beginning, and uses arg of 1
+	 (setq pg-input-ring-index nil)
+	 1)
+	(t
+	 arg)))
+
+(defun pg-previous-matching-input-string-position (regexp arg &optional start)
+  "Return the index matching REGEXP ARG places along the input ring.
+Moves relative to START, or `pg-input-ring-index'."
+  (if (or (not (ring-p pg-input-ring))
+	  (ring-empty-p pg-input-ring))
+      (error "No history"))
+  (let* ((len (ring-length pg-input-ring))
+	 (motion (if (> arg 0) 1 -1))
+	 (n (mod (- (or start (pg-search-start arg)) motion) len))
+	 (tried-each-ring-item nil)
+	 (prev nil))
+    ;; Do the whole search as many times as the argument says.
+    (while (and (/= arg 0) (not tried-each-ring-item))
+      ;; Step once.
+      (setq prev n
+	    n (mod (+ n motion) len))
+      ;; If we haven't reached a match, step some more.
+      (while (and (< n len) (not tried-each-ring-item)
+		  (not (string-match regexp (ring-ref pg-input-ring n))))
+	(setq n (mod (+ n motion) len)
+	      ;; If we have gone all the way around in this search.
+	      tried-each-ring-item (= n prev)))
+      (setq arg (if (> arg 0) (1- arg) (1+ arg))))
+    ;; Now that we know which ring element to use, if we found it, return that.
+    (if (string-match regexp (ring-ref pg-input-ring n))
+	n)))
+
+(defun pg-previous-matching-input (regexp n)
+  "Search backwards through input history for match for REGEXP.
+\(Previous history elements are earlier commands.)
+With prefix argument N, search for Nth previous match.
+If N is negative, find the next or Nth next match."
+  (interactive (pg-regexp-arg "Previous input matching (regexp): "))
+  (setq n (pg-search-arg n))
+  (let ((pos (pg-previous-matching-input-string-position regexp n)))
+    ;; Has a match been found?
+    (if (null pos)
+	(error "Match not found" regexp)
+      ;; If leaving the edit line, save partial input
+      (if (null pg-input-ring-index)	;not yet on ring
+	  (setq pg-stored-incomplete-input (pg-get-old-input)))
+      (setq pg-input-ring-index pos)
+      (message "History item: %d" (1+ pos))
+      (pg-delete-input)
+      (insert (ring-ref pg-input-ring pos)))))
+
+(defun pg-next-matching-input (regexp n)
+  "Search forwards through input history for match for REGEXP.
+\(Later history elements are more recent commands.)
+With prefix argument N, search for Nth following match.
+If N is negative, find the previous or Nth previous match."
+  (interactive (pg-regexp-arg "Next input matching (regexp): "))
+  (pg-previous-matching-input regexp (- n)))
+
+(defvar pg-matching-input-from-input-string ""
+  "Input previously used to match input history.")
+
+;;;###autoload
+(defun pg-previous-matching-input-from-input (n)
+  "Search backwards through input history for match for current input.
+\(Previous history elements are earlier commands.)
+With prefix argument N, search for Nth previous match.
+If N is negative, search forwards for the -Nth following match."
+  (interactive "p")
+  (if (not (memq last-command '(pg-previous-matching-input-from-input
+				pg-next-matching-input-from-input)))
+      ;; Starting a new search
+      (setq pg-matching-input-from-input-string (pg-get-old-input)
+	    pg-input-ring-index nil))
+  (if pg-matching-input-from-input-string
+      (pg-previous-matching-input
+       (concat "^" (regexp-quote pg-matching-input-from-input-string))
+       n)
+    (pg-previous-matching-input "." n)))
+
+;;;###autoload
+(defun pg-next-matching-input-from-input (n)
+  "Search forwards through input history for match for current input.
+\(Following history elements are more recent commands.)
+With prefix argument N, search for Nth following match.
+If N is negative, search backwards for the -Nth previous match."
+  (interactive "p")
+  (pg-previous-matching-input-from-input (- n)))
+
+
+
+;;;###autoload
+(defun pg-add-to-input-history (cmd)
+   "Maybe add CMD to the input history.
+CMD is only added to the input history if it is not a duplicate
+of the last item added."
+   (when (or (not (ring-p pg-input-ring))
+	     (ring-empty-p pg-input-ring)
+	     (not (string-equal (ring-ref pg-input-ring 0) cmd)))
+     (unless (ring-p pg-input-ring)
+       (setq pg-input-ring (make-ring pg-input-ring-size)))
+     (ring-insert pg-input-ring cmd)))
+
+;;;###autoload
+(defun pg-remove-from-input-history (cmd)
+  "Maybe remove CMD from the end of the input history.
+This is called when the command is undone.  It's only 
+removed if it matches the last item in the ring."
+  (if (and (ring-p pg-input-ring)
+	   (not (ring-empty-p pg-input-ring))
+	   (string-equal (ring-ref pg-input-ring 0) cmd))
+      (ring-remove pg-input-ring 0)))
+  
+
+;;;###autoload
+(defun  pg-clear-input-ring ()
+  (setq pg-input-ring nil))
+
 
 (provide 'pg-user)
 ;;; pg-user.el ends here

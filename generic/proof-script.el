@@ -15,7 +15,7 @@
 (require 'span)				; abstraction of overlays/extents
 (require 'proof)			; loader (& proof-utils macros)
 (require 'proof-syntax)		        ; utils for manipulating syntax
-(require 'proof-menu)			; menus for script mode
+;(require 'proof-menu)			; menus for script mode
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -236,11 +236,10 @@ Otherwise set the locked region to be from (point-min) to END."
      (min (point-max) end) ;; safety: sometimes called with end>point-max(?)
     )))
 
-;; Reimplemented this to mirror above because of remaining
-;; span problen
 (defsubst proof-set-queue-end (end)
   "Set the queue span to end at END."
   (if (or (>= (point-min) end)
+	  (not (span-live-p  proof-queue-span))
 	  (<= end (span-start proof-queue-span)))
       (proof-detach-queue)
     (span-set-end proof-queue-span end)))
@@ -275,7 +274,8 @@ Also clear list of script portions."
   (span-detach proof-locked-span)
   (setq proof-last-theorem-dependencies nil)
   (setq proof-element-counters nil)
-  (pg-clear-script-portions))
+  (pg-clear-script-portions)
+  (pg-clear-input-ring))
 
 
 ;; ** Restarting and clearing spans
@@ -1120,14 +1120,9 @@ If the hooks issue commands to the proof assistant (via
 `proof-shell-invisible-command') which result in an error, the
 activation is considered to have failed and an error is given."
   (interactive)
-  ;; FIXME: the scope of this save-excursion is rather wide.
-  ;; Problems without it however: Use button behaves oddly
-  ;; when process is started already.
-  ;; Where is save-excursion needed?
-  ;; First experiment shows that it's the hooks that cause
-  ;; problem, maybe even the use of proof-cd-sync (can't see why).
+  ;; TODO: narrow the scope of this save-excursion.
+  ;; Where is it needed?  Maybe hook functions.
   (save-excursion
-    ;; FIXME: proof-shell-ready-prover here s
     (proof-shell-ready-prover queuemode)
     (cond
      ((not (eq proof-buffer-type 'script))
@@ -1148,10 +1143,9 @@ activation is considered to have failed and an error is given."
 		(error
 		 "You cannot have more than one active scripting buffer!"))))
 	    
-      ;; Now make sure that this buffer is off the included files
-      ;; list.  In case we re-activate scripting in an already
-      ;; completed buffer, it may be that the proof assistant
-      ;; needs to retract some of this buffer's dependencies.
+      ;; Ensure this buffer is off the included files list.  If we
+      ;; re-activate scripting in an already completed buffer, the
+      ;; proof assistant may need to retract some dependencies.
       (proof-unregister-buffer-file-name 'tell-the-prover)
 
       ;; If automatic retraction happened in the above step, we may
@@ -1343,7 +1337,11 @@ With ARG, turn on scripting iff ARG is positive."
        
        ;; CASE 5:  Some other kind of command (or a nested goal).
        (t
-	(proof-done-advancing-other span))))
+	(proof-done-advancing-other span)))
+
+      ;; Add the processed command to the input ring
+      (unless (eq (span-property span 'type) 'comment)
+	(pg-add-to-input-history cmd)))
 
   ;; Finally: state of scripting may have changed now, run hooks.
   (run-hooks 'proof-state-change-hook)))
@@ -2222,12 +2220,11 @@ appropriate."
 ;; code here is fairly straightforward.
 
 
-;; FIXME: we need to adjust proof-nesting-depth appropriately here.
+;; TODO: we need to adjust proof-nesting-depth appropriately here.
 ;; It would help to know the type of retraction which has just
 ;; occurred: a kill-proof may be assumed to set nesting depth
 ;; to zero; an undo sequence may alter it some other way.
-;; FIXME FIXME: at the moment, the adjustment is made in
-;; the wrong place!!
+;; NB: at the moment, the adjustment is made in the wrong place!!
 
 (defun proof-done-retracting (span)
   "Callback for proof-retract-until-point.
@@ -2238,7 +2235,7 @@ After an undo, we clear the proof completed flag.  The rationale
 is that undoing never leaves prover in a \"proof just completed\"
 state, which is true for some proof assistants (but probably not
 others)."
-  ;; FIXME: need to fixup proof-nesting-depth
+  ;; TODO: need to fixup proof-nesting-depth
   (setq proof-shell-proof-completed nil)
   (if (span-live-p span)
       (let ((start (span-start span))
@@ -2249,6 +2246,14 @@ others)."
 	(unless (proof-locked-region-empty-p)
 	  (proof-set-locked-end start)
 	  (proof-set-queue-end start))
+	;; Try to clean input history (NB: rely on order here)
+	(let ((cmds (spans-at-region-prop start end 'cmd))
+	      (fn   (lambda (span)
+		      (unless (eq (span-property span 'type) 'comment)
+			(pg-remove-from-input-history
+			 (span-property span 'cmd))))))
+	  (mapcar fn (reverse cmds)))
+	
 	(span-delete-spans start end 'type)
 	(span-delete-spans start end 'idiom)
 	(span-delete span)
@@ -2758,7 +2763,7 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
-  ;; FIXME da: generalize here.  Might have electric terminator for
+  ;; TODO da: generalize here.  Might have electric terminator for
   ;; other parsing mechanisms too, using new proof-script-parse-function
   ;; Could use a default terminal char
   (if proof-terminal-char
@@ -2767,7 +2772,7 @@ finish setup which depends on specific proof assistant configuration."
 	  (vconcat [(control c)] (vector proof-terminal-char))
 	  'proof-electric-terminator-toggle)
 	(define-key proof-mode-map (vector proof-terminal-char)
-	  'proof-electric-terminator-toggle)))
+	  'proof-electric-terminator)))
 
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'proof-indent-line)
