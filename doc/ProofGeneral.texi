@@ -69,10 +69,10 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.7pre
-@set xemacsversion 21.5.27
-@set fsfversion 21.4.1
-@set last-update May 2007
+@set version 3.7
+@set xemacsversion 21.5.28
+@set fsfversion 22.1.1
+@set last-update January 2008
 @set rcsid $Id$
 
 @ifinfo
@@ -126,7 +126,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2007 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2008 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -179,7 +179,7 @@ Experimental support is provided for several other provers.
 * Introducing Proof General::   
 * Basic Script Management::     
 * Subterm Activation and Proof by Pointing::
-* Advanced Script Management::  
+* Advanced Script Management and Editing::  
 * Support for other Packages::  
 * Customizing Proof General::   
 * Hints and Tips::
@@ -233,8 +233,10 @@ newer Emacs versions, and particularly for GNU Emacs: credit is due to
 Stefan Monnier for an intense period of debugging and patching.  The
 options menu has been simplified and extended, and the display
 management is improved and repaired for Emacs API changes.  There are
-some other usability improvements, some after feedback from use 
-at TYPES Summer Schools.
+some other usability improvements, some after feedback from use at TYPES
+Summer Schools.  Many new features have been added to enhance Coq mode
+(thanks to Pierre Courtieu) and several improvements made for Isabelle
+(thanks to Makarius Wenzel and Tjark Weber).
 
 Support has been added for the useful Emacs packages Speedbar
 @c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
@@ -382,7 +384,8 @@ Robert R. Schneck,
 Norbert Schirmer,
 Sebastian Skalberg,
 Mike Squire, and
-Norbert Voelker.
+Norbert Voelker,
+Tjark Weber.
 
 Thanks to all of you (and apologies to anyone missed).
 
@@ -459,7 +462,7 @@ unpack it and insert the line:
 into your @file{~/.emacs} file, where @var{proof-general-home} is the
 top-level directory that was created when Proof General was unpacked.
 
-@xref{Obtaining and Installing} for much more information.
+For much more information, @xref{Obtaining and Installing}.
 
 
 @node Quick start guide
@@ -467,7 +470,7 @@ top-level directory that was created when Proof General was unpacked.
 
 Once Proof General is correctly installed, the corresponding Proof
 General mode will be invoked automatically when you visit a proof
-script file for your proof assistant:
+script file for your proof assistant, for example:
 
 @multitable @columnfractions .35 .3 .35
 @item       @b{Prover}    @tab @b{Extensions} @tab @b{Mode}
@@ -559,7 +562,7 @@ regions.
 
 For more details, @pxref{Basic Script Management},
 @ref{Script processing commands},
-and @ref{Advanced Script Management}.
+and @ref{Advanced Script Management and Editing}.
 @item @i{Script editing mode}@*
 Proof General provides useful facilities for editing proof scripts,
 including syntax hilighting and a menu to jump to particular goals,
@@ -1342,7 +1345,7 @@ highlighted command under the mouse:
 
 @c TEXI DOCSTRING MAGIC: proof-mouse-track-insert
 @deffn Command proof-mouse-track-insert event
-Copy highlighted command under the mouse to point.  Ignore comments.@*
+Copy highlighted command under mouse @var{event} to point.  Ignore comments.@*
 If there is no command under the mouse, behaves like mouse-track-insert.
 @end deffn
 
@@ -1565,7 +1568,7 @@ is set to nil, so responses are not cleared automatically.
 @deffn Command proof-interrupt-process 
 Interrupt the proof assistant.  Warning! This may confuse Proof General.@*
 This sends an interrupt signal to the proof assistant, if Proof General
-thinks it is busy.  
+thinks it is busy.
 
 This command is risky because when an interrupt is trapped in the
 proof assistant, we don't know whether the last command succeeded or
@@ -1575,8 +1578,24 @@ handling of interrupt signals.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-minibuffer-cmd
-@deffn Command proof-minibuffer-cmd 
-do minibuffer cmd then undo it, if error-free.
+@deffn Command proof-minibuffer-cmd cmd
+Send @var{cmd} to proof assistant.  Interactively, read from minibuffer.@*
+The command isn't added to the locked region.
+
+If a prefix arg is given and there is a selected region, that is
+pasted into the command.  This is handy for copying terms, etc from
+the script.
+
+If @samp{@code{proof-strict-state-preserving}} is set, and @samp{@code{proof-state-preserving-p}}
+is configured, then the latter is used as a check that the command
+will be safe to execute, in other words, that it won't ruin
+synchronization.  If when applied to the command it returns false,
+then an error message is given.
+
+@var{warning}: this command risks spoiling synchronization if the test
+@samp{@code{proof-state-preserving-p}} is not configured, if it is
+only an approximate test, or if @samp{@code{proof-strict-state-preserving}}
+is off (nil).
 @end deffn
 
 As if the last two commands weren't risky enough, there's also a command
@@ -1753,7 +1772,7 @@ it to construct an appropriate proof command.  The command which is
 constructed will be inserted at the end of the locked region in the
 proof script buffer, and immediately sent back to the proof assistant.
 If it succeeds, the locked region will be extended to cover the
-proof-by-pointing command, just as for any proof command the 
+proof-by-pointing command, just as for any proof command the
 user types by hand.
 @end deffn
 
@@ -1774,7 +1793,7 @@ This function should be bound to a mouse button in the Proof General
 goals buffer.
 
 The @var{event} is used to find the smallest subterm around a point.  The
-subterm is copied to the @code{kill-ring}, and immediately yanked (copied)
+subterm is copied to the @samp{@code{kill-ring}}, and immediately yanked (copied)
 into the current buffer at the current cursor position.
 
 In case the current buffer is the goals buffer itself, the yank
@@ -1795,13 +1814,13 @@ explicit yank.
 @c
 @c CHAPTER: Advanced Script Management
 @c
-@node Advanced Script Management
-@chapter Advanced Script Management
+@node Advanced Script Management and Editing
+@chapter Advanced Script Management and Editing
 @cindex Multiple Files
 
 If you are working with large proof developments, you may want to know
-about the advanced script management features of Proof General covered
-in this chapter.
+about the advanced script management and editing features of Proof
+General covered in this chapter.
 
 Large developments may contain files with many long proofs.  Proof
 General provides functions that let you hide completed proofs from view,
@@ -1809,11 +1828,11 @@ temporarily.
 
 Large proof developments are typically spread across various files which
 depend on each other in some way.  Proof General knows enough about the
-dependencies to allow script management across multiple files.
-With large developments particularly, users may occasionally need to
-escape from script management, in case Proof General loses
-synchronization with the proof assistant.  Proof General provides
-you with several escape mechanisms if you want to do this.
+dependencies to allow script management across multiple files.  With
+large developments particularly, users may occasionally need to escape
+from script management, in case Proof General loses synchronization with
+the proof assistant.  Proof General provides you with several escape
+mechanisms if you want to do this.
 
 @menu
 * Visibility of completed proofs::
@@ -1823,6 +1842,7 @@ you with several escape mechanisms if you want to do this.
 * Asserting across files::      
 * Automatic multiple file handling::
 * Escaping script management::
+* Editing features::
 * Experimental features::
 @end menu
 
@@ -2087,6 +2107,68 @@ a proof command.
 @end deffn
 
 
+@node Editing features
+@section Editing features
+@cindex Input ring
+
+To make editing proof scripts more productive, Proof General provides
+some additional editing commands.
+
+One facility is the @i{input ring} of previously processed commands.
+This allows a convenient way of repeating an earlier command or a small
+edit of it.  The feature is reminiscent of history mechanisms provided
+in shell terminals (and the implementation is borrowed from the Emacs
+Comint package).  The input ring only contains commands which have been
+successfully processed (coloured blue).  Duplicated commands are only
+entered once.  When commands are undone, they are removed from the ring.
+The size of the ring is set by the variable @code{pg-input-ring-size}.
+
+@kindex M-p
+@kindex M-n
+@table @kbd
+@item M-p
+@code{pg-previous-matching-input-from-input}
+@item M-n
+@code{pg-next-matching-input-from-input}
+@end table
+
+
+@c TEXI DOCSTRING MAGIC: pg-previous-input
+@deffn Command pg-previous-input arg
+Cycle backwards through input history, saving input.
+@end deffn
+@c TEXI DOCSTRING MAGIC: pg-next-input
+@deffn Command pg-next-input arg
+Cycle forwards through input history.
+@end deffn
+@c TEXI DOCSTRING MAGIC: pg-previous-matching-input
+@deffn Command pg-previous-matching-input regexp n
+Search backwards through input history for match for @var{regexp}.@*
+(Previous history elements are earlier commands.)
+With prefix argument @var{n}, search for Nth previous match.
+If @var{n} is negative, find the next or Nth next match.
+@end deffn
+@c TEXI DOCSTRING MAGIC: pg-next-matching-input
+@deffn Command pg-next-matching-input regexp n
+Search forwards through input history for match for @var{regexp}.@*
+(Later history elements are more recent commands.)
+With prefix argument @var{n}, search for Nth following match.
+If @var{n} is negative, find the previous or Nth previous match.
+@end deffn
+@c TEXI DOCSTRING MAGIC: pg-previous-matching-input-from-input
+@deffn Command pg-previous-matching-input-from-input n
+Search backwards through input history for match for current input.@*
+(Previous history elements are earlier commands.)
+With prefix argument @var{n}, search for Nth previous match.
+If @var{n} is negative, search forwards for the -Nth following match.
+@end deffn
+@c TEXI DOCSTRING MAGIC: pg-next-matching-input-from-input
+@deffn Command pg-next-matching-input-from-input n
+Search forwards through input history for match for current input.@*
+(Following history elements are more recent commands.)
+With prefix argument @var{n}, search for Nth following match.
+If @var{n} is negative, search backwards for the -Nth previous match.
+@end deffn
 @node Experimental features
 @section Experimental features
 
@@ -2111,6 +2193,9 @@ but the features themselves may be buggy.
 We encourage users to set this flag and test the features, but being
 aware that the features may be buggy (problem reports and
 suggestions for improvements are welcomed).
+
+In the current 3.7 release, there are no features classed as experimental
+so this option is set by default.
 
 The default value is @code{t}.
 @end defopt
@@ -2701,6 +2786,7 @@ For multiple frame mode, this function obeys the setting of
 @cindex Indentation
 @cindex Remote shell
 @cindex Running proof assistant remotely
+@cindex Input ring
 @c @cindex formatting proof script
 
 Here is the complete set of user options for Proof General, apart from
@@ -2749,7 +2835,7 @@ If you activate this variable, whether or not you really get x-symbol
 support depends on whether your proof assistant supports it and
 whether X-Symbol is installed in your Emacs.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-output-fontify-enable
@@ -2779,15 +2865,6 @@ If non-nil, toolbars buttons may be enabled/disabled automatically.@*
 Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
 or if you find it unreliable.
-
-Notes:
-* Toolbar enablers are only available with XEmacs 21 and later.
-* With this variable nil, buttons do nothing when they would
-otherwise be disabled.
-* If you change this variable it will only be noticed when you
-next start Proof General.
-* The default value for XEmacs built for solaris is nil, because
-of unreliabilities with enablers there.
 
 The default value is @code{t}.
 @end defopt
@@ -2867,6 +2944,12 @@ history that can be browsed without processing/undoing in the prover.
 The default value is @code{nil}.
 @end defopt
 
+@c TEXI DOCSTRING MAGIC: pg-input-ring-size
+@defopt pg-input-ring-size 
+Size of history ring of previous successfully processed commands.
+
+The default value is @code{32}.
+@end defopt
 @c TEXI DOCSTRING MAGIC: proof-general-debug
 @defopt proof-general-debug 
 Non-nil to run Proof General in debug mode.@*
@@ -3435,7 +3518,7 @@ started, Coq Proof General lets the user work on the proof of the new
 lemma, and when the lemma is finished it falls back to the previous
 one.  This is supported to any nesting depth that Coq allows.
 
-Warning! Using coq commands for navigating inside the different proofs
+Warning! Using Coq commands for navigating inside the different proofs
 (@code{Resume} and especially @code{Suspend}) are not supported,
 backtracking will break syncronization.
 
