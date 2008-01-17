@@ -824,20 +824,20 @@ This is specific to `coq-mode'."
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 
-;; 3.4: this is no longer used: setting to nil
-;; enforces use of find-and-forget always.
+  ;; 3.4: this is no longer used: setting to nil
+  ;; enforces use of find-and-forget always.
   (setq proof-kill-goal-command nil)
 
   (setq proof-goal-command-p 'coq-goal-command-p
         proof-find-and-forget-fn 'coq-find-and-forget
         pg-topterm-goalhyplit-fn 'coq-goal-hyp
-        proof-state-preserving-p 'coq-state-preserving-p
-        )
+        proof-state-preserving-p 'coq-state-preserving-p)
 
   ;; This one to deal with nested comments in xemacs
-  (if (string-match "XEmacs" emacs-version)
-      (setq proof-script-parse-function 'coq-parse-function)
-      )
+  (if (featurep 'xemacs)
+      (setq proof-script-parse-function 'coq-parse-function))
+
+  (setq proof-shell-indentifier-under-mouse-cmd "Check %s.")
 
   (setq proof-save-command-regexp coq-save-command-regexp
         proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
@@ -1390,7 +1390,6 @@ commands and insert it at point.  Questions may be asked to the user."
 be asked to the user."
   (interactive)
   (coq-insert-from-db coq-terms-db "Kind of term"))
-
 
 (define-key coq-keymap [(control ?i)] 'coq-insert-intros)
 (define-key coq-keymap [(control ?m)] 'coq-insert-match)
