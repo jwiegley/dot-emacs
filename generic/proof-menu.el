@@ -7,10 +7,6 @@
 ;; $Id$
 ;;
 
-(eval-when-compile
-  (defvar proof-mode-map nil)
-  (defvar proof-assistant-menu nil))	; avoid compile warnings
-
 (require 'proof)           ; proof-deftoggle, proof-eval-when-ready-for-assistant
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -80,6 +76,7 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
+  ;; Prover specific keymap under C-c C-a 
   (proof-eval-when-ready-for-assistant
       (define-key map [(control c) (control a)] (proof-ass keymap)))
   ;; M-a and M-e are usually {forward,backward}-sentence.
@@ -116,9 +113,8 @@ without adjusting window layout."
 	(t 
 	 (define-key map [(control mouse-3)] 'proof-mouse-goto-point)))
   ;; NB: next binding overwrites comint-find-source-code.  
-  ;; TODO: not implemented yet 
-  ;; (define-key map [(meta p)] 'proof-previous-matching-command)
-  ;; (define-key map [(meta n)] 'proof-next-matching-command)
+  (define-key map [(meta p)] 'pg-previous-matching-input-from-input)
+  (define-key map [(meta n)] 'pg-next-matching-input-from-input)
   ;; Standard binding for completion
   (define-key map [(control return)] 'proof-script-complete)
   (define-key map [(control c) (control ?\;)] 'pg-insert-last-output-as-comment)
@@ -211,9 +207,9 @@ without adjusting window layout."
 
 (defvar proof-help-menu
   '("Help"
+    ["About PG"        proof-splash-display-screen t]
     ["PG Info"      	(info "ProofGeneral") t]
     ["PG Homepage"  	(browse-url proof-general-home-page) t]
-    ["About PG"        proof-splash-display-screen t]
     ["Send Bug Report" proof-submit-bug-report t])
   "Proof General help menu.")
 
