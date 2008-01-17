@@ -227,6 +227,13 @@ A subroutine of proof-x-symbol-enable."
     (if (featurep 'mule)
 	(let ((font-lock-keywords  x-symbol-font-lock-keywords) ;; TODO: compile keywords
 	      (font-lock-defaults '(x-symbol-font-lock-keywords t))
+	      ;; GE 21.1: the `font-lock-set-defaults' flag prevents font lock
+	      ;; complaining (in font-lock-compile-keywords) that
+	      ;; we've not run font-lock-set-defaults.  It gives dire
+	      ;; warnings what may happen otherwise but dynamic
+	      ;; binding of `font-lock-keywords' here should prevent
+	      ;; global changes to that variable.
+	      (font-lock-set-defaults t)
 	      (x-symbol-mode	t)
 	      (x-symbol-subscripts t))
 	  (condition-case err
