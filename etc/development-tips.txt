@@ -6,6 +6,16 @@ alongside eldoc and Flyspell, in the development file:
 
  (load-file "../lib/pg-dev.el")
 
+Compilation
+===========
+
+Please check that your code compiles to Lisp bytecode ("make foo/foo.elc")
+and that the bytecode runs correctly.  Compilation not only speeds
+up the running code, but conducts some useful static analysis.
+
+To ensure correctness of running code, care is needed with macros (see
+the Lisp reference manual) and load order. 
+
 
 Some Emacs Resources
 ====================
