@@ -24,7 +24,7 @@
     '((isar   "Isabelle" "\\.thy$")
       (coq    "Coq"	 "\\.v$\\|\\.v8$\\|\\.v7$")
       (phox   "PhoX"	 "\\.phx$")
-      ;; (lego   "LEGO"	 "\\.l$")
+      (lego   "LEGO"	 "\\.l$")
       ;; (ccc    "CASL Consistency Checker"  "\\.ccc$")
 
       ;; For the demonstration instance of Proof General,
