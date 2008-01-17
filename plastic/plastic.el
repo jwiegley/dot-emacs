@@ -297,11 +297,11 @@ Given is the first SPAN which needs to be undone."
 (eval-after-load "plastic" ;; da: so that plastic-lit-string can be changed
   '(progn
      (eval `(proof-defshortcut plastic-Intros 
-			       ,(concat plastic-lit-string "Intros ")  ?i))
+			       ,(concat plastic-lit-string "Intros ")  [(control i)]))
      (eval `(proof-defshortcut plastic-Refine
-			       ,(concat plastic-lit-string "Refine ")  ?r))
+			       ,(concat plastic-lit-string "Refine ")  [(control r)]))
      (eval `(proof-defshortcut plastic-ReturnAll
-			       ,(concat plastic-lit-string "ReturnAll ") ?u))))
+			       ,(concat plastic-lit-string "ReturnAll ") [(control u)]))))
 
 
 
