@@ -15,7 +15,6 @@
 (require 'span)				; abstraction of overlays/extents
 (require 'proof)			; loader (& proof-utils macros)
 (require 'proof-syntax)		        ; utils for manipulating syntax
-;(require 'proof-menu)			; menus for script mode
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
