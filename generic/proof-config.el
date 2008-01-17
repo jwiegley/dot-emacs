@@ -110,6 +110,7 @@ approximation we test whether proof-config is fully-loaded yet."
   (set-default sym value)
   (when (and
 	 (not noninteractive)
+	 (featurep 'pg-custom)
 	 (featurep 'proof-config))
       (if (fboundp sym)
 	  (funcall sym)
