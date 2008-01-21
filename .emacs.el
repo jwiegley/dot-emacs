@@ -815,24 +815,17 @@ Notes are kept inside my DEVONthink Notes database, which is like my digital
 file folder."
   (interactive)
   (org-back-to-heading t)
-  (when (looking-at
-	 "\\(\\*+\\)\\s-+\\(\\[\\(.+?\\)\\]\\)\\s-+\\([^\n]+\\)\\s-*\\(.*\\)")
-    (let* ((begin (point))
-	   (date-string (match-string 3))
+  (when (looking-at "\\(\\*+\\)\\s-+\\([A-Z]+\\s-+\\[#[A-C]\\]\\s-+\\)?\\(.+\\)")
+    (let* ((begin (point)) end
 	   (leader (match-string 1))
-	   (date-beg (match-beginning 2))
-	   (date-end (match-end 2))
-	   (headline (match-string 4))
-	   end
+	   (headline (match-string 3))
 	   (annotation
 	    (buffer-substring
-	     (match-beginning 5)
+	     (match-end 0)
 	     (setq end (save-excursion (outline-next-heading) (point)))))
-	   (heading "Tasks")
-	   (note-date (org-time-string-to-time date-string))
+	   (note-date (org-get-inactive-time))
 	   (indent-width (1+ (length leader)))
 	   task-text)
-      (delete-region begin end)
       (with-temp-buffer
 	(insert headline ?\n
 		(replace-regexp-in-string "\n   " "\n" annotation))
@@ -844,7 +837,8 @@ tell application \"DEVONthink Pro\"
     set theRecord to paste clipboard to incoming group
     set modification date of theRecord to theDate
     set creation date of theRecord to theDate
-end tell" (format-time-string "%B %e, %Y %l:%M:%S %p" note-date))))))
+end tell" (format-time-string "%B %e, %Y %l:%M:%S %p"
+			      (seconds-to-time note-date)))))))
 
 (defun org-fontify-priorities ()
   (interactive)
