@@ -1,6 +1,9 @@
-;;; unicode-chars.el --- table of Unicode characters 
-
+;; unicode-chars.el --- table of Unicode characters 
+;;
+;; Author:    David Aspinall
+;;
 ;; Adapted from Norman Walsh's unichars.el (iso8879 names removed)
+;;
 
 (defvar unicode-chars.el
   '(;Unicode name  Codept
@@ -5041,8 +5044,10 @@
 ;; taken from xmlunicode.el, also by Norman Walsh.
 ;; Modified a bit by me to use its own help-style buffer
 
-(defun x-symbol-list-unicode-characters ()
-  "Insert each Unicode character into a buffer. Let's you see which characters are available for literal display in your emacs font."
+(defun unicode-chars-list-chars ()
+  "Insert each Unicode character into a buffer. 
+Lets you see which characters are available for literal display
+in your emacs font."
   (interactive)
   (pop-to-buffer "*x-symbol-unicode*")
   (let ((chars x-symbol-unicode-character-list)
