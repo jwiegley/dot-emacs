@@ -252,7 +252,7 @@
  ;; internal completion table if completion is already active
 '(progn
    (defpgdefault completion-table
-     (append (proof-ass completion-table)
+     (append phox-completion-table
 	     (mapcar (lambda (xsym) (nth 2 xsym))
 		     x-symbol-phox-table)))
    (setq proof-xsym-font-lock-keywords

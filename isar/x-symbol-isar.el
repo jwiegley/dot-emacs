@@ -156,7 +156,7 @@ or subscript tag."
 	      (return script-type))))))))
    
 (defun isabelle-match-subscript (limit)
-  (if (proof-ass x-symbol-enable)
+  (if isar-x-symbol-enable
       (setq x-symbol-isar-subscript-type
             (funcall x-symbol-isar-subscript-matcher limit))))
 
@@ -478,7 +478,7 @@ See `x-symbol-language-access-alist' for details."
 ;;
 ;; this is MODE-ON CODING 8BITS UNIQUE SUBSCRIPTS IMAGE
 (defcustom x-symbol-isar-auto-style
-  '((proof-ass x-symbol-enable)	 ; MODE-ON: whether to turn on interactively
+  '(isar-x-symbol-enable	   ; MODE-ON: whether to turn on interactively
     nil   ;; x-symbol-coding
     'null ;; x-symbol-8bits	   [NEVER want it; null disables search]
     nil   ;; x-symbol-unique

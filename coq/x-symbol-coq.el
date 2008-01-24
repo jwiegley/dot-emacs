@@ -13,6 +13,7 @@
 ;;
 
 (eval-when-compile
+  (require 'proof-utils)		; to properly compile 'proof-ass'
   (require 'cl))			; to properly compile 'block'
 
 (defvar x-symbol-coq-required-fonts nil)
@@ -162,7 +163,7 @@ or subscript tag."
 			 )))))
    
 (defun coq-match-subscript (limit)
-  (if (proof-ass x-symbol-enable)
+  (if coq-x-symbol-enable
       (setq x-symbol-coq-subscript-type
             (funcall x-symbol-coq-subscript-matcher limit))))
 
@@ -475,7 +476,7 @@ and `x-symbol-coq-xsymbol-table'."
     x-symbol-coq-xsymbol-table)))
 
 (defcustom x-symbol-coq-auto-style
-  '((proof-ass x-symbol-enable)	 ; MODE-ON: whether to turn on interactively
+  '(coq-x-symbol-enable	          ; MODE-ON: whether to turn on interactively
     nil   ;; x-symbol-coding
     'null ;; x-symbol-8bits	   [NEVER want it; null disables search]
     nil   ;; x-symbol-unique

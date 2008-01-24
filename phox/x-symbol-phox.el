@@ -183,7 +183,7 @@ See `x-symbol-language-access-alist' for details."
 ;;
 ;; this is MODE-ON CODING 8BITS UNIQUE SUBSCRIPTS IMAGE
 (defcustom x-symbol-phox-auto-style
-  '((proof-ass x-symbol-enable)	 ; MODE-ON: whether to turn on interactively
+  '(phox-x-symbol-enable	 ; MODE-ON: whether to turn on interactively
     nil   ;; x-symbol-coding
     'null ;; x-symbol-8bits	   [NEVER want it; null disables search]
     nil   ;; x-symbol-unique
