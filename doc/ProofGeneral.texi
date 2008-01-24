@@ -360,7 +360,7 @@ many people helped provide testing and other feedback,
 including the Proof General maintainers,
 Paul Callaghan, Pierre Courtieu, and Markus Wenzel, 
 Stefan Berghofer, Gerwin Klein, and other folk who
-tested pre-releases or sent bug reports, including 
+tested pre-releases or sent bug reports and patches, including 
 Cuihtlauac Alvarado,
 Lennart Beringer,
 Pascal Brisset,
@@ -370,6 +370,7 @@ Lucas Dixon,
 Matt Fairtlough, 
 Ivan Filippenko, 
 Kim Hyung Ho,
+Mark A. Hillebrand,
 Greg O'Keefe,
 Pierre Lescanne,
 John Longley, 
@@ -3660,6 +3661,7 @@ by white space as usual in Isar.
 @kindex C-c C-a r
 @kindex C-c C-a C-q
 @kindex C-c C-a C-d
+@kindex C-c C-a C-p
 @kindex C-c C-a h A
 @kindex C-c C-a h C
 @kindex C-c C-a h I
@@ -3673,6 +3675,7 @@ by white space as usual in Isar.
 @kindex C-c C-a h m
 @kindex C-c C-a h o
 @kindex C-c C-a h t
+@kindex C-c C-a C-s
 
 The Isabelle instance of Proof General supplies several specific
 help key bindings; these functions are offered within the prover help
@@ -3686,6 +3689,8 @@ and derived logics.
 Invokes @code{quickcheck} on the current subgoal.
 @item C-c C-a C-d
 Displays a draft document of the current theory.
+@item C-c C-a C-p
+Prints a draft document of the current theory.
 @item C-c C-a h A
 Shows available antiquotation commands and options.
 @item C-c C-a h C
@@ -3712,15 +3717,19 @@ Shows proof methods available in current theory context.
 Shows all available commands of Isabelle's outer syntax.
 @item C-c C-a h t
 Shows theorems stored in the current theory node.
+@item C-c C-a C-s
+Invoke sledgehammer on first subgoal.
 @end table
 
-@c @kindex C-c C-a b
+@kindex C-c C-a b
+@kindex C-c C-a C-b
+@kindex C-c C-a C-u
+@kindex C-c C-a C-l
 @kindex C-c C-a u
 @kindex C-c C-a l
-@kindex C-c C-a i
-@kindex C-c C-a C-l
-@kindex C-c C-a C-u
-@kindex C-c C-a C-w
+@kindex C-c C-a C-i
+@kindex C-c C-a C-r
+@kindex C-c C-a C-a
 
 The following shortcuts insert control sequences into the text,
 modifying the appearance of individual symbols (single letters,
@@ -3728,8 +3737,10 @@ mathematical entities etc.); the X-Symbol package will provide immediate
 visual feedback.
 
 @table @kbd
-@c @item C-c C-a b
-@c Inserts "\<^bold>"
+@item C-c C-a b
+Inserts "\<^bold>"
+@item C-c C-a C-b
+Inserts "\<^loc>"
 @item C-c C-a C-u
 Inserts "\<^sup>"  (superscript character)
 @item C-c C-a C-l
@@ -3740,8 +3751,10 @@ Inserts "\<^bsup> \<^esup>"  (superscript string)
 Inserts "\<^bsub> \<^esub>"  (subscript string)
 @item C-c C-a C-i
 Inserts "\<^isub>"  (identifier subscript letter)
-@item C-c C-a r
-Inserts "\<^raw:>"  (raw LaTeX text).
+@item C-c C-a C-r
+Inserts "\<^raw:>"  (raw LaTeX text)
+@item C-c C-a C-a
+Inserts "@@@{text ""@}"  (anti-quotation).
 @end table
 
 Command termination via `@code{;}' is an optional feature of Isar
