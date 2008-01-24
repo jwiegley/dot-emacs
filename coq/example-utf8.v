@@ -12,7 +12,7 @@ Lemma test : forall A:Prop, A -> A.
 auto.
 Qed.
 
-(* Parsing of unicode notation, in *goals* *) 
+(* Parsing of unicode notation here, printing in *goals* *) 
 Lemma test2 : ∀ A:Prop, A → A.
 intro.
 intro.
@@ -22,5 +22,5 @@ Qed.
 (* Printing of unicode notation, in *response* *)
 Check (fun (X:Set)(x:X) => x).
 
-(* Parsing of unicode notation, in *response* *)
+(* Parsing of unicode notation here, printing in *response* *)
 Check (∀A, A→A).
