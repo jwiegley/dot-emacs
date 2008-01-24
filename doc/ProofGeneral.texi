@@ -3780,7 +3780,7 @@ Inserts "\<^raw:>"  (raw LaTeX text)
 @item C-c C-a C-a
 Inserts "@@@{text ""@}"  (anti-quotation).
 @item C-c C-a C-x
-Inserts "ML {* *}"  (inline ML code).
+Inserts "ML @{* *@}"  (inline ML code).
 @end table
 
 Command termination via `@code{;}' is an optional feature of Isar
