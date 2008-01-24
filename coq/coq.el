@@ -848,6 +848,7 @@ This is specific to `coq-mode'."
   )
   
   (setq	
+   indent-line-function 'coq-indent-line
 ;indentation is implemented in coq-indent.el
 ;   proof-indent-enclose-offset  (- proof-indent)
 ;   proof-indent-enclose-offset 0

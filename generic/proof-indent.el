@@ -60,7 +60,8 @@
        (found-prev (proof-indent-goto-prev)))
     (if (not found-prev) (goto-char current))   ; recover position
     (cond
-     ((and found-prev (or proof-indent-hang (= (current-indentation) (current-column))))
+     ((and found-prev (or proof-indent-hang 
+			  (= (current-indentation) (current-column))))
       (+ indent
          (current-column)
          (if (and inner (not (proof-indent-inner-p))) 0 (proof-indent-indent))
@@ -83,7 +84,8 @@
               (indent-line-to
                (max 0 (save-excursion
                         (back-to-indentation)
-                        (proof-indent-calculate (proof-indent-offset) (proof-indent-inner-p))))))
+                        (proof-indent-calculate 
+			 (proof-indent-offset) (proof-indent-inner-p))))))
             (if (< (current-column) (current-indentation))
                 (back-to-indentation)))))
       

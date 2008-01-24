@@ -2459,7 +2459,10 @@ command."
 	;; We also need this
 	(modify-syntax-entry ?\n " ")))
 
-					
+  ;; Set default indent function (can be overriden in derived modes)
+  (make-local-variable 'indent-line-function)
+  (setq indent-line-function 'proof-indent-line)
+
   ;; During write-file it can happen that we re-set the mode for
   ;; the currently active scripting buffer.  The user might also
   ;; do this for some reason.  We could maybe let
@@ -2474,9 +2477,11 @@ command."
   ;; that they can be adjusted by prover specific code if need be.
   (proof-script-set-buffer-hooks)
 
-  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name nil t)
+  (add-hook 'after-set-visited-file-name-hooks 
+	    'proof-script-set-visited-file-name nil t)
 
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
+
 
 (proof-menu-define-keys proof-mode-map) ;; NB: proof-mode-map declared above
 
@@ -2778,9 +2783,6 @@ finish setup which depends on specific proof assistant configuration."
 	  'proof-electric-terminator-toggle)
 	(define-key proof-mode-map (vector proof-terminal-char)
 	  'proof-electric-terminator)))
-
-  (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'proof-indent-line)
 
   ;; Toolbar and scripting menu
   ;; NB: autoloads proof-toolbar, which defines proof-toolbar-scripting-menu.
