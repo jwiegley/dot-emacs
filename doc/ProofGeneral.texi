@@ -3654,10 +3654,6 @@ Isabelle process.
 @cindex Isabelle commands
 
 
-@strong{Find theorems}.  This toolbar/menu command invokes
-@code{thms_containing}.  Several term arguments may be given, separated
-by white space as usual in Isar.
-
 @kindex C-c C-a r
 @kindex C-c C-a C-q
 @kindex C-c C-a C-d
@@ -3676,17 +3672,22 @@ by white space as usual in Isar.
 @kindex C-c C-a h o
 @kindex C-c C-a h t
 @kindex C-c C-a C-s
+@kindex C-c C-a C-m
+@kindex C-c C-a C-f
+@kindex C-c C-f
 
 The Isabelle instance of Proof General supplies several specific
 help key bindings; these functions are offered within the prover help
 menu as well.
 
+
+
 @table @kbd
 @item C-c C-a r
-Invokes @code{refute} on the current subgoal.  Only available in HOL
+Invokes Isar command @code{refute} on the current subgoal.  Only available in HOL
 and derived logics.
 @item C-c C-a C-q
-Invokes @code{quickcheck} on the current subgoal.
+Invokes Isar command @code{quickcheck} on the current subgoal.
 @item C-c C-a C-d
 Displays a draft document of the current theory.
 @item C-c C-a C-p
@@ -3719,7 +3720,30 @@ Shows all available commands of Isabelle's outer syntax.
 Shows theorems stored in the current theory node.
 @item C-c C-a C-s
 Invoke sledgehammer on first subgoal.
+@item C-c C-a C-m 
+Find theorems containing given arguments (prompt in minibuffer).
+Invokes the @code{thms_containing} command.  Arguments are
+separated by white space as usual in Isar.
+@item C-c C-a C-f 
+Find theorems containing (argument in form)
+@item C-c C-f
+Find theorems: either of the above.  
 @end table
+
+@comment da: this isn't a very good way!!
+@comment it may override settings for other provers, or have no effect, I think!
+@comment we should introduce specific Isar setting.
+@c You can customize the default behaviour of the toolbar or
+@c menu item for find theorems by
+@c setting @code{proof-find-theorems-command} 
+@c to 
+@c @code{isar-find-theorems-minibuffer} or
+@c @code{isar-find-theorems-form}.  The setting
+@c can be customized on the menu:
+@c @example
+@c  Proof-General -> Advanced -> Internals -> Prover Config
+@c @end example
+
 
 @kindex C-c C-a b
 @kindex C-c C-a C-b
