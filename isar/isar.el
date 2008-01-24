@@ -129,6 +129,8 @@ See -k option for Isabelle interface script."
    proof-context-command        "print_context"
    proof-info-command           "welcome"
    proof-kill-goal-command      "ProofGeneral.kill_proof"
+;; da: TODO: we should set this from our own setting really, not suggest
+;; people customize prover-confi
 ;   proof-find-theorems-command  "find_theorems %s"               ;; minibuffer
    proof-find-theorems-command  'isar-find-theorems-minibuffer  ;; equivalent
 ;   proof-find-theorems-command  'isar-find-theorems-form        ;; search form
@@ -479,11 +481,12 @@ proof-shell-retract-files-regexp."
 (proof-defshortcut isar-local     "\\<^loc>%p" [(control c)])
 (proof-defshortcut isar-super     "\\<^sup>%p" [(control u)])
 (proof-defshortcut isar-sub       "\\<^sub>%p" [(control l)])
-(proof-defshortcut isar-longsuper "\\<^bsup>%p\\<^esup>" [u])
-(proof-defshortcut isar-longsub   "\\<^bsub>%p\\<^esub>" [l])
+(proof-defshortcut isar-longsuper "\\<^bsup>%p\\<^esup>" [?u])
+(proof-defshortcut isar-longsub   "\\<^bsub>%p\\<^esub>" [?l])
 (proof-defshortcut isar-idsub     "\\<^isub>%p" [(control i)])
 (proof-defshortcut isar-raw       "\\<^raw:%p>" [(control r)])
 (proof-defshortcut isar-antiquote "@{text \"%p\"}" [(control a)])
+(proof-defshortcut isar-ml	  "ML {* %p *}" [(control x)])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
