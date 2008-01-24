@@ -650,7 +650,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
      ((proof-looking-at-safe coq-indent-pattern-regexp)
       (+ prevcol proof-indent))
      
-     (t prevcol)))
+     (t prevcol))))
 
 
 (defun coq-indent-comment-offset ()
