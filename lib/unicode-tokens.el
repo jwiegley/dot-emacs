@@ -34,7 +34,7 @@
 ;; Tokens are used for programs that do not understand a Unicode encoding.
 ;;
 ;; TODO:
-;; -- add coding/decoding for saving/reading files
+;; -- add coding/decoding for saving/reading files (CCL program?!)
 
 
 (require 'cl)
@@ -225,12 +225,14 @@ if there is such a unique character."
 ;;
 ;; Coding system for saving tokens in plain ASCII.
 ;;
+;; TODO
 
-(make-coding-system 'unicode-tokens-coding-system 
-  4 ; ccl
-  "Unicode token coding system"
-  (cons 'unicode-tokens-ccl-decode
-	'unicode-tokens-ccl-encode))
+;; (make-coding-system 'unicode-tokens-coding-system 
+;;   4 ; ccl
+;;   ?T
+;;   "Unicode token coding system"
+;;   (cons 'unicode-tokens-ccl-decode
+;; 	'unicode-tokens-ccl-encode))
 
 
 ;; Emacs-Unicode/23:
