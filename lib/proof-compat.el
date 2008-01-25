@@ -92,13 +92,33 @@ with `path-separator'."
 
 ;; Compatibility with XEmacs 21.4, API change in add-hook
 (when
-    ((and (featurep 'xemacs)
-	  (eq emacs-major-version 21)
-	  (<= emacs-minor-version 4)))
-     
+    (and (featurep 'xemacs)
+	 (eq emacs-major-version 21)
+	 (<= emacs-minor-version 4))
+
+  (fset 'old-add-hook (symbol-function 'add-hook))
   (defun add-hook (hook function &optional append local)
+    "Add to the value of HOOK the function FUNCTION.
+FUNCTION is not added if already present.
+FUNCTION is added (if necessary) at the beginning of the hook list
+unless the optional argument APPEND is non-nil, in which case
+FUNCTION is added at the end.
+
+The optional fourth argument, LOCAL, if non-nil, says to modify
+the hook's buffer-local value rather than its default value.
+This makes the hook buffer-local if needed.
+To make a hook variable buffer-local, always use
+`make-local-hook', not `make-local-variable'.
+
+HOOK should be a symbol, and FUNCTION may be any valid function.  If
+HOOK is void, it is first set to nil.  If HOOK's value is a single
+function, it is changed to a list of functions.
+
+You can remove this hook yourself using `remove-hook'.
+
+See also `add-one-shot-hook'."
     (if local (make-local-hook hook))
-    (add-hook hook function append local)))
+    (old-add-hook hook function append local)))
      
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
