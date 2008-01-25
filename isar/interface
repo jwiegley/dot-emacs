@@ -30,7 +30,7 @@ usage()
   echo "    -k NAME      use specific isar-keywords for named logic"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -m MODE      add print mode for output"
-  echo "    -p NAME      Emacs program name (default xemacs)"
+  echo "    -p NAME      Emacs program name (default emacs)"
   echo "    -u BOOL      use personal .emacs file (default true)"
   echo "    -w BOOL      use window system (default true)"
   echo "    -x BOOL      enable the X-Symbol package on startup (default false)"
