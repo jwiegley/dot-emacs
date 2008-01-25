@@ -142,7 +142,7 @@ RELEASEDIR = /tmp/proofgeneral-www
 # was: GOLIVE=true
 # GOLIVE=scp -pr $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
 # Use rsync instead of scp: it copies links.  Also clean releasedir
-GOLIVE=(rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/; rm -rf $(RELEASEDIR); cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do make pub.$f; done; rm -rf ${RELEASEDIR})
+GOLIVE=(rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/; rm -rf $(RELEASEDIR); cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do make pub.$$f; done; rm -rf ${RELEASEDIR})
 
 
 CVSNAME = ProofGeneral
