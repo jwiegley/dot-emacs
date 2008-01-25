@@ -499,19 +499,23 @@ Assumes script buffer is current"
 This is used for cleaning `buffer-invisibility-spec' in
 `pg-clear-script-portions': it doesn't need to be exactly accurate.")
 
+(defconst pg-default-invisibility-spec 
+  ;; Default supports X-Symbol, see `x-symbol-hide-revealed-at-point'
+  '((t . nil) (hide . nil)))
+
 (defun pg-clear-script-portions ()
   "Clear record of script portion names and types from internal list.
 Also clear all visibility specifications."
   (setq pg-script-portions nil)
   (setq buffer-invisibility-spec
 	(if (listp buffer-invisibility-spec)
-	    (append
-	     (mapcar (lambda (propellips)
-		       (if (memq (car-safe propellips) pg-visibility-specs)
-			   nil (list propellips)))
+	    (apply 'append
+		   (mapcar (lambda (propellips)
+			     (if (memq (car-safe propellips) 
+				       pg-visibility-specs)
+				 nil (list propellips)))
 		     buffer-invisibility-spec))
-	  ;; Default supports X-Symbol, see `x-symbol-hide-revealed-at-point'
-	  '((t . nil) (hide . nil)))))
+	  pg-default-invisibility-spec)))
 
 (defun pg-add-script-element (elt)
   (add-to-list pg-script-portions elt))
