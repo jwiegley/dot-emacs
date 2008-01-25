@@ -342,12 +342,12 @@ without adjusting window layout."
 ;;       :selected (and (boundp 'x-symbol-mode) x-symbol-mode
 ;; 		     x-symbol-use-unicode)]
 
-     ["Unicode Tokens" (proof-unicode-tokens-toggle 
-			(if unicode-tokens-mode 0 1))
-      :active (proof-unicode-tokens-support-available)
-      :style toggle
-      :selected (and (boundp 'unicode-tokens-mode) 
-		     unicode-tokens-mode)]
+;;      ["Unicode Tokens" (proof-unicode-tokens-toggle 
+;; 			(if unicode-tokens-mode 0 1))
+;;       :active (proof-unicode-tokens-support-available)
+;;       :style toggle
+;;       :selected (and (boundp 'unicode-tokens-mode) 
+;; 		     unicode-tokens-mode)]
 
      ["Unicode Maths Menu" (proof-maths-menu-toggle (if maths-menu-mode 0 1))
       :active (proof-maths-menu-support-available)
