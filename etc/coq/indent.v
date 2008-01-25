@@ -58,5 +58,11 @@ Definition f :=
        | # => #       
        end
      end
-    
 
+(* Nasty example from Trac http://proofgeneral.inf.ed.ac.uk/trac/ticket/173 *)    
+Theorem p : forall (P : Prop), P -> P.
+Proof.
+  try (simpl 
+    in *). 
+  intros P H. apply H.
+Qed.

@@ -196,11 +196,15 @@ found, go as far as possible and return nil."
 
 (defun coq-find-not-in-comment-forward (reg &optional lim submatch)
   "Moves to the first not commented occurrence of REG found looking down.
-The point
-is put exactly before the occurrence if SUBMATCH is nil, otherwise the point is put
-before SUBMATCHnth matched sub-expression (see `match-string').  If no occurrence is
-found, go as far as possible and return nil."
-  (coq-find-comment-end)
+The point is put exactly before the occurrence if SUBMATCH is nil, 
+otherwise the point is put before SUBMATCHnth matched sub-expression 
+\(see `match-string').  If no occurrence is found, go as far as possible 
+and return nil."
+  ;; da: PATCH here for http://proofgeneral.inf.ed.ac.uk/trac/ticket/173
+  ;; (nasty example).  But I don't understand this code!
+  ;; Sometimes we're called outside of a comment here.
+  (if (coq-looking-at-comment)
+      (coq-find-comment-end))
   (let ((found nil) (continue t)
         (regexp (concat coq-comment-start-regexp "\\|" reg)))
     (while (and (not found) continue)
@@ -273,22 +277,19 @@ The point is put exactly before first non comment letter of the command."
           (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
       (buffer-substring st (+ nd 1)))))
 
-(defun only-spaces-on-line ()
+(defun coq-indent-only-spaces-on-line ()
   "Non-nil if there only spaces (or nothing) on the current line after point.
 Moves point to first non space char if present, to the end of line otherwise."
   (skip-chars-forward " \t" (save-excursion (end-of-line) (point)))
-  (eolp)
-  )
+  (eolp))
 
-
-
-(defun find-reg (lim reg)
+(defun coq-indent-find-reg (lim reg)
   "Non-nil if REG occurs between point and LIM, not in a comment or string.
 Point is moved at the end of the match if found, at LIM otherwise."
   (let ((oldpt (point)) (limit lim) (found nil))
     (if (= limit (point)) nil
       ;;swap limit and point if necessary
-;      (message "find-reg...")
+;      (message "coq-indent-find-reg...")
       (when (< limit (point)) (let ((x limit)) (setq limit (point)) (goto-char x)))
       (prog1
           (coq-find-not-in-comment-forward reg limit)
@@ -338,7 +339,7 @@ not inside the {} of a record)."
         ; if there is a "." alone on the line
         (let ((pos (point)))
           (ignore-errors (forward-char -1))
-          (if (find-reg oldpt coq-end-command-regexp)
+          (if (coq-indent-find-reg oldpt coq-end-command-regexp)
               (progn (forward-char -2)
                      (coq-find-real-start)
                      (back-to-indentation)
@@ -348,7 +349,7 @@ not inside the {} of a record)."
                   (and (or (forward-char -1) t)
                        (coq-find-real-start)
                        (proof-looking-at-safe "Record")
-                       (find-reg oldpt "{")))
+                       (coq-indent-find-reg oldpt "{")))
                 4
               2)))))))
 
@@ -357,12 +358,15 @@ not inside the {} of a record)."
   "Finds the first unclosed open item (backward), counter starts to optlvl (default 1) and stops when reaching limit (default point-min)."
   
   (let* ((lvl (or optlvl 1))
-			(open-re  (if openreg (proof-regexp-alt openreg proof-indent-open-regexp)
-							proof-indent-open-regexp))
-			(close-re (if closereg (proof-regexp-alt closereg proof-indent-close-regexp)
-							proof-indent-close-regexp))
-			(both-re (proof-regexp-alt "\\`" close-re open-re))
-			(nextpt (save-excursion (proof-re-search-backward both-re))))
+         (open-re  (if openreg 
+                       (proof-regexp-alt openreg proof-indent-open-regexp)
+                     proof-indent-open-regexp))
+         (close-re (if closereg 
+                       (proof-regexp-alt closereg proof-indent-close-regexp)
+                     proof-indent-close-regexp))
+         (both-re (proof-regexp-alt "\\`" close-re open-re))
+         (nextpt (save-excursion 
+                   (proof-re-search-backward both-re))))
     (while
         (and (not (= lvl 0))
              (>= nextpt (or limit (point-min)))
@@ -376,39 +380,36 @@ not inside the {} of a record)."
        ((proof-looking-at-safe open-re) (setq lvl (- lvl 1))))
       (setq nextpt (save-excursion (proof-re-search-backward both-re))))
     (if (= lvl 0) t
-		(goto-char (or limit (point-min)))
+      (goto-char (or limit (point-min)))
       nil)))
 
 
-
-
-
 (defun coq-find-at-same-level-zero (limit openreg)
-  "Moves to first open or openreg (first found) that is at same parethesis level than point. Returns the point if found."
+  "Move to open or openreg (first found) at same parenthesis level as point. 
+Returns point if found."
   (let* ((found nil)
-			(open-re (if openreg (proof-regexp-alt openreg proof-indent-open-regexp)
-						  proof-indent-open-regexp))
-			(close-re proof-indent-close-regexp)
-			(both-re (proof-regexp-alt "\\`" close-re open-re))
-			(nextpt (save-excursion (proof-re-search-backward both-re))))
-
-	 (while
+         (open-re (if openreg 
+                      (proof-regexp-alt openreg proof-indent-open-regexp)
+                    proof-indent-open-regexp))
+         (close-re proof-indent-close-regexp)
+         (both-re (proof-regexp-alt "\\`" close-re open-re))
+         (nextpt (save-excursion 
+                   (proof-re-search-backward both-re))))
+    
+    (while
         (and (not found)
              (>= nextpt (or limit (point-min)))
              (not (= nextpt (point-min))))
-		(goto-char nextpt)
-		(cond
-		 ((proof-looking-at-syntactic-context) ())
+      (goto-char nextpt)
+      (cond
+       ((proof-looking-at-syntactic-context) ())
        ((proof-looking-at-safe openreg) (setq found t))
        ((proof-looking-at-safe proof-indent-open-regexp) (setq found t));assert false?
-;       ((proof-looking-at-safe closereg) (coq-find-unclosed 1 limit))
+       ;;       ((proof-looking-at-safe closereg) (coq-find-unclosed 1 limit))
        ((proof-looking-at-safe proof-indent-close-regexp)
-		  (coq-find-unclosed 1 limit)))
-		(setq nextpt (save-excursion (proof-re-search-backward both-re)))
-		)
-	 (if found (point) nil)
-	 )
-  )
+        (coq-find-unclosed 1 limit)))
+      (setq nextpt (save-excursion (proof-re-search-backward both-re))))
+    (if found (point) nil)))
 
 
 (defun coq-find-unopened (&optional optlvl limit)
@@ -662,7 +663,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
       ;; go back looking for a non empty line
       (if (/= (forward-line -1) 0) 0 ; we are at beginning of buffer
         ;; only-space on a non empty line moves the point to first non space char
-        (while (and (only-spaces-on-line) (= (forward-line -1) 0)) ())
+        (while (and (coq-indent-only-spaces-on-line) (= (forward-line -1) 0)) ())
         ;; now we found the previous non empty line
         (let ((eol (save-excursion (end-of-line) (point))))
         (cond
@@ -737,8 +738,6 @@ argument must be t if inside the {}s of a record, nil otherwise."
       (forward-line 1))
     (goto-char fin)))
  
-
-(provide 'coq-indent)
 
 ;;;   Local Variables: ***
 ;;;   fill-column: 85 ***
