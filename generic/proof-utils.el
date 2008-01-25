@@ -9,11 +9,9 @@
 ;;; Commentary:
 ;; 
 ;; Loading note: this file is required immediately from proof.el, so
-;; no autoloads cookies are added here. To expand macros during
-;; compilation, use (eval-when-compile (require 'proof-utils)).  
-;; This needs care: it is safe for e.g., deflocal, but not for
-;; macros which evaluate proof-assistant symbol, e.g. proof-ass,
-;; unless proof-ready-for-assistant has been run.
+;; no autoloads cookies are added here. 
+;;
+;; Compilation note: see etc/development-tips.txt
 ;;
 
 (require 'proof-site)			; basic vars
