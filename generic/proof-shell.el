@@ -258,7 +258,8 @@ Does nothing if proof assistant is already running."
 	      ;; Splice in proof-rsh-command if it's non-nil 
 	      (if (and proof-rsh-command
 		       (> (length proof-rsh-command) 0))
-		  (cons proof-rsh-command prog-name-list1)
+		  (append (split-string proof-rsh-command)
+			  prog-name-list1)
 		prog-name-list1))
 	     (prog-command-line 
 	      (proof-splice-separator " " prog-name-list))
