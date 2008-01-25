@@ -397,47 +397,44 @@ Returns new END value."
   ;; NB: perhaps we can narrow within the whole function, but there
   ;; was an earlier problem with doing that.
   (when proof-output-fontify-enable
+    (let ((normal-font-lock-verbose font-lock-verbose))
+      ;; Temporarily set font-lock defaults
+      (proof-font-lock-set-font-lock-vars)
+      (setq font-lock-verbose nil)	; prevent display glitches in XEmacs
 
-	;; Temporarily set font-lock defaults
-	(proof-font-lock-set-font-lock-vars)
+      ;; Yukky hacks to immorally interface with font-lock
+      (unless (featurep 'xemacs)
+	(font-lock-set-defaults))
+      (let ((font-lock-keywords proof-font-lock-keywords))
+	(if (and (featurep 'xemacs)
+		 (>= emacs-major-version 21)
+		 (>= emacs-minor-version 4)
+		 (not font-lock-cache-position))
+	    (progn
+	      (setq font-lock-cache-position (make-marker))
+	      (set-marker font-lock-cache-position 0)))
+	
+	(save-restriction
+	  (narrow-to-region start end)
+	  (run-hooks 'pg-before-fontify-output-hook)
+	  (setq end (point-max)))
+	;; da: protect against "Nesting too deep for parser" in bad XEmacs
+	(condition-case err
+	    (font-lock-default-fontify-region start end nil)
+	  (t (proof-debug 
+	      "Caught condition %s in `font-lock-default-fontify-region'"
+	      (car err)))))
 
-	;; Yukky hacks to immorally interface with font-lock
-	(unless (featurep 'xemacs)
-	  (font-lock-set-defaults))
-	(let ((font-lock-keywords proof-font-lock-keywords))
-	  (if (and (featurep 'xemacs)
-		   (>= emacs-major-version 21)
-		   (>= emacs-minor-version 4)
-		   (not font-lock-cache-position))
-	      (progn
-		(setq font-lock-cache-position (make-marker))
-		(set-marker font-lock-cache-position 0)))
-	  
-	  (save-restriction
-	    (narrow-to-region start end)
-	    (run-hooks 'pg-before-fontify-output-hook)
-	    (setq end (point-max)))
-	  ;; da: 10.8.04 protect this against "Nesting too deep for parser"
-	  ;; which may be raised by XEmacs' crummy `parse-partial-sexp'.
-	  (condition-case err
-	      (font-lock-default-fontify-region start end nil)
-	    (t (proof-debug 
-		"Caught condition %s in `font-lock-default-fontify-region'"
-		(car err))))))
-  (save-restriction
-    (narrow-to-region start end)
-    (run-hooks 'pg-after-fontify-output-hook)
-    (setq end (point-max)))
-; PG 3.7: remove this, now done in pg-after-fontify-output-hook (isar only)
-;  (if (and pg-use-specials-for-fontify (not keepspecials))
-;      (progn
-;	(pg-remove-specials start end)
-;	(setq end (point))))
-  (prog1
-      ;; prog1 because we return new END value.
-      (if (proof-ass x-symbol-enable)
-	  (proof-x-symbol-decode-region start end))
-    (proof-font-lock-clear-font-lock-vars)))
+      (save-restriction
+	(narrow-to-region start end)
+	(run-hooks 'pg-after-fontify-output-hook)
+	(setq end (point-max)))
+
+      (prog1 ;; prog1 because we return new END value.
+	  (if (proof-ass x-symbol-enable)
+	      (proof-x-symbol-decode-region start end))
+	(proof-font-lock-clear-font-lock-vars)
+	(setq font-lock-verbose normal-font-lock-verbose)))))
 
 (defun pg-remove-specials (&optional start end)
   "Remove special characters in region.  Default to whole buffer.
