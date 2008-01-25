@@ -90,8 +90,16 @@ with `path-separator'."
       (split-string path (regexp-quote path-separator))))
 
 
-
-
+;; Compatibility with XEmacs 21.4, API change in add-hook
+(when
+    ((and (featurep 'xemacs)
+	  (eq emacs-major-version 21)
+	  (<= emacs-minor-version 4)))
+     
+  (defun add-hook (hook function &optional append local)
+    (if local (make-local-hook hook))
+    (add-hook hook function append local)))
+     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; XEmacs compatibility with GNU Emacs
