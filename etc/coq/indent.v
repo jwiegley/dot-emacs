@@ -64,5 +64,5 @@ Theorem p : forall (P : Prop), P -> P.
 Proof.
   try (simpl 
     in *). 
-  intros P H. apply H.
+    intros P H. apply H.  (* da: shouldn't we outdent again here? *)
 Qed.
