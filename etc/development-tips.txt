@@ -14,7 +14,23 @@ and that the bytecode runs correctly.  Compilation not only speeds
 up the running code, but conducts some useful static analysis.
 
 To ensure correctness of running code, care is needed with macros (see
-the Lisp reference manual) and load order. 
+the Lisp reference manual) and load order.   For example, to expand macros
+from proof-utils.el during compilation, use 
+
+ (eval-when-compile
+   (require 'proof-utils)).  
+
+Without using this, compilation can be incorrect (macro calls compiled
+as function calls: e.g., symptom unbound 'foobar' assistant variable
+with "(proof-ass foobar)" call).  
+
+Top-level forms, or forms that appear at top-level after compilation
+(these get evaluated when compiling later files) need extra care.  If
+these forms depend on runtime information, e.g., the value of
+proof-assistant symbol (proof-ass), they will produce the wrong result
+(symptom: unbound nil-foobar). Running `proof-ready-for-assistant' can
+be used to avoid this and optimise compilation.  Byte compiler also
+optimises some conditionals that appear constant, be wary.
 
 
 Some Emacs Resources
