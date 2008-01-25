@@ -342,6 +342,7 @@ without adjusting window layout."
 ;;       :selected (and (boundp 'x-symbol-mode) x-symbol-mode
 ;; 		     x-symbol-use-unicode)]
 
+;; Experimental:
 ;;      ["Unicode Tokens" (proof-unicode-tokens-toggle 
 ;; 			(if unicode-tokens-mode 0 1))
 ;;       :active (proof-unicode-tokens-support-available)
