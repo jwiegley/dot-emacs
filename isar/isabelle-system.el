@@ -39,7 +39,10 @@
 ;;; ================ Extract Isabelle settings ================
 
 (defcustom isa-isatool-command
-  (or (getenv "ISATOOL")
+  (or (if proof-rsh-command
+	  ;; not much hope to locate executable remotely
+	  (concat proof-rsh-command " isatool"))
+      (getenv "ISATOOL")
       (proof-locate-executable "isatool")
       ;; FIXME: use same mechanism as isabelle-program-name below.
       (let ((possibilities
@@ -58,7 +61,7 @@
 	(car-safe possibilities))
       "path_to_isatool_is_unknown")
   "Command to invoke Isabelle tool 'isatool'.
-XEmacs should be able to find `isatool' if it is on the PATH when
+Emacs should be able to find `isatool' if it is on the PATH when
 started.  Then several standard locations are attempted.
 Otherwise you should set this, using a full path name here for reliable
 working."
@@ -76,17 +79,19 @@ remain unverified.
 Returns non-nil if isa-isatool-command is surely an executable
 with full path."
   (interactive)
-  (unless (or isatool-not-found (file-executable-p isa-isatool-command))
+  (unless (or proof-rsh-command 
+	      isatool-not-found 
+	      (file-executable-p isa-isatool-command))
     (setq isa-isatool-command
 	  (read-file-name
 	   "Please give the full path to `isatool' (RET if you don't have it): "
 	   nil nil nil))
-    (if (not (file-executable-p isa-isatool-command))
-	(progn
-	  (setq isatool-not-found t)
-	  (beep)
-	  (warn "Proof General: isatool command not found; some menus will be incomplete and Isabelle may not run correctly.  Please check your Isabelle installation."))))
-  (file-executable-p isa-isatool-command))
+    (unless (file-executable-p isa-isatool-command)
+      (setq isatool-not-found t)
+      (beep)
+      (warn "Proof General: isatool command not found; some menus will be incomplete and Isabelle may not run correctly.  Please check your Isabelle installation.")))
+  (or proof-rsh-command
+      (file-executable-p isa-isatool-command)))
 
 (defun isa-shell-command-to-string (command)
   "Like shell-command-to-string except the last character is stripped."
@@ -100,7 +105,8 @@ If the isatool command is not available, try using elisp's getenv
 to extract the value from Emacs' environment.
 If there is no setting for the variable, DEFAULT will be returned"
   (isa-set-isatool-command)
-  (if (file-executable-p isa-isatool-command)
+  (if (or proof-rsh-command
+	  (file-executable-p isa-isatool-command))
       (let ((setting (isa-shell-command-to-string
 		      (concat isa-isatool-command
 			      " getenv -b " envvar))))
