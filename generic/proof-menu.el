@@ -275,8 +275,12 @@ without adjusting window layout."
 (proof-deftoggle proof-keep-response-history)
 
 (proof-eval-when-ready-for-assistant
-  (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
-  (proof-deftoggle-fn (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
+  (proof-deftoggle-fn 
+   (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
+  (proof-deftoggle-fn 
+   (proof-ass-sym unicode-tokens-enable) 'proof-unicode-tokens-toggle)
+  (proof-deftoggle-fn 
+   (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
   (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle))
 
 
@@ -310,15 +314,42 @@ without adjusting window layout."
      ["Strict Read Only" proof-strict-read-only-toggle
       :style toggle
       :selected proof-strict-read-only]
-
-     ;; X-Symbol and MM are minor modes which PG settings
-     ;; enable by default for PG buffers
-     ["X-Symbol"  (proof-x-symbol-toggle (if x-symbol-mode 0 1))
+     
+     ["X-Symbol"
+      (proof-x-symbol-toggle (if x-symbol-mode 0 1))
       :active (proof-x-symbol-support-maybe-available)
       :style toggle
       :selected (and (boundp 'x-symbol-mode) x-symbol-mode)]
 
-     ["Maths Menu" (proof-maths-menu-toggle (if maths-menu-mode 0 1))
+;; switch between X-Symbol unicode/non-unicode
+;;      ["X-Symbol"
+;; 	      (progn
+;;  		(customize-set-variable 'x-symbol-use-unicode nil)
+;; 		(proof-x-symbol-toggle (if x-symbol-mode 0 1)))
+;;       :active (and (proof-x-symbol-support-maybe-available)
+;; 		   (not (and (featurep 'x-symbol) x-symbol-use-unicode)))
+;;       :style toggle
+;;       :selected (and (boundp 'x-symbol-mode) x-symbol-mode 
+;;		     (not x-symbol-use-unicode))]
+;; too many options and not quite working anyway
+;;      ["X-Symbol Unicode"  
+;; 	      (progn
+;;  		(customize-set-variable 'x-symbol-use-unicode t)
+;; 		(proof-x-symbol-toggle (if x-symbol-mode 0 1)))
+;;       :active  (and (proof-x-symbol-support-maybe-available)
+;; 		    (not (and (featurep 'x-symbol) (not x-symbol-use-unicode))))
+;;       :style toggle
+;;       :selected (and (boundp 'x-symbol-mode) x-symbol-mode
+;; 		     x-symbol-use-unicode)]
+
+     ["Unicode Tokens" (proof-unicode-tokens-toggle 
+			(if unicode-tokens-mode 0 1))
+      :active (proof-unicode-tokens-support-available)
+      :style toggle
+      :selected (and (boundp 'unicode-tokens-mode) 
+		     unicode-tokens-mode)]
+
+     ["Unicode Maths Menu" (proof-maths-menu-toggle (if maths-menu-mode 0 1))
       :active (proof-maths-menu-support-available)
       :style toggle
       :selected (and (boundp 'maths-menu-mode) maths-menu-mode)]
