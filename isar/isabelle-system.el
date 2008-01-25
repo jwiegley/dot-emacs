@@ -229,7 +229,9 @@ until Proof General is restarted."
   (if (isa-set-isatool-command)
       (apply 'start-process
 	     "isa-view-doc" nil
-	     (list isa-isatool-command "doc" docname))))
+	     (append (split-string
+		      isa-isatool-command) 
+		     "doc" docname))))
 
 
 (defun isa-tool-list-docs ()
