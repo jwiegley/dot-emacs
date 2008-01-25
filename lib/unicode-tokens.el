@@ -53,7 +53,7 @@
 (defvar unicode-tokens-token-format "&%x;"
   "The format for token character references")
 
-(defvar unicode-token-name-alist nil
+(defvar unicode-tokens-token-name-alist nil
   "Mapping of token names to Unicode character names.")
 
 (defvar unicode-tokens-glyph-list nil
@@ -78,7 +78,7 @@ If not set, constructed to include glyphs for all tokens. ")
 ;; Variables initialised in unicode-tokens-initialise 
 ;;
 
-(defvar unicode-token-name-codepoint-alist nil
+(defvar unicode-tokens-token-codept-alist nil
   "Mapping of token names to Unicode codepoints.")
 
 (defvar unicode-tokens-max-token-length 10
@@ -132,29 +132,29 @@ character is inserted without the prompt."
   (interactive "P")
   (let* ((stokname (if (stringp argname) argname ""))
 	 (tokname
-	  (if (eq (try-completion stokname unicode-token-name-alist) t)
+	  (if (eq (try-completion stokname unicode-tokens-token-name-alist) t)
 	      stokname
 	    (completing-read
 	     "Token name: "
-	     unicode-token-alist
+	     unicode-tokens-token-name-alist
 	     nil t stokname)))
 	 charname codepoint glyph)
-    (setq charname (cdr (assoc tokame unicode-token-name-alist)))
+    (setq charname (cdr (assoc tokname unicode-tokens-token-name-alist)))
     (setq codepoint (cdr-safe (assoc charname unicode-chars-alist)))
     (unicode-tokens-insert-char arg codepoint)))
 
 
 (defun unicode-tokens-replace-token-after (length)
-  (let ((bpoint (point)))
+  (let ((bpoint (point)) codept)
     (save-excursion
       (forward-char length)
       (save-match-data
 	(while (re-search-backward 
-		unicode-token-match 
+		unicode-tokens-token-match 
 		(max (- bpoint unicode-tokens-max-token-length) 
 		     (point-min)) t nil)
 	  (setq codept 
-		(assoc (match-string 1) unicode-tokens-codept-alist))
+		(assoc (match-string 1) unicode-tokens-token-codept-alist))
 	  (if (and codept
 		   (memq (cadr codept) unicode-tokens-glyph-list))
 	      (progn
@@ -177,7 +177,7 @@ data if you want to preserve them."
           (if (re-search-forward regexp here t)
               (= (point) here))))))
 
-(defun unicode-tokens-smart-suffix ()
+(defun unicode-tokens-electric-suffix ()
   "Detect tokens and replace them with the appropriate char.
 This can be bound to the character ending `unicode-tokens-token-suffix'
 if there is such a unique character."
@@ -261,7 +261,7 @@ if there is such a unique character."
   "Define the token input rules.
 Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list'."
   (let ((ulist unicode-tokens-token-name-alist)
-      codepoint glyph tokname token
+      codepoint glyph tokname charname token
       unicode-tokens-quail-define-rules)
   (while ulist
     (setq tokname (caar ulist))
@@ -315,7 +315,7 @@ Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list
 (defun unicode-tokens-initialise ()
   "Initialise tables."
   ;; Calculate max token length
-  (let ((tlist unicode-token-name-alist)
+  (let ((tlist unicode-tokens-token-name-alist)
 	(len 0) tok)
     (while tlist
       (when (> (length (car tlist)) 0)
@@ -341,7 +341,7 @@ Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list
   (if (= (length unicode-tokens-token-suffix) 1)
       (define-key unicode-tokens-mode-map
 	(vector (string-to-char unicode-tokens-token-suffix))
-	'unicode-tokens-smart-suffix))
+	'unicode-tokens-electric-suffix))
   ;; otherwise action on space like in X-Symbol?
   )
 
