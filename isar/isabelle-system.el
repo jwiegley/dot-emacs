@@ -231,8 +231,7 @@ until Proof General is restarted."
 	     "isa-view-doc" nil
 	     (append (split-string
 		      isa-isatool-command) 
-		     "doc" docname))))
-
+		     (list "doc" docname)))))
 
 (defun isa-tool-list-docs ()
   "Generate a list of documentation files available, with descriptions.
