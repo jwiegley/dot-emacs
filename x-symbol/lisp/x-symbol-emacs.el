@@ -73,8 +73,10 @@ test."
        (locate-library "syntax")))
 
 ;; with the following line, "reveal invisible around point" won't work:
-(setq x-symbol-emacs-has-font-lock-with-props 'invisible)
-;; da: above seems no longer true with, e.g., Emacs 22.1.1.
+(setq x-symbol-emacs-has-font-lock-with-props 
+      (if (boundp 'font-lock-extra-managed-props)
+	  'invisible))
+;; da: above seems no longer true with, e.g., works in Emacs 22.1.1.
 ;; So enable this by default now since it results in better
 ;; display, no space between text and sub/superscripts.
 
