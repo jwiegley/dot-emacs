@@ -4,9 +4,11 @@ Compatibility of Proof General
 This version of Proof General has been tested with these Emacs versions
 on Linux:
 
- Emacs 22.1.1	       -- recommended
- XEmacs 21.4.XX	       -- stable, but not recently tested
- XEmacs 21.5 (beta28)  -- tested, PG has workarounds for several bugs
+ Emacs 22.1.1	       -- recommended and supported
+
+ Emacs 21.4.1          -- tested; works except X-Symbol sub/superscripts
+ XEmacs 21.4.XX	       -- tested
+ XEmacs 21.5 (beta28)  -- tested; PG has workarounds for several bugs
 
 and prover versions:
 
@@ -20,10 +22,11 @@ wiki page to check on others experience and report your own:
 
  http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsCompatibility  
 
-Backward compatibility and version-specific Emacs patches makes the
-code into a bad mess.  Some compatibility has been removed here,
-specifically affecting:
+Unfortunately it's too difficult to maintain backward compatibility.
+Some old version compatibility has been removed here, specifically
+affecting:
 
  Coq 7
  Isabelle 2004
- Earlier buggy versions of Emacs 21  (21.4.1 should work)
+ Earlier buggy versions of GNU Emacs 21  
+

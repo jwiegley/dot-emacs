@@ -29,7 +29,6 @@
 
 (require 'cl)				; incf
 (require 'pg-xml)
-(require 'pg-pgip-old)			;; Handle some PGIP 1.X format messages
 (require 'proof-config)			;; config variables
 
 ;;; Code:
