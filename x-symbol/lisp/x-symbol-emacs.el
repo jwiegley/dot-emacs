@@ -28,7 +28,6 @@
 ;; \\[x-symbol-package-web]) and read the info (use \\[x-symbol-package-info]).
 
 (provide 'x-symbol-emacs)
-;; TODO: Emacs has `buffer-substring-no-properties'
 
 (unless (fboundp 'emacs-version>=)
 (defun emacs-version>= (major &optional minor patch)
@@ -418,7 +417,7 @@ are separated with SEPARATOR (\", \" by default)."
 
 (defalias 'x-symbol-window-width 'window-width)
 
-;; emacs-u-22 version: problematic
+;; da: emacs-u-22 version: problematic (get invalid codes later for is88859-3)
 ;; (defun x-symbol-set-face-font (face font charsets default)
 ;;   (let ((fontset (replace-in-string  (symbol-name face) "-" "")))
 ;;     (unless (query-fontset fontset)
