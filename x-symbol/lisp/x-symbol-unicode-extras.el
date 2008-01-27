@@ -1,6 +1,17 @@
+;;; x-symbol-unicode-extras.el --- more Unicode tables for X-Symbol.
+;;
+;; Author: David Aspinall
+;;
+;;; Commentary:
+;; 
+;; Some new symbols possibly available in Unicode fonts
+;;
+;; TODO: need to define key short cuts, categories in a rational way
+;;
 
-(defconst x-symol-unicode-extras ;; some nice extras for PG, maybe
-  '(;; FIXME: need to define key short cuts, categories in a rational way
+;;; Code:
+(defconst x-symol-unicode-extras
+  '(
    (left-tortoise-shell-bracket "LEFT TORTOISE SHELL BRACKET")
    (right-tortoise-shell-bracket "RIGHT TORTOISE SHELL BRACKET")
    (left-white-tortoise-shell-bracket "LEFT WHITE TORTOISE SHELL BRACKET")
@@ -9,7 +20,7 @@
    (right-double-angle-bracket "RIGHT DOUBLE ANGLE BRACKET")
    (left-black-lenticular-bracket "LEFT BLACK LENTICULAR BRACKET")
    (right-black-lenticular-bracket "RIGHT BLACK LENTICULAR BRACKET")
-   (less-than-above-greater-than-above-double-line-equal 
+   (less-than-above-greater-than-above-double-line-equal
     "LESS-THAN ABOVE GREATER-THAN ABOVE DOUBLE-LINE EQUAL")
    (greater-than-above-less-than-above-double-line-equal
     "GREATER-THAN ABOVE LESS-THAN ABOVE DOUBLE-LINE EQUAL")
@@ -74,7 +85,7 @@
    (anticlockwise-top-semicircle-arrow "ANTICLOCKWISE TOP SEMICIRCLE ARROW")
    (clockwise-top-semicircle-arrow "CLOCKWISE TOP SEMICIRCLE ARROW")
    (north-west-arrow-to-long-bar "NORTH WEST ARROW TO LONG BAR")
-   (leftwards-arrow-to-bar-over-rightwards-arrow-to-bar 
+   (leftwards-arrow-to-bar-over-rightwards-arrow-to-bar
     "LEFTWARDS ARROW TO BAR OVER RIGHTWARDS ARROW TO BAR")
    ;;
    (rightwards-arrow-over-leftwards-arrow "RIGHTWARDS ARROW OVER LEFTWARDS ARROW")
@@ -210,7 +221,7 @@
    (does-not-prove "DOES NOT PROVE")
    (not-true "NOT TRUE")
    (does-not-force "DOES NOT FORCE")
-   (negated-double-vertical-bar-double-right-turnstile 
+   (negated-double-vertical-bar-double-right-turnstile
     "NEGATED DOUBLE VERTICAL BAR DOUBLE RIGHT TURNSTILE")
    (precedes-under-relation "PRECEDES UNDER RELATION")
    (succeeds-under-relation "SUCCEEDS UNDER RELATION")
@@ -397,7 +408,7 @@
    (open-centre-black-star "OPEN CENTRE BLACK STAR")
    (black-centre-white-star "BLACK CENTRE WHITE STAR")
    (outlined-black-star "OUTLINED BLACK STAR")
-   (medium-left-pointing-angle-bracket-ornament 
+   (medium-left-pointing-angle-bracket-ornament
     "MEDIUM LEFT-POINTING ANGLE BRACKET ORNAMENT")
    (medium-right-pointing-angle-bracket-ornament
     "MEDIUM RIGHT-POINTING ANGLE BRACKET ORNAMENT")
@@ -409,9 +420,9 @@
     "HEAVY LEFT-POINTING ANGLE BRACKET ORNAMENT")
    (heavy-right-pointing-angle-bracket-ornament
     "HEAVY RIGHT-POINTING ANGLE BRACKET ORNAMENT")
-   (light-left-tortoise-shell-bracket-ornament 
+   (light-left-tortoise-shell-bracket-ornament
     "LIGHT LEFT TORTOISE SHELL BRACKET ORNAMENT")
-   (light-right-tortoise-shell-bracket-ornament 
+   (light-right-tortoise-shell-bracket-ornament
     "LIGHT RIGHT TORTOISE SHELL BRACKET ORNAMENT")
    (medium-left-curly-bracket-ornament "MEDIUM LEFT CURLY BRACKET ORNAMENT")
    (medium-right-curly-bracket-ornament "MEDIUM RIGHT CURLY BRACKET ORNAMENT")
@@ -424,7 +435,7 @@
    (triangle-headed-rightwards-arrow "TRIANGLE-HEADED RIGHTWARDS ARROW")
    (heavy-triangle-headed-rightwards-arrow "HEAVY TRIANGLE-HEADED RIGHTWARDS ARROW")
    (dashed-triangle-headed-rightwards-arrow "DASHED TRIANGLE-HEADED RIGHTWARDS ARROW")
-   (heavy-dashed-triangle-headed-rightwards-arrow 
+   (heavy-dashed-triangle-headed-rightwards-arrow
     "HEAVY DASHED TRIANGLE-HEADED RIGHTWARDS ARROW")
    (black-rightwards-arrow "BLACK RIGHTWARDS ARROW")
    (three-d-top-lighted-rightwards-arrowhead "THREE-D TOP-LIGHTED RIGHTWARDS ARROWHEAD")
@@ -447,3 +458,5 @@
 
 
 (provide 'x-symbol-unicode-extras)
+
+;;; x-symbol-unicode-extras.el ends here

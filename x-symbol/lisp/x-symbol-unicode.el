@@ -1,14 +1,20 @@
 ;;; x-symbol-unicode.el --- provide some Unicode tables for X-Symbol.
 ;;
-;; Author: David Aspinall
+;; Copyright (C) 2007 LFCS Edinburgh / David Aspinall
+;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
+;;
+;;; Commentary:
 ;;
 ;; X-Symbol is really a bit of a dinosaur and will be replaced
 ;; by something else sooner or later.  In the meantime it's handy
 ;; to support Unicode character sets using the same interface
 ;; as the existing X-Symbol.
+;; 
 
 (require 'x-symbol-unichars)		;; Unicode names & positions
 
+;;; Code:
 (defconst x-symbol-xsym-unicode-map	;; X-symbol names -> Unicode names
 					;; [ FIXME: please complete/extend! ]
   '((visiblespace "SYMBOL FOR SPACE")
@@ -231,7 +237,7 @@
     (greatersim "GREATER-THAN OR EQUIVALENT TO")
     (lessapprox "PRECEDES OR EQUIVALENT TO") ;; FIXME check these four!
     (greaterapprox "SUCCEEDS OR EQUIVALENT TO")
-    (definedas "EQUAL TO BY DEFINITION") ;; FIXME: should be triangleeq 
+    (definedas "EQUAL TO BY DEFINITION") ;; FIXME: should be triangleeq
     (cataleft "LEFT WHITE PARENTHESIS")
     (cataright "RIGHT WHITE PARENTHESIS")
     (bigcircledot "CIRCLED DOT OPERATOR")
@@ -257,8 +263,8 @@
     (eight1 "SUBSCRIPT EIGHT")
     (nine1 "SUBSCRIPT NINE")))
 
-(defconst x-symbol-old-tables 
-  ;; combine tables from old style fonts 
+(defconst x-symbol-old-tables
+  ;; combine tables from old style fonts
   (append
    x-symbol-latin1-table
    x-symbol-latin2-table
@@ -273,11 +279,11 @@
 ;; old tables.  Could easily add extras here, but leave out for now
 ;; for backward compatibility.
 
-(defconst x-symbol-unicode-table 
+(defconst x-symbol-unicode-table
   ;; Oh dear, need to split this between tables
   (apply 'append
    (mapcar (lambda (xsymuni)
-	     (let ((unicode (assoc-string (cadr xsymuni) 
+	     (let ((unicode (assoc-string (cadr xsymuni)
 					  x-symbol-unicode-character-list))
 		   (tableinfo (assoc (car xsymuni)
 				     x-symbol-old-tables)))
@@ -299,3 +305,5 @@
 
 
 (provide 'x-symbol-unicode)
+
+;;; x-symbol-unicode.el ends here
