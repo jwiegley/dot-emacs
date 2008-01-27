@@ -54,36 +54,34 @@
   "The format for token character references")
 
 (defvar unicode-tokens-token-name-alist nil
-  "Mapping of token names to Unicode character names.")
+  "Mapping of token names to Unicode strings.")
 
 (defvar unicode-tokens-glyph-list nil
   "List of available glyphs, as characters.
 If not set, constructed to include glyphs for all tokens. ")
 
-(defvar unicode-tokens-token-prefix nil
+(defvar unicode-tokens-token-prefix "&"
   "Prefix for start of tokens to insert.")
 
-(defvar unicode-tokens-token-suffix nil
+(defvar unicode-tokens-token-suffix ";"
   "Suffix for end of tokens to insert.")
 
-(defvar unicode-tokens-token-match nil
+(defvar unicode-tokens-token-match "&#[xX][0-9a-fA-F]+"
   "Regexp matching tokens")
 
-(defvar unicode-tokens-hexcode-match nil
+(defvar unicode-tokens-hexcode-match "&#[xX]\\([0-9a-fA-F]+\\)"
   "Regexp matching numeric token string")
-
 
 
 ;;
 ;; Variables initialised in unicode-tokens-initialise 
 ;;
 
-(defvar unicode-tokens-token-codept-alist nil
-  "Mapping of token names to Unicode codepoints.")
-
 (defvar unicode-tokens-max-token-length 10
   "Maximum length of a token in underlying encoding.")
 
+(defvar unicode-tokens-codept-charname-alist nil
+  "Alist mapping unicode code point to character names.")
 
 ;;
 ;;; Code:
@@ -98,6 +96,16 @@ If ARG is non-nil, ignore available glyphs."
       (ucs-insert codepoint)) ;; glyph converted to token on save
      (t
       (insert (format unicode-tokens-charref-format codepoint))))))
+
+(defun unicode-tokens-insert-string (arg ustring)
+  "Insert a Unicode string.
+If a prefix is given, the string will be inserted regardless
+of whether or not it has displayable glyphs; otherwise, a
+numeric character reference for whichever codepoints are not
+in the unicode-tokens-glyph-list."
+  (mapcar (lambda (char) 
+	    (unicode-tokens-insert-char arg char))
+	  ustring))
 
 (defun unicode-tokens-character-insert (arg &optional argname)
   "Insert a Unicode character by character name, with completion. 
@@ -122,10 +130,10 @@ character is inserted without the prompt."
     (unicode-tokens-insert-char arg codepoint)))
 
 (defun unicode-tokens-token-insert (arg &optional argname)
-  "Insert a Unicode character by a token  name, with completion. 
-If a prefix is given, the character will be inserted regardless
-of whether or not it has a displayable glyph; otherwise, a
-numeric character reference is inserted if the codepoint is not
+  "Insert a Unicode string by a token  name, with completion. 
+If a prefix is given, the string will be inserted regardless
+of whether or not it has displayable glyphs; otherwise, a
+numeric character reference for whichever codepoints are not
 in the unicode-tokens-glyph-list. If argname is given, it is used for
 the prompt. If argname uniquely identifies a character, that
 character is inserted without the prompt."
@@ -138,14 +146,13 @@ character is inserted without the prompt."
 	     "Token name: "
 	     unicode-tokens-token-name-alist
 	     nil t stokname)))
-	 charname codepoint glyph)
-    (setq charname (cdr (assoc tokname unicode-tokens-token-name-alist)))
-    (setq codepoint (cdr-safe (assoc charname unicode-chars-alist)))
-    (unicode-tokens-insert-char arg codepoint)))
+	 charname ustring)
+    (setq ustring (cdr (assoc tokname unicode-tokens-token-name-alist)))
+    (unicode-tokens-insert-string arg ustring)))
 
 
 (defun unicode-tokens-replace-token-after (length)
-  (let ((bpoint (point)) codept)
+  (let ((bpoint (point)) ustring)
     (save-excursion
       (forward-char length)
       (save-match-data
@@ -153,15 +160,15 @@ character is inserted without the prompt."
 		unicode-tokens-token-match 
 		(max (- bpoint unicode-tokens-max-token-length) 
 		     (point-min)) t nil)
-	  (setq codept 
-		(assoc (match-string 1) unicode-tokens-token-codept-alist))
-	  (if (and codept
-		   (memq (cadr codept) unicode-tokens-glyph-list))
+	  (setq ustring 
+		(assoc (match-string 1) unicode-tokens-token-name-alist))
+	  (if ustring ;; TODO: should check on glyphs here
 	      (progn
-		(replace-match (format "%c" (decode-char 'ucs (cadr codept))))
-		;; FIXME: return correct length
-		;; something like 1-length-point  modulo chars replaced
-		(setq length length)))))))
+		(let ((matchlen (- (match-end 0) (match-beginning 0))))
+		  (replace-match (cdr ustring))
+		  ;; was: (format "%c" (decode-char 'ucs (cadr codept)))
+		  (setq length 
+			(+ (- length matchlen) (length ustring))))))))))
     length)
 
 
@@ -183,7 +190,7 @@ This can be bound to the character ending `unicode-tokens-token-suffix'
 if there is such a unique character."
   (interactive)
   (let ((pos (point))
-	amppos codept)
+	amppos codept ustring)
     (search-backward unicode-tokens-token-prefix nil t nil)
     (setq amppos (point))
     (goto-char pos)
@@ -193,12 +200,12 @@ if there is such a unique character."
 	(re-search-backward unicode-tokens-token-match nil t nil)
 	(if (= amppos (point))
 	    (progn
-	      (setq codept 
+	      (setq ustring 
 		     (assoc (match-string 1) 
-			    unicode-tokens-token-codept-alist))
-	      (if (and codept
-		       (memq (cdr codept) unicode-tokens-glyph-list))
-		  (replace-match (format "%c" (decode-char 'ucs (cdr codept))))
+			    unicode-tokens-token-name-alist))
+	      (if ustring  ;; todo: check glyphs avail/use insert fn
+		  (replace-match (cdr ustring))
+		   ;; was (format "%c" (decode-char 'ucs (cdr codept))))
 		(progn
 		  (goto-char pos)
 		  (insert unicode-tokens-token-suffix))))
@@ -211,7 +218,8 @@ if there is such a unique character."
 	(if (= amppos (point))
 	    (progn
 	      (setq codept (string-to-number (match-string 1) 16))
-	      (if (memq codept unicode-tokens-glyph-list)
+	      (if ;; todo : check glyph (memq codept unicode-tokens-glyph-list)
+		  codept
 		  (replace-match (format "%c" (decode-char 'ucs (cdr codept))))
 		(progn
 		  (goto-char pos)
@@ -221,6 +229,28 @@ if there is such a unique character."
 	    (insert unicode-tokens-token-suffix)))))
      (t
       (insert unicode-tokens-token-suffix)))))
+
+
+(defun unicode-tokens-rotate-glyph-forward (&optional n)
+  (interactive "p")
+  (if (> (point) (point-min))
+      (let* ((codept  (char-before (point)))
+	     (page    (/ codept 256))
+	     (pt      (mod codept 256))
+	     (newpt   (mod (+ pt (or n 1)) 256))
+	     (newcode (+ (* 256 page) newpt))
+	     (newname (assoc newcode 
+			     unicode-tokens-codept-charname-alist)))
+	(delete-char -1)
+	(insert-char (decode-char 'ucs newcode) 1)
+	(if newname
+	    (message (cdr newname))))))
+
+(defun unicode-tokens-rotate-glyph-backward (&optional n)
+  (interactive "p")
+  (unicode-tokens-rotate-glyph-forward (if n (- n) -1)))
+    
+
 
 ;;
 ;; Coding system for saving tokens in plain ASCII.
@@ -265,26 +295,22 @@ Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list
   (let ((ulist unicode-tokens-token-name-alist)
       codepoint glyph tokname charname token
       unicode-tokens-quail-define-rules)
-  (while ulist
-    (setq tokname (caar ulist))
-    (setq charname (cdar ulist))
-    (setq codepoint (cdr (assoc charname unicode-chars-alist)))
-    (unless codepoint
-	(error "Unicode character %s not found" charname))
-    (setq glyph (memq codepoint unicode-tokens-glyph-list))
-    (setq token (format unicode-tokens-token-format tokname))
-    (cond
-     ((and glyph (decode-char 'ucs codepoint))
-      (nconc unicode-tokens-quail-define-rules
-	     (list (list token (decode-char 'ucs codepoint))))))
-;     (t ; still use token if no glyph
-;      (nconc unicode-tokens-quail-define-rules
-;	     (list (list token (vector token))))))
-    (setq ulist (cdr ulist)))
-  (eval unicode-tokens-quail-define-rules)))
-
-
-
+    (while ulist
+      (setq tokname (caar ulist))
+      (setq ustring (cdar ulist))
+      ;; (setq glyph (memq codepoint unicode-tokens-glyph-list))
+      (setq token (format unicode-tokens-token-format tokname))
+      (cond
+       (t; TODO: check for glyph usability 
+	;; (and glyph (decode-char 'ucs codepoint))
+	(nconc unicode-tokens-quail-define-rules
+	       (list (list token ustring))))) 
+       ;;  (decode-char 'ucs codepoint))))))
+       ;;     (t ; still use token if no glyph
+       ;;      (nconc unicode-tokens-quail-define-rules
+       ;;	     (list (list token (vector token))))))
+      (setq ulist (cdr ulist)))
+    (eval unicode-tokens-quail-define-rules)))
 
 ;; 
 ;; Minor mode
@@ -298,14 +324,14 @@ Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list
   nil 
   nil ; input method indication already
   unicode-tokens-mode-map
-  (when unicode-tokens-mode
-    (set-buffer-multibyte t)
-    (decode-coding-region (point-min) (point-max) 
-			  'unicode-tokens-coding-system))
-  (unless unicode-tokens-mode
-    (set-buffer-multibyte nil)
-    (encode-coding-region (point-min) (point-max) 
-			  'unicode-tokens-coding-system))
+;;;   (when unicode-tokens-mode
+;;;     (set-buffer-multibyte t)
+;;;     (decode-coding-region (point-min) (point-max) 
+;;; 			  'unicode-tokens-coding-system))
+;;;   (unless unicode-tokens-mode
+;;;     (set-buffer-multibyte nil)
+;;;     (encode-coding-region (point-min) (point-max) 
+;;; 			  'unicode-tokens-coding-system))
   ;(toggle-enable-multibyte-characters unicode-tokens-mode)
   (set-input-method "Unicode tokens" unicode-tokens-mode)
   )
@@ -320,30 +346,35 @@ Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list
   (let ((tlist unicode-tokens-token-name-alist)
 	(len 0) tok)
     (while tlist
-      (when (> (length (car tlist)) 0)
-	  (setq len (length (car tlist)))
-	  (setq tok (car tlist)))
+      (when (> (length (caar tlist)) 0)
+	  (setq len (length (caar tlist)))
+	  (setq tok (caar tlist)))
       (setq tlist (cdr tlist)))
     (setq unicode-tokens-max-token-length
 	  (length (format unicode-tokens-token-format tok))))
+  ;; Names from code points
+  (setq unicode-tokens-codept-charname-alist
+	(mapcar (lambda (namechar)
+		  (cons (cdr namechar) (car namechar)))
+		unicode-chars-alist))
   ;; Default assumed available glyph list based on tokens;
   ;; TODO: filter with what's really available, if can find out.
-  (setq unicode-tokens-token-codept-alist
-	(mapcar (lambda (uchar) 
-		  (let ((codept (assoc (cdr uchar) unicode-chars-alist)))
-		    (unless codept
-		      (error "Unicode character %s unknown" uchar))
-		    (cons (car uchar) (cdr codept))))
-		unicode-tokens-token-name-alist))
   (unless unicode-tokens-glyph-list
     (setq unicode-tokens-glyph-list
-	  (mapcar 'cdr unicode-tokens-token-codept-alist)))
+	  (reduce (lambda (glyphs tokustring)
+		    (append glyphs (string-to-list (cdr tokustring))))
+		  unicode-tokens-token-name-alist
+		  :initial-value nil)))
   (unicode-tokens-quail-define-rules)
   ;; Keys
   (if (= (length unicode-tokens-token-suffix) 1)
       (define-key unicode-tokens-mode-map
 	(vector (string-to-char unicode-tokens-token-suffix))
 	'unicode-tokens-electric-suffix))
+  (define-key unicode-tokens-mode-map [(control ,)]
+    'unicode-tokens-rotate-glyph-backward)
+  (define-key unicode-tokens-mode-map [(control .)]
+    'unicode-tokens-rotate-glyph-forward)
   ;; otherwise action on space like in X-Symbol?
   )
 
