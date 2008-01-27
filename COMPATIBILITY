@@ -6,9 +6,9 @@ on Linux:
 
  Emacs 22.1.1	       -- recommended and supported
 
- Emacs 21.4.1          -- tested; works except X-Symbol sub/superscripts
- XEmacs 21.4.XX	       -- tested
+ Emacs 21.4.1          -- tested; poorer X-Symbol sub/superscript support
  XEmacs 21.5 (beta28)  -- tested; PG has workarounds for several bugs
+ XEmacs 21.4.XX	       -- tested
 
 and prover versions:
 
