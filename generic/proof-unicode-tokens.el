@@ -24,6 +24,9 @@
    ;; Requires prover-specific config in <foo>-unicode-tokens.el
    (proof-try-require (proof-ass-sym unicode-tokens))))
 
+(defvar proof-unicode-tokens-initialised nil
+  "Flag indicating whether or not we've performed startup.")
+
 (defun proof-unicode-tokens-init ()
   "Initialise settings for unicode tokens from prover specific variables."
   (mapcar
@@ -39,7 +42,8 @@
      hexcode-match
      token-prefix
      token-suffix))
-  (unicode-tokens-initialise))
+  (unicode-tokens-initialise)
+  (setq proof-unicode-tokens-initialised t))
   
 (defun proof-unicode-tokens-set-global (flag)
   "Set global status of unicode tokens mode for PG buffers to be FLAG.
@@ -57,13 +61,15 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit."
 ;;;###autoload
 (defun proof-unicode-tokens-enable ()
   "Turn on or off Unicode tokens mode in Proof General script buffer.
-This invokes `maths-menu-mode' to toggle the setting for the current
+This invokes `unicode-tokens-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
-Also we arrange to have maths menu mode turn itself on automatically 
+Also we arrange to have unicode tokens mode turn itself on automatically 
 in future if we have just activated it for this buffer."
   (interactive)
-  (if (proof-unicode-tokens-support-available) ;; will load maths-menu-mode
-      (proof-unicode-tokens-set-global (not unicode-tokens-mode))))
+  (when (proof-unicode-tokens-support-available) ;; loads unicode-tokens
+    (unless proof-unicode-tokens-initialised
+      (proof-unicode-tokens-init))
+    (proof-unicode-tokens-set-global (not unicode-tokens-mode))))
 
 ;;
 ;; On start up, adjust automode according to user setting
@@ -71,9 +77,7 @@ in future if we have just activated it for this buffer."
 (proof-eval-when-ready-for-assistant 
     (if (and (proof-ass unicode-tokens-enable) 
 	     (proof-unicode-tokens-support-available))
-	(progn
-	  (proof-unicode-tokens-init)
-	  (proof-unicode-tokens-set-global t))))
+	(proof-unicode-tokens-set-global t)))
 
-(provide 'proof-maths-menu)
-;; End of proof-maths-menu.el
+(provide 'proof-unicode-tokens)
+;; End of proof-unicode-tokens.el
