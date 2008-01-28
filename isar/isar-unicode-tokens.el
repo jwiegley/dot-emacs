@@ -221,6 +221,7 @@
 ;;;    ("longleftrightarrow" . "←→")
 ;;;    ("Longleftrightarrow" . "⇐⇒")
 ;;;    ("longmapsto" . "❘→")
+    ("DodgyLongleftrightarrow" . "⇐woo⇒")
    ("hookrightarrow" . "↪")
    ("rightharpoonup" . "⇀")
    ("rightharpoondown" . "⇁")
@@ -305,6 +306,9 @@
    ("ffl" . "ﬄ")
    ))
 
+;; FIXME: not all of these shortcuts work, for some reason
+;; e.g. /0 although appears in input method prompts
+;; long arrows --> ==> don't appear in prompts
 (defvar isar-shortcut-alist
   '(; short cut, unicode string
     ("<>" . "⋄")
@@ -366,15 +370,30 @@
     ("''" . "″")
     ("'''" . "‴")
     ("''''" . "⁗")
-    ("nat" . "ℕ")
-    ("int" . "ℤ")
-    ("rat" . "ℚ")
-    ("real" . "ℝ")
-    ("complex" . "ℂ")
     (":=" . "≔")
-    ("euro" . "€")
-    ("yen" . "¥")
-    ("cent" . "¢")))
+    ;; some word shortcuts, started with backslash otherwise
+    ;; too annoying.
+    ("\nat" . "ℕ")
+    ("\int" . "ℤ")
+    ("\rat" . "ℚ")
+    ("\real" . "ℝ")
+    ("\complex" . "ℂ")
+    ("\euro" . "€")
+    ("\yen" . "¥")
+    ("\cent" . "¢")))
+
+
+;;
+;; prover symbol support 
+;;
+
+(eval-after-load "isar" 
+  '(setq 
+    proof-xsym-activate-command
+    (isar-markup-ml "change print_mode (insert (op =) \"xsymbols\")")
+    proof-xsym-deactivate-command
+    (isar-markup-ml "change print_mode (remove (op =) \"xsymbols\")")))
+
 
 
 (provide 'isar-unicode-tokens)

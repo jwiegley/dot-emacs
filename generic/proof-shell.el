@@ -2015,8 +2015,9 @@ processing."
 		  (if proof-assistant-settings
 		      (proof-shell-invisible-command (proof-assistant-settings-cmd) t)))
 
-	      ;; Configure for x-symbol [even if the init cmd caused some error]
-	      (proof-x-symbol-shell-config)))))))
+	      ;; Configure for x-symbol or unicode input
+	      (proof-x-symbol-shell-config)
+	      (proof-unicode-tokens-shell-config)))))))
 
 
 (provide 'proof-shell)

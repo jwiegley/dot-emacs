@@ -55,7 +55,8 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit."
       (remove-hook hook 'unicode-tokens-mode))
     (proof-map-buffers 
       (proof-buffers-in-mode proof-mode-for-script)
-      (unicode-tokens-mode (if flag 1 0)))))
+      (unicode-tokens-mode (if flag 1 0)))
+    (proof-unicode-tokens-shell-config)))
 
   
   
@@ -71,6 +72,49 @@ in future if we have just activated it for this buffer."
     (unless proof-unicode-tokens-initialised
       (proof-unicode-tokens-init))
     (proof-unicode-tokens-set-global (not unicode-tokens-mode))))
+
+
+;;;
+;;; Interface to shell
+;;;
+
+(defun proof-unicode-tokens-activate-prover ()
+  (when (and proof-xsym-activate-command 
+	     (proof-shell-live-buffer)
+	     (proof-shell-available-p))
+    (proof-shell-invisible-command-invisible-result
+     proof-xsym-activate-command)))
+
+(defun proof-unicode-tokens-deactivate-prover ()
+  (when (and proof-xsym-deactivate-command 
+	     (proof-shell-live-buffer)
+	     (proof-shell-available-p))
+    (proof-shell-invisible-command-invisible-result
+     proof-xsym-deactivate-command)))
+
+(defun proof-unicode-tokens-shell-config ()
+  (when (proof-ass unicode-tokens-enable)
+    (add-hook 'proof-shell-insert-hook
+	      'proof-x-symbol-encode-shell-input)
+    (proof-unicode-tokens-activate-prover))
+  (unless (proof-ass unicode-tokens-enable)
+    (remove-hook 'proof-shell-insert-hook
+		 'proof-x-symbol-encode-shell-input)
+    (proof-unicode-tokens-deactivate-prover)))
+
+(defun proof-unicode-tokens-encode-shell-input ()
+  "Encode shell input in the variable STRING.
+A value for proof-shell-insert-hook."
+  (if (proof-ass unicode-tokens-enable)
+      (with-temp-buffer ;; TODO: better to do directly in *prover*
+	(insert string)
+	(unicode-tokens-unicode-to-tokens)
+	(setq string (buffer-substring-no-properties
+		      (point-min) (point-max))))))
+
+	
+	    
+
 
 ;;
 ;; On start up, adjust automode according to user setting
