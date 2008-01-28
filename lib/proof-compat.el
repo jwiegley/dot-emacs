@@ -30,6 +30,14 @@
   "Non-nil if Proof General is running on a windows variant system.")
 
 
+;; Workaround a small bug in Carbon Emacs Winter 2008 (at least)
+;; Menu presses query this variable, but it's not bound unless 
+;; mode engaged.  Not noticeable in normal use, but it is as soon
+;; as debug-on-error is engaged.
+(if (and (boundp 'carbon-emacs-package-version)
+	 (not (boundp 'mac-key-mode)))
+    (setq mac-key-mode nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Emacs and XEmacs modifications and adjustments
