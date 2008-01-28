@@ -612,11 +612,11 @@ Sets `holes-active-hole' to the next hole if it exists."
       "see `mouse-selection-click-count'"
       (+ mouse-selection-click-count 1)))
    (t
-    (error
+    (unless noninteractive 
+      ;; da: ^^^^ avoid error in "make doc" (mouse functions undefined?)
+      (error
      "Your (X)Emacs version is not compatible with holes (too old or
-    new version?), sorry"))
-   )
-  )
+    new version?), sorry")))))
 
 (defun holes-mouse-replace-active-hole (event)
 					; checkdoc-params: (event)
