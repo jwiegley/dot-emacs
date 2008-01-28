@@ -79,7 +79,8 @@ remain unverified.
 Returns non-nil if isa-isatool-command is surely an executable
 with full path."
   (interactive)
-  (unless (or proof-rsh-command 
+  (unless (or noninteractive
+	      proof-rsh-command 
 	      isatool-not-found 
 	      (file-executable-p isa-isatool-command))
     (setq isa-isatool-command
