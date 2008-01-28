@@ -4,13 +4,10 @@
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; This is a partial replacement for X-Symbol for Proof General.
+;; STATUS: experimental, in progress
 ;;
-;; Some functions are taken from `xmlunicode.el' by Norman Walsh.
+;; Some functions are adapted from `xmlunicode.el' by Norman Walsh.
 ;; Created: 2004-07-21, Version: 1.6, Copyright (C) 2003 Norman Walsh
-;; Inspired in part by sgml-input, Copyright (C) 2001 Dave Love
-;; Inspired in part by 
-;;  http://www.tbray.org/ongoing/When/200x/2003/09/27/UniEmacs
-;;
 ;;
 ;; This is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -72,6 +69,11 @@ If not set, constructed to include glyphs for all tokens. ")
 (defvar unicode-tokens-hexcode-match "&#[xX]\\([0-9a-fA-F]+\\)"
   "Regexp matching numeric token string")
 
+(defvar unicode-tokens-shortcut-alist
+  "An alist of keyboard shortcuts to unicode strings.
+The alist is added to the input mode for tokens.
+Behaviour is much like abbrev.")
+
 
 ;;
 ;; Variables initialised in unicode-tokens-initialise 
@@ -82,6 +84,9 @@ If not set, constructed to include glyphs for all tokens. ")
 
 (defvar unicode-tokens-codept-charname-alist nil
   "Alist mapping unicode code point to character names.")
+
+(defvar unicode-tokens-decode-map nil
+  "Decoding map for Unicode Tokens input method.")
 
 ;;
 ;;; Code:
@@ -150,7 +155,6 @@ character is inserted without the prompt."
     (setq ustring (cdr (assoc tokname unicode-tokens-token-name-alist)))
     (unicode-tokens-insert-string arg ustring)))
 
-
 (defun unicode-tokens-replace-token-after (length)
   (let ((bpoint (point)) ustring)
     (save-excursion
@@ -168,7 +172,7 @@ character is inserted without the prompt."
 		  (replace-match (cdr ustring))
 		  ;; was: (format "%c" (decode-char 'ucs (cadr codept)))
 		  (setq length 
-			(+ (- length matchlen) (length ustring))))))))))
+			(+ (- length matchlen) (length (cdr ustring)))))))))))
     length)
 
 
@@ -253,6 +257,50 @@ if there is such a unique character."
 
 
 ;;
+;; Setup quail for Unicode tokens mode
+;;
+
+(require 'quail)
+
+(quail-define-package
+ "Unicode tokens" "UTF-8" "T" t
+ "Unicode characters input method using application specific token names"
+ nil t nil nil nil t nil nil nil nil t)
+
+(defun unicode-tokens-quail-define-rules ()
+  "Define the token and shortcut input rules.
+Calculated from `unicode-tokens-token-name-alist' and 
+`unicode-tokens-shortcut-alist'."
+  (let ((unicode-tokens-quail-define-rules 
+	 (list 'quail-define-rules)))
+    (let ((ulist unicode-tokens-token-name-alist)
+	  ustring tokname token)
+      (while ulist
+	(setq tokname (caar ulist))
+	(setq ustring (cdar ulist))
+	(setq token (format unicode-tokens-token-format tokname))
+	(if (= (length ustring) 1) ; only single-char destinations
+	    (nconc unicode-tokens-quail-define-rules
+		   (list (list token 
+			       (string-to-char ustring)))))
+	(setq ulist (cdr ulist))))
+    (let ((ulist unicode-tokens-shortcut-alist)
+	  ustring shortcut)
+      (while ulist
+	(setq shortcut (caar ulist))
+	(setq ustring (cdar ulist))
+	(if (= (length ustring) 1) ; only single-char destinations
+	    (nconc unicode-tokens-quail-define-rules
+		   (list (list shortcut
+			       (string-to-vector 
+				(cdar ulist))))))
+	(setq ulist (cdr ulist))))
+    (setq unicode-tokens-decode-map
+	  (cdr (eval unicode-tokens-quail-define-rules)))))
+
+
+
+;;
 ;; Coding system for saving tokens in plain ASCII.
 ;;
 ;; TODO
@@ -263,6 +311,10 @@ if there is such a unique character."
 ;;   "Unicode token coding system"
 ;;   (cons 'unicode-tokens-ccl-decode
 ;; 	'unicode-tokens-ccl-encode))
+
+;(setq file-coding-system-alist
+;  (cons '("\\.thy\\'" . unicode-tokens-coding-system)
+;  file-coding-system-alist))
 
 
 ;; Emacs-Unicode/23:
@@ -276,41 +328,39 @@ if there is such a unique character."
 ;;   :decode-translation-table
 ;;   :encode-translation-table )
 
+;; (define-coding-system 'unicode-tokens-coding-system 
+;;    "Unicode token coding system"
+;;    :mnemonic ?T
+;;    :coding-type 'raw-text  ; could be 'undecided/ccl
+;; ;;   ;; omit for automatic guess :eol-type 
+;; ;;   ;; :charset-list iso-20222
+;;    :ascii-compatible-p t
+;;    :post-read-conversion 'unicode-tokens-replace-token-after
+;;    ;;unicode-tokens-decode-token
+;; ;;; no conversion on write, let's use buffer file format?
+;; ;;   :pre-write-convertion 'unicode-tokens-encode-chars)
+;; ;;   :decode-translation-table
+;; ;;   :encode-translation-table )
 
+(defvar unicode-tokens-format-entry
+  '(unicode-tokens "Tokens encoding unicode characters."
+		   nil
+		   unicode-tokens-tokens-to-unicode
+		   unicode-tokens-unicode-to-tokens
+		   t nil)
+  "Value for `format-alist'.")
 
-;;
-;; Setup quail for Unicode tokens mode
-;;
+(defun unicode-tokens-tokens-to-unicode (&optional start end)
+  (save-excursion
+    (goto-char (or end (point-max)))
+    (save-excursion
+      (format-replace-strings unicode-tokens-decode-map t start end))
+    (point)))
+  
+(defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
+  (format-replace-strings unicode-tokens-decode-map nil start end))
 
-(require 'quail)
-
-(quail-define-package
- "Unicode tokens" "UTF-8" "T" t
- "Unicode characters input method using application specific token names"
- nil t nil nil nil t nil nil nil nil t)
-
-(defun unicode-tokens-quail-define-rules ()
-  "Define the token input rules.
-Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list'."
-  (let ((ulist unicode-tokens-token-name-alist)
-      codepoint glyph tokname charname token
-      unicode-tokens-quail-define-rules)
-    (while ulist
-      (setq tokname (caar ulist))
-      (setq ustring (cdar ulist))
-      ;; (setq glyph (memq codepoint unicode-tokens-glyph-list))
-      (setq token (format unicode-tokens-token-format tokname))
-      (cond
-       (t; TODO: check for glyph usability 
-	;; (and glyph (decode-char 'ucs codepoint))
-	(nconc unicode-tokens-quail-define-rules
-	       (list (list token ustring))))) 
-       ;;  (decode-char 'ucs codepoint))))))
-       ;;     (t ; still use token if no glyph
-       ;;      (nconc unicode-tokens-quail-define-rules
-       ;;	     (list (list token (vector token))))))
-      (setq ulist (cdr ulist)))
-    (eval unicode-tokens-quail-define-rules)))
+  
 
 ;; 
 ;; Minor mode
@@ -333,9 +383,8 @@ Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list
 ;;;     (encode-coding-region (point-min) (point-max) 
 ;;; 			  'unicode-tokens-coding-system))
   ;(toggle-enable-multibyte-characters unicode-tokens-mode)
-  (set-input-method "Unicode tokens" unicode-tokens-mode)
+;  (set-input-method "Unicode tokens" unicode-tokens-mode)
   )
-
 ;; 
 ;; Initialisation
 ;;
@@ -366,7 +415,8 @@ Calculated from `unicode-tokens-token-name-alist' and `unicode-tokens-glyph-list
 		  unicode-tokens-token-name-alist
 		  :initial-value nil)))
   (unicode-tokens-quail-define-rules)
-  ;; Keys
+  (add-to-list 'format-alist unicode-tokens-format-entry)
+  ;; Key bindings
   (if (= (length unicode-tokens-token-suffix) 1)
       (define-key unicode-tokens-mode-map
 	(vector (string-to-char unicode-tokens-token-suffix))
