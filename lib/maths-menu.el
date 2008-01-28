@@ -316,14 +316,15 @@
 		  :help "Menu of maths characters to insert"))
     map))
 
-;; Unless we have Gtk/Carbon menus, we probably can't display the maths
-;; correctly in the menu bar.
+;; Unless we have Gtk/Carbon/Nextstep/Other menus, we probably can't
+;; display the maths correctly in the menu bar.
 (unless 
     (or (string-match "--with-gtk" system-configuration-options)
+	(string-match "--with-ns" system-configuration-options)
 	(string-match "--with-carbon" system-configuration-options))
   (define-key-after maths-menu-menu [warnl] '(menu-item "--"))
   (define-key-after maths-menu-menu [warn1]
-    '(menu-item "NB. This Emacs displays"))
+    '(menu-item "NB. This Emacs may display"))
   (define-key-after maths-menu-menu [warn2]
     '(menu-item "the maths chars wrongly"))
   (define-key-after maths-menu-menu [warn3]
