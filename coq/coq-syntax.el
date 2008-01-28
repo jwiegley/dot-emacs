@@ -463,7 +463,7 @@
     ("Corollary" "cor" "Corollary # : #.\nProof.\n#\nQed." t "Corollary")
     ("Declare Module :" "dmi" "Declare Module # : #.\n#\nEnd #." t)
     ("Declare Module <:" "dmi2" "Declare Module # <: #.\n#\nEnd #." t)
-    ("Definition" "def" "Definition #:# := #." t "Definition");; careful
+    ("Definition goal" "defg" "Definition #:#.\n#\nSave." t);; careful
     ("Fact" "fct" "Fact # : #." t "Fact")
     ("Goal" nil "Goal #." t "Goal")
     ("Lemma" "l" "Lemma # : #.\nProof.\n#\nQed." t "Lemma")
@@ -482,9 +482,8 @@
   "Coq goal starters keywords information list. See `coq-syntax-db' for syntax. "
   )
 
-(defvar coq-commands-db
-  (append 
-   coq-user-commands-db
+;; command that are not declarations, definition or goal starters
+(defvar coq-other-commands-db
    '(
      ;; ("Abort" nil "Abort." t "Abort" nil nil);don't appear in menu
      ("About" nil "About #." nil "About")
@@ -602,11 +601,17 @@
      ("Unset Printing Coercions" nil "Unset Printing Coercions." nil "Unset\\s-+Printing\\s-+Coercions")
      ("Unset Printing Notations" "unsprn" "Unset Printing Notations" nil "Unset\\s-+Printing\\s-+Notations")
      ("Unset Undo" nil "Unset Undo." nil "Unset\\s-+Undo")
-                                        ;    ("print" "pr" "print #" "print")
-     ) 
-   coq-decl-db coq-defn-db coq-goal-starters-db)
+ ;    ("print" "pr" "print #" "print")
+     )   
+   "Command that are not declarations, definition or goal starters."
+  )
+
+(defvar coq-commands-db
+  (append coq-decl-db coq-defn-db coq-goal-starters-db
+          coq-other-commands-db coq-user-commands-db)
   "Coq all commands keywords information list. See `coq-syntax-db' for syntax. "      
   )
+
 
 (defvar coq-terms-db
   '(

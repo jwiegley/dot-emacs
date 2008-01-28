@@ -31,7 +31,6 @@
 (defconst coq-tacticals-abbrev-table 
   (coq-build-abbrev-table-from-db coq-tacticals-db))
 
-
 (defconst coq-commands-menu 
   (append '("INSERT COMMAND" 
 	    ["Module/Section (smart)" coq-insert-section-or-module t]

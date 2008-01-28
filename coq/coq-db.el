@@ -138,7 +138,7 @@ Used by `coq-build-menu-from-db', which you should probably use instead.  See
 	     (spaces (make-string entry-with ? ))
 	     ;;(restofmenu (coq-build-menu-from-db-internal tl (- size 1) menuwidth))
 	     )
-	(when (not e7)			; if not hidden
+	(when (not e7) ;; if not hidden
 	  (let ((menu-entry
 		 (vector
 		  ;; menu entry label
@@ -171,8 +171,8 @@ for DB structure."
   "Take a keyword database DB and return a list of insertion menus for them.
 Submenus contain SIZE entries (default 30).  See `coq-syntax-db' for DB
 structure."
-  (let* ((l (coq-sort-menu-entries db)) (res
-		 ())
+  ;; sort is destructive for the list, so copy list before sorting
+  (let* ((l (coq-sort-menu-entries (copy-list db))) (res ())
 	 (wdth (+ 2 (max-length-db db)))
 	 (sz (or size 30)) (lgth (length l)))
     (while l

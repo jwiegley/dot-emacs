@@ -86,6 +86,9 @@ To disable coqc being called (and use only make), set this to nil."
 ;; library `un-define' to work on xemacs."
 ;; (or (boundp 'proof-shell-unicode) (setq proof-shell-unicode nil))
 ;; da: I think the default t setting now works fine, at least for me.
+;; pc: 8.0 backward compliance:
+(if coq-version-is-V8-0 (setq proof-shell-unicode nil))
+
 
 (defcustom coq-prog-env nil
   "*List of environment settings d to pass to Coq process.
@@ -938,8 +941,6 @@ To be used in `proof-shell-process-output-system-specific'."
       (pg-response-display prestring);; this does not erase goals buffer
       ;(proof-shell-handle-delayed-output-hook)
       )))
-
-
 
 
 (defun coq-shell-mode-config ()
