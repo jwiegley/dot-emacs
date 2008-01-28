@@ -1560,6 +1560,7 @@ buffer."
       (substring (buffer-string) (- debut 1) (- (point) 1))))
   )
 
+
 (defun coq-show-first-goal ()
   "Scroll the goal buffer so that the first goal is visible.
 First goal is displayed on the bottom of its window, maximizing the
@@ -1573,15 +1574,41 @@ number of hypothesis displayed, without hiding the goal"
       (beginning-of-line)
       (ignore-errors (search-backward-regexp "\\S-")) ; find something else than a space
       (recenter (- 1)) ; put it at bottom og window
-      (let ((msg (concat (first-word-of-buffer) " subgoals")))
-        (select-window curwin)
-        (message msg)                   ; display the number of goals
-        ))))
+      (select-window curwin)
+      )))
+
+(defvar coq-modeline-string2 " SUBGOALS* ")
+(defvar coq-modeline-string1 " SUBGOAL* ")
+(defvar coq-modeline-string0 " Scripting *")
+(defun coq-build-subgoals-string (n)
+  (concat coq-modeline-string0 (int-to-string n) 
+          (if (> n 1) coq-modeline-string2 
+            coq-modeline-string1)))
+
+(defun coq-update-minor-mode-alist ()
+  "Modify `minor-mode-alist' to display the number of subgoals in the modeline."
+  (save-window-excursion ; switch to buffer even if not visible
+    (switch-to-buffer proof-goals-buffer)
+    (let* ((nbgoals (string-to-int (first-word-of-buffer)))
+           (toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
+      (while toclean ;; clean minor-mode-alist
+        (setq minor-mode-alist (remove toclean minor-mode-alist))
+        (setq toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
+      (setq minor-mode-alist
+            (append (list (list 'proof-active-buffer-fake-minor-mode
+                                (coq-build-subgoals-string nbgoals)))
+                    minor-mode-alist
+                    )))))
+
+
+
 
 ;; This hook must be added before optim-resp-window, in order to be evaluated
 ;; *after* windows resizing.
 (add-hook 'proof-shell-handle-delayed-output-hook
 	  'coq-show-first-goal)
+(add-hook 'proof-shell-handle-delayed-output-hook
+	  'coq-update-minor-mode-alist)
 
 
 (defun is-not-split-vertic (selected-window)
