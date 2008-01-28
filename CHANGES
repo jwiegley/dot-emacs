@@ -13,24 +13,31 @@ See also etc/release-log.txt for minor patches.
 - Reworked icons to better match style of GNU Emacs/Gnome.
 - Context menu for spans: options to move spans up/down (risky!) and undo.
 - History for processed commands in active script buffer (M-n, M-p)
-- Maths menu added for inserting Unicode math characters (GNU Emacs only)
+- proof-indent-pad-eol option removed (spurious spaces were objectionable)
+- Undo history in read-only region discarded (see: proof-allow-undo-in-read-only)
 - Many minor fixes and code cleanups.
+
+*** Input mechanisms for Unicode added  (GNU Emacs only)
+
+Maths menu (by Dave Love) added for inserting Unicode math characters.
+
+Unicode Tokens mode is an experimental X-Symbol replacement, for
+displaying ASCII tokens as Unicode strings.  Much simpler than
+X-Symbol, but requires a suitably rich Unicode font.  Adds an input
+mechanism for prompting token sequences and allowing shortcuts, and
+symbol rotation (next/previous glyph) on C-, and C-.  
+
+
+*** UTF-8 support for 8-bit clean provers
+
+Support for Unicode-safe interaction modes has been added (i.e., not
+using Unicode-prefix characters as special escape sequences).  See
+proof-shell-unicode (default t), or option -U of the Isabelle 
+interface wrapper.
 
 *** Large X-Symbol fonts added, courtesy of Clemens Ballarin
 
 Use option -f 18 or -f 24 of the Isabelle interface wrapper.
-
-*** UTF-8 support for 8-bit clean provers
-
-Support for Unicode-safe interaction modes has been added (i.e.,
-not using Unicode-prefix characters as special escape sequences).
-See proof-shell-unicode (default nil), or option -U of the Isabelle
-interface wrapper.
-
-*** proof-indent-pad-eol option removed
-
-Spurious spaces are objectionable in source files.
-
 
 
 ** Changes for Isabelle
@@ -40,7 +47,7 @@ Spurious spaces are objectionable in source files.
 Menu functions now controlled directly by Isabelle.  Support for
 Unicode-safe interaction (`proof-shell-unicode' variable).
 
-Support for Isabelle2003 removed; Isabelle2004 not guaranteed.  
+Support for Isabelle2003 and Isabelle 2004 removed.
 Code works with PolyML 5 versions of Isabelle.
 
 Optional search form for the "Find Theorems" command is available via
@@ -129,11 +136,11 @@ Default is now 8.1 (if no coqtop is found the path).
 
 *** new "queries" menu
 
-** Adapted error highlighting to x-symbol
+*** Adapted error highlighting to x-symbol
 
-** Response windows shrinking to fit in three window mode
+*** Response windows shrinking to fit in three window mode
 
-** Outline mode cleaner
+*** Outline mode cleaner
 
 
 
