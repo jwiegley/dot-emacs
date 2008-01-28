@@ -85,9 +85,6 @@ Behaviour is much like abbrev.")
 (defvar unicode-tokens-codept-charname-alist nil
   "Alist mapping unicode code point to character names.")
 
-(defvar unicode-tokens-decode-map nil
-  "Decoding map for Unicode Tokens input method.")
-
 ;;
 ;;; Code:
 ;;
@@ -265,7 +262,7 @@ if there is such a unique character."
 (quail-define-package
  "Unicode tokens" "UTF-8" "T" t
  "Unicode characters input method using application specific token names"
- nil t nil nil nil t nil nil nil nil t)
+ nil nil nil nil nil t nil nil nil nil t)
 
 (defun unicode-tokens-quail-define-rules ()
   "Define the token and shortcut input rules.
@@ -295,52 +292,13 @@ Calculated from `unicode-tokens-token-name-alist' and
 			       (string-to-vector 
 				(cdar ulist))))))
 	(setq ulist (cdr ulist))))
-    (setq unicode-tokens-decode-map
-	  (cdr (eval unicode-tokens-quail-define-rules)))))
+    (eval unicode-tokens-quail-define-rules)))
 
 
 
 ;;
-;; Coding system for saving tokens in plain ASCII.
+;; File format for saving tokens in plain ASCII.
 ;;
-;; TODO
-
-;; (make-coding-system 'unicode-tokens-coding-system 
-;;   4 ; ccl
-;;   ?T
-;;   "Unicode token coding system"
-;;   (cons 'unicode-tokens-ccl-decode
-;; 	'unicode-tokens-ccl-encode))
-
-;(setq file-coding-system-alist
-;  (cons '("\\.thy\\'" . unicode-tokens-coding-system)
-;  file-coding-system-alist))
-
-
-;; Emacs-Unicode/23:
-;;(define-coding-system 'unicode-tokens-coding-system 
-;;   "Unicode token coding system"
-;;   :mnemonic ?T
-;;   :coding-type 'raw-text  ; could be 'undecided/ccl
-;;   ;; omit for automatic guess :eol-type 
-;;   ;; :charset-list iso-20222
-;;   :ascii-compatible-p t
-;;   :decode-translation-table
-;;   :encode-translation-table )
-
-;; (define-coding-system 'unicode-tokens-coding-system 
-;;    "Unicode token coding system"
-;;    :mnemonic ?T
-;;    :coding-type 'raw-text  ; could be 'undecided/ccl
-;; ;;   ;; omit for automatic guess :eol-type 
-;; ;;   ;; :charset-list iso-20222
-;;    :ascii-compatible-p t
-;;    :post-read-conversion 'unicode-tokens-replace-token-after
-;;    ;;unicode-tokens-decode-token
-;; ;;; no conversion on write, let's use buffer file format?
-;; ;;   :pre-write-convertion 'unicode-tokens-encode-chars)
-;; ;;   :decode-translation-table
-;; ;;   :encode-translation-table )
 
 (defvar unicode-tokens-format-entry
   '(unicode-tokens "Tokens encoding unicode characters."
@@ -354,11 +312,11 @@ Calculated from `unicode-tokens-token-name-alist' and
   (save-excursion
     (goto-char (or end (point-max)))
     (save-excursion
-      (format-replace-strings unicode-tokens-decode-map t start end))
+      (format-replace-strings unicode-tokens-token-name-alist nil start end))
     (point)))
   
 (defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
-  (format-replace-strings unicode-tokens-decode-map nil start end))
+  (format-replace-strings unicode-tokens-token-name-alist t start end))
 
   
 
@@ -372,19 +330,17 @@ Calculated from `unicode-tokens-token-name-alist' and
 (define-minor-mode unicode-tokens-mode
   "Minor mode for unicode token input."
   nil 
-  nil ; input method indication already
+  " Utoks" ; input method indication already
   unicode-tokens-mode-map
-;;;   (when unicode-tokens-mode
-;;;     (set-buffer-multibyte t)
-;;;     (decode-coding-region (point-min) (point-max) 
-;;; 			  'unicode-tokens-coding-system))
-;;;   (unless unicode-tokens-mode
-;;;     (set-buffer-multibyte nil)
-;;;     (encode-coding-region (point-min) (point-max) 
-;;; 			  'unicode-tokens-coding-system))
-  ;(toggle-enable-multibyte-characters unicode-tokens-mode)
-;  (set-input-method "Unicode tokens" unicode-tokens-mode)
-  )
+  (when unicode-tokens-mode
+    (set-buffer-multibyte t)
+    (format-decode-buffer 'unicode-tokens)
+    (set-input-method "Unicode tokens" unicode-tokens-mode))
+  (unless unicode-tokens-mode
+    ;; leave buffer as is
+    (format-encode-buffer 'unicode-tokens)
+    (inactivate-input-method)))
+
 ;; 
 ;; Initialisation
 ;;
