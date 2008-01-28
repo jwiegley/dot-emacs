@@ -167,19 +167,16 @@ This invokes `x-symbol-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
 Also we arrange to have X-Symbol mode turn itself on automatically 
 in future if we have just activated it for this buffer."
-  (if (proof-ass-sym x-symbol-enable) 
-      ;; We're trying to initialise it
-      (if (not proof-x-symbol-initialized) ;; Check inited
-	  (progn
-	    (set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
-	    (proof-x-symbol-initialize 'giveerrors)
-	    (set (proof-ass-sym x-symbol-enable) t))))
-
-  (if proof-x-symbol-initialized
-      (if (fboundp 'x-symbol-mode)
-	  (progn
-	    (x-symbol-mode)
-	    (proof-x-symbol-mode-associated-buffers)))))
+  (when (proof-ass x-symbol-enable)
+    (unless proof-x-symbol-initialized ;; Check inited
+      (set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
+      (proof-x-symbol-initialize 'giveerrors)
+      (set (proof-ass-sym x-symbol-enable) t))
+    
+    (when (and proof-x-symbol-initialized
+	       (fboundp 'x-symbol-mode))
+      (x-symbol-mode)
+      (proof-x-symbol-mode-associated-buffers))))
   
 ;; Old behaviour for proof-x-symbol-enable was to update state in all
 ;; buffers --- but this can take ages if there are many buffers!  
