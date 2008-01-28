@@ -85,6 +85,10 @@ Behaviour is much like abbrev.")
 (defvar unicode-tokens-codept-charname-alist nil
   "Alist mapping unicode code point to character names.")
 
+(defvar unicode-tokens-token-alist nil
+  "Mapping of tokens to Unicode strings.")
+
+
 ;;
 ;;; Code:
 ;;
@@ -260,14 +264,15 @@ if there is such a unique character."
 (require 'quail)
 
 (quail-define-package
- "Unicode tokens" "UTF-8" "T" t
+ "Unicode tokens" "UTF-8" "u" t
  "Unicode characters input method using application specific token names"
- nil nil nil nil nil t nil nil nil nil t)
+ nil t nil nil nil nil nil nil nil nil t)
 
 (defun unicode-tokens-quail-define-rules ()
   "Define the token and shortcut input rules.
 Calculated from `unicode-tokens-token-name-alist' and 
-`unicode-tokens-shortcut-alist'."
+`unicode-tokens-shortcut-alist'.
+Also sets `unicode-tokens-token-alist'."
   (let ((unicode-tokens-quail-define-rules 
 	 (list 'quail-define-rules)))
     (let ((ulist unicode-tokens-token-name-alist)
@@ -276,21 +281,24 @@ Calculated from `unicode-tokens-token-name-alist' and
 	(setq tokname (caar ulist))
 	(setq ustring (cdar ulist))
 	(setq token (format unicode-tokens-token-format tokname))
-	(if (= (length ustring) 1) ; only single-char destinations
-	    (nconc unicode-tokens-quail-define-rules
-		   (list (list token 
-			       (string-to-char ustring)))))
+	(nconc unicode-tokens-quail-define-rules
+	       (list (list token 
+			   (vector ustring))))
+	(setq unicode-tokens-token-alist
+	      (nconc unicode-tokens-token-alist
+		     (list (cons token ustring))))
 	(setq ulist (cdr ulist))))
     (let ((ulist unicode-tokens-shortcut-alist)
 	  ustring shortcut)
+      (setq ulist (sort ulist (lambda (s1 s2)
+				(< (length (car s1))
+				   (length (car s2))))))
       (while ulist
 	(setq shortcut (caar ulist))
 	(setq ustring (cdar ulist))
-	(if (= (length ustring) 1) ; only single-char destinations
-	    (nconc unicode-tokens-quail-define-rules
-		   (list (list shortcut
-			       (string-to-vector 
-				(cdar ulist))))))
+	(nconc unicode-tokens-quail-define-rules
+	       (list (list shortcut
+			   (vector ustring))))
 	(setq ulist (cdr ulist))))
     (eval unicode-tokens-quail-define-rules)))
 
@@ -312,11 +320,14 @@ Calculated from `unicode-tokens-token-name-alist' and
   (save-excursion
     (goto-char (or end (point-max)))
     (save-excursion
-      (format-replace-strings unicode-tokens-token-name-alist nil start end))
+      (let ((case-fold-search proof-case-fold-search))
+	(format-replace-strings unicode-tokens-token-alist nil start end)))
     (point)))
   
 (defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
-  (format-replace-strings unicode-tokens-token-name-alist t start end))
+  (let ((case-fold-search proof-case-fold-search))
+    (format-replace-strings unicode-tokens-token-alist t start end)))
+
 
   
 
@@ -334,11 +345,13 @@ Calculated from `unicode-tokens-token-name-alist' and
   unicode-tokens-mode-map
   (when unicode-tokens-mode
     (set-buffer-multibyte t)
-    (format-decode-buffer 'unicode-tokens)
+    (let ((inhibit-read-only t))
+      (format-decode-buffer 'unicode-tokens))
     (set-input-method "Unicode tokens" unicode-tokens-mode))
   (unless unicode-tokens-mode
-    ;; leave buffer as is
-    (format-encode-buffer 'unicode-tokens)
+    ;; leave buffer encoding as is
+    (let ((inhibit-read-only t))
+      (format-encode-buffer 'unicode-tokens))
     (inactivate-input-method)))
 
 ;; 
