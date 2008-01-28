@@ -75,9 +75,10 @@
 		    (error nil)))
    '(proof-splash pg-assoc pg-xml proof-depends proof-indent proof-site
      proof-shell pg-metadata proof-menu pg-pbrpm pg-pgip proof-script
-     proof-autoloads pg-response pg-goals pg-pgip-old proof-toolbar
+     proof-autoloads pg-response pg-goals proof-toolbar
      proof-easy-config proof-config proof-mmm proof pg-xhtml
-     proof-utils proof-syntax proof-system pg-user proof-x-symbol
+     proof-utils proof-syntax pg-user pg-custom
+     proof-x-symbol proof-maths-menu proof-unicode-tokens
      pg-thymodes pg-autotest
      ;; 
      isar-syntax isar-find-theorems x-symbol-isar
