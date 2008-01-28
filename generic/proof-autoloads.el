@@ -82,7 +82,7 @@ Initialise the goals buffer after the child has been configured.
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (18319 24214))
+;;;;;;  "pg-pgip" "pg-pgip.el" (18332 42358))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload (quote pg-pgip-process-packet) "pg-pgip" "\
@@ -371,7 +371,7 @@ in future if we have just activated it for this buffer.
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn proof-aux-menu
 ;;;;;;  proof-menu-define-specific proof-menu-define-main proof-menu-define-keys)
-;;;;;;  "proof-menu" "proof-menu.el" (18329 64338))
+;;;;;;  "proof-menu" "proof-menu.el" (18330 1202))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload (quote proof-menu-define-keys) "proof-menu" "\
@@ -436,7 +436,7 @@ in future if we have just activated it for this buffer.
 ;;;### (autoloads (proof-config-done proof-mode proof-insert-pbp-command
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-locked-end proof-unprocessed-begin) "proof-script"
-;;;;;;  "proof-script.el" (18329 64338))
+;;;;;;  "proof-script.el" (18332 42326))
 ;;; Generated autoloads from proof-script.el
 
 (autoload (quote proof-unprocessed-begin) "proof-script" "\
@@ -491,7 +491,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover)
-;;;;;;  "proof-shell" "proof-shell.el" (18319 24214))
+;;;;;;  "proof-shell" "proof-shell.el" (18333 56451))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload (quote proof-shell-ready-prover) "proof-shell" "\
@@ -657,8 +657,9 @@ Menu made from the Proof General toolbar commands.
 
 ;;;***
 
-;;;### (autoloads (proof-unicode-tokens-enable proof-unicode-tokens-support-available)
-;;;;;;  "proof-unicode-tokens" "proof-unicode-tokens.el" (18329 59881))
+;;;### (autoloads (proof-unicode-tokens-shell-config proof-unicode-tokens-enable
+;;;;;;  proof-unicode-tokens-support-available) "proof-unicode-tokens"
+;;;;;;  "proof-unicode-tokens.el" (18333 61673))
 ;;; Generated autoloads from proof-unicode-tokens.el
 
 (autoload (quote proof-unicode-tokens-support-available) "proof-unicode-tokens" "\
@@ -668,12 +669,17 @@ A test to see whether unicode tokens support is available.
 
 (autoload (quote proof-unicode-tokens-enable) "proof-unicode-tokens" "\
 Turn on or off Unicode tokens mode in Proof General script buffer.
-This invokes `maths-menu-mode' to toggle the setting for the current
+This invokes `unicode-tokens-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
-Also we arrange to have maths menu mode turn itself on automatically 
+Also we arrange to have unicode tokens mode turn itself on automatically 
 in future if we have just activated it for this buffer.
 
 \(fn)" t nil)
+
+(autoload (quote proof-unicode-tokens-shell-config) "proof-unicode-tokens" "\
+Not documented
+
+\(fn)" nil nil)
 
 ;;;***
 
@@ -717,10 +723,10 @@ Configure the current output buffer (goals/response/trace) for X-Symbol.
 ;;;### (autoloads nil nil ("../lib/holes-load.el" "../lib/local-vars-list.el"
 ;;;;;;  "../lib/pg-dev.el" "../lib/proof-compat.el" "../lib/span-extent.el"
 ;;;;;;  "../lib/span-overlay.el" "../lib/span.el" "../lib/unicode-chars.el"
-;;;;;;  "../lib/xml-fixed.el" "pg-autotest.el" "pg-custom.el" "pg-metadata.el"
-;;;;;;  "pg-pbrpm.el" "pg-pgip-old.el" "pg-vars.el" "pg-xhtml.el"
-;;;;;;  "proof-config.el" "proof-site.el" "proof-utils.el" "proof.el")
-;;;;;;  (18329 64408 502433))
+;;;;;;  "../lib/unicode-tokens.el" "../lib/xml-fixed.el" "pg-autotest.el"
+;;;;;;  "pg-comp.el" "pg-custom.el" "pg-metadata.el" "pg-pbrpm.el"
+;;;;;;  "pg-vars.el" "pg-xhtml.el" "proof-config.el" "proof-site.el"
+;;;;;;  "proof-utils.el" "proof.el") (18333 61680 577593))
 
 ;;;***
 

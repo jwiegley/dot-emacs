@@ -92,6 +92,8 @@ in future if we have just activated it for this buffer."
     (proof-shell-invisible-command-invisible-result
      proof-xsym-deactivate-command)))
 
+;;; NB: we shouldn't bother load this if it's not enabled.
+;;;###autoload
 (defun proof-unicode-tokens-shell-config ()
   (when (proof-ass unicode-tokens-enable)
     (add-hook 'proof-shell-insert-hook
