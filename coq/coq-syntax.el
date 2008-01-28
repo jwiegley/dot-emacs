@@ -844,7 +844,7 @@ Used by `coq-goal-command-p'"
   "Keywords for tacticals in a Coq script.")
 
 
-                                        ; From JF Monin:
+ ;; From JF Monin:
 (defvar coq-reserved
   (append 
    coq-user-reserved-db

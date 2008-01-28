@@ -111,16 +111,17 @@ Return nil if not found."
 (defun coq-skip-until-one-comment-backward ()
   "Skips comments and normal text until finding an unclosed comment start.
 Return nil if not found.  Point is moved to the the unclosed comment start
-if found, to (point-max) otherwise."
-  (ignore-errors (backward-char 1))       ; if point is between '(' and '*'
-  (if (looking-at coq-comment-start-regexp) t
-    (forward-char 1)
-    (let ((nbopen 1) (kind nil))
-      (while (and (> nbopen 0) (setq kind (coq-search-comment-delimiter-backward)))
-        (if (< kind 0)
-            (setq nbopen (+ 1 nbopen))
-          (setq nbopen (- nbopen 1))))
-      (= nbopen 0))))
+if found, to (point-max) otherwise. return true if found, nil otherwise."
+  (if (= (point) (point-min)) nil
+    (ignore-errors (backward-char 1))       ; if point is between '(' and '*'
+    (if (looking-at coq-comment-start-regexp) t
+      (forward-char 1)
+      (let ((nbopen 1) (kind nil))
+        (while (and (> nbopen 0) (setq kind (coq-search-comment-delimiter-backward)))
+          (if (< kind 0)
+              (setq nbopen (+ 1 nbopen))
+            (setq nbopen (- nbopen 1))))
+        (= nbopen 0)))))
 
 (defun coq-skip-until-one-comment-forward ()
   "Skips comments and normal text until finding an unopened comment end."

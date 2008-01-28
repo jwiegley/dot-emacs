@@ -1566,18 +1566,17 @@ First goal is displayed on the bottom of its window, maximizing the
 number of hypothesis displayed, without hiding the goal"
   (interactive)
   (let* ((curwin (selected-window))
-	 (goalbuf (get-buffer-window proof-goals-buffer)))
+         (goalbuf (get-buffer-window proof-goals-buffer)))
     (if (eq goalbuf nil) ()
       (select-window goalbuf)
       (search-forward-regexp "subgoal 2\\|\\'"); find snd goal or buffer end
-      (recenter (- (window-height) 1))	; scroll 
+      (beginning-of-line)
+      (ignore-errors (search-backward-regexp "\\S-")) ; find something else than a space
+      (recenter (- 1)) ; put it at bottom og window
       (let ((msg (concat (first-word-of-buffer) " subgoals")))
-	(select-window curwin)		; go back to current window
-	(message msg)                   ; display the number of goals
-	)
-      )
-    )
-  )
+        (select-window curwin)
+        (message msg)                   ; display the number of goals
+        ))))
 
 ;; This hook must be added before optim-resp-window, in order to be evaluated
 ;; *after* windows resizing.
@@ -1618,6 +1617,7 @@ Only when three-buffer-mode is enabled."
       )))
 
 ;; TODO: I would rather have a response-insert-hook thant this two hooks
+;; Careful: optim-resp-windows must be called AFTER proof-show-first-goal
 ;; Adapt when displaying a normal message
 (add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
 ;; Adapt when displaying an error or interrupt
