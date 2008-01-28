@@ -41,7 +41,8 @@
      token-match
      hexcode-match
      token-prefix
-     token-suffix))
+     token-suffix
+     shortcut-alist))
   (unicode-tokens-initialise)
   (setq proof-unicode-tokens-initialised t))
   

@@ -5,8 +5,10 @@
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; This file is loaded by `proof-unicode-tokens.el'.
-;; It sets the variables defined at the top of unicode-tokens.el.
-;; unicode-tokens-<foo> is set from isar-<foo>.
+;;
+;; It sets the variables defined at the top of unicode-tokens.el,
+;; unicode-tokens-<foo> is set from isar-<foo>.  See the corresponding
+;; variable for documentation.
 ;;
 
 (defconst isar-token-format "\\<%s>")
@@ -302,6 +304,77 @@
    ("ffi" . "ﬃ")
    ("ffl" . "ﬄ")
    ))
+
+(defvar isar-shortcut-alist
+  '(; short cut, unicode string
+    ("<>" . "⋄")
+    ("|>" . "⊳")
+    ("\\/" . "∨")
+    ("/\\" . "∧")
+    ("+O" . "⊕")
+    ("-O" . "⊖")
+    ("xO" . "⊗")
+    ("/O" . "⊘")
+    (".O" . "⊙")
+    ("|+" . "†")
+    ("|++" . "‡")
+    ("<=" . "≤")
+    ("|-" . "⊢")
+    (">=" . "≥")
+    ("-|" . "⊣")
+    ("||" . "∥")
+    ("==" . "≡")
+    ("~=" . "≃")
+    ("~~~" . "≍")
+    ("~~" . "≈")
+    ("~==" . "≅")
+    ("|<>|" . "⋈")
+    ("|=" . "⊨")
+    ("=." . "≐")
+    ("_|_" . "⊥")
+    ("</" . "≮")
+    (">=/" . "≱")
+    ("=/" . "≠")
+    ("==/" . "≢")
+    ("~/" . "≁")
+    ("~=/" . "≄")
+    ("~~/" . "≉")
+    ("~==/" . "≇")
+    ("<-" . "←")
+    ("<=" . "⇐")
+    ("->" . "→")
+    ("=>" . "⇒")
+    ("<->" . "↔")
+    ("<=>" . "⇔")
+    ("|->" . "↦")
+    ("<--" . "⟵")
+    ("<==" . "⟸")
+    ("-->" . "⟶")
+    ("==>" . "⟹")
+    ("<==>" . "⟷")
+    ("|-->" . "⟼")
+    ("<--" . "←⎯")
+    ("<-->" . "⟷")
+    ("<<" . "⟪")
+    ("[|" . "⟦")
+    (">>" . "⟫")
+    ("|]" . "⟧")
+    ("``" . "”")
+    ("''" . "“")
+    ("--" . "–")
+    ("---" . "—")
+    ("''" . "″")
+    ("'''" . "‴")
+    ("''''" . "⁗")
+    ("nat" . "ℕ")
+    ("int" . "ℤ")
+    ("rat" . "ℚ")
+    ("real" . "ℝ")
+    ("complex" . "ℂ")
+    (":=" . "≔")
+    ("euro" . "€")
+    ("yen" . "¥")
+    ("cent" . "¢")))
 
 
 (provide 'isar-unicode-tokens)
