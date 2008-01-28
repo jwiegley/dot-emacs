@@ -328,11 +328,7 @@ This is only useful for PG developers."
   :group 'proof-user-options)
 
 (defcustom proof-experimental-features
-  ;; Turn on experimental features for pre-releases.
-  ;; (if (string-match "pre" proof-general-version) t)
-  t  ;; Version 3.7: features classed as experimental have
-     ;; actually been tested for a while, so we enable them.
-     ;; To disable, customise this to nil
+  (if (string-match "pre" proof-general-version) t)
   "*Whether to enable certain features regarded as experimental.
 Proof General includes a few features designated as \"experimental\".
 Enabling these will usually have no detrimental effects on using PG,
