@@ -384,6 +384,8 @@ font-lock-mode; in those buffers, we enable syntactic fontification also."
 Fontifies (keywords only) according to the buffer's font lock defaults.
 Uses `proof-x-symbol-decode-region' to decode tokens
 if X-Symbol is enabled.
+Uses `unicode-tokens-tokens-to-unicode' to decode tokens
+if unicode symbols are enabled.
 
 If `pg-use-specials-for-fontify' is set, remove characters
 with top bit set after fontifying so they don't spoil cut and paste,
@@ -431,8 +433,11 @@ Returns new END value."
 	(setq end (point-max)))
 
       (prog1 ;; prog1 because we return new END value.
-	  (if (proof-ass x-symbol-enable)
-	      (proof-x-symbol-decode-region start end))
+	  (cond
+	   ((proof-ass x-symbol-enable)
+	    (proof-x-symbol-decode-region start end))
+	   ((proof-ass unicode-tokens-enable)
+	    (unicode-tokens-tokens-to-unicode start end)))
 	(proof-font-lock-clear-font-lock-vars)
 	(setq font-lock-verbose normal-font-lock-verbose)))))
 
