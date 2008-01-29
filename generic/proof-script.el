@@ -237,13 +237,13 @@ scripting buffer may have an active queue span.")
 If END is at or before (point-min), remove the locked region.
 Otherwise set the locked region to be from (point-min) to END."
   (if (>= (point-min) end)
-      ;; Detach the queue span, otherwise there can be a read-only character at the end.
+      ;; Detach queue span, otherwise may have read-only character at end.
       (proof-detach-locked)
     (span-set-endpoints
      proof-locked-span
      (point-min)
-     (min (point-max) end) ;; safety: sometimes called with end>point-max(?)
-    )))
+      ;; safety in case called with end>point-max
+     (min (point-max) end))))
 
 (defsubst proof-set-queue-end (end)
   "Set the queue span to end at END."
