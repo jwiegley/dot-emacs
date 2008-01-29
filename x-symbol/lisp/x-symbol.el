@@ -916,6 +916,8 @@ characters in `x-symbol-coding' or `x-symbol-default-coding' if
 between START and END to BUFFER, make BUFFER current and do conversion
 there.  If BUFFER is non-nil, START and END must be buffer positions or
 START is a string, see kludgy feature of `write-region'."
+  (;; da: FIXME
+   if (x-symbol-language-value 'x-symbol-LANG-generated-data)
   (let ((grammar (x-symbol-language-value 'x-symbol-LANG-token-grammar))
 	(encode-table (x-symbol-generated-encode-table
 		       (x-symbol-language-value
@@ -966,7 +968,7 @@ START is a string, see kludgy feature of `write-region'."
       (if (functionp encode-spec)
 	  (funcall encode-spec encode-table fchar-table fchar-fb-table)
 	(x-symbol-encode-lisp encode-spec encode-table
-			      fchar-table fchar-fb-table)))))
+			      fchar-table fchar-fb-table))))))
 
 (defun x-symbol-encode-lisp (contexts encode-table fchar-table fchar-fb-table)
   (let ((before-context (car contexts))
@@ -1553,6 +1555,9 @@ Append the global or token-language specific menu to MENU-ITEMS."
 		 menu-items)
 	 (or (and x-symbol-local-menu
 		  x-symbol-language
+		  ;; FIXME da: added clauses below
+		  (fboundp 'x-symbol-generated-menu-alist)
+		  (x-symbol-language-value 'x-symbol-LANG-generated-data)
 		  (x-symbol-generated-menu-alist
 		   (x-symbol-language-value 'x-symbol-LANG-generated-data)))
 	     x-symbol-menu-alist)))
@@ -3646,8 +3651,9 @@ language."
     (if language
 	(let ((generated (symbol-value
 			  (get language 'x-symbol-LANG-generated-data))))
-	  (setf (x-symbol-generated-menu-alist generated) menu-alist)
-	  (setf (x-symbol-generated-grid-alist generated) grid-alist))
+	  (when generated ;; da FIXME: sometimes not set?
+	    (setf (x-symbol-generated-menu-alist generated) menu-alist)
+	    (setf (x-symbol-generated-grid-alist generated) grid-alist)))
       (setq x-symbol-menu-alist menu-alist
 	    x-symbol-grid-alist grid-alist))))
 
@@ -4883,31 +4889,31 @@ uses it with TOKEN and CHARSYM."
 ;;;===========================================================================
 
 (defun x-symbol-mac-setup1 ()
-      ;; Use David Aspinall's xsymb1.ttf font
-      ;;    (setq x-symbol-xsymb1-name "xsymb1_ttf")
-      ;; Use Norbert Voelker's isaxsymb1.ttf font
-      (progn
-	(setq x-symbol-xsymb1-name "isaxsym")
-	(setq x-symbol-latin1-fonts nil)
-	(setq x-symbol-latin2-fonts nil)
-	(setq x-symbol-latin3-fonts nil)
-	(setq x-symbol-latin5-fonts nil)
-	(setq x-symbol-latin9-fonts nil)
-	(setq x-symbol-xsymb0-fonts
-	      '("-apple-symbol-medium-r-normal--%d-%d0-*-*-*-*-adobe-fontspecific"))
-	(setq x-symbol-xsymb1-fonts
-	      (list (concat "-apple-" x-symbol-xsymb1-name
-			    "-medium-r-normal--%d-%d0-*-*-*-*-iso10646-1")))))
+  ;; Use David Aspinall's xsymb1.ttf font
+  ;;    (setq x-symbol-xsymb1-name "xsymb1_ttf")
+  ;; Use Norbert Voelker's isaxsymb1.ttf font
+  (progn
+    (setq x-symbol-xsymb1-name "isaxsym")
+    (setq x-symbol-latin1-fonts nil)
+    (setq x-symbol-latin2-fonts nil)
+    (setq x-symbol-latin3-fonts nil)
+    (setq x-symbol-latin5-fonts nil)
+    (setq x-symbol-latin9-fonts nil)
+    (setq x-symbol-xsymb0-fonts
+	  '("-apple-symbol-medium-r-normal--%d-%d0-*-*-*-*-adobe-fontspecific"))
+    (setq x-symbol-xsymb1-fonts
+	  (list (concat "-apple-" x-symbol-xsymb1-name
+			"-medium-r-normal--%d-%d0-*-*-*-*-iso10646-1")))))
 
-(define-ccl-program ccl-encode-fake-xsymb1-font
-  `(0
-	((r2 = r1)
-	 (r1 = 0)
-	 (if (r0 == ,(charset-id 'xsymb1-right))
-	     (r2 |= 128))))
-  "CCL program for fake xsymb1 font")
 
 (defun x-symbol-mac-setup2 ()
+  (define-ccl-program ccl-encode-fake-xsymb1-font
+    `(0
+      ((r2 = r1)
+       (r1 = 0)
+       (if (r0 == ,(charset-id 'xsymb1-right))
+	   (r2 |= 128))))
+    "CCL program for fake xsymb1 font")
   (setq font-ccl-encoder-alist
 	(cons (cons x-symbol-xsymb1-name ccl-encode-fake-xsymb1-font)
 	      font-ccl-encoder-alist))
@@ -4925,10 +4931,7 @@ uses it with TOKEN and CHARSYM."
 ;;;===========================================================================
 
 
-(unless noninteractive
-  ;; necessary for batch compilation of x-symbol-image.el etc.  CW: maybe
-  ;; calling the init code here isn't that good after all (see info node
-  ;; "Miscellaneous Questions"), we'll see later...
+(defun x-symbol-startup ()
   (x-symbol-initialize)
   (setq x-symbol-all-charsyms nil)
 
@@ -4980,6 +4983,11 @@ uses it with TOKEN and CHARSYM."
   (if (eq window-system 'mac)
       (x-symbol-mac-setup2)))
 
+;; necessary for batch compilation of x-symbol-image.el etc.  CW: maybe
+;; calling the init code here isn't that good after all (see info node
+;; "Miscellaneous Questions"), we'll see later...
+(unless noninteractive
+  (x-symbol-startup))
    
 ;; (when x-symbol-mule-change-default-face
 ;;   (set-face-font 'default (face-attribute 'x-symbol-face :font)))
