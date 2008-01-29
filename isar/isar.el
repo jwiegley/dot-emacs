@@ -129,13 +129,14 @@ See -k option for Isabelle interface script."
    proof-context-command        "print_context"
    proof-info-command           "welcome"
    proof-kill-goal-command      "ProofGeneral.kill_proof"
-;; da: TODO: we should set this from our own setting really, not suggest
-;; people customize prover-confi
+;; da: TODO: we should set this from our own setting, not suggest 
+;; people customize prover-configuration variables
 ;   proof-find-theorems-command  "find_theorems %s"               ;; minibuffer
-   proof-find-theorems-command  'isar-find-theorems-minibuffer  ;; equivalent
+   proof-find-theorems-command  'isar-find-theorems-minibuffer ;; equivalent
 ;   proof-find-theorems-command  'isar-find-theorems-form        ;; search form
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
+   proof-shell-trace-output-regexp  "\375\\|\^AV"
    ;; command hooks
    proof-goal-command-p         'isar-goal-command-p
    proof-really-save-command-p  'isar-global-save-command-p
@@ -155,11 +156,11 @@ See -k option for Isabelle interface script."
    proof-shell-wakeup-char              nil
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \372\\|^\\w*[>#] \^AS"
 
-   ;; This pattern is just for comint.
-   proof-shell-prompt-pattern           "^\\w*[>#] "
+   ;; just for comint.
+   proof-shell-prompt-pattern   "^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd                   (isar-markup-ml "ThyLoad.add_path \"%s\"")
+   proof-shell-cd-cmd		(isar-markup-ml "ThyLoad.add_path \"%s\"")
 
    ;; Escapes for filenames inside ML strings.
    ;; We also make a hack for a bug in Isabelle, by switching from
@@ -194,7 +195,6 @@ See -k option for Isabelle interface script."
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362\\|\^AI\\|\^AK"
    proof-shell-eager-annotation-end     "\361\\|\363\\|\^AJ\\|\^AL"
-   proof-shell-trace-output-regexp	"\375\\|\^AV"
 
    ;; Isabelle is learning to talk PGIP...
    proof-shell-match-pgip-cmd		"<pgip"
