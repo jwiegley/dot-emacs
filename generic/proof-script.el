@@ -204,6 +204,10 @@ scripting buffer may have an active queue span.")
    
 (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END."
+  (unless (or (eq buffer-undo-list t) 
+	      proof-allow-undo-in-read-only)
+    (setq buffer-undo-list 
+	  (undo-make-selective-list end (point-max))))
   (span-set-endpoints proof-queue-span start end))
 
 (defsubst proof-set-locked-endpoints (start end)

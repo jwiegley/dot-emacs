@@ -2779,6 +2779,7 @@ For multiple frame mode, this function obeys the setting of
 @c Index entries for each option 'concept'
 @cindex User options
 @cindex Strict read-only
+@cindex Undo in read-only region
 @cindex Query program name
 @cindex Dedicated windows
 @cindex Remote host
@@ -2838,7 +2839,7 @@ If you activate this variable, whether or not you really get x-symbol
 support depends on whether your proof assistant supports it and
 whether X-Symbol is installed in your Emacs.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-output-fontify-enable
@@ -2862,6 +2863,15 @@ you a reprimand!).
 The default value is @code{strict}.
 @end defopt
 
+@c TEXI DOCSTRING MAGIC: proof-allow-undo-in-read-only
+@defopt proof-allow-undo-in-read-only 
+Whether Proof General allows text undo in the read-only region.@*
+If non-nil, undo will allow altering of processed text (default behaviour
+before Proof General 3.7).  If nil, undo history of processed text is
+discarded.
+
+The default value is @code{nil}.
+@end defopt
 @c TEXI DOCSTRING MAGIC: proof-toolbar-use-button-enablers
 @defopt proof-toolbar-use-button-enablers 
 If non-nil, toolbars buttons may be enabled/disabled automatically.@*

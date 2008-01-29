@@ -197,6 +197,13 @@ you a reprimand!)."
   :set   'proof-set-value
   :group 'proof-user-options)
 
+(defcustom proof-allow-undo-in-read-only nil
+  "*Whether Proof General allows text undo in the read-only region.
+If non-nil, undo will allow altering of processed text (default behaviour
+before Proof General 3.7).  If nil, undo history of processed text is
+discarded."
+  :type  'boolean
+  :group 'proof-user-options)
 
 (defcustom proof-three-window-enable nil
   "*Whether response and goals buffers have dedicated windows.
