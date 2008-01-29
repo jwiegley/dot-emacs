@@ -201,9 +201,9 @@ scripting buffer may have an active queue span.")
    (if (span-live-p proof-locked-span)
        (proof-span-read-only proof-locked-span))))
 
-   
+
 (cond
- ((boundp 'undo-make-selective-list)
+ ((fboundp 'undo-make-selective-list)
   (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END. Discard undo for edits before END."
   (unless (or (eq buffer-undo-list t) 
