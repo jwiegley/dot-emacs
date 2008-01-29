@@ -19,7 +19,7 @@ See also etc/release-log.txt for minor patches.
 
 *** Input mechanisms for Unicode added  (GNU Emacs only)
 
-Maths menu (by Dave Love) added for inserting Unicode math characters.
+Maths Menu (by Dave Love) added for inserting Unicode math characters.
 
 Unicode Tokens mode is an experimental X-Symbol replacement, for
 displaying ASCII tokens as Unicode strings.  Much simpler than
@@ -27,6 +27,7 @@ X-Symbol, but requires a suitably rich Unicode font.  Adds an input
 mechanism for prompting token sequences and allowing shortcuts, and
 symbol rotation (next/previous glyph) on C-, and C-.  
 
+These are both available at Proof-General -> Options.
 
 *** UTF-8 support for 8-bit clean provers
 
