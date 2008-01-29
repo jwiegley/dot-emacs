@@ -4,7 +4,7 @@
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; This is a partial replacement for X-Symbol for Proof General.
-;; STATUS: experimental, in progress
+;; STATUS: experimental.  Super/subscripts not yet supported.
 ;;
 ;; Some functions are adapted from `xmlunicode.el' by Norman Walsh.
 ;; Created: 2004-07-21, Version: 1.6, Copyright (C) 2003 Norman Walsh
@@ -25,13 +25,10 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
-
 ;;
 ;; Functions to help insert tokens that represent Unicode characters.
 ;; Tokens are used for programs that do not understand a Unicode encoding.
-;;
-;; TODO:
-;; -- add coding/decoding for saving/reading files (CCL program?!)
+;; 
 
 
 (require 'cl)
@@ -87,6 +84,9 @@ Behaviour is much like abbrev.")
 
 (defvar unicode-tokens-token-alist nil
   "Mapping of tokens to Unicode strings.")
+
+(defvar unicode-tokens-ustring-alist nil
+  "Mapping of Unicode strings to tokens.")
 
 
 ;;
@@ -246,6 +246,7 @@ if there is such a unique character."
 	     (newcode (+ (* 256 page) newpt))
 	     (newname (assoc newcode 
 			     unicode-tokens-codept-charname-alist)))
+	;; TODO: if there's no newname, continue looking 
 	(delete-char -1)
 	(insert-char (decode-char 'ucs newcode) 1)
 	(if newname
@@ -268,6 +269,10 @@ if there is such a unique character."
  "Unicode characters input method using application specific token names"
  nil t nil nil nil nil nil nil nil nil t)
 
+(defun unicode-tokens-map-ordering (s1 s2)
+  "Ordering on (car S1, car S2): order longer strings first."
+  (>= (length (car s1)) (length (car s2))))
+
 (defun unicode-tokens-quail-define-rules ()
   "Define the token and shortcut input rules.
 Calculated from `unicode-tokens-token-name-alist' and 
@@ -275,8 +280,11 @@ Calculated from `unicode-tokens-token-name-alist' and
 Also sets `unicode-tokens-token-alist'."
   (let ((unicode-tokens-quail-define-rules 
 	 (list 'quail-define-rules)))
-    (let ((ulist unicode-tokens-token-name-alist)
+    (let ((ulist (copy-list unicode-tokens-token-name-alist))
 	  ustring tokname token)
+      ;; sort in case of non-terminated token syntax (empty suffix)
+      (setq ulist (sort ulist 'unicode-tokens-map-ordering))
+      (setq unicode-tokens-token-alist nil)
       (while ulist
 	(setq tokname (caar ulist))
 	(setq ustring (cdar ulist))
@@ -288,11 +296,15 @@ Also sets `unicode-tokens-token-alist'."
 	      (nconc unicode-tokens-token-alist
 		     (list (cons token ustring))))
 	(setq ulist (cdr ulist))))
-    (let ((ulist unicode-tokens-shortcut-alist)
+    ;; make reverse map: convert longer ustring sequences first
+    (setq unicode-tokens-ustring-alist
+	  (sort
+	   (mapcar (lambda (c) (cons (cdr c) (car c))) 
+		   unicode-tokens-token-alist)
+	   'unicode-tokens-map-ordering))
+    (let ((ulist (copy-list unicode-tokens-shortcut-alist))
 	  ustring shortcut)
-      (setq ulist (sort ulist (lambda (s1 s2)
-				(< (length (car s1))
-				   (length (car s2))))))
+      (setq ulist (sort ulist 'unicode-tokens-map-ordering))
       (while ulist
 	(setq shortcut (caar ulist))
 	(setq ustring (cdar ulist))
@@ -320,13 +332,15 @@ Also sets `unicode-tokens-token-alist'."
   (save-excursion
     (goto-char (or end (point-max)))
     (save-excursion
-      (let ((case-fold-search proof-case-fold-search))
+      (let ((case-fold-search proof-case-fold-search)
+	    (buffer-undo-list t))
 	(format-replace-strings unicode-tokens-token-alist nil start end)))
     (point)))
   
 (defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
-  (let ((case-fold-search proof-case-fold-search))
-    (format-replace-strings unicode-tokens-token-alist t start end)))
+  (let ((case-fold-search proof-case-fold-search)
+	(buffer-undo-list t))
+    (format-replace-strings unicode-tokens-ustring-alist nil start end)))
 
 
   
@@ -357,7 +371,6 @@ Also sets `unicode-tokens-token-alist'."
 ;; 
 ;; Initialisation
 ;;
-
 (defun unicode-tokens-initialise ()
   "Initialise tables."
   ;; Calculate max token length
