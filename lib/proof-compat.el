@@ -528,7 +528,7 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Old Emacs version compatibility
+;;; Old Emacs version compatibility (to be gradually removed...)
 ;;;
 
 ;; Create a menu from a customize group, for older/non-existent customize
@@ -539,6 +539,8 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
   (and (processp obj)
        (memq (process-status obj) '(open run stop)))))
 
+(or (fboundp 'buffer-substring-no-properties)
+    (defalias 'buffer-substring-no-properties 'buffer-substring))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
