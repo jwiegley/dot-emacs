@@ -18,7 +18,7 @@
 (require 'span)
 (require 'proof)			; loader
 (require 'proof-script)			; we build on proof-script
-(require 'comint)			; comint-interrupt-subjob
+(require 'comint)			; comint-interrupt-subjob/comint-ptyp
 
 (eval-when-compile
   (require 'completion))		; loaded dynamically at runtime
@@ -161,9 +161,9 @@ handling of interrupt signals."
   (unless proof-shell-busy
     (error "Proof Process Not Active!"))
   (with-current-buffer proof-shell-buffer
-    ;; Just send an interrrupt.
-    ;; Action on receiving one is triggered in proof-shell
-    (comint-interrupt-subjob)
+    ;; Send send an interrrupt, without comint-skip-input effect.
+    ;; Interrupt is processed inside proof-shell.
+    (interrupt-process nil comint-ptyp)
     (run-hooks 'proof-shell-pre-interrupt-hook)))
   
 
