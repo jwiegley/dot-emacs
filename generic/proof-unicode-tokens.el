@@ -97,11 +97,11 @@ in future if we have just activated it for this buffer."
 (defun proof-unicode-tokens-shell-config ()
   (when (proof-ass unicode-tokens-enable)
     (add-hook 'proof-shell-insert-hook
-	      'proof-x-symbol-encode-shell-input)
+	      'proof-unicode-tokens-encode-shell-input)
     (proof-unicode-tokens-activate-prover))
   (unless (proof-ass unicode-tokens-enable)
     (remove-hook 'proof-shell-insert-hook
-		 'proof-x-symbol-encode-shell-input)
+		 'proof-unicode-tokens-encode-shell-input)
     (proof-unicode-tokens-deactivate-prover)))
 
 (defun proof-unicode-tokens-encode-shell-input ()
