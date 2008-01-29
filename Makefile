@@ -95,6 +95,11 @@ compile: $(EL) x-symbol/lisp/*.el
 ## emacs process for each file is slower but avoids any chance of
 ## accidently polluting the compilation environment.
 ##
+
+## maths-menu.el doesn't compile on XEmacs 21.4, argh.
+lib/maths-menu.elc: lib/maths-menu.el
+	-$(BYTECOMP) $*.el
+
 .el.elc:
 	$(BYTECOMP) $*.el
 
