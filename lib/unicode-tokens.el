@@ -235,22 +235,33 @@ if there is such a unique character."
      (t
       (insert unicode-tokens-token-suffix)))))
 
+(defvar unicode-tokens-rotate-glyph-last-char nil)
 
 (defun unicode-tokens-rotate-glyph-forward (&optional n)
   (interactive "p")
   (if (> (point) (point-min))
-      (let* ((codept  (char-before (point)))
+      (let* ((codept  (or (if (or (eq last-command
+				      'unicode-tokens-rotate-glyph-forward)
+				  (eq last-command
+				      'unicode-tokens-rotate-glyph-backward))
+			      unicode-tokens-rotate-glyph-last-char)
+			  (char-before (point))))
 	     (page    (/ codept 256))
 	     (pt      (mod codept 256))
 	     (newpt   (mod (+ pt (or n 1)) 256))
 	     (newcode (+ (* 256 page) newpt))
 	     (newname (assoc newcode 
-			     unicode-tokens-codept-charname-alist)))
-	;; TODO: if there's no newname, continue looking 
-	(delete-char -1)
-	(insert-char (decode-char 'ucs newcode) 1)
-	(if newname
-	    (message (cdr newname))))))
+			     unicode-tokens-codept-charname-alist))
+	     ;; NOTE: decode-char 'ucs here seems to fail on Emacs <23
+	     (newchar (decode-char 'ucs newcode)))
+	(when (and newname newchar)
+	  (delete-char -1)
+	  (insert-char newchar 1)
+	  (message (cdr newname))
+	  (setq unicode-tokens-rotate-glyph-last-char nil))
+	(unless (and newname newchar)
+	  (message "No character at code %d" newcode)
+	  (setq unicode-tokens-rotate-glyph-last-char newcode)))))
 
 (defun unicode-tokens-rotate-glyph-backward (&optional n)
   (interactive "p")
@@ -362,12 +373,13 @@ Also sets `unicode-tokens-token-alist'."
   " Utoks" ; input method indication already
   unicode-tokens-mode-map
   (when unicode-tokens-mode
-    (set-buffer-multibyte t)
+    (if (fboundp 'set-buffer-multibyte)
+	(set-buffer-multibyte t))
     (let ((inhibit-read-only t))
       ;; format is supposed to manage undo, but doesn't remap
       (setq buffer-undo-list nil) 
       (format-decode-buffer 'unicode-tokens))
-    (set-input-method "Unicode tokens" unicode-tokens-mode))
+    (set-input-method "Unicode tokens"))
   (unless unicode-tokens-mode
     ;; leave buffer encoding as is
     (let ((inhibit-read-only t))
@@ -398,6 +410,8 @@ Also sets `unicode-tokens-token-alist'."
 		unicode-chars-alist))
   ;; Default assumed available glyph list based on tokens;
   ;; TODO: filter with what's really available, if can find out.
+  ;; TODO: allow altering of this when the token-name-alist is reset
+  ;; in proof-token-name-alist (unless test here is for specific setting)
   (unless unicode-tokens-glyph-list
     (setq unicode-tokens-glyph-list
 	  (reduce (lambda (glyphs tokustring)
@@ -411,10 +425,10 @@ Also sets `unicode-tokens-token-alist'."
       (define-key unicode-tokens-mode-map
 	(vector (string-to-char unicode-tokens-token-suffix))
 	'unicode-tokens-electric-suffix))
-  (define-key unicode-tokens-mode-map [(control ,)]
-    'unicode-tokens-rotate-glyph-backward)
-  (define-key unicode-tokens-mode-map [(control .)]
-    'unicode-tokens-rotate-glyph-forward)
+   (define-key unicode-tokens-mode-map [(control ?,)]
+     'unicode-tokens-rotate-glyph-backward)
+   (define-key unicode-tokens-mode-map [(control ?.)]
+     'unicode-tokens-rotate-glyph-forward)
   ;; otherwise action on space like in X-Symbol?
   )
 
