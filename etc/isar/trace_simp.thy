@@ -1,6 +1,6 @@
 (* This is a test of tracing output for Isabelle. *)
 
-theory trace_simp = Main:
+theory trace_simp imports Main begin
 
 text {*
   this produces massive amount of simplifier trace, but terminates
