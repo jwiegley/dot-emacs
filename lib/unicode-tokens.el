@@ -333,14 +333,18 @@ Also sets `unicode-tokens-token-alist'."
     (goto-char (or end (point-max)))
     (save-excursion
       (let ((case-fold-search proof-case-fold-search)
-	    (buffer-undo-list t))
-	(format-replace-strings unicode-tokens-token-alist nil start end)))
+	    (buffer-undo-list t)
+	    (modified (buffer-modified-p)))
+	(format-replace-strings unicode-tokens-token-alist nil start end)
+	(set-buffer-modified-p modified)))
     (point)))
   
 (defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
   (let ((case-fold-search proof-case-fold-search)
-	(buffer-undo-list t))
-    (format-replace-strings unicode-tokens-ustring-alist nil start end)))
+	(buffer-undo-list t)
+	(modified (buffer-modified-p)))
+    (format-replace-strings unicode-tokens-ustring-alist nil start end)
+    (set-buffer-modified-p modified)))
 
 
   
@@ -360,11 +364,15 @@ Also sets `unicode-tokens-token-alist'."
   (when unicode-tokens-mode
     (set-buffer-multibyte t)
     (let ((inhibit-read-only t))
+      ;; format is supposed to manage undo, but doesn't remap
+      (setq buffer-undo-list nil) 
       (format-decode-buffer 'unicode-tokens))
     (set-input-method "Unicode tokens" unicode-tokens-mode))
   (unless unicode-tokens-mode
     ;; leave buffer encoding as is
     (let ((inhibit-read-only t))
+      ;; format is supposed to manage undo, but doesn't remap
+      (setq buffer-undo-list nil) 
       (format-encode-buffer 'unicode-tokens))
     (inactivate-input-method)))
 
