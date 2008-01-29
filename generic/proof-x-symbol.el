@@ -163,20 +163,18 @@ The package is available at http://x-symbol.sourceforge.net/"))
 ;;;###autoload
 (defun proof-x-symbol-enable ()
   "Turn on or off X-Symbol in current Proof General script buffer.
-This invokes `x-symbol-mode' to toggle the setting for the current
-buffer, and then sets PG's option for default to match.
-Also we arrange to have X-Symbol mode turn itself on automatically 
-in future if we have just activated it for this buffer."
+This invokes `x-symbol-mode' to change the setting for the current
+buffer. "
   (when (proof-ass x-symbol-enable)
     (unless proof-x-symbol-initialized ;; Check inited
       (set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
       (proof-x-symbol-initialize 'giveerrors)
-      (set (proof-ass-sym x-symbol-enable) t))
+      (set (proof-ass-sym x-symbol-enable) t)))
     
-    (when (and proof-x-symbol-initialized
-	       (fboundp 'x-symbol-mode))
-      (x-symbol-mode)
-      (proof-x-symbol-mode-associated-buffers))))
+  (when (and proof-x-symbol-initialized
+	     (fboundp 'x-symbol-mode))
+    (x-symbol-mode (if (proof-ass x-symbol-enable) 1 0))
+    (proof-x-symbol-mode-associated-buffers)))
   
 ;; Old behaviour for proof-x-symbol-enable was to update state in all
 ;; buffers --- but this can take ages if there are many buffers!  
