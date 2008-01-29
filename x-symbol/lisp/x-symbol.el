@@ -42,6 +42,7 @@
 (require (if (featurep 'mule) 'x-symbol-mule 'x-symbol-nomule))
 (eval-when-compile (require 'x-symbol-macs))
 (eval-when-compile (require 'cl))
+(eval-when-compile (require 'ccl))
 
 (eval-when-compile
   (defvar font-lock-extra-managed-props) ; font-lock of Emacs-21.4
@@ -4898,14 +4899,13 @@ uses it with TOKEN and CHARSYM."
 	      (list (concat "-apple-" x-symbol-xsymb1-name
 			    "-medium-r-normal--%d-%d0-*-*-*-*-iso10646-1")))))
 
-(eval-and-compile  ;; da: tricky to compile this; define-ccl-program is a macro
-'(define-ccl-program ccl-encode-fake-xsymb1-font
+(define-ccl-program ccl-encode-fake-xsymb1-font
   `(0
 	((r2 = r1)
 	 (r1 = 0)
 	 (if (r0 == ,(charset-id 'xsymb1-right))
 	     (r2 |= 128))))
-  "CCL program for fake xsymb1 font"))
+  "CCL program for fake xsymb1 font")
 
 (defun x-symbol-mac-setup2 ()
   (setq font-ccl-encoder-alist
