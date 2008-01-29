@@ -200,8 +200,8 @@ you a reprimand!)."
 (defcustom proof-allow-undo-in-read-only nil
   "*Whether Proof General allows text undo in the read-only region.
 If non-nil, undo will allow altering of processed text (default behaviour
-before Proof General 3.7).  If nil, undo history of processed text is
-discarded."
+before Proof General 3.7).  If nil, undo history is cut at first edit
+of processed text.  NB: the history manipulation only works on GNU Emacs."
   :type  'boolean
   :group 'proof-user-options)
 
