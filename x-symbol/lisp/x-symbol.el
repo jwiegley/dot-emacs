@@ -4907,23 +4907,25 @@ uses it with TOKEN and CHARSYM."
 
 
 (defun x-symbol-mac-setup2 ()
-  (define-ccl-program ccl-encode-fake-xsymb1-font
-    `(0
-      ((r2 = r1)
-       (r1 = 0)
-       (if (r0 == ,(charset-id 'xsymb1-right))
-	   (r2 |= 128))))
-    "CCL program for fake xsymb1 font")
-  (setq font-ccl-encoder-alist
-	(cons (cons x-symbol-xsymb1-name ccl-encode-fake-xsymb1-font)
-	      font-ccl-encoder-alist))
-  (set-fontset-font nil 'xsymb1-left 
-		    (cons x-symbol-xsymb1-name "iso10646-1"))
-  (set-fontset-font nil 'xsymb1-right
-		    (cons x-symbol-xsymb1-name "iso10646-1"))
-  (dolist (face '(x-symbol-face x-symbol-sub-face x-symbol-sup-face))
-    (set-face-attribute face nil
-			:family 'unspecified :font 'unspecified)))
+  )
+  ;; FIXME: disabled for now, breaks compilation
+;;;   (define-ccl-program ccl-encode-fake-xsymb1-font
+;;;     `(0
+;;;       ((r2 = r1)
+;;;        (r1 = 0)
+;;;        (if (r0 == ,(charset-id 'xsymb1-right))
+;;; 	   (r2 |= 128))))
+;;;     "CCL program for fake xsymb1 font")
+;;;   (setq font-ccl-encoder-alist
+;;; 	(cons (cons x-symbol-xsymb1-name ccl-encode-fake-xsymb1-font)
+;;; 	      font-ccl-encoder-alist))
+;;;   (set-fontset-font nil 'xsymb1-left 
+;;; 		    (cons x-symbol-xsymb1-name "iso10646-1"))
+;;;   (set-fontset-font nil 'xsymb1-right
+;;; 		    (cons x-symbol-xsymb1-name "iso10646-1"))
+;;  (dolist (face '(x-symbol-face x-symbol-sub-face x-symbol-sup-face))
+;;    (set-face-attribute face nil
+;;			:family 'unspecified :font 'unspecified)))
 
 
 ;;;===========================================================================
