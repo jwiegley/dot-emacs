@@ -182,27 +182,6 @@ http://proofgeneral.inf.ed.ac.uk/trac"
   :type 'file
   :group 'prover-config)
 
-;;;
-;;; Experimental features: not a per-prover settings,
-;;; but initialised here because of default value's
-;;;; dependency on proof-general-version
-
-(defcustom proof-experimental-features
-  (if (string-match "pre" proof-general-version) t)
-  "*Whether to enable certain features regarded as experimental.
-Proof General includes a few features designated as \"experimental\".
-Enabling these will usually have no detrimental effects on using PG,
-but the features themselves may be buggy.
-
-We encourage users to set this flag and test the features, but being
-aware that the features may be buggy (problem reports and
-suggestions for improvements are welcomed).
-
-In the current 3.7 release, there are no features classed as experimental
-so this option is set by default."
-  :type 'boolean
-  :group 'proof-user-options)
-
 
 
 (provide 'pg-custom)
