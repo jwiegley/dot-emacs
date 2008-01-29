@@ -462,7 +462,7 @@ matches contents of quotes for quoted identifiers.")
 
 (defun isar-undos (i)
   (if (> i 0) (concat "undos_proof " (int-to-string i) ";")
-    nil))
+    proof-no-command))
 
 (defun isar-cannot-undo (cmd)
   (concat "cannot_undo \"" cmd "\";"))
