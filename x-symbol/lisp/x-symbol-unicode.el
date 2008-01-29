@@ -6,10 +6,11 @@
 ;;
 ;;; Commentary:
 ;;
-;; X-Symbol is really a bit of a dinosaur and will be replaced
-;; by something else sooner or later.  In the meantime it's handy
-;; to support Unicode character sets using the same interface
-;; as the existing X-Symbol.
+;; X-Symbol is really a bit of a dinosaur and will be replaced by
+;; something else sooner or later.  My own attempt is "Unicode
+;; Symbols" in PG/lib.  In the meantime it's handy to try supporting
+;; Unicode character sets using the same interface as the existing
+;; X-Symbol.
 ;; 
 
 (require 'x-symbol-unichars)		;; Unicode names & positions
