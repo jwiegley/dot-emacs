@@ -10,15 +10,15 @@
   (require 'cl))
 
 (eval-when (compile)
-  (if (not (featurep 'xemacs))
-      (require 'unicode-tokens))) ; it's loaded dynamically at runtime
+;  (if (not (featurep 'xemacs))
+      (require 'unicode-tokens)) ; it's loaded dynamically at runtime
 
 
 ;;;###autoload
 (defun proof-unicode-tokens-support-available ()
   "A test to see whether unicode tokens support is available."
   (and
-   (not (featurep 'xemacs)) ;; not XEmacs compatible
+   ;(not (featurep 'xemacs)) ;; not XEmacs compatible
    (or (featurep 'unicode-tokens)
        (proof-try-require 'unicode-tokens))
    ;; Requires prover-specific config in <foo>-unicode-tokens.el
@@ -74,6 +74,25 @@ in future if we have just activated it for this buffer."
     (proof-unicode-tokens-set-global (not unicode-tokens-mode))))
 
 
+;;;
+;;; Interface to custom (via proof-set-value)
+;;;
+
+(defun proof-token-name-alist ()
+  "Function called after the current token name alist has been changed.
+Switch off tokens in all buffers, recalculate maps, turn on again."
+  (when proof-unicode-tokens-initialised ; not on startup
+    (when (proof-ass unicode-tokens-enable)
+      (proof-map-buffers 
+       (proof-buffers-in-mode proof-mode-for-script)
+       (unicode-tokens-mode 0)))
+    (setq unicode-tokens-token-name-alist (proof-ass token-name-alist))
+    (unicode-tokens-initialise)
+    (when (proof-ass unicode-tokens-enable)
+      (proof-map-buffers 
+       (proof-buffers-in-mode proof-mode-for-script)
+       (unicode-tokens-mode 1)))))
+  
 ;;;
 ;;; Interface to shell
 ;;;
