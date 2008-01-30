@@ -2365,7 +2365,10 @@ a menu for inserting common mathematical symbols.
 @example
   Proof-General -> Options -> Unicode Maths Menu
 @end example
-This only works in GNU Emacs.
+This only works in GNU Emacs, and whether or not the symbols
+display in the menus depends on the font used to display
+the menus (which depends on the Emacs version, toolkit
+and platform!).
 
 The second mechanism has been written specially for Proof General, to
 provide some backward compatibility with X-Symbol.  This is
