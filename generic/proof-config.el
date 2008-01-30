@@ -335,8 +335,7 @@ This is only useful for PG developers."
   :group 'proof-user-options)
 
 
-(defcustom proof-experimental-features
-  t ;; features classed as experimental have been tested by now
+(defcustom proof-experimental-features nil
   "*Whether to enable certain features regarded as experimental.
 Proof General includes a few features designated as \"experimental\".
 Enabling these will usually have no detrimental effects on using PG,
@@ -344,10 +343,7 @@ but the features themselves may be buggy.
 
 We encourage users to set this flag and test the features, but being
 aware that the features may be buggy (problem reports and
-suggestions for improvements are welcomed).
-
-In the current 3.7 release, there are no features classed as experimental
-so this option is set by default."
+suggestions for improvements are welcomed)."
   :type 'boolean
   :group 'proof-user-options)
 
