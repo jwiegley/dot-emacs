@@ -350,6 +350,7 @@
      ("omega" "o" "omega" t "omega")
      ("reflexivity" "refl" "reflexivity #" t "reflexivity")
      ("ring" "ring" "ring #" t "ring")
+     ("solve" nil "solve [ # | # ]" nil "solve")
      ("tauto" "ta" "tauto" t "tauto")
      ))
   "Coq tactic(al)s that solve a subgoal." 
@@ -361,7 +362,6 @@
    coq-user-tacticals-db
    '(
      ("info" nil "info #" nil "info")
-     ("solve" nil "solve [ # | # ]" nil "solve")
      ("first" nil "first [ # | # ]" nil "first")
      ("abstract" nil "abstract @{tac} using @{name}." nil "abstract")
      ("do" nil "do @{num} @{tac}" nil "do")
@@ -513,6 +513,7 @@
      ("Comments" nil "Comments #." nil "Comments")
      ("Delimit Scope" "delsc" "Delimit Scope @{scope} with @{id}." t "Delimit\\s-+Scope" )
      ("Eval" nil "Eval #." nil "Eval")
+     ("Export" nil "Export #." t "Export")
      ("Extract Constant" "extrc" "Extract Constant @{id} => \"@{id}\"." nil "Extract\\s-+Constant")
      ("Extract Inlined Constant" "extric" "Extract Inlined Constant @{id} => \"@{id}\"." nil "Extract\\s-+Inlined\\s-+Constant")
      ("Extract Inductive" "extri" "Extract Inductive @{id} => \"@{id}\" [\"@{id}\" \"@{id...}\"]." nil "Extract")
