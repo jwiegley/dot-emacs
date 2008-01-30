@@ -18,7 +18,7 @@
 (defconst isar-token-match "\\\\<\\([a-zA-Z0-9]+\\)")
 (defconst isar-hexcode-match "\\\\<\\(#[xX][0-9A-Fa-f]+\\)")
 
-(defconst isar-token-name-alist
+(defcustom isar-token-name-alist
   '(; token name, unicode char sequence
    ("alpha" . "α")
    ("beta" . "β")
@@ -36,7 +36,7 @@
    ("mu" . "μ")
    ("nu" . "ν")
    ("xi" . "ξ")
-   ("o" . "ο")
+   ("o" . "ø")
    ("pi" . "π")
    ("varpi" . "ϖ")
    ("rho" . "ρ")
@@ -70,7 +70,7 @@
    ("Im" . "ℑ")
    ("partial" . "∂")
    ("infinity" . "∞")
-   ("Box" . "□")
+   ("box" . "□")
    ("emptyset" . "∅")
    ("nabla" . "∇")
    ("surd" . "√")
@@ -174,13 +174,14 @@
    ("doteq" . "≐")
    ("bottom" . "⊥")
    ("Join" . "⨝")
+   ("nexists" . "∄")
    ("notlt" . "≮")
    ("notle" . "≰")
    ("notprec" . "⊀")
    ("notpreceq" . "⋠")
    ("notsubset" . "⊄")
    ("notsubseteq" . "⊈")
-   ("not" . "⋢")
+   ("notsqsubseteq" . "⋢")
    ("notgt" . "≯")
    ("notge" . "≱")
    ("notsucc" . "⊁")
@@ -195,6 +196,7 @@
    ("notapprox" . "≉")
    ("notcong" . "≇")
    ("notasymp" . "≭")
+   ("midarrow" . "–") ; en dash
    ("leftarrow" . "←")
    ("Leftarrow" . "⇐")
    ("rightarrow" . "→")
@@ -206,43 +208,42 @@
    ("leftharpoonup" . "↼")
    ("leftharpoondown" . "↽")
    ("rightleftharpoons" . "⇌")
-;; Real long symbols, may work in some places: if
-;; you see symbols below, you're lucky!
-;;;    ("longleftarrow" . "⟵")
-;;;    ("Longleftarrow" . "⟸")
-;;;    ("longrightarrow" . "⟶")
-;;;    ("Longrightarrow" . "⟹")
-;;;    ("longleftrightarrow" . "⟷")
-;;;    ("longmapsto" . "⟼")
+;; Real long symbols, may work in some places
+    ("longleftarrow" . "⟵")
+    ("Longleftarrow" . "⟸")
+    ("longrightarrow" . "⟶")
+    ("Longrightarrow" . "⟹")
+    ("longleftrightarrow" . "⟷")
+    ("longmapsto" . "⟼")
 ;; Faked long symbols, for use otherwise:
-     ("longleftarrow" . "←-")
-     ("Longleftarrow" . "⇐=")
-     ("longrightarrow" . "-→")
-     ("Longrightarrow" . "=⇒")
-     ("longleftrightarrow" . "←→")
-     ("Longleftrightarrow" . "⇐⇒")
-     ("longmapsto" . "❘→")
+;;;     ("longleftarrow" . "←–")
+;;;     ("Longleftarrow" . "⇐–")
+;;;     ("longrightarrow" . "–→")
+;;;     ("Longrightarrow" . "–⇒")
+;;;     ("longleftrightarrow" . "←→")
+;;;     ("Longleftrightarrow" . "⇐⇒")
+;;;     ("longmapsto" . "❘→")
    ("hookrightarrow" . "↪")
    ("rightharpoonup" . "⇀")
    ("rightharpoondown" . "⇁")
    ("leadsto" . "↝")
-   ("uparrow" . "↑")
-   ("Uparrow" . "⇑")
-   ("downarrow" . "↓")
-   ("Downarrow" . "⇓")
+   ("up" . "↑")
+   ("Up" . "⇑")
+   ("down" . "↓")
+   ("Down" . "⇓")
    ("updown" . "↕")
-   ("Updownarrow" . "⇕")
+   ("Updown" . "⇕")
    ("nearrow" . "↗")
    ("searrow" . "↘")
    ("swarrow" . "↙")
    ("nwarrow" . "↖")
    ("lfloor" . "⌊")
-   ("langle" . "⟨")
+   ("langle" . "⟪")
    ("lceil" . "⌈")
    ("langle" . "⟪")
    ("lbrakk" . "⟦")
    ("rfloor" . "⌋")
-   ("rangle" . "⟩")
+   ("rangle" . "⟫")
    ("rceil" . "⌉")
    ("rangle" . "⟫")
    ("rbrakk" . "⟧")
@@ -266,7 +267,7 @@
    ("thinspace" . " ")
    ("copyright" . "©")
    ("pounds" . "£")
-   ("ldots" . "…")
+   ("dots" . "…")
    ("nat" . "ℕ")
    ("int" . "ℤ")
    ("rat" . "ℚ")
@@ -279,12 +280,44 @@
    ("guillemotleft" . "«")
    ("guillemotright" . "»")
    ("acute" . "´")
-   ("inverse" . "¯")
+   ("inverse" . "¯¹") ; X-Symb: just "¯"
    ("notni" . "∌")
    ("euro" . "€")
    ("yen" . "¥")
    ("cent" . "¢")
-   ;;; Not in plain Isar-X-Symbol
+   ("mho" . "℧")
+   ("section" . "§")
+   ("paragraph" . "¶")
+   ("registered" . "®")
+   ("degree" . "°")
+   ("onequarter" . "¼")
+   ("onehalf" . "½")
+   ("threequarters" . "¾")
+   ("ordmasculine" . "º")
+   ("ordfeminine" . "ª")
+   ("lparr" . "⦇")
+   ("rparr" . "⦈")
+   ;; these are the subscript numbers, 
+   ;; not bold numerals as in X-Symbol.  
+   ("one" . "₁")
+   ("two" . "₂")
+   ("three" . "₃")
+   ("four" . "₄")
+   ("five" . "₅")
+   ("six" . "₆")
+   ("seven" . "₇")
+   ("eight" . "₈")
+   ("nine" . "₉")
+   ("onesuperior" . "¹")
+   ("twosuperior" . "²")
+   ("threesuperior" . "³")
+   ("foursuperior" . "⁴")
+   ("fivesuperior" . "⁵")
+   ("sixsuperior" . "⁶")
+   ("sevensuperior" . "⁷")
+   ("eightsuperior" . "⁸")
+   ("ninesuperior" . "⁹")
+   ;; not in plain X-Symbol
    ("oe" . "œ")
    ("OE" . "Œ")
    ("ae" . "æ")
@@ -296,20 +329,29 @@
    ("l" . "ł") ;; LaTeX \l
    ("L" . "Ł") ;; LaTeX \L
    ("ss" . "ß") ;; LaTeX \ss
-   ("S" . "§")  ;; LaTeX \S
-   ("P" . "¶")  ;; LaTeX \P
    ("colonequals" . "≔")
    ("ff" . "ﬀ")
    ("fi" . "ﬁ")
    ("fl" . "ﬂ")
    ("ffi" . "ﬃ")
-   ("ffl" . "ﬄ")
-   ))
+   ("ffl" . "ﬄ"))
+  "Table mapping Isabelle ``xsymbol'' token names to Unicode strings.
 
-;; FIXME: not all of these shortcuts work, for some reason
-;; e.g. /0 although appears in input method prompts
-;; long arrows --> ==> don't appear in prompts
-(defvar isar-shortcut-alist
+You can adjust this table to add more entries, or to change entries for
+glyphs that not are available in your Emacs or chosen font.
+
+The token TNAME is made into the token \\< TNAME >.
+The string mapping can be anything, but should be such that
+tokens can be uniquely recovered from a decoded text; otherwise
+results will be undefined when files are saved."
+  :type '(repeat (cons (string :tag "Token name")
+		       (string :tag "Unicode string")))
+  :set 'proof-set-value
+  :group 'isabelle
+  :tag "Isabelle Unicode Token Mapping")
+
+
+(defcustom isar-shortcut-alist
   '(; short cut, unicode string
     ("<>" . "⋄")
     ("|>" . "⊳")
@@ -380,7 +422,22 @@
     ("\complex" . "ℂ")
     ("\euro" . "€")
     ("\yen" . "¥")
-    ("\cent" . "¢")))
+    ("\cent" . "¢"))
+  "Shortcut key sequence table for Unicode strings.
+
+You can adjust this table to add more entries, or to change entries for
+glyphs that not are available in your Emacs or chosen font.
+
+These shortcuts are only used for input; no reverse conversion is
+performed.  But if tokens exist for the target of shortcuts, they
+will be used on saving the buffer."
+  :type '(repeat (cons (string :tag "Shortcut sequence")
+		       (string :tag "Unicode string")))
+  :set 'proof-set-value
+  :group 'isabelle
+  :tag "Isabelle Unicode Token Mapping")
+
+  
 
 
 ;;
