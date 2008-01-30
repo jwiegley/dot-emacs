@@ -8,7 +8,8 @@
 @c my hacked version of TeXinfo - da.
 
 @c
-@c TODO:  MMM support, Theorem dependencies
+@c TODO:  
+@c   MMM support, Theorem dependencies, history in script and response
 @c
 
 
@@ -236,7 +237,7 @@ management is improved and repaired for Emacs API changes.  There are
 some other usability improvements, some after feedback from use at TYPES
 Summer Schools.  Many new features have been added to enhance Coq mode
 (thanks to Pierre Courtieu) and several improvements made for Isabelle
-(thanks to Makarius Wenzel and Tjark Weber).
+(thanks to Makarius Wenzel, Stefan Berghofer and Tjark Weber).
 
 Support has been added for the useful Emacs packages Speedbar
 @c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
@@ -244,7 +245,8 @@ and Index Menu, both usually distributed with Emacs.
 Compatible versions of the Emacs packages X-Symbol (for mathematical
 symbols in place of ASCII sequences), Math-Menu (for Unicode symbols)
 and MMM Mode (for multiple modes in one buffer) are 
-bundled with Proof General.
+bundled with Proof General.  A new Unicode Tokens package has
+been added which will replace X-Symbol eventually.
 
 @c The display handling functions have been improved to be more user
 @c friendly and the display in multiple-window mode is trimmed to
@@ -344,12 +346,16 @@ Coq Proof General.  Since Proof General 2.0, this manual has been
 maintained and improved by David Aspinall.  Pierre Courtieu and Markus
 Wenzel contributed some sections.
 
-The Proof General project has benefited indirectly from funding by
-EPSRC (Applications of a Type Theory Based Proof Assistant), the EC
-(Types for Proofs and Programs) and the support of the LFCS.  Version
-3.1 was prepared whilst David Aspinall was visiting ETL, Japan,
-supported by the British Council.
+The Proof General project has benefited from (indirect) funding by EPSRC
+(@i{Applications of a Type Theory Based Proof Assistant} in the late
+1990s and @i{The Integration and Interaction of Multiple Mathematical
+Reasoning Processes}, EP/E005713/1 (RA0084) in 2006-8), the EC (the
+Co-ordination Action @i{Types} and previous related projects), and the
+support of the LFCS.  Version 3.1 was prepared whilst David Aspinall was
+visiting ETL, Japan, supported by the British Council.  
 
+For Proof General 3.7, Graham Dutton assisted with the project
+management system and web pages.
 For testing and feedback for older versions of Proof General, thanks
 go to Rod Burstall, Martin Hofmann, and James McKinna, and some of
 those who continued to help with the latest 3.x series, named next.
@@ -384,7 +390,7 @@ Randy Pollack,
 Robert R. Schneck,
 Norbert Schirmer,
 Sebastian Skalberg,
-Mike Squire, and
+Mike Squire, 
 Norbert Voelker,
 Tjark Weber.
 
@@ -2197,10 +2203,7 @@ We encourage users to set this flag and test the features, but being
 aware that the features may be buggy (problem reports and
 suggestions for improvements are welcomed).
 
-In the current 3.7 release, there are no features classed as experimental
-so this option is set by default.
-
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 
@@ -2235,6 +2238,7 @@ and @code{etags}.
 @menu
 * Syntax highlighting::         
 * X-Symbol support::
+* Unicode support::
 * Imenu and Speedbar (and Function Menu)::
 * Support for outline mode::    
 * Support for completion::            
@@ -2282,7 +2286,7 @@ Proof General -> Advanced -> Customize -> Faces -> Proof Faces.
 
 @node X-Symbol support
 @section X-Symbol support
-@cindex real symbols
+@cindex symbols
 @cindex X-Symbols
 @cindex Greek letters
 @cindex logical symbols
@@ -2337,6 +2341,113 @@ its home page at @uref{http://x-symbol.sourceforge.net/}.
 
 @c @xref{Configuring X-Symbol}, for notes about how to configure
 @c a proof assistant to use X-Symbol in Proof General.
+
+@node Unicode support
+@section Unicode support
+@cindex symbols
+@cindex X-Symbols
+@cindex Greek letters
+@cindex logical symbols
+@cindex mathematical symbols
+
+Proof General inherits support for displaying Unicode (and any other)
+fonts from the underlying Emacs program.  If you are lucky, your system
+will be able to use (or synthesise) a font that provides a rich set of
+mathematical symbols.  To store these symbols in files you need to use a
+particular coding, for example UTF-8.  In fact, Modern Emacsen can
+handle a multitude of different coding systems and will try to
+automatically detect an appropriate one; consult the Emacs documentation
+for more details.
+
+Proof General includes two special mechanisms for assisting with input.
+The first is @b{Maths Menu} (originally by Dave Love), which simply adds
+a menu for inserting common mathematical symbols.  
+@example
+  Proof-General -> Options -> Unicode Maths Menu
+@end example
+This only works in GNU Emacs.
+
+The second mechanism has been written specially for Proof General, to
+provide some backward compatibility with X-Symbol.  This is
+the @b{Unicode Tokens} minor mode.
+@example
+  Proof-General -> Options -> Unicode Tokens
+@end example
+The aim of this mode is to allow displaying of ASCII tokens as Unicode
+strings.@footnote{In fact, the strings are mapped to Emacs internal
+encoding for display; Unicode is just an appropriate mechanism for
+input.} This allows a file to be stored in perfectly portable plain
+ASCII encoding, but be displayed and edited with real symbols.  When the
+file is visited, the ASCII tokens are replaced by Unicode strings; when
+it is saved, the reverse happens.  For this to be reliable, you need to
+provide tokens for all the Unicode symbols you @i{don't} want to appear
+in the saved file (if any are not encoded, Emacs will try to save them
+in a richer encoding, such as UTF-8).  You also need to make sure that
+the token to symbol mapping is a bijection.
+
+The Unicode Tokens mode also provides an input mechanism for assisting
+with entering tokens, and providing short-cuts for symbols (one of the
+useful features of the X-Symbol package).  Even if your proof assistant
+manages native Unicode symbols directly, the input method and some of
+the provided commands may be useful.
+
+@kindex C-,
+@kindex C-.
+@table @kbd
+@item C-.
+@code{unicode-tokens-rotate-glyph-forward}
+@item C-,
+@code{unicode-tokens-rotate-glyph-backward}
+@item >
+@code{unicode-tokens-electric suffix}
+@end table
+
+
+@c TEXI DOCSTRING MAGIC: unicode-tokens-token-insert
+@deffn Command unicode-tokens-token-insert arg &optional argname
+Insert a Unicode string by a token  name, with completion. @*
+If a prefix is given, the string will be inserted regardless
+of whether or not it has displayable glyphs; otherwise, a
+numeric character reference for whichever codepoints are not
+in the @code{unicode-tokens-glyph-list}. If argname is given, it is used for
+the prompt. If argname uniquely identifies a character, that
+character is inserted without the prompt.
+@end deffn
+@c TEXI DOCSTRING MAGIC: unicode-tokens-rotate-glyph-forward
+@deffn Command unicode-tokens-rotate-glyph-forward &optional n
+Not documented.
+@end deffn
+@c TEXI DOCSTRING MAGIC: unicode-tokens-rotate-glyph-backward
+@deffn Command unicode-tokens-rotate-glyph-backward &optional n
+Not documented.
+@end deffn
+Unfortunately, the precise set of symbol glyphs that are available to
+you will depend in complicated ways on your operating system, Emacs
+version, installed font sets, and (even) command line options used to
+start Emacs.  Describing the full range of possibilities or giving
+recommendations is beyond the scope of this manual; please search (and
+contribute!) to the Proof General wiki at
+@uref{http://proofgeneral.inf.ed.ac.uk/wiki} for more details.
+
+To edit the strings used to display tokens, or the collection of 
+short-cuts, you can edit the 
+file @code{@i{PA}-unicode-tokens.el}, or customize the two main
+variables  it contains: @code{@i{PA}-token-name-alist} and 
+@code{@i{PA}-shortcut-alist}. E.g., for Isabelle 
+@example
+  M-x customize-variable isar-token-name-alist RET
+@end example
+provides an interface to the tokens, and
+@example
+  M-x customize-variable isar-shortcut-alist
+@end example
+an interface to the shortcuts.
+
+
+
+
+
+
 
 
 @node Imenu and Speedbar (and Function Menu)
@@ -2867,8 +2978,8 @@ The default value is @code{strict}.
 @defopt proof-allow-undo-in-read-only 
 Whether Proof General allows text undo in the read-only region.@*
 If non-nil, undo will allow altering of processed text (default behaviour
-before Proof General 3.7).  If nil, undo history of processed text is
-discarded.
+before Proof General 3.7).  If nil, undo history is cut at first edit
+of processed text.  NB: the history manipulation only works on GNU Emacs.
 
 The default value is @code{nil}.
 @end defopt
