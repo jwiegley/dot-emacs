@@ -409,6 +409,11 @@ without adjusting window layout."
        (customize-set-variable 'proof-follow-mode 'locked)
        :style radio
        :selected (eq proof-follow-mode 'locked)]
+;; Not implemented.  See Trac #187
+;;       ["Follow On Success" 
+;;        (customize-set-variable 'proof-follow-mode 'followsuccess)
+;;        :style radio
+;;        :selected (eq proof-follow-mode 'followdown)]
       ["Follow Locked Region Down" 
        (customize-set-variable 'proof-follow-mode 'followdown)
        :style radio
