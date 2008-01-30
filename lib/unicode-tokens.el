@@ -239,7 +239,8 @@ if there is such a unique character."
 
 (defun unicode-tokens-rotate-glyph-forward (&optional n)
   "Rotate the character before point in the current code page, by N steps.
-If no character is found at the new codepoint, no change is made."
+If no character is found at the new codepoint, no change is made.
+This function may only work reliably for GNU Emacs >= 23."
   (interactive "p")
   (if (> (point) (point-min))
       (let* ((codept  (or (if (or (eq last-command
@@ -267,7 +268,8 @@ If no character is found at the new codepoint, no change is made."
 
 (defun unicode-tokens-rotate-glyph-backward (&optional n)
   "Rotate the character before point in the current code page, by -N steps.
-If no character is found at the new codepoint, no change is made."
+If no character is found at the new codepoint, no change is made.
+This function may only work reliably for GNU Emacs >= 23."
   (interactive "p")
   (unicode-tokens-rotate-glyph-forward (if n (- n) -1)))
     
