@@ -4,7 +4,9 @@
 
 ;; Author: Dave Love <fx@gnu.org>
 ;; Keywords: convenience
-;; $Revision$
+
+;; Version for Proof General minimally modified by David Aspinall, 2007-8.
+
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -315,26 +317,6 @@
       `(menu-item "Maths" ,maths-menu-menu
 		  :help "Menu of maths characters to insert"))
     map))
-
-;; Unless we have Gtk/Carbon/Nextstep/Other menus, we probably can't
-;; display the maths correctly in the menu bar.
-(unless 
-    (or (string-match "--with-gtk" system-configuration-options)
-	(string-match "--with-ns" system-configuration-options)
-	(string-match "--with-carbon" system-configuration-options))
-  (define-key-after maths-menu-menu [warnl] '(menu-item "--"))
-  (define-key-after maths-menu-menu [warn1]
-    '(menu-item "NB. This Emacs may display"))
-  (define-key-after maths-menu-menu [warn2]
-    '(menu-item "the maths chars wrongly"))
-  (define-key-after maths-menu-menu [warn3]
-    '(menu-item "in the menus."))
-  ;; Another approach:
-;;;       (define-key maths-menu-mode-map [menu-bar maths]
-;;; 	(cons "Maths" (lambda ()
-;;; 			(interactive)
-;;; 			(tmm-prompt maths-menu-menu))))
-  )
 
 ;;;###autoload
 (define-minor-mode maths-menu-mode
