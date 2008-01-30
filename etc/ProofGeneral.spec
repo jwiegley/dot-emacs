@@ -6,7 +6,7 @@ Group:		Text Editors/Integrated Development Environments (IDE)
 License:	GPL
 Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
-Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-%{version}.tar.gz
+Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-%{version}.tgz
 BuildRoot:	/tmp/ProofGeneral-root
 BuildRequires:  emacs, xemacs
 PreReq:		/sbin/install-info
