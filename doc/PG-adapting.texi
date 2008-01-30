@@ -3438,6 +3438,7 @@ Insert @var{string} at the end of the proof shell, call @samp{@code{comint-send-
 
 First call @samp{@code{proof-shell-insert-hook}}.  The argument @var{action} may be
 examined by the hook to determine how to process the @var{string} variable.
+NB: the hook is not called for the empty (null) string.
 
 Then strip @var{string} of carriage returns before inserting it and updating
 @samp{@code{proof-marker}} to point to the end of the newly inserted text.
@@ -3508,7 +3509,7 @@ if you don't need it (slight speed penalty).
 
 @c TEXI DOCSTRING MAGIC: proof-shell-last-prompt
 @defvar proof-shell-last-prompt 
-A record of the last prompt seen from the proof system.@*
+A raw record of the last prompt seen from the proof system.@*
 This is the string matched by @samp{@code{proof-shell-annotated-prompt-regexp}}.
 @end defvar
 

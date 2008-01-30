@@ -2415,11 +2415,13 @@ character is inserted without the prompt.
 @end deffn
 @c TEXI DOCSTRING MAGIC: unicode-tokens-rotate-glyph-forward
 @deffn Command unicode-tokens-rotate-glyph-forward &optional n
-Not documented.
+Rotate the character before point in the current code page, by @var{n} steps.@*
+If no character is found at the new codepoint, no change is made.
 @end deffn
 @c TEXI DOCSTRING MAGIC: unicode-tokens-rotate-glyph-backward
 @deffn Command unicode-tokens-rotate-glyph-backward &optional n
-Not documented.
+Rotate the character before point in the current code page, by -N steps.@*
+If no character is found at the new codepoint, no change is made.
 @end deffn
 Unfortunately, the precise set of symbol glyphs that are available to
 you will depend in complicated ways on your operating system, Emacs
