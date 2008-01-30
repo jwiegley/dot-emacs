@@ -1,6 +1,6 @@
 ;;; proof-shell.el --- Proof General shell mode.
 ;;
-;; Copyright (C) 1994-2004 LFCS Edinburgh. 
+;; Copyright (C) 1994-2008 LFCS Edinburgh. 
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -39,22 +39,14 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
 (defvar proof-shell-silent nil
   "A flag, non-nil if PG thinks the prover is silent.")
 
-;; not implemented
-;;(defvar proof-step-counter nil
-;;  "Contains a proof step counter, which counts `outputful' steps.")
+;; We record the last output from the prover and a flag indicating its
+;; type, as well as a previous ("delayed") version to for when the end
+;; of the queue is reached or an error or interrupt occurs.
 
-
-;; We keep a record of the last output from the proof system and a
-;; flag indicating its type, as well as a previous ("delayed") to use
-;; when the end of the queue is reached or an error or interrupt
-;; occurs.
-
-;; A raw record of the last prompt from the proof system
 (defvar proof-shell-last-prompt nil
-  "A record of the last prompt seen from the proof system.
+  "A raw record of the last prompt seen from the proof system.
 This is the string matched by `proof-shell-annotated-prompt-regexp'.")
 
-;; A flag indicating the type of thing proof-shell-last-output
 (defvar proof-shell-last-output-kind nil
   "A symbol denoting the type of the last output string from the proof system.
 Specifically:
@@ -119,7 +111,6 @@ of the queue region."
 ;; or by the process filter trying to deal with more output.
 ;; (Moreover, we can tell when the process is busy because the 
 ;; queue is non-empty).
-;;
 ;;
 
 ;;
@@ -207,8 +198,7 @@ to err-or-int."
 
 (defcustom proof-shell-fiddle-frames t 
   "Non-nil if proof-shell functions should fire-up/delete frames.
-NB: this is a temporary config variable in PG 3.5 and will not be
-present in later versions!"
+NB: this is a temporary config variable, it will be removed at some point!"
   :type 'boolean
   :group 'proof-shell)
 
@@ -218,9 +208,7 @@ present in later versions!"
       nil ;; leave at default for now; new Emacsen OK
     (and 
      ;; On GNU Emacs, prevent interpretation of multi-byte characters.
-     ;; If this isn't set, characters with codes 128-255 are apt to
-     ;; get remapped higher, and regexps for annotated prompt, etc,
-     ;; don't match any more.
+     ;; If not done, chars 128-255 get remapped higher, breaking regexps
      (fboundp 'toggle-enable-multibyte-characters)
      (toggle-enable-multibyte-characters -1))))
 
@@ -619,20 +607,31 @@ object files, used by Lego and Coq)."
   "Displays output from process in `proof-response-buffer'.
 The output is taken from `proof-shell-last-output' and begins
 the first match for START-REGEXP.
-If START-REGEXP is nil, begin from the start of the output for
-this command.
+
+If START-REGEXP is nil or no match can be found (which can happen
+if output has been garbled somehow), begin from the start of
+the output for this command.
+
 This is a subroutine of `proof-shell-handle-error'."
   (let (start end string)
     (with-current-buffer proof-shell-buffer
+      
+      ;; NB: it's tempting to use proof-shell-last-output here which
+      ;; already contains the text (change suggested by Stefan
+      ;; Monnier), but characters have been stripped from that text
+      ;; that may be needed in our start-regexp parameter (e.g. Isabelle).
+
       (goto-char (point-max))
       (setq end (re-search-backward 
 		 proof-shell-annotated-prompt-regexp))
       (goto-char (marker-position proof-marker))
-      (setq start (if start-regexp
-		      (- (re-search-forward start-regexp)
-			 (length (match-string 0)))
-		    (point)))
-      (setq string (buffer-substring start end))
+      (setq start (point))
+
+      (if (and start-regexp
+	       (re-search-forward start-regexp nil t))
+	  (setq start (- (point) (length (match-string 0)))))
+
+      (setq string (buffer-substring-no-properties start end))
 
       ;; NB: if the shell buffer were in x-symbol minor mode,
       ;; this string would contain X-Symbol characters, which
@@ -645,34 +644,6 @@ This is a subroutine of `proof-shell-handle-error'."
       ;; Erase if need be, and erase next time round too.
       (pg-response-maybe-erase t nil)
       (pg-response-display-with-face string append-face))))
-      
-  ;; We used to fetch the output from proof-shell-buffer.  I'm not sure what
-  ;; difference it makes, except that it's difficult to find the actual
-  ;; output over there and that job has already been done in
-  ;; proof-shell-filter.  -stef
-  ;; da: Not quite, unfortunately: proof-shell-last-output had
-  ;; special characters stripped and there may be other differences.
-
-  ;; This breaks Isabelle, for example, because special
-  ;; characters have been stripped from proof-shell-last-output,
-  ;; but start-regexp may contain them.
-
-;  ;; stef's version:
-;   (let ((string proof-shell-last-output))
-;     ;; Strip off start-regexp --- if it matches 
-;     ;; NOTE: if it doesn't we shouldn't be called, but something
-;     ;;  odd happens here now, so add a safety check.
-;      (if (and start-regexp (string-match start-regexp string))
-;	  (setq string (substring string (match-beginning 0))))
-;      ;; NOTE: if the shell buffer is x-symbol minor mode,
-;      ;; this string can contain X-Symbol characters, which
-;      ;; is not suitable for processing with proof-fontify-region.
-;      (unless pg-use-specials-for-fontify
-;	(setq string
-;	      (pg-assoc-strip-subterm-markup string)))
-;      ;; Erase if need be, and erase next time round too.
-;      (pg-response-maybe-erase t nil)
-;      (pg-response-display-with-face string append-face)))
 
 
 (defun proof-shell-handle-delayed-output ()
@@ -914,6 +885,7 @@ different Emacs versions.")
 
 First call `proof-shell-insert-hook'.  The argument ACTION may be
 examined by the hook to determine how to process the STRING variable.
+NB: the hook is not called for the empty (null) string.
 
 Then strip STRING of carriage returns before inserting it and updating
 `proof-marker' to point to the end of the newly inserted text.
@@ -924,22 +896,20 @@ used in `proof-append-alist' when we start processing a queue, and in
   (with-current-buffer proof-shell-buffer
     (goto-char (point-max))
     
-    ;; See docstring for this hook: it allows munging of `string'
-    ;; amongst other hacks.
-    (run-hooks 'proof-shell-insert-hook)
+    ;; This hook allows munging of `string' and other hacks.
+    ;; NB: string should not be null
+    (unless (null string)
+      (run-hooks 'proof-shell-insert-hook))
 
-    ;; Now we replace CRs from string with spaces. This is done
-    ;; in case CRs in the input strip produce spurious prompts.
-
+    ;; Replace CRs from string with spaces to avoid spurious prompts.
     (if proof-shell-strip-crs-from-input
 	(setq string (subst-char-in-string ?\n ?\  string)))
-
-    (insert string)
+    
+    (insert (or string ""))  ;; robust against call with nil
 
     ;; Advance the proof-marker, if synchronization has been gained.
     ;; A null marker position indicates that synchronization is not
-    ;; yet gained.  (NB: Any output received before syncrhonization is
-    ;; gained is ignored!)
+    ;; yet gained.  (NB: Output before sync gained is ignored!)
     (unless (null (marker-position proof-marker))
       (set-marker proof-marker (point)))
 
@@ -1103,8 +1073,6 @@ for processing a region from (buffer-queue-or-locked-end) to END.
 The queue mode is set to 'advancing"
   (proof-set-queue-endpoints (proof-unprocessed-begin) end)
   (proof-append-alist alist 'advancing))
-
-
 
 
 (defun proof-shell-exec-loop () 
@@ -1567,14 +1535,16 @@ however, are always processed; hence their name)."
 		     proof-shell-annotated-prompt-regexp nil t)
 		    (progn
 		      (setq proof-shell-last-prompt
-			    (buffer-substring (match-beginning 0) (match-end 0)))
+			    (buffer-substring-no-properties
+			     (match-beginning 0) (match-end 0)))
 		      (backward-char (- (match-end 0) (match-beginning 0)))
 		      ;; NB: decoding x-symbols here is probably too
 		      ;;  expensive; moreover it leads to problems
 		      ;;  processing special characters as annotations
 		      ;;  later on.  So do not fontify or decode.
 		      ;;  (proof-fontify-region startpos (point))
-		      (setq string (buffer-substring startpos (point)))
+		      (setq string (buffer-substring-no-properties
+				    startpos (point)))
 		      (goto-char (point-max))	
 		      ;; Process output string.
 		      (proof-shell-filter-process-output string)
@@ -1771,48 +1741,10 @@ in some cases.   May be called by `proof-shell-invisible-command'."
 	      ;; function have been seen in some odd scenarios.
 	      (error "Proof General: Quit in proof-shell-wait"))))))
 
-
 (defun proof-done-invisible (span)
   "Callback for proof-shell-invisible-command.  
 Calls proof-state-change-hook."
   (run-hooks 'proof-state-change-hook))
-
-; new code to experiment with after 3.2
-;(defun proof-done-invisible (&optional span)
-;  "Callback for proof-shell-invisible-command.  
-;Calls proof-state-change-hook."
-;  (run-hooks 'proof-state-change-hook)
-;  (remove-hook 'proof-shell-handle-error-or-interrupt-hook
-;	       'proof-shell-invisible-hook-fn))
-;; Seems to be hard to write this stuff without a temporary variable
-;; (or higher-order functions, sob).
-;(defun proof-shell-invisible-hook-fn ()
-;  "Temporary function holding hook for proof-shell-invisible-command.")
-
-;(defmacro proof-shell-invisible-failure-msg (errormsg)
-;  "Construct a value for `proof-shell-handle-error-or-interrupt-hook'.
-;Give error message ERRORMSG, then remove self from queue."
-;  `(lambda ()
-;     (proof-done-invisible)
-;     (error ,(eval errormsg))))
-
-;(defmacro proof-shell-invisible-failure-fn (fn)
-;  "Construct a value for `proof-shell-handle-error-or-interrupt-hook'.
-;Call function fn, then remove self from queue."
-;  `(lambda ()
-;     (proof-done-invisible)
-;     (,(eval fn))))
-;
-; extra arg ERRORMSGFN to proof-shell-invisible-command:
-;
-;If ERRORMSGFN is non-nil, if the command leads to an error or interrupt
-;in the proof assistant, we will give an error.  If ERRORMSGFN
-;is a string, (error ERRORMSGFN) is called; if ERRORMSGFN is a function, 
-;it is called directly.  If ERRORMSGFN is not a string or function,
-;we will give standard error messages for interrupts and errors."
-;
-; Other (sensible) possibility is to call
-; proof-shell-handle-error-or-interrupt-hook with span as argument.
 
 ;;;###autoload
 (defun proof-shell-invisible-command (cmd &optional wait)
