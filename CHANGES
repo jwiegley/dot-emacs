@@ -6,28 +6,35 @@ See also etc/release-log.txt for minor patches.
 
 ** Generic changes
 
-*** Fixes and additions, patches for recent (X)Emacs versions
+*** Fixes and additions, patches for recent Emacs versions
 
 - Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
 - Workarounds for bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
 - Reworked icons to better match style of GNU Emacs/Gnome.
-- Context menu for spans: options to move spans up/down (risky!) and undo.
 - History for processed commands in active script buffer (M-n, M-p)
+- Undo history in read-only area discarded (see: proof-allow-undo-in-read-only)
 - proof-indent-pad-eol option removed (spurious spaces were objectionable)
-- Undo history in read-only region discarded (see: proof-allow-undo-in-read-only)
-- Many minor fixes and code cleanups.
+- Context menu for spans: option to undo.
+- Many fixes and code cleanups.
 
-*** Input mechanisms for Unicode added  (GNU Emacs only)
+*** New input mechanisms for Unicode added (preliminary version)
 
-Maths Menu (by Dave Love) added for inserting Unicode math characters.
+Maths Menu (by Dave Love) for inserting Unicode math characters.
+GNU Emacs only.
 
-Unicode Tokens mode is an experimental X-Symbol replacement, for
-displaying ASCII tokens as Unicode strings.  Much simpler than
-X-Symbol, but requires a suitably rich Unicode font.  Adds an input
-mechanism for prompting token sequences and allowing shortcuts, and
-symbol rotation (next/previous glyph) on C-, and C-.  
+Unicode Tokens mode, an experimental X-Symbol replacement, for
+displaying ASCII tokens as Unicode strings (for Isabelle) and
+providing shortcut input for Unicode sequences (for Isabelle, Coq).
+Much simpler than X-Symbol, but requires a suitably rich Unicode font.
+GNU Emacs >=23 recommended.  
+Try Options -> Set Fontset to find a good font (e.g. "standard").  
+Customize the tables with M-x customize-variable isar-token-name-alist
+			  M-x customize-variable isar-shortcut-alist
+or edit isar/isar-unicode-tokens.el.  Similarly for Coq.
+Symbol rotation (next/previous glyph) on C-, and C-.  (GE>=23)
 
 These are both available at Proof-General -> Options.
+
 
 *** UTF-8 support for 8-bit clean provers
 
@@ -39,6 +46,7 @@ interface wrapper.
 *** Large X-Symbol fonts added, courtesy of Clemens Ballarin
 
 Use option -f 18 or -f 24 of the Isabelle interface wrapper.
+
 
 
 ** Changes for Isabelle
@@ -348,6 +356,39 @@ Bound globally to Control-Meta-Mouse-button1.
 
 Presently only configured in Isabelle/Isar, to parse terms (inside
 strings) and theorems (outside).
+
+
+** New "experimental" features
+
+These are only available if `proof-experimental-features' is
+customized to t.
+
+*** "Move up" and "Move down" functions in context span menu 
+   (use right-click on highlighted spans), also bound on
+   C-M-up/C-M-down.
+
+*** Theorem dependencies: displaying and highlighting dependencies.
+   Dependencies (e.g. lemmas) for a theorem are highlighted in 
+   yellow, places where the theorem is used are highlighted
+   in orange.   This allows easy editing of theories to remove
+   dead lemmas, re-order proofs, etc.
+
+   This only works in Isabelle at the moment.  (Support is required
+   from other proof assistant authors: please suggest to them!).  You
+   must select the Isabelle setting "Theorem Dependencies" before
+   starting Isabelle, to enable gathering of data.
+
+*** Active highlighting for variables in Isabelle.
+   Moving the mouse over variables in the goal display will display
+   some information.  The information in Isabelle/Isar is the type of
+   the variable, often, but it depends on the context and may be
+   wrong.  In Isabelle/classic the type information is useless.
+   This feature is a vague hint of what could be done with proper subterm
+   markup from the Isabelle engine.  Without this, it cannot work
+   well, because no context is available for Proof General to send
+   back to the prover, so only variables bound at the outer level can 
+   have sensible information displayed, via the "term" command.
+
 
 
 
