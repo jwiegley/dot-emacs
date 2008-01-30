@@ -190,8 +190,8 @@ data if you want to preserve them."
               (= (point) here))))))
 
 (defun unicode-tokens-electric-suffix ()
-  "Detect tokens and replace them with the appropriate char.
-This can be bound to the character ending `unicode-tokens-token-suffix'
+  "Detect tokens and replace them with the appropriate string.
+This is bound to the character ending `unicode-tokens-token-suffix'
 if there is such a unique character."
   (interactive)
   (let ((pos (point))
@@ -238,6 +238,8 @@ if there is such a unique character."
 (defvar unicode-tokens-rotate-glyph-last-char nil)
 
 (defun unicode-tokens-rotate-glyph-forward (&optional n)
+  "Rotate the character before point in the current code page, by N steps.
+If no character is found at the new codepoint, no change is made."
   (interactive "p")
   (if (> (point) (point-min))
       (let* ((codept  (or (if (or (eq last-command
@@ -264,6 +266,8 @@ if there is such a unique character."
 	  (setq unicode-tokens-rotate-glyph-last-char newcode)))))
 
 (defun unicode-tokens-rotate-glyph-backward (&optional n)
+  "Rotate the character before point in the current code page, by -N steps.
+If no character is found at the new codepoint, no change is made."
   (interactive "p")
   (unicode-tokens-rotate-glyph-forward (if n (- n) -1)))
     
