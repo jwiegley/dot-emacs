@@ -13,8 +13,8 @@ See also etc/release-log.txt for minor patches.
 - Reworked icons to better match style of GNU Emacs/Gnome.
 - History for processed commands in active script buffer (M-n, M-p)
 - Undo history in read-only area discarded (see: proof-allow-undo-in-read-only)
-- proof-indent-pad-eol option removed (spurious spaces were objectionable)
 - Context menu for spans: option to undo.
+- proof-indent-pad-eol option removed (spurious spaces were objectionable)
 - Many fixes and code cleanups.
 
 *** New input mechanisms for Unicode added (preliminary version)
