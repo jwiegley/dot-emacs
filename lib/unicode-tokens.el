@@ -2,6 +2,9 @@
 ;;
 ;; Copyright(C) 2008 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
+;;
+;; $Id$
 ;;
 ;; This is a partial replacement for X-Symbol for Proof General.
 ;; STATUS: experimental.  Super/subscripts not yet supported.

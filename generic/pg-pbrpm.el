@@ -4,6 +4,8 @@
 ;; Authors:   Jean-Roch SOTTY, Christophe Raffalli
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
+;; $Id$
+;;
 ;; Analyse the goal buffer to produce a popup menu.
 ;;
 ;; NB: this code is currently XEmacs specific 

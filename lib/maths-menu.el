@@ -6,6 +6,7 @@
 ;; Keywords: convenience
 
 ;; Version for Proof General minimally modified by David Aspinall, 2007-8.
+;; $Id$
 
 
 ;; This file is free software; you can redistribute it and/or modify

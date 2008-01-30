@@ -5,7 +5,7 @@
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; proof-shell.el,v 8.15 2005/09/30 09:45:36 da Exp
+;; $Id$
 ;;
 
 (eval-when-compile

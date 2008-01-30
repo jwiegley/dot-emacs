@@ -4,6 +4,8 @@
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
+;; $Id$
+;;
 
 (eval-when-compile
   (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant

@@ -1,7 +1,10 @@
 ;;; local-vars.el --- local variables list utilities
+;;
 ;; Copyright (C) 2006 Pierre Courtieu
 ;; Authors: Pierre Courtieu
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
+;;
+;; $Id$
 
 ;; This software is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public

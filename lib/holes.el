@@ -1,5 +1,7 @@
 ;;; holes.el --- a little piece of elisp to define holes in your buffer
+;;
 ;; Copyright (C) 2001 Pierre Courtieu
+;; $Id$
 ;;
 ;; This file uses spans, an interface for extent (XEmacs) and overlays
 ;; (emacs), by Healfdene Goguen for the proofgeneral mode.

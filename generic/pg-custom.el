@@ -4,6 +4,8 @@
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
+;; $Id$
+;;
 ;;; Commentary:
 ;; 
 ;; Prover specific settings

@@ -4,8 +4,6 @@
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; Maintainer:  Proof General maintainer <da+pg-feedback@inf.ed.ac.uk>
-;;
 ;; $Id$
 ;;
 ;;; Commentary:
