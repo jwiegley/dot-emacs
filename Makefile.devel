@@ -193,8 +193,7 @@ RPMBUILD=rpmbuild --define '_topdir $(RPMTOPDIR)'
 # Temporary dmg root for building Mac OS X 10.4 disk image files.
 DMGTOPDIR=/tmp/$(NAME)-dmg
 
-RELEASENAMETAR = $(RELEASENAME).tar
-RELEASENAMETARGZ = $(RELEASENAMETAR).gz
+RELEASENAMETGZ = $(RELEASENAME).tgz
 RELEASENAMEZIP = $(RELEASENAME).zip
 # What the RPM should be called.
 RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
@@ -402,12 +401,7 @@ dist:
 	-(cd $(DISTBUILDIR); ls $(IGNOREDFILES) > ignoredfiles; echo ignoredfiles >> ignoredfiles)
 #	link the long name to short name for convenience of user
 	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
-	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) --directory $(DISTBUILDIR) --exclude-from $(DISTBUILDIR)/ignoredfiles $(RELEASENAME) $(NAME) 
-	@echo "*************************************************"
-	@echo " Making zip file..."
-	@echo "*************************************************"
-	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done)
-	(cd $(DISTBUILDIR); $(ZIP) -r $(RELEASENAMEZIP) $(RELEASENAME) -x@ignoredfiles)
+	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETGZ) --directory $(DISTBUILDIR) --exclude-from $(DISTBUILDIR)/ignoredfiles $(RELEASENAME) $(NAME) 
 #	remove temporary files made for tar/zip only
 	(cd $(DISTBUILDIR); rm -f ignoredfiles $(NAME))
 	@echo "*************************************************"
@@ -436,7 +430,7 @@ release: distclean tag  dist
 #	Otherwise cp tries to make hard link instead of symlink?!
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(LATESTNAME); ln -s  $(RELEASENAME) $(LATESTNAME))
-	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
+	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETGZ) $(LATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
 	(cd $(RELEASEDIR); echo $(PRERELEASE_TAG) > $(PREREL_TAG_FILE))
@@ -458,7 +452,7 @@ rpm:
 	mkdir -p $(RPMTOPDIR)/SPECS
 	mkdir -p $(RPMTOPDIR)/SOURCES
 	mkdir -p $(RPMTOPDIR)/BUILD
-	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETARGZ)
+	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETGZ)
 
 ############################################################
 ##
@@ -481,7 +475,7 @@ dmg:
 	mkdir -p $(RPMTOPDIR)/SPECS
 	mkdir -p $(RPMTOPDIR)/SOURCES
 	mkdir -p $(RPMTOPDIR)/BUILD
-	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETARGZ)
+	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETGZ)
 
 ############################################################
 ##
@@ -548,7 +542,7 @@ distinstall:
 	rm -rf $(DISTINSTALLDIR)/$(NAME)
 	mkdir -p $(DISTINSTALLDIR)
 	(cd $(DISTINSTALLDIR); \
-	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ); \
+	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETGZ); \
 	 mv $(RELEASENAME) $(NAME))
 
 ############################################################
