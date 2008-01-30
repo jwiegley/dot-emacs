@@ -30,6 +30,10 @@
 ;; Tokens are used for programs that do not understand a Unicode encoding.
 ;; 
 
+;; TODO:
+;; -- perhaps separate out short-cut input method and don't use for tokens
+;; -- cleanup insertion functions
+;; -- investigate testing for an appropriate glyph
 
 (require 'cl)
 
