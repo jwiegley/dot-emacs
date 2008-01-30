@@ -75,7 +75,7 @@ in future if we have just activated it for this buffer."
 
 
 ;;;
-;;; Interface to custom (via proof-set-value)
+;;; Interface to custom to dynamically change tables (via proof-set-value)
 ;;;
 
 (defun proof-token-name-alist ()
@@ -93,6 +93,13 @@ Switch off tokens in all buffers, recalculate maps, turn on again."
        (proof-buffers-in-mode proof-mode-for-script)
        (unicode-tokens-mode 1)))))
   
+(defun proof-shortcut-alist ()
+  "Function called after the shortcut alist has been changed.
+Updates the input mapping for reading shortcuts."
+  (when proof-unicode-tokens-initialised ; not on startup
+    (setq unicode-tokens-shortcut-alist (proof-ass shortcut-alist))
+    (unicode-tokens-initialise)))
+
 ;;;
 ;;; Interface to shell
 ;;;
