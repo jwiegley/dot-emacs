@@ -162,8 +162,6 @@ EMACSFLAGS=-q -no-site-file
 
 # GNU version of tar, please
 TAR=tar
-# zip utility
-ZIP=zip
 
 # Files not to include the distribution area or tarball 
 # FIXME: really this should be an opt-in list!
@@ -194,8 +192,6 @@ RPMBUILD=rpmbuild --define '_topdir $(RPMTOPDIR)'
 DMGTOPDIR=/tmp/$(NAME)-dmg
 
 RELEASENAMETGZ = $(RELEASENAME).tgz
-RELEASENAMEZIP = $(RELEASENAME).zip
-# What the RPM should be called.
 RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 
 # Files not kept under cvs to clean away.
@@ -209,9 +205,6 @@ DISTINSTALLDIR=/export/local/share/elisp
 SUBDIRS=$(ELISP_DIRS) etc doc images
 
 PWD=$(shell pwd)
-
-%.gz:	%
-	gzip -f $*
 
 FORCE:
 
@@ -430,8 +423,7 @@ release: distclean tag  dist
 #	Otherwise cp tries to make hard link instead of symlink?!
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(LATESTNAME); ln -s  $(RELEASENAME) $(LATESTNAME))
-	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETGZ) $(LATESTNAME).tar.gz)
-	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
+	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETGZ) $(LATESTNAME).tgz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
 	(cd $(RELEASEDIR); echo $(PRERELEASE_TAG) > $(PREREL_TAG_FILE))
 	@echo "*************************************************"
