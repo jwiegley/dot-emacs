@@ -911,7 +911,7 @@ Used by `coq-goal-command-p'"
 (defun coq-first-abstr-regexp (paren end)
   (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end)) 
 
-(defvar coq-font-lock-terms-1
+(defvar coq-font-lock-terms
   (list
    ;; lambda binders
    (list (coq-first-abstr-regexp "\\<fun\\>" "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
@@ -925,16 +925,6 @@ Used by `coq-goal-command-p'"
    (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
    )
   "*Font-lock table for Coq terms.")
-
- (defcustom coq-variable-highlight-enable t
-  "If non-nil, tries to highlight variables of functions and theorems with
-   font-lock-variable-name-face"
-  :type 'boolean
-  :group 'coq)
-
-
- (defvar coq-font-lock-terms
-   (if coq-variable-highlight-enable coq-font-lock-terms-1 'nil))
 
 
 ;; According to Coq, "Definition" is both a declaration and a goal.
@@ -959,12 +949,9 @@ Used by `coq-goal-command-p'"
   (concat "\\(" (proof-ids-to-regexp coq-keywords-goal)
  	  "\\)\\s-+\\(" coq-id "\\)\\s-*:?"))
 
-(defconst coq-decl-with-hole-regexp-1
+(defconst coq-decl-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
  	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
-
-(defconst coq-decl-with-hole-regexp
-  (if coq-variable-highlight-enable coq-decl-with-hole-regexp-1 'nil))
 
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
