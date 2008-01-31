@@ -450,9 +450,12 @@ signals to the remote host."
   :group 'proof-general
   :prefix "proof-")
   
+;; TODO: get rid of this list.  Does 'default work widely enough
+;; by now?
 (defconst pg-defface-window-systems 
   '(x            ;; bog standard
     mswindows    ;; Windows
+    w32	         ;; Windows
     gtk          ;; gtk emacs (obsolete?)
     mac          ;; used by Aquamacs
     carbon       ;; used by Carbon XEmacs
@@ -474,7 +477,6 @@ not listed here, you may not get the correct syntax colouring behaviour.")
 		     (list (list (list 'type ty) '(class color)
 				 (list 'background 'dark))
 			   (quote ,bd))))
-     ;; NOTE: see proof-compat.el for possible window-system values
      pg-defface-window-systems))
     (list (list t (quote ,ow)))))
 
