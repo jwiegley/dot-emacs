@@ -143,6 +143,11 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
 ;;; Subterm and PBP markup (goals and possibly response buffer)
 ;;; 
 
+(defconst pg-assoc-active-area-keymap 
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] 'pg-goals-button-action)
+    map))
+
 (defun pg-assoc-make-top-span (start end)
   "Make a top span (goal/hyp area) for mouse active output in START END."
   (let (span typname)
@@ -170,7 +175,15 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
     (setq span (span-make start (point)))
     (span-set-property span 'mouse-face 'highlight)
     (span-set-property span 'face 'proof-active-area-face)
-    (span-set-property span 'proof-top-element typname)))
+    (span-set-property span 'proof-top-element typname)
+    (span-set-property span 'keymap pg-assoc-active-area-keymap)
+    (span-set-property span 'help-echo 
+		       (if (eq (current-buffer) proof-goals-buffer)
+			   "mouse-1: proof-by-pointing action"
+			 "mouse-1: copy-paste and send back to prover"))))
+
+
+
 
 (defun pg-assoc-analyse-structure (start end)
   "Analyse the region between START and END for subterm and PBP markup.
