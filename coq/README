@@ -6,17 +6,14 @@ Later contributions by Patrick Loiseleur, Pierre Courtieu,
 
 Status:		supported
 Maintainer:	Pierre Courtieu
-=Coq version:	6.3, 6.3.1, 7.x, 8.0
+Coq version:	8.0, 8.1
 Coq homepage:	http://coq.inria.fr/
 
 ===========================================================================
 
-Coq Proof General has experimental multiple file handling for some
-versions.  It does not have support for proof by pointing.
-
-There is support for X Symbol, using simple character sequences rather
-than a special language of tokens (which works well with V8's new
-syntax!).  See notes below.
+Coq Proof General has support for X Symbol, using simple character
+sequences rather than a special language of tokens (which works well
+with V8's new syntax!).  See notes below.
 
 There is a tags program, coqtags.
 
