@@ -20,7 +20,7 @@
 # The default path should work if you are using the Proof General RPM
 # or unpack Proof General in your home directory.
 # NB: no trailing backslash here!
-PGHOMEDEFAULT=/usr/share/emacs/site-lisp/ProofGeneral
+PGHOMEDEFAULT=$HOME/ProofGeneral
 
 # Try to find a default Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
