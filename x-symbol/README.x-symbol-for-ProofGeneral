@@ -4,9 +4,14 @@ The code in this directory is taken from
 
 This is version 4.5.1-beta (dated 2003-05-11 15:00)
 
-No changes have been made for Proof General except the addition of the
-string "[Proof General]" to x-symbol-version and the addition of
-18pt and 24pt fonts [see etc/bigfonts] (thanks to Clemens Ballarin).  
+Some changes have been made for Proof General, including:
+
+* the addition of 18pt and 24pt fonts, see etc/bigfonts.
+  (thanks to Clemens Ballarin).  
+* the addition of a mechanism to use Norbert Voelker's isaxsymb1.ttf 
+  (see etc/fonts-ttf) automatically on Mac using Carbon Emacs.
+* addition of the string "[Proof General]" to x-symbol-version
+
 
 The following rearrangements from the package directory layout have
 been made:
