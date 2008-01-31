@@ -118,7 +118,7 @@ Default is now 8.1 (if no coqtop is found the path).
     These two functions allow to insert a tactic or command with
     completion in the mini-buffer.
 
-*** New variables coq-user-commands-db and coq-user-tactics-db
+*** New variables coq-user-commands-db, coq-user-keywords, coq-user-tactics-db
 
     User defined tactics/commands information.  See C-h v
     coq-syntax-db for syntax. It is not necessary to add your own
@@ -126,12 +126,16 @@ Default is now 8.1 (if no coqtop is found the path).
     synchronizing/backtracking system). You may however do so for the
     following reasons:
 
-    1 your tactics/commands will be colorized by font-lock
+    1 your tactics/commands/keyword will be colorized by font-lock
 
     2 your tactics/commands will be added to the menu and to completion
     when calling coq-insert-tactic/command (see below)
 
     3 you may define an abbreviation for your tactic/command.
+
+    The file coq/ex-ssreflect.v contains an example of such
+    customization, together with a coloured script containing
+    user-defined tactics/commands/keywords.
 
 *** automatic insertion of "match...with" for a given type
 

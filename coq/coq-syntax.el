@@ -4,7 +4,11 @@
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
+<<<<<<< coq-syntax.el
 ;; $Id$
+=======
+;; $Id$
+>>>>>>> 9.0
 
 (require 'proof-syntax)
 (require 'coq-db)
@@ -927,6 +931,7 @@ Used by `coq-goal-command-p'"
   "*Font-lock table for Coq terms.")
 
 
+
 ;; According to Coq, "Definition" is both a declaration and a goal.
 ;; It is understood here as being a goal.  This is important for
 ;; recognizing global identifiers, see coq-global-p.
@@ -952,6 +957,9 @@ Used by `coq-goal-command-p'"
 (defconst coq-decl-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
  	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
+
+;;  (defconst coq-decl-with-hole-regexp
+;;    (if coq-variable-highlight-enable coq-decl-with-hole-regexp-1 'nil))
 
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
@@ -993,6 +1001,7 @@ Used by `coq-goal-command-p'"
     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face)
     ;; Remove spurious variable and function faces on commas.
     '(proof-zap-commas))))
+
 (defvar coq-font-lock-keywords coq-font-lock-keywords-1)
 
 (defun coq-init-syntax-table ()
