@@ -10,6 +10,7 @@ Some changes have been made for Proof General, including:
   (thanks to Clemens Ballarin).  
 * the addition of a mechanism to use Norbert Voelker's isaxsymb1.ttf 
   (see etc/fonts-ttf) automatically on Mac using Carbon Emacs.
+  You need to install isaxsymb1.ttf into Font Book
 * addition of the string "[Proof General]" to x-symbol-version
 
 
