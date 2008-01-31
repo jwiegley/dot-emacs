@@ -72,6 +72,9 @@ isar-find-theorems-form or isar-find-theorems-minibuffer.
 
 *** No more support for coq 7.x
 
+*** Support for ssreflect proof mode
+Support added by Assia Mahboubi.
+
 *** coq 8.0 compatibility mode
 
 If coq does not detect the good coq version at startup put one of
