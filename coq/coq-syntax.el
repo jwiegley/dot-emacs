@@ -7,6 +7,7 @@
 ;; $Id$
 
 (require 'proof-syntax)
+(require 'proof-utils)                  ; proof-locate-executable
 (require 'coq-db)
 
 (defcustom coq-prog-name   ;; da: moved from coq.el since needed here
