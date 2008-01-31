@@ -305,11 +305,6 @@ without adjusting window layout."
       :style toggle
       :selected proof-disappearing-proofs]
 
-;     ["Output Highlighting" proof-output-fontify-toggle
-;      :active t
-;      :style toggle
-;      :selected proof-output-fontify-enable]
-
      ["Strict Read Only" proof-strict-read-only-toggle
       :style toggle
       :selected proof-strict-read-only]
@@ -318,22 +313,14 @@ without adjusting window layout."
       (progn
 	(unless x-symbol-mode (proof-x-symbol-toggle 0))
 	(proof-x-symbol-toggle (if x-symbol-mode 0 1)))
-      :active (and (not (and (boundp 'unicode-tokens-mode) 
-			     unicode-tokens-mode))
-		   (proof-x-symbol-support-maybe-available))
+      :active (and 
+	       ;; X-Symbol breaks abruptly on recent 23 versions
+	       (not (>= emacs-major-version 23))
+	       (not (and (boundp 'unicode-tokens-mode) 
+			 unicode-tokens-mode))
+	       (proof-x-symbol-support-maybe-available))
       :style toggle
       :selected (and (boundp 'x-symbol-mode) x-symbol-mode)]
-
-;; too many options and not working anyway
-;;      ["X-Symbol Unicode"  
-;; 	      (progn
-;;  		(customize-set-variable 'x-symbol-use-unicode t)
-;; 		(proof-x-symbol-toggle (if x-symbol-mode 0 1)))
-;;       :active  (and (proof-x-symbol-support-maybe-available)
-;; 		    (not (and (featurep 'x-symbol) (not x-symbol-use-unicode))))
-;;       :style toggle
-;;       :selected (and (boundp 'x-symbol-mode) x-symbol-mode
-;; 		     x-symbol-use-unicode)]
 
      ["Unicode Tokens" 
       (progn
