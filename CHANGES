@@ -9,7 +9,7 @@ See also etc/release-log.txt for minor patches.
 *** Fixes and additions, patches for recent Emacs versions
 
 - Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
-- X-Symbol support on native Mac Emacs (specifically Carbon Emacs 22.X)
+- Partial X-Symbol support on native Mac Emacs (specifically Carbon Emacs 22.X)
 - Workarounds for bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
 - Reworked icons to better match style of GNU Emacs/Gnome.
 - History for processed commands in active script buffer (M-n, M-p)
