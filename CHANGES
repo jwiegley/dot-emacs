@@ -22,14 +22,9 @@ Please report problems and send patches to:
 
 *** X-Symbol support on native Mac Emacs
 
-This works for Carbon Emacs version of GNU Emacs 22.X (available at
-http://homepage.mac.com/zenitani/emacs-e.html), using 
+This works for Carbon Emacs version of GNU Emacs 22.X, using 
 Norbert Voelker's TrueType version of the X-Symbol1 font.
 See x-symbol/README.x-symbol-for-ProofGeneral
-
-Note: this does *not* work with Emacs.app, because that is based
-on GNU Emacs 23, which has recently become incompatible with X-Symbol
-because of API changes.  (Fix would be welcome; may be simple)
 
 *** New input mechanisms for Unicode added (preliminary version)
 
