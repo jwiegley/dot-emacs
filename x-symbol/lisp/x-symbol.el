@@ -1436,7 +1436,7 @@ command `x-symbol-mode' for details."
 				 (iso-latin-3 . iso-8859-3)
 				 (iso-latin-9 . iso-8859-9)
 				 (iso-latin-15 . iso-8859-15))))))
-	   (if cs (set-buffer-file-coding-system cs)))))
+	   (if cs (set-buffer-file-coding-system cs nil t)))))
   (if x-symbol-mode (x-symbol-init-font-lock))
   (if conversion
       (let ((modified (buffer-modified-p))
