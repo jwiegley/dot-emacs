@@ -23,12 +23,15 @@ A. We distribute compiled .elcs for GNU Emacs 22.1, so you will have to
    delete them and (optionally) recompile for your preferred 
    Emacs version.  Using the Makefile:
 
-     Use 'make clean' to remove all .elc files.  
-     Use 'make compile EMACS=xemacs' to recompile .elc files for "xemacs".
- 
-   Note: GNU Emacs is recommended.  To start Isabelle using the 
-   Isabelle command with GNU Emacs instead of the default xemacs, 
-   use "Isabelle -p emacs"
+     make clean			#   removes all .elc files.  
+
+   and then a command like this:
+
+     make EMACS=xemacs
+
+   Note: GNU Emacs is recommended.  XEmacs support may be removed 
+   in future.
+
    
 
 -----------------------------------------------------------------
