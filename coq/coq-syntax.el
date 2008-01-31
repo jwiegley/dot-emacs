@@ -4,11 +4,7 @@
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
-<<<<<<< coq-syntax.el
 ;; $Id$
-=======
-;; $Id$
->>>>>>> 9.0
 
 (require 'proof-syntax)
 (require 'coq-db)
