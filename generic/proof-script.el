@@ -2225,6 +2225,14 @@ appropriate."
     (proof-start-queue (proof-unprocessed-begin) (point)
 		       (list (list span cmd 'proof-done-advancing)))))
 
+;;;###autoload
+(defun proof-insert-sendback-command (cmd)
+  "Insert CMD into the proof script, execute assert-until-point."
+  (let (span)
+    (proof-goto-end-of-locked)
+    (insert "\n") ;; could be user opt 
+    (insert cmd)
+    (proof-assert-until-point)))
 
 
 
