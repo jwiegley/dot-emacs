@@ -225,8 +225,9 @@ user types by hand."
   "Examine the goals "
   (let* ((span (span-at (point) 'goalsave)) ;; goalsave means subgoal no/name
 	 (top-span (span-at (point) 'proof-top-element))
+	 (buf      (current-buffer))
 	 top-info)
-    (if (null top-span) ()
+    (when top-span
       (setq top-info (span-property top-span 'proof-top-element))
       (pop-to-buffer proof-script-buffer)
       (cond
@@ -244,11 +245,13 @@ user types by hand."
 	;; A scripting command to change goal
 	 (proof-insert-pbp-command
 	  (format pg-goals-change-goal (cdr top-info))))
+       ((and 
+	 ;; Literal command in one step, classic PBP protocol
+	 (eq (car top-info) 'lit)
+	 (equal buf proof-goals-buffer))
+	(proof-insert-pbp-command (cdr top-info)))
        ((eq (car top-info) 'lit)
-	;; A literal command to insert
-	(proof-insert-pbp-command (cdr top-info)))))))
-
-
+	(proof-insert-sendback-command (cdr top-info)))))))
 
 (defun pg-goals-get-subterm-help (spanorwin &optional obj pos)
   "Return a help string for subterm, called via 'help-echo property."
