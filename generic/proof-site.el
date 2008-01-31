@@ -50,28 +50,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Emacs and PG versions
+;; PG version
 ;;
 
-(eval-and-compile 
-  (defun pg-emacs-version-cookie ()
-    (format (if (string-match "XEmacs" emacs-version) ; (featurep 'xemacs) gets optimised!
-		"XEmacs %d.%d" "GNU Emacs %d.%d")
-	    emacs-major-version emacs-minor-version))
-  
-  (defconst pg-compiled-for (eval-when-compile (pg-emacs-version-cookie))
-    "Version of Emacs we're compiled for (or running on, if interpreted)."))
-
-(if (or (not (boundp 'emacs-major-version))
-	(< emacs-major-version 21))
-    (error "Proof General is not compatible with Emacs %s" emacs-version))
-
-(unless (equal pg-compiled-for (pg-emacs-version-cookie))
-  (error 
-   (format 
-    "Proof General was compiled for %s but running on %s: please run \"make clean; make\""
-    pg-compiled-for (pg-emacs-version-cookie))))
-  
 (eval-and-compile
 ;; WARNING: do not edit next line (constant is edited in Makefile.devel)
   (defconst proof-general-version "Proof General Version 3.7pre080130. Released by da."
