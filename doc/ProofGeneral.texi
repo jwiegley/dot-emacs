@@ -392,7 +392,8 @@ Norbert Schirmer,
 Sebastian Skalberg,
 Mike Squire, 
 Norbert Voelker,
-Tjark Weber.
+Tjark Weber
+Mitsuharu Yamamoto.
 
 Thanks to all of you (and apologies to anyone missed).
 
