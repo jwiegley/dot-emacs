@@ -26,7 +26,7 @@
 
 ;;; Code:
 
-(require 'proof-utils)			; defpgcustom
+(require 'proof-utils)		   ; defpgcustom
 (require 'proof-config)		   ; for proof-toolbar-entries-default
 
 (defpgcustom x-symbol-enable nil
