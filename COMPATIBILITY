@@ -10,11 +10,10 @@ on Linux:
  XEmacs 21.5 (beta28)  -- tested; PG has workarounds for several bugs
  XEmacs 21.4.XX	       -- tested
 
-and prover versions:
+and (main) prover versions:
 
- Coq 8.1
- Isabelle2005
- Isabelle2007
+ Coq 8.0, 8.1
+ Isabelle2005, Isabelle2007
 
 Maintaining compatibility across proof assistant versions, Emacs
 versions and operating systems is a big challenge!  Please visit this

@@ -3,12 +3,10 @@
 * Known Bugs and Workarounds for Proof General.
 
 For latest, see: http://proofgeneral.inf.ed.ac.uk/trac
-
 See also FAQ:    http://proofgeneral.inf.ed.ac.uk/FAQ
 
 Generic bugs are listed here, which may affect all of the supported
-provers.  See lego/BUGS coq/BUGS, etc, for specific bug lists for each
-of the provers supported.  
+provers.  See lego/BUGS coq/BUGS, etc, for a few specific bugs.
 
 The bugs here are split into problems which apply for all Emacs
 versions, and those which only apply to particular versions.
@@ -18,23 +16,13 @@ PG are mentioned in the FAQ.
 
 * Reporting bugs
 
-If you have a problem that is not mentioned here, please contact me at
-the address above.  Please describe your problem carefully, include a
-short demonstration file and tell me the exact version of Emacs and
-Proof General that you are using.  You can use the menu command
-
-  Proof General -> Help -> Send Bug Report
-
-to conveniently include the proper version numbers in your message.
+If you have a problem that is not mentioned here, please visit the
+Trac at the address above to add a ticket.  Please describe your
+problem carefully, include a short demonstration file and tell us the
+exact version of Emacs and Proof General that you are using.
 
 
 * Generic problems, for all Emacs versions
-
-** X-Symbol support removed from "secondary" provers (HOL, ACL2, LEGO, Twelf)
-
-If anyone was actually using this, please let me know.  It should be
-very easy to revive by copying coq/x-symbol-coq.el (although a generic
-version might be desirable).
 
 ** Visibility control doesn't distinguish theorems with same name.
 
@@ -101,8 +89,7 @@ If you do, use proof-restart-scripting to be sure of synchronizing.
 Because of read-only restrictions of the protected region.  
 This is an inherent problem with outline because it works by 
 modifying the buffer.
-Workaround: none, nevermind.  (If it's hugely needed we could support
-modified outline commands).
+Workaround: none.  
 
 ** When proof-rsh-command is set to "ssh host", C-c C-c broken
 
@@ -136,7 +123,7 @@ bug which may be Emacs-related: from now on I will add a note here
 rather than try to investigate older Emacsen and add more patches 
 to the code.
 
-** XEmacs "nesting too deep for parser" warnings (unresolved in any XEmacs)
+** XEmacs "nesting too deep for parser" warnings
 
 This is sometimes triggered by very complex output, typically with
 Isabelle's tracing messages when font-lock is called. 
@@ -161,29 +148,7 @@ been changed on the file system you see the error:
 
 As a result fontification, etc, fails. Workaround: use C-x C-v
 instead.  This problem has gone away since 21.4.12 or so.
-
 Update: this has reappeared in version 21.4.15.
-
-
-** GNU Emacs menus: options not updated dynamically, positions erratic, etc.
-
-Also, proof assistant specific menus only appear in scripting buffer.
-These are drawbacks with GNU Emacs menu support on early versions.  As
-of Emacs 21.3, these glitches have gone.  (Although bugs have been
-known to return).
-
-** GNU Emacs faces sometimes faulty, esp in console mode
-
-Emacs support is let down in console mode, because faces are not
-implemented there.  (XEmacs can use colours and underline in console
-mode)
-
-** If you have problems using Mule versions of GNU Emacs 
-
-Beware setting standard-display-european: Pascal Brisset suggests
-adding this line to .emacs should help:
-
-   (setq process-coding-system-alist '(("" . no-conversion))) 
 
 ** XEmacs undo in the script buffer can edit the "uneditable region"
 
@@ -191,42 +156,4 @@ Test case: Insert some nonsense text after the locked region.
 Kill the line. Process to the next command.
 Press C-x u, nonsense text appears in locked region.
 Workaround: take care with undo in XEmacs.
-
-** X-Symbol on GNU Emacs
-
-X-Symbol 4.X isn't finished yet and will only supported GNU Emacs from
-GNU Emacs 21.4 onwards.  For the time being there are a few minor
-glitches (buffer gets modified during decoding,
-subscripts/superscripts don't work, output colouration may spill into
-adjacent symbols...), but on the whole it is quite usable (and
-rather faster than XEmacs).  For more information about X-Symbol,
-see http://x-symbol.sourceforge.net.
-
-** As of GNU Emacs 20.3, multi-byte character codes are used.  
-
-This breaks some of the code in Proof General, which is turned off in
-case the suspicious looking function
-toggle-enable-multibyte-characters is present.  The code that is
-turned off deals with term markup for proof by pointing, which only
-affects LEGO at the moment.  This problem could affect forthcoming
-versions of XEmacs (but hasn't as far as XEmacs 21.4).  [Can anybody
-tell us if it affects Mule versions of Emacs?]  
-
-Workaround: for LEGO pbp, use GNU Emacs 20.2, or XEmacs 20.4/later.
-
-** XEmacs sometimes has strange start-up delays of several seconds.
-
-Possibly due to face allocation, when running remotely and
-displaying on an 8-bit display.  One workaround (and in fact the
-recommended way of working) is to run XEmacs locally and only
-the proof assistant on your fast compute server, by setting 
-proof-rsh-command.
-
-** Looping in Emacs 21.2
-
-Several (odd) circumstances cause this version of Emacs to loop,
-in particular, when moving the cursor into multi-byte characters.
-Workarounds have been added to avoid this: you may see junk
-characters in the shell buffer as a side effect. 
-
 

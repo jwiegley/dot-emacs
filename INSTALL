@@ -32,7 +32,7 @@ If none of these files help, then contact me via the address below.
    University of Edinburgh.
    Edinburgh.
    
-   http://proofgeneral.inf.ed.ac.uk
+   http://proofgeneral.inf.ed.ac.uk/trac
 
 
 
@@ -91,11 +91,14 @@ to your .emacs file.
 Running on Windows
 ------------------
 
+For tips, please see here:
+
+http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsOnWindows
+
 Note that Windows compatibility isn't tested by the maintainers.  If
 you discover problems, please send a fix to the address above.
 
-We recommend XEmacs compiled for Windows, see http://www.xemacs.org.
-Some Isabelle users have reported better operation with cygwin XEmacs.
+We recommend EmacsW32 http://www.ourcomments.org/Emacs/EmacsW32.html
 
 Unpack the Proof General tar or zip file, and rename the folder to
 "ProofGeneral" to remove the version number.  Put a line like this:
@@ -103,26 +106,34 @@ Unpack the Proof General tar or zip file, and rename the folder to
    (load-file "c:\\ProofGeneral\\generic\\proof-site.el")
 
 into .emacs.  You should put .emacs in value of HOME if you set that,
-or else in directory you installled XEmacs in, e.g.  
-c:\Program Files\XEmacs\.emacs
+or else in directory you installled Emacs in, e.g.  
+c:\Program Files\Emacs\.emacs
 
 
 Running on Mac OS X
 -------------------
 
-Larry Paulson maintains a web page on running Isabelle on Mac OS X
-which includes instructions for using Proof General in that
-environment.  See here:
+Please see here:
 
-   http://www.cl.cam.ac.uk/Research/HVG/Isabelle/macosx.html
+http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsOnMacOSX
 
-His brief summary is:
- 
-  1. Install X11 or OroborOSX.
-  2. Install XEmacs, or install GNU Emacs and recompile Proof General.
 
-If you use XEmacs bear in mind the note below (if you are using fink,
-install xemacs-sumo-pkg).
+
+Byte Compilation.
+-----------------
+
+Compilation of the Emacs lisp files improves efficiency but can
+sometimes cause compatibility problems.  In particular, byte compiled
+files are generally not compatible between XEmacs and GNU Emacs.
+
+We distribute .elcs for GNU Emacs, so you will have to delete
+them and (optionally) recompile for XEmacs.
+
+Use 'make clean' to remove all .elc files.  
+Use 'make compile' to recompile .elc files.
+
+Check that the Makefile sets EMACS to your Emacs executable.
+
 
 
 Dependency on Other Emacs Packages
@@ -152,21 +163,6 @@ The X Symbol package is now bundled with Proof General so you
 do not need to download it separately.
 
 
-
-Byte Compilation.
------------------
-
-Compilation of the Emacs lisp files improves efficiency but can
-sometimes cause compatibility problems.  In particular, byte compiled
-files are generally not compatible between XEmacs and GNU Emacs.
-
-We distribute .elcs for XEmacs, so you will have to delete
-them and (optionally) recompile for GNU Emacs.
-
-Use 'make clean' to remove all .elc files.  
-Use 'make compile' to recompile .elc files.
-
-Check that the Makefile sets EMACS to your Emacs executable.
 
 
 Site-wide Installation

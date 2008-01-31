@@ -1,11 +1,12 @@
 	    Proof General --- Organize your proofs! 
 
 Proof General is a generic Emacs interface for proof assistants.
-
-This is version 3.7 of Proof General (see about screen for exact version).   
-
 The aim of the Proof General project is to provide a powerful, generic
 environment for using interactive proof assistants.
+
+This is version 3.7 of Proof General. 
+(see About screen for exact version).   
+
 
 See
     INSTALL	   for installation details.
@@ -38,12 +39,14 @@ in the subdirectories:
 
  generic/   Generic basis for Proof General
 
+
 A small number of example proofs are included in each prover 
 subdirectory.   The "root2" example proofs of the irrationality
 of the square root of 2 were proofs written as a response
 to a challenge of Freek Wiedijk in his comparison of different
 theorem provers, see http://www.cs.kun.nl/~freek/comparison/.
 Those proof scripts are copyright by their named authors.
+(NB: some of these may have rusted)
 
 Check BUGS files for problems and issues.  Please report new bugs
 on the Trac site at http://proofgeneral.inf.ed.ac.uk/trac.
