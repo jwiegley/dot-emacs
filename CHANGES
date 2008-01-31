@@ -1,6 +1,9 @@
--*- outline -*-
+-*- outline -*-  
 
 See also etc/release-log.txt for minor patches.
+Please report problems and send patches to:
+
+  http://proofgeneral.inf.ed.ac.uk/trac
 
 * Summary of Changes for Proof General 3.7 from 3.5  (via 3.6pre)
 
@@ -9,7 +12,6 @@ See also etc/release-log.txt for minor patches.
 *** Fixes and additions, patches for recent Emacs versions
 
 - Improved display of X-Symbol subscript/superscripts in GNU Emacs 22.1.
-- Partial X-Symbol support on native Mac Emacs (specifically Carbon Emacs 22.X)
 - Workarounds for bugs in XEmacs 21.5 beta (but GNU Emacs now preferred).
 - Reworked icons to better match style of GNU Emacs/Gnome.
 - History for processed commands in active script buffer (M-n, M-p)
@@ -17,6 +19,17 @@ See also etc/release-log.txt for minor patches.
 - Context menu for spans: option to undo.
 - proof-indent-pad-eol option removed (spurious spaces were objectionable)
 - Many fixes and code cleanups.
+
+*** X-Symbol support on native Mac Emacs
+
+This works for Carbon Emacs version of GNU Emacs 22.X (available at
+http://homepage.mac.com/zenitani/emacs-e.html), using 
+Norbert Voelker's TrueType version of the X-Symbol1 font.
+See x-symbol/README.x-symbol-for-ProofGeneral
+
+Note: this does *not* work with Emacs.app, because that is based
+on GNU Emacs 23, which has recently become incompatible with X-Symbol
+because of API changes.  (Fix would be welcome; may be simple)
 
 *** New input mechanisms for Unicode added (preliminary version)
 
@@ -27,14 +40,17 @@ Unicode Tokens mode, an experimental X-Symbol replacement, for
 displaying ASCII tokens as Unicode strings (for Isabelle) and
 providing shortcut input for Unicode sequences (for Isabelle, Coq).
 Much simpler than X-Symbol, but requires a suitably rich Unicode font.
-GNU Emacs >=23 recommended.  
-Try Options -> Set Fontset to find a good font (e.g. "standard").  
-Customize the tables with M-x customize-variable isar-token-name-alist
-			  M-x customize-variable isar-shortcut-alist
+GNU Emacs >=23 recommended but works elsewhere.  
+
+Try Options -> Set Fontset to find a good font (e.g. "standard").
+Customize the tables with 
+
+  M-x customize-variable isar-token-name-alist
+  M-x customize-variable isar-shortcut-alist
+
 or edit isar/isar-unicode-tokens.el.  Similarly for Coq.
 Symbol rotation (next/previous glyph) on C-, and C-.  (GE>=23)
 
-These are both available at Proof-General -> Options.
 
 
 *** UTF-8 support for 8-bit clean provers
