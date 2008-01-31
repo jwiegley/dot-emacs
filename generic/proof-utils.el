@@ -48,7 +48,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
 
 
-(require 'proof-compat)		        ; for pg-defface-window-systems
+(require 'proof-compat)		        ; 
 (require 'proof-config)			; config vars
 (require 'bufhist)			; bufhist 
 (require 'proof-syntax)			; syntax utils
