@@ -145,7 +145,9 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
 
 (defconst pg-assoc-active-area-keymap 
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'pg-goals-button-action)
+    (if (featurep 'xemacs)
+	(define-key map [(button1)] 'pg-goals-button-action)
+      (define-key map [mouse-1] 'pg-goals-button-action))
     map))
 
 (defun pg-assoc-make-top-span (start end)
@@ -176,7 +178,7 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
     (span-set-property span 'mouse-face 'highlight)
     (span-set-property span 'face 'proof-active-area-face)
     (span-set-property span 'proof-top-element typname)
-    (span-set-property span 'keymap pg-assoc-active-area-keymap)
+    (set-span-keymap span pg-assoc-active-area-keymap)
     (span-set-property span 'help-echo 
 		       (if (eq (current-buffer) proof-goals-buffer)
 			   "mouse-1: proof-by-pointing action"
