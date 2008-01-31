@@ -133,7 +133,7 @@ On Windows you might need something like:
 (setq tags-always-exact t) ; Tags is unusable with Coq library otherwise:
 
 (defun coq-library-directory () 
-  (let ((c (substring (shell-command-to-string (concat coq-prog-name " -where")) 0 -1 )))
+  (let ((c (substring (shell-command-to-string "coqtop -where") 0 -1 )))
     (if (string-match c "not found")
 	  "/usr/local/lib/coq"
       c)))
