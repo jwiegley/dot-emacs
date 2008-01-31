@@ -4,10 +4,16 @@
 ## Author:  David Aspinall <David.Aspinall@ed.ac.uk>
 ##
 ##  make		- do "compile" and "scripts" targets
-##  make compile	- make .elc's in a single session
+##  make compile	- make .elc's 
 ##  make scripts	- edit paths to bash/perl/PGHOME in scripts
 ##  make install	- install into system directories
 ##  make clean		- return to clean source
+##
+## Edit the EMACS setting below or call with an explicit one, like this:
+##
+##     make EMACS=xemacs
+## or
+##     make EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
 ##
 ## $Id$
 ## 
@@ -109,8 +115,6 @@ elc:	$(ELC)
 ##
 ## Default targets
 ##
-
-default: compile scripts
 
 all:	compile scripts
 
