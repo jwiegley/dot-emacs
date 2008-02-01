@@ -9,7 +9,7 @@
 (defun org-message-open (message-id)
   "Visit the nnml message with the given Message-ID."
   (start-process (concat "open message:" message-id) nil
-		 "open" (concat "message:" message-id)))
+		 "open" (concat "message://<" (substring message-id 2) ">")))
 
 (defun org-insert-message-link ()
   (interactive)

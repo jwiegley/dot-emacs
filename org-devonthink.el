@@ -14,7 +14,7 @@
 	tell application \"DEVONthink Pro\"
 		activate
 		open window for record (get record at \"%s\")
-	end tell" record-location)))
+	end tell" (replace-regexp-in-string "%20" " " record-location))))
 
 (defun org-dtp-store-link ()
   "Store a link to an dtp e-mail message by Message-ID."
