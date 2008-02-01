@@ -912,7 +912,14 @@ Used by `coq-goal-command-p'"
 (defun coq-first-abstr-regexp (paren end)
   (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end)) 
 
+(defcustom coq-variable-highlight-enable t
+  "Activates partial bound variable highlighting"
+  :type 'boolean
+  :group 'coq)
+
+
 (defvar coq-font-lock-terms
+  (if coq-variable-highlight-enable
   (list
    ;; lambda binders
    (list (coq-first-abstr-regexp "\\<fun\\>" "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
@@ -924,7 +931,7 @@ Used by `coq-goal-command-p'"
                                         ;               (list 0 font-lock-variable-name-face)))
    ;; parenthesized binders
    (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
-   )
+   ))
   "*Font-lock table for Coq terms.")
 
 
@@ -975,9 +982,9 @@ Used by `coq-goal-command-p'"
 ;;  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(.]*:\\|.*)[^(.]*:=\\)"))
 ;;"\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>"
 (defvar coq-font-lock-keywords-1
-  (append
-   coq-font-lock-terms
-   (list
+   (append
+    coq-font-lock-terms
+    (list
     (cons (proof-ids-to-regexp coq-solve-tactics) 'coq-solve-tactics-face)
     (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
     (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
@@ -991,8 +998,9 @@ Used by `coq-goal-command-p'"
           (list 2 'font-lock-keyword-face t)
           (list 1 'font-lock-function-name-face t))
 
-    (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
-    (list coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)
+    (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face))
+    (if coq-variable-highlight-enable (list (list coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)))
+    (list
     (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
     (list coq-with-with-hole-regexp 2 'font-lock-function-name-face)
     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face)
