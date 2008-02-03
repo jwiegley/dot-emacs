@@ -272,7 +272,10 @@ test."
 	  (aset char-coding-system-table (make-char name) t))
       (when registry
 	(set-fontset-font "fontset-default" name (cons "*" registry))
-	(when (eq graphic 0) (set-font-encoding registry name 0))
+; da: set-font-encoding call breaks on Emacs 23
+;	(when (eq graphic 0) (set-font-encoding registry name 0))
+; this patch not good enough: characters in xsymb font still lost
+	(when (eq graphic 0) (set-font-encoding registry name))
 	(when ccl-program
 	  (add-to-list 'font-ccl-encoder-alist (cons registry ccl-program))))
       name)))
@@ -417,25 +420,32 @@ are separated with SEPARATOR (\", \" by default)."
 
 (defalias 'x-symbol-window-width 'window-width)
 
-;; da: emacs-u-22 version: problematic (get invalid codes later for is88859-3)
-;; (defun x-symbol-set-face-font (face font charsets default)
-;;   (let ((fontset (replace-in-string  (symbol-name face) "-" "")))
-;;     (unless (query-fontset fontset)
-;;       (create-fontset-from-ascii-font font nil fontset))
-;;     (dolist (charset charsets)
-;;       (when charset (set-fontset-font fontset charset font)))
-;;     (set-face-font face fontset)))
-
+(if
+    (>= emacs-major-version 23)
+  ;; da: emacs-23 version: maybe OK...
 (defun x-symbol-set-face-font (face font charsets default)
-  (let ((fontset (concat "fontset-" (symbol-name face))))
-    (unless (query-fontset fontset)
-      ;; We assume that the first time around we're using latin-8859-1
-      (new-fontset fontset
-		   (x-complement-fontset-spec (make-vector 14 "*")
-					      (list (cons 'ascii font)))))
-    (dolist (charset charsets)
-      (when charset (set-fontset-font fontset charset font)))
-    (set-face-font face fontset)))
+   (let* ((fontset-name (concat "fontset-"
+				(replace-in-string  
+				 (symbol-name face) "-" "")))
+	  (decomposed (x-decompose-font-name font))
+	  fontset)
+     (aset decomposed 11 fontset-name)
+     (setq fontset (new-fontset (x-compose-font-name decomposed)
+				(list (cons 'ascii font))))
+     (dolist (charset charsets)
+       (when charset (set-fontset-font fontset charset font)))
+     (set-face-font face fontset)))
+;; Otherwise, emacs-21/22 version
+ (defun x-symbol-set-face-font (face font charsets default)
+   (let ((fontset (concat "fontset-" (symbol-name face))))
+     (unless (query-fontset fontset)
+       ;; We assume that the first time around we're using latin-8859-1
+       (new-fontset fontset
+ 		   (x-complement-fontset-spec (make-vector 14 "*")
+ 					      (list (cons 'ascii font)))))
+     (dolist (charset charsets)
+       (when charset (set-fontset-font fontset charset font)))
+     (set-face-font face fontset))))
 
 (defun x-symbol-event-matches-key-specifier-p (event specifier)
   (if (consp specifier) (setq specifier (event-convert-list specifier)))

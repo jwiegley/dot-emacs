@@ -4231,7 +4231,8 @@ uses it with TOKEN and CHARSYM."
     (breve 162 . t)
     (sterling 163 . t)
     (currency 164 . t)
-    (unused-l3/165 165 . unused)
+;; da: error in Emacs 23 anyway
+;;   (unused-l3/165 165 . unused)
     (Hcircumflex 166 (circumflex "H" hcircumflex))
     (section 167 . t)
     (diaeresis 168 . t)
@@ -4240,7 +4241,8 @@ uses it with TOKEN and CHARSYM."
     (Gbreve 171 (breve "G" gbreve))
     (Jcircumflex 172 (circumflex "J" jcircumflex))
     (hyphen 173 . t)
-    (unused-l3/174 174 . unused)
+;; da: error in Emacs 23 anyway
+;;    (unused-l3/174 174 . unused)
     (Zdotaccent 175 . t)
     (degree 176 . t)
     (hbar 177 (slash "h" Hbar))
@@ -4256,12 +4258,14 @@ uses it with TOKEN and CHARSYM."
     (gbreve 187 (breve "g" Gbreve))
     (jcircumflex 188 (circumflex "j" Jcircumflex))
     (onehalf 189 . t)
-    (unused-l3/190 190 . unused)
+;; da: error in Emacs 23 anyway
+;;    (unused-l3/190 190 . unused)
     (zdotaccent 191 . t)
     (Agrave 192 . t)
     (Aacute 193 . t)
     (Acircumflex 194 . t)
-    (unused-l3/195 195 . unused)
+;; da: error in Emacs 23 anyway
+;;    (unused-l3/195 195 . unused)
     (Adiaeresis 196 . t)
     (Cdotaccent 197 (dotaccent "C" cdotaccent))
     (Ccircumflex 198 (circumflex "C" ccircumflex))
@@ -4274,7 +4278,8 @@ uses it with TOKEN and CHARSYM."
     (Iacute 205 . t)
     (Icircumflex 206 . t)
     (Idiaeresis 207 . t)
-    (unused-l3/208 208 . unused)
+;; da: error in Emacs 23 anyway
+;;    (unused-l3/208 208 . unused)
     (Ntilde 209 . t)
     (Ograve 210 . t)
     (Oacute 211 . t)
@@ -4293,7 +4298,8 @@ uses it with TOKEN and CHARSYM."
     (agrave 224 . t)
     (aacute 225 . t)
     (acircumflex 226 . t)
-    (unused-l3/227 227 . unused)
+;; da: error in Emacs 23 anyway
+;;    (unused-l3/227 227 . unused)
     (adiaeresis 228 . t)
     (cdotaccent 229 (dotaccent "c" Cdotaccent))
     (ccircumflex 230 (circumflex "c" Ccircumflex))
@@ -4306,7 +4312,8 @@ uses it with TOKEN and CHARSYM."
     (iacute 237 . t)
     (icircumflex 238 . t)
     (idiaeresis 239 . t)
-    (unused-l3/240 240 . unused)
+;; da: error in Emacs 23 anyway
+;;    (unused-l3/240 240 . unused)
     (ntilde 241 . t)
     (ograve 242 . t)
     (oacute 243 . t)
