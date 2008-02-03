@@ -313,12 +313,25 @@ Also sets `unicode-tokens-token-alist'."
 	(setq tokname (caar ulist))
 	(setq ustring (cdar ulist))
 	(setq token (format unicode-tokens-token-format tokname))
-	(nconc unicode-tokens-quail-define-rules
-	       (list (list token 
-			   (vector ustring))))
-	(setq unicode-tokens-token-alist
-	      (nconc unicode-tokens-token-alist
-		     (list (cons token ustring))))
+	(cond 
+	 ;; Some error checking (but not enough!)
+	 ((eq (length tokname) 0)
+	  (warn "Empty token name (mapped to \"%s\") in unicode tokens list"
+		ustring))
+	 ((eq (length ustring) 0)
+	  (warn "Empty token mapping, ignoring token \"%s\" in unicode tokens list"
+		token))
+	 ((assoc token unicode-tokens-token-alist)
+	  (warn "Duplicated token entry, ignoring subsequent mapping of %s" token))
+	 ((rassoc ustring unicode-tokens-token-alist)
+	  (warn "Duplicated target \"%s\", ignoring token %s" ustring token))
+	 (t
+	  (nconc unicode-tokens-quail-define-rules
+		 (list (list token 
+			     (vector ustring))))
+	  (setq unicode-tokens-token-alist
+		(nconc unicode-tokens-token-alist
+		       (list (cons token ustring))))))
 	(setq ulist (cdr ulist))))
     ;; make reverse map: convert longer ustring sequences first
     (setq unicode-tokens-ustring-alist
