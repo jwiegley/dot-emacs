@@ -238,8 +238,8 @@
     ("rparr" . "⦈")
     ("lbrakk" . "⟦")
     ("rbrakk" . "⟧")
-    ("lbrace" . "")
-    ("rbrace" . "")
+;;     ("lbrace" . "") TODO
+;;    ("rbrace" . "")
     ("guillemotleft" . "«")
     ("guillemotright" . "»")
     ("bottom" . "⊥")
@@ -383,7 +383,7 @@
     ("lozenge" . "◊")
     ("wp" . "℘")
     ("wrong" . "≀") ;; #x002307
-    ("struct" . "")
+;;    ("struct" . "") ;; TODO
     ("acute" . "´")
     ("index" . "ı")
     ("dieresis" . "¨")
