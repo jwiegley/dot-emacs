@@ -6,9 +6,6 @@
 ;;
 ;; $Id$
 ;;
-;; This is a partial replacement for X-Symbol for Proof General.
-;; STATUS: experimental.  Super/subscripts not yet supported.
-;;
 ;; Some functions are adapted from `xmlunicode.el' by Norman Walsh.
 ;; Created: 2004-07-21, Version: 1.6, Copyright (C) 2003 Norman Walsh
 ;;
@@ -29,11 +26,22 @@
 
 ;;; Commentary:
 ;;
-;; Functions to help insert tokens that represent Unicode characters.
-;; Tokens are used for programs that do not understand a Unicode encoding.
+;; This is a partial replacement for X-Symbol for Proof General.
+;; STATUS: experimental.  
+;;
+;; Functions to help insert tokens that represent Unicode characters
+;; and control code sequences for changing the layout.  Character
+;; tokens are useful for programs that do not understand a Unicode
+;; encoding.
 ;; 
 
 ;; TODO:
+;; -- add input methods for subscript/superscripts (further props in general)
+;; -- after change function so inserting control sequences works?
+;; -- long sub/sups should be sticky so typing inside inherits props
+;; -- make property removal more accurate/patch in font-lock
+;; -- disentangle Isabelle specific code
+;; -- liaise with font-lock to allow face setting (e.g., bold, italic)
 ;; -- perhaps separate out short-cut input method and don't use for tokens
 ;; -- cleanup insertion functions
 ;; -- investigate testing for an appropriate glyph
@@ -67,11 +75,17 @@ If not set, constructed to include glyphs for all tokens. ")
 (defvar unicode-tokens-token-suffix ";"
   "Suffix for end of tokens to insert.")
 
-(defvar unicode-tokens-token-match "&#[xX][0-9a-fA-F]+"
+(defvar unicode-tokens-control-token-match nil
   "Regexp matching tokens")
 
-(defvar unicode-tokens-hexcode-match "&#[xX]\\([0-9a-fA-F]+\\)"
+(defvar unicode-tokens-token-match "&\\([A-Za-z]\\);"
+  "Regexp matching tokens")
+
+(defvar unicode-tokens-hexcode-match "&#[xX]\\([0-9a-fA-F]+\\);"
   "Regexp matching numeric token string")
+
+(defvar unicode-tokens-next-character-regexp "&#[xX]\\([0-9a-fA-F]+\\);\\|."
+  "Regexp matching a logical character following a control code.")
 
 (defvar unicode-tokens-shortcut-alist
   "An alist of keyboard shortcuts to unicode strings.
@@ -99,6 +113,13 @@ Behaviour is much like abbrev.")
 ;;
 ;;; Code:
 ;;
+
+(defface mathsym
+  '((t (:slant italic)))
+  "Face used for text that is an excerpt from another document.
+This is used in Enriched mode for text explicitly marked as an excerpt."
+  :group 'proofgeneral)
+
 
 (defun unicode-tokens-insert-char (arg codepoint)
   "Insert the Unicode character identified by CODEPOINT.
@@ -360,28 +381,129 @@ Also sets `unicode-tokens-token-alist'."
 (defvar unicode-tokens-format-entry
   '(unicode-tokens "Tokens encoding unicode characters."
 		   nil
-		   unicode-tokens-tokens-to-unicode
-		   unicode-tokens-unicode-to-tokens
+		   unicode-tokens-tokens-to-unicode ; decode
+ 		   unicode-tokens-unicode-to-tokens ; encode
 		   t nil)
   "Value for `format-alist'.")
 
+(defconst unicode-tokens-ignored-properties
+  '(vanilla type fontified)
+  "Text properties to ignore when saving files.")
+
+(defconst unicode-tokens-annotation-translations
+  '((face       (bold		"bold") ;; NB: clashes with font lock!
+		(default	))
+    (display    ((raise 0.4)    "superscript")
+		((raise -0.4)   "subscript")
+		((raise 0.35)   "superscript1")
+		((raise -0.35)  "subscript1")
+		((raise -0.3)   "idsubscript1")
+		(default	))))
+
+(defun unicode-tokens-remove-properties (start end)
+  "Remove text properties we manage between START and END."
+  ;; TODO: this is very approximate!  It removes too much (face)
+  (remove-text-properties 
+   start end
+   (mapcar 'car 
+	   unicode-tokens-annotation-translations)))
+
 (defun unicode-tokens-tokens-to-unicode (&optional start end)
+  "Decode a tokenised file for display in Emacs."
   (save-excursion
-    (goto-char (or end (point-max)))
-    (save-excursion
+    (save-restriction
+      (narrow-to-region start (or end (point-max)))
       (let ((case-fold-search proof-case-fold-search)
 	    (buffer-undo-list t)
-	    (modified (buffer-modified-p)))
-	(format-replace-strings unicode-tokens-token-alist nil start end)
-	(set-buffer-modified-p modified)))
-    (point)))
+	    (modified (buffer-modified-p))
+	    (inhibit-read-only t))
+	(setq unicode-tokens-next-control-token-seen-token nil)
+	(format-deannotate-region (point-min)
+				  (point-max)
+				  unicode-tokens-annotation-translations
+				  'unicode-tokens-next-control-token)
+	(format-replace-strings unicode-tokens-token-alist nil (point-min)
+				(point-max))
+	(set-buffer-modified-p modified))
+      (goto-char (point-max)))))
+
+(defvar unicode-tokens-next-control-token-seen-token nil
+  "Records currently open single-character control token.")
+
+(defun unicode-tokens-next-control-token ()
+  "Find next control token and interpret it.
+If `unicode-tokens-next-control-token' is non-nil, end current control sequence
+after next character (single character control sequence)."
+  (let (result)
+    (when unicode-tokens-next-control-token-seen-token
+      (if (re-search-forward unicode-tokens-next-character-regexp nil t)
+	  (setq result (list (match-end 0) (match-end 0)
+			     unicode-tokens-next-control-token-seen-token 
+			     nil)))
+      (setq unicode-tokens-next-control-token-seen-token nil))
+    (while (and (not result)
+		(re-search-forward unicode-tokens-control-token-match nil t))
+      (let*
+	  ((tok  (match-string 1))
+	   (annot
+	    (cond
+	     ((equal tok "bsup")  '("superscript" t))
+	     ((equal tok "esup")  '("superscript" nil))
+	     ((equal tok "bsub")  '("subscript" t))
+	     ((equal tok "esub")  '("subscript" nil))
+	     ((equal tok "bbold") '("bold" t))
+	     ((equal tok "ebold") '("bold" nil))
+	     ((equal tok "sup") 
+	      (list (setq unicode-tokens-next-control-token-seen-token
+			  "superscript1") t))
+	     ((equal tok "sub") 
+	      (list (setq unicode-tokens-next-control-token-seen-token
+			  "subscript1") t))
+	     ((equal tok "isub") 
+	      (list (setq unicode-tokens-next-control-token-seen-token
+			  "idsubscript1") t)))))
+	(if annot
+	    (setq result
+		  (append
+		   (list (match-beginning 0) (match-end 0))
+		   annot)))))
+    result))
   
+(defconst unicode-tokens-annotation-control-token-alist 
+  '(("bold" . ("bbold" . "ebold"))
+    ("subscript" . ("bsub" . "esub"))
+    ("superscript" . ("bsup" . "esup"))
+    ("subscript1" . ("sub"))
+    ("superscript1" . ("sup"))))
+  
+(defun unicode-tokens-make-token-annotation (annot positive)
+  "Encode a text property start/end by adding an annotation in the file."
+  (let ((toks (cdr-safe
+	       (assoc annot unicode-tokens-annotation-control-token-alist))))
+    (cond
+     ((and toks positive)
+      (format unicode-tokens-control-token-format  (car toks)))
+     ((and toks (cdr toks))
+      (format unicode-tokens-control-token-format  (cdr toks)))
+     (t ""))))
+
 (defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
+  "Encode a buffer to save as a tokenised file."
   (let ((case-fold-search proof-case-fold-search)
 	(buffer-undo-list t)
 	(modified (buffer-modified-p)))
-    (format-replace-strings unicode-tokens-ustring-alist nil start end)
-    (set-buffer-modified-p modified)))
+    (save-restriction
+      (save-excursion
+	(narrow-to-region (or start (point-min)) (or end (point-max)))
+	(format-replace-strings unicode-tokens-ustring-alist nil (point-min) (point-max))
+	(format-insert-annotations
+	 (format-annotate-region (point-min) (point-max) 
+				 unicode-tokens-annotation-translations
+				 'unicode-tokens-make-token-annotation
+				 unicode-tokens-ignored-properties))
+	(set-buffer-modified-p modified)))))
+
+
 
 
   
@@ -408,10 +530,13 @@ Also sets `unicode-tokens-token-alist'."
     (set-input-method "Unicode tokens"))
   (unless unicode-tokens-mode
     ;; leave buffer encoding as is
-    (let ((inhibit-read-only t))
+    (let ((inhibit-read-only t)
+	  (modified (buffer-modified-p)))
       ;; format is supposed to manage undo, but doesn't remap
       (setq buffer-undo-list nil) 
-      (format-encode-buffer 'unicode-tokens))
+      (format-encode-buffer 'unicode-tokens)
+      (unicode-tokens-remove-properties (point-min) (point-max))
+      (set-buffer-modified-p modified))
     (inactivate-input-method)))
 
 ;; 

@@ -16,7 +16,10 @@
 (defconst isar-token-prefix "\\<")
 (defconst isar-token-suffix ">")
 (defconst isar-token-match "\\\\<\\([a-zA-Z0-9]+\\)")
+(defconst isar-control-token-match "\\\\<^\\([a-zA-Z0-9]+\\)>")
+(defconst isar-control-token-format "\\<^%s>")
 (defconst isar-hexcode-match "\\\\<\\(#[xX][0-9A-Fa-f]+\\)")
+(defconst isar-next-character-regexp "\\\\<#[xX][0-9A-Fa-f]+>\\|.")
 
 (defcustom isar-token-name-alist
   '(; token name, unicode char sequence
