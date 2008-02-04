@@ -38,10 +38,13 @@
 	      (eval `(proof-ass ,var)))))
    '(charref-format
      token-format
+     control-token-format
      token-name-alist
      glyph-list
      token-match
+     control-token-match
      hexcode-match
+     next-character-regexp
      token-prefix
      token-suffix
      shortcut-alist))
