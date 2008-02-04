@@ -516,11 +516,13 @@ after next character (single character control sequence)."
   "Key map used for Unicode Tokens mode.")
 
 (define-minor-mode unicode-tokens-mode
-  "Minor mode for unicode token input."
-  nil 
-  " Utoks" ; input method indication already
+  "Minor mode for unicode token input." nil " Utoks"
   unicode-tokens-mode-map
+  (make-variable-buffer-local 'text-property-default-nonsticky)
   (when unicode-tokens-mode
+    (setq text-property-default-nonsticky
+	  ;; We want to use display property with stickyness
+	  (delete '(display . t) text-property-default-nonsticky))
     (if (fboundp 'set-buffer-multibyte)
 	(set-buffer-multibyte t))
     (let ((inhibit-read-only t))
@@ -529,6 +531,7 @@ after next character (single character control sequence)."
       (format-decode-buffer 'unicode-tokens))
     (set-input-method "Unicode tokens"))
   (unless unicode-tokens-mode
+    (add-to-list 'text-property-default-nonsticky '(display . t))
     ;; leave buffer encoding as is
     (let ((inhibit-read-only t)
 	  (modified (buffer-modified-p)))
