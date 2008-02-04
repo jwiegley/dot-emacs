@@ -314,7 +314,7 @@ Also sets `unicode-tokens-token-alist'."
 	(setq ustring (cdar ulist))
 	(setq token (format unicode-tokens-token-format tokname))
 	(cond 
-	 ;; Some error checking (but not enough!)
+	 ;; Some error checking (but not enough)
 	 ((eq (length tokname) 0)
 	  (warn "Empty token name (mapped to \"%s\") in unicode tokens list"
 		ustring))
