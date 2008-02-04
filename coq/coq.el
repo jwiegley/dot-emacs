@@ -219,7 +219,10 @@ On Windows you might need something like:
  
 (eval-and-compile
   (define-derived-mode coq-mode proof-mode
-   "coq" nil
+   "coq" 
+     "Major mode for Coq scripts.
+
+\\{coq-mode-map}"
    (coq-mode-config)))
 
 (eval-and-compile

@@ -290,7 +290,10 @@ proof-shell-retract-files-regexp."
 
 (eval-and-compile                       ; to define vars for byte comp.
 (define-derived-mode isar-mode proof-mode
-  "Isar script" nil
+  "Isar script" 
+  "Major mode for editing Isar proof scripts.
+
+\\{isar-mode-map}"
   (isar-mode-config)))
 
 
