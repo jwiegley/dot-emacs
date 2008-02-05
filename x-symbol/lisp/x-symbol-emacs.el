@@ -272,10 +272,13 @@ test."
 	  (aset char-coding-system-table (make-char name) t))
       (when registry
 	(set-fontset-font "fontset-default" name (cons "*" registry))
-; da: set-font-encoding call breaks on Emacs 23
-;	(when (eq graphic 0) (set-font-encoding registry name 0))
-; this patch not good enough: characters in xsymb font still lost
-	(when (eq graphic 0) (set-font-encoding registry name))
+	(when (eq graphic 0) 
+	  (cond 
+	   ((>= emacs-major-version 23)
+	    ;; this change not good enough: characters in xsymb font still lost
+	    (set-font-encoding registry name))
+	   (t
+	    (set-font-encoding registry name 0))))
 	(when ccl-program
 	  (add-to-list 'font-ccl-encoder-alist (cons registry ccl-program))))
       name)))
