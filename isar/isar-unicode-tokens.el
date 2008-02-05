@@ -453,30 +453,12 @@
     ("thinspace" . " ")
     ("notni" . "∌")
     ("colonequals" . "≔")
-
     ("foursuperior" . "⁴")
     ("fivesuperior" . "⁵")
     ("sixsuperior" . "⁶")
     ("sevensuperior" . "⁷")
     ("eightsuperior" . "⁸")
-    ("ninesuperior" . "⁹")
-    ;; ligatures, etc, unlikely to be useful?
-    ("oe" . "œ")
-    ("OE" . "Œ")
-    ("ae" . "æ")
-    ("AE" . "Æ")
-    ("aa" . "å")
-    ("AA" . "Å")
-    ("o" . "ø") ;; LaTeX \o
-    ("O" . "Ø") ;; LaTeX \O
-    ("l" . "ł") ;; LaTeX \l
-    ("L" . "Ł") ;; LaTeX \L
-    ("ss" . "ß") ;; LaTeX \ss
-    ("ff" . "ﬀ")
-    ("fi" . "ﬁ")
-    ("fl" . "ﬂ")
-    ("ffi" . "ﬃ")
-    ("ffl" . "ﬄ"))
+    ("ninesuperior" . "⁹"))
   "Table mapping Isabelle ``xsymbol'' token names to Unicode strings.
 
 You can adjust this table to add more entries, or to change entries for
@@ -541,20 +523,19 @@ results will be undefined when files are saved."
     ("==>" . "⟹")
     ("<==>" . "⟷")
     ("|-->" . "⟼")
-    ("<--" . "←⎯")
     ("<-->" . "⟷")
     ("<<" . "⟪")
     ("[|" . "⟦")
     (">>" . "⟫")
     ("|]" . "⟧")
     ("``" . "”")
-    ("''" . "“")
-    ("--" . "–")
+;    ("''" . "“")
+;    ("--" . "–")
     ("---" . "—")
-    ("''" . "″")
-    ("'''" . "‴")
-    ("''''" . "⁗")
-    (":=" . "≔")
+;    ("''" . "″")
+;    ("'''" . "‴")
+;    ("''''" . "⁗")
+;    (":=" . "≔")
     ;; some word shortcuts, started with backslash otherwise
     ;; too annoying.
     ("\nat" . "ℕ")
