@@ -870,9 +870,11 @@ which see."
 ;;   Low-level commands for shell communication
 ;;
 
-(defvar proof-shell-insert-space-fudge 
+(defconst proof-shell-insert-space-fudge 
   (cond
-   ((string-match "21.*XEmacs" emacs-version) " ")
+   ((and (featurep 'xemacs)
+	 (string-match "21.*XEmacs" emacs-version))
+    " ")
    ((featurep 'xemacs) "")
    (t " "))
   "String to insert after setting proof marker to prevent it moving.

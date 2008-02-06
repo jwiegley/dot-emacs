@@ -12,19 +12,7 @@
   (require 'cl))
 
 (eval-when (compile)
-;  (if (not (featurep 'xemacs))
-      (require 'unicode-tokens)) ; it's loaded dynamically at runtime
-
-
-;;;###autoload
-(defun proof-unicode-tokens-support-available ()
-  "A test to see whether unicode tokens support is available."
-  (and
-   ;(not (featurep 'xemacs)) ;; not XEmacs compatible
-   (or (featurep 'unicode-tokens)
-       (proof-try-require 'unicode-tokens))
-   ;; Requires prover-specific config in <foo>-unicode-tokens.el
-   (proof-try-require (proof-ass-sym unicode-tokens))))
+  (require 'unicode-tokens)) ; it's loaded dynamically at runtime
 
 (defvar proof-unicode-tokens-initialised nil
   "Flag indicating whether or not we've performed startup.")
@@ -51,6 +39,7 @@
   (unicode-tokens-initialise)
   (setq proof-unicode-tokens-initialised t))
   
+;;;###autoload
 (defun proof-unicode-tokens-set-global (flag)
   "Set global status of unicode tokens mode for PG buffers to be FLAG.
 Turn on/off menu in all script buffers and ensure new buffers follow suit."
@@ -144,18 +133,6 @@ A value for proof-shell-insert-hook."
 	(unicode-tokens-unicode-to-tokens)
 	(setq string (buffer-substring-no-properties
 		      (point-min) (point-max))))))
-
-	
-	    
-
-
-;;
-;; On start up, adjust automode according to user setting
-;;
-(proof-eval-when-ready-for-assistant 
-    (if (and (proof-ass unicode-tokens-enable) 
-	     (proof-unicode-tokens-support-available))
-	(proof-unicode-tokens-set-global t)))
 
 (provide 'proof-unicode-tokens)
 ;; End of proof-unicode-tokens.el

@@ -28,17 +28,6 @@
 
 
 ;;;###autoload
-(defun proof-maths-menu-support-available ()
-  "A test to see whether maths-menu support is available."
-  (and
-   (not (featurep 'xemacs)) ;; not XEmacs compatible
-   (or (featurep 'maths-menu)
-       ;; *should* always succeed unless bundled version broken
-       (proof-try-require 'maths-menu))
-   ;; Load any optional prover-specific config in <foo>-maths-menu.el
-   (or (proof-try-require (proof-ass-sym maths-menu)) t)))
-
-
 (defun proof-maths-menu-set-global (flag)
   "Set global status of maths-menu mode for PG buffers to be FLAG.
 Turn on/off menu in all script buffers and ensure new buffers follow suit."
@@ -62,14 +51,6 @@ in future if we have just activated it for this buffer."
   (interactive)
   (if (proof-maths-menu-support-available) ;; will load maths-menu-mode
       (proof-maths-menu-set-global (not maths-menu-mode))))
-
-;;
-;; On start up, adjust automode according to user setting
-;;
-(proof-eval-when-ready-for-assistant 
-    (if (and (proof-ass maths-menu-enable) 
-	     (proof-maths-menu-support-available))
-	(proof-maths-menu-set-global t)))
 
 (provide 'proof-maths-menu)
 ;; End of proof-maths-menu.el

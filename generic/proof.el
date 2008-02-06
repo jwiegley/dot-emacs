@@ -27,6 +27,7 @@
 (require 'proof-compat)			; Emacs and OS compatibility
 (require 'proof-utils)			; utilities
 (require 'proof-config)			; configuration variables
+(require 'proof-auxmodes)		; further autoloads
 
 (proof-splash-message)			; welcome the user now.
 
