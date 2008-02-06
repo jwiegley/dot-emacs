@@ -387,12 +387,12 @@ Also sets `unicode-tokens-token-alist'."
   "Value for `format-alist'.")
 
 (defconst unicode-tokens-ignored-properties
-  '(vanilla type fontified)
+  '(vanilla type fontified face auto-composed)
   "Text properties to ignore when saving files.")
 
 (defconst unicode-tokens-annotation-translations
   '((face       (bold		"bold") ;; NB: clashes with font lock!
-		(default	))
+		(default	))      ;; not saved now, need another way
     (display    ((raise 0.4)    "superscript")
 		((raise -0.4)   "subscript")
 		((raise 0.35)   "superscript1")
@@ -406,7 +406,10 @@ Also sets `unicode-tokens-token-alist'."
   (remove-text-properties 
    start end
    (mapcar 'car 
-	   unicode-tokens-annotation-translations)))
+	   unicode-tokens-annotation-translations))
+  ;; Let's put face back in from fontify
+  (font-lock-fontify-buffer))
+  
 
 (defun unicode-tokens-tokens-to-unicode (&optional start end)
   "Decode a tokenised file for display in Emacs."
@@ -418,12 +421,12 @@ Also sets `unicode-tokens-token-alist'."
 	    (modified (buffer-modified-p))
 	    (inhibit-read-only t))
 	(setq unicode-tokens-next-control-token-seen-token nil)
+	(format-replace-strings unicode-tokens-token-alist nil (point-min)
+				(point-max))
 	(format-deannotate-region (point-min)
 				  (point-max)
 				  unicode-tokens-annotation-translations
 				  'unicode-tokens-next-control-token)
-	(format-replace-strings unicode-tokens-token-alist nil (point-min)
-				(point-max))
 	(set-buffer-modified-p modified))
       (goto-char (point-max)))))
 
@@ -495,12 +498,12 @@ after next character (single character control sequence)."
     (save-restriction
       (save-excursion
 	(narrow-to-region (or start (point-min)) (or end (point-max)))
-	(format-replace-strings unicode-tokens-ustring-alist nil (point-min) (point-max))
 	(format-insert-annotations
 	 (format-annotate-region (point-min) (point-max) 
 				 unicode-tokens-annotation-translations
 				 'unicode-tokens-make-token-annotation
 				 unicode-tokens-ignored-properties))
+	(format-replace-strings unicode-tokens-ustring-alist nil (point-min) (point-max))
 	(set-buffer-modified-p modified)))))
 
 
@@ -523,7 +526,9 @@ after next character (single character control sequence)."
     (setq text-property-default-nonsticky
 	  ;; We want to use display property with stickyness
 	  (delete '(display . t) text-property-default-nonsticky))
-    (if (fboundp 'set-buffer-multibyte)
+    (if (and
+	 (fboundp 'set-buffer-multibyte)
+	 (not (buffer-base-buffer)))
 	(set-buffer-multibyte t))
     (let ((inhibit-read-only t))
       ;; format is supposed to manage undo, but doesn't remap
