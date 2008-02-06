@@ -2,6 +2,21 @@
 
 * Summary of Changes for Proof General 3.7.1 from 3.7
 
+** Generic changes
+
+*** Fixes and improvements, compatibility patches
+
+- Unicode Tokens: supports control tokens (Isabelle sub/super scripts)
+- Fix Options saving for MMM, Maths Menu, Unicode Tokens.
+- Compatibility improvements for: Carbon Emacs
+
+
+
+
+
+
+
+
 
 
 
