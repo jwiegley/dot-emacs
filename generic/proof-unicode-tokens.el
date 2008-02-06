@@ -40,21 +40,6 @@
   (setq proof-unicode-tokens-initialised t))
   
 ;;;###autoload
-(defun proof-unicode-tokens-set-global (flag)
-  "Set global status of unicode tokens mode for PG buffers to be FLAG.
-Turn on/off menu in all script buffers and ensure new buffers follow suit."
-  (let ((hook (proof-ass-sym mode-hook)))
-    (if flag
-	(add-hook hook 'unicode-tokens-mode)
-      (remove-hook hook 'unicode-tokens-mode))
-    (proof-map-buffers 
-      (proof-buffers-in-mode proof-mode-for-script)
-      (unicode-tokens-mode (if flag 1 0)))
-    (proof-unicode-tokens-shell-config)))
-
-  
-  
-;;;###autoload
 (defun proof-unicode-tokens-enable ()
   "Turn on or off Unicode tokens mode in Proof General script buffer.
 This invokes `unicode-tokens-mode' to toggle the setting for the current
@@ -68,6 +53,22 @@ in future if we have just activated it for this buffer."
     (proof-unicode-tokens-set-global (not unicode-tokens-mode))))
 
 
+;;;###autoload
+(defun proof-unicode-tokens-set-global (flag)
+  "Set global status of unicode tokens mode for PG buffers to be FLAG.
+Turn on/off menu in all script buffers and ensure new buffers follow suit."
+  (unless proof-unicode-tokens-initialised 
+      (proof-unicode-tokens-init))
+  (let ((hook (proof-ass-sym mode-hook)))
+    (if flag
+	(add-hook hook 'unicode-tokens-mode)
+      (remove-hook hook 'unicode-tokens-mode))
+    (proof-map-buffers 
+      (proof-buffers-in-mode proof-mode-for-script)
+      (unicode-tokens-mode (if flag 1 0)))
+    (proof-unicode-tokens-shell-config)))
+
+  
 ;;;
 ;;; Interface to custom to dynamically change tables (via proof-set-value)
 ;;;
