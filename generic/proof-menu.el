@@ -443,6 +443,7 @@ without adjusting window layout."
    ;;'proof-output-fontify-enable
    'proof-strict-read-only
    (proof-ass-sym x-symbol-enable)
+   (proof-ass-sym unicode-tokens-enable)
    (proof-ass-sym maths-menu-enable)
    (proof-ass-sym mmm-enable)
    'proof-toolbar-enable
