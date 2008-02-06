@@ -208,7 +208,8 @@ Note: to change proof assistant, you must start a new Emacs session.")
 (defun proof-ready-for-assistant (assistantsym &optional assistant-name)
   "Configure PG for symbol ASSISTANTSYM, name ASSISTANT-NAME.
 If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
-  (let*
+  (unless proof-assistant-symbol
+    (let*
       ((sname		 (symbol-name assistantsym))
        (assistant-name   (or assistant-name
 			     (car-safe 
@@ -264,7 +265,7 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
        (if (not (member ,loadpath-elt load-path))
 	   (setq load-path (cons ,loadpath-elt load-path)))
        ;; Run hooks for late initialisation
-       (run-hooks 'proof-ready-for-assistant-hook)))))
+       (run-hooks 'proof-ready-for-assistant-hook))))))
 
 
 ;; Add auto-loads and load-path elements to support the 
