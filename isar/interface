@@ -183,11 +183,13 @@ else
 
   [ "$INITFILE" = false ] && ARGS="$ARGS -q"
 
-  if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
-    [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOL_SETUP" = true ] && installfonts
-  else
+  if [ "$WINDOWSYSTEM" = false ]; then
     ARGS="$ARGS -nw"
     XSYMBOL=false
+  elif [ -z "$DISPLAY" ]; then
+    XSYMBOL=false
+  else
+    [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOL_SETUP" = true ] && installfonts
   fi
 
   ARGS="$ARGS -l '$SUPER/isar/interface-setup.el'"
