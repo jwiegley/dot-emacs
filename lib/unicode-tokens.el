@@ -104,7 +104,8 @@ Behaviour is much like abbrev.")
   "Alist mapping unicode code point to character names.")
 
 (defvar unicode-tokens-token-alist nil
-  "Mapping of tokens to Unicode strings.")
+  "Mapping of tokens to Unicode strings.
+Also used as a flag to detect if `unicode-tokens-initialise' has been called.")
 
 (defvar unicode-tokens-ustring-alist nil
   "Mapping of Unicode strings to tokens.")
@@ -386,6 +387,8 @@ Also sets `unicode-tokens-token-alist'."
 		   t nil)
   "Value for `format-alist'.")
 
+(add-to-list 'format-alist unicode-tokens-format-entry)
+
 (defconst unicode-tokens-ignored-properties
   '(vanilla type fontified face auto-composed)
   "Text properties to ignore when saving files.")
@@ -522,6 +525,8 @@ after next character (single character control sequence)."
   "Minor mode for unicode token input." nil " Utoks"
   unicode-tokens-mode-map
   (make-variable-buffer-local 'text-property-default-nonsticky)
+  (unless unicode-tokens-token-alist
+    (unicode-tokens-initialise))
   (when unicode-tokens-mode
     (setq text-property-default-nonsticky
 	  ;; We want to use display property with stickyness
@@ -578,7 +583,6 @@ after next character (single character control sequence)."
 		  unicode-tokens-token-name-alist
 		  :initial-value nil)))
   (unicode-tokens-quail-define-rules)
-  (add-to-list 'format-alist unicode-tokens-format-entry)
   ;; Key bindings
   (if (= (length unicode-tokens-token-suffix) 1)
       (define-key unicode-tokens-mode-map
