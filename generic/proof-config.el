@@ -601,8 +601,7 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*Face for showing active areas (clickable regions), outside of subterm markup."
   :group 'proof-faces)
 
-
-;;; Compatibility: these are required for use in GNU Emacs/font-lock-keywords
+;;; Compatibility: these are required for use in onder GNU Emacs/font-lock-keywords
 (defconst proof-face-compat-doc "Evaluates to a face name, for compatibility.")
 (defconst proof-queue-face 'proof-queue-face proof-face-compat-doc)
 (defconst proof-locked-face 'proof-locked-face proof-face-compat-doc)
@@ -618,6 +617,25 @@ Warning messages can come from proof assistant or from Proof General itself."
 (defconst proof-highlight-dependent-face 'proof-highlight-dependent-face proof-face-compat-doc)
 (defconst proof-highlight-dependency-face 'proof-highlight-dependency-face proof-face-compat-doc)
 (defconst proof-active-area-face 'proof-active-area-face proof-face-compat-doc)
+
+
+;;
+;; Faces used by unicode-tokens.
+;;
+;; TODO: make these into faces but extract attributes
+;; to use in `unicode-tokens-annotation-translations'.
+;; Let that be dynamically changeable
+;; TODO: choose family acccording to likely architecture and what's available
+(defconst proof-script-font-face-attributes 
+  '((t :family "Lucida Calligraphy"))
+  "Script font face")
+
+(defconst proof-fraktur-font-face-attributes
+  '((t :family "Lucida Blackletter"))
+  "Fraktur font face")
+
+
+
 
 
 

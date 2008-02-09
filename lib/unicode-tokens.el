@@ -37,11 +37,10 @@
 
 ;; TODO:
 ;; -- add input methods for subscript/superscripts (further props in general)
-;; -- after change function so inserting control sequences works?
-;; -- long sub/sups should be sticky so typing inside inherits props
+;; -- after change function so inserting control sequences works? or other support
+;; -- one-char subs should not be sticky so doesn't extend
 ;; -- make property removal more accurate/patch in font-lock
 ;; -- disentangle Isabelle specific code
-;; -- liaise with font-lock to allow face setting (e.g., bold, italic)
 ;; -- perhaps separate out short-cut input method and don't use for tokens
 ;; -- cleanup insertion functions
 ;; -- investigate testing for an appropriate glyph
@@ -313,11 +312,17 @@ This function may only work reliably for GNU Emacs >= 23."
 (quail-define-package
  "Unicode tokens" "UTF-8" "u" t
  "Unicode characters input method using application specific token names"
- nil t nil nil nil nil nil nil nil nil t)
+ nil t nil nil nil nil nil ; max shortest, could try t
+ nil nil nil t)
 
 (defun unicode-tokens-map-ordering (s1 s2)
   "Ordering on (car S1, car S2): order longer strings first."
   (>= (length (car s1)) (length (car s2))))
+
+(defun unicode-tokens-propertise-after-quail (tostring)
+  (add-text-properties (- (point) (length tostring)) (point)
+		       (list 'utoks tostring)))
+  
 
 (defun unicode-tokens-quail-define-rules ()
   "Define the token and shortcut input rules.
@@ -326,6 +331,10 @@ Calculated from `unicode-tokens-token-name-alist' and
 Also sets `unicode-tokens-token-alist'."
   (let ((unicode-tokens-quail-define-rules 
 	 (list 'quail-define-rules)))
+;; failed experiment (wrong place for rule/wrong type?): attempt to propertise 
+;; after translation
+;;	       '((advice . unicode-tokens-propertise-after-quail
+;;		 (face . proof-declaration-name-face)))))
     (let ((ulist (copy-list unicode-tokens-token-name-alist))
 	  ustring tokname token)
       ;; sort in case of non-terminated token syntax (empty suffix)
@@ -390,28 +399,32 @@ Also sets `unicode-tokens-token-alist'."
 (add-to-list 'format-alist unicode-tokens-format-entry)
 
 (defconst unicode-tokens-ignored-properties
-  '(vanilla type fontified face auto-composed)
+  '(vanilla type fontified face auto-composed
+    rear-nonsticky field inhibit-line-move-field-capture
+    utoks)
   "Text properties to ignore when saving files.")
 
 (defconst unicode-tokens-annotation-translations
-  '((face       (bold		"bold") ;; NB: clashes with font lock!
-		(default	))      ;; not saved now, need another way
-    (display    ((raise 0.4)    "superscript")
-		((raise -0.4)   "subscript")
-		((raise 0.35)   "superscript1")
-		((raise -0.35)  "subscript1")
-		((raise -0.3)   "idsubscript1")
-		(default	))))
+  `((font-lock-face
+     (bold		"bold")
+     (italic		"italic")
+     (,proof-script-font-face-attributes "script")
+     (,proof-fraktur-font-face-attributes "frak")
+     (default	))
+    (display   
+     ((raise 0.4)    "superscript")
+     ((raise -0.4)   "subscript")
+     ((raise 0.35)   "superscript1")
+     ((raise -0.35)  "subscript1")
+     ((raise -0.3)   "idsubscript1")
+     (default	))))
 
 (defun unicode-tokens-remove-properties (start end)
   "Remove text properties we manage between START and END."
-  ;; TODO: this is very approximate!  It removes too much (face)
   (remove-text-properties 
-   start end
-   (mapcar 'car 
-	   unicode-tokens-annotation-translations))
-  ;; Let's put face back in from fontify
-  (font-lock-fontify-buffer))
+   ;; NB: this is approximate and clashes with anyone else who
+   ;; looks after font-lock-face or display
+   start end (mapcar 'car unicode-tokens-annotation-translations)))
   
 
 (defun unicode-tokens-tokens-to-unicode (&optional start end)
@@ -426,6 +439,8 @@ Also sets `unicode-tokens-token-alist'."
 	(setq unicode-tokens-next-control-token-seen-token nil)
 	(format-replace-strings unicode-tokens-token-alist nil (point-min)
 				(point-max))
+;; alternative experiment: store original tokens inside text properties
+;;	(unicode-tokens-replace-strings-propertise unicode-tokens-token-alist)
 	(format-deannotate-region (point-min)
 				  (point-max)
 				  unicode-tokens-annotation-translations
@@ -453,12 +468,18 @@ after next character (single character control sequence)."
 	  ((tok  (match-string 1))
 	   (annot
 	    (cond
-	     ((equal tok "bsup")  '("superscript" t))
-	     ((equal tok "esup")  '("superscript" nil))
-	     ((equal tok "bsub")  '("subscript" t))
-	     ((equal tok "esub")  '("subscript" nil))
-	     ((equal tok "bbold") '("bold" t))
-	     ((equal tok "ebold") '("bold" nil))
+	     ((equal tok "bsup")    '("superscript" t))
+	     ((equal tok "esup")    '("superscript" nil))
+	     ((equal tok "bsub")    '("subscript" t))
+	     ((equal tok "esub")    '("subscript" nil))
+	     ((equal tok "bbold")   '("bold" t))
+	     ((equal tok "ebold")   '("bold" nil))
+	     ((equal tok "bitalic") '("italic" t))
+	     ((equal tok "eitalic") '("italic" nil))
+	     ((equal tok "bscript") '("script" t))
+	     ((equal tok "escript") '("script" nil))
+	     ((equal tok "bfrak")   '("frak" t))
+	     ((equal tok "efrak")   '("frak" nil))
 	     ((equal tok "sup") 
 	      (list (setq unicode-tokens-next-control-token-seen-token
 			  "superscript1") t))
@@ -474,12 +495,16 @@ after next character (single character control sequence)."
 		   (list (match-beginning 0) (match-end 0))
 		   annot)))))
     result))
-  
+
+;; TODO: this should be instance specific  
 (defconst unicode-tokens-annotation-control-token-alist 
-  '(("bold" . ("bbold" . "ebold"))
-    ("subscript" . ("bsub" . "esub"))
-    ("superscript" . ("bsup" . "esup"))
-    ("subscript1" . ("sub"))
+  '(("bold" .         ("bbold" . "ebold"))
+    ("italic" .       ("bitalic" . "eitalic"))
+    ("script" .       ("bscript" . "escript"))
+    ("frak" .         ("bfrak" . "efrak"))
+    ("subscript" .    ("bsub" . "esub"))
+    ("superscript" .  ("bsup" . "esup"))
+    ("subscript1" .   ("sub"))
     ("superscript1" . ("sup"))))
   
 (defun unicode-tokens-make-token-annotation (annot positive)
@@ -492,6 +517,38 @@ after next character (single character control sequence)."
      ((and toks (cdr toks))
       (format unicode-tokens-control-token-format  (cdr toks)))
      (t ""))))
+
+(defun unicode-tokens-find-property (name)
+  (let ((props unicode-tokens-annotation-translations)
+	prop vals val vname)
+    (catch 'return
+      (while props
+	(setq prop (caar props))
+	(setq vals (cdar props))
+	(while vals
+	  (setq val (car vals))
+	  (if (member name (cdr val))
+	      (throw 'return (list prop (car val))))
+	  (setq vals (cdr vals)))
+	(setq props (cdr props))))))
+      
+(defun unicode-tokens-annotate-region (beg end &optional type)
+  (interactive "r")
+  (or type 
+      (if (interactive-p)
+	  (setq type
+		(completing-read "Annotate region as: " 
+				 unicode-tokens-annotation-control-token-alist
+				 nil t))
+	(error "In unicode-tokens-annotation-control-token-alist: TYPE must be given.")))
+  (add-text-properties beg end
+		       (unicode-tokens-find-property type)))
+
+  
+  
+  
+  
+  
 
 (defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
   "Encode a buffer to save as a tokenised file."
@@ -506,10 +563,61 @@ after next character (single character control sequence)."
 				 unicode-tokens-annotation-translations
 				 'unicode-tokens-make-token-annotation
 				 unicode-tokens-ignored-properties))
-	(format-replace-strings unicode-tokens-ustring-alist nil (point-min) (point-max))
+	(unicode-tokens-replace-strings-unpropertise)
+	;; was: format-replace-strings unicode-tokens-ustring-alist nil (point-min) (point-max))
 	(set-buffer-modified-p modified)))))
 
 
+(defun unicode-tokens-replace-strings-propertise (alist &optional beg end)
+  "Do multiple replacements on the buffer.
+ALIST is a list of (FROM . TO) pairs, which should be proper arguments to
+`search-forward' and `replace-match', respectively.
+The original contents FROM are retained in the buffer in the text property `utoks'.
+Optional args BEG and END specify a region of the buffer on which to operate."
+  (save-excursion
+    (save-restriction
+      (or beg (setq beg (point-min)))
+      (if end (narrow-to-region (point-min) end))
+      (while alist
+	(let ((from (car (car alist)))
+	      (to   (cdr (car alist))))
+	  (goto-char beg)
+	  (while (search-forward from nil t)
+	    (goto-char (match-beginning 0))
+	    (insert to)
+	    (set-text-properties (- (point) (length to)) (point)
+				 (cons 'utoks
+				       (cons from 
+					     (text-properties-at (point)))))
+	    (delete-region (point) (+ (point) (- (match-end 0)
+						 (match-beginning 0)))))
+	  (setq alist (cdr alist)))))))
+
+;; NB: this is OK, except that now if we edit with raw symbols, we
+;; don't get desired effect but instead rely on hidden annotations.
+;; Also doesn't work as easily with quail.
+;; Can we have a sensible mixture of both things?
+(defun unicode-tokens-replace-strings-unpropertise (&optional beg end)
+  "Reverse the effect of `unicode-tokens-replace-strings-unpropertise'.
+Replaces contiguous text with 'utoks' property with property value."
+  (let ((pos (or beg (point-min)))
+	(lim (or end (point-max)))
+	start to)
+    (save-excursion
+      (while (and 
+	      (setq pos (next-single-property-change pos 'utoks nil lim))
+	      (< pos lim))
+	(if start
+	    (progn
+	      (setq to (get-text-property start 'utoks))
+	      (goto-char start)
+	      (insert to)
+	      (set-text-properties start (point)
+				   (text-properties-at start))
+	      (delete-region (point) (+ (point) (- pos start)))
+	      (setq start nil))
+	  (setq start pos))))))
+	  
 
 
   
