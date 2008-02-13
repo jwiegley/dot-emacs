@@ -459,7 +459,7 @@
     ("sevensuperior" . "⁷")
     ("eightsuperior" . "⁸")
     ("ninesuperior" . "⁹"))
-  "Table mapping Isabelle ``xsymbol'' token names to Unicode strings.
+  "Table mapping Isabelle ``symbol'' token names to Unicode strings.
 
 You can adjust this table to add more entries, or to change entries for
 glyphs that not are available in your Emacs or chosen font.
