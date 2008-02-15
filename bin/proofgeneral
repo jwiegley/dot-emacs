@@ -16,7 +16,6 @@
 # $Id$
 #
 
-
 # The default path should work if you are using the Proof General RPM
 # or unpack Proof General in your home directory.
 # NB: no trailing backslash here!
@@ -30,6 +29,17 @@ if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
 	EMACS=`which xemacs`
     fi
 fi
+
+# Try to find Proof General directory
+if [ -d $PGHOMEDEFAULT ]; then
+    PGHOME=$PGHOMEDEFAULT
+elif [ -d /usr/share/${EMACSVERSION}/site-lisp/proofgeneral ]; then
+    PGHOME=/usr/share/${EMACSVERSION}/site-lisp/proofgeneral
+else
+    echo "Cannot find the Proof General lisp files: please set PGHOMEDEFAULT"
+    exit 1
+fi
+
 
 NAME=`basename $0`
 
@@ -49,8 +59,8 @@ Examples:
   $NAME Example.thy   Load Proof General editing Isar file Example.thy
   $NAME example.v     Load Proof General editing Coq file Example.v
 
-For documentation and latest versions, visit http://proofgeneral.inf.ed.ac.uk.
-Report bugs to <da+pg-bugs@inf.ed.ac.uk>."
+For documentation and latest versions, visit http://proofgeneral.inf.ed.ac.uk
+Report bugs at http://proofgeneral.inf.ed.ac.uk/trac"
 # 
 
 VERSIONBLURB='David Aspinall.
@@ -94,16 +104,6 @@ if [ ! -x "$EMACS" ]; then
 fi
 
 EMACSVERSION=`basename $EMACS`
-
-# Try to find Proof General directory
-if [ -d $PGHOMEDEFAULT ]; then
-    PGHOME=$PGHOMEDEFAULT
-elif [ -d /usr/share/${EMACSVERSION}/site-lisp/proofgeneral ]; then
-    PGHOME=/usr/share/${EMACSVERSION}/site-lisp/proofgeneral
-else
-    echo "Cannot find the Proof General lisp files: please set PGHOMEDEFAULT"
-    exit 1
-fi
 
 # Deal with UTF issue
 if [ `locale | grep LC_CTYPE | grep UTF` ]; then
