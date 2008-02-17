@@ -604,12 +604,6 @@ after next character (single character control sequence)."
 		       string)
   string)
 
-  
-  
-  
-  
-  
-
 (defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
   "Encode a buffer to save as a tokenised file."
   (let ((case-fold-search proof-case-fold-search)
@@ -623,8 +617,10 @@ after next character (single character control sequence)."
 				 unicode-tokens-annotation-translations
 				 'unicode-tokens-make-token-annotation
 				 unicode-tokens-ignored-properties))
-	(unicode-tokens-replace-strings-unpropertise)
-	;; was: format-replace-strings unicode-tokens-ustring-alist nil (point-min) (point-max))
+;; alternative experiment: store original tokens inside text properties
+;;	(unicode-tokens-replace-strings-unpropertise)
+	(format-replace-strings unicode-tokens-ustring-alist 
+				nil (point-min) (point-max))
 	(set-buffer-modified-p modified)))))
 
 
