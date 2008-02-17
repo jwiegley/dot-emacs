@@ -236,8 +236,7 @@ See -k option for Isabelle interface script."
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\""
-   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\"")
-  (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting))
+   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\""))
 
 
 ;;;
@@ -264,10 +263,6 @@ proof-shell-retract-files-regexp."
     (if (string= name base-name)
         (isar-remove-file name proof-included-files-list t)
       (isar-remove-file (file-truename name) proof-included-files-list nil))))
-
-(defun isar-activate-scripting ()
-  "Make sure the Isabelle/Isar toplevel is in a sane state."
-  (proof-cd-sync))
 
 
 ;;
