@@ -528,6 +528,8 @@ after next character (single character control sequence)."
 	     ((equal tok "escript") '("script" nil))
 	     ((equal tok "bfrak")   '("frak" t))
 	     ((equal tok "efrak")   '("frak" nil))
+	     ((equal tok "bserif")  '("serif" t))
+	     ((equal tok "eserif")  '("serif" nil))
 	     ((equal tok "loc") 
 	      (list (setq unicode-tokens-next-control-token-seen-token
 			  "loc1") t))
