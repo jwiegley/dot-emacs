@@ -1050,6 +1050,11 @@ To be used in `proof-shell-process-output-system-specific'."
   :type 'integer
   :setting "Set Printing Depth %i . ")
 
+(defpacustom undo-depth 200
+  "*Depth of undo history.  Undo behaviour will break beyond this size."
+  :type 'integer
+  :setting "Set Undo %i . ")
+
 (defpacustom time-commands nil
   "*Whether to display timing information for each command."
   :type 'boolean)
