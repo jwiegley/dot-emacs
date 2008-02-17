@@ -319,7 +319,7 @@ A15. Coq has a limited history for Undo.  Change
 
 	Coq -> Settings -> Undo Depth
 
-     to something higher.  
+     to something higher.  Default is 200 (100 outside PG).
 
 
 -----------------------------------------------------------------
