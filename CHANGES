@@ -6,10 +6,15 @@
 
 *** Fixes and improvements, compatibility patches
 
-- Unicode Tokens: supports control tokens (Isabelle sub/super scripts)
+- Unicode Tokens: supports control tokens (Isabelle sub/super/fonts)
 - Fix Options saving for MMM, Maths Menu, Unicode Tokens.
 - Compatibility improvements for: Carbon Emacs
 
+
+
+** Coq changes
+
+- Add Undo Depth setting, default to 200 (Coq 8.1 has only 100)
 
 
 
