@@ -193,8 +193,10 @@
    (plastic-shell-mode-config))
 
 (define-derived-mode plastic-mode proof-mode
-   "plastic" 
-   nil
+   "Plastic script" 
+     "Major mode for Plastic proof scripts.
+
+\\{plastic-mode-map}"
    (plastic-mode-config)
    (easy-menu-change (list proof-general-name) (car proof-help-menu)
 		     (append (cdr proof-help-menu) plastic-help-menu-list)))
