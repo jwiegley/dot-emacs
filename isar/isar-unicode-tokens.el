@@ -23,10 +23,10 @@
 
 (defcustom isar-token-name-alist
   (flet 
-      ((script (s) (format "\<^bscript>%s\<^escript>" s))
-       (frakt (s) (format "\<^bfrak>%s\<^efrak>" s))
-       (serif (s) (format "\<^bserif>%s\<^eserif>" s))
-       (bold (s) (format "\<^bbold>%s\<^ebold>" s)))
+      ((script (s) (format "\\<^bscript>%s\\<^escript>" s))
+       (frakt (s) (format "\\<^bfrak>%s\\<^efrak>" s))
+       (serif (s) (format "\\<^bserif>%s\\<^eserif>" s))
+       (bold (s) (format "\\<^bbold>%s\\<^ebold>" s)))
 
     ;; property-based annotations.  More direct for input
     ;; but inverse mapping tricky: need to ignore for 
