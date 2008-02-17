@@ -192,7 +192,7 @@ See -k option for Isabelle interface script."
    proof-shell-init-cmd			nil
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
-   proof-shell-eager-annotation-start-length 1
+   proof-shell-eager-annotation-start-length 2
    proof-shell-eager-annotation-start   "\360\\|\362\\|\^AI\\|\^AK"
    proof-shell-eager-annotation-end     "\361\\|\363\\|\^AJ\\|\^AL"
 
