@@ -294,6 +294,8 @@ Assumes that the current buffer is the proof shell buffer."
 	  	    'proof-x-symbol-encode-shell-input))
 	 ((not (proof-ass x-symbol-enable))
 	  (if (and proof-xsym-deactivate-command 
+		   ;; NB: overlap with unicode tokens: don't disable that
+		   (not (proof-ass unicode-tokens-enable))
 		   (proof-shell-live-buffer))
 	      (proof-shell-invisible-command-invisible-result
 	       proof-xsym-deactivate-command))
