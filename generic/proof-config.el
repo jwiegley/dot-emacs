@@ -619,22 +619,6 @@ Warning messages can come from proof assistant or from Proof General itself."
 (defconst proof-active-area-face 'proof-active-area-face proof-face-compat-doc)
 
 
-;;
-;; Faces used by unicode-tokens.
-;;
-;; TODO: make these into faces but extract attributes
-;; to use in `unicode-tokens-annotation-translations'.
-;; Let that be dynamically changeable
-;; TODO: choose family acccording to likely architecture and what's available
-(defconst proof-script-font-face-attributes 
-  '((t :family "Lucida Calligraphy"))
-  "Script font face")
-
-(defconst proof-fraktur-font-face-attributes
-  '((t :family "Lucida Blackletter"))
-  "Fraktur font face")
-
-
 
 
 

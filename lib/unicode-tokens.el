@@ -6,7 +6,7 @@
 ;;
 ;; $Id$
 ;;
-;; Some functions are adapted from `xmlunicode.el' by Norman Walsh.
+;; A few functions are adapted from `xmlunicode.el' by Norman Walsh.
 ;; Created: 2004-07-21, Version: 1.6, Copyright (C) 2003 Norman Walsh
 ;;
 ;; This is free software; you can redistribute it and/or modify
@@ -90,6 +90,47 @@ If not set, constructed to include glyphs for all tokens. ")
   "An alist of keyboard shortcuts to unicode strings.
 The alist is added to the input mode for tokens.
 Behaviour is much like abbrev.")
+
+;;
+;; Faces
+;;
+
+;;
+;; TODO: make these into faces but extract attributes
+;; to use in `unicode-tokens-annotation-translations'.
+;; Let that be dynamically changeable
+;; TODO: choose family acccording to likely architecture and what's available
+(cond
+ ((not (featurep 'xemacs))
+(defface unicode-tokens-script-font-face
+  (cond
+   ((eq window-system 'x) ; Linux/Unix
+    '((t :family "URW Chancery L")))
+   ((or ; Mac
+     (eq window-system 'ns)
+     (eq window-system 'carbon))
+    '((t :family "Lucida Calligraphy"))))
+  "Script font face")
+
+(defface unicode-tokens-fraktur-font-face
+  (cond
+   ((eq window-system 'x) ; Linux/Unix
+    '((t :family "URW Bookman L"))) ;; not at all black letter!
+   ((or ; Mac
+     (eq window-system 'ns)
+     (eq window-system 'carbon))
+    '((t :family "Lucida Blackletter"))))
+  "Fraktur font face")
+
+(defface unicode-tokens-serif-font-face
+  (cond
+   ((eq window-system 'x) ; Linux/Unix
+    '((t :family "Liberation Serif"))) 
+   ((or ; Mac
+     (eq window-system 'ns)
+     (eq window-system 'carbon))
+    '((t :family "Lucida"))))
+  "Serif (roman) font face")))
 
 
 ;;
@@ -198,7 +239,7 @@ character is inserted without the prompt."
 	  (if ustring ;; TODO: should check on glyphs here
 	      (progn
 		(let ((matchlen (- (match-end 0) (match-beginning 0))))
-		  (replace-match (cdr ustring))
+		  (replace-match (replace-quote (cdr ustring)))
 		  ;; was: (format "%c" (decode-char 'ucs (cadr codept)))
 		  (setq length 
 			(+ (- length matchlen) (length (cdr ustring)))))))))))
@@ -217,12 +258,16 @@ data if you want to preserve them."
           (if (re-search-forward regexp here t)
               (= (point) here))))))
 
+;; TODO: make this work for control tokens.  
+;; But it's a bit nasty and introduces font-lock style complexity again.
+;; Better if we stick with dedicated input methods.
 (defun unicode-tokens-electric-suffix ()
   "Detect tokens and replace them with the appropriate string.
 This is bound to the character ending `unicode-tokens-token-suffix'
 if there is such a unique character."
   (interactive)
   (let ((pos (point))
+	(case-fold-search nil)
 	amppos codept ustring)
     (search-backward unicode-tokens-token-prefix nil t nil)
     (setq amppos (point))
@@ -237,7 +282,7 @@ if there is such a unique character."
 		     (assoc (match-string 1) 
 			    unicode-tokens-token-name-alist))
 	      (if ustring  ;; todo: check glyphs avail/use insert fn
-		  (replace-match (cdr ustring))
+		  (replace-match (replace-quote (cdr ustring)))
 		   ;; was (format "%c" (decode-char 'ucs (cdr codept))))
 		(progn
 		  (goto-char pos)
@@ -407,17 +452,20 @@ Also sets `unicode-tokens-token-alist'."
 (defconst unicode-tokens-annotation-translations
   `((font-lock-face
      (bold		"bold")
-     (italic		"italic")
-     (,proof-script-font-face-attributes "script")
-     (,proof-fraktur-font-face-attributes "frak")
+     (unicode-tokens-script-font-face "script")
+     (unicode-tokens-fraktur-font-face "frak")
+     (unicode-tokens-serif-font-face "serif")
+     (proof-declaration-name-face "loc1")
      (default	))
     (display   
      ((raise 0.4)    "superscript")
      ((raise -0.4)   "subscript")
-     ((raise 0.35)   "superscript1")
-     ((raise -0.35)  "subscript1")
+     ((raise 0.35)  "superscript1")
+     ((raise -0.35) "subscript1")
      ((raise -0.3)   "idsubscript1")
-     (default	))))
+     (default	)))
+  "Text property table for annotations.")
+
 
 (defun unicode-tokens-remove-properties (start end)
   "Remove text properties we manage between START and END."
@@ -480,6 +528,9 @@ after next character (single character control sequence)."
 	     ((equal tok "escript") '("script" nil))
 	     ((equal tok "bfrak")   '("frak" t))
 	     ((equal tok "efrak")   '("frak" nil))
+	     ((equal tok "loc") 
+	      (list (setq unicode-tokens-next-control-token-seen-token
+			  "loc1") t))
 	     ((equal tok "sup") 
 	      (list (setq unicode-tokens-next-control-token-seen-token
 			  "superscript1") t))
@@ -499,13 +550,16 @@ after next character (single character control sequence)."
 ;; TODO: this should be instance specific  
 (defconst unicode-tokens-annotation-control-token-alist 
   '(("bold" .         ("bbold" . "ebold"))
-    ("italic" .       ("bitalic" . "eitalic"))
-    ("script" .       ("bscript" . "escript"))
-    ("frak" .         ("bfrak" . "efrak"))
     ("subscript" .    ("bsub" . "esub"))
     ("superscript" .  ("bsup" . "esup"))
     ("subscript1" .   ("sub"))
-    ("superscript1" . ("sup"))))
+    ("superscript1" . ("sup"))
+    ("loc1"	    . ("loc"))
+    ;; non-standard
+    ("italic" .       ("bitalic" . "eitalic"))
+    ("script" .       ("bscript" . "escript"))
+    ("frak" .         ("bfrak" . "efrak"))
+    ("serif" .        ("bserif" . "eserif"))))
   
 (defun unicode-tokens-make-token-annotation (annot positive)
   "Encode a text property start/end by adding an annotation in the file."
@@ -532,17 +586,23 @@ after next character (single character control sequence)."
 	  (setq vals (cdr vals)))
 	(setq props (cdr props))))))
       
-(defun unicode-tokens-annotate-region (beg end &optional type)
+(defun unicode-tokens-annotate-region (beg end &optional annot)
   (interactive "r")
-  (or type 
+  (or annot 
       (if (interactive-p)
-	  (setq type
+	  (setq annot
 		(completing-read "Annotate region as: " 
 				 unicode-tokens-annotation-control-token-alist
 				 nil t))
 	(error "In unicode-tokens-annotation-control-token-alist: TYPE must be given.")))
   (add-text-properties beg end
-		       (unicode-tokens-find-property type)))
+		       (unicode-tokens-find-property annot)))
+
+(defun unicode-tokens-annotate-string (annot string)
+  (add-text-properties 0 (length string)
+		       (unicode-tokens-find-property annot)
+		       string)
+  string)
 
   
   
@@ -580,7 +640,8 @@ Optional args BEG and END specify a region of the buffer on which to operate."
       (if end (narrow-to-region (point-min) end))
       (while alist
 	(let ((from (car (car alist)))
-	      (to   (cdr (car alist))))
+	      (to   (cdr (car alist)))
+	      (case-fold-search nil))
 	  (goto-char beg)
 	  (while (search-forward from nil t)
 	    (goto-char (match-beginning 0))
@@ -632,13 +693,14 @@ Replaces contiguous text with 'utoks' property with property value."
 (define-minor-mode unicode-tokens-mode
   "Minor mode for unicode token input." nil " Utoks"
   unicode-tokens-mode-map
-  (make-variable-buffer-local 'text-property-default-nonsticky)
   (unless unicode-tokens-token-alist
     (unicode-tokens-initialise))
   (when unicode-tokens-mode
-    (setq text-property-default-nonsticky
-	  ;; We want to use display property with stickyness
-	  (delete '(display . t) text-property-default-nonsticky))
+    (when (boundp 'text-property-default-nonsticky)
+      (make-variable-buffer-local 'text-property-default-nonsticky)
+      (setq text-property-default-nonsticky
+	    ;; We want to use display property with stickyness
+	    (delete '(display . t) text-property-default-nonsticky)))
     (if (and
 	 (fboundp 'set-buffer-multibyte)
 	 (not (buffer-base-buffer)))
@@ -649,7 +711,8 @@ Replaces contiguous text with 'utoks' property with property value."
       (format-decode-buffer 'unicode-tokens))
     (set-input-method "Unicode tokens"))
   (unless unicode-tokens-mode
-    (add-to-list 'text-property-default-nonsticky '(display . t))
+    (when (boundp 'text-property-default-nonsticky)
+      (add-to-list 'text-property-default-nonsticky '(display . t)))
     ;; leave buffer encoding as is
     (let ((inhibit-read-only t)
 	  (modified (buffer-modified-p)))
