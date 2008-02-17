@@ -155,13 +155,6 @@ Also used as a flag to detect if `unicode-tokens-initialise' has been called.")
 ;;; Code:
 ;;
 
-(defface mathsym
-  '((t (:slant italic)))
-  "Face used for text that is an excerpt from another document.
-This is used in Enriched mode for text explicitly marked as an excerpt."
-  :group 'proofgeneral)
-
-
 (defun unicode-tokens-insert-char (arg codepoint)
   "Insert the Unicode character identified by CODEPOINT.
 If ARG is non-nil, ignore available glyphs."
