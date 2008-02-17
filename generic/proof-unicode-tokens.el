@@ -99,6 +99,7 @@ Updates the input mapping for reading shortcuts."
 ;;; Interface to shell
 ;;;
 
+
 (defun proof-unicode-tokens-activate-prover ()
   (when (and proof-xsym-activate-command 
 	     (proof-shell-live-buffer)
@@ -108,6 +109,8 @@ Updates the input mapping for reading shortcuts."
 
 (defun proof-unicode-tokens-deactivate-prover ()
   (when (and proof-xsym-deactivate-command 
+	     ;; NB: clash with X-symbols since use same commands in prover!
+	     (not (proof-ass x-symbol-enable))
 	     (proof-shell-live-buffer)
 	     (proof-shell-available-p))
     (proof-shell-invisible-command-invisible-result
