@@ -467,7 +467,6 @@ Typically, a list of syntax of commands available."
   "Change directory to the default directory for the current buffer."
   proof-shell-cd-cmd
   (proof-format-filename proof-shell-cd-cmd
-	  ;; FSF fix: use default-directory rather than fn
 	  default-directory))
 
 (defun proof-cd-sync ()
