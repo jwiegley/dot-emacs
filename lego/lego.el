@@ -149,8 +149,9 @@ Activates extended printing routines required for Proof General.")
 
 (define-derived-mode lego-shell-mode proof-shell-mode
    "lego-shell"
-   ;; With nil argument for docstring, Emacs makes up a nice one.
-   nil
+     "Major mode for LEGO proof scripts.
+
+\\{lego-mode-map}"
    (lego-shell-mode-config))
 
 (define-derived-mode lego-mode proof-mode

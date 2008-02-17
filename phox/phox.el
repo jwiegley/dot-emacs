@@ -176,7 +176,10 @@
 ;; <mode>-config-done function to complete configuration.
 
 (define-derived-mode phox-mode proof-mode
-    "PhoX script" nil
+    "PhoX script" 
+     "Major mode for PhoX proofs.
+
+\\{phox-mode-map}"
     (phox-config)
     (proof-config-done)
     (phox-setup-outline)
