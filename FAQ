@@ -309,12 +309,25 @@ Q14. I see spurious ^M characters at the end of lines in the
 A14. Customize the value of `proof-shell-strip-crs-from-output'.
 
 
+
+-----------------------------------------------------------------
+
+Q15. Undo behaviour in Coq seems to stop working with very long
+     sequences of commands.
+
+A15. Coq has a limited history for Undo.  Change 
+
+	Coq -> Settings -> Undo Depth
+
+     to something higher.  
+
+
 -----------------------------------------------------------------
 
 
-Q15. Can I join any mailing lists for Proof General?
+Q16. Can I join any mailing lists for Proof General?
 
-A15. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
+A16. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
      with the line "subscribe" in the message body, to join the
      users' and announcements list.
 
