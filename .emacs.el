@@ -10,6 +10,7 @@
      (reverse
       (list (expand-file-name "~/Library/Emacs")
 	    (expand-file-name "~/Library/Emacs/site-lisp/circe")
+	    (expand-file-name "~/Library/Emacs/site-lisp/distel/elisp")
 	    (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m")
 	    (expand-file-name "~/Library/Emacs/site-lisp/epg")
 	    (expand-file-name "~/Library/Emacs/site-lisp/muse/lisp")
@@ -63,7 +64,6 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(Info-additional-directory-list (quote ("~/Library/Info")))
  '(abbrev-mode t)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
@@ -284,9 +284,7 @@
 
 ;;;_* packages
 
-(dolist (package-init-file
-	 (directory-files "~/Library/Emacs/packages" t "\\.el$" t))
-  (load package-init-file))
+(mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
 
 ;;;_ * abbrev
 
@@ -330,7 +328,7 @@
 (setq circe-default-realname "http://www.newartisans.com/"
       circe-server-coding-system '(utf-8 . undecided)
       circe-server-auto-join-channels
-      '(("^freenode$" "#ledger" "#emacs"))
+      '(("^freenode$" "#ledger"))
       circe-nickserv-passwords '(("freenode" "xco8imer")))
 
 (setq lui-max-buffer-size 30000
@@ -496,6 +494,13 @@ This is an appropriate function for `lui-pre-output-hook'."
 ;;;_ * flyspell
 
 (load "flyspell-ext" t)
+
+;;;_ * git
+
+(require 'git)
+(require 'vc-git)
+
+(add-to-list 'vc-handled-backends 'GIT)
 
 ;;;_ * groovy-mode
 
@@ -750,6 +755,7 @@ This can be 0 for immediate, or a floating point value.")
 	 (time-to-seconds (org-time-string-to-time (match-string 0))))))
 
 (defun org-my-sort-done-tasks ()
+  (interactive)
   (goto-char (point-min))
   (org-sort-entries-or-items nil ?F #'org-get-inactive-time)
   (let (after-save-hook)
@@ -776,7 +782,7 @@ This can be 0 for immediate, or a floating point value.")
       (call-interactively 'org-ctrl-c-ctrl-c)
     (let ((org-remember-templates
 	   '((110 "* NOTE %?\n  %u" "~/Documents/Pending/todo.txt" "Tasks"))))
-    (call-interactively 'org-remember))))
+      (call-interactively 'org-remember))))
 
 (defun org-insert-new-element (txt)
   "Given a task subtree as TXT, insert it into the current org-mode buffer."
@@ -969,9 +975,9 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p"
 
 ;;;_ * svk
 
-(load "psvn" t)
-(load "psvn-svk" t)
-(load "psvn-svn" t)
+;;(load "psvn" t)
+;;(load "psvn-svk" t)
+;;(load "psvn-svn" t)
 ;;(load "vc-svk" t)
 ;;(load "svk-ediff" t)
 
@@ -1323,6 +1329,7 @@ instead of hostname:portnum."
 
 ;;;_ * ctl-x
 
+(define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
 
 (defun unfill-paragraph (arg)
@@ -1459,7 +1466,7 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key mode-specific-map [?a] 'org-agenda)
 (define-key mode-specific-map [?c] 'clone-region-set-mode)
-(define-key mode-specific-map [?d] 'delete-whitespace-rectangle)
+(define-key mode-specific-map [?d] 'org-insert-dtp-link)
 
 (define-key mode-specific-map [?e ?a] 'byte-recompile-directory)
 
