@@ -4,3 +4,4 @@
 ^autoload.el$
 ^cus-dirs.el$
 ^paredit.patch$
+\.DS_Store$
