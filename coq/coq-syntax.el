@@ -1022,8 +1022,8 @@ Used by `coq-goal-command-p'"
   (modify-syntax-entry ?<  ".")
   (modify-syntax-entry ?>  ".")
   (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?_  "w")
-  (modify-syntax-entry ?\' "w")
+  (modify-syntax-entry ?_  "_")
+  (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
 
 ;; should maybe be "_" but it makes coq-find-and-forget (in coq.el) bug

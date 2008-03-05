@@ -671,7 +671,7 @@ happen since one of them is necessarily set to t in coq-syntax.el."
          (and (not dontguess)
          (if (region-exists-p) 
              (buffer-substring-no-properties (region-beginning) (region-end))
-           (thing-at-point 'word)))))
+           (thing-at-point 'symbol)))))
     (read-string 
      (if guess (concat s " (default " guess "): ") (concat s " : "))
      nil 'proof-minibuffer-history guess)))
