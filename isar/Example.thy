@@ -14,8 +14,7 @@ proof
   then show "B & A"
   proof
     assume B and A
-    then
-   show ?thesis ..
+    then show ?thesis ..
  qed
 qed
 
