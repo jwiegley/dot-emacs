@@ -917,7 +917,7 @@ This is specific to `coq-mode'."
   (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
   
 
-
+(defvar coq-last-hybrid-pre-string "")
 ;; pc: TODO: Have a generic way to split one output into several outputs
 ;; Actually this could be done by adapting process-delayed-output.
 (defun coq-hybrid-ouput-goals-response-p (cmd string)
@@ -943,6 +943,7 @@ To be used in `proof-shell-process-output-system-specific'."
       (pg-goals-display goalstring) ;; this erases response buffer
       (pg-response-display prestring);; this does not erase goals buffer
       ;(proof-shell-handle-delayed-output-hook)
+      (setq coq-last-hybrid-pre-string prestring)
       )))
 
 
@@ -1345,6 +1346,32 @@ Based on idea mentioned in Coq reference manual."
       (insert intros)
       (indent-according-to-mode))))
 
+
+(defun coq-insert-infoH-hook ()
+  (setq string (concat "infoH " string))
+  )
+
+(defun coq-insert-as ()
+  "Insert an \"as\" suffix to the next command with names given by \"infoH\"
+tactical.  Based on idea mentioned in Coq reference manual."
+  (interactive)
+  (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
+  (proof-assert-next-command-interactive)
+  (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook);as soone as possible
+  (proof-shell-wait)
+  (let 
+      ((str (string-match "<info type=\"infoH\">\\([^<]*\\)</info>" 
+                          coq-last-hybrid-pre-string))
+       (substr (match-string 1 coq-last-hybrid-pre-string))
+       )
+    (coq-find-command-end-backward)
+    (proof-strict-read-only-toggle -1)
+    (insert (concat " as " substr))
+    (proof-strict-read-only-toggle 1)
+    )
+  )
+
+
 (defun coq-insert-match ()
   "Insert a match expression from a type name by Show Intros.
 Based on idea mentioned in Coq reference manual. Also insert holes at insertion
@@ -1582,6 +1609,7 @@ number of hypothesis displayed, without hiding the goal"
       (beginning-of-line)
       (ignore-errors (search-backward-regexp "\\S-")) ; find something else than a space
       (recenter (- 1)) ; put it at bottom og window
+      (beginning-of-line)
       (select-window curwin)
       )))
 
