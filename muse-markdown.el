@@ -37,7 +37,7 @@
   "Options controlling the behavior of Muse MARKDOWN publishing."
   :group 'muse-publish)
 
-(defcustom muse-markdown-extension ".md.txt"
+(defcustom muse-markdown-extension ".mmd.txt"
   "Default file extension for publishing MARKDOWN files."
   :type 'string
   :group 'muse-markdown)
@@ -153,7 +153,7 @@ This will be used if no special characters are found."
    ((= (muse-line-beginning-position) (match-beginning 0))
     (prog1
         (let ((text (match-string 1)))
-          (muse-insert-markup (concat "[^fn" text "]: ")))
+          (muse-insert-markup (concat "[^" text "]: ")))
       (save-excursion
         (save-match-data
           (let* ((beg (goto-char (match-end 0)))
@@ -168,7 +168,7 @@ This will be used if no special characters are found."
               (replace-match "\\1" t)))))
       (replace-match "")))
    (t (let ((text (match-string 1)))
-        (muse-insert-markup (concat "[^fn" text "]")))
+        (muse-insert-markup (concat "[^" text "]")))
       (replace-match ""))))
 
 ;; Handling of tags for MARKDOWN
@@ -191,11 +191,11 @@ This will be used if no special characters are found."
 
 (defun muse-markdown-munge-buffer ()
   (goto-char (point-min))
-  (while (re-search-forward "<\\(example\\|verse\\)>\n" nil t)
+  (while (re-search-forward "<example>\n" nil t)
     (delete-region (match-beginning 0) (match-end 0))
     (let ((begin (point))
 	  end)
-      (re-search-forward "</\\(example\\|verse\\)>")
+      (re-search-forward "</example>")
       (delete-region (match-beginning 0) (match-end 0))
       (setq end (point-marker))
       (goto-char begin)
@@ -203,6 +203,21 @@ This will be used if no special characters are found."
 		  (< (point) end))
 	(insert "    ")
 	(forward-line))))
+  (goto-char (point-min))
+  (while (re-search-forward "<verse>\n" nil t)
+    (delete-region (match-beginning 0) (match-end 0))
+    (let ((begin (point))
+	  end)
+      (re-search-forward "</verse>")
+      (delete-region (match-beginning 0) (match-end 0))
+      (setq end (point-marker))
+      (goto-char begin)
+      (while (and (not (eobp))
+		  (< (point) end))
+	(insert "> ")
+	(goto-char (line-end-position))
+	(insert "  ")
+	(forward-char))))
   (goto-char (point-min))
   (while (re-search-forward "</quote>\\(\\s-\\|\n\\)+<quote>" nil t)
     (delete-region (match-beginning 0) (match-end 0))
