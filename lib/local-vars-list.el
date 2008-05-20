@@ -186,18 +186,19 @@ Raises an error if symb is not in the list."
       (local-vars-list-get-current lpat rpat))))
 
 (defun local-vars-list-get-safe (symb)
-  "Return true if variable SYMB belongs to the local variable list of the current
-buffer."
+  "Return true if variable SYMB belongs to the local variable list of the
+current buffer."
   (condition-case nil (local-vars-list-get symb) (error nil)))
 
 (defun local-vars-list-set (symb val)
   "Write the value val in the local variable list for variable symb.
-If the variable is already specified in the list, replace the value. If no local
-variable list is found, create one at the end of the buffer first."
+If the variable is already specified in the list, replace the
+value. If no local variable list is found, create one at the end
+of the buffer first."
   (save-excursion
     (let ((lrpat (local-vars-list-find)))
-      (if (not lrpat) 
-          (progn 
+      (if (not lrpat)
+          (progn
             (local-vars-list-insert-empty-zone)
             (setq lrpat (local-vars-list-find))))
       (beginning-of-line)

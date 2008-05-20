@@ -787,20 +787,29 @@ This is specific to `coq-mode'."
 
 (defun coq-guess-command-line (filename)
   "Guess the right command line options to compile FILENAME using `make -n'."
-  (let ((dir (file-name-directory filename)))
-    (if (file-exists-p (concat dir "Makefile"))
-	(let* 
-	    ((compiled-file (concat (substring 
-				     filename 0 
-				     (string-match ".v$" filename)) ".vo"))
-	     (command (shell-command-to-string 
-		       (concat  "cd " dir ";"
-				"gmake -n -W " filename " " compiled-file
-				"| sed s/coqc/coqtop/"))))
-	  (concat 
-	   (substring command 0 (string-match " [^ ]*$" command))
-	   (if coq-version-is-V8-1 '("-emacs-U") '("-emacs"))))
-      coq-prog-name)))
+  (if (local-variable-p 'coq-prog-name (current-buffer)) coq-prog-name
+    (let ((dir (file-name-directory filename))
+          (makedir
+           (cond
+            ((file-exists-p (concat dir "Makefile")) ".")
+;            ((file-exists-p (concat dir "../Makefile")) "..")
+;            ((file-exists-p (concat dir "../../Makefile")) "../..")
+            (t nil))))
+      (if makedir
+          (let*
+              ;;TODO, add dir name when makefile is in .. or ../..
+              ((compiled-file (concat (substring
+                                       filename 0
+                                       (string-match ".v$" filename)) ".vo"))
+               (command (shell-command-to-string
+                         (concat  "cd " dir ";"
+                                  "gmake -n -W " filename " " compiled-file
+                                  "| sed s/coqc/coqtop/"))))
+            (concat
+             (substring command 0 (string-match " [^ ]*$" command))
+             (if coq-version-is-V8-1 '("-emacs-U") '("-emacs"))))
+        coq-prog-name))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
@@ -818,15 +827,16 @@ This is specific to `coq-mode'."
 
   (setq proof-assistant-home-page coq-www-home-page)
 
-  (setq proof-prog-name           coq-prog-name)
+  (setq proof-prog-name coq-prog-name)
   (setq proof-guess-command-line 'coq-guess-command-line)
+  (setq proof-prog-name-guess t)
 
   ;; Commands sent to proof engine
   (setq proof-showproof-command "Show. "
-	proof-context-command "Print All. "
-	proof-goal-command "Goal %s . "
-	proof-save-command "Save %s . "
-	proof-find-theorems-command "Search %s . ")
+        proof-context-command "Print All. "
+        proof-goal-command "Goal %s . "
+        proof-save-command "Save %s . "
+        proof-find-theorems-command "Search %s . ")
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 

@@ -78,20 +78,31 @@ Set them to PROGNAME and PROGARGS respectively.  These variables describe the
 coqtop command to be launched on this file."
   (local-vars-list-set 'coq-prog-name progname)
   (local-vars-list-set 'coq-prog-args progargs)
-  )
+  (setq proof-prog-name progname)
+  (setq proof-prog-args progargs))
+
 
 (defun coq-read-directory (prompt &optional default maynotmatch initialcontent)
-  "Ask for (using PROMPT) and return a directory name.  
+  "Ask for (using PROMPT) and return a directory name.
 Do not insert the default directory."
   (let*
-      ;; read-file-name here because it is convenient to see .v files
-      ;; when selecting directories to add to the path. Moreover
-      ;; read-directory-name does not seem to exist in fsf emacs??
-      ((path (read-file-name prompt "" default (not maynotmatch) initialcontent)))
+      ;; read-file-name here because it is convenient to see .v files when
+      ;; selecting directories to add to the path. Moreover read-directory-name
+      ;; does not seem to exist in fsf emacs?? temporarily disable graphical
+      ;; dialog, as read-file-name does not allow to select a directory
+      ((current-use-dialog-box use-dialog-box)
+       (dummy (setq use-dialog-box nil))
+       (fname (file-name-nondirectory default))
+       (dir (file-name-directory default))
+       (path
+        (read-file-name prompt dir fname (not maynotmatch) initialcontent)))
+    (setq use-dialog-box current-use-dialog-box)
     path))
 
+;(read-file-name prompt &optional dir default-filename mustmatch
+; initial predicate)
 ;(read-from-minibuffer
-;         PROMPT &optional INITIAL-CONTENTS KEYMAP READP HISTORY ABBREV-TABLE DEFAULT)
+;  PROMPT &optional INITIAL-CONTENTS KEYMAP READP HISTORY ABBREV-TABLE DEFAULT)
 ;(read-directory-name
 ;         PROMPT &optional DIR DEFAULT MUST-MATCH INITIAL-CONTENTS HISTORY)
 
@@ -101,12 +112,12 @@ Do not insert the default directory."
     (let ((hd (car args)) (tl (cdr args)))
       (cond
        ((string-equal hd "-I")
-	(cond
-	 ((not tl) nil)
-	 ; if the option following -I starts with '-', forget the -I :
-	 ((char-equal ?- (string-to-char (car tl)))
-	  (coq-extract-directories-from-args tl))
-	 (t (cons (car tl) (coq-extract-directories-from-args (cdr tl))))))
+        (cond
+         ((not tl) nil)
+         ; if the option following -I starts with '-', forget the -I :
+         ((char-equal ?- (string-to-char (car tl)))
+          (coq-extract-directories-from-args tl))
+         (t (cons (car tl) (coq-extract-directories-from-args (cdr tl))))))
        (t (coq-extract-directories-from-args tl))))))
 
 
@@ -116,18 +127,20 @@ These variable describes the coqtop arguments to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-args', it
 will be used to suggest values to the user."
   (let* ((olddirs (coq-extract-directories-from-args oldvalue))
-	 (progargs (if coq-version-is-V8-1 '("-emacs-U") '("-emacs")))
-	 (option))
-    ;; first suggest preious directories
+         (progargs (if coq-version-is-V8-1 '("-emacs-U") '("-emacs")))
+         (option))
+    ;; first suggest previous directories
     (while olddirs
       (if (y-or-n-p (format "Keep the directory %s? " (car olddirs)))
-	  (setq progargs (cons (car olddirs) (cons "-I" progargs))))
+          (setq progargs (cons (car olddirs) (cons "-I" progargs))))
       (setq olddirs (cdr olddirs)))
     ;; then ask for more
-    (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) :" ""))
+    (setq option (coq-read-directory
+                  "Add directory (tab to complete, empty to stop) -I:" ""))
     (while (not (string-equal option ""))
       (setq progargs (cons option (cons "-I" progargs))) ;reversed
-      (setq option (coq-read-directory "Add directory (tab to complete, empty to stop) -I :" "")))
+      (setq option (coq-read-directory
+                    "Add directory (tab to complete, empty to stop) -I :" "")))
     (reverse progargs)))
 
 (defun coq-ask-prog-name (&optional oldvalue)
@@ -135,13 +148,16 @@ will be used to suggest values to the user."
 These variable describes the coqtop command to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-name', it
 will be used to suggest a value to the user."
+  (message (concat "oldavalue: " oldvalue))
   (let* ((deflt (or oldvalue "coqtop"))
-        (cmd (coq-read-directory "coq program name (default \"coqtop\"): " 
-                                 deflt t deflt)))
+         (cmd (coq-read-directory
+               (concat "coq program name (default \"" oldvalue "\"): ")
+               deflt t))
+         (cmd (if (string-equal cmd "") oldvalue cmd)))
     (if (and
          (string-match " " cmd)
          (not (y-or-n-p "The prog name contains spaces, are you sure ? ")))
-        (coq-ask-prog-name) ; retry
+        (coq-ask-prog-name oldvalue) ; retry
       cmd)))
 
 
@@ -150,12 +166,10 @@ will be used to suggest a value to the user."
 These variables describe the coqtop command to be launched on this file."
   (interactive)
   (let* ((oldname (local-vars-list-get-safe 'coq-prog-name))
-	 (oldargs (local-vars-list-get-safe 'coq-prog-args))
-	 (progname (coq-ask-prog-name oldname))
+         (oldargs (local-vars-list-get-safe 'coq-prog-args))
+         (progname (coq-ask-prog-name oldname))
          (progargs (coq-ask-prog-args oldargs)))
-    (coq-insert-coq-prog-name progname progargs)
-    (setq coq-prog-name progname)
-    (setq coq-prog-args progargs)))
+    (coq-insert-coq-prog-name progname progargs)))
 
 
 

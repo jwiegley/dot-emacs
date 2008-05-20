@@ -12,10 +12,10 @@
 
 (defcustom coq-prog-name   ;; da: moved from coq.el since needed here
   (proof-locate-executable "coqtop" t '("C:/Program Files/Coq/bin"))
-   "*Name of program to run as Coq. See `proof-prog-name', which is set from this.
- On Windows with latest Coq package you might need something like:
+   "*Name of program to run as Coq. See `proof-prog-name', which is set from
+ this. On Windows with latest Coq package you might need something like:
    C:/Program Files/Coq/bin/coqtop.opt.exe
- instead of just \"coqtop\".  
+ instead of just \"coqtop\".
  This must be a single program name with no arguments; see `coq-prog-args'
  to manually adjust the arguments to the Coq process.
  See also `coq-prog-env' to adjust the environment."
