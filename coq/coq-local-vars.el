@@ -78,8 +78,9 @@ Set them to PROGNAME and PROGARGS respectively.  These variables describe the
 coqtop command to be launched on this file."
   (local-vars-list-set 'coq-prog-name progname)
   (local-vars-list-set 'coq-prog-args progargs)
-  (setq proof-prog-name progname)
-  (setq proof-prog-args progargs))
+  ;; coq-guess-command-line uses coq-prog-name, so set it
+  (setq coq-prog-name progname)
+  (setq coq-prog-args progargs))
 
 
 (defun coq-read-directory (prompt &optional default maynotmatch initialcontent)

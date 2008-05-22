@@ -788,7 +788,7 @@ This is specific to `coq-mode'."
 (defun coq-guess-command-line (filename)
   "Guess the right command line options to compile FILENAME using `make -n'."
   (if (local-variable-p 'coq-prog-name (current-buffer)) coq-prog-name
-    (let ((dir (file-name-directory filename))
+    (let ((dir (or (file-name-directory filename) "."))
           (makedir
            (cond
             ((file-exists-p (concat dir "Makefile")) ".")
