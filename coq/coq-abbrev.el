@@ -7,7 +7,7 @@
 (require 'proof)
 (require 'coq-syntax)
 
-(defun holes-show-doc () 
+(defun holes-show-doc ()
   (interactive)
   (describe-variable 'holes-doc))
 
@@ -16,50 +16,50 @@
   (describe-variable 'coq-local-vars-doc))
 
 
-(defconst coq-tactics-menu 
-  (append '("INSERT TACTICS" 
+(defconst coq-tactics-menu
+  (append '("INSERT TACTICS"
 	    ["Intros (smart)" coq-insert-intros t])
 	  (coq-build-menu-from-db (append coq-tactics-db coq-solve-tactics-db))))
 
-(defconst coq-tactics-abbrev-table 
+(defconst coq-tactics-abbrev-table
   (coq-build-abbrev-table-from-db (append coq-tactics-db coq-solve-tactics-db)))
 
-(defconst coq-tacticals-menu 
+(defconst coq-tacticals-menu
   (append '("INSERT TACTICALS")
 	  (coq-build-menu-from-db coq-tacticals-db)))
 
-(defconst coq-tacticals-abbrev-table 
+(defconst coq-tacticals-abbrev-table
   (coq-build-abbrev-table-from-db coq-tacticals-db))
 
-(defconst coq-commands-menu 
-  (append '("INSERT COMMAND" 
+(defconst coq-commands-menu
+  (append '("INSERT COMMAND"
 	    ["Module/Section (smart)" coq-insert-section-or-module t]
 	    ["Require (smart)" coq-insert-requires t])
 	  (coq-build-menu-from-db coq-commands-db)))
 
-(defconst coq-commands-abbrev-table 
+(defconst coq-commands-abbrev-table
   (coq-build-abbrev-table-from-db coq-commands-db))
 
-(defconst coq-terms-menu 
-  (append '("INSERT TERM" 
+(defconst coq-terms-menu
+  (append '("INSERT TERM"
 	    ["Match (smart)" coq-insert-match t])
 	  (coq-build-menu-from-db coq-terms-db)))
 
-(defconst coq-terms-abbrev-table 
+(defconst coq-terms-abbrev-table
   (coq-build-abbrev-table-from-db coq-terms-db))
 
 
 
 ;;; The abbrev table built from keywords tables
 ;#s and @{..} are replaced by holes by holes-abbrev-complete
-(defun coq-install-abbrevs () 
+(defun coq-install-abbrevs ()
   "install default abbrev table for coq if no other already is."
   (if (and (boundp 'coq-mode-abbrev-table)
- 	   (not (equal coq-mode-abbrev-table (make-abbrev-table)))) 
-      (message "Coq abbrevs already exists, default not loaded")    
+	   (not (equal coq-mode-abbrev-table (make-abbrev-table))))
+      (message "Coq abbrevs already exists, default not loaded")
     (define-abbrev-table 'coq-mode-abbrev-table
-      (append coq-tactics-abbrev-table coq-tacticals-abbrev-table 
- 	      coq-commands-abbrev-table coq-terms-abbrev-table))
+      (append coq-tactics-abbrev-table coq-tacticals-abbrev-table
+	      coq-commands-abbrev-table coq-terms-abbrev-table))
     ;; if we use default coq abbrev, never ask to save it
     (setq save-abbrevs nil)
     (message "Coq default abbrevs loaded")
@@ -71,13 +71,13 @@
 
 ;; The coq menu mainly built from tables
 
-(defpgdefault menu-entries 
+(defpgdefault menu-entries
    `(
      ["Print..." coq-Print t]
      ["Check..." coq-Check t]
      ["About..." coq-About t]
      ["insert command (interactive)" coq-insert-command t]
-     ,coq-commands-menu     
+     ,coq-commands-menu
      ["insert term (interactive)" coq-insert-term t]
      ,coq-terms-menu
      ["insert tactic (interactive)" coq-insert-tactic t]
@@ -114,12 +114,12 @@
       ["Print Scope/Visibility..." coq-PrintScope t]
       )
 
-     ("Holes" 
+     ("Holes"
       ;; da: I tidied this menu a bit.  I personally think this "trick"
       ;; of inserting strings to add documentation looks like a real
-      ;; mess in menus ... I've removed it for the three below since 
+      ;; mess in menus ... I've removed it for the three below since
       ;; the docs below appear in popup in messages anyway.
-      ;; 
+      ;;
       ;; "Make a hole active   click on it"
       ;; "Disable a hole   click on it (button 2)"
       ;; "Destroy a hole   click on it (button 3)"
@@ -140,7 +140,7 @@
       ["Unexpand last" unexpand-abbrev t]
       ["List abbrevs" list-abbrevs t]
       ["Edit abbrevs" edit-abbrevs t];; da: is it OK to add edit?
-      ["Abbrev mode" abbrev-mode 
+      ["Abbrev mode" abbrev-mode
        :style toggle
        :selected (and (boundp 'abbrev-mode) abbrev-mode)])
      ;; With all these submenus you have to wonder if these things belong
@@ -150,7 +150,7 @@
      ["help on setting persistently" coq-local-vars-list-show-doc t]
      ))
 
-;; da: Moved this from the main menu to the Help submenu.  
+;; da: Moved this from the main menu to the Help submenu.
 ;; It also appears under Holes, anyway.
 (defpgdefault help-menu-entries
   '(["Tell me about holes?" holes-show-doc t]

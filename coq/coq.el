@@ -23,6 +23,10 @@
 
 (require 'coq-local-vars) 
 (require 'coq-syntax)      ; determines coq version, sets coq-prog-name
+;; ----- coq specific menu is defined in coq-abbrev.el
+(require 'coq-abbrev)
+
+
 
 ;; ----- coq-shell configuration options
 
@@ -88,7 +92,6 @@ To disable coqc being called (and use only make), set this to nil."
 ;; da: I think the default t setting now works fine, at least for me.
 ;; pc: 8.0 backward compliance:
 (if coq-version-is-V8-0 (setq proof-shell-unicode nil))
-
 
 (defcustom coq-prog-env nil
   "*List of environment settings d to pass to Coq process.
@@ -216,14 +219,14 @@ On Windows you might need something like:
   (define-derived-mode coq-response-mode proof-response-mode
   "CoqResp" nil
     (coq-response-config)))
- 
+
 (eval-and-compile
-  (define-derived-mode coq-mode proof-mode
-   "coq" 
-     "Major mode for Coq scripts.
+  (define-derived-mode coq-mode proof-mode "coq"
+    "Major mode for Coq scripts.
 
 \\{coq-mode-map}"
-   (coq-mode-config)))
+    (coq-mode-config)))
+
 
 (eval-and-compile
   (define-derived-mode coq-goals-mode proof-goals-mode
@@ -640,7 +643,6 @@ happen since one of them is necessarily set to t in coq-syntax.el."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 
 (defconst notation-print-kinds-table 
@@ -1243,7 +1245,6 @@ mouse activation."
   (while (re-search-forward "\(\w+[^\w]\)" nil t)
     (replace-match "\372\200\373\\1\374" nil t)))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Context-senstive in-span menu additions 
@@ -1270,9 +1271,6 @@ mouse activation."
 ;;;;;;;;;;;;;;;;;;;;;
 ; Some smart insertion function
 ;;;;;;;;;;;;;;;;;;;;;;
-
-;; ----- coq specific menu is defined in coq-abbrev.el
-(require 'coq-abbrev)
 
 (defconst module-kinds-table 
   '(("Section" 0) ("Module" 1) ("Module Type" 2) ("Declare Module" 3))
