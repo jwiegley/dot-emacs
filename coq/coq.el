@@ -71,7 +71,7 @@ To disable coqc being called (and use only make), set this to nil."
 
 ;; Command to initialize the Coq Proof Assistant
 
-(defcustom coq-default-undo-limit 100
+(defcustom coq-default-undo-limit 300
   "Maximum number of Undo's possible when doing a proof."
   :type 'number
   :group 'coq)
