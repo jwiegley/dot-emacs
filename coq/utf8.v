@@ -50,8 +50,12 @@ Notation "x ≥ y" := (ge x y) (at level 70, no associativity).
 
 (* test *)
 (*
-Goal ∀ x, True -> (∃ y , x ≥ y + 1) ∨ x ≤ 0.
+Goal ∀ x, True -> (∃ y , x ≥ y + 1) ∨ x ≤ y.
 *)
+
+(* Test for error message
+Goal ∀ x, True -> (∃ y , x ≥ y + 1) ∨ x ≤ (∃ y , x ≥ y + 1).
+ *)
 
 (* Integer Arithmetic *)
 (* TODO

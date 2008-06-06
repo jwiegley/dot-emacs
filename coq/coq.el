@@ -1503,7 +1503,7 @@ buffer."
         ;; clean the response buffer from ultra-ugly underlined command line
         ;; parsed above. Don't kill the first \n
         (when (and clean mtch) (delete-region (+ mtch 1) (match-end 0)))
-        (when mtch 
+        (when mtch
           (setq last-coq-error-location res)
           res)))))
 
@@ -1524,15 +1524,15 @@ If PARSERESP and CLEAN are non-nil, delete the error location from the response
 buffer."
   (interactive)
   (let ((mtch (coq-get-last-error-location parseresp clean)))
-    (when mtch 
+    (when mtch
       (let ((pos (car mtch))
             (lgth (cadr mtch)))
-        (set-buffer proof-script-buffer) 
+        (set-buffer proof-script-buffer)
         (goto-char (+ (proof-locked-end) 1))
         (coq-find-real-start)
         ;; Here start som ugly code to adapt pos and lgth to x-symbol
         (when (and (boundp 'x-symbol-mode) x-symbol-mode)
-          (let* 
+          (let*
               ((comstart (point))
                (comend (coq-find-command-end-forward))
                (reg1 100) (reg2 101) errpoint
@@ -1559,17 +1559,18 @@ buffer."
             ;; adapt lgth
             (setq lgth (- (point) errpoint))
             ;; go back at command start
-            (goto-char comstart)
-            ;(setq legth ??))
-          ))
-        (forward-char pos)
-        (let ((sp (span-make (point) (+ (point) lgth))))
+            (goto-char comstart))) ;(setq legth ??))
+
+        ; coq error positions are in byte, not in chars, so translate
+        ; for utf-8 error message
+        (goto-char (byte-to-position (+ (position-bytes (point)) pos)))
+        (let* ((start (point))
+               (dummy (goto-char
+                       (byte-to-position (+ (position-bytes (point)) lgth))))
+               (sp (span-make start (point))))
           (set-span-face sp 'proof-warning-face)
-          ;; delete timer if exist
-          ;;(setq coq-highlight-error-timer (run-with-timer 10 nil 'span-delete sp))
           (ignore-errors (sit-for 20)) ; errors here would skip the next delete
-          (span-delete sp)
-          )))))
+          (span-delete sp))))))
 
 
 (defvar coq-allow-highlight-error t)

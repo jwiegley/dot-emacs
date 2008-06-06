@@ -15,7 +15,8 @@
 ** Coq changes
 
 - Add Undo Depth setting, default to 200 (Coq 8.1 has only 100)
-
+- Unicode error messages are correctly highlighted with emacs23
+  (emacs-snapshot), previous emacs's can't be fixed.
 
 
 
