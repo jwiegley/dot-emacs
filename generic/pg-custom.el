@@ -190,6 +190,16 @@ http://proofgeneral.inf.ed.ac.uk/trac"
   :type 'file
   :group 'prover-config)
 
+;; TODO: not used yet.  Want to move specific enabling of holes modes
+;; to generic code (coq.el enables it in script and shell).
+;; See http://proofgeneral.inf.ed.ac.uk/trac/ticket/211
+(defpgcustom use-holes (eq proof-assistant-symbol 'coq)
+  "Whether or not to use the holes (editing template) mechanism.
+Enabled by default for Coq."
+  :type 'boolean
+  :group 'prover-config)
+  
+
 
 
 (provide 'pg-custom)
