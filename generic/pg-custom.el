@@ -56,6 +56,12 @@ look for files named x-symbol-<PA>.el.")
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defpgcustom unicode-tokens2-enable nil
+  "*Non-nil for using Unicode token input mode in Proof General."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
 (defpgcustom mmm-enable nil
   "*Whether to use MMM Mode in Proof General for this assistant.
 MMM Mode allows multiple modes to be used in the same buffer.
