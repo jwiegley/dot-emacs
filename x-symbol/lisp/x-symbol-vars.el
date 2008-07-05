@@ -1964,8 +1964,14 @@ REGEXP matches, no prefix is used.  See `x-symbol-image-convert-file'."
   :group 'x-symbol-image-general
   :type 'string)
 
+(defcustom x-symbol-image-converter-required nil
+  "*Whether or not images are required.  For Proof General, defaults to nil."
+  :group 'x-symbol-image-general
+  :type 'boolean)
+
 (defcustom x-symbol-image-converter
-  (when (console-type)
+  (when (and (console-type) 
+	     x-symbol-image-converter-required)
     (save-excursion
       (set-buffer (get-buffer-create " *x-symbol-image command*"))
       (erase-buffer)
@@ -1990,7 +1996,7 @@ REGEXP matches, no prefix is used.  See `x-symbol-image-convert-file'."
 	       (goto-char (point-min))
 	       (if (re-search-forward "ImageMagick" nil t)
 		   (if iformat (warn "x-symbol-image: \"convert\" doesn't list recognized formats, I'll try %S" iformat))
-		 (warn "x-symbol-image: no valid image converter")
+		 (warn "x-symbol-image: no valid image converter (ImageMagick convert binary required for images)")
 		 (setq iformat nil))))
 	(kill-buffer (current-buffer))
 	(when iformat
