@@ -186,7 +186,8 @@ http://proofgeneral.inf.ed.ac.uk/trac"
 
 ;; TODO: not used yet.
 (defpgcustom tags-program nil
-  "Program to run to generate TAGS table for proof assistant."
+  "Program to run to generate TAGS table for proof assistant.
+Currently this setting is UNIMPLEMENTED, changes have no effect."
   :type 'file
   :group 'prover-config)
 
@@ -195,7 +196,8 @@ http://proofgeneral.inf.ed.ac.uk/trac"
 ;; See http://proofgeneral.inf.ed.ac.uk/trac/ticket/211
 (defpgcustom use-holes (eq proof-assistant-symbol 'coq)
   "Whether or not to use the holes (editing template) mechanism.
-Enabled by default for Coq."
+Enabled by default for Coq.
+Currently this setting is UNIMPLEMENTED, changes have no effect."
   :type 'boolean
   :group 'prover-config)
   
