@@ -54,8 +54,9 @@
 ;#s and @{..} are replaced by holes by holes-abbrev-complete
 (defun coq-install-abbrevs ()
   "install default abbrev table for coq if no other already is."
-  (if (and (boundp 'coq-mode-abbrev-table)
-	   (not (equal coq-mode-abbrev-table (make-abbrev-table))))
+  (if (boundp 'coq-mode-abbrev-table)
+      ;; da: this test will always fail.  Assume bound-->non-empty
+      ;; (not (equal coq-mode-abbrev-table (make-abbrev-table))))
       (message "Coq abbrevs already exists, default not loaded")
     (define-abbrev-table 'coq-mode-abbrev-table
       (append coq-tactics-abbrev-table coq-tacticals-abbrev-table
