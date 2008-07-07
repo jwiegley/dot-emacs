@@ -308,62 +308,50 @@ matches contents of quotes for quoted identifiers.")
 ;; ----- Isabelle inner syntax hilite
 
 (defface isabelle-class-name-face
-  '((((type x) (class color) (background light))
-     (:foreground "red"))
-    (((type x) (class color) (background dark))
-     (:foreground "red3"))
-    (t
-     (bold t)))
+  (proof-face-specs
+   (:foreground "red")
+   (:foreground "red3")
+   (:bold t))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-tfree-name-face
-  '((((type x) (class color) (background light))
-     (:foreground "purple"))
-    (((type x) (class color) (background dark))
-     (:foreground "purple3"))
-    (t
-     (bold t)))
+  (proof-face-specs
+   (:foreground "purple")
+   (:foreground "purple3")
+   (:bold t))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-tvar-name-face
-  '((((type x) (class color) (background light))
-     (:foreground "purple"))
-    (((type x) (class color) (background dark))
-     (:foreground "purple3"))
-    (t
-     (bold t)))
+  (proof-face-specs
+   (:foreground "purple")
+   (:foreground "purple3")
+   (:bold t))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-free-name-face
-  '((((type x) (class color) (background light))
-     (:foreground "blue"))
-    (((type x) (class color) (background dark))
-     (:foreground "blue3"))
-    (t
-     (bold t)))
+  (proof-face-specs
+   (:foreground "blue")
+   (:foreground "blue3")
+   (:bold t))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-bound-name-face
-  '((((type x) (class color) (background light))
-     (:foreground "green4"))
-    (((type x) (class color) (background dark))
-     (:foreground "green"))
-    (t
-     (bold t)))
+  (proof-face-specs
+   (:foreground "green4")
+   (:foreground "green")
+   (:bold t))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-var-name-face
-  '((((type x) (class color) (background light))
-     (:foreground "darkblue"))
-    (((type x) (class color) (background dark))
-     (:foreground "blue3"))
-    (t
-     (bold t)))
+  (proof-face-specs
+   (:foreground "darkblue")
+   (:foreground "blue3")
+   (:bold t))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
