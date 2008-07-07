@@ -105,16 +105,16 @@ results will be undefined when files are saved."
     (":=" . "≔")
     ;; some word shortcuts, started with backslash otherwise
     ;; too annoying, perhaps.
-    ("\forall" . "∀")
-    ("\exists" . "∃")
-    ("\nat" . "ℕ")
-    ("\int" . "ℤ")
-    ("\rat" . "ℚ")
-    ("\real" . "ℝ")
-    ("\complex" . "ℂ")
-    ("\euro" . "€")
-    ("\yen" . "¥")
-    ("\cent" . "¢"))
+    ("\\forall" . "∀")
+    ("\\exists" . "∃")
+    ("\\nat" . "ℕ")
+    ("\\int" . "ℤ")
+    ("\\rat" . "ℚ")
+    ("\\real" . "ℝ")
+    ("\\complex" . "ℂ")
+    ("\\euro" . "€")
+    ("\\yen" . "¥")
+    ("\\cent" . "¢"))
   "Shortcut key sequence table for Unicode strings.
 
 You can adjust this table to add more entries, or to change entries for
