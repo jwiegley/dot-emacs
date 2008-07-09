@@ -211,18 +211,17 @@ to the default toolbar."
 	;; For XEmacs, we evaluate the specifier.
 	(setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
 
-      ;; On GNU emacs, we need to make a new "key"map, 
-      ;; and set a local copy of tool-bar-map to it.
+      ;; On GNU Emacs, we need to make a new "key"map.
       (setq proof-toolbar (make-sparse-keymap))
-      (let ((tool-bar-map proof-toolbar)
-	    (load-path (list proof-images-directory))) ; for finding images
-	(dolist (but proof-toolbar-button-list)
-	  (apply 
-	   'tool-bar-add-item 
-	   (eval (nth 0 but))		; image filename
-	   (nth 1 but)			; function symbol
-	   (nth 2 but)			; dummy key
-	   (nthcdr 3 but)))))		; remaining properties
+      (add-to-list 'image-load-path proof-images-directory) ; rude?
+      (dolist (but proof-toolbar-button-list)
+	(apply 
+	 'tool-bar-local-item
+	 (eval (nth 0 but))		; image filename
+	 (nth 1 but)			; function symbol
+	 (nth 2 but)			; dummy key
+	 proof-toolbar
+	 (nthcdr 3 but))))		; remaining properties
     ;; Finished
     ))
 
