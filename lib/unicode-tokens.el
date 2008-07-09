@@ -453,8 +453,9 @@ Also sets `unicode-tokens-token-alist'."
     (display   
      ((raise 0.4)    "superscript")
      ((raise -0.4)   "subscript")
-     ((raise 0.35)  "superscript1")
-     ((raise -0.35) "subscript1")
+     ((raise 0.35)   "superscript1")
+     ((raise -0.35)  "subscript1")
+     ((raise 0.3)    "idsuperscript1")
      ((raise -0.3)   "idsubscript1")
      (default	)))
   "Text property table for annotations.")
@@ -532,6 +533,9 @@ after next character (single character control sequence)."
 	     ((equal tok "sub") 
 	      (list (setq unicode-tokens-next-control-token-seen-token
 			  "subscript1") t))
+	     ((equal tok "isup") 
+	      (list (setq unicode-tokens-next-control-token-seen-token
+			  "idsuperscript1") t))
 	     ((equal tok "isub") 
 	      (list (setq unicode-tokens-next-control-token-seen-token
 			  "idsubscript1") t)))))
