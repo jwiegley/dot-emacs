@@ -145,13 +145,14 @@ generated with the Lisp form `(isa-tool-list-logics)'."
 (unless noninteractive
   (setq isabelle-logics-available (isa-tool-list-logics)))
 
-;; FIXME: document this one
 (defcustom isabelle-chosen-logic nil
   "*Choice of logic to use with Isabelle.
-If non-nil, will be added into isabelle-prog-name as default value.
+If non-nil, added onto the Isabelle command line for invoking Isabelle.
 
-NB: you have saved a new logic image, it may not appear in the choices
-until Proof General is restarted."
+You can set this as a file local variable, using a special comment
+at the top of your theory file, like this:
+
+   (* -*- isabelle-chosen-logic: \"ZF\" -*- *)"
   :type (append
 	 (list 'choice)
 	 (mapcar (lambda (str) (list 'const str)) isabelle-logics-available)
@@ -159,7 +160,21 @@ until Proof General is restarted."
 	       '(const :tag "Unset (use default)" nil)))
   :group 'isabelle)
 
-;; TODO: make this into a value for proof-guess-command-line
+(defvar isabelle-chosen-logic-prev nil
+  "Value of `isabelle-chosen-logic' on last call of `isabelle-set-prog-name'.")
+  
+(defun isabelle-hack-local-variables-function ()
+  "Hook function for `hack-local-variables-hook'."
+  (if (and isabelle-chosen-logic
+	   (not (equal isabelle-chosen-logic 
+		       isabelle-chosen-logic-prev))
+	   (proof-shell-live-buffer))
+      (message "Warning: chosen logic %s does not match running Isabelle instance"
+	       isabelle-chosen-logic)))
+
+(add-hook 'hack-local-variables-hook 
+	  'isabelle-hack-local-variables-function)
+
 (defun isabelle-set-prog-name (&optional filename)
   "Make proper command line for running Isabelle.
 This function sets `isabelle-prog-name' and `proof-prog-name'."
@@ -181,6 +196,7 @@ This function sets `isabelle-prog-name' and `proof-prog-name'."
 		  (getenv "PROOFGENERAL_LOGIC")))
        (logicarg (if (and logic (not (equal logic "")))
 		     (concat " " logic) "")))
+    (setq isabelle-chosen-logic-prev isabelle-chosen-logic)
     (setq isabelle-prog-name (concat isabelle opts logicarg))
     (setq proof-prog-name isabelle-prog-name)))
 
@@ -264,7 +280,6 @@ for you, you should disable this behaviour."
     (list (cons "Isabelle documentation" (mapcar vc (isa-tool-list-docs)))))
   "Isabelle documentation menu.  Constructed when PG is loaded.")
 
-
 (defvar isabelle-logics-menu-entries nil
   "Menu of logics available.")
 
@@ -276,12 +291,14 @@ for you, you should disable this behaviour."
 		  (isabelle-choose-logic nil)
 		  :active (not (proof-shell-live-buffer))
 		  :style radio
-		  :selected (not isabelle-chosen-logic)])
+		  :selected (not isabelle-chosen-logic)
+		  :help "Switch to default logic"])
 	       (mapcar (lambda (l)
 			 (vector l (list 'isabelle-choose-logic l)
 				 :active '(not (proof-shell-live-buffer))
 				 :style 'radio
-				 :selected (list 'equal 'isabelle-chosen-logic l)))
+				 :selected (list 'equal 'isabelle-chosen-logic l)
+				 :help (format "Switch to %s logic" l)))
 		       isabelle-logics-available)))))
 
 (unless noninteractive
