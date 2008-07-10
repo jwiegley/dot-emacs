@@ -43,22 +43,10 @@
 	  ;; not much hope to locate executable remotely
 	  (concat proof-rsh-command " isatool"))
       (getenv "ISATOOL")
-      (proof-locate-executable "isatool")
-      ;; FIXME: use same mechanism as isabelle-program-name below.
-      (let ((possibilities
-	     (list
-	      (concat (getenv "HOME") "/Isabelle/bin/isatool")
-	      "/usr/share/Isabelle/bin/isatool"
-	      "/usr/local/bin/isatool"
-	      "/usr/local/Isabelle/bin/isatool"
-	      "/usr/bin/isatool"
-	      "/opt/bin/isatool"
-	      "/opt/Isabelle/bin/isatool")))
-	(while (and possibilities
-		    (not (file-executable-p
-			  (car possibilities))))
-	  (setq possibilities (cdr possibilities)))
-	(car-safe possibilities))
+      (proof-locate-executable "isatool" nil
+			       (list
+				;; support default unpack in home dir situation 
+				(concat (getenv "HOME") "/Isabelle/bin/")))
       "path_to_isatool_is_unknown")
   "Command to invoke Isabelle tool 'isatool'.
 Emacs should be able to find `isatool' if it is on the PATH when
@@ -120,34 +108,25 @@ If there is no setting for the variable, DEFAULT will be returned"
 ;;; ======= Interaction with System using Isabelle tools =======
 ;;;
 
-(defcustom isabelle-program-name
-  (if proof-running-on-win32
-      "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\"
-    (proof-locate-executable "isabelle" t
-			     '("/usr/local/Isabelle/bin/"
-			       "/opt/Isabelle/bin/"
-			       "/usr/Isabelle/bin/"
-			       "/usr/share/Isabelle/bin/")))
-  "*Default name of program to run Isabelle.
+(defcustom isabelle-program-name-override nil
+  "*Name of executable program to run Isabelle.
 
-The default value except when running under Windows is \"isabelle\",
-which will get expanded using PATH if possible, or in a number
-of standard locations (/usr/local/Isabelle/, /opt/Isabelle, etc).
+You can set customize this in case the automatic settings
+mechanism (based on isatool) does not work for you.  One reason
+to do this is if you are running Isabelle remotely, or using
+windows and avoiding isatool.
 
-The default value when running under Windows is:
+A possible value when running under Windows looks like this:
 
   C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\
 
 This expects SML/NJ in C:\\sml and Isabelle images in C:\Isabelle.
-The logic image name is tagged onto the end.
-
-NB: The Isabelle settings mechanism or the environment variable
-ISABELLE will always override this setting."
+The logic image name is tagged onto the end."
   :type 'file
   :group 'isabelle)
 
-(defvar isabelle-prog-name isabelle-program-name
-  "Set from `isabelle-program-name', has name of logic appended sometimes.")
+(defvar isabelle-prog-name nil
+  "Set from `isabelle-set-prog-name', has name of logic appended sometimes.")
 
 (defun isa-tool-list-logics ()
   "Generate a list of available object logics."
@@ -180,20 +159,21 @@ until Proof General is restarted."
 	       '(const :tag "Unset (use default)" nil)))
   :group 'isabelle)
 
-(defun isabelle-command-line ()
-  "Make proper command line for running Isabelle."
+;; TODO: make this into a value for proof-guess-command-line
+(defun isabelle-set-prog-name (&optional filename)
+  "Make proper command line for running Isabelle.
+This function sets `isabelle-prog-name' and `proof-prog-name'."
   (let*
-      ;; The ISABELLE and PROOFGENERAL_LOGIC values (as set when run
-      ;; under the interface wrapper script) indicate that we should
-      ;; determine the proper command line from the current Isabelle
-      ;; settings environment.
+      ;; The ISABELLE and PROOFGENERAL_LOGIC values (set when run
+      ;; under the interface wrapper script) indicate command line
+      ;; is set in current Isabelle settings environment.
       ((isabelle (or
-		  (getenv "ISABELLE")	; overrides default, may be updated
-		  isabelle-program-name ; calculated earlier
-		  "isabelle"))		; to be really sure
+		  isabelle-program-name-override  ; override in Emacs
+		  (getenv "ISABELLE")	  ; command line override 
+		  (isa-getenv "ISABELLE") ; choose to match isatool
+		  "isabelle"))		  ; to 
        (isabelle-opts (getenv "ISABELLE_OPTIONS"))
-       (opts (concat
-	      " -PI"  ;; Proof General + Isar
+       (opts (concat " -PI"  ;; Proof General + Isar
 	      (if proof-shell-unicode " -m PGASCII" "")
 	      (if (and isabelle-opts (not (equal isabelle-opts "")))
 		  (concat " " isabelle-opts) "")))
@@ -201,7 +181,8 @@ until Proof General is restarted."
 		  (getenv "PROOFGENERAL_LOGIC")))
        (logicarg (if (and logic (not (equal logic "")))
 		     (concat " " logic) "")))
-    (concat isabelle opts logicarg)))
+    (setq isabelle-prog-name (concat isabelle opts logicarg))
+    (setq proof-prog-name isabelle-prog-name)))
 
 (defun isabelle-choose-logic (logic)
   "Adjust isabelle-prog-name and proof-prog-name for running LOGIC."
@@ -210,14 +191,11 @@ until Proof General is restarted."
 	  "Use logic: "
 	  (mapcar 'list (cons "Default"
 			      isabelle-logics-available)))))
-  ;; a little bit obnoxious maybe (but maybe what naive user would expect)
-  ;; (customize-save-variable 'isabelle-chosen-logic logic)
   (if (proof-shell-live-buffer)
       (error "Can't change logic while Isabelle is running, please exit process first!"))
   (customize-set-variable 'isabelle-chosen-logic
 			  (unless (string-equal logic "Default") logic))
-  (setq isabelle-prog-name (isabelle-command-line))
-  (setq proof-prog-name isabelle-prog-name)
+  (isabelle-set-prog-name)
   ;; Settings are potentially different between logics, and
   ;; so are Isar keywords.  Set these to nil so they get
   ;; automatically re-initialised.

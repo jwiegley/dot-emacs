@@ -81,9 +81,9 @@ See -k option for Isabelle interface script."
 
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
+  (isabelle-set-prog-name)		; sets proof-prog-name
   (setq
    proof-assistant-home-page    isar-web-page
-   proof-prog-name		(isabelle-command-line)
    ;; proof script syntax
    proof-terminal-char          ?\;     ; forcibly ends a command
    proof-script-command-start-regexp
