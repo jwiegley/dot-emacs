@@ -1643,7 +1643,7 @@ to the function which parses the script segment by segment."
 	    (setq cmdseen t)
 	    (setq seg (list
 		       'cmd
-		       (buffer-substring-no-properties realstart (point))
+		       (buffer-substring realstart (point))
 		       (point))))
 	   ((null type))		; nothing left in buffer
 	   (t
@@ -1807,7 +1807,7 @@ to the function which parses the script segment by segment."
 	      (skip-chars-forward " \t\n")
 	      (point)))
 	   (comend (point))
-	   (bufstr (buffer-substring-no-properties prev-no-blanks comend))
+	   (bufstr (buffer-substring prev-no-blanks comend))
 	   (type
 	    (save-excursion
 	      ;; The behaviour here is a bit odd: this is a
@@ -1946,7 +1946,7 @@ This version is used when `proof-script-command-end-regexp' is set."
 	      ;; There should be something left: a command.
 	      (skip-chars-forward " \t\n")
 	      (setq alist (cons (list 'cmd
-				      (buffer-substring-no-properties
+				      (buffer-substring
 				       (point) cmdend)
 				      cmdend) alist))
 	      (setq prev cmdend)
