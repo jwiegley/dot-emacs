@@ -1388,7 +1388,7 @@ This is a subroutine of `proof-shell-filter'."
 	  ;; should never be any such messages!
 	  ;; (max
 	  ;;  (marker-position proof-marker)
-	      (- (point) proof-shell-eager-annotation-start-length)
+	      (- (point) (1+ proof-shell-eager-annotation-start-length))
 	  (1- (process-mark (get-buffer-process (current-buffer))))))
       ;; Otherwise, the search for the ending annotation was
       ;; unsuccessful, so we set the scanner marker to the start of
