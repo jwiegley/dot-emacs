@@ -443,7 +443,7 @@ matches contents of quotes for quoted identifiers.")
 
 ;; ----- variations on undo
 
-(defconst isar-undo "ProofGeneral.undo;")  ;; no output undo
+(defconst isar-undo "ProofGeneral.undo;")
 
 (defun isar-remove (name)
   (concat "init_toplevel; kill_thy " name ";"))
