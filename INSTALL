@@ -1,5 +1,5 @@
-Instructions for installing Proof General
-=========================================
+Short Instructions for installing Proof General (details below)
+===============================================================
 
 Proof General runs on a variety of platforms and with a variety of
 Emacs versions; see COMPATIBILITY for further notes.
@@ -33,9 +33,6 @@ If none of these files help, then contact me via the address below.
    Edinburgh.
    
    http://proofgeneral.inf.ed.ac.uk/trac
-
-
-
 
 
 
@@ -86,60 +83,6 @@ personal Emacs configuration, add this line:
   (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
 
 to your .emacs file.
-
-
-Running on Windows
-------------------
-
-For tips, please see here:
-
-   http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsOnWindows
-
-We recommend EmacsW32 available at:
-
-   http://www.ourcomments.org/Emacs/EmacsW32.html
-
-Unpack the Proof General tar or zip file, and rename the folder to
-"ProofGeneral" to remove the version number.  Put a line like this:
-
-   (load-file "c:\\ProofGeneral\\generic\\proof-site.el")
-
-into .emacs.  You should put .emacs in value of HOME if you set that,
-or else in directory you installled Emacs in, e.g.  
-c:\Program Files\Emacs\.emacs
-
-Note that Windows compatibility isn't thoroughly tested by the
-maintainers.  If you discover problems, please send a report and/or
-fix to the address above.
-
-
-
-Running on Mac OS X
--------------------
-
-For tips, please see here:
-
-  http://proofgeneral.inf.ed.ac.uk/wiki/Main/PGEmacsOnMacOSX
-
-We recommend the 22.X based Carbon Emacs, here:
-
-  http://homepage.mac.com/zenitani/emacs-e.html
-
-This works with X-Symbol using the supplied TrueType font 
-x-symbol/etc/fonts-ttf/isaxsym.ttf, which
-you should install in Font Book.
-
-Note: Emacs.app looks set to become the future supported Mac port of
-GNU Emacs, but being based on GNU Emacs 23, it has recently become
-incompatible with X-Symbol because of API changes.  (A fix would be
-welcome; may be simple).  If you do not care about X-Symbol, or
-can use the Unicode Symbols mode, Emacs.app works just as well.
-
-Note that Mac compatibility isn't thoroughly tested by the
-maintainers.  If you discover problems, please send a report and/or
-fix to the address above.
-
-
 
 
 Byte Compilation.
