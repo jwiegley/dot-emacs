@@ -1,3 +1,7 @@
+;;; NOTE: this is a temporary file, for testing a new variant
+;;; of the unicode tokens, based on font-lock.  At present
+;;; not used.
+
 ;;; unicode-tokens2.el --- Support for editing tokens for Unicode characters
 ;;
 ;; Copyright(C) 2008 David Aspinall / LFCS Edinburgh
