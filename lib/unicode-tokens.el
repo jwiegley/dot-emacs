@@ -36,6 +36,8 @@
 ;; 
 
 ;; TODO:
+;; -- saving of font-lock-face annotations unreliable, possible confusion 
+;;    over handling of lists in format.el
 ;; -- add input methods for subscript/superscripts (further props in general)
 ;; -- after change function so inserting control sequences works? or other support
 ;; -- one-char subs should not be sticky so doesn't extend
@@ -442,12 +444,20 @@ Also sets `unicode-tokens-token-alist'."
     utoks)
   "Text properties to ignore when saving files.")
 
+(put 'font-lock-face 'format-list-valued t)
+
 (defconst unicode-tokens-annotation-translations
   `((font-lock-face
-     (bold		"bold")
-     (unicode-tokens-script-font-face "script")
-     (unicode-tokens-fraktur-font-face "frak")
-     (unicode-tokens-serif-font-face "serif")
+     ;; FIXME: this is faulty; format.el makes wrong calculations with
+     ;; list valued properties, and sometimes loses these settings.
+     ((:weight bold)	    "bold")
+     ((:weight italic)	    "italic")
+     ; ,(face-all-attributes 'unicode-tokens-script-font-face) "script")
+     ; ,(face-all-attributes 'unicode-tokens-fraktur-font-face) "fraktur")
+     ; ,(face-all-attributes 'unicode-tokens-serif-font-face) "serif")
+     ((:family "PakTypeNaqsh") "script")
+     ((:family "URW Bookman L") "fraktur")
+     ((:family "Liberation Serif") "serif")
      (proof-declaration-name-face "loc1")
      (default	))
     (display   
@@ -520,8 +530,8 @@ after next character (single character control sequence)."
 	     ((equal tok "eitalic") '("italic" nil))
 	     ((equal tok "bscript") '("script" t))
 	     ((equal tok "escript") '("script" nil))
-	     ((equal tok "bfrak")   '("frak" t))
-	     ((equal tok "efrak")   '("frak" nil))
+	     ((equal tok "bfrak")   '("fraktur" t))
+	     ((equal tok "efrak")   '("fraktur" nil))
 	     ((equal tok "bserif")  '("serif" t))
 	     ((equal tok "eserif")  '("serif" nil))
 	     ((equal tok "loc") 
@@ -559,7 +569,7 @@ after next character (single character control sequence)."
     ;; non-standard
     ("italic" .       ("bitalic" . "eitalic"))
     ("script" .       ("bscript" . "escript"))
-    ("frak" .         ("bfrak" . "efrak"))
+    ("fraktur" .      ("bfrak" . "efrak"))
     ("serif" .        ("bserif" . "eserif"))))
   
 (defun unicode-tokens-make-token-annotation (annot positive)
@@ -598,6 +608,11 @@ after next character (single character control sequence)."
 	(error "In unicode-tokens-annotation-control-token-alist: TYPE must be given.")))
   (add-text-properties beg end
 		       (unicode-tokens-find-property annot)))
+
+(defun unicode-tokens-annotate-region-with (annot)
+  `(lambda (beg end)
+     (interactive "r")
+     (unicode-tokens-annotate-region beg end ,annot)))
 
 (defun unicode-tokens-annotate-string (annot string)
   (add-text-properties 0 (length string)
@@ -763,7 +778,22 @@ Replaces contiguous text with 'utoks' property with property value."
   ;; otherwise action on space like in X-Symbol?
   )
 
+;;
+;; Menu
+;;
 
+(easy-menu-define unicode-tokens-menu unicode-tokens-mode-map
+  "Format menu"
+  (cons "Format"
+	(mapcar 
+	 (lambda (fmt)
+	   (vector fmt
+		   (unicode-tokens-annotate-region-with (downcase fmt))
+		   :help (concat "Format region as " (downcase fmt))
+		   :active 'mark-active)) ; XE? region-exists-p
+	   '("Subscript" "Superscript" 
+	     "Bold" "Italic" "Script" "Fraktur" "Serif"))))
+  
 (provide 'unicode-tokens)
 
 ;;; unicode-tokens.el ends here
