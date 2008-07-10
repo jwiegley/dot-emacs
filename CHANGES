@@ -6,25 +6,22 @@
 
 *** Fixes and improvements, compatibility patches
 
-- Unicode Tokens: supports control tokens (Isabelle sub/super/fonts)
+- Unicode Tokens: supports control tokens (Isabelle sub/super/fonts).
+   This support is preliminary; editing files is unreliable.
+   X-Symbol is still recommended.
 - Fix Options saving for MMM, Maths Menu, Unicode Tokens.
-- Compatibility improvements for: Carbon Emacs
+- Compatibility improvements for: Carbon Emacs, latest Emacs 23 CVS.
 
+** Isabelle changes
 
+- Choice of isabelle command command based on isatool, if run outside wrapper
+- Logic can be set in comment: (* -*- isabelle-chosen-logic: "ZF" -*- *)
 
 ** Coq changes
 
 - Add Undo Depth setting, default to 200 (Coq 8.1 has only 100)
 - Unicode error messages are correctly highlighted with emacs23
   (emacs-snapshot), previous emacs's can't be fixed.
-
-
-
-
-
-
-
-
 
 
 * Summary of Changes for Proof General 3.7 from 3.5  (via 3.6pre)
