@@ -127,7 +127,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2008 Proof General team, LFCS Edinburgh.
+Copyright © 1998-2008 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -3956,6 +3956,13 @@ responsible for recording any settings that are configured when you
 select @code{Isabelle -> Settings -> Save Settings}.  They are stored
 along with the other Emacs customization settings.
 
+@c TEXI DOCSTRING MAGIC: isabelle-chosen-logic
+@defvar isabelle-chosen-logic
+URL of web page for Isabelle.
+@end defvar
+
+
+
 
 @node Isabelle customizations
 @section Isabelle customizations
@@ -4287,7 +4294,7 @@ Script management as used in Proof General is described in the paper:
 
 @itemize @bullet
 @item @b{[BT98]}
-Yves Bertot and Laurent Th@'ery. @i{A generic approach to building
+Yves Bertot and Laurent Théry. @i{A generic approach to building
 user interfaces for theorem provers}. Journal of
 Symbolic Computation, 25(7), pp. 161-194, February 1998.
 @end itemize
