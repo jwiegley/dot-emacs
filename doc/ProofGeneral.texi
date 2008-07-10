@@ -3773,10 +3773,60 @@ it is very hard to let Proof General lose synchronization with the
 Isabelle process.
 
 @menu
+* Choosing logic and starting isabelle::
 * Isabelle commands::
-* Logics and Settings::
+* Isabelle settings::
 * Isabelle customizations::
 @end menu
+
+@node Choosing logic and starting isabelle
+@section Choosing logic and starting isabelle
+@cindex Isabelle logic
+
+When you load an Isabelle theory file into Proof General, you may be
+prompted for the path to the program @code{isatool} if it is not on the
+system @code{PATH} already.  This is used to generate further
+information for invoking Isabelle, in particular, the list of available
+logics.
+
+The Isabelle menu offers an easy way to select the invoked object logic.
+If you look at the menu:
+@lisp
+        Isabelle -> Logics -> 
+@end lisp 
+you should see the list of logics available to Isabelle.  This menu is
+generated from the output of the command @code{isatool findlogics}.
+(Similarly, the documentation menu is partly generated from
+@code{isatool doc}).  Instead of the menu, you can use the
+keyboard command @code{isabelle-chose-logic} to choose from the list.
+
+The logics list is refreshed dynamically so you can select any newly
+built heap images in the same Emacs session.  However, notice that the
+choices are greyed out while Isabelle is actually runnning --- you can
+only switch to a new logic if you first exit Isabelle (similarly to
+Proof General, Isabelle operates with only one logic at a time).
+
+Another way to set the logic before Isabelle is launched is using an
+Emacs local variable setting inside a comment at the top of the file,
+see the documentation of @code{isabelle-chosen-logic} below.
+
+In case you do not have the @code{isatool} program available or want to
+override its behaviour, you may set the variable
+@code{isabelle-program-name-override} to define the name of the
+executable used to start Isabelle.  The standard options are and 
+logic name are still appended.  
+@c in fact, we also have ISABELLE_OPTIONS and PROOFGENERAL_LOGIC,
+@c but lets not mention these.
+
+
+@c TEXI DOCSTRING MAGIC: isabelle-program-name-override
+
+@c TEXI DOCSTRING MAGIC: isabelle-chosen-logic
+
+@c TEXI DOCSTRING MAGIC: isabelle-choose-logic
+
+
+
 
 @node Isabelle commands
 @section Isabelle commands
@@ -3808,8 +3858,6 @@ Isabelle process.
 The Isabelle instance of Proof General supplies several specific
 help key bindings; these functions are offered within the prover help
 menu as well.
-
-
 
 @table @kbd
 @item C-c C-a r
@@ -3923,31 +3971,10 @@ Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
 @end deffn
 
 
-@node Logics and Settings
-@section Logics and Settings
-@cindex Isabelle logic
+@node Isabelle settings
+@section Isabelle settings
 
-The prover specific menu (the same on both Isabelle variants of Proof
-General) offers a way to select the invoked object logic, and also
-access to numerous settings of Isabelle.
-
-If you look at the menu:
-@lisp
-        Isabelle -> Logics -> 
-@end lisp 
-you should see the list of logics available to Isabelle.  This menu is
-generated from the output of the command @code{isatool findlogics}, so
-you should check that Proof General can find the @code{isatool} program
-for it to operate correctly.  (Similarly, the documentation menu is
-partly generated from @code{isatool doc}).  
-
-The logics menu is refreshed dynamically so you can select any newly
-built heap images in the same Emacs session.  However, notice that the
-choices are greyed out while Isabelle is actually runnning --- you can
-only switch to a new logic if you first exit Isabelle (similarly to
-Proof General, Isabelle operates with only one logic at a time).
-
-The prover specific menu also contains a @code{Settings} submenu, which
+The Isabelle menu also contains a @code{Settings} submenu, which
 allows you to configure things such as the behaviour of Isabelle's term
 pretty printer (display of types, sorts, etc).  Note that you won't
 see this sub-menu until Isabelle has been started, because it is
@@ -3956,21 +3983,14 @@ responsible for recording any settings that are configured when you
 select @code{Isabelle -> Settings -> Save Settings}.  They are stored
 along with the other Emacs customization settings.
 
-@c TEXI DOCSTRING MAGIC: isabelle-chosen-logic
-@defvar isabelle-chosen-logic
-URL of web page for Isabelle.
-@end defvar
-
-
 
 
 @node Isabelle customizations
 @section Isabelle customizations
 @cindex Isabelle customizations
 
-
-Here are some of the user options specific to Isabelle.  You can set
-these as usual with the customization mechanism.
+Here are some of the other user options specific to Isabelle.  You can
+set these as usual with the customization mechanism.
 
 @c TEXI DOCSTRING MAGIC: isabelle-web-page
 @defvar isabelle-web-page 
