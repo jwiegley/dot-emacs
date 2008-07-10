@@ -792,6 +792,8 @@ Replaces contiguous text with 'utoks' property with property value."
 		   :help (concat "Format region as " (downcase fmt))
 		   :active 'mark-active)) ; XE? region-exists-p
 	   '("Subscript" "Superscript" 
+	     "Supscript1" "Superscript1" 
+	     "Idsubscript1" "Idsuperscript1"
 	     "Bold" "Italic" "Script" "Fraktur" "Serif"))))
   
 (provide 'unicode-tokens)
