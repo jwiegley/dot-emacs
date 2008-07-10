@@ -553,6 +553,8 @@ after next character (single character control sequence)."
     ("superscript" .  ("bsup" . "esup"))
     ("subscript1" .   ("sub"))
     ("superscript1" . ("sup"))
+    ("idsubscript1" . ("isub"))
+    ("idsuperscript1" . ("isup"))
     ("loc1"	    . ("loc"))
     ;; non-standard
     ("italic" .       ("bitalic" . "eitalic"))
