@@ -79,18 +79,18 @@
 ;;
 ;; Unicode tokens 2 (temporary!)
 ;; 
-(defun proof-unicode-tokens2-support-available ()
-  "A test to see whether unicode tokens2 support is available."
-  (and
-   (or (featurep 'unicode-tokens2)
-       (proof-try-require 'unicode-tokens2))
-   ;; Requires prover-specific config in <foo>-unicode-tokens2.el
-   (proof-try-require (proof-ass-sym unicode-tokens2))))
+;; (defun proof-unicode-tokens2-support-available ()
+;;   "A test to see whether unicode tokens2 support is available."
+;;   (and
+;;    (or (featurep 'unicode-tokens2)
+;;        (proof-try-require 'unicode-tokens2))
+;;    ;; Requires prover-specific config in <foo>-unicode-tokens2.el
+;;    (proof-try-require (proof-ass-sym unicode-tokens2))))
 
-(proof-eval-when-ready-for-assistant
-    (if (and (proof-ass unicode-tokens2-enable)
-	     (proof-unicode-tokens2-support-available))
-	(proof-unicode-tokens2-set-global t)))
+;; (proof-eval-when-ready-for-assistant
+;;     (if (and (proof-ass unicode-tokens2-enable)
+;; 	     (proof-unicode-tokens2-support-available))
+;; 	(proof-unicode-tokens2-set-global t)))
 
 
 (provide 'proof-auxmodes)

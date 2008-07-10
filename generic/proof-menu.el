@@ -278,8 +278,8 @@ without adjusting window layout."
    (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
   (proof-deftoggle-fn 
    (proof-ass-sym unicode-tokens-enable) 'proof-unicode-tokens-toggle)
-  (proof-deftoggle-fn 
-   (proof-ass-sym unicode-tokens2-enable) 'proof-unicode-tokens2-toggle)
+;  (proof-deftoggle-fn 
+;   (proof-ass-sym unicode-tokens2-enable) 'proof-unicode-tokens2-toggle)
   (proof-deftoggle-fn 
    (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
   (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle))
@@ -334,15 +334,15 @@ without adjusting window layout."
       :selected (and (boundp 'unicode-tokens-mode) 
 		     unicode-tokens-mode)]
 
-     ["Unicode Tokens 2" 
-      (progn
-	(unless unicode-tokens2-mode (proof-x-symbol-toggle 0))
-	(proof-unicode-tokens2-toggle (if unicode-tokens2-mode 0 1)))
-      :active (and (not (and (boundp 'x-symbol-mode) x-symbol-mode))
-		   (proof-unicode-tokens2-support-available))
-      :style toggle
-      :selected (and (boundp 'unicode-tokens2-mode) 
-		     unicode-tokens2-mode)]
+;;;      ["Unicode Tokens 2" 
+;;;       (progn
+;;; 	(unless unicode-tokens2-mode (proof-x-symbol-toggle 0))
+;;; 	(proof-unicode-tokens2-toggle (if unicode-tokens2-mode 0 1)))
+;;;       :active (and (not (and (boundp 'x-symbol-mode) x-symbol-mode))
+;;; 		   (proof-unicode-tokens2-support-available))
+;;;       :style toggle
+;;;       :selected (and (boundp 'unicode-tokens2-mode) 
+;;; 		     unicode-tokens2-mode)]
 
      ["Unicode Maths Menu" (proof-maths-menu-toggle (if maths-menu-mode 0 1))
       :active (proof-maths-menu-support-available)
