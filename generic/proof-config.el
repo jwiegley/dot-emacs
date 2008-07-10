@@ -2152,7 +2152,7 @@ if you don't need it (slight speed penalty)."
   :group 'proof-shell)
 
 (defcustom proof-shell-insert-hook nil
-  "Hooks run by proof-shell-insert before inserting a command.
+  "Hooks run by `proof-shell-insert' before inserting a command.
 Can be used to configure the proof assistant to the interface in
 various ways -- for example, to observe or alter the commands sent to
 the prover, or to sneak in extra commands to configure the prover.
