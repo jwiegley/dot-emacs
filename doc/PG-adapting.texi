@@ -1529,7 +1529,7 @@ input, then newlines can be retained in the input.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-insert-hook
 @defvar proof-shell-insert-hook 
-Hooks run by @code{proof-shell-insert} before inserting a command.@*
+Hooks run by @samp{@code{proof-shell-insert}} before inserting a command.@*
 Can be used to configure the proof assistant to the interface in
 various ways -- for example, to observe or alter the commands sent to
 the prover, or to sneak in extra commands to configure the prover.

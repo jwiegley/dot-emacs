@@ -3820,14 +3820,40 @@ logic name are still appended.
 
 
 @c TEXI DOCSTRING MAGIC: isabelle-program-name-override
+@defopt isabelle-program-name-override 
+Name of executable program to run Isabelle.
 
+You can set customize this in case the automatic settings
+mechanism (based on isatool) does not work for you.  One reason
+to do this is if you are running Isabelle remotely, or using
+windows and avoiding isatool.
+
+A possible value when running under Windows looks like this:
+@lisp
+  C:\sml\bin\.run\run.x86-win32.exe @@SMLload=C:\Isabelle\
+@end lisp
+This expects SML/NJ in C:\sml and Isabelle images in C:Isabelle.
+The logic image name is tagged onto the end.
+
+The default value is @code{nil}.
+@end defopt
 @c TEXI DOCSTRING MAGIC: isabelle-chosen-logic
+@defopt isabelle-chosen-logic 
+Choice of logic to use with Isabelle.@*
+If non-nil, added onto the Isabelle command line for invoking Isabelle.
 
+You can set this as a file local variable, using a special comment
+at the top of your theory file, like this:
+@lisp
+   (* -*- @code{isabelle-chosen-logic}: "ZF" -*- *)
+@end lisp
+
+The default value is @code{nil}.
+@end defopt
 @c TEXI DOCSTRING MAGIC: isabelle-choose-logic
-
-
-
-
+@deffn Command isabelle-choose-logic logic
+Adjust @code{isabelle-prog-name} and @code{proof-prog-name} for running @var{logic}.
+@end deffn
 @node Isabelle commands
 @section Isabelle commands
 @cindex Isabelle commands
