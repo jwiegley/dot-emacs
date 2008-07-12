@@ -37,6 +37,7 @@
 	 (assistant-name (car nameregexp))
 	 (sname		 (symbol-name assistant))
 	 (elisp-file   sname))
+      (setq proof-assistant-symbol nil)
       (proof-ready-for-assistant assistant assistant-name)
       ;; Must load proof-config each time to define proof assistant
       ;; specific variables
@@ -47,10 +48,10 @@
 
 ;; Now a fake proof assistant to document the automatically
 ;; specific variables
+(setq proof-assistant-symbol nil)
 (proof-ready-for-assistant 'PA "PROOF ASSISTANT")
 (setq features (delete 'pg-custom features))
 (load "pg-custom.el")
-
 
 ;; These next few are autoloaded usually
 (load "proof-menu.el")
