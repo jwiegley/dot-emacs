@@ -219,7 +219,7 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news for version 3.7::
+* Latest news for version 3.7.1::
 * Future::
 * Credits::                     
 @end menu
