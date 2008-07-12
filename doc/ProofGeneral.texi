@@ -72,8 +72,8 @@
 
 @set version 3.7
 @set xemacsversion 21.5.28
-@set fsfversion 22.1.1
-@set last-update January 2008
+@set fsfversion 22.2.1
+@set last-update July 2008
 @set rcsid $Id$
 
 @ifinfo
@@ -224,9 +224,12 @@ other documentation, system downloads, etc.
 * Credits::                     
 @end menu
 
-@node Latest news for version 3.7
-@unnumberedsec Latest news for version 3.7
+@node Latest news for version 3.7.1
+@unnumberedsec Latest news for version 3.7.1
 @cindex news
+
+Proof General version 3.7.1 is an updated and enhanced version
+of Proof General 3.7.  See  @file{CHANGES} for more details.
 
 Proof General version 3.7 collects together a cummulative set of
 improvements to Proof General 3.5.  There are compatibility fixes for
@@ -621,7 +624,7 @@ proof assistants, including these:
 @b{Coq Proof General} for Coq Version 6.3, 7.x, 8.x@*
 @xref{Coq Proof General}, for more details.
 @item 
-@b{Isabelle Proof General} for Isabelle2005 and Isabelle2007@*
+@b{Isabelle Proof General} for Isabelle2005, Isabelle2007 and Isabelle2008@*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
 @c @item
