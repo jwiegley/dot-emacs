@@ -7,8 +7,10 @@
 *** Fixes and improvements, compatibility patches
 
 - Unicode Tokens: supports control tokens (Isabelle sub/super/fonts).
-   This support is preliminary; editing files is unreliable.
-   X-Symbol is still recommended.
+   This is experimental; editing files with subs/supers may be unreliable.
+   X-Symbol is still recommended.  Please note: this mode will
+   probably be dropped in future, in favour of a font-lock based
+   mechanism more similar to X-Symbol.
 - Fix Options saving for MMM, Maths Menu, Unicode Tokens.
 - Compatibility improvements for: Carbon Emacs, latest Emacs 23 CVS.
 
