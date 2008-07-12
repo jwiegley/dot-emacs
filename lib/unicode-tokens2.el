@@ -362,8 +362,9 @@ This function may only work reliably for GNU Emacs >= 23."
     (display   
      ((raise 0.4)    "superscript")
      ((raise -0.4)   "subscript")
-     ((raise 0.35)  "superscript1")
-     ((raise -0.35) "subscript1")
+     ((raise 0.35)   "superscript1")
+     ((raise -0.35)  "subscript1")
+     ((raise 0.3)    "idsuperscript1")
      ((raise -0.3)   "idsubscript1")
      (default	)))
   "Text property table for annotations.")
@@ -439,6 +440,9 @@ after next character (single character control sequence)."
 	     ((equal tok "sub") 
 	      (list (setq unicode-tokens2-next-control-token-seen-token
 			  "subscript1") t))
+	     ((equal tok "isup") 
+	      (list (setq unicode-tokens2-next-control-token-seen-token
+			  "idsuperscript1") t))
 	     ((equal tok "isub") 
 	      (list (setq unicode-tokens2-next-control-token-seen-token
 			  "idsubscript1") t)))))
@@ -456,6 +460,8 @@ after next character (single character control sequence)."
     ("superscript" .  ("bsup" . "esup"))
     ("subscript1" .   ("sub"))
     ("superscript1" . ("sup"))
+    ("idsubscript1" . ("isub"))
+    ("idsuperscript1" . ("isup"))
     ("loc1"	    . ("loc"))
     ;; non-standard
     ("italic" .       ("bitalic" . "eitalic"))
