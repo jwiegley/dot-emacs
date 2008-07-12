@@ -451,7 +451,7 @@ Also sets `unicode-tokens-token-alist'."
      ;; FIXME: this is faulty; format.el makes wrong calculations with
      ;; list valued properties, and sometimes loses these settings.
      ((:weight bold)	    "bold")
-     ((:weight italic)	    "italic")
+     ((:slant italic)	    "italic")
      ; ,(face-all-attributes 'unicode-tokens-script-font-face) "script")
      ; ,(face-all-attributes 'unicode-tokens-fraktur-font-face) "fraktur")
      ; ,(face-all-attributes 'unicode-tokens-serif-font-face) "serif")
