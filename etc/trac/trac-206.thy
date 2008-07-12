@@ -1,4 +1,4 @@
-theory Test imports Main begin
+theory Trac206 imports Main begin
 
 (* The special markup (for terms etc.) is not processed in minibuffer
 messages. For example: *)
