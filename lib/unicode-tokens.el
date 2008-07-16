@@ -775,7 +775,6 @@ Replaces contiguous text with 'utoks' property with property value."
      'unicode-tokens-rotate-glyph-backward)
    (define-key unicode-tokens-mode-map [(control ?.)]
      'unicode-tokens-rotate-glyph-forward)
-  ;; otherwise action on space like in X-Symbol?
   )
 
 ;;
@@ -789,12 +788,15 @@ Replaces contiguous text with 'utoks' property with property value."
 	 (lambda (fmt)
 	   (vector fmt
 		   (unicode-tokens-annotate-region-with (downcase fmt))
-		   :help (concat "Format region as " (downcase fmt))
-		   :active 'mark-active)) ; XE? region-exists-p
+		   ;; :help is GNU Emacss only
+		   ;; :help (concat "Format region as " (downcase fmt))
+		   :active 'region-exists-p))
 	   '("Subscript" "Superscript" 
 	     "Supscript1" "Superscript1" 
 	     "Idsubscript1" "Idsuperscript1"
-	     "Bold" "Italic" "Script" "Fraktur" "Serif"))))
+	     ;; don't encourage these as saving seems unreliable
+	     ;; "Bold" "Italic" "Script" "Fraktur" "Serif"
+	     ))))
   
 (provide 'unicode-tokens)
 

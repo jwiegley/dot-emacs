@@ -291,14 +291,12 @@ for you, you should disable this behaviour."
 		  (isabelle-choose-logic nil)
 		  :active (not (proof-shell-live-buffer))
 		  :style radio
-		  :selected (not isabelle-chosen-logic)
-		  :help "Switch to default logic"])
+		  :selected (not isabelle-chosen-logic)])
 	       (mapcar (lambda (l)
 			 (vector l (list 'isabelle-choose-logic l)
 				 :active '(not (proof-shell-live-buffer))
 				 :style 'radio
-				 :selected (list 'equal 'isabelle-chosen-logic l)
-				 :help (format "Switch to %s logic" l)))
+				 :selected (list 'equal 'isabelle-chosen-logic l)))
 		       isabelle-logics-available)))))
 
 (unless noninteractive
