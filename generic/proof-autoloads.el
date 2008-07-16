@@ -372,7 +372,7 @@ in future if we have just activated it for this buffer.
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn proof-aux-menu
 ;;;;;;  proof-menu-define-specific proof-menu-define-main proof-menu-define-keys)
-;;;;;;  "proof-menu" "proof-menu.el" (18550 34521))
+;;;;;;  "proof-menu" "proof-menu.el" (18558 29736))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload (quote proof-menu-define-keys) "proof-menu" "\
@@ -691,33 +691,6 @@ Not documented
 
 ;;;***
 
-;;;### (autoloads (proof-unicode-tokens2-shell-config proof-unicode-tokens2-set-global
-;;;;;;  proof-unicode-tokens2-enable) "proof-unicode-tokens2" "proof-unicode-tokens2.el"
-;;;;;;  (18543 36204))
-;;; Generated autoloads from proof-unicode-tokens2.el
-
-(autoload (quote proof-unicode-tokens2-enable) "proof-unicode-tokens2" "\
-Turn on or off Unicode tokens mode in Proof General script buffer.
-This invokes `unicode-tokens2-mode' to toggle the setting for the current
-buffer, and then sets PG's option for default to match.
-Also we arrange to have unicode tokens mode turn itself on automatically 
-in future if we have just activated it for this buffer.
-
-\(fn)" t nil)
-
-(autoload (quote proof-unicode-tokens2-set-global) "proof-unicode-tokens2" "\
-Set global status of unicode tokens mode for PG buffers to be FLAG.
-Turn on/off menu in all script buffers and ensure new buffers follow suit.
-
-\(fn FLAG)" nil nil)
-
-(autoload (quote proof-unicode-tokens2-shell-config) "proof-unicode-tokens2" "\
-Not documented
-
-\(fn)" nil nil)
-
-;;;***
-
 ;;;### (autoloads (proof-x-symbol-config-output-buffer proof-x-symbol-shell-config
 ;;;;;;  proof-x-symbol-decode-region proof-x-symbol-enable proof-x-symbol-support-maybe-available)
 ;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18544 41604))
@@ -756,10 +729,10 @@ Configure the current output buffer (goals/response/trace) for X-Symbol.
 ;;;### (autoloads nil nil ("../lib/holes-load.el" "../lib/local-vars-list.el"
 ;;;;;;  "../lib/pg-dev.el" "../lib/pg-fontsets.el" "../lib/proof-compat.el"
 ;;;;;;  "../lib/span-extent.el" "../lib/span-overlay.el" "../lib/span.el"
-;;;;;;  "../lib/unicode-chars.el" "../lib/unicode-tokens.el" "../lib/unicode-tokens2.el"
-;;;;;;  "../lib/xml-fixed.el" "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el"
-;;;;;;  "pg-vars.el" "proof-auxmodes.el" "proof-config.el" "proof-site.el"
-;;;;;;  "proof-utils.el" "proof.el") (18552 46770 435742))
+;;;;;;  "../lib/unicode-chars.el" "../lib/unicode-tokens.el" "../lib/xml-fixed.el"
+;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
+;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-site.el" "proof-utils.el"
+;;;;;;  "proof.el") (18558 30696 142301))
 
 ;;;***
 
