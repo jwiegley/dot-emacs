@@ -4899,8 +4899,11 @@ uses it with TOKEN and CHARSYM."
   ;; Use David Aspinall's xsymb1.ttf font
   ;;    (setq x-symbol-xsymb1-name "xsymb1_ttf")
   ;; Use Norbert Voelker's isaxsymb1.ttf font
+  ;;    (setq x-symbol-xsymb1-name "isaxsym")
+  ;; Use Makarius Wenzel's XSymb1.ttf font
+  ;;    (setq x-symbol-xsymb1-name "XSymb1")
   (progn
-    (setq x-symbol-xsymb1-name "isaxsym")
+    (setq x-symbol-xsymb1-name "XSymb1")
     (setq x-symbol-latin1-fonts nil)
     (setq x-symbol-latin2-fonts nil)
     (setq x-symbol-latin3-fonts nil)
