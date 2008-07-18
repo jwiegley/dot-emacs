@@ -4,7 +4,7 @@ The code in this directory is taken from
 
 This is version 4.5.1-beta (dated 2003-05-11 15:00)
 
-Some changes have been made for Proof General, including:
+Several changes have been made for Proof General, including:
 
 * the addition of 18pt and 24pt fonts, see etc/bigfonts.
   (thanks to Clemens Ballarin).  
@@ -12,6 +12,11 @@ Some changes have been made for Proof General, including:
   (see etc/fonts-ttf) automatically on Mac using Carbon Emacs.
   You need to install isaxsymb1.ttf into Font Book
   This is experimental support and may have some issues.
+* Experimental (not yet working) support for Emacs 23
+* Addition of `x-symbol-image-converter-required' which defaults to nil,
+  to avoid X-Symbol giving warnings when it doesn't find ImageMagick convert.
+  Images aren't used in Proof General, but if you want to use the same
+  X-Symbol in LaTeX, you might want to customize this setting to t.
 * addition of the string "[Proof General]" to x-symbol-version
 
 
