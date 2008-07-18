@@ -1,3 +1,8 @@
+Truetype versions of the X-Symbol fonts
+=======================================
+
+(1) isaxsym.ttf
+
 As a substitute for the xsym1 font, here is a hotch-potch, "better
 than nothing" True Type Font isaxsym.ttf. that does not support super-
 and subscripts. Please treat it as a temporary stand-in until better
@@ -5,3 +10,12 @@ solutions are available.
 
 Contribution from  Norbert Völker, University of Essex.  
 See http://cswww.essex.ac.uk/Research/FSS/projects/isawin/
+
+
+(2) XSymb1Medium.ttf and XSymb0Medium.ttf emulate the X-Symbol font
+layout, using glyphs from free TeX fonts, which are scalable and
+hinted.  Note that XSymb0Medium is merely a variant of the Adobe
+Symbol font, so XSymb1Medium.ttf is usually sufficient.
+
+Contribution from Makarius Wenzel (August 2004), then at Dormition
+Abbey, Mt. Zion, Jerusalem.
