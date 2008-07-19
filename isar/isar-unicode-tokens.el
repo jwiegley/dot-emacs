@@ -256,8 +256,8 @@
     ("rparr" . "⦈")
     ("lbrakk" . "⟦")
     ("rbrakk" . "⟧")
-;;     ("lbrace" . "") TODO
-;;    ("rbrace" . "")
+    ("lbrace" . "⦃")
+    ("rbrace" . "⦄")
     ("guillemotleft" . "«")
     ("guillemotright" . "»")
     ("bottom" . "⊥")
