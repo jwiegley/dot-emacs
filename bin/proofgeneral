@@ -5,9 +5,9 @@
 # Set EMACS to override choice of Emacs version
 # (otherwise script chooses emacs in preference to xemacs)
 #
-# PGHOME must be set to the directory where the lisp files of
-# Proof General are installed.  Script checks standard locations
-# in /usr/share/emacs/site-lisp, or uses PGHOMEDEFAULT
+# PGHOME must be set to the directory where the lisp files of Proof
+# General are installed.  Script checks standard locations in
+# /usr/share/emacs/site-lisp, or uses PGHOMEDEFAULT defined at top.
 #
 # We load ~/.proofgeneral instead of ~/.emacs if it exists.
 #
@@ -17,7 +17,7 @@
 #
 
 # The default path should work if you are using the Proof General RPM
-# or unpack Proof General in your home directory.
+# or unpack Proof General in your home directory.  Otherwise edit below.
 # NB: no trailing backslash here!
 PGHOMEDEFAULT=$HOME/ProofGeneral
 
@@ -36,7 +36,7 @@ if [ -d $PGHOMEDEFAULT ]; then
 elif [ -d /usr/share/${EMACSVERSION}/site-lisp/proofgeneral ]; then
     PGHOME=/usr/share/${EMACSVERSION}/site-lisp/proofgeneral
 else
-    echo "Cannot find the Proof General lisp files: please set PGHOMEDEFAULT"
+    echo "Cannot find the Proof General lisp files: please edit script to set PGHOMEDEFAULT correctly."
     exit 1
 fi
 
