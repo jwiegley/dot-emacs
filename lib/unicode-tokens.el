@@ -788,8 +788,6 @@ Replaces contiguous text with 'utoks' property with property value."
 	 (lambda (fmt)
 	   (vector fmt
 		   (unicode-tokens-annotate-region-with (downcase fmt))
-		   ;; :help is GNU Emacss only
-		   ;; :help (concat "Format region as " (downcase fmt))
 		   :active 'region-exists-p))
 	   '("Subscript" "Superscript" 
 	     "Supscript1" "Superscript1" 
