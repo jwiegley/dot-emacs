@@ -1,4 +1,3 @@
-
 theory A imports Pure 
 begin
 
