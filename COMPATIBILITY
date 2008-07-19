@@ -27,10 +27,10 @@ has been removed here, specifically affecting:
  Isabelle 2004
  Earlier buggy versions of GNU Emacs 21  
 
-*******************************************************************
-*** IMPORTANT NOTE: XEmacs compatibility may be dropped soon,   ***
-*** switching to GNU Emacs is recommended.			***
-*******************************************************************
+*********************************************************************
+*** IMPORTANT NOTE: XEmacs compatibility will be dropped on next  ***
+*** release of PG -- switching to GNU Emacs now is recommended!   ***
+*********************************************************************
 
 Running on Windows
 ------------------
