@@ -12,13 +12,11 @@
 (require 'proof-config)			; proof-case-fold-search
 (require 'proof-compat)			; proof-buffer-syntactic-context
 
-;; TODO da: would regexp-opt be better here?  Or maybe
-;;  (concat "\\<" (regexp-opt l) "\\>")
 (defun proof-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching any element"
-  (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
-;; Stefan Monnier suggests:
-;;  (concat "\\<\\(?:" (mapconcat 'identity l "\\|") "\\)\\>"))
+  (if (featurep 'xemacs)
+      (mapconcat (lambda (s) (concat "\\_<" s "\\_>")) l "\\|") ;; old version
+    (concat "\\_<\\(?:" (mapconcat 'identity l "\\|") "\\)\\_>")))
 
 (defun proof-anchor-regexp (e)
   "Anchor (\\`) and group the regexp E."
