@@ -17,7 +17,7 @@
 
 
 (defconst coq-tactics-menu
-  (append '("INSERT TACTICS"
+  (append '("Tactics (menu)"
 	    ["Intros (smart)" coq-insert-intros t])
 	  (coq-build-menu-from-db (append coq-tactics-db coq-solve-tactics-db))))
 
@@ -25,23 +25,24 @@
   (coq-build-abbrev-table-from-db (append coq-tactics-db coq-solve-tactics-db)))
 
 (defconst coq-tacticals-menu
-  (append '("INSERT TACTICALS")
+  (append '("Tacticals (menu)")
 	  (coq-build-menu-from-db coq-tacticals-db)))
 
 (defconst coq-tacticals-abbrev-table
   (coq-build-abbrev-table-from-db coq-tacticals-db))
 
 (defconst coq-commands-menu
-  (append '("INSERT COMMAND"
-	    ["Module/Section (smart)" coq-insert-section-or-module t]
-	    ["Require (smart)" coq-insert-requires t])
+  (append '("Command (menu)"
+	    ;["Module/Section (smart)" coq-insert-section-or-module t]
+	    ;["Require (smart)" coq-insert-requires t]
+	    )
 	  (coq-build-menu-from-db coq-commands-db)))
 
 (defconst coq-commands-abbrev-table
   (coq-build-abbrev-table-from-db coq-commands-db))
 
 (defconst coq-terms-menu
-  (append '("INSERT TERM"
+  (append '("Term (menu)"
 	    ["Match (smart)" coq-insert-match t])
 	  (coq-build-menu-from-db coq-terms-db)))
 
@@ -73,83 +74,95 @@
 ;; The coq menu mainly built from tables
 
 (defpgdefault menu-entries
-   `(
+  `(
+    ["Toggle 3 windows mode" proof-three-window-toggle t]
+     ""
+    ["Print..." coq-Print t]
+    ["Check..." coq-Check t]
+    ["About..." coq-About t]
+    ("OTHER QUERIES"
+     ["Print Hint" coq-PrintHint t]
+     ["Show ith goal..." coq-Show t]
+     ["Show Tree" coq-show-tree t]
+     ["Show Proof" coq-show-proof t]
+     ["Show Conjectures" coq-show-conjectures t];; maybe not so useful with editing in PG?
+     ""
      ["Print..." coq-Print t]
      ["Check..." coq-Check t]
      ["About..." coq-About t]
-     ["insert command (interactive)" coq-insert-command t]
-     ,coq-commands-menu
-     ["insert term (interactive)" coq-insert-term t]
-     ,coq-terms-menu
-     ["insert tactic (interactive)" coq-insert-tactic t]
+     ["Search..." coq-SearchConstant t]
+     ["SearchRewrite..." coq-SearchRewrite t]
+     ["SearchAbout..." coq-SearchAbout t]
+     ["SearchPattern..." coq-SearchIsos t]
+     ["Locate constant..." coq-LocateConstant t]
+     ["Locate Library..." coq-LocateLibrary t]
+     ["Pwd" coq-Pwd t]
+     ["Inspect..." coq-Inspect t]
+     ["Print Section..." coq-PrintSection t]
+     ""
+     ["Locate notation..." coq-LocateNotation t]
+     ["Print Implicit..." coq-Print t]
+     ["Print Scope/Visibility..." coq-PrintScope t]
+     )
+     ""
+    ("INSERT"
+     ""
+     ["tactic (interactive)" coq-insert-tactic t]
      ,coq-tactics-menu
-     ["insert tactical (interactive)" coq-insert-tactical t]
+     ["tactical (interactive)" coq-insert-tactical t]
      ,coq-tacticals-menu
+     ""
+     ["command (interactive)" coq-insert-command t]
+     ,coq-commands-menu
+     ""
+     ["term (interactive)" coq-insert-term t]
+     ,coq-terms-menu
+     ""
+     ["Module/Section (smart)" coq-insert-section-or-module t]
+     ["Require (smart)" coq-insert-requires t])
+    ;; da: I added Show sub menu, not sure if it's helpful, but why not.
+    ;; FIXME: submenus should be split off here.  Also, these commands
+    ;; should only be available when a proof is open.
+    ;; pc: I added things in the show menu and called it QUERIES
 
-     ;; da: I added Show sub menu, not sure if it's helpful, but why not.
-     ;; FIXME: submenus should be split off here.  Also, these commands
-     ;; should only be available when a proof is open.
-     ;; pc: I added things in the show menu and called it QUERIES
-     ("OTHER QUERIES"
-      ["Print Hint" coq-PrintHint t]
-      ["Show ith goal..." coq-Show t]
-      ["Show Tree" coq-show-tree t]
-      ["Show Proof" coq-show-proof t]
-      ["Show Conjectures" coq-show-conjectures t];; maybe not so useful with editing in PG?
-      ""
-      ["Print..." coq-Print t]
-      ["Check..." coq-Check t]
-      ["About..." coq-About t]
-      ["Search..." coq-SearchConstant t]
-      ["SearchRewrite..." coq-SearchRewrite t]
-      ["SearchAbout..." coq-SearchAbout t]
-      ["SearchPattern..." coq-SearchIsos t]
-      ["Locate constant..." coq-LocateConstant t]
-      ["Locate Library..." coq-LocateLibrary t]
-      ["Pwd" coq-Pwd t]
-      ["Inspect..." coq-Inspect t]
-      ["Print Section..." coq-PrintSection t]
-      ""
-      ["Locate notation..." coq-LocateNotation t]
-      ["Print Implicit..." coq-Print t]
-      ["Print Scope/Visibility..." coq-PrintScope t]
-      )
+    ""
+    ("HOLES"
+     ;; da: I tidied this menu a bit.  I personally think this "trick"
+     ;; of inserting strings to add documentation looks like a real
+     ;; mess in menus ... I've removed it for the three below since
+     ;; the docs below appear in popup in messages anyway.
+     ;;
+     ;; "Make a hole active   click on it"
+     ;; "Disable a hole   click on it (button 2)"
+     ;; "Destroy a hole   click on it (button 3)"
+     ["Make hole at point"  holes-set-make-active-hole t]
+     ["Make selection a hole"  holes-set-make-active-hole t]
+     ["Replace active hole by selection"  holes-replace-update-active-hole t]
+     ["Jump to active hole"  holes-set-point-next-hole-destroy t]
+     ["Forget all holes in buffer"  holes-clear-all-buffer-holes t]
+     ["Tell me about holes?" holes-show-doc t]
+     ;; look a bit better at the bottom
+     "Make hole with mouse: C-M-select"
+     "Replace hole with mouse: C-M-Shift select";; da: does this one work??
+     )
 
-     ("Holes"
-      ;; da: I tidied this menu a bit.  I personally think this "trick"
-      ;; of inserting strings to add documentation looks like a real
-      ;; mess in menus ... I've removed it for the three below since
-      ;; the docs below appear in popup in messages anyway.
-      ;;
-      ;; "Make a hole active   click on it"
-      ;; "Disable a hole   click on it (button 2)"
-      ;; "Destroy a hole   click on it (button 3)"
-      ["Make hole at point"  holes-set-make-active-hole t]
-      ["Make selection a hole"  holes-set-make-active-hole t]
-      ["Replace active hole by selection"  holes-replace-update-active-hole t]
-      ["Jump to active hole"  holes-set-point-next-hole-destroy t]
-      ["Forget all holes in buffer"  holes-clear-all-buffer-holes t]
-      ["Tell me about holes?" holes-show-doc t]
-      ;; look a bit better at the bottom
-      "Make hole with mouse: C-M-select"
-      "Replace hole with mouse: C-M-Shift select";; da: does this one work??
-      )
-
-     ;; da: I also added abbrev submenu.  Surprising Emacs doesn't have one?
-     ("Abbrevs"
-      ["Expand at point" expand-abbrev t]
-      ["Unexpand last" unexpand-abbrev t]
-      ["List abbrevs" list-abbrevs t]
-      ["Edit abbrevs" edit-abbrevs t];; da: is it OK to add edit?
-      ["Abbrev mode" abbrev-mode
-       :style toggle
-       :selected (and (boundp 'abbrev-mode) abbrev-mode)])
-     ;; With all these submenus you have to wonder if these things belong
-     ;; on the main menu.  Are they the most often used?
-     ["Compile" coq-Compile t]
+    ;; da: I also added abbrev submenu.  Surprising Emacs doesn't have one?
+    ("ABBREVS"
+     ["Expand at point" expand-abbrev t]
+     ["Unexpand last" unexpand-abbrev t]
+     ["List abbrevs" list-abbrevs t]
+     ["Edit abbrevs" edit-abbrevs t];; da: is it OK to add edit?
+     ["Abbrev mode" abbrev-mode
+      :style toggle
+      :selected (and (boundp 'abbrev-mode) abbrev-mode)])
+    ;; With all these submenus you have to wonder if these things belong
+    ;; on the main menu.  Are they the most often used?
+    ""
+    ("COQ PROG (ARGS)"
      ["Set coq prog *persistently*" coq-ask-insert-coq-prog-name t]
      ["help on setting persistently" coq-local-vars-list-show-doc t]
-     ))
+     ["Compile" coq-Compile t])
+    ))
 
 ;; da: Moved this from the main menu to the Help submenu.
 ;; It also appears under Holes, anyway.

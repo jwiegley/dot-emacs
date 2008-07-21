@@ -1456,8 +1456,6 @@ be asked to the user."
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
-;(define-key coq-keymap [?'] 'coq-highlight-error)
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

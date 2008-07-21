@@ -760,7 +760,7 @@ This keymap is used only when
     (define-key map [(control c) (control y)] 'holes-replace-update-active-hole)
     (define-key map [(control meta down-mouse-1)] 'holes-mouse-set-make-active-hole)
     (define-key map [(control meta shift down-mouse-1)] 'holes-mouse-replace-active-hole)
-    (define-key map [(meta return)] 'holes-set-point-next-hole-destroy)
+    (define-key map [(control c) (control j)] 'holes-set-point-next-hole-destroy)
     map)
   "Keymap of `holes-mode'.
 This is not the keymap used on holes's overlay

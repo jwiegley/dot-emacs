@@ -27,7 +27,7 @@
 (defconst proof-no-regexp
   "\\'\\`"
   "A regular expression that never matches anything")
-  
+
 
 (defun proof-regexp-alt (&rest args)
   "Return the regexp which matches any of the regexps ARGS."
@@ -155,9 +155,9 @@ Default is comma separated, or SEPREGEXP if set."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; A function to unfontify commas in declarations and definitions.  
-;; Useful for provers which have declarations of the form x,y,z:Ty 
-;; All that can be said for it is that the previous ways of doing  
+;; A function to unfontify commas in declarations and definitions.
+;; Useful for provers which have declarations of the form x,y,z:Ty
+;; All that can be said for it is that the previous ways of doing
 ;; this were even more bogus....
 
 (defun proof-zap-commas (limit)
@@ -222,18 +222,18 @@ return the resulting (string) value."
    ((functionp string)
     (funcall string filename))
    (t
-    (proof-format 
-     (list (cons "%s" (proof-format proof-shell-filename-escapes 
+    (proof-format
+     (list (cons "%s" (proof-format proof-shell-filename-escapes
 				    (expand-file-name filename)))
-	   (cons "%e" (proof-format proof-shell-filename-escapes 
+	   (cons "%e" (proof-format proof-shell-filename-escapes
 				    (expand-file-name filename)))
-	   (cons "%r" (proof-format proof-shell-filename-escapes 
+	   (cons "%r" (proof-format proof-shell-filename-escapes
 				    filename))
-	   (cons "%m" (proof-format proof-shell-filename-escapes 
-				    (file-name-nondirectory 
+	   (cons "%m" (proof-format proof-shell-filename-escapes
+				    (file-name-nondirectory
 				     (file-name-sans-extension filename)))))
      string))))
- 
+
 
 ;;
 ;; Functions for inserting text into buffer.
@@ -260,11 +260,11 @@ Any other %-prefixed character inserts itself."
 	    (setq acc (concat acc (char-to-string ch)))
 	  (setq i (1+ i))
 	  (setq ch (elt text i))
-	  (cond ;((eq ch ?l)  
+	  (cond ;((eq ch ?l)
 		; (setq acc (concat acc isa-logic-name)))
-		;((eq ch ?s)  
-		; (setq acc 
-		;       (concat acc 
+		;((eq ch ?s)
+		; (setq acc
+		;       (concat acc
 		;	       (int-to-string
 		;		(if (boundp 'isa-denoted-subgoal)
 		;		    isa-denoted-subgoal
@@ -273,7 +273,7 @@ Any other %-prefixed character inserts itself."
 		; (if acc (insert acc))
 		; (setq acc nil)
 		; (comint-send-input))
-		((eq ch ?p)  
+		((eq ch ?p)
 		 (if acc (insert acc))
 		 (setq acc nil)
 		 (setq pos (point)))
@@ -289,7 +289,7 @@ Any other %-prefixed character inserts itself."
     (while strings
       (setq stringsep (concat stringsep (car strings)))
       (setq strings (cdr strings))
-      (if strings (setq stringsep 
+      (if strings (setq stringsep
 			(concat stringsep sep))))
     stringsep))
 
