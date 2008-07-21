@@ -1,3 +1,13 @@
+
+march 6 2008:
+-- line ending with *). are swalloawed when queuing.
+-- give a cursor back in goal and response buffer!!!
+-- have '_' be a symbol constituent AND compatible with font-lock
+-- catch window splitting errors when quitting/relaunching coq
+** end march 6 2008
+
+
+
 --- multiple file hacking finish
 --- X-sym wierdness: (1) (warning/warning) Must provide :input-spec
 --- nick ideas from coq-ide: proof wizard

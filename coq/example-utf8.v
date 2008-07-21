@@ -8,7 +8,7 @@
 Load "utf8".
 
 (* Printing of unicode notation, in *goals* *)
-Lemma test : forall A:Prop, A -> A.
+Lemma test : ∀ A:Prop, A -> A.
 auto.
 Qed.
 

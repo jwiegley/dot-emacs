@@ -1,5 +1,5 @@
 ;;; coq.el --- Major mode for Coq proof assistant
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh.
 ;; Authors: Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
@@ -8,7 +8,7 @@
 
 
 ;;; Commentary:
-;; 
+;;
 ;;; History:
 
 (require 'proof)
@@ -21,7 +21,7 @@
   (require 'cl)                         ; remove-if
   (require 'span))
 
-(require 'coq-local-vars) 
+(require 'coq-local-vars)
 (require 'coq-syntax)      ; determines coq version, sets coq-prog-name
 ;; ----- coq specific menu is defined in coq-abbrev.el
 (require 'coq-abbrev)

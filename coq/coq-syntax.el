@@ -910,7 +910,7 @@ Used by `coq-goal-command-p'"
 (defvar coq-ids (proof-ids coq-id " "))
 
 (defun coq-first-abstr-regexp (paren end)
-  (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end)) 
+  (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end))
 
 (defcustom coq-variable-highlight-enable t
   "Activates partial bound variable highlighting"
