@@ -813,8 +813,10 @@ This is specific to `coq-mode'."
                                        (string-match ".v$" filename)) ".vo"))
                (command (shell-command-to-string
                          (concat  "cd " dir ";"
-                                  "gmake -n -W " filename " " compiled-file
+                                  "make -n -W " filename " " compiled-file
                                   "| sed s/coqc/coqtop/"))))
+            (message command)
+            (setq coq-prog-args nil)
             (concat
              (substring command 0 (string-match " [^ ]*$" command))
              (if coq-version-is-V8-1 "-emacs-U" "-emacs")))
