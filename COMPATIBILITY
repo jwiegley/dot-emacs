@@ -61,7 +61,8 @@ Book, or copy directly to /Library/Fonts or ~/Library/Fonts.
 
 Note: Emacs.app looks set to become the future supported Mac port of
 GNU Emacs, and is based on GNU Emacs 23.  It should work well with
-this version of Proof General.
+this version of Proof General, but at the time of writing the latest
+binary release is not as reliable as that of Carbon Emacs.
 
 Note that Mac compatibility isn't thoroughly tested by the
 maintainers.  If you discover problems, please send a report and/or
