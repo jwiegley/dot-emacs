@@ -596,11 +596,13 @@ of symbol compositions, and will lose layout information."
 
       ;; adjust maths menu to insert tokens
       (set (make-local-variable 'maths-menu-filter-predicate)
-	   (lambda (uchar) (gethash uchar unicode-tokens-uchar-hash-table)))
+	   (lambda (uchar) (gethash (char-to-string uchar)
+				    unicode-tokens-uchar-hash-table)))
       (set (make-local-variable 'maths-menu-tokenise-insert)
 	   (lambda (uchar) 
 	     (unicode-tokens-insert-token
-	      (gethash uchar unicode-tokens-uchar-hash-table)))))
+	      (gethash (char-to-string uchar)
+			 unicode-tokens-uchar-hash-table)))))
 
     (when (not unicode-tokens-mode)
       (when flks
