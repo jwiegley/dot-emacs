@@ -306,15 +306,19 @@ without adjusting window layout."
       :help "Do not allow editing in processed region"]
      
      ["Unicode Tokens" 
-      (progn
-	(proof-unicode-tokens-toggle (if unicode-tokens-mode 0 1)))
+      (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
+				       (if unicode-tokens-mode 0 1)
+				     t))
       :active (proof-unicode-tokens-support-available)
       :style toggle
       :selected (and (boundp 'unicode-tokens-mode) 
 		     unicode-tokens-mode)
       :help "Enable display of tokens as Unicode characters"]
 
-     ["Unicode Maths Menu" (proof-maths-menu-toggle (if maths-menu-mode 0 1))
+     ["Unicode Maths Menu" 
+      (proof-maths-menu-toggle (if (boundp 'maths-menu-mode)
+				       (if maths-menu-mode 0 1)
+				     t))
       :active (proof-maths-menu-support-available)
       :style toggle
       :selected (and (boundp 'maths-menu-mode) maths-menu-mode)

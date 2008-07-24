@@ -43,13 +43,9 @@
 ;; Maths menu
 ;;
 (defun proof-maths-menu-support-available ()
-  "A test to see whether maths-menu support is available."
-  (and
-   (or (featurep 'maths-menu)
-       ;; *should* always succeed unless bundled version broken
-       (proof-try-require 'maths-menu))
-   ;; Load any optional prover-specific config in <foo>-maths-menu.el
-   (or (proof-try-require (proof-ass-sym maths-menu)) t)))
+  "A test to see whether maths-menu support is available.
+The test loads optional prover-specific config in <foo>-maths-menu.el"
+  (or (proof-try-require (proof-ass-sym maths-menu)) t))
 
 (proof-eval-when-ready-for-assistant
     (if (and (proof-ass maths-menu-enable)
