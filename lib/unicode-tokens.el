@@ -129,7 +129,7 @@ Behaviour is much like abbrev.")
   "Hash table mapping token names (strings) to composition and properties.")
 
 (defvar unicode-tokens-token-match-regexp nil
-  "Regular expression used by font-lock to match tokens.")
+  "Regular expression used by font-lock to match known tokens.")
 
 (defvar unicode-tokens-uchar-hash-table nil
   "Hash table mapping unicode strings to symbolic token names.
@@ -377,10 +377,9 @@ Calculated from `unicode-tokens-token-name-alist' and
 
 (defun unicode-tokens-insert-token (tok)
   "Insert symbolic token named TOK, giving a message."
-  (interactive (list
-		(completing-read 
-		 "Insert token: "
-		 unicode-tokens-hash-table) t))
+  (interactive (list (completing-read 
+		      "Insert token: "
+		      unicode-tokens-hash-table)))
   (let ((ins (format unicode-tokens-token-format tok)))
     (insert ins)
     (message "Inserted %s" ins)))
@@ -411,8 +410,11 @@ Calculated from `unicode-tokens-token-name-alist' and
 (defun unicode-tokens-insert-control (name)
   (interactive (list (completing-read 
 		      "Insert control symbol: "
-		      unicode-tokens-control-characters)))
-  (insert (format unicode-tokens-control-char-format name)))
+		      unicode-tokens-control-characters
+		      nil 'requirematch)))
+  (assert (assoc name unicode-tokens-control-characters))
+  (insert (format unicode-tokens-control-char-format 
+		  (cadr (assoc name unicode-tokens-control-characters)))))
 
 (defun unicode-tokens-insert-uchar-as-token (char)
   "Insert CHAR as a symbolic token, if possible."
@@ -426,8 +428,8 @@ Calculated from `unicode-tokens-token-name-alist' and
   (when (looking-at unicode-tokens-token-match-regexp)
     (kill-region (match-beginning 0) (match-end 0))))
 
-(defvar unicode-tokens-rotate-token-last-token nil)
-
+;; FIXME: behaviour with unkown tokens not good.  Should 
+;; use separate regexp for matching tokens known or not known.
 (defun unicode-tokens-prev-token ()
   (let ((match (re-search-backward unicode-tokens-token-match-regexp
 				    (save-excursion
@@ -441,25 +443,27 @@ Calculated from `unicode-tokens-token-name-alist' and
   (interactive "p")
   (if (> (point) (point-min))
       (save-match-data
-       (let* ((token  (or (if (or (eq last-command
-				     'unicode-tokens-rotate-token-forward)
-				 (eq last-command
-				     'unicode-tokens-rotate-token-backward))
-			     unicode-tokens-rotate-token-last-token)
-			 (unicode-tokens-prev-token)))
-	     (tokennumber
-	      (if token 
-		  (search (list token) unicode-tokens-token-list :test 'equal)))
-	     (numtoks 
-	      (hash-table-count unicode-tokens-hash-table))
-	     (newtok
-	      (if tokennumber
-		  (nth (mod (+ tokennumber (or n 1)) numtoks)
-		       unicode-tokens-token-list))))
-	(when (and newtok
-		   (looking-at unicode-tokens-token-match-regexp))
-	  (delete-region (match-beginning 0) (match-end 0))
-	  (insert (format unicode-tokens-token-format newtok)))))))
+	(let ((pos    (point))
+	      (token  (unicode-tokens-prev-token)))
+	  (when (not token)
+	    (goto-char (point))
+	    (error "Cannot find token before point"))
+	  (when token
+	    (let* ((tokennumber
+		    (search (list token) unicode-tokens-token-list :test 'equal))
+		   (numtoks 
+		    (hash-table-count unicode-tokens-hash-table))
+		   (newtok
+		    (if tokennumber
+			(nth (mod (+ tokennumber (or n 1)) numtoks)
+			     unicode-tokens-token-list))))
+	      (when newtok
+		(delete-region (match-beginning 0) (match-end 0))
+		(insert (format unicode-tokens-token-format newtok)))
+	      (when (not newtok)
+		;; FIXME: currently impossible case
+		(message "Token not in tables: %s" token))))))))
+
 	
 (defun unicode-tokens-rotate-token-backward (&optional n)
   "Rotate the token before point, by -N steps in the token list."
@@ -647,7 +651,7 @@ of symbol compositions, and will lose layout information."
  	     (lambda (fmt)
  	       (vector (car fmt)
   		       `(lambda () (interactive) 
-			  (apply 'unicode-tokens-insert-control ',(car fmt)))
+			  (funcall 'unicode-tokens-insert-control ',(car fmt)))
  		       :help (concat "Format next item as " 
  				     (downcase (car fmt)))))
  	     unicode-tokens-control-characters))
@@ -667,7 +671,7 @@ of symbol compositions, and will lose layout information."
        :help "Copy text from buffer, converting tokens to Unicode"]
       ["Paste from unicode" unicode-tokens-paste
        :active (and kill-ring (not buffer-read-only))
-       :help "Paste from clipboard, converting Unicode to tokens"]
+       :help "Paste from clipboard, converting Unicode to tokens where possible"]
        "---"
       ["Show control tokens" unicode-tokens-show-controls
        :style toggle
@@ -689,7 +693,11 @@ of symbol compositions, and will lose layout information."
 	(lambda () (interactive) (require 'pg-fontsets))
 	:active (not (featurep 'pg-fontsets))
 	:help "Define fontsets (for Options->Set fontsets)"
-	:visible (< emacs-major-version 23) ; not useful on 23
+	; :visible (< emacs-major-version 23) ; not useful on 23,
+	; at least when font menu provided.  Drawback: this 
+	; is done too late: displayable tokens have already been
+	; chosen now, before fontsets generated.
+	; Never mind: non-issue with platform fonts menu.
 	])))
 
 
