@@ -69,6 +69,12 @@ To disable coqc being called (and use only make), set this to nil."
   :type 'string
   :group 'coq)
 
+(defcustom coq-use-makefile nil
+  "*Whether to look for a Makefile to attempt to guess the command line.
+Set to t if you want this feature."
+  :type 'string
+  :group 'coq)
+
 ;; Command to initialize the Coq Proof Assistant
 
 (defcustom coq-default-undo-limit 300
@@ -789,17 +795,23 @@ This is specific to `coq-mode'."
 
 (defun coq-guess-command-line (filename)
   "Guess the right command line options to compile FILENAME using `make -n'."
-  (if (local-variable-p 'coq-prog-name (current-buffer)) coq-prog-name
+  (if (local-variable-p 'coq-prog-name (current-buffer)) 
+      coq-prog-name
     (let* ((dir (or (file-name-directory filename) "."))
-          (makedir
+           (makedir
            (cond
             ((file-exists-p (concat dir "Makefile")) ".")
 ;            ((file-exists-p (concat dir "../Makefile")) "..")
 ;            ((file-exists-p (concat dir "../../Makefile")) "../..")
             (t nil))))
-      (if makedir
+      (if (and coq-use-makefile makedir)
           (let*
               ;;TODO, add dir name when makefile is in .. or ../..
+              ;;
+              ;; da: FIXME: this code causes problems if the make
+              ;; command fails.  It should not be used by default
+              ;; and should be made more robust.
+              ;;
               ((compiled-file (concat (substring
                                        filename 0
                                        (string-match ".v$" filename)) ".vo"))
@@ -809,7 +821,7 @@ This is specific to `coq-mode'."
                                   "| sed s/coqc/coqtop/"))))
             (concat
              (substring command 0 (string-match " [^ ]*$" command))
-             (if coq-version-is-V8-1 '("-emacs-U") '("-emacs"))))
+             (if coq-version-is-V8-1 "-emacs-U" "-emacs")))
         coq-prog-name))))
 
 
