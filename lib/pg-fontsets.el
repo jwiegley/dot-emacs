@@ -40,8 +40,8 @@
 	  "%S" (int-to-string size)
 	  (replace-regexp-in-string 
 	   "%F" basefont
-"-*-%F-medium-r-normal--%S-*-*-*-*-*-fontset-PG%T,
-gnu-unifont:-*-%F-medium-r-normal--%S-*-*-*-*-*-iso10646-1"
+"-*-%F-*-*-*--%S-*-*-*-*-*-fontset-PG%T,
+gnu-unifont:-*-%F-*-*-*--%S-*-*-*-*-*-iso10646-1"
 ;ascii:-*-%F-medium-r-normal--%S-*-*-*-*-*-mac-roman,
 ;latin-iso8859-1:-*-%F-medium-r-normal--%S-*-*-*-*-*-mac-roman,
 ;mule-unicode-0100-24ff:-*-%F-medium-r-normal--%S--*-*-*-*-*-iso10646-1,
