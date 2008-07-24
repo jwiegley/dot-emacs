@@ -48,7 +48,8 @@ buffer, and then sets PG's option for default to match.
 Also we arrange to have maths menu mode turn itself on automatically 
 in future if we have just activated it for this buffer."
   (interactive)
-  (if (proof-maths-menu-support-available) ;; will load maths-menu-mode
+  (require 'maths-menu)
+  (if (proof-maths-menu-support-available)
       (proof-maths-menu-set-global (not maths-menu-mode))))
 
 (provide 'proof-maths-menu)
