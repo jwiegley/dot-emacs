@@ -9,17 +9,9 @@
 ;; XML functions for Proof General.
 ;;
 
-(eval-when-compile
-  (require 'xml-fixed))			; for compile only
+(require 'xml)
 
 (require 'proof-utils) ;; for pg-internal-warning
-
-(cond
- ;; We want to find a good version of xml.el
- ((featurep 'xemacs)
-  (require 'xml-fixed))			;; XEmacs: used PG bundled fixed version
- (t					;; Otherwise use GNU Emacs distrib version.
-  (require 'xml)))
 
 (defalias 'pg-xml-error 'error)
 

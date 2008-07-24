@@ -1,11 +1,10 @@
-;;; DO NOT MODIFY THIS FILE
-(if (featurep 'proof-autoloads) (error "Already loaded"))
-
-(provide 'proof-autoloads)
+;;; proof-autoloads.el --- automatically extracted autoloads
+;;
+;;; Code:
 
 
 ;;;### (autoloads (bufhist-exit bufhist-init) "bufhist" "../lib/bufhist.el"
-;;;;;;  (18346 18016))
+;;;;;;  (18568 19169))
 ;;; Generated autoloads from ../lib/bufhist.el
 
 (autoload (quote bufhist-init) "bufhist" "\
@@ -26,8 +25,28 @@ Minor mode retaining an in-memory history of the buffer contents.")
 
 ;;;***
 
-;;;### (autoloads (holes-mode) "holes" "../lib/holes.el" (18346 18016))
+;;;### (autoloads (holes-mode holes-insert-and-expand holes-abbrev-complete
+;;;;;;  holes-set-make-active-hole) "holes" "../lib/holes.el" (18568
+;;;;;;  20048))
 ;;; Generated autoloads from ../lib/holes.el
+
+(autoload (quote holes-set-make-active-hole) "holes" "\
+Make a new hole between START and END or at point, and make it active.
+
+\(fn &optional START END)" t nil)
+
+(autoload (quote holes-abbrev-complete) "holes" "\
+Complete abbrev by putting holes and indenting.
+Moves point at beginning of expanded text.  Put this function as
+call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
+become holes.
+
+\(fn)" nil nil)
+
+(autoload (quote holes-insert-and-expand) "holes" "\
+Insert S, expand it and replace #s and @{]s by holes.
+
+\(fn S)" nil nil)
 
 (autoload (quote holes-mode) "holes" "\
 If ARG is nil, then toggle holes mode on/off.
@@ -39,7 +58,7 @@ turn it off.
 ;;;***
 
 ;;;### (autoloads (maths-menu-mode) "maths-menu" "../lib/maths-menu.el"
-;;;;;;  (18346 18016))
+;;;;;;  (18568 19169))
 ;;; Generated autoloads from ../lib/maths-menu.el
 
 (autoload (quote maths-menu-mode) "maths-menu" "\
@@ -53,7 +72,7 @@ This mode is only useful with a font which can display the maths repertoire.
 ;;;***
 
 ;;;### (autoloads (proof-associated-windows proof-associated-buffers)
-;;;;;;  "pg-assoc" "pg-assoc.el" (18346 18015))
+;;;;;;  "pg-assoc" "pg-assoc.el" (18568 19165))
 ;;; Generated autoloads from pg-assoc.el
 
 (autoload (quote proof-associated-buffers) "pg-assoc" "\
@@ -71,7 +90,7 @@ Dead or nil buffers are not represented in the list.
 ;;;***
 
 ;;;### (autoloads (proof-goals-config-done) "pg-goals" "pg-goals.el"
-;;;;;;  (18544 41603))
+;;;;;;  (18568 19165))
 ;;; Generated autoloads from pg-goals.el
 
 (autoload (quote proof-goals-config-done) "pg-goals" "\
@@ -82,7 +101,7 @@ Initialise the goals buffer after the child has been configured.
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (18346 18015))
+;;;;;;  "pg-pgip" "pg-pgip.el" (18336 38440))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload (quote pg-pgip-process-packet) "pg-pgip" "\
@@ -105,8 +124,8 @@ Send an <askprefs> message to the prover.
 
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-display-with-face pg-response-maybe-erase proof-response-config-done
-;;;;;;  proof-response-mode) "pg-response" "pg-response.el" (18544
-;;;;;;  41603))
+;;;;;;  proof-response-mode) "pg-response" "pg-response.el" (18568
+;;;;;;  19166))
 ;;; Generated autoloads from pg-response.el
 
 (autoload (quote proof-response-mode) "pg-response" "\
@@ -158,7 +177,7 @@ See `pg-next-error-regexp'.
 ;;;***
 
 ;;;### (autoloads (pg-defthymode) "pg-thymodes" "pg-thymodes.el"
-;;;;;;  (18346 18015))
+;;;;;;  (18568 19166))
 ;;; Generated autoloads from pg-thymodes.el
 
 (autoload (quote pg-defthymode) "pg-thymodes" "\
@@ -185,7 +204,7 @@ All of these settings are optional.
 ;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-term-incomment-fn
 ;;;;;;  proof-electric-terminator-enable proof-define-assistant-command-witharg
 ;;;;;;  proof-define-assistant-command proof-interrupt-process) "pg-user"
-;;;;;;  "pg-user.el" (18544 41603))
+;;;;;;  "pg-user.el" (18568 19166))
 ;;; Generated autoloads from pg-user.el
 
 (autoload (quote proof-interrupt-process) "pg-user" "\
@@ -219,7 +238,7 @@ Make sure the modeline is updated to display new value for electric terminator.
 \(fn)" nil nil)
 
 (autoload (quote proof-electric-term-incomment-fn) "pg-user" "\
-Used as argument to proof-assert-until-point.
+Used as argument to `proof-assert-until-point'.
 
 \(fn)" nil nil)
 
@@ -284,7 +303,7 @@ of the last item added.
 
 (autoload (quote pg-remove-from-input-history) "pg-user" "\
 Maybe remove CMD from the end of the input history.
-This is called when the command is undone.  It's only 
+This is called when the command is undone.  It's only
 removed if it matches the last item in the ring.
 
 \(fn CMD)" nil nil)
@@ -296,8 +315,8 @@ Not documented
 
 ;;;***
 
-;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18346
-;;;;;;  18015))
+;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (18568
+;;;;;;  19166))
 ;;; Generated autoloads from pg-xml.el
 
 (autoload (quote pg-xml-parse-string) "pg-xml" "\
@@ -308,7 +327,7 @@ Parse string in ARG, same as pg-xml-parse-buffer.
 ;;;***
 
 ;;;### (autoloads (proof-dependency-in-span-context-menu proof-depends-process-dependencies)
-;;;;;;  "proof-depends" "proof-depends.el" (18346 18015))
+;;;;;;  "proof-depends" "proof-depends.el" (18336 38440))
 ;;; Generated autoloads from proof-depends.el
 
 (autoload (quote proof-depends-process-dependencies) "proof-depends" "\
@@ -326,7 +345,7 @@ Make a portion of a context-sensitive menu showing proof dependencies.
 ;;;***
 
 ;;;### (autoloads (proof-easy-config) "proof-easy-config" "proof-easy-config.el"
-;;;;;;  (18346 18015))
+;;;;;;  (18568 19167))
 ;;; Generated autoloads from proof-easy-config.el
 
 (autoload (quote proof-easy-config) "proof-easy-config" "\
@@ -339,7 +358,7 @@ the `proof-assistant-table', which see.
 ;;;***
 
 ;;;### (autoloads (proof-indent-line) "proof-indent" "proof-indent.el"
-;;;;;;  (18346 18015))
+;;;;;;  (18336 38440))
 ;;; Generated autoloads from proof-indent.el
 
 (autoload (quote proof-indent-line) "proof-indent" "\
@@ -350,7 +369,7 @@ Indent current line of proof script, if indentation enabled.
 ;;;***
 
 ;;;### (autoloads (proof-maths-menu-enable proof-maths-menu-set-global)
-;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18346 18015))
+;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (18568 19167))
 ;;; Generated autoloads from proof-maths-menu.el
 
 (autoload (quote proof-maths-menu-set-global) "proof-maths-menu" "\
@@ -372,7 +391,7 @@ in future if we have just activated it for this buffer.
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn proof-aux-menu
 ;;;;;;  proof-menu-define-specific proof-menu-define-main proof-menu-define-keys)
-;;;;;;  "proof-menu" "proof-menu.el" (18558 29736))
+;;;;;;  "proof-menu" "proof-menu.el" (18568 19167))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload (quote proof-menu-define-keys) "proof-menu" "\
@@ -415,7 +434,7 @@ evaluate can be provided instead.
 ;;;***
 
 ;;;### (autoloads (proof-mmm-enable proof-mmm-set-global) "proof-mmm"
-;;;;;;  "proof-mmm.el" (18346 18015))
+;;;;;;  "proof-mmm.el" (18360 12927))
 ;;; Generated autoloads from proof-mmm.el
 
 (autoload (quote proof-mmm-set-global) "proof-mmm" "\
@@ -437,7 +456,7 @@ in future if we have just activated it for this buffer.
 ;;;### (autoloads (proof-config-done proof-mode proof-insert-sendback-command
 ;;;;;;  proof-insert-pbp-command pg-set-span-helphighlights proof-locked-region-empty-p
 ;;;;;;  proof-locked-region-full-p proof-locked-end proof-unprocessed-begin)
-;;;;;;  "proof-script" "proof-script.el" (18550 34521))
+;;;;;;  "proof-script" "proof-script.el" (18568 19167))
 ;;; Generated autoloads from proof-script.el
 
 (autoload (quote proof-unprocessed-begin) "proof-script" "\
@@ -497,7 +516,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover)
-;;;;;;  "proof-shell" "proof-shell.el" (18550 34521))
+;;;;;;  "proof-shell" "proof-shell.el" (18568 19167))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload (quote proof-shell-ready-prover) "proof-shell" "\
@@ -609,7 +628,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen)
-;;;;;;  "proof-splash" "proof-splash.el" (18346 18015))
+;;;;;;  "proof-splash" "proof-splash.el" (18568 19168))
 ;;; Generated autoloads from proof-splash.el
 
 (autoload (quote proof-splash-display-screen) "proof-splash" "\
@@ -628,7 +647,7 @@ Make sure the user gets welcomed one way or another.
 ;;;***
 
 ;;;### (autoloads (proof-splice-separator proof-format) "proof-syntax"
-;;;;;;  "proof-syntax.el" (18346 18015))
+;;;;;;  "proof-syntax.el" (18568 19982))
 ;;; Generated autoloads from proof-syntax.el
 
 (autoload (quote proof-format) "proof-syntax" "\
@@ -646,7 +665,7 @@ Splice SEP into list of STRINGS.
 ;;;***
 
 ;;;### (autoloads (proof-toolbar-scripting-menu proof-toolbar-setup)
-;;;;;;  "proof-toolbar" "proof-toolbar.el" (18550 34521))
+;;;;;;  "proof-toolbar" "proof-toolbar.el" (18568 19168))
 ;;; Generated autoloads from proof-toolbar.el
 
 (autoload (quote proof-toolbar-setup) "proof-toolbar" "\
@@ -664,17 +683,18 @@ Menu made from the Proof General toolbar commands.
 
 ;;;***
 
-;;;### (autoloads (proof-unicode-tokens-shell-config proof-unicode-tokens-set-global
-;;;;;;  proof-unicode-tokens-enable) "proof-unicode-tokens" "proof-unicode-tokens.el"
-;;;;;;  (18544 41604))
+;;;### (autoloads (proof-unicode-tokens-set-global proof-unicode-tokens-enable)
+;;;;;;  "proof-unicode-tokens" "proof-unicode-tokens.el" (18568 19168))
 ;;; Generated autoloads from proof-unicode-tokens.el
 
 (autoload (quote proof-unicode-tokens-enable) "proof-unicode-tokens" "\
 Turn on or off Unicode tokens mode in Proof General script buffer.
 This invokes `unicode-tokens-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
-Also we arrange to have unicode tokens mode turn itself on automatically 
+Also we arrange to have unicode tokens mode turn itself on automatically
 in future if we have just activated it for this buffer.
+Note: this function is called when the customize setting for the prover
+is changed.
 
 \(fn)" t nil)
 
@@ -684,60 +704,10 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit.
 
 \(fn FLAG)" nil nil)
 
-(autoload (quote proof-unicode-tokens-shell-config) "proof-unicode-tokens" "\
-Not documented
-
-\(fn)" nil nil)
-
-;;;***
-
-;;;### (autoloads (proof-x-symbol-config-output-buffer proof-x-symbol-shell-config
-;;;;;;  proof-x-symbol-decode-region proof-x-symbol-enable proof-x-symbol-support-maybe-available)
-;;;;;;  "proof-x-symbol" "proof-x-symbol.el" (18544 41604))
-;;; Generated autoloads from proof-x-symbol.el
-
-(autoload (quote proof-x-symbol-support-maybe-available) "proof-x-symbol" "\
-A test to see whether x-symbol support may be available.
-
-\(fn)" nil nil)
-
-(autoload (quote proof-x-symbol-enable) "proof-x-symbol" "\
-Turn on or off X-Symbol in current Proof General script buffer.
-This invokes `x-symbol-mode' to change the setting for the current
-buffer. 
-
-\(fn)" nil nil)
-
-(autoload (quote proof-x-symbol-decode-region) "proof-x-symbol" "\
-Not documented
-
-\(fn START END)" nil nil)
-
-(autoload (quote proof-x-symbol-shell-config) "proof-x-symbol" "\
-Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil.
-Assumes that the current buffer is the proof shell buffer.
-
-\(fn)" nil nil)
-
-(autoload (quote proof-x-symbol-config-output-buffer) "proof-x-symbol" "\
-Configure the current output buffer (goals/response/trace) for X-Symbol.
-
-\(fn)" nil nil)
-
-;;;***
-
-;;;### (autoloads nil nil ("../lib/holes-load.el" "../lib/local-vars-list.el"
-;;;;;;  "../lib/pg-dev.el" "../lib/pg-fontsets.el" "../lib/proof-compat.el"
-;;;;;;  "../lib/span-extent.el" "../lib/span-overlay.el" "../lib/span.el"
-;;;;;;  "../lib/unicode-chars.el" "../lib/unicode-tokens.el" "../lib/xml-fixed.el"
-;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
-;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-site.el" "proof-utils.el"
-;;;;;;  "proof.el") (18558 30696 142301))
-
 ;;;***
 
 ;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "../lib/texi-docstring-magic.el"
-;;;;;;  (18346 18016))
+;;;;;;  (18336 38444))
 ;;; Generated autoloads from ../lib/texi-docstring-magic.el
 
 (autoload (quote texi-docstring-magic) "texi-docstring-magic" "\
@@ -748,3 +718,35 @@ With prefix arg, no errors on unknown symbols.  (This results in
 \(fn &optional NOERROR)" t nil)
 
 ;;;***
+
+;;;### (autoloads (unicode-tokens-mode unicode-tokens-initialise)
+;;;;;;  "unicode-tokens" "../lib/unicode-tokens.el" (18568 20076))
+;;; Generated autoloads from ../lib/unicode-tokens.el
+
+(autoload (quote unicode-tokens-initialise) "unicode-tokens" "\
+Not documented
+
+\(fn)" t nil)
+
+(autoload (quote unicode-tokens-mode) "unicode-tokens" "\
+Minor mode for unicode token input.
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
+;;;### (autoloads nil nil ("../lib/local-vars-list.el" "../lib/pg-dev.el"
+;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
+;;;;;;  "../lib/unicode-chars.el" "pg-autotest.el" "pg-custom.el"
+;;;;;;  "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el" "proof-config.el"
+;;;;;;  "proof-site.el" "proof-utils.el" "proof.el") (18568 20102
+;;;;;;  515468))
+
+;;;***
+
+;; Local Variables:
+;; version-control: never
+;; no-byte-compile: t
+;; no-update-autoloads: t
+;; End:
+;;; proof-autoloads.el ends here

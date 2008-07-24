@@ -53,7 +53,7 @@ All of these settings are optional."
       (eval
        `(define-derived-mode ,mode ,parentmode ,name
 	  (interactive)
-	  (pg-do-unless-null ,flks (setq font-lock-keywords ,flks))
+	  (pg-do-unless-null ,flks (setq font-lock-defaults (',flks)))
 	  (pg-do-unless-null ,syntaxes (mapcar 'modify-syntax-entry ,syntaxes))))
        ;; Define the menu (final value of macro to be evaluated)
        `(pg-do-unless-null ,menu

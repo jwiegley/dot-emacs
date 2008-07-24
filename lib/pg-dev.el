@@ -79,7 +79,7 @@
      proof-autoloads pg-response pg-goals proof-toolbar
      proof-easy-config proof-config proof-mmm proof 
      proof-utils proof-syntax pg-user pg-custom
-     proof-x-symbol proof-maths-menu proof-unicode-tokens
+     proof-maths-menu proof-unicode-tokens
      pg-thymodes pg-autotest
      ;; 
      isar-syntax isar-find-theorems x-symbol-isar

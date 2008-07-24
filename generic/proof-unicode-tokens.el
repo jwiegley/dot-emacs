@@ -1,4 +1,4 @@
-;; proof-unicode-tokens.el   Support Unicode tokens package
+;;; proof-unicode-tokens.el --- Support Unicode tokens package
 ;;
 ;; Copyright (C) 2008 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
@@ -6,6 +6,17 @@
 ;;
 ;; $Id$
 ;;
+;;
+;;; Commentary:
+;; 
+;; Support for Unicode Tokens package: per-prover global enabling, copying
+;; configuration tables, adding mode hooks to turn on/off.
+;;
+;; Initialisation:
+;;   proof-unicode-tokens-init -> proof-unicode-tokens-reconfigure*
+;;
+
+;;; Code:
 
 (eval-when-compile
   (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant
@@ -18,125 +29,114 @@
   "Flag indicating whether or not we've performed startup.")
 
 (defun proof-unicode-tokens-init ()
-  "Initialise settings for unicode tokens from prover specific variables."
+  "Set tables and configure hooks for modes."
+  (proof-unicode-tokens-configure)
+  (add-hook 'proof-shell-init-hook 'proof-unicode-tokens-configure-prover)
+  (let ((hooks (mapcar (lambda (m)
+			 (intern (concat (symbol-name m) "-hook")))
+		       (list
+			proof-mode-for-script
+			proof-mode-for-response
+			proof-mode-for-goals))))
+    (dolist (hook hooks)
+      (add-hook hook 'proof-unicode-tokens-mode-if-enabled)))
+  (setq proof-unicode-tokens-initialised t))
+
+(defun proof-unicode-tokens-configure ()
+  "Set the Unicode Tokens table from prover instances and initialise."
+  (require 'unicode-tokens) ; load now, for unicode-tokens-configuration-variables
   (mapcar
    (lambda (var) ;; or defass?
      (if (boundp (proof-ass-symv var))
 	 (set (intern (concat "unicode-tokens-" (symbol-name var)))
 	      (eval `(proof-ass ,var)))))
-   '(charref-format
-     token-format
-     control-token-format
-     token-name-alist
-     glyph-list
-     token-match
-     control-token-match
-     hexcode-match
-     next-character-regexp
-     token-prefix
-     token-suffix
-     shortcut-alist))
-  (unicode-tokens-initialise)
-  (setq proof-unicode-tokens-initialised t))
+   unicode-tokens-configuration-variables)
+  (unicode-tokens-initialise))
+
   
 ;;;###autoload
 (defun proof-unicode-tokens-enable ()
   "Turn on or off Unicode tokens mode in Proof General script buffer.
 This invokes `unicode-tokens-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
-Also we arrange to have unicode tokens mode turn itself on automatically 
-in future if we have just activated it for this buffer."
+Also we arrange to have unicode tokens mode turn itself on automatically
+in future if we have just activated it for this buffer.
+Note: this function is called when the customize setting for the prover
+is changed."
   (interactive)
   (when (proof-unicode-tokens-support-available) ;; loads unicode-tokens
     (unless proof-unicode-tokens-initialised
       (proof-unicode-tokens-init))
     (proof-unicode-tokens-set-global (not unicode-tokens-mode))))
 
+(defun proof-unicode-tokens-mode-if-enabled ()
+  "Turn on or off the Unicode Tokens minor mode in this buffer."
+  (unicode-tokens-mode
+   (if (proof-ass unicode-tokens-enable) 1 0)))
 
 ;;;###autoload
 (defun proof-unicode-tokens-set-global (flag)
   "Set global status of unicode tokens mode for PG buffers to be FLAG.
 Turn on/off menu in all script buffers and ensure new buffers follow suit."
-  (unless proof-unicode-tokens-initialised 
-      (proof-unicode-tokens-init))
-  (let ((hook (proof-ass-sym mode-hook)))
-    (if flag
-	(add-hook hook 'unicode-tokens-mode)
-      (remove-hook hook 'unicode-tokens-mode))
-    (proof-map-buffers 
-      (proof-buffers-in-mode proof-mode-for-script)
-      (unicode-tokens-mode (if flag 1 0)))
-    (proof-unicode-tokens-shell-config)))
-
+  (unless proof-unicode-tokens-initialised
+    (proof-unicode-tokens-init))
+  ;; Configure if already running
+  (proof-map-buffers
+   (append
+    (proof-buffers-in-mode proof-mode-for-script)
+    (proof-associated-buffers)
+    (proof-buffers-in-mode proof-tokens-extra-modes))
+   (unicode-tokens-mode (if flag 1 0)))
+  (proof-unicode-tokens-configure-prover))
   
 ;;;
 ;;; Interface to custom to dynamically change tables (via proof-set-value)
 ;;;
 
-(defun proof-token-name-alist ()
-  "Function called after the current token name alist has been changed.
-Switch off tokens in all buffers, recalculate maps, turn on again."
+(defun proof-unicode-tokens-reconfigure ()
+  "Function called after a token configuration is changed.
+Switch off tokens in all script buffers, recalculate maps, turn on again."
+  (interactive)
   (when proof-unicode-tokens-initialised ; not on startup
     (when (proof-ass unicode-tokens-enable)
-      (proof-map-buffers 
+      (proof-map-buffers
        (proof-buffers-in-mode proof-mode-for-script)
        (unicode-tokens-mode 0)))
-    (setq unicode-tokens-token-name-alist (proof-ass token-name-alist))
-    (unicode-tokens-initialise)
+    (proof-unicode-tokens-configure)
     (when (proof-ass unicode-tokens-enable)
-      (proof-map-buffers 
+      (proof-map-buffers
        (proof-buffers-in-mode proof-mode-for-script)
        (unicode-tokens-mode 1)))))
-  
-(defun proof-shortcut-alist ()
-  "Function called after the shortcut alist has been changed.
-Updates the input mapping for reading shortcuts."
-  (when proof-unicode-tokens-initialised ; not on startup
-    (setq unicode-tokens-shortcut-alist (proof-ass shortcut-alist))
-    (unicode-tokens-initialise)))
+
+(eval-after-load "unicode-tokens"
+  '(dolist (var unicode-tokens-configuration-variables)
+     (funcall 'defalias
+	      (intern (concat "proof-" (symbol-name var)))
+	      'proof-unicode-tokens-reconfigure)))
 
 ;;;
 ;;; Interface to shell
 ;;;
 
-
-(defun proof-unicode-tokens-activate-prover ()
-  (when (and proof-xsym-activate-command 
-	     (proof-shell-live-buffer)
-	     (proof-shell-available-p))
-    (proof-shell-invisible-command-invisible-result
-     proof-xsym-activate-command)))
-
-(defun proof-unicode-tokens-deactivate-prover ()
-  (when (and proof-xsym-deactivate-command 
-	     ;; NB: clash with X-symbols since use same commands in prover!
-	     (not (proof-ass x-symbol-enable))
-	     (proof-shell-live-buffer)
-	     (proof-shell-available-p))
-    (proof-shell-invisible-command-invisible-result
-     proof-xsym-deactivate-command)))
-
-;;; NB: we shouldn't bother load this if it's not enabled.
-;;;###autoload
-(defun proof-unicode-tokens-shell-config ()
-  (when (proof-ass unicode-tokens-enable)
-    (add-hook 'proof-shell-insert-hook
-	      'proof-unicode-tokens-encode-shell-input)
-    (proof-unicode-tokens-activate-prover))
-  (unless (proof-ass unicode-tokens-enable)
-    (remove-hook 'proof-shell-insert-hook
-		 'proof-unicode-tokens-encode-shell-input)
+(defun proof-unicode-tokens-configure-prover ()
+  (if (proof-ass unicode-tokens-enable)
+      (proof-unicode-tokens-activate-prover)
     (proof-unicode-tokens-deactivate-prover)))
 
-(defun proof-unicode-tokens-encode-shell-input ()
-  "Encode shell input in the variable STRING.
-A value for proof-shell-insert-hook."
-  (if (proof-ass unicode-tokens-enable)
-      (with-temp-buffer ;; TODO: better to do directly in *prover*
-	(insert string)
-	(unicode-tokens-unicode-to-tokens)
-	(setq string (buffer-substring-no-properties
-		      (point-min) (point-max))))))
+(defun proof-unicode-tokens-activate-prover ()
+  (when (and proof-tokens-activate-command
+	     (proof-shell-live-buffer)
+	     (proof-shell-available-p))
+    (proof-shell-invisible-command-invisible-result
+     proof-tokens-activate-command)))
+
+(defun proof-unicode-tokens-deactivate-prover ()
+  (when (and proof-tokens-deactivate-command
+	     (proof-shell-live-buffer)
+	     (proof-shell-available-p))
+    (proof-shell-invisible-command-invisible-result
+     proof-tokens-deactivate-command)))
 
 (provide 'proof-unicode-tokens)
-;; End of proof-unicode-tokens.el
+
+;;; proof-unicode-tokens.el ends here

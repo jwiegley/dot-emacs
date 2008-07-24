@@ -71,16 +71,9 @@ If it is nil, a new line is inserted."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;; Compatibility between Emacs/XEmacs.
-(eval-and-compile
-  (if (featurep 'xemacs)
-      ;; Constant nil function
-      (defsubst proof-emacs-imagep (img)
-	"See if IMG is an Emacs image descriptor (returns nil here on XEmacs)."
-	nil)
-    (defsubst proof-emacs-imagep (img)
-      "See if IMG is an Emacs image descriptor."
-      (and (listp img) (eq (car img) 'image)))))
+(defsubst proof-emacs-imagep (img)
+  "See if IMG is an Emacs image descriptor."
+  (and (listp img) (eq (car img) 'image)))
 
 
 (defun proof-get-image (name &optional nojpeg default)
@@ -93,29 +86,15 @@ DEFAULT gives return value in case image not valid."
 		     (concat proof-images-directory name ".jpg")))
 	(gif (vector 'gif :file
 		     (concat proof-images-directory ".gif")))
-	(validfn (lambda (inst)
-		   (and (featurep 'xemacs)
-			(valid-instantiator-p inst 'image)
-			(file-readable-p (aref inst 2)))))
 	img)
   (cond
-   ((and (featurep 'xemacs) window-system
-	 (featurep 'jpeg) (not nojpeg)
-	 (funcall validfn jpg))
-    jpg)
-   ((and (featurep 'xemacs) window-system
-	 (featurep 'gif) (funcall validfn gif))
-    gif)
-   ((and
-     (not (featurep 'xemacs)) window-system
-     (setq img 
-	   (find-image
-	    (list
-	     (list :type 'jpeg
-		   :file (concat proof-images-directory name ".jpg"))
-	     (list :type 'gif
-		   :file (concat proof-images-directory name ".gif"))))))
-    img)
+   (window-system
+    (find-image
+     (list
+      (list :type 'jpeg
+	    :file (concat proof-images-directory name ".jpg"))
+      (list :type 'gif
+	    :file (concat proof-images-directory name ".gif")))))
    (t
     (or default (concat "[ image " name " ]"))))))
 
@@ -132,9 +111,6 @@ Borrowed from startup-center-spaces."
 	 (fill-area-width  (* avg-pixwidth (- fill-column left-margin)))
 	 (glyph-pixwidth   (cond ((stringp glyph) 
 				  (* avg-pixwidth (length glyph)))
-				 ((and (featurep 'xemacs)
-				       (glyphp glyph))
-				  (glyph-width glyph))
 				 ((proof-emacs-imagep glyph)
 				  (car (image-size glyph 'inpixels)))
 				 (t
@@ -163,11 +139,8 @@ Borrowed from startup-center-spaces."
 	(progn
 	  (if (get-buffer-window splashbuf)
 	      ;; Restore the window config if splash is being displayed
-	      (progn
-		(if (cdr proof-splash-timeout-conf)
-		    (set-window-configuration (cdr proof-splash-timeout-conf)))
-		(if (featurep 'xemacs)
-		    (redraw-frame nil t))))
+	      (if (cdr proof-splash-timeout-conf)
+		  (set-window-configuration (cdr proof-splash-timeout-conf))))
 	  ;; Indicate removed splash screen; disable timeout
 	  (disable-timeout (car proof-splash-timeout-conf))
 	  (setq proof-splash-timeout-conf nil)
@@ -200,72 +173,64 @@ by end of configuring proof mode.
 Otherwise, timeout inside this function after 10 seconds or so."
  (interactive "P")
  (proof-splash-set-frame-titles)
-  (let*
-      ;; Keep win config explicitly instead of pushing/popping because
-      ;; if the user switches windows by hand in some way, we want
-      ;; to ignore the saved value.  Unfortunately there seems to
-      ;; be no way currently to remove the top item of the stack.
-      ((winconf   (current-window-configuration))
-       (curwin	  (get-buffer-window (current-buffer)))
-       (curfrm    (and curwin (window-frame curwin)))
-       (splashbuf (get-buffer-create proof-splash-welcome))
-       (after-change-functions nil)	; no font-lock, thank-you.
-       ;; NB: maybe leave next one in for frame-crazy folk
-       ;;(pop-up-frames nil)		; display in the same frame.
-       (splash-contents (append
-			 (eval proof-splash-contents)
-			 (eval proof-splash-startup-msg)))
-       s)
-    (with-current-buffer splashbuf
-      (erase-buffer)
-      ;; [ Don't use do-list to avoid loading cl ]
-      (while splash-contents
-	(setq s (car splash-contents))
-	(cond
-	 ((and (featurep 'xemacs)
-	       (vectorp s)
-	       (valid-instantiator-p s 'image))
-	  (let ((gly (make-glyph s)))
-	    (indent-to (proof-splash-centre-spaces gly))
-	    (set-extent-begin-glyph (make-extent (point) (point)) gly)))
-	 ((proof-emacs-imagep s)
-	  (indent-to (proof-splash-centre-spaces s))
-	  (insert-image s))
-	 ((stringp s)
-	  (indent-to (proof-splash-centre-spaces s))
-	  (insert s)))
-	(newline)
-	(setq splash-contents (cdr splash-contents)))
-      (goto-char (point-min))
-      (set-buffer-modified-p nil)
-      (let* ((splashwin     (display-buffer splashbuf))
-	     (splashfm      (window-frame splashwin))
-	     ;; Only save window config if we're on same frame
-	     (savedwincnf   (if (eq curfrm splashfm) winconf)))
-	(delete-other-windows splashwin)
-	(if (fboundp 'redisplay-frame)
-	    (redisplay-frame nil t)	; XEmacs special
-	  (sit-for 0))
-	(setq proof-splash-timeout-conf
-	      (cons
-	       (add-timeout (if timeout proof-splash-time 10)
-			    'proof-splash-remove-screen nil)
-	       savedwincnf))))
-    ;; PROBLEM: when to call proof-splash-display-screen?
-    ;; We'd like to call it during loading/initialising.  But it's
-    ;; hard to make the screen persist after loading because of the
-    ;; action of display-buffer invoked after the mode function
-    ;; during find-file.
-    ;; To approximate the best behaviour, we assume that this file is
-    ;; loaded by a call to proof-mode.  We display the screen now and add
-    ;; a wait procedure temporarily to proof-mode-hook which prevents
-    ;; redisplay until proof-splash-time has elapsed.
-    (if timeout
-	(add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
-      ;; Otherwise, this was an "about" type of call, so we wait
-      ;; for a key press or timeout event
-      (proof-splash-timeout-waiter))
-    (setq proof-splash-seen t)))
+ (let*
+     ;; Keep win config explicitly instead of pushing/popping because
+     ;; if the user switches windows by hand in some way, we want
+     ;; to ignore the saved value.  Unfortunately there seems to
+     ;; be no way currently to remove the top item of the stack.
+     ((winconf   (current-window-configuration))
+      (curwin	  (get-buffer-window (current-buffer)))
+      (curfrm    (and curwin (window-frame curwin)))
+      (splashbuf (get-buffer-create proof-splash-welcome))
+      (after-change-functions nil)	; no font-lock, thank-you.
+      ;; NB: maybe leave next one in for frame-crazy folk
+      ;;(pop-up-frames nil)		; display in the same frame.
+      (splash-contents (append
+			(eval proof-splash-contents)
+			(eval proof-splash-startup-msg)))
+      s)
+   (with-current-buffer splashbuf
+     (erase-buffer)
+     ;; [ Don't use do-list to avoid loading cl ]
+     (while splash-contents
+       (setq s (car splash-contents))
+       (cond
+	((proof-emacs-imagep s)
+	 (indent-to (proof-splash-centre-spaces s))
+	 (insert-image s))
+	((stringp s)
+	 (indent-to (proof-splash-centre-spaces s))
+	 (insert s)))
+       (newline)
+       (setq splash-contents (cdr splash-contents)))
+     (goto-char (point-min))
+     (set-buffer-modified-p nil)
+     (let* ((splashwin     (display-buffer splashbuf))
+	    (splashfm      (window-frame splashwin))
+	    ;; Only save window config if we're on same frame
+	    (savedwincnf   (if (eq curfrm splashfm) winconf)))
+       (delete-other-windows splashwin)
+       (sit-for 10)
+       (setq proof-splash-timeout-conf
+	     (cons
+	      (add-timeout (if timeout proof-splash-time 10)
+			   'proof-splash-remove-screen nil)
+	      savedwincnf))))
+   ;; PROBLEM: when to call proof-splash-display-screen?
+   ;; We'd like to call it during loading/initialising.  But it's
+   ;; hard to make the screen persist after loading because of the
+   ;; action of display-buffer invoked after the mode function
+   ;; during find-file.
+   ;; To approximate the best behaviour, we assume that this file is
+   ;; loaded by a call to proof-mode.  We display the screen now and add
+   ;; a wait procedure temporarily to proof-mode-hook which prevents
+   ;; redisplay until proof-splash-time has elapsed.
+   (if timeout
+       (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
+     ;; Otherwise, this was an "about" type of call, so we wait
+     ;; for a key press or timeout event
+     (proof-splash-timeout-waiter))
+   (setq proof-splash-seen t)))
 
 ;;;###autoload
 (defun proof-splash-message ()
@@ -285,10 +250,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
   "Wait for proof-splash-timeout or input, then remove self from hook."
   (while (and proof-splash-timeout-conf ;; timeout still active
 	      (not (input-pending-p)))
-    (if (featurep 'xemacs)
-	(sit-for 0 t)			; XEmacs: wait without redisplay
-      ; (sit-for 1 0 t)))		; FSF: NODISP arg seems broken
-      (sit-for 0)))
+    (sit-for 0))
   (if proof-splash-timeout-conf         ;; not removed yet
       (proof-splash-remove-screen))
   (if (fboundp 'next-command-event) ; 3.3: Emacs removed this

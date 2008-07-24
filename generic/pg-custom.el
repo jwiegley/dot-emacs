@@ -29,21 +29,6 @@
 (require 'proof-utils)		   ; defpgcustom
 (require 'proof-config)		   ; for proof-toolbar-entries-default
 
-(defpgcustom x-symbol-enable nil
-  "*Whether to use x-symbol in Proof General for this assistant.
-If you activate this variable, whether or not you really get x-symbol
-support depends on whether your proof assistant supports it and
-whether X-Symbol is installed in your Emacs."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-;; todo: can remove this one now, rename isabelle-x-symbol -> isar-x-symbol
-(defpgcustom x-symbol-language proof-assistant-symbol
-  "Setting for x-symbol-language for the current proof assistant.
-It defaults to proof-assistant-symbol, which makes X Symbol
-look for files named x-symbol-<PA>.el.")
-
 (defpgcustom maths-menu-enable nil
   "*Non-nil for Unicode maths menu in Proof General for this assistant."
   :type 'boolean
@@ -51,12 +36,6 @@ look for files named x-symbol-<PA>.el.")
   :group 'proof-user-options)
 
 (defpgcustom unicode-tokens-enable nil
-  "*Non-nil for using Unicode token input mode in Proof General."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defpgcustom unicode-tokens2-enable nil
   "*Non-nil for using Unicode token input mode in Proof General."
   :type 'boolean
   :set 'proof-set-value
@@ -77,32 +56,25 @@ support depends on whether your proof assistant supports it."
   :group 'proof-user-options)
 
 (defconst proof-toolbar-entries-default
-  `((state	"Display Proof State" "Display the current proof state" t
-				      proof-showproof-command)
-    (context	"Display Context"     "Display the current context" t
-				      proof-context-command)
-;; PG 3.7: disable goal & qed, they're not so useful (& save-command never enabled).
-;;     (goal	"Start a New Proof"   "Start a new proof" t
-;;  				      proof-goal-command)
-    (retract	"Retract Buffer"      "Retract (undo) whole buffer" t)
-    (undo	"Undo Step"           "Undo the previous proof command" t)
-    (delete	"Delete Step"         nil t)
-    (next	"Next Step"           "Process the next proof command" t)
-    (use	"Use Buffer"  	      "Process whole buffer" t)
-    (goto	"Goto Point"	      "Process or undo to the cursor position" t)
-;;     (qed	"Finish Proof"        "Close/save proved theorem" t
-;; 				      proof-save-command)
-    (lockedend  "Goto Locked End"     nil t)
-    (find	"Find Theorems"	      "Find theorems" t proof-find-theorems-command)
-    (command    "Issue Command"	      "Issue a non-scripting command" t)
-    (interrupt  "Interrupt Prover"    "Interrupt the proof assistant" t)
-    (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
-    (visibility "Toggle Visibility"   nil t)
-; PG 3.6: remove Info item from toolbar; it's not very useful and under PA->Help anyway
-;    (info	nil		      "Show online proof assistant information" t
-;				       proof-info-command)
-; PG 3.7: use Info icon for info
-    (info	nil		      "Proof General manual" t))
+  `((state "Display Proof State" "Display the current proof state" t
+	   proof-showproof-command)
+    (context "Display Context" "Display the current context" t
+	     proof-context-command)
+    (goal      "Start a New Proof" "Start a new proof" t nil)
+    (retract   "Retract Buffer"     "Retract (undo) whole buffer" t)
+    (undo      "Undo Step"          "Undo the previous proof command" t)
+    (delete    "Delete Step"        "Delete the last proof command" t)
+    (next      "Next Step"          "Process the next proof command" t)
+    (use       "Use Buffer"         "Process whole buffer" t)
+    (goto      "Goto Point"         "Process or undo to the cursor position" t)
+    (qed       "Finish Proof"       "Close/save proved theorem" t nil)
+    (lockedend "Goto Locked End"    "Goto end of the last command proceesed" nil t)
+    (find      "Find Theorems"	    "Find theorems" t proof-find-theorems-command)
+    (command   "Issue Command"	    "Issue a non-scripting command" nil)
+    (interrupt "Interrupt Prover"   "Interrupt the proof assistant" t)
+    (restart   "Restart Scripting"  "Restart scripting (clear all locked regions)" t)
+    (visibility "Toggle Visibility" "Show or hide hidden proofs" nil t)
+    (help	nil		    "Proof General manual" t t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
 appropriate configuration variables are set.
@@ -112,18 +84,19 @@ defining functions, images.")
 
 (defpgcustom toolbar-entries proof-toolbar-entries-default
   "List of entries for Proof General toolbar and Scripting menu.
-Format of each entry is (TOKEN MENUNAME TOOLTIP DYNAMIC-ENABLER-P ENABLE).
+Format of each entry is (TOKEN MENUNAME TOOLTIP TOOLBAR-P [VISIBLE-P]).
 
 For each TOKEN, we expect an icon with base filename TOKEN,
 a function proof-toolbar-<TOKEN>, and (optionally) a dynamic enabler
 proof-toolbar-<TOKEN>-enable-p.
 
-If ENABLEP is absent, item is enabled; if ENABLEP is present, item
-is only added to menubar and toolbar if ENABLEP is non-null.
+If VISIBLE-P is absent, or evaluates to non-nil, the item will
+appear on the toolbar or menu.  If it evaluates to nil, the item
+is not shown.
 
 If MENUNAME is nil, item will not appear on the scripting menu.
 
-If TOOLTIP is nil, item will not appear on the toolbar.
+If TOOLBAR-P is nil, item will not appear on the toolbar.
 
 The default value is `proof-toolbar-entries-default' which contains
 the standard Proof General buttons.")

@@ -91,13 +91,8 @@ Set to t if you want this feature."
 (require 'coq-syntax)
 (require 'coq-indent)
 
-;; utf-8 is not yet well accepted (especially by xemacs)
-;; Set to t in your .emacs to enable it. Needs to load 
-;; library `un-define' to work on xemacs."
-;; (or (boundp 'proof-shell-unicode) (setq proof-shell-unicode nil))
-;; da: I think the default t setting now works fine, at least for me.
-;; pc: 8.0 backward compliance:
-(if coq-version-is-V8-0 (setq proof-shell-unicode nil))
+(if coq-version-is-V8-0 
+    (setq proof-shell-unicode nil))
 
 (defcustom coq-prog-env nil
   "*List of environment settings d to pass to Coq process.
@@ -138,8 +133,6 @@ On Windows you might need something like:
 
 
 ;; Configuration
-
-(setq tags-always-exact t) ; Tags is unusable with Coq library otherwise:
 
 (defun coq-library-directory () 
   (let ((c (substring (shell-command-to-string "coqtop -where") 0 -1 )))
@@ -676,12 +669,15 @@ happen since one of them is necessarily set to t in coq-syntax.el."
 
 (defun coq-guess-or-ask-for-string (s &optional dontguess)
   (let ((guess
-         (and (not dontguess)
-         (if (region-exists-p) 
-             (buffer-substring-no-properties (region-beginning) (region-end))
-           (thing-at-point 'symbol)))))
-    (read-string 
-     (if guess (concat s " (default " guess "): ") (concat s " : "))
+         (cond
+          (dontguess nil)
+          ((region-exists-p)
+           (buffer-substring-no-properties (region-beginning) (region-end)))
+          ((fboundp 'symbol-near-point) (symbol-near-point))
+          ((fboundp 'symbol-at-point) (symbol-at-point)))))
+    (if (and guess (symbolp guess)) (setq guess (symbol-name guess)))
+    (read-string
+     (if guess (concat s " (default " guess "): ") (concat s ": "))
      nil 'proof-minibuffer-history guess)))
 
 
@@ -830,6 +826,8 @@ This is specific to `coq-mode'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-mode-config ()
+  ;; Tags is unusable with Coq library otherwise:
+  (set (make-local-variable 'tags-always-exact) t)
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
   (setq proof-terminal-char ?\.)
@@ -862,10 +860,6 @@ This is specific to `coq-mode'."
         proof-find-and-forget-fn 'coq-find-and-forget
         pg-topterm-goalhyplit-fn 'coq-goal-hyp
         proof-state-preserving-p 'coq-state-preserving-p)
-
-  ;; This one to deal with nested comments in xemacs
-  (if (featurep 'xemacs)
-      (setq proof-script-parse-function 'coq-parse-function))
 
   (setq proof-shell-indentifier-under-mouse-cmd "Check %s.")
 
@@ -902,11 +896,10 @@ This is specific to `coq-mode'."
         proof-shell-stop-silent-cmd "Unset Silent. ")
 
   (coq-init-syntax-table)
-  ;(setq comment-quote-nested nil) ;; we can cope with nested comments
   (set (make-local-variable 'comment-quote-nested) nil) ;; we can cope with nested comments
 
   ;; font-lock
-  (setq font-lock-keywords coq-font-lock-keywords-1)
+  (setq proof-script-font-lock-keywords coq-font-lock-keywords-1)
   ;;holes
   (holes-mode 1)
 
@@ -926,7 +919,6 @@ This is specific to `coq-mode'."
                        ("coq"  . coq-tags))
                      tag-table-alist)))
 
-;  (setq blink-matching-paren-dont-ignore-comments t)
   (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
 
   ;; multiple file handling
@@ -1010,7 +1002,8 @@ To be used in `proof-shell-process-output-system-specific'."
    )
   
   (coq-init-syntax-table)
-  (setq font-lock-keywords coq-font-lock-keywords-1)
+  ; da: suggest no fontification in shell
+  ;(setq font-lock-defaults 'coq-font-lock-keywords-1)
   (holes-mode 1)
   (proof-shell-config-done)
   )
@@ -1019,12 +1012,14 @@ To be used in `proof-shell-process-output-system-specific'."
   (setq pg-goals-change-goal "Show %s . ")
   (setq pg-goals-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
-  (setq font-lock-keywords coq-font-lock-keywords-1)
+  (setq proof-goals-font-lock-keywords coq-font-lock-keywords-1)
   (proof-goals-config-done))
 
 (defun coq-response-config ()
   (coq-init-syntax-table)
-  (setq font-lock-keywords coq-font-lock-keywords-1)
+  (setq proof-response-font-lock-keywords coq-font-lock-keywords-1)
+  ;; The line wrapping in this buffer just seems to make it less readable.
+  (setq truncate-lines t)
   (proof-response-config-done))
 
 
@@ -1083,6 +1078,11 @@ To be used in `proof-shell-process-output-system-specific'."
 (defpacustom time-commands nil
   "*Whether to display timing information for each command."
   :type 'boolean)
+
+(defpacustom undo-limit 100
+  "*Depth of undo history."
+  :type 'integer
+  :setting "Set Undo %i . ")
 
 (defpacustom auto-compile-vos nil
   "Whether to automatically compile vos and track dependencies."
@@ -1481,13 +1481,14 @@ be asked to the user."
 
 
 ;; I don't use proof-shell-last-ouput here since it is not always set to the
-;; really last ouptut (specially when a *tactic* gives an error) instead I go
+;; really last output (specially when a *tactic* gives an error) instead I go
 ;; directly to the response buffer. This allows also to clean the response
 ;; buffer (better to only scroll it?)
 (defun coq-get-last-error-location (&optional parseresp clean)
- "Return location information on last error sent by coq.  Return a two
-elements list (pos lgth) if successful, nil otherwise.  pos is the number of
-characters preceding the underlined expression, and lgth is its length.
+ "Return location information on last error sent by coq.
+Return a two elements list (POS LEN) if successful, nil otherwise.
+POS is the number of characters preceding the underlined expression,
+and LEN is its length.
 Coq error message must be like this:
 
 \"
@@ -1502,20 +1503,33 @@ If PARSERESP is nil, don't really parse response buffer but take the value of
 If PARSERESP and CLEAN are non-nil, delete the error location from the response
 buffer."
   (if (not parseresp) last-coq-error-location
-    (save-excursion
-      ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
-      (set-buffer proof-response-buffer)
-      (goto-char (point-max))
-      (let* ((mtch (re-search-backward "\n>[^\n]+\n> \\( *\\)\\(\\^+\\)\n" nil 'dummy))
-             (pos (and mtch (length (match-string 1))))
-             (lgth (and (length (match-string 2))))
-             (res (list pos lgth)))
-        ;; clean the response buffer from ultra-ugly underlined command line
-        ;; parsed above. Don't kill the first \n
-        (when (and clean mtch) (delete-region (+ mtch 1) (match-end 0)))
-        (when mtch
-          (setq last-coq-error-location res)
-          res)))))
+    ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
+    (with-current-buffer proof-response-buffer
+        (goto-char (point-max))
+        (when (re-search-backward "\n> \\(.*\\)\n> \\( *\\)\\(\\^+\\)\n" nil t)
+          (let ((text (match-string 1))
+                (pos (length (match-string 2)))
+                (len (length (match-string 3))))
+            ;; clean the response buffer from ultra-ugly underlined command line
+            ;; parsed above. Don't kill the first \n
+            (when clean (delete-region (+ (match-beginning 0) 1) (match-end 0)))
+            (when proof-shell-unicode
+              ;; `pos' and `len' are actually specified in bytes, apparently.
+              ;; So let's convert them, assuming the encoding used is utf-8.
+              ;; Presumably in Emacs-23 we could use `string-bytes' for that
+              ;; since the internal encoding happens to use utf-8 as well.
+              (let ((bytes (encode-coding-string text 'utf-8-unix)))
+                ;; Check that pos&len make sense in `bytes', if not give up.
+                (when (>= (length bytes) (+ pos len))
+                  ;; We assume here that `text' is a single line and use \n as
+                  ;; a marker so we can find it back after decoding.
+                  (setq bytes (concat (substring bytes 0 pos)
+                                      "\n" (substring bytes pos (+ pos len))))
+                  (let ((chars (decode-coding-string bytes 'utf-8-unix)))
+                    (setq pos (string-match "\n" chars))
+                    (setq len (- (length chars) pos 1))))))
+            (setq last-coq-error-location (list pos len)))))))
+
 
 (defun coq-highlight-error (&optional parseresp clean)
   "Parses the last coq output looking at an error message. Highlight the text
@@ -1540,36 +1554,6 @@ buffer."
         (set-buffer proof-script-buffer)
         (goto-char (+ (proof-locked-end) 1))
         (coq-find-real-start)
-        ;; Here start som ugly code to adapt pos and lgth to x-symbol
-        (when (and (boundp 'x-symbol-mode) x-symbol-mode)
-          (let*
-              ((comstart (point))
-               (comend (coq-find-command-end-forward))
-               (reg1 100) (reg2 101) errpoint
-                ;(x-symbol-encode-string (coq-command-at-point) (proof-script-buffer)))
-;               (s2 (substring s 0 pos))
-;               (s3 (x-symbol-decode))
-               )
-            ; remove x-symbols
-            (x-symbol-encode comstart comend)
-            ;; update comend
-            (setq comend (progn (goto-char comstart) (coq-find-command-end-forward)) )
-            ;; go to error start and put register at start and end of error
-            (goto-char comstart) (forward-char pos)
-            (point-to-register reg1)
-            (forward-char lgth)
-            (point-to-register reg2)
-            ;; put symbols back, registers are moved accordingly
-            (x-symbol-decode-recode comstart comend)
-            (register-to-point reg1)
-            (setq errpoint (point))
-            ;; adapt pos
-            (setq pos (- (point) comstart))
-            (register-to-point reg2)
-            ;; adapt lgth
-            (setq lgth (- (point) errpoint))
-            ;; go back at command start
-            (goto-char comstart))) ;(setq legth ??))
 
         ; coq error positions are in byte, not in chars, so translate
         ; for utf-8 error message
@@ -1579,9 +1563,9 @@ buffer."
                        (byte-to-position (+ (position-bytes (point)) lgth))))
                (sp (span-make start (point))))
           (set-span-face sp 'proof-warning-face)
-          (ignore-errors (sit-for 20)) ; errors here would skip the next delete
-          (span-delete sp))))))
-
+          (unwind-protect
+              (sit-for 20)
+            (span-delete sp)))))))
 
 (defvar coq-allow-highlight-error t)
 
@@ -1590,9 +1574,8 @@ buffer."
 ;; `proof-shell-insert-hook', but not by
 ;; `proof-shell-handle-error-or-interrupt-hook'
 (defun coq-decide-highlight-error ()
-  (if (eq action 'proof-done-invisible)
-      (setq coq-allow-highlight-error nil)
-    (setq coq-allow-highlight-error t)))
+  (setq coq-allow-highlight-error
+        (not (eq action 'proof-done-invisible))))
 
 (defun coq-highlight-error-hook ()
   (if coq-allow-highlight-error (coq-highlight-error t t)))
@@ -1607,12 +1590,10 @@ buffer."
 ;; goal
 (defun first-word-of-buffer ()
   "Get the first word of a buffer."
-  (save-excursion 
+  (save-excursion
     (goto-char (point-min))
-    (let ((debut (point)))
-      (forward-word 1)
-      (substring (buffer-string) (- debut 1) (- (point) 1))))
-  )
+    (buffer-substring (point)
+                      (progn (forward-word 1) (point)))))
 
 
 (defun coq-show-first-goal ()

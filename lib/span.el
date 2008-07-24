@@ -1,19 +1,204 @@
-;; span.el	Datatype of "spans" for Proof General.
+;;; span.el --- Datatype of "spans" for Proof General
 ;;
-;; Copyright (C) 1998 LFCS Edinburgh
-;; Author:    Healfdene Goguen
-;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
+;; Copyright (C) 1998-2008 LFCS Edinburgh
+;; Author:      Healfdene Goguen
+;; Maintainer:  David Aspinall <David.Aspinall@ed.ac.uk>
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
-;; Spans are our abstraction of extents/overlays.
+;;; Commentary:
+;; 
+;; Spans are our abstraction of extents/overlays.  Nowadays
+;; we implement them directly with overlays.  
+;;
+;; In future this module should be used to implement the abstraction
+;; for script buffers (only) more directly.
 ;;
 
-(eval-and-compile
-  (if (featurep 'xemacs)
-      (require 'span-extent))
-  (if (not (featurep 'xemacs))
-      (require 'span-overlay)))
+;;; Code:
+(eval-when-compile (require 'cl))       ;For lexical-let.
+
+(defalias 'span-start 'overlay-start)
+(defalias 'span-end 'overlay-end)
+(defalias 'span-set-property 'overlay-put)
+(defalias 'span-property 'overlay-get)
+(defalias 'span-make 'make-overlay)
+(defalias 'span-detach 'delete-overlay)
+(defalias 'span-set-endpoints 'move-overlay)
+(defalias 'span-buffer 'overlay-buffer)
+
+(defun span-read-only-hook (overlay after start end &optional len)
+  (unless inhibit-read-only
+    (error "Region is read-only")))
+(add-to-list 'debug-ignored-errors "Region is read-only")
+
+(defun span-read-only (span)
+  "Set SPAN to be read only."
+  ;; Note: using the standard 'read-only property does not work.
+  ;; (overlay-put span 'read-only t))
+  (span-set-property span 'modification-hooks '(span-read-only-hook))
+  (span-set-property span 'insert-in-front-hooks '(span-read-only-hook)))
+
+(defun span-read-write (span)
+  "Set SPAN to be writeable."
+  (span-set-property span 'modification-hooks nil)
+  (span-set-property span 'insert-in-front-hooks nil))
+
+(defun span-give-warning (&rest args)
+  "Give a warning message.
+Optional argument ARGS is ignored."
+  (message "You should not edit here!"))
+
+(defun span-write-warning (span &optional fun)
+  "Give a warning message when SPAN is changed.
+Optional argument FUN is used in place of `span-give-warning'."
+  (unless fun (setq fun 'span-give-warning))
+  (lexical-let ((fun fun))
+    (let ((funs (list (lambda (span afterp beg end &rest args)
+                        (if (not afterp) (funcall fun beg end))))))
+      (span-set-property span 'modification-hooks funs)
+      (span-set-property span 'insert-in-front-hooks funs))))
+
+;; We use end first because proof-locked-queue is often changed, and
+;; its starting point is always 1
+(defun span-lt (s u)
+  (or (< (span-end s) (span-end u))
+      (and (eq (span-end s) (span-end u))
+	   (< (span-start s) (span-start u)))))
+
+(defun spans-at-point-prop (pt prop)
+  (let ((ols ()))
+    (dolist (ol (overlays-at pt))
+      (if (or (null prop) (overlay-get ol prop)) (push ol ols)))
+    ols))
+
+(defun spans-at-region-prop (start end prop &optional val)
+  "Return a list of the spans in START END with PROP [set to VAL]."
+  (let ((ols ()))
+    (dolist (ol (overlays-in start end))
+      (if (or (null prop)
+	      (if val (eq val (overlay-get ol prop)) (overlay-get ol prop)))
+	  (push ol ols)))
+    ols))
+
+(defun span-at (pt prop)
+  "Return the SPAN at point PT with property PROP.
+For XEmacs, `span-at' gives smallest extent at pos.
+For Emacs, we assume that spans don't overlap."
+  (car (spans-at-point-prop pt prop)))
+
+(defsubst span-delete (span)
+  "Delete SPAN."
+  (let ((predelfn (span-property span 'span-delete-action)))
+    (and predelfn (funcall predelfn)))
+  (delete-overlay span))
+
+;; The next two change ordering of list of spans:
+(defsubst span-mapcar-spans (fn start end prop &optional val)
+  "Apply function FN to all spans between START and END with property PROP set.
+Optional argument VAL filters value of property."
+  (mapcar fn (spans-at-region-prop start end prop (or val nil))))
+
+(defun span-at-before (pt prop)
+  "Return the smallest SPAN at before PT with property PROP.
+A span is before PT if it begins before the character before PT."
+  (let ((ols (if (eq (point-min) pt)
+		 nil ;; (overlays-at pt)
+	       (overlays-in (1- pt) pt))))
+    ;; Check the PROP is set.
+    (when prop
+      (dolist (ol (prog1 ols (setq ols nil)))
+	(if (overlay-get ol prop) (push ol ols))))
+    ;; Eliminate the case of an empty overlay at (1- pt).
+    (dolist (ol (prog1 ols (setq ols nil)))
+      (if (>= (overlay-end ol) pt) (push ol ols)))
+    ;; "Get the smallest".  I have no idea what that means, so I just do
+    ;; something somewhat random but vaguely meaningful.  -Stef
+    (car (last (sort ols 'span-lt)))))
+  
+(defun prev-span (span prop)
+  "Return span before SPAN with property PROP."
+  (span-at-before (span-start span) prop))
+
+; overlays are [start, end)
+ 
+(defun next-span (span prop)
+  "Return span after SPAN with property PROP."
+  ;; Presuming the span-extents.el is the reference, its code does the same
+  ;; as the code below.
+  (span-at (span-end span) prop)
+)
+
+(defsubst span-live-p (span)
+  "Return non-nil if SPAN is in a live buffer."
+  (and span
+       (overlay-buffer span)
+       (buffer-live-p (overlay-buffer span))))
+
+(defun span-raise (span)
+  "Set priority of SPAN to make it appear above other spans."
+  (span-set-property span 'priority 100))
+
+(defalias 'span-object 'overlay-buffer)
+
+(defun span-string (span)
+  (with-current-buffer (overlay-buffer span)
+    (buffer-substring (overlay-start span) (overlay-end span))))
+
+
+(defun set-span-properties (span plist)
+  "Set SPAN's properties, PLIST is a plist."
+  (let ((pl plist))
+    (while pl
+      (let* ((name (car pl))
+	     (value (car (cdr pl))))
+	(overlay-put span name value)
+	(setq pl (cdr (cdr pl))))
+      )))
+
+(defun span-find-span (overlay-list &optional prop)
+  "Return the first overlay of OVERLAY-LIST having property PROP (default 'span), nil if no such overlay belong to the list."
+  (let ((l overlay-list))
+    (while (and l (not (overlay-get (car l) (or prop 'span))))
+      (setq l (cdr l)))
+    (car l)))
+
+(defsubst span-at-event (event &optional prop)
+  (span-find-span (overlays-at (posn-point (event-start event))) prop))
+
+
+(defun make-detached-span ()
+  (let ((ol (make-overlay 0 0)))
+    (delete-overlay ol)
+    ol))
+
+(defun fold-spans (f &optional buffer from to maparg ignored-flags prop val)
+  (with-current-buffer (or buffer (current-buffer))
+    (let ((ols (overlays-in (or from (point-min)) (or to (point-max))))
+	  res)
+      ;; Check the PROP.
+      (when prop
+	(dolist (ol (prog1 ols (setq ols nil)))
+	  (if (if val (eq val (overlay-get ol prop)) (overlay-get ol prop))
+	      (push ol ols))))
+      ;; Iterate in order.
+      (setq ols (sort ols 'span-lt))
+      (while (and ols (not (setq res (funcall f (pop ols) maparg)))))
+      res)))
+
+(defsubst span-detached-p (span)
+  "Is this SPAN detached? nil for no, t for yes."
+  (null (overlay-buffer span)))
+
+(defsubst set-span-face (span face)
+  "Set the FACE of a SPAN."
+  (overlay-put span 'face face))
+
+(defun set-span-keymap (span map)
+  "Set the keymap of SPAN to MAP."
+  (overlay-put span 'keymap map)
+  (overlay-put span 'local-map map))
 
 ;;
 ;; Generic functions built on low-level concrete ones.
@@ -35,5 +220,7 @@
   "Set the end point of SPAN to VALUE."
   (span-set-endpoints span (span-start span) value))
 
+
 (provide 'span)
-;; span.el ends here.
+
+;;; span.el ends here

@@ -7,9 +7,7 @@
 ;;; Commentary:
 ;; 
 ;; Startup code from auxiliary modes are collected here, allowing late
-;; loading of their main defining files.
-;;
-;; TODO: add x-symbol here too and disentangle elsewhere.
+;; loading of their main defining files and the possibility to disable them.
 ;;
 
 (require 'proof-utils)			; proof-ass, proof-eval...
@@ -47,7 +45,6 @@
 (defun proof-maths-menu-support-available ()
   "A test to see whether maths-menu support is available."
   (and
-   (not (featurep 'xemacs)) ;; not XEmacs compatible
    (or (featurep 'maths-menu)
        ;; *should* always succeed unless bundled version broken
        (proof-try-require 'maths-menu))
@@ -65,11 +62,9 @@
 ;; 
 (defun proof-unicode-tokens-support-available ()
   "A test to see whether unicode tokens support is available."
-  (and
-   (or (featurep 'unicode-tokens)
-       (proof-try-require 'unicode-tokens))
-   ;; Requires prover-specific config in <foo>-unicode-tokens.el
-   (proof-try-require (proof-ass-sym unicode-tokens))))
+  ;; Requires prover-specific config in <foo>-unicode-tokens.el
+  ;; Loaded before unicode-tokens.el to allow load-time config there
+  (proof-try-require (proof-ass-sym unicode-tokens)))
 
 (proof-eval-when-ready-for-assistant
     (if (and (proof-ass unicode-tokens-enable)

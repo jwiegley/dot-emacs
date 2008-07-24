@@ -22,8 +22,7 @@
 ;; 
 ;;; Code:
 
-(require 'proof-site)			; site/prover config, global vars
-(require 'proof-autoloads)		; autoloaded functions
+(require 'proof-site)			; site/prover config, global vars, autoloads
 (require 'proof-compat)			; Emacs and OS compatibility
 (require 'proof-utils)			; utilities
 (require 'proof-config)			; configuration variables

@@ -58,7 +58,7 @@ See -k option for Isabelle interface script."
 
 (eval-after-load "pg-custom"
   '(setq isar-toolbar-entries
-	 (remassoc 'qed (remassoc 'goal isar-toolbar-entries))))
+	 (assq-delete-all 'qed (assq-delete-all 'goal isar-toolbar-entries))))
 
 
 (defun isar-strip-terminators ()
@@ -104,8 +104,7 @@ See -k option for Isabelle interface script."
    proof-string-start-regexp    isar-string-start-regexp
    proof-string-end-regexp      isar-string-end-regexp
 
-   ;; Next few used for func-menu and recognizing goal..save regions in
-   ;; script buffer.
+   ;; For func-menu and finding goal..save regions
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-named-entity-regexp
@@ -188,15 +187,15 @@ See -k option for Isabelle interface script."
    ;; matches names of assumptions
    proof-shell-assumption-regexp        isar-id
 
-   proof-shell-start-goals-regexp       "\366\n\\|\^AO\n"
-   proof-shell-end-goals-regexp         "\367\\|\^AP"
+   proof-shell-start-goals-regexp       "\^AO\n"
+   proof-shell-end-goals-regexp         "\^AP"
 
    proof-shell-init-cmd			nil
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
    proof-shell-eager-annotation-start-length 2
-   proof-shell-eager-annotation-start   "\360\\|\362\\|\^AI\\|\^AK"
-   proof-shell-eager-annotation-end     "\361\\|\363\\|\^AJ\\|\^AL"
+   proof-shell-eager-annotation-start   "\^AI\\|\^AK"
+   proof-shell-eager-annotation-end     "\^AJ\\|\^AL"
 
    ;; Isabelle is learning to talk PGIP...
    proof-shell-match-pgip-cmd		"<pgip"
@@ -214,11 +213,6 @@ See -k option for Isabelle interface script."
    '((nil     "thm %s;")
      (string  "term \"%s\";")
      (comment "term \"%s\";"))
-
-   ;; Allow font-locking for output based on hidden annotations, see
-   ;; isar-output-font-lock-keywords-1
-   pg-use-specials-for-fontify		t
-   pg-after-fontify-output-hook	        'pg-remove-specials
 
    pg-special-char-regexp
    (if proof-shell-unicode "[0-9A-Z]"
@@ -345,14 +339,15 @@ proof-shell-retract-files-regexp."
 
 (defpgdefault menu-entries
   (append
-   (list isabelle-logics-menu)
+   (list isabelle-logics-menu-entries)
    (list
     (cons "Commands"
           (list
            ["refute"             isar-cmd-refute         t]
            ["quickcheck"         isar-cmd-quickcheck     t]
            ["sledgehammer"       isar-cmd-sledgehammer   t]
-	   ["display draft"	 isar-cmd-display-draft  t])))
+	   ["display draft"	 isar-cmd-display-draft  t]
+	   ["set isatool"        (isa-set-isatool-command 't) t])))
    (list
     (cons "Show me ..."
           (list
@@ -371,6 +366,8 @@ proof-shell-retract-files-regexp."
            ["commands"           isar-help-commands       t]
            ["inner syntax"       isar-help-syntax         t]
            ["methods"            isar-help-methods        t])))))
+
+(defpgdefault help-menu-entries isabelle-docs-menu)
 
 ;; undo proof commands
 (defun isar-count-undos (span)
@@ -509,12 +506,14 @@ Checks the width in the `proof-goals-buffer'"
            (let ((current-width
                   ;; Actually, one might want the width of the
                   ;; proof-response-buffer instead. Never mind.
-                  (max 20 (window-width (get-buffer-window proof-goals-buffer t)))))
+                  (max 20 (window-width 
+			   (get-buffer-window proof-goals-buffer t)))))
 
              (if (equal current-width isar-shell-current-line-width) ()
                (setq isar-shell-current-line-width current-width)
                (set-buffer proof-shell-buffer)
-               (setq ans (format "pretty_setmargin %d;" (- current-width 4)))))))
+               (setq ans (format "pretty_setmargin %d;" 
+				 (- current-width 4)))))))
     ans))
 
 ;;
@@ -547,43 +546,32 @@ Checks the width in the `proof-goals-buffer'"
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
   (isar-init-syntax-table)
-  (setq font-lock-keywords isar-font-lock-keywords-1)
-  (setq comment-quote-nested nil) ;; can cope with nested comments
+  (setq proof-script-font-lock-keywords isar-font-lock-keywords-1)
+  (set (make-local-variable 'comment-quote-nested) nil) ;; can cope with nested comments
   (set (make-local-variable 'outline-regexp) isar-outline-regexp)
   (set (make-local-variable 'outline-heading-end-regexp) isar-outline-heading-end-regexp)
-  (setq blink-matching-paren-dont-ignore-comments t)
+  (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
   (add-hook 'proof-shell-insert-hook 'isar-preprocessing)
   (proof-config-done))
 
 (defun isar-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords
-	(append
-	 isar-output-font-lock-keywords-1
-	 (if (boundp 'x-symbol-isar-font-lock-keywords)
-	     x-symbol-isar-font-lock-keywords)))
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
 (defun isar-response-mode-config ()
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords
-	(append
-	 isar-output-font-lock-keywords-1
-	 (if isar-x-symbol-enable
-	     x-symbol-isar-font-lock-keywords)))
+  (setq proof-response-font-lock-keywords 
+	isar-output-font-lock-keywords-1)
   (proof-response-config-done))
 
 (defun isar-goals-mode-config ()
   (setq pg-goals-change-goal "prefer %s")
   (setq pg-goals-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords
-	(append
-	 isar-goals-font-lock-keywords
-	 (if isar-x-symbol-enable
-	     x-symbol-isar-font-lock-keywords)))
+  (setq proof-goals-font-lock-keywords
+	 isar-goals-font-lock-keywords)
   (proof-goals-config-done))
 
 (defun isar-goalhyplit-test ()

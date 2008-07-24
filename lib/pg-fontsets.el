@@ -17,6 +17,11 @@
 ;;
 ;;  DejaVu LGC (Sans and Sans Mono).  See http://dejavu.sourceforge.net
 ;;    - missing Uplus, smile, frown, join
+;;
+;; TODO:
+;; -- make a fontset which combines symbol characters from a
+;;    symbol-rich font
+;;
 
 ;;; Code:
 
@@ -61,5 +66,5 @@ gnu-unifont:-*-%F-medium-r-normal--%S-*-*-*-*-*-iso10646-1"
 (pg-fontsets-make-fontsets)
 
 
-
+(provide 'pg-fontsets)
 ;;; pg-fontsets.el ends here

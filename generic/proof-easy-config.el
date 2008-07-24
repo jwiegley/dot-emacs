@@ -32,17 +32,13 @@
 	   (mode      (intern (concat modert hyphen "mode")))
 	   (modename  (concat proof-assistant " " suffixnm))
 	   ;; FIXME: declare these variables in proof-config:
-	   ;;	proof-{goals,resp,trace}-font-lock-keywords,
 	   ;;   proof-{goals,resp,trace}-syntax-table-entries
 	   ;; FIXME: in future versions, use these settings in *-config-done
 	   ;;        to simplify elisp code elsewhere.
 	   ;; FIXME: add imenu-generic-expression too
 	   ;; 
-	   (fntlcks   (intern (concat "proof-" suffixnm "-font-lock-keywords")))
 	   (modsyn    (intern (concat "proof-" suffixnm "-syntax-table-entries")))
 	   (fullbody  (append
-		       (if (and (boundp fntlcks) (eval fntlcks))
-			   (list `(setq font-lock-keywords ,fntlcks)))
 		       (if (and (boundp modsyn) (eval modsyn))
 			   (list `(let ((syn ,modsyn))
 				    (while syn

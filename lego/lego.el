@@ -334,7 +334,7 @@ Checks the width in the `proof-goals-buffer'"
 
 ;; font-lock
 
-  (setq font-lock-keywords lego-font-lock-keywords-1)
+  (set proof-script-font-lock-keywords lego-font-lock-keywords-1)
 
   (proof-config-done)
 
@@ -357,7 +357,7 @@ Checks the width in the `proof-goals-buffer'"
 		       ("lego"  . lego-tags))
 		     tag-table-alist)))
 
-  (setq blink-matching-paren-dont-ignore-comments t)
+  (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
 
 ;; hooks and callbacks
 

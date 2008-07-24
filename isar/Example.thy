@@ -24,7 +24,7 @@ theorem "A & B --> B & A"
 proof
   assume "A & B"
   then obtain B and A ..
-  then show "B & A" ..
+  then show "B & A" .. 
 qed
 
 

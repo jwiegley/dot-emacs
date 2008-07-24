@@ -13,7 +13,7 @@
 
 (require 'cl)				; various
 (require 'span)				; abstraction of overlays/extents
-(require 'proof)			; loader (& proof-utils macros)
+(require 'proof-utils)			; proof-utils macros
 (require 'proof-syntax)		        ; utils for manipulating syntax
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -57,7 +57,7 @@ This uses and updates `proof-element-counters'."
   (let ((next (1+ (or (cdr-safe (assq idiom proof-element-counters)) 0))))
     (setq proof-element-counters
 	  (cons (cons idiom next)
-		(remassq idiom proof-element-counters)))
+		(assq-delete-all idiom proof-element-counters)))
     next))
 
 (defun proof-element-id (idiom number)
@@ -180,21 +180,22 @@ scripting buffer may have an active queue span.")
 
 ;; ** Getters and setters
 
+(defun proof-span-give-warning (&rest args)
+  "Give a warning message."
+  (message "You should not edit here!"))
+
 (defun proof-span-read-only (span &optional always)
   "Make SPAN be read-only according to `proof-strict-read-only' or ALWAYS."
-  (if (or always proof-strict-read-only)
+  (if (or always (not (memq proof-strict-read-only '(nil retract))))
       (span-read-only span)
-    (span-read-write span)
-    (span-write-warning span)))
+    (span-write-warning span
+                        (if (eq proof-strict-read-only 'retract)
+                            'proof-retract-before-change
+                          'proof-span-give-warning))))
 
 (defun proof-strict-read-only ()
   "Set locked spans in script buffers according to `proof-strict-read-only'."
-  ;; NB: this implements the behaviour that read-only is synchronized
-  ;; in all script buffers to follow the current setting of
-  ;; `proof-strict-read-only'.  Another possibility would be to
-  ;; just change for local buffer, while at the same time changing
-  ;; the default/global setting.   This would be consistent with
-  ;; behaviour of "expensive" x-symbol/mmm options.
+  ;; NB: read-only is synchronized in all script buffers
   (interactive)
   (proof-map-buffers
    (proof-buffers-in-mode proof-mode-for-script)
@@ -206,8 +207,22 @@ scripting buffer may have an active queue span.")
  ((fboundp 'undo-make-selective-list)
   (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END. Discard undo for edits before END."
-  (unless (or (eq buffer-undo-list t) 
-	      proof-allow-undo-in-read-only)
+  (unless (or (eq buffer-undo-list t)
+	      ;; FIXME: Stefan Monnier writes:
+              ;; This feature simply doesn't work well:
+              ;; - it discards undo info before knowing whether the command
+              ;;   succeeds, so if it fails, the undo info corresponding to
+              ;;   a still-writable region is lost.  Worse yet: this region
+              ;;   is the region on which the user is actively working, so
+              ;;   it's where undo is most important.
+              ;; - even when it does what it's supposed to do, it's not what
+              ;;   we want because the undo info is not recovered when we
+              ;;   retract.
+              ;; I.e. it's the wrong place to do it.  Better would be to rebind
+              ;; C-x u and C-/ and C-_ to a command that only applies to the
+              ;; writable part of the buffer.
+              t ;; proof-allow-undo-in-read-only
+              )
     (setq buffer-undo-list 
 	  (undo-make-selective-list end (point-max))))
   (span-set-endpoints proof-queue-span start end)))
@@ -517,15 +532,8 @@ This is used for cleaning `buffer-invisibility-spec' in
   "Clear record of script portion names and types from internal list.
 Also clear all visibility specifications."
   (setq pg-script-portions nil)
-  (setq buffer-invisibility-spec
-	(if (listp buffer-invisibility-spec)
-	    (apply 'append
-		   (mapcar (lambda (propellips)
-			     (if (memq (car-safe propellips) 
-				       pg-visibility-specs)
-				 nil (list propellips)))
-		     buffer-invisibility-spec))
-	  pg-default-invisibility-spec)))
+  (mapcar 'remove-from-invisibility-spec 
+	  pg-visibility-specs))
 
 (defun pg-add-script-element (elt)
   (add-to-list pg-script-portions elt))
@@ -535,8 +543,8 @@ Also clear all visibility specifications."
 	 (newelts  (remq id elts)))
     (setq pg-script-portions
 	  (if newelts
-	      (cons (cons ns newelts) (remassq ns pg-script-portions))
-	    (remassq ns pg-script-portions)))))
+	      (cons (cons ns newelts) (assq-delete-all ns pg-script-portions))
+	    (assq-delete-all ns pg-script-portions)))))
 
 (defsubst pg-visname (namespace id)
   "Return a unique symbol made from strings NAMESPACE and unique ID."
@@ -597,28 +605,23 @@ NAME does not need to be unique."
 (defun pg-make-element-invisible (idiom id)
   "Make element ID of type IDIOM invisible, with ellipsis."
   (let ((visspec  (cons (pg-visname idiom id) t)))
-    (add-to-list 'buffer-invisibility-spec visspec)
+    (add-to-invisibility-spec visspec)
     (add-to-list 'pg-visibility-specs visspec)))
 
 (defun pg-make-element-visible (idiom id)
   "Make element ID of type IDIOM visible."
-  (setq buffer-invisibility-spec
-	(remassq (pg-visname idiom id) buffer-invisibility-spec)))
+  (remove-from-invisibility-spec (pg-visname idiom id)))
 
 (defun pg-toggle-element-visibility (idiom id)
   "Toggle visibility of script element of type IDIOM, named ID."
-  (if (and (listp buffer-invisibility-spec)
-	   (assq (pg-visname idiom id) buffer-invisibility-spec))
+  (if (assq (pg-visname idiom id) buffer-invisibility-spec)
       (pg-make-element-visible idiom id)
     (pg-make-element-invisible idiom id))
   (pg-redisplay-for-gnuemacs))
 
 (defun pg-redisplay-for-gnuemacs ()
   "GNU Emacs requires redisplay for changes in buffer-invisibility-spec."
-  (if (not (featurep 'xemacs))
-      ;; GNU Emacs requires redisplay here to see result
-      ;; (sit-for 0) not enough
-      (redraw-frame (selected-frame))))
+  (redraw-frame (selected-frame)))
 
 (defun pg-show-all-portions (idiom &optional hide)
   "Show or hide all portions of kind IDIOM."
@@ -684,13 +687,9 @@ NAME does not need to be unique."
 		           "Prover-processed"))))
 
 (defvar pg-span-context-menu-keymap
-    (let ((map (make-sparse-keymap
-		"Keymap for context-sensitive menus on spans")))
-      (cond
-       ((featurep 'xemacs)
-	(define-key map [button3] 'pg-span-context-menu))
-       ((not (featurep 'xemacs))
-	(define-key map [down-mouse-3] 'pg-span-context-menu)))
+  (let ((map (make-sparse-keymap
+	      "Keymap for context-sensitive menus on spans")))
+      (define-key map [down-mouse-3] 'pg-span-context-menu)
       map)
     "Keymap for the span context menu.")
 
@@ -709,10 +708,8 @@ NAME does not need to be unique."
 	   " ("
 	   (if (span-property span 'idiom)
 	       "with point in region, \\[pg-toggle-visibility] to show/hide; ")
-	   (if (featurep 'xemacs)
-	       "\\[popup-mode-menu]"
-	     "\\<pg-span-context-menu-keymap>\\[pg-span-context-menu]")
-	     " for menu)"))))
+	   "\\<pg-span-context-menu-keymap>\\[pg-span-context-menu]"
+	   " for menu)"))))
     (span-set-property span 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
       (span-set-property span 'mouse-face 'proof-mouse-highlight-face))))
@@ -1098,12 +1095,8 @@ a scripting buffer is killed it is always retracted."
 	      ;; Turn off Scripting indicator here.
 	      (setq proof-active-buffer-fake-minor-mode nil)
 
-	      ;; Make status of inactive scripting buffer show up
-	      ;; FIXME da:
-	      ;; not really necessary when called by kill buffer, at least.
-	      (if (fboundp 'redraw-modeline)
-		  (redraw-modeline)
-		(force-mode-line-update))
+	      ;; Make status of inactive scripting buffer show up (necessary?)
+	      (force-mode-line-update)
 	      
 	      ;; Finally, run hooks (added in 3.5 22.04.04)
 	      (run-hooks 'proof-deactivate-scripting-hook))))))
@@ -1185,9 +1178,7 @@ activation is considered to have failed and an error is given."
 
       ;; Turn on the minor mode, make it show up.
       (setq proof-active-buffer-fake-minor-mode t)
-      (if (fboundp 'redraw-modeline)
-	  (redraw-modeline)
-	(force-mode-line-update))
+      (force-mode-line-update)
       
       ;; This may be a good time to ask if the user wants to save some
       ;; buffers.  On the other hand, it's jolly annoying to be
@@ -1657,11 +1648,12 @@ to the function which parses the script segment by segment."
 		;; coalescing a separate configuration option, but
 		;; it works well used in tandem with the fly-past
 		;; behaviour.
-		(if (and proof-script-fly-past-comments
-			 (eq type 'comment)
-			 (eq prevtype 'comment))
-		    (setq segs (cons seg (cdr segs)))
-		  (setq segs (cons seg segs)))
+		(setq segs (cons seg
+				 (if (and proof-script-fly-past-comments
+					  (eq type 'comment)
+					  (eq prevtype 'comment))
+				     (cdr segs)
+				   segs)))
 		;; Update state
 		(setq cur (point))
 		(setq prevtype type)))))
@@ -2163,13 +2155,13 @@ a space or newline will be inserted automatically."
   (or ignore-proof-process-p
       (if (proof-locked-region-full-p)
 	  (error "Locked region is full, no more commands to do!")))
-  (let ((semis))
-    (save-excursion
-      ;; CHANGE from old proof-assert-until-point: don't bother check
-      ;; for non-whitespace between locked region and point.
-      ;; CHANGE: ask proof-segment-up-to to scan until command end
-      ;; (which it used to do anyway, except in the case of a comment)
-      (setq semis (proof-segment-up-to (point) t)))
+  (let ((semis
+	 (save-excursion
+	   ;; CHANGE from old proof-assert-until-point: don't bother check
+	   ;; for non-whitespace between locked region and point.
+	   ;; CHANGE: ask proof-segment-up-to to scan until command end
+	   ;; (which it used to do anyway, except in the case of a comment)
+	   (proof-segment-up-to (point) t))))
     ;; old code:
     ;;(if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
     ;;	  (progn (goto-char pt)
@@ -2193,6 +2185,13 @@ a space or newline will be inserted automatically."
 	  (if for-new-command
 	      (proof-script-new-command-advance)
 	    (proof-script-next-command-advance))))))
+
+(defun proof-retract-before-change (beg end)
+  "For use in `before-change-functions'."
+  (and (> (proof-queue-or-locked-end) beg)
+       (save-excursion
+         (goto-char beg)
+         (proof-retract-until-point))))
 
 (defun proof-goto-point ()
   "Assert or retract to the command at current position.
@@ -2464,23 +2463,6 @@ command."
 
   (setq proof-buffer-type 'script)
 
-  ;; font-lock-keywords isn't automatically buffer-local in Emacs 21.2
-  (make-local-variable 'font-lock-keywords)
-
-  ;; Syntax table in XEmacs 21.5.b28 does not classify newline as space,
-  ;; breaking regexps using \\s- that rely on that (showed up for Coq).
-  ;; In fact it seems to be broken rather more seriously than that:
-  ;; default syntax table of fundamental mode is not merged at all!
-  (if (and (featurep 'xemacs)
-	   ;; hopefully fixed for later versions but we don't know yet
-	   (>= 21 emacs-major-version)
-	   (>= 5 emacs-minor-version))
-      (progn
-	(derived-mode-merge-syntax-tables 
-	 (standard-syntax-table) (syntax-table))
-	;; We also need this
-	(modify-syntax-entry ?\n " ")))
-
   ;; Set default indent function (can be overriden in derived modes)
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'proof-indent-line)
@@ -2557,18 +2539,6 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
    (bury-buffer (current-buffer))))
 
 
-;; Notes about how to deal with killing/reverting/renaming buffers:
-;; (As of XEmacs 21.1.9, see files.el)
-;;
-;; Killing: easy, set kill-buffer-hook
-;; Reverting: ditto, set before-revert-hook to do same as kill.
-;; Renaming (write-file): much tricker.  Code for write-file does
-;;  several odd things.  It kills off local hook functions, calls
-;;  `after-set-visited-file-name-hooks' right at the end to give the
-;;  chance to restore them, but then tends to automatically (re-)set
-;;  the mode anyway.
-  
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -2591,12 +2561,14 @@ This is intended for proof assistant buffers which are similar to
 script buffers, but for which scripting is not enabled.  In
 particular, we: lock the buffer if it appears on
 `proof-included-files-list'; configure font-lock support from
-`font-lock-keywords'; maybe turn on X-Symbol minor mode.
+`proof-script-font-lock-keywords'.
 
 This is used for Isabelle theory files, which share some scripting
 mode features, but are only ever processed atomically by the proof
 assistant."
   (setq proof-script-buffer-file-name buffer-file-name)
+
+  (setq font-lock-defaults '(proof-script-font-lock-keywords))
 
   ;; Has buffer already been processed?
   ;; NB: call to file-truename is needed for GNU Emacs which
@@ -2626,20 +2598,16 @@ assistant."
   (unless proof-script-comment-start-regexp
     (setq proof-script-comment-start-regexp (regexp-quote proof-script-comment-start)))
   (unless proof-script-comment-end-regexp
-    (setq proof-script-comment-end-regexp 
+    (setq proof-script-comment-end-regexp
 	  (if (string-equal "" proof-script-comment-end)
 	      (regexp-quote "\n") ;; end-of-line terminated comments
 	    (regexp-quote proof-script-comment-end))))
 
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip
-    (concat proof-script-comment-start-regexp "+\\s_?"))
-
-  ;;
-  ;; Fontlock support.
-  ;;
-  (proof-font-lock-configure-defaults 'autofontify)
-)
+	(if (string-equal "" proof-script-comment-end)
+	    (regexp-quote "\n") ;; end-of-line terminated comments
+	  (regexp-quote proof-script-comment-end))))
   
 
 
@@ -2770,20 +2738,11 @@ finish setup which depends on specific proof assistant configuration."
   ;; Common configuration for shared script/other related buffers.
   (proof-config-done-related)
 
-  ;; Preamble: make this mode class "pg-sticky" so that renaming file
-  ;; to something different doesn't change the mode, no matter what
-  ;; the filename.  This is a hack so that write-file will work:
-  ;; otherwise Emacs insists (XEmacs 21.1.9 onwards) on re-setting the
-  ;; mode, which leads to problems with synchronization and losing
-  ;; extents.  (Attempt to catch this in proof-mode by looking for
-  ;; active scripting buffer fails; perhaps because of kill buffer
-  ;; function) [NB: could do this at top level at load time]
+  ;; Preamble: make this mode class "pg-sticky" so renaming
+  ;; doesn't change the mode.  A hack so that write-file will work.
 
   (put major-mode 'mode-class 'pg-sticky)
 
-  ;; Make X-symbol ignore that we've asked for fixed mode
-  (put major-mode 'x-symbol-mode-disable 'ignore)
-  
   (if (and proof-non-undoables-regexp
 	   (not proof-ignore-for-undo-count))
       (setq proof-ignore-for-undo-count
@@ -2830,16 +2789,6 @@ finish setup which depends on specific proof assistant configuration."
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
       (setq buffer-offer-save t))
-
-  ;; Localise the invisibility glyph (XEmacs only):
-  (if (featurep 'xemacs)
-      (let ((img (proof-get-image "hiddenproof" t "<proof>")))
-	(if img
-	    (set-glyph-image invisible-text-glyph 
-			     img (current-buffer)))))
-
-  (if (proof-ass x-symbol-enable)
-      (proof-x-symbol-enable))
 
   ;; Finally, make sure the user has been welcomed!
   ;; [NB: this doesn't work well, can get zapped by loading messages]

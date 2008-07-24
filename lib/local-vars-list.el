@@ -29,7 +29,7 @@
 "From Emacs Info:
 
 A file can contain a \"local variables list\", which specifies the values to use for
-certain Emacs variables when that file is edited. See info node \"(xemacs)File
+certain Emacs variables when that file is edited. See info node \"(emacs)File
 Variables\". 
 
 local-vars-list provides two useful functions:

@@ -68,7 +68,8 @@
      (coq-version-is-V8 (setq coq-version-is-V8-0 nil coq-version-is-V8-1 t)
                         (message v80))
      (t;; otherwise do coqtop -v and see which version we have
-      (let* ((str (shell-command-to-string (concat "cd ~; " coq-prog-name " -v")))
+      (let* ((default-directory (expand-file-name "~/"))
+             (str (shell-command-to-string (concat coq-prog-name " -v")))
              ;; this match sets match-string below
              (ver (string-match "version v?\\([.0-9]*\\)" str)))
         (message str)
@@ -982,9 +983,9 @@ Used by `coq-goal-command-p'"
 ;;  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(.]*:\\|.*)[^(.]*:=\\)"))
 ;;"\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>"
 (defvar coq-font-lock-keywords-1
-   (append
-    coq-font-lock-terms
-    (list
+  (append
+   coq-font-lock-terms
+   (list
     (cons (proof-ids-to-regexp coq-solve-tactics) 'coq-solve-tactics-face)
     (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
     (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
@@ -999,8 +1000,8 @@ Used by `coq-goal-command-p'"
           (list 1 'font-lock-function-name-face t))
 
     (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face))
-    (if coq-variable-highlight-enable (list (list coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)))
-    (list
+   (if coq-variable-highlight-enable (list (list coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)))
+   (list
     (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
     (list coq-with-with-hole-regexp 2 'font-lock-function-name-face)
     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face)
@@ -1045,9 +1046,10 @@ Used by `coq-goal-command-p'"
  		  1))
  	  (append coq-keywords-decl coq-keywords-defn coq-keywords-goal)))
 
-(provide 'coq-syntax)
- ;;; coq-syntax.el ends here
 
-; Local Variables: ***
-; indent-tabs-mode: nil ***
-; End: ***
+;; Local Variables: ***
+;; indent-tabs-mode: nil ***
+;; End: ***
+
+(provide 'coq-syntax)
+;;; coq-syntax.el ends here

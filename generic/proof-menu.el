@@ -7,7 +7,7 @@
 ;; $Id$
 ;;
 
-(require 'proof)           ; proof-deftoggle, proof-eval-when-ready-for-assistant
+(require 'proof-utils)    ; proof-deftoggle, proof-eval-when-ready-for-assistant
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -106,12 +106,8 @@ without adjusting window layout."
   ;; C-c C-v is proof-minibuffer-cmd in universal-keys
   ;; C-c C-. is proof-goto-end-of-locked in universal-keys
   (define-key map [(control c) (control return)] 'proof-goto-point)
-  (define-key map [(control c) v] 'pg-toggle-visibility);; FIXME: Emacs binding?
-  (cond ((featurep 'xemacs)
-	 (define-key map [(control button3)] 'proof-mouse-goto-point)
-	 (define-key map [(control button1)] 'proof-mouse-track-insert)) ; no Emacs binding
-	(t 
-	 (define-key map [(control mouse-3)] 'proof-mouse-goto-point)))
+  (define-key map [(control c) v] 'pg-toggle-visibility)
+  (define-key map [(control mouse-3)] 'proof-mouse-goto-point)
   ;; NB: next binding overwrites comint-find-source-code.  
   (define-key map [(meta p)] 'pg-previous-matching-input-from-input)
   (define-key map [(meta n)] 'pg-next-matching-input-from-input)
@@ -182,18 +178,16 @@ without adjusting window layout."
 		    (vector
 		     (concat proof-assistant " information")
 		     'proof-help
-		     menuvisiblep proof-info-command)
+		     :visible proof-info-command)
 		    (vector
 		     (concat proof-assistant " web page")
 		     '(browse-url proof-assistant-home-page)
-		     menuvisiblep proof-assistant-home-page))
+		     :visible proof-assistant-home-page))
 		   (proof-ass help-menu-entries))))))))
 
 (defun proof-assistant-menu-update ()
   "Update proof assistant menu in scripting buffers."
   (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-    ;; NB: easy-menu-remove is odd in XEmacs, it considerably changes the mode popup menu.  
-    ;; In GNU Emacs this first instruction does nothing.
     (easy-menu-remove proof-assistant-menu)
     (proof-menu-define-settings-menu)
     (proof-menu-define-specific)
@@ -275,11 +269,7 @@ without adjusting window layout."
 
 (proof-eval-when-ready-for-assistant
   (proof-deftoggle-fn 
-   (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
-  (proof-deftoggle-fn 
    (proof-ass-sym unicode-tokens-enable) 'proof-unicode-tokens-toggle)
-;  (proof-deftoggle-fn 
-;   (proof-ass-sym unicode-tokens2-enable) 'proof-unicode-tokens2-toggle)
   (proof-deftoggle-fn 
    (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
   (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle))
@@ -298,61 +288,43 @@ without adjusting window layout."
    "Options"
    `(["Electric Terminator" proof-electric-terminator-toggle
      :style toggle
-     :selected proof-electric-terminator-enable]
+     :selected proof-electric-terminator-enable
+     :help "Automatically send commands as typed"]
      ["Fly Past Comments" proof-script-fly-past-comments-toggle
-      ,menuvisiblep (not proof-script-use-old-parser)
+      :visible (not proof-script-use-old-parser)
       :style toggle
-      :selected proof-script-fly-past-comments]
+      :selected proof-script-fly-past-comments
+      :help "Coalesce and skip over successive comments"]
      ["Disppearing Proofs" proof-disappearing-proofs-toggle 
       :style toggle
-      :selected proof-disappearing-proofs]
+      :selected proof-disappearing-proofs
+      :help "Hide proofs as they are completed"]
 
      ["Strict Read Only" proof-strict-read-only-toggle
       :style toggle
-      :selected proof-strict-read-only]
+      :selected proof-strict-read-only
+      :help "Do not allow editing in processed region"]
      
-     ["X-Symbol"
-      (progn
-	(unless x-symbol-mode (proof-x-symbol-toggle 0))
-	(proof-x-symbol-toggle (if x-symbol-mode 0 1)))
-      :active (and 
-	       ;; X-Symbol breaks abruptly on recent 23 versions
-	       (not (>= emacs-major-version 23))
-	       (not (and (boundp 'unicode-tokens-mode) 
-			 unicode-tokens-mode))
-	       (proof-x-symbol-support-maybe-available))
-      :style toggle
-      :selected (and (boundp 'x-symbol-mode) x-symbol-mode)]
-
      ["Unicode Tokens" 
       (progn
-	(unless unicode-tokens-mode (proof-x-symbol-toggle 0))
 	(proof-unicode-tokens-toggle (if unicode-tokens-mode 0 1)))
-      :active (and (not (and (boundp 'x-symbol-mode) x-symbol-mode))
-		   (proof-unicode-tokens-support-available))
+      :active (proof-unicode-tokens-support-available)
       :style toggle
       :selected (and (boundp 'unicode-tokens-mode) 
-		     unicode-tokens-mode)]
-
-;;;      ["Unicode Tokens 2" 
-;;;       (progn
-;;; 	(unless unicode-tokens2-mode (proof-x-symbol-toggle 0))
-;;; 	(proof-unicode-tokens2-toggle (if unicode-tokens2-mode 0 1)))
-;;;       :active (and (not (and (boundp 'x-symbol-mode) x-symbol-mode))
-;;; 		   (proof-unicode-tokens2-support-available))
-;;;       :style toggle
-;;;       :selected (and (boundp 'unicode-tokens2-mode) 
-;;; 		     unicode-tokens2-mode)]
+		     unicode-tokens-mode)
+      :help "Enable display of tokens as Unicode characters"]
 
      ["Unicode Maths Menu" (proof-maths-menu-toggle (if maths-menu-mode 0 1))
       :active (proof-maths-menu-support-available)
       :style toggle
-      :selected (and (boundp 'maths-menu-mode) maths-menu-mode)]
+      :selected (and (boundp 'maths-menu-mode) maths-menu-mode)
+      :help "Maths menu for inserting Unicode characters"]
  
      ["Multiple Modes" (proof-mmm-toggle (if mmm-mode 0 1))
       :active (proof-mmm-support-available)
       :style toggle
-      :selected (and (boundp 'mmm-mode) mmm-mode)]
+      :selected (and (boundp 'mmm-mode) mmm-mode)
+      :help "Allow multiple major modes"]
  
      ["Toolbar" proof-toolbar-toggle
       ;; should really be split into :active & GNU Emacs's :visible
@@ -364,7 +336,8 @@ without adjusting window layout."
 			 ;; we only turn it off in one buffer at a time)
 			 (eq proof-buffer-type 'script))
       :style toggle
-      :selected proof-toolbar-enable]
+      :selected proof-toolbar-enable
+      :help "Use the Proof General toolbar"]
 
 ;;; TODO: Add this in PG 3.7.1 once; see trac #169 
 ;;;      ["Response history" proof-keep-response-history-toggle
@@ -374,40 +347,48 @@ without adjusting window layout."
      ["Index Menu" proof-imenu-toggle
       :active (stringp (locate-library "imenu"))
       :style toggle
-      :selected proof-imenu-enable]
+      :selected proof-imenu-enable
+      :help "Generate an index menu of definitions"]
 
      ;; NB: convenience; speedbar isn't saved/resumed automatically.
      ["Speedbar" speedbar
       :active (stringp (locate-library "speedbar"))
       :style toggle
-      :selected (and (boundp 'speedbar-frame) speedbar-frame)]
+      :selected (and (boundp 'speedbar-frame) speedbar-frame)
+      :help "Use a navigation window (Speedbar)"]
 
      ("Display"
-      ["Layout Windows" proof-layout-windows]
+      ["Layout Windows" proof-layout-windows
+       :help "Rearrange windows on the screen"]
       ["Use Three Panes" proof-three-window-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
-       :selected proof-three-window-enable]
+       :selected proof-three-window-enable
+       :help "Use three panes"]
       ;; We use non-Emacs terminology "Windows" in this menu to help
       ;; non-Emacs users.  Cf. Gnome usability studies: menus saying
       ;; "Web Browser" more useful to novices than menus saying "Mozilla"!!
       ["Multiple Windows" proof-multiple-frames-toggle
        :active (and window-system t)
        :style toggle
-       :selected proof-multiple-frames-enable]
+       :selected proof-multiple-frames-enable
+       :help "Use multiple windows (Emacs frames) for display"]
       ["Delete Empty Panes" proof-delete-empty-windows-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
-       :selected proof-delete-empty-windows]
+       :selected proof-delete-empty-windows
+       :help "Dynamically remove empty panes from display"]
       ["Shrink to Fit" proof-shrink-windows-tofit-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
-       :selected proof-shrink-windows-tofit])
+       :selected proof-shrink-windows-tofit
+       :help "Dynamically shrink size of output panes to fit contents"])
      ("Follow Mode" 
       ["Follow Locked Region" 
        (customize-set-variable 'proof-follow-mode 'locked)
        :style radio
-       :selected (eq proof-follow-mode 'locked)]
+       :selected (eq proof-follow-mode 'locked)
+       :help "Point follows the locked region"]
 ;; Not implemented.  See Trac #187
 ;;       ["Follow On Success" 
 ;;        (customize-set-variable 'proof-follow-mode 'followsuccess)
@@ -416,23 +397,28 @@ without adjusting window layout."
       ["Follow Locked Region Down" 
        (customize-set-variable 'proof-follow-mode 'followdown)
        :style radio
-       :selected (eq proof-follow-mode 'followdown)]
+       :selected (eq proof-follow-mode 'followdown)
+       :help "Point follows the locked region when processsing"]
       ["Keep Locked Region Displayed" 
        (customize-set-variable 'proof-follow-mode 'follow)
        :style radio
-       :selected (eq proof-follow-mode 'follow)]
+       :selected (eq proof-follow-mode 'follow)
+       :help "Scroll to ensure end of lock region is visible"]
       ["Never Move" 
        (customize-set-variable 'proof-follow-mode 'ignore)
        :style radio
-       :selected (eq proof-follow-mode 'ignore)])
+       :selected (eq proof-follow-mode 'ignore)
+       :help "Do not move cursor during processing"])
      ;; Add this because it's a handy one to set (usually to retract)
      ("Deactivate Action"
       ["Retract" 
-       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 'retract)
+       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 
+			       'retract)
        :style radio
        :selected (eq proof-auto-action-when-deactivating-scripting 'retract)]
       ["Process" 
-       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 'process)
+       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 
+			       'process)
        :style radio
        :selected (eq proof-auto-action-when-deactivating-scripting 'process)]
       ["Query"
@@ -454,7 +440,6 @@ without adjusting window layout."
    'proof-disappearing-proofs 
    ;;'proof-output-fontify-enable
    'proof-strict-read-only
-   (proof-ass-sym x-symbol-enable)
    (proof-ass-sym unicode-tokens-enable)
    (proof-ass-sym maths-menu-enable)
    (proof-ass-sym mmm-enable)
@@ -834,7 +819,7 @@ KEY is the optional key binding."
 	   (proof-assistant-settings-cmd (quote ,name)))))))
     (setq proof-assistant-settings
 	  (cons (list name setting (eval type)) 
-		(remassoc name proof-assistant-settings)))))
+		(assq-delete-all name proof-assistant-settings)))))
 
 ;;;###autoload
 (defmacro defpacustom (name val &rest args)

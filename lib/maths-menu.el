@@ -5,7 +5,9 @@
 ;; Author: Dave Love <fx@gnu.org>
 ;; Keywords: convenience
 
-;; Version for Proof General minimally modified by David Aspinall, 2007-8.
+;; Version for Proof General modified by David Aspinall, 2007-8.
+;; - Hooks added to insert tokenised versions of unicode characters.
+;; - Added more characters to the menus.
 ;; $Id$
 
 
@@ -48,6 +50,12 @@
 
 ;;; Code:
 
+(defvar maths-menu-filter-predicate '(lambda (char) t)
+  "Predicate function used to filter menu elements")
+
+(defvar maths-menu-tokenise-insert '(lambda (char) (insert char))
+  "Function used to insert possibly formatted or escaped character.")
+  
 (defun maths-menu-build-menu (spec)
   (let ((map (make-sparse-keymap "Characters")))
     (dolist (pane spec)
@@ -57,19 +65,25 @@
 	(dolist (elt pane)
 	  (define-key-after pane-map
 	    (vector (intern (string (car elt)))) ; convenient unique symbol
-	    (cons (format "%c  (%s)" (car elt) (cadr elt))
-		  ;; Using a string here doesn't work.  You get a
-		  ;; `Wrong type argument: commandp,' error.
-		  ;; That looks like a bug, since
-		  ;;   (commandp "a") => t
+	    (list 'menu-item
+		  (format "%c  (%s)" (car elt) (cadr elt))
 		  `(lambda ()
 		     (interactive)
-		     (insert ,(car elt))))))))
+		     (funcall maths-menu-tokenise-insert ,(car elt)))
+		  :visible `(funcall maths-menu-filter-predicate ,(car elt)))))))
     map))
 
 (defvar maths-menu-menu
   (maths-menu-build-menu
-   '(("Binops 1"
+   '(("Logic"
+      (?$A!D(B "and")
+      (?$A!E(B "or")
+      (?$,1x (B "for all")
+      (?$,1x#(B "there exists")
+      (?$,1x$(B "there does not exist")
+      (?$,1yd(B "down tack")
+      (?$,1ye(B "up tack"))
+     ("Binops 1"
       (?,A1(B "plus-minus sign")
       (?$,1x3(B "minus-or-plus sign")
       (?,AW(B "multiplication sign")
@@ -175,6 +189,17 @@
       (?$,1vy(B "south west arrow")
       (?$,1vv(B "north west arrow")
       (?$,1w[(B "rightwards triple arrow"))
+     ("Long arrows"
+      (?$,2'v(B "long rightwards arrow")
+      (?$,2'w(B "long left right arrow")
+      (?$,2'x(B "long left double arrow")
+      (?$,2'y(B "long right double arrow")
+      (?$,2'z(B "long left right double arrow")
+      (?$,2'{(B "long left arrow from bar")
+      (?$,2'|(B "long right arrow from bar")
+      (?$,2'}(B "long left double arrow bar")
+      (?$,2'~(B "long right double arrow from bar")
+      (?$,2'(B "long rightwards squiggle arrow"))
      ("Symbols 1"
       (?$,1uu(B "alef symbol") ; don't use letter alef (avoid bidi confusion)
       (?$,1uO(B "planck constant over two pi")
@@ -189,12 +214,7 @@
       (?$,1x'(B "nabla")
       (?$,1x:(B "square root")
       (?$,1x;(B "cube root")
-      (?$,1yd(B "down tack")
-      (?$,1ye(B "up tack")
       (?$,1x@(B "angle")
-      (?$,1x (B "for all")
-      (?$,1x#(B "there exists")
-      (?$,1x$(B "there does not exist")
       (?,A,(B "not sign")
       (?$,2#o(B "music sharp sign")
       (?$,1x"(B "partial differential")
@@ -214,6 +234,7 @@
       (?$,1z (B "n-ary logical and")
       (?$,1uU(B "double-struck capital n")
       (?$,1uY(B "double-struck capital p")
+      (?$,1uZ(B "double-struck capital q")
       (?$,1u](B "double-struck capital r")
       (?$,1ud(B "double-struck capital z")
       (?$,1uP(B "script capital i")

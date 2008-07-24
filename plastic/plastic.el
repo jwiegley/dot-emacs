@@ -393,7 +393,7 @@ Given is the first SPAN which needs to be undone."
 
 ;; font-lock
 
-  (setq font-lock-keywords plastic-font-lock-keywords-1)
+  (set proof-script-font-lock-keywords plastic-font-lock-keywords-1)
 
   (proof-config-done)
 
@@ -416,7 +416,7 @@ Given is the first SPAN which needs to be undone."
 		       ("plastic"  . plastic-tags))
 		     tag-table-alist)))
 
-  (setq blink-matching-paren-dont-ignore-comments t)
+  (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
 
 ;; hooks and callbacks
 
@@ -505,7 +505,7 @@ We assume that module identifiers coincide with file names."
 			    (concat (file-name-sans-extension match) ".l")))))
 
 	proof-shell-retract-files-regexp "forgot back through Mark \"\\(.*\\)\""
-	font-lock-keywords plastic-font-lock-keywords-1
+	proof-shell-font-lock-keywords plastic-font-lock-keywords-1
 
 	proof-shell-compute-new-files-list 'plastic-shell-compute-new-files-list)
 
@@ -517,7 +517,7 @@ We assume that module identifiers coincide with file names."
 (defun plastic-goals-mode-config ()
   (setq pg-goals-change-goal "Next %s;"
         pg-goals-error-regexp plastic-error-regexp)
-  (setq font-lock-keywords plastic-font-lock-terms)
+  (setq proof-goals-font-lock-keywords plastic-font-lock-terms)
   (plastic-init-syntax-table)
   (proof-goals-config-done))
 

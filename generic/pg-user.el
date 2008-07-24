@@ -1,4 +1,4 @@
-;; pg-user.el --- User level commands for Proof General
+;;; pg-user.el --- User level commands for Proof General
 ;;
 ;; Copyright (C) 2000-2008 LFCS Edinburgh.
 ;; Author:     David Aspinall and others
@@ -29,7 +29,9 @@
 ;;
 
 (defmacro proof-maybe-save-point (&rest body)
-  "Save point according to proof-follow-mode, execute BODY."
+  "Save point according to `proof-follow-mode', execute BODY."
+  ;; FIXME: This duplicates the code of the body, which isn't wrong but
+  ;; is undesirable.
   `(if (eq proof-follow-mode 'locked)
        (progn
 	 ,@body)
@@ -90,17 +92,9 @@ you can use the usual `yank' and similar commands to retrieve the
 deleted text."
   (interactive)
   (proof-undo-last-successful-command-1 'delete)
-  ;; FIXME want to do this here for 3.3, for nicer behaviour
-  ;; when deleting.
-  ;; Unfortunately nasty problem with read only flag when
-  ;; inserting at (proof-locked-end) sometimes behaves as if
-  ;; point is inside locked region  (prob because span is
-  ;;  [ ) and not [ ] -- why??).
-  ;; (proof-script-new-command-advance)
+  ;; FIXME (proof-script-new-command-advance)
   )
 
-;; No direct key-binding for this one: C-c C-u was too dangerous,
-;; when used quickly it's too easy to accidently delete!
 (defun proof-undo-last-successful-command-1 (&optional delete)
   "Undo last successful command at end of locked region.
 If optional DELETE is non-nil, the text is also deleted from
@@ -200,16 +194,12 @@ handling of interrupt signals."
   (interactive)
   (let ((cmd (span-at (point) 'type)))
     (if cmd (goto-char (span-end cmd))
-;      (and (re-search-forward "\\S-" nil t)
-;	   (proof-assert-until-point nil 'ignore-proof-process))
       (proof-assert-next-command nil
 				 'ignore-proof-process
 				 'dontmoveforward))
     (skip-chars-backward " \t\n")
     (unless (eq (point) (point-min))
-      ;; should land on terminal char
       (backward-char))))
-
 
 
 ;;
@@ -221,49 +211,13 @@ handling of interrupt signals."
 ;; be nicer behaviour than actually moving point into locked region
 ;; which is only useful for cut and paste, really.
 (defun proof-mouse-goto-point (event)
-  "Call proof-goto-point on the click position EVENT."
+  "Call `proof-goto-point' on the click position EVENT."
   (interactive "e")
   (proof-maybe-save-point
    (mouse-set-point event)
    (proof-goto-point)))
   
 
-;; FIXME da: this is an oddity.  It copies the span, but does not
-;; send it, contrary to it's old name ("proof-send-span").
-;; Now made more general to behave like mouse-track-insert
-;; when not over a span.
-;; FIXME da: improvement would be to allow selection of part
-;; of command by dragging, as in ordinary mouse-track-insert.
-;; Maybe by setting some of the mouse track hooks.
-;; TODO: mouse-track-insert is XEmacs specific anyway.
-(defun proof-mouse-track-insert (event)
-  "Copy highlighted command under mouse EVENT to point.  Ignore comments.
-If there is no command under the mouse, behaves like mouse-track-insert."
-  (interactive "e")
-  (let ((str
-	 (save-window-excursion
-	   (save-excursion
-	     (let* ((span (span-at (mouse-set-point event) 'type)))
-	       (and
-		span
-		;; Next test might be omitted to allow for non-script
-		;; buffer copying (e.g. from spans in the goals buffer)
-		(eq (current-buffer) proof-script-buffer)
-		;; Test for type=vanilla means that closed goal-save regions
-		;; are not copied.
-		;; PG 3.3: remove this test, why not copy full proofs?
-		;; (wanted to remove tests for 'vanilla)
-		;; (eq (span-property span 'type) 'vanilla)
-		;; Finally, extracting the 'cmd part prevents copying
-		;; comments, and supresses leading spaces, at least.
-		;; Odd.
-		(span-property span 'cmd)))))))
-    ;; Insert copied command in original window,
-    ;; buffer, point position.
-    (if str
-	(insert str proof-script-command-separator)
-      (if (featurep 'xemacs)
-	  (mouse-track-insert event)))))
 
 
 
@@ -295,7 +249,7 @@ only an approximate test, or if `proof-strict-state-preserving'
 is off (nil)."
   (interactive
    (list (read-string "Command: "
-		      (if (and current-prefix-arg (region-exists-p))
+		      (if (and current-prefix-arg (region-active-p))
 			  (replace-in-string
 			   (buffer-substring (region-beginning) (region-end))
 			   "[ \t\n]+" " "))
@@ -317,11 +271,7 @@ is off (nil)."
 ;; pear-shaped.
 
 ;; In fact, it's so risky, we'll disable it by default
-(if (if (featurep 'xemacs)
-	(get 'proof-frob-locked-end 'disabled t)
-      ;; FSF code more approximate
-      (not (member 'disabled (symbol-plist 'proof-frob-locked-end))))
-    (put 'proof-frob-locked-end 'disabled t))
+(put 'proof-frob-locked-end 'disabled t)
 
 (defun proof-frob-locked-end ()
   "Move the end of the locked region backwards to regain synchronization.
@@ -360,8 +310,8 @@ a proof command."
 ;;; Non-scripting proof assistant commands.
 ;;;
 
-;;; These are based on defcustom'd settings so that users may
-;;; re-configure the system to their liking.
+;; These are based on defcustom'd settings so that users may
+;; re-configure the system to their liking.
 
 
 ;; FIXME: da: add more general function for inserting into the
@@ -470,8 +420,8 @@ Typically, a list of syntax of commands available."
 	  default-directory))
 
 (defun proof-cd-sync ()
-  "If proof-shell-cd-cmd is set, do proof-cd and wait for prover ready.
-This is intended as a value for proof-activate-scripting-hook"
+  "If `proof-shell-cd-cmd' is set, do `proof-cd' and wait for prover ready.
+This is intended as a value for `proof-activate-scripting-hook'"
   ;; The hook is set in proof-mode before proof-shell-cd-cmd may be set,
   ;; so we explicitly test it here.
   (if proof-shell-cd-cmd
@@ -531,13 +481,13 @@ This is intended as a value for proof-activate-scripting-hook"
 (defun proof-electric-terminator-enable ()
   "Make sure the modeline is updated to display new value for electric terminator."
   ;; TODO: probably even this isn't necessary
-  (redraw-modeline))
+  (force-mode-line-update))
 
 (proof-deftoggle proof-electric-terminator-enable proof-electric-terminator-toggle)
 
 ;;;###autoload
 (defun proof-electric-term-incomment-fn ()
-  "Used as argument to proof-assert-until-point."
+  "Used as argument to `proof-assert-until-point'."
   ;; CAREFUL: (1) dynamic scoping here  (incomment, ins, mrk)
   ;;          (2) needs this name to be recognized in
   ;;		  proof-assert-until-point
@@ -585,7 +535,7 @@ comment, and insert or skip to the next semi)."
 
 (defun proof-electric-terminator ()
   "Insert the terminator, perhaps sending the command to the assistant.
-If `proof-electric-terminator-enable' is non-nil, the command will be
+If variable `proof-electric-terminator-enable' is non-nil, the command will be
 sent to the assistant."
   (interactive)
   (if proof-electric-terminator-enable
@@ -662,19 +612,7 @@ last use time, to discourage saving these into the users database."
 	  (funcall pg-insert-output-as-comment-fn proof-shell-last-output)
 	;; Otherwise the default behaviour is to use comment-region
 	(let  ((beg (point)) end)
-	  ;; pg-assoc-strip-subterm-markup: should be done
-	  ;; for us in proof-fontify-region
 	  (insert proof-shell-last-output)
-	  ;; 3.4: add fontification. Questionable since comments will
-	  ;; probably be re-highlighted, so colouration, especially
-	  ;; based on removed specials, will be lost.
-	  ;; X-Symbol conversion is useful, but a surprising nuisance
-	  ;; to achieve, mainly because x-symbol doesn't give us back
-	  ;; a useful pointer to end of region after converting, and
-	  ;; character positions change.
-	  ;; (FIXME: contact x-sym author about this).
-	  ;; proof-fontify-region does this for us, now
-	  (setq end (proof-fontify-region beg (point)))
 	  (comment-region beg end)))))
 
 
@@ -879,15 +817,9 @@ If NUM is negative, move upwards.  Return new span."
 
 (defun pg-pos-for-event (event)
   "Return position corresponding to position of a mouse click EVENT."
-  (cond
-   ((featurep 'xemacs)
-    (when (event-window event)
-      (select-window (event-window event))
-      (event-point event)))
-   (t
-    (with-current-buffer
-	(window-buffer (posn-window (event-start event)))
-      (posn-point (event-start event))))))
+  (with-current-buffer
+      (window-buffer (posn-window (event-start event)))
+    (posn-point (event-start event))))
 
 (defun pg-span-for-event (event)
   "Return span corresponding to position of a mouse click EVENT."
@@ -1054,11 +986,7 @@ The function `substitute-command-keys' is called on the argument."
 
 ;; Note: making the binding globally is perhaps a bit obnoxious, but
 ;; this modifier combination is currently unused.
-(cond
- ((not (featurep 'xemacs))
-  (global-set-key [C-M-mouse-2] 'pg-identifier-under-mouse-query))
- ((featurep 'xemacs)
-  (global-set-key '(control meta button2) 'pg-identifier-under-mouse-query)))
+(global-set-key [C-M-mouse-2] 'pg-identifier-under-mouse-query)
 
 (defun pg-identifier-under-mouse-query (event)
   (interactive "e")
@@ -1067,18 +995,13 @@ The function `substitute-command-keys' is called on the argument."
 	(save-selected-window
 	  (save-selected-frame
 	    (save-excursion
-	      (if (featurep 'xemacs)
-		  (when (event-window event)
-		    (select-window (event-window event))
-		    (setq oldend (if (region-exists-p)
-				     (region-end)))))
 	      (mouse-set-point event)
 	      (setq identifier
 		    ;; If there's an active region in this buffer, use that
 		    ;; instead of the identifier under point.  Since
 		    ;; region-end moves immediately to new point with
 		    ;; zmacs-regions we use oldend instead of current.
-		    (if (region-exists-p)
+		    (if (region-active-p)
 			(buffer-substring (region-beginning)
 					  (or oldend (region-end)))
 		     (setq identifier (current-word))))
@@ -1110,17 +1033,15 @@ The function `substitute-command-keys' is called on the argument."
   "Add or remove index menu."
   (if proof-imenu-enable
       (imenu-add-to-menubar "Index")
-    (if (featurep 'xemacs)
-	(easy-menu-remove (list "Index" :filter 'imenu-menu-filter))
-      (progn
-	(let ((oldkeymap (keymap-parent (current-local-map))))
-	  (if ;; sanity checks in case someone else set local keymap
-	      (and oldkeymap
-		   (lookup-key (current-local-map) [menu-bar index])
-		   (not
-		    (lookup-key oldkeymap [menu-bar index])))
-	      (use-local-map oldkeymap)))
-	(remove-hook 'menu-bar-update-hook 'imenu-update-menubar)))))
+    (progn
+      (let ((oldkeymap (keymap-parent (current-local-map))))
+	(if ;; sanity checks in case someone else set local keymap
+	    (and oldkeymap
+		 (lookup-key (current-local-map) [menu-bar index])
+		 (not
+		  (lookup-key oldkeymap [menu-bar index])))
+	    (use-local-map oldkeymap)))
+      (remove-hook 'menu-bar-update-hook 'imenu-update-menubar))))
 
 
 
@@ -1140,13 +1061,13 @@ The function `substitute-command-keys' is called on the argument."
 ;;
 
 (defvar pg-input-ring nil
-  "Ring of previous inputs")
+  "Ring of previous inputs.")
 
 (defvar pg-input-ring-index nil
-  "Position of last matched command")
+  "Position of last matched command.")
 
 (defvar pg-stored-incomplete-input nil
-  "Stored incomplete input: string between point and locked")
+  "Stored incomplete input: string between point and locked.")
 
 (defun pg-previous-input (arg)
   "Cycle backwards through input history, saving input."
@@ -1280,7 +1201,7 @@ If N is negative, find the next or Nth next match."
   (let ((pos (pg-previous-matching-input-string-position regexp n)))
     ;; Has a match been found?
     (if (null pos)
-	(error "Match not found" regexp)
+	(error "Match not found for regexp %s" regexp)
       ;; If leaving the edit line, save partial input
       (if (null pg-input-ring-index)	;not yet on ring
 	  (setq pg-stored-incomplete-input (pg-get-old-input)))
@@ -1344,7 +1265,7 @@ of the last item added."
 ;;;###autoload
 (defun pg-remove-from-input-history (cmd)
   "Maybe remove CMD from the end of the input history.
-This is called when the command is undone.  It's only 
+This is called when the command is undone.  It's only
 removed if it matches the last item in the ring."
   (if (and (ring-p pg-input-ring)
 	   (not (ring-empty-p pg-input-ring))
@@ -1358,4 +1279,5 @@ removed if it matches the last item in the ring."
 
 
 (provide 'pg-user)
+
 ;;; pg-user.el ends here

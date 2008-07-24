@@ -70,8 +70,7 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.7
-@set xemacsversion 21.5.28
+@set version 4.0pre
 @set fsfversion 22.2.1
 @set last-update July 2008
 @set rcsid $Id$
@@ -170,10 +169,10 @@ Visit Proof General on the web at @code{http://proofgeneral.inf.ed.ac.uk}
 This file documents version @value{version} of @b{Proof General}, a
 generic Emacs interface for proof assistants.
 
-Proof General @value{version} has been tested with XEmacs
-@value{xemacsversion} and GNU Emacs @value{fsfversion}.  It is supplied
-ready to use for the proof assistants LEGO, Coq, Isabelle, and PhoX.
-Experimental support is provided for several other provers.
+Proof General @value{version} has been tested with GNU Emacs
+@value{fsfversion} on Linux.  It is supplied ready to use for the proof
+assistants LEGO, Coq, Isabelle, and PhoX.  Experimental support is
+provided for several other provers.
 
 @menu
 * Preface::                     
@@ -245,11 +244,10 @@ Summer Schools.  Many new features have been added to enhance Coq mode
 Support has been added for the useful Emacs packages Speedbar
 @c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
 and Index Menu, both usually distributed with Emacs.
-Compatible versions of the Emacs packages X-Symbol (for mathematical
-symbols in place of ASCII sequences), Math-Menu (for Unicode symbols)
+Compatible versions of the Emacs packages Math-Menu (for Unicode symbols)
 and MMM Mode (for multiple modes in one buffer) are 
 bundled with Proof General.  A new Unicode Tokens package has
-been added which will replace X-Symbol eventually.
+been added which replaces X-Symbol.
 
 @c The display handling functions have been improved to be more user
 @c friendly and the display in multiple-window mode is trimmed to
@@ -261,7 +259,6 @@ desktop integration on freedesktop.org compliant desktops (including,
 for example, many recent Linux distributions).
 
 @c Other stuff pending:
-@c X-Symbol 4.4 support??
 @c Support for *thms* buffer??
 
 See the @file{CHANGES} file in the distribution for more complete
@@ -1747,8 +1744,8 @@ cursor between buffers.
 The mouse bindings are these:
 
 @table @kbd
-@item button2
-@code{pg-goals-button-action}
+@c @item button2
+@c FIXME: @code{pg-goals-button-action}
 @item C-button2
 @code{proof-undo-and-delete-last-successful-command}
 @item button3
@@ -1771,7 +1768,7 @@ single step in the proof script.  However, if the proof is later
 replayed (without using PBP), the proof-by-pointing constructions will
 be considered as separate proof commands, as usual.
 
-@c TEXI DOCSTRING MAGIC: pg-goals-button-action
+@c TEXI FIXME DOCSTRING MAGIC: pg-goals-button-action
 @deffn Command pg-goals-button-action event
 Construct a proof-by-pointing command based on the mouse-click @var{event}.@*
 This function should be bound to a mouse button in the Proof General
@@ -1797,7 +1794,7 @@ The right-hand mouse button provides this convenient way to copy
 subterms from the goals buffer, using the function
 @code{pg-goals-yank-subterm}.
 
-@c TEXI DOCSTRING MAGIC: pg-goals-yank-subterm
+@c TEXI FIXME DOCSTRING MAGIC: pg-goals-yank-subterm
 @deffn Command pg-goals-yank-subterm event
 Copy the subterm indicated by the mouse-click @var{event}.@*
 This function should be bound to a mouse button in the Proof General
@@ -2241,7 +2238,6 @@ and @code{etags}.
 
 @menu
 * Syntax highlighting::         
-* X-Symbol support::
 * Unicode support::
 * Imenu and Speedbar (and Function Menu)::
 * Support for outline mode::    
@@ -2265,18 +2261,8 @@ specific portion of Proof General.  Moreover, Proof General usually
 decorates the output from the proof assistant, also using
 @code{font-lock}.
 
-In XEmacs, fontification is automatically turned on. To automatically
-switch on fontification in GNU Emacs 20.4, you may need to engage
-@code{M-x global-font-lock-mode}.  The old mechanism of adding hooks to
-the mode hooks (@code{lego-mode-hooks}, @code{coq-mode-hooks}, etc) is
-no longer recommended; it should not be needed in latest Emacs versions
-which have more flexible customization.
-
-Fontification for output is controlled by a separate switch in Proof
-General. Set @code{proof-output-fontify-enable} to @code{nil} if you
-don't want the output from your proof assistant to be fontified
-according to the setting of @code{font-lock-keywords} in the proof
-assistant specific portion of Proof General. @xref{User options}.
+To automatically switch on fontification in Emacs, you may need
+to engage @code{M-x global-font-lock-mode}.  
 
 By the way, the choice of colour, font, etc, for each kind of markup is
 fully customizable in Proof General.  Each @emph{face} (Emacs
@@ -2287,64 +2273,6 @@ menu:
 Proof General -> Advanced -> Customize -> Faces -> Proof Faces.
 @end lisp
 
-
-@node X-Symbol support
-@section X-Symbol support
-@cindex symbols
-@cindex X-Symbols
-@cindex Greek letters
-@cindex logical symbols
-@cindex mathematical symbols
-
-The X-Symbol package displays characters from a variety of fonts in
-Emacs buffers, automatically converting between codes for special
-characters and @i{tokens} which are character sequences stored in files.
-
-Proof General uses X-Symbol to allow interaction between the user and
-the proof assistant to use tokens, yet appear to be using special
-characters.  So proof scripts and proofs can be processed with real
-mathematical symbols, Greek letters, etc.
-
-The X-Symbol package is now bundled with Proof General.  You will be
-able to enable X-Symbol support if support has been provided in Proof
-General for a token language for your proof assistant.  To
-enable X-Symbol, use the menu item:
-@example
-  Proof-General -> Options -> X-Symbol
-@end example
-To enable it automatically every time you use Proof General,
-just use
-@example
-  Proof-General -> Options -> Save Options
-@end example
-once it has been selected.  (Alternatively, customize the setting
-@code{@emph{PA}-x-symbol-enable}).
-
-You may also simply use @code{M-x x-symbol-mode} to turn on and off
-X-Symbol display in the scripting buffer, as you would when using
-X-Symbol for other modes, or indeed, as for any other Emacs minor mode.
-However, this way of turning on and off symbols will only affect the
-current script buffer, and will not change the status of any symbol
-configuration for the prover input/output (some proof assistants, such
-as Isabelle, have switches for enabling symbol output).  To make
-sure that symbol output is switched on or off for the prover
-as a whole, use the menu option mentioned above, or its underlying
-command, @code{M-x proof-x-symbol-toggle}.
-
-Notice that for proper symbol support, the proof assistant needs to have
-a special @i{token language}, or a special character set, to use
-symbols.  In this case, the proof assistant will output, and accept as
-input, tokens like @code{\longrightarrow}, which display as the
-corresponding symbols.  However, for proof assistants which do not have
-such token support, we can use "fake" symbol support quite effectively,
-displaying ordinary ASCII character sequences such as @code{-->} with
-symbols.  
-
-For more information about the X-Symbol package, please visit
-its home page at @uref{http://x-symbol.sourceforge.net/}.  
-
-@c @xref{Configuring X-Symbol}, for notes about how to configure
-@c a proof assistant to use X-Symbol in Proof General.
 
 @node Unicode support
 @section Unicode support
@@ -2364,74 +2292,48 @@ automatically detect an appropriate one; consult the Emacs documentation
 for more details.
 
 Proof General includes two special mechanisms for assisting with input.
-The first is @b{Maths Menu} (originally by Dave Love), which simply adds
-a menu for inserting common mathematical symbols.  
+The first is @b{Maths Menu} (adapted from a menu by Dave Love), which
+simply adds a menu for inserting common mathematical symbols.
 @example
   Proof-General -> Options -> Unicode Maths Menu
 @end example
-This only works in GNU Emacs, and whether or not the symbols
-display in the menus depends on the font used to display
-the menus (which depends on the Emacs version, toolkit
+Whether or not the symbols display well the menus depends on the font
+used to display the menus (which depends on the Emacs version, toolkit
 and platform!).
 
 The second mechanism has been written specially for Proof General, to
-provide some backward compatibility with X-Symbol.  This is
+provide backward compatibility with X-Symbol.  This is
 the @b{Unicode Tokens} minor mode.
 @example
   Proof-General -> Options -> Unicode Tokens
 @end example
 The aim of this mode is to allow displaying of ASCII tokens as Unicode
-strings.@footnote{In fact, the strings are mapped to Emacs internal
-encoding for display; Unicode is just an appropriate mechanism for
-input.} This allows a file to be stored in perfectly portable plain
-ASCII encoding, but be displayed and edited with real symbols.  When the
-file is visited, the ASCII tokens are replaced by Unicode strings; when
-it is saved, the reverse happens.  For this to be reliable, you need to
-provide tokens for all the Unicode symbols you @i{don't} want to appear
-in the saved file (if any are not encoded, Emacs will try to save them
-in a richer encoding, such as UTF-8).  You also need to make sure that
-the token to symbol mapping is a bijection.
+character compositions, perhaps with additional text properties.
+This allows a file to be stored in perfectly portable plain
+ASCII encoding, but be displayed and edited with real symbols.  
 
-The Unicode Tokens mode also provides an input mechanism for assisting
-with entering tokens, and providing short-cuts for symbols (one of the
-useful features of the X-Symbol package).  Even if your proof assistant
-manages native Unicode symbols directly, the input method and some of
-the provided commands may be useful.
+The mechanism is based on Font Lock, using the @code{composition} text
+property to display token sequences as something else.  This means that
+the underlying buffer text is not altered.  
 
-@kindex C-,
-@kindex C-.
-@table @kbd
-@item C-.
-@code{unicode-tokens-rotate-glyph-forward}
-@item C-,
-@code{unicode-tokens-rotate-glyph-backward}
-@item >
-@code{unicode-tokens-electric suffix}
-@end table
+@c @kindex C-,
+@c @kindex C-.
+@c @table @kbd
+@c @item C-.
+@c @code{unicode-tokens-rotate-glyph-forward}
+@c @item C-,
+@c @code{unicode-tokens-rotate-glyph-backward}
+@c @item >
+@c @code{unicode-tokens-electric suffix}
+@c @end table
 
 
-@c TEXI DOCSTRING MAGIC: unicode-tokens-token-insert
-@deffn Command unicode-tokens-token-insert arg &optional argname
-Insert a Unicode string by a token  name, with completion. @*
-If a prefix is given, the string will be inserted regardless
-of whether or not it has displayable glyphs; otherwise, a
-numeric character reference for whichever codepoints are not
-in the @code{unicode-tokens-glyph-list}. If argname is given, it is used for
-the prompt. If argname uniquely identifies a character, that
-character is inserted without the prompt.
-@end deffn
-@c TEXI DOCSTRING MAGIC: unicode-tokens-rotate-glyph-forward
-@deffn Command unicode-tokens-rotate-glyph-forward &optional n
-Rotate the character before point in the current code page, by @var{n} steps.@*
-If no character is found at the new codepoint, no change is made.
-This function may only work reliably for GNU Emacs >= 23.
-@end deffn
-@c TEXI DOCSTRING MAGIC: unicode-tokens-rotate-glyph-backward
-@deffn Command unicode-tokens-rotate-glyph-backward &optional n
-Rotate the character before point in the current code page, by -N steps.@*
-If no character is found at the new codepoint, no change is made.
-This function may only work reliably for GNU Emacs >= 23.
-@end deffn
+@c DOCSTRING MAGIC: unicode-tokens-token-insert
+
+@c DOCSTRING MAGIC: unicode-tokens-rotate-glyph-forward
+
+@c DOCSTRING MAGIC: unicode-tokens-rotate-glyph-backward
+
 Unfortunately, the precise set of symbol glyphs that are available to
 you will depend in complicated ways on your operating system, Emacs
 version, installed font sets, and (even) command line options used to
@@ -2453,9 +2355,6 @@ provides an interface to the tokens, and
   M-x customize-variable isar-shortcut-alist
 @end example
 an interface to the shortcuts.
-
-
-
 
 
 
@@ -2954,27 +2853,6 @@ If non-nil, display Proof General toolbar for script buffers.
 The default value is @code{t}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: PA-x-symbol-enable
-@defopt PA-x-symbol-enable 
-Whether to use x-symbol in Proof General for this assistant.@*
-If you activate this variable, whether or not you really get x-symbol
-support depends on whether your proof assistant supports it and
-whether X-Symbol is installed in your Emacs.
-
-The default value is @code{nil}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: proof-output-fontify-enable
-@defopt proof-output-fontify-enable 
-Whether to fontify output from the proof assistant.@*
-If non-nil, output from the proof assistant will be highlighted
-in the goals and response buffers.
-(This is providing @samp{@code{font-lock-keywords}} have been set for the
-buffer modes).
-
-The default value is @code{t}.
-@end defopt
-
 @c TEXI DOCSTRING MAGIC: proof-strict-read-only
 @defopt proof-strict-read-only 
 Whether Proof General is strict about the read-only region in buffers.@*
@@ -2993,15 +2871,6 @@ before Proof General 3.7).  If nil, undo history is cut at first edit
 of processed text.  NB: the history manipulation only works on GNU Emacs.
 
 The default value is @code{nil}.
-@end defopt
-@c TEXI DOCSTRING MAGIC: proof-toolbar-use-button-enablers
-@defopt proof-toolbar-use-button-enablers 
-If non-nil, toolbars buttons may be enabled/disabled automatically.@*
-Toolbar buttons can be automatically enabled/disabled according to
-the context.  Set this variable to nil if you don't like this feature
-or if you find it unreliable.
-
-The default value is @code{t}.
 @end defopt
 
 @c This one removed: proof-auto-retract
@@ -3047,9 +2916,9 @@ The default value is @code{nil}.
 
 @c TEXI DOCSTRING MAGIC: proof-prog-name-guess
 @defopt proof-prog-name-guess 
-If non-nil, use @samp{@code{proof-guess-command-line}} to guess @code{proof-prog-name}.@*
-This option is compatible with @code{proof-prog-name-ask}.
-No effect if @code{proof-guess-command-line} is nil.
+If non-nil, use @samp{@code{proof-guess-command-line}} to guess @samp{@code{proof-prog-name}}.@*
+This option is compatible with @samp{@code{proof-prog-name-ask}}.
+No effect if @samp{@code{proof-guess-command-line}} is nil.
 
 The default value is @code{nil}.
 @end defopt
@@ -3110,7 +2979,7 @@ If @code{'followdown}, point if necessary to stay in writeable region
 If @code{'ignore}, point is never moved after movement commands or on errors.
 
 If you choose @code{'ignore}, you can find the end of the locked using
-@samp{M-x @code{proof-goto-end-of-locked}}.
+M-x @code{proof-goto-end-of-locked}
 
 The default value is @code{locked}.
 @end defopt
@@ -3354,25 +3223,26 @@ declarations such as those above.  By default, @kbd{C-n} is
 @code{next-line} and @kbd{C-b} is @code{backward-char-command}; neither
 are really needed if you have working cursor keys.
 
-If you're using XEmacs and your keyboard has a @i{super} modifier (on my
-PC keyboard it has a Windows symbol and is next to the control key), you
-can freely bind keys on that modifier globally (since none are used
-by default).  Use lisp like this:
-@lisp
-(global-set-key [(super l)] 'x-symbol-INSERT-lambda)
-(global-set-key [(super n)] 'x-symbol-INSERT-notsign)
-(global-set-key [(super a)] 'x-symbol-INSERT-logicaland)
-(global-set-key [(super o)] 'x-symbol-INSERT-logicalor)
-(global-set-key [(super f)] 'x-symbol-INSERT-universal1)
-(global-set-key [(super t)] 'x-symbol-INSERT-existential1)
-(global-set-key [(super A)] 'x-symbol-INSERT-biglogicaland)
-(global-set-key [(super e)] 'x-symbol-INSERT-equivalence)
-(global-set-key [(super u)] 'x-symbol-INSERT-notequal)
-(global-set-key [(super m)] 'x-symbol-INSERT-arrowdblright)
-(global-set-key [(super i)] 'x-symbol-INSERT-longarrowright)
-@end lisp
-This defines a bunch of short-cuts for insert X-Symbol logical symbols
-which are often used in Isabelle.
+@c FIXME
+@c If you're using XEmacs and your keyboard has a @i{super} modifier (on my
+@c PC keyboard it has a Windows symbol and is next to the control key), you
+@c can freely bind keys on that modifier globally (since none are used
+@c by default).  Use lisp like this:
+@c @lisp
+@c (global-set-key [(super l)] 'x-symbol-INSERT-lambda)
+@c (global-set-key [(super n)] 'x-symbol-INSERT-notsign)
+@c (global-set-key [(super a)] 'x-symbol-INSERT-logicaland)
+@c (global-set-key [(super o)] 'x-symbol-INSERT-logicalor)
+@c (global-set-key [(super f)] 'x-symbol-INSERT-universal1)
+@c (global-set-key [(super t)] 'x-symbol-INSERT-existential1)
+@c (global-set-key [(super A)] 'x-symbol-INSERT-biglogicaland)
+@c (global-set-key [(super e)] 'x-symbol-INSERT-equivalence)
+@c (global-set-key [(super u)] 'x-symbol-INSERT-notequal)
+@c (global-set-key [(super m)] 'x-symbol-INSERT-arrowdblright)
+@c (global-set-key [(super i)] 'x-symbol-INSERT-longarrowright)
+@c @end lisp
+@c This defines a bunch of short-cuts for insert X-Symbol logical symbols
+@c which are often used in Isabelle.
 
 
 @node Using file variables
@@ -3963,7 +3833,7 @@ Find theorems: either of the above.
 
 The following shortcuts insert control sequences into the text,
 modifying the appearance of individual symbols (single letters,
-mathematical entities etc.); the X-Symbol package will provide immediate
+mathematical entities etc.); the Tokens package will provide immediate
 visual feedback.
 
 @table @kbd

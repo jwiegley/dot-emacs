@@ -161,7 +161,6 @@ comment, return nil and does not move the point."
     (if (= prevpos init) nil prevpos)))
 
 ; generic function is wrong when the point in between ( and *
-; moreover xemacs does not deal with nested comments
 (defun coq-looking-at-syntactic-context ()
   "See `proof-looking-at-syntactic-context'.
 Use this one for coq instead of the generic one."
@@ -244,16 +243,6 @@ token.  If no end command is found, go as far as possible and
 return nil."
   (if (< direction 0) (coq-find-command-end-backward)
     (coq-find-command-end-forward)))
-
-;; This one to deal with nested comments in xemacs
-(defun coq-parse-function ()
-  (skip-chars-forward " \n\t")
-  (forward-char 1)
-  (if (coq-find-comment-end)
-      'comment
-    (when (coq-find-command-end-forward)
-      (forward-char 1)
-      'cmd)))
 
 (defun coq-find-current-start ()
   "Move to the start of command at point.

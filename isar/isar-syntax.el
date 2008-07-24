@@ -18,43 +18,26 @@
 ;; ----- character syntax
 
 (defconst isar-script-syntax-table-entries
-  (append
-       '(?\$ "."
-         ?\/ "."
-         ?\\ "\\"
-         ?+  "."
-         ?-  "."
-         ?=  "."
-         ?%  "."
-         ?<  "w"
-         ?>  "w"
-         ?\& "."
-         ?.  "w"
-         ?_  "w"
-         ?\' "w"
-         ??  "w"
-         ?`  "\""
-         ?\( "()1"
-         ?\) ")(4")
-   (cond
-    ((featurep 'xemacs)
-     ;; We classify {* sequences *} as comments, although
-     ;; they need to be passed as command args as text.
-     ;; NB: adding a comment sequence b seems to break
-     ;; buffer-syntactic-context, best to use emulated
-     ;; version.
-    '(?\{ "(}5"
-      ?\} "){8"
-      ?\* ". 2367"))
-    ;; previous version confuses the two comment sequences,
-    ;; but works with buffer-syntactic-context.
-    ;;(?\{ "(}1")
-    ;;(?\} "){4")
-    ;;(?\* ". 23"))
-    ((not (featurep 'xemacs))
-     '(?\{ "(}1b"
-       ?\} "){4b"
-       ?\* ". 23n"))))
+  '(?\$ "."
+    ?\/ "."
+    ?\\ "\\"
+    ?+  "."
+    ?-  "."
+    ?=  "."
+    ?%  "."
+    ?<  "w"
+    ?>  "w"
+    ?\& "."
+    ?.  "w"
+    ?_  "w"
+    ?\' "w"
+    ??  "w"
+    ?`  "\""
+    ?\( "()1"
+    ?\) ")(4"
+    ?\{ "(}1b"
+    ?\} "){4b"
+    ?\* ". 23n")
    "Syntax table entries for Isar scripts.
 This list is in the right format for proof-easy-config.")
 
@@ -363,11 +346,6 @@ matches contents of quotes for quoted identifiers.")
 (defconst isabelle-var-name-face   'isabelle-var-name-face)
 
 
-(defconst isar-font-lock-local
-  '("\\(\\\\<\\^loc>\\)\\([^\\]\\|\\\\<[A-Za-z]+>\\)"
-    (1 x-symbol-invisible-face t)
-    (2 proof-declaration-name-face prepend)))
-
 (defvar isar-font-lock-keywords-1
   (list
    (cons 'isar-match-nesting                               'font-lock-preprocessor-face)
@@ -379,35 +357,35 @@ matches contents of quotes for quoted identifiers.")
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
    (cons isar-improper-regexp 'font-lock-reference-face)
-   (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))
-   isar-font-lock-local))
+   (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
+
+;; Indicate we're going to use font lock to manage 'invisible property
+(put 'isar-goals-mode 'font-lock-extra-managed-props '(invisible))
+(put 'isar-response-mode 'font-lock-extra-managed-props '(invisible))
+
+(defun isar-output-flk (start regexp end face)
+  `(,(concat "\\(" start "\\)\\(" regexp "\\)\\(" end "\\)")
+    (1 '(face nil invisible t) prepend)
+    (2 '(face ,face) prepend)
+    (,(+ 3 (regexp-opt-depth regexp)) '(face nil invisible t) prepend)))
 
 (defvar isar-output-font-lock-keywords-1
   (list
-   (cons "\327[^\330]*\330" 'proof-warning-face)
-   (cons (concat "\351" isar-long-id-stuff "\350") 'isabelle-class-name-face)
-   (cons (concat "\352'" isar-id "\350") 'isabelle-tfree-name-face)
-   (cons (concat "\353'" isar-idx "\350") 'isabelle-tvar-name-face)
-   (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
-   (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
-   (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
-   (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
-   (cons (concat "\356\\?" isar-idx "\350") 'isabelle-var-name-face)
-   (cons (concat "\357" isar-id "\350") 'proof-declaration-name-face)
-   (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face)
-   (cons "\^A0\\([^\^A]\\|\^A[^1]\\)*\^A1" 'proof-warning-face)
-   (cons (concat "\^AB" isar-long-id-stuff "\^AA") 'isabelle-class-name-face)
-   (cons (concat "\^AC'" isar-id "\^AA") 'isabelle-tfree-name-face)
-   (cons (concat "\^AD'" isar-idx "\^AA") 'isabelle-tvar-name-face)
-   (cons (concat "\^AD\\?'" isar-idx "\^AA") 'isabelle-tvar-name-face)
-   (cons (concat "\^AE" isar-id "\^AA") 'isabelle-free-name-face)
-   (cons (concat "\^AF" isar-id "\^AA") 'isabelle-bound-name-face)
-   (cons (concat "\^AG" isar-idx "\^AA") 'isabelle-var-name-face)
-   (cons (concat "\^AG\\?" isar-idx "\^AA") 'isabelle-var-name-face)
-   (cons (concat "\^AH" isar-id "\^AA") 'proof-declaration-name-face)
-   (cons (concat "\^AH\\?" isar-idx "\^AA") 'proof-declaration-name-face)
-   isar-font-lock-local)
-  "*Font-lock table for Isabelle terms.")
+   '("\^AI\\|\^AJ\\|\^AK\\|\^AM\\|\^AN\\|\^AO\\|\^AP" (0 '(face nil invisible t) t))
+   (isar-output-flk "\^A0" "\\(?:[^\^A]\\|\^A[^1]\\)*" "\^A1" 'proof-warning-face)
+;; done generically at the moment:
+;;  (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
+   (isar-output-flk "\^AB" isar-long-id-stuff "\^AA" 'isabelle-class-name-face)
+   (isar-output-flk "\^AC'" isar-id "\^AA" 'isabelle-tfree-name-face)
+   (isar-output-flk "\^AD'" isar-idx "\^AA" 'isabelle-tvar-name-face)
+   (isar-output-flk "\^AD\\?'" isar-idx "\^AA" 'isabelle-tvar-name-face)
+   (isar-output-flk "\^AE" isar-id "\^AA" 'isabelle-free-name-face)
+   (isar-output-flk "\^AF" isar-id "\^AA" 'isabelle-bound-name-face)
+   (isar-output-flk "\^AG" isar-idx "\^AA" 'isabelle-var-name-face)
+   (isar-output-flk "\^AG\\?" isar-idx "\^AA" 'isabelle-var-name-face)
+   (isar-output-flk "\^AH" isar-id "\^AA" 'proof-declaration-name-face)
+   (isar-output-flk "\^AH\\?" isar-idx "\^AA" 'proof-declaration-name-face))
+  "*Font-lock table for Isabelle output terms.")
 
 (defvar isar-goals-font-lock-keywords
   (append

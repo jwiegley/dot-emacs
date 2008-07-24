@@ -1,13 +1,10 @@
-;;; unicode-tokens.el --- Support for editing tokens for Unicode characters
+;;; unicode-tokens.el --- Support for control and symbol tokens
 ;;
 ;; Copyright(C) 2008 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
-;;
-;; A few functions are adapted from `xmlunicode.el' by Norman Walsh.
-;; Created: 2004-07-21, Version: 1.6, Copyright (C) 2003 Norman Walsh
 ;;
 ;; This is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,93 +23,142 @@
 
 ;;; Commentary:
 ;;
-;; This is a partial replacement for X-Symbol for Proof General.
-;; STATUS: experimental.  
+;; This is a replacement for X-Symbol for Proof General.
 ;;
-;; Functions to help insert tokens that represent Unicode characters
-;; and control code sequences for changing the layout.  Character
-;; tokens are useful for programs that do not understand a Unicode
-;; encoding.
+;; Functions to display tokens that represent Unicode characters and
+;; control code sequences for changing the layout.  Tokens are useful
+;; for programs that do not understand a Unicode encoding.  
 ;; 
 
 ;; TODO:
-;; -- saving of font-lock-face annotations unreliable, possible confusion 
-;;    over handling of lists in format.el
-;; -- add input methods for subscript/superscripts (further props in general)
-;; -- after change function so inserting control sequences works? or other support
-;; -- one-char subs should not be sticky so doesn't extend
-;; -- make property removal more accurate/patch in font-lock
-;; -- disentangle Isabelle specific code
-;; -- perhaps separate out short-cut input method and don't use for tokens
-;; -- cleanup insertion functions
-;; -- investigate testing for an appropriate glyph
+;; -- insert tokens via numeric code (extra format string)
+;; -- insert unicode character as token (reverse lookup)
 
 (require 'cl)
 
-(require 'unicode-chars)		; list of Unicode characters
+(eval-when-compile
+  (require 'maths-menu))		; nuke compile warnings
 
 ;;
-;; Variables that should be set
-;; (default settings are for XML, but configuration incomplete; 
-;;  use xmlunicode.el instead)
+;; Variables that can be overridden in instances: symbol tokens
 ;;
 
-(defvar unicode-tokens-charref-format "&#x%x;"
-  "The format for numeric character references")
+(defvar unicode-tokens-token-symbol-map nil
+  "Mapping of token names to compositions.
+Each element is a list
 
-(defvar unicode-tokens-token-format "&%x;"
-  "The format for token character references")
+  (TOKNAME COMPOSITION FONTSYMB ...)
 
-(defvar unicode-tokens-token-name-alist nil
-  "Mapping of token names to Unicode strings.")
+A composition is typically a single Unicode character string, but
+can be more complex: see documentation of `compose-region'.
 
-(defvar unicode-tokens-glyph-list nil
-  "List of available glyphs, as characters.
-If not set, constructed to include glyphs for all tokens. ")
+The list of FONTSYMB are optional.  Each FONTSYMB is a symbol
+indicating a set of text properties, looked up in
+`unicode-tokens-fontsymb-properties'.")
 
-(defvar unicode-tokens-token-prefix "&"
-  "Prefix for start of tokens to insert.")
+(defvar unicode-tokens-token-format "%s"
+  "Format string for formatting token a name into a token.
+Will be regexp quoted for matching.  Not used for matching if
+`unicode-tokens-token-variant-format-regexp' is set.
+Also used to format shortcuts.")
 
-(defvar unicode-tokens-token-suffix ";"
-  "Suffix for end of tokens to insert.")
+(defvar unicode-tokens-token-variant-format-regexp nil 
+  "A regular expression which matches a token variant.
+Will not be regexp quoted, and after format is applied, must
 
-(defvar unicode-tokens-control-token-match nil
-  "Regexp matching tokens")
+An example would be: \\\\(%s\\\\)\\\\(:?\\w+\\\\)
 
-(defvar unicode-tokens-token-match "&\\([A-Za-z]\\);"
-  "Regexp matching tokens")
+which matches plain token strings optionally followed by a colon and
+variant name.
 
-(defvar unicode-tokens-hexcode-match "&#[xX]\\([0-9a-fA-F]+\\);"
-  "Regexp matching numeric token string")
+If set, this variable is used instead of `unicode-tokens-token-format'.")
+;; (setq ut-tvfr  "\\(%s\\)\\(:?\\w+\\)")
+;; (string-match (format ut-tvfr ".*?") "alpha:x") 
 
-(defvar unicode-tokens-next-character-regexp "&#[xX]\\([0-9a-fA-F]+\\);\\|."
-  "Regexp matching a logical character following a control code.")
+(defvar unicode-tokens-fontsymb-properties nil
+ "Association list mapping a symbol to a list of text properties.
+Used in `unicode-tokens-token-symbol-map', `unicode-tokens-control-regions',
+and `unicode-tokens-control-characters'.")
 
-(defvar unicode-tokens-shortcut-alist
+(defvar unicode-tokens-shortcut-alist nil
   "An alist of keyboard shortcuts to unicode strings.
 The alist is added to the input mode for tokens.
 Behaviour is much like abbrev.")
 
-;;
-;; Faces
-;;
 
 ;;
-;; TODO: make these into faces but extract attributes
-;; to use in `unicode-tokens-annotation-translations'.
-;; Let that be dynamically changeable
-;; TODO: choose family acccording to likely architecture and what's available
-(cond
- ((not (featurep 'xemacs))
+;; Variables that can be overridden in instances: control tokens
+;;
+
+;; TODO: docs
+(defvar unicode-tokens-control-region-format-regexp nil)
+(defvar unicode-tokens-control-char-format-regexp nil)
+(defvar unicode-tokens-control-regions nil)
+(defvar unicode-tokens-control-characters nil)
+
+(defvar unicode-tokens-control-region-format-beg nil)
+(defvar unicode-tokens-control-region-format-end nil)
+(defvar unicode-tokens-control-char-format nil)
+
+;;
+;; A list of the above variables
+;;
+
+(defconst unicode-tokens-configuration-variables
+  '(token-symbol-map
+    token-format
+    token-variant-format-regexp
+    fontsymb-properties
+    shortcut-alist
+    control-region-format-regexp
+    control-region-format-beg
+    control-region-format-end
+    control-char-format-regexp
+    control-char-format
+    control-regions
+    control-characters))
+
+;;
+;; Variables set in the mode 
+;;
+
+(defvar unicode-tokens-token-list nil
+  "List of usable token names in order from `unicode-tokens-token-symbol-map'.")
+
+(defvar unicode-tokens-hash-table nil
+  "Hash table mapping token names (strings) to composition and properties.")
+
+(defvar unicode-tokens-token-match-regexp nil
+  "Regular expression used by font-lock to match tokens.")
+
+(defvar unicode-tokens-uchar-hash-table nil
+  "Hash table mapping unicode strings to symbolic token names.
+This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
+
+(defvar unicode-tokens-uchar-regexp nil
+  "Regular expression matching converted tokens.
+This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
+
+
+
+;;
+;; Constants
+;;
+
+(defgroup unicode-tokens-faces nil
+  "The faces used in Unicode Tokens mode."
+  :group 'faces)
+
 (defface unicode-tokens-script-font-face
   (cond
    ((eq window-system 'x) ; Linux/Unix
-    '((t :family "URW Chancery L")))
+    '((t :family "PakTypeNaqsh")))  ; 
    ((or ; Mac
      (eq window-system 'ns)
      (eq window-system 'carbon))
     '((t :family "Lucida Calligraphy"))))
-  "Script font face")
+  "Script font face"
+  :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-fraktur-font-face
   (cond
@@ -122,7 +168,8 @@ Behaviour is much like abbrev.")
      (eq window-system 'ns)
      (eq window-system 'carbon))
     '((t :family "Lucida Blackletter"))))
-  "Fraktur font face")
+  "Fraktur font face"
+  :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-serif-font-face
   (cond
@@ -132,220 +179,166 @@ Behaviour is much like abbrev.")
      (eq window-system 'ns)
      (eq window-system 'carbon))
     '((t :family "Lucida"))))
-  "Serif (roman) font face")))
+  "Serif (roman) font face"
+  :group 'unicode-tokens-faces)
 
-
-;;
-;; Variables initialised in unicode-tokens-initialise 
-;;
-
-(defvar unicode-tokens-max-token-length 10
-  "Maximum length of a token in underlying encoding.")
-
-(defvar unicode-tokens-codept-charname-alist nil
-  "Alist mapping unicode code point to character names.")
-
-(defvar unicode-tokens-token-alist nil
-  "Mapping of tokens to Unicode strings.
-Also used as a flag to detect if `unicode-tokens-initialise' has been called.")
-
-(defvar unicode-tokens-ustring-alist nil
-  "Mapping of Unicode strings to tokens.")
-
+(defconst unicode-tokens-font-lock-extra-managed-props 
+  '(composition help-echo display invisible)
+  "Value for `font-lock-extra-managed-props' here.")
 
 ;;
 ;;; Code:
 ;;
 
-(defun unicode-tokens-insert-char (arg codepoint)
-  "Insert the Unicode character identified by CODEPOINT.
-If ARG is non-nil, ignore available glyphs."
-  (let ((glyph (memq codepoint unicode-tokens-glyph-list)))
-    (cond
-     ((and (decode-char 'ucs codepoint) (or arg glyph))
-      (ucs-insert codepoint)) ;; glyph converted to token on save
-     (t
-      (insert (format unicode-tokens-charref-format codepoint))))))
+(defun unicode-tokens-font-lock-keywords ()
+  "Calculate and return value for `font-lock-keywords'.
+This function also initialises the important tables for the mode."
+  ;; Credit to Stefan Monnier for much slimmer original version 
+  (let ((hash       (make-hash-table :test 'equal))
+	(ucharhash  (make-hash-table :test 'equal))
+	toks uchars)
+     (dolist (x   unicode-tokens-token-symbol-map)
+       (let ((tok  (car x))
+	     (comp (cadr x)))
+	 (when (unicode-tokens-usable-composition comp)
+	   (unless (gethash tok hash)
+	     (puthash tok (cdr x) hash)
+	       (push tok toks)
+	       (if (stringp comp) ;; reverse map only for string comps
+		   (unless (or (gethash comp ucharhash)
+			       ;; ignore plain chars for reverse map
+			       (string-match "[a-zA-Z0-9]+" comp))
+		     (push comp uchars)
+		     (puthash comp tok ucharhash)))))))
+     (when toks
+       (setq unicode-tokens-hash-table hash)
+       (setq unicode-tokens-uchar-hash-table ucharhash)
+       (setq unicode-tokens-token-list (reverse toks))
+       (setq unicode-tokens-uchar-regexp (regexp-opt uchars))
+       (setq unicode-tokens-token-match-regexp 
+	     (if unicode-tokens-token-variant-format-regexp
+		 (format unicode-tokens-token-variant-format-regexp
+			 (regexp-opt toks t))
+	       (regexp-opt (mapcar (lambda (tok)
+				     (format unicode-tokens-token-format tok)) 
+				   toks) t)))
+       (cons 
+	`(,unicode-tokens-token-match-regexp
+	  (0 (unicode-tokens-help-echo) 'prepend)
+	  (0 (unicode-tokens-font-lock-compose-symbol 
+	      ,(- (regexp-opt-depth unicode-tokens-token-match-regexp) 2))
+	      'prepend))
+	(unicode-tokens-control-font-lock-keywords)))))
 
-(defun unicode-tokens-insert-string (arg ustring)
-  "Insert a Unicode string.
-If a prefix is given, the string will be inserted regardless
-of whether or not it has displayable glyphs; otherwise, a
-numeric character reference for whichever codepoints are not
-in the unicode-tokens-glyph-list."
-  (mapcar (lambda (char) 
-	    (unicode-tokens-insert-char arg char))
-	  ustring))
+(defun unicode-tokens-usable-composition (comp)
+  (cond
+   ((stringp comp)
+    (reduce (lambda (x y) (and x (char-displayable-p y)))
+	    comp
+	    :initial-value t))
+   ((char-valid-p comp)
+    (char-displayable-p comp))
+   (comp ;; assume any other non-null is OK
+    t)))
 
-(defun unicode-tokens-character-insert (arg &optional argname)
-  "Insert a Unicode character by character name, with completion. 
-If a prefix is given, the character will be inserted regardless
-of whether or not it has a displayable glyph; otherwise, a
-numeric character reference is inserted if the codepoint is not
-in the `unicode-tokens-glyph-list'. If argname is given, it is used for
-the prompt. If argname uniquely identifies a character, that
-character is inserted without the prompt."
+(defun unicode-tokens-help-echo ()
+  "Return a help-echo text property to display the contents of match string"
+    (list 'face nil 'help-echo (match-string 0)))
+
+(defvar unicode-tokens-show-symbols nil
+  "Non-nil to reveal symbol (composed) tokens instead of compositions.")
+
+(defun unicode-tokens-font-lock-compose-symbol (match)
+  "Compose a sequence of chars into a symbol, maybe returning a face property.
+Regexp match data number MATCH selects the token name, while 0 matches the
+whole expression. 
+Token symbol is searched for in `unicode-tokens-hash-table'."
+  (let* ((start     (match-beginning 0))
+         (end       (match-end 0))
+	 (compps    (gethash (match-string match) 
+		    	   unicode-tokens-hash-table))
+	 (props     (cdr-safe compps)))
+    (if (and compps (not unicode-tokens-show-symbols))
+	(compose-region start end (car compps)))
+    (if props
+	(add-text-properties ;; font-lock should do this but fails?
+	 start end (unicode-tokens-symbs-to-props props)))
+    nil))
+
+(defun unicode-tokens-show-symbols (&optional arg)
+  "Toggle `unicode-tokens-show-symbols'.  With ARG, turn on iff positive."
   (interactive "P")
-  (let* ((completion-ignore-case t)
-	 (uniname (if (stringp argname) argname ""))
-	 (charname
-	  (if (eq (try-completion uniname unicode-chars-alist) t)
-	      uniname
-	    (completing-read
-	     "Unicode name: "
-	     unicode-chars-alist
-	     nil t uniname)))
-	 codepoint glyph)
-    (setq codepoint (cdr (assoc charname unicode-chars-alist)))
-    (unicode-tokens-insert-char arg codepoint)))
+  (setq unicode-tokens-show-symbols
+	(if (null arg) (not unicode-tokens-show-symbols)
+	  (> (prefix-numeric-value arg) 0)))
+  (font-lock-fontify-buffer))
 
-(defun unicode-tokens-token-insert (arg &optional argname)
-  "Insert a Unicode string by a token  name, with completion. 
-If a prefix is given, the string will be inserted regardless
-of whether or not it has displayable glyphs; otherwise, a
-numeric character reference for whichever codepoints are not
-in the unicode-tokens-glyph-list. If argname is given, it is used for
-the prompt. If argname uniquely identifies a character, that
-character is inserted without the prompt."
+(defun unicode-tokens-symbs-to-props (symbs &optional facenil)
+  (let (props p)
+    (dolist (s symbs)
+      (setq p (car-safe
+	       (cdr-safe (assoc s unicode-tokens-fontsymb-properties))))
+      (if (consp p)
+	  (setq props (cons (car p) (cons (cadr p) props)))
+	(setq props (cons p props))))
+    (if (and facenil
+	     (not (memq 'face props)))
+	(setq props (append '(face nil) props)))
+    props))
+
+;; 
+;; Control tokens: as "characters" CTRL <stuff>
+;;                 and regions     BEGINCTRL <stuff> ENDCTRL
+;;
+
+(defvar unicode-tokens-show-controls nil
+  "Non-nil supresses hiding of control tokens.")
+
+(defun unicode-tokens-show-controls (&optional arg)
+  "Toggle `unicode-tokens-show-controls'.  With ARG, turn on iff positive."
   (interactive "P")
-  (let* ((stokname (if (stringp argname) argname ""))
-	 (tokname
-	  (if (eq (try-completion stokname unicode-tokens-token-name-alist) t)
-	      stokname
-	    (completing-read
-	     "Token name: "
-	     unicode-tokens-token-name-alist
-	     nil t stokname)))
-	 charname ustring)
-    (setq ustring (cdr (assoc tokname unicode-tokens-token-name-alist)))
-    (unicode-tokens-insert-string arg ustring)))
+  (setq unicode-tokens-show-controls
+	(if (null arg) (not unicode-tokens-show-controls)
+	  (> (prefix-numeric-value arg) 0)))
+  (when unicode-tokens-show-controls
+    (remove-from-invisibility-spec 'unicode-tokens-show-controls))
+  (when (not unicode-tokens-show-controls)
+    (add-to-invisibility-spec 'unicode-tokens-show-controls)))
 
-(defun unicode-tokens-replace-token-after (length)
-  (let ((bpoint (point)) ustring)
-    (save-excursion
-      (forward-char length)
-      (save-match-data
-	(while (re-search-backward 
-		unicode-tokens-token-match 
-		(max (- bpoint unicode-tokens-max-token-length) 
-		     (point-min)) t nil)
-	  (setq ustring 
-		(assoc (match-string 1) unicode-tokens-token-name-alist))
-	  (if ustring ;; TODO: should check on glyphs here
-	      (progn
-		(let ((matchlen (- (match-end 0) (match-beginning 0))))
-		  (replace-match (replace-quote (cdr ustring)))
-		  ;; was: (format "%c" (decode-char 'ucs (cadr codept)))
-		  (setq length 
-			(+ (- length matchlen) (length (cdr ustring)))))))))))
-    length)
+(defun unicode-tokens-control-char (name s &rest props)
+  `(,(format unicode-tokens-control-char-format-regexp s)
+    (1 '(face nil invisible unicode-tokens-show-controls) prepend)
+    (2 ',(unicode-tokens-symbs-to-props props t) prepend)))
 
+(defun unicode-tokens-control-region (name start end &rest props)
+  `(,(format unicode-tokens-control-region-format-regexp start end)
+    (1 '(face nil invisible unicode-tokens-show-controls) prepend)
+    (2 ',(unicode-tokens-symbs-to-props props t) prepend)
+    (3 '(face nil invisible unicode-tokens-show-controls) prepend)))
 
-;;stolen from hen.el which in turn claims to have stolen it from cxref
-(defun unicode-tokens-looking-backward-at (regexp)
-  "Return t if text before point matches regular expression REGEXP.
-This function modifies the match data that `match-beginning',
-`match-end' and `match-data' access; save and restore the match
-data if you want to preserve them."
-  (save-excursion
-    (let ((here (point)))
-      (if (re-search-backward regexp (point-min) t)
-          (if (re-search-forward regexp here t)
-              (= (point) here))))))
+(defun unicode-tokens-control-font-lock-keywords ()
+  (append
+   (mapcar (lambda (args) (apply 'unicode-tokens-control-char args))
+ 	   unicode-tokens-control-characters)
+   (mapcar (lambda (args) (apply 'unicode-tokens-control-region args))
+ 	   unicode-tokens-control-regions)))
 
-;; TODO: make this work for control tokens.  
-;; But it's a bit nasty and introduces font-lock style complexity again.
-;; Better if we stick with dedicated input methods.
-(defun unicode-tokens-electric-suffix ()
-  "Detect tokens and replace them with the appropriate string.
-This is bound to the character ending `unicode-tokens-token-suffix'
-if there is such a unique character."
-  (interactive)
-  (let ((pos (point))
-	(case-fold-search nil)
-	amppos codept ustring)
-    (search-backward unicode-tokens-token-prefix nil t nil)
-    (setq amppos (point))
-    (goto-char pos)
-    (cond
-     ((unicode-tokens-looking-backward-at unicode-tokens-token-match)
-      (progn
-	(re-search-backward unicode-tokens-token-match nil t nil)
-	(if (= amppos (point))
-	    (progn
-	      (setq ustring 
-		     (assoc (match-string 1) 
-			    unicode-tokens-token-name-alist))
-	      (if ustring  ;; todo: check glyphs avail/use insert fn
-		  (replace-match (replace-quote (cdr ustring)))
-		   ;; was (format "%c" (decode-char 'ucs (cdr codept))))
-		(progn
-		  (goto-char pos)
-		  (insert unicode-tokens-token-suffix))))
-	  (progn
-	    (goto-char pos)
-	    (insert unicode-tokens-token-suffix)))))
-     ((unicode-tokens-looking-backward-at unicode-tokens-hexcode-match)
-      (progn
-	(re-search-backward unicode-tokens-hexcode-match nil t nil)
-	(if (= amppos (point))
-	    (progn
-	      (setq codept (string-to-number (match-string 1) 16))
-	      (if ;; todo : check glyph (memq codept unicode-tokens-glyph-list)
-		  codept
-		  (replace-match (format "%c" (decode-char 'ucs (cdr codept))))
-		(progn
-		  (goto-char pos)
-		  (insert unicode-tokens-token-suffix))))
-	  (progn
-	    (goto-char pos)
-	    (insert unicode-tokens-token-suffix)))))
-     (t
-      (insert unicode-tokens-token-suffix)))))
-
-(defvar unicode-tokens-rotate-glyph-last-char nil)
-
-(defun unicode-tokens-rotate-glyph-forward (&optional n)
-  "Rotate the character before point in the current code page, by N steps.
-If no character is found at the new codepoint, no change is made.
-This function may only work reliably for GNU Emacs >= 23."
-  (interactive "p")
-  (if (> (point) (point-min))
-      (let* ((codept  (or (if (or (eq last-command
-				      'unicode-tokens-rotate-glyph-forward)
-				  (eq last-command
-				      'unicode-tokens-rotate-glyph-backward))
-			      unicode-tokens-rotate-glyph-last-char)
-			  (char-before (point))))
-	     (page    (/ codept 256))
-	     (pt      (mod codept 256))
-	     (newpt   (mod (+ pt (or n 1)) 256))
-	     (newcode (+ (* 256 page) newpt))
-	     (newname (assoc newcode 
-			     unicode-tokens-codept-charname-alist))
-	     ;; NOTE: decode-char 'ucs here seems to fail on Emacs <23
-	     (newchar (decode-char 'ucs newcode)))
-	(when (and newname newchar)
-	  (delete-char -1)
-	  (insert-char newchar 1)
-	  (message (cdr newname))
-	  (setq unicode-tokens-rotate-glyph-last-char nil))
-	(unless (and newname newchar)
-	  (message "No character at code %d" newcode)
-	  (setq unicode-tokens-rotate-glyph-last-char newcode)))))
-
-(defun unicode-tokens-rotate-glyph-backward (&optional n)
-  "Rotate the character before point in the current code page, by -N steps.
-If no character is found at the new codepoint, no change is made.
-This function may only work reliably for GNU Emacs >= 23."
-  (interactive "p")
-  (unicode-tokens-rotate-glyph-forward (if n (- n) -1)))
+;;
+;; Shortcuts for typing, using quail
+;;
     
+(defvar unicode-tokens-use-shortcuts t
+  "Non-nil means use `unicode-tokens-shortcut-alist' if set.")
 
-
-;;
-;; Setup quail for Unicode tokens mode
-;;
+(defun unicode-tokens-use-shortcuts (&optional arg)
+  "Toggle `unicode-tokens-use-shortcuts'.  With ARG, turn on iff positive."
+  (interactive "P")
+  (setq unicode-tokens-use-shortcuts
+	(if (null arg) (not unicode-tokens-use-shortcuts)
+	  (> (prefix-numeric-value arg) 0)))
+  (if unicode-tokens-use-shortcuts
+    (set-input-method "Unicode tokens")
+    (set-input-method nil)))
 
 (require 'quail)
 
@@ -359,57 +352,12 @@ This function may only work reliably for GNU Emacs >= 23."
   "Ordering on (car S1, car S2): order longer strings first."
   (>= (length (car s1)) (length (car s2))))
 
-(defun unicode-tokens-propertise-after-quail (tostring)
-  (add-text-properties (- (point) (length tostring)) (point)
-		       (list 'utoks tostring)))
-  
-
 (defun unicode-tokens-quail-define-rules ()
   "Define the token and shortcut input rules.
 Calculated from `unicode-tokens-token-name-alist' and 
-`unicode-tokens-shortcut-alist'.
-Also sets `unicode-tokens-token-alist'."
+`unicode-tokens-shortcut-alist'."
   (let ((unicode-tokens-quail-define-rules 
 	 (list 'quail-define-rules)))
-;; failed experiment (wrong place for rule/wrong type?): attempt to propertise 
-;; after translation
-;;	       '((advice . unicode-tokens-propertise-after-quail
-;;		 (face . proof-declaration-name-face)))))
-    (let ((ulist (copy-list unicode-tokens-token-name-alist))
-	  ustring tokname token)
-      ;; sort in case of non-terminated token syntax (empty suffix)
-      (setq ulist (sort ulist 'unicode-tokens-map-ordering))
-      (setq unicode-tokens-token-alist nil)
-      (while ulist
-	(setq tokname (caar ulist))
-	(setq ustring (cdar ulist))
-	(setq token (format unicode-tokens-token-format tokname))
-	(cond 
-	 ;; Some error checking (but not enough)
-	 ((eq (length tokname) 0)
-	  (warn "Empty token name (mapped to \"%s\") in unicode tokens list"
-		ustring))
-	 ((eq (length ustring) 0)
-	  (warn "Empty token mapping, ignoring token \"%s\" in unicode tokens list"
-		token))
-	 ((assoc token unicode-tokens-token-alist)
-	  (warn "Duplicated token entry, ignoring subsequent mapping of %s" token))
-	 ((rassoc ustring unicode-tokens-token-alist)
-	  (warn "Duplicated target \"%s\", ignoring token %s" ustring token))
-	 (t
-	  (nconc unicode-tokens-quail-define-rules
-		 (list (list token 
-			     (vector ustring))))
-	  (setq unicode-tokens-token-alist
-		(nconc unicode-tokens-token-alist
-		       (list (cons token ustring))))))
-	(setq ulist (cdr ulist))))
-    ;; make reverse map: convert longer ustring sequences first
-    (setq unicode-tokens-ustring-alist
-	  (sort
-	   (mapcar (lambda (c) (cons (cdr c) (car c))) 
-		   unicode-tokens-token-alist)
-	   'unicode-tokens-map-ordering))
     (let ((ulist (copy-list unicode-tokens-shortcut-alist))
 	  ustring shortcut)
       (setq ulist (sort ulist 'unicode-tokens-map-ordering))
@@ -423,379 +371,329 @@ Also sets `unicode-tokens-token-alist'."
     (eval unicode-tokens-quail-define-rules)))
 
 
-
 ;;
-;; File format for saving tokens in plain ASCII.
+;; User-level functions
 ;;
 
-(defvar unicode-tokens-format-entry
-  '(unicode-tokens "Tokens encoding unicode characters."
-		   nil
-		   unicode-tokens-tokens-to-unicode ; decode
- 		   unicode-tokens-unicode-to-tokens ; encode
-		   t nil)
-  "Value for `format-alist'.")
+(defun unicode-tokens-insert-token (tok)
+  "Insert symbolic token named TOK, giving a message."
+  (interactive (list
+		(completing-read 
+		 "Insert token: "
+		 unicode-tokens-hash-table) t))
+  (let ((ins (format unicode-tokens-token-format tok)))
+    (insert ins)
+    (message "Inserted %s" ins)))
 
-(add-to-list 'format-alist unicode-tokens-format-entry)
+(defun unicode-tokens-annotate-region (name)
+  "Annotate region with region markup tokens for scheme NAME."
+  (interactive (let ((completion-ignore-case t))
+		 (list (completing-read 
+			"Annotate region with: "
+			unicode-tokens-control-regions nil
+			'requirematch))))
+  (assert (assoc name unicode-tokens-control-regions))
+  (let* ((entry (assoc name unicode-tokens-control-regions))
+	 (beg (region-beginning))
+	 (end (region-end))
+	 (begtok 
+	  (format unicode-tokens-control-region-format-end (nth 1 entry)))
+	 (endtok  
+	  (format unicode-tokens-control-region-format-end (nth 2 entry))))
+    (when (> beg end)
+	(setq beg end)
+	(setq end (region-beginning)))
+    (goto-char beg)
+    (insert begtok)
+    (goto-char (+ end (- (point) beg)))
+    (insert endtok)))
 
-(defconst unicode-tokens-ignored-properties
-  '(vanilla type fontified face auto-composed
-    rear-nonsticky field inhibit-line-move-field-capture
-    utoks)
-  "Text properties to ignore when saving files.")
+(defun unicode-tokens-insert-control (name)
+  (interactive (list (completing-read 
+		      "Insert control symbol: "
+		      unicode-tokens-control-characters)))
+  (insert (format unicode-tokens-control-char-format name)))
 
-(put 'font-lock-face 'format-list-valued t)
+(defun unicode-tokens-insert-uchar-as-token (char)
+  "Insert CHAR as a symbolic token, if possible."
+  (let ((tok (gethash char unicode-tokens-uchar-hash-table)))
+    (when tok
+      (unicode-tokens-insert-token tok))))
 
-(defconst unicode-tokens-annotation-translations
-  `((font-lock-face
-     ;; FIXME: this is faulty; format.el makes wrong calculations with
-     ;; list valued properties, and sometimes loses these settings.
-     ((:weight bold)	    "bold")
-     ((:slant italic)	    "italic")
-     ; ,(face-all-attributes 'unicode-tokens-script-font-face) "script")
-     ; ,(face-all-attributes 'unicode-tokens-fraktur-font-face) "fraktur")
-     ; ,(face-all-attributes 'unicode-tokens-serif-font-face) "serif")
-     ((:family "PakTypeNaqsh") "script")
-     ((:family "URW Bookman L") "fraktur")
-     ((:family "Liberation Serif") "serif")
-     (proof-declaration-name-face "loc1")
-     (default	))
-    (display   
-     ((raise 0.4)    "superscript")
-     ((raise -0.4)   "subscript")
-     ((raise 0.35)   "superscript1")
-     ((raise -0.35)  "subscript1")
-     ((raise 0.3)    "idsuperscript1")
-     ((raise -0.3)   "idsubscript1")
-     (default	)))
-  "Text property table for annotations.")
+;;unused
+(defun unicode-tokens-delete-token-at-point ()
+  (interactive)
+  (when (looking-at unicode-tokens-token-match-regexp)
+    (kill-region (match-beginning 0) (match-end 0))))
+
+(defvar unicode-tokens-rotate-token-last-token nil)
+
+(defun unicode-tokens-prev-token ()
+  (let ((match (re-search-backward unicode-tokens-token-match-regexp
+				    (save-excursion
+				      (beginning-of-line 0) (point)) t)))
+    (if match
+	(match-string 
+	 (1- (regexp-opt-depth unicode-tokens-token-match-regexp))))))
+
+(defun unicode-tokens-rotate-token-forward (&optional n)
+  "Rotate the token before point by N steps in the table."
+  (interactive "p")
+  (if (> (point) (point-min))
+      (save-match-data
+       (let* ((token  (or (if (or (eq last-command
+				     'unicode-tokens-rotate-token-forward)
+				 (eq last-command
+				     'unicode-tokens-rotate-token-backward))
+			     unicode-tokens-rotate-token-last-token)
+			 (unicode-tokens-prev-token)))
+	     (tokennumber
+	      (if token 
+		  (search (list token) unicode-tokens-token-list :test 'equal)))
+	     (numtoks 
+	      (hash-table-count unicode-tokens-hash-table))
+	     (newtok
+	      (if tokennumber
+		  (nth (mod (+ tokennumber (or n 1)) numtoks)
+		       unicode-tokens-token-list))))
+	(when (and newtok
+		   (looking-at unicode-tokens-token-match-regexp))
+	  (delete-region (match-beginning 0) (match-end 0))
+	  (insert (format unicode-tokens-token-format newtok)))))))
+	
+(defun unicode-tokens-rotate-token-backward (&optional n)
+  "Rotate the token before point, by -N steps in the token list."
+  (interactive "p")
+  (unicode-tokens-rotate-token-forward (if n (- n) -1)))
+
+(defun unicode-tokens-copy-token (tokname)
+  (interactive "s")
+  (kill-new 
+   (format unicode-tokens-token-format tokname)
+   (eq last-command 'unicode-tokens-copy-token)))
+
+(define-button-type 'unicode-tokens-list
+  'help-echo "mouse-2, RET: copy this character"
+  'face nil
+  'action #'(lambda (button) 
+	      (unicode-tokens-copy-token (button-get button 'unicode-token))))
+
+;; TODO: improve layout, can we use tabs
+(defun unicode-tokens-list-tokens ()
+  "Show a buffer of all tokens."
+  (interactive)
+  (with-output-to-temp-buffer "*Unicode Tokens List*"
+    (with-current-buffer standard-output
+      (unicode-tokens-mode)
+      (insert "Click or RET on a character to copy into kill ring.\n\n")
+      (let ((count 0) toks)
+	;; display in originally given order
+	(dolist (tok unicode-tokens-token-list)
+	  (insert-text-button 
+	   (format unicode-tokens-token-format tok)
+	   :type 'unicode-tokens-list
+	   'unicode-token tok)
+	  (incf count)
+	  (if (< count 10)
+	      (insert "\t")
+	    (insert "\n")
+	    (setq count 0)))))))
 
 
-(defun unicode-tokens-remove-properties (start end)
-  "Remove text properties we manage between START and END."
-  (remove-text-properties 
-   ;; NB: this is approximate and clashes with anyone else who
-   ;; looks after font-lock-face or display
-   start end (mapcar 'car unicode-tokens-annotation-translations)))
-  
-
-(defun unicode-tokens-tokens-to-unicode (&optional start end)
-  "Decode a tokenised file for display in Emacs."
-  (save-excursion
-    (save-restriction
-      (narrow-to-region start (or end (point-max)))
-      (let ((case-fold-search proof-case-fold-search)
-	    (buffer-undo-list t)
-	    (modified (buffer-modified-p))
-	    (inhibit-read-only t))
-	(setq unicode-tokens-next-control-token-seen-token nil)
-	(format-replace-strings unicode-tokens-token-alist nil (point-min)
-				(point-max))
-;; alternative experiment: store original tokens inside text properties
-;;	(unicode-tokens-replace-strings-propertise unicode-tokens-token-alist)
-	(format-deannotate-region (point-min)
-				  (point-max)
-				  unicode-tokens-annotation-translations
-				  'unicode-tokens-next-control-token)
-	(set-buffer-modified-p modified))
-      (goto-char (point-max)))))
-
-(defvar unicode-tokens-next-control-token-seen-token nil
-  "Records currently open single-character control token.")
-
-(defun unicode-tokens-next-control-token ()
-  "Find next control token and interpret it.
-If `unicode-tokens-next-control-token' is non-nil, end current control sequence
-after next character (single character control sequence)."
-  (let (result)
-    (when unicode-tokens-next-control-token-seen-token
-      (if (re-search-forward unicode-tokens-next-character-regexp nil t)
-	  (setq result (list (match-end 0) (match-end 0)
-			     unicode-tokens-next-control-token-seen-token 
-			     nil)))
-      (setq unicode-tokens-next-control-token-seen-token nil))
-    (while (and (not result)
-		(re-search-forward unicode-tokens-control-token-match nil t))
-      (let*
-	  ((tok  (match-string 1))
-	   (annot
-	    (cond
-	     ((equal tok "bsup")    '("superscript" t))
-	     ((equal tok "esup")    '("superscript" nil))
-	     ((equal tok "bsub")    '("subscript" t))
-	     ((equal tok "esub")    '("subscript" nil))
-	     ((equal tok "bbold")   '("bold" t))
-	     ((equal tok "ebold")   '("bold" nil))
-	     ((equal tok "bitalic") '("italic" t))
-	     ((equal tok "eitalic") '("italic" nil))
-	     ((equal tok "bscript") '("script" t))
-	     ((equal tok "escript") '("script" nil))
-	     ((equal tok "bfrak")   '("fraktur" t))
-	     ((equal tok "efrak")   '("fraktur" nil))
-	     ((equal tok "bserif")  '("serif" t))
-	     ((equal tok "eserif")  '("serif" nil))
-	     ((equal tok "loc") 
-	      (list (setq unicode-tokens-next-control-token-seen-token
-			  "loc1") t))
-	     ((equal tok "sup") 
-	      (list (setq unicode-tokens-next-control-token-seen-token
-			  "superscript1") t))
-	     ((equal tok "sub") 
-	      (list (setq unicode-tokens-next-control-token-seen-token
-			  "subscript1") t))
-	     ((equal tok "isup") 
-	      (list (setq unicode-tokens-next-control-token-seen-token
-			  "idsuperscript1") t))
-	     ((equal tok "isub") 
-	      (list (setq unicode-tokens-next-control-token-seen-token
-			  "idsubscript1") t)))))
-	(if annot
-	    (setq result
-		  (append
-		   (list (match-beginning 0) (match-end 0))
-		   annot)))))
-    result))
-
-;; TODO: this should be instance specific  
-(defconst unicode-tokens-annotation-control-token-alist 
-  '(("bold" .         ("bbold" . "ebold"))
-    ("subscript" .    ("bsub" . "esub"))
-    ("superscript" .  ("bsup" . "esup"))
-    ("subscript1" .   ("sub"))
-    ("superscript1" . ("sup"))
-    ("idsubscript1" . ("isub"))
-    ("idsuperscript1" . ("isup"))
-    ("loc1"	    . ("loc"))
-    ;; non-standard
-    ("italic" .       ("bitalic" . "eitalic"))
-    ("script" .       ("bscript" . "escript"))
-    ("fraktur" .      ("bfrak" . "efrak"))
-    ("serif" .        ("bserif" . "eserif"))))
-  
-(defun unicode-tokens-make-token-annotation (annot positive)
-  "Encode a text property start/end by adding an annotation in the file."
-  (let ((toks (cdr-safe
-	       (assoc annot unicode-tokens-annotation-control-token-alist))))
-    (cond
-     ((and toks positive)
-      (format unicode-tokens-control-token-format  (car toks)))
-     ((and toks (cdr toks))
-      (format unicode-tokens-control-token-format  (cdr toks)))
-     (t ""))))
-
-(defun unicode-tokens-find-property (name)
-  (let ((props unicode-tokens-annotation-translations)
-	prop vals val vname)
-    (catch 'return
-      (while props
-	(setq prop (caar props))
-	(setq vals (cdar props))
-	(while vals
-	  (setq val (car vals))
-	  (if (member name (cdr val))
-	      (throw 'return (list prop (car val))))
-	  (setq vals (cdr vals)))
-	(setq props (cdr props))))))
-      
-(defun unicode-tokens-annotate-region (beg end &optional annot)
+(defun unicode-tokens-copy (beg end)
+  "Copy presentation of region between BEG and END.
+This is an approximation; it makes assumptions about the behaviour
+of symbol compositions, and will lose layout information."
   (interactive "r")
-  (or annot 
-      (if (interactive-p)
-	  (setq annot
-		(completing-read "Annotate region as: " 
-				 unicode-tokens-annotation-control-token-alist
-				 nil t))
-	(error "In unicode-tokens-annotation-control-token-alist: TYPE must be given.")))
-  (add-text-properties beg end
-		       (unicode-tokens-find-property annot)))
+  ;; cf kill-ring-save, uncode-tokens-font-lock-compose-symbol
+  (let ((visible 
+	  ;; actually: leave in control tokens as they can have logical meaning
+	  ;; (proof-visible-buffer-substring beg end)
+		 (buffer-substring-no-properties beg end))
+	(match   (- (regexp-opt-depth unicode-tokens-token-match-regexp) 2)))
+    (with-temp-buffer
+      (insert visible)
+      (goto-char (point-min))
+      (while (re-search-forward unicode-tokens-token-match-regexp nil t)
+	;; TODO: interpret more exotic compositions here
+	(let* ((tstart    (match-beginning 0))
+	       (tend      (match-end 0))
+	       (comp      (car-safe
+			   (gethash (match-string match) 
+				    unicode-tokens-hash-table))))
+	  (when comp
+	    (delete-region tstart tend)
+	    ;; TODO: improve this: interpret vector, strip tabs
+	    (insert comp)))) ;; gross approximation to compose-region
+      (copy-region-as-kill (point-min) (point-max)))))
 
-(defun unicode-tokens-annotate-region-with (annot)
-  `(lambda (beg end)
-     (interactive "r")
-     (unicode-tokens-annotate-region beg end ,annot)))
-
-(defun unicode-tokens-annotate-string (annot string)
-  (add-text-properties 0 (length string)
-		       (unicode-tokens-find-property annot)
-		       string)
-  string)
-
-(defun unicode-tokens-unicode-to-tokens (&optional start end buffer)
-  "Encode a buffer to save as a tokenised file."
-  (let ((case-fold-search proof-case-fold-search)
-	(buffer-undo-list t)
-	(modified (buffer-modified-p)))
-    (save-restriction
-      (save-excursion
-	(narrow-to-region (or start (point-min)) (or end (point-max)))
-	(format-insert-annotations
-	 (format-annotate-region (point-min) (point-max) 
-				 unicode-tokens-annotation-translations
-				 'unicode-tokens-make-token-annotation
-				 unicode-tokens-ignored-properties))
-;; alternative experiment: store original tokens inside text properties
-;;	(unicode-tokens-replace-strings-unpropertise)
-	(format-replace-strings unicode-tokens-ustring-alist 
-				nil (point-min) (point-max))
-	(set-buffer-modified-p modified)))))
-
-
-(defun unicode-tokens-replace-strings-propertise (alist &optional beg end)
-  "Do multiple replacements on the buffer.
-ALIST is a list of (FROM . TO) pairs, which should be proper arguments to
-`search-forward' and `replace-match', respectively.
-The original contents FROM are retained in the buffer in the text property `utoks'.
-Optional args BEG and END specify a region of the buffer on which to operate."
-  (save-excursion
-    (save-restriction
-      (or beg (setq beg (point-min)))
-      (if end (narrow-to-region (point-min) end))
-      (while alist
-	(let ((from (car (car alist)))
-	      (to   (cdr (car alist)))
-	      (case-fold-search nil))
-	  (goto-char beg)
-	  (while (search-forward from nil t)
-	    (goto-char (match-beginning 0))
-	    (insert to)
-	    (set-text-properties (- (point) (length to)) (point)
-				 (cons 'utoks
-				       (cons from 
-					     (text-properties-at (point)))))
-	    (delete-region (point) (+ (point) (- (match-end 0)
-						 (match-beginning 0)))))
-	  (setq alist (cdr alist)))))))
-
-;; NB: this is OK, except that now if we edit with raw symbols, we
-;; don't get desired effect but instead rely on hidden annotations.
-;; Also doesn't work as easily with quail.
-;; Can we have a sensible mixture of both things?
-(defun unicode-tokens-replace-strings-unpropertise (&optional beg end)
-  "Reverse the effect of `unicode-tokens-replace-strings-unpropertise'.
-Replaces contiguous text with 'utoks' property with property value."
-  (let ((pos (or beg (point-min)))
-	(lim (or end (point-max)))
-	start to)
-    (save-excursion
-      (while (and 
-	      (setq pos (next-single-property-change pos 'utoks nil lim))
-	      (< pos lim))
-	(if start
-	    (progn
-	      (setq to (get-text-property start 'utoks))
-	      (goto-char start)
-	      (insert to)
-	      (set-text-properties start (point)
-				   (text-properties-at start))
-	      (delete-region (point) (+ (point) (- pos start)))
-	      (setq start nil))
-	  (setq start pos))))))
-	  
-
-
-  
+(defun unicode-tokens-paste ()
+  (interactive)
+  (let ((start (point)) end)
+    (clipboard-yank)
+    (setq end (point-marker))
+    (while (re-search-backward unicode-tokens-uchar-regexp start t)
+      (let* ((useq	(match-string 0))
+	     (token     (gethash useq unicode-tokens-uchar-hash-table))
+	     (pos	(point)))
+	(when token
+	  (replace-match (format unicode-tokens-token-format token) t t)
+	  (goto-char pos))))
+    (goto-char end)
+    (set-marker end nil)))
 
 ;; 
 ;; Minor mode
 ;;
 
+;;;###autoload
+(defun unicode-tokens-initialise ()
+  (interactive)
+  (let ((flks (unicode-tokens-font-lock-keywords)))
+    (put 'unicode-tokens-font-lock-keywords major-mode flks)
+    (unicode-tokens-quail-define-rules)
+    flks))
+
 (defvar unicode-tokens-mode-map (make-sparse-keymap)
   "Key map used for Unicode Tokens mode.")
 
+;;;###autoload
 (define-minor-mode unicode-tokens-mode
   "Minor mode for unicode token input." nil " Utoks"
   unicode-tokens-mode-map
-  (unless unicode-tokens-token-alist
-    (unicode-tokens-initialise))
-  (when unicode-tokens-mode
-    (when (boundp 'text-property-default-nonsticky)
-      (make-variable-buffer-local 'text-property-default-nonsticky)
-      (setq text-property-default-nonsticky
-	    ;; We want to use display property with stickyness
-	    (delete '(display . t) text-property-default-nonsticky)))
-    (if (and
-	 (fboundp 'set-buffer-multibyte)
-	 (not (buffer-base-buffer)))
-	(set-buffer-multibyte t))
-    (let ((inhibit-read-only t))
-      ;; format is supposed to manage undo, but doesn't remap
-      (setq buffer-undo-list nil) 
-      (format-decode-buffer 'unicode-tokens))
-    (set-input-method "Unicode tokens"))
-  (unless unicode-tokens-mode
-    (when (boundp 'text-property-default-nonsticky)
-      (add-to-list 'text-property-default-nonsticky '(display . t)))
-    ;; leave buffer encoding as is
-    (let ((inhibit-read-only t)
-	  (modified (buffer-modified-p)))
-      ;; format is supposed to manage undo, but doesn't remap
-      (setq buffer-undo-list nil) 
-      (format-encode-buffer 'unicode-tokens)
-      (unicode-tokens-remove-properties (point-min) (point-max))
-      (set-buffer-modified-p modified))
-    (inactivate-input-method)))
+  (let ((flks (get 'unicode-tokens-font-lock-keywords major-mode)))
+    (when unicode-tokens-mode
+      (unless flks
+	(setq flks (unicode-tokens-initialise)))
+      (make-local-variable 'font-lock-extra-managed-props)
+      ;; make sure buffer can display 16 bit chars
+      (if (and
+	   (fboundp 'set-buffer-multibyte)
+	   (not (buffer-base-buffer)))
+	  (set-buffer-multibyte t))
+
+      (add-to-invisibility-spec 'unicode-tokens-show-controls)
+      
+      ;; our conventions: 
+      ;; 1. set default for font-lock-extra-managed-props 
+      ;;    as property on major mode symbol (ordinarily nil).
+      (font-lock-add-keywords nil flks)
+
+      (setq font-lock-extra-managed-props 
+	    (get 'font-lock-extra-managed-props major-mode))
+      (mapcar 
+       (lambda (p) (add-to-list 'font-lock-extra-managed-props p))
+       unicode-tokens-font-lock-extra-managed-props)
+
+      (font-lock-fontify-buffer)
+	
+      (if unicode-tokens-use-shortcuts
+	  (set-input-method "Unicode tokens"))
+
+      ;; adjust maths menu to insert tokens
+      (set (make-local-variable 'maths-menu-filter-predicate)
+	   (lambda (uchar) (gethash uchar unicode-tokens-uchar-hash-table)))
+      (set (make-local-variable 'maths-menu-tokenise-insert)
+	   (lambda (uchar) 
+	     (unicode-tokens-insert-token
+	      (gethash uchar unicode-tokens-uchar-hash-table)))))
+
+    (when (not unicode-tokens-mode)
+      (when flks
+	(font-lock-unfontify-buffer) 
+	(setq font-lock-extra-managed-props 
+	      (get 'font-lock-extra-managed-props major-mode))
+	(setq font-lock-set-defaults nil) ; force font-lock-set-defaults to reinit
+	(font-lock-fontify-buffer)
+	(set-input-method nil))
+      
+      ;; Remove hooks from maths menu
+      (kill-local-variable 'maths-menu-filter-predicate)
+      (kill-local-variable 'maths-menu-tokenise-insert))))
 
 ;; 
-;; Initialisation
+;; Key bindings
 ;;
-(defun unicode-tokens-initialise ()
-  "Initialise tables."
-  ;; Calculate max token length
-  (let ((tlist unicode-tokens-token-name-alist)
-	(len 0) tok)
-    (while tlist
-      (when (> (length (caar tlist)) 0)
-	  (setq len (length (caar tlist)))
-	  (setq tok (caar tlist)))
-      (setq tlist (cdr tlist)))
-    (setq unicode-tokens-max-token-length
-	  (length (format unicode-tokens-token-format tok))))
-  ;; Names from code points
-  (setq unicode-tokens-codept-charname-alist
-	(mapcar (lambda (namechar)
-		  (cons (cdr namechar) (car namechar)))
-		unicode-chars-alist))
-  ;; Default assumed available glyph list based on tokens;
-  ;; TODO: filter with what's really available, if can find out.
-  ;; TODO: allow altering of this when the token-name-alist is reset
-  ;; in proof-token-name-alist (unless test here is for specific setting)
-  (unless unicode-tokens-glyph-list
-    (setq unicode-tokens-glyph-list
-	  (reduce (lambda (glyphs tokustring)
-		    (append glyphs (string-to-list (cdr tokustring))))
-		  unicode-tokens-token-name-alist
-		  :initial-value nil)))
-  (unicode-tokens-quail-define-rules)
-  ;; Key bindings
-  (if (= (length unicode-tokens-token-suffix) 1)
-      (define-key unicode-tokens-mode-map
-	(vector (string-to-char unicode-tokens-token-suffix))
-	'unicode-tokens-electric-suffix))
-   (define-key unicode-tokens-mode-map [(control ?,)]
-     'unicode-tokens-rotate-glyph-backward)
-   (define-key unicode-tokens-mode-map [(control ?.)]
-     'unicode-tokens-rotate-glyph-forward)
-  )
+(define-key unicode-tokens-mode-map [(control ?,)]
+  'unicode-tokens-rotate-token-backward)
+(define-key unicode-tokens-mode-map [(control ?.)]
+  'unicode-tokens-rotate-token-forward)
+(define-key unicode-tokens-mode-map 
+  [(control c) (control t) (control t)] 'unicode-tokens-insert-token)
+(define-key unicode-tokens-mode-map 
+  [(control c) (control t) (control r)] 'unicode-tokens-annotate-region)
+(define-key unicode-tokens-mode-map 
+  [(control c) (control t) (control e)] 'unicode-tokens-insert-control)
+(define-key unicode-tokens-mode-map 
+  [(control c) (control t) (control z)] 'unicode-tokens-show-symbols)
+(define-key unicode-tokens-mode-map 
+  [(control c) (control t) (control x)] 'unicode-tokens-show-controls)
 
+    
 ;;
 ;; Menu
 ;;
 
 (easy-menu-define unicode-tokens-menu unicode-tokens-mode-map
-  "Format menu"
-  (cons "Format"
-	(mapcar 
-	 (lambda (fmt)
-	   (vector fmt
-		   (unicode-tokens-annotate-region-with (downcase fmt))
-		   :active 'region-exists-p))
-	   '("Subscript" "Superscript" 
-	     "Supscript1" "Superscript1" 
-	     "Idsubscript1" "Idsuperscript1"
-	     ;; don't encourage these as saving seems unreliable
-	     ;; "Bold" "Italic" "Script" "Fraktur" "Serif"
-	     ))))
-  
+   "Tokens menu"
+    (cons "Tokens"
+     (list 
+      ["Insert token..." unicode-tokens-insert-token]
+      ["Next token"      unicode-tokens-rotate-token-forward]
+      ["Prev token"      unicode-tokens-rotate-token-backward]
+      ["List tokens" unicode-tokens-list-tokens]
+       (cons "Format char"
+	     (mapcar 
+ 	     (lambda (fmt)
+ 	       (vector (car fmt)
+  		       `(lambda () (interactive) 
+			  (apply 'unicode-tokens-insert-control ',(car fmt)))
+ 		       :help (concat "Format next item as " 
+ 				     (downcase (car fmt)))))
+ 	     unicode-tokens-control-characters))
+       (cons "Format region"
+ 	    (mapcar 
+ 	     (lambda (fmt)
+ 	       (vector (car fmt) 
+  		       `(lambda () (interactive)
+  			 (funcall 'unicode-tokens-annotate-region ',(car fmt)))
+  		       :help (concat "Format region as " 
+  				     (downcase (car fmt)))
+  		       :active 'mark-active))
+ 	     unicode-tokens-control-regions))
+       "---"
+      ["Copy as unicode" unicode-tokens-copy
+       :active 'mark-active
+       :help "Copy text from buffer, converting tokens to Unicode"]
+      ["Paste from unicode" unicode-tokens-paste
+       :active (and kill-ring (not buffer-read-only))
+       :help "Paste from clipboard, converting Unicode to tokens"]
+       "---"
+      ["Show control tokens" unicode-tokens-show-controls
+       :style toggle
+       :selected unicode-tokens-show-controls
+       :active (or
+		unicode-tokens-control-region-format-regexp
+		unicode-tokens-control-char-format-regexp)
+       :help "Prevent hiding of control tokens"]
+      ["Show symbol tokens" unicode-tokens-show-symbols
+       :style toggle
+       :selected unicode-tokens-show-symbols
+       :help "Show tokens for symbols"]
+      ["Enable shortcuts" unicode-tokens-use-shortcuts
+       :style toggle
+       :selected unicode-tokens-use-shortcuts
+       :active unicode-tokens-shortcut-alist
+       :help "Use short cuts for typing tokens"]
+       ["Make fontsets" 
+	(lambda () (interactive) (require 'pg-fontsets))
+	:active (not (featurep 'pg-fontsets))
+	:help "Define fontsets (for Options->Set fontsets)"
+	:visible (< emacs-major-version 23) ; not useful on 23
+	])))
+
+
+	     
 (provide 'unicode-tokens)
 
 ;;; unicode-tokens.el ends here

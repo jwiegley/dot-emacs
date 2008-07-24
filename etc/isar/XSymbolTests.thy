@@ -1,4 +1,4 @@
-(* Some checks for X-Symbol behaviour.  
+(* Some checks for Unicode Tokens behaviour.  
 
    This file should be displayed sensibly, and also the
    display back from Isabelle ought to match.
@@ -26,14 +26,18 @@ by auto
    Problem reported by Norbert Schirmer <norbert.schirmer@web.de>
    Currently, superscript output highlighting seems broken anyway? *)
 
-consts silly:: "'a => 'a => 'a" ("_\<^sup>_" [1000,1000] 1000)
+consts "\<alpha1>":: "'a => 'a" ("\<alpha1>\<^sup>_")
+consts "\<alpha2>":: "'a => 'a => 'a" ("\<alpha2>\<^sup>_")
+consts "\<alpha3>":: "'a => 'a => 'a => 'a" ("_\<^sup>_\<^sup>_")
 
 consts k:: 'a
 
+term "\<alpha>"
 term "a\<^sup>b" (* b should be a blue variable *)
 term "\<forall>x. a\<^sup>x" (* x should be a green bound variable *)
 term "a\<^sup>k" (* k should be a black constant *)
 term "\<alpha>\<^isub>2" (* alpha should be blue variable with subscripted blue 2 *)
+term "\<alpha>\<^isup>x"  (* identifier *)
 
 consts sausage:: "'a => 'a => 'a" ("_\<^bsup>_\<^esup>" [1000,1000] 1000)
 
@@ -58,6 +62,8 @@ constdefs
  P2 :: bool   ("P\<^sup>2")    (* superscript *)
  "P\<^sup>2 == True"
 
+ "P\<^loc>x" (* location escape *)
+
 (* Buglet here: if we enable x-sym during scripting,
    goals/response flks are not updated, so xsyms
    do not appear in output windows. Stoping/starting
@@ -68,6 +74,12 @@ thm P1_def P2_def	(* check display from Isabelle *)
 
 constdefs (* long sub/sups, new 29/12/03, added by Gerwin Klein *)
 
+\<^bitalic>test italics\<^eitalic>
+\<^bserif>serif\<^eserif>
+\<^bfrakt>fraktur\<^efrakt>
+\<^bbold>test\<^ebold>
+
+\<^bsub> asda low\<^esub>
  Plow :: bool ("P\<^bsub>low\<^esub>")		(* spanning subscript *)
   "P\<^bsub>low\<^esub> \<equiv> True"
  Phigh :: bool ("P\<^bsup>high\<^esup>")		(* spanning superscript *)
@@ -80,9 +92,10 @@ by (simp add: P1_def P2_def)  (* .. and response window *)
 
 consts
  "P\<^sup>\<alpha>" :: bool   (* superscript of a token char *)
- "\<^bold>X"  :: bool   (* bold character 
-			    [not supported in current X-Symbols] *)
+ "\<^bold>P"  :: bool   (* bold character *)
+ "\<^italic>i"  :: int 
 
+\<^bitalic>italic?\<^eitalic>
 
 (* test: using a symbol as a subscript *)
 (* 9.3.03: this causes nasty prob with pre-command hook,
@@ -91,6 +104,10 @@ consts
 consts
  intof :: "nat \<Rightarrow> int"  ("_\<^sub>\<int>" 50)
  mynat :: nat ("\<gamma>")
+\<one> \<two> \<C> \<J>      \<S> \<h> h \<AA> 
+
+\<^bscript>foo\<^escript>
+bar
 
 term "intof 3"
 
@@ -118,3 +135,12 @@ primrec
 
 end
 
+\<A>
+\<AA> \<ABC> \<ss> \<pounds> \<yen>
+
+SYMBOL Ideas:
+
+ \<0x888>  for unicode character
+ \<alpha:foo> for variants, same display
+
+ \<color:foo> for colour, no sems (dropped in translation)

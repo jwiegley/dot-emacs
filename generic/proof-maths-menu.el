@@ -23,8 +23,7 @@
   (require 'cl))
 
 (eval-when (compile)
-  (if (not (featurep 'xemacs))
-      (require 'maths-menu))) ; it's loaded dynamically at runtime
+  (require 'maths-menu)) ; it's loaded dynamically at runtime
 
 
 ;;;###autoload

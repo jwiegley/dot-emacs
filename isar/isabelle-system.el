@@ -29,8 +29,6 @@
 
 (defcustom isabelle-web-page
   "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
-  ;; "http://isabelle.in.tum.de"
-  ;; "http://www.dcs.ed.ac.uk/home/isabelle"
   "URL of web page for Isabelle."
   :type 'string
   :group 'isabelle)
@@ -59,18 +57,18 @@ working."
 (defvar isatool-not-found nil
   "Non-nil if user has been prompted for `isatool' already and it wasn't found.")
 
-(defun isa-set-isatool-command ()
+(defun isa-set-isatool-command (&optional force)
   "Make sure isa-isatool-command points to a valid executable.
-If it does not, prompt the user for the proper setting.
-If it appears we're running on win32 or FSF Emacs, we allow this to
-remain unverified.
-Returns non-nil if isa-isatool-command is surely an executable
-with full path."
-  (interactive)
-  (unless (or noninteractive
-	      proof-rsh-command 
-	      isatool-not-found 
-	      (file-executable-p isa-isatool-command))
+If it does not, or if prefix arg supplied, prompt the user for
+the proper setting.  If `proof-rsh-command' is set, leave this
+unverified.  Otherwise, returns non-nil if isa-isatool-command 
+is surely an executable with full path."
+  (interactive "p")
+  (when (and (not noninteractive)
+	     (not proof-rsh-command)
+	     (or force 
+		 isatool-not-found 
+		 (not (file-executable-p isa-isatool-command))))
     (setq isa-isatool-command
 	  (read-file-name
 	   "Please give the full path to `isatool' (RET if you don't have it): "
@@ -159,6 +157,7 @@ at the top of your theory file, like this:
 	 (list '(string :tag "Choose another")
 	       '(const :tag "Unset (use default)" nil)))
   :group 'isabelle)
+(put 'isabelle-chosen-logic 'safe-local-variable 'stringp)
 
 (defvar isabelle-chosen-logic-prev nil
   "Value of `isabelle-chosen-logic' on last call of `isabelle-set-prog-name'.")
@@ -291,12 +290,14 @@ for you, you should disable this behaviour."
 		  (isabelle-choose-logic nil)
 		  :active (not (proof-shell-live-buffer))
 		  :style radio
-		  :selected (not isabelle-chosen-logic)])
+		  :selected (not isabelle-chosen-logic)
+		  :help "Switch to default logic"])
 	       (mapcar (lambda (l)
 			 (vector l (list 'isabelle-choose-logic l)
 				 :active '(not (proof-shell-live-buffer))
 				 :style 'radio
-				 :selected (list 'equal 'isabelle-chosen-logic l)))
+				 :selected (list 'equal 'isabelle-chosen-logic l)
+				 :help (format "Switch to %s logic" l)))
 		       isabelle-logics-available)))))
 
 (unless noninteractive
@@ -314,38 +315,22 @@ for you, you should disable this behaviour."
       (progn
 	(setq isabelle-logics-available (isa-tool-list-logics))
 	(isabelle-logics-menu-calculate)
-	(if (not (featurep 'xemacs))
-	    ;; update the menu manually
-	    (easy-menu-add-item proof-assistant-menu nil
-				isabelle-logics-menu-entries))
+	;; update the menu manually
+	(easy-menu-add-item proof-assistant-menu nil
+			    isabelle-logics-menu-entries)
 	(setq isabelle-time-to-refresh-logics nil) ;; just done it, don't repeat!
-	(run-with-timer 2 nil ;; short delay to avoid doing this too often
+	(run-with-timer 4 nil ;; short delay to avoid doing this too often
 			(lambda () (setq isabelle-time-to-refresh-logics t))))))
 
-;; Function for XEmacs only
-(defun isabelle-logics-menu-filter (&optional ignored)
-  (isabelle-logics-menu-refresh)
-  (cdr isabelle-logics-menu-entries))
-
-;; Functions for GNU Emacs only to update logics menu
-(if (not (featurep 'xemacs))
 (defun isabelle-menu-bar-update-logics ()
   "Update logics menu."
   (and (current-local-map)
        (keymapp (lookup-key (current-local-map)
  			    (vector 'menu-bar (intern proof-assistant))))
-       (isabelle-logics-menu-refresh))))
+       (isabelle-logics-menu-refresh)))
 
-(if (not (featurep 'xemacs))
-    (add-hook 'menu-bar-update-hook 'isabelle-menu-bar-update-logics))
+(add-hook 'menu-bar-update-hook 'isabelle-menu-bar-update-logics)
 
-
-(defvar isabelle-logics-menu
-   (if (featurep 'xemacs)
-       (cons (car isabelle-logics-menu-entries)
-	     (list :filter 'isabelle-logics-menu-filter)) ;; generates menu on click
-     isabelle-logics-menu-entries)
-  "Isabelle logics menu.  Calculated when Proof General is loaded.")
 
 ;; Added in PG 3.4: load isar-keywords file.
 ;; This roughly follows the method given in the interface script.
@@ -367,37 +352,6 @@ for you, you should disable this behaviour."
       (funcall ifrdble (format isarel userhome))
       (funcall ifrdble (format isarel isahome))
       (locate-library "isar-keywords")))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Generic Isabelle menu for Isabelle and Isabelle/Isar
-;;
-
-(defpgdefault menu-entries
-  isabelle-logics-menu)
-
-(defpgdefault help-menu-entries isabelle-docs-menu)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; X-Symbol language configuration, and adding to completion table
-;;
-
-(eval-after-load "x-symbol-isar"
-  ;; Add x-symbol tokens to isa-completion-table and rebuild
-  ;; internal completion table if completion is already active
-  '(progn
-     (defpgdefault completion-table
-       (append isar-completion-table
-	       (mapcar (lambda (xsym) (nth 2 xsym))
-		       x-symbol-isar-table)))
-     (setq proof-xsym-font-lock-keywords
-	   x-symbol-isar-font-lock-keywords)
-     (if (featurep 'completion)
-	 (proof-add-completions))))
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

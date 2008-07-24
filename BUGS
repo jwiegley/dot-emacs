@@ -84,13 +84,6 @@ The code is not fully protected from Emacs interrupts.
 Workaround: Don't type C-g while script management is processing.  
 If you do, use proof-restart-scripting to be sure of synchronizing.
 
-** Outline-mode does not work in processed proof script files 
-
-Because of read-only restrictions of the protected region.  
-This is an inherent problem with outline because it works by 
-modifying the buffer.
-Workaround: none.  
-
 ** When proof-rsh-command is set to "ssh host", C-c C-c broken
 
 The whole process may be killed instead of interrupted.  This isn't a

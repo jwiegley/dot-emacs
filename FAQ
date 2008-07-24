@@ -11,17 +11,12 @@ Please also check the BUGS file.
 Q1. Proof General fails to load with an error message on start-up,
     containing text like this: 
   
-       Proof General was compiled for GNU Emacs 22.1 but 
-       running on XEmacs 21.5: please run "make clean; make"
-
-    or
-
-      error: "File `.../ProofGeneral/generic/proof-autoloads.elc' was 
-      not compiled in Emacs"
+       Proof General was compiled for GNU Emacs 22.2 but 
+       running on XEmacs 23.0: please run "make clean; make"
 
     What's wrong?
 
-A1. We distribute compiled .elcs for GNU Emacs 22.1, so you will have to
+A1. We distribute compiled .elcs for GNU Emacs 22.2, so you will have to
     delete them and (optionally) recompile for your preferred 
     Emacs version.  Using the Makefile:
 
@@ -29,12 +24,7 @@ A1. We distribute compiled .elcs for GNU Emacs 22.1, so you will have to
 
     and then a command like this:
 
-     make EMACS=xemacs
-
-    Note: GNU Emacs is recommended.  XEmacs support may be removed 
-    in future.
-
-   
+     make EMACS=emacs-23.0
 
 -----------------------------------------------------------------
 
@@ -53,9 +43,9 @@ A2. You're missing some Emacs (probably XEmacs) packages.  See
 
 -----------------------------------------------------------------
 
-Q2. Emacs appears to hang when the prover process is started.
+Q3. Emacs appears to hang when the prover process is started.
 
-A2. This is usually caused by UTF-8 support in recent linuxes with
+A3. This is usually caused by UTF-8 support in recent linuxes with
     Glibc 2.2 or later, probably enabled with UTF8 encoded output in
     your default locale.  Unfortunately Proof General traditionally
     relied on 8-bit characters which are UTF8 prefixes in the output of
@@ -106,10 +96,10 @@ A2. This is usually caused by UTF-8 support in recent linuxes with
 
 -----------------------------------------------------------------
 
-Q3. Help, I'm stuck!! Emacs keeps telling me "Cannot switch buffers in a
+Q4. Help, I'm stuck!! Emacs keeps telling me "Cannot switch buffers in a
     dedicated window"  
 
-A3. This can happen if you enabled "Use Three Panes" and then change
+A4. This can happen if you enabled "Use Three Panes" and then change
     the panes (window) layout manually, typically by deleting another 
     window or frame so you only have a "dedicated" window on the 
     display.  Don't kill Emacs!  There are many ways of getting out,
@@ -119,21 +109,6 @@ A3. This can happen if you enabled "Use Three Panes" and then change
 
     -- In multiple window mode, if you have accidently deleted the main
        window, get a new one with M-x new-frame RET
-
-
-
------------------------------------------------------------------
-
-Q4. XEmacs displays a progress bar during fontification which
-    sometimes gets stuck or messes up the display.  
-    Is this a Proof General bug?  What can I do?
-
-A4. This is an XEmacs issue.  You can prevent the use of the ugly
-    widget, for example by adding
-
-     (setq progress-feedback-use-echo-area t)
-
-    inside your configuration file `.xemacs/init.el'.
 
 
 
@@ -167,28 +142,27 @@ A6. Unfortunately the architecture of Proof General is designed so
 -----------------------------------------------------------------
 
 Q7. I have just installed Emacs, ProofGeneral and a proof assistant.
-    It works but X-Symbol is not being activated.
+    It works but Tokens (e.g. \<Longrightarrow>) are not being displayed 
+    as symbols.
 
-A7. Once X-Symbol is picked up by Emacs (e.g. is working for TeX), 
-    you should enable it inside Proof General by the menu item:
+A7. You need to enable Unicode Tokens by the menu item:
 
-      Proof-General -> Options -> X-Symbol
+      Proof-General -> Options -> Unicode Tokens
   
     To enable it automatically every time you use Proof General,
-    type
+    use 
 
-         M-x customize-variable RET isar-x-symbol-enable RET
- 
-    and change/set/save the setting to `on'.  
+      Proof-General -> Options -> Save Options
+
+    after doing this.
 
     Note that we don't do this by default, because from the system's
     perspective it is difficult to determine if this will succeed ---
     or just produce funny characters that confuse new users even more.
 
-    If you are using Isabelle, the wrapper script will load X-Symbol
+    If you are using Isabelle, the wrapper script will load Tokens
     from any location, and you can enable it by passing the option 
     "-x true".
-
 
 -----------------------------------------------------------------
 
@@ -220,61 +194,10 @@ A9. For options set in the Proof General -> Options menu use the
 
 -----------------------------------------------------------------
 
-Q10. When using X-Symbol, why do I sometimes see funny characters like
-    \233 in the buffer?
-
-A10. These are part of the 8 bit character codes used by X Symbol to
-     get symbols from particular fonts.  Sometimes X-Symbol forgets to
-     fontify the buffer properly to make it use the right fonts.
-     (That's being rather unkind to X-Symbol: several things can 
-      go wrong one way or another).
-
-     To fix, type 
-
-  	M-x x-symbol-decode-recode
-
-     If that doesn't work, type M-x font-lock-mode twice to turn
-     font-lock off then on.  Or reload the file.
-     
-     Read the X-Symbol documentation for (much) more information.
-     http://x-symbol.sourceforge.net/man/
-
-
------------------------------------------------------------------
-
-Q11. I would like to use the X-Symbol fonts in PG not just at the
-     standard size but also for larger sizes since I use PG during
-     talks, where I set the font size to 24.
-
-A11. There are X-Symbol fonts at sizes of 12, 14, 18 and 24.  The
-     standard size is 14, and 12 is used for subscripts.  The font size
-     can be changed by adding
-
-	(setq x-symbol-font-sizes '(("" 24 18)))
-
-     to your .emacs, which causes the special fonts to come up in size
-     24 and 18 for subscripts; the normal font can be changed
-     manually.  By choosing other sizes, it is also possible to scale
-     the existing fonts.  Note that the larger fonts are not perfect.
-
-     If you use Isabelle (both isa or isar) you can specify the
-     X-Symbol font size through the -f option of the start-up-script.
-     The size is passed to emacs through the environment variable
-     XSYMBOL_FONTSIZE, which can be used to configure the normal font in
-     your .emacs.
-
-     You can also use X-Symbol with scalable fonts rather than
-     the default bitmaps.  This is the mechanism used for Mac and
-     would work for GNU Emacs >=23 versions, but there isn't yet
-     a way to configure this automatically.
-
-
------------------------------------------------------------------
-
-Q12. The "Favourites" feature to insert/send fixed strings is great, 
+Q10. The "Favourites" feature to insert/send fixed strings is great, 
      but I'd like to define a command which takes arguments.
 
-A12. You can do that in Elisp with a command like this: 
+A10. You can do that in Elisp with a command like this: 
 
       (proof-definvisible isar-theorem
         '(format "thm %s" (read-string "theorem: "))
@@ -286,9 +209,9 @@ A12. You can do that in Elisp with a command like this:
 
 -----------------------------------------------------------------
 
-Q13. Why do I get a warning "Bad version of xml.el found, ..."?
+Q11. Why do I get a warning "Bad version of xml.el found, ..."?
 
-A13. Your Emacs distribution includes a version of xml.el which has 
+A11. Your Emacs distribution includes a version of xml.el which has 
      fundamental bugs.   The patched version of xml.el, in lib/xml-fixed.el
      has been loaded instead.  This works for Proof General because it fixes
      the basic bugs, but it may cause compatibility issues in other packages
@@ -302,20 +225,10 @@ A13. Your Emacs distribution includes a version of xml.el which has
 
 -----------------------------------------------------------------
 
-Q14. I see spurious ^M characters at the end of lines in the 
-     windows showing output from the prover.  How can I remove
-     them?
-
-A14. Customize the value of `proof-shell-strip-crs-from-output'.
-
-
-
------------------------------------------------------------------
-
-Q15. Undo behaviour in Coq seems to stop working with very long
+Q12. Undo behaviour in Coq seems to stop working with very long
      sequences of commands.
 
-A15. Coq has a limited history for Undo.  Change 
+A12. Coq has a limited history for Undo.  Change 
 
 	Coq -> Settings -> Undo Depth
 
@@ -325,9 +238,9 @@ A15. Coq has a limited history for Undo.  Change
 -----------------------------------------------------------------
 
 
-Q16. Can I join any mailing lists for Proof General?
+Q13. Can I join any mailing lists for Proof General?
 
-A16. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
+A13. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
      with the line "subscribe" in the message body, to join the
      users' and announcements list.
 

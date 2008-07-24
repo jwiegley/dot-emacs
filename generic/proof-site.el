@@ -14,7 +14,6 @@
 ;; can be set to affect load behaviour; see info documentation.
 ;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Master table of supported proof assistants. 
@@ -55,7 +54,7 @@
 
 (eval-and-compile
 ;; WARNING: do not edit next line (constant is edited in Makefile.devel)
-  (defconst proof-general-version "Proof General Version 3.7.1.1. Released by da on Thu 24 Jul 2008."
+  (defconst proof-general-version "Proof General Version 4.0preXXXXXX. Released by da."
     "Version string identifying Proof General release."))
 
 (defconst proof-general-short-version 
@@ -330,24 +329,6 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
 	(fset proofgen-mode mode-stub)
 	
 	(setq assistants (cdr assistants)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Disable any other XEmacs x-symbol packages: we load ours manually
-;;;
-
-(if (and
-     (featurep 'xemacs)
-     (not (featurep 'x-symbol-hooks)) ;; unless already loaded
-     (file-exists-p (concat proof-home-directory ;; or our version removed
-			    "x-symbol/lisp/"))
-     ;; proof-try-require: make robust against missing advice package
-     (condition-case () (require 'advice) (file-error nil) (featurep 'advice)))
-    (defadvice packages-new-autoloads (after ignore-other-x-symbols activate)
-      (setq ad-return-value 
-	    (delete-if (lambda (pkg)
-			 (string-match "x-symbol" pkg))
-		       ad-return-value))))
 
 (provide 'proof-site)
 ;; proof-site.el ends here

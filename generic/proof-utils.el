@@ -26,9 +26,7 @@
 ;;
 (eval-and-compile 
   (defun pg-emacs-version-cookie ()
-    (format (if (string-match "XEmacs" emacs-version) 
-		;; (featurep 'xemacs) gets optimised!!
-		"XEmacs %d.%d" "GNU Emacs %d.%d")
+    (format "GNU Emacs %d.%d"
 	    emacs-major-version emacs-minor-version))
   
   (defconst pg-compiled-for 
@@ -36,7 +34,8 @@
     "Version of Emacs we're compiled for (or running on, if interpreted)."))
 
 (if (or (not (boundp 'emacs-major-version))
-	(< emacs-major-version 21))
+	(< emacs-major-version 22)
+	(string-match "XEmacs" emacs-version))
     (error "Proof General is not compatible with Emacs %s" emacs-version))
 
 (unless (equal pg-compiled-for (pg-emacs-version-cookie))
@@ -331,148 +330,6 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
          (define-key map k f)))
    kbl))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Managing font-lock
-;;
-
-;; Notes:
-;;
-;; * Various mechanisms for setting defaults, different between
-;;   Emacsen.  Old method(?) was to set "blah-mode-font-lock-keywords"
-;;   and copy it into "font-lock-keywords" to engage font-lock.
-;;   Present method for XEmacs is to put a 'font-lock-defaults
-;;   property on the major-mode symbol, or use font-lock-defaults
-;;   buffer local variable.  We use the latter.
-;;
-;; * Buffers which are output-only are *not* kept in special minor
-;;   modes font-lock-mode (or x-symbol-mode).  In case the user
-;;   doesn't want fontification we have a user option,
-;;   proof-output-fontify-enable.
-
-(deflocal proof-font-lock-keywords nil
-  "Value of font-lock-keywords in this buffer.
-We set `font-lock-defaults' to '(proof-font-lock-keywords) for
-compatibility with X-Symbol, which may hack `font-lock-keywords'
-with extra patterns (in non-mule mode).")
-
-(defun proof-font-lock-configure-defaults (autofontify)
-  "Set defaults for font-lock based on current font-lock-keywords.
-This is a delicate operation, because we only want to use font-lock-mode
-in some buffers, so we have to tread carefully around the font-lock
-code to avoid it turning itself on in the buffers where that actually
-*breaks* fontification.
-
-AUTOFONTIFY must be nil for buffers where we may want to really use
-font-lock-mode; in those buffers, we enable syntactic fontification also."
-  ;;
-  ;; At the moment, the specific assistant code hacks
-  ;; font-lock-keywords.  Here we use that value to hack
-  ;; font-lock-defaults, which is used by font-lock to set
-  ;; font-lock-keywords from again!!  Yuk.
-  ;;
-  ;; Previously, 'font-lock-keywords was used directly as a setting
-  ;; for the defaults.  This has a bad interaction with x-symbol which
-  ;; edits font-lock-keywords and loses the setting.  So we make a
-  ;; copy of it in a new local variable, proof-font-lock-keywords.
-  ;;
-  (setq proof-font-lock-keywords font-lock-keywords)
-
-    ;; Setting font-lock-defaults explicitly is required by FSF Emacs
-  ;; 20.4's version of font-lock in any case.
-
-  (if autofontify
-      (progn
-	(make-local-variable 'font-lock-defaults) ; needed??
-	(setq font-lock-defaults '(proof-font-lock-keywords))
-	;; 12.1.99: For XEmacs, we must also set the mode property.
-	;; This is needed for buffers which are put into font-lock-mode
-	;; (rather than fontified by hand).
-	(put major-mode 'font-lock-defaults font-lock-defaults))
-    ;; 11.12.01: Emacs 21 is very eager about turning on font
-    ;; lock and has hooks all over the place to do it.  To make
-    ;; sure it doesn't happen we have to eradicate all sense of
-    ;; having any fontification ability.
-    (proof-font-lock-clear-font-lock-vars)
-    ;; In fact, this still leaves font-lock switched on! But
-    ;; hopefully in a useless way.  XEmacs has better control
-    ;; over which modes not to enable it for (although annoying
-    ;; that it's a custom setting)
-    (if (featurep 'xemacs)
-	(setq font-lock-mode-disable-list
-	      (cons major-mode font-lock-mode-disable-list)))))
-
-(defun proof-font-lock-clear-font-lock-vars ()
-  (kill-local-variable 'font-lock-defaults)
-  (kill-local-variable 'font-lock-keywords)
-  (setq font-lock-keywords nil)
-  (put major-mode 'font-lock-defaults nil))
-
-(defun proof-font-lock-set-font-lock-vars ()
-  (setq font-lock-defaults '(proof-font-lock-keywords))
-  (setq font-lock-keywords proof-font-lock-keywords))
-
-(defun proof-fontify-region (start end &optional keepspecials)
-  "Fontify and decode X-Symbols in region START...END.
-Fontifies (keywords only) according to the buffer's font lock defaults.
-Uses `proof-x-symbol-decode-region' to decode tokens
-if X-Symbol is enabled.
-Uses `unicode-tokens-tokens-to-unicode' to decode tokens
-if unicode symbols are enabled.
-
-If `pg-use-specials-for-fontify' is set, remove characters
-with top bit set after fontifying so they don't spoil cut and paste,
-unless KEEPSPECIALS is set to override this.
-
-Returns new END value."
-  ;; We fontify first because X-sym decoding changes char positions.
-  ;; It's okay because x-symbol-decode works even without font lock.
-  ;; Possible disadvantage is that font lock patterns can't refer
-  ;; to X-Symbol characters.
-  ;; NB: perhaps we can narrow within the whole function, but there
-  ;; was an earlier problem with doing that.
-  (when proof-output-fontify-enable
-    (let ((normal-font-lock-verbose font-lock-verbose))
-      ;; Temporarily set font-lock defaults
-      (proof-font-lock-set-font-lock-vars)
-      (setq font-lock-verbose nil)	; prevent display glitches in XEmacs
-
-      ;; Yukky hacks to immorally interface with font-lock
-      (unless (featurep 'xemacs)
-	(font-lock-set-defaults))
-      (let ((font-lock-keywords proof-font-lock-keywords))
-	(if (and (featurep 'xemacs)
-		 (>= emacs-major-version 21)
-		 (>= emacs-minor-version 4)
-		 (not font-lock-cache-position))
-	    (progn
-	      (setq font-lock-cache-position (make-marker))
-	      (set-marker font-lock-cache-position 0)))
-	
-	(save-restriction
-	  (narrow-to-region start end)
-	  (run-hooks 'pg-before-fontify-output-hook)
-	  (setq end (point-max)))
-	;; da: protect against "Nesting too deep for parser" in bad XEmacs
-	(condition-case err
-	    (font-lock-default-fontify-region start end nil)
-	  (t (proof-debug 
-	      "Caught condition %s in `font-lock-default-fontify-region'"
-	      (car err)))))
-
-      (save-restriction
-	(narrow-to-region start end)
-	(run-hooks 'pg-after-fontify-output-hook)
-	(setq end (point-max)))
-
-      (prog1 ;; prog1 because we return new END value.
-	  (cond
-	   ((proof-ass x-symbol-enable)
-	    (proof-x-symbol-decode-region start end))
-	   ((proof-ass unicode-tokens-enable)
-	    (unicode-tokens-tokens-to-unicode start end)))
-	(proof-font-lock-clear-font-lock-vars)
-	(setq font-lock-verbose normal-font-lock-verbose)))))
 
 (defun pg-remove-specials (&optional start end)
   "Remove special characters in region.  Default to whole buffer.
@@ -488,15 +345,6 @@ Leave point at END."
   (proof-replace-regexp-in-string pg-special-char-regexp "" string))
 
   
-
-;; FIXME todo: add toggle for fontify region which turns it on/off
-
-(defun proof-fontify-buffer ()
-  "Call proof-fontify-region on whole buffer."
-  (proof-fontify-region (point-min) (point-max)))
-
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -588,9 +436,18 @@ Ensure that point is visible in window."
 		(skip-chars-backward "\n\t "))
 	      ;; Ensure point visible.  Again, window may have died
 	      ;; inside shrink to fit, for some reason
-	      (if (window-live-p window)
-		  (unless (pos-visible-in-window-p (point) window)
-		    (recenter -1)))))))))
+	      (when (window-live-p window)
+                (unless (pos-visible-in-window-p (point) window)
+                  (recenter -1))
+                (with-current-buffer buffer
+                  (if (window-bottom-p window)
+                      (unless (local-variable-p 'mode-line-format)
+                        ;; Don't show any mode line.
+                        (set (make-local-variable 'mode-line-format) nil))
+                    (unless mode-line-format
+                      ;; If the buffer gets displayed elsewhere, re-add
+                      ;; the modeline.
+                      (kill-local-variable 'mode-line-format)))))))))))
 
 (defun proof-clean-buffer (buffer)
   "Erase buffer and hide from display if proof-delete-empty-windows set.
@@ -631,41 +488,24 @@ The warning is coloured with proof-warning-face."
 If proof-general-debug is nil, do nothing."
   (if proof-general-debug
       (let ((formatted (apply 'format msg args)))
-	(if (fboundp 'display-warning) ;; use builtin warning system in XEmacs
-	    (display-warning 'proof-general formatted 'info)
-	  ;; otherwise use response buffer with dedicated font, & display it
-	  (progn
-	    (pg-response-display-with-face formatted 'proof-debug-message-face)
-	    (proof-display-and-keep-buffer proof-response-buffer))))))
+	(display-warning 'proof-general formatted 'info))))
 
 
-;;; A handy utility function used in the "Buffers" menu, and throughout
-;; the code.
+;; Utility used in the "Buffers" menu, and throughout
 (defun proof-switch-to-buffer (buf &optional noselect)
   "Switch to or display buffer BUF in other window unless already displayed.
 If optional arg NOSELECT is true, don't switch, only display it.
 No action if BUF is nil or killed."
-  ;; Maybe this needs to be more sophisticated, using
-  ;; proof-display-and-keep-buffer ?
-  (and (buffer-live-p buf)
+  (and (buffer-live-p buf) ; maybe use proof-display-and-keep-buffer ?
        (unless (eq buf (window-buffer (selected-window)))
 	 (if noselect
-	     ;; FIXME: would like 'norecord arg here to override
-	     ;; previous window entering top of MRU list here.
-	     ;; In fact, this could be hacked in XEmacs code.
-	     ;; GNU Emacs seems *not* to put previously displayed
-	     ;; window onto the top of the list with record-buffer:
-	     ;; that gives much nicer behaviour than XEmacs here.
 	     (display-buffer buf 'not-this-window)
 	   (let ((pop-up-windows t))
-	     (pg-pop-to-buffer buf 'not-this-window 'norecord))))))
+	     (pop-to-buffer buf 'not-this-window 'norecord))))))
   
 
 ;; Originally based on `shrink-window-if-larger-than-buffer', which
-;; has a pretty wierd implementation.
-;; TODO: desirable improvements would be to add some crafty history based
-;; on user resize-events.  E.g. user resizes window, that becomes the
-;; new maximum size.
+;; has a pretty weird implementation.
 ;; FIXME: GNU Emacs has useful "window-size-fixed" which we use
 ;; HOWEVER, it's still not quite the right thing, it seems to me.
 ;; We'd like to specifiy a *minimum size* for a given buffer,
@@ -712,20 +552,29 @@ or if the window is the only window of its frame."
 	  ;;; ((cur-height (window-height window))
 	   ;; Most window is allowed to grow to
 	  ((max-height
-	    (/ (frame-height (window-frame window))
-	       (if proof-three-window-enable
-		   ;; we're in three-window-mode with
-		   ;; all horizontal splits, so share the height.
-		   3
-		 ;; Otherwise assume a half-and-half split
-		 2)))
-	   ;; If buffer ends with a newline, ignore it when counting
-	   ;; height unless point is after it.
-	   (extraline
-	    (if (and (not (eobp))
-		     (eq ?\n (char-after (1- (point-max)))))
-		1 0))
-	   (test-pos (- (point-max) extraline))
+             (/ (frame-height (window-frame window))
+                (if proof-three-window-enable
+                    ;; we're in three-window-mode with
+                    ;; all horizontal splits, so share the height.
+                    3
+                  ;; Otherwise assume a half-and-half split.
+                  2)))
+           ;; I find that I'm willing to use a bit more than the max in
+           ;; those cases where it allows me to see the whole
+           ;; response/goal.  --Stef
+           (absolute-max-height
+	    (truncate
+             (/ (frame-height (window-frame window))
+                (if proof-three-window-enable
+                    ;; we're in three-window-mode with
+                    ;; all horizontal splits, so share the height.
+                    2
+                  ;; Otherwise assume a half-and-half split.
+                  1.5))))
+	   ;; If buffer ends with a newline and point is right after it, then
+           ;; add a final empty line (to display the cursor).
+	   (extraline (if (and (eobp) (bolp)) 1 0))
+	   ;; (test-pos (- (point-max) extraline))
 	   ;; Direction of resizing based on whether max position is
 	   ;; currently visible.  [ FIXME: not completely sensible:
 	   ;; may be displaying end fraction of buffer! ]
@@ -736,32 +585,17 @@ or if the window is the only window of its frame."
 	    ;; buffers?  Probably not an issue for us, but one
 	    ;; wonders at the shrink to fit strategy.
 	    ;; NB: way to calculate pixel fraction?
-	    (+ extraline 1 (count-lines (point-min) (point-max)))))
+	    (+ extraline (count-lines (point-min) (point-max)))))
 	;; Let's shrink or expand.  Uses new GNU Emacs function.
 	(let ((window-size-fixed nil))
-	  (set-window-text-height window desired-height))
-;; 	(cond
-;; 	 ((and shrink
-;; 	       (> cur-height window-min-height)
-;; 	       ;; don't shrink if already too big; leave where it is
-;; 	       (< cur-height max-height))
-;; 	  (with-selected-window
-;; 	   window
-;; 	   (shrink-window (- cur-height (max window-min-height desired-height)))))
-;; 	 (;; expand
-;; 	  (< cur-height max-height)
-;; 	  (with-selected-window window
-;; 	   (enlarge-window
-;; 	    (- (min max-height desired-height) cur-height)))))
-	;; If we're at least the desirable height, it must be that the
-	;; whole buffer can be seen --- so make sure display starts at
-	;; beginning.
-	;; NB: shrinking windows can sometimes delete them
-	;; (although we don't want it to here!), but make this next
-	;; check for robustness.
+	  (set-window-text-height window
+                                  ;; As explained earlier: use abs-max-height
+                                  ;; but only if that makes it display all.
+                                  (if (> desired-height absolute-max-height)
+                                      max-height desired-height)))
 	(if (window-live-p window)
 	    (progn
-	      (if (>= (window-height window) desired-height)
+	      (if (>= (window-text-height window) desired-height)
 		  (set-window-start window (point-min)))
 	      ;; window-size-fixed is a GNU Emacs buffer local variable
 	      ;; which determines window size of buffer.
@@ -784,8 +618,7 @@ or if the window is the only window of its frame."
     (reporter-submit-bug-report
      "da+pg-bugs@inf.ed.ac.uk"
      "Proof General"
-     (list 'proof-general-version 'proof-assistant
-	   'x-symbol-version)
+     (list 'proof-general-version 'proof-assistant)
      nil nil
      "*** Proof General now uses Trac for project management and bug reporting, please go to:
 ***
@@ -881,6 +714,9 @@ The name of the defined function is returned."
 ;;; Macris for defining user-level functions (previously in proof-menu.el)
 ;;;
 
+(defun proof-escape-keymap-doc (string)
+  ;; avoid work of substitute-command-keys
+  (replace-in-string string "\\\\" "\\\\=\\\\"))
 
 (defmacro proof-defshortcut (fn string &optional key)
   "Define shortcut function FN to insert STRING, optional keydef KEY.
@@ -892,7 +728,7 @@ KEY is added onto proof-assistant map."
 	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
      (defun ,fn ()
        ,(concat "Shortcut command to insert "
-		(replace-in-string  string "\\\\" "\\\\=") ;; for substitute-command-keys
+		(proof-escape-keymap-doc string)
 		" into the current buffer.\nThis simply calls `proof-insert', which see.")
        (interactive)
        (proof-insert ,string))))

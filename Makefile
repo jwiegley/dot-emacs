@@ -11,7 +11,7 @@
 ##
 ## Edit the EMACS setting below or call with an explicit one, like this:
 ##
-##     make EMACS=xemacs
+##     make EMACS=emacs-23.0.60
 ## or
 ##     make EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
 ##
@@ -19,9 +19,9 @@
 ## 
 ###########################################################################
 
-# Set this to "emacs" or "xemacs" according to your version of Emacs.
+# Set this according to your version of Emacs.
 # NB: this is also used to set default install path names below.
-EMACS=$(shell if [ -z "`which emacs`" ]; then echo xemacs; else echo emacs; fi)
+EMACS=$(shell if [ -z "`which emacs`" ]; then echo "Emacs executable not found"; exit 1; else echo emacs; fi)
 
 # We default to /usr rather than /usr/local because installs of
 # desktop and doc files under /usr/local are unlikely to work with
@@ -38,7 +38,7 @@ PROVERS=acl2 ccc coq demoisa hol98 isar lclam lego pgshell phox plastic twelf
 OTHER_ELISP=generic lib mmm
 ELISP_DIRS=${PROVERS} ${OTHER_ELISP}
 ELISP_EXTRAS=isar/interface isar/isartags
-EXTRA_DIRS = images x-symbol
+EXTRA_DIRS = images
 
 DOC_FILES=AUTHORS BUGS COMPATIBILITY CHANGES COPYING INSTALL README REGISTER doc/*.pdf
 DOC_EXAMPLES=acl2/*.acl2 hol98/*.sml isar/*.thy lclam/*.lcm lego/*.l pgshell/*.pgsh phox/*.phx plastic/*.lf twelf/*.elf
@@ -71,24 +71,15 @@ FORCE:
 
 ## 
 ## compile : byte compile all lisp files
-##           If EMACS variable has changed since last call, clearout 
-##	     old .elc's and re-compile.
 ##
-compile: $(EL) x-symbol/lisp/*.el
-	lastemacs=`cat .byte-compile 2>/dev/null || echo `; if [ "$$lastemacs" != "" ] && [ "$$lastemacs" != "$(EMACS)" ]; then rm -f .byte-compile $(ELC) x-symbol/lisp/*.elc; fi
-	make .byte-compile
-
 ## Compiling can show up errors in the code, but be wary of fixing obsoletion
-## or argument call warnings unless they're valid for both Emacsen.
-
-.byte-compile: $(EL) x-symbol/lisp/*.el
+## or argument call warnings unless they're valid for all supported Emacsen.
+##
+compile: $(EL) 
 	@echo "****************************************************************"
 	@echo " Byte compiling... "
 	@echo "****************************************************************"
 	make elc
-	@echo " Byte compiling X-Symbol..."
-	(cd x-symbol/lisp; $(MAKE) EMACS="$(EMACS) -q -no-site-file")
-	echo $(EMACS) > $(@)
 	@echo "****************************************************************"
 	@echo " Finished."
 	@echo "****************************************************************"
@@ -101,11 +92,6 @@ compile: $(EL) x-symbol/lisp/*.el
 ## emacs process for each file is slower but avoids any chance of
 ## accidently polluting the compilation environment.
 ##
-
-## maths-menu.el doesn't compile on XEmacs 21.4, argh.
-lib/maths-menu.elc: lib/maths-menu.el
-	-$(BYTECOMP) $*.el
-
 .el.elc:
 	$(BYTECOMP) $*.el
 
@@ -125,7 +111,6 @@ all:	compile scripts
 clean:	cleanpgscripts
 	rm -f $(ELC) *~ */*~ .\#* */.\#* .byte-compile
 	(cd doc; $(MAKE) clean)
-	(cd x-symbol/lisp; $(MAKE) distclean)
 
 distclean: clean
 
@@ -137,13 +122,8 @@ DESKTOP_PREFIX=${PREFIX}
 # Set Elisp directories according to paths used in Red Hat RPMs
 # (which may or may not be official Emacs policy).  We generate
 # a pg-init.el file which loads the appropriate proof-site.el.
-ifeq ($(EMACS),xemacs) 
-ELISPP=share/xemacs/site-packages/lisp/ProofGeneral
-ELISP_START=${PREFIX}/share/xemacs/site-packages/lisp/site-start.d
-else
 ELISPP=share/${EMACS}/site-lisp/ProofGeneral
 ELISP_START=${PREFIX}/share/${EMACS}/site-lisp/site-start.d
-endif
 
 ELISP=${PREFIX}/${ELISPP}
 DEST_ELISP=${DEST_PREFIX}/${ELISPP}
@@ -179,11 +159,8 @@ install-desktop:
 install-elisp: install-el install-elc
 
 # NB: "elisp" directory actually includes the extra subdirs in EXTRA_DIRS,
-# i.e. images, x-symbol.  FIXME: we could put these elsewhere, but
+# i.e. images.  FIXME: we could put these elsewhere, but
 # then we would need to adjust paths in proof-site.el.
-# FIXME 2: should deal with x-symbol properly and avoid duplication
-# with images, and also to avoid including .elc and .el files in
-# x-symbol subdirectory.
 # FIMXE 3: Michaël Cadilhac pointed out that 'cp -p' when used with
 # sudo to install will give users ownership instead of root. 
 # Should use install program or fix ownerships afterwards here.

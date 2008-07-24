@@ -11,19 +11,14 @@
 ;;
 
 ;;
-;; X-Symbol
+;; X-Symbol -- backwards compatibility
 ;;
 
 (let ((xsymbol (getenv "PROOFGENERAL_XSYMBOL")))
 
-  ;; avoid confusing warning message
-  (if (not (boundp 'x-symbol-image-converter))     
-      (customize-set-variable 'x-symbol-image-converter nil))
-  
   ;; tell Proof General about -x option
   (if (and xsymbol (not (equal xsymbol "")))
-      (customize-set-variable 'isar-x-symbol-enable (equal xsymbol "true"))))
-
+      (customize-set-variable 'isar-unicode-tokens-enable (equal xsymbol "true"))))
 
 ;;
 ;; Unicode

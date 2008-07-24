@@ -234,18 +234,8 @@ The prover command is processed via pg-pbrpm-run-command."
 		   "Cancel"
 		   (lambda (n) (pg-pbrpm-erase-buffer-menu) (delete-frame)) nil))
 		 ;; needs to be fixed for other prover than phox 
-		 ;; da: here's a possible fix, perhaps we can simply use
-		 ;; `proof-fontify-region' which has been configured
-		 ;; by phox mode appropriately with hooks (new second case).
-		 (cond
-		  ((featurep 'phox)
-		   (if phox-sym-lock-enabled
-		       (font-lock-fontify-buffer)
-		     (if phox-x-symbol-enable
-			 (x-symbol-decode))))
-		  (t
-		   (proof-fontify-region (point-min) (point-max))))
-
+		 ;; da: I've removed code here, we should simply keep this
+		 ;; buffer with font lock on.
 		 (mapc 'span-read-only pg-pbrpm-spans)
 		 (make-dialog-frame '(width 80 height 30)))
 	       (beep)))))
