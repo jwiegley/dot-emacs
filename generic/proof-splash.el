@@ -28,11 +28,10 @@ Proof General."
   :group 'proof-general-internals)
 
 (defcustom proof-splash-contents
+(setq proof-splash-contents
   '(list
     nil
-;;; Remove the text for now: XEmacs makes a mess of displaying the
-;;; transparent parts of the gif (at least, on all machines I have seen)
-;;;    (proof-get-image "pg-text" t)
+    (proof-get-image "pg-text" t)
     nil
     (proof-get-image "ProofGeneral")
     nil
@@ -44,10 +43,23 @@ Proof General."
     (concat "(C) LFCS, University of Edinburgh " proof-general-version-year)
     nil
     nil
-"    Please report problems at http://proofgeneral.inf.ed.ac.uk/trac
-    Visit the Proof General wiki at http://proofgeneral.inf.ed.ac.uk/wiki"
+    :link '("    Read the "
+	    "Proof General documentation"
+	   (lambda (button) (info "ProofGeneral")))
+    :link '("    Please report problems at "
+	    "Proof General trac"
+	   (lambda (button)
+	     (browse-url "http://proofgeneral.inf.ed.ac.uk/trac"))
+	   "Browse http://proofgeneral.inf.ed.ac.uk/trac")
+    :link '("Visit the " "Proof General wiki"
+	   (lambda (button)
+	     (browse-url "http://proofgeneral.inf.ed.ac.uk/wiki"))
+	   "Browse http://proofgeneral.inf.ed.ac.uk/wiki")
     nil
-    "Find out more about Emacs via the Help menu.")
+     :link '("Find out about Emacs on the Help menu -- start with the "
+	     "Emacs Tutorial" (lambda (button) (help-with-tutorial)))
+     )
+  )
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
@@ -198,6 +210,21 @@ Otherwise, timeout inside this function after 10 seconds or so."
 	((proof-emacs-imagep s)
 	 (indent-to (proof-splash-centre-spaces s))
 	 (insert-image s))
+	((eq s :link)
+	 (setq splash-contents (cdr splash-contents))
+	 (let ((spec (car splash-contents)))
+	       (if (functionp spec)
+		   (setq spec (funcall spec)))
+	       (indent-to (proof-splash-centre-spaces 
+			   (concat (car spec) (cadr spec))))
+	       (insert (car spec))
+	       (insert-button (cadr spec)
+			      'face (list 'link)
+			      'action (nth 2 spec)
+			      'help-echo (concat "mouse-2, RET: "
+						 (or (nth 3 spec)
+						     "Follow this link"))
+			      'follow-link t)))
 	((stringp s)
 	 (indent-to (proof-splash-centre-spaces s))
 	 (insert s)))
