@@ -473,10 +473,7 @@ not listed here, you may not get the correct syntax colouring behaviour.")
   (proof-face-specs
    ;; This colour is quite subjective and may be best chosen according
    ;; to the type of display you have.
-   ;; PG 3.3: lavender, later "lightcyan"
-   ;; PG 3.4,3.5: lightsteelblue (stronger colour, more visible on data projectors)
-   ;; PG 4.0: lightsteelblue1 (lighter again, even than lavender)
-   (:background "lightsteelblue1")
+   (:background "#eaf8ff")
    (:background "darkblue")
    (:underline t))
   "*Face for locked region of proof script (processed commands)."
