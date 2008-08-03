@@ -33,7 +33,7 @@
 ##
 ##    make releaseclean   - clean up after 'make dist' 'make rpmrelease'.
 ##
-##    make testall.xemacs - run all autotest files in Emacs named "xemacs"
+##    make testall.emacs23- run all autotest files in Emacs named "emacs23"
 ##
 ##
 ## Notes:
@@ -87,8 +87,8 @@ DEVELOPERS=\
 # The prereltag.txt is kept as a record in the distrib area
 # of the current pre-release version (currently not used explicitly 
 # anywhere for web pages/whatever).
-PRERELEASE_PREFIX=3\.7\.1pre
-PRERELEASE_TAG=3.7.1pre$(shell date "+%y%m%d")
+PRERELEASE_PREFIX=4\.0pre
+PRERELEASE_TAG=4.0pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
 # Path to web pages in repository, used for automatically 
@@ -110,7 +110,6 @@ DATEMSG=$(shell if [ $(PRERELEASE_TAG) = $(VERSION) ]; then echo; else date "+ o
 # in development.
 # LATESTNAME is linked to the development version.
 # NAME is linked to the current release.
-# (Before 3.4, NAME was linked to the development version).
 NAME = ProofGeneral
 LATESTNAME = $(NAME)-latest
 
@@ -134,10 +133,7 @@ CVS_RELEASENAME = Release-$(CVS_VERSION)
 RELEASEDIR = /tmp/proofgeneral-www
 
 # How to make the release "live".  (Could be "true" to do nothing).
-# was: GOLIVE=true
-# GOLIVE=scp -pr $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
-# Use rsync instead of scp: it copies links.  Also clean releasedir
-GOLIVE=(rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/; rm -rf $(RELEASEDIR); cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do make pub.$$f; done; rm -rf ${RELEASEDIR})
+GOLIVE=rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
 
 
 CVSNAME = ProofGeneral
@@ -162,7 +158,7 @@ TAR=tar
 # FIXME: really this should be an opt-in list!
 UNFINISHED_ELISP=generic/pg-metadata.el generic/pg-xhhtml.el 
 ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit etc/Mailman
-NONDISTFILES=.cvsignore */.cvsignore Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneral.jpg $(UNFINISHED_ELISP) $(ETC_FILES)
+NONDISTFILES=.cvsignore */.cvsignore Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneral.jpg $(UNFINISHED_ELISP) $(ETC_FILES)
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
@@ -188,6 +184,7 @@ DMGTOPDIR=/tmp/$(NAME)-dmg
 
 RELEASENAMETGZ = $(RELEASENAME).tgz
 RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
+RELEASENAMEDMG = $(RELEASENAME).dmg
 
 # Files not kept under cvs to clean away.
 # FILES_NONCVS = TAGS
@@ -329,7 +326,7 @@ tag:
 	  (cd $(HTMLDIR); \
 	   for f in $(DOWNLOADHTMLS); do \
 		mv $$f $$f.old; \
-		sed -e 's|ProofGeneral\([xemacselc-]*\)-$(PRERELEASE_PREFIX)......|ProofGeneral\1-$(PRERELEASE_TAG)|g' $$f.old > $$f; \
+		sed -e 's|ProofGeneral\([emacselc-]*\)-$(PRERELEASE_PREFIX)......|ProofGeneral\1-$(PRERELEASE_TAG)|g' $$f.old > $$f; \
 		rm $$f.old; \
 	   done) \
 	fi
@@ -451,18 +448,30 @@ rpmrelease: rpm
 
 ############################################################
 ##
-## dmg:
-##     Build a Mac OS X dmg disk image file from the recently made 
-##     distribution using the tarball.
-##
+## dmg: [experimental]
+##     Build (on Linux) a Mac OS X dmg disk image file
+##     This requires sudo powers for mounting, and hfsplus-tools
 ##	  
+DMGBUILD=$(DISTBUILDIR)/dmg
 dmg:	
-	rm -rf $(DMGTOPDIR)
-	hdiutil create -srcfolder $(DISTBUILDIR)
-	mkdir -p $(RPMTOPDIR)/SPECS
-	mkdir -p $(RPMTOPDIR)/SOURCES
-	mkdir -p $(RPMTOPDIR)/BUILD
-	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETGZ)
+	rm -rf $(DMGBUILD)
+	mkdir -p $(DMGBUILD)
+	dd if=/dev/zero of=$(DISTBUILDIR)/$(RELEASENAMEDMG) bs=1 count=0 seek=16M
+	/sbin/mkfs.hfsplus -v $(RELEASENAME) -s $(DISTBUILDIR)/$(RELEASENAMEDMG)
+	(cd $(DMGBUILD); mkdir dmgfs; \
+	sudo mount -t hfsplus -o loop,user $(DISTBUILDIR)/$(RELEASENAMEDMG) dmgfs; \
+	sudo chown $(LOGNAME) dmgfs; \
+	tar -xpzf $(DISTBUILDIR)/$(RELEASENAMETGZ); \
+	mkdir -p Contents/Resources; \
+	mkdir -p Contents/MacOS; \
+	mv $(NAME)/bin/proofgeneral Contents/MacOS; \
+	mv $(NAME)/* Contents/Resources; \
+	rm -rf $(NAME) $(RELEASENAME); \
+	mkdir $(NAME).app; \
+	mv Contents $(NAME).app;\
+	sudo umount dmgfs)
+# on mac:
+#	hdiutil create -srcfolder $(DISTBUILDIR)
 
 ############################################################
 ##
@@ -496,6 +505,9 @@ releaseall: release rpmrelease  releaseclean golive
 ##	  
 golive:
 	$(GOLIVE)
+	cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do make pub.$$f; done;
+	rm -rf $(RELEASEDIR)
+
 
 ############################################################
 ##
