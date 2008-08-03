@@ -798,13 +798,14 @@ which see."
        ;; (Improvement to examine proof-start-goals-regexp suggested
        ;;  for Coq by Robert Schneck because Coq has specials but
        ;;  doesn't markup goals output specially).
-       (unless (and 
-		pg-subterm-first-special-char
-		(not (string-equal 
-		      proof-shell-start-goals-regexp
-		      (pg-assoc-strip-subterm-markup 
-		       proof-shell-start-goals-regexp))))
-	 (setq start (match-beginning 0)))
+;; FIXME: try to remove this for PG 4.0
+;;        (unless (and 
+;; 		pg-subterm-first-special-char
+;; 		(not (string-equal 
+;; 		      proof-shell-start-goals-regexp
+;; 		      (pg-assoc-strip-subterm-markup 
+;; 		       proof-shell-start-goals-regexp))))
+       (setq start (match-beginning 0))
        (setq end (if proof-shell-end-goals-regexp
 		     (string-match proof-shell-end-goals-regexp string start)
 		   (length string)))
@@ -1127,10 +1128,11 @@ MESSAGE should be a string annotated with
      ((and proof-shell-trace-output-regexp
 	   (string-match proof-shell-trace-output-regexp message))
       (proof-trace-buffer-display 
-       (if (or pg-use-specials-for-fontify
-	       proof-shell-unicode)
+;; FIXME: remove for PG 4.0
+;;       (if (or pg-use-specials-for-fontify
+;;	       proof-shell-unicode)
 	   message
-	 (pg-assoc-strip-subterm-markup message)))
+;;	 (pg-assoc-strip-subterm-markup message)))
       (unless (and proof-trace-output-slow-catchup
 		   (pg-tracing-tight-loop))
 	(proof-display-and-keep-buffer proof-trace-buffer))
@@ -1228,10 +1230,11 @@ MESSAGE should be a string annotated with
       ;; CASE everything else.  We're about to display a message.  
       ;; Clear the response buffer this time, but not next, leave window.
       (pg-response-maybe-erase nil nil)
-      (let ((stripped (if proof-shell-unicode 
-			  (proof-shell-strip-eager-annotations message)
-			(pg-remove-specials-in-string
-			 (pg-assoc-strip-subterm-markup message)))))
+;; FIXME: remove for PG 4.0
+;;      (let ((stripped (if proof-shell-unicode 
+;;			  (proof-shell-strip-eager-annotations message)
+;;			(pg-remove-specials-in-string
+;;			 (pg-assoc-strip-subterm-markup message)))))
 	;; Display first chunk of output in minibuffer.
 	;; Maybe this should be configurable, it can get noisy.
 	(proof-shell-message 
