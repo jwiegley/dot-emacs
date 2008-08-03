@@ -475,9 +475,9 @@ not listed here, you may not get the correct syntax colouring behaviour.")
    ;; to the type of display you have.
    ;; PG 3.3: lavender, later "lightcyan"
    ;; PG 3.4,3.5: lightsteelblue (stronger colour, more visible on data projectors)
-   ;; PG 4.0: aliceblue (lighter even than lavender)
-   (:background "lightsteelblue")
-   (:background "navy")
+   ;; PG 4.0: lightsteelblue1 (lighter again, even than lavender)
+   (:background "lightsteelblue1")
+   (:background "darkblue")
    (:underline t))
   "*Face for locked region of proof script (processed commands)."
   :group 'proof-faces)
