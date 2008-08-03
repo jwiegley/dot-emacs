@@ -307,8 +307,7 @@ without adjusting window layout."
      
      ["Unicode Tokens" 
       (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
-				       (if unicode-tokens-mode 0 1)
-				     t))
+				       (if unicode-tokens-mode 0 1) 1))
       :active (proof-unicode-tokens-support-available)
       :style toggle
       :selected (and (boundp 'unicode-tokens-mode) 
@@ -317,8 +316,7 @@ without adjusting window layout."
 
      ["Unicode Maths Menu" 
       (proof-maths-menu-toggle (if (boundp 'maths-menu-mode)
-				       (if maths-menu-mode 0 1)
-				     t))
+				       (if maths-menu-mode 0 1) 1))
       :active (proof-maths-menu-support-available)
       :style toggle
       :selected (and (boundp 'maths-menu-mode) maths-menu-mode)
