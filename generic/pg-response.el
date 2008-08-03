@@ -242,9 +242,11 @@ Returns non-nil if response buffer was cleared."
 
 (defun pg-response-display (str)
   "Show STR as a response in the response buffer."
-  (unless (or proof-shell-unicode
-	      pg-use-specials-for-fontify)
-    (setq str (pg-assoc-strip-subterm-markup str)))
+  ;; FIXME removed for PG 4.0:
+  ;; (unless (or proof-shell-unicode
+  ;;    pg-use-specials-for-fontify)
+  ;; (setq str (pg-assoc-strip-subterm-markup str)))
+
   (pg-response-maybe-erase t nil)
   ;;(unless (or (string-equal str "") (string-equal str "\n"))
     ;; don't display an empty buffer [ NB: above test repeated below,
