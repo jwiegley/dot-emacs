@@ -23,10 +23,7 @@
 (defconst isar-control-char-format-regexp 
   "\\(\\\\<\\^%s>\\)\\([^\\]\\|\\\\<[A-Za-z]+>\\)")
 
-(defconst isar-control-region-format-beg "\\<^%s>")
-(defconst isar-control-region-format-end "\\<^%s>")
 (defconst isar-control-char-format "\\<^%s>")
-
 
 (defconst isar-control-characters
   '(("Subscript" "sub" sub) 
@@ -68,7 +65,7 @@
 ;(defconst isar-token-variant-format-regexp 
 ;  "\\\\<\\(%s\\)\\([:][a-zA-Z0-9]+\\)?>") ; syntax change required
 (defconst isar-token-variant-format-regexp 
-  "\\\\<\\(%s\\)\\([0-9]+\\)?>") ; unofficial interpretation of usual syntax
+  "\\\\<\\(%s\\)[0-9]*>") ; unofficial interpretation of usual syntax
 
 (defconst isar-greek-letters-tokens
   '(("alpha" "α")

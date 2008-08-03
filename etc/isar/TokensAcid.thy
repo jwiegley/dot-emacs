@@ -41,5 +41,53 @@ begin
 \<U>	\<V>	\<W>	\<X>	\<Y>	\<Z>	
 *)
 
+(* Demonstrating variants on token names: different token names,
+   same appearance.   Simulated overloading.
+   Let's take back \<And> from the meta-level.
+*)
+
+consts 
+   andprops :: "bool set \<Rightarrow> bool"	   
+   andpreds :: "('a \<Rightarrow> bool) set \<Rightarrow> bool"   
+
+notation (xsymbols)
+   andprops ("\<And1>") and   (* token <And1>, hover to see this *)
+   andpreds ("\<And2>")       (* token <And2>, hover to see this *)
+
+term "\<And1> {True, False}"		  
+term "\<And2> {\<lambda> x. True, \<lambda> y. False}"
+
+(* Note: of course, copy and paste will produce wrong result
+   for above: default token <And> without variant is produced! *)
+
+(* Tokens for layout control: next char *)
+(* NB: below here cannot be processed: just in terms to check with 
+   string font for terms *)
+term "a\<^sub>b"
+term "a\<^sup>b"
+term "a\<^isub>b"
+term "a\<^isup>b"
+term "\<^loc>a"
+term "\<^bold>b"
+term "\<^italic>b"
+
+(* Tokens for layout control: regions *)
+
+term "a\<^bsub>long\<^esub>"
+term "b\<^bsup>long\<^esup>"
+term "\<^bbold>Bold text \<alpha>\<beta>\<gamma>\<delta> \<in> \<forall>\<^ebold>"
+term "\<^bitalic>Italic text \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^eitalic>"  
+term "\<^bscript>Script \<alpha>\<beta>\<gamma>\<delta>\<in>\<forall>\<^escript>"
+term "\<^bfrakt>Frakt \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^efrakt>"
+term "\<^bserif>Roman \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^eserif>"
+
+(* Note: nesting regions not reliable; merging properties flaw? *)
+term "\<^bbold>Bold and \<^bitalic>italic\<^eitalic>\<^ebold>"
+term "\<^bitalic>Italic and \<^bbold>bold\<^ebold>\<^eitalic>"
+
+(* Font changes work, though *)
+term "\<^bbold>Bold and \<^bscript>script\<^escript>\<^ebold>"
+term "\<^bserif>Roman and \<^bitalic>italic\<^eitalic> and \<^bbold>bold\<^ebold> \<^eserif>"
+term "\<^bfrakt>Frakt and \<^bitalic>italic\<^eitalic> and \<^bbold>bold\<^ebold> \<^efrakt>"
 
 end
