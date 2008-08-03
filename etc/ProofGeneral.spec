@@ -8,7 +8,7 @@ Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
 Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-%{version}.tgz
 BuildRoot:	/tmp/ProofGeneral-root
-BuildRequires:  emacs, xemacs
+BuildRequires:  emacs
 PreReq:		/sbin/install-info
 Prefixes:	/usr/share/emacs /usr/bin /usr/share/info
 BuildArchitectures: noarch
@@ -21,31 +21,7 @@ You can adapt Proof General to other proof assistants if you know a
 little bit of Emacs Lisp.
 
 To use Proof General, use the command `proofgeneral', which launches
-XEmacs (or Emacs) with Proof General loaded.
-
-%package -n ProofGeneral-emacs-elc
-Summary: Compiled ELC files for Proof General/GNU Emacs
-Group: Applications/Editors/Emacs
-Requires: emacs >= 21.2, ProofGeneral = %{version}-%{release}
-
-%description -n ProofGeneral-emacs-elc
-Proof General is a generic Emacs interface for proof assistants.
-This package contains the byte compiled elisp files for GNU Emacs,
-and integrates Proof General into the Emacs startup packages.
-If you want to use GNU Emacs with Proof General, this package is
-recommended.
-
-%package -n ProofGeneral-xemacs-elc
-Summary: Compiled ELC files for Proof General/XEmacs
-Group:		Applications/Editors/Emacs
-Requires: xemacs >= 21.4.12, ProofGeneral = %{version}-%{release}
-
-%description -n ProofGeneral-xemacs-elc
-Proof General is a generic Emacs interface for proof assistants.
-This package contains the byte compiled elisp files for XEmacs,
-and integrates Proof General into the Emacs startup packages.
-If you want to use XEmacs with Proof General, this package is
-recommended.
+Emacs with Proof General loaded.
 
 %changelog
 * Fri May  4 2001 David Aspinall <David.Aspinall@ed.ac.uk> 
@@ -64,12 +40,8 @@ mkdir -p ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 # rebuild for the required emacs version.
 make distclean
 
-# Build packages for both emacs and xemacs, with only elc's.
-make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr EMACS=emacs DEST_PREFIX=/usr
-make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr  EMACS=xemacs DEST_PREFIX=/usr 
-
-# Finally, install the desktop and .el files into non-Emacs version specific locations
-make install-desktop install-el install-bin PREFIX=${RPM_BUILD_ROOT}/usr ELISPP=share/ProofGeneral DEST_PREFIX=/usr
+# Build packages and install
+make install PREFIX=${RPM_BUILD_ROOT}/usr EMACS=emacs DEST_PREFIX=/usr
 
 # Install docs too
 make install-doc PREFIX=${RPM_BUILD_ROOT}/usr DEST_PREFIX=/usr DOCDIR=${RPM_BUILD_ROOT}%{_docdir}
@@ -78,9 +50,6 @@ gzip ${RPM_BUILD_ROOT}/usr/share/info/*
 
 # Rename READMEs in subdirs to avoid clashes
 for f in */README; do mv $f $f.`dirname $f`; done
-
-# Clean away elc's in main tree to avoid packaging them 
-make distclean
 
 %clean
 if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
@@ -117,12 +86,3 @@ fi
 %{_datadir}/applications/proofgeneral.desktop
 %{_datadir}/application-registry/proofgeneral.applications
 
-%files -n ProofGeneral-emacs-elc
-%defattr(-,root,root)
-%{_datadir}/emacs/*/ProofGeneral/*
-%{_datadir}/emacs/*/*/pg-init.el
-
-%files -n ProofGeneral-xemacs-elc 
-%defattr(-,root,root)
-%{_datadir}/xemacs/*/*/ProofGeneral/*
-%{_datadir}/xemacs/*/*/*/pg-init.el
