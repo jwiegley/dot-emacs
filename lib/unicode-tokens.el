@@ -40,7 +40,7 @@
   (require 'maths-menu))		; nuke compile warnings
 
 ;;
-;; Variables that can be overridden in instances: symbol tokens
+;; Variables that should be set by client modes
 ;;
 
 (defvar unicode-tokens-token-symbol-map nil
@@ -95,9 +95,6 @@ Behaviour is much like abbrev.")
 (defvar unicode-tokens-control-char-format-regexp nil)
 (defvar unicode-tokens-control-regions nil)
 (defvar unicode-tokens-control-characters nil)
-
-(defvar unicode-tokens-control-region-format-beg nil)
-(defvar unicode-tokens-control-region-format-end nil)
 (defvar unicode-tokens-control-char-format nil)
 
 ;;
@@ -111,8 +108,6 @@ Behaviour is much like abbrev.")
     fontsymb-properties
     shortcut-alist
     control-region-format-regexp
-    control-region-format-beg
-    control-region-format-end
     control-char-format-regexp
     control-char-format
     control-regions
@@ -182,6 +177,15 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   "Serif (roman) font face"
   :group 'unicode-tokens-faces)
 
+(defface unicode-tokens-highlight-face
+  '((((min-colors 88) (background dark))
+     (:background "yellow1" :foreground "black"))
+    (((background dark)) (:background "yellow" :foreground "black"))
+    (((min-colors 88)) (:background "yellow1"))
+    (t (:background "yellow")))
+  "Face used for highlighting in Unicode tokens."
+  :group 'unicode-tokens-faces)
+
 (defconst unicode-tokens-font-lock-extra-managed-props 
   '(composition help-echo display invisible)
   "Value for `font-lock-extra-managed-props' here.")
@@ -221,12 +225,12 @@ This function also initialises the important tables for the mode."
 			 (regexp-opt toks t))
 	       (regexp-opt (mapcar (lambda (tok)
 				     (format unicode-tokens-token-format tok)) 
-				   toks) t)))
+				   toks) 'words)))
        (cons 
 	`(,unicode-tokens-token-match-regexp
 	  (0 (unicode-tokens-help-echo) 'prepend)
 	  (0 (unicode-tokens-font-lock-compose-symbol 
-	      ,(- (regexp-opt-depth unicode-tokens-token-match-regexp) 2))
+	      ,(- (regexp-opt-depth unicode-tokens-token-match-regexp) 1))
 	      'prepend))
 	(unicode-tokens-control-font-lock-keywords)))))
 
@@ -303,7 +307,9 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
   (when unicode-tokens-show-controls
     (remove-from-invisibility-spec 'unicode-tokens-show-controls))
   (when (not unicode-tokens-show-controls)
-    (add-to-invisibility-spec 'unicode-tokens-show-controls)))
+    (add-to-invisibility-spec 'unicode-tokens-show-controls))
+  ;; EMACS ISSUE: how to force redisplay here to notice invis spec change?
+  (redisplay t))
 
 (defun unicode-tokens-control-char (name s &rest props)
   `(,(format unicode-tokens-control-char-format-regexp s)
@@ -436,7 +442,7 @@ Calculated from `unicode-tokens-token-name-alist' and
 				      (beginning-of-line 0) (point)) t)))
     (if match
 	(match-string 
-	 (1- (regexp-opt-depth unicode-tokens-token-match-regexp))))))
+	 (regexp-opt-depth unicode-tokens-token-match-regexp)))))
 
 (defun unicode-tokens-rotate-token-forward (&optional n)
   "Rotate the token before point by N steps in the table."
@@ -482,26 +488,27 @@ Calculated from `unicode-tokens-token-name-alist' and
   'action #'(lambda (button) 
 	      (unicode-tokens-copy-token (button-get button 'unicode-token))))
 
-;; TODO: improve layout, can we use tabs
 (defun unicode-tokens-list-tokens ()
   "Show a buffer of all tokens."
   (interactive)
   (with-output-to-temp-buffer "*Unicode Tokens List*"
     (with-current-buffer standard-output
+      (make-local-variable 'unicode-tokens-show-symbols)
+      (setq unicode-tokens-show-symbols nil)
       (unicode-tokens-mode)
       (insert "Click or RET on a character to copy into kill ring.\n\n")
       (let ((count 0) toks)
 	;; display in originally given order
 	(dolist (tok unicode-tokens-token-list)
-	  (insert-text-button 
-	   (format unicode-tokens-token-format tok)
-	   :type 'unicode-tokens-list
-	   'unicode-token tok)
-	  (incf count)
-	  (if (< count 10)
-	      (insert "\t")
-	    (insert "\n")
-	    (setq count 0)))))))
+	    (insert-text-button 
+	     (format unicode-tokens-token-format tok)
+	     :type 'unicode-tokens-list
+	     'unicode-token tok)
+	    (incf count)
+	    (if (< count 10)
+		(insert "\t")
+	      (insert "\n")
+	      (setq count 0)))))))
 
 
 (defun unicode-tokens-copy (beg end)
@@ -514,7 +521,7 @@ of symbol compositions, and will lose layout information."
 	  ;; actually: leave in control tokens as they can have logical meaning
 	  ;; (proof-visible-buffer-substring beg end)
 		 (buffer-substring-no-properties beg end))
-	(match   (- (regexp-opt-depth unicode-tokens-token-match-regexp) 2)))
+	(match   (- (regexp-opt-depth unicode-tokens-token-match-regexp) 1)))
     (with-temp-buffer
       (insert visible)
       (goto-char (point-min))
@@ -546,6 +553,25 @@ of symbol compositions, and will lose layout information."
     (goto-char end)
     (set-marker end nil)))
 
+(defvar unicode-tokens-highlight-unicode nil
+  "Non-nil to highlight Unicode characters.")
+
+(defconst unicode-tokens-unicode-highlight-patterns
+  '(("[^\000-\177]" (0 'unicode-tokens-highlight-face t)))
+  "Font lock patterns for highlighting Unicode tokens.")
+
+(defun unicode-tokens-highlight-unicode ()
+  "Hilight Unicode characters in the buffer."
+  (interactive)
+  (setq unicode-tokens-highlight-unicode
+	(not unicode-tokens-highlight-unicode))
+  (if unicode-tokens-highlight-unicode
+    (font-lock-add-keywords 
+     nil unicode-tokens-unicode-highlight-patterns)
+    (font-lock-remove-keywords 
+     nil unicode-tokens-unicode-highlight-patterns))
+  (font-lock-fontify-buffer))
+
 ;; 
 ;; Minor mode
 ;;
@@ -569,18 +595,22 @@ of symbol compositions, and will lose layout information."
     (when unicode-tokens-mode
       (unless flks
 	(setq flks (unicode-tokens-initialise)))
-      (make-local-variable 'font-lock-extra-managed-props)
       ;; make sure buffer can display 16 bit chars
       (if (and
 	   (fboundp 'set-buffer-multibyte)
 	   (not (buffer-base-buffer)))
 	  (set-buffer-multibyte t))
 
-      (add-to-invisibility-spec 'unicode-tokens-show-controls)
+      (make-local-variable 'font-lock-extra-managed-props)
+
+      (when (not unicode-tokens-show-controls)
+	(add-to-invisibility-spec 'unicode-tokens-show-controls))
+
+      (make-local-variable 'unicode-tokens-highlight-unicode)
       
-      ;; our conventions: 
-      ;; 1. set default for font-lock-extra-managed-props 
-      ;;    as property on major mode symbol (ordinarily nil).
+      ;; a convention: 
+      ;; - set default for font-lock-extra-managed-props 
+      ;;   as property on major mode symbol (ordinarily nil).
       (font-lock-add-keywords nil flks)
 
       (setq font-lock-extra-managed-props 
@@ -601,8 +631,8 @@ of symbol compositions, and will lose layout information."
       (set (make-local-variable 'maths-menu-tokenise-insert)
 	   (lambda (uchar) 
 	     (unicode-tokens-insert-token
-	      (gethash (char-to-string uchar)
-			 unicode-tokens-uchar-hash-table)))))
+	      (gethash (char-to-string uchar) 
+		       unicode-tokens-uchar-hash-table)))))
 
     (when (not unicode-tokens-mode)
       (when flks
@@ -637,7 +667,7 @@ of symbol compositions, and will lose layout information."
 
     
 ;;
-;; Menu
+;; Menu -- defined at load time, so client variables should be set
 ;;
 
 (easy-menu-define unicode-tokens-menu unicode-tokens-mode-map
@@ -647,7 +677,7 @@ of symbol compositions, and will lose layout information."
       ["Insert token..." unicode-tokens-insert-token]
       ["Next token"      unicode-tokens-rotate-token-forward]
       ["Prev token"      unicode-tokens-rotate-token-backward]
-      ["List tokens" unicode-tokens-list-tokens]
+      ["List tokens"     unicode-tokens-list-tokens]
        (cons "Format char"
 	     (mapcar 
  	     (lambda (fmt)
@@ -686,6 +716,10 @@ of symbol compositions, and will lose layout information."
        :style toggle
        :selected unicode-tokens-show-symbols
        :help "Show tokens for symbols"]
+      ["Highlight real Unicode chars" unicode-tokens-highlight-unicode
+       :style toggle
+       :selected unicode-tokens-highlight-unicode
+       :help "Hightlight non-ASCII characters in buffer which are saved as Unicode"]
       ["Enable shortcuts" unicode-tokens-use-shortcuts
        :style toggle
        :selected unicode-tokens-use-shortcuts
