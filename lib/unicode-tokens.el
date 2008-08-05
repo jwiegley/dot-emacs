@@ -434,7 +434,7 @@ Calculated from `unicode-tokens-token-name-alist' and
   (when (looking-at unicode-tokens-token-match-regexp)
     (kill-region (match-beginning 0) (match-end 0))))
 
-;; FIXME: behaviour with unkown tokens not good.  Should 
+;; FIXME: behaviour with unknown tokens not good.  Should 
 ;; use separate regexp for matching tokens known or not known.
 (defun unicode-tokens-prev-token ()
   (let ((match (re-search-backward unicode-tokens-token-match-regexp
@@ -576,21 +576,27 @@ of symbol compositions, and will lose layout information."
 ;; Minor mode
 ;;
 
-;;;###autoload
 (defun unicode-tokens-initialise ()
   (interactive)
   (let ((flks (unicode-tokens-font-lock-keywords)))
     (put 'unicode-tokens-font-lock-keywords major-mode flks)
     (unicode-tokens-quail-define-rules)
-    flks))
+    flks)
+  (unicode-tokens-define-menu))
 
 (defvar unicode-tokens-mode-map (make-sparse-keymap)
   "Key map used for Unicode Tokens mode.")
 
-;;;###autoload
 (define-minor-mode unicode-tokens-mode
-  "Minor mode for unicode token input." nil " Utoks"
-  unicode-tokens-mode-map
+  "Toggle Tokens mode for current buffer.
+With optional argument ARG, turn Tokens mode on if ARG is
+positive, otherwise turn it off.  In Tokens mode, inserting a
+sequence of ASCII characters may replace it by a Unicode character
+representation." 
+  :keymap unicode-tokens-mode-map
+  :init-value nil
+  :lighter " Utoks"
+  :group 'unicode-tokens
   (let ((flks (get 'unicode-tokens-font-lock-keywords major-mode)))
     (when unicode-tokens-mode
       (unless flks
@@ -667,10 +673,12 @@ of symbol compositions, and will lose layout information."
 
     
 ;;
-;; Menu -- defined at load time, so client variables should be set
+;; Menu
 ;;
 
-(easy-menu-define unicode-tokens-menu unicode-tokens-mode-map
+(defun unicode-tokens-define-menu ()
+  "Define Tokens menu."
+  (easy-menu-define unicode-tokens-menu unicode-tokens-mode-map
    "Tokens menu"
     (cons "Tokens"
      (list 
@@ -734,7 +742,7 @@ of symbol compositions, and will lose layout information."
 	; is done too late: displayable tokens have already been
 	; chosen now, before fontsets generated.
 	; Never mind: non-issue with platform fonts menu.
-	])))
+	]))))
 
 
 	     
