@@ -496,7 +496,7 @@ Calculated from `unicode-tokens-token-name-alist' and
       (make-local-variable 'unicode-tokens-show-symbols)
       (setq unicode-tokens-show-symbols nil)
       (unicode-tokens-mode)
-      (insert "Click or RET on a character to copy into kill ring.\n\n")
+      (insert "Mouse-2 or RET on a character to copy into kill ring.\n\n")
       (let ((count 0) toks)
 	;; display in originally given order
 	(dolist (tok unicode-tokens-token-list)
@@ -592,7 +592,9 @@ of symbol compositions, and will lose layout information."
 With optional argument ARG, turn Tokens mode on if ARG is
 positive, otherwise turn it off.  In Tokens mode, inserting a
 sequence of ASCII characters may replace it by a Unicode character
-representation." 
+representation.  Commands available:
+
+\\{unicode-tokens-mode-map}"  
   :keymap unicode-tokens-mode-map
   :init-value nil
   :lighter " Utoks"
