@@ -108,6 +108,7 @@ Switch off tokens in all script buffers, recalculate maps, turn on again."
        (proof-buffers-in-mode proof-mode-for-script)
        (unicode-tokens-mode 1)))))
 
+;; functions to dynamically change settings
 (eval-after-load "unicode-tokens"
   '(dolist (var unicode-tokens-configuration-variables)
      (funcall 'defalias
