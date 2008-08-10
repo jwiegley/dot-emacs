@@ -27,7 +27,7 @@
  '(message-default-headers "From: John Wiegley <johnw@newartisans.com>
 ")
  '(mail-user-agent (quote gnus-user-agent))
- '(mail-sources (quote ((file) (file :path "~/Documents/Mail/sent") (directory :path "~/Documents/Mail/incoming" :suffix ".spool"))))
+ '(mail-sources (quote ((file))))
  '(mail-source-report-new-mail-interval 15)
  '(mail-source-delete-old-incoming-confirm nil)
  '(mail-source-delete-incoming t)

@@ -13,13 +13,16 @@
 	    (expand-file-name "~/Library/Emacs/site-lisp/distel/elisp")
 	    (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m")
 	    (expand-file-name "~/Library/Emacs/site-lisp/epg")
+	    (expand-file-name "~/Library/Emacs/site-lisp/gitsum")
+	    (expand-file-name "~/Sources/git/contrib/emacs")
 	    (expand-file-name "~/Library/Emacs/site-lisp/muse/lisp")
 	    (expand-file-name "~/Library/Emacs/site-lisp/muse/contrib")
 	    (expand-file-name "~/Library/Emacs/site-lisp/nxml-mode")
-	    (expand-file-name "~/Library/Emacs/site-lisp/org-mode")
+	    (expand-file-name "~/Library/Emacs/site-lisp/org-mode/lisp")
 	    (expand-file-name "~/Library/Emacs/site-lisp/pydb/emacs")
 	    (expand-file-name "~/Library/Emacs/site-lisp/remember")
 	    (expand-file-name "~/Library/Emacs/site-lisp/ruby")
+	    (expand-file-name "~/Library/Emacs/site-lisp/yasnippet")
 	    (expand-file-name "/usr/local/share/emacs/site-lisp"))))
 
   (setq path (expand-file-name path))
@@ -57,7 +60,9 @@
 ;; Monument
 ;; '(calendar-latitude [39 3 north])
 ;; '(calendar-longitude [104 49 west])
+
 ;; '(special-display-regexps (quote (("slime-repl" (height . 40) (width . 80) (top . 85) (left . 50) (splittable . t) (unsplittable)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
+;; '(eshell-ls-use-in-dired t nil (em-ls))
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
@@ -73,33 +78,34 @@
  '(auto-compression-mode t nil (jka-compr))
  '(auto-image-file-mode t)
  '(auto-save-interval 1024)
- '(backup-directory-alist (quote (("/CEG/" . "/Volumes/CEG/.backups") (".*" . "~/Library/Backups/Emacs"))))
+ '(backup-directory-alist (quote (("/CEG/" . "/Volumes/CEG/.backups") ("~/Documents/" . "~/Documents/.backups") (".*" . "~/.emacs.d/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bookmark-save-flag 1)
  '(browse-url-browser-function (quote (("\\.\\(gz\\|tgz\\|bz2\\|tbz\\|dmg\\|iso\\|pdf\\|mp3\\)\\'" . browse-url-download-file) (".*" . browse-url-default-macosx-browser))))
+ '(c-default-style (quote ((java-mode . "gnu") (awk-mode . "awk") (other . "gnu"))))
  '(calendar-latitude [12 1 north])
  '(calendar-longitude [61 46 west])
  '(circe-fools-list (quote ("Xach" "Xof" "Krystof" "Zhivago" "dalias" "holycow")))
  '(circe-ignore-list (quote ("jordanb_?")))
- '(cl-ledger-file "~/Documents/ledger.dat")
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode nil)
  '(compilation-scroll-output t)
  '(completion-ignored-extensions (quote (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-raised-buttons nil)
- '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1"))))
+ '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1") (cursor-color . "red"))))
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote fundamental-mode))
  '(delete-old-versions (quote none))
+ '(directory-free-space-args "-kh")
  '(dired-guess-shell-gnutar "tar")
  '(dired-listing-switches "-l")
  '(dired-load-hook (quote ((lambda nil (load "dired-x")))))
+ '(dired-no-confirm (quote (byte-compile chgrp chmod chown copy hardlink symlink touch)))
  '(dired-omit-mode nil t)
- '(dired-recursive-copies (quote top))
- '(dired-recursive-deletes (quote top))
+ '(dired-recursive-copies (quote always))
+ '(dired-recursive-deletes (quote always))
  '(display-time-mode t)
- '(doxymacs-doxygen-dirs (quote (("/src/ledger/" "~/Products/ledger/docs/ledger.xml" "~/Products/ledger/docs"))))
  '(dvc-select-priority (quote (xhg)))
  '(dvc-tips-enabled nil)
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
@@ -108,7 +114,6 @@
  '(eshell-ls-dired-initial-args (quote ("-h")))
  '(eshell-ls-exclude-regexp "~\\'")
  '(eshell-ls-initial-args "-h")
- '(eshell-ls-use-in-dired t nil (em-ls))
  '(eshell-modules-list (quote (eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-smart eshell-term eshell-unix eshell-xtra)))
  '(eshell-prefer-to-shell t nil (eshell))
  '(eshell-save-history-on-exit t)
@@ -129,8 +134,8 @@
  '(ibuffer-maybe-show-regexps nil)
  '(ibuffer-shrink-to-minimum-size t t)
  '(ibuffer-use-other-window t)
- '(inhibit-splash-screen t)
  '(inhibit-startup-echo-area-message "johnw")
+ '(inhibit-startup-screen t)
  '(initial-frame-alist (quote ((top . 25) (left . 520) (width . 100) (height . 50))))
  '(initsplit-customizations-alist (quote (("^\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil))))
  '(isearchb-idle-timeout 1)
@@ -140,20 +145,21 @@
  '(iswitchb-use-virtual-buffers t nil (recentf))
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
+ '(ledger-file "/Volumes/Files/ledger.dat")
  '(line-number-mode t)
  '(lui-time-stamp-position nil)
- '(mac-command-modifier (quote meta))
- '(mac-function-modifier (quote super))
- '(mac-option-modifier (quote alt))
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
  '(mark-holidays-in-calendar t)
  '(menu-bar-mode nil nil (menu-bar))
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
  '(mudel-output-filter-functions (quote (ansi-color-process-output)))
- '(muse-project-alist (quote (("website" ("~/Documents/Writings") (:base "website-html" :path "~/Sites/johnw")))))
+ '(muse-project-alist (quote (("website" ("~/Documents/Writings") (:base "markdown" :path "~/Documents/Markdown")))))
  '(muse-project-publish-private-files nil)
  '(next-line-add-newlines nil)
+ '(ns-alternate-modifier (quote alt) t)
+ '(ns-command-modifier (quote meta) t)
+ '(ns-function-modifier (quote super) t)
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(org-agenda-custom-commands (quote (("d" todo #("DELEGATED" 0 9 (face org-warning)) nil) ("c" todo #("DONE|DEFERRED|CANCELLED" 0 23 (face org-warning)) ((org-agenda-files org-agenda-last-files))) ("w" todo #("WAITING" 0 7 (face org-warning)) nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))) (org-agenda-overriding-header "Tasks without any priority: "))) ("A" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: "))) ("u" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[^>
@@ -162,7 +168,7 @@
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("~/Documents/Pending/todo.txt")))
+ '(org-agenda-files (quote ("~/src/ledger/doc/TODO")))
  '(org-agenda-ndays 7)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
@@ -175,32 +181,19 @@
  '(org-agenda-sorting-strategy (quote ((agenda time-up priority-down) (todo category-keep priority-down) (tags category-keep priority-down))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
- '(org-archive-location "TODO-archive::")
+ '(org-archive-location "TODO-OLD::")
  '(org-archive-save-context-info (quote (time category itags)))
+ '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Documents/Pending/notes.txt")
- '(org-directory "~/Documents/Pending/")
+ '(org-default-notes-file "~/Documents/notes.txt")
+ '(org-directory "~/Documents/")
  '(org-drawers (quote ("PROPERTIES" "OUTPUT" "SCRIPT")))
- '(org-ellipsis nil)
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-hide-leading-stars t)
- '(org-log-done (quote (done state)))
  '(org-remember-store-without-prompt t)
  '(org-remember-templates (quote ((116 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Tasks") (71 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Grenada") (119 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "CEG") (70 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Friends") (98 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Bahá'í") (104 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Health") (102 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Finances") (76 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Ledger 2.x") (108 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "CL-Ledger") (99 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Computer") (119 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Writing") (112 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Photography") (109 "* TODO %?
-  %u" "~/Documents/Pending/todo.txt" "Miscellaneous"))))
+  %u" "~/Documents/todo.txt" "New"))))
  '(org-reverse-note-order t)
  '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
  '(org-tag-alist (quote ((#("NASIM" 0 5 (face nil)) . 110) (#("WORK" 0 4 (face nil)) . 119))))
@@ -235,7 +228,7 @@
  '(show-paren-mode (quote paren))
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
- '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--14-0-72-72-m-0-iso10646-1") (line-spacing . 3) (nil) (top . 295) (left . 2) (width . 80) (height . 34) (alpha . 0.5) (splittable . t) (unsplittable) (dedicated)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
+ '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--14-0-72-72-m-0-iso10646-1") (top . 295) (left . 2) (width . 80) (height . 34) (alpha . 0.5) (splittable . t) (unsplittable) (dedicated)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
  '(sql-sqlite-program "sqlite3")
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
@@ -243,6 +236,8 @@
  '(temp-buffer-resize-mode t nil (help))
  '(text-mode-hook (quote (auto-fill-mode)))
  '(timeclock-file "/Users/johnw/doc/Finances/.timelog")
+ '(timeclock-modeline-display nil nil (timeclock))
+ '(timeclock-relative nil)
  '(tool-bar-mode nil)
  '(tramp-verbose 3)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
@@ -312,12 +307,13 @@
   (defvar c-mode-base-map))
 
 (defun my-c-mode-common-hook ()
-  ;; (doxymacs-mode)
+  (doxymacs-mode)
   (define-key c-mode-base-map "\C-m" 'newline-and-indent)
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indicate-empty-lines t)
-  ;; (install-snippet-keybinding)
-  )
+  (setq fill-column 72)
+  (font-lock-add-keywords
+   'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 widget-inactive t))))
 
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
@@ -327,8 +323,7 @@
 
 (setq circe-default-realname "http://www.newartisans.com/"
       circe-server-coding-system '(utf-8 . undecided)
-      circe-server-auto-join-channels
-      '(("^freenode$" "#ledger"))
+      circe-server-auto-join-channels '(("^freenode$" "#ledger"))
       circe-nickserv-passwords '(("freenode" "xco8imer")))
 
 (setq lui-max-buffer-size 30000
@@ -392,8 +387,7 @@ This is an appropriate function for `lui-pre-output-hook'."
      ((string-match "\\S-+" line)
       (let ((regex (match-string 0 line)))
         (setq circe-fools-list (delete regex circe-fools-list))
-        (circe-server-message (format "Fools list forgot about %s"
-                                      regex))))
+        (circe-server-message (format "Fools list forgot about %s" regex))))
      (t
       (circe-server-message
        "Who do you want to unfool? UNFOOL requires one argument")))))
@@ -421,7 +415,7 @@ This is an appropriate function for `lui-pre-output-hook'."
              (circe-server-my-nick-p nick))
     (with-circe-server-buffer
       (when (string= circe-server-network "irc.freenode.net")
-        (circe-server-send "PRIVMSG NickServ IDENTIFY xcomi8er")))))
+        (circe-server-send "PRIVMSG NickServ IDENTIFY xco8imer")))))
 
 (defun irc ()
   "Connect to IRC."
@@ -436,7 +430,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 (defun my-csharp-mode-hook ()
   (set (make-local-variable 'parens-require-spaces) nil)
-  (setq tab-width 4 c-basic-offset 4)
+  (setq tab-width 8 c-basic-offset 2)
   (setq fill-column (- (window-width) 8)))
 
 (add-hook 'csharp-mode-hook 'my-csharp-mode-hook)
@@ -448,24 +442,16 @@ This is an appropriate function for `lui-pre-output-hook'."
 (add-to-list 'auto-mode-alist '("\\.master\\'" . html-mode))
 (add-to-list 'auto-mode-alist '("\\.css\\'" . css-mode))
 
-;;;_ * darcsum
-
-;; (load "darcsum" t)
-
 ;;;_ * doxymacs
 
-;; (autoload 'doxymacs-mode "doxymacs")
-;; (autoload 'doxymacs-font-lock "doxymacs")
-;; 
-;; (defun my-doxymacs-font-lock-hook ()
-;;   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-;;       (doxymacs-font-lock)))
-;; 
-;; (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
+(autoload 'doxymacs-mode "doxymacs")
+(autoload 'doxymacs-font-lock "doxymacs")
 
-;;;_ * dvc
+(defun my-doxymacs-font-lock-hook ()
+  (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+      (doxymacs-font-lock)))
 
-;; (load "dvc-load" t)
+(add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
 
 ;;;_ * edebug
 
@@ -497,7 +483,10 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * git
 
+(setenv "GIT_PAGER" "")
+
 (require 'git)
+(require 'gitsum)
 (require 'vc-git)
 
 (add-to-list 'vc-handled-backends 'GIT)
@@ -519,31 +508,45 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * java-mode
 
-(add-hook 'java-mode-hook 'install-snippet-keybinding)
+(eval-after-load "cc-styles"
+  '(add-to-list
+    'c-style-alist
+    '("ceg"
+      (c-basic-offset . 3)
+      (c-comment-only-line-offset . (0 . 0))
+      (c-hanging-braces-alist     . ((substatement-open before after)
+				     (arglist-cont-nonempty)))
+      (c-offsets-alist . ((statement-block-intro . +)
+			  (knr-argdecl-intro . 5)
+			  (substatement-open . 0)
+			  (substatement-label . 0)
+			  (label . 0)
+			  (statement-case-open . 0)
+			  (statement-cont . +)
+			  (arglist-intro . c-lineup-arglist-intro-after-paren)
+			  (arglist-close . c-lineup-arglist)
+			  (inline-open . 0)
+			  (brace-list-open . 0)
+			  (topmost-intro-cont
+			   . (first c-lineup-topmost-intro-cont
+				    c-lineup-gnu-DEFUN-intro-cont))))
+      (c-special-indent-hook . c-gnu-impose-minimum)
+      (c-block-comment-prefix . ""))))
+
 (add-hook 'java-mode-hook
 	  (function
 	   (lambda ()
+	     (c-set-style "ceg")
 	     (setq tab-width 3)
 	     (setq c-basic-offset 3)
 	     (setq indent-tabs-mode t))))
 
 ;;;_ * ledger
 
-(load "~/src/cl-ledger/cl-ledger" t)
+(load "~/src/ledger/lisp/ledger" t)
 
 (eval-after-load "whitespace"
-  '(add-to-list 'whitespace-modes 'cl-ledger-mode))
-
-;;;_ * lisppaste
-
-(autoload 'lisppaste-new-paste "lisppaste")
-(autoload 'lisppaste-create-new-paste "lisppaste" nil t)
-(autoload 'lisppaste-create-new-annotation "lisppaste" nil t)
-
-(defun paste-region (beg end channel title)
-  (interactive "r\nsPaste to channel: \nsTitle for new paste: ")
-  (lisppaste-new-paste channel "johnw" title
-		       (lisppaste-buffer-substring beg end)))
+  '(add-to-list 'whitespace-modes 'ledger-mode))
 
 ;;;_ * mule
 
@@ -577,8 +580,6 @@ This is an appropriate function for `lui-pre-output-hook'."
 ;;;_ * python-mode
 
 (require 'python)
-(require 'ipython)
-(require 'pydb)
 
 (defvar python-keywords-wanting-colon
   '("def" "class" "if" "elif" "while" "else" "with"
@@ -617,10 +618,7 @@ This is an appropriate function for `lui-pre-output-hook'."
   (define-key python-mode-map [(control ?c) (control ?w)]
     'flymake-start-syntax-check)
   (define-key python-mode-map [(meta ?n)] 'flymake-goto-next-error)
-  (define-key python-mode-map [(meta ?p)] 'flymake-goto-prev-error)
-
-  ;(install-snippet-keybinding)
-  )
+  (define-key python-mode-map [(meta ?p)] 'flymake-goto-prev-error))
 
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
@@ -643,7 +641,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * gnus
 
-(setq gnus-home-directory "~/Documents")
+(setq gnus-home-directory "~/Library/Application Support/Gnus")
 
 (load ".gnus")
 
@@ -663,15 +661,6 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 (add-hook 'find-file-hook 'gnus-visit-article t)
 
-;;;_ * mudel
-
-(autoload 'mudel "mudel" "" t)
-(autoload 'ansi-color-process-output "ansi-color")
-
-(defun mud ()
-  (interactive)
-  (mudel "4dimensions" "4dimensions.org" 6000))
-
 ;;;_ * multi-region
 
 (when (require 'multi-region nil t)
@@ -680,16 +669,11 @@ This is an appropriate function for `lui-pre-output-hook'."
 ;;;_ * muse
 
 (require 'muse-mode)
-(require 'muse-html)
+(require 'muse-markdown)
 
 ;;;_ * org-mode
 
 (require 'org-install)
-(require 'org-message)
-(require 'org-crypt)
-(require 'org-devonthink)
-
-(load "org-log" t)
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
@@ -706,63 +690,9 @@ This is an appropriate function for `lui-pre-output-hook'."
 (defun org-multi-occur (regexp &optional nlines)
   (interactive "sorg-mode files matching regexp: \np")
   (let ((org-agenda-files org-agenda-files))
-    (add-to-list 'org-agenda-files "~/Documents/Pending/notes.txt")
+    (add-to-list 'org-agenda-files "~/Documents/notes.txt")
     (multi-occur (mapcar 'get-file-buffer (org-agenda-files))
 		 regexp nlines)))
-
-(defvar org-my-archive-expiry-days 7
-  "The number of days after which a completed task should be auto-archived.
-This can be 0 for immediate, or a floating point value.")
-
-(defconst org-my-ts-regexp "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
-  "Regular expression for fast inactive time stamp matching.")
-
-(defun org-my-archive-done-tasks ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (let ((done-regexp
-	   (concat "\\* \\(" (regexp-opt org-done-keywords) "\\) "))
-	  (state-regexp
-	   (concat "- State \"\\(?:" (regexp-opt org-done-keywords)
-		   "\\)\"\\s-*\\[\\([^]\n]+\\)\\]"))
-	  (inactive-regexp))
-      (while (re-search-forward done-regexp nil t)
-	(let ((end (save-excursion
-		     (outline-next-heading)
-		     (point)))
-	      begin)
-	  (goto-char (line-beginning-position))
-	  (setq begin (point))
-	  (if (or (re-search-forward state-regexp end t)
-		  (re-search-forward org-my-ts-regexp end t))
-	      (let* ((time-string (match-string 1))
-		     (when-closed (org-parse-time-string time-string)))
-		(if (>= (time-to-number-of-days
-			 (time-subtract (current-time)
-					(apply #'encode-time when-closed)))
-			org-my-archive-expiry-days)
-		    (org-archive-subtree)))
-	    (goto-char end)))))
-    (save-buffer)))
-
-(defalias 'archive-done-tasks 'org-my-archive-done-tasks)
-
-(defun org-get-inactive-time ()
-  (let ((begin (point)))
-    (outline-next-heading)
-    (and (re-search-backward org-my-ts-regexp begin t)
-	 (time-to-seconds (org-time-string-to-time (match-string 0))))))
-
-(defun org-my-sort-done-tasks ()
-  (interactive)
-  (goto-char (point-min))
-  (org-sort-entries-or-items nil ?F #'org-get-inactive-time)
-  (let (after-save-hook)
-    (save-buffer))
-  (org-overview))
-
-(defalias 'sort-done-tasks 'org-my-sort-done-tasks)
 
 (defun org-maybe-remember (&optional done)
   (interactive "P")
@@ -773,7 +703,7 @@ This can be 0 for immediate, or a floating point value.")
       (let ((org-remember-templates
 	   '((110 "* DONE %?
   - State \"DONE\"       %U
-  %u" "~/Documents/Pending/todo.txt" "Tasks"))))
+  %u" "~/src/ledger/doc/TODO" "New"))))
     (call-interactively 'org-remember)))))
 
 (defun org-remember-note ()
@@ -781,124 +711,34 @@ This can be 0 for immediate, or a floating point value.")
   (if (string= (buffer-name) "*Remember*")
       (call-interactively 'org-ctrl-c-ctrl-c)
     (let ((org-remember-templates
-	   '((110 "* NOTE %?\n  %u" "~/Documents/Pending/todo.txt" "Tasks"))))
+	   '((110 "* NOTE %?\n  %u" "~/Documents/Notes.txt" ""))))
       (call-interactively 'org-remember))))
 
-(defun org-insert-new-element (txt)
-  "Given a task subtree as TXT, insert it into the current org-mode buffer."
-  (when (org-on-heading-p t)
-    (org-back-to-heading t)
-    (let* ((spos (org-get-location (current-buffer) org-remember-help))
-	   (exitcmd (cdr spos))
-	   (spos (car spos))
-	   (level (funcall outline-level))
-	   (reversed t))
-      (if (not spos) (error "No heading selected"))
-      (goto-char spos)
-      (cond
-       ((eq exitcmd 'return)
-	(if reversed
-	    (outline-next-heading)
-	  (org-end-of-subtree)
-	  (if (not (bolp))
-	      (if (looking-at "[ \t]*\n")
-		  (beginning-of-line 2)
-		(end-of-line 1)
-		(insert "\n"))))
-	(org-paste-subtree (org-get-legal-level level 1) txt))
-       ((eq exitcmd 'left)
-	;; before current
-	(org-paste-subtree level txt))
-       ((eq exitcmd 'right)
-	;; after current
-	(org-end-of-subtree t)
-	(org-paste-subtree level txt))
-       (t (error "This should not happen"))))))
-
-(defun org-store-note-as-note ()
-  "This is a custom function which turns one of my plain notes into a note.
-Notes are kept inside my DEVONthink Notes database, which is like my digital
-file folder."
-  (interactive)
-  (org-back-to-heading t)
-  (when (looking-at "\\(\\*+\\)\\s-+\\([A-Z]+\\s-+\\[#[A-C]\\]\\s-+\\)?\\(.+\\)")
-    (let* ((begin (point)) end
-	   (leader (match-string 1))
-	   (headline (match-string 3))
-	   (annotation
-	    (buffer-substring
-	     (match-end 0)
-	     (setq end (save-excursion (outline-next-heading) (point)))))
-	   (note-date (org-get-inactive-time))
-	   (indent-width (1+ (length leader)))
-	   task-text)
-      (with-temp-buffer
-	(insert headline ?\n
-		(replace-regexp-in-string "\n   " "\n" annotation))
-	(clipboard-kill-ring-save (point-min) (point-max)))
-      (do-applescript (format "
-set theDate to date \"%s\"
-
-tell application \"DEVONthink Pro\"
-    set theRecord to paste clipboard to incoming group
-    set modification date of theRecord to theDate
-    set creation date of theRecord to theDate
-end tell" (format-time-string "%B %e, %Y %l:%M:%S %p"
-			      (seconds-to-time note-date)))))))
-
-(defun org-fontify-priorities ()
-  (interactive)
-  (save-excursion
-    (let ((inhibit-read-only t))
-      (goto-char (point-min))
-      (while (re-search-forward "\\[#\\([A-C]\\)\\]" nil t)
-	(let ((priority (match-string 1)))
-	  (cond ((string= priority "A")
-		 (overlay-put (make-overlay (match-beginning 0)
-					    ;;(match-end 0)
-					    (line-end-position))
-			      'face 'bold))
-		((string= priority "C")
-		 (overlay-put (make-overlay (match-beginning 0)
-					    ;;(match-end 0)
-					    (line-end-position))
-			      'face 'italic))))))))
-
-(add-hook 'org-finalize-agenda-hook 'org-fontify-priorities)
-
-;;;_ * remember
-
-(autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
-(autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
-(autoload 'mercury-mode "prolog" "Major mode for editing Mercury programs." t)
-
-(setq prolog-system 'swi)
-
-(setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
-                                ("\\.m$" . mercury-mode))
-			      auto-mode-alist))
+;;(defun org-fontify-priorities ()
+;;  (interactive)
+;;  (save-excursion
+;;    (let ((inhibit-read-only t))
+;;      (goto-char (point-min))
+;;      (while (re-search-forward "\\[#\\([A-C]\\)\\]" nil t)
+;;	(let ((priority (match-string 1)))
+;;	  (cond ((string= priority "A")
+;;		 (overlay-put (make-overlay (match-beginning 0)
+;;					    ;;(match-end 0)
+;;					    (line-end-position))
+;;			      'face 'bold))
+;;		((string= priority "C")
+;;		 (overlay-put (make-overlay (match-beginning 0)
+;;					    ;;(match-end 0)
+;;					    (line-end-position))
+;;			      'face 'italic))))))))
+;;
+;;(add-hook 'org-finalize-agenda-hook 'org-fontify-priorities)
 
 ;;;_ * remember
 
 (require 'remember)
 
 (add-hook 'remember-mode-hook 'org-remember-apply-template)
-
-;;;_ * ruby
-
-(autoload 'ruby-mode "ruby-mode"
-  "Mode for editing ruby source files")
-
-(add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
-(add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))
-
-(autoload 'run-ruby "inf-ruby" "Run an inferior Ruby process")
-(autoload 'inf-ruby-keys "inf-ruby"
-  "Set local key defs for inf-ruby in ruby-mode")
-(add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
-(add-hook 'ruby-mode-hook 'turn-on-font-lock)
-
-(autoload 'rubydb "rdebug" "Ruby debugger" t)
 
 ;;;_ * session
 
@@ -912,74 +752,9 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p"
 
   (run-with-idle-timer 900 t 'save-information))
 
-;;;_ * snippet
+;;;_ * sunrise-commander
 
-(autoload 'snippet-insert "snippet" "" t)
-
-(defvar my-snippets nil)
-
-(defun my-load-snippets (path)
-  (setq my-snippets nil)
-  (with-temp-buffer
-    (insert-file-contents-literally path)
-    (while (not (eobp))
-      (if (looking-at "^\\(--\\|>>\\)?$")
-	  (forward-line 1)
-	(let ((mode-sym (read (current-buffer)))
-	      snippet-list)
-	  (when (looking-at "\\s-*<<")
-	    (forward-line 1)
-	    (while (looking-at "\\([^:\n]+\\):")
-	      (let ((shortcut (match-string 1))
-		    definition)
-		(forward-line 1)
-		(setq definition (point))
-		(while (and (not (looking-at "\\(--\\|>>\\)$"))
-			    (not (eobp)))
-		  (forward-line 1))
-		(setq definition (buffer-substring definition
-						   (1- (point))))
-		(if (looking-at "--$")
-		    (forward-line 1))
-		(setq snippet-list (cons (cons shortcut definition)
-					 snippet-list)))))
-	  (setq my-snippets (cons (cons mode-sym snippet-list)
-				  my-snippets)))))))
-
-(defun load-snippets-for-johnw ()
-  (interactive)
-  (my-load-snippets "~/Library/Emacs/snippets.txt")
-  (message "Snippets are re-loaded."))
-
-(defvar previous-tab-binding nil)
-(make-variable-buffer-local 'previous-tab-binding)
-
-(defun maybe-insert-snippet ()
-  (interactive)
-  (if (or (looking-back "^\\s-*") (bolp))
-      (call-interactively previous-tab-binding)
-    (let* ((snippets (cdr (assq major-mode my-snippets)))
-	   (snippet-word (word-at-point))
-	   (snippet-def (cdr (assoc snippet-word snippets))))
-      (if (null snippet-def)
-	  (error "Snippet `%s' unknown" snippet-word)
-	(delete-backward-char (length snippet-word))
-	(snippet-insert snippet-def)))))
-
-(defun install-snippet-keybinding ()
-  (unless previous-tab-binding
-    ;;(setq previous-tab-binding (key-binding "\t"))
-    (setq previous-tab-binding 'indent-according-to-mode)
-    )
-  (local-set-key "\t" 'maybe-insert-snippet))
-
-;;;_ * svk
-
-;;(load "psvn" t)
-;;(load "psvn-svk" t)
-;;(load "psvn-svn" t)
-;;(load "vc-svk" t)
-;;(load "svk-ediff" t)
+(load "sunrise-commander" t)
 
 ;;;_ * timestamp
 
@@ -1026,107 +801,6 @@ end tell" (format-time-string "%B %e, %Y %l:%M:%S %p"
 	(if (file-readable-p (concat base ext))
 	    (find-file (concat base ext))))))))
 
-;;;_ * trac-wik
-
-(autoload 'trac-wiki "trac-wiki"
-  "Trac wiki editing entry-point." t)
-
-(setq trac-projects
-      '(("ledger"
-	 :endpoint "http://trac.newartisans.com/ledger/login/xmlrpc"
-	 :login "johnw"
-	 :name "John Wiegley")))
-
-(setq url-digest-auth-storage
-      '(("trac.newartisans.com:80"
-	 ("New Artisans LLC Trac Server" "johnw"
-	  "de2a014fa1e6267c60eda76dbdae225d"
-	  "403af2fae9e168e2631343a9cf7f6891"))))
-
-(eval-after-load "url-auth"
-  '(defun url-digest-auth (url &optional prompt overwrite realm args)
-     "Get the username/password for the specified URL.
-If optional argument PROMPT is non-nil, ask for the username/password
-to use for the url and its descendants.  If optional third argument
-OVERWRITE is non-nil, overwrite the old username/password pair if it
-is found in the assoc list.  If REALM is specified, use that as the realm
-instead of hostname:portnum."
-     (if args
-	 (let* ((href (if (stringp url)
-			  (url-generic-parse-url url)
-			url))
-		(server (url-host href))
-		(port (url-port href))
-		(path (url-filename href))
-		user pass byserv retval data)
-	   (setq path (cond
-		       (realm realm)
-		       ((string-match "/$" path) path)
-		       (t (url-basepath path)))
-		 server (format "%s:%d" server port)
-		 byserv (cdr-safe (assoc server url-digest-auth-storage)))
-	   (cond
-	    ((and prompt (not byserv))
-	     (setq user (read-string (url-auth-user-prompt url realm)
-				     (user-real-login-name))
-		   pass (read-passwd "Password: ")
-		   url-digest-auth-storage
-		   (cons (list server
-			       (cons path
-				     (setq retval
-					   (cons user
-						 (url-digest-auth-create-key
-						  user pass realm
-						  (or url-request-method "GET")
-						  url)))))
-			 url-digest-auth-storage)))
-	    (byserv
-	     (setq retval (cdr-safe (assoc path byserv)))
-	     (if (and (not retval)	; no exact match, check directories
-		      (string-match "/" path)) ; not looking for a realm
-		 (while (and byserv (not retval))
-		   (setq data (car (car byserv)))
-		   (if (or (not (string-match "/" data))
-			   (and
-			    (>= (length path) (length data))
-			    (string= data (substring path 0 (length data)))))
-		       (setq retval (cdr (car byserv))))
-		   (setq byserv (cdr byserv))))
-	     (if overwrite
-		 (if (and (not retval) prompt)
-		     (setq user (read-string (url-auth-user-prompt url realm)
-					     (user-real-login-name))
-			   pass (read-passwd "Password: ")
-			   retval (setq retval
-					(cons user
-					      (url-digest-auth-create-key
-					       user pass realm
-					       (or url-request-method "GET")
-					       url)))
-			   byserv (assoc server url-digest-auth-storage))
-		   (setcdr byserv
-			   (cons (cons path retval) (cdr byserv))))))
-	    (t (setq retval nil)))
-	   (if retval
-	       (if (cdr-safe (assoc "opaque" args))
-		   (let ((nonce (or (cdr-safe (assoc "nonce" args)) "nonegiven"))
-			 (opaque (cdr-safe (assoc "opaque" args))))
-		     (format
-		      (concat "Digest username=\"%s\", realm=\"%s\","
-			      "nonce=\"%s\", uri=\"%s\","
-			      "response=\"%s\", opaque=\"%s\"")
-		      (nth 0 retval) realm nonce (url-filename href)
-		      (md5 (concat (nth 1 retval) ":" nonce ":"
-				   (nth 2 retval))) opaque))
-		 (let ((nonce (or (cdr-safe (assoc "nonce" args)) "nonegiven")))
-		   (format
-		    (concat "Digest username=\"%s\", realm=\"%s\","
-			    "nonce=\"%s\", uri=\"%s\","
-			    "response=\"%s\"")
-		    (nth 0 retval) realm nonce (url-filename href)
-		    (md5 (concat (nth 1 retval) ":" nonce ":"
-				 (nth 2 retval)))))))))))
-
 ;;;_ * whitespace
 
 (autoload 'whitespace-buffer "whitespace")
@@ -1165,11 +839,64 @@ instead of hostname:portnum."
 
 (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
 
+(eval-after-load "dired-x"
+  '(progn
+     (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+
+     (defun dired-omit-regexp ()
+       (let ((file (expand-file-name ".git"))
+	     parent-dir)
+	 (while (and (not (file-exists-p file))
+		     (progn
+		       (setq parent-dir
+			     (file-name-directory
+			      (directory-file-name
+			       (file-name-directory file))))
+		       ;; Give up if we are already at the root dir.
+		       (not (string= (file-name-directory file)
+				     parent-dir))))
+	   ;; Move up to the parent dir and try again.
+	   (setq file (expand-file-name ".git" parent-dir)))
+	 ;; If we found a change log in a parent, use that.
+	 (if (file-exists-p file)
+	     (let ((regexp (funcall dired-omit-regexp-orig))
+		   (omitted-files (shell-command-to-string
+				   "git clean -d -x -n")))
+	       (assert (stringp regexp))
+	       (if (= 0 (length omitted-files))
+		   regexp
+		 (concat
+		  regexp
+		  (if (> (length regexp) 0)
+		      "\\|" "")
+		  "\\("
+		  (mapconcat
+		   #'(lambda (str)
+		       (concat "^"
+			       (regexp-quote
+				(substring str 13
+					   (if (= ?/ (aref str (1- (length str))))
+					       (1- (length str))
+					     nil)))
+			       "$"))
+		   (split-string omitted-files "\n" t)
+		   "\\|")
+		  "\\)")))
+	   (funcall dired-omit-regexp-orig))))))
+
+;;;_ * yasnippet
+
+(when (load "yasnippet" t)
+  (yas/initialize)
+  (yas/load-directory "~/Library/Emacs/site-lisp/yasnippet/snippets/"))
+
 ;;;_ * diminish
 
 (when (load "diminish" t)
   (diminish 'abbrev-mode)
   (diminish 'auto-fill-function)
+  (ignore-errors
+    (diminish 'yas/minor-mode))
 
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
     "Make sure to remove \"Omit\" from the modeline."
@@ -1465,7 +1192,8 @@ expand wildcards (if any) and visit multiple files."
       (lisp-mode))))
 
 (define-key mode-specific-map [?a] 'org-agenda)
-(define-key mode-specific-map [?c] 'clone-region-set-mode)
+;(define-key mode-specific-map [?c] 'clone-region-set-mode)
+(define-key mode-specific-map [?c] 'compile)
 (define-key mode-specific-map [?d] 'org-insert-dtp-link)
 
 (define-key mode-specific-map [?e ?a] 'byte-recompile-directory)
@@ -1480,7 +1208,6 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?e ?d] 'debug-on-entry)
 (define-key mode-specific-map [?e ?f] 'emacs-lisp-byte-compile-and-load)
 (define-key mode-specific-map [?e ?r] 'eval-region)
-(define-key mode-specific-map [?e ?l] 'load-snippets-for-johnw)
 
 (defun scratch ()
   (interactive)
@@ -1531,13 +1258,13 @@ expand wildcards (if any) and visit multiple files."
 
 (defun my-org-todo-search ()
   (interactive)
-  (find-file-other-window "~/Documents/Pending/todo.txt")
+  (find-file-other-window "~/Documents/todo.txt")
   (goto-char (point-min))
   (call-interactively 'isearch-forward))
 
 (defun my-org-todo-archive-search ()
   (interactive)
-  (find-file-other-window "~/Documents/Pending/notes.txt")
+  (find-file-other-window "~/Documents/notes.txt")
   (goto-char (point-min))
   (call-interactively 'isearch-forward))
 
@@ -1565,27 +1292,28 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [(shift ?w)] 'org-kill-entry)
 (define-key mode-specific-map [(shift ?y)] 'org-yank-entry)
 
-(define-key mode-specific-map [?x ?a]
-  #'(lambda nil (interactive) (org-todo "APPT")))
-(define-key mode-specific-map [?x ?d]
-  #'(lambda nil (interactive) (org-todo "DONE")))
-(define-key mode-specific-map [?x ?f]
-  #'(lambda nil (interactive) (org-todo "DEFERRED")))
-(define-key mode-specific-map [?x ?g]
-  #'(lambda nil (interactive) (org-todo "DELEGATED")))
-(define-key mode-specific-map [?x ?n]
-  #'(lambda nil (interactive) (org-todo "NOTE")))
-(define-key mode-specific-map [?x ?s]
-  #'(lambda nil (interactive) (org-todo "STARTED")))
-(define-key mode-specific-map [?x ?w]
-  #'(lambda nil (interactive) (org-todo "WAITING")))
-(define-key mode-specific-map [?x ?x]
-  #'(lambda nil (interactive) (org-todo "CANCELLED")))
-
-(define-key mode-specific-map [?x ?C] 'cvs-examine)
-(define-key mode-specific-map [?x ?S] 'svn-status)
-(define-key mode-specific-map [?x ?H] 'dvc-status)
-(define-key mode-specific-map [?x ?v] 'dvc-status)
+;;(define-key mode-specific-map [?x ?a]
+;;  #'(lambda nil (interactive) (org-todo "APPT")))
+;;(define-key mode-specific-map [?x ?d]
+;;  #'(lambda nil (interactive) (org-todo "DONE")))
+;;(define-key mode-specific-map [?x ?f]
+;;  #'(lambda nil (interactive) (org-todo "DEFERRED")))
+;;(define-key mode-specific-map [?x ?g]
+;;  #'(lambda nil (interactive) (org-todo "DELEGATED")))
+;;(define-key mode-specific-map [?x ?n]
+;;  #'(lambda nil (interactive) (org-todo "NOTE")))
+;;(define-key mode-specific-map [?x ?s]
+;;  #'(lambda nil (interactive) (org-todo "STARTED")))
+;;(define-key mode-specific-map [?x ?w]
+;;  #'(lambda nil (interactive) (org-todo "WAITING")))
+;;(define-key mode-specific-map [?x ?x]
+;;  #'(lambda nil (interactive) (org-todo "CANCELLED")))
+;;
+;;(define-key mode-specific-map [?x ?C] 'cvs-examine)
+;;(define-key mode-specific-map [?x ?S] 'svn-status)
+;;(define-key mode-specific-map [?x ?H] 'dvc-status)
+;;(define-key mode-specific-map [?x ?v] 'dvc-status)
+(define-key mode-specific-map [?x] 'git-status)
 
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
@@ -1669,7 +1397,7 @@ expand wildcards (if any) and visit multiple files."
 
 ;; Finally, load the server and show the current agenda
 
-(add-hook 'after-init-hook 'org-agenda-list)
+;;(add-hook 'after-init-hook 'org-agenda-list)
 (add-hook 'after-init-hook 'server-start)
 
 ;; .emacs.el ends here
