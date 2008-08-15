@@ -168,7 +168,7 @@
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("~/src/ledger/doc/TODO")))
+ '(org-agenda-files (quote ("~/Documents/todo.txt")))
  '(org-agenda-ndays 7)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
@@ -181,7 +181,7 @@
  '(org-agenda-sorting-strategy (quote ((agenda time-up priority-down) (todo category-keep priority-down) (tags category-keep priority-down))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
- '(org-archive-location "TODO-OLD::")
+ '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
@@ -193,7 +193,19 @@
  '(org-hide-leading-stars t)
  '(org-remember-store-without-prompt t)
  '(org-remember-templates (quote ((116 "* TODO %?
-  %u" "~/Documents/todo.txt" "New"))))
+  %u" "~/Documents/todo.txt" "Tasks") (71 "* TODO %?
+  %u" "~/Documents/todo.txt" "Grenada") (119 "* TODO %?
+  %u" "~/Documents/todo.txt" "CEG") (70 "* TODO %?
+  %u" "~/Documents/todo.txt" "Friends") (98 "* TODO %?
+  %u" "~/Documents/todo.txt" "Bahá'í") (104 "* TODO %?
+  %u" "~/Documents/todo.txt" "Health") (102 "* TODO %?
+  %u" "~/Documents/todo.txt" "Finances") (76 "* TODO %?
+  %u" "~/Documents/todo.txt" "Ledger 2.x") (108 "* TODO %?
+  %u" "~/Documents/todo.txt" "CL-Ledger") (99 "* TODO %?
+  %u" "~/Documents/todo.txt" "Computer") (119 "* TODO %?
+  %u" "~/Documents/todo.txt" "Writing") (112 "* TODO %?
+  %u" "~/Documents/todo.txt" "Photography") (109 "* TODO %?
+  %u" "~/Documents/todo.txt" "Miscellaneous"))))
  '(org-reverse-note-order t)
  '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
  '(org-tag-alist (quote ((#("NASIM" 0 5 (face nil)) . 110) (#("WORK" 0 4 (face nil)) . 119))))
@@ -230,6 +242,7 @@
  '(slime-startup-animation nil)
  '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--14-0-72-72-m-0-iso10646-1") (top . 295) (left . 2) (width . 80) (height . 34) (alpha . 0.5) (splittable . t) (unsplittable) (dedicated)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
  '(sql-sqlite-program "sqlite3")
+ '(sr-listing-switches "-alphgG")
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
@@ -674,6 +687,11 @@ This is an appropriate function for `lui-pre-output-hook'."
 ;;;_ * org-mode
 
 (require 'org-install)
+(require 'org-message)
+(require 'org-crypt)
+(require 'org-devonthink)
+
+(load "org-log" t)
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
@@ -694,6 +712,92 @@ This is an appropriate function for `lui-pre-output-hook'."
     (multi-occur (mapcar 'get-file-buffer (org-agenda-files))
 		 regexp nlines)))
 
+(defvar org-my-archive-expiry-days 7
+  "The number of days after which a completed task should be auto-archived.
+This can be 0 for immediate, or a floating point value.")
+
+(defconst org-my-ts-regexp "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
+  "Regular expression for fast inactive time stamp matching.")
+
+(defun org-my-archive-done-tasks ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((done-regexp
+	   (concat "\\* \\(" (regexp-opt org-done-keywords) "\\) "))
+	  (state-regexp
+	   (concat "- State \"\\(?:" (regexp-opt org-done-keywords)
+		   "\\)\"\\s-*\\[\\([^]\n]+\\)\\]"))
+	  (inactive-regexp))
+      (while (re-search-forward done-regexp nil t)
+	(let ((end (save-excursion
+		     (outline-next-heading)
+		     (point)))
+	      begin)
+	  (goto-char (line-beginning-position))
+	  (setq begin (point))
+	  (if (or (re-search-forward state-regexp end t)
+		  (re-search-forward org-my-ts-regexp end t))
+	      (let* ((time-string (match-string 1))
+		     (when-closed (org-parse-time-string time-string)))
+		(if (>= (time-to-number-of-days
+			 (time-subtract (current-time)
+					(apply #'encode-time when-closed)))
+			org-my-archive-expiry-days)
+		    (org-archive-subtree)))
+	    (goto-char end)))))
+    (save-buffer)))
+
+(defun org-transfer-tasks ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((todo-regexp
+	   (concat "\\* \\(TODO\\|STARTED\\|WAITING\\|DELEGATED\\)"
+		   " \\(\\[#[A-C]\\]\\)"
+		   " \\(.+\\)$")))
+      (while (re-search-forward todo-regexp nil t)
+	(copy-region-as-kill (match-beginning 3) (match-end 3))
+	(do-applescript "
+tell application \"Things\" to activate
+
+tell application \"System Events\"
+	tell process \"Things\"
+		tell front window
+			keystroke \"n\" using {command down}
+			keystroke (the clipboard)
+			keystroke return
+		end tell
+	end tell
+end tell")))))
+
+(defalias 'archive-done-tasks 'org-my-archive-done-tasks)
+
+(defun org-get-inactive-time ()
+  (let ((begin (point)))
+    (save-excursion
+      (outline-next-heading)
+      (and (re-search-backward org-my-ts-regexp begin t)
+	   (time-to-seconds (org-time-string-to-time (match-string 0)))))))
+
+(defun org-get-completed-time ()
+  (let ((begin (point)))
+    (save-excursion
+      (outline-next-heading)
+      (and (re-search-backward "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELLED\\)\"\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)" begin t)
+	   (time-to-seconds (org-time-string-to-time (or (match-string 3)
+							 (match-string 4))))))))
+
+(defun org-my-sort-done-tasks ()
+  (interactive)
+  (goto-char (point-min))
+  (org-sort-entries-or-items nil ?F #'org-get-inactive-time)
+  (let (after-save-hook)
+    (save-buffer))
+  (org-overview))
+
+(defalias 'sort-done-tasks 'org-my-sort-done-tasks)
+
 (defun org-maybe-remember (&optional done)
   (interactive "P")
   (if (string= (buffer-name) "*Remember*")
@@ -703,7 +807,7 @@ This is an appropriate function for `lui-pre-output-hook'."
       (let ((org-remember-templates
 	   '((110 "* DONE %?
   - State \"DONE\"       %U
-  %u" "~/src/ledger/doc/TODO" "New"))))
+  %u" "~/Documents/todo.txt" "Tasks"))))
     (call-interactively 'org-remember)))))
 
 (defun org-remember-note ()
@@ -711,28 +815,150 @@ This is an appropriate function for `lui-pre-output-hook'."
   (if (string= (buffer-name) "*Remember*")
       (call-interactively 'org-ctrl-c-ctrl-c)
     (let ((org-remember-templates
-	   '((110 "* NOTE %?\n  %u" "~/Documents/Notes.txt" ""))))
+	   '((110 "* NOTE %?\n  %u" "~/Documents/todo.txt" "Tasks"))))
       (call-interactively 'org-remember))))
 
-;;(defun org-fontify-priorities ()
-;;  (interactive)
-;;  (save-excursion
-;;    (let ((inhibit-read-only t))
-;;      (goto-char (point-min))
-;;      (while (re-search-forward "\\[#\\([A-C]\\)\\]" nil t)
-;;	(let ((priority (match-string 1)))
-;;	  (cond ((string= priority "A")
-;;		 (overlay-put (make-overlay (match-beginning 0)
-;;					    ;;(match-end 0)
-;;					    (line-end-position))
-;;			      'face 'bold))
-;;		((string= priority "C")
-;;		 (overlay-put (make-overlay (match-beginning 0)
-;;					    ;;(match-end 0)
-;;					    (line-end-position))
-;;			      'face 'italic))))))))
-;;
-;;(add-hook 'org-finalize-agenda-hook 'org-fontify-priorities)
+(defun org-insert-new-element (txt)
+  "Given a task subtree as TXT, insert it into the current org-mode buffer."
+  (when (org-on-heading-p t)
+    (org-back-to-heading t)
+    (let* ((spos (org-get-location (current-buffer) org-remember-help))
+	   (exitcmd (cdr spos))
+	   (spos (car spos))
+	   (level (funcall outline-level))
+	   (reversed t))
+      (if (not spos) (error "No heading selected"))
+      (goto-char spos)
+      (cond
+       ((eq exitcmd 'return)
+	(if reversed
+	    (outline-next-heading)
+	  (org-end-of-subtree)
+	  (if (not (bolp))
+	      (if (looking-at "[ \t]*\n")
+		  (beginning-of-line 2)
+		(end-of-line 1)
+		(insert "\n"))))
+	(org-paste-subtree (org-get-legal-level level 1) txt))
+       ((eq exitcmd 'left)
+	;; before current
+	(org-paste-subtree level txt))
+       ((eq exitcmd 'right)
+	;; after current
+	(org-end-of-subtree t)
+	(org-paste-subtree level txt))
+       (t (error "This should not happen"))))))
+
+(defvar org-index-value 658)
+
+(defun org-store-note-as-note ()
+  "This is a custom function which turns one of my plain notes into a note.
+Notes are kept inside my DEVONthink Notes database, which is like my digital
+file folder."
+  (interactive)
+  (org-back-to-heading t)
+  (when (looking-at "\\(\\*+\\)\\s-+\\([A-Z]+\\s-+\\[#[A-C]\\]\\s-+\\)?\\(.+\\)")
+    (let* ((begin (point)) end
+	   (leader (match-string 1))
+	   (headline (match-string 3))
+	   (annotation
+	    (buffer-substring
+	     (match-end 0)
+	     (setq end (save-excursion (outline-next-heading) (point)))))
+	   (note-date (org-get-inactive-time))
+	   (completed-date (org-get-completed-time))
+	   (indent-width (1+ (length leader)))
+	   task-text)
+      (with-current-buffer (get-buffer "*scratch*")
+	(goto-char (point-max))
+	(insert (format "
+<object type=\"TODO\" id=\"z%d\">
+  <attribute name=\"datecompleted\" type=\"date\">%s</attribute> <!---->
+  <attribute name=\"content\" type=\"string\">\\u3c00note xml:space=\"preserve\"\\u3e00%s\\u3c00/note\\u3e00</attribute>
+  <attribute name=\"focustype\" type=\"int32\">512</attribute>
+  <attribute name=\"focuslevel\" type=\"int16\">0</attribute>
+  <attribute name=\"datemodified\" type=\"date\">%s</attribute>
+  <attribute name=\"datecreated\" type=\"date\">%s</attribute>
+  <attribute name=\"title\" type=\"string\">%s</attribute>
+  <attribute name=\"index\" type=\"int32\">1</attribute>
+  <attribute name=\"identifier\" type=\"string\">%s</attribute>
+  <attribute name=\"compact\" type=\"bool\">1</attribute>
+  <relationship name=\"parent\" type=\"1/1\" destination=\"THING\"></relationship>
+  <relationship name=\"author\" type=\"1/1\" destination=\"COWORKER\"></relationship>
+  <relationship name=\"delegate\" type=\"1/1\" destination=\"COWORKER\"></relationship>
+  <relationship name=\"focus\" type=\"1/1\" destination=\"FOCUS\" idrefs=\"z120\"></relationship>
+  <relationship name=\"recurrenceinstance\" type=\"1/1\" destination=\"TODO\"></relationship>
+  <relationship name=\"recurrencetemplate\" type=\"1/1\" destination=\"TODO\"></relationship>
+  <relationship name=\"scheduler\" type=\"1/1\" destination=\"GLOBALS\"></relationship>
+  <relationship name=\"children\" type=\"0/0\" destination=\"THING\"></relationship>
+  <relationship name=\"tags\" type=\"0/0\" destination=\"TAG\"></relationship>
+  <relationship name=\"reminderdates\" type=\"0/0\" destination=\"REMINDER\"></relationship>
+</object>
+" (setq org-index-value (1+ org-index-value))
+  (- (or completed-date note-date) 978308049.0)
+  (replace-regexp-in-string
+   ">" "&gt;"
+   (replace-regexp-in-string
+    "<" "&lt;"
+    (replace-regexp-in-string "&" "&amp;" annotation)))
+  (- note-date 978308049.0)
+  (- note-date 978308049.0)
+  headline
+  (let ((uuid (shell-command-to-string "uuidgen")))
+    (substring uuid 0 (1- (length uuid))))))))))
+
+(defvar ledger-index (1- 1295))
+
+(defun add-ledger-task (desc)
+  (interactive "sDescription: \n")
+  (string-match "^#\\([0-9]+\\) - \\(.+\\)" desc)
+  (let ((num (string-to-number (match-string 1 desc))))
+    (with-current-buffer (get-file-buffer "~/Documents/Tasks/Database.xml")
+     (insert (format "    <object type=\"TODO\" id=\"z%d\">
+        <attribute name=\"datemodified\" type=\"date\">230363323.23858800530433654785</attribute>
+        <attribute name=\"content\" type=\"string\">\\u3c00note xml:space=\"preserve\"\\u3e00\\u3c00a href=\"http://trac.newartisans.com/ledger/ticket/%d\"\\u3e00http://trac.newartisans.com/ledger/ticket/%d\\u3c00/a\\u3e00\\u3c00/note\\u3e00</attribute>
+        <attribute name=\"title\" type=\"string\">%s</attribute>
+        <attribute name=\"focustype\" type=\"int32\">131072</attribute>
+        <attribute name=\"focuslevel\" type=\"int16\">0</attribute>
+        <attribute name=\"datecreated\" type=\"date\">230363264.47313600778579711914</attribute>
+        <attribute name=\"index\" type=\"int32\">0</attribute>
+        <attribute name=\"identifier\" type=\"string\">%s</attribute>
+        <attribute name=\"compact\" type=\"bool\">1</attribute>
+        <relationship name=\"parent\" type=\"1/1\" destination=\"THING\" idrefs=\"z430\"></relationship>
+        <relationship name=\"author\" type=\"1/1\" destination=\"COWORKER\"></relationship>
+        <relationship name=\"delegate\" type=\"1/1\" destination=\"COWORKER\"></relationship>
+        <relationship name=\"focus\" type=\"1/1\" destination=\"FOCUS\" idrefs=\"z129\"></relationship>
+        <relationship name=\"recurrenceinstance\" type=\"1/1\" destination=\"TODO\"></relationship>
+        <relationship name=\"recurrencetemplate\" type=\"1/1\" destination=\"TODO\"></relationship>
+        <relationship name=\"scheduler\" type=\"1/1\" destination=\"GLOBALS\"></relationship>
+        <relationship name=\"children\" type=\"0/0\" destination=\"THING\"></relationship>
+        <relationship name=\"tags\" type=\"0/0\" destination=\"TAG\"></relationship>
+        <relationship name=\"reminderdates\" type=\"0/0\" destination=\"REMINDER\"></relationship>
+    </object>
+" (setq ledger-index (1+ ledger-index))
+  num num desc
+  (let ((uuid (shell-command-to-string "uuidgen")))
+    (substring uuid 0 (1- (length uuid)))))))))
+
+(defun org-fontify-priorities ()
+  (interactive)
+  (save-excursion
+    (let ((inhibit-read-only t))
+      (goto-char (point-min))
+      (while (re-search-forward "\\[#\\([A-C]\\)\\]" nil t)
+	(let ((priority (match-string 1)))
+	  (cond ((string= priority "A")
+		 (overlay-put (make-overlay (match-beginning 0)
+					    ;;(match-end 0)
+					    (line-end-position))
+			      'face 'bold))
+		((string= priority "C")
+		 (overlay-put (make-overlay (match-beginning 0)
+					    ;;(match-end 0)
+					    (line-end-position))
+			      'face 'italic))))))))
+
+(add-hook 'org-finalize-agenda-hook 'org-fontify-priorities)
 
 ;;;_ * remember
 
@@ -1232,7 +1458,6 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?i ?m] 'ispell-message)
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
-(define-key mode-specific-map [?j] 'org-clock-goto)
 (define-key mode-specific-map [?k] 'keep-lines)
 (define-key mode-specific-map [?l] 'slime-selector)
 (define-key mode-specific-map [?m] 'org-insert-message-link)
@@ -1357,8 +1582,10 @@ expand wildcards (if any) and visit multiple files."
        "Fit the window to the buffer size."
        (and (memq org-agenda-window-setup '(reorganize-frame))
 	    (fboundp 'fit-window-to-buffer)
-	    (fit-window-to-buffer)))
+	    (fit-window-to-buffer)))))
 
+(eval-after-load "org-agenda"
+  '(progn
      (dolist (map (list org-agenda-keymap org-agenda-mode-map))
        (define-key map "\C-n" 'next-line)
        (define-key map "\C-p" 'previous-line)
