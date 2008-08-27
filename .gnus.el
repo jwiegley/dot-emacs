@@ -17,7 +17,7 @@
  '(mm-text-html-renderer (quote html2text))
  '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
  '(message-setup-hook (quote (gnus-fix-gcc-header)))
- '(message-sent-hook (quote (gnus-score-followup-article gnus-record-recipients)))
+ '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-sendmail-envelope-from (quote header))
  '(message-send-mail-partially-limit nil)
  '(message-mode-hook (quote (flyspell-mode footnote-mode)))
@@ -53,7 +53,7 @@
 ")
  '(gnus-summary-expunge-below -100)
  '(gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
- '(gnus-startup-file "~/Documents/Mail/.newsrc")
+ '(gnus-startup-file "~/Documents/.newsrc")
  '(gnus-started-hook (quote ((lambda nil (run-hooks (quote gnus-after-getting-new-news-hook))))))
  '(gnus-split-methods (quote ((gnus-save-site-lisp-file) (gnus-article-archive-name) (gnus-article-nndoc-name))))
  '(gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
@@ -93,6 +93,7 @@
  '(gnus-agent-expire-days 14)
  '(gnus-agent-expire-all t)
  '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-fixup-nnimap-unread-after-getting-new-news gnus-group-save-newsrc)))
+ '(gnus-activate-level 3)
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(check-mail-summary-function (quote check-mail-box-summary))
  '(check-mail-boxes (quote ("~/Documents/Mail/incoming/mail\\..*\\.spool")))
@@ -161,25 +162,25 @@
 
 ;;;_ + Record e-mail addresses that I send e-mail to
 
-;; (defun gnus-record-recipients ()
-;;   (save-excursion
-;;     (save-restriction
-;;       (message-narrow-to-headers)
-;;       (let ((addrs
-;; 	     (append
-;; 	      (mail-extract-address-components
-;; 	       (concat (mail-fetch-field "to") ","
-;; 		       (mail-fetch-field "cc") ","
-;; 		       (mail-fetch-field "bcc")) t))))
-;; 	(dolist (addr addrs)
-;; 	  (if (and addr (cdr addr))
-;; 	      (call-process-shell-command "/home/johnw/bin/addmail"
-;; 					  nil nil nil (cadr addr))))))))
-;; 
-;; (defun gnus-goto-article (message-id)
-;;   (let ((info (nnml-find-group-number message-id "nnml")))
-;;     (gnus-summary-read-group (concat "nnml:" (car info)) 100 t)
-;;     (gnus-summary-goto-article (cdr info) nil t)))
+(defun gnus-record-recipients ()
+  (save-excursion
+    (save-restriction
+      (message-narrow-to-headers)
+      (let ((addrs
+	     (append
+	      (mail-extract-address-components
+	       (concat (mail-fetch-field "to") ","
+		       (mail-fetch-field "cc") ","
+		       (mail-fetch-field "bcc")) t))))
+	(dolist (addr addrs)
+	  (if (and addr (cdr addr))
+	      (call-process-shell-command "/home/johnw/bin/addmail"
+					  nil nil nil (cadr addr))))))))
+
+(defun gnus-goto-article (message-id)
+  (let ((info (nnml-find-group-number message-id "nnml")))
+    (gnus-summary-read-group (concat "nnml:" (car info)) 100 t)
+    (gnus-summary-goto-article (cdr info) nil t)))
 
 ;;;_ + Saving articles from gnu.emacs.sources
 
@@ -338,27 +339,30 @@
   :group 'nnmail)
 
 (defun gnus-determine-archive-group (group)
-  (let* (lookup
-	 (group
-	  (cond
-	   ((string-match "^nntp.*:\\(.*\\)" group)
-	    (setq lookup t)
-	    (match-string 1 group))
-	   ((or (null group)
-		(string= group ""))
-	    "nnfolder:sent")
-	   ((string-match "^\\([^:.]+\\.[^:]+\\)" group)
-	    (setq lookup t)
-	    (match-string 1 group))
-	   (t group)))
-	 (table gnus-archive-groups))
-    (if lookup
-      (while table
-	(if (string-match (caar table) group)
-	    (setq group (cdar table)
-		  table nil)
-	  (setq table (cdr table)))))
-    group))
+  (or (if (string= "nnimap+imap.gmail.com:INBOX" group)
+	  group
+	"nnimap+mail.johnwiegley.com:INBOX")
+      (let* (lookup
+	     (group
+	      (cond
+	       ((string-match "^nntp.*:\\(.*\\)" group)
+		(setq lookup t)
+		(match-string 1 group))
+	       ((or (null group)
+		    (string= group ""))
+		"nnimap+mail.johnwiegley.com:INBOX.Sent")
+	       ((string-match "^\\([^:.]+\\.[^:]+\\)" group)
+		(setq lookup t)
+		(match-string 1 group))
+	       (t group)))
+	     (table gnus-archive-groups))
+	(if lookup
+	    (while table
+	      (if (string-match (caar table) group)
+		  (setq group (cdar table)
+			table nil)
+		(setq table (cdr table)))))
+	group)))
 
 ;;;_* keybindings
 

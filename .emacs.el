@@ -9,12 +9,13 @@
     (path
      (reverse
       (list (expand-file-name "~/Library/Emacs")
+	    (expand-file-name "~/Sources/magit")
+	    (expand-file-name "~/Sources/git/contrib/emacs")
+	    (expand-file-name "~/src/emacs-chess")
 	    (expand-file-name "~/Library/Emacs/site-lisp/circe")
 	    (expand-file-name "~/Library/Emacs/site-lisp/distel/elisp")
 	    (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m")
 	    (expand-file-name "~/Library/Emacs/site-lisp/epg")
-	    (expand-file-name "~/Library/Emacs/site-lisp/gitsum")
-	    (expand-file-name "~/Sources/git/contrib/emacs")
 	    (expand-file-name "~/Library/Emacs/site-lisp/muse/lisp")
 	    (expand-file-name "~/Library/Emacs/site-lisp/muse/contrib")
 	    (expand-file-name "~/Library/Emacs/site-lisp/nxml-mode")
@@ -64,6 +65,43 @@
 ;; '(special-display-regexps (quote (("slime-repl" (height . 40) (width . 80) (top . 85) (left . 50) (splittable . t) (unsplittable)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
 ;; '(eshell-ls-use-in-dired t nil (em-ls))
 
+;; '(org-remember-templates (quote (("Task" 116 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Inbox" nil) ("Gr" 71 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Grenada" nil) ("" 87 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" "/Volumes/TI/Documents/todo.txt" "Inbox" nil) ("Work" 119 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" "/Volumes/CEG/Documents/todo.txt" "Inbox" nil) ("Fr" 70 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Friends" nil) ("Bahá'í" 98 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Bahá'í" nil) ("Hea" 104 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Health" nil) ("Fi" 102 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Finances" nil) ("Le" 108 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" "~/src/ledger/doc/TODO" top nil) ("Co" 99 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Computer" nil) ("Per" 112 "* TODO %?
+;;  :PROPERTIES:
+;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+;;  %u" nil "Personal" nil))))
+
+;; '(sendmail-program "/opt/local/bin/msmtp" t)
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -78,7 +116,7 @@
  '(auto-compression-mode t nil (jka-compr))
  '(auto-image-file-mode t)
  '(auto-save-interval 1024)
- '(backup-directory-alist (quote (("/CEG/" . "/Volumes/CEG/.backups") ("~/Documents/" . "~/Documents/.backups") (".*" . "~/.emacs.d/backups"))))
+ '(backup-directory-alist (quote (("/CEG/" . "/Volumes/CEG/.backups") ("/TI/" . "/Volumes/TI/.backups") ("/Files/" . "/Volumes/Files/.backups") (".*" . "~/.emacs.d/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bookmark-save-flag 1)
  '(browse-url-browser-function (quote (("\\.\\(gz\\|tgz\\|bz2\\|tbz\\|dmg\\|iso\\|pdf\\|mp3\\)\\'" . browse-url-download-file) (".*" . browse-url-default-macosx-browser))))
@@ -162,13 +200,14 @@
  '(ns-function-modifier (quote super) t)
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
- '(org-agenda-custom-commands (quote (("d" todo #("DELEGATED" 0 9 (face org-warning)) nil) ("c" todo #("DONE|DEFERRED|CANCELLED" 0 23 (face org-warning)) ((org-agenda-files org-agenda-last-files))) ("w" todo #("WAITING" 0 7 (face org-warning)) nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))) (org-agenda-overriding-header "Tasks without any priority: "))) ("A" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: "))) ("u" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[^>
+ '(org-M-RET-may-split-line (quote ((headline) (default . t))))
+ '(org-agenda-custom-commands (quote (("d" todo #("DELEGATED" 0 9 (face org-warning)) nil) ("c" todo #("DONE|DEFERRED|CANCELLED" 0 23 (face org-warning)) ((org-agenda-files (cons "~/Documents/archive.txt" org-agenda-files)))) ("w" todo #("WAITING" 0 7 (face org-warning)) nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))) (org-agenda-overriding-header "Tasks without any priority: "))) ("A" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: "))) ("u" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[0-9-]\\{10\\} ^>
 ]+>"))) (org-agenda-overriding-header "Unscheduled TODO entries: "))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("~/Documents/archive.txt" "/Volumes/CEG/Documents/todo.txt" "/Volumes/TI/Documents/todo.txt" "~/Documents/todo.txt" "~/src/ledger/doc/TODO")))
+ '(org-agenda-files (quote ("/Volumes/CEG/Documents/todo.txt" "/Volumes/TI/Documents/todo.txt" "~/Documents/todo.txt" "~/src/ledger/doc/TODO" "~/src/ledger/2.6.1/TODO")))
  '(org-agenda-ndays 7)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
@@ -185,27 +224,17 @@
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Documents/archive.txt")
+ '(org-default-notes-file "~/Documents/todo.txt")
  '(org-directory "~/Documents/")
  '(org-drawers (quote ("PROPERTIES" "OUTPUT" "SCRIPT" "PATCH" "DATA")))
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-hide-leading-stars t)
  '(org-remember-store-without-prompt t)
- '(org-remember-templates (quote ((116 "* TODO %?
-  %u" "~/Documents/todo.txt" "Inbox") (71 "* TODO %?
-  %u" "~/Documents/todo.txt" "Grenada") (119 "* TODO %?
-  %u" "~/Documents/todo.txt" "CEG") (70 "* TODO %?
-  %u" "~/Documents/todo.txt" "Friends") (98 "* TODO %?
-  %u" "~/Documents/todo.txt" "Bahá'í") (104 "* TODO %?
-  %u" "~/Documents/todo.txt" "Health") (102 "* TODO %?
-  %u" "~/Documents/todo.txt" "Finances") (76 "* TODO %?
-  %u" "~/Documents/todo.txt" "Ledger 2.x") (108 "* TODO %?
-  %u" "~/Documents/todo.txt" "CL-Ledger") (99 "* TODO %?
-  %u" "~/Documents/todo.txt" "Computer") (119 "* TODO %?
-  %u" "~/Documents/todo.txt" "Writing") (112 "* TODO %?
-  %u" "~/Documents/todo.txt" "Photography") (109 "* TODO %?
-  %u" "~/Documents/todo.txt" "Miscellaneous"))))
+ '(org-remember-templates (quote (("Task" 116 "* TODO %?
+  :PROPERTIES:
+  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
+  %u" nil "Inbox" nil))))
  '(org-reverse-note-order t)
  '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
  '(org-tag-alist (quote ((#("NASIM" 0 5 (face nil)) . 110) (#("WORK" 0 4 (face nil)) . 119))))
@@ -278,6 +307,8 @@
  '(circe-highlight-all-nicks-face ((t (:foreground "dark blue"))))
  '(circe-originator-face ((t (:foreground "dark orange"))))
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
+ '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
+ '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98")))))
 
@@ -498,11 +529,23 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 (setenv "GIT_PAGER" "")
 
+(require 'magit)
 (require 'git)
 (require 'gitsum)
 (require 'vc-git)
 
+(autoload 'git-blame-mode "git-blame"
+  "Minor mode for incremental blame for Git." t)
+
 (add-to-list 'vc-handled-backends 'GIT)
+
+(defun commit-after-save ()
+  (let ((file (file-name-nondirectory (buffer-file-name))))
+    (if (= 0 (shell-command
+	      (format "git add \"%s\" ; git commit -m \"changes to %s\""
+		      file file)))
+	(message "Committed changes to %s" file)
+      (message "NO changes saved for %s" file))))
 
 ;;;_ * groovy-mode
 
@@ -547,12 +590,12 @@ This is an appropriate function for `lui-pre-output-hook'."
       (c-block-comment-prefix . ""))))
 
 (add-hook 'java-mode-hook
-	  (function
-	   (lambda ()
-	     (c-set-style "ceg")
-	     (setq tab-width 3)
-	     (setq c-basic-offset 3)
-	     (setq indent-tabs-mode t))))
+	  #'(lambda ()
+	      (c-set-style "ceg")
+	      (setq tab-width 3)
+	      (setq c-basic-offset 3)
+	      (setq indent-tabs-mode t)
+	      (set-fill-column 100)))
 
 ;;;_ * ledger
 
@@ -654,7 +697,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * gnus
 
-(setq gnus-home-directory "~/Library/Application Support/Gnus")
+(setq gnus-home-directory "~/Documents")
 
 (load ".gnus")
 
@@ -689,6 +732,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 (require 'org-install)
 (require 'org-mac-message)
 (require 'org-crypt)
+(require 'org-attach)
 (require 'org-devonthink)
 
 (load "org-log" t)
@@ -768,10 +812,10 @@ This can be 0 for immediate, or a floating point value.")
     (if (null done)
 	(call-interactively 'org-remember)
       (let ((org-remember-templates
-	   '((110 "* DONE %?
+	     '((110 "* DONE %?
   - State \"DONE\"       %U
   %u" "~/Documents/todo.txt" "Inbox"))))
-    (call-interactively 'org-remember)))))
+	(org-remember)))))
 
 (defun org-remember-note ()
   (interactive)
@@ -780,6 +824,32 @@ This can be 0 for immediate, or a floating point value.")
     (let ((org-remember-templates
 	   '((110 "* NOTE %?\n  %u" "~/Documents/todo.txt" "Inbox"))))
       (call-interactively 'org-remember))))
+
+(defun org-insert-message-link ()
+  (interactive)
+  (let ((subject (do-applescript "tell application \"Mail\"
+        set theMessages to selection
+        subject of beginning of theMessages
+end tell"))
+        (message-id (do-applescript "tell application \"Mail\"
+        set theMessages to selection
+        message id of beginning of theMessages
+end tell")))
+    (insert (org-make-link-string
+             (concat "message://"
+                     (substring message-id 1 (1- (length message-id))))
+             (substring subject 1 (1- (length subject)))))))
+
+(defun org-dtp-message-open ()
+  "Visit the message with the given MESSAGE-ID.
+This will use the command `open' with the message URL."
+  (interactive)
+  (re-search-backward "\\[\\[message://\\(.+?\\)\\]\\[")
+  (do-applescript
+   (format "tell application \"DEVONthink Pro\"
+	set searchResults to search \"%%3C%s%%3E\" within URLs
+	open window for record (get beginning of searchResults)
+end tell" (match-string 1))))
 
 ;;;_ * remember
 
@@ -807,18 +877,16 @@ This can be 0 for immediate, or a floating point value.")
 
 (defcustom user-initials nil
   "*Initials of this user."
-  :set (function
-	(lambda (symbol value)
-	  (if (fboundp 'font-lock-add-keywords)
-	      (mapcar
-	       (function
-		(lambda (mode)
-		  (font-lock-add-keywords
-		   mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
-				    1 font-lock-warning-face t)))))
-	       '(c-mode c++-mode emacs-lisp-mode lisp-mode
-		 python-mode perl-mode java-mode groovy-mode)))
-	  (set symbol value)))
+  :set #'(lambda (symbol value)
+	   (if (fboundp 'font-lock-add-keywords)
+	       (mapcar
+		#'(lambda (mode)
+		    (font-lock-add-keywords
+		     mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
+				      1 font-lock-warning-face t))))
+		'(c-mode c++-mode emacs-lisp-mode lisp-mode
+			 python-mode perl-mode java-mode groovy-mode)))
+	   (set symbol value))
   :type 'string
   :group 'mail)
 
@@ -879,9 +947,8 @@ This can be 0 for immediate, or a floating point value.")
 	       (not (and buffer-file-name
 			 (string-match "\\.texi$" buffer-file-name))))
       (add-hook 'write-contents-hooks
-		(function
-		 (lambda ()
-		   (ignore (whitespace-buffer)))) nil t)
+		#'(lambda ()
+		    (ignore (whitespace-buffer))) nil t)
       (whitespace-buffer))))
 
 (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
@@ -1024,14 +1091,10 @@ This can be 0 for immediate, or a floating point value.")
 
 (define-key global-map [(meta ?j)] 'delete-indentation-forward)
 (define-key global-map [(meta ?J)] 'delete-indentation)
-
-(define-key global-map [(meta ?p)] 'chop-move-up)
 (define-key global-map [(meta ?n)] 'chop-move-down)
-
+(define-key global-map [(meta ?p)] 'chop-move-up)
 (define-key global-map [(meta ?m)] 'org-maybe-remember)
-(define-key global-map [(meta ?z)] 'org-remember-note)
-
-(define-key global-map [(meta ?s)] 'save-buffer)
+(define-key global-map [(meta ?z)] 'magit-status)
 
 (define-prefix-command 'lisp-find-map)
 (define-key global-map [(control ?h) ?e] 'lisp-find-map)
@@ -1083,7 +1146,6 @@ This can be 0 for immediate, or a floating point value.")
 (define-key global-map [(meta shift ?b)] 'python-mark-block)
 (define-key global-map [(meta shift ?h)] 'mark-paragraph)
 (define-key global-map [(meta shift ?d)] 'mark-defun)
-(define-key global-map [(meta shift ?p)] 'mark-page)
 (define-key global-map [(meta shift ?e)] 'mark-whole-buffer)
 
 (define-key global-map [(meta shift ? )] 'anything)
@@ -1096,12 +1158,14 @@ This can be 0 for immediate, or a floating point value.")
 (define-key global-map [(shift f11)] 'gud-finish)
 
 (define-key global-map [(alt tab)]
-  (function
-   (lambda ()
-     (interactive)
-     (call-interactively (key-binding (kbd "M-TAB"))))))
+  #'(lambda ()
+      (interactive)
+      (call-interactively (key-binding (kbd "M-TAB")))))
 
 ;;;_ * ctl-x
+
+(define-key ctl-x-map [(control ?g)] 'magit-status)
+(define-key ctl-x-map [?g] 'git-status)
 
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
@@ -1300,6 +1364,21 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?t ?u] 'timeclock-update-modeline)
 (define-key mode-specific-map [?t (control ?m)] 'timeclock-status-string)
 
+(defun my-org-todo-search ()
+  (interactive)
+  (find-file-other-window "~/Documents/todo.txt")
+  (goto-char (point-min))
+  (call-interactively 'isearch-forward))
+
+(defun my-org-todo-archive-search ()
+  (interactive)
+  (find-file-other-window "~/Documents/archive.txt")
+  (goto-char (point-min))
+  (call-interactively 'isearch-forward))
+
+(define-key mode-specific-map [?t ?s] 'my-org-todo-search)
+(define-key mode-specific-map [?t ?a] 'my-org-todo-archive-search)
+
 (define-key mode-specific-map [?u] 'rename-uniquely)
 (define-key mode-specific-map [?v] 'visit-url)
 
@@ -1321,28 +1400,31 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [(shift ?w)] 'org-kill-entry)
 (define-key mode-specific-map [(shift ?y)] 'org-yank-entry)
 
-;;(define-key mode-specific-map [?x ?a]
-;;  #'(lambda nil (interactive) (org-todo "APPT")))
-;;(define-key mode-specific-map [?x ?d]
-;;  #'(lambda nil (interactive) (org-todo "DONE")))
-;;(define-key mode-specific-map [?x ?f]
-;;  #'(lambda nil (interactive) (org-todo "DEFERRED")))
-;;(define-key mode-specific-map [?x ?g]
-;;  #'(lambda nil (interactive) (org-todo "DELEGATED")))
-;;(define-key mode-specific-map [?x ?n]
-;;  #'(lambda nil (interactive) (org-todo "NOTE")))
-;;(define-key mode-specific-map [?x ?s]
-;;  #'(lambda nil (interactive) (org-todo "STARTED")))
-;;(define-key mode-specific-map [?x ?w]
-;;  #'(lambda nil (interactive) (org-todo "WAITING")))
-;;(define-key mode-specific-map [?x ?x]
-;;  #'(lambda nil (interactive) (org-todo "CANCELLED")))
-;;
-;;(define-key mode-specific-map [?x ?C] 'cvs-examine)
-;;(define-key mode-specific-map [?x ?S] 'svn-status)
-;;(define-key mode-specific-map [?x ?H] 'dvc-status)
-;;(define-key mode-specific-map [?x ?v] 'dvc-status)
-(define-key mode-specific-map [?x] 'git-status)
+(define-key mode-specific-map [?x ?d]
+  #'(lambda nil (interactive) (org-todo "DONE")))
+(define-key mode-specific-map [?x ?r]
+  #'(lambda nil (interactive) (org-todo "DEFERRED")))
+(define-key mode-specific-map [?x ?g]
+  #'(lambda nil (interactive) (org-todo "DELEGATED")))
+(define-key mode-specific-map [?x ?n]
+  #'(lambda nil (interactive) (org-todo "NOTE")))
+(define-key mode-specific-map [?x ?s]
+  #'(lambda nil (interactive) (org-todo "STARTED")))
+(define-key mode-specific-map [?x ?w]
+  #'(lambda nil (interactive) (org-todo "WAITING")))
+(define-key mode-specific-map [?x ?x]
+  #'(lambda nil (interactive) (org-todo "CANCELLED")))
+
+(define-key mode-specific-map [?x ?C] 'cvs-examine)
+(define-key mode-specific-map [?x ?S] 'svn-status)
+(define-key mode-specific-map [?x ?M] 'org-dtp-message-open)
+
+(defun org-trac-ticket-open ()
+  (interactive)
+  (browse-url (concat "http://trac.newartisans.com/ledger/ticket/"
+		      (org-entry-get (point) "Ticket"))))
+
+(define-key mode-specific-map [?x ?T] 'org-trac-ticket-open)
 
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
@@ -1352,10 +1434,8 @@ expand wildcards (if any) and visit multiple files."
 
 ;;;_ * special characters
 
-(define-key global-map [(alt ?=)]
-  (function (lambda () (interactive) (insert ?⇒))))
-(define-key global-map [(alt ?.)]
-  (function (lambda () (interactive) (insert ?…))))
+(define-key global-map [(alt ?=)] #'(lambda () (interactive) (insert ?⇒)))
+(define-key global-map [(alt ?.)] #'(lambda () (interactive) (insert ?…)))
 
 ;;;_ * footnote
 
@@ -1395,10 +1475,9 @@ expand wildcards (if any) and visit multiple files."
 
        (define-key map "g" 'org-agenda-redo)
        (define-key map "r"
-	 (function
-	  (lambda nil
-	    (interactive)
-	    (error "The 'r' command is deprecated here; use 'g'"))))
+	 #'(lambda nil
+	     (interactive)
+	     (error "The 'r' command is deprecated here; use 'g'")))
        (define-key map "f" 'org-agenda-date-later)
        (define-key map "b" 'org-agenda-date-earlier)
        (define-key map " " 'org-agenda-tree-to-indirect-buffer)
@@ -1414,7 +1493,7 @@ expand wildcards (if any) and visit multiple files."
 	 #'(lambda nil (interactive) (org-agenda-todo "CANCELLED")))
        (define-key org-todo-state-map "d"
 	 #'(lambda nil (interactive) (org-agenda-todo "DONE")))
-       (define-key org-todo-state-map "f"
+       (define-key org-todo-state-map "r"
 	 #'(lambda nil (interactive) (org-agenda-todo "DEFERRED")))
        (define-key org-todo-state-map "g"
 	 #'(lambda nil (interactive) (org-agenda-todo "DELEGATED")))
@@ -1427,7 +1506,7 @@ expand wildcards (if any) and visit multiple files."
 
 ;; Finally, load the server and show the current agenda
 
-;;(add-hook 'after-init-hook 'org-agenda-list)
+(add-hook 'after-init-hook 'org-agenda-list)
 (add-hook 'after-init-hook 'server-start)
 
 ;; .emacs.el ends here
