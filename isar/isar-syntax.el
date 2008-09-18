@@ -252,14 +252,9 @@ matches contents of quotes for quoted identifiers.")
 
 ;; antiquotations
 
-;; the \{0,10\} bound is there because otherwise font-lock sometimes hangs for
-;; incomplete antiquotations like @{text bla"} (even though it is supposed to
-;; stop at eol anyway).
-
-(defconst isar-antiq-regexp
-  (concat "@{\\(?:[^\"{}]+\\|" isar-string "\\)\\{0,10\\}}")
-  "Regexp matching Isabelle/Isar antiquoations.")
-
+(defconst isar-antiq-regexp 
+  (concat "@{\\(?:[^\"{}]\\|" isar-string "\\)*}") 
+  "Regexp matching Isabelle/Isar antiquotations.")
 
 ;; keyword nesting
 
