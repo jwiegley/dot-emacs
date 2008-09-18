@@ -581,8 +581,8 @@ of symbol compositions, and will lose layout information."
   (let ((flks (unicode-tokens-font-lock-keywords)))
     (put 'unicode-tokens-font-lock-keywords major-mode flks)
     (unicode-tokens-quail-define-rules)
-    flks)
-  (unicode-tokens-define-menu))
+    (unicode-tokens-define-menu)
+    flks))
 
 (defvar unicode-tokens-mode-map (make-sparse-keymap)
   "Key map used for Unicode Tokens mode.")
