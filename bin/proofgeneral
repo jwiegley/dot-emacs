@@ -18,7 +18,8 @@
 # The default path should work if you are using the Proof General RPM
 # or unpack Proof General in your home directory.  Otherwise edit below.
 # NB: no trailing backslash here!
-#PGHOMEDEFAULT=/Applications/Emacs.app/Contents/MacOS/Emacs/site-lisp/ProofGeneral
+# On Mac, maybe:
+# /Applications/Emacs.app/Contents/MacOS/Emacs/site-lisp/ProofGeneral
 PGHOMEDEFAULT=$HOME/ProofGeneral
 
 NAME=`basename $0`
