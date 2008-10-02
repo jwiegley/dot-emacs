@@ -667,6 +667,14 @@ happen since one of them is necessarily set to t in coq-syntax.el."
   )
 
 
+;; region-exists-p does not exist in emacs <= 22
+(cond
+ ((string-match "NU Emacs 22" (emacs-version))
+  (defmacro region-exists-p nil
+    "Returns t if the mark is active, nil otherwise."
+    `(not (eq mark-active nil)))))
+
+
 (defun coq-guess-or-ask-for-string (s &optional dontguess)
   (let ((guess
          (cond
