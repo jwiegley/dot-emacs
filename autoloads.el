@@ -115,7 +115,7 @@
 
 ;;; Generated autoloads follow (made by autoload.el).
 
-;;;### (autoloads (all) "all" "site-lisp/all.el" (13250 5268))
+;;;### (autoloads (all) "all" "site-lisp/all.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/all.el
 
 (autoload (quote all) "all" "\
@@ -136,7 +136,7 @@ Any changes made in that buffer will be propagated to this buffer.
 ;;;***
 
 ;;;### (autoloads (ascii-off ascii-on ascii-display ascii-customize)
-;;;;;;  "ascii" "site-lisp/ascii.el" (18084 9489))
+;;;;;;  "ascii" "site-lisp/ascii.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/ascii.el
 
 (autoload (quote ascii-customize) "ascii" "\
@@ -167,8 +167,8 @@ Turn off ASCII code display.
 ;;;***
 
 ;;;### (autoloads (browse-kill-ring browse-kill-ring-default-keybindings)
-;;;;;;  "browse-kill-ring" "site-lisp/browse-kill-ring.el" (18084
-;;;;;;  9490))
+;;;;;;  "browse-kill-ring" "site-lisp/browse-kill-ring.el" (18429
+;;;;;;  49075))
 ;;; Generated autoloads from site-lisp/browse-kill-ring.el
 
 (autoload (quote browse-kill-ring-default-keybindings) "browse-kill-ring" "\
@@ -186,8 +186,8 @@ Display items in the `kill-ring' in another buffer.
 
 ;;;***
 
-;;;### (autoloads (check-mail) "check-mail" "check-mail.el" (18205
-;;;;;;  36835))
+;;;### (autoloads (check-mail) "check-mail" "check-mail.el" (18429
+;;;;;;  49044))
 ;;; Generated autoloads from check-mail.el
 
 (autoload (quote check-mail) "check-mail" "\
@@ -198,7 +198,7 @@ Check all of the boxes listed in `mail-boxes-to-check' for new mail.
 ;;;***
 
 ;;;### (autoloads (chop-move-down chop-move-up) "chop" "site-lisp/chop.el"
-;;;;;;  (18084 9489))
+;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/chop.el
 
 (autoload (quote chop-move-up) "chop" "\
@@ -213,8 +213,8 @@ Move by one 'chop' into the lower half of the remaining space.
 
 ;;;***
 
-;;;### (autoloads (circe) "circe" "site-lisp/circe/circe.el" (18101
-;;;;;;  64394))
+;;;### (autoloads (circe) "circe" "site-lisp/circe/circe.el" (18588
+;;;;;;  376))
 ;;; Generated autoloads from site-lisp/circe/circe.el
 
 (autoload (quote circe) "circe" "\
@@ -231,7 +231,7 @@ REALNAME is the real name to use (defaults to `circe-default-realname')
 ;;;***
 
 ;;;### (autoloads (enable-circe-highlight-all-nicks) "circe-highlight-all-nicks"
-;;;;;;  "site-lisp/circe/circe-highlight-all-nicks.el" (17197 53002))
+;;;;;;  "site-lisp/circe/circe-highlight-all-nicks.el" (18588 376))
 ;;; Generated autoloads from site-lisp/circe/circe-highlight-all-nicks.el
 
 (autoload (quote enable-circe-highlight-all-nicks) "circe-highlight-all-nicks" "\
@@ -244,7 +244,7 @@ channel in messages of other people.
 ;;;***
 
 ;;;### (autoloads (enable-circe-log) "circe-log" "site-lisp/circe/circe-log.el"
-;;;;;;  (18080 62587))
+;;;;;;  (18588 376))
 ;;; Generated autoloads from site-lisp/circe/circe-log.el
 
 (autoload (quote enable-circe-log) "circe-log" "\
@@ -256,7 +256,7 @@ Enables automatic logging for all buffers matching
 
 ;;;***
 
-;;;### (autoloads (cl-info) "cl-info" "cl-info.el" (18237 22608))
+;;;### (autoloads (cl-info) "cl-info" "cl-info.el" (18429 49044))
 ;;; Generated autoloads from cl-info.el
 
 (autoload (quote cl-info) "cl-info" "\
@@ -267,7 +267,7 @@ Not documented
 ;;;***
 
 ;;;### (autoloads (turn-on-cldoc-mode cldoc-mode cldoc-minor-mode-string
-;;;;;;  cldoc-mode) "cldoc" "site-lisp/cldoc.el" (18195 62488))
+;;;;;;  cldoc-mode) "cldoc" "site-lisp/cldoc.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/cldoc.el
 
 (defvar cldoc-mode nil "\
@@ -312,7 +312,7 @@ Unequivocally turn on cldoc-mode (see variable documentation).
 ;;;***
 
 ;;;### (autoloads nil "column-marker" "site-lisp/column-marker.el"
-;;;;;;  (17638 24216))
+;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/column-marker.el
 
 (autoload (quote column-marker-1) "column-marker" "\
@@ -321,7 +321,7 @@ Highlight a column." t)
 ;;;***
 
 ;;;### (autoloads (darcsum-view darcsum-whatsnew) "darcsum" "darcsum.el"
-;;;;;;  (18170 21799))
+;;;;;;  (18440 17724))
 ;;; Generated autoloads from darcsum.el
 
 (autoload (quote darcsum-whatsnew) "darcsum" "\
@@ -344,7 +344,7 @@ working directory is assumed.
 ;;;***
 
 ;;;### (autoloads (diminished-modes diminish-undo diminish) "diminish"
-;;;;;;  "site-lisp/diminish.el" (18084 9489))
+;;;;;;  "site-lisp/diminish.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/diminish.el
 
 (autoload (quote diminish) "diminish" "\
@@ -390,7 +390,7 @@ what diminished modes would be on the mode-line if they were still minor.
 ;;;***
 
 ;;;### (autoloads (dired-tar-pack-unpack) "dired-tar" "site-lisp/dired-tar.el"
-;;;;;;  (18084 9489))
+;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/dired-tar.el
 
 (autoload (quote dired-tar-pack-unpack) "dired-tar" "\
@@ -412,7 +412,7 @@ unpack it.  The file's name must end in \".tar\", \".tar.gz\", or
 ;;;***
 
 ;;;### (autoloads (edit-variable) "edit-var" "site-lisp/edit-var.el"
-;;;;;;  (18084 9491))
+;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/edit-var.el
 
 (autoload (quote edit-variable) "edit-var" "\
@@ -428,7 +428,7 @@ Edit the value of VARIABLE.
 ;;;;;;  epa-verify-region epa-decrypt-armor-in-region epa-decrypt-region
 ;;;;;;  epa-encrypt-file epa-sign-file epa-verify-file epa-decrypt-file
 ;;;;;;  epa-select-keys epa-list-secret-keys epa-list-keys) "epa"
-;;;;;;  "site-lisp/epg/epa.el" (18092 2960))
+;;;;;;  "site-lisp/epg/epa.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/epg/epa.el
 
 (autoload (quote epa-list-keys) "epa" "\
@@ -568,7 +568,7 @@ Don't use this command in Lisp programs!
 ;;;***
 
 ;;;### (autoloads (epa-file-disable epa-file-enable) "epa-file" "site-lisp/epg/epa-file.el"
-;;;;;;  (18076 8990))
+;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/epg/epa-file.el
 
 (put (quote epa-file-encrypt-to) (quote safe-local-variable) (lambda (val) (or (stringp val) (and (listp val) (catch (quote safe) (mapc (lambda (elt) (unless (stringp elt) (throw (quote safe) nil))) val) t)))))
@@ -589,7 +589,7 @@ Not documented
 
 ;;;### (autoloads (epa-mail-import-keys epa-mail-encrypt epa-mail-sign
 ;;;;;;  epa-mail-verify epa-mail-decrypt) "epa-mail" "site-lisp/epg/epa-mail.el"
-;;;;;;  (17903 32178))
+;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/epg/epa-mail.el
 
 (autoload (quote epa-mail-decrypt) "epa-mail" "\
@@ -642,8 +642,8 @@ Don't use this command in Lisp programs!
 ;;;;;;  epg-encrypt-string epg-encrypt-file epg-start-encrypt epg-sign-string
 ;;;;;;  epg-sign-file epg-start-sign epg-verify-string epg-verify-file
 ;;;;;;  epg-start-verify epg-decrypt-string epg-decrypt-file epg-start-decrypt
-;;;;;;  epg-cancel epg-list-keys) "epg" "site-lisp/epg/epg.el" (17968
-;;;;;;  18206))
+;;;;;;  epg-cancel epg-list-keys) "epg" "site-lisp/epg/epg.el" (18429
+;;;;;;  49075))
 ;;; Generated autoloads from site-lisp/epg/epg.el
 
 (autoload (quote epg-list-keys) "epg" "\
@@ -902,7 +902,7 @@ PARAMETERS is a string which tells how to create the key.
 ;;;***
 
 ;;;### (autoloads (epg-expand-group epg-check-configuration epg-configuration)
-;;;;;;  "epg-config" "site-lisp/epg/epg-config.el" (17853 29144))
+;;;;;;  "epg-config" "site-lisp/epg/epg-config.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/epg/epg-config.el
 
 (autoload (quote epg-configuration) "epg-config" "\
@@ -922,8 +922,122 @@ Look at CONFIG and try to expand GROUP.
 
 ;;;***
 
+;;;### (autoloads (inferior-erlang erlang-compile erlang-shell erlang-find-tag-other-window
+;;;;;;  erlang-find-tag erlang-mode) "erlang" "site-lisp/erlang.el"
+;;;;;;  (18429 49075))
+;;; Generated autoloads from site-lisp/erlang.el
+
+(autoload (quote erlang-mode) "erlang" "\
+Major mode for editing Erlang source files in Emacs.
+It knows about syntax and comment, it can indent code, it is capable
+of fontifying the source file, the TAGS commands are aware of Erlang
+modules, and the Erlang man pages can be accessed.
+
+Should this module, \"erlang.el\", be installed properly, Erlang mode
+is activated whenever an Erlang source or header file is loaded into
+Emacs.  To indicate this, the mode line should contain the word
+\"Erlang\".
+
+The main feature of Erlang mode is indentation, press TAB and the
+current line will be indented correctly.
+
+Comments starting with only one `%' are indented to the column stored
+in the variable `comment-column'.  Comments starting with two `%':s
+are indented with the same indentation as code.  Comments starting
+with at least three `%':s are indented to the first column.
+
+However, Erlang mode contains much more, this is a list of the most
+useful commands:
+     TAB     - Indent the line.
+     C-c C-q - Indent current function.
+     M-;     - Create a comment at the end of the line.
+     M-q     - Fill a comment, i.e. wrap lines so that they (hopefully)
+		 will look better.
+     M-a     - Goto the beginning of an Erlang clause.
+     M-C-a   - Ditto for function.
+     M-e     - Goto the end of an Erlang clause.
+     M-C-e   - Ditto for function.
+     M-h     - Mark current Erlang clause.
+     M-C-h   - Ditto for function.
+     C-c C-z - Start, or switch to, an inferior Erlang shell.
+     C-c C-k - Compile current file.
+     C-x `   - Next error.
+     ,       - Electric comma.
+     ;       - Electric semicolon.
+
+Erlang mode check the name of the file against the module name when
+saving, whenever a mismatch occurs Erlang mode offers to modify the
+source.
+
+The variable `erlang-electric-commands' controls the electric
+commands.  To deactivate all of them, set it to nil.
+
+There exists a large number of commands and variables in the Erlang
+module.  Please press `M-x apropos RET erlang RET' to see a complete
+list.  Press `C-h f name-of-function RET' and `C-h v name-of-variable
+RET'to see the full description of functions and variables,
+respectively.
+
+On entry to this mode the contents of the hook `erlang-mode-hook' is
+executed.
+
+Please see the beginning of the file `erlang.el' for more information
+and examples of hooks.
+
+Other commands:
+\\{erlang-mode-map}
+
+\(fn)" t nil)
+
+(autoload (quote erlang-find-tag) "erlang" "\
+Like `find-tag'.  Capable of retrieving Erlang modules.
+
+Tags can be given on the forms `tag', `module:', `module:tag'.
+
+\(fn MODTAGNAME &optional NEXT-P REGEXP-P)" t nil)
+
+(autoload (quote erlang-find-tag-other-window) "erlang" "\
+Like `find-tag-other-window' but aware of Erlang modules.
+
+\(fn TAGNAME &optional NEXT-P REGEXP-P)" t nil)
+
+(autoload (quote erlang-shell) "erlang" "\
+Start a new Erlang shell.
+
+The variable `erlang-shell-function' decides which method to use,
+default is to start a new Erlang host.  It is possible that, in the
+future, a new shell on an already running host will be started.
+
+\(fn)" t nil)
+ (autoload 'run-erlang "erlang" "Start a new Erlang shell." t)
+
+(autoload (quote erlang-compile) "erlang" "\
+Compile Erlang module in current buffer.
+
+\(fn)" t nil)
+
+(autoload (quote inferior-erlang) "erlang" "\
+Run an inferior Erlang.
+
+This is just like running Erlang in a normal shell, except that
+an Emacs buffer is used for input and output.
+\\<comint-mode-map>
+The command line history can be accessed with  \\[comint-previous-input]  and  \\[comint-next-input].
+The history is saved between sessions.
+
+Entry to this mode calls the functions in the variables
+`comint-mode-hook' and `erlang-shell-mode-hook' with no arguments.
+
+The following commands imitate the usual Unix interrupt and
+editing control characters:
+\\{erlang-shell-mode-map}
+
+\(fn)" t nil)
+
+;;;***
+
 ;;;### (autoloads (eshell-toggle eshell-toggle-cd) "esh-toggle" "esh-toggle.el"
-;;;;;;  (15542 40456))
+;;;;;;  (18429 49044))
 ;;; Generated autoloads from esh-toggle.el
 
 (autoload (quote eshell-toggle-cd) "esh-toggle" "\
@@ -950,7 +1064,7 @@ Options: `eshell-toggle-goto-eob'
 ;;;***
 
 ;;;### (autoloads (eval-expr eval-expr-install) "eval-expr" "site-lisp/eval-expr.el"
-;;;;;;  (18084 9489))
+;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/eval-expr.el
 
 (defvar eval-expr-error-message-delay 3 "\
@@ -1006,7 +1120,7 @@ Value is also consed on to front of the variable `values'.
 ;;;***
 
 ;;;### (autoloads (find-and-load-library find-library) "find-library"
-;;;;;;  "site-lisp/find-library.el" (18084 9489))
+;;;;;;  "site-lisp/find-library.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/find-library.el
 
 (autoload (quote find-library) "find-library" "\
@@ -1022,7 +1136,7 @@ Find a library file with completion.
 ;;;***
 
 ;;;### (autoloads (redo-footnotes) "footnote-ext" "footnote-ext.el"
-;;;;;;  (18085 9074))
+;;;;;;  (18429 49044))
 ;;; Generated autoloads from footnote-ext.el
 
 (autoload (quote redo-footnotes) "footnote-ext" "\
@@ -1038,8 +1152,31 @@ is also deleted.
 
 ;;;***
 
+;;;### (autoloads (gitsum-view gitsum) "gitsum-new" "gitsum-new.el"
+;;;;;;  (18596 62320))
+;;; Generated autoloads from gitsum-new.el
+
+(autoload (quote gitsum) "gitsum-new" "\
+Run `git-status' in DIRECTORY, displaying the output in `gitsum-mode'.
+
+When invoked interactively, prompt for the directory to display changes for.
+
+\(fn DIRECTORY &optional LOOK-FOR-ADDS NO-DISPLAY SHOW-CONTEXT)" t nil)
+
+(autoload (quote gitsum-view) "gitsum-new" "\
+View the contents of the current buffer as a Git changeset for DIRECTORY.
+More precisely, searches forward from point for the next changeset-like region,
+and attempts to parse that as a Git patch.
+
+When invoked interactively, prompts for a directory; by default, the current
+working directory is assumed.
+
+\(fn DIRECTORY)" t nil)
+
+;;;***
+
 ;;;### (autoloads (groovy-mode) "groovy-mode" "site-lisp/groovy-mode.el"
-;;;;;;  (18084 9490))
+;;;;;;  (18429 49076))
 ;;; Generated autoloads from site-lisp/groovy-mode.el
 
 (autoload (quote groovy-mode) "groovy-mode" "\
@@ -1056,7 +1193,7 @@ The variable groovy-indent-level controls the amount of indentation.
 ;;;***
 
 ;;;### (autoloads (enable-lui-irc-colors) "lui-irc-colors" "site-lisp/circe/lui-irc-colors.el"
-;;;;;;  (18087 33243))
+;;;;;;  (18588 376))
 ;;; Generated autoloads from site-lisp/circe/lui-irc-colors.el
 
 (autoload (quote enable-lui-irc-colors) "lui-irc-colors" "\
@@ -1066,19 +1203,8 @@ Enable IRC color interpretation for Lui.
 
 ;;;***
 
-;;;### (autoloads (mime-w3m-preview-text/html) "mime-w3m" "site-lisp/emacs-w3m/mime-w3m.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/mime-w3m.el
-
-(autoload (quote mime-w3m-preview-text/html) "mime-w3m" "\
-Not documented
-
-\(fn ENTITY SITUATION)" nil nil)
-
-;;;***
-
 ;;;### (autoloads (nnml-generate-nov-databases) "nnml" "nnml.el"
-;;;;;;  (18208 5033))
+;;;;;;  (18429 49044))
 ;;; Generated autoloads from nnml.el
 
 (autoload (quote nnml-generate-nov-databases) "nnml" "\
@@ -1089,7 +1215,7 @@ Generate NOV databases in all nnml directories.
 ;;;***
 
 ;;;### (autoloads (nxml-glyph-display-string) "nxml-glyph" "site-lisp/nxml-mode/nxml-glyph.el"
-;;;;;;  (18090 5620))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/nxml-glyph.el
 
 (autoload (quote nxml-glyph-display-string) "nxml-glyph" "\
@@ -1102,7 +1228,7 @@ Return nil if the face cannot display a glyph for N.
 ;;;***
 
 ;;;### (autoloads (nxml-mode) "nxml-mode" "site-lisp/nxml-mode/nxml-mode.el"
-;;;;;;  (18090 5620))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/nxml-mode.el
 
 (autoload (quote nxml-mode) "nxml-mode" "\
@@ -1165,7 +1291,7 @@ Many aspects this mode can be customized using
 ;;;***
 
 ;;;### (autoloads (nxml-enable-unicode-char-name-sets) "nxml-uchnm"
-;;;;;;  "site-lisp/nxml-mode/nxml-uchnm.el" (18090 5620))
+;;;;;;  "site-lisp/nxml-mode/nxml-uchnm.el" (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/nxml-uchnm.el
 
 (autoload (quote nxml-enable-unicode-char-name-sets) "nxml-uchnm" "\
@@ -1177,42 +1303,8 @@ the variable `nxml-enabled-unicode-blocks'.
 
 ;;;***
 
-;;;### (autoloads (octet-mime-setup mime-view-octet mime-preview-octet
-;;;;;;  octet-find-file octet-buffer) "octet" "site-lisp/emacs-w3m/octet.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/octet.el
-
-(autoload (quote octet-buffer) "octet" "\
-View octet-stream content according to `octet-type-filter-alist'.
-Optional NAME is the filename.
-If optional CONTENT-TYPE is specified, it is used for type guess.
-
-\(fn &optional NAME CONTENT-TYPE)" t nil)
-
-(autoload (quote octet-find-file) "octet" "\
-Find FILE with octet-stream decoding.
-
-\(fn FILE)" t nil)
-
-(autoload (quote mime-preview-octet) "octet" "\
-A method for mime-view to preview octet message.
-
-\(fn ENTITY SITUATION)" nil nil)
-
-(autoload (quote mime-view-octet) "octet" "\
-A method for mime-view to display octet message.
-
-\(fn ENTITY SITUATION)" nil nil)
-
-(autoload (quote octet-mime-setup) "octet" "\
-Octet setting for MIME module.
-
-\(fn)" nil nil)
-
-;;;***
-
 ;;;### (autoloads (pcomplete/scp pcomplete/ssh) "pcmpl-ssh" "site-lisp/pcmpl-ssh.el"
-;;;;;;  (18261 64359))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/pcmpl-ssh.el
 
 (autoload (quote pcomplete/ssh) "pcmpl-ssh" "\
@@ -1230,7 +1322,7 @@ Includes files as well as host names followed by a colon.
 ;;;***
 
 ;;;### (autoloads (run-prolog mercury-mode prolog-mode) "prolog"
-;;;;;;  "site-lisp/prolog.el" (18145 21220))
+;;;;;;  "site-lisp/prolog.el" (18429 49078))
 ;;; Generated autoloads from site-lisp/prolog.el
 
 (autoload (quote prolog-mode) "prolog" "\
@@ -1266,7 +1358,7 @@ With prefix argument ARG, restart the Prolog process if running before.
 ;;;***
 
 ;;;### (autoloads (svn-status svn-checkout) "psvn" "site-lisp/psvn.el"
-;;;;;;  (18206 14650))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/psvn.el
 
 (autoload (quote svn-checkout) "psvn" "\
@@ -1290,9 +1382,79 @@ If there is no .svn directory, examine if there is CVS and run
 
 ;;;***
 
+;;;### (autoloads (inferior-qi) "qi-mode" "site-lisp/qi-mode.el"
+;;;;;;  (18429 49078))
+;;; Generated autoloads from site-lisp/qi-mode.el
+
+(defvar inferior-qi-filter-regexp "\\`\\s *\\(:\\(\\w\\|\\s_\\)\\)?\\s *\\'" "\
+*What not to save on inferior Qi's input history.
+Input matching this regexp is not saved on the input history in Inferior Qi
+mode.  Default is whitespace followed by 0 or 1 single-letter colon-keyword
+\(as in :a, :c, etc.)")
+
+(defvar inferior-qi-program "Qi" "\
+*Program name for invoking an inferior Qi with for Inferior Qi mode.")
+
+(defvar inferior-qi-load-command "(load \"%s\")\n" "\
+*Format-string for building a Qi expression to load a file.
+This format string should use `%s' to substitute a file name
+and should result in a Qi expression that will command the inferior Qi
+to load that file.  The default works acceptably on most Qis.
+The string \"(progn (load \\\"%s\\\" :verbose nil :print t) (values))\\n\"
+produces cosmetically superior output for this application,
+but it works only in Common Qi.")
+
+(defvar inferior-qi-prompt "^[^> \n]*>+:? *" "\
+Regexp to recognise prompts in the Inferior Qi mode.
+Defaults to \"^[^> \\n]*>+:? *\", which works pretty good for Lucid, kcl,
+and franz.  This variable is used to initialize `comint-prompt-regexp' in the
+Inferior Qi buffer.
+
+This variable is only used if the variable
+`comint-use-prompt-regexp-instead-of-fields' is non-nil.
+
+More precise choices:
+Lucid Common Qi: \"^\\\\(>\\\\|\\\\(->\\\\)+\\\\) *\"
+franz: \"^\\\\(->\\\\|<[0-9]*>:\\\\) *\"
+kcl: \"^>+ *\"
+
+This is a fine thing to set in your .emacs file.")
+
+(defvar inferior-qi-mode-hook (quote nil) "\
+*Hook for customising Inferior Qi mode.")
+
+(autoload (quote inferior-qi) "qi-mode" "\
+Run an inferior Qi process, input and output via buffer `*inferior-qi*'.
+If there is a process already running in `*inferior-qi*', just switch
+to that buffer.
+With argument, allows you to edit the command line (default is value
+of `inferior-qi-program').  Runs the hooks from
+`inferior-qi-mode-hook' (after the `comint-mode-hook' is run).
+\(Type \\[describe-mode] in the process buffer for a list of commands.)
+
+\(fn CMD)" t nil)
+ (add-hook 'same-window-buffer-names "*inferior-qi*")
+
+(defalias (quote run-qi) (quote inferior-qi))
+
+;;;***
+
+;;;### (autoloads (rdebug) "rdebug" "site-lisp/ruby/rdebug.el" (18429
+;;;;;;  49078))
+;;; Generated autoloads from site-lisp/ruby/rdebug.el
+
+(autoload (quote rdebug) "rdebug" "\
+Run rdebug on program FILE in buffer *gud-FILE*.
+The directory containing FILE becomes the initial working directory
+and source-file directory for your debugger.
+
+\(fn COMMAND-LINE)" t nil)
+
+;;;***
+
 ;;;### (autoloads (remember-destroy remember-buffer remember-clipboard
 ;;;;;;  remember-region remember-other-frame remember) "remember"
-;;;;;;  "site-lisp/remember/remember.el" (18144 32674))
+;;;;;;  "site-lisp/remember/remember.el" (18440 14782))
 ;;; Generated autoloads from site-lisp/remember/remember.el
 
 (autoload (quote remember) "remember" "\
@@ -1337,7 +1499,7 @@ Destroy the current *Remember* buffer.
 ;;;***
 
 ;;;### (autoloads (remember-bbdb-store-in-mailbox) "remember-bbdb"
-;;;;;;  "site-lisp/remember/remember-bbdb.el" (18090 5625))
+;;;;;;  "site-lisp/remember/remember-bbdb.el" (18439 32216))
 ;;; Generated autoloads from site-lisp/remember/remember-bbdb.el
 
 (autoload (quote remember-bbdb-store-in-mailbox) "remember-bbdb" "\
@@ -1351,7 +1513,7 @@ field, for the purpose of appropriate splitting.
 ;;;***
 
 ;;;### (autoloads (remember-location remember-url) "remember-bibl"
-;;;;;;  "site-lisp/remember/remember-bibl.el" (18090 5625))
+;;;;;;  "site-lisp/remember/remember-bibl.el" (18439 32216))
 ;;; Generated autoloads from site-lisp/remember/remember-bibl.el
 
 (autoload (quote remember-url) "remember-bibl" "\
@@ -1367,7 +1529,7 @@ Remember a bookmark location in `bibl-mode'.
 ;;;***
 
 ;;;### (autoloads (remember-blosxom) "remember-blosxom" "site-lisp/remember/remember-blosxom.el"
-;;;;;;  (18090 5625))
+;;;;;;  (18439 32216))
 ;;; Generated autoloads from site-lisp/remember/remember-blosxom.el
 
 (autoload (quote remember-blosxom) "remember-blosxom" "\
@@ -1380,8 +1542,8 @@ This function can be added to `remember-handler-functions'.
 
 ;;;### (autoloads (remember-emacs-wiki-journal-add-entry-maybe remember-emacs-wiki-journal-add-entry-auto
 ;;;;;;  remember-emacs-wiki-journal-add-entry) "remember-emacs-wiki-journal"
-;;;;;;  "site-lisp/remember/remember-emacs-wiki-journal.el" (18090
-;;;;;;  5625))
+;;;;;;  "site-lisp/remember/remember-emacs-wiki-journal.el" (18439
+;;;;;;  32216))
 ;;; Generated autoloads from site-lisp/remember/remember-emacs-wiki-journal.el
 
 (autoload (quote remember-emacs-wiki-journal-add-entry) "remember-emacs-wiki-journal" "\
@@ -1404,7 +1566,7 @@ entry if the first line matches `emacs-wiki-journal-category-regexp'.
 ;;;***
 
 ;;;### (autoloads (rfcview-mode rfcview-customize) "rfcview" "site-lisp/rfcview.el"
-;;;;;;  (18084 9490))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/rfcview.el
 
 (autoload (quote rfcview-customize) "rfcview" "\
@@ -1425,7 +1587,7 @@ Key bindings:
 ;;;***
 
 ;;;### (autoloads (rng-c-load-schema) "rng-cmpct" "site-lisp/nxml-mode/rng-cmpct.el"
-;;;;;;  (18090 5620))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/rng-cmpct.el
 
 (autoload (quote rng-c-load-schema) "rng-cmpct" "\
@@ -1438,7 +1600,7 @@ Return a pattern.
 
 ;;;### (autoloads (rng-write-version rng-format-manual rng-byte-compile-load
 ;;;;;;  rng-update-autoloads) "rng-maint" "site-lisp/nxml-mode/rng-maint.el"
-;;;;;;  (18090 5620))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/rng-maint.el
 
 (autoload (quote rng-update-autoloads) "rng-maint" "\
@@ -1464,7 +1626,7 @@ Not documented
 ;;;***
 
 ;;;### (autoloads (rng-nxml-mode-init) "rng-nxml" "site-lisp/nxml-mode/rng-nxml.el"
-;;;;;;  (18090 5620))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/rng-nxml.el
 
 (autoload (quote rng-nxml-mode-init) "rng-nxml" "\
@@ -1477,7 +1639,7 @@ Validation will be enabled if `rng-nxml-auto-validate-flag' is non-nil.
 ;;;***
 
 ;;;### (autoloads (rng-validate-mode) "rng-valid" "site-lisp/nxml-mode/rng-valid.el"
-;;;;;;  (18090 5620))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/rng-valid.el
 
 (autoload (quote rng-validate-mode) "rng-valid" "\
@@ -1508,7 +1670,7 @@ to use for finding the schema.
 ;;;***
 
 ;;;### (autoloads (rng-xsd-compile) "rng-xsd" "site-lisp/nxml-mode/rng-xsd.el"
-;;;;;;  (18090 5620))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/rng-xsd.el
 
 (put (quote http://www\.w3\.org/2001/XMLSchema-datatypes) (quote rng-dt-compile) (quote rng-xsd-compile))
@@ -1534,8 +1696,51 @@ strings represent the same value, the returned objects must be equal.
 
 ;;;***
 
+;;;### (autoloads (ruby-mode) "ruby-mode" "site-lisp/ruby/ruby-mode.el"
+;;;;;;  (18429 49078))
+;;; Generated autoloads from site-lisp/ruby/ruby-mode.el
+
+(autoload (quote ruby-mode) "ruby-mode" "\
+Major mode for editing ruby scripts.
+\\[ruby-indent-command] properly indents subexpressions of multi-line
+class, module, def, if, while, for, do, and case statements, taking
+nesting into account.
+
+The variable ruby-indent-level controls the amount of indentation.
+\\{ruby-mode-map}
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (rubydb) "rubydb2x" "site-lisp/ruby/rubydb2x.el"
+;;;;;;  (18429 49078))
+;;; Generated autoloads from site-lisp/ruby/rubydb2x.el
+
+(autoload (quote rubydb) "rubydb2x" "\
+Run rubydb on program FILE in buffer *gud-FILE*.
+The directory containing FILE becomes the initial working directory
+and source-file directory for your debugger.
+
+\(fn COMMAND-LINE)" t nil)
+
+;;;***
+
+;;;### (autoloads (rubydb) "rubydb3x" "site-lisp/ruby/rubydb3x.el"
+;;;;;;  (18429 49078))
+;;; Generated autoloads from site-lisp/ruby/rubydb3x.el
+
+(autoload (quote rubydb) "rubydb3x" "\
+Run rubydb on program FILE in buffer *gud-FILE*.
+The directory containing FILE becomes the initial working directory
+and source-file directory for your debugger.
+
+\(fn COMMAND-LINE)" t nil)
+
+;;;***
+
 ;;;### (autoloads (schedule-completion-time) "schedule" "schedule.el"
-;;;;;;  (18205 36835))
+;;;;;;  (18429 49044))
 ;;; Generated autoloads from schedule.el
 
 (autoload (quote schedule-completion-time) "schedule" "\
@@ -1549,7 +1754,7 @@ gets called.
 ;;;***
 
 ;;;### (autoloads (session-initialize) "session" "site-lisp/session.el"
-;;;;;;  (18084 9489))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/session.el
 
 (autoload (quote session-initialize) "session" "\
@@ -1562,7 +1767,7 @@ this function to `after-init-hook'.
 
 ;;;***
 
-;;;### (autoloads (ssh) "ssh" "site-lisp/ssh.el" (18084 9489))
+;;;### (autoloads (ssh) "ssh" "site-lisp/ssh.el" (18429 49078))
 ;;; Generated autoloads from site-lisp/ssh.el
  (add-hook 'same-window-regexps "^\\*ssh-.*\\*\\(\\|<[0-9]+>\\)")
 
@@ -1607,21 +1812,7 @@ variable.
 
 ;;;***
 
-;;;### (autoloads nil "vc-svk" "site-lisp/vc-svk.el" (18085 16352))
-;;; Generated autoloads from site-lisp/vc-svk.el
- (add-to-list 'vc-handled-backends 'SVK)
- (defun vc-svk-registered (file)
-  (when (string-match
-         "^Checkout Path:"
-         (shell-command-to-string (concat "svk info "
-                                          (expand-file-name file))))
-    (setq file nil)
-    (load "vc-svk")
-    (vc-svk-registered file)))
-
-;;;***
-
-;;;### (autoloads (visit-url) "visit-url" "visit-url.el" (15179 41965))
+;;;### (autoloads (visit-url) "visit-url" "visit-url.el" (18429 49044))
 ;;; Generated autoloads from visit-url.el
 
 (autoload (quote visit-url) "visit-url" "\
@@ -1631,359 +1822,8 @@ Not documented
 
 ;;;***
 
-;;;### (autoloads (w3m-region w3m-find-file w3m-browse-url w3m w3m-gohome
-;;;;;;  w3m-goto-url-new-session w3m-goto-url w3m-download w3m-retrieve)
-;;;;;;  "w3m" "site-lisp/emacs-w3m/w3m.el" (18090 5606))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m.el
-
-(autoload (quote w3m-retrieve) "w3m" "\
-Retrieve web contents pointed to by URL.
-It will put the retrieved contents into the current buffer.
-
-If HANDLER is nil, this function will retrieve web contents, return
-the content type of the retrieved data, and then come to an end.  This
-behavior is what is called a synchronous operation.  You have to
-specify HANDLER in order to make this function show its real ability,
-which is called an asynchronous operation.
-
-If HANDLER is a function, this function will come to an end in no time.
-In this case, contents will be retrieved by the asynchronous process
-after a while.  And after finishing retrieving contents successfully,
-HANDLER will be called on the buffer where this function starts.  The
-content type of the retrieved data will be passed to HANDLER as a
-string argument.
-
-NO-DECODE specifies whether this function should not decode contents.
-NO-CACHE specifies whether this function should not use cached contents.
-POST-DATA and REFERER will be sent to the web server with a request.
-
-\(fn URL &optional NO-DECODE NO-CACHE POST-DATA REFERER HANDLER)" nil nil)
-
-(autoload (quote w3m-download) "w3m" "\
-Not documented
-
-\(fn URL &optional FILENAME NO-CACHE HANDLER)" t nil)
-
-(autoload (quote w3m-goto-url) "w3m" "\
-Visit World Wide Web pages.  This is the primitive function of `w3m'.
-If the second argument RELOAD is non-nil, reload a content of URL.
-Except that if it is 'redisplay, re-display the page without reloading.
-The third argument CHARSET specifies a charset to be used for decoding
-a content.
-The fourth argument POST-DATA should be a string or a cons cell.  If
-it is a string, it makes this function request a body as if the
-content-type is \"x-www-form-urlencoded\".  If it is a cons cell, the
-car of a cell is used as the content-type and the cdr of a cell is
-used as the body.
-If the fifth argument REFERER is specified, it is used for a Referer:
-field for this request.
-The remaining HANDLER and ELEMENT[1] are for the internal operations
-of emacs-w3m.
-You can also use \"quicksearch\" url schemes such as \"gg:emacs\" which
-would search for the term \"emacs\" with the Google search engine.  See
-the `w3m-search' function and the variable `w3m-uri-replace-alist'.
-
-\[1] A note for the developers: ELEMENT is a history element which has
-already been registered in the `w3m-history-flat' variable.  It is
-corresponding to URL to be retrieved at this time, not for the url of
-the current page.
-
-\(fn URL &optional RELOAD CHARSET POST-DATA REFERER HANDLER ELEMENT)" t nil)
-
-(autoload (quote w3m-goto-url-new-session) "w3m" "\
-Visit World Wide Web pages in a new session.
-If you invoke this command in the emacs-w3m buffer, the new session
-will be created by copying the current session.  Otherwise, the new
-session will start afresh.
-
-\(fn URL &optional RELOAD CHARSET POST-DATA REFERER)" t nil)
-
-(autoload (quote w3m-gohome) "w3m" "\
-Go to the Home page.
-
-\(fn)" t nil)
-
-(autoload (quote w3m) "w3m" "\
-Visit World Wide Web pages using the external w3m command.
-
-When you invoke this command interactively for the first time, it will
-visit a page which is pointed to by a string like url around the
-cursor position or the home page specified by the `w3m-home-page'
-variable, but you will be prompted for a URL if `w3m-quick-start' is
-nil (default t) or `w3m-home-page' is nil.
-
-The variables `w3m-pop-up-windows' and `w3m-pop-up-frames' control
-whether this command should pop to a window or a frame up for the
-session.
-
-When emacs-w3m sessions have already been opened, this command will
-pop to the existing window or frame up, but if `w3m-quick-start' is
-nil, (default t), you will be prompted for a URL (which defaults to
-`popup' meaning to pop to an existing emacs-w3m buffer up).
-
-In addition, if the prefix argument is given or you enter the empty
-string for the prompt, it will visit the home page specified by the
-`w3m-home-page' variable or the \"about:\" page.
-
-You can also run this command in the batch mode as follows:
-
-  emacs -f w3m http://emacs-w3m.namazu.org/ &
-
-In that case, or if this command is called non-interactively, the
-variables `w3m-pop-up-windows' and `w3m-pop-up-frames' will be ignored
-\(treated as nil) and it will run emacs-w3m at the current (or the
-initial) window.
-
-If the optional NEW-SESSION is non-nil, this function makes a new
-emacs-w3m buffer.  Besides that, it also makes a new emacs-w3m buffer
-if `w3m-make-new-session' is non-nil and a user specifies a url string.
-
-The optional INTERACTIVE-P is for the internal use; it is mainly used
-to check whether Emacs 22 or later calls this function as an
-interactive command in the batch mode.
-
-\(fn &optional URL NEW-SESSION INTERACTIVE-P)" t nil)
-
-(autoload (quote w3m-browse-url) "w3m" "\
-Ask emacs-w3m to browse URL.
-NEW-SESSION specifies whether to create a new emacs-w3m session.  URL
-defaults to the string looking like a url around the cursor position.
-Pop to a window or a frame up according to `w3m-pop-up-windows' and
-`w3m-pop-up-frames'.
-
-\(fn URL &optional NEW-SESSION)" t nil)
-
-(autoload (quote w3m-find-file) "w3m" "\
-Function used to open FILE whose name is expressed in ordinary format.
-The file name will be converted into the file: scheme.
-
-\(fn FILE)" t nil)
-
-(autoload (quote w3m-region) "w3m" "\
-Render the region of the current buffer between START and END.
-URL specifies the address where the contents come from.  It can be
-omitted or nil when the address is not identified.  CHARSET is used
-for decoding the contents.  If it is nil, this function attempts to
-parse the meta tag to extract the charset.
-
-\(fn START END &optional URL CHARSET)" t nil)
-
-;;;***
-
-;;;### (autoloads (w3m-antenna w3m-about-antenna) "w3m-antenna" "site-lisp/emacs-w3m/w3m-antenna.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-antenna.el
-
-(autoload (quote w3m-about-antenna) "w3m-antenna" "\
-Not documented
-
-\(fn URL &optional NO-DECODE NO-CACHE POST-DATA REFERER HANDLER)" nil nil)
-
-(autoload (quote w3m-antenna) "w3m-antenna" "\
-Report changes of WEB sites, which is specified in `w3m-antenna-sites'.
-
-\(fn &optional NO-CACHE)" t nil)
-
-;;;***
-
-;;;### (autoloads (w3m-about-bookmark w3m-bookmark-view w3m-bookmark-add-current-url-group
-;;;;;;  w3m-bookmark-add-current-url w3m-bookmark-add-this-url) "w3m-bookmark"
-;;;;;;  "site-lisp/emacs-w3m/w3m-bookmark.el" (18090 5606))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-bookmark.el
-
-(autoload (quote w3m-bookmark-add-this-url) "w3m-bookmark" "\
-Add link under cursor to bookmark.
-
-\(fn)" t nil)
-
-(autoload (quote w3m-bookmark-add-current-url) "w3m-bookmark" "\
-Add link of current page to bookmark.
-With prefix, ask new url to add instead of current page.
-
-\(fn &optional ARG)" t nil)
-
-(autoload (quote w3m-bookmark-add-current-url-group) "w3m-bookmark" "\
-Add link of the group of current urls to the bookmark.
-
-\(fn)" t nil)
-
-(autoload (quote w3m-bookmark-view) "w3m-bookmark" "\
-Not documented
-
-\(fn &optional RELOAD)" t nil)
-
-(autoload (quote w3m-about-bookmark) "w3m-bookmark" "\
-Not documented
-
-\(fn &rest ARGS)" nil nil)
-
-;;;***
-
-;;;### (autoloads (w3m-about-cookie w3m-cookie w3m-cookie-get w3m-cookie-set
-;;;;;;  w3m-cookie-shutdown) "w3m-cookie" "site-lisp/emacs-w3m/w3m-cookie.el"
-;;;;;;  (18090 5606))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-cookie.el
-
-(autoload (quote w3m-cookie-shutdown) "w3m-cookie" "\
-Save cookies.
-
-\(fn)" t nil)
-
-(autoload (quote w3m-cookie-set) "w3m-cookie" "\
-Register cookies which correspond to URL.
-BEG and END should be an HTTP response header region on current buffer.
-
-\(fn URL BEG END)" nil nil)
-
-(autoload (quote w3m-cookie-get) "w3m-cookie" "\
-Get a cookie field string which corresponds to the URL.
-
-\(fn URL)" nil nil)
-
-(autoload (quote w3m-cookie) "w3m-cookie" "\
-Display cookies and enable you to manage them.
-
-\(fn &optional NO-CACHE)" t nil)
-
-(autoload (quote w3m-about-cookie) "w3m-cookie" "\
-Make the html contents to display and to enable you to manage cookies.
-
-\(fn URL &optional NO-DECODE NO-CACHE POST-DATA &rest ARGS)" nil nil)
-
-;;;***
-
-;;;### (autoloads (w3m-dtree w3m-about-dtree) "w3m-dtree" "site-lisp/emacs-w3m/w3m-dtree.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-dtree.el
-
-(autoload (quote w3m-about-dtree) "w3m-dtree" "\
-Not documented
-
-\(fn URL &optional NODECODE ALLFILES &rest ARGS)" nil nil)
-
-(autoload (quote w3m-dtree) "w3m-dtree" "\
-Display directory tree on local file system.
-If called with 'prefix argument', display all directorys and files.
-
-\(fn ALLFILES PATH)" t nil)
-
-;;;***
-
-;;;### (autoloads (w3m-filter) "w3m-filter" "site-lisp/emacs-w3m/w3m-filter.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-filter.el
-
-(autoload (quote w3m-filter) "w3m-filter" "\
-Apply filtering rule of URL against a content in this buffer.
-
-\(fn URL)" nil nil)
-
-;;;***
-
-;;;### (autoloads (w3m-fontify-forms) "w3m-form" "site-lisp/emacs-w3m/w3m-form.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-form.el
-
-(autoload (quote w3m-fontify-forms) "w3m-form" "\
-Process half-dumped data and fontify forms in this buffer.
-
-\(fn)" nil nil)
-
-;;;***
-
-;;;### (autoloads (w3m-link-numbering-mode) "w3m-lnum" "site-lisp/emacs-w3m/w3m-lnum.el"
-;;;;;;  (18090 5606))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-lnum.el
-
-(autoload (quote w3m-link-numbering-mode) "w3m-lnum" "\
-Minor mode to enable operations using link numbers.
-
-\(fn &optional ARG)" t nil)
-
-;;;***
-
-;;;### (autoloads (w3m-namazu w3m-about-namazu) "w3m-namazu" "site-lisp/emacs-w3m/w3m-namazu.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-namazu.el
-
-(autoload (quote w3m-about-namazu) "w3m-namazu" "\
-Not documented
-
-\(fn URL &optional NO-DECODE NO-CACHE &rest ARGS)" nil nil)
-
-(autoload (quote w3m-namazu) "w3m-namazu" "\
-Search indexed files with Namazu.
-
-\(fn INDEX QUERY &optional RELOAD)" t nil)
-
-;;;***
-
-;;;### (autoloads (w3m-perldoc w3m-about-perldoc) "w3m-perldoc" "site-lisp/emacs-w3m/w3m-perldoc.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-perldoc.el
-
-(autoload (quote w3m-about-perldoc) "w3m-perldoc" "\
-Not documented
-
-\(fn URL &optional NO-DECODE NO-CACHE &rest ARGS)" nil nil)
-
-(autoload (quote w3m-perldoc) "w3m-perldoc" "\
-View Perl documents.
-
-\(fn DOCNAME)" t nil)
-
-;;;***
-
-;;;### (autoloads (w3m-search-uri-replace w3m-search) "w3m-search"
-;;;;;;  "site-lisp/emacs-w3m/w3m-search.el" (18090 5606))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-search.el
-
-(autoload (quote w3m-search) "w3m-search" "\
-Search QUERY using SEARCH-ENGINE.
-When called interactively with a prefix argument, you can choose one of
-the search engines defined in `w3m-search-engine-alist'.  Otherwise use
-`w3m-search-default-engine'.
-If Transient Mark mode, use the region as an initial string of query
-and deactivate the mark.
-
-\(fn SEARCH-ENGINE QUERY)" t nil)
-
-(autoload (quote w3m-search-uri-replace) "w3m-search" "\
-Generate query string for ENGINE from URI matched by last search.
-
-\(fn URI ENGINE)" nil nil)
-
-;;;***
-
-;;;### (autoloads (w3m-replace-symbol) "w3m-symbol" "site-lisp/emacs-w3m/w3m-symbol.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-symbol.el
-
-(autoload (quote w3m-replace-symbol) "w3m-symbol" "\
-Not documented
-
-\(fn)" nil nil)
-
-;;;***
-
-;;;### (autoloads (w3m-about-weather w3m-weather) "w3m-weather" "site-lisp/emacs-w3m/w3m-weather.el"
-;;;;;;  (18090 5605))
-;;; Generated autoloads from site-lisp/emacs-w3m/w3m-weather.el
-
-(autoload (quote w3m-weather) "w3m-weather" "\
-Display weather report.
-
-\(fn AREA)" t nil)
-
-(autoload (quote w3m-about-weather) "w3m-weather" "\
-Not documented
-
-\(fn URL NO-DECODE NO-CACHE POST-DATA REFERER HANDLER)" nil nil)
-
-;;;***
-
 ;;;### (autoloads (xmltok-get-declared-encoding-position) "xmltok"
-;;;;;;  "site-lisp/nxml-mode/xmltok.el" (18090 5620))
+;;;;;;  "site-lisp/nxml-mode/xmltok.el" (18429 49078))
 ;;; Generated autoloads from site-lisp/nxml-mode/xmltok.el
 
 (autoload (quote xmltok-get-declared-encoding-position) "xmltok" "\
@@ -2005,7 +1845,7 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT.
 ;;;;;;  xray-overlay xray-marker xray-frame xray-window xray-buffer
 ;;;;;;  xray-position xray-symbol xray-click/key xray-on-mode-line-click
 ;;;;;;  xray-on-click xray-customize) "xray" "site-lisp/xray.el"
-;;;;;;  (18243 36009))
+;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/xray.el
 
 (autoload (quote xray-customize) "xray" "\
@@ -2215,9 +2055,9 @@ See `xray-customize' for customization.
 ;;;***
 
 ;;;### (autoloads nil nil ("am-send.el" "cus-dirs.el" "flyspell-ext.el"
-;;;;;;  "initsplit.el" "org-crypt.el" "org-devonthink.el" "org-message.el"
-;;;;;;  "regex-tool.el" "site-lisp/anything.el" "site-lisp/anything.el"
-;;;;;;  "site-lisp/circe/circe-auto.el" "site-lisp/circe/circe-chanop.el"
+;;;;;;  "initsplit.el" "muse-markdown.el" "org-attach.el" "org-crypt.el"
+;;;;;;  "org-devonthink.el" "regex-tool.el" "site-lisp/anything.el"
+;;;;;;  "site-lisp/anything.el" "site-lisp/circe/circe-auto.el" "site-lisp/circe/circe-chanop.el"
 ;;;;;;  "site-lisp/circe/circe-e21.el" "site-lisp/circe/circe-xemacs.el"
 ;;;;;;  "site-lisp/circe/incomplete.el" "site-lisp/circe/lcs.el"
 ;;;;;;  "site-lisp/circe/lui-format.el" "site-lisp/circe/lui-logging.el"
@@ -2225,54 +2065,51 @@ See `xray-customize' for customization.
 ;;;;;;  "site-lisp/circe/tracking.el" "site-lisp/crypt++.el" "site-lisp/crypt++.el"
 ;;;;;;  "site-lisp/csharp-mode.el" "site-lisp/csharp-mode.el" "site-lisp/css-mode.el"
 ;;;;;;  "site-lisp/css-mode.el" "site-lisp/csv.el" "site-lisp/csv.el"
-;;;;;;  "site-lisp/dedicated.el" "site-lisp/dedicated.el" "site-lisp/dvc-snapshot/dvc-load-install.el"
-;;;;;;  "site-lisp/dvc-snapshot/dvc-load.el" "site-lisp/edit-env.el"
-;;;;;;  "site-lisp/edit-env.el" "site-lisp/emacs-w3m/mew-w3m.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-bitmap.el" "site-lisp/emacs-w3m/w3m-bug.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-ccl.el" "site-lisp/emacs-w3m/w3m-e19.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-e20.el" "site-lisp/emacs-w3m/w3m-e21.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-favicon.el" "site-lisp/emacs-w3m/w3m-fsf.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-hist.el" "site-lisp/emacs-w3m/w3m-image.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-load.el" "site-lisp/emacs-w3m/w3m-om.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-proc.el" "site-lisp/emacs-w3m/w3m-rss.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-tabmenu.el" "site-lisp/emacs-w3m/w3m-ucs.el"
-;;;;;;  "site-lisp/emacs-w3m/w3m-util.el" "site-lisp/emacs-w3m/w3m-xmas.el"
-;;;;;;  "site-lisp/emacs-w3m/w3mhack.el" "site-lisp/epg/epa-dired.el"
-;;;;;;  "site-lisp/epg/epa-setup.el" "site-lisp/epg/epg-package-info.el"
+;;;;;;  "site-lisp/dedicated.el" "site-lisp/dedicated.el" "site-lisp/edit-env.el"
+;;;;;;  "site-lisp/edit-env.el" "site-lisp/epg/epa-dired.el" "site-lisp/epg/epa-setup.el"
+;;;;;;  "site-lisp/epg/epg-package-info.el" "site-lisp/erlang-start.el"
+;;;;;;  "site-lisp/erlang-start.el" "site-lisp/ewoc-example.el" "site-lisp/ewoc-example.el"
 ;;;;;;  "site-lisp/fdb.el" "site-lisp/fdb.el" "site-lisp/fm.el" "site-lisp/fm.el"
-;;;;;;  "site-lisp/hide-search.el" "site-lisp/hide-search.el" "site-lisp/include.el"
-;;;;;;  "site-lisp/include.el" "site-lisp/indentx.el" "site-lisp/indentx.el"
-;;;;;;  "site-lisp/indirect.el" "site-lisp/indirect.el" "site-lisp/ipython.el"
-;;;;;;  "site-lisp/ipython.el" "site-lisp/lisppaste.el" "site-lisp/lisppaste.el"
+;;;;;;  "site-lisp/gitsum/gitsum.el" "site-lisp/hide-search.el" "site-lisp/hide-search.el"
+;;;;;;  "site-lisp/include.el" "site-lisp/include.el" "site-lisp/indentx.el"
+;;;;;;  "site-lisp/indentx.el" "site-lisp/indirect.el" "site-lisp/indirect.el"
+;;;;;;  "site-lisp/ipython.el" "site-lisp/ipython.el" "site-lisp/js2.el"
+;;;;;;  "site-lisp/js2.el" "site-lisp/lisppaste.el" "site-lisp/lisppaste.el"
 ;;;;;;  "site-lisp/marker-visit.el" "site-lisp/marker-visit.el" "site-lisp/mdfind.el"
 ;;;;;;  "site-lisp/mdfind.el" "site-lisp/message-x.el" "site-lisp/message-x.el"
 ;;;;;;  "site-lisp/mudel.el" "site-lisp/mudel.el" "site-lisp/multi-region.el"
 ;;;;;;  "site-lisp/multi-region.el" "site-lisp/narrow-stack.el" "site-lisp/narrow-stack.el"
-;;;;;;  "site-lisp/nxml-mode/nxml-enc.el" "site-lisp/nxml-mode/nxml-maint.el"
-;;;;;;  "site-lisp/nxml-mode/nxml-ns.el" "site-lisp/nxml-mode/nxml-outln.el"
-;;;;;;  "site-lisp/nxml-mode/nxml-parse.el" "site-lisp/nxml-mode/nxml-rap.el"
-;;;;;;  "site-lisp/nxml-mode/nxml-util.el" "site-lisp/nxml-mode/rng-auto.el"
-;;;;;;  "site-lisp/nxml-mode/rng-dt.el" "site-lisp/nxml-mode/rng-loc.el"
-;;;;;;  "site-lisp/nxml-mode/rng-match.el" "site-lisp/nxml-mode/rng-parse.el"
-;;;;;;  "site-lisp/nxml-mode/rng-pttrn.el" "site-lisp/nxml-mode/rng-uri.el"
-;;;;;;  "site-lisp/nxml-mode/rng-util.el" "site-lisp/nxml-mode/xsd-regexp.el"
-;;;;;;  "site-lisp/org-log.el" "site-lisp/org-log.el" "site-lisp/pabbrev.el"
-;;;;;;  "site-lisp/pabbrev.el" "site-lisp/paredit.el" "site-lisp/paredit.el"
+;;;;;;  "site-lisp/noweb-mode.el" "site-lisp/noweb-mode.el" "site-lisp/nxml-mode/nxml-enc.el"
+;;;;;;  "site-lisp/nxml-mode/nxml-maint.el" "site-lisp/nxml-mode/nxml-ns.el"
+;;;;;;  "site-lisp/nxml-mode/nxml-outln.el" "site-lisp/nxml-mode/nxml-parse.el"
+;;;;;;  "site-lisp/nxml-mode/nxml-rap.el" "site-lisp/nxml-mode/nxml-util.el"
+;;;;;;  "site-lisp/nxml-mode/rng-auto.el" "site-lisp/nxml-mode/rng-dt.el"
+;;;;;;  "site-lisp/nxml-mode/rng-loc.el" "site-lisp/nxml-mode/rng-match.el"
+;;;;;;  "site-lisp/nxml-mode/rng-parse.el" "site-lisp/nxml-mode/rng-pttrn.el"
+;;;;;;  "site-lisp/nxml-mode/rng-uri.el" "site-lisp/nxml-mode/rng-util.el"
+;;;;;;  "site-lisp/nxml-mode/xsd-regexp.el" "site-lisp/org-ext.el"
+;;;;;;  "site-lisp/org-ext.el" "site-lisp/pabbrev.el" "site-lisp/pabbrev.el"
+;;;;;;  "site-lisp/paredit.el" "site-lisp/paredit.el" "site-lisp/parenface.el"
+;;;;;;  "site-lisp/parenface.el" "site-lisp/radio.el" "site-lisp/radio.el"
 ;;;;;;  "site-lisp/redshank.el" "site-lisp/redshank.el" "site-lisp/remember/read-file-name.el"
 ;;;;;;  "site-lisp/remember/remember-autoloads.el" "site-lisp/remember/remember-diary.el"
 ;;;;;;  "site-lisp/remember/remember-experimental.el" "site-lisp/remember/remember-planner.el"
 ;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/repeat-insert.el"
+;;;;;;  "site-lisp/ruby/inf-ruby.el" "site-lisp/ruby/ri-ruby.el"
+;;;;;;  "site-lisp/ruby/ruby-electric.el" "site-lisp/ruby/ruby-style.el"
 ;;;;;;  "site-lisp/slime/hyperspec.el" "site-lisp/slime/slime-autoloads.el"
 ;;;;;;  "site-lisp/slime/slime.el" "site-lisp/snippet.el" "site-lisp/snippet.el"
-;;;;;;  "site-lisp/sudo-save.el" "site-lisp/sudo-save.el" "site-lisp/trac-wiki.el"
+;;;;;;  "site-lisp/sudo-save.el" "site-lisp/sudo-save.el" "site-lisp/sunrise-commander.el"
+;;;;;;  "site-lisp/sunrise-commander.el" "site-lisp/trac-wiki.el"
 ;;;;;;  "site-lisp/trac-wiki.el" "site-lisp/vkill.el" "site-lisp/vkill.el"
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wcount.el" "site-lisp/xml-rpc.el"
-;;;;;;  "site-lisp/xml-rpc.el") (18268 29976 185537))
+;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/yasnippet/yasnippet.el")
+;;;;;;  (18616 45647 785180))
 
 ;;;***
 
 ;;;### (autoloads (c-includes c-includes-current-file c-includes-add-binding)
-;;;;;;  "c-includes" "c-includes.el" (14822 57866))
+;;;;;;  "c-includes" "c-includes.el" (18429 49044))
 ;;; Generated autoloads from c-includes.el
 
 (autoload (quote c-includes-add-binding) "c-includes" "\

@@ -1,3 +1,10 @@
+(require 'smtpmail)
+
+(eval-when-compile
+  (defvar smtpmail-address-buffer)
+  (defvar smtpmail-recipient-address-list)
+  (defvar user-mail-address))
+
 (defun apple-mail-send-it ()
   (let ((errbuf (if mail-interactive
 		    (generate-new-buffer " apple-mail errors")

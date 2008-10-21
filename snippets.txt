@@ -1,9 +1,0 @@
-java-mode <<
-bean:
->public $${type} get$${field}() {
->	return id;
->}
->private void set$${field}($${type} id) {
->	this.id = id;
->}
->>

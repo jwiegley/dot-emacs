@@ -9,20 +9,18 @@
     (path
      (reverse
       (list (expand-file-name "~/Library/Emacs")
-	    (expand-file-name "~/Sources/magit")
-	    (expand-file-name "~/Sources/git/contrib/emacs")
+	    (expand-file-name "~/Archives/Git/Sources/git/contrib/emacs")
+	    ;;(expand-file-name "~/Sources/puppet/ext/emacs")
 	    (expand-file-name "~/src/emacs-chess")
+	    (expand-file-name "~/src/eshell")
+	    (expand-file-name "~/src/pcomplete")
+	    (expand-file-name "~/src/magit")
+	    (expand-file-name "~/src/regex-tool")
 	    (expand-file-name "~/Library/Emacs/site-lisp/circe")
-	    (expand-file-name "~/Library/Emacs/site-lisp/distel/elisp")
-	    (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m")
-	    (expand-file-name "~/Library/Emacs/site-lisp/epg")
-	    (expand-file-name "~/Library/Emacs/site-lisp/muse/lisp")
-	    (expand-file-name "~/Library/Emacs/site-lisp/muse/contrib")
 	    (expand-file-name "~/Library/Emacs/site-lisp/nxml-mode")
 	    (expand-file-name "~/Library/Emacs/site-lisp/org-mode/lisp")
-	    (expand-file-name "~/Library/Emacs/site-lisp/pydb/emacs")
+	    (expand-file-name "~/Library/Emacs/site-lisp/org-mode/contrib/lisp")
 	    (expand-file-name "~/Library/Emacs/site-lisp/remember")
-	    (expand-file-name "~/Library/Emacs/site-lisp/ruby")
 	    (expand-file-name "~/Library/Emacs/site-lisp/yasnippet")
 	    (expand-file-name "/usr/local/share/emacs/site-lisp"))))
 
@@ -62,57 +60,20 @@
 ;; '(calendar-latitude [39 3 north])
 ;; '(calendar-longitude [104 49 west])
 
-;; '(special-display-regexps (quote (("slime-repl" (height . 40) (width . 80) (top . 85) (left . 50) (splittable . t) (unsplittable)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
 ;; '(eshell-ls-use-in-dired t nil (em-ls))
-
-;; '(org-remember-templates (quote (("Task" 116 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Inbox" nil) ("Gr" 71 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Grenada" nil) ("" 87 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" "/Volumes/TI/Documents/todo.txt" "Inbox" nil) ("Work" 119 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" "/Volumes/CEG/Documents/todo.txt" "Inbox" nil) ("Fr" 70 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Friends" nil) ("Bahá'í" 98 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Bahá'í" nil) ("Hea" 104 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Health" nil) ("Fi" 102 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Finances" nil) ("Le" 108 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" "~/src/ledger/doc/TODO" top nil) ("Co" 99 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Computer" nil) ("Per" 112 "* TODO %?
-;;  :PROPERTIES:
-;;  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-;;  %u" nil "Personal" nil))))
-
+;; '(abbrev-mode t)
 ;; '(sendmail-program "/opt/local/bin/msmtp" t)
+;; '(allout-command-prefix "")
+;; '(ange-ftp-try-passive-mode t)
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(abbrev-mode t)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
  '(align-to-tab-stop nil)
- '(allout-command-prefix "")
- '(ange-ftp-try-passive-mode t)
  '(auto-compression-mode t nil (jka-compr))
  '(auto-image-file-mode t)
  '(auto-save-interval 1024)
@@ -137,15 +98,13 @@
  '(delete-old-versions (quote none))
  '(directory-free-space-args "-kh")
  '(dired-guess-shell-gnutar "tar")
- '(dired-listing-switches "-l")
+ '(dired-listing-switches "-lh")
  '(dired-load-hook (quote ((lambda nil (load "dired-x")))))
  '(dired-no-confirm (quote (byte-compile chgrp chmod chown copy hardlink symlink touch)))
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
  '(display-time-mode t)
- '(dvc-select-priority (quote (xhg)))
- '(dvc-tips-enabled nil)
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
  '(enable-recursive-minibuffers t)
  '(eshell-history-size 1000)
@@ -166,7 +125,6 @@
  '(frame-title-format (quote (:eval (if buffer-file-name default-directory "%b"))) t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
- '(gud-gdb-command-name "gdb --annotate=1")
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-maybe-show-regexps nil)
@@ -176,7 +134,6 @@
  '(inhibit-startup-screen t)
  '(initial-frame-alist (quote ((top . 25) (left . 520) (width . 100) (height . 50))))
  '(initsplit-customizations-alist (quote (("^\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil))))
- '(isearchb-idle-timeout 1)
  '(iswitchb-max-to-show 10)
  '(iswitchb-mode t)
  '(iswitchb-use-frame-buffer-list t)
@@ -190,24 +147,17 @@
  '(mac-pass-control-to-system nil)
  '(mark-holidays-in-calendar t)
  '(menu-bar-mode nil nil (menu-bar))
- '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
- '(mudel-output-filter-functions (quote (ansi-color-process-output)))
- '(muse-project-alist (quote (("website" ("~/Documents/Writings") (:base "markdown" :path "~/Documents/Markdown")))))
- '(muse-project-publish-private-files nil)
  '(next-line-add-newlines nil)
- '(ns-alternate-modifier (quote alt) t)
- '(ns-command-modifier (quote meta) t)
- '(ns-function-modifier (quote super) t)
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
- '(org-agenda-custom-commands (quote (("d" todo #("DELEGATED" 0 9 (face org-warning)) nil) ("c" todo #("DONE|DEFERRED|CANCELLED" 0 23 (face org-warning)) ((org-agenda-files (cons "~/Documents/archive.txt" org-agenda-files)))) ("w" todo #("WAITING" 0 7 (face org-warning)) nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))) (org-agenda-overriding-header "Tasks without any priority: "))) ("A" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: "))) ("u" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[0-9-]\\{10\\} ^>
+ '(org-agenda-custom-commands (quote (("d" todo #("DELEGATED" 0 9 (face org-warning)) nil) ("c" todo #("DONE|DEFERRED|CANCELLED" 0 23 (face org-warning)) ((org-agenda-files (cons "~/Documents/archive.txt" org-agenda-files)))) ("w" todo #("WAITING" 0 7 (face org-warning)) nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))) (org-agenda-overriding-header "Tasks without any priority: "))) ("A" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: "))) ("B" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A and #B tasks: "))) ("u" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[0-9-]\\{10\\} [^>
 ]+>"))) (org-agenda-overriding-header "Unscheduled TODO entries: "))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("/Volumes/CEG/Documents/todo.txt" "/Volumes/TI/Documents/todo.txt" "~/Documents/todo.txt" "~/src/ledger/doc/TODO" "~/src/ledger/2.6.1/TODO")))
+ '(org-agenda-files (quote ("/Volumes/CEG/Documents/todo.txt" "/Volumes/TI/Documents/todo.txt" "~/Documents/todo.txt")))
  '(org-agenda-ndays 7)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
@@ -220,6 +170,7 @@
  '(org-agenda-sorting-strategy (quote ((agenda time-up priority-down) (todo category-keep priority-down) (tags category-keep priority-down))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
+ '(org-agenda-text-search-extra-files (quote (agenda-archives)))
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-cycle-global-at-bob t)
@@ -230,38 +181,38 @@
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-hide-leading-stars t)
+ '(org-modules (quote (org-mac-message org-bookmark org-depend org-eval org2rem)))
  '(org-remember-store-without-prompt t)
  '(org-remember-templates (quote (("Task" 116 "* TODO %?
+  SCHEDULED: %t
   :PROPERTIES:
-  :UUID: %(shell-command-to-string \"uuidgen\")  :END:
-  %u" nil "Inbox" nil))))
+  :ID: %(shell-command-to-string \"uuidgen\")  :END:
+  %U" nil "Inbox" nil))))
  '(org-reverse-note-order t)
  '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
  '(org-tag-alist (quote ((#("NASIM" 0 5 (face nil)) . 110) (#("WORK" 0 4 (face nil)) . 119))))
  '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "dark violet" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "red" :weight bold))))
  '(org-todo-keywords (quote ((sequence "TODO" "APPT" "|" "DONE" "NOTE"))))
- '(pabbrev-idle-timer-verbose nil)
+ '(org-use-tag-inheritance nil)
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
- '(prolog-program-name (quote (((getenv "EPROLOG") (eval (getenv "EPROLOG"))) (eclipse "eclipse") (mercury nil) (sicstus "sicstus") (swi "swipl") (gnu "gprolog") (t "swipl"))))
  '(ps-font-size (quote (8 . 10)))
  '(ps-footer-font-size (quote (12 . 14)))
  '(ps-header-font-size (quote (12 . 14)))
  '(ps-header-title-font-size (quote (14 . 16)))
  '(ps-line-number-font-size 10)
  '(ps-print-color-p nil)
- '(pydb-pydbtrack-minor-mode-string "")
  '(python-check-command "epylint")
  '(read-buffer-function (quote iswitchb-read-buffer))
  '(recentf-auto-cleanup 600)
- '(recentf-exclude (quote ("~\\'" "\\`out\\'" "\\.log\\'")))
+ '(recentf-exclude (quote ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:")))
  '(recentf-max-saved-items 200)
  '(recentf-mode t)
  '(regex-tool-backend (quote perl))
  '(remember-annotation-functions (quote (org-remember-annotation)))
  '(remember-handler-functions (quote (org-remember-handler)))
  '(require-final-newline t)
- '(safe-local-variable-values (quote ((after-save-hook archive-done-tasks) (after-save-hook sort-done-tasks))))
+ '(safe-local-variable-values (quote ((after-save-hook archive-done-tasks) (after-save-hook sort-done-tasks) (after-save-hook commit-after-save))))
  '(scroll-bar-mode nil)
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-registers (quote (t (0 . 127))))
@@ -269,15 +220,14 @@
  '(show-paren-mode (quote paren))
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
- '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--14-0-72-72-m-0-iso10646-1") (top . 295) (left . 2) (width . 80) (height . 34) (alpha . 0.5) (splittable . t) (unsplittable) (dedicated)) ("4dimensions" (height . 40) (width . 80) (foreground-color . "white") (background-color . "#253535")))))
+ '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--16-0-72-72-m-0-iso10646-1") (top . 295) (left . 2) (width . 80) (height . 34) (alpha . 0.5) (splittable . t) (unsplittable) (dedicated)))))
  '(sql-sqlite-program "sqlite3")
- '(sr-listing-switches "-alphgG")
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
  '(temp-buffer-resize-mode t nil (help))
  '(text-mode-hook (quote (auto-fill-mode)))
- '(timeclock-file "/Users/johnw/doc/Finances/.timelog")
+ '(timeclock-file "/Users/johnw/doc/.timelog")
  '(timeclock-modeline-display nil nil (timeclock))
  '(timeclock-relative nil)
  '(tool-bar-mode nil)
@@ -287,7 +237,6 @@
  '(user-initials "jww")
  '(user-mail-address "johnw@newartisans.com")
  '(vc-follow-symlinks t)
- '(vc-make-backup-files t)
  '(version-control t)
  '(visible-bell t)
  '(whitespace-auto-cleanup t)
@@ -309,8 +258,10 @@
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
  '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
  '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
+ '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
- '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98")))))
+ '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
+ '(trailing-whitespace ((((class color) (background light)) (:background "light salmon")))))
 
 ;;;_ * disabled commands
 
@@ -327,12 +278,12 @@
 
 ;;;_ * abbrev
 
-(if (file-exists-p abbrev-file-name)
-    (quietly-read-abbrev-file))
+;;(if (file-exists-p abbrev-file-name)
+;;    (quietly-read-abbrev-file))
 
 ;;;_ * anything
 
-(autoload 'anything "anything" nil t)
+;;(autoload 'anything "anything" nil t)
 
 ;;;_ * browse-kill-ring
 
@@ -359,7 +310,13 @@
   (font-lock-add-keywords
    'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 widget-inactive t))))
 
+(which-function-mode t)
+
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+
+;;;_ * chess
+
+(load "chess-auto" t)
 
 ;;;_ * circe
 
@@ -541,53 +498,122 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 (defun commit-after-save ()
   (let ((file (file-name-nondirectory (buffer-file-name))))
+    (message "Committing changes to Git...")
     (if (= 0 (shell-command
 	      (format "git add \"%s\" ; git commit -m \"changes to %s\""
 		      file file)))
 	(message "Committed changes to %s" file)
       (message "NO changes saved for %s" file))))
 
+(eval-after-load "dired-x"
+  '(progn
+     (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+
+     (defun dired-omit-regexp ()
+       (let ((file (expand-file-name ".git"))
+	     parent-dir)
+	 (while (and (not (file-exists-p file))
+		     (progn
+		       (setq parent-dir
+			     (file-name-directory
+			      (directory-file-name
+			       (file-name-directory file))))
+		       ;; Give up if we are already at the root dir.
+		       (not (string= (file-name-directory file)
+				     parent-dir))))
+	   ;; Move up to the parent dir and try again.
+	   (setq file (expand-file-name ".git" parent-dir)))
+	 ;; If we found a change log in a parent, use that.
+	 (if (file-exists-p file)
+	     (let ((regexp (funcall dired-omit-regexp-orig))
+		   (omitted-files (shell-command-to-string
+				   "git clean -d -x -n")))
+	       (if (= 0 (length omitted-files))
+		   regexp
+		 (concat
+		  regexp
+		  (if (> (length regexp) 0)
+		      "\\|" "")
+		  "\\("
+		  (mapconcat
+		   #'(lambda (str)
+		       (concat "^"
+			       (regexp-quote
+				(substring str 13
+					   (if (= ?/ (aref str (1- (length str))))
+					       (1- (length str))
+					     nil)))
+			       "$"))
+		   (split-string omitted-files "\n" t)
+		   "\\|")
+		  "\\)")))
+	   (funcall dired-omit-regexp-orig))))
+
+     (defun dired-delete-file (file &optional recursive)
+       (call-process "/Users/johnw/bin/del" nil nil nil file))))
+
 ;;;_ * groovy-mode
 
-;(autoload 'groovy-mode "groovy-mode" "" t)
+(autoload 'groovy-mode "groovy-mode" "" t)
 
-(add-to-list 'interpreter-mode-alist '("groovy" . java-mode))
-(add-to-list 'auto-mode-alist '("\\.groovy\\'" . java-mode))
+(add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
+(add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
 
 ;;;_ * initsplit
 
 (load "initsplit" t)
 
-;;;_ * isearchb
-
-(load "isearchb" t)
-
 ;;;_ * java-mode
 
 (eval-after-load "cc-styles"
-  '(add-to-list
-    'c-style-alist
-    '("ceg"
-      (c-basic-offset . 3)
-      (c-comment-only-line-offset . (0 . 0))
-      (c-hanging-braces-alist     . ((substatement-open before after)
-				     (arglist-cont-nonempty)))
-      (c-offsets-alist . ((statement-block-intro . +)
-			  (knr-argdecl-intro . 5)
-			  (substatement-open . 0)
-			  (substatement-label . 0)
-			  (label . 0)
-			  (statement-case-open . 0)
-			  (statement-cont . +)
-			  (arglist-intro . c-lineup-arglist-intro-after-paren)
-			  (arglist-close . c-lineup-arglist)
-			  (inline-open . 0)
-			  (brace-list-open . 0)
-			  (topmost-intro-cont
-			   . (first c-lineup-topmost-intro-cont
-				    c-lineup-gnu-DEFUN-intro-cont))))
-      (c-special-indent-hook . c-gnu-impose-minimum)
-      (c-block-comment-prefix . ""))))
+  '(progn
+     (add-to-list
+      'c-style-alist
+      '("ceg"
+	(c-basic-offset . 3)
+	(c-comment-only-line-offset . (0 . 0))
+	(c-hanging-braces-alist     . ((substatement-open before after)
+				       (arglist-cont-nonempty)))
+	(c-offsets-alist . ((statement-block-intro . +)
+			    (knr-argdecl-intro . 5)
+			    (substatement-open . 0)
+			    (substatement-label . 0)
+			    (label . 0)
+			    (statement-case-open . 0)
+			    (statement-cont . +)
+			    (arglist-intro . c-lineup-arglist-intro-after-paren)
+			    (arglist-close . c-lineup-arglist)
+			    (inline-open . 0)
+			    (brace-list-open . 0)
+			    (topmost-intro-cont
+			     . (first c-lineup-topmost-intro-cont
+				      c-lineup-gnu-DEFUN-intro-cont))))
+	(c-special-indent-hook . c-gnu-impose-minimum)
+	(c-block-comment-prefix . "")))
+     (add-to-list
+      'c-style-alist
+      '("edg"
+	(c-basic-offset . 3)
+	(c-comment-only-line-offset . (0 . 0))
+	(c-hanging-braces-alist     . ((substatement-open before after)
+				       (arglist-cont-nonempty)))
+	(c-offsets-alist . ((statement-block-intro . +)
+			    (knr-argdecl-intro . 5)
+			    (substatement-open . 0)
+			    (substatement-label . 0)
+			    (label . 0)
+			    (case-label . +)
+			    (statement-case-open . 0)
+			    (statement-cont . +)
+			    (arglist-intro . c-lineup-arglist-intro-after-paren)
+			    (arglist-close . c-lineup-arglist)
+			    (inline-open . 0)
+			    (brace-list-open . 0)
+			    (topmost-intro-cont
+			     . (first c-lineup-topmost-intro-cont
+				      c-lineup-gnu-DEFUN-intro-cont))))
+	(c-special-indent-hook . c-gnu-impose-minimum)
+	(c-block-comment-prefix . "")))))
 
 (add-hook 'java-mode-hook
 	  #'(lambda ()
@@ -632,6 +658,12 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 (autoload 'pcomplete/ssh "pcmpl-ssh")
 (autoload 'pcomplete/scp "pcmpl-ssh")
+
+;;;_ * puppet-mode
+
+(autoload 'puppet-mode "puppet-mode" "Major mode for editing puppet manifests")
+
+(add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
 
 ;;;_ * python-mode
 
@@ -721,11 +753,6 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 (when (require 'multi-region nil t)
   (define-key mode-specific-map [?2] multi-region-map))
-
-;;;_ * muse
-
-(require 'muse-mode)
-(require 'muse-markdown)
 
 ;;;_ * org-mode
 
@@ -871,7 +898,7 @@ end tell" (match-string 1))))
 
 ;;;_ * sunrise-commander
 
-(load "sunrise-commander" t)
+(autoload 'sunrise "sunrise-commander" nil t)
 
 ;;;_ * timestamp
 
@@ -953,51 +980,6 @@ end tell" (match-string 1))))
 
 (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
 
-(eval-after-load "dired-x"
-  '(progn
-     (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
-
-     (defun dired-omit-regexp ()
-       (let ((file (expand-file-name ".git"))
-	     parent-dir)
-	 (while (and (not (file-exists-p file))
-		     (progn
-		       (setq parent-dir
-			     (file-name-directory
-			      (directory-file-name
-			       (file-name-directory file))))
-		       ;; Give up if we are already at the root dir.
-		       (not (string= (file-name-directory file)
-				     parent-dir))))
-	   ;; Move up to the parent dir and try again.
-	   (setq file (expand-file-name ".git" parent-dir)))
-	 ;; If we found a change log in a parent, use that.
-	 (if (file-exists-p file)
-	     (let ((regexp (funcall dired-omit-regexp-orig))
-		   (omitted-files (shell-command-to-string
-				   "git clean -d -x -n")))
-	       (assert (stringp regexp))
-	       (if (= 0 (length omitted-files))
-		   regexp
-		 (concat
-		  regexp
-		  (if (> (length regexp) 0)
-		      "\\|" "")
-		  "\\("
-		  (mapconcat
-		   #'(lambda (str)
-		       (concat "^"
-			       (regexp-quote
-				(substring str 13
-					   (if (= ?/ (aref str (1- (length str))))
-					       (1- (length str))
-					     nil)))
-			       "$"))
-		   (split-string omitted-files "\n" t)
-		   "\\|")
-		  "\\)")))
-	   (funcall dired-omit-regexp-orig))))))
-
 ;;;_ * yasnippet
 
 (when (load "yasnippet" t)
@@ -1033,18 +1015,7 @@ end tell" (match-string 1))))
     (if (= here (point))
 	(beginning-of-line arg))))
 
-(define-key global-map [(control ?,)] 'smart-beginning-of-line)
-(define-key global-map [(control ?')] 'smart-beginning-of-line)
-
-(defun delete-current-line (&optional arg)
-  (interactive "p")
-  (let ((here (point)))
-    (beginning-of-line)
-    (kill-line arg)
-    (goto-char here)))
-
-(define-key global-map [(control ?j)] 'delete-current-line)
-(define-key global-map [(control ?.)] 'isearchb-activate)
+(define-key global-map [(control ?.)] 'smart-beginning-of-line)
 
 (defun tidy-xml-buffer ()
   (interactive)
@@ -1059,14 +1030,14 @@ end tell" (match-string 1))))
   (split-window-vertically)
   (call-interactively 'isearch-backward))
 
-(define-key global-map [(control shift ?r)] 'isearch-backward-other-window)
+(define-key global-map [(control meta ?r)] 'isearch-backward-other-window)
 
 (defun isearch-forward-other-window ()
   (interactive)
   (split-window-vertically)
   (call-interactively 'isearch-forward))
 
-(define-key global-map [(control shift ?s)] 'isearch-forward-other-window)
+(define-key global-map [(control meta ?s)] 'isearch-forward-other-window)
 
 (defun collapse-or-expand (&optional arg)
   (interactive "P")
@@ -1083,8 +1054,6 @@ end tell" (match-string 1))))
 
 (define-key global-map [(control ?z)] 'collapse-or-expand)
 
-(define-key global-map [(meta ?K)] 'kill-sexp)
-
 (defun delete-indentation-forward ()
   (interactive)
   (delete-indentation t))
@@ -1094,7 +1063,7 @@ end tell" (match-string 1))))
 (define-key global-map [(meta ?n)] 'chop-move-down)
 (define-key global-map [(meta ?p)] 'chop-move-up)
 (define-key global-map [(meta ?m)] 'org-maybe-remember)
-(define-key global-map [(meta ?z)] 'magit-status)
+(define-key global-map [(meta ?z)] 'org-remember-note)
 
 (define-prefix-command 'lisp-find-map)
 (define-key global-map [(control ?h) ?e] 'lisp-find-map)
@@ -1148,8 +1117,6 @@ end tell" (match-string 1))))
 (define-key global-map [(meta shift ?d)] 'mark-defun)
 (define-key global-map [(meta shift ?e)] 'mark-whole-buffer)
 
-(define-key global-map [(meta shift ? )] 'anything)
-
 (define-key global-map [(control return)] 'other-window)
 
 (define-key global-map [f5] 'gud-cont)
@@ -1164,8 +1131,11 @@ end tell" (match-string 1))))
 
 ;;;_ * ctl-x
 
-(define-key ctl-x-map [(control ?g)] 'magit-status)
-(define-key ctl-x-map [?g] 'git-status)
+(define-key ctl-x-map [?g] #'(lambda ()
+			       (interactive)
+			       (if current-prefix-arg
+				   (call-interactively 'git-status)
+				 (call-interactively 'magit-status))))
 
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
@@ -1237,6 +1207,7 @@ end tell" (match-string 1))))
     (goto-char (+ end 2))))
 
 (define-key ctl-x-map [(meta ?q)] 'refill-paragraph)
+(define-key ctl-x-map [(meta ?Q)] 'unfill-paragraph)
 
 (if (functionp 'ibuffer)
     (define-key ctl-x-map [(control ?b)] 'ibuffer)
@@ -1279,11 +1250,9 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key ctl-x-map [(control ?f)] 'find-existing-file)
 
-(load "esh-toggle" t)
+(autoload 'esh-toggle "esh-toggle" nil t)
 
-(if (functionp 'eshell-toggle)
-    (define-key ctl-x-map [(control ?z)] 'eshell-toggle)
-  (define-key ctl-x-map [(control ?z)] 'eshell))
+(define-key ctl-x-map [(control ?z)] 'eshell-toggle)
 
 ;;;_ * mode-specific
 
@@ -1291,6 +1260,11 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key mode-specific-map [space] 'just-one-space)
 (define-key mode-specific-map [? ] 'just-one-space)
+(define-key mode-specific-map [?1] 'just-one-space)
+
+(define-key mode-specific-map [?a] 'org-agenda)
+(define-key mode-specific-map [?b] 'ignore)
+(define-key mode-specific-map [?c] 'compile)
 
 (defun clone-region-set-mode (start end &optional mode)
   (interactive "r")
@@ -1300,10 +1274,16 @@ expand wildcards (if any) and visit multiple files."
 	(funcall mode)
       (lisp-mode))))
 
-(define-key mode-specific-map [?a] 'org-agenda)
-;(define-key mode-specific-map [?c] 'clone-region-set-mode)
-(define-key mode-specific-map [?c] 'compile)
-(define-key mode-specific-map [?d] 'org-insert-dtp-link)
+(define-key mode-specific-map [?C] 'clone-region-set-mode)
+
+(defun delete-current-line (&optional arg)
+  (interactive "p")
+  (let ((here (point)))
+    (beginning-of-line)
+    (kill-line arg)
+    (goto-char here)))
+
+(define-key mode-specific-map [?d] 'delete-current-line)
 
 (define-key mode-specific-map [?e ?a] 'byte-recompile-directory)
 
@@ -1332,6 +1312,7 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key mode-specific-map [?f] 'flush-lines)
 (define-key mode-specific-map [?g] 'goto-line)
+(define-key mode-specific-map [?h] 'ignore)
 
 (define-key mode-specific-map [?i ?b] 'flyspell-buffer)
 (define-key mode-specific-map [?i ?c] 'ispell-comments-and-strings)
@@ -1341,13 +1322,14 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?i ?m] 'ispell-message)
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
+(define-key mode-specific-map [?j] 'ignore)
 (define-key mode-specific-map [?k] 'keep-lines)
 (define-key mode-specific-map [?l] 'slime-selector)
-(define-key mode-specific-map [?m] 'org-insert-message-link)
+(define-key mode-specific-map [?m] 'ignore)
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
 (define-key mode-specific-map [?o] 'customize-option)
 (define-key mode-specific-map [?O] 'customize-group)
-
+(define-key mode-specific-map [?p] 'ignore)
 (define-key mode-specific-map [?q] 'fill-region)
 (define-key mode-specific-map [?r] 'replace-regexp)
 (define-key mode-specific-map [?s] 'replace-string)
@@ -1398,7 +1380,6 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?w] 'wdired-change-to-wdired-mode)
 (define-key mode-specific-map [(meta ?w)] 'org-store-link)
 (define-key mode-specific-map [(shift ?w)] 'org-kill-entry)
-(define-key mode-specific-map [(shift ?y)] 'org-yank-entry)
 
 (define-key mode-specific-map [?x ?d]
   #'(lambda nil (interactive) (org-todo "DONE")))
@@ -1410,11 +1391,15 @@ expand wildcards (if any) and visit multiple files."
   #'(lambda nil (interactive) (org-todo "NOTE")))
 (define-key mode-specific-map [?x ?s]
   #'(lambda nil (interactive) (org-todo "STARTED")))
+(define-key mode-specific-map [?x ?t]
+  #'(lambda nil (interactive) (org-todo "TODO")))
 (define-key mode-specific-map [?x ?w]
   #'(lambda nil (interactive) (org-todo "WAITING")))
 (define-key mode-specific-map [?x ?x]
   #'(lambda nil (interactive) (org-todo "CANCELLED")))
 
+(define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
+(define-key mode-specific-map [?x ?m] 'org-insert-message-link)
 (define-key mode-specific-map [?x ?C] 'cvs-examine)
 (define-key mode-specific-map [?x ?S] 'svn-status)
 (define-key mode-specific-map [?x ?M] 'org-dtp-message-open)
@@ -1426,16 +1411,13 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key mode-specific-map [?x ?T] 'org-trac-ticket-open)
 
+(define-key mode-specific-map [(shift ?y)] 'org-yank-entry)
+(define-key mode-specific-map [?y] 'ignore)
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
 (define-key mode-specific-map [?\[] 'align-regexp)
 (define-key mode-specific-map [?=]  'count-matches)
 (define-key mode-specific-map [?\;] 'comment-or-uncomment-region)
-
-;;;_ * special characters
-
-(define-key global-map [(alt ?=)] #'(lambda () (interactive) (insert ?⇒)))
-(define-key global-map [(alt ?.)] #'(lambda () (interactive) (insert ?…)))
 
 ;;;_ * footnote
 
@@ -1499,6 +1481,8 @@ expand wildcards (if any) and visit multiple files."
 	 #'(lambda nil (interactive) (org-agenda-todo "DELEGATED")))
        (define-key org-todo-state-map "s"
 	 #'(lambda nil (interactive) (org-agenda-todo "STARTED")))
+       (define-key org-todo-state-map "t"
+	 #'(lambda nil (interactive) (org-agenda-todo "TODO")))
        (define-key org-todo-state-map "w"
 	 #'(lambda nil (interactive) (org-agenda-todo "WAITING"))))))
 

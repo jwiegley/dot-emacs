@@ -22,8 +22,9 @@ autoloads.el: autoloads.in $(SOURCE)
 		$(shell pwd)/autoloads.el $(DIRS)
 
 %.elc: %.el
-	$(EMACS) --no-init-file --no-site-file -L . -L site-lisp \
-		-L site-lisp/epg \
+	$(EMACS) --no-init-file --no-site-file \
+		-L . -L site-lisp -L site-lisp/muse/lisp \
+		-L site-lisp/epg -L site-lisp/pydb/emacs \
 		-batch -f batch-byte-compile $<
 
 clean:

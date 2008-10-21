@@ -64,13 +64,13 @@
   (require 'cl))
 
 (defun org-attach-dir (&optional create-if-not-exists-p)
-  (let ((uuid (org-entry-get (point) "UUID")))
+  (let ((uuid (org-entry-get (point) "ID")))
     (when (or uuid create-if-not-exists-p)
       (unless uuid
 	(let ((uuid-string (shell-command-to-string "uuidgen")))
 	  (setf uuid-string
 		(substring uuid-string 0 (1- (length uuid-string))))
-	  (org-entry-put (point) "UUID" uuid-string)
+	  (org-entry-put (point) "ID" uuid-string)
 	  (setf uuid uuid-string)))
       (let ((attach-dir (format "data/%s/%s"
 				(substring uuid 0 2)
