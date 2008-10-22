@@ -220,8 +220,8 @@ See `coq-syntax-db' for DB structure."
 ;;A new face for tactics which fail when they don't kill the current goal
 (defface coq-solve-tactics-face 
   (proof-face-specs
-   (:foreground "red" t) ; pour les fonds clairs
-   (:foreground "red"  t) ; pour les fond foncés
+   (:foreground "red") ; pour les fonds clairs
+   (:foreground "red") ; pour les fond foncés
    ()) ; pour le noir et blanc
   "Face for names of closing tactics in proof scripts."
   :group 'proof-faces)

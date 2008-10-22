@@ -164,61 +164,50 @@ which should be removed when making the text into a hole.")
 ;; )
 
 (defface active-hole-face
-  '((((class grayscale) (background light)) (:background "dimgrey"))
-    (((class grayscale) (background dark))  (:background "LightGray"))
+  '((((class grayscale) (background light)) :background "dimgrey")
+    (((class grayscale) (background dark))  :background "LightGray")
     (((class color) (background dark))
-     (:background "darkred") (:foreground "white"))
+     :background "darkred" :foreground "white")
     (((class color) (background light))
-     (:background "paleVioletRed" (:foreground "black")))
-    ;;??(t (:background t))
-    )
-  "Font Lock face used to highlight the active hole."
-  )
+     :background "paleVioletRed" :foreground "black"))
+  "Font Lock face used to highlight the active hole.")
 
 (defface inactive-hole-face
-  '((((class grayscale) (background light)) (:background "lightgrey"))
-    (((class grayscale) (background dark))  (:background "Grey"))
+  '((((class grayscale) (background light)) :background "lightgrey")
+    (((class grayscale) (background dark))  :background "Grey")
     (((class color) (background dark))
-     (:background "mediumblue") (:foreground "white"))
+     :background "mediumblue" :foreground "white")
     (((class color) (background light))
-     (:background "lightsteelblue" (:foreground "black")))
-    ;;??(t (:background t))
-    )
-  "Font Lock  face used to highlight the active hole."
-  )
+     :background "lightsteelblue" :foreground "black"))
+  "Font Lock  face used to highlight the active hole.")
 
 ;;; end customizable
- 
+
 
 (defun holes-region-beginning-or-nil ()
   "Internal."
-  (and mark-active (region-beginning))
-  )
+  (and mark-active (region-beginning)))
 
 (defun holes-region-end-or-nil ()
   "Internal."
-  (and mark-active (region-end))
-  )
+  (and mark-active (region-end)))
 
 (defun holes-copy-active-region ()
   "Internal."
   (assert mark-active nil "the region is not active now.")
   (copy-region-as-kill (region-beginning) (region-end))
-  (car kill-ring)
-  )
+  (car kill-ring))
 
 (defun holes-is-hole-p (SPAN)
   ;; checkdoc-params: (SPAN)
   "Internal."
-  (span-property SPAN 'hole)
-  )
+  (span-property SPAN 'hole))
 
 (defun holes-hole-start-position (HOLE)
  ;; checkdoc-params: (HOLE)
   "Internal."
   (assert (holes-is-hole-p HOLE) t "holes-hole-start-position: %s is not a hole")
-  (span-start HOLE)
-  )
+  (span-start HOLE))
 
 (defun holes-hole-end-position (HOLE)
   ;; checkdoc-params: (HOLE)
