@@ -237,6 +237,7 @@
  '(user-initials "jww")
  '(user-mail-address "johnw@newartisans.com")
  '(vc-follow-symlinks t)
+ '(vc-handled-backends (quote (GIT)))
  '(version-control t)
  '(visible-bell t)
  '(whitespace-auto-cleanup t)
