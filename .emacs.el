@@ -157,7 +157,7 @@
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("/Volumes/CEG/Documents/todo.txt" "/Volumes/TI/Documents/todo.txt" "~/Documents/todo.txt")))
+ '(org-agenda-files (quote ("~/Documents/todo.txt")))
  '(org-agenda-ndays 7)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
