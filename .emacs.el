@@ -552,7 +552,9 @@ This is an appropriate function for `lui-pre-output-hook'."
 	   (funcall dired-omit-regexp-orig))))
 
      (defun dired-delete-file (file &optional recursive)
-       (call-process "/Users/johnw/bin/del" nil nil nil file))))
+       (if recursive
+	   (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
+	 (call-process "/Users/johnw/bin/del" nil nil nil file)))))
 
 ;;;_ * groovy-mode
 
