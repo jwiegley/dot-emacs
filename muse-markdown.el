@@ -29,6 +29,9 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(eval-when-compile
+  (require 'cl))
+
 (require 'muse-publish)
 (require 'muse-regexps)
 (require 'muse-xml-common)

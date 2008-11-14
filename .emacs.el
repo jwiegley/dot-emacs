@@ -758,6 +758,12 @@ This is an appropriate function for `lui-pre-output-hook'."
 (when (require 'multi-region nil t)
   (define-key mode-specific-map [?2] multi-region-map))
 
+;;;_ * muse
+
+(require 'muse-mode)
+(require 'muse-html)
+(require 'muse-markdown)
+
 ;;;_ * org-mode
 
 (require 'org-install)
