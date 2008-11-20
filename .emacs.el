@@ -597,6 +597,7 @@ This is an appropriate function for `lui-pre-output-hook'."
      (add-to-list
       'c-style-alist
       '("edg"
+	(indent-tabs-mode . nil)
 	(c-basic-offset . 3)
 	(c-comment-only-line-offset . (0 . 0))
 	(c-hanging-braces-alist     . ((substatement-open before after)
