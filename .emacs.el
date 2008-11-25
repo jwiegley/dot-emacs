@@ -9,7 +9,8 @@
     (path
      (reverse
       (list (expand-file-name "~/Library/Emacs")
-	    (expand-file-name "~/Archives/Git/Sources/git/contrib/emacs")
+	    (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
+	    ;;(expand-file-name "~/Archives/Git/Sources/git/contrib/emacs")
 	    ;;(expand-file-name "~/Sources/puppet/ext/emacs")
 	    (expand-file-name "~/src/emacs-chess")
 	    (expand-file-name "~/src/eshell")
