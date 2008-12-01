@@ -147,7 +147,7 @@
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
  '(mark-holidays-in-calendar t)
- '(menu-bar-mode nil nil (menu-bar))
+ ;;'(menu-bar-mode nil nil (menu-bar))
  '(next-line-add-newlines nil)
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
