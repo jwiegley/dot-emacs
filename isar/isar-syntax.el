@@ -416,6 +416,8 @@ matches contents of quotes for quoted identifiers.")
 
 ;; ----- variations on undo
 
+(defconst isar-linear-undo "linear_undo")
+
 (defconst isar-undo "ProofGeneral.undo;")
 
 (defun isar-remove (name)
