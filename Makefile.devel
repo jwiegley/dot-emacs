@@ -489,14 +489,14 @@ releaseclean:
 ##	  
 ## 
 fakereleaseall: 
-	$(MAKE) -f Makefile.devel release rpmrelease  releaseclean NOCVS="no" 
+	$(MAKE) -f Makefile.devel release  releaseclean NOCVS="no" 
 
 ############################################################
 ##
 ## releaseall:
 ##     Do everything!  (EXCEPT: ChangeLog.gz update)
 ##	  
-releaseall: release rpmrelease  releaseclean golive
+releaseall: release releaseclean golive
 
 ############################################################
 ##
@@ -515,7 +515,7 @@ golive:
 ##     Do everything for a final release based on a pre-release.
 ##     Except editing download file.
 ##
-releasefinal: release rpmrelease releaseclean 
+releasefinal: release releaseclean 
 # Link the latest version 
 	(cd $(DISTBUILDIR); rm -f $(NAME); ln -sf $(RELEASENAME) $(NAME))
 
