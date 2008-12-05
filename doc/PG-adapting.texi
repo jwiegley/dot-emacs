@@ -2405,13 +2405,10 @@ This hook is called before fonfitying a region in an output buffer.@*
 
 @node Configuring Tokens
 @chapter Configuring Tokens
-@cindex X-Symbol
 @cindex Unicode Tokens
 @cindex Tokens
 
-The Tokens package is described in the Proof General user manual.  To
-configure Tokens for Proof General, you must understand a little bit
-of how X-Symbol works: read the documentation that is supplied with it.
+The Tokens package is described in the Proof General user manual.  
 
 @c TEXI DOCSTRING MAGIC: proof-tokens-activate-command
 @defvar proof-tokens-activate-command 
