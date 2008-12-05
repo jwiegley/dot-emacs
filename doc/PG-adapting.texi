@@ -2443,7 +2443,6 @@ in addition to the four modes for Proof General (script, shell, response, pbp).
 Set this variable if you want additional modes to also display
 tokens (for example, editing documentation or source code files).
 @end defvar
-@end defvar
 
 
 
