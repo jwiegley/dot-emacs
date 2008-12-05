@@ -94,7 +94,7 @@ PREREL_TAG_FILE=prereltag.txt
 # Path to web pages in repository, used for automatically 
 # updating with release information.
 HTMLDIR=../web
-DOWNLOADHTMLS=develdownload.html devel.html
+DOWNLOADHTMLS=devel.html
 
 # This is used for full releases to control the tag name
 # and distribution name.  No editing of html is done
