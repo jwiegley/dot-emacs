@@ -60,10 +60,9 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.7
-@set xemacsversion 21.5.28
-@set fsfversion 22.1.1
-@set last-update January 2008
+@set version 4.0pre
+@set emacsversion 22.2.1
+@set last-update December 2008
 @set rcsid $Id$
 
 @ifinfo
@@ -137,10 +136,10 @@ preserved on all copies.
 @sp 2
 
 This manual documents Proof General, Version @value{version}, for use
-with XEmacs @value{xemacsversion} and GNU Emacs @value{fsfversion} or
-later versions.  Proof General is distributed under the terms of the GNU
-General Public License (GPL); please check the accompanying file
-@file{COPYING} for more details.
+GNU Emacs @value{emacsversion} or (as far as possible) later versions.
+Proof General is distributed under the terms of the GNU General Public
+License (GPL); please check the accompanying file @file{COPYING} for
+more details.
 
 @sp 1
 
@@ -159,10 +158,9 @@ Version control: @code{@value{rcsid}}
 This file documents configuration mechanisms for version @value{version}
 of @b{Proof General}, a generic Emacs interface for proof assistants.
 
-Proof General @value{version} has been tested with XEmacs
-@value{xemacsversion} and GNU Emacs @value{fsfversion}.  It is
-supplied ready customized for the proof assistants Coq, Lego, 
-Isabelle, and HOL.  
+Proof General @value{version} has been tested with GNU Emacs
+@value{emacsversion}.  It is supplied ready customized for the proof
+assistants Coq, Lego, Isabelle, and HOL.
 
 This manual contains information for customizing to new proof
 assistants; see the user manual for details about how to use
@@ -2688,12 +2686,11 @@ important files, kept in the @file{generic/} subdirectory.
 @cindex extents
 @cindex overlays
 
-@dfn{Spans} are an abstraction of XEmacs @dfn{extents} used to help
-bridge the gulf between GNU Emacs and XEmacs.  In GNU Emacs, spans are
-implemented using @dfn{overlays}.
+@dfn{Spans} are an abstraction of Emacs @dfn{overlays} originally used
+to help bridge the gulf between GNU Emacs and XEmacs. See the file
+@file{lib/span.el}. XEmacs calls these @dfn{extents} which is a name
+still used in some parts of the code.
 
-See the files @file{span-extent.el} and @file{span-overlay.el} for the
-implementation of the common interface in each case.
 
 @node Proof General site configuration
 @section Proof General site configuration

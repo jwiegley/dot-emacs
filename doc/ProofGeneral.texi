@@ -54,9 +54,7 @@
 @c  <section-command>
 @c
 @c And each section with lower levels must have a menu command in
-@c it.  Menu updating with Emacs is a bit better than node updating,
-@c but tends to delete the first section of the file in XEmacs!
-@c (it's better in GNU Emacs at the time of writing).
+@c it.  Menu updating with Emacs is a bit better than node updating.
 @c
 @c LINE BREAKS: For html generated from this to look good, it is
 @c important that there are lots of line breaks/blank lines, esp
@@ -71,8 +69,8 @@
 @c
 
 @set version 4.0pre
-@set fsfversion 22.2.1
-@set last-update July 2008
+@set emacsversion 22.2.1
+@set last-update December 2008
 @set rcsid $Id$
 
 @ifinfo
@@ -145,7 +143,7 @@ preserved on all copies.
 @sp 2
 
 This manual documents Proof General, Version @value{version}, for use
-with XEmacs @value{xemacsversion} and GNU Emacs @value{fsfversion} or
+with GNU Emacs @value{emacsversion} or
 later versions (subject to Emacs API changes).  Proof General is
 distributed under the terms of the GNU General Public License (GPL);
 please check the accompanying file @file{COPYING} for more details.
@@ -170,7 +168,7 @@ This file documents version @value{version} of @b{Proof General}, a
 generic Emacs interface for proof assistants.
 
 Proof General @value{version} has been tested with GNU Emacs
-@value{fsfversion} on Linux.  It is supplied ready to use for the proof
+@value{emacsversion} on Linux.  It is supplied ready to use for the proof
 assistants LEGO, Coq, Isabelle, and PhoX.  Experimental support is
 provided for several other provers.
 
@@ -218,43 +216,24 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news for version 3.7.1::
+* News for Version 4.0::
 * Future::
 * Credits::                     
 @end menu
 
-@node Latest news for version 3.7.1
-@unnumberedsec Latest news for version 3.7.1
+@node News for Version 4.0
+@unnumberedsec News for Version 4.0
 @cindex news
 
-Proof General version 3.7.1 is an updated and enhanced version
-of Proof General 3.7.  See  @file{CHANGES} for more details.
+Proof General version 4.0 is a major overhaul of Proof General.
+The main changes are:
+@itemize @bullet
+@item support for GNU Emacs only, @b{you can not use XEmacs any more}@item
+@item support for Unicode tokens mode, which replaces X-Symbol
+@end itemize
 
-Proof General version 3.7 collects together a cummulative set of
-improvements to Proof General 3.5.  There are compatibility fixes for
-newer Emacs versions, and particularly for GNU Emacs: credit is due to
-Stefan Monnier for an intense period of debugging and patching.  The
-options menu has been simplified and extended, and the display
-management is improved and repaired for Emacs API changes.  There are
-some other usability improvements, some after feedback from use at TYPES
-Summer Schools.  Many new features have been added to enhance Coq mode
-(thanks to Pierre Courtieu) and several improvements made for Isabelle
-(thanks to Makarius Wenzel, Stefan Berghofer and Tjark Weber).
-
-Support has been added for the useful Emacs packages Speedbar
-@c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
-and Index Menu, both usually distributed with Emacs.
-Compatible versions of the Emacs packages Math-Menu (for Unicode symbols)
-and MMM Mode (for multiple modes in one buffer) are 
-bundled with Proof General.  A new Unicode Tokens package has
-been added which replaces X-Symbol.
-
-@c The display handling functions have been improved to be more user
-@c friendly and the display in multiple-window mode is trimmed to
-@c allow more text space for display.  
-
-Proof General 3.7 is available in RPM package format which includes
-pre-compiled code for GNU Emacs or XEmacs and 
+Proof General 4.0 is available in RPM package format which includes
+pre-compiled code for GNU Emacs and 
 desktop integration on freedesktop.org compliant desktops (including,
 for example, many recent Linux distributions).
 
@@ -262,8 +241,8 @@ for example, many recent Linux distributions).
 @c Support for *thms* buffer??
 
 See the @file{CHANGES} file in the distribution for more complete
-details of changes since version 3.5, and the appendix
-@ref{History of Proof General} for old news.
+details of changes, and the appendix @ref{History of Proof General}
+for old news.
 
 
 @node Future
@@ -419,8 +398,7 @@ assistants,@footnote{A @dfn{proof assistant} is a computerized helper for
 developing mathematical proofs.  For short, we sometimes call it a
 @dfn{prover}, although we always have in mind an interactive system
 rather than a fully automated theorem prover.} developed at the LFCS in
-the University of Edinburgh.  It works best under XEmacs, but can also
-be used with GNU Emacs.
+the University of Edinburgh.  
 
 You do not have to be an Emacs militant to use Proof General!  
 
@@ -677,8 +655,8 @@ of a common interface mechanism.
 To get more from Proof General and adapt it to your liking, it helps to
 know a little bit about how Emacs lisp packages can be customized via
 the Customization mechanism.  It's really easy to use.  For details,
-@pxref{How to customize}.  @inforef{Easy customization, ,(xemacs)},
-for documentation in XEmacs.
+@pxref{How to customize}.  @inforef{Customization, ,(emacs)},
+for documentation in Emacs.
 
 To get the absolute most from Proof General, to improve it or to adapt
 it for new provers, you'll need to know a little bit of Emacs lisp.
@@ -746,6 +724,9 @@ then describe the concepts and functions in more detail.
 
 @node Walkthrough example in Isabelle
 @section Walkthrough example in Isabelle
+
+@i{Please note that this section is out of date and the syntax below
+ may no longer work with current versions of Isabelle}
 
 Here's a short example in Isabelle to see how script management
 is used.  The file you are asked to type below is included in the
@@ -1485,7 +1466,7 @@ As experienced Emacs users will know, a @i{prefix argument} is a numeric
 argument supplied by some key sequence typed before a command key
 sequence.  You can supply a specific number by typing @key{Meta} with
 the digits, or a ``universal'' prefix of @kbd{C-u}.  See
-@inforef{Arguments, ,(xemacs)} for more details.  Several Proof General
+@inforef{Arguments, ,(emacs)} for more details.  Several Proof General
 commands, like @code{proof-retract-until-point-interactive}, may accept
 a @i{prefix argument} to adjust their behaviour somehow.
 
@@ -2393,10 +2374,10 @@ This adds an "Index" menu to the main menu bar for proof script buffers.
 You can also use @kbd{M-x imenu} for keyboard-driven completion of tags
 built from names in the buffer.
 
-To use Function Menu (distributed only with XEmacs), use @kbd{M-x
-function-menu}.  To enable it by default each time you visit a proof
-script file (i.e. avoid typing @code{M-x function-menu}), you should
-find the file @file{func-menu.el} and follow the instructions there.
+@c To use Function Menu (distributed only with XEmacs), use @kbd{M-x
+@c function-menu}.  To enable it by default each time you visit a proof
+@c script file (i.e. avoid typing @code{M-x function-menu}), you should
+@c find the file @file{func-menu.el} and follow the instructions there.
 
 Speedbar displays a file tree in a separate window on the display,
 allowing quick navigation.  Middle/double-clicking or pressing @kbd{+}
@@ -2408,11 +2389,7 @@ To use Speedbar, use
 @lisp
         Tools -> Display Speedbar 
 @end lisp
-(for GNU Emacs), or 
-@lisp
-        Proof General -> Advanced -> Speedbar
-@end lisp
-(for XEmacs).  If you prefer the old fashioned way, `M-x speedbar' does
+If you prefer the old fashioned way, `M-x speedbar' does
 the same job.
 
 For more information about Speedbar,
@@ -2442,8 +2419,7 @@ This is an inherent problem with outline because it works by modifying
 the buffer.  If you want to use outline with processed scripts, you
 can turn off the @code{Strict Read Only} option. 
 
-See @inforef{Outline Mode, ,(xemacs)} for more information about
-outline mode.
+See @inforef{Outline Mode, ,(emacs)} for more information about outline mode.
 
 @node Support for completion
 @section Support for completion
@@ -2482,8 +2458,7 @@ http://proofgeneral.inf.ed.ac.uk/trac
 @end defvar
 
 The completion facility uses a library @file{completion.el} which
-usually ships with XEmacs and GNU Emacs, and supplies the
-@code{complete} function.
+usually ships with Emacs, and supplies the @code{complete} function.
 
 @c FIXME: edited from default.
 @c NOT DOCSTRING MAGIC: complete
@@ -2540,7 +2515,7 @@ General doesn't do this automatically.
 Apart from completion, there are several other operations on tags.  One
 common one is replacing identifiers across all files using
 @code{tags-query-replace}.  For more information on how to use tags,
-@inforef{Tags, ,(xemacs)}.
+@inforef{Tags, ,(emacs)}.
 
 To use tags for completion at the same time as the completion mechanism
 mentioned already, you can use the command @kbd{M-x add-completions-from-tags-table}.
@@ -2638,7 +2613,7 @@ buffer with its current value, and facility to edit it.  Once you have
 edited it, you can use the special buttons @var{set}, @var{save} and
 @var{done}.  You must use one of @var{set} or @var{save} to get any
 effect.  The @var{save} button stores the setting in your @file{.emacs}
-file.  The command @kbd{M-x customize-save-customized} or XEmacs menubar 
+file.  The command @kbd{M-x customize-save-customized} or Emacs menubar 
 item @code{Options -> Save Options} saves all
 settings you have edited.
 
@@ -2651,13 +2626,9 @@ mentioned in this chapter.  These features make customize rather more
 friendly than raw lisp.
 
 You can also access the customize settings for Proof General from
-other (non-script) buffers.  In XEmacs, the menu path is:
+other (non-script) buffers.  Use the menu:
 @lisp
-   Options -> Customize -> Emacs -> External -> Proof General
-@end lisp
-in XEmacs.  In GNU Emacs, use the menu:
-@lisp
-   Help -> Customize Emacs -> Top-level Customization Group
+   Options -> Customize Emacs -> Top-level Customization Group
 @end lisp
 and select the @code{External} and then @code{Proof-General} groups.
 
@@ -2666,7 +2637,7 @@ Proof General has been fully loaded.  Proof General is fully loaded when
 you visit a script file for the first time, or if you type @kbd{M-x
 load-library RET proof RET}.
 
-For more help with customize, see @inforef{Easy Customization, ,xemacs}.
+For more help with customize, see @inforef{Customization, ,(emacs)}.
 
 
 
@@ -3199,7 +3170,7 @@ default keyboard short-cuts are quite lengthy.
 Some users may prefer to add additional key-bindings for shorter
 sequences.  This can be done interactively with the command
 @code{M-x local-set-key}, or for longevity, by adding 
-code like this to your @file{.emacs} (or @file{.xemacs/init.el}) file:
+code like this to your @file{.emacs} file:
 @lisp
 
 (eval-after-load "proof-script" '(progn
@@ -3250,7 +3221,7 @@ are really needed if you have working cursor keys.
 @cindex file variables
 
 A very convenient way to customize file-specific variables is to use the
-File Variables (@inforef{File Variables, ,xemacs}). This feature of
+File Variables (@inforef{File Variables, ,(emacs)}). This feature of
 Emacs allows to specify the values to use for certain Emacs variables
 when a file is loaded. Those values are written as a list at the end of
 the file.
@@ -3299,7 +3270,7 @@ And then the right call to make will be done if you use the @kbd{M-x
 compile} command. Notice that the lines are commented in order to be
 ignored by the proof assistant. It is possible to use this mechanism for
 any other buffer local variable.  @inforef{File Variables,
-,xemacs}.
+,emacs}.
 
 
 
@@ -3308,7 +3279,7 @@ any other buffer local variable.  @inforef{File Variables,
 @section Using abbreviations
 
 A very useful package of Emacs supports automatic expansions of
-abbreviations as you type, @inforef{Abbrevs, ,(xemacs)}.
+abbreviations as you type, @inforef{Abbrevs, ,(emacs)}.
 
 For example, the proof assistant Coq has many command strings that are
 long, such as ``reflexivity,'' ``Inductive,'' ``Definition'' and
@@ -4324,6 +4295,9 @@ encouragement to make the improvements that went into Proof General 3.0.
 * Old News for 3.2::
 * Old News for 3.3::
 * Old News for 3.4::
+* Old News for 3.5::
+* Old News for 3.6::
+* Old News for 3.7::
 @end menu
 
 
@@ -4524,6 +4498,58 @@ parties, and used in any context without applying for a special
 license.  Despite these legal changes, we would still appreciate if
 you send us back any useful improvements you make to Proof General,
 and register your use of Proof General on the web site.
+
+@node Old News for 3.5
+@unnumberedsec Old News for 3.5
+
+
+@node Old News for 3.6
+@unnumberedsec Old News for 3.6
+
+There was no 3.6 release of Proof General.
+
+@node Old News for 3.7
+@unnumberedsec Old News for 3.7
+
+Proof General version 3.7.1 is an updated and enhanced version
+of Proof General 3.7.  See  @file{CHANGES} for more details.
+
+Proof General version 3.7 collects together a cummulative set of
+improvements to Proof General 3.5.  There are compatibility fixes for
+newer Emacs versions, and particularly for GNU Emacs: credit is due to
+Stefan Monnier for an intense period of debugging and patching.  The
+options menu has been simplified and extended, and the display
+management is improved and repaired for Emacs API changes.  There are
+some other usability improvements, some after feedback from use at TYPES
+Summer Schools.  Many new features have been added to enhance Coq mode
+(thanks to Pierre Courtieu) and several improvements made for Isabelle
+(thanks to Makarius Wenzel, Stefan Berghofer and Tjark Weber).
+
+Support has been added for the useful Emacs packages Speedbar
+@c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
+and Index Menu, both usually distributed with Emacs.
+Compatible versions of the Emacs packages Math-Menu (for Unicode symbols)
+and MMM Mode (for multiple modes in one buffer) are 
+bundled with Proof General.  A new Unicode Tokens package has
+been added which replaces X-Symbol.
+
+@c The display handling functions have been improved to be more user
+@c friendly and the display in multiple-window mode is trimmed to
+@c allow more text space for display.  
+
+Proof General 4.0 is available in RPM package format which includes
+pre-compiled code for GNU Emacs and 
+desktop integration on freedesktop.org compliant desktops (including,
+for example, many recent Linux distributions).
+
+@c Other stuff pending:
+@c Support for *thms* buffer??
+
+See the @file{CHANGES} file in the distribution for more complete
+details of changes since version 3.5, and the appendix
+@ref{History of Proof General} for old news.
+
+
 
 
 @node Function Index
