@@ -386,7 +386,7 @@
 
 (defconst isar-symbols-tokens-fallbacks
   `(;; Faked long symbols
-    ("longleftarrow" "←–")
+    ("longleftarrow" "←-")
     ("Longleftarrow" "⇐–")
     ("longrightarrow" "–→")
     ("Longrightarrow" "–⇒")
