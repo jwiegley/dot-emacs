@@ -806,7 +806,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 (eval-after-load "org"
   '(defvar org-agenda-last-files (cdr org-agenda-files)))
 
-(defvar org-my-archive-expiry-days 7
+(defvar org-my-archive-expiry-days 1
   "The number of days after which a completed task should be auto-archived.
 This can be 0 for immediate, or a floating point value.")
 
@@ -916,6 +916,18 @@ This will use the command `open' with the message URL."
 	set searchResults to search \"%%3C%s%%3E\" within URLs
 	open window for record (get beginning of searchResults)
 end tell" (match-string 1))))
+
+(defun org-export-tasks ()
+  (interactive)
+  (let ((index 1))
+   (org-map-entries
+    #'(lambda ()
+	(outline-mark-subtree)
+	(org-export-as-html 3)
+	(write-file (format "%d.html" index))
+	(kill-buffer (current-buffer))
+	(setq index (1+ index)))
+    "LEVEL=2")))
 
 ;;;_ * remember
 
