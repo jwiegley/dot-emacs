@@ -901,10 +901,7 @@ end tell"))
         set theMessages to selection
         message id of beginning of theMessages
 end tell")))
-    (insert (org-make-link-string
-             (concat "message://"
-                     (substring message-id 1 (1- (length message-id))))
-             (substring subject 1 (1- (length subject)))))))
+    (insert (org-make-link-string (concat "message://" message-id) subject))))
 
 (defun org-dtp-message-open ()
   "Visit the message with the given MESSAGE-ID.
