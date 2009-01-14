@@ -798,10 +798,10 @@ created.  Return the number of holes created."
 
 
 
-(defun holes-replace-string-by-holes-backward-jump (pos)
+(defun holes-replace-string-by-holes-backward-jump (pos &optional noindent)
   "Put holes between POS and point, backward, indenting.
 \"#\" and \"@{..}\" between this positions will become holes."
-  (save-excursion (indent-region pos (point) nil))
+  (unless noindent (save-excursion (indent-region pos (point) nil)))
   (let ((n (holes-replace-string-by-holes-backward pos)))
     (case n
       (0 nil)				; no hole, stay here.
@@ -812,7 +812,6 @@ created.  Return the number of holes created."
        (goto-char pos)
        (message (substitute-command-keys
 		 "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc."))))))
-
 
 
 ;;;###autoload
