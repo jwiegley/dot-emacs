@@ -184,7 +184,7 @@
  '(org-hide-leading-stars t)
  '(org-modules (quote (org-mac-message org-bookmark org-depend org-eval org2rem)))
  '(org-remember-store-without-prompt t)
- '(org-remember-templates (quote (("Task" 116 "* TODO %?
+ '(org-remember-templates (quote (("Task" 116 "* TODO [#B] %?
   SCHEDULED: %t
   :PROPERTIES:
   :ID: %(shell-command-to-string \"uuidgen\")  :END:
