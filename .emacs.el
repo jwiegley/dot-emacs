@@ -1407,7 +1407,7 @@ expand wildcards (if any) and visit multiple files."
   (call-interactively 'isearch-forward))
 
 (define-key mode-specific-map [?t ?s] 'my-org-todo-search)
-(define-key mode-specific-map [?t ?a] 'my-org-todo-archive-search)
+(define-key mode-specific-map [?t ?a] 'tags-apropos)
 
 (define-key mode-specific-map [?u] 'rename-uniquely)
 (define-key mode-specific-map [?v] 'visit-url)
