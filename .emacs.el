@@ -798,6 +798,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 (require 'org-crypt)
 (require 'org-attach)
 (require 'org-devonthink)
+(require 'org-depends)
 
 (load "org-log" t)
 
