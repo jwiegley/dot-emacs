@@ -16,6 +16,7 @@
 	    (expand-file-name "~/src/eshell")
 	    (expand-file-name "~/src/pcomplete")
 	    (expand-file-name "~/src/regex-tool")
+	    (expand-file-name "~/Library/Emacs/site-lisp/gist.el")
 	    (expand-file-name "~/Library/Emacs/site-lisp/magit")
 	    (expand-file-name "~/Library/Emacs/site-lisp/circe")
 	    (expand-file-name "~/Library/Emacs/site-lisp/nxml-mode")
@@ -493,6 +494,11 @@ This is an appropriate function for `lui-pre-output-hook'."
 (require 'git)
 (require 'gitsum)
 (require 'vc-git)
+
+(setq github-username "jwiegley")
+(setq github-api-key "14c811944452528f94a5b1e3488487cd")
+
+(require 'gist)
 
 (autoload 'git-blame-mode "git-blame"
   "Minor mode for incremental blame for Git." t)
