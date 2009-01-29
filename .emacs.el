@@ -148,7 +148,6 @@
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
  '(mark-holidays-in-calendar t)
- ;;'(menu-bar-mode nil nil (menu-bar))
  '(next-line-add-newlines nil)
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
@@ -180,10 +179,11 @@
  '(org-default-notes-file "~/Documents/todo.txt")
  '(org-directory "~/Documents/")
  '(org-drawers (quote ("PROPERTIES" "OUTPUT" "SCRIPT" "PATCH" "DATA")))
+ '(org-enforce-todo-dependencies t)
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-hide-leading-stars t)
- '(org-modules (quote (org-mac-message org-bookmark org-depend org-eval org2rem)))
+ '(org-modules (quote (org-mac-message org-bookmark org-eval org2rem)))
  '(org-remember-store-without-prompt t)
  '(org-remember-templates (quote (("Task" 116 "* TODO [#B] %?
   SCHEDULED: %t
@@ -800,11 +800,9 @@ This is an appropriate function for `lui-pre-output-hook'."
 ;;;_ * org-mode
 
 (require 'org-install)
-(require 'org-mac-message)
 (require 'org-crypt)
 (require 'org-attach)
 (require 'org-devonthink)
-(require 'org-depends)
 
 (load "org-log" t)
 
