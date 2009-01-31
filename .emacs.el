@@ -310,7 +310,7 @@
   (define-key c-mode-base-map "\C-m" 'newline-and-indent)
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indicate-empty-lines t)
-  (setq fill-column 72)
+  (setq fill-column 78)
   (font-lock-add-keywords
    'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 widget-inactive t))))
 
