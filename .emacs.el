@@ -931,6 +931,16 @@ end tell" (match-string 1))))
 	(setq index (1+ index)))
     "LEVEL=2")))
 
+;;;_ * po-mode
+
+(setq auto-mode-alist
+      (cons '("\\.po\\'\\|\\.po\\." . po-mode) auto-mode-alist))
+(autoload 'po-mode "po-mode" "Major mode for translators to edit PO files" t)
+
+(modify-coding-system-alist 'file "\\.po\\'\\|\\.po\\."
+			    'po-find-file-coding-system)
+(autoload 'po-find-file-coding-system "po-mode")
+
 ;;;_ * remember
 
 (require 'remember)
