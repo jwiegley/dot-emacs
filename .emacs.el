@@ -1197,13 +1197,8 @@ end tell" (match-string 1))))
 
 ;;;_ * ctl-x
 
-(define-key ctl-x-map [?g] #'(lambda ()
-			       (interactive)
-			       (if current-prefix-arg
-				   (call-interactively 'git-status)
-				 (call-interactively 'magit-status))))
-
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
+(define-key ctl-x-map [?g] 'magit-status)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
 
 (defun unfill-paragraph (arg)
