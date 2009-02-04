@@ -883,9 +883,12 @@ This can be 0 for immediate, or a floating point value.")
     (if (null done)
 	(call-interactively 'org-remember)
       (let ((org-remember-templates
-	     '((110 "* DONE %?
-  - State \"DONE\"       %U
-  %u" "~/Documents/todo.txt" "Inbox"))))
+	     '((110 "* STARTED [#B] %?
+  - State \"STARTED\"    %U
+  SCHEDULED: %t
+  :PROPERTIES:
+  :ID: %(shell-command-to-string \"uuidgen\")  :END:
+  %U" "~/Documents/todo.txt" "Inbox"))))
 	(org-remember)))))
 
 (defun org-remember-note ()
