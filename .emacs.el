@@ -708,6 +708,8 @@
 
 (defvar python-kwc-regexp nil)
 
+(autoload 'word-at-point "thingatpt" nil t)
+
 (defun python-newline-and-indent ()
   "Always make sure that colons appear in the appropriate place."
   (interactive)
