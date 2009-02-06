@@ -1,3 +1,4 @@
+
 ;;;_ * cldoc
 
 (autoload 'turn-on-cldoc-mode "cldoc" nil t)
@@ -104,8 +105,7 @@
 (require 'slime)
 
 (slime-setup
- '(inferior-slime
-   slime-asdf
+ '(slime-asdf
    slime-autodoc
    slime-banner
    slime-c-p-c
@@ -118,12 +118,17 @@
    slime-presentation-streams
    slime-presentations
    slime-references
+   slime-sbcl-exts
+   slime-package-fu
+   slime-fontifying-fu
+   slime-mdot-fu
    slime-scratch
    slime-tramp
+   slime-enclosing-context
    ;; slime-typeout-frame
    slime-xref-browser))
 
-;;(setq slime-net-coding-system 'utf-8-unix)
+(setq slime-net-coding-system 'utf-8-unix)
 
 (setq slime-lisp-implementations
       '((sbcl ("sbcl" "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86")
@@ -154,6 +159,15 @@
 		       port-file)))
 	(openmcl ("/usr/local/stow/openmcl-darwinx8664-snapshot-070722/dx86cl64"
 		  "-l" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
+
+(setq swank-clojure-jar-path "/opt/local/share/java/clojure/lib/clojure.jar"
+      swank-clojure-binary "clojure")
+
+(require 'clojure-mode)
+(require 'swank-clojure-autoload)
+
+(setq auto-mode-alist (cons '("\\.clj$" . clojure-mode)
+                            auto-mode-alist))
 
 (setq slime-default-lisp 'sbcl)
 (setq slime-complete-symbol*-fancy t)
@@ -209,9 +223,10 @@
      (define-key slime-repl-mode-map [tab] 'indent-or-complete)
      (define-key slime-repl-mode-map [(control return)] 'other-window)
 
-     (define-key inferior-slime-mode-map [(control ?c) (control ?p)]
-       'slime-repl-previous-prompt)
+     ;;(define-key inferior-slime-mode-map [(control ?c) (control ?p)]
+     ;;  'slime-repl-previous-prompt)
 
      (define-key slime-mode-map [(control ?h) ?f] 'info-lookup-symbol)
      (define-key slime-repl-mode-map [(control ?h) ?f] 'info-lookup-symbol)
-     (define-key inferior-slime-mode-map [(control ?h) ?f] 'info-lookup-symbol)))
+     ;;(define-key inferior-slime-mode-map [(control ?h) ?f] 'info-lookup-symbol)
+     ))

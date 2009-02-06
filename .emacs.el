@@ -8,23 +8,26 @@
 (dolist
     (path
      (reverse
-      (list (expand-file-name "~/Library/Emacs")
-	    (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
-	    ;;(expand-file-name "~/Archives/Git/Sources/git/contrib/emacs")
-	    ;;(expand-file-name "~/Sources/puppet/ext/emacs")
-	    (expand-file-name "~/src/emacs-chess")
-	    (expand-file-name "~/src/eshell")
-	    (expand-file-name "~/src/pcomplete")
-	    (expand-file-name "~/src/regex-tool")
-	    (expand-file-name "~/Library/Emacs/site-lisp/gist.el")
-	    (expand-file-name "~/Library/Emacs/site-lisp/magit")
-	    (expand-file-name "~/Library/Emacs/site-lisp/circe")
-	    (expand-file-name "~/Library/Emacs/site-lisp/nxml-mode")
-	    (expand-file-name "~/Library/Emacs/site-lisp/org-mode/lisp")
-	    (expand-file-name "~/Library/Emacs/site-lisp/org-mode/contrib/lisp")
-	    (expand-file-name "~/Library/Emacs/site-lisp/remember")
-	    (expand-file-name "~/Library/Emacs/site-lisp/yasnippet")
-	    (expand-file-name "/usr/local/share/emacs/site-lisp"))))
+      (list
+       (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
+       (expand-file-name "/usr/local/share/emacs/site-lisp")
+       (expand-file-name "~/Library/Emacs")
+       (expand-file-name "~/Library/Emacs/site-lisp/circe")
+       (expand-file-name "~/Library/Emacs/site-lisp/clojure-mode")
+       (expand-file-name "~/Library/Emacs/site-lisp/gist.el")
+       (expand-file-name "~/Library/Emacs/site-lisp/magit")
+       (expand-file-name "~/Library/Emacs/site-lisp/nxml-mode")
+       (expand-file-name "~/Library/Emacs/site-lisp/org-mode/contrib/lisp")
+       (expand-file-name "~/Library/Emacs/site-lisp/org-mode/lisp")
+       (expand-file-name "~/Library/Emacs/site-lisp/remember")
+       (expand-file-name "~/Library/Emacs/site-lisp/swank-clojure")
+       (expand-file-name "~/Library/Emacs/site-lisp/yasnippet")
+       (expand-file-name "~/src/emacs-chess")
+       (expand-file-name "~/src/eshell")
+       (expand-file-name "~/src/pcomplete")
+       (expand-file-name "~/src/puppet/ext/emacs")
+       (expand-file-name "~/src/regex-tool")
+       )))
 
   (setq path (expand-file-name path))
   (setq load-path (delete path load-path))
@@ -64,9 +67,6 @@
 
 ;; '(eshell-ls-use-in-dired t nil (em-ls))
 ;; '(abbrev-mode t)
-;; '(sendmail-program "/opt/local/bin/msmtp" t)
-;; '(allout-command-prefix "")
-;; '(ange-ftp-try-passive-mode t)
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
@@ -92,6 +92,7 @@
  '(column-number-mode nil)
  '(compilation-scroll-output t)
  '(completion-ignored-extensions (quote (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
+ '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-raised-buttons nil)
  '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1") (cursor-color . "red"))))
@@ -278,7 +279,7 @@
 
 ;;;_* packages
 
-(mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
+;(mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
 
 ;;;_ * abbrev
 
@@ -296,9 +297,9 @@
 
 ;;;_ * browse-url
 
-(if (file-executable-p "~/bin/sdcli")
-    (defun browse-url-download-file (url &optional new-window)
-      (call-process (expand-file-name "~/bin/sdcli") nil nil nil "dl" url)))
+;;(if (file-executable-p "~/bin/sdcli")
+;;    (defun browse-url-download-file (url &optional new-window)
+;;      (call-process (expand-file-name "~/bin/sdcli") nil nil nil "dl" url)))
 
 ;;;_ * cc-mode
 
@@ -324,128 +325,127 @@
 
 ;;;_ * circe
 
-(autoload 'circe "circe" "Connect to an IRC server" t)
-
-(setq circe-default-realname "http://www.newartisans.com/"
-      circe-server-coding-system '(utf-8 . undecided)
-      circe-server-auto-join-channels '(("^freenode$" "#ledger"))
-      circe-nickserv-passwords '(("freenode" "xco8imer")))
-
-(setq lui-max-buffer-size 30000
-      lui-flyspell-p nil
-      lui-flyspell-alist '(("." "american")))
-
-(eval-after-load "circe"
-  '(progn
-     (require 'circe-highlight-all-nicks)
-     (enable-circe-highlight-all-nicks)
-
-     (add-to-list 'circe-receive-message-functions 'nickserv-auth)))
-
-(eval-after-load "lui"
-  '(progn
-     (require 'lui-irc-colors)
-     (add-to-list 'lui-pre-output-hook 'lui-irc-colors)
-     (add-to-list 'lui-post-output-hook 'lui-hide-joins-and-quits)
-     (add-to-list 'lui-post-output-hook 'circe-thou-art-but-a-fool-sir)))
-
-(defun lui-hide-joins-and-quits ()
-  "Mark joins and quits with the `fool' property.
-This is an appropriate function for `lui-pre-output-hook'."
-  (goto-char (point-min))
-  (let ((inhibit-read-only t))
-    (while (re-search-forward "^\\*\\*\\* \\(Join\\|Quit\\|Part\\|Nick change\\)" nil t)
-      (let ((start (match-beginning 0)))
-	(save-excursion
-	  (goto-char start)
-	  (forward-line 1)
-	  (while (and (not (eobp)) (looking-at "    "))
-	    (forward-line 1))
-	  (delete-region start (point)))))))
-
-(defcustom circe-fools-list nil
-  "*List of nicks to mark as fools."
-  :type '(repeat regexp)
-  :group 'circe)
-
-(defun circe-command-FOOL (line)
-  "Add the regex on LINE to the `circe-fools-list'."
-  (with-current-buffer (circe-server-last-active-buffer)
-    (cond
-     ((string-match "\\S-+" line)
-      (let ((regex (match-string 0 line)))
-        (add-to-list 'circe-fools-list regex)
-        (circe-server-message
-	 (format "Fools list, meet %s (for now)" regex))))
-     ((not circe-fools-list)
-      (circe-server-message "Your fools list is empty"))
-     (t
-      (circe-server-message "Your fools list:")
-      (mapc (lambda (regex)
-              (circe-server-message (format "- %s" regex)))
-            circe-fools-list)))))
-
-(defun circe-command-UNFOOL (line)
-  "Remove an entry from `circe-fools-list'."
-  (with-current-buffer (circe-server-last-active-buffer)
-    (cond
-     ((string-match "\\S-+" line)
-      (let ((regex (match-string 0 line)))
-        (setq circe-fools-list (delete regex circe-fools-list))
-        (circe-server-message (format "Fools list forgot about %s" regex))))
-     (t
-      (circe-server-message
-       "Who do you want to unfool? UNFOOL requires one argument")))))
-
-(defun circe-thou-art-but-a-fool-sir ()
-  (goto-char (point-min))
-  (let ((inhibit-read-only t))
-    (while (re-search-forward "^<\\([^>]+\\)>" nil t)
-      (let ((start (match-beginning 0))
-	    (nick (match-string 1))
-	    a-foolish-boy-p)
-	(if (dolist (regex circe-fools-list)
-	      (if (string-match regex nick)
-		  (return t)))
-	    (save-excursion
-	      (goto-char start)
-	      (forward-line 1)
-	      (while (and (not (eobp)) (looking-at " "))
-		(forward-line 1))
-	      (put-text-property start (point) 'lui-fool t)))))))
-
-(defun nickserv-auth (nick user host command args)
-  "Authenticate to a bitlbee server."
-  (when (and (string= command "JOIN")
-             (circe-server-my-nick-p nick))
-    (with-circe-server-buffer
-      (when (string= circe-server-network "irc.freenode.net")
-        (circe-server-send "PRIVMSG NickServ IDENTIFY xco8imer")))))
-
-(defun irc ()
-  "Connect to IRC."
-  (interactive)
-  (circe "irc.freenode.net" "6667" "freenode"))
+;;(autoload 'circe "circe" "Connect to an IRC server" t)
+;;
+;;(setq circe-default-realname "http://www.newartisans.com/"
+;;      circe-server-coding-system '(utf-8 . undecided)
+;;      circe-server-auto-join-channels '(("^freenode$" "#ledger")))
+;;
+;;(setq lui-max-buffer-size 30000
+;;      lui-flyspell-p nil
+;;      lui-flyspell-alist '(("." "american")))
+;;
+;;(eval-after-load "circe"
+;;  '(progn
+;;     (require 'circe-highlight-all-nicks)
+;;     (enable-circe-highlight-all-nicks)
+;;
+;;     (add-to-list 'circe-receive-message-functions 'nickserv-auth)))
+;;
+;;(eval-after-load "lui"
+;;  '(progn
+;;     (require 'lui-irc-colors)
+;;     (add-to-list 'lui-pre-output-hook 'lui-irc-colors)
+;;     (add-to-list 'lui-post-output-hook 'lui-hide-joins-and-quits)
+;;     (add-to-list 'lui-post-output-hook 'circe-thou-art-but-a-fool-sir)))
+;;
+;;(defun lui-hide-joins-and-quits ()
+;;  "Mark joins and quits with the `fool' property.
+;;This is an appropriate function for `lui-pre-output-hook'."
+;;  (goto-char (point-min))
+;;  (let ((inhibit-read-only t))
+;;    (while (re-search-forward "^\\*\\*\\* \\(Join\\|Quit\\|Part\\|Nick change\\)" nil t)
+;;      (let ((start (match-beginning 0)))
+;;	(save-excursion
+;;	  (goto-char start)
+;;	  (forward-line 1)
+;;	  (while (and (not (eobp)) (looking-at "    "))
+;;	    (forward-line 1))
+;;	  (delete-region start (point)))))))
+;;
+;;(defcustom circe-fools-list nil
+;;  "*List of nicks to mark as fools."
+;;  :type '(repeat regexp)
+;;  :group 'circe)
+;;
+;;(defun circe-command-FOOL (line)
+;;  "Add the regex on LINE to the `circe-fools-list'."
+;;  (with-current-buffer (circe-server-last-active-buffer)
+;;    (cond
+;;     ((string-match "\\S-+" line)
+;;      (let ((regex (match-string 0 line)))
+;;        (add-to-list 'circe-fools-list regex)
+;;        (circe-server-message
+;;	 (format "Fools list, meet %s (for now)" regex))))
+;;     ((not circe-fools-list)
+;;      (circe-server-message "Your fools list is empty"))
+;;     (t
+;;      (circe-server-message "Your fools list:")
+;;      (mapc (lambda (regex)
+;;              (circe-server-message (format "- %s" regex)))
+;;            circe-fools-list)))))
+;;
+;;(defun circe-command-UNFOOL (line)
+;;  "Remove an entry from `circe-fools-list'."
+;;  (with-current-buffer (circe-server-last-active-buffer)
+;;    (cond
+;;     ((string-match "\\S-+" line)
+;;      (let ((regex (match-string 0 line)))
+;;        (setq circe-fools-list (delete regex circe-fools-list))
+;;        (circe-server-message (format "Fools list forgot about %s" regex))))
+;;     (t
+;;      (circe-server-message
+;;       "Who do you want to unfool? UNFOOL requires one argument")))))
+;;
+;;(defun circe-thou-art-but-a-fool-sir ()
+;;  (goto-char (point-min))
+;;  (let ((inhibit-read-only t))
+;;    (while (re-search-forward "^<\\([^>]+\\)>" nil t)
+;;      (let ((start (match-beginning 0))
+;;	    (nick (match-string 1))
+;;	    a-foolish-boy-p)
+;;	(if (dolist (regex circe-fools-list)
+;;	      (if (string-match regex nick)
+;;		  (return t)))
+;;	    (save-excursion
+;;	      (goto-char start)
+;;	      (forward-line 1)
+;;	      (while (and (not (eobp)) (looking-at " "))
+;;		(forward-line 1))
+;;	      (put-text-property start (point) 'lui-fool t)))))))
+;;
+;;(defun nickserv-auth (nick user host command args)
+;;  "Authenticate to a bitlbee server."
+;;  (when (and (string= command "JOIN")
+;;             (circe-server-my-nick-p nick))
+;;    (with-circe-server-buffer
+;;      (when (string= circe-server-network "irc.freenode.net")
+;;        (circe-server-send "PRIVMSG NickServ IDENTIFY xco8imer")))))
+;;
+;;(defun irc ()
+;;  "Connect to IRC."
+;;  (interactive)
+;;  (circe "irc.freenode.net" "6667" "freenode"))
 
 ;;;_ * csharp-mode
 
-(autoload 'csharp-mode "csharp-mode" nil t)
-
-(add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
-
-(defun my-csharp-mode-hook ()
-  (set (make-local-variable 'parens-require-spaces) nil)
-  (setq tab-width 8 c-basic-offset 2)
-  (setq fill-column (- (window-width) 8)))
-
-(add-hook 'csharp-mode-hook 'my-csharp-mode-hook)
-
-(eval-after-load "whitespace"
-  '(add-to-list 'whitespace-modes 'csharp-mode))
-
-(add-to-list 'auto-mode-alist '("\\.as[cphma]x\\'" . html-mode))
-(add-to-list 'auto-mode-alist '("\\.master\\'" . html-mode))
-(add-to-list 'auto-mode-alist '("\\.css\\'" . css-mode))
+;;(autoload 'csharp-mode "csharp-mode" nil t)
+;;
+;;(add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
+;;
+;;(defun my-csharp-mode-hook ()
+;;  (set (make-local-variable 'parens-require-spaces) nil)
+;;  (setq tab-width 8 c-basic-offset 2)
+;;  (setq fill-column (- (window-width) 8)))
+;;
+;;(add-hook 'csharp-mode-hook 'my-csharp-mode-hook)
+;;
+;;(eval-after-load "whitespace"
+;;  '(add-to-list 'whitespace-modes 'csharp-mode))
+;;
+;;(add-to-list 'auto-mode-alist '("\\.as[cphma]x\\'" . html-mode))
+;;(add-to-list 'auto-mode-alist '("\\.master\\'" . html-mode))
+;;(add-to-list 'auto-mode-alist '("\\.css\\'" . css-mode))
 
 ;;;_ * doxymacs
 
@@ -491,19 +491,15 @@ This is an appropriate function for `lui-pre-output-hook'."
 (setenv "GIT_PAGER" "")
 
 (require 'magit)
-(require 'git)
-(require 'gitsum)
-(require 'vc-git)
+(require 'gist)
 
 (setq github-username "jwiegley")
 (setq github-api-key "14c811944452528f94a5b1e3488487cd")
 
-(require 'gist)
-
-(autoload 'git-blame-mode "git-blame"
-  "Minor mode for incremental blame for Git." t)
-
-(add-to-list 'vc-handled-backends 'GIT)
+;;(autoload 'git-blame-mode "git-blame"
+;;  "Minor mode for incremental blame for Git." t)
+;;
+;;(add-to-list 'vc-handled-backends 'GIT)
 
 (defun commit-after-save ()
   (let ((file (file-name-nondirectory (buffer-file-name))))
@@ -572,7 +568,7 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * initsplit
 
-(load "initsplit" t)
+;;(load "initsplit" t)
 
 ;;;_ * java-mode
 
@@ -693,8 +689,8 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * pcomplete
 
-(autoload 'pcomplete/ssh "pcmpl-ssh")
-(autoload 'pcomplete/scp "pcmpl-ssh")
+;;(autoload 'pcomplete/ssh "pcmpl-ssh")
+;;(autoload 'pcomplete/scp "pcmpl-ssh")
 
 ;;;_ * puppet-mode
 
@@ -766,25 +762,25 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * gnus
 
-(setq gnus-home-directory "~/Documents")
-
-(load ".gnus")
-
-(defun gnus-visit-article ()
-  (interactive)
-  (when (string-match "\\`[0-9]+\\.msg\\'" (file-name-nondirectory buffer-file-name))
-    (require 'gnus)
-    (let* ((path buffer-file-name)
-	   (article (file-name-sans-extension (file-name-nondirectory path)))
-	   (dir (file-name-directory path))
-	   (case-fold-search nil))
-      (when (string-match "/Mail/\\(.+?\\)/$" dir)
-	(let ((group (concat "nnml:" (match-string 1 dir))))
-	  (setq group (subst-char-in-string ?/ ?. group))
-	  (gnus-group-read-group 1 nil group)
-	  (gnus-summary-goto-article (string-to-number article) nil t))))))
-
-(add-hook 'find-file-hook 'gnus-visit-article t)
+;;(setq gnus-home-directory "~/Documents")
+;;
+;;(load ".gnus")
+;;
+;;(defun gnus-visit-article ()
+;;  (interactive)
+;;  (when (string-match "\\`[0-9]+\\.msg\\'" (file-name-nondirectory buffer-file-name))
+;;    (require 'gnus)
+;;    (let* ((path buffer-file-name)
+;;	   (article (file-name-sans-extension (file-name-nondirectory path)))
+;;	   (dir (file-name-directory path))
+;;	   (case-fold-search nil))
+;;      (when (string-match "/Mail/\\(.+?\\)/$" dir)
+;;	(let ((group (concat "nnml:" (match-string 1 dir))))
+;;	  (setq group (subst-char-in-string ?/ ?. group))
+;;	  (gnus-group-read-group 1 nil group)
+;;	  (gnus-summary-goto-article (string-to-number article) nil t))))))
+;;
+;;(add-hook 'find-file-hook 'gnus-visit-article t)
 
 ;;;_ * multi-region
 
@@ -793,18 +789,18 @@ This is an appropriate function for `lui-pre-output-hook'."
 
 ;;;_ * muse
 
-(require 'muse-mode)
-(require 'muse-html)
-(require 'muse-markdown)
+;;(require 'muse-mode)
+;;(require 'muse-html)
+;;(require 'muse-markdown)
 
 ;;;_ * org-mode
 
 (require 'org-install)
-(require 'org-crypt)
+;;(require 'org-crypt)
 (require 'org-attach)
 (require 'org-devonthink)
 
-(load "org-log" t)
+;;(load "org-log" t)
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
@@ -936,13 +932,13 @@ end tell" (match-string 1))))
 
 ;;;_ * po-mode
 
-(setq auto-mode-alist
-      (cons '("\\.po\\'\\|\\.po\\." . po-mode) auto-mode-alist))
-(autoload 'po-mode "po-mode" "Major mode for translators to edit PO files" t)
-
-(modify-coding-system-alist 'file "\\.po\\'\\|\\.po\\."
-			    'po-find-file-coding-system)
-(autoload 'po-find-file-coding-system "po-mode")
+;;(setq auto-mode-alist
+;;      (cons '("\\.po\\'\\|\\.po\\." . po-mode) auto-mode-alist))
+;;(autoload 'po-mode "po-mode" "Major mode for translators to edit PO files" t)
+;;
+;;(modify-coding-system-alist 'file "\\.po\\'\\|\\.po\\."
+;;			    'po-find-file-coding-system)
+;;(autoload 'po-find-file-coding-system "po-mode")
 
 ;;;_ * remember
 
@@ -1048,9 +1044,9 @@ end tell" (match-string 1))))
 
 ;;;_ * yasnippet
 
-(when (load "yasnippet" t)
-  (yas/initialize)
-  (yas/load-directory "~/Library/Emacs/site-lisp/yasnippet/snippets/"))
+;;(when (load "yasnippet" t)
+;;  (yas/initialize)
+;;  (yas/load-directory "~/Library/Emacs/site-lisp/yasnippet/snippets/"))
 
 ;;;_ * diminish
 
@@ -1140,7 +1136,7 @@ end tell" (match-string 1))))
 (define-key lisp-find-map [?k] 'find-function-on-key)
 
 (define-key global-map [(meta ?C)] 'calendar)
-(define-key global-map [(meta ?G)] 'gnus)
+;;(define-key global-map [(meta ?G)] 'gnus)
 (define-key global-map [(meta ?N)] 'winner-redo)
 (define-key global-map [(meta ?P)] 'winner-undo)
 (define-key global-map [(meta ?T)] 'tags-search)
@@ -1370,6 +1366,7 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?e ?s] 'scratch)
 (define-key mode-specific-map [?e ?v] 'edit-variable)
 (define-key mode-specific-map [?e ?e] 'toggle-debug-on-error)
+(define-key mode-specific-map [?e ?E] 'elint-current-buffer)
 
 (define-key mode-specific-map [?f] 'flush-lines)
 (define-key mode-specific-map [?g] 'goto-line)
