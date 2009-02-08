@@ -279,7 +279,7 @@
 
 ;;;_* packages
 
-;(mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
+(mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
 
 ;;;_ * abbrev
 
@@ -292,8 +292,7 @@
 
 ;;;_ * browse-kill-ring
 
-(when (load "browse-kill-ring" t)
-  (browse-kill-ring-default-keybindings))
+(load "browse-kill-ring+" t)
 
 ;;;_ * browse-url
 
@@ -476,6 +475,57 @@
      (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
      (add-to-list 'elint-standard-variables 'emacs-major-version)
      (add-to-list 'elint-standard-variables 'window-system)))
+
+;;;_ * emacs-lisp
+
+(defun elisp-indent-or-complete (&optional arg)
+  (interactive "p")
+  (call-interactively 'lisp-indent-line)
+  (unless (or (looking-back "^\\s-*")
+	      (bolp)
+	      (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
+    (call-interactively 'lisp-complete-symbol)))
+
+(eval-after-load "lisp-mode"
+  '(progn
+    (define-key emacs-lisp-mode-map [tab] 'elisp-indent-or-complete)))
+
+(add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
+
+(mapc (lambda (major-mode)
+	(font-lock-add-keywords
+	 major-mode
+	 `(("(\\(lambda\\)\\>"
+	    (0 (ignore
+		(compose-region (match-beginning 1)
+				(match-end 1) ?λ)))))))
+      '(emacs-lisp-mode))
+
+;;;_  + column-marker
+
+(autoload 'column-marker-1 "column-marker")
+
+(add-hook 'emacs-lisp-mode-hook (lambda () (interactive) (column-marker-1 79)))
+
+;;;_  + paredit
+
+(autoload 'paredit-mode "paredit"
+  "Minor mode for pseudo-structurally editing Lisp code." t)
+(autoload 'turn-on-paredit-mode "paredit"
+  "Minor mode for pseudo-structurally editing Lisp code." t)
+
+(dolist (hook '(emacs-lisp-mode-hook))
+  (add-hook hook 'turn-on-paredit-mode))
+
+;;;_  + redhank
+
+(autoload 'redshank-mode "redshank"
+  "Minor mode for restructuring Lisp code (i.e., refactoring)." t)
+
+(dolist (hook '(emacs-lisp-mode-hook
+		lisp-mode-hook
+		slime-repl-mode-hook))
+  (add-hook hook #'(lambda () (redshank-mode +1))))
 
 ;;;_ * eval-expr
 
