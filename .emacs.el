@@ -1097,9 +1097,9 @@ end tell" (match-string 1))))
 
 ;;;_ * yasnippet
 
-;;(when (load "yasnippet" t)
-;;  (yas/initialize)
-;;  (yas/load-directory "~/Library/Emacs/site-lisp/yasnippet/snippets/"))
+(when (load "yasnippet" t)
+  (yas/initialize)
+  (yas/load-directory "~/Library/Emacs/snippets/"))
 
 ;;;_ * diminish
 
