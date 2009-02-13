@@ -5,10 +5,10 @@
          if (check_misra_c_2004)
          {
             /*----------------------------------------------------------------*/
-            /* MISRA-C:2004 - Rule ${1:Rule} (${2:required})                  */
-            /* ${3:Description}
+            /* MISRA-C:2004 - Rule ${1:Rule} (${2:required})                            */
+            /* ${3:Description} $0*/
             /*----------------------------------------------------------------*/
-            diagnostic(misra_advisory_severity, ec_misra_c_2004_$1);
-         }
+            diagnostic(misra_${2:required}_severity, ec_misra_c_2004_$1);
+         }		/* if */
 #endif /* MISRA_C_2004_VALIDATION */
 /*** END TI ADD ***/

@@ -82,7 +82,7 @@
  '(circe-fools-list (quote ("Xach" "Xof" "Krystof" "Zhivago" "dalias" "holycow")))
  '(circe-ignore-list (quote ("jordanb_?")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
- '(column-number-mode nil)
+ '(column-number-mode t)
  '(compilation-scroll-output t)
  '(completion-ignored-extensions (quote (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
  '(current-language-environment "UTF-8")
@@ -142,6 +142,7 @@
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
  '(magit-process-popup-time 15)
+ '(magit-push-script "/Users/johnw/bin/push")
  '(mark-holidays-in-calendar t)
  '(next-line-add-newlines nil)
  '(nxml-sexp-element-flag t)
@@ -291,6 +292,7 @@
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indicate-empty-lines t)
   (setq fill-column 78)
+  (column-marker-3 80)
   (font-lock-add-keywords
    'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 widget-inactive t))))
 
@@ -398,6 +400,15 @@
 
 (require 'magit)
 (require 'gist)
+
+(autoload 'column-marker-1 "column-marker")
+
+(add-hook 'magit-log-edit-mode-hook
+	  (function
+	   (lambda ()
+	     (set-fill-column 72)
+	     (column-number-mode t)
+	     (column-marker-1 72))))
 
 (setq github-username "jwiegley")
 (setq github-api-key "14c811944452528f94a5b1e3488487cd")
