@@ -1259,7 +1259,7 @@ expand wildcards (if any) and visit multiple files."
      (let ((buf (get-buffer "*magit: ledger*")))
        (if buf
 	   (switch-to-buffer buf))
-       (magit-status "~/src/ledger")))))
+       (magit-status "~/src/ledger/")))))
 (define-key mode-specific-map [?m] 'ignore)
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
 (define-key mode-specific-map [?o] 'customize-option)
