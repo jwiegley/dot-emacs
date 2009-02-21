@@ -128,7 +128,7 @@
  '(ibuffer-use-other-window t)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
- '(initial-frame-alist (quote ((top . 25) (left . 520) (width . 100) (height . 50))))
+ '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 100) (height . 50))))
  '(initsplit-customizations-alist (quote (("^\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil))))
  '(iswitchb-max-to-show 10)
  '(iswitchb-mode t)
