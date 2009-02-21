@@ -1,0 +1,4 @@
+*.elc
+*~
+cus-dirs.el
+/site-lisp/
