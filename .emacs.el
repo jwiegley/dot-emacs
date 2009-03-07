@@ -1276,10 +1276,10 @@ expand wildcards (if any) and visit multiple files."
   (let ((buf (get-buffer "*magit: ledger*")))
     (if buf
 	(switch-to-buffer buf)
-      (visit-tags-table "~/Products/ledger/TAGS")
-      (gdb "gdb --annotate=3 ~/Products/ledger/ledger")
-      (magit-status "~/src/ledger/")
-      (eshell-toggle-cd))))
+      ;;(visit-tags-table "~/Products/ledger/TAGS")
+      ;;(gdb "gdb --annotate=3 ~/Products/ledger/ledger")
+      ;;(eshell-toggle-cd)
+      (magit-status "~/src/ledger/"))))
 
 (define-key mode-specific-map [?l] 'load-ledger-project)
 
