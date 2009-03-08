@@ -1271,15 +1271,14 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?j] 'ignore)
 (define-key mode-specific-map [?k] 'keep-lines)
 
-(defun load-ledger-project ()
-  (interactive)
-  (let ((buf (get-buffer "*magit: ledger*")))
-    (if buf
-	(switch-to-buffer buf)
-      ;;(visit-tags-table "~/Products/ledger/TAGS")
-      ;;(gdb "gdb --annotate=3 ~/Products/ledger/ledger")
-      ;;(eshell-toggle-cd)
-      (magit-status "~/src/ledger/"))))
+(defun load-ledger-project (&optional arg)
+  (interactive "p")
+  (let ((dir (cond ((= arg 1) "~/src/ledger/")
+		   ((= arg 4) "~/src/ledger/master/")
+		   ((= arg 16) "~/src/ledger/testing/"))))
+    (unless (get-buffer "TAGS")
+      (visit-tags-table "~/Products/ledger/TAGS"))
+    (magit-status dir)))
 
 (define-key mode-specific-map [?l] 'load-ledger-project)
 
