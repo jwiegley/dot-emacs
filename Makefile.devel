@@ -505,7 +505,7 @@ releaseall: release releaseclean golive
 ##	  
 golive:
 	$(GOLIVE)
-	cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do make pub.$$f; done;
+	cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do $(MAKE) pub.$$f; done;
 	rm -rf $(RELEASEDIR)
 
 

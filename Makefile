@@ -79,7 +79,7 @@ compile: $(EL)
 	@echo "****************************************************************"
 	@echo " Byte compiling... "
 	@echo "****************************************************************"
-	make elc
+	$(MAKE) elc
 	@echo "****************************************************************"
 	@echo " Finished."
 	@echo "****************************************************************"
@@ -109,7 +109,7 @@ all:	compile scripts
 ## Remove generated targets
 ##
 clean:	cleanpgscripts
-	rm -f $(ELC) *~ */*~ .\#* */.\#* .byte-compile
+	rm -f $(ELC) *~ */*~ .\#* */.\#*
 	(cd doc; $(MAKE) clean)
 
 distclean: clean
@@ -199,10 +199,10 @@ install-doc: doc.info doc.pdf
 	for f in ${DOC_EXAMPLES}; do mkdir -p ${DOCDIR}/`dirname $$f`; cp -pf $$f ${DOCDIR}/$$f; done
 
 doc: FORCE
-	(cd doc; make EMACS=$(EMACS) $*)
+	(cd doc; $(MAKE) EMACS=$(EMACS) $*)
 
 doc.%: FORCE
-	(cd doc; make EMACS=$(EMACS) $*)
+	(cd doc; $(MAKE) EMACS=$(EMACS) $*)
 
 ##
 ## scripts: try to patch bash and perl scripts with correct paths
