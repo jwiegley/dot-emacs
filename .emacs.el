@@ -1277,7 +1277,7 @@ expand wildcards (if any) and visit multiple files."
 		   ((= arg 4) "~/src/ledger/b/master/")
 		   ((= arg 16) "~/src/ledger/b/test/"))))
     (unless (get-buffer "TAGS")
-      (visit-tags-table "~/Products/ledger/TAGS"))
+      (visit-tags-table "~/Products/ledger/debug/TAGS"))
     (magit-status dir)))
 
 (define-key mode-specific-map [?l] 'load-ledger-project)
