@@ -117,8 +117,10 @@ On Windows you might need something like:
 
 ;; FIXME da: this was disabled (set to nil) -- why?
 ;; da: 3.5: add experimetntal
-(defvar coq-shell-cd 
-  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
+;; am:answer: because of bad interaction
+;; with coq -R option.
+(defvar coq-shell-cd nil
+;;  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
