@@ -137,7 +137,7 @@ See -k option for Isabelle interface script."
 ;   proof-find-theorems-command  'isar-find-theorems-form        ;; search form
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
-   proof-shell-trace-output-regexp  "\375\\|\^AV"
+   proof-shell-trace-output-regexp  "\^AV"
    ;; command hooks
    proof-goal-command-p         'isar-goal-command-p
    proof-really-save-command-p  'isar-global-save-command-p
@@ -151,14 +151,14 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   pg-topterm-regexp			"\376\\|\^AW"
+   pg-topterm-regexp			"\^AW"
 
    pg-topterm-goalhyplit-fn		'isar-goalhyplit-test
    proof-shell-wakeup-char              nil
-   proof-shell-annotated-prompt-regexp  "^\\w*[>#] \372\\|^\\w*[>#] \^AS"
+   proof-shell-annotated-prompt-regexp  "^\\w*[>#] \^AS"
 
    ;; just for comint.
-   proof-shell-prompt-pattern   "^\\w*[>#] "
+   proof-shell-prompt-pattern           "^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd-cmd		(isar-markup-ml "ThyLoad.add_path \"%s\"")
@@ -177,8 +177,8 @@ See -k option for Isabelle interface script."
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
-   proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\^AM\\*\\*\\* Interrupt"
-   proof-shell-error-regexp             "\364\\*\\*\\*\\|\^AM\\*\\*\\*"
+   proof-shell-interrupt-regexp         "\^AM\\*\\*\\* Interrupt"
+   proof-shell-error-regexp             "\^AM\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
    pg-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
@@ -206,7 +206,7 @@ See -k option for Isabelle interface script."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
 
    ;; Theorem dependencies.   NB: next regex anchored at end with eager annot end
-   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\361\\|\^AJ\\)"
+   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
    proof-shell-theorem-dependency-list-split "\" \""
    proof-shell-show-dependency-cmd "thm %s;"
    proof-shell-identifier-under-mouse-cmd
@@ -214,10 +214,7 @@ See -k option for Isabelle interface script."
      (string  "term \"%s\";")
      (comment "term \"%s\";"))
 
-   pg-special-char-regexp
-   (if proof-shell-unicode "[0-9A-Z]"
-     ;; next string could be: "[\350-\377]", but that's buggy with XEmacs 21.5 (beta)
-     "×\\|Ø\\|Ù\\|Ú\\|Û\\|Ü\\|Ý\\|Þ\\|ß\\|8\\|è\\|é\\|ê\\|ë\\|ì\\|í\\|î\\|ï\\|ð\\|ñ\\|ò\\|ó\\|ô\\|õ\\|ö\\|÷\\|ø\\|ù\\|ú\\|û\\|ü\\|ý\\|þ\\|ÿ")
+   pg-special-char-regexp               "\^A[0-9A-Z]"
 
    pg-subterm-help-cmd			"term %s"
 
@@ -578,7 +575,7 @@ Checks the width in the `proof-goals-buffer'"
   "Value for `pg-topterm-goalhyplit-fn' (see that variable for documentation)."
   (let ((start (point)))
     (if (proof-re-search-forward
-	 "\377\\|\^AX" nil t) ; end of literal command (non-standard)
+	 "\^AX" nil t) ; end of literal command (non-standard)
 	(progn
 	  (delete-region (match-beginning 0) (match-end 0))
 	  (cons 'lit (buffer-substring start (match-beginning 0)))))))
