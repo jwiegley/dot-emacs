@@ -1132,7 +1132,8 @@ MESSAGE should be a string annotated with
 ;;       (if (or pg-use-specials-for-fontify
 ;;	       proof-shell-unicode)
 	   message
-;;	 (pg-assoc-strip-subterm-markup message)))
+;;	 (pg-assoc-strip-subterm-markup message))
+	   )
       (unless (and proof-trace-output-slow-catchup
 		   (pg-tracing-tight-loop))
 	(proof-display-and-keep-buffer proof-trace-buffer))
@@ -1238,11 +1239,11 @@ MESSAGE should be a string annotated with
 	;; Display first chunk of output in minibuffer.
 	;; Maybe this should be configurable, it can get noisy.
 	(proof-shell-message 
-	 (substring stripped 0 (or (string-match "\n" stripped)
-				   (min (length stripped) 75))))
+	 (substring message 0 (or (string-match "\n" message)
+				   (min (length message) 75))))
 	(pg-response-display-with-face 
 	 (proof-shell-strip-eager-annotations message)
-	 'proof-eager-annotation-face)))))
+	 'proof-eager-annotation-face))))
 
 (defun proof-shell-strip-eager-annotations (string)
   "Strip `proof-shell-eager-annotation-{start,end}' from STRING."
