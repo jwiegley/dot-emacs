@@ -366,7 +366,7 @@ matches contents of quotes for quoted identifiers.")
 
 (defvar isar-output-font-lock-keywords-1
   (list
-   '("\^AI\\|\^AJ\\|\^AK\\|\^AM\\|\^AN\\|\^AO\\|\^AP" (0 '(face nil invisible t) t))
+   '("\^A[IJKLMNOPV]" (0 '(face nil invisible t) t))
    (isar-output-flk "\^A0" "\\(?:[^\^A]\\|\^A[^1]\\)*" "\^A1" 'proof-warning-face)
 ;; done generically at the moment:
 ;;  (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
