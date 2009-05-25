@@ -2467,19 +2467,20 @@ command."
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'proof-indent-line)
 
-  ;; During write-file it can happen that we re-set the mode for
-  ;; the currently active scripting buffer.  The user might also
-  ;; do this for some reason.  We could maybe let
-  ;; this pass through, but it seems safest to treat it as
-  ;; a kill buffer operation (retract and clear spans).
-  ;; (NB: other situations seem to cause double successive calls to
-  ;; proof-mode).
+  ;; During write-file it can happen that we re-set the mode for the
+  ;; currently active scripting buffer.  The user might also do this
+  ;; for some reason.  We could maybe let this pass through, but it
+  ;; seems safest to treat it as a kill buffer operation (retract and
+  ;; clear spans).  NB: other situations cause double calls to proof-mode.
   (if (eq (current-buffer) proof-script-buffer)
       (proof-script-kill-buffer-fn))
 
   ;; We set hook functions here rather than in proof-config-done so
   ;; that they can be adjusted by prover specific code if need be.
   (proof-script-set-buffer-hooks)
+
+  ;; We use a list to manage invisibility of buffer parts
+  (setq buffer-invisibility-spec nil)
 
   (add-hook 'after-set-visited-file-name-hooks 
 	    'proof-script-set-visited-file-name nil t)
