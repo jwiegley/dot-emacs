@@ -8,7 +8,9 @@
 
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
 
-*** X-Symbol is no longer used or bundled
-
 *** Removed configuration options
     proof-toolbar-use-button-enablers  (now always enabled)
+
+*** Electric terminator configurable to not insert terminator
+    This is the default behaviour for Isar with electric terminator
+    (semicolon is more convenient than C-c C-RET or C-c C-n).
