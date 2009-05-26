@@ -4,7 +4,6 @@
 ;;
 ;; Authors:     David Aspinall <David.Aspinall@ed.ac.uk>
 ;;              Markus Wenzel
-;; Maintainer:  Gerwin Klein <kleing@in.tum.de>
 ;;
 ;; $Id$
 ;;
@@ -354,22 +353,29 @@ matches contents of quotes for quoted identifiers.")
    (cons isar-improper-regexp 'font-lock-reference-face)
    (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
 
-;; Indicate we're going to use font lock to manage 'invisible property
-(put 'isar-goals-mode 'font-lock-extra-managed-props '(invisible))
-(put 'isar-response-mode 'font-lock-extra-managed-props '(invisible))
+(put 'isar-goals-mode 
+     'font-lock-extra-managed-props '(invisible sendback))
+(put 'isar-response-mode 
+     'font-lock-extra-managed-props '(invisible sendback))
 
-(defun isar-output-flk (start regexp end face)
+(defun isar-output-flkprops (start regexp end props)
   `(,(concat "\\(" start "\\)\\(" regexp "\\)\\(" end "\\)")
     (1 '(face nil invisible t) prepend)
-    (2 '(face ,face) prepend)
+    (2 ',props prepend)
     (,(+ 3 (regexp-opt-depth regexp)) '(face nil invisible t) prepend)))
+
+(defun isar-output-flk (start regexp end face)
+  (isar-output-flkprops start regexp end (list 'face face)))
 
 (defvar isar-output-font-lock-keywords-1
   (list
-   '("\^A[IJKLMNOPV]" (0 '(face nil invisible t) t))
+   '("\^A[IJKLMNV]" (0 '(face nil invisible t) t))
+   (isar-output-flkprops 
+    "\^AW" "\\(?:[^\^A]\\|\^A[^X]\\)*" "\^AX" 
+    '(face (:underline t) mouse-face 'highlight sendback t))
    (isar-output-flk "\^A0" "\\(?:[^\^A]\\|\^A[^1]\\)*" "\^A1" 'proof-warning-face)
 ;; done generically at the moment:
-;;  (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
+;; (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
    (isar-output-flk "\^AB" isar-long-id-stuff "\^AA" 'isabelle-class-name-face)
    (isar-output-flk "\^AC'" isar-id "\^AA" 'isabelle-tfree-name-face)
    (isar-output-flk "\^AD'" isar-idx "\^AA" 'isabelle-tvar-name-face)
