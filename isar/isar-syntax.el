@@ -354,23 +354,15 @@ matches contents of quotes for quoted identifiers.")
    (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
 
 (put 'isar-goals-mode 
-     'font-lock-extra-managed-props '(invisible sendback yank-handler))
+     'font-lock-extra-managed-props '(invisible sendback))
 (put 'isar-response-mode 
-     'font-lock-extra-managed-props '(invisible sendback yank-handler))
-
-;; NB: yank-hanlder makes paste operations ignore invisible text;
-;; however, it is still in the ring and messy on the Edit menu.
-;(defconst isar-output-invisible-props
-;  '(face nil invisible t yank-handler (ignore)))
-(defconst isar-output-invisible-props
-  '(face nil invisible t))
+     'font-lock-extra-managed-props '(invisible sendback))
 
 (defun isar-output-flkprops (start regexp end props)
   `(,(concat "\\(" start "\\)\\(" regexp "\\)\\(" end "\\)")
-    (1 ',isar-output-invisible-props prepend)
+    (1 '(face nil invisible t) prepend)
     (2 ',props prepend)
-    (,(+ 3 (regexp-opt-depth regexp)) 
-     ',isar-output-invisible-props prepend)))
+    (,(+ 3 (regexp-opt-depth regexp)) '(face nil invisible t) prepend)))
 
 (defun isar-output-flk (start regexp end face)
   (isar-output-flkprops start regexp end (list 'face face)))
