@@ -67,7 +67,7 @@ is surely an executable with full path."
   (when (and (not noninteractive)
 	     (not proof-rsh-command)
 	     (or force 
-		 (not isabelle-not-found)
+		 isabelle-not-found
 		 (not (file-executable-p isa-isabelle-command))))
     (setq isa-isabelle-command
 	  (read-file-name
