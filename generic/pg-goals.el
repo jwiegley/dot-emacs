@@ -1,6 +1,6 @@
 ;; pg-goals.el ---  Proof General goals buffer mode.
 ;;
-;; Copyright (C) 1994-2008 LFCS Edinburgh.
+;; Copyright (C) 1994-2009 LFCS, University of Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -52,20 +52,14 @@ May enable proof-by-pointing or similar features.
       "Menu for Proof General goals buffer."
       (proof-aux-menu)))
 
-
 ;;
 ;; Keys for goals buffer
 ;;
 (define-key proof-goals-mode-map [q] 'bury-buffer)
-
-(define-key proof-goals-mode-map [mouse-2] 'pg-goals-button-action)
-(define-key proof-goals-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
-;; (define-key proof-goals-mode-map [mouse-1] 'pg-goals-button-action)
-;; (define-key proof-goals-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
-;; C Raffalli: The next key on button3 will be remapped to proof by contextual
-;; menu by pg-pbrpm.el.  In this case, control button3 is mapped to
-;; 'pg-goals-yank-subterm
-(define-key proof-goals-mode-map [mouse-3] 'pg-goals-yank-subterm)
+;; TODO: use standard Emacs button behaviour here (cf Info mode)
+(define-key proof-goals-mode-map [mouse-1] 'pg-goals-button-action)
+(define-key proof-goals-mode-map [C-mouse-3] 
+  'proof-undo-and-delete-last-successful-command)
 
 
 
@@ -118,6 +112,32 @@ Converts term substructure markup into mouse-highlighted extents."
       ;; Keep point at the start of the buffer.
       (proof-display-and-keep-buffer
        proof-goals-buffer (point-min)))))
+
+;;
+;; Actions in the goals buffer
+;;
+
+(defun pg-goals-button-action (event)
+  "Construct a command based on the mouse-click EVENT."
+  (interactive "e")
+  (let* ((posn     (event-start event))
+	 (pos      (posn-point posn))
+	 (buf      (window-buffer (posn-window posn)))
+	 (props    (text-properties-at pos buf))
+	 (sendback (plist-get props 'sendback)))
+    (cond
+     (sendback
+      (with-current-buffer buf
+	(let* ((cmdstart (previous-single-property-change pos 'sendback 
+							  nil (point-min)))
+	       (cmdend   (next-single-property-change pos 'sendback 
+						      nil (point-max)))
+	       (cmd      (buffer-substring-no-properties cmdstart cmdend)))
+	  (proof-insert-sendback-command cmd)))))))
+
+	
+
+
 
 (provide 'pg-goals)
 

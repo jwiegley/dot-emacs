@@ -1,6 +1,6 @@
 ;; pg-response.el --- Proof General response buffer mode.
 ;;
-;; Copyright (C) 1994-2008 LFCS Edinburgh.
+;; Copyright (C) 1994-2009 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Healfdene Goguen,
 ;;		Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -41,9 +41,6 @@
 (define-derived-mode proof-response-mode proof-universal-keys-only-mode
   "PGResp" "Responses from Proof Assistant"
   (setq proof-buffer-type 'response)
-  (define-key proof-response-mode-map [(button2)] 'pg-goals-button-action)
-  (define-key proof-response-mode-map [q] 'bury-buffer)
-  (define-key proof-response-mode-map [c] 'pg-response-clear-displays)
   (add-hook 'kill-buffer-hook 'pg-save-from-death nil t)
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)
   (easy-menu-add proof-assistant-menu proof-response-mode-map)
@@ -55,11 +52,23 @@
   (set-buffer-modified-p nil)
   (setq cursor-type 'bar))
 
+;;
+;; Menu for response buffer
+;;
 (proof-eval-when-ready-for-assistant ; proof-aux-menu depends on <PA>
     (easy-menu-define proof-response-mode-menu
       proof-response-mode-map
       "Menu for Proof General response buffer."
       (proof-aux-menu)))
+
+;;
+;; Keys for response buffer
+;;
+;; TODO: use standard Emacs button behaviour here (cf Info mode)
+(define-key proof-response-mode-map [mouse-1] 'pg-goals-button-action)
+(define-key proof-response-mode-map [q] 'bury-buffer)
+(define-key proof-response-mode-map [c] 'pg-response-clear-displays)
+
 
 ;;;###autoload
 (defun proof-response-config-done ()
