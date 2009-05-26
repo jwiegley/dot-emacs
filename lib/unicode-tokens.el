@@ -509,20 +509,12 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 	      (insert "\n")
 	      (setq count 0)))))))
 
-
-(defun unicode-tokens-copy (beg end)
-  "Copy presentation of region between BEG and END.
-This is an approximation; it makes assumptions about the behaviour
-of symbol compositions, and will lose layout information."
-  (interactive "r")
-  ;; cf kill-ring-save, uncode-tokens-font-lock-compose-symbol
-  (let ((visible 
-	  ;; actually: leave in control tokens as they can have logical meaning
-	  ;; (proof-visible-buffer-substring beg end)
-		 (buffer-substring-no-properties beg end))
-	(match   (- (regexp-opt-depth unicode-tokens-token-match-regexp) 1)))
+(defun unicode-tokens-encode-in-temp-buffer (str fn)
+  "Call FN on encoded version of STR."
+  (let ((match   (- (regexp-opt-depth 
+		     unicode-tokens-token-match-regexp) 1)))
     (with-temp-buffer
-      (insert visible)
+      (insert str)
       (goto-char (point-min))
       (while (re-search-forward unicode-tokens-token-match-regexp nil t)
 	;; TODO: interpret more exotic compositions here
@@ -535,7 +527,25 @@ of symbol compositions, and will lose layout information."
 	    (delete-region tstart tend)
 	    ;; TODO: improve this: interpret vector, strip tabs
 	    (insert comp)))) ;; gross approximation to compose-region
-      (copy-region-as-kill (point-min) (point-max)))))
+      (funcall fn (point-min) (point-max)))))
+
+(defun unicode-tokens-encode (beg end)
+  "Return a unicode encoded version of the region presentation ."
+  (unicode-tokens-encode-in-temp-buffer 
+   (buffer-substring-no-properties beg end) 'buffer-substring))
+
+(defun unicode-tokens-encode-str (str)
+  "Return a unicode encoded version of the region presentation ."
+  (unicode-tokens-encode-in-temp-buffer str 'buffer-substring))
+
+(defun unicode-tokens-copy (beg end)
+  "Copy presentation of region between BEG and END.
+This is an approximation; it makes assumptions about the behaviour
+of symbol compositions, and will lose layout information."
+  (interactive "r")
+  ;; cf kill-ring-save, uncode-tokens-font-lock-compose-symbol
+  (unicode-tokens-encode-in-temp-buffer 
+   (buffer-substring-no-properties beg end) 'copy-region-as-kill))
 
 (defun unicode-tokens-paste ()
   (interactive)
