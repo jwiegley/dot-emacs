@@ -2,15 +2,23 @@
 
 * Summary of Changes for Proof General 4.0 from 3.7.X
 
+** Isabelle/Isar changes
+
+*** Electric terminator works, without inserting terminator
+
+
 ** Generic changes
 
 *** XEmacs is no longer supported; PG only works with GNU Emacs 22.2+
 
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
 
-*** Removed configuration options
+*** Removed user configuration options
     proof-toolbar-use-button-enablers  (now always enabled)
 
-*** Electric terminator configurable to not insert terminator
-    This is the default behaviour for Isar with electric terminator
-    (semicolon is more convenient than C-c C-RET or C-c C-n).
+*** Altered prover configuration settings
+    pg-insert-output-as-comment-fn:  removed
+    proof-shell-strip-output-markup: required for cut-and-paste
+    proof-electric-terminator-noterminator: allows non-insert of terminator
+
+

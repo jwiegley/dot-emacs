@@ -38,8 +38,7 @@ interrupt to the (e.g.) Isabelle process from another shell.  If that
 doesn't stop things, you can try 'kill -FPE <emacs-pid>'.  
 This problem can happen with looping rewrite rules in the Isabelle
 simplifier, when tracing rewriting.  It seems to be worse on 
-certain architectures, and slower machines.  Behaviour seems
-better on Emacs than XEmacs.
+certain architectures, and slower machines.  
 
 ** Glitches in display handling, esp with multiple frames
 
@@ -116,37 +115,10 @@ bug which may be Emacs-related: from now on I will add a note here
 rather than try to investigate older Emacsen and add more patches 
 to the code.
 
-** XEmacs "nesting too deep for parser" warnings
-
-This is sometimes triggered by very complex output, typically with
-Isabelle's tracing messages when font-lock is called. 
-
-XEmacs implementation of parse-partial-sexp appears at fault.  It
-gives this error message when nesting depth reaches 100.  With 
-GNU Emacs, a nesting depth of 40000 or more is possible.
-
-Some error handling has been added in the code to cope with this
-condition.  If you notice the disappearance of correct syntax
-highlighting in the response buffer when large output with unbalanced
-parentheses is produced, this error may be the cause.  You can clear
-the response buffer by hitting "c" when it is selected.
-
-** XEmacs font-lock problem in certain versions of XEmacs 21.4
-
-When reloading (with C-x C-f) an already loaded script file that has
-been changed on the file system you see the error:
-
- (1) (warning/warning) Error caught in `font-lock-pre-idle-hook':
- (wrong-type-argument markerp nil)
-
-As a result fontification, etc, fails. Workaround: use C-x C-v
-instead.  This problem has gone away since 21.4.12 or so.
-Update: this has reappeared in version 21.4.15.
-
-** XEmacs undo in the script buffer can edit the "uneditable region"
+** Undo in the script buffer can edit the "uneditable region"
 
 Test case: Insert some nonsense text after the locked region.
 Kill the line. Process to the next command.
 Press C-x u, nonsense text appears in locked region.
-Workaround: take care with undo in XEmacs.
+
 
