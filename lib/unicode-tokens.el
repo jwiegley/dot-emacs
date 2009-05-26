@@ -1,6 +1,6 @@
 ;;; unicode-tokens.el --- Support for control and symbol tokens
 ;;
-;; Copyright(C) 2008 David Aspinall / LFCS Edinburgh
+;; Copyright(C) 2008-2009 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -278,13 +278,11 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
   (font-lock-fontify-buffer))
 
 (defun unicode-tokens-symbs-to-props (symbs &optional facenil)
-  (let (props p)
+  (let (props ps)
     (dolist (s symbs)
-      (setq p (car-safe
-	       (cdr-safe (assoc s unicode-tokens-fontsymb-properties))))
-      (if (consp p)
-	  (setq props (cons (car p) (cons (cadr p) props)))
-	(setq props (cons p props))))
+      (setq ps (cdr-safe (assoc s unicode-tokens-fontsymb-properties)))
+      (dolist (p ps)
+	(setq props (append p props))))
     (if (and facenil
 	     (not (memq 'face props)))
 	(setq props (append '(face nil) props)))
@@ -391,7 +389,8 @@ Calculated from `unicode-tokens-token-name-alist' and
     (message "Inserted %s" ins)))
 
 (defun unicode-tokens-annotate-region (name)
-  "Annotate region with region markup tokens for scheme NAME."
+  "Annotate region with region markup tokens for scheme NAME.
+Available annotations chosen from `unicode-tokens-control-regions'."
   (interactive (let ((completion-ignore-case t))
 		 (list (completing-read 
 			"Annotate region with: "
