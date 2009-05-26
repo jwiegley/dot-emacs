@@ -20,4 +20,4 @@ proof
   ML_command {* sendback "show ?thesis .. qed" *}
   ML_command {* sendback "qed" *}
 qed
-qed
+
