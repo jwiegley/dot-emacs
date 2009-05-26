@@ -369,7 +369,7 @@ matches contents of quotes for quoted identifiers.")
 
 (defvar isar-output-font-lock-keywords-1
   (list
-   '("\^A[IJKLMNV]" (0 '(face nil invisible t) t))
+   '("\^A[IJKLMNOPV]" (0 '(face nil invisible t) t))
    (isar-output-flkprops 
     "\^AW" "\\(?:[^\^A]\\|\^A[^X]\\)*" "\^AX" 
     '(face (:underline t) mouse-face 'highlight sendback t))
