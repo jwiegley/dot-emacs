@@ -1,15 +1,8 @@
 ;; plastic.el  - Major mode for Plastic proof assistant
+;;
 ;; Author: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
-;; Maintainer: <author>
-;; plastic.el,v 6.2 2002/07/19 10:38:48 da Exp
-
-;; adapted from the following, by Paul Callaghan
-;; ;; lego.el Major mode for LEGO proof assistants
-;; ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
-;; ;; Author:      Thomas Kleymann and Dilip Sequeira
-;; ;; Maintainer: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
-;; ;;
-;; ;; lego.el,v 2.27 1998/11/25 12:56:47 da Exp
+;;
+;; $Id$
 
 ;; NOTES:
 ;;	remember to prefix all potential cmds with plastic-lit-string
