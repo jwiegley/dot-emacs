@@ -45,7 +45,7 @@
 			       (list
 				;; support default unpack in home dir situation 
 				(concat (getenv "HOME") "/Isabelle/bin/")))
-      "path_to_isatool_is_unknown")
+      "path_to_isabelle_is_unknown")
   "Command to invoke the main Isabelle wrapper 'isabelle'.
 Emacs should be able to find `isabelle' if it is on the PATH when
 started.  Then several standard locations are attempted.
@@ -54,7 +54,7 @@ working."
   :type 'file
   :group 'isabelle)
 
-(defvar isatool-not-found nil
+(defvar isabelle-not-found nil
   "Non-nil if user has been prompted for `isabelle' already and it wasn't found.")
 
 (defun isa-set-isabelle-command (&optional force)
@@ -67,16 +67,16 @@ is surely an executable with full path."
   (when (and (not noninteractive)
 	     (not proof-rsh-command)
 	     (or force 
-		 isatool-not-found 
+		 (not isabelle-not-found)
 		 (not (file-executable-p isa-isabelle-command))))
     (setq isa-isabelle-command
 	  (read-file-name
 	   "Please give the full path to `isabelle' (RET if you don't have it): "
 	   nil nil nil))
     (unless (file-executable-p isa-isabelle-command)
-      (setq isatool-not-found t)
+      (setq isabelle-not-found t)
       (beep)
-      (warn "Proof General: isatool command not found; some menus will be incomplete and Isabelle may not run correctly.  Please check your Isabelle installation.")))
+      (warn "Proof General: isabelle command not found; some menus will be incomplete and Isabelle may not run correctly.  Please check your Isabelle installation.")))
   (or proof-rsh-command
       (file-executable-p isa-isabelle-command)))
 
@@ -87,8 +87,8 @@ is surely an executable with full path."
       (substring s 0 -1))))
 
 (defun isa-getenv (envvar &optional default)
-  "Extract environment variable ENVVAR setting using the `isatool' program.
-If the isatool command is not available, try using elisp's getenv
+  "Extract environment variable ENVVAR setting using the `isabelle' program.
+If the isabelle command is not available, try using elisp's getenv
 to extract the value from Emacs' environment.
 If there is no setting for the variable, DEFAULT will be returned"
   (isa-set-isabelle-command)
@@ -129,7 +129,7 @@ The logic image name is tagged onto the end."
 
 (defcustom isabelle-logics-available nil
   "*List of logics available to use with Isabelle.
-If the `isatool' program is available, this is automatically
+If the `isabelle' program is available, this is automatically
 generated with the Lisp form `(isa-tool-list-logics)'."
   :type (list 'string)
   :group 'isabelle)
@@ -178,7 +178,7 @@ This function sets `isabelle-prog-name' and `proof-prog-name'."
       ((isabelle (or
 		  isabelle-program-name-override  ; override in Emacs
 		  (getenv "ISABELLE")	  ; command line override 
-		  (isa-getenv "ISABELLE") ; choose to match isatool
+		  (isa-getenv "ISABELLE") ; choose to match isabelle
 		  "isabelle"))		  ; to 
        (isabelle-opts (getenv "ISABELLE_OPTIONS"))
        (opts (concat " -PI"  ;; Proof General + Isar
@@ -251,7 +251,7 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 
 (defcustom isabelle-refresh-logics t
   "*Whether to refresh the list of logics during an interactive session.
-If non-nil, then `isatool findlogics' will be used to regenerate
+If non-nil, then `isabelle findlogics' will be used to regenerate
 the `isabelle-logics-available' setting.  If this tool does not work
 for you, you should disable this behaviour."
   :type 'boolean
