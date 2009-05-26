@@ -196,6 +196,7 @@ See -k option for Isabelle interface script."
    proof-shell-eager-annotation-start-length 2
    proof-shell-eager-annotation-start   "\^AI\\|\^AK"
    proof-shell-eager-annotation-end     "\^AJ\\|\^AL"
+   proof-shell-strip-output-markup	'isar-strip-output-markup
 
    ;; Isabelle is learning to talk PGIP...
    proof-shell-match-pgip-cmd		"<pgip"
@@ -562,6 +563,9 @@ Checks the width in the `proof-goals-buffer'"
   (isar-init-output-syntax-table)
   (setq proof-response-font-lock-keywords 
 	isar-output-font-lock-keywords-1)
+  (setq font-lock-multiline t)
+  (make-local-variable 'jit-lock-chunk-size)
+  (setq jit-lock-chunk-size 2000)
   (proof-response-config-done))
 
 (defun isar-goals-mode-config ()
@@ -570,6 +574,9 @@ Checks the width in the `proof-goals-buffer'"
   (isar-init-output-syntax-table)
   (setq proof-goals-font-lock-keywords
 	 isar-goals-font-lock-keywords)
+  (setq font-lock-multiline t)
+  (make-local-variable 'jit-lock-chunk-size)
+  (setq jit-lock-chunk-size 2000)
   (proof-goals-config-done))
 
 (provide 'isar)
