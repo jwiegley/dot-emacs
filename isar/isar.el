@@ -151,9 +151,7 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   pg-topterm-regexp			"\^AW"
 
-   pg-topterm-goalhyplit-fn		'isar-goalhyplit-test
    proof-shell-wakeup-char              nil
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \^AS"
 
@@ -205,7 +203,8 @@ See -k option for Isabelle interface script."
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
 
-   ;; Theorem dependencies.   NB: next regex anchored at end with eager annot end
+   ;; Theorem dependencies.   
+   ;; NB: next regex anchored at end with eager annot end
    proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
    proof-shell-theorem-dependency-list-split "\" \""
    proof-shell-show-dependency-cmd "thm %s;"
@@ -344,7 +343,7 @@ proof-shell-retract-files-regexp."
            ["quickcheck"         isar-cmd-quickcheck     t]
            ["sledgehammer"       isar-cmd-sledgehammer   t]
 	   ["display draft"	 isar-cmd-display-draft  t]
-	   ["set isatool"        (isa-set-isatool-command 't) t])))
+	   ["set isabelle"       (isa-set-isabelle-command 't) t])))
    (list
     (cons "Show me ..."
           (list
@@ -570,16 +569,6 @@ Checks the width in the `proof-goals-buffer'"
   (setq proof-goals-font-lock-keywords
 	 isar-goals-font-lock-keywords)
   (proof-goals-config-done))
-
-(defun isar-goalhyplit-test ()
-  "Value for `pg-topterm-goalhyplit-fn' (see that variable for documentation)."
-  (let ((start (point)))
-    (if (proof-re-search-forward
-	 "\^AX" nil t) ; end of literal command (non-standard)
-	(progn
-	  (delete-region (match-beginning 0) (match-end 0))
-	  (cons 'lit (buffer-substring start (match-beginning 0)))))))
-
 
 (provide 'isar)
 

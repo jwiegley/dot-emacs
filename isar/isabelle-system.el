@@ -36,18 +36,18 @@
 
 ;;; ================ Extract Isabelle settings ================
 
-(defcustom isa-isatool-command
+(defcustom isa-isabelle-command
   (or (if proof-rsh-command
 	  ;; not much hope to locate executable remotely
-	  (concat proof-rsh-command " isatool"))
-      (getenv "ISATOOL")
-      (proof-locate-executable "isatool" nil
+	  (concat proof-rsh-command " isabelle"))
+      (getenv "ISABELLE")
+      (proof-locate-executable "isabelle" nil
 			       (list
 				;; support default unpack in home dir situation 
 				(concat (getenv "HOME") "/Isabelle/bin/")))
       "path_to_isatool_is_unknown")
-  "Command to invoke Isabelle tool 'isatool'.
-Emacs should be able to find `isatool' if it is on the PATH when
+  "Command to invoke the main Isabelle wrapper 'isabelle'.
+Emacs should be able to find `isabelle' if it is on the PATH when
 started.  Then several standard locations are attempted.
 Otherwise you should set this, using a full path name here for reliable
 working."
@@ -55,30 +55,30 @@ working."
   :group 'isabelle)
 
 (defvar isatool-not-found nil
-  "Non-nil if user has been prompted for `isatool' already and it wasn't found.")
+  "Non-nil if user has been prompted for `isabelle' already and it wasn't found.")
 
-(defun isa-set-isatool-command (&optional force)
-  "Make sure isa-isatool-command points to a valid executable.
+(defun isa-set-isabelle-command (&optional force)
+  "Make sure `isa-isabelle-command' points to a valid executable.
 If it does not, or if prefix arg supplied, prompt the user for
 the proper setting.  If `proof-rsh-command' is set, leave this
-unverified.  Otherwise, returns non-nil if isa-isatool-command 
+unverified.  Otherwise, returns non-nil if isa-isabelle-command 
 is surely an executable with full path."
   (interactive "p")
   (when (and (not noninteractive)
 	     (not proof-rsh-command)
 	     (or force 
 		 isatool-not-found 
-		 (not (file-executable-p isa-isatool-command))))
-    (setq isa-isatool-command
+		 (not (file-executable-p isa-isabelle-command))))
+    (setq isa-isabelle-command
 	  (read-file-name
-	   "Please give the full path to `isatool' (RET if you don't have it): "
+	   "Please give the full path to `isabelle' (RET if you don't have it): "
 	   nil nil nil))
-    (unless (file-executable-p isa-isatool-command)
+    (unless (file-executable-p isa-isabelle-command)
       (setq isatool-not-found t)
       (beep)
       (warn "Proof General: isatool command not found; some menus will be incomplete and Isabelle may not run correctly.  Please check your Isabelle installation.")))
   (or proof-rsh-command
-      (file-executable-p isa-isatool-command)))
+      (file-executable-p isa-isabelle-command)))
 
 (defun isa-shell-command-to-string (command)
   "Like shell-command-to-string except the last character is stripped."
@@ -91,11 +91,11 @@ is surely an executable with full path."
 If the isatool command is not available, try using elisp's getenv
 to extract the value from Emacs' environment.
 If there is no setting for the variable, DEFAULT will be returned"
-  (isa-set-isatool-command)
+  (isa-set-isabelle-command)
   (if (or proof-rsh-command
-	  (file-executable-p isa-isatool-command))
+	  (file-executable-p isa-isabelle-command))
       (let ((setting (isa-shell-command-to-string
-		      (concat isa-isatool-command
+		      (concat isa-isabelle-command
 			      " getenv -b " envvar))))
 	(if (string-equal setting "")
 	    default
@@ -110,15 +110,9 @@ If there is no setting for the variable, DEFAULT will be returned"
   "*Name of executable program to run Isabelle.
 
 You can set customize this in case the automatic settings
-mechanism (based on isatool) does not work for you.  One reason
-to do this is if you are running Isabelle remotely, or using
-windows and avoiding isatool.
+mechanism does not work for you, perhaps because isabelle
+is not on your path, or you are running it remotely.
 
-A possible value when running under Windows looks like this:
-
-  C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\
-
-This expects SML/NJ in C:\\sml and Isabelle images in C:\Isabelle.
 The logic image name is tagged onto the end."
   :type 'file
   :group 'isabelle)
@@ -128,10 +122,10 @@ The logic image name is tagged onto the end."
 
 (defun isa-tool-list-logics ()
   "Generate a list of available object logics."
-  (if (isa-set-isatool-command)
+  (if (isa-set-isabelle-command)
       (delete "" (split-string
 		  (isa-shell-command-to-string
-		   (concat isa-isatool-command " findlogics")) "[ \t]"))))
+		   (concat isa-isabelle-command " findlogics")) "[ \t]"))))
 
 (defcustom isabelle-logics-available nil
   "*List of logics available to use with Isabelle.
@@ -220,11 +214,11 @@ This function sets `isabelle-prog-name' and `proof-prog-name'."
 
 (defun isa-view-doc (docname)
   "View Isabelle document DOCNAME, using Isabelle tools."
-  (if (isa-set-isatool-command)
+  (if (isa-set-isabelle-command)
       (apply 'start-process
 	     "isa-view-doc" nil
 	     (append (split-string
-		      isa-isatool-command) 
+		      isa-isabelle-command) 
 		     (list "doc" docname)))))
 
 (defun isa-tool-list-docs ()
@@ -233,9 +227,9 @@ This function returns a list of lists of the form
  ((DOCNAME DESCRIPTION) ....)
 of Isabelle document names and descriptions.  When DOCNAME is
 passed to isa-tool-doc-command, DOCNAME will be viewed."
-  (if (isa-set-isatool-command)
+  (if (isa-set-isabelle-command)
       (let ((docs (isa-shell-command-to-string
-		   (concat isa-isatool-command " doc"))))
+		   (concat isa-isabelle-command " doc"))))
 	(unless (string-equal docs "")
 	  (mapcan
 	   (function (lambda (docdes)
@@ -244,15 +238,6 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 				  (substring docdes (match-beginning 1) (match-end 1))
 				  (substring docdes (match-end 0)))))))
 	   (split-string docs "\n"))))))
-
-; TODO: use this, add dialog to query user to save if DB is r/w?  Seems annoying.
-; (defun isa-quit (save)
-;   "Quit / save the Isabelle session.
-; Called with one argument: t to save database, nil otherwise."
-;   (interactive "p")
-;   (if (not save)
-;       (isa-insert-ret "quit();"))
-;   (comint-send-eof))
 
 (defconst isabelle-verbatim-regexp "\\`\^VERBATIM: \\(\\(.\\|\n\\)*\\)\\'"
   "Regexp matching internal marker for verbatim command output.")
