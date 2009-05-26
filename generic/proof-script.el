@@ -479,14 +479,14 @@ Does nothing if there is no active scripting buffer, or if
 Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
   (interactive)
   (cond
+   ((eq proof-follow-mode 'ignore))
    ((eq proof-shell-error-or-interrupt-seen 'error)
-    (proof-goto-end-of-locked-if-pos-not-visible-in-window))
-   ((eq proof-shell-error-or-interrupt-seen 'interrupt)
-    (proof-with-current-buffer-if-exists
-     proof-script-buffer
-     ;; Give a hint of how to jump to the end of locked, unless visible.
-     (unless (proof-end-of-locked-visible-p)
-       (pg-jump-to-end-hint))))))
+    (proof-goto-end-of-locked-if-pos-not-visible-in-window)))
+  (proof-with-current-buffer-if-exists
+   proof-script-buffer
+   ;; Give a hint of how to jump to the end of locked, unless visible.
+   (unless (proof-end-of-locked-visible-p)
+     (pg-jump-to-end-hint))))
 
 (defun proof-end-of-locked-visible-p ()
   "Return non-nil if end of locked region is visible."
