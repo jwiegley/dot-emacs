@@ -354,15 +354,23 @@ matches contents of quotes for quoted identifiers.")
    (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
 
 (put 'isar-goals-mode 
-     'font-lock-extra-managed-props '(invisible sendback))
+     'font-lock-extra-managed-props '(invisible sendback yank-handler))
 (put 'isar-response-mode 
-     'font-lock-extra-managed-props '(invisible sendback))
+     'font-lock-extra-managed-props '(invisible sendback yank-handler))
+
+;; NB: yank-hanlder makes paste operations ignore invisible text;
+;; however, it is still in the ring and messy on the Edit menu.
+;(defconst isar-output-invisible-props
+;  '(face nil invisible t yank-handler (ignore)))
+(defconst isar-output-invisible-props
+  '(face nil invisible t))
 
 (defun isar-output-flkprops (start regexp end props)
   `(,(concat "\\(" start "\\)\\(" regexp "\\)\\(" end "\\)")
-    (1 '(face nil invisible t) prepend)
+    (1 ',isar-output-invisible-props prepend)
     (2 ',props prepend)
-    (,(+ 3 (regexp-opt-depth regexp)) '(face nil invisible t) prepend)))
+    (,(+ 3 (regexp-opt-depth regexp)) 
+     ',isar-output-invisible-props prepend)))
 
 (defun isar-output-flk (start regexp end face)
   (isar-output-flkprops start regexp end (list 'face face)))
@@ -387,6 +395,10 @@ matches contents of quotes for quoted identifiers.")
    (isar-output-flk "\^AH" isar-id "\^AA" 'proof-declaration-name-face)
    (isar-output-flk "\^AH\\?" isar-idx "\^AA" 'proof-declaration-name-face))
   "*Font-lock table for Isabelle output terms.")
+
+(defun isar-strip-output-markup (string)
+  "Remove invisible output markup from STRING"
+  (replace-regexp-in-string "\^A." "" string))
 
 (defvar isar-goals-font-lock-keywords
   (append
