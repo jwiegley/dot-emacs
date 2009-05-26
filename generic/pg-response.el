@@ -165,7 +165,7 @@ For multiple frame mode, this function obeys the setting of
 	(switch-to-buffer proof-script-buffer))
     (proof-map-buffers (proof-associated-buffers)
       (if pg-response-eagerly-raise
-	  (proof-display-and-keep-buffer (current-buffer))))
+	  (proof-display-and-keep-buffer (current-buffer) nil 'force)))
     ;; Restore an existing frame configuration (seems buggy, typical)
     (if pg-frame-configuration
 	(set-frame-configuration pg-frame-configuration 'nodelete)))
@@ -180,7 +180,7 @@ For multiple frame mode, this function obeys the setting of
     (set-window-dedicated-p (selected-window) nil)
     (delete-other-windows)
     (if (buffer-live-p proof-response-buffer)
-	(proof-display-and-keep-buffer proof-response-buffer))))
+	(proof-display-and-keep-buffer proof-response-buffer nil 'force))))
   (pg-hint (pg-response-buffers-hint)))
 
 (defun proof-delete-other-frames ()

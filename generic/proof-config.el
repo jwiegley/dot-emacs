@@ -238,6 +238,14 @@ goals and response windows to fit their contents."
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-auto-raise-buffers t
+  "*If non-nil, automatically raise buffers to display latest output.
+If this is not set, buffers and windows will not be managed by
+Proof General."
+  :type 'boolean
+  :group 'proof-user-options)
+
+
 (defcustom proof-query-file-save-when-activating-scripting
   t
 "*If non-nil, query user to save files when activating scripting.
@@ -401,6 +409,16 @@ signals to the remote host."
 
 (defcustom proof-disappearing-proofs nil
   "*Non-nil causes Proof General to hide proofs as they are completed."
+  :type 'boolean
+  :group 'proof-user-options)
+
+;; TODO: add doc
+(defcustom proof-full-decoration nil
+  "*Non-nil causes Proof General to add hovers for all proof commands.
+Proof output is recorded as it occurs interactively; normally if
+many steps are taken at once, this output is surpressed.  If this
+setting is used to enable it, the proof script will be annotated
+with full details."
   :type 'boolean
   :group 'proof-user-options)
 

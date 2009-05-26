@@ -931,7 +931,8 @@ track what happens in the proof queue."
 ;; FIXME: could be macro for efficiency improvement in avoiding calculating num
 (defun proof-shell-should-be-silent (num)
   "Return non-nil if we must switch to silent mode, adding NUM entries to queue."
-  (if proof-shell-start-silent-cmd
+  (if (and (not proof-full-decoration)
+	   proof-shell-start-silent-cmd)
       (or proof-shell-silent	; already
 	  ;; NB: there is some question here over counting the
 	  ;; proof-action-list, since it could itself contain

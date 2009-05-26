@@ -316,8 +316,7 @@ will deactivated."
 	   (with-current-buffer buffer
 	     (if proof-active-buffer-fake-minor-mode
 		 (setq proof-active-buffer-fake-minor-mode nil))
-	     (span-delete-spans (point-min) (point-max) 'type)  ;; remove top-level spans
-	     (span-delete-spans (point-min) (point-max) 'idiom) ;; and embedded spans
+	     (proof-script-delete-spans (point-min) (point-max))
 	     (setq pg-script-portions nil)		   ;; also the record of them
 	     (proof-detach-queue)	                   ;; remove queue and locked
 	     (proof-detach-locked)
@@ -348,8 +347,13 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	(proof-detach-queue)
 	;; FIXME da: point-max seems a bit excessive here,
 	;; proof-queue-or-locked-end should be enough.
-	(span-delete-spans (proof-locked-end) (point-max) 'type))))
+	(proof-script-delete-spans (proof-locked-end) (point-max)))))
 
+(defun proof-script-delete-spans (beg end)
+  (span-delete-spans beg end 'type)
+  (span-delete-spans beg end 'idiom)
+  (span-delete-spans beg end 'pghelp))
+  
 
 
 
@@ -693,26 +697,40 @@ NAME does not need to be unique."
       map)
     "Keymap for the span context menu.")
 
-
 ;;;###autoload
 (defun pg-set-span-helphighlights (span &optional nohighlight)
-  "Set the help echo message, default highlight, and keymap for SPAN."
-  (let ((helpmsg (concat (pg-span-name span) ""))) ;;   " region"
-    (span-set-property span 'balloon-help helpmsg)
+  "Add a daughter help span for SPAN with help message, highlight, actions"
+  (let ((helpmsg    (pg-span-name span))
+	(proofstate (proof-shell-strip-output-markup
+		     (if unicode-tokens-mode
+			 (unicode-tokens-encode-str proof-shell-last-output)
+		       proof-shell-last-output)))
+	(newspan    (let ((newstart (save-excursion
+				      (goto-char (span-start span))
+				      (skip-chars-forward " \n\t")
+				      (point))))
+		      (span-make newstart (span-end span)))))
+    ;; NOTE: hack for Isabelle which puts ugly leading \n's in proofstate.
+    (if (eq (string-match "^\n" proofstate) 0)
+	(setq proofstate (substring proofstate 1)))
+    (setq helpmsg
+	  (concat (if (> (length proofstate) 2) "" helpmsg) 
+		  proofstate))
+    (span-set-property newspan 'pghelp t)
     (if pg-show-hints ;; only message in minibuf if hints on
 	(span-set-property
-	 span 'help-echo
-	 (substitute-command-keys
-	  (concat
+	 newspan 'help-echo
 	   helpmsg
-	   " ("
-	   (if (span-property span 'idiom)
-	       "with point in region, \\[pg-toggle-visibility] to show/hide; ")
-	   "\\<pg-span-context-menu-keymap>\\[pg-span-context-menu]"
-	   " for menu)"))))
-    (span-set-property span 'keymap pg-span-context-menu-keymap)
+	   ;; " ("
+	   ;; (substitute-command-keys
+	   ;;  (if (span-property span 'idiom)
+	   ;; 	"with point in region, \\[pg-toggle-visibility] to show/hide; "
+	   ;;    "\\<pg-span-context-menu-keymap>\\[pg-span-context-menu]"))
+	   ;; " for menu)")))
+	   ))
+    (span-set-property newspan 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
-      (span-set-property span 'mouse-face 'proof-mouse-highlight-face))))
+      (span-set-property newspan 'mouse-face 'proof-mouse-highlight-face))))
 
 
 
@@ -2280,8 +2298,7 @@ others)."
 ;; 			 (span-property span 'cmd))))))
 ;; 	  (mapcar fn (reverse cmds)))
 	
-	(span-delete-spans start end 'type)
-	(span-delete-spans start end 'idiom)
+	(proof-script-delete-spans start end)
 	(span-delete span)
 	(if kill (kill-region start end))))
   ;; State of scripting may have changed now

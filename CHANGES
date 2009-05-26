@@ -4,7 +4,7 @@
 
 ** Isabelle/Isar changes
 
-*** Electric terminator works, without inserting terminator
+*** Electric terminator works without inserting terminator
 
 
 ** Generic changes
@@ -13,8 +13,18 @@
 
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
 
+*** Output retained for script buffer popups
+    Depending on input language and interaction output, this
+    may enable a "script centred" way of working, when output
+    buffers can be ignored and hidden.  Disable auto raise for this.
+    Use full decoration to keep output when several steps are taken.
+
+*** New user configuration options
+    proof-auto-raise-buffers  (set to nil for manual control)
+    proof-full-decoration     (add full decoration to input)
+
 *** Removed user configuration options
-    proof-toolbar-use-button-enablers  (now always enabled)
+    proof-toolbar-use-button-enablers  (now always used)
 
 *** Altered prover configuration settings
     pg-insert-output-as-comment-fn:  removed

@@ -408,12 +408,13 @@ NB: may change the selected window."
   ;; Return the window, hopefully the one we first thought of.
   (get-buffer-window buffer 0))
 
-(defun proof-display-and-keep-buffer (buffer &optional pos)
+(defun proof-display-and-keep-buffer (buffer &optional pos force)
   "Display BUFFER and make window according to display mode.
 If optional POS is present, will set point to POS.
 Otherwise move point to the end of the buffer.
 Ensure that point is visible in window."
-  (save-excursion
+  (if (or force proof-auto-raise-buffers)
+    (save-excursion
     (save-selected-window
       (let ((window (proof-get-window-for-buffer buffer)))
 	(if (window-live-p window) ;; [fails sometimes?]
@@ -447,7 +448,7 @@ Ensure that point is visible in window."
                     (unless mode-line-format
                       ;; If the buffer gets displayed elsewhere, re-add
                       ;; the modeline.
-                      (kill-local-variable 'mode-line-format)))))))))))
+                      (kill-local-variable 'mode-line-format))))))))))))
 
 (defun proof-clean-buffer (buffer)
   "Erase buffer and hide from display if proof-delete-empty-windows set.

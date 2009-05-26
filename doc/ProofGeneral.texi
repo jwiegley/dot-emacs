@@ -2656,12 +2656,13 @@ For more help with customize, see @inforef{Customization, ,(emacs)}.
 @cindex frames
 @cindex multiple frames
 @cindex three-buffer interaction
+@cindex auto raise
 
 By default, Proof General displays two buffers during scripting, in a
 split window on the display.  One buffer is the script buffer.  The
-other buffer is either the goals buffer (e.g. @code{*isabelle-goals*})
-or the response buffer (@code{*isabelle-response*}).  Proof General
-switches between these last two automatically.  
+other buffer is either the goals buffer (@code{*goals*}) or the response
+buffer (@code{*response*}).  Proof General raises and switches between
+these last two automatically.  
 
 Proof General allows several ways to customize this default display
 model, by splitting the Emacs frames in different ways and maximising
@@ -2673,12 +2674,16 @@ on the menu:
 @end lisp
 and you can save your preferred default. 
 
-
 If your screen is large enough, you may prefer to display all three of
 the interaction buffers at once.  This is useful, for example, to see
 output from the @code{proof-find-theorems} command at the same time as
 the subgoal list.  Set the user option @code{proof-three-window-enable} to
 make Proof General keep both the goals and response buffer displayed.
+
+If you prefer to switch windows and buffers manually when you want to
+see the prover output, you can customize the user option
+@code{proof-auto-raise-buffers} to prevent the automatic behaviour.
+
 
 @c TEXI DOCSTRING MAGIC: proof-three-window-enable
 @defopt proof-three-window-enable 
@@ -2772,6 +2777,7 @@ For multiple frame mode, this function obeys the setting of
 @samp{@code{pg-response-eagerly-raise}}, which see.
 @end deffn
 
+@c  TEXI DOCSTRING MAGIC: proof-auto-raise-buffers
 
 @node User options
 @section User options

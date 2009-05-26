@@ -261,6 +261,7 @@ without adjusting window layout."
 (proof-deftoggle proof-shrink-windows-tofit)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
 (proof-deftoggle proof-three-window-enable proof-three-window-toggle)
+(proof-deftoggle proof-auto-raise-buffers proof-auto-raise-toggle)
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle proof-strict-read-only)
 
@@ -295,6 +296,10 @@ without adjusting window layout."
       :style toggle
       :selected proof-script-fly-past-comments
       :help "Coalesce and skip over successive comments"]
+     ["Full Decoration" proof-full-decoration-toggle
+      :style toggle
+      :selected proof-full-decoration
+      :help "Record full information to decorate scripts (may cause slowdown)"]
      ["Disppearing Proofs" proof-disappearing-proofs-toggle 
       :style toggle
       :selected proof-disappearing-proofs
@@ -360,11 +365,13 @@ without adjusting window layout."
       :help "Use a navigation window (Speedbar)"]
 
      ("Display"
-      ["Layout Windows" proof-layout-windows
-       :help "Rearrange windows on the screen"]
-      ["Use Three Panes" proof-three-window-toggle
-       :active (not proof-multiple-frames-enable)
+      ["Auto Raise" proof-auto-raise-toggle
        :style toggle
+       :selected proof-auto-raise-buffers
+       :help "Automatically raise buffers when output arrives"]
+      ["Use Three Panes" proof-three-window-toggle
+       :style toggle
+       :active (not proof-multiple-frames-enable)
        :selected proof-three-window-enable
        :help "Use three panes"]
       ;; We use non-Emacs terminology "Windows" in this menu to help
@@ -440,6 +447,7 @@ without adjusting window layout."
    'proof-electric-terminator-enable
    'proof-script-fly-past-comments
    'proof-disappearing-proofs 
+   'proof-full-decoration
    ;;'proof-output-fontify-enable
    'proof-strict-read-only
    (proof-ass-sym unicode-tokens-enable)
@@ -449,6 +457,7 @@ without adjusting window layout."
    'proof-keep-response-history
    'proof-imenu-enable
    ;; Display sub-menu
+   'proof-auto-raise-buffers
    'proof-three-window-enable
    'proof-delete-empty-windows
    'proof-multiple-frames-enable
