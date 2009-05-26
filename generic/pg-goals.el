@@ -101,13 +101,10 @@ Converts term substructure markup into mouse-highlighted extents."
 
     ;; Only display if string is non-empty.
     (unless (string-equal string "")
+      (setq buffer-read-only nil)
       (insert string)
-
-      ;; Record a cleaned up version of output string
-      (setq proof-shell-last-output
-	    (buffer-substring (point-min) (point-max)))
-      
-      (set-buffer-modified-p nil)	; nicety
+      (setq buffer-read-only t)
+      (set-buffer-modified-p nil)
       
       ;; Keep point at the start of the buffer.
       (proof-display-and-keep-buffer

@@ -907,12 +907,6 @@ but you can set this variable to something else more precise if necessary."
   :type 'string
   :group 'proof-script)
 
-(defcustom pg-insert-output-as-comment-fn nil
-  "Function to insert last output as a comment.  Passed output as arg.
-If left as nil, the default behaviour is to insert and call `comment-region'."
-  :type '(choice function nil)
-  :group 'proof-script)
-
 (defcustom proof-string-start-regexp "\""
   "Matches the start of a quoted string in the proof assistant command language."
   :type 'string
@@ -1834,6 +1828,15 @@ from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp',
 
 The default value is \"\\n\" to match up to the end of the line."
   :type '(choice regexp (const :tag "Unset" nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-strip-output-markup 'identity
+  "A function which strips markup from the process output.
+This should remove any markup which is made invisible by font-lock
+when displayed in the output buffer.  This is used in 
+`pg-insert-last-output-as-comment' to insert output into the
+proof script, and for cut and paste operations."
+  :type 'function
   :group 'proof-shell)
 
 (defcustom proof-shell-assumption-regexp nil

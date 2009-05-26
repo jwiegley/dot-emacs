@@ -803,10 +803,40 @@ EXTRAPATH is a list of extra path components"
        (executable-find progname)))
     ((fboundp 'locate-file)
      (locate-file progname
-		  (append (split-path (getenv "PATH")) extrapath)
+		  (append (split-string path 
+					(regexp-quote (getenv "PATH")))
+			  extrapath)
 		  (if proof-running-on-win32 '(".exe"))
 		  1)))
    (if returnnopath progname)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Extracting visible text in a buffer
+;;
+;; NB: this is possible automatic alternative to proof-shell-strip-output,
+;; but is more reliable to have specific setting.
+;;
+;; (defun proof-buffer-substring-visible (start end)
+;;   "Return the substring from START to END with no invisible property set."
+;;   (let ((pos start) 
+;; 	(vis (get-text-property start 'invisible))
+;; 	(result "")
+;; 	nextpos)
+;;     (while (and (< pos end)
+;; 		(setq nextpos (next-single-property-change pos 'invisible
+;; 							   nil end)))
+;;       (unless (get-text-property pos 'invisible)
+;; 	(setq result (concat result (buffer-substring-no-properties
+;; 				     pos nextpos))))
+;;       (setq pos nextpos))
+;;     (unless (get-text-property end 'invisible)
+;;       (setq result (concat result (buffer-substring-no-properties
+;; 				   pos end))))))
+
+
+
 
 (provide 'proof-utils)
 ;;; proof-utils.el ends here

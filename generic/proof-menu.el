@@ -635,10 +635,9 @@ suitable for adding to the proof assistant menu."
        (key (if (y-or-n-p "Set a keybinding for this command? : ")
 		;; FIXME: better validation here would be to check
 		;; this is a new binding, or remove old binding below.
-		(events-to-keys
 		 (read-key-sequence 
 		  "Type the key to use (binding will be C-c C-a <key>): " 
-		  nil t)))))
+		  nil t))))
     ;; result
     (list cmd ins men key)))
 	  

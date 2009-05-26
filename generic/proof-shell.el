@@ -639,6 +639,11 @@ are not dealt with eagerly during script processing, namely
    )
   (run-hooks 'proof-shell-handle-delayed-output-hook))
 
+(defsubst proof-shell-strip-output-markup (string &optional push)
+  "Strip output markup from STRING.
+Convenience function to call ` proof-shell-strip-output-markup'."
+  (funcall proof-shell-strip-output-markup string))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
@@ -1111,9 +1116,10 @@ and indentation.  Assumes proof-script-buffer is active."
 
 (defun proof-shell-message (str)
   "Output STR in minibuffer."
-  ;; %s is used below to escape characters special to 
-  ;; 'format' which could appear in STR.
-  (message "%s" (concat "[" proof-assistant "] " str)))
+  (message "%s" ;; to escape format characters
+	   (concat "[" proof-assistant "] " 
+		   ;; TODO: rather than stripping, could try fontifying
+		   (proof-shell-strip-output-markup str))))
 
 (defun proof-shell-process-urgent-message (message)
   "Analyse urgent MESSAGE for various cases.
@@ -1762,6 +1768,9 @@ usual, unless NOERROR is non-nil."
   (setq proof-shell-urgent-message-scanner (make-marker))
   (set-marker proof-shell-urgent-message-scanner (point-min))
 
+  ;; Make cut functions work with proof shell output 
+  (add-hook 'buffer-substring-filters 'proof-shell-strip-output-markup)
+
   ;; FIXME da: before entering proof assistant specific code,
   ;; we'd do well to check that process is actually up and
   ;; running now.  If not, call the process sentinel function
@@ -1810,11 +1819,11 @@ processing."
 
       ;; Flush pending output from startup (it gets hidden from the user)
       ;; while waiting for the prompt to appear
-      (while (and (process-live-p proc)
+      (while (and (memq (process-status proc) '(open run))
 		  (null (marker-position proof-marker)))
 	(accept-process-output proc 1))
 
-      (if (process-live-p proc)
+      (if (memq (process-status proc) '(open run))
 	  (progn
 	    ;; Also ensure that proof-action-list is initialised. 
 	    (setq proof-action-list nil)

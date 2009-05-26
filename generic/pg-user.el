@@ -567,6 +567,10 @@ last use time, to discourage saving these into the users database."
 		(add-completion cmpl -1000 0)))
 	  (proof-ass completion-table)))
 
+;; completion not autoloaded in GNU Emacs
+(or (fboundp 'complete)
+    (autoload 'complete "completion"))
+
 ;; NB: completion table is expected to be set when proof-script
 ;; is loaded!  Can call proof-script-add-completions if the table
 ;; is updated.
@@ -605,14 +609,9 @@ last use time, to discourage saving these into the users database."
   "Insert the last output from the proof system as a comment in the proof script."
   (interactive)
   (if proof-shell-last-output
-      ;; There may be a system specific function to insert the comment
-      (if pg-insert-output-as-comment-fn
-	  (funcall pg-insert-output-as-comment-fn proof-shell-last-output)
-	;; Otherwise the default behaviour is to use comment-region
-	(let  ((beg (point)) end)
-	  (insert proof-shell-last-output)
-	  (comment-region beg end)))))
-
+      (let  ((beg (point)))
+	(insert (proof-shell-strip-output-markup proof-shell-last-output))
+	(comment-region beg (point)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

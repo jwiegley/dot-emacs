@@ -251,22 +251,15 @@ Returns non-nil if response buffer was cleared."
 
 (defun pg-response-display (str)
   "Show STR as a response in the response buffer."
-  ;; FIXME removed for PG 4.0:
-  ;; (unless (or proof-shell-unicode
-  ;;    pg-use-specials-for-fontify)
-  ;; (setq str (pg-assoc-strip-subterm-markup str)))
 
   (pg-response-maybe-erase t nil)
-  ;;(unless (or (string-equal str "") (string-equal str "\n"))
-    ;; don't display an empty buffer [ NB: above test repeated below,
-    ;; but response-display reused elsewhere ]
   (pg-response-display-with-face str)
+
   ;; NB: this displays an empty buffer sometimes when it's not
   ;; so useful.  It _is_ useful if the user has requested to
   ;; see the proof state and there is none
   ;; (Isabelle/Isar displays nothing: might be better if it did).
   (proof-display-and-keep-buffer proof-response-buffer))
-
 
 ;;
 ;; Images for the response buffer
@@ -282,13 +275,15 @@ Returns non-nil if response buffer was cleared."
 ;; pg-response-maybe-erase-buffer.
 ;;;###autoload
 (defun pg-response-display-with-face (str &optional face)
-  "Display STR with FACE in response buffer."
+  "Display STR with FACE in response buffer.
+Also updates `proof-shell-last-output'."
   (cond
    ((string-equal str ""))
    ((string-equal str "\n"))		; quick exit, no display.
    (t
     (let (start end)
       (with-current-buffer proof-response-buffer
+	(setq buffer-read-only nil)
 	;; da: I've moved newline before the string itself, to match
 	;; the other cases when messages are inserted and to cope
 	;; with warnings after delayed output (non newline terminated).
@@ -299,12 +294,14 @@ Returns non-nil if response buffer was cleared."
 	  (newline))
 	(setq start (point))
 	(insert str)
+	(setq proof-shell-last-output str)
 	(unless (bolp) (newline))
  	(when face
  	  (overlay-put
  	   (make-overlay start (point-max))
  	   'face face))
 
+	(setq buffer-read-only t)
 	(set-buffer-modified-p nil))))))
 
 (defun pg-response-clear-displays ()
