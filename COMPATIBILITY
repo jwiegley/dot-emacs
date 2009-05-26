@@ -4,7 +4,7 @@ Compatibility of Proof General
 This version of Proof General has been tested with these Emacs versions
 on recent Linux systems:
 
- Emacs 22.2.1	       -- recommended and supported
+ Emacs 22.3.1	       -- recommended and supported
  Emacs 23.0.X          -- CVS/beta snapshots, use time of PG release
 
 and (main) prover versions:
