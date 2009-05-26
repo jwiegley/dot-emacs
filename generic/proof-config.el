@@ -1,6 +1,6 @@
 ;;; proof-config.el --- Proof General configuration for proof assistant
 ;;
-;; Copyright (C) 1998-2008 LFCS Edinburgh.
+;; Copyright (C) 1998-2009 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -771,6 +771,11 @@ of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
 `proof-script-command-start-regexp', `proof-terminal-char',
 or `proof-script-parse-function'."
   :type 'character
+  :group 'prover-config)
+
+(defcustom proof-electric-terminator-noterminator nil
+  "If non-nil, electric terminator does not actually insert a terminator."
+  :type 'boolean
   :group 'prover-config)
 
 (defcustom proof-script-sexp-commands nil
@@ -1836,7 +1841,7 @@ The default value is \"\\n\" to match up to the end of the line."
 
 At the moment, this setting is not used in the generic Proof General.
 
-Future use may providea generic implementation for `pg-topterm-goalhyplit-fn',
+Future use may provide a generic implementation for `pg-topterm-goalhyplit-fn',
 used to help parse the goals buffer to annotate it for proof by pointing."
   :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)

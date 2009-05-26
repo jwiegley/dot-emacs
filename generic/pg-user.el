@@ -492,7 +492,7 @@ This is intended as a value for `proof-activate-scripting-hook'"
   ;;          (2) needs this name to be recognized in
   ;;		  proof-assert-until-point
   (setq incomment t)
-  (if ins (backward-delete-char 1))
+  (if ins (backward-delete-char 1)) ; delete spurious char in comment
   (goto-char mrk)
   (insert proof-terminal-string))
 
@@ -518,17 +518,15 @@ comment, and insert or skip to the next semi)."
 	;; In locked region, just insert terminator without further ado
 	(insert proof-terminal-char)
       ;; Otherwise, do other thing.
-      ;; Old idea: only shift terminator wildly if we're looking at
-      ;; whitespace.  Why?
-      ;; (if (looking-at "\\s-\\|\\'\\|\\w")
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
 
       (if (not (= (char-after (point)) proof-terminal-char))
 	  (progn
 	    (forward-char) ;; immediately after command end.
-	    (insert proof-terminal-string)
-	    (setq ins t)))
+	    (unless proof-electric-terminator-noterminator
+	      (insert proof-terminal-string)
+	      (setq ins t))))
       (proof-assert-until-point 'proof-electric-term-incomment-fn)
       (or incomment
 	  (proof-script-next-command-advance)))))

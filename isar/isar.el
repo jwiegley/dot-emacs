@@ -87,8 +87,10 @@ See -k option for Isabelle interface script."
    proof-prog-name-guess	t
 
    ;; proof script syntax
-   proof-terminal-char          ?\;     ; forcibly ends a command
+   proof-terminal-char          ?\;          ; forcibly ends a command
+   proof-electric-terminator-noterminator t  ; don't insert it
    proof-script-command-start-regexp
+
    (proof-regexp-alt
     ;; FIXME: this gets { and } wrong: they must _not_ appear as {* *}
     ;; because that's lexically a kind of comment.
