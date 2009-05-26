@@ -599,7 +599,7 @@ proof assistants, including these:
 @b{Coq Proof General} for Coq Version 6.3, 7.x, 8.x@*
 @xref{Coq Proof General}, for more details.
 @item 
-@b{Isabelle Proof General} for Isabelle2005, Isabelle2007 and Isabelle2008@*
+@b{Isabelle Proof General} for Isabelle2009@*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
 @c @item
@@ -786,11 +786,16 @@ proof assistant, but you can always check the menu if you're not sure.
 Electric terminator mode is popular, but not enabled by default because
 of the principle of least surprise.  Moreover, in Isabelle, the
 semicolon terminators are strictly optional so proof scripts are usually
-written without them to avoid clutter.  Without electric terminator, you
-can trigger processing the text up to the current position of the point
-with the key @kbd{C-c C-RET}, or just up to the next command with
-@kbd{C-c C-n}.  We show the rest of the example in Isabelle with
-semi-colons, but you can miss them out.
+written without them to avoid clutter.  You'll notice that although you
+typed a semi-colon it was not included in the buffer!  The electric
+terminator tries to be smart about comments and strings; in the one case
+when you are trying to add a semi-colon inside an already written
+comment, you need to use @kbd{C-q ;} to quote the character.
+
+Without electric terminator, you can trigger processing the text up to
+the current position of the point with the key @kbd{C-c C-RET}, or just
+up to the next command with @kbd{C-c C-n}.  We show the rest of the
+example in Isabelle with semi-colons, but you can miss them out.
 
 Coq, on the other hand, requires a full-stop terminator at the end of
 each line.  If you want to use electric terminator, you can customize
@@ -1319,28 +1324,30 @@ If called interactively or @var{switch} is non-nil, switch to script buffer.
 If called interactively, a mark is set at the current location with @samp{@code{push-mark}}
 @end deffn
 
-During the course of a large proof, it may be useful to copy previous
-commands.  As you move the mouse over previous portions of the script,
-you'll notice that each proof command is highlighted individually.
-(Once a goal...save sequence is ``closed'', the whole sequence is
-highlighted).  There is a useful mouse binding for copying the
-highlighted command under the mouse:
+@c PG4: this is not available at the moment
+@c
+@c During the course of a large proof, it may be useful to copy previous
+@c commands.  As you move the mouse over previous portions of the script,
+@c you'll notice that each proof command is highlighted individually.
+@c (Once a goal...save sequence is ``closed'', the whole sequence is
+@c highlighted).  There is a useful mouse binding for copying the
+@c highlighted command under the mouse:
 
-@kindex C-button1
-@table @kbd
-@item C-button1 
-@code{proof-mouse-track-insert}
-@end table
+@c @kindex C-button1
+@c @table @kbd
+@c @item C-button1 
+@c @code{proof-mouse-track-insert}
+@c @end table
 
-@c TEXI DOCSTRING MAGIC: proof-mouse-track-insert
-@deffn Command proof-mouse-track-insert event
-Copy highlighted command under mouse @var{event} to point.  Ignore comments.@*
-If there is no command under the mouse, behaves like mouse-track-insert.
-@end deffn
+@c @c DOCSTRING MAGIC: proof-mouse-track-insert
+@c @deffn Command proof-mouse-track-insert event
+@c Copy highlighted command under mouse @var{event} to point.  Ignore comments.@*
+@c If there is no command under the mouse, behaves like mouse-track-insert.
+@c @end deffn
 
-Read the documentation in Emacs to find out about the normal behaviour
-of @code{proof-mouse-track-insert}, if you don't already know what it
-does.
+@c Read the documentation in Emacs to find out about the normal behaviour
+@c of @code{proof-mouse-track-insert}, if you don't already know what it
+@c does.
 
 
 @node Script processing commands
@@ -2450,7 +2457,7 @@ database.
 @c TEXI DOCSTRING MAGIC: PA-completion-table
 @defvar PA-completion-table 
 List of identifiers to use for completion for this proof assistant.@*
-Completion is activated with @var{c-ret}.
+Completion is activated with M-x complete.
 
 If this table is empty or needs adjusting, please make changes using
 @samp{@code{customize-variable}} and post suggestions at
@@ -2837,11 +2844,11 @@ The default value is @code{strict}.
 @c TEXI DOCSTRING MAGIC: proof-allow-undo-in-read-only
 @defopt proof-allow-undo-in-read-only 
 Whether Proof General allows text undo in the read-only region.@*
-If non-nil, undo will allow altering of processed text (default behaviour
-before Proof General 3.7).  If nil, undo history is cut at first edit
+If non-nil, undo will allow altering of processed text.
+If nil, undo history is cut at first edit
 of processed text.  NB: the history manipulation only works on GNU Emacs.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 @c This one removed: proof-auto-retract
@@ -3628,7 +3635,7 @@ Isabelle process.
 @cindex Isabelle logic
 
 When you load an Isabelle theory file into Proof General, you may be
-prompted for the path to the program @code{isatool} if it is not on the
+prompted for the path to the program @code{isabelle} if it is not on the
 system @code{PATH} already.  This is used to generate further
 information for invoking Isabelle, in particular, the list of available
 logics.
@@ -3639,9 +3646,9 @@ If you look at the menu:
         Isabelle -> Logics -> 
 @end lisp 
 you should see the list of logics available to Isabelle.  This menu is
-generated from the output of the command @code{isatool findlogics}.
+generated from the output of the command @code{isabelle findlogics}.
 (Similarly, the documentation menu is partly generated from
-@code{isatool doc}).  Instead of the menu, you can use the
+@code{isabelle doc}).  Instead of the menu, you can use the
 keyboard command @code{isabelle-chose-logic} to choose from the list.
 
 The logics list is refreshed dynamically so you can select any newly
@@ -3654,7 +3661,7 @@ Another way to set the logic before Isabelle is launched is using an
 Emacs local variable setting inside a comment at the top of the file,
 see the documentation of @code{isabelle-chosen-logic} below.
 
-In case you do not have the @code{isatool} program available or want to
+In case you do not have the @code{isabelle} program available or want to
 override its behaviour, you may set the variable
 @code{isabelle-program-name-override} to define the name of the
 executable used to start Isabelle.  The standard options are and 
@@ -3668,15 +3675,9 @@ logic name are still appended.
 Name of executable program to run Isabelle.
 
 You can set customize this in case the automatic settings
-mechanism (based on isatool) does not work for you.  One reason
-to do this is if you are running Isabelle remotely, or using
-windows and avoiding isatool.
+mechanism does not work for you, perhaps because isabelle
+is not on your path, or you are running it remotely.
 
-A possible value when running under Windows looks like this:
-@lisp
-  C:\sml\bin\.run\run.x86-win32.exe @@SMLload=C:\Isabelle\
-@end lisp
-This expects SML/NJ in C:\sml and Isabelle images in C:Isabelle.
 The logic image name is tagged onto the end.
 
 The default value is @code{nil}.

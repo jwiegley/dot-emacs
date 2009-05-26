@@ -606,25 +606,26 @@ Example value for proof-toolbar-entries.  Also used to define scripting menu.@*
 This gives a bare toolbar that works for any prover, providing the
 appropriate configuration variables are set.
 To add/remove prover specific buttons, adjust the @samp{<PA>-toolbar-entries}
-variable, and follow the pattern in @samp{@code{proof-toolbar}.el} for
+variable, and follow the pattern in @samp{proof-toolbar.el} for
 defining functions, images.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: PA-toolbar-entries
 @defvar PA-toolbar-entries 
 List of entries for Proof General toolbar and Scripting menu.@*
-Format of each entry is (@var{token} @var{menuname} @var{tooltip} @var{dynamic-enabler-p} @var{enable}).
+Format of each entry is (@var{token} @var{menuname} @var{tooltip} @var{toolbar-p} [VISIBLE-P]).
 
 For each @var{token}, we expect an icon with base filename @var{token},
 a function proof-toolbar-<TOKEN>, and (optionally) a dynamic enabler
 proof-toolbar-<TOKEN>-enable-p.
 
-If @var{enablep} is absent, item is enabled; if @var{enablep} is present, item
-is only added to menubar and toolbar if @var{enablep} is non-null.
+If @var{visible-p} is absent, or evaluates to non-nil, the item will
+appear on the toolbar or menu.  If it evaluates to nil, the item
+is not shown.
 
 If @var{menuname} is nil, item will not appear on the scripting menu.
 
-If @var{tooltip} is nil, item will not appear on the toolbar.
+If @var{toolbar-p} is nil, item will not appear on the toolbar.
 
 The default value is @samp{@code{proof-toolbar-entries-default}} which contains
 the standard Proof General buttons.
@@ -688,6 +689,10 @@ of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-com
 or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-electric-terminator-noterminator
+@defvar proof-electric-terminator-noterminator 
+If non-nil, electric terminator does not actually insert a terminator.
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-script-sexp-commands
 @defvar proof-script-sexp-commands 
 Non-nil if script has LISP-like syntax: commands are @code{top-level} sexps.@*
@@ -1285,7 +1290,7 @@ you may want to call at other times.
 @c TEXI DOCSTRING MAGIC: PA-completion-table
 @defvar PA-completion-table 
 List of identifiers to use for completion for this proof assistant.@*
-Completion is activated with @var{c-ret}.
+Completion is activated with M-x complete.
 
 If this table is empty or needs adjusting, please make changes using
 @samp{@code{customize-variable}} and post suggestions at
@@ -1689,7 +1694,7 @@ A regular expression matching the name of assumptions.
 
 At the moment, this setting is not used in the generic Proof General.
 
-Future use may providea generic implementation for @samp{@code{pg-topterm-goalhyplit-fn}},
+Future use may provide a generic implementation for @samp{@code{pg-topterm-goalhyplit-fn}},
 used to help parse the goals buffer to annotate it for proof by pointing.
 @end defvar
 
