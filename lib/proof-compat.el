@@ -1,6 +1,6 @@
 ;; proof-compat.el   Operating system and Emacs version compatibility
 ;;
-;; Copyright (C) 2000-2002 LFCS Edinburgh. 
+;; Copyright (C) 2000-2009 LFCS Edinburgh. 
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -76,20 +76,6 @@ Done by `makunbound' and removing all properties mentioned by custom library."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; XEmacs compatibility
-;;;
-
-;; Compatibility with XEmacs 20.3
-(or (fboundp 'split-path)
-    (defun split-path (path)
-      "Explode a search path into a list of strings.
-The path components are separated with the characters specified
-with `path-separator'."
-      (split-string path (regexp-quote path-separator))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; GNU Emacs compatibility with XEmacs
 ;;;
 
@@ -102,16 +88,6 @@ The value returned is the value of the last form in BODY."
        (unwind-protect
            (progn ,@body)
          (select-frame ,old-frame))))))
-
-;; Missing function, but anyway Emacs has no datatype for events...
-
-(unless (fboundp 'events-to-keys)
-  (defalias 'events-to-keys 'identity))
-
-;; completion not autoloaded in GNU 20.6.1; we must call 
-;; dynamic-completion-mode after loading it.
-(or (fboundp 'complete)
-    (autoload 'complete "completion"))
 
 ;; Replace in string: XEmacs original now in GNU Emacs as replace-regexp-in-string
 (or (fboundp 'replace-in-string)
@@ -251,17 +227,10 @@ The value returned is the value of the last form in BODY."
 	(funcall (get this-command 'completion-function)))))
       
 
-(or (fboundp 'process-live-p)
-(defun process-live-p (obj)
-  "Return t if OBJECT is a process that is alive"
-  (and (processp obj)
-       (memq (process-status obj) '(open run stop)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; General Emacs version compatibility
 ;;;
-
 
 (defalias 'proof-buffer-syntactic-context 
 	  'proof-buffer-syntactic-context-emulate)
