@@ -668,21 +668,11 @@ happen since one of them is necessarily set to t in coq-syntax.el."
     )
   )
 
-
-;; region-exists-p does not exist in some emacs
-(cond
- ((not (featurep 'region-exists-p))
-  (defmacro region-exists-p nil
-    "Returns t if the mark is active, nil otherwise."
-    `(not (eq mark-active nil)))))
-
-
-
 (defun coq-guess-or-ask-for-string (s &optional dontguess)
   (let ((guess
          (cond
           (dontguess nil)
-          ((region-exists-p)
+          ((not (eq mark-active nil)) ; region exists
            (buffer-substring-no-properties (region-beginning) (region-end)))
           ((fboundp 'symbol-near-point) (symbol-near-point))
           ((fboundp 'symbol-at-point) (symbol-at-point)))))

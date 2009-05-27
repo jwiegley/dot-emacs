@@ -265,20 +265,25 @@ Does nothing if proof assistant is already running."
 	    ;; end-of-line conversion (hence `raw-text').
 	    ;; It is also the only sensible choice since we make the buffer
 	    ;; unibyte below.
+	    ;;
 	    ;; Update: there are problems here with systems where
 	    ;;  i) coding-system-for-read/write is not available 
 	    ;;  (e.g. MacOS XEmacs non-mule)
 	    ;; ii) 'rawtext can give wrong behaviour anyway 
 	    ;;     (e.g. Mac OS GNU Emacs, maybe Windows)
 	    ;;     probably because of line-feed conversion.
+	    ;;
+	    ;; Update: much more info now in Elisp manual and recommendations
+	    ;; for sub processes.
 
 	    (normal-coding-system-for-read (and (boundp 'coding-system-for-read)
 						coding-system-for-read))
 	    (coding-system-for-read
 	     (if proof-shell-unicode 
-		 (if (find-coding-system 'utf-8)
-		     'utf-8 
-		   normal-coding-system-for-read)
+		 (or (condition-case nil
+			 (check-coding-system 'utf-8)
+		       (error nil))
+		     normal-coding-system-for-read)
 
 	       (if (string-match "Linux" 
 				 (shell-command-to-string "uname"))
