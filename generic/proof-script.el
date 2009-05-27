@@ -702,7 +702,8 @@ NAME does not need to be unique."
   "Add a daughter help span for SPAN with help message, highlight, actions"
   (let ((helpmsg    (pg-span-name span))
 	(proofstate (proof-shell-strip-output-markup
-		     (if unicode-tokens-mode
+		     (if (and (boundp 'unicode-tokens-mode)
+			      unicode-tokens-mode)
 			 (unicode-tokens-encode-str proof-shell-last-output)
 		       proof-shell-last-output)))
 	(newspan    (let ((newstart (save-excursion
