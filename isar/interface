@@ -128,7 +128,8 @@ getoptions()
   done
 }
 
-getoptions $PROOFGENERAL_OPTIONS
+eval "OPTIONS=($PROOFGENERAL_OPTIONS)"
+getoptions "${OPTIONS[@]}"
 
 getoptions "$@"
 shift $(($OPTIND - 1))
@@ -136,12 +137,13 @@ shift $(($OPTIND - 1))
 
 # args
 
+declare -a FILES=()
+
 if [ "$#" -eq 0 ]; then
-  FILES="Scratch.thy"
+  FILES+=("Scratch.thy")
 else
-  FILES=""
   while [ "$#" -gt 0 ]; do
-    FILES="$FILES '$1'"
+    FILES+=("$1")
     shift
   done
 fi
@@ -177,14 +179,14 @@ if [ "$START_PG" = false ]; then
 
 else
 
-  ARGS=""
+  declare -a ARGS=()
 
-  [ -n "$GEOMETRY" ] && ARGS="$ARGS -geometry '$GEOMETRY'"
+  [ -n "$GEOMETRY" ] && ARGS+=("-geometry" "$GEOMETRY")
 
-  [ "$INITFILE" = false ] && ARGS="$ARGS -q"
+  [ "$INITFILE" = false ] && ARGS+=("-q")
 
   if [ "$WINDOWSYSTEM" = false ]; then
-    ARGS="$ARGS -nw"
+    ARGS+=("-nw")
     XSYMBOL=false
   elif [ -z "$DISPLAY" ]; then
     XSYMBOL=false
@@ -192,26 +194,26 @@ else
     [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOL_SETUP" = true ] && installfonts
   fi
 
-  ARGS="$ARGS -l '$SUPER/isar/interface-setup.el'"
+  ARGS+=("-l" "$SUPER/isar/interface-setup.el")
 
   if [ -n "$KEYWORDS" ]; then
     if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el" ]; then
-      ARGS="$ARGS -l '$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el'"
+      ARGS+=("-l" "$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el")
     elif [ -f "$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el" ]; then
-      ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el'"
+      ARGS+=("-l" "$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el")
     else
       fail "No isar-keywords file for '$KEYWORDS'"
     fi
   elif [ -f "$ISABELLE_HOME_USER/etc/isar-keywords.el" ]; then
-    ARGS="$ARGS -l '$ISABELLE_HOME_USER/etc/isar-keywords.el'"
+    ARGS+=("-l" "$ISABELLE_HOME_USER/etc/isar-keywords.el")
   elif [ -f "$ISABELLE_HOME/etc/isar-keywords.el" ]; then
-    ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords.el'"
+    ARGS+=("-l" "$ISABELLE_HOME/etc/isar-keywords.el")
   fi
 
   for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
       "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
   do
-    [ -f "$FILE" ] && ARGS="$ARGS -l '$FILE'"
+    [ -f "$FILE" ] && ARGS+=("-l" "$FILE")
   done
 
   case "$LOGIC" in
@@ -230,6 +232,6 @@ else
 
   export ISABELLE_OPTIONS XSYMBOL_FONTSIZE
 
-  eval exec "$PROGNAME" "$ARGS" "$FILES"
+  exec "$PROGNAME" "${ARGS[@]}" "${FILES[@]}"
 
 fi
