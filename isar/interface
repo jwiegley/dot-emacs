@@ -175,7 +175,7 @@ function installfonts ()
 if [ "$START_PG" = false ]; then
 
   [ "$ISAR" = true ] && ISABELLE_OPTIONS="$ISABELLE_OPTIONS -I"
-  exec "$ISABELLE" $ISABELLE_OPTIONS "$LOGIC"
+  exec "$ISABELLE_PROCESS" $ISABELLE_OPTIONS "$LOGIC"
 
 else
 

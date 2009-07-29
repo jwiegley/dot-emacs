@@ -40,7 +40,7 @@
   (or (if proof-rsh-command
 	  ;; not much hope to locate executable remotely
 	  (concat proof-rsh-command " isabelle"))
-      (getenv "ISABELLE")
+      (getenv "ISABELLE_TOOL")
       (proof-locate-executable "isabelle" nil
 			       (list
 				;; support default unpack in home dir situation 
@@ -172,14 +172,14 @@ at the top of your theory file, like this:
   "Make proper command line for running Isabelle.
 This function sets `isabelle-prog-name' and `proof-prog-name'."
   (let*
-      ;; The ISABELLE and PROOFGENERAL_LOGIC values (set when run
-      ;; under the interface wrapper script) indicate command line
+      ;; The ISABELLE_PROCESS and PROOFGENERAL_LOGIC values (set when
+      ;; run under the interface wrapper script) indicate command line
       ;; is set in current Isabelle settings environment.
       ((isabelle (or
 		  isabelle-program-name-override  ; override in Emacs
-		  (getenv "ISABELLE")	  ; command line override 
-		  (isa-getenv "ISABELLE") ; choose to match isabelle
-		  "isabelle"))		  ; to 
+		  (getenv "ISABELLE_PROCESS")	  ; command line override 
+		  (isa-getenv "ISABELLE_PROCESS") ; choose to match isabelle
+		  "isabelle-process"))		  ; to 
        (isabelle-opts (getenv "ISABELLE_OPTIONS"))
        (opts (concat " -PI"  ;; Proof General + Isar
 	      (if proof-shell-unicode " -m PGASCII" "")
