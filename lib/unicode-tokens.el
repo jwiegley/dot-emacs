@@ -570,7 +570,11 @@ of symbol compositions, and will lose layout information."
   "Font lock patterns for highlighting Unicode tokens.")
 
 (defun unicode-tokens-highlight-unicode ()
-  "Hilight Unicode characters in the buffer."
+  "Hilight Unicode characters in the buffer.
+Toggles highlighting of Unicode characters used in the
+buffer beyond the legacy 8-bit character set codes.  This is
+useful to manually determine if a buffer contains Unicode or 
+tokenised symbols."
   (interactive)
   (setq unicode-tokens-highlight-unicode
 	(not unicode-tokens-highlight-unicode))
