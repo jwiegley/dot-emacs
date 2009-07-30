@@ -578,12 +578,15 @@ tokenised symbols."
   (interactive)
   (setq unicode-tokens-highlight-unicode
 	(not unicode-tokens-highlight-unicode))
+  (unicode-tokens-highlight-unicode-setkeywords)
+  (font-lock-fontify-buffer))
+
+(defun unicode-tokens-highlight-unicode-setkeywords ()
   (if unicode-tokens-highlight-unicode
     (font-lock-add-keywords 
      nil unicode-tokens-unicode-highlight-patterns)
     (font-lock-remove-keywords 
-     nil unicode-tokens-unicode-highlight-patterns))
-  (font-lock-fontify-buffer))
+     nil unicode-tokens-unicode-highlight-patterns)))
 
 ;; 
 ;; Minor mode
@@ -639,6 +642,8 @@ representation.  Commands available:
       (mapcar 
        (lambda (p) (add-to-list 'font-lock-extra-managed-props p))
        unicode-tokens-font-lock-extra-managed-props)
+
+      (unicode-tokens-highlight-unicode-setkeywords)
 
       (font-lock-fontify-buffer)
 	
