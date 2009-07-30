@@ -294,13 +294,20 @@ Also clear list of script portions."
   (span-set-property proof-locked-span 'start-closed t)
   (span-set-property proof-locked-span 'end-open t)
   (proof-span-read-only proof-locked-span)
-  (span-set-property proof-locked-span 'face 'proof-locked-face)
+  (if proof-colour-locked
+      (span-set-property proof-locked-span 'face 'proof-locked-face))
   (span-detach proof-locked-span)
   (setq proof-last-theorem-dependencies nil)
   (setq proof-element-counters nil)
   (pg-clear-script-portions)
   (pg-clear-input-ring))
 
+;;;###autoload
+(defun proof-colour-locked ()
+  (interactive)
+  (if proof-colour-locked
+      (span-set-property proof-locked-span 'face 'proof-locked-face)
+    (span-set-property  proof-locked-span 'face nil)))
 
 ;; ** Restarting and clearing spans
 

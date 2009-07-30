@@ -245,6 +245,13 @@ Proof General."
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-colour-locked t
+  "*If non-nil, colour the locked region with `proof-locked-face'.
+If this is not set, buffers will have no special face set
+on locked regions."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
 
 (defcustom proof-query-file-save-when-activating-scripting
   t

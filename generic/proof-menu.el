@@ -264,6 +264,7 @@ without adjusting window layout."
 (proof-deftoggle proof-auto-raise-buffers proof-auto-raise-toggle)
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle proof-strict-read-only)
+(proof-deftoggle proof-colour-locked)
 
 (proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
 (proof-deftoggle proof-keep-response-history)
@@ -391,7 +392,11 @@ without adjusting window layout."
        :active (not proof-multiple-frames-enable)
        :style toggle
        :selected proof-shrink-windows-tofit
-       :help "Dynamically shrink size of output panes to fit contents"])
+       :help "Dynamically shrink size of output panes to fit contents"]
+      ["Colour locked" proof-colour-locked
+       :style toggle
+       :selected proof-colour-locked
+       :help "Use decoration of locked region"])
      ("Follow Mode" 
       ["Follow Locked Region" 
        (customize-set-variable 'proof-follow-mode 'locked)
