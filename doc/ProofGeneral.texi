@@ -70,7 +70,7 @@
 
 @set version 4.0pre
 @set emacsversion 22.2.1
-@set last-update December 2008
+@set last-update July 2009
 @set rcsid $Id$
 
 @ifinfo
@@ -124,7 +124,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright © 1998-2008 Proof General team, LFCS Edinburgh.
+Copyright © 1998-2009 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -294,20 +294,19 @@ LEGO Proof General (the successor of @code{lego-mode}) was written by
 Thomas Kleymann and Dilip Sequeira. 
 @c
 It is presently maintained by David Aspinall and
-Paul Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. 
+Paul Callaghan. 
 @c
 Coq Proof General was written by Healfdene Goguen, with
 later contributions from Patrick Loiseleur.
-It is now maintained by Pierre Courtieu @i{<courtieu@@lri.fr>}.
+It is now maintained by Pierre Courtieu.
 @c
 Isabelle Proof General was written and is being maintained by David
-Aspinall @i{<David.Aspinall@@ed.ac.uk>}.  It has benefited greatly from
-tweaks and suggestions by Markus Wenzel
-@i{<wenzelm@@informatik.tu-muenchen.de>}, who wrote Isabelle/Isar Proof
+Aspinall.  It has benefited greatly from
+tweaks and suggestions by Markus Wenzel, who wrote Isabelle/Isar Proof
 General and added Proof General support inside Isabelle.  David von
 Oheimb supplied the original patches for X-Symbol support, which
 improved Proof General significantly.  Christoph Wedler, the author of
-X-Symbol, has provided much useful support in adapting his package for
+X-Symbol, provided much useful support in adapting his package for
 PG.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
@@ -333,7 +332,7 @@ Co-ordination Action @i{Types} and previous related projects), and the
 support of the LFCS.  Version 3.1 was prepared whilst David Aspinall was
 visiting ETL, Japan, supported by the British Council.  
 
-For Proof General 3.7, Graham Dutton assisted with the project
+Since Proof General 3.7, Graham Dutton has assisted with the project
 management system and web pages.
 For testing and feedback for older versions of Proof General, thanks
 go to Rod Burstall, Martin Hofmann, and James McKinna, and some of
@@ -1689,7 +1688,7 @@ large volumes of output from the prover arrive quickly in Emacs, as
 typically is the case during tracing (especially tracing looping
 tactics!), Emacs may hog the CPU and spend all its time updating the
 display with the trace output.  This is especially the case when
-features like output fontification and X-Symbol display are active.  If
+features like output fontification and token display are active.  If
 this happens, ordinary user input in Emacs is not processed, and it
 becomes difficult to do normal editing.  The root of the problem is that
 Emacs runs in a single thread, and pending process output is dealt with
@@ -2269,6 +2268,8 @@ Proof General -> Advanced -> Customize -> Faces -> Proof Faces.
 @cindex Greek letters
 @cindex logical symbols
 @cindex mathematical symbols
+@cindex Maths Menu
+@cindex Tokens Mode
 
 Proof General inherits support for displaying Unicode (and any other)
 fonts from the underlying Emacs program.  If you are lucky, your system
@@ -2287,11 +2288,13 @@ simply adds a menu for inserting common mathematical symbols.
 @end example
 Whether or not the symbols display well the menus depends on the font
 used to display the menus (which depends on the Emacs version, toolkit
-and platform!).
+and platform!).  The symbols inserted into the text will be 
+Unicode characters.
 
-The second mechanism has been written specially for Proof General, to
-provide backward compatibility with X-Symbol.  This is
-the @b{Unicode Tokens} minor mode.
+The second mechanism has been written specially for Proof General
+(with thanks to Stefan Monnier for providing inspiration and a
+starting point).  It provides backward compatibility with the older
+X-Symbol mode.  This is the @b{Unicode Tokens} minor mode.
 @example
   Proof-General -> Options -> Unicode Tokens
 @end example
@@ -2304,37 +2307,28 @@ The mechanism is based on Font Lock, using the @code{composition} text
 property to display token sequences as something else.  This means that
 the underlying buffer text is not altered.  
 
-@c @kindex C-,
-@c @kindex C-.
-@c @table @kbd
-@c @item C-.
-@c @code{unicode-tokens-rotate-glyph-forward}
-@c @item C-,
-@c @code{unicode-tokens-rotate-glyph-backward}
-@c @item >
-@c @code{unicode-tokens-electric suffix}
-@c @end table
+When the Unicode Tokens mode is enabled, the Maths Menu insertion
+commands are automatically modified to insert tokenised versions of
+the Unicode characters (whenever a reverse mapping can be found). 
+This means that you can use the Maths Menu to conveniently input symbols.
+You can easily add custom key bindings for particular symbols
+you need to enter often (@pxref{Adding your own keybindings} for
+examples).  
 
+The Unicode Tokens mode also allows short cut sequences of ordinary
+characters to quickly type tokens (similarly to the facility provided
+by X-Symbol).  These, along with the token settings themselves, are
+configured on a per-prover basis.
 
-@c DOCSTRING MAGIC: unicode-tokens-token-insert
-
-@c DOCSTRING MAGIC: unicode-tokens-rotate-glyph-forward
-
-@c DOCSTRING MAGIC: unicode-tokens-rotate-glyph-backward
-
-Unfortunately, the precise set of symbol glyphs that are available to
-you will depend in complicated ways on your operating system, Emacs
-version, installed font sets, and (even) command line options used to
-start Emacs.  Describing the full range of possibilities or giving
-recommendations is beyond the scope of this manual; please search (and
-contribute!) to the Proof General wiki at
-@uref{http://proofgeneral.inf.ed.ac.uk/wiki} for more details.
+@unnumberedsubsec Configuring tokens, symbols and shortcuts
 
 To edit the strings used to display tokens, or the collection of 
 short-cuts, you can edit the 
 file @code{@i{PA}-unicode-tokens.el}, or customize the two main
-variables  it contains: @code{@i{PA}-token-name-alist} and 
-@code{@i{PA}-shortcut-alist}. E.g., for Isabelle 
+variables it contains: @code{@i{PA}-token-name-alist} and 
+@code{@i{PA}-shortcut-alist}. 
+
+E.g., for Isabelle 
 @example
   M-x customize-variable isar-token-name-alist RET
 @end example
@@ -2344,6 +2338,71 @@ provides an interface to the tokens, and
 @end example
 an interface to the shortcuts.
 
+
+@unnumberedsubsec Moving between Unicode and tokens
+
+If you want to share text between applications (e.g., email some text
+from an Isabelle theory file which heavily uses symbols), it is
+useful to convert to and from Unicode with cut-and-paste operations.
+The default buffer cut and paste functions will copy the underlying text,
+which contains the tokens (ASCII format).  To copy and convert 
+or paste then convert back, use these commands:
+@example
+  Tokens -> Copy as unicode
+  Tokens -> Paste from unicode
+@end example
+
+Both of these are necessarily approximate.  The buffer presentation
+may use additional controls (for super/subscript layout or bold fonts,
+etc), which cannot be converted.  Pasting relies on being able to
+identify a unique token mapped from a single Unicode character; the
+token table may not include such an entry, or may be ambiguous.
+
+@c TEXI DOCSTRING MAGIC: unicode-tokens-copy
+@deffn Command unicode-tokens-copy beg end
+Copy presentation of region between @var{beg} and @var{end}.@*
+This is an approximation; it makes assumptions about the behaviour
+of symbol compositions, and will lose layout information.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: unicode-tokens-paste
+@deffn Command unicode-tokens-paste 
+Paste text from clipboard, converting Unicode to tokens where possible.
+@end deffn
+If you are using a mixture of ``real'' Unicode and tokens like this
+you may want to be careful to check the buffer contents: the command
+@code{unicode-tokens-highlight-unicode} helps you to manage this (it
+is available on the Tokens menu).  The alternative is to toggle the
+tokens mode, which will leave the true Unicode tokens untouched.
+
+@c TEXI DOCSTRING MAGIC: unicode-tokens-highlight-unicode
+@defvar unicode-tokens-highlight-unicode 
+Non-nil to highlight Unicode characters.
+@end defvar
+
+
+@unnumberedsubsec Finding tokens and shortcuts available
+
+Two commands (both on the Tokens menu) allow you to see the tokens and
+shortcuts available:
+
+@c TEXI DOCSTRING MAGIC: unicode-tokens-list-tokens
+@deffn Command unicode-tokens-list-tokens 
+Show a buffer of all tokens.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: unicode-tokens-list-shortcuts
+@deffn Command unicode-tokens-list-shortcuts 
+Show a buffer of all the shortcuts available.
+@end deffn
+
+Unfortunately, the precise set of symbol glyphs that are available to
+you will depend in complicated ways on your operating system, Emacs
+version, installed font sets, and (even) command line options used to
+start Emacs.  Describing the full range of possibilities or giving
+recommendations is beyond the scope of this manual; please search (and
+contribute!) to the Proof General wiki at
+@uref{http://proofgeneral.inf.ed.ac.uk/wiki} for more details.
 
 
 
@@ -3207,26 +3266,33 @@ declarations such as those above.  By default, @kbd{C-n} is
 @code{next-line} and @kbd{C-b} is @code{backward-char-command}; neither
 are really needed if you have working cursor keys.
 
-@c FIXME
-@c If you're using XEmacs and your keyboard has a @i{super} modifier (on my
-@c PC keyboard it has a Windows symbol and is next to the control key), you
-@c can freely bind keys on that modifier globally (since none are used
-@c by default).  Use lisp like this:
-@c @lisp
-@c (global-set-key [(super l)] 'x-symbol-INSERT-lambda)
-@c (global-set-key [(super n)] 'x-symbol-INSERT-notsign)
-@c (global-set-key [(super a)] 'x-symbol-INSERT-logicaland)
-@c (global-set-key [(super o)] 'x-symbol-INSERT-logicalor)
-@c (global-set-key [(super f)] 'x-symbol-INSERT-universal1)
-@c (global-set-key [(super t)] 'x-symbol-INSERT-existential1)
-@c (global-set-key [(super A)] 'x-symbol-INSERT-biglogicaland)
-@c (global-set-key [(super e)] 'x-symbol-INSERT-equivalence)
-@c (global-set-key [(super u)] 'x-symbol-INSERT-notequal)
-@c (global-set-key [(super m)] 'x-symbol-INSERT-arrowdblright)
-@c (global-set-key [(super i)] 'x-symbol-INSERT-longarrowright)
-@c @end lisp
-@c This defines a bunch of short-cuts for insert X-Symbol logical symbols
-@c which are often used in Isabelle.
+
+If your keyboard has a @i{super} modifier (on my
+PC keyboard it has a Windows symbol and is next to the control key), you
+ can freely bind keys on that modifier globally (since none are used
+by default).  Use lisp like this:
+@lisp
+(global-set-key [?\s-l] 'maths-menu-insert-lambda)
+(global-set-key [?\s-l] 'maths-menu-insert-lambda)
+
+(global-set-key [?\s-l] 'maths-menu-insert-lambda)
+(global-set-key [?\s-L] 'maths-menu-insert-Lambda)
+(global-set-key [?\s-D] 'maths-menu-insert-Delta)
+
+(global-set-key [?\s-a] 'maths-menu-insert-for-all)
+(global-set-key [?\s-e] 'maths-menu-insert-there-exists)
+(global-set-key [?\s-t] 'maths-menu-insert-down-tack)
+(global-set-key [?\s-b] 'maths-menu-insert-up-tack)
+
+(global-set-key [?\s-\#] 'maths-menu-insert-music-sharp-sign)
+(global-set-key [?\s-\.] 'maths-menu-insert-horizontal-ellipsis)
+
+(global-set-key [?\s-3] 'proof-three-window-toggle)
+@end lisp
+This defines a bunch of short-cuts for inserting symbols taken
+from the Maths Menu, @pxref{Unicode support}
+and a short-cut for enabling three window mode,
+@pxref{Display customization}.
 
 
 @node Using file variables
