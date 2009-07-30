@@ -779,31 +779,7 @@ Isabelle on the @code{Logics} menu).
 @end itemize
 
 Electric terminator sends commands to the proof assistant as you type
-them.  The exact key binding is based on the terminator used for your
-proof assistant, but you can always check the menu if you're not sure.
-
-Electric terminator mode is popular, but not enabled by default because
-of the principle of least surprise.  Moreover, in Isabelle, the
-semicolon terminators are strictly optional so proof scripts are usually
-written without them to avoid clutter.  You'll notice that although you
-typed a semi-colon it was not included in the buffer!  The electric
-terminator tries to be smart about comments and strings; in the one case
-when you are trying to add a semi-colon inside an already written
-comment, you need to use @kbd{C-q ;} to quote the character.
-
-Without electric terminator, you can trigger processing the text up to
-the current position of the point with the key @kbd{C-c C-RET}, or just
-up to the next command with @kbd{C-c C-n}.  We show the rest of the
-example in Isabelle with semi-colons, but you can miss them out.
-
-Coq, on the other hand, requires a full-stop terminator at the end of
-each line.  If you want to use electric terminator, you can customize
-Proof General to enable it everytime if you want, @xref{Customizing
-Proof General}.  For this option, customization is particularly easy:
-just use the menu item @code{Proof General -> Options} to select some
-common options, and @code{Proof General -> Options -> Save Options} to
-save your choices.
-
+them. 
 At the moment you type the semicolon, the @code{theory} command will
 be sent to Isabelle behind the scenes.  First, there is a short delay
 while Isabelle is launched; you may see a welcome message.  Then, you
@@ -828,13 +804,44 @@ which reflects the command just executed.
 
 In this case of this first command, it is hard to see the orange/pink
 stage because the command is processed very quickly on most machines.
-But in general, processing commands can take an arbitrary amount of time
-(or not terminate at all).  For this reason, Proof General maintains a
-queue of commands which are sent one-by-one from the proof script.  As
-Isabelle successfully processes commands in the queue, they will turn
-from the orange/pink colour into blue.  The blue regions indicate text
-that has been read by the prover and should not be edited; for this
-reason it is made read-only, by default.
+But in general, processing commands can take an arbitrary amount of
+time (or not terminate at all).  For this reason, Proof General
+maintains a queue of commands which are sent one-by-one from the proof
+script.  As Isabelle successfully processes commands in the queue,
+they will turn from the orange/pink colour into blue (by default).
+The blue regions indicate text that has been read by the prover and
+should not be edited; for this reason it is made read-only, by
+default.  We often call it @i{locked}.
+
+Electric terminator mode is popular, but not enabled by default
+because of the principle of least surprise.  Moreover, in Isabelle,
+the semicolon terminators are optional so proof scripts are usually
+written without them to avoid clutter. You'll notice that although you
+typed a semi-colon it was not included in the buffer!  The electric
+terminator tries to be smart about comments and strings; in the one case
+when you are trying to add a semi-colon inside an already written
+comment, you need to use @kbd{C-q ;} to quote the character.
+
+Without electric terminator, you can trigger processing the text up to
+the current position of the point with the key @kbd{C-c C-RET}, or just
+up to the next command with @kbd{C-c C-n}.  We show the rest of the
+example in Isabelle with semi-colons, but you can miss them out.
+
+Coq, on the other hand, requires a full-stop terminator at the end of
+each line, so @kbd{C-c C-.} is the key binding used to turn on
+electric terminator.  If you don't know what the terminator character
+is, you can find the option anyway on the menu:
+@code{Proof General -> Options -> Electric Terminator}
+which also shows the key binding.
+
+If you want to use electric terminator, you can customize Proof
+General to enable it everytime if you want, @xref{Customizing Proof
+General}.  For the common options, customization is particularly easy: just
+use the menu item @code{Proof General -> Options} to make your choices,
+and @code{Proof General -> Options -> Save Options} to
+save your choices.
+
+
 
 @itemize @bullet
 @item
@@ -908,7 +915,7 @@ qed;
 
 This last command closes the proof and saves the proved theorem.
 
-Moving the mouse pointer over the locked region now reveals that the
+Moving the mouse pointer over the qed command now reveals that the
 entire proof has been aggregated into a single segment (if you did this
 before, you would see highlighting of each command separately).  This
 reflects the fact that Isabelle has thrown away the history of the
