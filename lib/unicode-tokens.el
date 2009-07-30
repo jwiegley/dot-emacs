@@ -509,6 +509,27 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 	      (insert "\n")
 	      (setq count 0)))))))
 
+(defun unicode-tokens-list-shortcuts ()
+  "Show a buffer of all the shortcuts available."
+  (interactive)
+  (with-output-to-temp-buffer "*Unicode Tokens Shortcuts*"
+    (with-current-buffer standard-output
+      (make-local-variable 'unicode-tokens-show-symbols)
+      (setq unicode-tokens-show-symbols nil)
+      (unicode-tokens-mode)
+      (let (gray start)
+	(dolist (short unicode-tokens-shortcut-alist)
+	  (setq start (point))
+	  (insert "Typing  " (car short) "\tinserts \t" 
+		  (cdr short) "\n")
+	  (setq gray (not gray))
+	  (if gray 
+	      (overlay-put (make-overlay start (point))
+			   'face 
+			   '(background-color . "gray90"))))))))
+	  
+
+
 (defun unicode-tokens-encode-in-temp-buffer (str fn)
   "Call FN on encoded version of STR."
   (let ((match   (- (regexp-opt-depth 
@@ -548,6 +569,7 @@ of symbol compositions, and will lose layout information."
    (buffer-substring-no-properties beg end) 'copy-region-as-kill))
 
 (defun unicode-tokens-paste ()
+  "Paste text from clipboard, converting Unicode to tokens where possible."
   (interactive)
   (let ((start (point)) end)
     (clipboard-yank)
@@ -606,9 +628,21 @@ tokenised symbols."
 (define-minor-mode unicode-tokens-mode
   "Toggle Tokens mode for current buffer.
 With optional argument ARG, turn Tokens mode on if ARG is
-positive, otherwise turn it off.  In Tokens mode, inserting a
-sequence of ASCII characters may replace it by a Unicode character
-representation.  Commands available:
+positive, otherwise turn it off.  
+
+In Unicode Tokens mode (Utoks appears in the modeline), a
+sequence of characters in the buffer (a token) may be presented
+instead as a Unicode character. The underlying buffer contents is
+not changed, only what is presented on the display.  Other tokens
+may be used to control layout, for example, enabling sub/super
+scripts, bold and italic fonts, etc.  Keyboard shortcut sequences
+for entering tokens quickly can be defined.
+
+Tokens mode needs configuration with a set of tokens, their
+presentation forms, and keyboard shortcuts.  See documentation in
+`unicode-tokens.el' for more information.
+
+Commands available are:
 
 \\{unicode-tokens-mode-map}"  
   :keymap unicode-tokens-mode-map
@@ -706,6 +740,7 @@ representation.  Commands available:
       ["Next token"      unicode-tokens-rotate-token-forward]
       ["Prev token"      unicode-tokens-rotate-token-backward]
       ["List tokens"     unicode-tokens-list-tokens]
+      ["List shortcuts"  unicode-tokens-list-shortcuts]
        (cons "Format char"
 	     (mapcar 
  	     (lambda (fmt)
