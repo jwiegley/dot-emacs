@@ -1044,46 +1044,46 @@ To be used in `proof-shell-process-output-system-specific'."
 ;; FIXME: to handle "printing all" properly, we should change the state
 ;; of the variables that also depend on it.
 (defpacustom print-fully-explicit nil
-  "*Print fully explicit terms."
+  "Print fully explicit terms."
   :type 'boolean
   :setting ("Set Printing All. " . "Unset Printing All. "))
 
 (defpacustom print-implicit nil
-  "*Print implicit arguments in applications."
+  "Print implicit arguments in applications."
   :type 'boolean
   :setting ("Set Printing Implicit. " . "Unset Printing Implicit. "))
 
 (defpacustom print-coercions nil
-  "*Print coercions."
+  "Print coercions."
   :type 'boolean
   :setting ("Set Printing Coercions. " . "Unset Printing Coercions. "))
 
 (defpacustom print-match-wildcards t
-  "*Print underscores for unused variables in matches."
+  "Print underscores for unused variables in matches."
   :type 'boolean
   :setting ("Set Printing Wildcard. " . "Unset Printing Wildcard. "))
 
 (defpacustom print-elim-types t
-  "*Print synthesised result type for eliminations."
+  "Print synthesised result type for eliminations."
   :type 'boolean
   :setting ("Set Printing Synth. " . "Unset Printing Synth. "))
 
 (defpacustom printing-depth 50
-  "*Depth of pretty printer formatting, beyond which dots are displayed."
+  "Depth of pretty printer formatting, beyond which dots are displayed."
   :type 'integer
   :setting "Set Printing Depth %i . ")
 
 (defpacustom undo-depth 200
-  "*Depth of undo history.  Undo behaviour will break beyond this size."
+  "Depth of undo history.  Undo behaviour will break beyond this size."
   :type 'integer
   :setting "Set Undo %i . ")
 
 (defpacustom time-commands nil
-  "*Whether to display timing information for each command."
+  "Whether to display timing information for each command."
   :type 'boolean)
 
 (defpacustom undo-limit 100
-  "*Depth of undo history."
+  "Depth of undo history."
   :type 'integer
   :setting "Set Undo %i . ")
 
