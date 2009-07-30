@@ -713,7 +713,7 @@ KEY is the optional key binding."
       (if grp (replace-in-string nm (concat (downcase grp) ":") "") nm)
       "-" " "))))
 	
-(defun proof-menu-entry-for-setting (symbol setting type)
+(defun proof-menu-entry-for-setting (symbol setting type descr)
   (let ((entry-name  (proof-menu-entry-name symbol))
 	(pasym	     (proof-ass-symv symbol)))
     (cond
@@ -721,15 +721,16 @@ KEY is the optional key binding."
       (vector entry-name 
 	      (proof-deftoggle-fn pasym)
 	      :style 'toggle
-	      :selected pasym))
+	      :selected pasym
+	      :help descr))
      ((eq type 'integer)
       (vector entry-name 
 	      (proof-defintset-fn pasym)
-	      t))
+	      :help descr))
      ((eq type 'string)
       (vector entry-name 
 	      (proof-defstringset-fn pasym)
-	      t)))))
+	      :help descr)))))
 
 (defun proof-settings-vars ()
   "Return a list of proof assistant setting variables."
@@ -758,7 +759,7 @@ KEY is the optional key binding."
 ;;;###autoload
 (defun proof-defpacustom-fn (name val args)
   "As for macro `defpacustom' but evaluating arguments."
-  (let (newargs setting evalform type)
+  (let (newargs setting evalform type descr)
     (while args
       (cond 
        ((eq (car args) :setting)
@@ -785,6 +786,7 @@ KEY is the optional key binding."
 	(setq newargs (cons (car args) newargs))))
       (setq args (cdr args)))
     (setq newargs (reverse newargs))
+    (setq descr (car-safe newargs))
     ;; PG 3.5 patch 22.4.03: allow empty :setting, :eval,
     ;; because it's handy to put stuff on settings menu but
     ;; inspect the settings elsewhere in code.
@@ -828,7 +830,7 @@ KEY is the optional key binding."
 	  (proof-assistant-invisible-command-ifposs
 	   (proof-assistant-settings-cmd (quote ,name)))))))
     (setq proof-assistant-settings
-	  (cons (list name setting (eval type)) 
+	  (cons (list name setting (eval type) descr) 
 		(assq-delete-all name proof-assistant-settings)))))
 
 ;;;###autoload

@@ -185,9 +185,7 @@ Return a symbol representing the PGIP command processed, or nil."
     (pg-pgip-debug
      "haspref calling defpacustom: name:%s default:%s type:%s pgipcmd:%s" symname default type pgipcmd)
     (eval
-     `(defpacustom ,symname ,default
-	(concat descr (if descr "\n")
-		"Setting configured by <haspref> PGIP message")
+     `(defpacustom ,symname ,default ,descr
 	:type (quote ,type)
 	:pggroup ,prefcat
 	:pgipcmd ,pgipcmd))))
