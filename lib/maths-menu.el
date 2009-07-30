@@ -8,6 +8,7 @@
 ;; Version for Proof General modified by David Aspinall, 2007-8.
 ;; - Hooks added to insert tokenised versions of unicode characters.
 ;; - Added more characters to the menus.
+;; - Define insertion functions following menu names (useful for keybindings)
 ;; $Id$
 
 
@@ -48,6 +49,8 @@
 ;; the minibuffer via the menu, though presumably it could be added to
 ;; the minibuffer menu.
 
+
+
 ;;; Code:
 
 (defvar maths-menu-filter-predicate '(lambda (char) t)
@@ -63,14 +66,19 @@
 	     (pane-map (make-sparse-keymap name)))
 	(define-key-after map (vector (intern name)) (cons name pane-map))
 	(dolist (elt pane)
-	  (define-key-after pane-map
-	    (vector (intern (string (car elt)))) ; convenient unique symbol
-	    (list 'menu-item
-		  (format "%c  (%s)" (car elt) (cadr elt))
-		  `(lambda ()
+	  (let ((fname (intern
+			(concat "maths-menu-insert-" 
+				(replace-regexp-in-string " " "-" (cadr elt))))))
+	    (fset fname 
+		  `(lambda () 
 		     (interactive)
-		     (funcall maths-menu-tokenise-insert ,(car elt)))
-		  :visible `(funcall maths-menu-filter-predicate ,(car elt)))))))
+		     (funcall maths-menu-tokenise-insert ,(car elt))))
+	    (define-key-after pane-map
+	      (vector (intern (string (car elt)))) ; convenient unique symbol
+	      (list 'menu-item
+		    (format "%c  (%s)" (car elt) (cadr elt))
+		    fname
+		    :visible `(funcall maths-menu-filter-predicate ,(car elt))))))))
     map))
 
 (defvar maths-menu-menu
