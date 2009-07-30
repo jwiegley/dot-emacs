@@ -177,6 +177,9 @@ scripting buffer may have an active queue span.")
 ;; So nasty things might happen if a locked file is visited whilst
 ;; another buffer has a non-empty queue region being processed.
 
+(deflocal proof-overlay-arrow nil
+  "Marker holding the overlay arrow position for this buffer.")
+
 
 ;; ** Getters and setters
 
@@ -233,7 +236,14 @@ scripting buffer may have an active queue span.")
 
 (defsubst proof-set-locked-endpoints (start end)
   "Set the locked span to be START, END."
-  (span-set-endpoints proof-locked-span start end))
+  (span-set-endpoints proof-locked-span start end)
+  (set-marker proof-overlay-arrow 
+	      (save-excursion
+		(goto-char end)
+		(skip-chars-forward " \t\s\n")
+		(unless (eq (point) (point-max))
+		  (beginning-of-line)
+		  (point)))))
 
 (defsubst proof-detach-queue ()
   "Remove the span for the queue region."
@@ -241,7 +251,8 @@ scripting buffer may have an active queue span.")
 
 (defsubst proof-detach-locked ()
   "Remove the span for the locked region."
-  (and proof-locked-span (span-detach proof-locked-span)))
+  (and proof-locked-span (span-detach proof-locked-span))
+  (set-marker proof-overlay-arrow nil))
 
 (defsubst proof-set-queue-start (start)
   "Set the queue span to begin at START."
@@ -254,8 +265,7 @@ Otherwise set the locked region to be from (point-min) to END."
   (if (>= (point-min) end)
       ;; Detach queue span, otherwise may have read-only character at end.
       (proof-detach-locked)
-    (span-set-endpoints
-     proof-locked-span
+    (proof-set-locked-endpoints
      (point-min)
       ;; safety in case called with end>point-max
      (min (point-max) end))))
@@ -297,6 +307,8 @@ Also clear list of script portions."
   (if proof-colour-locked
       (span-set-property proof-locked-span 'face 'proof-locked-face))
   (span-detach proof-locked-span)
+  (setq proof-overlay-arrow (make-marker))
+  (setq overlay-arrow-position proof-overlay-arrow)
   (setq proof-last-theorem-dependencies nil)
   (setq proof-element-counters nil)
   (pg-clear-script-portions)
