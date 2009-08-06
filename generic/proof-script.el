@@ -237,22 +237,26 @@ scripting buffer may have an active queue span.")
 (defsubst proof-set-locked-endpoints (start end)
   "Set the locked span to be START, END."
   (span-set-endpoints proof-locked-span start end)
-  (set-marker proof-overlay-arrow 
-	      (save-excursion
-		(goto-char end)
-		(skip-chars-forward " \t\s\n")
-		(unless (eq (point) (point-max))
-		  (beginning-of-line)
-		  (point)))))
+  (and (markerp proof-overlay-arrow)
+       (set-marker proof-overlay-arrow 
+		   (save-excursion
+		     (goto-char end)
+		     (skip-chars-forward " \t\s\n")
+		     (unless (eq (point) (point-max))
+		       (beginning-of-line)
+		       (point))))))
 
 (defsubst proof-detach-queue ()
   "Remove the span for the queue region."
-  (and proof-queue-span (span-detach proof-queue-span)))
+  (and proof-queue-span 
+       (span-detach proof-queue-span)))
 
 (defsubst proof-detach-locked ()
   "Remove the span for the locked region."
-  (and proof-locked-span (span-detach proof-locked-span))
-  (set-marker proof-overlay-arrow nil))
+  (and proof-locked-span 
+       (span-detach proof-locked-span))
+  (and (markerp proof-overlay-arrow)
+       (set-marker proof-overlay-arrow nil)))
 
 (defsubst proof-set-queue-start (start)
   "Set the queue span to begin at START."
