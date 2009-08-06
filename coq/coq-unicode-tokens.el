@@ -16,13 +16,57 @@
 ;;
 
 (defconst coq-token-format "%s")
-(defconst coq-charref-format nil)
-(defconst coq-token-prefix nil)
-(defconst coq-token-suffix nil)
 (defconst coq-token-match nil)
 (defconst coq-hexcode-match nil)
 
-(defcustom coq-token-name-alist nil
+(defcustom coq-token-symbol-map
+  '(;; Greek letters
+    ("alpha" "α")
+    ("beta" "β")
+    ("gamma" "γ")
+    ("delta" "δ")
+    ("epsilon" "ε") ; actually varepsilon (some is epsilon)
+    ("zeta" "ζ")
+    ("eta" "η")
+    ("theta" "θ")
+    ("iota" "ι")
+    ("kappa" "κ")
+    ("lambda" "λ")
+    ("mu" "μ")
+    ("nu" "ν")
+    ("xi" "ξ")
+    ("pi" "π")
+    ("rho" "ρ")
+    ("sigma" "σ")
+    ("tau" "τ")
+    ("upsilon" "υ")
+    ("phi" "ϕ")
+    ("chi" "χ")
+    ("psi" "ψ")
+    ("omega" "ω")
+    ("Gamma" "Γ")
+    ("Delta" "Δ")
+    ("Theta" "Θ")
+    ("Lambda" "Λ")
+    ("Xi" "Ξ")
+    ("Pi" "Π")
+    ("Sigma" "Σ")
+    ("Upsilon" "Υ")
+    ("Phi" "Φ")
+    ("Psi" "Ψ")
+    ("Omega" "Ω")
+    ;; logic
+    ("forall" "∀")
+    ("exists" "∃")
+    ("nat" "ℕ")
+    ("real" "ℝ")
+    ;; symbols without utf8.v  (but also without context)
+    ("=>" "⇒")
+    (":=" "≔")
+    ("\/" "∨")
+    ("/\\" "∧")
+    ("->" "→")
+    ("~"  "⌉"))
   ;; an alist of token name, unicode char sequence
   "Table mapping Coq tokens to Unicode strings.
 
@@ -37,7 +81,7 @@ results will be undefined when files are saved."
   :type '(repeat (cons (string :tag "Token name")
 		       (string :tag "Unicode string")))
   :set 'proof-set-value
-  :group 'isabelle
+  :group 'coq
   :tag "Coq Unicode Token Mapping")
 
 
@@ -105,12 +149,8 @@ results will be undefined when files are saved."
     (":=" . "≔")
     ;; some word shortcuts, started with backslash otherwise
     ;; too annoying, perhaps.
-    ("\\forall" . "∀")
-    ("\\exists" . "∃")
-    ("\\nat" . "ℕ")
     ("\\int" . "ℤ")
     ("\\rat" . "ℚ")
-    ("\\real" . "ℝ")
     ("\\complex" . "ℂ")
     ("\\euro" . "€")
     ("\\yen" . "¥")
@@ -130,6 +170,44 @@ will be used on saving the buffer."
   :tag "Coq Unicode Token Mapping")
 
   
+;;
+;; Controls
+;;
+
+(defconst coq-control-char-format-regexp 
+  ;; FIXME: fix Coq identifier syntax below
+  "\\(\s*%s\s*\\)\\([a-zA-Z0-9']+\\)")
+
+(defconst coq-control-char-format " %s ")
+
+(defconst coq-control-characters 
+  '(("Subscript" "__" sub) 
+    ("Superscript" "^^" sup)))
+
+(defconst coq-control-region-format-regexp "\\(\s*%s\{\\)\\([^}]*\\)\\(\}\s*\\)")
+
+(defconst coq-control-regions 
+  '(("Subscript" "," "" sub)
+    ("Superscript" "^" "" sup)
+    ("Bold" "BOLD" "" bold)
+    ("Italic" "ITALIC" "" italic)
+    ("Script" "SCRIPT" "" script)
+    ("Frakt"  "FRACT" "" frakt)
+    ("Roman"  "ROMAN" "" serif)))
+
+
+
+(defcustom coq-fontsymb-properties 
+  '((sub      (display (raise -0.4)))
+    (sup      (display (raise 0.4)))
+    (bold     (face (:weight bold)))
+    (italic   (face (:slant italic)))
+    (script   (face unicode-tokens-script-font-face))
+    (frakt    (face unicode-tokens-fraktur-font-face))
+    (serif    (face unicode-tokens-serif-font-face)))
+  "Mapping from symbols to property lists used for markup scheme."
+  :set 'proof-set-value)
+
 
 
 
