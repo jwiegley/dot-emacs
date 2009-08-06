@@ -90,12 +90,28 @@ Behaviour is much like abbrev.")
 ;; Variables that can be overridden in instances: control tokens
 ;;
 
-;; TODO: docs
-(defvar unicode-tokens-control-region-format-regexp nil)
-(defvar unicode-tokens-control-char-format-regexp nil)
-(defvar unicode-tokens-control-regions nil)
-(defvar unicode-tokens-control-characters nil)
-(defvar unicode-tokens-control-char-format nil)
+(defvar unicode-tokens-control-region-format-regexp nil
+  "A regexp for control regions, with up to two %s placeholders.
+When fomatted with arguments START END, results in a regexp
+that matches a control region.  There should be three delimited
+subexpressions: (match-string 1) and (match-string 3) are hidden,
+and (match-string 2) has the display control applied.")
+
+(defvar unicode-tokens-control-char-format-regexp nil
+  "A format string for control characters, possibly with a %s placeholder.
+When fomatted with arguments STRING, results in a regexp
+that matches a control character sequence.   There should be two
+delimited subexpressions: (match-string 1) is hidden
+and (match-string 2) has the display control applied.")
+
+(defvar unicode-tokens-control-regions nil
+  "A list of control regions.")
+
+(defvar unicode-tokens-control-characters nil
+  "A list of control characters.")
+
+(defvar unicode-tokens-control-char-format nil
+  "A format string for inserting a control character sequence.")
 
 ;;
 ;; A list of the above variables
@@ -325,12 +341,13 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
   (redisplay t))
 
 (defun unicode-tokens-control-char (name s &rest props)
-  `(,(format unicode-tokens-control-char-format-regexp s)
+  `(,(format unicode-tokens-control-char-format-regexp (regexp-quote s))
     (1 '(face nil invisible unicode-tokens-show-controls) prepend)
     (2 ',(unicode-tokens-symbs-to-props props t) prepend)))
 
 (defun unicode-tokens-control-region (name start end &rest props)
-  `(,(format unicode-tokens-control-region-format-regexp start end)
+  `(,(format unicode-tokens-control-region-format-regexp 
+	     (regexp-quote start) (regexp-quote end))
     (1 '(face nil invisible unicode-tokens-show-controls) prepend)
     (2 ',(unicode-tokens-symbs-to-props props t) prepend)
     (3 '(face nil invisible unicode-tokens-show-controls) prepend)))
