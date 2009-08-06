@@ -1978,6 +1978,10 @@ The matching string will be parsed as XML and then processed by
   :type '(choice nil string)
   :group 'proof-shell)
 
+(defcustom proof-use-pgip-askprefs nil
+  "Whether to use the PGIP <askprefs> command to configure prover settings."
+  :type 'boolean
+  :group 'proof-shell)
 
 ;; FIXME FIXME: this next one not yet used.  It's hard to interleave
 ;; commands with the ordinary queue anyway: the prover should

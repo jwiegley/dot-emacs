@@ -689,35 +689,46 @@ KEY is the optional key binding."
 (defun proof-menu-define-settings-menu ()
   "Return menu generated from `proof-assistant-settings', update `proof-menu-settings'."
   (if proof-assistant-settings
-      (let ((setgs proof-assistant-settings) 
-	    (save  (list "----"
+      (let ((save  (list "----"
 			 ["Reset Settings" (proof-settings-reset) 
 			  (proof-settings-changed-from-defaults-p)]
 			 ["Save Settings" (proof-settings-save)
 			  (proof-settings-changed-from-saved-p)]))
-	    ents)
-	;; TODO: for a large number of settings, we could generate
-	;; sub-menus according to the group.  
-	(while setgs
-	  (setq ents (cons 
-		      (apply 'proof-menu-entry-for-setting (car setgs)) ents))
-	  (setq setgs (cdr setgs)))
+	    groups ents)
+	(mapc (lambda (stg) (add-to-list 'groups (get (car stg) 'pggroup)))
+	      proof-assistant-settings)
+	(dolist (grp (reverse groups))
+	  (let* ((gstgs (mapcan (lambda (stg) 
+				  (if (eq (get (car stg) 'pggroup) grp)
+				      (list stg)))
+				proof-assistant-settings))
+		 (cmds  (mapcar (lambda (stg)
+				  (apply 'proof-menu-entry-for-setting stg))
+				gstgs)))
+	    (setq ents
+		  (if grp (cons (cons grp cmds) ents)
+		    (append cmds 
+			    (if (> (length groups) 1) '("----"))
+			    ents)))))
+	;; (while setgs
+	;;   (setq ents (cons 
+	;; 	      (apply 'proof-menu-entry-for-setting (car setgs)) ents))
+	;;   (setq setgs (cdr setgs)))
 	(setq proof-menu-settings 
 	      (list (cons "Settings" 
 			  (nconc ents save)))))))
+		  
 
 (defun proof-menu-entry-name (symbol)
   "Return a nice menu entry name for SYMBOL."
-  ;; NB: for grouped settings, there is a pggroup symbol property and
-  ;; by convention the name of the setting begins with grp:
-  ;; We strip the group name from the menu entry name.
   (let ((grp (get symbol 'pggroup))
 	(nm  (symbol-name symbol)))
     (upcase-initials
      (replace-in-string 
+      ;; strip the group name from the menu entry name.
       (if grp (replace-in-string nm (concat (downcase grp) ":") "") nm)
       "-" " "))))
-	
+
 (defun proof-menu-entry-for-setting (symbol setting type descr)
   (let ((entry-name  (proof-menu-entry-name symbol))
 	(pasym	     (proof-ass-symv symbol)))
@@ -792,11 +803,6 @@ KEY is the optional key binding."
       (setq args (cdr args)))
     (setq newargs (reverse newargs))
     (setq descr (car-safe newargs))
-    ;; PG 3.5 patch 22.4.03: allow empty :setting, :eval,
-    ;; because it's handy to put stuff on settings menu but
-    ;; inspect the settings elsewhere in code.
-    ;; (unless (or setting evalform)
-    ;; (error "defpacustom: missing :setting or :eval keyword"))
     (unless (and type
 		  (or (eq (eval type) 'boolean) 
 		      (eq (eval type) 'integer) 
@@ -813,12 +819,6 @@ KEY is the optional key binding."
 	  (proof-debug "defpacustom: Proof assistanting setting %s re-defined!"
 		       name)
 	  (undefpgcustom name)))
-    ;; Could consider moving the bulk of the remainder of this
-    ;; function to a function proof-assistant-setup-settings which
-    ;; defines the custom vals *and* menu entries.  This would allow
-    ;; proof assistant customization to manipulate
-    ;; proof-assistant-settings directly rather than forcing use of
-    ;; defpacustom.  (Probably stay as we are: more abstract)
     (eval
      `(defpgcustom ,name ,val
 	,@newargs
@@ -877,9 +877,8 @@ evaluate can be provided instead."
 	)))
 
 (defun proof-maybe-askprefs ()
-  "If `proof-assistant-settings' is unset, try to issue <askprefs>"
-  (if (and (not proof-assistant-settings)
-	   proof-shell-issue-pgip-cmd)
+  "If `proof-use-pgip-askprefs' is non-nil, try to issue <askprefs>"
+  (if (and proof-use-pgip-askprefs proof-shell-issue-pgip-cmd)
       (pg-pgip-askprefs)))
   
 
