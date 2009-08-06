@@ -132,11 +132,6 @@ See -k option for Isabelle interface script."
    proof-context-command        "print_context"
    proof-info-command           "welcome"
    proof-kill-goal-command      "ProofGeneral.kill_proof"
-;; da: TODO: we should set this from our own setting, not suggest 
-;; people customize prover-configuration variables
-;   proof-find-theorems-command  "find_theorems %s"               ;; minibuffer
-   proof-find-theorems-command  'isar-find-theorems-minibuffer ;; equivalent
-;   proof-find-theorems-command  'isar-find-theorems-form        ;; search form
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
    proof-shell-trace-output-regexp  "\^AV"
@@ -148,7 +143,10 @@ See -k option for Isabelle interface script."
    proof-state-preserving-p     'isar-state-preserving-p
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    ;; span menu
-   proof-script-span-context-menu-extensions 'isabelle-create-span-menu))
+   proof-script-span-context-menu-extensions 'isabelle-create-span-menu)
+  ;; proof assistant settings
+  (setq proof-use-pgip-askprefs	t)
+  (isar-configure-from-settings))
 
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
@@ -235,6 +233,25 @@ See -k option for Isabelle interface script."
 
 
 ;;;
+;;; Settings for the interface
+;;;  (Settings for Isabelle are configured automatically via PGIP message)
+;;;
+
+(defun isar-configure-from-settings ()
+  (isar-set-proof-find-theorems-command))
+
+(defun isar-set-proof-find-theorems-command ()
+  (setq proof-find-theorems-command 
+	(if isar-use-find-theorems-form
+	    'isar-find-theorems-form
+	  'isar-find-theorems-minibuffer)))
+
+(defpacustom use-find-theorems-form nil
+  "Use a form-style input for the find theorems operation."
+  :type 'boolean
+  :eval (isar-set-proof-find-theorems-command))
+
+;;;
 ;;; Theory loader operations
 ;;;
 
@@ -298,8 +315,8 @@ proof-shell-retract-files-regexp."
 
 ;;; da: how about a `C-c C-a h ?' for listing available keys?
 
-;;; NB: definvisible must come after derived modes because uses
-;;; isar-mode-map
+;;; NB: definvisible must be after derived modes (uses isar-mode-map)
+
 (proof-definvisible isar-help-antiquotations "print_antiquotations" [h A])
 (proof-definvisible isar-help-attributes "print_attributes" [h a])
 (proof-definvisible isar-help-cases "print_cases" [h c])
@@ -528,17 +545,6 @@ Checks the width in the `proof-goals-buffer'"
     (setq string (concat
                   "\\<^sync>"
                   (isar-shell-adjust-line-width)
-                  ;; da: this was an attempted hack to deal with ML files,
-                  ;; unfortunately Isar complains about not seeing a theory
-                  ;; command first: ML_setup illegal at first line
-                  ;; Another failure is that: (* comment *) foo;
-                  ;; ignores foo.  This could be fixed by scanning for
-                  ;; comment end in proof-script.el's function
-                  ;; proof-segment-upto-cmdstart (which becomes even more
-                  ;; Isar specific, then...)
-                  ;; (if (proof-string-match "\\.ML$" (buffer-name proof-script-buffer))
-                  ;;    (format "ML_command {* %s *};" string)
-                  ;;    string)
                   (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)
                   " \\<^sync>;"))))
 
