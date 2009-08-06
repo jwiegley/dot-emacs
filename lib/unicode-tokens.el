@@ -135,6 +135,21 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 
 
+;;
+;; Make all of those buffer local
+;; 
+;; TODO: use per *mode* defaults for them, cf proof-unicode-tokens
+;;
+
+;; (mapcar 'make-variable-buffer-local
+;;  	unicode-tokens-configuration-variables)
+
+;; (mapcar 'make-variable-buffer-local
+;;  	'(unicode-tokens-token-list 
+;;  	  unicode-tokens-hash-table
+;;  	  unicode-tokens-token-match-regexp
+;;  	  unicode-tokens-uchar-hash-table
+;;  	  unicode-tokens-uchar-regexp))
 
 ;;
 ;; Constants
