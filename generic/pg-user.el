@@ -433,8 +433,6 @@ This is intended as a value for `proof-activate-scripting-hook'"
 ;; Commands which require an argument, and maybe affect the script.
 ;;
 
-;; FIXME: maybe move these to proof-menu
-
 (proof-define-assistant-command-witharg proof-find-theorems
  "Search for items containing given constants."
  proof-find-theorems-command
@@ -454,9 +452,6 @@ This is intended as a value for `proof-activate-scripting-hook'"
  "Save as"
  (let ((proof-one-command-per-line t))   ; Saves always start at a new line
    (proof-issue-new-command arg)))
-
-
-
 
 
 
@@ -582,20 +577,6 @@ last use time, to discourage saving these into the users database."
   (interactive "*p")
   (let ((case-fold-search proof-case-fold-search))
     (complete arg)))
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Tags table building
-;;
-;; New in 3.3... or perhaps later!
-;;
-;; FIXME: incomplete.  Add function to build tags table from
-;; 
-
-
-
 
 
 
@@ -978,41 +959,56 @@ The function `substitute-command-keys' is called on the argument."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Identifier under mouse query  (added in PG 3.5)
+;; Symbol near point/identifier under mouse query
 ;;
 
-;; Note: making the binding globally is perhaps a bit obnoxious, but
+;; Note: making these bindings globally is perhaps a bit obnoxious, but
 ;; this modifier combination is currently unused.
-(global-set-key [C-M-mouse-2] 'pg-identifier-under-mouse-query)
+(global-set-key [C-M-mouse-1] 'pg-identifier-under-mouse-query)
+(global-set-key [f5] 'pg-identifier-near-point-query)
 
 (defun pg-identifier-under-mouse-query (event)
   (interactive "e")
-  (if proof-shell-identifier-under-mouse-cmd
-      (let (identifier ctxt oldend)
-	(save-selected-window
-	  (save-selected-frame
-	    (save-excursion
-	      (mouse-set-point event)
-	      (setq identifier
-		    ;; If there's an active region in this buffer, use that
-		    ;; instead of the identifier under point.  Since
-		    ;; region-end moves immediately to new point with
-		    ;; zmacs-regions we use oldend instead of current.
-		    (if (region-active-p)
-			(buffer-substring (region-beginning)
-					  (or oldend (region-end)))
-		     (setq identifier (current-word))))
-	      (setq ctxt (proof-buffer-syntactic-context)))))
-	(unless (or (null identifier)
-		    (string-equal identifier ""))
-	  (proof-shell-invisible-command
-	   (if (stringp proof-shell-identifier-under-mouse-cmd)
-	       ;; simple customization
-	       (format proof-shell-identifier-under-mouse-cmd identifier)
-	     ;; buffer-syntactic context dependent, as an alist
-	     ;; (handy for Isabelle: not a true replacement for parsing)
-	     (format (nth 1 (assq ctxt proof-shell-identifier-under-mouse-cmd))
-		     identifier)))))))
+  (if proof-query-identifier-command
+      (save-selected-window
+	(save-selected-frame
+	 (save-excursion
+	   (mouse-set-point event)
+	   (pg-identifier-near-point-query))))))
+
+(defun pg-identifier-near-point-query ()
+  (interactive)
+  (let ((identifier 
+	 ;; If there's an active region in this buffer, use that
+	 ;; instead of the identifier under point.  Since
+	 ;; region-end moves immediately to new point with
+	 ;; zmacs-regions we use oldend instead of current.
+	 (if (region-active-p)
+	     (buffer-substring (region-beginning)
+			       (or oldend (region-end)))
+	   (current-word)))
+	(ctxt (proof-buffer-syntactic-context)))
+    (pg-identifier-query identifier ctxt)))
+
+(defun proof-query-identifier (string)
+  (interactive "sQuery identifier: ")
+  (pg-identifier-query string))
+
+(defun pg-identifier-query (identifier &optional ctxt)
+  "Query the proof assisstant about the given identifier (or string).
+This uses `proof-query-identifier-command'."
+  (unless (or (null identifier)
+	      (string-equal identifier "")) ;; or whitespace?
+    (proof-shell-invisible-command
+     (cond
+      ((stringp proof-query-identifier-command)
+       ;; simple customization
+       (format proof-query-identifier-command identifier))
+      (t
+       ;; buffer-syntactic context dependent, as an alist
+       ;; (handy for Isabelle: not a true replacement for parsing)
+       (format (nth 1 (assq ctxt proof-query-identifier-command))
+	       identifier))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
