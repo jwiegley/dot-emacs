@@ -393,7 +393,7 @@ without adjusting window layout."
        :style toggle
        :selected proof-shrink-windows-tofit
        :help "Dynamically shrink size of output panes to fit contents"]
-      ["Colour locked" proof-colour-locked
+      ["Colour Locked" proof-colour-locked-toggle
        :style toggle
        :selected proof-colour-locked
        :help "Use decoration of locked region"])
@@ -468,6 +468,7 @@ without adjusting window layout."
    'proof-multiple-frames-enable
    'proof-shrink-windows-tofit
    'proof-multiple-frames-enable
+   'proof-colour-locked
    ;; Follow mode sub-menu
    'proof-follow-mode
    ;; Deactivate scripting action

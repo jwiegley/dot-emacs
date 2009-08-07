@@ -321,9 +321,11 @@ Also clear list of script portions."
 ;;;###autoload
 (defun proof-colour-locked ()
   (interactive)
-  (if proof-colour-locked
-      (span-set-property proof-locked-span 'face 'proof-locked-face)
-    (span-set-property  proof-locked-span 'face nil)))
+  (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
+   (and (span-live-p proof-locked-span)
+    (if proof-colour-locked
+  	   (span-set-property proof-locked-span 'face 'proof-locked-face)
+      (span-set-property  proof-locked-span 'face nil)))))
 
 ;; ** Restarting and clearing spans
 
