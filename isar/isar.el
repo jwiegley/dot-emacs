@@ -209,7 +209,8 @@ See -k option for Isabelle interface script."
    proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
    proof-shell-theorem-dependency-list-split "\" \""
    proof-shell-show-dependency-cmd "thm %s;"
-   proof-shell-identifier-under-mouse-cmd
+
+   proof-query-identifier-command
    '((nil     "thm %s;")
      (string  "term \"%s\";")
      (comment "term \"%s\";"))
