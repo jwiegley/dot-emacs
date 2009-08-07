@@ -329,18 +329,6 @@ This is only useful for PG developers."
   :group 'proof-user-options)
 
 
-(defcustom proof-experimental-features nil
-  "*Whether to enable certain features regarded as experimental.
-Proof General includes a few features designated as \"experimental\".
-Enabling these will usually have no detrimental effects on using PG,
-but the features themselves may be buggy.
-
-We encourage users to set this flag and test the features, but being
-aware that the features may be buggy (problem reports and
-suggestions for improvements are welcomed)."
-  :type 'boolean
-  :group 'proof-user-options)
-
 ;;; NON BOOLEAN OPTIONS
 
 (defcustom proof-follow-mode 'locked
@@ -419,10 +407,10 @@ signals to the remote host."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-full-annotation nil
+(defcustom proof-full-annotation t
   "*Non-nil causes Proof General to add hovers for all proof commands.
 Proof output is recorded as it occurs interactively; normally if
-many steps are taken at once, this output is surpressed.  If this
+many steps are taken at once, this output is suppressed.  If this
 setting is used to enable it, the proof script will be annotated
 with full details."
   :type 'boolean
