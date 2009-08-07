@@ -2,22 +2,20 @@
 
 * Summary of Changes for Proof General 4.0 from 3.7.X
 
-** Isabelle/Isar changes
-
-*** Electric terminator works without inserting terminator
-
-
 ** Generic changes
 
 *** XEmacs is no longer supported; PG only works with GNU Emacs 22.2+
 
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
 
-*** Output retained for script buffer popups
+*** Document-centric mechanisms added:
+    - output retained for script buffer popups
+    - background colouring for locked region can be disabled
+    - auto raise of prover output buffers can be disabled
     Depending on input language and interaction output, this
-    may enable a "script centred" way of working, when output
-    buffers can be ignored and hidden.  Disable auto raise for this.
-    Use full decoration to keep output when several steps are taken.
+    may enable a "document centric" way of working, when output
+    buffers can be ignored and hidden. 
+    Use full annotation to keep output when several steps are taken.
 
 *** New user configuration options
     proof-auto-raise-buffers  (set to nil for manual control)
@@ -30,5 +28,10 @@
     pg-insert-output-as-comment-fn:  removed
     proof-shell-strip-output-markup: required for cut-and-paste
     proof-electric-terminator-noterminator: allows non-insert of terminator
+
+
+** Isabelle/Isar changes
+
+*** Electric terminator works without inserting terminator
 
 
