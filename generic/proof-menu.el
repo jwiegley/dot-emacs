@@ -115,11 +115,8 @@ without adjusting window layout."
   (define-key map [(control return)] 'proof-script-complete)
   (define-key map [(control c) (control ?\;)] 'pg-insert-last-output-as-comment)
   ;;
-  ;; Experimental: span moving functions
-  (if proof-experimental-features 
-      (progn
-	(define-key map [(control meta up)] 'pg-move-region-up)
-	(define-key map [(control meta down)] 'pg-move-region-down)))
+  (define-key map [(control meta up)] 'pg-move-region-up)
+  (define-key map [(control meta down)] 'pg-move-region-down)
   ;; Add the universal keys bound in all PG buffers.
   ;; NB: C-c ` is next-error in universal-keys
   (proof-define-keys map proof-universal-keys))
@@ -263,6 +260,7 @@ without adjusting window layout."
 (proof-deftoggle proof-three-window-enable proof-three-window-toggle)
 (proof-deftoggle proof-auto-raise-buffers proof-auto-raise-toggle)
 (proof-deftoggle proof-disappearing-proofs)
+(proof-deftoggle proof-full-annotation)
 (proof-deftoggle proof-strict-read-only)
 (proof-deftoggle proof-colour-locked)
 
