@@ -452,7 +452,7 @@ without adjusting window layout."
    'proof-electric-terminator-enable
    'proof-script-fly-past-comments
    'proof-disappearing-proofs 
-   'proof-full-decoration
+   'proof-full-annotation
    ;;'proof-output-fontify-enable
    'proof-strict-read-only
    (proof-ass-sym unicode-tokens-enable)

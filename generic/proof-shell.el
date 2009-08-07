@@ -703,6 +703,7 @@ Then we call `proof-shell-handle-error-or-interrupt-hook'."
 		proof-shell-quiet-errors)
       (beep))
     (proof-script-clear-queue-spans)
+    ;; TODO: add temporary span for error message
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
     ;; 
@@ -936,7 +937,7 @@ track what happens in the proof queue."
 ;; FIXME: could be macro for efficiency improvement in avoiding calculating num
 (defun proof-shell-should-be-silent (num)
   "Return non-nil if we must switch to silent mode, adding NUM entries to queue."
-  (if (and (not proof-full-decoration)
+  (if (and (not proof-full-annotation)
 	   proof-shell-start-silent-cmd)
       (or proof-shell-silent	; already
 	  ;; NB: there is some question here over counting the
