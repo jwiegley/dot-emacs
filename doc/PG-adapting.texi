@@ -552,7 +552,7 @@ If a function, it should return the command string to insert.
 @defvar proof-find-theorems-command 
 Command to search for a theorem containing a given term.  String or fn.@*
 If a string, the format character @samp{%s} will be replaced by the term.
-If a function, it should return the command string to insert.
+If a function, it should return the command string to send.
 @end defvar
 
 

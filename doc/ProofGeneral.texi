@@ -228,8 +228,9 @@ other documentation, system downloads, etc.
 Proof General version 4.0 is a major overhaul of Proof General.
 The main changes are:
 @itemize @bullet
-@item support for GNU Emacs only, @b{you can not use XEmacs any more}@item
+@item support for GNU Emacs only, @b{you cannot use XEmacs any more}@item
 @item support for Unicode tokens mode, which replaces X-Symbol
+@item allow ``document centric'' working, keeping interaction history in script buffers
 @end itemize
 
 Proof General 4.0 is available in RPM package format which includes
@@ -1252,7 +1253,8 @@ proofs.
 
 Normally Proof General will automatically reveal and hide the goals and
 response buffers as necessary during scripting.  However there are ways
-to customize the way the buffers are displayed (@pxref{Display
+to customize the way the buffers are displayed, for example, to prevent
+auxiliary buffers being displayed at all (@pxref{Display
 customization}).
 
 The menu @code{Proof General -> Buffers} provides a convenient way to
@@ -1837,6 +1839,7 @@ the proof assistant.  Proof General provides you with several escape
 mechanisms if you want to do this.
 
 @menu
+* Document centric working::
 * Visibility of completed proofs::
 * Switching between proof scripts::  
 * View of processed files ::    
@@ -1847,6 +1850,57 @@ mechanisms if you want to do this.
 * Editing features::
 * Experimental features::
 @end menu
+
+@node Document centric working
+@section Document centric working
+@cindex annotation
+
+Proof scripts can be annotated with the output produced by the prover
+while they are checked.  By hovering the mouse on the completed
+regions you can see any output that was produced when they were
+checked.  Depending on the proof language (it works well with
+declarative languages), this may enable a ``document centric'' way of
+working, where you may not want to keep a separate window open for
+displaying prover output.
+
+Three configuration settings can be used to control this behaviour.
+
+First, select
+@lisp
+Proof General -> Options -> Full Annotations
+@end lisp
+to ensure that the details are recorded in the script (this is the
+default, but it can be disabled to prevent storing larging 
+amounts of output).  
+
+Next, @i{de}select 
+@lisp
+Proof General -> Options -> Display -> Auto Raise
+@end lisp
+which will prevent the prover output being eagerly displayed.  You can
+still manually arrange your Emacs windows and frames to ensure the
+output buffers are present if you want.  
+
+Finally, @i{de}select
+@lisp
+Proof General -> Options -> Display -> Colour Locked
+@end lisp
+to prevent highlighting of the locked region.  This text which
+has been checked and that which has not is less obvious, but 
+you can see the position of the next command to be processed
+with the marker.
+
+@xref{Display customization}, for more information about
+customizing display options.
+
+
+
+
+
+
+
+
+
 
 @node Visibility of completed proofs
 @section Visibility of completed proofs
@@ -2173,33 +2227,6 @@ Search forwards through input history for match for current input.@*
 With prefix argument @var{n}, search for Nth following match.
 If @var{n} is negative, search backwards for the -Nth previous match.
 @end deffn
-@node Experimental features
-@section Experimental features
-
-During the development of Proof General, we experiment with new features
-in the interface.  The particular features available the version of
-Proof General you have are described in the file @file{README.exper}
-which is included in the distribution.
-
-The experimental features are automatically enabled in development
-releases of Proof General, but disabled in the stable releases.  To
-adjust the setting, customize the variable below.  After changing the
-setting you should restart Proof General to see (or remove) the new
-features.
-
-@c TEXI DOCSTRING MAGIC: proof-experimental-features
-@defopt proof-experimental-features 
-Whether to enable certain features regarded as experimental.@*
-Proof General includes a few features designated as "experimental".
-Enabling these will usually have no detrimental effects on using PG,
-but the features themselves may be buggy.
-
-We encourage users to set this flag and test the features, but being
-aware that the features may be buggy (problem reports and
-suggestions for improvements are welcomed).
-
-The default value is @code{nil}.
-@end defopt
 
 
 
@@ -2749,8 +2776,17 @@ make Proof General keep both the goals and response buffer displayed.
 If you prefer to switch windows and buffers manually when you want to
 see the prover output, you can customize the user option
 @code{proof-auto-raise-buffers} to prevent the automatic behaviour.
+You can browse interaction output by hovering the mouse over the
+command regions in the proof script.
 
+@c TEXI DOCSTRING MAGIC: proof-auto-raise-buffers
+@defopt proof-auto-raise-buffers 
+If non-nil, automatically raise buffers to display latest output.@*
+If this is not set, buffers and windows will not be managed by
+Proof General.
 
+The default value is @code{t}.
+@end defopt
 @c TEXI DOCSTRING MAGIC: proof-three-window-enable
 @defopt proof-three-window-enable 
 Whether response and goals buffers have dedicated windows.@*
@@ -2843,8 +2879,22 @@ For multiple frame mode, this function obeys the setting of
 @samp{@code{pg-response-eagerly-raise}}, which see.
 @end deffn
 
-@c  TEXI DOCSTRING MAGIC: proof-auto-raise-buffers
+@c TEXI DOCSTRING MAGIC: proof-shrink-windows-tofit
+@defopt proof-shrink-windows-tofit 
+If non-nil, automatically shrink output windows to fit contents.@*
+In single-frame mode, this option will reduce the size of the
+goals and response windows to fit their contents.
 
+The default value is @code{nil}.
+@end defopt
+@c TEXI DOCSTRING MAGIC: proof-colour-locked
+@defopt proof-colour-locked 
+If non-nil, colour the locked region with @samp{@code{proof-locked-face}}.@*
+If this is not set, buffers will have no special face set
+on locked regions.
+
+The default value is @code{t}.
+@end defopt
 @node User options
 @section User options
 @c Index entries for each option 'concept'
