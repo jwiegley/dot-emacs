@@ -419,8 +419,7 @@ signals to the remote host."
   :type 'boolean
   :group 'proof-user-options)
 
-;; TODO: add doc
-(defcustom proof-full-decoration nil
+(defcustom proof-full-annotation nil
   "*Non-nil causes Proof General to add hovers for all proof commands.
 Proof output is recorded as it occurs interactively; normally if
 many steps are taken at once, this output is surpressed.  If this
@@ -731,9 +730,23 @@ If a function, it should return the command string to insert."
 (defcustom proof-find-theorems-command nil
   "Command to search for a theorem containing a given term.  String or fn.
 If a string, the format character `%s' will be replaced by the term.
-If a function, it should return the command string to insert."
+If a function, it should return the command string to send."
   :type '(choice string function)
   :group 'prover-config)
+
+(defcustom proof-query-identifier-command nil
+  "Command sent to the prover to query about a given identifier (or string).
+This is typically a command used to print a theorem, constant, or whatever.
+Inside the command the string %s is replaced by the given identifier or
+string.
+
+Value should be a string for a single command, or maybe an association
+list between values for `proof-buffer-syntactic-context' and strings,
+which allows different prover commands to be sent based on the syntactic
+context of the string.
+If value is an alist, must include a default value for no context (nil)."
+  :type '(or string (list (cons (choice 'nil 'string 'comment)  string)))
+  :group 'proof-shell)
 
 (defcustom proof-assistant-true-value "true"
   "String for true values in proof assistant, used for setting flags.
@@ -2023,14 +2036,6 @@ Isabelle in isa/isa.el and isar/isar.el."
 This is typically a command used to print a theorem, constant, or whatever.
 A string with %s replaced by the dependency name."
   :type 'string
-  :group 'proof-shell)
-
-(defcustom proof-shell-identifier-under-mouse-cmd nil
-  "Command sent to the prover to query about an identifier under the mouse.
-This is typically a command used to print a theorem, constant, or whatever.
-A string with %s replaced by the identifier, or maybe an association
-list between values for `proof-buffer-syntactic-context' and strings."
-  :type '(or string (list (cons (choice 'nil 'string 'comment)  string)))
   :group 'proof-shell)
 
 ;; A feature that could be added to support Isabelle's tracing of
