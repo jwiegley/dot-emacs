@@ -156,9 +156,9 @@ to the default toolbar."
 	(proof-shell-available-p)
 	(> (proof-unprocessed-begin) (point-min)))))
 
-;; Lockedend
+;; Home
 
-(defalias 'proof-toolbar-lockedend 'proof-goto-end-of-locked)
+(defalias 'proof-toolbar-home 'proof-goto-end-of-locked)
 
 ;; Next
 
