@@ -1848,7 +1848,6 @@ mechanisms if you want to do this.
 * Automatic multiple file handling::
 * Escaping script management::
 * Editing features::
-* Experimental features::
 @end menu
 
 @node Document centric working
