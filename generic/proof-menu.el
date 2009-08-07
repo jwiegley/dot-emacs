@@ -297,9 +297,9 @@ without adjusting window layout."
       :style toggle
       :selected proof-script-fly-past-comments
       :help "Coalesce and skip over successive comments"]
-     ["Full Decoration" proof-full-decoration-toggle
+     ["Full Annotation" proof-full-annotation-toggle
       :style toggle
-      :selected proof-full-decoration
+      :selected proof-full-annotation
       :help "Record full information to decorate scripts (may cause slowdown)"]
      ["Disppearing Proofs" proof-disappearing-proofs-toggle 
       :style toggle
