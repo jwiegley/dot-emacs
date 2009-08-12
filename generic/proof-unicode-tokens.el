@@ -45,12 +45,11 @@
 (defun proof-unicode-tokens-configure ()
   "Set the Unicode Tokens table from prover instances and initialise."
   (require 'unicode-tokens) ; load now, for unicode-tokens-configuration-variables
-  (mapcar
-   (lambda (var) ;; or defass?
-     (if (boundp (proof-ass-symv var))
-	 (set (intern (concat "unicode-tokens-" (symbol-name var)))
-	      (eval `(proof-ass ,var)))))
-   unicode-tokens-configuration-variables)
+  (dolist (var unicode-tokens-configuration-variables)
+    (if (boundp (proof-ass-symv var))
+	(set (intern (concat "unicode-tokens-" (symbol-name var)
+			     "-variable"))
+	     (proof-ass-symv var))))
   (unicode-tokens-initialise))
 
   

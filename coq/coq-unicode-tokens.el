@@ -78,7 +78,7 @@ in this table.  When the file is saved, the reverse is done.
 The string mapping can be anything, but should be such that
 tokens can be uniquely recovered from a decoded text; otherwise
 results will be undefined when files are saved."
-  :type '(repeat (cons (string :tag "Token name")
+  :type '(repeat (list (string :tag "Token name")
 		       (string :tag "Unicode string")))
   :set 'proof-set-value
   :group 'coq
@@ -161,13 +161,13 @@ You can adjust this table to add more entries, or to change entries for
 glyphs that not are available in your Emacs or chosen font.
 
 These shortcuts are only used for input; no reverse conversion is
-performed.  But if tokens exist for the target of shortcuts, they
-will be used on saving the buffer."
+performed.  This means that the target strings need to have a defined 
+meaning to be useful."
   :type '(repeat (cons (string :tag "Shortcut sequence")
 		       (string :tag "Unicode string")))
   :set 'proof-set-value
   :group 'isabelle
-  :tag "Coq Unicode Token Mapping")
+  :tag "Coq Unicode Input Shortcuts")
 
   
 ;;

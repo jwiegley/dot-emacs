@@ -41,6 +41,9 @@
 
 ;;
 ;; Variables that should be set by client modes
+;; 
+;; Each variable may be set directly or indirectly; see
+;; `unicode-tokens-copy-configuration-variables' below.
 ;;
 
 (defvar unicode-tokens-token-symbol-map nil
@@ -87,7 +90,7 @@ Behaviour is much like abbrev.")
 
 
 ;;
-;; Variables that can be overridden in instances: control tokens
+;; Variables that may optionally be set in client modes
 ;;
 
 (defvar unicode-tokens-control-region-format-regexp nil
@@ -128,6 +131,43 @@ and (match-string 2) has the display control applied.")
     control-char-format
     control-regions
     control-characters))
+
+(defun unicode-tokens-config (sym)
+  (intern (concat "unicode-tokens-" (symbol-name sym))))
+
+(defun unicode-tokens-config-var (sym)
+  (intern (concat "unicode-tokens-" (symbol-name sym) "-variable")))
+
+(dolist (sym unicode-tokens-configuration-variables)
+ (lambda (sym)
+   (eval `(defvar ,(unicode-tokens-config-var sym)
+	   nil
+	   ,(format "Name of a variable used to configure %s.\nValue should be a symbol."
+		    (symbol-name (unicode-tokens-config sym)))))))
+
+(defun unicode-tokens-copy-configuration-variables ()
+  "Initialise the configuration variables by copying from variable names.
+Each configuration variable may be set directly or indirectly by client;
+modes an indirect setting is made by this function from a variable named
+<setting>-variable, e.g., `unicode-tokens-token-symbol-map'
+will be initialised from `unicode-tokens-token-symbol-map-variable'
+if it is bound, which should be the name of a variable."
+  (dolist (sym unicode-tokens-configuration-variables)
+    (let ((var (unicode-tokens-config-var sym)))
+      (if (and (boundp var) (not (null (symbol-value var))))
+	  (set (unicode-tokens-config sym)
+	       (symbol-value (symbol-value 
+			      (unicode-tokens-config-var sym))))))))
+
+(defun unicode-tokens-customize (sym)
+  (interactive "sCustomize setting: ") ;; TODO: completing read, check if customizable
+  (customize-variable 
+   (symbol-value (unicode-tokens-config-var (intern sym)))))
+  
+
+  
+
+
 
 ;;
 ;; Variables set in the mode 
@@ -648,6 +688,7 @@ tokenised symbols."
 
 (defun unicode-tokens-initialise ()
   (interactive)
+  (unicode-tokens-copy-configuration-variables)
   (let ((flks (unicode-tokens-font-lock-keywords)))
     (put 'unicode-tokens-font-lock-keywords major-mode flks)
     (unicode-tokens-quail-define-rules)
@@ -771,8 +812,6 @@ Commands available are:
       ["Insert token..." unicode-tokens-insert-token]
       ["Next token"      unicode-tokens-rotate-token-forward]
       ["Prev token"      unicode-tokens-rotate-token-backward]
-      ["List tokens"     unicode-tokens-list-tokens]
-      ["List shortcuts"  unicode-tokens-list-shortcuts]
        (cons "Format char"
 	     (mapcar 
  	     (lambda (fmt)
@@ -793,6 +832,12 @@ Commands available are:
   		       :active 'mark-active))
  	     unicode-tokens-control-regions))
        "---"
+      ["List tokens"     unicode-tokens-list-tokens]
+      ["List shortcuts"  unicode-tokens-list-shortcuts]
+;; typing needs fixing
+;;      ["Customize tokens"     (unicode-tokens-customize "token-symbol-map")]
+      ["Customize shortcuts"  (unicode-tokens-customize "shortcut-alist")]
+      "---"
       ["Copy as unicode" unicode-tokens-copy
        :active 'mark-active
        :help "Copy text from buffer, converting tokens to Unicode"]

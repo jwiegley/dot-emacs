@@ -440,15 +440,16 @@ tokens.")
   (isar-map-letters (lambda (x) (format "%c%c" x x))
 		    (lambda (x) (format "%c" x))
 		    'frakt))
-  
-(defcustom isar-token-symbol-map
-  (append
-   isar-symbols-tokens
-   isar-symbols-tokens-fallbacks
-   isar-greek-letters-tokens
-   isar-bold-nums-tokens
-   isar-script-letters-tokens
-   isar-roman-letters-tokens)
+
+;; like defcustom, but want to evaluate default
+(custom-declare-variable 'isar-token-symbol-map
+   (list 'quote (append
+       isar-symbols-tokens
+       isar-symbols-tokens-fallbacks
+       isar-greek-letters-tokens
+       isar-bold-nums-tokens
+       isar-script-letters-tokens
+       isar-roman-letters-tokens))
   "Table mapping Isabelle symbol token names to Unicode strings.
 
 You can adjust this table to add more entries, or to change entries for
@@ -458,8 +459,20 @@ The token TNAME is made into the token \\< TNAME >.
 The string mapping can be anything, but should be such that
 tokens can be uniquely recovered from a decoded text; otherwise
 results will be undefined when files are saved."
-  :type '(repeat (list (string :tag "Token name")
-		       (string :tag "Unicode string")))
+  ;; FIXME: this isn't right.
+  ;; :type '(repeat (list (string :tag "Token name")
+  ;; 		       (string :tag "Unicode string")
+  ;; 			(choice 
+  ;; 			 (const :tag "No style" nil)
+  ;; 			 (list
+  ;; 			  :inline t
+  ;; 			  ;; could generate next automatically from
+  ;; 			  ;; isar-control-regions
+  ;; 			  (const :tag "Bold" bold)
+  ;; 			  (const :tag "Italic" italic)
+  ;; 			  (const :tag "Script" script)
+  ;; 			  (const :tag "Frakt" frakt)
+  ;; 			  (const :tag "Roman" serif)))))
   :set 'proof-set-value
   :group 'isabelle
   :tag "Isabelle Unicode Token Mapping")
@@ -522,27 +535,28 @@ results will be undefined when files are saved."
     ("|}" . "\\<rbrace>")
     ("---" . "\\<emdash>")))
 
-(defcustom isar-shortcut-alist
-  (append
-   isar-symbol-shortcuts
-   ;; LaTeX-like syntax for symbol names, easier to type
-   (mapcar 
-    (lambda (tokentry)
-      (cons (concat "\\" (car tokentry))
-	    (format isar-token-format (car tokentry))))
-    (append isar-greek-letters-tokens isar-symbols-tokens)))
+;; like defcustom, but want to evaluate default
+(custom-declare-variable 'isar-shortcut-alist
+   (list 'quote (append
+      isar-symbol-shortcuts
+      ;; LaTeX-like syntax for symbol names, easier to type
+      (mapcar 
+       (lambda (tokentry)
+	 (cons (concat "\\" (car tokentry))
+	       (format isar-token-format (car tokentry))))
+       (append isar-greek-letters-tokens isar-symbols-tokens))))
   "Shortcut key sequence table for token input.
 
 You can adjust this table to add more entries, or to change entries for
 glyphs that not are available in your Emacs or chosen font.
 
-These shortcuts are only used for input; no reverse conversion is
-performed.  "
+These shortcuts are only used for input convenience; no reverse 
+conversion is performed."
   :type '(repeat (cons (string :tag "Shortcut sequence")
 		       (string :tag "Unicode string")))
   :set 'proof-set-value
   :group 'isabelle
-  :tag "Isabelle Unicode Token Mapping")
+  :tag "Isabelle Unicode Input Shortcuts")
 
   
 
