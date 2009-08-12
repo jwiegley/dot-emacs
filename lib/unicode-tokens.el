@@ -527,7 +527,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
       (make-local-variable 'unicode-tokens-show-symbols)
       (setq unicode-tokens-show-symbols nil)
       (unicode-tokens-mode)
-      (insert "Mouse-2 or RET on a character to copy into kill ring.\n\n")
+      (insert "Hover to see token.  Mouse-2 or RET to copy into kill ring.\n\n")
       (let ((count 0) toks)
 	;; display in originally given order
 	(dolist (tok unicode-tokens-token-list)
