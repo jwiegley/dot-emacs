@@ -8,12 +8,12 @@
 
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
 
-*** Document-centric mechanisms added:
+*** Document-centred mechanisms added:
     - output retained for script buffer popups
     - background colouring for locked region can be disabled
     - auto raise of prover output buffers can be disabled
     Depending on input language and interaction output, this
-    may enable a "document centric" way of working, when output
+    may enable a "document centred" way of working, when output
     buffers can be ignored and hidden. 
     Use full annotation to keep output when several steps are taken.
 
