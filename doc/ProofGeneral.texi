@@ -230,7 +230,7 @@ The main changes are:
 @itemize @bullet
 @item support for GNU Emacs only, @b{you cannot use XEmacs any more}@item
 @item support for Unicode tokens mode, which replaces X-Symbol
-@item allow ``document centric'' working, keeping interaction history in script buffers
+@item allow ``document centred'' working, keeping interaction history in script buffers
 @end itemize
 
 Proof General 4.0 is available in RPM package format which includes
@@ -1839,7 +1839,7 @@ the proof assistant.  Proof General provides you with several escape
 mechanisms if you want to do this.
 
 @menu
-* Document centric working::
+* Document centred working::
 * Visibility of completed proofs::
 * Switching between proof scripts::  
 * View of processed files ::    
@@ -1850,21 +1850,21 @@ mechanisms if you want to do this.
 * Editing features::
 @end menu
 
-@node Document centric working
-@section Document centric working
+@node Document centred working
+@section Document centred working
 @cindex annotation
 
 Proof scripts can be annotated with the output produced by the prover
 while they are checked.  By hovering the mouse on the completed
 regions you can see any output that was produced when they were
 checked.  Depending on the proof language (it works well with
-declarative languages), this may enable a ``document centric'' way of
+declarative languages), this may enable a ``document centred'' way of
 working, where you may not want to keep a separate window open for
 displaying prover output.
 
-Three configuration settings can be used to control this behaviour.
+Several configuration settings can be used to fine tune this behaviour.
 
-First, select
+First, you should select
 @lisp
 Proof General -> Options -> Full Annotations
 @end lisp
@@ -1872,7 +1872,7 @@ to ensure that the details are recorded in the script (this is the
 default, but it can be disabled to prevent storing larging 
 amounts of output).  
 
-Next, @i{de}select 
+Next, you may @i{de}select 
 @lisp
 Proof General -> Options -> Display -> Auto Raise
 @end lisp
@@ -1880,7 +1880,7 @@ which will prevent the prover output being eagerly displayed.  You can
 still manually arrange your Emacs windows and frames to ensure the
 output buffers are present if you want.  
 
-Finally, @i{de}select
+You may like @i{de}select
 @lisp
 Proof General -> Options -> Display -> Colour Locked
 @end lisp
@@ -1888,6 +1888,19 @@ to prevent highlighting of the locked region.  This text which
 has been checked and that which has not is less obvious, but 
 you can see the position of the next command to be processed
 with the marker.
+
+Finall, you may like to select
+@lisp
+Proof General -> Options -> Retract On Edit
+@end lisp
+to enable this option, you must first @i{de}select 
+@lisp
+Proof General -> Options -> Strict Read Only
+@end lisp
+Retract on edit is a setting for the `proof-strict-read-only' variable.
+This allows you to freely edit the processed region, but first
+automatically undoes back to the point of the edit.  Comments can
+be edited freely without retraction.
 
 @xref{Display customization}, for more information about
 customizing display options.
