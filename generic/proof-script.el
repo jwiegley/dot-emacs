@@ -1678,7 +1678,7 @@ to the function which parses the script segment by segment."
 	    (setq cmdseen t)
 	    (setq seg (list
 		       'cmd
-		       (buffer-substring realstart (point))
+		       (buffer-substring-no-properties realstart (point))
 		       (point))))
 	   ((null type))		; nothing left in buffer
 	   (t
@@ -1843,7 +1843,7 @@ to the function which parses the script segment by segment."
 	      (skip-chars-forward " \t\n")
 	      (point)))
 	   (comend (point))
-	   (bufstr (buffer-substring prev-no-blanks comend))
+	   (bufstr (buffer-substring-no-properties prev-no-blanks comend))
 	   (type
 	    (save-excursion
 	      ;; The behaviour here is a bit odd: this is a
@@ -1982,7 +1982,7 @@ This version is used when `proof-script-command-end-regexp' is set."
 	      ;; There should be something left: a command.
 	      (skip-chars-forward " \t\n")
 	      (setq alist (cons (list 'cmd
-				      (buffer-substring
+				      (buffer-substring-no-properties
 				       (point) cmdend)
 				      cmdend) alist))
 	      (setq prev cmdend)
@@ -2013,8 +2013,8 @@ This version is used when `proof-script-command-end-regexp' is set."
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   "Convert a sequence of terminator positions to a set of vanilla extents.
 Proof terminator positions SEMIS has the form returned by
-the function proof-segment-up-to.
-Set the callback to CALLBACK-FN or 'proof-done-advancing by default."
+the function `proof-segment-up-to'.
+Set the callback to CALLBACK-FN or `proof-done-advancing' by default."
   (let ((ct (proof-queue-or-locked-end)) span alist semi)
     (while (not (null semis))
       (setq semi (car semis)
@@ -2111,6 +2111,9 @@ the comment."
   (proof-assert-until-point))
 
 
+
+
+
 ;; Assert until point - We actually use this to implement the
 ;; assert-until-point, electric terminator keypress, and
 ;; goto-command-end. In different cases we want different things, but
@@ -2148,7 +2151,7 @@ scripting."
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "At the end of the locked region already, there's nothing to do to!"))
       ;; NB: (point) has now been moved backwards to first non-whitespace char.
-      (setq semis (proof-segment-up-to (point))))
+      (setq semis (proof-segment-up-to-using-cache (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
@@ -2205,7 +2208,7 @@ a space or newline will be inserted automatically."
 	   ;; for non-whitespace between locked region and point.
 	   ;; CHANGE: ask proof-segment-up-to to scan until command end
 	   ;; (which it used to do anyway, except in the case of a comment)
-	   (proof-segment-up-to (point) t))))
+	   (proof-segment-up-to-using-cache (point) t))))
     ;; old code:
     ;;(if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
     ;;	  (progn (goto-char pt)
@@ -2231,11 +2234,18 @@ a space or newline will be inserted automatically."
 	    (proof-script-next-command-advance))))))
 
 (defun proof-retract-before-change (beg end)
-  "For use in `before-change-functions'."
+  "For `before-change-functions'.  Retract to BEG unless BEG..END inside a comment."
   (and (> (proof-queue-or-locked-end) beg)
+       (not (and (proof-inside-comment beg)
+		 (proof-inside-comment end)))
        (save-excursion
          (goto-char beg)
          (proof-retract-until-point))))
+
+(defun proof-inside-comment (pos)
+  (save-excursion 
+    (goto-char pos)
+    (eq (proof-buffer-syntactic-context) 'comment)))
 
 (defun proof-goto-point ()
   "Assert or retract to the command at current position.
@@ -2524,6 +2534,9 @@ command."
 
   ;; We use a list to manage invisibility of buffer parts
   (setq buffer-invisibility-spec nil)
+
+  ;; Set after change functions
+  (proof-script-set-after-change-functions)
 
   (add-hook 'after-set-visited-file-name-hooks 
 	    'proof-script-set-visited-file-name nil t)
@@ -2959,7 +2972,76 @@ Choice of function depends on configuration setting."
 	    (cons major-mode proof-script-find-next-entity-fn)
 	    fume-find-function-name-method-alist))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Caching parse results for unedited portions of the buffer
+;;
+;; Added (in progress) in PG 4.0
+;;
 
+(deflocal proof-segment-up-to-cache nil)
+(deflocal proof-segment-up-to-cache-start 0)
+(deflocal proof-last-edited-low-watermark nil)
+
+;; A simplistic first attempt: we only cache the last region that was
+;; parsed.  It would be better to maintain a parse cache for the
+;; unedited prefix of the buffer.  Also, we may perhaps assume that
+;; extending the parsed region can only possibly affect the last command 
+;; in the cache but leaves the rest intact.  (NB: in Isabelle/Isar a
+;; command can be a proper prefix of a longer one and there are no
+;; explicit terminators).
+
+(defun proof-segment-up-to-using-cache (pos &rest args)
+  "A wrapper for `proof-segment-up-to' which uses a cache to speed things up."
+  (let (res pos1)
+    (if (and 
+	 proof-use-parser-cache ;; safety measure while testing
+	 (setq pos1 (save-excursion (goto-char pos)
+				    (skip-chars-forward " \t\n")
+				    (point)))
+	 proof-segment-up-to-cache
+	 (or (not proof-last-edited-low-watermark)
+	     (> proof-last-edited-low-watermark pos1))
+	 ;; be conservative: extending region may give different parse
+	 (>= (proof-queue-or-locked-end) proof-segment-up-to-cache-start)
+	 (>= (nth 2 (car proof-segment-up-to-cache)) pos)
+	 ;; cache is fresh and may have enough parse data, try it
+	 (setq res (proof-segment-cache-contents-for pos)))
+	res
+      ;; Cache not useful, perform a fresh parse
+      (let ((semis (proof-segment-up-to pos args)))
+	(setq proof-segment-up-to-cache-start (proof-queue-or-locked-end))
+	(setq proof-segment-up-to-cache (copy-list semis))
+	(if (car-safe semis)
+	    (setq proof-last-edited-low-watermark
+		  (max
+		   (or proof-last-edited-low-watermark (point-max))
+		   ;; nudge up
+		   (nth 2 (car semis)))))
+	semis))))
+
+(defun proof-segment-cache-contents-for (pos)
+  (let ((semis  (reverse proof-segment-up-to-cache))
+	(start  (proof-queue-or-locked-end))
+	usedsemis semiend)
+    (while semis 
+      (setq semiend (nth 2 (car semis)))
+      (if (> semiend start)
+	  (setq usedsemis (cons (car semis) usedsemis)))
+      (setq semis 
+	    (if (<= semiend pos) (cdr semis))))
+    usedsemis))
+
+(defun proof-script-after-change-function (start end prelength)
+  "Value for `after-change-functions' in proof script buffers."
+  (setq proof-last-edited-low-watermark 
+	(min (or proof-last-edited-low-watermark (point-max))
+	     start)))
+
+(defun proof-script-set-after-change-functions ()
+  (add-hook 'after-change-functions 
+	    'proof-script-after-change-function nil t))
+  
 
 
 (provide 'proof-script)
