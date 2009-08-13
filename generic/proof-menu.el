@@ -274,6 +274,12 @@ without adjusting window layout."
    (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
   (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle))
 
+(defun proof-retract-on-edit-toggle ()
+  (interactive)
+  (customize-set-variable 
+   'proof-strict-read-only
+   (if (eq proof-strict-read-only 'retract) 
+       nil 'retract)))
 
 (defun proof-keep-response-history ()
   "Enable associated buffer histories following `proof-keep-response-history'."
@@ -306,8 +312,14 @@ without adjusting window layout."
 
      ["Strict Read Only" proof-strict-read-only-toggle
       :style toggle
-      :selected proof-strict-read-only
+      :selected (eq proof-strict-read-only t)
+      :active (not (eq proof-strict-read-only 'retract))
       :help "Do not allow editing in processed region"]
+     ["Retract On Edit" proof-retract-on-edit-toggle
+      :style toggle
+      :selected (eq proof-strict-read-only 'retract)
+      :active (not (eq proof-strict-read-only t))
+      :help "Automaticall retract on edit in processed region"]
      
      ["Unicode Tokens" 
       (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
