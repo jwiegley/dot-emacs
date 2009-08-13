@@ -175,12 +175,15 @@ done if this `proof-strict-state-preserving' is turned off (nil)."
   :type  'boolean
   :group 'proof-user-options)
 
-(defcustom proof-strict-read-only 'strict
+(defcustom proof-strict-read-only t
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!)."
-  :type  '(choice (const strict) (const retract) (const nil))
+  :type  '(choice 
+	   (const :tag "Do not allow edits" t) 
+	   (const :tag "Allow edits but automatically retract first" retract)  
+	   (const :tag "Allow edits without restriction" nil))
   :set   'proof-set-value
   :group 'proof-user-options)
 
@@ -325,6 +328,15 @@ This changes some behaviour (e.g. markup stripping) and displays
 debugging messages in the response buffer.  To avoid erasing
 messages shortly after they're printed, set `proof-tidy-response' to nil.
 This is only useful for PG developers."
+  :type 'boolean
+  :group 'proof-user-options)
+
+;;; TEMPORARY FOR EXPERIMENTAL CODE:
+
+(defcustom proof-use-parser-cache nil
+  "*Non-nil to use a simple parsing cache (experimental).
+This can be helpful when editing and reprocessing large files.
+This variable exists to disable the cache in case of problems."
   :type 'boolean
   :group 'proof-user-options)
 
