@@ -131,6 +131,10 @@ See -k option for Isabelle interface script."
    proof-save-command           "qed"
    proof-context-command        "print_context"
    proof-info-command           "welcome"
+   proof-query-identifier-command
+   '((nil     "thm %s;")
+     (string  "term \"%s\";")
+     (comment "term \"%s\";"))
    proof-kill-goal-command      "ProofGeneral.kill_proof"
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
@@ -209,11 +213,6 @@ See -k option for Isabelle interface script."
    proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
    proof-shell-theorem-dependency-list-split "\" \""
    proof-shell-show-dependency-cmd "thm %s;"
-
-   proof-query-identifier-command
-   '((nil     "thm %s;")
-     (string  "term \"%s\";")
-     (comment "term \"%s\";"))
 
    pg-special-char-regexp               "\^A[0-9A-Z]"
 
