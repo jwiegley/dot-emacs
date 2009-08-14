@@ -29,11 +29,20 @@
   "Marker in proof shell buffer pointing to previous command input.")
 
 (defvar proof-action-list nil
-  "A list of
+  "A list of lists of the form
 
-  (SPAN COMMAND ACTION)
+  (SPAN COMMAND ACTION [FLAGS])
 
-triples, which is a queue of things to do.
+which is a queue of things to do.  Flags are set for non-standard
+commands (out of script).  They may include
+
+  'no-response-display   do not display messages in *response* buffer
+  'no-error-display      do not display errors/take error action
+  'no-goals-display      do not goals in *goals* buffer
+
+If flags are non-empty, other interactive cues will be surpressed.
+\(E.g., printing help messages).
+
 See the functions `proof-start-queue' and `proof-exec-loop'.")
 
 (defvar proof-shell-silent nil
@@ -58,7 +67,7 @@ Specifically:
  'response    	 A response message
  'goals	      	 A goals (proof state) display
  'systemspecific Something specific to a particular system,
-		  -- see `proof-shell-process-output-system-specific'
+		  -- see `proof-shell-classify-output-system-specific'
 
 The output corresponding to this will be in proof-shell-last-output.
 
@@ -68,11 +77,14 @@ the proof process output, when ends of proofs are spotted.
 This variable can be used for instance specific functions which want
 to examine proof-shell-last-output.")
 
-(defvar proof-shell-delayed-output nil
-  "A copy of proof-shell-last-output held back for processing at end of queue.")
+(defvar proof-shell-delayed-output ""
+  "A copy of `proof-shell-last-output' held back for processing at end of queue.")
 
 (defvar proof-shell-delayed-output-kind nil
-  "A copy of proof-shell-last-output-lind held back for processing at end of queue.")
+  "A copy of `proof-shell-last-output-kind' held back for processing at end of queue.")
+
+(defvar proof-shell-delayed-output-flags nil
+  "A copy of the `proof-action-list' flags for `proof-shell-delayed-output'.")
 
 
 
@@ -333,38 +345,12 @@ Does nothing if proof assistant is already running."
 
       (with-current-buffer proof-shell-buffer
 	
-	;; clear output from previous sessions.
 	(erase-buffer)
 
-	;; Disable multi-byte characters in GNU Emacs
-	;;
-	;; We noticed that for LEGO, it otherwise converts annotations
-	;; to characters with (non-ASCII) code around 3000 which screws
-	;; up our conventions that annotations lie between 128 and 256.
-	;;
-	;; Better solve this by explicitly encoding/decoding.
-	;; (and (fboundp 'toggle-enable-multibyte-characters)
-	;;      (toggle-enable-multibyte-characters -1))
-	;; 
-	;; PG 3.7: specific proof assistants which still use the old
-	;; fashioned latin-character markup may want to call
-	;; (toggle-enable-multibyte-characters -1) in their response
-	;; mode and goals mode setup.
-	;; (We could do this automatically if `proof-shell-unicode' is 
-	;; not set, maybe; but better leave to specific PAs for now).
-	
-	;; Initialise shell mode
-	;; Q: should this be done every time the process is started?
-	;; A: yes, it does the process initialization, which is a bit
-	;; odd (would expect it to be done here, maybe).
-	;; NB: this calls proof-config-done, which will result in
-	;; recursive call here when sending startup commands to
-	;; the process: should immediately exit because
-	;; (proof-shell-live-buffer) should succeed.  If bad,
-	;; things happen, it may cause looping!
-	;; TODO: add flag to indicate "inside proof-shell-start"
-	;; to prevent this.
+	;; Set text representation (see CVS history for comments)
 	(proof-shell-set-text-representation)
+
+	;; Initialise shell mode (does process initialisation)
 	(funcall proof-mode-for-shell)
 
 	;; Check to see that the process is still going.  If not,
@@ -558,10 +544,8 @@ object files, used by Lego and Coq)."
 	(proof-interrupt-process)
 	(proof-shell-wait)))
   (if (not (proof-shell-live-buffer))
-      ;; If shell not running, start one now.
-      ;; (Behaviour suggested by Robert Schneck)
-      (proof-shell-start)
-    ;; Otherwise, clear all context for running prover
+      (proof-shell-start) ;; start if not running
+    ;; otherwise clear context
     (proof-script-remove-all-spans-and-deactivate)
     (proof-shell-clear-state)
     (if (and (buffer-live-p proof-shell-buffer)
@@ -576,9 +560,6 @@ object files, used by Lego and Coq)."
 ;;
 ;; Response buffer processing
 ;;
-
-(defvar proof-shell-no-response-display nil
-  "A setting to disable displays in the response buffer.")
 
 (defvar proof-shell-urgent-message-marker nil
   "Marker in proof shell buffer pointing to end of last urgent message.")
@@ -622,27 +603,7 @@ This is a subroutine of `proof-shell-handle-error'."
       (pg-response-display-with-face string append-face))))
 
 
-(defun proof-shell-handle-delayed-output ()
-  "Display delayed output.
-This function handles the cases of proof-shell-delayed-output-kind which
-are not dealt with eagerly during script processing, namely
-'abort, 'response, 'goals outputs."
-  ;; NB: this function is important even when called with an empty
-  ;; delayed output, since it serves to clear buffers.  
-  (cond
-   ;; Response buffer output
-   ((eq proof-shell-delayed-output-kind 'abort)
-    ;; Previously we displayed a message here, let the prover do that now.
-    (pg-response-display proof-shell-delayed-output))
-   ((eq proof-shell-delayed-output-kind 'response)
-    (unless proof-shell-no-response-display
-      (pg-response-display proof-shell-delayed-output)))
-   ;; Goals buffer output
-   ((eq proof-shell-delayed-output-kind 'goals)
-    (pg-goals-display proof-shell-delayed-output))
-   ;; Ignore other cases
-   )
-  (run-hooks 'proof-shell-handle-delayed-output-hook))
+
 
 (defsubst proof-shell-strip-output-markup (string &optional push)
   "Strip output markup from STRING.
@@ -661,66 +622,72 @@ An internal setting used in `proof-shell-invisible-cmd-get-result'.")
 
 ;; TODO: combine next two functions
 
-(defun proof-shell-handle-error (cmd)
+(defun proof-shell-handle-error (cmd flags)
   "React on an error message triggered by the prover.
 We first flush unprocessed goals to the goals buffer.
 The error message is displayed in the response buffer.
 Then we call `proof-shell-error-or-interrupt-action', which see."
   ;; [FIXME: Why not flush goals also for interrupts?]
   ;; Flush goals or response buffer (from some last successful proof step)
-  (unless proof-shell-no-error-display
+  (unless (memq 'no-error-display flags)
     (save-excursion
       (proof-shell-handle-delayed-output))
     (proof-shell-handle-output
      (if proof-shell-truncate-before-error proof-shell-error-regexp)
      'proof-error-face)
-    (proof-display-and-keep-buffer proof-response-buffer))
-  (proof-shell-error-or-interrupt-action 'error))
+    (proof-display-and-keep-buffer proof-response-buffer)
+    ;; NB: change here: we only call error action if flags allow
+    (proof-shell-error-or-interrupt-action 'error)))
 
-(defun proof-shell-handle-interrupt ()
+(defun proof-shell-handle-interrupt (flags)
    "React on an interrupt message from the prover.
 Runs `proof-shell-error-or-interrupt-action'."
-   (unless proof-shell-no-error-display
+   (unless (memq 'no-error-display flags)
      (pg-response-maybe-erase t t t) ; force cleaned now & next
      (proof-shell-handle-output
       (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
       'proof-error-face)
-;  (proof-display-and-keep-buffer proof-response-buffer)
+     ;;  (proof-display-and-keep-buffer proof-response-buffer)
      (proof-warning 
       "Interrupt: script management may be in an inconsistent state
-           (but it's probably okay)"))
-   (proof-shell-error-or-interrupt-action 'interrupt))
+           (but it's probably okay)")
+     (proof-shell-error-or-interrupt-action 'interrupt)))
 
 (defun proof-shell-error-or-interrupt-action (&optional err-or-int)
   "General action when an error or interrupt message appears from prover.
+
 A subroutine for `proof-shell-handle-interrupt' and `proof-shell-handle-error'.
 
 We sound a beep, clear queue spans and `proof-action-list', and set the flag
 `proof-shell-error-or-interrupt-seen' to the ERR-OR-INT argument.
-Then we call `proof-shell-handle-error-or-interrupt-hook'."
+Then we call `proof-shell-handle-error-or-interrupt-hook'.
+
+Commands which are not part of regular script management (with non-empty
+flags) will not invoke this action."
   (save-excursion			;; for safety.
-    (unless (or proof-shell-no-error-display
-		proof-shell-quiet-errors)
+    (unless proof-shell-quiet-errors
       (beep))
     (proof-script-clear-queue-spans)
+
     ;; TODO: add temporary span for error message
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
     ;; 
-    (unless proof-shell-no-error-display ; internal call
-      ;; Give a hint about C-c C-`.  NB: this is rather approximate,
-      ;; we ought to check whether there is an error location in the
-      ;; latest message, not just somewhere in the response buffer.
-      (if (pg-response-has-error-location) 
-	  (pg-next-error-hint)))
+
+    ;; Give a hint about C-c C-`.  NB: this is rather approximate,
+    ;; we ought to check whether there is an error location in the
+    ;; latest message, not just somewhere in the response buffer.
+    (if (pg-response-has-error-location) 
+	(pg-next-error-hint)))
+
     ;; Make sure that prover is outputting data now.
     ;; FIXME: put something here!
-    (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
+    (run-hooks 'proof-shell-handle-error-or-interrupt-hook))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."
- (and (eq 'goal (car (span-property span 'proof-top-element)))
-		(span-start span)))
+  (and (eq 'goal (car (span-property span 'proof-top-element)))
+       (span-start span)))
 
 (defun proof-pbp-focus-on-first-goal ()
   "If the `proof-goals-buffer' contains goals, bring the first one into view.
@@ -739,12 +706,12 @@ This is a hook function for proof-shell-handle-delayed-output-hook."
   (and regexp (string-match regexp string)))
 
       
-(defun proof-shell-process-output (cmd string)
+(defun proof-shell-classify-output (cmd string)
   "Process shell output (resulting from CMD) by matching on STRING.
 CMD is the first part of the `proof-action-list' that lead to this
 output.  The result of this function is a pair (SYMBOL NEWSTRING).
 
-Here is where we recognizes interrupts, abortions of proofs, errors,
+Here is where we classify interrupts, abortions of proofs, errors,
 completions of proofs, and proof step hints (proof by pointing results).
 They are checked for in this order, using
  
@@ -760,7 +727,7 @@ cell of ('insert . TEXT) where TEXT is the text string to be inserted.
 
 Order of testing is: interrupt, abort, error, completion.
 
-To extend this function, set `proof-shell-process-output-system-specific'.
+To extend this function, set `proof-shell-classify-output-system-specific'.
 
 The \"aborted\" case is intended for killing off an open proof during
 retraction.  Typically it matches the message caused by a
@@ -768,8 +735,8 @@ retraction.  Typically it matches the message caused by a
 the response buffer.  So it is expected to be the result of a 
 retraction, rather than the indication that one should be made.
 
-This function sets `proof-shell-last-output' and `proof-shell-last-output-kind',
-which see."
+This function sets variables: `proof-shell-last-output', 
+`proof-shell-last-output-kind', `proof-shell-proof-completed'."
   ;; Keep a record of the last message from the prover
   (setq proof-shell-last-output string)
   (or
@@ -786,10 +753,12 @@ which see."
      (setq proof-shell-last-output-kind 'abort))
     
     ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
-     ;; In case no goals display
-     (proof-clean-buffer proof-goals-buffer)
+     ;; FIXME PG 4.0: want to remove side effects here
+     ;;  In case no goals display
+     ;;     (proof-clean-buffer proof-goals-buffer) 
+     (setq proof-shell-last-output-kind 'goals) ;; PG 4.0: test
      ;; counter of commands since proof complete.
-     (setq proof-shell-proof-completed 0) 
+     (setq proof-shell-proof-completed 0)
      ;; But!  We carry on matching below for goals output, so that
      ;; provers may include proof completed message as part of 
      ;; goals message (Isabelle, HOL) or not (LEGO, Coq).
@@ -833,13 +802,13 @@ which see."
        (setq proof-shell-last-output (substring string start end)))
      (setq proof-shell-last-output-kind 'loopback))
     
-    ;; Hook to tailor proof-shell-process-output to a specific proof
+    ;; Hook to tailor proof-shell-classify-output to a specific proof
     ;; system, in the case that all the above matches fail.
-    ((and proof-shell-process-output-system-specific
-	  (funcall (car proof-shell-process-output-system-specific)
+    ((and proof-shell-classify-output-system-specific
+	  (funcall (car proof-shell-classify-output-system-specific)
 		   cmd string))
      (setq proof-shell-last-output-kind 'systemspecific)
-     (funcall (cdr proof-shell-process-output-system-specific)
+     (funcall (cdr proof-shell-classify-output-system-specific)
 	      cmd string))
 
     ;; Finally, any other output will appear as a response.
@@ -905,9 +874,10 @@ used in `proof-append-alist' when we start processing a queue, and in
 ;;
 
 
-(defun proof-shell-command-queue-item (cmd callback)
-  "Return the proof queue entry needed to run CMD with callback CALLBACK."
-  (list nil cmd callback))
+(defun proof-shell-action-list-item (cmd callback &optional flags)
+  "Return action list entry run CMD with callback CALLBACK and FLAGS.
+The queue entry does not refer to a span in the script buffer."
+  (append (list nil cmd callback) flags))
 
 
 (defun proof-shell-set-silent (span)
@@ -918,7 +888,7 @@ track what happens in the proof queue."
 
 (defun proof-shell-start-silent-item ()
   "Return proof queue entry for starting silent mode."
-  (proof-shell-command-queue-item 
+  (proof-shell-action-list-item
    proof-shell-start-silent-cmd
    'proof-shell-set-silent))
 
@@ -930,7 +900,7 @@ track what happens in the proof queue."
 
 (defun proof-shell-stop-silent-item ()
   "Return proof queue entry for stopping silent mode."
-  (proof-shell-command-queue-item 
+  (proof-shell-action-list-item
    proof-shell-stop-silent-cmd
    'proof-shell-clear-silent))
 
@@ -949,6 +919,10 @@ track what happens in the proof queue."
 	     proof-shell-silent-threshold))))
 	      
 
+(defsubst proof-shell-invoke-callback (listitem)
+  "From a `proof-action-list' entry, invoke the callback on the span."
+  (funcall (nth 2 listitem) (car listitem)))
+
 (defun proof-append-alist (alist &optional queuemode)
   "Chop off the vacuous prefix of the command queue ALIST and queue it.
 For each `proof-no-command' item at the head of the list, invoke its 
@@ -966,7 +940,7 @@ being processed."
     (while (and alist (string= 
 		       (nth 1 (setq item (car alist))) 
 		       proof-no-command))
-      (funcall (nth 2 item) (car item))
+      (proof-shell-invoke-callback item)
       (setq alist (cdr alist)))
     (if (and (null alist) (null proof-action-list))
 	;; remove the queue (otherwise done in proof-shell-exec-loop)
@@ -1031,67 +1005,67 @@ The queue mode is set to 'advancing"
 (defun proof-shell-exec-loop () 
   "Process the `proof-action-list'.
 
-`proof-action-list' contains a list of (SPAN COMMAND ACTION) triples.
+`proof-action-list' contains a list of (SPAN COMMAND ACTION [FLAGS]) lists.
 
 If this function is called with a non-empty proof-action-list, the
 head of the list is the previously executed command which succeeded.
 We execute (ACTION SPAN) on the first item, then (ACTION SPAN) on any
 following items which have `proof-no-command' as their cmd components.
-If a there is a next command after that, send it to the process.  If
-the action list becomes empty, unlock the process and remove the queue
-region.
+
+If a there is a next command after that, send it to the process.  
+
+If the action list becomes empty, unlock the process and remove
+the queue region.
 
 The return value is non-nil if the action list is now empty."
-  ;; The loop looks like: Execute the
-  ;; command, and if it's successful, do action on span.  If the
-  ;; command's not successful, we bounce the rest of the queue and do
-  ;; some error processing.
 
-  (unless (not proof-action-list)		; exit immediately if finished.
-      (save-excursion
-	;; Switch to active scripting buffer if there is one.
-	(if proof-script-buffer
-	    (set-buffer proof-script-buffer))
-	(let ((item (car proof-action-list)))
-	  ;; Do (action span) on first item in list
-	  (funcall (nth 2 item) (car item))
-	  (setq proof-action-list (cdr proof-action-list))
-	  ;; Process following items in list with the form
-	  ;; ("COMMENT" cmd) by calling (cmd "COMMENT")
-	  (while (and proof-action-list
-		      (string= 
-		       (nth 1 (setq item (car proof-action-list))) 
-		       proof-no-command))
-	    ;; Do (action span) on comments
-	    (funcall (nth 2 item) (car item))
-	    (setq proof-action-list (cdr proof-action-list)))
-	  ;; If action list is empty or has a single element,
-	  ;; we want to make sure prover is being noisy.
-	  (if (and proof-shell-silent
-		   (or (null proof-action-list)	; possible?
-		       (null (cdr proof-action-list))))
-	      (progn
-		;; Stick the quieten command onto the queue
-		(setq proof-action-list
-		      (cons (proof-shell-stop-silent-item)
-			    proof-action-list))
-		(setq item (car proof-action-list))))
-	  ;; If action list is empty now, release the process lock
-	  (if (null proof-action-list)
-	      (progn (proof-release-lock)
-		     (proof-detach-queue)
-		     ;; give a hint to the user in case we've finished
-		     ;; a batch of input
-		     (pg-processing-complete-hint)
-		     ;; complete the tracing buffer display in case 
-		     ;; we need to catch up.
-		     (pg-finish-tracing-display)
-		     ;; indicate finished
-		     t)
-	    ;; Otherwise, send the next command to the process.
-	    (proof-shell-insert (nth 1 item) (nth 2 item))
-	    ;; indicate not finished
-	    nil)))))
+  (or 
+   (null proof-action-list)
+   (save-excursion
+     (if proof-script-buffer		      ; switch to active script
+	 (set-buffer proof-script-buffer)) 
+     
+     (let ((item  (car proof-action-list))
+	   (flags (nthcdr 3 (car proof-action-list))))
+       
+       ;; invoke callback on just processed command
+       (proof-shell-invoke-callback item)
+       (setq proof-action-list (cdr proof-action-list))
+       
+       ;; slurp comments without sending to prover
+       (while (and proof-action-list
+		   (string= 
+		    (nth 1 (setq item (car proof-action-list))) 
+		    proof-no-command))
+	 (proo-shell-invoke-callback item)
+	 (setq proof-action-list (cdr proof-action-list)))
+       
+       ;; if action list is (nearly) empty, ensure prover is noisy.
+       ;; FIXME: chance to loose output if we processed a bunch of o/p 
+       ;; ending with a series of comments!
+       (if (and proof-shell-silent
+		(or (null proof-action-list)
+		    (null (cdr proof-action-list))))
+	   (progn
+	     ;; Insert the quieten command on head of queue
+	     (setq proof-action-list
+		   (cons (proof-shell-stop-silent-item)
+			 proof-action-list))
+	     (setq item (car proof-action-list))))
+       
+       (if proof-action-list
+	   ;; send the next command to the process.
+	   (proof-shell-insert (nth 1 item) (nth 2 item))
+	 
+	 ;; action list is empty, release lock and cleanup
+	 (proof-release-lock)
+	 (proof-detach-queue)
+	 (unless flags ; hint after a batch of scripting
+	   (pg-processing-complete-hint))
+	 (pg-finish-tracing-display))
+       
+       (null proof-action-list)))))
+
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
   "Insert command sequence sent from prover into script buffer.
@@ -1281,6 +1255,163 @@ MESSAGE should be a string annotated with
     (proof-shell-insert (or input "") 'interactive-input)))
 
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; The proof shell process filter
+;;
+
+
+;; NOTE da: proof-shell-filter does *not* update the proof-marker,
+;; that's done in proof-shell-insert.  Previous docstring below was
+;; wrong.  The one case where this function updates proof-marker is
+;; the first time through the loop to synchronize.
+(defun proof-shell-filter (str)
+  "Filter for the proof assistant shell-process.
+A function for `comint-output-filter-functions'.
+
+Deal with output and issue new input from the queue.
+
+Handle urgent messages first.  As many as possible are processed,
+using the function `proof-shell-process-urgent-messages'.
+
+Otherwise wait until an annotated prompt appears in the input.  
+If `proof-shell-wakeup-char' is set, wait until we see that in the
+output chunk STR.  This optimizes the filter a little bit.
+
+If a prompt is seen, run `proof-shell-classify-output' on the output
+between the new prompt and the last input (position of `proof-marker')
+or the last urgent message (position of
+`proof-shell-urgent-message-marker'), whichever is later.
+For example, in this case:
+
+ PROMPT> INPUT
+ OUTPUT-1
+ URGENT-MESSAGE
+ OUTPUT-2
+ PROMPT>
+
+`proof-marker' is set after INPUT by `proof-shell-insert' and
+`proof-shell-urgent-message-marker' is set after URGENT-MESSAGE.
+Only OUTPUT-2 will be processed.  For this reason, error
+messages and interrupt messages should *not* be considered
+urgent messages.
+
+Output is processed using the function
+`proof-shell-filter-manage-output'.
+
+The first time that a prompt is seen, `proof-marker' is
+initialised to the end of the prompt.  This should
+correspond with initializing the process.  The 
+ordinary output before the first prompt is ignored (urgent messages, 
+however, are always processed; hence their name)."
+  (save-excursion
+    ;; Strip CRs.
+    (if proof-shell-strip-crs-from-output
+	(progn
+	  (setq str (replace-regexp-in-string "\r+$" "" str))
+	  ;; Do the same thing in the buffer via comint's function
+	  ;; (sometimes put on comint-output-filter-functions too).
+	  (comint-strip-ctrl-m)))
+
+    ;; Process urgent messages.
+    (and proof-shell-eager-annotation-start
+	 (proof-shell-process-urgent-messages))
+
+    ;; FIXME da: some optimization possible here by customizing filter
+    ;; according to whether proof-shell-wakeup-char, etc, are non-nil.
+    ;; Could make proof-shell-filter into a macro to do this.
+    ;; On the other hand: it's not clear that wakeup-char is really
+    ;; needed, as matching the prompt may be efficient enough anyway.
+
+    (if ;; Some proof systems can be hacked to have annotated prompts;
+	;; for these we set proof-shell-wakeup-char to the annotation 
+	;; special, and look for it in the output before doing anything.
+	(if proof-shell-wakeup-char
+	    ;; NB: this match doesn't work in emacs-mule, darn.
+	    ;; (string-match (char-to-string proof-shell-wakeup-char) str))
+	    ;; NB: this match doesn't work in GNU Emacs 20.5, darn.
+	    ;; (find proof-shell-wakeup-char str)
+	    ;; So let's use both tests!
+	    (or
+	     (string-match (char-to-string proof-shell-wakeup-char) str)
+	     (find proof-shell-wakeup-char str))
+	  ;; Others systems rely on a standard top-level (e.g. SML) whose
+	  ;; prompts may be difficult or impossible to hack.
+	  ;; For those we must search in the buffer for the prompt.
+	  t)
+	(if (null (marker-position proof-marker))
+	    ;; Initialisation of proof-marker:
+	    ;; Set marker to after the first prompt in the
+	    ;; output buffer if one can be found now.
+	    ;; NB: ideally, we'd rather do this initialization outside
+	    ;; of the filter function for slightly better efficiency.  
+	    ;; Could be achieved by switching between filter functions.
+	    (progn
+	      (goto-char (point-min))
+	      (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
+		  (progn
+		    (set-marker proof-marker (point))
+		    ;; The first time a prompt is seen we ignore any 
+		    ;; output that occured before it, assuming that
+		    ;; corresponds to uninteresting startup messages. 
+		    ;; We process the
+		    ;; action list to remove the first item if need
+		    ;; be (proof-shell-init-cmd sent if 
+		    ;; proof-shell-config-done).
+		    (if proof-action-list
+			(proof-shell-filter-manage-output "")))))
+	  ;; Now we're looking for the end of the piece of output
+	  ;; which will be processed.  
+	  
+	  ;; Note that the way this filter works, only one piece of
+	  ;; output can be dealt with at a time so we loose sync if
+	  ;; there's more than one bit there.
+	  
+	  (if proof-action-list
+	      ;; We're expecting some output, examine it.
+	      (let ((urgnt    (marker-position 
+			       proof-shell-urgent-message-marker))
+		    string startpos prev-prompt)
+		;; Ignore any urgent messages that have already been
+		;; dealt with.  This loses in the case mentioned
+		;; above.  A more general way of doing this would be
+		;; to filter out or delete the urgent messages which
+		;; have been processed already.
+		(setq prev-prompt (goto-char (marker-position proof-marker)))
+		(setq startpos prev-prompt) 
+		(if (and urgnt
+			 (< startpos urgnt))
+		    (setq startpos (goto-char urgnt))
+		  ;; Otherwise, skip possibly a (fudge) space and new line
+		  (if (eq (char-after startpos) ?\ )
+		      (setq startpos (goto-char (+ 2 startpos)))
+		    (setq startpos (goto-char (1+ startpos)))))
+		;; Find next prompt.  
+		(if (re-search-forward 
+		     proof-shell-annotated-prompt-regexp nil t)
+		    (progn
+		      (setq proof-shell-last-prompt
+			    (buffer-substring-no-properties
+			     (match-beginning 0) (match-end 0)))
+		      (backward-char (- (match-end 0) (match-beginning 0)))
+		      (setq string (buffer-substring-no-properties
+				    startpos (point)))
+		      (goto-char (point-max))
+		      ;; Process output string.
+		      (proof-shell-filter-manage-output string)
+		      ;; Cleanup shell buffer 
+		      (unless proof-general-debug
+			(pg-remove-specials prev-prompt (point-max)))
+		      )))
+	    (if proof-shell-busy
+		;; internal error recovery:
+		(progn
+		  (proof-debug 
+		   "proof-shell-filter found empty action list yet proof shell busy.")
+		  (proof-release-lock))))))))
+
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
 Scanning starts from `proof-shell-urgent-message-scanner' or 
@@ -1351,204 +1482,73 @@ This is a subroutine of `proof-shell-filter'."
     (goto-char pt)))
 
 
-;; NOTE da: proof-shell-filter does *not* update the proof-marker,
-;; that's done in proof-shell-insert.  Previous docstring below was
-;; wrong.  The one case where this function updates proof-marker is
-;; the first time through the loop to synchronize.
-(defun proof-shell-filter (str)
-  "Filter for the proof assistant shell-process.
-A function for `comint-output-filter-functions'.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Despatching output
+;;
 
-Deal with output and issue new input from the queue.
-
-Handle urgent messages first.  As many as possible are processed,
-using the function `proof-shell-process-urgent-messages'.
-
-Otherwise wait until an annotated prompt appears in the input.  
-If `proof-shell-wakeup-char' is set, wait until we see that in the
-output chunk STR.  This optimizes the filter a little bit.
-
-If a prompt is seen, run `proof-shell-process-output' on the output
-between the new prompt and the last input (position of `proof-marker')
-or the last urgent message (position of
-`proof-shell-urgent-message-marker'), whichever is later.
-For example, in this case:
-
- PROMPT> INPUT
- OUTPUT-1
- URGENT-MESSAGE
- OUTPUT-2
- PROMPT>
-
-`proof-marker' is set after INPUT by `proof-shell-insert' and
-`proof-shell-urgent-message-marker' is set after URGENT-MESSAGE.
-Only OUTPUT-2 will be processed.  For this reason, error
-messages and interrupt messages should *not* be considered
-urgent messages.
-
-Output is processed using the function
-`proof-shell-filter-process-output'.
-
-The first time that a prompt is seen, `proof-marker' is
-initialised to the end of the prompt.  This should
-correspond with initializing the process.  The 
-ordinary output before the first prompt is ignored (urgent messages, 
-however, are always processed; hence their name)."
-  (save-excursion
-    ;; Strip CRs.
-    (if proof-shell-strip-crs-from-output
-	(progn
-	  (setq str (replace-regexp-in-string "\r+$" "" str))
-	  ;; Do the same thing in the buffer via comint's function
-	  ;; (sometimes put on comint-output-filter-functions too).
-	  (comint-strip-ctrl-m)))
-
-    ;; Process urgent messages.
-    (and proof-shell-eager-annotation-start
-	 (proof-shell-process-urgent-messages))
-
-    ;; FIXME da: some optimization possible here by customizing filter
-    ;; according to whether proof-shell-wakeup-char, etc, are non-nil.
-    ;; Could make proof-shell-filter into a macro to do this.
-    ;; On the other hand: it's not clear that wakeup-char is really
-    ;; needed, as matching the prompt may be efficient enough anyway.
-
-    (if ;; Some proof systems can be hacked to have annotated prompts;
-	;; for these we set proof-shell-wakeup-char to the annotation 
-	;; special, and look for it in the output before doing anything.
-	(if proof-shell-wakeup-char
-	    ;; NB: this match doesn't work in emacs-mule, darn.
-	    ;; (string-match (char-to-string proof-shell-wakeup-char) str))
-	    ;; NB: this match doesn't work in GNU Emacs 20.5, darn.
-	    ;; (find proof-shell-wakeup-char str)
-	    ;; So let's use both tests!
-	    (or
-	     (string-match (char-to-string proof-shell-wakeup-char) str)
-	     (find proof-shell-wakeup-char str))
-	  ;; Others systems rely on a standard top-level (e.g. SML) whose
-	  ;; prompts may be difficult or impossible to hack.
-	  ;; For those we must search in the buffer for the prompt.
-	  t)
-	(if (null (marker-position proof-marker))
-	    ;; Initialisation of proof-marker:
-	    ;; Set marker to after the first prompt in the
-	    ;; output buffer if one can be found now.
-	    ;; NB: ideally, we'd rather do this initialization outside
-	    ;; of the filter function for slightly better efficiency.  
-	    ;; Could be achieved by switching between filter functions.
-	    (progn
-	      (goto-char (point-min))
-	      (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
-		  (progn
-		    (set-marker proof-marker (point))
-		    ;; The first time a prompt is seen we ignore any 
-		    ;; output that occured before it, assuming that
-		    ;; corresponds to uninteresting startup messages. 
-		    ;; We process the
-		    ;; action list to remove the first item if need
-		    ;; be (proof-shell-init-cmd sent if 
-		    ;; proof-shell-config-done).
-		    (if proof-action-list
-			(proof-shell-filter-process-output "")))))
-	  ;; Now we're looking for the end of the piece of output
-	  ;; which will be processed.  
-	  
-	  ;; Note that the way this filter works, only one piece of
-	  ;; output can be dealt with at a time so we loose sync if
-	  ;; there's more than one bit there.
-	  
-	  ;; The blasphemous situation that the proof-action-list is
-	  ;; empty is now quietly ignored so that users can type in
-	  ;; the shell buffer without being screamed at.  Also allows
-	  ;; the process to output something for some other reason
-	  ;; (perhaps it's just being chatty), although that could
-	  ;; break the synchronization.  Any "unexpected" output like
-	  ;; this gets ignored.
-	  (if proof-action-list
-	      (let ((urgnt    (marker-position 
-			       proof-shell-urgent-message-marker))
-		    string startpos prev-prompt)
-		;; Ignore any urgent messages that have already been
-		;; dealt with.  This loses in the case mentioned
-		;; above.  A more general way of doing this would be
-		;; to filter out or delete the urgent messages which
-		;; have been processed already.
-		(setq prev-prompt (goto-char (marker-position proof-marker)))
-		(setq startpos prev-prompt) 
-		(if (and urgnt
-			 (< startpos urgnt))
-		    (setq startpos (goto-char urgnt))
-		  ;; Otherwise, skip possibly a (fudge) space and new line
-		  (if (eq (char-after startpos) ?\ )
-		      (setq startpos (goto-char (+ 2 startpos)))
-		    (setq startpos (goto-char (1+ startpos)))))
-		;; Find next prompt.  
-		(if (re-search-forward 
-		     proof-shell-annotated-prompt-regexp nil t)
-		    (progn
-		      (setq proof-shell-last-prompt
-			    (buffer-substring-no-properties
-			     (match-beginning 0) (match-end 0)))
-		      (backward-char (- (match-end 0) (match-beginning 0)))
-		      (setq string (buffer-substring-no-properties
-				    startpos (point)))
-		      (goto-char (point-max))	
-		      ;; Process output string.
-		      (proof-shell-filter-process-output string)
-		      ;; Cleanup shell buffer 
-		      (unless proof-general-debug
-			(pg-remove-specials prev-prompt (point-max)))
-		      )))
-	    ;; If proof-action-list is empty, make sure the process lock
-	    ;; is not held!  This should solve continual "proof shell busy"
-	    ;; error messages which sometimes occur during development,
-	    ;; at least.
-	    (if proof-shell-busy
-		(progn
-		  (proof-debug 
-		   "proof-shell-filter found empty action list yet proof shell busy.")
-		  (proof-release-lock))))))))
-
-
-
-(defun proof-shell-filter-process-output (string)
+(defun proof-shell-filter-manage-output (string)
   "Subroutine of `proof-shell-filter' to process output STRING.
 
 Appropriate action is taken depending on what
-`proof-shell-process-output' returns: maybe handle an interrupt, an
+`proof-shell-classify-output' returns: maybe handle an interrupt, an
 error, or deal with ordinary output which is a candidate for the goal
-or response buffer.  Ordinary output is only displayed when the proof
-action list becomes empty, to avoid a confusing rapidly changing
-output.
+or response buffer.  
+
+Ordinary output is only displayed when the proof action list
+becomes empty, to avoid a confusing rapidly changing output.
 
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue."
-  (let 
-      ;; Some functions may care which command invoked them
-      ((cmd  (nth 1 (car proof-action-list))))
-    (save-excursion
-      ;; 
-      (proof-shell-process-output cmd string)
-      (cond
-       ((eq proof-shell-last-output-kind 'error)
-	(proof-shell-handle-error cmd))
-       ((eq proof-shell-last-output-kind 'interrupt)
-	(proof-shell-handle-interrupt))
-       ((eq proof-shell-last-output-kind 'loopback)
-	(proof-shell-insert-loopback-cmd proof-shell-last-output)
-	(proof-shell-exec-loop))
-       ;; Otherwise, it's something that we should delay
-       ;; handling: we don't act on it unless all the commands
-       ;; in the queue region have been processed.
-       ;; (e.g. goals/response message)
-       (t 
-	(setq proof-shell-delayed-output-kind proof-shell-last-output-kind)
-	(setq proof-shell-delayed-output proof-shell-last-output)
-	(if (proof-shell-exec-loop)
-	    (proof-shell-handle-delayed-output)))))))
+  (let ((cmd   (nth 1 (car proof-action-list)))
+	(flags (nthcdr 3 (car proof-action-list))))
+
+    (proof-shell-classify-output cmd string)
+
+    (cond
+     ((eq proof-shell-last-output-kind 'error)
+      (proof-shell-handle-error cmd flags))
+     ((eq proof-shell-last-output-kind 'interrupt)
+      (proof-shell-handle-interrupt flags))
+     ((eq proof-shell-last-output-kind 'loopback)
+      (proof-shell-insert-loopback-cmd proof-shell-last-output)
+      (proof-shell-exec-loop))
+
+     ;; Otherwise, delay handling ordinary script functions: don't act
+     ;; unless all the commands the queue region have been processed.
+     (t 
+      (setq proof-shell-delayed-output-kind proof-shell-last-output-kind)
+      (setq proof-shell-delayed-output proof-shell-last-output)
+      (setq proof-shell-delayed-flags flags)
+      (if (proof-shell-exec-loop)
+	  (proof-shell-handle-delayed-output))))))
 
 
+(defun proof-shell-handle-delayed-output ()
+  "Display delayed output.
+This function handles the cases of `proof-shell-delayed-output-kind' which
+are not dealt with eagerly during script processing, namely
+'abort, 'response, 'goals outputs.
+This is useful even with empty delayed output, since it clears buffers."
+  (cond
+   ;; Response buffer output
+   ((eq proof-shell-delayed-output-kind 'abort)
+    (unless (memq 'no-error-display proof-shell-delayed-flags)
+      (pg-response-display proof-shell-delayed-output)))
+   ((eq proof-shell-delayed-output-kind 'response)
+    (unless (memq 'no-response-display proof-shell-delayed-flags))
+      (pg-response-display proof-shell-delayed-output))
+   ;; Goals buffer output
+   ((eq proof-shell-delayed-output-kind 'goals)
+    (unless (memq 'no-goals-display proof-shell-delayed-flags)
+      (pg-goals-display proof-shell-delayed-output)))
+   ;; Ignore other cases
+   )
+  (run-hooks 'proof-shell-handle-delayed-output-hook))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Tracing catch-up: prevent Emacs-consumes-all-CPU-fontifying phenomenon
@@ -1665,21 +1665,26 @@ Calls proof-state-change-hook."
   (run-hooks 'proof-state-change-hook))
 
 ;;;###autoload
-(defun proof-shell-invisible-command (cmd &optional wait)
+(defun proof-shell-invisible-command (cmd &optional wait invisiblecallback 
+					  &rest flags)
   "Send CMD to the proof process.
 The CMD is `invisible' in the sense that it is not recorded in buffer.
 CMD may be a string or a string-yielding expression.
 
 Automatically add proof-terminal-char if necessary, examining
-proof-shell-no-auto-terminate-commands.
+`proof-shell-no-auto-terminate-commands'.
 
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
 
-In case CMD is (or yields) nil, do nothing."
-;; NB: 31.03.04: remove this case, since proof-shell-wait simplified:
-;; If WAIT is an integer, wait for that many seconds afterwards."
+In case CMD is (or yields) nil, do nothing.
+
+INVISIBLECALLBACK will be invoked after the command has finished,
+if it is set.  It should probably run the hook variables 
+`proof-state-change-hook'.
+
+If NOERROR is set, surpress usual error action."
   (unless (stringp cmd)
     (setq cmd (eval cmd)))
   (if cmd
@@ -1692,37 +1697,39 @@ In case CMD is (or yields) nil, do nothing."
 				   "[ \t]*$") cmd))
 	  (setq cmd (concat cmd (char-to-string proof-terminal-char))))
 	(if wait (proof-shell-wait))
-	(proof-shell-ready-prover)		; start proof assistant; set vars.
-	(proof-start-queue nil nil
-			   (list (proof-shell-command-queue-item 
-				  cmd 'proof-done-invisible)))
+	(proof-shell-ready-prover)  ; start proof assistant; set vars.
+	(let* ((callback
+		(if invisiblecallback 
+		    (lexical-let ((icb invisiblecallback))
+		      (lambda (span)
+			(funcall icb span)))
+		  'proof-done-invisible)))
+	  (proof-start-queue nil nil
+			     (list (proof-shell-action-list-item 
+				    cmd 
+				    callback
+				    flags))))
 	(if wait (proof-shell-wait)))))
 
 ;;;###autoload
-(defun proof-shell-invisible-cmd-get-result (cmd &optional noerror)
+(defun proof-shell-invisible-cmd-get-result (cmd)
   "Execute CMD and return result as a string.
-This expects CMD to print something to the response buffer.
-The output in the response buffer is disabled, and the result
-\(contents of `proof-shell-last-output') is returned as a 
-string instead.  
-
-Errors are not supressed and will result in a display as 
-usual, unless NOERROR is non-nil."
-  (setq proof-shell-no-response-display t)
-  (setq proof-shell-no-error-display t)
-  (unwind-protect
-      (proof-shell-invisible-command cmd 'waitforit)
-    (setq proof-shell-no-error-display nil)
-    (setq proof-shell-no-response-display nil))
+This expects CMD to result in some theorem prover output.
+Ordinary output (and error handling) is disabled, and the result
+\(contents of `proof-shell-last-output') is returned as a string."
+  (proof-shell-invisible-command cmd 'waitforit
+				 nil
+				 'no-response-display
+				 'no-error-display)
   proof-shell-last-output)
 
 ;;;###autoload
-(defun proof-shell-invisible-command-invisible-result (cmd &optional noerror)
-  "Execute CMD, wait for but do not display result."
-  ;; Just same as previous function, except we discard result
-  (proof-shell-invisible-cmd-get-result cmd noerror)
-  nil)
-  
+(defun proof-shell-invisible-command-invisible-result (cmd)
+  "Execute CMD for side effect in the theorem prover, waiting before and after.
+Error messages are displayed as usual."
+  (proof-shell-invisible-command cmd 'waitforit
+				 nil
+				 'no-response-display))
   
 
 
