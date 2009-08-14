@@ -722,23 +722,29 @@ NAME does not need to be unique."
       map)
     "Keymap for the span context menu.")
 
+(defun pg-last-output-displayform ()
+  "Return displayable form of `proof-shell-last-output'."
+  (let ((text (proof-shell-strip-output-markup
+	       (if (and (boundp 'unicode-tokens-mode)
+			unicode-tokens-mode)
+		   (unicode-tokens-encode-str proof-shell-last-output)
+		 proof-shell-last-output))))
+    ;; NOTE: hack for Isabelle which puts ugly leading \n's in proofstate.
+    (if (eq (string-match "^\n" text) 0)
+	(setq text (substring text 1)))
+    text))
+
 ;;;###autoload
 (defun pg-set-span-helphighlights (span &optional nohighlight)
-  "Add a daughter help span for SPAN with help message, highlight, actions"
+  "Add a daughter help span for SPAN with help message, highlight, actions.
+We add the last output to the hover display here."
   (let ((helpmsg    (pg-span-name span))
-	(proofstate (proof-shell-strip-output-markup
-		     (if (and (boundp 'unicode-tokens-mode)
-			      unicode-tokens-mode)
-			 (unicode-tokens-encode-str proof-shell-last-output)
-		       proof-shell-last-output)))
+	(proofstate (pg-last-output-displayform))
 	(newspan    (let ((newstart (save-excursion
 				      (goto-char (span-start span))
 				      (skip-chars-forward " \n\t")
 				      (point))))
 		      (span-make newstart (span-end span)))))
-    ;; NOTE: hack for Isabelle which puts ugly leading \n's in proofstate.
-    (if (eq (string-match "^\n" proofstate) 0)
-	(setq proofstate (substring proofstate 1)))
     (setq helpmsg
 	  (concat (if (> (length proofstate) 2) "" helpmsg) 
 		  proofstate))
