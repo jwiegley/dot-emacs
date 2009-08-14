@@ -941,13 +941,13 @@ This is specific to `coq-mode'."
 ;; Actually this could be done by adapting process-delayed-output.
 (defun coq-hybrid-ouput-goals-response-p (cmd string)
   "Specific test function to detect hybrid response/goal output from coq. 
-To be used in `proof-shell-process-output-system-specific'. "
+To be used in `proof-shell-classify-output-system-specific'. "
   (proof-shell-string-match-safe "[0-9]+ subgoals?" string)  
   )
 
 (defun coq-hybrid-ouput-goals-response (cmd string)
   "Specific function to deal with hybrid response/goal output from coq. 
-To be used in `proof-shell-process-output-system-specific'."
+To be used in `proof-shell-classify-output-system-specific'."
   ;; match subgoal list anywhere in the ouput
   ;; then display the message before it, and then do as a normal goal
   ;; output.
@@ -958,7 +958,7 @@ To be used in `proof-shell-process-output-system-specific'."
     (unless nil ;(not (null proof-action-list)) 
       ;(setq proof-shell-last-output goalstring)
       ;(setq proof-shell-last-output-kind 'goals)
-      ;; (proof-shell-process-output cmd goalstring)
+      ;; (proof-shell-classify-output cmd goalstring)
       (pg-goals-display goalstring) ;; this erases response buffer
       (pg-response-display prestring);; this does not erase goals buffer
       ;(proof-shell-handle-delayed-output-hook)
@@ -1000,7 +1000,7 @@ To be used in `proof-shell-process-output-system-specific'."
                                         ; (proof-assistant-settings-cmd))
    proof-shell-restart-cmd coq-shell-restart-cmd
    pg-subterm-anns-use-stack t
-   proof-shell-process-output-system-specific
+   proof-shell-classify-output-system-specific
    '(coq-hybrid-ouput-goals-response-p . coq-hybrid-ouput-goals-response)
    )
   

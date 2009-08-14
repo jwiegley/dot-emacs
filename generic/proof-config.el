@@ -2247,10 +2247,10 @@ before returning to the top level."
   :type '(repeat function)
   :group 'proof-shell)
 
-(defcustom proof-shell-process-output-system-specific nil
+(defcustom proof-shell-classify-output-system-specific nil
   "Set this variable to handle system specific output.
 Errors, start of proofs, abortions of proofs and completions of
-proofs are recognised in the function `proof-shell-process-output'.
+proofs are recognised in the function `proof-shell-classify-output'.
 All other output from the proof engine is simply reported to the
 user in the RESPONSE buffer.
 
@@ -2258,10 +2258,10 @@ To catch further special cases, set this variable to a pair of
 functions '(condf . actf).  Both are given (cmd string) as arguments.
 `cmd' is a string containing the currently processed command.
 `string' is the response from the proof system.  To change the
-behaviour of `proof-shell-process-output', (condf cmd string) must
+behaviour of `proof-shell-classify-output', (condf cmd string) must
 return a non-nil value.  Then (actf cmd string) is invoked.
 
-See the documentation of `proof-shell-process-output' for the required
+See the documentation of `proof-shell-classify-output' for the required
 output format."
   :type '(repeat function)
   :group 'proof-shell)

@@ -488,7 +488,7 @@ We assume that module identifiers coincide with file names."
         proof-shell-init-cmd plastic-process-config
 	proof-shell-restart-cmd plastic-process-config
         pg-subterm-anns-use-stack nil
-        proof-shell-process-output-system-specific plastic-shell-process-output
+        proof-shell-classify-output-system-specific plastic-shell-process-output
         plastic-shell-current-line-width nil
 
 	proof-shell-process-file
