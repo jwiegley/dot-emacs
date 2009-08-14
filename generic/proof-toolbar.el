@@ -216,16 +216,12 @@ to the default toolbar."
 (defalias 'proof-toolbar-context 'proof-ctxt)
 (defalias 'proof-toolbar-context-enable-p 'proof-shell-available-p)
 
-;; Info
-
-(defalias 'proof-toolbar-info 'proof-help)
-
 ;; Command
 
 (defalias 'proof-toolbar-command 'proof-minibuffer-cmd)
 (defalias 'proof-toolbar-command-enable-p 'proof-shell-available-p)
 
-;; Help
+;; Help  (I was an alias for this)
  
 (defun proof-toolbar-help ()
   (interactive)
@@ -235,6 +231,11 @@ to the default toolbar."
  
 (defalias 'proof-toolbar-find 'proof-find-theorems)
 (defalias 'proof-toolbar-find-enable-p 'proof-shell-available-p)
+
+;; Info
+ 
+(defalias 'proof-toolbar-info 'proof-query-identifier)
+(defalias 'proof-toolbar-info-enable-p 'proof-shell-available-p)
 
 ;; Visibility (not on toolbar)
 
