@@ -975,25 +975,46 @@ The function `substitute-command-keys' is called on the argument."
 
 (defun pg-identifier-near-point-query ()
   (interactive)
-  (let ((identifier 
-	 ;; If there's an active region in this buffer, use that
-	 ;; instead of the identifier under point.  Since
-	 ;; region-end moves immediately to new point with
-	 ;; zmacs-regions we use oldend instead of current.
-	 (if (region-active-p)
-	     (buffer-substring (region-beginning)
-			       (or oldend (region-end)))
-	   (current-word)))
-	(ctxt (proof-buffer-syntactic-context)))
-    (pg-identifier-query identifier ctxt)))
+  (let* ((stend       (if (region-active-p)
+		          (cons (region-beginning) (region-end))
+		        (pg-current-word-pos)))
+	 (start       (car-safe stend))
+	 (end         (cdr-safe stend))
+	 (identifier  (if start
+			  (buffer-substring-no-properties
+			   start end)))
+	 (ctxt	      (if start
+			  (save-excursion
+			    (goto-char start)
+			    (proof-buffer-syntactic-context)))))
+    (if start
+	(pg-identifier-query 
+	 identifier ctxt
+	 ;; the callback
+	 (lexical-let ((s start) (e end))
+	   (lambda (x) 
+	     (let ((idspan (span-make s e)))
+	       ;; TODO: clean these up!
+	       (span-set-property idspan 'help-echo
+				  (pg-last-output-displayform)))))))))
+
+(defvar proof-query-identifier-collection nil)
+(defvar proof-query-identifier-history nil)
 
 (defun proof-query-identifier (string)
-  (interactive "sQuery identifier: ")
-  (pg-identifier-query string))
+  (interactive 
+   (list
+    (completing-read "Query identifier: "
+		     proof-query-identifier-collection
+		     nil nil
+		     (current-word)
+		     proof-query-identifier-history)))
+  (if string (pg-identifier-query string)))
 
-(defun pg-identifier-query (identifier &optional ctxt)
+(defun pg-identifier-query (identifier &optional ctxt callback)
   "Query the proof assisstant about the given identifier (or string).
-This uses `proof-query-identifier-command'."
+This uses `proof-query-identifier-command'.
+If CALLBACK is set, we invoke that when the command completes."
   (unless (or (null identifier)
 	      (string-equal identifier "")) ;; or whitespace?
     (proof-shell-invisible-command
@@ -1005,7 +1026,9 @@ This uses `proof-query-identifier-command'."
        ;; buffer-syntactic context dependent, as an alist
        ;; (handy for Isabelle: not a true replacement for parsing)
        (format (nth 1 (assq ctxt proof-query-identifier-command))
-	       identifier))))))
+	       identifier)))
+     nil ; no wait
+     callback)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
