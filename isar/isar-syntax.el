@@ -377,15 +377,17 @@ matches contents of quotes for quoted identifiers.")
 ;; done generically at the moment:
 ;; (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
    (isar-output-flk "\^AB" isar-long-id-stuff "\^AA" 'isabelle-class-name-face)
-   (isar-output-flk "\^AC'" isar-id "\^AA" 'isabelle-tfree-name-face)
-   (isar-output-flk "\^AD'" isar-idx "\^AA" 'isabelle-tvar-name-face)
-   (isar-output-flk "\^AD\\?'" isar-idx "\^AA" 'isabelle-tvar-name-face)
+   (isar-output-flk "\^AC" isar-id "\^AA" 'isabelle-tfree-name-face)
+   (isar-output-flk "\^AD" isar-idx "\^AA" 'isabelle-tvar-name-face)
    (isar-output-flk "\^AE" isar-id "\^AA" 'isabelle-free-name-face)
    (isar-output-flk "\^AF" isar-id "\^AA" 'isabelle-bound-name-face)
    (isar-output-flk "\^AG" isar-idx "\^AA" 'isabelle-var-name-face)
-   (isar-output-flk "\^AG\\?" isar-idx "\^AA" 'isabelle-var-name-face)
    (isar-output-flk "\^AH" isar-id "\^AA" 'proof-declaration-name-face)
-   (isar-output-flk "\^AH\\?" isar-idx "\^AA" 'proof-declaration-name-face))
+   ;; could also hide spurious ASCII characters which 
+   ;; aren't needed when working in colour:
+   ; (isar-output-flk "\^AG\\?" isar-idx "\^AA" 'isabelle-var-name-face)
+   ; etc
+   )
   "*Font-lock table for Isabelle output terms.")
 
 (defun isar-strip-output-markup (string)
