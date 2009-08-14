@@ -373,18 +373,31 @@ matches contents of quotes for quoted identifiers.")
    (isar-output-flkprops 
     "\^AW" "\\(?:[^\^A]\\|\^A[^X]\\)*" "\^AX" 
     '(face (:underline t) mouse-face 'highlight sendback t))
-   (isar-output-flk "\^A0" "\\(?:[^\^A]\\|\^A[^1]\\)*" "\^A1" 'proof-warning-face)
+
+   (isar-output-flk "\^A0" 
+		    "\\(?:[^\^A]\\|\^A[^1]\\)*" "\^A1" 
+		    'proof-warning-face)
+
 ;; done generically at the moment:
 ;; (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
-   (isar-output-flk "\^AB" isar-long-id-stuff "\^AA" 'isabelle-class-name-face)
-   (isar-output-flk "\^AC" isar-id "\^AA" 'isabelle-tfree-name-face)
-   (isar-output-flk "\^AD" isar-idx "\^AA" 'isabelle-tvar-name-face)
+
+   (isar-output-flk "\^AB" isar-long-id-stuff 
+		    "\^AA" 'isabelle-class-name-face)
+   (isar-output-flk "\^AC" (concat "'" isar-id) 
+		    "\^AA" 'isabelle-tfree-name-face)
+   (isar-output-flk "\^AD" (concat "[\\?']?" isar-idx)
+		    "\^AA" 'isabelle-tvar-name-face)
    (isar-output-flk "\^AE" isar-id "\^AA" 'isabelle-free-name-face)
    (isar-output-flk "\^AF" isar-id "\^AA" 'isabelle-bound-name-face)
-   (isar-output-flk "\^AG" isar-idx "\^AA" 'isabelle-var-name-face)
-   (isar-output-flk "\^AH" isar-id "\^AA" 'proof-declaration-name-face)
-   ;; could also hide spurious ASCII characters which 
-   ;; aren't needed when working in colour:
+   (isar-output-flk "\^AG" (concat "[\\?]?" isar-idx) 
+		    "\^AA" 'isabelle-var-name-face)
+   (isar-output-flk "\^AH" (concat "[\\?]?" isar-idx)
+		    "\^AA" 'proof-declaration-name-face)
+
+   ;; may alternatively hide the spurious ASCII characters which 
+   ;; aren't needed when working in colour (Isabelle printing switch
+   ;; allows this for ?'s but not for 's):
+   ; (isar-output-flk "\^AC'" isar-id "\^AA" 'isabelle-tfree-name-face)
    ; (isar-output-flk "\^AG\\?" isar-idx "\^AA" 'isabelle-var-name-face)
    ; etc
    )
