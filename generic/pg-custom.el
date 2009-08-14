@@ -70,9 +70,10 @@ support depends on whether your proof assistant supports it."
     (qed       "Finish Proof"       "Close/save proved theorem" t nil)
     (home      "Goto Locked End"    "Goto end of the last command proceesed" t t)
     (find      "Find Theorems"	    "Find theorems" t proof-find-theorems-command)
-    (command   "Issue Command"	    "Issue a non-scripting command" nil)
-    (interrupt "Interrupt Prover"   "Interrupt the proof assistant" t)
-    (restart   "Restart Scripting"  "Restart scripting (clear all locked regions)" t)
+    (info      "Identifier Info"    "Information about identifier" t proof-query-identifier-command)
+    (command   "Issue Command"	    "Issue a non-scripting command" t t)
+    (interrupt "Interrupt Prover"   "Interrupt the proof assistant" t t)
+    (restart   "Restart Scripting"  "Restart scripting (clear all locked regions)" t t)
     (visibility "Toggle Visibility" "Show or hide hidden proofs" nil t)
     (help	nil		    "Proof General manual" t t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
