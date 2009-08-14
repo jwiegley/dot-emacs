@@ -811,6 +811,52 @@ EXTRAPATH is a list of extra path components"
 		  1)))
    (if returnnopath progname)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Finding executables
+;;
+
+;; This is taken from simple.el in GNU Emacs 23.
+(defun pg-current-word-pos (&optional strict really-word)
+  "Return the start and end positions of symbol that point is on (or nearby).
+The return value includes no text properties.
+If optional arg STRICT is non-nil, return nil unless point is within
+or adjacent to a symbol or word.  In all cases the value can be nil
+if there is no word nearby.
+The function, belying its name, normally finds a symbol.
+If optional arg REALLY-WORD is non-nil, it finds just a word."
+  (save-excursion
+    (let* ((oldpoint (point)) (start (point)) (end (point))
+	   (syntaxes (if really-word "w" "w_"))
+	   (not-syntaxes (concat "^" syntaxes)))
+      (skip-syntax-backward syntaxes) (setq start (point))
+      (goto-char oldpoint)
+      (skip-syntax-forward syntaxes) (setq end (point))
+      (when (and (eq start oldpoint) (eq end oldpoint)
+		 ;; Point is neither within nor adjacent to a word.
+		 (not strict))
+	;; Look for preceding word in same line.
+	(skip-syntax-backward not-syntaxes
+			      (save-excursion (beginning-of-line)
+					      (point)))
+	(if (bolp)
+	    ;; No preceding word in same line.
+	    ;; Look for following word in same line.
+	    (progn
+	      (skip-syntax-forward not-syntaxes
+				   (save-excursion (end-of-line)
+						   (point)))
+	      (setq start (point))
+	      (skip-syntax-forward syntaxes)
+	      (setq end (point)))
+	  (setq end (point))
+	  (skip-syntax-backward syntaxes)
+	  (setq start (point))))
+      ;; If we found something nonempty, return it as a pair of positions.
+      (unless (= start end)
+	(cons start end)))))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
