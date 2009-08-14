@@ -98,6 +98,7 @@ without adjusting window layout."
   (define-key map [(control c) (control r)] 'proof-retract-buffer)
   (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
   (define-key map [(control c) (control t)] 'proof-ctxt)
+  (define-key map [(control c) (control i)] 'proof-query-identifier)
   ;; C-c C-u is proof-undo-last-successful-command in universal-keys
   ;; C-c C-w is pg-response-clear-displays in universal-keys
   (define-key map [(control c) (control z)] 'proof-frob-locked-end)
