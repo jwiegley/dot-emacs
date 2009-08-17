@@ -234,17 +234,20 @@ scripting buffer may have an active queue span.")
   "Set the queue span to be START, END."
   (span-set-endpoints proof-queue-span start end))))
 
-(defsubst proof-set-locked-endpoints (start end)
-  "Set the locked span to be START, END."
-  (span-set-endpoints proof-locked-span start end)
+(defun proof-set-overlay-arrow (pos)
   (and (markerp proof-overlay-arrow)
        (set-marker proof-overlay-arrow 
 		   (save-excursion
-		     (goto-char end)
+		     (goto-char pos)
 		     (skip-chars-forward " \t\s\n")
 		     (unless (eq (point) (point-max))
 		       (beginning-of-line)
 		       (point))))))
+
+(defsubst proof-set-locked-endpoints (start end)
+  "Set the locked span to be START, END."
+  (span-set-endpoints proof-locked-span start end)
+  (proof-set-overlay-arrow end))
 
 (defsubst proof-detach-queue ()
   "Remove the span for the queue region."
@@ -3042,7 +3045,11 @@ Choice of function depends on configuration setting."
   "Value for `after-change-functions' in proof script buffers."
   (setq proof-last-edited-low-watermark 
 	(min (or proof-last-edited-low-watermark (point-max))
-	     start)))
+	     start))
+  (if (and (markerp proof-overlay-arrow)
+	   (< start (marker-position proof-overlay-arrow))
+	   (>= start (proof-queue-or-locked-end)))
+      (proof-set-overlay-arrow start)))
 
 (defun proof-script-set-after-change-functions ()
   (add-hook 'after-change-functions 
