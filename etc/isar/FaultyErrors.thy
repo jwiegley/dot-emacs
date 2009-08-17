@@ -3,8 +3,8 @@ begin
 
 lemma foo: "P --> P" by auto
 
-ML_setup {* Output.error_msg "Fake error"; *} (* now *not* an error *)
-ML_setup {* error "Real error" :unit; *}      (* a true error, command fails *)
+ML {* Output.error_msg "Fake error"; *} (* now *not* an error *)
+ML {* error "Real error" :unit; *}      (* a true error, command fails *)
 
 (* After an error message, the system wrongly thinks the
    command has succeeded, currently 03.01.07.

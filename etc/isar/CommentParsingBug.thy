@@ -1,3 +1,3 @@
 (**)(**)
-theory Scratch = Main:
+theory Scratch imports Main begin
 

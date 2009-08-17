@@ -1,5 +1,5 @@
 (* Tobias reported 24.1.03.  Could not repeat prob *)
-theory test = Main:
+theory test imports Main begin
 
 (*
 defs
