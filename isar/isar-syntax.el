@@ -248,6 +248,16 @@ matches contents of quotes for quoted identifiers.")
 (defconst isar-string-start-regexp "\"\\|`\\|{\\*")
 (defconst isar-string-end-regexp "\"\\|`\\|\\*}")
 
+(defun isar-syntactic-context ()
+  (let ((sc (proof-looking-at-syntactic-context-default)))
+    (or (if (eq sc 'string)
+	    (save-excursion
+	      (save-match-data
+		(and (re-search-backward isar-string-start-regexp)
+		     (re-search-backward "--")
+		     'comment))))
+      sc)))
+	  
 
 ;; antiquotations
 
