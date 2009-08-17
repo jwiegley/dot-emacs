@@ -178,9 +178,9 @@ See -k option for Isabelle interface script."
      ;; Normal case: quotation for backslash, quote mark.
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
-   proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-interrupt-regexp         "\^AM\\*\\*\\* Interrupt"
-   proof-shell-error-regexp             "\^AM\\*\\*\\*"
+   proof-shell-error-regexp             "\^AM\\*\\*\\*" 
+   proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
    pg-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
