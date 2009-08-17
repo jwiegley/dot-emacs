@@ -107,14 +107,22 @@ nil if a region cannot be found."
   "Like proof-looking-at, but return nil if REGEXP is nil."
   (if regexp (proof-looking-at regexp)))
 
-(defun proof-looking-at-syntactic-context ()
-  "Determine if current point is at beginning or within comment/string context.
-If so, return non-nil."
+(defun proof-looking-at-syntactic-context-default ()
+  "Default function for `proof-looking-at-syntactic-context'."
   (or
    (proof-buffer-syntactic-context)
-   (when (proof-looking-at-safe proof-script-comment-start-regexp) 'comment)
-   (when (proof-looking-at-safe proof-string-start-regexp) 'string)))
+   (save-match-data 
+     (when (proof-looking-at-safe proof-script-comment-start-regexp) 'comment))
+   (save-match-data
+     (when (proof-looking-at-safe proof-string-start-regexp) 'string))))
 
+(defun proof-looking-at-syntactic-context ()
+  "Determine if current point is at beginning or within comment/string context.
+If so, return a symbol indicating this ('comment or 'string).
+This function invokes <PA-syntactic-context> if that is defined." 
+  (if (fboundp (proof-ass-sym syntactic-context))
+      (funcall (proof-ass-sym syntactic-context))
+    (proof-looking-at-syntactic-context-default)))
 
 
 ;; Replacing matches
