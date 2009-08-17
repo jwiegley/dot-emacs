@@ -2450,7 +2450,7 @@ the current restriction, and must return the final value of (point-max).
   :group 'proof-general-internals)
 
 (defcustom proof-universal-keys
-  '(([(control c) \`] . proof-next-error)  ; ("`" . proof-next-error)
+  '(([(control c) ?`] . proof-next-error)  ; ("`" . proof-next-error)
     ([(control c) (control c)]  . proof-interrupt-process)
     ([(control c) (control n)]  . proof-assert-next-command-interactive)
     ([(control c) (control u)]  . proof-undo-last-successful-command)
