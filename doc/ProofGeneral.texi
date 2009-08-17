@@ -2972,7 +2972,7 @@ If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!).
 
-The default value is @code{strict}.
+The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-allow-undo-in-read-only
