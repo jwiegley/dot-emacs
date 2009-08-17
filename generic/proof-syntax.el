@@ -119,7 +119,8 @@ nil if a region cannot be found."
 (defun proof-looking-at-syntactic-context ()
   "Determine if current point is at beginning or within comment/string context.
 If so, return a symbol indicating this ('comment or 'string).
-This function invokes <PA-syntactic-context> if that is defined." 
+This function invokes <PA-syntactic-context> if that is defined, otherwise
+it calls `proof-looking-at-syntactic-context'." 
   (if (fboundp (proof-ass-sym syntactic-context))
       (funcall (proof-ass-sym syntactic-context))
     (proof-looking-at-syntactic-context-default)))
