@@ -3047,6 +3047,7 @@ Choice of function depends on configuration setting."
 	(min (or proof-last-edited-low-watermark (point-max))
 	     start))
   (if (and (markerp proof-overlay-arrow)
+	   (marker-position proof-overlay-arrow)
 	   (< start (marker-position proof-overlay-arrow))
 	   (>= start (proof-queue-or-locked-end)))
       (proof-set-overlay-arrow start)))
