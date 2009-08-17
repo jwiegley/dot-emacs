@@ -787,6 +787,18 @@ NB: This setting is not used for matching output from the prover.
 @end defvar
 
 
+Finally, the function @code{proof-looking-at-syntactic-context} is used
+internally to help determine the syntactic structure of the buffer.
+You can test it to check the settings above.  If necessary, you can
+override this with a system-specific function.
+
+@c TEXI DOCSTRING MAGIC: proof-looking-at-syntactic-context
+@defun proof-looking-at-syntactic-context 
+Determine if current point is at beginning or within comment/string context.@*
+If so, return a symbol indicating this ('comment or @code{'string}).
+This function invokes <PA-syntactic-context> if that is defined, otherwise
+it callse @samp{@code{proof-looking-at-syntactic-context}}.
+@end defun
 @node Recognizing proofs
 @section Recognizing proofs
 
@@ -1973,11 +1985,11 @@ This hook is added to allow customization for systems that query the user
 before returning to the top level.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-shell-process-output-system-specific
-@defvar proof-shell-process-output-system-specific 
+@c TEXI DOCSTRING MAGIC: proof-shell-classify-output-system-specific
+@defvar proof-shell-classify-output-system-specific 
 Set this variable to handle system specific output.@*
 Errors, start of proofs, abortions of proofs and completions of
-proofs are recognised in the function @samp{@code{proof-shell-process-output}}.
+proofs are recognised in the function @samp{@code{proof-shell-classify-output}}.
 All other output from the proof engine is simply reported to the
 user in the @var{response} buffer.
 
@@ -1985,10 +1997,10 @@ To catch further special cases, set this variable to a pair of
 functions '(condf . actf).  Both are given (cmd string) as arguments.
 @samp{cmd} is a string containing the currently processed command.
 @samp{string} is the response from the proof system.  To change the
-behaviour of @samp{@code{proof-shell-process-output}}, (condf cmd string) must
+behaviour of @samp{@code{proof-shell-classify-output}}, (condf cmd string) must
 return a non-nil value.  Then (actf cmd string) is invoked.
 
-See the documentation of @samp{@code{proof-shell-process-output}} for the required
+See the documentation of @samp{@code{proof-shell-classify-output}} for the required
 output format.
 @end defvar
 
@@ -2591,19 +2603,25 @@ directly manipulate the proof action list, or insert into the shell
 buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
-@defun proof-shell-invisible-command cmd &optional wait
+@defun proof-shell-invisible-command cmd &optional wait invisiblecallback &rest flags
 Send @var{cmd} to the proof process.@*
 The @var{cmd} is @samp{invisible} in the sense that it is not recorded in buffer.
 @var{cmd} may be a string or a string-yielding expression.
 
 Automatically add @code{proof-terminal-char} if necessary, examining
-proof-shell-no-auto-terminate-commands.
+@samp{proof-shell-no-auto-terminate-commands}.
 
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
 
 In case @var{cmd} is (or yields) nil, do nothing.
+
+@var{invisiblecallback} will be invoked after the command has finished,
+if it is set.  It should probably run the hook variables 
+@samp{@code{proof-state-change-hook}}.
+
+If @var{noerror} is set, surpress usual error action.
 @end defun
 
 There are several handy macros to help you define functions
@@ -3149,8 +3167,8 @@ be sent to the proof assistant.
 @defun proof-semis-to-vanillas semis &optional callback-fn
 Convert a sequence of terminator positions to a set of vanilla extents.@*
 Proof terminator positions @var{semis} has the form returned by
-the function proof-segment-up-to.
-Set the callback to @var{callback-fn} or @code{'proof-done-advancing} by default.
+the function @samp{proof-segment-up-to}.
+Set the callback to @var{callback-fn} or @samp{@code{proof-done-advancing}} by default.
 @end defun
 
 The function @code{proof-assert-until-point} is the main one used to
@@ -3257,11 +3275,20 @@ Marker in proof shell buffer pointing to previous command input.
 
 @c TEXI DOCSTRING MAGIC: proof-action-list
 @defvar proof-action-list 
-A list of@*
+A list of lists of the form@*
 @lisp
-  (@var{span} @var{command} @var{action})
+  (@var{span} @var{command} @var{action} [FLAGS])
 @end lisp
-triples, which is a queue of things to do.
+which is a queue of things to do.  Flags are set for non-standard
+commands (out of script).  They may include
+@lisp
+  @code{'no-response-display}   do not display messages in @strong{response} buffer
+  @code{'no-error-display}      do not display errors/take error action
+  @code{'no-goals-display}      do not goals in @strong{goals} buffer
+@end lisp
+If flags are non-empty, other interactive cues will be surpressed.
+(E.g., printing help messages).
+
 See the functions @samp{@code{proof-start-queue}} and @samp{proof-exec-loop}.
 @end defvar
 
@@ -3375,15 +3402,17 @@ being processed.
 @defun proof-shell-exec-loop 
 Process the @samp{@code{proof-action-list}}.
 
-@samp{@code{proof-action-list}} contains a list of (@var{span} @var{command} @var{action}) triples.
+@samp{@code{proof-action-list}} contains a list of (@var{span} @var{command} @var{action} [FLAGS]) lists.
 
 If this function is called with a non-empty @code{proof-action-list}, the
 head of the list is the previously executed command which succeeded.
 We execute (@var{action} @var{span}) on the first item, then (@var{action} @var{span}) on any
 following items which have @samp{@code{proof-no-command}} as their cmd components.
-If a there is a next command after that, send it to the process.  If
-the action list becomes empty, unlock the process and remove the queue
-region.
+
+If a there is a next command after that, send it to the process.  
+
+If the action list becomes empty, unlock the process and remove
+the queue region.
 
 The return value is non-nil if the action list is now empty.
 @end defun
@@ -3434,7 +3463,7 @@ to err-or-int.
 @c
 @subsection Output from the shell
 
-Two main functions deal with output, @code{proof-shell-process-output}
+Two main functions deal with output, @code{proof-shell-classify-output}
 and @code{proof-shell-process-urgent-message}.  In effect we consider
 the output to be two streams intermingled: the "urgent" messages which
 have "eager" annotations, as well as the ordinary ruminations from the
@@ -3490,7 +3519,7 @@ Specifically:
  @code{'response}       A response message
  @code{'goals}          A goals (proof state) display
  @code{'systemspecific} Something specific to a particular system,
-                  -- see @samp{@code{proof-shell-process-output-system-specific}}
+                  -- see @samp{@code{proof-shell-classify-output-system-specific}}
 @end lisp
 The output corresponding to this will be in @code{proof-shell-last-output}.
 
@@ -3503,22 +3532,22 @@ to examine @code{proof-shell-last-output}.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-delayed-output
 @defvar proof-shell-delayed-output 
-A copy of @code{proof-shell-last-output} held back for processing at end of queue.
+A copy of @samp{@code{proof-shell-last-output}} held back for processing at end of queue.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-delayed-output-kind
 @defvar proof-shell-delayed-output-kind 
-A copy of proof-shell-last-output-lind held back for processing at end of queue.
+A copy of @samp{@code{proof-shell-last-output-kind}} held back for processing at end of queue.
 @end defvar
 @vindex proof-action-list
 
-@c TEXI DOCSTRING MAGIC: proof-shell-process-output
-@defun proof-shell-process-output cmd string
+@c TEXI DOCSTRING MAGIC: proof-shell-classify-output
+@defun proof-shell-classify-output cmd string
 Process shell output (resulting from @var{cmd}) by matching on @var{string}.@*
 @var{cmd} is the first part of the @samp{@code{proof-action-list}} that lead to this
 output.  The result of this function is a pair (@var{symbol} @var{newstring}).
 
-Here is where we recognizes interrupts, abortions of proofs, errors,
+Here is where we classify interrupts, abortions of proofs, errors,
 completions of proofs, and proof step hints (proof by pointing results).
 They are checked for in this order, using
 @lisp
@@ -3535,7 +3564,7 @@ cell of ('insert . @var{text}) where @var{text} is the text string to be inserte
 
 Order of testing is: interrupt, abort, error, completion.
 
-To extend this function, set @samp{@code{proof-shell-process-output-system-specific}}.
+To extend this function, set @samp{@code{proof-shell-classify-output-system-specific}}.
 
 The "aborted" case is intended for killing off an open proof during
 retraction.  Typically it matches the message caused by a
@@ -3543,8 +3572,8 @@ retraction.  Typically it matches the message caused by a
 the response buffer.  So it is expected to be the result of a 
 retraction, rather than the indication that one should be made.
 
-This function sets @samp{@code{proof-shell-last-output}} and @samp{@code{proof-shell-last-output-kind}},
-which see.
+This function sets variables: @samp{@code{proof-shell-last-output}}, 
+@samp{@code{proof-shell-last-output-kind}}, @samp{@code{proof-shell-proof-completed}}.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-urgent-message-marker
@@ -3580,7 +3609,7 @@ Otherwise wait until an annotated prompt appears in the input.
 If @samp{@code{proof-shell-wakeup-char}} is set, wait until we see that in the
 output chunk @var{str}.  This optimizes the filter a little bit.
 
-If a prompt is seen, run @samp{@code{proof-shell-process-output}} on the output
+If a prompt is seen, run @samp{@code{proof-shell-classify-output}} on the output
 between the new prompt and the last input (position of @samp{@code{proof-marker}})
 or the last urgent message (position of
 @samp{@code{proof-shell-urgent-message-marker}}), whichever is later.
@@ -3599,7 +3628,7 @@ messages and interrupt messages should @strong{not} be considered
 urgent messages.
 
 Output is processed using the function
-@samp{@code{proof-shell-filter-process-output}}.
+@samp{@code{proof-shell-filter-manage-output}}.
 
 The first time that a prompt is seen, @samp{@code{proof-marker}} is
 initialised to the end of the prompt.  This should
@@ -3608,16 +3637,17 @@ ordinary output before the first prompt is ignored (urgent messages,
 however, are always processed; hence their name).
 @end defun
 
-@c TEXI DOCSTRING MAGIC: proof-shell-filter-process-output
-@defun proof-shell-filter-process-output string
+@c TEXI DOCSTRING MAGIC: proof-shell-filter-manage-output
+@defun proof-shell-filter-manage-output string
 Subroutine of @samp{@code{proof-shell-filter}} to process output @var{string}.
 
 Appropriate action is taken depending on what
-@samp{@code{proof-shell-process-output}} returns: maybe handle an interrupt, an
+@samp{@code{proof-shell-classify-output}} returns: maybe handle an interrupt, an
 error, or deal with ordinary output which is a candidate for the goal
-or response buffer.  Ordinary output is only displayed when the proof
-action list becomes empty, to avoid a confusing rapidly changing
-output.
+or response buffer.  
+
+Ordinary output is only displayed when the proof action list
+becomes empty, to avoid a confusing rapidly changing output.
 
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue.
