@@ -18,7 +18,26 @@ proof
  qed
 qed
 
-text {* Proper proof text -- \textit{advanced version}. *}
+(* but on the other hand, who knows? *)
+
+text {* Proper proof text -- \textit{advanced ve"rs"ion}. What do you think?  Who knows. *}
+theorem "B & A --> A & B"
+proof
+  assume "B & A"  -- "one of those kinds"
+  then obtain A and B ..
+  then show "A & B" ..
+qed 
+
+
+(* foo bar wiggle *)
+
+theorem "A & B --> B & A"
+proof
+  assume "A & B"
+  then obtain B and A ..
+  then show "B & A" .. 
+qed
+
 
 theorem "A & B --> B & A"
 proof
@@ -30,7 +49,7 @@ qed
 
 text {* Unstructured proof script. *}
 
-theorem "A & B --> B & A"
+theorem  "A & B --> B & A" -- {* foo bar *}
   apply (rule impI)
   apply (erule conjE)
   apply (rule conjI)

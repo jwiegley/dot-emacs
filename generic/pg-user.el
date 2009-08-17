@@ -135,33 +135,6 @@ the proof script."
        (error "Not proving")))))
 
 ;;
-;; Interrupt
-;;
-
-;;;###autoload
-(defun proof-interrupt-process ()
-  "Interrupt the proof assistant.  Warning! This may confuse Proof General.
-This sends an interrupt signal to the proof assistant, if Proof General
-thinks it is busy.
-
-This command is risky because when an interrupt is trapped in the
-proof assistant, we don't know whether the last command succeeded or
-not.  The assumption is that it didn't, which should be true most of
-the time, and all of the time if the proof assistant has a careful
-handling of interrupt signals."
-  (interactive)
-  (unless (proof-shell-live-buffer)
-      (error "Proof Process Not Started!"))
-  (unless proof-shell-busy
-    (error "Proof Process Not Active!"))
-  (with-current-buffer proof-shell-buffer
-    ;; Send send an interrrupt, without comint-skip-input effect.
-    ;; Interrupt is processed inside proof-shell.
-    (interrupt-process nil comint-ptyp)
-    (run-hooks 'proof-shell-pre-interrupt-hook)))
-  
-
-;;
 ;; Movement commands
 ;;
 

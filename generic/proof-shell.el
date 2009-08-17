@@ -176,6 +176,7 @@ Clears the `proof-shell-error-or-interrupt-seen' flag.
 If QUEUEMODE is supplied, set the lock to that value."
   (proof-shell-ready-prover queuemode)
   (setq proof-shell-error-or-interrupt-seen nil)
+  (setq proof-shell-interrupt-pending nil)
   (setq proof-shell-busy (or queuemode t))
   ;; Make modeline indicator follow state (on XEmacs at least)
   ;; PG4.0: TODO: alter modeline indicator
@@ -651,6 +652,7 @@ Runs `proof-shell-error-or-interrupt-action'."
      (proof-warning 
       "Interrupt: script management may be in an inconsistent state
            (but it's probably okay)")
+     (setq proof-shell-interrupt-pending nil)
      (proof-shell-error-or-interrupt-action 'interrupt)))
 
 (defun proof-shell-error-or-interrupt-action (&optional err-or-int)
@@ -672,7 +674,6 @@ flags) will not invoke this action."
     ;; TODO: add temporary span for error message
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
-    ;; 
 
     ;; Give a hint about C-c C-`.  NB: this is rather approximate,
     ;; we ought to check whether there is an error location in the
@@ -820,6 +821,8 @@ This function sets variables: `proof-shell-last-output',
 ;;   Low-level commands for shell communication
 ;;
 
+
+
 ;;;###autoload
 (defun proof-shell-insert (string action)
   "Insert STRING at the end of the proof shell, call `comint-send-input'.
@@ -858,14 +861,16 @@ used in `proof-append-alist' when we start processing a queue, and in
     ;; PG 4.0: consider alternative of maintaining marker at 
     ;; position -1
     (insert " ")
-    
+
     ;; Note: comint-send-input perversely calls the output filter
     ;; functions on the input, sigh.  This can mess up PGIP processing
     ;; since we try to re-interpret an XML message which has been
     ;; string-escaped, etc, etc.  We prevent this by disabling the
     ;; output filter functions when calling the input function.
     (let ((comint-output-filter-functions nil))
-      (comint-send-input))))
+      (comint-send-input))
+
+    (setq proof-shell-expecting-output t)))
 
 
 ;; ============================================================
@@ -1031,7 +1036,7 @@ The return value is non-nil if the action list is now empty."
        ;; invoke callback on just processed command
        (proof-shell-invoke-callback item)
        (setq proof-action-list (cdr proof-action-list))
-       
+
        ;; slurp comments without sending to prover
        (while (and proof-action-list
 		   (string= 
@@ -1039,7 +1044,7 @@ The return value is non-nil if the action list is now empty."
 		    proof-no-command))
 	 (proo-shell-invoke-callback item)
 	 (setq proof-action-list (cdr proof-action-list)))
-       
+
        ;; if action list is (nearly) empty, ensure prover is noisy.
        ;; FIXME: chance to loose output if we processed a bunch of o/p 
        ;; ending with a series of comments!
@@ -1053,6 +1058,12 @@ The return value is non-nil if the action list is now empty."
 			 proof-action-list))
 	     (setq item (car proof-action-list))))
        
+       ;; deal with pending interrupts (which were sent but caused no prover error)
+       (if proof-shell-interrupt-pending
+	   (progn
+	     (proof-debug "Processed pending interrupt")
+	     (proof-shell-handle-interrupt flags)))
+
        (if proof-action-list
 	   ;; send the next command to the process.
 	   (proof-shell-insert (nth 1 item) (nth 2 item))
@@ -1306,6 +1317,7 @@ initialised to the end of the prompt.  This should
 correspond with initializing the process.  The 
 ordinary output before the first prompt is ignored (urgent messages, 
 however, are always processed; hence their name)."
+
   (save-excursion
     ;; Strip CRs.
     (if proof-shell-strip-crs-from-output
@@ -1370,10 +1382,11 @@ however, are always processed; hence their name)."
 	  ;; there's more than one bit there.
 	  
 	  (if proof-action-list
-	      ;; We're expecting some output, examine it.
+	      ;; We were expecting some output, examine it.
 	      (let ((urgnt    (marker-position 
 			       proof-shell-urgent-message-marker))
 		    string startpos prev-prompt)
+
 		;; Ignore any urgent messages that have already been
 		;; dealt with.  This loses in the case mentioned
 		;; above.  A more general way of doing this would be
@@ -1399,6 +1412,7 @@ however, are always processed; hence their name)."
 		      (setq string (buffer-substring-no-properties
 				    startpos (point)))
 		      (goto-char (point-max))
+		      (setq proof-shell-expecting-output nil)
 		      ;; Process output string.
 		      (proof-shell-filter-manage-output string)
 		      ;; Cleanup shell buffer 
@@ -1488,6 +1502,7 @@ This is a subroutine of `proof-shell-filter'."
 ;; Despatching output
 ;;
 
+
 (defun proof-shell-filter-manage-output (string)
   "Subroutine of `proof-shell-filter' to process output STRING.
 
@@ -1546,6 +1561,54 @@ This is useful even with empty delayed output, since it clears buffers."
    ;; Ignore other cases
    )
   (run-hooks 'proof-shell-handle-delayed-output-hook))
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Interrupt
+;;
+
+(defvar proof-shell-expecting-output nil
+  "A flag indicating some input has been sent and we're expecting output.
+This is used when processing interrupts.")
+
+(defvar proof-shell-interrupt-pending nil
+  "A flag indicating an interrupt is pending.
+This ensures that the proof queue will be interrupted even if no
+interrupt message is printed from the prover after the last output.")
+
+
+(defun proof-interrupt-process ()
+  "Interrupt the proof assistant.  Warning! This may confuse Proof General.
+
+This sends an interrupt signal to the proof assistant, if Proof General
+thinks it is busy.  
+
+This command is risky because we don't know whether the last command 
+succeeded or not.  The assumption is that it didn't, which should be true 
+most of the time, and all of the time if the proof assistant has a careful
+handling of interrupt signals.
+
+Some provers may ignore (and lose) interrupt signals, or fail to indicate
+that they have been acted upon but get stop in the middle of output.  
+In the first case, PG will terminate the queue of commands at the first 
+available point.  In the second case, you may need to press enter inside
+the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*)."
+  (interactive)
+  (unless (proof-shell-live-buffer)
+      (error "Proof Process Not Started!"))
+  (unless proof-shell-busy
+    (error "Proof Process Not Active!"))
+  (with-current-buffer proof-shell-buffer
+    (if proof-shell-expecting-output
+	(progn 
+	  (setq proof-shell-interrupt-pending t) ; interrupt even if no interrupt message
+	  (interrupt-process nil comint-ptyp))
+      ;; otherwise, interrupt the queue right here
+      (proof-shell-error-or-interrupt-action 'interrupt))))
+      
 
 
 
