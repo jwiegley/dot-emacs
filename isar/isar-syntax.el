@@ -253,8 +253,8 @@ matches contents of quotes for quoted identifiers.")
     (or (if (eq sc 'string)
 	    (save-excursion
 	      (save-match-data
-		(and (re-search-backward isar-string-start-regexp)
-		     (re-search-backward "--")
+		(and (re-search-backward isar-string-start-regexp nil t)
+		     (re-search-backward "--" nil t)
 		     'comment))))
       sc)))
 	  
