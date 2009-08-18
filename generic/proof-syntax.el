@@ -27,7 +27,7 @@
 
 (defun proof-regexp-alt (&rest args)
   "Return the regexp which matches any of the regexps ARGS."
-  ;; Is this not available in some library?
+  ;; see regexp-optn (NB: but that is for strings, not regexps)
   (let ((res ""))
     (dolist (regexp args)
       (setq res (concat res (if (string-equal res "") "\\(" "\\|\\(")
