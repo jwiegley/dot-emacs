@@ -541,10 +541,17 @@ Checks the width in the `proof-goals-buffer'"
   (regexp-opt (cons "ProofGeneral.process_pgip"
 		    isar-undo-commands)))
 
+(defun isar-positions-of (file line)
+  (concat ;; TODO: find out Isabelle names for position parameters
+   (if file (format "file=\"" file "\"")) ;; FIXME: wrong
+   (if line (format "line=\"" line "\""))))  ;; works
+   
 (defun isar-command-wrapping (string)
   (if (not (proof-string-match isar-nonwrap-regexp string))
       (concat
-       "Isabelle.command \""
+       "Isabelle.command "
+       ; isar-positions-of <proof-script-current-file> <line-number-from-span>
+       "\""
        (proof-replace-regexp-in-string
 	"[\000-\037\"\\\\]"
 	(lambda (str) (format "\\\\%03d" (string-to-char str)))
