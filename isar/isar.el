@@ -533,20 +533,42 @@ Checks the width in the `proof-goals-buffer'"
     ans))
 
 ;;
-;;   Configuring proof output buffer
+;; Shell mode command adjusting
 ;;
+
+(defconst isar-nonwrap-regexp 
+  ;; FIXME: approx: should only match at start or after terminator
+  (regexp-opt (cons "ProofGeneral.process_pgip"
+		    isar-undo-commands)))
+
+(defun isar-command-wrapping (string)
+  (if (not (proof-string-match isar-nonwrap-regexp string))
+      (concat
+       "Isabelle.command \""
+       (proof-replace-regexp-in-string
+	"[\000-\037\"\\\\]"
+	(lambda (str) (format "\\\\%03d" (string-to-char str)))
+	string)
+       "\"")
+    (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)))
+
 
 (defun isar-preprocessing ()  ;dynamic scoping of `string'
   "Insert sync markers - acts on variable STRING by dynamic scoping."
-  (if (proof-string-match isabelle-verbatim-regexp string)
-      (setq string (match-string 1 string))
-    (unless (proof-string-match ";[ \t]*\\'" string)
-      (setq string (concat string ";")))
-    (setq string (concat
-                  "\\<^sync>"
-                  (isar-shell-adjust-line-width)
-                  (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)
-                  " \\<^sync>;"))))
+  (save-match-data
+    (if (proof-string-match isabelle-verbatim-regexp string)
+	(setq string (match-string 1 string))
+      (unless (proof-string-match ";[ \t]*\\'" string)
+	(setq string (concat string ";")))
+      (setq string (concat
+		    "\\<^sync>; "
+		    (isar-shell-adjust-line-width)
+		    (isar-command-wrapping string)
+		    " \\<^sync>;")))))
+
+;;
+;;   Configuring proof output buffer
+;;
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)

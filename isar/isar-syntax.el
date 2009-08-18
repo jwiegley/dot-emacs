@@ -13,7 +13,6 @@
 (require 'proof-syntax)
 (require 'isar-keywords)
 
-
 ;; ----- character syntax
 
 (defconst isar-script-syntax-table-entries
@@ -466,6 +465,14 @@ matches contents of quotes for quoted identifiers.")
 
 (defun isar-cannot-undo (cmd)
   (concat "cannot_undo \"" cmd "\";"))
+
+(defconst isar-undo-commands
+  (list
+   isar-linear-undo 
+   isar-undo 
+   "init_toplevel" "kill_thy"
+   "undos_proof"
+   "cannot_undo"))
 
 (defconst isar-theory-start-regexp
   (proof-anchor-regexp
