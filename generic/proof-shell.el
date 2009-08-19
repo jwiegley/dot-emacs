@@ -824,15 +824,19 @@ This function sets variables: `proof-shell-last-output',
 
 
 ;;;###autoload
-(defun proof-shell-insert (string action)
+(defun proof-shell-insert (string action &optional scriptspan)
   "Insert STRING at the end of the proof shell, call `comint-send-input'.
 
-First call `proof-shell-insert-hook'.  The argument ACTION may be
-examined by the hook to determine how to process the STRING variable.
-NB: the hook is not called for the empty (null) string.
+First we call `proof-shell-insert-hook'.  The arguments `action' and
+`scriptspan' may be examined by the hook to determine how to modify 
+the `string' variable (exploiting dynamic scoping) which will be
+the command actually sent to the shell. 
 
-Then strip STRING of carriage returns before inserting it and updating
-`proof-marker' to point to the end of the newly inserted text.
+Note that the hook is not called for the empty (null) string.
+
+Then we strip `string' of carriage returns before inserting it
+and updating `proof-marker' to point to the end of the newly
+inserted text.
 
 Do not use this function directly, or output will be lost.  It is only
 used in `proof-append-alist' when we start processing a queue, and in
@@ -840,7 +844,7 @@ used in `proof-append-alist' when we start processing a queue, and in
   (with-current-buffer proof-shell-buffer
     (goto-char (point-max))
     
-    ;; Hook for munging `string' and other hacks.  
+    ;; Hook for munging `string' and other dirty hacks.
     (unless (null string)
       (run-hooks 'proof-shell-insert-hook))
 
@@ -984,7 +988,7 @@ being processed."
 	    (setq proof-action-list
 		  (nconc proof-action-list alist))
 	    ;; Really start things going here
-	    (proof-shell-insert (nth 1 item) (nth 2 item)))))))
+	    (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item)))))))
 
 ;;;###autoload    
 (defun proof-start-queue (start end alist)
@@ -1066,7 +1070,7 @@ The return value is non-nil if the action list is now empty."
 
        (if proof-action-list
 	   ;; send the next command to the process.
-	   (proof-shell-insert (nth 1 item) (nth 2 item))
+	   (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item))
 	 
 	 ;; action list is empty, release lock and cleanup
 	 (proof-release-lock)
