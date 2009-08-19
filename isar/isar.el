@@ -541,16 +541,29 @@ Checks the width in the `proof-goals-buffer'"
   (regexp-opt (cons "ProofGeneral.process_pgip"
 		    isar-undo-commands)))
 
-(defun isar-positions-of (file line)
-  (concat ;; TODO: find out Isabelle names for position parameters
-   (if file (format "file=\"" file "\"")) ;; FIXME: wrong
-   (if line (format "line=\"" line "\""))))  ;; works
+(defun isar-positions-of (buffer span)
+  (concat
+   "("
+   (proof-splice-separator 
+    ", "
+    (list
+     (if (and buffer (buffer-file-name buffer))
+	 (format "\"file\"=\"%s\"" (buffer-file-name buffer)))
+     ;; NB: position is relative to display (narrowing, etc)
+     (if span (format "\"line\"=\"%d\"" (save-excursion
+				      (set-buffer (span-buffer span))
+				      (line-number-at-pos (span-start span)))))
+     (if span (format "\"column\"=\"%d\"" (save-excursion
+					    (set-buffer (span-buffer span))
+					    (goto-char (span-start span))
+					    (current-column))))))
+   ") "))
    
-(defun isar-command-wrapping (string)
+(defun isar-command-wrapping (string scriptspan)
   (if (not (proof-string-match isar-nonwrap-regexp string))
       (concat
        "Isabelle.command "
-       ; isar-positions-of <proof-script-current-file> <line-number-from-span>
+       (isar-positions-of proof-script-buffer scriptspan)
        "\""
        (proof-replace-regexp-in-string
 	"[\000-\037\"\\\\]"
@@ -560,8 +573,9 @@ Checks the width in the `proof-goals-buffer'"
     (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)))
 
 
-(defun isar-preprocessing ()  ;dynamic scoping of `string'
-  "Insert sync markers - acts on variable STRING by dynamic scoping."
+(defun isar-preprocessing ()
+  "Insert sync markers and other hacks.
+Uses variables `string' and `scriptspan' passed by dynamic scoping."
   (save-match-data
     (if (proof-string-match isabelle-verbatim-regexp string)
 	(setq string (match-string 1 string))
@@ -570,7 +584,7 @@ Checks the width in the `proof-goals-buffer'"
       (setq string (concat
 		    "\\<^sync>; "
 		    (isar-shell-adjust-line-width)
-		    (isar-command-wrapping string)
+		    (isar-command-wrapping string scriptspan)
 		    " \\<^sync>;")))))
 
 ;;
@@ -597,7 +611,8 @@ Checks the width in the `proof-goals-buffer'"
 (defun isar-response-mode-config ()
   (isar-init-output-syntax-table)
   (setq proof-response-font-lock-keywords 
-	isar-output-font-lock-keywords-1)
+	(append proof-response-font-lock-keywords 
+		isar-output-font-lock-keywords-1))
   (setq font-lock-multiline t)
   (make-local-variable 'jit-lock-chunk-size)
   (setq jit-lock-chunk-size 2000)
@@ -608,7 +623,8 @@ Checks the width in the `proof-goals-buffer'"
   (setq pg-goals-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
   (setq proof-goals-font-lock-keywords
-	 isar-goals-font-lock-keywords)
+	(append proof-goals-font-lock-keywords
+		isar-goals-font-lock-keywords))
   (setq font-lock-multiline t)
   (make-local-variable 'jit-lock-chunk-size)
   (setq jit-lock-chunk-size 2000)
