@@ -1366,7 +1366,7 @@ assistant, for example, to compile a completed file."
   "Value of `font-lock-keywords' used to fontify proof scripts.
 The proof script mode should set this before calling `proof-config-done'.
 Used also by `proof-easy-config' mechanism.
-See also proof-{resp,goals}-font-lock-keywords."
+See also `proof-goals-font-lock-keywords' and `proof-resp-font-lock-keywords'."
   :type 'sexp
   :group 'proof-script)
 
@@ -2400,7 +2400,7 @@ for parsing the prover output is disabled."
   "Value of `font-lock-keywords' used to fontify the goals output.
 The goals shell mode should set this before calling `proof-goals-config-done'.
 Used also by `proof-easy-config' mechanism.
-See also `proof-{script,goals}-font-lock-keywords'."
+See also `proof-script-font-lock-keywords' and `proof-resp-font-lock-keywords'."
   :type 'sexp
   :group 'proof-goals)
 
@@ -2408,7 +2408,7 @@ See also `proof-{script,goals}-font-lock-keywords'."
   "Value of `font-lock-keywords' used to fontify the response output.
 The response mode should set this before calling `proof-response-config-done'.
 Used also by `proof-easy-config' mechanism.
-See also `proof-{script,goals}-font-lock-keywords'."
+See also `proof-script-font-lock-keywords' and `proof-goals-font-lock-keywords'."
   :type 'sexp
   :group 'proof-goals)
 
