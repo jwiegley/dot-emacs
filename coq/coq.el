@@ -823,6 +823,17 @@ This is specific to `coq-mode'."
              (if coq-version-is-V8-1 "-emacs-U" "-emacs")))
         coq-prog-name))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Holes mode switch
+
+;; TODO: complete and maybe make this generic (with prover-specific default?
+;; or use same mechanism as tokens, etc?)
+(defpacustom use-editing-holes nil
+  "Enable holes for editing."
+  :type 'boolean)
+;;  :eval (set-stuff-for-holes)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
