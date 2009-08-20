@@ -128,7 +128,6 @@ psz:	ps $(DOCNAME).ps.gz
 pdf:    ProofGeneralPortrait.pdf $(DOCNAME).pdf
 # da: target is a fake: we actually make in a subdir
 html:   $(DOCNAME).html
-	ln -sf $(DOCNAME)/$(DOCNAME)_toc.html index.html
 info:   ProofGeneral.txt $(DOCNAME).info
 
 # NB: for info, could make localdir automatically from
