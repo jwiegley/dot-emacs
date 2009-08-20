@@ -27,7 +27,7 @@
 ;;
 ;; Functions to display tokens that represent Unicode characters and
 ;; control code sequences for changing the layout.  Tokens are useful
-;; for programs that do not understand a Unicode encoding.  
+;; for programs that do not understand a Unicode encoding.
 ;; 
 
 ;; TODO:
@@ -65,7 +65,7 @@ Will be regexp quoted for matching.  Not used for matching if
 `unicode-tokens-token-variant-format-regexp' is set.
 Also used to format shortcuts.")
 
-(defvar unicode-tokens-token-variant-format-regexp nil 
+(defvar unicode-tokens-token-variant-format-regexp nil
   "A regular expression which matches a token variant.
 Will not be regexp quoted, and after format is applied, must
 
@@ -76,7 +76,7 @@ variant name.
 
 If set, this variable is used instead of `unicode-tokens-token-format'.")
 ;; (setq ut-tvfr  "\\(%s\\)\\(:?\\w+\\)")
-;; (string-match (format ut-tvfr ".*?") "alpha:x") 
+;; (string-match (format ut-tvfr ".*?") "alpha:x")
 
 (defvar unicode-tokens-fontsymb-properties nil
  "Association list mapping a symbol to a list of text properties.
@@ -133,9 +133,11 @@ and (match-string 2) has the display control applied.")
     control-characters))
 
 (defun unicode-tokens-config (sym)
+  "Construct the symbol name `unicode-tokens-SYM'."
   (intern (concat "unicode-tokens-" (symbol-name sym))))
 
 (defun unicode-tokens-config-var (sym)
+  "Construct the symbol name `unicode-tokens-SYM-variable'."
   (intern (concat "unicode-tokens-" (symbol-name sym) "-variable")))
 
 (dolist (sym unicode-tokens-configuration-variables)
@@ -156,12 +158,13 @@ if it is bound, which should be the name of a variable."
     (let ((var (unicode-tokens-config-var sym)))
       (if (and (boundp var) (not (null (symbol-value var))))
 	  (set (unicode-tokens-config sym)
-	       (symbol-value (symbol-value 
+	       (symbol-value (symbol-value
 			      (unicode-tokens-config-var sym))))))))
 
 (defun unicode-tokens-customize (sym)
+  "Customize the configuration variable held in `unicode-tokens-SYM-variable'."
   (interactive "sCustomize setting: ") ;; TODO: completing read, check if customizable
-  (customize-variable 
+  (customize-variable
    (symbol-value (unicode-tokens-config-var (intern sym)))))
   
 
@@ -170,7 +173,7 @@ if it is bound, which should be the name of a variable."
 
 
 ;;
-;; Variables set in the mode 
+;; Variables set in the mode
 ;;
 
 (defvar unicode-tokens-token-list nil
@@ -201,7 +204,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;;  	unicode-tokens-configuration-variables)
 
 ;; (mapcar 'make-variable-buffer-local
-;;  	'(unicode-tokens-token-list 
+;;  	'(unicode-tokens-token-list
 ;;  	  unicode-tokens-hash-table
 ;;  	  unicode-tokens-token-match-regexp
 ;;  	  unicode-tokens-uchar-hash-table
@@ -240,7 +243,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 (defface unicode-tokens-serif-font-face
   (cond
    ((eq window-system 'x) ; Linux/Unix
-    '((t :family "Liberation Serif"))) 
+    '((t :family "Liberation Serif")))
    ((or ; Mac
      (eq window-system 'ns)
      (eq window-system 'carbon))
@@ -257,7 +260,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   "Face used for highlighting in Unicode tokens."
   :group 'unicode-tokens-faces)
 
-(defconst unicode-tokens-font-lock-extra-managed-props 
+(defconst unicode-tokens-font-lock-extra-managed-props
   '(composition help-echo display invisible)
   "Value for `font-lock-extra-managed-props' here.")
 
@@ -268,7 +271,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 (defun unicode-tokens-font-lock-keywords ()
   "Calculate and return value for `font-lock-keywords'.
 This function also initialises the important tables for the mode."
-  ;; Credit to Stefan Monnier for much slimmer original version 
+  ;; Credit to Stefan Monnier for much slimmer original version
   (let ((hash       (make-hash-table :test 'equal))
 	(ucharhash  (make-hash-table :test 'equal))
 	toks uchars)
@@ -290,22 +293,24 @@ This function also initialises the important tables for the mode."
        (setq unicode-tokens-uchar-hash-table ucharhash)
        (setq unicode-tokens-token-list (reverse toks))
        (setq unicode-tokens-uchar-regexp (regexp-opt uchars))
-       (setq unicode-tokens-token-match-regexp 
+       (setq unicode-tokens-token-match-regexp
 	     (if unicode-tokens-token-variant-format-regexp
 		 (format unicode-tokens-token-variant-format-regexp
 			 (regexp-opt toks t))
 	       (regexp-opt (mapcar (lambda (tok)
-				     (format unicode-tokens-token-format tok)) 
+				     (format unicode-tokens-token-format tok))
 				   toks) 'words)))
-       (cons 
+       (cons
 	`(,unicode-tokens-token-match-regexp
 	  (0 (unicode-tokens-help-echo) 'prepend)
-	  (0 (unicode-tokens-font-lock-compose-symbol 
+	  (0 (unicode-tokens-font-lock-compose-symbol
 	      ,(- (regexp-opt-depth unicode-tokens-token-match-regexp) 1))
 	      'prepend))
 	(unicode-tokens-control-font-lock-keywords)))))
 
 (defun unicode-tokens-usable-composition (comp)
+  "Return non-nil if the composition COMP seems to be usable.
+The check is with `char-displayable-p'."
   (cond
    ((stringp comp)
     (reduce (lambda (x y) (and x (char-displayable-p y)))
@@ -317,7 +322,7 @@ This function also initialises the important tables for the mode."
     t)))
 
 (defun unicode-tokens-help-echo ()
-  "Return a help-echo text property to display the contents of match string"
+  "Return a help-echo text property to display the contents of match string."
     (list 'face nil 'help-echo (match-string 0)))
 
 (defvar unicode-tokens-show-symbols nil
@@ -326,11 +331,11 @@ This function also initialises the important tables for the mode."
 (defun unicode-tokens-font-lock-compose-symbol (match)
   "Compose a sequence of chars into a symbol, maybe returning a face property.
 Regexp match data number MATCH selects the token name, while 0 matches the
-whole expression. 
+whole expression.
 Token symbol is searched for in `unicode-tokens-hash-table'."
   (let* ((start     (match-beginning 0))
          (end       (match-end 0))
-	 (compps    (gethash (match-string match) 
+	 (compps    (gethash (match-string match)
 		    	   unicode-tokens-hash-table))
 	 (props     (cdr-safe compps)))
     (if (and compps (not unicode-tokens-show-symbols))
@@ -341,7 +346,7 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
     nil))
 
 (defun unicode-tokens-show-symbols (&optional arg)
-  "Toggle `unicode-tokens-show-symbols'.  With ARG, turn on iff positive."
+  "Toggle variable `unicode-tokens-show-symbols'.  With ARG, turn on iff positive."
   (interactive "P")
   (setq unicode-tokens-show-symbols
 	(if (null arg) (not unicode-tokens-show-symbols)
@@ -349,6 +354,9 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
   (font-lock-fontify-buffer))
 
 (defun unicode-tokens-symbs-to-props (symbs &optional facenil)
+  "Turn the property name list SYMBS into a list of text properties.
+Symbols are looked up in `unicode-tokens-fontsymb-properties'.
+Optional argument FACENIL means set the face property to nil, unless 'face is in the property list."
   (let (props ps)
     (dolist (s symbs)
       (setq ps (cdr-safe (assoc s unicode-tokens-fontsymb-properties)))
@@ -368,7 +376,7 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
   "Non-nil supresses hiding of control tokens.")
 
 (defun unicode-tokens-show-controls (&optional arg)
-  "Toggle `unicode-tokens-show-controls'.  With ARG, turn on iff positive."
+  "Toggle variable `unicode-tokens-show-controls'.  With ARG, turn on iff positive."
   (interactive "P")
   (setq unicode-tokens-show-controls
 	(if (null arg) (not unicode-tokens-show-controls)
@@ -386,7 +394,7 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
     (2 ',(unicode-tokens-symbs-to-props props t) prepend)))
 
 (defun unicode-tokens-control-region (name start end &rest props)
-  `(,(format unicode-tokens-control-region-format-regexp 
+  `(,(format unicode-tokens-control-region-format-regexp
 	     (regexp-quote start) (regexp-quote end))
     (1 '(face nil invisible unicode-tokens-show-controls) prepend)
     (2 ',(unicode-tokens-symbs-to-props props t) prepend)
@@ -407,7 +415,7 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
   "Non-nil means use `unicode-tokens-shortcut-alist' if set.")
 
 (defun unicode-tokens-use-shortcuts (&optional arg)
-  "Toggle `unicode-tokens-use-shortcuts'.  With ARG, turn on iff positive."
+  "Toggle variable `unicode-tokens-use-shortcuts'.  With ARG, turn on iff positive."
   (interactive "P")
   (setq unicode-tokens-use-shortcuts
 	(if (null arg) (not unicode-tokens-use-shortcuts)
@@ -430,9 +438,9 @@ Token symbol is searched for in `unicode-tokens-hash-table'."
 
 (defun unicode-tokens-quail-define-rules ()
   "Define the token and shortcut input rules.
-Calculated from `unicode-tokens-token-name-alist' and 
+Calculated from `unicode-tokens-token-name-alist' and
 `unicode-tokens-shortcut-alist'."
-  (let ((unicode-tokens-quail-define-rules 
+  (let ((unicode-tokens-quail-define-rules
 	 (list 'quail-define-rules)))
     (let ((ulist (copy-list unicode-tokens-shortcut-alist))
 	  ustring shortcut)
@@ -453,7 +461,7 @@ Calculated from `unicode-tokens-token-name-alist' and
 
 (defun unicode-tokens-insert-token (tok)
   "Insert symbolic token named TOK, giving a message."
-  (interactive (list (completing-read 
+  (interactive (list (completing-read
 		      "Insert token: "
 		      unicode-tokens-hash-table)))
   (let ((ins (format unicode-tokens-token-format tok)))
@@ -464,7 +472,7 @@ Calculated from `unicode-tokens-token-name-alist' and
   "Annotate region with region markup tokens for scheme NAME.
 Available annotations chosen from `unicode-tokens-control-regions'."
   (interactive (let ((completion-ignore-case t))
-		 (list (completing-read 
+		 (list (completing-read
 			"Annotate region with: "
 			unicode-tokens-control-regions nil
 			'requirematch))))
@@ -472,9 +480,9 @@ Available annotations chosen from `unicode-tokens-control-regions'."
   (let* ((entry (assoc name unicode-tokens-control-regions))
 	 (beg (region-beginning))
 	 (end (region-end))
-	 (begtok 
+	 (begtok
 	  (format unicode-tokens-control-region-format-end (nth 1 entry)))
-	 (endtok  
+	 (endtok
 	  (format unicode-tokens-control-region-format-end (nth 2 entry))))
     (when (> beg end)
 	(setq beg end)
@@ -485,12 +493,13 @@ Available annotations chosen from `unicode-tokens-control-regions'."
     (insert endtok)))
 
 (defun unicode-tokens-insert-control (name)
-  (interactive (list (completing-read 
+  "Insert a control symbol sequence.  NAME is from `unicode-tokens-control-characters'."
+  (interactive (list (completing-read
 		      "Insert control symbol: "
 		      unicode-tokens-control-characters
 		      nil 'requirematch)))
   (assert (assoc name unicode-tokens-control-characters))
-  (insert (format unicode-tokens-control-char-format 
+  (insert (format unicode-tokens-control-char-format
 		  (cadr (assoc name unicode-tokens-control-characters)))))
 
 (defun unicode-tokens-insert-uchar-as-token (char)
@@ -501,18 +510,20 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 
 ;;unused
 (defun unicode-tokens-delete-token-at-point ()
+  "Delete the token at point."
   (interactive)
   (when (looking-at unicode-tokens-token-match-regexp)
     (kill-region (match-beginning 0) (match-end 0))))
 
-;; FIXME: behaviour with unknown tokens not good.  Should 
+;; FIXME: behaviour with unknown tokens not good.  Should
 ;; use separate regexp for matching tokens known or not known.
 (defun unicode-tokens-prev-token ()
+  "Return the token before point, matching with `unicode-tokens-token-match-regexp'."
   (let ((match (re-search-backward unicode-tokens-token-match-regexp
 				    (save-excursion
 				      (beginning-of-line 0) (point)) t)))
     (if match
-	(match-string 
+	(match-string
 	 (regexp-opt-depth unicode-tokens-token-match-regexp)))))
 
 (defun unicode-tokens-rotate-token-forward (&optional n)
@@ -528,7 +539,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 	  (when token
 	    (let* ((tokennumber
 		    (search (list token) unicode-tokens-token-list :test 'equal))
-		   (numtoks 
+		   (numtoks
 		    (hash-table-count unicode-tokens-hash-table))
 		   (newtok
 		    (if tokennumber
@@ -548,15 +559,16 @@ Available annotations chosen from `unicode-tokens-control-regions'."
   (unicode-tokens-rotate-token-forward (if n (- n) -1)))
 
 (defun unicode-tokens-copy-token (tokname)
+  "Copy the token TOKNAME into the kill ring."
   (interactive "s")
-  (kill-new 
+  (kill-new
    (format unicode-tokens-token-format tokname)
    (eq last-command 'unicode-tokens-copy-token)))
 
 (define-button-type 'unicode-tokens-list
   'help-echo "mouse-2, RET: copy this character"
   'face nil
-  'action #'(lambda (button) 
+  'action #'(lambda (button)
 	      (unicode-tokens-copy-token (button-get button 'unicode-token))))
 
 (defun unicode-tokens-list-tokens ()
@@ -571,7 +583,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
       (let ((count 0) toks)
 	;; display in originally given order
 	(dolist (tok unicode-tokens-token-list)
-	    (insert-text-button 
+	    (insert-text-button
 	     (format unicode-tokens-token-format tok)
 	     :type 'unicode-tokens-list
 	     'unicode-token tok)
@@ -592,19 +604,19 @@ Available annotations chosen from `unicode-tokens-control-regions'."
       (let (gray start)
 	(dolist (short unicode-tokens-shortcut-alist)
 	  (setq start (point))
-	  (insert "Typing  " (car short) "\tinserts \t" 
+	  (insert "Typing  " (car short) "\tinserts \t"
 		  (cdr short) "\n")
 	  (setq gray (not gray))
-	  (if gray 
+	  (if gray
 	      (overlay-put (make-overlay start (point))
-			   'face 
+			   'face
 			   '(background-color . "gray90"))))))))
 	  
 
 
 (defun unicode-tokens-encode-in-temp-buffer (str fn)
   "Call FN on encoded version of STR."
-  (let ((match   (- (regexp-opt-depth 
+  (let ((match   (- (regexp-opt-depth
 		     unicode-tokens-token-match-regexp) 1)))
     (with-temp-buffer
       (insert str)
@@ -614,7 +626,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 	(let* ((tstart    (match-beginning 0))
 	       (tend      (match-end 0))
 	       (comp      (car-safe
-			   (gethash (match-string match) 
+			   (gethash (match-string match)
 				    unicode-tokens-hash-table))))
 	  (when comp
 	    (delete-region tstart tend)
@@ -623,12 +635,12 @@ Available annotations chosen from `unicode-tokens-control-regions'."
       (funcall fn (point-min) (point-max)))))
 
 (defun unicode-tokens-encode (beg end)
-  "Return a unicode encoded version of the region presentation ."
-  (unicode-tokens-encode-in-temp-buffer 
+  "Return a unicode encoded version of the presentation in region BEG..END."
+  (unicode-tokens-encode-in-temp-buffer
    (buffer-substring-no-properties beg end) 'buffer-substring))
 
 (defun unicode-tokens-encode-str (str)
-  "Return a unicode encoded version of the region presentation ."
+  "Return a unicode encoded version presentation of STR."
   (unicode-tokens-encode-in-temp-buffer str 'buffer-substring))
 
 (defun unicode-tokens-copy (beg end)
@@ -637,7 +649,7 @@ This is an approximation; it makes assumptions about the behaviour
 of symbol compositions, and will lose layout information."
   (interactive "r")
   ;; cf kill-ring-save, uncode-tokens-font-lock-compose-symbol
-  (unicode-tokens-encode-in-temp-buffer 
+  (unicode-tokens-encode-in-temp-buffer
    (buffer-substring-no-properties beg end) 'copy-region-as-kill))
 
 (defun unicode-tokens-paste ()
@@ -667,7 +679,7 @@ of symbol compositions, and will lose layout information."
   "Hilight Unicode characters in the buffer.
 Toggles highlighting of Unicode characters used in the
 buffer beyond the legacy 8-bit character set codes.  This is
-useful to manually determine if a buffer contains Unicode or 
+useful to manually determine if a buffer contains Unicode or
 tokenised symbols."
   (interactive)
   (setq unicode-tokens-highlight-unicode
@@ -676,10 +688,11 @@ tokenised symbols."
   (font-lock-fontify-buffer))
 
 (defun unicode-tokens-highlight-unicode-setkeywords ()
+  "Adjust font lock keywords according to variable `unicode-tokens-highlight-unicode'."
   (if unicode-tokens-highlight-unicode
-    (font-lock-add-keywords 
+    (font-lock-add-keywords
      nil unicode-tokens-unicode-highlight-patterns)
-    (font-lock-remove-keywords 
+    (font-lock-remove-keywords
      nil unicode-tokens-unicode-highlight-patterns)))
 
 ;; 
@@ -687,6 +700,7 @@ tokenised symbols."
 ;;
 
 (defun unicode-tokens-initialise ()
+  "Perform initialisation of minor mode."
   (interactive)
   (unicode-tokens-copy-configuration-variables)
   (let ((flks (unicode-tokens-font-lock-keywords)))
@@ -701,7 +715,7 @@ tokenised symbols."
 (define-minor-mode unicode-tokens-mode
   "Toggle Tokens mode for current buffer.
 With optional argument ARG, turn Tokens mode on if ARG is
-positive, otherwise turn it off.  
+positive, otherwise turn it off.
 
 In Unicode Tokens mode (Utoks appears in the modeline), a
 sequence of characters in the buffer (a token) may be presented
@@ -717,7 +731,7 @@ presentation forms, and keyboard shortcuts.  See documentation in
 
 Commands available are:
 
-\\{unicode-tokens-mode-map}"  
+\\{unicode-tokens-mode-map}"
   :keymap unicode-tokens-mode-map
   :init-value nil
   :lighter " Utoks"
@@ -739,14 +753,14 @@ Commands available are:
 
       (make-local-variable 'unicode-tokens-highlight-unicode)
       
-      ;; a convention: 
-      ;; - set default for font-lock-extra-managed-props 
+      ;; a convention:
+      ;; - set default for font-lock-extra-managed-props
       ;;   as property on major mode symbol (ordinarily nil).
       (font-lock-add-keywords nil flks)
 
-      (setq font-lock-extra-managed-props 
+      (setq font-lock-extra-managed-props
 	    (get 'font-lock-extra-managed-props major-mode))
-      (mapcar 
+      (mapcar
        (lambda (p) (add-to-list 'font-lock-extra-managed-props p))
        unicode-tokens-font-lock-extra-managed-props)
 
@@ -762,15 +776,15 @@ Commands available are:
 	   (lambda (uchar) (gethash (char-to-string uchar)
 				    unicode-tokens-uchar-hash-table)))
       (set (make-local-variable 'maths-menu-tokenise-insert)
-	   (lambda (uchar) 
+	   (lambda (uchar)
 	     (unicode-tokens-insert-token
-	      (gethash (char-to-string uchar) 
+	      (gethash (char-to-string uchar)
 		       unicode-tokens-uchar-hash-table)))))
 
     (when (not unicode-tokens-mode)
       (when flks
-	(font-lock-unfontify-buffer) 
-	(setq font-lock-extra-managed-props 
+	(font-lock-unfontify-buffer)
+	(setq font-lock-extra-managed-props
 	      (get 'font-lock-extra-managed-props major-mode))
 	(setq font-lock-set-defaults nil) ; force font-lock-set-defaults to reinit
 	(font-lock-fontify-buffer)
@@ -787,15 +801,15 @@ Commands available are:
   'unicode-tokens-rotate-token-backward)
 (define-key unicode-tokens-mode-map [(control ?.)]
   'unicode-tokens-rotate-token-forward)
-(define-key unicode-tokens-mode-map 
+(define-key unicode-tokens-mode-map
   [(control c) (control t) (control t)] 'unicode-tokens-insert-token)
-(define-key unicode-tokens-mode-map 
+(define-key unicode-tokens-mode-map
   [(control c) (control t) (control r)] 'unicode-tokens-annotate-region)
-(define-key unicode-tokens-mode-map 
+(define-key unicode-tokens-mode-map
   [(control c) (control t) (control e)] 'unicode-tokens-insert-control)
-(define-key unicode-tokens-mode-map 
+(define-key unicode-tokens-mode-map
   [(control c) (control t) (control z)] 'unicode-tokens-show-symbols)
-(define-key unicode-tokens-mode-map 
+(define-key unicode-tokens-mode-map
   [(control c) (control t) (control x)] 'unicode-tokens-show-controls)
 
     
@@ -808,26 +822,26 @@ Commands available are:
   (easy-menu-define unicode-tokens-menu unicode-tokens-mode-map
    "Tokens menu"
     (cons "Tokens"
-     (list 
+     (list
       ["Insert token..." unicode-tokens-insert-token]
       ["Next token"      unicode-tokens-rotate-token-forward]
       ["Prev token"      unicode-tokens-rotate-token-backward]
        (cons "Format char"
-	     (mapcar 
+	     (mapcar
  	     (lambda (fmt)
  	       (vector (car fmt)
-  		       `(lambda () (interactive) 
+  		       `(lambda () (interactive)
 			  (funcall 'unicode-tokens-insert-control ',(car fmt)))
- 		       :help (concat "Format next item as " 
+ 		       :help (concat "Format next item as "
  				     (downcase (car fmt)))))
  	     unicode-tokens-control-characters))
        (cons "Format region"
- 	    (mapcar 
+ 	    (mapcar
  	     (lambda (fmt)
- 	       (vector (car fmt) 
+ 	       (vector (car fmt)
   		       `(lambda () (interactive)
   			 (funcall 'unicode-tokens-annotate-region ',(car fmt)))
-  		       :help (concat "Format region as " 
+  		       :help (concat "Format region as "
   				     (downcase (car fmt)))
   		       :active 'mark-active))
  	     unicode-tokens-control-regions))
@@ -865,12 +879,12 @@ Commands available are:
        :selected unicode-tokens-use-shortcuts
        :active unicode-tokens-shortcut-alist
        :help "Use short cuts for typing tokens"]
-       ["Make fontsets" 
+       ["Make fontsets"
 	(lambda () (interactive) (require 'pg-fontsets))
 	:active (not (featurep 'pg-fontsets))
 	:help "Define fontsets (for Options->Set fontsets)"
 	; :visible (< emacs-major-version 23) ; not useful on 23,
-	; at least when font menu provided.  Drawback: this 
+	; at least when font menu provided.  Drawback: this
 	; is done too late: displayable tokens have already been
 	; chosen now, before fontsets generated.
 	; Never mind: non-issue with platform fonts menu.
