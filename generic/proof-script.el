@@ -2279,7 +2279,7 @@ appropriate."
   (proof-activate-scripting)
   (let (span)
     (proof-goto-end-of-locked)
-    (insert "\n") ;; could be user opt 
+    (if proof-one-command-per-line (insert "\n"))
     (insert cmd)
     (setq span (span-make (proof-locked-end) (point)))
     (span-set-property span 'type 'pbp)

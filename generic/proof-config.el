@@ -273,9 +273,9 @@ files which are out of date with respect to the loaded buffers!"
   :group 'proof-user-options)
 
 (defcustom proof-one-command-per-line
-  nil
+  t
   "*If non-nil, format for newlines after each proof command in a script.
-This option is not fully-functional at the moment."  ;; TODO
+This option is not fully-functional at the moment." ;; TODO
   :type 'boolean
   :group 'proof-user-options)
 
