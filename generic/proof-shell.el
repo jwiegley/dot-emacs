@@ -313,6 +313,9 @@ Does nothing if proof assistant is already running."
 	;;		    (if proof-shell-unicode 'utf-8 'raw-text))
 	;;	      process-coding-system-alist)))
 
+	;; PG 4.0: does this setting improve performance?
+	(setq process-adaptive-read-buffering 'persist-delay)
+
 	(message "Starting process: %s" prog-command-line)
 
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
@@ -832,7 +835,8 @@ First we call `proof-shell-insert-hook'.  The arguments `action' and
 the `string' variable (exploiting dynamic scoping) which will be
 the command actually sent to the shell. 
 
-Note that the hook is not called for the empty (null) string.
+Note that the hook is not called for the empty (null) string
+or a carriage return.
 
 Then we strip `string' of carriage returns before inserting it
 and updating `proof-marker' to point to the end of the newly
@@ -845,7 +849,9 @@ used in `proof-append-alist' when we start processing a queue, and in
     (goto-char (point-max))
     
     ;; Hook for munging `string' and other dirty hacks.
-    (unless (null string)
+    (unless (or (null string) 
+		(string-equal string "") 
+		(string-equal string "\n"))
       (run-hooks 'proof-shell-insert-hook))
 
     ;; Replace CRs from string with spaces to avoid spurious prompts.
@@ -1277,29 +1283,25 @@ MESSAGE should be a string annotated with
 ;; The proof shell process filter
 ;;
 
-
-;; NOTE da: proof-shell-filter does *not* update the proof-marker,
-;; that's done in proof-shell-insert.  Previous docstring below was
-;; wrong.  The one case where this function updates proof-marker is
-;; the first time through the loop to synchronize.
 (defun proof-shell-filter (str)
   "Filter for the proof assistant shell-process.
 A function for `comint-output-filter-functions'.
 
-Deal with output and issue new input from the queue.
+Deal with output and issue new input from the queue.  This is
+an important internal function.
 
 Handle urgent messages first.  As many as possible are processed,
 using the function `proof-shell-process-urgent-messages'.
 
-Otherwise wait until an annotated prompt appears in the input.  
-If `proof-shell-wakeup-char' is set, wait until we see that in the
-output chunk STR.  This optimizes the filter a little bit.
+Otherwise wait until an annotated prompt appears in the input.
+If `proof-shell-wakeup-char' is set, wait until we see that in
+the output chunk STR.  This optimizes the filter slightly.
 
-If a prompt is seen, run `proof-shell-classify-output' on the output
-between the new prompt and the last input (position of `proof-marker')
-or the last urgent message (position of
-`proof-shell-urgent-message-marker'), whichever is later.
-For example, in this case:
+If a prompt is seen, run `proof-shell-classify-output' on the
+output between the new prompt and the last input (position of
+`proof-marker') or the last urgent message (position of
+`proof-shell-urgent-message-marker'), whichever is later.  For
+example, in this case:
 
  PROMPT> INPUT
  OUTPUT-1
@@ -1307,21 +1309,24 @@ For example, in this case:
  OUTPUT-2
  PROMPT>
 
-`proof-marker' is set after INPUT by `proof-shell-insert' and
-`proof-shell-urgent-message-marker' is set after URGENT-MESSAGE.
-Only OUTPUT-2 will be processed.  For this reason, error
-messages and interrupt messages should *not* be considered
-urgent messages.
+`proof-marker' points after INPUT.
+
+`proof-shell-urgent-message-marker' points after URGENT-MESSAGE.
+
+The ordinary output OUTPUT-1 before the first prompt is ignored;
+urgent messages, however, are always processed; hence their name.
+
+Only OUTPUT-2 will be processed.  For this reason, error messages
+and interrupt messages should *not* be considered urgent
+messages.
 
 Output is processed using the function
 `proof-shell-filter-manage-output'.
 
 The first time that a prompt is seen, `proof-marker' is
-initialised to the end of the prompt.  This should
-correspond with initializing the process.  The 
-ordinary output before the first prompt is ignored (urgent messages, 
-however, are always processed; hence their name)."
-
+initialised to the end of the prompt.  This should correspond
+with initializing the process.  After that, `proof-marker'
+is only changed when input is sent in `proof-shell-insert'."
   (save-excursion
     ;; Strip CRs.
     (if proof-shell-strip-crs-from-output
@@ -1621,14 +1626,14 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
 ;; Tracing catch-up: prevent Emacs-consumes-all-CPU-fontifying phenomenon
 ;;
 
-;; FIXME: not quite finished:
+;; TODO: possible improvements:
 ;; -- need some way of coming out of tracing slow mode in case
 ;;   tracing output has ended
 ;; -- need to fontify remaining portion of buffer in case
 ;;   tracing output has ended when in slow mode (and refresh
 ;;   final display)  
 ;; -- shouldn't be trigger for only a small amount of output 
-;;   (e.g. output from blast).  Or a count of number of succesive
+;;   (e.g. output from blast).  Or a count of number of successive
 ;;   bursts?
 
 (defvar pg-last-tracing-output-time nil
@@ -1695,10 +1700,6 @@ Only works when system timer has microsecond count available."
 
 
 
-
-
-
-  
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
