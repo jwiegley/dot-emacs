@@ -140,10 +140,10 @@ shift $(($OPTIND - 1))
 declare -a FILES=()
 
 if [ "$#" -eq 0 ]; then
-  FILES+=("Scratch.thy")
+  FILES["${#FILES[@]}"]="Scratch.thy"
 else
   while [ "$#" -gt 0 ]; do
-    FILES+=("$1")
+    FILES["${#FILES[@]}"]="$1"
     shift
   done
 fi
@@ -181,12 +181,15 @@ else
 
   declare -a ARGS=()
 
-  [ -n "$GEOMETRY" ] && ARGS+=("-geometry" "$GEOMETRY")
+  if [ -n "$GEOMETRY" ]; then
+    ARGS["${#ARGS[@]}"]="-geometry"
+    ARGS["${#ARGS[@]}"]="$GEOMETRY"
+  fi
 
-  [ "$INITFILE" = false ] && ARGS+=("-q")
+  [ "$INITFILE" = false ] && ARGS["${#ARGS[@]}"]="-q"
 
   if [ "$WINDOWSYSTEM" = false ]; then
-    ARGS+=("-nw")
+    ARGS["${#ARGS[@]}"]="-nw"
     XSYMBOL=false
   elif [ -z "$DISPLAY" ]; then
     XSYMBOL=false
@@ -194,26 +197,34 @@ else
     [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOL_SETUP" = true ] && installfonts
   fi
 
-  ARGS+=("-l" "$SUPER/isar/interface-setup.el")
+  ARGS["${#ARGS[@]}"]="-l"
+  ARGS["${#ARGS[@]}"]="$SUPER/isar/interface-setup.el"
 
   if [ -n "$KEYWORDS" ]; then
     if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el" ]; then
-      ARGS+=("-l" "$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el")
+      ARGS["${#ARGS[@]}"]="-l"
+      ARGS["${#ARGS[@]}"]="$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el"
     elif [ -f "$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el" ]; then
-      ARGS+=("-l" "$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el")
+      ARGS["${#ARGS[@]}"]="-l"
+      ARGS["${#ARGS[@]}"]="$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el"
     else
       fail "No isar-keywords file for '$KEYWORDS'"
     fi
   elif [ -f "$ISABELLE_HOME_USER/etc/isar-keywords.el" ]; then
-    ARGS+=("-l" "$ISABELLE_HOME_USER/etc/isar-keywords.el")
+    ARGS["${#ARGS[@]}"]="-l"
+    ARGS["${#ARGS[@]}"]="$ISABELLE_HOME_USER/etc/isar-keywords.el"
   elif [ -f "$ISABELLE_HOME/etc/isar-keywords.el" ]; then
-    ARGS+=("-l" "$ISABELLE_HOME/etc/isar-keywords.el")
+    ARGS["${#ARGS[@]}"]="-l"
+    ARGS["${#ARGS[@]}"]="$ISABELLE_HOME/etc/isar-keywords.el"
   fi
 
   for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
       "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
   do
-    [ -f "$FILE" ] && ARGS+=("-l" "$FILE")
+    if [ -f "$FILE" ]; then
+      ARGS["${#ARGS[@]}"]="-l"
+      ARGS["${#ARGS[@]}"]="$FILE"
+    fi
   done
 
   case "$LOGIC" in
