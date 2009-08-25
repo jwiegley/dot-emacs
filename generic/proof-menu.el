@@ -167,7 +167,12 @@ without adjusting window layout."
 	    (vector
 	     (concat "Exit " proof-assistant)
 	     'proof-shell-exit
-	     ':active '(proof-shell-live-buffer)))
+	     ':active '(proof-shell-live-buffer))
+	    ;; TODO: doc <PA>-set-command here
+	    (vector
+	     (concat "Set " proof-assistant " command")
+	     (proof-ass-sym set-command)
+	     ':active '(fboundp (proof-ass-sym set-command))))
 	   '("----")
 	   (list
 	    (cons "Help"

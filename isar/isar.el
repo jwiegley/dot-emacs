@@ -383,6 +383,8 @@ proof-shell-retract-files-regexp."
            ["inner syntax"       isar-help-syntax         t]
            ["methods"            isar-help-methods        t])))))
 
+(defalias 'isar-set-command 'isa-set-isabelle-command)
+
 (defpgdefault help-menu-entries isabelle-docs-menu)
 
 ;; undo proof commands
