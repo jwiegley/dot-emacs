@@ -1441,7 +1441,7 @@ deleted text.
 @c TEXI DOCSTRING MAGIC: proof-goto-point
 @deffn Command proof-goto-point 
 Assert or retract to the command at current position.@*
-Calls @code{proof-assert-until-point} or @code{proof-retract-until-point} as
+Calls @samp{@code{proof-assert-until-point}} or @samp{@code{proof-retract-until-point}} as
 appropriate.
 @end deffn
 
@@ -1570,15 +1570,21 @@ is set to nil, so responses are not cleared automatically.
 
 @c TEXI DOCSTRING MAGIC: proof-interrupt-process
 @deffn Command proof-interrupt-process 
-Interrupt the proof assistant.  Warning! This may confuse Proof General.@*
+Interrupt the proof assistant.  Warning! This may confuse Proof General.
+
 This sends an interrupt signal to the proof assistant, if Proof General
 thinks it is busy.
 
-This command is risky because when an interrupt is trapped in the
-proof assistant, we don't know whether the last command succeeded or
-not.  The assumption is that it didn't, which should be true most of
-the time, and all of the time if the proof assistant has a careful
+This command is risky because we don't know whether the last command
+succeeded or not.  The assumption is that it didn't, which should be true
+most of the time, and all of the time if the proof assistant has a careful
 handling of interrupt signals.
+
+Some provers may ignore (and lose) interrupt signals, or fail to indicate
+that they have been acted upon but get stop in the middle of output.
+In the first case, PG will terminate the queue of commands at the first
+available point.  In the second case, you may need to press enter inside
+the prover command buffer (e.g., with Isabelle@var{2009} press RET inside @strong{isabelle}).
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-minibuffer-cmd
@@ -1633,7 +1639,7 @@ This simply kills the @samp{@code{proof-shell-buffer}} relying on the hook funct
 @deffn Command proof-shell-restart 
 Clear script buffers and send @samp{@code{proof-shell-restart-cmd}}.@*
 All locked regions are cleared and the active scripting buffer
-deactivated.  
+deactivated.
 
 If the proof shell is busy, an interrupt is sent with
 @samp{@code{proof-interrupt-process}} and we wait until the process is ready.
@@ -2344,7 +2350,8 @@ X-Symbol mode.  This is the @b{Unicode Tokens} minor mode.
 @example
   Proof-General -> Options -> Unicode Tokens
 @end example
-The aim of this mode is to allow displaying of ASCII tokens as Unicode
+The aim of this mode is to allow displaying of ASCII tokens (i.e., 
+sequences of ASCII characters) as Unicode
 character compositions, perhaps with additional text properties.
 This allows a file to be stored in perfectly portable plain
 ASCII encoding, but be displayed and edited with real symbols.  
@@ -2361,7 +2368,7 @@ You can easily add custom key bindings for particular symbols
 you need to enter often (@pxref{Adding your own keybindings} for
 examples).  
 
-The Unicode Tokens mode also allows short cut sequences of ordinary
+The Unicode Tokens mode also allows short-cut sequences of ordinary
 characters to quickly type tokens (similarly to the facility provided
 by X-Symbol).  These, along with the token settings themselves, are
 configured on a per-prover basis.
@@ -2442,13 +2449,22 @@ Show a buffer of all tokens.
 Show a buffer of all the shortcuts available.
 @end deffn
 
+@unnumberedsubsec Selecting a suitable font
+
 Unfortunately, the precise set of symbol glyphs that are available to
 you will depend in complicated ways on your operating system, Emacs
 version, installed font sets, and (even) command line options used to
-start Emacs.  Describing the full range of possibilities or giving
-recommendations is beyond the scope of this manual; please search (and
-contribute!) to the Proof General wiki at
-@uref{http://proofgeneral.inf.ed.ac.uk/wiki} for more details.
+start Emacs.  
+
+One font I like is @b{DejaVu Sans Mono}.  It covers all of the standard
+Isabelle symbols.  Some of the symbols are currently a bit small;
+however this font is an open source effort so users can contribute or
+suggest improvements.  See @uref{http://dejavu-fonts.org}.
+
+Describing further possibilities or giving recommendations is
+beyond the scope of this manual; please search (and contribute!) to the
+Proof General wiki at @uref{http://proofgeneral.inf.ed.ac.uk/wiki} for
+more details.
 
 
 
@@ -3016,7 +3032,7 @@ The default value is @code{t}.
 If non-nil, format for newlines after each proof command in a script.@*
 This option is not fully-functional at the moment.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-prog-name-ask
