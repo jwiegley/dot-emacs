@@ -38,7 +38,7 @@ file.  Here is an example for Coq users: for the file .../dir/bar/foo.v, if you
 want Coq to be started with the path .../dir/theories/ added in the libraries
 path (\"-I\" option), you can put at the end of foo.v:
 
-(*
+\(*
 *** Local Variables: ***
 *** coq-prog-name: \"coqtop\" ***
 *** coq-prog-args: (\"-emacs\" \"-I\" \"../theories\") ***
@@ -58,7 +58,7 @@ directory .../dir/, you can add the right compile command.  And if you want a
 non standard coq executable to be used, here is what you should put in
 variables:
 
-(*
+\(*
  Local Variables:
  coq-prog-name: \"../../coqsrc/bin/coqtop\"
  coq-prog-args: \"-emacs\" \"-I\" \"../theories\"
