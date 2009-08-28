@@ -14,9 +14,11 @@
 
 ;;; Code:
 
+
 ;;;
 ;;; Early variables
 ;;;
+
 (defvar proof-assistant-cusgrp nil
   "Symbol for the customization group of the user options for the proof assistant.
 Do not change this variable! It is set automatically by the mode 
@@ -72,6 +74,7 @@ stub defined in proof-site to <PA>-mode.")
 These functions allow late initialisation, once the choice of prover
 has been set.")
 
+
 ;;;
 ;;; Later variables 
 ;;; (could be separated to cut down Emacs env pollution)
@@ -156,6 +159,7 @@ of the proof (starting from 1).")
   "End-of-line string for proof process.")
 
 
+
 ;;
 ;; Internal variables
 ;; -- usually local to a couple of modules but here to avoid 
@@ -187,6 +191,50 @@ in `proof-shell-clear-state'.")
 (defvar proof-last-theorem-dependencies nil
   "Contains the dependencies of the last theorem.  A list of strings.
 Set in `proof-shell-process-urgent-message'.")
+
+
+;;
+;; Not variables at all: global constants (were in proof-config)
+;;
+
+(defcustom proof-general-name "Proof-General"
+  "Proof General name used internally and in menu titles."
+  :type 'string
+  :group 'proof-general-internals)
+
+(defcustom proof-general-home-page
+  "http://proofgeneral.inf.ed.ac.uk"
+  "*Web address for Proof General."
+  :type 'string
+  :group 'proof-general-internals)
+
+(defcustom proof-unnamed-theorem-name
+  "Unnamed_thm"
+  "A name for theorems which are unnamed.  Used internally by Proof General."
+  :type 'string
+  :group 'proof-general-internals)
+
+(defcustom proof-universal-keys
+  '(([(control c) ?`]		. proof-next-error)
+    ([(control c) (control c)]  . proof-interrupt-process)
+    ([(control c) (control n)]  . proof-assert-next-command-interactive)
+    ([(control c) (control u)]  . proof-undo-last-successful-command)
+    ([(control c) (control p)]  . proof-prf)
+    ([(control c) (control l)]  . proof-layout-windows)
+    ([(control c) (control x)]  . proof-shell-exit)
+    ([(control c) (control s)]  . proof-shell-start)
+    ([(control c) (control v)]  . proof-minibuffer-cmd)
+    ([(control c) (control w)]  . pg-response-clear-displays)
+    ([(control c) (control ?.)] . proof-goto-end-of-locked)
+    ([(control c) (control f)]  . proof-find-theorems)
+    ([(control c) (control o)]  . proof-display-some-buffers))
+"List of key bindings made for the script, goals and response buffer.
+Elements of the list are tuples `(k . f)'
+where `k' is a key binding (vector) and `f' the designated function."
+  :type 'sexp
+  :group 'proof-general-internals)
+
+ 
 
 (provide 'pg-vars)
 ;; pg-vars.el ends here

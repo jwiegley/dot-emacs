@@ -8,7 +8,7 @@
 ;;
 ;;; Commentary:
 ;; 
-;; Prover specific settings
+;; Prover specific settings and user options.
 ;;
 ;; The settings defined here automatically use the current proof
 ;; assistant symbol as a prefix, i.e.  isa-favourites, coq-favourites,
@@ -23,6 +23,10 @@
 ;; forms that refer to `proof-assistant', which is only properly set
 ;; when the mode for a proof assistant is started (see mode stub).
 ;;
+;; See also:
+;;
+;;  proof-useropts.el
+;;  pg-vars.el
 
 ;;; Code:
 

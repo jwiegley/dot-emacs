@@ -8,625 +8,70 @@
 ;;
 ;;; Commentary:
 ;; 
-;; This file declares all user options and prover-specific
-;; configuration variables for Proof General.  The variables
-;; are used variously by the proof script mode and the
-;; proof shell mode, menus, and toolbar.
+;; This file declares all prover-specific configuration variables for
+;; Proof General.  The variables are used variously by the proof
+;; script mode and the proof shell mode, menus, and toolbar.
 ;; 
 ;; To customize Proof General for a new proof assistant, you
 ;; should read this file carefully!
 ;;
-;;  1. User options
-;;      1b.  Faces
+;;  1. Menus, user-level commands, toolbar
+;;  2. Script mode configuration
+;;  3. Shell mode configuration
+;;     3a.  commands
+;;     3b.  regexps
+;;     3c.  tokens
+;;     3d.  hooks and others
+;;  4. Goals buffer configuration
 ;;
-;;     CONFIGURATION VARIABLES
-;;  2. Major modes
-;;  3. Menus, user-level commands, toolbar
-;;  4. Script mode configuration
-;;  5. Shell mode configuration
-;;     5a.  commands
-;;     5b.  regexps
-;;     5c.  tokens
-;;     5d.  hooks and others
-;;  6. Goals buffer configuration
-;;  7. Global constants
-;;
-;; The user options don't need to be set on a per-prover basis,
-;; and the global constants probably should not be touched.
-;; The remaining variables in sections 2-9 should be set for
-;; each proof assistant.  You don't need to set every variable
-;; for basic functionality; consult the manual for details of
-;; which ones are important.
+;; The remaining variables in should be set for each proof assistant.
+;; You don't need to set every variable for basic functionality;
+;; consult the manual for details of which ones are important.
 ;;
 ;; Customization groups and structure (sections in brackets)
 ;;
 ;;  proof-general	      : Overall group
-;;    proof-user-options      : User options for Proof General    (1)
-;;    <ProverName>            : User options for proof assistant (9)
-;;    <ProverName->-internals : Internal settings for proof assistant (9)
+;;    proof-user-options      : User options for Proof General
+;;				  (see proof-useropts.el)
+;;    <ProverName>            : User options for proof assistant
+;;				  (see pg-custom.el)
+;;    <ProverName->-internals : Internal settings for proof assistant
+;;				  (see pg-custom.el)
 ;;
 ;;  proof-general-internals  :  Internal settings of Proof General
-;;    prover-config	     :  Configuration for proof assistant (2,3)
-;;      proof-script	     :     settings for proof script mode (4)
-;;      proof-shell	     :     settings for proof shell mode (5)
-;;      proof-goals	     :     settings for goals buffer (6)
+;;    prover-config	     :  Configuration for proof assistant (1)
+;;      proof-script	     :     settings for proof script mode (2)
+;;      proof-shell	     :     settings for proof shell mode (3)
+;;      proof-goals	     :     settings for goals buffer (4)
 ;;    <Prover name>-config   :  Specific internal settings for a prover
 ;;
 ;; ======================================================================
 ;;
-;; Developers notes:
+;; Developer notes:
 ;;
-;;   i. When adding a new configuration variable, please
-;;       (a) put it in the right customize group, and
-;;       (b) add a magical comment in ProofGeneral.texi/PG-Adapting.texi
+;; i. When adding a new configuration variable, please
+;;    (a) put it in the right customize group, and
+;;    (b) add a magical comment in ProofGeneral.texi/PG-Adapting.texi
 ;;
-;;  ii.  Presently the customize library seems a bit picky over the
-;;    	:type property and some correct but complex types don't work:
-;;    	If the type is ill-formed, editing the whole group will be broken.
-;;    	Check after updates, by killing all customize buffers and
-;;    	invoking customize-group
+;; ii.  Presently the customize library seems a bit picky over the
+;;  	:type property and some correct but complex types don't work:
+;;  	If the type is ill-formed, editing the whole group will be
+;;  	broken.  Check after updates, by killing all customize buffers
+;;  	and invoking customize-group
 ;;
 ;;
-;; ======================================================================
+;; See also:
+;;
+;;  pg-custom.el
+;;  pg-vars.el
+
 
 ;;; Code:
 
-;;
-;; 1. User options for proof mode
-;;
-;; The following variables are user options for Proof General.
-;; They appear in the 'proof' customize group and should
-;; *not* normally be touched by prover specific code.
-;;
+(require 'proof-useropts)		; user options
+(require 'proof-faces)			; user options: faces
 
 
-
-(defgroup proof-user-options nil
-  "User options for Proof General."
-  :group 'proof-general
-  :prefix "proof-")
-
-;;
-;; Take action when dynamically adjusting customize values
-;;
-(defun proof-set-value (sym value)
-  "Set a customize variable using `set-default' and a function.
-We first call `set-default' to set SYM to VALUE.
-Then if there is a function SYM (i.e. with the same name as the
-variable SYM), it is called to take some dynamic action for the new
-setting.
-
-If there is no function SYM, we try stripping
-`proof-assistant-symbol' and adding \"proof-\" instead to get
-a function name.  This extends proof-set-value to work with
-generic individual settings.
-
-The dynamic action call only happens when values *change*: as an
-approximation we test whether proof-config is fully-loaded yet."
-  (set-default sym value)
-  (when (and
-	 (not noninteractive)
-	 (featurep 'pg-custom)
-	 (featurep 'proof-config))
-      (if (fboundp sym)
-	  (funcall sym)
-	(if (boundp 'proof-assistant-symbol)
-	    (if (> (length (symbol-name sym))
-		   (+ 3 (length (symbol-name proof-assistant-symbol))))
-		(let ((generic
-		       (intern
-			(concat "proof"
-				(substring (symbol-name sym)
-					   (length (symbol-name
-						    proof-assistant-symbol)))))))
-		  (if (fboundp generic)
-		      (funcall generic))))))))
-
-(defcustom proof-electric-terminator-enable nil
-  "*If non-nil, use electric terminator mode.
-If electric terminator mode is enabled, pressing a terminator will
-automatically issue `proof-assert-next-command' for convenience,
-to send the command straight to the proof process.  If the command
-you want to send already has a terminator character, you don't
-need to delete the terminator character first.  Just press the
-terminator somewhere nearby.  Electric!"
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom proof-toolbar-enable t
-  "*If non-nil, display Proof General toolbar for script buffers."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom proof-imenu-enable nil
-  "*If non-nil, display Imenu menu of items for script buffers."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom pg-show-hints t
-  "*Whether to display keyboard hints in the minibuffer."
-  :type 'boolean
-  :group 'proof-user-options)
-  
-;; FIXME: next one could be integer value for catchup delay
-(defcustom proof-trace-output-slow-catchup t
-  "*If non-nil, try to redisplay less often during frequent trace output.
-Proof General will try to configure itself to update the display
-of tracing output infrequently when the prover is producing rapid,
-perhaps voluminous, output.  This counteracts the situation that
-otherwise Emacs may consume more CPU than the proof assistant,
-trying to fontify and refresh the display as fast as output appears."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-strict-state-preserving t
-  "*Whether Proof General is strict about the state preserving test.
-Proof General lets the user send arbitrary commands to the proof
-engine with `proof-minibuffer-cmd'.  To attempt to preserve
-synchronization, there may be a test `proof-state-preserving-p'
-configured which prevents the user issuing certain commands
-directly (instead, they may only be entered as part of the script).
-
-Clever or arrogant users may want to avoid this test, which is
-done if this `proof-strict-state-preserving' is turned off (nil)."
-  :type  'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-strict-read-only t
-  "*Whether Proof General is strict about the read-only region in buffers.
-If non-nil, an error is given when an attempt is made to edit the
-read-only region.  If nil, Proof General is more relaxed (but may give
-you a reprimand!)."
-  :type  '(choice 
-	   (const :tag "Do not allow edits" t) 
-	   (const :tag "Allow edits but automatically retract first" retract)  
-	   (const :tag "Allow edits without restriction" nil))
-  :set   'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom proof-allow-undo-in-read-only t
-  "*Whether Proof General allows text undo in the read-only region.
-If non-nil, undo will allow altering of processed text.
-If nil, undo history is cut at first edit
-of processed text.  NB: the history manipulation only works on GNU Emacs."
-  :type  'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-three-window-enable nil
-  "*Whether response and goals buffers have dedicated windows.
-If non-nil, Emacs windows displaying messages from the prover will not
-be switchable to display other windows.
-
-This option can help manage your display.
-
-Setting this option triggers a three-buffer mode of interaction where
-the goals buffer and response buffer are both displayed, rather than
-the two-buffer mode where they are switched between.  It also prevents
-Emacs automatically resizing windows between proof steps.
-
-If you use several frames (the same Emacs in several windows on the
-screen), you can force a frame to stick to showing the goals or
-response buffer."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom proof-multiple-frames-enable nil
-  "*Whether response and goals buffers have separate frames.
-If non-nil, Emacs will make separate frames (screen windows) for
-the goals and response buffers, by altering the Emacs variable
-`special-display-regexps'."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom proof-delete-empty-windows nil
-  "*If non-nil, automatically remove windows when they are cleaned.
-For example, at the end of a proof the goals buffer window will
-be cleared; if this flag is set it will automatically be removed.
-If you want to fix the sizes of your windows you may want to set this
-variable to 'nil' to avoid windows being deleted automatically.
-If you use multiple frames, only the windows in the currently
-selected frame will be automatically deleted."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-shrink-windows-tofit nil
-  "*If non-nil, automatically shrink output windows to fit contents.
-In single-frame mode, this option will reduce the size of the
-goals and response windows to fit their contents."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-auto-raise-buffers t
-  "*If non-nil, automatically raise buffers to display latest output.
-If this is not set, buffers and windows will not be managed by
-Proof General."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-colour-locked t
-  "*If non-nil, colour the locked region with `proof-locked-face'.
-If this is not set, buffers will have no special face set
-on locked regions."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom proof-query-file-save-when-activating-scripting
-  t
-"*If non-nil, query user to save files when activating scripting.
-
-Often, activating scripting or executing the first scripting command
-of a proof script will cause the proof assistant to load some files
-needed by the current proof script.  If this option is non-nil, the
-user will be prompted to save some unsaved buffers in case any of
-them corresponds to a file which may be loaded by the proof assistant.
-
-You can turn this option off if the save queries are annoying, but
-be warned that with some proof assistants this may risk processing
-files which are out of date with respect to the loaded buffers!"
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-one-command-per-line
-  t
-  "*If non-nil, format for newlines after each proof command in a script.
-This option is not fully-functional at the moment." ;; TODO
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-prog-name-ask
-  nil
-  "*If non-nil, query user which program to run for the inferior process."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-prog-name-guess
-  nil
-  "*If non-nil, use `proof-guess-command-line' to guess `proof-prog-name'.
-This option is compatible with `proof-prog-name-ask'.
-No effect if `proof-guess-command-line' is nil."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-tidy-response
-  t
-  "*Non-nil indicates that the response buffer should be cleared often.
-The response buffer can be set either to accumulate output, or to
-clear frequently.
-
-With this variable non-nil, the response buffer is kept tidy by
-clearing it often, typically between successive commands (just like the
-goals buffer).
-
-Otherwise the response buffer will accumulate output from the prover."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-keep-response-history
-  nil
-  "*Whether to keep a browsable history of responses.
-With this feature enabled, the buffers used for prover responses will have a
-history that can be browsed without processing/undoing in the prover.
-\(Changes to this variable take effect after restarting the prover)."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defcustom pg-input-ring-size 32
-  "*Size of history ring of previous successfully processed commands."
-  :type 'integer
-  :group 'proof-user-options)
-
-(defcustom proof-general-debug nil
-  "*Non-nil to run Proof General in debug mode.
-This changes some behaviour (e.g. markup stripping) and displays
-debugging messages in the response buffer.  To avoid erasing
-messages shortly after they're printed, set `proof-tidy-response' to nil.
-This is only useful for PG developers."
-  :type 'boolean
-  :group 'proof-user-options)
-
-;;; TEMPORARY FOR EXPERIMENTAL CODE:
-
-(defcustom proof-use-parser-cache nil
-  "*Non-nil to use a simple parsing cache (experimental).
-This can be helpful when editing and reprocessing large files.
-This variable exists to disable the cache in case of problems."
-  :type 'boolean
-  :group 'proof-user-options)
-
-
-;;; NON BOOLEAN OPTIONS
-
-(defcustom proof-follow-mode 'locked
-  "*Choice of how point moves with script processing commands.
-One of the symbols: 'locked, 'follow, 'followdown, 'ignore.
-
-If 'locked, point sticks to the end of the locked region.
-If 'follow, point moves just when needed to display the locked region end.
-If 'followdown, point if necessary to stay in writeable region
-If 'ignore, point is never moved after movement commands or on errors.
-
-If you choose 'ignore, you can find the end of the locked using
-\\[proof-goto-end-of-locked]"
-  :type '(choice
-	  (const :tag "Follow locked region" locked)
-	  (const :tag "Follow locked region down" followdown)
-	  (const :tag "Keep locked region displayed" follow)
-	  (const :tag "Never move" ignore))
-  :group 'proof-user-options)
-
-;; Note: the auto action might be improved a bit: for example, when
-;; scripting is turned off because another buffer is being retracted,
-;; we almost certainly want to retract the currently edited buffer as
-;; well (use case is somebody realising a change has to made in an
-;; ancestor file).  And in that case (supposing file being unlocked is
-;; an ancestor), it seems unlikely that we need to query for saves.
-(defcustom proof-auto-action-when-deactivating-scripting nil
-  "*If 'retract or 'process, do that when deactivating scripting.
-
-With this option set to 'retract or 'process, when scripting
-is turned off in a partly processed buffer, the buffer will be
-retracted or processed automatically.
-
-With this option unset (nil), the user is questioned instead.
-
-Proof General insists that only one script buffer can be partly
-processed: all others have to be completely processed or completely
-unprocessed.  This is to make sure that handling of multiple files
-makes sense within the proof assistant.
-
-NB: A buffer is completely processed when all non-whitespace is
-locked (coloured blue); a buffer is completely unprocessed when there
-is no locked region."
-  :type '(choice
-	  (const :tag "No automatic action; query user" nil)
-	  (const :tag "Automatically retract" retract)
-	  (const :tag "Automatically process" process))
-  :group 'proof-user-options)
-
-(defcustom proof-script-command-separator " "
-  "*String separating commands in proof scripts.
-For example, if a proof assistant prefers one command per line, then
-this string should be set to a newline.  Otherwise it should be
-set to a space."
-  :type 'string
-  :group 'proof-user-options)
-
-(defcustom proof-rsh-command nil
-  "*Shell command prefix to run a command on a remote host.
-For example,
-
-   ssh bigjobs
-
-Would cause Proof General to issue the command `ssh bigjobs isabelle'
-to start Isabelle remotely on our large compute server called `bigjobs'.
-
-The protocol used should be configured so that no user interaction
-\(passwords, or whatever) is required to get going.  For proper
-behaviour with interrupts, the program should also communicate
-signals to the remote host."
-  :type '(choice string nil)
-  :group 'proof-user-options)
-
-(defcustom proof-disappearing-proofs nil
-  "*Non-nil causes Proof General to hide proofs as they are completed."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-full-annotation t
-  "*Non-nil causes Proof General to add hovers for all proof commands.
-Proof output is recorded as it occurs interactively; normally if
-many steps are taken at once, this output is suppressed.  If this
-setting is used to enable it, the proof script will be annotated
-with full details."
-  :type 'boolean
-  :group 'proof-user-options)
-
-
-
-
-
-;;
-;; 1b. Faces.
-;;
-;; We should test that settings work sensibly:
-;;   a) with default colours
-;;   b) with -rv
-;;   c) on console
-;;   d) on win32
-;;   e) all above with GNU Emacs and XEmacs.
-;; But it's difficult to keep track of all that!
-;; Please report any bad/failing colour
-;; combinations to da+pg-feedback@inf.ed.ac.uk
-;;
-;; Some of these faces aren't used by default in Proof General,
-;; but you can use them in font lock patterns for specific
-;; script languages.
-;;
-
-(defgroup proof-faces nil
-  "Faces used by Proof General."
-  :group 'proof-general
-  :prefix "proof-")
-  
-;; TODO: get rid of this list.  Does 'default work widely enough
-;; by now?
-(defconst pg-defface-window-systems
-  '(x            ;; bog standard
-    mswindows    ;; Windows
-    w32	         ;; Windows
-    gtk          ;; gtk emacs (obsolete?)
-    mac          ;; used by Aquamacs
-    carbon       ;; used by Carbon XEmacs
-    ns           ;; NeXTstep Emacs (Emacs.app)
-    x-toolkit)   ;; possible catch all (but probably not)
-  "A list of possible values for variable `window-system'.
-If you are on a window system and your value of `window-system' is
-not listed here, you may not get the correct syntax colouring behaviour.")
-
-(defmacro proof-face-specs (bl bd ow)
-  "Return a spec for `defface' with BL for light bg, BD for dark, OW o/w."
-  `(append
-    (apply 'append
-     (mapcar
-     (lambda (ty) (list
-		     (list (list (list 'type ty) '(class color)
-			   (list 'background 'light))
-			   (quote ,bl))
-		     (list (list (list 'type ty) '(class color)
-				 (list 'background 'dark))
-			   (quote ,bd))))
-     pg-defface-window-systems))
-    (list (list t (quote ,ow)))))
-
-(defface proof-queue-face
-  (proof-face-specs
-   (:background "mistyrose") ;; was "darksalmon" in PG 3.4,3.5
-   (:background "mediumvioletred")
-   (:foreground "white" :background "black"))
-  "*Face for commands in proof script waiting to be processed."
-  :group 'proof-faces)
-
-(defface proof-locked-face
-  (proof-face-specs
-   ;; This colour is quite subjective and may be best chosen according
-   ;; to the type of display you have.
-   (:background "#eaf8ff")
-   (:background "darkblue")
-   (:underline t))
-  "*Face for locked region of proof script (processed commands)."
-  :group 'proof-faces)
-
-(defface proof-declaration-name-face
-  (proof-face-specs
-   (:foreground "chocolate" :bold t)
-   (:foreground "orange" :bold t)
-   (:italic t :bold t))
-  "*Face for declaration names in proof scripts.
-Exactly what uses this face depends on the proof assistant."
-  :group 'proof-faces)
-
-(defface proof-tacticals-name-face
-  (proof-face-specs
-   (:foreground "MediumOrchid3")
-   (:foreground "orchid")
-   (bold t))
-  "*Face for names of tacticals in proof scripts.
-Exactly what uses this face depends on the proof assistant."
-  :group 'proof-faces)
-
-(defface proof-tactics-name-face
-  (proof-face-specs
-   (:foreground "darkblue")
-   (:foreground "mediumpurple")
-   (:underline t))
-  "*Face for names of tactics in proof scripts.
-Exactly what uses this face depends on the proof assistant."
-  :group 'proof-faces)
-
-(defface proof-error-face
-  (proof-face-specs
-   (:background "indianred1")
-   (:background "brown")
-   (:bold t))
-  "*Face for error messages from proof assistant."
-  :group 'proof-faces)
-
-(defface proof-warning-face
-  (proof-face-specs
-   (:background "lemon chiffon")
-   (:background "orange2")
-   (:italic t))
-  "*Face for warning messages.
-Warning messages can come from proof assistant or from Proof General itself."
-  :group 'proof-faces)
-
-(defface proof-eager-annotation-face
-  (proof-face-specs
-   (:background "palegoldenrod")
-   (:background "darkgoldenrod")
-   (:italic t))
-  "*Face for important messages from proof assistant."
-  :group 'proof-faces)
-
-(defface proof-debug-message-face
-  (proof-face-specs
-   (:foreground "Gray65")
-   (:background "Gray30")
-   (:italic t))
-  "*Face for debugging messages from Proof General."
-  :group 'proof-faces)
-
-(defface proof-boring-face
-  (proof-face-specs
-   (:foreground "Gray65")
-   (:background "Gray30")
-   (:italic t))
-  "*Face for boring text in proof assistant output."
-  :group 'proof-faces)
-
-(defface proof-mouse-highlight-face
-  (proof-face-specs
-   (:background "lightblue")
-   (:background "darkslateblue")
-   (:italic t))
-  "*General mouse highlighting face."
-  :group 'proof-faces)
-
-(defface proof-highlight-dependent-face
-  (proof-face-specs
-   (:background "orange")
-   (:background "darkorange")
-   (:italic t))
-  "*Face for showing (backwards) dependent parts."
-  :group 'proof-faces)
-  
-(defface proof-highlight-dependency-face
-  (proof-face-specs
-   (:background "khaki")
-   (:background "peru")
-   (:italic t))
-  "*Face for showing (forwards) dependencies."
-  :group 'proof-faces)
-
-(defface proof-active-area-face
-  (proof-face-specs
-   (:background "lightyellow" :box (:line-width 2 :color "grey75" :style released-button))
-   (:background "darkyellow" :underline t)
-   (:underline t))
-  "*Face for showing active areas (clickable regions), outside of subterm markup."
-  :group 'proof-faces)
-
-;;; Compatibility: these are required for use in GNU Emacs/font-lock-keywords
-(defconst proof-face-compat-doc "Evaluates to a face name, for compatibility.")
-(defconst proof-queue-face 'proof-queue-face proof-face-compat-doc)
-(defconst proof-locked-face 'proof-locked-face proof-face-compat-doc)
-(defconst proof-declaration-name-face 'proof-declaration-name-face proof-face-compat-doc)
-(defconst proof-tacticals-name-face 'proof-tacticals-name-face proof-face-compat-doc)
-(defconst proof-tactics-name-face 'proof-tactics-name-face proof-face-compat-doc)
-(defconst proof-error-face 'proof-error-face proof-face-compat-doc)
-(defconst proof-warning-face 'proof-warning-face proof-face-compat-doc)
-(defconst proof-eager-annotation-face 'proof-eager-annotation-face proof-face-compat-doc)
-(defconst proof-debug-message-face 'proof-debug-message-face proof-face-compat-doc)
-(defconst proof-boring-face 'proof-boring-face proof-face-compat-doc)
-(defconst proof-mouse-highlight-face 'proof-mouse-highlight-face proof-face-compat-doc)
-(defconst proof-highlight-dependent-face 'proof-highlight-dependent-face proof-face-compat-doc)
-(defconst proof-highlight-dependency-face 'proof-highlight-dependency-face proof-face-compat-doc)
-(defconst proof-active-area-face 'proof-active-area-face proof-face-compat-doc)
-
-
-
-
-
-
-;;
-;; START OF CONFIGURATION VARIABLES
 ;;
 ;; Prelude
 ;;
@@ -643,35 +88,13 @@ Warning messages can come from proof assistant or from Proof General itself."
 ;; Putting these in a customize group is useful for documenting
 ;; this type of variable, and for developing a new instantiation
 ;; of Proof General.
-;; But it is *not* useful for final user-level customization!
-;; The reason is that saving these customizations across a session is
-;; not liable to work, because the prover specific elisp usually
-;; overrides with a series of setq's in <assistant>-mode-config type
-;; functions.  This is why prover-config appears under the
-;; proof-general-internal group.
 
-
-
-
-
-
-
-
-;;
-;; 2. Major modes used by Proof General.
-;;
-;; PG 3.7: the variables setting the major modes have been removed.
-;; They now default to standard names:
-;;
-;; proof-mode-for-shell:    <PA>-shell-mode
-;; proof-mode-for-response  <PA>-response-mode
-;; proof-mode-for-goals:    <PA>-goals-mode
-;; proof-mode-for-script:   <PA>-mode
-;;
-;; These are defined in pg-vars.el and set in proof-site mode stub.
-;;
-;; Prover modes should define aliases for these if not defun'd.
-
+;; But it is *not* useful for final user-level customization!  The
+;; reason is that saving these customizations across a session is not
+;; liable to work, because the prover specific elisp usually overrides
+;; with a series of setq's in <assistant>-mode-config type functions.
+;; This is why prover-config appears under the proof-general-internal
+;; group.
 
 (defcustom proof-guess-command-line nil
   "Function to guess command line for proof assistant, given a filename.
@@ -685,7 +108,7 @@ command line options.  For an example, see coq/coq.el."
 
 
 ;;
-;; 3. Configuration for menus, user-level commands, toolbar, etc.
+;; 1. Configuration for menus, user-level commands, toolbar, etc.
 ;;
 
 (defcustom proof-assistant-home-page ""
@@ -787,7 +210,7 @@ conversion, etc.  (No changes are done if nil)."
 
 
 ;;
-;; 4. Configuration for proof script mode
+;; 2. Configuration for proof script mode
 ;;
 
 ;;
@@ -1401,7 +824,7 @@ See pg-user.el: pg-create-in-span-context-menu for more hints."
 
 
 ;;
-;;  5. Configuration for proof shell
+;;  3. Configuration for proof shell
 ;;
 ;; The variables in this section concern the proof shell mode.
 ;; The first group of variables are hooks invoked at various points.
@@ -2291,7 +1714,7 @@ At present this is used only by the `proof-easy-config' macro."
 
 
 ;;
-;; 6. Goals buffer
+;; 4. Goals buffer
 ;;
 
 (defgroup proof-goals nil
@@ -2426,48 +1849,6 @@ the current restriction, and must return the final value of (point-max).
   :type '(repeat function)
   :group 'proof-goals)
 
-
-
-;;
-;; 7. Global constants
-;;
-
-(defcustom proof-general-name "Proof-General"
-  "Proof General name used internally and in menu titles."
-  :type 'string
-  :group 'proof-general-internals)
-
-(defcustom proof-general-home-page
-  "http://proofgeneral.inf.ed.ac.uk"
-  "*Web address for Proof General."
-  :type 'string
-  :group 'proof-general-internals)
-
-(defcustom proof-unnamed-theorem-name
-  "Unnamed_thm"
-  "A name for theorems which are unnamed.  Used internally by Proof General."
-  :type 'string
-  :group 'proof-general-internals)
-
-(defcustom proof-universal-keys
-  '(([(control c) ?`]		. proof-next-error)
-    ([(control c) (control c)]  . proof-interrupt-process)
-    ([(control c) (control n)]  . proof-assert-next-command-interactive)
-    ([(control c) (control u)]  . proof-undo-last-successful-command)
-    ([(control c) (control p)]  . proof-prf)
-    ([(control c) (control l)]  . proof-layout-windows)
-    ([(control c) (control x)]  . proof-shell-exit)
-    ([(control c) (control s)]  . proof-shell-start)
-    ([(control c) (control v)]  . proof-minibuffer-cmd)
-    ([(control c) (control w)]  . pg-response-clear-displays)
-    ([(control c) (control ?.)] . proof-goto-end-of-locked)
-    ([(control c) (control f)]  . proof-find-theorems)
-    ([(control c) (control o)]  . proof-display-some-buffers))
-"List of key bindings made for the script, goals and response buffer.
-Elements of the list are tuples `(k . f)'
-where `k' is a key binding (vector) and `f' the designated function."
-  :type 'sexp
-  :group 'proof-general-internals)
 
 (provide 'proof-config)
 ;;; proof-config.el ends here
