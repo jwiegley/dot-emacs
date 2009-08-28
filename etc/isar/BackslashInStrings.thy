@@ -1,4 +1,4 @@
-theory BackslashInStrings = Main:
+theory BackslashInStrings imports Main begin
 
 consts test :: string
 

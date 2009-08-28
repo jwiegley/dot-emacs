@@ -1,5 +1,5 @@
-Notes on Profiling Proof General in XEmacs  [da]
-------------------------------------------------
+Notes on Profiling Proof General in Emacs
+-----------------------------------------
 
 Usage of Elisp profiler:
 
