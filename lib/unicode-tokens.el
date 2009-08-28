@@ -77,10 +77,23 @@ which matches plain token strings optionally followed by a colon and
 variant name.
 
 If set, this variable is used instead of `unicode-tokens-token-format'.")
-;; (setq ut-tvfr  "\\(%s\\)\\(:?\\w+\\)")
-;; (string-match (format ut-tvfr ".*?") "alpha:x")
 
-(defvar unicode-tokens-fontsymb-properties nil
+(defvar unicode-tokens-fontsymb-properties 
+  '((sub       (display (raise -0.4)))
+    (sup       (display (raise 0.4)))
+    (bold      (face (:weight bold)))
+    (italic    (face (:slant italic)))
+    (big       (face (:height 1.5)))
+    (small     (face (:height 0.75)))
+    (underline (face (:underline t)))
+    (overline  (face (:overline t)))
+    (dec       (face proof-declaration-name-face))
+    (tactic    (face proof-tactics-name-face))
+    (tactical  (face proof-tactical-name-face))
+    (script    (face unicode-tokens-script-font-face))
+    (frakt     (face unicode-tokens-fraktur-font-face))
+    (serif     (face unicode-tokens-serif-font-face))
+    (sans      (face unicode-tokens-sans-font-face)))
  "Association list mapping a symbol to a list of text properties.
 Used in `unicode-tokens-token-symbol-map', `unicode-tokens-control-regions',
 and `unicode-tokens-control-characters'.")
@@ -118,6 +131,12 @@ and (match-string 2) has the display control applied.")
 (defvar unicode-tokens-control-char-format nil
   "A format string for inserting a control character sequence.")
 
+(defvar unicode-tokens-control-region-format-start nil
+  "A format string for begining a control region sequence.")
+
+(defvar unicode-tokens-control-region-format-end nil
+  "A format string for ending a control region sequence.")
+
 ;;
 ;; A list of the above variables
 ;;
@@ -129,6 +148,8 @@ and (match-string 2) has the display control applied.")
     fontsymb-properties
     shortcut-alist
     control-region-format-regexp
+    control-region-format-start
+    control-region-format-end
     control-char-format-regexp
     control-char-format
     control-regions
@@ -256,6 +277,17 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
      (eq window-system 'carbon))
     '((t :family "Lucida"))))
   "Serif (roman) font face"
+  :group 'unicode-tokens-faces)
+
+(defface unicode-tokens-sans-font-face
+  (cond
+   ((eq window-system 'x) ; Linux/Unix
+    '((t :family "Liberation Sans")))
+   ((or ; Mac
+     (eq window-system 'ns)
+     (eq window-system 'carbon))
+    '((t :family "Lucida"))))
+  "Sans serif font face"
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-highlight-face
@@ -541,10 +573,10 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 			'requirematch))))
   (assert (assoc name unicode-tokens-control-regions))
   (let* ((entry (assoc name unicode-tokens-control-regions))
-	 (beg (region-beginning))
-	 (end (region-end))
+	 (beg   (region-beginning))
+	 (end   (region-end))
 	 (begtok
-	  (format unicode-tokens-control-region-format-end (nth 1 entry)))
+	  (format unicode-tokens-control-region-format-start (nth 1 entry)))
 	 (endtok
 	  (format unicode-tokens-control-region-format-end (nth 2 entry))))
     (when (> beg end)
@@ -647,19 +679,35 @@ Available annotations chosen from `unicode-tokens-control-regions'."
       (make-local-variable 'unicode-tokens-show-symbols)
       (setq unicode-tokens-show-symbols nil)
       (unicode-tokens-mode)
-      (insert "Hover to see token.  Mouse-2 or RET to copy into kill ring.\n\n")
-      (let ((count 0) toks)
+      (insert "Hover to see token.  Mouse-2 or RET to copy into kill ring.\n")
+      (let ((count 10) 
+	    (toks unicode-tokens-token-list)
+	    tok)
 	;; display in originally given order
-	(dolist (tok unicode-tokens-token-list)
+	(while (or (/= 1 (mod count 10)) toks)
+	  (unless (null toks)
+	    (setq tok (car toks)))
+	  (if (/= 0 (mod count 10))
+	      (insert "\t")
+	    (insert "\n")
+	    (unless (null toks)
+	      (insert (format "%4d. " (/ count 10))))
+	    (if (= 0 (mod count 20))
+		(overlay-put (make-overlay 
+			      (save-excursion
+				(forward-line -1) (point))
+			      (point))
+			     'face
+			     '(background-color . "gray90")))
+	    (insert " "))
+	  (incf count)
+	  (if (null toks)
+	      (insert " ")
 	    (insert-text-button
 	     (format unicode-tokens-token-format tok)
 	     :type 'unicode-tokens-list
 	     'unicode-token tok)
-	    (incf count)
-	    (if (< count 10)
-		(insert "\t")
-	      (insert "\n")
-	      (setq count 0)))))))
+	    (setq toks (cdr toks))))))))
 
 (defun unicode-tokens-list-shortcuts ()
   "Show a buffer of all the shortcuts available."
@@ -669,13 +717,12 @@ Available annotations chosen from `unicode-tokens-control-regions'."
       (make-local-variable 'unicode-tokens-show-symbols)
       (setq unicode-tokens-show-symbols nil)
       (unicode-tokens-mode)
-      (let (gray start)
+      (let (grey start)
 	(dolist (short unicode-tokens-shortcut-alist)
 	  (setq start (point))
 	  (insert "Typing  " (car short) "\tinserts \t"
 		  (cdr short) "\n")
-	  (setq gray (not gray))
-	  (if gray
+	  (if (setq grey (not grey))
 	      (overlay-put (make-overlay start (point))
 			   'face
 			   '(background-color . "gray90"))))))))
@@ -830,7 +877,7 @@ Commands available are:
 
       (setq font-lock-extra-managed-props
 	    (get 'font-lock-extra-managed-props major-mode))
-      (mapcar
+      (mapc
        (lambda (p) (add-to-list 'font-lock-extra-managed-props p))
        unicode-tokens-font-lock-extra-managed-props)
 
