@@ -46,8 +46,8 @@ The list PGIPS may contain one or more PGIP packets, whose contents are processe
   ;; PGIP processing is split into two steps:
   ;; (1) process each command, altering internal data structures
   ;; (2) post-process for each command type, affecting external interface (menus, etc).
-  (mapcar 'pg-pgip-post-process
-	  (reduce 'union (mapcar 'pg-pgip-process-pgip pgips))))
+  (mapc 'pg-pgip-post-process
+	(reduce 'union (mapcar 'pg-pgip-process-pgip pgips))))
 
 ;; TODO: use id's and sequence numbers to reconstruct streams of messages.
 (defvar pg-pgip-last-seen-id nil)
@@ -246,9 +246,9 @@ Return a symbol representing the PGIP command processed, or nil."
 		(adjoin objtype proof-assistant-idtables)))
 	(cond
 	 ((or (eq opn 'setids) (eq opn 'addids))
-	  (mapcar (lambda (i) (intern i obarray)) idents))
+	  (mapc (lambda (i) (intern i obarray)) idents))
 	 ((eq opn 'delids)
-	  (mapcar (lambda (i) (unintern i obarray)) idents))
+	  (mapc (lambda (i) (unintern i obarray)) idents))
 	 (t
 	  (pg-pgip-error "Pg-pgip-process-ids: called on wrong node %s"
 			 (xml-node-name node))))))))

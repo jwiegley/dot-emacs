@@ -642,8 +642,8 @@ If NUM is negative, move upwards.  Return new span."
       (span-set-property span 'duplicable 't)
       ;; TODO: this is faulty: moving span up gives children
       ;; list with single nil element.  Hence liveness test
-      (mapcar (lambda (s) (if (span-live-p s)
-			      (span-set-property s 'duplicable 't)))
+      (mapc (lambda (s) (if (span-live-p s)
+			    (span-set-property s 'duplicable 't)))
 	      (span-property span 'children))
       (let* ((start     (span-start span))
 	     (end       (span-end span))

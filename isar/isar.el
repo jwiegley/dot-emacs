@@ -20,6 +20,8 @@
 (eval-when-compile
   (require 'span)
   (require 'proof-syntax)
+  (require 'pg-goals)
+  (require 'pg-vars)
   (proof-ready-for-assistant 'isar))	; compile for isar
 
 (require 'isabelle-system)		; system code
@@ -240,16 +242,16 @@ See -k option for Isabelle interface script."
 (defun isar-configure-from-settings ()
   (isar-set-proof-find-theorems-command))
 
+(defpacustom use-find-theorems-form nil
+  "Use a form-style input for the find theorems operation."
+  :type 'boolean
+  :eval (isar-set-proof-find-theorems-command))
+
 (defun isar-set-proof-find-theorems-command ()
   (setq proof-find-theorems-command 
 	(if isar-use-find-theorems-form
 	    'isar-find-theorems-form
 	  'isar-find-theorems-minibuffer)))
-
-(defpacustom use-find-theorems-form nil
-  "Use a form-style input for the find theorems operation."
-  :type 'boolean
-  :eval (isar-set-proof-find-theorems-command))
 
 ;;;
 ;;; Theory loader operations

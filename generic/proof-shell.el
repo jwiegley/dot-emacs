@@ -829,12 +829,60 @@ This function sets variables: `proof-shell-last-output',
     (t
      (setq proof-shell-last-output-kind 'response)))))
 
+
+
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Interrupts
+;;
+
+(defvar proof-shell-expecting-output nil
+  "A flag indicating some input has been sent and we're expecting output.
+This is used when processing interrupts.")
+
+(defvar proof-shell-interrupt-pending nil
+  "A flag indicating an interrupt is pending.
+This ensures that the proof queue will be interrupted even if no
+interrupt message is printed from the prover after the last output.")
+
+
+(defun proof-interrupt-process ()
+  "Interrupt the proof assistant.  Warning! This may confuse Proof General.
+
+This sends an interrupt signal to the proof assistant, if Proof General
+thinks it is busy.
+
+This command is risky because we don't know whether the last command
+succeeded or not.  The assumption is that it didn't, which should be true
+most of the time, and all of the time if the proof assistant has a careful
+handling of interrupt signals.
+
+Some provers may ignore (and lose) interrupt signals, or fail to indicate
+that they have been acted upon but get stop in the middle of output.
+In the first case, PG will terminate the queue of commands at the first
+available point.  In the second case, you may need to press enter inside
+the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*)."
+  (interactive)
+  (unless (proof-shell-live-buffer)
+      (error "Proof Process Not Started!"))
+  (unless proof-shell-busy
+    (error "Proof Process Not Active!"))
+  (with-current-buffer proof-shell-buffer
+    (if proof-shell-expecting-output
+	(progn
+	  (setq proof-shell-interrupt-pending t) ; interrupt even if no interrupt message
+	  (interrupt-process nil comint-ptyp))
+      ;; otherwise, interrupt the queue right here
+      (proof-shell-error-or-interrupt-action 'interrupt))))
+      
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;   Low-level commands for shell communication
 ;;
-
-
 
 ;;;###autoload
 (defun proof-shell-insert (string action &optional scriptspan)
@@ -1062,7 +1110,7 @@ The return value is non-nil if the action list is now empty."
 		   (string=
 		    (nth 1 (setq item (car proof-action-list)))
 		    proof-no-command))
-	 (proo-shell-invoke-callback item)
+	 (proof-shell-invoke-callback item)
 	 (setq proof-action-list (cdr proof-action-list)))
 
        ;; if action list is (nearly) empty, ensure prover is noisy.
@@ -1554,7 +1602,7 @@ by the filter is to send the next command from the queue."
      (t
       (setq proof-shell-delayed-output-kind proof-shell-last-output-kind)
       (setq proof-shell-delayed-output proof-shell-last-output)
-      (setq proof-shell-delayed-flags flags)
+      (setq proof-shell-delayed-output-flags flags)
       (if (proof-shell-exec-loop)
 	  (proof-shell-handle-delayed-output))))))
 
@@ -1568,66 +1616,20 @@ This is useful even with empty delayed output, since it clears buffers."
   (cond
    ;; Response buffer output
    ((eq proof-shell-delayed-output-kind 'abort)
-    (unless (memq 'no-error-display proof-shell-delayed-flags)
+    (unless (memq 'no-error-display proof-shell-delayed-output-flags)
       (pg-response-display proof-shell-delayed-output)))
    ((eq proof-shell-delayed-output-kind 'response)
-    (unless (memq 'no-response-display proof-shell-delayed-flags))
-      (pg-response-display proof-shell-delayed-output))
+    (unless (memq 'no-response-display proof-shell-delayed-output-flags)
+      (pg-response-display proof-shell-delayed-output)))
    ;; Goals buffer output
    ((eq proof-shell-delayed-output-kind 'goals)
-    (unless (memq 'no-goals-display proof-shell-delayed-flags)
+    (unless (memq 'no-goals-display proof-shell-delayed-output-flags)
       (pg-goals-display proof-shell-delayed-output)))
    ;; Ignore other cases
    )
   (run-hooks 'proof-shell-handle-delayed-output-hook))
 
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Interrupt
-;;
-
-(defvar proof-shell-expecting-output nil
-  "A flag indicating some input has been sent and we're expecting output.
-This is used when processing interrupts.")
-
-(defvar proof-shell-interrupt-pending nil
-  "A flag indicating an interrupt is pending.
-This ensures that the proof queue will be interrupted even if no
-interrupt message is printed from the prover after the last output.")
-
-
-(defun proof-interrupt-process ()
-  "Interrupt the proof assistant.  Warning! This may confuse Proof General.
-
-This sends an interrupt signal to the proof assistant, if Proof General
-thinks it is busy.
-
-This command is risky because we don't know whether the last command
-succeeded or not.  The assumption is that it didn't, which should be true
-most of the time, and all of the time if the proof assistant has a careful
-handling of interrupt signals.
-
-Some provers may ignore (and lose) interrupt signals, or fail to indicate
-that they have been acted upon but get stop in the middle of output.
-In the first case, PG will terminate the queue of commands at the first
-available point.  In the second case, you may need to press enter inside
-the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*)."
-  (interactive)
-  (unless (proof-shell-live-buffer)
-      (error "Proof Process Not Started!"))
-  (unless proof-shell-busy
-    (error "Proof Process Not Active!"))
-  (with-current-buffer proof-shell-buffer
-    (if proof-shell-expecting-output
-	(progn
-	  (setq proof-shell-interrupt-pending t) ; interrupt even if no interrupt message
-	  (interrupt-process nil comint-ptyp))
-      ;; otherwise, interrupt the queue right here
-      (proof-shell-error-or-interrupt-action 'interrupt))))
-      
 
 
 

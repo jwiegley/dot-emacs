@@ -677,7 +677,7 @@ NAME does not need to be unique."
 								(symbol-name arg)))
 		     (lambda (arg) (pg-make-element-visible idiom
 							    (symbol-name arg))))))
-    (mapcar alterfn elts))
+    (mapc alterfn elts))
   (pg-redisplay-for-gnuemacs))
 
 ;; Next two could be in pg-user.el.  No key-bindings for these.
@@ -1618,7 +1618,7 @@ Argument GOALEND is the end of the goal;."
       ;; start of the buffer, we make a fake goal-save region.
 
       ;; Delete spans between the previous goal and new command
-      (mapcar 'span-delete dels)
+      (mapc 'span-delete dels)
 
       ;; Try to set the name from the goal... [as above]
       (setq nam (or (proof-get-name-from-goal gspan)
@@ -2353,7 +2353,7 @@ others)."
 ;; 		      (unless (eq (span-property span 'type) 'comment)
 ;; 			(pg-remove-from-input-history
 ;; 			 (span-property span 'cmd))))))
-;; 	  (mapcar fn (reverse cmds)))
+;; 	  (mapc fn (reverse cmds)))
 	
 	(proof-script-delete-spans start end)
 	(span-delete span)
