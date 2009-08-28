@@ -30,9 +30,10 @@
 ;; for programs that do not understand a Unicode encoding.
 ;; 
 
-;; TODO:
-;; -- insert tokens via numeric code (extra format string)
-;; -- insert unicode character as token (reverse lookup)
+;; Possible enhancements
+;;
+;; -- insert tokens via numeric code (extra format string), cf HTML
+;; -- unify region and control settings?
 
 (require 'cl)
 
@@ -218,6 +219,11 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   "The faces used in Unicode Tokens mode."
   :group 'faces)
 
+(defface unicode-tokens-default-font-face
+  '((t :inherit default))
+  "The default font used for symbols.  Only the attributes :family "
+  :group 'unicode-tokens-faces)
+
 (defface unicode-tokens-script-font-face
   (cond
    ((eq window-system 'x) ; Linux/Unix
@@ -332,17 +338,25 @@ The check is with `char-displayable-p'."
   "Compose a sequence of chars into a symbol, maybe returning a face property.
 Regexp match data number MATCH selects the token name, while 0 matches the
 whole expression.
-Token symbol is searched for in `unicode-tokens-hash-table'."
+Token name from MATCH is searched for in `unicode-tokens-hash-table'."
   (let* ((start     (match-beginning 0))
          (end       (match-end 0))
 	 (compps    (gethash (match-string match)
 		    	   unicode-tokens-hash-table))
-	 (props     (cdr-safe compps)))
+	 (propsyms  (cdr-safe compps)))
     (if (and compps (not unicode-tokens-show-symbols))
 	(compose-region start end (car compps)))
-    (if props
-	(add-text-properties ;; font-lock should do this but fails?
-	 start end (unicode-tokens-symbs-to-props props)))
+    (if propsyms
+	(let ((props (unicode-tokens-symbs-to-props propsyms)))
+	  (while props
+	    (font-lock-append-text-property start end
+					    (car props) (cadr props))
+	    (setq props (cddr props)))))
+    (font-lock-append-text-property
+     start end 'face
+     ;; (list :inherit 'unicode-tokens-default-font-face)
+     (list :family
+	   (face-attribute 'unicode-tokens-default-font-face :family)))
     nil))
 
 (defun unicode-tokens-show-symbols (&optional arg)
@@ -508,12 +522,17 @@ Available annotations chosen from `unicode-tokens-control-regions'."
     (when tok
       (unicode-tokens-insert-token tok))))
 
-;;unused
-(defun unicode-tokens-delete-token-at-point ()
-  "Delete the token at point."
+(defun unicode-tokens-delete-token-near-point ()
+  "Delete the token near point; try first before point, then after."
   (interactive)
-  (when (looking-at unicode-tokens-token-match-regexp)
-    (kill-region (match-beginning 0) (match-end 0))))
+  (if (or
+       (re-search-backward unicode-tokens-token-match-regexp
+			   (save-excursion
+			     (beginning-of-line) (point)) t)
+       (re-search-forward unicode-tokens-token-match-regexp
+			   (save-excursion
+			     (end-of-line) (point)) t))
+      (kill-region (match-beginning 0) (match-end 0))))
 
 ;; FIXME: behaviour with unknown tokens not good.  Should
 ;; use separate regexp for matching tokens known or not known.
@@ -794,6 +813,61 @@ Commands available are:
       (kill-local-variable 'maths-menu-filter-predicate)
       (kill-local-variable 'maths-menu-tokenise-insert))))
 
+
+;;
+;; Font selection
+;;
+
+;; parameterised version of function from menu-bar.el
+(defun unicode-tokens-set-font-var (fontvar)
+    "Interactively select a font for FONTVAR."
+  (interactive)
+  (let ((font (if (fboundp 'x-select-font)
+  		  (x-select-font) ; note: always defaults to default font
+  		(mouse-select-font)))
+	spec)
+    (when font
+      ;; Be careful here: when set-face-attribute is called for the
+      ;; :font attribute, Emacs tries to guess the best matching font
+      ;; by examining the other face attributes (Bug#2476).
+      (set-face-attribute fontvar (selected-frame)
+			  :width 'normal
+			  :weight 'normal
+			  :slant 'normal
+			  :font font)
+      (let ((font-object (face-attribute fontvar :font)))
+	(dolist (f (frame-list))
+	  (and (not (eq f (selected-frame)))
+	       (display-graphic-p f)
+	       (set-face-attribute fontvar f :font font-object)))
+	(set-face-attribute fontvar t :font font-object))
+      (setq spec (list (list t (face-attr-construct fontvar))))
+      (put fontvar 'customized-face spec)
+      (custom-push-theme 'theme-face fontvar 'user 'set spec)
+      (put fontvar 'face-modified nil))))
+
+(defun unicode-tokens-set-default-font ()
+  (interactive)
+  (unicode-tokens-set-font-var 'unicode-tokens-default-font-face)
+  (font-lock-fontify-buffer))
+
+(defun unicode-tokens-set-script-font ()
+  (interactive)
+  (unicode-tokens-set-font-var 'unicode-tokens-script-font-face)
+  (font-lock-fontify-buffer))
+
+(defun unicode-tokens-set-fraktur-font ()
+  (interactive)
+  (unicode-tokens-set-font-var 'unicode-tokens-fraktur-font-face)
+  (font-lock-fontify-buffer))
+
+(defun unicode-tokens-set-serif-font ()
+  (interactive)
+  (unicode-tokens-set-font-var 'unicode-tokens-serif-font-face)
+  (font-lock-fontify-buffer))
+
+
+
 ;; 
 ;; Key bindings
 ;;
@@ -803,6 +877,9 @@ Commands available are:
   'unicode-tokens-rotate-token-forward)
 (define-key unicode-tokens-mode-map
   [(control c) (control t) (control t)] 'unicode-tokens-insert-token)
+(define-key unicode-tokens-mode-map
+  [(control c) (control backspace)]
+  'unicode-tokens-delete-token-near-point)
 (define-key unicode-tokens-mode-map
   [(control c) (control t) (control r)] 'unicode-tokens-annotate-region)
 (define-key unicode-tokens-mode-map
@@ -826,6 +903,7 @@ Commands available are:
       ["Insert token..." unicode-tokens-insert-token]
       ["Next token"      unicode-tokens-rotate-token-forward]
       ["Prev token"      unicode-tokens-rotate-token-backward]
+      ["Delete token"    unicode-tokens-delete-token-near-point]
        (cons "Format char"
 	     (mapcar
  	     (lambda (fmt)
@@ -879,16 +957,26 @@ Commands available are:
        :selected unicode-tokens-use-shortcuts
        :active unicode-tokens-shortcut-alist
        :help "Use short cuts for typing tokens"]
-       ["Make fontsets"
-	(lambda () (interactive) (require 'pg-fontsets))
-	:active (not (featurep 'pg-fontsets))
-	:help "Define fontsets (for Options->Set fontsets)"
-	; :visible (< emacs-major-version 23) ; not useful on 23,
-	; at least when font menu provided.  Drawback: this
-	; is done too late: displayable tokens have already been
-	; chosen now, before fontsets generated.
-	; Never mind: non-issue with platform fonts menu.
-	]))))
+      (cons "Set fonts"
+       (list
+	["Symbols" unicode-tokens-set-default-font
+	 :help "Set the font for symbols"]
+	["Script" unicode-tokens-set-script-font
+	 :help "Set the font for script text"]
+	["Fraktur" unicode-tokens-set-fraktur-font
+	 :help "Set the font for fraktur text"]
+	["Serif" unicode-tokens-set-serif-font
+	 :help "Set the font for serif text"]
+	["Make fontsets"
+	 (lambda () (interactive) (require 'pg-fontsets))
+	 :active (not (featurep 'pg-fontsets))
+	 :help "Define fontsets (for Options->Set fontsets)"
+	 ;; :visible (< emacs-major-version 23) ; not useful on 23,
+	 ;; at least when font menu provided.  Drawback: this
+	 ;; is done too late: displayable tokens have already been
+	 ;; chosen now, before fontsets generated.
+	 ;; Never mind: non-issue with platform fonts menu.
+	 ]))))))
 
 
 	     
