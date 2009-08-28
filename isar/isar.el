@@ -544,10 +544,17 @@ Checks the width in the `proof-goals-buffer'"
 
 (defconst isar-nonwrap-regexp 
   ;; FIXME: approx: should only match at start or after terminator
-  (regexp-opt (append (list "ProofGeneral.process_pgip"
-;			    "ML" ; da: nesting problematic with ML?
-			    ) 
+  (regexp-opt (append (list "ProofGeneral.process_pgip")
 		      isar-undo-commands)))
+
+(defun isar-string-wrapping (string)
+  (concat
+   "\""
+   (proof-replace-regexp-in-string
+    "[\000-\037\"\\\\]"
+    (lambda (str) (format "\\\\%03d" (string-to-char str)))
+    string)
+   "\""))
 
 (defun isar-positions-of (buffer span)
   (concat
@@ -556,28 +563,25 @@ Checks the width in the `proof-goals-buffer'"
     ", "
     (list
      (if (and buffer (buffer-file-name buffer))
-	 (format "\"file\"=\"%s\"" (buffer-file-name buffer)))
+	 (format "\"file\"=%s" (isar-string-wrapping (buffer-file-name buffer))))
      ;; NB: position is relative to display (narrowing, etc)
-     (if span (format "\"line\"=\"%d\"" (save-excursion
-				      (set-buffer (span-buffer span))
-				      (line-number-at-pos (span-start span)))))
-     (if span (format "\"column\"=\"%d\"" (save-excursion
-					    (set-buffer (span-buffer span))
-					    (goto-char (span-start span))
-					    (current-column))))))
+     (if span (format "\"line\"=\"%d\""
+		      (save-excursion
+			(set-buffer (span-buffer span))
+			(line-number-at-pos (span-start span)))))
+     (if span (format "\"column\"=\"%d\""
+		      (save-excursion
+			(set-buffer (span-buffer span))
+			(goto-char (span-start span))
+			(current-column))))))
    ") "))
-   
+
 (defun isar-command-wrapping (string scriptspan)
   (if (not (proof-string-match isar-nonwrap-regexp string))
       (concat
        "Isabelle.command "
        (isar-positions-of proof-script-buffer scriptspan)
-       "\""
-       (proof-replace-regexp-in-string
-	"[\000-\037\"\\\\]"
-	(lambda (str) (format "\\\\%03d" (string-to-char str)))
-	string)
-       "\"")
+       (isar-string-wrapping string))
     (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)))
 
 
