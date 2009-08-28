@@ -280,6 +280,8 @@ proof-shell-retract-files-regexp."
 ;;
 ;;   Define the derived modes
 ;;
+;; use eval-and-compile to define vars for byte comp.
+
 (eval-and-compile
 (define-derived-mode isar-shell-mode proof-shell-mode
    "Isar shell" nil
@@ -290,12 +292,12 @@ proof-shell-retract-files-regexp."
   "response" nil
   (isar-response-mode-config)))
 
-(eval-and-compile                       ; to define vars for byte comp.
+(eval-and-compile
 (define-derived-mode isar-goals-mode proof-goals-mode
   "proofstate" nil
   (isar-goals-mode-config)))
 
-(eval-and-compile                       ; to define vars for byte comp.
+(eval-and-compile
 (define-derived-mode isar-mode proof-mode
   "Isar script" 
   "Major mode for editing Isar proof scripts.
@@ -540,8 +542,10 @@ Checks the width in the `proof-goals-buffer'"
 
 (defconst isar-nonwrap-regexp 
   ;; FIXME: approx: should only match at start or after terminator
-  (regexp-opt (cons "ProofGeneral.process_pgip"
-		    isar-undo-commands)))
+  (regexp-opt (append (list "ProofGeneral.process_pgip"
+;			    "ML" ; da: nesting problematic with ML?
+			    ) 
+		      isar-undo-commands)))
 
 (defun isar-positions-of (buffer span)
   (concat
