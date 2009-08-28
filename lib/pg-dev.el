@@ -91,8 +91,21 @@
 
      
 
+;;;
+;;; Proling interesting packages
+;;;
+
+(defun profile-pg ()
+  (interactive)
+  (elp-instrument-package "proof-script")
+  (elp-instrument-package "proof-shell")
+  (elp-instrument-package "pg-response")
+  (elp-instrument-package "comint"))
+  
+
 
 
 (provide 'pg-dev)
 
 ;;; pg-dev.el ends here
+
