@@ -27,6 +27,8 @@
 ;;         advice on erase-buffer doesn't work
 ;;         duplicated first item in ring after clear (& on startup).
 
+(require 'ring)
+
 ;;; First a function which ought to be in ring.el
 
 (defun bufhist-ring-update (ring index newitem)
@@ -303,10 +305,6 @@ The size defaults to `bufhist-ring-size'."
 
 ;;; Minor mode 
 
-;;;###autoload
-(autoload 'bufhist-mode "bufhist"
-  "Minor mode retaining an in-memory history of the buffer contents.")
-
 (defconst bufhist-minor-mode-map
   (let ((map (make-sparse-keymap)))
     ;; (define-key map [mouse-2] 'bufhist-popup-menu)
@@ -319,6 +317,7 @@ The size defaults to `bufhist-ring-size'."
     map)
   "Keymap for `bufhist-minor-mode'.")
 
+;;;###autoload
 (define-minor-mode bufhist-mode
   "Minor mode retaining an in-memory history of the buffer contents.
 
