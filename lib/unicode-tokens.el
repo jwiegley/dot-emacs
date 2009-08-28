@@ -30,10 +30,11 @@
 ;; for programs that do not understand a Unicode encoding.
 ;; 
 
-;; Possible enhancements
+;; Desirable improvements/enhancements
 ;;
 ;; -- insert tokens via numeric code (extra format string), cf HTML
-;; -- unify region and control settings?
+;; -- simplify: unify region and control settings?
+;; -- simplify/optimise property handling 
 
 (require 'cl)
 
@@ -308,10 +309,10 @@ This function also initialises the important tables for the mode."
 				   toks) 'words)))
        (cons
 	`(,unicode-tokens-token-match-regexp
-	  (0 (unicode-tokens-help-echo) 'prepend)
+	  (0 (unicode-tokens-help-echo) prepend)
 	  (0 (unicode-tokens-font-lock-compose-symbol
 	      ,(- (regexp-opt-depth unicode-tokens-token-match-regexp) 1))
-	      'prepend))
+	      prepend))
 	(unicode-tokens-control-font-lock-keywords)))))
 
 (defun unicode-tokens-usable-composition (comp)
@@ -335,10 +336,11 @@ The check is with `char-displayable-p'."
   "Non-nil to reveal symbol (composed) tokens instead of compositions.")
 
 (defun unicode-tokens-font-lock-compose-symbol (match)
-  "Compose a sequence of chars into a symbol, maybe returning a face property.
+  "Compose a sequence of chars into a symbol.
 Regexp match data number MATCH selects the token name, while 0 matches the
 whole expression.
-Token name from MATCH is searched for in `unicode-tokens-hash-table'."
+Token name from MATCH is searched for in `unicode-tokens-hash-table'.
+The face property is set to the :family of `unicode-tokens-default-font-face'."
   (let* ((start     (match-beginning 0))
          (end       (match-end 0))
 	 (compps    (gethash (match-string match)
@@ -354,10 +356,50 @@ Token name from MATCH is searched for in `unicode-tokens-hash-table'."
 	    (setq props (cddr props)))))
     (font-lock-append-text-property
      start end 'face
-     ;; (list :inherit 'unicode-tokens-default-font-face)
+     ;; just use family so merging with other faces (keywords) works
      (list :family
 	   (face-attribute 'unicode-tokens-default-font-face :family)))
+    ;; returning face property here seems to have no effect
     nil))
+
+(defun unicode-tokens-prepend-text-properties-in-match (props matchno)
+  (let ((start     (match-beginning matchno))
+	(end       (match-end matchno)))
+    (while props
+      (unicode-tokens-prepend-text-property start end
+					    (car props) (cadr props))
+      (setq props (cddr props)))
+    nil))
+
+;; this is adapted from font-lock-prepend-text-property, which 
+;; currently fails to merge property values for 'face property properly.
+;; e.g., it makes (:slant italic (:weight bold font-lock-string-face))
+;; rather than  (:slant italic :weight bold font-lock-string-face)
+;;
+(defun unicode-tokens-prepend-text-property (start end prop value &optional object)
+  "Prepend to one property of the text from START to END.
+Arguments PROP and VALUE specify the property and value to append to the value
+already in place.  The resulting property values are always lists.
+Optional argument OBJECT is the string or buffer containing the text."
+  (let ((val (if (listp value) value (list value))) next prev)
+    (while (/= start end)
+      (setq next (next-single-property-change start prop object end)
+	    prev (get-text-property start prop object))
+      ;; Canonicalize old forms of face property.
+      (and (memq prop '(face font-lock-face))
+      	   (listp prev)
+      	   (or (keywordp (car prev))
+      	       (memq (car prev) '(foreground-color background-color)))
+      	   (setq prev (list prev)))
+      (setq prev (if (listp prev) prev (list prev)))
+      ;; hack to flatten erroneously nested face property lists
+      (if (and (memq prop '(face font-lock-face))
+	       (listp (car prev)) (null (cdr prev)))
+	  (setq prev (car prev)))
+      (put-text-property start next prop
+			 (append prev val)
+			 object)
+      (setq start next))))
 
 (defun unicode-tokens-show-symbols (&optional arg)
   "Toggle variable `unicode-tokens-show-symbols'.  With ARG, turn on iff positive."
@@ -405,13 +447,20 @@ Optional argument FACENIL means set the face property to nil, unless 'face is in
 (defun unicode-tokens-control-char (name s &rest props)
   `(,(format unicode-tokens-control-char-format-regexp (regexp-quote s))
     (1 '(face nil invisible unicode-tokens-show-controls) prepend)
-    (2 ',(unicode-tokens-symbs-to-props props t) prepend)))
+    ;; simpler but buggy with font-lock-prepend-text-property:
+    ;; (2 ',(unicode-tokens-symbs-to-props props t) prepend)
+    (2 (unicode-tokens-prepend-text-properties-in-match
+	',(unicode-tokens-symbs-to-props props t) 2) prepend)
+    ))
 
 (defun unicode-tokens-control-region (name start end &rest props)
   `(,(format unicode-tokens-control-region-format-regexp
 	     (regexp-quote start) (regexp-quote end))
     (1 '(face nil invisible unicode-tokens-show-controls) prepend)
-    (2 ',(unicode-tokens-symbs-to-props props t) prepend)
+    ;; simpler but buggy with font-lock-prepend-text-property:
+    ;; (2 ',(unicode-tokens-symbs-to-props props t) prepend)
+    (2 (unicode-tokens-prepend-text-properties-in-match
+	',(unicode-tokens-symbs-to-props props t) 2) prepend)
     (3 '(face nil invisible unicode-tokens-show-controls) prepend)))
 
 (defun unicode-tokens-control-font-lock-keywords ()
@@ -719,7 +768,9 @@ tokenised symbols."
 ;;
 
 (defun unicode-tokens-initialise ()
-  "Perform initialisation of minor mode."
+  "Perform initialisation of minor mode.
+Invoke this function to recalculate `font-lock-keywords' and other configuration
+variables."
   (interactive)
   (unicode-tokens-copy-configuration-variables)
   (let ((flks (unicode-tokens-font-lock-keywords)))
@@ -887,7 +938,7 @@ Commands available are:
 (define-key unicode-tokens-mode-map
   [(control c) (control t) (control z)] 'unicode-tokens-show-symbols)
 (define-key unicode-tokens-mode-map
-  [(control c) (control t) (control x)] 'unicode-tokens-show-controls)
+  [(control c) (control t) (control t)] 'unicode-tokens-show-controls)
 
     
 ;;
