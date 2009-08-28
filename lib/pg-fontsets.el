@@ -52,7 +52,8 @@ gnu-unifont:-*-%F-*-*-*--%S-*-*-*-*-*-iso10646-1"
 (defconst pg-fontsets-base-fonts 
   '("dejavu lgc sans mono"
     "liberation mono" 
-    "stixregular"))
+    "stixregular"
+    "lucidasanstypewriter"))
 
 (defun pg-fontsets-make-fontsets ()
   (setq pg-fontsets-names nil)
