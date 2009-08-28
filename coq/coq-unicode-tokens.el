@@ -195,23 +195,6 @@ meaning to be useful."
     ("Frakt"  "FRACT" "" frakt)
     ("Roman"  "ROMAN" "" serif)))
 
-
-
-(defcustom coq-fontsymb-properties 
-  '((sub      (display (raise -0.4)))
-    (sup      (display (raise 0.4)))
-    (bold     (face (:weight bold)))
-    (italic   (face (:slant italic)))
-    (script   (face unicode-tokens-script-font-face))
-    (frakt    (face unicode-tokens-fraktur-font-face))
-    (serif    (face unicode-tokens-serif-font-face)))
-  "Mapping from symbols to property lists used for markup scheme."
-  :set 'proof-set-value)
-
-
-
-
-
 (provide 'coq-unicode-tokens)
 
 ;;; coq-unicode-tokens.el ends here

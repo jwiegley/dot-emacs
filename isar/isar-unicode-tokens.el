@@ -23,16 +23,20 @@
 (defconst isar-control-char-format-regexp 
   "\\(\\\\<\\^%s>\\)\\([^\\]\\|\\\\<[A-Za-z]+>\\)")
 
-(defconst isar-control-char-format "\\<^%s>")
+(defconst isar-control-char-format	   "\\<^%s>")
+(defconst isar-control-region-format-start "\\<^%s>")
+(defconst isar-control-region-format-end   "\\<^%s>")
 
 (defconst isar-control-characters
   '(("Subscript" "sub" sub) 
     ("Id subscript" "isub" sub)
     ("Superscript" "sup" sup) 
     ("Id superscript" "isup" sup)
-    ("Loc" "loc" loc)
+    ("Loc" "loc" declaration)
     ("Bold" "bold" bold) 
-    ("Italic" "italic" italic))) ; unofficial
+    ;; unofficial:
+    ("Italic" "italic" italic)))
+    
 
 (defconst isar-control-regions
   '(("Subscript" "bsub" "esub" sub)
@@ -42,20 +46,13 @@
     ("Italic" "bitalic" "eitalic" italic)
     ("Script" "bscript" "escript" script)
     ("Frakt" "bfrakt" "efrakt" frakt)
-    ("Roman" "bserif" "eserif" serif)))
+    ("Roman" "bserif" "eserif" serif)
+    ("Sans" "bsans" "esans" sans)
+    ("Overline" "boverline" "eoverline" overline)
+    ("Underline" "bunderline" "eunderline" underline)
+    ("Big"   "bbig" "ebig" big)
+    ("Small" "bsmall" "esmall" small)))
     
-(defcustom isar-fontsymb-properties 
-  '((sub      (display (raise -0.4)))
-    (sup      (display (raise 0.4)))
-    (loc      (face proof-declaration-name-face))
-    (bold     (face (:weight bold)))
-    (italic   (face (:slant italic)))
-    (script   (face unicode-tokens-script-font-face))
-    (frakt    (face unicode-tokens-fraktur-font-face))
-    (serif    (face unicode-tokens-serif-font-face)))
-  "Mapping from symbols to property lists used for markup scheme."
-  :set 'proof-set-value)
-
 ;;
 ;; Symbols
 ;;
