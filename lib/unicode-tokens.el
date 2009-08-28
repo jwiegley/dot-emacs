@@ -1022,7 +1022,7 @@ Commands available are:
 	 (lambda () (interactive) (require 'pg-fontsets))
 	 :active (not (featurep 'pg-fontsets))
 	 :help "Define fontsets (for Options->Set fontsets)"
-	 ;; :visible (< emacs-major-version 23) ; not useful on 23,
+	 :visible (< emacs-major-version 23) ; not useful on 23,
 	 ;; at least when font menu provided.  Drawback: this
 	 ;; is done too late: displayable tokens have already been
 	 ;; chosen now, before fontsets generated.
