@@ -290,8 +290,7 @@ prototype is about 25 simple settings.
 For more advanced features you may need (or want) to write some Emacs
 Lisp.  If you're adding new functionality please consider making it
 generic for different proof assistants, if appropriate.  When writing
-your modes, please follow the Emacs Lisp conventions @inforef{Style
-Tips, ,lispref}.
+your modes, please follow the Emacs Lisp conventions, @inforef{Tips, ,Elisp}.
 
 The configuration variables are declared in the file
 @file{generic/proof-config.el}.  The details in the central part of this
@@ -494,8 +493,18 @@ once it has set its configuration variables.  These functions
 finalize the configuration of the mode.
 
 The modes must be named standardly, replacing @code{proof-} with the
-prover's symbol name, @code{@var{PA}-}.  See the file @file{demoisa.el}
-for an example of the four calls to @code{define-derived-mode}.
+prover's symbol name, @code{@var{PA}-}.  In other words, you must define
+@code{@var{PA}-mode}, @code{@var{PA}-shell-mode}, etc.
+
+See the file @file{demoisa.el} for an example of the four calls to
+@code{define-derived-mode}.
+
+Aside: notice that the modes are selected using stub functions
+inside @code{proof-site.el}, which set the variables
+@code{proof-mode-for-script}, @code{proof-mode-for-shell}, etc,
+that actually select the right mode.  These variables
+are declared in @code{pg-vars.el}.
+
 
 @node Menus and Toolbar and User-level Commands
 @chapter Menus, toolbar, and user-level commands
@@ -674,7 +683,7 @@ Note that for the generic functions to work properly, it is
 @strong{essential} that you set the syntax table for your mode properly,
 so that comments and strings are recognized.  See the Emacs
 documentation to discover how to do this (particularly for the function
-@code{modify-syntax-entry}).
+@code{modify-syntax-entry}, (@inforef{Syntax Tables, ,Elisp}).
 
 @xref{Proof script mode}, for more details of the parsing
 functions.
@@ -736,8 +745,8 @@ or @samp{@code{proof-script-parse-function}}.
 
 The next four settings configure the comment syntax.  Notice that to get
 reliable behaviour of the parsing functions, you may need to modify the
-syntax table for your prover's mode.  Read the Elisp manual for details
-about that.
+syntax table for your prover's mode.  
+Read the Elisp manual (@inforef{Syntax Tables, ,Elisp}) for details about that.
 
 @c TEXI DOCSTRING MAGIC: proof-script-comment-start
 @defvar proof-script-comment-start 
@@ -2694,7 +2703,7 @@ important files, kept in the @file{generic/} subdirectory.
 * Proof General site configuration::  
 * Global variables::            
 * Proof script mode::           
-* Proof shell mode::            
+* Proof shell mode::
 * Debugging::
 @end menu
 
