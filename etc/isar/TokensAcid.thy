@@ -62,7 +62,8 @@ term "\<And2> {\<lambda> x. True, \<lambda> y. False}"
 
 (* Tokens for layout control: next char *)
 (* NB: below here cannot be processed: just in terms to check with 
-   string font for terms *)
+   string font for terms. *)
+
 term "a\<^sub>b"
 term "a\<^sup>b"
 term "a\<^isub>b"
@@ -81,11 +82,11 @@ term "\<^bscript>Script \<alpha>\<beta>\<gamma>\<delta>\<in>\<forall>\<^escript>
 term "\<^bfrakt>Frakt \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^efrakt>"
 term "\<^bserif>Roman \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^eserif>"
 
-(* Note: nesting regions not reliable; merging properties flaw? *)
+(* Bold and italic combinations for regions *)
 term "\<^bbold>Bold and \<^bitalic>italic\<^eitalic>\<^ebold>"
 term "\<^bitalic>Italic and \<^bbold>bold\<^ebold>\<^eitalic>"
 
-(* Font changes work, though *)
+(* Font and weight/shape changes for regions *)
 term "\<^bbold>Bold and \<^bscript>script\<^escript>\<^ebold>"
 term "\<^bserif>Roman and \<^bitalic>italic\<^eitalic> and \<^bbold>bold\<^ebold> \<^eserif>"
 term "\<^bfrakt>Frakt and \<^bitalic>italic\<^eitalic> and \<^bbold>bold\<^ebold> \<^efrakt>"
