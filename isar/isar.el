@@ -557,24 +557,26 @@ Checks the width in the `proof-goals-buffer'"
    "\""))
 
 (defun isar-positions-of (buffer span)
-  (concat
-   "("
-   (proof-splice-separator 
-    ", "
-    (list
-     (if (and buffer (buffer-file-name buffer))
-	 (format "\"file\"=%s" (isar-string-wrapping (buffer-file-name buffer))))
-     ;; NB: position is relative to display (narrowing, etc)
-     (if span (format "\"line\"=\"%d\""
-		      (save-excursion
-			(set-buffer (span-buffer span))
-			(line-number-at-pos (span-start span)))))
-     (if span (format "\"column\"=\"%d\""
-		      (save-excursion
-			(set-buffer (span-buffer span))
-			(goto-char (span-start span))
-			(current-column))))))
-   ") "))
+  (let (line column)
+    (if span
+	(save-excursion
+	  (set-buffer (span-buffer span))
+	  (goto-char (span-start span))
+	  (skip-chars-forward " \t\n")
+	  ;; NB: position is relative to display (narrowing, etc)
+	  (setq line (line-number-at-pos (point)))
+	  (setq column (current-column))))
+    (concat
+     "("
+     (proof-splice-separator 
+      ", "
+      (list
+       (if (and buffer (buffer-file-name buffer))
+	   (format "\"file\"=%s" 
+		   (isar-string-wrapping (buffer-file-name buffer))))
+       (if line   (format "\"line\"=\"%d\"" line))
+       (if column (format "\"column\"=\"%d\"" column))))
+      ") ")))
 
 (defun isar-command-wrapping (string scriptspan)
   (if (not (proof-string-match isar-nonwrap-regexp string))
