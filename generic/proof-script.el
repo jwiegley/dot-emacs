@@ -535,16 +535,6 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
 	 (win (and pos (get-buffer-window proof-script-buffer t))))
     (and win (pos-visible-in-window-p pos))))
     
-;; Simplified version of above for toolbar follow mode -- which wouldn't
-;; work with abouve because of proof-shell-handle-error-or-interrupt-hook[?]
-(defun proof-goto-end-of-queue-or-locked-if-not-visible ()
-  "Jump to the end of the queue region or locked region if it isn't visible.
-Assumes script buffer is current"
-  (unless (pos-visible-in-window-p
-	   (proof-queue-or-locked-end)
-	   (get-buffer-window (current-buffer) t))
-    (goto-char (proof-queue-or-locked-end))))
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2372,6 +2362,7 @@ Span deletion property set to flag DELETE-REGION."
 
 
 (defun proof-last-goal-or-goalsave ()
+  "Return the span which is the last goal or save before point."
   (save-excursion
     (let ((span (span-at-before (proof-locked-end) 'type)))
       (while (and span
@@ -3060,9 +3051,10 @@ Choice of function depends on configuration setting."
 	     start))
   (if (and (markerp proof-overlay-arrow)
 	   (marker-position proof-overlay-arrow)
-	   (< start (marker-position proof-overlay-arrow))
+           ; only move marker up:
+	   ;(< start (marker-position proof-overlay-arrow))
 	   (>= start (proof-queue-or-locked-end)))
-      (proof-set-overlay-arrow start)))
+      (proof-set-overlay-arrow (proof-queue-or-locked-end))))
 
 (defun proof-script-set-after-change-functions ()
   "Set `after-change-functions' for script buffers."

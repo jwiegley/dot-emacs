@@ -23,30 +23,28 @@
 (eval-when-compile
   (require 'completion))		; loaded dynamically at runtime
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; first a couple of helper functions
+;; Processing commands
 ;;
 
-(defmacro proof-maybe-save-point (&rest body)
-  "Save point according to `proof-follow-mode', execute BODY."
-  ;; FIXME: This duplicates the code of the body, which isn't wrong but
-  ;; is undesirable.
-  `(if (eq proof-follow-mode 'locked)
-       (progn
-	 ,@body)
-     (save-excursion
-	,@body)))
-
-(defun proof-maybe-follow-locked-end ()
-  "Maybe move point to make sure the locked region is displayed."
-  (cond
-   ((eq proof-follow-mode 'follow)
-    (proof-goto-end-of-queue-or-locked-if-not-visible))
-   ((eq proof-follow-mode 'followdown)
-    (if (> (proof-queue-or-locked-end) (point))
-	(goto-char (proof-queue-or-locked-end))))))
-	
+(defun proof-maybe-follow-locked-end (&optional pos)
+  "Move point according to `proof-follow-mode'.
+If optional POS is set, use that position, else `proof-queue-or-locked-end'.
+Assumes script buffer is current."
+  (if proof-follow-mode
+      (let ((dest (or pos (proof-queue-or-locked-end))))
+	(cond
+	 ((eq proof-follow-mode 'follow)
+	  (unless (pos-visible-in-window-p dest)
+	    (get-buffer-window (current-buffer) t)
+	    (goto-char pos)))
+	 ((eq proof-follow-mode 'locked)
+	  (goto-char dest))
+	 ((and (eq proof-follow-mode 'followdown)
+	       (> dest (point)))
+	  (goto-char dest))))))
 
 ;;
 ;; Doing commands
@@ -57,18 +55,18 @@
 If inside a comment, just process until the start of the comment."
   (interactive)
   (proof-with-script-buffer
-   (proof-maybe-save-point
-    (goto-char (proof-queue-or-locked-end))
-    (proof-assert-next-command))
+   (save-excursion
+     (goto-char (proof-queue-or-locked-end))
+     (proof-assert-next-command))
    (proof-maybe-follow-locked-end)))
 
 (defun proof-process-buffer ()
   "Process the current (or script) buffer, and maybe move point to the end."
   (interactive)
   (proof-with-script-buffer
-   (proof-maybe-save-point
-    (goto-char (point-max))
-    (proof-assert-until-point-interactive))
+   (save-excursion
+     (goto-char (point-max))
+     (proof-assert-until-point-interactive))
    (proof-maybe-follow-locked-end)))
 
 
@@ -101,38 +99,39 @@ If optional DELETE is non-nil, the text is also deleted from
 the proof script."
   (interactive "P")
   (proof-with-script-buffer
-   (proof-maybe-save-point
-    (unless (proof-locked-region-empty-p)
-      (let ((lastspan (span-at-before (proof-locked-end) 'type)))
-	(if lastspan
-	    (progn
-	      (goto-char (span-start lastspan))
-	      (proof-retract-until-point delete))
-	  (error "Nothing to undo!")))))
-   (proof-maybe-follow-locked-end)))
+   (let (lastspan)
+     (save-excursion
+       (unless (proof-locked-region-empty-p)
+	 (if (setq lastspan (span-at-before (proof-locked-end) 'type))
+	     (progn
+	       (goto-char (span-start lastspan))
+	       (proof-retract-until-point delete))
+	   (error "Nothing to undo!"))))
+     (if lastspan (proof-maybe-follow-locked-end 
+		   (span-start lastspan))))))
 
 (defun proof-retract-buffer ()
   "Retract the current buffer, and maybe move point to the start."
   (interactive)
   (proof-with-script-buffer
-   (proof-maybe-save-point
+   (save-excursion
     (goto-char (point-min))
     (proof-retract-until-point-interactive))
-   (proof-maybe-follow-locked-end)))
+   (proof-maybe-follow-locked-end (point-min))))
 
 (defun proof-retract-current-goal ()
   "Retract the current proof, and move point to its start."
   (interactive)
-  (proof-maybe-save-point
    (let
       ((span (proof-last-goal-or-goalsave)))
-     (if (and span (not (eq (span-property span 'type) 'goalsave))
-	      (< (span-end span) (proof-unprocessed-begin)))
-	 (progn
-	   (goto-char (span-start span))
-	   (proof-retract-until-point-interactive)
-	   (proof-maybe-follow-locked-end))
-       (error "Not proving")))))
+     (save-excursion
+       (if (and span (not (eq (span-property span 'type) 'goalsave))
+		(< (span-end span) (proof-unprocessed-begin)))
+	   (progn
+	     (goto-char (span-start span))
+	     (proof-retract-until-point-interactive))
+	 (error "Not proving")))
+     (if span (proof-maybe-follow-locked-end (span-start span)))))
 
 ;;
 ;; Movement commands
@@ -179,19 +178,14 @@ the proof script."
 ;; Mouse functions
 ;;
 
-;; FIXME oddity here: with proof-follow-mode='locked, when retracting,
-;; point stays where clicked.  When advancing, it moves.  Might
-;; be nicer behaviour than actually moving point into locked region
-;; which is only useful for cut and paste, really.
 (defun proof-mouse-goto-point (event)
   "Call `proof-goto-point' on the click position EVENT."
   (interactive "e")
-  (proof-maybe-save-point
+  (proof-with-script-buffer
    (mouse-set-point event)
-   (proof-goto-point)))
+   (proof-goto-point)
+   (proof-maybe-follow-locked-end)))
   
-
-
 
 
 
