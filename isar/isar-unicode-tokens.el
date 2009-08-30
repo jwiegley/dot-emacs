@@ -14,6 +14,24 @@
 (require 'proof-unicode-tokens)
 
 ;;
+;; Customization
+;;
+
+(defgroup isabelle-tokens nil
+  "Variables which configure Isabelle tokens for Unicode Tokens mode."
+  :group 'isabelle
+  :prefix "isar-")
+
+(defun isar-set-and-restart-tokens (sym val)
+  "Function to restart Unicode Tokens when a token value is adjusted."
+  (set-default sym val)
+  (when (featurep 'isar-unicode-tokens) ; not during loading
+    (isar-init-token-symbol-map)
+    (isar-init-shortcut-alists)
+    (if (featurep 'unicode-tokens)
+	(unicode-tokens-initialise))))
+
+;;
 ;; Controls
 ;;
 
@@ -27,7 +45,8 @@
 (defconst isar-control-region-format-start "\\<^%s>")
 (defconst isar-control-region-format-end   "\\<^%s>")
 
-(defconst isar-control-characters
+
+(defcustom isar-control-characters
   '(("Subscript" "sub" sub) 
     ("Id subscript" "isub" sub)
     ("Superscript" "sup" sup) 
@@ -35,13 +54,15 @@
     ("Loc" "loc" declaration)
     ("Bold" "bold" bold) 
     ;; unofficial:
-    ("Italic" "italic" italic)))
-    
+    ("Italic" "italic" italic))
+  "Control character tokens for Isabelle."
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
 
-(defconst isar-control-regions
+(defcustom isar-control-regions
   '(("Subscript" "bsub" "esub" sub)
     ("Superscript" "bsup" "esup" sup) 
-    ; unofficial:
+    ;; unofficial:
     ("Bold" "bbold" "ebold" bold)
     ("Italic" "bitalic" "eitalic" italic)
     ("Script" "bscript" "escript" script)
@@ -51,7 +72,10 @@
     ("Overline" "boverline" "eoverline" overline)
     ("Underline" "bunderline" "eunderline" underline)
     ("Big"   "bbig" "ebig" big)
-    ("Small" "bsmall" "esmall" small)))
+    ("Small" "bsmall" "esmall" small))
+  "Control sequence tokens for Isabelle."
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
     
 ;;
 ;; Symbols
@@ -64,7 +88,7 @@
 (defconst isar-token-variant-format-regexp 
   "\\\\<\\(%s\\)[0-9]*>") ; unofficial interpretation of usual syntax
 
-(defconst isar-greek-letters-tokens
+(defcustom isar-greek-letters-tokens
   '(("alpha" "α")
     ("beta" "β")
     ("gamma" "γ")
@@ -98,17 +122,25 @@
     ("Upsilon" "Υ")
     ("Phi" "Φ")
     ("Psi" "Ψ")
-    ("Omega" "Ω")))
+    ("Omega" "Ω"))
+  "Greek letter token map for Isabelle."
+  :type 'unicode-tokens-token-symbol-map
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
 
-(defconst isar-misc-letters-tokens
+(defcustom isar-misc-letters-tokens
   '(("bool" "IB")
     ("complex" "ℂ")
     ("nat" "ℕ")
     ("rat" "ℚ")
     ("real" "ℝ")
-    ("int" "ℤ")))
+    ("int" "ℤ"))
+  "Miscellaneous letter token map for Isabelle."
+  :type 'unicode-tokens-token-symbol-map
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
 
-(defconst isar-symbols-tokens
+(defcustom isar-symbols-tokens
   '(("leftarrow" "←")
     ("rightarrow" "→")
     ("Leftarrow" "⇐")
@@ -375,13 +407,18 @@
     ("sixsuperior" "⁶")
     ("sevensuperior" "⁷")
     ("eightsuperior" "⁸")
-    ("ninesuperior" "⁹")))
+    ("ninesuperior" "⁹"))
+  "Symbol token map for Isabelle."
+  :type 'unicode-tokens-token-symbol-map
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
+
 
 (defun isar-try-char (charset code1 code2)
   (and (charsetp charset) ; prevent error
        (char-to-string (make-char charset code1 code2))))
 
-(defconst isar-symbols-tokens-fallbacks
+(defcustom isar-symbols-tokens-fallbacks
   `(;; Faked long symbols
     ("longleftarrow" "←-")
     ("Longleftarrow" "⇐–")
@@ -396,16 +433,19 @@
     ;; an example of using characters from another charset.
     ;; to expand this table, see output of M-x list-charset-chars
     ("lbrakk" ,(isar-try-char 'japanese-jisx0208 #x22 #x5A))
-    ("rbrakk" ,(isar-try-char 'japanese-jisx0208 #x22 #x5B))
+    ("rbrakk" ,(isar-try-char 'japanese-jisx0208 #x22 #x5A))
     ("lbrakk" "[|")
     ("rbrakk" "|]")
     ("lbrace" "{|")
     ("rbrace" "|}"))
   "Fallback alternatives to `isar-symbols-tokens'.
 The first displayable composition will be displayed to replace the
-tokens.")
+tokens."
+  :type 'unicode-tokens-token-symbol-map
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
 
-(defconst isar-bold-nums-tokens 
+(defcustom isar-bold-nums-tokens 
   '(("zero" "0" bold)
     ("one" "1" bold)
     ("two" "2" bold)
@@ -415,7 +455,11 @@ tokens.")
     ("six" "6" bold)
     ("seven" "7" bold)
     ("eight" "8" bold)
-    ("nine" "9" bold)))
+    ("nine" "9" bold))
+  "Tokens for bold numerals."
+  :type 'unicode-tokens-token-symbol-map
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
 
 (defun isar-map-letters (f1 f2 &rest symbs)
   (loop for x below 26
@@ -438,47 +482,49 @@ tokens.")
 		    (lambda (x) (format "%c" x))
 		    'frakt))
 
-;; like defcustom, but want to evaluate default
-(custom-declare-variable 'isar-token-symbol-map
-   (list 'quote (append
-       isar-symbols-tokens
-       isar-symbols-tokens-fallbacks
-       isar-greek-letters-tokens
-       isar-bold-nums-tokens
-       isar-script-letters-tokens
-       isar-roman-letters-tokens))
+(defcustom isar-token-symbol-map nil
   "Table mapping Isabelle symbol token names to Unicode strings.
+See `unicode-tokens-token-symbol-map'.
 
-You can adjust this table to add more entries, or to change entries for
-glyphs that not are available in your Emacs or chosen font.
+You can adjust this table to change the default entries.  
 
-The token TNAME is made into the token \\< TNAME >.
-The string mapping can be anything, but should be such that
-tokens can be uniquely recovered from a decoded text; otherwise
-results will be undefined when files are saved."
-  ;; FIXME: this isn't right.
-  ;; :type '(repeat (list (string :tag "Token name")
-  ;; 		       (string :tag "Unicode string")
-  ;; 			(choice 
-  ;; 			 (const :tag "No style" nil)
-  ;; 			 (list
-  ;; 			  :inline t
-  ;; 			  ;; could generate next automatically from
-  ;; 			  ;; isar-control-regions
-  ;; 			  (const :tag "Bold" bold)
-  ;; 			  (const :tag "Italic" italic)
-  ;; 			  (const :tag "Script" script)
-  ;; 			  (const :tag "Frakt" frakt)
-  ;; 			  (const :tag "Roman" serif)))))
-  :set 'proof-set-value
+Each element is a list
+
+  (TOKNAME COMPOSITION FONTSYMB ...)
+
+For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
+  :type 'unicode-tokens-symbol-map
   :group 'isabelle
+  :set 'isar-set-and-restart-tokens
   :tag "Isabelle Unicode Token Mapping")
 
+(defcustom isar-user-tokens nil
+  "User-defined additions to `isar-token-symbol-map'."
+  :type 'unicode-tokens-symbol-map
+  :set 'isar-set-and-restart-tokens
+  :tag "User extensions for Isabelle Token Mapping")
 
+(defun isar-init-token-symbol-map ()
+  "Initialise the default value for `unicode-tokens-token-symbol-map'."
+  (custom-set-default 'isar-token-symbol-map
+		      (append
+		       isar-symbols-tokens
+		       isar-symbols-tokens-fallbacks
+		       isar-greek-letters-tokens
+		       isar-bold-nums-tokens
+		       isar-script-letters-tokens
+		       isar-roman-letters-tokens
+		       isar-user-tokens)))
+
+(isar-init-token-symbol-map)
+
+
+
+;;
+;; Shortcuts
+;;
 
 (defconst isar-symbol-shortcuts
-;    ("<>" . "\<diamond>")
-;    ("|>" . "\<triangleright>")
   '(("\\/" . "\\<or>")
     ("/\\" . "\\<and>")
     ("+O" . "\\<oplus>")
@@ -496,7 +542,6 @@ results will be undefined when files are saved."
     ("==" . "\\<equiv>")
     ("~=" . "\\<noteq>")
     ("~:" . "\\<notin>")
-;    ("~=" . "≃")
     ("~~~" . "\\<notapprox>")
     ("~~" . "\\<approx>")
     ("~==" . "\\<cong>")
@@ -506,12 +551,12 @@ results will be undefined when files are saved."
     ("_|_" . "\\<bottom>")
     ("</" . "\\<notle>")
     ("~>=" . "\\<notge>")
-    ("==/" . "≢")
+    ("==/" . "\\<notequiv>")
     ("~/" . "\\<notsim>")
     ("~=/" . "\\<notsimeq>")
     ("~~/" . "\\<notsimeq>")
     ("<-" . "\\<leftarrow>")
-;    ("<=" . "\\<Leftarrow>")
+    ("<=" . "\\<Leftarrow>")
     ("->" . "\\<rightarrow>")
     ("=>" . "\\<Rightarrow>")
     ("<->" . "\\<leftrightarrow>")
@@ -526,37 +571,46 @@ results will be undefined when files are saved."
     ("<-->" . "\\<longleftrightarrow>")
     ("<<" . "\\<guillemotleft>")
     (">>" . "\\<guillemotright>")
+    ("<>" . "\<diamond>")
     ("[|" . "\\<lbrakk>")
     ("|]" . "\\<rbrakk>")
     ("{|" . "\\<lbrace>")
     ("|}" . "\\<rbrace>")
-    ("---" . "\\<emdash>")))
+    ("---" . "\\<emdash>")
+    ;; useful for unicode-tokens-replace-shortcuts
+    ("ALL" . "\\<forall>")
+    ("EX"  . "\\<exists>")
+    ("!!"  . "\\<And>")
+    ("~"  . "\\<not>")
+    ("!"  . "\\<forall>")
+    ("?"  . "\\<exists>")
+    ;; extra misc, switch them off if you don't like them
+    ("|>" . "\<triangleright>")
+    ("<|" . "\<triangleleft>")
+    ))
 
-;; like defcustom, but want to evaluate default
-(custom-declare-variable 'isar-shortcut-alist
-   (list 'quote (append
-      isar-symbol-shortcuts
-      ;; LaTeX-like syntax for symbol names, easier to type
-      (mapcar 
-       (lambda (tokentry)
-	 (cons (concat "\\" (car tokentry))
-	       (format isar-token-format (car tokentry))))
-       (append isar-greek-letters-tokens isar-symbols-tokens))))
+(defcustom isar-shortcut-alist nil
   "Shortcut key sequence table for token input.
-
-You can adjust this table to add more entries, or to change entries for
-glyphs that not are available in your Emacs or chosen font.
-
-These shortcuts are only used for input convenience; no reverse 
-conversion is performed."
-  :type '(repeat (cons (string :tag "Shortcut sequence")
-		       (string :tag "Unicode string")))
-  :set 'proof-set-value
+See `unicode-tokens-shortcut-alist'."
+  :type 'unicode-tokens-shortcut-alist
+  :set 'isar-set-and-restart-tokens
   :group 'isabelle
   :tag "Isabelle Unicode Input Shortcuts")
 
-  
+(defun isar-init-shortcut-alists ()
+  "Set defaults for `isar-shortcut-alist' and `isar-shortcut-replacement-alist'."
+  (custom-set-default 'isar-shortcut-alist
+		      (append
+		       isar-symbol-shortcuts
+		       ;; LaTeX-like syntax for symbol names, easier to type
+		       (mapcar 
+			(lambda (tokentry)
+			  (cons (concat "\\" (car tokentry))
+				(format isar-token-format (car tokentry))))
+			(append isar-greek-letters-tokens 
+				isar-symbols-tokens)))))
 
+(isar-init-shortcut-alists)
 
 ;;
 ;; prover symbol support 
