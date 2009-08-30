@@ -36,6 +36,10 @@
 ;; -- simplify: unify region and control settings?
 ;; -- simplify/optimise property handling 
 
+;;
+;;; Code:
+;;
+
 (require 'cl)
 
 (eval-when-compile
@@ -50,16 +54,22 @@
 
 (defvar unicode-tokens-token-symbol-map nil
   "Mapping of token names to compositions.
-Each element is a list
+A list, each element of which is a list
 
   (TOKNAME COMPOSITION FONTSYMB ...)
 
 A composition is typically a single Unicode character string, but
 can be more complex: see documentation of `compose-region'.
 
-The list of FONTSYMB are optional.  Each FONTSYMB is a symbol
-indicating a set of text properties, looked up in
-`unicode-tokens-fontsymb-properties'.")
+TOKNAMEs may be repeated.  The first one with a usable
+composition according to `unicode-tokens-usable-composition', 
+if any.
+
+The sequence of FONTSYMB are optional.  Each FONTSYMB is a symbol
+indicating a set of additional text properties, looked up in
+`unicode-tokens-fontsymb-properties'.
+
+By default, tokens are displayed ")
 
 (defvar unicode-tokens-token-format "%s"
   "Format string for formatting token a name into a token.
@@ -78,30 +88,14 @@ variant name.
 
 If set, this variable is used instead of `unicode-tokens-token-format'.")
 
-(defvar unicode-tokens-fontsymb-properties 
-  '((sub       (display (raise -0.4)))
-    (sup       (display (raise 0.4)))
-    (bold      (face (:weight bold)))
-    (italic    (face (:slant italic)))
-    (big       (face (:height 1.5)))
-    (small     (face (:height 0.75)))
-    (underline (face (:underline t)))
-    (overline  (face (:overline t)))
-    (dec       (face proof-declaration-name-face))
-    (tactic    (face proof-tactics-name-face))
-    (tactical  (face proof-tactical-name-face))
-    (script    (face unicode-tokens-script-font-face))
-    (frakt     (face unicode-tokens-fraktur-font-face))
-    (serif     (face unicode-tokens-serif-font-face))
-    (sans      (face unicode-tokens-sans-font-face)))
- "Association list mapping a symbol to a list of text properties.
-Used in `unicode-tokens-token-symbol-map', `unicode-tokens-control-regions',
-and `unicode-tokens-control-characters'.")
-
 (defvar unicode-tokens-shortcut-alist nil
   "An alist of keyboard shortcuts to unicode strings.
 The alist is added to the input mode for tokens.
-Behaviour is much like abbrev.")
+The shortcuts are only used for input convenience; no reverse 
+mapping back to shortucts is performed.  Behaviour is like abbrev.")
+
+(defvar unicode-tokens-shortcut-replacement-alist nil
+  "Overrides `unicode-tokens-shortcut-alist' for `unicode-tokens-replace-shortcuts'.")
 
 
 ;;
@@ -145,8 +139,8 @@ and (match-string 2) has the display control applied.")
   '(token-symbol-map
     token-format
     token-variant-format-regexp
-    fontsymb-properties
     shortcut-alist
+    shortcut-replacement-alist
     control-region-format-regexp
     control-region-format-start
     control-region-format-end
@@ -167,8 +161,9 @@ and (match-string 2) has the display control applied.")
  (lambda (sym)
    (eval `(defvar ,(unicode-tokens-config-var sym)
 	   nil
-	   ,(format "Name of a variable used to configure %s.\nValue should be a symbol."
-		    (symbol-name (unicode-tokens-config sym)))))))
+	   ,(format 
+	     "Name of a variable used to configure %s.\nValue should be a symbol."
+	     (symbol-name (unicode-tokens-config sym)))))))
 
 (defun unicode-tokens-copy-configuration-variables ()
   "Initialise the configuration variables by copying from variable names.
@@ -182,15 +177,16 @@ if it is bound, which should be the name of a variable."
       (if (and (boundp var) (not (null (symbol-value var))))
 	  (set (unicode-tokens-config sym)
 	       (symbol-value (symbol-value
-			      (unicode-tokens-config-var sym))))))))
+			      (unicode-tokens-config-var sym)))))))
+  (unless unicode-tokens-shortcut-replacement-alist
+    (setq unicode-tokens-shortcut-replacement-alist
+	  unicode-tokens-shortcut-alist)))
 
 (defun unicode-tokens-customize (sym)
   "Customize the configuration variable held in `unicode-tokens-SYM-variable'."
   (interactive "sCustomize setting: ") ;; TODO: completing read, check if customizable
   (customize-variable
    (symbol-value (unicode-tokens-config-var (intern sym)))))
-  
-
   
 
 
@@ -234,60 +230,55 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;;  	  unicode-tokens-uchar-regexp))
 
 ;;
-;; Constants
+;; Faces
 ;;
 
 (defgroup unicode-tokens-faces nil
   "The faces used in Unicode Tokens mode."
   :group 'faces)
 
-(defface unicode-tokens-default-font-face
-  '((t :inherit default))
-  "The default font used for symbols.  Only the attributes :family "
+(defconst unicode-tokens-font-family-alternatives
+  '(("STIXGeneral" 
+     "DejaVu Sans Mono" "DejaVuLGC Sans Mono")
+    ("Script" 
+     "Lucida Calligraphy" "URW Chancery L")
+    ("Fraktur"
+     "Lucida Blackletter" "URW Bookman L")))
+
+(if (boundp 'face-font-family-alternatives)
+    (custom-set-default 
+     'face-font-family-alternatives
+     (append face-font-family-alternatives
+	     unicode-tokens-font-family-alternatives)))
+
+(defface unicode-tokens-symbol-font-face
+  '((t :family "STIXGeneral"))
+  "The default font used for symbols.  Only :family attribute is used."
+  :group 'unicode-tokens-faces)
+
+(defface unicode-tokens-large-symbol-font-face
+  '((t :family "STIXGeneral"))
+  "The font used for large symbols."
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-script-font-face
-  (cond
-   ((eq window-system 'x) ; Linux/Unix
-    '((t :family "PakTypeNaqsh")))  ; 
-   ((or ; Mac
-     (eq window-system 'ns)
-     (eq window-system 'carbon))
-    '((t :family "Lucida Calligraphy"))))
-  "Script font face"
+  '((t :family "Script"))
+  "Script font face."
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-fraktur-font-face
-  (cond
-   ((eq window-system 'x) ; Linux/Unix
-    '((t :family "URW Bookman L"))) ;; not at all black letter!
-   ((or ; Mac
-     (eq window-system 'ns)
-     (eq window-system 'carbon))
-    '((t :family "Lucida Blackletter"))))
-  "Fraktur font face"
+  '((t :family "Fraktur"))
+  "Fraktur font face."
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-serif-font-face
-  (cond
-   ((eq window-system 'x) ; Linux/Unix
-    '((t :family "Liberation Serif")))
-   ((or ; Mac
-     (eq window-system 'ns)
-     (eq window-system 'carbon))
-    '((t :family "Lucida"))))
-  "Serif (roman) font face"
+  '((t :family "Times-Roman"))
+  "Serif (roman) font face."
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-sans-font-face
-  (cond
-   ((eq window-system 'x) ; Linux/Unix
-    '((t :family "Liberation Sans")))
-   ((or ; Mac
-     (eq window-system 'ns)
-     (eq window-system 'carbon))
-    '((t :family "Lucida"))))
-  "Sans serif font face"
+  '((t :family "Sans"))
+  "Sans serif font face."
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-highlight-face
@@ -299,13 +290,75 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   "Face used for highlighting in Unicode tokens."
   :group 'unicode-tokens-faces)
 
+(defconst unicode-tokens-fonts
+  '(symbol large-symbol script fraktur serif sans)
+  "A list of the faces used for setting fonts for Unicode Tokens.")
+
+
+;;
+;; Standard text properties used to build fontification
+;;
+
+(defconst unicode-tokens-fontsymb-properties 
+  '((sub       	  "Lower"     	  (display (raise -0.4)))
+    (sup       	  "Raise"     	  (display (raise 0.4)))
+    (bold      	  "Bold"      	  (face (:weight bold)))
+    (italic    	  "Italic"    	  (face (:slant italic)))
+    (big       	  "Bigger"    	  (face (:height 1.5)))
+    (small     	  "Smaller"   	  (face (:height 0.75)))
+    (underline 	  "Underline" 	  (face (:underline t)))
+    (overline  	  "Overline"  	  (face (:overline t)))
+    ;; NB: symbols for fonts need to be as in unicode-tokens-fonts
+    (script    	  "Script font"   (face unicode-tokens-script-font-face))
+    (frakt     	  "Frakt font"    (face unicode-tokens-fraktur-font-face))
+    (serif     	  "Serif font"    (face unicode-tokens-serif-font-face))
+    (sans      	  "Sans font"     (face unicode-tokens-sans-font-face))
+    (large-symbol "Large Symbol font" 
+		  (face unicode-tokens-large-symbol-font-face))
+    ;; NB: next ones not really generic.  Previously this was
+    ;; configured per-prover, but above are generic. 
+    (dec       "Declaration face" (face proof-declaration-name-face))
+    (tactic    "Tactic face"      (face proof-tactics-name-face))
+    (tactical  "Tactical face"    (face proof-tactical-name-face)))
+ "Association list mapping a symbol to a name and list of text properties.
+Used in `unicode-tokens-token-symbol-map', `unicode-tokens-control-regions',
+and `unicode-tokens-control-characters'.
+Several symbols can be used at once, in `unicode-tokens-token-symbol-map'.")
+
+(define-widget 'unicode-tokens-token-symbol-map 'lazy
+  "Type for customize variables used to set `unicode-tokens-token-symbol-map'."
+  :offset 4
+  :tag "Token symbol map"
+  :type  
+  ;; TODO: improve this so customize editing is more pleasant.
+  (list 'repeat :tag "Map entries"
+	(append
+	 '(list :tag "Mapping"
+		(string :tag "Token name")	 
+		(string :tag "Unicode string"))
+	 (list (append
+		'(set :tag "Text property styles"  :inline t)
+		(mapcar (lambda (fsp)
+			  (list 'const :tag 
+				(cadr fsp) (car fsp)))
+			unicode-tokens-fontsymb-properties))))))
+
+(define-widget 'unicode-tokens-shortcut-alist 'lazy
+  "Type for customize variables used to set `unicode-tokens-shortcut-alist'."
+  :offset 4
+  :tag "Shortcut list"
+  :type '(repeat :tag "Shortcut list"
+		 (cons (string :tag "Shortcut sequence")
+		       (string :tag "Buffer string"))))
+
+
+;;
+;; Calculating font-lock-keywords
+;;
+
 (defconst unicode-tokens-font-lock-extra-managed-props
   '(composition help-echo display invisible)
   "Value for `font-lock-extra-managed-props' here.")
-
-;;
-;;; Code:
-;;
 
 (defun unicode-tokens-font-lock-keywords ()
   "Calculate and return value for `font-lock-keywords'.
@@ -372,7 +425,7 @@ The check is with `char-displayable-p'."
 Regexp match data number MATCH selects the token name, while 0 matches the
 whole expression.
 Token name from MATCH is searched for in `unicode-tokens-hash-table'.
-The face property is set to the :family of `unicode-tokens-default-font-face'."
+The face property is set to the :family of `unicode-tokens-symbol-font-face'."
   (let* ((start     (match-beginning 0))
          (end       (match-end 0))
 	 (compps    (gethash (match-string match)
@@ -386,12 +439,13 @@ The face property is set to the :family of `unicode-tokens-default-font-face'."
 	    (font-lock-append-text-property start end
 					    (car props) (cadr props))
 	    (setq props (cddr props)))))
-    (font-lock-append-text-property
-     start end 'face
-     ;; just use family so merging with other faces (keywords) works
-     (list :family
-	   (face-attribute 'unicode-tokens-default-font-face :family)))
-    ;; returning face property here seems to have no effect
+    (unless (intersection unicode-tokens-fonts propsyms)
+      (font-lock-append-text-property
+       start end 'face
+       ;; just use family to enhance merging with other faces
+       (list :family
+	     (face-attribute 'unicode-tokens-symbol-font-face :family))))
+    ;; [returning face property here seems to have no effect?]
     nil))
 
 (defun unicode-tokens-prepend-text-properties-in-match (props matchno)
@@ -447,7 +501,8 @@ Symbols are looked up in `unicode-tokens-fontsymb-properties'.
 Optional argument FACENIL means set the face property to nil, unless 'face is in the property list."
   (let (props ps)
     (dolist (s symbs)
-      (setq ps (cdr-safe (assoc s unicode-tokens-fontsymb-properties)))
+      (setq ps (cdr-safe
+		(cdr-safe (assoc s unicode-tokens-fontsymb-properties))))
       (dolist (p ps)
 	(setq props (append p props))))
     (if (and facenil
@@ -658,6 +713,31 @@ Available annotations chosen from `unicode-tokens-control-regions'."
   (interactive "p")
   (unicode-tokens-rotate-token-forward (if n (- n) -1)))
 
+(defun unicode-tokens-replace-shortcut-match (&rest ignore)
+  "Subroutine for `unicode-tokens-replace-shortcuts'."
+  (let* ((match (match-string-no-properties 0))
+	 (repl  (if match
+		    (cdr-safe
+		     (assoc match unicode-tokens-shortcut-replacement-alist)))))
+    (if repl (regexp-quote repl))))
+
+(defun unicode-tokens-replace-shortcuts ()
+  "Query-replace shortcuts in the buffer with compositions they expand to."
+  (interactive)
+  (let ((shortcut-regexp
+	 (regexp-opt (mapcar 'car unicode-tokens-shortcut-replacement-alist))))
+    ;; override the display of the regexp because it's huge!
+    ;; (doesn't help with C-h: need way to programmatically show string)
+    (flet ((query-replace-descr (str) (if (eq str shortcut-regexp)
+					  "shortcut" str)))
+      (perform-replace shortcut-regexp (cons 'unicode-tokens-replace-shortcut-match
+					     nil)
+		       t t nil))))
+
+;; 
+;; Token and shortcut tables
+;;
+
 (defun unicode-tokens-copy-token (tokname)
   "Copy the token TOKNAME into the kill ring."
   (interactive "s")
@@ -679,6 +759,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
       (make-local-variable 'unicode-tokens-show-symbols)
       (setq unicode-tokens-show-symbols nil)
       (unicode-tokens-mode)
+      (setq tab-width 7)
       (insert "Hover to see token.  Mouse-2 or RET to copy into kill ring.\n")
       (let ((count 10) 
 	    (toks unicode-tokens-token-list)
@@ -815,7 +896,7 @@ tokenised symbols."
 ;;
 
 (defun unicode-tokens-initialise ()
-  "Perform initialisation of minor mode.
+  "Perform (re)initialisation for Unicode Tokens minor mode.
 Invoke this function to recalculate `font-lock-keywords' and other configuration
 variables."
   (interactive)
@@ -921,7 +1002,7 @@ Commands available are:
     "Interactively select a font for FONTVAR."
   (interactive)
   (let ((font (if (fboundp 'x-select-font)
-  		  (x-select-font) ; note: always defaults to default font
+  		  (x-select-font)
   		(mouse-select-font)))
 	spec)
     (when font
@@ -944,26 +1025,18 @@ Commands available are:
       (custom-push-theme 'theme-face fontvar 'user 'set spec)
       (put fontvar 'face-modified nil))))
 
-(defun unicode-tokens-set-default-font ()
-  (interactive)
-  (unicode-tokens-set-font-var 'unicode-tokens-default-font-face)
-  (font-lock-fontify-buffer))
+(defun unicode-tokens-set-font-restart (fontsym)
+  "Open a dialog to set the font for FONTSYM, and reinitialise."
+  (let ((facevar (intern (concat "unicode-tokens-" (symbol-name fontsym) "-font-face"))))
+    (unicode-tokens-set-font-var facevar)
+    (unicode-tokens-initialise)
+    (font-lock-fontify-buffer)))
 
-(defun unicode-tokens-set-script-font ()
+(defun unicode-tokens-save-fonts ()
+  "Save the customized font variables."
+  ;; save all customized faces (tricky to do less)
   (interactive)
-  (unicode-tokens-set-font-var 'unicode-tokens-script-font-face)
-  (font-lock-fontify-buffer))
-
-(defun unicode-tokens-set-fraktur-font ()
-  (interactive)
-  (unicode-tokens-set-font-var 'unicode-tokens-fraktur-font-face)
-  (font-lock-fontify-buffer))
-
-(defun unicode-tokens-set-serif-font ()
-  (interactive)
-  (unicode-tokens-set-font-var 'unicode-tokens-serif-font-face)
-  (font-lock-fontify-buffer))
-
+  (custom-save-faces))
 
 
 ;; 
@@ -1024,9 +1097,9 @@ Commands available are:
        "---"
       ["List tokens"     unicode-tokens-list-tokens]
       ["List shortcuts"  unicode-tokens-list-shortcuts]
-;; typing needs fixing
-;;      ["Customize tokens"     (unicode-tokens-customize "token-symbol-map")]
+      ["Customize tokens"     (unicode-tokens-customize "token-symbol-map")]
       ["Customize shortcuts"  (unicode-tokens-customize "shortcut-alist")]
+      ["Replace shortcuts" unicode-tokens-replace-shortcuts]
       "---"
       ["Copy as unicode" unicode-tokens-copy
        :active 'mark-active
@@ -1056,15 +1129,18 @@ Commands available are:
        :active unicode-tokens-shortcut-alist
        :help "Use short cuts for typing tokens"]
       (cons "Set fonts"
-       (list
-	["Symbols" unicode-tokens-set-default-font
-	 :help "Set the font for symbols"]
-	["Script" unicode-tokens-set-script-font
-	 :help "Set the font for script text"]
-	["Fraktur" unicode-tokens-set-fraktur-font
-	 :help "Set the font for fraktur text"]
-	["Serif" unicode-tokens-set-serif-font
-	 :help "Set the font for serif text"]
+       (append
+        (mapcar
+         (lambda (var)
+           (vector 
+	    (upcase-initials (symbol-name var))
+	    `(lambda () (interactive)
+	        (funcall 'unicode-tokens-set-font-restart ',var))
+	     :help (concat "Set the " (symbol-name var) " font")))
+	 unicode-tokens-fonts)
+         (list "----"
+	["Save fonts" unicode-tokens-save-fonts
+	 :help "Save the customized font choices"]
 	["Make fontsets"
 	 (lambda () (interactive) (require 'pg-fontsets))
 	 :active (not (featurep 'pg-fontsets))
@@ -1074,7 +1150,7 @@ Commands available are:
 	 ;; is done too late: displayable tokens have already been
 	 ;; chosen now, before fontsets generated.
 	 ;; Never mind: non-issue with platform fonts menu.
-	 ]))))))
+	 ])))))))
 
 
 	     
