@@ -557,15 +557,17 @@ Checks the width in the `proof-goals-buffer'"
    "\""))
 
 (defun isar-positions-of (buffer span)
-  (let (line column)
+  (let (line)
     (if span
 	(save-excursion
 	  (set-buffer (span-buffer span))
 	  (goto-char (span-start span))
 	  (skip-chars-forward " \t\n")
 	  ;; NB: position is relative to display (narrowing, etc)
-	  (setq line (line-number-at-pos (point)))
-	  (setq column (current-column))))
+	  ;; defer column: too tricky for now (Isabelle symbols 
+	  ;; vs displayed chars, etc)
+	  ; (setq column (current-column))
+	  (setq line (line-number-at-pos (point)))))
     (concat
      "("
      (proof-splice-separator 
@@ -574,8 +576,8 @@ Checks the width in the `proof-goals-buffer'"
        (if (and buffer (buffer-file-name buffer))
 	   (format "\"file\"=%s" 
 		   (isar-string-wrapping (buffer-file-name buffer))))
-       (if line   (format "\"line\"=\"%d\"" line))
-       (if column (format "\"column\"=\"%d\"" column))))
+       (if line   (format "\"line\"=\"%d\"" line))))
+       ;(if column (format "\"column\"=\"%d\"" column))))
       ") ")))
 
 (defun isar-command-wrapping (string scriptspan)
