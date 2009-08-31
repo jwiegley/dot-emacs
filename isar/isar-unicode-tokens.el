@@ -583,9 +583,9 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ("ALL" . "\\<forall>")
     ("EX"  . "\\<exists>")
     ("!!"  . "\\<And>")
-    ("~"  . "\\<not>")
-    ("!"  . "\\<forall>")
-    ("?"  . "\\<exists>")
+    ;; ("~"  . "\\<not>")
+    ;; ("!"  . "\\<forall>")
+    ;; ("?"  . "\\<exists>")
     ;; extra misc, switch them off if you don't like them
     ("|>" . "\<triangleright>")
     ("<|" . "\<triangleleft>")
