@@ -128,7 +128,7 @@ you a reprimand!)."
   "*Whether Proof General allows text undo in the read-only region.
 If non-nil, undo will allow altering of processed text.
 If nil, undo history is cut at first edit
-of processed text.  NB: the history manipulation only works on GNU Emacs."
+of processed text."
   :type  'boolean
   :group 'proof-user-options)
 
