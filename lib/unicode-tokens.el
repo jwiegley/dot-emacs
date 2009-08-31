@@ -1011,13 +1011,18 @@ Commands available are:
 ;; Font selection
 ;;
 
-;; parameterised version of function from menu-bar.el
+;; parameterised version of function from menu-bar.el (Emacs 23.1)
+
 (defun unicode-tokens-set-font-var (fontvar)
     "Interactively select a font for FONTVAR."
   (interactive)
-  (let ((font (if (fboundp 'x-select-font)
-  		  (x-select-font)
-  		(mouse-select-font)))
+  (let ((font (cond
+	       ((fboundp 'x-select-font)
+		(x-select-font))
+	       ((fboundp 'mouse-select-font)
+  		(mouse-select-font))
+	       (t
+		(unicode-tokens-mouse-set-font))))
 	spec)
     (when font
       ;; Be careful here: when set-face-attribute is called for the
@@ -1046,9 +1051,27 @@ Commands available are:
       (custom-push-theme 'theme-face fontvar 'user 'set spec)
       (put fontvar 'face-modified nil))))
 
+;; based on mouse-set-font from mouse.el in Emacs 22.2.1
+(defun unicode-tokens-mouse-set-font ()
+  "Select an Emacs font from a list of known good fonts and fontsets."
+  (unless (display-multi-font-p)
+    (error "Cannot change fonts on this display"))
+  (car-safe ; just choose first 
+	    ; (original cycles through trying set-default-font
+   (x-popup-menu
+    (if (listp last-nonmenu-event)
+       last-nonmenu-event
+     (list '(0 0) (selected-window)))
+   ;; Append list of fontsets currently defined.
+   (append x-fixed-font-alist (list (generate-fontset-menu))))))
+
+(defsubst unicode-tokens-face-font-sym (fontsym)
+  "Return the symbol unicode-tokens-FONTSYM-font-face."
+  (intern (concat "unicode-tokens-" (symbol-name fontsym) "-font-face")))
+
 (defun unicode-tokens-set-font-restart (fontsym)
   "Open a dialog to set the font for FONTSYM, and reinitialise."
-  (let ((facevar (intern (concat "unicode-tokens-" (symbol-name fontsym) "-font-face"))))
+  (let ((facevar (unicode-tokens-face-font-sym fontsym)))
     (unicode-tokens-set-font-var facevar)
     (unicode-tokens-initialise)
     (font-lock-fontify-buffer)))
@@ -1057,7 +1080,22 @@ Commands available are:
   "Save the customized font variables."
   ;; save all customized faces (tricky to do less)
   (interactive)
-  (custom-save-faces))
+  (apply 'unicode-tokens-custom-save-faces 
+   (mapcar 'unicode-tokens-face-font-sym 
+	   unicode-tokens-fonts)))
+
+;; interface to custom 
+(defun unicode-tokens-custom-save-faces (&rest faces)
+  "Save custom faces FACES."
+  (dolist (symbol faces)
+    (let ((face (get symbol 'customized-face)))
+      ;; See customize-save-customized; adjust properties so 
+      ;; that custom-save-all will save the face.
+      (when face
+	(put symbol 'saved-face face)
+	(custom-push-theme 'theme-value symbol 'user 'set face)
+	(put symbol 'customized-face nil))))
+  (custom-save-all))
 
 
 ;; 
