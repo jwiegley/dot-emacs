@@ -181,7 +181,7 @@ See -k option for Isabelle interface script."
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
    proof-shell-interrupt-regexp         "\^AM\\*\\*\\* Interrupt"
-   proof-shell-error-regexp             "\^AM\\*\\*\\*" 
+   proof-shell-error-regexp             "\^AM\\*\\*\\*"
    proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
@@ -210,7 +210,7 @@ See -k option for Isabelle interface script."
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
 
-   ;; Theorem dependencies.   
+   ;; Theorem dependencies.
    ;; NB: next regex anchored at end with eager annot end
    proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
    proof-shell-theorem-dependency-list-split "\" \""
@@ -248,7 +248,7 @@ See -k option for Isabelle interface script."
   :eval (isar-set-proof-find-theorems-command))
 
 (defun isar-set-proof-find-theorems-command ()
-  (setq proof-find-theorems-command 
+  (setq proof-find-theorems-command
 	(if isar-use-find-theorems-form
 	    'isar-find-theorems-form
 	  'isar-find-theorems-minibuffer)))
@@ -270,7 +270,7 @@ See -k option for Isabelle interface script."
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
 This is called when Proof General spots output matching
-proof-shell-retract-files-regexp."
+`proof-shell-retract-files-regexp'."
   (let*
       ((name (match-string 1 str))
        (base-name (file-name-nondirectory name)))
@@ -301,7 +301,7 @@ proof-shell-retract-files-regexp."
 
 (eval-and-compile
 (define-derived-mode isar-mode proof-mode
-  "Isar script" 
+  "Isar script"
   "Major mode for editing Isar proof scripts.
 
 \\{isar-mode-map}"
@@ -350,7 +350,7 @@ proof-shell-retract-files-regexp."
   '(if (y-or-n-p
 	(format "Print draft of file %s ?" buffer-file-name))
        (format "print_drafts \"%s\"" buffer-file-name)
-     (error "Aborted."))
+     (error "Aborted"))
   [(control p)])
 
 (proof-definvisible isar-cmd-refute	"refute" [r])
@@ -528,13 +528,13 @@ Checks the width in the `proof-goals-buffer'"
            (let ((current-width
                   ;; Actually, one might want the width of the
                   ;; proof-response-buffer instead. Never mind.
-                  (max 20 (window-width 
+                  (max 20 (window-width
 			   (get-buffer-window proof-goals-buffer t)))))
 
              (if (equal current-width isar-shell-current-line-width) ()
                (setq isar-shell-current-line-width current-width)
                (set-buffer proof-shell-buffer)
-               (setq ans (format "pretty_setmargin %d;" 
+               (setq ans (format "pretty_setmargin %d;"
 				 (- current-width 4)))))))
     ans))
 
@@ -542,7 +542,7 @@ Checks the width in the `proof-goals-buffer'"
 ;; Shell mode command adjusting
 ;;
 
-(defconst isar-nonwrap-regexp 
+(defconst isar-nonwrap-regexp
   ;; FIXME: approx: should only match at start or after terminator
   (regexp-opt (append (list "ProofGeneral.process_pgip")
 		      isar-undo-commands)))
@@ -564,17 +564,17 @@ Checks the width in the `proof-goals-buffer'"
 	  (goto-char (span-start span))
 	  (skip-chars-forward " \t\n")
 	  ;; NB: position is relative to display (narrowing, etc)
-	  ;; defer column: too tricky for now (Isabelle symbols 
+	  ;; defer column: too tricky for now (Isabelle symbols
 	  ;; vs displayed chars, etc)
 	  ; (setq column (current-column))
 	  (setq line (line-number-at-pos (point)))))
     (concat
      "("
-     (proof-splice-separator 
+     (proof-splice-separator
       ", "
       (list
        (if (and buffer (buffer-file-name buffer))
-	   (format "\"file\"=%s" 
+	   (format "\"file\"=%s"
 		   (isar-string-wrapping (buffer-file-name buffer))))
        (if line   (format "\"line\"=\"%d\"" line))))
        ;(if column (format "\"column\"=\"%d\"" column))))
@@ -626,8 +626,8 @@ Uses variables `string' and `scriptspan' passed by dynamic scoping."
 
 (defun isar-response-mode-config ()
   (isar-init-output-syntax-table)
-  (setq proof-response-font-lock-keywords 
-	(append proof-response-font-lock-keywords 
+  (setq proof-response-font-lock-keywords
+	(append proof-response-font-lock-keywords
 		isar-output-font-lock-keywords-1))
   (setq font-lock-multiline t)
   (make-local-variable 'jit-lock-chunk-size)
