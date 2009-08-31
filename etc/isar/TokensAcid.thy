@@ -1,6 +1,10 @@
-(* Some acid tests for token modes in Isabelle
+(* 
+   Some acid tests for token modes in Isabelle
    David Aspinall, 2008-9.
    $Id$
+
+   Note:
+    Unicode Tokens mode works much better in Emacs 23 than 22.
 *)
 
 theory TokensAcid imports Main 
