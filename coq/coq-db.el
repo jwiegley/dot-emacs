@@ -189,6 +189,12 @@ structure."
       (setq lgth (length l)))
     res))
 
+(defcustom coq-holes-minor-mode t
+  "*Whether to apply holes minor mode (see `holes-show-doc') in
+  coq mode."
+  :type 'boolean
+  :group 'coq)
+
 (defun coq-build-abbrev-table-from-db (db)
   "Take a keyword database DB and return an abbrev table.
 See `coq-syntax-db' for DB structure."
@@ -200,8 +206,10 @@ See `coq-syntax-db' for DB structure."
 	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
 	     )
 	;; careful: nconc destructive!
-	(when e2 
-	  (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete)))))
+	(when e2
+	  (if coq-holes-minor-mode
+	      (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete))))
+	      (setq res (nconc res (list `(,e2 ,e3))))))
 	(setq l tl)))
     res))
 

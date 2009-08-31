@@ -2,7 +2,7 @@
 ;; Copyright (C) 1997-2007 LFCS Edinburgh. 
 ;; Authors: Thomas Kleymann, Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
-;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
+;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
 
 ;; $Id$
 

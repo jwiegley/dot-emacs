@@ -1499,7 +1499,7 @@ be asked to the user."
 ;; directly to the response buffer. This allows also to clean the response
 ;; buffer (better to only scroll it?)
 (defun coq-get-last-error-location (&optional parseresp clean)
- "Return location information on last error sent by coq.
+  "Return location information on last error sent by coq.
 Return a two elements list (POS LEN) if successful, nil otherwise.
 POS is the number of characters preceding the underlined expression,
 and LEN is its length.
@@ -1519,30 +1519,30 @@ buffer."
   (if (not parseresp) last-coq-error-location
     ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
     (with-current-buffer proof-response-buffer
-        (goto-char (point-max))
-        (when (re-search-backward "\n> \\(.*\\)\n> \\( *\\)\\(\\^+\\)\n" nil t)
-          (let ((text (match-string 1))
-                (pos (length (match-string 2)))
-                (len (length (match-string 3))))
-            ;; clean the response buffer from ultra-ugly underlined command line
-            ;; parsed above. Don't kill the first \n
-            (when clean (delete-region (+ (match-beginning 0) 1) (match-end 0)))
-            (when proof-shell-unicode
-              ;; `pos' and `len' are actually specified in bytes, apparently.
-              ;; So let's convert them, assuming the encoding used is utf-8.
-              ;; Presumably in Emacs-23 we could use `string-bytes' for that
-              ;; since the internal encoding happens to use utf-8 as well.
-              (let ((bytes (encode-coding-string text 'utf-8-unix)))
-                ;; Check that pos&len make sense in `bytes', if not give up.
-                (when (>= (length bytes) (+ pos len))
-                  ;; We assume here that `text' is a single line and use \n as
-                  ;; a marker so we can find it back after decoding.
-                  (setq bytes (concat (substring bytes 0 pos)
-                                      "\n" (substring bytes pos (+ pos len))))
-                  (let ((chars (decode-coding-string bytes 'utf-8-unix)))
-                    (setq pos (string-match "\n" chars))
-                    (setq len (- (length chars) pos 1))))))
-            (setq last-coq-error-location (list pos len)))))))
+      (goto-char (point-max))
+      (when (re-search-backward "\n> \\(.*\\)\n> \\( *\\)\\(\\^+\\)\n" nil t)
+        (let ((text (match-string 1))
+              (pos (length (match-string 2)))
+              (len (length (match-string 3))))
+          ;; clean the response buffer from ultra-ugly underlined command line
+          ;; parsed above. Don't kill the first \n
+          (when clean (delete-region (+ (match-beginning 0) 1) (match-end 0)))
+          (when proof-shell-unicode
+            ;; `pos' and `len' are actually specified in bytes, apparently.
+            ;; So let's convert them, assuming the encoding used is utf-8.
+            ;; Presumably in Emacs-23 we could use `string-bytes' for that
+            ;; since the internal encoding happens to use utf-8 as well.
+            (let ((bytes (encode-coding-string text 'utf-8-unix)))
+              ;; Check that pos&len make sense in `bytes', if not give up.
+              (when (>= (length bytes) (+ pos len))
+                ;; We assume here that `text' is a single line and use \n as
+                ;; a marker so we can find it back after decoding.
+                (setq bytes (concat (substring bytes 0 pos)
+                                    "\n" (substring bytes pos (+ pos len))))
+                (let ((chars (decode-coding-string bytes 'utf-8-unix)))
+                  (setq pos (string-match "\n" chars))
+                  (setq len (- (length chars) pos 1))))))
+          (setq last-coq-error-location (list pos len)))))))
 
 
 (defun coq-highlight-error (&optional parseresp clean)
@@ -1569,9 +1569,8 @@ buffer."
         (goto-char (+ (proof-locked-end) 1))
         (coq-find-real-start)
 
-        ; coq error positions are in byte, not in chars, so translate
-        ; for utf-8 error message
-        (goto-char (byte-to-position (+ (position-bytes (point)) pos)))
+        ; Seems to work, even with utf8 chars (emacs23)
+        (goto-char (+ (point) pos))
         (let* ((start (point))
                (dummy (goto-char
                        (byte-to-position (+ (position-bytes (point)) lgth))))
@@ -1581,7 +1580,8 @@ buffer."
               (sit-for 20)
             (span-delete sp)))))))
 
-(defvar coq-allow-highlight-error t)
+(defvar coq-allow-highlight-error t
+  "Internal variable. Do not use as configuration variable.")
 
 ;; if a command is sent to coq without being in the script, then don't
 ;; higilight the error.  Remark: `action' and `string' are known by
