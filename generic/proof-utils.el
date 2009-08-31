@@ -761,18 +761,16 @@ KEY is added onto proof-assistant map."
 ;;; Interface to custom lib
 ;;;
 
-;; EMACSFIXME: A function that custom ought to provide.
+;; EMACSFIXME: A function that custom could provide.
 (defun pg-custom-save-vars (&rest variables)
   "Save custom vars VARIABLES."
   (dolist (symbol variables)
     (let ((value (get symbol 'customized-value)))
-      ;; This code from customize-save-customized adjusts
-      ;; properties so that custom-save-all will save
-      ;; the value.
+      ;; See customize-save-customized; adjust properties so 
+      ;; that custom-save-all will save the value.
       (when value
 	(put symbol 'saved-value value)
-	(if (fboundp 'custom-push-theme) ;; XEmacs customize
-	    (custom-push-theme 'theme-value symbol 'user 'set value))
+	(custom-push-theme 'theme-value symbol 'user 'set value)
 	(put symbol 'customized-value nil))))
   (custom-save-all))
 
