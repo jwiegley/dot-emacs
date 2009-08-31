@@ -8,11 +8,15 @@ begin
 
 (* Symbols.
 
-   Here's a table of all tokens for symbols, produced by
-   menu command Tokens -> List Tokens 
+   Here's a table of all the standardly defined tokens for symbols,
+   produced by menu command Tokens -> List Tokens
 
    You should see glyphs in all positions except the whitespace
    tokens at the end of row 25 and start of row 26.
+ 
+   I recommend using StixGeneral for symbols.
+   See http://olegueret.googlepages.com/stixfonts-ttf
+   This is the default for the symbol font if you have it installed.
 *)
 
 (*
