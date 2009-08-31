@@ -526,7 +526,7 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
 ;; Shortcuts
 ;;
 
-(defconst isar-symbol-shortcuts
+(defcustom isar-symbol-shortcuts
   '(("\\/" . "\\<or>")
     ("/\\" . "\\<and>")
     ("+O" . "\\<oplus>")
@@ -583,13 +583,17 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ("ALL" . "\\<forall>")
     ("EX"  . "\\<exists>")
     ("!!"  . "\\<And>")
+    ;; TODO: put these into replacement shortcuts, perhaps
     ;; ("~"  . "\\<not>")
     ;; ("!"  . "\\<forall>")
     ;; ("?"  . "\\<exists>")
     ;; extra misc, switch them off if you don't like them
     ("|>" . "\<triangleright>")
-    ("<|" . "\<triangleleft>")
-    ))
+    ("<|" . "\<triangleleft>"))
+    :type 'unicode-tokens-shortcut-alist
+    :set 'isar-set-and-restart-tokens
+    :group 'isabelle
+    :tag "Isabelle symbol shortcuts")
 
 (defcustom isar-shortcut-alist nil
   "Shortcut key sequence table for token input.
