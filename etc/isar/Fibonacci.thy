@@ -41,7 +41,7 @@ lemma [simp]: "0 < fib (Suc n)"
 text {* Alternative induction rule. *}
 
 theorem fib_induct:
-    "P 0 ==> P 1 ==> (!!n. P (n + 1) ==> P n ==> P (n + 2)) ==> P (n::nat)"
+    "P 0 \<Longrightarrow> P 1 \<Longrightarrow> (\<And>n. P (n + 1) \<Longrightarrow> P n \<Longrightarrow> P (n + 2)) \<Longrightarrow> P (n::nat)"
   by (induct rule: fib.induct) simp_all
 
 
@@ -86,7 +86,7 @@ proof (induct n rule: fib_induct)
   finally show "?P (n + 2)" .
 qed
 
-lemma gcd_mult_add: "0 < n ==> gcd (n * k + m) n = gcd m n"
+lemma gcd_mult_add: "0 < n \<Longrightarrow> gcd (n * k + m) n = gcd m n"
 proof -
   assume "0 < n"
   then have "gcd (n * k + m) n = gcd n (m mod n)"
@@ -116,12 +116,12 @@ next
 qed
 
 lemma gcd_fib_diff:
-  assumes "m <= n"
+  assumes "m \<le> n"
   shows "gcd (fib m) (fib (n - m)) = gcd (fib m) (fib n)"
 proof -
   have "gcd (fib m) (fib (n - m)) = gcd (fib m) (fib (n - m + m))"
     by (simp add: gcd_fib_add)
-  also from `m <= n` have "n - m + m = n" by simp
+  also from `m \<le> n` have "n - m + m = n" by simp
   finally show ?thesis .
 qed
 
@@ -130,7 +130,7 @@ lemma gcd_fib_mod:
   shows "gcd (fib m) (fib (n mod m)) = gcd (fib m) (fib n)"
 proof (induct n rule: nat_less_induct)
   case (1 n) note hyp = this
-  show ?case
+  show ?case 
   proof -
     have "n mod m = (if n < m then n else (n - m) mod m)"
       by (rule mod_if)
@@ -138,12 +138,12 @@ proof (induct n rule: nat_less_induct)
     proof (cases "n < m")
       case True then show ?thesis by simp
     next
-      case False then have "m <= n" by simp
+      case False then have "m \<le> n" by simp
       from `0 < m` and False have "n - m < n" by simp
       with hyp have "gcd (fib m) (fib ((n - m) mod m))
         = gcd (fib m) (fib (n - m))" by simp
       also have "... = gcd (fib m) (fib n)"
-        using `m <= n` by (rule gcd_fib_diff)
+        using `m \<le> n` by (rule gcd_fib_diff)
       finally have "gcd (fib m) (fib ((n - m) mod m)) =
         gcd (fib m) (fib n)" .
       with False show ?thesis by simp
