@@ -276,7 +276,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 
 
 (defface unicode-tokens-script-font-face
-  '((t :family "URW Chancery L" :slant 'italic))
+  '((t :family "URW Chancery L" :slant italic))
   "Script font face."
   :group 'unicode-tokens-faces)
 
