@@ -257,15 +257,15 @@ See -k option for Isabelle interface script."
 ;;; Theory loader operations
 ;;;
 
-(defun isar-remove-file (name files cmp-base)
-  (if (not files) nil
+(defun isar-remove-file (name files cmp-base result)
+  (if (not files) (reverse result)
     (let*
         ((file (car files))
          (rest (cdr files))
          (same (if cmp-base (string= name (file-name-nondirectory file))
                  (string= name file))))
-      (if same (isar-remove-file name rest cmp-base)
-        (cons file (isar-remove-file name rest cmp-base))))))
+      (if same (isar-remove-file name rest cmp-base result)
+        (isar-remove-file name rest cmp-base (cons file result))))))
 
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
@@ -275,8 +275,8 @@ proof-shell-retract-files-regexp."
       ((name (match-string 1 str))
        (base-name (file-name-nondirectory name)))
     (if (string= name base-name)
-        (isar-remove-file name proof-included-files-list t)
-      (isar-remove-file (file-truename name) proof-included-files-list nil))))
+        (isar-remove-file name proof-included-files-list t nil)
+      (isar-remove-file (file-truename name) proof-included-files-list nil nil))))
 
 
 ;;
