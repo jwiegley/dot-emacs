@@ -68,9 +68,9 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 4.0pre
-@set emacsversion 22.2.1
-@set last-update July 2009
+@set version 4.0
+@set emacsversion 23.1
+@set last-update September 2009
 @set rcsid $Id$
 
 @ifinfo
@@ -2996,7 +2996,7 @@ The default value is @code{t}.
 Whether Proof General allows text undo in the read-only region.@*
 If non-nil, undo will allow altering of processed text.
 If nil, undo history is cut at first edit
-of processed text.  NB: the history manipulation only works on GNU Emacs.
+of processed text.
 
 The default value is @code{t}.
 @end defopt

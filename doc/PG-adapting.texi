@@ -60,9 +60,9 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 4.0pre
-@set emacsversion 22.2.1
-@set last-update December 2008
+@set version 4.0
+@set emacsversion 23.1
+@set last-update September 2009
 @set rcsid $Id$
 
 @ifinfo
