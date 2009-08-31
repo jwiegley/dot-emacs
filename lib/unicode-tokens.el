@@ -237,11 +237,17 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   "The faces used in Unicode Tokens mode."
   :group 'faces)
 
+;;
+;; This is a fallback for when fontconfig is not used/available.
+;;
+;; NB: even with fontconfig, aliasing has undesirable effects
+;; (e.g., can end up with version of font without anti-aliasing)
+;;
 (defconst unicode-tokens-font-family-alternatives
   '(("STIXGeneral" 
      "DejaVu Sans Mono" "DejaVuLGC Sans Mono")
     ("Script" 
-     "Lucida Calligraphy" "URW Chancery L")
+     "Lucida Calligraphy" "URW Chancery L" "Zapf Chancery")
     ("Fraktur"
      "Lucida Blackletter" "URW Bookman L")))
 
@@ -261,8 +267,16 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;;    "The font used for large symbols."
 ;;    :group 'unicode-tokens-faces)
 
+;; note:
+;;  Sometimes have difficulty selecting font from :font
+;; (set-face-attribute 'unicode-tokens-script-font-face nil :font "URW Chancery L Medium Italic 12")
+;; fails with 'no font available' but
+;; (set-face-attribute 'unicode-tokens-script-font-face nil :family "URW Chancery L")
+;; works.
+
+
 (defface unicode-tokens-script-font-face
-  '((t :family "Script"))
+  '((t :family "URW Chancery L" :slant 'italic))
   "Script font face."
   :group 'unicode-tokens-faces)
 
@@ -272,7 +286,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-serif-font-face
-  '((t :family "Times-Roman"))
+  '((t :family "Times"))
   "Serif (roman) font face."
   :group 'unicode-tokens-faces)
 
@@ -1009,10 +1023,17 @@ Commands available are:
       ;; Be careful here: when set-face-attribute is called for the
       ;; :font attribute, Emacs tries to guess the best matching font
       ;; by examining the other face attributes (Bug#2476).
+      ;;
+      ;; da: with x-select-font/fontconfig, best behaviour I get is
+      ;; to pass back in as family attribute only, not :font.
+      ;;
       (set-face-attribute fontvar (selected-frame)
 			  :width 'normal
-			  :weight 'normal
-			  :slant 'normal
+			  ;; da: don't try to reset these for token fonts.
+			  ;;:weight 'normal
+			  ;;:slant 'normal
+			  ;; da: sometimes :font doesn't work but :family does!
+			  ;; e.g. "
 			  :font font)
       (let ((font-object (face-attribute fontvar :font)))
 	(dolist (f (frame-list))
@@ -1097,8 +1118,8 @@ Commands available are:
        "---"
       ["List tokens"     unicode-tokens-list-tokens]
       ["List shortcuts"  unicode-tokens-list-shortcuts]
-      ["Customize tokens"     (unicode-tokens-customize "token-symbol-map")]
-      ["Customize shortcuts"  (unicode-tokens-customize "shortcut-alist")]
+;      ["Customize tokens"     (unicode-tokens-customize "token-symbol-map")]
+;      ["Customize shortcuts"  (unicode-tokens-customize "shortcut-alist")]
       ["Replace shortcuts" unicode-tokens-replace-shortcuts]
       "---"
       ["Copy as unicode" unicode-tokens-copy
