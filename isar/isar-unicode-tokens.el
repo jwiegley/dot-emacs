@@ -72,7 +72,9 @@
     ("Overline" "boverline" "eoverline" overline)
     ("Underline" "bunderline" "eunderline" underline)
     ("Big"   "bbig" "ebig" big)
-    ("Small" "bsmall" "esmall" small))
+    ("Small" "bsmall" "esmall" small)
+;    ("Large symbols" "bbigsyms" "ebigsyms" large-symbols)
+    )
   "Control sequence tokens for Isabelle."
   :group 'isabelle-tokens
   :set 'isar-set-and-restart-tokens)

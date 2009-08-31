@@ -256,10 +256,10 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   "The default font used for symbols.  Only :family attribute is used."
   :group 'unicode-tokens-faces)
 
-(defface unicode-tokens-large-symbol-font-face
-  '((t :family "STIXGeneral"))
-  "The font used for large symbols."
-  :group 'unicode-tokens-faces)
+;; (defface unicode-tokens-large-symbol-font-face
+;;    '((t :family "STIXSize3"))
+;;    "The font used for large symbols."
+;;    :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-script-font-face
   '((t :family "Script"))
@@ -291,7 +291,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   :group 'unicode-tokens-faces)
 
 (defconst unicode-tokens-fonts
-  '(symbol large-symbol script fraktur serif sans)
+  '(symbol script fraktur serif sans) ; large-symbol
   "A list of the faces used for setting fonts for Unicode Tokens.")
 
 
@@ -313,8 +313,8 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
     (frakt     	  "Frakt font"    (face unicode-tokens-fraktur-font-face))
     (serif     	  "Serif font"    (face unicode-tokens-serif-font-face))
     (sans      	  "Sans font"     (face unicode-tokens-sans-font-face))
-    (large-symbol "Large Symbol font" 
-		  (face unicode-tokens-large-symbol-font-face))
+;    (large-symbol "Large Symbol font" 
+;		  (face unicode-tokens-large-symbol-font-face))
     ;; NB: next ones not really generic.  Previously this was
     ;; configured per-prover, but above are generic. 
     (dec       "Declaration face" (face proof-declaration-name-face))
