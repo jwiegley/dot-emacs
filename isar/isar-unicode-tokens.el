@@ -590,6 +590,8 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ;; extra misc, switch them off if you don't like them
     ("|>" . "\<triangleright>")
     ("<|" . "\<triangleleft>"))
+  "Shortcut key sequence table for symbol tokens input.
+See `unicode-tokens-shortcut-alist'."
     :type 'unicode-tokens-shortcut-alist
     :set 'isar-set-and-restart-tokens
     :group 'isabelle
