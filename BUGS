@@ -5,14 +5,10 @@
 For latest, see: http://proofgeneral.inf.ed.ac.uk/trac
 See also FAQ:    http://proofgeneral.inf.ed.ac.uk/FAQ
 
-Generic bugs are listed here, which may affect all of the supported
-provers.  See lego/BUGS coq/BUGS, etc, for a few specific bugs.
+The bugs here are split into problems which are generic,
+and those which only apply to particular provers.
 
-The bugs here are split into problems which apply for all Emacs
-versions, and those which only apply to particular versions.
-
-NB: some issues which affect PG but which are not necessarily bugs in
-PG are mentioned in the FAQ.
+The FAQ mentions other issues which are not necessarily PG bugs.
 
 * Reporting bugs
 
@@ -22,7 +18,7 @@ problem carefully, include a short demonstration file and tell us the
 exact version of Emacs and Proof General that you are using.
 
 
-* Generic problems, for all Emacs versions
+* Generic problems
 
 ** Visibility control doesn't distinguish theorems with same name.
 
@@ -102,23 +98,40 @@ assistant.  Files ought to be coloured red while they are being
 processed, just as single lines are.   Workaround: be careful not
 to edit a file as it is being read by the proof assistant!
 
-
-
-* Problems with particular Emacs versions 
-
-** General note:  PLEASE CHECK YOUR EMACS IS UP TO DATE
-
-Most of the issues below relate to old Emacs versions.  Proof General
-is already chock-full of patches for Emacs bugs, it's time to start
-removing these kludges rather than adding more.  Feel free to report a
-bug which may be Emacs-related: from now on I will add a note here
-rather than try to investigate older Emacsen and add more patches 
-to the code.
-
 ** Undo in the script buffer can edit the "uneditable region"
 
 Test case: Insert some nonsense text after the locked region.
 Kill the line. Process to the next command.
 Press C-x u, nonsense text appears in locked region.
+
+
+* Problems with Isabelle
+
+** Issues with tracing mode 
+
+Large volumes of output can cause Emacs to hog CPU spending
+all its time processing the output (esp with fontifying and X-symbol
+decoding).   It becomes difficult to use normal editing commands,
+even C-c C-c to interrupt the prover.  Workaround: hitting C-g,
+the Emacs quit key, will interrupt the prover in this state.
+See manual for further description of this.
+
+
+* Problems with Coq
+
+** Multiple file handling and auto-compilation is incomplete
+
+** C-c C-a C-i on long intro lines breaks line the wrong way.
+
+** coqtags doesn't find all declarations. 
+
+It cannot handle lists e.g., with "Parameter x,y:nat" it only tags x
+but not y. [The same problem exists for legotags] Workaround: don't
+rely too much on the etags mechanism.
+
+
+* LEGO Proof General Bugs
+
+See lego/BUGS
 
 
