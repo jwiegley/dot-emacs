@@ -166,7 +166,7 @@ meaning to be useful."
   :type '(repeat (cons (string :tag "Shortcut sequence")
 		       (string :tag "Unicode string")))
   :set 'proof-set-value
-  :group 'isabelle
+  :group 'coq
   :tag "Coq Unicode Input Shortcuts")
 
   
