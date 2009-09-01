@@ -109,6 +109,9 @@
   (if phox-sym-lock-enabled
       (phox-sym-lock-start))
   (setq
+   proof-prog-name phox-prog-name
+   proof-prog-name-guess t
+   proof-prog-name-ask nil
    proof-terminal-char		?\.	; ends every command
    proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)"
    proof-script-comment-start             "(*"

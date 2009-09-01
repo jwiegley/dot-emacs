@@ -21,6 +21,7 @@
 (defun phox-tags-add-table(table)
   "add tags table"
   (interactive "D directory, location of a file named TAGS to add : ")
+  (if (not (boundp 'tags-table-list)) (setq tags-table-list nil))
   (if (member table tags-table-list)
       (message "%s already loaded." table)
     ;; (make-local-variable 'tags-table-list) ; ne fonctionne pas
