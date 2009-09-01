@@ -44,8 +44,12 @@ fix to the address above.
 Running on Mac OS X
 -------------------
 
-We recommend the 23.1 build of GNU Emacs, which builds natively
-on Mac OS X (based on the NextStep port).
+We recommend the 23.1 build of GNU Emacs, which builds natively on Mac
+OS X (based on the NextStep port).  Binaries are available at various
+websites (e.g., http://emacsformacosx.com), or you can build your own
+by compiling from the FSF CVS. See the Emacs Wiki at
+http://www.emacswiki.org/emacs/EmacsForMacOS for more.
+
 
 Note that Mac compatibility isn't thoroughly tested.  If you discover
 problems, please send a report and/or fix to the address above.
