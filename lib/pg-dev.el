@@ -82,11 +82,11 @@
      proof-maths-menu proof-unicode-tokens
      pg-thymodes pg-autotest
      ;; 
-     isar-syntax isar-find-theorems x-symbol-isar
+     isar-syntax isar-find-theorems isar-unicode-tokens
      isar-autotest interface-setup isabelle-system isar isar-mmm
      isar-keywords
      ;;
-     coq-abbrev coq-db x-symbol-coq coq-local-vars coq coq-syntax
+     coq-abbrev coq-db coq-unicode-tokens coq-local-vars coq coq-syntax
      coq-indent coq-autotest)))
 
      
