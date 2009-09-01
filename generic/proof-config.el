@@ -1508,14 +1508,14 @@ response buffer."
 If non-nil, this command is sent to the proof assistant when
 Unicode Tokens support is activated."
   :type 'string
-  :group 'proof-x-symbol)
+  :group 'prover-config)
 
 (defcustom proof-tokens-deactivate-command nil
   "Command to deactivate token input/output for prover.
 If non-nil, this command is sent to the proof assistant when
 Unicode Tokens support is deactivated."
   :type 'string
-  :group 'proof-x-symbol)
+  :group 'proof-config)
 
 (defcustom proof-tokens-extra-modes nil
   "List of additional mode names to use with Proof General tokens.
@@ -1525,7 +1525,7 @@ in addition to the four modes for Proof General (script, shell, response, pbp).
 Set this variable if you want additional modes to also display
 tokens (for example, editing documentation or source code files)."
   :type '(repeat symbol)
-  :group 'proof-x-symbol)
+  :group 'proof-config)
 
 
 ;;
@@ -1533,10 +1533,11 @@ tokens (for example, editing documentation or source code files)."
 ;;
 
 (defcustom proof-shell-unicode t
-  ;; true by default for PG 3.7; set to nil for old systems
   "Whether communication between PG and prover is 8bit clean.
 If non-nil, no special non-ASCII characters must be used in markup.
-If so, the process coding system will be set to UTF-8."
+If so, the process coding system will be set to UTF-8.
+With old systems that may use unsafe unicode prefix sequences
+\(i.e., lead to hanging in C-libraries), this should be set to nil."
   :type 'boolean
   :group 'proof-shell)
 
