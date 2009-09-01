@@ -211,12 +211,24 @@
 				    (phox-lang-instance (nth 2 click-infos))
 				    (nth 2 (car region-infos)))
 				 (concat 
-				  goal-prefix
 				  "instance "
 				  (nth 2 click-infos) 
 				  " "
-				  (nth 2 (car region-infos))
-				  ". "))))))
+				  (nth 2 (car region-infos))))))))
+
+   (if (and (not (string= "" (nth 2 click-infos))) (char= (string-to-char (nth 2 click-infos)) ??)
+	    (not region-infos))
+       (setq pbrpm-rules-list
+	     (append pbrpm-rules-list
+		     (list (list 0 (concat 
+				    (phox-lang-open-instance (nth 2 click-infos)))
+				 (concat 
+				  "instance "
+				  (nth 2 click-infos) 
+				  " ")
+			  (lambda (cmd spans) 
+			    (let ((span (pop spans)))
+			      (concat cmd " " (span-string span)))))))))
 
    ; is clicking on a token with no selection
    (if (and (not region-infos) (not (string= (nth 2 click-infos) "")))
@@ -241,8 +253,7 @@
 					    "unfold -ortho " 
 					  (concat "unfold_hyp " (nth 1 click-infos) " -ortho "))
 					"$"
-					(nth 2 click-infos)
-					". ")))))
+					(nth 2 click-infos))))))
 	   (if (and (not (string= "" (nth 2 click-infos))) (char= (string-to-char (nth 2 click-infos)) ??))
 	       (let  ((r (proof-shell-invisible-cmd-get-result (concat "is_locked "
 							      (nth 2 click-infos)))))
@@ -253,16 +264,14 @@
 					 (concat 
 					  goal-prefix
 					  "unlock "
-					  (nth 2 click-infos)
-					  ". ")))))
+					  (nth 2 click-infos))))))
 		     (setq pbrpm-rules-list
 			   (append pbrpm-rules-list
 				   (list (list 0 (phox-lang-lock (nth 2 click-infos))
 					 (concat 
 					  goal-prefix
 					  "lock "
-					  (nth 2 click-infos)
-					  ". ")))))))))))
+					  (nth 2 click-infos))))))))))))
 
    (let ((arg (if (and region-infos (not (cdr region-infos))) (nth 2 (car region-infos)) " ")))
      (setq pbrpm-rules-list

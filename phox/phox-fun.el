@@ -1,3 +1,4 @@
+
 ;; $State$ $Date$ $Revision$ 
 ;; syntax
 
@@ -254,10 +255,9 @@ If inside a comment, just process until the start of the comment."
   (interactive)
 ;  (if (and (> (point) 1) (char-equal (char-before (point)) ?\.)) (insert "\n"))
   (proof-with-script-buffer
-   (proof-maybe-save-point
     (goto-char (proof-queue-or-locked-end))
-    (proof-assert-next-command))
-   (proof-maybe-follow-locked-end)))
+    (proof-assert-next-command)
+    (proof-maybe-follow-locked-end)))
 
 ;;--------------------------------------------------------------------------;;
 ;; Obtaining some informations on the system.

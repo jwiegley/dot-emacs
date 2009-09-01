@@ -139,7 +139,7 @@
    proof-find-and-forget-fn        'phox-find-and-forget
    proof-find-theorems-command      "search \"%s\"."
    proof-auto-multiple-files       nil
-   font-lock-keywords              (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
+   font-lock-keywords              phox-font-lock-keywords
    )
   (phox-init-syntax-table)
   (setq pbp-goal-command "intro %s;")
@@ -194,8 +194,7 @@
 (define-derived-mode phox-response-mode proof-response-mode
   "PhoX response" nil
   (setq 
-   proof-resp-font-lock-keywords 
-   (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
+   proof-resp-font-lock-keywords phox-font-lock-keywords
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
   (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
@@ -206,9 +205,8 @@
 
 (define-derived-mode phox-goals-mode proof-goals-mode
   "PhoX goals" nil
-  (setq 
-   proof-goals-font-lock-keywords 
-   (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
+  (setq  
+   font-lock-keywords phox-font-lock-keywords
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
   (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
@@ -233,6 +231,25 @@
 (defpgdefault completion-table
   (append phox-top-keywords phox-proof-keywords)
 )
+
+;;;
+;;; X-Symbol
+;;;
+
+(defpgdefault x-symbol-language 'phox)
+
+;; (eval-after-load "x-symbol-phox"
+;;  ;; Add x-symbol tokens to phox-completion-table and rebuild
+;;  ;; internal completion table if completion is already active
+;; '(progn
+;;    (defpgdefault completion-table
+;;      (append (proof-ass completion-table)
+;; 	     (mapcar (lambda (xsym) (nth 2 xsym))
+;; 		     x-symbol-phox-table)))
+;;    (setq proof-xsym-font-lock-keywords
+;; 	 x-symbol-phox-font-lock-keywords)
+;;    (if (featurep 'completion)
+;;        (proof-add-completions))))
 
 (provide 'phox)
 
