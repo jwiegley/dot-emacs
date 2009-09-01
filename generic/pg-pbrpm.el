@@ -10,6 +10,13 @@
 ;;
 ;; NB: this code is currently XEmacs specific 
 ;; (uses make-gui-button, insert-gui-button, make-dialog-frame)
+;;
+;; da: can you simply use 
+;;   make-button/make-text-button and something like
+;;
+;;   (make-frame '((minibuffer . nil) (menu-bar-lines . 0) (tool-bar-lines . nil)))
+
+;;   
 
 ;;; Code:
 (require 'proof)
