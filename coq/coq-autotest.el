@@ -11,7 +11,7 @@
 (unless noninteractive
   (pg-autotest  message "Testing standard examples")
   (pg-autotest script-wholefile "coq/example.v")
-  (pg-autotest script-wholefile "coq/example-x-symbol.v")
+  (pg-autotest script-wholefile "coq/example-tokens.v")
   (pg-autotest script-wholefile "coq/ex-module.v")
 
   (pg-autotest-quit-prover)

@@ -20,9 +20,8 @@
 (defconst coq-indent-inner-regexp
   (proof-regexp-alt
    "[[]()]" "|" "ö’"
-   ;; forall with x-symbol (nomule) must not be enclosed by \\<and
-   ;;\\> . "~" forall x-symb mule but interacts
-   ;;with 'not'
+   ;; forall with must not be enclosed by \\< and
+   ;;\\> . "~" forall but interacts with 'not'
    (proof-ids-to-regexp
     '("as" "Cases" "match" "else" "Fix" "forall" "fun" "if" "into" "let" "then"
       "using" "after"))))
