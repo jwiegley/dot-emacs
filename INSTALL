@@ -18,7 +18,7 @@ Proof General loaded.
 The command above will set the Emacs load path and add auto-loads for
 proof assistants, for example, visiting a file ending in .v will start
 Coq Proof General, and a file ending in .thy will start 
-Isabelle/Isar Proof General.  See the manual for a full list of file
+Isabelle Proof General.  See the manual for a full list of file
 extensions and proof assistants, and the note below for how to disable
 those you don't need.
 
@@ -42,47 +42,20 @@ Detailed installation Notes for Proof General
 Supported Emacs Versions.
 -------------------------
 
-This release has been tested with XEmacs 21.4.17 and GNU Emacs 21.3.1
-(running on i386 Linux).  We recommend using these or later versions.  
+Please see COMPATIBILTY.
 
-If you're not sure of your version of Emacs, inspect the
-variable `emacs-version' by doing:
+If you're not sure of your version of Emacs, inspect the variable
+`emacs-version' by doing:
 
   C-h C-v emacs-version RET
 
 Other *recent* versions of either Emacs may also work, but please do
 not send bug reports for any version of Emacs which is more than a
 year older than the most recent stable release of that Emacs, unless
-you are reasonably sure that the bug has something to do with Proof
-General rather than Emacs.  Unfortunately, compatibility across
+you are reasonably sure that the bug has something to do with 
+Proof General rather than Emacs.  Unfortunately, compatibility across
 different Emacs versions is very difficult to maintain as APIs change
 frequently and bugs come and go between Emacs releases.
-
-
-
-RPM packages.
-------------
-
-The RPMs are intended to be compatible with the RPMs distributed with
-Red Hat/Fedora.  Three packages are provided: ProofGeneral,
-ProofGeneral-emacs-elc and ProofGeneral-xemacs-elc.  The two elc RPMs
-contain compiled elisp for GNU Emacs and XEmacs respectively.
-
-You should have a fully working ProofGeneral if you just install the
-main package.  The byte compiled files will provide extra
-performance on the respective Emacs versions.
-
-The command "proofgeneral" will launch Emacs with Proof General
-loaded.  If you install the byte compiled files, Proof General should
-be automatically added to your Emacs startup configuration: you can
-just launch an Emacs and edit a proof script file to get going.
-
-If you want to add the uncompiled Proof General version to your
-personal Emacs configuration, add this line:
-
-  (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
-
-to your .emacs file.
 
 
 Byte Compilation.
@@ -90,10 +63,10 @@ Byte Compilation.
 
 Compilation of the Emacs lisp files improves efficiency but can
 sometimes cause compatibility problems.  In particular, byte compiled
-files are generally not compatible between XEmacs and GNU Emacs.
+files are generally not compatible between different Emacs versions.
 
-We distribute .elcs for GNU Emacs, so you will have to delete
-them and (optionally) recompile for XEmacs.
+We distribute .elcs for GNU Emacs 23.1, so you will have to delete
+them and (optionally) recompile for GNU Emacs 22.
 
 Use 'make clean' to remove all .elc files.  
 Use 'make compile' to recompile .elc files.
@@ -107,28 +80,18 @@ Dependency on Other Emacs Packages
 
 Proof General relies on several other Emacs packages, which are
 probably already supplied with your version of Emacs.  If not, you
-will need to find them.  XEmacs is sometimes unbundled, so you may
-need to select packages (or package groups) specially.  These are the
-packages that you need to use Proof General:
+will need to find them.  These are the packages that you need to use
+Proof General:
 
  ESSENTIAL:
   * cl-macs
   * comint	
   * custom
   * font-lock
-  * xml		[ not yet essential but will be soon ]
 
  OPTIONAL:
   * outline
-  * func-menu or imenu
-
-If in doubt and you have the option, select the aptly named XEmacs
-"sumo" package.
-
-The X Symbol package is now bundled with Proof General so you
-do not need to download it separately.
-
-
+  * imenu
 
 
 Site-wide Installation

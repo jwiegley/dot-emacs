@@ -1,6 +1,6 @@
 -*- outline -*-  
 
-* Summary of Changes for Proof General 4.0 from 3.7.X
+* Main Changes for Proof General 4.0 from 3.7.X
 
 ** Generic changes
 
@@ -34,4 +34,12 @@
 
 *** Electric terminator works without inserting terminator
 
+*** Line numbers reported during script management
+
+*** Sync problems with bad input prevented by command wrapping
+
+
+** Coq changes
+
+*** Holes mode can be turned on/off
 

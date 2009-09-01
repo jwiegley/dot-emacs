@@ -4,19 +4,16 @@ Compatibility of Proof General
 This version of Proof General has been tested with these Emacs versions
 on recent Linux systems:
 
- Emacs 22.3.1	       -- recommended and supported
- Emacs 23.0.X          -- CVS/beta snapshots, use time of PG release
+ Emacs 23.1            -- recommended and supported
+ Emacs 22.3.1	       -- previous version, should work well
 
-and (main) prover versions:
-
- Coq 8.1pl3
- Isabelle2009
+and (main) prover versions:  Coq 8.1pl3, Isabelle2009
 
 See below for notes about other operating systems.
 
 Maintaining compatibility across proof assistant versions, Emacs
-versions and operating systems is virtually impossible.  In this
-major release, ** XEmacs compatibility has been dropped **
+versions and operating systems is virtually impossible.  In this major
+release ** XEmacs compatibility has been dropped **
 
 Running on Windows
 ------------------
@@ -47,26 +44,17 @@ fix to the address above.
 Running on Mac OS X
 -------------------
 
-For tips, please see here:
+We recommend the 23.1 build of GNU Emacs, which builds natively
+on Mac OS X (based on the NextStep port).
+
+Note that Mac compatibility isn't thoroughly tested.  If you discover
+problems, please send a report and/or fix to the address above.
+
+There is also a wiki page for tips:
 
   http://proofgeneral.inf.ed.ac.uk/wiki/PG/PGEmacsOnMacOSX
 
-We recommend the 22.X based Carbon Emacs, here:
 
-  http://homepage.mac.com/zenitani/emacs-e.html
-
-This works with X-Symbol using the supplied TrueType font
-x-symbol/etc/fonts-ttf/XSymb1.ttf, which you should install in Font
-Book, or copy directly to /Library/Fonts or ~/Library/Fonts.
-
-Note: Emacs.app looks set to become the future supported Mac port of
-GNU Emacs, and is based on GNU Emacs 23.  It should work well with
-this version of Proof General, but at the time of writing the latest
-binary release is not as reliable as that of Carbon Emacs.
-
-Note that Mac compatibility isn't thoroughly tested by the
-maintainers.  If you discover problems, please send a report and/or
-fix to the address above.
 
 
 
