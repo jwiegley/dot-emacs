@@ -93,7 +93,9 @@ Matches the region to be returned.")
 ; needs to be fixed here, the mode could be some other prover
 ;	(phox-mode)
 ; da: proof-mode-for-script should do it
-	(funcall 'proof-mode-for-script)
+; cr: proof-mode-for-script is not defined in 3.7
+	(if (functionp 'proof-mode-for-script)
+	    (funcall 'proof-mode-for-shell) (funcall 'proof-mode))
 	(add-hook 'after-change-functions 'pg-pbrpm-menu-change-hook nil t)
     (pg-pbrpm-erase-buffer-menu)))
   (set-buffer pg-pbrpm-buffer-menu))
@@ -238,7 +240,7 @@ The prover command is processed via pg-pbrpm-run-command."
 		 ;; buffer with font lock on.
 		 (mapc 'span-read-only pg-pbrpm-spans)
 		 (make-dialog-frame '(width 80 height 30)))
-	       (beep)))))
+	       (beep))))))
 
 (defun pg-pbrpm-setup-span (start end)
   "Set up the span in the menu buffer."
@@ -298,7 +300,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	    (setq start (if pos pos end)))))
       (cons allspan (sort (reverse spans) (lambda (sp1 sp2)
 				  (< (span-property sp1 'goalnum)
-				     (span-property sp1 'goalnum)))))))))
+				     (span-property sp1 'goalnum))))))))
   
 (defun pg-pbrpm-run-command (args)
 "Insert COMMAND into the proof queue and then run it.
