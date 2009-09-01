@@ -35,6 +35,7 @@
 ;; -- insert tokens via numeric code (extra format string), cf HTML
 ;; -- simplify: unify region and control settings?
 ;; -- simplify/optimise property handling 
+;; -- support multiple modes with mode-local configs at once
 
 ;;
 ;;; Code:
@@ -211,23 +212,6 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 (defvar unicode-tokens-uchar-regexp nil
   "Regular expression matching converted tokens.
 This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
-
-
-;;
-;; Make all of those buffer local
-;; 
-;; TODO: use per *mode* defaults for them, cf proof-unicode-tokens
-;;
-
-;; (mapcar 'make-variable-buffer-local
-;;  	unicode-tokens-configuration-variables)
-
-;; (mapcar 'make-variable-buffer-local
-;;  	'(unicode-tokens-token-list
-;;  	  unicode-tokens-hash-table
-;;  	  unicode-tokens-token-match-regexp
-;;  	  unicode-tokens-uchar-hash-table
-;;  	  unicode-tokens-uchar-regexp))
 
 ;;
 ;; Faces
@@ -1011,19 +995,63 @@ Commands available are:
 ;; Font selection
 ;;
 
-;; parameterised version of function from menu-bar.el (Emacs 23.1)
 
+(when (fboundp 'ns-respond-to-change-font)
+
+  ;; A nasty hack to ns-win.el for Mac OS X support
+
+  ;; Tricky because we get a callback on font changes, but not when
+  ;; the window is closed.  How do we know when user is finished?
+
+  (when (not (fboundp 'old-ns-respond-to-change-font))
+    (fset 'old-ns-respond-to-change-font 
+	  (symbol-function 'ns-respond-to-change-font)))
+
+  (when (not (fboundp 'old-ns-popup-font-panel))
+    (fset 'old-ns-popup-font-panel
+	  (symbol-function 'ns-popup-font-panel)))
+
+  (defvar unicode-tokens-respond-to-change-font nil)
+
+  (defun ns-respond-to-change-font (&rest args)
+    (interactive)
+    (cond 
+     (unicode-tokens-respond-to-change-font
+      (unicode-tokens-set-font-var-aux 
+       unicode-tokens-respond-to-change-font
+       ns-input-font))
+     (t
+      (apply 'old-ns-respond-to-change-font args))))
+
+  (defun ns-popup-font-panel ()
+    (setq unicode-tokens-respond-to-change-font nil)
+    (old-ns-popup-font-panel))
+
+  (defun unicode-tokens-popup-font-panel (fontvar)
+    (setq unicode-tokens-respond-to-change-font fontvar)
+    (old-ns-popup-font-panel))
+)  
+
+;; parameterised version of function from menu-bar.el (Emacs 23.1)
+;; this now copes with Emacs 23.1, Emacs 22, Mac OS X Emacs 23.1.
 (defun unicode-tokens-set-font-var (fontvar)
     "Interactively select a font for FONTVAR."
   (interactive)
-  (let ((font (cond
-	       ((fboundp 'x-select-font)
-		(x-select-font))
-	       ((fboundp 'mouse-select-font)
-  		(mouse-select-font))
-	       (t
-		(unicode-tokens-mouse-set-font))))
-	spec)
+  (let (font spec)
+    (if (fboundp 'ns-popup-font-panel)
+	(unicode-tokens-popup-font-panel fontvar)
+      (cond
+       ((fboundp 'x-select-font)
+	(setq font (x-select-font)))
+       ((fboundp 'mouse-select-font)
+	(setq font (mouse-select-font)))
+       (t
+	(setq font (unicode-tokens-mouse-set-font))))
+      (unicode-tokens-set-font-var-aux fontvar font))))
+
+(defun unicode-tokens-set-font-var-aux (fontvar font)
+  "A subroutine of `unicode-tokens-set-font-var'."
+  (let (spec)
     (when font
       ;; Be careful here: when set-face-attribute is called for the
       ;; :font attribute, Emacs tries to guess the best matching font
@@ -1035,10 +1063,9 @@ Commands available are:
       (set-face-attribute fontvar (selected-frame)
 			  :width 'normal
 			  ;; da: don't try to reset these for token fonts.
-			  ;;:weight 'normal
-			  ;;:slant 'normal
+			  ;; :weight 'normal
+			  ;; :slant 'normal
 			  ;; da: sometimes :font doesn't work but :family does!
-			  ;; e.g. "
 			  :font font)
       (let ((font-object (face-attribute fontvar :font)))
 	(dolist (f (frame-list))
