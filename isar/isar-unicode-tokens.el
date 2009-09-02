@@ -588,8 +588,8 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ;; ("!"  . "\\<forall>")
     ;; ("?"  . "\\<exists>")
     ;; extra misc, switch them off if you don't like them
-    ("|>" . "\<triangleright>")
-    ("<|" . "\<triangleleft>"))
+    ("|>" . "\\<triangleright>")
+    ("<|" . "\\<triangleleft>"))
   "Shortcut key sequence table for symbol tokens input.
 See `unicode-tokens-shortcut-alist'."
     :type 'unicode-tokens-shortcut-alist
