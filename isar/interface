@@ -243,6 +243,10 @@ else
 
   export ISABELLE_OPTIONS XSYMBOL_FONTSIZE
 
+  # Isabelle2008 compatibility
+  [ -z "$ISABELLE_PROCESS" ] && export ISABELLE_PROCESS="$ISABELLE"
+  [ -z "$ISABELLE_TOOL" ] && export ISABELLE_TOOL="$ISATOOL"
+
   exec "$PROGNAME" "${ARGS[@]}" "${FILES[@]}"
 
 fi
