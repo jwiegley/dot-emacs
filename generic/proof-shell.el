@@ -325,7 +325,7 @@ Does nothing if proof assistant is already running."
 	;; PG 4.0: does this setting improve performance?
 	(setq process-adaptive-read-buffering 'persist-delay)
 
-	(message "Starting process: %s" prog-command-line)
+	(message "Starting: %s" prog-command-line)
 
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list)))
