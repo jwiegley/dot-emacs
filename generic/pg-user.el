@@ -131,7 +131,6 @@ If inside a comment, just process until the start of the comment."
    (forward-char 1)
    (proof-assert-until-point)
    (goto-char (proof-queue-or-locked-end))
-   (message "Gone to %d" (point))
    (proof-script-next-command-advance)))
 
 ;; NB: "interactive" variant merely for simple docstring.
