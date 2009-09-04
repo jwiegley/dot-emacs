@@ -80,7 +80,8 @@ a running process in that buffer, it is not restarted.  Optional fourth arg
 STARTFILE is the name of a file to send the contents of to the process.
 
 If PROGRAM is a string, any more args are arguments to PROGRAM."
-  (or (fboundp 'start-file-process)
+  (unless (or (fboundp 'start-process)
+	      (fboundp 'start-file-process))
       (error "Multi-processing is not supported for this system"))
   (setq buffer (get-buffer-create (or buffer (concat "*" name "*"))))
   ;; If no process, or nuked process, crank up a new one and put buffer in
@@ -172,7 +173,10 @@ buffer.  The hook `scomint-exec-hook' is run after each exec."
 			 ;; If the command has slashes, make sure we
 			 ;; first look relative to the current directory.
 			 (cons default-directory exec-path) exec-path)))
-      (setq proc (apply 'start-file-process name buffer command switches)))
+      (setq proc (apply (if (fboundp 'start-file-process) 
+			    ;; da: start-file-process is Emacs23 only
+			    'start-file-process 'start-process) 
+			name buffer command switches)))
     ;; Some file name handler cannot start a process, fe ange-ftp.
     (unless (processp proc) (error "No process started"))
     (let ((coding-systems (process-coding-system proc)))
@@ -227,7 +231,7 @@ NO-NEWLINE is non-nil."
                                  '(front-sticky t
                                    font-lock-face scomint-highlight-input))
 
-          (unless (no-newline)
+          (unless no-newline
             ;; Cover the terminating newline
             (add-text-properties end (1+ end)
                                  '(rear-nonsticky t
