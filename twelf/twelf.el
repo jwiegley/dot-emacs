@@ -52,7 +52,6 @@
 
  proof-auto-multiple-files       t
  proof-shell-cd-cmd              "OS.chDir %s"
- proof-shell-prompt-pattern      "%% OK %%\n"
  proof-shell-interrupt-regexp    "interrupt"
 
  proof-shell-annotated-prompt-regexp "%% [OA][KB]O?R?T? %%\n"

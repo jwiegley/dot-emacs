@@ -31,7 +31,6 @@
  proof-undo-n-times-cmd          "undo_steps %s;"
  proof-auto-multiple-files       nil 
  proof-shell-cd-cmd              "cd \"%s\""
- proof-shell-prompt-pattern      "^\\(CCC\\|^HOL-CASL\\) > "
  proof-shell-interrupt-regexp    "Interrupt"
  proof-shell-start-goals-regexp  "^No subgoals\\|^[0-9]* subgoals\\|^Wts:"
  proof-shell-end-goals-regexp    "val it"

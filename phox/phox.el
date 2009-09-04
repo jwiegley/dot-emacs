@@ -152,7 +152,6 @@
   "Configure Proof General shell for PhoX."
   (setq
    ;proof-shell-cd-cmd              "cd \"%s\""
-   proof-shell-prompt-pattern      "\\(>phox> \\)\\|\\(%phox% \\)"
    proof-shell-annotated-prompt-regexp  "\\(>phox> \\)\\|\\(%phox% \\)"
    proof-shell-interrupt-regexp    "Interrupt"
    proof-shell-start-goals-regexp  "^\\(Here \\(are\\|is\\) the goal\\)\\|\\([0-9]+ new goals?\\)\\|\\([0-9]+ goals? possibly instanced\\)"

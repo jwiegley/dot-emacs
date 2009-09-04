@@ -50,7 +50,6 @@
  proof-undo-n-times-cmd          "pg_repeat undo %s;"
  proof-auto-multiple-files       t
  proof-shell-cd-cmd              "cd \"%s\""
- proof-shell-prompt-pattern      "[ML-=#>]+>? "
  proof-shell-interrupt-regexp    "Interrupt"
  proof-shell-start-goals-regexp  "Level [0-9]"
  proof-shell-end-goals-regexp    "val it"

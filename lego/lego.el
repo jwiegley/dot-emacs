@@ -99,9 +99,6 @@ Activates extended printing routines required for Proof General.")
 (defvar lego-prog-name "lego"
   "*Name of program to run as lego.")
 
-(defvar lego-shell-prompt-pattern "^\\(Lego>[ \201]*\\)+"
-  "*The prompt pattern for the inferior shell running lego.")
-
 (defvar lego-shell-cd "Cd \"%s\";"
   "*Command of the inferior process to change the directory.") 
 
@@ -384,8 +381,7 @@ We assume that module identifiers coincide with file names."
 	  proof-included-files-list))))
 
 (defun lego-shell-mode-config ()
-  (setq proof-shell-prompt-pattern lego-shell-prompt-pattern
-        proof-shell-cd-cmd lego-shell-cd
+  (setq proof-shell-cd-cmd lego-shell-cd
         proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
         proof-shell-error-regexp lego-error-regexp

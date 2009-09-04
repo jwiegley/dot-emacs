@@ -35,7 +35,6 @@
  proof-shell-error-regexp	 
  "^Error: \\|Error in TOP-LEVEL: \\|\\*\\*\\*\\* FAILED \\*\\*\\*"
  proof-shell-interrupt-regexp    "Correctable error: Console interrupt."
- proof-shell-prompt-pattern      "ACL2[ !]*>+"
 
  proof-shell-quit-cmd            ":q"	 ;; FIXME: followed by C-d.
  proof-shell-restart-cmd	 ":q\n:q\n:q\n(lp)\n"    ;; FIXME: maybe not?

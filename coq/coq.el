@@ -979,7 +979,6 @@ To be used in `proof-shell-classify-output-system-specific'."
 
 (defun coq-shell-mode-config ()
   (setq 
-   proof-shell-prompt-pattern coq-shell-prompt-pattern
    proof-shell-cd-cmd coq-shell-cd
    proof-shell-filename-escapes '(("\\\\" . "\\\\") ("\""   . "\\\""))
    proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp

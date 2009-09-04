@@ -1078,14 +1078,6 @@ Normally error messages cause a beep.  Set this to nil to prevent that."
 ;; 5b. Regexp variables for matching output from proof process.
 ;;
 
-(defcustom proof-shell-prompt-pattern nil
-   "Proof shell's value for `comint-prompt-pattern', which see.
-NB!! This pattern is just for interaction in comint (shell buffer).
-You don't really need to set it.  The important one to set is
-`proof-shell-annotated-prompt-regexp', which see."
-   :type 'regexp
-   :group 'proof-shell)
-
 ;; FIXME da: replace this with wakeup-regexp or prompt-regexp?
 ;; May not need next variable.
 (defcustom proof-shell-wakeup-char nil

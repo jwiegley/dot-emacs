@@ -56,7 +56,6 @@
   (setq
    proof-shell-annotated-prompt-regexp "^lclam:" 
    proof-shell-cd-cmd                  nil
-   proof-shell-prompt-pattern          nil
    proof-shell-interrupt-regexp        nil
    proof-shell-error-regexp            nil
    proof-shell-start-goals-regexp      nil

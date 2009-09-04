@@ -12,11 +12,11 @@
 (require 'proof-config)			; proof-case-fold-search
 (require 'proof-compat)			; proof-buffer-syntactic-context
 
-(defun proof-ids-to-regexp (l)
+(defsubst proof-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching any element"
   (concat "\\_<\\(?:" (mapconcat 'identity l "\\|") "\\)\\_>"))
 
-(defun proof-anchor-regexp (e)
+(defsubst proof-anchor-regexp (e)
   "Anchor (\\`) and group the regexp E."
   (concat "\\`\\(" e "\\)"))
 
@@ -25,7 +25,7 @@
   "A regular expression that never matches anything")
 
 
-(defun proof-regexp-alt (&rest args)
+(defsubst proof-regexp-alt (&rest args)
   "Return the regexp which matches any of the regexps ARGS."
   ;; see regexp-optn (NB: but that is for strings, not regexps)
   (let ((res ""))

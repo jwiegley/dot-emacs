@@ -1822,11 +1822,8 @@ Error messages are displayed as usual."
 
   (buffer-disable-undo)
 
-  ;; comint customisation. 
+  ;; scomint customisation. 
 
-  (if proof-shell-prompt-pattern
-      (setq scomint-prompt-regexp proof-shell-prompt-pattern))
- 
   (setq scomint-output-filter-functions '(proof-shell-filter))
 
   ;; Proof marker is initialised in filter to first prompt found

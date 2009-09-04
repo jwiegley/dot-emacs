@@ -93,7 +93,6 @@
   (setq
    proof-shell-annotated-prompt-regexp   "^\\(val it = () : unit\n\\)?\\(ML\\)?> "
    proof-shell-cd-cmd			"cd \"%s\""
-   proof-shell-prompt-pattern		"([ML-=#>]+>? "
    proof-shell-interrupt-regexp         "Interrupt"
    proof-shell-error-regexp		"\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
    proof-shell-start-goals-regexp	"Level [0-9]"

@@ -1612,13 +1612,6 @@ Codes above this character can have special meaning to Proof General,
 and are stripped from the prover's output strings.
 Leave unset if no special characters are being used.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-prompt-pattern
-@defvar proof-shell-prompt-pattern 
-Proof shell's value for comint-prompt-pattern, which see.@*
-NB!! This pattern is just for interaction in comint (shell buffer).
-You don't really need to set it.  The important one to set is
-@samp{@code{proof-shell-annotated-prompt-regexp}}, which see.
-@end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-annotated-prompt-regexp
 @defvar proof-shell-annotated-prompt-regexp 
 Regexp matching a (possibly annotated) prompt pattern.
@@ -3917,7 +3910,6 @@ Proof General.
  proof-undo-n-times-cmd          "pg_repeat undo %s;"
  proof-auto-multiple-files       t
  proof-shell-cd-cmd              "cd \"%s\""
- proof-shell-prompt-pattern      "[ML-=#>]+>? "
  proof-shell-interrupt-regexp    "Interrupt"
  proof-shell-start-goals-regexp  "Level [0-9]"
  proof-shell-end-goals-regexp    "val it"
@@ -4036,7 +4028,6 @@ Proof General.
   (setq
    proof-shell-annotated-prompt-regexp   "^\\(val it = () : unit\n\\)?ML>? "
    proof-shell-cd-cmd			"cd \"%s\""
-   proof-shell-prompt-pattern		"[ML-=#>]+>? "
    proof-shell-interrupt-regexp         "Interrupt"
    proof-shell-error-regexp		"\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
    proof-shell-start-goals-regexp	"Level [0-9]"

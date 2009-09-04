@@ -121,9 +121,6 @@
 		(setenv "PLASTIC_TEST" (concat plastic-base "/test"))
 	)))
 
-(defvar plastic-shell-prompt-pattern "^\\(LF>[ \201]*\\)+"
-  "*The prompt pattern for the inferior shell running plastic.")
-
 (defvar plastic-shell-cd 
   (concat plastic-lit-string " &S ECHO no cd ;\n")
   "*Command of the inferior process to change the directory.") 
@@ -457,8 +454,7 @@ We assume that module identifiers coincide with file names."
 
 
 (defun plastic-shell-mode-config ()
-  (setq proof-shell-prompt-pattern plastic-shell-prompt-pattern
-        proof-shell-cd-cmd plastic-shell-cd
+  (setq proof-shell-cd-cmd plastic-shell-cd
         proof-shell-abort-goal-regexp plastic-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp plastic-shell-proof-completed-regexp
         proof-shell-error-regexp plastic-error-regexp

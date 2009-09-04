@@ -161,9 +161,6 @@ See -k option for Isabelle interface script."
    proof-shell-wakeup-char              nil
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \^AS"
 
-   ;; just for comint.
-   proof-shell-prompt-pattern           "^\\w*[>#] "
-
    ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd-cmd		(isar-markup-ml "ThyLoad.add_path \"%s\"")
 
