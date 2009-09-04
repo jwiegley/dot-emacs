@@ -237,7 +237,7 @@ Given is the first SPAN which needs to be undone."
       ;; Carry on searching forward for something to forget
       ;; (The first thing to be forget will forget everything following)
       (setq span (next-span span 'type)))
-  (or ans proof-no-command)))
+  ans)); was (or ans proof-no-command)
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;

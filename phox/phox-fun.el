@@ -243,7 +243,7 @@ or for optional argument TABLE."
       (setq lsp (span-start span))
       (setq span (next-span span 'type)))
 
-      (or ans proof-no-command)))
+    ans)) ; was (or ans proof-no-command)
 
 ;;
 ;; Doing commands

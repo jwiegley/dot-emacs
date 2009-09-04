@@ -498,7 +498,7 @@ If locked span already has a state number, thne do nothing. Also updates
                     (int-to-string span-staten)
                     (int-to-string proofdepth)
                     naborts)))
-    (if (string-equal ans "") proof-no-command ; not here because if
+    (if (string-equal ans "") nil ; [was proof-no-command]not here because if
       ;; we backtrack a state preserving command, we must do
       ;; *nothing*, not even a CR (in > v74, no prompt is returned
       ;; with "\n")
@@ -592,8 +592,8 @@ If locked span already has a state number, thne do nothing. Also updates
            (if (> nundos 0) 
                (concat "Undo " (int-to-string nundos) ". "))))
 
-    (if (null ans) proof-no-command;; FIXME: this is an error really (assert nil); 
-      (if (string-equal ans "") proof-no-command ; not here because if
+    (if (null ans) nil;; [was proof-no-command] FIXME: this is an error really (assert nil); 
+      (if (string-equal ans "") nil ;; [was proof-no-command] ; not here because if
 						 ; we backtrack a state preserving command, we must do
 						 ; *nothing*, not even a CR (in v74, no prompt is returned
 						 ; with "\n")

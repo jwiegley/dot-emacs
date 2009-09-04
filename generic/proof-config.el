@@ -611,11 +611,6 @@ settings `proof-non-undoables-regexp' and
   :type 'function
   :group 'proof-script)
 
-(defconst proof-no-command "COMMENT"
-  "String used as a nullary action (send no command to the proof assistant).
-Only relevant for `proof-find-and-forget-fn'.
-\(NB: this is a CONSTANT, don't change it).")
-
 (defcustom proof-find-and-forget-fn 'proof-generic-find-and-forget
   "Function that returns a command to forget back to before its argument span.
 This setting is used to for retraction (undoing) in proof scripts.
@@ -624,7 +619,7 @@ It should undo the effect of all settings between its target span
 up to (proof-locked-end).  This may involve forgetting a number
 of definitions, declarations, or whatever.
 
-The special string `proof-no-command' means there is nothing to do.
+If return value is nil, it means there is nothing to do.
 
 This is an important function for script management.
 Study one of the existing instantiations for examples of how to write it,
@@ -1070,7 +1065,7 @@ Normally error messages cause a beep.  Set this to nil to prevent that."
 ;;
 
 (defcustom proof-shell-prompt-pattern nil
-   "Proof shell's value for comint-prompt-pattern, which see.
+   "Proof shell's value for `comint-prompt-pattern', which see.
 NB!! This pattern is just for interaction in comint (shell buffer).
 You don't really need to set it.  The important one to set is
 `proof-shell-annotated-prompt-regexp', which see."
