@@ -56,6 +56,9 @@ Return not at end copies rest of line to end and sends it.
 
 Entry to this mode runs the hooks on `scomint-mode-hook'."
   (setq mode-line-process '(":%s"))
+  (set (make-local-variable 'scomint-last-input-start) (point-min-marker))
+  (set (make-local-variable 'scomint-last-input-end) (point-min-marker))
+  (set (make-local-variable 'scomint-last-output-start) (make-marker))
   (set (make-local-variable 'window-point-insertion-type) t)
   (make-local-variable 'font-lock-defaults)
   (setq font-lock-defaults '(nil t))
@@ -251,14 +254,15 @@ NO-NEWLINE is non-nil."
 (defun scomint-truncate-buffer (&optional string)
   "Truncate the buffer to `scomint-buffer-maximum-size'."
   (interactive)
-  (if comint-buffer-maximum-size
+  (if scomint-buffer-maximum-size
       (save-excursion
 	(save-restriction
 	  (widen)
-	  (if (> (point-max) comint-buffer-maximum-size)
+	  (if (> (point-max) scomint-buffer-maximum-size)
 	      (let ((inhibit-read-only t))
 		(delete-region (point-min)
-			       (- (point-max) comint-buffer-maximum-size))))))))
+			       (- (point-max) 
+				  scomint-buffer-maximum-size))))))))
 
 (defun scomint-strip-ctrl-m (&optional string)
   "Strip trailing `^M' characters from the current output group."
@@ -303,49 +307,48 @@ NO-NEWLINE is non-nil."
 
 	    ;; Run these hooks with point where the user had it.
 	    (goto-char saved-point)
-	    (run-hook-with-args 'comint-output-filter-functions string)
+	    (run-hook-with-args 'scomint-output-filter-functions string)
 	    (scomint-truncate-buffer)
 
 	    (set-marker saved-point (point))
 
 	    (goto-char (process-mark process)) ; in case a filter moved it
 
-	    (unless comint-use-prompt-regexp
-              (let ((inhibit-read-only t)
-		    (inhibit-modification-hooks t))
-                (add-text-properties comint-last-output-start (point)
-                                     '(front-sticky
-				       (field inhibit-line-move-field-capture)
-				       rear-nonsticky t
-				       field output
-				       inhibit-line-move-field-capture t))))
+	    (let ((inhibit-read-only t)
+		  (inhibit-modification-hooks t))
+	      (add-text-properties scomint-last-output-start (point)
+				   '(front-sticky
+				     (field inhibit-line-move-field-capture)
+				     rear-nonsticky t
+				     field output
+				     inhibit-line-move-field-capture t)))
 
 	    ;; Highlight the prompt, where we define `prompt' to mean
 	    ;; the most recent output that doesn't end with a newline.
-	    (let ((prompt-start (save-excursion (forward-line 0) (point)))
-		  (inhibit-read-only t)
-		  (inhibit-modification-hooks t))
-	      (when comint-prompt-read-only
-		(or (= (point-min) prompt-start)
-		    (get-text-property (1- prompt-start) 'read-only)
-		    (put-text-property
-		     (1- prompt-start) prompt-start 'read-only 'fence))
-		(add-text-properties
-		 prompt-start (point)
-		 '(read-only t rear-nonsticky t front-sticky (read-only))))
-	      (unless (and (bolp) (null comint-last-prompt-overlay))
-		;; Need to create or move the prompt overlay (in the case
-		;; where there is no prompt ((bolp) == t), we still do
-		;; this if there's already an existing overlay).
-		(if comint-last-prompt-overlay
-		    ;; Just move an existing overlay
-		    (move-overlay comint-last-prompt-overlay
-				  prompt-start (point))
-		  ;; Need to create the overlay
-		  (setq comint-last-prompt-overlay
-			(make-overlay prompt-start (point)))
-		  (overlay-put comint-last-prompt-overlay
-			       'font-lock-face 'scomint-highlight-prompt))))
+;;	    (let ((prompt-start (save-excursion (forward-line 0) (point)))
+;;		  (inhibit-read-only t)
+;;		  (inhibit-modification-hooks t))
+;; 	      (when comint-prompt-read-only
+;; 		(or (= (point-min) prompt-start)
+;; 		    (get-text-property (1- prompt-start) 'read-only)
+;; 		    (put-text-property
+;; 		     (1- prompt-start) prompt-start 'read-only 'fence))
+;; 		(add-text-properties
+;; 		 prompt-start (point)
+;; 		 '(read-only t rear-nonsticky t front-sticky (read-only))))
+;; 	      (unless (and (bolp) (null comint-last-prompt-overlay))
+;; 		;; Need to create or move the prompt overlay (in the case
+;; 		;; where there is no prompt ((bolp) == t), we still do
+;; 		;; this if there's already an existing overlay).
+;; 		(if comint-last-prompt-overlay
+;; 		    ;; Just move an existing overlay
+;; 		    (move-overlay comint-last-prompt-overlay
+;; 				  prompt-start (point))
+;; 		  ;; Need to create the overlay
+;; 		  (setq comint-last-prompt-overlay
+;; 			(make-overlay prompt-start (point)))
+;; 		  (overlay-put comint-last-prompt-overlay
+;; 			       'font-lock-face 'scomint-highlight-prompt))))
 
 	    (goto-char saved-point)))))))
 
