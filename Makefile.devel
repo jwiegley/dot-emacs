@@ -561,4 +561,4 @@ links:
 ## Useful for debugging Makefile 
 
 show.%:
-	echo $($*)
+	@echo $($*)
