@@ -2600,7 +2600,6 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Setup imenu and/or func-menu.
   (proof-setup-imenu)
-  (proof-setup-func-menu)
 
   ;; Add the Index menu, if enabled
   (proof-imenu-enable)
@@ -2679,61 +2678,6 @@ Choice of function depends on configuration setting."
 		(if proof-save-with-hole-regexp
 		    (list "Saves" proof-save-with-hole-regexp
 			  proof-save-with-hole-result))))))))
-
-(defun proof-setup-func-menu ()
-  "Configure func-menu for a proof script buffer."
-  ;; NB: Ideal place for this and similar stuff would be in something
-  ;; evaluated at top level after defining the derived mode: normally
-  ;; we wouldn't repeat this each time the mode function is run, so we
-  ;; wouldn't need "pushnew").
-  (if (proof-try-require 'func-menu)
-   (progn
-     (unless proof-script-next-entity-regexps ; unless already set
-       ;; Try to calculate a useful default value.
-       ;; FIXME: this is rather complicated!  The use of the regexp
-       ;; variables needs sorting out.
-       (customize-set-variable
-	'proof-script-next-entity-regexps
-	(let ((goal-discrim
-	       ;; Goal discriminator searches forward for matching
-	       ;; save if the regexp is set.
-	       (if proof-goal-with-hole-regexp
-		   (if proof-save-command-regexp
-		       (list
-			proof-goal-with-hole-regexp 2
-			'forward proof-save-command-regexp)
-		     (list proof-goal-with-hole-regexp 2))))
-	      ;; Save discriminator searches backward for matching
-	      ;; goal if the regexp is set.
-	      (save-discrim
-	       (if proof-save-with-hole-regexp
-		   (if proof-goal-command-regexp
-		       (list
-			proof-save-with-hole-regexp 2
-			'backward proof-goal-command-regexp)
-		     (list proof-save-with-hole-regexp 2)))))
-	  (cond
-	   ((and proof-goal-with-hole-regexp proof-save-with-hole-regexp)
-	    (list
-	     (proof-regexp-alt
-	      proof-goal-with-hole-regexp
-	      proof-save-with-hole-regexp) goal-discrim save-discrim))
-	   
-	   (proof-goal-with-hole-regexp
-	    (list proof-goal-with-hole-regexp goal-discrim))
-	   
-	   (proof-save-with-hole-regexp
-	    (list proof-save-with-hole-regexp save-discrim))))))
-     
-     (if proof-script-next-entity-regexps
-	 ;; Enable func-menu for this mode if regexps set now
-	 (progn
-	   (pushnew
-	    (cons major-mode 'proof-script-next-entity-regexps)
-	    fume-function-name-regexp-alist)
-	   (pushnew
-	    (cons major-mode proof-script-find-next-entity-fn)
-	    fume-find-function-name-method-alist))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
