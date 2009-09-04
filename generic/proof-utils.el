@@ -324,12 +324,12 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 (defun pg-remove-specials (&optional start end)
   "Remove special characters in region.  Default to whole buffer.
 Leave point at END."
-  (save-restriction
-    (if (and start end)
-	(narrow-to-region start end))
-    (goto-char (or start (point-min)))
+  (let ((start (or start (point-min)))
+	(end   (or end (point-max))))
+    (goto-char start)
     (while (re-search-forward pg-special-char-regexp end t)
-      (replace-match ""))))
+      (replace-match ""))
+    (goto-char end)))
 
 (defun pg-remove-specials-in-string (string)
   (proof-replace-regexp-in-string pg-special-char-regexp "" string))
