@@ -1470,11 +1470,6 @@ is only changed when input is sent in `proof-shell-insert'."
 		      (setq proof-shell-expecting-output nil)
 		      ;; Process output string.
 		      (proof-shell-filter-manage-output string)
-		      ;; Cleanup shell buffer
-		      (unless proof-general-debug
-			(pg-remove-specials (min (point-max)
-						 prev-prompt) 
-					    (point-max)))
 		      )))
 	    (if proof-shell-busy
 		;; internal error recovery:
@@ -1482,6 +1477,11 @@ is only changed when input is sent in `proof-shell-insert'."
 		  (proof-debug
 		   "proof-shell-filter found empty action list yet proof shell busy.")
 		  (proof-release-lock))))))))
+
+(defun proof-shell-cleanup ()
+  "Run intermittently to clean up the shell buffer."
+  (interactive)
+  (pg-remove-specials (point-min) (point-max)))
 
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
