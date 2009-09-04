@@ -1,4 +1,4 @@
-theory AThousandLines imports Main
+theory AThousandTheorems imports Main
 begin
 
 ML {* val start = start_timing(); *}
