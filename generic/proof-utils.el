@@ -269,23 +269,13 @@ Usage: (defpgdefault SYM VALUE)"
   "Returns the true name of the file FILENAME or nil if file non-existent."
   (and filename (file-exists-p filename) (file-truename filename)))
 
-(defun proof-file-to-buffer (filename)
-  "Find a buffer visiting file FILENAME, or nil if there isn't one."
-  (let* ((buffers (buffer-list))
-	 (pos
-	  (position (file-truename filename)
-		    (mapcar 'proof-file-truename
-			    (mapcar 'buffer-file-name
-				    buffers))
-		    :test 'equal)))
-    (and pos (nth pos buffers))))
-
 (defun proof-files-to-buffers (filenames)
   "Converts a list of FILENAMES into a list of BUFFERS."
-  (if (null filenames) nil
-    (let* ((buffer (proof-file-to-buffer (car filenames)))
-	  (rest (proof-files-to-buffers (cdr filenames))))
-      (if buffer (cons buffer rest) rest))))
+  (let (bufs buf)
+    (dolist (file filenames)
+      (if (setq buf (find-buffer-visiting file))
+	  (setq bufs (cons buf bufs))))
+    bufs))
 
 (defun proof-buffers-in-mode (mode &optional buflist)
   "Return a list of the buffers in the buffer list in major-mode MODE.
@@ -792,21 +782,12 @@ KEY is added onto proof-assistant map."
 ;;
 
 (defun proof-locate-executable (progname &optional returnnopath extrapath)
-  "Search for PROGNAME on PATH.  Return the full path to PROGNAME, or nil.
+  "Search for PROGNAME on environment PATH.  Return the full path to PROGNAME, or nil.
 If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path.
 EXTRAPATH is a list of extra path components"
   (or
-   (cond
-    ((fboundp 'executable-find)
-     (let ((exec-path (append exec-path extrapath)))
-       (executable-find progname)))
-    ((fboundp 'locate-file)
-     (locate-file progname
-		  (append (split-string path 
-					(regexp-quote (getenv "PATH")))
-			  extrapath)
-		  (if proof-running-on-win32 '(".exe"))
-		  1)))
+   (let ((exec-path (append exec-path extrapath)))
+     (executable-find progname))
    (if returnnopath progname)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -853,6 +834,23 @@ If optional arg REALLY-WORD is non-nil, it finds just a word."
       ;; If we found something nonempty, return it as a pair of positions.
       (unless (= start end)
 	(cons start end)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Syntactic context
+;;
+
+;; [this belongs in proof-syntax but uses `proof-ass-sym' macro above]
+
+(defun proof-looking-at-syntactic-context ()
+  "Determine if current point is at beginning or within comment/string context.
+If so, return a symbol indicating this ('comment or 'string).
+This function invokes <PA-syntactic-context> if that is defined, otherwise
+it calls `proof-looking-at-syntactic-context'." 
+  (if (fboundp (proof-ass-sym syntactic-context))
+      (funcall (proof-ass-sym syntactic-context))
+    (proof-looking-at-syntactic-context-default)))
 
 
 
