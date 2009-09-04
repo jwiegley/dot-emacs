@@ -19,7 +19,7 @@
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-splash-time 4
+(defcustom proof-splash-time 3
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a wee while longer than
 this, depending on how long it takes the machine to initialise 
@@ -110,11 +110,8 @@ DEFAULT gives return value in case image not valid."
    (t
     (or default (concat "[ image " name " ]"))))))
 
-;; Would be nice to get rid of this variable, but it's tricky
-;; to construct a hook function, with a higher order function,
-;; which can easily remove itself.
 (defvar proof-splash-timeout-conf nil
-  "Holds timeout ID and previous window config for proof splash screen.")
+  "Holds timeout ID for proof splash screen.")
 
 (defun proof-splash-centre-spaces (glyph)
   "Return number of spaces to insert in order to center given GLYPH or string.
@@ -131,16 +128,6 @@ Borrowed from startup-center-spaces."
     (+ left-margin
        (round (/ (/ (- fill-area-width glyph-pixwidth) 2) avg-pixwidth)))))
 
-;; We take some care to preserve the users window configuration
-;; underneath the splash screen.  This is just to be polite.
-;; NB: not as polite as it could be: if minibuffer is active,
-;; this may deactivate it.
-;; NB2: There is something worse here: pending input 
-;; causes this function to spoil the mode startup, if the splash
-;; buffer is killed before the input has been processed.
-;; Symptom is ProofGeneral mode instead of the native script mode.
-;; 
-
 (defun proof-splash-remove-screen (&optional nothing)
   "Remove splash screen and restore window config."
   (let ((splashbuf (get-buffer proof-splash-welcome)))
@@ -152,7 +139,7 @@ Borrowed from startup-center-spaces."
 	  (with-current-buffer splashbuf
 	    (View-quit))
 	  ;; Indicate removed splash screen; disable timeout
-	  (disable-timeout (car proof-splash-timeout-conf))
+	  (disable-timeout proof-splash-timeout-conf)
 	  (setq proof-splash-timeout-conf nil)))))
 
 (defvar proof-splash-seen nil
@@ -209,10 +196,8 @@ If TIMEOUT is non-nil, arrange for a time-out to occur outside this function."
    (if timeout
        (progn
 	 (setq proof-splash-timeout-conf
-	       (cons
-		(add-timeout proof-splash-time
-			     'proof-splash-remove-screen nil)
-		splashbuf))
+	       (add-timeout proof-splash-time
+			    'proof-splash-remove-screen nil))
 	 (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)))
    (setq proof-splash-seen t)))
 
