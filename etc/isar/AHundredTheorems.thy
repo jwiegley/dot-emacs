@@ -1,8 +1,9 @@
 theory AHundredTheorems imports Main
 begin
 
-ML {* val start = start_timing(); *}
 
+(* ELISP: -- (setq start (current-time)) -- *)
+ML {* val start = start_timing(); *}
 
 lemma foo: "P --> P" by auto
 lemma foo2: "P --> P" by auto
@@ -105,6 +106,13 @@ lemma foo98: "P --> P" by auto
 lemma foo99: "P --> P" by auto
 lemma foo100: "P --> P" by auto
 
+
+(* NB: this doesn't work because of comment aggregation *)
+(* ELISP: -- (message "Time taken: %f seconds" (time-to-seconds (time-since start))) -- *)
 ML {* Output.warning (#message (end_timing start)); *}
 
 end
+
+
+
+

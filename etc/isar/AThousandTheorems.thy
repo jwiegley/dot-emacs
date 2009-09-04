@@ -2,7 +2,7 @@ theory AThousandTheorems imports Main
 begin
 
 ML {* val start = start_timing(); *}
-
+(* ELISP: -- (setq start (current-time)) -- *)
 
 lemma foo: "P --> P" by auto
 lemma foo2: "P --> P" by auto
@@ -104,10 +104,6 @@ lemma foo97: "P --> P" by auto
 lemma foo98: "P --> P" by auto
 lemma foo99: "P --> P" by auto
 lemma foo100: "P --> P" by auto
-
-
-ML {* #message (end_timing start); *}
-
 lemma foo101: "P --> P" by auto
 lemma foo102: "P --> P" by auto
 lemma foo103: "P --> P" by auto
@@ -1010,5 +1006,7 @@ lemma foo998: "P --> P" by auto
 lemma foo999: "P --> P" by auto
 lemma foo1000: "P --> P" by auto
 
+ML {* Output.warning (#message (end_timing start)); *}
+(* ELISP: -- (message "Time taken: %f seconds" (time-to-seconds (time-since start))) -- *)
 
 end
