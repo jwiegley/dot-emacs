@@ -97,14 +97,12 @@
 
 (defun profile-pg ()
   (interactive)
-  (elp-instrument-package "proof-script")
-  (elp-instrument-package "proof-shell")
-  (elp-instrument-package "pg-response")
-  (elp-instrument-package "comint")
+  (elp-instrument-package "proof-")
+  (elp-instrument-package "pg-")
   (elp-instrument-package "scomint")
   (elp-instrument-package "unicode-tokens")
   (elp-instrument-package "coq")
-  (elp-instrument-package "isar"))  
+  (elp-instrument-package "isar"))
 
 
 
