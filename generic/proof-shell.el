@@ -872,7 +872,7 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
     (if proof-shell-expecting-output
 	(progn
 	  (setq proof-shell-interrupt-pending t) ; interrupt even if no interrupt message
-	  (interrupt-process nil scomint-ptyp))
+	  (interrupt-process))
       ;; otherwise, interrupt the queue right here
       (proof-shell-error-or-interrupt-action 'interrupt))))
       
