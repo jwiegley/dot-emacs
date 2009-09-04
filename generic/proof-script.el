@@ -443,9 +443,6 @@ Only call this from a scripting buffer."
 ;;
 ;; Predicates for locked region.
 ;;
-;; These work on any buffer, so that non-script buffers can be locked
-;; (as processed files) too.
-;;
 
 ;;;###autoload
 (defun proof-locked-region-full-p ()
@@ -463,19 +460,14 @@ Works on any buffer."
 
 (defun proof-only-whitespace-to-locked-region-p ()
   "Non-nil if only whitespace between point and end of locked region.
-Point should be after the locked region.
-NB: If nil, point is left at first non-whitespace character found.
-If non-nil, point is left where it was."
-  ;; NB: this function doesn't quite do what you'd expect, but fixing it
-  ;; breaks proof-assert-until-point and electric-terminator which
-  ;; rely on the side effect.  So careful!
-  ;; (unless (eobp)
-  ;; (forward-char))
-  ;;   (save-excursion  -- no, side effect is expected!
-  (not (proof-re-search-backward "\\S-" (proof-unprocessed-begin) t)))
+Point expected to be after the locked region."
+  (save-excursion
+    (not (proof-re-search-backward 
+	  "\\S-" 
+	  (proof-unprocessed-begin) t))))
 
 (defun proof-in-locked-region-p ()
-  "Non-nil if point is in locked region.  Assumes proof script buffer current."
+  "Non-nil if point is in locked region.  Assumes script buffer current."
   (< (point) (proof-unprocessed-begin)))
 
 
@@ -738,7 +730,7 @@ NAME does not need to be unique."
 ;;;###autoload
 (defun pg-set-span-helphighlights (span &optional nohighlight)
   "Add a daughter help span for SPAN with help message, highlight, actions.
-We add the last output to the hover display here.
+We add the last output (which should be non-empty) to the hover display here.
 Optional argument NOHIGHLIGHT means do not add highlight mouse face property."
   (let ((helpmsg    (pg-span-name span))
 	(proofstate (pg-last-output-displayform))
@@ -1316,22 +1308,18 @@ With ARG, turn on scripting iff ARG is positive."
 ;; `proof-done-advancing'
 
 (defun proof-done-advancing (span)
-  "The callback function for assert-until-point.
-Argument SPAN ."
-  ;; FIXME da: if the buffer dies, this function breaks horribly.
-  (if (not (span-live-p span))
+  "The callback function for `assert-until-point'.
+Argument SPAN has just been processed."
+  (if (or (not (span-live-p span))
+	  (not (buffer-live-p (span-buffer span))))
       (proof-debug
-       "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
+       "proof-done-advancing: hit a dead span/buffer!")
 
-    ;; otherwise...
     (let ((end     (span-end span))
 	  (cmd     (span-property span 'cmd)))
 
       (proof-set-locked-end end)
 
-      ;; FIXME: buglet here, can sometimes arrive with queue span
-      ;; already detached.  (I think when complete file process is
-      ;; requested during scripting)
       (if (span-live-p proof-queue-span)
 	  (proof-set-queue-start end))
 
@@ -1339,15 +1327,14 @@ Argument SPAN ."
        ;; CASE 0: span has died after above (shouldn't happen)
        ((not (span-live-p span))
 	(proof-debug
-	 "Proof General idiosyncrasy: proof-done-advancing killed span before processing it!"))
+	 "proof-done-advancing: unexpected, killed span before processing it!"))
 	
        ;; CASE 1: Comments just get highlighted
        ((eq (span-property span 'type) 'comment)
 	(proof-done-advancing-comment span))
 
        ;; CASE 2: Save command seen, now we may amalgamate spans.
-       ((and proof-save-command-regexp
-	     (proof-string-match proof-save-command-regexp cmd)
+       ((and (proof-string-match-safe proof-save-command-regexp cmd)
 	     ;; FIXME: would like to get rid of proof-really-save-command-p
 	     ;; and use nested goals mechanism instead.
 	     (funcall proof-really-save-command-p span cmd)
@@ -1426,8 +1413,9 @@ Argument SPAN ."
 	(id        (proof-next-element-id 'comment)))
     (pg-add-element "comment" id bodyspan)
     (span-set-property span 'id (intern id))
-    (span-set-property span 'idiom 'comment)
-    (pg-set-span-helphighlights span)))
+    (span-set-property span 'idiom 'comment)))
+    ;; this tries to extract last output, which is wrong for comments.
+    ;; (pg-set-span-helphighlights span)
 
 
 (defun proof-done-advancing-save (span)
@@ -2024,24 +2012,22 @@ This version is used when `proof-script-command-end-regexp' is set."
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   "Convert a sequence of terminator positions to a set of vanilla extents.
 Proof terminator positions SEMIS has the form returned by
-the function `proof-segment-up-to'.
+the function `proof-segment-up-to'.  The argument list is destroyed.
 Set the callback to CALLBACK-FN or `proof-done-advancing' by default."
-  (let ((ct (proof-queue-or-locked-end)) span alist semi)
-    (while (not (null semis))
-      (setq semi (car semis)
-            span (span-make ct (nth 2 semi))
+  (let ((ct (proof-queue-or-locked-end))
+	(cb (or callback-fn 'proof-done-advancing))
+	span alist semi)
+    (dolist (semi (nreverse semis))
+      (setq span (span-make ct (nth 2 semi))
 	    ct (nth 2 semi))
-      (if (eq (car (car semis)) 'cmd)
+      (if (eq (car semi) 'cmd)
 	  (progn
 	    (span-set-property span 'type 'vanilla)
 	    (span-set-property span 'cmd (nth 1 semi))
-	    (setq alist (cons (list span (nth 1 semi)
-				    (or callback-fn 'proof-done-advancing))
-			      alist)))
+	    (setq alist (cons (list span (nth 1 semi) cb) alist)))
 	(span-set-property span 'type 'comment)
-	(setq alist (cons (list span proof-no-command 'proof-done-advancing)
-			  alist)))
-	(setq semis (cdr semis)))
+	(setq alist
+	      (cons (list span nil cb) alist))))  ; was proof-no-command
     (nreverse alist)))
 
 
@@ -2049,203 +2035,37 @@ Set the callback to CALLBACK-FN or `proof-done-advancing' by default."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Assert-until-point and friends.
+;; Assert-until-point.
 ;;
-;; These functions parse some region of the script buffer into
-;; commands, and add the commands into the queue.
+;; This function parses some region of the script buffer into
+;; commands, and the adds the commands into the queue.
 ;;
 
+(defun proof-assert-until-point ()
+  "Process the region from the end of the locked-region until point."
+  (if (not (proof-re-search-backward 
+	    "\\S-" 
+	    (proof-unprocessed-begin) t))
+      (error 
+	 "At end of the locked region, nothing to do to!"))
+  (let ((semis (save-excursion
+		 (proof-segment-up-to-using-cache (point)))))
+    (if (eq 'unclosed-comment (car semis)) 
+	(setq semis (cdr semis)))
+    (if (null semis) ; maybe inside a string or something.
+	(error "I can't find any complete commands to process!"))
+    (proof-assert-semis semis)))
 
-;; First: two commands for moving forwards in proof scripts.  Moving
-;; forward for a "new" command may insert spaces or new lines.  Moving
-;; forward for the "next" command does not.
-
-(defun proof-script-new-command-advance ()
-  "Move point to a nice position for a new command.
-Assumes that point is at the end of a command."
-  (interactive)
-; FIXME: pending improvement.2, needs a fix here.
-;  (if (eq (proof-locked-end) (point))
-;      ;; A hack to fix problem that the locked span
-;      ;; is [ ) so sometimes inserting at the end
-;      ;; tries to extend it, giving "read only" error.
-;      (if (> (point-max) (proof-locked-end))
-;	  (progn
-;	    (goto-char (1+ (proof-locked-end)))
-;	    (backward-char))))
-  (if proof-one-command-per-line
-      ;; One command per line: move to next new line, creating one if
-      ;; at end of buffer or at the start of a blank line.  (This has
-      ;; the pleasing effect that blank regions of the buffer are
-      ;; automatically extended when inserting new commands).
-; unfortunately if we're not at the end of a line to start,
-; it skips past stuff to the end of the line!  don't want
-; that.
-;      (cond
-;       ((eq (forward-line) 1)
-;	(newline))
-;       ((eolp)
-;        (newline)
-;	(forward-line -1)))
-      (newline)
-    ;; Multiple commands per line: skip spaces at point, and insert
-    ;; the 1/0 number of spaces that were skipped in front of point
-    ;; (at least one).  This has the pleasing effect that the spacing
-    ;; policy of the current line is copied: e.g.  <command>;
-    ;; <command>; Tab columns don't work properly, however.  Instead
-    ;; of proof-one-command-per-line we could introduce a
-    ;; "proof-command-separator" to improve this.
-    (let ((newspace (max (skip-chars-forward " \t") 1))
-	  (p (point)))
-      (if proof-script-command-separator
-	  (insert proof-script-command-separator)
-	(insert-char ?\040  newspace)
-	(goto-char p)))))
-
-(defun proof-script-next-command-advance ()
-  "Move point to the beginning of the next command if it's nearby.
-Assumes that point is at the end of a command."
-  (interactive)
-  ;; skip whitespace on this line
-  (skip-chars-forward " \t")
-  (if (and proof-one-command-per-line (eolp))
-      ;; go to the next line if we have one command per line
-      (forward-line)))
-
-
-;; NB: the "interactive" variant is so that we get a simple docstring.
-(defun proof-assert-until-point-interactive ()
-  "Process the region from the end of the locked-region until point.
-Default action if inside a comment is just process as far as the start of
-the comment."
-  (interactive)
-  (proof-assert-until-point))
-
-
-
-
-
-;; Assert until point - We actually use this to implement the
-;; assert-until-point, electric terminator keypress, and
-;; goto-command-end. In different cases we want different things, but
-;; usually the information (e.g. are we inside a comment) isn't
-;; available until we've actually run proof-segment-up-to (point),
-;; hence all the different options when we've done so.
-
-;; FIXME da: this command doesn't behave as the doc string says when
-;; inside comments.  Also is unhelpful at the start of commands, and
-;; in the locked region.  I prefer the new version below.
-
-;; FIXME: get rid of duplication between proof-assert-next-command and
-;; proof-assert-until-point.  Get rid of ignore process nonsense.
-
-;; FIXME: get rid of unclosed-comment-fun nonsense.  It's used
-;; in the electric terminator function, but we should probably
-;; use something else for that!
-
-(defun proof-assert-until-point (&optional unclosed-comment-fun
-					   ignore-proof-process-p)
-  "Process the region from the end of the locked-region until point.
-Default action if inside a comment is just process as far as the start of
-the comment.
-
-If you want something different, put it inside
-UNCLOSED-COMMENT-FUN.  If IGNORE-PROOF-PROCESS-P is set, no commands
-will be added to the queue and the buffer will not be activated for
-scripting."
-  (unless ignore-proof-process-p
-    (proof-activate-scripting nil 'advancing))
-  (let ((semis))
-    (save-excursion
-      ;; Give error if no non-whitespace between point and end of
-      ;; locked region.
-      (if (proof-only-whitespace-to-locked-region-p)
-	  (error "At the end of the locked region already, there's nothing to do to!"))
-      ;; NB: (point) has now been moved backwards to first non-whitespace char.
-      (setq semis (proof-segment-up-to-using-cache (point))))
-    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
-	(funcall unclosed-comment-fun)
-      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (and (not ignore-proof-process-p) (null semis))
-	  ;; This is another case that there's nothing to do: maybe
-	  ;; because inside a string or something.
-	  (if (eq unclosed-comment-fun 'proof-electric-term-incomment-fn)
-	    ;; With electric terminator, we shouldn't give an error, but
-	    ;; should still insert and pretend it was as if a comment.
-	      (proof-electric-term-incomment-fn)
-	    (error "I can't find any complete commands to process!"))
-	(goto-char (nth 2 (car semis)))
-	(and (not ignore-proof-process-p)
-	     (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-	       (proof-extend-queue (point) vanillas)))))))
-
-
-;; da: This is my alternative version of the above.
-;; It works from the locked region too.
-;; I find it more convenient to assert up to the current command (command
-;; point is inside), and move to the next command.
-;; This means proofs can be easily replayed with point at the start
-;; of lines.  Above function gives stupid "nothing to do error." when
-;; point is on the start of line or in the locked region.
-
-;; FIXME: behaviour inside comments may be odd at the moment.  (it
-;; doesn't behave as docstring suggests, same prob as
-;; proof-assert-until-point)
-;; FIXME: polish the undo behaviour and quit behaviour of this
-;; command (should inhibit quit somewhere or other).
-
-
-  
-(defun proof-assert-next-command
-  (&optional unclosed-comment-fun ignore-proof-process-p
-	     dont-move-forward for-new-command)
-  "Process until the end of the next unprocessed command after point.
-If inside a comment, just process until the start of the comment.
-
-If you want something different, put it inside UNCLOSED-COMMENT-FUN.
-If IGNORE-PROOF-PROCESS-P is set, no commands will be added to the queue.
-Afterwards, move forward to near the next command afterwards, unless
-DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
-a space or newline will be inserted automatically."
-  (interactive)
-  (unless ignore-proof-process-p
-    (proof-activate-scripting nil 'advancing))
-  (or ignore-proof-process-p
-      (if (proof-locked-region-full-p)
-	  (error "Locked region is full, no more commands to do!")))
-  (let ((semis
-	 (save-excursion
-	   ;; CHANGE from old proof-assert-until-point: don't bother check
-	   ;; for non-whitespace between locked region and point.
-	   ;; CHANGE: ask proof-segment-up-to to scan until command end
-	   ;; (which it used to do anyway, except in the case of a comment)
-	   (proof-segment-up-to-using-cache (point) t))))
-    ;; old code:
-    ;;(if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
-    ;;	  (progn (goto-char pt)
-    ;;       (error "I don't know what I should be doing in this buffer!")))
-    ;; (setq semis (proof-segment-up-to (point))))
-    (if (and unclosed-comment-fun (eq 'unclosed-comment (car-safe semis)))
-	(funcall unclosed-comment-fun)
-      (if (eq 'unclosed-comment (car-safe semis))
-	  (setq semis (cdr semis)))
-      (if (and (not ignore-proof-process-p) (null semis))
-	  (error "I can't see any complete commands to process!"))
-      (if (nth 2 (car semis))
-	  (goto-char (nth 2 (car semis))))
-      (if (not ignore-proof-process-p)
-	  (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-	    (proof-extend-queue (point) vanillas)))
-      ;; This is done after the queuing to be polite: it means the
-      ;; spacing policy enforced here is not put into the locked
-      ;; region so the user can re-edit.
-      (if (not dont-move-forward)
-	  (if for-new-command
-	      (proof-script-new-command-advance)
-	    (proof-script-next-command-advance))))))
+(defun proof-assert-semis (semis)
+  "Add to the command queue the list SEMIS of command positions.
+SEMIS must be a non-empty list, in reverse order (last position first)."
+  (proof-activate-scripting nil 'advancing)
+  (let ((lastpos  (nth 2 (car semis))) 
+	(vanillas (proof-semis-to-vanillas semis)))
+    (proof-extend-queue lastpos vanillas)))
 
 (defun proof-retract-before-change (beg end)
-  "For `before-change-functions'.  Retract to BEG unless BEG..END inside a comment."
+  "For `before-change-functions'.  Retract to BEG unless BEG..END in comment."
   (and (> (proof-queue-or-locked-end) beg)
        (not (and (proof-inside-comment beg)
 		 (proof-inside-comment end)))
@@ -2258,16 +2078,7 @@ a space or newline will be inserted automatically."
     (goto-char pos)
     (eq (proof-buffer-syntactic-context) 'comment)))
 
-(defun proof-goto-point ()
-  "Assert or retract to the command at current position.
-Calls `proof-assert-until-point' or `proof-retract-until-point' as
-appropriate."
-  (interactive)
-  (if (<= (proof-queue-or-locked-end) (point))
-      ;; This asserts only until the next command before point and
-      ;; does nothing if whitespace between point and locked region.
-      (proof-assert-until-point)
-    (proof-retract-until-point)))
+
 
 
 
@@ -2423,7 +2234,7 @@ up to the end of the locked region."
 	      ;; of proof commands
 	      (setq actions (proof-setup-retract-action
 			     start end
-			     (if (null span) proof-no-command
+			     (if (null span) nil ; was: proof-no-command
 			       (funcall proof-count-undos-fn span))
 			     delete-region)
 		    end start))
@@ -2504,7 +2315,7 @@ command."
       (let ((span (span-at (point) 'type)))
 	;; If no span at point, retracts the last span in the buffer.
 	(unless span
-	  (proof-goto-end-of-locked) ; NB: this moves point
+	  (proof-goto-end-of-locked)
 	  (backward-char)
 	  (setq span (span-at (point) 'type)))
 	(proof-retract-target span delete-region)))))
@@ -2727,7 +2538,7 @@ For this function to work properly, you must configure
 	       (incf i))))
       (setq span (next-span span 'type)))
     (if (= ct 0)
-	proof-no-command
+	nil ; was proof-no-command
       (cond ((stringp proof-undo-n-times-cmd)
 	     (format proof-undo-n-times-cmd ct))
 	    ((functionp proof-undo-n-times-cmd)
@@ -2772,7 +2583,9 @@ with something different."
 	  (setq span nil)))
 	(if ans (setq answers (cons ans answers)))
 	(if span (setq span (next-span span 'type))))
-      (if (null answers) proof-no-command (apply 'concat answers))))))
+      (if (null answers) 
+	  nil ; was proof-no-command 
+	(apply 'concat answers))))))
 
 ;;
 ;; End of new generic functions

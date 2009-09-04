@@ -18,7 +18,6 @@
 (require 'span)
 (require 'proof)			; loader
 (require 'proof-script)			; we build on proof-script
-(require 'comint)			; comint-interrupt-subjob/comint-ptyp
 
 (eval-when-compile
   (require 'completion))		; loaded dynamically at runtime
@@ -26,8 +25,63 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Processing commands
+;; Utilities: moving point in proof script buffer
 ;;
+
+(defun proof-script-next-command-advance ()
+  "Move point to the beginning of the next command if it's nearby.
+Assumes that point is at the end of a command."
+  (interactive)
+  (skip-chars-forward " \t\n"))
+;  (if (and proof-one-command-per-line (eolp))
+;      (forward-line)))
+
+;; First: two commands for moving forwards in proof scripts.  Moving
+;; forward for a "new" command may insert spaces or new lines.  Moving
+;; forward for the "next" command does not.
+
+(defun proof-script-new-command-advance ()
+  "Move point to a nice position for a new command.
+Assumes that point is at the end of a command."
+  (interactive)
+; FIXME: pending improvement.2, needs a fix here.
+;  (if (eq (proof-locked-end) (point))
+;      ;; A hack to fix problem that the locked span
+;      ;; is [ ) so sometimes inserting at the end
+;      ;; tries to extend it, giving "read only" error.
+;      (if (> (point-max) (proof-locked-end))
+;	  (progn
+;	    (goto-char (1+ (proof-locked-end)))
+;	    (backward-char))))
+  (if proof-one-command-per-line
+      ;; One command per line: move to next new line, creating one if
+      ;; at end of buffer or at the start of a blank line.  (This has
+      ;; the pleasing effect that blank regions of the buffer are
+      ;; automatically extended when inserting new commands).
+; unfortunately if we're not at the end of a line to start,
+; it skips past stuff to the end of the line!  don't want
+; that.
+;      (cond
+;       ((eq (forward-line) 1)
+;	(newline))
+;       ((eolp)
+;        (newline)
+;	(forward-line -1)))
+      (newline)
+    ;; Multiple commands per line: skip spaces at point, and insert
+    ;; the 1/0 number of spaces that were skipped in front of point
+    ;; (at least one).  This has the pleasing effect that the spacing
+    ;; policy of the current line is copied: e.g.  <command>;
+    ;; <command>; Tab columns don't work properly, however.  Instead
+    ;; of proof-one-command-per-line we could introduce a
+    ;; "proof-command-separator" to improve this.
+    (let ((newspace (max (skip-chars-forward " \t") 1))
+	  (p (point)))
+      (if proof-script-command-separator
+	  (insert proof-script-command-separator)
+	(insert-char ?\040  newspace)
+	(goto-char p)))))
+
 
 (defun proof-maybe-follow-locked-end (&optional pos)
   "Move point according to `proof-follow-mode'.
@@ -41,24 +95,51 @@ Assumes script buffer is current."
 	    (get-buffer-window (current-buffer) t)
 	    (goto-char pos)))
 	 ((eq proof-follow-mode 'locked)
-	  (goto-char dest))
+	  (if pos 
+	      (goto-char dest)
+	    (proof-script-next-command-advance)))
 	 ((and (eq proof-follow-mode 'followdown)
 	       (> dest (point)))
 	  (goto-char dest))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Doing commands
+;; Processing commands
 ;;
+
+(defun proof-goto-point ()
+  "Assert or retract to the command at current position.
+Calls `proof-assert-until-point' or `proof-retract-until-point' as
+appropriate."
+  (interactive)
+  (save-excursion
+    (if (> (proof-queue-or-locked-end) (point))
+	(proof-retract-until-point)
+      (if (proof-only-whitespace-to-locked-region-p)
+	  (progn
+	    (skip-chars-forward " \t\n")
+	    (forward-char 1)))
+      (proof-assert-until-point))))
 
 (defun proof-assert-next-command-interactive ()
   "Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment."
   (interactive)
-  (proof-with-script-buffer
-   (save-excursion
-     (goto-char (proof-queue-or-locked-end))
-     (proof-assert-next-command))
-   (proof-maybe-follow-locked-end)))
+  (proof-with-script-buffer		; for toolbar/other buffers
+   (goto-char (proof-queue-or-locked-end))
+   (skip-chars-forward " \t\n")
+   (forward-char 1)
+   (proof-assert-until-point)
+   (goto-char (proof-queue-or-locked-end))
+   (message "Gone to %d" (point))
+   (proof-script-next-command-advance)))
+
+;; NB: "interactive" variant merely for simple docstring.
+(defun proof-assert-until-point-interactive ()
+  "Process the region from the end of the locked-region until point.
+If inside a comment, just process until the start of the comment."
+  (interactive)
+  (proof-assert-until-point))
 
 (defun proof-process-buffer ()
   "Process the current (or script) buffer, and maybe move point to the end."
@@ -70,6 +151,7 @@ If inside a comment, just process until the start of the comment."
    (proof-maybe-follow-locked-end)))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Undoing commands
 ;;
@@ -89,9 +171,8 @@ Notice that the deleted command is put into the Emacs kill ring, so
 you can use the usual `yank' and similar commands to retrieve the
 deleted text."
   (interactive)
-  (proof-undo-last-successful-command-1 'delete)
-  ;; FIXME (proof-script-new-command-advance)
-  )
+  (proof-undo-last-successful-command-1 'delete))
+  ; (proof-script-new-command-advance))
 
 (defun proof-undo-last-successful-command-1 (&optional delete)
   "Undo last successful command at end of locked region.
@@ -165,13 +246,16 @@ the proof script."
   "Set point to end of command at point."
   (interactive)
   (let ((cmd (span-at (point) 'type)))
-    (if cmd (goto-char (span-end cmd))
-      (proof-assert-next-command nil
-				 'ignore-proof-process
-				 'dontmoveforward))
-    (skip-chars-backward " \t\n")
-    (unless (eq (point) (point-min))
-      (backward-char))))
+    (if cmd 
+	(goto-char (span-end cmd))
+      (let ((semis (save-excursion
+		     (proof-segment-up-to-using-cache (point)))))
+	(if semis
+	    (progn 
+	      (goto-char (nth 2 (car semis)))
+	      (skip-chars-backward " \t\n")
+	      (unless (eq (point) (point-min))
+		(backward-char))))))))
 
 
 ;;
@@ -357,7 +441,9 @@ Start up the proof assistant if necessary."
    (insert cmd)
    ;; FIXME: could do proof-indent-line here, but let's wait until
    ;; indentation is fixed.
-   (proof-assert-until-point-interactive)))
+   (goto-char
+    (proof-assert-until-point-interactive))
+   (proof-script-new-command-advance)))
 
 ;;
 ;; Commands which do not require a prompt and send an invisible
@@ -445,28 +531,8 @@ This is intended as a value for `proof-activate-scripting-hook'"
   ;; TODO: probably even this isn't necessary
   (force-mode-line-update))
 
-(proof-deftoggle proof-electric-terminator-enable proof-electric-terminator-toggle)
-
-;;;###autoload
-(defun proof-electric-term-incomment-fn ()
-  "Used as argument to `proof-assert-until-point'."
-  ;; CAREFUL: (1) dynamic scoping here  (incomment, ins, mrk)
-  ;;          (2) needs this name to be recognized in
-  ;;		  proof-assert-until-point
-  (setq incomment t)
-  (if ins (backward-delete-char 1)) ; delete spurious char in comment
-  (goto-char mrk)
-  (insert proof-terminal-string))
-
-;; FIXME da: this function is a mess and needs rewriting.
-;;  (proof-assert-until-point process needs cleaning up)
-;;
-;; What it should do:
-;;   * parse FIRST.  If we're inside a comment or string,
-;;     then insert the terminator where we are.  Otherwise
-;;     can skip backwards and insert the terminator at the
-;;     command end (perhaps optionally), and look for
-;;     existing terminator.
+(proof-deftoggle proof-electric-terminator-enable 
+		 proof-electric-terminator-toggle)
 
 (defun proof-process-electric-terminator ()
   "Insert the proof command terminator, and assert up to it.
@@ -479,19 +545,29 @@ comment, and insert or skip to the next semi)."
     (if (< mrk (proof-locked-end))
 	;; In locked region, just insert terminator without further ado
 	(insert proof-terminal-char)
-      ;; Otherwise, do other thing.
+
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
-
+      (skip-chars-backward " \t\n")
       (if (not (= (char-after (point)) proof-terminal-char))
 	  (progn
 	    (forward-char) ;; immediately after command end.
 	    (unless proof-electric-terminator-noterminator
 	      (insert proof-terminal-string)
 	      (setq ins t))))
-      (proof-assert-until-point 'proof-electric-term-incomment-fn)
-      (or incomment
-	  (proof-script-next-command-advance)))))
+      (let ((pos  (point))
+	    (semis
+	     (save-excursion
+	       (proof-segment-up-to-using-cache pos))))
+	(if (eq 'unclosed-comment (car semis))
+	    (progn
+	      (setq incomment t)
+	      ;; delete spurious char in comment
+	      (if ins (backward-delete-char 1)) 
+	      (goto-char mrk)
+	      (insert proof-terminal-string))
+	  (proof-assert-semis pos semis)
+	  (proof-script-next-command-advance))))))
 
 (defun proof-electric-terminator ()
   "Insert the terminator, perhaps sending the command to the assistant.
@@ -1026,12 +1102,12 @@ If CALLBACK is set, we invoke that when the command completes."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Command history  (added in PG 3.7)
 ;;
 ;; This implements a history ring for commands in the locked region.
-;; Inspired by (and code heavily copied from) comint in XEmacs.
+;; Inspired by (and code heavily copied from) comint.
 ;;
 ;; The current behaviour is not ideal: we only extend the input ring as
 ;; we process (so history does not browse pink text while the
