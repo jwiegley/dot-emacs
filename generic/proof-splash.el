@@ -19,7 +19,7 @@
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-splash-time 3
+(defcustom proof-splash-time 4
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a wee while longer than
 this, depending on how long it takes the machine to initialise 
@@ -28,7 +28,6 @@ Proof General."
   :group 'proof-general-internals)
 
 (defcustom proof-splash-contents
-(setq proof-splash-contents
   '(list
     nil
     (proof-get-image "pg-text" t)
@@ -58,8 +57,9 @@ Proof General."
     nil
      :link '("Find out about Emacs on the Help menu -- start with the "
 	     "Emacs Tutorial" (lambda (button) (help-with-tutorial)))
-     )
-  )
+    nil
+    "See this screen again with Proof-General -> About"
+    )
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
@@ -149,115 +149,74 @@ Borrowed from startup-center-spaces."
 	 splashbuf
 	 proof-splash-timeout-conf)
 	(progn
-	  (if (get-buffer-window splashbuf)
-	      ;; Restore the window config if splash is being displayed
-	      (if (cdr proof-splash-timeout-conf)
-		  (set-window-configuration (cdr proof-splash-timeout-conf))))
+	  (with-current-buffer splashbuf
+	    (View-quit))
 	  ;; Indicate removed splash screen; disable timeout
 	  (disable-timeout (car proof-splash-timeout-conf))
-	  (setq proof-splash-timeout-conf nil)
-	  (proof-splash-remove-buffer)))))
-
-(defun proof-splash-remove-buffer ()
-  "Remove the splash buffer if it's still present."
-  ;; FIXME: Removing buffer here causes bug on loading if key is
-  ;; pressed in XEmacs: breaks loading of script buffer mode,
-  ;; presumably because some events are related to splash buffer which
-  ;; has died.   Sometimes even worse: XEmacs dumps core or
-  ;; gives error about unallocated event.  (21.4.8)
-  (let
-      ((splashbuf (get-buffer proof-splash-welcome)))
-    (if splashbuf 
-	;; Kill should be right, but it can cause core dump
-	;; (kill-buffer splashbuf)
-	(if (eq (selected-window) (window-buffer 
-				   (selected-window)))
-	    (bury-buffer splashbuf)))))
+	  (setq proof-splash-timeout-conf nil)))))
 
 (defvar proof-splash-seen nil
   "Flag indicating the user has been subjected to a welcome message.")
 
+(defun proof-splash-insert-contents ()
+  "Insert splash buffer contents into current buffer."
+     (let ((splash-contents (append
+			     (eval proof-splash-contents)
+			     (eval proof-splash-startup-msg)))
+	   (inhibit-read-only t)
+	   s)
+       (erase-buffer)
+       ;; [ Don't use do-list to avoid loading cl ]
+       (while splash-contents
+	 (setq s (car splash-contents))
+	 (cond
+	  ((proof-emacs-imagep s)
+	   (indent-to (proof-splash-centre-spaces s))
+	   (insert-image s))
+	  ((eq s :link)
+	   (setq splash-contents (cdr splash-contents))
+	   (let ((spec (car splash-contents)))
+	     (if (functionp spec)
+		 (setq spec (funcall spec)))
+	     (indent-to (proof-splash-centre-spaces 
+			 (concat (car spec) (cadr spec))))
+	     (insert (car spec))
+	     (insert-button (cadr spec)
+			    'face (list 'link)
+			    'action (nth 2 spec)
+			    'help-echo (concat "mouse-2, RET: "
+					       (or (nth 3 spec)
+						   "Follow this link"))
+			    'follow-link t)))
+	  ((stringp s)
+	   (indent-to (proof-splash-centre-spaces s))
+	   (insert s)))
+	 (newline)
+	 (setq splash-contents (cdr splash-contents)))
+       (goto-char (point-min))
+       (set-buffer-modified-p nil)))
+
 ;;;###autoload
 (defun proof-splash-display-screen (&optional timeout)
   "Save window config and display Proof General splash screen.
-If TIMEOUT is non-nil, time out outside this function, definitely
-by end of configuring proof mode.
-Otherwise, timeout inside this function after 10 seconds or so."
+If TIMEOUT is non-nil, arrange for a time-out to occur outside this function."
  (interactive "P")
  (proof-splash-set-frame-titles)
- (let*
-     ;; Keep win config explicitly instead of pushing/popping because
-     ;; if the user switches windows by hand in some way, we want
-     ;; to ignore the saved value.  Unfortunately there seems to
-     ;; be no way currently to remove the top item of the stack.
-     ((winconf   (current-window-configuration))
-      (curwin	  (get-buffer-window (current-buffer)))
-      (curfrm    (and curwin (window-frame curwin)))
-      (splashbuf (get-buffer-create proof-splash-welcome))
-      (after-change-functions nil)	; no font-lock, thank-you.
-      ;; NB: maybe leave next one in for frame-crazy folk
-      ;;(pop-up-frames nil)		; display in the same frame.
-      (splash-contents (append
-			(eval proof-splash-contents)
-			(eval proof-splash-startup-msg)))
-      s)
+ (let* ((splashbuf (get-buffer-create proof-splash-welcome)))
    (with-current-buffer splashbuf
-     (erase-buffer)
-     ;; [ Don't use do-list to avoid loading cl ]
-     (while splash-contents
-       (setq s (car splash-contents))
-       (cond
-	((proof-emacs-imagep s)
-	 (indent-to (proof-splash-centre-spaces s))
-	 (insert-image s))
-	((eq s :link)
-	 (setq splash-contents (cdr splash-contents))
-	 (let ((spec (car splash-contents)))
-	       (if (functionp spec)
-		   (setq spec (funcall spec)))
-	       (indent-to (proof-splash-centre-spaces 
-			   (concat (car spec) (cadr spec))))
-	       (insert (car spec))
-	       (insert-button (cadr spec)
-			      'face (list 'link)
-			      'action (nth 2 spec)
-			      'help-echo (concat "mouse-2, RET: "
-						 (or (nth 3 spec)
-						     "Follow this link"))
-			      'follow-link t)))
-	((stringp s)
-	 (indent-to (proof-splash-centre-spaces s))
-	 (insert s)))
-       (newline)
-       (setq splash-contents (cdr splash-contents)))
-     (goto-char (point-min))
-     (set-buffer-modified-p nil)
-     (let* ((splashwin     (display-buffer splashbuf))
-	    (splashfm      (window-frame splashwin))
-	    ;; Only save window config if we're on same frame
-	    (savedwincnf   (if (eq curfrm splashfm) winconf)))
-       (delete-other-windows splashwin)
-       (sit-for 10)
-       (setq proof-splash-timeout-conf
-	     (cons
-	      (add-timeout (if timeout proof-splash-time 10)
-			   'proof-splash-remove-screen nil)
-	      savedwincnf))))
-   ;; PROBLEM: when to call proof-splash-display-screen?
-   ;; We'd like to call it during loading/initialising.  But it's
-   ;; hard to make the screen persist after loading because of the
-   ;; action of display-buffer invoked after the mode function
-   ;; during find-file.
-   ;; To approximate the best behaviour, we assume that this file is
-   ;; loaded by a call to proof-mode.  We display the screen now and add
-   ;; a wait procedure temporarily to proof-mode-hook which prevents
-   ;; redisplay until proof-splash-time has elapsed.
+     (proof-splash-insert-contents))
+   (view-buffer splashbuf 'kill-buffer)
    (if timeout
-       (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
-     ;; Otherwise, this was an "about" type of call, so we wait
-     ;; for a key press or timeout event
-     (proof-splash-timeout-waiter))
+       (progn
+	 (setq proof-splash-timeout-conf
+	       (cons
+		(add-timeout proof-splash-time
+			     'proof-splash-remove-screen nil)
+		splashbuf))
+	 (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)))
    (setq proof-splash-seen t)))
+
+(defalias 'pg-about 'proof-splash-display-screen)
 
 ;;;###autoload
 (defun proof-splash-message ()
@@ -276,14 +235,10 @@ Otherwise, timeout inside this function after 10 seconds or so."
 (defun proof-splash-timeout-waiter ()
   "Wait for proof-splash-timeout or input, then remove self from hook."
   (while (and proof-splash-timeout-conf ;; timeout still active
-	      (not (input-pending-p)))
-    (sit-for 0))
+	      (not unread-command-events))
+    (sit-for 1))
   (if proof-splash-timeout-conf         ;; not removed yet
       (proof-splash-remove-screen))
-  (if (fboundp 'next-command-event) ; 3.3: Emacs removed this
-      (if (input-pending-p)
-	  (setq unread-command-events
-		(cons (next-command-event) unread-command-events))))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (defvar proof-splash-old-frame-title-format nil)
