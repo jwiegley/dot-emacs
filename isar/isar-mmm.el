@@ -48,6 +48,7 @@
    :front ,isar-start-latex-regexp 
    :back  "\\*}"
    :insert ((?t isar-text nil @ "text {*" @ " " _ " " @ "*}" @)
+	    (?t isar-text_raw nil @ "text_raw {*" @ " " _ " " @ "*}" @)
 	    (?s isar-section nil @ "section {*" @ " " _ " " @ "*}" @)
 	    (?d  isar-header nil @ "header {*" @ " " _ " " @ "*}" @)))
 
