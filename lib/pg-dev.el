@@ -100,8 +100,11 @@
   (elp-instrument-package "proof-script")
   (elp-instrument-package "proof-shell")
   (elp-instrument-package "pg-response")
-  (elp-instrument-package "comint"))
-  
+  (elp-instrument-package "comint")
+  (elp-instrument-package "scomint")
+  (elp-instrument-package "unicode-tokens")
+  (elp-instrument-package "coq")
+  (elp-instrument-package "isar"))  
 
 
 
