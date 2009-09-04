@@ -32,6 +32,11 @@
 SComint buffers are truncated from the top to be no greater than this number,
 if non-nil.")
 
+(defvar scomint-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-m" 'scomint-send-input)
+    (define-key map "\C-c\C-c" 'interrupt-process)
+    map))
 
 (defvar scomint-last-input-start nil)
 (defvar scomint-last-input-end nil)
@@ -52,7 +57,7 @@ Interpreter name is same as buffer name, sans the asterisks.
 Return at end of buffer sends line as input.
 Return not at end copies rest of line to end and sends it.
 
-\\{comint-mode-map}
+\\{scomint-mode-map}
 
 Entry to this mode runs the hooks on `scomint-mode-hook'."
   (setq mode-line-process '(":%s"))
