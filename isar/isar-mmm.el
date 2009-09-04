@@ -19,6 +19,7 @@
 ;;
 
 (require 'mmm-auto)
+(require 'proof-syntax)			; proof-ids-to-regexp
 
 (defconst isar-start-latex-regexp 
   (concat
