@@ -17,12 +17,10 @@
 (eval-when-compile
   (require 'cl)
   (require 'span)
-  (require 'scomint)
   (require 'font-lock)
   (require 'proof-utils))
 
-
-
+(require 'scomint)
 (require 'proof-autoloads)
 (require 'pg-response)
 (require 'pg-goals)
@@ -930,7 +928,7 @@ used in `proof-append-alist' when we start processing a queue, and in
     ;; position -1
     (insert " ")
 
-    (scomint-send-input) ; NB: for comint, had to disable output-filter-functions
+    (scomint-send-input)
 
     (setq proof-shell-expecting-output t)))
 
