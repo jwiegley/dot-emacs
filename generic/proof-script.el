@@ -758,7 +758,7 @@ No action is taken if the file is already registered.
 A warning message is issued if the register request came from the
 proof assistant and Emacs has a modified buffer visiting the file."
   (let* ((cfile (file-truename file))
-	 (buffer (proof-file-to-buffer cfile)))
+	 (buffer (find-buffer-visiting cfile)))
     (proof-debug (concat "Registering file " cfile
 			 (if (member cfile proof-included-files-list)
 			     " (already registered, no action)." ".")))
@@ -851,7 +851,7 @@ This is a subroutine for `proof-unregister-buffer-file-name'."
 	  ;; already by a recursive call here.  (But since we do retraction
 	  ;; in reverse order, this shouldn't happen...)
 	  (if (and (member rfile proof-included-files-list)
-		   (setq rbuf (proof-file-to-buffer rfile)))
+		   (setq rbuf (find-buffer-visiting rfile)))
 	      (progn
 		(proof-debug "Automatically retracting " rfile)
 		(proof-protected-process-or-retract 'retract rbuf)
