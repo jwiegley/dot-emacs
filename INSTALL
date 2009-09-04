@@ -118,7 +118,6 @@ shell script into perhaps sensible places.  Try with "-n" or examine
 the Makefile carefully before use.
 
   
-
 Removing support for unwanted provers
 -------------------------------------
 
