@@ -273,7 +273,7 @@ Any other %-prefixed character inserts itself."
 		;((eq ch ?n)
 		; (if acc (insert acc))
 		; (setq acc nil)
-		; (comint-send-input))
+		; (scomint-send-input))
 		((eq ch ?p)
 		 (if acc (insert acc))
 		 (setq acc nil)
