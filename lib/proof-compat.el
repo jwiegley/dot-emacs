@@ -89,10 +89,10 @@ The value returned is the value of the last form in BODY."
            (progn ,@body)
          (select-frame ,old-frame))))))
 
-;; Replace in string: XEmacs original now in GNU Emacs as replace-regexp-in-string
-(or (fboundp 'replace-in-string)
-    (defun replace-in-string (str regexp newtext &optional literal)
-      (replace-regexp-in-string regexp newtext str 'fixedcase literal)))
+
+;; FIXME: rewrite uses of this
+(defun replace-in-string (str regexp newtext &optional literal)
+  (replace-regexp-in-string regexp newtext str 'fixedcase literal))
 
 
 ;; An implemenation of buffer-syntactic-context for GNU Emacs
@@ -117,64 +117,6 @@ The returned value is one of the following symbols:
        ((nth 4 pp) 'comment)))))
 
 
-;; In case Emacs is not aware of the function read-shell-command,
-;; we duplicate some code adjusted from minibuf.el distributed 
-;; with XEmacs 21.1.9.  Bothering with this just to give completion for
-;; when proof-prog-name-ask=t is a bit of an overkill!
-;; Still, now it's here we'll leave it in as a pleasant surprise.
-;;	
-(or (fboundp 'read-shell-command)
-(defvar read-shell-command-map
-  (let ((map (make-sparse-keymap 'read-shell-command-map)))
-    (if (fboundp 'set-keymap-parents)
-      ;; XEmacs versions without read-shell-command?
-	(set-keymap-parents map minibuffer-local-map)
-      (if (fboundp 'set-keymap-parent)
-	  ;; GNU Emacs 20.2
-	  (set-keymap-parent map minibuffer-local-map)
-	;; Earlier GNU Emacs
-	(setq map (append minibuffer-local-map map))))
-    (define-key map "\t" 'comint-dynamic-complete)
-    (define-key map "\M-\t" 'comint-dynamic-complete)
-    (define-key map "\M-?" 'comint-dynamic-list-completions)
-    map)
-  "Minibuffer keymap used by `shell-command' and related commands."))
-
-
-(or (fboundp 'read-shell-command)
-(defun read-shell-command (prompt &optional initial-input history)
-      "Just like read-string, but uses read-shell-command-map:
-\\{read-shell-command-map}"
-      (let ((minibuffer-completion-table nil))
-        (read-from-minibuffer prompt initial-input read-shell-command-map
-                              nil (or history 'shell-command-history)))))
-
-
-(or (fboundp 'frames-of-buffer)
-;; From XEmacs 21.4.12, aliases expanded
-(defun frames-of-buffer (&optional buffer visible-only)
-  "Return list of frames that BUFFER is currently being displayed on.
-If the buffer is being displayed on the currently selected frame, that frame
-is first in the list.  VISIBLE-ONLY will only list non-iconified frames."
-  (let ((list (get-buffer-window-list buffer))
-	(cur-frame (selected-frame))
-	next-frame frames save-frame)
-
-    (while list
-      (if (memq (setq next-frame (window-frame (car list)))
-		frames)
-	  nil
-	(if (eq cur-frame next-frame)
-	    (setq save-frame next-frame)
-	  (and
-	   (or (not visible-only)
-	       (frame-visible-p next-frame))
-	   (setq frames (append frames (list next-frame))))))
-	(setq list (cdr list)))
-
-    (if save-frame
-	(append (list save-frame) frames)
-      frames))))
 
 ;; These functions are used in the intricate logic around
 ;; shrink-to-fit.  
@@ -194,16 +136,6 @@ is first in the list.  VISIBLE-ONLY will only list non-iconified frames."
       (>= (nth 3 (window-edges window))
 	  (frame-height (window-frame window)))))
 
-;; with-selected-window from XEmacs 21.4.12
-(or (fboundp 'with-selected-window)
-(defmacro with-selected-window (window &rest body)
-  "Execute forms in BODY with WINDOW as the selected window.
-The value returned is the value of the last form in BODY."
-  `(save-selected-window
-     (select-window ,window)
-     ,@body)))
-
-
 ;; find-coding-system emulation for GNU Emacs
 (unless (fboundp 'find-coding-system)
   (defun find-coding-system (name)
@@ -211,7 +143,6 @@ The value returned is the value of the last form in BODY."
     (condition-case nil
 	(check-coding-system name)
       (error nil))))
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -237,11 +168,5 @@ The value returned is the value of the last form in BODY."
 	  'proof-buffer-syntactic-context-emulate)
 
    
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Nasty: Emacs bug/problem fix section
-;;;
-
-
 ;; End of proof-compat.el
 (provide 'proof-compat)
