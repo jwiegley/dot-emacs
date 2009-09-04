@@ -92,8 +92,9 @@ Assumes script buffer is current."
 	(cond
 	 ((eq proof-follow-mode 'follow)
 	  (unless (pos-visible-in-window-p dest)
-	    (get-buffer-window (current-buffer) t)
-	    (goto-char pos)))
+	    (let ((win (get-buffer-window (current-buffer) t)))
+	      (if win
+		  (set-window-point win dest)))))
 	 ((eq proof-follow-mode 'locked)
 	  (if pos 
 	      (goto-char dest)
@@ -554,10 +555,10 @@ comment, and insert or skip to the next semi)."
 	    (unless proof-electric-terminator-noterminator
 	      (insert proof-terminal-string)
 	      (setq ins t))))
-      (let ((pos  (point))
-	    (semis
-	     (save-excursion
-	       (proof-segment-up-to-using-cache pos))))
+      (let* ((pos  (point))
+	     (semis
+	      (save-excursion
+		(proof-segment-up-to-using-cache pos))))
 	(if (eq 'unclosed-comment (car semis))
 	    (progn
 	      (setq incomment t)
@@ -565,7 +566,7 @@ comment, and insert or skip to the next semi)."
 	      (if ins (backward-delete-char 1)) 
 	      (goto-char mrk)
 	      (insert proof-terminal-string))
-	  (proof-assert-semis pos semis)
+	  (proof-assert-semis semis)
 	  (proof-script-next-command-advance))))))
 
 (defun proof-electric-terminator ()
