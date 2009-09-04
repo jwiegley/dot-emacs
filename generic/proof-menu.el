@@ -741,10 +741,10 @@ KEY is the optional key binding."
   (let ((grp (get symbol 'pggroup))
 	(nm  (symbol-name symbol)))
     (upcase-initials
-     (replace-in-string 
+     (replace-regexp-in-string "-" " "
       ;; strip the group name from the menu entry name.
-      (if grp (replace-in-string nm (concat (downcase grp) ":") "") nm)
-      "-" " "))))
+      (if grp (replace-regexp-in-string (concat (downcase grp) ":") "" nm) 
+	nm)))))
 
 (defun proof-menu-entry-for-setting (symbol setting type descr)
   (let ((entry-name  (proof-menu-entry-name symbol))

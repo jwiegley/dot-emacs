@@ -18,8 +18,9 @@
 ;;
 
 (eval-when-compile
-  (require 'cl)
   (require 'easymenu))
+
+(require 'cl)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -88,12 +89,6 @@ The value returned is the value of the last form in BODY."
        (unwind-protect
            (progn ,@body)
          (select-frame ,old-frame))))))
-
-
-;; FIXME: rewrite uses of this
-(defun replace-in-string (str regexp newtext &optional literal)
-  (replace-regexp-in-string regexp newtext str 'fixedcase literal))
-
 
 ;; An implemenation of buffer-syntactic-context for GNU Emacs
 (defun proof-buffer-syntactic-context-emulate (&optional buffer)

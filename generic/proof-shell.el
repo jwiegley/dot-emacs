@@ -273,8 +273,8 @@ Does nothing if proof assistant is already running."
 		       (cons
 			(if (getenv "LANG")
 			    (format "LANG=%s"
-				    (replace-in-string (getenv "LANG")
-						       "\\.UTF-8" ""))
+				    (replace-regexp-in-string "\\.UTF-8" ""
+							      (getenv "LANG")))
 			  "LANG=C")
 			(delete
 			 (concat "LANG=" (getenv "LANG"))

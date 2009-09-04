@@ -707,7 +707,7 @@ The name of the defined function is returned."
 
 (defun proof-escape-keymap-doc (string)
   ;; avoid work of substitute-command-keys
-  (replace-in-string string "\\\\" "\\\\=\\\\"))
+  (replace-regexp-in-string "\\\\" "\\\\=\\\\" string))
 
 (defmacro proof-defshortcut (fn string &optional key)
   "Define shortcut function FN to insert STRING, optional keydef KEY.
@@ -736,8 +736,7 @@ KEY is added onto proof-assistant map."
      (defun ,fn ()
        ,(concat "Command to send "
 		(if (stringp string)
-		    (replace-in-string
-		     string "\\\\" "\\\\=") ;; for substitute-command-keys
+		    (proof-escape-keymap-doc string)
 		  "an instruction")
 		" to the proof assistant.")
        (interactive)

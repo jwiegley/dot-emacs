@@ -301,9 +301,9 @@ is off (nil)."
   (interactive
    (list (read-string "Command: "
 		      (if (and current-prefix-arg (region-active-p))
-			  (replace-in-string
-			   (buffer-substring (region-beginning) (region-end))
-			   "[ \t\n]+" " "))
+			  (replace-regexp-in-string
+			   "[ \t\n]+" " "
+			   (buffer-substring (region-beginning) (region-end))))
 		      'proof-minibuffer-history)))
   (if (and proof-strict-state-preserving
 	   proof-state-preserving-p
