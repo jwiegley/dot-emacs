@@ -129,17 +129,13 @@ You can use customize to set this variable."
 (require 'proof-autoloads)
 
 ;; Add the info directory to the Info path
-(if ;; NB: proof-info-directory is bogus in RPM distrib.
-    (file-exists-p proof-info-directory)
-    (if (and (boundp 'Info-directory-list) (consp Info-directory-list))
+(if (file-exists-p proof-info-directory) ; for safety
+    (if (and (boundp 'Info-directory-list) Info-directory-list)
 	;; Info is already initialized.  Update its variables.
-	;; This probably never happens in Emacs, but does in XEmacs.
-	(if (not (member proof-info-directory Info-directory-list))
-	    (progn
-	      (add-to-list 'Info-directory-list proof-info-directory)
-	      (setq Info-dir-contents nil)))
+	(progn
+	  (add-to-list 'Info-directory-list proof-info-directory)
+	  (setq Info-dir-contents nil))
       ;; Info is not yet initialized.  Change its default.
-      ;; Emacs uses Info-default-directory-list but it's deprecated in XEmacs
       (add-to-list 'Info-default-directory-list proof-info-directory)))
 
 (defcustom proof-assistant-table
@@ -218,18 +214,7 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
 			     sname))
        (cusgrp-rt	 
 	;; Normalized a bit to remove spaces and funny characters
-	;; FIXME UGLY compatibility hack  
-	;; (can use cl macro `substitute' but want to avoid cl here)
-	;; NOTE: GNU Emacs 22/XEmacs 21.5 both have replace-regexp-in-string
-	;; PG 3.8: move version forward here.
-	(if (fboundp 'replace-in-string) 
-	    ;; XEmacs
-	    (replace-in-string (downcase assistant-name) "/\\|[ \t]+" "-")
-	  ;; GNU Emacs
-	  (subst-char-in-string 
-	   ?/ ?\- 
-	   (subst-char-in-string ?\ ?\- (downcase assistant-name)))))
-	;; END compatibility hack
+	(replace-regexp-in-string "/\\|[ \t]+" "-" (downcase assistant-name)))
        (cusgrp	      (intern cusgrp-rt))
        (cus-internals (intern (concat cusgrp-rt "-config")))
        (elisp-dir     sname)		; NB: dirname same as symbol name!
@@ -293,8 +278,7 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
 	 (proofgen-mode  (intern (concat sname "-mode")))
 	 ;; NB: Customization group for each prover is its l.c.'d name!
 	 
-	 ;; Stub to do some automatic initialization and load
-	 ;; the specific code.
+	 ;; Stub to initialize and load specific code.
 	 (mode-stub
 	  `(lambda ()
 	     ,(concat
@@ -302,9 +286,8 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
 	       assistant-name
 	       ".\nThis is a stub which loads the real function.")
 	     (interactive)
-	     ;; Give a message and stop loading if proof-assistant is
-	     ;; already set: things go wrong if proof general is
-	     ;; loaded for more than one prover.
+	     ;; Stop loading if proof-assistant is already set: 
+	     ;; cannot work for more than one prover.
 	     (cond
 	      ((and (boundp 'proof-assistant)
 		    (not (string-equal proof-assistant "")))
