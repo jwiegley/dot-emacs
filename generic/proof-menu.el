@@ -533,7 +533,7 @@ without adjusting window layout."
   (cons "Advanced..."
 	(append
 	 '(["Complete Identifier" proof-script-complete t]
-	   ["Insert last output" pg-insert-last-output-as-comment proof-shell-last-output])
+	   ["Insert Last Output" pg-insert-last-output-as-comment proof-shell-last-output])
 	 (list "-----")
 	 proof-show-hide-menu
 	 (list "-----")
