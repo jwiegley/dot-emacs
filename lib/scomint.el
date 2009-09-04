@@ -35,7 +35,7 @@ if non-nil.")
 (defvar scomint-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-m" 'scomint-send-input)
-    (define-key map "\C-c\C-c" 'interrupt-process)
+    (define-key map "\C-c\C-c" 'scomint-interrupt-process)
     map))
 
 (defvar scomint-last-input-start nil)
@@ -202,8 +202,6 @@ buffer.  The hook `scomint-exec-hook' is run after each exec."
     proc))
 
 
-
-
 (defalias 'scomint-send-string 'process-send-string)
 
 (defun scomint-send-eof ()
@@ -234,17 +232,17 @@ NO-NEWLINE is non-nil."
         (let ((beg (marker-position pmark))
               (end (if no-newline (point) (1- (point))))
               (inhibit-modification-hooks t))
-          (when (> end beg)
-            (add-text-properties beg end
-                                 '(front-sticky t
-                                   font-lock-face scomint-highlight-input))
+          ;; (when (> end beg)
+          ;;   (add-text-properties beg end
+          ;;                        '(front-sticky t
+          ;;                          font-lock-face scomint-highlight-input))
 
-          (unless no-newline
-            ;; Cover the terminating newline
-            (add-text-properties end (1+ end)
-                                 '(rear-nonsticky t
-                                   field boundary
-                                   inhibit-line-move-field-capture t))))
+          ;; (unless no-newline
+          ;;   ;; Cover the terminating newline
+          ;;   (add-text-properties end (1+ end)
+          ;;                        '(rear-nonsticky t
+          ;;                          field boundary
+          ;;                          inhibit-line-move-field-capture t))))
 
         ;; Update the markers before we send the input
         ;; in case we get output amidst sending the input.
@@ -320,14 +318,14 @@ NO-NEWLINE is non-nil."
 
 	    (goto-char (process-mark process)) ; in case a filter moved it
 
-	    (let ((inhibit-read-only t)
-		  (inhibit-modification-hooks t))
-	      (add-text-properties scomint-last-output-start (point)
-				   '(front-sticky
-				     (field inhibit-line-move-field-capture)
-				     rear-nonsticky t
-				     field output
-				     inhibit-line-move-field-capture t)))
+	    ;; (let ((inhibit-read-only t)
+	    ;; 	  (inhibit-modification-hooks t))
+	    ;;   (add-text-properties scomint-last-output-start (point)
+	    ;; 			   '(front-sticky
+	    ;; 			     (field inhibit-line-move-field-capture)
+	    ;; 			     rear-nonsticky t
+	    ;; 			     field output
+	    ;; 			     inhibit-line-move-field-capture t)))
 
 	    ;; Highlight the prompt, where we define `prompt' to mean
 	    ;; the most recent output that doesn't end with a newline.
@@ -358,6 +356,9 @@ NO-NEWLINE is non-nil."
 
 	    (goto-char saved-point)))))))
 
+(defun scomint-interrupt-process ()
+  (interactive)
+  (interrupt-process))
 
 
 (provide 'scomint)
