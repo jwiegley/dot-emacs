@@ -1348,12 +1348,26 @@ Argument SPAN has just been processed."
 		    (+ (length comment-start) (span-start span))
 		    (- (span-end span)
 		       (max 1 (length comment-end)))))
-	(id        (proof-next-element-id 'comment)))
+	(id        (proof-next-element-id 'comment))
+	str)
     (pg-add-element "comment" id bodyspan)
     (span-set-property span 'id (intern id))
-    (span-set-property span 'idiom 'comment)))
+    (span-set-property span 'idiom 'comment)
     ;; this tries to extract last output, which is wrong for comments.
     ;; (pg-set-span-helphighlights span)
+
+    ;; possibly evaluate some arbitrary Elisp.  SECURITY RISK!
+    (save-match-data
+      (setq str (buffer-substring-no-properties (span-start span)
+						(span-end span)))
+      (if (proof-string-match-safe proof-script-evaluate-elisp-comment-regexp str)
+	  (condition-case nil
+	      (eval (car (read-from-string (match-string-no-properties 1 str))))
+	    (t (proof-debug
+		(concat
+		 "lisp error when obeying proof-shell-evaluate-elisp-comment-regexp: \n"
+		 (print1-to-string (match-string-no-properties 1))
+		 "\n"))))))))
 
 
 (defun proof-done-advancing-save (span)

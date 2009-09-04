@@ -725,6 +725,20 @@ assistant, for example, to compile a completed file."
   :type '(repeat function)
   :group 'proof-script)
 
+(defcustom proof-script-evaluate-elisp-comment-regexp "ELISP: -- \\(.*\\) --"
+  "Matches text within a comment telling Proof General to evaluate some code.
+This allows Emacs Lisp to be executed during scripting.
+\(It's also a fantastic backdoor security risk).
+
+If the regexp matches text inside a comment, there should be
+one subexpression match string, which will contain elisp code
+to be evaluated.
+
+Elisp errors will be trapped when evaluating; set
+`proof-general-debug' to be informed when this happens."
+  :type 'regexp
+  :group 'proof-script)
+
 ;;
 ;; Proof script indentation
 ;;
@@ -1394,6 +1408,7 @@ standard protocol, PGIP, will use this mechanism for making all
 settings."
   :type '(choice nil regexp)
   :group 'proof-shell)
+
 
 (defcustom proof-shell-match-pgip-cmd nil
   "Regexp used to match PGIP command from proof assistant.
