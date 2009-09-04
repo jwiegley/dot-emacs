@@ -1726,10 +1726,11 @@ use a fresh Emacs.)
 
 This chapter describes what you can do from inside the goals buffer,
 providing support for these features exists for your proof assistant.
-As of Proof General 3.0, it only exists for LEGO.  If you would like to
-see subterm activation support for Proof General in another proof
-assistant, please petition the developers of that proof assistant to
-provide it!
+
+As of Proof General 4.0, this support only exists for LEGO.  
+If you would like to see subterm activation support for Proof General
+in another proof assistant, please petition the developers of that
+proof assistant to provide it!
 
 @menu
 * Goals buffer commands::
