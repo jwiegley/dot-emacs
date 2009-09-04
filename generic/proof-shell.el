@@ -17,7 +17,7 @@
 (eval-when-compile
   (require 'cl)
   (require 'span)
-  (require 'comint)
+  (require 'scomint)
   (require 'font-lock)
   (require 'proof-utils))
 
@@ -165,11 +165,11 @@ No change to current buffer or point."
     (error "Proof Process Busy!")))
 
 ;;;###autoload
-(defun proof-shell-live-buffer ()
+(defsubst proof-shell-live-buffer ()
   "Return buffer of active proof assistant, or nil if none running."
   (and proof-shell-buffer
        (buffer-live-p proof-shell-buffer)
-       (comint-check-proc proof-shell-buffer)))
+       (scomint-check-proc proof-shell-buffer)))
 
 ;;;###autoload
 (defun proof-shell-available-p ()
@@ -327,7 +327,7 @@ Does nothing if proof assistant is already running."
 
 	(message "Starting: %s" prog-command-line)
 
-	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
+	(apply 'scomint-make  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list)))
 	
 	(setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
@@ -414,7 +414,7 @@ Does nothing if proof assistant is already running."
 Try to shut down the proof process nicely and clear locked
 regions and state variables.  Value for `kill-buffer-hook' in
 shell buffer, alled by `proof-shell-bail-out' if process exits."
-  (let* ((alive    (comint-check-proc (current-buffer)))
+  (let* ((alive    (scomint-check-proc (current-buffer)))
 	 (proc     (get-buffer-process (current-buffer)))
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
@@ -441,9 +441,9 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	      ;; politely.  Do this before deleting other buffers,
 	      ;; etc, so that any closing down processing works okay.
 	      (if proof-shell-quit-cmd
-		  (comint-send-string proc
+		  (scomint-send-string proc
 				      (concat proof-shell-quit-cmd "\n"))
-		(comint-send-eof))
+		(scomint-send-eof))
 	      ;; Wait a while for it to die before killing
 	      ;; it off more rudely.  In XEmacs, accept-process-output
 	      ;; or sit-for will run process sentinels if a process
@@ -456,11 +456,11 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 		    (add-timeout
 		     proof-shell-quit-timeout
 		     (lambda (&rest args)
-		       (if (comint-check-proc (current-buffer))
+		       (if (scomint-check-proc (current-buffer))
 			   (kill-process (get-buffer-process
 					  (current-buffer))))
 		       (throw 'exited t)) nil))
-	      (while (comint-check-proc (current-buffer))
+	      (while (scomint-check-proc (current-buffer))
 		;; Perhaps XEmacs hangs too, lets try both wait forms.
 		(accept-process-output nil 1)
 		(sit-for 1)))
@@ -470,7 +470,7 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	    ;; FIXME: this was added to fix 'No catch for exited tag'
 	    ;; problem, but it's done later below anyway?
 	    (set-process-sentinel proc nil)))
-      (if (comint-check-proc (current-buffer))
+      (if (scomint-check-proc (current-buffer))
 	  (proof-debug
 	   "Error in proof-shell-kill-function: process still lives!"))
       ;; For GNU Emacs, proc may be nil if killed already.
@@ -872,7 +872,7 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
     (if proof-shell-expecting-output
 	(progn
 	  (setq proof-shell-interrupt-pending t) ; interrupt even if no interrupt message
-	  (interrupt-process nil comint-ptyp))
+	  (interrupt-process nil scomint-ptyp))
       ;; otherwise, interrupt the queue right here
       (proof-shell-error-or-interrupt-action 'interrupt))))
       
@@ -886,7 +886,7 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
 
 ;;;###autoload
 (defun proof-shell-insert (string action &optional scriptspan)
-  "Insert STRING at the end of the proof shell, call `comint-send-input'.
+  "Insert STRING at the end of the proof shell, call `scomint-send-input'.
 
 First we call `proof-shell-insert-hook'.  The arguments `action' and
 `scriptspan' may be examined by the hook to determine how to modify
@@ -930,13 +930,7 @@ used in `proof-append-alist' when we start processing a queue, and in
     ;; position -1
     (insert " ")
 
-    ;; Note: comint-send-input perversely calls the output filter
-    ;; functions on the input, sigh.  This can mess up PGIP processing
-    ;; since we try to re-interpret an XML message which has been
-    ;; string-escaped, etc, etc.  We prevent this by disabling the
-    ;; output filter functions when calling the input function.
-    (let ((comint-output-filter-functions nil))
-      (comint-send-input))
+    (scomint-send-input) ; NB: for comint, had to disable output-filter-functions
 
     (setq proof-shell-expecting-output t)))
 
@@ -998,7 +992,7 @@ track what happens in the proof queue."
 
 (defun proof-append-alist (alist &optional queuemode)
   "Chop off the vacuous prefix of the command queue ALIST and queue it.
-For each `proof-no-command' item at the head of the list, invoke its
+For each item with a nil command at the head of the list, invoke its
 callback and remove it from the list.
 
 Append the result onto `proof-action-list', and if the proof
@@ -1010,9 +1004,7 @@ then QUEUEMODE must match the mode of the queue currently
 being processed."
   (let (item)
     ;; NB: wrong time for callbacks for no-op commands, if queue non-empty.
-    (while (and alist (string=
-		       (nth 1 (setq item (car alist)))
-		       proof-no-command))
+    (while (and alist (not (nth 1 (setq item (car alist)))))
       (proof-shell-invoke-callback item)
       (setq alist (cdr alist)))
     (if (and (null alist) (null proof-action-list))
@@ -1083,7 +1075,7 @@ The queue mode is set to 'advancing"
 If this function is called with a non-empty proof-action-list, the
 head of the list is the previously executed command which succeeded.
 We execute (ACTION SPAN) on the first item, then (ACTION SPAN) on any
-following items which have `proof-no-command' as their cmd components.
+following items which have null as their cmd components.
 
 If a there is a next command after that, send it to the process.
 
@@ -1107,9 +1099,7 @@ The return value is non-nil if the action list is now empty."
 
        ;; slurp comments without sending to prover
        (while (and proof-action-list
-		   (string=
-		    (nth 1 (setq item (car proof-action-list)))
-		    proof-no-command))
+		   (not (nth 1 (setq item (car proof-action-list)))))
 	 (proof-shell-invoke-callback item)
 	 (setq proof-action-list (cdr proof-action-list)))
 
@@ -1343,7 +1333,7 @@ MESSAGE should be a string annotated with
 
 (defun proof-shell-filter (str)
   "Filter for the proof assistant shell-process.
-A function for `comint-output-filter-functions'.
+A function for `scomint-output-filter-functions'.
 
 Deal with output and issue new input from the queue.  This is
 an important internal function.
@@ -1391,8 +1381,8 @@ is only changed when input is sent in `proof-shell-insert'."
 	(progn
 	  (setq str (replace-regexp-in-string "\r+$" "" str))
 	  ;; Do the same thing in the buffer via comint's function
-	  ;; (sometimes put on comint-output-filter-functions too).
-	  (comint-strip-ctrl-m)))
+	  ;; (sometimes put on scomint-output-filter-functions too).
+	  (scomint-strip-ctrl-m)))
 
     ;; Process urgent messages.
     (and proof-shell-eager-annotation-start
@@ -1484,7 +1474,9 @@ is only changed when input is sent in `proof-shell-insert'."
 		      (proof-shell-filter-manage-output string)
 		      ;; Cleanup shell buffer
 		      (unless proof-general-debug
-			(pg-remove-specials prev-prompt (point-max)))
+			(pg-remove-specials (min (point-max)
+						 prev-prompt) 
+					    (point-max)))
 		      )))
 	    (if proof-shell-busy
 		;; internal error recovery:
@@ -1496,7 +1488,7 @@ is only changed when input is sent in `proof-shell-insert'."
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
 Scanning starts from `proof-shell-urgent-message-scanner' or
-`comint-last-input-end', which ever is later.  We deal with strings
+`scomint-last-input-end', which ever is later.  We deal with strings
 between regexps eager-annotation-start and eager-annotation-end.
 
 Note that we must search the buffer rather than the chunk of output
@@ -1506,7 +1498,7 @@ chunks are broken: it may be in the middle of an annotation.
 This is a subroutine of `proof-shell-filter'."
   (let ((pt (point)) (end t) lastend
 	(start (max (marker-position proof-shell-urgent-message-scanner)
-		    (marker-position comint-last-input-end))))
+		    (marker-position scomint-last-input-end))))
     (goto-char start)
     (while (and end
 		(re-search-forward proof-shell-eager-annotation-start
@@ -1823,58 +1815,42 @@ Error messages are displayed as usual."
 
 ;(eval-and-compile			; to define vars
 ;;;###autoload
-(define-derived-mode proof-shell-mode comint-mode
+(define-derived-mode proof-shell-mode scomint-mode
   "proof-shell" "Proof General shell mode class for proof assistant processes"
 
   (setq proof-buffer-type 'shell)
   
-  ;; Clear state
   (proof-shell-clear-state)
 
-  ;; Efficiency: don't keep undo history
   (buffer-disable-undo)
 
-  ;; comint customisation. comint-prompt-regexp is used by
-  ;; comint-get-old-input, comint-skip-prompt, comint-bol, backward
-  ;; matching input, etc.
+  ;; comint customisation. 
+
   (if proof-shell-prompt-pattern
-      (setq comint-prompt-regexp proof-shell-prompt-pattern))
-
-  ;; An article by Helen Lowe in UITP'96 suggests that the user should
-  ;; not see all output produced by the proof process.
-  (remove-hook 'comint-output-filter-functions
-	       'comint-postoutput-scroll-to-bottom 'local)
-
-  (add-hook 'comint-output-filter-functions 'proof-shell-filter nil 'local)
-  (setq comint-get-old-input (function (lambda () "")))
-
-  ;; For a bit of memory saving in case of large inputs, don't keep history ring
-  (setq comint-input-ring-size 1)
-  (setq comint-input-ring (make-ring comint-input-ring-size))
+      (setq scomint-prompt-regexp proof-shell-prompt-pattern))
+ 
+  (setq scomint-output-filter-functions '(proof-shell-filter))
 
   ;; Proof marker is initialised in filter to first prompt found
   (setq proof-marker (make-marker))
-  ;; Urgent message marker records end position of last urgent
-  ;; message seen.
+
+  ;; Urgent message marker: end of last urgent message seen.
   (setq proof-shell-urgent-message-marker (make-marker))
-  ;; Urgent message scan marker records starting position to
-  ;; scan for urgent messages from
+
+  ;; Urgent message scan marker records start of scanning point.
   (setq proof-shell-urgent-message-scanner (make-marker))
   (set-marker proof-shell-urgent-message-scanner (point-min))
 
   ;; Make cut functions work with proof shell output
   (add-hook 'buffer-substring-filters 'proof-shell-strip-output-markup)
 
-  ;; FIXME da: before entering proof assistant specific code,
+  ;; Note da: before entering proof assistant specific code,
   ;; we'd do well to check that process is actually up and
-  ;; running now.  If not, call the process sentinel function
+  ;; running now.  If not, could call the process sentinel function
   ;; to display the buffer, and give an error.
   ;; (Problem to fix is that process can die before sentinel is set:
   ;;  it ought to be set just here, perhaps: but setting hook here
   ;;  had no effect for some odd reason).
-  ;; What actually happens: an obscure infinite loop somewhere
-  ;; that can lead to "lisp nesting exceeded" somewhere, when
-  ;; shell startup fails.  Ugly, but low priority to fix.
   );)
 
 ;;
