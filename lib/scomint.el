@@ -256,6 +256,7 @@ NO-NEWLINE is non-nil."
 	 (concat input (unless no-newline "\n"))))))))
 
 
+;; TODO: run this on a timer rather than on every I/O
 (defun scomint-truncate-buffer (&optional string)
   "Truncate the buffer to `scomint-buffer-maximum-size'."
   (interactive)
@@ -313,7 +314,7 @@ NO-NEWLINE is non-nil."
 	    ;; Run these hooks with point where the user had it.
 	    (goto-char saved-point)
 	    (run-hook-with-args 'scomint-output-filter-functions string)
-	    (scomint-truncate-buffer)
+	    ;; (scomint-truncate-buffer)
 
 	    (set-marker saved-point (point))
 
