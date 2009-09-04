@@ -586,6 +586,11 @@ Checks the width in the `proof-goals-buffer'"
        (isar-string-wrapping string))
     (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)))
 
+(defcustom isar-wrap-commands-singly t
+  "Non-nil to use command wrapping around commands sent to Isabelle.
+This slows down interactive processing somewhat."
+  :type 'boolean
+  :group 'isabelle)
 
 (defun isar-preprocessing ()
   "Insert sync markers and other hacks.
@@ -598,7 +603,9 @@ Uses variables `string' and `scriptspan' passed by dynamic scoping."
       (setq string (concat
 		    "\\<^sync>; "
 		    (isar-shell-adjust-line-width)
-		    (isar-command-wrapping string scriptspan)
+		    (if isar-wrap-commands-singly
+			(isar-command-wrapping string scriptspan)
+		      (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string))
 		    " \\<^sync>;")))))
 
 ;;
