@@ -31,7 +31,8 @@
 
 ;;; Code:
 
-(require 'cl)
+(eval-when-compile
+  (require 'cl))
 
 ;;{{{ Valid Buffer
 
