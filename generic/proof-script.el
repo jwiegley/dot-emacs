@@ -72,68 +72,6 @@ This uses and updates `proof-element-counters'."
   (proof-element-id idiom (proof-next-element-count idiom)))
 
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Configuration of function-menu (aka "fume")
-;;
-;; Ideally we would like this code only enabled if the user loads
-;; func-menu into Emacs.
-;;
-
-(deflocal proof-script-last-entity nil
-  "Record of last entity found.
-A hack for entities that are named in two places, so that `find-next-entity'
-doesn't return the same values twice.")
-
-;; FIXME mmw: maybe handle comments/strings by using
-;; proof-looking-at-syntactic-context
-(defun proof-script-find-next-entity (buffer)
-  "Find the next entity for function menu in a proof script.
-A value for `fume-find-function-name-method-alist' for proof scripts.
-Uses `fume-function-name-regexp', which is initialised from
-`proof-script-next-entity-regexps', which see."
-  ;; Hopefully this function is fast enough.
-  (set-buffer buffer)
-  ;;  could as well use next-entity-regexps directly since this is
-  ;;  not really meant to be used as a general function.
-  (let ((anyentity	(car fume-function-name-regexp)))
-    (if (proof-re-search-forward anyentity nil t)
-	;; We've found some interesting entity, but have to find out
-	;; which one, and where it begins.
-	(let ((entity (buffer-substring (match-beginning 0) (match-end 0)))
-	      (start (match-beginning 0))
-	      (discriminators (cdr fume-function-name-regexp))
-	      (p (point))
-	      disc res)
-	  (while (and (not res) (setq disc (car-safe discriminators)))
-	    (if (proof-string-match (car disc) entity)
-		(let*
-		    ((items (nth 1 disc))
-		     (items (if (numberp items) (list items) items))
-		     (name ""))
-		  (dolist (item items)
-		    (setq name
-			  (concat name
-				  (substring entity
-					     (match-beginning item)
-					     (match-end item))
-				  " ")))
-		  (cond
-		   ((eq (nth 2 disc) 'backward)
-		    (setq start
-			  (or (proof-re-search-backward (nth 3 disc) nil t)
-			      start))
-		    (goto-char p))
-		   ((eq (nth 2 disc) 'forward)
-		    (proof-re-search-forward (nth 3 disc))))
-		  (setq res (cons name start)))
-	      (setq discriminators (cdr discriminators))))
-	  res))))
-
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
