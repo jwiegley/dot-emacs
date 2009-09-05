@@ -655,7 +655,7 @@ Optional argument NOHIGHLIGHT means do not add highlight mouse face property."
 				      (point))))
 		      (span-make newstart (span-end span)))))
     (setq helpmsg
-	  (concat (if (> (length proofstate) 2) "" helpmsg)
+	  (concat (if (<= (length proofstate) 2) helpmsg)
 		  proofstate))
     (span-set-property newspan 'pghelp t)
     (if pg-show-hints ;; only message in minibuf if hints on
