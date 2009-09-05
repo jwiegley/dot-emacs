@@ -1691,7 +1691,7 @@ output format."
   :group 'proof-shell)
 
 (defcustom proof-state-change-hook nil
-  "This hook is called when state change may have occurred.
+  "This hook is called when a scripting state change may have occurred.
 Specifically, this hook is called after a region has been asserted or
 retracted, or after a command has been sent to the prover with
 `proof-shell-invisible-command'.
