@@ -1334,6 +1334,51 @@ removed if it matches the last item in the ring."
   (setq pg-input-ring nil))
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Protected undo  (added in PG 4.0)
+;;
+;; From a suggestion of Stefan Monnier as an improvement over the
+;; previous use of `undo-make-selective-list' to hack
+;; `buffer-undo-list' in `proof-set-queue-endpoints'.
+;;
+;; We make a cheeky replacement of the standard undo function
+;; (cf adding advice).  Rebinding keys in proof script mode
+;; would be cleaner, but would need to alter edit menu, as well.
+;;
+
+(unless (fboundp 'pg-ordinary-undo)
+  (fset 'pg-ordinary-undo (symbol-function 'undo)))
+
+(defun pg-protected-undo (&optional arg)
+  "Behaves as `undo' unless undo would edit the locked region.
+In this case, undo is only allowed in the unlocked region,
+unless `proof-allow-undo-in-read-only' is set. 
+
+Undoing will use the standard undo in region behaviour, which
+skips undo entries in the locked region.
+
+This function uses `pg-ordinary-undo' as a rebound version of undo."
+  (interactive "*P")
+  (if (or (not proof-locked-span)
+	  proof-allow-undo-in-read-only
+	  (equal (proof-queue-or-locked-end) (point-min)))
+      (pg-ordinary-undo arg)
+    (let* (;(transient-mark-mode nil)
+	   (savedpoint  (point))
+	   ;(savedmark   (mark))
+	   (repeat      (if (numberp arg) arg 1)))
+      (push-mark (proof-queue-or-locked-end) t)
+      (save-excursion
+	(goto-char (point-max))
+	(while (> repeat 0)	       ; crude recovery of n-fold undo
+	  (pg-ordinary-undo t)	       ; undo in unlocked region only
+	  (decf repeat)))
+      (pop-mark))))
+
+(defalias 'undo 'pg-protected-undo)
+
 (provide 'pg-user)
 
 ;;; pg-user.el ends here
