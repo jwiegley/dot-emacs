@@ -7,6 +7,8 @@
 *** XEmacs is no longer supported; PG only works with GNU Emacs 22.2+
 
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
+    Unicode Tokens has been significantly improved since PG 3.7.1.
+    For best results, Emacs 23 is recommended.
 
 *** Document-centred mechanisms added:
     - output retained for script buffer popups
@@ -21,14 +23,22 @@
     proof-auto-raise-buffers  (set to nil for manual control)
     proof-full-decoration     (add full decoration to input)
 
+*** Improved prevention of Undo in locked region
+    proof-allow-undo-in-read-only: now defaults to nil
+
 *** Removed user configuration options
     proof-toolbar-use-button-enablers  (now always used)
+    proof-output-fontify-enable        (now always enabled)
 
 *** Altered prover configuration settings
     pg-insert-output-as-comment-fn:  removed
     proof-shell-strip-output-markup: required for cut-and-paste
     proof-electric-terminator-noterminator: allows non-insert of terminator
 
+*** Primary distribution formats changed
+    The RPM and zip file formats have been removed.
+    We are very grateful to third-party packagers for Debian and Fedora
+    for distributing packaged versions of PG.
 
 ** Isabelle/Isar changes
 
