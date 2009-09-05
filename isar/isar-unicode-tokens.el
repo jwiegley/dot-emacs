@@ -38,7 +38,7 @@
 (defconst isar-control-region-format-regexp
   "\\(\\\\<\\^%s>\\)\\(.*?\\)\\(\\\\<\\^%s>\\)")
 
-(defconst isar-control-char-format-regexp 
+(defconst isar-control-char-format-regexp
   "\\(\\\\<\\^%s>\\)\\([^\\]\\|\\\\<[A-Za-z]+>\\)")
 
 (defconst isar-control-char-format	   "\\<^%s>")
@@ -47,12 +47,12 @@
 
 
 (defcustom isar-control-characters
-  '(("Subscript" "sub" sub) 
+  '(("Subscript" "sub" sub)
     ("Id subscript" "isub" sub)
-    ("Superscript" "sup" sup) 
+    ("Superscript" "sup" sup)
     ("Id superscript" "isup" sup)
     ("Loc" "loc" declaration)
-    ("Bold" "bold" bold) 
+    ("Bold" "bold" bold)
     ;; unofficial:
     ("Italic" "italic" italic))
   "Control character tokens for Isabelle."
@@ -61,7 +61,7 @@
 
 (defcustom isar-control-regions
   '(("Subscript" "bsub" "esub" sub)
-    ("Superscript" "bsup" "esup" sup) 
+    ("Superscript" "bsup" "esup" sup)
     ;; unofficial:
     ("Bold" "bbold" "ebold" bold)
     ("Italic" "bitalic" "eitalic" italic)
@@ -78,16 +78,16 @@
   "Control sequence tokens for Isabelle."
   :group 'isabelle-tokens
   :set 'isar-set-and-restart-tokens)
-    
+
 ;;
 ;; Symbols
 ;;
 
 (defconst isar-token-format "\\<%s>")
 
-;(defconst isar-token-variant-format-regexp 
+;(defconst isar-token-variant-format-regexp
 ;  "\\\\<\\(%s\\)\\([:][a-zA-Z0-9]+\\)?>") ; syntax change required
-(defconst isar-token-variant-format-regexp 
+(defconst isar-token-variant-format-regexp
   "\\\\<\\(%s\\)[0-9]*>") ; unofficial interpretation of usual syntax
 
 (defcustom isar-greek-letters-tokens
@@ -169,7 +169,7 @@
     ("leadsto" "↝")
     ("downharpoonleft" "⇃")
     ("downharpoonright" "⇂")
-    ("upharpoonleft" "↿")  ;; 
+    ("upharpoonleft" "↿")  ;;
     ("upharpoonright" "↾") ;; overlaps restriction
     ("restriction" "↾")    ;; same as above
     ("Colon" "∷")
@@ -224,7 +224,7 @@
     ("subset" "⊂")
     ("supset" "⊃")
     ("subseteq" "⊆")
-    ("supseteq" "⊇")    
+    ("supseteq" "⊇")
     ("sqsubset" "⊏")
     ("sqsupset" "⊐")
     ("sqsubseteq" "⊑")
@@ -284,7 +284,7 @@
     ("odot" "⊙")
     ("Odot" "⨀")
     ("ominus" "⊖")
-    ("oslash" "⊘") 
+    ("oslash" "⊘")
     ("dots" "…")
     ("cdots" "⋯")
     ("Sum" "∑")
@@ -343,7 +343,7 @@
     ("spacespace" "⁣⁣") ;; two #x002063
 ;    ("module" "") ??
     ("some" "ϵ")
-    
+
     ;; Not in Standard Isabelle Symbols
     ;; (some are in X-Symbols)
 
@@ -430,8 +430,8 @@
     ("Longleftrightarrow" "⇐⇒")
     ("longmapsto" "❘→")
     ;; bracket composition alternatives
-    ("lparr" "(|")  
-    ("rparr" "|)") 
+    ("lparr" "(|")
+    ("rparr" "|)")
     ;; an example of using characters from another charset.
     ;; to expand this table, see output of M-x list-charset-chars
     ("lbrakk" ,(isar-try-char 'japanese-jisx0208 #x22 #x5A))
@@ -447,7 +447,7 @@ tokens."
   :group 'isabelle-tokens
   :set 'isar-set-and-restart-tokens)
 
-(defcustom isar-bold-nums-tokens 
+(defcustom isar-bold-nums-tokens
   '(("zero" "0" bold)
     ("one" "1" bold)
     ("two" "2" bold)
@@ -466,7 +466,7 @@ tokens."
 (defun isar-map-letters (f1 f2 &rest symbs)
   (loop for x below 26
 	for c = (+ 65 x)
-	collect 
+	collect
 	(cons (funcall f1 c) (cons (funcall f2 c) symbs))))
 
 (defconst isar-script-letters-tokens
@@ -488,7 +488,7 @@ tokens."
   "Table mapping Isabelle symbol token names to Unicode strings.
 See `unicode-tokens-token-symbol-map'.
 
-You can adjust this table to change the default entries.  
+You can adjust this table to change the default entries.
 
 Each element is a list
 
@@ -503,6 +503,7 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
 (defcustom isar-user-tokens nil
   "User-defined additions to `isar-token-symbol-map'."
   :type 'unicode-tokens-symbol-map
+  :group 'isabelle
   :set 'isar-set-and-restart-tokens
   :tag "User extensions for Isabelle Token Mapping")
 
@@ -563,7 +564,7 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ("=>" . "\\<Rightarrow>")
     ("<->" . "\\<leftrightarrow>")
     ("<=>" . "\\<Leftrightarrow>")
-    ("|->" . "\\<mapsto>") 
+    ("|->" . "\\<mapsto>")
     ("<--" . "\\<longleftarrow>")
     ("<==" . "\\<Longleftarrow>")
     ("-->" . "\\<longrightarrow>")
@@ -611,21 +612,21 @@ See `unicode-tokens-shortcut-alist'."
 		      (append
 		       isar-symbol-shortcuts
 		       ;; LaTeX-like syntax for symbol names, easier to type
-		       (mapcar 
+		       (mapcar
 			(lambda (tokentry)
 			  (cons (concat "\\" (car tokentry))
 				(format isar-token-format (car tokentry))))
-			(append isar-greek-letters-tokens 
+			(append isar-greek-letters-tokens
 				isar-symbols-tokens)))))
 
 (isar-init-shortcut-alists)
 
 ;;
-;; prover symbol support 
+;; prover symbol support
 ;;
 
-(eval-after-load "isar" 
-  '(setq 
+(eval-after-load "isar"
+  '(setq
     proof-tokens-activate-command
     (isar-markup-ml "change print_mode (insert (op =) \"xsymbols\")")
     proof-tokens-deactivate-command
