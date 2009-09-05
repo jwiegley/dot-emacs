@@ -5047,6 +5047,7 @@
 ;; taken from xmlunicode.el, also by Norman Walsh.
 ;; Modified a bit by me to use its own help-style buffer
 
+;;;###autoload
 (defun unicode-chars-list-chars ()
   "Insert each Unicode character into a buffer.
 Lets you see which characters are available for literal display
