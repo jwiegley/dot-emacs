@@ -12,6 +12,8 @@
 ;; code which also uses skeletons: the interesting positions used
 ;; for MMM markup are made into holes!
 
+(require 'mmm-auto)
+
 (mmm-add-group
  'coq
  `((coq-text
