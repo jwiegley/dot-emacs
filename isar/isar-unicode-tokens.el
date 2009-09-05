@@ -580,6 +580,8 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ("{|" . "\\<lbrace>")
     ("|}" . "\\<rbrace>")
     ("---" . "\\<emdash>")
+    ("(|" . "\\<lparr>")
+    ("|)" . "\\<rparr>")
     ;; useful for unicode-tokens-replace-shortcuts
     ("ALL" . "\\<forall>")
     ("EX"  . "\\<exists>")
@@ -589,7 +591,7 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ;; ("!"  . "\\<forall>")
     ;; ("?"  . "\\<exists>")
     ;; extra misc, switch them off if you don't like them
-    ;("|>" . "\\<triangleright>")
+    ;("|>" . "\\<triangleright>") ; clashes with ML parsing combinator
     ("<|" . "\\<triangleleft>"))
   "Shortcut key sequence table for symbol tokens input.
 See `unicode-tokens-shortcut-alist'."
@@ -617,7 +619,9 @@ See `unicode-tokens-shortcut-alist'."
 			  (cons (concat "\\" (car tokentry))
 				(format isar-token-format (car tokentry))))
 			(append isar-greek-letters-tokens
-				isar-symbols-tokens)))))
+				isar-symbols-tokens))))
+  ;; copy default for this from above
+  (setq unicode-tokens-shortcut-replacement-alist nil))
 
 (isar-init-shortcut-alists)
 
