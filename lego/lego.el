@@ -1,5 +1,5 @@
 ;; lego.el Major mode for LEGO proof assistants
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh.
 ;; Author:      Thomas Kleymann and Dilip Sequeira
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
@@ -10,6 +10,8 @@
 
 (require 'proof)
 (require 'lego-syntax)
+(eval-when-compile
+  (require 'outline))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; User Configuration ;;;
@@ -40,7 +42,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Configuration of Generic Proof Package ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Users should not need to change this. 
+;; Users should not need to change this.
 
 (defvar lego-shell-process-output
   '((lambda (cmd string) (proof-string-match "^Module" cmd)) .
@@ -63,7 +65,7 @@ Activates extended printing routines required for Proof General.")
 
 (defconst lego-pretty-set-width "Configure PrettyWidth %s; "
   "Command to adjust the linewidth for pretty printing of the LEGO
-  process.") 
+  process.")
 
 (defconst lego-interrupt-regexp "Interrupt.."
   "Regexp corresponding to an interrupt")
@@ -80,7 +82,7 @@ Activates extended printing routines required for Proof General.")
   "The WWW address for the latest LEGO release."
   :type 'string
   :group 'lego)
-	  
+
 (defcustom lego-www-refcard
   (concat lego-www-latest-release "refcard.ps.gz")
   "URL for the Lego reference card."
@@ -100,9 +102,9 @@ Activates extended printing routines required for Proof General.")
   "*Name of program to run as lego.")
 
 (defvar lego-shell-cd "Cd \"%s\";"
-  "*Command of the inferior process to change the directory.") 
+  "*Command of the inferior process to change the directory.")
 
-(defvar lego-shell-abort-goal-regexp 
+(defvar lego-shell-abort-goal-regexp
   "KillRef: ok, not in proof state\\|Forget forced KillRef"
   "*Regular expression indicating that the proof of the current goal
   has been abandoned.")
@@ -131,7 +133,7 @@ Activates extended printing routines required for Proof General.")
 
 (defvar lego-outline-regexp
   (concat "[[*]\\|"
-	  (proof-ids-to-regexp 
+	  (proof-ids-to-regexp
 	   '("Discharge" "DischargeKeep" "Freeze" "$?Goal" "Module" "Record" "Inductive"
      "Unfreeze"))))
 
@@ -161,7 +163,7 @@ Activates extended printing routines required for Proof General.")
     (setq font-lock-keywords lego-font-lock-terms)
     (lego-init-syntax-table)
     (proof-response-config-done)))
-  
+
 (define-derived-mode lego-goals-mode proof-goals-mode
   "LEGOGoals" "LEGO Proof State"
   (lego-goals-mode-config))
@@ -186,7 +188,7 @@ Given is the first SPAN which needs to be undone."
 		 (setq ct (+ 1 ct))))
 	    ((eq (span-property span 'type) 'pbp)
 	     (setq i 0)
-	     (while (< i (length str)) 
+	     (while (< i (length str))
 	       (if (= (aref str i) proof-terminal-char) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
       (setq span (next-span span 'type)))
@@ -198,13 +200,13 @@ Given is the first SPAN which needs to be undone."
   (proof-string-match lego-goal-command-regexp
 		      (or (span-property span 'cmd) "")))
 
-(defun lego-find-and-forget (span) 
+(defun lego-find-and-forget (span)
   (let (str ans)
     (while (and span (not ans))
       (setq str (span-property span 'cmd))
-      
+
       (cond
-       
+
        ((eq (span-property span 'type) 'comment))
 
        ((eq (span-property span 'type) 'proverproc))
@@ -220,28 +222,28 @@ Given is the first SPAN which needs to be undone."
 	(let ((ids (match-string 1 str))) ; returns "a,b"
 	  (proof-string-match proof-id ids)	; matches "a"
 	  (setq ans (format lego-forget-id-command (match-string 1 ids)))))
-	   
+
        ((proof-string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
 	(setq ans (format lego-forget-id-command (match-string 2 str))))
 
-       ((proof-string-match 
+       ((proof-string-match
 	 "\\`\\(Inductive\\|Record\\)\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
-	(setq ans 
+	(setq ans
 	      (format lego-forget-id-command (match-string 2 str))))
-       
+
        ((proof-string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
 	(setq ans (format "ForgetMark %s;" (match-string 1 str)))))
       ;; Carry on searching forward for something to forget
       ;; (The first thing to be forget will forget everything following)
       (setq span (next-span span 'type)))
   ans)); was (or ans proof-no-command)
-  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lego-goal-hyp ()
-  (cond 
+  (cond
    ((looking-at lego-goal-regexp)
     (cons 'goal (match-string 1)))
    ((looking-at proof-shell-assumption-regexp)
@@ -278,12 +280,12 @@ Given is the first SPAN which needs to be undone."
 Checks the width in the `proof-goals-buffer'"
   (and (buffer-live-p proof-goals-buffer)
        (proof-shell-live-buffer)
-       (save-excursion 
+       (save-excursion
 	 (set-buffer proof-goals-buffer)
 	 (let ((current-width
 		;; Actually, one might sometimes
 		;; want to get the width of the proof-response-buffer
-		;; instead. Never mind. 
+		;; instead. Never mind.
 		(window-width (get-buffer-window proof-goals-buffer t))))
 	   (if (equal current-width lego-shell-current-line-width) ()
 	     ; else
@@ -299,7 +301,7 @@ Checks the width in the `proof-goals-buffer'"
   (setq proof-script-comment-end "*)")
 
   (setq proof-assistant-home-page lego-www-home-page)
-  
+
   (setq proof-showproof-command "Prf;"
 	proof-goal-command "Goal %s;"
 	proof-save-command "Save %s;"
@@ -312,7 +314,7 @@ Checks the width in the `proof-goals-buffer'"
 	proof-completed-proof-behaviour 'closeany ; new in 3.0
 	proof-count-undos-fn 'lego-count-undos
 	proof-find-and-forget-fn 'lego-find-and-forget
-        pg-topterm-goalhyplit-fn 'lego-goal-hyp
+	pg-topterm-goalhyplit-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
@@ -325,7 +327,7 @@ Checks the width in the `proof-goals-buffer'"
 
   (lego-init-syntax-table)
 
-  ;; da: I've moved these out of proof-config-done in proof-script.el 
+  ;; da: I've moved these out of proof-config-done in proof-script.el
   (setq pbp-goal-command "Pbp %s;")
   (setq pbp-hyp-command "PbpHyp %s;")
 
@@ -336,7 +338,7 @@ Checks the width in the `proof-goals-buffer'"
   (proof-config-done)
 
 ;; outline
-  
+
   (make-local-variable 'outline-regexp)
   (setq outline-regexp lego-outline-regexp)
 
@@ -372,7 +374,7 @@ The directory and extension is stripped of FILENAME before the test."
 It needs to return an up to date list of all processed files. Its
 output is stored in `proof-included-files-list'. Its input is the
 string of which `lego-shell-retract-files-regexp' matched a
-substring. 
+substring.
 
 We assume that module identifiers coincide with file names."
   (let ((module (match-string 1 str)))
@@ -382,37 +384,37 @@ We assume that module identifiers coincide with file names."
 
 (defun lego-shell-mode-config ()
   (setq proof-shell-cd-cmd lego-shell-cd
-        proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
-        proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
-        proof-shell-error-regexp lego-error-regexp
+	proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
+	proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
+	proof-shell-error-regexp lego-error-regexp
 	proof-shell-interrupt-regexp lego-interrupt-regexp
-        proof-shell-assumption-regexp lego-id
-        pg-subterm-first-special-char ?\360
-        proof-shell-wakeup-char ?\371
-        pg-subterm-start-char ?\372
-        pg-subterm-sep-char ?\373
-        pg-subterm-end-char ?\374
-        pg-topterm-regexp "\375"
+	proof-shell-assumption-regexp lego-id
+	pg-subterm-first-special-char ?\360
+	proof-shell-wakeup-char ?\371
+	pg-subterm-start-char ?\372
+	pg-subterm-sep-char ?\373
+	pg-subterm-end-char ?\374
+	pg-topterm-regexp "\375"
 	proof-shell-eager-annotation-start "\376"
 	proof-shell-eager-annotation-start-length 1
 	proof-shell-eager-annotation-end "\377"
-        proof-shell-annotated-prompt-regexp "Lego> \371"
-        proof-shell-result-start "\372 Pbp result \373"
-        proof-shell-result-end "\372 End Pbp result \373"
-        proof-shell-start-goals-regexp "\372 Start of Goals \373"
-        proof-shell-end-goals-regexp "\372 End of Goals \373"
+	proof-shell-annotated-prompt-regexp "Lego> \371"
+	proof-shell-result-start "\372 Pbp result \373"
+	proof-shell-result-end "\372 End Pbp result \373"
+	proof-shell-start-goals-regexp "\372 Start of Goals \373"
+	proof-shell-end-goals-regexp "\372 End of Goals \373"
 	proof-shell-pre-sync-init-cmd "Configure AnnotateOn;"
-        proof-shell-init-cmd lego-process-config
+	proof-shell-init-cmd lego-process-config
 	proof-shell-restart-cmd lego-process-config
 	pg-subterm-anns-use-stack nil
 	proof-shell-process-output-system-specific lego-shell-process-output
-        lego-shell-current-line-width nil
+	lego-shell-current-line-width nil
 
 	;; LEGO uses Unicode escape prefix: liable to create problems
-	proof-shell-unicode nil 
+	proof-shell-unicode nil
 
 	proof-shell-process-file
-	(cons "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]"  
+	(cons "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]"
 	  (lambda (str) (let ((match (match-string 2 str)))
 			  (if (equal match "") match
 			    (concat (file-name-sans-extension match) ".l")))))
@@ -421,7 +423,7 @@ We assume that module identifiers coincide with file names."
 	"forgot back through Mark \"\\(.*\\)\""
 	font-lock-keywords lego-font-lock-keywords-1
 
-	proof-shell-compute-new-files-list 
+	proof-shell-compute-new-files-list
 	'lego-shell-compute-new-files-list)
 
   (lego-init-syntax-table)
@@ -434,6 +436,6 @@ We assume that module identifiers coincide with file names."
   (setq font-lock-keywords lego-font-lock-terms)
   (lego-init-syntax-table)
   (proof-goals-config-done))
-  
+
 
 (provide 'lego)
