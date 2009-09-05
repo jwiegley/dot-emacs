@@ -32,6 +32,10 @@
 SComint buffers are truncated from the top to be no greater than this number,
 if non-nil.")
 
+(defvar scomint-output-filter-functions nil
+  "Functions to call after output is inserted into the buffer.")
+
+
 (defvar scomint-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-m" 'scomint-send-input)
@@ -48,6 +52,7 @@ This is called after the process is cranked up.  It is useful for things that
 must be done each time a process is executed in a Comint mode buffer (e.g.,
 `(process-kill-without-query)').")
 
+(put 'scomint-output-filter-functions 'permanent-local t)
 (put 'scomint-mode 'mode-class 'special)
 
 

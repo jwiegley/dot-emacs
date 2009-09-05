@@ -30,6 +30,9 @@
   :type 'string
   :group 'proof-user-options)
 
+(defvar pg-fontsets-names nil
+  "*List of fontsets to use with Proof General.")
+
 (defun pg-fontsets-make-fontsetsizes (basefont)
   (dolist (size '(10 12 14 18 22))
     (add-to-list 'pg-fontsets-names
