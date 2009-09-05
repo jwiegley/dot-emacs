@@ -1,3 +1,4 @@
+(* See trac #200 *)
 theory Trac200 imports Main begin
 
 (* Test simulating sledgehammer asynchronous output *)

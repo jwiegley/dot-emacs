@@ -6,7 +6,7 @@
 ;; Maintainers:   David Aspinall, Makarius, Stefan Berghofer
 ;;
 ;; Authors:       David Aspinall <David.Aspinall@ed.ac.uk>
-;;   	          Markus Wenzel <wenzelm@in.tum.de>
+;;	          Markus Wenzel <wenzelm@in.tum.de>
 ;;
 ;; Contributors:  David von Oheimb, Sebastian Skalberg
 ;;
@@ -257,12 +257,12 @@ See -k option for Isabelle interface script."
 (defun isar-remove-file (name files cmp-base result)
   (if (not files) (reverse result)
     (let*
-        ((file (car files))
-         (rest (cdr files))
-         (same (if cmp-base (string= name (file-name-nondirectory file))
-                 (string= name file))))
+	((file (car files))
+	 (rest (cdr files))
+	 (same (if cmp-base (string= name (file-name-nondirectory file))
+		 (string= name file))))
       (if same (isar-remove-file name rest cmp-base result)
-        (isar-remove-file name rest cmp-base (cons file result))))))
+	(isar-remove-file name rest cmp-base (cons file result))))))
 
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
@@ -272,7 +272,7 @@ This is called when Proof General spots output matching
       ((name (match-string 1 str))
        (base-name (file-name-nondirectory name)))
     (if (string= name base-name)
-        (isar-remove-file name proof-included-files-list t nil)
+	(isar-remove-file name proof-included-files-list t nil)
       (isar-remove-file (file-truename name) proof-included-files-list nil nil))))
 
 
@@ -359,30 +359,30 @@ This is called when Proof General spots output matching
    (list isabelle-logics-menu-entries)
    (list
     (cons "Commands"
-          (list
-           ["refute"             isar-cmd-refute         t]
-           ["quickcheck"         isar-cmd-quickcheck     t]
-           ["sledgehammer"       isar-cmd-sledgehammer   t]
+	  (list
+	   ["refute"             isar-cmd-refute         t]
+	   ["quickcheck"         isar-cmd-quickcheck     t]
+	   ["sledgehammer"       isar-cmd-sledgehammer   t]
 	   ["display draft"	 isar-cmd-display-draft  t]
 	   ["set isabelle"       (isa-set-isabelle-command 't) t])))
    (list
     (cons "Show me ..."
-          (list
-           ["cases"              isar-help-cases          t]
-           ["facts"              isar-help-facts          t]
-           ["term bindings"      isar-help-binds          t]
+	  (list
+	   ["cases"              isar-help-cases          t]
+	   ["facts"              isar-help-facts          t]
+	   ["term bindings"      isar-help-binds          t]
 	   "----"
-           ["classical rules"    isar-help-claset         t]
-           ["induct/cases rules" isar-help-induct-rules   t]
-           ["simplifier rules"   isar-help-simpset        t]
-           ["theorems"           isar-help-theorems       t]
-           ["transitivity rules" isar-help-trans-rules    t]
+	   ["classical rules"    isar-help-claset         t]
+	   ["induct/cases rules" isar-help-induct-rules   t]
+	   ["simplifier rules"   isar-help-simpset        t]
+	   ["theorems"           isar-help-theorems       t]
+	   ["transitivity rules" isar-help-trans-rules    t]
 	   "----"
-           ["antiquotations"     isar-help-antiquotations t]
-           ["attributes"         isar-help-attributes     t]
-           ["commands"           isar-help-commands       t]
-           ["inner syntax"       isar-help-syntax         t]
-           ["methods"            isar-help-methods        t])))))
+	   ["antiquotations"     isar-help-antiquotations t]
+	   ["attributes"         isar-help-attributes     t]
+	   ["commands"           isar-help-commands       t]
+	   ["inner syntax"       isar-help-syntax         t]
+	   ["methods"            isar-help-methods        t])))))
 
 (defalias 'isar-set-command 'isa-set-isabelle-command)
 
@@ -397,21 +397,21 @@ This is called when Proof General spots output matching
     (while span
       (setq str (or (span-property span 'cmd) ""))
       (cond ((eq (span-property span 'type) 'vanilla)
-             (or (proof-string-match isar-undo-skip-regexp str)
+	     (or (proof-string-match isar-undo-skip-regexp str)
 		 (proof-string-match isar-undo-ignore-regexp str)
-                 (setq ct (+ 1 ct))))
-            ((eq (span-property span 'type) 'pbp)
-             ;; this case for automatically inserted text (e.g. sledgehammer)
-             (cond ((not (proof-string-match isar-undo-skip-regexp str))
+		 (setq ct (+ 1 ct))))
+	    ((eq (span-property span 'type) 'pbp)
+	     ;; this case for automatically inserted text (e.g. sledgehammer)
+	     (cond ((not (proof-string-match isar-undo-skip-regexp str))
 		    (setq ct 1)
-                    (setq i 0)
+		    (setq i 0)
 		    ;; If we find a semicolon, assume several commands,
 		    ;; and increment the undo count.
-                    (while (< i (length str))
-                      (if (= (aref str i) proof-terminal-char)
-                          (setq ct (+ 1 ct)))
-                      (setq i (+ 1 i))))
-                   (t nil))))
+		    (while (< i (length str))
+		      (if (= (aref str i) proof-terminal-char)
+			  (setq ct (+ 1 ct)))
+		      (setq i (+ 1 i))))
+		   (t nil))))
       (setq span (next-span span 'type)))
     (isar-undos ct)))
 
@@ -431,26 +431,26 @@ This is called when Proof General spots output matching
        ((or (eq (span-property span 'type) 'comment)
 	    (eq (span-property span 'type) 'proverproc)
 	    (eq (span-property span 'type) 'proof); da: needed?
-            (proof-string-match isar-undo-skip-regexp str)
-            (proof-string-match isar-undo-ignore-regexp str)))
+	    (proof-string-match isar-undo-skip-regexp str)
+	    (proof-string-match isar-undo-ignore-regexp str)))
        ;; finished goal: undo
        ((eq (span-property span 'type) 'goalsave)
-        (setq ans isar-undo))
+	(setq ans isar-undo))
        ;; open goal: skip and exit
        ((proof-string-match isar-goal-command-regexp str)
-        (setq span nil))
+	(setq span nil))
        ;; control command: cannot undo
        ((and (proof-string-match isar-undo-fail-regexp str))
-        (setq ans (isar-cannot-undo (match-string 1 str)))
-        (setq answers nil)
-        (setq span nil))
+	(setq ans (isar-cannot-undo (match-string 1 str)))
+	(setq answers nil)
+	(setq span nil))
        ;; theory: remove and exit
        ((proof-string-match isar-undo-remove-regexp str)
-        (setq ans (isar-remove (match-string 2 str)))
-        (setq span nil))
+	(setq ans (isar-remove (match-string 2 str)))
+	(setq span nil))
        ;; else: undo
        (t
-        (setq ans isar-undo)))
+	(setq ans isar-undo)))
       (if ans (setq answers (cons ans answers)))
       (if span (setq span (next-span span 'type))))
     (if (null answers) nil ; was proof-no-command
@@ -469,17 +469,17 @@ This is called when Proof General spots output matching
      (while (and (not ans) span (setq span (prev-span span 'type)))
        (setq cmd (or (span-property span 'cmd) ""))
        (cond
-        ;; comment: skip
-        ((eq (span-property span 'type) 'comment))
-        ;; local qed: enter block
-        ((proof-string-match isar-save-command-regexp cmd)
-         (setq lev (+ lev 1)))
-        ;; local goal: leave block, or done
-        ((proof-string-match isar-local-goal-command-regexp cmd)
-         (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
-        ;; global goal: done
-        ((proof-string-match isar-goal-command-regexp cmd)
-         (setq ans 'yes))))
+	;; comment: skip
+	((eq (span-property span 'type) 'comment))
+	;; local qed: enter block
+	((proof-string-match isar-save-command-regexp cmd)
+	 (setq lev (+ lev 1)))
+	;; local goal: leave block, or done
+	((proof-string-match isar-local-goal-command-regexp cmd)
+	 (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
+	;; global goal: done
+	((proof-string-match isar-goal-command-regexp cmd)
+	 (setq ans 'yes))))
      (eq ans 'yes))))
 
 (defvar isar-current-goal 1
@@ -520,19 +520,19 @@ selected.")
 Checks the width in the `proof-goals-buffer'"
   (let ((ans ""))
     (and (buffer-live-p proof-goals-buffer)
-         (proof-shell-live-buffer)
-         (save-excursion
-           (set-buffer proof-goals-buffer)
-           (let ((current-width
-                  ;; Actually, one might want the width of the
-                  ;; proof-response-buffer instead. Never mind.
-                  (max 20 (window-width
+	 (proof-shell-live-buffer)
+	 (save-excursion
+	   (set-buffer proof-goals-buffer)
+	   (let ((current-width
+		  ;; Actually, one might want the width of the
+		  ;; proof-response-buffer instead. Never mind.
+		  (max 20 (window-width
 			   (get-buffer-window proof-goals-buffer t)))))
 
-             (if (equal current-width isar-shell-current-line-width) ()
-               (setq isar-shell-current-line-width current-width)
-               (set-buffer proof-shell-buffer)
-               (setq ans (format "pretty_setmargin %d;"
+	     (if (equal current-width isar-shell-current-line-width) ()
+	       (setq isar-shell-current-line-width current-width)
+	       (set-buffer proof-shell-buffer)
+	       (setq ans (format "pretty_setmargin %d;"
 				 (- current-width 4)))))))
     ans))
 
@@ -562,8 +562,7 @@ Checks the width in the `proof-goals-buffer'"
 	  (goto-char (span-start span))
 	  (skip-chars-forward " \t\n")
 	  ;; NB: position is relative to display (narrowing, etc)
-	  ;; defer column: too tricky for now (Isabelle symbols
-	  ;; vs displayed chars, etc)
+	  ;; defer column: too tricky for now, see trac #274
 	  ; (setq column (current-column))
 	  (setq line (line-number-at-pos (point)))))
     (concat
