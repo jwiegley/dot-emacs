@@ -747,6 +747,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 		     (assoc match unicode-tokens-shortcut-replacement-alist)))))
     (if repl (regexp-quote repl))))
 
+;; handy for legacy Isabelle files, probably not useful in general.
 (defun unicode-tokens-replace-shortcuts ()
   "Query-replace shortcuts in the buffer with compositions they expand to."
   (interactive)
@@ -756,9 +757,28 @@ Available annotations chosen from `unicode-tokens-control-regions'."
     ;; (doesn't help with C-h: need way to programmatically show string)
     (flet ((query-replace-descr (str) (if (eq str shortcut-regexp)
 					  "shortcut" str)))
-      (perform-replace shortcut-regexp (cons 'unicode-tokens-replace-shortcut-match
-					     nil)
+      (perform-replace shortcut-regexp 
+		       (cons 'unicode-tokens-replace-shortcut-match nil)
 		       t t nil))))
+
+(defun unicode-tokens-replace-unicode-match (&rest ignore)
+  "Subroutine for `unicode-tokens-replace-unicode'."
+  (let* ((useq	(match-string-no-properties 0))
+	 (token (gethash useq unicode-tokens-uchar-hash-table)))
+    (if token (regexp-quote 
+	       (format unicode-tokens-token-format token)))))
+
+(defun unicode-tokens-replace-unicode ()
+  "Query-replace unicode sequences in the buffer with tokens having same appearance."
+  (interactive)
+  (let ((uchar-regexp unicode-tokens-uchar-regexp))
+    ;; override the display of the regexp because it's huge!
+    ;; (doesn't help with C-h: need way to programmatically show string)
+    (flet ((query-replace-descr (str) (if (eq str uchar-regexp)
+					  "unicode presentation" str)))
+      (perform-replace uchar-regexp 
+		       (cons 'unicode-tokens-replace-unicode-match nil)
+       t t nil))))
 
 ;;
 ;; Token and shortcut tables
@@ -878,6 +898,9 @@ of symbol compositions, and will lose layout information."
   "Paste text from clipboard, converting Unicode to tokens where possible."
   (interactive)
   (let ((start (point)) end)
+    ;; da: notice bug in Emacs 23 snapshot (at least) on Ubuntu 9.04
+    ;; that gives wrong default to x-select-enable-clipboard
+    ;; need: (setq x-select-enable-clipboard t)
     (clipboard-yank)
     (setq end (point-marker))
     (while (re-search-backward unicode-tokens-uchar-regexp start t)
@@ -1189,11 +1212,11 @@ Commands available are:
    "Tokens menu"
     (cons "Tokens"
      (list
-      ["Insert token..." unicode-tokens-insert-token]
-      ["Next token"      unicode-tokens-rotate-token-forward]
-      ["Prev token"      unicode-tokens-rotate-token-backward]
-      ["Delete token"    unicode-tokens-delete-token-near-point]
-       (cons "Format char"
+      ["Insert Token..." unicode-tokens-insert-token]
+      ["Next Token"      unicode-tokens-rotate-token-forward]
+      ["Prev Token"      unicode-tokens-rotate-token-backward]
+      ["Delete Token"    unicode-tokens-delete-token-near-point]
+       (cons "Format Char"
 	     (mapcar
 	     (lambda (fmt)
 	       (vector (car fmt)
@@ -1202,7 +1225,7 @@ Commands available are:
 		       :help (concat "Format next item as "
 				     (downcase (car fmt)))))
 	     unicode-tokens-control-characters))
-       (cons "Format region"
+       (cons "Format Region"
 	    (mapcar
 	     (lambda (fmt)
 	       (vector (car fmt)
@@ -1216,31 +1239,35 @@ Commands available are:
       ["List tokens"     unicode-tokens-list-tokens]
       ["List shortcuts"  unicode-tokens-list-shortcuts]
       ["List Unicode Charset"  unicode-tokens-list-unicode-chars]
-      ["Replace shortcuts" unicode-tokens-replace-shortcuts]
       "---"
-      ["Copy as unicode" unicode-tokens-copy
+      ["Copy As Unicode" unicode-tokens-copy
        :active 'mark-active
-       :help "Copy text from buffer, converting tokens to Unicode"]
-      ["Paste from unicode" unicode-tokens-paste
+       :help "Copy presentation form of text from buffer, converting tokens to Unicode"]
+      ["Paste From Unicode" unicode-tokens-paste
        :active (and kill-ring (not buffer-read-only))
-       :help "Paste from clipboard, converting Unicode to tokens where possible"]
+       :help 
+       "Paste from clipboard, converting Unicode to tokens where possible"]
+      ["Replace Shortcuts" unicode-tokens-replace-shortcuts
+       :help "Query-replace shortcut sequences with tokens they expand to"]
+      ["Replace Unicode" unicode-tokens-replace-unicode
+       :help "Query-replace Unicode characters with tokens where possible"]
        "---"
-      ["Show control tokens" unicode-tokens-show-controls
+      ["Show Control Tokens" unicode-tokens-show-controls
        :style toggle
        :selected unicode-tokens-show-controls
        :active (or
 		unicode-tokens-control-region-format-regexp
 		unicode-tokens-control-char-format-regexp)
        :help "Prevent hiding of control tokens"]
-      ["Show symbol tokens" unicode-tokens-show-symbols
+      ["Show Symbol Tokens" unicode-tokens-show-symbols
        :style toggle
        :selected unicode-tokens-show-symbols
        :help "Show tokens for symbols"]
-      ["Highlight real Unicode chars" unicode-tokens-highlight-unicode
+      ["Highlight Real Unicode Chars" unicode-tokens-highlight-unicode
        :style toggle
        :selected unicode-tokens-highlight-unicode
-       :help "Hightlight non-ASCII characters in buffer which are saved as Unicode"]
-      ["Enable shortcuts" unicode-tokens-use-shortcuts
+       :help "Hightlight non-8bit characters in buffer which are saved as Unicode"]
+      ["Enable Shortcuts" unicode-tokens-use-shortcuts
        :style toggle
        :selected unicode-tokens-use-shortcuts
        :active unicode-tokens-shortcut-alist
@@ -1259,9 +1286,9 @@ Commands available are:
 	     :help (concat "Set the " (symbol-name var) " font")))
 	 unicode-tokens-fonts)
 	 (list "----"
-	["Save fonts" unicode-tokens-save-fonts
+	["Save Fonts" unicode-tokens-save-fonts
 	 :help "Save the customized font choices"]
-	["Make fontsets"
+	["Make Fontsets"
 	 (lambda () (interactive) (require 'pg-fontsets))
 	 :active (not (featurep 'pg-fontsets))
 	 :help "Define fontsets (for Options->Set fontsets)"
