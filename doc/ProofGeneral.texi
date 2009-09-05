@@ -228,18 +228,10 @@ other documentation, system downloads, etc.
 Proof General version 4.0 is a major overhaul of Proof General.
 The main changes are:
 @itemize @bullet
-@item support for GNU Emacs only, @b{you cannot use XEmacs any more}@item
-@item support for Unicode tokens mode, which replaces X-Symbol
-@item allow ``document centred'' working, keeping interaction history in script buffers
+@item support for GNU Emacs only, @b{you cannot use XEmacs any more}
+@item addition of Unicode Tokens mode, which now replaces X-Symbol
+@item allow ``document centred'' working, annotating scripts with prover output
 @end itemize
-
-Proof General 4.0 is available in RPM package format which includes
-pre-compiled code for GNU Emacs and 
-desktop integration on freedesktop.org compliant desktops (including,
-for example, many recent Linux distributions).
-
-@c Other stuff pending:
-@c Support for *thms* buffer??
 
 See the @file{CHANGES} file in the distribution for more complete
 details of changes, and the appendix @ref{History of Proof General}
@@ -255,25 +247,23 @@ The aim of the Proof General project is to provide powerful environments
 and tools for interactive proof.
 
 Proof General has been Emacs based so far and uses heavy per-prover
-customisation.  The new @b{Proof General Kit} project proposes that
-proof assistants use a @i{standard} XML-based protocol for interactive
-proof, dubbed @b{PGIP}.  PGIP will enable middleware for interactive
-proof tools and interface components.  Rather than configuring Proof
-General for your proof assistant, you will need to configure your proof
+customisation.  The @b{Proof General Kit} project proposes that proof
+assistants use a @i{standard} XML-based protocol for interactive proof,
+dubbed @b{PGIP}.  PGIP will enable middleware for interactive proof
+tools and interface components.  Rather than configuring Proof General
+for your proof assistant, you will need to configure your proof
 assistant to understand PGIP.  There is a similarity however; the design
 of PGIP was based heavily on the Emacs Proof General framework.
 
 At the time of writing, the Proof General Kit software is in a prototype
-stage.  We have a prototype Proof General plugin for the Eclipse IDE and
-a prototype version of a PGIP-enabled Isabelle.  There is also a
-middleware component for co-ordinating proof written in Haskell, the
-@i{Proof General Broker}.  Further collaborations are sought for more
-developments, especially the PGIP enabling of other provers.  For more
-details, see 
-@uref{http://proofgeneral.inf.ed.ac.uk/kit, the Proof General Kit webpage}. 
- Help us to help you organize your proofs!
-
-
+stage and the PGIP protocol is still being refined.  We have a prototype
+Proof General plugin for the Eclipse IDE and a prototype version of a
+PGIP-enabled Isabelle.  There is also a middleware component for
+co-ordinating proof written in Haskell, the @i{Proof General Broker}.
+Further collaborations are sought for more developments, especially the
+PGIP enabling of other provers.  For more details, see
+@uref{http://proofgeneral.inf.ed.ac.uk/kit, the Proof General Kit
+webpage}.  Help us to help you organize your proofs!
 
 
 
@@ -323,7 +313,7 @@ words found their way here from the user documentation of LEGO mode,
 prepared by Dilip Sequeira.  Healfdene Goguen supplied some text for
 Coq Proof General.  Since Proof General 2.0, this manual has been
 maintained and improved by David Aspinall.  Pierre Courtieu and Markus
-Wenzel contributed some sections.
+Wenzel have contributed some sections.
 
 The Proof General project has benefited from (indirect) funding by EPSRC
 (@i{Applications of a Type Theory Based Proof Assistant} in the late
@@ -334,13 +324,17 @@ support of the LFCS.  Version 3.1 was prepared whilst David Aspinall was
 visiting ETL, Japan, supported by the British Council.  
 
 Since Proof General 3.7, Graham Dutton has assisted with the project
-management system and web pages.
-For testing and feedback for older versions of Proof General, thanks
-go to Rod Burstall, Martin Hofmann, and James McKinna, and some of
-those who continued to help with the latest 3.x series, named next.
+management system and web pages.  For testing and feedback for older
+versions of Proof General, thanks go to Rod Burstall, Martin Hofmann,
+and James McKinna, and some of those who continued to help with the
+latest 3.x series, named next.
+
+For the Proof General 4.0 release, special thanks go to Stefan Monnier
+for patches and suggestions, and to Makarius for many bug reports.
+
 
 @c FIXME: watch contributors here!
-During the development of Proof General 3.x releases, 
+During the development of Proof General 3.x and 4.0 releases, 
 many people helped provide testing and other feedback, 
 including the Proof General maintainers,
 Paul Callaghan, Pierre Courtieu, and Markus Wenzel, 
@@ -359,6 +353,7 @@ Mark A. Hillebrand,
 Greg O'Keefe,
 Pierre Lescanne,
 John Longley, 
+Assia Mahboubi,
 Stefan Monnier,
 Tobias Nipkow, 
 Leonor Prensa Nieto, 
@@ -1871,13 +1866,15 @@ displaying prover output.
 
 Several configuration settings can be used to fine tune this behaviour.
 
-First, you should select
+First, you may select
 @lisp
 Proof General -> Options -> Full Annotations
 @end lisp
-to ensure that the details are recorded in the script (this is the
-default, but it can be disabled to prevent storing larging 
-amounts of output).  
+to ensure that the details are recorded in the script.  This is not the
+default because it can cause long sequences of commands to execute more
+slowly as the prover must output information.  It also increases the
+space requirements for Emacs buffers.  However, when interactively
+developing smaller files, it is very useful.
 
 Next, you may @i{de}select 
 @lisp
@@ -4696,7 +4693,7 @@ been added which replaces X-Symbol.
 @c friendly and the display in multiple-window mode is trimmed to
 @c allow more text space for display.  
 
-Proof General 4.0 is available in RPM package format which includes
+Proof General 3.7 is available in RPM package format which includes
 pre-compiled code for GNU Emacs and 
 desktop integration on freedesktop.org compliant desktops (including,
 for example, many recent Linux distributions).
