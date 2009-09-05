@@ -42,7 +42,7 @@ This list is in the right format for proof-easy-config.")
 (defconst isar-script-syntax-table-alist
   ;; NB: this is used for imenu.  Probably only need word syntax
   (let ((syn isar-script-syntax-table-entries)
-        al)
+	al)
     (while syn
       (setq al (cons (cons (char-to-string (car syn)) (cadr syn)) al))
       (setq syn (cddr syn)))
@@ -78,74 +78,74 @@ This list is in the right format for proof-easy-config.")
 (defconst isar-keywords-theory-enclose
   (append isar-keywords-theory-begin
 	  isar-keywords-theory-switch
-          isar-keywords-theory-end))
+	  isar-keywords-theory-end))
 
 (defconst isar-keywords-theory
   (append isar-keywords-theory-heading
-          isar-keywords-theory-decl
-          isar-keywords-theory-goal))
+	  isar-keywords-theory-decl
+	  isar-keywords-theory-goal))
 
 (defconst isar-keywords-save
   (append isar-keywords-qed
-          isar-keywords-qed-block
-          isar-keywords-qed-global))
+	  isar-keywords-qed-block
+	  isar-keywords-qed-global))
 
 (defconst isar-keywords-proof-enclose
   (append isar-keywords-proof-block
-          isar-keywords-proof-open
-          isar-keywords-proof-close
-          isar-keywords-qed-block))
+	  isar-keywords-proof-open
+	  isar-keywords-proof-close
+	  isar-keywords-qed-block))
 
 (defconst isar-keywords-proof
   (append isar-keywords-proof-heading
-          isar-keywords-proof-goal
-          isar-keywords-proof-chain
-          isar-keywords-proof-decl
-          isar-keywords-qed))
+	  isar-keywords-proof-goal
+	  isar-keywords-proof-chain
+	  isar-keywords-proof-decl
+	  isar-keywords-qed))
 
 (defconst isar-keywords-proof-context
   (append isar-keywords-proof-asm
-          isar-keywords-proof-asm-goal))
+	  isar-keywords-proof-asm-goal))
 
 (defconst isar-keywords-local-goal
   (append isar-keywords-proof-goal
-          isar-keywords-proof-asm-goal))
+	  isar-keywords-proof-asm-goal))
 
 (defconst isar-keywords-proper
   (append isar-keywords-theory
-          isar-keywords-proof-enclose
-          isar-keywords-proof))
+	  isar-keywords-proof-enclose
+	  isar-keywords-proof))
 
 (defconst isar-keywords-improper
   (append isar-keywords-theory-script
-          isar-keywords-proof-script
-          isar-keywords-qed-global))
+	  isar-keywords-proof-script
+	  isar-keywords-qed-global))
 
 (defconst isar-keywords-outline
   isar-keywords-theory-heading)
 
 (defconst isar-keywords-fume
   (append isar-keywords-theory-begin
-          isar-keywords-theory-heading
-          isar-keywords-theory-decl
-          isar-keywords-theory-script
-          isar-keywords-theory-goal))
+	  isar-keywords-theory-heading
+	  isar-keywords-theory-decl
+	  isar-keywords-theory-script
+	  isar-keywords-theory-goal))
 
 (defconst isar-keywords-indent-open
   (append isar-keywords-theory-goal
-          isar-keywords-proof-goal
-          isar-keywords-proof-asm-goal
-          isar-keywords-proof-open))
+	  isar-keywords-proof-goal
+	  isar-keywords-proof-asm-goal
+	  isar-keywords-proof-open))
 
 (defconst isar-keywords-indent-close
   (append isar-keywords-save
-          isar-keywords-proof-close))
+	  isar-keywords-proof-close))
 
 (defconst isar-keywords-indent-enclose
   (append isar-keywords-proof-block
-          isar-keywords-proof-close
-          isar-keywords-qed-block
-          (list isar-keyword-begin)))
+	  isar-keywords-proof-close
+	  isar-keywords-qed-block
+	  (list isar-keyword-begin)))
 
 
 ;; ----- regular expressions
@@ -173,9 +173,9 @@ This list is in the right format for proof-easy-config.")
 (defun isar-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching all elements"
   (let* ((special (remove-if-not (lambda (s) (string-match "{\\|}" s)) l))
-         (normal (remove-if (lambda (s) (string-match "{\\|}" s)) l))
-         (s-reg (isar-regexp-simple-alt special))
-         (n-reg (concat "\\<\\(?:" (isar-regexp-simple-alt normal) "\\)\\>")))
+	 (normal (remove-if (lambda (s) (string-match "{\\|}" s)) l))
+	 (s-reg (isar-regexp-simple-alt special))
+	 (n-reg (concat "\\<\\(?:" (isar-regexp-simple-alt normal) "\\)\\>")))
     (cond
      ((null special) n-reg)
      ((null normal) s-reg)
@@ -258,12 +258,12 @@ matches contents of quotes for quoted identifiers.")
 		     (looking-at "[ \t\n]*--")
 		     'comment))))
       sc)))
-	  
+
 
 ;; antiquotations
 
-(defconst isar-antiq-regexp 
-  (concat "@{\\(?:[^\"{}]\\|" isar-string "\\)*}") 
+(defconst isar-antiq-regexp
+  (concat "@{\\(?:[^\"{}]\\|" isar-string "\\)*}")
   "Regexp matching Isabelle/Isar antiquotations.")
 
 ;; keyword nesting
@@ -277,10 +277,10 @@ matches contents of quotes for quoted identifiers.")
     (save-excursion
       (goto-char (point-min))
       (while (proof-re-search-forward isar-nesting-regexp limit t)
-        (cond
-         ((proof-buffer-syntactic-context))
-         ((equal (match-string 0) isar-keyword-begin) (incf nesting))
-         ((equal (match-string 0) isar-keyword-end) (decf nesting)))))
+	(cond
+	 ((proof-buffer-syntactic-context))
+	 ((equal (match-string 0) isar-keyword-begin) (incf nesting))
+	 ((equal (match-string 0) isar-keyword-end) (decf nesting)))))
     nesting))
 
 (defun isar-match-nesting (limit)
@@ -364,9 +364,9 @@ matches contents of quotes for quoted identifiers.")
    (cons isar-improper-regexp 'font-lock-reference-face)
    (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
 
-(put 'isar-goals-mode 
+(put 'isar-goals-mode
      'font-lock-extra-managed-props '(invisible sendback))
-(put 'isar-response-mode 
+(put 'isar-response-mode
      'font-lock-extra-managed-props '(invisible sendback))
 
 (defun isar-output-flkprops (start regexp end props)
@@ -381,31 +381,31 @@ matches contents of quotes for quoted identifiers.")
 (defvar isar-output-font-lock-keywords-1
   (list
    '("\^A[IJKLMNOPV]" (0 '(face nil invisible t) t))
-   (isar-output-flkprops 
-    "\^AW" "\\(?:[^\^A]\\|\^A[^X]\\)*" "\^AX" 
+   (isar-output-flkprops
+    "\^AW" "\\(?:[^\^A]\\|\^A[^X]\\)*" "\^AX"
     '(face (:underline t) mouse-face 'highlight sendback t))
 
-   (isar-output-flk "\^A0" 
-		    "\\(?:[^\^A]\\|\^A[^1]\\)*" "\^A1" 
+   (isar-output-flk "\^A0"
+		    "\\(?:[^\^A]\\|\^A[^1]\\)*" "\^A1"
 		    'proof-warning-face)
 
 ;; done generically at the moment:
 ;; (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
 
-   (isar-output-flk "\^AB" isar-long-id-stuff 
+   (isar-output-flk "\^AB" isar-long-id-stuff
 		    "\^AA" 'isabelle-class-name-face)
-   (isar-output-flk "\^AC" (concat "'" isar-id) 
+   (isar-output-flk "\^AC" (concat "'" isar-id)
 		    "\^AA" 'isabelle-tfree-name-face)
    (isar-output-flk "\^AD" (concat "\\??'" isar-idx)
 		    "\^AA" 'isabelle-tvar-name-face)
    (isar-output-flk "\^AE" isar-id "\^AA" 'isabelle-free-name-face)
    (isar-output-flk "\^AF" isar-id "\^AA" 'isabelle-bound-name-face)
-   (isar-output-flk "\^AG" (concat "\\??" isar-idx) 
+   (isar-output-flk "\^AG" (concat "\\??" isar-idx)
 		    "\^AA" 'isabelle-var-name-face)
    (isar-output-flk "\^AH" (concat "\\??" isar-idx)
 		    "\^AA" 'proof-declaration-name-face)
 
-   ;; may alternatively hide the spurious ASCII characters which 
+   ;; may alternatively hide the spurious ASCII characters which
    ;; aren't needed when working in colour (Isabelle printing switch
    ;; allows this for ?'s but not for 's):
    ; (isar-output-flk "\^AC'" isar-id "\^AA" 'isabelle-tfree-name-face)
@@ -468,8 +468,8 @@ matches contents of quotes for quoted identifiers.")
 
 (defconst isar-undo-commands
   (list
-   isar-linear-undo 
-   isar-undo 
+   isar-linear-undo
+   isar-undo
    "init_toplevel" "kill_thy"
    "undos_proof"
    "cannot_undo"))
@@ -478,7 +478,7 @@ matches contents of quotes for quoted identifiers.")
   (proof-anchor-regexp
    (isar-ids-to-regexp
     (append isar-keywords-theory-begin
-            isar-keywords-theory-switch))))
+	    isar-keywords-theory-switch))))
 
 (defconst isar-end-regexp
   (proof-anchor-regexp
@@ -504,20 +504,20 @@ matches contents of quotes for quoted identifiers.")
 
 (defconst isar-any-entity-regexp
   (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-          "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
-          "\\(?:" isar-name-regexp "[[:=]\\)"))
+	  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
+	  "\\(?:" isar-name-regexp "[[:=]\\)"))
 
 (defconst isar-named-entity-regexp
   (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-          "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
-          isar-name-regexp "[[:=]" ))
+	  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
+	  isar-name-regexp "[[:=]" ))
 
 (defconst isar-unnamed-entity-regexp
   (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
 
 (defconst isar-next-entity-regexps
   (list isar-any-entity-regexp
-        (list isar-named-entity-regexp '(1 3))))
+	(list isar-named-entity-regexp '(1 3))))
 ;; da: I've removed unnamed entities, they clutter the menu
 ;; NB: to add back, need ? at end of isar-any-entity-regexp
 ;;      (list isar-unnamed-entity-regexp 1)))
@@ -525,12 +525,12 @@ matches contents of quotes for quoted identifiers.")
 
 (defconst isar-generic-expression
   (mapcar (lambda (kw)
-            (list (capitalize kw)
-                  (concat "\\<" kw "\\>"
-                          "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
-                          isar-name-regexp "[[:=]")
-                  1))
-          isar-keywords-fume))
+	    (list (capitalize kw)
+		  (concat "\\<" kw "\\>"
+			  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
+			  isar-name-regexp "[[:=]")
+		  1))
+	  isar-keywords-fume))
 
 ;; ----- indentation
 

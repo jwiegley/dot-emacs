@@ -1,5 +1,5 @@
 ;;; coq-abbrev.el --- coq abbrev table and menus for ProofGeneral mode
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh.
 ;; Authors: Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
@@ -172,4 +172,3 @@
 
 
 (provide 'coq-abbrev)
-

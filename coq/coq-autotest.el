@@ -16,4 +16,3 @@
 
   (pg-autotest-quit-prover)
   (pg-autotest-finished))
-

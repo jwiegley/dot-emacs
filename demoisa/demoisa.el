@@ -1,6 +1,6 @@
 ;; demoisa.el Example Proof General instance for Isabelle
 ;;
-;; Copyright (C) 1999 LFCS Edinburgh. 
+;; Copyright (C) 1999 LFCS Edinburgh.
 ;;
 ;; Author: David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
@@ -19,8 +19,8 @@
 ;;
 ;; From this it loads this file "demoisa/demoisa.el" whenever
 ;; a .ML file is visited, and sets the mode to `demoisa-mode'
-;; (defined below).  
-;; 
+;; (defined below).
+;;
 ;; I've called this instance "Isabelle Demo Proof General" just to
 ;; avoid confusion with the real "Isabelle Proof General" in case the
 ;; demo gets loaded by accident.
@@ -46,7 +46,7 @@
 ;;			   (constants, but may be nice to tweak)
 ;;
 ;; The first group appears in the menu
-;;   ProofGeneral -> Customize -> Isabelledemo 
+;;   ProofGeneral -> Customize -> Isabelledemo
 ;; The second group appears in the menu:
 ;;   ProofGeneral -> Internals -> Isabelledemo config
 ;;
@@ -100,7 +100,7 @@
    proof-shell-proof-completed-regexp   "^No subgoals!"
    proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading"
    proof-shell-init-cmd  ; define a utility function, in a lib somewhere?
-   "fun pg_repeat f 0 = () 
+   "fun pg_repeat f 0 = ()
       | pg_repeat f n = (f(); pg_repeat f (n-1));"
    proof-shell-quit-cmd			"quit();"))
 

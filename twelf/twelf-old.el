@@ -31,25 +31,25 @@
 ;;; ;; Tell Emacs where the Twelf libraries are.
 ;;; (setq load-path
 ;;;       (cons "/afs/cs/project/twelf/research/twelf/emacs" load-path))
-;;; 
+;;;
 ;;; ;; Autoload libraries when Twelf-related major modes are started.
 ;;; (autoload 'twelf-mode "twelf" "Major mode for editing Twelf source." t)
 ;;; (autoload 'twelf-server "twelf" "Run an inferior Twelf server." t)
 ;;; (autoload 'twelf-sml "twelf" "Run an inferior Twelf-SML process." t)
-;;; 
+;;;
 ;;; ;; Switch buffers to Twelf mode based on filename extension,
 ;;; ;; which is one of .elf, .quy, .thm, or .cfg.
 ;;; (setq auto-mode-alist
 ;;;       (cons '("\\.elf$" . twelf-mode)
-;;; 	    (cons '("\\.quy$" . twelf-mode)
-;;; 		  (cons '("\\.thm$" . twelf-mode)
-;;; 			(cons '("\\.cfg$" . twelf-mode)
-;;; 			      auto-mode-alist)))))
-;;; 
+;;;	    (cons '("\\.quy$" . twelf-mode)
+;;;		  (cons '("\\.thm$" . twelf-mode)
+;;;			(cons '("\\.cfg$" . twelf-mode)
+;;;			      auto-mode-alist)))))
+;;;
 ;;; ;; Default Twelf server program location
 ;;; (setq twelf-server-program
 ;;;       "/afs/cs/project/twelf/research/twelf/bin/twelf-server")
-;;; 
+;;;
 ;;; ;; Default Twelf SML program location
 ;;; (setq twelf-sml-program
 ;;;       "/afs/cs/project/twelf/misc/smlnj/bin/sml-cm")
@@ -57,7 +57,7 @@
 ;;; ;; Default documentation location (in info format)
 ;;; (setq twelf-info-file
 ;;;       "/afs/cs/project/twelf/research/twelf/doc/info/twelf.info")
-;;; 
+;;;
 ;;; ;; Automatically highlight Twelf sources using font-lock
 ;;; (add-hook 'twelf-mode-hook 'twelf-font-fontify-buffer)
 ;;;
@@ -203,7 +203,7 @@
 ;;; Added NT Emacs bug workaround
 
 (require 'comint)
-(require 'easymenu) 
+(require 'easymenu)
 
 ;;;----------------------------------------------------------------------
 ;;; User visible variables
@@ -467,9 +467,9 @@ Maintained to present reasonable menus.")
   (skip-chars-forward *whitespace*)
   (while (looking-at *twelf-comment-start*)
     (cond ((looking-at "%{")		; delimited comment
-           (condition-case nil (forward-sexp 1)
+	   (condition-case nil (forward-sexp 1)
 	     (error (goto-char (point-max))))
-           (or (eobp) (forward-char 1)))
+	   (or (eobp) (forward-char 1)))
 	  (t				; single-line comment
 	   (end-of-line 1)))
     (skip-chars-forward *whitespace*)))
@@ -482,8 +482,8 @@ Skips over comments (single-line or balanced delimited).
 Optional argument LIMIT specifies limit of search for period."
   (if (not limit)
       (save-excursion
-        (forward-paragraph 1)
-        (setq limit (point))))
+	(forward-paragraph 1)
+	(setq limit (point))))
   (while (and (not (looking-at "\\."))
 	      (< (point) limit))
     (skip-chars-forward "^.%" limit)
@@ -492,10 +492,10 @@ Optional argument LIMIT specifies limit of search for period."
 	  ((looking-at "%")
 	   (forward-char 1))))
   (cond ((looking-at "\\.")
-         (forward-char 1)
-         t)
-        (t ;; stopped at limit
-         nil)))
+	 (forward-char 1)
+	 t)
+	(t ;; stopped at limit
+	 nil)))
 
 (defun twelf-current-decl ()
   "Returns list (START END COMPLETE) for current Twelf declaration.
@@ -506,15 +506,15 @@ If declaration ends in `.' then COMPLETE is t, otherwise nil."
     (save-excursion
       ;; Skip backwards if between declarations
       (if (or (eobp) (looking-at (concat "[" *whitespace* "]")))
-          (skip-chars-backward (concat *whitespace* ".")))
+	  (skip-chars-backward (concat *whitespace* ".")))
       (setq par-end (point))
       ;; Move forward from beginning of decl until last
       ;; declaration before par-end is found.
       (if (not (bobp)) (backward-paragraph 1))
       (setq par-start (point))
       (while (and (twelf-end-of-par par-end)
-                  (< (point) par-end))
-        (setq par-start (point)))
+		  (< (point) par-end))
+	(setq par-start (point)))
       ;; Now par-start is at end of preceding declaration or query.
       (goto-char par-start)
       (skip-twelf-comments-and-whitespace)
@@ -528,8 +528,8 @@ If declaration ends in `.' then COMPLETE is t, otherwise nil."
   "Marks current Twelf declaration and moves point to its beginning."
   (interactive)
   (let* ((par (twelf-current-decl))
-         (par-start (nth 0 par))
-         (par-end (nth 1 par)))
+	 (par-start (nth 0 par))
+	 (par-end (nth 1 par)))
     (push-mark par-end)
     (goto-char par-start)))
 
@@ -537,8 +537,8 @@ If declaration ends in `.' then COMPLETE is t, otherwise nil."
   "Indent each line of the current Twelf declaration."
   (interactive)
   (let* ((par (twelf-current-decl))
-         (par-start (nth 0 par))
-         (par-end (nth 1 par)))
+	 (par-start (nth 0 par))
+	 (par-end (nth 1 par)))
     (goto-char par-start)
     (twelf-indent-lines (count-lines par-start par-end))))
 
@@ -546,12 +546,12 @@ If declaration ends in `.' then COMPLETE is t, otherwise nil."
   "Indent each line of the region as Twelf code."
   (interactive "r")
   (cond ((< from to)
-         (goto-char from)
-         (twelf-indent-lines (count-lines from to)))
-        ((> from to)
-         (goto-char to)
-         (twelf-indent-lines (count-lines to from)))
-        (t nil)))
+	 (goto-char from)
+	 (twelf-indent-lines (count-lines from to)))
+	((> from to)
+	 (goto-char to)
+	 (twelf-indent-lines (count-lines to from)))
+	(t nil)))
 
 (defun twelf-indent-lines (n)
   "Indent N lines starting at point."
@@ -565,12 +565,12 @@ If declaration ends in `.' then COMPLETE is t, otherwise nil."
   "Calculates the proper Twelf comment column.
 Currently does not deal specially with pragmas."
   (cond ((looking-at "%%%")
-         0)
-        ((looking-at "%[%{]")
-         (car (twelf-calculate-indent)))
-        (t
-         (skip-chars-backward " \t")
-         (max (if (bolp) 0 (1+ (current-column))) comment-column))))
+	 0)
+	((looking-at "%[%{]")
+	 (car (twelf-calculate-indent)))
+	(t
+	 (skip-chars-backward " \t")
+	 (max (if (bolp) 0 (1+ (current-column))) comment-column))))
 
 (defun looked-at ()
   "Returns the last string matched against.
@@ -584,44 +584,44 @@ This recognizes comments, matching delimiters, and standard infix operators."
   (let ((old-point (point)))
     (beginning-of-line)
     (let* ((indent-info (twelf-calculate-indent))
-           (indent-column (nth 0 indent-info))
-           (indent-type (nth 1 indent-info))
-           (indent-string (nth 2 indent-info)))
+	   (indent-column (nth 0 indent-info))
+	   (indent-type (nth 1 indent-info))
+	   (indent-string (nth 2 indent-info)))
       (skip-chars-forward " \t")        ; skip whitespace
       (let ((fwdskip (- old-point (point))))
-        (cond ((looking-at "%%%")
+	(cond ((looking-at "%%%")
 	       (twelf-indent-line-to 0 fwdskip)) ; %%% comment at column 0
-              ((looking-at "%[%{]")     ; delimited or %% comment
-               (twelf-indent-line-to indent-column fwdskip))
-              ((looking-at *twelf-comment-start*)    ; indent single-line comment
-               (indent-for-comment)
-               (forward-char -1))
+	      ((looking-at "%[%{]")     ; delimited or %% comment
+	       (twelf-indent-line-to indent-column fwdskip))
+	      ((looking-at *twelf-comment-start*)    ; indent single-line comment
+	       (indent-for-comment)
+	       (forward-char -1))
 	      ((looking-at "%")		; %keyword declaration
 	       (twelf-indent-line-to indent-column fwdskip))
-              ((looking-at twelf-infix-regexp) ; looking at infix operator
-               (if (string= indent-string (looked-at))
-                   ;; indent string is the same as the one we are looking at
-                   (twelf-indent-line-to indent-column fwdskip)
-                 (twelf-indent-line-to (+ indent-column twelf-indent) fwdskip)))
-              ((eq indent-type 'delimiter) ; indent after delimiter
-               (twelf-indent-line-to (+ indent-column twelf-indent) fwdskip))
-              ((eq indent-type 'limit)  ; no delimiter or infix found.
-               (twelf-indent-line-to indent-column fwdskip))
-              ((eq indent-type 'infix)
-               (twelf-indent-line-to (+ indent-column twelf-indent) fwdskip)))))))
+	      ((looking-at twelf-infix-regexp) ; looking at infix operator
+	       (if (string= indent-string (looked-at))
+		   ;; indent string is the same as the one we are looking at
+		   (twelf-indent-line-to indent-column fwdskip)
+		 (twelf-indent-line-to (+ indent-column twelf-indent) fwdskip)))
+	      ((eq indent-type 'delimiter) ; indent after delimiter
+	       (twelf-indent-line-to (+ indent-column twelf-indent) fwdskip))
+	      ((eq indent-type 'limit)  ; no delimiter or infix found.
+	       (twelf-indent-line-to indent-column fwdskip))
+	      ((eq indent-type 'infix)
+	       (twelf-indent-line-to (+ indent-column twelf-indent) fwdskip)))))))
 
 (defun twelf-indent-line-to (indent fwdskip)
   "Indent current line to INDENT then skipping to FWDSKIP if positive.
 Assumes point is on the first non-whitespace character of the line."
   (let ((text-start (point))
-        (shift-amount (- indent (current-column))))
+	(shift-amount (- indent (current-column))))
     (if (= shift-amount 0)
-        nil
+	nil
       (beginning-of-line)
       (delete-region (point) text-start)
       (indent-to indent))
     (if (> fwdskip 0)
-        (forward-char fwdskip))))
+	(forward-char fwdskip))))
 
 (defun twelf-calculate-indent ()
   "Calculate the indentation and return a list (INDENT INDENT-TYPE STRING).
@@ -630,12 +630,12 @@ INDENT-TYPE is 'DELIMITER, 'INFIX, or 'LIMIT, and
 STRING is the delimiter, infix operator, or the empty string, respectively."
   (save-excursion
     (let* ((par (twelf-current-decl))
-           (par-start (nth 0 par))
-           (par-end (nth 1 par))
-           (par-complete (nth 2 par))
-           (limit (cond ((> par-start (point)) (point))
-                        ((and (> (point) par-end) par-complete) par-end)
-                        (t par-start))))
+	   (par-start (nth 0 par))
+	   (par-end (nth 1 par))
+	   (par-complete (nth 2 par))
+	   (limit (cond ((> par-start (point)) (point))
+			((and (> (point) par-end) par-complete) par-end)
+			(t par-start))))
       (twelf-dsb limit))))
 
 (defun twelf-dsb (limit)
@@ -643,25 +643,25 @@ STRING is the delimiter, infix operator, or the empty string, respectively."
 This currently does not deal with comments or mis-matched delimiters.
 Argument LIMIT specifies bound for backwards search."
   (let ((result nil)
-        (lparens 0) (lbraces 0) (lbrackets 0))
+	(lparens 0) (lbraces 0) (lbrackets 0))
     (while (not result)
       (if (or (= lparens 1) (= lbraces 1) (= lbrackets 1))
-          (setq result (list (current-column) 'delimiter (looked-at)))
-        (if (re-search-backward (concat "[][{}()]\\|" twelf-infix-regexp)
-                                limit 'limit) ; return 'LIMIT if limit reached
-            (let ((found (looked-at)))
-              (cond
-               ((string= found "(") (setq lparens (1+ lparens)))
-               ((string= found ")") (setq lparens (1- lparens)))
-               ((string= found "{") (setq lbraces (1+ lbraces)))
-               ((string= found "}") (setq lbraces (1- lbraces)))
-               ((string= found "[") (setq lbrackets (1+ lbrackets)))
-               ((string= found "]") (setq lbrackets (1- lbrackets)))
-               (t;; otherwise, we are looking at an infix operator
-                (if (and (= lparens 0) (= lbraces 0) (= lbrackets 0))
-                    (setq result (list (current-column) 'infix found))
-                  nil))))               ; embedded - skip
-          (setq result (list 0 'limit ""))))) ; reached the limit, no indent
+	  (setq result (list (current-column) 'delimiter (looked-at)))
+	(if (re-search-backward (concat "[][{}()]\\|" twelf-infix-regexp)
+				limit 'limit) ; return 'LIMIT if limit reached
+	    (let ((found (looked-at)))
+	      (cond
+	       ((string= found "(") (setq lparens (1+ lparens)))
+	       ((string= found ")") (setq lparens (1- lparens)))
+	       ((string= found "{") (setq lbraces (1+ lbraces)))
+	       ((string= found "}") (setq lbraces (1- lbraces)))
+	       ((string= found "[") (setq lbrackets (1+ lbrackets)))
+	       ((string= found "]") (setq lbrackets (1- lbrackets)))
+	       (t;; otherwise, we are looking at an infix operator
+		(if (and (= lparens 0) (= lbraces 0) (= lbrackets 0))
+		    (setq result (list (current-column) 'infix found))
+		  nil))))               ; embedded - skip
+	  (setq result (list 0 'limit ""))))) ; reached the limit, no indent
     result))
 
 (defun twelf-mode-variables ()
@@ -926,12 +926,12 @@ read a file name from the minibuffer."
    "Regexp to extract fields of Twelf error.")
 
 (defconst twelf-error-decl-regexp
-  "^[-=? \t]*\\(.+\\)::\\([^ \t\n]+\\) "  
+  "^[-=? \t]*\\(.+\\)::\\([^ \t\n]+\\) "
   "Regexp to extract filename and identifier from declaration error.")
 
 (defun looked-at-nth (n)
   (let ((b (match-beginning n))
-        (e (match-end n)))
+	(e (match-end n)))
     (if (or (null b) (null e)) nil
       (buffer-substring (match-beginning n) (match-end n)))))
 
@@ -948,11 +948,11 @@ or (\"Local\" START-CHAR NIL END-CHAR NIL)."
     (goto-char pt)
     (re-search-forward twelf-error-fields-regexp)
     (list (looked-at-nth 1)		; file or "Local" or "stdIn"
-          (looked-at-nth-int 2)		; start line or char
-          (looked-at-nth-int 4)		; start column, if given, else nil
-          (looked-at-nth-int 6)		; end line, if given, else nil or char
-          (looked-at-nth-int 8)		; end column, if given, else nil
-          )))
+	  (looked-at-nth-int 2)		; start line or char
+	  (looked-at-nth-int 4)		; start column, if given, else nil
+	  (looked-at-nth-int 6)		; end line, if given, else nil or char
+	  (looked-at-nth-int 8)		; end column, if given, else nil
+	  )))
 
 (defun twelf-error-decl (pos)
   "Determines if the error is identified only by its declaration."
@@ -968,12 +968,12 @@ or (\"Local\" START-CHAR NIL END-CHAR NIL)."
   (forward-char (if (not (= line0 1)) (1- col0) (1- (1- col0))))
   ;; select region, if non-empty
   (cond ((not (null line1))
-         (push-mark (point))
-         (cond ((not (= line1 line0))
-                (forward-line (- line1 line0))
-                (forward-char (1- col1)))
-               (t (forward-char (- col1 col0))))
-         (exchange-point-and-mark)
+	 (push-mark (point))
+	 (cond ((not (= line1 line0))
+		(forward-line (- line1 line0))
+		(forward-char (1- col1)))
+	       (t (forward-char (- col1 col0))))
+	 (exchange-point-and-mark)
 	 (funcall twelf-highlight-range-function (point) (mark)))))
 
 (defun twelf-mark-absolute (line0 col0 line1 col1)
@@ -1023,13 +1023,13 @@ put the cursor at the beginning of the error source. If the
 error message specifies a range, the mark is placed at the end."
   (interactive)
   (let ((case-fold-search nil)
-        (twelf-buffer (or *twelf-last-input-buffer*
-                        (error "Cannot determine process buffer with last input")))
+	(twelf-buffer (or *twelf-last-input-buffer*
+			(error "Cannot determine process buffer with last input")))
 	error-begin)
     (pop-to-buffer twelf-buffer)
     (goto-char *twelf-error-pos*)   ; go to last error
     (if (not (re-search-forward twelf-error-regexp (point-max) t))
-        (error "No error message found.")
+	(error "No error message found.")
       (setq error-begin (match-beginning 0))
       (setq *twelf-error-pos* (point))
       (set-window-start (get-buffer-window twelf-buffer)
@@ -1089,7 +1089,7 @@ error message specifies a range, the mark is placed at the end."
 Also updates the error cursor to the current line."
   (interactive)
   (pop-to-buffer (or *twelf-last-input-buffer*
-                     (error "Cannot determine process buffer with last input")))
+		     (error "Cannot determine process buffer with last input")))
   (beginning-of-line)
   (setq *twelf-error-pos* (point))
   (twelf-next-error))
@@ -1206,9 +1206,9 @@ for purposes of error parsing."
 With prefix argument also displays Twelf server buffer."
   (interactive "P")
   (let* ((par (twelf-current-decl))
-         (par-start (nth 0 par))
-         (par-end (nth 1 par))
-         (decl (twelf-buffer-substring-dot par-start par-end)))
+	 (par-start (nth 0 par))
+	 (par-end (nth 1 par))
+	 (decl (twelf-buffer-substring-dot par-start par-end)))
     (twelf-focus par-start par-end)
     (twelf-server-send-command (concat "readDecl\n" decl))
     (twelf-server-wait displayp)))
@@ -1330,13 +1330,13 @@ type of the particular instance of the constant."
     (let ((end-of-id (point)))
       (skip-chars-backward *twelf-id-chars* (point-min))
       (let ((c (if (= (point) end-of-id)
-                   ;; we didn't move.  this should eventually become a
-                   ;; completing-read
-                   (read-string "Constant: ")
-                 (buffer-substring (point) end-of-id))))
-        (twelf-server-send-command (concat "decl " c))
-        (twelf-server-wait t)             ; Wait for and display reply
-        (goto-char previous-point)))))
+		   ;; we didn't move.  this should eventually become a
+		   ;; completing-read
+		   (read-string "Constant: ")
+		 (buffer-substring (point) end-of-id))))
+	(twelf-server-send-command (concat "decl " c))
+	(twelf-server-wait t)             ; Wait for and display reply
+	(goto-char previous-point)))))
 
 ;; Unused? -fp
 ;(defun twelf-backwards-parse-arglist ()
@@ -1346,7 +1346,7 @@ type of the particular instance of the constant."
 ;      (set-buffer twelf-server-buffer)
 ;      (goto-char *twelf-server-last-process-mark*)
 ;      ;; Should be right at the beginning of the output.
-;      ;; (re-search-forward "^arglist") ; 
+;      ;; (re-search-forward "^arglist") ;
 ;      ;; (beginning-of-line 2)
 ;      (let ((arglist-begin (point)))
 ;        (skip-chars-forward "^." (point-max))
@@ -1465,9 +1465,9 @@ server buffer."
   (setq *twelf-last-input-buffer* (current-buffer))
   (setq *twelf-error-pos* (marker-position (process-mark (twelf-server-process))))
   (cond ((string-match twelf-server-cd-regexp input)
-         (let ((expanded-dir (expand-dir (looked-at-string input 1))))
-           (setq default-directory expanded-dir)
-           (pwd)))
+	 (let ((expanded-dir (expand-dir (looked-at-string input 1))))
+	   (setq default-directory expanded-dir)
+	   (pwd)))
 	((string-match "^set\\s +chatter\\s +\\([0-9]\\)+" input)
 	 (setq twelf-chatter (string-to-number (looked-at-string input 1))))
 	;;((string-match "^set\\s +trace\\s +\\([0-9]\\)+" input)
@@ -1522,22 +1522,22 @@ The following commands are available:
     (skip-chars-forward *whitespace*)
     (while (not (eobp))                 ; end of buffer?
       (cond ((looking-at "%")           ; comment through end of line
-             (end-of-line))
-            (t (let ((begin-point (point))) ; parse filename starting at point
-                 (skip-chars-forward (concat "^" *whitespace*))
-                 (let* ((file-name (buffer-substring begin-point (point)))
-                        (absolute-file-name
-                         (expand-file-name file-name default-directory)))
-                   (if (file-readable-p absolute-file-name)
-                       (setq filelist (cons absolute-file-name filelist))
-                     (error "File %s not readable." file-name))))))
+	     (end-of-line))
+	    (t (let ((begin-point (point))) ; parse filename starting at point
+		 (skip-chars-forward (concat "^" *whitespace*))
+		 (let* ((file-name (buffer-substring begin-point (point)))
+			(absolute-file-name
+			 (expand-file-name file-name default-directory)))
+		   (if (file-readable-p absolute-file-name)
+		       (setq filelist (cons absolute-file-name filelist))
+		     (error "File %s not readable." file-name))))))
       (skip-chars-forward *whitespace*))
     filelist))
 
 (defun twelf-server-read-config ()
   "Read the configuration and initialize *twelf-config-list*."
   (if (or (not (bufferp *twelf-config-buffer*))
-          (null (buffer-name *twelf-config-buffer*)))
+	  (null (buffer-name *twelf-config-buffer*)))
       (error "No current configuration buffer"))
   (set-buffer *twelf-config-buffer*)
   (goto-char (point-min))
@@ -1546,7 +1546,7 @@ The following commands are available:
 (defun twelf-server-sync-config ()
   "Synchronize the configuration file, buffer, and Twelf server."
   (if (or (not (bufferp *twelf-config-buffer*))
-          (null (buffer-name *twelf-config-buffer*)))
+	  (null (buffer-name *twelf-config-buffer*)))
       (error "No current configuration buffer"))
   (if (and twelf-config-mode
 	   (not (equal *twelf-config-buffer* (current-buffer)))
@@ -1556,38 +1556,38 @@ The following commands are available:
   (save-excursion
     (set-buffer *twelf-config-buffer*)
     (if (buffer-modified-p *twelf-config-buffer*)
-        (progn
-          (display-buffer *twelf-config-buffer*)
-          (if (yes-or-no-p "Config buffer has changed, save new version? ")
-              (save-buffer)
-            (message "Checking old configuration"))))
+	(progn
+	  (display-buffer *twelf-config-buffer*)
+	  (if (yes-or-no-p "Config buffer has changed, save new version? ")
+	      (save-buffer)
+	    (message "Checking old configuration"))))
     (if (not (verify-visited-file-modtime *twelf-config-buffer*))
-        (if (yes-or-no-p "Config file has changed, read new contents? ")
-            (revert-buffer t t)))
+	(if (yes-or-no-p "Config file has changed, read new contents? ")
+	    (revert-buffer t t)))
     (if (not (equal (visited-file-modtime) *twelf-config-time*))
-        (progn 
-          (display-buffer *twelf-config-buffer*)
-          (if (yes-or-no-p "Config file has changed, reconfigure server? ")
-              (twelf-server-configure (buffer-file-name *twelf-config-buffer*)
-                                    "Server OK: Configured")
-            (if (not (yes-or-no-p "Ask next time? "))
-                (setq *twelf-config-time* (visited-file-modtime))))))))
+	(progn
+	  (display-buffer *twelf-config-buffer*)
+	  (if (yes-or-no-p "Config file has changed, reconfigure server? ")
+	      (twelf-server-configure (buffer-file-name *twelf-config-buffer*)
+				    "Server OK: Configured")
+	    (if (not (yes-or-no-p "Ask next time? "))
+		(setq *twelf-config-time* (visited-file-modtime))))))))
 
 (defun twelf-get-server-buffer (&optional createp)
   "Get the current Twelf server buffer.
 Optional argument CREATEP indicates if the buffer should be
 created if it doesn't exist."
   (if (and (bufferp *twelf-server-buffer*)
-           (not (null (buffer-name *twelf-server-buffer*))))
+	   (not (null (buffer-name *twelf-server-buffer*))))
       *twelf-server-buffer*
     (if createp
-        (let ((twelf-server-buffer
-               (get-buffer-create *twelf-server-buffer-name*)))
-          (save-window-excursion
-            (set-buffer twelf-server-buffer)
-            (twelf-server-mode)
-            (setq *twelf-server-buffer* twelf-server-buffer))
-          twelf-server-buffer)
+	(let ((twelf-server-buffer
+	       (get-buffer-create *twelf-server-buffer-name*)))
+	  (save-window-excursion
+	    (set-buffer twelf-server-buffer)
+	    (twelf-server-mode)
+	    (setq *twelf-server-buffer* twelf-server-buffer))
+	  twelf-server-buffer)
       (error "No Twelf server buffer"))))
 
 (defun twelf-init-variables ()
@@ -1605,17 +1605,17 @@ twelf-server-program.
 This locally re-binds `twelf-server-timeout' to 15 secs."
   (interactive)
   (let* ((default-program (if (null program) twelf-server-program program))
-         (default-dir (file-name-directory default-program))
-         (program (expand-file-name
-                   (if (null program)
-                       (read-file-name (concat "Twelf server: (default "
-                                               (file-name-nondirectory
-                                                default-program)
-                                               ") ")
-                                       default-dir
-                                       default-program
-                                       t)
-                     program)))
+	 (default-dir (file-name-directory default-program))
+	 (program (expand-file-name
+		   (if (null program)
+		       (read-file-name (concat "Twelf server: (default "
+					       (file-name-nondirectory
+						default-program)
+					       ") ")
+				       default-dir
+				       default-program
+				       t)
+		     program)))
 	 ;; longer timeout during startup
 	 (twelf-server-timeout 15))
     ;; We save the program name as the default for the next time a server is
@@ -1623,12 +1623,12 @@ This locally re-binds `twelf-server-timeout' to 15 secs."
     (setq twelf-server-program program))
   (save-window-excursion
     (let* ((twelf-server-buffer (twelf-get-server-buffer t))
-           (twelf-server-process (get-buffer-process twelf-server-buffer)))
+	   (twelf-server-process (get-buffer-process twelf-server-buffer)))
       (set-buffer twelf-server-buffer)
       (if (not (null twelf-server-process))
-          (if (yes-or-no-p "Kill current server process? ")
-              (delete-process twelf-server-process)
-            (error "Twelf Server restart aborted")))
+	  (if (yes-or-no-p "Kill current server process? ")
+	      (delete-process twelf-server-process)
+	    (error "Twelf Server restart aborted")))
       (goto-char (point-max))
       (setq *twelf-server-last-process-mark* (point))
       ;; initialize variables
@@ -1642,11 +1642,11 @@ This locally re-binds `twelf-server-timeout' to 15 secs."
 (defun twelf-server-process (&optional buffer)
   "Return the twelf server process, starting one if none exists."
   (let* ((twelf-server-buffer (if (null buffer) (twelf-get-server-buffer t)
-                              buffer))
-         (twelf-server-process (get-buffer-process twelf-server-buffer)))
+			      buffer))
+	 (twelf-server-process (get-buffer-process twelf-server-buffer)))
       (if (not (null twelf-server-process))
-          twelf-server-process
-          (twelf-server))))
+	  twelf-server-process
+	  (twelf-server))))
 
 (defun twelf-server-display (&optional selectp)
   "Display Twelf server buffer, moving to the end of output.
@@ -1658,37 +1658,37 @@ With prefix argument also selects the Twelf server buffer."
 (defun display-server-buffer (&optional buffer)
   "Display the Twelf server buffer so that the end of output is visible."
   (let* ((twelf-server-buffer (if (null buffer) (twelf-get-server-buffer)
-                              buffer))
-         (_ (set-buffer twelf-server-buffer))
-         (twelf-server-process (twelf-server-process twelf-server-buffer))
-         (proc-mark (process-mark twelf-server-process))
-         (_ (display-buffer twelf-server-buffer))
-         (twelf-server-window (get-buffer-window twelf-server-buffer)))
+			      buffer))
+	 (_ (set-buffer twelf-server-buffer))
+	 (twelf-server-process (twelf-server-process twelf-server-buffer))
+	 (proc-mark (process-mark twelf-server-process))
+	 (_ (display-buffer twelf-server-buffer))
+	 (twelf-server-window (get-buffer-window twelf-server-buffer)))
     (if (not (pos-visible-in-window-p proc-mark twelf-server-window))
-        (progn
-          (push-mark proc-mark)
-          (set-window-point twelf-server-window proc-mark)))
+	(progn
+	  (push-mark proc-mark)
+	  (set-window-point twelf-server-window proc-mark)))
     (sit-for 0)))
 
 (defun twelf-server-send-command (command)
   "Send a string COMMAND to the Twelf server."
   (interactive "sCommand: ")
   (let* ((input (concat command "\n"))
-         (twelf-server-buffer (twelf-get-server-buffer))
-         (twelf-server-process (twelf-server-process twelf-server-buffer)))
+	 (twelf-server-buffer (twelf-get-server-buffer))
+	 (twelf-server-process (twelf-server-process twelf-server-buffer)))
     (if twelf-server-echo-commands
-        (let ((previous-buffer (current-buffer)))
-          (if twelf-server-display-commands
-              (display-server-buffer twelf-server-buffer))
-          (set-buffer twelf-server-buffer)
-          (goto-char (point-max))
-          (insert input)
-          (set-marker (process-mark twelf-server-process) (point-max))
-          (setq *twelf-error-pos* (point-max))
-          (set-buffer previous-buffer)))
+	(let ((previous-buffer (current-buffer)))
+	  (if twelf-server-display-commands
+	      (display-server-buffer twelf-server-buffer))
+	  (set-buffer twelf-server-buffer)
+	  (goto-char (point-max))
+	  (insert input)
+	  (set-marker (process-mark twelf-server-process) (point-max))
+	  (setq *twelf-error-pos* (point-max))
+	  (set-buffer previous-buffer)))
     (setq *twelf-last-input-buffer* twelf-server-buffer)
     (setq *twelf-server-last-process-mark*
-          (marker-position (process-mark twelf-server-process)))
+	  (marker-position (process-mark twelf-server-process)))
     (comint-send-string twelf-server-process input)))
 
 (defun twelf-accept-process-output (process timeout)
@@ -1708,37 +1708,37 @@ OK-MESSAGE and ABORT-MESSAGE are the strings to show upon successful
 completion or abort of the server which default to \"Server OK\" and
 \"Server ABORT\"."
   (let* ((chunk-count 0)
-         (last-point *twelf-server-last-process-mark*)
-         (previous-buffer (current-buffer))
-         (previous-match-data (match-data))
-         (twelf-server-buffer (twelf-get-server-buffer))
-         (twelf-server-process (get-buffer-process twelf-server-buffer)))
+	 (last-point *twelf-server-last-process-mark*)
+	 (previous-buffer (current-buffer))
+	 (previous-match-data (match-data))
+	 (twelf-server-buffer (twelf-get-server-buffer))
+	 (twelf-server-process (get-buffer-process twelf-server-buffer)))
     (unwind-protect
-        (catch 'done
-          (set-buffer twelf-server-buffer)
-          (while t
-            (goto-char last-point)
-            (if (re-search-forward "\\(%% OK %%\n\\)\\|\\(%% ABORT %%\n\\)"
-                                   (point-max) 'limit)
-                (cond ((match-beginning 1)
-                       (if displayp
-                           (display-server-buffer twelf-server-buffer))
-                       (message (or ok-message "Server OK"))
-                       (throw 'done nil))
-                      ((match-beginning 2)
-                       (display-server-buffer twelf-server-buffer)
-                       (error (or abort-message "Server ABORT"))
-                       (throw 'done nil)))
-              (cond ((or (not (twelf-accept-process-output
-                               twelf-server-process twelf-server-timeout))
-                         (= last-point (point)))
-                     (display-server-buffer twelf-server-buffer)
-                     (message "Server TIMEOUT, continuing Emacs")
-                     (throw 'done nil))
-                    (t (setq chunk-count (+ chunk-count 1))
-                       (if (= (mod chunk-count 10) 0)
-                           (message (make-string (/ chunk-count 10) ?#)))
-                       (sit-for 0))))))
+	(catch 'done
+	  (set-buffer twelf-server-buffer)
+	  (while t
+	    (goto-char last-point)
+	    (if (re-search-forward "\\(%% OK %%\n\\)\\|\\(%% ABORT %%\n\\)"
+				   (point-max) 'limit)
+		(cond ((match-beginning 1)
+		       (if displayp
+			   (display-server-buffer twelf-server-buffer))
+		       (message (or ok-message "Server OK"))
+		       (throw 'done nil))
+		      ((match-beginning 2)
+		       (display-server-buffer twelf-server-buffer)
+		       (error (or abort-message "Server ABORT"))
+		       (throw 'done nil)))
+	      (cond ((or (not (twelf-accept-process-output
+			       twelf-server-process twelf-server-timeout))
+			 (= last-point (point)))
+		     (display-server-buffer twelf-server-buffer)
+		     (message "Server TIMEOUT, continuing Emacs")
+		     (throw 'done nil))
+		    (t (setq chunk-count (+ chunk-count 1))
+		       (if (= (mod chunk-count 10) 0)
+			   (message (make-string (/ chunk-count 10) ?#)))
+		       (sit-for 0))))))
       (store-match-data previous-match-data)
       (set-buffer previous-buffer))))
 
@@ -1782,27 +1782,27 @@ Starts a Twelf servers if necessary."
 			    nil ; don't require match for now
 			    )))))
   (let* ((config-file (if (file-directory-p config-file)
-                          (concat config-file "sources.cfg")
-                        config-file))
+			  (concat config-file "sources.cfg")
+			config-file))
 	 (config-file-os (twelf-convert-standard-filename config-file))
-         (config-dir (file-name-directory config-file))
+	 (config-dir (file-name-directory config-file))
 	 (config-dir-os (twelf-convert-standard-filename config-dir))
-         (config-buffer (set-buffer (or (get-file-buffer config-file)
-                                        (find-file-noselect config-file))))
-         config-list)
+	 (config-buffer (set-buffer (or (get-file-buffer config-file)
+					(find-file-noselect config-file))))
+	 config-list)
     (setq *twelf-config-buffer* config-buffer)
     (if (and (not (verify-visited-file-modtime (get-file-buffer config-file)))
-             (yes-or-no-p "Config file has changed, read new contents? "))
-        (revert-buffer t t))
+	     (yes-or-no-p "Config file has changed, read new contents? "))
+	(revert-buffer t t))
     (setq config-list (twelf-server-read-config))
     (twelf-server-process)                ; Start process if necessary
     (let* ((_ (set-buffer (twelf-get-server-buffer)))
-           (cd-command
-            (if (equal default-directory config-dir)
-                nil
-              (setq default-directory config-dir)
-              (concat "OS.chDir " config-dir-os)))
-           (_ (set-buffer config-buffer)))
+	   (cd-command
+	    (if (equal default-directory config-dir)
+		nil
+	      (setq default-directory config-dir)
+	      (concat "OS.chDir " config-dir-os)))
+	   (_ (set-buffer config-buffer)))
       (cond ((not (null cd-command))
 	     (twelf-server-send-command cd-command)
 	     (twelf-server-wait nil ""
@@ -1810,7 +1810,7 @@ Starts a Twelf servers if necessary."
       (twelf-server-send-command
        (concat "Config.read " config-file-os))
       (twelf-server-wait nil (or ok-message "Server OK")
-                       "Server ABORT: Could not be configured")
+		       "Server ABORT: Could not be configured")
       ;; *twelf-config-buffer* should still be current buffer here
       (setq *twelf-config-time* (visited-file-modtime))
       (setq *twelf-config-list* config-list))))
@@ -1885,7 +1885,7 @@ Starts a Twelf servers if necessary."
 When called interactively, prompts for parameter and value, supporting
 completion."
   (interactive
-   (let* ((parm (completing-read 
+   (let* ((parm (completing-read
 		 "Parameter: " *twelf-parm-table* nil t))
 	  (argtype (cdr (assoc parm *twelf-parm-table*)))
 	  (value (twelf-read-value argtype)))
@@ -1957,9 +1957,9 @@ if the Twelf server is hopelessly wedged."
   (interactive)
   (twelf-server twelf-server-program)
   (twelf-server-configure (if *twelf-config-buffer*
-                            (buffer-file-name *twelf-config-buffer*)
-                          "sources.cfg")
-                        "Server configured, now checking...")
+			    (buffer-file-name *twelf-config-buffer*)
+			  "sources.cfg")
+			"Server configured, now checking...")
   (twelf-check-config))
 
 ;;;----------------------------------------------------------------------
@@ -2000,12 +2000,12 @@ Optional argument TAGS-FILENAME specifies alternative filename."
   (interactive)
   (twelf-server-sync-config)
   (let* ((error-buffer (twelf-get-server-buffer))
-         (config-filename (buffer-file-name *twelf-config-buffer*))
-         (tags-file
-          (or tags-filename
-              (if (string-equal "sources.cfg"
+	 (config-filename (buffer-file-name *twelf-config-buffer*))
+	 (tags-file
+	  (or tags-filename
+	      (if (string-equal "sources.cfg"
 				(file-name-nondirectory config-filename))
-                  (concat (file-name-directory config-filename "TAGS"))
+		  (concat (file-name-directory config-filename "TAGS"))
 		(concat (file-name-sans-extension config-filename)
 			".tag")))))
     (save-excursion
@@ -2014,10 +2014,10 @@ Optional argument TAGS-FILENAME specifies alternative filename."
       (insert "Tagging configuration " config-filename " in file " tags-file "\n"))
     (set-buffer *twelf-config-buffer*)
     (twelf-tag-files (rev-relativize *twelf-config-list* default-directory)
-                   tags-file error-buffer)
+		   tags-file error-buffer)
     (if (get-buffer-process error-buffer)
-        (set-marker (process-mark (get-buffer-process error-buffer))
-                    (point-max)))))
+	(set-marker (process-mark (get-buffer-process error-buffer))
+		    (point-max)))))
 
 (defun twelf-tag-files (filelist &optional tags-filename error-buffer)
   "Create tags file for FILELIST, routing errors to buffer *tags-errors*.
@@ -2025,17 +2025,17 @@ Optional argument TAGS-FILENAME specifies alternative filename (default: TAGS),
 optional argument ERROR-BUFFER specifies alternative buffer for error message
 (default: *tags-errors*)."
   (let* ((tags-filename (or tags-filename "TAGS"))
-         (tags-buffer (find-file-noselect tags-filename))
-         (error-buffer (or error-buffer (new-temp-buffer "*tags-errors*"))))
+	 (tags-buffer (find-file-noselect tags-filename))
+	 (error-buffer (or error-buffer (new-temp-buffer "*tags-errors*"))))
     (save-excursion
       (set-buffer tags-buffer)
       (if (equal (point-min) (point-max))
-          nil
-        ;;(pop-to-buffer tags-buffer)
-        ;;(if (yes-or-no-p "Delete current tags information? ")
-        (delete-region (point-min) (point-max))
-        ;;)
-        ))
+	  nil
+	;;(pop-to-buffer tags-buffer)
+	;;(if (yes-or-no-p "Delete current tags information? ")
+	(delete-region (point-min) (point-max))
+	;;)
+	))
     (switch-to-buffer-other-window error-buffer)
     (while (not (null filelist))
       (twelf-tag-file (car filelist) tags-buffer error-buffer)
@@ -2047,14 +2047,14 @@ optional argument ERROR-BUFFER specifies alternative buffer for error message
 (defun twelf-tag-file (filename tags-buffer error-buffer)
   "Deposit tag information for FILENAME in TAGS-BUFFER, errors in ERROR-BUFFER."
   (let ((src-buffer (find-file-noselect filename))
-        file-start file-end end-of-id tag-string)
+	file-start file-end end-of-id tag-string)
     (save-excursion
       (set-buffer tags-buffer)
       (goto-char (point-max))
       (insert "\f\n" filename ",0\n")
       (setq file-start (point))
       (save-excursion
-        (set-buffer src-buffer)
+	(set-buffer src-buffer)
 	(goto-char (point-min))
 	(while (twelf-next-decl filename error-buffer)
 	  (setq end-of-id (point))
@@ -2084,23 +2084,23 @@ optional argument ERROR-BUFFER specifies alternative buffer for error message
 Return the declared identifier or `nil' if none was found.
 FILENAME and ERROR-BUFFER are used if something appears wrong."
   (let ((id nil)
-        end-of-id
+	end-of-id
 	beg-of-id)
     (skip-twelf-comments-and-whitespace)
     (while (and (not id) (not (eobp)))
       (setq beg-of-id (point))
       (if (zerop (skip-chars-forward *twelf-id-chars*))
-          ;; Not looking at id: skip ahead
-          (skip-ahead filename (current-line-absolute) "No identifier"
-                      error-buffer)
-        (setq end-of-id (point))
-        (skip-twelf-comments-and-whitespace)
-        (if (not (looking-at ":"))
-            ;; Not looking at valid decl: skip ahead
-            (skip-ahead filename (current-line-absolute end-of-id) "No colon"
-                        error-buffer)
-          (goto-char end-of-id)
-          (setq id (buffer-substring beg-of-id end-of-id))))
+	  ;; Not looking at id: skip ahead
+	  (skip-ahead filename (current-line-absolute) "No identifier"
+		      error-buffer)
+	(setq end-of-id (point))
+	(skip-twelf-comments-and-whitespace)
+	(if (not (looking-at ":"))
+	    ;; Not looking at valid decl: skip ahead
+	    (skip-ahead filename (current-line-absolute end-of-id) "No colon"
+			error-buffer)
+	  (goto-char end-of-id)
+	  (setq id (buffer-substring beg-of-id end-of-id))))
       (skip-twelf-comments-and-whitespace))
     id))
 
@@ -2127,9 +2127,9 @@ Optional argument NAME specified an alternative name."
   (if (not name) (setq name "*temp*"))
   (if (get-buffer name)
       (save-excursion
-        (set-buffer name)
-        (delete-region (point-min) (point-max))
-        (get-buffer name))
+	(set-buffer name)
+	(delete-region (point-min) (point-max))
+	(get-buffer name))
     (get-buffer-create name)))
 
 (defun rev-relativize (filelist dir)
@@ -2137,7 +2137,7 @@ Optional argument NAME specified an alternative name."
   (let ((newlist nil))
     (while (not (null filelist))
       (setq newlist
-            (cons (file-relative-name (car filelist) dir) newlist))
+	    (cons (file-relative-name (car filelist) dir) newlist))
       (setq filelist (cdr filelist)))
     newlist))
 
@@ -2162,7 +2162,7 @@ Optional argument NAME specified an alternative name."
   "Expand argument and check that it is a directory."
   (let ((expanded-dir (file-name-as-directory (expand-file-name dir))))
     (if (not (file-directory-p expanded-dir))
-        (error "%s is not a directory" dir))
+	(error "%s is not a directory" dir))
     expanded-dir))
 
 (defun twelf-sml-cd (dir)
@@ -2190,11 +2190,11 @@ Used as comint-input-sentinel in Twelf-SML buffer."
   (setq *twelf-last-input-buffer* (current-buffer))
   (setq *twelf-error-pos* (marker-position (process-mark (twelf-sml-process))))
   (cond ((string-match twelf-sml-cd-regexp input)
-         (let ((expanded-dir (expand-dir (substring input
-                                                    (match-beginning 1)
-                                                    (match-end 1)))))
-           (setq default-directory expanded-dir)
-           (pwd)))))
+	 (let ((expanded-dir (expand-dir (substring input
+						    (match-beginning 1)
+						    (match-end 1)))))
+	   (setq default-directory expanded-dir)
+	   (pwd)))))
 
 (defun twelf-sml-mode ()
   "Major mode for interacting with an inferior Twelf-SML process.
@@ -2209,7 +2209,7 @@ Customisation: Entry to this mode runs the hooks on twelf-sml-mode-hook.
 You can send queries to the inferior Twelf-SML process from other buffers.
 
 Commands:
-Return after the end of the process' output sends the text from the 
+Return after the end of the process' output sends the text from the
     end of process to point.
 Return before the end of the process' output copies the current line
     to the end of the process' output, and sends it.
@@ -2237,8 +2237,8 @@ to continue it."
   ;; Workaround for problem with Lucid Emacs version of comint.el:
   ;; must exclude double quotes " and must include $ and # in filenames.
   (make-local-variable 'comint-match-partial-pathname-chars)
-  (setq comint-match-partial-pathname-chars 
-        "^][<>{}()!^&*\\|?`'\" \t\n\r\b")
+  (setq comint-match-partial-pathname-chars
+	"^][<>{}()!^&*\\|?`'\" \t\n\r\b")
 
   (setq major-mode 'twelf-sml-mode)
   (setq mode-name "Twelf-SML")
@@ -2275,24 +2275,24 @@ With argument, positions cursor at end of buffer."
       (pop-to-buffer (twelf-sml-process-buffer))
       (error "No current process buffer. "))
   (cond (eob-p
-         (push-mark)
-         (goto-char (point-max)))))
+	 (push-mark)
+	 (goto-char (point-max)))))
 
 (defun display-twelf-sml-buffer (&optional buffer)
   "Display the Twelf-SML buffer so that the end of output is visible."
   ;; Accept output from Twelf-SML process
   (sit-for 1)
   (let* ((twelf-sml-buffer (if (null buffer) (twelf-sml-process-buffer)
-                       buffer))
-         (_ (set-buffer twelf-sml-buffer))
-         (twelf-sml-process (twelf-sml-process))
-         (proc-mark (process-mark twelf-sml-process))
-         (_ (display-buffer twelf-sml-buffer))
-         (twelf-sml-window (get-buffer-window twelf-sml-buffer)))
+		       buffer))
+	 (_ (set-buffer twelf-sml-buffer))
+	 (twelf-sml-process (twelf-sml-process))
+	 (proc-mark (process-mark twelf-sml-process))
+	 (_ (display-buffer twelf-sml-buffer))
+	 (twelf-sml-window (get-buffer-window twelf-sml-buffer)))
     (if (not (pos-visible-in-window-p proc-mark twelf-sml-window))
-        (progn
-          (push-mark proc-mark)
-          (set-window-point twelf-sml-window proc-mark)))))
+	(progn
+	  (push-mark proc-mark)
+	  (set-window-point twelf-sml-window proc-mark)))))
 
 (defun twelf-sml-send-string (string)
   "Send the given string to the Twelf-SML process."
@@ -2308,14 +2308,14 @@ If the region is short, it is sent directly, via COMINT-SEND-REGION."
       (twelf-sml-send-region end start and-go)
     ;; (setq twelf-sml-last-region-sent (list (current-buffer) start end))
     (let ((cur-buffer (current-buffer))
-          (twelf-sml-buffer (twelf-sml-process-buffer)))
+	  (twelf-sml-buffer (twelf-sml-process-buffer)))
       (switch-to-buffer twelf-sml-buffer)
       ;; (setq sml-error-pos (marker-position (process-mark (twelf-sml-process))))
       (setq *twelf-last-input-buffer* twelf-sml-buffer)
       (switch-to-buffer cur-buffer))
     (comint-send-region (twelf-sml-process) start end)
     (if (not (string= (buffer-substring (1- end) end) "\n"))
-        (comint-send-string (twelf-sml-process) "\n"))
+	(comint-send-string (twelf-sml-process) "\n"))
     ;; Next two lines mess up when an Twelf error occurs, since the
     ;; newline is not read and later messes up counting.
     ;; (if (not and-go)
@@ -2328,8 +2328,8 @@ If the region is short, it is sent directly, via COMINT-SEND-REGION."
 Prefix argument means switch-to-twelf-sml afterwards."
   (interactive "P")
   (let* ((par (twelf-current-decl))
-         (query-start (nth 0 par))
-         (query-end (nth 1 par)))
+	 (query-start (nth 0 par))
+	 (query-end (nth 1 par)))
     (twelf-sml-set-mode 'TWELF)
     (twelf-sml-send-region query-start query-end and-go)))
 
@@ -2359,17 +2359,17 @@ Results:
  MORE --- asking whether to find the next solution
  UNKNOWN --- process is running, but can't tell status."
   (let* ((twelf-sml-buffer (or buffer (twelf-sml-process-buffer)))
-         (twelf-sml-process (get-buffer-process twelf-sml-buffer)))
+	 (twelf-sml-process (get-buffer-process twelf-sml-buffer)))
     (if (null twelf-sml-process)
-        'NONE
+	'NONE
       (save-excursion
-        (set-buffer twelf-sml-buffer)
-        (let ((buffer-end (buffer-substring (max (point-min) (- (point-max) 3))
-                                            (point-max))))
-          (cond ((string-match "\\?- " buffer-end) 'TWELF)
-                ((string-match "\n- " buffer-end) 'ML)
-                ((string-match "More\\? " buffer-end) 'MORE)
-                (t 'UNKNOWN)))))))
+	(set-buffer twelf-sml-buffer)
+	(let ((buffer-end (buffer-substring (max (point-min) (- (point-max) 3))
+					    (point-max))))
+	  (cond ((string-match "\\?- " buffer-end) 'TWELF)
+		((string-match "\n- " buffer-end) 'ML)
+		((string-match "More\\? " buffer-end) 'MORE)
+		(t 'UNKNOWN)))))))
 
 (defvar twelf-sml-init "Twelf.Config.load (Twelf.Config.read \"sources.cfg\");\n"
   "Initial command sent to Twelf-SML process when started during twelf-sml-set-mode 'TWELF.")
@@ -2383,21 +2383,21 @@ been achieved.  This allows for asynchronous operation."
     ((eq mode 'ML)
      (let ((status (twelf-sml-status)))
        (cond ((eq status 'NONE) (twelf-sml) 't)
-             ((eq status 'ML) 't)
-             ((eq status 'TWELF) (twelf-sml-send-string "") 't)
-             ((eq status 'MORE) (twelf-sml-send-string "q\n") 't)
-             ((eq status 'UNKNOWN) nil))))
+	     ((eq status 'ML) 't)
+	     ((eq status 'TWELF) (twelf-sml-send-string "") 't)
+	     ((eq status 'MORE) (twelf-sml-send-string "q\n") 't)
+	     ((eq status 'UNKNOWN) nil))))
     ((eq mode 'TWELF)
      (let ((status (twelf-sml-status)))
        (cond ((eq status 'NONE)
-              (twelf-sml)
-              (twelf-sml-send-string twelf-sml-init)
-              (twelf-sml-send-string "Twelf.top ();\n") 't)
-             ((eq status 'ML)
-              (twelf-sml-send-string "Twelf.top ();\n") 't)
-             ((eq status 'TWELF) 't)
-             ((eq status 'MORE) (twelf-sml-send-string "\n") 't)
-             ((eq status 'UNKNOWN) nil))))
+	      (twelf-sml)
+	      (twelf-sml-send-string twelf-sml-init)
+	      (twelf-sml-send-string "Twelf.top ();\n") 't)
+	     ((eq status 'ML)
+	      (twelf-sml-send-string "Twelf.top ();\n") 't)
+	     ((eq status 'TWELF) 't)
+	     ((eq status 'MORE) (twelf-sml-send-string "\n") 't)
+	     ((eq status 'UNKNOWN) nil))))
     (t (error "twelf-sml-set-mode: illegal mode %s" mode))))
 
 (defun twelf-sml-quit ()
@@ -2413,7 +2413,7 @@ been achieved.  This allows for asynchronous operation."
   "Returns the current Twelf-SML process."
   (let ((proc (get-buffer-process (or buffer (twelf-sml-process-buffer)))))
     (or proc
-        (error "No current process."))))
+	(error "No current process."))))
 
 ;;;----------------------------------------------------------------------
 ;;; 2Twelf-SML minor mode for Twelf
@@ -2460,16 +2460,16 @@ Mode map
   (interactive "P")
   (make-local-variable 'twelf-to-twelf-sml-mode)
   (cond ((not (assq 'twelf-to-twelf-sml-mode minor-mode-alist))
-         (setq minor-mode-alist
-               (cons '(twelf-to-twelf-sml-mode " 2Twelf-SML")
-                     minor-mode-alist))))
+	 (setq minor-mode-alist
+	       (cons '(twelf-to-twelf-sml-mode " 2Twelf-SML")
+		     minor-mode-alist))))
   (cond ((or (not twelf-to-twelf-sml-mode) prefix)
-         (setq twelf-to-twelf-sml-mode t)
-         (use-local-map twelf-to-twelf-sml-mode-map)
-         (run-hooks 'twelf-to-twelf-sml-mode-hook))
-        (t
-         (setq twelf-to-twelf-sml-mode nil)
-         (use-local-map twelf-mode-map))))
+	 (setq twelf-to-twelf-sml-mode t)
+	 (use-local-map twelf-to-twelf-sml-mode-map)
+	 (run-hooks 'twelf-to-twelf-sml-mode-hook))
+	(t
+	 (setq twelf-to-twelf-sml-mode nil)
+	 (use-local-map twelf-mode-map))))
 
 ;;;----------------------------------------------------------------------
 ;;; Twelf mode menus
@@ -2658,4 +2658,3 @@ This may be selected from the menubar.  In XEmacs, also bound to Button3."
   (twelf-server-add-menu))
 
 (provide 'twelf-old)
-

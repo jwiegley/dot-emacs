@@ -1,7 +1,7 @@
 ;; twelf-font.el  Font lock configuration for Twelf
 ;;
 ;; Author: Frank Pfenning
-;;	   Taken from Twelf's emacs mode and 
+;;	   Taken from Twelf's emacs mode and
 ;;	   adapted for Proof General by David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
@@ -49,7 +49,7 @@
        (twelf-font-create-face 'twelf-font-parm-face 'default "Orange")
        (twelf-font-create-face 'twelf-font-fvar-face 'default "SpringGreen")
        (twelf-font-create-face 'twelf-font-evar-face 'default "Aquamarine"))
-      (t 
+      (t
        (twelf-font-create-face 'twelf-font-keyword-face 'default nil)
        (twelf-font-create-face 'twelf-font-comment-face 'font-lock-comment-face
 			     nil)
@@ -79,7 +79,7 @@
     ;; for LLF, with punctuation marks
     ;;"\\([][:.(){},]\\|\\<<-\\>\\|\\<->\\>\\|\\<o-\\>\\|\\<-o\\>\\|\\<<T>\\>\\|\\<&\\>\\|\\^\\|()\\|\\<type\\>\\|\\<sigma\\>\\)"
     ;; for Elf, no punction marks
-    ;;"\\(\\<<-\\>\\|\\<->\\>\\|\\<type\\>\\|\\<sigma\\>\\)" 
+    ;;"\\(\\<<-\\>\\|\\<->\\>\\|\\<type\\>\\|\\<sigma\\>\\)"
     ;; for Elf, including punctuation marks
     ;;"\\([][:.(){}]\\|\\<<-\\>\\|\\<->\\>\\|\\<type\\>\\|\\<sigma\\>\\)"
    . twelf-font-keyword-face)
@@ -169,7 +169,7 @@ regular expressions."
 		     (t (error "Illegal font-lock-keyword instructions"))))
 	      (t (error "Illegal font-lock-keyword instructions")))
 	(cond ((symbolp fun-or-regexp)	; a function to call
-	       (while 
+	       (while
 		   (setq region (funcall fun-or-regexp end))
 		 ;; END is limit of forward search, start at point
 		 ;; and move point
@@ -320,7 +320,7 @@ For these purposes, an existential variable is a bound, upper-case identifier."
 ;;;
 ;;;
 ;;; This comes from twelf-old.el but is needed for fontification,
-;;; 
+;;;
 ;;; Perhaps some of these parsing functions will need reusing
 ;;; for sending input to server properly?
 ;;;
@@ -336,15 +336,15 @@ If declaration ends in `.' then COMPLETE is t, otherwise nil."
     (save-excursion
       ;; Skip backwards if between declarations
       (if (or (eobp) (looking-at (concat "[" *whitespace* "]")))
-          (skip-chars-backward (concat *whitespace* ".")))
+	  (skip-chars-backward (concat *whitespace* ".")))
       (setq par-end (point))
       ;; Move forward from beginning of decl until last
       ;; declaration before par-end is found.
       (if (not (bobp)) (backward-paragraph 1))
       (setq par-start (point))
       (while (and (twelf-end-of-par par-end)
-                  (< (point) par-end))
-        (setq par-start (point)))
+		  (< (point) par-end))
+	(setq par-start (point)))
       ;; Now par-start is at end of preceding declaration or query.
       (goto-char par-start)
       (skip-twelf-comments-and-whitespace)
@@ -359,23 +359,23 @@ If declaration ends in `.' then COMPLETE is t, otherwise nil."
 Return the declared identifier or `nil' if none was found.
 FILENAME and ERROR-BUFFER are used if something appears wrong."
   (let ((id nil)
-        end-of-id
+	end-of-id
 	beg-of-id)
     (skip-twelf-comments-and-whitespace)
     (while (and (not id) (not (eobp)))
       (setq beg-of-id (point))
       (if (zerop (skip-chars-forward *twelf-id-chars*))
-          ;; Not looking at id: skip ahead
-          (skip-ahead filename (current-line-absolute) "No identifier"
-                      error-buffer)
-        (setq end-of-id (point))
-        (skip-twelf-comments-and-whitespace)
-        (if (not (looking-at ":"))
-            ;; Not looking at valid decl: skip ahead
-            (skip-ahead filename (current-line-absolute end-of-id) "No colon"
-                        error-buffer)
-          (goto-char end-of-id)
-          (setq id (buffer-substring beg-of-id end-of-id))))
+	  ;; Not looking at id: skip ahead
+	  (skip-ahead filename (current-line-absolute) "No identifier"
+		      error-buffer)
+	(setq end-of-id (point))
+	(skip-twelf-comments-and-whitespace)
+	(if (not (looking-at ":"))
+	    ;; Not looking at valid decl: skip ahead
+	    (skip-ahead filename (current-line-absolute end-of-id) "No colon"
+			error-buffer)
+	  (goto-char end-of-id)
+	  (setq id (buffer-substring beg-of-id end-of-id))))
       (skip-twelf-comments-and-whitespace))
     id))
 
@@ -393,9 +393,9 @@ FILENAME and ERROR-BUFFER are used if something appears wrong."
   (skip-chars-forward *whitespace*)
   (while (looking-at *twelf-comment-start*)
     (cond ((looking-at "%{")		; delimited comment
-           (condition-case nil (forward-sexp 1)
+	   (condition-case nil (forward-sexp 1)
 	     (error (goto-char (point-max))))
-           (or (eobp) (forward-char 1)))
+	   (or (eobp) (forward-char 1)))
 	  (t				; single-line comment
 	   (end-of-line 1)))
     (skip-chars-forward *whitespace*)))
@@ -408,8 +408,8 @@ Skips over comments (single-line or balanced delimited).
 Optional argument LIMIT specifies limit of search for period."
   (if (not limit)
       (save-excursion
-        (forward-paragraph 1)
-        (setq limit (point))))
+	(forward-paragraph 1)
+	(setq limit (point))))
   (while (and (not (looking-at "\\."))
 	      (< (point) limit))
     (skip-chars-forward "^.%" limit)
@@ -418,10 +418,10 @@ Optional argument LIMIT specifies limit of search for period."
 	  ((looking-at "%")
 	   (forward-char 1))))
   (cond ((looking-at "\\.")
-         (forward-char 1)
-         t)
-        (t ;; stopped at limit
-         nil)))
+	 (forward-char 1)
+	 t)
+	(t ;; stopped at limit
+	 nil)))
 
 (defun skip-ahead (filename line message error-buffer)
   "Skip ahead when syntactic error was found.

@@ -5,7 +5,7 @@
 ;; Licence:	 GPL
 ;;
 ;; $Id$
-;; 
+;;
 ;; We only spot some simple cases of embedded LaTeX/HTML/verbatim.
 ;;
 ;; At the moment, the insertion has a bad interaction with the holes

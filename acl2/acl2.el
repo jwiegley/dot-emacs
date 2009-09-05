@@ -1,6 +1,6 @@
 ;; acl2.el   Basic Proof General instance for ACL2
 ;;
-;; Copyright (C) 2000 LFCS Edinburgh. 
+;; Copyright (C) 2000 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
@@ -15,11 +15,11 @@
 (require 'proof-syntax)			; functions for making regexps
 
 (setq auto-mode-alist                   ; ACL2 uses two file extensions
-      (cons				; Only grab .lisp extension after 
+      (cons				; Only grab .lisp extension after
        (cons "\\.lisp$" 'acl2-mode)	; an acl2 file has been loaded
-       auto-mode-alist))	
+       auto-mode-alist))
 
-(proof-easy-config  'acl2 "ACL2" 
+(proof-easy-config  'acl2 "ACL2"
  proof-assistant-home-page       "http://www.cs.utexas.edu/users/moore/acl2"
  proof-prog-name		 "acl2"
 
@@ -32,7 +32,7 @@
  proof-goal-command-regexp       "(def\\w+\\s "
  proof-save-with-hole-regexp     "(def\\w+[ \t\n]+\\(\\w+\\)"
  proof-save-with-hole-result	 1
- proof-shell-error-regexp	 
+ proof-shell-error-regexp
  "^Error: \\|Error in TOP-LEVEL: \\|\\*\\*\\*\\* FAILED \\*\\*\\*"
  proof-shell-interrupt-regexp    "Correctable error: Console interrupt."
 
@@ -52,7 +52,7 @@
  proof-script-syntax-table-entries
  '(?\[ "(]  "
    ?\] "([  "
-   ?\( "()  " 
+   ?\( "()  "
    ?\) ")(  "
    ?.  "w   "
    ?_  "w   "
@@ -62,7 +62,7 @@
    ?\' "'    "
    ?`  "'    "
    ?,  "'    "
-   ?\| "."   
+   ?\| "."
    ?\; "<    "
    ?\n ">    "
    )

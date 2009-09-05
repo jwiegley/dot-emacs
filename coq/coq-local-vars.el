@@ -7,11 +7,11 @@
 
 
 ;;; Commentary:
-;; 
+;;
 
 
 ;;; History:
-;; 
+;;
 
 ;;; Code:
 (defconst coq-local-vars-doc nil

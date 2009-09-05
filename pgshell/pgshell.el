@@ -10,11 +10,11 @@
 ;; management, and nothing to do with theorem proving really!
 ;;
 ;; To use this instance of PG, visit a file with the ".pgsh" extension.
-;; 
+;;
 ;; Feedback welcome.
 
 
-(require 'proof-easy-config)           
+(require 'proof-easy-config)
 (require 'proof-syntax)
 
 (proof-easy-config 'pgshell "PG-Shell"
@@ -27,7 +27,7 @@
  proof-script-fly-past-comments  t	        ;; nice for single-line
 
  ;; Syntax table gets font-locking and editing features for comments.
- ;; see Elisp documentation of `modify-syntax-entry' 
+ ;; see Elisp documentation of `modify-syntax-entry'
  proof-script-syntax-table-entries '(?\# "<" ?\n ">")
 
  ;; next setting is just to prevent warning

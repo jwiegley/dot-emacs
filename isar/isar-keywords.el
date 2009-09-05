@@ -1,5 +1,5 @@
 ;; NB: this copy of isar-keywords is NOT usually the one that is loaded.
-;; It will only be used if Isabelle is not properly installed and the 
+;; It will only be used if Isabelle is not properly installed and the
 ;; isatool command cannot be found.  It is needed as a fallback in this case.
 ;;
 ;; =================================================================

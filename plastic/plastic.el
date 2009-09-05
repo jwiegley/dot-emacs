@@ -6,7 +6,7 @@
 
 ;; NOTES:
 ;;	remember to prefix all potential cmds with plastic-lit-string
-;;	alternative is to fix the filtering 
+;;	alternative is to fix the filtering
 
 
 (require 'proof)
@@ -31,8 +31,8 @@
   :group 'plastic)
 
 (eval-and-compile
-(defvar plastic-lit-string 
-  ">" 
+(defvar plastic-lit-string
+  ">"
   "*Prefix of literate lines. Set to empty string to get non-literate mode"))
 
 (defcustom plastic-help-menu-list
@@ -47,7 +47,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Configuration of Generic Proof Package ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Users should not need to change this. 
+;; Users should not need to change this.
 
 (defvar plastic-shell-process-output
   '((lambda (cmd string) (proof-string-match "^Module" cmd)) .
@@ -57,8 +57,8 @@
 	    (cons 'insert "\n\nImports done!"))))
   "Acknowledge end of processing import declarations.")
 
-(defconst plastic-process-config 
-  (concat plastic-lit-string 
+(defconst plastic-process-config
+  (concat plastic-lit-string
 	  " &S ECHO No PrettyPrinting configuration implemented;\n")
   "Command to enable pretty printing of the Plastic process.
    Proof-General annotations triggered by a cmd-line opt
@@ -66,7 +66,7 @@
 
 (defconst plastic-pretty-set-width "&S ECHO no PrettyWidth ;\n"
   "Command to adjust the linewidth for pretty printing of the Plastic
-  process.") 
+  process.")
 
 (defconst plastic-interrupt-regexp "Interrupt.."
   "Regexp corresponding to an interrupt")
@@ -84,7 +84,7 @@
   "The WWW address for the latest Plastic release."
   :type 'string
   :group 'plastic)
-	  
+
 (defcustom plastic-www-refcard
   plastic-www-home-page
   "URL for the Plastic reference card."
@@ -101,7 +101,7 @@
 
 ;; ----- plastic-shell configuration options
 
-(defcustom plastic-base 
+(defcustom plastic-base
   "/usr/local/plastic"
   ;; da: was
   ;; "PLASTIC_BASE:TO_BE_CUSTOMISED"
@@ -109,21 +109,21 @@
   :type 'string
   :group 'plastic)
 
-(defvar plastic-prog-name 
+(defvar plastic-prog-name
   (concat plastic-base "/bin/plastic")
   "*Name of program to run as plastic.")
 
 (defun plastic-set-default-env-vars ()
   "defaults for the expected lib vars."
-  (cond 
+  (cond
     ((not (getenv "PLASTIC_LIB"))
 		(setenv "PLASTIC_LIB" (concat plastic-base "/lib"))
 		(setenv "PLASTIC_TEST" (concat plastic-base "/test"))
 	)))
 
-(defvar plastic-shell-cd 
+(defvar plastic-shell-cd
   (concat plastic-lit-string " &S ECHO no cd ;\n")
-  "*Command of the inferior process to change the directory.") 
+  "*Command of the inferior process to change the directory.")
 
 (defvar plastic-shell-abort-goal-regexp "KillRef: ok, not in proof state"
   "*Regular expression indicating that the proof of the current goal
@@ -137,9 +137,9 @@
 (defvar plastic-goal-command-regexp
   (concat "^" (proof-ids-to-regexp plastic-keywords-goal)))
 
-(defvar plastic-kill-goal-command 
+(defvar plastic-kill-goal-command
   (concat plastic-lit-string " &S ECHO KillRef not applicable;"))
-(defvar plastic-forget-id-command 
+(defvar plastic-forget-id-command
   (concat plastic-lit-string " &S Forget "))
 
 (defvar plastic-undoable-commands-regexp
@@ -158,7 +158,7 @@
 
 (defvar plastic-outline-regexp
   (concat "[[*]\\|"
-	  (proof-ids-to-regexp 
+	  (proof-ids-to-regexp
 	   '("Discharge" "DischargeKeep" "Freeze" "$?Goal" "Module" "Record" "Inductive"
      "Unfreeze"))))
 
@@ -167,9 +167,9 @@
 (defvar plastic-shell-outline-regexp plastic-goal-regexp)
 (defvar plastic-shell-outline-heading-end-regexp plastic-goal-regexp)
 
-(defvar plastic-error-occurred 
-        nil
-        "flag for whether undo is required for try or minibuffer cmds")
+(defvar plastic-error-occurred
+	nil
+	"flag for whether undo is required for try or minibuffer cmds")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -183,7 +183,7 @@
    (plastic-shell-mode-config))
 
 (define-derived-mode plastic-mode proof-mode
-   "Plastic script" 
+   "Plastic script"
      "Major mode for Plastic proof scripts.
 
 \\{plastic-mode-map}"
@@ -197,7 +197,7 @@
     (setq font-lock-keywords plastic-font-lock-terms)
     (plastic-init-syntax-table)
     (proof-response-config-done)))
-  
+
 (define-derived-mode plastic-goals-mode proof-goals-mode
   "PlasticGoals" "Plastic Goal State"
   (plastic-goals-mode-config))
@@ -221,7 +221,7 @@ Given is the first SPAN which needs to be undone."
 		 (setq ct (+ 1 ct))))
 	    ((eq (span-property span 'type) 'pbp)
 	     (setq i 0)
-	     (while (< i (length string)) 
+	     (while (< i (length string))
 	       (if (= (aref string i) proof-terminal-char) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
       (setq span (next-span span 'type)))
@@ -229,13 +229,13 @@ Given is the first SPAN which needs to be undone."
 
 (defun plastic-goal-command-p (span)
   "Decide whether argument is a goal or not"			;; NEED CHG.
-  (proof-string-match plastic-goal-command-regexp 
+  (proof-string-match plastic-goal-command-regexp
 		      (or (span-property span 'cmd) "")))
 
-(defun plastic-find-and-forget (span) 
+(defun plastic-find-and-forget (span)
 	;; count the number of spans to undo.
 	;; all spans are equal...
-    ;; (NB the 'x' before the id is required so xNN looks like an id, 
+    ;; (NB the 'x' before the id is required so xNN looks like an id,
     ;;  so that Undo can be implemented via the tmp_cmd route.)
   (let (string (spans 0))
     (while span
@@ -244,31 +244,31 @@ Given is the first SPAN which needs to be undone."
       (plastic-preprocessing)		;; dynamic scope, on string
 
       (cond
-         ((null string) nil)
-         ((or (string-match "^\\s-*import" string) 
+	 ((null string) nil)
+	 ((or (string-match "^\\s-*import" string)
 	      (string-match "^\\s-*test" string)
 	      (string-match "^\\s-*\\$" string)
 	      (string-match "^\\s-*#" string))
-           
-	    (popup-dialog-box 
+
+	    (popup-dialog-box
 		(list (concat "Can't Undo imports yet\n"
-                                   "You have to exit Plastic for this\n")
+				   "You have to exit Plastic for this\n")
 		      ["ok, I'll do this" (lambda () t) t]))
 	    (return)
-           )    ;; warn the user that undo of imports not yet working.
-         (t (incf spans))
+	   )    ;; warn the user that undo of imports not yet working.
+	 (t (incf spans))
       )
       (setq span (next-span span 'type))
 
     )
     (concat plastic-lit-string " &S Undo x" (int-to-string spans) proof-terminal-string) ))
-  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun plastic-goal-hyp ()		;; not used.
-  (cond 
+  (cond
    ((looking-at plastic-goal-regexp)
     (cons 'goal (match-string 1)))
    ((looking-at proof-shell-assumption-regexp)
@@ -288,7 +288,7 @@ Given is the first SPAN which needs to be undone."
 
 (eval-after-load "plastic" ;; da: so that plastic-lit-string can be changed
   '(progn
-     (eval `(proof-defshortcut plastic-Intros 
+     (eval `(proof-defshortcut plastic-Intros
 			       ,(concat plastic-lit-string "Intros ")  [(control i)]))
      (eval `(proof-defshortcut plastic-Refine
 			       ,(concat plastic-lit-string "Refine ")  [(control r)]))
@@ -311,17 +311,17 @@ Given is the first SPAN which needs to be undone."
 
 (defun plastic-shell-adjust-line-width ()
   "Use Plastic's pretty printing facilities to adjust output line width.
-   Checks the width in the `proof-goals-buffer' 
+   Checks the width in the `proof-goals-buffer'
    ACTUALLY - still need to work with this. (pcc, may99)"
    (and (buffer-live-p proof-goals-buffer)
-        (proof-shell-live-buffer)
-        (save-excursion
-        (set-buffer proof-goals-buffer)
-        (let ((current-width
-               ;; Actually, one might sometimes
-               ;; want to get the width of the proof-response-buffer
-               ;; instead. Never mind.
-               (window-width (get-buffer-window proof-goals-buffer t))))
+	(proof-shell-live-buffer)
+	(save-excursion
+	(set-buffer proof-goals-buffer)
+	(let ((current-width
+	       ;; Actually, one might sometimes
+	       ;; want to get the width of the proof-response-buffer
+	       ;; instead. Never mind.
+	       (window-width (get-buffer-window proof-goals-buffer t))))
 
 	   (if (equal current-width plastic-shell-current-line-width) ()
 	     ; else
@@ -349,12 +349,12 @@ Given is the first SPAN which needs to be undone."
 
   (setq proof-showproof-command (concat plastic-lit-string " &S PrfCtxt")
 	proof-goal-command      (concat plastic-lit-string " Claim %s;")
-	proof-save-command      (concat plastic-lit-string " Save %s;") ;; analogue? 
+	proof-save-command      (concat plastic-lit-string " Save %s;") ;; analogue?
 	proof-context-command   (concat plastic-lit-string " &S Ctxt 20"))
 
   (setq proof-showproof-command  (concat plastic-lit-string " &S PrfCtxt")
 	proof-goal-command   (concat plastic-lit-string " Claim %s;")
-	proof-save-command   (concat plastic-lit-string " Save %s;") ;; analogue? 
+	proof-save-command   (concat plastic-lit-string " Save %s;") ;; analogue?
 	proof-context-command  (concat plastic-lit-string " &S Ctxt 20")
 	   ;; show 20 things; see ^c+C...
 	proof-info-command   (concat plastic-lit-string " &S Help"))
@@ -362,7 +362,7 @@ Given is the first SPAN which needs to be undone."
   (setq proof-goal-command-p 'plastic-goal-command-p
 	proof-count-undos-fn 'plastic-count-undos
 	proof-find-and-forget-fn 'plastic-find-and-forget
-        pg-topterm-goalhyplit-fn 'plastic-goal-hyp
+	pg-topterm-goalhyplit-fn 'plastic-goal-hyp
 	proof-state-preserving-p 'plastic-state-preserving-p)
 
   (setq	proof-save-command-regexp plastic-save-command-regexp
@@ -371,13 +371,13 @@ Given is the first SPAN which needs to be undone."
 	proof-goal-with-hole-regexp plastic-goal-with-hole-regexp
 	proof-kill-goal-command plastic-kill-goal-command
 	proof-indent-any-regexp
-	(proof-regexp-alt 
-	 (proof-ids-to-regexp plastic-commands) 
+	(proof-regexp-alt
+	 (proof-ids-to-regexp plastic-commands)
 	 "\\s(" "\\s)"))
 
   (plastic-init-syntax-table)
 
-  ;; da: I've moved these out of proof-config-done in proof-script.el 
+  ;; da: I've moved these out of proof-config-done in proof-script.el
   (setq pbp-goal-command (concat "UNIMPLEMENTED"))
   (setq pbp-hyp-command (concat "UNIMPLEMENTED"))
 
@@ -388,7 +388,7 @@ Given is the first SPAN which needs to be undone."
   (proof-config-done)
 
 ;; outline
-  
+
   (make-local-variable 'outline-regexp)
   (setq outline-regexp plastic-outline-regexp)
 
@@ -414,12 +414,12 @@ Given is the first SPAN which needs to be undone."
   (add-hook 'proof-shell-handle-error-or-interrupt-hook 'plastic-had-error)
   (add-hook 'proof-shell-insert-hook       'plastic-preprocessing)
 
-;; (add-hook 'proof-shell-handle-error-or-interrupt-hook 
+;; (add-hook 'proof-shell-handle-error-or-interrupt-hook
 ;; (lambda()(goto-char (search-forward (char-to-string  proof-terminal-char)))))
 
 ;;  (add-hook 'proof-shell-handle-delayed-output-hook `plastic-show-shell-buffer t)
 ;; this forces display of shell-buffer after each cmd, rather than goals-buffer
-;; it is not always necessary - could always add it as a toggle option? 
+;; it is not always necessary - could always add it as a toggle option?
 
 ;; set up the env.
   (plastic-set-default-env-vars)
@@ -443,7 +443,7 @@ The directory and extension is stripped of FILENAME before the test."
 It needs to return an up to date list of all processed files. Its
 output is stored in `proof-included-files-list'. Its input is the
 string of which `plastic-shell-retract-files-regexp' matched a
-substring. 
+substring.
 
 We assume that module identifiers coincide with file names."
   (let ((module (match-string 1 str)))
@@ -455,40 +455,40 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-shell-mode-config ()
   (setq proof-shell-cd-cmd plastic-shell-cd
-        proof-shell-abort-goal-regexp plastic-shell-abort-goal-regexp
-        proof-shell-proof-completed-regexp plastic-shell-proof-completed-regexp
-        proof-shell-error-regexp plastic-error-regexp
-        proof-shell-interrupt-regexp plastic-interrupt-regexp
-        ;; DEAD proof-shell-noise-regexp "Discharge\\.\\. "
-        proof-shell-assumption-regexp plastic-id
-        proof-shell-goal-regexp plastic-goal-regexp
-        pg-subterm-first-special-char ?\360
-        proof-shell-wakeup-char ?\371		;; only for first send? 
+	proof-shell-abort-goal-regexp plastic-shell-abort-goal-regexp
+	proof-shell-proof-completed-regexp plastic-shell-proof-completed-regexp
+	proof-shell-error-regexp plastic-error-regexp
+	proof-shell-interrupt-regexp plastic-interrupt-regexp
+	;; DEAD proof-shell-noise-regexp "Discharge\\.\\. "
+	proof-shell-assumption-regexp plastic-id
+	proof-shell-goal-regexp plastic-goal-regexp
+	pg-subterm-first-special-char ?\360
+	proof-shell-wakeup-char ?\371		;; only for first send?
 ;;      proof-shell-wakeup-char nil		;; NIL turns off annotations.
-        pg-subterm-start-char ?\372
-        pg-subterm-sep-char ?\373
-        pg-subterm-end-char ?\374
-        pg-topterm-regexp "\375"
-        proof-shell-eager-annotation-start "\376"
+	pg-subterm-start-char ?\372
+	pg-subterm-sep-char ?\373
+	pg-subterm-end-char ?\374
+	pg-topterm-regexp "\375"
+	proof-shell-eager-annotation-start "\376"
 	;; FIXME da: if p-s-e-a-s is implemented, you should set
 	;; proof-shell-eager-annotation-start-length=1 to
 	;; avoid possibility of duplicating short messages.
-        proof-shell-eager-annotation-end "\377"
+	proof-shell-eager-annotation-end "\377"
 
-        proof-shell-annotated-prompt-regexp "LF> \371"
-        proof-shell-result-start "\372 Pbp result \373"
-        proof-shell-result-end "\372 End Pbp result \373"
-        proof-shell-start-goals-regexp "\372 Start of Goals \373"
-        proof-shell-end-goals-regexp "\372 End of Goals \373"
+	proof-shell-annotated-prompt-regexp "LF> \371"
+	proof-shell-result-start "\372 Pbp result \373"
+	proof-shell-result-end "\372 End Pbp result \373"
+	proof-shell-start-goals-regexp "\372 Start of Goals \373"
+	proof-shell-end-goals-regexp "\372 End of Goals \373"
 
-        proof-shell-init-cmd plastic-process-config
+	proof-shell-init-cmd plastic-process-config
 	proof-shell-restart-cmd plastic-process-config
-        pg-subterm-anns-use-stack nil
-        proof-shell-classify-output-system-specific plastic-shell-process-output
-        plastic-shell-current-line-width nil
+	pg-subterm-anns-use-stack nil
+	proof-shell-classify-output-system-specific plastic-shell-process-output
+	plastic-shell-current-line-width nil
 
 	proof-shell-process-file
-	(cons "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]"  
+	(cons "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]"
 	  (lambda (str) (let ((match (match-string 2 str)))
 			  (if (equal match "") match
 			    (concat (file-name-sans-extension match) ".l")))))
@@ -505,7 +505,7 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-goals-mode-config ()
   (setq pg-goals-change-goal "Next %s;"
-        pg-goals-error-regexp plastic-error-regexp)
+	pg-goals-error-regexp plastic-error-regexp)
   (setq proof-goals-font-lock-keywords plastic-font-lock-terms)
   (plastic-init-syntax-table)
   (proof-goals-config-done))
@@ -525,25 +525,25 @@ We assume that module identifiers coincide with file names."
    ;; might want to use proof-string-match here if matching is going
    ;; to be case sensitive (see docs)
 
-   (if (= 0 (length plastic-lit-string)) 
+   (if (= 0 (length plastic-lit-string))
        string				; no-op if non-literate
-     					; remaining lines are the
-     					; Else. (what, no 'return'?)
+					; remaining lines are the
+					; Else. (what, no 'return'?)
    (setq string (concat "\n" string " "))   ;; seed routine below, & extra char
-   (let* ;; da: let* not really needed, added to nuke byte-comp warnings. 
-       (x 
+   (let* ;; da: let* not really needed, added to nuke byte-comp warnings.
+       (x
 	(i 0)
 	(l (length string))
-	(eat-rest (lambda () 
-                    (aset string i ?\ )  ;; kill the \n or "-" at least
-                    (incf i)
-                    (while (and (< i l) (/= (aref string i) ?\n))
+	(eat-rest (lambda ()
+		    (aset string i ?\ )  ;; kill the \n or "-" at least
+		    (incf i)
+		    (while (and (< i l) (/= (aref string i) ?\n))
 		      (aset string i ?\ )
 		      (incf i) )))
-	(keep-rest (lambda () 
+	(keep-rest (lambda ()
 		     (loop for x in (string-to-list plastic-lit-string)
 		       do (aset string i ?\ ) (incf i))
-		     (while (and (< i l) 
+		     (while (and (< i l)
 				 (/= (aref string i) ?\n)
 				 (/= (aref string i) ?-))
 		       (incf i) ))))
@@ -552,16 +552,16 @@ We assume that module identifiers coincide with file names."
 	((eq 0 (string-match "--" (substring string i)))
 	 (funcall eat-rest))		; comment.
 	((eq 0 (string-match "\n\n" (substring string i)))
-	 (aset string i ?\ ) 
+	 (aset string i ?\ )
 	 (incf i))			; kill repeat \n
 	((= (aref string i) ?\n)	; start of new line
 	 (aset string i ?\ ) (incf i)	; remove \n
-	 (if (eq 0 (string-match plastic-lit-string 
+	 (if (eq 0 (string-match plastic-lit-string
 				 (substring string i)))
 	     (funcall keep-rest)	; code line.
 	   (funcall eat-rest)		; non-code line
 	   ))
-	(t 
+	(t
 	 (incf i))))			; else include.
      (setq string (replace-regexp-in-string "  +" " " string))
      (setq string (replace-regexp-in-string "^ +" "" string))
@@ -570,19 +570,19 @@ We assume that module identifiers coincide with file names."
      string))))
 
 
-(defun plastic-all-ctxt () 
+(defun plastic-all-ctxt ()
 	"show the full ctxt"
 	(interactive)
-	(proof-shell-invisible-command 
-              (concat plastic-lit-string " &S Ctxt" proof-terminal-string))
+	(proof-shell-invisible-command
+	      (concat plastic-lit-string " &S Ctxt" proof-terminal-string))
 	)
 
 (defun plastic-send-one-undo ()
 	"send an Undo cmd"
     ;; FIXME etc
-    ;; is like this because I don't want the undo output to be shown. 
+    ;; is like this because I don't want the undo output to be shown.
     (proof-shell-insert (concat plastic-lit-string " &S Undo;")
-                        'proof-done-invisible))
+			'proof-done-invisible))
 
 ;; hacky expt version.
 ;; still don't understand the significance of cmd!
@@ -594,7 +594,7 @@ We assume that module identifiers coincide with file names."
     (print "hello")
     (plastic-reset-error)
     (if (and proof-state-preserving-p
-           (not (funcall proof-state-preserving-p cmd)))
+	   (not (funcall proof-state-preserving-p cmd)))
       (error "Command is not state preserving, I won't execute it!"))
     (proof-shell-invisible-command cmd)
     (plastic-call-if-no-error 'plastic-send-one-undo))
@@ -615,9 +615,9 @@ We assume that module identifiers coincide with file names."
     "take cmd from minibuffer - see doc for proof-minibuffer-cmd"
     (interactive)
     (let (cmd)
-        (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
-        (setq cmd (concat plastic-lit-string " " cmd proof-terminal-string))
-        (proof-shell-invisible-command cmd)))
+	(setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
+	(setq cmd (concat plastic-lit-string " " cmd proof-terminal-string))
+	(proof-shell-invisible-command cmd)))
 
 (defun plastic-had-error ()
     "sets var plastic-error-occurred, called from hook"
@@ -652,7 +652,7 @@ We assume that module identifiers coincide with file names."
 
 ;;;;;;;;;;;;;;;;;
 ;; hacky overriding of the toolbar command and C-c C-v action
-;; my version handles literate characters. 
+;; my version handles literate characters.
 ;; (should do better for long-term though)
 
 (defalias 'proof-toolbar-command 'plastic-minibuf)

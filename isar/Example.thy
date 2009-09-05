@@ -4,6 +4,7 @@
       $Id$
 *)
 
+
 theory Example imports Main begin
 
 text {* Proper proof text -- \textit{naive version}. *}
@@ -27,5 +28,6 @@ theorem  "A & B --> B & A"
   apply assumption
   apply assumption
 done
+
 
 end

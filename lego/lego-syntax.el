@@ -1,5 +1,5 @@
 ;; lego-syntax.el Syntax of LEGO
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh.
 ;; Author: Thomas Kleymann and Dilip Sequeira
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
@@ -22,8 +22,8 @@
 	    "Cut" "Discharge" "DischargeKeep"
 	    "echo" "exE" "exI" "Expand" "ExpAll"
 	    "ExportState" "Equiv" "For" "Freeze" "Hnf" "Immed"
-	    "impE" "impI" "Induction" "Inductive" 
-	    "Invert" "Init" "intros" "Intros" "Module" "Next" 
+	    "impE" "impI" "Induction" "Inductive"
+	    "Invert" "Init" "intros" "Intros" "Module" "Next"
 	    "Normal" "notE" "notI" "orE" "orIL" "orIR" "qnify" "Qnify"
 	    "Qrepl" "Record" "Refine" "Repeat" "Try" "Unfreeze"))
   "Subset of LEGO keywords and tacticals which are terminated by a \?;")
@@ -37,7 +37,7 @@
 
 ;; ----- regular expressions for font-lock
 (defconst lego-error-regexp "^\\(cannot assume\\|Error\\|Lego parser\\)"
-  "A regular expression indicating that the LEGO process has identified an error.") 
+  "A regular expression indicating that the LEGO process has identified an error.")
 
 (defvar lego-id proof-id)
 
@@ -74,7 +74,7 @@
      ; Pi and Sigma binders
      (list (concat "[{<]\\s *\\(" lego-ids "\\)") 1
 	   'proof-declaration-name-face)
-   
+
      ;; Kinds
      (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
 		   lego-id ")\\)?") 'font-lock-type-face)
@@ -89,7 +89,7 @@
 (defconst lego-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^(){},:]+\\)")
   "Regular expression which matches an entry in `lego-keywords-goal'
-  and the name of the goal.") 
+  and the name of the goal.")
 
 (defconst lego-save-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)")
@@ -106,7 +106,7 @@
      (list lego-save-with-hole-regexp 2 'font-lock-function-name-face)
      ;; Remove spurious variable and function faces on commas.
      '(proof-zap-commas))))
-     
+
 (defun lego-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
 

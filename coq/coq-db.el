@@ -12,7 +12,7 @@
 ;;; real value defined below
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 
@@ -71,11 +71,11 @@ Insert corresponding string with holes at point.  If an insertion function is
 present for the keyword, call it instead.  see `coq-syntax-db' for DB
 structure."
   (let* ((tac (completing-read (concat prompt " (tab for completion) : ")
-                               db nil nil))
-         (infos (cddr (assoc tac db)))
-         (s (car infos)) ; completion to insert
-         (f (car-safe (cdr-safe (cdr-safe (cdr infos))))) ; insertion function
-         (pt (point)))
+			       db nil nil))
+	 (infos (cddr (assoc tac db)))
+	 (s (car infos)) ; completion to insert
+	 (f (car-safe (cdr-safe (cdr-safe (cdr infos))))) ; insertion function
+	 (pt (point)))
     (if f (funcall f) ; call f if present
       (insert (or s tac)) ; insert completion and indent otherwise
       (holes-replace-string-by-holes-backward-jump pt)
@@ -91,16 +91,16 @@ regexp.  See `coq-syntax-db' for DB structure."
   (let ((l db) (res ()))
     (while l
       (let* ((hd (car l)) (tl (cdr l))	; hd is the first infos list
-             (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-             (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-             (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
-             (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
-             (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
-             )
-        ;; TODO delete doublons
-        (when (and e5 (or (not filter) (funcall filter hd)))
-          (setq res (nconc res (list e5)))) ; careful: nconc destructive!
-        (setq l tl)))
+	     (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
+	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
+	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
+	     (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
+	     (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
+	     )
+	;; TODO delete doublons
+	(when (and e5 (or (not filter) (funcall filter hd)))
+	  (setq res (nconc res (list e5)))) ; careful: nconc destructive!
+	(setq l tl)))
     res
     ))
 
@@ -162,9 +162,9 @@ for DB structure."
 	  (car-safe (car-safe (nthcdr (- size 1) db)))))
 
 (defun coq-sort-menu-entries (menu)
-  (sort menu 
-	'(lambda (x y) (string< 
-			(downcase (elt x 0)) 
+  (sort menu
+	'(lambda (x y) (string<
+			(downcase (elt x 0))
 			(downcase (elt y 0))))))
 
 (defun coq-build-menu-from-db (db &optional size)
@@ -178,11 +178,11 @@ structure."
     (while l
       (if (<= lgth sz)
 	  (setq res ;; careful: nconc destructive!
-		(nconc res (list (cons 
+		(nconc res (list (cons
 				  (coq-build-title-menu l lgth)
 				  (coq-build-menu-from-db-internal l lgth wdth)))))
 	(setq res ; careful: nconc destructive!
-	      (nconc res (list (cons 
+	      (nconc res (list (cons
 				(coq-build-title-menu l sz)
 				(coq-build-menu-from-db-internal l sz wdth))))))
       (setq l (nthcdr sz l))
@@ -226,7 +226,7 @@ See `coq-syntax-db' for DB structure."
 
 
 ;;A new face for tactics which fail when they don't kill the current goal
-(defface coq-solve-tactics-face 
+(defface coq-solve-tactics-face
   (proof-face-specs
    (:foreground "red") ; pour les fonds clairs
    (:foreground "red") ; pour les fond foncés

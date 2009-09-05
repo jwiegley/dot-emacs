@@ -30,8 +30,6 @@
   (pg-autotest assert-unprocessed "etc/isar/multiple/C.thy")
   (pg-autotest assert-processed   "etc/isar/multiple/A.thy")
 
-  
+
   (pg-autotest-quit-prover)
   (pg-autotest-finished))
-
-

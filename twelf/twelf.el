@@ -1,6 +1,6 @@
 ;; twelf.el  Proof General instance for Twelf
 ;;
-;; Copyright (C) 2000 LFCS Edinburgh. 
+;; Copyright (C) 2000 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
@@ -10,13 +10,13 @@
 ;; TODO:
 ;;   Info doc menu entry
 ;;   X-Symbol upgrade/test?  Mule XE better?
-;; 
+;;
 
 
 (require 'proof-easy-config)            ; easy configure mechanism
 
 (require 'twelf-font)			; font lock configuration
-;; (require 'twelf-old)	
+;; (require 'twelf-old)
 ;; FIXME: put parts of old code into twelf-syntax or similar
 
 ;;
@@ -37,7 +37,7 @@
 ;;
 ;; Instantiation of Proof General
 ;;
-(proof-easy-config 'twelf "Twelf" 
+(proof-easy-config 'twelf "Twelf"
  proof-prog-name		 "twelf-server"
  proof-assistant-home-page       "http://www.cs.cmu.edu/~twelf/"
 
@@ -61,7 +61,7 @@
 
  ;; "Eager annotations" mark messages Proof General should display
  ;; or recognize while the prover is pontificating
- proof-shell-eager-annotation-start   
+ proof-shell-eager-annotation-start
  "^\\[Opening \\|\\[Closing "
  proof-shell-eager-annotation-end "\n"
 
@@ -71,14 +71,14 @@
 
 ;; unset: all of the interactive proof commands
 ;; These don't really apply, I don't think, because Twelf
-;; only has fully automatic prover at the moment. 
+;; only has fully automatic prover at the moment.
 ;; Also, there is no concept of "undo" to remove declarations
 ;; (can simply repeat them, tho.)
 ;; proof-goal-command-regexp       "^%theorem"
 ;; proof-save-command-regexp       "" ;; FIXME: empty?
 ;; proof-goal-with-hole-regexp     "^%theorem\w-+\\(.*\\)\w-+:"
 ;; proof-save-with-hole-regexp     "" ;; FIXME
-;; proof-non-undoables-regexp     
+;; proof-non-undoables-regexp
 ;; proof-goal-command              "%theorem %s."
 ;; proof-save-command              "%prove "
 ;; remaining strings are left over from Isabelle example
@@ -87,12 +87,12 @@
 ;; proof-undo-n-times-cmd          "pg_repeat undo %s;"
 ;; proof-shell-start-goals-regexp  "Level [0-9]"
 ;; proof-shell-end-goals-regexp    "val it"
-;; proof-shell-init-cmd  
+;; proof-shell-init-cmd
 ;; proof-shell-proof-completed-regexp "^No subgoals!"
 
 
 ;;
-;; Twelf server doesn't take declarations directly: 
+;; Twelf server doesn't take declarations directly:
 ;; we need to pre-process script input slightly
 ;;
 
@@ -122,7 +122,7 @@
 
 ;; A-Z and a-z are already word constituents
 ;; For fontification, it would be better if _ and ' were word constituents
-(twelf-map-string 
+(twelf-map-string
  'twelf-set-word "!&$^+/<=>?@~|#*`;,-0123456789\\") ; word constituents
 (twelf-map-string 'twelf-set-symbol "_'")         ; symbol constituents
 ;; Delimited comments are %{ }%, see 1234 below.
@@ -130,7 +130,7 @@
 (twelf-set-syntax ?\t "    ")           ; whitespace
 ; da: this old entry is wrong: it says % always starts a comment
 ;(twelf-set-syntax ?% "< 14")            ; comment begin
-; This next one is much better, 
+; This next one is much better,
 (twelf-set-syntax ?% ". 14")            ; comment begin/second char
 (twelf-set-syntax ?\n ">   ")           ; comment end
 (twelf-set-syntax ?: ".   ")            ; punctuation
@@ -163,7 +163,7 @@
 
 (defun twelf-mode-extra-config ()
   (make-local-hook 'font-lock-after-fontify-buffer-hook)
-  (add-hook 'font-lock-after-fontify-buffer-hook 
+  (add-hook 'font-lock-after-fontify-buffer-hook
 	    'twelf-font-fontify-buffer nil 'local)
   (font-lock-mode))
 
@@ -204,6 +204,6 @@
 
 (defpgdefault menu-entries
   (cdr twelf-syntax-menu))
-  
+
 
 (provide 'twelf)

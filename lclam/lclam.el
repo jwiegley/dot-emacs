@@ -1,4 +1,4 @@
-;; File name:      lclam.el        
+;; File name:      lclam.el
 ;; Description:    Proof General instance for Lambda-CLAM
 ;; Author:         James Brotherston <jjb@dai.ed.ac.uk>
 ;; Last modified:  23 October 2001
@@ -6,7 +6,7 @@
 ;; $Id$
 
 (require 'proof)            ; load generic parts
-(require 'proof-syntax)     
+(require 'proof-syntax)
 
 ;;
 ;; =========== User settings for Lambda-CLAM ============
@@ -31,7 +31,7 @@
 
 (defun lclam-config ()
   "Configure Proof General scripting for Lambda-CLAM."
-  (setq 
+  (setq
    proof-terminal-char             ?\.
    proof-comment-start             "/*"
    proof-comment-end               "*/"
@@ -41,12 +41,12 @@
    proof-save-with-hole-regexp     nil
    proof-non-undoables-regexp      nil
    proof-undo-n-times-cmd          nil
-   proof-showproof-command         nil 
+   proof-showproof-command         nil
    proof-goal-command              "^pds_plan %s."
    proof-save-command              nil
    proof-kill-goal-command         nil
    proof-assistant-homepage        lclam-web-page
-   proof-auto-multiple-files       nil 
+   proof-auto-multiple-files       nil
    proof-prog-name		   lclam-prog-name
    proof-shell-process-connection-type t
    ))
@@ -54,7 +54,7 @@
 (defun lclam-shell-config ()
   "Configure Proof General shell for Lambda-CLAM"
   (setq
-   proof-shell-annotated-prompt-regexp "^lclam:" 
+   proof-shell-annotated-prompt-regexp "^lclam:"
    proof-shell-cd-cmd                  nil
    proof-shell-interrupt-regexp        nil
    proof-shell-error-regexp            nil
@@ -135,39 +135,39 @@
 (defvar thy-mode-map nil)
 
 (defun thy-add-menus ()
-  "Add Lambda-CLAM menu to current menu bar."  
-  (require 'proof-script)    
+  "Add Lambda-CLAM menu to current menu bar."
+  (require 'proof-script)
   (easy-menu-define thy-mode-pg-menu
-                    thy-mode-map
-                    "PG Menu for Lambda-CLAM Proof General"
-                    (cons proof-general-name
-                          (append
-                           (list
-                           ;; A couple from the toolbar that make sense here
-                           ;; (also in proof-universal-keys)
-                            ["Issue command" proof-minibuffer-cmd t]
-                            ["Interrupt prover" proof-interrupt-process t])
+		    thy-mode-map
+		    "PG Menu for Lambda-CLAM Proof General"
+		    (cons proof-general-name
+			  (append
+			   (list
+			   ;; A couple from the toolbar that make sense here
+			   ;; (also in proof-universal-keys)
+			    ["Issue command" proof-minibuffer-cmd t]
+			    ["Interrupt prover" proof-interrupt-process t])
 			   (list proof-buffer-menu)
-                           (list proof-help-menu))))
+			   (list proof-help-menu))))
 
   (easy-menu-define thy-mode-lclam-menu
-                    thy-mode-map
-                    "Menu for Lambda-CLAM Proof General, theory file mode."
-                    (cons "Theory"
-                          (list
-                           ["Next section" thy-goto-next-section t]
-                           ["Prev section" thy-goto-prev-section t]
-                           ["Insert template" thy-insert-template t]
+		    thy-mode-map
+		    "Menu for Lambda-CLAM Proof General, theory file mode."
+		    (cons "Theory"
+			  (list
+			   ["Next section" thy-goto-next-section t]
+			   ["Prev section" thy-goto-prev-section t]
+			   ["Insert template" thy-insert-template t]
 ; da: commented out this, function is incomplete
 ;                           ["Include definitions" match-and-assert-defs
 ;                            :active (proof-locked-region-empty-p)]
-                           ["Process theory" process-thy-file
-                            :active (proof-locked-region-empty-p)]
+			   ["Process theory" process-thy-file
+			    :active (proof-locked-region-empty-p)]
 ; da: commented out this, there's no retract function provided
 ;                           ["Retract theory" isa-retract-thy-file
 ;                            :active (proof-locked-region-full-p)]
-                           ["Next error" proof-next-error t]
-                           ["Switch to script" thy-find-other-file t])))
+			   ["Next error" proof-next-error t]
+			   ["Switch to script" thy-find-other-file t])))
 
   (easy-menu-add thy-mode-pg-menu thy-mode-map)
   (easy-menu-add thy-mode-lclam-menu thy-mode-map)

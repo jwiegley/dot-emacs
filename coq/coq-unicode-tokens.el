@@ -161,7 +161,7 @@ You can adjust this table to add more entries, or to change entries for
 glyphs that not are available in your Emacs or chosen font.
 
 These shortcuts are only used for input; no reverse conversion is
-performed.  This means that the target strings need to have a defined 
+performed.  This means that the target strings need to have a defined
 meaning to be useful."
   :type '(repeat (cons (string :tag "Shortcut sequence")
 		       (string :tag "Unicode string")))
@@ -169,24 +169,24 @@ meaning to be useful."
   :group 'coq
   :tag "Coq Unicode Input Shortcuts")
 
-  
+
 ;;
 ;; Controls
 ;;
 
-(defconst coq-control-char-format-regexp 
+(defconst coq-control-char-format-regexp
   ;; FIXME: fix Coq identifier syntax below
   "\\(\s*%s\s*\\)\\([a-zA-Z0-9']+\\)")
 
 (defconst coq-control-char-format " %s ")
 
-(defconst coq-control-characters 
-  '(("Subscript" "__" sub) 
+(defconst coq-control-characters
+  '(("Subscript" "__" sub)
     ("Superscript" "^^" sup)))
 
 (defconst coq-control-region-format-regexp "\\(\s*%s\{\\)\\([^}]*\\)\\(\}\s*\\)")
 
-(defconst coq-control-regions 
+(defconst coq-control-regions
   '(("Subscript" "," "" sub)
     ("Superscript" "^" "" sup)
     ("Bold" "BOLD" "" bold)

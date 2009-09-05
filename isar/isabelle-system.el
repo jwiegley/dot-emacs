@@ -43,7 +43,7 @@
       (getenv "ISABELLE_TOOL")
       (proof-locate-executable "isabelle" nil
 			       (list
-				;; support default unpack in home dir situation 
+				;; support default unpack in home dir situation
 				(concat (getenv "HOME") "/Isabelle/bin/")))
       "path_to_isabelle_is_unknown")
   "Command to invoke the main Isabelle wrapper 'isabelle'.
@@ -61,12 +61,12 @@ working."
   "Make sure `isa-isabelle-command' points to a valid executable.
 If it does not, or if prefix arg supplied, prompt the user for
 the proper setting.  If `proof-rsh-command' is set, leave this
-unverified.  Otherwise, returns non-nil if isa-isabelle-command 
+unverified.  Otherwise, returns non-nil if isa-isabelle-command
 is surely an executable with full path."
   (interactive "p")
   (when (and (not noninteractive)
 	     (not proof-rsh-command)
-	     (or force 
+	     (or force
 		 isabelle-not-found
 		 (not (file-executable-p isa-isabelle-command))))
     (setq isa-isabelle-command
@@ -155,17 +155,17 @@ at the top of your theory file, like this:
 
 (defvar isabelle-chosen-logic-prev nil
   "Value of `isabelle-chosen-logic' on last call of `isabelle-set-prog-name'.")
-  
+
 (defun isabelle-hack-local-variables-function ()
   "Hook function for `hack-local-variables-hook'."
   (if (and isabelle-chosen-logic
-	   (not (equal isabelle-chosen-logic 
+	   (not (equal isabelle-chosen-logic
 		       isabelle-chosen-logic-prev))
 	   (proof-shell-live-buffer))
       (message "Warning: chosen logic %s does not match running Isabelle instance"
 	       isabelle-chosen-logic)))
 
-(add-hook 'hack-local-variables-hook 
+(add-hook 'hack-local-variables-hook
 	  'isabelle-hack-local-variables-function)
 
 (defun isabelle-set-prog-name (&optional filename)
@@ -177,9 +177,9 @@ This function sets `isabelle-prog-name' and `proof-prog-name'."
       ;; is set in current Isabelle settings environment.
       ((isabelle (or
 		  isabelle-program-name-override  ; override in Emacs
-		  (getenv "ISABELLE_PROCESS")	  ; command line override 
+		  (getenv "ISABELLE_PROCESS")	  ; command line override
 		  (isa-getenv "ISABELLE_PROCESS") ; choose to match isabelle
-		  "isabelle-process"))		  ; to 
+		  "isabelle-process"))		  ; to
        (isabelle-opts (getenv "ISABELLE_OPTIONS"))
        (opts (concat " -PI"  ;; Proof General + Isar
 	      (if proof-shell-unicode " -m PGASCII" "")
@@ -218,7 +218,7 @@ This function sets `isabelle-prog-name' and `proof-prog-name'."
       (apply 'start-process
 	     "isa-view-doc" nil
 	     (append (split-string
-		      isa-isabelle-command) 
+		      isa-isabelle-command)
 		     (list "doc" docname)))))
 
 (defun isa-tool-list-docs ()
@@ -257,7 +257,7 @@ for you, you should disable this behaviour."
   :type 'boolean
   :group 'isabelle)
 
-(defvar isabelle-docs-menu 
+(defvar isabelle-docs-menu
   (let ((vc '(lambda (docdes)
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
@@ -311,7 +311,7 @@ for you, you should disable this behaviour."
   "Update logics menu."
   (and (current-local-map)
        (keymapp (lookup-key (current-local-map)
- 			    (vector 'menu-bar (intern proof-assistant))))
+			    (vector 'menu-bar (intern proof-assistant))))
        (isabelle-logics-menu-refresh)))
 
 (add-hook 'menu-bar-update-hook 'isabelle-menu-bar-update-logics)

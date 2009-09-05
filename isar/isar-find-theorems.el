@@ -122,7 +122,7 @@
   (widget-insert
     (concat "\n  "
       (if (fboundp 'propertize)
-        (propertize "Find Theorems" 'face 'bold)
+	(propertize "Find Theorems" 'face 'bold)
       "Find Theorems")
       "\n\n"))
 
@@ -190,7 +190,7 @@
   (widget-create 'push-button
     :help-echo "Click <mouse-2> for help."
     :notify (lambda (&rest ignore) (isar-find-theorems-create-help))
-    "?")  
+    "?")
 
   ;; num
   (widget-insert "\n\n  Number of results:      ")
@@ -210,15 +210,15 @@
     :help-echo "Click <mouse-2> to submit this form."
     :notify (lambda (&rest ignore)
       (let ((num     (widget-value isar-find-theorems-widget-number))
-            (pattern (widget-value isar-find-theorems-widget-pattern))
-            (intro   (widget-value isar-find-theorems-widget-intro))
-            (elim    (widget-value isar-find-theorems-widget-elim))
-            (dest    (widget-value isar-find-theorems-widget-dest))
-            (name    (widget-value isar-find-theorems-widget-name))
-            (simp    (widget-value isar-find-theorems-widget-simp)))
+	    (pattern (widget-value isar-find-theorems-widget-pattern))
+	    (intro   (widget-value isar-find-theorems-widget-intro))
+	    (elim    (widget-value isar-find-theorems-widget-elim))
+	    (dest    (widget-value isar-find-theorems-widget-dest))
+	    (name    (widget-value isar-find-theorems-widget-name))
+	    (simp    (widget-value isar-find-theorems-widget-simp)))
       (kill-buffer "*Find Theorems*")
       (isar-find-theorems-submit-searchform
-        num pattern intro elim dest name simp)))
+	num pattern intro elim dest name simp)))
     "Find")
 
   ;; Reset form
@@ -228,7 +228,7 @@
     :notify (lambda (&rest ignore)
       (kill-buffer "*Find Theorems*")
       (isar-find-theorems-create-searchform
-        "" "" "none" "none" "none" "" ""))
+	"" "" "none" "none" "none" "" ""))
     "Reset Form")
     (widget-insert "\n")
 
@@ -236,7 +236,7 @@
   (if errmsg
     (widget-insert (concat "\n    "
       (if (fboundp 'propertize)
-        (propertize (concat errmsg "\n    See help for details.") 'face 'bold)
+	(propertize (concat errmsg "\n    See help for details.") 'face 'bold)
       (concat errmsg "\n    See help for details."))
       "\n")))
 
@@ -351,7 +351,7 @@
   (setq searchstring (format "find_theorems %s"
     (mapconcat 'identity
       (isar-find-theorems-filter-empty
-        (list num_ pattern_ intro_ elim_ dest_ name_ simp_))
+	(list num_ pattern_ intro_ elim_ dest_ name_ simp_))
       " ")))
 
   ;; note that proof-find-theorems with an argument provided
@@ -391,30 +391,30 @@ escaped by double-quotes."
     ;;       well.
     (if (equal (elt criteria-string 0) ?-)
       (progn
-        (setq tokens (cons "-" tokens))
-        (setq criteria-string (substring criteria-string 1)))
+	(setq tokens (cons "-" tokens))
+	(setq criteria-string (substring criteria-string 1)))
 
     ;; " starts a token: search for the next ", regard as one token
     ;; Note: This is still a bit weird, as it does not require the
     ;;       closing double-quotes to be followed by a space. Oh well.
     (if (equal (elt criteria-string 0) ?\")
       (let ((i 1))
-        (while (and (< i (length criteria-string))
-                    (not (equal (elt criteria-string i) ?\")))
-          (setq i (1+ i)))
-        (if (equal i (length criteria-string))
-          (setq errmsg "missing closing double-quotes.")
-        (setq i (1+ i))
-        (setq tokens (cons (substring criteria-string 0 i) tokens))
-        (setq criteria-string (substring criteria-string i))))
+	(while (and (< i (length criteria-string))
+		    (not (equal (elt criteria-string i) ?\")))
+	  (setq i (1+ i)))
+	(if (equal i (length criteria-string))
+	  (setq errmsg "missing closing double-quotes.")
+	(setq i (1+ i))
+	(setq tokens (cons (substring criteria-string 0 i) tokens))
+	(setq criteria-string (substring criteria-string i))))
 
     ;; everything else: search for the next space, regard as one token
     ;; Note: This is still a bit weird, as it scans over double-quotes.
     ;;       Oh well.
     (let ((i 1))
       (while (and (< i (length criteria-string))
-                  (not (equal (elt criteria-string i) ?\ )))
-        (setq i (1+ i)))
+		  (not (equal (elt criteria-string i) ?\ )))
+	(setq i (1+ i)))
       (setq tokens (cons (substring criteria-string 0 i) tokens))
       (setq criteria-string (substring criteria-string i)))
     )))
@@ -433,13 +433,13 @@ escaped by double-quotes."
     (let ((token (car tokens)))
     (if (equal token "-")
       (if negated
-        (setq errmsg "- may not be followed by another -.")
+	(setq errmsg "- may not be followed by another -.")
       (setq negated t)
       (setq tokens (cdr tokens)))
     (setq strings (cons
       (concat (if negated "-" "") option-string
-        ;; wrap token in double-quotes if necessary
-        (if (equal (elt token 0) ?\") token (concat "\"" token "\"")))
+	;; wrap token in double-quotes if necessary
+	(if (equal (elt token 0) ?\") token (concat "\"" token "\"")))
       strings))
     (setq negated nil)
     (setq tokens (cdr tokens))))

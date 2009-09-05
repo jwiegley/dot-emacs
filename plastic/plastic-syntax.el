@@ -5,7 +5,7 @@
 
 ;; adapted from the following, by Paul Callaghan
 ;; ;; lego-syntax.el Syntax of LEGO
-;; ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; ;; Copyright (C) 1994 - 1998 LFCS Edinburgh.
 ;; ;; Author: Thomas Kleymann and Dilip Sequeira
 ;; ;; Maintainer: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
 ;; ;; lego-syntax.el,v 2.10 1998/11/06 16:18:55 tms Exp
@@ -25,10 +25,10 @@
 	    "Cut" "Discharge" "DischargeKeep"
 	    "echo" "exE" "exI" "Expand" "ExpAll"
 	    "ExportState" "Equiv" "For" "Freeze" "Hnf" "Immed"
-	    "impE" "impI" "Induction" "Inductive" 
-	    "Invert" "Init" "intros" "Intros" "Module" "Next" 
+	    "impE" "impI" "Induction" "Inductive"
+	    "Invert" "Init" "intros" "Intros" "Module" "Next"
 	    "Normal" "notE" "notI" "orE" "orIL" "orIR" "qnify" "Qnify"
-	    "Qrepl" "Record" "Refine" "Repeat" "Return" "ReturnAll" 
+	    "Qrepl" "Record" "Refine" "Repeat" "Return" "ReturnAll"
 	    "Try" "Unfreeze"))
   "Subset of Plastic keywords and tacticals which are terminated by a \?;")
 
@@ -41,7 +41,7 @@
 
 ;; ----- regular expressions for font-lock
 (defconst plastic-error-regexp "^\\(FAIL\\)"
-  "A regular expression indicating that the Plastic process has identified an error.") 
+  "A regular expression indicating that the Plastic process has identified an error.")
 
 (defvar plastic-id proof-id)
 
@@ -78,7 +78,7 @@
      ; Pi and Sigma binders
      (list (concat "[{<]\\s *\\(" plastic-ids "\\)") 1
 	   'proof-declaration-name-face)
-   
+
      ;; Kinds
      (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
 		   plastic-id ")\\)?") 'font-lock-type-face))
@@ -89,7 +89,7 @@
 (defconst plastic-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp plastic-keywords-goal) "\\)\\s-+\\([^:]+\\)")
   "Regular expression which matches an entry in `plastic-keywords-goal'
-  and the name of the goal.") 
+  and the name of the goal.")
 
 (defconst plastic-save-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp plastic-keywords-save) "\\)\\s-+\\([^;]+\\)")
@@ -107,13 +107,13 @@
 
 (defun plastic-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
- 
+
   (modify-syntax-entry ?_ "_")
   (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
   (modify-syntax-entry ?\* ". 23")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4"))
- 
-     
+
+
 (provide 'plastic-syntax)
