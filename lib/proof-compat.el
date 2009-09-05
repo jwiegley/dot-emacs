@@ -162,6 +162,14 @@ The returned value is one of the following symbols:
 (defalias 'proof-buffer-syntactic-context
 	  'proof-buffer-syntactic-context-emulate)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Backward compatibility for Emacs 22
+;;;
+
+(or (fboundp 'characterp)
+    (defun characterp (obj)
+      (char-valid-p obj)))
 
 ;; End of proof-compat.el
 (provide 'proof-compat)
