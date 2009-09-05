@@ -1,4 +1,4 @@
-;; $State$ $Date$ $Revision$ 
+;; $State$ $Date$ $Revision$
 
 (require 'proof)			; load generic parts
 
@@ -23,7 +23,7 @@
 ;;			   (constants, but may be nice to tweak)
 ;;
 ;; The first group appears in the menu
-;;   ProofGeneral -> Customize -> PhoX 
+;;   ProofGeneral -> Customize -> PhoX
 ;; The second group appears in the menu:
 ;;   ProofGeneral -> Internals -> PhoX config
 ;;
@@ -45,31 +45,31 @@
   :type 'string
   :group 'phox-config)
 
-(defcustom phox-doc-dir 
+(defcustom phox-doc-dir
   "/usr/local/doc/phox"
   "The name of the root documentation directory for PhoX."
   :type 'string
   :group 'phox-config)
 
-(defcustom phox-lib-dir 
+(defcustom phox-lib-dir
   "/usr/local/lib/phox"
   "The name of the root directory for PhoX libraries."
   :type 'string
   :group 'phox-config)
 
-(defcustom phox-tags-program 
+(defcustom phox-tags-program
   (concat phox-doc-dir "/tools/phox_etags.sh")
   "Program to run to generate TAGS table for proof assistant."
   :type 'string
   :group 'phox-config)
 
-(defcustom phox-tags-doc 
+(defcustom phox-tags-doc
   t
   "*If non nil, tags table for PhoX text documentation is loaded."
   :type 'boolean
   :group 'phox-config)
 
-(defcustom phox-etags 
+(defcustom phox-etags
   (concat phox-doc-dir "/tools/phox_etags.sh")
   "Command to build tags table."
   :type 'string
@@ -84,7 +84,7 @@
 
 ;; default for tags [da: moved here to fix compilation 15/02/03]
 
-(if phox-tags-doc 
+(if phox-tags-doc
     (add-hook 'phox-mode-hook 'phox-tags-add-doc-table))
 
 
@@ -116,17 +116,17 @@
    proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)"
    proof-script-comment-start             "(*"
    proof-script-comment-end               "*)"
-   proof-goal-command-regexp       
+   proof-goal-command-regexp
     "\\`\\(Local[ \t\n\r]+\\)?\\(goal[ \t\n\r]\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
    proof-save-command-regexp       "\\`save"
-   proof-goal-with-hole-regexp  
-   (concat 
+   proof-goal-with-hole-regexp
+   (concat
     "\\`\\(Local[ \t\n\r]+\\)?\\(pro\\(p\\(osition\\)?\\|ve_claim\\)\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
     phox-strict-comments-regexp
     phox-ident-regexp)
    proof-goal-with-hole-result     16
-   proof-save-with-hole-regexp     
-   (concat 
+   proof-save-with-hole-regexp
+   (concat
     "\\`save"
     phox-strict-comments-regexp
     phox-ident-regexp)
@@ -173,19 +173,19 @@
 ;; <mode>-config-done function to complete configuration.
 
 (define-derived-mode phox-mode proof-mode
-    "PhoX script" 
+    "PhoX script"
      "Major mode for PhoX proofs.
 
 \\{phox-mode-map}"
     (phox-config)
     (proof-config-done)
     (phox-setup-outline)
-    (define-key phox-mode-map [(control j)] 
+    (define-key phox-mode-map [(control j)]
       'phox-assert-next-command-interactive)
     ;; with the previous binding,
     ;; it is nice to do : xmodmap -e "keysym KP_Enter = Linefeed"
 
-    (define-key phox-mode-map [(control c) (meta d)] 
+    (define-key phox-mode-map [(control c) (meta d)]
       'phox-delete-symbol-on-cursor))
 
 (define-derived-mode phox-shell-mode proof-shell-mode
@@ -195,24 +195,20 @@
 
 (define-derived-mode phox-response-mode proof-response-mode
   "PhoX response" nil
-  (setq 
-   proof-resp-font-lock-keywords phox-font-lock-keywords
-   proof-output-fontify-enable     t)
+  (setq proof-response-font-lock-keywords phox-font-lock-keywords)
   (phox-sym-lock-start)
   (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
-      (add-hook 'proof-shell-handle-delayed-output-hook 
+      (add-hook 'proof-shell-handle-delayed-output-hook
 		'phox-sym-lock-font-lock-hook)
     )
   (proof-response-config-done))
 
 (define-derived-mode phox-goals-mode proof-goals-mode
   "PhoX goals" nil
-  (setq  
-   font-lock-keywords phox-font-lock-keywords
-   proof-output-fontify-enable     t)
+  (setq font-lock-keywords phox-font-lock-keywords)
   (phox-sym-lock-start)
   (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
-      (add-hook 'pg-before-fontify-output-hook 
+      (add-hook 'pg-before-fontify-output-hook
 		'phox-sym-lock-font-lock-hook)
     )
   (proof-goals-config-done))
@@ -229,11 +225,9 @@
 ; ne sont pas pris en compte.  Les prefixes de moins de 3 caractères ne
 ; sont pas non plus pris en compte.
 
-; (set-variable 'phox-completion-table 
+; (set-variable 'phox-completion-table
 (defpgdefault completion-table
   (append phox-top-keywords phox-proof-keywords)
 )
 
 (provide 'phox)
-
-
