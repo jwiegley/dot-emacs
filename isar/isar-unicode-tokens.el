@@ -496,14 +496,14 @@ Each element is a list
   (TOKNAME COMPOSITION FONTSYMB ...)
 
 For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
-  :type 'unicode-tokens-symbol-map
+  :type 'unicode-tokens-token-symbol-map
   :group 'isabelle
   :set 'isar-set-and-restart-tokens
   :tag "Isabelle Unicode Token Mapping")
 
 (defcustom isar-user-tokens nil
   "User-defined additions to `isar-token-symbol-map'."
-  :type 'unicode-tokens-symbol-map
+  :type 'unicode-tokens-token-symbol-map
   :group 'isabelle
   :set 'isar-set-and-restart-tokens
   :tag "User extensions for Isabelle Token Mapping")
