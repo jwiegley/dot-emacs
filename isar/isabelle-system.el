@@ -71,7 +71,7 @@ is surely an executable with full path."
 		 (not (file-executable-p isa-isabelle-command))))
     (setq isa-isabelle-command
 	  (read-file-name
-	   "Please give the full path to `isabelle' (RET if you don't have it): "
+	   "Full path to `isabelle' command (anything non-executable if you don't have it): "
 	   nil nil nil))
     (unless (file-executable-p isa-isabelle-command)
       (setq isabelle-not-found t)
