@@ -58,7 +58,7 @@
 
 (defvar maths-menu-tokenise-insert '(lambda (char) (insert char))
   "Function used to insert possibly formatted or escaped character.")
-  
+
 (defun maths-menu-build-menu (spec)
   (let ((map (make-sparse-keymap "Characters")))
     (dolist (pane spec)
@@ -67,10 +67,10 @@
 	(define-key-after map (vector (intern name)) (cons name pane-map))
 	(dolist (elt pane)
 	  (let ((fname (intern
-			(concat "maths-menu-insert-" 
+			(concat "maths-menu-insert-"
 				(replace-regexp-in-string " " "-" (cadr elt))))))
-	    (fset fname 
-		  `(lambda () 
+	    (fset fname
+		  `(lambda ()
 		     (interactive)
 		     (funcall maths-menu-tokenise-insert ,(car elt))))
 	    (define-key-after pane-map

@@ -10,7 +10,7 @@
 ;; This file is distributed under the terms of the GNU General Public
 ;; License, Version 2.  Find a copy of the GPL with your version of
 ;; GNU Emacs or Texinfo.
-;; 
+;;
 ;;
 ;; This package generates Texinfo source fragments from Emacs
 ;; docstrings.  This avoids documenting functions and variables in
@@ -25,7 +25,7 @@
 ;;  * Arguments to functions should be written in upper case: ARG1..ARGN
 ;;  * User options (variables users may want to set) should have docstrings
 ;;    beginning with an asterisk.
-;;  
+;;
 ;; Usage:
 ;;
 ;;  Write comments of the form:
@@ -38,7 +38,7 @@
 ;;
 ;;  This will insert @defopt, @deffn and the like underneath the
 ;;  magic comment strings.
-;;  
+;;
 ;;  The default value for user options will be printed.
 ;;
 ;;  Symbols are recognized if they are defined for faces, functions,
@@ -47,7 +47,7 @@
 ;; Automatic markup rules:
 ;;
 ;; 1. Indented lines are gathered into a @lisp environment.
-;; 2. Pieces of text `stuff' or surrounded in quotes marked up with @samp. 
+;; 2. Pieces of text `stuff' or surrounded in quotes marked up with @samp.
 ;; 3. Words *emphasized* are made @strong{emphasized}
 ;; 4. Words sym-bol which are symbols become @code{sym-bol}.
 ;; 5. Upper cased words ARG corresponding to arguments become @var{arg}.
@@ -67,7 +67,7 @@
 ;; Useful enhancements to do:
 ;;
 ;;  * Tweak replacement: at the moment it skips blank lines
-;;    under magic comment. 
+;;    under magic comment.
 ;;  * Use customize properties (e.g. group, simple types)
 ;;  * Look for a "texi-docstring" property for symbols
 ;;    so TeXInfo can be defined directly in case automatic markup
@@ -80,7 +80,7 @@
 ;;
 ;; Thanks to: Christoph Conrad for an Emacs compatibility fix.
 ;;
-;; 
+;;
 
 (eval-when-compile
   (require 'cl))
@@ -174,17 +174,17 @@
     ("\\(\\(^\\s-*$\\)\n@end lisp\\)" t "@end lisp")
     ;; 9. Hack to remove @samp{@var{...}} sequences.
     ;; Changed to just @samp of uppercase.
-    ("\\(@samp{@var{\\([^}]+\\)}}\\)" 
+    ("\\(@samp{@var{\\([^}]+\\)}}\\)"
      t
      (concat "@samp{" (upcase (match-string 2 docstring)) "}")))
     "Table of regexp matches and replacements used to markup docstrings.
 Format of table is a list of elements of the form
    (regexp predicate replacement-form)
 If regexp matches and predicate holds, then replacement-form is
-evaluated to get the replacement for the match.  
+evaluated to get the replacement for the match.
 predicate and replacement-form can use variables arg,
 and forms such as (match-string 1 docstring)
-Match string 1 is assumed to determine the 
+Match string 1 is assumed to determine the
 length of the matched item, hence where parsing restarts from.
 The replacement must cover the whole match (match string 0),
 including any whitespace included to delimit matches.")
@@ -210,7 +210,7 @@ including any whitespace included to delimit matches.")
 	    (replace    (nth 2 test))
 	    (i		0)
 	    in-quoted-region)
-	
+
 	(while (and
 		(< i (length docstring))
 		(string-match regexp docstring i))
@@ -228,14 +228,14 @@ including any whitespace included to delimit matches.")
   ;; if not already a new paragraph.
   (let*
       ((pos      (string-match "\n" docstring))
-       (needscr  (and pos 
-		      (not (string= "\n" 
-				    (substring docstring 
-					       (1+ pos) 
+       (needscr  (and pos
+		      (not (string= "\n"
+				    (substring docstring
+					       (1+ pos)
 					       (+ pos 2)))))))
     (if (and pos needscr)
 	(concat (substring docstring 0 pos)
-		"@*\n" 
+		"@*\n"
 		(substring docstring (1+ pos)))
       docstring)))
 
@@ -258,7 +258,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
   ;; NB: might be nice to use a 'default-value-description
   ;; property here, in case the default value is computed.
   (let ((text       (format "%S" default)))
-    (concat 
+    (concat
      "\nThe default value is "
      (if (string-match "\n" text)
 	 ;; Carriage return will break @code, use @lisp
@@ -266,7 +266,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 	     (concat "the string: \n@lisp\n" default "\n@end lisp\n")
 	   (concat "the value: \n@lisp\n" text "\n@end lisp\n"))
        (concat "@code{" text "}.\n")))))
- 
+
 
 (defun texi-docstring-magic-texi-for (symbol &optional noerror)
   (cond
@@ -320,7 +320,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 	(texi-docstring-magic-texi "fn" "Macro" name docstring args))
        (t
 	(texi-docstring-magic-texi "un" nil name docstring args)))))
-   (noerror 
+   (noerror
     (message "Warning: symbol `%s' not defined" (symbol-name symbol))
     "")
    (t
@@ -360,7 +360,7 @@ With prefix arg, no errors on unknown symbols.  (This results in
 	      (forward-line)
 	      (delete-region p (point))
 	      (setq deleted t)))
-	(insert 
+	(insert
 	 (texi-docstring-magic-texi-for symbol noerror))
 	(unless deleted
 	  ;; Follow newly inserted @def with a single blank.
@@ -382,17 +382,17 @@ With prefix arg, no errors on unknown symbols.  (This results in
 	(set-syntax-table stab)))))
 
 (defun texi-docstring-magic-insert-magic (symbol)
-  (interactive 
+  (interactive
    (let* ((v (or (variable-at-point)
 		 (and (fboundp 'function-at-point) (function-at-point))
 		 (and (fboundp 'function-called-at-point) (function-called-at-point))
 		 (texi-docstring-magic-face-at-point)))
 	  (val (let ((enable-recursive-minibuffers t))
-                 (completing-read
+		 (completing-read
 		  (if v
 		      (format "Magic docstring for symbol (default %s): " v)
 		     "Magic docstring for symbol: ")
-                   obarray '(lambda (sym)
+		   obarray '(lambda (sym)
 			      (or (boundp sym)
 				  (fboundp sym)
 				  (texi-docstring-magic-find-face sym)))
@@ -400,5 +400,5 @@ With prefix arg, no errors on unknown symbols.  (This results in
      (list (if (equal val "") v (intern val)))))
   (insert "\n" texi-docstring-magic-comment " " (symbol-name symbol)))
 
-	
+
 (provide 'texi-docstring-magic)

@@ -1,4 +1,4 @@
-;; $State$ $Date$ $Revision$ 
+;; $State$ $Date$ $Revision$
 ;;--------------------------------------------------------------------------;;
 ;;--------------------------------------------------------------------------;;
 ;; the proof by rules popup menu part
@@ -43,15 +43,15 @@
   "build a menu from a string send by phox"
   (setq str (proof-shell-invisible-cmd-get-result str))
   (if (string= str "") nil
-    (mapcar 
-     (lambda (s) (append (list order) (split-string s "\\\\-") 
+    (mapcar
+     (lambda (s) (append (list order) (split-string s "\\\\-")
 			      (list 'phox-pbrpm-rename-in-cmd)))
      (split-string str "\\\\\\\\"))))
 
 (defun phox-pbrpm-rename-in-cmd (cmd spans)
   (let ((modified nil) (prev 0))
-    (mapc (lambda (span) 
-	    (if (not (string=  (span-property span 'original-text) 
+    (mapc (lambda (span)
+	    (if (not (string=  (span-property span 'original-text)
 			       (span-string span)))
 		(setq modified (cons span modified)))) spans)
     (setq modified (reverse modified))
@@ -61,8 +61,8 @@
 	      (progn
 		(while (and modified (= 0 (span-property (car modified) 'goalnum)))
 		  (let ((span (pop modified)))
-		    (setq cmd (concat cmd ";; rename " 
-				      (span-property span 'original-text) " " 
+		    (setq cmd (concat cmd ";; rename "
+				      (span-property span 'original-text) " "
 				      (span-string span)))))
 		(if modified (setq cmd (concat "(" cmd ")")))))
 	  (if modified (setq cmd (concat cmd ";; ")))
@@ -72,7 +72,7 @@
 	      (while (< (+ prev 1) goalnum)
 		(setq cmd (concat cmd "idt @+@ "))
 		(setq prev (+ prev 1)))
-	      (setq cmd (concat cmd "(rename " (span-property span 'original-text) " " 
+	      (setq cmd (concat cmd "(rename " (span-property span 'original-text) " "
 				      (span-string span)))
 	      (setq prev goalnum)
 	      (if (or (not modified) (< goalnum (span-property (car modified) 'goalnum)))
@@ -80,7 +80,7 @@
 		(setq cmd (concat cmd ";; ")))))
 	  (if (> prev 0) (setq cmd (concat cmd "idt"))))))
   cmd)
-	
+
 (defun phox-pbrpm-get-region-name (region-info)
       (if (= (nth 0 region-info) 1) (nth 1 region-info) (nth 2 region-info)))
 
@@ -96,11 +96,11 @@
    (let
      ((pbrpm-rules-list nil)
       (goal-prefix
-       (if (= (nth 0 click-infos) 1) "" 
+       (if (= (nth 0 click-infos) 1) ""
 	 (concat "["
 		 (int-to-string (nth 0 click-infos))
 		 "] "))))
- 
+
 
    ; the first goal is the selected one by default, so we prefer not to display it.
 
@@ -123,13 +123,13 @@
    ; if clicking a conclusion with a selection
    (if (and (string= (nth 1 click-infos) "none") region-infos)
        (setq pbrpm-rules-list
-         (append pbrpm-rules-list
+	 (append pbrpm-rules-list
 		 (phox-pbrpm-menu-from-string 0
 			 (concat "menu_intro "
-				 (int-to-string (nth 0 click-infos))	
+				 (int-to-string (nth 0 click-infos))
 				 (let ((tmp ""))
 				   (mapc (lambda (region-info)
-					   (setq tmp 
+					   (setq tmp
 						 (concat tmp " " (phox-pbrpm-escape-string (nth 2 region-info)))))
 					 region-infos)
 				   tmp)))
@@ -138,7 +138,7 @@
 			       (int-to-string (nth 0 click-infos)) " "
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
-					 (setq tmp 
+					 (setq tmp
 					       (concat tmp " " (phox-pbrpm-escape-string (phox-pbrpm-get-region-name region-info)))))
 				       region-infos)
 				 tmp))))))
@@ -158,7 +158,7 @@
 			 (if (char= (string-to-char r) ?t)
 			     (list
 			      (list 9 (phox-lang-suppress (nth 1 click-infos))
-				    (concat "[" (int-to-string (nth 0 click-infos)) "] " 
+				    (concat "[" (int-to-string (nth 0 click-infos)) "] "
 					    "rmh " (nth 1 click-infos))))
 			   nil)
 			 (phox-pbrpm-menu-from-string 1
@@ -176,19 +176,19 @@
 							       (nth 1 click-infos)))))))
 
    ; if clicking on an hypothesis with a selection
-   (if (and         
+   (if (and
 	(not (or (string= (nth 1 click-infos) "none")
 		 (string= (nth 1 click-infos) "whole")))
 	region-infos)
        (setq pbrpm-rules-list
-         (append pbrpm-rules-list
+	 (append pbrpm-rules-list
 		 (phox-pbrpm-menu-from-string 1
 		       (concat "menu_apply "
 			       (int-to-string (nth 0 click-infos)) " "
 			       (nth 1 click-infos)
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
-					 (setq tmp 
+					 (setq tmp
 					       (concat tmp " " (phox-pbrpm-escape-string (nth 2 region-info)))))
 				       region-infos)
 				 tmp)))
@@ -198,7 +198,7 @@
 			       (nth 1 click-infos)
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
-					 (setq tmp 
+					 (setq tmp
 					       (concat tmp " " (phox-pbrpm-escape-string (phox-pbrpm-get-region-name region-info)))))
 				       region-infos)
 				 tmp))))))
@@ -207,12 +207,12 @@
 	    region-infos (not (cdr region-infos)))
        (setq pbrpm-rules-list
 	     (append pbrpm-rules-list
-		     (list (list 0 (concat 
+		     (list (list 0 (concat
 				    (phox-lang-instance (nth 2 click-infos))
 				    (nth 2 (car region-infos)))
-				 (concat 
+				 (concat
 				  "instance "
-				  (nth 2 click-infos) 
+				  (nth 2 click-infos)
 				  " "
 				  (nth 2 (car region-infos))))))))
 
@@ -220,13 +220,13 @@
 	    (not region-infos))
        (setq pbrpm-rules-list
 	     (append pbrpm-rules-list
-		     (list (list 0 (concat 
+		     (list (list 0 (concat
 				    (phox-lang-open-instance (nth 2 click-infos)))
-				 (concat 
+				 (concat
 				  "instance "
-				  (nth 2 click-infos) 
+				  (nth 2 click-infos)
 				  " ")
-			  (lambda (cmd spans) 
+			  (lambda (cmd spans)
 			    (let ((span (pop spans)))
 			      (concat cmd " " (span-string span)))))))))
 
@@ -234,8 +234,8 @@
    (if (and (not region-infos) (not (string= (nth 2 click-infos) "")))
        (let ((r (proof-shell-invisible-cmd-get-result (concat "is_definition "
 							      (int-to-string (nth 0 click-infos))
-							      " " 
-                                                              (phox-pbrpm-escape-string (nth 2 click-infos)))))
+							      " "
+							      (phox-pbrpm-escape-string (nth 2 click-infos)))))
 	     (ri (proof-shell-invisible-cmd-get-result (concat "is_definition "
 							      (int-to-string (nth 0 click-infos))
 							      " "
@@ -243,14 +243,14 @@
 	 (if (or (char= (string-to-char r) ?t) (char= (string-to-char ri) ?t))
 	     (setq pbrpm-rules-list
 		   (append pbrpm-rules-list
-			   (list (list 1 (concat 
+			   (list (list 1 (concat
 					(phox-lang-opendef)
 					(nth 2 click-infos))
-				       (concat 
+				       (concat
 					goal-prefix
-					(if (or (string= (nth 1 click-infos) "none") 
+					(if (or (string= (nth 1 click-infos) "none")
 						(string= (nth 1 click-infos) "whole"))
-					    "unfold -ortho " 
+					    "unfold -ortho "
 					  (concat "unfold_hyp " (nth 1 click-infos) " -ortho "))
 					"$"
 					(nth 2 click-infos))))))
@@ -261,14 +261,14 @@
 		     (setq pbrpm-rules-list
 			   (append pbrpm-rules-list
 				   (list (list 0 (phox-lang-unlock (nth 2 click-infos))
-					 (concat 
+					 (concat
 					  goal-prefix
 					  "unlock "
 					  (nth 2 click-infos))))))
 		     (setq pbrpm-rules-list
 			   (append pbrpm-rules-list
 				   (list (list 0 (phox-lang-lock (nth 2 click-infos))
-					 (concat 
+					 (concat
 					  goal-prefix
 					  "lock "
 					  (nth 2 click-infos))))))))))))
@@ -278,12 +278,12 @@
 	   (append pbrpm-rules-list
 		   (list
 		    (list 10 "Trivial ?" (concat goal-prefix "trivial"))
-		    (list 10 (phox-lang-prove arg) (concat goal-prefix "prove") 
-			  (lambda (cmd spans) 
+		    (list 10 (phox-lang-prove arg) (concat goal-prefix "prove")
+			  (lambda (cmd spans)
 			    (let ((span (pop spans)))
 			      (concat cmd " " (span-string span)))))
-		    (list 10 (phox-lang-let arg) (concat goal-prefix "local") 
-			  (lambda (cmd spans) 
+		    (list 10 (phox-lang-let arg) (concat goal-prefix "local")
+			  (lambda (cmd spans)
 			    (let ((span1 (pop spans)) (span2 (pop spans)))
 			      (concat cmd " " (span-string span1) " = "(span-string span2)))))))))
 

@@ -1,4 +1,4 @@
-;; unicode-chars.el --- table of Unicode characters 
+;; unicode-chars.el --- table of Unicode characters
 ;;
 ;; Author:    David Aspinall
 ;; $Id$
@@ -5048,7 +5048,7 @@
 ;; Modified a bit by me to use its own help-style buffer
 
 (defun unicode-chars-list-chars ()
-  "Insert each Unicode character into a buffer. 
+  "Insert each Unicode character into a buffer.
 Lets you see which characters are available for literal display
 in your emacs font."
   (interactive)

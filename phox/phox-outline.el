@@ -7,20 +7,20 @@
 (setq phox-outline-title-regexp "\\((\\*[ \t\n]*title =\\)")
 (setq phox-outline-section-regexp "\\((\\*\\*+\\)")
 (setq phox-outline-save-regexp "\\((\\*#\\)")
-(setq 
- phox-outline-theo-regexp 
+(setq
+ phox-outline-theo-regexp
  "\\((\\*lem\\)\\|\\((\\*prop\\)\\|\\((\\*fact\\)\\|\\((\\*theo\\)\\|\\((\\*def\\)\\|\\((\\*cst\\)")
-(setq 
- phox-outline-theo2-regexp 
+(setq
+ phox-outline-theo2-regexp
  "\\(lem\\)\\|\\(prop\\)\\|\\(fact\\)\\|\\(theo\\)\\|\\(def\\)\\|\\(cst\\)\\|\\(claim\\)\\|\\(new_\\)")
 
-(setq 
-  phox-outline-regexp 
-  (concat 
-   phox-outline-title-regexp "\\|" 
-   phox-outline-section-regexp "\\|" 
-   phox-outline-save-regexp "\\|" 
-   phox-outline-theo-regexp "\\|" 
+(setq
+  phox-outline-regexp
+  (concat
+   phox-outline-title-regexp "\\|"
+   phox-outline-section-regexp "\\|"
+   phox-outline-save-regexp "\\|"
+   phox-outline-theo-regexp "\\|"
    phox-outline-theo2-regexp))
 
 (setq phox-outline-heading-end-regexp "\\(\\*)[ \t]*\n\\)\\|\\(\\.[ \t]*\n\\)")

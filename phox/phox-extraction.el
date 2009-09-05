@@ -1,4 +1,4 @@
-;; $State$ $Date$ $Revision$ 
+;; $State$ $Date$ $Revision$
 ;;--------------------------------------------------------------------------;;
 ;;--------------------------------------------------------------------------;;
 ;; program extraction.
@@ -13,11 +13,11 @@
 (defun phox-prog-flags-modify(option)
 "ask for a string that are options to pass to phox binary"
 (interactive "soption :")
-; pas d'analyse de la réponse, 
+; pas d'analyse de la réponse,
 (let ((process))
   (if  (and phox-prog-name
 	    (progn (string-match " \\|$" phox-prog-name)
-		   (setq process 
+		   (setq process
 			 (substring phox-prog-name 0 (match-beginning 0))
 			 )
 		   )
@@ -27,7 +27,7 @@
   )
 (if (string-match "^ *$" option)
     (progn
-      (message 
+      (message
        "no option other than default ones will be passed to phox binary.")
       (setq phox-prog-name phox-prog-orig))
   (progn
@@ -46,7 +46,7 @@ compile theorem_name.
 output."
 (interactive)
 (phox-prog-flags-modify "-f")
-(message 
+(message
 "WARNING : program extraction is experimental and can disturb the prover !")
 )
 
@@ -71,13 +71,13 @@ output."
 
 ; compilation
 (defun phox-compile-theorem(name)
-  "Interactive function : 
+  "Interactive function :
 ask for the name of a theorem and send a compile command to PhoX for it."
   (interactive "stheorem : ")
   (proof-shell-invisible-command (concat "compile " name)))
 
 (defun phox-compile-theorem-on-cursor()
-"Interactive function : 
+"Interactive function :
 send a compile command to PhoX for the theorem which name is under the cursor."
   (interactive)
   (let (start end)
@@ -94,8 +94,8 @@ send a compile command to PhoX for the theorem which name is under the cursor."
 
 (defun phox-output ()
 
-"Interactive function : 
-send output command to phox in order to obtain programs 
+"Interactive function :
+send output command to phox in order to obtain programs
 extracted from proofs of all compiled theorems."
 
 
@@ -103,19 +103,19 @@ extracted from proofs of all compiled theorems."
 (proof-shell-invisible-command  "output"))
 
 (defun phox-output-theorem (name)
-"Interactive function : 
+"Interactive function :
 ask for the name of a theorem and send an output command to PhoX for it
 in order to obtain a programm extracted from the known proof of this theorem."
   (interactive "stheorem : ")
   (proof-shell-invisible-command (concat "output " name)))
 
 (defun phox-output-theorem-on-cursor()
-"Interactive function : 
+"Interactive function :
 send an output command to PhoX for the theorem which name is under the cursor
 in order to obtain a programm extracted from the known proof of this theorem."
   (interactive)
-  (let (start 
-	end 
+  (let (start
+	end
 ;	(syntax (char-to-string (char-syntax ?\.)))
 	)
     (save-excursion
@@ -142,7 +142,7 @@ in order to obtain a programm extracted from the known proof of this theorem."
        ]
       ["------------------------------" nil nil
        ]
-      ["Compile theorem on cursor" phox-compile-theorem-on-cursor 
+      ["Compile theorem on cursor" phox-compile-theorem-on-cursor
        :active(string-match "\-f$" phox-prog-name)
        ]
       ["Extraction for theorem on cursor" phox-output-theorem-on-cursor

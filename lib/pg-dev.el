@@ -7,20 +7,23 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Some configuration of Emacs Lisp mode for developing PG, not needed
 ;; for ordinary users.
 ;;
 
-;; Use checkdoc, eldoc, Flyspell:
-
 ;;; Code:
+
+;; Use checkdoc, eldoc, Flyspell, whitespace cleanup:
+
 (add-hook 'emacs-lisp-mode-hook
-	  '(lambda () (checkdoc-minor-mode 1)))
-
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-
-(add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+	  '(lambda ()
+	     (checkdoc-minor-mode 1)
+	     (turn-on-eldoc-mode)
+	     (flyspell-prog-mode)
+	     (customize-set-variable 'whitespace-action '(cleanup))
+	     (add-hook 'write-file-functions
+		       'whitespace-write-file-hook nil t)))
 
 
 ;; Configure indentation for our macros
@@ -77,11 +80,11 @@
    '(proof-splash pg-assoc pg-xml proof-depends proof-indent proof-site
      proof-shell proof-menu pg-pbrpm pg-pgip proof-script
      proof-autoloads pg-response pg-goals proof-toolbar
-     proof-easy-config proof-config proof-mmm proof 
+     proof-easy-config proof-config proof-mmm proof
      proof-utils proof-syntax pg-user pg-custom
      proof-maths-menu proof-unicode-tokens
      pg-thymodes pg-autotest
-     ;; 
+     ;;
      isar-syntax isar-find-theorems isar-unicode-tokens
      isar-autotest interface-setup isabelle-system isar isar-mmm
      isar-keywords
@@ -89,7 +92,7 @@
      coq-abbrev coq-db coq-unicode-tokens coq-local-vars coq coq-syntax
      coq-indent coq-autotest)))
 
-     
+
 
 ;;
 ;; Proling interesting packages
@@ -112,9 +115,9 @@
 (defun pg-bug-references ()
   (interactive)
   (bug-reference-mode 1)
-  (setq bug-reference-bug-regexp 
+  (setq bug-reference-bug-regexp
 	"\\(?:[Tt]rac ?#\\)\\([0-9]+\\)"
-	bug-reference-url-format 
+	bug-reference-url-format
 	"http://proofgeneral.inf.ed.ac.uk/trac/ticket/%s"))
 
 (add-hook 'emacs-lisp-mode-hook 'pg-bug-references)
@@ -127,4 +130,3 @@
 (provide 'pg-dev)
 
 ;;; pg-dev.el ends here
-

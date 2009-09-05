@@ -6,18 +6,18 @@
 ;;
 ;; This file uses spans, an interface for extent (XEmacs) and overlays
 ;; (emacs), by Healfdene Goguen for the proofgeneral mode.
-;; 
+;;
 ;; Credits also to Stefan Monnier for great help in making this file
 ;; cleaner.
-;; 
+;;
 ;; This software is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public
 ;; License version 2, as published by the Free Software Foundation.
-;; 
+;;
 ;; This software is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-;; 
+;;
 ;; See the GNU General Public License version 2 for more details
 ;; (enclosed in the file GPL).
 ;;
@@ -28,7 +28,7 @@
 ;; See documentation in variable holes-doc.
 
 ;;; History:
-;; 
+;;
 
 (eval-when-compile (require 'span))
 (require 'cl)
@@ -41,7 +41,7 @@ It is useful to build complicated expressions by copy pasting several
 peaces of text from different parts of a buffer (or even from
 different buffers).
 
-                          HOLES
+			  HOLES
 
 A hole is a piece of (highlighted) text that may be replaced by
 another part of text later.  There is no information stored on the
@@ -49,7 +49,7 @@ file for holes, so you can save and modify files containing holes with
 no harm... You can even insert or delete characters inside holes like
 any other characters.
 
-                          USE
+			  USE
 
 At any time only one particular hole, called \"active\", can be
 \"filled\".  Holes can be in several buffers but there is always one or
@@ -112,9 +112,9 @@ COMBINING HOLES AND SKELETONS
 `holes' minor mode is made to work with minor mode `skeleton' minor
 mode. For the moment only Emacs version of `skeleton' is compatible
 with `holes', not XEmacs's. When you insert a skeleton, each
-interesting position will be replaced by a hole. 
+interesting position will be replaced by a hole.
 
-                          KNOWN BUGS
+			  KNOWN BUGS
 
  o Don't try to make overlapping holes, it doesn't work. (what would
 it mean anyway?)
@@ -126,7 +126,7 @@ holes highlighted as the active one (whereas only one of them really
 is), which is annoying.
 ")
 
- 
+
 ;;; Code:
 
 ;;; initialization
@@ -254,7 +254,7 @@ active hole doesn't exist (the marker is set to nothing)."
   "Return the position of the start of the active hole.
 See `active-hole-buffer' to get its buffer.  Returns an error if
 active hole doesn't exist (the marker is set to nothing)."
-  
+
   (assert (holes-active-hole-exist-p) t
 	  "holes-active-hole-end-position: no active hole")
   (holes-hole-end-position holes-active-hole)
@@ -273,10 +273,10 @@ active hole is empty."
   )
 
 (defun holes-goto-active-hole ()
-  
+
   "Set point to active hole.
 Raises an error if active-hole is not set."
-  
+
   (interactive)
   (assert (holes-active-hole-exist-p) t
 	  "holes-goto-active-hole: no active hole")
@@ -327,7 +327,7 @@ the active hole is already disable."
 
   "Set active hole to HOLE.
 Error if HOLE is not a hole."
-  
+
   (assert (holes-is-hole-p HOLE) t
 	  "holes-set-active-hole: %s is not a hole")
   (if (holes-active-hole-exist-p) (holes-highlight-hole holes-active-hole))
@@ -374,7 +374,7 @@ Error if HOLE is not a hole."
 If no arg default hole after point.  If only one arg: error.  Return
 the span."
   (interactive)
-  
+
   (let* ((rstart (or start (holes-region-beginning-or-nil) (point)))
 	 (rend (or end (holes-region-end-or-nil) (point))))
     (if (eq rstart rend)
@@ -394,7 +394,7 @@ the span."
   "Internal."
   (assert (holes-is-hole-p HOLE) t
 	  "holes-clear-hole: %s is not a hole")
-  
+
   (if (and (holes-active-hole-exist-p) (eq holes-active-hole HOLE))
       (holes-disable-active-hole)
     )
@@ -456,7 +456,7 @@ Default pos = point and buffer = current."
   (interactive)
   (let ((nxthole (holes-next (or pos (point))
 			     (or buffer (current-buffer)))))
-    (if nxthole 
+    (if nxthole
 	(holes-set-active-hole nxthole)
       (holes-disable-active-hole)
       )
@@ -588,12 +588,12 @@ Sets `holes-active-hole' to the next hole if it exists."
       ;; Emacs-21's mouse-drag-region has a bug that makes it behave more or
       ;; less like we want it as long as transient-mark-mode is active.
       (let ((transient-mark-mode nil))
-        (mouse-drag-region event)))
+	(mouse-drag-region event)))
     (defsubst holes-track-mouse-clicks ()
       "see `mouse-selection-click-count'"
       (+ mouse-selection-click-count 1)))
    (t
-    (unless noninteractive 
+    (unless noninteractive
       ;; da: ^^^^ avoid error in "make doc" (mouse functions undefined?)
       (error
      "Your (X)Emacs version is not compatible with holes (too old or
@@ -777,7 +777,7 @@ created.  Return the number of holes created."
 	    (holes-make-hole (match-beginning 0) (match-end 0))
 	  (holes-make-hole (match-beginning 1) (match-end 1))
 	  ;; delete end first to avoid shifting of marks
-	  (delete-region (match-end 1) (match-end 0)) 
+	  (delete-region (match-end 1) (match-end 0))
 	  (delete-region (match-beginning 0) (match-beginning 1)))
 	(holes-set-active-hole-next)))
     n))
@@ -791,7 +791,7 @@ created.  Return the number of holes created."
       (dolist (pos skeleton-positions)	;; put holes here
 	(holes-set-make-active-hole pos pos)))))
 
-(defconst holes-jump-doc 
+(defconst holes-jump-doc
   (concat "Hit \\[holes-set-point-next-hole-destroy] to jump "
 	  "to active hole.  C-h v holes-doc to see holes doc.")
   "Shortcut reminder string for jumping to active hole.")

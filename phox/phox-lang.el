@@ -1,9 +1,10 @@
-;; $State$ $Date$ $Revision$ 
+;; $State$ $Date$ $Revision$
 ;;--------------------------------------------------------------------------;;
 ;;--------------------------------------------------------------------------;;
 ;; messages in various languages
 
 (provide 'phox-lang)
+(require 'cl)				; for case
 
 (defvar phox-lang
   (let* ((s1 (getenv "LANG")) (s2 (getenv "LC_LANG")) (s (substring (if s1 s1 (if s2 s2 "en")) 0 2)))
@@ -12,9 +13,9 @@
       ((string= s "fr") 'fr)
       (t 'en))))
 
- 
+
 (defun phox-lang-absurd ()
-  (case phox-lang 
+  (case phox-lang
     (en "By absurd")
     (fr "Par l'absurde")))
 
@@ -24,7 +25,7 @@
     (fr (concat  "Supprimer l'hypothèse " s " (si elle est devenue inutile)"))))
 
 (defun phox-lang-opendef ()
-  (case phox-lang 
+  (case phox-lang
     (en "Expand the definition: ")
     (fr "Ouvre la définition : ")))
 
@@ -49,11 +50,11 @@
     (fr (concat  "Dévérouille la variable " s))))
 
 (defun phox-lang-prove (s)
-  (case phox-lang 
+  (case phox-lang
     (en (concat "Let us prove \\[" s "\\]"))
     (fr (concat "Prouvons \\[" s "\\]"))))
 
 (defun phox-lang-let (s)
-  (case phox-lang 
+  (case phox-lang
     (en (concat "Let \\[ \\] = \\[" s "\\]"))
     (fr (concat "Définissons \\[ \\] = \\[" s "\\]"))))

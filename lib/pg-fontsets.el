@@ -7,11 +7,11 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Define some fontsets to try to select fonts that display many symbols.
 ;;
 ;; Select one of these fontsets via the menu Options -> Set Font/Fontset
-;; or, with M-x set-default-font 
+;; or, with M-x set-default-font
 ;;
 ;; Recommended & free fonts to install on your system are:
 ;;
@@ -37,11 +37,11 @@
   (dolist (size '(10 12 14 18 22))
     (add-to-list 'pg-fontsets-names
 	(create-fontset-from-fontset-spec
-	 (replace-regexp-in-string 
+	 (replace-regexp-in-string
 	  "%T" (car (split-string basefont))
-	 (replace-regexp-in-string 
+	 (replace-regexp-in-string
 	  "%S" (int-to-string size)
-	  (replace-regexp-in-string 
+	  (replace-regexp-in-string
 	   "%F" basefont
 "-*-%F-*-*-*--%S-*-*-*-*-*-fontset-PG%T,
 gnu-unifont:-*-%F-*-*-*--%S-*-*-*-*-*-iso10646-1"
@@ -52,17 +52,17 @@ gnu-unifont:-*-%F-*-*-*--%S-*-*-*-*-*-iso10646-1"
 ;mule-unicode-e000-ffff:-*-%F-medium-r-normal--%S--*-*-*-*-*-iso10646-1"
 )))))))
 
-(defconst pg-fontsets-base-fonts 
+(defconst pg-fontsets-base-fonts
   '("dejavu lgc sans mono"
-    "liberation mono" 
+    "liberation mono"
     "stixregular"
     "lucidasanstypewriter"))
 
 (defun pg-fontsets-make-fontsets ()
   (setq pg-fontsets-names nil)
-  (mapcar 'pg-fontsets-make-fontsetsizes 
+  (mapcar 'pg-fontsets-make-fontsetsizes
 	  pg-fontsets-base-fonts))
-;    (custom-initialize-default 'pg-fontsets-default-fontset 
+;    (custom-initialize-default 'pg-fontsets-default-fontset
 ;			       (nth 2 pg-fontsets-names))
 ;  (setq pg-fontsets-default-fontset (nth 2 pg-fontsets-names))
 ;  (set-default-font pg-fontsets-default-fontset))

@@ -1,4 +1,4 @@
-;; $State$ $Date$ $Revision$ 
+;; $State$ $Date$ $Revision$
 ;;--------------------------------------------------------------------------;;
 ;;--------------------------------------------------------------------------;;
 ;;                         gestion des TAGS
@@ -43,7 +43,7 @@
   (interactive)
   (phox-tags-add-table (concat phox-lib-dir "/TAGS"))
   )
- 
+
 (defun phox-tags-add-local-table()
   "Add the tags table created with function phox-create-local-table."
   (interactive)
@@ -53,8 +53,8 @@
 (defun phox-tags-create-local-table()
   "create table on local buffer"
   (interactive)
-  (shell-command (concat phox-etags 
-			 " -o " 
+  (shell-command (concat phox-etags
+			 " -o "
 			 (file-name-nondirectory (buffer-file-name))
 			 "TAGS "
 			 (file-name-nondirectory (buffer-file-name))))
@@ -85,6 +85,3 @@
 )
 
 (provide 'phox-tags)
-
-
-

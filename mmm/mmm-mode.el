@@ -151,9 +151,9 @@ available through M-x customize under Programming | Tools | Mmm."
        (c-make-styles-buffer-local t))
      (mmm-update-mode-info major-mode)
      (setq mmm-region-saved-locals-for-dominant
-           (list* (list 'font-lock-cache-state nil)
-                  (list 'font-lock-cache-position (make-marker))
-                  (copy-tree (cdr (assq major-mode mmm-region-saved-locals-defaults)))))
+	   (list* (list 'font-lock-cache-state nil)
+		  (list 'font-lock-cache-position (make-marker))
+		  (copy-tree (cdr (assq major-mode mmm-region-saved-locals-defaults)))))
      ;; Without the next line, the (make-marker) above gets replaced
      ;; with the starting value of nil, and all comes to naught.
      (mmm-set-local-variables major-mode)
@@ -162,16 +162,16 @@ available through M-x customize under Programming | Tools | Mmm."
      (make-local-variable 'font-lock-fontify-region-function)
      (make-local-variable 'font-lock-beginning-of-syntax-function)
      (setq font-lock-fontify-region-function 'mmm-fontify-region
-           font-lock-beginning-of-syntax-function 'mmm-beginning-of-syntax)
+	   font-lock-beginning-of-syntax-function 'mmm-beginning-of-syntax)
      (setq mmm-mode t)
      (condition-case err
-         (mmm-apply-all)
+	 (mmm-apply-all)
        (mmm-error
-        ;; Complain, but don't die, since we want files to go ahead
-        ;; and be opened anyway, and the mode to go ahead and be
-        ;; turned on. Should we delete all previously made submode
-        ;; regions when we find an invalid one?
-        (message "%s" (error-message-string err))))
+	;; Complain, but don't die, since we want files to go ahead
+	;; and be opened anyway, and the mode to go ahead and be
+	;; turned on. Should we delete all previously made submode
+	;; regions when we find an invalid one?
+	(message "%s" (error-message-string err))))
      (run-hooks 'mmm-mode-hook)
      (mmm-run-major-hook))))
 
@@ -189,9 +189,9 @@ available through M-x customize under Programming | Tools | Mmm."
     (mmm-clear-local-variables)
     (mmm-update-submode-region)
     (setq font-lock-fontify-region-function
-          (get mmm-primary-mode 'mmm-fontify-region-function)
-          font-lock-beginning-of-syntax-function
-          (get mmm-primary-mode 'mmm-beginning-of-syntax-function))
+	  (get mmm-primary-mode 'mmm-fontify-region-function)
+	  font-lock-beginning-of-syntax-function
+	  (get mmm-primary-mode 'mmm-beginning-of-syntax-function))
     (mmm-update-font-lock-buffer)
     (mmm-refontify-maybe)
     (setq mmm-mode nil)

@@ -76,7 +76,7 @@ Saves the name of the tag matched.")
     :front "<%text>"
     :back "</%text>"
     :insert ((?t mason-<%text> nil @ "<%text>" @ "\n"
-                 _ "\n" @ "</%text>" @)))
+		 _ "\n" @ "</%text>" @)))
    (mason-doc
     :submode text-mode
     :face mmm-comment-submode-face
@@ -84,29 +84,29 @@ Saves the name of the tag matched.")
     :back "</%doc>"
     :face nil
     :insert ((?d mason-<%doc> nil @ "<%doc>" @ "\n"
-                 _ "\n" @ "</%doc>" @)))
+		 _ "\n" @ "</%doc>" @)))
    (mason-perl
     :submode perl
     :match-face (("<%perl>" . mmm-code-submode-face)
-                 ("<%init>" . mmm-init-submode-face)
-                 ("<%cleanup>" . mmm-cleanup-submode-face)
-                 ("<%once>" . mmm-init-submode-face)
-                 ("<%filter>" . mmm-special-submode-face)
-                 ("<%shared>" . mmm-init-submode-face))
+		 ("<%init>" . mmm-init-submode-face)
+		 ("<%cleanup>" . mmm-cleanup-submode-face)
+		 ("<%once>" . mmm-init-submode-face)
+		 ("<%filter>" . mmm-special-submode-face)
+		 ("<%shared>" . mmm-init-submode-face))
     :front ,mmm-mason-perl-tags-regexp
     :back "</%~1>"
     :save-matches 1
     :match-name "~1"
     :save-name 1
     :insert ((?, mason-<%TAG> "Perl section: " @ "<%" str ">" @
-                 ";\n" _ "\n" @ "</%" str ">" @)
-             (?< mason-<%TAG> ?, . nil)
-             (?p mason-<%perl> ?, . "perl")
-             (?i mason-<%init> ?, . "init")
-             (?c mason-<%cleanup> ?, . "cleanup")
-             (?o mason-<%once> ?, . "once")
-             (?l mason-<%filter> ?, . "filter")
-             (?s mason-<%shared> ?, . "shared")))
+		 ";\n" _ "\n" @ "</%" str ">" @)
+	     (?< mason-<%TAG> ?, . nil)
+	     (?p mason-<%perl> ?, . "perl")
+	     (?i mason-<%init> ?, . "init")
+	     (?c mason-<%cleanup> ?, . "cleanup")
+	     (?o mason-<%once> ?, . "once")
+	     (?l mason-<%filter> ?, . "filter")
+	     (?s mason-<%shared> ?, . "shared")))
    (mason-pseudo-perl
     :submode perl
     :face mmm-declaration-submode-face
@@ -114,11 +114,11 @@ Saves the name of the tag matched.")
     :back "</%~1>"
     :save-matches 1
     :insert ((?. mason-pseudo-<%TAG> "Pseudo-perl section: " @ "<%" str ">" @
-                 "\n" _ "\n" @ "</%" str ">" @)
-             (?> mason-pseudo-<%TAG> ?, . nil)
-             (?a mason-<%args> ?. . "args")
-             (?f mason-<%flags> ?. . "flags")
-             (?r mason-<%attr> ?. . "attr")))
+		 "\n" _ "\n" @ "</%" str ">" @)
+	     (?> mason-pseudo-<%TAG> ?, . nil)
+	     (?a mason-<%args> ?. . "args")
+	     (?f mason-<%flags> ?. . "flags")
+	     (?r mason-<%attr> ?. . "attr")))
    (mason-inline
     :submode perl
     :face mmm-output-submode-face
@@ -126,29 +126,29 @@ Saves the name of the tag matched.")
     :front-verify mmm-mason-verify-inline
     :back "%>"
     :insert ((?% mason-<%-%> nil @ "<%" @ " " _ " " @ "%>" @)
-             (?5 mason-<%-%> ?% . nil)))
+	     (?5 mason-<%-%> ?% . nil)))
    (mason-call
     :submode perl
     :face mmm-special-submode-face
     :front "<&"
     :back "&>"
     :insert ((?& mason-<&-&> nil @ "<&" @ " " _ " " @ "&>" @)
-             (?7 mason-<&-&> ?% . nil)))
+	     (?7 mason-<&-&> ?% . nil)))
    (mason-one-line-comment
     :submode text-mode
     :face mmm-comment-submode-face
     :front "^%#"
     :back "\n"
     :insert ((?# mason-%-comment nil (mmm-mason-start-line)
-                @ "%" @ "# " _ @ '(mmm-mason-end-line) "\n" @)
-             (?3 mason-%-comment ?# . nil)))
+		@ "%" @ "# " _ @ '(mmm-mason-end-line) "\n" @)
+	     (?3 mason-%-comment ?# . nil)))
    (mason-one-line
     :submode perl
     :face mmm-code-submode-face
     :front "^%"
     :back "\n"
     :insert ((return mason-%-line nil (mmm-mason-start-line)
-                     @ "%" @ " " _ @ '(mmm-mason-end-line) "\n" @)))))
+		     @ "%" @ " " _ @ '(mmm-mason-end-line) "\n" @)))))
 
 ;;}}}
 ;;{{{ One-line Sections

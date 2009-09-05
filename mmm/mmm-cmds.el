@@ -42,16 +42,16 @@
   "Add submode regions according to an existing submode class."
   (interactive
    (list (intern
-          (completing-read
-           "Submode Class: "
-           (remove-duplicates
-            (mapcar #'(lambda (spec) (list (symbol-name (car spec))))
-                    (append
-                     (remove-if #'(lambda (spec) (plist-get (cdr spec) :private))
-                                mmm-classes-alist)
-                     (remove-if #'caddr mmm-autoloaded-classes)))
-            :test #'equal)
-           nil t))))
+	  (completing-read
+	   "Submode Class: "
+	   (remove-duplicates
+	    (mapcar #'(lambda (spec) (list (symbol-name (car spec))))
+		    (append
+		     (remove-if #'(lambda (spec) (plist-get (cdr spec) :private))
+				mmm-classes-alist)
+		     (remove-if #'caddr mmm-autoloaded-classes)))
+	    :test #'equal)
+	   nil t))))
   (unless (eq class (intern ""))
     (mmm-apply-class class)
     (mmm-add-to-history class)
@@ -65,7 +65,7 @@
   (interactive "aSubmode: \nr")
   (mmm-ify :submode submode :front front :back back)
   (setq front (mmm-make-marker front t nil)
-        back (mmm-make-marker back nil nil))
+	back (mmm-make-marker back nil nil))
   (mmm-add-to-history `(:submode ,submode :front ,front :back ,back))
   (mmm-enable-font-lock submode))
 
@@ -77,14 +77,14 @@
   "Add SUBMODE regions to the buffer delimited by FRONT and BACK.
 With prefix argument, prompts for all additional keywords arguments.
 See `mmm-classes-alist'."
-  (interactive "aSubmode: 
-sFront Regexp: 
-nOffset from Front Regexp: 
-sBack Regexp: 
-nOffset from Back Regexp: 
+  (interactive "aSubmode:
+sFront Regexp:
+nOffset from Front Regexp:
+sBack Regexp:
+nOffset from Back Regexp:
 nNumber of matched substrings to save: ")
   (let ((args (mmm-save-keywords submode front back front-offset
-                                 back-offset save-matches)))
+				 back-offset save-matches)))
     (apply #'mmm-ify args)
     (mmm-add-to-history args))
   (mmm-enable-font-lock submode))
@@ -132,13 +132,13 @@ delimiter auto-insertion that MMM Mode provides. See, for example,
 (defun mmm-get-block (lines)
   (let ((inhibit-point-motion-hooks t))
     (list (save-excursion
-            (forward-line (- lines))
-            (beginning-of-line)
-            (point))
-          (save-excursion
-            (forward-line lines)
-            (end-of-line)
-            (point)))))
+	    (forward-line (- lines))
+	    (beginning-of-line)
+	    (point))
+	  (save-excursion
+	    (forward-line lines)
+	    (end-of-line)
+	    (point)))))
 
 ;;}}}
 ;;{{{ Reparse Current Region
@@ -150,14 +150,14 @@ Use this command if a submode region's boundaries have become wrong."
   (let ((ovl (mmm-overlay-at (point) 'all)))
     (when ovl
       (let ((beg (save-excursion
-                   (goto-char (mmm-front-start ovl))
-                   (forward-line -1)
-                   (point)))
-            (end (save-excursion
-                   (goto-char (mmm-back-end ovl))
-                   (forward-line 1)
-                   (point))))
-        (mmm-parse-region beg end)))))
+		   (goto-char (mmm-front-start ovl))
+		   (forward-line -1)
+		   (point)))
+	    (end (save-excursion
+		   (goto-char (mmm-back-end ovl))
+		   (forward-line 1)
+		   (point))))
+	(mmm-parse-region beg end)))))
 
 ;;}}}
 ;;{{{ Clear Submode Regions
@@ -197,22 +197,22 @@ entire job of this function."
   (let ((ovl (mmm-overlay-at)))
     (when ovl
       (combine-after-change-calls
-        (save-match-data
-          (save-excursion
-            (when (mmm-match-back ovl)
-              (if arg
-                  (replace-match "")
-                (return-from mmm-end-current-region)))))
-        (let ((back (overlay-get ovl 'back)))
-          (cond ((stringp back)
-                 (save-excursion
-                   (unless arg (goto-char (overlay-end ovl)))
-                   (save-excursion (insert back))
-                   (move-overlay ovl (overlay-start ovl) (point))))
-                ((functionp back)
-                 (funcall back ovl (if arg 'middle t))))))
+	(save-match-data
+	  (save-excursion
+	    (when (mmm-match-back ovl)
+	      (if arg
+		  (replace-match "")
+		(return-from mmm-end-current-region)))))
+	(let ((back (overlay-get ovl 'back)))
+	  (cond ((stringp back)
+		 (save-excursion
+		   (unless arg (goto-char (overlay-end ovl)))
+		   (save-excursion (insert back))
+		   (move-overlay ovl (overlay-start ovl) (point))))
+		((functionp back)
+		 (funcall back ovl (if arg 'middle t))))))
       (mmm-refontify-maybe (save-excursion (forward-line -1) (point))
-                           (save-excursion (forward-line 1) (point))))))
+			   (save-excursion (forward-line 1) (point))))))
 
 ;;}}}
 ;;{{{ Narrow to Region
@@ -246,14 +246,14 @@ find an insert skeleton. For example, in Mason, `p' \(with appropriate
 prefix and modifiers) will insert a <%perl>...</%perl> region."
   (interactive "P")
   (let* ((seq (this-command-keys))
-         (event (aref seq (1- (length seq))))
-         (mods (event-modifiers event))
-         (key (mmm-event-key event)))
+	 (event (aref seq (1- (length seq))))
+	 (mods (event-modifiers event))
+	 (key (mmm-event-key event)))
     (if (subsetp mmm-insert-modifiers mods)
-        (mmm-insert-by-key
-         (append (set-difference mods mmm-insert-modifiers)
-                 key)
-         arg))))
+	(mmm-insert-by-key
+	 (append (set-difference mods mmm-insert-modifiers)
+		 key)
+	 arg))))
 
 (defun mmm-insert-by-key (key &optional arg)
   "Insert a submode region based on event KEY.
@@ -268,18 +268,18 @@ MODIFIERS, the dotted list becomes simply BASIC-KEY."
   (multiple-value-bind (class skel str) (mmm-get-insertion-spec key)
     (when skel
       (let ((after-change-functions nil)
-            (old-undo buffer-undo-list) undo
+	    (old-undo buffer-undo-list) undo
 	    ;; da: Proof General patch for compatibility with holes.el,
 	    ;; bind this variable to prevent inserting holes here.
 	    mmm-inside-insert-by-key)
-        ;; XEmacs' skeleton doesn't manage positions by itself, so we
-        ;; have to do it.
-        (if mmm-xemacs (setq skeleton-positions nil))
-        (skeleton-proxy-new skel str arg)
-        (destructuring-bind (back end beg front) skeleton-positions
-          ;; TODO: Find a way to trap invalid-parent signals from
-          ;; make-region and undo the skeleton insertion.
-          (let ((match-submode (plist-get class :match-submode))
+	;; XEmacs' skeleton doesn't manage positions by itself, so we
+	;; have to do it.
+	(if mmm-xemacs (setq skeleton-positions nil))
+	(skeleton-proxy-new skel str arg)
+	(destructuring-bind (back end beg front) skeleton-positions
+	  ;; TODO: Find a way to trap invalid-parent signals from
+	  ;; make-region and undo the skeleton insertion.
+	  (let ((match-submode (plist-get class :match-submode))
 		(match-face (plist-get class :match-face))
 		(match-name (plist-get class :match-name))
 		(front-form (regexp-quote (buffer-substring front beg)))
@@ -291,13 +291,13 @@ MODIFIERS, the dotted list becomes simply BASIC-KEY."
 		       (mmm-save-all (funcall match-submode front-form))
 		     (plist-get class :submode))))
 	    (setq face
-                  (cond ((functionp match-face)
-                         (mmm-save-all
-                          (funcall match-face front-form)))
-                        (match-face
-                         (cdr (assoc front-form match-face)))
-                        (t
-                         (plist-get class :face))))
+		  (cond ((functionp match-face)
+			 (mmm-save-all
+			  (funcall match-face front-form)))
+			(match-face
+			 (cdr (assoc front-form match-face)))
+			(t
+			 (plist-get class :face))))
 	    (setq name
 		  (cond ((plist-get class :skel-name)
 			 ;; Optimize the name to the user-supplied str
@@ -318,8 +318,8 @@ MODIFIERS, the dotted list becomes simply BASIC-KEY."
 			(t
 			 ;; No, just use it as-is
 			 match-name)))
-            (mmm-make-region
-             submode beg end 
+	    (mmm-make-region
+	     submode beg end
 	     :face face
 	     :name name
 	     :front front :back back
@@ -327,17 +327,17 @@ MODIFIERS, the dotted list becomes simply BASIC-KEY."
 	     :evaporation 'front
 ;;;             :beg-sticky (plist-get class :beg-sticky)
 ;;;             :end-sticky (plist-get class :end-sticky)
-             :beg-sticky t :end-sticky t
-             :creation-hook (plist-get class :creation-hook))
-            (mmm-enable-font-lock submode)))
-        ;; Now get rid of intermediate undo boundaries, so that the entire
-        ;; insertion can be undone as one action.  This should really be
-        ;; skeleton's job, but it doesn't do it.
-        (setq undo buffer-undo-list)
-        (while (not (eq (cdr undo) old-undo))
-          (when (eq (cadr undo) nil)
-            (setcdr undo (cddr undo)))
-          (setq undo (cdr undo)))))))
+	     :beg-sticky t :end-sticky t
+	     :creation-hook (plist-get class :creation-hook))
+	    (mmm-enable-font-lock submode)))
+	;; Now get rid of intermediate undo boundaries, so that the entire
+	;; insertion can be undone as one action.  This should really be
+	;; skeleton's job, but it doesn't do it.
+	(setq undo buffer-undo-list)
+	(while (not (eq (cdr undo) old-undo))
+	  (when (eq (cadr undo) nil)
+	    (setcdr undo (cddr undo)))
+	  (setq undo (cdr undo)))))))
 
 (defun mmm-get-insertion-spec (key &optional classlist)
   "Get the insertion info for KEY from all classes in CLASSLIST.
@@ -346,22 +346,22 @@ found in, SKEL is the skeleton to insert, and STR is the argument.
 CLASSLIST defaults to the return value of `mmm-get-all-classes',
 including global classes."
   (loop for classname in (or classlist (mmm-get-all-classes t))
-        for class = (mmm-get-class-spec classname)
-        for inserts = (plist-get class :insert)
-        for skel = (cddr (assoc key inserts))
-        with str
-        ;; If SKEL is a dotted pair, it means call another key's
-        ;; insertion spec with an argument.
-        unless (consp (cdr skel))
-        do (setq str (cdr skel)
-                 skel (cddr (assoc (car skel) inserts)))
-        if skel return (list class skel str)
-        ;; If we have a group class, recurse.
-        if (plist-get class :classes)
-           if (mmm-get-insertion-spec key it)
-              return it
-           else
-              return nil))
+	for class = (mmm-get-class-spec classname)
+	for inserts = (plist-get class :insert)
+	for skel = (cddr (assoc key inserts))
+	with str
+	;; If SKEL is a dotted pair, it means call another key's
+	;; insertion spec with an argument.
+	unless (consp (cdr skel))
+	do (setq str (cdr skel)
+		 skel (cddr (assoc (car skel) inserts)))
+	if skel return (list class skel str)
+	;; If we have a group class, recurse.
+	if (plist-get class :classes)
+	   if (mmm-get-insertion-spec key it)
+	      return it
+	   else
+	      return nil))
 
 ;;}}}
 ;;{{{ Help on Insertion
@@ -374,20 +374,20 @@ including global classes."
     (princ "Key             Inserts\n")
     (princ "---             -------\n\n")
     (mapcar #'mmm-display-insertion-key
-            (mmm-get-all-insertion-keys))))
+	    (mmm-get-all-insertion-keys))))
 
 (defun mmm-display-insertion-key (spec)
   "Print an insertion binding to standard output.
 SPEC should be \(KEY NAME ...) where KEY is an insertion key and NAME
 is a symbol naming the insertion."
   (let* ((str (make-string 16 ?\ ))
-         ;; This gets us a dotted list, because of the way insertion
-         ;; keys are specified.
-         (key (append mmm-insert-modifiers (car spec)))
-         (lastkey (nthcdr (max (1- (safe-length key)) 0) key)))
+	 ;; This gets us a dotted list, because of the way insertion
+	 ;; keys are specified.
+	 (key (append mmm-insert-modifiers (car spec)))
+	 (lastkey (nthcdr (max (1- (safe-length key)) 0) key)))
     ;; Now we make it a true list
     (if (consp key)
-        (setcdr lastkey (list (cdr lastkey)))
+	(setcdr lastkey (list (cdr lastkey)))
       (setq key (list key)))
     ;; Get the spacing right
     (store-substring str 0
@@ -404,12 +404,12 @@ Elements look like \(KEY NAME ...) where KEY is an insertion key and
 NAME is a symbol naming the insertion."
   (remove-duplicates
    (loop for classname in (or classlist (mmm-get-all-classes t))
-         for class = (mmm-get-class-spec classname)
-         append (plist-get class :insert) into keys
-         ;; If we have a group class, recurse.
-         if (plist-get class :classes)
-         do (setq keys (append keys (mmm-get-all-insertion-keys it)))
-         finally return keys)
+	 for class = (mmm-get-class-spec classname)
+	 append (plist-get class :insert) into keys
+	 ;; If we have a group class, recurse.
+	 if (plist-get class :classes)
+	 do (setq keys (append keys (mmm-get-all-insertion-keys it)))
+	 finally return keys)
    :test #'equal
    :key #'(lambda (x) (cons (car x) (cadr x)))
    :from-end t))

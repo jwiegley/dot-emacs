@@ -94,7 +94,7 @@ invoked by a public class in the same file."
   ;; Don't autoload already defined classes
   (unless (assq class mmm-classes-alist)
     (add-to-list 'mmm-autoloaded-classes
-                 (list class file private))))
+		 (list class file private))))
 
 ;;}}}
 ;;{{{ Autoload Functions
@@ -148,8 +148,8 @@ everything in `mmm-major-mode-hook' will be run."
   (dolist (buffer mmm-changed-buffers-list)
     (when (buffer-live-p buffer)
       (save-excursion
-        (set-buffer buffer)
-        (mmm-run-major-mode-hook))))
+	(set-buffer buffer)
+	(mmm-run-major-mode-hook))))
   (setq mmm-changed-buffers-list '()))
 
 (defun mmm-mode-on-maybe ()
@@ -157,8 +157,8 @@ everything in `mmm-major-mode-hook' will be run."
 Turn on MMM Mode if `global-mmm-mode' is non-nil and there are classes
 to apply, or always if `global-mmm-mode' is t."
   (cond ((eq mmm-global-mode t) (mmm-mode-on))
-        ((not mmm-global-mode))
-        ((mmm-get-all-classes nil) (mmm-mode-on)))
+	((not mmm-global-mode))
+	((mmm-get-all-classes nil) (mmm-mode-on)))
   (when mmm-mode
     (mmm-update-font-lock-buffer)))
 

@@ -54,20 +54,20 @@
   (set keyword keyword))
 
 ;;}}}
-;;{{{ Customization (Emacs 19) 
+;;{{{ Customization (Emacs 19)
 
 (condition-case ()
     (require 'custom)
   (error nil))
 
 (unless (and (featurep 'custom)
-             (fboundp 'custom-declare-variable))
+	     (fboundp 'custom-declare-variable))
   (defmacro defgroup (&rest args)
     nil)
   ;; da: backquote syntax updated, so not Emacs <19.29 compatible
   (defmacro defface (var values doc &rest args)
     `(make-face (quote ,var)))
-  (defmacro defcustom (var value doc &rest args) 
+  (defmacro defcustom (var value doc &rest args)
     `(defvar ,var ,value ,doc)))
 
 ;;}}}
@@ -78,12 +78,12 @@
   (error nil))
 
 (unless (and (featurep 'regexp-opt)
-             (fboundp 'regexp-opt))
+	     (fboundp 'regexp-opt))
   ;; No regexp-opt; create one
   (defun regexp-opt (strings &optional paren)
     (concat (if paren "\\(" "")
-            (mapconcat 'regexp-quote strings "\\|")
-            (if paren "\\)" ""))))
+	    (mapconcat 'regexp-quote strings "\\|")
+	    (if paren "\\)" ""))))
 
 ;;}}}
 ;;{{{ Regexp-Opt (XEmacs)
@@ -151,7 +151,7 @@ This makes `@' in skeletons act approximately like it does in FSF."
        (defvar skeleton-further-elements ())
        (not (assoc '@ skeleton-further-elements))
        (add-to-list 'skeleton-further-elements
-                    '(@ ''(push (point) skeleton-positions)))))
+		    '(@ ''(push (point) skeleton-positions)))))
 
 ;;}}}
 ;;{{{ Make Temp Buffers (XEmacs)

@@ -7,7 +7,7 @@
 ;; noweb-mode.el - edit noweb files with GNU Emacs
 ;; Copyright 1995 by Thorsten.Ohl @ Physik.TH-Darmstadt.de
 ;;     with a little help from Norman Ramsey <norman@bellcore.com>
-;; 
+;;
 
 ;;{{{ GPL
 

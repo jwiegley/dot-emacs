@@ -48,8 +48,8 @@
        "prove\\|"
        "r\\(e\\(write\\(_hyp\\)?\\|name\\)\\|mh\\)\\|"
        "s\\(elect\\|how\\|lh\\)\\|"
-       "t\\(hen\\|rivial\\)\\|" 
-       "u\\(se\\|n\\(do\\|fold\\(_hyp\\)?\\|lock\\)\\)\\|" 
+       "t\\(hen\\|rivial\\)\\|"
+       "u\\(se\\|n\\(do\\|fold\\(_hyp\\)?\\|lock\\)\\)\\|"
        "with"
        "\\)[ \t.]")
       '(0 'font-lock-type-face t))))
@@ -86,12 +86,12 @@
 ;  "If non nil: Overrides default Phox-Sym-Lock patterns for PhoX.")
 
 (defun phox-sym-lock-start ()
-        (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
-            (progn
-              (setq phox-sym-lock-color
-                    (face-foreground 'font-lock-function-name-face))
-              (if (not phox-sym-lock-keywords)
-                  (phox-sym-lock phox-sym-lock-keywords-table)))))
+	(if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
+	    (progn
+	      (setq phox-sym-lock-color
+		    (face-foreground 'font-lock-function-name-face))
+	      (if (not phox-sym-lock-keywords)
+		  (phox-sym-lock phox-sym-lock-keywords-table)))))
 
 
 (provide 'phox-font)

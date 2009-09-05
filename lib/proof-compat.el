@@ -1,6 +1,6 @@
 ;; proof-compat.el   Operating system and Emacs version compatibility
 ;;
-;; Copyright (C) 2000-2009 LFCS Edinburgh. 
+;; Copyright (C) 2000-2009 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -11,7 +11,7 @@
 ;; track of them.
 ;;
 ;; The development policy for Proof General (since v3.7) is for the
-;; main codebase to be written for the latest stable version of 
+;; main codebase to be written for the latest stable version of
 ;; GNU Emacs, following GNU Emacs advice on obsolete function calls.
 ;;
 ;; Since Proof General 4.0, XEmacs is not supported at all.
@@ -34,7 +34,7 @@
 
 
 ;; Workaround a small bug in Carbon Emacs Winter 2008 (at least)
-;; Menu presses query this variable, but it's not bound unless 
+;; Menu presses query this variable, but it's not bound unless
 ;; mode engaged.  Not noticeable in normal use, but it is as soon
 ;; as debug-on-error is engaged.
 (if (and (boundp 'carbon-emacs-package-version)
@@ -53,9 +53,9 @@
   "Remove a custom setting SYMBOL.
 Done by `makunbound' and removing all properties mentioned by custom library."
   (mapcar (lambda (prop) (remprop symbol prop))
-	  '(default 
-	     standard-value 
-	     force-value 
+	  '(default
+	     standard-value
+	     force-value
 	     variable-comment
 	     saved-variable-comment
 	     variable-documentation
@@ -87,8 +87,8 @@ The value returned is the value of the last form in BODY."
   (let ((old-frame (gensym "ssf")))
     `(let ((,old-frame (selected-frame)))
        (unwind-protect
-           (progn ,@body)
-         (select-frame ,old-frame))))))
+	   (progn ,@body)
+	 (select-frame ,old-frame))))))
 
 ;; An implemenation of buffer-syntactic-context for GNU Emacs
 (defun proof-buffer-syntactic-context-emulate (&optional buffer)
@@ -114,7 +114,7 @@ The returned value is one of the following symbols:
 
 
 ;; These functions are used in the intricate logic around
-;; shrink-to-fit.  
+;; shrink-to-fit.
 
 ;; window-leftmost-p, window-rightmost-p: my implementations
 (or (fboundp 'window-leftmost-p)
@@ -142,7 +142,7 @@ The returned value is one of the following symbols:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; A naughty hack to completion.el 
+;;; A naughty hack to completion.el
 ;;;
 ;;; At the moment IMO completion too eagerly adds stuff to
 ;;; its database: the completion-before-command function
@@ -152,16 +152,16 @@ The returned value is one of the following symbols:
 '(defun completion-before-command ()
   (if (and (symbolp this-command) (get this-command 'completion-function))
 	(funcall (get this-command 'completion-function)))))
-      
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; General Emacs version compatibility
 ;;;
 
-(defalias 'proof-buffer-syntactic-context 
+(defalias 'proof-buffer-syntactic-context
 	  'proof-buffer-syntactic-context-emulate)
 
-   
+
 ;; End of proof-compat.el
 (provide 'proof-compat)

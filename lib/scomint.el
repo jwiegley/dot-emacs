@@ -7,13 +7,13 @@
 ;; $Id$
 
 ;;; Commentary:
-;; 
+;;
 ;; This is a heavily simplified comint for Proof General.
 ;; Much of the code is taken from comint.el.
 ;;
 ;; The reason to provide this is to remove some of
-;; the interactive features which are otherwise 
-;; hard to disentangle.  
+;; the interactive features which are otherwise
+;; hard to disentangle.
 ;;
 
 (defface scomint-highlight-input '((t (:weight bold)))
@@ -186,9 +186,9 @@ buffer.  The hook `scomint-exec-hook' is run after each exec."
 			 ;; If the command has slashes, make sure we
 			 ;; first look relative to the current directory.
 			 (cons default-directory exec-path) exec-path)))
-      (setq proc (apply (if (fboundp 'start-file-process) 
+      (setq proc (apply (if (fboundp 'start-file-process)
 			    ;; da: start-file-process is Emacs23 only
-			    'start-file-process 'start-process) 
+			    'start-file-process 'start-process)
 			name buffer command switches)))
     ;; Some file name handler cannot start a process, fe ange-ftp.
     (unless (processp proc) (error "No process started"))
@@ -218,7 +218,7 @@ buffer.  The hook `scomint-exec-hook' is run after each exec."
 (defun scomint-send-input (&optional no-newline artificial)
   "Send input to process.
 After the process output mark, sends all text from the process mark to
-point as input to the process.  
+point as input to the process.
 
 This command also sends and inserts a final newline, unless
 NO-NEWLINE is non-nil."
@@ -228,34 +228,34 @@ NO-NEWLINE is non-nil."
     (if (not proc) (error "Current buffer has no process")
       (widen)
       (let* ((pmark (process-mark proc))
-             (input (if (>= (point) (marker-position pmark))
+	     (input (if (>= (point) (marker-position pmark))
 			(buffer-substring pmark (point)))))
-	
-        (unless no-newline
-          (insert ?\n))
 
-        (let ((beg (marker-position pmark))
-              (end (if no-newline (point) (1- (point))))
-              (inhibit-modification-hooks t))
-          ;; (when (> end beg)
-          ;;   (add-text-properties beg end
-          ;;                        '(front-sticky t
-          ;;                          font-lock-face scomint-highlight-input))
+	(unless no-newline
+	  (insert ?\n))
 
-          ;; (unless no-newline
-          ;;   ;; Cover the terminating newline
-          ;;   (add-text-properties end (1+ end)
-          ;;                        '(rear-nonsticky t
-          ;;                          field boundary
-          ;;                          inhibit-line-move-field-capture t))))
+	(let ((beg (marker-position pmark))
+	      (end (if no-newline (point) (1- (point))))
+	      (inhibit-modification-hooks t))
+	  ;; (when (> end beg)
+	  ;;   (add-text-properties beg end
+	  ;;                        '(front-sticky t
+	  ;;                          font-lock-face scomint-highlight-input))
 
-        ;; Update the markers before we send the input
-        ;; in case we get output amidst sending the input.
-        (set-marker scomint-last-input-start pmark)
-        (set-marker scomint-last-input-end (point))
-        (set-marker (process-mark proc) (point))
-	(scomint-send-string 
-	 proc 
+	  ;; (unless no-newline
+	  ;;   ;; Cover the terminating newline
+	  ;;   (add-text-properties end (1+ end)
+	  ;;                        '(rear-nonsticky t
+	  ;;                          field boundary
+	  ;;                          inhibit-line-move-field-capture t))))
+
+	;; Update the markers before we send the input
+	;; in case we get output amidst sending the input.
+	(set-marker scomint-last-input-start pmark)
+	(set-marker scomint-last-input-end (point))
+	(set-marker (process-mark proc) (point))
+	(scomint-send-string
+	 proc
 	 (concat input (unless no-newline "\n"))))))))
 
 
@@ -270,7 +270,7 @@ NO-NEWLINE is non-nil."
 	  (if (> (point-max) scomint-buffer-maximum-size)
 	      (let ((inhibit-read-only t))
 		(delete-region (point-min)
-			       (- (point-max) 
+			       (- (point-max)
 				  scomint-buffer-maximum-size))))))))
 
 (defun scomint-strip-ctrl-m (&optional string)
@@ -295,7 +295,7 @@ NO-NEWLINE is non-nil."
       (with-current-buffer oprocbuf
 	;; Insert STRING
 	(let ((inhibit-read-only t)
-              ;; The point should float after any insertion we do.
+	      ;; The point should float after any insertion we do.
 	      (saved-point (copy-marker (point) t)))
 
 	  ;; We temporarly remove any buffer narrowing, in case the
@@ -324,40 +324,40 @@ NO-NEWLINE is non-nil."
 	    (goto-char (process-mark process)) ; in case a filter moved it
 
 	    ;; (let ((inhibit-read-only t)
-	    ;; 	  (inhibit-modification-hooks t))
+	    ;;	  (inhibit-modification-hooks t))
 	    ;;   (add-text-properties scomint-last-output-start (point)
-	    ;; 			   '(front-sticky
-	    ;; 			     (field inhibit-line-move-field-capture)
-	    ;; 			     rear-nonsticky t
-	    ;; 			     field output
-	    ;; 			     inhibit-line-move-field-capture t)))
+	    ;;			   '(front-sticky
+	    ;;			     (field inhibit-line-move-field-capture)
+	    ;;			     rear-nonsticky t
+	    ;;			     field output
+	    ;;			     inhibit-line-move-field-capture t)))
 
 	    ;; Highlight the prompt, where we define `prompt' to mean
 	    ;; the most recent output that doesn't end with a newline.
 ;;	    (let ((prompt-start (save-excursion (forward-line 0) (point)))
 ;;		  (inhibit-read-only t)
 ;;		  (inhibit-modification-hooks t))
-;; 	      (when comint-prompt-read-only
-;; 		(or (= (point-min) prompt-start)
-;; 		    (get-text-property (1- prompt-start) 'read-only)
-;; 		    (put-text-property
-;; 		     (1- prompt-start) prompt-start 'read-only 'fence))
-;; 		(add-text-properties
-;; 		 prompt-start (point)
-;; 		 '(read-only t rear-nonsticky t front-sticky (read-only))))
-;; 	      (unless (and (bolp) (null comint-last-prompt-overlay))
-;; 		;; Need to create or move the prompt overlay (in the case
-;; 		;; where there is no prompt ((bolp) == t), we still do
-;; 		;; this if there's already an existing overlay).
-;; 		(if comint-last-prompt-overlay
-;; 		    ;; Just move an existing overlay
-;; 		    (move-overlay comint-last-prompt-overlay
-;; 				  prompt-start (point))
-;; 		  ;; Need to create the overlay
-;; 		  (setq comint-last-prompt-overlay
-;; 			(make-overlay prompt-start (point)))
-;; 		  (overlay-put comint-last-prompt-overlay
-;; 			       'font-lock-face 'scomint-highlight-prompt))))
+;;	      (when comint-prompt-read-only
+;;		(or (= (point-min) prompt-start)
+;;		    (get-text-property (1- prompt-start) 'read-only)
+;;		    (put-text-property
+;;		     (1- prompt-start) prompt-start 'read-only 'fence))
+;;		(add-text-properties
+;;		 prompt-start (point)
+;;		 '(read-only t rear-nonsticky t front-sticky (read-only))))
+;;	      (unless (and (bolp) (null comint-last-prompt-overlay))
+;;		;; Need to create or move the prompt overlay (in the case
+;;		;; where there is no prompt ((bolp) == t), we still do
+;;		;; this if there's already an existing overlay).
+;;		(if comint-last-prompt-overlay
+;;		    ;; Just move an existing overlay
+;;		    (move-overlay comint-last-prompt-overlay
+;;				  prompt-start (point))
+;;		  ;; Need to create the overlay
+;;		  (setq comint-last-prompt-overlay
+;;			(make-overlay prompt-start (point)))
+;;		  (overlay-put comint-last-prompt-overlay
+;;			       'font-lock-face 'scomint-highlight-prompt))))
 
 	    (goto-char saved-point)))))))
 

@@ -1,5 +1,4 @@
-
-;; $State$ $Date$ $Revision$ 
+;; $State$ $Date$ $Revision$
 ;; syntax
 
 (setq
@@ -16,28 +15,28 @@
  phox-ident-regexp "\\(\\([^() \n\t\r=\\[.]\\|\\(\\.[^() \n\t\r]\\)\\)+\\)"
  phox-inductive-option "\\(\\[[^]]*]\\)?"
  phox-spaces-regexp "[ \n\t\r]*"
- phox-sy-definition-regexp (concat 
+ phox-sy-definition-regexp (concat
    "\\(Cst\\|\\(def\\(rec\\)?\\)\\)"
    phox-comments-regexp
-   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
- phox-sy-inductive-regexp (concat 
+   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)")
+ phox-sy-inductive-regexp (concat
    "Inductive"
    phox-comments-regexp
    phox-inductive-option
    phox-comments-regexp
-   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
- phox-inductive-regexp (concat 
+   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)")
+ phox-inductive-regexp (concat
    "Inductive"
    phox-comments-regexp
    phox-inductive-option
    phox-comments-regexp
-   phox-ident-regexp) 
- phox-data-regexp (concat 
+   phox-ident-regexp)
+ phox-data-regexp (concat
    "\\(Data\\|type\\)"
    phox-comments-regexp
    phox-inductive-option
    phox-comments-regexp
-   phox-ident-regexp) 
+   phox-ident-regexp)
  phox-definition-regexp (concat
    "\\(Cst\\|def\\(_thlist\\|rec\\)?\\|claim\\|Sort\\)"
    phox-comments-regexp
@@ -66,7 +65,7 @@
 
 
 (defun phox-init-syntax-table (&optional TABLE)
-  "Set appropriate values for syntax table in current buffer, 
+  "Set appropriate values for syntax table in current buffer,
 or for optional argument TABLE."
 ;; useful for using forward-word
   (modify-syntax-entry ?_  "w" TABLE)
@@ -172,72 +171,72 @@ or for optional argument TABLE."
 
 (defun phox-find-and-forget (span)
   (let (str ans tmp (lsp -1) name sname) ;; da: added name,sname.  are tmp/lsp not used?
-    (while span 
+    (while span
       (setq str (span-property span 'cmd))
 
       (cond
 
-       ((eq (span-property span 'type) 'comment))       
+       ((eq (span-property span 'type) 'comment))
 
        ((eq (span-property span 'type) 'proverproc))
 
        ((eq (span-property span 'type) 'goalsave)
 	(if (proof-string-match phox-prove-claim-regexp str)
-	    (setq ans (concat (format phox-forget-proof-command 
+	    (setq ans (concat (format phox-forget-proof-command
 				      (match-string 4 str)) ans))
 	  (setq ans (concat (format phox-forget-id-command
 				    (span-property span 'name)) ans))))
 
        ((proof-string-match phox-new-elim-regexp str)
-	(setq ans 
-	      (concat (format phox-forget-new-elim-command 
+	(setq ans
+	      (concat (format phox-forget-new-elim-command
 				  (match-string 3 str)) ans)))
 
        ((proof-string-match phox-new-intro-regexp str)
-	(setq ans 
-	      (concat (format phox-forget-new-intro-command 
+	(setq ans
+	      (concat (format phox-forget-new-intro-command
 				  (match-string 3 str)) ans)))
 
        ((proof-string-match phox-new-rewrite-regexp str) ; deprecated
-	(setq ans 
-	      (concat (format phox-forget-new-equation-command 
+	(setq ans
+	      (concat (format phox-forget-new-equation-command
 				  (match-string 3 str)) ans)))
 
        ((proof-string-match phox-new-equation-regexp str)
-	(setq ans 
-	      (concat (format phox-forget-new-equation-command 
+	(setq ans
+	      (concat (format phox-forget-new-equation-command
 				  (match-string 3 str)) ans)))
 
        ((proof-string-match phox-close-def-regexp str)
-	(setq ans 
-	      (concat (format phox-forget-close-def-command 
+	(setq ans
+	      (concat (format phox-forget-close-def-command
 				  (match-string 4 str)) ans)))
 
        ((proof-string-match phox-sy-definition-regexp str)
-	(setq ans 
-	      (concat (format phox-forget-id-command 
+	(setq ans
+	      (concat (format phox-forget-id-command
 				  (concat "$" (match-string 7 str))) ans)))
 
        ((proof-string-match phox-sy-inductive-regexp str)
-	(setq ans 
-	      (concat (format phox-forget-id-command 
+	(setq ans
+	      (concat (format phox-forget-id-command
 				  (concat "$" (match-string 10 str))) ans)))
 
        ((proof-string-match phox-inductive-regexp str)
-	(setq ans 
-	      (concat (format phox-forget-id-command 
+	(setq ans
+	      (concat (format phox-forget-id-command
 				  (match-string 8 str)) ans)))
 
        ((proof-string-match phox-data-regexp str)
 	(setq
 	  name (match-string 8 str)
-          sname (concat (downcase (substring name 0 1)) 
+	  sname (concat (downcase (substring name 0 1))
 			(substring name 1 nil))
-	  ans (concat (format phox-forget-id-command 
+	  ans (concat (format phox-forget-id-command
 			      sname) ans)))
 
        ((proof-string-match phox-definition-regexp str)
-	(setq ans (concat (format phox-forget-id-command 
+	(setq ans (concat (format phox-forget-id-command
 				      (match-string 6 str)) ans))))
 
       (setq lsp (span-start span))
@@ -268,7 +267,7 @@ If inside a comment, just process until the start of the comment."
 ;; function, and appear in the submenu  "State" [pr].
 
 (defun phox-depend-theorem(theorem)
-  "Interactive function : 
+  "Interactive function :
 ask for a string and  and send a depend command to PhoX for it.
 
 Gives the list of all axioms which have been used to prove the theorem."
@@ -277,8 +276,8 @@ Gives the list of all axioms which have been used to prove the theorem."
 (proof-shell-invisible-command (concat "depend " theorem)))
 
 (defun phox-eshow-extlist(extlist)
-  "Interactive function : 
-ask for a string and send an eshow command to PhoX for it. 
+  "Interactive function :
+ask for a string and send an eshow command to PhoX for it.
 
 Shows the given extension-list.  Possible extension lists are : equation
 (the list of equations added to unification introduced by the new_equation
@@ -291,7 +290,7 @@ introduced by the new_elim and new_intro {-t} commands), closed
 (proof-shell-invisible-command (concat "eshow " extlist)))
 
 (defun phox-flag-name(name)
-"Interactive function : 
+"Interactive function :
 ask for a string and send a flag command  to PhoX for it.
 
   Print the value of an internal flag of the
@@ -302,7 +301,7 @@ ask for a string and send a flag command  to PhoX for it.
 
 
 (defun phox-path()
-"Interactive function : 
+"Interactive function :
  send a path command to PhoX.
 
   Prints the list of all paths. This path list is used to find
@@ -313,20 +312,20 @@ ask for a string and send a flag command  to PhoX for it.
 (proof-shell-invisible-command  "path"))
 
 (defun phox-print-expression(expr)
-"Interactive function : 
+"Interactive function :
 ask for a string and send a print command  to PhoX for it.
 
   In case argument expr
   is a closed expression of the language in use, prints it and gives its
   sort, gives an (occasionally) informative error message otherwise. In
-  case expr is a defined expression (constant, theorem ...) 
+  case expr is a defined expression (constant, theorem ...)
   gives  the definition."
 
 (interactive "sexpr: ")
 (proof-shell-invisible-command (concat "print " expr)))
 
 (defun phox-print-sort-expression(expr)
-"Interactive function : 
+"Interactive function :
 ask for a string and send a print_sort command  to PhoX for it.
 
   Similar to print, but gives more information on sorts of bounded
@@ -337,7 +336,7 @@ ask for a string and send a print_sort command  to PhoX for it.
 
 
 (defun phox-priority-symbols-list(symblist)
-"Interactive function : 
+"Interactive function :
 ask for a string and send a priority command  to PhoX for it.
 
   Print the priority of the given symbols. If no symbol are
@@ -349,22 +348,22 @@ ask for a string and send a priority command  to PhoX for it.
 
 
 (defun phox-search-string(string type)
-  "Interactive function: 
+  "Interactive function:
 ask for a string and possibly a type and send a search command to PhoX for it.
 
  Prints the list of all loaded symbols which have type and whose name
  contains the string. If no type is given, it prints all symbols whose
  name contains string."
 
-(interactive 
-"sstring : 
+(interactive
+"sstring :
 stype (nothing for any type, 'a as type parameter) :")
 (proof-shell-invisible-command (concat "search \"" string "\" " type)))
 
 ;; The followings are proof commands (doc in cmd_proof.tex) :
 
 (defun phox-constraints()
-"Interactive function : 
+"Interactive function :
  send a constraints command to PhoX.
 
   Prints the  constraints which should be fulfilled by unification variables,
@@ -375,7 +374,7 @@ stype (nothing for any type, 'a as type parameter) :")
 (proof-shell-invisible-command  "constraints"))
 
 (defun phox-goals()
-"Interactive function : 
+"Interactive function :
  send a goals command to PhoX.
 
   Prints the list of all remaining goals, only works in proofs."
@@ -412,13 +411,13 @@ stype (nothing for any type, 'a as type parameter) :")
 ;; obsolète probablement, sinon à modifier pour en étendre la portée.
 
 (defun phox-delete-symbol(symbol)
-  "Interactive function : 
+  "Interactive function :
 ask for a symbol and send a delete command to PhoX for it."
   (interactive "ssymbol : ")
   (proof-shell-invisible-command (concat "del " symbol)))
 
 (defun phox-delete-symbol-on-cursor()
-"Interactive function : 
+"Interactive function :
 send a delete command to PhoX for the symbol whose name is under the cursor."
   (interactive)
   (let (start end)
@@ -434,6 +433,3 @@ send a delete command to PhoX for the symbol whose name is under the cursor."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (provide 'phox-fun)
-
-
-    

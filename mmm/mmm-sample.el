@@ -61,7 +61,7 @@
     :front "<script\[^>\]*\\(language=\"javascript\\([0-9.]*\\)\"\\|type=\"text/javascript\"\\)\[^>\]*>"
     :back"</script>"
     :insert ((?j js-tag nil @ "<script language=\"JavaScript\">"
-                 @ "\n" _ "\n" @ "</script>" @))
+		 @ "\n" _ "\n" @ "</script>" @))
     )
    (js-inline
     :submode javascript
@@ -96,35 +96,35 @@ and MODE is a major mode function symbol.")
   (or (mmm-ensure-modename
        ;; First try the user override variable.
        (some #'(lambda (pair)
-                (if (string-match (car pair) string) (cdr pair) nil))
-             mmm-here-doc-mode-alist))
+		(if (string-match (car pair) string) (cdr pair) nil))
+	     mmm-here-doc-mode-alist))
       (let ((words (split-string (downcase string) "[_-]+")))
-        (or (mmm-ensure-modename
-             ;; Try the whole name, stopping at "mode" if present.
-             (intern
-              (mapconcat #'identity
-                         (nconc (ldiff words (member "mode" words))
-                                (list "mode"))
-                         "-")))
-            ;; Try each word by itself (preference list)
-            (some #'(lambda (word)
-                      (mmm-ensure-modename (intern word)))
-                  words)
-            ;; Try each word with -mode tacked on
-            (some #'(lambda (word)
-                      (mmm-ensure-modename
-                       (intern (concat word "-mode"))))
-                  words)
-            ;; Try each pair of words with -mode tacked on
-            (loop for (one two) on words
-                  if (mmm-ensure-modename
-                      (intern (concat one two "-mode")))
-                  return it)
-            ;; I'm unaware of any modes whose names, minus `-mode',
-            ;; are more than two words long, and if the entire mode
-            ;; name (perhaps minus `-mode') doesn't occur in the
-            ;; here-document name, we can give up.
-            (signal 'mmm-no-matching-submode nil)))))
+	(or (mmm-ensure-modename
+	     ;; Try the whole name, stopping at "mode" if present.
+	     (intern
+	      (mapconcat #'identity
+			 (nconc (ldiff words (member "mode" words))
+				(list "mode"))
+			 "-")))
+	    ;; Try each word by itself (preference list)
+	    (some #'(lambda (word)
+		      (mmm-ensure-modename (intern word)))
+		  words)
+	    ;; Try each word with -mode tacked on
+	    (some #'(lambda (word)
+		      (mmm-ensure-modename
+		       (intern (concat word "-mode"))))
+		  words)
+	    ;; Try each pair of words with -mode tacked on
+	    (loop for (one two) on words
+		  if (mmm-ensure-modename
+		      (intern (concat one two "-mode")))
+		  return it)
+	    ;; I'm unaware of any modes whose names, minus `-mode',
+	    ;; are more than two words long, and if the entire mode
+	    ;; name (perhaps minus `-mode') doesn't occur in the
+	    ;; here-document name, we can give up.
+	    (signal 'mmm-no-matching-submode nil)))))
 
 (mmm-add-classes
  '((here-doc
@@ -135,7 +135,7 @@ and MODE is a major mode function symbol.")
     :delimiter-mode nil
     :match-submode mmm-here-doc-get-mode
     :insert ((?d here-doc "Here-document Name: " @ "<<" str _ "\n"
-                 @ "\n" @ str "\n" @))
+		 @ "\n" @ str "\n" @))
     )))
 
 ;;}}}
@@ -150,18 +150,18 @@ and MODE is a major mode function symbol.")
     :save-matches 1
     :match-name "embperl"
     :match-face (("[+" . mmm-output-submode-face)
-                 ("[-" . mmm-code-submode-face)
-                 ("[!" . mmm-init-submode-face)
-                 ("[*" . mmm-code-submode-face)
-                 ("[$" . mmm-special-submode-face))
+		 ("[-" . mmm-code-submode-face)
+		 ("[!" . mmm-init-submode-face)
+		 ("[*" . mmm-code-submode-face)
+		 ("[$" . mmm-special-submode-face))
     :insert ((?p embperl "Region Type (Character): " @ "[" str
-                 @ " " _ " " @ str "]" @)
-             (?+ embperl+ ?p . "+")             
-             (?- embperl- ?p . "-")
-             (?! embperl! ?p . "!")
-             (?* embperl* ?p . "*")
-             (?$ embperl$ ?p . "$")
-             )
+		 @ " " _ " " @ str "]" @)
+	     (?+ embperl+ ?p . "+")
+	     (?- embperl- ?p . "-")
+	     (?! embperl! ?p . "!")
+	     (?* embperl* ?p . "*")
+	     (?$ embperl$ ?p . "$")
+	     )
     )
    (embperl-comment
     :submode text-mode
@@ -189,8 +189,8 @@ and MODE is a major mode function symbol.")
     :back "_?:>"
     :match-name "eperl"
     :insert ((?p eperl-code nil @ "<:" @ " " _ " " @ ":>" @)
-             (?: eperl-code ?p . nil)
-             (?_ eperl-code_ nil @ "<:" @ " " _ " " @ "_:>" @)))
+	     (?: eperl-code ?p . nil)
+	     (?_ eperl-code_ nil @ "<:" @ " " _ " " @ "_:>" @)))
    (eperl-comment
     :submode text
     :face mmm-comment-submode-face
@@ -210,24 +210,24 @@ and MODE is a major mode function symbol.")
   ;; buffer-local variable with markers for positions, but the trick
   ;; is knowing when to expire the cache.
   (let ((bounds
-         (save-excursion
-           (save-match-data
-             (goto-char (point-max))
-             (backward-page)
-             (and (re-search-forward "^\\(.*\\)Local Variables:" nil t)
-                  (list (match-string 1)
-                        (progn (end-of-line) (point))
-                        (and (search-forward
-                              (format "%sEnd:" (match-string 1))
-                              nil t)
-                             (progn (beginning-of-line)
-                                    (point)))))))))
+	 (save-excursion
+	   (save-match-data
+	     (goto-char (point-max))
+	     (backward-page)
+	     (and (re-search-forward "^\\(.*\\)Local Variables:" nil t)
+		  (list (match-string 1)
+			(progn (end-of-line) (point))
+			(and (search-forward
+			      (format "%sEnd:" (match-string 1))
+			      nil t)
+			     (progn (beginning-of-line)
+				    (point)))))))))
     (and bounds (caddr bounds)
-         (save-match-data
-           (string-match (format "^%s" (regexp-quote (car bounds)))
-                         (match-string 0)))
-         (> (match-beginning 0) (cadr bounds))
-         (< (match-end 0) (caddr bounds)))))
+	 (save-match-data
+	   (string-match (format "^%s" (regexp-quote (car bounds)))
+			 (match-string 0)))
+	 (> (match-beginning 0) (cadr bounds))
+	 (< (match-end 0) (caddr bounds)))))
 
 (defun mmm-file-variables-find-back (bound)
   (forward-sexp)
@@ -258,14 +258,14 @@ and MODE is a major mode function symbol.")
    (jsp-code
     :submode java
     :match-face (("<%!" . mmm-declaration-submode-face)
-                 ("<%=" . mmm-output-submode-face)
-                 ("<%"  . mmm-code-submode-face))
+		 ("<%=" . mmm-output-submode-face)
+		 ("<%"  . mmm-code-submode-face))
     :front "<%[!=]?"
     :back "%>"
     :match-name "jsp"
     :insert ((?% jsp-code nil @ "<%" @ " " _ " " @ "%>" @)
-             (?! jsp-declaration nil @ "<%!" @ " " _ " " @ "%>" @)
-             (?= jsp-expression nil @ "<%=" @ " " _ " " @ "%>" @))
+	     (?! jsp-declaration nil @ "<%!" @ " " _ " " @ "%>" @)
+	     (?= jsp-expression nil @ "<%=" @ " " _ " " @ "%>" @))
     )
    (jsp-directive
     :submode text-mode
@@ -321,7 +321,7 @@ and MODE is a major mode function symbol.")
     :front "<\\?\\(php\\)?"
     :back "\\?>"
     :insert ((?p php-section nil @ "<?php" @ " " _ " " @ "?>" @)
-             (?b php-block nil @ "<?php" @ "\n" _ "\n" @ "?>" @))
+	     (?b php-block nil @ "<?php" @ "\n" _ "\n" @ "?>" @))
     )))
 
 ;;}}}

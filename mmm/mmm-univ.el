@@ -39,17 +39,17 @@
   (string-match "[a-zA-Z-]+" string)
   (setq string (match-string 0 string))
   (let ((modestr (intern (if (string-match "mode\\'" string)
-                             string
-                           (concat string "-mode")))))
+			     string
+			   (concat string "-mode")))))
     (or (mmm-ensure-modename modestr)
-        (signal 'mmm-no-matching-submode nil))))
+	(signal 'mmm-no-matching-submode nil))))
 
 (mmm-add-classes
  `((universal
     :front "{%\\([a-zA-Z-]+\\)%}"
     :back "{%/~1%}"
     :insert ((?/ universal "Submode: " @ "{%" str "%}" @ "\n" _ "\n"
-                 @ "{%/" str "%}" @))
+		 @ "{%/" str "%}" @))
     :match-submode mmm-univ-get-mode
     :save-matches 1
     )))

@@ -9,11 +9,11 @@
 ;; This software is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public
 ;; License version 2, as published by the Free Software Foundation.
-;; 
+;;
 ;; This software is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-;; 
+;;
 ;; See the GNU General Public License version 2 for more details
 ;; (enclosed in the file GPL).
 
@@ -21,7 +21,7 @@
 ;; See documentation in variable local-var-list-doc
 
 ;;; History:
-;; 
+;;
 
 ;;; Help:
 
@@ -30,7 +30,7 @@
 
 A file can contain a \"local variables list\", which specifies the values to use for
 certain Emacs variables when that file is edited. See info node \"(emacs)File
-Variables\". 
+Variables\".
 
 local-vars-list provides two useful functions:
 
@@ -47,17 +47,17 @@ Indents the zone according to mode after insertion."
   (save-excursion
     (goto-char (point-max))
     (let ((pt (point)))
-      (cond 
+      (cond
        ((not comment-start)
-	(insert 
+	(insert
 	 "
 *** Local Variables: ***
 *** End: ***
-" 
+"
 	 ))
 
        ((string-equal comment-end "")
-	(insert 
+	(insert
 	 (format
 	  "
 %s** Local Variables: ***
@@ -66,7 +66,7 @@ Indents the zone according to mode after insertion."
 	  comment-start comment-start)))
 
        (t
-	(insert 
+	(insert
 	 (format
 	  "
 %s
@@ -80,13 +80,13 @@ Indents the zone according to mode after insertion."
 
 
 (defun local-vars-list-find ()
-  "Find the local variable definition paragraph. 
+  "Find the local variable definition paragraph.
 Return a list containing the prefix and the suffix of its first line,
 or throw 'notfound if not found. Sets the point at the beginning of
 the second line of the paragraph."
   (goto-char (point-max))
   (catch 'notfound
-    (if (not (re-search-backward "Local Variables:" nil t)) (throw 'notfound nil))  
+    (if (not (re-search-backward "Local Variables:" nil t)) (throw 'notfound nil))
     (let ((bol (save-excursion (beginning-of-line) (point)))
 	  (eol (save-excursion (end-of-line) (point)))
 	  (lpattern)
@@ -94,17 +94,17 @@ the second line of the paragraph."
       (setq lpattern (buffer-substring bol (point)))
       (re-search-forward "Local Variables:" eol t)
       (setq rpattern (buffer-substring (point) eol))
-      (forward-line 1) 
+      (forward-line 1)
       (beginning-of-line)
       (cons lpattern (cons rpattern nil)))))
 
 (defun local-vars-list-goto-var (symb lpat rpat)
-  "Search a line defining local variable symb at current line and below. 
+  "Search a line defining local variable symb at current line and below.
 If successful set point to the beginning of the *value* and return t.
 Otherwise set point to the beginning of the last line of the local
 variables list (the one containing \"End:\"), and return nil.
 
-lpat and rpat are the suffix and prefix of the local variable list. 
+lpat and rpat are the suffix and prefix of the local variable list.
 
 Note: this function must be called when at the beginning of a local
 variable definition (or at the \"End:\" line)."
@@ -116,7 +116,7 @@ variable definition (or at the \"End:\" line)."
       (search-forward lpat eol)
       (re-search-forward "\\([^ :]+\\):" eol)
       (let ((varname (match-string 1)))
-	(cond 
+	(cond
 	 ((string-equal varname "End") (setq endreached t) (beginning-of-line))
 	 ((string-equal varname symbname) (setq found t))
 	 (t (forward-line 1) (beginning-of-line)))))
@@ -164,7 +164,7 @@ variable definition (or at the \"End:\" line)."
       (kill-region boexp (point))
       (insert (format " %S " val))
       )
-    )  
+    )
   )
 
 
@@ -172,7 +172,7 @@ variable definition (or at the \"End:\" line)."
   "Return the value written in the local variable list for variable symb.
 Raises an error if symb is not in the list."
   (save-excursion
-    (let* 
+    (let*
 	((lrpat (local-vars-list-find))
 	 (dummy (if lrpat t (error "local variables zone not found. ")))
 	 (lpat (car lrpat))
@@ -180,7 +180,7 @@ Raises an error if symb is not in the list."
 	 )
       (beginning-of-line)
       (if (local-vars-list-goto-var symb lpat rpat)
-	  t 
+	  t
 	(error "variable %s not found" symb))
       (beginning-of-line)
       (local-vars-list-get-current lpat rpat))))
@@ -220,6 +220,3 @@ of the buffer first."
 ;;; fill-column: 85 ***
 ;;; indent-tabs-mode: nil ***
 ;;; End: ***
-
-
-

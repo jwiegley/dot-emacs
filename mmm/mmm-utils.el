@@ -44,12 +44,12 @@
 means not hidden, not a minibuffer, not in batch mode, and not in of
 `mmm-never-modes'."
   `(unless (or (eq (aref (buffer-name) 0) ?\ )
-               (window-minibuffer-p (selected-window))
-               (memq major-mode mmm-never-modes)
-               noninteractive
-               ;; Unnecessary as now hidden
+	       (window-minibuffer-p (selected-window))
+	       (memq major-mode mmm-never-modes)
+	       noninteractive
+	       ;; Unnecessary as now hidden
 ;;;               (equal (buffer-name) mmm-temp-buffer-name)
-               )
+	       )
      ,@body))
 
 ;;;(def-edebug-spec mmm-valid-buffer t)
@@ -64,7 +64,7 @@ restrictions, and match data."
   `(save-excursion
      (save-restriction
        (save-match-data
-         ,@body))))
+	 ,@body))))
 
 ;;;(def-edebug-spec mmm-save-all t)
 
@@ -78,8 +78,8 @@ substituted for the corresponding REGEXP wherever it matches."
   (let ((case-fold-search nil))
     (save-match-data
       (dolist (pair arg-pairs)
-        (while (string-match (car pair) string)
-          (setq string (replace-match (cdr pair) t t string))))))
+	(while (string-match (car pair) string)
+	  (setq string (replace-match (cdr pair) t t string))))))
   string)
 
 (defun mmm-format-matches (string &optional on-string)
@@ -91,11 +91,11 @@ ON-STRING, if supplied, means to use the match data from a
 `string-match' on that string, rather than the global match data."
   (when (stringp string)
     (let ((old-data (match-data))
-          subexp)
+	  subexp)
       (save-match-data
-        (while (string-match "~\\([0-9]\\)" string)
-          (setq subexp (string-to-number (match-string-no-properties 1 string))
-                string (replace-match
+	(while (string-match "~\\([0-9]\\)" string)
+	  (setq subexp (string-to-number (match-string-no-properties 1 string))
+		string (replace-match
 			(save-match-data
 			  (set-match-data old-data)
 			  (match-string-no-properties subexp on-string))
@@ -120,8 +120,8 @@ Use of this macro can make code more readable when there are a lot of
 PARAMS, but less readable when there are only a few. Also best used
 only when it is important that nil values disappear."
   `(append ,@(mapcar #'(lambda (param)
-                         (macroexpand `(mmm-save-keyword ,param)))
-                     params)))
+			 (macroexpand `(mmm-save-keyword ,param)))
+		     params)))
 
 ;;}}}
 ;;{{{ Looking Back At
@@ -134,10 +134,10 @@ back that that many characters before point. Otherwise, it defaults to
 string."
   (eq (point)
       (save-excursion
-        (and (re-search-backward regexp
-               (- (point) (or bound (length regexp)))
-               t)
-             (match-end 0)))))
+	(and (re-search-backward regexp
+	       (- (point) (or bound (length regexp)))
+	       t)
+	     (match-end 0)))))
 
 ;;}}}
 ;;{{{ Markers

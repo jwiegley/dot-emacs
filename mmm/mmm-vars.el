@@ -107,7 +107,7 @@
   '(c-mode c++-mode objc-mode pike-mode java-mode jde-mode javascript-mode
     php-mode))
 
-(defvar mmm-save-local-variables 
+(defvar mmm-save-local-variables
   `(;; Don't use `function' (#') here!!  We're already inside `quote'!
     major-mode
     comment-start
@@ -119,9 +119,9 @@
     comment-line-break-function
     sentence-end
     ,@(when mmm-xemacs
-        '(mode-popup-menu
-          (((lambda () current-menubar) . set-buffer-menubar))
-          ))
+	'(mode-popup-menu
+	  (((lambda () current-menubar) . set-buffer-menubar))
+	  ))
     font-lock-keywords
     font-lock-keywords-only
     font-lock-keywords-case-fold-search
@@ -145,12 +145,12 @@
     ,@(mapcar
        #'(lambda (var) (list var nil mmm-c-derived-modes))
        '(c++-template-syntax-table
-	 c-<-op-cont-regexp 
-	 c->-op-cont-regexp 
+	 c-<-op-cont-regexp
+	 c->-op-cont-regexp
 	 c-after-suffixed-type-decl-key
 	 c-after-suffixed-type-maybe-decl-key
 	 c-any-class-key
-	 c-any-class-key 
+	 c-any-class-key
 	 c-asm-stmt-kwds
 	 c-assignment-op-regexp
 	 c-backslash-column
@@ -159,27 +159,27 @@
 	 c-block-comment-prefix
 	 c-block-decls-with-vars
 	 c-block-stmt-1-key
-	 c-block-stmt-1-key 
+	 c-block-stmt-1-key
 	 c-block-stmt-1-kwds
 	 c-block-stmt-2-key
-	 c-block-stmt-2-key 
+	 c-block-stmt-2-key
 	 c-block-stmt-2-kwds
-	 c-brace-list-key 
-	 c-cast-parens 
+	 c-brace-list-key
+	 c-cast-parens
 	 c-class-key
-	 c-class-key 
+	 c-class-key
 	 c-class-kwds
 	 c-cleanup-list
-	 c-colon-type-list-re 
+	 c-colon-type-list-re
 	 c-comment-only-line-offset
 	 c-comment-prefix-regexp
 	 c-comment-start-regexp
-	 c-comment-start-regexp 
+	 c-comment-start-regexp
 	 c-cpp-defined-fns
 	 c-current-comment-prefix
 	 c-decl-block-key
-	 c-decl-block-key 
-	 c-decl-prefix-re 
+	 c-decl-block-key
+	 c-decl-prefix-re
 	 c-decl-spec-kwds
 	 c-doc-comment-start-regexp
 	 c-expr-kwds
@@ -190,9 +190,9 @@
 	 c-hanging-comment-ender-p
 	 c-hanging-comment-starter-p
 	 c-hanging-semi\&comma-criteria
-	 c-identifier-key 
+	 c-identifier-key
 	 c-identifier-last-sym-match
-	 c-identifier-start 
+	 c-identifier-start
 	 c-identifier-syntax-modifications
 	 c-identifier-syntax-table
 	 c-in-comment-lc-prefix
@@ -204,89 +204,89 @@
 	 c-keywords
 	 c-keywords-obarray
 	 c-keywords-regexp
-	 c-keywords-regexp 
+	 c-keywords-regexp
 	 c-known-type-key
 	 c-label-key
-	 c-label-key 
+	 c-label-key
 	 c-label-kwds
 	 c-label-kwds-regexp
-	 c-label-kwds-regexp 
+	 c-label-kwds-regexp
 	 c-label-minimum-indentation
 	 c-lambda-kwds
-	 c-literal-start-regexp 
-	 c-nonsymbol-chars 
+	 c-literal-start-regexp
+	 c-nonsymbol-chars
 	 c-nonsymbol-token-regexp
 	 c-not-decl-init-keywords
 	 c-offsets-alist
-	 c-opt-<>-arglist-start 
+	 c-opt-<>-arglist-start
 	 c-opt-<>-arglist-start-in-paren
-	 c-opt-<>-sexp-key 
+	 c-opt-<>-sexp-key
 	 c-opt-access-key
-	 c-opt-access-key 
+	 c-opt-access-key
 	 c-opt-asm-stmt-key
-	 c-opt-asm-stmt-key 
+	 c-opt-asm-stmt-key
 	 c-opt-bitfield-key
-	 c-opt-bitfield-key 
+	 c-opt-bitfield-key
 	 c-opt-block-decls-with-vars-key
 	 c-opt-block-stmt-key
-	 c-opt-block-stmt-key 
-	 c-opt-cpp-prefix 
-	 c-opt-cpp-start 
+	 c-opt-block-stmt-key
+	 c-opt-cpp-prefix
+	 c-opt-cpp-start
 	 c-opt-decl-spec-key
 	 c-opt-friend-key
-	 c-opt-friend-key 
+	 c-opt-friend-key
 	 c-opt-identifier-concat-key
 	 c-opt-inexpr-block-key
-	 c-opt-inexpr-block-key 
+	 c-opt-inexpr-block-key
 	 c-opt-inexpr-brace-list-key
 	 c-opt-inexpr-class-key
-	 c-opt-inexpr-class-key 
+	 c-opt-inexpr-class-key
 	 c-opt-lambda-key
-	 c-opt-lambda-key 
+	 c-opt-lambda-key
 	 c-opt-method-key
-	 c-opt-method-key 
+	 c-opt-method-key
 	 c-opt-postfix-decl-spec-key
 	 c-opt-type-component-key
-	 c-opt-type-concat-key 
-	 c-opt-type-modifier-key 
-	 c-opt-type-suffix-key 
+	 c-opt-type-concat-key
+	 c-opt-type-modifier-key
+	 c-opt-type-suffix-key
 	 c-other-decl-block-key
-	 c-other-decl-block-key 
+	 c-other-decl-block-key
 	 c-other-decl-block-kwds
 	 c-other-decl-kwds
 	 c-overloadable-operators-regexp
-	 c-paragraph-separate 
-	 c-paragraph-start 
-	 c-paren-stmt-key 
-	 c-primary-expr-regexp 
-	 c-primitive-type-key 
+	 c-paragraph-separate
+	 c-paragraph-start
+	 c-paren-stmt-key
+	 c-primary-expr-regexp
+	 c-primitive-type-key
 	 c-primitive-type-kwds
 	 c-protection-kwds
-	 c-recognize-<>-arglists 
+	 c-recognize-<>-arglists
 	 c-recognize-knr-p
-	 c-recognize-knr-p 
-	 c-recognize-paren-inits 
+	 c-recognize-knr-p
+	 c-recognize-paren-inits
 	 c-recognize-typeless-decls
 	 c-regular-keywords-regexp
-	 c-simple-stmt-key 
+	 c-simple-stmt-key
 	 c-simple-stmt-kwds
 	 c-special-brace-lists
-	 c-special-brace-lists 
-	 c-specifier-key 
+	 c-special-brace-lists
+	 c-specifier-key
 	 c-specifier-kwds
-	 c-stmt-delim-chars 
+	 c-stmt-delim-chars
 	 c-stmt-delim-chars-with-comma
 	 c-symbol-key
-	 c-symbol-key 
-	 c-symbol-start 
+	 c-symbol-key
+	 c-symbol-start
 	 c-syntactic-eol
-	 c-syntactic-ws-end 
-	 c-syntactic-ws-start 
-	 c-type-decl-prefix-key 
-	 c-type-decl-suffix-key 
-	 c-type-prefix-key 
-	 comment-end 
-	 comment-start 
+	 c-syntactic-ws-end
+	 c-syntactic-ws-start
+	 c-type-decl-prefix-key
+	 c-type-decl-suffix-key
+	 c-type-prefix-key
+	 comment-end
+	 comment-start
 	 comment-start-skip))
     ;; Skeleton insertion
     skeleton-transformation
@@ -375,8 +375,8 @@ of coloring respectively.
   specify a face."
   :group 'mmm-faces
   :type '(choice (const :tag "None" 0)
-                 (const :tag "Low" 1)
-                 (const :tag "High" 2)))
+		 (const :tag "Low" 1)
+		 (const :tag "High" 2)))
 
 (defface mmm-init-submode-face '((t (:background "Pink")))
   "Face used for submodes containing initialization code."
@@ -503,8 +503,8 @@ and EXT, but no classes are activated.
 See `mmm-global-mode'."
   :group 'mmm
   :type '(repeat (list (symbol :tag "Major Mode")
-                       (string :tag "Filename Regexp")
-                       (symbol :tag "Class")))
+		       (string :tag "Filename Regexp")
+		       (symbol :tag "Class")))
   :require 'mmm-mode)
 
 (defun mmm-add-mode-ext-class (mode ext class)
@@ -530,9 +530,9 @@ for submodes of LANGUAGE.  The last element of MODES should be a mode
 which will always be available."
   :group 'mmm
   :type '(repeat (cons symbol
-                       (repeat
-                        (restricted-sexp :match-alternatives
-                                         (fboundp))))))
+		       (repeat
+			(restricted-sexp :match-alternatives
+					 (fboundp))))))
 
 (defun mmm-add-to-major-mode-preferences (language mode &optional default)
   "Set the preferred major mode for LANGUAGE to MODE.
@@ -543,10 +543,10 @@ may be used by packages to ensure that some mode is present, but not
 override any user-specified mode."
   (let ((pair (assq language mmm-major-mode-preferences)))
     (if pair
-        ;; Existing mode preferences
-        (if default
-            (setcdr pair (cons mode (cdr pair)))
-          (setcdr pair (append (cdr pair) (list mode))))
+	;; Existing mode preferences
+	(if default
+	    (setcdr pair (cons mode (cdr pair)))
+	  (setcdr pair (append (cdr pair) (list mode))))
       ;; No existing mode preference
       (add-to-list 'mmm-major-mode-preferences (list language mode)))))
 
@@ -555,7 +555,7 @@ override any user-specified mode."
 Valid submode names are either `fboundp' or present as the `car' of an
 element in `mmm-major-mode-preferences'."
   (if (or (fboundp symbol)
-          (assq symbol mmm-major-mode-preferences))
+	  (assq symbol mmm-major-mode-preferences))
       symbol
     nil))
 
@@ -567,8 +567,8 @@ first `fboundp' element of the `cdr' is returned, or nil if none."
   (if (fboundp mode)
       mode
     (car (remove-if-not
-          #'fboundp
-          (cdr (assq mode mmm-major-mode-preferences))))))
+	  #'fboundp
+	  (cdr (assq mode mmm-major-mode-preferences))))))
 
 ;;}}}
 ;;{{{ Delimiter Regions
@@ -630,7 +630,7 @@ to. This variable must be set before MMM Mode is loaded."
 (defun mmm-use-old-command-keys ()
   "Use the old command keys \(no control modifer) in MMM Mode."
   (setq mmm-command-modifiers '()
-        mmm-insert-modifiers '(control)))
+	mmm-insert-modifiers '(control)))
 
 ;;}}}
 ;;{{{ MMM Hooks
@@ -659,8 +659,8 @@ applied in a buffer."
   "Run the hook named `mmm-<BODY>-<SUFFIX>-hook', if it exists.
 If SUFFIX is nil or unsupplied, run `mmm-<BODY>-hook' instead."
   (let ((hook (intern-soft (if suffix
-                               (format "mmm-%s-%s-hook" body suffix)
-                             (format "mmm-%s-hook" body)))))
+			       (format "mmm-%s-%s-hook" body suffix)
+			     (format "mmm-%s-hook" body)))))
     (if hook (run-hooks hook))))
 
 (defun mmm-run-major-hook ()
@@ -731,8 +731,8 @@ an existing buffer."
   `mmm-mode-ext-classes-alist' for more information."
   :group 'mmm
   :type '(choice (const :tag "Always" t)
-                 (const :tag "Never" nil)
-                 (other :tag "Maybe" maybe))
+		 (const :tag "Never" nil)
+		 (other :tag "Maybe" maybe))
   :require 'mmm-mode)
 
 ;; These are not traditional editing modes, so mmm makes no sense, and
@@ -949,19 +949,19 @@ and is not for the user to see.")
   "Add CLASSES and a \"grouping class\" named GROUP which calls them all.
 The CLASSES are all made private, i.e. non-user-visible."
   (mmm-add-classes (mapcar #'(lambda (class)
-                               (append class
-                                       '(:private t)))
-                           classes))
+			       (append class
+				       '(:private t)))
+			   classes))
   (add-to-list 'mmm-classes-alist
-               (list group :classes (mapcar #'first classes))))
+	       (list group :classes (mapcar #'first classes))))
 
 (defun mmm-add-to-group (group classes)
   "Add CLASSES to the \"grouping class\" named GROUP.
 The CLASSES are all made private, i.e. non-user-visible."
   (mmm-add-classes (mapcar #'(lambda (class)
-                               (append class
-                                       '(:private t)))
-                           classes))
+			       (append class
+				       '(:private t)))
+			   classes))
   (mmm-set-class-parameter group :classes
 			   (append  (mmm-get-class-parameter group :classes)
 				    (mapcar #'first classes))))
@@ -1012,9 +1012,9 @@ Set automatically from `mmm-mode-ext-classes-alist'.")
 Uses `mmm-mode-ext-classes-alist' to find submode classes."
   (or mmm-mode-ext-classes
       (setq mmm-mode-ext-classes
-            (mapcar #'third
-                    (remove-if-not #'mmm-mode-ext-applies
-                                   mmm-mode-ext-classes-alist)))))
+	    (mapcar #'third
+		    (remove-if-not #'mmm-mode-ext-applies
+				   mmm-mode-ext-classes-alist)))))
 
 (defun mmm-clear-mode-ext-classes ()
   "Clear classes added by major mode and filename."
@@ -1023,25 +1023,25 @@ Uses `mmm-mode-ext-classes-alist' to find submode classes."
 (defun mmm-mode-ext-applies (element)
   (destructuring-bind (mode ext class) element
     (and (if mode
-             (eq mode
-                 ;; If MMM is on in this buffer, use the primary mode,
-                 ;; otherwise use the normal indicator.
-                 (or mmm-primary-mode major-mode))
-           t)
-         (if ext
-             (and (buffer-file-name)
-                  (save-match-data
-                    (string-match ext (buffer-file-name))))
-           t))))
+	     (eq mode
+		 ;; If MMM is on in this buffer, use the primary mode,
+		 ;; otherwise use the normal indicator.
+		 (or mmm-primary-mode major-mode))
+	   t)
+	 (if ext
+	     (and (buffer-file-name)
+		  (save-match-data
+		    (string-match ext (buffer-file-name))))
+	   t))))
 
 (defun mmm-get-all-classes (global)
   "Return a list of all classes applicable to the current buffer.
 These come from mode/ext associations, `mmm-classes', and interactive
 history, as well as `mmm-global-classes' if GLOBAL is non-nil."
   (append mmm-interactive-history
-          (if (listp mmm-classes) mmm-classes (list mmm-classes))
-          (if global mmm-global-classes ())
-          (mmm-get-mode-ext-classes)))
+	  (if (listp mmm-classes) mmm-classes (list mmm-classes))
+	  (if global mmm-global-classes ())
+	  (mmm-get-mode-ext-classes)))
 
 ;;}}}
 

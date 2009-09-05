@@ -6,14 +6,14 @@
 ;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Keywords:   tools
 ;;
-;; $Id$ 
+;; $Id$
 ;;
 ;; This file is distributed under the terms of the GNU General Public
 ;; License, Version 2.  Find a copy of the GPL with your version of
 ;; GNU Emacs or Texinfo.
-;; 
+;;
 ;; This library implements a minor mode for which keeps a ring history of
-;; buffer contents.  Intended to be used for small buffers which are 
+;; buffer contents.  Intended to be used for small buffers which are
 ;; intermittently updated (e.g. status panels/displays), for which history
 ;; browsing is useful.
 ;;
@@ -23,7 +23,7 @@
 ;; copying strings in and out.  That way we can use cloned (indirect)
 ;; buffers which allow independent browsing of the history.
 ;;
-;; FIXMEs: autoloading this doesn't work too well.  
+;; FIXMEs: autoloading this doesn't work too well.
 ;;         advice on erase-buffer doesn't work
 ;;         duplicated first item in ring after clear (& on startup).
 
@@ -71,7 +71,7 @@
 	   (desc      (format "History %d of %d; mouse-1 previous; mouse-3 next"
 			      histpos histsize))
 	   (indicator (format "[%d/%d]" histpos histsize)))
-      (propertize 
+      (propertize
        indicator
        'help-echo desc
        'keymap (eval-when-compile
@@ -84,11 +84,11 @@
 		   ;; (define-key map [mode-line control mouse-3] 'bufhist-last)
 		   map))
        'mouse-face 'mode-line-highlight))))
-     
+
 ;simple:
-;  '(" [hist:" 
+;  '(" [hist:"
 ;    (:eval (int-to-string (- (ring-length bufhist-)
-;			     bufhist-ring-pos))) "/" 
+;			     bufhist-ring-pos))) "/"
 ;    (:eval (int-to-string (ring-length bufhist-ring))) "]"))
 
 (make-variable-buffer-local 'bufhist-ring)
@@ -100,7 +100,7 @@
   "Return the stored representation of the current buffer contents."
   ;; First: make all extents in the buffer duplicable to recreate them
   (if (fboundp 'mapcar-extents)
-      (mapcar-extents (lambda (ext) 
+      (mapcar-extents (lambda (ext)
 			(set-extent-property ext 'duplicable t))))
   (cons (point)
 	(buffer-substring (point-max) (point-min))))
@@ -126,7 +126,7 @@
 ;; We could provide advice for erase-buffer, but instead make this part of API.
 (defun bufhist-erase-buffer ()
   "Erase buffer contents, maybe running bufhist-before-change-function first."
-  (if (and 
+  (if (and
        bufhist-mode
        (memq 'bufhist-before-change-function before-change-functions))
       (let ((before-change-functions nil)
@@ -143,7 +143,7 @@
 (defun bufhist-switch-to-index (n &optional nosave browsing)
   "Switch to position N in buffer history, maybe updating history.
 If optional NOSAVE is non-nil, do not try to save current contents."
-  (unless (equal n bufhist-ring-pos) 
+  (unless (equal n bufhist-ring-pos)
     ;; we're moving to different position
     (let ((tick (buffer-modified-tick)))
       ;; Save changes back to history for most recent contents or for
@@ -153,7 +153,7 @@ If optional NOSAVE is non-nil, do not try to save current contents."
 		  (equal tick bufhist-lastswitch-modified-tick))
 	;; If we're browsing away from position 0, checkpoint instead
 	;; of updating.
-	;; NB: logic here should ideally keep flag to say whether 
+	;; NB: logic here should ideally keep flag to say whether
 	;; changes are "during" a browse or not.  This is going
 	;; to result in too many checkpoints if we have manual
 	;; editing.
@@ -162,19 +162,19 @@ If optional NOSAVE is non-nil, do not try to save current contents."
 	    (bufhist-checkpoint)
 	  ; (setq n (1+ n)))
 	  ;; Otherwise update in-position
-	  (bufhist-ring-update bufhist-ring bufhist-ring-pos 
+	  (bufhist-ring-update bufhist-ring bufhist-ring-pos
 			       (bufhist-get-buffer-contents))))
       (setq bufhist-lastswitch-modified-tick tick)
       (let ((before-change-functions nil)
 	    (buffer-read-only nil))
 	(bufhist-restore-buffer-contents (ring-ref bufhist-ring n)))
       (if bufhist-read-only-history
-	  (setq buffer-read-only 
+	  (setq buffer-read-only
 		(if (eq n 0) bufhist-normal-read-only t)))
       (setq bufhist-ring-pos n)
       (force-mode-line-update)
       (if browsing
-	  (message "History position %d of %d in %s" 
+	  (message "History position %d of %d in %s"
 		   (- (ring-length bufhist-ring) n)
 		   (ring-length bufhist-ring)
 		   (buffer-name))))))
@@ -188,7 +188,7 @@ If optional NOSAVE is non-nil, do not try to save current contents."
   "Switch to last (most recent; current) buffer contents."
   (interactive)
   (bufhist-switch-to-index 0 nil 'browsing))
-  
+
 (defun bufhist-prev (&optional n)
   "Browse backward in the history of buffer contents."
   (interactive "p")
@@ -212,13 +212,13 @@ If optional NOSAVE is non-nil, do not try to save current contents."
 
 ;; FIXME: glitch here: we get duplicated first item after clear.
 ;; Bit like on startup: we always get empty buffer/current contents
-;; twice.  Reason is because of invariant of non-empty ring; 
-;; when we checkpoint we always add to ring. 
+;; twice.  Reason is because of invariant of non-empty ring;
+;; when we checkpoint we always add to ring.
 (defun bufhist-clear ()
   "Clear history."
   (interactive)
   (message "Buffer history in %s cleared." (buffer-name))
-  (bufhist-switch-to-index 0 'nosave) 
+  (bufhist-switch-to-index 0 'nosave)
   (setq bufhist-ring (make-ring (ring-size bufhist-ring)))
   (setq bufhist-ring-pos 0)
   (bufhist-checkpoint)
@@ -241,12 +241,12 @@ The size defaults to `bufhist-ring-size'."
   (setq bufhist-ring-pos 0)
   (setq bufhist-saved-mode-line-format mode-line-format)
   (bufhist-checkpoint)
-  (setq mode-line-format 
-	(cons '(bufhist-mode 
+  (setq mode-line-format
+	(cons '(bufhist-mode
 		(:eval (bufhist-mode-line-format-entry)))
 	      ;; surely it's always a list, but in case not
-	      (if (listp mode-line-format) 
-		  mode-line-format 
+	      (if (listp mode-line-format)
+		  mode-line-format
 		(list mode-line-format))))
   (force-mode-line-update)
   (make-local-variable 'before-change-functions)
@@ -289,21 +289,21 @@ The size defaults to `bufhist-ring-size'."
 ;	    (bufhist-last)))
 ;      (ad-activate-on 'erase-buffer)))
 
-;;; Buttons 
+;;; Buttons
 
 (defun bufhist-make-buttons ()
   (widget-create 'push-button
-                :notify (lambda (&rest ignore) 
+		:notify (lambda (&rest ignore)
 			   (bufhist-prev))
-                 "Prev")
+		 "Prev")
   (widget-create 'push-button
-                :notify (lambda (&rest ignore) 
+		:notify (lambda (&rest ignore)
 			   (bufhist-next))
-                 "Next")
+		 "Next")
   (widget-setup))
 
 
-;;; Minor mode 
+;;; Minor mode
 
 (defconst bufhist-minor-mode-map
   (let ((map (make-sparse-keymap)))
@@ -322,8 +322,8 @@ The size defaults to `bufhist-ring-size'."
   "Minor mode retaining an in-memory history of the buffer contents.
 
 Commands:\\<bufhist-minor-mode-map>
-\\[bufhist-prev]    bufhist-prev    go back in history  
-\\[bufhist-next]    bufhist-next    go forward in history  
+\\[bufhist-prev]    bufhist-prev    go back in history
+\\[bufhist-next]    bufhist-next    go forward in history
 \\[bufhist-first]   bufhist-first   go to first item in history
 \\[bufhist-last]    bufhist-last    go to last (current) item in history.
 \\[bufhist-clear]   bufhist-clear   clear history.
@@ -333,13 +333,13 @@ Commands:\\<bufhist-minor-mode-map>
 ; For newer versions of define-minor-mode we can use extra
 ; args above instead of hook function below:
 ;  :group 'bufhist
-;  (if bufhist-mode 
+;  (if bufhist-mode
 ;      (bufhist-init)
 ;    (bufhist-exit)))
 ; This doesn't work, e.g. with XEmacs 21.4.15.
 
 (defun bufhist-toggle-fn ()
-  (if bufhist-mode 
+  (if bufhist-mode
       (bufhist-init)
     (bufhist-exit)))
 

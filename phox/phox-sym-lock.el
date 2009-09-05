@@ -16,14 +16,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                 History
-;; 
+;;
 ;; first prototype by wg <wg@cs.tu-berlin.de> 5-96
 ;; tweaked by Steve Dunham <dunham@gdl.msu.edu> 5-96
 ;; rewritten and enhanced by Albert Cohen <Albert.Cohen@prism.uvsq.fr> 3-97
 ;; new symbol-face format and ergonomy improvement by Albert Cohen 2-98
 ;; major step towards portability and customization by Albert Cohen 5-98
 ;; removed bug with multiple appends in hook by Albert Cohen 3-99
-;; removed phox-sym-lock-face&atom which where not working by C Raffalli 4-2000 
+;; removed phox-sym-lock-face&atom which where not working by C Raffalli 4-2000
 
 ;; more about symbol font ? check out: xfd -fn '-adobe-symbol-*--12-*'
 
@@ -76,14 +76,14 @@
   "Generate a new internal symbol."
   ;; where is the standard function to do this ?
   (setq phox-sym-lock-sym-count (+ phox-sym-lock-sym-count 1))
-  (intern (concat "phox-sym-lock-gen-" (or prefix "") 
+  (intern (concat "phox-sym-lock-gen-" (or prefix "")
 		  (int-to-string phox-sym-lock-sym-count))))
 
 
 (defun phox-sym-lock-make-symbols-atomic (&optional begin end)
   "Function to make symbol faces atomic."
   (if phox-sym-lock-enabled
-      (map-extents 
+      (map-extents
        (lambda (extent maparg)
 	 (let ((face (extent-face extent)) (ext))
 	   (if (and face (setq ext (face-property face 'phox-sym-lock-remap)))
@@ -128,7 +128,7 @@
 	  (lf (and (fboundp 'list-fonts) ; da: what is this function? not defined
 		   (list-fonts font-pat))))
     (while (and lf maxsize)
-      (if 
+      (if
 	  (string-match font-reg
 		    (car lf))
 	  (let ((str-size (substring (car lf) (match-beginning 1)
@@ -171,8 +171,8 @@
 ;;			  'final 53
 ;; DA PG 3.7: above line doesn't work on XEmacs 21.5b28, gives
 ;; Character set already defined for this DIMENSION/CHARS/FINAL/DIRECTION combo (indian-is13194)
-;; DA: Will 55 work?  
-			  'final 55 
+;; DA: Will 55 work?
+			  'final 55
 			  'graphic 0))
       (make-charset 'phox-sym-lock-cset-right "Char set for symbol font"
 		    (list 'registry "adobe-fontspecific"
@@ -180,10 +180,10 @@
 			  'chars 94
 			  'final 54
 			  'graphic 1))
-      (set-face-property 'phox-sym-lock-adobe-symbol-face 
+      (set-face-property 'phox-sym-lock-adobe-symbol-face
 			 'font phox-sym-lock-font-name nil
 			 ;; DA: removed next line, it breaks "make magic" in doc
-			 ;; '(mule-fonts) 'prepend,   
+			 ;; '(mule-fonts) 'prepend,
 			 ))
   (set-face-font 'phox-sym-lock-adobe-symbol-face phox-sym-lock-font-name 'global))
 
@@ -243,7 +243,7 @@ the empty string. OBJ may either be a string or a character."
     (fillarray table "")
     (set-face-property tface 'display-table table)
     (set-face-property tface 'phox-sym-lock-remap 1) ; mark it
-    tface 
+    tface
     ;; return face value and not face name
     ;; the temporary face would be otherwise GCed
     ))
@@ -259,7 +259,7 @@ face's extent will become atomic."
 
 (defun phox-sym-lock-rec (fl)
   (let ((f (car fl)))
-    (if f 	      
+    (if f
 	(cons (apply 'phox-sym-lock-atom-face f)
 	      (phox-sym-lock-rec (cdr fl))))))
 
@@ -333,7 +333,7 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
 		   ["Phox-Sym-Lock"
 		    (if phox-sym-lock-enabled (phox-sym-lock-disable) (phox-sym-lock-enable))
 		    :style toggle :selected phox-sym-lock-enabled
-		    :active phox-sym-lock-keywords] "Automatic")  
+		    :active phox-sym-lock-keywords] "Automatic")
   (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled
 	   font-lock-defaults (boundp 'phox-sym-lock-keywords))
       (progn
@@ -345,8 +345,8 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
       (and
        (featurep 'font-lock)
        (if font-lock-auto-fontify
-           (not (memq major-mode font-lock-mode-disable-list))
-         (memq major-mode font-lock-mode-enable-list))
+	   (not (memq major-mode font-lock-mode-disable-list))
+	 (memq major-mode font-lock-mode-enable-list))
        (font-lock-set-defaults-1 explicit-defaults)
        (phox-sym-lock-patch-keywords))
     (turn-on-font-lock)))

@@ -8,9 +8,9 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Spans are our abstraction of extents/overlays.  Nowadays
-;; we implement them directly with overlays.  
+;; we implement them directly with overlays.
 ;;
 ;; In future this module should be used to implement the abstraction
 ;; for script buffers (only) more directly.
@@ -56,7 +56,7 @@ Optional argument FUN is used in place of `span-give-warning'."
   (unless fun (setq fun 'span-give-warning))
   (lexical-let ((fun fun))
     (let ((funs (list (lambda (span afterp beg end &rest args)
-                        (if (not afterp) (funcall fun beg end))))))
+			(if (not afterp) (funcall fun beg end))))))
       (span-set-property span 'modification-hooks funs)
       (span-set-property span 'insert-in-front-hooks funs))))
 
@@ -116,13 +116,13 @@ A span is before PT if it begins before the character before PT."
     ;; "Get the smallest".  I have no idea what that means, so I just do
     ;; something somewhat random but vaguely meaningful.  -Stef
     (car (last (sort ols 'span-lt)))))
-  
+
 (defun prev-span (span prop)
   "Return span before SPAN with property PROP."
   (span-at-before (span-start span) prop))
 
 ; overlays are [start, end)
- 
+
 (defun next-span (span prop)
   "Return span after SPAN with property PROP."
   ;; Presuming the span-extents.el is the reference, its code does the same
@@ -202,7 +202,7 @@ A span is before PT if it begins before the character before PT."
 
 ;;
 ;; Generic functions built on low-level concrete ones.
-;; 
+;;
 
 (defsubst span-delete-spans (start end prop)
   "Delete all spans between START and END with property PROP set."
@@ -211,7 +211,7 @@ A span is before PT if it begins before the character before PT."
 (defsubst span-property-safe (span name)
   "Like span-property, but return nil if SPAN is nil."
   (and span (span-property span name)))
-  
+
 (defsubst span-set-start (span value)
   "Set the start point of SPAN to VALUE."
   (span-set-endpoints span value (span-end span)))
