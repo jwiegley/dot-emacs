@@ -91,9 +91,9 @@
 
      
 
-;;;
-;;; Proling interesting packages
-;;;
+;;
+;; Proling interesting packages
+;;
 
 (defun profile-pg ()
   (interactive)
@@ -104,6 +104,24 @@
   (elp-instrument-package "coq")
   (elp-instrument-package "isar"))
 
+
+;;
+;; Make references to bugs clickable; [e.g., trac #1]
+;;
+
+(defun pg-bug-references ()
+  (interactive)
+  (bug-reference-mode 1)
+  (setq bug-reference-bug-regexp 
+	"\\(?:[Tt]rac ?#\\)\\([0-9]+\\)"
+	bug-reference-url-format 
+	"http://proofgeneral.inf.ed.ac.uk/trac/ticket/%s"))
+
+(add-hook 'emacs-lisp-mode-hook 'pg-bug-references)
+(add-hook 'isar-mode-hook 'pg-bug-references)
+(add-hook 'coq-mode-hook 'pg-bug-references)
+
+(add-hook 'emacs-lisp-mode-hook 'goto-address-mode)
 
 
 (provide 'pg-dev)
