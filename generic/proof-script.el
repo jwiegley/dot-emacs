@@ -149,34 +149,9 @@ Action is taken on all script buffers."
    (if (span-live-p proof-locked-span)
        (proof-span-read-only proof-locked-span))))
 
-
-(cond
- ((fboundp 'undo-make-selective-list)
-  (defsubst proof-set-queue-endpoints (start end)
-  "Set the queue span to be START, END. Discard undo for edits before END."
-  (unless (or (eq buffer-undo-list t)
-	      ;; FIXME: Stefan Monnier writes:
-	      ;; This feature simply doesn't work well:
-	      ;; - it discards undo info before knowing whether the command
-	      ;;   succeeds, so if it fails, the undo info corresponding to
-	      ;;   a still-writable region is lost.  Worse yet: this region
-	      ;;   is the region on which the user is actively working, so
-	      ;;   it's where undo is most important.
-	      ;; - even when it does what it's supposed to do, it's not what
-	      ;;   we want because the undo info is not recovered when we
-	      ;;   retract.
-	      ;; I.e. it's the wrong place to do it.  Better would be to rebind
-	      ;; C-x u and C-/ and C-_ to a command that only applies to the
-	      ;; writable part of the buffer.
-	      t ;; proof-allow-undo-in-read-only
-	      )
-    (setq buffer-undo-list
-	  (undo-make-selective-list end (point-max))))
-  (span-set-endpoints proof-queue-span start end)))
- (t
-  (defsubst proof-set-queue-endpoints (start end)
+(defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END."
-  (span-set-endpoints proof-queue-span start end))))
+  (span-set-endpoints proof-queue-span start end))
 
 (defun proof-set-overlay-arrow (pos)
   "Set the position of the overlay marker to POS."
@@ -1265,11 +1240,6 @@ Argument SPAN has just been processed."
 	  (proof-set-queue-start end))
 
       (cond
-       ;; CASE 0: span has died after above (shouldn't happen)
-       ((not (span-live-p span))
-	(proof-debug
-	 "proof-done-advancing: unexpected, killed span before processing it!"))
-
        ;; CASE 1: Comments just get highlighted
        ((eq (span-property span 'type) 'comment)
 	(proof-done-advancing-comment span))
@@ -1999,12 +1969,12 @@ Set the callback to CALLBACK-FN or `proof-done-advancing' by default."
 
 (defun proof-assert-until-point ()
   "Process the region from the end of the locked-region until point."
-  (if (not (proof-re-search-backward
-	    "\\S-"
-	    (proof-unprocessed-begin) t))
+  (if (proof-only-whitespace-to-locked-region-p)
       (error
 	 "At end of the locked region, nothing to do to!"))
   (let ((semis (save-excursion
+		 (skip-chars-backward " \t\n")
+		 (backward-char)
 		 (proof-segment-up-to-using-cache (point)))))
     (if (eq 'unclosed-comment (car semis))
 	(setq semis (cdr semis)))
