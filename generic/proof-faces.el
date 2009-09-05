@@ -7,7 +7,7 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Faces should work sensibly:
 ;;
 ;;   a) with default colours
@@ -29,7 +29,7 @@
   "Faces used by Proof General."
   :group 'proof-general
   :prefix "proof-")
-  
+
 ;; TODO: get rid of this list.  Does 'default work widely enough
 ;; by now?
 (defconst pg-defface-window-systems
@@ -161,7 +161,7 @@ Warning messages can come from proof assistant or from Proof General itself."
    (:italic t))
   "*Face for showing (backwards) dependent parts."
   :group 'proof-faces)
-  
+
 (defface proof-highlight-dependency-face
   (proof-face-specs
    (:background "khaki")

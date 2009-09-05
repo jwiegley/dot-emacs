@@ -7,7 +7,7 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; 2. It's a little bit tricky to add prover-specific items:
 ;; presently it must be done before this file is loaded.
 ;; We could improve on that by generating everything on-thy-fly
@@ -30,7 +30,7 @@
 
 ;;
 ;; Function, icon, button names
-;; 
+;;
 
 (defun proof-toolbar-function (token)
   (intern (concat "proof-toolbar-" (symbol-name token))))
@@ -43,7 +43,7 @@
 
 ;;
 ;; Now the toolbar icons and buttons
-;; 
+;;
 
 (defun proof-toolbar-make-icon (tle)
   "Make icon variable and icon list entry from a PA-toolbar-entries entry."
@@ -69,7 +69,7 @@
 		       (list :help tooltip)
 		       (if (fboundp enabler)
 			   (list :enable (list enabler)))
-		       (if visiblep 
+		       (if visiblep
 			   (list :visible visiblep)))))
       (if includep
 	  (apply 'tool-bar-local-item
@@ -222,18 +222,18 @@ to the default toolbar."
 (defalias 'proof-toolbar-command-enable-p 'proof-shell-available-p)
 
 ;; Help  (I was an alias for this)
- 
+
 (defun proof-toolbar-help ()
   (interactive)
   (info "ProofGeneral"))
 
 ;; Find
- 
+
 (defalias 'proof-toolbar-find 'proof-find-theorems)
 (defalias 'proof-toolbar-find-enable-p 'proof-shell-available-p)
 
 ;; Info
- 
+
 (defalias 'proof-toolbar-info 'proof-query-identifier)
 (defalias 'proof-toolbar-info-enable-p 'proof-shell-available-p)
 

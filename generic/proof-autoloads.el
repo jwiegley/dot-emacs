@@ -28,8 +28,8 @@ Stop keeping ring history for current buffer.
 Minor mode retaining an in-memory history of the buffer contents.
 
 Commands:\\<bufhist-minor-mode-map>
-\\[bufhist-prev]    bufhist-prev    go back in history  
-\\[bufhist-next]    bufhist-next    go forward in history  
+\\[bufhist-prev]    bufhist-prev    go back in history
+\\[bufhist-next]    bufhist-next    go forward in history
 \\[bufhist-first]   bufhist-first   go to first item in history
 \\[bufhist-last]    bufhist-last    go to last (current) item in history.
 \\[bufhist-clear]   bufhist-clear   clear history.
@@ -90,13 +90,13 @@ This mode is only useful with a font which can display the maths repertoire.
 ;;; Generated autoloads from pg-assoc.el
 
 (autoload 'proof-associated-buffers "pg-assoc" "\
-Return a list of the associated buffers.  
+Return a list of the associated buffers.
 Some may be dead/nil.
 
 \(fn)" nil nil)
 
 (autoload 'proof-associated-windows "pg-assoc" "\
-Return a list of the associated buffers windows.  
+Return a list of the associated buffers windows.
 Dead or nil buffers are not represented in the list.
 
 \(fn)" nil nil)
@@ -384,7 +384,7 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit.
 Turn on or off maths-menu mode in Proof General script buffer.
 This invokes `maths-menu-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
-Also we arrange to have maths menu mode turn itself on automatically 
+Also we arrange to have maths menu mode turn itself on automatically
 in future if we have just activated it for this buffer.
 
 \(fn)" t nil)

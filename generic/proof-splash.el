@@ -1,6 +1,6 @@
 ;; proof-splash.el -- Splash welcome screen for Proof General
 ;;
-;; Copyright (C) 1998-2005 LFCS Edinburgh. 
+;; Copyright (C) 1998-2005 LFCS Edinburgh.
 ;; Author:    David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -11,7 +11,7 @@
 (require 'proof-site)
 
 ;;
-;; Customization of splash screen 
+;; Customization of splash screen
 ;;
 
 (defcustom proof-splash-enable t
@@ -22,7 +22,7 @@
 (defcustom proof-splash-time 3
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a wee while longer than
-this, depending on how long it takes the machine to initialise 
+this, depending on how long it takes the machine to initialise
 Proof General."
   :type 'number
   :group 'proof-general-internals)
@@ -62,12 +62,12 @@ Proof General."
     )
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
-specifier, it is displayed centred on the window on its own line.  
+specifier, it is displayed centred on the window on its own line.
 If it is nil, a new line is inserted."
   :type 'sexp
   :group 'proof-general-internals)
 
-(defconst proof-splash-startup-msg 
+(defconst proof-splash-startup-msg
   '(if (featurep 'proof-config) nil
      ;; Display additional hint if we guess we're being loaded
      ;; by shell script rather than find-file.
@@ -118,7 +118,7 @@ DEFAULT gives return value in case image not valid."
 Borrowed from startup-center-spaces."
   (let* ((avg-pixwidth     (round (/ (frame-pixel-width) (frame-width))))
 	 (fill-area-width  (* avg-pixwidth (- fill-column left-margin)))
-	 (glyph-pixwidth   (cond ((stringp glyph) 
+	 (glyph-pixwidth   (cond ((stringp glyph)
 				  (* avg-pixwidth (length glyph)))
 				 ((proof-emacs-imagep glyph)
 				  (car (image-size glyph 'inpixels)))
@@ -132,7 +132,7 @@ Borrowed from startup-center-spaces."
   "Remove splash screen and restore window config."
   (let ((splashbuf (get-buffer proof-splash-welcome)))
     (proof-splash-unset-frame-titles)
-    (if (and 
+    (if (and
 	 splashbuf
 	 proof-splash-timeout-conf)
 	(progn
@@ -165,7 +165,7 @@ Borrowed from startup-center-spaces."
 	   (let ((spec (car splash-contents)))
 	     (if (functionp spec)
 		 (setq spec (funcall spec)))
-	     (indent-to (proof-splash-centre-spaces 
+	     (indent-to (proof-splash-centre-spaces
 			 (concat (car spec) (cadr spec))))
 	     (insert (car spec))
 	     (insert-button (cadr spec)
@@ -234,7 +234,7 @@ If TIMEOUT is non-nil, arrange for a time-out to occur outside this function."
 			   (concat proof-assistant " "))
 		       "Proof General")))
     (setq proof-splash-old-frame-title-format frame-title-format)
-    (setq frame-title-format 
+    (setq frame-title-format
 	  (concat instance-name ":   %b"))))
 
 (defun proof-splash-unset-frame-titles ()

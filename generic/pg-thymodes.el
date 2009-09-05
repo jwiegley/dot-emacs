@@ -7,7 +7,7 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Functions for defining "theory" modes, i.e.  modes for
 ;; non-interactive proof assistant files which do not contain proof
 ;; scripts.
@@ -71,7 +71,7 @@ All of these settings are optional."
 (defmacro pg-do-unless-null (val &rest body)
   `(if ,val
        (progn ,@body)))
-    
+
 
 (defun pg-symval (sym &optional other)
   "Return (symbol-value SYM) or nil/OTHER if SYM unbound."
@@ -89,9 +89,9 @@ All of these settings are optional."
     (if (boundp modesym)
 	(symbol-value modesym)
       other)))
-  
 
-  
+
+
 
 (provide 'pg-thymodes)
 ;;; pg-thymodes.el ends here

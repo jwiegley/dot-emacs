@@ -58,7 +58,7 @@ May enable proof-by-pointing or similar features.
 (define-key proof-goals-mode-map [q] 'bury-buffer)
 ;; TODO: use standard Emacs button behaviour here (cf Info mode)
 (define-key proof-goals-mode-map [mouse-1] 'pg-goals-button-action)
-(define-key proof-goals-mode-map [C-mouse-3] 
+(define-key proof-goals-mode-map [C-mouse-3]
   'proof-undo-and-delete-last-successful-command)
 
 
@@ -81,14 +81,14 @@ Converts term substructure markup into mouse-highlighted extents."
   (save-excursion
     ;; Response buffer may be out of date. It may contain (error)
     ;; messages relating to earlier proof states
-    
+
     ;; NB: this isn't always the case.  In Isabelle
     ;; we get <WARNING MESSAGE> <CURRENT GOALS> output,
     ;; or <WARNING MESSAGE> <ORDINARY MESSAGE>.  Both times
     ;; <WARNING MESSAGE> would be relevant.
     ;; We should only clear the output that was displayed from
     ;; the *previous* prompt.
-    
+
     ;; Erase the response buffer if need be, maybe removing the
     ;; window.  Indicate it should be erased before the next output.
     (pg-response-maybe-erase t t)
@@ -105,7 +105,7 @@ Converts term substructure markup into mouse-highlighted extents."
       (insert string)
       (setq buffer-read-only t)
       (set-buffer-modified-p nil)
-      
+
       ;; Keep point at the start of the buffer.
       (proof-display-and-keep-buffer
        proof-goals-buffer (point-min)))))
@@ -125,14 +125,14 @@ Converts term substructure markup into mouse-highlighted extents."
     (cond
      (sendback
       (with-current-buffer buf
-	(let* ((cmdstart (previous-single-property-change pos 'sendback 
+	(let* ((cmdstart (previous-single-property-change pos 'sendback
 							  nil (point-min)))
-	       (cmdend   (next-single-property-change pos 'sendback 
+	       (cmdend   (next-single-property-change pos 'sendback
 						      nil (point-max)))
 	       (cmd      (buffer-substring-no-properties cmdstart cmdend)))
 	  (proof-insert-sendback-command cmd)))))))
 
-	
+
 
 
 

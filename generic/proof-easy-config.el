@@ -36,13 +36,13 @@
 	   ;; FIXME: in future versions, use these settings in *-config-done
 	   ;;        to simplify elisp code elsewhere.
 	   ;; FIXME: add imenu-generic-expression too
-	   ;; 
+	   ;;
 	   (modsyn    (intern (concat "proof-" suffixnm "-syntax-table-entries")))
 	   (fullbody  (append
 		       (if (and (boundp modsyn) (eval modsyn))
 			   (list `(let ((syn ,modsyn))
 				    (while syn
-				      (modify-syntax-entry 
+				      (modify-syntax-entry
 				       (car syn) (cadr syn))
 				      (setq syn (cddr syn))))))
 		       body)))
@@ -62,17 +62,17 @@
       (error "Macro proof-easy-config: second argument (%s) should be a string"
 	     name))
     (cond
-     ((or 
-       (and (boundp 'proof-assistant) proof-assistant 
+     ((or
+       (and (boundp 'proof-assistant) proof-assistant
 	    (not (equal proof-assistant ""))
 	    (not (equal proof-assistant name))
-	    (setq msg (format "\nproof-assistant name: \"%s\" doesn't match expected \"%s\"" 
+	    (setq msg (format "\nproof-assistant name: \"%s\" doesn't match expected \"%s\""
 			      proof-assistant name)))
        (and (boundp 'proof-assistant-symbol) proof-assistant-symbol
 	    (not (eq proof-assistant-symbol sym))
-	    (setq msg (format "\nproof-assistant symbol: '%s doesn't match expected '%s" 
+	    (setq msg (format "\nproof-assistant symbol: '%s doesn't match expected '%s"
 			      proof-assistant-symbol sym))))
-      (error "proof-easy-config: PG already in use or name/symbol mismatch %s" 
+      (error "proof-easy-config: PG already in use or name/symbol mismatch %s"
 	     msg))
      (t
       ;; Setting these here is nice for testing: no need to get
@@ -90,7 +90,6 @@ the `proof-assistant-table', which see."
      (setq
       ,@body)
      (proof-easy-config-define-derived-modes)))
-  
-;; 
-(provide 'proof-easy-config)
 
+;;
+(provide 'proof-easy-config)

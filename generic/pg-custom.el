@@ -7,7 +7,7 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Prover specific settings and user options.
 ;;
 ;; The settings defined here automatically use the current proof
@@ -16,7 +16,7 @@
 ;;
 ;; This file is loaded only by mode stubs defined in `proof-site.el',
 ;; immediately after `proof-assistant' and similar settings have been
-;; configured.  
+;; configured.
 ;;
 ;; WARNING: loading this file without these variables being set will
 ;; give errors, because defpgcustom calls are expanded to top-level
@@ -150,7 +150,7 @@ of `easy-menu-define' for more details."
 (defpgcustom keymap (make-keymap (concat proof-assistant " keymap"))
   "Proof assistant specific keymap, used under prefix C-c a."
   :type 'sexp
-  :group 'prover-config) 
+  :group 'prover-config)
 
 (defpgcustom completion-table nil
   "List of identifiers to use for completion for this proof assistant.
@@ -178,7 +178,7 @@ Enabled by default for Coq.
 Currently this setting is UNIMPLEMENTED, changes have no effect."
   :type 'boolean
   :group 'prover-config)
-  
+
 
 
 

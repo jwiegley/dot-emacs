@@ -1,16 +1,16 @@
 ;; proof-depends.el  Theorem-theorem and theorem-definition dependencies.
 ;;
-;; Copyright (C) 2000-2004 University of Edinburgh. 
+;; Copyright (C) 2000-2004 University of Edinburgh.
 ;; Authors:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;;	         Earlier version by Fiona McNeil.
 ;; License:      GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Status:       Experimental code
 ;;
 ;; $Id$
-;; 
+;;
 ;; Based on Fiona McNeill's MSc project on analysing dependencies
 ;; within proofs.  Code rewritten by David Aspinall.
-;; 
+;;
 
 (require 'cl)
 (require 'span)
@@ -42,14 +42,14 @@ For example, in isabelle, a file Stuff.ML contains theorems with
 fully qualified names of the form Stuff.theorem1, etc.
 For other provers, this function may need modifying."
   (if buffer-file-name
-      (file-name-nondirectory 
+      (file-name-nondirectory
        (file-name-sans-extension buffer-file-name)) ""))
 
 (defun proof-depends-module-of (name)
   "Return a pair of a module name and base name for a given item name.
 Assumes module name is given by dotted prefix."
   (let ((dot (string-match "\\." name)))
-    (if dot 
+    (if dot
 	(cons (substring name 0 dot) (substring name (+ dot 1)))
       (cons "" name))))
 
@@ -66,12 +66,12 @@ This is done using `proof-depends-module-name-for-buffer' and
       (setq names (cdr names)))
     ;; NB: reversed order
     samefile))
-	       
+
 
 ;;
 ;; proof-depends-process-dependencies: the main entry point.
 ;;
-;;;###autoload    
+;;;###autoload
 (defun proof-depends-process-dependencies (name gspan)
   "Process dependencies reported by prover, for NAME in span GSPAN.
 Called from `proof-done-advancing' when a save is processed and
@@ -91,15 +91,15 @@ Called from `proof-done-advancing' when a save is processed and
 	 ;; Find goalsave spans earlier in this file which this
 	 ;; one depends on; update their list of dependents,
 	 ;; and return resulting list paired up with names.
-	 (depspans    
+	 (depspans
 	  (apply 'append
-		 (span-mapcar-spans 
+		 (span-mapcar-spans
 		  (lambda (depspan)
 		    (let ((dname (span-property depspan 'name)))
 		      (if (and
 			   (eq (span-property depspan 'type) 'goalsave)
 			   (member dname samefilenames))
-			  (let ((forwarddeps 
+			  (let ((forwarddeps
 				 (span-property depspan 'dependents)))
 			    (span-set-property depspan 'dependents
 					       (cons
@@ -109,7 +109,7 @@ Called from `proof-done-advancing' when a save is processed and
 		  (point-min)
 		  (span-start gspan)
 		  'type))))
-    
+
     (span-set-property gspan 'dependencies-within-file depspans)
     (setq proof-last-theorem-dependencies nil)))
 
@@ -124,9 +124,9 @@ Called from `proof-done-advancing' when a save is processed and
 ;; which the dependency information is used.
 
 
-;;;###autoload    
+;;;###autoload
 (defun proof-dependency-in-span-context-menu (span)
-  "Make a portion of a context-sensitive menu showing proof dependencies." 
+  "Make a portion of a context-sensitive menu showing proof dependencies."
   ;; FIXME: might only activate this for dependency-relevant spans.
   (list
    "-------------"
@@ -151,7 +151,7 @@ Called from `proof-done-advancing' when a save is processed and
 (defun proof-dep-alldeps-menu (span)
   (or (span-property span 'dependencies-menu) ;; cached value
       (span-set-property span 'dependencies-menu
-			 (proof-dep-make-alldeps-menu 
+			 (proof-dep-make-alldeps-menu
 			  (span-property span 'dependencies)))))
 
 (defun proof-dep-make-alldeps-menu (deps)
@@ -161,7 +161,7 @@ Called from `proof-done-advancing' when a save is processed and
 	(let ((nestedtop   (proof-dep-split-deps deps)))
 	  (cons menuname
 		(append
-		 (mapcar (lambda (l) 
+		 (mapcar (lambda (l)
 			   (vector l (list showdep l) t))
 			 (cdr nestedtop))
 		 (mapcar (lambda (sm)
@@ -177,8 +177,8 @@ Called from `proof-done-advancing' when a save is processed and
   ;; NB: could handle deeper nesting here, but just do one level for now.
   (let (nested toplevel)
     ;; Add each name into a nested list or toplevel list
-    (mapcar 
-     (lambda (name) 
+    (mapcar
+     (lambda (name)
 	      (let* ((period   (string-match "\\." name))
 		     (ns       (and period (substring name 0 period)))
 		     (subitems (and ns (assoc ns nested))))
@@ -186,7 +186,7 @@ Called from `proof-done-advancing' when a save is processed and
 		 ((and ns subitems)
 		  (setcdr subitems (adjoin name (cdr subitems))))
 		 (ns
-		  (setq nested 
+		  (setq nested
 			(cons (cons ns (list name)) nested)))
 		 (t
 		  (setq toplevel (adjoin name  toplevel))))))
@@ -197,9 +197,9 @@ Called from `proof-done-advancing' when a save is processed and
   "Make menu items for a submenu NAME, using appfn applied to each elt in LIST.
 If LIST is empty, return a disabled menu item with NAME."
   (if list
-      (cons name 
-	    (mapcar `(lambda (l) 
-		       (vector (,namefn l) 
+      (cons name
+	    (mapcar `(lambda (l)
+		       (vector (,namefn l)
 			       (cons (quote ,appfn) l) t)) list))
     (vector name nil nil)))
 
@@ -210,7 +210,7 @@ If LIST is empty, return a disabled menu item with NAME."
 
 
 ;;
-;; Functions triggered by menus 
+;; Functions triggered by menus
 ;;
 
 (defun proof-goto-dependency (name span)
@@ -223,7 +223,7 @@ If LIST is empty, return a disabled menu item with NAME."
   "Show dependency THM using `proof-show-dependency-cmd'.
 This is simply to display the dependency somehow."
   (if proof-shell-show-dependency-cmd ;; robustness
-      (proof-shell-invisible-command 
+      (proof-shell-invisible-command
        (format proof-shell-show-dependency-cmd thm))))
 
 (defconst pg-dep-span-priority 500)

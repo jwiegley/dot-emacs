@@ -1,7 +1,7 @@
 ;; proof-syntax.el	Functions for dealing with syntax
 ;;
-;; Copyright (C) 1997-2001 LFCS Edinburgh. 
-;; Authors:   David Aspinall, Healfdene Goguen, 
+;; Copyright (C) 1997-2001 LFCS Edinburgh.
+;; Authors:   David Aspinall, Healfdene Goguen,
 ;;	      Thomas Kleymann, Dilip Sequiera
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -111,7 +111,7 @@ nil if a region cannot be found."
   "Default function for `proof-looking-at-syntactic-context'."
   (or
    (proof-buffer-syntactic-context)
-   (save-match-data 
+   (save-match-data
      (when (proof-looking-at-safe proof-script-comment-start-regexp) 'comment))
    (save-match-data
      (when (proof-looking-at-safe proof-string-start-regexp) 'string))))
@@ -278,7 +278,7 @@ Any other %-prefixed character inserts itself."
   "Splice SEP into list of STRINGS, ignoring nil entries."
   (let (stringsep)
     (while strings
-      (when (car strings) ; suppress nils 
+      (when (car strings) ; suppress nils
 	(setq stringsep (concat stringsep (car strings)))
 	(if (and (cdr strings) (cadr strings))
 	    (setq stringsep

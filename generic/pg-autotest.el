@@ -12,13 +12,13 @@
 ;; -- add more precise functional tests to check results
 ;; -- add negative tests
 ;; -- output test results to stdout
-;; 
+;;
 ;; $Id$
 
 (require 'proof)
 
 ;;; Commentary:
-;; 
+;;
 
 ;;; Code:
 (defvar pg-autotest-success t)		;; success unless error caught
@@ -112,9 +112,8 @@ An error is signalled if scripting doesn't complete."
 (defun pg-autotest-finished ()
   "Exit Emacs returning Unix success 0 if all tests succeeded."
   (kill-emacs (if pg-autotest-success 0 1)))
-    
-    
+
+
 
 (provide 'pg-autotest)
 ;;; pg-autotest.el ends here
-

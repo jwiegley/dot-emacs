@@ -7,11 +7,11 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; This file declares all prover-specific configuration variables for
 ;; Proof General.  The variables are used variously by the proof
 ;; script mode and the proof shell mode, menus, and toolbar.
-;; 
+;;
 ;; To customize Proof General for a new proof assistant, you
 ;; should read this file carefully!
 ;;
@@ -54,10 +54,10 @@
 ;;    (b) add a magical comment in ProofGeneral.texi/PG-Adapting.texi
 ;;
 ;; ii.  Presently the customize library seems a bit picky over the
-;;  	:type property and some correct but complex types don't work:
-;;  	If the type is ill-formed, editing the whole group will be
-;;  	broken.  Check after updates, by killing all customize buffers
-;;  	and invoking customize-group
+;;	:type property and some correct but complex types don't work:
+;;	If the type is ill-formed, editing the whole group will be
+;;	broken.  Check after updates, by killing all customize buffers
+;;	and invoking customize-group
 ;;
 ;;
 ;; See also:
@@ -85,16 +85,14 @@
 ;; customize group are those which are intended to be set by the
 ;; prover specific elisp, i.e. constants set on a per-prover basis.
 
-;; Putting these in a customize group is useful for documenting
-;; this type of variable, and for developing a new instantiation
-;; of Proof General.
-
-;; But it is *not* useful for final user-level customization!  The
-;; reason is that saving these customizations across a session is not
-;; liable to work, because the prover specific elisp usually overrides
-;; with a series of setq's in <assistant>-mode-config type functions.
-;; This is why prover-config appears under the proof-general-internal
-;; group.
+;; Putting these in a customize group is useful for documenting this
+;; type of variable, and for developing a new instantiation of Proof
+;; General.  But it is *not* useful for final user-level
+;; customization!  The reason is that saving these customizations
+;; across a session is not liable to work, because the prover specific
+;; elisp usually overrides with a series of setq's in
+;; <assistant>-mode-config type functions.  This is why prover-config
+;; appears under the proof-general-internal group.
 
 (defcustom proof-guess-command-line nil
   "Function to guess command line for proof assistant, given a filename.
@@ -394,7 +392,7 @@ NB: This setting is not used for matching output from the prover."
 
 (defcustom proof-save-with-hole-regexp nil
   "Regexp which matches a command to save a named theorem.
-The name of the theorem is build from the variable
+The name of the theorem is build from the variable
 `proof-save-with-hole-result' using the same convention as
 `query-replace-regexp'.
 Used for setting names of goal..save and proof regions and for
@@ -582,7 +580,7 @@ may be lost in the prover.  So we allow Proof General to close
 off the goal..[save] region in more flexible ways.
 The possibilities are:
 
-        nil  -  nothing special; close only when a save arrives
+	nil  -  nothing special; close only when a save arrives
   'closeany  -  close as soon as the next command arrives, save or not
  'closegoal  -  close when the next \"goal\" command arrives
     'extend  -  keep extending the closed region until a save or goal.
@@ -805,7 +803,7 @@ See also `proof-goals-font-lock-keywords' and `proof-response-font-lock-keywords
 (defcustom proof-script-syntax-table-entries nil
   "List of syntax table entries for proof script mode.
 A flat list of the form
- 
+
   (CHAR SYNCODE CHAR SYNCODE ...)
 
 See doc of `modify-syntax-entry' for details of characters
@@ -826,7 +824,7 @@ This should be a function which accepts three arguments: SPAN IDIOM NAME.
 See pg-user.el: pg-create-in-span-context-menu for more hints."
   :type 'function
   :group 'proof-script)
-  
+
 
 
 
@@ -852,7 +850,7 @@ See pg-user.el: pg-create-in-span-context-menu for more hints."
   :prefix "proof-shell-")
 
 
-;; 
+;;
 ;; 5a. commands
 ;;
 
@@ -1295,7 +1293,7 @@ The default value is \"\\n\" to match up to the end of the line."
 (defcustom proof-shell-strip-output-markup 'identity
   "A function which strips markup from the process output.
 This should remove any markup which is made invisible by font-lock
-when displayed in the output buffer.  This is used in 
+when displayed in the output buffer.  This is used in
 `pg-insert-last-output-as-comment' to insert output into the
 proof script, and for cut and paste operations."
   :type 'function
@@ -1331,7 +1329,7 @@ name is added to the front of `proof-included-files-list'."
 
 ;; FIXME da: why not amalgamate the next two into a single
 ;;	     variable as above?  Maybe because removing one
-;;	     
+;;
 
 (defcustom proof-shell-retract-files-regexp nil
   "Matches a message that the prover has retracted a file.
@@ -1565,13 +1563,13 @@ This setting is used inside the function `proof-format-filename'."
   ;; a good chance to guess if shell-command-to-string and uname
   ;; available.
   (not (and
-        ;; We should be using `system-type' here, instead.
+	;; We should be using `system-type' here, instead.
        (not (fboundp 'win32-long-file-name))
-        (fboundp 'shell-command-to-string)
-        (condition-case nil
-            ;; Which versions of Solaris are affected?  --Stef
-            (string-match "[sS]un" (shell-command-to-string "uname"))
-          (error nil))))
+	(fboundp 'shell-command-to-string)
+	(condition-case nil
+	    ;; Which versions of Solaris are affected?  --Stef
+	    (string-match "[sS]un" (shell-command-to-string "uname"))
+	  (error nil))))
   "The value of `process-connection-type' for the proof shell.
 Set non-nil for ptys, nil for pipes.
 The default (and preferred) option is to use pty communication.
@@ -1594,7 +1592,7 @@ If the prover can be set to output only one prompt for every chunk of
 input, then newlines can be retained in the input."
   :type 'boolean
   :group 'proof-shell)
-  
+
 (defcustom proof-shell-strip-crs-from-output (eq system-type 'cygwin32)
   ;; Cygwin32 probs with Isabelle noted by Norbert Voelker
   "If non-nil, remove carriage returns (^M) at the end of lines from output.
@@ -1705,7 +1703,7 @@ This hook is used within Proof General to refresh the toolbar."
 (defcustom proof-shell-syntax-table-entries nil
   "List of syntax table entries for proof script mode.
 A flat list of the form
- 
+
   (CHAR SYNCODE CHAR SYNCODE ...)
 
 See doc of `modify-syntax-entry' for details of characters
@@ -1785,7 +1783,7 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
   "Opening special character for subterm markup.
 Subsequent special characters with values *below*
 `pg-subterm-first-special-char' are assumed to be subterm position
-indicators.  Annotations should be finished with `pg-subterm-sep-char'; 
+indicators.  Annotations should be finished with `pg-subterm-sep-char';
 the end of the concrete syntax is indicated by `pg-subterm-end-char'.
 
 If `pg-subterm-start-char' is nil, subterm markup is disabled.

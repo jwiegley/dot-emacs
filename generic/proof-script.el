@@ -273,7 +273,7 @@ Also clear list of script portions."
   (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
    (and (span-live-p proof-locked-span)
     (if proof-colour-locked
-  	   (span-set-property proof-locked-span 'face 'proof-locked-face)
+	   (span-set-property proof-locked-span 'face 'proof-locked-face)
       (span-set-property  proof-locked-span 'face nil)))))
 
 ;; ** Restarting and clearing spans
@@ -746,7 +746,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 ;; complicated for retracting, because we allow a hook function
 ;; to calculate the new included files list.
 
-(defun proof-register-possibly-new-processed-file 
+(defun proof-register-possibly-new-processed-file
   (file &optional informprover noquestions)
   "Register a possibly new FILE as having been processed by the prover.
 
@@ -1178,7 +1178,7 @@ activation is considered to have failed and an error is given."
 	    (set-buffer-modified-p nil)
 	    (unwind-protect
 		(save-some-buffers)
- 	      (set-buffer-modified-p modified))))
+	      (set-buffer-modified-p modified))))
 
       ;; Run hooks with a variable which suggests whether or not
       ;; to block.   NB: The hook function may send commands to the
@@ -2105,12 +2105,12 @@ others)."
 	  (proof-set-queue-end start))
 	;; Try to clean input history (NB: rely on order here)
 ;; PG 3.7 release: disable this, it's not yet robust.
-;; 	(let ((cmds (spans-at-region-prop start end 'cmd))
-;; 	      (fn   (lambda (span)
-;; 		      (unless (eq (span-property span 'type) 'comment)
-;; 			(pg-remove-from-input-history
-;; 			 (span-property span 'cmd))))))
-;; 	  (mapc fn (reverse cmds)))
+;;	(let ((cmds (spans-at-region-prop start end 'cmd))
+;;	      (fn   (lambda (span)
+;;		      (unless (eq (span-property span 'type) 'comment)
+;;			(pg-remove-from-input-history
+;;			 (span-property span 'cmd))))))
+;;	  (mapc fn (reverse cmds)))
 
 	(proof-script-delete-spans start end)
 	(span-delete span)

@@ -7,7 +7,7 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Global variables used in several files.
 ;;
 ;;
@@ -21,19 +21,19 @@
 
 (defvar proof-assistant-cusgrp nil
   "Symbol for the customization group of the user options for the proof assistant.
-Do not change this variable! It is set automatically by the mode 
-stub defined in proof-site, from the name given in 
+Do not change this variable! It is set automatically by the mode
+stub defined in proof-site, from the name given in
 proof-assistant-table.")
 
 (defvar proof-assistant-internals-cusgrp nil
   "Symbol for the customization group of the PG internal settings proof assistant.
-Do not change this variable! It is set automatically by the mode 
+Do not change this variable! It is set automatically by the mode
 stub defined in proof-site, from the name given in
 proof-assistant-table.")
 
 (defvar proof-assistant ""
   "Name of the proof assistant Proof General is using.
-Do not change this variable! It is set automatically by the mode 
+Do not change this variable! It is set automatically by the mode
 stub defined in proof-site, from names given in proof-assistant-table.")
 
 (defvar proof-assistant-symbol nil
@@ -45,28 +45,28 @@ Non-nil indicates PG has been initialised for an assistant.
 If this is nil, the hook functions in `proof-ready-for-assistant-hook'
 are yet to be run.
 
-Do not change this variable! It is set automatically by the mode 
-stub defined in proof-site, from the symbols given in 
+Do not change this variable! It is set automatically by the mode
+stub defined in proof-site, from the symbols given in
 `proof-assistant-table'.")
 
 (defvar proof-mode-for-shell nil
-  "Mode function for proof shell buffers. 
-Do not change this variable! It is set automatically by the mode 
+  "Mode function for proof shell buffers.
+Do not change this variable! It is set automatically by the mode
 stub defined in proof-site to <PA>-shell-mode.")
 
 (defvar proof-mode-for-response nil
   "Mode function for proof response buffer (and trace buffer, if used).
-Do not change this variable! It is set automatically by the mode 
+Do not change this variable! It is set automatically by the mode
 stub defined in proof-site to <PA>-response-mode.")
 
 (defvar proof-mode-for-goals nil
   "Mode for proof state display buffers.
-Do not change this variable! It is set automatically by the mode 
+Do not change this variable! It is set automatically by the mode
 stub defined in proof-site to <PA>-goals-mode.")
 
 (defvar proof-mode-for-script nil
   "Mode for proof script buffers.
-Do not change this variable! It is set automatically by the mode 
+Do not change this variable! It is set automatically by the mode
 stub defined in proof-site to <PA>-mode.")
 
 (defvar proof-ready-for-assistant-hook nil
@@ -76,7 +76,7 @@ has been set.")
 
 
 ;;;
-;;; Later variables 
+;;; Later variables
 ;;; (could be separated to cut down Emacs env pollution)
 ;;;
 
@@ -162,7 +162,7 @@ of the proof (starting from 1).")
 
 ;;
 ;; Internal variables
-;; -- usually local to a couple of modules but here to avoid 
+;; -- usually local to a couple of modules but here to avoid
 ;; compile warnings
 ;;
 
@@ -173,7 +173,7 @@ This is raw string, for internal use only.")
 (defvar proof-assistant-settings nil
  "A list of default values kept in Proof General for current proof assistant.
 A list of lists (SYMBOL SETTING TYPE DESCR) where SETTING is a string value
-to send to the proof assistant using the value of SYMBOL and 
+to send to the proof assistant using the value of SYMBOL and
 and the function `proof-assistant-format'.  The TYPE item determines
 the form of the menu entry for the setting and the DESCR description
 string is used as a help tooltip in the settings menu.")
@@ -234,7 +234,7 @@ where `k' is a key binding (vector) and `f' the designated function."
   :type 'sexp
   :group 'proof-general-internals)
 
- 
+
 
 (provide 'pg-vars)
 ;; pg-vars.el ends here

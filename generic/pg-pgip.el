@@ -21,14 +21,14 @@
 ;; -- parsescript input/outputs
 ;; -- guiconfig, some parts of
 ;; -- support fully native PGIP mode
-;; 
+;;
 
 
 ;;; Commentary:
-;; 
+;;
 
 (require 'cl)				; incf
-(require 'pg-xml)
+(require 'pg-xml)			;
 (require 'proof-config)			;; config variables
 
 ;;; Code:
@@ -107,13 +107,13 @@ Return a symbol representing the PGIP command processed, or nil."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Message processing: fromprovermsg/kitconfig
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun pg-pgip-process-askpgip (node)
-  (pg-pgip-debug "Received <askpgip> message with version `%s'" 
+  (pg-pgip-debug "Received <askpgip> message with version `%s'"
 		 (pg-xml-get-attr 'version node 'notreallyoptional))
   ;; TODO: send a uses PGIP message back?
   )
@@ -193,7 +193,7 @@ Return a symbol representing the PGIP command processed, or nil."
 (defun pg-pgip-process-prefval (node)
 ;;
 ;; <prefval name="n">value</prefval>
-;; 
+;;
 ;; Proof assistant advises that preference n has been updated.
 ;;
 ;; Protocol is that <setpref> sent on a PGIP channel is assumed to
@@ -282,7 +282,7 @@ Return a symbol representing the PGIP command processed, or nil."
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Message processing: fromprovermsg/proveroutput
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -325,7 +325,7 @@ Return a symbol representing the PGIP command processed, or nil."
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Message processing: fromprovermsg/fileinfomsg
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -335,7 +335,7 @@ Return a symbol representing the PGIP command processed, or nil."
 	 (url	    (pg-pgip-get-url node))
 	 (filename  (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
     (proof-register-possibly-new-processed-file filename)))
-    
+
 (defun pg-pgip-process-informfileretracted (node)
   (let* ((thyname    (pg-pgip-get-thyname node))
 	 (url	    (pg-pgip-get-url node))
@@ -344,7 +344,7 @@ Return a symbol representing the PGIP command processed, or nil."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Message processing: todisplaymsg/brokermsg
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -362,7 +362,7 @@ Return a symbol representing the PGIP command processed, or nil."
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Message processing: todisplaymsg/dispmsg/dispfilemsg
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -384,7 +384,7 @@ Also sets local proverid and srcid variables for buffer."
 	(make-local-variable 'proverid)
 	(setq proverid proverid))
       (set pg-pgip-srcids (acons srcid (list buffer file) pg-pgip-srcids)))))
-      
+
 
 ;; FIXME: right action?
 (defun pg-pgip-process-filestatus (node)
@@ -402,7 +402,7 @@ Also sets local proverid and srcid variables for buffer."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Message processing: todisplaymsg/dispmsg/dispobjmsg
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -418,7 +418,7 @@ Also sets local proverid and srcid variables for buffer."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Message processing: parsescript [incomplete]
 ;;
 ;; NB: pgip.rnc v 2.18 only has parsescript sent to prover,
@@ -426,7 +426,7 @@ Also sets local proverid and srcid variables for buffer."
 ;;
 ;; Provide parsing functionality for other interfaces (sacrilege!)
 ;;
-  
+
 (defun pg-pgip-process-parsescript (node)
   ;; Text ought to be cdata or something. We'll stick it into a buffer
   ;; and run the proof-script code on it.
@@ -441,7 +441,7 @@ Also sets local proverid and srcid variables for buffer."
 	;; FIXME: todo: make parseresult element according to types,
 	;; properscriptcmd = properproofcmd | properfilecmd | bindid
 	))))
-	
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -455,7 +455,7 @@ Also sets local proverid and srcid variables for buffer."
   (let ((tyname (and node (xml-node-name node))))
     (cond
      ((eq tyname 'pgipbool)	'boolean)
-     ((eq tyname 'pgipint) 	'integer) ;; TODO: implement range limits
+     ((eq tyname 'pgipint)	'integer) ;; TODO: implement range limits
      ((eq tyname 'pgipstring)	'string)
      ((eq tyname 'pgipconst)
       (let ((name	(pg-pgip-get-name node 'optional))
@@ -512,7 +512,7 @@ Also sets local proverid and srcid variables for buffer."
     (pg-pgip-interpret-choice (cdr type) value))
    (t
     (pg-pgip-error "pg-pgip-interpret-value: unkown type %s" type))))
-    
+
 (defun pg-pgip-interpret-choice (choices value)
   ;; Untagged union types: test for value in each type in turn.
   (let (res)
@@ -579,7 +579,7 @@ See `pg-pgip-assemble-packet' "
 REFSEQ and REFID are used for the corresponding attributes, if present.
 By default, the class of the message is \"pa\" (destined for prover).
 OTHERCLASS overrides this."
-  (let* ((tag 	        (pg-xml-attr tag
+  (let* ((tag	        (pg-xml-attr tag
 				     (concat "EmacsPG/"
 					     proof-general-short-version
 					     "/" proof-assistant)))

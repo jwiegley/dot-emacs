@@ -7,9 +7,9 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Loading note: this file is required immediately from proof.el, so
-;; no autoloads cookies are added here. 
+;; no autoloads cookies are added here.
 ;;
 ;; Compilation note: see etc/development-tips.txt
 ;;
@@ -24,12 +24,12 @@
 ;; This file is loaded early, and may be first compiled file
 ;; loaded if proof-site.el is loaded instead of proof-site.elc.
 ;;
-(eval-and-compile 
+(eval-and-compile
   (defun pg-emacs-version-cookie ()
     (format "GNU Emacs %d.%d"
 	    emacs-major-version emacs-minor-version))
-  
-  (defconst pg-compiled-for 
+
+  (defconst pg-compiled-for
     (eval-when-compile (pg-emacs-version-cookie))
     "Version of Emacs we're compiled for (or running on, if interpreted)."))
 
@@ -39,17 +39,17 @@
     (error "Proof General is not compatible with Emacs %s" emacs-version))
 
 (unless (equal pg-compiled-for (pg-emacs-version-cookie))
-  (error 
+  (error
    "Proof General was compiled for %s but running on %s: please run \"make clean; make\""
    pg-compiled-for (pg-emacs-version-cookie)))
 
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(require 'proof-compat)		        ; 
+(require 'proof-compat)		        ;
 (require 'proof-config)			; config vars
-(require 'bufhist)			; bufhist 
+(require 'bufhist)			; bufhist
 (require 'proof-syntax)			; syntax utils
 (require 'proof-autoloads)		; interface fns
 
@@ -88,7 +88,7 @@ Return nil if not a script buffer or if no active scripting buffer."
     ((buffer-live-p proof-script-buffer)
      (with-current-buffer proof-script-buffer
        ,@body))))
-      
+
 (defmacro proof-map-buffers (buflist &rest body)
   "Do BODY on each buffer in BUFLIST, if it exists."
   `(dolist (buf ,buflist)
@@ -193,7 +193,7 @@ Helper for macro `defpgcustom'."
     ;; is nothing similar for values, so we define a new set/get function.
     (eval
      `(defun ,generic-var (&optional newval)
-	,(concat "Set or get value of " (symbol-name sym) 
+	,(concat "Set or get value of " (symbol-name sym)
 		 " for current proof assistant.
 If NEWVAL is present, set the variable, otherwise return its current value.")
 	(if newval
@@ -250,14 +250,14 @@ Usage: (defpgdefault SYM VALUE)"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Evaluation once proof assistant is known
-;; 
+;;
 
 (defmacro proof-eval-when-ready-for-assistant (&rest body)
   "Evaluate BODY once the proof assistant is determined (possibly now)."
   `(if (and (boundp 'proof-assistant-symbol) proof-assistant-symbol)
        (progn ,@body)
      (add-hook 'proof-ready-for-assistant-hook (lambda () ,@body))))
-    
+
 
 
 
@@ -317,7 +317,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
   (mapcar
    (lambda (kbl)
      (let ((k (car kbl)) (f (cdr kbl)))
-         (define-key map k f)))
+	 (define-key map k f)))
    kbl))
 
 
@@ -334,7 +334,7 @@ Leave point at END."
 (defun pg-remove-specials-in-string (string)
   (proof-replace-regexp-in-string pg-special-char-regexp "" string))
 
-  
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -428,17 +428,17 @@ Ensure that point is visible in window."
 	      ;; Ensure point visible.  Again, window may have died
 	      ;; inside shrink to fit, for some reason
 	      (when (window-live-p window)
-                (unless (pos-visible-in-window-p (point) window)
-                  (recenter -1))
-                (with-current-buffer buffer
-                  (if (window-bottom-p window)
-                      (unless (local-variable-p 'mode-line-format)
-                        ;; Don't show any mode line.
-                        (set (make-local-variable 'mode-line-format) nil))
-                    (unless mode-line-format
-                      ;; If the buffer gets displayed elsewhere, re-add
-                      ;; the modeline.
-                      (kill-local-variable 'mode-line-format))))))))))))
+		(unless (pos-visible-in-window-p (point) window)
+		  (recenter -1))
+		(with-current-buffer buffer
+		  (if (window-bottom-p window)
+		      (unless (local-variable-p 'mode-line-format)
+			;; Don't show any mode line.
+			(set (make-local-variable 'mode-line-format) nil))
+		    (unless mode-line-format
+		      ;; If the buffer gets displayed elsewhere, re-add
+		      ;; the modeline.
+		      (kill-local-variable 'mode-line-format))))))))))))
 
 (defun proof-clean-buffer (buffer)
   "Erase buffer and hide from display if proof-delete-empty-windows set.
@@ -493,7 +493,7 @@ No action if BUF is nil or killed."
 	     (display-buffer buf 'not-this-window)
 	   (let ((pop-up-windows t))
 	     (pop-to-buffer buf 'not-this-window 'norecord))))))
-  
+
 
 ;; Originally based on `shrink-window-if-larger-than-buffer', which
 ;; has a pretty weird implementation.
@@ -543,27 +543,27 @@ or if the window is the only window of its frame."
 	  ;;; ((cur-height (window-height window))
 	   ;; Most window is allowed to grow to
 	  ((max-height
-             (/ (frame-height (window-frame window))
-                (if proof-three-window-enable
-                    ;; we're in three-window-mode with
-                    ;; all horizontal splits, so share the height.
-                    3
-                  ;; Otherwise assume a half-and-half split.
-                  2)))
-           ;; I find that I'm willing to use a bit more than the max in
-           ;; those cases where it allows me to see the whole
-           ;; response/goal.  --Stef
-           (absolute-max-height
+	     (/ (frame-height (window-frame window))
+		(if proof-three-window-enable
+		    ;; we're in three-window-mode with
+		    ;; all horizontal splits, so share the height.
+		    3
+		  ;; Otherwise assume a half-and-half split.
+		  2)))
+	   ;; I find that I'm willing to use a bit more than the max in
+	   ;; those cases where it allows me to see the whole
+	   ;; response/goal.  --Stef
+	   (absolute-max-height
 	    (truncate
-             (/ (frame-height (window-frame window))
-                (if proof-three-window-enable
-                    ;; we're in three-window-mode with
-                    ;; all horizontal splits, so share the height.
-                    2
-                  ;; Otherwise assume a half-and-half split.
-                  1.5))))
+	     (/ (frame-height (window-frame window))
+		(if proof-three-window-enable
+		    ;; we're in three-window-mode with
+		    ;; all horizontal splits, so share the height.
+		    2
+		  ;; Otherwise assume a half-and-half split.
+		  1.5))))
 	   ;; If buffer ends with a newline and point is right after it, then
-           ;; add a final empty line (to display the cursor).
+	   ;; add a final empty line (to display the cursor).
 	   (extraline (if (and (eobp) (bolp)) 1 0))
 	   ;; (test-pos (- (point-max) extraline))
 	   ;; Direction of resizing based on whether max position is
@@ -580,10 +580,10 @@ or if the window is the only window of its frame."
 	;; Let's shrink or expand.  Uses new GNU Emacs function.
 	(let ((window-size-fixed nil))
 	  (set-window-text-height window
-                                  ;; As explained earlier: use abs-max-height
-                                  ;; but only if that makes it display all.
-                                  (if (> desired-height absolute-max-height)
-                                      max-height desired-height)))
+				  ;; As explained earlier: use abs-max-height
+				  ;; but only if that makes it display all.
+				  (if (> desired-height absolute-max-height)
+				      max-height desired-height)))
 	(if (window-live-p window)
 	    (progn
 	      (if (>= (window-text-height window) desired-height)
@@ -755,7 +755,7 @@ KEY is added onto proof-assistant map."
   "Save custom vars VARIABLES."
   (dolist (symbol variables)
     (let ((value (get symbol 'customized-value)))
-      ;; See customize-save-customized; adjust properties so 
+      ;; See customize-save-customized; adjust properties so
       ;; that custom-save-all will save the value.
       (when value
 	(put symbol 'saved-value value)
@@ -846,7 +846,7 @@ If optional arg REALLY-WORD is non-nil, it finds just a word."
   "Determine if current point is at beginning or within comment/string context.
 If so, return a symbol indicating this ('comment or 'string).
 This function invokes <PA-syntactic-context> if that is defined, otherwise
-it calls `proof-looking-at-syntactic-context'." 
+it calls `proof-looking-at-syntactic-context'."
   (if (fboundp (proof-ass-sym syntactic-context))
       (funcall (proof-ass-sym syntactic-context))
     (proof-looking-at-syntactic-context-default)))
@@ -862,20 +862,20 @@ it calls `proof-looking-at-syntactic-context'."
 ;;
 ;; (defun proof-buffer-substring-visible (start end)
 ;;   "Return the substring from START to END with no invisible property set."
-;;   (let ((pos start) 
-;; 	(vis (get-text-property start 'invisible))
-;; 	(result "")
-;; 	nextpos)
+;;   (let ((pos start)
+;;	(vis (get-text-property start 'invisible))
+;;	(result "")
+;;	nextpos)
 ;;     (while (and (< pos end)
-;; 		(setq nextpos (next-single-property-change pos 'invisible
-;; 							   nil end)))
+;;		(setq nextpos (next-single-property-change pos 'invisible
+;;							   nil end)))
 ;;       (unless (get-text-property pos 'invisible)
-;; 	(setq result (concat result (buffer-substring-no-properties
-;; 				     pos nextpos))))
+;;	(setq result (concat result (buffer-substring-no-properties
+;;				     pos nextpos))))
 ;;       (setq pos nextpos))
 ;;     (unless (get-text-property end 'invisible)
 ;;       (setq result (concat result (buffer-substring-no-properties
-;; 				   pos end))))))
+;;				   pos end))))))
 
 
 

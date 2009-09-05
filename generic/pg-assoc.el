@@ -1,6 +1,6 @@
 ;;; pg-assoc.el --- Functions for associated buffers
 ;;
-;; Copyright (C) 1994-2008 LFCS Edinburgh. 
+;; Copyright (C) 1994-2008 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -13,7 +13,7 @@
 
 ;;; Code:
 
-(eval-when-compile 
+(eval-when-compile
   (require 'proof-syntax)			; proof-replace-{string,regexp}
   (require 'span)				; spans
   (require 'cl))				; incf
@@ -24,7 +24,7 @@
     proof-general-name "Universal keymaps only"
     ;; Doesn't seem to supress TAB, RET
     (suppress-keymap proof-universal-keys-only-mode-map 'all)
-    (proof-define-keys proof-universal-keys-only-mode-map 
+    (proof-define-keys proof-universal-keys-only-mode-map
 		       proof-universal-keys)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -34,7 +34,7 @@
 
 ;;;###autoload
 (defun proof-associated-buffers ()
-  "Return a list of the associated buffers.  
+  "Return a list of the associated buffers.
 Some may be dead/nil."
   (list proof-goals-buffer
 	proof-response-buffer
@@ -44,7 +44,7 @@ Some may be dead/nil."
 
 ;;;###autoload
 (defun proof-associated-windows ()
-  "Return a list of the associated buffers windows.  
+  "Return a list of the associated buffers windows.
 Dead or nil buffers are not represented in the list."
   (let ((bufs (proof-associated-buffers))
 	buf wins)

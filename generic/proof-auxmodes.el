@@ -5,7 +5,7 @@
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 
 ;;; Commentary:
-;; 
+;;
 ;; Startup code from auxiliary modes are collected here, allowing late
 ;; loading of their main defining files and the possibility to disable them.
 ;;
@@ -36,7 +36,7 @@
 (proof-eval-when-ready-for-assistant
     (if (and (proof-ass mmm-enable)
 	     (proof-mmm-support-available))
-        (proof-mmm-set-global t)))
+	(proof-mmm-set-global t)))
 
 
 ;;
@@ -55,7 +55,7 @@ The test loads optional prover-specific config in <foo>-maths-menu.el"
 
 ;;
 ;; Unicode tokens
-;; 
+;;
 (defun proof-unicode-tokens-support-available ()
   "A test to see whether unicode tokens support is available."
   ;; Requires prover-specific config in <foo>-unicode-tokens.el

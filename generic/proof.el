@@ -1,4 +1,4 @@
-;;; proof.el --- Proof General loader.  
+;;; proof.el --- Proof General loader.
 ;;
 ;; Copyright (C) 1998-2008 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
@@ -8,7 +8,7 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; This file loads Proof General.  It is required by the
 ;; individual prover modes.  Loading order of PG is:
 ;;
@@ -18,17 +18,18 @@
 ;; 4. stub explicitly loads <PA>/<PA>.el and execute real mode function
 ;; 5. <PA>.el requires this file, rest of PG loaded here
 ;; 6. further modules loaded by autoloads/prover-specific requires.
-;; 
-;; 
+;;
+;;
 ;;; Code:
 
 (require 'proof-site)			; site/prover config, global vars, autoloads
 (require 'proof-compat)			; Emacs and OS compatibility
 (require 'proof-utils)			; utilities
 (require 'proof-config)			; configuration variables
-(require 'proof-auxmodes)		; further autoloads
 
 (proof-splash-message)			; welcome the user now.
+
+(require 'proof-auxmodes)		; Further autoloads
 
 (provide 'proof)
 ;;; proof.el ends here

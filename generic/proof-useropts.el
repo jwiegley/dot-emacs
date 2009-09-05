@@ -87,7 +87,7 @@ terminator somewhere nearby.  Electric!"
   "*Whether to display keyboard hints in the minibuffer."
   :type 'boolean
   :group 'proof-user-options)
-  
+
 ;; FIXME: next one could be integer value for catchup delay
 (defcustom proof-trace-output-slow-catchup t
   "*If non-nil, try to redisplay less often during frequent trace output.

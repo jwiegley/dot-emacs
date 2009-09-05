@@ -44,7 +44,7 @@
    (proof-looking-at-safe proof-indent-inner-regexp)
    (not
     (or (proof-looking-at-safe proof-indent-any-regexp)
-        (proof-looking-at-safe "\\s-*$")))))
+	(proof-looking-at-safe "\\s-*$")))))
 
 (defun proof-indent-goto-prev ()   ; Note: may change point, even in case of failure!
   "Goto to previous syntax element for script indentation, ignoring string/comment contexts."
@@ -60,12 +60,12 @@
        (found-prev (proof-indent-goto-prev)))
     (if (not found-prev) (goto-char current))   ; recover position
     (cond
-     ((and found-prev (or proof-indent-hang 
+     ((and found-prev (or proof-indent-hang
 			  (= (current-indentation) (current-column))))
       (+ indent
-         (current-column)
-         (if (and inner (not (proof-indent-inner-p))) 0 (proof-indent-indent))
-         (- (proof-indent-offset))))
+	 (current-column)
+	 (if (and inner (not (proof-indent-inner-p))) 0 (proof-indent-indent))
+	 (- (proof-indent-offset))))
      ((not found-prev) 0)         ;FIXME mmw: improve this case!?
      (t
       (proof-indent-calculate
@@ -77,16 +77,16 @@
   "Indent current line of proof script, if indentation enabled."
   (interactive)
   (unless (not (proof-ass script-indent))
-          (if (< (point) (proof-locked-end))
-              (if (< (current-column) (current-indentation))
-                  (skip-chars-forward "\t "))
-            (save-excursion
-              (indent-line-to
-               (max 0 (save-excursion
-                        (back-to-indentation)
-                        (proof-indent-calculate 
+	  (if (< (point) (proof-locked-end))
+	      (if (< (current-column) (current-indentation))
+		  (skip-chars-forward "\t "))
+	    (save-excursion
+	      (indent-line-to
+	       (max 0 (save-excursion
+			(back-to-indentation)
+			(proof-indent-calculate
 			 (proof-indent-offset) (proof-indent-inner-p))))))
-            (if (< (current-column) (current-indentation))
-                (back-to-indentation)))))
-      
+	    (if (< (current-column) (current-indentation))
+		(back-to-indentation)))))
+
 (provide 'proof-indent)

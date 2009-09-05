@@ -1,6 +1,6 @@
 ;; proof-menu.el  Menus, keymaps, and misc commands for Proof General
 ;;
-;; Copyright (C) 2000,2001 LFCS Edinburgh. 
+;; Copyright (C) 2000,2001 LFCS Edinburgh.
 ;; Authors:   David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -22,22 +22,22 @@ A fixed number of repetitions of this command switches back to
 the same buffer.
 Also move point to the end of the response buffer if it's selected.
 If in three window or multiple frame mode, display two buffers.
-The idea of this function is to change the window->buffer mapping 
+The idea of this function is to change the window->buffer mapping
 without adjusting window layout."
   (interactive)
   ;; The GUI-tessence here is to implement a humane toggle, which
   ;; allows habituation.  E.g. two taps of C-c C-l always
   ;; shows the goals buffer, three the trace buffer, etc.
   ;; (That behaviour makes less sense from the menu, though,
-  ;;  where it seems more natural just to rotate from last 
+  ;;  where it seems more natural just to rotate from last
   ;;  position)
-  (cond 
-   ((and (interactive-p) 
+  (cond
+   ((and (interactive-p)
 	 (eq last-command 'proof-display-some-buffers))
     (incf proof-display-some-buffers-count))
    (t
     (setq proof-display-some-buffers-count 0)))
-  (let* ((assocbufs   (remove-if-not 'buffer-live-p 
+  (let* ((assocbufs   (remove-if-not 'buffer-live-p
 				     (list proof-response-buffer
 					   proof-thms-buffer
 					   proof-trace-buffer
@@ -48,7 +48,7 @@ without adjusting window layout."
     ;; If there's no live other buffers, we don't do anything.
     (unless (zerop numassoc)
       (let
-	 ((selectedbuf (nth (mod proof-display-some-buffers-count 
+	 ((selectedbuf (nth (mod proof-display-some-buffers-count
 				 numassoc) assocbufs))
 	  (nextbuf     (nth (mod (1+ proof-display-some-buffers-count)
 				 numassoc) assocbufs)))
@@ -76,7 +76,7 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
-  ;; Prover specific keymap under C-c C-a 
+  ;; Prover specific keymap under C-c C-a
   (proof-eval-when-ready-for-assistant
       (define-key map [(control c) (control a)] (proof-ass keymap)))
   ;; M-a and M-e are usually {forward,backward}-sentence.
@@ -102,14 +102,14 @@ without adjusting window layout."
   ;; C-c C-u is proof-undo-last-successful-command in universal-keys
   ;; C-c C-w is pg-response-clear-displays in universal-keys
   (define-key map [(control c) (control z)] 'proof-frob-locked-end)
-  (define-key map [(control c) (control backspace)] 
+  (define-key map [(control c) (control backspace)]
     'proof-undo-and-delete-last-successful-command)
   ;; C-c C-v is proof-minibuffer-cmd in universal-keys
   ;; C-c C-. is proof-goto-end-of-locked in universal-keys
   (define-key map [(control c) (control return)] 'proof-goto-point)
   (define-key map [(control c) v] 'pg-toggle-visibility)
   (define-key map [(control mouse-3)] 'proof-mouse-goto-point)
-  ;; NB: next binding overwrites comint-find-source-code.  
+  ;; NB: next binding overwrites comint-find-source-code.
   (define-key map [(meta p)] 'pg-previous-matching-input-from-input)
   (define-key map [(meta n)] 'pg-next-matching-input-from-input)
   ;; Standard binding for completion
@@ -133,8 +133,8 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-main ()
-  (easy-menu-define 
-   proof-mode-menu  
+  (easy-menu-define
+   proof-mode-menu
    proof-mode-map
    "The main Proof General menu"
    (proof-main-menu)))
@@ -146,8 +146,8 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-specific ()
-  (easy-menu-define 
-    proof-assistant-menu 
+  (easy-menu-define
+    proof-assistant-menu
     proof-mode-map
     (concat "The menu for " proof-assistant)
     (cons proof-assistant
@@ -205,8 +205,8 @@ without adjusting window layout."
 (defvar proof-help-menu
   '("Help"
     ["About PG"        proof-splash-display-screen t]
-    ["PG Info"      	(info "ProofGeneral") t]
-    ["PG Homepage"  	(browse-url proof-general-home-page) t]
+    ["PG Info"	(info "ProofGeneral") t]
+    ["PG Homepage"	(browse-url proof-general-home-page) t]
     ["Send Bug Report" proof-submit-bug-report t])
   "Proof General help menu.")
 
@@ -240,7 +240,7 @@ without adjusting window layout."
 	   (proof-switch-to-buffer proof-response-buffer t)
 	   :active (buffer-live-p proof-response-buffer)]
 	  ;; FIXME: next test doesn't work: menus are loaded before
-	  ;; proof-shell-trace-output-regexp is set (in proof-shell hook).  
+	  ;; proof-shell-trace-output-regexp is set (in proof-shell hook).
 	  ;; Should be better with simplified customization mechanism.
 	  ;; ( if proof-shell-trace-output-regexp ... )
 	  ["Trace"
@@ -250,7 +250,7 @@ without adjusting window layout."
 	   (proof-switch-to-buffer proof-shell-buffer)
 	   :active (buffer-live-p proof-shell-buffer)]))
   "Proof General buffer menu.")
-	  
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -274,17 +274,17 @@ without adjusting window layout."
 (proof-deftoggle proof-keep-response-history)
 
 (proof-eval-when-ready-for-assistant
-  (proof-deftoggle-fn 
+  (proof-deftoggle-fn
    (proof-ass-sym unicode-tokens-enable) 'proof-unicode-tokens-toggle)
-  (proof-deftoggle-fn 
+  (proof-deftoggle-fn
    (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
   (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle))
 
 (defun proof-retract-on-edit-toggle ()
   (interactive)
-  (customize-set-variable 
+  (customize-set-variable
    'proof-strict-read-only
-   (if (eq proof-strict-read-only 'retract) 
+   (if (eq proof-strict-read-only 'retract)
        nil 'retract)))
 
 (defun proof-keep-response-history ()
@@ -296,7 +296,7 @@ without adjusting window layout."
 ;; Here is the menu
 
 (defconst proof-quick-opts-menu
-  (cons 
+  (cons
    "Options"
    `(["Electric Terminator" proof-electric-terminator-toggle
      :style toggle
@@ -311,7 +311,7 @@ without adjusting window layout."
       :style toggle
       :selected proof-full-annotation
       :help "Record full information to decorate scripts (may cause slowdown)"]
-     ["Disppearing Proofs" proof-disappearing-proofs-toggle 
+     ["Disppearing Proofs" proof-disappearing-proofs-toggle
       :style toggle
       :selected proof-disappearing-proofs
       :help "Hide proofs as they are completed"]
@@ -326,44 +326,44 @@ without adjusting window layout."
       :selected (eq proof-strict-read-only 'retract)
       :active (not (eq proof-strict-read-only t))
       :help "Automaticall retract on edit in processed region"]
-     
-     ["Unicode Tokens" 
+
+     ["Unicode Tokens"
       (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
 				       (if unicode-tokens-mode 0 1) 1))
       :active (proof-unicode-tokens-support-available)
       :style toggle
-      :selected (and (boundp 'unicode-tokens-mode) 
+      :selected (and (boundp 'unicode-tokens-mode)
 		     unicode-tokens-mode)
       :help "Enable display of tokens as Unicode characters"]
 
-     ["Unicode Maths Menu" 
+     ["Unicode Maths Menu"
       (proof-maths-menu-toggle (if (boundp 'maths-menu-mode)
 				       (if maths-menu-mode 0 1) 1))
       :active (proof-maths-menu-support-available)
       :style toggle
       :selected (and (boundp 'maths-menu-mode) maths-menu-mode)
       :help "Maths menu for inserting Unicode characters"]
- 
+
      ["Multiple Modes" (proof-mmm-toggle (if mmm-mode 0 1))
       :active (proof-mmm-support-available)
       :style toggle
       :selected (and (boundp 'mmm-mode) mmm-mode)
       :help "Allow multiple major modes"]
- 
+
      ["Toolbar" proof-toolbar-toggle
       ;; should really be split into :active & GNU Emacs's :visible
       :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
 			 (boundp 'proof-buffer-type)
 			 ;; only allow toggling of toolbar enable in one
 			 ;; buffer to avoid strange effects because we
-			 ;; only keep one flag.  (Strange effects because 
+			 ;; only keep one flag.  (Strange effects because
 			 ;; we only turn it off in one buffer at a time)
 			 (eq proof-buffer-type 'script))
       :style toggle
       :selected proof-toolbar-enable
       :help "Use the Proof General toolbar"]
 
-;;; TODO: Add this in PG 3.7.1 once; see trac #169 
+;;; TODO: Add this in PG 3.7.1 once; see trac #169
 ;;;      ["Response history" proof-keep-response-history-toggle
 ;;;       :style toggle
 ;;;       :selected proof-keep-response-history]
@@ -413,41 +413,41 @@ without adjusting window layout."
        :style toggle
        :selected proof-colour-locked
        :help "Use decoration of locked region"])
-     ("Follow Mode" 
-      ["Follow Locked Region" 
+     ("Follow Mode"
+      ["Follow Locked Region"
        (customize-set-variable 'proof-follow-mode 'locked)
        :style radio
        :selected (eq proof-follow-mode 'locked)
        :help "Point follows the locked region"]
 ;; Not implemented.  See Trac #187
-;;       ["Follow On Success" 
+;;       ["Follow On Success"
 ;;        (customize-set-variable 'proof-follow-mode 'followsuccess)
 ;;        :style radio
 ;;        :selected (eq proof-follow-mode 'followdown)]
-      ["Follow Locked Region Down" 
+      ["Follow Locked Region Down"
        (customize-set-variable 'proof-follow-mode 'followdown)
        :style radio
        :selected (eq proof-follow-mode 'followdown)
        :help "Point follows the locked region when processsing"]
-      ["Keep Locked Region Displayed" 
+      ["Keep Locked Region Displayed"
        (customize-set-variable 'proof-follow-mode 'follow)
        :style radio
        :selected (eq proof-follow-mode 'follow)
        :help "Scroll to ensure end of lock region is visible"]
-      ["Never Move" 
+      ["Never Move"
        (customize-set-variable 'proof-follow-mode 'ignore)
        :style radio
        :selected (eq proof-follow-mode 'ignore)
        :help "Do not move cursor during processing"])
      ;; Add this because it's a handy one to set (usually to retract)
      ("Deactivate Action"
-      ["Retract" 
-       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 
+      ["Retract"
+       (customize-set-variable 'proof-auto-action-when-deactivating-scripting
 			       'retract)
        :style radio
        :selected (eq proof-auto-action-when-deactivating-scripting 'retract)]
-      ["Process" 
-       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 
+      ["Process"
+       (customize-set-variable 'proof-auto-action-when-deactivating-scripting
 			       'process)
        :style radio
        :selected (eq proof-auto-action-when-deactivating-scripting 'process)]
@@ -456,9 +456,9 @@ without adjusting window layout."
        :style radio
        :selected (null proof-auto-action-when-deactivating-scripting)])
      "----"
-     ["Reset Options" (proof-quick-opts-reset) 
+     ["Reset Options" (proof-quick-opts-reset)
       (proof-quick-opts-changed-from-defaults-p)]
-     ["Save Options" (proof-quick-opts-save) 
+     ["Save Options" (proof-quick-opts-save)
       (proof-quick-opts-changed-from-saved-p)]))
   "Proof General quick options.")
 
@@ -467,9 +467,8 @@ without adjusting window layout."
   (list
    'proof-electric-terminator-enable
    'proof-script-fly-past-comments
-   'proof-disappearing-proofs 
+   'proof-disappearing-proofs
    'proof-full-annotation
-   ;;'proof-output-fontify-enable
    'proof-strict-read-only
    (proof-ass-sym unicode-tokens-enable)
    (proof-ass-sym maths-menu-enable)
@@ -499,7 +498,7 @@ without adjusting window layout."
   t)
 
 
-;; 
+;;
 ;; We have menu items for saving options and reseting them.
 ;; We could just store the settings automatically (no save),
 ;; but then the reset option would have to change to restore
@@ -542,7 +541,7 @@ without adjusting window layout."
   "Advanced sub-menu of script functions and customize.")
 
 
-(defvar proof-menu  
+(defvar proof-menu
   '(["Next Error" proof-next-error
      :active pg-next-error-regexp]
     ["Scripting Active" proof-toggle-active-scripting
@@ -564,7 +563,7 @@ without adjusting window layout."
 ;;;###autoload
 (defun proof-aux-menu ()
   "Construct and return PG auxiliary menu used in non-scripting buffers."
-  (cons proof-general-name 
+  (cons proof-general-name
 	(append
 	 (proof-toolbar-scripting-menu)
 	 proof-config-menu
@@ -584,18 +583,18 @@ without adjusting window layout."
     (while favs
       (setq ents (cons (apply 'proof-def-favourite (car favs)) ents))
       (setq favs (cdr favs)))
-    (setq proof-menu-favourites 
-	  (list 
-	   (cons "Favourites" 
+    (setq proof-menu-favourites
+	  (list
+	   (cons "Favourites"
 		 (append ents
 			 ;; (list "----")  doesn't work for adding before
-			 '(["Add Favourite" 
+			 '(["Add Favourite"
 			    (call-interactively 'proof-add-favourite) t]
-			   ["Delete Favourite" 
+			   ["Delete Favourite"
 			    (call-interactively 'proof-del-favourite) t]
 			   ["Save Favourites"
 			    (proof-save-favourites) t])))))))
-  
+
 ;;; Define stuff from favourites
 
 (defun proof-def-favourite (command inscript menuname &optional key new)
@@ -603,7 +602,7 @@ without adjusting window layout."
 See doc of `proof-add-favourite' for first four arguments.
 Extra NEW flag means that this should be a new favourite, so check
 that function defined is not already bound.
-This function defines a function and returns a menu entry 
+This function defines a function and returns a menu entry
 suitable for adding to the proof assistant menu."
   (let* ((menunames	(split-string (downcase menuname)))
 	 (menuname-sym  (proof-sym (proof-splice-separator "-" menunames)))
@@ -636,46 +635,46 @@ suitable for adding to the proof assistant menu."
   "Delete \"favourite\" command recorded at MENUNAME."
   (interactive
    (list
-    (completing-read "Menu item to delete: " 
+    (completing-read "Menu item to delete: "
 		     (mapcar 'cddr (proof-ass favourites))
 		     nil t)))
   (let*
       ((favs       (proof-ass favourites))
-       (rmfavs	   (remove-if 
+       (rmfavs	   (remove-if
 		    (lambda (f) (string-equal menuname (caddr f)))
 		    favs)))
     (unless (equal favs rmfavs)
-      (easy-menu-remove-item proof-assistant-menu 
+      (easy-menu-remove-item proof-assistant-menu
 			     '("Favourites") menuname)
       (customize-set-variable  (proof-ass-sym favourites) rmfavs))))
-  
+
 (defun proof-read-favourite ()
-  (let* 
+  (let*
       ((guess  (buffer-substring (save-excursion
 				   (beginning-of-line-text)
 				   (point)) (point)))
        (cmd (read-string
-	     (concat "Command to send to " proof-assistant ": ") 
+	     (concat "Command to send to " proof-assistant ": ")
 	     guess
 	     proof-make-favourite-cmd-history))
        (ins (y-or-n-p "Should command be recorded in script? "))
        (men (read-string
-	     "Name of command on menu: " 
+	     "Name of command on menu: "
 	     cmd
 	     proof-make-favourite-menu-history))
        (key (if (y-or-n-p "Set a keybinding for this command? : ")
 		;; FIXME: better validation here would be to check
 		;; this is a new binding, or remove old binding below.
-		 (read-key-sequence 
-		  "Type the key to use (binding will be C-c C-a <key>): " 
+		 (read-key-sequence
+		  "Type the key to use (binding will be C-c C-a <key>): "
 		  nil t))))
     ;; result
     (list cmd ins men key)))
-	  
+
 
 (defun proof-add-favourite (command inscript menuname &optional key)
   "Define and add a \"favourite\" proof-assisant function to the menu bar.
-The favourite function will issue COMMAND to the proof assistant.  
+The favourite function will issue COMMAND to the proof assistant.
 COMMAND is inserted into script (not sent immediately) if INSCRIPT non-nil.
 MENUNAME is the name of the function for the menu.
 KEY is the optional key binding."
@@ -683,15 +682,15 @@ KEY is the optional key binding."
   (let*
       ((menu-entry (proof-def-favourite command inscript menuname key t))
        (favs       (proof-ass favourites))
-       (rmfavs	   (remove-if 
+       (rmfavs	   (remove-if
 		    (lambda (f) (string-equal menuname (caddr f)))
 		    favs))
-       (newfavs    (append 
-		    rmfavs 
+       (newfavs    (append
+		    rmfavs
 		    (list (list command inscript menuname key)))))
     ;; If def succeeds, add to customize var
     (customize-set-variable  (proof-ass-sym favourites) newfavs)
-    (easy-menu-add-item proof-assistant-menu 
+    (easy-menu-add-item proof-assistant-menu
 			'("Favourites") menu-entry "Add Favourite")))
 
 
@@ -707,7 +706,7 @@ KEY is the optional key binding."
   "Return menu generated from `proof-assistant-settings', update `proof-menu-settings'."
   (if proof-assistant-settings
       (let ((save  (list "----"
-			 ["Reset Settings" (proof-settings-reset) 
+			 ["Reset Settings" (proof-settings-reset)
 			  (proof-settings-changed-from-defaults-p)]
 			 ["Save Settings" (proof-settings-save)
 			  (proof-settings-changed-from-saved-p)]))
@@ -715,7 +714,7 @@ KEY is the optional key binding."
 	(mapc (lambda (stg) (add-to-list 'groups (get (car stg) 'pggroup)))
 	      proof-assistant-settings)
 	(dolist (grp (reverse groups))
-	  (let* ((gstgs (mapcan (lambda (stg) 
+	  (let* ((gstgs (mapcan (lambda (stg)
 				  (if (eq (get (car stg) 'pggroup) grp)
 				      (list stg)))
 				proof-assistant-settings))
@@ -724,17 +723,17 @@ KEY is the optional key binding."
 				gstgs)))
 	    (setq ents
 		  (if grp (cons (cons grp cmds) ents)
-		    (append cmds 
+		    (append cmds
 			    (if (> (length groups) 1) '("----"))
 			    ents)))))
 	;; (while setgs
-	;;   (setq ents (cons 
-	;; 	      (apply 'proof-menu-entry-for-setting (car setgs)) ents))
+	;;   (setq ents (cons
+	;;	      (apply 'proof-menu-entry-for-setting (car setgs)) ents))
 	;;   (setq setgs (cdr setgs)))
-	(setq proof-menu-settings 
-	      (list (cons "Settings" 
+	(setq proof-menu-settings
+	      (list (cons "Settings"
 			  (nconc ents save)))))))
-		  
+
 
 (defun proof-menu-entry-name (symbol)
   "Return a nice menu entry name for SYMBOL."
@@ -743,7 +742,7 @@ KEY is the optional key binding."
     (upcase-initials
      (replace-regexp-in-string "-" " "
       ;; strip the group name from the menu entry name.
-      (if grp (replace-regexp-in-string (concat (downcase grp) ":") "" nm) 
+      (if grp (replace-regexp-in-string (concat (downcase grp) ":") "" nm)
 	nm)))))
 
 (defun proof-menu-entry-for-setting (symbol setting type descr)
@@ -751,17 +750,17 @@ KEY is the optional key binding."
 	(pasym	     (proof-ass-symv symbol)))
     (cond
      ((eq type 'boolean)
-      (vector entry-name 
+      (vector entry-name
 	      (proof-deftoggle-fn pasym)
 	      :style 'toggle
 	      :selected pasym
 	      :help descr))
      ((eq type 'integer)
-      (vector entry-name 
+      (vector entry-name
 	      (proof-defintset-fn pasym)
 	      :help descr))
      ((eq type 'string)
-      (vector entry-name 
+      (vector entry-name
 	      (proof-defstringset-fn pasym)
 	      :help descr)))))
 
@@ -794,7 +793,7 @@ KEY is the optional key binding."
   "As for macro `defpacustom' but evaluating arguments."
   (let (newargs setting evalform type descr)
     (while args
-      (cond 
+      (cond
        ((eq (car args) :setting)
 	(setq setting (cadr args))
 	(setq args (cdr args)))
@@ -802,11 +801,11 @@ KEY is the optional key binding."
 	(setq evalform (cadr args))
 	(setq args (cdr args)))
        ((eq (car args) :pgipcmd)
-	;; Construct a function which yields a PGIP string 
-	(setq setting `(lambda (x) 
+	;; Construct a function which yields a PGIP string
+	(setq setting `(lambda (x)
 			  (pg-pgip-string-of-command (proof-assistant-format ,(cadr args) x))))
 	(setq args (cdr args)))
-       ((eq (car args) :pggroup) 
+       ((eq (car args) :pggroup)
 	;; use the group as a prefix to the name, and set a pggroup property on it
 	(setq name (intern (concat (downcase (cadr args)) ":" (symbol-name name))))
 	(put name 'pggroup (cadr args))
@@ -821,15 +820,15 @@ KEY is the optional key binding."
     (setq newargs (reverse newargs))
     (setq descr (car-safe newargs))
     (unless (and type
-		  (or (eq (eval type) 'boolean) 
-		      (eq (eval type) 'integer) 
+		  (or (eq (eval type) 'boolean)
+		      (eq (eval type) 'integer)
 		      (eq (eval type) 'string)))
       (error "defpacustom: missing :type keyword or wrong :type value"))
     ;; Debug message in case a defpacustom is repeated.
     ;; NB: this *may* happen dynamically, but shouldn't: if the
     ;; interface queries the prover for the settings it supports,
     ;; then the internal list should be cleared first.
-    ;; FIXME: for now, we support redefinitions, by calling 
+    ;; FIXME: for now, we support redefinitions, by calling
     ;; pg-custom-undeclare-variable.
     (if (assoc name proof-assistant-settings)
 	(progn
@@ -852,7 +851,7 @@ KEY is the optional key binding."
 	  (proof-assistant-invisible-command-ifposs
 	   (proof-assistant-settings-cmd (quote ,name)))))))
     (setq proof-assistant-settings
-	  (cons (list name setting (eval type) descr) 
+	  (cons (list name setting (eval type) descr)
 		(assq-delete-all name proof-assistant-settings)))))
 
 ;;;###autoload
@@ -881,13 +880,13 @@ evaluate can be provided instead."
   (if (proof-shell-available-p)
       (progn
 	(proof-shell-invisible-command cmd t)
-	;; refresh display, 
+	;; refresh display,
 	;; FIXME: should only do if goals display is active,
-	;; messy otherwise. 
-	;; (we need a new flag for "active goals display").  
+	;; messy otherwise.
+	;; (we need a new flag for "active goals display").
 	;; PG 3.5 (patch 22.04.04):
 	;; Let's approximate that by looking at proof-nesting-depth.
-	(if (and proof-showproof-command 
+	(if (and proof-showproof-command
 		 (> proof-nesting-depth 0))
 	    (proof-shell-invisible-command proof-showproof-command))
 	;;  Could also repeat last command if non-state destroying.
@@ -897,26 +896,26 @@ evaluate can be provided instead."
   "If `proof-use-pgip-askprefs' is non-nil, try to issue <askprefs>"
   (if (and proof-use-pgip-askprefs proof-shell-issue-pgip-cmd)
       (pg-pgip-askprefs)))
-  
+
 
 (defun proof-assistant-settings-cmd (&optional setting)
   "Return string for settings kept in Proof General customizations.
-If SETTING is non-nil, return a string for just that setting. 
+If SETTING is non-nil, return a string for just that setting.
 Otherwise return a string for configuring all settings.
 NB: if no settings are configured, this has no effect."
   (if proof-assistant-settings
       (let
 	  ((evalifneeded (lambda (expr)
 			   (if (and (cadr expr) ;; setting has PA string?
-				    (or (not setting) 
+				    (or (not setting)
 					(eq setting (car expr))))
-			       (proof-assistant-format 
-				(cadr expr) 
+			       (proof-assistant-format
+				(cadr expr)
 				(eval (proof-ass-symv (car expr))))))))
-	(apply 'concat (mapcar evalifneeded 
+	(apply 'concat (mapcar evalifneeded
 			       proof-assistant-settings)))))
 
-(defvar proof-assistant-format-table 
+(defvar proof-assistant-format-table
   (list
    (cons "%b" '(proof-assistant-format-bool curvalue))
    (cons "%i" '(proof-assistant-format-int curvalue))
@@ -940,7 +939,7 @@ Formatting suitable for current proof assistant, controlled by
 Finally, apply `proof-assistant-setting-format' if non-nil.
 Alternatively, STRING can be a function which yields a string when applied
 to the CURVALUE.
-As another special case for boolean settings: the setting STRING 
+As another special case for boolean settings: the setting STRING
 can be a cons cell of two strings, the first one for true (non-nil
 value) and the second for false."
   (let ((setting

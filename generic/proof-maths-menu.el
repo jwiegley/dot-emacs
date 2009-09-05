@@ -34,18 +34,18 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit."
     (if flag
 	(add-hook hook 'maths-menu-mode)
       (remove-hook hook 'maths-menu-mode))
-    (proof-map-buffers 
+    (proof-map-buffers
       (proof-buffers-in-mode proof-mode-for-script)
       (maths-menu-mode (if flag 1 0)))))
 
-  
-  
+
+
 ;;;###autoload
 (defun proof-maths-menu-enable ()
   "Turn on or off maths-menu mode in Proof General script buffer.
 This invokes `maths-menu-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
-Also we arrange to have maths menu mode turn itself on automatically 
+Also we arrange to have maths menu mode turn itself on automatically
 in future if we have just activated it for this buffer."
   (interactive)
   (require 'maths-menu)

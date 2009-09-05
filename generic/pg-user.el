@@ -8,7 +8,7 @@
 ;;
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; This file defines some user-level commands.  Most of them
 ;; are script-based operations.  Exported user-level commands
 ;; are defined here as autoloads to avoid circular requires.
@@ -96,7 +96,7 @@ Assumes script buffer is current."
 	      (if win
 		  (set-window-point win dest)))))
 	 ((eq proof-follow-mode 'locked)
-	  (if pos 
+	  (if pos
 	      (goto-char dest)
 	    (proof-script-next-command-advance)))
 	 ((and (eq proof-follow-mode 'followdown)
@@ -188,7 +188,7 @@ the proof script."
 	       (goto-char (span-start lastspan))
 	       (proof-retract-until-point delete))
 	   (error "Nothing to undo!"))))
-     (if lastspan (proof-maybe-follow-locked-end 
+     (if lastspan (proof-maybe-follow-locked-end
 		   (span-start lastspan))))))
 
 (defun proof-retract-buffer ()
@@ -246,12 +246,12 @@ the proof script."
   "Set point to end of command at point."
   (interactive)
   (let ((cmd (span-at (point) 'type)))
-    (if cmd 
+    (if cmd
 	(goto-char (span-end cmd))
       (let ((semis (save-excursion
 		     (proof-segment-up-to-using-cache (point)))))
 	(if semis
-	    (progn 
+	    (progn
 	      (goto-char (nth 2 (car semis)))
 	      (skip-chars-backward " \t\n")
 	      (unless (eq (point) (point-min))
@@ -269,7 +269,7 @@ the proof script."
    (mouse-set-point event)
    (proof-goto-point)
    (proof-maybe-follow-locked-end)))
-  
+
 
 
 
@@ -352,12 +352,12 @@ a proof command."
 
 
 
-	  
+
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 
+;;;
 ;;; Non-scripting proof assistant commands.
 ;;;
 
@@ -420,7 +420,7 @@ CMDVAR is a variable holding a function or string.  Automatically has history."
        (proof-if-setting-configured ,cmdvar
 	   (if (stringp ,cmdvar)
 	       (list (format ,cmdvar
-		 	 (read-string
+			 (read-string
 			   ,(concat prompt ": ") ""
 			   ,(intern (concat (symbol-name fn) "-history")))))
 	     (funcall ,cmdvar))))
@@ -531,7 +531,7 @@ This is intended as a value for `proof-activate-scripting-hook'"
   ;; TODO: probably even this isn't necessary
   (force-mode-line-update))
 
-(proof-deftoggle proof-electric-terminator-enable 
+(proof-deftoggle proof-electric-terminator-enable
 		 proof-electric-terminator-toggle)
 
 (defun proof-process-electric-terminator ()
@@ -563,7 +563,7 @@ comment, and insert or skip to the next semi)."
 	    (progn
 	      (setq incomment t)
 	      ;; delete spurious char in comment
-	      (if ins (backward-delete-char 1)) 
+	      (if ins (backward-delete-char 1))
 	      (goto-char mrk)
 	      (insert proof-terminal-string))
 	  (proof-assert-semis semis)
@@ -753,7 +753,7 @@ If NUM is negative, move upwards.  Return new span."
 	    (span-set-property span 'controlspan new-parent)
 	    (list span))))
     start end 'type)))
-      
+
 (defun pg-move-region-down (&optional num)
   "Move the region under point downwards in the buffer, past NUM spans."
   (interactive "p")
@@ -783,9 +783,9 @@ If NUM is negative, move upwards.  Return new span."
 ;      (if span
 ;	  (if pg-drag-region-point
 ;	      ;; Move the region at point to region here.
-	      
 
-	  
+
+
 ;(defun pg-mouse-drag-up-move-region-function (event click-count)
 ;  (setq pg-drag-region-point nil))
 
@@ -817,13 +817,13 @@ If NUM is negative, move upwards.  Return new span."
 (defun proof-backward-command (&optional num)
   (interactive "p")
   (proof-forward-command (- num)))
-  
-
-   
 
 
 
-  
+
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -907,13 +907,13 @@ If NUM is negative, move upwards.  Return new span."
   (goto-char (span-start span))
   (proof-retract-until-point))
 
-  
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Generic adjustmenth of prover's pretty-printing width
 ;; (adapted from Lego's mode, was also used in Isar and Plastic)
-;; 
+;;
 ;; FIXME: complete this.
 
 ;(defvar pg-prover-current-line-width nil
@@ -929,8 +929,8 @@ If NUM is negative, move upwards.  Return new span."
 ;	(progn
 ;	  ;; Update the prover's output width
 ;	  (proof-shell-invisible-command
-	   
-	
+
+
 ;with-current-buffer buffer
 ;    (let ((current-width
 ;	   (window-width (get-buffer-window proof-goals-buffer)))
@@ -967,7 +967,7 @@ If NUM is negative, move upwards.  Return new span."
 ;;;###autoload
 (defun pg-jump-to-end-hint ()
   (pg-hint "Use \\[proof-goto-end-of-locked] to jump to end of processed region"))
-  
+
 ;;;###autoload
 (defun pg-processing-complete-hint ()
   "Display hint for showing end of locked region or processing complete."
@@ -1019,8 +1019,8 @@ The function `substitute-command-keys' is called on the argument."
 (defun pg-identifier-near-point-query ()
   (interactive)
   (let* ((stend       (if (region-active-p)
-		          (cons (region-beginning) (region-end))
-		        (pg-current-word-pos)))
+			  (cons (region-beginning) (region-end))
+			(pg-current-word-pos)))
 	 (start       (car-safe stend))
 	 (end         (cdr-safe stend))
 	 (identifier  (if start
@@ -1031,11 +1031,11 @@ The function `substitute-command-keys' is called on the argument."
 			    (goto-char start)
 			    (proof-buffer-syntactic-context)))))
     (if start
-	(pg-identifier-query 
+	(pg-identifier-query
 	 identifier ctxt
 	 ;; the callback
 	 (lexical-let ((s start) (e end))
-	   (lambda (x) 
+	   (lambda (x)
 	     (let ((idspan (span-make s e)))
 	       ;; TODO: clean these up!
 	       (span-set-property idspan 'help-echo
@@ -1045,7 +1045,7 @@ The function `substitute-command-keys' is called on the argument."
 (defvar proof-query-identifier-history nil)
 
 (defun proof-query-identifier (string)
-  (interactive 
+  (interactive
    (list
     (completing-read "Query identifier: "
 		     proof-query-identifier-collection
@@ -1327,7 +1327,7 @@ removed if it matches the last item in the ring."
 	   (not (ring-empty-p pg-input-ring))
 	   (string-equal (ring-ref pg-input-ring 0) cmd))
       (ring-remove pg-input-ring 0)))
-  
+
 
 ;;;###autoload
 (defun  pg-clear-input-ring ()

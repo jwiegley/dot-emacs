@@ -51,7 +51,7 @@
     ;; make sure MMM obeys the mmm-mode-ext-classes-alist
     (unless (eq mmm-global-mode t)
       (setq mmm-global-mode 'pg-use-mode-ext-classes-alist))))
-  
+
 ;;;###autoload
 (defun proof-mmm-enable ()
   "Turn on or off MMM mode in Proof General script buffer.

@@ -8,7 +8,7 @@
 ;;
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; Support for Unicode Tokens package: per-prover global enabling, copying
 ;; configuration tables, adding mode hooks to turn on/off.
 ;;
@@ -52,7 +52,7 @@
 	     (proof-ass-symv var))))
   (unicode-tokens-initialise))
 
-  
+
 ;;;###autoload
 (defun proof-unicode-tokens-enable ()
   "Turn on or off Unicode tokens mode in Proof General script buffer.
@@ -87,7 +87,7 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit."
     (proof-buffers-in-mode proof-tokens-extra-modes))
    (unicode-tokens-mode (if flag 1 0)))
   (proof-unicode-tokens-configure-prover))
-  
+
 ;;;
 ;;; Interface to custom to dynamically change tables (via proof-set-value)
 ;;;

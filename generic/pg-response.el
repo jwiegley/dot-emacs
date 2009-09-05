@@ -8,7 +8,7 @@
 ;; $Id$
 ;;
 ;;; Commentary:
-;; 
+;;
 ;; This mode is used for the response buffer proper, and
 ;; also the trace and theorems buffer. A sub-module of proof-shell.
 ;;
@@ -76,7 +76,7 @@
   (setq font-lock-defaults '(proof-response-font-lock-keywords)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Window configuration
 ;;   -- multiple frames for goals and response buffers,
 ;;   -- three window mode
@@ -96,7 +96,7 @@ Internal variable, setting this will have no effect!")
   "List of GNU Emacs frame parameters for secondary frames.")
 
 (defun proof-multiple-frames-enable ()
-  (let ((spdres (cons 
+  (let ((spdres (cons
 		 pg-response-special-display-regexp
 		 proof-multiframe-parameters)))
     (if proof-multiple-frames-enable
@@ -133,7 +133,7 @@ Internal variable, setting this will have no effect!")
    (if (buffer-live-p proof-response-buffer)
        proof-response-buffer (first (buffer-list)))
    nohorizontalsplit))
-   
+
 
 (defvar pg-frame-configuration nil
   "Variable storing last used frame configuration.")
@@ -207,9 +207,9 @@ For multiple frame mode, this function obeys the setting of
 	       (fm (and win (window-frame win))))
 	  (unless (equal mainframe fm)
 	    (if fm (delete-frame fm))))))))
-	
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Displaying in the response buffer
 ;;
 
@@ -264,13 +264,13 @@ Returns non-nil if response buffer was cleared."
 ;;
 ;; Images for the response buffer
 ;;
-;(defimage pg-response-error-image 
+;(defimage pg-response-error-image
 ;  ((:type xpm :file "/home/da/PG/images/epg-interrupt.xpm")))
 
-;(defimage pg-response-warning-image 
+;(defimage pg-response-warning-image
 ;  ((:type xpm :file "/home/da/PG/images/epg-abort.xpm")))
 
-  
+
 ;; TODO: this function should be combined with
 ;; pg-response-maybe-erase-buffer.
 ;;;###autoload
@@ -296,10 +296,10 @@ Also updates `proof-shell-last-output'."
 	(insert str)
 	(setq proof-shell-last-output str)
 	(unless (bolp) (newline))
- 	(when face
- 	  (overlay-put
- 	   (make-overlay start (point-max))
- 	   'face face))
+	(when face
+	  (overlay-put
+	   (make-overlay start (point-max))
+	   'face face))
 
 	(setq buffer-read-only t)
 	(set-buffer-modified-p nil))))))
@@ -413,7 +413,7 @@ See `pg-next-error-regexp'."
 	(set-buffer proof-response-buffer)
 	(goto-char (point-min))
 	(re-search-forward pg-next-error-regexp nil t))))
-	
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -448,7 +448,7 @@ We fontify the output only if we're not too busy to do so."
       (newline))))
 ;;; FIXME: reinstate this, turning font lock off then on, mebbe
 ;;;     (or proof-trace-last-fontify-pos
-;;; 	(setq proof-trace-last-fontify-pos (point)))
+;;;	(setq proof-trace-last-fontify-pos (point)))
 ;;;     (insert str)
 ;;;     (unless (bolp)
 ;;;       (newline))
@@ -456,20 +456,20 @@ We fontify the output only if we're not too busy to do so."
 ;;;     ;; fontifying every chunk and batch it up instead.
 ;;;     (unless pg-tracing-slow-mode
 ;;;       (let ((fontifystart (proof-trace-fontify-pos)))
-;;; 	;; Catch errors, in case fontification buggy
-;;; 	(unwind-protect
-;;; 	    (proof-fontify-region fontifystart (point))
-;;; 	  (setq proof-trace-last-fontify-pos nil))
-;;; 	(set-buffer-modified-p nil)))))
+;;;	;; Catch errors, in case fontification buggy
+;;;	(unwind-protect
+;;;	    (proof-fontify-region fontifystart (point))
+;;;	  (setq proof-trace-last-fontify-pos nil))
+;;;	(set-buffer-modified-p nil)))))
 
 (defun proof-trace-buffer-finish ()
   "Complete fontification in tracing buffer now that there's time to do so."
   )
 ;;;   (let ((fontifystart (proof-trace-fontify-pos)))
 ;;;     (if (and fontifystart (not quit-flag));; may be done already
-;;; 	(save-excursion
-;;; 	   (set-buffer proof-trace-buffer)
-;;; 	   (proof-fontify-region fontifystart (point-max))))))
+;;;	(save-excursion
+;;;	   (set-buffer proof-trace-buffer)
+;;;	   (proof-fontify-region fontifystart (point-max))))))
 
 
 
@@ -482,7 +482,7 @@ We fontify the output only if we're not too busy to do so."
 ;; Revives an old idea from Isamode: a buffer displaying a bunch
 ;; of theorem names.
 ;;
-;; 
+;;
 
 (defun pg-thms-buffer-clear ()
   "Clear the theorems buffer."
