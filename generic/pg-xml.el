@@ -99,7 +99,7 @@ Parsing according to `xml-parse-file' of xml.el."
 				child (xml-node-name node))
 	   (car children))
       children)))
-     
+
 (defun pg-xml-get-text-content (node)
   "Return the concatenation of all the text children of node NODE."
   (mapconcat (lambda (x) (if (stringp x) x "")) (xml-node-children node) ""))
@@ -137,14 +137,14 @@ Output with indentation INDENT-STRING (or none if nil)."
   (let ((tree xml)
 	attlist)
     (funcall outputfn (or indent-string "") "<" (symbol-name (xml-node-name tree)))
-    
+
     ;;  output the attribute list
     (setq attlist (xml-node-attributes tree))
     (while attlist
       (funcall outputfn " ")
       (funcall outputfn (symbol-name (caar attlist)) "=\"" (cdar attlist) "\"")
       (setq attlist (cdr attlist)))
-    
+
     (setq tree (xml-node-children tree))
 
     (if tree
@@ -159,7 +159,7 @@ Output with indentation INDENT-STRING (or none if nil)."
 	     ((stringp node) (funcall outputfn node))
 	     (t
 	      (error "pg-xml-output-internal: Invalid XML tree"))))
-	  
+
 	  (funcall outputfn (if indent-string (concat "\n" indent-string) "")
 		   "</" (symbol-name (xml-node-name xml)) ">"))
       (funcall outputfn "/>"))))
@@ -172,6 +172,9 @@ Output with indentation INDENT-STRING (or none if nil)."
 ;;
 ;; Auxiliary functions for parsing common bits of PGIP
 ;;
+
+(defsubst pg-pgip-get-area (node &optional optional defaultval)
+  (pg-xml-get-attr 'area node optional defaultval))
 
 (defun pg-pgip-get-icon (node &optional optional defaultval)
   "Return the <icon> child of NODE, or nil if none."
