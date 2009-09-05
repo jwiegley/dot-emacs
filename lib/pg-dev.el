@@ -5,7 +5,7 @@
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
-;;
+ ;;
 ;;; Commentary:
 ;;
 ;; Some configuration of Emacs Lisp mode for developing PG, not needed
@@ -16,10 +16,10 @@
 
 (require 'whitespace)
 
-(setq proof-general-debug t)
+(with-no-warnings
+  (setq proof-general-debug t))
 
 ;; Use checkdoc, eldoc, Flyspell, whitespace cleanup:
-
 
 (add-hook 'emacs-lisp-mode-hook
 	  '(lambda ()
@@ -63,13 +63,6 @@
 ;	     (font-lock-add-keywords 'emacs-lisp-mode
 ;				     pg-dev-lisp-font-lock-keywords)))
 
-
-;;;
-;;; Autoloads (as used by "make autoloads")
-;;;
-
-(setq autoload-package-name "proof")
-(setq generated-autoload-file "proof-autoloads.el")
 
 ;;;
 ;;; Unload utility (not wholly successful)
@@ -119,11 +112,13 @@
 
 (defun pg-bug-references ()
   (interactive)
-  (bug-reference-mode 1)
-  (setq bug-reference-bug-regexp
-	"\\(?:[Tt]rac ?#\\)\\([0-9]+\\)"
-	bug-reference-url-format
-	"http://proofgeneral.inf.ed.ac.uk/trac/ticket/%s"))
+  (if (fboundp 'bug-reference-mode)
+      (with-no-warnings
+	(bug-reference-mode 1)
+	(setq bug-reference-bug-regexp
+	      "\\(?:[Tt]rac ?#\\)\\([0-9]+\\)"
+	      bug-reference-url-format
+	      "http://proofgeneral.inf.ed.ac.uk/trac/ticket/%s"))))
 
 (add-hook 'emacs-lisp-mode-hook 'pg-bug-references)
 (add-hook 'isar-mode-hook 'pg-bug-references)
