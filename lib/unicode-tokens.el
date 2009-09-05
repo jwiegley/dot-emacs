@@ -132,6 +132,9 @@ and (match-string 2) has the display control applied.")
 (defvar unicode-tokens-control-region-format-end nil
   "A format string for ending a control region sequence.")
 
+(defvar unicode-tokens-tokens-customizable-variables nil
+  "A list of lists (NAME VAR) of variables for a customize submenu.")
+
 ;;
 ;; A list of the above variables
 ;;
@@ -148,7 +151,8 @@ and (match-string 2) has the display control applied.")
     control-char-format-regexp
     control-char-format
     control-regions
-    control-characters))
+    control-characters
+    tokens-customizable-variables))
 
 (defun unicode-tokens-config (sym)
   "Construct the symbol name `unicode-tokens-SYM'."
@@ -171,8 +175,8 @@ and (match-string 2) has the display control applied.")
 Each configuration variable may be set directly or indirectly by client;
 modes an indirect setting is made by this function from a variable named
 <setting>-variable, e.g., `unicode-tokens-token-symbol-map'
-will be initialised from `unicode-tokens-token-symbol-map-variable'
-if it is bound, which should be the name of a variable."
+will be initialised from `unicode-tokens-token-symbol-map-variable',
+if it is bound; it should be the name of a variable."
   (dolist (sym unicode-tokens-configuration-variables)
     (let ((var (unicode-tokens-config-var sym)))
       (if (and (boundp var) (not (null (symbol-value var))))
@@ -181,16 +185,14 @@ if it is bound, which should be the name of a variable."
 			      (unicode-tokens-config-var sym)))))))
   (unless unicode-tokens-shortcut-replacement-alist
     (setq unicode-tokens-shortcut-replacement-alist
-	  unicode-tokens-shortcut-alist)))
-
-(defun unicode-tokens-customize (sym)
-  "Customize the configuration variable held in `unicode-tokens-SYM-variable'."
-  (interactive "sCustomize setting: ") ;; TODO: completing read, check if customizable
-  (customize-variable
-   (symbol-value (unicode-tokens-config-var (intern sym)))))
-
-
-
+	  unicode-tokens-shortcut-alist))
+  (unless unicode-tokens-tokens-customizable-variables
+    (setq unicode-tokens-tokens-customizable-variables
+	  (list 
+	   (list "Token Map" 
+		 (symbol-value (unicode-tokens-config-var 'token-symbol-map)))
+	   (list "Shortcut List"
+		 (symbol-value (unicode-tokens-config-var 'shortcut-alist)))))))
 
 ;;
 ;; Variables set in the mode
@@ -333,7 +335,7 @@ Several symbols can be used at once, in `unicode-tokens-token-symbol-map'.")
 	(append
 	 '(list :tag "Mapping"
 		(string :tag "Token name")
-		(string :tag "Unicode string"))
+		(sexp :tag "Composition"))
 	 (list (append
 		'(set :tag "Text property styles"  :inline t)
 		(mapcar (lambda (fsp)
@@ -406,7 +408,7 @@ The check is with `char-displayable-p'."
     (reduce (lambda (x y) (and x (char-displayable-p y)))
 	    comp
 	    :initial-value t))
-   ((char-valid-p comp)
+   ((characterp comp)
     (char-displayable-p comp))
    (comp ;; assume any other non-null is OK
     t)))
@@ -418,6 +420,24 @@ The check is with `char-displayable-p'."
 (defvar unicode-tokens-show-symbols nil
   "Non-nil to reveal symbol (composed) tokens instead of compositions.")
 
+(defun unicode-tokens-interpret-composition (comp)
+  "Turn the composition string COMP into an argument for `compose-region'."
+  (cond 
+   ((and (stringp comp) (= 1 (length comp)))
+    comp)
+   ((stringp comp)
+    ;; change a longer string into a sequence placing glyphs left-to-right.
+    (let ((chars (nreverse (string-to-list comp)))
+	  (sep   '(11 . 9))
+	  res)
+      (while chars
+	(setq res (cons (car chars) res))
+	(if (setq chars (cdr chars))
+	    (setq res (cons sep res))))
+      res))
+   (t
+    comp)))
+  
 (defun unicode-tokens-font-lock-compose-symbol (match)
   "Compose a sequence of chars into a symbol.
 Regexp match data number MATCH selects the token name, while 0 matches the
@@ -428,9 +448,11 @@ The face property is set to the :family of `unicode-tokens-symbol-font-face'."
 	 (end       (match-end 0))
 	 (compps    (gethash (match-string match)
 			   unicode-tokens-hash-table))
-	 (propsyms  (cdr-safe compps)))
-    (if (and compps (not unicode-tokens-show-symbols))
-	(compose-region start end (car compps)))
+	 (propsyms  (cdr-safe compps))
+	 (comp      (car-safe compps)))
+    (if (and comp (not unicode-tokens-show-symbols))
+	(compose-region start end 
+			(unicode-tokens-interpret-composition comp)))
     (if propsyms
 	(let ((props (unicode-tokens-symbs-to-props propsyms)))
 	  (while props
@@ -584,6 +606,11 @@ Optional argument FACENIL means set the face property to nil, unless 'face is in
 (defun unicode-tokens-map-ordering (s1 s2)
   "Ordering on (car S1, car S2): order longer strings first."
   (>= (length (car s1)) (length (car s2))))
+
+; core dump caused when quail active, but not by quail.
+;(defun unicode-tokens-shortcut-will-crash-emacs (ustring)
+;  "Work around a nasty Emacs bug that causes a core dump."
+;  (> 1 (length ustring)))
 
 (defun unicode-tokens-quail-define-rules ()
   "Define the token and shortcut input rules.
@@ -807,7 +834,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 			   'face
 			   '(background-color . "gray90"))))))))
 
-
+(defalias 'unicode-tokens-list-unicode-chars 'unicode-chars-list-chars)
 
 (defun unicode-tokens-encode-in-temp-buffer (str fn)
   "Call FN on encoded version of STR."
@@ -1149,6 +1176,13 @@ Commands available are:
 ;; Menu
 ;;
 
+(defun unicode-tokens-customize-submenu ()
+  (mapcar (lambda (cv) 
+	    (vector (car cv)
+		    `(lambda () (interactive)
+		       (customize-variable (quote ,(cadr cv))))))
+	  unicode-tokens-tokens-customizable-variables))
+
 (defun unicode-tokens-define-menu ()
   "Define Tokens menu."
   (easy-menu-define unicode-tokens-menu unicode-tokens-mode-map
@@ -1181,8 +1215,7 @@ Commands available are:
        "---"
       ["List tokens"     unicode-tokens-list-tokens]
       ["List shortcuts"  unicode-tokens-list-shortcuts]
-;      ["Customize tokens"     (unicode-tokens-customize "token-symbol-map")]
-;      ["Customize shortcuts"  (unicode-tokens-customize "shortcut-alist")]
+      ["List Unicode Charset"  unicode-tokens-list-unicode-chars]
       ["Replace shortcuts" unicode-tokens-replace-shortcuts]
       "---"
       ["Copy as unicode" unicode-tokens-copy
@@ -1212,7 +1245,10 @@ Commands available are:
        :selected unicode-tokens-use-shortcuts
        :active unicode-tokens-shortcut-alist
        :help "Use short cuts for typing tokens"]
-      (cons "Set fonts"
+      "---"
+      (cons "Customize"
+	    (unicode-tokens-customize-submenu))
+      (cons "Set Fonts"
        (append
 	(mapcar
 	 (lambda (var)
