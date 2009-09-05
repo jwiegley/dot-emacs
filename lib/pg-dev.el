@@ -14,7 +14,12 @@
 
 ;;; Code:
 
+(require 'whitespace)
+
+(setq proof-general-debug t)
+
 ;; Use checkdoc, eldoc, Flyspell, whitespace cleanup:
+
 
 (add-hook 'emacs-lisp-mode-hook
 	  '(lambda ()
