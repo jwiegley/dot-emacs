@@ -95,7 +95,7 @@
     ("beta" "β")
     ("gamma" "γ")
     ("delta" "δ")
-    ("epsilon" "ε") ; actually varepsilon (some is epsilon)
+    ("epsilon" "ε") ; varepsilon (some is epsilon), although PG can use dups
     ("zeta" "ζ")
     ("eta" "η")
     ("theta" "θ")
@@ -131,7 +131,7 @@
   :set 'isar-set-and-restart-tokens)
 
 (defcustom isar-misc-letters-tokens
-  '(("bool" "IB")
+  '(("bool" "B" bold underline)
     ("complex" "ℂ")
     ("nat" "ℕ")
     ("rat" "ℚ")
@@ -310,7 +310,7 @@
     ("copyright" "©")
     ("registered" "®")
     ("hyphen" "‐")
-    ("inverse" "¯¹") ; X-Symb: just "¯"
+    ("inverse" "\t¯¹") ; X-Symb: just "¯"
     ("onesuperior" "¹")
     ("twosuperior" "²")
     ("threesuperior" "³")
@@ -333,21 +333,23 @@
     ("mho" "℧")
     ("lozenge" "◊")
     ("wp" "℘")
-    ("wrong" "≀") ;; #x002307
-;;    ("struct" "") ;; TODO
+    ("wrong" "≀")  ;; #x002307
+    ("struct" "⋄") ;; #x0022c4
     ("acute" "´")
     ("index" "ı")
     ("dieresis" "¨")
     ("cedilla" "¸")
     ("hungarumlaut" "ʺ")
-    ("spacespace" "⁣⁣") ;; two #x002063
-;    ("module" "") ??
-    ("some" "ϵ")
+    ("spacespace" "  ")  ;; two #x002001
+    ("module" "\t⟨module⟩" bold)
+    ("some" "ϵ"))
+  "Symbol token map for Isabelle.  The standard set of Isabelle symbols."
+  :type 'unicode-tokens-token-symbol-map
+  :group 'isabelle-tokens
+  :set 'isar-set-and-restart-tokens)
 
-    ;; Not in Standard Isabelle Symbols
-    ;; (some are in X-Symbols)
-
-    ("stareq" "≛")
+(defcustom isar-extended-symbols-tokens
+  '(("stareq" "≛")
     ("defeq" "≝")
     ("questioneq" "≟")
     ("vartheta" "ϑ")
@@ -410,11 +412,10 @@
     ("sevensuperior" "⁷")
     ("eightsuperior" "⁸")
     ("ninesuperior" "⁹"))
-  "Symbol token map for Isabelle."
+  "Extended symbols token map for Isabelle.  These are not defined standardly."
   :type 'unicode-tokens-token-symbol-map
   :group 'isabelle-tokens
   :set 'isar-set-and-restart-tokens)
-
 
 (defun isar-try-char (charset code1 code2)
   (and (charsetp charset) ; prevent error
@@ -512,12 +513,15 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
   (custom-set-default 'isar-token-symbol-map
 		      (append
 		       isar-symbols-tokens
-		       isar-symbols-tokens-fallbacks
+		       isar-extended-symbols-tokens
+		       isar-user-tokens
+		       isar-misc-letters-tokens
 		       isar-greek-letters-tokens
 		       isar-bold-nums-tokens
 		       isar-script-letters-tokens
 		       isar-roman-letters-tokens
-		       isar-user-tokens)))
+		       isar-user-tokens
+		       isar-symbols-tokens-fallbacks)))
 
 (isar-init-token-symbol-map)
 
@@ -624,6 +628,20 @@ See `unicode-tokens-shortcut-alist'."
   (setq unicode-tokens-shortcut-replacement-alist nil))
 
 (isar-init-shortcut-alists)
+
+;;
+;; To generate special menu entries
+;;
+
+(defconst isar-tokens-customizable-variables
+  '(("Symbols" isar-symbols-tokens)
+    ("Extended Symbols" isar-extended-symbols-tokens)
+    ("User Tokens" isar-user-tokens)
+    ("Misc Letters" isar-misc-letters-tokens)
+    ("Greek Letters" isar-greek-letters-tokens)
+    ("Fallbacks" isar-symbols-tokens-fallbacks)
+    ("Shortcuts" isar-symbol-shortcuts)))
+
 
 ;;
 ;; prover symbol support
