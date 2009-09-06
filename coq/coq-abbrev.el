@@ -9,7 +9,7 @@
 
 (defun holes-show-doc ()
   (interactive)
-  (describe-variable 'holes-doc))
+  (describe-function 'holes-mode))
 
 (defun coq-local-vars-list-show-doc ()
   (interactive)
