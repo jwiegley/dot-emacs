@@ -72,7 +72,8 @@ Optional argument FUN is used in place of `span-give-warning'."
     (if (null prop) 
 	(overlays-at pt)
       (dolist (ol (overlays-at pt))
-	(if (overlay-get ol prop) (push ol ols)))
+	(if (overlay-get ol prop) 
+	    (push ol ols)))
       ols)))
 
 (defsubst spans-at-region-prop (start end prop)
@@ -82,8 +83,8 @@ Optional argument FUN is used in place of `span-give-warning'."
 	(overlays-in start end)
       (dolist (ol (overlays-in start end))
 	(if (overlay-get ol prop)
-	    (push ol ols))
-	ols))))
+	    (push ol ols)))
+      ols)))
 
 (defsubst span-at (pt prop)
   "Return some SPAN at point PT with property PROP."
