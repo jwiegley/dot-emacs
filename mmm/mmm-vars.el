@@ -50,8 +50,10 @@
   (defvar mmm-mode-prefix-key)
   (defvar mmm-global-mode)
   (defvar mmm-primary-mode)
-  (defvar mmm-classes-alist))
-  (defvar mmm-current-submode)
+  (defvar mmm-classes-alist)
+  (defvar mmm-current-submode))
+  (declare-function mmm-set-class-parameter "mmm-class")
+  (declare-function mmm-get-class-parameter "mmm-class")
 ;;}}}
 ;;{{{ Error Conditions
 

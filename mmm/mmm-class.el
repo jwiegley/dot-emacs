@@ -220,9 +220,10 @@ point at which the search should continue if the region is invalid,
 and OK-RESUME if the region is valid."
   (when (mmm-match-and-verify front start stop front-verify)
     (let ((beg (mmm-match->point include-front front-offset front-match))
-	  (front-pos (if front-delim
+	  (front-pos (with-no-warnings ; da: front-delim dyn scope?
+		       (if front-delim
 			 (mmm-match->point t front-delim front-match)
-		       nil))
+		       nil)))
 	  (invalid-resume (match-end front-match))
 	  (front-form (mmm-get-form front-form)))
       (let ((submode (if match-submode
@@ -253,9 +254,10 @@ and OK-RESUME if the region is valid."
 	       beg stop back-verify)
 	  (let* ((end (mmm-match->point (not include-back)
 					back-offset back-match))
-		 (back-pos (if back-delim
-			       (mmm-match->point nil back-delim back-match)
-			     nil))
+		 (back-pos (with-no-warnings ; da: as above
+			     (if back-delim
+				 (mmm-match->point nil back-delim back-match)
+			       nil)))
 		 (back-form (mmm-get-form back-form))
 		 (ok-resume (if end-not-begin
 				(match-end back-match)
@@ -269,9 +271,10 @@ and OK-RESUME if the region is valid."
 BEGINP, start at \(match-beginning MATCH), else \(match-end MATCH),
 and move OFFSET.  Handles all values of OFFSET--see `mmm-classes-alist'."
   (save-excursion
-    (goto-char (if beginp
-		   (match-beginning front-match)
-		 (match-end back-match)))
+    (goto-char (with-no-warnings ; da: front/back-match dyn binding?
+		 (if beginp
+		     (match-beginning front-match)
+		   (match-end back-match))))
     (dolist (spec (if (listp offset) offset (list offset)))
       (if (numberp spec)
 	  (forward-char (or spec 0))
