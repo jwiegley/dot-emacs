@@ -126,26 +126,6 @@
     ;; pc: I added things in the show menu and called it QUERIES
 
     ""
-    ("HOLES"
-     ;; da: I tidied this menu a bit.  I personally think this "trick"
-     ;; of inserting strings to add documentation looks like a real
-     ;; mess in menus ... I've removed it for the three below since
-     ;; the docs below appear in popup in messages anyway.
-     ;;
-     ;; "Make a hole active   click on it"
-     ;; "Disable a hole   click on it (button 2)"
-     ;; "Destroy a hole   click on it (button 3)"
-     ["Make hole at point"  holes-set-make-active-hole t]
-     ["Make selection a hole"  holes-set-make-active-hole t]
-     ["Replace active hole by selection"  holes-replace-update-active-hole t]
-     ["Jump to active hole"  holes-set-point-next-hole-destroy t]
-     ["Forget all holes in buffer"  holes-clear-all-buffer-holes t]
-     ["Tell me about holes?" holes-show-doc t]
-     ;; look a bit better at the bottom
-     "Make hole with mouse: C-M-select"
-     "Replace hole with mouse: C-M-Shift select";; da: does this one work??
-     )
-
     ;; da: I also added abbrev submenu.  Surprising Emacs doesn't have one?
     ("ABBREVS"
      ["Expand at point" expand-abbrev t]
