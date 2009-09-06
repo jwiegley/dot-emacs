@@ -32,7 +32,9 @@
 
 ;;; Code:
 
+(require 'cl)
 (require 'mmm-compat)
+(require 'mmm-utils)
 
 ;; MISCELLANEOUS
 ;;{{{ Shut up the Byte Compiler
@@ -40,6 +42,7 @@
 ;; Otherwise it complains about undefined variables.
 (eval-when-compile
   (defvar mmm-current-submode)
+  (defvar mmm-current-overlay)
   (defvar mmm-save-local-variables)
   (defvar mmm-mode-string)
   (defvar mmm-submode-mode-line-format)
@@ -48,7 +51,7 @@
   (defvar mmm-global-mode)
   (defvar mmm-primary-mode)
   (defvar mmm-classes-alist))
-
+  (defvar mmm-current-submode)
 ;;}}}
 ;;{{{ Error Conditions
 

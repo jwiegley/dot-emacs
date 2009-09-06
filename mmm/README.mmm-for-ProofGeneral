@@ -3,7 +3,10 @@ The code in this directory is taken from
 	http://mmm-mode.sourceforge.net/
 
 This is version 0.4.8.
-No changes have been made for Proof General.   
+
+Some minor changes have been made for Proof General to
+remove compilation warnings.
+
 Some files have not be included here.
 
 

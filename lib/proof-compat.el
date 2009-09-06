@@ -37,9 +37,10 @@
 ;; Menu presses query this variable, but it's not bound unless
 ;; mode engaged.  Not noticeable in normal use, but it is as soon
 ;; as debug-on-error is engaged.
-(if (and (boundp 'carbon-emacs-package-version)
-	 (not (boundp 'mac-key-mode)))
-    (setq mac-key-mode nil))
+(with-no-warnings
+  (if (and (boundp 'carbon-emacs-package-version)
+	   (not (boundp 'mac-key-mode)))
+      (setq mac-key-mode nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -52,7 +53,7 @@
 (defun pg-custom-undeclare-variable (symbol)
   "Remove a custom setting SYMBOL.
 Done by `makunbound' and removing all properties mentioned by custom library."
-  (mapcar (lambda (prop) (remprop symbol prop))
+  (mapc (lambda (prop) (remprop symbol prop))
 	  '(default
 	     standard-value
 	     force-value
@@ -169,7 +170,7 @@ The returned value is one of the following symbols:
 
 (or (fboundp 'characterp)
     (defun characterp (obj)
-      (char-valid-p obj)))
+      (with-no-warnings (char-valid-p obj))))
 
 ;; End of proof-compat.el
 (provide 'proof-compat)

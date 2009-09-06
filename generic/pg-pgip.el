@@ -1,4 +1,4 @@
-;; pg-pgip.el --- Functions for processing PGIP for Proof General
+;; pg-pgip.el --- Functions for g PGIP for Proof General
 ;;
 ;; Copyright (C) 2000-2002 LFCS Edinburgh.
 ;; Author:   David Aspinall <David.Aspinall@ed.ac.uk>
@@ -330,18 +330,23 @@ Return a symbol representing the PGIP command processed, or nil."
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun pg-pgip-file-of-url (urlstr)
+  (save-match-data
+    (if (string-match "^file:///\\(.*\\)$" urlstr)
+	(match-string 1 urlstr))))
+
 (defun pg-pgip-process-informfileloaded (node)
   (let* ((thyname   (pg-pgip-get-thyname node))
 	 (url	    (pg-pgip-get-url node))
-	 (filename  (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
+	 (filename  (pg-pgip-file-of-url url)))
     (proof-register-possibly-new-processed-file filename)))
 
 (defun pg-pgip-process-informfileretracted (node)
   (let* ((thyname    (pg-pgip-get-thyname node))
 	 (url	    (pg-pgip-get-url node))
-	 (filename   (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
-    (proof-unregister-possibly-processed-file filename))) ;; FIXME: unimplemented!
-
+	 (filename   (pg-pgip-get-url-filename url)))
+    ;(proof-unregister-possibly-processed-file filename))) ;; unimplemented!
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -521,7 +526,7 @@ Also sets local proverid and srcid variables for buffer."
 	(cond
 	 ((and (eq (car-safe type) 'const)
 	       (string-equal value (cadr type)))
-	  (setq res (pg-pgip-interpret-const value 'const)))
+	  (setq res (pg-pgip-interpret-value value 'const)))
 	 ((and (eq type 'integer)
 	       (string-match "[+-]?[0-9]+$" value))
 	  (setq res (pg-pgip-interpret-value value 'integer)))
