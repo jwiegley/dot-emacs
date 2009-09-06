@@ -140,8 +140,28 @@ This one is active whenever we are on a buffer where `holes-mode' is active.
 
 This is not the keymap used on holes's overlay (see `hole-map' instead).")
 
-
-;;;(global-set-key  [(control meta **WRONG** space ) ] 'holes-set-active-hole-next)
+(easy-menu-define nil (list holes-mode-map)
+  "Menu used in Holes minor mode."
+  '("Holes"
+     ;; da: I tidied this menu a bit.  I personally think this "trick"
+     ;; of inserting strings to add documentation looks like a real
+     ;; mess in menus ... I've removed it for the three below since
+     ;; the docs below appear in popup in messages anyway.
+     ;;
+     ;; "Make a hole active   click on it"
+     ;; "Disable a hole   click on it (button 2)"
+     ;; "Destroy a hole   click on it (button 3)"
+     ["Make Hole At Point"  holes-set-make-active-hole t]
+     ["Make Selection A Hole"  holes-set-make-active-hole t]
+     ["Replace Active Hole By Selection"  holes-replace-update-active-hole t]
+     ["Jump To Active Hole"  holes-set-point-next-hole-destroy t]
+     ["Forget All Holes"  holes-clear-all-buffer-holes t]
+     ;; look a bit better at the bottom
+     "---"
+     ["About Holes" holes-show-doc t]
+     "Hint: make hole with mouse: C-M-select"
+     "Hint: replace hole with mouse: C-M-Shift-select"
+     ))
 
 
 
@@ -326,16 +346,12 @@ the span."
   "Map function FUNCTION across holes."
   (fold-spans function object from to nil nil 'hole))
 
-(defun holes-mapcar-holes (function &optional from to prop)
-  "Map function FUNCTION across spans."
-  (span-mapcar-spans function from to 'hole))
-
 (defun holes-clear-all-buffer-holes (&optional start end)
   "Clear all holes leaving their contents.
 Operate betwenn START and END if non nil."
   (interactive)
   (holes-disable-active-hole)
-  (holes-mapcar-holes 
+  (span-mapcar-spans
    'holes-clear-hole (or start (point-min)) (or end (point-max)) 
    'hole))
 
@@ -722,14 +738,13 @@ KNOWN BUGS
 it mean anyway?)
 
  o Cutting or pasting a hole will not produce new holes, and
-undoing on holes cannot make holes re-appear.
-
- o Turning off holes mode does not remove holes from buffer."
+undoing on holes cannot make holes re-appear."
   nil " Holes" holes-mode-map
   :group 'holes
   (if holes-mode
       (add-hook 'skeleton-end-hook 'holes-skeleton-end-hook nil t)
-    (remove-hook 'skeleton-end-hook 'holes-skeleton-end-hook t)))
+    (remove-hook 'skeleton-end-hook 'holes-skeleton-end-hook t)
+    (holes-clear-all-buffer-holes)))
 
 (provide 'holes)
 
