@@ -225,18 +225,16 @@ NO-NEWLINE is non-nil."
   (interactive)
   ;; Note that the input string does not include its terminal newline.
   (let ((proc (get-buffer-process (current-buffer))))
-    (if (not proc) (error "Current buffer has no process")
-      (widen)
-      (let* ((pmark (process-mark proc))
-	     (input (if (>= (point) (marker-position pmark))
-			(buffer-substring pmark (point)))))
+    (let* ((pmark  (process-mark proc))
+	   (start (marker-position pmark)))
 
-	(unless no-newline
-	  (insert ?\n))
+      (unless (< (point) start)
 
-	(let ((beg (marker-position pmark))
-	      (end (if no-newline (point) (1- (point))))
-	      (inhibit-modification-hooks t))
+      ;; (widen)
+
+	;; (let ((beg (marker-position pmark))
+	;;       (end (if no-newline (point) (1- (point))))
+	;;       (inhibit-modification-hooks t))
 	  ;; (when (> end beg)
 	  ;;   (add-text-properties beg end
 	  ;;                        '(front-sticky t
@@ -252,11 +250,11 @@ NO-NEWLINE is non-nil."
 	;; Update the markers before we send the input
 	;; in case we get output amidst sending the input.
 	(set-marker scomint-last-input-start pmark)
+	(unless no-newline
+	  (insert ?\n))
 	(set-marker scomint-last-input-end (point))
 	(set-marker (process-mark proc) (point))
-	(scomint-send-string
-	 proc
-	 (concat input (unless no-newline "\n"))))))))
+	(process-send-region proc start (point))))))
 
 
 ;; TODO: run this on a timer rather than on every I/O
@@ -285,26 +283,24 @@ NO-NEWLINE is non-nil."
       (while (re-search-forward "\r+$" pmark t)
 	(replace-match "" t t)))))
 
-;; The purpose of using this filter for comint processes
-;; is to keep comint-last-input-end from moving forward
-;; when output is inserted.
+;; The purpose of using this filter for comint processes is to keep
+;; comint-last-input-end from moving forward when output is inserted.
 (defun scomint-output-filter (process string)
   (let ((oprocbuf (process-buffer process)))
     ;; First check for killed buffer or no input.
-    (when (and string oprocbuf (buffer-name oprocbuf))
+    (when (and string (buffer-live-p oprocbuf))
       (with-current-buffer oprocbuf
 	;; Insert STRING
-	(let ((inhibit-read-only t)
-	      ;; The point should float after any insertion we do.
+	(let (;; The point should float after any insertion we do.
 	      (saved-point (copy-marker (point) t)))
 
-	  ;; We temporarly remove any buffer narrowing, in case the
+	  ;; We temporarily remove any buffer narrowing, in case the
 	  ;; process mark is outside of the restriction
-	  (save-restriction
-	    (widen)
-
-	    (goto-char (process-mark process))
-	    (set-marker scomint-last-output-start (point))
+	  ;; (save-restriction
+	  ;;   (widen)
+	  
+	  (goto-char (process-mark process))
+	  (set-marker scomint-last-output-start (point))
 
 	    ;; insert-before-markers is a bad thing. XXX
 	    ;; Luckily we don't have to use it any more, we use
@@ -321,7 +317,7 @@ NO-NEWLINE is non-nil."
 
 	    (set-marker saved-point (point))
 
-	    (goto-char (process-mark process)) ; in case a filter moved it
+;;	    (goto-char (process-mark process)) ; in case a filter moved it
 
 	    ;; (let ((inhibit-read-only t)
 	    ;;	  (inhibit-modification-hooks t))
@@ -359,7 +355,7 @@ NO-NEWLINE is non-nil."
 ;;		  (overlay-put comint-last-prompt-overlay
 ;;			       'font-lock-face 'scomint-highlight-prompt))))
 
-	    (goto-char saved-point)))))))
+	    (goto-char saved-point))))))
 
 (defun scomint-interrupt-process ()
   (interactive)
