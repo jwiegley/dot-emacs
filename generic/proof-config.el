@@ -1205,6 +1205,11 @@ command, depending on whether the prover supports nested proofs or not."
 
 (defcustom proof-shell-clear-response-regexp nil
   "Regexp matching output telling Proof General to clear the response buffer.
+
+More precisely, this should match a string which is bounded by
+matches on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
+
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable."
   :type '(choice nil regexp)
@@ -1212,6 +1217,11 @@ is shown to the user.  Set to nil to disable."
 
 (defcustom proof-shell-clear-goals-regexp nil
   "Regexp matching output telling Proof General to clear the goals buffer.
+
+More precisely, this should match a string which is bounded by
+matches on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
+
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable."
   :type '(choice nil regexp)
@@ -1318,6 +1328,10 @@ practice, FUNCTION is likely to inspect the match data.  If it returns
 the empty string, the file name of the scripting buffer is used
 instead.  If it returns nil, no action is taken.
 
+More precisely, REGEXP should match a string which is bounded by
+matches on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
+
 Care has to be taken in case the prover only reports on compiled
 versions of files it is processing.  In this case, FUNCTION needs to
 reconstruct the corresponding script file name.  The new (true) file
@@ -1332,6 +1346,10 @@ name is added to the front of `proof-included-files-list'."
 
 (defcustom proof-shell-retract-files-regexp nil
   "Matches a message that the prover has retracted a file.
+
+More precisely, this should match a string which is bounded by
+matches on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
 
 At this stage, Proof General's view of the processed files is out of
 date and needs to be updated with the help of the function
@@ -1360,6 +1378,10 @@ data triggered by `proof-shell-retract-files-regexp'."
   "Matches output telling Proof General to set some variable.
 This allows the proof assistant to configure Proof General directly
 and dynamically.   (It's also a fantastic backdoor security risk).
+
+More precisely, this should match a string which is bounded by
+matches on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
 
 If the regexp matches output from the proof assistant, there should be
 two match strings: (match-string 1) should be the name of the elisp
@@ -1392,6 +1414,11 @@ settings."
 
 (defcustom proof-shell-match-pgip-cmd nil
   "Regexp used to match PGIP command from proof assistant.
+
+More precisely, this should match a string which is bounded by
+matches on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
+
 The matching string will be parsed as XML and then processed by
 `pg-pgip-process-cmd'."
   :type '(choice nil regexp)
@@ -1474,6 +1501,10 @@ response buffer.
 
 This is intended for unusual debugging output from
 the prover, rather than ordinary output from final proofs.
+
+This should match a string which is bounded by matches 
+on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
 
 Set to nil to disable."
   :type '(choice nil regexp)
