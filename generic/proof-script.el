@@ -27,12 +27,6 @@
 ;;  Local variables used by proof-script-mode
 ;;
 
-;; Scripting variables
-
-(defvar proof-element-counters nil
-  "Table of (name .  count) pairs, counting elements in scripting buffer.")
-
-
 ;; Buffer-local variables
 
 (deflocal proof-active-buffer-fake-minor-mode nil
@@ -46,7 +40,7 @@ buffer file name to nil before running kill buffer, which breaks PG's
 kill buffer hook.  This variable is used when buffer-file-name is nil.")
 
 (deflocal pg-script-portions nil
-  "Lists of symbols naming processed script portions.")
+  "Alist of hash tables for symbols naming processed script portions.")
 
 
 
@@ -58,11 +52,8 @@ kill buffer hook.  This variable is used when buffer-file-name is nil.")
 (defun proof-next-element-count (idiom)
   "Return count for next element of type IDIOM.
 This uses and updates `proof-element-counters'."
-  (let ((next (1+ (or (cdr-safe (assq idiom proof-element-counters)) 0))))
-    (setq proof-element-counters
-	  (cons (cons idiom next)
-		(assq-delete-all idiom proof-element-counters)))
-    next))
+  (let ((tbl  (cdr-safe (assq idiom pg-script-portions))))
+    (if tbl (1+ (hash-table-count tbl)) 1)))
 
 (defun proof-element-id (idiom number)
   "Return a string identifier composed from symbol IDIOM and NUMBER."
@@ -266,8 +257,8 @@ will deactivated."
 	     (if proof-active-buffer-fake-minor-mode
 		 (setq proof-active-buffer-fake-minor-mode nil))
 	     (proof-script-delete-spans (point-min) (point-max))
-	     (setq pg-script-portions nil)	;; also the record of them
-	     (proof-detach-queue)		;; remove queue and locked
+	     (setq pg-script-portions nil)
+	     (proof-detach-queue)
 	     (proof-detach-locked)
 	     (proof-init-segmentation)))
        (if (eq buffer proof-script-buffer)
@@ -373,9 +364,11 @@ Works on any buffer."
   (eq (proof-unprocessed-begin) (point-min)))
 
 (defun proof-only-whitespace-to-locked-region-p ()
-  "Non-nil if only whitespace between point and end of locked region.
+  "Non-nil if only whitespace from char-after point and end of locked region.
 Point expected to be after the locked region."
   (save-excursion
+    (or (eq (point) (point-max))
+	(forward-char 1))
     (not (proof-re-search-backward
 	  "\\S-"
 	  (proof-unprocessed-begin) t))))
@@ -466,45 +459,39 @@ This is used for cleaning `buffer-invisibility-spec' in
 (defun pg-clear-script-portions ()
   "Clear record of script portion names and types from internal list.
 Also clear all visibility specifications."
-  (setq pg-script-portions nil)
-  (mapcar 'remove-from-invisibility-spec
-	  pg-visibility-specs))
-
-(defun pg-add-script-element (elt)
-  (add-to-list pg-script-portions elt))
+  (dolist (idtbl pg-script-portions)
+    (clrhash (cdr idtbl)))
+  (mapc 'remove-from-invisibility-spec pg-visibility-specs))
 
 (defun pg-remove-script-element (ns id)
-  (let* ((elts	   (cdr-safe (assq ns pg-script-portions)))
-	 (newelts  (remq id elts)))
-    (setq pg-script-portions
-	  (if newelts
-	      (cons (cons ns newelts) (assq-delete-all ns pg-script-portions))
-	    (assq-delete-all ns pg-script-portions)))))
+  "Remove the identifier ID from the script portion NS."
+  (let* ((elts (cdr-safe (assq ns pg-script-portions))))
+    (if elts (remhash id elts))))
 
 (defsubst pg-visname (namespace id)
   "Return a unique symbol made from strings NAMESPACE and unique ID."
   (intern (concat namespace ":" id)))
 
-(defun pg-add-element (idiom id span &optional name)
-  "Add element of type IDIOM with identifier ID, referred to by SPAN.
+(defun pg-add-element (idiomsym id span &optional name)
+  "Add element of type IDIOMSYM with identifier ID, referred to by SPAN.
 This records the element in `pg-script-portions' and sets span
 properties accordingly.
-IDIOM, ID, and optional NAME are all strings.
+IDIOMSYM is a symbol, whereas ID and optional NAME are strings.
 Identifiers must be unique for a given idiom; the optional NAME
 will be recorded as a textual name used instead of ID for users;
 NAME does not need to be unique."
-  (let* ((idiomsym (intern idiom))
-	 (idsym    (intern id))
+  (let* ((idsym    (intern id))
 	 (name	   (or name id))
-	 (visname  (pg-visname idiom id))
+	 (visname  (pg-visname (symbol-name idiomsym) id))
 	 (delfn	   `(lambda () (pg-remove-element (quote ,idiomsym) (quote ,idsym))))
 	 (elts	   (cdr-safe (assq idiomsym pg-script-portions))))
-    (if elts
-	(if (memq id elts)
-	    (proof-debug "Element named " name " (type " idiom ") already in buffer.")
-	  (nconc elts (list idsym)))
-      (setq pg-script-portions (cons (cons idiomsym (list idsym))
-				     pg-script-portions)))
+    (unless elts
+      (setq pg-script-portions 
+	    (cons (cons idiomsym (setq elts (makehash)))
+		  pg-script-portions)))
+    (if (gethash id elts)
+	(proof-debug "Element named " name " (type " idiom ") already in buffer.")
+      (puthash idsym t elts))
     ;; Idiom and ID are stored in the span as symbols; name as a string.
     (span-set-property span 'idiom idiomsym)
     (span-set-property span 'id idsym)
@@ -568,13 +555,13 @@ NAME does not need to be unique."
     current-prefix-arg))
   (let ((elts      (cdr-safe (assq (intern idiom) pg-script-portions)))
 	(alterfn   (if hide
-		       (lambda (arg)
+		       (lambda (key val)
 			 (pg-make-element-invisible idiom
-						    (symbol-name arg)))
-		     (lambda (arg)
+						    (symbol-name key)))
+		     (lambda (key val)
 		       (pg-make-element-visible idiom
-						(symbol-name arg))))))
-    (mapc alterfn elts))
+						(symbol-name key))))))
+    (maphash alterfn elts))
   (pg-redisplay-for-gnuemacs))
 
 ;; Next two could be in pg-user.el.  No key-bindings for these.
@@ -591,7 +578,7 @@ NAME does not need to be unique."
 (defun pg-add-proof-element (name span controlspan)
   "Add a span proof element to SPAN with name NAME and parent CONTROLSPAN."
   (let ((proofid   (proof-next-element-id 'proof)))
-    (pg-add-element "proof"  proofid span name)
+    (pg-add-element 'proof  proofid span name)
     ;; Set id in controlspan
     (span-set-property controlspan 'id (intern proofid))
     ;; Make a navigable link between the two spans.
@@ -756,12 +743,6 @@ proof assistant and Emacs has a modified buffer visiting the file."
       ;; Tell the proof assistant, if we should and if we can
       (if (and informprover proof-shell-inform-file-processed-cmd)
 	  (progn
-	    ;; Markus suggests we should ask if the user wants to save
-	    ;; the file now (presumably because the proof assistant
-	    ;; might examine the file timestamp, or attempt to visit
-	    ;; the file later??).
-	    ;; Presumably it would be enough to ask about this file,
-	    ;; not all files?
 	    (if (and
 		 proof-query-file-save-when-activating-scripting
 		 (not noquestions))
@@ -1226,86 +1207,79 @@ With ARG, turn on scripting iff ARG is positive."
 (defun proof-done-advancing (span)
   "The callback function for `assert-until-point'.
 Argument SPAN has just been processed."
-  (if (or (not (span-live-p span))
-	  (not (buffer-live-p (span-buffer span))))
-      (proof-debug
-       "proof-done-advancing: hit a dead span/buffer!")
+  (let ((end     (span-end span))
+	(cmd     (span-property span 'cmd)))
 
-    (let ((end     (span-end span))
-	  (cmd     (span-property span 'cmd)))
+    (proof-set-locked-end end)
 
-      (proof-set-locked-end end)
+    (if (span-live-p proof-queue-span)
+	(proof-set-queue-start end))
 
-      (if (span-live-p proof-queue-span)
-	  (proof-set-queue-start end))
+    (cond
+     ;; CASE 1: Comments just get highlighted
+     ((eq (span-property span 'type) 'comment)
+      (proof-done-advancing-comment span))
 
-      (cond
-       ;; CASE 1: Comments just get highlighted
-       ((eq (span-property span 'type) 'comment)
-	(proof-done-advancing-comment span))
+     ;; CASE 2: Save command seen, now we may amalgamate spans.
+     ((and (proof-string-match-safe proof-save-command-regexp cmd)
+	   (funcall proof-really-save-command-p span cmd)
+	   (decf proof-nesting-depth) ;; [always non-nil/true]
+	   (if proof-nested-goals-history-p
+	       ;; For now, we only support this nesting behaviour:
+	       ;; don't amalgamate unless the nesting depth is 0,
+	       ;; i.e. we're in a top-level proof.
+	       ;; This assumes prover keeps history for nested proofs.
+	       ;; (True for Isabelle/Isar).
+	       (eq proof-nesting-depth 0)
+	     t))
+      (proof-done-advancing-save span))
 
-       ;; CASE 2: Save command seen, now we may amalgamate spans.
-       ((and (proof-string-match-safe proof-save-command-regexp cmd)
-	     ;; FIXME: would like to get rid of proof-really-save-command-p
-	     ;; and use nested goals mechanism instead.
-	     (funcall proof-really-save-command-p span cmd)
-	     (decf proof-nesting-depth) ;; [always non-nil/true]
-	     (if proof-nested-goals-history-p
-		 ;; For now, we only support this nesting behaviour:
-		 ;; don't amalgamate unless the nesting depth is 0,
-		 ;; i.e. we're in a top-level proof.
-		 ;; This assumes prover keeps history for nested proofs.
-		 ;; (True for Isabelle/Isar).
-		 (eq proof-nesting-depth 0)
-	       t))
-	(proof-done-advancing-save span))
+     ;; CASE 3: Proof completed one step or more ago, non-save
+     ;; command seen, no nested goals allowed.
+     ;;
+     ;; We make a fake goal-save from any previous
+     ;; goal to the command before the present one.
+     ;;
+     ;; This allows smooth undoing in proofs which have no "qed"
+     ;; statements.  If your proof assistant doesn't allow these
+     ;; "unclosed" proofs, then you can safely set
+     ;; proof-completed-proof-behaviour.
+     ((and
+       proof-shell-proof-completed
+       (or (and (eq proof-completed-proof-behaviour 'extend)
+		(>= proof-shell-proof-completed 0))
+	   (and (eq proof-completed-proof-behaviour 'closeany)
+		(> proof-shell-proof-completed 0))
+	   (and (eq proof-completed-proof-behaviour 'closegoal)
+		(funcall proof-goal-command-p span))))
+      (proof-done-advancing-autosave span))
 
-       ;; CASE 3: Proof completed one step or more ago, non-save
-       ;; command seen, no nested goals allowed.
-       ;;
-       ;; We make a fake goal-save from any previous
-       ;; goal to the command before the present one.
-       ;;
-       ;; This allows smooth undoing in proofs which have no "qed"
-       ;; statements.  If your proof assistant doesn't allow these
-       ;; "unclosed" proofs, then you can safely set
-       ;; proof-completed-proof-behaviour.
-       ((and
-	 proof-shell-proof-completed
-	 (or (and (eq proof-completed-proof-behaviour 'extend)
-		  (>= proof-shell-proof-completed 0))
-	     (and (eq proof-completed-proof-behaviour 'closeany)
-		  (> proof-shell-proof-completed 0))
-	     (and (eq proof-completed-proof-behaviour 'closegoal)
-		  (funcall proof-goal-command-p span))))
-	(proof-done-advancing-autosave span))
+     ;; CASE 4: A "Require" type of command is seen (Coq).
+     ;;
+     ((and
+       proof-shell-require-command-regexp
+       (proof-string-match proof-shell-require-command-regexp cmd))
+      ;; We take additional action dependent on prover
+      ;; [FIXME: use same method as in proof-shell here to
+      ;;  recompute proof-included-files and adjust it]
+      ;; FIXME 2: we could annotate the Require ourselves
+      ;; at this point to contain the buffers which are
+      ;; being included!  Then undoing can retract them.
+      (funcall proof-done-advancing-require-function span cmd)
+      ;; But do what we would have done anyway
+      (proof-done-advancing-other span))
 
-       ;; CASE 4: A "Require" type of command is seen (Coq).
-       ;;
-       ((and
-	 proof-shell-require-command-regexp
-	 (proof-string-match proof-shell-require-command-regexp cmd))
-	;; We take additional action dependent on prover
-	;; [FIXME: use same method as in proof-shell here to
-	;;  recompute proof-included-files and adjust it]
-	;; FIXME 2: we could annotate the Require ourselves
-	;; at this point to contain the buffers which are
-	;; being included!  Then undoing can retract them.
-	(funcall proof-done-advancing-require-function span cmd)
-	;; But do what we would have done anyway
-	(proof-done-advancing-other span))
+     ;; CASE 5:  Some other kind of command (or a nested goal).
+     (t
+      (proof-done-advancing-other span)))
 
-       ;; CASE 5:  Some other kind of command (or a nested goal).
-       (t
-	(proof-done-advancing-other span)))
-
-      ;; Add the processed command to the input ring
-      (unless (or (not (span-live-p span))
-		  (eq (span-property span 'type) 'comment))
-	(pg-add-to-input-history cmd)))
+    ;; Add the processed command to the input ring
+    (unless (or (not (span-live-p span))
+		(eq (span-property span 'type) 'comment))
+      (pg-add-to-input-history cmd)))
 
   ;; Finally: state of scripting may have changed now, run hooks.
-  (run-hooks 'proof-state-change-hook)))
+  (run-hooks 'proof-state-change-hook))
 
 
 
@@ -1323,7 +1297,7 @@ Argument SPAN has just been processed."
 		       (max 1 (length comment-end)))))
 	(id        (proof-next-element-id 'comment))
 	str)
-    (pg-add-element "comment" id bodyspan)
+    (pg-add-element 'comment id bodyspan)
     (span-set-property span 'id (intern id))
     (span-set-property span 'idiom 'comment)
     ;; this tries to extract last output, which is wrong for comments.
@@ -1346,9 +1320,7 @@ Argument SPAN has just been processed."
 (defun proof-done-advancing-save (span)
   "A subroutine of `proof-done-advancing'.  Add info for save span SPAN."
   (unless (eq proof-shell-proof-completed 1)
-    ;; We expect saves to succeed only for recently completed proofs.
-    ;; Give a hint to the proof assistant implementor in case something
-    ;; odd is going on.  (NB: this is normal for nested proofs, though).
+    ;; We expect saves to succeed only for recently completed top-level proofs.
     (proof-debug
      (format
       "PG: save command with proof-shell-proof-completed=%s, proof-nesting-depth=%s"
@@ -1362,9 +1334,6 @@ Argument SPAN has just been processed."
 	(saveend   (span-end span))
 	(cmd       (span-property span 'cmd))
 	lev nestedundos nam next)
-
-    ;; Try to set the name of the theorem from the save
-    ;; (message "%s" cmd)   3.4: remove this message.
 
     (and proof-save-with-hole-regexp
 	 (proof-string-match proof-save-with-hole-regexp cmd)
@@ -1420,11 +1389,11 @@ Argument SPAN has just been processed."
 	(proof-warning
 	 "Proof General: script management confused, couldn't find goal span for save.")
 
-      ;; If the name isn't set, try to set it from the goal,
-      ;; or as a final desparate attempt, set the name to
-      ;; proof-unnamed-theorem-name (Coq actually uses a default
-      ;; name for unnamed theorems, believe it or not, and issues
-      ;; a name-binding error for two unnamed theorems in a row!).
+      ;; If the name isn't set, try to set it from the goal, or as a
+      ;; final desparate attempt, set the name to
+      ;; proof-unnamed-theorem-name (Coq actually uses a default name
+      ;; for unnamed theorems, believe it or not, and issues a
+      ;; name-binding error for two unnamed theorems in a row!).
       (setq nam (or nam
 		    (proof-get-name-from-goal gspan)
 		    proof-unnamed-theorem-name))
@@ -1445,8 +1414,8 @@ Argument GOALEND is the end of the goal;."
   (span-set-property gspan 'name nam)
   (and nestedundos (span-set-property gspan 'nestedundos nestedundos))
   (pg-set-span-helphighlights gspan)
-  ;; Now make a nested span covering the purported body of the
-  ;; proof, and add to buffer-local list of elements.
+  ;; Now make a nested span covering the purported body of the proof,
+  ;; and add to buffer-local list of elements.
   (let ((proofbodyspan
 	 (span-make goalend (if proof-script-integral-proofs
 				saveend savestart))))
@@ -1974,7 +1943,6 @@ Set the callback to CALLBACK-FN or `proof-done-advancing' by default."
 	 "At end of the locked region, nothing to do to!"))
   (let ((semis (save-excursion
 		 (skip-chars-backward " \t\n")
-		 (backward-char)
 		 (proof-segment-up-to-using-cache (point)))))
     (if (eq 'unclosed-comment (car semis))
 	(setq semis (cdr semis)))
