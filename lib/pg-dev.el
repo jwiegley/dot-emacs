@@ -103,7 +103,10 @@
   (elp-instrument-package "scomint")
   (elp-instrument-package "unicode-tokens")
   (elp-instrument-package "coq")
-  (elp-instrument-package "isar"))
+  (elp-instrument-package "isar")
+  (elp-instrument-package "span")
+  (elp-instrument-package "spans")
+  (elp-instrument-package "font-lock"))
 
 
 ;;
