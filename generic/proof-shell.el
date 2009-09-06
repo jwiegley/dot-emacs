@@ -14,8 +14,10 @@
 ;;
 
 ;;; Code:
+(eval-and-compile
+  (require 'cl))
+
 (eval-when-compile
-  (require 'cl)
   (require 'span)
   (require 'font-lock)
   (require 'proof-utils))
@@ -223,9 +225,12 @@ NB: this is a temporary config variable, it will be removed at some point!"
 
 (defun proof-shell-start ()
   "Initialise a shell-like buffer for a proof assistant.
+Does nothing if proof assistant is already running.
 
 Also generates goal and response buffers.
-Does nothing if proof assistant is already running."
+
+If `proof-prog-name-ask' is set, query the user for the
+process command."
   (interactive)
   (unless (proof-shell-live-buffer)
 
@@ -237,9 +242,8 @@ Does nothing if proof assistant is already running."
 		(apply proof-guess-command-line (list name)))))
 
     (if proof-prog-name-ask
-	(save-excursion
-	  (setq proof-prog-name (read-shell-command "Run process: "
-						    proof-prog-name))))
+	(setq proof-prog-name (read-shell-command "Run process: "
+						  proof-prog-name)))
     (let
 	((proc (downcase proof-assistant)))
 
@@ -718,8 +722,8 @@ This is a hook function for proof-shell-handle-delayed-output-hook."
   (and regexp (string-match regexp string)))
 
 
-(defun proof-shell-classify-output (cmd string)
-  "Process shell output (resulting from CMD) by matching on STRING.
+(defun proof-shell-classify-output (cmd start end)
+  "Process shell output (resulting from CMD) by matching at START.
 CMD is the first part of the `proof-action-list' that lead to this
 output.  The result of this function is a pair (SYMBOL NEWSTRING).
 
@@ -749,28 +753,27 @@ retraction, rather than the indication that one should be made.
 
 This function sets variables: `proof-shell-last-output',
 `proof-shell-last-output-kind', `proof-shell-proof-completed'."
-  ;; Keep a record of the last message from the prover
-  (setq proof-shell-last-output string)
+
+  ;; Keep a copy of the last message from the prover
+  (setq proof-shell-last-output 
+	(buffer-substring-no-properties start end))
+  (goto-char start)
   (or
    ;; First check for error, interrupt, abort, proof completed
    (cond
-    ((proof-shell-string-match-safe proof-shell-interrupt-regexp string)
+    ((proof-looking-at-safe proof-shell-interrupt-regexp)
      (setq proof-shell-last-output-kind 'interrupt))
 
-    ((proof-shell-string-match-safe proof-shell-error-regexp string)
+    ((proof-looking-at-safe proof-shell-error-regexp)
      (setq proof-shell-last-output-kind 'error))
 
-    ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
+    ((proof-looking-at-safe proof-shell-abort-goal-regexp)
      (proof-clean-buffer proof-goals-buffer)
      (setq proof-shell-last-output-kind 'abort))
 
-    ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
-     ;; FIXME PG 4.0: want to remove side effects here
-     ;;  In case no goals display
-     ;;     (proof-clean-buffer proof-goals-buffer)
-     (setq proof-shell-last-output-kind 'goals) ;; PG 4.0: test
-     ;; counter of commands since proof complete.
-     (setq proof-shell-proof-completed 0)
+    ((proof-looking-at-safe proof-shell-proof-completed-regexp)
+     (setq proof-shell-last-output-kind 'goals)
+     (setq proof-shell-proof-completed 0) ; commands since complete
      ;; But!  We carry on matching below for goals output, so that
      ;; provers may include proof completed message as part of
      ;; goals message (Isabelle, HOL) or not (LEGO, Coq).
@@ -778,50 +781,40 @@ This function sets variables: `proof-shell-last-output',
 
    ;; Check for remaining things
    (cond
-    ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
-     (let ((start (match-end 0))
-	   end)
+    ((proof-looking-at-safe proof-shell-start-goals-regexp)
+     (let ((gstart (match-end 0)) gend)
        ;; Find the last goal string in the output
-       (while (string-match proof-shell-start-goals-regexp string start)
-	 (setq start (match-end 0)))
-       ;; Convention: provers with special characters appearing in
-       ;; proof-start-goals-regexp don't include the match in their
-       ;; goals output.  Others do.
-       ;; (Improvement to examine proof-start-goals-regexp suggested
-       ;;  for Coq by Robert Schneck because Coq has specials but
-       ;;  doesn't markup goals output specially).
-;; FIXME: try to remove this for PG 4.0
-;;        (unless (and
-;;		pg-subterm-first-special-char
-;;		(not (string-equal
-;;		      proof-shell-start-goals-regexp
-;;		      (pg-assoc-strip-subterm-markup
-;;		       proof-shell-start-goals-regexp))))
-       (setq start (match-beginning 0))
-       (setq end (if proof-shell-end-goals-regexp
-		     (string-match proof-shell-end-goals-regexp string start)
-		   (length string)))
-       (setq proof-shell-last-output (substring string start end))
+       (goto-char gstart)
+       (while (re-search-forward proof-shell-start-goals-regexp end t)
+	 (setq gstart (match-beginning 0)))
+       (setq gend 
+	     (if proof-shell-end-goals-regexp
+		 (progn
+		   (re-search-forward proof-shell-end-goals-regexp end t)
+		   (match-beginning 0))
+	       end))
+       (setq proof-shell-last-output 
+	     (buffer-substring-no-properties gstart gend))
        (setq proof-shell-last-output-kind 'goals)))
 
     ;; Test for a proof by pointing command hint
-    ((proof-shell-string-match-safe proof-shell-result-start string)
-     (let (start end)
-       (setq start (+ 1 (match-end 0)))
-       (string-match proof-shell-result-end string)
-       (setq end (- (match-beginning 0) 1))
-       ;; Only record the loopback command in the last output message
-       (setq proof-shell-last-output (substring string start end)))
+    ((proof-looking-at-safe proof-shell-result-start)
+     (let (pstart pend)
+       (setq pstart (+ 1 (match-end 0)))
+       (re-search-forward proof-shell-result-end end t)
+       (setq pend (- (match-beginning 0) 1))
+       (setq proof-shell-last-output ; only the loopback command
+	     (buffer-substring-no-properties pstart pend)))
      (setq proof-shell-last-output-kind 'loopback))
 
     ;; Hook to tailor proof-shell-classify-output to a specific proof
     ;; system, in the case that all the above matches fail.
     ((and proof-shell-classify-output-system-specific
 	  (funcall (car proof-shell-classify-output-system-specific)
-		   cmd string))
+		   cmd proof-shell-last-output))
      (setq proof-shell-last-output-kind 'systemspecific)
      (funcall (cdr proof-shell-classify-output-system-specific)
-	      cmd string))
+	      cmd proof-shell-last-output))
 
     ;; Finally, any other output will appear as a response.
     (t
@@ -901,32 +894,24 @@ inserted text.
 Do not use this function directly, or output will be lost.  It is only
 used in `proof-append-alist' when we start processing a queue, and in
 `proof-shell-exec-loop', to process the next item."
+  ;(assert (stringp string) t "proof-shell-insert: expected string argument")
+
   (with-current-buffer proof-shell-buffer
     (goto-char (point-max))
 
     ;; Hook for munging `string' and other dirty hacks.
-    (unless (or (null string)
-		(string-equal string "")
-		(string-equal string "\n"))
-      (run-hooks 'proof-shell-insert-hook))
+    (run-hooks 'proof-shell-insert-hook)
 
     ;; Replace CRs from string with spaces to avoid spurious prompts.
     (if proof-shell-strip-crs-from-input
-	(setq string (subst-char-in-string ?\n ?\  string)))
+	(setq string (subst-char-in-string ?\n ?\  string t)))
 
-    (insert (or string ""))  ;; robust against call with nil
+    (insert string)
 
     ;; Advance the proof-marker, if synchronization has been gained.
     ;; Null marker => no yet synced; output is ignored.
     (unless (null (marker-position proof-marker))
       (set-marker proof-marker (point)))
-
-    ;; FIXME da: this space fudge is actually a visible hack:
-    ;; the response string begins with a space and a newline.
-    ;; It was needed to work around differences in Emacs versions.
-    ;; PG 4.0: consider alternative of maintaining marker at
-    ;; position -1
-    (insert " ")
 
     (scomint-send-input)
 
@@ -985,8 +970,10 @@ track what happens in the proof queue."
 
 
 (defsubst proof-shell-invoke-callback (listitem)
-  "From a `proof-action-list' entry, invoke the callback on the span."
-  (funcall (nth 2 listitem) (car listitem)))
+  "From `proof-action-list' LISTITEM, invoke the callback on the span."
+  (condition-case nil
+      (funcall (nth 2 listitem) (car listitem))
+    (error nil)))
 
 (defun proof-append-alist (alist &optional queuemode)
   "Chop off the vacuous prefix of the command queue ALIST and queue it.
@@ -1001,48 +988,49 @@ If the proof shell is busy when this function is called,
 then QUEUEMODE must match the mode of the queue currently
 being processed."
   (let (item)
-    ;; NB: wrong time for callbacks for no-op commands, if queue non-empty.
-    (while (and alist (not (nth 1 (setq item (car alist)))))
-      (proof-shell-invoke-callback item)
-      (setq alist (cdr alist)))
+    (unless proof-action-list
+      (while (and alist (not (nth 1 (setq item (car alist)))))
+	(proof-shell-invoke-callback item)
+	(setq alist (cdr alist))))
+
     (if (and (null alist) (null proof-action-list))
 	;; remove the queue (otherwise done in proof-shell-exec-loop)
 	(proof-detach-queue))
 
-    (if alist
-	(if proof-action-list
-	    (progn
-	      ;; internal check: correct queuemode in force if busy
-	      ;; (should have proof-action-list<>nil -> busy)
-	      (and proof-shell-busy queuemode
-		   (unless (eq proof-shell-busy queuemode)
-		     (proof-debug "proof-append-alist: wrong queuemode detected for busy shell")
-		     (assert (eq proof-shell-busy queuemode))))
-	      ;; See if we should make prover quieten down
-	      (if (proof-shell-should-be-silent (length alist))
-		;; Make it ASAP, which is just after the current
-		;; command (head of queue).
-		  (setq proof-action-list
-			(cons (car proof-action-list)
-			      (cons (proof-shell-start-silent-item)
-				     (cdr proof-action-list)))))
-	      ;; append to the current queue
-	      (setq proof-action-list
-		    (nconc proof-action-list alist)))
-	  ;; start processing a new queue
+    (when (and alist proof-action-list)
+      ;; extend existing queue
+      ;; internal check: correct queuemode in force if busy
+      ;; (should have proof-action-list<>nil -> busy)
+      (and proof-shell-busy queuemode
+	   (unless (eq proof-shell-busy queuemode)
+	     (proof-debug "proof-append-alist: wrong queuemode detected for busy shell")
+	     (assert (eq proof-shell-busy queuemode))))
+      ;; See if we should make prover quieten down
+      (if (proof-shell-should-be-silent (length alist))
+	  ;; Make it ASAP, which is just after the current
+	  ;; command (head of queue).
+	  (setq proof-action-list
+		(cons (car proof-action-list)
+		      (cons (proof-shell-start-silent-item)
+			    (cdr proof-action-list)))))
+      ;; append to the current queue
+      (setq proof-action-list
+	    (nconc proof-action-list alist)))
+
+    (when (and alist (not proof-action-list))
+      ;; start processing a new queue
+      (proof-grab-lock queuemode)
+      (setq proof-shell-last-output-kind nil)
+      (if (proof-shell-should-be-silent (length alist))
+	  ;;
 	  (progn
-	    (proof-grab-lock queuemode)
-	    (setq proof-shell-last-output-kind nil)
-	    (if (proof-shell-should-be-silent (length alist))
-		;;
-		(progn
-		  (setq proof-action-list
-			(list (proof-shell-start-silent-item)))
-		  (setq item (car proof-action-list))))
 	    (setq proof-action-list
-		  (nconc proof-action-list alist))
-	    ;; Really start things going here
-	    (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item)))))))
+		  (list (proof-shell-start-silent-item)))
+	    (setq item (car proof-action-list))))
+      (setq proof-action-list
+	    (nconc proof-action-list alist))
+      ;; Really start things going here:
+      (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item)))))
 
 ;;;###autoload
 (defun proof-start-queue (start end alist)
@@ -1088,17 +1076,22 @@ The return value is non-nil if the action list is now empty."
      (if proof-script-buffer		      ; switch to active script
 	 (set-buffer proof-script-buffer))
 
-     (let ((item  (car proof-action-list))
-	   (flags (nthcdr 3 (car proof-action-list))))
+     (let* ((item  (car proof-action-list))
+	    (flags (nthcdr 3 (car proof-action-list)))
+	    (cbitems (list item)))
 
        ;; invoke callback on just processed command
-       (proof-shell-invoke-callback item)
+; PG 4.0: do this now *after* pumping the next command out,
+; to parallelize prover and Emacs somewhat
+;      (proof-shell-invoke-callback item)
+
        (setq proof-action-list (cdr proof-action-list))
 
        ;; slurp comments without sending to prover
        (while (and proof-action-list
 		   (not (nth 1 (setq item (car proof-action-list)))))
-	 (proof-shell-invoke-callback item)
+;;	 (proof-shell-invoke-callback item)
+	 (setq cbitems (cons item cbitems))
 	 (setq proof-action-list (cdr proof-action-list)))
 
        ;; if action list is (nearly) empty, ensure prover is noisy.
@@ -1114,7 +1107,8 @@ The return value is non-nil if the action list is now empty."
 			 proof-action-list))
 	     (setq item (car proof-action-list))))
 
-       ;; deal with pending interrupts (which were sent but caused no prover error)
+       ;; deal with pending interrupts (which were sent but caused no
+       ;; prover error)
        (if proof-shell-interrupt-pending
 	   (progn
 	     (proof-debug "Processed pending interrupt")
@@ -1122,9 +1116,13 @@ The return value is non-nil if the action list is now empty."
 
        (if proof-action-list
 	   ;; send the next command to the process.
-	   (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item))
+	   (proof-shell-insert 
+	    (nth 1 item) (nth 2 item) (nth 0 item)))
 
-	 ;; action list is empty, release lock and cleanup
+       ;; process the callbacks
+       (mapc 'proof-shell-invoke-callback (nreverse cbitems))
+
+       (unless proof-action-list	; release lock, cleanup
 	 (proof-release-lock)
 	 (proof-detach-queue)
 	 (unless flags ; hint after a batch of scripting
@@ -1162,6 +1160,145 @@ and indentation.  Assumes proof-script-buffer is active."
 		    (cons (list span cmd 'proof-done-advancing)
 			  (cdr proof-action-list))))))))
 
+(defun proof-shell-process-urgent-message (start end)
+  "Analyse urgent message between START and END for various cases.
+
+Cases are: included file, retracted file, cleared response buffer,
+variable setting or dependency list.
+
+If none of these apply, display the text between START and END.
+
+The text between START and END should be a string that starts with
+text matching `proof-shell-eager-annotation-start' and
+ends with text matching `proof-shell-eager-annotation-end'."
+  (goto-char start)
+  (cond
+   ;; CASE tracing output: use tracing buffer
+   ((proof-looking-at-safe proof-shell-trace-output-regexp)
+    (proof-shell-process-urgent-message-trace start end))
+
+   ;; CASE processing file: update known files list
+   ((proof-looking-at-safe (car-safe proof-shell-process-file))
+    (let ((file (funcall (cdr proof-shell-process-file))))
+      (if (and file (not (string= file "")))
+	  (proof-register-possibly-new-processed-file file))))
+
+   ;; CASE retract: the prover is retracting across files
+   ((proof-looking-at-safe proof-shell-retract-files-regexp)
+    (proof-shell-process-urgent-message-retract start end))
+
+   ;; CASE clear response: prover asks PG to clear response buffer
+   ((proof-looking-at-safe proof-shell-clear-response-regexp)
+    (pg-response-maybe-erase nil t t))
+
+   ;; CASE clear goals: prover asks PG to clear goals buffer
+   ((proof-looking-at-safe proof-shell-clear-goals-regexp)
+    (proof-clean-buffer proof-goals-buffer))
+
+   ;; CASE variable setting: prover asks PG to set some variable
+   ((proof-looking-at-safe proof-shell-set-elisp-variable-regexp)
+    (proof-shell-process-urgent-message-elisp))
+
+   ;; CASE PGIP message from proof assistant.
+   ((proof-looking-at-safe proof-shell-match-pgip-cmd)
+    (pg-pgip-process-packet 
+     ;; NB: rely on xml-parse-region ignoring junk before XML
+     (xml-parse-region start end)))
+   
+   ;; CASE theorem dependency: prover lists thms used in last proof
+   ((proof-looking-at-safe proof-shell-theorem-dependency-list-regexp)
+    (proof-shell-process-urgent-message-thmdeps))
+
+   ;; CASE everything else.  We'll display a message.
+   (t
+    (proof-shell-process-urgent-message-default start end))))
+
+
+;;
+;; urgent message subroutines
+;;
+
+(defun proof-shell-process-urgent-message-default (start end)
+  "A subroutine of `proof-shell-process-urgent-message'."
+  ;; Clear the response buffer this time, but not next, leave window.
+  (pg-response-maybe-erase nil nil)
+  ;; Display first chunk of output in minibuffer.
+  ;; Maybe this should be configurable, it can get noisy.
+  (proof-shell-message
+   (buffer-substring-no-properties 
+    (save-excursion 
+      (re-search-forward proof-shell-eager-annotation-start end nil)
+      (point))
+    (min end 
+	 (save-excursion (end-of-line) (point))
+	 (+ start 75))))
+  (pg-response-display-with-face
+   (proof-shell-strip-eager-annotations start end)
+   'proof-eager-annotation-face))
+
+(defun proof-shell-process-urgent-message-trace (start end)
+  "Display a message in the tracing buffer.
+A subroutine of `proof-shell-process-urgent-message'."
+  (proof-trace-buffer-display 
+   (buffer-substring-no-properties start end))
+  (unless (and proof-trace-output-slow-catchup
+	       (pg-tracing-tight-loop))
+    (proof-display-and-keep-buffer proof-trace-buffer))
+  ;; If user quits during tracing output, send an interrupt
+  ;; to the prover.  Helps when Emacs is "choking".
+  (if (and quit-flag proof-action-list)
+      (proof-interrupt-process)))
+
+(defun proof-shell-process-urgent-message-retract (start end)
+  "A subroutine of `proof-shell-process-urgent-message'."
+  (let ((current-included proof-included-files-list))
+    (setq proof-included-files-list
+	  (funcall proof-shell-compute-new-files-list))
+    (let ((scrbuf proof-script-buffer))
+      ;; NB: we assume that no new buffers are *added* by
+      ;; the proof-shell-compute-new-files-list
+      (proof-restart-buffers
+       (proof-files-to-buffers
+	(set-difference current-included
+			proof-included-files-list)))
+      (cond
+       ;; Do nothing if there was no active scripting buffer
+       ((not scrbuf))
+       ;; Do nothing if active buffer hasn't changed (may be nuked)
+       ((eq scrbuf proof-script-buffer))
+       ;; Otherwise, active scripting buffer has been retracted.
+       (t
+	(setq proof-script-buffer nil))))))
+
+(defun proof-shell-process-urgent-message-elisp ()
+  "A subroutine of `proof-shell-process-urgent-message'."
+  (let
+      ((variable   (match-string 1))
+       (expr       (match-string 2)))
+    (condition-case nil
+	(with-temp-buffer
+	  (insert expr) ; massive risk from malicious provers!!
+	  (set (intern variable) (eval-last-sexp t)))
+      (t (proof-debug
+	  (concat
+	   "lisp error when obeying proof-shell-set-elisp-variable: \n"
+	   "setting `" variable "'\n to: \n"
+	   expr "\n"))))))
+
+(defun proof-shell-process-urgent-message-thmdeps ()
+  "A subroutine of `proof-shell-process-urgent-message'."
+  (let ((names   (match-string 1))
+	(deps    (match-string 2))
+	(sep     proof-shell-theorem-dependency-list-split))
+    (setq 
+     proof-last-theorem-dependencies
+     (cons (split-string names sep)
+	   (split-string deps sep)))))
+
+;;
+;; urgent message utilities
+;;
+
 (defun proof-shell-message (str)
   "Output STR in minibuffer."
   (message "%s" ;; to escape format characters
@@ -1169,146 +1306,20 @@ and indentation.  Assumes proof-script-buffer is active."
 		   ;; TODO: rather than stripping, could try fontifying
 		   (proof-shell-strip-output-markup str))))
 
-(defun proof-shell-process-urgent-message (message)
-  "Analyse urgent MESSAGE for various cases.
-Cases are: included file, retracted file, cleared response buffer,
-variable setting or dependency list.
-If none of these apply, display MESSAGE.
-
-MESSAGE should be a string annotated with
-`proof-shell-eager-annotation-start', `proof-shell-eager-annotation-end'."
-    (cond
-     ;; CASE tracing output: use tracing buffer
-     ((and proof-shell-trace-output-regexp
-	   (string-match proof-shell-trace-output-regexp message))
-      (proof-trace-buffer-display
-;; FIXME: remove for PG 4.0
-;;       (if (or pg-use-specials-for-fontify
-;;	       proof-shell-unicode)
-	   message
-;;	 (pg-assoc-strip-subterm-markup message))
-	   )
-      (unless (and proof-trace-output-slow-catchup
-		   (pg-tracing-tight-loop))
-	(proof-display-and-keep-buffer proof-trace-buffer))
-      ;; If user quits during tracing output, send an interrupt
-      ;; to the prover.  Helps when Emacs is "choking".
-      (if (and quit-flag proof-action-list)
-	  (proof-interrupt-process)))
+(defun proof-shell-strip-eager-annotations (start end)
+  "Strip `proof-shell-eager-annotation-{start,end}' from region."
+  (goto-char start)
+  (if (re-search-forward proof-shell-eager-annotation-start end nil)
+      (setq start (point)))
+  (if (re-search-forward proof-shell-eager-annotation-end end nil)
+      (setq end (match-beginning 0)))
+  (buffer-substring-no-properties start end))
 
 
-     ;; CASE processing file: update known files list
-     ((and proof-shell-process-file
-	   (string-match (car proof-shell-process-file) message))
-      (let
-	  ((file (funcall (cdr proof-shell-process-file) message)))
-	(if (and file (not (string= file "")))
-	    (proof-register-possibly-new-processed-file file))))
-
-     ;; CASE retract: the prover is retracting across files
-     ((and proof-shell-retract-files-regexp
-	   (string-match proof-shell-retract-files-regexp message))
-      (let ((current-included proof-included-files-list))
-	(setq proof-included-files-list
-	      (funcall proof-shell-compute-new-files-list message))
-	(let
-	    ;; Previously active scripting buffer
-	    ((scrbuf proof-script-buffer))
-	  ;; NB: we assume that no new buffers are *added* by
-	  ;; the proof-shell-compute-new-files-list
-	  (proof-restart-buffers
-	   (proof-files-to-buffers
-	  (set-difference current-included
-			  proof-included-files-list)))
-	  (cond
-	   ;; Do nothing if there was no active scripting buffer
-	   ((not scrbuf))
-	   ;; Do nothing if active buffer hasn't changed (may be nuked)
-	   ((eq scrbuf proof-script-buffer))
-	   ;; Otherwise, active scripting buffer has been retracted.
-	   (t
-	    (setq proof-script-buffer nil))))))
-
-     ;; CASE clear response: prover asks PG to clear response buffer
-     ((and proof-shell-clear-response-regexp
-	   (string-match proof-shell-clear-response-regexp message))
-      (pg-response-maybe-erase nil t t))
-
-     ;; CASE clear goals: prover asks PG to clear goals buffer
-     ((and proof-shell-clear-goals-regexp
-	   (string-match proof-shell-clear-goals-regexp message))
-      (proof-clean-buffer proof-goals-buffer))
-
-     ;; CASE variable setting: prover asks PG to set some variable
-     ((and proof-shell-set-elisp-variable-regexp
-	   (string-match proof-shell-set-elisp-variable-regexp message))
-      (let
-	  ((variable   (match-string 1 message))
-	   (expr       (match-string 2 message)))
-	(condition-case nil
-	    (with-temp-buffer
-	      (insert expr) ; massive risk from malicious provers!!
-	      (set (intern variable) (eval-last-sexp t)))
-	  (t (proof-debug
-	      (concat
-	       "lisp error when obeying proof-shell-set-elisp-variable: \n"
-	       "setting `" variable "'\n to: \n"
-	       expr "\n"))))))
-
-     ;; CASE PGIP message from proof assistant.
-     ((and proof-shell-match-pgip-cmd
-	   (string-match proof-shell-match-pgip-cmd message))
-      (require 'pg-xml)
-      (require 'pg-pgip)
-      (unless (string-match (match-string 0 message)
-			    proof-shell-eager-annotation-start)
-	;; Assume that eager annotation regexps are _not_ part of PGIP
-	(setq message (proof-shell-strip-eager-annotations message)))
-      (let
-	  ((parsed-pgip  (pg-xml-parse-string message)))
-	(pg-pgip-process-packet parsed-pgip)))
-
-     ;; CASE theorem dependency: prover lists thms used in last proof
-     ((and proof-shell-theorem-dependency-list-regexp
-	   (string-match proof-shell-theorem-dependency-list-regexp message))
-      (let ((names   (match-string 1 message))
-	    (deps    (match-string 2 message)))
-	(setq proof-last-theorem-dependencies
-	      (cons
-	       (split-string names
-			     proof-shell-theorem-dependency-list-split)
-	       (split-string deps
-			     proof-shell-theorem-dependency-list-split)))))
-
-
-     (t
-      ;; CASE everything else.  We're about to display a message.
-      ;; Clear the response buffer this time, but not next, leave window.
-      (pg-response-maybe-erase nil nil)
-;; FIXME: remove for PG 4.0
-;;      (let ((stripped (if proof-shell-unicode
-;;			  (proof-shell-strip-eager-annotations message)
-;;			(pg-remove-specials-in-string
-;;			 (pg-assoc-strip-subterm-markup message)))))
-	;; Display first chunk of output in minibuffer.
-	;; Maybe this should be configurable, it can get noisy.
-	(proof-shell-message
-	 (substring message 0 (or (string-match "\n" message)
-				   (min (length message) 75))))
-	(pg-response-display-with-face
-	 (proof-shell-strip-eager-annotations message)
-	 'proof-eager-annotation-face))))
-
-(defun proof-shell-strip-eager-annotations (string)
-  "Strip `proof-shell-eager-annotation-{start,end}' from STRING."
-  (save-match-data
-   (substring
-    string
-    (if (string-match proof-shell-eager-annotation-start string)
-	(match-end 0) 0)
-    (if (string-match proof-shell-eager-annotation-end string)
-	(match-beginning 0)))))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; "Urgent" user interaction with proof assistant (currently unused)
+;;
 
 (defvar proof-shell-minibuffer-urgent-interactive-input-history nil)
 
@@ -1320,7 +1331,6 @@ MESSAGE should be a string annotated with
 	    'proof-shell-minibuffer-urgent-interactive-input-history))))
     ;; Always send something, even if read-input was errorful
     (proof-shell-insert (or input "") 'interactive-input)))
-
 
 
 
@@ -1338,10 +1348,6 @@ an important internal function.
 
 Handle urgent messages first.  As many as possible are processed,
 using the function `proof-shell-process-urgent-messages'.
-
-Otherwise wait until an annotated prompt appears in the input.
-If `proof-shell-wakeup-char' is set, wait until we see that in
-the output chunk STR.  This optimizes the filter slightly.
 
 If a prompt is seen, run `proof-shell-classify-output' on the
 output between the new prompt and the last input (position of
@@ -1374,109 +1380,74 @@ initialised to the end of the prompt.  This should correspond
 with initializing the process.  After that, `proof-marker'
 is only changed when input is sent in `proof-shell-insert'."
   (save-excursion
-    ;; Strip CRs.
-    (if proof-shell-strip-crs-from-output
-	(progn
-	  (setq str (replace-regexp-in-string "\r+$" "" str))
-	  ;; Do the same thing in the buffer via comint's function
-	  ;; (sometimes put on scomint-output-filter-functions too).
-	  (scomint-strip-ctrl-m)))
-
+    
     ;; Process urgent messages.
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))
 
-    ;; FIXME da: some optimization possible here by customizing filter
-    ;; according to whether proof-shell-wakeup-char, etc, are non-nil.
-    ;; Could make proof-shell-filter into a macro to do this.
-    ;; On the other hand: it's not clear that wakeup-char is really
-    ;; needed, as matching the prompt may be efficient enough anyway.
+    (let ((pos (marker-position proof-marker)))
 
-    (if ;; Some proof systems can be hacked to have annotated prompts;
-	;; for these we set proof-shell-wakeup-char to the annotation
-	;; special, and look for it in the output before doing anything.
-	(if proof-shell-wakeup-char
-	    ;; NB: this match doesn't work in emacs-mule, darn.
-	    ;; (string-match (char-to-string proof-shell-wakeup-char) str))
-	    ;; NB: this match doesn't work in GNU Emacs 20.5, darn.
-	    ;; (find proof-shell-wakeup-char str)
-	    ;; So let's use both tests!
-	    (or
-	     (string-match (char-to-string proof-shell-wakeup-char) str)
-	     (find proof-shell-wakeup-char str))
-	  ;; Others systems rely on a standard top-level (e.g. SML) whose
-	  ;; prompts may be difficult or impossible to hack.
-	  ;; For those we must search in the buffer for the prompt.
-	  t)
-	(if (null (marker-position proof-marker))
-	    ;; Initialisation of proof-marker:
-	    ;; Set marker to after the first prompt in the
-	    ;; output buffer if one can be found now.
-	    ;; NB: ideally, we'd rather do this initialization outside
-	    ;; of the filter function for slightly better efficiency.
-	    ;; Could be achieved by switching between filter functions.
-	    (progn
-	      (goto-char (point-min))
-	      (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
-		  (progn
-		    (set-marker proof-marker (point))
-		    ;; The first time a prompt is seen we ignore any
-		    ;; output that occured before it, assuming that
-		    ;; corresponds to uninteresting startup messages.
-		    ;; We process the
-		    ;; action list to remove the first item if need
-		    ;; be (proof-shell-init-cmd sent if
-		    ;; proof-shell-config-done).
-		    (if proof-action-list
-			(proof-shell-filter-manage-output "")))))
-	  ;; Now we're looking for the end of the piece of output
-	  ;; which will be processed.
+      (if (not pos)
+	  (proof-shell-filter-first-command)
+	
+	(if proof-action-list
+	  
+	    ;; We were expecting some output.  Wait until output is
+	    ;; complete.  Only one piece of output is dealt with at a
+	    ;; time; we loose sync if there's more than one bit there.
+	  
+	  (let ((urgnt          (marker-position
+			         proof-shell-urgent-message-marker))
+		(prev-prompt pos)
+		(startpos   pos)
+		endpos)
+	    
+	    ;; Ignore any urgent messages that have already been dealt
+	    ;; with.  This loses in the case mentioned above.  Instead
+	    ;; might try to delete/filter out old urgent messages.
+	    
+	    (goto-char pos)
+	    (if (and urgnt (< startpos urgnt))
+		(setq startpos (goto-char urgnt))
+	      ;; Otherwise, skip possibly a (fudge) space and new line
+	      (if (eq (char-after startpos) ?\ )
+		  (setq startpos (goto-char (+ 2 startpos)))
+		(setq startpos (goto-char (1+ startpos)))))
 
-	  ;; Note that the way this filter works, only one piece of
-	  ;; output can be dealt with at a time so we loose sync if
-	  ;; there's more than one bit there.
-
-	  (if proof-action-list
-	      ;; We were expecting some output, examine it.
-	      (let ((urgnt    (marker-position
-			       proof-shell-urgent-message-marker))
-		    string startpos prev-prompt)
-
-		;; Ignore any urgent messages that have already been
-		;; dealt with.  This loses in the case mentioned
-		;; above.  A more general way of doing this would be
-		;; to filter out or delete the urgent messages which
-		;; have been processed already.
-		(setq prev-prompt (goto-char (marker-position proof-marker)))
-		(setq startpos prev-prompt)
-		(if (and urgnt
-			 (< startpos urgnt))
-		    (setq startpos (goto-char urgnt))
-		  ;; Otherwise, skip possibly a (fudge) space and new line
-		  (if (eq (char-after startpos) ?\ )
-		      (setq startpos (goto-char (+ 2 startpos)))
-		    (setq startpos (goto-char (1+ startpos)))))
-		;; Find next prompt.
-		(if (re-search-forward
-		     proof-shell-annotated-prompt-regexp nil t)
-		    (progn
-		      (setq proof-shell-last-prompt
-			    (buffer-substring-no-properties
-			     (match-beginning 0) (match-end 0)))
-		      (backward-char (- (match-end 0) (match-beginning 0)))
-		      (setq string (buffer-substring-no-properties
-				    startpos (point)))
-		      (goto-char (point-max))
-		      (setq proof-shell-expecting-output nil)
-		      ;; Process output string.
-		      (proof-shell-filter-manage-output string)
-		      )))
-	    (if proof-shell-busy
-		;; internal error recovery:
+	    ;; Find next prompt.
+	    (if (re-search-forward
+		 proof-shell-annotated-prompt-regexp nil t)
 		(progn
-		  (proof-debug
-		   "proof-shell-filter found empty action list yet proof shell busy.")
-		  (proof-release-lock))))))))
+		  (setq endpos (match-beginning 0))
+		  (setq proof-shell-last-prompt
+			(buffer-substring-no-properties 
+			 endpos (match-end 0)))
+		  (goto-char (point-max))
+		  (setq proof-shell-expecting-output nil)
+		  ;; Process output string.
+		  (proof-shell-filter-manage-output startpos endpos))))
+
+	  ;; Not expecting output, ignore it.  Busy flag should be clear.
+	  (if proof-shell-busy
+	      (progn
+		(proof-debug
+		 "proof-shell-filter found empty action list yet proof shell busy.")
+		(proof-release-lock))))))))
+
+(defun proof-shell-filter-first-command ()
+  "Deal with initial output.  A subroutine of `proof-shell-filter'.
+
+This initialises `proof-marker': we set marker to after the first
+prompt in the output buffer if one can be found now.
+
+The first time a prompt is seen we ignore any output that occurred
+before it, assuming that corresponds to uninteresting startup
+messages."
+  (goto-char (point-min))
+  (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
+      (progn
+	(set-marker proof-marker (point))
+	(proof-shell-exec-loop))))
 
 (defun proof-shell-cleanup ()
   "Run intermittently to clean up the shell buffer."
@@ -1487,11 +1458,8 @@ is only changed when input is sent in `proof-shell-insert'."
   "Scan the shell buffer for urgent messages.
 Scanning starts from `proof-shell-urgent-message-scanner' or
 `scomint-last-input-end', which ever is later.  We deal with strings
-between regexps eager-annotation-start and eager-annotation-end.
-
-Note that we must search the buffer rather than the chunk of output
-being filtered process because we have no guarantees about where
-chunks are broken: it may be in the middle of an annotation.
+between regexps `proof-shell-eager-annotation-start' and 
+`proof-shell-eager-annotation-end'.
 
 This is a subroutine of `proof-shell-filter'."
   (let ((pt (point)) (end t) lastend
@@ -1500,16 +1468,15 @@ This is a subroutine of `proof-shell-filter'."
     (goto-char start)
     (while (and end
 		(re-search-forward proof-shell-eager-annotation-start
-				   nil 'end))
+				   nil t))
       (setq start (match-beginning 0))
       (if (setq end
 		(re-search-forward proof-shell-eager-annotation-end nil t))
 
-	  ;; Process the text including annotations (stripped if specials)
+	  ;; Process the region including the annotations
 	  (save-excursion
 	    (setq lastend end)
-	    (proof-shell-process-urgent-message
-	     (buffer-substring start end)))))
+	    (proof-shell-process-urgent-message start end))))
 
     ;; Set the marker to the (character after) the end of the last
     ;; message found, if any.  Must take care to keep the marker
@@ -1520,31 +1487,25 @@ This is a subroutine of `proof-shell-filter'."
 	 proof-shell-urgent-message-marker
 	 (min lastend
 	      (1- (process-mark (get-buffer-process (current-buffer)))))))
-    ;; Now an optimization to avoid searching the same bit of text
-    ;; over and over.  But it requires that we know the maximum
-    ;; possible length of an annotation to avoid missing them.
+
+    ;; An optimization avoids repeatedly searching the same text.  But
+    ;; it needs to know the maximum possible length of an annotation.
     (if end
-	;; If the search for the starting annotation was unsuccessful,
-	;; set the scanner marker to the limit of the last search for
-	;; the starting annotation, less the maximal length of the
-	;; annotation.
+	;; Couldn't find the starting annotation.  Set the scan resume
+	;; point to the limit of the last search, less the maximal
+	;; length of the annotation.
 	(set-marker
 	 proof-shell-urgent-message-scanner
 	 (min
-	  ;; NB: possible fix here not included: a test to be sure we
-	  ;; don't go back before the start of the command!  This
-	  ;; fixes a minor problem which is possible duplication
-	  ;; of urgent messages which are less than
+	  ;; NB: we don't want to go back before the start of the
+	  ;; command!  That would duplicate urgent messages less than
 	  ;; proof-shell-eager-annotation-start-length characters.
-	  ;; But if proof-general is configured properly, there
-	  ;; should never be any such messages!
-	  ;; (max
-	  ;;  (marker-position proof-marker)
-	      (- (point) (1+ proof-shell-eager-annotation-start-length))
+	  ;; But if we're configured properly, this should not happen.
+	  ;; test: (max (marker-position proof-marker)
+	  (- (point) (1+ proof-shell-eager-annotation-start-length))
 	  (1- (process-mark (get-buffer-process (current-buffer))))))
-      ;; Otherwise, the search for the ending annotation was
-      ;; unsuccessful, so we set the scanner marker to the start of
-      ;; the annotation found.
+      ;; Otherwise, couldn't find the ending annotation. So set scan
+      ;; resume position to the start of the annotation found.
       (set-marker
        proof-shell-urgent-message-scanner
        (min
@@ -1560,13 +1521,13 @@ This is a subroutine of `proof-shell-filter'."
 ;;
 
 
-(defun proof-shell-filter-manage-output (string)
-  "Subroutine of `proof-shell-filter' to process output STRING.
+(defun proof-shell-filter-manage-output (start end)
+  "Subroutine of `proof-shell-filter' for output between START and END.
 
 Appropriate action is taken depending on what
-`proof-shell-classify-output' returns: maybe handle an interrupt, an
-error, or deal with ordinary output which is a candidate for the goal
-or response buffer.
+`proof-shell-classify-output' returns: maybe handle an interrupt,
+an error, or deal with ordinary output which is a candidate for
+the goal or response buffer.
 
 Ordinary output is only displayed when the proof action list
 becomes empty, to avoid a confusing rapidly changing output.
@@ -1576,7 +1537,7 @@ by the filter is to send the next command from the queue."
   (let ((cmd   (nth 1 (car proof-action-list)))
 	(flags (nthcdr 3 (car proof-action-list))))
 
-    (proof-shell-classify-output cmd string)
+    (proof-shell-classify-output cmd start end)
 
     (cond
      ((eq proof-shell-last-output-kind 'error)
@@ -1587,8 +1548,8 @@ by the filter is to send the next command from the queue."
       (proof-shell-insert-loopback-cmd proof-shell-last-output)
       (proof-shell-exec-loop))
 
-     ;; Otherwise, delay handling ordinary script functions: don't act
-     ;; unless all the commands the queue region have been processed.
+     ;; Otherwise, delay ordinary script functions: wait until all the
+     ;; commands the queue region have been processed.
      (t
       (setq proof-shell-delayed-output-kind proof-shell-last-output-kind)
       (setq proof-shell-delayed-output proof-shell-last-output)
@@ -1824,7 +1785,10 @@ Error messages are displayed as usual."
 
   ;; scomint customisation.
 
-  (setq scomint-output-filter-functions '(proof-shell-filter))
+  (setq scomint-output-filter-functions 
+	(append
+	 (if proof-shell-strip-crs-from-output 'scomint-strip-ctrl-m)
+	 (list 'proof-shell-filter)))
 
   ;; Proof marker is initialised in filter to first prompt found
   (setq proof-marker (make-marker))
@@ -1917,9 +1881,6 @@ processing."
 	      ;(proof-unicode-tokens-shell-config)
 	      ))))))
 
-
-(provide 'proof-shell)
-;; proof-shell.el ends here
 
 (provide 'proof-shell)
 
