@@ -61,7 +61,7 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
 ;; type, as well as a previous ("delayed") version to for when the end
 ;; of the queue is reached or an error or interrupt occurs.
 
-(defvar proof-shell-last-prompt nil
+(defvar proof-shell-last-prompt ""
   "A raw record of the last prompt seen from the proof system.
 This is the string matched by `proof-shell-annotated-prompt-regexp'.")
 
@@ -509,10 +509,10 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	proof-nesting-depth 0
 	proof-shell-error-or-interrupt-seen nil
 	proof-shell-silent nil
-	proof-shell-last-output nil
+	proof-shell-last-output ""
 	proof-shell-last-output-kind nil
-	proof-shell-last-prompt nil
-	proof-shell-delayed-output nil
+	proof-shell-last-prompt ""
+	proof-shell-delayed-output ""
 	proof-shell-delayed-output-kind nil))
 
 (defun proof-shell-exit ()
