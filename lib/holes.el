@@ -619,7 +619,8 @@ created.  Return the number of holes created."
 Moves point at beginning of expanded text.  Put this function as
 call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
 become holes."
-  (holes-replace-string-by-holes-backward-jump last-abbrev-location))
+  (if holes-mode
+      (holes-replace-string-by-holes-backward-jump last-abbrev-location)))
 
 
 ;;;###autoload
@@ -721,7 +722,9 @@ KNOWN BUGS
 it mean anyway?)
 
  o Cutting or pasting a hole will not produce new holes, and
-undoing on holes cannot make holes re-appear."
+undoing on holes cannot make holes re-appear.
+
+ o Turning off holes mode does not remove holes from buffer."
   nil " Holes" holes-mode-map
   :group 'holes
   (if holes-mode
