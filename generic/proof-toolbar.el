@@ -19,14 +19,12 @@
 ;;
 
 ;;; Code:
-(eval-when-compile
-  (require 'proof-utils))
 
-
-
-(require 'span)
-(require 'proof-config)
-(require 'proof-autoloads)
+(eval-and-compile
+  (require 'span)
+  (require 'proof-utils)
+  (require 'proof-config)
+  (require 'proof-autoloads))
 
 ;;
 ;; Function, icon, button names
