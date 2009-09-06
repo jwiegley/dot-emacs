@@ -47,22 +47,19 @@
       (pg-xml-parse-buffer (current-buffer) 'nomessage))))
 
 
-(defun pg-xml-parse-buffer (&optional buffer nomsg)
+(defun pg-xml-parse-buffer (&optional buffer nomsg start end)
   "Parse an XML documment in BUFFER (defaulting to current buffer).
-Parsing according to `xml-parse-file' of xml.el."
+Parsing according to `xml-parse-file' of xml.el.
+Optional START and END bound the parse."
   (unless nomsg
     (message "Parsing %s..." (buffer-name buffer)))
-  (let ((xml (xml-parse-region (point-min)
-				 (point-max)
-				 (current-buffer)
-				 nil)))
+  (let ((xml (xml-parse-region (or start (point-min))
+			       (or end (point-max))
+			       (or buffer (current-buffer))
+			       nil)))
       (unless nomsg
 	(message "Parsing %s...done" (buffer-name buffer)))
       xml))
-
-;; Check that the empty parsing bug isn't present
-(if (xml-node-children (car (pg-xml-parse-string "<foo/>")))
-    (pg-internal-warning "An old version of xml.el was loaded!  It is buggy. See Proof General FAQ."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
