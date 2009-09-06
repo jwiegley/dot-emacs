@@ -463,8 +463,6 @@ We assume that module identifiers coincide with file names."
 	proof-shell-assumption-regexp plastic-id
 	proof-shell-goal-regexp plastic-goal-regexp
 	pg-subterm-first-special-char ?\360
-	proof-shell-wakeup-char ?\371		;; only for first send?
-;;      proof-shell-wakeup-char nil		;; NIL turns off annotations.
 	pg-subterm-start-char ?\372
 	pg-subterm-sep-char ?\373
 	pg-subterm-end-char ?\374
