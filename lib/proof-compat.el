@@ -102,7 +102,8 @@ The returned value is one of the following symbols:
 	comment		; meaning point is within a line comment"
   (save-excursion
     (if buffer (set-buffer buffer))
-    (let ((pp (parse-partial-sexp (point-min) (point))))
+    (let ((pp (syntax-ppss)))
+	   ;;(parse-partial-sexp (point-min) (point))))
       (cond
        ((nth 3 pp) 'string)
        ;; ((nth 7 pp) 'block-comment)
