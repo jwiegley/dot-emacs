@@ -148,11 +148,11 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-specific ()
-  `(easy-menu-define
-     proof-assistant-menu
-     proof-mode-map
-     ,(concat "The menu for " proof-assistant)
-     ,(cons proof-assistant
+  (easy-menu-do-define
+   'proof-assistant-menu
+   proof-mode-map
+   (concat "The menu for " proof-assistant)
+   (cons proof-assistant
 	    (append
 	     (proof-ass menu-entries)
 	     '("----")
