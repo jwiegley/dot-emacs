@@ -189,8 +189,7 @@ Return nil if no such overlay belong to the list."
 
 (defun set-span-keymap (span map)
   "Set the keymap of SPAN to MAP."
-  (overlay-put span 'keymap map)
-  (overlay-put span 'local-map map))
+  (overlay-put span 'keymap map))
 
 ;;
 ;; Generic functions built on low-level concrete ones.
