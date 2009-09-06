@@ -14,6 +14,11 @@
 (require 'proof-easy-config)            ; easy configure mechanism
 (require 'proof-syntax)			; functions for making regexps
 
+(defvar hol98-keywords nil)
+(defvar hol98-rules nil)
+(defvar hol98-tactics nil)
+(defvar hol98-tacticals nil)
+
 (proof-easy-config  'hol98 "HOL"
  proof-prog-name		 "hol.unquote"
  proof-terminal-char             ?\;
