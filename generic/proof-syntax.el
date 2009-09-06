@@ -12,18 +12,18 @@
 (require 'proof-config)			; proof-case-fold-search
 (require 'proof-compat)			; proof-buffer-syntactic-context
 
+;;; Code:
+
 (defsubst proof-ids-to-regexp (l)
-  "Maps a non-empty list of tokens `l' to a regexp matching any element"
+  "Maps a non-empty list of tokens `l' to a regexp matching any element."
   (concat "\\_<\\(?:" (mapconcat 'identity l "\\|") "\\)\\_>"))
 
 (defsubst proof-anchor-regexp (e)
   "Anchor (\\`) and group the regexp E."
   (concat "\\`\\(" e "\\)"))
 
-(defconst proof-no-regexp
-  "\\'\\`"
-  "A regular expression that never matches anything")
-
+(defconst proof-no-regexp "\\<\\>"
+  "A regular expression that never matches anything.")
 
 (defsubst proof-regexp-alt (&rest args)
   "Return the regexp which matches any of the regexps ARGS."
@@ -34,16 +34,7 @@
 			regexp "\\)")))
     res))
 
-(defun proof-regexp-region (start end)
-  "Return regexp matching START anything over several lines END."
-  ;; FIXME: would like to use shy grouping here \\(?: but it seems
-  ;; buggy or unimplemented in XEmacs.
-  ;; WARNING: this produces nasty regexps that lead to stack
-  ;; overflows.  It's better to have a loop that searches over lines,
-  ;; see next function.
-  (concat "\\(" start "\\)\\(\n\\|.\\)*\\(" end "\\)"))
-
-(defun proof-re-search-forward-region (startre endre)
+(defsubst proof-re-search-forward-region (startre endre)
   "Search for a region delimited by regexps STARTRE and ENDRE.
 Return the start position of the match for STARTRE, or
 nil if a region cannot be found."
@@ -56,58 +47,53 @@ nil if a region cannot be found."
 ;; value of proof-case-fold-search.  Last arg to string-match is not
 ;; applicable.
 
-(defun proof-search-forward (string &optional bound noerror count)
+(defsubst proof-search-forward (string &optional bound noerror count)
   "Like search-forward, but set case-fold-search to proof-case-fold-search."
   (let
       ((case-fold-search proof-case-fold-search))
     (search-forward string bound noerror count)))
 
-(defun proof-replace-regexp-in-string (regexp rep string)
+(defsubst proof-replace-regexp-in-string (regexp rep string)
   "Like replace-regexp-in-string, but set case-fold-search to proof-case-fold-search."
-  (let
-      ((case-fold-search proof-case-fold-search))
+  (let ((case-fold-search proof-case-fold-search))
     (replace-regexp-in-string regexp rep string)))
 
-(defun proof-re-search-forward (regexp &optional bound noerror count)
+(defsubst proof-re-search-forward (regexp &optional bound noerror count)
   "Like re-search-forward, but set case-fold-search to proof-case-fold-search."
-  (let
-      ((case-fold-search proof-case-fold-search))
+  (let ((case-fold-search proof-case-fold-search))
     (re-search-forward regexp bound noerror count)))
 
-(defun proof-re-search-backward (regexp &optional bound noerror count)
+(defsubst proof-re-search-backward (regexp &optional bound noerror count)
   "Like re-search-backward, but set case-fold-search to proof-case-fold-search."
-  (let
-      ((case-fold-search proof-case-fold-search))
+  (let ((case-fold-search proof-case-fold-search))
     (re-search-backward regexp bound noerror count)))
 
-(defun proof-string-match (regexp string &optional start)
+(defsubst proof-string-match (regexp string &optional start)
   "Like string-match, but set case-fold-search to proof-case-fold-search."
-  (let
-      ((case-fold-search proof-case-fold-search))
+  (let ((case-fold-search proof-case-fold-search))
     (string-match regexp string start)))
 
-(defun proof-string-match-safe (regexp string &optional start)
-  "Like proof-string-match, but return nil if REGEXP or STRING is nil."
+(defsubst proof-string-match-safe (regexp string &optional start)
+  "Like `string-match', but return nil if REGEXP or STRING is nil."
   (if (and regexp string) (proof-string-match regexp string start)))
 
-(defun proof-stringfn-match (regexp-or-fn string)
+(defsubst proof-stringfn-match (regexp-or-fn string)
   "Like proof-string-match if first arg is regexp, otherwise call it."
   (cond ((stringp regexp-or-fn)
 	 (proof-string-match regexp-or-fn string))
 	((functionp regexp-or-fn)
 	 (funcall regexp-or-fn string))))
 
-(defun proof-looking-at (regexp)
+(defsubst proof-looking-at (regexp)
   "Like looking-at, but set case-fold-search to proof-case-fold-search."
-  (let
-      ((case-fold-search proof-case-fold-search))
+  (let ((case-fold-search proof-case-fold-search))
     (looking-at regexp)))
 
-(defun proof-looking-at-safe (regexp)
-  "Like proof-looking-at, but return nil if REGEXP is nil."
+(defsubst proof-looking-at-safe (regexp)
+  "Like `proof-looking-at', but return nil if REGEXP is nil."
   (if regexp (proof-looking-at regexp)))
 
-(defun proof-looking-at-syntactic-context-default ()
+(defsubst proof-looking-at-syntactic-context-default ()
   "Default function for `proof-looking-at-syntactic-context'."
   (or
    (proof-buffer-syntactic-context)
@@ -142,18 +128,19 @@ nil if a region cannot be found."
 ;; For font-lock, we treat ,-separated identifiers as one identifier
 ;; and refontify commata using \{proof-zap-commas}.
 
-(defun proof-ids (proof-id &optional sepregexp)
+(defsubst proof-ids (proof-id &optional sepregexp)
   "Generate a regular expression for separated lists of identifiers.
 Default is comma separated, or SEPREGEXP if set."
   (concat proof-id "\\(\\s-*"   (or sepregexp ",") "\\s-*"
 	  proof-id "\\)*"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;
 ;; A function to unfontify commas in declarations and definitions.
 ;; Useful for provers which have declarations of the form x,y,z:Ty
 ;; All that can be said for it is that the previous ways of doing
 ;; this were even more bogus....
+;;
 
 (defun proof-zap-commas (limit)
   "Remove the face of all `,' from point to LIMIT.
@@ -194,7 +181,7 @@ may be a string or sexp evaluated to get a string."
   "Format STRING by replacing quoted chars by escaped version of FILENAME.
 
 %e uses the canonicalized expanded version of filename (including
-directory, using default-directory -- see `expand-file-name').
+directory, using `default-directory' -- see `expand-file-name').
 
 %r uses the unadjusted (possibly relative) version of FILENAME.
 
@@ -287,3 +274,5 @@ Any other %-prefixed character inserts itself."
     stringsep))
 
 (provide 'proof-syntax)
+
+;;; proof-syntax.el ends here
