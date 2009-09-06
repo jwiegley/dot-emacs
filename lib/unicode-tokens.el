@@ -188,8 +188,8 @@ if it is bound; it should be the name of a variable."
 	  unicode-tokens-shortcut-alist))
   (unless unicode-tokens-tokens-customizable-variables
     (setq unicode-tokens-tokens-customizable-variables
-	  (list 
-	   (list "Token Map" 
+	  (list
+	   (list "Token Map"
 		 (symbol-value (unicode-tokens-config-var 'token-symbol-map)))
 	   (list "Shortcut List"
 		 (symbol-value (unicode-tokens-config-var 'shortcut-alist)))))))
@@ -422,7 +422,7 @@ The check is with `char-displayable-p'."
 
 (defun unicode-tokens-interpret-composition (comp)
   "Turn the composition string COMP into an argument for `compose-region'."
-  (cond 
+  (cond
    ((and (stringp comp) (= 1 (length comp)))
     comp)
    ((stringp comp)
@@ -437,7 +437,7 @@ The check is with `char-displayable-p'."
       res))
    (t
     comp)))
-  
+
 (defun unicode-tokens-font-lock-compose-symbol (match)
   "Compose a sequence of chars into a symbol.
 Regexp match data number MATCH selects the token name, while 0 matches the
@@ -451,7 +451,7 @@ The face property is set to the :family of `unicode-tokens-symbol-font-face'."
 	 (propsyms  (cdr-safe compps))
 	 (comp      (car-safe compps)))
     (if (and comp (not unicode-tokens-show-symbols))
-	(compose-region start end 
+	(compose-region start end
 			(unicode-tokens-interpret-composition comp)))
     (if propsyms
 	(let ((props (unicode-tokens-symbs-to-props propsyms)))
@@ -757,7 +757,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
     ;; (doesn't help with C-h: need way to programmatically show string)
     (flet ((query-replace-descr (str) (if (eq str shortcut-regexp)
 					  "shortcut" str)))
-      (perform-replace shortcut-regexp 
+      (perform-replace shortcut-regexp
 		       (cons 'unicode-tokens-replace-shortcut-match nil)
 		       t t nil))))
 
@@ -765,7 +765,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
   "Subroutine for `unicode-tokens-replace-unicode'."
   (let* ((useq	(match-string-no-properties 0))
 	 (token (gethash useq unicode-tokens-uchar-hash-table)))
-    (if token (regexp-quote 
+    (if token (regexp-quote
 	       (format unicode-tokens-token-format token)))))
 
 (defun unicode-tokens-replace-unicode ()
@@ -776,7 +776,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
     ;; (doesn't help with C-h: need way to programmatically show string)
     (flet ((query-replace-descr (str) (if (eq str uchar-regexp)
 					  "unicode presentation" str)))
-      (perform-replace uchar-regexp 
+      (perform-replace uchar-regexp
 		       (cons 'unicode-tokens-replace-unicode-match nil)
        t t nil))))
 
@@ -1204,7 +1204,7 @@ Commands available are:
 ;;
 
 (defun unicode-tokens-customize-submenu ()
-  (mapcar (lambda (cv) 
+  (mapcar (lambda (cv)
 	    (vector (car cv)
 		    `(lambda () (interactive)
 		       (customize-variable (quote ,(cadr cv))))))
@@ -1249,7 +1249,7 @@ Commands available are:
        :help "Copy presentation form of text from buffer, converting tokens to Unicode"]
       ["Paste From Unicode" unicode-tokens-paste
        :active (and kill-ring (not buffer-read-only))
-       :help 
+       :help
        "Paste from clipboard, converting Unicode to tokens where possible"]
       ["Replace Shortcuts" unicode-tokens-replace-shortcuts
        :help "Query-replace shortcut sequences with tokens they expand to"]
