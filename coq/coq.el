@@ -486,8 +486,8 @@ If locked span already has a state number, thne do nothing. Also updates
             (proofdepth (coq-get-span-proofnum span))
             (proofstack (coq-get-span-proofstack span))
             (span-staten (coq-get-span-statenum span))
-            (naborts (count-not-intersection coq-last-but-one-proofstack proofstack))
-            )
+            (naborts (count-not-intersection 
+                      coq-last-but-one-proofstack proofstack)))
     (setq ans
           (if (and ; this is more efficient as backtrack x y z may be slow
                (equal coq-last-but-one-proofstack proofstack)
@@ -498,13 +498,12 @@ If locked span already has a state number, thne do nothing. Also updates
                     (int-to-string span-staten)
                     (int-to-string proofdepth)
                     naborts)))
-    (if (string-equal ans "") nil ; [was proof-no-command]not here because if
-      ;; we backtrack a state preserving command, we must do
-      ;; *nothing*, not even a CR (in > v74, no prompt is returned
-      ;; with "\n")
-      ans)
-    )
-  )
+    (if (string-equal ans "") 
+        nil ; [was proof-no-command]
+      ;; not here because if we backtrack a state preserving command, we must
+      ;; do *nothing*, not even a CR (in > v74, no prompt is returned with
+      ;; "\n")
+      ans)))
 
 ;; to be removed when coq > 8.0
 
@@ -987,27 +986,31 @@ To be used in `proof-shell-classify-output-system-specific'."
    proof-shell-interrupt-regexp coq-interrupt-regexp
    proof-shell-assumption-regexp coq-id
    pg-subterm-first-special-char ?\360
-   proof-shell-wakeup-char nil          ;?\x6 ; ?\371 ; done: prompt
    ;; The next three represent path annotation information
    pg-subterm-start-char ?\372          ; not done
    pg-subterm-sep-char ?\373            ; not done
    pg-subterm-end-char ?\374            ; not done
    pg-topterm-regexp "\375"
+
    proof-shell-eager-annotation-start "\376\\|\\[Reinterning\\|Warning:"
    proof-shell-eager-annotation-start-length 12
+
    ;; ****** is added at the end of warnings in emacs mode, this is temporary I
    ;;        want xml like tags, and I want them removed before warning display.
    ;; I want the same for errors -> pgip
+
    proof-shell-eager-annotation-end "\377\\|done\\]\\|\\*\\*\\*\\*\\*\\*" ; done
-   proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern
+   proof-shell-annotated-prompt-regexp coq-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
-   proof-shell-start-goals-regexp "\\`[0-9]+ subgoals?"
-   proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-   proof-shell-init-cmd                 ; (concat
-   coq-shell-init-cmd
+
+   proof-shell-start-goals-regexp          "\\`[0-9]+ subgoals?"
+   proof-shell-end-goals-regexp nil        ; up to next prompt
+   proof-shell-init-cmd coq-shell-init-cmd
+
                                         ; Coq has no global settings?
                                         ; (proof-assistant-settings-cmd))
+
    proof-shell-restart-cmd coq-shell-restart-cmd
    pg-subterm-anns-use-stack t
    proof-shell-classify-output-system-specific
@@ -1018,8 +1021,7 @@ To be used in `proof-shell-classify-output-system-specific'."
   ; da: suggest no fontification in shell
   ;(setq font-lock-defaults 'coq-font-lock-keywords-1)
   (holes-mode 1)
-  (proof-shell-config-done)
-  )
+  (proof-shell-config-done))
 
 (defun coq-goals-mode-config ()
   (setq pg-goals-change-goal "Show %s . ")
