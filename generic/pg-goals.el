@@ -96,19 +96,21 @@ Converts term substructure markup into mouse-highlighted extents."
     ;; Erase the goals buffer and add in the new string
     (set-buffer proof-goals-buffer)
 
+    (setq buffer-read-only nil)
+
     (unless (eq 0 (buffer-size))
       (bufhist-checkpoint-and-erase))
 
     ;; Only display if string is non-empty.
     (unless (string-equal string "")
-      (setq buffer-read-only nil)
-      (insert string)
-      (setq buffer-read-only t)
-      (set-buffer-modified-p nil)
+      (insert string))
 
-      ;; Keep point at the start of the buffer.
-      (proof-display-and-keep-buffer
-       proof-goals-buffer (point-min)))))
+    (setq buffer-read-only t)
+    (set-buffer-modified-p nil)
+    
+    ;; Keep point at the start of the buffer.
+    (proof-display-and-keep-buffer
+     proof-goals-buffer (point-min))))
 
 ;;
 ;; Actions in the goals buffer
