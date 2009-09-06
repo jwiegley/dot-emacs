@@ -122,13 +122,13 @@ A span is before PT if it begins before the character before PT."
     ;; something somewhat random but vaguely meaningful.  -Stef
     (car (last (sort ols 'span-lt)))))
 
-(defun prev-span (span prop)
+(defsubst prev-span (span prop)
   "Return span before SPAN with property PROP."
   (span-at-before (span-start span) prop))
 
 ; overlays are [start, end)
 
-(defun next-span (span prop)
+(defsubst next-span (span prop)
   "Return span after SPAN with property PROP."
   ;; Presuming the span-extents.el is the reference, its code does the
   ;; same as the code below.
@@ -140,22 +140,22 @@ A span is before PT if it begins before the character before PT."
        (overlay-buffer span)
        (buffer-live-p (overlay-buffer span))))
 
-(defun span-raise (span)
+(defsubst span-raise (span)
   "Set priority of SPAN to make it appear above other spans."
   (span-set-property span 'priority 100))
 
-(defun span-string (span)
+(defsubst span-string (span)
   (with-current-buffer (overlay-buffer span)
     (buffer-substring-no-properties 
      (overlay-start span) (overlay-end span))))
 
-(defun set-span-properties (span plist)
+(defsubst set-span-properties (span plist)
   "Set SPAN's properties from PLIST which is a plist."
   (while plist
     (overlay-put span (car plist) (cadr plist))
     (setq plist (cddr plist))))
 
-(defun span-find-span (overlay-list &optional prop)
+(defsubst span-find-span (overlay-list &optional prop)
   "Return first overlay of OVERLAY-LIST having property PROP (default 'span).
 Return nil if no such overlay belong to the list."
   (let ((l overlay-list))
@@ -191,7 +191,7 @@ Return nil if no such overlay belong to the list."
   "Set the FACE of a SPAN."
   (overlay-put span 'face face))
 
-(defun set-span-keymap (span map)
+(defsubst set-span-keymap (span map)
   "Set the keymap of SPAN to MAP."
   (overlay-put span 'keymap map))
 
