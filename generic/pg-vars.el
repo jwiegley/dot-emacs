@@ -166,7 +166,7 @@ of the proof (starting from 1).")
 ;; compile warnings
 ;;
 
-(defvar proof-shell-last-output nil
+(defvar proof-shell-last-output ""
   "A record of the last string seen from the proof system.
 This is raw string, for internal use only.")
 
