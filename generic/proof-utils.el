@@ -473,14 +473,12 @@ The warning is coloured with proof-warning-face."
 	(display-warning 'proof-general formatted)
     (message formatted))))
 
-;; could be a macro for efficiency in compiled code
 (defun proof-debug (msg &rest args)
   "Issue the debugging message (format MSG ARGS) in the response buffer, display it.
 If proof-general-debug is nil, do nothing."
   (if proof-general-debug
       (let ((formatted (apply 'format msg args)))
 	(display-warning 'proof-general formatted 'info))))
-
 
 ;; Utility used in the "Buffers" menu, and throughout
 (defun proof-switch-to-buffer (buf &optional noselect)
