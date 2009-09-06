@@ -27,8 +27,12 @@
 	     (turn-on-eldoc-mode)
 	     (flyspell-prog-mode)
 	     (customize-set-variable 'whitespace-action '(cleanup))
+	     (define-key emacs-lisp-mode-map [(control c)(control c)]
+	       'emacs-lisp-byte-compile-and-load)
 	     (add-hook 'write-file-functions
-		       'whitespace-write-file-hook nil t)))
+		       'whitespace-write-file-hook nil t)
+	     (add-hook 'after-save-hook
+		       'emacs-lisp-byte-compile-and-load)))
 
 
 ;; Configure indentation for our macros
