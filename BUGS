@@ -20,11 +20,6 @@ exact version of Emacs and Proof General that you are using.
 
 * Generic problems
 
-** Visibility control doesn't distinguish theorems with same name.
-
-If you have more than one theorem with the same name in a buffer,
-their proof visibilities are controlled together.
-
 ** If the proof assistant goes into a loop displaying lots of information
 
 It may be difficult or impossible to interrupt it, because Emacs
@@ -39,7 +34,7 @@ certain architectures, and slower machines.
 ** Glitches in display handling, esp with multiple frames
 
 Unfortunately the handling of the display is very difficult to manage
-because the API provided by Emacs is quirky, buggy, and varies between
+because the API provided by Emacs is quirky and varies between
 versions.  If the eager display/tear-down of frames is annoying you,
 you may customize the variable `proof-shell-fiddle-frames' to nil to
 reduce it a bit.  To prevent eagerly displaying new frames at on
@@ -51,27 +46,9 @@ starting the shell, you can also add a mode hook to set
   (add-hook 'proof-response-mode-hook 
     (lambda () (setq proof-eagerly-raise nil)))
 
-This causes the previous behaviour as in PG 3.4: frames are only
-created as text is displayed in them.  (This is the default for
-the trace buffer).
-
 Generally, the best way of working with multiple frames is to try not
 to stop/start the proof assistant too much (this involves killing
 buffers, which spoils the frame/buffer correspondence).
-
-If you find other particularly annoying behaviour, please do report
-it, but give a careful description of how to reproduce, what happened,
-and what you expected to happen.  Probably you will just have to work
-around the issue.  For future versions of PG the multiple frame
-handling code will probably be custom written (rather than using
-`special-display-regexps').
-
-** Toolbar enablers unreliable on some platforms.
-
-Occasionally the buttons are disabled/enabled when they shouldn't be.
-An extra click on the toolbar may solve this.  If you have problems,
-please customize `proof-toolbar-use-button-enablers' to nil to
-disable the enablers. 
 
 ** Using C-g can leave script management in a mess (rare).  
 
@@ -89,21 +66,14 @@ instead, it is said to forward signals to the remote command.
 
 Workaround: manually bind C-c RET to 'proof-goto-point instead.
 
-** Multiple file scripting is slightly vulnerable.
+** Prover does not lock/may not notice dirty files
 
 Files are not locked when they are being read by the prover, so a long
 file could be edited and saved as the prover is processing it,
 resulting in a loss of synchronization between Emacs and the proof
 assistant.  Files ought to be coloured red while they are being
-processed, just as single lines are.   Workaround: be careful not
-to edit a file as it is being read by the proof assistant!
-
-** Undo in the script buffer can edit the "uneditable region"
-
-Test case: Insert some nonsense text after the locked region.
-Kill the line. Process to the next command.
-Press C-x u, nonsense text appears in locked region.
-
+processed, just as single lines are.  Workaround: be careful not to
+edit a file as it is being read by the proof assistant.
 
 * Problems with Isabelle
 
