@@ -32,7 +32,7 @@
 	   (mode      (intern (concat modert hyphen "mode")))
 	   (modename  (concat proof-assistant " " suffixnm))
 	   ;; FIXME: declare these variables in proof-config:
-	   ;;   proof-{goals,resp,trace}-syntax-table-entries
+	   ;;   proof-{goals,response,trace}-syntax-table-entries
 	   ;; FIXME: in future versions, use these settings in *-config-done
 	   ;;        to simplify elisp code elsewhere.
 	   ;; FIXME: add imenu-generic-expression too
