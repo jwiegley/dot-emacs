@@ -90,15 +90,14 @@ Assumes script buffer is current."
   (if proof-follow-mode
       (let ((dest (or pos (proof-queue-or-locked-end))))
 	(cond
+	 ((eq proof-follow-mode 'locked)
+	  (goto-char dest)
+	  (or pos (proof-script-next-command-advance)))
 	 ((eq proof-follow-mode 'follow)
 	  (unless (pos-visible-in-window-p dest)
 	    (let ((win (get-buffer-window (current-buffer) t)))
 	      (if win
 		  (set-window-point win dest)))))
-	 ((eq proof-follow-mode 'locked)
-	  (if pos
-	      (goto-char dest)
-	    (proof-script-next-command-advance)))
 	 ((and (eq proof-follow-mode 'followdown)
 	       (> dest (point)))
 	  (goto-char dest))))))
@@ -126,15 +125,15 @@ appropriate."
   "Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment."
   (interactive)
-  (proof-with-script-buffer		; for toolbar/other buffers
-   (goto-char (proof-queue-or-locked-end))
-   (skip-chars-forward " \t\n")
-   (forward-char 1)
-   (proof-assert-until-point)
-   (goto-char (proof-queue-or-locked-end))
+  (proof-with-script-buffer ; for toolbar/other buffers
+   (save-excursion
+     (goto-char (proof-queue-or-locked-end))
+     (skip-chars-forward " \t\n")
+     (proof-assert-until-point))
+   (proof-maybe-follow-locked-end)
    (proof-script-next-command-advance)))
 
-;; NB: "interactive" variant merely for simple docstring.
+;; NB: "interactive" variant merely for a simple docstring.
 (defun proof-assert-until-point-interactive ()
   "Process the region from the end of the locked-region until point.
 If inside a comment, just process until the start of the comment."
