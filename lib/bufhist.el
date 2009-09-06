@@ -62,7 +62,10 @@
   "Whether history is editable.")
 
 (defvar bufhist-saved-mode-line-format nil
-  "Ordinary value of mode-line-format for this buffer.")
+  "Ordinary value of `mode-line-format' for this buffer.")
+
+(defvar bufhist-normal-read-only nil
+  "Ordinary value `buffer-read-only' for this buffer.")
 
 (defun bufhist-mode-line-format-entry ()
   (when bufhist-ring-pos
@@ -91,6 +94,47 @@
 ;			     bufhist-ring-pos))) "/"
 ;    (:eval (int-to-string (ring-length bufhist-ring))) "]"))
 
+;;; Minor mode
+
+(defconst bufhist-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    ;; (define-key map [mouse-2] 'bufhist-popup-menu)
+    (define-key map [(meta left)] 'bufhist-prev)
+    (define-key map [(meta right)] 'bufhist-next)
+    (define-key map [(meta up)] 'bufhist-first)
+    (define-key map [(meta down)] 'bufhist-last)
+    (define-key map [(meta c)] 'bufhist-clear)
+    (define-key map [(meta d)] 'bufhist-delete)
+    map)
+  "Keymap for `bufhist-minor-mode'.")
+
+;;;###autoload
+(define-minor-mode bufhist-mode
+  "Minor mode retaining an in-memory history of the buffer contents.
+
+Commands:\\<bufhist-minor-mode-map>
+\\[bufhist-prev]    bufhist-prev    go back in history
+\\[bufhist-next]    bufhist-next    go forward in history
+\\[bufhist-first]   bufhist-first   go to first item in history
+\\[bufhist-last]    bufhist-last    go to last (current) item in history.
+\\[bufhist-clear]   bufhist-clear   clear history.
+\\[bufhist-delete]  bufhist-clear   delete current item from history."
+  nil "" bufhist-minor-mode-map)
+
+; For newer versions of define-minor-mode we can use extra
+; args above instead of hook function below:
+;  :group 'bufhist
+;  (if bufhist-mode
+;      (bufhist-init)
+;    (bufhist-exit)))
+; This doesn't work, e.g. with XEmacs 21.4.15.
+
+(defun bufhist-toggle-fn ()
+  (if bufhist-mode
+      (bufhist-init)
+    (bufhist-exit)))
+
+
 (make-variable-buffer-local 'bufhist-ring)
 (make-variable-buffer-local 'bufhist-ring-pos)
 (make-variable-buffer-local 'bufhist-lastswitch-modified-tick)
@@ -98,10 +142,6 @@
 
 (defun bufhist-get-buffer-contents ()
   "Return the stored representation of the current buffer contents."
-  ;; First: make all extents in the buffer duplicable to recreate them
-  (if (fboundp 'mapcar-extents)
-      (mapcar-extents (lambda (ext)
-			(set-extent-property ext 'duplicable t))))
   (cons (point)
 	(buffer-substring (point-max) (point-min))))
 
@@ -302,46 +342,6 @@ The size defaults to `bufhist-ring-size'."
 		 "Next")
   (widget-setup))
 
-
-;;; Minor mode
-
-(defconst bufhist-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    ;; (define-key map [mouse-2] 'bufhist-popup-menu)
-    (define-key map [(meta left)] 'bufhist-prev)
-    (define-key map [(meta right)] 'bufhist-next)
-    (define-key map [(meta up)] 'bufhist-first)
-    (define-key map [(meta down)] 'bufhist-last)
-    (define-key map [(meta c)] 'bufhist-clear)
-    (define-key map [(meta d)] 'bufhist-delete)
-    map)
-  "Keymap for `bufhist-minor-mode'.")
-
-;;;###autoload
-(define-minor-mode bufhist-mode
-  "Minor mode retaining an in-memory history of the buffer contents.
-
-Commands:\\<bufhist-minor-mode-map>
-\\[bufhist-prev]    bufhist-prev    go back in history
-\\[bufhist-next]    bufhist-next    go forward in history
-\\[bufhist-first]   bufhist-first   go to first item in history
-\\[bufhist-last]    bufhist-last    go to last (current) item in history.
-\\[bufhist-clear]   bufhist-clear   clear history.
-\\[bufhist-delete]  bufhist-clear   delete current item from history."
-  nil "" bufhist-minor-mode-map)
-
-; For newer versions of define-minor-mode we can use extra
-; args above instead of hook function below:
-;  :group 'bufhist
-;  (if bufhist-mode
-;      (bufhist-init)
-;    (bufhist-exit)))
-; This doesn't work, e.g. with XEmacs 21.4.15.
-
-(defun bufhist-toggle-fn ()
-  (if bufhist-mode
-      (bufhist-init)
-    (bufhist-exit)))
 
 (add-hook 'bufhist-mode-hook 'bufhist-toggle-fn)
 
