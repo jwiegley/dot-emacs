@@ -19,19 +19,27 @@
     buffers can be ignored and hidden. 
     Use full annotation to keep output when several steps are taken.
 
+*** Improved prevention of Undo in locked region
+    proof-allow-undo-in-read-only: now defaults to nil
+
+*** Simplified version of comint now used for proof shell
+    To improve efficiency, a cut-down version of comint is now used.
+    This means that the editing, history and decoration inside the
+    proof shell (*coq*, *isabelle*, etc) are impoverished
+    compared with PG 3.X.
+
 *** New user configuration options
     proof-auto-raise-buffers  (set to nil for manual control)
     proof-full-decoration     (add full decoration to input)
-
-*** Improved prevention of Undo in locked region
-    proof-allow-undo-in-read-only: now defaults to nil
 
 *** Removed user configuration options
     proof-toolbar-use-button-enablers  (now always used)
     proof-output-fontify-enable        (now always enabled)
 
 *** Altered prover configuration settings
-    pg-insert-output-as-comment-fn:  removed
+    pg-insert-output-as-comment-fn: removed
+    proof-shell-wakeup-char: removed
+    proof-shell-prompt-pattern: removed
     proof-shell-strip-output-markup: required for cut-and-paste
     proof-electric-terminator-noterminator: allows non-insert of terminator
 
