@@ -98,8 +98,12 @@ Optional argument FUN is used in place of `span-give-warning'."
 
 ;; The next two change ordering of list of spans:
 (defsubst span-mapcar-spans (fn start end prop)
-  "Apply function FN to all spans between START and END with property PROP set."
+  "Map function FN over spans between START and END with property PROP."
   (mapcar fn (spans-at-region-prop start end prop)))
+
+(defsubst span-mapc-spans (fn start end prop)
+  "Apply function FN to spans between START and END with property PROP."
+  (mapc fn (spans-at-region-prop start end prop)))
 
 (defun span-at-before (pt prop)
   "Return the smallest SPAN at before PT with property PROP.
@@ -197,7 +201,7 @@ Return nil if no such overlay belong to the list."
 
 (defsubst span-delete-spans (start end prop)
   "Delete all spans between START and END with property PROP set."
-  (span-mapcar-spans 'span-delete start end prop))
+  (span-mapc-spans 'span-delete start end prop))
 
 (defsubst span-property-safe (span name)
   "Like span-property, but return nil if SPAN is nil."
