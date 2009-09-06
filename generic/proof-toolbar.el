@@ -8,7 +8,7 @@
 ;;
 ;;; Commentary:
 ;;
-;; 2. It's a little bit tricky to add prover-specific items:
+;; It's a little bit tricky to add prover-specific items:
 ;; presently it must be done before this file is loaded.
 ;; We could improve on that by generating everything on-thy-fly
 ;; in proof-toolbar-setup.
@@ -108,7 +108,7 @@ to the default toolbar."
     (when (not proof-toolbar-enable)
       (kill-local-variable 'tool-bar-map))))
 
-;; Action to take after altering proof-toolbar-enable
+;; Action to take after altering option proof-toolbar-enable
 (defalias 'proof-toolbar-enable 'proof-toolbar-setup)
 
 ;;;###autoload (autoload 'proof-toolbar-toggle "proof-toolbar")
