@@ -630,28 +630,6 @@ created.  Return the number of holes created."
 
 
 ;;;###autoload
-(defun holes-abbrev-complete ()
-  "Complete abbrev by putting holes and indenting.
-Moves point at beginning of expanded text.  Put this function as
-call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
-become holes."
-  (if holes-mode
-      (holes-replace-string-by-holes-backward-jump last-abbrev-location)))
-
-
-;;;###autoload
-(defun holes-insert-and-expand (s)
-  "Insert S, expand it and replace #s and @{]s by holes."
-  ;; insert the expansion of abbrev s, and replace #s by holes.  It was
-  ;; possible to implement it with a simple ((insert s) (expand-abbrev))
-  ;; but undo would show the 2 steps, which is bad.
-  (let ((pos (point))
-	(ins (abbrev-expansion s)))
-    (insert (or ins s))
-    (setq last-abbrev-location pos)
-    (holes-abbrev-complete)))
-
-;;;###autoload
 (define-minor-mode holes-mode 
   "Toggle Holes minor mode.
 With arg, turn Outline minor mode on if arg is positive, off otherwise.
@@ -745,6 +723,28 @@ undoing on holes cannot make holes re-appear."
       (add-hook 'skeleton-end-hook 'holes-skeleton-end-hook nil t)
     (remove-hook 'skeleton-end-hook 'holes-skeleton-end-hook t)
     (holes-clear-all-buffer-holes)))
+
+;;;###autoload
+(defun holes-abbrev-complete ()
+  "Complete abbrev by putting holes and indenting.
+Moves point at beginning of expanded text.  Put this function as
+call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
+become holes."
+  (if holes-mode
+      (holes-replace-string-by-holes-backward-jump last-abbrev-location)))
+
+
+;;;###autoload
+(defun holes-insert-and-expand (s)
+  "Insert S, expand it and replace #s and @{]s by holes."
+  ;; insert the expansion of abbrev s, and replace #s by holes.  It was
+  ;; possible to implement it with a simple ((insert s) (expand-abbrev))
+  ;; but undo would show the 2 steps, which is bad.
+  (let ((pos (point))
+	(ins (abbrev-expansion s)))
+    (insert (or ins s))
+    (setq last-abbrev-location pos)
+    (holes-abbrev-complete)))
 
 (provide 'holes)
 
