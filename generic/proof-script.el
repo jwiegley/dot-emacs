@@ -482,15 +482,17 @@ will be recorded as a textual name used instead of ID for users;
 NAME does not need to be unique."
   (let* ((idsym    (intern id))
 	 (name	   (or name id))
-	 (visname  (pg-visname (symbol-name idiomsym) id))
+	 (idiom    (symbol-name idiomsym))
+	 (visname  (pg-visname idiom id))
 	 (delfn	   `(lambda () (pg-remove-element (quote ,idiomsym) (quote ,idsym))))
 	 (elts	   (cdr-safe (assq idiomsym pg-script-portions))))
     (unless elts
       (setq pg-script-portions 
-	    (cons (cons idiomsym (setq elts (makehash)))
+	    (cons (cons idiomsym (setq elts (make-hash-table)))
 		  pg-script-portions)))
     (if (gethash id elts)
-	(proof-debug "Element named " name " (type " idiom ") already in buffer.")
+	(proof-debug "Element named " name 
+		     " (type " idiom ") already in buffer.")
       (puthash idsym t elts))
     ;; Idiom and ID are stored in the span as symbols; name as a string.
     (span-set-property span 'idiom idiomsym)
@@ -1068,19 +1070,16 @@ If the hooks issue commands to the proof assistant (via
 `proof-shell-invisible-command') which result in an error, the
 activation is considered to have failed and an error is given."
   (interactive)
-  ;; TODO: narrow the scope of this save-excursion.
-  ;; Where is it needed?  Maybe hook functions.
-  (save-excursion
-    (proof-shell-ready-prover queuemode)
-    (cond
-     ((not (eq proof-buffer-type 'script))
-      (error "Must be running in a script buffer!"))
+  (unless (eq proof-buffer-type 'script)
+    (error "Must be running in a script buffer!"))
 
-     ;; If the current buffer is the active one there's nothing to do.
-   ((equal (current-buffer) proof-script-buffer))
+  (unless (equal (current-buffer) proof-script-buffer)
 
-     ;; Otherwise we need to activate a new Scripting buffer.
-   (t
+    ;; TODO: narrow the scope of this save-excursion.
+    ;; Where is it needed?  Maybe hook functions.
+    (save-excursion
+      (proof-shell-ready-prover queuemode) ; fire up the prover
+
       ;; If there's another buffer currently active, we need to
       ;; deactivate it (also fixing up the included files list).
       (if proof-script-buffer
@@ -1109,13 +1108,11 @@ activation is considered to have failed and an error is given."
       (assert (null proof-script-buffer)
 	      "Bug in proof-activate-scripting: deactivate failed.")
 
-      ;; Set the active scripting buffer, and initialise the
-      ;; queue and locked regions if necessary.
+      ;; Set the active scripting buffer, and initialise regions
+
       (setq proof-script-buffer (current-buffer))
       (if (proof-locked-region-empty-p)
-	  ;; This removes any locked region that was there, but
-	  ;; sometimes we switch on scripting in "full" buffers,
-	  ;; so mustn't do this.
+	  ;; Clear locked regions, unless buffer is "full".
 	  (proof-init-segmentation))
 
       ;; Turn on the minor mode, make it show up.
@@ -1136,8 +1133,8 @@ activation is considered to have failed and an error is given."
 		(save-some-buffers)
 	      (set-buffer-modified-p modified))))
 
-      ;; Run hooks with a variable which suggests whether or not
-      ;; to block.   NB: The hook function may send commands to the
+      ;; Run hooks with a variable which suggests whether or not to
+      ;; block.  NB: The hook function may send commands to the
       ;; process which will re-enter this function, but should exit
       ;; immediately because scripting has been turned on now.
       (if proof-activate-scripting-hook
@@ -1160,21 +1157,19 @@ activation is considered to have failed and an error is given."
 		(progn
 		  (proof-deactivate-scripting) ;; turn it off again!
 		  ;; Give an error to prevent further actions.
-		  (error "Proof General: Scripting not activated because of error or interrupt")))))))))
+		  (error "Proof General: Scripting not activated because of error or interrupt"))))))))
 
 
 (defun proof-toggle-active-scripting (&optional arg)
   "Toggle active scripting mode in the current buffer.
 With ARG, turn on scripting iff ARG is positive."
   (interactive "P")
-  ;; A little less obvious than it may seem: toggling scripting in the
-  ;; current buffer may involve turning it off in some other buffer
-  ;; first!
   (if (if (null arg)
 	  (not (eq proof-script-buffer (current-buffer)))
 	(> (prefix-numeric-value arg) 0))
       (progn
 	(if proof-script-buffer
+	    ;; deactivate elsewhere first
 	    (call-interactively 'proof-deactivate-scripting))
 	(call-interactively 'proof-activate-scripting))
     (call-interactively 'proof-deactivate-scripting)))
@@ -1313,7 +1308,7 @@ Argument SPAN has just been processed."
 	    (t (proof-debug
 		(concat
 		 "lisp error when obeying proof-shell-evaluate-elisp-comment-regexp: \n"
-		 (print1-to-string (match-string-no-properties 1))
+		 (prin1-to-string (match-string-no-properties 1))
 		 "\n"))))))))
 
 
@@ -1942,7 +1937,8 @@ Set the callback to CALLBACK-FN or `proof-done-advancing' by default."
       (error
 	 "At end of the locked region, nothing to do to!"))
   (let ((semis (save-excursion
-		 (skip-chars-backward " \t\n")
+		 (skip-chars-backward " \t\n" 
+				      (proof-queue-or-locked-end))
 		 (proof-segment-up-to-using-cache (point)))))
     (if (eq 'unclosed-comment (car semis))
 	(setq semis (cdr semis)))
