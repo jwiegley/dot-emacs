@@ -1101,7 +1101,7 @@ in ordinary output, which should appear in this regexp."
 
 We assume that an error message corresponds to a failure in the last
 proof command executed.  So don't match mere warning messages with
-this regexp.  Moreover, an error message should not be matched as an
+this regexp.  Moreover, an error message should *not* be matched as an
 eager annotation (see `proof-shell-eager-annotation-start') otherwise it
 will be lost.
 
@@ -1321,10 +1321,10 @@ used to help parse the goals buffer to annotate it for proof by pointing."
 (defcustom proof-shell-process-file nil
   "A pair (REGEXP . FUNCTION) to match a processed file name.
 
-If REGEXP matches output, then the function FUNCTION is invoked on the
-output string chunk.  It must return the name of a script file (with
-complete path) that the system has successfully processed.  In
-practice, FUNCTION is likely to inspect the match data.  If it returns
+If REGEXP matches output, then the function FUNCTION is invoked.
+It must return the name of a script file (with complete path) 
+that the system has successfully processed.  In practice, 
+FUNCTION is likely to inspect the match data.  If it returns
 the empty string, the file name of the scripting buffer is used
 instead.  If it returns nil, no action is taken.
 
@@ -1360,12 +1360,15 @@ date and needs to be updated with the help of the function
 (defcustom proof-shell-compute-new-files-list nil
   "Function to update `proof-included-files list'.
 
-It needs to return an up to date list of all processed files.  Its
-output is stored in `proof-included-files-list'.  Its input is the
-string of which `proof-shell-retract-files-regexp' matched a
-substring.  In practice, this function is likely to inspect the
-previous (global) variable `proof-included-files-list' and the match
-data triggered by `proof-shell-retract-files-regexp'."
+It needs to return an up-to-date list of all processed files.  The
+result will be stored in `proof-included-files-list'.  
+
+This function is called when `proof-shell-retract-files-regexp'
+has been matched in the prover output.
+
+In practice, this function is likely to inspect the
+previous (global) variable `proof-included-files-list' and the
+match data triggered by `proof-shell-retract-files-regexp'."
   :type '(choice function (const nil))
   :group 'proof-shell)
 
