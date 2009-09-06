@@ -16,8 +16,8 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'easymenu)			; easy-menu-add
-  (require 'proof-utils))		; deflocal, proof-eval-when-ready-for-assistant
+  (require 'easymenu)	  ; easy-menu-add
+  (require 'proof-utils)) ; deflocal, proof-eval-when-ready-for-assistant
 
 (require 'bufhist)
 (require 'pg-assoc)
@@ -231,7 +231,8 @@ the buffer is only cleared when FORCE is set.
 No effect if there is no response buffer currently.
 Returns non-nil if response buffer was cleared."
   (when (buffer-live-p proof-response-buffer)
-    (let ((doit (or (and
+    (let ((inhibit-read-only t)
+	  (doit (or (and
 		     proof-tidy-response
 		     (not (eq pg-response-erase-flag 'invisible))
 		     pg-response-erase-flag)
@@ -239,8 +240,6 @@ Returns non-nil if response buffer was cleared."
       (if doit
 	  (if clean-windows
 	      (proof-clean-buffer proof-response-buffer)
-	  ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
-	  ;; (erase-buffer proof-response-buffer)
 	    (with-current-buffer proof-response-buffer
 	      (setq pg-response-next-error nil)	; all error msgs lost!
 	      (if (> (buffer-size) 0)
