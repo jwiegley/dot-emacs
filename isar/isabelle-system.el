@@ -341,30 +341,6 @@ for you, you should disable this behaviour."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Subterm markup -- faking it
-;;
-
-(defun isabelle-convert-idmarkup-to-subterm ()
-  "Convert identifier markup to subterm markup.
-This is a hook setting for `pg-after-fontify-output-hook' to
-enable identifiers to be highlighted.  (To disable that behaviour,
-the function `pg-remove-specials' can be used instead)."
-  ;; NB: the order of doing this is crucial: it must happen after
-  ;; fontifying (since replaces chars used for fontifying), but before
-  ;; X-Sym decoding (since some chars used for fontifying may clash
-  ;; with X-Sym character codes: luckily those codes don't seem to
-  ;; cause problems for subterm markup).
-  ;; Future version of this should use PGML output in Isabelle2002.
-  (goto-char (point-min))
-  (while (proof-re-search-forward "[\351-\357]" nil t)
-    (replace-match "\372\200\373" nil t))
-  (goto-char (point-min))
-  (while (proof-re-search-forward "\350" nil t)
-    (replace-match "\374" nil t)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Context-senstive in-span menu additions
 ;;
 
