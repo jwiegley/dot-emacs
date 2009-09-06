@@ -1066,19 +1066,22 @@ Commands available are:
     (interactive)
     (cond
      (unicode-tokens-respond-to-change-font
-      (unicode-tokens-set-font-var-aux
-       unicode-tokens-respond-to-change-font
-       ns-input-font))
+	(unicode-tokens-set-font-var-aux
+	 unicode-tokens-respond-to-change-font
+	 (with-no-warnings
+	   ns-input-font)))
      (t
       (apply 'old-ns-respond-to-change-font args))))
 
   (defun ns-popup-font-panel ()
     (setq unicode-tokens-respond-to-change-font nil)
-    (old-ns-popup-font-panel))
+    (with-no-warnings
+      (old-ns-popup-font-panel)))
 
   (defun unicode-tokens-popup-font-panel (fontvar)
     (setq unicode-tokens-respond-to-change-font fontvar)
-    (old-ns-popup-font-panel))
+    (with-no-warnings
+      (old-ns-popup-font-panel)))
 )
 
 ;; parameterised version of function from menu-bar.el (Emacs 23.1)
@@ -1088,7 +1091,8 @@ Commands available are:
   (interactive)
   (let (font spec)
     (if (fboundp 'ns-popup-font-panel)
-	(unicode-tokens-popup-font-panel fontvar)
+	(with-no-warnings
+	  (unicode-tokens-popup-font-panel fontvar))
       (cond
        ((fboundp 'x-select-font)
 	(setq font (x-select-font)))
