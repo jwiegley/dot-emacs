@@ -1076,14 +1076,6 @@ Normally error messages cause a beep.  Set this to nil to prevent that."
 ;; 5b. Regexp variables for matching output from proof process.
 ;;
 
-;; FIXME da: replace this with wakeup-regexp or prompt-regexp?
-;; May not need next variable.
-(defcustom proof-shell-wakeup-char nil
-  "A special character which terminates an annotated prompt.
-Set to nil if proof assistant does not support annotated prompts."
-  :type '(choice character (const nil))
-  :group 'proof-shell)
-
 (defcustom proof-shell-annotated-prompt-regexp nil
   "Regexp matching a (possibly annotated) prompt pattern.
 
@@ -1095,8 +1087,7 @@ recognize when the prover has finished processing a command.
 
 To help speed up matching you may be able to annotate the
 proof assistant prompt with a special character not appearing
-in ordinary output.  The special character should appear in
-this regexp, and should be the value of `proof-shell-wakeup-char'."
+in ordinary output, which should appear in this regexp."
   :type 'regexp
   :group 'proof-shell)
 
@@ -1236,7 +1227,15 @@ and possibly analysed further for proof-by-pointing markup."
 
 (defcustom proof-shell-end-goals-regexp nil
   "Regexp matching the end of the proof state output, or nil.
-If nil, just use the rest of the output following `proof-shell-start-goals-regexp'."
+This allows a shorter form of the proof state output to be displayed,
+in case several messages are combined in a command output.  
+
+The portion treated as the goals output will be that between the
+*end* of the match on `proof-shell-start-goals-regexp' and the
+*start* of the match on `proof-shell-end-goals-regexp'.
+
+If nil, use the whole of the output after
+`proof-shell-start-goals-regexp' up to the next prompt."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
