@@ -437,16 +437,12 @@ The directory and extension is stripped of FILENAME before the test."
   (equal module
 	 (file-name-sans-extension (file-name-nondirectory filename))))
 
-(defun plastic-shell-compute-new-files-list (str)
+(defun plastic-shell-compute-new-files-list ()
   "Function to update `proof-included-files list'.
+Value for `proof-shell-compute-new-files-list', which see.
 
-It needs to return an up to date list of all processed files. Its
-output is stored in `proof-included-files-list'. Its input is the
-string of which `plastic-shell-retract-files-regexp' matched a
-substring.
-
-We assume that module identifiers coincide with file names."
-  (let ((module (match-string 1 str)))
+For Plastic, we assume that module identifiers coincide with file names."
+  (let ((module (match-string 1)))
     (cdr (member-if
 	  (lambda (filename) (plastic-equal-module-filename module filename))
 	  proof-included-files-list))))
@@ -487,9 +483,10 @@ We assume that module identifiers coincide with file names."
 
 	proof-shell-process-file
 	(cons "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]"
-	  (lambda (str) (let ((match (match-string 2 str)))
-			  (if (equal match "") match
-			    (concat (file-name-sans-extension match) ".l")))))
+	      (lambda () (let ((match (match-string 2)))
+			      (if (equal match "") match
+				(concat 
+				 (file-name-sans-extension match) ".lf")))))
 
 	proof-shell-retract-files-regexp "forgot back through Mark \"\\(.*\\)\""
 	proof-shell-font-lock-keywords plastic-font-lock-keywords-1

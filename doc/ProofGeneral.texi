@@ -9,8 +9,8 @@
 
 @c
 @c TODO:  
-@c   MMM support, Theorem dependencies, history in script and response
-@c
+@c   MMM support, Theorem dependencies, history in script and response,
+@c   identifier info commands
 
 
 @c
@@ -1460,8 +1460,7 @@ It was constructed with @samp{@code{proof-deftoggle-fn}}.
 @c TEXI DOCSTRING MAGIC: proof-assert-until-point-interactive
 @deffn Command proof-assert-until-point-interactive 
 Process the region from the end of the locked-region until point.@*
-Default action if inside a comment is just process as far as the start of
-the comment.
+If inside a comment, just process until the start of the comment.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point-interactive
@@ -1525,7 +1524,7 @@ A fixed number of repetitions of this command switches back to
 the same buffer.
 Also move point to the end of the response buffer if it's selected.
 If in three window or multiple frame mode, display two buffers.
-The idea of this function is to change the window->buffer mapping 
+The idea of this function is to change the window->buffer mapping
 without adjusting window layout.
 @end deffn
 
@@ -2132,9 +2131,8 @@ with the proof assistant rather than sending commands via the
 minibuffer, @pxref{Proof assistant commands}.
 
 Although the proof shell is usually hidden from view, it is run in a
-buffer which provides the usual full editing and history facilities of
-Emacs shells (see the package @file{comint.el} distributed with your
-version of Emacs). You can switch to it using the menu:
+buffer which you can use to interact with the prover if necessary.  You
+can switch to it using the menu:
 
 @lisp
   Proof-General -> Buffers -> Shell
@@ -2884,7 +2882,7 @@ A fixed number of repetitions of this command switches back to
 the same buffer.
 Also move point to the end of the response buffer if it's selected.
 If in three window or multiple frame mode, display two buffers.
-The idea of this function is to change the window->buffer mapping 
+The idea of this function is to change the window->buffer mapping
 without adjusting window layout.
 @end deffn
 
@@ -2963,7 +2961,7 @@ The default value is @code{t}.
 @defopt proof-electric-terminator-enable 
 If non-nil, use electric terminator mode.@*
 If electric terminator mode is enabled, pressing a terminator will
-automatically issue @samp{@code{proof-assert-next-command}} for convenience,
+automatically issue @samp{proof-assert-next-command} for convenience,
 to send the command straight to the proof process.  If the command
 you want to send already has a terminator character, you don't
 need to delete the terminator character first.  Just press the
@@ -2993,10 +2991,9 @@ The default value is @code{t}.
 @defopt proof-allow-undo-in-read-only 
 Whether Proof General allows text undo in the read-only region.@*
 If non-nil, undo will allow altering of processed text.
-If nil, undo history is cut at first edit
-of processed text.
+If nil, undo is blocked if the next undo is in processed text.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 @c This one removed: proof-auto-retract

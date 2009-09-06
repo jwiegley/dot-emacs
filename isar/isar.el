@@ -158,7 +158,6 @@ See -k option for Isabelle interface script."
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
 
-   proof-shell-wakeup-char              nil
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \^AS"
 
    ;; for issuing command, not used to track cwd in any way.
@@ -188,7 +187,7 @@ See -k option for Isabelle interface script."
    ;; matches names of assumptions
    proof-shell-assumption-regexp        isar-id
 
-   proof-shell-start-goals-regexp       "\^AO\n"
+   proof-shell-start-goals-regexp       "\^AO"
    proof-shell-end-goals-regexp         "\^AP"
 
    proof-shell-init-cmd			nil
@@ -199,36 +198,37 @@ See -k option for Isabelle interface script."
    proof-shell-eager-annotation-end     "\^AJ\\|\^AL"
    proof-shell-strip-output-markup	'isar-strip-output-markup
 
-   ;; Isabelle is learning to talk PGIP...
-   proof-shell-match-pgip-cmd		"<pgip"
-   proof-shell-issue-pgip-cmd		'isabelle-process-pgip
-
-   ;; Some messages delimited by eager annotations
-   proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
-   proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
-
-   ;; Theorem dependencies.
-   ;; NB: next regex anchored at end with eager annot end
-   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
-   proof-shell-theorem-dependency-list-split "\" \""
-   proof-shell-show-dependency-cmd "thm %s;"
-
    pg-special-char-regexp               "\^A[0-9A-Z]"
-
    pg-subterm-help-cmd			"term %s"
-
    proof-cannot-reopen-processed-files  t
+
+   ;; Urgent messages delimited by eager annotations
+   proof-shell-clear-response-regexp    
+   "\^AIProof General, please clear the response buffer."
+   proof-shell-clear-goals-regexp       
+   "\^AIProof General, please clear the goals buffer."
+   proof-shell-theorem-dependency-list-regexp 
+   "\^AIProof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
+   proof-shell-retract-files-regexp
+   "\^AIProof General, you can unlock the file \"\\(.*\\)\"\^AJ"
    proof-shell-process-file
    (cons
     ;; Theory loader output
-    "Proof General, this file is loaded: \"\\(.*\\)\""
-    (lambda (str)
-      (match-string 1 str)))
-   proof-shell-retract-files-regexp
-   "Proof General, you can unlock the file \"\\(.*\\)\""
+    "\^AIProof General, this file is loaded: \"\\(.*\\)\"\^AJ"
+    (lambda () (match-string 1)))
+   proof-shell-match-pgip-cmd		"\^AI<pgip"
+
+   ;; configuration for these
+   proof-shell-issue-pgip-cmd		'isabelle-process-pgip
+
+   proof-shell-theorem-dependency-list-split "\" \""
+   proof-shell-show-dependency-cmd	"thm %s;"
+
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
-   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\""
-   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\""))
+   proof-shell-inform-file-processed-cmd 
+   "ProofGeneral.inform_file_processed \"%s\""
+   proof-shell-inform-file-retracted-cmd 
+   "ProofGeneral.inform_file_retracted \"%s\""))
 
 
 ;;;
@@ -264,12 +264,12 @@ See -k option for Isabelle interface script."
       (if same (isar-remove-file name rest cmp-base result)
 	(isar-remove-file name rest cmp-base (cons file result))))))
 
-(defun isar-shell-compute-new-files-list (str)
+(defun isar-shell-compute-new-files-list ()
   "Compute the new list of files read by the proof assistant.
 This is called when Proof General spots output matching
 `proof-shell-retract-files-regexp'."
   (let*
-      ((name (match-string 1 str))
+      ((name (match-string 1))
        (base-name (file-name-nondirectory name)))
     (if (string= name base-name)
 	(isar-remove-file name proof-included-files-list t nil)
@@ -392,8 +392,7 @@ This is called when Proof General spots output matching
 (defun isar-count-undos (span)
   "Count number of undos SPAN, return command needed to undo that far."
   (let
-      ((case-fold-search nil)       ;FIXME ??
-       (ct 0) str i)
+      ((ct 0) str i)
     (while span
       (setq str (or (span-property span 'cmd) ""))
       (cond ((eq (span-property span 'type) 'vanilla)
@@ -540,11 +539,6 @@ Checks the width in the `proof-goals-buffer'"
 ;; Shell mode command adjusting
 ;;
 
-(defconst isar-nonwrap-regexp
-  ;; FIXME: approx: should only match at start or after terminator
-  (regexp-opt (append (list "ProofGeneral.process_pgip")
-		      isar-undo-commands)))
-
 (defun isar-string-wrapping (string)
   (concat
    "\""
@@ -554,34 +548,36 @@ Checks the width in the `proof-goals-buffer'"
     string)
    "\""))
 
-(defun isar-positions-of (buffer span)
-  (let (line)
+(defun isar-positions-of (span)
+  (let (line file)
     (if span
 	(save-excursion
 	  (set-buffer (span-buffer span))
 	  (goto-char (span-start span))
 	  (skip-chars-forward " \t\n")
 	  ;; NB: position is relative to display (narrowing, etc)
-	  ;; defer column: too tricky for now, see trac #274
+	  ;; defer column: too tricky for now, see trac #277
 	  ; (setq column (current-column))
-	  (setq line (line-number-at-pos (point)))))
+	  (setq line (line-number-at-pos (point)))
+	  (setq file (or (buffer-file-name) (buffer-name)))))
     (concat
      "("
      (proof-splice-separator
       ", "
       (list
-       (if (and buffer (buffer-file-name buffer))
-	   (format "\"file\"=%s"
-		   (isar-string-wrapping (buffer-file-name buffer))))
-       (if line   (format "\"line\"=\"%d\"" line))))
-       ;(if column (format "\"column\"=\"%d\"" column))))
+       (if file
+	   (format "\"file\"=%s" (isar-string-wrapping file)))
+       (if line   
+	   (format "\"line\"=\"%d\"" line))))
+    ;; (if column (format "\"column\"=\"%d\"" column))))
       ") ")))
 
 (defun isar-command-wrapping (string scriptspan)
-  (if (not (proof-string-match isar-nonwrap-regexp string))
+  (if (and scriptspan (eq proof-shell-busy 'advancing))
+      ;; use Isabelle.command around script commands
       (concat
        "Isabelle.command "
-       (isar-positions-of proof-script-buffer scriptspan)
+       (isar-positions-of scriptspan)
        (isar-string-wrapping string))
     (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)))
 
