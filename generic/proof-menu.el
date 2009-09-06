@@ -7,6 +7,8 @@
 ;; $Id$
 ;;
 
+(require 'cl)
+
 (require 'proof-utils)    ; proof-deftoggle, proof-eval-when-ready-for-assistant
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -146,47 +148,47 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-specific ()
-  (easy-menu-define
-    proof-assistant-menu
-    proof-mode-map
-    (concat "The menu for " proof-assistant)
-    (cons proof-assistant
-	  (append
-	   (proof-ass menu-entries)
-	   '("----")
-	   (or proof-menu-favourites
-	       (proof-menu-define-favourites-menu))
-	   (or proof-menu-settings
-	       (proof-menu-define-settings-menu))
-	   '("----")
-	   (list
-	    (vector
-	     (concat "Start " proof-assistant)
+  `(easy-menu-define
+     proof-assistant-menu
+     proof-mode-map
+     ,(concat "The menu for " proof-assistant)
+     ,(cons proof-assistant
+	    (append
+	     (proof-ass menu-entries)
+	     '("----")
+	     (or proof-menu-favourites
+		 (proof-menu-define-favourites-menu))
+	     (or proof-menu-settings
+		 (proof-menu-define-settings-menu))
+	     '("----")
+	     (list
+	      (vector
+	       (concat "Start " proof-assistant)
 	     'proof-shell-start
 	     ':active '(not (proof-shell-live-buffer)))
-	    (vector
-	     (concat "Exit " proof-assistant)
-	     'proof-shell-exit
-	     ':active '(proof-shell-live-buffer))
-	    ;; TODO: doc <PA>-set-command here
-	    (vector
-	     (concat "Set " proof-assistant " command")
-	     (proof-ass-sym set-command)
-	     ':active '(fboundp (proof-ass-sym set-command))))
-	   '("----")
-	   (list
-	    (cons "Help"
-		  (append
-		   (list
-		    (vector
-		     (concat proof-assistant " information")
-		     'proof-help
-		     :visible proof-info-command)
-		    (vector
-		     (concat proof-assistant " web page")
-		     '(browse-url proof-assistant-home-page)
-		     :visible proof-assistant-home-page))
-		   (proof-ass help-menu-entries))))))))
+	      (vector
+	       (concat "Exit " proof-assistant)
+	       'proof-shell-exit
+	       ':active '(proof-shell-live-buffer))
+	      ;; TODO: doc <PA>-set-command here
+	      (vector
+	       (concat "Set " proof-assistant " command")
+	       (proof-ass-sym set-command)
+	       ':active '(fboundp (proof-ass-sym set-command))))
+	     '("----")
+	     (list
+	      (cons "Help"
+		    (append
+		     (list
+		      (vector
+		       (concat proof-assistant " information")
+		       'proof-help
+		       :visible proof-info-command)
+		      (vector
+		       (concat proof-assistant " web page")
+		       '(browse-url proof-assistant-home-page)
+		       :visible proof-assistant-home-page))
+		     (proof-ass help-menu-entries))))))))
 
 (defun proof-assistant-menu-update ()
   "Update proof assistant menu in scripting buffers."
@@ -832,7 +834,7 @@ KEY is the optional key binding."
     ;; pg-custom-undeclare-variable.
     (if (assoc name proof-assistant-settings)
 	(progn
-	  (proof-debug "defpacustom: Proof assistanting setting %s re-defined!"
+	  (proof-debug "defpacustom: Proof assistant setting %s re-defined!"
 		       name)
 	  (undefpgcustom name)))
     (eval
