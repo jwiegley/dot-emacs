@@ -119,21 +119,11 @@ Commands:\\<bufhist-minor-mode-map>
 \\[bufhist-last]    bufhist-last    go to last (current) item in history.
 \\[bufhist-clear]   bufhist-clear   clear history.
 \\[bufhist-delete]  bufhist-clear   delete current item from history."
-  nil "" bufhist-minor-mode-map)
-
-; For newer versions of define-minor-mode we can use extra
-; args above instead of hook function below:
-;  :group 'bufhist
-;  (if bufhist-mode
-;      (bufhist-init)
-;    (bufhist-exit)))
-; This doesn't work, e.g. with XEmacs 21.4.15.
-
-(defun bufhist-toggle-fn ()
+  nil "" bufhist-minor-mode-map
+  :group 'bufhist
   (if bufhist-mode
       (bufhist-init)
     (bufhist-exit)))
-
 
 (make-variable-buffer-local 'bufhist-ring)
 (make-variable-buffer-local 'bufhist-ring-pos)
@@ -342,7 +332,5 @@ The size defaults to `bufhist-ring-size'."
 		 "Next")
   (widget-setup))
 
-
-(add-hook 'bufhist-mode-hook 'bufhist-toggle-fn)
 
 (provide 'bufhist)
