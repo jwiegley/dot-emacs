@@ -22,20 +22,14 @@
 ;;
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
+(require 'proof-site)			; site/prover config, global vars, autoloads
+(require 'proof-compat)			; Emacs and OS compatibility
+(require 'proof-utils)			; utilities
+(require 'proof-config)			; configuration variables
 
-(eval-when (eval load compile)
-  (require 'proof-site)	  ; site/prover config, global vars, autoloads
-  (require 'proof-compat) ; Emacs and OS compatibility
-  (require 'proof-utils)  ; utilities
-  (require 'proof-config) ; configuration variables
+(proof-splash-message)			; welcome the user now.
 
-  (unless noninteractive
-    (proof-splash-message))		; welcome the user now. 
-
-  (require 'proof-auxmodes)		; Further autoloads
-)
+(require 'proof-auxmodes)		; Further autoloads
 
 (provide 'proof)
 ;;; proof.el ends here
