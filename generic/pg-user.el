@@ -1,6 +1,6 @@
 ;;; pg-user.el --- User level commands for Proof General
 ;;
-;; Copyright (C) 2000-2008 LFCS Edinburgh.
+;; Copyright (C) 2000-2009 LFCS Edinburgh.
 ;; Author:     David Aspinall and others
 ;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -16,6 +16,8 @@
 ;;; Code:
 
 (require 'span)
+(require 'scomint)
+
 (require 'proof)			; loader
 (require 'proof-script)			; we build on proof-script
 
