@@ -1,6 +1,6 @@
 ;; proof-splash.el -- Splash welcome screen for Proof General
 ;;
-;; Copyright (C) 1998-2005 LFCS Edinburgh.
+;; Copyright (C) 1998-2005, 2009 LFCS Edinburgh.
 ;; Author:    David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -130,17 +130,19 @@ Borrowed from startup-center-spaces."
 
 (defun proof-splash-remove-screen (&optional nothing)
   "Remove splash screen and restore window config."
-  (let ((splashbuf (get-buffer proof-splash-welcome)))
-    (proof-splash-unset-frame-titles)
-    (if (and
-	 splashbuf
-	 proof-splash-timeout-conf)
-	(progn
-	  (with-current-buffer splashbuf
-	    (View-quit))
-	  ;; Indicate removed splash screen; disable timeout
-	  (disable-timeout proof-splash-timeout-conf)
-	  (setq proof-splash-timeout-conf nil)))))
+  (save-excursion
+    (let ((splashbuf (get-buffer proof-splash-welcome)))
+      (proof-splash-unset-frame-titles)
+      (if (and
+	   splashbuf
+	   proof-splash-timeout-conf)
+	  (progn
+	    (with-current-buffer splashbuf
+	      ;(View-quit))
+	      (quit-window t))
+	    ;; Indicate removed splash screen; disable timeout
+	    (disable-timeout proof-splash-timeout-conf)
+	    (setq proof-splash-timeout-conf nil))))))
 
 (defvar proof-splash-seen nil
   "Flag indicating the user has been subjected to a welcome message.")
@@ -191,8 +193,19 @@ If TIMEOUT is non-nil, arrange for a time-out to occur outside this function."
  (proof-splash-set-frame-titles)
  (let* ((splashbuf (get-buffer-create proof-splash-welcome)))
    (with-current-buffer splashbuf
-     (proof-splash-insert-contents))
-   (view-buffer splashbuf 'kill-buffer)
+     (proof-splash-insert-contents)
+     (display-buffer splashbuf)
+     ; (view-buffer splashbuf 'kill-buffer))
+     (view-mode-enter nil 'kill-buffer))
+    ;; (let ((window (get-buffer-window splashbuf t)))
+    ;;   (or (null window)
+    ;; 	  (delete-other-windows))))
+   ;; 	 (eq window (selected-window))
+   ;; 	 (eq window (next-window window))
+   ;; 	 (fit-window-to-buffer window)))
+   ;(with-current-buffer splashbuf
+   ;  (view-mode-enter nil 'kill-buffer))
+   ;(switch-to-buffer splashbuf)
    (if timeout
        (progn
 	 (setq proof-splash-timeout-conf
@@ -207,24 +220,25 @@ If TIMEOUT is non-nil, arrange for a time-out to occur outside this function."
 (defun proof-splash-message ()
   "Make sure the user gets welcomed one way or another."
   (interactive)
-  (unless (or proof-splash-seen noninteractive)
+  (unless proof-splash-seen
     (if proof-splash-enable
 	(progn
 	  ;; disable ordinary emacs splash
 	  (setq inhibit-startup-message t)
-	  (proof-splash-display-screen (not (interactive-p))))
+	  (proof-splash-display-screen (not (interactive-p)))
+	  (redisplay t))
       ;; Otherwise, a message
       (message "Welcome to %s Proof General!" proof-assistant))
     (setq proof-splash-seen t)))
 
 (defun proof-splash-timeout-waiter ()
   "Wait for proof-splash-timeout or input, then remove self from hook."
-  (while (and proof-splash-timeout-conf ;; timeout still active
+  (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
+  (while (and proof-splash-timeout-conf ; timeout still active
 	      (not unread-command-events))
     (sit-for 1))
-  (if proof-splash-timeout-conf         ;; not removed yet
-      (proof-splash-remove-screen))
-  (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
+  (if proof-splash-timeout-conf         ; not removed yet
+      (proof-splash-remove-screen)))
 
 (defvar proof-splash-old-frame-title-format nil)
 
