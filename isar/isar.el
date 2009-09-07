@@ -31,11 +31,12 @@
 ;;
 ;; Load syntax
 ;;
+
 (defcustom isar-keywords-name nil
   "Specifies a theory-specific keywords setting to use with Isar.
 See -k option for Isabelle interface script."
   :type 'string
-  :group 'isabelle-isar)
+  :group 'isabelle)
 
 (or (featurep 'isar-keywords)
     ;; Pickup isar-keywords file from somewhere appropriate,
@@ -240,9 +241,10 @@ See -k option for Isabelle interface script."
 (defun isar-configure-from-settings ()
   (isar-set-proof-find-theorems-command))
 
-(defpacustom use-find-theorems-form nil
+(defcustom isar-use-find-theorems-form nil
   "Use a form-style input for the find theorems operation."
   :type 'boolean
+  :group 'isabelle
   :eval (isar-set-proof-find-theorems-command))
 
 (defun isar-set-proof-find-theorems-command ()
