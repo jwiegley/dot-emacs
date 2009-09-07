@@ -14,6 +14,10 @@
 (require 'proof-easy-config)            ; nice and easy does it
 (require 'proof-syntax)			; functions for making regexps
 
+(defvar ccc-keywords nil)
+(defvar ccc-tactics nil)
+(defvar ccc-tacticals nil)
+
 (proof-easy-config  'ccc "CASL Consistency Checker"
  proof-prog-name		 "ccc" ;; must be in your path.
  proof-terminal-char             ?\;
