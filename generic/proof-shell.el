@@ -330,7 +330,7 @@ process command."
 	(message "Starting: %s" prog-command-line)
 
 	(apply 'scomint-make  (append (list proc (car prog-name-list) nil)
-				     (cdr prog-name-list)))
+				      (cdr prog-name-list)))
 
 	(setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
