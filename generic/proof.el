@@ -27,7 +27,8 @@
 (require 'proof-utils)			; utilities
 (require 'proof-config)			; configuration variables
 
-(proof-splash-message)			; welcome the user now.
+(unless noninteractive
+  (proof-splash-message))		; welcome the user now.
 
 (require 'proof-auxmodes)		; Further autoloads
 
