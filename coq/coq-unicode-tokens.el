@@ -1,7 +1,7 @@
 ;;; -*- coding: utf-8; -*-
 ;; coq-unicode-tokens.el --- (No) Tokens for Unicode Tokens package
 ;;
-;; Copyright(C) 2008 David Aspinall / LFCS Edinburgh
+;; Copyright(C) 2008, 2009 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; This file is loaded by `proof-unicode-tokens.el'.
@@ -10,14 +10,41 @@
 ;; unicode-tokens-<foo> is set from coq-<foo>.  See the corresponding
 ;; variable for documentation.
 ;;
-;; For Coq, there is no dedicated token syntax, it's preferable to
-;; use UTF-8 notation directly (see utf8.v).  So the configuration
-;; here just makes some handy shortcuts for symbol input.
+;; For Coq, there is no dedicated token syntax, it's probably
+;; preferable to use UTF-8 notation directly (see utf8.v).  
+;; 
+;; On the other hand, for easily portable files, one can fix
+;; ordinary character sequences as tokens, like the old X-Symbol
+;; configuration for Coq did.
 ;;
+;; The configuration here is an example which (for added confusion)
+;; does both things.  Keyboard shortcuts get replaced by "real"
+;; Unicode characters, whereas ordinary character sequences are
+;; displayed as those characters.
+;;
+;; Recommended ways to work: 
+;;
+;;   1) UTF-8 buffers:  ☑ Show Symbol Tokens  (ON)
+;;			☑ Enable Shortcuts    (ON)
+;;		        
+;;   2) ASCII buffers:  ☐ Enable Shortcuts    (OFF)
+;;			☐ Show Symbol Tokens  (OFF)
+;;
+;; The (confusing!) default is to enable shortcuts and display tokens.
+;; Use Tokens -> Highlight Real Unicode Chars to help understand the
+;; buffer contents.  Hovering on a token shows its underlying text.
 
-(defconst coq-token-format "%s")
+(require 'proof-unicode-tokens)
+
+(defconst coq-token-format "%s")	; plain tokens
 (defconst coq-token-match nil)
 (defconst coq-hexcode-match nil)
+
+(defun coq-unicode-tokens-set (sym val)
+  "Change a Unicode Tokens configuration variable and restart."
+  (set-default sym val)
+  (when (featurep 'coq-unicode-tokens) ; not during loading
+    (proof-unicode-tokens-configure)))
 
 (defcustom coq-token-symbol-map
   '(;; Greek letters
@@ -25,7 +52,7 @@
     ("beta" "β")
     ("gamma" "γ")
     ("delta" "δ")
-    ("epsilon" "ε") ; actually varepsilon (some is epsilon)
+    ("epsilon" "ε")
     ("zeta" "ζ")
     ("eta" "η")
     ("theta" "θ")
@@ -59,14 +86,43 @@
     ("forall" "∀")
     ("exists" "∃")
     ("nat" "ℕ")
+    ("complex" "ℂ")
     ("real" "ℝ")
+    ("int" "ℤ")
+    ("rat" "ℚ")
+    ("bool" "B" bold underline)
+    ("false" "false" small sans)
+    ("true" "true" small sans)
+
     ;; symbols without utf8.v  (but also without context)
+    ("lhd" "⊲")
+    ("rhd" "⊳")
+    ("<=" "≤")
+    (">=" "≥")
     ("=>" "⇒")
+    ("->" "→")  ; or ⟶ or ⟹ if you prefer
+    ("<-" "←")  ; or ⟵ or ⟸ 
+    ("<->" "↔") ; or ⟷ ...
+
+    ("++" "⧺")
+    ("<<" "《")
+    (">>" "》")
+
+    ;; ("===" "≡") ; Equivalence
+    ;; ("==" "≡")  ; Setoid equiv (NB: same presentation!)
+    ;; ("=/=" "≢") ; inequiv
+
+    ;; ("-->" "⟹-") ; Morphisms
+    ;; ("++>" "⟹+") ; 
+    ;; ("==>" "⟹=") ; 
+
     (":=" "≔")
-    ("\/" "∨")
+    ("|-" "⊢")
+    ("<>" "≠")
+    ("-|" "⊣")
+    ("\\/" "∨")
     ("/\\" "∧")
-    ("->" "→")
-    ("~"  "⌉"))
+    ("~"  "¬"))
   ;; an alist of token name, unicode char sequence
   "Table mapping Coq tokens to Unicode strings.
 
@@ -78,15 +134,13 @@ in this table.  When the file is saved, the reverse is done.
 The string mapping can be anything, but should be such that
 tokens can be uniquely recovered from a decoded text; otherwise
 results will be undefined when files are saved."
-  :type '(repeat (list (string :tag "Token name")
-		       (string :tag "Unicode string")))
-  :set 'proof-set-value
+  :type 'unicode-tokens-token-symbol-map
+  :set 'coq-unicode-tokens-set
   :group 'coq
   :tag "Coq Unicode Token Mapping")
 
-
 (defcustom coq-shortcut-alist
-  '(; short cut, unicode string
+  '(; short cut, REAL unicode string
     ("<>" . "⋄")
     ("|>" . "⊳")
     ("\\/" . "∨")
@@ -165,7 +219,7 @@ performed.  This means that the target strings need to have a defined
 meaning to be useful."
   :type '(repeat (cons (string :tag "Shortcut sequence")
 		       (string :tag "Unicode string")))
-  :set 'proof-set-value
+  :set 'coq-unicode-tokens-set
   :group 'coq
   :tag "Coq Unicode Input Shortcuts")
 
@@ -194,6 +248,12 @@ meaning to be useful."
     ("Script" "SCRIPT" "" script)
     ("Frakt"  "FRACT" "" frakt)
     ("Roman"  "ROMAN" "" serif)))
+
+
+
+
+
+
 
 (provide 'coq-unicode-tokens)
 
