@@ -24,6 +24,7 @@
   (require 'pg-vars)
   (defvar outline-heading-end-regexp nil)
   (defvar comment-quote-nested nil)
+  (defvar isar-use-find-theorems-form nil)
   (proof-ready-for-assistant 'isar))	; compile for isar
 
 (require 'isabelle-system)		; system code
@@ -240,25 +241,19 @@ See -k option for Isabelle interface script."
 ;;;
 
 
-(defun isar-use-find-theorems-form-set (sym val)
-  (set-default sym val)
-  (when (featurep 'isar) ; not during loading
-    (isar-set-proof-find-theorems-command)))
-
-(defcustom isar-use-find-theorems-form nil
-  "Use a form-style input for the find theorems operation."
-  :type 'boolean
-  :group 'isabelle
-  :set 'isar-use-find-theorems-form-set)
-
-(defun isar-set-proof-find-theorems-command ()
-    (setq proof-find-theorems-command
-	  (if isar-use-find-theorems-form
-	      'isar-find-theorems-form
-	    'isar-find-theorems-minibuffer)))
-
 (defun isar-configure-from-settings ()
   (isar-set-proof-find-theorems-command))
+
+(defpacustom use-find-theorems-form nil
+  "Use a form-style input for the find theorems operation."
+  :type 'boolean
+  :eval (isar-set-proof-find-theorems-command))
+
+(defun isar-set-proof-find-theorems-command ()
+  (setq proof-find-theorems-command
+	(if isar-use-find-theorems-form
+	    'isar-find-theorems-form
+	  'isar-find-theorems-minibuffer)))
 
 ;;;
 ;;; Theory loader operations
