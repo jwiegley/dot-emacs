@@ -1,17 +1,19 @@
 ;;; coq-local-vars.el --- local variable list tools for coq
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh.
+;;
+;; Copyright (C) 2006-2008 LFCS Edinburgh.
 ;; Authors: Pierre Courtieu
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
-
+;;
 ;; $Id$
-
-
+;;
 ;;; Commentary:
 ;;
 
+(eval-when-compile
+  (defvar coq-prog-name nil)
+  (defvar coq-prog-args nil)
+  (defvar coq-version-is-V8-1 nil))
 
-;;; History:
-;;
 
 ;;; Code:
 (defconst coq-local-vars-doc nil
