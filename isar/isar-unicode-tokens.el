@@ -11,6 +11,12 @@
 ;; variable for documentation.
 ;;
 
+
+(require 'cl)				; for-loop
+
+(eval-when (compile)
+  (require 'unicode-tokens))	  ; it's loaded dynamically at runtime
+
 (require 'proof-unicode-tokens)
 
 ;;
@@ -623,9 +629,9 @@ See `unicode-tokens-shortcut-alist'."
 			  (cons (concat "\\" (car tokentry))
 				(format isar-token-format (car tokentry))))
 			(append isar-greek-letters-tokens
-				isar-symbols-tokens))))
-  ;; copy default for this from above
-  (setq unicode-tokens-shortcut-replacement-alist nil))
+				isar-symbols-tokens)))))
+  ;; todo: allow shortcuts for replacements to be a different list
+  ;; (setq unicode-tokens-shortcut-replacement-alist nil))
 
 (isar-init-shortcut-alists)
 
