@@ -144,7 +144,7 @@ See -k option for Isabelle interface script."
    proof-kill-goal-command      "ProofGeneral.kill_proof"
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
-   proof-shell-trace-output-regexp  "\^AV"
+   proof-shell-trace-output-regexp  "\^AI\^AV"
    ;; command hooks
    proof-goal-command-p         'isar-goal-command-p
    proof-really-save-command-p  'isar-global-save-command-p
