@@ -75,7 +75,7 @@ Entry to this mode runs the hooks on `scomint-mode-hook'."
   (add-hook 'change-major-mode-hook 'font-lock-defontify nil t)
   (set (make-local-variable 'next-line-add-newlines) nil))
 
-(defun scomint-check-proc (buffer)
+(defsubst scomint-check-proc (buffer)
   "Return non-nil if there is a living process associated w/buffer BUFFER.
 Living means the status is `open', `run', or `stop'.
 BUFFER can be either a buffer or the name of one."
