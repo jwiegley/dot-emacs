@@ -44,7 +44,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Users should not need to change this.
 
-(defvar lego-shell-process-output
+(defvar lego-shell-classify-output
   '((lambda (cmd string) (proof-string-match "^Module" cmd)) .
     (lambda (cmd string)
       (setq proof-shell-delayed-output
@@ -402,7 +402,7 @@ For LEGO, we assume that module identifiers coincide with file names."
 	proof-shell-init-cmd lego-process-config
 	proof-shell-restart-cmd lego-process-config
 	pg-subterm-anns-use-stack nil
-	proof-shell-process-output-system-specific lego-shell-process-output
+	proof-shell-classify-output-system-specific lego-shell-classify-output
 	lego-shell-current-line-width nil
 
 	;; LEGO uses Unicode escape prefix: liable to create problems
