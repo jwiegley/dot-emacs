@@ -80,7 +80,8 @@ Also used to format shortcuts.")
 
 (defvar unicode-tokens-token-variant-format-regexp nil
   "A regular expression which matches a token variant.
-Will not be regexp quoted, and after format is applied, must
+Will not be regexp quoted, and will be formatted with
+a nested regexp that matches any token.
 
 An example would be: \\\\(%s\\\\)\\\\(:?\\w+\\\\)
 
@@ -373,32 +374,55 @@ This function also initialises the important tables for the mode."
 	 (when (unicode-tokens-usable-composition comp)
 	   (unless (gethash tok hash)
 	     (puthash tok (cdr x) hash)
-	       (push tok toks)
-	       (if (stringp comp) ;; reverse map only for string comps
-		   (unless (or (gethash comp ucharhash)
-			       ;; ignore plain chars for reverse map
-			       (string-match "[a-zA-Z0-9]+" comp))
-		     (push comp uchars)
-		     (puthash comp tok ucharhash)))))))
+	     (push tok toks)
+	     (if (stringp comp) ;; reverse map only for string comps
+		 (unless (or (gethash comp ucharhash)
+			     ;; ignore plain chars for reverse map
+			     (string-match "[a-zA-Z0-9]+" comp))
+		   (push comp uchars)
+		   (puthash comp tok ucharhash)))))))
      (when toks
        (setq unicode-tokens-hash-table hash)
        (setq unicode-tokens-uchar-hash-table ucharhash)
-       (setq unicode-tokens-token-list (reverse toks))
        (setq unicode-tokens-uchar-regexp (regexp-opt uchars))
        (setq unicode-tokens-token-match-regexp
-	     (if unicode-tokens-token-variant-format-regexp
-		 (format unicode-tokens-token-variant-format-regexp
-			 (regexp-opt toks t))
-	       (regexp-opt (mapcar (lambda (tok)
-				     (format unicode-tokens-token-format tok))
-				   toks) 'words)))
+	     (unicode-tokens-calculate-token-match toks))
+       (setq unicode-tokens-token-list (nreverse toks))
        (cons
 	`(,unicode-tokens-token-match-regexp
 	  (0 (unicode-tokens-help-echo) prepend)
-	  (0 (unicode-tokens-font-lock-compose-symbol
-	      ,(- (regexp-opt-depth unicode-tokens-token-match-regexp) 1))
-	      prepend))
+	  (0 (unicode-tokens-font-lock-compose-symbol 1) prepend))
 	(unicode-tokens-control-font-lock-keywords)))))
+
+(defun unicode-tokens-calculate-token-match (toks)
+  "Calculate value for `unicode-tokens-token-match-regexp'"
+;  (with-syntax-table (standard-syntax-table)
+    ;; hairy logic based on Coq-style vs Isabelle-style configs
+    (if (string= "" (format unicode-tokens-token-format ""))
+	;; no special token format, parse separate words/symbols
+	(let* ((optoks 
+		(remove* "^\\(?:\\sw\\|\\s_\\)+$" 
+			 toks :test 'string-match))
+	       (idtoks
+		(set-difference toks optoks))
+	       (idorop
+		(concat "\\(\\_<"
+			(regexp-opt idtoks)
+			"\\_>\\|\\(?:\\B"
+			(regexp-opt optoks) 
+			"\\B\\)\\)")))
+	  (if unicode-tokens-token-variant-format-regexp
+	      (format unicode-tokens-token-variant-format-regexp
+		      idorop)
+	    idorop))
+      ;; otherwise, assumption is that token syntax delimits tokens
+      (if unicode-tokens-token-variant-format-regexp
+	  (format unicode-tokens-token-variant-format-regexp
+		  (regexp-opt toks))
+	(regexp-opt (mapcar (lambda (tok)
+			      (format unicode-tokens-token-format tok))
+			    toks)))));)
+
 
 (defun unicode-tokens-usable-composition (comp)
   "Return non-nil if the composition COMP seems to be usable.
@@ -406,8 +430,8 @@ The check is with `char-displayable-p'."
   (cond
    ((stringp comp)
     (reduce (lambda (x y) (and x (char-displayable-p y)))
-	    comp
-	    :initial-value t))
+ 	    comp
+ 	    :initial-value t))
    ((characterp comp)
     (char-displayable-p comp))
    (comp ;; assume any other non-null is OK
@@ -428,7 +452,7 @@ The check is with `char-displayable-p'."
    ((stringp comp)
     ;; change a longer string into a sequence placing glyphs left-to-right.
     (let ((chars (nreverse (string-to-list comp)))
-	  (sep   '(11 . 9))
+	  (sep   '(5 . 3))
 	  res)
       (while chars
 	(setq res (cons (car chars) res))
@@ -440,8 +464,8 @@ The check is with `char-displayable-p'."
 
 (defun unicode-tokens-font-lock-compose-symbol (match)
   "Compose a sequence of chars into a symbol.
-Regexp match data number MATCH selects the token name, while 0 matches the
-whole expression.
+Regexp match data number MATCH selects the token name, while match
+number 1 matches the text to be replaced.
 Token name from MATCH is searched for in `unicode-tokens-hash-table'.
 The face property is set to the :family of `unicode-tokens-symbol-font-face'."
   (let* ((start     (match-beginning 0))
@@ -749,7 +773,8 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 
 ;; handy for legacy Isabelle files, probably not useful in general.
 (defun unicode-tokens-replace-shortcuts ()
-  "Query-replace shortcuts in the buffer with compositions they expand to."
+  "Query-replace shortcuts in the buffer with compositions they expand to.
+Starts from point."
   (interactive)
   (let ((shortcut-regexp
 	 (regexp-opt (mapcar 'car unicode-tokens-shortcut-replacement-alist))))
@@ -769,7 +794,8 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 	       (format unicode-tokens-token-format token)))))
 
 (defun unicode-tokens-replace-unicode ()
-  "Query-replace unicode sequences in the buffer with tokens having same appearance."
+  "Query-replace unicode sequences in the buffer with tokens having same appearance.
+Starts from point."
   (interactive)
   (let ((uchar-regexp unicode-tokens-uchar-regexp))
     ;; override the display of the regexp because it's huge!
@@ -881,6 +907,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
   (unicode-tokens-encode-in-temp-buffer
    (buffer-substring-no-properties beg end) 'buffer-substring))
 
+;;;###autoload
 (defun unicode-tokens-encode-str (str)
   "Return a unicode encoded version presentation of STR."
   (unicode-tokens-encode-in-temp-buffer str 'buffer-substring))
@@ -945,8 +972,8 @@ tokenised symbols."
 ;;
 
 (defun unicode-tokens-initialise ()
-  "Perform (re)initialisation for Unicode Tokens minor mode.
-Invoke this function to recalculate `font-lock-keywords' and other configuration
+  "Perform initialisation for Unicode Tokens minor mode.
+This function calculates `font-lock-keywords' and other configuration
 variables."
   (interactive)
   (unicode-tokens-copy-configuration-variables)
@@ -955,6 +982,14 @@ variables."
     (unicode-tokens-quail-define-rules)
     (unicode-tokens-define-menu)
     flks))
+
+;; not as expected
+;; (defun unicode-tokens-restart ()
+;;   (interactive)
+;;   (unicode-tokens-mode 0)
+;;   (put 'unicode-tokens-font-lock-keywords major-mode nil)
+;;   (setq font-lock-set-defaults nil)
+;;   (unicode-tokens-mode 1))
 
 (defvar unicode-tokens-mode-map (make-sparse-keymap)
   "Key map used for Unicode Tokens mode.")
@@ -1252,9 +1287,9 @@ Commands available are:
        :help
        "Paste from clipboard, converting Unicode to tokens where possible"]
       ["Replace Shortcuts" unicode-tokens-replace-shortcuts
-       :help "Query-replace shortcut sequences with tokens they expand to"]
+       :help "Query-replace shortcut sequences with compositions they stand for, starting from point"]
       ["Replace Unicode" unicode-tokens-replace-unicode
-       :help "Query-replace Unicode characters with tokens where possible"]
+       :help "Query-replace Unicode characters with tokens where possible, starting from point"]
        "---"
       ["Show Control Tokens" unicode-tokens-show-controls
        :style toggle
