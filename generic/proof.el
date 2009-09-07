@@ -1,6 +1,6 @@
 ;;; proof.el --- Proof General loader.
 ;;
-;; Copyright (C) 1998-2008 LFCS Edinburgh.
+;; Copyright (C) 1998-2009 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -22,14 +22,20 @@
 ;;
 ;;; Code:
 
-(require 'proof-site)			; site/prover config, global vars, autoloads
-(require 'proof-compat)			; Emacs and OS compatibility
-(require 'proof-utils)			; utilities
-(require 'proof-config)			; configuration variables
+(eval-when-compile
+  (require 'cl))
 
-(proof-splash-message)			; welcome the user now.
+(eval-when (eval load compile)
+  (require 'proof-site)	  ; site/prover config, global vars, autoloads
+  (require 'proof-compat) ; Emacs and OS compatibility
+  (require 'proof-utils)  ; utilities
+  (require 'proof-config) ; configuration variables
 
-(require 'proof-auxmodes)		; Further autoloads
+  (unless noninteractive
+    (proof-splash-message))		; welcome the user now. 
+
+  (require 'proof-auxmodes)		; Further autoloads
+)
 
 (provide 'proof)
 ;;; proof.el ends here
