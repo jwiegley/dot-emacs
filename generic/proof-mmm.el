@@ -26,6 +26,7 @@
   (require 'cl))
 
 (eval-when (compile)
+   (require 'proof-auxmodes) ; it will have been loaded
    (require 'mmm-auto))  ; it's loaded dynamically at runtime
 
 (require 'proof-site)
@@ -63,9 +64,11 @@ in future if we have just activated it for this buffer."
   (when (proof-mmm-support-available)
     ;; Make sure auto mode follows PG's global setting. (NB: might do
     ;; only if global state changes, but by now (proof-ass mmm-mode) set).
-    (proof-mmm-set-global (not mmm-mode))
+    (with-no-warnings ; bytecomp gives spurious error 
+		      ; "proof-mmm-set-global might not be defined"
+		      ; because the autoload overrides the definition above(!)
+      (proof-mmm-set-global (not mmm-mode)))
     (mmm-mode)))
-
 
 (provide 'proof-mmm)
 
