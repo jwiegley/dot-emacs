@@ -239,20 +239,26 @@ See -k option for Isabelle interface script."
 ;;;  (Settings for Isabelle are configured automatically via PGIP message)
 ;;;
 
-(defun isar-configure-from-settings ()
-  (isar-set-proof-find-theorems-command))
+
+(defun isar-use-find-theorems-form-set (sym val)
+  (set-default sym val)
+  (when (featurep 'isar) ; not during loading
+    (isar-set-proof-find-theorems-command)))
 
 (defcustom isar-use-find-theorems-form nil
   "Use a form-style input for the find theorems operation."
   :type 'boolean
   :group 'isabelle
-  :eval (isar-set-proof-find-theorems-command))
+  :set 'isar-use-find-theorems-form-set)
 
 (defun isar-set-proof-find-theorems-command ()
-  (setq proof-find-theorems-command
-	(if isar-use-find-theorems-form
-	    'isar-find-theorems-form
-	  'isar-find-theorems-minibuffer)))
+    (setq proof-find-theorems-command
+	  (if isar-use-find-theorems-form
+	      'isar-find-theorems-form
+	    'isar-find-theorems-minibuffer)))
+
+(defun isar-configure-from-settings ()
+  (isar-set-proof-find-theorems-command))
 
 ;;;
 ;;; Theory loader operations
