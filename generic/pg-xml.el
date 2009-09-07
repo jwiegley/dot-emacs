@@ -9,6 +9,8 @@
 ;; XML functions for Proof General.
 ;;
 
+(require 'cl)
+
 (require 'xml)
 
 (require 'proof-utils) ;; for pg-internal-warning
