@@ -1,6 +1,6 @@
 ;;; pg-dev.el --- Developer settings for Proof General
 ;;
-;; Copyright (C) 2008 LFCS Edinburgh.
+;; Copyright (C) 2008, 2009 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -19,7 +19,8 @@
 (with-no-warnings
   (setq proof-general-debug t))
 
-;; Use checkdoc, eldoc, Flyspell, whitespace cleanup:
+;; Use checkdoc, eldoc, Flyspell, whitespace, copyright update
+;; and byte compilation on save:
 
 (add-hook 'emacs-lisp-mode-hook
 	  '(lambda ()
@@ -31,9 +32,14 @@
 	       'emacs-lisp-byte-compile-and-load)
 	     (add-hook 'write-file-functions
 		       'whitespace-write-file-hook nil t)
+	     (add-hook 'before-save-hook
+		       'copyright-update nil t)
 	     (add-hook 'after-save-hook
 		       'emacs-lisp-byte-compile-and-load)))
 
+;; Fill in template for new files
+
+(add-hook 'find-file-hook 'auto-insert)
 
 ;; Configure indentation for our macros
 
