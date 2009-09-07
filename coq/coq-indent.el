@@ -1,19 +1,22 @@
-;;; coq-indent.el ---
-; coq-syntax.el indentation stuff for Coq
-;; Copyright (C) 1997, 1998 LFCS Edinburgh.
+;;; coq-indent.el --- indentation for Coq
+;;
+;; Copyright (C) 2004-2006 LFCS Edinburgh.
 ;; Authors: Pierre Courtieu
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
-
-;;Pierre: This is experimental, the code is rather ugly for the moment.
-
-
-
-;;; Commentary:
 ;;
+;; Commentary:
+;; 
+;; Indentation for Coq.
+;; This is experimental, the code is rather ugly for the moment.
+;;
+
+;;; Code:
 
 (require 'coq-syntax)
 
-;;; Code:
+(eval-when-compile
+  (defvar coq-script-indent nil))
+
 (defconst coq-any-command-regexp
   (proof-regexp-alt (proof-ids-to-regexp coq-keywords)))
 
