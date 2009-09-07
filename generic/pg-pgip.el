@@ -1,4 +1,4 @@
-;; pg-pgip.el --- Functions for g PGIP for Proof General
+;; pg-pgip.el --- PGIP manipulation for Proof General
 ;;
 ;; Copyright (C) 2000-2002 LFCS Edinburgh.
 ;; Author:   David Aspinall <David.Aspinall@ed.ac.uk>
@@ -343,8 +343,8 @@ Return a symbol representing the PGIP command processed, or nil."
 
 (defun pg-pgip-process-informfileretracted (node)
   (let* ((thyname    (pg-pgip-get-thyname node))
-	 (url	    (pg-pgip-get-url node))
-	 (filename   (pg-pgip-get-url-filename url)))
+	 (url	     (pg-pgip-get-url node))
+	 (filename   (pg-pgip-file-of-url url)))
     ;(proof-unregister-possibly-processed-file filename))) ;; unimplemented!
     ))
 
