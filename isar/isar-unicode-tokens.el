@@ -310,7 +310,7 @@
     ("copyright" "©")
     ("registered" "®")
     ("hyphen" "‐")
-    ("inverse" "\t¯¹") ; X-Symb: just "¯"
+    ("inverse" "¯¹") ; X-Symb: just "¯"
     ("onesuperior" "¹")
     ("twosuperior" "²")
     ("threesuperior" "³")
@@ -340,7 +340,7 @@
     ("dieresis" "¨")
     ("cedilla" "¸")
     ("hungarumlaut" "ʺ")
-    ("spacespace" "  ")  ;; two #x002001
+    ("spacespace" " ")  ;; #x002001
     ("module" "⟨module⟩" bold)
     ("some" "ϵ"))
   "Symbol token map for Isabelle.  The standard set of Isabelle symbols."
