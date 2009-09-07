@@ -1,5 +1,5 @@
 ;; coq-syntax.el Font lock expressions for Coq
-;; Copyright (C) 1997-2007 LFCS Edinburgh.
+;; Copyright (C) 1997-2007, 2009 LFCS Edinburgh.
 ;; Authors: Thomas Kleymann, Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
@@ -10,15 +10,19 @@
 (require 'proof-utils)                  ; proof-locate-executable
 (require 'coq-db)
 
-(defcustom coq-prog-name   ;; da: moved from coq.el since needed here
+(eval-when-compile
+  (defvar coq-goal-command-regexp nil)
+  (defvar coq-save-command-regexp-strict nil))
+
+(defcustom coq-prog-name  ;; da: moved from coq.el since needed here
   (proof-locate-executable "coqtop" t '("C:/Program Files/Coq/bin"))
-   "*Name of program to run as Coq. See `proof-prog-name', which is set from
- this. On Windows with latest Coq package you might need something like:
+   "*Name of program to run as Coq. See `proof-prog-name', set from this. 
+On Windows with latest Coq package you might need something like:
    C:/Program Files/Coq/bin/coqtop.opt.exe
- instead of just \"coqtop\".
- This must be a single program name with no arguments; see `coq-prog-args'
- to manually adjust the arguments to the Coq process.
- See also `coq-prog-env' to adjust the environment."
+instead of just \"coqtop\".
+This must be a single program name with no arguments; see `coq-prog-args'
+to manually adjust the arguments to the Coq process.
+See also `coq-prog-env' to adjust the environment."
    :type 'string
    :group 'coq)
 
@@ -27,8 +31,13 @@
 ;; coq-version-is-V8-0/1 is already set (useful for people dealing
 ;; with several version of coq).
 
-;; DA: please ensure this file compiles!  top-level forms need to be delayed
-;; during compile explicitly so they are evaluated during load.
+;; David: please be careful that the compiled version of this file
+;; works!  Top-level forms need to be delayed during compile
+;; explicitly so they are evaluated during load.  See eval-whens
+;; below.
+
+(eval-when (load eval)
+  (custom-reevaluate-setting 'coq-prog-name))
 
 ;; this one is temporary, for compatibility
 (defvar coq-version-is-V8 nil "Obsolete, use `coq-version-is-V8-0' instead.")
@@ -68,7 +77,8 @@
      (coq-version-is-V8 (setq coq-version-is-V8-0 nil coq-version-is-V8-1 t)
                         (message v80))
      (t;; otherwise do coqtop -v and see which version we have
-      (let* ((str (shell-command-to-string (concat "cd ~; " coq-prog-name " -v")))
+      (let* ((str (shell-command-to-string 
+                   (concat "cd ~; " coq-prog-name " -v")))
              ;; this match sets match-string below
              (ver (string-match "version v?\\([.0-9]*\\)" str)))
         (message str)
@@ -87,9 +97,9 @@
             (message (concat "Falling back to default: " v81))
             (setq coq-version-is-V8-1 t)))))))))
 
-(unless noninteractive
-  (coq-determine-version))
-
+(eval-when (load eval)
+  (unless noninteractive
+    (coq-determine-version)))
 
  ;;; keyword databases
 
