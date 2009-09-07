@@ -1,5 +1,5 @@
 ; isar.el --- Major mode for Isabelle/Isar proof assistant
-;; Copyright (C) 1994-2004 LFCS Edinburgh.
+;; Copyright (C) 1994-2009 LFCS Edinburgh.
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -22,6 +22,7 @@
   (require 'proof-syntax)
   (require 'pg-goals)
   (require 'pg-vars)
+  (defvar outline-heading-end-regexp nil)
   (proof-ready-for-assistant 'isar))	; compile for isar
 
 (require 'isabelle-system)		; system code
@@ -519,7 +520,6 @@ selected.")
 Checks the width in the `proof-goals-buffer'"
   (let ((ans ""))
     (and (buffer-live-p proof-goals-buffer)
-	 (proof-shell-live-buffer)
 	 (save-excursion
 	   (set-buffer proof-goals-buffer)
 	   (let ((current-width
@@ -590,18 +590,17 @@ This slows down interactive processing somewhat."
 (defun isar-preprocessing ()
   "Insert sync markers and other hacks.
 Uses variables `string' and `scriptspan' passed by dynamic scoping."
-  (save-match-data
-    (if (proof-string-match isabelle-verbatim-regexp string)
-	(setq string (match-string 1 string))
-      (unless (proof-string-match ";[ \t]*\\'" string)
-	(setq string (concat string ";")))
-      (setq string (concat
-		    "\\<^sync>; "
-		    (isar-shell-adjust-line-width)
-		    (if isar-wrap-commands-singly
-			(isar-command-wrapping string scriptspan)
-		      (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string))
-		    " \\<^sync>;")))))
+  (if (proof-string-match isabelle-verbatim-regexp string)
+      (setq string (match-string 1 string))
+    (unless (string-match ";[ \t]*\\'" string)
+      (setq string (concat string ";")))
+    (setq string (concat
+		  "\\<^sync>; "
+		  (isar-shell-adjust-line-width)
+		  (if isar-wrap-commands-singly
+		      (isar-command-wrapping string scriptspan)
+		    (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string))
+		  " \\<^sync>;"))))
 
 ;;
 ;;   Configuring proof output buffer
