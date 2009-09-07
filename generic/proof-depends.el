@@ -177,20 +177,18 @@ Called from `proof-done-advancing' when a save is processed and
   ;; NB: could handle deeper nesting here, but just do one level for now.
   (let (nested toplevel)
     ;; Add each name into a nested list or toplevel list
-    (mapcar
-     (lambda (name)
-	      (let* ((period   (string-match "\\." name))
-		     (ns       (and period (substring name 0 period)))
-		     (subitems (and ns (assoc ns nested))))
-		(cond
-		 ((and ns subitems)
-		  (setcdr subitems (adjoin name (cdr subitems))))
-		 (ns
-		  (setq nested
-			(cons (cons ns (list name)) nested)))
-		 (t
-		  (setq toplevel (adjoin name  toplevel))))))
-     deps)
+    (dolist (name deps)
+      (let* ((period   (string-match "\\." name))
+	     (ns       (and period (substring name 0 period)))
+	     (subitems (and ns (assoc ns nested))))
+	(cond
+	 ((and ns subitems)
+	  (setcdr subitems (adjoin name (cdr subitems))))
+	 (ns
+	  (setq nested
+		(cons (cons ns (list name)) nested)))
+	 (t
+	  (setq toplevel (adjoin name  toplevel))))))
     (cons nested toplevel)))
 
 (defun proof-dep-make-submenu (name namefn appfn list)
