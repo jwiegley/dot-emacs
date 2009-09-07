@@ -4,15 +4,16 @@ Proof General is a generic Emacs interface for proof assistants.
 The aim of the Proof General project is to provide a powerful, generic
 environment for using interactive proof assistants.
 
-This is version 4.0pre of Proof General. 
-(see About screen for exact version).
+This is version 4.0 of Proof General.  See About screen for exact version.
 
 See
-    INSTALL	   for installation details.
-    COPYING	   for license details.
-    COMPATIBILITY  for version compatibility information.
-    REGISTER	   for registration information (please register).
-    FAQ, doc/	   for documentation of Proof General.
+    INSTALL	     for installation details.
+    COPYING	     for license details.
+    COMPATIBILITY    for version compatibility information.
+    REGISTER	     for registration information (please register).
+    FAQ, doc/	     for documentation of Proof General.
+ 
+    <prover>/README  for additional prover-specific notes
 
 Links:
 
@@ -20,38 +21,21 @@ Links:
     Wiki:		  http://proofgeneral.inf.ed.ac.uk/wiki
     Lists:		  http://proofgeneral.inf.ed.ac.uk/mailinglist
 
+Supported proof assistants:  Coq, Isabelle, LEGO, PhoX, Plastic
+Experimental (less useful):  CCC,ACL2,HOL98,Lambda-Clam,Shell,Twelf,Demoisa
 
-For notes on the supported assistants, see the README files
-in the subdirectories:
+A few example proofs are included in each prover subdirectory.  The
+"root2" proofs of the irrationality of the square root of 2 were
+proofs written for Freek Wiedijk's challenge in his comparison of
+different theorem provers, see http://www.cs.kun.nl/~freek/comparison/.  
+Those proof scripts are copyright by their named authors.  (NB: most
+of these may have rusted)
 
-    acl2/   ACL2
-    phox/   PhoX
-     coq/   Coq
- demoisa/   Demonstration instance for Isabelle
-   hol98/   HOL 98
-     isa/   Isabelle
-    isar/   Isabelle/Isar
-    lego/   LEGO
- plastic/   Plastic
-   twelf/   Twelf
-   pgkit/   PG Kit
-
- generic/   Generic basis for Proof General
-
-
-A small number of example proofs are included in each prover 
-subdirectory.   The "root2" example proofs of the irrationality
-of the square root of 2 were proofs written as a response
-to a challenge of Freek Wiedijk in his comparison of different
-theorem provers, see http://www.cs.kun.nl/~freek/comparison/.
-Those proof scripts are copyright by their named authors.
-(NB: some of these may have rusted)
-
-Check BUGS files for problems and issues.  Please report new bugs
-on the Trac site at http://proofgeneral.inf.ed.ac.uk/trac.
+Check BUGS files for some static problems and issues.  Please report
+new bugs on the Trac site at http://proofgeneral.inf.ed.ac.uk/trac.
 
 For the latest news and downloads, visit Proof General on the web 
 at: http://proofgeneral.inf.ed.ac.uk
 
 David Aspinall <da+pg-feedback@inf.ed.ac.uk>
-January 2008.
+September 2009.
