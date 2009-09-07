@@ -3,19 +3,18 @@
 ;; Author: Pierre Courtieu <courtieu@lri.fr>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-
-;;; We store all information on keywords (tactics or command) in big
+;;
+;;; Commentary:
+;;
+;; We store all information on keywords (tactics or command) in big
 ;; tables (ex: `coq-tactics-db') From there we get: menus including
 ;; "smart" commands, completions for command coq-insert-...
-;; abbrev tables and font-lock keyword
-
-;;; real value defined below
-
-;;; Commentary:
+;; abbrev tables and font-lock keyword.
 ;;
 
 ;;; Code:
 
+(require 'cl)
 (require 'proof-config)			; for proof-face-specs, a macro
 (require 'holes)
 
