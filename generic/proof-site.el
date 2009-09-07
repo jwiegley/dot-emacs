@@ -128,6 +128,9 @@ You can use customize to set this variable."
 (require 'pg-vars)
 (require 'proof-autoloads)
 
+(eval-when-compile
+  (defvar Info-dir-contents nil))
+
 ;; Add the info directory to the Info path
 (if (file-exists-p proof-info-directory) ; for safety
     (if (and (boundp 'Info-directory-list) Info-directory-list)

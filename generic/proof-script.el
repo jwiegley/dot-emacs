@@ -20,6 +20,10 @@
 (require 'proof-utils)			; proof-utils macros
 (require 'proof-syntax)			; utils for manipulating syntax
 
+(eval-when-compile
+  (defvar proof-mode-menu nil)
+  (defvar proof-assistant-menu nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  PRIVATE VARIABLES
@@ -51,7 +55,7 @@ kill buffer hook.  This variable is used when buffer-file-name is nil.")
 
 (defun proof-next-element-count (idiom)
   "Return count for next element of type IDIOM.
-This uses and updates `proof-element-counters'."
+This uses the size of the hash table for IDIOM."
   (let ((tbl  (cdr-safe (assq idiom pg-script-portions))))
     (if tbl (1+ (hash-table-count tbl)) 1)))
 
@@ -228,7 +232,6 @@ Also clear list of script portions."
   (setq proof-overlay-arrow (make-marker))
   (setq overlay-arrow-position proof-overlay-arrow)
   (setq proof-last-theorem-dependencies nil)
-  (setq proof-element-counters nil)
   (pg-clear-script-portions)
   (pg-clear-input-ring))
 
