@@ -1,7 +1,7 @@
 ;;; -*- coding: utf-8; -*-
 ;; isar-unicode-tokens.el --- Tokens for Unicode Tokens package
 ;;
-;; Copyright(C) 2008 David Aspinall / LFCS Edinburgh
+;; Copyright(C) 2008, 2009 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; This file is loaded by proof-auxmodes.el for proof-unicode-tokens.el.
@@ -341,7 +341,7 @@
     ("cedilla" "¸")
     ("hungarumlaut" "ʺ")
     ("spacespace" "  ")  ;; two #x002001
-    ("module" "\t⟨module⟩" bold)
+    ("module" "⟨module⟩" bold)
     ("some" "ϵ"))
   "Symbol token map for Isabelle.  The standard set of Isabelle symbols."
   :type 'unicode-tokens-token-symbol-map
