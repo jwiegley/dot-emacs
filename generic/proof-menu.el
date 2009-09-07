@@ -1,6 +1,6 @@
 ;; proof-menu.el  Menus, keymaps, and misc commands for Proof General
 ;;
-;; Copyright (C) 2000,2001 LFCS Edinburgh.
+;; Copyright (C) 2000,2001,2009 LFCS Edinburgh.
 ;; Authors:   David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
