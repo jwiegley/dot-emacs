@@ -23,6 +23,7 @@
   (require 'pg-goals)
   (require 'pg-vars)
   (defvar outline-heading-end-regexp nil)
+  (defvar comment-quote-nested nil)
   (proof-ready-for-assistant 'isar))	; compile for isar
 
 (require 'isabelle-system)		; system code

@@ -1,6 +1,6 @@
 ;; bufhist.el --- keep read-only history of buffer contents for browsing
 
-;; Copyright   (C) 2006 David Aspinall / University of Edinburgh
+;; Copyright   (C) 2006, 2009 David Aspinall / University of Edinburgh
 
 ;; Author:     David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
@@ -28,6 +28,8 @@
 ;;         duplicated first item in ring after clear (& on startup).
 
 (require 'ring)
+
+(declare-function bufhist-ordinary-erase-buffer "bufhist")
 
 ;;; First a function which ought to be in ring.el
 
