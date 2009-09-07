@@ -35,7 +35,7 @@
 	     (add-hook 'before-save-hook
 		       'copyright-update nil t)
 	     (add-hook 'after-save-hook
-		       'emacs-lisp-byte-compile-and-load)))
+		       'emacs-lisp-byte-compile-and-load nil t)))
 
 ;; Fill in template for new files
 
