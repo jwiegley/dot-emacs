@@ -955,8 +955,6 @@ To be used in `proof-shell-classify-output-system-specific'. "
   (proof-string-match-safe "[0-9]+ subgoals?" string)
   )
 
-;; da: trying to understand this stuff -- can you show me some example proofs
-;; that produce output of the kind you want?
 ;; See trac #109
 (defun coq-hybrid-ouput-goals-response (cmd string)
   "Specific function to deal with hybrid response/goal output from coq.
