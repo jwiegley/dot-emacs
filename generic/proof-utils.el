@@ -1,6 +1,6 @@
 ;; proof-utils.el --- Proof General utility functions and macros
 ;;
-;; Copyright (C) 1998-2002 LFCS Edinburgh.
+;; Copyright (C) 1998-2002, 2009 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -15,6 +15,7 @@
 ;;
 
 (require 'proof-site)			; basic vars
+(require 'scomint)			; scomint-check-proc
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

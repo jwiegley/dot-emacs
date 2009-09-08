@@ -1,6 +1,6 @@
 ;;; proof-unicode-tokens.el --- Support Unicode tokens package
 ;;
-;; Copyright (C) 2008 David Aspinall / LFCS Edinburgh
+;; Copyright (C) 2008, 2009 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -20,6 +20,7 @@
 
 (eval-when-compile
   (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant
+  (require 'scomint)	 ; scomint-check-proc
   (require 'cl))
 
 (eval-when (compile)
