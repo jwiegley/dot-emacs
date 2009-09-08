@@ -955,6 +955,9 @@ To be used in `proof-shell-classify-output-system-specific'. "
   (proof-string-match-safe "[0-9]+ subgoals?" string)
   )
 
+;; da: trying to understand this stuff -- can you show me some example proofs
+;; that produce output of the kind you want?
+;; See trac #109
 (defun coq-hybrid-ouput-goals-response (cmd string)
   "Specific function to deal with hybrid response/goal output from coq.
 To be used in `proof-shell-classify-output-system-specific'."
@@ -970,7 +973,9 @@ To be used in `proof-shell-classify-output-system-specific'."
       ;(setq proof-shell-last-output-kind 'goals)
       ;; (proof-shell-classify-output cmd goalstring)
       (pg-goals-display goalstring) ;; this erases response buffer
-      (pg-response-display prestring);; this does not erase goals buffer
+      ;; da: I added this test: otherwise 2 window mode seems quite broken?!
+      (unless (string-match "[\t\n ]*" prestring) 
+        (pg-response-display prestring));; this does not erase goals buffer
       ;(proof-shell-handle-delayed-output-hook)
       (setq coq-last-hybrid-pre-string prestring)
       )))
@@ -1279,7 +1284,7 @@ mouse activation."
 
 ;; da: message to Pierre: I just put these in as examples,
 ;; maybe you can suggest some better commands to use on
-;; `thm'.  (Check maybe not much use since appears before
+;; `thm'.  (Check is maybe not much use since appears before
 ;; in the buffer anyway)
 
 (defun coq-create-span-menu (span idiom name)
@@ -1290,9 +1295,9 @@ mouse activation."
                `(proof-shell-invisible-command
                  ,(format "Check %s." thm)))
               (vector
-               "Print Proof"
+               "Print"
                `(proof-shell-invisible-command
-                 ,(format "Print Proof %s." thm)))))))
+                 ,(format "Print %s." thm)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -1561,7 +1566,6 @@ If PARSERESP is nil, don't really parse response buffer but take the value of
 
 If PARSERESP and CLEAN are non-nil, delete the error location from the response
 buffer."
-  (interactive)
   (let ((mtch (coq-get-last-error-location parseresp clean)))
     (when mtch
       (let ((pos (car mtch))
@@ -1575,10 +1579,11 @@ buffer."
         (let* ((start (point))
                (dummy (goto-char
                        (byte-to-position (+ (position-bytes (point)) lgth))))
-               (sp (span-make start (point))))
+               (sp (span-make start (point)))
+               (inhibit-read-only t))
           (set-span-face sp 'proof-warning-face)
           (unwind-protect
-              (sit-for 20)
+              (sit-for 5) ;; da: this was 20 but seemed obnoxiously long?
             (span-delete sp)))))))
 
 (defvar coq-allow-highlight-error t
