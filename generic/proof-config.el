@@ -648,7 +648,7 @@ will be attempted."
   :type '(choice function nil)
   :group 'proof-script)
 
-(defcustom proof-kill-goal-command ""
+(defcustom proof-kill-goal-command nil
   "Command to kill the currently open goal.
 
 If this is set to nil, PG will expect `proof-find-and-forget-fn'
@@ -1667,7 +1667,7 @@ Plastic uses it to remove literate-style markup from `string'."
 (defcustom proof-shell-handle-error-or-interrupt-hook
   '(proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window)
   "Run after an error or interrupt has been reported in the response buffer.
-Hook functions may inspect `proof-shell-error-or-interrupt-seen' to
+Hook functions may inspect `proof-shell-last-output-kind' to
 determine whether the cause was an error or interrupt.  Possible
 values for this hook include:
 
