@@ -1619,10 +1619,7 @@ To help speed up matching you may be able to annotate the
 proof assistant prompt with a special character not appearing
 in ordinary output, which should appear in this regexp.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-abort-goal-regexp
-@defvar proof-shell-abort-goal-regexp 
-Regexp matching output from an aborted proof.
-@end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-error-regexp
 @defvar proof-shell-error-regexp 
 Regexp matching an error report from the proof assistant.
@@ -2417,7 +2414,19 @@ This hook is called before fonfitying a region in an output buffer.@*
 @cindex Unicode Tokens
 @cindex Tokens
 
-The Tokens package is described in the Proof General user manual.  
+Unicode Tokens is basically an overly complicated way of configuring
+font-lock, along with some helpful menus.  The font lock configuration
+makes use of recent Emacs features, particularly including
+@code{compose-region} which allows the presentation of the buffer be
+different from the underlying buffer contents.  Compared with the
+X-Symbol package used previously by Proof General, this has the huge
+advantage of not requiring the underlying text to be changed to display
+symbols.  
+
+Usage of the Unicode Tokens package is described in the Proof General
+user manual, @inforef{Unicode support, ,ProofGeneral}.
+
+@c FIXME TODO: add documentation here to explain config of Unicode Tokens
 
 @c TEXI DOCSTRING MAGIC: proof-tokens-activate-command
 @defvar proof-tokens-activate-command 
@@ -3539,7 +3548,6 @@ They are checked for in this order, using
 @lisp
   @samp{@code{proof-shell-interrupt-regexp}}
   @samp{@code{proof-shell-error-regexp}}
-  @samp{@code{proof-shell-abort-goal-regexp}}
   @samp{@code{proof-shell-proof-completed-regexp}}
   @samp{@code{proof-shell-result-start}}
 @end lisp
