@@ -42,14 +42,15 @@
     `proof-shell-clear-response-regexp', etc, must match
     strings which begin with `proof-shell-eager-annotation-start'.
 
-    pg-insert-output-as-comment-fn: removed (use p-s-last-output)
-    proof-shell-wakeup-char: removed (special chars deprecated)
-    proof-shell-prompt-pattern: removed (was only for shell UI)
-    proof-shell-abort-goal-regexp: removed (ordinary response)
-    pg-use-specials-for-fontify: removed
-    proof-shell-strip-output-markup: required for cut-and-paste
+    proof-shell-strip-output-markup: added for cut-and-paste
     proof-electric-terminator-noterminator: allows non-insert of terminator
 
+    pg-insert-output-as-comment-fn: removed (use p-s-last-output)
+    proof-shell-wakeup-char: removed (special chars deprecated)
+    pg-use-specials-for-fontify: removed (ditto)
+    proof-shell-prompt-pattern: removed (was only for shell UI)
+    proof-shell-abort-goal-regexp: removed (ordinary response)
+    proof-shell-error-or-interrupt-seen: removed, use p-s-last-output-kind
 
 *** Primary distribution formats changed
     The RPM and zip file formats have been removed.
@@ -69,5 +70,7 @@
 
 ** Coq changes
 
-*** Holes mode can be turned on/off
+*** Only supports Coq 8.1, support for earlier versions dropped.
+
+*** Holes mode can be turned on/off and has its own minor mode
 
