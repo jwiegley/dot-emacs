@@ -392,7 +392,7 @@ NB: This setting is not used for matching output from the prover."
 
 (defcustom proof-save-with-hole-regexp nil
   "Regexp which matches a command to save a named theorem.
-The name of the theorem is build from the variable
+The name of the theorem is built from the variable
 `proof-save-with-hole-result' using the same convention as
 `query-replace-regexp'.
 Used for setting names of goal..save and proof regions and for
@@ -406,7 +406,7 @@ It's safe to leave this setting as nil."
   "How to build theorem name after matching with `proof-save-with-hole-regexp'.
 String or Int.
 If an int N use match-string to recover the value of the Nth parenthesis matched.
-If it is a string use replace-match. In this case, proof-save-with-hole-regexp
+If it is a string use replace-match. In this case, `proof-save-with-hole-regexp'
 should match the entire command"
   :type '(choice string int)
   :group 'proof-script)
