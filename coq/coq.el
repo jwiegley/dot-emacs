@@ -474,140 +474,24 @@ If locked span already has a state number, thne do nothing. Also updates
 ;; command, because it is better to backtrack with *one* command (because
 ;; proof-change-hook used above is not exactly called at right times).
 
-(defun  coq-find-and-forget-v81 (span)
+(defun coq-find-and-forget (span)
   "Backtrack to SPAN.  Using the \"Backtrack n m p\" coq command."
   (let* (ans (naborts 0) (nundos 0)
-            (proofdepth (coq-get-span-proofnum span))
-            (proofstack (coq-get-span-proofstack span))
-            (span-staten (coq-get-span-statenum span))
-            (naborts (count-not-intersection 
-                      coq-last-but-one-proofstack proofstack)))
-    (setq ans
-          (if (and ; this is more efficient as backtrack x y z may be slow
-               (equal coq-last-but-one-proofstack proofstack)
-               (= coq-last-but-one-proofnum proofdepth)
-               (= coq-last-but-one-statenum span-staten))
-              ""
-            (format "Backtrack %s %s %s . "
-                    (int-to-string span-staten)
-                    (int-to-string proofdepth)
-                    naborts)))
-    (if (string-equal ans "") 
-        nil ; [was proof-no-command]
-      ;; not here because if we backtrack a state preserving command, we must
-      ;; do *nothing*, not even a CR (in > v74, no prompt is returned with
-      ;; "\n")
-      ans)))
-
-;; to be removed when coq > 8.0
-
-(defun coq-find-and-forget-v80 (span)
-  (let (str ans (naborts 0) (nbacks 0) (nundos 0))
-    (while (and span (not ans))
-      (setq str (span-property span 'cmd))
-      (cond
-       ((coq-is-comment-or-proverprocp span)) ; do nothing
-
-       ;; Module <Type> T ... :=... . inside proof ->  like Definition...:=...
-       ;; (should actually be disallowed in coq)
-       ; Should go in last cond, but I have a problem trying to avoid next cond to match.
-       ((and (coq-proof-mode-p) (coq-is-module-equal-p str)) (incf nbacks))
-
-       ;; FIXME: combine with coq-keywords-decl-defn-regexp case below?
-       ;; [ Maybe not: Section is being treated as a _goal_ command
-       ;;   now, so this test has to appear before the goalsave ]
-       ((coq-section-or-module-start-p str)
-        (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
-            (setq ans (format coq-forget-id-command (match-string 5 str)))
-          (setq ans (format coq-forget-id-command (match-string 2 str))))
-        ;; If we're resetting to beginning of a section from inside, need to fix the
-        ;; nesting depth.  FIXME: this is not good enough: the scanning loop exits
-        ;; immediately but Reset has implicit Aborts which are not being counted
-        ;; here.  Really we need to set the "master reset" command which subsumes the
-        ;; others, but still count the depth.
-        (unless (coq-is-goalsave-p span) (decf proof-nesting-depth)))
-
-       ((coq-is-goalsave-p span)
-        ;; da: try using just Back since "Reset" causes loss of proof state.
-        (if (span-property span 'nestedundos)
-            ;; Pierre: more robust when some unknown commands are not well backtracked
-            (if (and (= (span-property span 'nestedundos) 0) (not (coq-proof-mode-p)))
-                (setq ans (format coq-forget-id-command (span-property span 'name)))
-              (setq nbacks (+ 1 nbacks (span-property span 'nestedundos))))))
-
-       ;; Unsaved goal commands: each time we hit one of these
-       ;; we need to issue Abort to drop the proof state.
-       ((coq-goal-command-str-p str) (incf naborts)) ; FIX: nundos<-0 ?
-
-       ;; If we are already outside a proof, issue a Reset.  [ improvement would be
-       ;; to see if the undoing will take us outside a proof, and use the first Reset
-       ;; found if so: but this is tricky to co-ordinate with the number of Backs,
-       ;; perhaps? ]
-       ((and (not (coq-proof-mode-p));; (eq proof-nesting-depth 0)
-             (coq-is-decl-defn-p str))
-        (setq ans (format coq-forget-id-command (match-string 2 str))))
-
-       ;; Outside a proof: cannot be a tactic, if unknown: do back
-       ;; (we may decide otherwise, it is false anyhow, use elisp
-       ;; vars instead for the perfect thing).
-       ((and (not (coq-proof-mode-p)) (not (coq-state-preserving-command-p str)))
-        (incf nbacks))
-
-       ;; inside a proof: if known command then back if necessary, nothing otherwise,
-       ;; if known "need not undo tactic" then nothing; otherwise : undo (unknown
-       ;; tactics are considered needing undo, use elisp vars for the 1% remaining).
-       ;; no undo if abort
-       ((coq-proof-mode-p)
-        (cond
-         ((coq-state-changing-command-p str) (incf nbacks))
-         ((and (eq 0 naborts)
-               (not (coq-state-preserving-command-p str))
-               (not (coq-state-preserving-tactic-p str)))
-          (incf nundos)))))
-      (setq span (next-span span 'type)))
-
-    ;; Now adjust proof-nesting depth according to the number of proofs we've passed
-    ;; out of.  FIXME: really this adjustment should be on the successful completion
-    ;; of the Abort commands, as a callback.
-    (setq proof-nesting-depth (- proof-nesting-depth naborts))
-
-    (setq ans
-          (concat
-           (if (stringp ans) ans)
-           (if (> naborts 0)
-               ;; ugly, but blame Coq
-               (let ((aborts "Abort. "))
-                 (while (> (decf naborts) 0)
-                   (setq aborts (concat "Abort. " aborts)))
-                 aborts))
-           (if (> nbacks 0)
-               (concat "Back " (int-to-string nbacks) ". "))
-           (if (> nundos 0)
-               (concat "Undo " (int-to-string nundos) ". "))))
-
-    (if (null ans) nil;; [was proof-no-command] FIXME: this is an error really (assert nil);
-      (if (string-equal ans "") nil ;; [was proof-no-command] ; not here because if
-						 ; we backtrack a state preserving command, we must do
-						 ; *nothing*, not even a CR (in v74, no prompt is returned
-						 ; with "\n")
-      ans))))
-
-;; end of remove when coq > 8.0
-
-;; I don't like this but it make compilation possible
-;; when > 8.0: adapt
-(defun coq-find-and-forget (span)
-  "Go back to SPAN.
-This function calls `coq-find-and-forget-v81' or `coq-find-and-forget-v80'
-depending on the variables `coq-version-is-V8-1' and `coq-version-is-V8-0', if
-none is set, then it default to `coq-find-and-forget-v81' but this should not
-happen since one of them is necessarily set to t in coq-syntax.el."
- (cond
-  (coq-version-is-V8-1 (coq-find-and-forget-v81 span))
-  (coq-version-is-V8-0 (coq-find-and-forget-v80 span))
-  (t (coq-find-and-forget-v81 span)) ;; should not happen
-  )
- )
+             (proofdepth (coq-get-span-proofnum span))
+             (proofstack (coq-get-span-proofstack span))
+             (span-staten (coq-get-span-statenum span))
+             (naborts (count-not-intersection 
+                       coq-last-but-one-proofstack proofstack)))
+    (unless (and 
+             ;; return nil (was proof-no-command) in this case:
+             ;; this is more efficient as backtrack x y z may be slow
+             (equal coq-last-but-one-proofstack proofstack)
+             (= coq-last-but-one-proofnum proofdepth)
+             (= coq-last-but-one-statenum span-staten))
+      (format "Backtrack %s %s %s . "
+              (int-to-string span-staten)
+              (int-to-string proofdepth)
+              naborts))))
 
 (defvar coq-current-goal 1
   "Last goal that Emacs looked at.")
