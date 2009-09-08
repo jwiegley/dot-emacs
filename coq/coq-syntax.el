@@ -26,83 +26,13 @@ See also `coq-prog-env' to adjust the environment."
    :type 'string
    :group 'coq)
 
-;; Pierre: we will have both versions V8.0 and V8.1 during a while the
-;; test with "coqtop -v" can be skipped if one of the variables
-;; coq-version-is-V8-0/1 is already set (useful for people dealing
-;; with several version of coq).
-
-;; David: please be careful that the compiled version of this file
-;; works!  Top-level forms need to be delayed during compile
-;; explicitly so they are evaluated during load.  See eval-whens
-;; below.
+;; da: please take care that the compiled version of this file works!
+;; Top-level forms need to be delayed during compile.
 
 (eval-when (load eval)
   (custom-reevaluate-setting 'coq-prog-name))
 
-;; this one is temporary, for compatibility
-(defvar coq-version-is-V8 nil "Obsolete, use `coq-version-is-V8-0' instead.")
-
-(defvar coq-version-is-V8-0 nil
-  "This variable can be set to t to force ProofGeneral to coq version
- coq-8.0. To do that, put (setq coq-version-is-V8-0 t) in your .emacs and
- restart emacs. This variable cannot be true simultaneously with
- coq-version-is-V8-1. If none of these 2 variables is set to t, then
- ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
-
-(defvar coq-version-is-V8-1 nil
-  "This variable can be set to t to force ProofGeneral to coq version
- coq-8.1 and above(use it for coq-8.0cvs after january 2005). To do
- that, put \(setq coq-version-is-V8-1 t) in your .emacs and restart
- emacs. This variable cannot be true simultaneously with
- coq-version-is-V8-0. If none of these 2 variables is set to t, then
- ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
-
-
-(defun coq-determine-version ()
-  "Intuit the version of Coq we're using and configure accordingly."
-  ;; post-cond: one of the variables is set to t
-  (let*
-      (
-       (seedoc (concat " (to force another version, see for example"
-                       " C-h v `coq-version-is-V8-0)'."))
-       (v80 (concat "proofgeneral is in coq 8.0 mode" seedoc))
-       (v81 (concat "proofgeneral is in coq 8.1 mode" seedoc))
-       (err (concat "Both config variables coq-version-is-V8-1 and"
-                    " coq-version-is-V8-0 are set to true. This is"
-                    "contradictory.")))
-    (cond
-     ((and coq-version-is-V8-1 coq-version-is-V8-0) (error err))
-     (coq-version-is-V8-1 (message v81))
-     (coq-version-is-V8-0 (message v80))
-     (coq-version-is-V8 (setq coq-version-is-V8-0 nil coq-version-is-V8-1 t)
-                        (message v80))
-     (t;; otherwise do coqtop -v and see which version we have
-      (let* ((str (shell-command-to-string 
-                   (concat "cd ~; " coq-prog-name " -v")))
-             ;; this match sets match-string below
-             (ver (string-match "version v?\\([.0-9]*\\)" str)))
-        (message str)
-        (let ((num (and ver (match-string 1 str))))
-          (cond
-           ((and num (string-match "\\<8.0" num))
-            (message v80)
-            (setq coq-version-is-V8-0 t))
-           ((and num (string-match "\\<8.1" num))
-            (message v81)
-            (setq coq-version-is-V8-1 t))
-           ((and num (string-match "\\<8.2" num))
-            (message (concat "coq version is 8.2: " v81))
-            (setq coq-version-is-V8-1 t))
-           (t                           ; 8.1 by default now
-            (message (concat "Falling back to default: " v81))
-            (setq coq-version-is-V8-1 t)))))))))
-
-(eval-when (load eval)
-  (unless noninteractive
-    (coq-determine-version)))
-
  ;;; keyword databases
-
 
 (defcustom coq-user-tactics-db nil
   "User defined tactic information.  See `coq-syntax-db' for
@@ -699,32 +629,6 @@ See also `coq-prog-env' to adjust the environment."
         (setq str (substring str (match-end 0)))))
     nbmatch))
 
-;; This function is used for amalgamating a proof into a single
-;; goal-save region (proof-goal-command-p used in
-;; proof-done-advancing-save in generic/proof-script.el) for coq <
-;; 8.0. It is the test when looking backward the start of the proof.
-;; It is NOT used for coq > v8.1
-;; (coq-find-and-forget in coq.el uses state numbers, proof numbers and
-;; lemma names given in the prompt)
-
-;; compatibility with v8.0, will delete it some day
-(defun coq-goal-command-str-v80-p (str)
-  "See `coq-goal-command-p'."
-  (let* ((match (coq-count-match "\\<match\\>" str))
-	 (with (coq-count-match "\\<with\\>" str))
-	 (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
-	 (affect (coq-count-match ":=" str)))
-
-    (and (proof-string-match coq-goal-command-regexp str)
-	 (not				;
-	  (and
-	   (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
-	   (not (= letwith affect))))
-	 (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
-	 )
-    )
-  )
-
 ;; Module and or section openings are detected syntactically. Module
 ;; *openings* are difficult to detect because there can be Module
 ;; ...with X := ... . So we need to count :='s to detect real openings.
@@ -746,10 +650,22 @@ Used by `coq-goal-command-p'"
   (proof-string-match "\\`\\(Section\\|Chapter\\)\\>" str))
 
 
-(defun coq-goal-command-str-v81-p (str)
+(defun coq-goal-command-str-p (str)
   "Decide syntactically whether STR is a goal start or not. Use
-   `coq-goal-command-p-v81' on a span instead if possible."
-  (coq-goal-command-str-v80-p str)
+`coq-goal-command-p' on a span instead if possible."
+  (let* ((match (coq-count-match "\\<match\\>" str))
+	 (with (coq-count-match "\\<with\\>" str))
+	 (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+	 (affect (coq-count-match ":=" str)))
+
+    (and (proof-string-match coq-goal-command-regexp str)
+	 (not				;
+	  (and
+	   (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
+	   (not (= letwith affect))))
+	 (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
+	 )
+    )
   )
 
 ;; This is the function that tests if a SPAN is a goal start. All it
@@ -761,7 +677,7 @@ Used by `coq-goal-command-p'"
 ;; (like for open goals), and use it to set goalcmd --> no more need
 ;; to look at Modules and section (actually indentation will still
 ;; need it)
-(defun coq-goal-command-p-v81 (span)
+(defun coq-goal-command-p (span)
   "see `coq-goal-command-p'"
   (or (span-property span 'goalcmd)
       ;; module and section starts are detected here
@@ -769,25 +685,6 @@ Used by `coq-goal-command-p'"
 	(or (coq-section-command-p str)
 	    (coq-module-opening-p str))
         )))
-
-;; In coq > 8.1 This is used only for indentation.
-(defun coq-goal-command-str-p (str)
-  "Decide whether argument is a goal or not.  Use
-   `coq-goal-command-p' on a span instead if posible."
-  (cond
-   (coq-version-is-V8-1 (coq-goal-command-str-v81-p str))
-   (coq-version-is-V8-0 (coq-goal-command-str-v80-p str))
-   (t (coq-goal-command-str-v80-p str));; this is temporary
-   ))
-
-;; This is used for backtracking
-(defun coq-goal-command-p (span)
-  "Decide whether argument is a goal or not."
-  (cond
-   (coq-version-is-V8-1 (coq-goal-command-p-v81 span))
-   (coq-version-is-V8-0 (coq-goal-command-str-v80-p (span-property span 'cmd)))
-   (t (coq-goal-command-str-v80-p (span-property span 'cmd)));; this is temporary
-   ))
 
 (defvar coq-keywords-save-strict
   '("Defined"
