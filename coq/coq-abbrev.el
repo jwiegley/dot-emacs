@@ -1,7 +1,9 @@
 ;;; coq-abbrev.el --- coq abbrev table and menus for ProofGeneral mode
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh.
+;;
+;; Copyright (C) 1994-2009 LFCS Edinburgh.
 ;; Authors: Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
+;;
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
 
 (require 'proof)
@@ -120,23 +122,15 @@
      ""
      ["Module/Section (smart)" coq-insert-section-or-module t]
      ["Require (smart)" coq-insert-requires t])
-    ;; da: I added Show sub menu, not sure if it's helpful, but why not.
-    ;; FIXME: submenus should be split off here.  Also, these commands
-    ;; should only be available when a proof is open.
-    ;; pc: I added things in the show menu and called it QUERIES
-
     ""
-    ;; da: I also added abbrev submenu.  Surprising Emacs doesn't have one?
     ("ABBREVS"
      ["Expand at point" expand-abbrev t]
      ["Unexpand last" unexpand-abbrev t]
      ["List abbrevs" list-abbrevs t]
-     ["Edit abbrevs" edit-abbrevs t];; da: is it OK to add edit?
+     ["Edit abbrevs" edit-abbrevs t]
      ["Abbrev mode" abbrev-mode
       :style toggle
       :selected (and (boundp 'abbrev-mode) abbrev-mode)])
-    ;; With all these submenus you have to wonder if these things belong
-    ;; on the main menu.  Are they the most often used?
     ""
     ("COQ PROG (ARGS)"
      ["Set coq prog *persistently*" coq-ask-insert-coq-prog-name t]
@@ -144,11 +138,9 @@
      ["Compile" coq-Compile t])
     ))
 
-;; da: Moved this from the main menu to the Help submenu.
-;; It also appears under Holes, anyway.
 (defpgdefault help-menu-entries
-  '(["Tell me about holes?" holes-show-doc t]
-    ["help on setting prog name persistently for a file" coq-local-vars-list-show-doc t]))
+  '(["help on setting prog name persistently for a file" 
+     coq-local-vars-list-show-doc t]))
 
 
 (provide 'coq-abbrev)
