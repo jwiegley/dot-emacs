@@ -582,8 +582,7 @@ object files, used by Lego and Coq)."
 (defvar proof-shell-urgent-message-scanner nil
   "Marker in proof shell buffer pointing to scan start for urgent messages.")
 
-
-(defun proof-shell-handle-output (start-regexp append-face)
+(defun proof-shell-handle-error-output (start-regexp append-face)
   "Displays output from process in `proof-response-buffer'.
 The output is taken from `proof-shell-last-output' and begins
 the first match for START-REGEXP.
@@ -593,29 +592,14 @@ if output has been garbled somehow), begin from the start of
 the output for this command.
 
 This is a subroutine of `proof-shell-handle-error'."
-  (let (start end string)
-    (with-current-buffer proof-shell-buffer
-
-      ;; NB: it's tempting to use proof-shell-last-output here which
-      ;; already contains the text (change suggested by Stefan
-      ;; Monnier), but characters have been stripped from that text
-      ;; that may be needed in our start-regexp parameter (e.g. Isabelle).
-
-      (goto-char (point-max))
-      (setq end (re-search-backward
-		 proof-shell-annotated-prompt-regexp))
-      (goto-char (marker-position proof-marker))
-      (setq start (point))
-
+  (let ((string proof-shell-last-output) pos)
       (if (and start-regexp
-	       (re-search-forward start-regexp nil t))
-	  (setq start (- (point) (length (match-string 0)))))
-
-      (setq string (buffer-substring-no-properties start end))
+	       (setq pos (string-match start-regexp string)))
+	  (setq string (substring string pos)))
 
       ;; Erase if need be, and erase next time round too.
       (pg-response-maybe-erase t nil)
-      (pg-response-display-with-face string append-face))))
+      (pg-response-display-with-face string append-face)))
 
 
 
@@ -648,7 +632,7 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
   (unless (memq 'no-error-display flags)
     (save-excursion
       (proof-shell-handle-delayed-output))
-    (proof-shell-handle-output
+    (proof-shell-handle-error-output
      (if proof-shell-truncate-before-error proof-shell-error-regexp)
      'proof-error-face)
     (proof-display-and-keep-buffer proof-response-buffer)
@@ -660,10 +644,9 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
 Runs `proof-shell-error-or-interrupt-action'."
    (unless (memq 'no-error-display flags)
      (pg-response-maybe-erase t t t) ; force cleaned now & next
-     (proof-shell-handle-output
+     (proof-shell-handle-error-output
       (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
       'proof-error-face)
-     ;;  (proof-display-and-keep-buffer proof-response-buffer)
      (proof-warning
       "Interrupt: script management may be in an inconsistent state
 	   (but it's probably okay)")
