@@ -85,8 +85,10 @@ a nested regexp that matches any token.
 
 An example would be: \\\\(%s\\\\)\\\\(:?\\w+\\\\)
 
-which matches plain token strings optionally followed by a colon and
-variant name.
+which matches plain token strings optionally followed by a colon
+and variant name.  Once set, (match-string 1) should be
+the name of the token whereas (match-string 0) matches
+the longer text, if any.
 
 If set, this variable is used instead of `unicode-tokens-token-format'.")
 
@@ -206,7 +208,10 @@ if it is bound; it should be the name of a variable."
   "Hash table mapping token names (strings) to composition and properties.")
 
 (defvar unicode-tokens-token-match-regexp nil
-  "Regular expression used by font-lock to match known tokens.")
+  "Regular expression used by font-lock to match known tokens.
+The match should span the whole token; (match-string 1) should
+span the token name, if that is shorter.
+The value is calculated by `unicode-tokens-calculate-token-match'.")
 
 (defvar unicode-tokens-uchar-hash-table nil
   "Hash table mapping unicode strings to symbolic token names.
@@ -320,7 +325,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
     ;; configured per-prover, but above are generic.
     (dec       "Declaration face" (face proof-declaration-name-face))
     (tactic    "Tactic face"      (face proof-tactics-name-face))
-    (tactical  "Tactical face"    (face proof-tactical-name-face)))
+    (tacticals "Tacticals face"   (face proof-tacticals-name-face)))
  "Association list mapping a symbol to a name and list of text properties.
 Used in `unicode-tokens-token-symbol-map', `unicode-tokens-control-regions',
 and `unicode-tokens-control-characters'.
@@ -728,8 +733,7 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 				    (save-excursion
 				      (beginning-of-line 0) (point)) t)))
     (if match
-	(match-string
-	 (regexp-opt-depth unicode-tokens-token-match-regexp)))))
+	(match-string 1))))
 
 (defun unicode-tokens-rotate-token-forward (&optional n)
   "Rotate the token before point by N steps in the table."
@@ -884,23 +888,21 @@ Starts from point."
 
 (defun unicode-tokens-encode-in-temp-buffer (str fn)
   "Call FN on encoded version of STR."
-  (let ((match   (- (regexp-opt-depth
-		     unicode-tokens-token-match-regexp) 1)))
-    (with-temp-buffer
-      (insert str)
-      (goto-char (point-min))
-      (while (re-search-forward unicode-tokens-token-match-regexp nil t)
-	;; TODO: interpret more exotic compositions here
-	(let* ((tstart    (match-beginning 0))
-	       (tend      (match-end 0))
-	       (comp      (car-safe
-			   (gethash (match-string match)
-				    unicode-tokens-hash-table))))
-	  (when comp
-	    (delete-region tstart tend)
-	    ;; TODO: improve this: interpret vector, strip tabs
-	    (insert comp)))) ;; gross approximation to compose-region
-      (funcall fn (point-min) (point-max)))))
+  (with-temp-buffer
+    (insert str)
+    (goto-char (point-min))
+    (while (re-search-forward unicode-tokens-token-match-regexp nil t)
+      ;; TODO: interpret more exotic compositions here
+      (let* ((tstart    (match-beginning 0))
+	     (tend      (match-end 0))
+	     (comp      (car-safe
+			 (gethash (match-string 1)
+				  unicode-tokens-hash-table))))
+	(when comp
+	  (delete-region tstart tend)
+	  ;; TODO: improve this: interpret vector, strip tabs
+	  (insert comp)))) ;; gross approximation to compose-region
+    (funcall fn (point-min) (point-max))))
 
 (defun unicode-tokens-encode (beg end)
   "Return a unicode encoded version of the presentation in region BEG..END."
