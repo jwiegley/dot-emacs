@@ -33,9 +33,7 @@
 	     (add-hook 'write-file-functions
 		       'whitespace-write-file-hook nil t)
 	     (add-hook 'before-save-hook
-		       'copyright-update nil t)
-	     (add-hook 'after-save-hook
-		       'emacs-lisp-byte-compile-and-load nil t)))
+		       'copyright-update nil t)))
 
 ;; Fill in template for new files
 
