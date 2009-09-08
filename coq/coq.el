@@ -123,9 +123,6 @@ On Windows you might need something like:
 ;;  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
-(defvar coq-shell-abort-goal-regexp "Current goal aborted"
-  "*Regexp indicating that the current goal has been abandoned.")
-
 (defvar coq-shell-proof-completed-regexp "Subtree proved!\\|Proof Completed\\."
   "*Regular expression indicating that the proof has been completed.")
 
@@ -157,9 +154,6 @@ On Windows you might need something like:
   "Coq home page URL."
   :type 'string
   :group 'coq)
-
-
-
 
 ;; ----- outline
 ;; FIXME, deal with interacive "Definition"
@@ -946,43 +940,46 @@ This is specific to `coq-mode'."
   (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
 
 
-(defvar coq-last-hybrid-pre-string "")
 ;; pc: TODO: Have a generic way to split one output into several outputs
 ;; Actually this could be done by adapting process-delayed-output.
-(defun coq-hybrid-ouput-goals-response-p (cmd string)
-  "Specific test function to detect hybrid response/goal output from coq.
-To be used in `proof-shell-classify-output-system-specific'. "
-  (proof-string-match-safe "[0-9]+ subgoals?" string)
-  )
+;; da: I have done this now while revising the core functions.
+;; can you test it's OK?  Have only tried on trivial
+;; etc/trac/trac109.v so far
+
+;; (defvar coq-last-hybrid-pre-string "")
+;; (defun coq-hybrid-ouput-goals-response-p (cmd string)
+;;   "Specific test function to detect hybrid response/goal output from coq.
+;; To be used in `proof-shell-classify-output-system-specific'. "
+;;   (proof-string-match-safe "[0-9]+ subgoals?" string)
+;;   )
 
 ;; See trac #109
-(defun coq-hybrid-ouput-goals-response (cmd string)
-  "Specific function to deal with hybrid response/goal output from coq.
-To be used in `proof-shell-classify-output-system-specific'."
-  ;; match subgoal list anywhere in the ouput then display the message before
-  ;; it, and then do as a normal goal output.
-  (proof-shell-string-match-safe "[0-9]+ subgoals?" string)
-  (let* ((start (match-beginning 0))
-         (prestring (substring string 0 start))
-         (goalstring (substring string start)))
-    (unless nil ;(not (null proof-action-list))
-      ;(setq proof-shell-last-output goalstring)
-      ;(setq proof-shell-last-output-kind 'goals)
-      ;; (proof-shell-classify-output cmd goalstring)
-      (pg-goals-display goalstring) ;; this erases response buffer
-      ;; da: I added this test: otherwise 2 window mode seems quite broken?!
-      (unless (string-equal "" prestring)
-        (pg-response-display prestring));; this does not erase goals buffer
-      ;(proof-shell-handle-delayed-output-hook)
-      (setq coq-last-hybrid-pre-string prestring)
-      )))
+;; (defun coq-hybrid-ouput-goals-response (cmd string)
+;;   "Specific function to deal with hybrid response/goal output from coq.
+;; To be used in `proof-shell-classify-output-system-specific'."
+;;   ;; match subgoal list anywhere in the ouput then display the message before
+;;   ;; it, and then do as a normal goal output.
+;;   (proof-shell-string-match-safe "[0-9]+ subgoals?" string)
+;;   (let* ((start (match-beginning 0))
+;;          (prestring (substring string 0 start))
+;;          (goalstring (substring string start)))
+;;     (unless nil ;(not (null proof-action-list))
+;;       ;(setq proof-shell-last-output goalstring)
+;;       ;(setq proof-shell-last-output-kind 'goals)
+;;       ;; (proof-shell-classify-output cmd goalstring)
+;;       (pg-goals-display goalstring) ;; this erases response buffer
+;;       ;; da: I added this test: otherwise 2 window mode seems quite broken?!
+;;       (unless (string-equal "" prestring)
+;;         (pg-response-display prestring));; this does not erase goals buffer
+;;       ;(proof-shell-handle-delayed-output-hook)
+;;       (setq coq-last-hybrid-pre-string prestring)
+;;       )))
 
 
 (defun coq-shell-mode-config ()
   (setq
    proof-shell-cd-cmd coq-shell-cd
    proof-shell-filename-escapes '(("\\\\" . "\\\\") ("\""   . "\\\""))
-   proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
    proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
    proof-shell-error-regexp coq-error-regexp
    proof-shell-interrupt-regexp coq-interrupt-regexp
@@ -1006,7 +1003,7 @@ To be used in `proof-shell-classify-output-system-specific'."
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
 
-   proof-shell-start-goals-regexp          "\\`[0-9]+ subgoals?"
+   proof-shell-start-goals-regexp          "^[0-9]+ subgoals?"
    proof-shell-end-goals-regexp nil        ; up to next prompt
    proof-shell-init-cmd coq-shell-init-cmd
 
@@ -1015,8 +1012,9 @@ To be used in `proof-shell-classify-output-system-specific'."
 
    proof-shell-restart-cmd coq-shell-restart-cmd
    pg-subterm-anns-use-stack t
-   proof-shell-classify-output-system-specific
-   '(coq-hybrid-ouput-goals-response-p . coq-hybrid-ouput-goals-response)
+;; da: shouldn't be necessary now
+;;   proof-shell-classify-output-system-specific
+;;   '(coq-hybrid-ouput-goals-response-p . coq-hybrid-ouput-goals-response)
    )
 
   (coq-init-syntax-table)
