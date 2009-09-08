@@ -15,7 +15,7 @@
 ;;
 
 (require 'proof-site)			; basic vars
-(require 'scomint)			; scomint-check-proc
+(require 'scomint)			; for proof-shell-live-buffer
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
