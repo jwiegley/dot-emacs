@@ -961,9 +961,8 @@ To be used in `proof-shell-classify-output-system-specific'. "
 (defun coq-hybrid-ouput-goals-response (cmd string)
   "Specific function to deal with hybrid response/goal output from coq.
 To be used in `proof-shell-classify-output-system-specific'."
-  ;; match subgoal list anywhere in the ouput
-  ;; then display the message before it, and then do as a normal goal
-  ;; output.
+  ;; match subgoal list anywhere in the ouput then display the message before
+  ;; it, and then do as a normal goal output.
   (proof-shell-string-match-safe "[0-9]+ subgoals?" string)
   (let* ((start (match-beginning 0))
          (prestring (substring string 0 start))
@@ -974,7 +973,7 @@ To be used in `proof-shell-classify-output-system-specific'."
       ;; (proof-shell-classify-output cmd goalstring)
       (pg-goals-display goalstring) ;; this erases response buffer
       ;; da: I added this test: otherwise 2 window mode seems quite broken?!
-      (unless (string-match "[\t\n ]*" prestring) 
+      (unless (string-equal "" prestring)
         (pg-response-display prestring));; this does not erase goals buffer
       ;(proof-shell-handle-delayed-output-hook)
       (setq coq-last-hybrid-pre-string prestring)
