@@ -42,9 +42,10 @@
     `proof-shell-clear-response-regexp', etc, must match
     strings which begin with `proof-shell-eager-annotation-start'.
 
-    pg-insert-output-as-comment-fn: removed
-    proof-shell-wakeup-char: removed
-    proof-shell-prompt-pattern: removed
+    pg-insert-output-as-comment-fn: removed (use p-s-last-output)
+    proof-shell-wakeup-char: removed (special chars deprecated)
+    proof-shell-prompt-pattern: removed (was only for shell UI)
+    proof-shell-abort-goal-regexp: removed (ordinary response)
     pg-use-specials-for-fontify: removed
     proof-shell-strip-output-markup: required for cut-and-paste
     proof-electric-terminator-noterminator: allows non-insert of terminator
