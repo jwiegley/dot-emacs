@@ -274,8 +274,7 @@ Returns non-nil if response buffer was cleared."
 ;; pg-response-maybe-erase-buffer.
 ;;;###autoload
 (defun pg-response-display-with-face (str &optional face)
-  "Display STR with FACE in response buffer.
-Also updates `proof-shell-last-output'."
+  "Display STR with FACE in response buffer."
   (cond
    ((string-equal str ""))
    ((string-equal str "\n"))		; quick exit, no display.
@@ -293,7 +292,6 @@ Also updates `proof-shell-last-output'."
 	  (newline))
 	(setq start (point))
 	(insert str)
-	(setq proof-shell-last-output str)
 	(unless (bolp) (newline))
 	(when face
 	  (overlay-put
