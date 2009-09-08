@@ -10,7 +10,7 @@
 Fixpoint toto (x:nat) {struct x} : nat := (* nat should appear as |N *)
   match x with
     | O => O        (* double arrow here *)
-    | S => toto y   (* double arrow here *)
+    | S y => toto y (* double arrow here *)
   end.
 
 Lemma titi : forall x:nat,x=x. (* symbolique for-all and nat *)
