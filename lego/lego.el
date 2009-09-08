@@ -104,11 +104,6 @@ Activates extended printing routines required for Proof General.")
 (defvar lego-shell-cd "Cd \"%s\";"
   "*Command of the inferior process to change the directory.")
 
-(defvar lego-shell-abort-goal-regexp
-  "KillRef: ok, not in proof state\\|Forget forced KillRef"
-  "*Regular expression indicating that the proof of the current goal
-  has been abandoned.")
-
 (defvar lego-shell-proof-completed-regexp "\\*\\*\\* QED \\*\\*\\*"
   "*Regular expression indicating that the proof has been completed.")
 
@@ -380,7 +375,6 @@ For LEGO, we assume that module identifiers coincide with file names."
 
 (defun lego-shell-mode-config ()
   (setq proof-shell-cd-cmd lego-shell-cd
-	proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
 	proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
 	proof-shell-error-regexp lego-error-regexp
 	proof-shell-interrupt-regexp lego-interrupt-regexp

@@ -183,7 +183,6 @@ See -k option for Isabelle interface script."
    proof-shell-interrupt-regexp         "\^AM\\*\\*\\* Interrupt"
    proof-shell-error-regexp             "\^AM\\*\\*\\*"
    proof-shell-proof-completed-regexp   nil     ; n.a.
-   proof-shell-abort-goal-regexp        nil     ; n.a.
 
    pg-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
    pg-next-error-filename-regexp "\\((line [0-9]+ of \"\\([^\"]+\\)\")\\)"

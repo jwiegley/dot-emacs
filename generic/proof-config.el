@@ -1091,11 +1091,6 @@ in ordinary output, which should appear in this regexp."
   :type 'regexp
   :group 'proof-shell)
 
-(defcustom proof-shell-abort-goal-regexp nil
-  "Regexp matching output from an aborted proof."
-  :type 'regexp
-  :group 'proof-shell)
-
 (defcustom proof-shell-error-regexp nil
   "Regexp matching an error report from the proof assistant.
 

@@ -125,10 +125,6 @@
   (concat plastic-lit-string " &S ECHO no cd ;\n")
   "*Command of the inferior process to change the directory.")
 
-(defvar plastic-shell-abort-goal-regexp "KillRef: ok, not in proof state"
-  "*Regular expression indicating that the proof of the current goal
-  has been abandoned.")
-
 (defvar plastic-shell-proof-completed-regexp "\\*\\*\\* QED \\*\\*\\*"
   "*Regular expression indicating that the proof has been completed.")
 
@@ -451,7 +447,6 @@ For Plastic, we assume that module identifiers coincide with file names."
 
 (defun plastic-shell-mode-config ()
   (setq proof-shell-cd-cmd plastic-shell-cd
-	proof-shell-abort-goal-regexp plastic-shell-abort-goal-regexp
 	proof-shell-proof-completed-regexp plastic-shell-proof-completed-regexp
 	proof-shell-error-regexp plastic-error-regexp
 	proof-shell-interrupt-regexp plastic-interrupt-regexp
