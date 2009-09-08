@@ -226,7 +226,7 @@ test.%:
 	if [ -f "$*/$*-autotest.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-autotest.el -f eval-current-buffer; then echo "Autotests run successfully on `date`" > $*/.autotest.txt; else rm -f $*/autotest.txt; exit 1; fi; fi
 
 testall.%: 
-	for prover in ${PROVERS}; do $(MAKE) devel.test.$$prover EMACS=$*; done
+	for prover in ${PROVERS}; do $(MAKE) test.$$prover EMACS=$*; done
 
 
 ############################################################
