@@ -51,11 +51,8 @@
 (defun coq-build-prog-args ()
   (setq coq-prog-args
         (append (remove-if (lambda (x) (string-match "\\-emacs" x)) coq-prog-args)
-                (cond
-                 (coq-version-is-V8-0 '("-emacs"))
-                 (t '("-emacs-U")))
-                (if coq-translate-to-v8 " -translate")))
-  )
+                '("-emacs-U")
+                (if coq-translate-to-v8 " -translate"))))
 
 ;; fix it
 (unless noninteractive ;; compiling
@@ -85,14 +82,8 @@ Set to t if you want this feature."
 (defconst coq-shell-init-cmd
   (format "Set Undo %s . " coq-default-undo-limit))
 
-;; da 15/02/03: moved setting of coq-version-is-vX to coq-syntax to
-;; fix compilation
-
 (require 'coq-syntax)
 (require 'coq-indent)
-
-(if coq-version-is-V8-0
-    (setq proof-shell-unicode nil))
 
 (defcustom coq-prog-env nil
   "*List of environment settings d to pass to Coq process.
@@ -170,11 +161,6 @@ On Windows you might need something like:
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
 
 
-;; all these are to be remove when coq > 8.0
-
-(defconst coq-kill-goal-command "Abort. ")
-(defconst coq-forget-id-command "Reset %s . ")
-(defconst coq-back-n-command "Back %s . ")
 
 ;; some of them must kept when v8.1 because they are used by state preserving
 ;; check when C-c C-v
@@ -661,8 +647,6 @@ This is specific to `coq-mode'."
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;    To guess the command line options   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -697,7 +681,7 @@ This is specific to `coq-mode'."
             (setq coq-prog-args nil)
             (concat
              (substring command 0 (string-match " [^ ]*$" command))
-             (if coq-version-is-V8-1 "-emacs-U" "-emacs")))
+             "-emacs-U"))
         coq-prog-name))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -742,10 +726,6 @@ This is specific to `coq-mode'."
         proof-find-theorems-command "Search %s . ")
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
-
-  ;; 3.4: this is no longer used: setting to nil
-  ;; enforces use of find-and-forget always.
-  (setq proof-kill-goal-command nil)
 
   (setq proof-goal-command-p 'coq-goal-command-p
         proof-find-and-forget-fn 'coq-find-and-forget
@@ -1032,8 +1012,7 @@ This is a value for the `proof-deactivate-scripting-hook'."
          ((and (proof-try-require 'compile)
                compile-command
                (file-exists-p "Makefile"))
-          ;; NB: compilation is run in the background
-          ;; in this case!
+          ;; NB: compilation is run in the background in this case!
           (let ((compilation-read-command nil))
             (call-interactively 'compile)))
          (coq-compile-file-command
@@ -1131,12 +1110,10 @@ Group number 1 matches the name of the library which is required.")
 
 ;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
 (defun coq-preprocessing () ;; NB: dynamic scoping of `string'
-  (cond
-   (coq-time-commands
-    (setq string (concat "Time " string)))))
+  (if coq-time-commands
+      (setq string (concat "Time " string))))
 
 (add-hook 'proof-shell-insert-hook 'coq-preprocessing)
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1161,16 +1138,11 @@ mouse activation."
 ;; Context-senstive in-span menu additions
 ;;
 
-;; da: message to Pierre: I just put these in as examples,
-;; maybe you can suggest some better commands to use on
-;; `thm'.  (Check is maybe not much use since appears before
-;; in the buffer anyway)
-
 (defun coq-create-span-menu (span idiom name)
   (if (string-equal idiom "proof")
       (let ((thm (span-property span 'name)))
         (list (vector
-               "Check"
+               "Check" ; useful?
                `(proof-shell-invisible-command
                  ,(format "Check %s." thm)))
               (vector

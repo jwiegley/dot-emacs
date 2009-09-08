@@ -6,7 +6,7 @@
 
 Module Example.
 
-Goal forall (A B:Prop),(A /\ B) -> (B /\ A).
+Goal forall (A B:Prop),(A /\ B) -> (B /\ A). 
   intros A B.
   intros H.
   elim H.
@@ -16,6 +16,3 @@ Goal forall (A B:Prop),(A /\ B) -> (B /\ A).
 Save and_comms.
 
 End Example.
-
-
-

@@ -122,7 +122,13 @@
     ("-|" "⊣")
     ("\\/" "∨")
     ("/\\" "∧")
-    ("~"  "¬"))
+    ("~"  "¬")
+    
+    ;; A dirty hack for the goals window, shouldn't be input syntax!
+    ("============================" 
+     "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯" 
+     bold tactical)
+    )
   ;; an alist of token name, unicode char sequence
   "Table mapping Coq tokens to Unicode strings.
 

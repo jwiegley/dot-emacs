@@ -10,7 +10,7 @@
 Fixpoint toto (x:nat) {struct x} : nat := (* nat should appear as |N *)
   match x with
     | O => O        (* double arrow here *)
-    | S y => toto y (* double arrow here *)
+    | S => toto y   (* double arrow here *)
   end.
 
 Lemma titi : forall x:nat,x=x. (* symbolique for-all and nat *)
@@ -25,26 +25,27 @@ Fixpoint pow (n m:nat) {struct n} : nat :=
 	 | S p => m * pow p m
   end.
 
-Notation " a ,{ b }  " := (a - b)
+Notation "a,{b}" := (a - b)
   (at level 1, no associativity).
 
-Notation "a ^^ b" := (pow a b)
+Notation "a^^b" := (pow a b)
   (at level 1, no associativity).
 
-Notation "a ^{ b }" := (pow a b)
+Notation "a^{b}" := (pow a b)
   (at level 1, no associativity).
 
 
 Variable delta:nat.
 
 (* greek delta with a sub 1 and the same with super 1 *)
-Definition delta__1 := 0. 
-Definition delta__2 := delta^^1.
-Definition delta__3 := delta__2^{delta}.
+Definition delta __ 1 := 0. 
+Definition delta __ 2 := delta^^1.
+Definition delta __ 3 := delta__2^{delta}.
 
 Parameter a b x:nat.
+
 (* x with a+b subscripted and then superscripted *)
-Definition x_a_b':= x^{a+b}. 
+Definition x_a_b' := x^{a+b}. 
 Definition x_a_b := x,{a+b}.
 Definition x_a_b'' := x,{a+b}^{a*b}.
 

@@ -951,14 +951,15 @@ Used by `coq-goal-command-p'"
 ;; recognizing global identifiers, see coq-global-p.
 (defconst coq-save-command-regexp-strict
   (proof-anchor-regexp
-   (concat "\\(Time\\s-+\\|\\)\\(" (proof-ids-to-regexp coq-keywords-save-strict)
+   (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save-strict)
            "\\)")))
 (defconst coq-save-command-regexp
   (proof-anchor-regexp
-   (concat "\\(Time\\s-+\\|\\)\\(" (proof-ids-to-regexp coq-keywords-save)
+   (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save)
            "\\)")))
+
 (defconst coq-save-with-hole-regexp
-  (concat "\\(Time\\s-+\\|\\)\\(" (proof-ids-to-regexp coq-keywords-save-strict)
+  (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save-strict)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*\\."))
 
 (defconst coq-goal-command-regexp
