@@ -95,16 +95,9 @@ On Windows you might need something like:
 ;; Command to reset the Coq Proof Assistant
 (defconst coq-shell-restart-cmd "Reset Initial.\n ")
 
-
-;; NB: da: PG 3.5: added \n here to account for blank line in Coq output.
-;; Better result for shrinking windows, grabbing shell output.
-;; Pierre added the infos in the prompt, this is new in Coq v8-1
-
 (defvar coq-shell-prompt-pattern
-  (if coq-version-is-V8-1
-      (concat "\\(?:\n\\(?:[^\n\371]+\371\\|<prompt>[^\n]+</prompt>\\)\\)")
-    (concat "\\(?:\n" proof-id " < \371\\)"))
-    "*The prompt pattern for the inferior shell running coq.")
+  "\\(?:\n\\(?:[^\n\371]+\371\\|<prompt>[^\n]+</prompt>\\)\\)"
+  "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
 ;; da: 3.5: add experimetntal
@@ -177,19 +170,9 @@ On Windows you might need something like:
 (defvar coq-non-retractable-instruct-regexp
   (proof-ids-to-regexp coq-non-retractable-instruct))
 
-; delete when no more support for 8.0 ?
-(defvar coq-keywords-section
-  '("Section" "Module\\s-+Type" "Declare\\s-+Module" "Module"))
-
-(defvar coq-section-regexp
-  (concat "\\(" (proof-ids-to-regexp coq-keywords-section) "\\)")
-;  "\\(\\<Section\\>\\|\\<Module\\>\\s-+\\<Type\\>\\|\\<Module\\>\\)"
-)
-;; End of remove when coq > 8.0
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;   Derived modes - define keymaps
+;;
 
 (eval-and-compile
   (define-derived-mode coq-shell-mode proof-shell-mode
@@ -220,75 +203,6 @@ On Windows you might need something like:
 
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s . " undos)))
-
-;; da: have now combined count-undos and find-and-forget, they're the
-;; same now we deal with nested proofs and send general sequence
-;; "Abort. ... Abort. BackTo n. Undo n."
-;; pc: now we do even better: "Backtrack n m p. " based on infos in
-;; the prompt.
-
-;; All this is to be removed when coq > 8.0 (until the "End remove" below)
-
-(defconst coq-keywords-decl-defn-regexp
-  (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
-  "Declaration and definition regexp.")
-
-(defun coq-proof-mode-p ()
-  "Return true if we are currentlly in proof mode.
-Look at the last line of the *coq* buffer to see if the prompt is the
-toplevel \"Coq <\".  Returns nil if yes.  This assumes that no
-\"Resume\" or \"Suspend\" command has been used."
-  (not (string-match "^Coq < " proof-shell-last-prompt)))
-
-
-;; DA: rewrote to combine behaviour with count-undos, to work with
-;; nested proofs.
-
-(defun coq-is-comment-or-proverprocp (span)
-  (memq (span-property span 'type) '(comment proverproc)))
-(defun coq-is-goalsave-p (span) (eq (span-property span 'type) 'goalsave))
-(defun coq-is-module-equal-p (str) ;;cannot appear vith coq < 7.4
-  (and (proof-string-match "\\`\\(Declare\\s-\\)?\\s-*\\<Module\\>.*:=" str)
-       (not (proof-string-match "\\<with\\>" str))))
-(defun coq-is-def-p (str)
-  (proof-string-match (concat "\\`Definition\\s-+\\(" proof-id "\\)\\s-*") str))
-(defun coq-is-decl-defn-p (str)
-  (proof-string-match
-   (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\("
-           proof-id "\\)\\s-*[\\[,:.]") str))
-
-(defun coq-state-preserving-command-p (str)
-  (proof-string-match (concat "\\`\\(" coq-state-preserving-commands-regexp "\\)") str))
-
-(defun coq-command-p (str)
-  (proof-string-match (concat "\\`\\(" coq-commands-regexp "\\)") str))
-
-(defun coq-state-preserving-tactic-p (str)
-  (proof-string-match
-   (concat "\\`\\("
-           coq-state-preserving-tactics-regexp "\\)") str))
-
-(defun coq-state-changing-tactic-p (str) ; unknown things are considered (state
-                                        ;changing) tactics here
-  (and (not (coq-command-p str))
-       (not (coq-state-preserving-tactic-p str)))
-  )
-
-
-(defun coq-state-changing-command-p (str)
-  (proof-string-match (concat "\\`\\(" coq-state-changing-commands-regexp "\\)") str))
-
-; if no second id --> name of the module/section is (match-string 2 str)
-; otherwise it is (match-string 5 str)
-; to know if there is a second id: (match-string 2 str)="Type" ?
-; delete when no more support for 8.0
-(defun coq-section-or-module-start-p (str)
-  (proof-string-match
-   (concat "\\`" coq-section-regexp
-           "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str))
-
-;; End of remove when coq > 8.0
-
 
 ;; make this non recursive?
 (defun build-list-id-from-string (s)
@@ -423,11 +337,10 @@ If locked span already has a state number, thne do nothing. Also updates
     )
   )
 
-;; This hook seems the one we want (if we are in V8.1 mode only).
+;; This hook seems the one we want.
 ;; WARNING! It is applied once after each command PLUS once before a group of
 ;; commands is started
-(add-hook 'proof-state-change-hook
-          '(lambda () (if coq-version-is-V8-1 (coq-set-state-infos))))
+(add-hook 'proof-state-change-hook 'coq-set-state-infos)
 
 (defun count-not-intersection (l notin)
   "Return the number of elts of L that are not in NOTIN."
