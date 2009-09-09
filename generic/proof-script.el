@@ -631,9 +631,11 @@ NAME does not need to be unique."
 			unicode-tokens-mode)
 		   (unicode-tokens-encode-str proof-shell-last-output)
 		 proof-shell-last-output))))
-    ;; NOTE: hack for Isabelle which puts ugly leading \n's in proofstate.
-    (if (eq (string-match "^\n" text) 0)
+    ;; NOTE: hack for Isabelle which puts ugly leading \n's around proofstate.
+    (if (string= (substring text 0 1) "\n")
 	(setq text (substring text 1)))
+    (if (string= (substring text -1) "\n")
+	(setq text (substring text 0 -1)))
     text))
 
 ;;;###autoload
