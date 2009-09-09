@@ -88,6 +88,12 @@ terminator somewhere nearby.  Electric!"
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-shell-quiet-errors nil
+  "If non-nil, be quiet about errors from the prover.
+Normally error messages cause a beep.  Set this to t to prevent that."
+  :type 'boolean
+  :group 'proof-user-options)
+
 ;; FIXME: next one could be integer value for catchup delay
 (defcustom proof-trace-output-slow-catchup t
   "*If non-nil, try to redisplay less often during frequent trace output.
