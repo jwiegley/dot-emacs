@@ -11,8 +11,7 @@
 
 (eval-when-compile
   (defvar coq-prog-name nil)
-  (defvar coq-prog-args nil)
-  (defvar coq-version-is-V8-1 nil))
+  (defvar coq-prog-args nil))
 
 
 ;;; Code:
@@ -130,7 +129,7 @@ These variable describes the coqtop arguments to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-args', it
 will be used to suggest values to the user."
   (let* ((olddirs (coq-extract-directories-from-args oldvalue))
-         (progargs (if coq-version-is-V8-1 '("-emacs-U") '("-emacs")))
+         (progargs "-emacs-U")
          (option))
     ;; first suggest previous directories
     (while olddirs
