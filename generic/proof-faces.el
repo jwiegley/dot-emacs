@@ -8,7 +8,7 @@
 ;;
 ;;; Commentary:
 ;;
-;; Faces should work sensibly:
+;; In an ideal world, faces should work sensibly:
 ;;
 ;;   a) with default colours
 ;;   b) with -rv
@@ -17,7 +17,8 @@
 ;;
 ;; But it's difficult to keep track of all that!
 ;; Please report any bad/failing colour
-;; combinations to da+pg-feedback@inf.ed.ac.uk
+;; combinations (with suggested improvements) at 
+;; http://proofgeneral.inf.ed.ac.uk/trac
 ;;
 ;; Some of these faces aren't used by default in Proof General,
 ;; but you can use them in font lock patterns for specific
@@ -178,6 +179,12 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*Face for showing active areas (clickable regions), outside of subterm markup."
   :group 'proof-faces)
 
+(defface proof-script-error-face
+  '((t
+     (:inherit font-lock-warning-face :underline t)))
+  "Proof General face for highlighting an error in the proof script. "
+  :group 'proof-faces)
+
 
 ;;; Compatibility: these are required for use in GNU Emacs/font-lock-keywords
 
@@ -196,6 +203,7 @@ Warning messages can come from proof assistant or from Proof General itself."
 (defconst proof-highlight-dependent-face 'proof-highlight-dependent-face proof-face-compat-doc)
 (defconst proof-highlight-dependency-face 'proof-highlight-dependency-face proof-face-compat-doc)
 (defconst proof-active-area-face 'proof-active-area-face proof-face-compat-doc)
+(defconst proof-script-error-face 'proof-script-errror-face-compat-doc)
 
 
 (provide 'proof-faces)
