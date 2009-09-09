@@ -24,9 +24,8 @@
 
 *** Simplified version of comint now used for proof shell
     To improve efficiency, a cut-down version of comint is now used.
-    This means that the editing, history and decoration inside the
-    proof shell (*coq*, *isabelle*, etc) are impoverished
-    compared with PG 3.X.
+    Editing, history and decoration in the shell (*coq*, *isabelle*,
+    etc) are impoverished compared with PG 3.X.
 
 *** New user configuration options
     proof-auto-raise-buffers  (set to nil for manual control)
