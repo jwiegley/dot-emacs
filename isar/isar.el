@@ -141,21 +141,19 @@ See -k option for Isabelle interface script."
    '((nil     "thm %s;")
      (string  "term \"%s\";")
      (comment "term \"%s\";"))
-   proof-kill-goal-command      "ProofGeneral.kill_proof"
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
    proof-shell-trace-output-regexp  "\^AI\^AV"
    ;; command hooks
    proof-goal-command-p         'isar-goal-command-p
    proof-really-save-command-p  'isar-global-save-command-p
-   proof-count-undos-fn         'isar-count-undos
-   proof-find-and-forget-fn     'isar-find-and-forget
    proof-state-preserving-p     'isar-state-preserving-p
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    ;; span menu
    proof-script-span-context-menu-extensions 'isabelle-create-span-menu)
   ;; proof assistant settings
   (setq proof-use-pgip-askprefs	t)
+  ;; others: find theorems, undo config
   (isar-configure-from-settings))
 
 (defun isar-shell-mode-config-set-variables ()
@@ -239,10 +237,6 @@ See -k option for Isabelle interface script."
 ;;;  (Settings for Isabelle are configured automatically via PGIP message)
 ;;;
 
-
-(defun isar-configure-from-settings ()
-  (isar-set-proof-find-theorems-command))
-
 (defpacustom use-find-theorems-form nil
   "Use a form-style input for the find theorems operation."
   :type 'boolean
@@ -253,6 +247,25 @@ See -k option for Isabelle interface script."
 	(if isar-use-find-theorems-form
 	    'isar-find-theorems-form
 	  'isar-find-theorems-minibuffer)))
+
+(defpacustom use-linear-undo t
+  "Whether to allow undo to re-enter completed proofs (requires restart)."
+  :type 'boolean)
+
+(defun isar-set-undo-commands ()
+  (setq proof-count-undos-fn 'isar-count-undos)
+  (when isar-linear-undo
+    (setq proof-kill-goal-command nil)
+    (setq proof-find-and-forget-fn 'isar-count-undos)
+    (setq proof-arbitrary-undo-positions t))
+  (when (not isar-linear-undo)
+    (setq proof-kill-goal-command "ProofGeneral.kill_proof")
+    (setq proof-find-and-forget-fn 'isar-find-and-forget)
+    (setq proof-arbitrary-undo-positions nil)))
+
+(defun isar-configure-from-settings ()
+  (isar-set-proof-find-theorems-command)
+  (isar-set-undo-commands))
 
 ;;;
 ;;; Theory loader operations
@@ -394,12 +407,12 @@ This is called when Proof General spots output matching
 
 ;; undo proof commands
 (defun isar-count-undos (span)
-  "Count number of undos SPAN, return command needed to undo that far."
-  (let
-      ((ct 0) str i)
+  "Return commands to be used to forget SPAN."
+  (let ((ct 0) str i)
     (while span
       (setq str (or (span-property span 'cmd) ""))
-      (cond ((eq (span-property span 'type) 'vanilla)
+      (cond ((or (eq (span-property span 'type) 'vanilla)
+		 (eq (span-property span 'type) 'goalsave))
 	     (or (proof-string-match isar-undo-skip-regexp str)
 		 (proof-string-match isar-undo-ignore-regexp str)
 		 (setq ct (+ 1 ct))))
@@ -416,7 +429,7 @@ This is called when Proof General spots output matching
 		      (setq i (+ 1 i))))
 		   (t nil))))
       (setq span (next-span span 'type)))
-    (isar-undos ct)))
+    (isar-undos isar-use-linear-undo ct)))
 
 ;; undo theory commands
 (defun isar-find-and-forget (span)
@@ -624,6 +637,10 @@ Uses variables `string' and `scriptspan' passed by dynamic scoping."
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
   (isar-shell-mode-config-set-variables)
+  (set (make-local-variable 'font-lock-extra-managed-props)
+       '(invisible))
+  (setq proof-shell-font-lock-keywords
+	isar-shell-font-lock-keywords)
   (proof-shell-config-done))
 
 (defun isar-response-mode-config ()

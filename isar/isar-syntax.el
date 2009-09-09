@@ -418,6 +418,9 @@ matches contents of quotes for quoted identifiers.")
   "Remove invisible output markup from STRING"
   (replace-regexp-in-string "\^A." "" string))
 
+(defconst isar-shell-font-lock-keywords
+  '(("\^A." (0 '(face nil invisible t)))))
+
 (defvar isar-goals-font-lock-keywords
   (append
    (list
@@ -459,8 +462,9 @@ matches contents of quotes for quoted identifiers.")
 (defun isar-remove (name)
   (concat "init_toplevel; kill_thy " name ";"))
 
-(defun isar-undos (i)
-  (if (> i 0) (concat "undos_proof " (int-to-string i) ";")
+(defun isar-undos (linearp i)
+  (if (> i 0) (concat (if linearp "linear_undo " "undos_proof ")
+		      (int-to-string i) ";")
     nil))  ; was proof-no-command
 
 (defun isar-cannot-undo (cmd)
