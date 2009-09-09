@@ -58,12 +58,18 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
   "A flag, non-nil if PG thinks the prover is silent.")
 
 ;; We record the last output from the prover and a flag indicating its
-;; type, as well as a previous ("delayed") version to for when the end
-;; of the queue is reached or an error or interrupt occurs.
+;; type, as well as a previous ("delayed") version to display when the
+;; end of the queue is reached or an error or interrupt occurs.
 
 (defvar proof-shell-last-prompt ""
   "A raw record of the last prompt seen from the proof system.
 This is the string matched by `proof-shell-annotated-prompt-regexp'.")
+
+(defvar proof-shell-last-goals-output ""
+  "The last displayed goals string.")
+
+(defvar proof-shell-last-response-output ""
+  "The last displayed response message.")
 
 (defvar proof-shell-last-output-kind nil
   "A symbol denoting the type of the last output string from the proof system.
@@ -71,7 +77,6 @@ Specifically:
 
  'interrupt	 An interrupt message
  'error		 An error message
- 'abort		 A proof abort message
  'loopback	 A command sent from the PA to be inserted into the script
  'response	 A response message
  'goals		 A goals (proof state) display
@@ -86,11 +91,13 @@ the proof process output, when ends of proofs are spotted.
 This variable can be used for instance specific functions which want
 to examine `proof-shell-last-output'.")
 
-(defvar proof-shell-delayed-output ""
-  "A copy of `proof-shell-last-output' held back for processing at end of queue.")
+(defvar proof-shell-delayed-output-start nil
+  "A record of the start of the previous output in the shell buffer.
+The previous output is held back for processing at end of queue.")
 
-(defvar proof-shell-delayed-output-kind nil
-  "A copy of `proof-shell-last-output-kind' held back for processing at end of queue.")
+(defvar proof-shell-delayed-output-end nil
+  "A record of the start of the previous output in the shell buffer.
+The previous output is held back for processing at end of queue.")
 
 (defvar proof-shell-delayed-output-flags nil
   "A copy of the `proof-action-list' flags for `proof-shell-delayed-output'.")
@@ -147,8 +154,6 @@ of the queue region."
 ;;  proof-shell-available
 ;;    returns non-nil if a proof shell is active and not locked.
 ;;
-;; Maybe proof-shell-ready-prover doesn't need to start the shell?
-;;
 
 ;;;###autoload
 (defun proof-shell-ready-prover (&optional queuemode)
@@ -181,21 +186,16 @@ No error messages.  Useful as menu or toolbar enabler."
 (defun proof-grab-lock (&optional queuemode)
   "Grab the proof shell lock, starting the proof assistant if need be.
 Runs `proof-state-change-hook' to notify state change.
-Clears the `proof-shell-error-or-interrupt-seen' flag.
 If QUEUEMODE is supplied, set the lock to that value."
   (proof-shell-ready-prover queuemode)
-  (setq proof-shell-error-or-interrupt-seen nil)
   (setq proof-shell-interrupt-pending nil)
   (setq proof-shell-busy (or queuemode t))
   ;; Make modeline indicator follow state (on XEmacs at least)
   ;; PG4.0: TODO: alter modeline indicator
   (run-hooks 'proof-state-change-hook))
 
-(defun proof-release-lock (&optional err-or-int)
-  "Release the proof shell lock, with error or interrupt flag ERR-OR-INT.
-Clear `proof-shell-busy', and set `proof-shell-error-or-interrupt-seen'
-to err-or-int."
-  (setq proof-shell-error-or-interrupt-seen err-or-int)
+(defun proof-release-lock ()
+  "Release the proof shell lock.  Clear `proof-shell-busy'."
   (setq proof-shell-busy nil)
   ;; PG4.0: TODO: alter modeline indicator
   )
@@ -507,13 +507,13 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	proof-shell-busy nil
 	proof-shell-proof-completed nil
 	proof-nesting-depth 0
-	proof-shell-error-or-interrupt-seen nil
 	proof-shell-silent nil
 	proof-shell-last-output ""
-	proof-shell-last-output-kind nil
 	proof-shell-last-prompt ""
-	proof-shell-delayed-output ""
-	proof-shell-delayed-output-kind nil))
+	proof-shell-last-output-kind nil
+	proof-shell-delayed-output-start nil
+	proof-shell-delayed-output-end nil
+	proof-shell-delayed-output-flags nil))
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -616,72 +616,54 @@ Optional argument PUSH is ignored."
 ;; Processing error output
 ;;
 
-(defvar proof-shell-no-error-display nil
-  "If non-nil, do not display errors from the prover.
-An internal setting used in `proof-shell-invisible-cmd-get-result'.")
+(defun proof-shell-handle-error-or-interrupt (flags)
+  "React on an error or interrupt message triggered by the prover.
 
-;; TODO: combine next two functions
+On entry, `proof-shell-last-output-kind' should be set to 'error
+or 'interrupt, which affects the action taken.
 
-(defun proof-shell-handle-error (cmd flags)
-  "React on an error message triggered by the prover.
-We first flush unprocessed goals to the goals buffer.
-The error message is displayed in the response buffer.
-Then we call `proof-shell-error-or-interrupt-action', which see."
-  ;; [FIXME: Why not flush goals also for interrupts?]
-  ;; Flush goals or response buffer (from some last successful proof step)
+For errors, we first flush unprocessed output (usually goals).
+The error message is the (usually) displayed in the response buffer.
+
+For interrupts, a warning message is displayed.
+
+In both cases we then sound a beep, clear the queue and spans and
+finally we call `proof-shell-handle-error-or-interrupt-hook'.
+
+Commands which are not part of regular script management (with
+non-empty flags) will not invoke any of this action."  ; PG4.0 change
   (unless (memq 'no-error-display flags)
-    (save-excursion
-      (proof-shell-handle-delayed-output))
-    (proof-shell-handle-error-output
-     (if proof-shell-truncate-before-error proof-shell-error-regexp)
-     'proof-error-face)
-    (proof-display-and-keep-buffer proof-response-buffer)
-    ;; NB: change here: we only call error action if flags allow
-    (proof-shell-error-or-interrupt-action 'error)))
+    (cond
+     ((eq proof-shell-last-output-kind 'interrupt)
+      (pg-response-maybe-erase t t t) ; force cleaned now & next 
+      (proof-shell-handle-error-output
+       (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
+       'proof-error-face)
+      (proof-warning
+       "Interrupt: script management may be in an inconsistent state
+	   (but it's probably okay)"))
+     (t ; error
+      (save-excursion
+	(proof-shell-handle-delayed-output))
+      (proof-shell-handle-error-output
+       (if proof-shell-truncate-before-error proof-shell-error-regexp)
+       'proof-error-face)
+      (proof-display-and-keep-buffer proof-response-buffer)))
+    (proof-shell-error-or-interrupt-action
+     proof-shell-last-output-kind)))
 
-(defun proof-shell-handle-interrupt (flags)
-   "React on an interrupt message from the prover.
-Runs `proof-shell-error-or-interrupt-action'."
-   (unless (memq 'no-error-display flags)
-     (pg-response-maybe-erase t t t) ; force cleaned now & next
-     (proof-shell-handle-error-output
-      (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
-      'proof-error-face)
-     (proof-warning
-      "Interrupt: script management may be in an inconsistent state
-	   (but it's probably okay)")
-     (setq proof-shell-interrupt-pending nil)
-     (proof-shell-error-or-interrupt-action 'interrupt)))
-
-(defun proof-shell-error-or-interrupt-action (&optional err-or-int)
-  "General action when an error or interrupt message appears from prover.
-
-A subroutine for `proof-shell-handle-interrupt' and `proof-shell-handle-error'.
-
-We sound a beep, clear queue spans and `proof-action-list', and set the flag
-`proof-shell-error-or-interrupt-seen' to the ERR-OR-INT argument.
-Then we call `proof-shell-handle-error-or-interrupt-hook'.
-
-Commands which are not part of regular script management (with non-empty
-flags) will not invoke this action."
-  (save-excursion			;; for safety.
+(defun proof-shell-error-or-interrupt-action (err-or-int)
+  (save-excursion
     (unless proof-shell-quiet-errors
-      (beep))
-    (proof-script-clear-queue-spans)
-
-    ;; TODO: add temporary span for error message
-    (setq proof-action-list nil)
-    (proof-release-lock err-or-int)
-
-    ;; Give a hint about C-c C-`.  NB: this is rather approximate,
-    ;; we ought to check whether there is an error location in the
-    ;; latest message, not just somewhere in the response buffer.
-    (if (pg-response-has-error-location)
-	(pg-next-error-hint)))
-
-    ;; Make sure that prover is outputting data now.
-    ;; FIXME: put something here!
-    (run-hooks 'proof-shell-handle-error-or-interrupt-hook))
+      (beep)))
+  (proof-script-clear-queue-spans)
+  ;; TODO: add temp span in script (wigglies) for error
+  (setq proof-action-list nil)
+  (proof-release-lock)
+  ;; Give a hint about C-c C-`.  (NB: approximate test)
+  (if (pg-response-has-error-location)
+      (pg-next-error-hint))
+  (run-hooks 'proof-shell-handle-error-or-interrupt-hook))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."
@@ -704,105 +686,65 @@ This is a hook function for proof-shell-handle-delayed-output-hook."
   "Like string-match except returns nil if REGEXP is nil."
   (and regexp (string-match regexp string)))
 
+(defun proof-shell-handle-immediate-output (cmd start end flags)
+  "See if the output between START and END must be dealt with immediately.
+To speed up processing, PG tries to avoid displaying output that
+the user will not have a chance to see.  Some output must be
+handled immediately, however: these are errors, interrupts, 
+goals and loopbacks (proof step hints/proof by pointing results).
 
-(defun proof-shell-classify-output (cmd start end)
-  "Process shell output (resulting from CMD) by matching at START.
-CMD is the first part of the `proof-action-list' that lead to this
-output.  The result of this function is a pair (SYMBOL NEWSTRING).
-
-Here is where we classify interrupts, abortions of proofs, errors,
-completions of proofs, and proof step hints (proof by pointing results).
-They are checked for in this order, using
+In this function we check, in turn:
 
   `proof-shell-interrupt-regexp'
   `proof-shell-error-regexp'
-  `proof-shell-abort-goal-regexp'
   `proof-shell-proof-completed-regexp'
   `proof-shell-result-start'
 
-All other output from the proof engine will be reported to the user in
-the response buffer by setting `proof-shell-delayed-output' to a cons
-cell of ('insert . TEXT) where TEXT is the text string to be inserted.
+Other kinds of output are essentially display only, so only
+dealt with if necessary.
 
-Order of testing is: interrupt, abort, error, completion.
+To extend this function, set
+`proof-shell-classify-output-system-specific', which is a hook to
+tailor for a specific proof system, to take particular actions,
+in the case that the above matches fail.
 
-To extend this function, set `proof-shell-classify-output-system-specific'.
-
-The \"aborted\" case is intended for killing off an open proof during
-retraction.  Typically it matches the message caused by a
-`proof-kill-goal-command'.  It simply inserts the word \"Aborted\" into
-the response buffer.  So it is expected to be the result of a
-retraction, rather than the indication that one should be made.
-
-This function sets variables: `proof-shell-last-output',
-`proof-shell-last-output-kind', `proof-shell-proof-completed'."
-
-  ;; Keep a copy of the last message from the prover
-  (setq proof-shell-last-output 
-	(buffer-substring-no-properties start end))
+This function sets variables: `proof-shell-last-output-kind',
+and the counter `proof-shell-proof-completed' which counts commands
+after a completed proof."
+  (setq proof-shell-last-output-kind nil) ; unclassified
   (goto-char start)
-  (or
-   ;; First check for error, interrupt, abort, proof completed
-   (cond
-    ((proof-looking-at-safe proof-shell-interrupt-regexp)
-     (setq proof-shell-last-output-kind 'interrupt))
+  (cond
+   ((proof-looking-at-safe proof-shell-interrupt-regexp)
+    (setq proof-shell-last-output-kind 'interrupt)
+    (proof-shell-handle-error-or-interrupt flags))
+   
+   ((proof-looking-at-safe proof-shell-error-regexp)
+    (setq proof-shell-last-output-kind 'error)
+    (proof-shell-handle-error-or-interrupt flags))
 
-    ((proof-looking-at-safe proof-shell-error-regexp)
-     (setq proof-shell-last-output-kind 'error))
+   ((proof-looking-at-safe proof-shell-result-start)
+    ;; NB: usually the action list is empty, strange results likely if
+    ;; more commands follow. Therefore, this case might be delayed.
+    (let (pstart pend)
+      (setq pstart (+ 1 (match-end 0)))
+      (re-search-forward proof-shell-result-end end t)
+      (setq pend (- (match-beginning 0) 1))
+      (proof-shell-insert-loopback-cmd
+       (buffer-substring-no-properties pstart pend)))
+    (setq proof-shell-last-output-kind 'loopback)
+    (proof-shell-exec-loop))
 
-    ((proof-looking-at-safe proof-shell-abort-goal-regexp)
-     (proof-clean-buffer proof-goals-buffer)
-     (setq proof-shell-last-output-kind 'abort))
+   ((proof-looking-at-safe proof-shell-proof-completed-regexp)
+    (setq proof-shell-proof-completed 0)) ; commands since complete
 
-    ((proof-looking-at-safe proof-shell-proof-completed-regexp)
-     (setq proof-shell-last-output-kind 'goals)
-     (setq proof-shell-proof-completed 0) ; commands since complete
-     ;; But!  We carry on matching below for goals output, so that
-     ;; provers may include proof completed message as part of
-     ;; goals message (Isabelle, HOL) or not (LEGO, Coq).
-     nil))
-
-   ;; Check for remaining things
-   (cond
-    ((proof-looking-at-safe proof-shell-start-goals-regexp)
-     (let ((gstart (match-end 0)) gend)
-       ;; Find the last goal string in the output
-       (goto-char gstart)
-       (while (re-search-forward proof-shell-start-goals-regexp end t)
-	 (setq gstart (match-beginning 0)))
-       (setq gend 
-	     (if proof-shell-end-goals-regexp
-		 (progn
-		   (re-search-forward proof-shell-end-goals-regexp end t)
-		   (match-beginning 0))
-	       end))
-       (setq proof-shell-last-output 
-	     (buffer-substring-no-properties gstart gend))
-       (setq proof-shell-last-output-kind 'goals)))
-
-    ;; Test for a proof by pointing command hint
-    ((proof-looking-at-safe proof-shell-result-start)
-     (let (pstart pend)
-       (setq pstart (+ 1 (match-end 0)))
-       (re-search-forward proof-shell-result-end end t)
-       (setq pend (- (match-beginning 0) 1))
-       (setq proof-shell-last-output ; only the loopback command
-	     (buffer-substring-no-properties pstart pend)))
-     (setq proof-shell-last-output-kind 'loopback))
-
-    ;; Hook to tailor proof-shell-classify-output to a specific proof
-    ;; system, in the case that all the above matches fail.
-    ((and proof-shell-classify-output-system-specific
-	  (funcall (car proof-shell-classify-output-system-specific)
-		   cmd proof-shell-last-output))
-     (setq proof-shell-last-output-kind 'systemspecific)
-     (funcall (cdr proof-shell-classify-output-system-specific)
-	      cmd proof-shell-last-output))
-
-    ;; Finally, any other output will appear as a response.
-    (t
-     (setq proof-shell-last-output-kind 'response)))))
-
+   ;; PG4.0 change: this check earlier, and not if above matches
+   ((and proof-shell-classify-output-system-specific
+	 (funcall (car proof-shell-classify-output-system-specific)
+		  cmd proof-shell-last-output))
+    (setq proof-shell-last-output-kind 'systemspecific)
+    (funcall (cdr proof-shell-classify-output-system-specific)
+	     cmd proof-shell-last-output))))
+    
 
 
 
@@ -819,7 +761,6 @@ This is used when processing interrupts.")
   "A flag indicating an interrupt is pending.
 This ensures that the proof queue will be interrupted even if no
 interrupt message is printed from the prover after the last output.")
-
 
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General.
@@ -986,12 +927,12 @@ being processed."
       ;; (should have proof-action-list<>nil -> busy)
       (and proof-shell-busy queuemode
 	   (unless (eq proof-shell-busy queuemode)
-	     (proof-debug "proof-append-alist: wrong queuemode detected for busy shell")
+	     (proof-debug 
+	      "proof-append-alist: wrong queuemode detected for busy shell")
 	     (assert (eq proof-shell-busy queuemode))))
-      ;; See if we should make prover quieten down
+
       (if (proof-shell-should-be-silent (length alist))
-	  ;; Make it ASAP, which is just after the current
-	  ;; command (head of queue).
+	  ;; do this ASAP, just after current command (head of queue).
 	  (setq proof-action-list
 		(cons (car proof-action-list)
 		      (cons (proof-shell-start-silent-item)
@@ -1090,8 +1031,7 @@ The return value is non-nil if the action list is now empty."
 			 proof-action-list))
 	     (setq item (car proof-action-list))))
 
-       ;; deal with pending interrupts (which were sent but caused no
-       ;; prover error)
+       ;; pending interrupts: sent but caused no prover error
        (if proof-shell-interrupt-pending
 	   (progn
 	     (proof-debug "Processed pending interrupt")
@@ -1126,9 +1066,6 @@ and indentation.  Assumes proof-script-buffer is active."
 	(let ((proof-one-command-per-line t)) ; because pbp several commands
 	  (proof-script-new-command-advance))
 	(insert cmd)
-	;; Fix 16.11.99.  Comment in todo suggested old code below
-	;; assumed the pbp command would succeed, but it seems fine?
-	;; But this action belongs in the proof script code.
 	;; NB: difference between ordinary commands and pbp is that
 	;; pbp can return *several* commands, that are treated as
 	;; a unit, i.e. sent to the proof assistant together.
@@ -1147,7 +1084,7 @@ and indentation.  Assumes proof-script-buffer is active."
   "Analyse urgent message between START and END for various cases.
 
 Cases are: included file, retracted file, cleared response buffer,
-variable setting or dependency list.
+variable setting, PGIP response, or theorem dependency list.
 
 If none of these apply, display the text between START and END.
 
@@ -1156,43 +1093,34 @@ text matching `proof-shell-eager-annotation-start' and
 ends with text matching `proof-shell-eager-annotation-end'."
   (goto-char start)
   (cond
-   ;; CASE tracing output: use tracing buffer
    ((proof-looking-at-safe proof-shell-trace-output-regexp)
     (proof-shell-process-urgent-message-trace start end))
 
-   ;; CASE processing file: update known files list
    ((proof-looking-at-safe (car-safe proof-shell-process-file))
     (let ((file (funcall (cdr proof-shell-process-file))))
       (if (and file (not (string= file "")))
 	  (proof-register-possibly-new-processed-file file))))
 
-   ;; CASE retract: the prover is retracting across files
    ((proof-looking-at-safe proof-shell-retract-files-regexp)
     (proof-shell-process-urgent-message-retract start end))
 
-   ;; CASE clear response: prover asks PG to clear response buffer
    ((proof-looking-at-safe proof-shell-clear-response-regexp)
     (pg-response-maybe-erase nil t t))
 
-   ;; CASE clear goals: prover asks PG to clear goals buffer
    ((proof-looking-at-safe proof-shell-clear-goals-regexp)
     (proof-clean-buffer proof-goals-buffer))
 
-   ;; CASE variable setting: prover asks PG to set some variable
    ((proof-looking-at-safe proof-shell-set-elisp-variable-regexp)
     (proof-shell-process-urgent-message-elisp))
 
-   ;; CASE PGIP message from proof assistant.
    ((proof-looking-at-safe proof-shell-match-pgip-cmd)
     (pg-pgip-process-packet 
-     ;; NB: rely on xml-parse-region ignoring junk before XML
+     ;; NB: xml-parse-region ignores junk before XML
      (xml-parse-region start end)))
    
-   ;; CASE theorem dependency: prover lists thms used in last proof
    ((proof-looking-at-safe proof-shell-theorem-dependency-list-regexp)
     (proof-shell-process-urgent-message-thmdeps))
 
-   ;; CASE everything else.  We'll display a message.
    (t
     (proof-shell-process-urgent-message-default start end))))
 
@@ -1332,7 +1260,7 @@ an important internal function.
 Handle urgent messages first.  As many as possible are processed,
 using the function `proof-shell-process-urgent-messages'.
 
-If a prompt is seen, run `proof-shell-classify-output' on the
+If a prompt is seen, run `proof-shell-filter-manage-output' on the
 output between the new prompt and the last input (position of
 `proof-marker') or the last urgent message (position of
 `proof-shell-urgent-message-marker'), whichever is later.  For
@@ -1340,23 +1268,29 @@ example, in this case:
 
  PROMPT> INPUT
  OUTPUT-1
- URGENT-MESSAGE
+ URGENT-MESSAGE-1
  OUTPUT-2
+ URGENT-MESSAGE-2
+ OUTPUT-3
  PROMPT>
 
 `proof-marker' points after INPUT.
 
-`proof-shell-urgent-message-marker' points after URGENT-MESSAGE.
+`proof-shell-urgent-message-marker' points after URGENT-MESSAGE-2,
+after both urgent messages have been processed by 
+`proof-shell-process-urgent-messages'.  Urgent messages always 
+processed; they are intended to correspond to informational 
+notes that the prover makes to inform the user or interface on
+progress.
 
-The ordinary output OUTPUT-1 before the first prompt is ignored;
-urgent messages, however, are always processed; hence their name.
-
-Only OUTPUT-2 will be processed.  For this reason, error messages
-and interrupt messages should *not* be considered urgent
-messages.
-
-Output is processed using the function
+In this case, the ordinary outputs OUTPUT-1 and OUTPUT-2 are
+ignored; only OUTPUT-3 will be processed by
 `proof-shell-filter-manage-output'.
+
+Error or interrupt messages are expected to terminate an
+interactive output and appear last before a prompt and will
+always be processed.  Error messages and interrupt messages are
+therefore *not* considered as urgent messages.
 
 The first time that a prompt is seen, `proof-marker' is
 initialised to the end of the prompt.  This should correspond
@@ -1432,11 +1366,6 @@ messages."
 	(set-marker proof-marker (point))
 	(proof-shell-exec-loop))))
 
-(defun proof-shell-cleanup ()
-  "Run intermittently to clean up the shell buffer."
-  (interactive)
-  (pg-remove-specials (point-min) (point-max)))
-
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
 Scanning starts from `proof-shell-urgent-message-scanner' or
@@ -1446,8 +1375,8 @@ between regexps `proof-shell-eager-annotation-start' and
 
 This is a subroutine of `proof-shell-filter'."
   (let ((pt (point)) (end t) lastend
-	(start (max (marker-position proof-shell-urgent-message-scanner)
-		    (marker-position scomint-last-input-end))))
+	(start (max  (marker-position proof-shell-urgent-message-scanner)
+		     (marker-position scomint-last-input-end))))
     (goto-char start)
     (while (and end
 		(re-search-forward proof-shell-eager-annotation-start
@@ -1507,62 +1436,118 @@ This is a subroutine of `proof-shell-filter'."
 (defun proof-shell-filter-manage-output (start end)
   "Subroutine of `proof-shell-filter' for output between START and END.
 
-Appropriate action is taken depending on what
-`proof-shell-classify-output' returns: maybe handle an interrupt,
-an error, or deal with ordinary output which is a candidate for
-the goal or response buffer.
+First, we invoke `proof-shell-handle-immediate-output' which classifies
+and handles output that must be dealt with immediately.
 
-Ordinary output is only displayed when the proof action list
-becomes empty, to avoid a confusing rapidly changing output.
+Other output (user display) is only displayed when the proof
+action list becomes empty, to avoid a confusing rapidly changing
+output that slows down processing.
 
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue."
   (let ((cmd   (nth 1 (car proof-action-list)))
 	(flags (nthcdr 3 (car proof-action-list))))
 
-    (proof-shell-classify-output cmd start end)
+    ;; Keep a copy of the last message from the prover
+    ;; PG 4.0: this is kept verbatim, never modified.
+    (setq proof-shell-last-output 
+	  (buffer-substring-no-properties start end))
 
-    (cond
-     ((eq proof-shell-last-output-kind 'error)
-      (proof-shell-handle-error cmd flags))
-     ((eq proof-shell-last-output-kind 'interrupt)
-      (proof-shell-handle-interrupt flags))
-     ((eq proof-shell-last-output-kind 'loopback)
-      (proof-shell-insert-loopback-cmd proof-shell-last-output)
-      (proof-shell-exec-loop))
+    ;; sets proof-shell-last-output-kind
+    (proof-shell-handle-immediate-output cmd start end flags)
 
-     ;; Otherwise, delay ordinary script functions: wait until all the
-     ;; commands the queue region have been processed.
-     (t
-      (setq proof-shell-delayed-output-kind proof-shell-last-output-kind)
-      (setq proof-shell-delayed-output proof-shell-last-output)
+    (unless proof-shell-last-output-kind ; dealt with already
+      (setq proof-shell-delayed-output-start start)
+      (setq proof-shell-delayed-output-end end)
       (setq proof-shell-delayed-output-flags flags)
+      ;; only display result for last output
       (if (proof-shell-exec-loop)
-	  (proof-shell-handle-delayed-output))))))
+	  (setq proof-shell-last-output-kind
+		(proof-shell-handle-delayed-output))))))
 
 
 (defun proof-shell-handle-delayed-output ()
-  "Display delayed output.
-This function handles the cases of `proof-shell-delayed-output-kind' which
+  "Display delayed outputs, when queue is stopped or completed.
+This function handles the cases of `proof-shell-output-kind' which
 are not dealt with eagerly during script processing, namely
-'abort, 'response, 'goals outputs.
-This is useful even with empty delayed output, since it clears buffers."
-  (cond
-   ;; Response buffer output
-   ((eq proof-shell-delayed-output-kind 'abort)
-    (unless (memq 'no-error-display proof-shell-delayed-output-flags)
-      (pg-response-display proof-shell-delayed-output)))
-   ((eq proof-shell-delayed-output-kind 'response)
-    (unless (memq 'no-response-display proof-shell-delayed-output-flags)
-      (pg-response-display proof-shell-delayed-output)))
-   ;; Goals buffer output
-   ((eq proof-shell-delayed-output-kind 'goals)
-    (unless (memq 'no-goals-display proof-shell-delayed-output-flags)
-      (pg-goals-display proof-shell-delayed-output)))
-   ;; Ignore other cases
-   )
-  (run-hooks 'proof-shell-handle-delayed-output-hook))
+'response and 'goals types.
 
+This is useful even with empty delayed output as it can
+clear the buffers.
+
+The delayed output is in the region 
+\[proof-shell-last-output-start,proof-shell-last-output-end].
+
+If goals output is found, the last matching instance, possibly
+bounded by `proof-shell-end-goals-regexp', will be displayed.
+Any output that appears *before* the first goals output (but
+after messages classified as urgent, see `proof-shell-filter')
+will also be displayed in the response buffer.  For example,
+if OUTPUT has this form:
+
+  MESSSAGE-1
+  GOALS-1
+  MESSAGE-2
+  GOALS-2
+
+then GOALS-2 will be displayed in the goals buffer, and MESSAGE-2
+in the response buffer.  Notice that the above alternation can
+only be distinguished if both `proof-shell-start-goals-regexp' 
+and `proof-shell-end-goals-regexp' are set.  With just the
+former, MESSAGE-1 GOALS-1 MESSAGE-2 would all appear in
+the response buffer.
+   
+The goals and response outputs are copied into
+`proof-shell-last-goals-output' and
+`proof-shell-last-response-output' respectively.
+
+If no other kind of classified output is found, the default
+is to display the output in the response buffer.
+
+The value returned is the value for `proof-shell-last-output-kind',
+i.e., 'goals or 'response."
+  (let ((start proof-shell-delayed-output-start)
+	(end   proof-shell-delayed-output-end)
+	(flags proof-shell-delayed-output-flags))
+  (goto-char start)
+  (cond
+   ((proof-re-search-forward proof-shell-start-goals-regexp end t)
+     (let* ((gstart (match-beginning 0))  (rstart start) gend)
+       ;; Find the last goal string in the output
+       (goto-char gstart)
+       (while (re-search-forward proof-shell-start-goals-regexp end t)
+	 (setq gstart (match-beginning 0))
+	 (setq gend 
+	       (if proof-shell-end-goals-regexp
+		   (progn
+		     (re-search-forward proof-shell-end-goals-regexp end t)
+		     (match-beginning 0)
+		     (setq rstart (match-end 0)))
+		 end)))
+       (setq proof-shell-last-goals-output 
+	     (buffer-substring-no-properties gstart gend))
+       (unless (memq 'no-goals-display flags)
+	 (pg-goals-display proof-shell-last-goals-output))
+       ;; also allow (for Coq) any preceding output as a response
+       ;; FIXME heuristic: 4 allows for annotation in end-goals-regexp
+       (when (> (- gstart rstart) 4)
+	 (proof-shell-display-output-as-response 
+	  flags 
+	  (buffer-substring-no-properties rstart gstart)))
+       ;; primary output kind is goals
+       'goals))
+
+   (t ; Any unclassified output will appear as a response.
+    (proof-shell-display-output-as-response flags proof-shell-last-output)
+    'response))
+  
+  (run-hooks 'proof-shell-handle-delayed-output-hook)))
+
+(defsubst proof-shell-display-output-as-response (flags str)
+  "If FLAGS permit, display response STR; set `proof-shell-last-response-output'."
+  (setq proof-last-response-output str) ; set even if not displayed
+  (unless (memq 'no-error-display flags)
+    (pg-response-display str)))
 
 
 
