@@ -44,12 +44,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Users should not need to change this.
 
-(defvar lego-shell-classify-output
-  '((lambda (cmd string) (proof-string-match "^Module" cmd)) .
-    (lambda (cmd string)
-      (setq proof-shell-delayed-output
-	    ;;FIXME: This should be displayed in the minibuffer only
-	    (cons 'insert "\n\nImports done!"))))
+(defvar lego-shell-handle-output
+  '(lambda (cmd string) 
+      (when (proof-string-match "^Module" cmd)
+	;; prevent output and just give a minibuffer message
+	(setq proof-shell-last-output-kind 'systemspecific)
+	(message "Imports done!")))
   "Acknowledge end of processing import declarations.")
 
 (defconst lego-process-config
@@ -396,7 +396,7 @@ For LEGO, we assume that module identifiers coincide with file names."
 	proof-shell-init-cmd lego-process-config
 	proof-shell-restart-cmd lego-process-config
 	pg-subterm-anns-use-stack nil
-	proof-shell-classify-output-system-specific lego-shell-classify-output
+	proof-shell-handle-output-system-specific lego-shell-handle-output
 	lego-shell-current-line-width nil
 
 	;; LEGO uses Unicode escape prefix: liable to create problems

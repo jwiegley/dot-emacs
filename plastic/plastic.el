@@ -49,12 +49,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Users should not need to change this.
 
-(defvar plastic-shell-process-output
-  '((lambda (cmd string) (proof-string-match "^Module" cmd)) .
-    (lambda (cmd string)
-      (setq proof-shell-delayed-output
-	    ;;FIXME: This should be displayed in the minibuffer only
-	    (cons 'insert "\n\nImports done!"))))
+(defvar lego-shell-handle-output
+  '(lambda (cmd string) 
+      (when (proof-string-match "^Module" cmd)
+	;; prevent output and just give a minibuffer message
+	(setq proof-shell-last-output-kind 'systemspecific)
+	(message "Imports done!")))
   "Acknowledge end of processing import declarations.")
 
 (defconst plastic-process-config
@@ -473,7 +473,7 @@ For Plastic, we assume that module identifiers coincide with file names."
 	proof-shell-init-cmd plastic-process-config
 	proof-shell-restart-cmd plastic-process-config
 	pg-subterm-anns-use-stack nil
-	proof-shell-classify-output-system-specific plastic-shell-process-output
+	proof-shell-handle-output-system-specific plastic-shell-handle-output
 	plastic-shell-current-line-width nil
 
 	proof-shell-process-file

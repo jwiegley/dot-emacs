@@ -1683,22 +1683,26 @@ before returning to the top level."
   :type '(repeat function)
   :group 'proof-shell)
 
-(defcustom proof-shell-classify-output-system-specific nil
+(defcustom proof-shell-handle-output-system-specific nil
   "Set this variable to handle system specific output.
-Errors, start of proofs, abortions of proofs and completions of
-proofs are recognised in the function `proof-shell-classify-output'.
-All other output from the proof engine is simply reported to the
-user in the RESPONSE buffer.
+Errors and interrupts are recognised in the function  
+`proof-shell-handle-immediate-output'.  Later output is
+handled by `proof-shell-handle-delayed-output', which
+displays messages to the user in *goals* and *response*
+buffers.
 
-To catch further special cases, set this variable to a pair of
-functions '(condf . actf).  Both are given (cmd string) as arguments.
-`cmd' is a string containing the currently processed command.
-`string' is the response from the proof system.  To change the
-behaviour of `proof-shell-classify-output', (condf cmd string) must
-return a non-nil value.  Then (actf cmd string) is invoked.
+This hook can run between the two stages to take some effect.
 
-See the documentation of `proof-shell-classify-output' for the required
-output format."
+It should be a function which is passed (cmd string) as
+arguments, where `cmd' is a string containing the currently
+processed command and `string' is the response from the proof
+system.  If action is taken and goals/response display should
+be prevented, the function should update the variable 
+`proof-shell-last-output-kind' to some non-nil symbol.
+
+The symbol will be compared against standard ones, see documentation
+of `proof-shell-last-output-kind'.  A suggested canonical non-standard
+symbol is 'systemspecific."
   :type '(repeat function)
   :group 'proof-shell)
 
