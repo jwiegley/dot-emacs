@@ -1813,9 +1813,9 @@ processing."
       (proof-warn-if-unset "proof-shell-config-done" sym))
 
     ;; Set font lock keywords, but turn off by default to save cycles.
-    ;; FIXME: attempt to turn it off doesn't seem to work?
     (setq font-lock-defaults '(proof-shell-font-lock-keywords))
-    (font-lock-mode 0)
+    (set (make-local-variable 'font-lock-global-modes)
+	 (list 'not proof-mode-for-shell))
 
     (let ((proc (get-buffer-process proof-shell-buffer)))
       ;; Add the kill buffer function and process sentinel
