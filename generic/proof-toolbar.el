@@ -90,9 +90,9 @@
 
 ;;;###autoload
 (defun proof-toolbar-setup ()
-  "Initialize Proof General toolbar and enable it for current buffer.
-If `proof-toolbar-enable' is nil, change the current buffer toolbar
-to the default toolbar."
+  "Initialize Proof General toolbar and enable it for all PG buffers.
+If `proof-toolbar-enable' is nil, change the buffer toolbars
+back the default toolbar."
   (interactive)
   (when (proof-toolbar-available-p)
     (unless proof-toolbar-map
@@ -101,12 +101,15 @@ to the default toolbar."
       (mapc 'proof-toolbar-make-icon (proof-ass toolbar-entries))
       (proof-toolbar-make-toolbar-items proof-toolbar-map
 					(proof-ass toolbar-entries)))
-    (when proof-toolbar-enable
-      (set (make-local-variable 'tool-bar-map) proof-toolbar-map))
-    (when (not proof-toolbar-enable)
-      (kill-local-variable 'tool-bar-map))))
+    (proof-map-buffers
+     (append
+      (proof-buffers-in-mode proof-mode-for-script)
+      (proof-associated-buffers))
+     (when proof-toolbar-enable
+       (set (make-local-variable 'tool-bar-map) proof-toolbar-map))
+     (when (not proof-toolbar-enable)
+       (kill-local-variable 'tool-bar-map)))))
 
-;; Action to take after altering option proof-toolbar-enable
 (defalias 'proof-toolbar-enable 'proof-toolbar-setup)
 
 ;;;###autoload (autoload 'proof-toolbar-toggle "proof-toolbar")
