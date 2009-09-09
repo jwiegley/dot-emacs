@@ -81,7 +81,7 @@ Specifically:
  'response	 A response message
  'goals		 A goals (proof state) display
  'systemspecific Something specific to a particular system,
-		  -- see `proof-shell-classify-output-system-specific'
+		  -- see `proof-shell-handle-output-system-specific'
 
 The output corresponding to this will be in `proof-shell-last-output'.
 
@@ -563,6 +563,8 @@ object files, used by Lego and Coq)."
     ;; otherwise clear context
     (proof-script-remove-all-spans-and-deactivate)
     (proof-shell-clear-state)
+    (with-current-buffer proof-shell-buffer
+      (delete-region (point-min) (point-max)))
     (if (and (buffer-live-p proof-shell-buffer)
 	     proof-shell-restart-cmd)
 	(proof-shell-invisible-command
@@ -655,15 +657,24 @@ non-empty flags) will not invoke any of this action."  ; PG4.0 change
 (defun proof-shell-error-or-interrupt-action (err-or-int)
   (save-excursion
     (unless proof-shell-quiet-errors
-      (beep)))
-  (proof-script-clear-queue-spans)
-  ;; TODO: add temp span in script (wigglies) for error
-  (setq proof-action-list nil)
-  (proof-release-lock)
-  ;; Give a hint about C-c C-`.  (NB: approximate test)
-  (if (pg-response-has-error-location)
-      (pg-next-error-hint))
-  (run-hooks 'proof-shell-handle-error-or-interrupt-hook))
+      (beep))
+    ;; TODO: add temp span in script (wigglies) for error
+    ;; (if proof-action-list
+    ;; 	(let* ((item (car proof-action-list))
+    ;; 	       (span (car item)))
+    ;; 	  (if span
+    ;; 	      (if proof-script-buffer
+    ;; 		  (with-current-buffer proof-script-buffer
+    ;; 		    (pg-set-span-helphighlights span 
+    ;; 						'proof-script-error-face))))))
+    (proof-script-clear-queue-spans)
+    
+    (setq proof-action-list nil)
+    (proof-release-lock)
+    ;; Give a hint about C-c C-`.  (NB: approximate test)
+    (if (pg-response-has-error-location)
+	(pg-next-error-hint))
+    (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."
@@ -703,10 +714,8 @@ In this function we check, in turn:
 Other kinds of output are essentially display only, so only
 dealt with if necessary.
 
-To extend this function, set
-`proof-shell-classify-output-system-specific', which is a hook to
-tailor for a specific proof system, to take particular actions,
-in the case that the above matches fail.
+To extend this, set `proof-shell-handle-output-system-specific',
+which is a hook to take particular additional actions.
 
 This function sets variables: `proof-shell-last-output-kind',
 and the counter `proof-shell-proof-completed' which counts commands
@@ -714,15 +723,21 @@ after a completed proof."
   (setq proof-shell-last-output-kind nil) ; unclassified
   (goto-char start)
   (cond
-   ((proof-looking-at-safe proof-shell-interrupt-regexp)
+   ;; TODO: Isabelle now is also amalgamting output between prompts,
+   ;; and does e.g.,
+   ;;   GOALS
+   ;;   ERROR
+   ;; we need to override delayed output from the previous
+   ;; command with delayed output from this command to handle that!
+   ((proof-re-search-forward-safe proof-shell-interrupt-regexp end t)
     (setq proof-shell-last-output-kind 'interrupt)
     (proof-shell-handle-error-or-interrupt flags))
    
-   ((proof-looking-at-safe proof-shell-error-regexp)
+   ((proof-re-search-forward-safe proof-shell-error-regexp end t)
     (setq proof-shell-last-output-kind 'error)
     (proof-shell-handle-error-or-interrupt flags))
 
-   ((proof-looking-at-safe proof-shell-result-start)
+   ((proof-re-search-forward-safe proof-shell-result-start end t)
     ;; NB: usually the action list is empty, strange results likely if
     ;; more commands follow. Therefore, this case might be delayed.
     (let (pstart pend)
@@ -733,18 +748,15 @@ after a completed proof."
        (buffer-substring-no-properties pstart pend)))
     (setq proof-shell-last-output-kind 'loopback)
     (proof-shell-exec-loop))
+   
+   ((proof-re-search-forward-safe proof-shell-proof-completed-regexp end t)
+    (setq proof-shell-proof-completed 0))) ; commands since complete
 
-   ((proof-looking-at-safe proof-shell-proof-completed-regexp)
-    (setq proof-shell-proof-completed 0)) ; commands since complete
-
-   ;; PG4.0 change: this check earlier, and not if above matches
-   ((and proof-shell-classify-output-system-specific
-	 (funcall (car proof-shell-classify-output-system-specific)
-		  cmd proof-shell-last-output))
-    (setq proof-shell-last-output-kind 'systemspecific)
-    (funcall (cdr proof-shell-classify-output-system-specific)
-	     cmd proof-shell-last-output))))
-    
+  ;; PG4.0 change: simplify and run earlier
+  (if proof-shell-handle-output-system-specific
+      (proof-shell-handle-output-system-specific
+       (funcall proof-shell-handle-output-system-specific
+		cmd proof-shell-last-output))))
 
 
 
@@ -1800,7 +1812,9 @@ processing."
     (dolist (sym proof-shell-important-settings)
       (proof-warn-if-unset "proof-shell-config-done" sym))
 
-    ;; We do not use font-lock here, it's a waste of cycles.
+    ;; Set font lock keywords, but turn off by default to save cycles.
+    ;; FIXME: attempt to turn it off doesn't seem to work?
+    (setq font-lock-defaults '(proof-shell-font-lock-keywords))
     (font-lock-mode 0)
 
     (let ((proc (get-buffer-process proof-shell-buffer)))
