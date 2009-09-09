@@ -422,7 +422,7 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
   (interactive)
   (cond
    ((eq proof-follow-mode 'ignore))
-   ((eq proof-shell-error-or-interrupt-seen 'error)
+   ((eq proof-shell-last-output-kind 'error)
     (proof-goto-end-of-locked-if-pos-not-visible-in-window)))
   (proof-with-current-buffer-if-exists
    proof-script-buffer
@@ -1144,7 +1144,6 @@ activation is considered to have failed and an error is given."
 	  (let
 	      ((activated-interactively	(interactive-p)))
 	    ;; Clear flag in case no hooks run shell commands
-	    (setq proof-shell-error-or-interrupt-seen nil)
 	    (run-hooks 'proof-activate-scripting-hook)
 	    ;; In case the activate scripting functions
 	    ;; caused an error in the proof assistant, we'll
@@ -1156,7 +1155,8 @@ activation is considered to have failed and an error is given."
 	    ;; FIXME: we could consider simply running the hooks
 	    ;; as the last step before turning on scripting properly,
 	    ;; provided the hooks don't inspect proof-script-buffer.
-	    (if proof-shell-error-or-interrupt-seen
+	    (if (or (memq 'error proof-shell-last-output-kind)
+		    (memq 'interrupt proof-shell-last-output-kind))
 		(progn
 		  (proof-deactivate-scripting) ;; turn it off again!
 		  ;; Give an error to prevent further actions.
@@ -2099,7 +2099,7 @@ up to the end of the locked region."
 	actions)
 
     ;; NB: first section only entered if proof-kill-goal-command is
-    ;; non-nill.  Otherwise we expect proof-find-and-forget-fn to do
+    ;; non-nil.  Otherwise we expect proof-find-and-forget-fn to do
     ;; all relevent work for arbitrary retractions.  FIXME: clean up
 
     ;; Examine the last span in the locked region.
