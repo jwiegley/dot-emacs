@@ -685,6 +685,20 @@ steps within the outer proof."
   :type 'boolean
   :group 'proof-script)
 
+(defcustom proof-arbitrary-undo-positions nil
+  "Non-nil if Proof General may undo to arbitrary positions.
+The classic behaviour of Proof General is to undo completed
+proofs in one step: this design arose because older provers
+discarded nested history once proofs were complete. The proof
+script engine amalgamates spans for a complete proof (into a
+single 'goalsave) to give this effect.
+
+Newer designs keep more state, and may support arbitrary undo
+with a file being processed.  If this flag is non-nil,
+amalgamation will not happen."
+  :type 'boolean
+  :group 'proof-script)
+
 (defcustom proof-state-preserving-p 'proof-generic-state-preserving-p
   "A predicate, non-nil if its argument (a command) preserves the proof state.
 This is a safety-test used by `proof-minibuffer-cmd' to filter out scripting
@@ -851,7 +865,7 @@ See pg-user.el: pg-create-in-span-context-menu for more hints."
 
 
 ;;
-;; 5a. commands
+;; 3a. commands
 ;;
 
 (defcustom proof-prog-name nil
@@ -1066,7 +1080,7 @@ The function is passed the span and the command as arguments."
 ;; (defcustom  proof-shell-adjust-line-width-cmd nil
 
 ;;
-;; 5b. Regexp variables for matching output from proof process.
+;; 3b. Regexp variables for matching output from proof process.
 ;;
 
 (defcustom proof-shell-annotated-prompt-regexp nil
@@ -1512,7 +1526,7 @@ response buffer."
 
 
 ;;
-;; 5c. tokens mode: turning on/off tokens output
+;; 3c. tokens mode: turning on/off tokens output
 ;;
 
 (defcustom proof-tokens-activate-command nil
@@ -1541,7 +1555,7 @@ tokens (for example, editing documentation or source code files)."
 
 
 ;;
-;; 5d. hooks and other miscellaneous customizations
+;; 3d. hooks and other miscellaneous customizations
 ;;
 
 (defcustom proof-shell-unicode t
@@ -1849,6 +1863,17 @@ See also `proof-script-font-lock-keywords' and `proof-response-font-lock-keyword
 The response mode should set this before calling `proof-response-config-done'.
 Used also by `proof-easy-config' mechanism.
 See also `proof-script-font-lock-keywords' and `proof-goals-font-lock-keywords'."
+  :type 'sexp
+  :group 'proof-goals)
+
+(defcustom proof-shell-font-lock-keywords nil
+  "Value of `font-lock-keywords' used to fontify the shell buiffer.
+The shell mode should may this before calling `proof-response-config-done'.
+Note that by default, font lock is turned *off* in shell buffers to 
+improve performance.  If you need to understand some output it may help
+to turn it on temporarily.
+See also `proof-script-font-lock-keywords', `proof-goals-font-lock-keywords'
+and `proof-response-font-lock-keywords'."
   :type 'sexp
   :group 'proof-goals)
 
