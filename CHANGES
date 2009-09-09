@@ -59,6 +59,8 @@
 
 ** Isabelle/Isar changes
 
+*** Support undo back into completed proofs (linear_undo).
+
 *** Electric terminator works without inserting terminator
 
 *** Line numbers reported during script management
