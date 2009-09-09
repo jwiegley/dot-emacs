@@ -68,6 +68,12 @@ nil if a region cannot be found."
   (let ((case-fold-search proof-case-fold-search))
     (re-search-backward regexp bound noerror count)))
 
+(defsubst proof-re-search-forward-safe (regexp &optional bound noerror count)
+  "Like re-search-forward, but set case-fold-search to proof-case-fold-search."
+  (and regexp
+       (let ((case-fold-search proof-case-fold-search))
+	 (re-search-forward regexp bound noerror count))))
+
 (defsubst proof-string-match (regexp string &optional start)
   "Like string-match, but set case-fold-search to proof-case-fold-search."
   (let ((case-fold-search proof-case-fold-search))
