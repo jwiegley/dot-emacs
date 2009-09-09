@@ -173,5 +173,14 @@ The returned value is one of the following symbols:
     (defun characterp (obj)
       (with-no-warnings (char-valid-p obj))))
 
+
+(or (fboundp 'declare-function)
+;; taken from Emacs 22.2, not present in 22.1:
+(defmacro declare-function (&rest args)
+  "In Emacs 22, does nothing.  In 23, it will suppress byte-compiler warnings.
+This definition is so that packages may take advantage of the
+Emacs 23 feature and still remain compatible with Emacs 22."
+  nil))
+
 ;; End of proof-compat.el
 (provide 'proof-compat)
