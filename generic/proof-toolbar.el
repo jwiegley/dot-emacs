@@ -110,7 +110,10 @@ back the default toolbar."
      (when (not proof-toolbar-enable)
        (kill-local-variable 'tool-bar-map)))))
 
-(defalias 'proof-toolbar-enable 'proof-toolbar-setup)
+(defun proof-toolbar-enable ()
+  (proof-toolbar-setup)
+  ;; make sure changes show up (any neater way?)
+  (redraw-display))
 
 ;;;###autoload (autoload 'proof-toolbar-toggle "proof-toolbar")
 (proof-deftoggle proof-toolbar-enable proof-toolbar-toggle)
