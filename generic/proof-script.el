@@ -287,17 +287,18 @@ value of proof-locked span."
 This is a subroutine used in proof-shell-handle-{error,interrupt}."
   (if proof-script-buffer
       (with-current-buffer proof-script-buffer
-	(proof-detach-queue)
-	;; FIXME da: point-max seems a bit excessive here,
-	;; proof-queue-or-locked-end should be enough.
-	(proof-script-delete-spans (proof-locked-end) (point-max)))))
+	(let ((end (proof-queue-or-locked-end)))
+	  (proof-detach-queue)
+	  (proof-script-delete-spans 
+	   (proof-locked-end)
+	   end)))))
 
 (defun proof-script-delete-spans (beg end)
   "Delete spans between BEG and END."
   (span-delete-spans beg end 'type)
-  (span-delete-spans beg end 'idiom)
-  (span-delete-spans beg end 'pghelp))
-
+  (span-delete-spans beg end 'idiom))
+;; TODO: we should delete these ones when they're edited
+;;   (span-delete-spans beg end 'pghelp))
 
 
 
@@ -635,10 +636,11 @@ NAME does not need to be unique."
     text))
 
 ;;;###autoload
-(defun pg-set-span-helphighlights (span &optional nohighlight)
+(defun pg-set-span-helphighlights (span &optional nohighlight face)
   "Add a daughter help span for SPAN with help message, highlight, actions.
 We add the last output (which should be non-empty) to the hover display here.
-Optional argument NOHIGHLIGHT means do not add highlight mouse face property."
+Optional argument NOHIGHLIGHT means do not add highlight mouse face property.
+Argumen FACE means add face property FACE."
   (let ((helpmsg    (pg-span-name span))
 	(proofstate (pg-last-output-displayform))
 	(newspan    (let ((newstart (save-excursion
@@ -663,7 +665,9 @@ Optional argument NOHIGHLIGHT means do not add highlight mouse face property."
 	   ))
     (span-set-property newspan 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
-      (span-set-property newspan 'mouse-face 'proof-mouse-highlight-face))))
+      (span-set-property newspan 'mouse-face 'proof-mouse-highlight-face))
+    (if face
+	(span-set-property newspan 'face face))))
 
 
 
@@ -1342,18 +1346,15 @@ Argument SPAN has just been processed."
 			    (replace-match proof-save-with-hole-result nil nil cmd)
 			  (match-string proof-save-with-hole-result cmd)))))
 
-    ;; Search backwards for matching goal command, deleting spans
-    ;; along the way: they will be amalgamated into a single
-    ;; goal-save region, which corresponds to the prover
-    ;; discarding the proof history.
-    ;; Provers without flat history yet nested proofs (i.e. Coq)
-    ;; need to keep a record of the undo count for nested goalsaves.
-    ;; FIXME: should also remove nested 'idiom spans, perhaps.
+    ;; Search back for a goal command, deleting spans along the way:
+    ;; they may be amalgamated into a single goal-save region, which
+    ;; corresponds to the prover discarding the proof history.
     (setq lev 1)
     (setq nestedundos 0)
     (while (and gspan (> lev 0))
       (setq next (prev-span gspan 'type))
-      (span-delete gspan)
+      (unless proof-arbitrary-undo-positions
+	(span-delete gspan))
       (setq gspan next)
       (if gspan
 	  (progn
@@ -1389,8 +1390,8 @@ Argument SPAN has just been processed."
 
       ;; If the name isn't set, try to set it from the goal, or as a
       ;; final desparate attempt, set the name to
-      ;; proof-unnamed-theorem-name (Coq actually uses a default name
-      ;; for unnamed theorems, believe it or not, and issues a
+      ;; proof-unnamed-theorem-name (Coq uses a default name for
+      ;; unnamed theorems, believe it or not, and issues a
       ;; name-binding error for two unnamed theorems in a row!).
       (setq nam (or nam
 		    (proof-get-name-from-goal gspan)
@@ -1403,11 +1404,13 @@ Argument SPAN has just been processed."
       (if proof-last-theorem-dependencies
 	  (proof-depends-process-dependencies nam gspan)))))
 
-(defun proof-make-goalsave (gspan goalend savestart saveend nam &optional nestedundos)
+(defun proof-make-goalsave 
+  (gspan goalend savestart saveend nam &optional nestedundos)
   "Make new goal-save span, using GSPAN. Subroutine of `proof-done-advancing-save'.
 Argument GOALEND is the end of the goal;."
-  (span-set-end gspan saveend)
-  (span-set-property gspan 'type 'goalsave)
+  (unless proof-arbitrary-undo-positions
+    (span-set-end gspan saveend)
+    (span-set-property gspan 'type 'goalsave))
   (span-set-property gspan 'idiom 'proof);; links to nested proof element
   (span-set-property gspan 'name nam)
   (and nestedundos (span-set-property gspan 'nestedundos nestedundos))
@@ -2095,7 +2098,9 @@ Notice that this necessitates retracting any spans following TARGET,
 up to the end of the locked region."
   (let ((end   (proof-unprocessed-begin))
 	(start (span-start target))
-	(span  (proof-last-goal-or-goalsave))
+	(span  (if proof-arbitrary-undo-positions
+		   target
+		 (proof-last-goal-or-goalsave)))
 	actions)
 
     ;; NB: first section only entered if proof-kill-goal-command is
@@ -2150,17 +2155,11 @@ up to the end of the locked region."
     ;; there is more retraction to be done.
     (if (> end start)
 	(setq actions
-	      ;; Append a retract action to clear the entire
-	      ;; start-end region.  Rely on proof-find-and-forget-fn
-	      ;; to calculate a command which "forgets" back to
-	      ;; the first definition, declaration, or whatever
-	      ;; that comes after the target span.
-	      ;; FIXME: originally this assumed a linear context,
-	      ;; and that forgetting the first thing  forgets all
-	      ;; subsequent ones.  it might be more general to
-	      ;; allow *several* commands, and even queue these
-	      ;; separately for each of the spans following target
-	      ;; which are concerned.
+	      ;; Append a retract action to clear the entire start-end
+	      ;; region.  Rely on proof-find-and-forget-fn to
+	      ;; calculate a command which "forgets" back to the first
+	      ;; definition, declaration, or whatever that comes after
+	      ;; the target span.
 	      (nconc actions (proof-setup-retract-action
 			      start end
 			      (funcall proof-find-and-forget-fn target)
