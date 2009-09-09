@@ -109,7 +109,7 @@ without adjusting window layout."
   ;; C-c C-v is proof-minibuffer-cmd in universal-keys
   ;; C-c C-. is proof-goto-end-of-locked in universal-keys
   (define-key map [(control c) (control return)] 'proof-goto-point)
-  (define-key map [(control c) v] 'pg-toggle-visibility)
+  (define-key map [(control c) ?v] 'pg-toggle-visibility)
   (define-key map [(control mouse-3)] 'proof-mouse-goto-point)
   ;; NB: next binding overwrites comint-find-source-code.
   (define-key map [(meta p)] 'pg-previous-matching-input-from-input)
@@ -120,6 +120,8 @@ without adjusting window layout."
   ;;
   (define-key map [(control meta up)] 'pg-move-region-up)
   (define-key map [(control meta down)] 'pg-move-region-down)
+  ;;
+  (define-key map [(control c) ?b] 'proof-toolbar-toggle)
   ;; Add the universal keys bound in all PG buffers.
   ;; NB: C-c ` is next-error in universal-keys
   (proof-define-keys map proof-universal-keys))
@@ -271,6 +273,7 @@ without adjusting window layout."
 (proof-deftoggle proof-full-annotation)
 (proof-deftoggle proof-strict-read-only)
 (proof-deftoggle proof-colour-locked)
+(proof-deftoggle proof-shell-quiet-errors)
 
 (proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
 (proof-deftoggle proof-keep-response-history)
@@ -353,19 +356,12 @@ without adjusting window layout."
       :help "Allow multiple major modes"]
 
      ["Toolbar" proof-toolbar-toggle
-      ;; should really be split into :active & GNU Emacs's :visible
-      :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
-			 (boundp 'proof-buffer-type)
-			 ;; only allow toggling of toolbar enable in one
-			 ;; buffer to avoid strange effects because we
-			 ;; only keep one flag.  (Strange effects because
-			 ;; we only turn it off in one buffer at a time)
-			 (eq proof-buffer-type 'script))
       :style toggle
+      :visible (featurep 'tool-bar)
       :selected proof-toolbar-enable
       :help "Use the Proof General toolbar"]
 
-;;; TODO: Add this in PG 3.7.1 once; see trac #169
+;;; TODO: Add this in PG 4.0 once bufhist robust; see trac #169
 ;;;      ["Response history" proof-keep-response-history-toggle
 ;;;       :style toggle
 ;;;       :selected proof-keep-response-history]
@@ -382,6 +378,11 @@ without adjusting window layout."
       :style toggle
       :selected (and (boundp 'speedbar-frame) speedbar-frame)
       :help "Use a navigation window (Speedbar)"]
+
+     ["Beep on errors" proof-shell-quiet-errors-toggle
+      :style toggle
+      :selected (not proof-shell-quiet-errors)
+      :help "Beep on errors or interrupts"]
 
      ("Display"
       ["Auto Raise" proof-auto-raise-toggle
@@ -478,6 +479,7 @@ without adjusting window layout."
    'proof-toolbar-enable
    'proof-keep-response-history
    'proof-imenu-enable
+   'proof-shell-quiet-errors
    ;; Display sub-menu
    'proof-auto-raise-buffers
    'proof-three-window-enable
