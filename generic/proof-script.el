@@ -296,9 +296,10 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 (defun proof-script-delete-spans (beg end)
   "Delete spans between BEG and END."
   (span-delete-spans beg end 'type)
-  (span-delete-spans beg end 'idiom))
-;; TODO: we should delete these ones when they're edited
-;;   (span-delete-spans beg end 'pghelp))
+  (span-delete-spans beg end 'idiom)
+  ;; TODO: we might keep these spans around, but delete them ones when
+  ;; they're edited.  Needs more thought to avoid utter confusion.
+  (span-delete-spans beg end 'pghelp))
 
 
 
