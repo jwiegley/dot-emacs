@@ -11,20 +11,23 @@
 ;;
 ;;; History:
 
-(require 'proof)
-
-(require 'local-vars-list)              ; in lib directory
-
 (eval-when-compile
-  (proof-ready-for-assistant 'coq)      ; compile for coq
-  (require 'proof-menu)                 ; for defpacustom
-  (require 'cl)                         ; remove-if
-  (require 'span))
+  (require 'cl))
 
-(require 'coq-local-vars)
-(require 'coq-syntax)      ; determines coq version, sets coq-prog-name
-;; ----- coq specific menu is defined in coq-abbrev.el
-(require 'coq-abbrev)
+(eval-when (compile)
+  (require 'proof-utils)
+  (require 'span)
+  (require 'outline)
+  (require 'newcomment)
+  (defvar coq-time-commands nil)        ; defpacustom
+  (defvar coq-auto-compile-vos nil)     ; defpacustom
+  (proof-ready-for-assistant 'coq))     ; compile for coq
+
+(require 'proof)
+(require 'local-vars-list)              ; in lib directory
+(require 'coq-local-vars)               ;
+(require 'coq-syntax)                   ; sets coq-prog-name
+(require 'coq-abbrev)                   ; coq specific menu
 
 
 
@@ -615,7 +618,8 @@ This is specific to `coq-mode'."
 
 (defun coq-mode-config ()
   ;; Tags is unusable with Coq library otherwise:
-  (set (make-local-variable 'tags-always-exact) t)
+  ; da: doesn't exist in GNU Emacs tags
+  ;(set (make-local-variable 'tags-always-exact) t)
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
   (setq proof-terminal-char ?\.)
@@ -645,7 +649,7 @@ This is specific to `coq-mode'."
         pg-topterm-goalhyplit-fn 'coq-goal-hyp
         proof-state-preserving-p 'coq-state-preserving-p)
 
-  (setq proof-shell-indentifier-under-mouse-cmd "Check %s.")
+  (setq proof-query-identifier-command "Check %s.")
 
   (setq proof-save-command-regexp coq-save-command-regexp
         proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
@@ -696,7 +700,7 @@ This is specific to `coq-mode'."
   (make-local-variable 'outline-heading-end-regexp)
   (setq outline-heading-end-regexp coq-outline-heading-end-regexp)
 
-  ;; tags
+  ;; tags  ; NOTE da: is this XEmacs tags only?
   (and (boundp 'tag-table-alist)
        (setq tag-table-alist
              (append '(("\\.v$" . coq-tags)
@@ -715,42 +719,6 @@ This is specific to `coq-mode'."
   ;; now lost in define-derived-mode for some reason.
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
   (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
-
-
-;; pc: TODO: Have a generic way to split one output into several outputs
-;; Actually this could be done by adapting process-delayed-output.
-;; da: I have done this now while revising the core functions.
-;; can you test it's OK?  Have only tried on trivial
-;; etc/trac/trac109.v so far
-
-;; (defvar coq-last-hybrid-pre-string "")
-;; (defun coq-hybrid-ouput-goals-response-p (cmd string)
-;;   "Specific test function to detect hybrid response/goal output from coq.
-;; To be used in `proof-shell-classify-output-system-specific'. "
-;;   (proof-string-match-safe "[0-9]+ subgoals?" string)
-;;   )
-
-;; See trac #109
-;; (defun coq-hybrid-ouput-goals-response (cmd string)
-;;   "Specific function to deal with hybrid response/goal output from coq.
-;; To be used in `proof-shell-classify-output-system-specific'."
-;;   ;; match subgoal list anywhere in the ouput then display the message before
-;;   ;; it, and then do as a normal goal output.
-;;   (proof-shell-string-match-safe "[0-9]+ subgoals?" string)
-;;   (let* ((start (match-beginning 0))
-;;          (prestring (substring string 0 start))
-;;          (goalstring (substring string start)))
-;;     (unless nil ;(not (null proof-action-list))
-;;       ;(setq proof-shell-last-output goalstring)
-;;       ;(setq proof-shell-last-output-kind 'goals)
-;;       ;; (proof-shell-classify-output cmd goalstring)
-;;       (pg-goals-display goalstring) ;; this erases response buffer
-;;       ;; da: I added this test: otherwise 2 window mode seems quite broken?!
-;;       (unless (string-equal "" prestring)
-;;         (pg-response-display prestring));; this does not erase goals buffer
-;;       ;(proof-shell-handle-delayed-output-hook)
-;;       (setq coq-last-hybrid-pre-string prestring)
-;;       )))
 
 
 (defun coq-shell-mode-config ()
@@ -788,11 +756,7 @@ This is specific to `coq-mode'."
                                         ; (proof-assistant-settings-cmd))
 
    proof-shell-restart-cmd coq-shell-restart-cmd
-   pg-subterm-anns-use-stack t
-;; da: shouldn't be necessary now
-;;   proof-shell-classify-output-system-specific
-;;   '(coq-hybrid-ouput-goals-response-p . coq-hybrid-ouput-goals-response)
-   )
+   pg-subterm-anns-use-stack t)
 
   (coq-init-syntax-table)
   ; da: suggest no fontification in shell
@@ -913,11 +877,11 @@ This is a value for the `proof-deactivate-scripting-hook'."
            (proof-locked-region-full-p)
            buffer-file-name)
       (progn
-        ;; FIXME: in PG 4, this next step will be done inside
+        ;; FIXME: in PG 4, this next step should be done inside
         ;; proof-register-possibly-new-processed-file.
         ;; NB: we might save dependent buffers too!
         (ignore-errors
-          (proof-save-some-buffers (list buffer)))
+          (proof-save-some-buffers (list (current-buffer))))
         ;; Now re-compile.
         ;; Coq users like Make, let's see if we have a Makefile
         ;; here and choose compile.
@@ -974,12 +938,6 @@ Currently this doesn't take the loadpath into account."
                        all
                        :test 'string-equal)))
     all))
-
-;; FIXME: add other cases, move to coq-syntax
-(defconst coq-require-command-regexp
-  (concat "Require\\s-+\\(" proof-id "\\)")
-  "Regular expression matching Require commands in Coq.
-Group number 1 matches the name of the library which is required.")
 
 (defun coq-process-require-command (span cmd)
   "Calculate the ancestors of a loaded file and lock them."
@@ -1155,6 +1113,7 @@ Based on idea mentioned in Coq reference manual."
   (setq string (concat "infoH " string))
   )
 
+;; da: FIXME untested with new generic hybrid code: hope this still works
 (defun coq-insert-as ()
   "Insert an \"as\" suffix to the next command with names given by \"infoH\"
 tactical.  Based on idea mentioned in Coq reference manual."
@@ -1165,15 +1124,12 @@ tactical.  Based on idea mentioned in Coq reference manual."
   (proof-shell-wait)
   (let
       ((str (string-match "<info type=\"infoH\">\\([^<]*\\)</info>"
-                          coq-last-hybrid-pre-string))
-       (substr (match-string 1 coq-last-hybrid-pre-string))
-       )
+                          proof-shell-last-response-output))
+       (substr (match-string 1 proof-shell-last-response-output)))
     (coq-find-command-end-backward)
     (proof-strict-read-only-toggle -1)
     (insert (concat " as " substr))
-    (proof-strict-read-only-toggle 1)
-    )
-  )
+    (proof-strict-read-only-toggle 1)))
 
 
 (defun coq-insert-match ()

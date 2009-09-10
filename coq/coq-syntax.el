@@ -889,6 +889,15 @@ Used by `coq-goal-command-p'"
 ;; marche aussi a peu pres
 ;;  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(.]*:\\|.*)[^(.]*:=\\)"))
 ;;"\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>"
+
+(defconst coq-require-command-regexp
+  (concat "Require\\s-+\\(" proof-id "\\)")
+  "Regular expression matching Require commands in Coq.
+Group number 1 matches the name of the library which is required.")
+
+;;
+;; font-lock
+;;
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
