@@ -11,6 +11,7 @@
 (require 'coq-db)
 
 (eval-when-compile
+  (require 'span)
   (defvar coq-goal-command-regexp nil)
   (defvar coq-save-command-regexp-strict nil))
 
