@@ -19,9 +19,11 @@
 ;;
 
 ;;; Code:
-(require 'proof)
 (require 'span)
-(require 'proof-script)
+(eval-when-compile
+  (require 'proof-utils))
+
+(require 'proof)
 
 ;;;
 ;;; Configuration
@@ -101,8 +103,10 @@ Matches the region to be returned.")
 ;	(phox-mode)
 ; da: proof-mode-for-script should do it
 ; cr: proof-mode-for-script is not defined in 3.7
-	(if (functionp 'proof-mode-for-script)
-	    (funcall 'proof-mode-for-shell) (funcall 'proof-mode))
+;	(if (functionp 'proof-mode-for-script)
+;	    (funcall 'proof-mode-for-shell) (funcall 'proof-mode))
+; da: it's the name of a function, not fn itself. See pg-vars
+	(funcall proof-mode-for-script)
 	(add-hook 'after-change-functions 'pg-pbrpm-menu-change-hook nil t)
     (pg-pbrpm-erase-buffer-menu)))
   (set-buffer pg-pbrpm-buffer-menu))

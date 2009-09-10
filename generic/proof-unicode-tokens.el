@@ -19,12 +19,14 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant
-  (require 'scomint)	 ; scomint-check-proc
   (require 'cl))
 
 (eval-when (compile)
-  (require 'unicode-tokens)) ; it's loaded dynamically at runtime
+    (require 'scomint)
+    (require 'proof-auxmodes)	 ; loaded by proof.el, autoloads us
+    (require 'unicode-tokens))	 ; it will be loaded by proof-auxmodes
+
+(require 'proof-config)			; config variables
 
 (defvar proof-unicode-tokens-initialised nil
   "Flag indicating whether or not we've performed startup.")
@@ -55,20 +57,6 @@
 
 
 ;;;###autoload
-(defun proof-unicode-tokens-enable ()
-  "Turn on or off Unicode tokens mode in Proof General script buffer.
-This invokes `unicode-tokens-mode' to toggle the setting for the current
-buffer, and then sets PG's option for default to match.
-Also we arrange to have unicode tokens mode turn itself on automatically
-in future if we have just activated it for this buffer.
-Note: this function is called when the customize setting for the prover
-is changed."
-  (interactive)
-  (when (proof-unicode-tokens-support-available) ;; loads unicode-tokens
-    (unless proof-unicode-tokens-initialised
-      (proof-unicode-tokens-init))
-    (proof-unicode-tokens-set-global (not unicode-tokens-mode))))
-
 (defun proof-unicode-tokens-mode-if-enabled ()
   "Turn on or off the Unicode Tokens minor mode in this buffer."
   (unicode-tokens-mode
@@ -88,6 +76,22 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit."
     (proof-buffers-in-mode proof-tokens-extra-modes))
    (unicode-tokens-mode (if flag 1 0)))
   (proof-unicode-tokens-configure-prover))
+
+(defun proof-unicode-tokens-enable ()
+  "Turn on or off Unicode tokens mode in Proof General script buffer.
+This invokes `unicode-tokens-mode' to toggle the setting for the current
+buffer, and then sets PG's option for default to match.
+Also we arrange to have unicode tokens mode turn itself on automatically
+in future if we have just activated it for this buffer.
+Note: this function is called when the customize setting for the prover
+is changed."
+  (interactive)
+  (when (proof-unicode-tokens-support-available) ;; loads unicode-tokens
+    (unless proof-unicode-tokens-initialised
+      (proof-unicode-tokens-init))
+    (with-no-warnings ; spurious warning on `proof-unicode-tokens-set-global'
+      (proof-unicode-tokens-set-global (not unicode-tokens-mode)))))
+
 
 ;;;
 ;;; Interface to custom to dynamically change tables (via proof-set-value)

@@ -16,6 +16,7 @@
 ;; $Id$
 
 (require 'proof)
+(require 'proof-shell)
 
 ;;; Commentary:
 ;;

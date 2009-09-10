@@ -70,7 +70,8 @@
 
 (require 'proof-useropts)		; user options
 (require 'proof-faces)			; user options: faces
-
+(eval-when-compile
+  (require 'custom))
 
 ;;
 ;; Prelude

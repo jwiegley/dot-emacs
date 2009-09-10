@@ -1,6 +1,6 @@
 ;; pg-pgip.el --- PGIP manipulation for Proof General
 ;;
-;; Copyright (C) 2000-2002 LFCS Edinburgh.
+;; Copyright (C) 2000-2002, 2009 LFCS Edinburgh.
 ;; Author:   David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:  GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -29,7 +29,11 @@
 
 (require 'cl)				; incf
 (require 'pg-xml)			;
-(require 'proof-config)			;; config variables
+
+(declare-function pg-response-warning "pg-response")
+(declare-function pg-response-message "pg-response")
+(declare-function proof-segment-up-to "proof-script") 
+
 
 ;;; Code:
 (defalias 'pg-pgip-debug   'proof-debug)
@@ -269,8 +273,8 @@ Return a symbol representing the PGIP command processed, or nil."
 	(text     (pg-pgip-get-displaytext node)))
     ;; TODO: display and cache the value in a dedicated buffer
     ;; FIXME: should idvalue have a context?
-    (proof-message text)))
-
+    (pg-response-message text)))
+    
 ;;
 ;; Menu configuration [TODO]
 ;;
@@ -310,11 +314,11 @@ Return a symbol representing the PGIP command processed, or nil."
 
 (defun pg-pgip-process-normalresponse (node)
   (let ((text     (pg-pgip-get-displaytext node)))
-    (proof-message text)))
+    (pg-response-message text)))
 
 (defun pg-pgip-process-errorresponse (node)
   (let ((text     (pg-pgip-get-displaytext node)))
-    (proof-warning text)))
+    (pg-response-warning text)))
 
 (defun pg-pgip-process-scriptinsert (node)
   (let ((text     (pg-pgip-get-displaytext node)))

@@ -18,12 +18,14 @@
 (require 'span)
 (require 'scomint)
 
-(require 'proof)			; loader
-(require 'proof-script)			; we build on proof-script
+(require 'proof-script)	        ; we build on proof-script
 
 (eval-when-compile
+  (require 'cl)
   (require 'completion))		; loaded dynamically at runtime
 
+; defined in proof-script/proof-setup-parsing-mechanism
+(declare-function proof-segment-up-to "proof-script") 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -42,6 +44,7 @@ Assumes that point is at the end of a command."
 ;; forward for a "new" command may insert spaces or new lines.  Moving
 ;; forward for the "next" command does not.
 
+;;;###autoload
 (defun proof-script-new-command-advance ()
   "Move point to a nice position for a new command.
 Assumes that point is at the end of a command."
@@ -104,11 +107,60 @@ Assumes script buffer is current."
 	       (> dest (point)))
 	  (goto-char dest))))))
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Further movement commands 
+;;
+
+;; TODO da: the next function is messy.
+(defun proof-goto-command-start ()
+  "Move point to start of current (or final) command of the script."
+  (interactive)
+  (let* ((cmd (span-at (point) 'type))
+	 (start (if cmd (span-start cmd))))
+    (if start
+	(progn
+	  ;; BUG: only works for unclosed proofs.
+	  (goto-char start))
+      (let ((semis (nth 1 (proof-segment-up-to (point) t))))
+	(if (eq 'unclosed-comment (car-safe semis))
+	    (setq semis (cdr-safe semis)))
+	(if (nth 2 semis) ; fetch end point of previous command
+	      (goto-char (nth 2 semis))
+	  ;; no previous command: just next to end of locked
+	  (goto-char (proof-locked-end)))))
+    ;; Oddities of this function: if we're beyond the last proof
+    ;; command, it jumps back to the last command.  Could alter this
+    ;; by spotting that command end of last of semis is before
+    ;; point.  Also, behaviour with comments is different depending
+    ;; on whether locked or not.
+    (skip-chars-forward " \t\n")))
+
+(defun proof-goto-command-end ()
+  "Set point to end of command at point."
+  (interactive)
+  (let ((cmd (span-at (point) 'type)))
+    (if cmd
+	(goto-char (span-end cmd))
+      (let ((semis (save-excursion
+		     (proof-segment-up-to-using-cache (point)))))
+	(if semis
+	    (progn
+	      (goto-char (nth 2 (car semis)))
+	      (skip-chars-backward " \t\n")
+	      (unless (eq (point) (point-min))
+		(backward-char))))))))
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Processing commands
 ;;
 
+;;;###autoload
 (defun proof-goto-point ()
   "Assert or retract to the command at current position.
 Calls `proof-assert-until-point' or `proof-retract-until-point' as
@@ -214,49 +266,6 @@ the proof script."
 	     (proof-retract-until-point-interactive))
 	 (error "Not proving")))
      (if span (proof-maybe-follow-locked-end (span-start span)))))
-
-;;
-;; Movement commands
-;;
-
-;; TODO da: the next function is messy.
-(defun proof-goto-command-start ()
-  "Move point to start of current (or final) command of the script."
-  (interactive)
-  (let* ((cmd (span-at (point) 'type))
-	 (start (if cmd (span-start cmd))))
-    (if start
-	(progn
-	  ;; BUG: only works for unclosed proofs.
-	  (goto-char start))
-      (let ((semis (nth 1 (proof-segment-up-to (point) t))))
-	(if (eq 'unclosed-comment (car-safe semis))
-	    (setq semis (cdr-safe semis)))
-	(if (nth 2 semis) ; fetch end point of previous command
-	      (goto-char (nth 2 semis))
-	  ;; no previous command: just next to end of locked
-	  (goto-char (proof-locked-end)))))
-    ;; Oddities of this function: if we're beyond the last proof
-    ;; command, it jumps back to the last command.  Could alter this
-    ;; by spotting that command end of last of semis is before
-    ;; point.  Also, behaviour with comments is different depending
-    ;; on whether locked or not.
-    (skip-chars-forward " \t\n")))
-
-(defun proof-goto-command-end ()
-  "Set point to end of command at point."
-  (interactive)
-  (let ((cmd (span-at (point) 'type)))
-    (if cmd
-	(goto-char (span-end cmd))
-      (let ((semis (save-excursion
-		     (proof-segment-up-to-using-cache (point)))))
-	(if semis
-	    (progn
-	      (goto-char (nth 2 (car semis)))
-	      (skip-chars-backward " \t\n")
-	      (unless (eq (point) (point-min))
-		(backward-char))))))))
 
 
 ;;
@@ -613,8 +622,9 @@ last use time, to discourage saving these into the users database."
 ;; NB: completion table is expected to be set when proof-script
 ;; is loaded!  Can call proof-script-add-completions if the table
 ;; is updated.
-(eval-after-load "completion"
-  '(proof-add-completions))
+(unless noninteractive ; during compilation
+  (eval-after-load "completion"
+  '(proof-add-completions)))
 
 (defun proof-script-complete (&optional arg)
   "Like `complete' but case-fold-search set to proof-case-fold-search."
@@ -623,20 +633,6 @@ last use time, to discourage saving these into the users database."
     (complete arg)))
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Function to insert last prover output in comment.
-;; Requested/suggested by Christophe Raffalli
-;;
-
-(defun pg-insert-last-output-as-comment ()
-  "Insert the last output from the proof system as a comment in the proof script."
-  (interactive)
-  (if proof-shell-last-output
-      (let  ((beg (point)))
-	(insert (proof-shell-strip-output-markup proof-shell-last-output))
-	(comment-region beg (point)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

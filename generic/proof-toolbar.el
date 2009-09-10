@@ -1,6 +1,6 @@
 ;;; proof-toolbar.el --- Toolbar for Proof General
 ;;
-;; Copyright (C) 1998-2008  David Aspinall / LFCS.
+;; Copyright (C) 1998-2009  David Aspinall / LFCS.
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -23,8 +23,8 @@
 (eval-and-compile
   (require 'span)
   (require 'proof-utils)
-  (require 'proof-config)
-  (require 'proof-autoloads))
+  (require 'proof-config))
+
 
 ;;
 ;; Function, icon, button names

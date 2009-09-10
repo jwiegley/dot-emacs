@@ -22,14 +22,11 @@
 ;; It should define an MMM submode class called <foo>.
 
 (eval-when-compile
-  (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant
   (require 'cl))
 
 (eval-when (compile)
-   (require 'proof-auxmodes) ; it will have been loaded
-   (require 'mmm-auto))  ; it's loaded dynamically at runtime
-
-(require 'proof-site)
+  (require 'proof-auxmodes)	  ; will be loaded
+  (require 'mmm-auto))		  ; loaded dynamically by proof-auxmodes
 
 ;; The following function is called by the menu item for MMM-Mode.  It
 ;; is an attempt at an intuitive behaviour without confusing the user

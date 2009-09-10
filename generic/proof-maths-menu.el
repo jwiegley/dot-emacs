@@ -19,11 +19,11 @@
 ;;
 
 (eval-when-compile
-  (require 'proof-utils) ; for proof-ass, proof-eval-when-ready-for-assistant
   (require 'cl))
 
 (eval-when (compile)
-  (require 'maths-menu)) ; it's loaded dynamically at runtime
+  (require 'proof-auxmodes)	  ; loaded by proof.el
+  (require 'maths-menu))	  ; loaded dynamically in proof-auxmodes
 
 
 ;;;###autoload

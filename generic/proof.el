@@ -23,14 +23,16 @@
 ;;; Code:
 
 (require 'proof-site)			; site/prover config, global vars, autoloads
-(require 'proof-compat)			; Emacs and OS compatibility
-(require 'proof-utils)			; utilities
-(require 'proof-config)			; configuration variables
 
 (unless noninteractive
   (proof-splash-message))		; welcome the user now.
 
-(require 'proof-auxmodes)		; Further autoloads
+(require 'proof-compat)			; Emacs and OS compatibility
+(require 'proof-utils)			; utilities
+(require 'proof-config)			; configuration variables
+(require 'proof-auxmodes)		; auxmode functions
+(require 'proof-script)			; script mode
+(require 'proof-shell)			; shell mode
 
 (provide 'proof)
 ;;; proof.el ends here

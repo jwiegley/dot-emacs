@@ -17,9 +17,10 @@
 
 (eval-when-compile
   (require 'easymenu)	  ; easy-menu-add
-  (require 'proof-utils)) ; deflocal, proof-eval-when-ready-for-assistant
+  (require 'proof-utils)  ; deflocal, proof-eval-when-ready-for-assistant
+  (defvar proof-response-mode-menu nil)
+  (defvar proof-assistant-menu nil))
 
-(require 'bufhist)
 (require 'pg-assoc)
 
 
@@ -312,6 +313,20 @@ is set to nil, so responses are not cleared automatically."
 	(bufhist-checkpoint-and-erase))
     (set-buffer-modified-p nil)))
 
+;;;###autoload
+(defun pg-response-message (&rest args)
+  "Issue the message ARGS in the response buffer and display it."
+  (pg-response-display-with-face (apply 'concat args))
+  (proof-display-and-keep-buffer proof-response-buffer))
+
+;;;####autoload
+(defun pg-response-warning (&rest args)
+  "Issue the warning ARGS in the response buffer and display it.
+The warning is coloured with proof-warning-face."
+  (pg-response-display-with-face (apply 'concat args) 'proof-warning-face)
+  (proof-display-and-keep-buffer proof-response-buffer))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -394,7 +409,8 @@ and start at the first error."
 		  ;; Find the error location in the error buffer
 		  (set-buffer errbuf)
 		  ;; FIXME: no handling of selective display here
-		  (goto-line line)
+		  (with-no-warnings ; "interactive only"
+		   (goto-line line))
 		  (if (and column (> column 1))
 		      (move-to-column (1- column)))))
 	    (setq pg-response-next-error nil)

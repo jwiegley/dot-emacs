@@ -11,7 +11,6 @@
 ;;
 
 (require 'proof-utils)			; proof-ass, proof-eval...
-(require 'proof-autoloads)		; aux mode functions autoloaded
 
 ;;; Code:
 

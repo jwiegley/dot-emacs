@@ -162,13 +162,41 @@ of the proof (starting from 1).")
 
 ;;
 ;; Internal variables
-;; -- usually local to a couple of modules but here to avoid
-;; compile warnings
+;; -- usually local to a couple of modules and perhaps inspected
+;;    by prover modes
+;; -- here to avoid compiler warnings and minimise requires.
 ;;
+
+(defvar proof-shell-silent nil
+  "A flag, non-nil if PG thinks the prover is silent.")
+
+(defvar proof-shell-last-prompt ""
+  "A raw record of the last prompt seen from the proof system.
+This is the string matched by `proof-shell-annotated-prompt-regexp'.")
 
 (defvar proof-shell-last-output ""
   "A record of the last string seen from the proof system.
 This is raw string, for internal use only.")
+
+(defvar proof-shell-last-output-kind nil
+  "A symbol denoting the type of the last output string from the proof system.
+Specifically:
+
+ 'interrupt	 An interrupt message
+ 'error		 An error message
+ 'loopback	 A command sent from the PA to be inserted into the script
+ 'response	 A response message
+ 'goals		 A goals (proof state) display
+ 'systemspecific Something specific to a particular system,
+		  -- see `proof-shell-handle-output-system-specific'
+
+The output corresponding to this will be in `proof-shell-last-output'.
+
+See also `proof-shell-proof-completed' for further information about
+the proof process output, when ends of proofs are spotted.
+
+This variable can be used for instance specific functions which want
+to examine `proof-shell-last-output'.")
 
 (defvar proof-assistant-settings nil
  "A list of default values kept in Proof General for current proof assistant.
