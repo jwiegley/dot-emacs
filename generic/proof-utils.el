@@ -943,6 +943,25 @@ it calls `proof-looking-at-syntactic-context'."
     (proof-looking-at-syntactic-context-default)))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Stripping output and message 
+;;
+
+(defsubst proof-shell-strip-output-markup (string &optional push)
+  "Strip output markup from STRING.
+Convenience function to call function `proof-shell-strip-output-markup'.
+Optional argument PUSH is ignored."
+  (funcall proof-shell-strip-output-markup string))
+
+(defun proof-minibuffer-message (str)
+  "Output STR in minibuffer."
+  (if proof-minibuffer-messages
+      (message "%s" ;; to escape format characters
+	       (concat "[" proof-assistant "] "
+		       ;; TODO: rather than stripping, could try fontifying
+		       (proof-shell-strip-output-markup str)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
