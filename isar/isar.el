@@ -239,31 +239,32 @@ See -k option for Isabelle interface script."
 ;;;  (Settings for Isabelle are configured automatically via PGIP message)
 ;;;
 
-(defpacustom use-find-theorems-form nil
-  "Use a form-style input for the find theorems operation."
-  :type 'boolean
-  :eval (isar-set-proof-find-theorems-command))
-
 (defun isar-set-proof-find-theorems-command ()
   (setq proof-find-theorems-command
 	(if isar-use-find-theorems-form
 	    'isar-find-theorems-form
 	  'isar-find-theorems-minibuffer)))
 
-(defpacustom use-linear-undo t
-  "Whether to allow undo to re-enter completed proofs (requires restart)."
-  :type 'boolean)
+(defpacustom use-find-theorems-form nil
+  "Use a form-style input for the find theorems operation."
+  :type 'boolean
+  :eval (isar-set-proof-find-theorems-command))
 
 (defun isar-set-undo-commands ()
   (setq proof-count-undos-fn 'isar-count-undos)
-  (when isar-linear-undo
+  (when isar-use-linear-undo
     (setq proof-kill-goal-command nil)
     (setq proof-find-and-forget-fn 'isar-count-undos)
     (setq proof-arbitrary-undo-positions t))
-  (when (not isar-linear-undo)
+  (when (not isar-use-linear-undo)
     (setq proof-kill-goal-command "ProofGeneral.kill_proof")
     (setq proof-find-and-forget-fn 'isar-find-and-forget)
     (setq proof-arbitrary-undo-positions nil)))
+
+(defpacustom use-linear-undo t
+  "Whether to allow undo to re-enter completed proofs (requires restart)."
+  :type 'boolean
+  :eval (isar-set-undo-commands))
 
 (defun isar-configure-from-settings ()
   (isar-set-proof-find-theorems-command)
