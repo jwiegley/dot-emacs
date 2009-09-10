@@ -219,10 +219,9 @@ On Windows you might need something like:
     )
   )
 
-;;New: using the statenumber inside the coq prompte to backtrack more easily
-;; This function returns
+;; Use the statenumber inside the coq prompt to backtrack more easily
 (defun coq-last-prompt-info (s)
-  "Extract informations from the coq prompt S.  See `coq-last-prompt-info-safe'."
+  "Extract info from the coq prompt S.  See `coq-last-prompt-info-safe'."
   (let ((lastprompt (or s (error "no prompt !!?")))
         (regex
          (concat "\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
@@ -720,7 +719,6 @@ This is specific to `coq-mode'."
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
   (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
 
-
 (defun coq-shell-mode-config ()
   (setq
    proof-shell-cd-cmd coq-shell-cd
@@ -756,12 +754,12 @@ This is specific to `coq-mode'."
                                         ; (proof-assistant-settings-cmd))
 
    proof-shell-restart-cmd coq-shell-restart-cmd
-   pg-subterm-anns-use-stack t)
+   pg-subterm-anns-use-stack t
+   )
 
   (coq-init-syntax-table)
-  ; da: suggest no fontification in shell
-  ;(setq font-lock-defaults 'coq-font-lock-keywords-1)
-  (holes-mode 1)
+  ; (holes-mode 1)  da: does the shell really need holes mode on?
+  (setq proof-shell-font-lock-keywords 'coq-font-lock-keywords-1)
   (proof-shell-config-done))
 
 (defun coq-goals-mode-config ()
