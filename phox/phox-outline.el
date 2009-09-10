@@ -3,6 +3,8 @@
 ;;                      PARAMÉTRAGE du MODE outline
 ;;--------------------------------------------------------------------------;;
 
+(eval-when-compile
+  (require 'outline))
 
 (setq phox-outline-title-regexp "\\((\\*[ \t\n]*title =\\)")
 (setq phox-outline-section-regexp "\\((\\*\\*+\\)")

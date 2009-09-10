@@ -2,6 +2,7 @@
 
 (require 'proof)			; load generic parts
 
+
 ;; Adjust toolbar entries.  (Must be done before proof-toolbar is
 ;; loaded).
 

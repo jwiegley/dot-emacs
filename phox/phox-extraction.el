@@ -6,6 +6,12 @@
 ;; note : program extraction is still experimental This file is very
 ;; dependant of the actual state of program extraction in phox.
 ;;--------------------------------------------------------------------------;;
+
+(require 'cl)
+(eval-when (compile)
+  (defvar phox-prog-name nil)
+  (declare-function proof-shell-invisible-command (str)))
+
 ;; configuration :
 
 (defvar phox-prog-orig "phox -pg" "original name of phox binary.")
