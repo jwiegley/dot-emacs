@@ -32,6 +32,18 @@ proof-assistant symbol (proof-ass), they will produce the wrong result
 be used to avoid this and optimise compilation.  Byte compiler also
 optimises some conditionals that appear constant, be wary.
 
+Finally, the compiler will warn over-eagerly (and ususally spuriously)
+about unknown functions.  Adding extra requires can get these to go
+away, but watch out for introducing cycles in the require graphs.
+
+Rough dependency graph:
+
+
+proof-autoloads -> 
+        pg-vars -> proof-site  -> pg-vars
+           
+
+
 
 Some Emacs Resources
 ====================

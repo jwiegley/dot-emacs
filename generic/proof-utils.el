@@ -53,10 +53,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(require 'proof-compat)		        ;
-(require 'bufhist)			; bufhist
-;(require 'proof-syntax)			; syntax utils
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Handy macros
@@ -676,6 +672,19 @@ or if the window is the only window of its frame."
 	      ))))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Function for manipulating output
+;;
+
+(defsubst proof-shell-strip-output-markup (string &optional push)
+  "Strip output markup from STRING.
+Convenience function to call function `proof-shell-strip-output-markup'.
+Optional argument PUSH is ignored."
+  (funcall proof-shell-strip-output-markup string))
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Function for submitting bug reports.

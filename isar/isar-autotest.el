@@ -5,6 +5,10 @@
 ;; $Id$
 ;;
 
+(eval-when-compile
+  (require 'proof-utils)
+  (proof-ready-for-assistant 'isar))
+
 (require 'pg-autotest)
 
 (unless noninteractive

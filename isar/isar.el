@@ -25,7 +25,8 @@
   (defvar outline-heading-end-regexp nil)
   (defvar comment-quote-nested nil)
   (defvar isar-use-find-theorems-form nil)
-  (proof-ready-for-assistant 'isar))	; compile for isar
+;  (proof-ready-for-assistant 'isar))	; compile for isar
+)
 
 (require 'isabelle-system)		; system code
 (require 'isar-find-theorems)		; "Find Theorems" search form
@@ -96,12 +97,12 @@ See -k option for Isabelle interface script."
    proof-terminal-char          ?\;          ; forcibly ends a command
    proof-electric-terminator-noterminator t  ; don't insert it
    proof-script-command-start-regexp
-
    (proof-regexp-alt
     ;; FIXME: this gets { and } wrong: they must _not_ appear as {* *}
     ;; because that's lexically a kind of comment.
     isar-any-command-regexp
     (regexp-quote ";"))
+
    proof-script-integral-proofs t
    ;; FIXME: use old parser for now to avoid { } problem
    proof-script-use-old-parser  t
@@ -144,6 +145,7 @@ See -k option for Isabelle interface script."
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
    proof-shell-trace-output-regexp  "\^AI\^AV"
+   proof-script-preprocess      'isar-command-wrapping
    ;; command hooks
    proof-goal-command-p         'isar-goal-command-p
    proof-really-save-command-p  'isar-global-save-command-p
@@ -290,7 +292,8 @@ This is called when Proof General spots output matching
        (base-name (file-name-nondirectory name)))
     (if (string= name base-name)
 	(isar-remove-file name proof-included-files-list t nil)
-      (isar-remove-file (file-truename name) proof-included-files-list nil nil))))
+      (isar-remove-file 
+       (file-truename name) proof-included-files-list nil nil))))
 
 
 ;;
@@ -535,7 +538,8 @@ selected.")
   "Use Isabelle's pretty printing facilities to adjust output line width.
 Checks the width in the `proof-goals-buffer'"
   (let ((ans ""))
-    (and (buffer-live-p proof-goals-buffer)
+    (and (not proof-shell-silent)
+	 (buffer-live-p proof-goals-buffer)
 	 (save-excursion
 	   (set-buffer proof-goals-buffer)
 	   (let ((current-width
@@ -555,53 +559,34 @@ Checks the width in the `proof-goals-buffer'"
 ;; Shell mode command adjusting
 ;;
 
-(defun isar-string-wrapping (string)
+(defsubst isar-string-wrapping (string)
   (concat
    "\""
-   (proof-replace-regexp-in-string
+   (replace-regexp-in-string
     "[\000-\037\"\\\\]"
     (lambda (str) (format "\\\\%03d" (string-to-char str)))
     string)
    "\""))
 
-(defun isar-positions-of (span)
-  (let (line file)
-    (if span
-	(save-excursion
-	  (set-buffer (span-buffer span))
-	  (goto-char (span-start span))
-	  (skip-chars-forward " \t\n")
-	  ;; NB: position is relative to display (narrowing, etc)
-	  ;; defer column: too tricky for now, see trac #277
-	  ; (setq column (current-column))
-	  (setq line (line-number-at-pos (point)))
-	  (setq file (or (buffer-file-name) (buffer-name)))))
-    (concat
-     "("
-     (proof-splice-separator
-      ", "
-      (list
-       (if file
-	   (format "\"file\"=%s" (isar-string-wrapping file)))
-       (if line   
-	   (format "\"line\"=\"%d\"" line))))
-    ;; (if column (format "\"column\"=\"%d\"" column))))
-      ") ")))
-
-(defun isar-command-wrapping (string scriptspan)
-  (if (and scriptspan (eq proof-shell-busy 'advancing))
-      ;; use Isabelle.command around script commands
-      (concat
-       "Isabelle.command "
-       (isar-positions-of scriptspan)
-       (isar-string-wrapping string))
-    (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)))
+(defsubst isar-positions-of (filename start end)
+  (let ((line (line-number-at-pos start)))
+    (format "(\"file\"=%s, \"line\"=\"%d\") "
+	     (isar-string-wrapping filename) ; cache this?
+	     line)))
 
 (defcustom isar-wrap-commands-singly t
   "Non-nil to use command wrapping around commands sent to Isabelle.
-This slows down interactive processing somewhat."
+This slows down interactive processing slightly."
   :type 'boolean
   :group 'isabelle)
+
+(defun isar-command-wrapping (filename start end string)
+  "A value for `proof-script-preprocess'."
+  (if isar-wrap-commands-singly
+      (list "Isabelle.command "
+	    (isar-positions-of filename start end)
+	    (isar-string-wrapping string))
+    (list (replace-regexp-in-string "\n" "\\\\<^newline>" string))))
 
 (defun isar-preprocessing ()
   "Insert sync markers and other hacks.
@@ -613,9 +598,7 @@ Uses variables `string' and `scriptspan' passed by dynamic scoping."
     (setq string (concat
 		  "\\<^sync>; "
 		  (isar-shell-adjust-line-width)
-		  (if isar-wrap-commands-singly
-		      (isar-command-wrapping string scriptspan)
-		    (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string))
+		  string
 		  " \\<^sync>;"))))
 
 ;;

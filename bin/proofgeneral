@@ -20,7 +20,7 @@
 # NB: no trailing backslash here!
 # On Mac, maybe:
 # /Applications/Emacs.app/Contents/MacOS/Emacs/site-lisp/ProofGeneral
-PGHOMEDEFAULT=$HOME/ProofGeneral
+PGHOMEDEFAULT=/usr/share/emacs-snapshot/site-lisp/ProofGeneral
 
 NAME=`basename $0`
 

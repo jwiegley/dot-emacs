@@ -34,7 +34,6 @@
 (declare-function pg-response-message "pg-response")
 (declare-function proof-segment-up-to "proof-script") 
 
-
 ;;; Code:
 (defalias 'pg-pgip-debug   'proof-debug)
 (defalias 'pg-pgip-error   'error)

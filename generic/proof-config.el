@@ -1662,9 +1662,18 @@ stripped of carriage returns before being sent.
 Example uses:
 LEGO uses this hook for setting the pretty printer width if
 the window width has changed;
-Plastic uses it to remove literate-style markup from `string'."
+Plastic uses it to remove literate-style markup from `string'.
+
+See also `proof-script-preprocess' which can munge text when
+it is added to the queue of commands."
   :type '(repeat function)
   :group 'proof-shell)
+
+(defcustom proof-script-preprocess nil
+  "Function to pre-process (SPAN STRING) taken from proof script."
+  :type 'function
+  :group 'proof-shell)
+  
 
 (defcustom proof-shell-handle-delayed-output-hook
   '(proof-pbp-focus-on-first-goal)

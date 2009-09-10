@@ -36,10 +36,10 @@
   "Marker in proof shell buffer pointing to previous command input.")
 
 (defvar proof-action-list nil
-  "The main queue of things to do, containing spans commands and actions.
+  "The main queue of things to do: spans, commands and actions.
 The value is a list of lists of the form
 
-   (SPAN COMMAND ACTION [FLAGS])
+   (SPAN COMMANDS ACTION [FLAGS])
 
 which is the queue of things to do.  Flags are set for non-standard
 commands (out of script).  They may include
@@ -51,11 +51,11 @@ commands (out of script).  They may include
 If flags are non-empty, other interactive cues will be surpressed.
 \(E.g., printing help messages).
 
-See the functions `proof-start-queue' and `proof-exec-loop'.")
+See the functions `proof-start-queue' and `proof-shell-exec-loop'.")
 
 ;; We record the last output from the prover and a flag indicating its
-;; type, as well as a previous ("delayed") version to display when the
-;; end of the queue is reached or an error or interrupt occurs.
+;; type, as well as a previous ("delayed") version for when the end
+;; of the queue is reached or an error or interrupt occurs.
 ;; 
 ;; See `proof-shell-last-output', `proof-shell-last-prompt' in
 ;; pg-vars.el
@@ -578,26 +578,22 @@ This is a subroutine of `proof-shell-handle-error'."
       (pg-response-maybe-erase t nil)
       (pg-response-display-with-face string append-face)))
 
-
-
 (defsubst proof-shell-strip-output-markup (string &optional push)
   "Strip output markup from STRING.
 Convenience function to call function `proof-shell-strip-output-markup'.
 Optional argument PUSH is ignored."
   (funcall proof-shell-strip-output-markup string))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Processing error output
 ;;
 
-(defun proof-shell-handle-error-or-interrupt (flags)
+(defun proof-shell-handle-error-or-interrupt (err-or-int flags)
   "React on an error or interrupt message triggered by the prover.
 
-On entry, `proof-shell-last-output-kind' should be set to 'error
-or 'interrupt, which affects the action taken.
+The argument ERR-OR-INT should be set to 'error or 'interrupt
+which affects the action taken.
 
 For errors, we first flush unprocessed output (usually goals).
 The error message is the (usually) displayed in the response buffer.
@@ -611,7 +607,7 @@ Commands which are not part of regular script management (with
 non-empty flags) will not invoke any of this action."  ; PG4.0 change
   (unless (memq 'no-error-display flags)
     (cond
-     ((eq proof-shell-last-output-kind 'interrupt)
+     ((eq err-or-int 'interrupt)
       (pg-response-maybe-erase t t t) ; force cleaned now & next 
       (proof-shell-handle-error-output
        (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
@@ -626,8 +622,7 @@ non-empty flags) will not invoke any of this action."  ; PG4.0 change
        (if proof-shell-truncate-before-error proof-shell-error-regexp)
        'proof-error-face)
       (proof-display-and-keep-buffer proof-response-buffer)))
-    (proof-shell-error-or-interrupt-action
-     proof-shell-last-output-kind)))
+    (proof-shell-error-or-interrupt-action err-or-int)))
 
 (defun proof-shell-error-or-interrupt-action (err-or-int)
   (save-excursion
@@ -706,11 +701,11 @@ after a completed proof."
    ;; command with delayed output from this command to handle that!
    ((proof-re-search-forward-safe proof-shell-interrupt-regexp end t)
     (setq proof-shell-last-output-kind 'interrupt)
-    (proof-shell-handle-error-or-interrupt flags))
+    (proof-shell-handle-error-or-interrupt 'interrupt flags))
    
    ((proof-re-search-forward-safe proof-shell-error-regexp end t)
     (setq proof-shell-last-output-kind 'error)
-    (proof-shell-handle-error-or-interrupt flags))
+    (proof-shell-handle-error-or-interrupt 'error flags))
 
    ((proof-re-search-forward-safe proof-shell-result-start end t)
     ;; NB: usually the action list is empty, strange results likely if
@@ -786,8 +781,8 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
 ;;
 
 ;;;###autoload
-(defun proof-shell-insert (string action &optional scriptspan)
-  "Insert STRING at the end of the proof shell, call `scomint-send-input'.
+(defun proof-shell-insert (strings action &optional scriptspan)
+  "Insert STRINGS at the end of the proof shell, call `scomint-send-input'.
 
 The ACTION argument is a symbol which is typically the name of a
 callback for when STRING has been processed.
@@ -804,31 +799,33 @@ Then we strip STRING of carriage returns before inserting it
 and updating `proof-marker' to point to the end of the newly
 inserted text.
 
-Do not use this function directly, or output will be lost.  It is
-only used in `proof-append-alist' when we start processing a
-queue, and in `proof-shell-exec-loop', to process the next item."
-  ;(assert (stringp string) t "proof-shell-insert: expected string argument")
+Do not use this function directly, or output will be lost.  It is only
+used in `proof-add-to-queue' when we start processing a queue, and in
+`proof-shell-exec-loop', to process the next item."
+  (assert (listp strings) nil "proof-shell-insert: expected string argument")
 
   (with-current-buffer proof-shell-buffer
     (goto-char (point-max))
 
-    ;; Hook for munging `string' and other dirty hacks.
-    (run-hooks 'proof-shell-insert-hook)
+    ;; TEMP: next step: preprocess list of strings directly
+    (let ((string (apply 'concat strings))) 
+      ;; Hook for munging `string' and other dirty hacks.
+      (run-hooks 'proof-shell-insert-hook)
 
-    ;; Replace CRs from string with spaces to avoid spurious prompts.
-    (if proof-shell-strip-crs-from-input
-	(setq string (subst-char-in-string ?\n ?\  string t)))
+      ;; Replace CRs from string with spaces to avoid spurious prompts.
+      (if proof-shell-strip-crs-from-input
+	  (setq string (subst-char-in-string ?\n ?\  string t)))
 
-    (insert string)
+      (insert string)
 
-    ;; Advance the proof-marker, if synchronization has been gained.
-    ;; Null marker => no yet synced; output is ignored.
-    (unless (null (marker-position proof-marker))
-      (set-marker proof-marker (point)))
+      ;; Advance the proof-marker, if synchronization has been gained.
+      ;; Null marker => no yet synced; output is ignored.
+      (unless (null (marker-position proof-marker))
+	(set-marker proof-marker (point)))
 
-    (scomint-send-input)
+      (scomint-send-input)
 
-    (setq proof-shell-expecting-output t)))
+      (setq proof-shell-expecting-output t))))
 
 
 ;; ============================================================
@@ -840,8 +837,7 @@ queue, and in `proof-shell-exec-loop', to process the next item."
 (defun proof-shell-action-list-item (cmd callback &optional flags)
   "Return action list entry run CMD with callback CALLBACK and FLAGS.
 The queue entry does not refer to a span in the script buffer."
-  (append (list nil cmd callback) flags))
-
+  (append (list nil (list cmd) callback) flags))
 
 (defun proof-shell-set-silent (span)
   "Callback for `proof-shell-start-silent'.
@@ -867,17 +863,14 @@ track what happens in the proof queue."
    proof-shell-stop-silent-cmd
    'proof-shell-clear-silent))
 
-;; FIXME: could be macro for efficiency improvement in avoiding calculating num
-(defun proof-shell-should-be-silent (num)
+(defsubst proof-shell-should-be-silent (num)
   "Return non-nil if we must switch to silent mode, adding NUM entries to queue."
   (if (and (not proof-full-annotation)
 	   proof-shell-start-silent-cmd)
       (or proof-shell-silent	; already
-	  ;; NB: there is some question here over counting the
-	  ;; proof-action-list, since it could itself contain
-	  ;; silent-on/off commands which should be ignored for
-	  ;; counting, really... also makes cutting lists for advanced
-	  ;; queue processing more tricky.
+	  ;; NB: to be more accurate we should only count number
+	  ;; of scripting items in the list (not e.g. invisibles).
+	  ;; More efficient: keep track of size of queue as modified.
 	  (>= (+ num (length proof-action-list))
 	     proof-shell-silent-threshold))))
 
@@ -892,8 +885,8 @@ track what happens in the proof queue."
   "Insert ITEM from `proof-action-list' into the proof shell."
   (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item)))
 
-(defun proof-append-alist (alist &optional queuemode)
-  "Chop off the vacuous prefix of the command queue ALIST and queue it.
+(defun proof-add-to-queue (queueitems &optional queuemode)
+  "Chop off the vacuous prefix of the QUEUEITEMS and queue them.
 For each item with a nil command at the head of the list, invoke its
 callback and remove it from the list.
 
@@ -906,15 +899,15 @@ then QUEUEMODE must match the mode of the queue currently
 being processed."
   (let (item)
     (unless proof-action-list
-      (while (and alist (not (nth 1 (setq item (car alist)))))
+      (while (and queueitems (not (nth 1 (setq item (car queueitems)))))
 	(proof-shell-invoke-callback item)
-	(setq alist (cdr alist))))
+	(setq queueitems (cdr queueitems))))
 
-    (if (and (null alist) (null proof-action-list))
+    (if (and (null queueitems) (null proof-action-list))
 	;; remove the queue (otherwise done in proof-shell-exec-loop)
 	(proof-detach-queue))
 
-    (when (and alist proof-action-list)
+    (when (and queueitems proof-action-list)
       ;; extend existing queue
       ;; internal check: correct queuemode in force if busy
       ;; (should have proof-action-list<>nil -> busy)
@@ -923,8 +916,8 @@ being processed."
 	     (proof-debug 
 	      "proof-append-alist: wrong queuemode detected for busy shell")
 	     (assert (eq proof-shell-busy queuemode))))
-
-      (if (proof-shell-should-be-silent (length alist))
+      ;; See if we should make prover quieten down
+      (if (proof-shell-should-be-silent (length queueitems))
 	  ;; do this ASAP, just after current command (head of queue).
 	  (setq proof-action-list
 		(cons (car proof-action-list)
@@ -932,42 +925,41 @@ being processed."
 			    (cdr proof-action-list)))))
       ;; append to the current queue
       (setq proof-action-list
-	    (nconc proof-action-list alist)))
+	    (nconc proof-action-list queueitems)))
 
-    (when (and alist (not proof-action-list))
+    (when (and queueitems (not proof-action-list))
       ;; start processing a new queue
       (proof-grab-lock queuemode)
       (setq proof-shell-last-output-kind nil)
-      (if (proof-shell-should-be-silent (length alist))
-	  ;;
+      (if (proof-shell-should-be-silent (length queueitems))
 	  (progn
 	    (setq proof-action-list
 		  (list (proof-shell-start-silent-item)))
 	    (setq item (car proof-action-list))))
       (setq proof-action-list
-	    (nconc proof-action-list alist))
+	    (nconc proof-action-list queueitems))
       ;; Really start things going here:
       (proof-shell-insert-action-item item))))
 
 ;;;###autoload
-(defun proof-start-queue (start end alist)
-  "Begin processing a queue of commands in ALIST.
+(defun proof-start-queue (start end queueitems)
+  "Begin processing a queue of commands in QUEUEITEMS.
 If START is non-nil, START and END are buffer positions in the
 active scripting buffer for the queue region.
 
 This function calls `proof-append-alist'."
   (if start
       (proof-set-queue-endpoints start end))
-  (proof-append-alist alist))
+  (proof-add-to-queue queueitems))
 
 ;;;###autoload
-(defun proof-extend-queue (end alist)
-  "Extend the current queue with commands in ALIST, queue end END.
+(defun proof-extend-queue (end queueitems)
+  "Extend the current queue with QUEUEITEMS, queue end END.
 To make sense, the commands should correspond to processing actions
 for processing a region from (buffer-queue-or-locked-end) to END.
 The queue mode is set to 'advancing"
   (proof-set-queue-endpoints (proof-unprocessed-begin) end)
-  (proof-append-alist alist 'advancing))
+  (proof-add-to-queue queueitems 'advancing))
 
 
 (defun proof-shell-exec-loop ()
@@ -999,14 +991,15 @@ The return value is non-nil if the action list is now empty."
 
        ;; invoke callback on just processed command
 ; PG 4.0: do this now *after* pumping the next command out,
-; to parallelize prover and Emacs somewhat
+; to parallelize prover and Emacs somewhat.  Experimental.
 ;      (proof-shell-invoke-callback item)
 
        (setq proof-action-list (cdr proof-action-list))
 
-       ;; slurp comments without sending to prover
+       ;; slurp empty command lists (comments) without sending
        (while (and proof-action-list
 		   (not (nth 1 (setq item (car proof-action-list)))))
+;; PG 4.0: delay this
 ;;	 (proof-shell-invoke-callback item)
 	 (setq cbitems (cons item cbitems))
 	 (setq proof-action-list (cdr proof-action-list)))
@@ -1028,13 +1021,15 @@ The return value is non-nil if the action list is now empty."
        (if proof-shell-interrupt-pending
 	   (progn
 	     (proof-debug "Processed pending interrupt")
-	     (proof-shell-handle-error-or-interrupt flags)))
+	     ;; don't pass in flags: want to see interrupt message
+	     (proof-shell-handle-error-or-interrupt 'interrupt nil)))
 
        (if proof-action-list
 	   ;; send the next command to the process.
 	   (proof-shell-insert-action-item item))
 
        ;; process the callbacks
+;; PG 4.0: process delayed callbacks out-of-order.
        (mapc 'proof-shell-invoke-callback (nreverse cbitems))
 
        (unless proof-action-list	; release lock, cleanup
@@ -1232,7 +1227,7 @@ A subroutine of `proof-shell-process-urgent-message'."
 	   (read-string msg nil
 	    'proof-shell-minibuffer-urgent-interactive-input-history))))
     ;; Always send something, even if read-input was errorful
-    (proof-shell-insert (or input "") 'interactive-input)))
+    (proof-shell-insert (list (or input "")) 'interactive-input)))
 
 
 
@@ -1539,8 +1534,6 @@ i.e., 'goals or 'response."
     'response))
   
   (run-hooks 'proof-shell-handle-delayed-output-hook)))
-
-
 
 
 

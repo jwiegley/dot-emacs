@@ -1,6 +1,6 @@
 ;; proof-maths-menu.el   Support for maths menu mode package
 ;;
-;; Copyright (C) 2007 LFCS Edinburgh / David Aspinall
+;; Copyright (C) 2007, 2009 LFCS Edinburgh / David Aspinall
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;

@@ -336,7 +336,8 @@ The prover command is processed via pg-pbrpm-run-command."
        (span-set-property span 'type 'pbp)
        (span-set-property span 'cmd command)
        (proof-start-queue (proof-unprocessed-begin) (point)
-			  (list (list span command 'proof-done-advancing))))))
+			  (list (list span (list command)
+				      'proof-done-advancing))))))
 
 ;;--------------------------------------------------------------------------;;
 ;; Click Informations extractors

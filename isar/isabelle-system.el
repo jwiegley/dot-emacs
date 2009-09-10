@@ -13,13 +13,13 @@
 
 ;;; Code:
 (eval-when-compile
+  (require 'span)		        ; span macros
   (require 'proof-site)			; compile for isar (defpgdefault, etc)
-  (require 'span)
   (proof-ready-for-assistant 'isar))
 
+(require 'cl)			        ; mapcan
 (require 'proof)			; for proof-assistant-symbol, etc.
 (require 'proof-syntax)			; for proof-string-match
-(require 'cl)				; mapcan
 
 
 ;; The isabelle custom group won't have been defined yet.

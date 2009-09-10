@@ -21,6 +21,12 @@
     
 
 
+(eval-when-compile
+  (defvar proof-assistant-menu)	  ; defined by macro in proof-menu-define-specific
+  (defvar proof-mode-map))
+    
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Miscellaneous commands

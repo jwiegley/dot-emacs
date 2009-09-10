@@ -1917,25 +1917,41 @@ This version is used when `proof-script-command-end-regexp' is set."
       ;; Return resulting list
       alist)))
 
-(defun proof-semis-to-vanillas (semis &optional callback-fn)
-  "Convert a sequence of terminator positions to a set of vanilla extents.
+(defun proof-semis-to-vanillas (semis)
+  "Create vanilla extents for SEMIS and a list for the queue.
 Proof terminator positions SEMIS has the form returned by
 the function `proof-segment-up-to'.  The argument list is destroyed.
-Set the callback to CALLBACK-FN or `proof-done-advancing' by default."
-  (let ((ct (proof-queue-or-locked-end))
-	(cb (or callback-fn 'proof-done-advancing))
-	span alist semi)
-    (dolist (semi (nreverse semis))
-      (setq span (span-make ct (nth 2 semi))
-	    ct (nth 2 semi))
-      (if (eq (car semi) 'cmd)
-	  (progn
-	    (span-set-property span 'type 'vanilla)
-	    (span-set-property span 'cmd (nth 1 semi))
-	    (setq alist (cons (list span (nth 1 semi) cb) alist)))
-	(span-set-property span 'type 'comment)
-	(setq alist
-	      (cons (list span nil cb) alist))))  ; was proof-no-command
+The callback in each queue element is `proof-done-advancing'.
+If `proof-script-preprocess' is set, call that function to construct
+the first element of the queue item."
+  (let ((start (proof-queue-or-locked-end))
+	(file  (or (buffer-file-name) (buffer-name)))
+	(cb    'proof-done-advancing)
+	span alist semi item end)
+    (setq semis (nreverse semis))
+    (save-match-data
+      (dolist (semi semis)
+	(setq end (nth 2 semi))
+	(setq span  (span-make start end))
+	(if (eq (car semi) 'cmd)
+	    (progn ;; command span
+	      (let* ((cmd  (nth 1 semi))
+		     (qcmd (if proof-script-preprocess
+			       (funcall proof-script-preprocess
+					file 
+					;; ignore spaces at start of command
+					(+ start (string-match "[^\t\n ]" cmd))
+					end
+					cmd)
+			     (list cmd))))
+		(span-set-property span 'type 'vanilla)
+		(span-set-property span 'cmd cmd)
+		(setq alist (cons (list span qcmd cb) alist))))
+	  ;; ignored text
+	  (span-set-property span 'type 'comment)
+	  (setq alist
+		(cons (list span nil cb) alist))) ; nil was `proof-no-command'
+	(setq start end)))
     (nreverse alist)))
 
 
@@ -2006,7 +2022,8 @@ SEMIS must be a non-empty list, in reverse order (last position first)."
     (span-set-property span 'type 'pbp)
     (span-set-property span 'cmd cmd)
     (proof-start-queue (proof-unprocessed-begin) (point)
-		       (list (list span cmd 'proof-done-advancing)))))
+		       (list (list span (list cmd) 
+				   'proof-done-advancing)))))
 
 ;;;###autoload
 (defun proof-insert-sendback-command (cmd)
@@ -2070,14 +2087,14 @@ others)."
   ;; State of scripting may have changed now
   (run-hooks 'proof-state-change-hook))
 
-(defun proof-setup-retract-action (start end proof-command delete-region)
+(defun proof-setup-retract-action (start end proof-commands delete-region)
   "Make span from START to END which corresponds to retraction.
 Returns retraction action destined for proof shell queue, and make span.
-Action holds PROOF-COMMAND and `proof-done-retracting' callback.
+Action holds PROOF-COMMANDS and `proof-done-retracting' callback.
 Span deletion property set to flag DELETE-REGION."
   (let ((span (span-make start end)))
     (span-set-property span 'delete-me delete-region)
-    (list (list span proof-command 'proof-done-retracting))))
+    (list (list span proof-commands 'proof-done-retracting))))
 
 
 (defun proof-last-goal-or-goalsave ()
@@ -2145,7 +2162,8 @@ up to the end of the locked region."
 	      (setq actions (proof-setup-retract-action
 			     start end
 			     (if (null span) nil ; was: proof-no-command
-			       (funcall proof-count-undos-fn span))
+			       ;; TODO: make proof-count-undos-fn return a list
+			       (list (funcall proof-count-undos-fn span)))
 			     delete-region)
 		    end start))
 	  ;; Otherwise, start the retraction by killing off the
@@ -2157,7 +2175,7 @@ up to the end of the locked region."
 	  (setq proof-nesting-depth (1- proof-nesting-depth))
 	  (setq actions
 		(proof-setup-retract-action (span-start span) end
-					    proof-kill-goal-command
+					    (list proof-kill-goal-command)
 						    delete-region)
 		end (span-start span))))
     ;; Check the start of the target span lies before the end
@@ -2174,7 +2192,8 @@ up to the end of the locked region."
 	      ;; the target span.
 	      (nconc actions (proof-setup-retract-action
 			      start end
-			      (funcall proof-find-and-forget-fn target)
+			      ;; TODO: make `proof-find-and-forget-fn' return a list
+			      (list (funcall proof-find-and-forget-fn target))
 			      delete-region))))
 
     (proof-start-queue (min start end) (proof-locked-end) actions)))
