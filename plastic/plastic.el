@@ -10,7 +10,14 @@
 
 
 (require 'proof)
-(require 'span)
+
+(eval-when-compile
+  (require 'cl)
+  (require 'span)
+  (require 'proof-syntax)
+  (require 'outline)
+  (defvar plastic-keymap nil))
+
 (require 'plastic-syntax)
 
 
@@ -49,7 +56,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Users should not need to change this.
 
-(defvar lego-shell-handle-output
+(defvar plastic-shell-handle-output
   '(lambda (cmd string) 
       (when (proof-string-match "^Module" cmd)
 	;; prevent output and just give a minibuffer message
@@ -245,11 +252,13 @@ Given is the first SPAN which needs to be undone."
 	      (string-match "^\\s-*test" string)
 	      (string-match "^\\s-*\\$" string)
 	      (string-match "^\\s-*#" string))
-
-	    (popup-dialog-box
-		(list (concat "Can't Undo imports yet\n"
-				   "You have to exit Plastic for this\n")
-		      ["ok, I'll do this" (lambda () t) t]))
+	  
+	  ; da: put this instead of XEmacs code
+	  (message "Can't Undo imports yet!  You must exit Plastic for this!")
+	;    (popup-dialog-box
+	;	(list (concat "Can't Undo imports yet\n"
+	;			   "You have to exit Plastic for this\n")
+	;	      ["ok, I'll do this" (lambda () t) t]))
 	    (return)
 	   )    ;; warn the user that undo of imports not yet working.
 	 (t (incf spans))
@@ -452,7 +461,7 @@ For Plastic, we assume that module identifiers coincide with file names."
 	proof-shell-interrupt-regexp plastic-interrupt-regexp
 	;; DEAD proof-shell-noise-regexp "Discharge\\.\\. "
 	proof-shell-assumption-regexp plastic-id
-	proof-shell-goal-regexp plastic-goal-regexp
+	proof-shell-start-goals-regexp plastic-goal-regexp
 	pg-subterm-first-special-char ?\360
 	pg-subterm-start-char ?\372
 	pg-subterm-sep-char ?\373
@@ -484,7 +493,7 @@ For Plastic, we assume that module identifiers coincide with file names."
 				 (file-name-sans-extension match) ".lf")))))
 
 	proof-shell-retract-files-regexp "forgot back through Mark \"\\(.*\\)\""
-	proof-shell-font-lock-keywords plastic-font-lock-keywords-1
+	;; DEAD: proof-shell-font-lock-keywords plastic-font-lock-keywords-1
 
 	proof-shell-compute-new-files-list 'plastic-shell-compute-new-files-list)
 
@@ -625,10 +634,6 @@ For Plastic, we assume that module identifiers coincide with file names."
     "shortcut to shell buffer"
     (interactive)
     (proof-switch-to-buffer proof-shell-buffer))
-
-;; pcc macros etc
-;; da: I've moved these key defs out of plastic-mode-config
-;; da: PG 3.5.1: fixed for GNU Emacs compatible syntax
 
 (define-key plastic-keymap [(control s)] 'plastic-small-bar)
 (define-key plastic-keymap [(control l)] 'plastic-large-bar)
