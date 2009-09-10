@@ -14,19 +14,18 @@
 ;;
 
 ;;; Code:
-(eval-and-compile
-  (require 'cl))
+
+(require 'cl)				; set-difference
 
 (eval-when-compile
   (require 'span)
-  (require 'font-lock)
   (require 'proof-utils))
 
 (require 'scomint)
-(require 'proof-autoloads)
 (require 'pg-response)
 (require 'pg-goals)
-(require 'proof-script)
+(require 'pg-user)			; proof-script, new-command-advance
+
 
 ;; ============================================================
 ;;
@@ -54,42 +53,18 @@ If flags are non-empty, other interactive cues will be surpressed.
 
 See the functions `proof-start-queue' and `proof-exec-loop'.")
 
-(defvar proof-shell-silent nil
-  "A flag, non-nil if PG thinks the prover is silent.")
-
 ;; We record the last output from the prover and a flag indicating its
 ;; type, as well as a previous ("delayed") version to display when the
 ;; end of the queue is reached or an error or interrupt occurs.
-
-(defvar proof-shell-last-prompt ""
-  "A raw record of the last prompt seen from the proof system.
-This is the string matched by `proof-shell-annotated-prompt-regexp'.")
+;; 
+;; See `proof-shell-last-output', `proof-shell-last-prompt' in
+;; pg-vars.el
 
 (defvar proof-shell-last-goals-output ""
   "The last displayed goals string.")
 
 (defvar proof-shell-last-response-output ""
   "The last displayed response message.")
-
-(defvar proof-shell-last-output-kind nil
-  "A symbol denoting the type of the last output string from the proof system.
-Specifically:
-
- 'interrupt	 An interrupt message
- 'error		 An error message
- 'loopback	 A command sent from the PA to be inserted into the script
- 'response	 A response message
- 'goals		 A goals (proof state) display
- 'systemspecific Something specific to a particular system,
-		  -- see `proof-shell-handle-output-system-specific'
-
-The output corresponding to this will be in `proof-shell-last-output'.
-
-See also `proof-shell-proof-completed' for further information about
-the proof process output, when ends of proofs are spotted.
-
-This variable can be used for instance specific functions which want
-to examine `proof-shell-last-output'.")
 
 (defvar proof-shell-delayed-output-start nil
   "A record of the start of the previous output in the shell buffer.
@@ -605,12 +580,12 @@ This is a subroutine of `proof-shell-handle-error'."
 
 
 
-
 (defsubst proof-shell-strip-output-markup (string &optional push)
   "Strip output markup from STRING.
 Convenience function to call function `proof-shell-strip-output-markup'.
 Optional argument PUSH is ignored."
   (funcall proof-shell-strip-output-markup string))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -641,7 +616,7 @@ non-empty flags) will not invoke any of this action."  ; PG4.0 change
       (proof-shell-handle-error-output
        (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
        'proof-error-face)
-      (proof-warning
+      (pg-response-warning
        "Interrupt: script management may be in an inconsistent state
 	   (but it's probably okay)"))
      (t ; error
@@ -754,9 +729,8 @@ after a completed proof."
 
   ;; PG4.0 change: simplify and run earlier
   (if proof-shell-handle-output-system-specific
-      (proof-shell-handle-output-system-specific
-       (funcall proof-shell-handle-output-system-specific
-		cmd proof-shell-last-output))))
+      (funcall proof-shell-handle-output-system-specific
+	       cmd proof-shell-last-output)))
 
 
 
@@ -815,6 +789,9 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
 (defun proof-shell-insert (string action &optional scriptspan)
   "Insert STRING at the end of the proof shell, call `scomint-send-input'.
 
+The ACTION argument is a symbol which is typically the name of a
+callback for when STRING has been processed.
+
 First we call `proof-shell-insert-hook'.  The arguments `action' and
 `scriptspan' may be examined by the hook to determine how to modify
 the `string' variable (exploiting dynamic scoping) which will be
@@ -823,13 +800,13 @@ the command actually sent to the shell.
 Note that the hook is not called for the empty (null) string
 or a carriage return.
 
-Then we strip `string' of carriage returns before inserting it
+Then we strip STRING of carriage returns before inserting it
 and updating `proof-marker' to point to the end of the newly
 inserted text.
 
-Do not use this function directly, or output will be lost.  It is only
-used in `proof-append-alist' when we start processing a queue, and in
-`proof-shell-exec-loop', to process the next item."
+Do not use this function directly, or output will be lost.  It is
+only used in `proof-append-alist' when we start processing a
+queue, and in `proof-shell-exec-loop', to process the next item."
   ;(assert (stringp string) t "proof-shell-insert: expected string argument")
 
   (with-current-buffer proof-shell-buffer
@@ -911,6 +888,10 @@ track what happens in the proof queue."
       (funcall (nth 2 listitem) (car listitem))
     (error nil)))
 
+(defsubst proof-shell-insert-action-item (item)
+  "Insert ITEM from `proof-action-list' into the proof shell."
+  (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item)))
+
 (defun proof-append-alist (alist &optional queuemode)
   "Chop off the vacuous prefix of the command queue ALIST and queue it.
 For each item with a nil command at the head of the list, invoke its
@@ -966,7 +947,7 @@ being processed."
       (setq proof-action-list
 	    (nconc proof-action-list alist))
       ;; Really start things going here:
-      (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item)))))
+      (proof-shell-insert-action-item item))))
 
 ;;;###autoload
 (defun proof-start-queue (start end alist)
@@ -1047,12 +1028,11 @@ The return value is non-nil if the action list is now empty."
        (if proof-shell-interrupt-pending
 	   (progn
 	     (proof-debug "Processed pending interrupt")
-	     (proof-shell-handle-interrupt flags)))
+	     (proof-shell-handle-error-or-interrupt flags)))
 
        (if proof-action-list
 	   ;; send the next command to the process.
-	   (proof-shell-insert 
-	    (nth 1 item) (nth 2 item) (nth 0 item)))
+	   (proof-shell-insert-action-item item))
 
        ;; process the callbacks
        (mapc 'proof-shell-invoke-callback (nreverse cbitems))
@@ -1146,7 +1126,6 @@ ends with text matching `proof-shell-eager-annotation-end'."
   ;; Clear the response buffer this time, but not next, leave window.
   (pg-response-maybe-erase nil nil)
   ;; Display first chunk of output in minibuffer.
-  ;; Maybe this should be configurable, it can get noisy.
   (proof-shell-message
    (buffer-substring-no-properties 
     (save-excursion 
@@ -1478,6 +1457,12 @@ by the filter is to send the next command from the queue."
 		(proof-shell-handle-delayed-output))))))
 
 
+(defsubst proof-shell-display-output-as-response (flags str)
+  "If FLAGS permit, display response STR; set `proof-shell-last-response-output'."
+  (setq proof-shell-last-response-output str) ; set even if not displayed
+  (unless (memq 'no-error-display flags)
+    (pg-response-display str)))
+
 (defun proof-shell-handle-delayed-output ()
   "Display delayed outputs, when queue is stopped or completed.
 This function handles the cases of `proof-shell-output-kind' which
@@ -1555,11 +1540,7 @@ i.e., 'goals or 'response."
   
   (run-hooks 'proof-shell-handle-delayed-output-hook)))
 
-(defsubst proof-shell-display-output-as-response (flags str)
-  "If FLAGS permit, display response STR; set `proof-shell-last-response-output'."
-  (setq proof-last-response-output str) ; set even if not displayed
-  (unless (memq 'no-error-display flags)
-    (pg-response-display str)))
+
 
 
 
@@ -1742,6 +1723,26 @@ Error messages are displayed as usual."
 				 nil
 				 'no-response-display))
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; User-level functions depending on shell commands
+;;
+
+;;
+;; Function to insert last prover output in comment.
+;; Requested/suggested by Christophe Raffalli
+;;
+
+(defun pg-insert-last-output-as-comment ()
+  "Insert the last output from the proof system as a comment in the proof script."
+  (interactive)
+  (if proof-shell-last-output
+      (let  ((beg (point)))
+	(insert (proof-shell-strip-output-markup proof-shell-last-output))
+	(comment-region beg (point)))))
 
 
 

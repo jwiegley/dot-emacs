@@ -12,6 +12,8 @@
 ;; This implements the main mode for script management, including
 ;; parsing script buffers and setting spans inside them.
 ;;
+;; Compile note: functions used here from proof-shell, pg-user,
+;; pg-response, pg-goals autoloaded to prevent circular dependency.
 
 ;;; Code:
 
@@ -21,8 +23,14 @@
 (require 'proof-syntax)			; utils for manipulating syntax
 
 (eval-when-compile
+  (require 'easymenu)
   (defvar proof-mode-menu nil)
   (defvar proof-assistant-menu nil))
+
+(declare-function proof-shell-strip-output-markup "proof-shell"
+		  (string &optional push))
+(declare-function pg-response-warning "pg-response" (&rest args))
+(declare-function proof-segment-up-to "proof-script")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -720,6 +728,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 ;; complicated for retracting, because we allow a hook function
 ;; to calculate the new included files list.
 
+;;;###autoload
 (defun proof-register-possibly-new-processed-file
   (file &optional informprover noquestions)
   "Register a possibly new FILE as having been processed by the prover.
@@ -743,7 +752,7 @@ proof assistant and Emacs has a modified buffer visiting the file."
       (and buffer
 	   (not informprover)
 	   (buffer-modified-p buffer)
-	   (proof-warning (concat "Changes to "
+	   (pg-response-warning (concat "Changes to "
 				  (buffer-name buffer)
 				  " have not been saved!")))
       ;; Add the new file onto the front of the list
@@ -837,7 +846,7 @@ This is a subroutine for `proof-unregister-buffer-file-name'."
 		(if informprover
 		    (proof-inform-prover-file-retracted rfile)))
 	    ;; If no buffer available, issue a warning that nothing was done
-	    (proof-warning "Not retracting unvisited file " rfile))
+	    (pg-response-warning "Not retracting unvisited file " rfile))
 	  (setq depfiles (cdr depfiles))))))
 
 (defun proof-unregister-buffer-file-name (&optional informprover)
@@ -1388,7 +1397,7 @@ Argument SPAN has just been processed."
 
     (if (not gspan)
 	;; No goal span found!  Issue a warning and do nothing more.
-	(proof-warning
+	(pg-response-warning
 	 "Proof General: script management confused, couldn't find goal span for save.")
 
       ;; If the name isn't set, try to set it from the goal, or as a
@@ -2282,11 +2291,9 @@ as well as setting `proof-script-buffer-file-name' (which see).
 This hook also gives a warning in case this is the active scripting buffer."
   (setq proof-script-buffer-file-name buffer-file-name)
   (if (eq (current-buffer) proof-script-buffer)
-      (proof-warning
+      (pg-response-warning
 "Active scripting buffer changed name; synchronization risked if prover tracks filenames!"))
   (proof-script-set-buffer-hooks))
-
-
 
 (defun proof-script-set-buffer-hooks ()
   "Set the hooks for a proof script buffer.
