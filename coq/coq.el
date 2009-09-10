@@ -24,7 +24,6 @@
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 (require 'proof)
-(require 'local-vars-list)              ; in lib directory
 (require 'coq-local-vars)               ;
 (require 'coq-syntax)                   ; sets coq-prog-name
 (require 'coq-abbrev)                   ; coq specific menu
