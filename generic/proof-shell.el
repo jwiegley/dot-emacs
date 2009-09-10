@@ -300,7 +300,8 @@ process command."
 	;;	      process-coding-system-alist)))
 
 	;; PG 4.0: does this setting improve performance?
-	(setq process-adaptive-read-buffering 'persist-delay)
+	;; A: persisting delay doesn't
+	;; (setq process-adaptive-read-buffering t)
 
 	(message "Starting: %s" prog-command-line)
 
@@ -578,11 +579,7 @@ This is a subroutine of `proof-shell-handle-error'."
       (pg-response-maybe-erase t nil)
       (pg-response-display-with-face string append-face)))
 
-(defsubst proof-shell-strip-output-markup (string &optional push)
-  "Strip output markup from STRING.
-Convenience function to call function `proof-shell-strip-output-markup'.
-Optional argument PUSH is ignored."
-  (funcall proof-shell-strip-output-markup string))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1120,8 +1117,7 @@ ends with text matching `proof-shell-eager-annotation-end'."
   "A subroutine of `proof-shell-process-urgent-message'."
   ;; Clear the response buffer this time, but not next, leave window.
   (pg-response-maybe-erase nil nil)
-  ;; Display first chunk of output in minibuffer.
-  (proof-shell-message
+  (proof-minibuffer-message
    (buffer-substring-no-properties 
     (save-excursion 
       (re-search-forward proof-shell-eager-annotation-start end nil)
@@ -1195,13 +1191,6 @@ A subroutine of `proof-shell-process-urgent-message'."
 ;;
 ;; urgent message utilities
 ;;
-
-(defun proof-shell-message (str)
-  "Output STR in minibuffer."
-  (message "%s" ;; to escape format characters
-	   (concat "[" proof-assistant "] "
-		   ;; TODO: rather than stripping, could try fontifying
-		   (proof-shell-strip-output-markup str))))
 
 (defun proof-shell-strip-eager-annotations (start end)
   "Strip `proof-shell-eager-annotation-{start,end}' from region."
@@ -1376,10 +1365,7 @@ This is a subroutine of `proof-shell-filter'."
 	    (setq lastend end)
 	    (proof-shell-process-urgent-message start end))))
 
-    ;; Set the marker to the (character after) the end of the last
-    ;; message found, if any.  Must take care to keep the marker
-    ;; behind the process marker otherwise no output is seen!
-    ;; (insert-before-markers in comint)
+    ;; Marker points to char after end of last message found, if any.
     (if lastend
 	(set-marker
 	 proof-shell-urgent-message-marker
@@ -1764,27 +1750,22 @@ Error messages are displayed as usual."
 	 (if proof-shell-strip-crs-from-output 'scomint-strip-ctrl-m)
 	 (list 'proof-shell-filter)))
 
-  ;; Proof marker is initialised in filter to first prompt found
-  (setq proof-marker (make-marker))
+  (setq proof-marker 			; follows prompt
+	(make-marker)	
+	proof-shell-urgent-message-marker 
+	(make-marker)			; follows urgent messages
+	proof-shell-urgent-message-scanner 
+	(make-marker))			; last scan point
 
-  ;; Urgent message marker: end of last urgent message seen.
-  (setq proof-shell-urgent-message-marker (make-marker))
-
-  ;; Urgent message scan marker records start of scanning point.
-  (setq proof-shell-urgent-message-scanner (make-marker))
   (set-marker proof-shell-urgent-message-scanner (point-min))
 
   ;; Make cut functions work with proof shell output
   (add-hook 'buffer-substring-filters 'proof-shell-strip-output-markup)
 
-  ;; Note da: before entering proof assistant specific code,
-  ;; we'd do well to check that process is actually up and
-  ;; running now.  If not, could call the process sentinel function
-  ;; to display the buffer, and give an error.
-  ;; (Problem to fix is that process can die before sentinel is set:
-  ;;  it ought to be set just here, perhaps: but setting hook here
-  ;;  had no effect for some odd reason).
-  );)
+  ;; Note: before entering proof assistant specific code, we could
+  ;; check that process is up and running.  If not, could call the
+  ;; sentinel to display the buffer, and give error.
+  )
 
 ;;
 ;; Sanity checks on important settings
@@ -1816,9 +1797,8 @@ processing."
       (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
       (set-process-sentinel proc 'proof-shell-bail-out)
 
-      ;; Pre-sync initialization command.  This is necessary
-      ;; for proof assistants which change their output modes
-      ;; only after some initializations.
+      ;; Pre-sync initialization command.  Necessary for provers which
+      ;; change output modes only after some initializations.
       (if proof-shell-pre-sync-init-cmd
 	  (proof-shell-insert proof-shell-pre-sync-init-cmd 'init-cmd))
 
@@ -1835,12 +1815,8 @@ processing."
 	    ;; Send main intitialization command and wait for it to be
 	    ;; processed.
 
-	    ;; First, if the prover supports PGIP and preferences are
-	    ;; not configured, we may configure them.  (NB: this
-	    ;; assumes that PGIP provers are ready-to-go, without
-	    ;; needing init-cmd before PGIP processing).  We do this
-	    ;; so that user preferences may be then set sensibly in
-	    ;; the next step.
+	    ;; First, configure PGIP preferences (even before init cmd)
+	    ;; available: this allows setting them after the init cmd.
 	    (proof-maybe-askprefs)
 
 	    ;; Now send the initialisation commands.
@@ -1854,7 +1830,7 @@ processing."
 		       (proof-assistant-settings-cmd) t)))
 
 	      ;; Configure for unicode input
-	      ;(proof-unicode-tokens-shell-config)
+	      ; (proof-unicode-tokens-shell-config)
 	      ))))))
 
 
