@@ -7,9 +7,19 @@
 ;; $Id$
 ;;
 
-(require 'cl)
+(require 'cl)				; mapcan
+
+(eval-when (compile)
+  (defvar proof-assistant-menu nil) ; defined by macro in proof-menu-define-specific
+  (defvar proof-mode-map nil))
 
 (require 'proof-utils)    ; proof-deftoggle, proof-eval-when-ready-for-assistant
+(require 'proof-useropts)
+(require 'proof-config)
+
+
+    
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -78,9 +88,9 @@ without adjusting window layout."
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
-  ;; Prover specific keymap under C-c C-a
+  "Prover specific keymap under C-c C-a."
   (proof-eval-when-ready-for-assistant
-      (define-key map [(control c) (control a)] (proof-ass keymap)))
+   (define-key map [(control c) (control a)] (proof-ass keymap)))
   ;; M-a and M-e are usually {forward,backward}-sentence.
   ;; Some modes also override these with similar commands
   (define-key map [(meta a)] 'proof-backward-command)
@@ -147,6 +157,9 @@ without adjusting window layout."
 
 (defvar proof-menu-favourites nil
   "The Proof General favourites menu for the current proof assistant.")
+
+(defvar proof-menu-settings nil
+  "Settings submenu for Proof General.")
 
 ;;;###autoload
 (defun proof-menu-define-specific ()
@@ -274,6 +287,7 @@ without adjusting window layout."
 (proof-deftoggle proof-strict-read-only)
 (proof-deftoggle proof-colour-locked)
 (proof-deftoggle proof-shell-quiet-errors)
+(proof-deftoggle proof-minibuffer-messages)
 
 (proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
 (proof-deftoggle proof-keep-response-history)
@@ -385,10 +399,14 @@ without adjusting window layout."
       :help "Beep on errors or interrupts"]
 
      ("Display"
+      ["Minibuffer messages" proof-minibuffer-messages-toggle
+       :style toggle
+       :selected proof-minibuffer-messages
+       :help "Show progress messages in minibuffer"]
       ["Auto Raise" proof-auto-raise-toggle
        :style toggle
        :selected proof-auto-raise-buffers
-       :help "Automatically raise buffers when output arrives"]
+       :help "Automatically raise buffers when output arrives"]      
       ["Use Three Panes" proof-three-window-toggle
        :style toggle
        :active (not proof-multiple-frames-enable)
@@ -481,6 +499,7 @@ without adjusting window layout."
    'proof-imenu-enable
    'proof-shell-quiet-errors
    ;; Display sub-menu
+   'proof-minibuffer-messages
    'proof-auto-raise-buffers
    'proof-three-window-enable
    'proof-delete-empty-windows
@@ -703,9 +722,6 @@ KEY is the optional key binding."
 ;;; Proof assistant settings mechanism.
 ;;;
 
-(defvar proof-menu-settings nil
-  "Settings submenu for Proof General.")
-
 (defun proof-menu-define-settings-menu ()
   "Return menu generated from `proof-assistant-settings', update `proof-menu-settings'."
   (if proof-assistant-settings
@@ -790,89 +806,6 @@ KEY is the optional key binding."
   "Reset proof assistant settings to their default values."
   (interactive)
   (apply 'pg-custom-reset-vars (proof-settings-vars)))
-
-;;; autoload for compiled version: used in macro proof-defpacustom
-;;;###autoload
-(defun proof-defpacustom-fn (name val args)
-  "As for macro `defpacustom' but evaluating arguments."
-  (let (newargs setting evalform type descr)
-    (while args
-      (cond
-       ((eq (car args) :setting)
-	(setq setting (cadr args))
-	(setq args (cdr args)))
-       ((eq (car args) :eval)
-	(setq evalform (cadr args))
-	(setq args (cdr args)))
-       ((eq (car args) :pgipcmd)
-	;; Construct a function which yields a PGIP string
-	(setq setting `(lambda (x)
-			  (pg-pgip-string-of-command (proof-assistant-format ,(cadr args) x))))
-	(setq args (cdr args)))
-       ((eq (car args) :pggroup)
-	;; use the group as a prefix to the name, and set a pggroup property on it
-	(setq name (intern (concat (downcase (cadr args)) ":" (symbol-name name))))
-	(put name 'pggroup (cadr args))
-	(setq args (cdr args)))
-       ((eq (car args) :type)
-	(setq type (cadr args))
-	(setq args (cdr args))
-	(setq newargs (cons type (cons :type newargs))))
-       (t
-	(setq newargs (cons (car args) newargs))))
-      (setq args (cdr args)))
-    (setq newargs (reverse newargs))
-    (setq descr (car-safe newargs))
-    (unless (and type
-		  (or (eq (eval type) 'boolean)
-		      (eq (eval type) 'integer)
-		      (eq (eval type) 'string)))
-      (error "defpacustom: missing :type keyword or wrong :type value"))
-    ;; Debug message in case a defpacustom is repeated.
-    ;; NB: this *may* happen dynamically, but shouldn't: if the
-    ;; interface queries the prover for the settings it supports,
-    ;; then the internal list should be cleared first.
-    ;; FIXME: for now, we support redefinitions, by calling
-    ;; pg-custom-undeclare-variable.
-    (if (assoc name proof-assistant-settings)
-	(progn
-	  (proof-debug "defpacustom: Proof assistant setting %s re-defined!"
-		       name)
-	  (undefpgcustom name)))
-    (eval
-     `(defpgcustom ,name ,val
-	,@newargs
-	:set 'proof-set-value
-	:group 'proof-assistant-setting))
-    (cond
-     (evalform
-      (eval
-       `(defpgfun ,name ()
-	  ,evalform)))
-     (setting
-      (eval
-       `(defpgfun ,name ()
-	  (proof-assistant-invisible-command-ifposs
-	   (proof-assistant-settings-cmd (quote ,name)))))))
-    (setq proof-assistant-settings
-	  (cons (list name setting (eval type) descr)
-		(assq-delete-all name proof-assistant-settings)))))
-
-;;;###autoload
-(defmacro defpacustom (name val &rest args)
-  "Define a setting NAME for the current proof assitant, default VAL.
-NAME can correspond to some internal setting, flag, etc, for the
-proof assistant, in which case a :setting and :type value should be provided.
-The :type of NAME should be one of 'integer, 'boolean, 'string.
-The customization variable is automatically in group `proof-assistant-setting'.
-The function `proof-assistant-format' is used to format VAL.
-If NAME corresponds instead to a PG internal setting, then a form :eval to
-evaluate can be provided instead."
-  (eval-when-compile
-    (if (boundp 'proof-assistant-symbol)
-	;; declare variable to compiler to prevent warnings
-	(eval `(defvar ,(proof-ass-sym name) nil "Dummy for compilation."))))
-  `(proof-defpacustom-fn (quote ,name) (quote ,val) (quote ,args)))
 
 (defun proof-assistant-invisible-command-ifposs (cmd)
   "Send CMD as an \"invisible command\" if the proof process is available."
