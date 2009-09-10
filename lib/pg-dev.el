@@ -29,7 +29,7 @@
 	     (flyspell-prog-mode)
 	     (customize-set-variable 'whitespace-action '(cleanup))
 	     (define-key emacs-lisp-mode-map [(control c)(control c)]
-	       'emacs-lisp-byte-compile-and-load)
+	       'emacs-lisp-byte-compile)
 	     (add-hook 'write-file-functions
 		       'whitespace-write-file-hook nil t)
 	     (add-hook 'before-save-hook
@@ -70,6 +70,17 @@
 ;	  '(lambda ()
 ;	     (font-lock-add-keywords 'emacs-lisp-mode
 ;				     pg-dev-lisp-font-lock-keywords)))
+
+
+;;
+;; Path set for a clean environment to byte-compile within Emacs
+;; without loading.
+;;
+
+(defun pg-loadpath ()
+  (interactive)
+  (add-to-list 'load-path "../generic/")
+  (add-to-list 'load-path "../lib/"))
 
 
 ;;;
@@ -113,7 +124,11 @@
   (elp-instrument-package "coq")
   (elp-instrument-package "isar")
   (elp-instrument-package "span")
-  (elp-instrument-package "spans")
+  (elp-instrument-package "replace-") ; for replace-regexp etc
+  (elp-instrument-package "re-search-") ; for re-search-forwad etc
+  (elp-instrument-package "skip-chars-") ; for skip chars etc
+  (elp-instrument-function 'string-match)
+  (elp-instrument-function 'match-string)
   (elp-instrument-package "font-lock"))
 
 
