@@ -9,6 +9,8 @@
 ;;; Commentary:
 ;;
 
+(require 'local-vars-list)              ; in lib directory
+
 (eval-when-compile
   (defvar coq-prog-name nil)
   (defvar coq-prog-args nil))
