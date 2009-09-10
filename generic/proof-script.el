@@ -1333,8 +1333,10 @@ Argument SPAN has just been processed."
 
 (defun proof-done-advancing-save (span)
   "A subroutine of `proof-done-advancing'.  Add info for save span SPAN."
-  (unless (eq proof-shell-proof-completed 1)
+  (unless (or (eq proof-shell-proof-completed 1)
+	      (eq proof-assistant-symbol 'isar))
     ;; We expect saves to succeed only for recently completed top-level proofs.
+    ;; NB: not true in Isar, because save commands can perform proof.
     (proof-debug
      (format
       "PG: save command with proof-shell-proof-completed=%s, proof-nesting-depth=%s"
@@ -1352,7 +1354,7 @@ Argument SPAN has just been processed."
     (and proof-save-with-hole-regexp
 	 (proof-string-match proof-save-with-hole-regexp cmd)
 	 ;; Give a message of a name if one can be determined
-	 (message "%s"
+	 (proof-minibuffer-message "proved %s"
 		  (setq nam
 			(if (stringp proof-save-with-hole-result)
 			    (replace-match proof-save-with-hole-result nil nil cmd)
