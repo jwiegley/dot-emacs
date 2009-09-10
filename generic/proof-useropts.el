@@ -370,6 +370,14 @@ with full details."
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-minibuffer-messages t
+  "*Non-nil causes Proof General to issue minibuffer messages.
+Minibuffer messages are issed when urgent messages are seen
+from the prover.  You can disable the display of these if they
+are distracting or too frequent."
+  :type 'boolean
+  :group 'proof-user-options)
+
 
 
 
