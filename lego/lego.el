@@ -155,7 +155,7 @@ Activates extended printing routines required for Proof General.")
 (eval-and-compile
   (define-derived-mode lego-response-mode proof-response-mode
     "LEGOResp" nil
-    (setq font-lock-keywords lego-font-lock-terms)
+    (setq proof-response-font-lock-keywords lego-font-lock-terms)
     (lego-init-syntax-table)
     (proof-response-config-done)))
 
@@ -410,7 +410,8 @@ For LEGO, we assume that module identifiers coincide with file names."
 
 	proof-shell-retract-files-regexp
 	"forgot back through Mark \"\\(.*\\)\""
-	font-lock-keywords lego-font-lock-keywords-1
+	
+	proof-shell-font-lock-keywords lego-font-lock-keywords-1
 
 	proof-shell-compute-new-files-list
 	'lego-shell-compute-new-files-list)
