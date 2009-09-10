@@ -2222,7 +2222,11 @@ command."
 	  (proof-goto-end-of-locked)
 	  (backward-char)
 	  (setq span (span-at (point) 'type)))
-	(proof-retract-target span delete-region)))))
+	(if span 
+	  (proof-retract-target span delete-region)
+	  ;; something wrong
+	  (proof-debug 
+	   "proof-retract-until-point: couldn't find a span!"))))))
 
 
 
