@@ -31,6 +31,8 @@
 ;;
 
 (require 'proof)			; load generic parts
+(require 'pg-goals)
+(require 'pg-response)
 
 
 ;; ======== User settings for Isabelle ========
