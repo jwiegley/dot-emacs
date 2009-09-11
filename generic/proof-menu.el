@@ -290,7 +290,6 @@ without adjusting window layout."
 (proof-deftoggle proof-auto-raise-buffers proof-auto-raise-toggle)
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle proof-full-annotation)
-(proof-deftoggle proof-strict-read-only)
 (proof-deftoggle proof-colour-locked)
 (proof-deftoggle proof-shell-quiet-errors)
 (proof-deftoggle proof-minibuffer-messages)
@@ -304,13 +303,6 @@ without adjusting window layout."
   (proof-deftoggle-fn
    (proof-ass-sym maths-menu-enable) 'proof-maths-menu-toggle)
   (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle))
-
-(defun proof-retract-on-edit-toggle ()
-  (interactive)
-  (customize-set-variable
-   'proof-strict-read-only
-   (if (eq proof-strict-read-only 'retract)
-       nil 'retract)))
 
 (defun proof-keep-response-history ()
   "Enable associated buffer histories following `proof-keep-response-history'."
@@ -340,18 +332,6 @@ without adjusting window layout."
       :style toggle
       :selected proof-disappearing-proofs
       :help "Hide proofs as they are completed"]
-
-     ["Strict Read Only" proof-strict-read-only-toggle
-      :style toggle
-      :selected (eq proof-strict-read-only t)
-      :active (not (eq proof-strict-read-only 'retract))
-      :help "Do not allow editing in processed region"]
-     ["Retract On Edit" proof-retract-on-edit-toggle
-      :style toggle
-      :selected (eq proof-strict-read-only 'retract)
-      :active (not (eq proof-strict-read-only t))
-      :help "Automaticall retract on edit in processed region"]
-
      ["Unicode Tokens"
       (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
 				       (if unicode-tokens-mode 0 1) 1))
@@ -403,7 +383,22 @@ without adjusting window layout."
       :style toggle
       :selected (not proof-shell-quiet-errors)
       :help "Beep on errors or interrupts"]
-
+     ("Read Only"
+      ["Strict Read Only" 
+       (customize-set-variable 'proof-strict-read-only t)
+       :style radio
+       :selected (eq proof-strict-read-only t)
+       :help "Do not allow editing in processed region"]
+      ["Undo On Edit" 
+       (customize-set-variable 'proof-strict-read-only 'retract)
+      :style radio
+      :selected (eq proof-strict-read-only 'retract)
+      :help "Automatically retract on edits in processed region"]
+      ["Freely Edit"
+       (customize-set-variable 'proof-strict-read-only nil)
+      :style radio
+      :selected (null proof-strict-read-only)
+      :help "No write protection, edit anywhere.  Dangerous!"])
      ("Display"
       ["Minibuffer messages" proof-minibuffer-messages-toggle
        :style toggle
