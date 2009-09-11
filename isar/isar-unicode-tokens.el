@@ -583,7 +583,7 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ("<-->" . "\\<longleftrightarrow>")
     ("<<" . "\\<guillemotleft>")
     (">>" . "\\<guillemotright>")
-    ("<>" . "\<diamond>")
+    ("<>" . "\\<diamond>")
     ("[|" . "\\<lbrakk>")
     ("|]" . "\\<rbrakk>")
     ("{|" . "\\<lbrace>")
