@@ -558,7 +558,9 @@ No effect if buffer is dead."
 If proof-general-debug is nil, do nothing."
   (if proof-general-debug
       (let ((formatted (apply 'format msg args)))
-	(display-warning 'proof-general formatted 'info))))
+	(display-warning 'proof-general 
+			 formatted 'debug
+			 "*PG Debug*"))))
 
 ;; Utility used in the "Buffers" menu, and throughout
 (defun proof-switch-to-buffer (buf &optional noselect)
