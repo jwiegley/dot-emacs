@@ -88,7 +88,7 @@ terminator somewhere nearby.  Electric!"
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-shell-quiet-errors nil
+(defcustom proof-shell-quiet-errors t
   "If non-nil, be quiet about errors from the prover.
 Normally error messages cause a beep.  Set this to t to prevent that."
   :type 'boolean
@@ -121,7 +121,8 @@ done if this `proof-strict-state-preserving' is turned off (nil)."
 (defcustom proof-strict-read-only t
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
-read-only region.  If nil, Proof General is more relaxed (but may give
+read-only region, except for the special value 'retract which means
+undo first.  If nil, Proof General is more relaxed (but may give
 you a reprimand!)."
   :type  '(choice
 	   (const :tag "Do not allow edits" t)
