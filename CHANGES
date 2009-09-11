@@ -1,6 +1,6 @@
 -*- outline -*-  
 
-* Main Changes for Proof General 4.0 from 3.7.X
+* Main Changes for Proof General 4.0 from 3.7.1
 
 ** Generic changes
 
@@ -14,6 +14,7 @@
     - output retained for script buffer popups
     - background colouring for locked region can be disabled
     - auto raise of prover output buffers can be disabled
+    - edit on processed region can automatically undo
     Depending on input language and interaction output, this
     may enable a "document centred" way of working, when output
     buffers can be ignored and hidden. 
@@ -27,9 +28,11 @@
     Editing, history and decoration in the shell (*coq*, *isabelle*,
     etc) are impoverished compared with PG 3.X.
 
-*** New user configuration options
-    proof-auto-raise-buffers  (set to nil for manual control)
-    proof-full-decoration     (add full decoration to input)
+*** New user configuration options (also on Proof General -> Options)
+    proof-auto-raise-buffers  (set to nil for manual window control)
+    proof-full-decoration     (add full decoration to input text)
+    proof-shell-quiet-errors  (non-nil to disable beep on error; default=nil)
+    proof-minibuffer-messages (non-nil to show prover messages; default=nil)
 
 *** Removed user configuration options
     proof-toolbar-use-button-enablers  (now always used)
