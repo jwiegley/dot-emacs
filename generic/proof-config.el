@@ -668,8 +668,8 @@ if necessary."
 String or function.
 If this is set to a string, `%s' will be replaced by the number of
 undo steps to issue.
-If this is set to a function, it should return the appropriate
-command when called with an integer (the number of undo steps).
+If this is set to a function, it should return a list of
+the appropriate commands (given the number of undo steps).
 
 This setting is used for the default `proof-generic-count-undos'.
 If you set `proof-count-undos-fn' to some other function, there is no
