@@ -278,7 +278,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
   :group 'unicode-tokens-faces)
 
 (defface unicode-tokens-serif-font-face
-  '((t :family "Times"))
+  '((t :family "Times New Roman"))
   "Serif (roman) font face."
   :group 'unicode-tokens-faces)
 
