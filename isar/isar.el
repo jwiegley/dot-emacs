@@ -15,19 +15,20 @@
 ;;
 
 ;;; Code:
-(require 'proof)
+(require 'cl)
 
-(eval-when-compile
+(eval-when (compile)
   (require 'span)
   (require 'proof-syntax)
   (require 'pg-goals)
   (require 'pg-vars)
-  (defvar outline-heading-end-regexp nil)
+  (require 'outline)
   (defvar comment-quote-nested nil)
   (defvar isar-use-find-theorems-form nil)
-;  (proof-ready-for-assistant 'isar))	; compile for isar
-)
+  (defvar isar-use-linear-undo nil)
+  (proof-ready-for-assistant 'isar))	; compile for isar
 
+(require 'proof)
 (require 'isabelle-system)		; system code
 (require 'isar-find-theorems)		; "Find Theorems" search form
 
@@ -612,7 +613,10 @@ Uses variables `string' and `scriptspan' passed by dynamic scoping."
   (setq proof-script-font-lock-keywords isar-font-lock-keywords-1)
   (set (make-local-variable 'comment-quote-nested) nil) ;; can cope with nested comments
   (set (make-local-variable 'outline-regexp) isar-outline-regexp)
-  (set (make-local-variable 'outline-heading-end-regexp) isar-outline-heading-end-regexp)
+  (set (make-local-variable 'outline-heading-end-regexp) 
+       isar-outline-heading-end-regexp)
+  (set (make-local-variable 'outline-heading-alist)
+       isar-outline-heading-alist)
   (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
   (add-hook 'proof-shell-insert-hook 'isar-preprocessing)
   (proof-config-done))
