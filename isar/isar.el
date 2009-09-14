@@ -304,22 +304,22 @@ This is called when Proof General spots output matching
 
 (eval-and-compile
 (define-derived-mode isar-shell-mode proof-shell-mode
-   "Isar shell" nil
+   "Isabelle Shell" nil
    (isar-shell-mode-config)))
 
 (eval-and-compile
 (define-derived-mode isar-response-mode proof-response-mode
-  "response" nil
+  "Isar Messages" nil
   (isar-response-mode-config)))
 
 (eval-and-compile
 (define-derived-mode isar-goals-mode proof-goals-mode
-  "proofstate" nil
+  "Isar Proofstate" nil
   (isar-goals-mode-config)))
 
 (eval-and-compile
 (define-derived-mode isar-mode proof-mode
-  "Isar script"
+  "Isar"
   "Major mode for editing Isar proof scripts.
 
 \\{isar-mode-map}"
