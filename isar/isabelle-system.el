@@ -12,14 +12,14 @@
 ;;
 
 ;;; Code:
-(eval-when-compile
-  (require 'span)		        ; span macros
-  (require 'proof-site)			; compile for isar (defpgdefault, etc)
-  (proof-ready-for-assistant 'isar))
+(require 'cl)			        ; mapcan, eval-when
 
-(require 'cl)			        ; mapcan
-(require 'proof)			; for proof-assistant-symbol, etc.
-(require 'proof-syntax)			; for proof-string-match
+(eval-when (compile)
+  (require 'span)		        
+  (require 'scomint)		        
+  (require 'proof-site)
+  (require 'proof-menu)
+  (defvar proof-assistant-menu nil))	
 
 
 ;; The isabelle custom group won't have been defined yet.
