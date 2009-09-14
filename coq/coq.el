@@ -178,16 +178,16 @@ On Windows you might need something like:
 
 (eval-and-compile
   (define-derived-mode coq-shell-mode proof-shell-mode
-    "coq-shell" nil
+    "Coq Shell" nil
     (coq-shell-mode-config)))
 
 (eval-and-compile
   (define-derived-mode coq-response-mode proof-response-mode
-  "CoqResp" nil
+  "Coq Response" nil
     (coq-response-config)))
 
 (eval-and-compile
-  (define-derived-mode coq-mode proof-mode "coq"
+  (define-derived-mode coq-mode proof-mode "Coq"
     "Major mode for Coq scripts.
 
 \\{coq-mode-map}"
@@ -196,7 +196,7 @@ On Windows you might need something like:
 
 (eval-and-compile
   (define-derived-mode coq-goals-mode proof-goals-mode
-    "CoqGoals" nil
+    "Coq Goals" nil
     (coq-goals-mode-config)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
