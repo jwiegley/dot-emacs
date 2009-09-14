@@ -28,6 +28,9 @@
     Editing, history and decoration in the shell (*coq*, *isabelle*,
     etc) are impoverished compared with PG 3.X.
 
+*** Proof General -> Options menu extended and rearranged
+    - new menu for useful minor modes suggests modes that PG supports
+
 *** New user configuration options (also on Proof General -> Options)
     proof-auto-raise-buffers  (set to nil for manual window control)
     proof-full-decoration     (add full decoration to input text)
