@@ -256,7 +256,7 @@ Set in `proof-shell-process-urgent-message'.")
     ([(control c) (control ?.)] . proof-goto-end-of-locked)
     ([(control c) (control f)]  . proof-find-theorems)
     ([(control c) (control o)]  . proof-display-some-buffers))
-"List of key bindings made for the script, goals and response buffer.
+"List of key bindings made for all proof general buffers.
 Elements of the list are tuples `(k . f)'
 where `k' is a key binding (vector) and `f' the designated function."
   :type 'sexp
