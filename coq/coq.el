@@ -1124,9 +1124,8 @@ tactical.  Based on idea mentioned in Coq reference manual."
                           proof-shell-last-response-output))
        (substr (match-string 1 proof-shell-last-response-output)))
     (coq-find-command-end-backward)
-    (proof-strict-read-only-toggle -1)
-    (insert (concat " as " substr))
-    (proof-strict-read-only-toggle 1)))
+    (let ((inhibit-read-only t)) 
+      (insert (concat " as " substr)))))
 
 
 (defun coq-insert-match ()
