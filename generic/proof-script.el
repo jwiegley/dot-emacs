@@ -131,7 +131,8 @@ scripting buffer may have an active queue span.")
 (defun proof-span-give-warning (&rest args)
   "Give a warning message.
 Optional argument ARGS is ignored."
-  (message "You should not edit here!"))
+  (unless inhibit-read-only
+    (message "You should not edit here!")))
 
 (defun proof-span-read-only (span &optional always)
   "Make SPAN read-only, following variable `proof-strict-read-only' or ALWAYS."
