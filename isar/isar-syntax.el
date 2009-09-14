@@ -123,6 +123,7 @@ This list is in the right format for proof-easy-config.")
 
 (defconst isar-outline-heading-alist
   (list
+   (append 
    (mapcar (lambda (w) (cons w 1))
 	   (append isar-keywords-theory-heading
 		   isar-keywords-theory-begin
@@ -134,7 +135,7 @@ This list is in the right format for proof-easy-config.")
 	   (append isar-keywords-proof-heading
 		   isar-keywords-theory-goal))
    (mapcar (lambda (w) (cons w 4))
-	   isar-keywords-proof-block)))
+	   isar-keywords-proof-block))))
 
 (defconst isar-keywords-fume
   (append isar-keywords-theory-begin
