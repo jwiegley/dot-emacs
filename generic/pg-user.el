@@ -1056,7 +1056,7 @@ If CALLBACK is set, we invoke that when the command completes."
       (imenu-add-to-menubar "Index")
     (progn
       (setq which-func-modes 
-	    (remove which-func-modes proof-mode-for-script))
+	    (remove proof-mode-for-script which-func-modes))
       (let ((oldkeymap (keymap-parent (current-local-map))))
 	(if ;; sanity checks in case someone else set local keymap
 	    (and oldkeymap
