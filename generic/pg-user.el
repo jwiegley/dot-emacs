@@ -544,48 +544,13 @@ This is intended as a value for `proof-activate-scripting-hook'"
 (proof-deftoggle proof-electric-terminator-enable
 		 proof-electric-terminator-toggle)
 
-(defun proof-process-electric-terminator ()
-  "Insert the proof command terminator, and assert up to it.
-This is a little bit clever with placement of semicolons, and will
-try to avoid duplicating them in the buffer.
-When used in the locked region (and so with strict read only off), it
-always defaults to inserting a semi (nicer might be to parse for a
-comment, and insert or skip to the next semi)."
-  (let ((mrk (point)) ins incomment)
-    (if (< mrk (proof-locked-end))
-	;; In locked region, just insert terminator without further ado
-	(insert proof-terminal-char)
-
-      (if (proof-only-whitespace-to-locked-region-p)
-	  (error "There's nothing to do!"))
-      (skip-chars-backward " \t\n")
-      (if (not (= (char-after (point)) proof-terminal-char))
-	  (progn
-	    (forward-char) ;; immediately after command end.
-	    (unless proof-electric-terminator-noterminator
-	      (insert proof-terminal-string)
-	      (setq ins t))))
-      (let* ((pos  (point))
-	     (semis
-	      (save-excursion
-		(proof-segment-up-to-using-cache pos))))
-	(if (eq 'unclosed-comment (car semis))
-	    (progn
-	      (setq incomment t)
-	      ;; delete spurious char in comment
-	      (if ins (backward-delete-char 1))
-	      (goto-char mrk)
-	      (insert proof-terminal-string))
-	  (proof-assert-semis semis)
-	  (proof-script-next-command-advance))))))
-
 (defun proof-electric-terminator ()
   "Insert the terminator, perhaps sending the command to the assistant.
 If variable `proof-electric-terminator-enable' is non-nil, the command will be
 sent to the assistant."
   (interactive)
   (if proof-electric-terminator-enable
-      (proof-process-electric-terminator)
+      (proof-insert-electric-terminator)
     (self-insert-command 1)))
 
 
@@ -1084,9 +1049,14 @@ If CALLBACK is set, we invoke that when the command completes."
 ;;;###autoload
 (defun proof-imenu-enable ()
   "Add or remove index menu."
+  ;; NB: next two a bit interferring, but we suppose use-case is PG.
+  (which-function-mode (if proof-imenu-enable 1 0))
+  (add-to-list 'which-func-modes proof-mode-for-script)
   (if proof-imenu-enable
       (imenu-add-to-menubar "Index")
     (progn
+      (setq which-func-modes 
+	    (remove which-func-modes proof-mode-for-script))
       (let ((oldkeymap (keymap-parent (current-local-map))))
 	(if ;; sanity checks in case someone else set local keymap
 	    (and oldkeymap
