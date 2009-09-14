@@ -45,18 +45,12 @@
   (span-set-property span 'modification-hooks nil)
   (span-set-property span 'insert-in-front-hooks nil))
 
-(defsubst span-give-warning (&rest args)
-  "Give a warning message.
-Optional argument ARGS is ignored."
-  (message "You should not edit here!"))
-
-(defsubst span-write-warning (span &optional fun)
-  "Give a warning message when SPAN is changed.
-Optional argument FUN is used in place of `span-give-warning'."
-  (unless fun (setq fun 'span-give-warning))
+(defsubst span-write-warning (span fun)
+  "Give a warning message when SPAN is changed, unless `inhibit-read-only' is non-nil."
   (lexical-let ((fun fun))
     (let ((funs (list (lambda (span afterp beg end &rest args)
-			(if (not afterp) (funcall fun beg end))))))
+			(if (and (not afterp) (not inhibit-read-only))
+			    (funcall fun beg end))))))
       (span-set-property span 'modification-hooks funs)
       (span-set-property span 'insert-in-front-hooks funs))))
 
