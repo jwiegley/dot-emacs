@@ -332,29 +332,6 @@ without adjusting window layout."
       :style toggle
       :selected proof-disappearing-proofs
       :help "Hide proofs as they are completed"]
-     ["Unicode Tokens"
-      (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
-				       (if unicode-tokens-mode 0 1) 1))
-      :active (proof-unicode-tokens-support-available)
-      :style toggle
-      :selected (and (boundp 'unicode-tokens-mode)
-		     unicode-tokens-mode)
-      :help "Enable display of tokens as Unicode characters"]
-
-     ["Unicode Maths Menu"
-      (proof-maths-menu-toggle (if (boundp 'maths-menu-mode)
-				       (if maths-menu-mode 0 1) 1))
-      :active (proof-maths-menu-support-available)
-      :style toggle
-      :selected (and (boundp 'maths-menu-mode) maths-menu-mode)
-      :help "Maths menu for inserting Unicode characters"]
-
-     ["Multiple Modes" (proof-mmm-toggle (if mmm-mode 0 1))
-      :active (proof-mmm-support-available)
-      :style toggle
-      :selected (and (boundp 'mmm-mode) mmm-mode)
-      :help "Allow multiple major modes"]
-
      ["Toolbar" proof-toolbar-toggle
       :style toggle
       :visible (featurep 'tool-bar)
@@ -365,19 +342,6 @@ without adjusting window layout."
 ;;;      ["Response history" proof-keep-response-history-toggle
 ;;;       :style toggle
 ;;;       :selected proof-keep-response-history]
-
-     ["Index Menu" proof-imenu-toggle
-      :active (stringp (locate-library "imenu"))
-      :style toggle
-      :selected proof-imenu-enable
-      :help "Generate an index menu of definitions"]
-
-     ;; NB: convenience; speedbar isn't saved/resumed automatically.
-     ["Speedbar" speedbar
-      :active (stringp (locate-library "speedbar"))
-      :style toggle
-      :selected (and (boundp 'speedbar-frame) speedbar-frame)
-      :help "Use a navigation window (Speedbar)"]
 
      ["Beep on errors" proof-shell-quiet-errors-toggle
       :style toggle
@@ -477,6 +441,53 @@ without adjusting window layout."
        (customize-set-variable 'proof-auto-action-when-deactivating-scripting nil)
        :style radio
        :selected (null proof-auto-action-when-deactivating-scripting)])
+
+     ("Useful Minor Modes"
+      ["Unicode Tokens"
+      (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
+				       (if unicode-tokens-mode 0 1) 1))
+      :active (proof-unicode-tokens-support-available)
+      :style toggle
+      :selected (and (boundp 'unicode-tokens-mode)
+		     unicode-tokens-mode)
+      :help "Enable display of tokens as Unicode characters"]
+
+     ["Unicode Maths Menu"
+      (proof-maths-menu-toggle (if (boundp 'maths-menu-mode)
+				       (if maths-menu-mode 0 1) 1))
+      :active (proof-maths-menu-support-available)
+      :style toggle
+      :selected (and (boundp 'maths-menu-mode) maths-menu-mode)
+      :help "Maths menu for inserting Unicode characters"]
+
+     ["Multiple Modes" (proof-mmm-toggle (if mmm-mode 0 1))
+      :active (proof-mmm-support-available)
+      :style toggle
+      :selected (and (boundp 'mmm-mode) mmm-mode)
+      :help "Allow multiple major modes"]
+
+     ["Index Menu" proof-imenu-toggle
+      :active (stringp (locate-library "imenu"))
+      :style toggle
+      :selected proof-imenu-enable
+      :help "Generate an index menu of definitions, display which function in modeline"]
+
+     "----"
+     
+     ;; NB: next group not saved, just for convenience here to
+     ;; hint they're defined for PG
+     ["Outline" outline-minor-mode
+      :active (stringp (locate-library "outline"))
+      :style toggle
+      :selected (and (boundp 'outline-minor-mode) outline-minor-mode)
+      :help "Outline mode for folding [NB: option not saved]"]
+
+     ["Speedbar" speedbar
+      :active (stringp (locate-library "speedbar"))
+      :style toggle
+      :selected (and (boundp 'speedbar-frame) speedbar-frame)
+      :help "Speedbar navigation window [NB: option not saved]"])
+
      "----"
      ["Reset Options" (proof-quick-opts-reset)
       (proof-quick-opts-changed-from-defaults-p)]
