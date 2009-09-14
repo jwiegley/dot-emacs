@@ -1370,11 +1370,12 @@ Argument SPAN has just been processed."
     (and proof-save-with-hole-regexp
 	 (proof-string-match proof-save-with-hole-regexp cmd)
 	 ;; Give a message of a name if one can be determined
-	 (proof-minibuffer-message "proved %s"
+	 (proof-minibuffer-message 
+	  (format "proved %s"
 		  (setq nam
 			(if (stringp proof-save-with-hole-result)
 			    (replace-match proof-save-with-hole-result nil nil cmd)
-			  (match-string proof-save-with-hole-result cmd)))))
+			  (match-string proof-save-with-hole-result cmd))))))
 
     ;; Search back for a goal command, deleting spans along the way:
     ;; they may be amalgamated into a single goal-save region, which
@@ -1985,6 +1986,22 @@ each queue item."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Moving point in proof script buffer
+;;
+
+(defun proof-script-next-command-advance ()
+  "Move point to the beginning of the next command if it's nearby.
+Assumes that point is at the end of a command."
+  (interactive)
+  (skip-chars-forward " \t\n"))
+;  (if (and proof-one-command-per-line (eolp))
+;      (forward-line)))
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Assert-until-point.
 ;;
 ;; This function parses some region of the script buffer into
@@ -2038,7 +2055,7 @@ comment, and insert or skip to the next semi)."
 	      (goto-char mrk)
 	      (insert proof-terminal-string))
 	  ;; assert a region
-	  (proof-assert-semis semis startpos)
+	  (proof-assert-semis semis)
 	  (proof-script-next-command-advance))))))
 
 (defun proof-assert-semis (semis) 
