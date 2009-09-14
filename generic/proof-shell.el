@@ -84,7 +84,7 @@ The previous output is held back for processing at end of queue.")
 ;;
 
 (defcustom proof-shell-active-scripting-indicator
-  " Scripting"
+  (propertize " Scripting " 'face 'proof-queue-face)
   "Modeline indicator for active scripting buffer.
 If first component is extent it will automatically follow the colour
 of the queue region."
@@ -625,17 +625,9 @@ non-empty flags) will not invoke any of this action."  ; PG4.0 change
   (save-excursion
     (unless proof-shell-quiet-errors
       (beep))
-    ;; TODO: add temp span in script (wigglies) for error
-    ;; (if proof-action-list
-    ;; 	(let* ((item (car proof-action-list))
-    ;; 	       (span (car item)))
-    ;; 	  (if span
-    ;; 	      (if proof-script-buffer
-    ;; 		  (with-current-buffer proof-script-buffer
-    ;; 		    (pg-set-span-helphighlights span 
-    ;; 						'proof-script-error-face))))))
-    (proof-script-clear-queue-spans)
-    
+    (proof-with-current-buffer-if-exists proof-script-buffer
+      (proof-script-clear-queue-spans-on-error 
+       (car-safe (car-safe proof-action-list))))
     (setq proof-action-list nil)
     (proof-release-lock)
     ;; Give a hint about C-c C-`.  (NB: approximate test)
