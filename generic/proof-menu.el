@@ -43,12 +43,10 @@ If in three window or multiple frame mode, display two buffers.
 The idea of this function is to change the window->buffer mapping
 without adjusting window layout."
   (interactive)
-  ;; The GUI-tessence here is to implement a humane toggle, which
-  ;; allows habituation.  E.g. two taps of C-c C-l always
-  ;; shows the goals buffer, three the trace buffer, etc.
-  ;; (That behaviour makes less sense from the menu, though,
-  ;;  where it seems more natural just to rotate from last
-  ;;  position)
+  ;; Idea: a humane toggle, which allows habituation.  
+  ;; E.g. two taps of C-c C-l always shows the goals buffer, three the
+  ;; trace buffer, etc.  (Makes less sense from the menu, though, 
+  ;; where it seems more natural just to rotate from last position)
   (cond
    ((and (interactive-p)
 	 (eq last-command 'proof-display-some-buffers))
