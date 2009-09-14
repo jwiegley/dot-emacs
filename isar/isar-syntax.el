@@ -121,8 +121,20 @@ This list is in the right format for proof-easy-config.")
 	  isar-keywords-proof-script
 	  isar-keywords-qed-global))
 
-(defconst isar-keywords-outline
-  isar-keywords-theory-heading)
+(defconst isar-outline-heading-alist
+  (list
+   (mapcar (lambda (w) (cons w 1))
+	   (append isar-keywords-theory-heading
+		   isar-keywords-theory-begin
+		   isar-keywords-theory-end))
+   (mapcar (lambda (w) (cons w 2))
+	   (append isar-keywords-theory-script
+		   isar-keywords-theory-goal))
+   (mapcar (lambda (w) (cons w 3))
+	   (append isar-keywords-proof-heading
+		   isar-keywords-theory-goal))
+   (mapcar (lambda (w) (cons w 4))
+	   isar-keywords-proof-block)))
 
 (defconst isar-keywords-fume
   (append isar-keywords-theory-begin
@@ -551,6 +563,11 @@ matches contents of quotes for quoted identifiers.")
 
 
 ;; ----- outline mode
+
+(defconst isar-keywords-outline 
+  (apply 'append
+	 (mapcar (lambda (l) (mapcar 'car l))
+		 isar-outline-heading-alist)))
 
 (defconst isar-outline-regexp
   (concat "[ \t]*\\(?:" (isar-ids-to-regexp isar-keywords-outline) "\\)")
