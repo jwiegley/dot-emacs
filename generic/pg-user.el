@@ -32,14 +32,6 @@
 ;; Utilities: moving point in proof script buffer
 ;;
 
-(defun proof-script-next-command-advance ()
-  "Move point to the beginning of the next command if it's nearby.
-Assumes that point is at the end of a command."
-  (interactive)
-  (skip-chars-forward " \t\n"))
-;  (if (and proof-one-command-per-line (eolp))
-;      (forward-line)))
-
 ;; First: two commands for moving forwards in proof scripts.  Moving
 ;; forward for a "new" command may insert spaces or new lines.  Moving
 ;; forward for the "next" command does not.
@@ -84,7 +76,7 @@ Assumes that point is at the end of a command."
 	  (p (point)))
       (if proof-script-command-separator
 	  (insert proof-script-command-separator)
-	(insert-char ?\040  newspace)
+	(insert-char ?\040 newspace)
 	(goto-char p)))))
 
 
