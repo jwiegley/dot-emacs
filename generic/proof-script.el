@@ -268,6 +268,7 @@ will deactivated."
 	     (if proof-active-buffer-fake-minor-mode
 		 (setq proof-active-buffer-fake-minor-mode nil))
 	     (proof-script-delete-spans (point-min) (point-max))
+	     (proof-script-delete-secondary-spans (point-min) (point-max))
 	     (setq pg-script-portions nil)
 	     (proof-detach-queue)
 	     (proof-detach-locked)
@@ -290,23 +291,29 @@ value of proof-locked span."
   "Remove all spans from scripting buffers via `proof-restart-buffers'."
   (proof-restart-buffers (proof-script-buffers-with-spans)))
 
-(defun proof-script-clear-queue-spans ()
-  "If there is an active scripting buffer, remove the queue span from it.
+(defun proof-script-clear-queue-spans-on-error (badspan)
+  "Remove the queue span from buffer, cleaning spans no longer queued.
+If BADSPAN is non-nil, assume that this was the span whose command 
+caused the error.
+
 This is a subroutine used in proof-shell-handle-{error,interrupt}."
-  (if proof-script-buffer
-      (with-current-buffer proof-script-buffer
-	(let ((end (proof-queue-or-locked-end)))
-	  (proof-detach-queue)
-	  (proof-script-delete-spans 
-	   (proof-locked-end)
-	   end)))))
+    (let ((start (proof-locked-end))
+	  (end   (proof-queue-or-locked-end))
+	  (infop (span-live-p badspan)))
+      (proof-detach-queue)
+      (when infop
+	(pg-set-span-helphighlights badspan 
+				    'proof-script-error-face
+				    'underline))
+      (proof-script-delete-spans start end)))
 
 (defun proof-script-delete-spans (beg end)
-  "Delete spans between BEG and END."
+  "Delete primary spans between BEG and END.  Secondary 'pghelp spans are left."
   (span-delete-spans beg end 'type)
-  (span-delete-spans beg end 'idiom)
-  ;; TODO: we might keep these spans around, but delete them ones when
-  ;; they're edited.  Needs more thought to avoid utter confusion.
+  (span-delete-spans beg end 'idiom))
+
+(defun proof-script-delete-secondary-spans (beg end)
+  "Delete secondary spans between BEG and END (currently, 'pghelp spans)."
   (span-delete-spans beg end 'pghelp))
 
 
@@ -600,7 +607,8 @@ NAME does not need to be unique."
     (span-set-property span 'controlspan controlspan)
     (span-set-property controlspan 'children
 		       (cons span (span-property controlspan 'children)))
-    (pg-set-span-helphighlights span 'nohighlight)
+    (pg-set-span-helphighlights span proof-boring-face)
+    (span-set-property 'priority 10)	; lower than default
     (if proof-disappearing-proofs
 	(pg-make-element-invisible "proof" proofid))))
 
@@ -647,11 +655,14 @@ NAME does not need to be unique."
     text))
 
 ;;;###autoload
-(defun pg-set-span-helphighlights (span &optional nohighlight face)
+(defun pg-set-span-helphighlights (span &optional mouseface face)
   "Add a daughter help span for SPAN with help message, highlight, actions.
 We add the last output (which should be non-empty) to the hover display here.
-Optional argument NOHIGHLIGHT means do not add highlight mouse face property.
-Argumen FACE means add face property FACE."
+Optional argument MOUSEFACE means use the given face as a mouse highlight
+face, if it is a face, otherwise, if it is non-nil but not a face,
+do not add a mouse highlight.
+which case no mouse hover face is added.
+Argument FACE means add regular face property FACE to the span."
   (let ((helpmsg    (pg-span-name span))
 	(proofstate (pg-last-output-displayform))
 	(newspan    (let ((newstart (save-excursion
@@ -675,10 +686,14 @@ Argumen FACE means add face property FACE."
 	   ;; " for menu)")))
 	   ))
     (span-set-property newspan 'keymap pg-span-context-menu-keymap)
-    (unless nohighlight
-      (span-set-property newspan 'mouse-face 'proof-mouse-highlight-face))
+    (if (or (facep mouseface)
+	    (setq mouseface 
+		  (unless mouseface 'proof-mouse-highlight-face)))
+	(span-set-property newspan 'mouse-face mouseface))
     (if face
-	(span-set-property newspan 'face face))))
+	(span-set-property newspan 'face face))
+    (span-set-property newspan 'priority 50)))
+  
 
 
 
@@ -1550,11 +1565,17 @@ Subroutine of `proof-done-advancing-save'."
 ;; much better attempt.
 
 (defun proof-segment-up-to-parser (pos &optional next-command-end)
-  "Parse the script buffer from end of locked to POS.
-Return a list of (type, string, int) tuples (in reverse order).
+  "Parse the script buffer from end of queue/locked region to POS.
+This partitions the script buffer into contiguous regions, classifying
+them by type.  We Return a list of lists of the form
+  
+   (TYPE TEXT ENDPOS)
 
-Each tuple denotes the command and the position of its final character,
-type is one of 'comment, or 'cmd.
+where:
+
+  TYPE is a symbol indicating the type of text found, either 'cmd or 'comment;
+  TEXT is the string content taken from the buffer;
+  ENDPOS is the position of the final character of the text.
 
 The behaviour around comments is set by
 `proof-script-fly-past-comments', which see.
@@ -1920,12 +1941,14 @@ This version is used when `proof-script-command-end-regexp' is set."
       alist)))
 
 (defun proof-semis-to-vanillas (semis)
-  "Create vanilla extents for SEMIS and a list for the queue.
+  "Create vanilla spans for SEMIS and a list for the queue.
 Proof terminator positions SEMIS has the form returned by
 the function `proof-segment-up-to'.  The argument list is destroyed.
 The callback in each queue element is `proof-done-advancing'.
-If `proof-script-preprocess' is set, call that function to construct
-the first element of the queue item."
+
+If the variable `proof-script-preprocess' is set (to the name of
+a function, call that function to construct the first element of
+each queue item."
   (let ((start (proof-queue-or-locked-end))
 	(file  (or (buffer-file-name) (buffer-name)))
 	(cb    'proof-done-advancing)
@@ -1982,12 +2005,52 @@ the first element of the queue item."
 	(error "I can't find any complete commands to process!"))
     (proof-assert-semis semis)))
 
-(defun proof-assert-semis (semis)
+(defun proof-assert-electric-terminator ()
+  "Insert the proof command terminator, and assert up to it.
+This is a little bit clever with placement of semicolons, and will
+try to avoid duplicating them in the buffer.
+When used in the locked region (and so with strict read only off), it
+always defaults to inserting a semi (nicer might be to parse for a
+comment, and insert or skip to the next semi)."
+  (let ((mrk (point)) ins incomment)
+    (if (< mrk (proof-locked-end))
+	(insert proof-terminal-char) ; insert immediately in locked region
+      (if (proof-only-whitespace-to-locked-region-p)
+	  (error "There's nothing to do!"))
+      (skip-chars-backward " \t\n")
+      (if (not (= (char-after (point)) proof-terminal-char))
+	  (progn
+	    (forward-char) ;; immediately after command end.
+	    (unless proof-electric-terminator-noterminator
+	      (insert proof-terminal-string)
+	      (setq ins t))))
+      (let* ((pos  (point))
+	     (semis
+	      (save-excursion
+		(proof-segment-up-to-using-cache pos))))
+	(if (and semis
+		 (eq 'unclosed-comment (caar semis)))
+	    (progn
+	      (setq incomment t)
+	      ;; delete spurious char in comment
+	      (if ins (backward-delete-char 1))
+	      (goto-char mrk)
+	      (insert proof-terminal-string))
+	  ;; assert a region
+	  (proof-assert-semis semis startpos)
+	  (proof-script-next-command-advance))))))
+
+(defun proof-assert-semis (semis) 
   "Add to the command queue the list SEMIS of command positions.
-SEMIS must be a non-empty list, in reverse order (last position first)."
+SEMIS must be a non-empty list, in reverse order (last position first).
+We assume that the list is contiguous and begins at (proof-queue-or-locked-end).
+We also delete help spans which appear in the same region (in the expectation
+that these may be overwritten)."
   (proof-activate-scripting nil 'advancing)
-  (let ((lastpos  (nth 2 (car semis)))
-	(vanillas (proof-semis-to-vanillas semis)))
+  (let ((startpos  (proof-queue-or-locked-end))
+	(lastpos   (nth 2 (car semis)))
+	(vanillas  (proof-semis-to-vanillas semis)))
+    (proof-script-delete-secondary-spans startpos lastpos)
     (proof-extend-queue lastpos vanillas)))
 
 (defun proof-retract-before-change (beg end)
@@ -2000,6 +2063,7 @@ SEMIS must be a non-empty list, in reverse order (last position first)."
 	 (proof-retract-until-point))))
 
 (defun proof-inside-comment (pos)
+  "Returns non-nil if POS is inside a comment."
   (save-excursion
     (goto-char pos)
     (eq (proof-buffer-syntactic-context) 'comment)))
