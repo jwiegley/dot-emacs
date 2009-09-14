@@ -976,10 +976,11 @@ Currently this doesn't take the loadpath into account."
 ;; Pre-processing of input string  (PG 3.5)
 ;;
 
-;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
-(defun coq-preprocessing () ;; NB: dynamic scoping of `string'
+;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
+(defun coq-preprocessing ()
   (if coq-time-commands
-      (setq string (concat "Time " string))))
+      (with-no-warnings  ;; NB: dynamic scoping of `string'
+        (setq string (concat "Time " string)))))
 
 (add-hook 'proof-shell-insert-hook 'coq-preprocessing)
 
@@ -1107,8 +1108,8 @@ Based on idea mentioned in Coq reference manual."
 
 
 (defun coq-insert-infoH-hook ()
-  (setq string (concat "infoH " string))
-  )
+  (with-no-warnings  ;; NB: dynamic scoping of `string'
+    (setq string (concat "infoH " string))))
 
 ;; da: FIXME untested with new generic hybrid code: hope this still works
 (defun coq-insert-as ()
@@ -1306,12 +1307,13 @@ buffer."
   "Internal variable. Do not use as configuration variable.")
 
 ;; if a command is sent to coq without being in the script, then don't
-;; higilight the error.  Remark: `action' and `string' are known by
+;; higilight the error. Remark: `action' and `string' are known by
 ;; `proof-shell-insert-hook', but not by
 ;; `proof-shell-handle-error-or-interrupt-hook'
 (defun coq-decide-highlight-error ()
   (setq coq-allow-highlight-error
-        (not (eq action 'proof-done-invisible))))
+        (not (with-no-warnings ;; Dynamic scope of `action'
+               (eq action 'proof-done-invisible)))))
 
 (defun coq-highlight-error-hook ()
   (if coq-allow-highlight-error (coq-highlight-error t t)))
