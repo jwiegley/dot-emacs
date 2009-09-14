@@ -118,7 +118,7 @@ done if this `proof-strict-state-preserving' is turned off (nil)."
   :type  'boolean
   :group 'proof-user-options)
 
-(defcustom proof-strict-read-only t
+(defcustom proof-strict-read-only 'retract
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region, except for the special value 'retract which means
