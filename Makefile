@@ -3,7 +3,7 @@
 ## 
 ## Author:  David Aspinall <David.Aspinall@ed.ac.uk>
 ##
-##  make		- do "compile" and "scripts" targets
+##  make		- do "compile" targets
 ##  make compile	- make .elc's 
 ##  make scripts	- edit paths to bash/perl/PGHOME in scripts
 ##  make install	- install into system directories
@@ -103,7 +103,7 @@ elc:	$(ELC)
 ## Default targets
 ##
 
-all:	compile scripts
+all:	compile
 
 
 ##
