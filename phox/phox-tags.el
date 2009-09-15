@@ -17,6 +17,11 @@
 
 (require 'etags)
 
+(eval-when-compile
+  (defvar phox-doc-dir nil)
+  (defvar phox-lib-dir nil)
+  (defvar phox-etags nil))
+
 
 (defun phox-tags-add-table(table)
   "add tags table"

@@ -8,9 +8,11 @@
 ;;--------------------------------------------------------------------------;;
 
 (require 'cl)
+
 (eval-when (compile)
-  (defvar phox-prog-name nil)
-  (declare-function proof-shell-invisible-command (str)))
+  (defvar phox-prog-name nil))
+
+(declare-function proof-shell-invisible-command "proof-shell" (str))
 
 ;; configuration :
 

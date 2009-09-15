@@ -34,12 +34,6 @@
   :type 'file
   :group 'phox)
 
-(defcustom phox-sym-lock-enabled t
-  "*Whether to use yum symbol or not."
-  :type 'boolean
-  :group 'phox)
-
-
 (defcustom phox-web-page
   "http://www.lama.univ-savoie.fr/~RAFFALLI/phox.html"
   "URL of web page for PhoX."

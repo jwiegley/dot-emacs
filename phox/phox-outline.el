@@ -6,17 +6,28 @@
 (eval-when-compile
   (require 'outline))
 
-(setq phox-outline-title-regexp "\\((\\*[ \t\n]*title =\\)")
-(setq phox-outline-section-regexp "\\((\\*\\*+\\)")
-(setq phox-outline-save-regexp "\\((\\*#\\)")
-(setq
+(declare-function phox-lang-absurd "nofile")
+(declare-function phox-lang-suppress "nofile")
+(declare-function phox-lang-instance "nofile")
+(declare-function phox-lang-open-instance "nofile")
+(declare-function phox-lang-opendef "nofile")
+(declare-function phox-lang-unlock "nofile")
+(declare-function phox-lang-lock "nofile")
+(declare-function phox-lang-prove "nofile")
+(declare-function phox-lang-let "nofile")
+
+
+(defconst phox-outline-title-regexp "\\((\\*[ \t\n]*title =\\)")
+(defconst phox-outline-section-regexp "\\((\\*\\*+\\)")
+(defconst phox-outline-save-regexp "\\((\\*#\\)")
+(defconst
  phox-outline-theo-regexp
  "\\((\\*lem\\)\\|\\((\\*prop\\)\\|\\((\\*fact\\)\\|\\((\\*theo\\)\\|\\((\\*def\\)\\|\\((\\*cst\\)")
-(setq
+(defconst
  phox-outline-theo2-regexp
  "\\(lem\\)\\|\\(prop\\)\\|\\(fact\\)\\|\\(theo\\)\\|\\(def\\)\\|\\(cst\\)\\|\\(claim\\)\\|\\(new_\\)")
 
-(setq
+(defconst
   phox-outline-regexp
   (concat
    phox-outline-title-regexp "\\|"
@@ -25,7 +36,7 @@
    phox-outline-theo-regexp "\\|"
    phox-outline-theo2-regexp))
 
-(setq phox-outline-heading-end-regexp "\\(\\*)[ \t]*\n\\)\\|\\(\\.[ \t]*\n\\)")
+(defconst phox-outline-heading-end-regexp "\\(\\*)[ \t]*\n\\)\\|\\(\\.[ \t]*\n\\)")
 
 ;(if phox-outline
 ;    (add-hook 'phox-mode-hook '(lambda()(outline-minor-mode 1)))

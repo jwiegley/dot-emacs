@@ -9,6 +9,18 @@
 
 (require 'pg-pbrpm)
 
+(declare-function phox-lang-absurd "nofile")
+(declare-function phox-lang-suppress "nofile")
+(declare-function phox-lang-instance "nofile")
+(declare-function phox-lang-open-instance "nofile")
+(declare-function phox-lang-opendef "nofile")
+(declare-function phox-lang-unlock "nofile")
+(declare-function phox-lang-lock "nofile")
+(declare-function phox-lang-prove "nofile")
+(declare-function phox-lang-let "nofile")
+(declare-function int-char "nofile")
+(declare-function char= "nofile")
+
 ;;--------------------------------------------------------------------------;;
 ;; Syntactic functions
 ;;--------------------------------------------------------------------------;;

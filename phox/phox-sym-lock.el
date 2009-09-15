@@ -14,7 +14,30 @@
 ;;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 ;;    GNU General Public License for more details.
 
-(require 'proof-compat)			; compile warnings
+(require 'proof-compat)			; avoid compile warnings
+
+(defcustom phox-sym-lock-enabled t
+  "*Whether to use yum symbol or not."
+  :type 'boolean
+  :group 'phox)
+
+;; DA: I have crudely hacked this file so that it compiles cleanly.
+;; It won't work now, but I hope we can use Unicode Tokens instead.
+
+(declare-function map-extents "nofile")
+(declare-function extent-face "nofile")
+(declare-function face-property "nofile")
+(declare-function set-extent-endpoints "nofile")
+(declare-function extent-start-position "nofile")
+(declare-function extent-end-position "nofile")
+(declare-function set-extent-property "nofile")
+(declare-function face-font-name "nofile")
+(declare-function font-name "nofile")
+(declare-function char-int "nofile")
+(declare-function obj "nofile")
+(declare-function set-face-property "nofile")
+(declare-function add-menu-button "nofile")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                 History
@@ -164,30 +187,31 @@
 (put 'phox-sym-lock-font-name 'permanent-local t)
 
 (make-face 'phox-sym-lock-adobe-symbol-face)
-(if phox-sym-lock-with-mule
-    (progn
-      (make-charset 'phox-sym-lock-cset-left "Char set for symbol font"
-		    (list 'registry "adobe-fontspecific"
-			  'dimension 1
-			  'chars 94
-;;			  'final 53
-;; DA PG 3.7: above line doesn't work on XEmacs 21.5b28, gives
-;; Character set already defined for this DIMENSION/CHARS/FINAL/DIRECTION combo (indian-is13194)
-;; DA: Will 55 work?
-			  'final 55
-			  'graphic 0))
-      (make-charset 'phox-sym-lock-cset-right "Char set for symbol font"
-		    (list 'registry "adobe-fontspecific"
-			  'dimension 1
-			  'chars 94
-			  'final 54
-			  'graphic 1))
-      (set-face-property 'phox-sym-lock-adobe-symbol-face
-			 'font phox-sym-lock-font-name nil
-			 ;; DA: removed next line, it breaks "make magic" in doc
-			 ;; '(mule-fonts) 'prepend,
-			 ))
-  (set-face-font 'phox-sym-lock-adobe-symbol-face phox-sym-lock-font-name 'global))
+;  DA: DISABLED THIS top level form (PG 4.0) 
+;; (if phox-sym-lock-with-mule 
+;;     (progn
+;;       (make-charset 'phox-sym-lock-cset-left "Char set for symbol font"
+;; 		    (list 'registry "adobe-fontspecific"
+;; 			  'dimension 1
+;; 			  'chars 94
+;; ;;			  'final 53
+;; ;; DA PG 3.7: above line doesn't work on XEmacs 21.5b28, gives
+;; ;; Character set already defined for this DIMENSION/CHARS/FINAL/DIRECTION combo (indian-is13194)
+;; ;; DA: Will 55 work?
+;; 			  'final 55
+;; 			  'graphic 0))
+;;       (make-charset 'phox-sym-lock-cset-right "Char set for symbol font"
+;; 		    (list 'registry "adobe-fontspecific"
+;; 			  'dimension 1
+;; 			  'chars 94
+;; 			  'final 54
+;; 			  'graphic 1))
+;;       (set-face-property 'phox-sym-lock-adobe-symbol-face
+;; 			 'font phox-sym-lock-font-name nil
+;; 			 ;; DA: removed next line, it breaks "make magic" in doc
+;; 			 ;; '(mule-fonts) 'prepend,
+;; 			 ))
+;;   (set-face-font 'phox-sym-lock-adobe-symbol-face phox-sym-lock-font-name 'global))
 
 (defun phox-sym-lock-set-foreground ()
   "Set foreground color of Phox-Sym-Lock faces."
@@ -206,15 +230,16 @@
 (defun phox-sym-lock-translate-char (char)
   (if phox-sym-lock-with-mule
       (let ((code (if (integerp char) char (char-int char))))
-	(if (< code 128)
-	    (make-char 'phox-sym-lock-cset-left obj)
-	    (make-char 'phox-sym-lock-cset-right (- obj 128))))
+	(with-no-warnings ;; da: dynamic scope obj
+	  (if (< code 128)
+	      (make-char 'phox-sym-lock-cset-left obj)
+	    (make-char 'phox-sym-lock-cset-right (- obj 128)))))
     char))
 
 (defun phox-sym-lock-translate-char-or-string (obj)
   (if (stringp obj)
     (if phox-sym-lock-with-mule
-	(concat (mapcar phox-sym-lock-translate-char obj))
+	(concat (mapcar 'phox-sym-lock-translate-char obj))
       (obj))
     (make-string 1 (phox-sym-lock-translate-char obj))))
 
@@ -224,7 +249,7 @@ given OBJ under `phox-sym-lock-adobe-symbol-face' and all other characters to
 the empty string. OBJ may either be a string or a character."
   (let* ((name (phox-sym-lock-gen-symbol "face"))
 	 (table (make-display-table))
-	 (tface (make-face name "phox-sym-lock-remap-face" t)))
+	 (tface (make-face name "phox-sym-lock-remap-face")))
     (fillarray table "")
     (aset table (string-to-char (substring pat (1- pos) pos))
 	  (phox-sym-lock-translate-char-or-string obj))
@@ -241,7 +266,7 @@ the empty string. OBJ may either be a string or a character."
 (defvar phox-sym-lock-clear-face
   (let* ((name (phox-sym-lock-gen-symbol "face"))
 	 (table (make-display-table))
-	 (tface (make-face name "phox-sym-lock-remap-face" t)))
+	 (tface (make-face name "phox-sym-lock-remap-face")))
     (fillarray table "")
     (set-face-property tface 'display-table table)
     (set-face-property tface 'phox-sym-lock-remap 1) ; mark it
@@ -271,12 +296,14 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
   (list pat num (phox-sym-lock-remap-face pat pos obj t) override))
 
 (defun phox-sym-lock-pre-idle-hook-first ()
-  (condition-case nil
-      (if (and phox-sym-lock-enabled font-lock-old-extent)
-	  (setq phox-sym-lock-ext-start (extent-start-position font-lock-old-extent)
-		phox-sym-lock-ext-end (extent-end-position font-lock-old-extent))
-	(setq phox-sym-lock-ext-start nil))
-    (error (setq phox-sym-lock-ext-start nil))))
+  ;; da: XEmacs isms
+  ;; (condition-case nil
+  ;;     (if (and phox-sym-lock-enabled font-lock-old-extent)
+  ;; 	  (setq phox-sym-lock-ext-start (extent-start-position font-lock-old-extent)
+  ;; 		phox-sym-lock-ext-end (extent-end-position font-lock-old-extent))
+  ;; 	(setq phox-sym-lock-ext-start nil))
+  ;;   (error (setq phox-sym-lock-ext-start nil))))
+)
 
 (defun phox-sym-lock-pre-idle-hook-last ()
   (condition-case nil
@@ -296,7 +323,7 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
     (if font-lock-mode
 	(progn
 ;	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
-	  (font-lock-set-defaults t)
+	  (font-lock-set-defaults)
 	  (font-lock-fontify-buffer)))
     (message "Phox-Sym-Lock enabled.")))
 
@@ -309,7 +336,7 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
     (if font-lock-mode
 	(progn
 ;	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
-	  (font-lock-set-defaults t)
+	  (font-lock-set-defaults)
 	  (font-lock-fontify-buffer)))
     (message "Phox-Sym-Lock disabled.")))
 
@@ -346,10 +373,11 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
   (when
       (and
        (featurep 'font-lock)
-       (if font-lock-auto-fontify
-	   (not (memq major-mode font-lock-mode-disable-list))
-	 (memq major-mode font-lock-mode-enable-list))
-       (font-lock-set-defaults-1 explicit-defaults)
+       ;; da: font-lock has changed:
+       ;; (if font-lock-auto-fontify
+       ;; 	   (not (memq major-mode font-lock-mode-disable-list))
+       ;; 	 (memq major-mode font-lock-mode-enable-list))
+       ;; (font-lock-set-defaults-1 explicit-defaults)
        (phox-sym-lock-patch-keywords))
     (turn-on-font-lock)))
 

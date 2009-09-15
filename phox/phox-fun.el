@@ -1,68 +1,72 @@
 ;; $State$ $Date$ $Revision$
 ;; syntax
 
-(setq
- phox-forget-id-command "del %s.\n"
- phox-forget-proof-command "del_proof %s.\n"
- phox-forget-new-elim-command "edel elim %s.\n"
- phox-forget-new-intro-command "edel intro %s.\n"
- phox-forget-new-equation-command "edel equation %s.\n"
- phox-forget-close-def-command "edel closed %s.\n"
+(require 'span)
+(require 'proof-syntax)
+(require 'proof-script)
+
+(eval-when-compile
+  (require 'proof-utils))
+
+(defconst phox-forget-id-command "del %s.\n")
+(defconst phox-forget-proof-command "del_proof %s.\n")
+(defconst phox-forget-new-elim-command "edel elim %s.\n")
+(defconst phox-forget-new-intro-command "edel intro %s.\n")
+(defconst phox-forget-new-equation-command "edel equation %s.\n")
+(defconst phox-forget-close-def-command "edel closed %s.\n")
 ; phox-comments-regexp : a sequence of comments and white spaces
- phox-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*"
+(defconst phox-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*")
 ; phox-strict-comments-regexp : a not empty sequence of comments and white spaces
- phox-strict-comments-regexp "\\([ \n\t\r]+\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*\\|\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)+\\)"
- phox-ident-regexp "\\(\\([^() \n\t\r=\\[.]\\|\\(\\.[^() \n\t\r]\\)\\)+\\)"
- phox-inductive-option "\\(\\[[^]]*]\\)?"
- phox-spaces-regexp "[ \n\t\r]*"
- phox-sy-definition-regexp (concat
+(defconst phox-strict-comments-regexp "\\([ \n\t\r]+\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*\\|\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)+\\)")
+(defconst phox-ident-regexp "\\(\\([^() \n\t\r=\\[.]\\|\\(\\.[^() \n\t\r]\\)\\)+\\)")
+(defconst phox-inductive-option "\\(\\[[^]]*]\\)?")
+(defconst phox-spaces-regexp "[ \n\t\r]*")
+(defconst phox-sy-definition-regexp (concat
    "\\(Cst\\|\\(def\\(rec\\)?\\)\\)"
    phox-comments-regexp
-   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)")
- phox-sy-inductive-regexp (concat
+   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)"))
+(defconst phox-sy-inductive-regexp (concat
    "Inductive"
    phox-comments-regexp
    phox-inductive-option
    phox-comments-regexp
-   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)")
- phox-inductive-regexp (concat
+   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)"))
+(defconst phox-inductive-regexp (concat
    "Inductive"
    phox-comments-regexp
    phox-inductive-option
    phox-comments-regexp
-   phox-ident-regexp)
- phox-data-regexp (concat
+   phox-ident-regexp))
+(defconst phox-data-regexp (concat
    "\\(Data\\|type\\)"
    phox-comments-regexp
    phox-inductive-option
    phox-comments-regexp
-   phox-ident-regexp)
- phox-definition-regexp (concat
+   phox-ident-regexp))
+(defconst phox-definition-regexp (concat
    "\\(Cst\\|def\\(_thlist\\|rec\\)?\\|claim\\|Sort\\)"
    phox-comments-regexp
-   phox-ident-regexp)
- phox-prove-claim-regexp (concat
+   phox-ident-regexp))
+(defconst phox-prove-claim-regexp (concat
    "prove_claim"
    phox-comments-regexp
-   phox-ident-regexp)
- phox-new-elim-regexp (concat
+   phox-ident-regexp))
+(defconst phox-new-elim-regexp (concat
    "new_elim\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
-   phox-ident-regexp)
- phox-new-intro-regexp (concat
+   phox-ident-regexp))
+(defconst phox-new-intro-regexp (concat
    "new_intro\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
-   phox-ident-regexp)
- phox-new-rewrite-regexp (concat
+   phox-ident-regexp))
+(defconst phox-new-rewrite-regexp (concat
    "new_rewrite\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
-   phox-ident-regexp)
- phox-new-equation-regexp (concat
+   phox-ident-regexp))
+(defconst phox-new-equation-regexp (concat
    "new_equation\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
-   phox-ident-regexp)
- phox-close-def-regexp (concat
+   phox-ident-regexp))
+(defconst phox-close-def-regexp (concat
    "close_def"
    phox-comments-regexp
-   "\\(\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)[. \n\t\r]")
-)
-
+   "\\(\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)[. \n\t\r]"))
 
 (defun phox-init-syntax-table (&optional TABLE)
   "Set appropriate values for syntax table in current buffer,
@@ -248,15 +252,16 @@ or for optional argument TABLE."
 ;; Doing commands
 ;;
 
-(defun phox-assert-next-command-interactive ()
-  "Process until the end of the next unprocessed command after point.
-If inside a comment, just process until the start of the comment."
-  (interactive)
-;  (if (and (> (point) 1) (char-equal (char-before (point)) ?\.)) (insert "\n"))
-  (proof-with-script-buffer
-    (goto-char (proof-queue-or-locked-end))
-    (proof-assert-next-command)
-    (proof-maybe-follow-locked-end)))
+(defalias 'phox-assert-next-command-interactive 'proof-assert-next-command-interactive)
+;; da: might be able to achieve commented out effect with proof-electric-terminator-noterminator
+;;   "Process until the end of the next unprocessed command after point.
+;; If inside a comment, just process until the start of the comment."
+;;   (interactive)
+;; ;  (if (and (> (point) 1) (char-equal (char-before (point)) ?\.)) (insert "\n"))
+;;   (proof-with-script-buffer
+;;     (goto-char (proof-queue-or-locked-end))
+;;     (proof-assert-next-command)
+;;     (proof-maybe-follow-locked-end)))
 
 ;;--------------------------------------------------------------------------;;
 ;; Obtaining some informations on the system.

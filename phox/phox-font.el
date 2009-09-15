@@ -1,3 +1,8 @@
+(defvar phox-sym-lock-enabled nil)  ; da: for clean compile
+(defvar phox-sym-lock-color nil)  ; da: for clean compile
+(defvar phox-sym-lock-keywords nil)  ; da: for clean compile
+(declare-function phox-sym-lock "phox-sym-lock")
+
 ;;--------------------------------------------------------------------------;;
 ;;--------------------------------------------------------------------------;;
 ;;                       Font lock keywords
