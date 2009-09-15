@@ -936,7 +936,7 @@ being processed."
 If START is non-nil, START and END are buffer positions in the
 active scripting buffer for the queue region.
 
-This function calls `proof-append-alist'."
+This function calls `proof-add-to-queue'."
   (if start
       (proof-set-queue-endpoints start end))
   (proof-add-to-queue queueitems))
