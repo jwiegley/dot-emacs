@@ -308,8 +308,7 @@ distdocs: FORCE
 #
 distcompile: FORCE
 	@echo "***** MAKING ELC FILES  ****"
-## FIXME: for now, ignroe errors in compilation
-	-$(MAKE) compile
+	$(MAKE) compile
 
 
 
@@ -412,7 +411,7 @@ dist:
 ##     WARNING: RELEASEDIR is not cleaned, but files there
 ##     with same names will be overwritten.
 ##
-release: distclean tag  dist 
+release: distclean tag dist 
 	@echo "*************************************************"
 	@echo " Making release (installing tarball distributions)."
 	@echo "*************************************************"
