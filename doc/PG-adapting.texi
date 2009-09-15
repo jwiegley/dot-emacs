@@ -873,7 +873,7 @@ Matches a save command.
 @c TEXI DOCSTRING MAGIC: proof-save-with-hole-regexp
 @defvar proof-save-with-hole-regexp 
 Regexp which matches a command to save a named theorem.@*
-The name of the theorem is build from the variable
+The name of the theorem is build from the variable
 @samp{@code{proof-save-with-hole-result}} using the same convention as
 @samp{@code{query-replace-regexp}}.
 Used for setting names of goal..save and proof regions and for
