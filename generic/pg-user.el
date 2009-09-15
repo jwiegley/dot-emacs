@@ -20,9 +20,10 @@
 
 (require 'proof-script)	        ; we build on proof-script
 
-(eval-when-compile
-  (require 'cl)
-  (require 'completion))		; loaded dynamically at runtime
+(require 'cl)
+(eval-when (compile)
+  (require 'completion)		       ; loaded dynamically at runtime
+  (defvar which-func-modes nil))       ; defined by which-func
 
 ; defined in proof-script/proof-setup-parsing-mechanism
 (declare-function proof-segment-up-to "proof-script") 
@@ -542,7 +543,7 @@ If variable `proof-electric-terminator-enable' is non-nil, the command will be
 sent to the assistant."
   (interactive)
   (if proof-electric-terminator-enable
-      (proof-insert-electric-terminator)
+      (proof-assert-electric-terminator)
     (self-insert-command 1)))
 
 
