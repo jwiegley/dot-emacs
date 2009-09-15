@@ -521,6 +521,7 @@ For Plastic, we assume that module identifiers coincide with file names."
 (defun plastic-preprocessing () ;; NB: dynamic scoping of string
    "clear comments and remove literate marks (ie, \\n> ) - acts on var string"
 
+   (with-no-warnings
    ;; might want to use proof-string-match here if matching is going
    ;; to be case sensitive (see docs)
 
@@ -566,7 +567,7 @@ For Plastic, we assume that module identifiers coincide with file names."
      (setq string (replace-regexp-in-string "^ +" "" string))
    (if (string-match "^\\s-*$" string)
        (setq string (concat "ECHO comment line" proof-terminal-string))
-     string))))
+     string)))))
 
 
 (defun plastic-all-ctxt ()
