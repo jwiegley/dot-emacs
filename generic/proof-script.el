@@ -1967,7 +1967,9 @@ each queue item."
 			       (funcall proof-script-preprocess
 					file 
 					;; ignore spaces at start of command
-					(+ start (string-match "[^\t\n ]" cmd))
+					(+ start (save-excursion
+						   (goto-char start)
+						   (skip-chars-forward " \t\n")))
 					end
 					cmd)
 			     (list cmd))))
@@ -2037,12 +2039,11 @@ comment, and insert or skip to the next semi)."
 	  (error "There's nothing to do!"))
       (skip-chars-backward " \t\n")
       (if (not (= (char-after (point)) proof-terminal-char))
-	  (progn
-	    (forward-char) ;; immediately after command end.
-	    (unless proof-electric-terminator-noterminator
-	      (insert proof-terminal-string)
-	      (setq ins t))))
-      (let* ((pos  (point))
+	  (unless proof-electric-terminator-noterminator
+	    (insert proof-terminal-string)
+	    (setq ins t)))
+      (let* ((pos  
+	      (if proof-electric-terminator-noterminator (1- (point)) (point)))
 	     (semis
 	      (save-excursion
 		(proof-segment-up-to-using-cache pos))))
