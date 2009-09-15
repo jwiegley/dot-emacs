@@ -1249,7 +1249,8 @@ buffer."
               (len (length (match-string 3))))
           ;; clean the response buffer from ultra-ugly underlined command line
           ;; parsed above. Don't kill the first \n
-          (when clean (delete-region (+ (match-beginning 0) 1) (match-end 0)))
+          (let ((inhibit-read-only t))
+            (when clean (delete-region (+ (match-beginning 0) 1) (match-end 0))))
           (when proof-shell-unicode
             ;; `pos' and `len' are actually specified in bytes, apparently.
             ;; So let's convert them, assuming the encoding used is utf-8.
@@ -1296,8 +1297,7 @@ buffer."
         (let* ((start (point))
                (dummy (goto-char
                        (byte-to-position (+ (position-bytes (point)) lgth))))
-               (sp (span-make start (point)))
-               (inhibit-read-only t))
+               (sp (span-make start (point))))
           (set-span-face sp 'proof-warning-face)
           (unwind-protect
               (sit-for 5) ;; da: this was 20 but seemed obnoxiously long?
