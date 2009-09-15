@@ -8,6 +8,9 @@
 (require 'proof)            ; load generic parts
 (require 'proof-syntax)
 
+(eval-when-compile
+  (defvar lclam-toolbar-entries nil))
+
 ;;
 ;; =========== User settings for Lambda-CLAM ============
 ;;
@@ -33,8 +36,8 @@
   "Configure Proof General scripting for Lambda-CLAM."
   (setq
    proof-terminal-char             ?\.
-   proof-comment-start             "/*"
-   proof-comment-end               "*/"
+   proof-script-comment-start      "/*"
+   proof-script-comment-end        "*/"
    proof-goal-command-regexp       "^pds_plan"
    proof-save-command-regexp       nil
    proof-goal-with-hole-regexp     nil
@@ -45,7 +48,7 @@
    proof-goal-command              "^pds_plan %s."
    proof-save-command              nil
    proof-kill-goal-command         nil
-   proof-assistant-homepage        lclam-web-page
+   proof-assistant-home-page       lclam-web-page
    proof-auto-multiple-files       nil
    proof-prog-name		   lclam-prog-name
    proof-shell-process-connection-type t

@@ -10,6 +10,23 @@
 ;; $Id$
 ;;
 
+(require 'pg-vars)
+(declare-function proof-find-theorems "pg-user")
+
+
+;; search form field values
+
+(defvar isar-find-theorems-data (list
+  ""      ;; num
+  ""      ;; pattern
+  "none"  ;; intro
+  "none"  ;; elim
+  "none"  ;; dest
+  ""      ;; name
+  ""      ;; simp
+  )
+  "Values of the Find Theorems search form's fields.")
+
 ;; make the original (minibuffer based) "Find theorems" command (from
 ;; ../generic/pg-user.el) available as isar-find-theorems-minibuffer;
 ;; return '(nil) so that isar-find-theorems-minibuffer works as a
@@ -35,7 +52,7 @@
   (apply 'isar-find-theorems-create-searchform isar-find-theorems-data)
   '(nil))
 
-;; update the universal key bindings (see ../generic/proof-config.el)
+;; update the universal key bindings (see ../generic/pg-vars.el)
 ;;
 ;; C-c C-a C-m is bound to isar-find-theorems-minibuffer
 ;; C-c C-a C-f is bound to isar-find-theorems-form
@@ -68,19 +85,6 @@
 ;; prints the last 100 theorems matching the pattern "(_::nat) + _ + _",
 ;; matching the current goal as introduction rule and not having "HOL."
 ;; in their name (i.e. not being defined in theory HOL).
-
-;; search form field values
-
-(defvar isar-find-theorems-data (list
-  ""      ;; num
-  ""      ;; pattern
-  "none"  ;; intro
-  "none"  ;; elim
-  "none"  ;; dest
-  ""      ;; name
-  ""      ;; simp
-  )
-  "Values of the Find Theorems search form's fields.")
 
 ;; search form widgets (set in isar-find-theorems-create-searchform
 ;; and accessed in the "Find" handler)

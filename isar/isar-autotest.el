@@ -6,6 +6,9 @@
 ;;
 
 (eval-when-compile
+  (require 'cl))
+
+(eval-when (compile)
   (require 'proof-utils)
   (proof-ready-for-assistant 'isar))
 

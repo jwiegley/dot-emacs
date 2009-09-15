@@ -593,15 +593,16 @@ This slows down interactive processing slightly."
 (defun isar-preprocessing ()
   "Insert sync markers and other hacks.
 Uses variables `string' and `scriptspan' passed by dynamic scoping."
-  (if (proof-string-match isabelle-verbatim-regexp string)
-      (setq string (match-string 1 string))
-    (unless (string-match ";[ \t]*\\'" string)
-      (setq string (concat string ";")))
-    (setq string (concat
-		  "\\<^sync>; "
-		  (isar-shell-adjust-line-width)
-		  string
-		  " \\<^sync>;"))))
+  (with-no-warnings  ; dynamic scoping of string, scriptspan
+    (if (proof-string-match isabelle-verbatim-regexp string)
+	(setq string (match-string 1 string))
+      (unless (string-match ";[ \t]*\\'" string)
+	(setq string (concat string ";")))
+      (setq string (concat
+		    "\\<^sync>; "
+		    (isar-shell-adjust-line-width)
+		    string
+		    " \\<^sync>;")))))
 
 ;;
 ;;   Configuring proof output buffer
