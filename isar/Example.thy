@@ -9,10 +9,10 @@ theory Example imports Main begin
 
 text {* Proper proof text -- \textit{naive version}. *}
 
-theorem and_comms: "A \<and> B \<longrightarrow> B \<and> A"
+theorem and_comms: "A & B --> B & A"
 proof
-  assume "A \<and> B"
-  then show "B \<and> A"
+  assume "A & B"
+  then show "B & A"
   proof
     assume B and A
     then show ?thesis ..
@@ -22,9 +22,6 @@ qed
 text {* Unstructured proof script. *}
 
 theorem  "A & B --> B & A"
-by and_comms
-
-
   apply (rule impI)
   apply (erule conjE)
   apply (rule conjI)
