@@ -1615,10 +1615,13 @@ does not.  As with any Emacs command, you can invoke these with
 
 @c TEXI DOCSTRING MAGIC: proof-shell-start
 @deffn Command proof-shell-start 
-Initialise a shell-like buffer for a proof assistant.
+Initialise a shell-like buffer for a proof assistant.@*
+Does nothing if proof assistant is already running.
 
 Also generates goal and response buffers.
-Does nothing if proof assistant is already running.
+
+If @samp{@code{proof-prog-name-ask}} is set, query the user for the
+process command.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
@@ -2981,10 +2984,11 @@ The default value is @code{t}.
 @defopt proof-strict-read-only 
 Whether Proof General is strict about the read-only region in buffers.@*
 If non-nil, an error is given when an attempt is made to edit the
-read-only region.  If nil, Proof General is more relaxed (but may give
+read-only region, except for the special value @code{'retract} which means
+undo first.  If nil, Proof General is more relaxed (but may give
 you a reprimand!).
 
-The default value is @code{t}.
+The default value is @code{retract}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-allow-undo-in-read-only

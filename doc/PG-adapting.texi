@@ -873,7 +873,7 @@ Matches a save command.
 @c TEXI DOCSTRING MAGIC: proof-save-with-hole-regexp
 @defvar proof-save-with-hole-regexp 
 Regexp which matches a command to save a named theorem.@*
-The name of the theorem is build from the variable
+The name of the theorem is built from the variable
 @samp{@code{proof-save-with-hole-result}} using the same convention as
 @samp{@code{query-replace-regexp}}.
 Used for setting names of goal..save and proof regions and for
@@ -1065,8 +1065,8 @@ Command to undo n steps of the currently open goal.@*
 String or function.
 If this is set to a string, @samp{%s} will be replaced by the number of
 undo steps to issue.
-If this is set to a function, it should return the appropriate
-command when called with an integer (the number of undo steps).
+If this is set to a function, it should return a list of
+the appropriate commands (given the number of undo steps).
 
 This setting is used for the default @samp{@code{proof-generic-count-undos}}.
 If you set @samp{@code{proof-count-undos-fn}} to some other function, there is no
@@ -1582,6 +1582,9 @@ Example uses:
 @var{lego} uses this hook for setting the pretty printer width if
 the window width has changed;
 Plastic uses it to remove literate-style markup from @samp{string}.
+
+See also @samp{@code{proof-script-preprocess}} which can munge text when
+it is added to the queue of commands.
 @end defvar
 
 
@@ -1626,7 +1629,7 @@ Regexp matching an error report from the proof assistant.
 
 We assume that an error message corresponds to a failure in the last
 proof command executed.  So don't match mere warning messages with
-this regexp.  Moreover, an error message should not be matched as an
+this regexp.  Moreover, an error message should @strong{not} be matched as an
 eager annotation (see @samp{@code{proof-shell-eager-annotation-start}}) otherwise it
 will be lost.
 
@@ -1689,7 +1692,15 @@ and possibly analysed further for proof-by-pointing markup.
 @c TEXI DOCSTRING MAGIC: proof-shell-end-goals-regexp
 @defvar proof-shell-end-goals-regexp 
 Regexp matching the end of the proof state output, or nil.@*
-If nil, just use the rest of the output following @samp{@code{proof-shell-start-goals-regexp}}.
+This allows a shorter form of the proof state output to be displayed,
+in case several messages are combined in a command output.  
+
+The portion treated as the goals output will be that between the
+@strong{end} of the match on @samp{@code{proof-shell-start-goals-regexp}} and the
+@strong{start} of the match on @samp{@code{proof-shell-end-goals-regexp}}.
+
+If nil, use the whole of the output after
+@samp{@code{proof-shell-start-goals-regexp}} up to the next prompt.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-assumption-regexp
 @defvar proof-shell-assumption-regexp 
@@ -1779,14 +1790,24 @@ be acted on as soon as they are issued by the prover.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-clear-response-regexp
 @defvar proof-shell-clear-response-regexp 
-Regexp matching output telling Proof General to clear the response buffer.@*
+Regexp matching output telling Proof General to clear the response buffer.
+
+More precisely, this should match a string which is bounded by
+matches on @samp{@code{proof-shell-eager-annotation-start}} and
+@samp{@code{proof-shell-eager-annotation-end}}.
+
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-clear-goals-regexp
 @defvar proof-shell-clear-goals-regexp 
-Regexp matching output telling Proof General to clear the goals buffer.@*
+Regexp matching output telling Proof General to clear the goals buffer.
+
+More precisely, this should match a string which is bounded by
+matches on @samp{@code{proof-shell-eager-annotation-start}} and
+@samp{@code{proof-shell-eager-annotation-end}}.
+
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable.
 @end defvar
@@ -1796,6 +1817,10 @@ is shown to the user.  Set to nil to disable.
 Matches output telling Proof General to set some variable.@*
 This allows the proof assistant to configure Proof General directly
 and dynamically.   (It's also a fantastic backdoor security risk).
+
+More precisely, this should match a string which is bounded by
+matches on @samp{@code{proof-shell-eager-annotation-start}} and
+@samp{@code{proof-shell-eager-annotation-end}}.
 
 If the regexp matches output from the proof assistant, there should be
 two match strings: (@code{match-string} 1) should be the name of the elisp
@@ -1852,12 +1877,16 @@ final four settings described here.
 @defvar proof-shell-process-file 
 A pair (@var{regexp} . @var{function}) to match a processed file name.
 
-If @var{regexp} matches output, then the function @var{function} is invoked on the
-output string chunk.  It must return the name of a script file (with
-complete path) that the system has successfully processed.  In
-practice, @var{function} is likely to inspect the match data.  If it returns
+If @var{regexp} matches output, then the function @var{function} is invoked.
+It must return the name of a script file (with complete path) 
+that the system has successfully processed.  In practice, 
+@var{function} is likely to inspect the match data.  If it returns
 the empty string, the file name of the scripting buffer is used
 instead.  If it returns nil, no action is taken.
+
+More precisely, @var{regexp} should match a string which is bounded by
+matches on @samp{@code{proof-shell-eager-annotation-start}} and
+@samp{@code{proof-shell-eager-annotation-end}}.
 
 Care has to be taken in case the prover only reports on compiled
 versions of files it is processing.  In this case, @var{function} needs to
@@ -1869,6 +1898,10 @@ name is added to the front of @samp{@code{proof-included-files-list}}.
 @defvar proof-shell-retract-files-regexp 
 Matches a message that the prover has retracted a file.
 
+More precisely, this should match a string which is bounded by
+matches on @samp{@code{proof-shell-eager-annotation-start}} and
+@samp{@code{proof-shell-eager-annotation-end}}.
+
 At this stage, Proof General's view of the processed files is out of
 date and needs to be updated with the help of the function
 @samp{@code{proof-shell-compute-new-files-list}}.
@@ -1879,12 +1912,15 @@ date and needs to be updated with the help of the function
 @defvar proof-shell-compute-new-files-list 
 Function to update @samp{proof-included-files list}.
 
-It needs to return an up to date list of all processed files.  Its
-output is stored in @samp{@code{proof-included-files-list}}.  Its input is the
-string of which @samp{@code{proof-shell-retract-files-regexp}} matched a
-substring.  In practice, this function is likely to inspect the
-previous (global) variable @samp{@code{proof-included-files-list}} and the match
-data triggered by @samp{@code{proof-shell-retract-files-regexp}}.
+It needs to return an up-to-date list of all processed files.  The
+result will be stored in @samp{@code{proof-included-files-list}}.  
+
+This function is called when @samp{@code{proof-shell-retract-files-regexp}}
+has been matched in the prover output.
+
+In practice, this function is likely to inspect the
+previous (global) variable @samp{@code{proof-included-files-list}} and the
+match data triggered by @samp{@code{proof-shell-retract-files-regexp}}.
 @end defvar
 
 
@@ -1955,7 +1991,7 @@ We do not force pipes everywhere because this risks loss of data.
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-or-interrupt-hook
 @defvar proof-shell-handle-error-or-interrupt-hook 
 Run after an error or interrupt has been reported in the response buffer.@*
-Hook functions may inspect @samp{@code{proof-shell-error-or-interrupt-seen}} to
+Hook functions may inspect @samp{@code{proof-shell-last-output-kind}} to
 determine whether the cause was an error or interrupt.  Possible
 values for this hook include:
 @lisp
@@ -1976,23 +2012,27 @@ This hook is added to allow customization for systems that query the user
 before returning to the top level.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-shell-classify-output-system-specific
-@defvar proof-shell-classify-output-system-specific 
+@c TEXI DOCSTRING MAGIC: proof-shell-handle-output-system-specific
+@defvar proof-shell-handle-output-system-specific 
 Set this variable to handle system specific output.@*
-Errors, start of proofs, abortions of proofs and completions of
-proofs are recognised in the function @samp{@code{proof-shell-classify-output}}.
-All other output from the proof engine is simply reported to the
-user in the @var{response} buffer.
+Errors and interrupts are recognised in the function  
+@samp{@code{proof-shell-handle-immediate-output}}.  Later output is
+handled by @samp{@code{proof-shell-handle-delayed-output}}, which
+displays messages to the user in @strong{goals} and @strong{response}
+buffers.
 
-To catch further special cases, set this variable to a pair of
-functions '(condf . actf).  Both are given (cmd string) as arguments.
-@samp{cmd} is a string containing the currently processed command.
-@samp{string} is the response from the proof system.  To change the
-behaviour of @samp{@code{proof-shell-classify-output}}, (condf cmd string) must
-return a non-nil value.  Then (actf cmd string) is invoked.
+This hook can run between the two stages to take some effect.
 
-See the documentation of @samp{@code{proof-shell-classify-output}} for the required
-output format.
+It should be a function which is passed (cmd string) as
+arguments, where @samp{cmd} is a string containing the currently
+processed command and @samp{string} is the response from the proof
+system.  If action is taken and goals/response display should
+be prevented, the function should update the variable 
+@samp{@code{proof-shell-last-output-kind}} to some non-nil symbol.
+
+The symbol will be compared against standard ones, see documentation
+of @samp{@code{proof-shell-last-output-kind}}.  A suggested canonical non-standard
+symbol is @code{'systemspecific}.
 @end defvar
 
 
@@ -2121,7 +2161,7 @@ The default value is @code{"http://proofgeneral.inf.ed.ac.uk"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
 @defvar proof-universal-keys 
-List of key bindings made for the script, goals and response buffer.@*
+List of key bindings made for all proof general buffers.@*
 Elements of the list are tuples @samp{(k . f)}
 where @samp{k} is a key binding (vector) and @samp{f} the designated function.
 @end defvar
@@ -2821,7 +2861,7 @@ automatically be prefixed by the current proof assistant symbol.
 @deffn Macro defpgcustom 
 Define a new customization variable <PA>@var{-sym} for the current proof assistant.@*
 The function proof-assistant-<SYM> is also defined, which can be used in the
-generic portion of Proof General to set and retrieve the value for the current p.a.
+generic portion of Proof General to access the value for the current prover.
 Arguments as for @samp{defcustom}, which see.
 
 Usage: (defpgcustom SYM &rest @var{args}).
@@ -3165,11 +3205,15 @@ a parsed region of the script into a series of commands to
 be sent to the proof assistant.
 
 @c TEXI DOCSTRING MAGIC: proof-semis-to-vanillas
-@defun proof-semis-to-vanillas semis &optional callback-fn
-Convert a sequence of terminator positions to a set of vanilla extents.@*
+@defun proof-semis-to-vanillas semis
+Create vanilla spans for @var{semis} and a list for the queue.@*
 Proof terminator positions @var{semis} has the form returned by
 the function @samp{proof-segment-up-to}.  The argument list is destroyed.
-Set the callback to @var{callback-fn} or @samp{@code{proof-done-advancing}} by default.
+The callback in each queue element is @samp{@code{proof-done-advancing}}.
+
+If the variable @samp{@code{proof-script-preprocess}} is set (to the name of
+a function, call that function to construct the first element of
+each queue item.
 @end defun
 
 The function @code{proof-assert-until-point} is the main one used to
@@ -3264,10 +3308,10 @@ Marker in proof shell buffer pointing to previous command input.
 
 @c TEXI DOCSTRING MAGIC: proof-action-list
 @defvar proof-action-list 
-The main queue of things to do, containing spans commands and actions.@*
+The main queue of things to do: spans, commands and actions.@*
 The value is a list of lists of the form
 @lisp
-   (@var{span} @var{command} @var{action} [FLAGS])
+   (@var{span} @var{commands} @var{action} [FLAGS])
 @end lisp
 which is the queue of things to do.  Flags are set for non-standard
 commands (out of script).  They may include
@@ -3279,7 +3323,7 @@ commands (out of script).  They may include
 If flags are non-empty, other interactive cues will be surpressed.
 (E.g., printing help messages).
 
-See the functions @samp{@code{proof-start-queue}} and @samp{proof-exec-loop}.
+See the functions @samp{@code{proof-start-queue}} and @samp{@code{proof-shell-exec-loop}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: pg-subterm-anns-use-stack
@@ -3297,10 +3341,13 @@ buffer and the associated buffers.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-start
 @deffn Command proof-shell-start 
-Initialise a shell-like buffer for a proof assistant.
+Initialise a shell-like buffer for a proof assistant.@*
+Does nothing if proof assistant is already running.
 
 Also generates goal and response buffers.
-Does nothing if proof assistant is already running.
+
+If @samp{@code{proof-prog-name-ask}} is set, query the user for the
+process command.
 @end deffn
 
 The function @code{proof-shell-kill-function} performs the converse
@@ -3364,29 +3411,29 @@ Input to the proof shell via the queue region is managed by the
 functions @code{proof-start-queue} and @code{proof-shell-exec-loop}.
 
 @c TEXI DOCSTRING MAGIC: proof-start-queue
-@defun proof-start-queue start end alist
-Begin processing a queue of commands in @var{alist}.@*
+@defun proof-start-queue start end queueitems
+Begin processing a queue of commands in @var{queueitems}.@*
 If @var{start} is non-nil, @var{start} and @var{end} are buffer positions in the
 active scripting buffer for the queue region.
 
-This function calls @samp{@code{proof-append-alist}}.
+This function calls @samp{@code{proof-add-to-queue}}.
 @end defun
 
-@c TEXI DOCSTRING MAGIC: proof-append-alist
-@defun proof-append-alist alist &optional queuemode
-Chop off the vacuous prefix of the command queue @var{alist} and queue it.@*
-For each item with a nil command at the head of the list, invoke its
-callback and remove it from the list.
-
-Append the result onto @samp{@code{proof-action-list}}, and if the proof
-shell isn't already busy, grab the lock with @var{queuemode} and
-start processing the queue.
-
-If the proof shell is busy when this function is called,
-then @var{queuemode} must match the mode of the queue currently
-being processed.
+@c TEXI DOCSTRING MAGIC: proof-extend-queue
+@defun proof-extend-queue end queueitems
+Extend the current queue with @var{queueitems}, queue end @var{end}.@*
+To make sense, the commands should correspond to processing actions
+for processing a region from (buffer-queue-or-locked-end) to @var{end}.
+The queue mode is set to @code{'advancing}
 @end defun
 
+@c TEXI DOCSTRING MAGIC: proof-extend-queue
+@defun proof-extend-queue end queueitems
+Extend the current queue with @var{queueitems}, queue end @var{end}.@*
+To make sense, the commands should correspond to processing actions
+for processing a region from (buffer-queue-or-locked-end) to @var{end}.
+The queue mode is set to @code{'advancing}
+@end defun
 @vindex proof-action-list
 @c TEXI DOCSTRING MAGIC: proof-shell-exec-loop
 @defun proof-shell-exec-loop 
@@ -3411,8 +3458,11 @@ Input is actually inserted into the shell buffer and sent to the process
 by the low-level function @code{proof-shell-insert}.  
 
 @c TEXI DOCSTRING MAGIC: proof-shell-insert
-@defun proof-shell-insert string action &optional scriptspan
-Insert @var{string} at the end of the proof shell, call @samp{@code{scomint-send-input}}.
+@defun proof-shell-insert strings action &optional scriptspan
+Insert @var{strings} at the end of the proof shell, call @samp{@code{scomint-send-input}}.
+
+The @var{action} argument is a symbol which is typically the name of a
+callback for when @var{string} has been processed.
 
 First we call @samp{@code{proof-shell-insert-hook}}.  The arguments @samp{action} and
 @samp{scriptspan} may be examined by the hook to determine how to modify
@@ -3422,12 +3472,12 @@ the command actually sent to the shell.
 Note that the hook is not called for the empty (null) string
 or a carriage return.
 
-Then we strip @samp{string} of carriage returns before inserting it
+Then we strip @var{string} of carriage returns before inserting it
 and updating @samp{@code{proof-marker}} to point to the end of the newly
 inserted text.
 
 Do not use this function directly, or output will be lost.  It is only
-used in @samp{@code{proof-append-alist}} when we start processing a queue, and in
+used in @samp{@code{proof-add-to-queue}} when we start processing a queue, and in
 @samp{@code{proof-shell-exec-loop}}, to process the next item.
 @end defun
 
@@ -3441,15 +3491,12 @@ not need to use these directly.
 @defun proof-grab-lock &optional queuemode
 Grab the proof shell lock, starting the proof assistant if need be.@*
 Runs @samp{@code{proof-state-change-hook}} to notify state change.
-Clears the @samp{@code{proof-shell-error-or-interrupt-seen}} flag.
 If @var{queuemode} is supplied, set the lock to that value.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-release-lock
-@defun proof-release-lock &optional err-or-int
-Release the proof shell lock, with error or interrupt flag @var{err-or-int}.@*
-Clear @samp{@code{proof-shell-busy}}, and set @samp{@code{proof-shell-error-or-interrupt-seen}}
-to err-or-int.
+@defun proof-release-lock 
+Release the proof shell lock.  Clear @samp{@code{proof-shell-busy}}.
 @end defun
 
 
@@ -3509,12 +3556,11 @@ Specifically:
 @lisp
  @code{'interrupt}      An interrupt message
  @code{'error}          An error message
- @code{'abort}          A proof abort message
  @code{'loopback}       A command sent from the PA to be inserted into the script
  @code{'response}       A response message
  @code{'goals}          A goals (proof state) display
  @code{'systemspecific} Something specific to a particular system,
-                  -- see @samp{@code{proof-shell-classify-output-system-specific}}
+                  -- see @samp{@code{proof-shell-handle-output-system-specific}}
 @end lisp
 The output corresponding to this will be in @samp{@code{proof-shell-last-output}}.
 
@@ -3525,50 +3571,113 @@ This variable can be used for instance specific functions which want
 to examine @samp{@code{proof-shell-last-output}}.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output
-@defvar proof-shell-delayed-output 
-A copy of @samp{@code{proof-shell-last-output}} held back for processing at end of queue.
-@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-last-output-kind
+@defvar proof-shell-last-output-kind 
+A symbol denoting the type of the last output string from the proof system.@*
+Specifically:
+@lisp
+ @code{'interrupt}      An interrupt message
+ @code{'error}          An error message
+ @code{'loopback}       A command sent from the PA to be inserted into the script
+ @code{'response}       A response message
+ @code{'goals}          A goals (proof state) display
+ @code{'systemspecific} Something specific to a particular system,
+                  -- see @samp{@code{proof-shell-handle-output-system-specific}}
+@end lisp
+The output corresponding to this will be in @samp{@code{proof-shell-last-output}}.
 
-@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output-kind
-@defvar proof-shell-delayed-output-kind 
-A copy of @samp{@code{proof-shell-last-output-kind}} held back for processing at end of queue.
+See also @samp{@code{proof-shell-proof-completed}} for further information about
+the proof process output, when ends of proofs are spotted.
+
+This variable can be used for instance specific functions which want
+to examine @samp{@code{proof-shell-last-output}}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output-start
+@defvar proof-shell-delayed-output-start 
+A record of the start of the previous output in the shell buffer.@*
+The previous output is held back for processing at end of queue.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output-end
+@defvar proof-shell-delayed-output-end 
+A record of the start of the previous output in the shell buffer.@*
+The previous output is held back for processing at end of queue.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output-flags
+@defvar proof-shell-delayed-output-flags 
+A copy of the @samp{@code{proof-action-list}} flags for @samp{proof-shell-delayed-output}.
 @end defvar
 @vindex proof-action-list
 
-@c TEXI DOCSTRING MAGIC: proof-shell-classify-output
-@defun proof-shell-classify-output cmd start end
-Process shell output (resulting from @var{cmd}) by matching at @var{start}.@*
-@var{cmd} is the first part of the @samp{@code{proof-action-list}} that lead to this
-output.  The result of this function is a pair (@var{symbol} @var{newstring}).
+@c TEXI DOCSTRING MAGIC: proof-shell-handle-immediate-output
+@defun proof-shell-handle-immediate-output cmd start end flags
+See if the output between @var{start} and @var{end} must be dealt with immediately.@*
+To speed up processing, PG tries to avoid displaying output that
+the user will not have a chance to see.  Some output must be
+handled immediately, however: these are errors, interrupts, 
+goals and loopbacks (proof step hints/proof by pointing results).
 
-Here is where we classify interrupts, abortions of proofs, errors,
-completions of proofs, and proof step hints (proof by pointing results).
-They are checked for in this order, using
+In this function we check, in turn:
 @lisp
   @samp{@code{proof-shell-interrupt-regexp}}
   @samp{@code{proof-shell-error-regexp}}
   @samp{@code{proof-shell-proof-completed-regexp}}
   @samp{@code{proof-shell-result-start}}
 @end lisp
-All other output from the proof engine will be reported to the user in
-the response buffer by setting @samp{@code{proof-shell-delayed-output}} to a cons
-cell of ('insert . @var{text}) where @var{text} is the text string to be inserted.
+Other kinds of output are essentially display only, so only
+dealt with if necessary.
 
-Order of testing is: interrupt, abort, error, completion.
+To extend this, set @samp{@code{proof-shell-handle-output-system-specific}},
+which is a hook to take particular additional actions.
 
-To extend this function, set @samp{@code{proof-shell-classify-output-system-specific}}.
-
-The "aborted" case is intended for killing off an open proof during
-retraction.  Typically it matches the message caused by a
-@samp{@code{proof-kill-goal-command}}.  It simply inserts the word "Aborted" into
-the response buffer.  So it is expected to be the result of a
-retraction, rather than the indication that one should be made.
-
-This function sets variables: @samp{@code{proof-shell-last-output}},
-@samp{@code{proof-shell-last-output-kind}}, @samp{@code{proof-shell-proof-completed}}.
+This function sets variables: @samp{@code{proof-shell-last-output-kind}},
+and the counter @samp{@code{proof-shell-proof-completed}} which counts commands
+after a completed proof.
 @end defun
 
+
+@c TEXI DOCSTRING MAGIC: proof-shell-handle-delayed-output
+@defun proof-shell-handle-delayed-output 
+Display delayed outputs, when queue is stopped or completed.@*
+This function handles the cases of @samp{proof-shell-output-kind} which
+are not dealt with eagerly during script processing, namely
+@code{'response} and @code{'goals} types.
+
+This is useful even with empty delayed output as it can
+clear the buffers.
+
+The delayed output is in the region 
+[proof-shell-last-output-start,proof-shell-last-output-end].
+
+If goals output is found, the last matching instance, possibly
+bounded by @samp{@code{proof-shell-end-goals-regexp}}, will be displayed.
+Any output that appears @strong{before} the first goals output (but
+after messages classified as urgent, see @samp{@code{proof-shell-filter}})
+will also be displayed in the response buffer.  For example,
+if @var{output} has this form:
+@lisp
+  @var{messsage-1}
+  @var{goals-1}
+  @var{message-2}
+  @var{goals-2}
+@end lisp
+then @var{goals-2} will be displayed in the goals buffer, and @var{message-2}
+in the response buffer.  Notice that the above alternation can
+only be distinguished if both @samp{@code{proof-shell-start-goals-regexp}} 
+and @samp{@code{proof-shell-end-goals-regexp}} are set.  With just the
+former, @var{message-1} @var{goals-1} @var{message-2} would all appear in
+the response buffer.
+@lisp
+@end lisp
+The goals and response outputs are copied into
+@samp{@code{proof-shell-last-goals-output}} and
+@samp{@code{proof-shell-last-response-output}} respectively.
+
+If no other kind of classified output is found, the default
+is to display the output in the response buffer.
+
+The value returned is the value for @samp{@code{proof-shell-last-output-kind}},
+i.e., @code{'goals} or @code{'response}.
+@end defun
 @c TEXI DOCSTRING MAGIC: proof-shell-urgent-message-marker
 @defvar proof-shell-urgent-message-marker 
 Marker in proof shell buffer pointing to end of last urgent message.
@@ -3579,7 +3688,7 @@ Marker in proof shell buffer pointing to end of last urgent message.
 Analyse urgent message between @var{start} and @var{end} for various cases.
 
 Cases are: included file, retracted file, cleared response buffer,
-variable setting or dependency list.
+variable setting, @var{pgip} response, or theorem dependency list.
 
 If none of these apply, display the text between @var{start} and @var{end}.
 
@@ -3602,7 +3711,7 @@ an important internal function.
 Handle urgent messages first.  As many as possible are processed,
 using the function @samp{@code{proof-shell-process-urgent-messages}}.
 
-If a prompt is seen, run @samp{@code{proof-shell-classify-output}} on the
+If a prompt is seen, run @samp{@code{proof-shell-filter-manage-output}} on the
 output between the new prompt and the last input (position of
 @samp{@code{proof-marker}}) or the last urgent message (position of
 @samp{@code{proof-shell-urgent-message-marker}}), whichever is later.  For
@@ -3610,23 +3719,29 @@ example, in this case:
 @lisp
  PROMPT> @var{input}
  @var{output-1}
- @var{urgent-message}
+ @var{urgent-message-1}
  @var{output-2}
+ @var{urgent-message-2}
+ @var{output-3}
  PROMPT>
 @end lisp
 @samp{@code{proof-marker}} points after @var{input}.
 
-@samp{@code{proof-shell-urgent-message-marker}} points after @var{urgent-message}.
+@samp{@code{proof-shell-urgent-message-marker}} points after @var{urgent-message-2},
+after both urgent messages have been processed by 
+@samp{@code{proof-shell-process-urgent-messages}}.  Urgent messages always 
+processed; they are intended to correspond to informational 
+notes that the prover makes to inform the user or interface on
+progress.
 
-The ordinary output @var{output-1} before the first prompt is ignored;
-urgent messages, however, are always processed; hence their name.
-
-Only @var{output-2} will be processed.  For this reason, error messages
-and interrupt messages should @strong{not} be considered urgent
-messages.
-
-Output is processed using the function
+In this case, the ordinary outputs @var{output-1} and @var{output-2} are
+ignored; only @var{output-3} will be processed by
 @samp{@code{proof-shell-filter-manage-output}}.
+
+Error or interrupt messages are expected to terminate an
+interactive output and appear last before a prompt and will
+always be processed.  Error messages and interrupt messages are
+therefore @strong{not} considered as urgent messages.
 
 The first time that a prompt is seen, @samp{@code{proof-marker}} is
 initialised to the end of the prompt.  This should correspond
@@ -3638,13 +3753,12 @@ is only changed when input is sent in @samp{@code{proof-shell-insert}}.
 @defun proof-shell-filter-manage-output start end
 Subroutine of @samp{@code{proof-shell-filter}} for output between @var{start} and @var{end}.
 
-Appropriate action is taken depending on what
-@samp{@code{proof-shell-classify-output}} returns: maybe handle an interrupt,
-an error, or deal with ordinary output which is a candidate for
-the goal or response buffer.
+First, we invoke @samp{@code{proof-shell-handle-immediate-output}} which classifies
+and handles output that must be dealt with immediately.
 
-Ordinary output is only displayed when the proof action list
-becomes empty, to avoid a confusing rapidly changing output.
+Other output (user display) is only displayed when the proof
+action list becomes empty, to avoid a confusing rapidly changing
+output that slows down processing.
 
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue.

@@ -62,6 +62,7 @@
 (load "pg-goals.el")
 (load "pg-response.el")
 (load "unicode-tokens.el")
+(load "proof-splash.el")
 
 ;; A couple of comint symbols are mentioned in the docs
 (require 'comint)
