@@ -16,6 +16,16 @@
 ;;
 ;;   (make-frame '((minibuffer . nil) (menu-bar-lines . 0) (tool-bar-lines . nil)))
 
+(declare-function proof-pbrpm-generate-menu "nofile")
+(declare-function insert-gui-button "nofile")
+(declare-function make-gui-button "nofile")
+(declare-function make-dialog-frame "nofile")
+(declare-function event-point "nofile")
+(declare-function event-buffer "nofile")
+(declare-function default-mouse-track-return-dragged-selection "nofile")
+(declare-function default-mouse-track-drag-hook "nofile")
+(declare-function mouse-track "nofile")
+
 ;;
 
 ;;; Code:
