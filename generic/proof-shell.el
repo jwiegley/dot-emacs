@@ -873,6 +873,17 @@ track what happens in the proof queue."
   "Insert ITEM from `proof-action-list' into the proof shell."
   (proof-shell-insert (nth 1 item) (nth 2 item) (nth 0 item)))
 
+(defsubst proof-shell-slurp-comments ()
+  "Strip comments at front of `proof-action-list', returning items stripped.
+Comments are not sent to the prover."
+  (let (cbitems nextitem)
+    (while (and proof-action-list
+		(not (nth 1 (setq nextitem 
+				  (car proof-action-list)))))
+      (setq cbitems (cons nextitem cbitems))
+      (setq proof-action-list (cdr proof-action-list)))
+    (nreverse cbitems)))
+
 (defun proof-add-to-queue (queueitems &optional queuemode)
   "Chop off the vacuous prefix of the QUEUEITEMS and queue them.
 For each item with a nil command at the head of the list, invoke its
@@ -949,18 +960,6 @@ for processing a region from (buffer-queue-or-locked-end) to END.
 The queue mode is set to 'advancing"
   (proof-set-queue-endpoints (proof-unprocessed-begin) end)
   (proof-add-to-queue queueitems 'advancing))
-
-(defsubst proof-shell-slurp-comments ()
-  "Strip comments at front of `proof-action-list', returning items stripped.
-Comments are not sent to the prover."
-  (let (cbitems nextitem)
-    (while (and proof-action-list
-		(not (nth 1 (setq nextitem 
-				  (car proof-action-list)))))
-      (setq cbitems (cons nextitem cbitems))
-      (setq proof-action-list (cdr proof-action-list)))
-    (nreverse cbitems)))
-
 
 (defun proof-shell-exec-loop ()
   "Process the `proof-action-list'.

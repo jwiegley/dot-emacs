@@ -14,7 +14,9 @@
 
 ;;; Code:
 
-(require 'cl)
+(eval-when-compile
+  (require 'cl))
+
 (require 'proof-config)			; for proof-face-specs, a macro
 (require 'holes)
 
@@ -171,7 +173,7 @@ for DB structure."
 Submenus contain SIZE entries (default 30).  See `coq-syntax-db' for DB
 structure."
   ;; sort is destructive for the list, so copy list before sorting
-  (let* ((l (coq-sort-menu-entries (copy-list db))) (res ())
+  (let* ((l (coq-sort-menu-entries (copy-sequence db))) (res ())
 	 (wdth (+ 2 (max-length-db db)))
 	 (sz (or size 30)) (lgth (length l)))
     (while l

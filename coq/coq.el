@@ -11,8 +11,7 @@
 ;;
 ;;; History:
 
-(eval-when-compile
-  (require 'cl))
+(require 'cl)
 
 (eval-when (compile)
   (require 'proof-utils)
