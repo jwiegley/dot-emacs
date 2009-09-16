@@ -643,17 +643,18 @@ NAME does not need to be unique."
 
 (defun pg-last-output-displayform ()
   "Return displayable form of `proof-shell-last-output'."
-  (let ((text (proof-shell-strip-output-markup
-	       (if (and (boundp 'unicode-tokens-mode)
-			unicode-tokens-mode)
-		   (unicode-tokens-encode-str proof-shell-last-output)
-		 proof-shell-last-output))))
-    ;; NOTE: hack for Isabelle which puts ugly leading \n's around proofstate.
-    (if (string= (substring text 0 1) "\n")
-	(setq text (substring text 1)))
-    (if (string= (substring text -1) "\n")
-	(setq text (substring text 0 -1)))
-    text))
+  (if (string= proof-shell-last-output "")  ""
+    (let ((text (proof-shell-strip-output-markup
+		 (if (and (boundp 'unicode-tokens-mode)
+			  unicode-tokens-mode)
+		     (unicode-tokens-encode-str proof-shell-last-output)
+		   proof-shell-last-output))))
+      ;; NOTE: hack for Isabelle which puts ugly leading \n's around proofstate.
+      (if (string= (substring text 0 1) "\n")
+	  (setq text (substring text 1)))
+      (if (string= (substring text -1) "\n")
+	  (setq text (substring text 0 -1)))
+      text)))
 
 ;;;###autoload
 (defun pg-set-span-helphighlights (span &optional mouseface face)
