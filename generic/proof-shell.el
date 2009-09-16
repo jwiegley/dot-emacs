@@ -852,16 +852,15 @@ track what happens in the proof queue."
    proof-shell-stop-silent-cmd
    'proof-shell-clear-silent))
 
-(defsubst proof-shell-should-be-silent (num)
-  "Return non-nil if we must switch to silent mode, adding NUM entries to queue."
-  (if (and (not proof-full-annotation)
-	   proof-shell-start-silent-cmd)
-      (or proof-shell-silent	; already
+(defsubst proof-shell-should-be-silent ()
+  "Non-nil if we should switch to silent mode based on size of queue."
+  (if (and proof-shell-start-silent-cmd ; configured
+	   (not proof-full-annotation)  ; always noisy
+	   (not proof-shell-silent))	; already silent
 	  ;; NB: to be more accurate we should only count number
 	  ;; of scripting items in the list (not e.g. invisibles).
 	  ;; More efficient: keep track of size of queue as modified.
-	  (>= (+ num (length proof-action-list))
-	     proof-shell-silent-threshold))))
+	  (>= (length proof-action-list) proof-shell-silent-threshold)))
 
 
 (defsubst proof-shell-invoke-callback (listitem)
@@ -886,49 +885,50 @@ start processing the queue.
 If the proof shell is busy when this function is called,
 then QUEUEMODE must match the mode of the queue currently
 being processed."
-  (let (item)
-    (unless proof-action-list
-      (while (and queueitems (not (nth 1 (setq item (car queueitems)))))
-	(proof-shell-invoke-callback item)
-	(setq queueitems (cdr queueitems))))
 
-    (if (and (null queueitems) (null proof-action-list))
+  (let ((nothingthere (null proof-action-list))
+	(nothingnew   (null queueitems)))
+    
+    (if (and nothingthere nothingnew)
 	;; remove the queue (otherwise done in proof-shell-exec-loop)
-	(proof-detach-queue))
+	(proof-detach-queue)
 
-    (when (and queueitems proof-action-list)
-      ;; extend existing queue
-      ;; internal check: correct queuemode in force if busy
-      ;; (should have proof-action-list<>nil -> busy)
-      (and proof-shell-busy queuemode
-	   (unless (eq proof-shell-busy queuemode)
-	     (proof-debug 
-	      "proof-append-alist: wrong queuemode detected for busy shell")
-	     (assert (eq proof-shell-busy queuemode))))
-      ;; See if we should make prover quieten down
-      (if (proof-shell-should-be-silent (length queueitems))
-	  ;; do this ASAP, just after current command (head of queue).
-	  (setq proof-action-list
-		(cons (car proof-action-list)
-		      (cons (proof-shell-start-silent-item)
-			    (cdr proof-action-list)))))
-      ;; append to the current queue
-      (setq proof-action-list
-	    (nconc proof-action-list queueitems)))
+      (unless nothingnew
 
-    (when (and queueitems (not proof-action-list))
-      ;; start processing a new queue
-      (proof-grab-lock queuemode)
-      (setq proof-shell-last-output-kind nil)
-      (if (proof-shell-should-be-silent (length queueitems))
-	  (progn
-	    (setq proof-action-list
-		  (list (proof-shell-start-silent-item)))
-	    (setq item (car proof-action-list))))
-      (setq proof-action-list
-	    (nconc proof-action-list queueitems))
-      ;; Really start things going here:
-      (proof-shell-insert-action-item item))))
+	(when (and queueitems proof-action-list)
+	  ;; internal check: correct queuemode in force if busy
+	  ;; (should have proof-action-list<>nil -> busy)
+	  (and proof-shell-busy queuemode
+	       (unless (eq proof-shell-busy queuemode)
+		 (proof-debug 
+		  "proof-append-alist: wrong queuemode detected for busy shell")
+		 (assert (eq proof-shell-busy queuemode)))))
+
+	;; Now extend or start the queue.
+	(setq proof-action-list
+	      (nconc proof-action-list queueitems))
+
+	(when nothingthere ; process comments immediately
+	  (let ((cbitems  (proof-shell-slurp-comments)))
+	    (mapc 'proof-shell-invoke-callback cbitems)))
+
+	(when proof-action-list ; still something to do
+	  
+	  (if (proof-shell-should-be-silent)
+	      ;; do this ASAP, either first or just after current command
+	      (setq proof-action-list
+		    (if nothingthere ; the first thing
+			(cons (proof-shell-start-silent-item)
+			      proof-action-list)
+		      (cons (car proof-action-list) ; after current
+			    (cons (proof-shell-start-silent-item)
+				  (cdr proof-action-list))))))
+	  
+	  (when nothingthere  ; start sending commands
+	    (proof-grab-lock queuemode)
+	    (setq proof-shell-last-output-kind nil)
+	    (proof-shell-insert-action-item (car proof-action-list))))))))
+
 
 ;;;###autoload
 (defun proof-start-queue (start end queueitems)
@@ -950,6 +950,17 @@ The queue mode is set to 'advancing"
   (proof-set-queue-endpoints (proof-unprocessed-begin) end)
   (proof-add-to-queue queueitems 'advancing))
 
+(defsubst proof-shell-slurp-comments ()
+  "Strip comments at front of `proof-action-list', returning items stripped.
+Comments are not sent to the prover."
+  (let (cbitems nextitem)
+    (while (and proof-action-list
+		(not (nth 1 (setq nextitem 
+				  (car proof-action-list)))))
+      (setq cbitems (cons nextitem cbitems))
+      (setq proof-action-list (cdr proof-action-list)))
+    (nreverse cbitems)))
+
 
 (defun proof-shell-exec-loop ()
   "Process the `proof-action-list'.
@@ -967,68 +978,56 @@ If the action list becomes empty, unlock the process and remove
 the queue region.
 
 The return value is non-nil if the action list is now empty."
+  (unless (null proof-action-list)
+    (save-excursion
+      (if proof-script-buffer		      ; switch to active script
+	  (set-buffer proof-script-buffer))
 
-  (or
-   (null proof-action-list)
-   (save-excursion
-     (if proof-script-buffer		      ; switch to active script
-	 (set-buffer proof-script-buffer))
+      (let* ((item  (car proof-action-list))
+	     (flags (nthcdr 3 (car proof-action-list)))
+	     cbitems)
 
-     (let* ((item  (car proof-action-list))
-	    (flags (nthcdr 3 (car proof-action-list)))
-	    (cbitems (list item)))
+	;; now we should invoke callback on just processed command,
+	;; but we delay this until sending the next command, attempting
+	;; to parallelize prover and Emacs somewhat.  (PG 4.0 change)
 
-       ;; invoke callback on just processed command
-; PG 4.0: do this now *after* pumping the next command out,
-; to parallelize prover and Emacs somewhat.  Experimental.
-;      (proof-shell-invoke-callback item)
+	(setq proof-action-list (cdr proof-action-list))
 
-       (setq proof-action-list (cdr proof-action-list))
+	(setq cbitems (cons item
+			    (proof-shell-slurp-comments)))
 
-       ;; slurp empty command lists (comments) without sending
-       (while (and proof-action-list
-		   (not (nth 1 (setq item (car proof-action-list)))))
-;; PG 4.0: delay this
-;;	 (proof-shell-invoke-callback item)
-	 (setq cbitems (cons item cbitems))
-	 (setq proof-action-list (cdr proof-action-list)))
+	;; if action list is (nearly) empty, ensure prover is noisy.
+	(if (and proof-shell-silent
+		 (not (eq (nth 2 item) 'proof-shell-clear-silent))
+		 (or (null proof-action-list)
+		     (null (cdr proof-action-list))))
+	    ;; Insert the quieten command on head of queue
+	    (setq proof-action-list
+		  (cons (proof-shell-stop-silent-item)
+			proof-action-list)))
 
-       ;; if action list is (nearly) empty, ensure prover is noisy.
-       ;; FIXME: chance to loose output if we processed a bunch of o/p
-       ;; ending with a series of comments!
-       (if (and proof-shell-silent
-		(or (null proof-action-list)
-		    (null (cdr proof-action-list))))
-	   (progn
-	     ;; Insert the quieten command on head of queue
-	     (setq proof-action-list
-		   (cons (proof-shell-stop-silent-item)
-			 proof-action-list))
-	     (setq item (car proof-action-list))))
+	;; pending interrupts: sent but caused no prover error
+	(if proof-shell-interrupt-pending
+	    (progn
+	      (proof-debug "Processed pending interrupt")
+	      ;; don't pass in flags: want to see interrupt message
+	      (proof-shell-handle-error-or-interrupt 'interrupt nil)))
 
-       ;; pending interrupts: sent but caused no prover error
-       (if proof-shell-interrupt-pending
-	   (progn
-	     (proof-debug "Processed pending interrupt")
-	     ;; don't pass in flags: want to see interrupt message
-	     (proof-shell-handle-error-or-interrupt 'interrupt nil)))
+	(if proof-action-list
+	    ;; send the next command to the process.
+	    (proof-shell-insert-action-item (car proof-action-list)))
 
-       (if proof-action-list
-	   ;; send the next command to the process.
-	   (proof-shell-insert-action-item item))
+	;; process the delayed callbacks now
+	(mapc 'proof-shell-invoke-callback cbitems)
 
-       ;; process the callbacks
-;; PG 4.0: process delayed callbacks out-of-order.
-       (mapc 'proof-shell-invoke-callback (nreverse cbitems))
+	(unless proof-action-list	; release lock, cleanup
+	  (proof-release-lock)
+	  (proof-detach-queue)
+	  (unless flags ; hint after a batch of scripting
+	    (pg-processing-complete-hint))
+	  (pg-finish-tracing-display))
 
-       (unless proof-action-list	; release lock, cleanup
-	 (proof-release-lock)
-	 (proof-detach-queue)
-	 (unless flags ; hint after a batch of scripting
-	   (pg-processing-complete-hint))
-	 (pg-finish-tracing-display))
-
-       (null proof-action-list)))))
+	(null proof-action-list)))))
 
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
