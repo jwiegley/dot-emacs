@@ -349,6 +349,7 @@ See also `coq-prog-env' to adjust the environment."
   '(
     ("CoFixpoint" "cfix" "CoFixpoint # (#:#) : # :=\n#." t "CoFixpoint")
     ("CoInductive" "coindv" "CoInductive # : # :=\n|# : #." t "CoInductive")
+    ("Class" "class" "Class [ # ] := \n# : #;\n# : #." t "Class")
     ("Declare Module : :=" "dm" "Declare Module # : # := #." t "Declare\\s-+Module")
     ("Declare Module <: :=" "dm2" "Declare Module # <: # := #." t);; careful
     ("Declare Module Import : :=" "dmi" "Declare Module # : # := #." t)
@@ -366,6 +367,8 @@ See also `coq-prog-env' to adjust the environment."
     ("Derive Inversion" nil "Derive Inversion @{id} with # Sort #." t "Derive\\s-+Inversion")
     ("Derive Dependent Inversion" nil "Derive Dependent Inversion @{id} with # Sort #." t "Derive\\s-+Dependent\\s-+Inversion")
     ("Derive Inversion_clear" nil "Derive Inversion_clear @{id} with # Sort #." t)
+    ("Example" "ex" "Example #:# := #." t "Example");; careful
+    ("Equations" "eqs" "Equations #:# := #." t "Equations")
     ("Fixpoint" "fix" "Fixpoint # (#:#) {struct @{arg}} : # :=\n#." t "Fixpoint")
     ("Program Fixpoint" "pfix" "Program Fixpoint # (#:#) {struct @{arg}} : # :=\n#." t "Program\\s-+Fixpoint")
     ("Program Fixpoint measure" "pfixm" "Program Fixpoint # (#:#) {measure @{arg} @{f}} : # :=\n#." t)
@@ -380,6 +383,8 @@ See also `coq-prog-env' to adjust the environment."
     ("Inductive (3 args)" "indv3" "Inductive # : # :=\n| # : #\n| # : #\n| # : #." t )
     ("Inductive (4 args)" "indv4" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #." t )
     ("Inductive (5 args)" "indv5" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #\n| # : #." t )
+    ("Instance" "instance" "Instance [ # ] => # where \n# := #;\n# := #." t "Instance")
+    ("Program Instance" "pinstance" "Program Instance [ # ] => # where \n# := #;\n# := #." t "Program\\s-+Instance")
     ("Let" "Let" "Let # : # := #." t "Let")
     ("Ltac" "ltac" "Ltac # := #" t "Ltac")
     ("Module :=" "mo" "Module # : # := #." t ) ; careful
@@ -485,7 +490,7 @@ See also `coq-prog-env' to adjust the environment."
      ("Notation Local" "notsl" "Notation Local # := #." t "Notation\\s-+Local")
      ("Notation (simple)" "nots" "Notation # := #." t "Notation")
      ("Opaque" nil "Opaque #." nil "Opaque")
-     ("Obligations Tactic" nil "Obligations Tactic := #." t "Obligations\\s-+Tactic")
+     ("Obligation Tactic" nil "Obligation Tactic := #." t "Obligation\\s-+Tactic")
      ("Open Local Scope" "oplsc" "Open Local Scope #" t "Open\\s-+Local\\s-+Scope")
      ("Open Scope" "opsc" "Open Scope #" t "Open\\s-+Scope")
      ("Print Coercions" nil "Print Coercions." nil "Print\\s-+Coercions")
