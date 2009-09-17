@@ -69,7 +69,7 @@ Entry to this mode runs the hooks on `scomint-mode-hook'."
   (set (make-local-variable 'scomint-last-input-start) (point-min-marker))
   (set (make-local-variable 'scomint-last-input-end) (point-min-marker))
   (set (make-local-variable 'scomint-last-output-start) (make-marker))
-  (set (make-local-variable 'window-point-insertion-type) t)
+  (set (make-local-variable 'window-point-insertion-type) t) ; Emacs 23-ism?
   (make-local-variable 'font-lock-defaults)
   (setq font-lock-defaults '(nil t))
   (add-hook 'change-major-mode-hook 'font-lock-defontify nil t)
