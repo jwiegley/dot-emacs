@@ -235,7 +235,20 @@ See `coq-syntax-db' for DB structure."
   "Face for names of closing tactics in proof scripts."
   :group 'proof-faces)
 
+;;A new face for tactics which fail when they don't kill the current goal
+(defface coq-cheat-face
+  (proof-face-specs
+   (:background "red") ; pour les fonds clairs
+   (:background "red") ; pour les fond foncés
+   ()) ; pour le noir et blanc
+  "Face for names of closing tactics in proof scripts."
+  :group 'proof-faces)
+
 (defconst coq-solve-tactics-face 'coq-solve-tactics-face
+  "Expression that evaluates to a face.
+Required so that 'proof-solve-tactics-face is a proper facename")
+
+(defconst coq-cheat-face 'coq-cheat-face
   "Expression that evaluates to a face.
 Required so that 'proof-solve-tactics-face is a proper facename")
 

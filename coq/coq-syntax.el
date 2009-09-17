@@ -100,6 +100,23 @@ See also `coq-prog-env' to adjust the environment."
   :type '(repeat sexp)
   :group 'coq)
 
+(defcustom coq-user-cheat-tactics-db nil
+  "User defined closing tactics BY CHEATING (ex: admit).
+ See `coq-syntax-db' for syntax. It is not necessary to add your
+ own commands here (it is not needed by the
+ synchronizing/backtracking system). You may however do so for
+ the following reasons:
+
+   1 your commands will be colorized by font-lock
+
+   2 your commands will be added to the menu and to completion when
+   calling \\[coq-insert-command]
+
+   3 you may define an abbreviation for your command."
+
+  :type '(repeat sexp)
+  :group 'coq)
+
 
 
 (defcustom coq-user-reserved-db nil
@@ -137,6 +154,8 @@ See also `coq-prog-env' to adjust the environment."
      ("autorewrite with using" "arwu" "autorewrite with @{db,db...} using @{tac}" t)
      ("autorewrite with" "ar" "autorewrite with @{db,db...}" t "autorewrite")
      ("case" "c" "case " t "case")
+     ("case_eq" "ceq" "case_eq " t "case_eq")
+     ("case_type" "cty" "case_type " t "case_type")
      ("cbv" "cbv" "cbv beta [#] delta iota zeta" t "cbv")
      ("change in" "chi" "change # in #" t)
      ("change with in" "chwi" "change # with # in #" t)
@@ -191,6 +210,7 @@ See also `coq-prog-env' to adjust the environment."
      ("fold" "fold" "fold #" t "fold")
      ;;     ("fourier" "four" "fourier" t "fourier")
      ("functional induction" "fi" "functional induction @{f} @{args}" t "functional\\s-+induction")
+     ("functional inversion" "finv" "functional inversion @{H}" t "functional\\s-+inversion")
      ("generalize dependent" "gd" "generalize dependent #" t "generalize\\s-+dependent")
      ("generalize" "g" "generalize #" t "generalize")
      ("hnf" "hnf" "hnf" t "hnf")
@@ -298,6 +318,17 @@ See also `coq-prog-env' to adjust the environment."
   "Coq tactic(al)s that solve a subgoal."
   )
 
+(defvar coq-solve-cheat-tactics-db
+  (append
+   coq-user-cheat-tactics-db
+   '(
+     ("admit" nil "admit" t "admit")
+     ))
+  "Coq tactic(al)s that solve a subgoal."
+  )
+
+
+
 
 (defvar coq-tacticals-db
   (append
@@ -333,6 +364,7 @@ See also `coq-prog-env' to adjust the environment."
     ("Hint Rewrite ->" "hrw" "Hint Rewrite -> @{t1,t2...} using @{tac} : @{db}." t "Hint\\s-+Rewrite")
     ("Hint Rewrite <-" "hrw" "Hint Rewrite <- @{t1,t2...} using @{tac} : @{db}." t )
     ("Hint Unfold" "hu" "Hint Unfold # : #." t "Hint\\s-+Unfold")
+    ("Existing Instance" nil "Existing Instance " t "Existing\\s-+Instance")
     ("Hypothesis" "hyp" "Hypothesis #: #" t "Hypothesis")
     ("Hypotheses" "hyp" "Hypotheses #: #" t "Hypotheses")
     ("Parameter" "par" "Parameter #: #" t "Parameter")
@@ -406,6 +438,8 @@ See also `coq-prog-env' to adjust the environment."
 (defvar coq-goal-starters-db
   '(
     ("Add Morphism" "addmor" "Add Morphism @{f} : @{id}" t "Add\\s-+Morphism")
+    ("Add Parametric Morphism" nil "Add Parametric Morphism : " t "Add\\s-+Parametric\\s-+Morphism")
+    ("Add Parametric Relation" nil "Add Parametric Relation : " t "Add\\s-+Parametric\\s-+Relation")
     ("Chapter" "chp" "Chapter # : #." t "Chapter")
     ("Corollary" "cor" "Corollary # : #.\nProof.\n#\nQed." t "Corollary")
     ("Declare Module :" "dmi" "Declare Module # : #.\n#\nEnd #." t)
@@ -434,7 +468,7 @@ See also `coq-prog-env' to adjust the environment."
    '(
      ;; ("Abort" nil "Abort." t "Abort" nil nil);don't appear in menu
      ("About" nil "About #." nil "About")
-     ("Add" nil "Add #." nil "Add" nil t)
+;     ("Add" nil "Add #." nil "Add" nil t)
      ("Add Abstract Ring" nil "Add Abstract Ring #." t "Add\\s-+Abstract\\s-+Ring")
      ("Add Abstract Semi Ring" nil "Add Abstract Semi Ring #." t "Add\\s-+Abstract\\s-+Semi\\s-+Ring")
      ("Add Field" nil "Add Field #." t "Add\\s-+Field")
@@ -489,6 +523,7 @@ See also `coq-prog-env' to adjust the environment."
      ("Notation Local (only parsing)" "notslp" "Notation Local # := # (only parsing)." t)
      ("Notation Local" "notsl" "Notation Local # := #." t "Notation\\s-+Local")
      ("Notation (simple)" "nots" "Notation # := #." t "Notation")
+     ("Typeclasses Opaque" nil "Typeclasses Opaque #." nil "Typeclasses\\s-+Opaque")
      ("Opaque" nil "Opaque #." nil "Opaque")
      ("Obligation Tactic" nil "Obligation Tactic := #." t "Obligation\\s-+Tactic")
      ("Open Local Scope" "oplsc" "Open Local Scope #" t "Open\\s-+Local\\s-+Scope")
@@ -536,6 +571,7 @@ See also `coq-prog-env' to adjust the environment."
      ("Test Printing Width" nil "Test Printing Width." nil "Test\\s-+Printing\\s-+Width")
      ("Test Printing Wildcard" nil "Test Printing Wildcard." nil "Test\\s-+Printing\\s-+Wildcard")
      ("Transparent" nil "Transparent #." nil "Transparent")
+
      ("Unfocus" nil "Unfocus." nil "Unfocus")
      ("Unset Extraction AutoInline" nil "Unset Extraction AutoInline" t "Unset\\s-+Extraction\\s-+AutoInline")
      ("Unset Extraction Optimize" nil "Unset Extraction Optimize" t "Unset\\s-+Extraction\\s-+Optimize")
@@ -754,6 +790,10 @@ Used by `coq-goal-command-p'"
   (coq-build-regexp-list-from-db coq-solve-tactics-db)
   "Keywords for closing tactic(al)s.")
 
+(defvar coq-solve-cheat-tactics
+  (coq-build-regexp-list-from-db coq-solve-cheat-tactics-db)
+  "Keywords for closing by cheating tactic(al)s.")
+
 (defvar coq-tacticals
   (coq-build-regexp-list-from-db coq-tacticals-db)
   "Keywords for tacticals in a Coq script.")
@@ -909,6 +949,7 @@ Group number 1 matches the name of the library which is required.")
     coq-font-lock-terms
     (list
     (cons (proof-ids-to-regexp coq-solve-tactics) 'coq-solve-tactics-face)
+    (cons (proof-ids-to-regexp coq-solve-cheat-tactics) 'coq-cheat-face)
     (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
     (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
     (cons (proof-ids-to-regexp coq-tactics ) 'proof-tactics-name-face)
