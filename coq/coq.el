@@ -1291,12 +1291,9 @@ buffer."
         (goto-char (+ (proof-locked-end) 1))
         (coq-find-real-start)
 
-        ; Seems to work, even with utf8 chars (emacs23)
+        ; utf8 adaptation is made in coq-get-last-error-location above
         (goto-char (+ (point) pos))
-        (let* ((start (point))
-               (dummy (goto-char
-                       (byte-to-position (+ (position-bytes (point)) lgth))))
-               (sp (span-make start (point))))
+        (let* ((sp (span-make (point) (+(point) lgth))))
           (set-span-face sp 'proof-warning-face)
           (unwind-protect
               (sit-for 5) ;; da: this was 20 but seemed obnoxiously long?
