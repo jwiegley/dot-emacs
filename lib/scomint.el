@@ -212,7 +212,10 @@ buffer.  The hook `scomint-exec-hook' is run after each exec."
 (defun scomint-send-eof ()
   "Send an EOF to the current buffer's process."
   (interactive)
-  (scomint-send-input t t)
+  (condition-case nil
+      ;; this fails if process has died already
+      (scomint-send-input t t)
+    (error nil))
   (process-send-eof))
 
 (defun scomint-send-input (&optional no-newline artificial)
