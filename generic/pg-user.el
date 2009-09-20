@@ -85,20 +85,20 @@ Assumes that point is at the end of a command."
   "Move point according to `proof-follow-mode'.
 If optional POS is set, use that position, else `proof-queue-or-locked-end'.
 Assumes script buffer is current."
-  (if proof-follow-mode
-      (let ((dest (or pos (proof-queue-or-locked-end))))
-	(cond
-	 ((eq proof-follow-mode 'locked)
-	  (goto-char dest)
-	  (or pos (proof-script-next-command-advance)))
-	 ((eq proof-follow-mode 'follow)
-	  (unless (pos-visible-in-window-p dest)
-	    (let ((win (get-buffer-window (current-buffer) t)))
-	      (if win
-		  (set-window-point win dest)))))
-	 ((and (eq proof-follow-mode 'followdown)
-	       (> dest (point)))
-	  (goto-char dest))))))
+  (unless (eq proof-follow-mode 'ignore)
+    (let ((dest (or pos (proof-queue-or-locked-end))))
+      (cond
+       ((eq proof-follow-mode 'locked)
+	(goto-char dest)
+	(or pos (proof-script-next-command-advance)))
+       ((eq proof-follow-mode 'follow)
+	(unless (pos-visible-in-window-p dest)
+	  (let ((win (get-buffer-window (current-buffer) t)))
+	    (if win
+		(set-window-point win dest)))))
+       ((and (eq proof-follow-mode 'followdown)
+	     (> dest (point)))
+	(goto-char dest))))))
 
 
 
@@ -177,8 +177,7 @@ If inside a comment, just process until the start of the comment."
      (goto-char (proof-queue-or-locked-end))
      (skip-chars-forward " \t\n")
      (proof-assert-until-point))
-   (proof-maybe-follow-locked-end)
-   (proof-script-next-command-advance)))
+   (proof-maybe-follow-locked-end)))
 
 ;; NB: "interactive" variant merely for a simple docstring.
 (defun proof-assert-until-point-interactive ()
