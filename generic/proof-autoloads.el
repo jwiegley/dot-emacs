@@ -155,7 +155,7 @@ Insert S, expand it and replace #s and @{]s by holes.
 ;;;***
 
 ;;;### (autoloads (maths-menu-mode) "maths-menu" "../lib/maths-menu.el"
-;;;;;;  (19106 28183))
+;;;;;;  (19107 62723))
 ;;; Generated autoloads from ../lib/maths-menu.el
 
 (autoload (quote maths-menu-mode) "maths-menu" "\
@@ -279,7 +279,7 @@ See `pg-next-error-regexp'.
 ;;;***
 
 ;;;### (autoloads (pg-defthymode) "pg-thymodes" "pg-thymodes.el"
-;;;;;;  (19106 28181))
+;;;;;;  (19108 51621))
 ;;; Generated autoloads from pg-thymodes.el
 
 (autoload (quote pg-defthymode) "pg-thymodes" "\
@@ -442,7 +442,7 @@ Make a portion of a context-sensitive menu showing proof dependencies.
 ;;;***
 
 ;;;### (autoloads (proof-easy-config) "proof-easy-config" "proof-easy-config.el"
-;;;;;;  (19108 4440))
+;;;;;;  (19108 51621))
 ;;; Generated autoloads from proof-easy-config.el
 
 (autoload (quote proof-easy-config) "proof-easy-config" "\
@@ -455,7 +455,7 @@ the `proof-assistant-table', which see.
 ;;;***
 
 ;;;### (autoloads (proof-indent-line) "proof-indent" "proof-indent.el"
-;;;;;;  (19106 28181))
+;;;;;;  (19108 51621))
 ;;; Generated autoloads from proof-indent.el
 
 (autoload (quote proof-indent-line) "proof-indent" "\
@@ -537,38 +537,38 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-locked-end proof-unprocessed-begin proof-colour-locked)
-;;;;;;  "proof-script" "proof-script.el" (19122 39731))
+;;;;;;  "proof-script" "proof-script.el" (19126 36543))
 ;;; Generated autoloads from proof-script.el
 
-(autoload 'proof-colour-locked "proof-script" "\
+(autoload (quote proof-colour-locked) "proof-script" "\
 Alter the colour of the locked region according to variable `proof-colour-locked'.
 
 \(fn)" t nil)
 
-(autoload 'proof-unprocessed-begin "proof-script" "\
+(autoload (quote proof-unprocessed-begin) "proof-script" "\
 Return end of locked region in current buffer or (point-min) otherwise.
 The position is actually one beyond the last locked character.
 
 \(fn)" nil nil)
 
-(autoload 'proof-locked-end "proof-script" "\
+(autoload (quote proof-locked-end) "proof-script" "\
 Return end of the locked region of the current buffer.
 Only call this from a scripting buffer.
 
 \(fn)" nil nil)
 
-(autoload 'proof-locked-region-full-p "proof-script" "\
+(autoload (quote proof-locked-region-full-p) "proof-script" "\
 Non-nil if the locked region covers all the buffer's non-whitespace.
 Works on any buffer.
 
 \(fn)" nil nil)
 
-(autoload 'proof-locked-region-empty-p "proof-script" "\
+(autoload (quote proof-locked-region-empty-p) "proof-script" "\
 Non-nil if the locked region is empty.  Works on any buffer.
 
 \(fn)" nil nil)
 
-(autoload 'pg-set-span-helphighlights "proof-script" "\
+(autoload (quote pg-set-span-helphighlights) "proof-script" "\
 Add a daughter help span for SPAN with help message, highlight, actions.
 We add the last output (which should be non-empty) to the hover display here.
 Optional argument MOUSEFACE means use the given face as a mouse highlight
@@ -579,7 +579,7 @@ Argument FACE means add regular face property FACE to the span.
 
 \(fn SPAN &optional MOUSEFACE FACE)" nil nil)
 
-(autoload 'proof-register-possibly-new-processed-file "proof-script" "\
+(autoload (quote proof-register-possibly-new-processed-file) "proof-script" "\
 Register a possibly new FILE as having been processed by the prover.
 
 If INFORMPROVER is non-nil, the proof assistant will be told about this,
@@ -595,23 +595,23 @@ proof assistant and Emacs has a modified buffer visiting the file.
 
 \(fn FILE &optional INFORMPROVER NOQUESTIONS)" nil nil)
 
-(autoload 'proof-insert-pbp-command "proof-script" "\
+(autoload (quote proof-insert-pbp-command) "proof-script" "\
 Insert CMD into the proof queue.
 
 \(fn CMD)" nil nil)
 
-(autoload 'proof-insert-sendback-command "proof-script" "\
+(autoload (quote proof-insert-sendback-command) "proof-script" "\
 Insert CMD into the proof script, execute assert-until-point.
 
 \(fn CMD)" nil nil)
 
-(autoload 'proof-mode "proof-script" "\
+(autoload (quote proof-mode) "proof-script" "\
 Proof General major mode class for proof scripts.
 \\{proof-mode-map}
 
 \(fn)" t nil)
 
-(autoload 'proof-config-done "proof-script" "\
+(autoload (quote proof-config-done) "proof-script" "\
 Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
 finish setup which depends on specific proof assistant configuration.
@@ -851,10 +851,10 @@ evaluate can be provided instead.
 ;;;***
 
 ;;;### (autoloads (scomint-make scomint-make-in-buffer) "scomint"
-;;;;;;  "../lib/scomint.el" (19122 39767))
+;;;;;;  "../lib/scomint.el" (19126 40592))
 ;;; Generated autoloads from ../lib/scomint.el
 
-(autoload 'scomint-make-in-buffer "scomint" "\
+(autoload (quote scomint-make-in-buffer) "scomint" "\
 Make a Comint process NAME in BUFFER, running PROGRAM.
 If BUFFER is nil, it defaults to NAME surrounded by `*'s.
 PROGRAM should be either a string denoting an executable program to create
@@ -867,7 +867,7 @@ If PROGRAM is a string, any more args are arguments to PROGRAM.
 
 \(fn NAME BUFFER PROGRAM &optional STARTFILE &rest SWITCHES)" nil nil)
 
-(autoload 'scomint-make "scomint" "\
+(autoload (quote scomint-make) "scomint" "\
 Make a Comint process NAME in a buffer, running PROGRAM.
 The name of the buffer is made by surrounding NAME with `*'s.
 PROGRAM should be either a string denoting an executable program to create
@@ -883,7 +883,7 @@ If PROGRAM is a string, any more args are arguments to PROGRAM.
 ;;;***
 
 ;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "../lib/texi-docstring-magic.el"
-;;;;;;  (19106 28184))
+;;;;;;  (19107 62790))
 ;;; Generated autoloads from ../lib/texi-docstring-magic.el
 
 (autoload (quote texi-docstring-magic) "texi-docstring-magic" "\
@@ -896,7 +896,7 @@ With prefix arg, no errors on unknown symbols.  (This results in
 ;;;***
 
 ;;;### (autoloads (unicode-chars-list-chars) "unicode-chars" "../lib/unicode-chars.el"
-;;;;;;  (19106 44762))
+;;;;;;  (19107 62795))
 ;;; Generated autoloads from ../lib/unicode-chars.el
 
 (autoload (quote unicode-chars-list-chars) "unicode-chars" "\
@@ -909,10 +909,10 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19122 40259))
+;;;;;;  (19126 40592))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
-(autoload 'unicode-tokens-encode-str "unicode-tokens" "\
+(autoload (quote unicode-tokens-encode-str) "unicode-tokens" "\
 Return a unicode encoded version presentation of STR.
 
 \(fn STR)" nil nil)
@@ -921,9 +921,9 @@ Return a unicode encoded version presentation of STR.
 
 ;;;### (autoloads nil nil ("../lib/local-vars-list.el" "../lib/pg-dev.el"
 ;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
-;;;;;;  "comptest.el" "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el"
-;;;;;;  "pg-vars.el" "proof-auxmodes.el" "proof-config.el" "proof-faces.el"
-;;;;;;  "proof-useropts.el" "proof.el") (19122 40295 286942))
+;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
+;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-faces.el" "proof-useropts.el"
+;;;;;;  "proof.el") (19126 40680 638768))
 
 ;;;***
 
