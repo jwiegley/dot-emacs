@@ -295,7 +295,8 @@ value of proof-locked span."
 (defun proof-script-clear-queue-spans-on-error (badspan)
   "Remove the queue span from buffer, cleaning spans no longer queued.
 If BADSPAN is non-nil, assume that this was the span whose command 
-caused the error.
+caused the error.  Go to the start of it if `proof-follow-mode' is
+'locked.
 
 This is a subroutine used in proof-shell-handle-{error,interrupt}."
     (let ((start (proof-locked-end))
@@ -303,6 +304,10 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	  (infop (span-live-p badspan)))
       (proof-detach-queue)
       (when infop
+	(when (eq proof-follow-mode 'locked)
+	  ;; jump to start of error: should this be configurable?
+	  (goto-char (span-start badspan))
+	  (skip-chars-forward " \t\n"))
 	(pg-set-span-helphighlights badspan 
 				    'proof-script-error-face
 				    'underline))
