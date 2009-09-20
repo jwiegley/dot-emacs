@@ -1778,32 +1778,31 @@ to the function which parses the script segment by segment."
 	   (comend (point))
 	   (bufstr (buffer-substring-no-properties prev-no-blanks comend))
 	   (type
-	    (save-excursion
-	      ;; The behaviour here is a bit odd: this is a
-	      ;; half-hearted attempt to strip comments as we send
-	      ;; text to the proof assistant, but it breaks when we
-	      ;; have certain bad input: (* foo *) blah (* bar *) cmd
-	      ;; We check for the case of a comment spanning the
-	      ;; *whole* substring, otherwise send the (defective)
-	      ;; text as if it were a proper command anyway.  This
-	      ;; shouldn't cause problems: the proof assistant is
-	      ;; certainly capable of skipping comments itself, and
-	      ;; the situation should cause an error.  (If it were
-	      ;; accepted it could upset the undo behaviour)
-	      (goto-char prev-no-blanks)
-	      ;; Update: PG 3.4: try to deal with sequences of
-	      ;; comments as well, since previous behaviour breaks
-	      ;; Isar, in fact, since repeated comments get
-	      ;; categorized as commands, breaking sync.
-	      (if (and
-		   (looking-at commentre)
-		   (re-search-forward proof-script-comment-end-regexp)
-		   (progn
-		     (while (looking-at commentre)
-		       (re-search-forward proof-script-comment-end-regexp))
-		     (>= (point) comend)))
-		  'comment 'cmd)))
-	   (string (if (eq type 'comment) "" bufstr)))
+	    (if (eq prev-no-blanks comstart)
+		;; Update PG 4.0: for Isar command wrapping (see Trac #289)
+		'comment ;; whitespace element 
+	      (save-excursion
+		;; Strip comments.  Fails with input like "(* foo *)
+		;; blah (* bar *) cmd": we check for a comment
+		;; spanning the *whole* substring, otherwise send the
+		;; (defective) text as a command anyway.  This should
+		;; cause no problem: the proof assistant can skip
+		;; comments itself, so we should get an error.  (If it
+		;; were accepted it could upset the undo behaviour)
+		(goto-char prev-no-blanks)
+		;; Update: PG 3.4: try to deal with sequences of
+		;; comments as well, since previous behaviour breaks
+		;; Isar, in fact, since repeated comments get
+		;; categorized as commands, breaking sync.
+		(if (and
+		     (looking-at commentre)
+		     (re-search-forward proof-script-comment-end-regexp)
+		     (progn
+		       (while (looking-at commentre)
+			 (re-search-forward proof-script-comment-end-regexp))
+		       (>= (point) comend)))
+		    'comment 'cmd))))
+	    (string (if (eq type 'comment) "" bufstr)))
       (setq prev (point))
       (goto-char tmp)
       ;; Return cons of new prev and the new segment
