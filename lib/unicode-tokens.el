@@ -1156,7 +1156,11 @@ Commands available are:
 	(dolist (f (frame-list))
 	  (and (not (eq f (selected-frame)))
 	       (display-graphic-p f)
-	       (set-face-attribute fontvar f :font font-object)))
+	       (set-face-attribute fontvar f :font font-object))
+	  ;; da: add this to make sure fonts set by font lock are altered
+	  (dolist (w (window-list f))
+	    (with-current-buffer (window-buffer w)
+	      (when font-lock-mode (font-lock-fontify-buffer)))))
 	(set-face-attribute fontvar t :font font-object))
       (setq spec (list (list t (face-attr-construct fontvar))))
       (put fontvar 'customized-face spec)
