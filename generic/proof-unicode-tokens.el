@@ -77,6 +77,8 @@ Turn on/off menu in all script buffers and ensure new buffers follow suit."
    (unicode-tokens-mode (if flag 1 0)))
   (proof-unicode-tokens-configure-prover))
 
+
+;;;###autoload
 (defun proof-unicode-tokens-enable ()
   "Turn on or off Unicode tokens mode in Proof General script buffer.
 This invokes `unicode-tokens-mode' to toggle the setting for the current

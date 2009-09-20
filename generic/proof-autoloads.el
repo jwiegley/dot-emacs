@@ -537,7 +537,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-locked-end proof-unprocessed-begin proof-colour-locked)
-;;;;;;  "proof-script" "proof-script.el" (19126 36543))
+;;;;;;  "proof-script" "proof-script.el" (19126 40975))
 ;;; Generated autoloads from proof-script.el
 
 (autoload (quote proof-colour-locked) "proof-script" "\
@@ -810,20 +810,32 @@ Menu made from the Proof General toolbar commands.
 
 ;;;***
 
-;;;### (autoloads (proof-unicode-tokens-set-global proof-unicode-tokens-mode-if-enabled)
-;;;;;;  "proof-unicode-tokens" "proof-unicode-tokens.el" (19122 39720))
+;;;### (autoloads (proof-unicode-tokens-enable proof-unicode-tokens-set-global
+;;;;;;  proof-unicode-tokens-mode-if-enabled) "proof-unicode-tokens"
+;;;;;;  "proof-unicode-tokens.el" (19126 41343))
 ;;; Generated autoloads from proof-unicode-tokens.el
 
-(autoload 'proof-unicode-tokens-mode-if-enabled "proof-unicode-tokens" "\
+(autoload (quote proof-unicode-tokens-mode-if-enabled) "proof-unicode-tokens" "\
 Turn on or off the Unicode Tokens minor mode in this buffer.
 
 \(fn)" nil nil)
 
-(autoload 'proof-unicode-tokens-set-global "proof-unicode-tokens" "\
+(autoload (quote proof-unicode-tokens-set-global) "proof-unicode-tokens" "\
 Set global status of unicode tokens mode for PG buffers to be FLAG.
 Turn on/off menu in all script buffers and ensure new buffers follow suit.
 
 \(fn FLAG)" nil nil)
+
+(autoload (quote proof-unicode-tokens-enable) "proof-unicode-tokens" "\
+Turn on or off Unicode tokens mode in Proof General script buffer.
+This invokes `unicode-tokens-mode' to toggle the setting for the current
+buffer, and then sets PG's option for default to match.
+Also we arrange to have unicode tokens mode turn itself on automatically
+in future if we have just activated it for this buffer.
+Note: this function is called when the customize setting for the prover
+is changed.
+
+\(fn)" t nil)
 
 ;;;***
 
@@ -923,7 +935,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
 ;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
 ;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-faces.el" "proof-useropts.el"
-;;;;;;  "proof.el") (19126 40680 638768))
+;;;;;;  "proof.el") (19126 41348 193007))
 
 ;;;***
 
