@@ -5,4 +5,6 @@ term x;
 
 term y;
 
+; ;
+
 end
