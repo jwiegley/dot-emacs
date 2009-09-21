@@ -161,7 +161,7 @@ TAR=tar
 UNFINISHED_ELISP=
 ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit etc/Mailman
 NONDISTFILES=.cvsignore */.cvsignore Makefile.devel doc/notes.txt doc/ProofGeneral.jpg doc/ProofGeneralPortrait.eps.gz etc/trac/* etc/testsuite/* $(UNFINISHED_ELISP) $(ETC_FILES)
-DOCDISTFILES=doc/ProofGeneral.{pdf,info} doc/PG-adapting.{pdf,info}
+DOCDISTFILES=doc/ProofGeneral.info doc/PG-adapting.info
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
@@ -337,7 +337,6 @@ tag:
 
 untag:
 	cvs tag -d "$(CVS_RELEASENAME)"
-
 
 ############################################################
 ##
