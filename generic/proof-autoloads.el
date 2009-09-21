@@ -8,7 +8,7 @@
 
 
 ;;;### (autoloads (bufhist-exit bufhist-init bufhist-mode) "bufhist"
-;;;;;;  "../lib/bufhist.el" (19109 19688))
+;;;;;;  "../lib/bufhist.el" (19127 26600))
 ;;; Generated autoloads from ../lib/bufhist.el
 
 (autoload (quote bufhist-mode) "bufhist" "\
@@ -306,76 +306,76 @@ All of these settings are optional.
 ;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19122 39720))
+;;;;;;  "pg-user.el" (19127 24433))
 ;;; Generated autoloads from pg-user.el
 
-(autoload 'proof-script-new-command-advance "pg-user" "\
+(autoload (quote proof-script-new-command-advance) "pg-user" "\
 Move point to a nice position for a new command.
 Assumes that point is at the end of a command.
 
 \(fn)" t nil)
 
-(autoload 'proof-goto-point "pg-user" "\
+(autoload (quote proof-goto-point) "pg-user" "\
 Assert or retract to the command at current position.
 Calls `proof-assert-until-point' or `proof-retract-until-point' as
 appropriate.
 
 \(fn)" t nil)
 
-(autoload 'proof-define-assistant-command "pg-user" "\
+(autoload (quote proof-define-assistant-command) "pg-user" "\
 Define FN (docstring DOC) to send BODY to prover, based on CMDVAR.
 BODY defaults to CMDVAR, a variable.
 
 \(fn FN DOC CMDVAR &optional BODY)" nil (quote macro))
 
-(autoload 'proof-define-assistant-command-witharg "pg-user" "\
+(autoload (quote proof-define-assistant-command-witharg) "pg-user" "\
 Define command FN to prompt for string CMDVAR to proof assistant.
 CMDVAR is a variable holding a function or string.  Automatically has history.
 
 \(fn FN DOC CMDVAR PROMPT &rest BODY)" nil (quote macro))
 
-(autoload 'proof-electric-terminator-enable "pg-user" "\
+(autoload (quote proof-electric-terminator-enable) "pg-user" "\
 Make sure the modeline is updated to display new value for electric terminator.
 
 \(fn)" nil nil)
 
-(autoload 'pg-slow-fontify-tracing-hint "pg-user" "\
+(autoload (quote pg-slow-fontify-tracing-hint) "pg-user" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload 'pg-response-buffers-hint "pg-user" "\
+(autoload (quote pg-response-buffers-hint) "pg-user" "\
 Not documented
 
 \(fn &optional NEXTBUF)" nil nil)
 
-(autoload 'pg-jump-to-end-hint "pg-user" "\
+(autoload (quote pg-jump-to-end-hint) "pg-user" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload 'pg-processing-complete-hint "pg-user" "\
+(autoload (quote pg-processing-complete-hint) "pg-user" "\
 Display hint for showing end of locked region or processing complete.
 
 \(fn)" nil nil)
 
-(autoload 'pg-next-error-hint "pg-user" "\
+(autoload (quote pg-next-error-hint) "pg-user" "\
 Display hint for locating error.
 
 \(fn)" nil nil)
 
-(autoload 'pg-hint "pg-user" "\
+(autoload (quote pg-hint) "pg-user" "\
 Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
 The function `substitute-command-keys' is called on the argument.
 
 \(fn HINTMSG)" nil nil)
 
-(autoload 'proof-imenu-enable "pg-user" "\
+(autoload (quote proof-imenu-enable) "pg-user" "\
 Add or remove index menu.
 
 \(fn)" nil nil)
 
-(autoload 'pg-previous-matching-input-from-input "pg-user" "\
+(autoload (quote pg-previous-matching-input-from-input) "pg-user" "\
 Search backwards through input history for match for current input.
 \(Previous history elements are earlier commands.)
 With prefix argument N, search for Nth previous match.
@@ -383,7 +383,7 @@ If N is negative, search forwards for the -Nth following match.
 
 \(fn N)" t nil)
 
-(autoload 'pg-next-matching-input-from-input "pg-user" "\
+(autoload (quote pg-next-matching-input-from-input) "pg-user" "\
 Search forwards through input history for match for current input.
 \(Following history elements are more recent commands.)
 With prefix argument N, search for Nth following match.
@@ -391,21 +391,21 @@ If N is negative, search backwards for the -Nth previous match.
 
 \(fn N)" t nil)
 
-(autoload 'pg-add-to-input-history "pg-user" "\
+(autoload (quote pg-add-to-input-history) "pg-user" "\
 Maybe add CMD to the input history.
 CMD is only added to the input history if it is not a duplicate
 of the last item added.
 
 \(fn CMD)" nil nil)
 
-(autoload 'pg-remove-from-input-history "pg-user" "\
+(autoload (quote pg-remove-from-input-history) "pg-user" "\
 Maybe remove CMD from the end of the input history.
 This is called when the command is undone.  It's only
 removed if it matches the last item in the ring.
 
 \(fn CMD)" nil nil)
 
-(autoload 'pg-clear-input-ring "pg-user" "\
+(autoload (quote pg-clear-input-ring) "pg-user" "\
 Not documented
 
 \(fn)" nil nil)
@@ -487,26 +487,26 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19121
-;;;;;;  59724))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19127
+;;;;;;  27638))
 ;;; Generated autoloads from proof-menu.el
 
-(autoload 'proof-menu-define-keys "proof-menu" "\
+(autoload (quote proof-menu-define-keys) "proof-menu" "\
 Prover specific keymap under C-c C-a.
 
 \(fn MAP)" nil nil)
 
-(autoload 'proof-menu-define-main "proof-menu" "\
+(autoload (quote proof-menu-define-main) "proof-menu" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload 'proof-menu-define-specific "proof-menu" "\
+(autoload (quote proof-menu-define-specific) "proof-menu" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload 'proof-aux-menu "proof-menu" "\
+(autoload (quote proof-aux-menu) "proof-menu" "\
 Construct and return PG auxiliary menu used in non-scripting buffers.
 
 \(fn)" nil nil)
@@ -537,7 +537,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-locked-end proof-unprocessed-begin proof-colour-locked)
-;;;;;;  "proof-script" "proof-script.el" (19126 40975))
+;;;;;;  "proof-script" "proof-script.el" (19127 27615))
 ;;; Generated autoloads from proof-script.el
 
 (autoload (quote proof-colour-locked) "proof-script" "\
@@ -812,7 +812,7 @@ Menu made from the Proof General toolbar commands.
 
 ;;;### (autoloads (proof-unicode-tokens-enable proof-unicode-tokens-set-global
 ;;;;;;  proof-unicode-tokens-mode-if-enabled) "proof-unicode-tokens"
-;;;;;;  "proof-unicode-tokens.el" (19126 41343))
+;;;;;;  "proof-unicode-tokens.el" (19126 41475))
 ;;; Generated autoloads from proof-unicode-tokens.el
 
 (autoload (quote proof-unicode-tokens-mode-if-enabled) "proof-unicode-tokens" "\
@@ -921,7 +921,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19126 40592))
+;;;;;;  (19127 27485))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload (quote unicode-tokens-encode-str) "unicode-tokens" "\
@@ -932,10 +932,10 @@ Return a unicode encoded version presentation of STR.
 ;;;***
 
 ;;;### (autoloads nil nil ("../lib/local-vars-list.el" "../lib/pg-dev.el"
-;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
-;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
-;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-faces.el" "proof-useropts.el"
-;;;;;;  "proof.el") (19126 41348 193007))
+;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/ps-fix.el"
+;;;;;;  "../lib/span.el" "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el"
+;;;;;;  "pg-vars.el" "proof-auxmodes.el" "proof-config.el" "proof-faces.el"
+;;;;;;  "proof-useropts.el" "proof.el") (19127 27664 537600))
 
 ;;;***
 
