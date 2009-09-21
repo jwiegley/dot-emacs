@@ -588,8 +588,7 @@ NAME does not need to be unique."
 		       (pg-make-element-visible idiom
 						(symbol-name key))))))
     (proof-with-script-buffer ; may be called from menu
-     (maphash alterfn elts)))
-  (pg-redisplay-for-gnuemacs))
+     (maphash alterfn elts))))
 
 ;; Next two could be in pg-user.el.  No key-bindings for these.
 (defun pg-show-all-proofs ()
