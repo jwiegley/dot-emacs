@@ -229,8 +229,10 @@ Proof General version 4.0 is a major overhaul of Proof General.
 The main changes are:
 @itemize @bullet
 @item support for GNU Emacs only, @b{you cannot use XEmacs any more}
-@item addition of Unicode Tokens mode, which now replaces X-Symbol
+@item addition of @b{Unicode Tokens} mode, which now replaces X-Symbol
 @item allow ``document centred'' working, annotating scripts with prover output
+@item several efficiency and speed improvements
+@item support for latest versions of provers (Isabelle2009 and Coq 8.1)
 @end itemize
 
 See the @file{CHANGES} file in the distribution for more complete
