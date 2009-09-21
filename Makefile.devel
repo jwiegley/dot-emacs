@@ -470,7 +470,7 @@ dmg:
 	(cd $(DMGBUILD); mkdir dmgfs; \
 	sudo mount -t hfsplus -o loop,user $(DISTBUILDIR)/$(RELEASENAMEDMG) dmgfs; \
 	sudo chown $(LOGNAME) dmgfs; \
-	tar -xpzf $(DISTBUILDIR)/$(RELEASENAMETGZ); \
+	$(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETGZ); \
 	mkdir -p Contents/Resources; \
 	mkdir -p Contents/MacOS; \
 	mv $(NAME)/bin/proofgeneral Contents/MacOS; \
