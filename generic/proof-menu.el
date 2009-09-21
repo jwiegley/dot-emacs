@@ -478,6 +478,12 @@ without adjusting window layout."
       :selected (and (boundp 'outline-minor-mode) outline-minor-mode)
       :help "Outline mode for folding [NB: option not saved]"]
 
+     ["Hide/Show" hs-minor-mode
+      :active (stringp (locate-library "hideshow"))
+      :style toggle
+      :selected (and (boundp 'hs-minor-mode) hs-minor-mode)
+      :help "Hide/Show mode for folding [NB: option not saved]"]
+
      ["Speedbar" speedbar
       :active (stringp (locate-library "speedbar"))
       :style toggle
