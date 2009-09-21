@@ -312,7 +312,7 @@ without adjusting window layout."
 
 (defconst proof-quick-opts-menu
   (cons
-   "Options"
+   "Quick Options"
    `(["Electric Terminator" proof-electric-terminator-toggle
      :style toggle
      :selected proof-electric-terminator-enable
@@ -362,6 +362,14 @@ without adjusting window layout."
       :selected (null proof-strict-read-only)
       :help "No write protection, edit anywhere.  Dangerous!"])
      ("Display"
+      ["Unicode Tokens"
+      (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
+				       (if unicode-tokens-mode 0 1) 1))
+      :active (proof-unicode-tokens-support-available)
+      :style toggle
+      :selected (and (boundp 'unicode-tokens-mode)
+		     unicode-tokens-mode)
+      :help "Enable display of tokens as Unicode characters"]
       ["Minibuffer messages" proof-minibuffer-messages-toggle
        :style toggle
        :selected proof-minibuffer-messages
@@ -423,7 +431,6 @@ without adjusting window layout."
        :style radio
        :selected (eq proof-follow-mode 'ignore)
        :help "Do not move cursor during processing"])
-     ;; Add this because it's a handy one to set (usually to retract)
      ("Deactivate Action"
       ["Retract"
        (customize-set-variable 'proof-auto-action-when-deactivating-scripting
@@ -441,15 +448,6 @@ without adjusting window layout."
        :selected (null proof-auto-action-when-deactivating-scripting)])
 
      ("Useful Minor Modes"
-      ["Unicode Tokens"
-      (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
-				       (if unicode-tokens-mode 0 1) 1))
-      :active (proof-unicode-tokens-support-available)
-      :style toggle
-      :selected (and (boundp 'unicode-tokens-mode)
-		     unicode-tokens-mode)
-      :help "Enable display of tokens as Unicode characters"]
-
      ["Unicode Maths Menu"
       (proof-maths-menu-toggle (if (boundp 'maths-menu-mode)
 				       (if maths-menu-mode 0 1) 1))
@@ -562,7 +560,7 @@ without adjusting window layout."
   "Proof General configuration menu.")
 
 (defconst proof-advanced-menu
-  (cons "Advanced..."
+  (cons "Advanced"
 	(append
 	 '(["Complete Identifier" proof-script-complete t]
 	   ["Insert Last Output" pg-insert-last-output-as-comment proof-shell-last-output])
@@ -590,6 +588,7 @@ without adjusting window layout."
 	 (proof-toolbar-scripting-menu)
 	 proof-menu
 	 proof-config-menu
+	 (list (customize-menu-create 'proof-user-options "Customize Options"))
 	 (list proof-advanced-menu)
 	 (list proof-help-menu))))
 
