@@ -160,25 +160,19 @@ TAR=tar
 # FIXME: really this should be an opt-in list!
 UNFINISHED_ELISP=
 ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit etc/Mailman
-NONDISTFILES=.cvsignore */.cvsignore Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneral.jpg $(UNFINISHED_ELISP) $(ETC_FILES)
+NONDISTFILES=.cvsignore */.cvsignore Makefile.devel doc/notes.txt doc/ProofGeneral.jpg doc/ProofGeneralPortrait.eps.gz etc/trac/* etc/testsuite/* $(UNFINISHED_ELISP) $(ETC_FILES)
+DOCDISTFILES=doc/ProofGeneral.{pdf,info} doc/PG-adapting.{pdf,info}
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
 # NB: these are *patterns* to exclude rather than files!
-# I would rather have files themselves to exclude, but 
-# seems to be no way.
-IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/ChangeLog* ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.pdf ProofGeneral*/doc/docstring-magic.el ProofGeneral*/etc/TESTS ProofGeneral*/*.cvsignore ProofGeneral*/*/*.cvsignore
+IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.pdf ProofGeneral*/doc/docstring-magic.el ProofGeneral*/etc/TESTS
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
 
 # Temporary RPM topdir for building packages as non-root user.
 RPMTOPDIR=/tmp/$(NAME)-rpm
-# rpm 3.0 has changed rc file beyond recognition.
-# now wants a macro file included and stuck in ~/.rpmmacros.
-# Alternative is to use --define from command line.
-# RPMRC=$(RPMTOPDIR)/rpmrc
-# RPMBUILD=rpmbuild --rcfile $(RPMRC)
 RPMBUILD=rpmbuild --define '_topdir $(RPMTOPDIR)'
 
 # Temporary dmg root for building Mac OS X 10.4 disk image files.
@@ -188,13 +182,8 @@ RELEASENAMETGZ = $(RELEASENAME).tgz
 RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 RELEASENAMEDMG = $(RELEASENAME).dmg
 
-# Files not kept under cvs to clean away.
-# FILES_NONCVS = TAGS
-
 # Where to install a distribution 
-# DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
-# value for dcs.ed.ac.uk:
-DISTINSTALLDIR=/export/local/share/elisp
+DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
 
 SUBDIRS=$(ELISP_DIRS) etc doc images
 
@@ -203,8 +192,7 @@ PWD=$(shell pwd)
 FORCE:
 
 # Targets to pre-compile for distribution
-# Slightly dodgy to include elisp compile here, because
-# it can be incompatible across emacs versions.
+# Warning: elisp files are incompatible across emacs versions!
 alldist:	distcompile distdocs 
 
 
@@ -380,11 +368,10 @@ dist:
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
 	(cd $(DISTBUILDIR)/$(RELEASENAME); $(MAKE) alldist)
-	(cd $(DISTBUILDIR)/$(RELEASENAME); $(MAKE) clean)
 	@echo "*************************************************"
-#	@echo " Copying doc files .."
-#	@echo "*************************************************"
-#	(cp -pr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
+	@echo " Copying doc files .."
+	@echo "*************************************************"
+	(cd $(DISTBUILDIR)/$(RELEASENAME); cp -pr $(DOCDISTFILES) $(DISTBUILDIR))
 	@echo "*************************************************"
 	@echo " Cleaning non-distributed files .."
 	@echo "*************************************************"
@@ -498,7 +485,7 @@ releaseclean:
 ##	  
 ## 
 fakereleaseall: 
-	$(MAKE) -f Makefile.devel release  releaseclean NOCVS="no" 
+	$(MAKE) -f Makefile.devel release releaseclean NOCVS="no" 
 
 ############################################################
 ##
