@@ -53,6 +53,7 @@
 
 (defgroup unicode-tokens-options nil
   "User options for Unicode Tokens mode."
+  :group 'faces
   :prefix "unicode-tokens-")
 
 (defcustom unicode-tokens-add-help-echo t
