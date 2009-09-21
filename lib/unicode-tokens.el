@@ -46,6 +46,27 @@
 (eval-when-compile
   (require 'maths-menu))		; nuke compile warnings
 
+
+;;
+;; Customizable user options
+;;
+
+(defgroup unicode-tokens-options nil
+  "User options for Unicode Tokens mode."
+  :prefix "unicode-tokens-")
+
+(defcustom unicode-tokens-add-help-echo t
+  "If non-nil, add mouse hover (or minibuffer messages) to show tokens."
+  :type 'boolean
+  :group 'unicode-tokens-options)
+
+(defun unicode-tokens-toggle-add-help-echo ()
+  (interactive)
+  (customize-set-variable 'unicode-tokens-add-help-echo
+			  (not unicode-tokens-add-help-echo))
+  ;; NB: approximate, should refontify all...
+  (font-lock-fontify-buffer))
+
 ;;
 ;; Variables that should be set by client modes
 ;;
@@ -444,7 +465,8 @@ The check is with `char-displayable-p'."
 
 (defun unicode-tokens-help-echo ()
   "Return a help-echo text property to display the contents of match string."
-    (list 'face nil 'help-echo (match-string 0)))
+  (if unicode-tokens-add-help-echo
+      (list 'face nil 'help-echo (match-string 0))))
 
 (defvar unicode-tokens-show-symbols nil
   "Non-nil to reveal symbol (composed) tokens instead of compositions.")
@@ -996,6 +1018,13 @@ variables."
 (defvar unicode-tokens-mode-map (make-sparse-keymap)
   "Key map used for Unicode Tokens mode.")
 
+(defvar unicode-tokens-display-table 
+  (let ((disptab (make-display-table)))
+    (set-display-table-slot disptab 'selective-display
+			    (vector ?\ #x0022ef ?\ ))
+    disptab)
+  "Display table for Unicode Tokens mode.  Alters ellipsis character.")
+
 (define-minor-mode unicode-tokens-mode
   "Toggle Tokens mode for current buffer.
 With optional argument ARG, turn Tokens mode on if ARG is
@@ -1052,6 +1081,9 @@ Commands available are:
 
       (font-lock-fontify-buffer)
 
+      ;; experimental: this may be rude for non-nil standard tables
+      (setq buffer-display-table unicode-tokens-display-table)
+
       (if unicode-tokens-use-shortcuts
 	  (set-input-method "Unicode tokens"))
 
@@ -1073,6 +1105,9 @@ Commands available are:
 	(setq font-lock-set-defaults nil) ; force font-lock-set-defaults to reinit
 	(font-lock-fontify-buffer)
 	(set-input-method nil))
+
+      ;; experimental: this may be rude for non-nil standard tables
+      (setq buffer-display-table nil)
 
       ;; Remove hooks from maths menu
       (kill-local-variable 'maths-menu-filter-predicate)
@@ -1317,6 +1352,10 @@ Commands available are:
        :selected unicode-tokens-use-shortcuts
        :active unicode-tokens-shortcut-alist
        :help "Use short cuts for typing tokens"]
+      ["Add Token Hovers" unicode-tokens-toggle-add-help-echo
+       :style toggle
+       :selected unicode-tokens-add-help-echo
+       :help "Use hover popups (or minibuffer messages) to show underlying tokens"]
       "---"
       (cons "Customize"
 	    (unicode-tokens-customize-submenu))
