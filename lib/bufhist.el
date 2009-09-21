@@ -23,9 +23,11 @@
 ;; copying strings in and out.  That way we can use cloned (indirect)
 ;; buffers which allow independent browsing of the history.
 ;;
-;; FIXMEs: autoloading this doesn't work too well.
-;;         advice on erase-buffer doesn't work
-;;         duplicated first item in ring after clear (& on startup).
+;; FIXMEs: - autoloading this doesn't work too well.
+;;         - advice on erase-buffer doesn't work
+;;         - duplicated first item in ring after clear (& on startup).
+;;         - buttons are put at top of buffer but inserts happen before them
+;;
 
 (require 'ring)
 
@@ -68,6 +70,9 @@
 
 (defvar bufhist-normal-read-only nil
   "Ordinary value `buffer-read-only' for this buffer.")
+
+(defvar bufhist-top-point 0
+  "Poistion of top of real buffer contents, after buttons.")
 
 (defun bufhist-mode-line-format-entry ()
   (when bufhist-ring-pos
@@ -131,11 +136,13 @@ Commands:\\<bufhist-minor-mode-map>
 (make-variable-buffer-local 'bufhist-ring-pos)
 (make-variable-buffer-local 'bufhist-lastswitch-modified-tick)
 (make-variable-buffer-local 'bufhist-read-only-history)
+(make-variable-buffer-local 'bufhist-top-point)
 
 (defun bufhist-get-buffer-contents ()
-  "Return the stored representation of the current buffer contents."
+  "Return the stored representation of the current buffer contents.
+This is as a pair (POINT . CONTENTS)."
   (cons (point)
-	(buffer-substring (point-max) (point-min))))
+	(buffer-substring bufhist-top-point (point-max))))
 
 (fset 'bufhist-ordinary-erase-buffer (symbol-function 'erase-buffer))
 ;(defalias 'bufhist-ordinary-erase-buffer 'erase-buffer)
@@ -143,6 +150,7 @@ Commands:\\<bufhist-minor-mode-map>
 (defun bufhist-restore-buffer-contents (buf)
   "Restore BUF as the contents of the current buffer."
   (bufhist-ordinary-erase-buffer)
+  (bufhist-insert-buttons)
   (insert (cdr buf))
   ;; don't count this as a buffer update
   (setq bufhist-lastswitch-modified-tick (buffer-modified-tick))
@@ -164,7 +172,8 @@ Commands:\\<bufhist-minor-mode-map>
       (let ((before-change-functions nil)
 	    (after-change-functions nil))
 	(bufhist-before-change-function)))
-  (erase-buffer))
+  (erase-buffer)
+  (bufhist-insert-buttons))
 
 (defun bufhist-checkpoint-and-erase ()
   "Add buffer contents to history then erase. Only erase if not in bufhist mode"
@@ -272,6 +281,9 @@ The size defaults to `bufhist-ring-size'."
   (setq bufhist-read-only-history (not readwrite))
   (setq bufhist-ring-pos 0)
   (setq bufhist-saved-mode-line-format mode-line-format)
+  (save-excursion
+    (goto-char (point-min))
+    (bufhist-insert-buttons))
   (bufhist-checkpoint)
   (setq mode-line-format
 	(cons '(bufhist-mode
@@ -321,18 +333,30 @@ The size defaults to `bufhist-ring-size'."
 ;	    (bufhist-last)))
 ;      (ad-activate-on 'erase-buffer)))
 
+;;;
 ;;; Buttons
+;;;
 
-(defun bufhist-make-buttons ()
-  (widget-create 'push-button
-		:notify (lambda (&rest ignore)
-			   (bufhist-prev))
-		 "Prev")
-  (widget-create 'push-button
-		:notify (lambda (&rest ignore)
-			   (bufhist-next))
-		 "Next")
-  (widget-setup))
+(define-button-type 'bufhist-next
+  'follow-link t
+  'help-echo "Next"
+  'action #'bufhist-next)
+(define-button-type 'bufhist-prev
+  'follow-link t
+  'help-echo "Previous"
+  'action #'bufhist-prev)
 
+;; Little bit tricky: inserts by clients start at (point-min) which
+;; is going to insert above these buttons
+(defun bufhist-insert-buttons ()
+  (when bufhist-mode
+    (let ((inhibit-read-only t))
+      (save-excursion
+	(goto-char (point-min))
+	(insert-text-button " < " :type 'bufhist-prev)
+	(insert " ")
+	(insert-text-button " > " :type 'bufhist-next)
+	(insert "\n\n")
+	(setq bufhist-top-point (point))))))
 
 (provide 'bufhist)
