@@ -991,7 +991,9 @@ The function `substitute-command-keys' is called on the argument."
 	 (lexical-let ((s start) (e end))
 	   (lambda (x)
 	     (let ((idspan (span-make s e)))
-	       ;; TODO: clean these up!
+	       (span-set-property idspan 'priority 90) ; highest
+	       (span-set-property idspan 'modification-hooks
+				  (list 'pg-delete-self-modification-hook))
 	       (span-set-property idspan 'help-echo
 				  (pg-last-output-displayform)))))))))
 
