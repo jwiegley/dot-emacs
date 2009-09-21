@@ -122,10 +122,8 @@ all:    dvi ps html info pdf
 ##
 dist:   info html pdf
 
-dvi:    ProofGeneralPortrait.eps $(DOCNAME).dvi
-ps:	dvi $(DOCNAME).ps
-psz:	ps $(DOCNAME).ps.gz
 pdf:    ProofGeneralPortrait.pdf $(DOCNAME).pdf
+
 # da: target is a fake: we actually make in a subdir
 html:   $(DOCNAME).html
 info:   ProofGeneral.txt $(DOCNAME).info
@@ -137,10 +135,10 @@ info:   ProofGeneral.txt $(DOCNAME).info
 ##
 ## clean: Remove subsidiary documentation files
 ##
+CLEANTARGS:=$(DOCNAME).cp $(DOCNAME).fn $(DOCNAME).vr $(DOCNAME).tp $(DOCNAME).ky $(DOCNAME).kys $(DOCNAME).pg $(DOCNAME).fns $(DOCNAME).vrs $(DOCNAME).cps $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).cp $(DOCNAME).cp0 $(DOCNAME).toc
 clean:
 	rm -f ProofGeneral.txt ProofGeneralPortrait.eps ProofGeneralPortrait.pdf
-	rm -f $(DOCNAME).{cp,fn,vr,tp,ky,pg} 
-	rm -f $(DOCNAME).{fns,vrs,cps,aux,log,toc,kys,cp0}
+	rm -f $(CLEANTARGS)
 	rm -f *~
 
 ##
