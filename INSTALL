@@ -71,7 +71,8 @@ them and (optionally) recompile for GNU Emacs 22.
 Use 'make clean' to remove all .elc files.  
 Use 'make compile' to recompile .elc files.
 
-Check that the Makefile sets EMACS to your Emacs executable.
+Check that the Makefile sets EMACS to your Emacs executable, or
+run 'make <target> EMACS=/path/to/your/emacs'
 
 
 Dependency on Other Emacs Packages

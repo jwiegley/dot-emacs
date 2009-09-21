@@ -4,7 +4,11 @@ Proof General is a generic Emacs interface for proof assistants.
 The aim of the Proof General project is to provide a powerful, generic
 environment for using interactive proof assistants.
 
-This is version 4.0 of Proof General.  See About screen for exact version.
+This is version 4.0 of Proof General.  See About for exact version.
+
+It is built for Emacs 23.  The code will also work with Emacs 22.3,
+but you will need to regenerated the byte-compiled files 
+with "make clean; make compile".
 
 See
     INSTALL	     for installation details.
