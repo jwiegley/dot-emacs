@@ -479,6 +479,8 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
 This is used for cleaning `buffer-invisibility-spec' in
 `pg-clear-script-portions': it doesn't need to be exactly accurate.")
 
+(make-variable-buffer-local 'pg-visibility-specs)
+
 (defconst pg-default-invisibility-spec
   '((t . nil) (hide . nil)))
 
@@ -530,7 +532,7 @@ NAME does not need to be unique."
     (span-set-property span 'duplicable nil) ;; NB: not supported in Emacs
     ;; Nice behaviour in with isearch: open invisible regions temporarily.
     (span-set-property span 'isearch-open-invisible
-		       'pg-open-invisible-span)
+      'pg-open-invisible-span)
     (span-set-property span 'isearch-open-invisible-temporary
 		       'pg-open-invisible-span)))
 
@@ -549,8 +551,7 @@ NAME does not need to be unique."
   (pg-remove-script-element ns idsym)
   ;; We could leave the visibility note, but that may
   ;; be counterintuitive, so lets remove it.
-  (pg-make-element-visible (symbol-name ns) (symbol-name idsym))
-  (pg-redisplay-for-gnuemacs))
+  (pg-make-element-visible (symbol-name ns) (symbol-name idsym)))
 
 (defun pg-make-element-invisible (idiom id)
   "Make element ID of type IDIOM invisible, with ellipsis."
@@ -560,18 +561,15 @@ NAME does not need to be unique."
 
 (defun pg-make-element-visible (idiom id)
   "Make element ID of type IDIOM visible."
-  (remove-from-invisibility-spec (pg-visname idiom id)))
+  (let ((visspec  (cons (pg-visname idiom id) t)))
+    (remove-from-invisibility-spec visspec)
+    (setq pg-visibility-specs (delete visspec pg-visibility-specs))))
 
 (defun pg-toggle-element-visibility (idiom id)
   "Toggle visibility of script element of type IDIOM, named ID."
   (if (assq (pg-visname idiom id) buffer-invisibility-spec)
       (pg-make-element-visible idiom id)
-    (pg-make-element-invisible idiom id))
-  (pg-redisplay-for-gnuemacs))
-
-(defun pg-redisplay-for-gnuemacs ()
-  "GNU Emacs requires redisplay for change in `buffer-invisibility-spec'."
-  (redraw-frame (selected-frame)))
+    (pg-make-element-invisible idiom id)))
 
 (defun pg-show-all-portions (idiom &optional hide)
   "Show or conceal portions of kind IDIOM; if HIDE is non-nil, conceal."
@@ -589,7 +587,8 @@ NAME does not need to be unique."
 		     (lambda (key val)
 		       (pg-make-element-visible idiom
 						(symbol-name key))))))
-    (maphash alterfn elts))
+    (proof-with-script-buffer ; may be called from menu
+     (maphash alterfn elts)))
   (pg-redisplay-for-gnuemacs))
 
 ;; Next two could be in pg-user.el.  No key-bindings for these.
@@ -614,7 +613,7 @@ NAME does not need to be unique."
     (span-set-property controlspan 'children
 		       (cons span (span-property controlspan 'children)))
     (pg-set-span-helphighlights span proof-boring-face)
-    (span-set-property 'priority 10)	; lower than default
+    (span-set-property span 'priority 10)  ; lower than default
     (if proof-disappearing-proofs
 	(pg-make-element-invisible "proof" proofid))))
 
@@ -655,9 +654,11 @@ NAME does not need to be unique."
 		     (unicode-tokens-encode-str proof-shell-last-output)
 		   proof-shell-last-output))))
       ;; NOTE: hack for Isabelle which puts ugly leading \n's around proofstate.
-      (if (string= (substring text 0 1) "\n")
+      (if (and (> (length text) 0) 
+	       (string= (substring text 0 1) "\n"))
 	  (setq text (substring text 1)))
-      (if (string= (substring text -1) "\n")
+      (if (and (> (length text) 0) 
+	       (string= (substring text -1) "\n"))
 	  (setq text (substring text 0 -1)))
       text)))
 
