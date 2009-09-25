@@ -230,9 +230,12 @@ The main changes are:
 @itemize @bullet
 @item support for GNU Emacs only, @b{you cannot use XEmacs any more}
 @item addition of @b{Unicode Tokens} mode, which now replaces X-Symbol
+      @pxref{Unicode and special layout support}
 @item allow ``document centred'' working, annotating scripts with prover output
+      @pxref{Document centred working}
 @item several efficiency and speed improvements
 @item support for latest versions of provers (Isabelle2009 and Coq 8.1)
+      
 @end itemize
 
 See the @file{CHANGES} file in the distribution for more complete
@@ -2278,7 +2281,7 @@ and @code{etags}.
 
 @menu
 * Syntax highlighting::         
-* Unicode support::
+* Unicode and special layout support::
 * Imenu and Speedbar (and Function Menu)::
 * Support for outline mode::    
 * Support for completion::            
@@ -2314,72 +2317,92 @@ Proof General -> Advanced -> Customize -> Faces -> Proof Faces.
 @end lisp
 
 
-@node Unicode support
-@section Unicode support
+@node Unicode and special layout support
+@section Unicode and special layout support
 @cindex symbols
 @cindex X-Symbols
 @cindex Greek letters
 @cindex logical symbols
 @cindex mathematical symbols
+@cindex subscripts
+@cindex superscripts
 @cindex Maths Menu
 @cindex Tokens Mode
 
 Proof General inherits support for displaying Unicode (and any other)
 fonts from the underlying Emacs program.  If you are lucky, your system
-will be able to use (or synthesise) a font that provides a rich set of
-mathematical symbols.  To store these symbols in files you need to use a
-particular coding, for example UTF-8.  In fact, Modern Emacsen can
+will be able to use or synthesise a font that provides a rich set of
+mathematical symbols.  To store symbols directly in files you need to
+use a particular coding, for example UTF-8.  Newer Emacs versions can
 handle a multitude of different coding systems and will try to
 automatically detect an appropriate one; consult the Emacs documentation
-for more details.
+for more details.  Of course, the prover that you are using will
+need to understand the same encodings and symbol meanings.
 
-Proof General includes two special mechanisms for assisting with input.
+Proof General includes two special ways for displaying symbols
+and assisting with symbol input.
 The first is @b{Maths Menu} (adapted from a menu by Dave Love), which
 simply adds a menu for inserting common mathematical symbols.
 @example
-  Proof-General -> Options -> Unicode Maths Menu
+  Proof-General -> Quick Options -> Minor Modes -> Unicode Maths Menu
 @end example
 Whether or not the symbols display well the menus depends on the font
 used to display the menus (which depends on the Emacs version, toolkit
-and platform!).  The symbols inserted into the text will be 
-Unicode characters.
+and platform).  The symbols inserted into the text will be 
+Unicode characters which will be saved in the file using
+the encoding selected by standard Emacs mechanisms.
 
-The second mechanism has been written specially for Proof General
-(with thanks to Stefan Monnier for providing inspiration and a
-starting point).  It provides backward compatibility with the older
-X-Symbol mode.  This is the @b{Unicode Tokens} minor mode.
+The second mechanism, is the @b{Unicode Tokens} minor mode.  This has
+been written specially for Proof General (with thanks to Stefan Monnier
+for providing inspiration and the starting point).  It supports the
+display of symbols when the underlying text of the file and buffer
+actually contains something else, typically, plain ASCII text.
+It provides backward compatibility with the older X-Symbol mode.  
+
+Unicode Tokens can be enabled or disabled using the menu:
 @example
-  Proof-General -> Options -> Unicode Tokens
+  Proof-General -> Quick Options -> Display -> Unicode Tokens
 @end example
-The aim of this mode is to allow displaying of ASCII tokens (i.e., 
-sequences of ASCII characters) as Unicode
-character compositions, perhaps with additional text properties.
-This allows a file to be stored in perfectly portable plain
-ASCII encoding, but be displayed and edited with real symbols.  
+The mode is to allows ASCII tokens (i.e., sequences of plain ASCII
+characters) to be displayed as Unicode character compositions, perhaps
+with additional text properties.  The additional text properties allow
+the use of tokens to cause font changes (bold, italic), text size
+changes, and sub-script/super-script.
 
-The mechanism is based on Font Lock, using the @code{composition} text
-property to display token sequences as something else.  This means that
-the underlying buffer text is not altered.  
+For example, the ASCII sequences @code{/\} or @code{\<And>} could be
+displayed as a conjunction symbol.
+@comment %% fixme
+The sequence @code{x __ y} might be written to display @code{y}
+as subscript.  This allows a file to be stored in perfectly portable plain ASCII
+encoding, but be displayed and edited with real symbols and
+appearling layout.  Of course, the proof assistant needs to understand
+the underlying tokens in each case.
 
-When the Unicode Tokens mode is enabled, the Maths Menu insertion
-commands are automatically modified to insert tokenised versions of
-the Unicode characters (whenever a reverse mapping can be found). 
-This means that you can use the Maths Menu to conveniently input symbols.
-You can easily add custom key bindings for particular symbols
-you need to enter often (@pxref{Adding your own keybindings} for
-examples).  
+Technically, the mechanism is based on Emacs Font Lock facility, using
+the @code{composition} text property to display token sequences as
+something else.  This means that the underlying buffer text is @i{not}
+altered.  This is a major advantage over the older X-Symbol, which had
+the annoying habit of occasionally saving your buffer text in a
+corrupted format.
+
+When the Unicode Tokens mode is enabled, Maths Menu is automatically
+modified to insert tokenised versions of the Unicode characters
+(whenever a reverse mapping can be found).  This means that you can
+still use the Maths Menu to conveniently input symbols.  You can easily
+add custom key bindings for particular symbols you need to enter often
+(@pxref{Adding your own keybindings} for examples).
 
 The Unicode Tokens mode also allows short-cut sequences of ordinary
-characters to quickly type tokens (similarly to the facility provided
-by X-Symbol).  These, along with the token settings themselves, are
+characters to quickly type tokens (similarly to the facility provided by
+X-Symbol).  These, along with the token settings themselves, are
 configured on a per-prover basis.
 
 @unnumberedsubsec Configuring tokens, symbols and shortcuts
 
 To edit the strings used to display tokens, or the collection of 
 short-cuts, you can edit the 
-file @code{@i{PA}-unicode-tokens.el}, or customize the two main
-variables it contains: @code{@i{PA}-token-name-alist} and 
+file @code{@i{PA}-unicode-tokens.el}, or customize the main
+variables it contains, for example @code{@i{PA}-token-name-alist} and 
 @code{@i{PA}-shortcut-alist}. 
 
 E.g., for Isabelle 
@@ -2392,6 +2415,86 @@ provides an interface to the tokens, and
 @end example
 an interface to the shortcuts.
 
+It is better to use the more fine grained way is available to do this,
+which edits the separate tables which are combine to form the big
+list of tokens.  This is available via the menus, e.g., in Isabelle,
+use
+@example
+  Tokens -> Customize -> Extended Symbols
+@end example
+to customize the symbols used for the ``extended'' (non standard)
+symbol list.
+
+
+@unnumberedsubsec Special layout 
+
+The Unicode Tokens mode supports both @i{symbol} tokens used to display
+character sequences in different ways and @i{control} tokens used to
+control the layout of the text in various ways, such as superscript,
+subscript, large, small, bold, italic, etc.  (The size and position
+layout is managed using Emacs' @code{display} text property)
+
+As well as displaying token sequences as special symbols, symbol tokens
+can define layout options as well; for example you may define a token
+@code{\<hugeOplus>} to display a large circled-plus glyph.  If you try
+the customization mentioned in the section above you will see the
+options available when defining symbols.
+
+These options are fixed layout schemes which also make layout tokens
+easy to configure for provers.  The layout possibilities include the
+ones shown in the table below.  There are two ways of configuring
+control tokens for layout: @i{character controls} and @i{region
+controls}.  The character controls apply to the next ``character'',
+although this is a prover-specific notion and might actually mean the
+next word or identifier.  An example might be writing @code{BOLDCHAR x}
+to make a bold @b{x}.  Similarly the region controls apply to a
+delineated region of text, for example, writing @code{BEGINBOLD this is
+bold ENDBOLD} could cause the enclosed text @b{this is bold} to be
+displayed in a bold font.
+
+The control tokens that have been configured populate the Tokens
+menu, so, for example, you may be able to select a region
+of text and then use the menu item:
+@example
+  Tokens -> Format Region -> Bold
+@end example
+to cause the bold region tokens to be inserted around the selected
+text, which should cause the buffer presentation to show the text
+in a bold format (hiding the tokens).
+
+Here is the table of layout controls available.  What you actually
+can use will depend on the configuration for the underlying prover.
+@table @code
+@item sub
+lower the text (subscript)
+@item sup
+raise the text (superscript)
+@item bold
+make the text be in the bold weight of the current font
+@item italic
+make the text be in the italic variant of the current font
+@item big
+make the text be in a bigger size of the current font
+@item small
+make the text be in a smaller size of the current font
+@item underline
+underline the text
+@item overline
+overline the text
+@item script
+display the text in a ``script'' font
+@item frakt
+display the text in a ``fraktur'' font
+@item serif
+display the text in a serif font
+@item sans
+display the text in a sans serif font
+@item dec
+display the text in the ``declaration face'' (@code{proof-declaration-name-face})
+@end table
+
+
+@c note: see unicode-tokens-fontsymb-properties
 
 @unnumberedsubsec Moving between Unicode and tokens
 
@@ -2423,11 +2526,23 @@ of symbol compositions, and will lose layout information.
 @deffn Command unicode-tokens-paste 
 Paste text from clipboard, converting Unicode to tokens where possible.
 @end deffn
+
 If you are using a mixture of ``real'' Unicode and tokens like this
 you may want to be careful to check the buffer contents: the command
-@code{unicode-tokens-highlight-unicode} helps you to manage this (it
-is available on the Tokens menu).  The alternative is to toggle the
-tokens mode, which will leave the true Unicode tokens untouched.
+@code{unicode-tokens-highlight-unicode} helps you to manage this.
+It
+is available on the Tokens menu as
+@example
+  Tokens -> Highlight Real Unicode Chars
+@end example
+Alternative ways to check are to toggle the display of tokens using
+@example
+  Tokens -> Show Symbol Tokens
+@end example
+(the similar entry for @code{Control Tokens} displays tokens being used
+to control layout).  Or simply toggle the tokens mode, which will leave
+the true Unicode tokens untouched.
+
 
 @c TEXI DOCSTRING MAGIC: unicode-tokens-highlight-unicode
 @defvar unicode-tokens-highlight-unicode 
@@ -2450,22 +2565,31 @@ Show a buffer of all tokens.
 Show a buffer of all the shortcuts available.
 @end deffn
 
-@unnumberedsubsec Selecting a suitable font
+
+@unnumberedsubsec Selecting suitable fonts
 
 Unfortunately, the precise set of symbol glyphs that are available to
 you will depend in complicated ways on your operating system, Emacs
 version, installed font sets, and (even) command line options used to
 start Emacs.  
 
-One font I like is @b{DejaVu Sans Mono}.  It covers all of the standard
-Isabelle symbols.  Some of the symbols are currently a bit small;
-however this font is an open source effort so users can contribute or
-suggest improvements.  See @uref{http://dejavu-fonts.org}.
+One possibility is to use a proportional font for displaying symbols
+that is well equipped, for example the main font StixGeneral font from
+the Stix Fonts project (@uref{http://www.stixfonts.org/}).  At the time
+of writing you can obtain a beta version of these fonts in TTF format
+from @uref{http://olegueret.googlepages.com/stixfonts-ttf}.  On Linux,
+simply copy these @code{ttf} files into the @code{.fonts} directory
+inside your home directory to make them available inside Emacs 23.
 
-Describing further possibilities or giving recommendations is
-beyond the scope of this manual; please search (and contribute!) to the
-Proof General wiki at @uref{http://proofgeneral.inf.ed.ac.uk/wiki} for
-more details.
+Another font I like is @b{DejaVu Sans Mono}.  It covers all of the
+standard Isabelle symbols.  Some of the symbols are currently not
+perfect; however this font is an open source effort so users can
+contribute or suggest improvements.  See @uref{http://dejavu-fonts.org}.
+
+Describing further possibilities or giving recommendations is beyond the
+scope of this manual; please search (and contribute!) to the Proof
+General wiki at @uref{http://proofgeneral.inf.ed.ac.uk/wiki} for more
+details.
 
 
 
@@ -3376,7 +3500,7 @@ by default).  Use lisp like this:
 (global-set-key [?\s-3] 'proof-three-window-toggle)
 @end lisp
 This defines a bunch of short-cuts for inserting symbols taken
-from the Maths Menu, @pxref{Unicode support}
+from the Maths Menu, @pxref{Unicode and special layout support}
 and a short-cut for enabling three window mode,
 @pxref{Display customization}.
 
@@ -3763,23 +3887,18 @@ want to save abbrevs; answer yes.
 
 Isabelle Proof General supports major generic features of Proof General,
 including integration with Isabelle's theory loader for proper automatic
-multiple file handling.  Support for tags and proof-by-pointing is
-missing.
-
-In this version, support for the old-style ``classic'' Isabelle theory
-files has been removed; in Isabelle2007 only Isar style theory files are
-supported.
+multiple file handling.  
+@comment Support for tags and proof-by-pointing is missing.
 
 Isabelle provides its own way to invoke Proof General via the
-@code{Isabelle} script.  Running @code{Isabelle} starts an Emacs session
-with Isabelle Proof General.  The defaults may be changed by editing the
-Isabelle settings, see the Isabelle documentation for details.
+@code{isabelle} command.  Running @code{isabelle emacs} starts an Emacs
+session with Isabelle Proof General.  The defaults may be changed by
+editing the Isabelle settings, see the Isabelle documentation for
+details.
 
-Proof General for Isabelle manages Isar @file{.thy} files.  The syntax
-of Isabelle input is technically simple, enabling Proof General to
-provide reliable control over incremental execution of the text.  Thus
-it is very hard to let Proof General lose synchronization with the
-Isabelle process.
+Proof General for Isabelle manages Isar @file{.thy} files.  Proof
+General provides reliable control over incremental execution of the
+text.
 
 @menu
 * Choosing logic and starting isabelle::
@@ -3967,10 +4086,10 @@ mathematical entities etc.); the Tokens package will provide immediate
 visual feedback.
 
 @table @kbd
-@item C-c C-a b
-Inserts "\<^bold>"
 @item C-c C-a C-b
-Inserts "\<^loc>"
+Inserts "\<^bold>" (bold character)
+@item C-c C-a C-c
+Inserts "\<^loc>" (``local'' control)
 @item C-c C-a C-u
 Inserts "\<^sup>"  (superscript character)
 @item C-c C-a C-l
