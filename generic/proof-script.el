@@ -567,9 +567,13 @@ NAME does not need to be unique."
 
 (defun pg-toggle-element-visibility (idiom id)
   "Toggle visibility of script element of type IDIOM, named ID."
+  (interactive)
   (if (assq (pg-visname idiom id) buffer-invisibility-spec)
       (pg-make-element-visible idiom id)
-    (pg-make-element-invisible idiom id)))
+    (pg-make-element-invisible idiom id))
+  ;; GNU Emacs sometimes requires redisplay for change 
+  ;; in `buffer-invisibility-spec', perhaps a bug?
+  (redraw-frame (selected-frame)))
 
 (defun pg-show-all-portions (idiom &optional hide)
   "Show or conceal portions of kind IDIOM; if HIDE is non-nil, conceal."
