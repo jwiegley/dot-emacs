@@ -447,7 +447,7 @@ without adjusting window layout."
        :style radio
        :selected (null proof-auto-action-when-deactivating-scripting)])
 
-     ("Useful Minor Modes"
+     ("Minor Modes"
      ["Unicode Maths Menu"
       (proof-maths-menu-toggle (if (boundp 'maths-menu-mode)
 				       (if maths-menu-mode 0 1) 1))
