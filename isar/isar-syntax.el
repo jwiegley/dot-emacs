@@ -1,5 +1,5 @@
 ;; isar-syntax.el Syntax expressions for Isabelle/Isar
-;; Copyright (C) 1994-2004 LFCS Edinburgh.
+;; Copyright (C) 1994-2004, 2009 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Authors:     David Aspinall <David.Aspinall@ed.ac.uk>
@@ -479,7 +479,8 @@ matches contents of quotes for quoted identifiers.")
 
 (defun isar-undos (linearp i)
   (if (> i 0) (concat (if linearp "linear_undo " "undos_proof ")
-		      (int-to-string i) ";")
+		      (int-to-string i) ";"
+		      (if linearp " pr; ")) ; See Trac #292 
     nil))  ; was proof-no-command
 
 (defun isar-cannot-undo (cmd)
