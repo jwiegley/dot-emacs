@@ -125,15 +125,14 @@ Internal variable, setting this will have no effect!")
   (other-window 1))
 
 (defun proof-display-three-b (&optional nohorizontalsplit)
-  "Layout three buffers in a single frame."
+  "Layout three buffers in a single frame.  Only do this if buffers exist."
   (interactive)
-  (proof-select-three-b
-   (or proof-script-buffer (first (buffer-list)))
-   (if (buffer-live-p proof-goals-buffer)
-       proof-goals-buffer (first (buffer-list)))
-   (if (buffer-live-p proof-response-buffer)
-       proof-response-buffer (first (buffer-list)))
-   nohorizontalsplit))
+  (when (and proof-script-buffer
+	     (buffer-live-p proof-goals-buffer)
+	     (buffer-live-p proof-response-buffer))
+    (proof-select-three-b
+     proof-script-buffer proof-goals-buffer proof-response-buffer
+     nohorizontalsplit)))
 
 
 (defvar pg-frame-configuration nil
