@@ -261,13 +261,10 @@ without adjusting window layout."
 	  ["Response"
 	   (proof-switch-to-buffer proof-response-buffer t)
 	   :active (buffer-live-p proof-response-buffer)]
-	  ;; FIXME: next test doesn't work: menus are loaded before
-	  ;; proof-shell-trace-output-regexp is set (in proof-shell hook).
-	  ;; Should be better with simplified customization mechanism.
-	  ;; ( if proof-shell-trace-output-regexp ... )
 	  ["Trace"
 	   (proof-switch-to-buffer proof-trace-buffer)
-	   :active (buffer-live-p proof-trace-buffer)]
+	   :active (buffer-live-p proof-trace-buffer)
+	   :visible proof-shell-trace-output-regexp]
 	  ["Shell"
 	   (proof-switch-to-buffer proof-shell-buffer)
 	   :active (buffer-live-p proof-shell-buffer)]))
