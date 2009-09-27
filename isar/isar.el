@@ -1,4 +1,5 @@
-; isar.el --- Major mode for Isabelle/Isar proof assistant
+;; isar.el --- Major mode for Isabelle/Isar proof assistant
+;;
 ;; Copyright (C) 1994-2009 LFCS Edinburgh.
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -43,9 +44,8 @@ See -k option for Isabelle interface script."
   :group 'isabelle)
 
 (or (featurep 'isar-keywords)
-    ;; Pickup isar-keywords file from somewhere appropriate,
-    ;; giving user chance to set name of file, or based on
-    ;; name of logic.
+    ;; Pickup isar-keywords file from somewhere appropriate, giving
+    ;; user chance to set name of file, or based on name of logic.
     (isabelle-load-isar-keywords
      (or isar-keywords-name
 	 isabelle-chosen-logic)))
@@ -271,9 +271,9 @@ See -k option for Isabelle interface script."
   (isar-set-proof-find-theorems-command)
   (isar-set-undo-commands))
 
-;;;
-;;; Theory loader operations
-;;;
+;;
+;; Theory loader operations
+;;
 
 (defun isar-remove-file (name files cmp-base result)
   (if (not files) (reverse result)
@@ -328,13 +328,9 @@ This is called when Proof General spots output matching
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Code that's Isabelle/Isar specific                             ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;
-;;; help menu
-;;;
+;;
+;; Help menu
+;;
 
 ;;; da: how about a `C-c C-a h ?' for listing available keys?
 
@@ -358,17 +354,18 @@ This is called when Proof General spots output matching
 ;; Command menu
 ;;
 
-;; NB: would be nice to query save of the buffer first for these
-;; next two: but only convenient emacs functions offer save for
-;; all buffers.
 (proof-definvisible isar-cmd-display-draft
- '(format "display_drafts \"%s\"" buffer-file-name)
+ '(progn
+    (proof-save-this-buffer)
+    (format "display_drafts \"%s\"" buffer-file-name))
  [(control d)])
 
 (proof-definvisible isar-cmd-print-draft
   '(if (y-or-n-p
-	(format "Print draft of file %s ?" buffer-file-name))
-       (format "print_drafts \"%s\"" buffer-file-name)
+	(format "Print draft of file %s? " buffer-file-name))
+       (progn
+	 (proof-save-this-buffer)
+	 (format "print_drafts \"%s\"" buffer-file-name))
      (error "Aborted"))
   [(control p)])
 
@@ -382,31 +379,34 @@ This is called when Proof General spots output matching
    (list
     (cons "Commands"
 	  (list
-	   ["refute"             isar-cmd-refute         t]
-	   ["quickcheck"         isar-cmd-quickcheck     t]
-	   ["sledgehammer"       isar-cmd-sledgehammer   t]
-	   ["display draft"	 isar-cmd-display-draft  t]
-	   ["set isabelle"       (isa-set-isabelle-command 't) t])))
+	   ["Refute"             isar-cmd-refute         t]
+	   ["Quickcheck"         isar-cmd-quickcheck     t]
+	   ["Sledgehammer"       isar-cmd-sledgehammer   t]
+	   ["Display Draft"	 isar-cmd-display-draft  t]
+	   ["Print Draft"	 isar-cmd-print-draft    t])))
    (list
-    (cons "Show me ..."
+    (cons "Show Me"
 	  (list
-	   ["cases"              isar-help-cases          t]
-	   ["facts"              isar-help-facts          t]
-	   ["term bindings"      isar-help-binds          t]
+	   ["Cases"              isar-help-cases          t]
+	   ["Facts"              isar-help-facts          t]
+	   ["Term Bindings"      isar-help-binds          t]
 	   "----"
-	   ["classical rules"    isar-help-claset         t]
-	   ["induct/cases rules" isar-help-induct-rules   t]
-	   ["simplifier rules"   isar-help-simpset        t]
-	   ["theorems"           isar-help-theorems       t]
-	   ["transitivity rules" isar-help-trans-rules    t]
+	   ["Classical Rules"    isar-help-claset         t]
+	   ["Induct/Cases Rules" isar-help-induct-rules   t]
+	   ["Simplifier Rules"   isar-help-simpset        t]
+	   ["Theorems"           isar-help-theorems       t]
+	   ["Transitivity Rules" isar-help-trans-rules    t]
 	   "----"
-	   ["antiquotations"     isar-help-antiquotations t]
-	   ["attributes"         isar-help-attributes     t]
-	   ["commands"           isar-help-commands       t]
-	   ["inner syntax"       isar-help-syntax         t]
-	   ["methods"            isar-help-methods        t])))))
+	   ["Antiquotations"     isar-help-antiquotations t]
+	   ["Attributes"         isar-help-attributes     t]
+	   ["Commands"           isar-help-commands       t]
+	   ["Inner Syntax"       isar-help-syntax         t]
+	   ["Methods"            isar-help-methods        t])))))
 
-(defalias 'isar-set-command 'isa-set-isabelle-command)
+(defun isar-set-command ()
+  "Query the user to set the command to run Isabelle"
+  (interactive)
+  (isa-set-isabelle-command t))
 
 (defpgdefault help-menu-entries isabelle-docs-menu)
 
@@ -511,9 +511,9 @@ This is called when Proof General spots output matching
   (proof-string-match isar-undo-skip-regexp cmd))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Commands specific to isar                                      ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Commands specific to isar
+;;
 
 (proof-defshortcut isar-bold      "\\<^bold>%p" [(control b)])
 (proof-defshortcut isar-local     "\\<^loc>%p" [(control c)])
@@ -527,9 +527,9 @@ This is called when Proof General spots output matching
 (proof-defshortcut isar-ml	  "ML {* %p *}" [(control x)])
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Isar shell startup and exit hooks                              ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Isar shell startup and exit hooks
+;;
 
 (defvar isar-shell-current-line-width nil
   "Current line width of the Isabelle process's pretty printing module.
