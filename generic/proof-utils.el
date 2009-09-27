@@ -112,6 +112,7 @@ Return nil if not a script buffer or if no active scripting buffer."
 ;;
 
 (defun proof-save-some-buffers (buffers)
+  "Query the user whether to save each of BUFFERS."
   ;; code based on extract from files.el in XEmacs 21.4.14
   (map-y-or-n-p
    (lambda (buffer)
@@ -130,8 +131,13 @@ Return nil if not a script buffer or if no active scripting buffer."
        (error nil)))
    buffers))
 
-
-
+(defun proof-save-this-buffer ()
+  "Query the user whether to save the current buffer."
+  (if (and (buffer-modified-p)
+	   (buffer-file-name (current-buffer))
+	   (y-or-n-p (format "Save file %s? "
+			     (buffer-file-name (current-buffer)))))
+      (save-buffer)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -976,8 +982,6 @@ Optional argument PUSH is ignored."
 ;;     (unless (get-text-property end 'invisible)
 ;;       (setq result (concat result (buffer-substring-no-properties
 ;;				   pos end))))))
-
-
 
 
 (provide 'proof-utils)
