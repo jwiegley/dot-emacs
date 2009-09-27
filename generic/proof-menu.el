@@ -345,22 +345,6 @@ without adjusting window layout."
       :style toggle
       :selected (not proof-shell-quiet-errors)
       :help "Beep on errors or interrupts"]
-     ("Read Only"
-      ["Strict Read Only" 
-       (customize-set-variable 'proof-strict-read-only t)
-       :style radio
-       :selected (eq proof-strict-read-only t)
-       :help "Do not allow editing in processed region"]
-      ["Undo On Edit" 
-       (customize-set-variable 'proof-strict-read-only 'retract)
-      :style radio
-      :selected (eq proof-strict-read-only 'retract)
-      :help "Automatically retract on edits in processed region"]
-      ["Freely Edit"
-       (customize-set-variable 'proof-strict-read-only nil)
-      :style radio
-      :selected (null proof-strict-read-only)
-      :help "No write protection, edit anywhere.  Dangerous!"])
      ("Display"
       ["Unicode Tokens"
       (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
@@ -405,6 +389,22 @@ without adjusting window layout."
        :style toggle
        :selected proof-colour-locked
        :help "Use decoration of locked region"])
+     ("Read Only"
+      ["Strict Read Only" 
+       (customize-set-variable 'proof-strict-read-only t)
+       :style radio
+       :selected (eq proof-strict-read-only t)
+       :help "Do not allow editing in processed region"]
+      ["Undo On Edit" 
+       (customize-set-variable 'proof-strict-read-only 'retract)
+      :style radio
+      :selected (eq proof-strict-read-only 'retract)
+      :help "Automatically retract on edits in processed region"]
+      ["Freely Edit"
+       (customize-set-variable 'proof-strict-read-only nil)
+      :style radio
+      :selected (null proof-strict-read-only)
+      :help "No write protection, edit anywhere.  Dangerous!"])
      ("Follow Mode"
       ["Follow Locked Region"
        (customize-set-variable 'proof-follow-mode 'locked)
