@@ -246,6 +246,7 @@ without adjusting window layout."
 	   proof-layout-windows]
 	  ["Rotate Output Buffers"
 	   proof-display-some-buffers
+	   :visible (not proof-three-window-enable)
 	   :active (buffer-live-p proof-goals-buffer)]
 	  ["Clear Responses"
 	   pg-response-clear-displays
