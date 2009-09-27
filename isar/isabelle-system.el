@@ -261,7 +261,7 @@ for you, you should disable this behaviour."
   (let ((vc '(lambda (docdes)
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
-    (list (cons "Isabelle documentation" (mapcar vc (isa-tool-list-docs)))))
+    (list (cons "Isabelle Documentation" (mapcar vc (isa-tool-list-docs)))))
   "Isabelle documentation menu.  Constructed when PG is loaded.")
 
 (defvar isabelle-logics-menu-entries nil

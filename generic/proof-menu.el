@@ -191,7 +191,7 @@ without adjusting window layout."
 	       ':active '(proof-shell-live-buffer))
 	      ;; TODO: doc <PA>-set-command here
 	      (vector
-	       (concat "Set " proof-assistant " command")
+	       (concat "Set " proof-assistant " Command")
 	       (proof-ass-sym set-command)
 	       ':active '(fboundp (proof-ass-sym set-command))))
 	     '("----")
@@ -200,11 +200,11 @@ without adjusting window layout."
 		    (append
 		     (list
 		      (vector
-		       (concat proof-assistant " information")
+		       (concat proof-assistant " Information")
 		       'proof-help
 		       :visible proof-info-command)
 		      (vector
-		       (concat proof-assistant " web page")
+		       (concat proof-assistant " Web Page")
 		       '(browse-url proof-assistant-home-page)
 		       :visible proof-assistant-home-page))
 		     (proof-ass help-menu-entries))))))))
