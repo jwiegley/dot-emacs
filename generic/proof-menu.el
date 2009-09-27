@@ -476,19 +476,19 @@ without adjusting window layout."
       :active (stringp (locate-library "outline"))
       :style toggle
       :selected (and (boundp 'outline-minor-mode) outline-minor-mode)
-      :help "Outline mode for folding [NB: option not saved]"]
+      :help "Outline mode for folding (note: option not saved)"]
 
      ["Hide/Show" hs-minor-mode
       :active (stringp (locate-library "hideshow"))
       :style toggle
       :selected (and (boundp 'hs-minor-mode) hs-minor-mode)
-      :help "Hide/Show mode for folding [NB: option not saved]"]
+      :help "Hide/Show mode for folding (note: option not saved)"]
 
      ["Speedbar" speedbar
       :active (stringp (locate-library "speedbar"))
       :style toggle
       :selected (and (boundp 'speedbar-frame) speedbar-frame)
-      :help "Speedbar navigation window [NB: option not saved]"])
+      :help "Speedbar navigation window (note: option not saved)"])
 
      "----"
      ["Reset Options" (proof-quick-opts-reset)
