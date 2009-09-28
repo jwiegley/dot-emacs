@@ -599,7 +599,7 @@ save commands, so don't use that if your prover has save commands."
   :group 'proof-script)
 
 (defcustom proof-count-undos-fn 'proof-generic-count-undos
-  "Function to calculate a list of command to undo to reach a target span.
+  "Function to calculate a list of commands to undo to reach a target span.
 The function takes a span as an argument, and should return a string
 which is the command to undo to the target span.  The target is
 guaranteed to be within the current (open) proof.
