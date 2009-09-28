@@ -345,7 +345,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;		  (face unicode-tokens-large-symbol-font-face))
     ;; NB: next ones not really generic.  Previously this was
     ;; configured per-prover, but above are generic.
-    (dec       "Declaration face" (face proof-declaration-name-face))
+    (keyword   "Keyword face" (face proof-declaration-name-face))
     (tactic    "Tactic face"      (face proof-tactics-name-face))
     (tacticals "Tacticals face"   (face proof-tacticals-name-face)))
  "Association list mapping a symbol to a name and list of text properties.
@@ -651,7 +651,7 @@ Optional argument FACENIL means set the face property to nil, unless 'face is in
 
 (quail-define-package
  "Unicode tokens" "UTF-8" "u" t
- "Unicode characters input method using application specific token names"
+ "Input method for tokens or unicode characters, application specific short-cuts"
  nil t nil nil nil nil nil ; max shortest, could try t
  nil nil nil t)
 
@@ -1256,6 +1256,16 @@ Commands available are:
 ;;
 ;; Key bindings
 ;;
+
+;(defun unicode-tokens-undo (&optional arg)
+;  (interactive)
+;  (quail-delete-last-char)
+;  (delete-backward-char))
+
+;; not quite right!
+;(define-key unicode-tokens-mode-map
+;  [remap undo]
+;  'unicode-tokens-undo)
 
 (define-key unicode-tokens-mode-map [(control ?,)]
   'unicode-tokens-rotate-token-backward)
