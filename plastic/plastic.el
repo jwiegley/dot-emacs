@@ -228,7 +228,8 @@ Given is the first SPAN which needs to be undone."
 	       (if (= (aref string i) proof-terminal-char) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
       (setq span (next-span span 'type)))
-    (concat plastic-lit-string " &S Undo x" (int-to-string ct) proof-terminal-string)))
+    (list (concat plastic-lit-string 
+		  " &S Undo x" (int-to-string ct) proof-terminal-string))))
 
 (defun plastic-goal-command-p (span)
   "Decide whether argument is a goal or not"			;; NEED CHG.
@@ -266,7 +267,9 @@ Given is the first SPAN which needs to be undone."
       (setq span (next-span span 'type))
 
     )
-    (concat plastic-lit-string " &S Undo x" (int-to-string spans) proof-terminal-string) ))
+    (list (concat plastic-lit-string 
+		  " &S Undo x" (int-to-string spans) 
+		  proof-terminal-string))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;

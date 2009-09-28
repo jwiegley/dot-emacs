@@ -2261,8 +2261,7 @@ up to the end of the locked region."
 	      (setq actions (proof-setup-retract-action
 			     start end
 			     (if (null span) nil ; was: proof-no-command
-			       ;; TODO: make proof-count-undos-fn return a list
-			       (list (funcall proof-count-undos-fn span)))
+			       (funcall proof-count-undos-fn span))
 			     delete-region)
 		    end start))
 	  ;; Otherwise, start the retraction by killing off the
@@ -2291,8 +2290,7 @@ up to the end of the locked region."
 	      ;; the target span.
 	      (nconc actions (proof-setup-retract-action
 			      start end
-			      ;; TODO: make `proof-find-and-forget-fn' return a list
-			      (list (funcall proof-find-and-forget-fn target))
+			      (funcall proof-find-and-forget-fn target)
 			      delete-region))))
 
     (proof-start-queue (min start end) (proof-locked-end) actions)))
@@ -2540,7 +2538,7 @@ assistant."
   (not (proof-string-match-safe proof-non-undoables-regexp cmd)))
 
 (defun proof-generic-count-undos (span)
-  "Count number of undos in SPAN, return command needed to undo that far.
+  "Count number of undos in SPAN, return commands needed to undo that far.
 Command is set using `proof-undo-n-times-cmd'.
 
 A default value for `proof-count-undos-fn'.
@@ -2564,9 +2562,9 @@ For this function to work properly, you must configure
     (if (= ct 0)
 	nil ; was proof-no-command
       (cond ((stringp proof-undo-n-times-cmd)
-	     (format proof-undo-n-times-cmd ct))
+	     (list (format proof-undo-n-times-cmd ct)))
 	    ((functionp proof-undo-n-times-cmd)
-	     (funcall proof-undo-n-times-cmd ct))))))
+	     (list (funcall proof-undo-n-times-cmd ct)))))))
 
 (defun proof-generic-find-and-forget (span)
   "Calculate a forget/undo command to forget back to SPAN.
@@ -2607,9 +2605,7 @@ with something different."
 	  (setq span nil)))
 	(if ans (setq answers (cons ans answers)))
 	(if span (setq span (next-span span 'type))))
-      (if (null answers)
-	  nil ; was proof-no-command
-	(apply 'concat answers))))))
+      answers))))
 
 ;;
 ;; End of new generic functions

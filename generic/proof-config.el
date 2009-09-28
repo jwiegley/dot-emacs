@@ -599,7 +599,7 @@ save commands, so don't use that if your prover has save commands."
   :group 'proof-script)
 
 (defcustom proof-count-undos-fn 'proof-generic-count-undos
-  "Function to calculate a command to issue undos to reach a target span.
+  "Function to calculate a list of command to undo to reach a target span.
 The function takes a span as an argument, and should return a string
 which is the command to undo to the target span.  The target is
 guaranteed to be within the current (open) proof.
@@ -611,7 +611,7 @@ settings `proof-non-undoables-regexp' and
   :group 'proof-script)
 
 (defcustom proof-find-and-forget-fn 'proof-generic-find-and-forget
-  "Function that returns a command to forget back to before its argument span.
+  "Function to return list of commands to forget to before its argument span.
 This setting is used to for retraction (undoing) in proof scripts.
 
 It should undo the effect of all settings between its target span

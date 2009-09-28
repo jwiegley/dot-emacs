@@ -306,7 +306,7 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
 (defun coq-set-state-infos ()
   "Set the last locked span's state number to the number found last time.
 This number is in the *last but one* prompt (variable `coq-last-but-one-statenum').
-If locked span already has a state number, thne do nothing. Also updates
+If locked span already has a state number, then do nothing. Also updates
 `coq-last-but-one-statenum' to the last state number for next time."
   (if (and proof-shell-last-prompt proof-script-buffer)
       ;; infos = promt infos of the very last prompt
@@ -387,10 +387,11 @@ If locked span already has a state number, thne do nothing. Also updates
              (equal coq-last-but-one-proofstack proofstack)
              (= coq-last-but-one-proofnum proofdepth)
              (= coq-last-but-one-statenum span-staten))
-      (format "Backtrack %s %s %s . "
-              (int-to-string span-staten)
-              (int-to-string proofdepth)
-              naborts))))
+      (list
+       (format "Backtrack %s %s %s . "
+               (int-to-string span-staten)
+               (int-to-string proofdepth)
+               naborts)))))
 
 (defvar coq-current-goal 1
   "Last goal that Emacs looked at.")

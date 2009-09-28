@@ -434,7 +434,7 @@ This is called when Proof General spots output matching
 		      (setq i (+ 1 i))))
 		   (t nil))))
       (setq span (next-span span 'type)))
-    (isar-undos isar-use-linear-undo ct)))
+    (list (isar-undos isar-use-linear-undo ct))))
 
 ;; undo theory commands
 (defun isar-find-and-forget (span)
@@ -474,8 +474,7 @@ This is called when Proof General spots output matching
 	(setq ans isar-undo)))
       (if ans (setq answers (cons ans answers)))
       (if span (setq span (next-span span 'type))))
-    (if (null answers) nil ; was proof-no-command
-       (apply 'concat answers))))
+    answers))
 
 (defun isar-goal-command-p (span)
   "Decide whether argument SPAN is a goal or not."

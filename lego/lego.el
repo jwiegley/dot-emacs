@@ -187,8 +187,7 @@ Given is the first SPAN which needs to be undone."
 	       (if (= (aref str i) proof-terminal-char) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
       (setq span (next-span span 'type)))
-    ;; FIXME: make this stuff generic.  This should be undo-n-times-cmd
-    (concat "Undo " (int-to-string ct) ";")))
+    (list (concat "Undo " (int-to-string ct) ";"))))
 
 (defun lego-goal-command-p (span)
   "Decide whether argument is a goal or not"
@@ -231,7 +230,7 @@ Given is the first SPAN which needs to be undone."
       ;; Carry on searching forward for something to forget
       ;; (The first thing to be forget will forget everything following)
       (setq span (next-span span 'type)))
-  ans)); was (or ans proof-no-command)
+    (when ans (list ans)))); was (or ans proof-no-command)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;
