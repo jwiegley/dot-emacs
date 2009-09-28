@@ -44,7 +44,11 @@
   "\\(\\\\<\\^%s>\\)\\(.*?\\)\\(\\\\<\\^%s>\\)")
 
 (defconst isar-control-char-format-regexp
-  "\\(\\\\<\\^%s>\\)\\([^\\]\\|\\\\<[A-Za-z]+>\\)")
+  (concat
+   "\\(\\\\<\\^%s>\\)\\("
+   isar-long-id-stuff ; was: \\\\<[A-Za-z]+>
+   "\\|[^\\]"
+   "\\)"))
 
 (defconst isar-control-char-format	   "\\<^%s>")
 (defconst isar-control-region-format-start "\\<^%s>")
@@ -56,7 +60,8 @@
     ("Id subscript" "isub" sub)
     ("Superscript" "sup" sup)
     ("Id superscript" "isup" sup)
-    ("Loc" "loc" declaration)
+    ("Loc" "loc" keyword)
+    ("Constant" "const" keyword)
     ("Bold" "bold" bold)
     ;; unofficial:
     ("Italic" "italic" italic))
