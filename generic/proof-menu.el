@@ -193,7 +193,7 @@ without adjusting window layout."
 	      (vector
 	       (concat "Set " proof-assistant " Command")
 	       (proof-ass-sym set-command)
-	       ':active '(fboundp (proof-ass-sym set-command))))
+	       ':visible '(fboundp (proof-ass-sym set-command))))
 	     '("----")
 	     (list
 	      (cons "Help"
