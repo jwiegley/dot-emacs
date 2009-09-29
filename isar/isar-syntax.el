@@ -11,7 +11,7 @@
 (require 'cl)				; remove-if, remove-if-not
 
 (require 'proof-syntax)
-(require 'isar-keywords)
+(require 'isar-keywords)		; NB: we want to load isar-keywords at runtime
 
 ;; ----- character syntax
 
