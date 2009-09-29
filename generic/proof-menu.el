@@ -81,7 +81,7 @@ without adjusting window layout."
 	(if (eq selectedbuf proof-response-buffer)
 	    (set-window-point (get-buffer-window proof-response-buffer t)
 			      (point-max)))
-	(pg-hint (pg-response-buffers-hint (buffer-name nextbuf)))))))
+	(pg-response-buffers-hint (buffer-name nextbuf))))))
 
 
 

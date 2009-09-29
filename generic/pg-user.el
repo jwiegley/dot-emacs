@@ -910,15 +910,15 @@ If NUM is negative, move upwards.  Return new span."
 
 ;;;###autoload
 (defun pg-response-buffers-hint (&optional nextbuf)
-  (unless (or proof-multiple-frames-enable
-	      proof-three-window-enable
-	      (not (buffer-live-p proof-goals-buffer)))
-  (pg-hint
-   (format
-    "\\[proof-prf] for goals;%s \\[proof-layout-windows] refreshes"
+  (unless (not (buffer-live-p proof-goals-buffer))
+    (pg-hint
+     (format
+      "\\[proof-prf] for goals;%s \\[proof-layout-windows] refreshes"
+      (if (or proof-three-window-enable 
+	      proof-multiple-frames-enable)
+	  ""
 	(format " \\[proof-display-some-buffers] rotates output%s;"
-		(if nextbuf (concat " (next:" nextbuf ")") ""))
-      ""))))
+		(if nextbuf (concat " (next:" nextbuf ")") "")))))))
 
 ;;;###autoload
 (defun pg-jump-to-end-hint ()
