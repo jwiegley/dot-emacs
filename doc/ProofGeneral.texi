@@ -176,9 +176,10 @@ provided for several other provers.
 * Preface::                     
 * Introducing Proof General::   
 * Basic Script Management::     
-* Subterm Activation and Proof by Pointing::
 * Advanced Script Management and Editing::  
+* Unicode symbols and special layout support::
 * Support for other Packages::  
+* Subterm Activation and Proof by Pointing::
 * Customizing Proof General::   
 * Hints and Tips::
 * LEGO Proof General::          
@@ -229,18 +230,17 @@ Proof General version 4.0 is a major overhaul of Proof General.
 The main changes are:
 @itemize @bullet
 @item support for GNU Emacs only, @b{you cannot use XEmacs any more}
-@item addition of @b{Unicode Tokens} mode, which now replaces X-Symbol
-      @pxref{Unicode and special layout support}
-@item allow ``document centred'' working, annotating scripts with prover output
+@item a new @b{Unicode Tokens} mode, which now replaces X-Symbol
+      @pxref{Unicode symbols and special layout support}
+@item to allow ``document centred'' working, annotating scripts with prover output
       @pxref{Document centred working}
-@item several efficiency and speed improvements
 @item support for latest versions of provers (Isabelle2009 and Coq 8.1)
-      
+@item numerous smaller enhancements and efficiency improvements
 @end itemize
 
 See the @file{CHANGES} file in the distribution for more complete
-details of changes, and the appendix @ref{History of Proof General}
-for old news.
+details of changes, and the appendix @ref{History of Proof General} for
+old news.
 
 
 @node Future
@@ -1137,7 +1137,7 @@ interspersed with comments, definitions, and the like.  Of course, the
 exact syntax and terminology will depend on the proof assistant you use.
 
 The name @var{mythm} can appear in a menu for the proof script to help
-quickly find a proof (@pxref{Imenu and Speedbar (and Function Menu)}).
+quickly find a proof (@pxref{Imenu and Speedbar}).
 
 @c Proof General recognizes the goal-save sequences in proof scripts.
 @c once a goal-save region has been fully processed by the proof assistant,
@@ -1719,109 +1719,6 @@ use a fresh Emacs.)
 
 
 
-@c =================================================================
-@c
-@c CHAPTER: Proof by Pointing
-@c 
-@node Subterm Activation and Proof by Pointing
-@chapter Subterm Activation and Proof by Pointing
-
-This chapter describes what you can do from inside the goals buffer,
-providing support for these features exists for your proof assistant.
-
-As of Proof General 4.0, this support only exists for LEGO.  
-If you would like to see subterm activation support for Proof General
-in another proof assistant, please petition the developers of that
-proof assistant to provide it!
-
-@menu
-* Goals buffer commands::
-@end menu
-
-@node Goals buffer commands
-@section Goals buffer commands
-
-When you are developing a proof, the input focus (Emacs cursor) is
-usually on the script buffer.  Therefore Proof General binds mouse
-buttons for commands in the goals buffer, to avoid the need to move the
-cursor between buffers.
-
-The mouse bindings are these:
-
-@table @kbd
-@c @item button2
-@c FIXME: @code{pg-goals-button-action}
-@item C-button2
-@code{proof-undo-and-delete-last-successful-command}
-@item button3
-@code{pg-goals-yank-subterm}
-@end table
-
-Where @kbd{button2} indicates the middle mouse button, and @kbd{button3}
-indicates the right hand mouse button.
-
-The idea is that you can automatically construct parts of a proof by
-clicking.  Using the middle mouse button asks the proof assistant to try
-to do a step in the proof, based on where you click.  If you don't like
-the command which was inserted into the script, you can use the control
-key with the middle button to undo the step, and delete it from your
-script.
-
-Note that proof-by-pointing may construct several commands in one go.
-These are sent back to the proof assistant altogether and appear as a
-single step in the proof script.  However, if the proof is later
-replayed (without using PBP), the proof-by-pointing constructions will
-be considered as separate proof commands, as usual.
-
-@c TEXI FIXME DOCSTRING MAGIC: pg-goals-button-action
-@deffn Command pg-goals-button-action event
-Construct a proof-by-pointing command based on the mouse-click @var{event}.@*
-This function should be bound to a mouse button in the Proof General
-goals buffer.
-
-The @var{event} is used to find the smallest subterm around a point.  A
-position code for the subterm is sent to the proof assistant, to ask
-it to construct an appropriate proof command.  The command which is
-constructed will be inserted at the end of the locked region in the
-proof script buffer, and immediately sent back to the proof assistant.
-If it succeeds, the locked region will be extended to cover the
-proof-by-pointing command, just as for any proof command the
-user types by hand.
-@end deffn
-
-Proof-by-pointing uses markup describing the term structure of the
-concrete syntax output by the proof assistant.  This markup is useful in
-itself: it allows you to explore the structure of a term using the mouse
-(the smallest subexpression that the mouse is over is highlighted), and
-easily copy subterms from the output to a proof script.
-
-The right-hand mouse button provides this convenient way to copy
-subterms from the goals buffer, using the function
-@code{pg-goals-yank-subterm}.
-
-@c TEXI FIXME DOCSTRING MAGIC: pg-goals-yank-subterm
-@deffn Command pg-goals-yank-subterm event
-Copy the subterm indicated by the mouse-click @var{event}.@*
-This function should be bound to a mouse button in the Proof General
-goals buffer.
-
-The @var{event} is used to find the smallest subterm around a point.  The
-subterm is copied to the @samp{@code{kill-ring}}, and immediately yanked (copied)
-into the current buffer at the current cursor position.
-
-In case the current buffer is the goals buffer itself, the yank
-is not performed.  Then the subterm can be retrieved later by an
-explicit yank.
-@end deffn
-
-@c Proof General expects to parse
-@c term-structure annotations on the output syntax of the prover.
-@c It uses these to construct a message to the prover indicating
-@c where the user has clicked, and the proof assistant can
-@c response with a suggested tactic.
-
-
-
 
 @c =================================================================
 @c
@@ -2251,74 +2148,13 @@ If @var{n} is negative, search backwards for the -Nth previous match.
 @end deffn
 
 
-
 @c =================================================================
 @c 
-@c  CHAPTER:  Support for other Packages
+@c  CHAPTER:  Unicode Tokens
 @c
-@node Support for other Packages
-@chapter Support for other Packages
+@node Unicode symbols and special layout support
+@chapter Unicode symbols and special layout support
 
-Proof General makes some configuration for other Emacs packages which
-provide various useful facilities that can make your editing
-more effective.
-
-Sometimes this configuration is purely at the proof assistant specific
-level (and so not necessarily available), and sometimes it is made using
-Proof General settings.
-
-When adding support for a new proof assistant, we suggest that these
-other packages are supported, as a convention.
-
-The packages currently supported are 
-@code{font-lock}, 
-@code{x-symbol},
-@code{func-menu},
-@code{outline-mode},
-@code{completion},
-and @code{etags}.
-
-
-@menu
-* Syntax highlighting::         
-* Unicode and special layout support::
-* Imenu and Speedbar (and Function Menu)::
-* Support for outline mode::    
-* Support for completion::            
-* Support for tags::            
-@end menu
-
-@node Syntax highlighting
-@section Syntax highlighting
-@vindex lego-mode-hooks
-@vindex coq-mode-hooks
-@vindex isa-mode-hooks
-@cindex font lock 
-@cindex colour
-@c Proof General specifics  
-
-Proof script buffers are decorated (or @i{fontified}) with colours, bold
-and italic fonts, etc, according to the syntax of the proof language and
-the settings for @code{font-lock-keywords} made by the proof assistant
-specific portion of Proof General.  Moreover, Proof General usually
-decorates the output from the proof assistant, also using
-@code{font-lock}.
-
-To automatically switch on fontification in Emacs, you may need
-to engage @code{M-x global-font-lock-mode}.  
-
-By the way, the choice of colour, font, etc, for each kind of markup is
-fully customizable in Proof General.  Each @emph{face} (Emacs
-terminology) is controlled by its own customization setting.
-You can display a list of all of them using the customize
-menu: 
-@lisp
-Proof General -> Advanced -> Customize -> Faces -> Proof Faces.
-@end lisp
-
-
-@node Unicode and special layout support
-@section Unicode and special layout support
 @cindex symbols
 @cindex X-Symbols
 @cindex Greek letters
@@ -2336,34 +2172,61 @@ mathematical symbols.  To store symbols directly in files you need to
 use a particular coding, for example UTF-8.  Newer Emacs versions can
 handle a multitude of different coding systems and will try to
 automatically detect an appropriate one; consult the Emacs documentation
-for more details.  Of course, the prover that you are using will
-need to understand the same encodings and symbol meanings.
+for more details.  Of course, the prover that you are using will need to
+understand the same encodings and symbol meanings.
 
-Proof General includes two special ways for displaying symbols
-and assisting with symbol input.
-The first is @b{Maths Menu} (adapted from a menu by Dave Love), which
-simply adds a menu for inserting common mathematical symbols.
+Alternatively, you can use the @b{Unicode Tokens} mode provided in Proof
+General to display mathematical symbols in place of sequences of other
+characters (usually plain ASCII).  This can provide better
+compatibility, portability, and flexibility.  Even if you use real
+Unicode characters as prover input, the Unicode Tokens mode can provide
+some helpful facilities for input shorthands and giving special layout.
+
+@menu
+* Maths menu::
+* Unicode Tokens mode::
+* Configuring tokens symbols and shortcuts::
+* Special layout::
+* Moving between Unicode and tokens::
+* Finding available tokens shortcuts and symbols::
+* Selecting suitable fonts::
+@end menu
+
+
+
+@node Maths menu
+@section Maths menu
+
+The @b{Maths Menu} minor mode (adapted from a menu by Dave Love) simply
+adds a menu @code{Maths} to the main menubar for inserting common
+mathematical symbols.  You can enable or disable it via the menu
 @example
   Proof-General -> Quick Options -> Minor Modes -> Unicode Maths Menu
 @end example
-Whether or not the symbols display well the menus depends on the font
-used to display the menus (which depends on the Emacs version, toolkit
-and platform).  The symbols inserted into the text will be 
-Unicode characters which will be saved in the file using
-the encoding selected by standard Emacs mechanisms.
+(@code{proof-maths-menu-toggle}).  Whether or not the symbols display
+well the menus depends on the font used to display the menus (which
+depends on the Emacs version, toolkit and platform).  Ordinarily, the
+symbols inserted into the text will be Unicode characters which will be
+saved in the file using the encoding selected by standard Emacs
+mechanisms.
 
-The second mechanism, is the @b{Unicode Tokens} minor mode.  This has
-been written specially for Proof General (with thanks to Stefan Monnier
-for providing inspiration and the starting point).  It supports the
-display of symbols when the underlying text of the file and buffer
-actually contains something else, typically, plain ASCII text.
-It provides backward compatibility with the older X-Symbol mode.  
+
+@node Unicode Tokens mode
+@section Unicode Tokens mode
+
+
+The @b{Unicode Tokens} minor mode has been written specially for Proof
+General (with thanks to Stefan Monnier for providing inspiration and a
+starting point).  It supports the display of symbols when the underlying
+text of the file and buffer actually contains something else, typically,
+plain ASCII text.  It provides backward compatibility with the older
+X-Symbol mode.
 
 Unicode Tokens can be enabled or disabled using the menu:
 @example
   Proof-General -> Quick Options -> Display -> Unicode Tokens
 @end example
-The mode is to allows ASCII tokens (i.e., sequences of plain ASCII
+The mode to allows ASCII tokens (i.e., sequences of plain ASCII
 characters) to be displayed as Unicode character compositions, perhaps
 with additional text properties.  The additional text properties allow
 the use of tokens to cause font changes (bold, italic), text size
@@ -2375,15 +2238,16 @@ displayed as a conjunction symbol.
 The sequence @code{x __ y} might be written to display @code{y}
 as subscript.  This allows a file to be stored in perfectly portable plain ASCII
 encoding, but be displayed and edited with real symbols and
-appearling layout.  Of course, the proof assistant needs to understand
+appealing layout.  Of course, the proof assistant needs to understand
 the underlying tokens in each case.
 
 Technically, the mechanism is based on Emacs Font Lock facility, using
-the @code{composition} text property to display token sequences as
-something else.  This means that the underlying buffer text is @i{not}
-altered.  This is a major advantage over the older X-Symbol, which had
-the annoying habit of occasionally saving your buffer text in a
-corrupted format.
+the @code{composition} text property to display ASCII character sequence
+tokens as something else.  This means that the underlying buffer text is
+@i{not} altered.  This is a major advantage over the older X-Symbol (and
+the experimental version of Unicode Tokens in PG 3.7.1), which had the
+annoying risk of saving your buffer text in a corrupted format.  This
+can never happen with the new mode.
 
 When the Unicode Tokens mode is enabled, Maths Menu is automatically
 modified to insert tokenised versions of the Unicode characters
@@ -2397,7 +2261,8 @@ characters to quickly type tokens (similarly to the facility provided by
 X-Symbol).  These, along with the token settings themselves, are
 configured on a per-prover basis.
 
-@unnumberedsubsec Configuring tokens, symbols and shortcuts
+@node Configuring tokens symbols and shortcuts
+@section Configuring tokens symbols and shortcuts
 
 To edit the strings used to display tokens, or the collection of 
 short-cuts, you can edit the 
@@ -2415,10 +2280,10 @@ provides an interface to the tokens, and
 @end example
 an interface to the shortcuts.
 
-It is better to use the more fine grained way is available to do this,
-which edits the separate tables which are combine to form the big
-list of tokens.  This is available via the menus, e.g., in Isabelle,
-use
+Where possible, it is better to use the more fine grained way is
+available to do this, which edits the separate tables which are combine
+to form the big list of tokens.  This is available via the menus, e.g.,
+in Isabelle, use
 @example
   Tokens -> Customize -> Extended Symbols
 @end example
@@ -2426,19 +2291,20 @@ to customize the symbols used for the ``extended'' (non standard)
 symbol list.
 
 
-@unnumberedsubsec Special layout 
+@node Special layout 
+@section Special layout 
 
-The Unicode Tokens mode supports both @i{symbol} tokens used to display
-character sequences in different ways and @i{control} tokens used to
+The Unicode Tokens mode supports both @i{symbol tokens} used to display
+character sequences in different ways and @i{control tokens} used to
 control the layout of the text in various ways, such as superscript,
 subscript, large, small, bold, italic, etc.  (The size and position
-layout is managed using Emacs' @code{display} text property)
+layout is managed using Emacs's @code{display} text property)
 
 As well as displaying token sequences as special symbols, symbol tokens
-can define layout options as well; for example you may define a token
-@code{\<hugeOplus>} to display a large circled-plus glyph.  If you try
-the customization mentioned in the section above you will see the
-options available when defining symbols.
+themselves can define layout options as well; for example you might
+define a token @code{\<hugeOplus>} to display a large circled-plus
+glyph.  If you try the customization mentioned in the section above you
+will see the options available when defining symbols.
 
 These options are fixed layout schemes which also make layout tokens
 easy to configure for provers.  The layout possibilities include the
@@ -2489,14 +2355,52 @@ display the text in a ``fraktur'' font
 display the text in a serif font
 @item sans
 display the text in a sans serif font
-@item dec
-display the text in the ``declaration face'' (@code{proof-declaration-name-face})
+@item keyword
+display the text in the keyword face (@code{font-lock-keyword-face})
+@item function 
+display the text in the function name face (@code{font-lock-function-name-face})
+@item type
+display the text in the type name face (@code{font-lock-type-face})
+@item preprocessor
+display the text in the preprocessor face (@code{font-lock-preprocessor-face})
+@item doc
+display the text in the documentation face (@code{font-lock-doc-face})
+@item builtin
+display the text in the builtin face (@code{font-lock-builtin-face})
 @end table
+
+Notice that the fonts can be set conveniently by the menu commands
+@example
+        Tokens -> Set Fonts -> Script
+@end example
+etc.  @xref{Selecting suitable fonts}, for more.
+
+The symbols used to select the various font-lock faces (see @code{M-x
+list-faces-display} to show them) allow you to define custom colouring
+of text for proof assistant input and output, exploiting rich underlying
+syntax mechanisms of the prover.
 
 
 @c note: see unicode-tokens-fontsymb-properties
 
-@unnumberedsubsec Moving between Unicode and tokens
+@c TEXI DOCSTRING MAGIC: unicode-tokens-serif-font-face
+@deffn Face unicode-tokens-serif-font-face 
+Serif (roman) font face.
+@end deffn
+@c TEXI DOCSTRING MAGIC: unicode-tokens-sans-font-face
+@deffn Face unicode-tokens-sans-font-face 
+Sans serif font face.
+@end deffn
+@c TEXI DOCSTRING MAGIC: unicode-tokens-fraktur-font-face
+@deffn Face unicode-tokens-fraktur-font-face 
+Fraktur font face.
+@end deffn
+@c TEXI DOCSTRING MAGIC: unicode-tokens-script-font-face
+@deffn Face unicode-tokens-script-font-face 
+Script font face.
+@end deffn
+@node Moving between Unicode and tokens
+@section Moving between Unicode and tokens
 
 If you want to share text between applications (e.g., email some text
 from an Isabelle theory file which heavily uses symbols), it is
@@ -2550,10 +2454,26 @@ Non-nil to highlight Unicode characters.
 @end defvar
 
 
-@unnumberedsubsec Finding tokens and shortcuts available
+@node Finding available tokens shortcuts and symbols
+@section Finding available tokens shortcuts and symbols
 
 Two commands (both on the Tokens menu) allow you to see the tokens and
 shortcuts available:
+@example
+        Tokens -> List Tokens
+        Tokens -> List Shortcuts
+@end example
+
+Additionally, you can view the complete Unicode character set available
+in the default Emacs font, with
+@example
+        Tokens -> List Unicode Characters
+@end example
+(this uses a list adapted from Norman Walsh's @code{unichars.el}).
+
+Note that the Unicode Tokens modes displays symbols defined by
+symbol tokens in a special font.
+
 
 @c TEXI DOCSTRING MAGIC: unicode-tokens-list-tokens
 @deffn Command unicode-tokens-list-tokens 
@@ -2565,53 +2485,136 @@ Show a buffer of all tokens.
 Show a buffer of all the shortcuts available.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: unicode-tokens-list-unicode-chars
+@deffn Command unicode-tokens-list-unicode-chars 
+Insert each Unicode character into a buffer.@*
+Lets you see which characters are available for literal display
+in your emacs font.
 
-@unnumberedsubsec Selecting suitable fonts
+(fn)
+@end deffn
+@node Selecting suitable fonts
+@section Selecting suitable fonts
 
-Unfortunately, the precise set of symbol glyphs that are available to
-you will depend in complicated ways on your operating system, Emacs
-version, installed font sets, and (even) command line options used to
-start Emacs.  
+The precise set of symbol glyphs that are available to you will depend
+in complicated ways on your operating system, Emacs version,
+configuration options used when Emacs was compiled, installed font sets,
+and (even) command line options used to start Emacs.  So it is hard to
+give comprehensive and accurate advice in this manual.  In general,
+things work @i{much} better with Emacs 23 than earlier versions.
 
-One possibility is to use a proportional font for displaying symbols
-that is well equipped, for example the main font StixGeneral font from
-the Stix Fonts project (@uref{http://www.stixfonts.org/}).  At the time
-of writing you can obtain a beta version of these fonts in TTF format
-from @uref{http://olegueret.googlepages.com/stixfonts-ttf}.  On Linux,
+To improve flexibility, Unicode Tokens mode allows you to select another
+font to display symbols from the default font that is used to display
+text in the buffer.    This is the font that is configured by the menu
+@example
+        Tokens -> Set Fonts -> Symbol
+@end example
+its customization name is @code{unicode-tokens-symbol-font-face}, but
+notice that only the font family aspect of the face is used.
+
+Good results are possible by using a proportional font for displaying
+symbols that is well equipped, for example the main font StixGeneral
+font from the Stix Fonts project (@uref{http://www.stixfonts.org/}).  At
+the time of writing you can obtain a beta version of these fonts in TTF
+format from @uref{http://olegueret.googlepages.com/stixfonts-ttf}.  On
+recent Linux distributions and with an Emacs 23 build that uses Xft,
 simply copy these @code{ttf} files into the @code{.fonts} directory
-inside your home directory to make them available inside Emacs 23.
+inside your home directory to make them available.
 
 Another font I like is @b{DejaVu Sans Mono}.  It covers all of the
 standard Isabelle symbols.  Some of the symbols are currently not
 perfect; however this font is an open source effort so users can
 contribute or suggest improvements.  See @uref{http://dejavu-fonts.org}.
 
-Describing further possibilities or giving recommendations is beyond the
-scope of this manual; please search (and contribute!) to the Proof
-General wiki at @uref{http://proofgeneral.inf.ed.ac.uk/wiki} for more
-details.
+For further suggestions, please search (and contribute!) to the Proof
+General wiki at @uref{http://proofgeneral.inf.ed.ac.uk/wiki}.
 
 
+@c TEXI DOCSTRING MAGIC: unicode-tokens-symbol-font-face
+@deffn Face unicode-tokens-symbol-font-face 
+The default font used for symbols.  Only :family attribute is used.
+@end deffn
+@c TEXI DOCSTRING MAGIC: unicode-tokens-font-family-alternatives
+@defvar unicode-tokens-font-family-alternatives 
+Not documented.
+@end defvar
+@c =================================================================
+@c 
+@c  CHAPTER:  Support for other Packages
+@c
+@node Support for other Packages
+@chapter Support for other Packages
+
+Proof General makes some configuration for other Emacs packages which
+provide various useful facilities that can make your editing
+more effective.
+
+Sometimes this configuration is purely at the proof assistant specific
+level (and so not necessarily available), and sometimes it is made using
+Proof General settings.
+
+When adding support for a new proof assistant, we suggest that these
+other packages are supported, as a convention.
+
+The packages currently supported are 
+@code{font-lock}, 
+@code{x-symbol},
+@code{func-menu},
+@code{outline-mode},
+@code{completion},
+and @code{etags}.
 
 
-@node Imenu and Speedbar (and Function Menu)
-@section Imenu and Speedbar (and Function Menu)
+@menu
+* Syntax highlighting::         
+* Imenu and Speedbar::
+* Support for outline mode::    
+* Support for completion::            
+* Support for tags::            
+@end menu
+
+@node Syntax highlighting
+@section Syntax highlighting
+@vindex lego-mode-hooks
+@vindex coq-mode-hooks
+@vindex isa-mode-hooks
+@cindex font lock 
+@cindex colour
+@c Proof General specifics  
+
+Proof script buffers are decorated (or @i{fontified}) with colours, bold
+and italic fonts, etc, according to the syntax of the proof language and
+the settings for @code{font-lock-keywords} made by the proof assistant
+specific portion of Proof General.  Moreover, Proof General usually
+decorates the output from the proof assistant, also using
+@code{font-lock}.
+
+To automatically switch on fontification in Emacs, you may need
+to engage @code{M-x global-font-lock-mode}.  
+
+By the way, the choice of colour, font, etc, for each kind of markup is
+fully customizable in Proof General.  Each @emph{face} (Emacs
+terminology) is controlled by its own customization setting.
+You can display a list of all of them using the customize
+menu: 
+@lisp
+Proof General -> Advanced -> Customize -> Faces -> Proof Faces.
+@end lisp
+
+@node Imenu and Speedbar
+@section Imenu and Speedbar
 @vindex proof-goal-with-hole-regexp
 @vindex proof-goal-with-hole-result
 @c FIXME: should be see alsos.
 @cindex Speedbar
 @cindex Imenu
 @cindex index menu
-@cindex function menu
-@cindex func-menu
-@cindex fume-func
 
-The Emacs packages @code{imenu} (Index Menu) and @code{func-menu}
-(Function Menu) each provide a menu built from the names of entities
-(e.g., theorems, definitions, etc) declared in a buffer.  This allows
-easy navigation within the file.  Proof General configures both packages
-automatically so that you can quickly jump to particular proofs in a
-script buffer.
+The Emacs package @code{imenu} (Index Menu) provides a menu built from
+the names of entities (e.g., theorems, definitions, etc) declared in a
+buffer.  This allows easy navigation within the file.  Proof General
+configures both packages automatically so that you can quickly jump to
+particular proofs in a script buffer.
 
 (Developers note: the automatic configuration is done with the settings
 @code{proof-goal-with-hole-regexp} and
@@ -2626,11 +2629,6 @@ To use Imenu, select the option
 This adds an "Index" menu to the main menu bar for proof script buffers.
 You can also use @kbd{M-x imenu} for keyboard-driven completion of tags
 built from names in the buffer.
-
-@c To use Function Menu (distributed only with XEmacs), use @kbd{M-x
-@c function-menu}.  To enable it by default each time you visit a proof
-@c script file (i.e. avoid typing @code{M-x function-menu}), you should
-@c find the file @file{func-menu.el} and follow the instructions there.
 
 Speedbar displays a file tree in a separate window on the display,
 allowing quick navigation.  Middle/double-clicking or pressing @kbd{+}
@@ -2777,6 +2775,109 @@ mentioned already, you can use the command @kbd{M-x add-completions-from-tags-ta
 @deffn Command add-completions-from-tags-table 
 Add completions from the current tags table.
 @end deffn
+
+
+@c =================================================================
+@c
+@c CHAPTER: Proof by Pointing
+@c 
+@node Subterm Activation and Proof by Pointing
+@chapter Subterm Activation and Proof by Pointing
+
+This chapter describes what you can do from inside the goals buffer,
+providing support for these features exists for your proof assistant.
+
+As of Proof General 4.0, this support only exists for LEGO.  
+If you would like to see subterm activation support for Proof General
+in another proof assistant, please petition the developers of that
+proof assistant to provide it!
+
+@menu
+* Goals buffer commands::
+@end menu
+
+@node Goals buffer commands
+@section Goals buffer commands
+
+When you are developing a proof, the input focus (Emacs cursor) is
+usually on the script buffer.  Therefore Proof General binds mouse
+buttons for commands in the goals buffer, to avoid the need to move the
+cursor between buffers.
+
+The mouse bindings are these:
+
+@table @kbd
+@c @item button2
+@c FIXME: @code{pg-goals-button-action}
+@item C-button2
+@code{proof-undo-and-delete-last-successful-command}
+@item button3
+@code{pg-goals-yank-subterm}
+@end table
+
+Where @kbd{button2} indicates the middle mouse button, and @kbd{button3}
+indicates the right hand mouse button.
+
+The idea is that you can automatically construct parts of a proof by
+clicking.  Using the middle mouse button asks the proof assistant to try
+to do a step in the proof, based on where you click.  If you don't like
+the command which was inserted into the script, you can use the control
+key with the middle button to undo the step, and delete it from your
+script.
+
+Note that proof-by-pointing may construct several commands in one go.
+These are sent back to the proof assistant altogether and appear as a
+single step in the proof script.  However, if the proof is later
+replayed (without using PBP), the proof-by-pointing constructions will
+be considered as separate proof commands, as usual.
+
+@c TEXI FIXME DOCSTRING MAGIC: pg-goals-button-action
+@deffn Command pg-goals-button-action event
+Construct a proof-by-pointing command based on the mouse-click @var{event}.@*
+This function should be bound to a mouse button in the Proof General
+goals buffer.
+
+The @var{event} is used to find the smallest subterm around a point.  A
+position code for the subterm is sent to the proof assistant, to ask
+it to construct an appropriate proof command.  The command which is
+constructed will be inserted at the end of the locked region in the
+proof script buffer, and immediately sent back to the proof assistant.
+If it succeeds, the locked region will be extended to cover the
+proof-by-pointing command, just as for any proof command the
+user types by hand.
+@end deffn
+
+Proof-by-pointing uses markup describing the term structure of the
+concrete syntax output by the proof assistant.  This markup is useful in
+itself: it allows you to explore the structure of a term using the mouse
+(the smallest subexpression that the mouse is over is highlighted), and
+easily copy subterms from the output to a proof script.
+
+The right-hand mouse button provides this convenient way to copy
+subterms from the goals buffer, using the function
+@code{pg-goals-yank-subterm}.
+
+@c TEXI FIXME DOCSTRING MAGIC: pg-goals-yank-subterm
+@deffn Command pg-goals-yank-subterm event
+Copy the subterm indicated by the mouse-click @var{event}.@*
+This function should be bound to a mouse button in the Proof General
+goals buffer.
+
+The @var{event} is used to find the smallest subterm around a point.  The
+subterm is copied to the @samp{@code{kill-ring}}, and immediately yanked (copied)
+into the current buffer at the current cursor position.
+
+In case the current buffer is the goals buffer itself, the yank
+is not performed.  Then the subterm can be retrieved later by an
+explicit yank.
+@end deffn
+
+@c Proof General expects to parse
+@c term-structure annotations on the output syntax of the prover.
+@c It uses these to construct a message to the prover indicating
+@c where the user has clicked, and the proof assistant can
+@c response with a suggested tactic.
+
 
 
 @c =================================================================
@@ -3500,7 +3601,7 @@ by default).  Use lisp like this:
 (global-set-key [?\s-3] 'proof-three-window-toggle)
 @end lisp
 This defines a bunch of short-cuts for inserting symbols taken
-from the Maths Menu, @pxref{Unicode and special layout support}
+from the Maths Menu, @pxref{Unicode symbols and special layout support}
 and a short-cut for enabling three window mode,
 @pxref{Display customization}.
 
@@ -4805,11 +4906,11 @@ Summer Schools.  Many new features have been added to enhance Coq mode
 
 Support has been added for the useful Emacs packages Speedbar
 @c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
-and Index Menu, both usually distributed with Emacs.
-Compatible versions of the Emacs packages Math-Menu (for Unicode symbols)
-and MMM Mode (for multiple modes in one buffer) are 
-bundled with Proof General.  A new Unicode Tokens package has
-been added which replaces X-Symbol.
+and Index Menu, both usually distributed with Emacs.  Compatible
+versions of the Emacs packages Math-Menu (for Unicode symbols) and MMM
+Mode (for multiple modes in one buffer) are bundled with Proof General.
+An experimental Unicode Tokens package has been added which will replace
+X-Symbol.
 
 @c The display handling functions have been improved to be more user
 @c friendly and the display in multiple-window mode is trimmed to
