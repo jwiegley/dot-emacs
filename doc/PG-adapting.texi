@@ -1083,7 +1083,7 @@ Used in default function @samp{@code{proof-generic-count-undos}}.
 
 @c TEXI DOCSTRING MAGIC: proof-count-undos-fn
 @defvar proof-count-undos-fn 
-Function to calculate a command to issue undos to reach a target span.@*
+Function to calculate a list of commands to undo to reach a target span.@*
 The function takes a span as an argument, and should return a string
 which is the command to undo to the target span.  The target is
 guaranteed to be within the current (open) proof.
@@ -1095,7 +1095,7 @@ settings @samp{@code{proof-non-undoables-regexp}} and
 
 @c TEXI DOCSTRING MAGIC: proof-generic-count-undos
 @defun proof-generic-count-undos span
-Count number of undos in @var{span}, return command needed to undo that far.@*
+Count number of undos in @var{span}, return commands needed to undo that far.@*
 Command is set using @samp{@code{proof-undo-n-times-cmd}}.
 
 A default value for @samp{@code{proof-count-undos-fn}}.
@@ -1111,7 +1111,7 @@ For this function to work properly, you must configure
 
 @c TEXI DOCSTRING MAGIC: proof-find-and-forget-fn
 @defvar proof-find-and-forget-fn 
-Function that returns a command to forget back to before its argument span.@*
+Function to return list of commands to forget to before its argument span.@*
 This setting is used to for retraction (undoing) in proof scripts.
 
 It should undo the effect of all settings between its target span
