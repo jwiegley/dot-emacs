@@ -1327,9 +1327,9 @@ Commands available are:
 		       :active 'mark-active))
 	     unicode-tokens-control-regions))
        "---"
-      ["List tokens"     unicode-tokens-list-tokens]
-      ["List shortcuts"  unicode-tokens-list-shortcuts]
-      ["List Unicode Charset"  unicode-tokens-list-unicode-chars]
+      ["List Tokens"     unicode-tokens-list-tokens]
+      ["List Shortcuts"  unicode-tokens-list-shortcuts]
+      ["List Unicode Characters"  unicode-tokens-list-unicode-chars]
       "---"
       ["Copy As Unicode" unicode-tokens-copy
        :active 'mark-active
