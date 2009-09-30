@@ -1370,7 +1370,7 @@ Commands available are:
       "---"
       (cons "Customize"
 	    (unicode-tokens-customize-submenu))
-      (cons "Set Fonts"
+      (cons "Set Font"
        (append
 	(mapcar
 	 (lambda (var)
