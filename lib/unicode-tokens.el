@@ -343,10 +343,12 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
     (sans	  "Sans font"     (face unicode-tokens-sans-font-face))
 ;    (large-symbol "Large Symbol font"
 ;		  (face unicode-tokens-large-symbol-font-face))
-    ;; NB: next ones not really generic.  Previously this was
-    ;; configured per-prover, but above are generic.
-    (keyword   "Keyword face" (face proof-declaration-name-face))
-    (tactic    "Tactic face"      (face proof-tactics-name-face))
+    (keyword      "Keyword face"       (face font-lock-keyword-face))
+    (function	  "Function name face" (face font-lock-function-name-face))
+    (type         "Type face"          (face font-lock-type-face))
+    (preprocessor "Preprocessor face"  (face font-lock-preprocessor-face))
+    (doc	  "Documentation face" (face font-lock-preprocessor-face))
+    (builtin	  "Builtin face"       (face font-lock-builtin-face))
     (tacticals "Tacticals face"   (face proof-tacticals-name-face)))
  "Association list mapping a symbol to a name and list of text properties.
 Used in `unicode-tokens-token-symbol-map', `unicode-tokens-control-regions',
@@ -511,7 +513,8 @@ The face property is set to the :family of `unicode-tokens-symbol-font-face'."
 	    (font-lock-append-text-property start end
 					    (car props) (cadr props))
 	    (setq props (cddr props)))))
-    (unless (intersection unicode-tokens-fonts propsyms)
+    (unless (or unicode-tokens-show-symbols
+		(intersection unicode-tokens-fonts propsyms))
       (font-lock-append-text-property
        start end 'face
        ;; just use family to enhance merging with other faces
@@ -1343,14 +1346,14 @@ Commands available are:
       ["Replace Unicode" unicode-tokens-replace-unicode
        :help "Query-replace Unicode characters with tokens where possible, starting from point"]
        "---"
-      ["Show Control Tokens" unicode-tokens-show-controls
+      ["Reveal Control Tokens" unicode-tokens-show-controls
        :style toggle
        :selected unicode-tokens-show-controls
        :active (or
 		unicode-tokens-control-region-format-regexp
 		unicode-tokens-control-char-format-regexp)
        :help "Prevent hiding of control tokens"]
-      ["Show Symbol Tokens" unicode-tokens-show-symbols
+      ["Reveal Symbol Tokens" unicode-tokens-show-symbols
        :style toggle
        :selected unicode-tokens-show-symbols
        :help "Show tokens for symbols"]
