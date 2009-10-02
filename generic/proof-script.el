@@ -2087,13 +2087,16 @@ that these may be overwritten)."
     (proof-extend-queue lastpos vanillas)))
 
 (defun proof-retract-before-change (beg end)
-  "For `before-change-functions'.  Retract to BEG unless BEG..END in comment."
+  "For `before-change-functions'.  Retract to BEG unless BEG..END in comment.
+No effect if prover is busy."
   (and (> (proof-queue-or-locked-end) beg)
        (not (and (proof-inside-comment beg)
 		 (proof-inside-comment end)))
-       (save-excursion
-	 (goto-char beg)
-	 (proof-retract-until-point))))
+       (if proof-shell-busy
+	   (error "Prover busy")
+	 (save-excursion
+	   (goto-char beg)
+	   (proof-retract-until-point)))))
 
 (defun proof-inside-comment (pos)
   "Returns non-nil if POS is inside a comment."
