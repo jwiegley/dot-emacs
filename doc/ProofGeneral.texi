@@ -335,7 +335,9 @@ and James McKinna, and some of those who continued to help with the
 latest 3.x series, named next.
 
 For the Proof General 4.0 release, special thanks go to Stefan Monnier
-for patches and suggestions, and to Makarius for many bug reports.
+for patches and suggestions, to Makarius for many bug reports and help
+with Isabelle support and to Pierre Courtieu for providing new
+features for Coq support.
 
 
 @c FIXME: watch contributors here!
@@ -2441,7 +2443,7 @@ is available on the Tokens menu as
 @end example
 Alternative ways to check are to toggle the display of tokens using
 @example
-  Tokens -> Show Symbol Tokens
+  Tokens -> Reveal Symbol Tokens
 @end example
 (the similar entry for @code{Control Tokens} displays tokens being used
 to control layout).  Or simply toggle the tokens mode, which will leave
