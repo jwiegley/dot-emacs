@@ -85,14 +85,14 @@
     ;; logic
     ("forall" "∀")
     ("exists" "∃")
-    ("nat" "ℕ")
-    ("complex" "ℂ")
-    ("real" "ℝ")
-    ("int" "ℤ")
-    ("rat" "ℚ")
-    ("bool" "B" bold underline)
-    ("false" "false" small sans)
-    ("true" "true" small sans)
+    ("nat" "ℕ" type)
+    ("complex" "ℂ" type)
+    ("real" "ℝ" type)
+    ("int" "ℤ" type)
+    ("rat" "ℚ" type)
+    ("bool" "B" underline type)
+    ("false" "false" bold sans)
+    ("true" "true" bold sans)
 
     ;; symbols without utf8.v  (but also without context)
     ("lhd" "⊲")
@@ -103,14 +103,18 @@
     ("->" "→")  ; or ⟶ or ⟹ if you prefer
     ("<-" "←")  ; or ⟵ or ⟸ 
     ("<->" "↔") ; or ⟷ ...
-
     ("++" "⧺")
     ("<<" "《")
     (">>" "》")
 
-    ;; ("===" "≡") ; Equivalence
-    ;; ("==" "≡")  ; Setoid equiv (NB: same presentation!)
-    ;; ("=/=" "≢") ; inequiv
+    ;; Equivalence
+    ("===" "≡") ; equiv
+    ("=/=" "≢")  ; complement equiv
+    ("=~=" "≅") ; pequiv
+    ("==b" "≡") ; NB: same presentation
+    ("<>b" "≢") ; NB: same presentation
+    
+    ;; ("==" "≡")  ; Setoid equiv (NB: same presentation, pot confusing)
 
     ;; ("-->" "⟹-") ; Morphisms
     ;; ("++>" "⟹+") ; 
