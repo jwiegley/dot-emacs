@@ -1710,6 +1710,7 @@ to the function which parses the script segment by segment."
   ;;
   ;; NB: proof-script-comment-start-regexp doesn't need to be the same
   ;; as (reqexp-quote comment-start).
+  (let ((case-fold-search proof-case-fold-search))
   (if (looking-at proof-script-comment-start-regexp)
       ;; Find end of comment
       (if (proof-script-generic-parse-find-comment-end) 'comment)
@@ -1745,7 +1746,7 @@ to the function which parses the script segment by segment."
 			(skip-chars-backward " \t\n") ; benefit of the doubt, let
 			'cmd))))		      ; the PA moan if it's incomplete
 	    ;; Return nil in other cases, no complete command found
-	    )))))
+	    ))))))
 
 
 (defun proof-script-generic-parse-sexp ()
@@ -2080,6 +2081,7 @@ SEMIS must be a non-empty list, in reverse order (last position first).
 We assume that the list is contiguous and begins at (proof-queue-or-locked-end).
 We also delete help spans which appear in the same region (in the expectation
 that these may be overwritten)."
+  (assert semis nil "proof-assert-semis: argument must be a list")
   (proof-activate-scripting nil 'advancing)
   (let ((startpos  (proof-queue-or-locked-end))
 	(lastpos   (nth 2 (car semis)))
@@ -2104,6 +2106,12 @@ No effect if prover is busy."
   (save-excursion
     (goto-char pos)
     (eq (proof-buffer-syntactic-context) 'comment)))
+
+(defun proof-inside-string (pos)
+  "Returns non-nil if POS is inside a comment."
+  (save-excursion
+    (goto-char pos)
+    (eq (proof-buffer-syntactic-context) 'string)))
 
 
 
