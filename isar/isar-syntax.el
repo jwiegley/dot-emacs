@@ -59,8 +59,7 @@ This list is in the right format for proof-easy-config.")
 (defun isar-init-output-syntax-table ()
   "Set appropriate values for syntax table for Isabelle output."
   (isar-init-syntax-table)
-  ;; ignore strings so font-locking works
-  ;; inside them
+  ;; ignore strings so font-locking works inside them
   (modify-syntax-entry ?\" " ")
   (modify-syntax-entry ?`  " ")
   (modify-syntax-entry ?\* ".")
@@ -165,60 +164,6 @@ This list is in the right format for proof-easy-config.")
 
 ;; ----- regular expressions
 
-(defun isar-regexp-simple-alt (l) (mapconcat 'identity l "\\|"))
-
-;; tests
-;; (isar-regexp-simple-alt ())
-;; (isar-regexp-simple-alt '("bla"))
-;; (isar-regexp-simple-alt '("bla" "blub" "blubber"))
-
-;; tuned version of proof-ids-to-regexp --- admit single non-word char
-;; as well (e.g. { })
-
-;; GK: this seems buggy, why \<\.\> but not \<{\>?
-;; font lock doesn't care ( \.\|{ is fine ), but PG parser takes
-;; . in long.identfier as command if not \<\.\>
-;; maybe use separate functions?
-
-;; DA: this goes wrong for { and } in fact, because plain { and } in
-;; `proof-script-command-start-regexp' also match with {* and *}, which
-;; should not be considered as commands (breaks new parser).
-;; For now, we revert to old parser and old form of this function.
-
-(defun isar-ids-to-regexp (l)
-  "Maps a non-empty list of tokens `l' to a regexp matching all elements"
-  (let* ((special (remove-if-not (lambda (s) (string-match "{\\|}" s)) l))
-	 (normal (remove-if (lambda (s) (string-match "{\\|}" s)) l))
-	 (s-reg (isar-regexp-simple-alt special))
-	 (n-reg (concat "\\<\\(?:" (isar-regexp-simple-alt normal) "\\)\\>")))
-    (cond
-     ((null special) n-reg)
-     ((null normal) s-reg)
-     (t (concat n-reg "\\|" s-reg)))))
-
-;; tests
-; (isar-ids-to-regexp '("bla" "blubber"))
-; (isar-ids-to-regexp '("bla" "\\." "blubber"))
-; (isar-ids-to-regexp '("bla" "\\." "blubber" "{"))
-
-
-;;
-;; Alternative version with attempt to work for new parser (unfinished)
-;  (mapconcat
-;   (lambda (s) (if (proof-string-match "^\\W$" s)
-;                  ;; was just s
-;                  (cond
-;                   ;; FIXME: what we really want here is to match { or }
-;                   ;; _except_ when followed/preceded by *, but not to
-;                   ;; consider * as part of match.  (Exclude punctuation??)
-;                   ;; That kind of construct is only allowed for whitespace,
-;                   ;; though.
-;                   ((string-equal s "{")  "{[^\*]")
-;                   ((string-equal s "}")  "[^\*]}") ;; FIXME wrong
-;                   (t                     s)) ; what else?
-;                  (concat "\\<" s "\\>")))
-;   l "\\|"))
-
 (defconst isar-ext-first "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z]\\)")
 (defconst isar-ext-rest "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)")
 
@@ -228,9 +173,44 @@ This list is in the right format for proof-easy-config.")
 
 (defconst isar-string "\"\\(\\(?:[^\"]\\|\\\\\"\\)*\\)\"")
 
+(defun isar-ids-to-regexp (ids)
+  "Hack list IDS of keywords IDS to make a regexp matching any of them.
+Note: IDS may have full-stops already regexp quoted." ; a nuisance!
+  (let* ((has-lbrace   (member "{" ids))
+	 (has-rbrace   (member "}" ids))
+	 (cleaned      (remove "{"
+			 (mapcar (lambda (s)
+			  (replace-regexp-in-string (regexp-quote "\\.") "." s))
+				 ids))))
+    (proof-splice-separator "\\|"
+     (list (if cleaned (concat "\\<" (regexp-opt cleaned) "\\>"))
+	   (if has-rbrace "}") ; not a word constituent, so \_<}\_> fails
+	   (if has-lbrace "\\(?:{\\(?:\\b\\|[^\\*]\\)\\)") ; ditto, & prevent {* matching
+	     ))))
+
+;; tests
+; (isar-ids-to-regexp '("bla" "blubber"))
+; (isar-ids-to-regexp '("bla" "\\." "blubber"))
+; (isar-ids-to-regexp '("bla" "\\." "blubber" "{"))
+; NB: string-match not entirely accurate, syntax table affects \_< \_> behaviour
+; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "}")  ; 0
+; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "*}") ; 1 [OK]
+; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "*}bla") ; 1 [OK]
+; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "ug{*") ; nil
+; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "ug{") ; 2
+; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "}ug") ; 0
+; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "}\n ug") ; 0
+; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "boo.foo") ; nil
+; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "Foo.bar") ; 0
+; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "bar . foo") ; 4
+; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "bar. foo") ; 5
+
 (defconst isar-any-command-regexp
-  (isar-ids-to-regexp isar-keywords-major)
-  "Regexp matching any Isabelle/Isar command keyword.")
+  ;; allow terminator to be considered as command start: 
+  ;; FIXME: really needs change in generic function to take account of this,
+  ;; since the end character of a command is not the start 
+  (concat ";\\|" (isar-ids-to-regexp isar-keywords-major))
+  "Regexp matching any Isabelle/Isar command keyword or the terminator character.")
 
 (defconst isar-name-regexp
   (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
