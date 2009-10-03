@@ -537,11 +537,15 @@ This is intended as a value for `proof-activate-scripting-hook'"
 		 proof-electric-terminator-toggle)
 
 (defun proof-electric-terminator ()
-  "Insert the terminator, perhaps sending the command to the assistant.
-If variable `proof-electric-terminator-enable' is non-nil, the command will be
-sent to the assistant."
+  "Insert terminator char, maybe sending the command to the assistant.
+If we are inside a comment or string, insert the terminator.
+Otherwise, if the variable `proof-electric-terminator-enable' 
+is non-nil, the command will be sent to the assistant."
   (interactive)
-  (if proof-electric-terminator-enable
+  (if (and 
+       proof-electric-terminator-enable
+       (not (proof-inside-comment (point)))
+       (not (proof-inside-string (point))))
       (proof-assert-electric-terminator)
     (self-insert-command 1)))
 
