@@ -2052,7 +2052,8 @@ comment, and insert or skip to the next semi)."
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
       (skip-chars-backward " \t\n")
-      (if (not (= (char-after (point)) proof-terminal-char))
+      (if (and (char-after (point))
+	       (not (= (char-after (point)) proof-terminal-char)))
 	  (unless proof-electric-terminator-noterminator
 	    (insert proof-terminal-string)
 	    (setq ins t)))
