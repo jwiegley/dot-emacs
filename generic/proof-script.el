@@ -2652,9 +2652,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; Common configuration for shared script/other related buffers.
   (proof-config-done-related)
 
-  ;; Preamble: make this mode class "pg-sticky" so renaming
-  ;; doesn't change the mode.  A hack so that write-file will work.
-
+  ;; Make mode class "pg-sticky" so renaming doesn't change the mode.
   (put major-mode 'mode-class 'pg-sticky)
 
   (if (and proof-non-undoables-regexp
@@ -2666,11 +2664,7 @@ finish setup which depends on specific proof assistant configuration."
   (dolist (sym proof-script-important-settings)
     (proof-warn-if-unset "proof-config-done" sym))
 
-  ;; Additional key definitions which depend on configuration for
-  ;; specific proof assistant.
-  ;; TODO da: generalize here.  Might have electric terminator for
-  ;; other parsing mechanisms too, using new proof-script-parse-function
-  ;; Could use a default terminal char
+  ;; Additional key def for terminal char
   (if proof-terminal-char
       (progn
 	(define-key proof-mode-map
@@ -2679,8 +2673,7 @@ finish setup which depends on specific proof assistant configuration."
 	(define-key proof-mode-map (vector proof-terminal-char)
 	  'proof-electric-terminator)))
 
-  ;; Toolbar and scripting menu
-  ;; NB: autoloads proof-toolbar, which defines proof-toolbar-scripting-menu.
+  ;; Toolbar and main menu (loads proof-toolbar,setting p.-toolbar-scripting-menu)
   (proof-toolbar-setup)
 
   ;; Menus: the Proof-General and the specific menu
@@ -2692,14 +2685,11 @@ finish setup which depends on specific proof assistant configuration."
   ;; Define parsing functions
   (proof-setup-parsing-mechanism)
 
-  ;; Setup imenu and/or func-menu.
+  ;; Setup imenu and add it to menu if enabled.
   (proof-setup-imenu)
-
-  ;; Add the Index menu, if enabled
   (proof-imenu-enable)
 
-  ;; Offer to save script mode buffers which have no files,
-  ;; in case Emacs is exited accidently.
+  ;; Save file-less script mode buffers in case of accidental exit
   (or (buffer-file-name)
       (setq buffer-offer-save t))
 
