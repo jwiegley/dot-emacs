@@ -396,8 +396,7 @@ NB: This setting is not used for matching output from the prover."
 The name of the theorem is built from the variable
 `proof-save-with-hole-result' using the same convention as
 `query-replace-regexp'.
-Used for setting names of goal..save and proof regions and for
-default function-menu configuration in `proof-script-find-next-entity'.
+Used for setting names of goal..save and proof regions.
 
 It's safe to leave this setting as nil."
   :type 'regexp
@@ -415,10 +414,9 @@ should match the entire command"
 ;; FIXME: unify uses so that proof-anchor-regexp works sensibly
 (defcustom proof-goal-command-regexp nil
   "Matches a goal command in the proof script.
-This is used (1) to make the default value for `proof-goal-command-p',
+This is used to make the default value for `proof-goal-command-p',
 used as an important part of script management to find the start
-of an atomic undo block, and (2) to construct the default
-for `proof-script-next-entity-regexps' used for function menus."
+of an atomic undo block."
   :type 'regexp
   :group 'proof-script)
 
@@ -477,70 +475,6 @@ May be left as nil, in which case it will be set to
 Used in default function `proof-generic-count-undos'."
   :type '(choice nil regexp function)
   :group 'proof-script)
-
-(defcustom proof-script-next-entity-regexps nil
-  "Regular expressions to help find definitions and proofs in a script.
-This is the list of the form
-
-   (ANYENTITY-REGEXP
-    DISCRIMINATOR-REGEXP  ... DISCRIMINATOR-REGEXP)
-
-The idea is that ANYENTITY-REGEXP matches any named entity in the
-proof script, on a line where the name appears.  This is assumed to be
-the start or the end of the entity.  The discriminators then test
-which kind of entity has been found, to get its name.  A
-DISCRIMINATOR-REGEXP has one of the forms
-
-  (REGEXP MATCHNOS)
-  (REGEXP MATCHNOS 'backward BACKREGEXP)
-  (REGEXP MATCHNOS 'forward FORWARDREGEXP)
-
-If REGEXP matches the string captured by ANYENTITY-REGEXP, then
-MATCHNOS are the match numbers for the substrings which name the entity
-\(these may be either a single number or a list of numbers).
-
-If 'backward BACKREGEXP is present, then the start of the entity
-is found by searching backwards for BACKREGEXP.
-
-Conversely, if 'forward FORWARDREGEXP is found, then the end of
-the entity is found by searching forwards for FORWARDREGEXP.
-
-Otherwise, the start and end of the entity will be the region matched
-by ANYENTITY-REGEXP.
-
-This mechanism allows fairly complex parsing of the buffer, in
-particular, it allows for goal..save regions which are named
-only at the end.  However, it does not parse strings,
-comments, or parentheses.
-
-This variable may not need to be set: a default value which should
-work for goal..saves is calculated from `proof-goal-with-hole-regexp',
-`proof-goal-command-regexp', and `proof-save-with-hole-regexp'."
-  :type 'sexp
-    ;; Bit tricky.
-    ;; (list (regexp :tag "Any entity matcher")
-    ;;    (:inline t repeat (choice regexp (const 'backward) etc
-  :group 'proof-script)
-
-(defcustom proof-script-find-next-entity-fn
-  'proof-script-find-next-entity
-  "Name of function to find next interesting entity in a script buffer.
-This is used to configure func-menu.  The default value is
-`proof-script-find-next-entity', which searches for the next entity
-based on fume-function-name-regexp which by default is set from
-`proof-script-next-entity-regexps'.
-
-The function should move point forward in a buffer, and return a cons
-cell of the name and the beginning of the entity's region.
-
-Note that `proof-script-next-entity-regexps' is set to a default value
-from `proof-goal-with-hole-regexp' and `proof-save-with-hole-regexp' in
-the function `proof-config-done', so you may not need to worry about any
-of this.  See whether function menu does something sensible by
-default."
-  :type 'function
-  :group 'proof-script)
-
 
 (defcustom proof-script-imenu-generic-expression nil
   "Regular expressions to help find definitions and proofs in a script.
