@@ -502,6 +502,11 @@ matches contents of quotes for quoted identifiers.")
 	  isar-keywords-theory-script
 	  isar-keywords-theory-goal))
 
+(defconst isar-named-entity-regexp
+  (concat "\\(" (isar-ids-to-regexp isar-keywords-imenu) "\\)"
+	  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
+	  isar-name-regexp "[[:=]" ))
+
 (defconst isar-generic-expression
   (mapcar (lambda (kw)
 	    (list (capitalize kw)
