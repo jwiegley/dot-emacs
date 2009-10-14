@@ -1315,7 +1315,7 @@ removed if it matches the last item in the ring."
 (define-key proof-mode-map [remap advertised-undo] 'pg-protected-undo)
 
 (defun pg-protected-undo (&optional arg)
-  "Behaves as `undo' unless undo would edit the locked region.
+  "Behaves as `undo' unless undo would edit in the locked region.
 In this case, undo is only allowed in the unlocked region,
 unless `proof-allow-undo-in-read-only' is set. 
 
