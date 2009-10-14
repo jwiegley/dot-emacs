@@ -138,13 +138,6 @@ This list is in the right format for proof-easy-config.")
 (defconst isar-keywords-outline 
   (mapcar 'car isar-keyword-level-alist))
 
-(defconst isar-keywords-fume
-  (append isar-keywords-theory-begin
-	  isar-keywords-theory-heading
-	  isar-keywords-theory-decl
-	  isar-keywords-theory-script
-	  isar-keywords-theory-goal))
-
 (defconst isar-keywords-indent-open
   (append isar-keywords-theory-goal
 	  isar-keywords-proof-goal
@@ -500,28 +493,14 @@ matches contents of quotes for quoted identifiers.")
    isar-name-regexp))
 
 
-;; ----- function-menu and imenu
+;; ----- imenu
 
-(defconst isar-any-entity-regexp
-  (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-	  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
-	  "\\(?:" isar-name-regexp "[[:=]\\)"))
-
-(defconst isar-named-entity-regexp
-  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-	  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
-	  isar-name-regexp "[[:=]" ))
-
-(defconst isar-unnamed-entity-regexp
-  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
-
-(defconst isar-next-entity-regexps
-  (list isar-any-entity-regexp
-	(list isar-named-entity-regexp '(1 3))))
-;; da: I've removed unnamed entities, they clutter the menu
-;; NB: to add back, need ? at end of isar-any-entity-regexp
-;;      (list isar-unnamed-entity-regexp 1)))
-;; Might also remove heading
+(defconst isar-keywords-imenu
+  (append isar-keywords-theory-begin
+	  isar-keywords-theory-heading
+	  isar-keywords-theory-decl
+	  isar-keywords-theory-script
+	  isar-keywords-theory-goal))
 
 (defconst isar-generic-expression
   (mapcar (lambda (kw)
@@ -530,7 +509,7 @@ matches contents of quotes for quoted identifiers.")
 			  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
 			  isar-name-regexp "[[:=]")
 		  1))
-	  isar-keywords-fume))
+	  isar-keywords-imenu))
 
 ;; ----- indentation
 
