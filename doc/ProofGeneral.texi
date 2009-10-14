@@ -2558,10 +2558,9 @@ Proof General settings.
 When adding support for a new proof assistant, we suggest that these
 other packages are supported, as a convention.
 
-The packages currently supported are 
+The packages currently supported include
 @code{font-lock}, 
-@code{x-symbol},
-@code{func-menu},
+@code{imenu} and @code{speedbar},
 @code{outline-mode},
 @code{completion},
 and @code{etags}.

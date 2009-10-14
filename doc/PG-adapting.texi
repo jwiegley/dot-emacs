@@ -810,12 +810,9 @@ it calls @samp{@code{proof-looking-at-syntactic-context}}.
 @node Recognizing proofs
 @section Recognizing proofs
 
-Up to three settings each may be supplied for recognizing goal-like and
+Several settings each may be supplied for recognizing goal-like and
 save-like commands.  The @code{-with-hole-} settings are used to make a
-record of the name of the theorem proved, and also to build a default
-value for the rather complicated setting
-@code{proof-script-next-entity-regexps}, which activates the @i{function
-menu} feature.  
+record of the name of the theorem proved.
 
 The @code{-p} subsidiary predicates were added to allow more
 discriminating behaviour for particular proof assistants.  (This is a
@@ -977,70 +974,7 @@ syntax \"word\" syntax during matching."
 @end defvar
 
 
-To configure the @i{function menu} feature, there are a couple of
-settings.  These can be used to recognize named proofs, and other
-elements in the proof script as well.  
-(@b{NOTE}: it is likely that function menu support will be removed
-in favour of Imenu only in the next release of Proof General).
 
-@c TEXI DOCSTRING MAGIC: proof-script-next-entity-regexps
-@defvar proof-script-next-entity-regexps 
-Regular expressions to help find definitions and proofs in a script.@*
-This is the list of the form
-@lisp
-   (@var{anyentity-regexp}
-    @var{discriminator-regexp}  ... @var{discriminator-regexp})
-@end lisp
-The idea is that @var{anyentity-regexp} matches any named entity in the
-proof script, on a line where the name appears.  This is assumed to be
-the start or the end of the entity.  The discriminators then test
-which kind of entity has been found, to get its name.  A
-@var{discriminator-regexp} has one of the forms
-@lisp
-  (@var{regexp} @var{matchnos})
-  (@var{regexp} @var{matchnos} @code{'backward} @var{backregexp})
-  (@var{regexp} @var{matchnos} @code{'forward} @var{forwardregexp})
-@end lisp
-If @var{regexp} matches the string captured by @var{anyentity-regexp}, then
-@var{matchnos} are the match numbers for the substrings which name the entity
-(these may be either a single number or a list of numbers).
-
-If @code{'backward} @var{backregexp} is present, then the start of the entity
-is found by searching backwards for @var{backregexp}.
-
-Conversely, if @code{'forward} @var{forwardregexp} is found, then the end of
-the entity is found by searching forwards for @var{forwardregexp}.
-
-Otherwise, the start and end of the entity will be the region matched
-by @var{anyentity-regexp}.
-
-This mechanism allows fairly complex parsing of the buffer, in
-particular, it allows for goal..save regions which are named
-only at the end.  However, it does not parse strings,
-comments, or parentheses.
-
-This variable may not need to be set: a default value which should
-work for goal..saves is calculated from @samp{@code{proof-goal-with-hole-regexp}},
-@samp{@code{proof-goal-command-regexp}}, and @samp{@code{proof-save-with-hole-regexp}}.
-@end defvar
-
-@c TEXI DOCSTRING MAGIC: proof-script-find-next-entity-fn
-@defvar proof-script-find-next-entity-fn 
-Name of function to find next interesting entity in a script buffer.@*
-This is used to configure @code{func-menu}.  The default value is
-@samp{proof-script-find-next-entity}, which searches for the next entity
-based on fume-function-name-regexp which by default is set from
-@samp{@code{proof-script-next-entity-regexps}}.
-
-The function should move point forward in a buffer, and return a cons
-cell of the name and the beginning of the entity's region.
-
-Note that @samp{@code{proof-script-next-entity-regexps}} is set to a default value
-from @samp{@code{proof-goal-with-hole-regexp}} and @samp{@code{proof-save-with-hole-regexp}} in
-the function @samp{@code{proof-config-done}}, so you may not need to worry about any
-of this.  See whether function menu does something sensible by
-default.
-@end defvar
 
 @node Configuring undo behaviour
 @section Configuring undo behaviour
