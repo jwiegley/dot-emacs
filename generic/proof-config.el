@@ -278,18 +278,6 @@ or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-script-use-old-parser nil ;;experiment and let folk complain
-  "Whether to use the old parsing mechanism.
-By default, this is set to nil in Proof General 3.5.
-Please report any proof script parsing oddities to
-da+pg@@inf.ed.ac.uk.
-
-\(NB: Specific example where new parser fails: Isar relies on certain
-text being sent to prover which according to syntax configuration
-are comments; new parser does not send these currently.)"
-  :type 'boolean
-  :group 'prover-config)
-
 (defcustom proof-script-integral-proofs nil
   "Whether the complete text after a goal confines the actual proof.
 

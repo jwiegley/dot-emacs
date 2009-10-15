@@ -1574,12 +1574,8 @@ Subroutine of `proof-done-advancing-save'."
 ;; Parsing functions for parsing commands in script
 ;;
 ;; Command parsing is suprisingly subtle with various possibilities of
-;; command syntax (terminated, not terminated, or lisp-style); whether
+;; command syntax (terminated, not terminated, or lisp-style), whether
 ;; or not PG silently ignores comments, etc.
-
-;; FIXME: currently there's several sets of functions.  We need to be
-;; more general and a bit more clear, but the latest versions are a
-;; much better attempt.
 
 (defun proof-segment-up-to-parser (pos &optional next-command-end)
   "Parse the script buffer from end of queue/locked region to POS.
@@ -1634,11 +1630,10 @@ to the function which parses the script segment by segment."
 	  ;;
 	  (if seg
 	      (progn
-		;; Add the new segment, coalescing comments if
-		;; the user likes it that way.  I first made
-		;; coalescing a separate configuration option, but
-		;; it works well used in tandem with the fly-past
-		;; behaviour.
+		;; Add the new segment, coalescing comments if the
+		;; user likes it that way.  I first made coalescing a
+		;; separate configuration option, but it works well
+		;; used in tandem with the fly-past behaviour.
 		(setq segs (cons seg
 				 (if (and proof-script-fly-past-comments
 					  (eq type 'comment)
@@ -1685,68 +1680,69 @@ to the function which parses the script segment by segment."
 	;; Didn't find command end
 	nil))))
 
+
+;; This was added for the fine-grained command structure of Isar
+;;
+;; It more involved than the case of just scanning for command end; we
+;; have to find two successive command starts and go backwards from
+;; the second.  This coalesces comments following commands with
+;; commands themselves, and sends them to the prover (only case where
+;; it does).  It's needed particularly for Isar's text command (text
+;; {* foo *}) so we can define the buffer syntax for text as comment.
+;;
+;; To avoid doing that, we would need to scan also for comments but
+;; it would be difficult to distinguish between:
+;;   complete command (* that's it *)
+;; and
+;;   complete (* almost *) command
+;;
+;; Maybe the second case should be disallowed in command-start regexp
+;; case?
+;;
+;; Another improvement idea might be to take into account both
+;; command starts *and* ends, but let's leave that for another day.
+;;
+;; NB: proof-script-comment-start-regexp doesn't need to be the same
+;; as (reqexp-quote comment-start).
+;;
+
 (defun proof-script-generic-parse-cmdstart ()
   "For `proof-script-parse-function' if `proof-script-command-start-regexp' is set."
-  ;; This was added for the fine-grained command structure of Isar
-  ;;
-  ;; It's is a lot more involved than the case of just scanning for
-  ;; the command end; we have to find two successive command starts
-  ;; and go backwards from the second.  This coalesces comments
-  ;; following commands with commands themselves, and sends them to
-  ;; the prover (only case where it does).  It's needed particularly
-  ;; for Isar's text command (text {* foo *}) so we can define the
-  ;; buffer syntax for text as a comment.
-  ;;
-  ;; To avoid doing that, we would need to scan also for comments but
-  ;; it would be difficult to distinguish between:
-  ;;   complete command (* that's it *)
-  ;; and
-  ;;   complete (* almost *) command
-  ;;
-  ;; Maybe the second case should be disallowed in command-start regexp case?
-  ;;
-  ;; Another improvement idea might be to take into account both
-  ;; command starts *and* ends, but let's leave that for another day.
-  ;;
-  ;; NB: proof-script-comment-start-regexp doesn't need to be the same
-  ;; as (reqexp-quote comment-start).
   (let ((case-fold-search proof-case-fold-search))
-  (if (looking-at proof-script-comment-start-regexp)
-      ;; Find end of comment
-      (if (proof-script-generic-parse-find-comment-end) 'comment)
+    (if (looking-at proof-script-comment-start-regexp)
+	;; Find end of comment
+	(if (proof-script-generic-parse-find-comment-end) 'comment)
     ;; Handle non-comments: assumed to be commands
-    (if (looking-at proof-script-command-start-regexp)
-	(progn
-	  ;; We've got at least the beginnings of a command, skip past it
-	  (goto-char (match-end 0))
-	  (let (foundstart)
-	    ;; Find next command start
-	    (while (and (setq
-			 foundstart
-			 (and
-			  (re-search-forward proof-script-command-start-regexp
-					     nil 'movetolimit)
-			  (and (match-beginning 0)
-			       ;; jiggery pokery here is to move outside a
-			       ;; comment in case a comment start is considered to
-			       ;; be a command start (for non fly-past behaviour)
-			       (goto-char (match-beginning 0)))))
-			(proof-buffer-syntactic-context)
-			(goto-char (1+ (point))))
-	      ;; loop while in a string/comment before the next command start
-	      )
-	    (if (not (proof-buffer-syntactic-context))  ; not inside a comment/string
-		(if foundstart				; found a second command start
-		    (progn
-		      (goto-char foundstart)          ; beginning of command start
-		      (skip-chars-backward " \t\n")   ; end of previous command
-		      'cmd)
-		  (if (eq (point) (point-max)) ; At the end of the buffer
-		      (progn
-			(skip-chars-backward " \t\n") ; benefit of the doubt, let
-			'cmd))))		      ; the PA moan if it's incomplete
-	    ;; Return nil in other cases, no complete command found
-	    ))))))
+    (when (looking-at proof-script-command-start-regexp)
+      ;; We've got at least the beginnings of a command, skip past it
+      (goto-char (match-end 0))
+      (let (foundstart)
+	;; Find next command start
+	(while (and (setq
+		     foundstart
+		     (and
+		      (re-search-forward proof-script-command-start-regexp
+					 nil 'movetolimit)
+		      (and (match-beginning 0)
+			   ;; jiggery pokery here is to move outside a
+			   ;; comment in case a comment start is considered to
+			   ;; be a command start (for non fly-past behaviour)
+			   (goto-char (match-beginning 0)))))
+		    (proof-buffer-syntactic-context)
+		    (goto-char (1+ (point))))
+	  ;; loop while in a string/comment before the next command start
+	  )
+	(unless (proof-buffer-syntactic-context)  ; not inside a comment/string
+	  (cond
+	   (foundstart			; found a second command start
+	    (goto-char foundstart)	; beginning of command start
+	    (skip-chars-backward " \t\n") ; end of previous command
+	    'cmd)
+	   ((eq (point) (point-max))	  ; At the end of the buffer
+	    (skip-chars-backward " \t\n") ; benefit of the doubt, let
+	    'cmd)))		      ; the PA moan if it's incomplete
+	    ;; Return nil otherwise, no complete command found
+	)))))
 
 
 (defun proof-script-generic-parse-sexp ()
@@ -1760,202 +1756,6 @@ to the function which parses the script segment by segment."
       (if end
 	  (progn (goto-char end) 'cmd)))))
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Old parsing functions written for v3.2  (still used in Isar)
-;;
-;; NB: compared with previous (even older) code,
-;; (1) this doesn't treat comments quite so well, but parsing
-;; should be rather more efficient.
-;; (2) comments are treated less like commands, and are only
-;; coloured blue "in passing" when commands are sent.
-;; However, undo still process comments step-by-step.
-
-(defun proof-cmdstart-add-segment-for-cmd (comstart prev)
-  (let ((tmp (point))
-	(commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
-	(commentend  (concat proof-script-comment-end-regexp "[ \t\n]*" ))) ;; FIXME: used?
-    ;; Find end of previous command...
-    (goto-char comstart)
-    ;; Special hack: terminal char is included in a command, if set.
-    (if (and proof-terminal-char
-	     (looking-at
-	      (regexp-quote (char-to-string proof-terminal-char))))
-	(goto-char (1+ (point)))
-      (skip-chars-backward " \t\n"))
-    (let* ((prev-no-blanks
-	    (save-excursion
-	      (goto-char prev)
-	      (skip-chars-forward " \t\n")
-	      (point)))
-	   (comend (point))
-	   (bufstr (buffer-substring-no-properties prev-no-blanks comend))
-	   (type
-	    (if (eq prev-no-blanks comstart)
-		;; Update PG 4.0: for Isar command wrapping (see Trac #289)
-		'comment ;; whitespace element 
-	      (save-excursion
-		;; Strip comments.  Fails with input like "(* foo *)
-		;; blah (* bar *) cmd": we check for a comment
-		;; spanning the *whole* substring, otherwise send the
-		;; (defective) text as a command anyway.  This should
-		;; cause no problem: the proof assistant can skip
-		;; comments itself, so we should get an error.  (If it
-		;; were accepted it could upset the undo behaviour)
-		(goto-char prev-no-blanks)
-		;; Update: PG 3.4: try to deal with sequences of
-		;; comments as well, since previous behaviour breaks
-		;; Isar, in fact, since repeated comments get
-		;; categorized as commands, breaking sync.
-		(if (and
-		     (looking-at commentre)
-		     (re-search-forward proof-script-comment-end-regexp)
-		     (progn
-		       (while (looking-at commentre)
-			 (re-search-forward proof-script-comment-end-regexp))
-		       (>= (point) comend)))
-		    'comment 'cmd))))
-	    (string (if (eq type 'comment) "" bufstr)))
-      (setq prev (point))
-      (goto-char tmp)
-      ;; Return cons of new prev and the new segment
-      ;; NB: Command string excludes whitespace, span includes it.
-      (cons prev (list type string prev)))))
-
-(defun proof-segment-up-to-cmdstart (pos &optional next-command-end)
-  "Parse the script buffer from end of locked to POS.
-Return a list of (type, string, int) tuples.
-
-Each tuple denotes the command and the position of its terminator,
-type is one of 'comment, or 'cmd.
-
-If optional NEXT-COMMAND-END is non-nil, we include the command
-which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
-
-This version is used when `proof-script-command-start-regexp' is set."
-  (save-excursion
-    (let* (alist prev cmdfnd startpos comstart)
-      (goto-char (proof-queue-or-locked-end))
-      (setq prev (point))
-      (skip-chars-forward " \t\n")
-      (setq startpos (point))
-      (while
-	  (and
-	   (proof-re-search-forward proof-script-command-start-regexp
-				    nil t)   ; search for next command
-	   (setq comstart (match-beginning 0)); save command start
-	   (or (save-excursion
-		 (goto-char comstart)
-		 ;; continue if inside (or at start of) comment/string
-		 ;; NB: this causes the "fly past comments behaviour",
-		 ;; it's a bit tricky to remove for Isar because some
-		 ;; Isar commands are manifestly exactly a command
-		 ;; followed by a comment (e.g. text {* foo *}).
-		 (proof-looking-at-syntactic-context))
-	       (progn			    ; or, if found command...
-		 (setq cmdfnd
-		       (> comstart startpos)); ignore first match
-		 (<= prev pos))))
-	(if cmdfnd
-	    (progn
-	      (let ((prevseg (proof-cmdstart-add-segment-for-cmd comstart prev)))
-		(setq prev (car prevseg))
-		(setq alist (cons (cdr prevseg) alist))
-		(setq cmdfnd nil)))))
-      ;; End of parse; see if we found some text at the end of the
-      ;; buffer which could be a command.  (NB: With a regexp for
-      ;; start of commands only, we can't be sure it is a complete
-      ;; command).
-      (if (and comstart			; previous command was found
-	       (<= prev pos)		; last command within range
-	       (goto-char (point-max))
-	       (setq comstart (point))	; pretend there's another cmd here
-	       (not (proof-buffer-syntactic-context))) ; buffer ends well
-	  (setq alist
-		(cons (cdr (proof-cmdstart-add-segment-for-cmd comstart prev))
-		      alist)))
-      ; (if (and cmdfnd next-command-end)
-      ; (funcall add-segment-for-cmd))
-      ;; Return resulting list
-      alist)))
-
-
-;; FIXME: this needs fixing to include final comment in buffer
-;; if there is one!!
-
-(defun proof-segment-up-to-cmdend (pos &optional next-command-end)
-  "Parse the script buffer from end of locked to POS.
-Return a list of (type, string, int) tuples.
-
-Each tuple denotes the command and the position of its terminator,
-type is one of 'comment, or 'cmd.  'unclosed-comment may be consed onto
-the start if the segment finishes with an unclosed comment.
-
-If optional NEXT-COMMAND-END is non-nil, we include the command
-which continues past POS, if any.
-
-This version is used when `proof-script-command-end-regexp' is set."
-  (save-excursion
-    (let*
-	((commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
-	 prev alist			; used below
-	 (add-segment-for-cmd		; local function: advances "prev"
-	  (lambda ()
-	    (let ((cmdend (point)) start)
-	      (goto-char prev)
-	      ;; String may start with comments, let's strip them off
-	      (while
-		  (and
-		   (setq start (point))
-		   (proof-re-search-forward commentre cmdend t)
-		   (or (eq (match-beginning 0) start)
-		       ;; In case a comment inside a command was found, make
-		       ;; sure we're at the start of the cmd before exiting
-		       (progn (goto-char start) nil)))
-		;; Look for the end of the comment
-		;; (FIXME: ignore nested comments here, we should
-		;; have a consistent policy!)
-		(unless
-		    (if (progn
-			  (goto-char (or (match-end 1) (match-beginning 0)))
-			  (forward-comment 1))
-		    (proof-re-search-forward
-		     proof-script-comment-end-regexp cmdend t))
-		  (error
-		   "PG error: proof-segment-up-to-cmd-end didn't find comment end"))
-		(setq alist (cons (list 'comment "" (point)) alist)))
-	      ;; There should be something left: a command.
-	      (skip-chars-forward " \t\n")
-	      (setq alist (cons (list 'cmd
-				      (buffer-substring-no-properties
-				       (point) cmdend)
-				      cmdend) alist))
-	      (setq prev cmdend)
-	      (goto-char cmdend))))
-	  cmdfnd startpos tmp)
-      (goto-char (proof-queue-or-locked-end))
-      (setq prev (point))
-      (skip-chars-forward " \t\n")
-      (setq startpos (point))
-      (while
-	  (and
-	   (proof-re-search-forward proof-script-command-end-regexp
-			      nil t) ; search for next command
-	   (or (proof-buffer-syntactic-context)   ; continue if inside comment/string
-	       (progn			    ; or, if found command...
-		 (setq cmdfnd t)
-		 (<= (point) pos))))
-	(if cmdfnd (progn
-		     (funcall add-segment-for-cmd)
-		     (setq cmdfnd nil))))
-      ;; End of parse; if we found a command past POS maybe add it.
-      ;; FIXME: also, if we found a *comment* maybe add it!
-      (if cmdfnd ; (and cmdfnd next-command-end)
-	  (funcall add-segment-for-cmd))
-      ;; Return resulting list
-      alist)))
 
 (defun proof-semis-to-vanillas (semis)
   "Create vanilla spans for SEMIS and a list for the queue.
@@ -2706,45 +2506,25 @@ finish setup which depends on specific proof assistant configuration."
   "Choose parsing mechanism according to different kinds of script syntax.
 Choice of function depends on configuration setting."
   (unless (fboundp 'proof-segment-up-to)
-    (if proof-script-use-old-parser
-	;; Configuration for using old parsing mechanism.
-	(cond
-	 (proof-script-parse-function	;; still allowed to override in 3.2
-	  (defalias 'proof-segment-up-to 'proof-segment-up-to-parser))
-	 ;; 3.2 mechanism here
-	 (proof-script-command-start-regexp
-	  (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
-	 (t
-	  (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
-	  (unless proof-script-command-end-regexp
-	    (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
-	    (setq proof-script-command-end-regexp
-		  (if proof-terminal-char
-		      (regexp-quote (char-to-string proof-terminal-char))
-		    "$")))))
-      ;; Configuration for using new parsing (3.3 and later; default in 3.5)
-      (progn
-	(defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
-	(cond
-	 (proof-script-parse-function
-	  ;; already set, nothing to do
-	 )
-	 (proof-script-sexp-commands
-	 (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
-	 (proof-script-command-start-regexp
-	 (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
-	 ((or proof-script-command-end-regexp proof-terminal-char)
-	 (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
-	 (unless proof-script-command-end-regexp
-	   (proof-warn-if-unset "probof-config-done" 'proof-terminal-char)
-	   (setq proof-script-command-end-regexp
-		 (if proof-terminal-char
-		     (regexp-quote (char-to-string proof-terminal-char))
-		   "$"))))
-	 (t
-	 (error "Configuration error: must set `proof-terminal-char' or one of its friends"))))
-      )))				;  default if nothing set is EOL.
-
+    (defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
+    (cond
+     (proof-script-parse-function
+      ;; already set, nothing to do
+      )
+     (proof-script-sexp-commands
+      (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
+     (proof-script-command-start-regexp
+      (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
+     ((or proof-script-command-end-regexp proof-terminal-char)
+      (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
+      (unless proof-script-command-end-regexp
+	(proof-warn-if-unset "probof-config-done" 'proof-terminal-char)
+	(setq proof-script-command-end-regexp
+	      (if proof-terminal-char
+		  (regexp-quote (char-to-string proof-terminal-char))
+		"$"))))
+     (t
+      (error "Configuration error: must set `proof-terminal-char' or one of its friends")))))
 
 (defun proof-setup-imenu ()
   "Setup a default for imenu, perhaps using `proof-script-imenu-generic-expression'."
