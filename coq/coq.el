@@ -1207,6 +1207,19 @@ be asked to the user."
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
 
 
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
+
+;
+;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
+;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
+;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
+;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
+;
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
 ;;;;;;;;;;;;;;;;;;;;;;;;
