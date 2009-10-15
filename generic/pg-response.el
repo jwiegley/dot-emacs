@@ -51,6 +51,7 @@
   (buffer-disable-undo)
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
   (set-buffer-modified-p nil)
+  (setq buffer-read-only t)
   (setq cursor-type 'bar))
 
 ;;
@@ -309,8 +310,9 @@ is set to nil, so responses are not cleared automatically."
   (interactive)
   (proof-map-buffers (list proof-response-buffer proof-trace-buffer)
     (if (> (buffer-size) 0)
-	(bufhist-checkpoint-and-erase))
-    (set-buffer-modified-p nil)))
+	(let ((inhibit-read-only t))
+	  (bufhist-checkpoint-and-erase)
+	  (set-buffer-modified-p nil)))))
 
 ;;;###autoload
 (defun pg-response-message (&rest args)
@@ -450,38 +452,20 @@ See `pg-next-error-regexp'."
 
 ;; An analogue of pg-response-display-with-face
 (defun proof-trace-buffer-display (str)
-  "Output STR in the trace buffer, moving the pointer downwards.
-We fontify the output only if we're not too busy to do so."
+  "Output STR in the trace buffer, moving the pointer downwards."
   (with-current-buffer proof-trace-buffer
     (goto-char (point-max))
-    (newline)
-    (insert str)
-    (unless (bolp)
-      (newline))))
-;;; FIXME: reinstate this, turning font lock off then on, mebbe
-;;;     (or proof-trace-last-fontify-pos
-;;;	(setq proof-trace-last-fontify-pos (point)))
-;;;     (insert str)
-;;;     (unless (bolp)
-;;;       (newline))
-;;;     ;; If tracing output is prolific, we try to avoid
-;;;     ;; fontifying every chunk and batch it up instead.
-;;;     (unless pg-tracing-slow-mode
-;;;       (let ((fontifystart (proof-trace-fontify-pos)))
-;;;	;; Catch errors, in case fontification buggy
-;;;	(unwind-protect
-;;;	    (proof-fontify-region fontifystart (point))
-;;;	  (setq proof-trace-last-fontify-pos nil))
-;;;	(set-buffer-modified-p nil)))))
+    (let ((inhibit-read-only t))
+      (newline)
+      ;; had clever stuff to delay fontifying here (see v10.9)
+      (insert str)
+      (unless (bolp)
+	(newline)))))
 
 (defun proof-trace-buffer-finish ()
-  "Complete fontification in tracing buffer now that there's time to do so."
+  "Signal that output in the trace buffer is complete."
+  ;; could re-engage/update font lock
   )
-;;;   (let ((fontifystart (proof-trace-fontify-pos)))
-;;;     (if (and fontifystart (not quit-flag));; may be done already
-;;;	(save-excursion
-;;;	   (set-buffer proof-trace-buffer)
-;;;	   (proof-fontify-region fontifystart (point-max))))))
 
 
 
