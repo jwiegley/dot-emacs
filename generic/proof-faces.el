@@ -181,7 +181,7 @@ Warning messages can come from proof assistant or from Proof General itself."
 
 (defface proof-script-error-face
   '((t
-     (:inherit font-lock-warning-face :underline t)))
+     (:inherit font-lock-warning-face)))
   "Proof General face for highlighting an error in the proof script. "
   :group 'proof-faces)
 
