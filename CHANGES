@@ -57,6 +57,7 @@
     proof-shell-prompt-pattern: removed (was only for shell UI)
     proof-shell-abort-goal-regexp: removed (ordinary response)
     proof-shell-error-or-interrupt-seen: removed, use p-s-last-output-kind
+    proof-script-next-entity-regexps,next-entity-fn: removed (func-menu dead)
 
 *** Primary distribution formats changed
     The RPM and zip file formats have been removed.
