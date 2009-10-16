@@ -2,7 +2,7 @@
 (add-to-list 'load-path "~/Library/Emacs/site-lisp/slime/contrib")
 
 (setq slime-net-coding-system 'utf-8-unix
-      swank-clojure-jar-path "/opt/local/share/java/clojure/lib/clojure.jar"
+      swank-clojure-jar-path (expand-file-name "~/Library/Java/clojure.jar")
       swank-clojure-binary "clojure")
 
 (require 'slime)

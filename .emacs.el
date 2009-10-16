@@ -73,7 +73,7 @@
  '(auto-compression-mode t nil (jka-compr))
  '(auto-image-file-mode t)
  '(auto-save-interval 1024)
- '(backup-directory-alist (quote (("/CEG/" . "/Volumes/CEG/.backups") ("/TI/" . "/Volumes/TI/.backups") ("/Files/" . "/Volumes/Files/.backups") (".*" . "~/.emacs.d/backups"))))
+ '(backup-directory-alist (quote (("/CEG/" . "/Volumes/CEG/.backups") ("/TI/" . "/Volumes/TI/.backups") ("/Files/" . "/Volumes/Files/.backups") (".*recentf.*" . "/tmp") (".*" . "~/.emacs.d/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bookmark-save-flag 1)
  '(browse-url-browser-function (quote (("\\.\\(gz\\|tgz\\|bz2\\|tbz\\|dmg\\|iso\\|pdf\\|mp3\\)\\'" . browse-url-download-file) (".*" . browse-url-default-macosx-browser))))
@@ -129,7 +129,7 @@
  '(ibuffer-use-other-window t)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
- '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 100) (height . 50))))
+ '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 115) (height . 76))))
  '(initsplit-customizations-alist (quote (("^\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil))))
  '(iswitchb-max-to-show 10)
  '(iswitchb-mode t)
@@ -139,6 +139,7 @@
  '(large-file-warning-threshold nil)
  '(ledger-file "/Volumes/Files/ledger.dat")
  '(line-number-mode t)
+ '(line-spacing 2)
  '(lui-time-stamp-position nil)
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
@@ -146,17 +147,21 @@
  '(magit-push-script "/Users/johnw/bin/push")
  '(mark-holidays-in-calendar t)
  '(next-line-add-newlines nil)
+ '(ns-alternate-modifier (quote alt))
+ '(ns-command-modifier (quote meta))
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
- '(org-agenda-custom-commands (quote (("d" todo #("DELEGATED" 0 9 (face org-warning)) nil) ("c" todo #("DONE|DEFERRED|CANCELLED" 0 23 (face org-warning)) ((org-agenda-files (cons "~/Documents/archive.txt" org-agenda-files)))) ("w" todo #("WAITING" 0 7 (face org-warning)) nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))) (org-agenda-overriding-header "Tasks without any priority: "))) ("A" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: "))) ("B" agenda "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))) (org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A and #B tasks: "))) ("U" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "\\(#[BC]\\|<[0-9-]\\{10\\} [^>
-]+>\\)"))) (org-agenda-overriding-header "Unscheduled important TODO entries:"))) ("u" alltodo "" ((org-agenda-skip-function (lambda nil (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[0-9-]\\{10\\} [^>
-]+>"))) (org-agenda-overriding-header "Unscheduled TODO entries: "))))))
+ '(org-agenda-custom-commands (quote (("d" todo "DELEGATED" nil) ("c" todo "DONE|DEFERRED|CANCELLED" ((org-agenda-files (cons "~/Dropbox/archive.txt" org-agenda-files)))) ("r" "Uncategorized entries" tags "CATEGORY=\"Inbox\"&LEVEL=2" nil) ("w" todo "WAITING" nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-overriding-header "Tasks without any priority: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))))) ("A" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("U" alltodo "" ((org-agenda-overriding-header "Unscheduled important TODO entries:") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "\\(#[BC]\\|<[0-9-]\\{10\\} [^>
+]+>\\)"))))) ("u" alltodo "" ((org-agenda-overriding-header "Unscheduled TODO entries: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[0-9-]\\{10\\} [^>
+]+>"))))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("~/Documents/todo.txt")))
+ '(org-agenda-files (quote ("~/Dropbox/todo.txt")))
+ '(org-agenda-fontify-priorities t)
+ '(org-agenda-include-diary t)
  '(org-agenda-ndays 7)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
@@ -172,14 +177,23 @@
  '(org-agenda-text-search-extra-files (quote (agenda-archives)))
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
+ '(org-attach-method (quote mv))
+ '(org-clock-idle-time 10)
+ '(org-clock-in-switch-to-state "STARTED")
+ '(org-clock-into-drawer "LOGBOOK")
+ '(org-clock-modeline-total (quote current))
+ '(org-clock-out-remove-zero-time-clocks t)
+ '(org-clock-out-switch-to-state nil)
+ '(org-completion-use-iswitchb t)
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Documents/todo.txt")
- '(org-directory "~/Documents/")
+ '(org-default-notes-file "~/Dropbox/todo.txt")
+ '(org-directory "~/Dropbox/")
  '(org-drawers (quote ("PROPERTIES" "OUTPUT" "SCRIPT" "PATCH" "DATA")))
  '(org-enforce-todo-dependencies t)
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
+ '(org-footnote-section nil)
  '(org-hide-leading-stars t)
  '(org-modules (quote (org-mac-message org-bookmark org-eval org2rem)))
  '(org-remember-store-without-prompt t)
@@ -192,7 +206,7 @@
  '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
  '(org-tag-alist (quote ((#("NASIM" 0 5 (face nil)) . 110) (#("WORK" 0 4 (face nil)) . 119))))
  '(org-tags-column -97)
- '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "dark violet" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "red" :weight bold))))
+ '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "dark blue" :weight bold))))
  '(org-todo-keywords (quote ((sequence "TODO" "APPT" "|" "DONE" "NOTE"))))
  '(org-use-tag-inheritance nil)
  '(parens-require-spaces t)
@@ -212,7 +226,7 @@
  '(regex-tool-backend (quote perl))
  '(remember-annotation-functions (quote (org-remember-annotation)))
  '(remember-handler-functions (quote (org-remember-handler)))
- '(require-final-newline t)
+ '(require-final-newline (quote ask))
  '(safe-local-variable-values (quote ((after-save-hook archive-done-tasks) (after-save-hook sort-done-tasks) (after-save-hook commit-after-save))))
  '(scroll-bar-mode nil)
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
@@ -359,6 +373,12 @@
 		(compose-region (match-beginning 1)
 				(match-end 1) ?λ)))))))
       '(emacs-lisp-mode))
+
+;;;_  + eshell
+
+(eval-after-load "em-unix"
+  '(progn
+     (unintern 'eshell/rm)))
 
 ;;;_  + column-marker
 
@@ -563,13 +583,15 @@
 	(c-special-indent-hook . c-gnu-impose-minimum)
 	(c-block-comment-prefix . "")))))
 
-(add-hook 'java-mode-hook
-	  #'(lambda ()
-	      (c-set-style "ceg")
-	      (setq tab-width 3)
-	      (setq c-basic-offset 3)
-	      (setq indent-tabs-mode t)
-	      (set-fill-column 100)))
+(defun my-java-mode-hook ()
+  (c-set-style "ceg")
+  (setq c-basic-offset 3)
+  (setq indent-tabs-mode t)
+  (setq tab-width 3)
+  (column-marker-3 100)
+  (set-fill-column 100))
+
+(add-hook 'java-mode-hook 'my-java-mode-hook)
 
 ;;;_ * ledger
 
@@ -693,7 +715,18 @@
 	 (list "epylint" (list local-file))))
 
      (add-to-list 'flymake-allowed-file-name-masks
-		  '("\\.py\\'" flymake-pylint-init))))
+		  '("\\.py\\'" flymake-pylint-init))
+
+     (defun flymake-hslint-init ()
+       (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+			    'flymake-create-temp-inplace))
+	      (local-file  (file-relative-name
+			    temp-file
+			    (file-name-directory buffer-file-name))))
+	 (list "hslint" (list local-file))))
+
+     (add-to-list 'flymake-allowed-file-name-masks
+		  '("\\.l?hs\\'" flymake-hslint-init))))
 
 ;;;_ * multi-region
 
@@ -710,8 +743,19 @@
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
-(eval-after-load "org"
-  '(defvar org-agenda-last-files (cdr org-agenda-files)))
+(defun save-org-mode-files ()
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (eq major-mode 'org-mode)
+	(if (buffer-modified-p)
+	    (save-buffer))))))
+
+(run-with-idle-timer 25 t 'save-org-mode-files)
+
+(defun org-my-state-after-clock-out (state)
+  (if (string= state "STARTED")
+      "TODO"
+    state))
 
 (defvar org-my-archive-expiry-days 1
   "The number of days after which a completed task should be auto-archived.
@@ -720,33 +764,38 @@ This can be 0 for immediate, or a floating point value.")
 (defconst org-my-ts-regexp "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
   "Regular expression for fast inactive time stamp matching.")
 
+(defun org-my-closing-time ()
+  (let* ((state-regexp
+	  (concat "- State \"\\(?:" (regexp-opt org-done-keywords)
+		  "\\)\"\\s-*\\[\\([^]\n]+\\)\\]"))
+	 (regexp (concat "\\(" state-regexp "\\|" org-my-ts-regexp "\\)"))
+	 (end (save-excursion
+		(outline-next-heading)
+		(point)))
+	 begin
+	 end-time)
+    (goto-char (line-beginning-position))
+    (while (re-search-forward regexp end t)
+      (let ((moment (org-parse-time-string (match-string 1))))
+	(if (or (not end-time)
+		(time-less-p (apply #'encode-time end-time)
+			     (apply #'encode-time moment)))
+	    (setq end-time moment))))
+    (goto-char end)
+    end-time))
+
 (defun org-my-archive-done-tasks ()
   (interactive)
   (save-excursion
     (goto-char (point-min))
     (let ((done-regexp
-	   (concat "\\* \\(" (regexp-opt org-done-keywords) "\\) "))
-	  (state-regexp
-	   (concat "- State \"\\(?:" (regexp-opt org-done-keywords)
-		   "\\)\"\\s-*\\[\\([^]\n]+\\)\\]"))
-	  (inactive-regexp))
+	   (concat "\\* \\(" (regexp-opt org-done-keywords) "\\) ")))
       (while (re-search-forward done-regexp nil t)
-	(let ((end (save-excursion
-		     (outline-next-heading)
-		     (point)))
-	      begin)
-	  (goto-char (line-beginning-position))
-	  (setq begin (point))
-	  (if (or (re-search-forward state-regexp end t)
-		  (re-search-forward org-my-ts-regexp end t))
-	      (let* ((time-string (match-string 1))
-		     (when-closed (org-parse-time-string time-string)))
-		(if (>= (time-to-number-of-days
-			 (time-subtract (current-time)
-					(apply #'encode-time when-closed)))
-			org-my-archive-expiry-days)
-		    (org-archive-subtree)))
-	    (goto-char end)))))
+	(if (>= (time-to-number-of-days
+		 (time-subtract (current-time)
+				(apply #'encode-time (org-my-closing-time))))
+		org-my-archive-expiry-days)
+	    (org-archive-subtree))))
     (save-buffer)))
 
 (defalias 'archive-done-tasks 'org-my-archive-done-tasks)
@@ -755,10 +804,11 @@ This can be 0 for immediate, or a floating point value.")
   (let ((begin (point)))
     (save-excursion
       (outline-next-heading)
-      (when (re-search-backward org-my-ts-regexp begin t)
-	(let ((time (float-time (org-time-string-to-time (match-string 0)))))
-	  (assert (floatp time))
-	  time)))))
+      (if (re-search-backward org-my-ts-regexp begin t)
+	  (let ((time (float-time (org-time-string-to-time (match-string 0)))))
+	    (assert (floatp time))
+	    time)
+	(debug)))))
 
 (defun org-get-completed-time ()
   (let ((begin (point)))
@@ -772,6 +822,14 @@ This can be 0 for immediate, or a floating point value.")
   (interactive)
   (goto-char (point-min))
   (org-sort-entries-or-items t ?F #'org-get-inactive-time #'<)
+  (goto-char (point-min))
+  (while (re-search-forward "
+
+
++" nil t)
+    (delete-region (match-beginning 0) (match-end 0))
+    (insert "
+"))
   (let (after-save-hook)
     (save-buffer))
   (org-overview))
@@ -790,19 +848,51 @@ This can be 0 for immediate, or a floating point value.")
   SCHEDULED: %t
   :PROPERTIES:
   :ID: %(shell-command-to-string \"uuidgen\")  :END:
-  %U" "~/Documents/todo.txt" "Inbox"))))
+  %U" "~/Dropbox/todo.txt" "Inbox"))))
 	(org-remember)))))
+
+(defun jump-to-ledger-journal ()
+  (interactive)
+  (find-file-other-window "~/Dropbox/ledger.dat")
+  (goto-char (point-max))
+  (insert (format-time-string "%Y/%m/%d ")))
+
+(defun org-inline-note (&optional arg)
+  (interactive "P")
+  (if arg
+      (call-interactively 'jump-to-ledger-journal)
+    (switch-to-buffer-other-window "todo.txt")
+    (goto-char (point-min))
+    (re-search-forward "^\\* Inbox$")
+    (re-search-forward "^  :END:")
+    (forward-line)
+    (goto-char (line-beginning-position))
+    (insert "** NOTE ")
+    (save-excursion
+      (insert (format "
+   :PROPERTIES:
+   :ID: %s   :VISIBILITY: folded
+   :END:
+   " (shell-command-to-string "uuidgen")))
+      (org-insert-time-stamp nil t 'inactive)
+      (insert ?\n))
+    (save-excursion
+      (forward-line)
+      (org-cycle))))
 
 (defun org-remember-note ()
   (interactive)
   (if (string= (buffer-name) "*Remember*")
       (call-interactively 'org-ctrl-c-ctrl-c)
     (let ((org-remember-templates
-	   '((110 "* NOTE %?\n  %u" "~/Documents/todo.txt" "Inbox"))))
+	   '((110 "* NOTE %?
+  :PROPERTIES:
+  :ID: %(shell-command-to-string \"uuidgen\")  :VISIBILITY: folded
+  :END:
+  %U" "~/Dropbox/todo.txt" "Inbox"))))
       (call-interactively 'org-remember))))
 
-(defun org-insert-message-link ()
-  (interactive)
+(defun org-get-message-link ()
   (let ((subject (do-applescript "tell application \"Mail\"
         set theMessages to selection
         subject of beginning of theMessages
@@ -811,7 +901,16 @@ end tell"))
         set theMessages to selection
         message id of beginning of theMessages
 end tell")))
-    (insert (org-make-link-string (concat "message://" message-id) subject))))
+    (org-make-link-string (concat "message://" message-id) subject)))
+
+(defun org-insert-message-link ()
+  (interactive)
+  (insert (org-get-message-link)))
+
+(defun org-set-message-link ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Message" (org-get-message-link)))
 
 (defun org-dtp-message-open ()
   "Visit the message with the given MESSAGE-ID.
@@ -835,6 +934,41 @@ end tell" (match-string 1))))
 	(kill-buffer (current-buffer))
 	(setq index (1+ index)))
     "LEVEL=2")))
+
+(defun org-make-regress-test ()
+  (interactive)
+  (save-excursion
+    (outline-previous-visible-heading 1)
+    (let ((begin (point))
+	  (end (save-excursion
+		 (outline-next-heading)
+		 (point)))
+	  (input "\n") (data "") (output ""))
+      (goto-char begin)
+      (when (search-forward ":SCRIPT:\n" end t)
+	(goto-char (match-end 0))
+	(let ((input-beg (point)))
+	  (re-search-forward "[ 	]+:END:")
+	  (setq input (buffer-substring input-beg (match-beginning 0)))))
+      (goto-char begin)
+      (when (search-forward ":DATA:\n" end t)
+	(goto-char (match-end 0))
+	(let ((data-beg (point)))
+	  (re-search-forward "[ 	]+:END:")
+	  (setq data (buffer-substring data-beg (match-beginning 0)))))
+      (goto-char begin)
+      (when (search-forward ":OUTPUT:\n" end t)
+	(goto-char (match-end 0))
+	(let ((output-beg (point)))
+	  (re-search-forward "[ 	]+:END:")
+	  (setq output (buffer-substring output-beg (match-beginning 0)))))
+      (goto-char begin)
+      (when (re-search-forward ":ID: \\([^-]+\\)" end t)
+	(find-file (expand-file-name (concat (match-string 1) ".test")
+				     "~/src/ledger/test/regress/"))
+	(insert input "<<<\n" data ">>>1\n" output ">>>2\n=== 0\n")
+	(pop-to-buffer (current-buffer))
+	(goto-char (point-min))))))
 
 ;;;_ * remember
 
@@ -900,6 +1034,10 @@ end tell" (match-string 1))))
       (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
 	(if (file-readable-p (concat base ext))
 	    (find-file (concat base ext))))))))
+
+;;;_ * emacs-w3m
+
+(load "w3m-load" t)
 
 ;;;_ * whitespace
 
@@ -1021,7 +1159,7 @@ end tell" (match-string 1))))
 (define-key global-map [(meta ?n)] 'chop-move-down)
 (define-key global-map [(meta ?p)] 'chop-move-up)
 (define-key global-map [(meta ?m)] 'org-maybe-remember)
-(define-key global-map [(meta ?z)] 'org-remember-note)
+(define-key global-map [(meta ?z)] 'org-inline-note)
 
 (define-prefix-command 'lisp-find-map)
 (define-key global-map [(control ?h) ?e] 'lisp-find-map)
@@ -1031,7 +1169,7 @@ end tell" (match-string 1))))
 (define-key lisp-find-map [?v] 'find-variable)
 (define-key lisp-find-map [?k] 'find-function-on-key)
 
-(define-key global-map [(meta ?C)] 'calendar)
+(define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 (define-key global-map [(meta ?N)] 'winner-redo)
 (define-key global-map [(meta ?P)] 'winner-undo)
 (define-key global-map [(meta ?T)] 'tags-search)
@@ -1072,7 +1210,6 @@ end tell" (match-string 1))))
 (define-key global-map [(meta shift ?b)] 'python-mark-block)
 (define-key global-map [(meta shift ?h)] 'mark-paragraph)
 (define-key global-map [(meta shift ?d)] 'mark-defun)
-(define-key global-map [(meta shift ?e)] 'mark-whole-buffer)
 
 (define-key global-map [(control return)] 'other-window)
 
@@ -1080,6 +1217,9 @@ end tell" (match-string 1))))
 (define-key global-map [f10] 'gud-next)
 (define-key global-map [f11] 'gud-step)
 (define-key global-map [(shift f11)] 'gud-finish)
+
+(define-key global-map [(alt ?v)] 'scroll-down)
+(define-key global-map [(meta ?v)] 'yank)
 
 (define-key global-map [(alt tab)]
   #'(lambda ()
@@ -1253,10 +1393,15 @@ expand wildcards (if any) and visit multiple files."
 (defun scratch ()
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
-  (lisp-interaction-mode)
+  ;;(lisp-interaction-mode)
+  (text-mode)
   (if current-prefix-arg
-      (erase-buffer))
-  (goto-char (point-max)))
+      (find-file "~/src/snippets.hs")
+    (goto-char (point-min))
+    (when (looking-at ";")
+      (forward-line 4)
+      (delete-region (point-min) (point)))
+    (goto-char (point-max))))
 
 (define-key mode-specific-map [?e ?s] 'scratch)
 (define-key mode-specific-map [?e ?v] 'edit-variable)
@@ -1284,10 +1429,36 @@ expand wildcards (if any) and visit multiple files."
 		   ((= arg 4) "~/src/ledger/b/master/")
 		   ((= arg 16) "~/src/ledger/b/test/"))))
     (unless (get-buffer "TAGS")
-      (visit-tags-table "~/Products/ledger/debug/TAGS"))
+      (if (file-exists-p "~/Products/ledger/debug/TAGS")
+	  (visit-tags-table "~/Products/ledger/debug/TAGS")))
     (magit-status dir)))
 
 (define-key mode-specific-map [?l] 'load-ledger-project)
+
+(defun jump-to-org-agenda ()
+  (interactive)
+  (let ((buf (get-buffer "*Org Agenda*"))
+	wind)
+    (if buf
+	(if (setq wind (get-buffer-window buf))
+	    (select-window wind)
+	  (if (called-interactively-p)
+	      (progn
+		(switch-to-buffer-other-window buf)
+		(org-fit-window-to-buffer)
+		;; (org-agenda-redo)
+		)
+	    (with-selected-window (display-buffer buf)
+	      (org-fit-window-to-buffer)
+	      ;; (org-agenda-redo)
+	      )))
+      (call-interactively 'org-agenda-list)))
+  ;;(let ((buf (get-buffer "*Calendar*")))
+  ;;  (unless (get-buffer-window buf)
+  ;;    (org-agenda-goto-calendar)))
+  )
+
+(run-with-idle-timer 300 t 'jump-to-org-agenda)
 
 (define-key mode-specific-map [?m] 'ignore)
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
@@ -1312,13 +1483,13 @@ expand wildcards (if any) and visit multiple files."
 
 (defun my-org-todo-search ()
   (interactive)
-  (find-file-other-window "~/Documents/todo.txt")
+  (find-file-other-window "~/Dropbox/todo.txt")
   (goto-char (point-min))
   (call-interactively 'isearch-forward))
 
 (defun my-org-todo-archive-search ()
   (interactive)
-  (find-file-other-window "~/Documents/archive.txt")
+  (find-file-other-window "~/Dropbox/archive.txt")
   (goto-char (point-min))
   (call-interactively 'isearch-forward))
 
@@ -1353,6 +1524,8 @@ expand wildcards (if any) and visit multiple files."
   #'(lambda nil (interactive) (org-todo "DELEGATED")))
 (define-key mode-specific-map [?x ?n]
   #'(lambda nil (interactive) (org-todo "NOTE")))
+(define-key mode-specific-map [?x ?j]
+  #'(lambda nil (interactive) (org-todo "JOURNAL")))
 (define-key mode-specific-map [?x ?s]
   #'(lambda nil (interactive) (org-todo "STARTED")))
 (define-key mode-specific-map [?x ?t]
@@ -1363,10 +1536,10 @@ expand wildcards (if any) and visit multiple files."
   #'(lambda nil (interactive) (org-todo "CANCELLED")))
 
 (define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
-(define-key mode-specific-map [?x ?m] 'org-insert-message-link)
+(define-key mode-specific-map [?x ?m] 'org-set-message-link)
 (define-key mode-specific-map [?x ?C] 'cvs-examine)
 (define-key mode-specific-map [?x ?S] 'svn-status)
-(define-key mode-specific-map [?x ?M] 'org-dtp-message-open)
+(define-key mode-specific-map [?x ?M] 'org-insert-message-link)
 
 (defun org-trac-ticket-open ()
   (interactive)
@@ -1406,12 +1579,18 @@ expand wildcards (if any) and visit multiple files."
   '(progn
      (org-defkey org-mode-map [(control meta return)] 'org-insert-heading-after-current)
      (org-defkey org-mode-map [(control return)] 'other-window)
+     (define-key org-mode-map [return] 'org-return-indent)
 
      (defun org-fit-agenda-window ()
        "Fit the window to the buffer size."
        (and (memq org-agenda-window-setup '(reorganize-frame))
 	    (fboundp 'fit-window-to-buffer)
-	    (fit-window-to-buffer)))))
+	    (fit-window-to-buffer)))
+
+     (add-hook 'org-mode-hook
+	       (lambda ()
+		 (org-set-local 'yas/trigger-key [tab])
+		 (define-key yas/keymap [tab] 'yas/next-field-group)))))
 
 (eval-after-load "org-agenda"
   '(progn
@@ -1426,8 +1605,10 @@ expand wildcards (if any) and visit multiple files."
 	     (error "The 'r' command is deprecated here; use 'g'")))
        (define-key map "f" 'org-agenda-date-later)
        (define-key map "b" 'org-agenda-date-earlier)
+       (define-key map "r" 'org-agenda-refile)
        (define-key map " " 'org-agenda-tree-to-indirect-buffer)
        (define-key map "F" 'org-agenda-follow-mode)
+       (define-key map "q" 'delete-window)
        (define-key map [(meta ?p)] 'org-agenda-earlier)
        (define-key map [(meta ?n)] 'org-agenda-later)
 
