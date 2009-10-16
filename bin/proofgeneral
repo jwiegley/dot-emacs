@@ -74,8 +74,9 @@ do shift; done
 # Try to find Proof General directory
 if [ -z "$PGHOME" ] || [ ! -d "$PGHOME" ]; then
     # default relative to this script, otherwise PGHOMEDEFAULT
-    if [ -d ../generic ]; then
-	PGHOME="../generic"
+    MYDIR="`readlink --canonicalize "$0" | sed -ne 's,/bin/proofgeneral$,,p'`"
+    if [ -d "$MYDIR" ]; then
+	PGHOME="$MYDIR"
     elif [ -d "$PGHOMEDEFAULT" ]; then
 	PGHOME="$PGHOMEDEFAULT"
     else
