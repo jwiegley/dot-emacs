@@ -1,0 +1,5 @@
+#name : :SCRIPT: ... :END:
+# --
+:SCRIPT:
+$0
+:END:
