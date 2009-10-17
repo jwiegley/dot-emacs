@@ -89,6 +89,7 @@ See -k option for Isabelle interface script."
 
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
+  (set (make-local-variable 'indent-tabs-mode) nil)
   (setq
    proof-assistant-home-page    isar-web-page
    proof-guess-command-line     'isabelle-set-prog-name
