@@ -11,18 +11,19 @@
       (list
        (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
        (expand-file-name "/usr/local/share/emacs/site-lisp")
-       (expand-file-name "~/Library/Emacs")
-       (expand-file-name "~/Library/Emacs/site-lisp/circe")
-       (expand-file-name "~/Library/Emacs/site-lisp/clojure-mode")
-       (expand-file-name "~/Library/Emacs/site-lisp/gist.el")
-       (expand-file-name "~/Library/Emacs/site-lisp/haskell-mode")
-       (expand-file-name "~/Library/Emacs/site-lisp/magit")
-       (expand-file-name "~/Library/Emacs/site-lisp/nxml-mode")
-       (expand-file-name "~/Library/Emacs/site-lisp/org-mode/contrib/lisp")
-       (expand-file-name "~/Library/Emacs/site-lisp/org-mode/lisp")
-       (expand-file-name "~/Library/Emacs/site-lisp/remember")
-       (expand-file-name "~/Library/Emacs/site-lisp/swank-clojure")
-       (expand-file-name "~/Library/Emacs/site-lisp/yasnippet")
+       (expand-file-name "~/Dropbox/Emacs")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/circe")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/clojure-mode")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/emacs-w3m")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/gist.el")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/haskell-mode")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/magit")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/nxml-mode")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/org-mode/contrib/lisp")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/org-mode/lisp")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/remember")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/swank-clojure")
+       (expand-file-name "~/Dropbox/Emacs/site-lisp/yasnippet")
        (expand-file-name "~/src/emacs-chess")
        (expand-file-name "~/src/eshell")
        (expand-file-name "~/src/pcomplete")
@@ -73,13 +74,16 @@
  '(auto-compression-mode t nil (jka-compr))
  '(auto-image-file-mode t)
  '(auto-save-interval 1024)
- '(backup-directory-alist (quote (("/CEG/" . "/Volumes/CEG/.backups") ("/TI/" . "/Volumes/TI/.backups") ("/Files/" . "/Volumes/Files/.backups") (".*recentf.*" . "/tmp") (".*" . "~/.emacs.d/backups"))))
+ '(backup-directory-alist (quote (("/Volumes/Files/" . "/Volumes/Files/.backups") (".*recentf.*" . "/tmp") (".*" . "~/.emacs.d/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bookmark-save-flag 1)
  '(browse-url-browser-function (quote (("\\.\\(gz\\|tgz\\|bz2\\|tbz\\|dmg\\|iso\\|pdf\\|mp3\\)\\'" . browse-url-download-file) (".*" . browse-url-default-macosx-browser))))
  '(c-default-style (quote ((java-mode . "gnu") (awk-mode . "awk") (other . "gnu"))))
  '(calendar-latitude [12 1 north])
  '(calendar-longitude [61 46 west])
+ '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec")
+ '(check-mail-boxes (quote ("~/Documents/Mail/incoming/mail\\..*\\.spool")))
+ '(check-mail-summary-function (quote check-mail-box-summary))
  '(circe-fools-list (quote ("Xach" "Xof" "Krystof" "Zhivago" "dalias" "holycow")))
  '(circe-ignore-list (quote ("jordanb_?")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
@@ -92,6 +96,7 @@
  '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1") (cursor-color . "red"))))
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote fundamental-mode))
+ '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
  '(directory-free-space-args "-kh")
  '(dired-guess-shell-gnutar "tar")
@@ -114,14 +119,79 @@
  '(eshell-stringify-t nil)
  '(eshell-term-name "ansi")
  '(eshell-visual-commands (quote ("vi" "top" "screen" "less" "lynx" "ssh" "rlogin" "telnet")))
+ '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(eval-expr-print-function (quote pp) t)
  '(fill-column 78)
  '(flyspell-abbrev-p nil)
  '(flyspell-incorrect-hook (quote (flyspell-maybe-correct-transposition)))
+ '(focus-follows-mouse t)
  '(font-lock-support-mode (quote jit-lock-mode))
  '(frame-title-format (quote (:eval (if buffer-file-name default-directory "%b"))) t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
+ '(gnus-activate-level 3)
+ '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-fixup-nnimap-unread-after-getting-new-news gnus-group-save-newsrc)))
+ '(gnus-agent-expire-all t)
+ '(gnus-agent-expire-days 14)
+ '(gnus-always-read-dribble-file t)
+ '(gnus-article-date-lapsed-new-header t)
+ '(gnus-asynchronous t)
+ '(gnus-default-adaptive-score-alist (quote ((gnus-dormant-mark (from 20) (subject 100)) (gnus-ticked-mark (subject 30)) (gnus-read-mark (subject 30)) (gnus-del-mark (subject -150)) (gnus-catchup-mark (subject -150)) (gnus-killed-mark (subject -1000)) (gnus-expirable-mark (from -1000) (subject -1000)))))
+ '(gnus-default-article-saver (quote gnus-summary-write-to-file))
+ '(gnus-extra-headers (quote (To)))
+ '(gnus-gcc-mark-as-read t)
+ '(gnus-generate-tree-function (quote gnus-generate-horizontal-tree))
+ '(gnus-group-default-list-level 4)
+ '(gnus-group-line-format "%S%p%P%5y%5T: %(%G%)%l
+")
+ '(gnus-group-mode-hook (quote (gnus-topic-mode)))
+ '(gnus-group-sort-function (quote gnus-group-sort-by-method))
+ '(gnus-home-directory "~/Documents")
+ '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\)\\.com\\)")
+ '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
+ '(gnus-large-newsgroup 4000)
+ '(gnus-local-domain "newartisans.com")
+ '(gnus-message-archive-group (quote gnus-determine-archive-group))
+ '(gnus-novice-user nil)
+ '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
+ '(gnus-posting-styles (quote (("ceg" ("From" "\"John Wiegley\" <johnw@3dex.com>")))))
+ '(gnus-read-newsrc-file nil)
+ '(gnus-save-killed-list nil)
+ '(gnus-save-newsrc-file nil)
+ '(gnus-score-default-duration (quote p))
+ '(gnus-score-expiry-days 30)
+ '(gnus-score-find-score-files-function (quote (gnus-score-find-hierarchical)))
+ '(gnus-secondary-select-methods nil)
+ '(gnus-select-group-hook (quote (gnus-group-set-timestamp)))
+ '(gnus-select-method (quote (nnml)))
+ '(gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
+ '(gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
+ '(gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
+ '(gnus-split-methods (quote ((gnus-save-site-lisp-file) (gnus-article-archive-name) (gnus-article-nndoc-name))))
+ '(gnus-started-hook (quote ((lambda nil (run-hooks (quote gnus-after-getting-new-news-hook))))))
+ '(gnus-startup-file "~/Documents/.newsrc")
+ '(gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
+ '(gnus-summary-expunge-below -100)
+ '(gnus-summary-line-format "%U%R%I%(%ut: %uS %S, %uZ%)
+")
+ '(gnus-summary-mark-below -100)
+ '(gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
+ '(gnus-thread-hide-subtree nil)
+ '(gnus-thread-sort-functions (quote (gnus-thread-sort-by-number gnus-thread-sort-by-subject (not gnus-thread-sort-by-date) gnus-thread-sort-by-total-score)))
+ '(gnus-topic-display-empty-topics nil)
+ '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
+")
+ '(gnus-treat-date-lapsed (quote head))
+ '(gnus-treat-hide-citation-maybe t)
+ '(gnus-treat-strip-cr t)
+ '(gnus-treat-strip-leading-blank-lines t)
+ '(gnus-treat-strip-multiple-blank-lines t)
+ '(gnus-treat-strip-trailing-blank-lines t)
+ '(gnus-tree-minimize-window nil)
+ '(gnus-uncacheable-groups "^nnml")
+ '(gnus-use-adaptive-scoring (quote (line)))
+ '(gnus-use-cache t)
+ '(gnus-use-trees t)
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-maybe-show-regexps nil)
@@ -129,8 +199,8 @@
  '(ibuffer-use-other-window t)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
- '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 115) (height . 76))))
- '(initsplit-customizations-alist (quote (("^\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil))))
+ '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 100) (height . 76))))
+ '(initsplit-customizations-alist (quote (("^\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|check-mail\\)-" "~/Dropbox/Emacs/.gnus.el" nil))))
  '(iswitchb-max-to-show 10)
  '(iswitchb-mode t)
  '(iswitchb-use-frame-buffer-list t)
@@ -145,14 +215,40 @@
  '(mac-pass-control-to-system nil)
  '(magit-process-popup-time 15)
  '(magit-push-script "/Users/johnw/bin/push")
+ '(mail-source-delete-incoming t)
+ '(mail-source-delete-old-incoming-confirm nil)
+ '(mail-source-report-new-mail-interval 15)
+ '(mail-sources (quote ((file))))
+ '(mail-user-agent (quote gnus-user-agent))
  '(mark-holidays-in-calendar t)
+ '(message-default-headers "From: John Wiegley <jwiegley@gmail.com>
+")
+ '(message-directory "~/Documents/Mail/")
+ '(message-interactive t)
+ '(message-mail-alias-type nil)
+ '(message-mode-hook (quote (flyspell-mode footnote-mode)))
+ '(message-send-mail-function (quote message-smtpmail-send-it))
+ '(message-send-mail-partially-limit nil)
+ '(message-sendmail-envelope-from (quote header))
+ '(message-sent-hook (quote (gnus-score-followup-article)))
+ '(message-setup-hook (quote (gnus-fix-gcc-header)))
+ '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
+ '(mm-text-html-renderer (quote html2text))
  '(next-line-add-newlines nil)
+ '(nndraft-directory "~/Documents/Mail/" t)
+ '(nnmail-crosspost nil)
+ '(nnmail-expiry-target (quote my-gnus-expiry-target))
+ '(nnmail-expiry-wait 30)
+ '(nnmail-extra-headers (quote (To)))
+ '(nnmail-message-id-cache-file "~/Documents/Mail/.nnmail-cache")
+ '(nnmail-scan-directory-mail-source-once t)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
- '(org-agenda-custom-commands (quote (("d" todo "DELEGATED" nil) ("c" todo "DONE|DEFERRED|CANCELLED" ((org-agenda-files (cons "~/Dropbox/archive.txt" org-agenda-files)))) ("r" "Uncategorized entries" tags "CATEGORY=\"Inbox\"&LEVEL=2" nil) ("w" todo "WAITING" nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-overriding-header "Tasks without any priority: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))))) ("A" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("U" alltodo "" ((org-agenda-overriding-header "Unscheduled important TODO entries:") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "\\(#[BC]\\|<[0-9-]\\{10\\} [^>
+ '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
+ '(org-agenda-custom-commands (quote (("E" "Week's errands" tags "Errand&SCHEDULED<=\"<+1w>\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"" nil) ("r" "Uncategorized entries" tags "CATEGORY=\"Inbox\"&LEVEL=2" nil) ("W" agenda "" ((org-agenda-ndays 21))) ("N" alltodo "" ((org-agenda-overriding-header "Tasks without any priority: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#[ABC]\\]"))))) ("A" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's Priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("U" alltodo "" ((org-agenda-overriding-header "Unscheduled important TODO entries:") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "\\(#[BC]\\|<[0-9-]\\{10\\} [^>
 ]+>\\)"))))) ("u" alltodo "" ((org-agenda-overriding-header "Unscheduled TODO entries: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote regexp) "<[0-9-]\\{10\\} [^>
 ]+>"))))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
@@ -169,16 +265,17 @@
  '(org-agenda-scheduled-text "")
  '(org-agenda-show-all-dates t)
  '(org-agenda-skip-deadline-if-done t)
+ '(org-agenda-skip-scheduled-if-deadline-is-shown t)
  '(org-agenda-skip-scheduled-if-done t)
  '(org-agenda-skip-unavailable-files t)
- '(org-agenda-sorting-strategy (quote ((agenda time-up priority-down) (todo category-keep priority-down) (tags category-keep priority-down))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
  '(org-agenda-text-search-extra-files (quote (agenda-archives)))
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
- '(org-clock-idle-time 10)
+ '(org-clock-idle-time 1)
+ '(org-clock-in-resume t)
  '(org-clock-in-switch-to-state "STARTED")
  '(org-clock-into-drawer "LOGBOOK")
  '(org-clock-modeline-total (quote current))
@@ -194,8 +291,11 @@
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-footnote-section nil)
+ '(org-habit-preceding-days 42)
  '(org-hide-leading-stars t)
- '(org-modules (quote (org-mac-message org-bookmark org-eval org2rem)))
+ '(org-mobile-directory "~/src/mobileorg/docs")
+ '(org-mobile-inbox-for-pull "~/src/mobileorg/docs")
+ '(org-modules (quote (org-crypt org-id org-habit org-mac-message org-bookmark org-eval org-jira org2rem)))
  '(org-remember-store-without-prompt t)
  '(org-remember-templates (quote (("Task" 116 "* TODO [#B] %?
   SCHEDULED: %t
@@ -235,7 +335,11 @@
  '(show-paren-mode (quote paren))
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
- '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--16-0-72-72-m-0-iso10646-1") (top . 295) (left . 2) (width . 80) (height . 34) (alpha . 0.5) (splittable . t) (unsplittable) (dedicated)))))
+ '(smtpmail-default-smtp-server "smtp.gmail.com")
+ '(smtpmail-smtp-server "smtp.gmail.com")
+ '(smtpmail-smtp-service 587)
+ '(smtpmail-starttls-credentials (quote (("smtp.gmail.com" 587 "" ""))))
+ '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--16-0-72-72-m-0-iso10646-1") (top . 295) (left . 2) (width . 70) (height . 40) (alpha . 0.9) (splittable . t) (unsplittable) (dedicated)) ("todo\\.txt-[0-9]+" (menu-bar-lines) (tool-bar-lines) (width . 80) (height . 50) (dedicated . t) (top . 290) (left . 60)) ("\\*Org Agenda\\*" (menu-bar-lines) (tool-bar-lines) (width . 100) (height . 30) (dedicated . t) (top . 35) (left . 10)) ("journal\\.txt" (menu-bar-lines) (tool-bar-lines) (width . 80) (height . 50) (dedicated) (top . 265) (left . 1130)))))
  '(sql-sqlite-program "sqlite3")
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
@@ -250,7 +354,7 @@
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "John Wiegley")
  '(user-initials "jww")
- '(user-mail-address "johnw@newartisans.com")
+ '(user-mail-address "jwiegley@gmail.com")
  '(vc-follow-symlinks t)
  '(vc-handled-backends (quote (GIT)))
  '(version-control t)
@@ -274,6 +378,14 @@
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
  '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
  '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
+ '(message-cited-text ((((class color)) (:foreground "Blue"))))
+ '(message-header-cc ((((class color)) (:bold t :foreground "green2"))))
+ '(message-header-name ((((class color)) (:bold nil :foreground "Blue"))))
+ '(message-header-other ((((class color)) (:foreground "Firebrick"))))
+ '(message-header-subject ((((class color)) (:foreground "black"))))
+ '(message-header-xheader ((((class color)) (:foreground "Blue"))))
+ '(message-mml ((((class color)) (:foreground "DarkGreen"))))
+ '(message-separator ((((class color)) (:foreground "Tan"))))
  '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
@@ -290,7 +402,7 @@
 
 ;;;_* packages
 
-(mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
+(mapc #'load (directory-files "~/Dropbox/Emacs/lang" t "\\.el$" t))
 
 ;;;_ * browse-kill-ring
 
@@ -485,25 +597,44 @@
 		   (split-string omitted-files "\n" t)
 		   "\\|")
 		  "\\)")))
-	   (funcall dired-omit-regexp-orig))))
-
-     (defun dired-delete-file (file &optional recursive)
-       (if recursive
-	   (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
-	 (call-process "/Users/johnw/bin/del" nil nil nil file)))))
+	   (funcall dired-omit-regexp-orig))))))
 
 ;;;_ * groovy-mode
 
-(autoload 'groovy-mode "groovy-mode" "" t)
+(autoload 'groovy-mode "groovy" "" t)
 
 (add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
 (add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
 
+(defun my-groovy-mode-hook ()
+  (define-key groovy-mode-map "\C-m" 'newline-and-indent)
+  (setq groovy-indent-level 3)
+  (setq indent-tabs-mode nil)
+  (set-fill-column 100))
+
+(add-hook 'groovy-mode-hook 'my-groovy-mode-hook)
+
 ;;;_ * haskell-mode
 
 (load "haskell-site-file" t)
-(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+
+(defun my-haskell-mode-hook ()
+  (flymake-mode)
+
+  (turn-on-haskell-doc-mode)
+  (turn-on-haskell-indent)
+
+  (define-key haskell-mode-map [(control ?c) ?w]
+    'flymake-display-err-menu-for-current-line)
+  (define-key haskell-mode-map [(control ?c) ?*]
+    'flymake-start-syntax-check)
+  (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
+  (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
+
+(add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
+
+(load "inf-haskell" t)
+(load "hs-lint" t)
 
 ;;;_ * java-mode
 
@@ -728,7 +859,167 @@
      (add-to-list 'flymake-allowed-file-name-masks
 		  '("\\.l?hs\\'" flymake-hslint-init))))
 
-;;;_ * multi-region
+;;;_ * gnus
+
+(load "gnus")
+(load "gnus-agent")
+(load "eudc")
+
+(eval-after-load "message"
+  '(load "message-x"))
+
+;;;_  * Determine layout of the summary windows
+
+(gnus-add-configuration
+      '(article
+	(vertical 1.0
+		  (horizontal 0.25
+			      (summary 0.75 point)
+			      (tree 1.0))
+		  (article 1.0))))
+
+;;;_  * Cleanup all Gnus buffers on exit
+
+(defun exit-gnus-on-exit ()
+  (if (and (fboundp 'gnus-group-exit)
+	   (gnus-alive-p))
+      (with-current-buffer (get-buffer "*Group*")
+	(let (gnus-interactive-exit)
+	  (gnus-group-exit)))))
+
+(add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
+
+(defun my-gnus-get-article-date ()
+  "Extracts the date from the current article and converts it to Emacs time"
+  (save-excursion
+    (goto-char (point-min))
+    (ignore-errors
+      (gnus-date-get-time (mail-header-date gnus-current-headers)))))
+
+;;;_  * Scoring
+
+(defun gnus-score-groups ()
+  (interactive)
+  (save-excursion
+    (let (info newsrc group entry)
+      (setq newsrc (cdr gnus-newsrc-alist))
+      (while (setq info (pop newsrc))
+	(setq group (gnus-info-group info)
+	      entry (gnus-gethash group gnus-newsrc-hashtb))
+	(when (and
+	       (<= (gnus-info-level info) gnus-level-subscribed)
+	       (and (car entry)
+		    (or (eq (car entry) t)
+			(not (zerop (car entry)))))
+	       ;; (string-match "^nnml:list" group)
+	       )
+	  (ignore-errors
+	    (gnus-summary-read-group group nil t))
+	  (when (and gnus-summary-buffer
+		     (buffer-live-p gnus-summary-buffer)
+		     (eq (current-buffer) (get-buffer gnus-summary-buffer)))
+	    (gnus-summary-exit)))))))
+
+;;;_  * Summary line formats
+
+(defun gnus-user-format-function-Z (header)
+  (let ((to (cdr (assq 'To (mail-header-extra header))))
+	(newsgroups (cdr (assq 'Newsgroups (mail-header-extra header))))
+	(mail-parse-charset gnus-newsgroup-charset)
+	(mail-parse-ignored-charsets
+	 (save-excursion
+	   (set-buffer gnus-summary-buffer)
+	   gnus-newsgroup-ignored-charsets)))
+    (cond
+     ((and to gnus-ignored-from-addresses
+	   (string-match gnus-ignored-from-addresses
+			 (mail-header-from header)))
+      (concat "-> "
+	      (or (car (funcall gnus-extract-address-components
+				(funcall
+				 gnus-decode-encoded-word-function to)))
+		  (funcall gnus-decode-encoded-word-function to))))
+     ((and newsgroups gnus-ignored-from-addresses
+	   (string-match gnus-ignored-from-addresses
+			 (mail-header-from header)))
+      (concat "=> " newsgroups))
+     (t
+      (let* ((from (mail-header-from header))
+	     (data (condition-case nil
+		       (mail-extract-address-components from)
+		     (error nil)))
+	     (name (car data))
+	     (net (car (cdr data))))
+	(or name net))))))
+
+(defsubst dot-gnus-tos (time)
+  "Convert TIME to a floating point number."
+  (+ (* (car time) 65536.0)
+     (cadr time)
+     (/ (or (car (cdr (cdr time))) 0) 1000000.0)))
+
+(defun gnus-user-format-function-S (header)
+  "Return how much time it's been since something was sent."
+  (condition-case err
+      (let ((date (mail-header-date header)))
+	(if (> (length date) 0)
+	    (let* ((then (dot-gnus-tos
+			  (apply 'encode-time (parse-time-string date))))
+		   (now (dot-gnus-tos (current-time)))
+		   (diff (- now then)))
+	      (cond ((>= diff (* 86400.0 7.0 52.0))
+		     (if (>= diff (* 86400.0 7.0 52.0 10.0))
+			 (format "%3dY" (floor (/ diff (* 86400.0 7.0 52.0))))
+		       (format "%3.1fY" (/ diff (* 86400.0 7.0 52.0)))))
+		    ((>= diff (* 86400.0 30.0))
+		     (if (>= diff (* 86400.0 30.0 10.0))
+			 (format "%3dM" (floor (/ diff (* 86400.0 30.0))))
+		       (format "%3.1fM" (/ diff (* 86400.0 30.0)))))
+		    ((>= diff (* 86400.0 7.0))
+		     (if (>= diff (* 86400.0 7.0 10.0))
+			 (format "%3dw" (floor (/ diff (* 86400.0 7.0))))
+		       (format "%3.1fw" (/ diff (* 86400.0 7.0)))))
+		    ((>= diff 86400.0)
+		     (if (>= diff (* 86400.0 10.0))
+			 (format "%3dd" (floor (/ diff 86400.0)))
+		       (format "%3.1fd" (/ diff 86400.0))))
+		    ((>= diff 3600.0)
+		     (if (>= diff (* 3600.0 10.0))
+			 (format "%3dh" (floor (/ diff 3600.0)))
+		       (format "%3.1fh" (/ diff 3600.0))))
+		    ((>= diff 60.0)
+		     (if (>= diff (* 60.0 10.0))
+			 (format "%3dm" (floor (/ diff 60.0)))
+		       (format "%3.1fm" (/ diff 60.0))))
+		    (t
+		     (format "%3ds" (floor diff)))))))
+    (error "    ")))
+
+(eval-when-compile
+  (defvar thread)
+  (defvar gnus-tmp-level))
+
+(defun gnus-user-format-function-t (header)
+  (let ((tcount (gnus-summary-number-of-articles-in-thread
+		 (and (boundp 'thread) (car thread)) gnus-tmp-level)))
+    (if (> tcount 1)
+	(number-to-string tcount)
+      " ")))
+
+;;;_  * keybindings
+
+;;;_   * gnus-group-score
+
+(eval-after-load "gnus-group"
+  '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
+
+;;;_   * mml
+
+(eval-after-load "mml"
+  '(define-key mml-mode-map [(control ?c) (control ?m) ?w]
+     'muse-message-markup))
+
+;;;_   * multi-region
 
 (when (require 'multi-region nil t)
   (define-key mode-specific-map [?2] multi-region-map))
@@ -751,6 +1042,40 @@
 	    (save-buffer))))))
 
 (run-with-idle-timer 25 t 'save-org-mode-files)
+
+(defun org-my-auto-exclude-function (tag)
+  (and (cond
+	((string= tag "Net")
+	 (/= 0 (call-process "/sbin/ping" nil nil nil
+			     "-c1" "-q" "-t1" "mail.gnu.org")))
+	((string= tag "Home")
+	 (with-temp-buffer
+	   (call-process "/sbin/ifconfig" nil t nil "en0" "inet")
+	   (goto-char (point-min))
+	   (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
+	((or (string= tag "Errand") (string= tag "Call"))
+	 (let ((hour (nth 2 (decode-time))))
+	   (or (< hour 8) (> hour 21)))))
+       (concat "-" tag)))
+
+(defun org-indent-empty-items (arg)
+  (when (eq arg 'empty)
+    (goto-char (line-end-position))
+    (cond
+     ((org-at-item-p) (org-indent-item 1))
+     ((org-on-heading-p)
+      (if (equal this-command last-command)
+	  (condition-case nil
+	      (org-promote-subtree)
+	    (error
+	     (save-excursion
+	       (goto-char (point-at-bol))
+	       (and (looking-at "\\*+") (replace-match ""))
+	       (org-insert-heading)
+	       (org-demote-subtree))))
+	(org-demote-subtree))))))
+
+(add-hook 'org-pre-cycle-hook 'org-indent-empty-items)
 
 (defun org-my-state-after-clock-out (state)
   (if (string= state "STARTED")
@@ -859,26 +1184,29 @@ This can be 0 for immediate, or a floating point value.")
 
 (defun org-inline-note (&optional arg)
   (interactive "P")
-  (if arg
-      (call-interactively 'jump-to-ledger-journal)
-    (switch-to-buffer-other-window "todo.txt")
-    (goto-char (point-min))
-    (re-search-forward "^\\* Inbox$")
-    (re-search-forward "^  :END:")
-    (forward-line)
-    (goto-char (line-beginning-position))
-    (insert "** NOTE ")
-    (save-excursion
-      (insert (format "
+  (select-window
+   (display-buffer (find-file-noselect "~/Dropbox/journal.txt") t t))
+  (if nil
+      (if arg
+	  (call-interactively 'jump-to-ledger-journal)
+	(switch-to-buffer-other-window "todo.txt")
+	(goto-char (point-min))
+	(re-search-forward "^\\* Inbox$")
+	(re-search-forward "^  :END:")
+	(forward-line)
+	(goto-char (line-beginning-position))
+	(insert "** NOTE ")
+	(save-excursion
+	  (insert (format "
    :PROPERTIES:
    :ID: %s   :VISIBILITY: folded
    :END:
    " (shell-command-to-string "uuidgen")))
-      (org-insert-time-stamp nil t 'inactive)
-      (insert ?\n))
-    (save-excursion
-      (forward-line)
-      (org-cycle))))
+	  (org-insert-time-stamp nil t 'inactive)
+	  (insert ?\n))
+	(save-excursion
+	  (forward-line)
+	  (org-cycle)))))
 
 (defun org-remember-note ()
   (interactive)
@@ -1080,7 +1408,7 @@ end tell" (match-string 1))))
 
 (when (load "yasnippet" t)
   (yas/initialize)
-  (yas/load-directory "~/Library/Emacs/snippets/"))
+  (yas/load-directory "~/Dropbox/Emacs/snippets/"))
 
 ;;;_ * diminish
 
@@ -1137,16 +1465,25 @@ end tell" (match-string 1))))
 
 (defun collapse-or-expand (&optional arg)
   (interactive "P")
-  (if (> (length (window-list)) 1)
-      (if arg
-	  (delete-window)
-	(delete-other-windows))
-    (if arg
+  (let ((frame (selected-frame)))
+    (if (not (eq frame (get-main-frame)))
 	(progn
-	  (split-window-vertically)
-	  (setq this-command 'isearchb-activate)
-	  (call-interactively 'isearchb-activate))
-      (bury-buffer))))
+	  (if (string-match "todo\\.txt-[0-9]+"
+			    (buffer-name (window-buffer
+					  (frame-first-window frame))))
+	      (let ((inhibit-redisplay t))
+		(delete-frame frame)))
+	  (call-interactively 'main-frame))
+      (if (> (length (window-list)) 1)
+	  (if arg
+	      (delete-window)
+	    (delete-other-windows))
+	(if arg
+	    (progn
+	      (split-window-vertically)
+	      (setq this-command 'isearchb-activate)
+	      (call-interactively 'isearchb-activate))
+	  (bury-buffer))))))
 
 (define-key global-map [(control ?z)] 'collapse-or-expand)
 
@@ -1169,7 +1506,33 @@ end tell" (match-string 1))))
 (define-key lisp-find-map [?v] 'find-variable)
 (define-key lisp-find-map [?k] 'find-function-on-key)
 
+(defun visit-ledger-channel ()
+  (interactive)
+  (select-window (display-buffer "#ledger" t t)))
+
+(defun get-main-frame ()
+  (catch 'found
+    (dolist (frame (frame-list))
+      (let* ((wind (frame-first-window frame))
+	     (title (buffer-name (window-buffer wind))))
+	(unless (or (string= "*Org Agenda*" title)
+		    (string= "#ledger" title)
+		    (string= "journal.txt" title)
+		    (string-match "todo\\.txt-[0-9]+" title))
+	  (throw 'found frame))))))
+
+(defun main-frame ()
+  (interactive)
+  (select-frame-set-input-focus (get-main-frame)))
+
+(define-key global-map [(alt ?c)] 'jump-to-org-agenda)
+(define-key global-map [(alt ?m)] 'main-frame)
+(define-key global-map [(meta ?\])] 'main-frame)
+(define-key global-map [(alt ?l)] 'visit-ledger-channel)
+(define-key global-map [(alt ?z)] 'org-inline-note)
+
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
+(define-key global-map [(meta ?G)] 'gnus)
 (define-key global-map [(meta ?N)] 'winner-redo)
 (define-key global-map [(meta ?P)] 'winner-undo)
 (define-key global-map [(meta ?T)] 'tags-search)
@@ -1188,6 +1551,7 @@ end tell" (match-string 1))))
 (define-key global-map [(meta ?\[)] 'align-code)
 (define-key global-map [(meta ?!)]  'eshell-command)
 (define-key global-map [(meta ?`)]  'other-frame)
+(define-key global-map [(alt ?`)]   'delete-frame)
 
 (defun mark-line (&optional arg)
   (interactive "p")
@@ -1444,7 +1808,7 @@ expand wildcards (if any) and visit multiple files."
 	    (select-window wind)
 	  (if (called-interactively-p)
 	      (progn
-		(switch-to-buffer-other-window buf)
+		(select-window (display-buffer buf t t))
 		(org-fit-window-to-buffer)
 		;; (org-agenda-redo)
 		)
@@ -1481,19 +1845,6 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?t ?u] 'timeclock-update-modeline)
 (define-key mode-specific-map [?t (control ?m)] 'timeclock-status-string)
 
-(defun my-org-todo-search ()
-  (interactive)
-  (find-file-other-window "~/Dropbox/todo.txt")
-  (goto-char (point-min))
-  (call-interactively 'isearch-forward))
-
-(defun my-org-todo-archive-search ()
-  (interactive)
-  (find-file-other-window "~/Dropbox/archive.txt")
-  (goto-char (point-min))
-  (call-interactively 'isearch-forward))
-
-(define-key mode-specific-map [?t ?s] 'my-org-todo-search)
 (define-key mode-specific-map [?t ?a] 'tags-apropos)
 
 (define-key mode-specific-map [?u] 'rename-uniquely)
