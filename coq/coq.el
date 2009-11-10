@@ -108,7 +108,7 @@ On Windows you might need something like:
 ;;  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
-(defvar coq-shell-proof-completed-regexp "Subtree proved!\\|Proof Completed\\."
+(defvar coq-shell-proof-completed-regexp "Subtree\\s-proved!\\|Proof\\s-completed"
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar coq-goal-regexp
@@ -1099,7 +1099,7 @@ mouse activation."
 Based on idea mentioned in Coq reference manual."
   (interactive)
   (let* ((shints (proof-shell-invisible-cmd-get-result "Show Intros."))
-         (intros (replace-regexp-in-string "^\\([^\n]+\\)\n"  "intros \\1." shints)))
+         (intros (replace-regexp-in-string "^\\([^\n]+\\)\n"  "intros \\1." shints t)))
     (if (or (< (length shints) 2);; empty response is just NL
             (string-match coq-error-regexp shints))
         (error "Don't know what to intro. ")
@@ -1201,6 +1201,7 @@ be asked to the user."
 
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
+(define-key coq-keymap [(control ?a)] 'coq-searchabout)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
@@ -1211,14 +1212,10 @@ be asked to the user."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
-
-;
-;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
-;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
-;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
-;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
-;
-
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-searchabout 'coq-About)
+; window auto-resize makes this bug sometimes. Too bad!.
+k)
+;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-C
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
@@ -1399,7 +1396,7 @@ number of hypothesis displayed, without hiding the goal"
   (<= (- (frame-height) (window-height)) 2))
 
 
-;; *Experimental* auto shrink response buffer in three indows mode. Things get
+;; *Experimental* auto shrink response buffer in three windows mode. Things get
 ;; a bit messed up if the response buffer is not at the right place (below
 ;; goals buffer) TODO: Have this linked to proof-resize-window-tofit in
 ;; proof-utils.el + customized by the "shrink to fit" menu entry
@@ -1434,9 +1431,9 @@ Only when three-buffer-mode is enabled."
 ;; Adapt when displaying an error or interrupt
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'optim-resp-windows)
 
-
-
 (provide 'coq)
+
+
 
 ;;   Local Variables: ***
 ;;   fill-column: 79 ***
