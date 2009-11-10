@@ -1214,8 +1214,7 @@ be asked to the user."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-searchabout 'coq-About)
 ; window auto-resize makes this bug sometimes. Too bad!.
-k)
-;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-C
+;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
