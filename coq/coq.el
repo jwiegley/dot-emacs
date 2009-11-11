@@ -1212,7 +1212,7 @@ be asked to the user."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
-(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-searchabout 'coq-About)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-searchabout)
 ; window auto-resize makes this bug sometimes. Too bad!.
 ;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
 
