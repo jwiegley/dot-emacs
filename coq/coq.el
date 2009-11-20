@@ -1201,7 +1201,7 @@ be asked to the user."
 
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
-(define-key coq-keymap [(control ?a)] 'coq-searchabout)
+(define-key coq-keymap [(control ?a)] 'coq-searchAbout)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
