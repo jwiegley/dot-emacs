@@ -11,16 +11,6 @@
 ;;
 
 ;;
-;; X-Symbol -- backwards compatibility
-;;
-
-(let ((xsymbol (getenv "PROOFGENERAL_XSYMBOL")))
-
-  ;; tell Proof General about -x option
-  (if (and xsymbol (not (equal xsymbol "")))
-      (customize-set-variable 'isar-unicode-tokens-enable (equal xsymbol "true"))))
-
-;;
 ;; Unicode
 ;;
 
@@ -29,7 +19,15 @@
       (customize-set-variable 'proof-shell-unicode (equal unicode "true"))))
 
 ;;
-;; Proof General
+;; Unicode symbols
+;;
+
+(let ((symbols (getenv "PROOFGENERAL_UNICODE_SYMBOLS")))
+  (if (and symbols (not (equal symbols "")))
+      (customize-set-variable 'isar-unicode-tokens-enable (equal symbols "true"))))
+
+;;
+;; Proof General startup
 ;;
 
 (if (not (featurep 'proof-site))
