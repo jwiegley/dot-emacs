@@ -447,13 +447,24 @@ matches contents of quotes for quoted identifiers.")
 
 (defconst isar-undo "ProofGeneral.undo;")
 
+(defun isar-pr ()
+  (if (member "ProofGeneral\\.pr" 
+	      isar-keywords-major)
+      "ProofGeneral.pr" ; does right thing
+    "pr" ; See Trac #292 
+    ))
+
 (defun isar-remove (name)
   (concat "init_toplevel; kill_thy " name ";"))
 
 (defun isar-undos (linearp i)
   (if (> i 0) (concat (if linearp "linear_undo " "undos_proof ")
 		      (int-to-string i) ";"
-		      (if linearp " pr; ")) ; See Trac #292 
+		      (if linearp 
+			  (concat " "
+				  (isar-pr)
+				  ";"))
+		      )
     nil))  ; was proof-no-command
 
 (defun isar-cannot-undo (cmd)
