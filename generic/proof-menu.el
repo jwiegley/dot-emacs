@@ -753,7 +753,7 @@ KEY is the optional key binding."
 				proof-assistant-settings))
 		 (cmds  (mapcar (lambda (stg)
 				  (apply 'proof-menu-entry-for-setting stg))
-				gstgs)))
+				(reverse gstgs))))
 	    (setq ents
 		  (if grp (cons (cons grp cmds) ents)
 		    (append cmds
