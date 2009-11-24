@@ -447,7 +447,7 @@ matches contents of quotes for quoted identifiers.")
 
 (defconst isar-undo "ProofGeneral.undo;")
 
-(defun isar-pr ()
+(defconst isar-pr
   (if (member "ProofGeneral\\.pr" 
 	      isar-keywords-major)
       "ProofGeneral.pr" ; does right thing
@@ -462,7 +462,7 @@ matches contents of quotes for quoted identifiers.")
 		      (int-to-string i) ";"
 		      (if linearp 
 			  (concat " "
-				  (isar-pr)
+				  isar-pr
 				  ";"))
 		      )
     nil))  ; was proof-no-command
