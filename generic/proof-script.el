@@ -235,8 +235,7 @@ Also clear list of script portions."
   (span-set-property proof-locked-span 'start-closed t)
   (span-set-property proof-locked-span 'end-open t)
   (proof-span-read-only proof-locked-span)
-  (if proof-colour-locked
-      (span-set-property proof-locked-span 'face 'proof-locked-face))
+  (proof-colour-locked-span)
   (span-detach proof-locked-span)
   (setq proof-overlay-arrow (make-marker))
   (setq overlay-arrow-position proof-overlay-arrow)
@@ -246,13 +245,28 @@ Also clear list of script portions."
 
 ;;;###autoload
 (defun proof-colour-locked ()
-  "Alter the colour of the locked region according to variable `proof-colour-locked'."
+  "Alter the colour of all locked regions according to variable `proof-colour-locked'."
   (interactive)
   (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
    (and (span-live-p proof-locked-span)
-    (if proof-colour-locked
-	   (span-set-property proof-locked-span 'face 'proof-locked-face)
-      (span-set-property  proof-locked-span 'face nil)))))
+	(proof-colour-locked-span))))
+
+(defun proof-colour-locked-span ()
+  "Alter the colour of the locked region according to variable `proof-colour-locked'."
+  (if proof-colour-locked
+      (span-set-property proof-locked-span 'face 'proof-locked-face)
+    (span-set-property  proof-locked-span 'face nil)))
+
+(defun proof-sticky-errors ()
+  "Alter the colour of sticky errors to match `proof-sticky-errors'.
+This function is not yet implemented, so the colouring will stay
+in effect until the regions are next cleared, or only be added the
+next time an error is processed."
+  ;; TODO: we need to tag spans separately as error spans, and
+  ;; map over all spans in all buffers.
+  )
+  
+  
 
 ;; ** Restarting and clearing spans
 
@@ -308,9 +322,10 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	  ;; jump to start of error: should this be configurable?
 	  (goto-char (span-start badspan))
 	  (skip-chars-forward " \t\n"))
-	(pg-set-span-helphighlights badspan 
-				    'proof-script-error-face
-				    'underline))
+	(when proof-sticky-errors
+	  (pg-set-span-helphighlights badspan 
+				      'proof-script-highlight-error-face
+				      'proof-script-sticky-error-face)))
       (proof-script-delete-spans start end)))
 
 (defun proof-script-delete-spans (beg end)
@@ -321,6 +336,7 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 (defun proof-script-delete-secondary-spans (beg end)
   "Delete secondary spans between BEG and END (currently, 'pghelp spans)."
   (span-delete-spans beg end 'pghelp))
+
 
 
 
