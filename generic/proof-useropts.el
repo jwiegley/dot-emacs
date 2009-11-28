@@ -199,6 +199,13 @@ on locked regions."
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defcustom proof-sticky-errors nil
+  "*If non-nil, add highlighting to regions which gave errors.
+Intended to complement `proof-colour-locked'."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
 (defcustom proof-query-file-save-when-activating-scripting
   t
 "*If non-nil, query user to save files when activating scripting.
