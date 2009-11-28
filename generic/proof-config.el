@@ -1748,10 +1748,7 @@ Subsequent special characters with values *below*
 indicators.  Annotations should be finished with `pg-subterm-sep-char';
 the end of the concrete syntax is indicated by `pg-subterm-end-char'.
 
-If `pg-subterm-start-char' is nil, subterm markup is disabled.
-
-See doc of `pg-assoc-analyse-structure' for more details of
-subterm and proof-by-pointing markup mechanisms.."
+If `pg-subterm-start-char' is nil, subterm markup is disabled."
   :type '(choice character (const nil))
   :group 'proof-goals)
 
