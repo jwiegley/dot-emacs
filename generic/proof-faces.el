@@ -108,7 +108,7 @@ Exactly what uses this face depends on the proof assistant."
 
 (defface proof-error-face
   (proof-face-specs
-   (:background "indianred1")
+   (:background "rosybrown1") ; a drab version of misty rose 
    (:background "brown")
    (:bold t))
   "*Face for error messages from proof assistant."
@@ -152,7 +152,7 @@ Warning messages can come from proof assistant or from Proof General itself."
    (:background "lightblue")
    (:background "darkslateblue")
    (:italic t))
-  "*General mouse highlighting face."
+  "*General mouse highlighting face used in script buffer."
   :group 'proof-faces)
 
 (defface proof-highlight-dependent-face
@@ -179,11 +179,22 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*Face for showing active areas (clickable regions), outside of subterm markup."
   :group 'proof-faces)
 
-(defface proof-script-error-face
-  '((t
-     (:inherit font-lock-warning-face)))
+(defface proof-script-sticky-error-face
+  (proof-face-specs
+   (:background "indianred1")
+   (:background "indianred3")
+   (:underline t))
+  "Proof General face for marking an error in the proof script. "
+  :group 'proof-faces)
+
+(defface proof-script-highlight-error-face
+  (proof-face-specs
+    (:background "indianred1" :bold t)
+    (:background "indianred3" :bold t)
+    (:underline t :bold t))
   "Proof General face for highlighting an error in the proof script. "
   :group 'proof-faces)
+
 
 
 ;;; Compatibility: these are required for use in GNU Emacs/font-lock-keywords
@@ -195,6 +206,8 @@ Warning messages can come from proof assistant or from Proof General itself."
 (defconst proof-tacticals-name-face 'proof-tacticals-name-face proof-face-compat-doc)
 (defconst proof-tactics-name-face 'proof-tactics-name-face proof-face-compat-doc)
 (defconst proof-error-face 'proof-error-face proof-face-compat-doc)
+(defconst proof-script-sticky-error-face 'proof-script-sticky-error-face proof-face-compat-doc)
+(defconst proof-script-highlight-error-face 'proof-script-highlight-error-face proof-face-compat-doc)
 (defconst proof-warning-face 'proof-warning-face proof-face-compat-doc)
 (defconst proof-eager-annotation-face 'proof-eager-annotation-face proof-face-compat-doc)
 (defconst proof-debug-message-face 'proof-debug-message-face proof-face-compat-doc)
