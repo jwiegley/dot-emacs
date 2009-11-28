@@ -117,9 +117,6 @@ The logic image name is tagged onto the end."
   :type 'file
   :group 'isabelle)
 
-(defvar isabelle-prog-name nil
-  "Set from `isabelle-set-prog-name', has name of logic appended sometimes.")
-
 (defun isa-tool-list-logics ()
   "Generate a list of available object logics."
   (if (isa-set-isabelle-command)
@@ -170,7 +167,7 @@ at the top of your theory file, like this:
 
 (defun isabelle-set-prog-name (&optional filename)
   "Make proper command line for running Isabelle.
-This function sets `isabelle-prog-name' and `proof-prog-name'."
+This function sets `proof-prog-name' and `isar-prog-args'."
   (let*
       ;; The ISABELLE_PROCESS and PROOFGENERAL_LOGIC values (set when
       ;; run under the interface wrapper script) indicate command line
@@ -180,18 +177,17 @@ This function sets `isabelle-prog-name' and `proof-prog-name'."
 		  (getenv "ISABELLE_PROCESS")	  ; command line override
 		  (isa-getenv "ISABELLE_PROCESS") ; choose to match isabelle
 		  "isabelle-process"))		  ; to
-       (isabelle-opts (getenv "ISABELLE_OPTIONS"))
-       (opts (concat " -PI"  ;; Proof General + Isar
-	      (if proof-shell-unicode " -m PGASCII" "")
-	      (if (and isabelle-opts (not (equal isabelle-opts "")))
-		  (concat " " isabelle-opts) "")))
+       (isabelle-opts (split-string (getenv "ISABELLE_OPTIONS")))
+       (opts (append (list "-PI")  ;; Proof General + Isar
+		     (if proof-shell-unicode (list "-m" "PGASCII") nil)
+		     isabelle-opts))
        (logic (or isabelle-chosen-logic
 		  (getenv "PROOFGENERAL_LOGIC")))
        (logicarg (if (and logic (not (equal logic "")))
-		     (concat " " logic) "")))
+		     (list logic) nil)))
     (setq isabelle-chosen-logic-prev isabelle-chosen-logic)
-    (setq isabelle-prog-name (concat isabelle opts logicarg))
-    (setq proof-prog-name isabelle-prog-name)))
+    (setq isar-prog-args (append opts logicarg))
+    (setq proof-prog-name isabelle)))
 
 (defun isabelle-choose-logic (logic)
   "Adjust isabelle-prog-name and proof-prog-name for running LOGIC."
