@@ -204,7 +204,8 @@ If LIST is empty, return a disabled menu item with NAME."
 (defun proof-make-highlight-depts-menu (name fn span prop)
   "Return a menu item that for highlighting dependents/depencies of SPAN."
   (let ((deps (span-property span prop)))
-    (vector name `(,fn ,(span-property span 'name) (quote ,deps)) (not (not deps)))))
+    (vector name `(,fn ,(span-property span 'name) (quote ,deps)) 
+	    (not (not deps)))))
 
 
 ;;
@@ -249,7 +250,7 @@ This is simply to display the dependency somehow."
       (setq nmspans (cdr nmspans)))))
 
 (defun proof-dep-unhighlight ()
-  "Returned all highlighted spans in file to the proof-locked-face highlighting."
+  "Returned all highlighted spans in file to the `proof-locked-face' highlighting."
   (interactive)
   ;; FIXME: not quite right!  Will highlight spans in queue as locked too,
   ;; and covers too many spans.
