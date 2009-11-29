@@ -1,6 +1,6 @@
 ;; pg-pbrpm.el --- Proof General - Proof By Rules Pop-up Menu - mode.
 ;;
-;; Copyright (C) 2004 - Universite de Savoie, France.
+;; Copyright (C) 2004, 2009 - Universite de Savoie, France.
 ;; Authors:   Jean-Roch SOTTY, Christophe Raffalli
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -335,19 +335,22 @@ The prover command is processed via pg-pbrpm-run-command."
 	 (progn
 	   (pg-pbrpm-erase-buffer-menu)
 	   (delete-frame)))
-     (let (span)
-       (pop-to-buffer proof-script-buffer)
-       (proof-activate-scripting)
-       (proof-goto-end-of-locked)
-       (proof-activate-scripting)
-       (insert (concat "\n" command))
-       (setq span (span-make (proof-locked-end) (point)))
-      ; TODO : define the following properties for PBRPM, I don't understand their use ...
-       (span-set-property span 'type 'pbp)
-       (span-set-property span 'cmd command)
-       (proof-start-queue (proof-unprocessed-begin) (point)
-			  (list (list span (list command)
-				      'proof-done-advancing))))))
+     ;; da: why not just this?
+     (pop-to-buffer proof-script-buffer)
+     (let ((proof-one-command-per-line t))
+       (proof-insert-pbp-command command))))
+     ;; (let (span)
+     ;;   (pop-to-buffer proof-script-buffer)
+     ;;   (proof-goto-end-of-locked)
+     ;;   (proof-activate-scripting nil 'advancing)
+     ;;   (insert (concat "\n" command))
+     ;;   (setq span (span-make (proof-locked-end) (point)))
+     ;;  ; TODO : define the following properties for PBRPM, I don't understand their use ...
+     ;;   (span-set-property span 'type 'pbp)
+     ;;   (span-set-property span 'cmd command)
+     ;;   (proof-start-queue (proof-unprocessed-begin) (point)
+     ;; 			  (list (list span (list command)
+     ;; 				      'proof-done-advancing))))))
 
 ;;--------------------------------------------------------------------------;;
 ;; Click Informations extractors
