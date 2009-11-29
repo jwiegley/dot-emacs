@@ -70,7 +70,7 @@
 
 @set version 4.0
 @set emacsversion 23.1
-@set last-update September 2009
+@set last-update November 2009
 @set rcsid $Id$
 
 @ifinfo
@@ -834,14 +834,14 @@ Coq, on the other hand, requires a full-stop terminator at the end of
 each line, so @kbd{C-c C-.} is the key binding used to turn on
 electric terminator.  If you don't know what the terminator character
 is, you can find the option anyway on the menu:
-@code{Proof General -> Options -> Electric Terminator}
+@code{Proof General -> Quick Options -> Electric Terminator}
 which also shows the key binding.
 
 If you want to use electric terminator, you can customize Proof
 General to enable it everytime if you want, @xref{Customizing Proof
 General}.  For the common options, customization is particularly easy: just
-use the menu item @code{Proof General -> Options} to make your choices,
-and @code{Proof General -> Options -> Save Options} to
+use the menu item @code{Proof General -> Quick Options} to make your choices,
+and @code{Proof General -> Quick Options -> Save Options} to
 save your choices.
 
 
@@ -1423,8 +1423,8 @@ If inside a comment, just process until the start of the comment.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-undo-last-successful-command
-@deffn Command proof-undo-last-successful-command 
-Undo last successful command at end of locked region.
+@deffn Command proof-undo-last-successful-command &optional arg
+Undo last successful command(s) at end of locked region.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-undo-and-delete-last-successful-command
@@ -1774,7 +1774,7 @@ Several configuration settings can be used to fine tune this behaviour.
 
 First, you may select
 @lisp
-Proof General -> Options -> Full Annotations
+Proof General -> Quick Options -> Full Annotations
 @end lisp
 to ensure that the details are recorded in the script.  This is not the
 default because it can cause long sequences of commands to execute more
@@ -1784,28 +1784,39 @@ developing smaller files, it is very useful.
 
 Next, you may @i{de}select 
 @lisp
-Proof General -> Options -> Display -> Auto Raise
+Proof General -> Quick Options -> Display -> Auto Raise
 @end lisp
 which will prevent the prover output being eagerly displayed.  You can
 still manually arrange your Emacs windows and frames to ensure the
 output buffers are present if you want.  
 
-You may like @i{de}select
+You may like to @i{de}select
 @lisp
-Proof General -> Options -> Display -> Colour Locked
+Proof General -> Quick Options -> Display -> Colour Locked
 @end lisp
 to prevent highlighting of the locked region.  This text which
 has been checked and that which has not is less obvious, but 
 you can see the position of the next command to be processed
 with the marker.
 
-Finall, you may like to select
+If you have no colouring on the locked region, it can be hard to see
+where processing has got to.  Or if it has stopped on a region with
+an error.  You can select
 @lisp
-Proof General -> Options -> Retract On Edit
+Proof General -> Quick Options -> Proof Sticky Errors
+@end lisp
+to add a higlight for regions which did not successfully process
+on the last attempt.  If the region is edited in anyway, the
+highlight is removed. 
+@comment TODO: add documentation about overlay marker
+
+Finally, you may like to select
+@lisp
+Proof General -> Quick Options -> Retract On Edit
 @end lisp
 to enable this option, you must first @i{de}select 
 @lisp
-Proof General -> Options -> Strict Read Only
+Proof General -> Quick Options -> Strict Read Only
 @end lisp
 Retract on edit is a setting for the `proof-strict-read-only' variable.
 This allows you to freely edit the processed region, but first
@@ -1841,7 +1852,7 @@ on a completed proof}, or the key @kbd{C-c v}, which runs
 
 You can also select the ``disappearing proofs'' mode from the menu,
 @lisp
-  Proof-General -> Options -> Disappearing Proofs
+  Proof-General -> Quick Options -> Disappearing Proofs
 @end lisp 
 This automatically hides each the body of each proof portion
 as it is completed by the proof assistant.
@@ -2625,7 +2636,7 @@ manual for further details).
 
 To use Imenu, select the option
 @lisp
-        Proof General -> Options -> Index Menu
+        Proof General -> Quick Options -> Index Menu
 @end lisp
 This adds an "Index" menu to the main menu bar for proof script buffers.
 You can also use @kbd{M-x imenu} for keyboard-driven completion of tags
@@ -2639,7 +2650,7 @@ file or tag.
 
 To use Speedbar, use 
 @lisp
-        Tools -> Display Speedbar 
+        Proof General -> Quick Options -> Minor Modes -> Speedbar 
 @end lisp
 If you prefer the old fashioned way, `M-x speedbar' does
 the same job.
@@ -2931,7 +2942,7 @@ covering each assistant for details of those settings.
 Proof General has some common options which you can toggle directly from
 the menu:
 @lisp
-   Proof-General -> Options
+   Proof-General -> Quick Options
 @end lisp
 The effect of changing one of these options will be seen immediately (or
 in the next proof step).  The window-control options
@@ -2940,7 +2951,7 @@ on this menu are described shortly.  @xref{Display customization}.
 To save the current settings for these options (only), use the Save
 Options command in the submenu:
 @lisp
-   Proof General -> Options -> Save Options
+   Proof General -> Quick Options -> Save Options
 @end lisp
 or @code{M-x customize-save-customized}.
 
@@ -3018,7 +3029,7 @@ the amount of information shown, or by using multiple frames.
 The customization options are explained below; they are also available 
 on the menu:
 @lisp
-  Proof-General -> Options -> Display
+  Proof-General -> Quick Options -> Display
 @end lisp
 and you can save your preferred default. 
 
@@ -3228,8 +3239,6 @@ If nil, undo is blocked if the next undo is in processed text.
 The default value is @code{nil}.
 @end defopt
 
-@c This one removed: proof-auto-retract
-
 @c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
 @defopt proof-query-file-save-when-activating-scripting 
 If non-nil, query user to save files when activating scripting.
@@ -3395,8 +3404,8 @@ The default value is @code{nil}.
 @node Changing faces
 @section Changing faces
 
-The fonts and colours that Proof General uses are configurable.  If you
-alter faces through the customize menus (or the command @kbd{M-x
+The numerous fonts and colours that Proof General uses are configurable.
+If you alter faces through the customize menus (or the command @kbd{M-x
 customize-face}), only the particular kind of display in use (colour
 window system, monochrome window system, console, @dots{}) will be
 affected.  This means you can keep separate default settings for each
@@ -3409,6 +3418,13 @@ script or proof assistant output.  These can be altered to your taste
 just as easily, but note that changes will affect all other modes
 which use them!
 
+@menu
+* Script buffer faces::
+* Goals and response faces::
+@end menu
+
+@node Script buffer faces
+@subsection Script buffer faces
 
 @c TEXI DOCSTRING MAGIC: proof-queue-face
 @deffn Face proof-queue-face 
@@ -3419,6 +3435,42 @@ Face for commands in proof script waiting to be processed.
 @deffn Face proof-locked-face 
 Face for locked region of proof script (processed commands).
 @end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-script-sticky-error-face
+@deffn Face proof-script-sticky-error-face 
+Proof General face for marking an error in the proof script. 
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-script-highlight-error-face
+@deffn Face proof-script-highlight-error-face 
+Proof General face for highlighting an error in the proof script. 
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-mouse-highlight-face
+@deffn Face proof-mouse-highlight-face 
+General mouse highlighting face used in script buffer.
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-highlight-dependent-face
+@deffn Face proof-highlight-dependent-face 
+Face for showing (backwards) dependent parts.
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-highlight-dependency-face
+@deffn Face proof-highlight-dependency-face 
+Face for showing (forwards) dependencies.
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-declaration-name-face
+@deffn Face proof-declaration-name-face 
+Face for declaration names in proof scripts.@*
+Exactly what uses this face depends on the proof assistant.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-tacticals-name-face
+@deffn Face proof-tacticals-name-face 
+Face for names of tacticals in proof scripts.@*
+Exactly what uses this face depends on the proof assistant.
+@end deffn
+
+
+@node Goals and response faces
+@subsection Goals and response faces
 
 @c TEXI DOCSTRING MAGIC: proof-error-face
 @deffn Face proof-error-face 
@@ -3436,19 +3488,14 @@ Warning messages can come from proof assistant or from Proof General itself.
 Face for debugging messages from Proof General.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-declaration-name-face
-@deffn Face proof-declaration-name-face 
-Face for declaration names in proof scripts.@*
-Exactly what uses this face depends on the proof assistant.
+@c TEXI DOCSTRING MAGIC: proof-boring-face
+@deffn Face proof-boring-face 
+Face for boring text in proof assistant output.
 @end deffn
-
-
-@c TEXI DOCSTRING MAGIC: proof-tacticals-name-face
-@deffn Face proof-tacticals-name-face 
-Face for names of tacticals in proof scripts.@*
-Exactly what uses this face depends on the proof assistant.
+@c TEXI DOCSTRING MAGIC: proof-active-area-face
+@deffn Face proof-active-area-face 
+Face for showing active areas (clickable regions), outside of subterm markup.
 @end deffn
-
 @c TEXI DOCSTRING MAGIC: proof-eager-annotation-face
 @deffn Face proof-eager-annotation-face 
 Face for important messages from proof assistant.
