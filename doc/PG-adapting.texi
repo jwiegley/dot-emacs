@@ -62,7 +62,7 @@
 
 @set version 4.0
 @set emacsversion 23.1
-@set last-update September 2009
+@set last-update November 2009
 @set rcsid $Id$
 
 @ifinfo
@@ -824,10 +824,9 @@ nested proofs; the present state is only part of the way there).
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
 @defvar proof-goal-command-regexp 
 Matches a goal command in the proof script.@*
-This is used (1) to make the default value for @samp{@code{proof-goal-command-p}},
+This is used to make the default value for @samp{@code{proof-goal-command-p}},
 used as an important part of script management to find the start
-of an atomic undo block, and (2) to construct the default
-for @samp{@code{proof-script-next-entity-regexps}} used for function menus.
+of an atomic undo block.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-goal-command-p
@@ -873,8 +872,7 @@ Regexp which matches a command to save a named theorem.@*
 The name of the theorem is built from the variable
 @samp{@code{proof-save-with-hole-result}} using the same convention as
 @samp{@code{query-replace-regexp}}.
-Used for setting names of goal..save and proof regions and for
-default function-menu configuration in @samp{proof-script-find-next-entity}.
+Used for setting names of goal..save and proof regions.
 
 It's safe to leave this setting as nil.
 @end defvar
@@ -2020,9 +2018,6 @@ indicators.  Annotations should be finished with @samp{@code{pg-subterm-sep-char
 the end of the concrete syntax is indicated by @samp{@code{pg-subterm-end-char}}.
 
 If @samp{@code{pg-subterm-start-char}} is nil, subterm markup is disabled.
-
-See doc of @samp{pg-assoc-analyse-structure} for more details of
-subterm and proof-by-pointing markup mechanisms..
 @end defvar
 @c TEXI DOCSTRING MAGIC: pg-subterm-sep-char
 @defvar pg-subterm-sep-char 
@@ -3098,46 +3093,33 @@ The function @code{proof-segment-up-to} is the main one used for parsing
 the proof script buffer.  There are several variants of this function
 available corresponding to different parsing strategies; the appropriate
 one is aliased to @code{proof-segment-up-to} according to which
-configuration variables have been set.  If only
-@code{proof-script-command-end-regexp} or @code{proof-terminal-char} are set,
-then the default is @code{proof-segment-up-to-cmdend}.  If
-@code{proof-script-command-start-regexp} is set, the choice is
-@code{proof-segment-up-to-cmdstart}.  
+configuration variables have been set.  
+@itemize @bullet
+@item If @code{proof-script-sexp-commands} is set, the choice is 
+ @code{proof-script-generic-parse-sexp}.
+@ item If only @code{proof-script-command-end-regexp} or @code{proof-terminal-char} are set,
+ then the default is @code{proof-script-generic-parse-cmdend}.
+@item If @code{proof-script-command-start-regexp} is set, the choice is
+ @code{proof-script-generic-parse-cmdstart}.  
+@end itemize
+The function @code{proof-semis-to-vanillas} uses
+@code{proof-segment-up-to} to convert a parsed region of the script into
+a series of commands to be sent to the proof assistant.
 
-@c TEXI DOCSTRING MAGIC: proof-segment-up-to-cmdend
-@defun proof-segment-up-to-cmdend pos &optional next-command-end
-Parse the script buffer from end of locked to @var{pos}.@*
-Return a list of (type, string, int) tuples.
-
-Each tuple denotes the command and the position of its terminator,
-type is one of @code{'comment}, or @code{'cmd}.  @code{'unclosed-comment} may be consed onto
-the start if the segment finishes with an unclosed comment.
-
-If optional @var{next-command-end} is non-nil, we include the command
-which continues past @var{pos}, if any.
-
-This version is used when @samp{@code{proof-script-command-end-regexp}} is set.
+@c TEXI DOCSTRING MAGIC: proof-script-generic-parse-cmdend
+@defun proof-script-generic-parse-cmdend 
+For @samp{@code{proof-script-parse-function}} if @samp{@code{proof-script-command-end-regexp}} set.
 @end defun
 
-@c TEXI DOCSTRING MAGIC: proof-segment-up-to-cmdstart
-@defun proof-segment-up-to-cmdstart pos &optional next-command-end
-Parse the script buffer from end of locked to @var{pos}.@*
-Return a list of (type, string, int) tuples.
-
-Each tuple denotes the command and the position of its terminator,
-type is one of @code{'comment}, or @code{'cmd}.
-
-If optional @var{next-command-end} is non-nil, we include the command
-which continues past @var{pos}, if any.  (NOT @var{implemented} IN @var{this} @var{version}).
-
-This version is used when @samp{@code{proof-script-command-start-regexp}} is set.
+@c TEXI DOCSTRING MAGIC: proof-script-generic-parse-cmdstart
+@defun proof-script-generic-parse-cmdstart 
+For @samp{@code{proof-script-parse-function}} if @samp{@code{proof-script-command-start-regexp}} is set.
 @end defun
 
-
-The function @code{proof-semis-to-vanillas} is used to convert
-a parsed region of the script into a series of commands to
-be sent to the proof assistant.
-
+@c TEXI DOCSTRING MAGIC: proof-script-generic-parse-sexp
+@defun proof-script-generic-parse-sexp 
+Used for @samp{@code{proof-script-parse-function}} if @samp{@code{proof-script-sexp-commands}} is set.
+@end defun
 @c TEXI DOCSTRING MAGIC: proof-semis-to-vanillas
 @defun proof-semis-to-vanillas semis
 Create vanilla spans for @var{semis} and a list for the queue.@*
@@ -3231,8 +3213,9 @@ interaction with the process.
 @c TEXI DOCSTRING MAGIC: proof-shell-busy
 @defvar proof-shell-busy 
 A lock indicating that the proof shell is processing.@*
-When this is non-nil, @code{proof-shell-ready-prover} will give
-an error.
+This is either a queue mode indication ('advancing,'retracting) or
+t for a non-scripting command.
+When this is non-nil, @samp{@code{proof-shell-ready-prover}} will give an error.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-marker
@@ -3257,7 +3240,7 @@ commands (out of script).  They may include
 If flags are non-empty, other interactive cues will be surpressed.
 (E.g., printing help messages).
 
-See the functions @samp{@code{proof-start-queue}} and @samp{@code{proof-shell-exec-loop}}.
+See the functions @samp{@code{proof-extend-queue}} and @samp{@code{proof-shell-exec-loop}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: pg-subterm-anns-use-stack
@@ -3342,31 +3325,24 @@ object files, used by Lego and Coq).
 @subsection Input to the shell
 
 Input to the proof shell via the queue region is managed by the
-functions @code{proof-start-queue} and @code{proof-shell-exec-loop}.
+functions @code{proof-extend-queue} and @code{proof-shell-exec-loop}.
 
-@c TEXI DOCSTRING MAGIC: proof-start-queue
-@defun proof-start-queue start end queueitems
-Begin processing a queue of commands in @var{queueitems}.@*
+@c TEXI DOCSTRING MAGIC: proof-extend-queue
+@defun proof-extend-queue start end queueitems queuemode
+Extend the command queue with @var{queueitems}, in mode @var{queuemode}.@*
 If @var{start} is non-nil, @var{start} and @var{end} are buffer positions in the
 active scripting buffer for the queue region.
-
-This function calls @samp{@code{proof-add-to-queue}}.
+If the queue is non-empty, @var{queuemode} ought to match the current
+setting (this is not checked).
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-extend-queue
-@defun proof-extend-queue end queueitems
-Extend the current queue with @var{queueitems}, queue end @var{end}.@*
-To make sense, the commands should correspond to processing actions
-for processing a region from (buffer-queue-or-locked-end) to @var{end}.
-The queue mode is set to @code{'advancing}
-@end defun
-
-@c TEXI DOCSTRING MAGIC: proof-extend-queue
-@defun proof-extend-queue end queueitems
-Extend the current queue with @var{queueitems}, queue end @var{end}.@*
-To make sense, the commands should correspond to processing actions
-for processing a region from (buffer-queue-or-locked-end) to @var{end}.
-The queue mode is set to @code{'advancing}
+@defun proof-extend-queue start end queueitems queuemode
+Extend the command queue with @var{queueitems}, in mode @var{queuemode}.@*
+If @var{start} is non-nil, @var{start} and @var{end} are buffer positions in the
+active scripting buffer for the queue region.
+If the queue is non-empty, @var{queuemode} ought to match the current
+setting (this is not checked).
 @end defun
 @vindex proof-action-list
 @c TEXI DOCSTRING MAGIC: proof-shell-exec-loop
