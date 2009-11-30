@@ -1,6 +1,6 @@
 ;;; pg-autotest.el --- Simple testing framework for Proof General
 ;;
-;; Copyright (C) 2005 LFCS Edinburgh, David Aspinall.
+;; Copyright (C) 2005, 2009 LFCS Edinburgh, David Aspinall.
 ;; Authors:   David Aspinall
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -67,7 +67,7 @@ An error is signalled if scripting doesn't complete."
   (save-excursion
     (let ((making-progress t) last-locked-end)
       (while making-progress
-	(setq last-locked-end (proof-locked-end))
+	(setq last-locked-end (proof-unprocessed-begin))
 	(goto-char last-locked-end)
 	(save-current-buffer
 	  (proof-assert-next-command-interactive)

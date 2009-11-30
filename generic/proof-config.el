@@ -537,7 +537,7 @@ settings `proof-non-undoables-regexp' and
 This setting is used to for retraction (undoing) in proof scripts.
 
 It should undo the effect of all settings between its target span
-up to (proof-locked-end).  This may involve forgetting a number
+up to (proof-unprocessed-begin).  This may involve forgetting a number
 of definitions, declarations, or whatever.
 
 If return value is nil, it means there is nothing to do.

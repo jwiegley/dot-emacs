@@ -536,7 +536,7 @@ in future if we have just activated it for this buffer.
 ;;;### (autoloads (proof-config-done proof-mode proof-insert-sendback-command
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
-;;;;;;  proof-locked-end proof-unprocessed-begin proof-colour-locked)
+;;;;;;  proof-unprocessed-begin proof-unprocessed-begin proof-colour-locked)
 ;;;;;;  "proof-script" "proof-script.el" (19127 27615))
 ;;; Generated autoloads from proof-script.el
 
@@ -551,7 +551,7 @@ The position is actually one beyond the last locked character.
 
 \(fn)" nil nil)
 
-(autoload (quote proof-locked-end) "proof-script" "\
+(autoload (quote proof-unprocessed-begin) "proof-script" "\
 Return end of the locked region of the current buffer.
 Only call this from a scripting buffer.
 

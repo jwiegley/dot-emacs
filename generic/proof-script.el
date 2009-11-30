@@ -313,7 +313,7 @@ caused the error.  Go to the start of it if `proof-follow-mode' is
 'locked.
 
 This is a subroutine used in proof-shell-handle-{error,interrupt}."
-    (let ((start (proof-locked-end))
+    (let ((start (proof-unprocessed-begin))
 	  (end   (proof-queue-or-locked-end))
 	  (infop (span-live-p badspan)))
       (proof-detach-queue)
@@ -356,7 +356,7 @@ The position is actually one beyond the last locked character."
 
 (defun proof-script-end ()
   "Return the character beyond the last non-whitespace character.
-This is the same position `proof-locked-end' ends up at when asserting
+This is the same position `proof-unprocessed-begin' ends up at when asserting
 the script.  Works for any kind of buffer."
   (save-excursion
     (goto-char (point-max))
@@ -373,16 +373,6 @@ when a queue of commands is being processed."
    (and proof-queue-span (span-end proof-queue-span))
    (and proof-locked-span (span-end proof-locked-span))
    (point-min)))
-
-;; FIXME: get rid of/rework this function.  Some places expect this to
-;; return nil if locked region is empty. Moreover, it confusingly
-;; returns the point past the end of the locked region.
-;;;###autoload
-(defun proof-locked-end ()
-  "Return end of the locked region of the current buffer.
-Only call this from a scripting buffer."
-  (proof-unprocessed-begin))
-
 
 
 
@@ -472,7 +462,7 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
 (defun proof-end-of-locked-visible-p ()
   "Return non-nil if end of locked region is visible."
   (let* ((pos (proof-with-current-buffer-if-exists proof-script-buffer
-		(proof-locked-end)))
+		(proof-unprocessed-begin)))
 	 (win (and pos (get-buffer-window proof-script-buffer t))))
     (and win (pos-visible-in-window-p pos))))
 
@@ -1864,7 +1854,7 @@ When used in the locked region (and so with strict read only off), it
 always defaults to inserting a semi (nicer might be to parse for a
 comment, and insert or skip to the next semi)."
   (let ((mrk (point)) ins incomment)
-    (if (< mrk (proof-locked-end))
+    (if (< mrk (proof-unprocessed-begin))
 	(insert proof-terminal-char) ; insert immediately in locked region
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
@@ -1945,7 +1935,7 @@ No effect if prover is busy."
     (proof-goto-end-of-locked)
     (if proof-one-command-per-line (insert "\n"))
     (insert cmd)
-    (setq span (span-make (proof-locked-end) (point)))
+    (setq span (span-make (proof-unprocessed-begin) (point)))
     (span-set-property span 'type 'pbp)
     (span-set-property span 'cmd cmd)
     (proof-start-queue (proof-unprocessed-begin) (point)
@@ -2027,7 +2017,7 @@ Span deletion property set to flag DELETE-REGION."
 (defun proof-last-goal-or-goalsave ()
   "Return the span which is the last goal or save before point."
   (save-excursion
-    (let ((span (span-at-before (proof-locked-end) 'type)))
+    (let ((span (span-at-before (proof-unprocessed-begin) 'type)))
       (while (and span
 		  (not (eq (span-property span 'type) 'goalsave))
 		  (or (eq (span-property span 'type) 'proof)
@@ -2121,7 +2111,7 @@ up to the end of the locked region."
 			      (funcall proof-find-and-forget-fn target)
 			      delete-region))))
 
-    (proof-start-queue (min start end) (proof-locked-end) actions)))
+    (proof-start-queue (min start end) (proof-unprocessed-begin) actions)))
 
 ;; FIXME da:  I would rather that this function moved point to
 ;; the start of the region retracted?

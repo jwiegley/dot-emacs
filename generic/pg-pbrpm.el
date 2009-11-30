@@ -344,7 +344,7 @@ The prover command is processed via pg-pbrpm-run-command."
      ;;   (proof-goto-end-of-locked)
      ;;   (proof-activate-scripting nil 'advancing)
      ;;   (insert (concat "\n" command))
-     ;;   (setq span (span-make (proof-locked-end) (point)))
+     ;;   (setq span (span-make (proof-unprocessed-begin) (point)))
      ;;  ; TODO : define the following properties for PBRPM, I don't understand their use ...
      ;;   (span-set-property span 'type 'pbp)
      ;;   (span-set-property span 'cmd command)

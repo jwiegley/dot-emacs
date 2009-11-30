@@ -43,13 +43,13 @@
 Assumes that point is at the end of a command."
   (interactive)
 ; FIXME: pending improvement.2, needs a fix here.
-;  (if (eq (proof-locked-end) (point))
+;  (if (eq (proof-unprocessed-begin) (point))
 ;      ;; A hack to fix problem that the locked span
 ;      ;; is [ ) so sometimes inserting at the end
 ;      ;; tries to extend it, giving "read only" error.
-;      (if (> (point-max) (proof-locked-end))
+;      (if (> (point-max) (proof-unprocessed-begin))
 ;	  (progn
-;	    (goto-char (1+ (proof-locked-end)))
+;	    (goto-char (1+ (proof-unprocessed-begin)))
 ;	    (backward-char))))
   (if proof-one-command-per-line
       ;; One command per line: move to next new line, creating one if
@@ -123,7 +123,7 @@ Assumes script buffer is current."
 	(if (nth 2 semis) ; fetch end point of previous command
 	      (goto-char (nth 2 semis))
 	  ;; no previous command: just next to end of locked
-	  (goto-char (proof-locked-end)))))
+	  (goto-char (proof-unprocessed-begin)))))
     ;; Oddities of this function: if we're beyond the last proof
     ;; command, it jumps back to the last command.  Could alter this
     ;; by spotting that command end of last of semis is before
@@ -228,7 +228,7 @@ the proof script."
    (let (lastspan)
      (save-excursion
        (unless (proof-locked-region-empty-p)
-	 (if (setq lastspan (span-at-before (proof-locked-end) 'type))
+	 (if (setq lastspan (span-at-before (proof-unprocessed-begin) 'type))
 	     (progn
 	       (goto-char (span-start lastspan))
 	       (proof-retract-until-point delete))
@@ -344,11 +344,11 @@ a proof command."
     (error "Must be in the active scripting buffer"))
    ;; Sometimes may need to move point forwards, when locked region
    ;; is editable.
-   ;; ((> (point) (proof-locked-end))
+   ;; ((> (point) (proof-unprocessed-begin))
    ;; (error "You can only move point backwards"))
    ;; FIXME da: should move to a command boundary, really!
    (t (proof-set-locked-end (point))
-      (span-delete-spans (proof-locked-end) (point-max) 'type))))
+      (span-delete-spans (proof-unprocessed-begin) (point-max) 'type))))
 
 
 

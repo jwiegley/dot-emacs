@@ -77,7 +77,7 @@
   "Indent current line of proof script, if indentation enabled."
   (interactive)
   (unless (not (proof-ass script-indent))
-	  (if (< (point) (proof-locked-end))
+	  (if (< (point) (proof-unprocessed-begin))
 	      (if (< (current-column) (current-indentation))
 		  (skip-chars-forward "\t "))
 	    (save-excursion

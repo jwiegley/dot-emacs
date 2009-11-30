@@ -291,7 +291,7 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
 (defun proof-last-locked-span ()
   (save-excursion ;; didn't found a way to avoid buffer switching
     (set-buffer proof-script-buffer)
-    (span-at (- (proof-locked-end) 1) 'type)
+    (span-at (- (proof-unprocessed-begin) 1) 'type)
     )
   )
 
@@ -1298,7 +1298,7 @@ buffer."
       (let ((pos (car mtch))
             (lgth (cadr mtch)))
         (set-buffer proof-script-buffer)
-        (goto-char (+ (proof-locked-end) 1))
+        (goto-char (+ (proof-unprocessed-begin) 1))
         (coq-find-real-start)
 
         ; utf8 adaptation is made in coq-get-last-error-location above

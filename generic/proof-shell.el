@@ -1045,10 +1045,10 @@ and indentation.  Assumes proof-script-buffer is active."
 	;; a unit, i.e. sent to the proof assistant together.
 	;; FIXME da: this seems very similar to proof-insert-pbp-command
 	;; in proof-script.el.  Should be unified, I suspect.
-	(setq span (span-make (proof-locked-end) (point)))
+	(setq span (span-make (proof-unprocessed-begin) (point)))
 	(span-set-property span 'type 'pbp)
 	(span-set-property span 'cmd cmd)
-	(proof-set-queue-endpoints (proof-locked-end) (point))
+	(proof-set-queue-endpoints (proof-unprocessed-begin) (point))
 	(setq proof-action-list
 	      (cons (car proof-action-list)
 		    (cons (list span cmd 'proof-done-advancing)
