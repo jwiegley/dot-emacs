@@ -1129,13 +1129,13 @@ activation is considered to have failed and an error is given."
   (unless (eq proof-buffer-type 'script)
     (error "Must be running in a script buffer!"))
 
+  (proof-shell-ready-prover queuemode) ; fire up/check mode
+
   (unless (equal (current-buffer) proof-script-buffer)
 
     ;; TODO: narrow the scope of this save-excursion.
     ;; Where is it needed?  Maybe hook functions.
     (save-excursion
-      (proof-shell-ready-prover queuemode) ; fire up the prover
-
       ;; If there's another buffer currently active, we need to
       ;; deactivate it (also fixing up the included files list).
       (if proof-script-buffer
