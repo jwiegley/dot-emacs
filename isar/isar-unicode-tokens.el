@@ -46,15 +46,7 @@
 (defconst isar-control-char-format-regexp
   (concat
    "\\(\\\\<\\^%s>\\)\\("
-; isar-long-id-stuff:
-   "\\(?:" 
-;  "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)"
-; apparently wrong: subscripts \\<^isub>____x\\<^isub>y____
-  "\\(?:\\\\<[A-Za-z]+>\\|[A-Za-z0-9'_]\\)"
-   "\\|\\.\\)+"
-   "\\|[^\\]"
-   ;; above was simply: \\\\<[A-Za-z]+>
-   "\\|[^\\]"
+   "\\(?:\\\\<[A-Za-z]+>\\|[^\\]\\)" ; cf isar-ext-first
    "\\)"))
 
 (defconst isar-control-char-format	   "\\<^%s>")
@@ -70,7 +62,7 @@
     ("Loc" "loc" keyword)
     ("Constant" "const" keyword)
     ("Bold" "bold" bold)
-    ;; unofficial:
+    ;; unofficial/unsupported:
     ("Italic" "italic" italic))
   "Control character tokens for Isabelle."
   :group 'isabelle-tokens
@@ -79,7 +71,9 @@
 (defcustom isar-control-regions
   '(("Subscript" "bsub" "esub" sub)
     ("Superscript" "bsup" "esup" sup)
-    ;; unofficial:
+    ;; unofficial/unsupported:
+    ("Id subscript" "bisub" "eisub" sub)
+    ("Id superscript" "bisup" "eisup" sup)
     ("Bold" "bbold" "ebold" bold)
     ("Italic" "bitalic" "eitalic" italic)
     ("Script" "bscript" "escript" script)
