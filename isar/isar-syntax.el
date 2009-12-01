@@ -169,17 +169,17 @@ This list is in the right format for proof-easy-config.")
 (defun isar-ids-to-regexp (ids)
   "Hack list IDS of keywords IDS to make a regexp matching any of them.
 Note: IDS may have full-stops already regexp quoted." ; a nuisance!
-  (let* ((has-lbrace   (member "{" ids))
-	 (has-rbrace   (member "}" ids))
-	 (cleaned      (remove "{"
-			 (mapcar (lambda (s)
-			  (replace-regexp-in-string (regexp-quote "\\.") "." s))
-				 ids))))
-    (proof-splice-separator "\\|"
-     (list (if cleaned (concat "\\<" (regexp-opt cleaned) "\\>"))
-	   (if has-rbrace "}") ; not a word constituent, so \_<}\_> fails
-	   (if has-lbrace "\\(?:{\\(?:\\b\\|[^\\*]\\)\\)") ; ditto, & prevent {* matching
-	     ))))
+  (let* ((unquoted     (mapcar (lambda (s)
+			 (replace-regexp-in-string (regexp-quote "\\.") "." s))
+			       ids))
+	 (cleaned      (remove "{" (remove "}" unquoted)))
+	 (words	       (if cleaned (list (regexp-opt cleaned 'words))))
+	 ;; } is not a word constituent, so \_<}\_> fails
+	 (rbrace       (if (member "}" ids) '("}")))
+	 ;; { similarly, must also prevent {* matching
+	 (lbrace       (if (member "{" ids)
+			   '("\\(?:{\\(?:\\b\\|[^\\*]\\)\\)"))))
+    (mapconcat 'identity (append words lbrace rbrace) "\\|")))
 
 ;; tests
 ; (isar-ids-to-regexp '("bla" "blubber"))
@@ -193,9 +193,9 @@ Note: IDS may have full-stops already regexp quoted." ; a nuisance!
 ; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "ug{") ; 2
 ; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "}ug") ; 0
 ; (string-match (isar-ids-to-regexp '("bla" "}" "blubber" "{")) "}\n ug") ; 0
-; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "boo.foo") ; nil
+; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "boo.foo") ; nil/4
 ; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "Foo.bar") ; 0
-; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "bar . foo") ; 4
+; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "bar.foo") ; 4
 ; (string-match (isar-ids-to-regexp '("foo" "\\." "Foo\\.bar")) "bar. foo") ; 5
 
 (defconst isar-any-command-regexp
