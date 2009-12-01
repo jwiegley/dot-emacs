@@ -269,13 +269,11 @@ Any other %-prefixed character inserts itself."
 ;;;###autoload
 (defun proof-splice-separator (sep strings)
   "Splice SEP into list of STRINGS, ignoring nil entries."
-  (let (stringsep)
+  (let (stringsep nextsep)
     (while strings
       (when (car strings) ; suppress nils
-	(setq stringsep (concat stringsep (car strings)))
-	(if (and (cdr strings) (cadr strings))
-	    (setq stringsep
-		  (concat stringsep sep))))
+	(setq stringsep (concat stringsep nextsep (car strings)))
+	(setq nextsep sep))
       (setq strings (cdr strings)))
     stringsep))
 
