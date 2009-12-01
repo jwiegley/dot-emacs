@@ -1,9 +1,11 @@
-;;; proof.el --- Proof General loader.
+;;; proof.el --- Proof General theorem prover interface.
 ;;
 ;; Copyright (C) 1998-2009 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
+;;
+;; Keywords: languages
 ;;
 ;; $Id$
 ;;
