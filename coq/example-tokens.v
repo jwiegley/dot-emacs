@@ -1,24 +1,29 @@
 (*
     Example uses of X-Symbol symbols in Coq.
     See README.
+    Trac this at http://proofgeneral.inf.ed.ac.uk/trac/ticket/313
 
     Pierre Courtieu
 
     $Id$
 *)
 
-Fixpoint toto (x:nat) {struct x} : nat := (* nat should appear as |N *)
+Fixpoint toto (x:nat) {struct x} : nat := (* n a t  should appear as |N *)
   match x with
     | O => O        (* double arrow here *)
     | S y => toto y (* double arrow here *)
   end.
 
-Lemma titi : forall x:nat,x=x. (* symbolique for-all and nat *)
+Lemma titi : forall x:nat,x=x. (* symbolique for-all and n at *)
 Admitted. 
 
-(* this should appear like foo'a'1_B_3 where a and B are greek *)
-Variable foo'alpha'1_beta_3 : Set.  
-
+(* X-Symbol: this previously appeared as foo'a'1_B_3 where a and B are greek.
+   Unicode Tokens: this doesn't happen because the regexp used to match
+   is matching on sequences limited by word.
+   Syntax table matters here: try  (modify-syntax-entry ?\' ".")
+                                   (modify-syntax-entry ?\_ ".")
+ *)
+Variable foo'alpha'1__beta__3 : Set.  
 Fixpoint pow (n m:nat) {struct n} : nat :=
   match n with
 	 | O => 0
@@ -65,4 +70,4 @@ Variable alpha_ : Set.
 Lemma gamma__neqn : forall n__i:nat, n__i=n__i.
 
 
-alpha lhd rhd lambda forall exists exists exist 
+alpha lhd rhd lambda forall exists exists exist foral 
