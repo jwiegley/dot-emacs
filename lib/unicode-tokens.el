@@ -1163,7 +1163,7 @@ Commands available are:
 ;; parameterised version of function from menu-bar.el (Emacs 23.1)
 ;; this now copes with Emacs 23.1, Emacs 22, Mac OS X Emacs 23.1.
 (defun unicode-tokens-set-font-var (fontvar)
-    "Interactively select a font for FONTVAR."
+  "Interactively select a font for FONTVAR."
   (interactive)
   (let (font spec)
     (if (fboundp 'ns-popup-font-panel)
