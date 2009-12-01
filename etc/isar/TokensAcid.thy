@@ -16,14 +16,14 @@ begin
    produced by menu command Tokens -> List Tokens
 
    You should see glyphs in all positions except the whitespace
-   tokens at the end of row 25 and start of row 26.
+   tokens at positions 208, 262 and 263.
  
    I recommend using StixGeneral for symbols.
    See http://olegueret.googlepages.com/stixfonts-ttf
    This is the default for the symbol font if you have it installed.
-*)
+   Other good choices are: Lucida Grande, Lucida Sans Unicode, 
+   or DejaVuLGC Sans Mono.
 
-(*
    1.  \<leftarrow>	\<rightarrow>	\<Leftarrow>	\<Rightarrow>	\<leftrightarrow>	\<Leftrightarrow>	\<mapsto>	\<longleftarrow>	\<Longleftarrow>	\<longrightarrow>
    2.  \<Longrightarrow>	\<longleftrightarrow>	\<Longleftrightarrow>	\<longmapsto>	\<midarrow>	\<Midarrow>	\<hookleftarrow>	\<hookrightarrow>	\<leftharpoondown>	\<rightharpoondown>
    3.  \<leftharpoonup>	\<rightharpoonup>	\<rightleftharpoons>	\<leadsto>	\<downharpoonleft>	\<downharpoonright>	\<upharpoonleft>	\<upharpoonright>	\<restriction>	\<Colon>
@@ -43,20 +43,29 @@ begin
   17.  \<flat>	\<natural>	\<sharp>	\<angle>	\<copyright>	\<registered>	\<hyphen>	\<inverse>	\<onesuperior>	\<twosuperior>
   18.  \<threesuperior>	\<onequarter>	\<onehalf>	\<threequarters>	\<ordmasculine>	\<ordfeminine>	\<section>	\<paragraph>	\<exclamdown>	\<questiondown>
   19.  \<euro>	\<pounds>	\<yen>	\<cent>	\<currency>	\<degree>	\<amalg>	\<mho>	\<lozenge>	\<wp>
-  20.  \<wrong>	\<acute>	\<index>	\<dieresis>	\<cedilla>	\<hungarumlaut>	\<spacespace>	\<some>	\<stareq>	\<defeq>
-  21.  \<questioneq>	\<vartheta>	\<varpi>	\<varrho>	\<varsigma>	\<varphi>	\<hbar>	\<ell>	\<ast>	\<bigcirc>
-  22.  \<bigtriangleup>	\<bigtriangledown>	\<ni>	\<mid>	\<notlt>	\<notle>	\<notprec>	\<notpreceq>	\<notsubset>	\<notsubseteq>
-  23.  \<notsqsubseteq>	\<notgt>	\<notge>	\<notsucc>	\<notsucceq>	\<notsupset>	\<notsupseteq>	\<notsqsupseteq>	\<notequiv>	\<notsim>
-  24.  \<notsimeq>	\<notapprox>	\<notcong>	\<notasymp>	\<nearrow>	\<searrow>	\<swarrow>	\<nwarrow>	\<vdots>	\<ddots>
-  25.  \<closequote>	\<openquote>	\<opendblquote>	\<closedblquote>	\<emdash>	\<prime>	\<doubleprime>	\<tripleprime>	\<quadrupleprime>	\<nbspace>
-  26.  \<thinspace>	\<notni>	\<colonequals>	\<foursuperior>	\<fivesuperior>	\<sixsuperior>	\<sevensuperior>	\<eightsuperior>	\<ninesuperior>	\<alpha>
-  27.  \<beta>	\<gamma>	\<delta>	\<epsilon>	\<zeta>	\<eta>	\<theta>	\<iota>	\<kappa>	\<lambda>
-  28.  \<mu>	\<nu>	\<xi>	\<pi>	\<rho>	\<sigma>	\<tau>	\<upsilon>	\<phi>	\<chi>
-  29.  \<psi>	\<omega>	\<Gamma>	\<Delta>	\<Theta>	\<Lambda>	\<Xi>	\<Pi>	\<Sigma>	\<Upsilon>
-  30.  \<Phi>	\<Psi>	\<Omega>	\<zero>	\<one>	\<two>	\<three>	\<four>	\<five>	\<six>
-  31.  \<seven>	\<eight>	\<nine>	\<A>	\<B>	\<C>	\<D>	\<E>	\<F>	\<G>
-  32.  \<H>	\<I>	\<J>	\<K>	\<L>	\<M>	\<N>	\<O>	\<P>	\<Q>
-  33.  \<R>	\<S>	\<T>	\<U>	\<V>	\<W>	\<X>	\<Y>	\<Z>	 
+  20.  \<wrong>	\<struct>	\<acute>	\<index>	\<dieresis>	\<cedilla>	\<hungarumlaut>	\<spacespace>	\<module>	\<some>
+  21.  \<stareq>	\<defeq>	\<questioneq>	\<vartheta>	\<varpi>	\<varrho>	\<varsigma>	\<varphi>	\<hbar>	\<ell>
+  22.  \<ast>	\<bigcirc>	\<bigtriangleup>	\<bigtriangledown>	\<ni>	\<mid>	\<notlt>	\<notle>	\<notprec>	\<notpreceq>
+  23.  \<notsubset>	\<notsubseteq>	\<notsqsubseteq>	\<notgt>	\<notge>	\<notsucc>	\<notsucceq>	\<notsupset>	\<notsupseteq>	\<notsqsupseteq>
+  24.  \<notequiv>	\<notsim>	\<notsimeq>	\<notapprox>	\<notcong>	\<notasymp>	\<nearrow>	\<searrow>	\<swarrow>	\<nwarrow>
+  25.  \<vdots>	\<ddots>	\<closequote>	\<openquote>	\<opendblquote>	\<closedblquote>	\<emdash>	\<prime>	\<doubleprime>	\<tripleprime>
+  26.  \<quadrupleprime>	\<nbspace>	\<thinspace>	\<notni>	\<colonequals>	\<foursuperior>	\<fivesuperior>	\<sixsuperior>	\<sevensuperior>	\<eightsuperior>
+  27.  \<ninesuperior>	\<bool>	\<complex>	\<nat>	\<rat>	\<real>	\<int>	\<alpha>	\<beta>	\<gamma>
+  28.  \<delta>	\<epsilon>	\<zeta>	\<eta>	\<theta>	\<iota>	\<kappa>	\<lambda>	\<mu>	\<nu>
+  29.  \<xi>	\<pi>	\<rho>	\<sigma>	\<tau>	\<upsilon>	\<phi>	\<chi>	\<psi>	\<omega>
+  30.  \<Gamma>	\<Delta>	\<Theta>	\<Lambda>	\<Xi>	\<Pi>	\<Sigma>	\<Upsilon>	\<Phi>	\<Psi>
+  31.  \<Omega>	\<zero>	\<one>	\<two>	\<three>	\<four>	\<five>	\<six>	\<seven>	\<eight>
+  32.  \<nine>	\<A>	\<B>	\<C>	\<D>	\<E>	\<F>	\<G>	\<H>	\<I>
+  33.  \<J>	\<K>	\<L>	\<M>	\<N>	\<O>	\<P>	\<Q>	\<R>	\<S>
+  34.  \<T>	\<U>	\<V>	\<W>	\<X>	\<Y>	\<Z>	\<a>	\<b>	\<c>
+  35.  \<d>	\<e>	\<f>	\<g>	\<h>	\<i>	\<j>	\<k>	\<l>	\<m>
+  36.  \<n>	\<o>	\<p>	\<q>	\<r>	\<s>	\<t>	\<u>	\<v>	\<w>
+  37.  \<x>	\<y>	\<z>	\<AA>	\<BB>	\<CC>	\<DD>	\<EE>	\<FF>	\<GG>
+  38.  \<HH>	\<II>	\<JJ>	\<KK>	\<LL>	\<MM>	\<NN>	\<OO>	\<PP>	\<QQ>
+  39.  \<RR>	\<SS>	\<TT>	\<UU>	\<VV>	\<WW>	\<XX>	\<YY>	\<ZZ>	\<aa>
+  40.  \<bb>	\<cc>	\<dd>	\<ee>	\<ff>	\<gg>	\<hh>	\<ii>	\<jj>	\<kk>
+  41.  \<ll>	\<mm>	\<nn>	\<oo>	\<pp>	\<qq>	\<rr>	\<ss>	\<tt>	\<uu>
+  42.  \<vv>	\<ww>	\<xx>	\<yy>	\<zz>	 	 	 	 	 
 *)
 
 (* Tokens controlling layout and fonts: regions.
