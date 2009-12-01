@@ -177,7 +177,7 @@ This function sets `proof-prog-name' and `isar-prog-args'."
 		  (getenv "ISABELLE_PROCESS")	  ; command line override
 		  (isa-getenv "ISABELLE_PROCESS") ; choose to match isabelle
 		  "isabelle-process"))		  ; to
-       (isabelle-opts (split-string (getenv "ISABELLE_OPTIONS")))
+       (isabelle-opts (split-string (or (getenv "ISABELLE_OPTIONS") "")))
        (opts (append (list "-PI")  ;; Proof General + Isar
 		     (if proof-shell-unicode (list "-m" "PGASCII") nil)
 		     isabelle-opts))
