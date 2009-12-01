@@ -115,16 +115,17 @@ consts charitalic :: "['a,'a]\<Rightarrow>'a" ("\<^italic>_")
 
 term "a\<^sub>b"
 term "a\<^sup>b"
-term "a\<^isub>abc"
-term "a\<^isup>abc"
 term "\<^loc>a"
 term "\<^bold>b"
 term "\<^italic>b"
 
-(* More taxing examples for testing *)
+(* More taxing examples *)
 
-term "a\<^isub>x\<^isub>y"      (* both x and y should be subscripted *)
-term "a\<^isub>xabc\<^isub>y"   (* both x.abc and y should be subscripted *)
+term "a\<^isub>\<gamma>\<delta>"     (* subscripted gamma  *)
+term "a\<^isub>def"  (* no subscript on bc *)
+
+term "a\<^isub>x\<^isub>y"      (* x and y subscripted individually *)
+term "a\<^isub>xabc\<^isub>y"   (* x and y should be subscripted, but not ab *)
 
 
 (* 
@@ -136,8 +137,8 @@ term "a\<^isub>xabc\<^isub>y"   (* both x.abc and y should be subscripted *)
    Demonstration: let's take back \<And> from the meta-level.
 
    NB: the token scheme mechanism here is a PG convenience,
-   in other frontends you may have to define \< AndX> to
-   appear in the same way as \< And> individually.
+   in other frontends you may have to define \ < AndX> to
+   appear in the same way as \ < And> individually.
    Similarly for LaTeX output.
 
    Use C-c C-t C-z to toggle the display of tokens.
