@@ -1423,8 +1423,8 @@ If inside a comment, just process until the start of the comment.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-undo-last-successful-command
-@deffn Command proof-undo-last-successful-command &optional arg
-Undo last successful command(s) at end of locked region.
+@deffn Command proof-undo-last-successful-command 
+Undo last successful command at end of locked region.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-undo-and-delete-last-successful-command
@@ -2523,21 +2523,37 @@ text in the buffer.    This is the font that is configured by the menu
         Tokens -> Set Fonts -> Symbol
 @end example
 its customization name is @code{unicode-tokens-symbol-font-face}, but
-notice that only the font family aspect of the face is used.
+notice that only the font family aspect of the face is used.  Similarly,
+other fonts can be configured for controling different font families
+(script, fraktur, etc).
 
-Good results are possible by using a proportional font for displaying
-symbols that is well equipped, for example the main font StixGeneral
-font from the Stix Fonts project (@uref{http://www.stixfonts.org/}).  At
-the time of writing you can obtain a beta version of these fonts in TTF
-format from @uref{http://olegueret.googlepages.com/stixfonts-ttf}.  On
-recent Linux distributions and with an Emacs 23 build that uses Xft,
-simply copy these @code{ttf} files into the @code{.fonts} directory
-inside your home directory to make them available.
+For symbols, good results are possible by using a proportional font for
+displaying symbols that has many symbol glyphs, for example the main font
+StixGeneral font from the Stix Fonts project
+(@uref{http://www.stixfonts.org/}).  At the time of writing you can
+obtain a beta version of these fonts in TTF format from
+@uref{http://olegueret.googlepages.com/stixfonts-ttf}.  On recent Linux
+distributions and with an Emacs 23 build that uses Xft, simply copy
+these @code{ttf} files into the @code{.fonts} directory inside your home
+directory to make them available.
 
 Another font I like is @b{DejaVu Sans Mono}.  It covers all of the
 standard Isabelle symbols.  Some of the symbols are currently not
 perfect; however this font is an open source effort so users can
 contribute or suggest improvements.  See @uref{http://dejavu-fonts.org}.
+
+If you are stuck with Emacs 22, you need to use the @i{fontset}
+mechanism which configures sets of fonts to use for display.  The
+default font sets may not include enough symbols (typical symptom:
+symbols display as empty boxes).  To address this, the menu command 
+@example
+        Tokens -> Set Fonts -> Make Fontsets
+@end example
+constructs a number of fontsets at particular point sizes, based on
+several widely available fonts.  See @code{pg-fontsets.el} for the code.
+After running this command, you can select from additional fontsets from
+the menus for changing fonts.
+
 
 For further suggestions, please search (and contribute!) to the Proof
 General wiki at @uref{http://proofgeneral.inf.ed.ac.uk/wiki}.
