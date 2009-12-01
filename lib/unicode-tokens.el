@@ -282,14 +282,6 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;;    "The font used for large symbols."
 ;;    :group 'unicode-tokens-faces)
 
-;; note:
-;;  Sometimes have difficulty selecting font from :font
-;; (set-face-attribute 'unicode-tokens-script-font-face nil :font "URW Chancery L Medium Italic 12")
-;; fails with 'no font available' but
-;; (set-face-attribute 'unicode-tokens-script-font-face nil :family "URW Chancery L")
-;; works.
-
-
 (defface unicode-tokens-script-font-face
   '((t :family "URW Chancery L" :slant italic))
   "Script font face."
@@ -1183,7 +1175,8 @@ Commands available are:
   "A subroutine of `unicode-tokens-set-font-var'."
   (let (spec)
     (when font
-      ;; sometimes (on Linux/xft) :font doesn't work but :family does.
+      ;; Trac #311 - sometimes (on Linux/xft) :font doesn't work but
+      ;; :family does.
       (condition-case nil
 	  (set-face-attribute fontvar (selected-frame)
 			      ;; da: don't try to reset these for token fonts.
