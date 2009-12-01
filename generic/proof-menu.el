@@ -316,7 +316,6 @@ without adjusting window layout."
      :selected proof-electric-terminator-enable
      :help "Automatically send commands as typed"]
      ["Fly Past Comments" proof-script-fly-past-comments-toggle
-      :visible (not proof-script-use-old-parser)
       :style toggle
       :selected proof-script-fly-past-comments
       :help "Coalesce and skip over successive comments"]
