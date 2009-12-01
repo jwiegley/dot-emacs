@@ -8,10 +8,10 @@
 
 
 ;;;### (autoloads (bufhist-exit bufhist-init bufhist-mode) "bufhist"
-;;;;;;  "../lib/bufhist.el" (19127 26600))
+;;;;;;  "../lib/bufhist.el" (19157 7589))
 ;;; Generated autoloads from ../lib/bufhist.el
 
-(autoload (quote bufhist-mode) "bufhist" "\
+(autoload 'bufhist-mode "bufhist" "\
 Minor mode retaining an in-memory history of the buffer contents.
 
 Commands:\\<bufhist-minor-mode-map>
@@ -24,7 +24,7 @@ Commands:\\<bufhist-minor-mode-map>
 
 \(fn &optional ARG)" t nil)
 
-(autoload (quote bufhist-init) "bufhist" "\
+(autoload 'bufhist-init "bufhist" "\
 Initialise a ring history for the current buffer.
 The history will be read-only unless READWRITE is non-nil.
 For read-only histories, edits to the buffer switch to the latest version.
@@ -32,7 +32,7 @@ The size defaults to `bufhist-ring-size'.
 
 \(fn &optional READWRITE RINGSIZE)" t nil)
 
-(autoload (quote bufhist-exit) "bufhist" "\
+(autoload 'bufhist-exit "bufhist" "\
 Stop keeping ring history for current buffer.
 
 \(fn)" t nil)
@@ -222,7 +222,7 @@ Send an <askprefs> message to the prover.
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-message pg-response-display-with-face pg-response-maybe-erase
 ;;;;;;  proof-response-config-done proof-response-mode) "pg-response"
-;;;;;;  "pg-response.el" (19121 59721))
+;;;;;;  "pg-response.el" (19159 42528))
 ;;; Generated autoloads from pg-response.el
 
 (autoload 'proof-response-mode "pg-response" "\
@@ -306,76 +306,76 @@ All of these settings are optional.
 ;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19127 24433))
+;;;;;;  "pg-user.el" (19220 21212))
 ;;; Generated autoloads from pg-user.el
 
-(autoload (quote proof-script-new-command-advance) "pg-user" "\
+(autoload 'proof-script-new-command-advance "pg-user" "\
 Move point to a nice position for a new command.
 Assumes that point is at the end of a command.
 
 \(fn)" t nil)
 
-(autoload (quote proof-goto-point) "pg-user" "\
+(autoload 'proof-goto-point "pg-user" "\
 Assert or retract to the command at current position.
 Calls `proof-assert-until-point' or `proof-retract-until-point' as
 appropriate.
 
 \(fn)" t nil)
 
-(autoload (quote proof-define-assistant-command) "pg-user" "\
+(autoload 'proof-define-assistant-command "pg-user" "\
 Define FN (docstring DOC) to send BODY to prover, based on CMDVAR.
 BODY defaults to CMDVAR, a variable.
 
 \(fn FN DOC CMDVAR &optional BODY)" nil (quote macro))
 
-(autoload (quote proof-define-assistant-command-witharg) "pg-user" "\
+(autoload 'proof-define-assistant-command-witharg "pg-user" "\
 Define command FN to prompt for string CMDVAR to proof assistant.
 CMDVAR is a variable holding a function or string.  Automatically has history.
 
 \(fn FN DOC CMDVAR PROMPT &rest BODY)" nil (quote macro))
 
-(autoload (quote proof-electric-terminator-enable) "pg-user" "\
+(autoload 'proof-electric-terminator-enable "pg-user" "\
 Make sure the modeline is updated to display new value for electric terminator.
 
 \(fn)" nil nil)
 
-(autoload (quote pg-slow-fontify-tracing-hint) "pg-user" "\
+(autoload 'pg-slow-fontify-tracing-hint "pg-user" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload (quote pg-response-buffers-hint) "pg-user" "\
+(autoload 'pg-response-buffers-hint "pg-user" "\
 Not documented
 
 \(fn &optional NEXTBUF)" nil nil)
 
-(autoload (quote pg-jump-to-end-hint) "pg-user" "\
+(autoload 'pg-jump-to-end-hint "pg-user" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload (quote pg-processing-complete-hint) "pg-user" "\
+(autoload 'pg-processing-complete-hint "pg-user" "\
 Display hint for showing end of locked region or processing complete.
 
 \(fn)" nil nil)
 
-(autoload (quote pg-next-error-hint) "pg-user" "\
+(autoload 'pg-next-error-hint "pg-user" "\
 Display hint for locating error.
 
 \(fn)" nil nil)
 
-(autoload (quote pg-hint) "pg-user" "\
+(autoload 'pg-hint "pg-user" "\
 Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
 The function `substitute-command-keys' is called on the argument.
 
 \(fn HINTMSG)" nil nil)
 
-(autoload (quote proof-imenu-enable) "pg-user" "\
+(autoload 'proof-imenu-enable "pg-user" "\
 Add or remove index menu.
 
 \(fn)" nil nil)
 
-(autoload (quote pg-previous-matching-input-from-input) "pg-user" "\
+(autoload 'pg-previous-matching-input-from-input "pg-user" "\
 Search backwards through input history for match for current input.
 \(Previous history elements are earlier commands.)
 With prefix argument N, search for Nth previous match.
@@ -383,7 +383,7 @@ If N is negative, search forwards for the -Nth following match.
 
 \(fn N)" t nil)
 
-(autoload (quote pg-next-matching-input-from-input) "pg-user" "\
+(autoload 'pg-next-matching-input-from-input "pg-user" "\
 Search forwards through input history for match for current input.
 \(Following history elements are more recent commands.)
 With prefix argument N, search for Nth following match.
@@ -391,21 +391,21 @@ If N is negative, search backwards for the -Nth previous match.
 
 \(fn N)" t nil)
 
-(autoload (quote pg-add-to-input-history) "pg-user" "\
+(autoload 'pg-add-to-input-history "pg-user" "\
 Maybe add CMD to the input history.
 CMD is only added to the input history if it is not a duplicate
 of the last item added.
 
 \(fn CMD)" nil nil)
 
-(autoload (quote pg-remove-from-input-history) "pg-user" "\
+(autoload 'pg-remove-from-input-history "pg-user" "\
 Maybe remove CMD from the end of the input history.
 This is called when the command is undone.  It's only
 removed if it matches the last item in the ring.
 
 \(fn CMD)" nil nil)
 
-(autoload (quote pg-clear-input-ring) "pg-user" "\
+(autoload 'pg-clear-input-ring "pg-user" "\
 Not documented
 
 \(fn)" nil nil)
@@ -424,17 +424,17 @@ Parse string in ARG, same as pg-xml-parse-buffer.
 ;;;***
 
 ;;;### (autoloads (proof-dependency-in-span-context-menu proof-depends-process-dependencies)
-;;;;;;  "proof-depends" "proof-depends.el" (19109 19687))
+;;;;;;  "proof-depends" "proof-depends.el" (19217 1499))
 ;;; Generated autoloads from proof-depends.el
 
-(autoload (quote proof-depends-process-dependencies) "proof-depends" "\
+(autoload 'proof-depends-process-dependencies "proof-depends" "\
 Process dependencies reported by prover, for NAME in span GSPAN.
 Called from `proof-done-advancing' when a save is processed and
 `proof-last-theorem-dependencies' is set.
 
 \(fn NAME GSPAN)" nil nil)
 
-(autoload (quote proof-dependency-in-span-context-menu) "proof-depends" "\
+(autoload 'proof-dependency-in-span-context-menu "proof-depends" "\
 Make a portion of a context-sensitive menu showing proof dependencies.
 
 \(fn SPAN)" nil nil)
@@ -455,10 +455,10 @@ the `proof-assistant-table', which see.
 ;;;***
 
 ;;;### (autoloads (proof-indent-line) "proof-indent" "proof-indent.el"
-;;;;;;  (19108 51621))
+;;;;;;  (19220 21213))
 ;;; Generated autoloads from proof-indent.el
 
-(autoload (quote proof-indent-line) "proof-indent" "\
+(autoload 'proof-indent-line "proof-indent" "\
 Indent current line of proof script, if indentation enabled.
 
 \(fn)" t nil)
@@ -487,26 +487,26 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19127
-;;;;;;  27638))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19220
+;;;;;;  31837))
 ;;; Generated autoloads from proof-menu.el
 
-(autoload (quote proof-menu-define-keys) "proof-menu" "\
+(autoload 'proof-menu-define-keys "proof-menu" "\
 Prover specific keymap under C-c C-a.
 
 \(fn MAP)" nil nil)
 
-(autoload (quote proof-menu-define-main) "proof-menu" "\
+(autoload 'proof-menu-define-main "proof-menu" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload (quote proof-menu-define-specific) "proof-menu" "\
+(autoload 'proof-menu-define-specific "proof-menu" "\
 Not documented
 
 \(fn)" nil nil)
 
-(autoload (quote proof-aux-menu) "proof-menu" "\
+(autoload 'proof-aux-menu "proof-menu" "\
 Construct and return PG auxiliary menu used in non-scripting buffers.
 
 \(fn)" nil nil)
@@ -536,39 +536,33 @@ in future if we have just activated it for this buffer.
 ;;;### (autoloads (proof-config-done proof-mode proof-insert-sendback-command
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
-;;;;;;  proof-unprocessed-begin proof-unprocessed-begin proof-colour-locked)
-;;;;;;  "proof-script" "proof-script.el" (19127 27615))
+;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
+;;;;;;  "proof-script.el" (19220 23795))
 ;;; Generated autoloads from proof-script.el
 
-(autoload (quote proof-colour-locked) "proof-script" "\
-Alter the colour of the locked region according to variable `proof-colour-locked'.
+(autoload 'proof-colour-locked "proof-script" "\
+Alter the colour of all locked regions according to variable `proof-colour-locked'.
 
 \(fn)" t nil)
 
-(autoload (quote proof-unprocessed-begin) "proof-script" "\
+(autoload 'proof-unprocessed-begin "proof-script" "\
 Return end of locked region in current buffer or (point-min) otherwise.
 The position is actually one beyond the last locked character.
 
 \(fn)" nil nil)
 
-(autoload (quote proof-unprocessed-begin) "proof-script" "\
-Return end of the locked region of the current buffer.
-Only call this from a scripting buffer.
-
-\(fn)" nil nil)
-
-(autoload (quote proof-locked-region-full-p) "proof-script" "\
+(autoload 'proof-locked-region-full-p "proof-script" "\
 Non-nil if the locked region covers all the buffer's non-whitespace.
 Works on any buffer.
 
 \(fn)" nil nil)
 
-(autoload (quote proof-locked-region-empty-p) "proof-script" "\
+(autoload 'proof-locked-region-empty-p "proof-script" "\
 Non-nil if the locked region is empty.  Works on any buffer.
 
 \(fn)" nil nil)
 
-(autoload (quote pg-set-span-helphighlights) "proof-script" "\
+(autoload 'pg-set-span-helphighlights "proof-script" "\
 Add a daughter help span for SPAN with help message, highlight, actions.
 We add the last output (which should be non-empty) to the hover display here.
 Optional argument MOUSEFACE means use the given face as a mouse highlight
@@ -579,7 +573,7 @@ Argument FACE means add regular face property FACE to the span.
 
 \(fn SPAN &optional MOUSEFACE FACE)" nil nil)
 
-(autoload (quote proof-register-possibly-new-processed-file) "proof-script" "\
+(autoload 'proof-register-possibly-new-processed-file "proof-script" "\
 Register a possibly new FILE as having been processed by the prover.
 
 If INFORMPROVER is non-nil, the proof assistant will be told about this,
@@ -595,23 +589,23 @@ proof assistant and Emacs has a modified buffer visiting the file.
 
 \(fn FILE &optional INFORMPROVER NOQUESTIONS)" nil nil)
 
-(autoload (quote proof-insert-pbp-command) "proof-script" "\
+(autoload 'proof-insert-pbp-command "proof-script" "\
 Insert CMD into the proof queue.
 
 \(fn CMD)" nil nil)
 
-(autoload (quote proof-insert-sendback-command) "proof-script" "\
+(autoload 'proof-insert-sendback-command "proof-script" "\
 Insert CMD into the proof script, execute assert-until-point.
 
 \(fn CMD)" nil nil)
 
-(autoload (quote proof-mode) "proof-script" "\
+(autoload 'proof-mode "proof-script" "\
 Proof General major mode class for proof scripts.
 \\{proof-mode-map}
 
 \(fn)" t nil)
 
-(autoload (quote proof-config-done) "proof-script" "\
+(autoload 'proof-config-done "proof-script" "\
 Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
 finish setup which depends on specific proof assistant configuration.
@@ -624,7 +618,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19122 39720))
+;;;;;;  "proof-shell.el" (19220 31816))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -745,7 +739,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19121 59722))
+;;;;;;  (19195 62364))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -773,8 +767,8 @@ Make sure the user gets welcomed one way or another.
 
 ;;;***
 
-;;;### (autoloads (proof-splice-separator proof-format) "proof-syntax"
-;;;;;;  "proof-syntax.el" (19113 19458))
+;;;### (autoloads (proof-format) "proof-syntax" "proof-syntax.el"
+;;;;;;  (19220 59341))
 ;;; Generated autoloads from proof-syntax.el
 
 (autoload 'proof-format "proof-syntax" "\
@@ -783,11 +777,6 @@ ALIST contains (REGEXP . REPLACEMENT) pairs where REPLACEMENT
 may be a string or sexp evaluated to get a string.
 
 \(fn ALIST STRING)" nil nil)
-
-(autoload 'proof-splice-separator "proof-syntax" "\
-Splice SEP into list of STRINGS, ignoring nil entries.
-
-\(fn SEP STRINGS)" nil nil)
 
 ;;;***
 
@@ -840,7 +829,7 @@ is changed.
 ;;;***
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn) "proof-utils"
-;;;;;;  "proof-utils.el" (19122 39720))
+;;;;;;  "proof-utils.el" (19135 42885))
 ;;; Generated autoloads from proof-utils.el
 
 (autoload 'proof-defpacustom-fn "proof-utils" "\
@@ -921,10 +910,10 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19127 27485))
+;;;;;;  (19141 12449))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
-(autoload (quote unicode-tokens-encode-str) "unicode-tokens" "\
+(autoload 'unicode-tokens-encode-str "unicode-tokens" "\
 Return a unicode encoded version presentation of STR.
 
 \(fn STR)" nil nil)
@@ -932,10 +921,10 @@ Return a unicode encoded version presentation of STR.
 ;;;***
 
 ;;;### (autoloads nil nil ("../lib/local-vars-list.el" "../lib/pg-dev.el"
-;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/ps-fix.el"
-;;;;;;  "../lib/span.el" "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el"
-;;;;;;  "pg-vars.el" "proof-auxmodes.el" "proof-config.el" "proof-faces.el"
-;;;;;;  "proof-useropts.el" "proof.el") (19127 27664 537600))
+;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
+;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
+;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-faces.el" "proof-useropts.el"
+;;;;;;  "proof.el") (19220 59360 490906))
 
 ;;;***
 
