@@ -16,11 +16,7 @@
 ;; Recommended & free fonts to install on your system are:
 ;;
 ;;  DejaVu LGC (Sans and Sans Mono).  See http://dejavu.sourceforge.net
-;;    - missing Uplus, smile, frown, join
-;;
-;; TODO:
-;; -- make a fontset which combines symbol characters from a
-;;    symbol-rich font
+;;  Liberation (Sans and Mono).  See https://fedorahosted.org/liberation-fonts/
 ;;
 
 ;;; Code:
@@ -62,10 +58,6 @@ gnu-unifont:-*-%F-*-*-*--%S-*-*-*-*-*-iso10646-1"
   (setq pg-fontsets-names nil)
   (mapcar 'pg-fontsets-make-fontsetsizes
 	  pg-fontsets-base-fonts))
-;    (custom-initialize-default 'pg-fontsets-default-fontset
-;			       (nth 2 pg-fontsets-names))
-;  (setq pg-fontsets-default-fontset (nth 2 pg-fontsets-names))
-;  (set-default-font pg-fontsets-default-fontset))
 
 (pg-fontsets-make-fontsets)
 
