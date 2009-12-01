@@ -15,8 +15,11 @@
 ;;; Code:
 
 (defsubst proof-ids-to-regexp (l)
-  "Maps a non-empty list of tokens `l' to a regexp matching any element."
-  (concat "\\_<\\(?:" (mapconcat 'identity l "\\|") "\\)\\_>"))
+  "Maps a non-empty list of tokens `l' to a regexp matching any element.
+Uses a regexp of the form \\_<...\\_>."
+  (concat "\\_<\\(?:" 
+	  (regexp-opt l) ; was: (mapconcat 'identity l "\\|") 
+	  "\\)\\_>"))
 
 (defsubst proof-anchor-regexp (e)
   "Anchor (\\`) and group the regexp E."
