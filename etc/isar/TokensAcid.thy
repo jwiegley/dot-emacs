@@ -119,14 +119,18 @@ term "\<^loc>a"
 term "\<^bold>b"
 term "\<^italic>b"
 
-(* More taxing examples *)
+(* Further examples *)
 
 term "a\<^isub>\<gamma>\<delta>"     (* subscripted gamma  *)
-term "a\<^isub>def"  (* no subscript on bc *)
+term "a\<^isub>def"  (* no subscript on ef *)
 
 term "a\<^isub>x\<^isub>y"      (* x and y subscripted individually *)
 term "a\<^isub>xabc\<^isub>y"   (* x and y should be subscripted, but not ab *)
 
+(* Spanning identifier supers/subs: to be added to Isabelle lexer/latex *)
+
+term "a\<^bisup>bcd\<^eisup>"
+term "a\<^bisub>bcd\<^eisub>"
 
 (* 
    Variants on token names: different token names,
