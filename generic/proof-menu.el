@@ -641,7 +641,7 @@ that function defined is not already bound.
 This function defines a function and returns a menu entry
 suitable for adding to the proof assistant menu."
   (let* ((menunames	(split-string (downcase menuname)))
-	 (menuname-sym  (proof-sym (proof-splice-separator "-" menunames)))
+	 (menuname-sym  (proof-sym (mapconcat 'identity menunames "-")))
 	 (menu-fn	menuname-sym) (i 1))
     (while (and new (fboundp menu-fn))
       (setq menu-fn (intern (concat (symbol-name menuname-sym)

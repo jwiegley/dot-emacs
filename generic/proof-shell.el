@@ -236,8 +236,7 @@ process command."
 		  (append (split-string proof-rsh-command)
 			  prog-name-list1)
 		prog-name-list1))
-	     (prog-command-line
-	      (proof-splice-separator " " prog-name-list))
+	     (prog-command-line (mapconcat 'identity prog-name-list " "))
 
 	     (process-connection-type
 	      proof-shell-process-connection-type)
