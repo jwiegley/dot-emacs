@@ -4139,7 +4139,7 @@ The default value is @code{nil}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: isabelle-choose-logic
 @deffn Command isabelle-choose-logic logic
-Adjust @code{isabelle-prog-name} and @code{proof-prog-name} for running @var{logic}.
+Adjust isabelle-prog-name and @code{proof-prog-name} for running @var{logic}.
 @end deffn
 @node Isabelle commands
 @section Isabelle commands

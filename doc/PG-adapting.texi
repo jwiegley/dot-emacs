@@ -1047,7 +1047,7 @@ Function to return list of commands to forget to before its argument span.@*
 This setting is used to for retraction (undoing) in proof scripts.
 
 It should undo the effect of all settings between its target span
-up to (@code{proof-locked-end}).  This may involve forgetting a number
+up to (@code{proof-unprocessed-begin}).  This may involve forgetting a number
 of definitions, declarations, or whatever.
 
 If return value is nil, it means there is nothing to do.
@@ -3213,9 +3213,8 @@ interaction with the process.
 @c TEXI DOCSTRING MAGIC: proof-shell-busy
 @defvar proof-shell-busy 
 A lock indicating that the proof shell is processing.@*
-This is either a queue mode indication ('advancing,'retracting) or
-t for a non-scripting command.
-When this is non-nil, @samp{@code{proof-shell-ready-prover}} will give an error.
+When this is non-nil, @code{proof-shell-ready-prover} will give
+an error.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-marker
@@ -3240,7 +3239,7 @@ commands (out of script).  They may include
 If flags are non-empty, other interactive cues will be surpressed.
 (E.g., printing help messages).
 
-See the functions @samp{@code{proof-extend-queue}} and @samp{@code{proof-shell-exec-loop}}.
+See the functions @samp{@code{proof-start-queue}} and @samp{@code{proof-shell-exec-loop}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: pg-subterm-anns-use-stack
@@ -3328,21 +3327,19 @@ Input to the proof shell via the queue region is managed by the
 functions @code{proof-extend-queue} and @code{proof-shell-exec-loop}.
 
 @c TEXI DOCSTRING MAGIC: proof-extend-queue
-@defun proof-extend-queue start end queueitems queuemode
-Extend the command queue with @var{queueitems}, in mode @var{queuemode}.@*
-If @var{start} is non-nil, @var{start} and @var{end} are buffer positions in the
-active scripting buffer for the queue region.
-If the queue is non-empty, @var{queuemode} ought to match the current
-setting (this is not checked).
+@defun proof-extend-queue end queueitems
+Extend the current queue with @var{queueitems}, queue end @var{end}.@*
+To make sense, the commands should correspond to processing actions
+for processing a region from (buffer-queue-or-locked-end) to @var{end}.
+The queue mode is set to @code{'advancing}
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-extend-queue
-@defun proof-extend-queue start end queueitems queuemode
-Extend the command queue with @var{queueitems}, in mode @var{queuemode}.@*
-If @var{start} is non-nil, @var{start} and @var{end} are buffer positions in the
-active scripting buffer for the queue region.
-If the queue is non-empty, @var{queuemode} ought to match the current
-setting (this is not checked).
+@defun proof-extend-queue end queueitems
+Extend the current queue with @var{queueitems}, queue end @var{end}.@*
+To make sense, the commands should correspond to processing actions
+for processing a region from (buffer-queue-or-locked-end) to @var{end}.
+The queue mode is set to @code{'advancing}
 @end defun
 @vindex proof-action-list
 @c TEXI DOCSTRING MAGIC: proof-shell-exec-loop
