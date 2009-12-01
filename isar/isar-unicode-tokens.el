@@ -481,19 +481,24 @@ tokens."
 	collect
 	(cons (funcall f1 c) (cons (funcall f2 c) symbs))))
 
-(defconst isar-script-letters-tokens
+(defconst isar-script-letters-tokens ; \<A> \<B> ...
   (isar-map-letters (lambda (x) (format "%c" x))
 		    (lambda (x) (format "%c" x))
 		    'script))
 
-(defconst isar-roman-letters-tokens
-  (isar-map-letters (lambda (x) (format "%c" x))
-		    (lambda (x) (format "%c" x))
+(defconst isar-roman-letters-tokens ; \<a> \<b> ...
+  (isar-map-letters (lambda (x) (downcase (format "%c" x)))
+		    (lambda (x) (downcase (format "%c" x)))
 		    'serif))
 
-(defconst isar-fraktur-letters-tokens
+(defconst isar-fraktur-uppercase-letters-tokens ; \<AA> \<BB> ..
   (isar-map-letters (lambda (x) (format "%c%c" x x))
 		    (lambda (x) (format "%c" x))
+		    'frakt))
+
+(defconst isar-fraktur-lowercase-letters-tokens ; \<AA> \<BB> ..
+  (isar-map-letters (lambda (x) (downcase (format "%c%c" x x)))
+		    (lambda (x) (downcase (format "%c" x)))
 		    'frakt))
 
 (defcustom isar-token-symbol-map nil
@@ -531,6 +536,8 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
 		       isar-bold-nums-tokens
 		       isar-script-letters-tokens
 		       isar-roman-letters-tokens
+		       isar-fraktur-uppercase-letters-tokens
+		       isar-fraktur-lowercase-letters-tokens
 		       isar-user-tokens
 		       isar-symbols-tokens-fallbacks)))
 
