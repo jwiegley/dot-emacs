@@ -259,11 +259,12 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;;
 (defconst unicode-tokens-font-family-alternatives
   '(("STIXGeneral"
+     "Lucida Grande" "Lucida Sans Unicode"
      "DejaVu Sans Mono" "DejaVuLGC Sans Mono")
     ("Script"
      "Lucida Calligraphy" "URW Chancery L" "Zapf Chancery")
     ("Fraktur"
-     "Lucida Blackletter" "URW Bookman L")))
+     "Lucida Blackletter" "URW Bookman L Light")))
 
 (if (boundp 'face-font-family-alternatives)
     (custom-set-default
@@ -1182,15 +1183,17 @@ Commands available are:
   "A subroutine of `unicode-tokens-set-font-var'."
   (let (spec)
     (when font
-      ;; da: with x-select-font/fontconfig, best behaviour I get is
-      ;; to pass back in as family attribute only, not :font.
-      (set-face-attribute fontvar (selected-frame)
-			  :width 'normal
-			  ;; da: don't try to reset these for token fonts.
-			  ;; :weight 'normal
-			  ;; :slant 'normal
-			  ;; da: sometimes :font doesn't work but :family does!
-			  :font font)
+      ;; sometimes (on Linux/xft) :font doesn't work but :family does.
+      (condition-case nil
+	  (set-face-attribute fontvar (selected-frame)
+			      ;; da: don't try to reset these for token fonts.
+			      ;; :weight 'normal :slant 'normal
+			      :width 'normal
+			      :font font)
+	(error
+	  (set-face-attribute fontvar (selected-frame)
+			      :width 'normal
+			      :family font)))
       (let ((font-object (face-attribute fontvar :font)))
 	(dolist (f (frame-list))
 	  (and (not (eq f (selected-frame)))
