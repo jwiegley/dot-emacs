@@ -46,10 +46,13 @@
 (defconst isar-control-char-format-regexp
   (concat
    "\\(\\\\<\\^%s>\\)\\("
-   ;; isar-long-id-stuff:
+; isar-long-id-stuff:
    "\\(?:" 
-   "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)"
+;  "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)"
+; apparently wrong: subscripts \\<^isub>____x\\<^isub>y____
+  "\\(?:\\\\<[A-Za-z]+>\\|[A-Za-z0-9'_]\\)"
    "\\|\\.\\)+"
+   "\\|[^\\]"
    ;; above was simply: \\\\<[A-Za-z]+>
    "\\|[^\\]"
    "\\)"))
