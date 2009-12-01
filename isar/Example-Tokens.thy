@@ -3,7 +3,7 @@
       using symbols.  
       View and process this document with Unicode Tokens engaged.
    
-      For an more exaustive test of token display, visit the test
+      For a more exhaustive test of token display, visit the test
       file etc/isar/TokensAcid.thy
 
       $Id$
