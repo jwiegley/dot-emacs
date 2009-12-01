@@ -73,15 +73,26 @@ begin
    the control tokens to help.
 *)  
 
-term "a\<^bsub>longsub\<^esub>"
-term "b\<^bsup>longsuper\<^esup>"
-term "\<^bbold>Bold text \<alpha>\<beta>\<gamma>\<delta> \<in> \<forall>\<^ebold>"
-term "\<^bitalic>Italic text \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^eitalic>"  
-term "\<^bsans>Sans serif text \<alpha>\<beta>\<gamma>\<delta>\<in>\<forall>\<^esans>"
-term "\<^bscript>Script \<alpha>\<beta>\<gamma>\<delta>\<in>\<forall>\<^escript>"
-term "\<^bfrakt>Frakt \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^efrakt>"
-term "\<^bserif>Roman \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^eserif>"
+(* Introduce uninterpreted term syntax using these features,
+   to check behaviour in locked/unlocked regions. *)
+
+consts longsub :: "['a,'a]\<Rightarrow>'a" ("_\<^bsub>_\<^esub>")
+consts longsup :: "['a,'a]\<Rightarrow>'a" ("_\<^bsup>_\<^esup>")
+consts bold    :: "['a,'a]\<Rightarrow>'a" ("\<^bbold>_ _\<^ebold>")
+consts italic  :: "['a,'a,'a,'a]\<Rightarrow>'a" ("\<^bitalic>_ _ _ _\<^eitalic>")
+consts sans    :: "['a,'a]\<Rightarrow>'a" ("\<^bsans>_ _\<^esans>")
+consts script  :: "['a,'a]\<Rightarrow>'a" ("\<^bscript>_ _\<^escript>")
+consts frakt   :: "['a,'a]\<Rightarrow>'a" ("\<^bfrakt>_ _\<^efrakt>")
+consts serif   :: "['a,'a]\<Rightarrow>'a" ("\<^bserif>_ _\<^eserif>")
+
+term "a\<^bsub>longsub\<^esub>"   term "b\<^bsup>longsuper\<^esup>"
+
+term "\<^bbold>Bold text\<^ebold>"  term "\<^bitalic>Italic text \<alpha> \<beta>\<^eitalic>"  
+term "\<^bsans>Sans \<gamma>\<^esans>"     term "\<^bscript>Script text\<^escript>"
+term "\<^bfrakt>Frakt stuff\<^efrakt>"  term "\<^bserif>Roman stuff\<^eserif>"
    
+lemma "\<lbrakk> \<^bbold>Bold text\<^ebold>; Q \<rbrakk> \<Longrightarrow> Q"
+by auto
 
 (* Tokens controlling layout and fonts: next character.
  
@@ -95,13 +106,25 @@ term "\<^bserif>Roman \<alpha>\<beta>\<gamma>\<delta> \<in>\<forall>\<^eserif>"
 (*   NB: below here cannot be processed: just in terms to check with 
      string font for terms. *)
 
-term "a\<^sub>b"   (* NB: here and below cannot be processed *)
+consts shortsub :: "['a,'a]\<Rightarrow>'a" ("_\<^sub>_")
+consts shortsup :: "['a,'a]\<Rightarrow>'a" ("_\<^sup>_")
+
+consts charloc    :: "['a,'a]\<Rightarrow>'a" ("\<^loc>_")
+consts charbold   :: "['a,'a]\<Rightarrow>'a" ("\<^bold>_")
+consts charitalic :: "['a,'a]\<Rightarrow>'a" ("\<^italic>_")
+
+term "a\<^sub>b"
 term "a\<^sup>b"
-term "a\<^isub>b"
-term "a\<^isup>b"
+term "a\<^isub>abc"
+term "a\<^isup>abc"
 term "\<^loc>a"
 term "\<^bold>b"
 term "\<^italic>b"
+
+(* More taxing examples for testing *)
+
+term "a\<^isub>x\<^isub>y"      (* both x and y should be subscripted *)
+term "a\<^isub>xabc\<^isub>y"   (* both x.abc and y should be subscripted *)
 
 
 (* 
