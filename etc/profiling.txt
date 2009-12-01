@@ -4,6 +4,7 @@ Notes on Profiling Proof General in Emacs
 Usage of Elisp profiler:
 
    M-x elp-instrument-package RET proof RET
+   M-x elp-instrument-package RET pg RET
 
 < do something now >
 
