@@ -44,7 +44,7 @@ Report bugs at http://proofgeneral.inf.ed.ac.uk/trac"
 
 VERSIONBLURB='David Aspinall.
 
-Copyright (C) 1998-2008 LFCS, University of Edinburgh, UK.
+Copyright (C) 1998-2009 LFCS, University of Edinburgh, UK.
 This is free software; see the source for copying conditions.'
 
    
@@ -57,10 +57,10 @@ while
 	echo "$HELP"
 	exit 0;;
     --emacs)
-	EMACS=$2
+	EMACS="$2"
 	shift;;
     --pghome)
-	PGHOME=$2
+	PGHOME="$2"
 	shift;;
     --version|-v) 
 	VERSION=`grep proof-general-version $PGHOME/generic/proof-site.el | head -1 | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
