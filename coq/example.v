@@ -1,5 +1,5 @@
 (*
-    Example proof script for Coq Proof General (Coq V8 syntax).
+    Example proof script for Coq Proof General.
 
     $Id$
 *)
