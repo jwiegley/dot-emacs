@@ -1803,7 +1803,7 @@ If you have no colouring on the locked region, it can be hard to see
 where processing has got to.  Or if it has stopped on a region with
 an error.  You can select
 @lisp
-Proof General -> Quick Options -> Proof Sticky Errors
+Proof General -> Quick Options -> Display -> Sticky Errors
 @end lisp
 to add a higlight for regions which did not successfully process
 on the last attempt.  If the region is edited in anyway, the
