@@ -287,6 +287,7 @@ without adjusting window layout."
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle proof-full-annotation)
 (proof-deftoggle proof-colour-locked)
+(proof-deftoggle proof-sticky-errors)
 (proof-deftoggle proof-shell-quiet-errors)
 (proof-deftoggle proof-minibuffer-messages)
 
@@ -385,7 +386,11 @@ without adjusting window layout."
       ["Colour Locked" proof-colour-locked-toggle
        :style toggle
        :selected proof-colour-locked
-       :help "Use decoration of locked region"])
+       :help "Add highlighting to locked (checked) text"]
+      ["Sticky Errors" proof-sticky-errors-toggle
+       :style toggle
+       :selected proof-sticky-errors
+       :help "Highlight commands that caused errors"])
      ("Read Only"
       ["Strict Read Only" 
        (customize-set-variable 'proof-strict-read-only t)
@@ -518,6 +523,7 @@ without adjusting window layout."
    'proof-shrink-windows-tofit
    'proof-multiple-frames-enable
    'proof-colour-locked
+   'proof-sticky-errors
    ;; Follow mode sub-menu
    'proof-follow-mode
    ;; Deactivate scripting action
