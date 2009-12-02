@@ -232,7 +232,7 @@ This is simply to display the dependency somehow."
   (let ((helpmsg  (concat "This item is a dependency (ancestor) of " name)))
     (while nmspans
       (let ((span (cadar nmspans)))
-	(proof-depends-save-old-face)
+	(proof-depends-save-old-face span)
 	(span-set-property span 'face 'proof-highlight-dependency-face)
 	(span-set-property span 'priority pg-dep-span-priority)
 	(span-set-property span 'mouse-highlight nil)
@@ -243,7 +243,7 @@ This is simply to display the dependency somehow."
   (let ((helpmsg  (concat "This item depends on (is a child of) " name)))
     (while nmspans
       (let ((span (cadar nmspans)))
-	(proof-depends-save-old-face)
+	(proof-depends-save-old-face span)
 	(span-set-property span 'face 'proof-highlight-dependent-face)
 	(span-set-property span 'priority pg-dep-span-priority)
 	(span-set-property span 'mouse-highlight nil)
