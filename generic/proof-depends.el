@@ -232,6 +232,7 @@ This is simply to display the dependency somehow."
   (let ((helpmsg  (concat "This item is a dependency (ancestor) of " name)))
     (while nmspans
       (let ((span (cadar nmspans)))
+	(proof-depends-save-old-face)
 	(span-set-property span 'face 'proof-highlight-dependency-face)
 	(span-set-property span 'priority pg-dep-span-priority)
 	(span-set-property span 'mouse-highlight nil)
@@ -242,6 +243,7 @@ This is simply to display the dependency somehow."
   (let ((helpmsg  (concat "This item depends on (is a child of) " name)))
     (while nmspans
       (let ((span (cadar nmspans)))
+	(proof-depends-save-old-face)
 	(span-set-property span 'face 'proof-highlight-dependent-face)
 	(span-set-property span 'priority pg-dep-span-priority)
 	(span-set-property span 'mouse-highlight nil)
@@ -249,16 +251,26 @@ This is simply to display the dependency somehow."
 	(span-set-property span 'balloon-help helpmsg))
       (setq nmspans (cdr nmspans)))))
 
+(defun proof-depends-save-old-face (span)
+  (unless (span-property span 'depends-old-face)
+    (span-set-property span 'depends-old-face 
+		       (span-property span 'face))))
+
+(defun proof-depends-restore-old-face (span)
+  (when (span-property span 'depends-old-face)
+    (span-set-property span 'face
+		       (span-property span 'depends-old-face))
+    (span-set-property span 'depends-old-face nil)))
+
 (defun proof-dep-unhighlight ()
-  "Returned all highlighted spans in file to the `proof-locked-face' highlighting."
+  "Remove additional highlighting on all spans in file to their default."
   (interactive)
-  ;; FIXME: not quite right!  Will highlight spans in queue as locked too,
-  ;; and covers too many spans.
   (save-excursion
     (let ((span (span-at (point-min) 'type)))
+      ;; FIXME: covers too many spans!
       (while span
 	(pg-set-span-helphighlights span 'nohighlight)
-	(span-set-property span 'face 'proof-locked-face)
+	(proof-depends-restore-old-face span)
 	(span-set-property span 'priority pg-ordinary-span-priority)
 	(setq span (next-span span 'type))))))
 
