@@ -806,18 +806,18 @@ If NUM is negative, move upwards.  Return new span."
 
 (defun pg-span-context-menu (event)
   (interactive "e")
-  (let ((span (pg-span-for-event event))
-	cspan)
-    ;; Find controlling span
-    (while (setq cspan (span-property span 'controlspan))
-      (setq span cspan))
-    (let*
-	((idiom (and span (span-property span 'idiom)))
-	 (id    (and span (span-property span 'id))))
-      (popup-menu (pg-create-in-span-context-menu
-		   span
-		   (if idiom (symbol-name idiom))
-		   (if id (symbol-name id)))))))
+  (let* ((span (pg-span-for-event event))
+	 cspan)
+    (when span
+      ;; Find controlling span
+      (while (setq cspan (span-property span 'controlspan))
+	(setq span cspan))
+      (let*
+	  ((idiom (and span (span-property span 'idiom)))
+	   (id    (and span (span-property span 'id))))
+	(popup-menu (pg-create-in-span-context-menu
+		     span idiom 
+		     (if id (symbol-name id))))))))
 
 (defun pg-toggle-visibility ()
   "Toggle visibility of region under point."
@@ -826,8 +826,7 @@ If NUM is negative, move upwards.  Return new span."
 	 (idiom (and span (span-property span 'idiom)))
 	 (id    (and span (span-property span 'id))))
     (and  idiom id
-	 (pg-toggle-element-visibility (symbol-name idiom) (symbol-name id)))))
-
+	 (pg-toggle-element-visibility idiom (symbol-name id)))))
 
 (defun pg-create-in-span-context-menu (span idiom name)
   "Create the dynamic context-sensitive menu for a span."
@@ -839,12 +838,11 @@ If NUM is negative, move upwards.  Return new span."
   (append
    (list (pg-span-name span))
    (list (vector
-	  "Show/hide"
-	  (if idiom (list `pg-toggle-element-visibility idiom name)
-	    idiom)
+	  "Show/hide"  
+	  (if idiom (list 'pg-toggle-element-visibility (quote idiom) name))
 	  (not (not idiom))))
    (list (vector
-	  "Copy"	(list 'pg-copy-span-contents span) t))
+	  "Copy"       (list 'pg-copy-span-contents span) t))
    (list (vector
 	  "Undo"
 	  (list 'pg-span-undo span) t))

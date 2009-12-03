@@ -233,11 +233,13 @@ without adjusting window layout."
 
 (defvar proof-show-hide-menu
   '(("Show All"
-     ["Proofs"    (pg-show-all-portions "proof") t]
-     ["Comments"  (pg-show-all-portions "comment") t])
+     ["Proofs"    (pg-show-all-portions 'proof) t]
+     ["Commands"  (pg-show-all-portions 'command) t]
+     ["Comments"  (pg-show-all-portions 'comment) t])
     ("Hide All"
-     ["Proofs"    (pg-show-all-portions "proof" 'hide) t]
-     ["Comments"  (pg-show-all-portions "comment" 'hide) t]))
+     ["Proofs"     (pg-show-all-portions 'proof 'hide) t]
+     ["Commands"   (pg-show-all-portions 'command 'hide) t]
+     ["Comments"   (pg-show-all-portions 'comment 'hide) t]))
   "Show/hide submenu.")
 
 (defvar proof-buffer-menu

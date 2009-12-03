@@ -72,6 +72,7 @@ This uses the size of the hash table for IDIOM."
   (concat (symbol-name idiom) "-" (int-to-string number)))
 
 (defun proof-next-element-id (idiom)
+  "Return a string suitable for naming the next element of type IDIOM."
   (proof-element-id idiom (proof-next-element-count idiom)))
 
 
@@ -470,42 +471,41 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Names of proofs (and other elements) in a script
+;; Names of proofs (and other parts) in a script.
 ;;
-;; Each kind of part ("idiom") in a proof script has its own name space.
-;; Visibility within a script is then handled with buffer-invisibility-spec
-;; controlling appearance of each idiom.
+;; Elements are represented as spans (overlays).
+;;
+;; Each kind of part ("idiom") in a proof script has its own name
+;; space.  Idioms are named with symbols.
 ;;
 
 (defvar pg-idioms '(proof)
   "Vector of script element kinds PG is aware of for this prover.")
 
-(defvar pg-visibility-specs nil
-  "Cache of visibility spec symbols used by PG.
-This is used for cleaning `buffer-invisibility-spec' in
-`pg-clear-script-portions': it doesn't need to be exactly accurate.")
-
-(make-variable-buffer-local 'pg-visibility-specs)
-
-(defconst pg-default-invisibility-spec
-  '((t . nil) (hide . nil)))
-
 (defun pg-clear-script-portions ()
-  "Clear record of script portion names and types from internal list.
-Also clear all visibility specifications."
+  "Clear record of script portion names and types from internal list."
   (dolist (idtbl pg-script-portions)
-    (clrhash (cdr idtbl)))
-  (mapc 'remove-from-invisibility-spec pg-visibility-specs))
+    (maphash (lambda (k span) (span-delete span)) (cdr idtbl))
+    (clrhash (cdr idtbl))))
 
-(defun pg-remove-script-element (ns id)
-  "Remove the identifier ID from the script portion NS."
-  (let* ((elts (cdr-safe (assq ns pg-script-portions))))
-    (if elts (remhash id elts))))
+(defun pg-remove-element (idiom id)
+  "Remove the identifier ID from the script portion IDIOM."
+  (let* ((elts (cdr-safe (assq idiom pg-script-portions)))
+	 (span (and elts (gethash idiom elts))))
+    (when span
+      (span-detach span) ;; delete overlay, without pre-del fn
+      (remhash id elts))))
 
-(defsubst pg-visname (namespace id)
-  "Return a unique symbol made from strings NAMESPACE and unique ID."
-  (intern (concat namespace ":" id)))
-
+(defun pg-get-element (idiomsym id) 
+  "Return proof script element of type IDIOM identifier ID.
+IDIOM is a symbol, ID is a string."
+  (assert (symbolp idiomsym))
+  (assert (stringp id))
+  (let ((idsym  (intern id))
+	(elts   (cdr-safe (assq idiomsym pg-script-portions))))
+    (if elts
+	(gethash idsym elts))))
+    
 (defun pg-add-element (idiomsym id span &optional name)
   "Add element of type IDIOMSYM with identifier ID, referred to by SPAN.
 This records the element in `pg-script-portions' and sets span
@@ -514,89 +514,86 @@ IDIOMSYM is a symbol, whereas ID and optional NAME are strings.
 Identifiers must be unique for a given idiom; the optional NAME
 will be recorded as a textual name used instead of ID for users;
 NAME does not need to be unique."
+  (assert (symbolp idiomsym))
+  (assert (stringp id))
+  (if name (assert (stringp name)))
   (let* ((idsym    (intern id))
 	 (name	   (or name id))
 	 (idiom    (symbol-name idiomsym))
-	 (visname  (pg-visname idiom id))
-	 (delfn	   `(lambda () (pg-remove-element (quote ,idiomsym) (quote ,idsym))))
-	 (elts	   (cdr-safe (assq idiomsym pg-script-portions))))
+	 (delfn	   `(lambda () (pg-remove-element 
+				(quote ,idiomsym) (quote ,idsym))))
+	 (elts (cdr-safe (assq idiomsym pg-script-portions))))
     (unless elts
       (setq pg-script-portions 
 	    (cons (cons idiomsym (setq elts (make-hash-table)))
 		  pg-script-portions)))
-    (if (gethash id elts)
+    (if (gethash idsym elts)
 	(proof-debug "Element named " name 
-		     " (type " idiom ") already in buffer.")
-      (puthash idsym t elts))
+		     " (type " idiom ") was already in buffer."))
+    (puthash idsym span elts)
     ;; Idiom and ID are stored in the span as symbols; name as a string.
     (span-set-property span 'idiom idiomsym)
     (span-set-property span 'id idsym)
     (span-set-property span 'name name)
     (span-set-property span 'span-delete-action delfn)
-    (span-set-property span 'invisible visname)
-    ;; Bad behaviour if span gets copied: unique ID shouldn't be duplicated.
-    (span-set-property span 'duplicable nil) ;; NB: not supported in Emacs
+    
+    ;; Ideally: would keep invisible property to be the idiom type
+    ;; (span-set-property span 'invisible idiom)
+    ;; BUT: problems overlapping invisible regions with
+    ;; Unicode Tokens (crucial for hiding control sequences).
+
     ;; Nice behaviour in with isearch: open invisible regions temporarily.
     (span-set-property span 'isearch-open-invisible
       'pg-open-invisible-span)
     (span-set-property span 'isearch-open-invisible-temporary
 		       'pg-open-invisible-span)))
 
+(defun pg-set-element-span-invisible (span invisible)
+  "Function to adjust visibility of span to INVISIBLE."
+  (span-set-property span 'invisible invisible))
+
 (defun pg-open-invisible-span (span &optional invisible)
   "Function for `isearch-open-invisible' property."
-  (let ((idiom  (span-property span 'idiom))
-	(id	(span-property span 'id)))
-    (and idiom id
-	 (if invisible
-	     (pg-make-element-invisible
-	      (symbol-name idiom) id)
-	   (pg-make-element-visible
-	      (symbol-name idiom) (symbol-name id))))))
+  ;; alias
+  (pg-set-element-span-invisible span invisible))
 
-(defun pg-remove-element (ns idsym)
-  (pg-remove-script-element ns idsym)
-  ;; We could leave the visibility note, but that may
-  ;; be counterintuitive, so lets remove it.
-  (pg-make-element-visible (symbol-name ns) (symbol-name idsym)))
+(defun pg-make-element-invisible (idiomsym id)
+  "Make element ID of type IDIOMSYM invisible, with ellipsis."
+  (let ((span (pg-get-element idiomsym id)))
+    (if span (pg-set-element-span-invisible span t))))
 
-(defun pg-make-element-invisible (idiom id)
-  "Make element ID of type IDIOM invisible, with ellipsis."
-  (let ((visspec  (cons (pg-visname idiom id) t)))
-    (add-to-invisibility-spec visspec)
-    (add-to-list 'pg-visibility-specs visspec)))
+(defun pg-make-element-visible (idiomsym id)
+  "Make element ID of type IDIOMSYM visible."
+  (let ((span (pg-get-element idiomsym id)))
+    (if span (pg-set-element-span-invisible span nil))))
 
-(defun pg-make-element-visible (idiom id)
-  "Make element ID of type IDIOM visible."
-  (let ((visspec  (cons (pg-visname idiom id) t)))
-    (remove-from-invisibility-spec visspec)
-    (setq pg-visibility-specs (delete visspec pg-visibility-specs))))
+(defun pg-toggle-element-span-visibility (span)
+  "Toggle visibility of SPAN."
+  (span-set-property 
+   span 'invisible
+   (not (span-property span 'invisible))))
 
-(defun pg-toggle-element-visibility (idiom id)
-  "Toggle visibility of script element of type IDIOM, named ID."
-  (interactive)
-  (if (assq (pg-visname idiom id) buffer-invisibility-spec)
-      (pg-make-element-visible idiom id)
-    (pg-make-element-invisible idiom id))
-  ;; GNU Emacs sometimes requires redisplay for change 
-  ;; in `buffer-invisibility-spec', perhaps a bug?
-  (redraw-frame (selected-frame)))
+(defun pg-toggle-element-visibility (idiomsym id)
+  "Toggle visibility of script element of type IDIOMSYM, named ID.
+IDIOMSYM is a symbol and ID is a strings."
+  (let ((span (pg-get-element idiomsym id)))
+    (if span (pg-toggle-element-span-visibility span))))
 
 (defun pg-show-all-portions (idiom &optional hide)
   "Show or conceal portions of kind IDIOM; if HIDE is non-nil, conceal."
   (interactive
    (list
-    (completing-read
-     (concat "Make " (if current-prefix-arg "in" "") "visible all regions of: ")
-     (apply 'vector pg-idioms) nil t)
+    (intern
+     (completing-read
+      (concat "Make " (if current-prefix-arg "in" "") "visible all regions of: ")
+      (apply 'vector pg-idioms) nil t))
     current-prefix-arg))
-  (let ((elts      (cdr-safe (assq (intern idiom) pg-script-portions)))
-	(alterfn   (if hide
-		       (lambda (key val)
-			 (pg-make-element-invisible idiom
-						    (symbol-name key)))
-		     (lambda (key val)
-		       (pg-make-element-visible idiom
-						(symbol-name key))))))
+  (let ((elts    (cdr-safe (assq idiom pg-script-portions)))
+	(alterfn (if hide
+		     (lambda (k span)
+		       (pg-set-element-span-invisible span t))
+		   (lambda (k span)
+		     (pg-set-element-span-invisible span nil)))))
     (proof-with-script-buffer ; may be called from menu
      (maphash alterfn elts))))
 
@@ -614,8 +611,8 @@ NAME does not need to be unique."
 (defun pg-add-proof-element (name span controlspan)
   "Add a span proof element to SPAN with name NAME and parent CONTROLSPAN."
   (let ((proofid   (proof-next-element-id 'proof)))
-    (pg-add-element 'proof  proofid span name)
-    ;; Set id in controlspan
+    (pg-add-element 'proof proofid span name)
+    ;; Set id in controlspan [NB: intern here means symbol-name elsewhere]
     (span-set-property controlspan 'id (intern proofid))
     ;; Make a navigable link between the two spans.
     (span-set-property span 'controlspan controlspan)
@@ -624,7 +621,7 @@ NAME does not need to be unique."
     (pg-set-span-helphighlights span proof-boring-face)
     (span-set-property span 'priority 10)  ; lower than default
     (if proof-disappearing-proofs
-	(pg-make-element-invisible "proof" proofid))))
+	(pg-make-element-invisible 'proof proofid))))
 
 (defun pg-span-name (span)
   "Return a user-level name for SPAN."
@@ -1560,17 +1557,22 @@ Subroutine of `proof-done-advancing-save'."
 			   newend newend nam)))))
 
 (defun proof-done-advancing-other (span)
-  ;; We might add hidable regions also for commands: the problem
-  ;; is that they have no natural surrounding region, so makes
-  ;; it difficult to define a region for revealing again.
-  ;; [ best solution would be to support clicking on ellipsis]
-  (if (funcall proof-goal-command-p span)
-	  (incf proof-nesting-depth))
+  (let ((bodyspan  span) ;; might take subscript after first word/line
+	(id        (proof-next-element-id 'command)))
+  ;; Hidable regions for commands: the problem is that they have no
+  ;; natural surrounding region, so makes it difficult to define a
+  ;; region for revealing again.
+  (cond 
+   ((funcall proof-goal-command-p span)
+    (pg-add-element 'statement id bodyspan)
+    (incf proof-nesting-depth))
+   (t
+    (pg-add-element 'command id bodyspan)))
 
   (if proof-shell-proof-completed
       (incf proof-shell-proof-completed))
 
-  (pg-set-span-helphighlights span))
+  (pg-set-span-helphighlights span)))
 
 
 
@@ -2196,9 +2198,6 @@ command."
   ;; We set hook functions here rather than in proof-config-done so
   ;; that they can be adjusted by prover specific code if need be.
   (proof-script-set-buffer-hooks)
-
-  ;; We use a list to manage invisibility of buffer parts
-  (setq buffer-invisibility-spec nil)
 
   ;; Set after change functions
   (proof-script-set-after-change-functions)
