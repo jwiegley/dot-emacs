@@ -1008,7 +1008,7 @@ mouse activation."
 ;;
 
 (defun coq-create-span-menu (span idiom name)
-  (if (string-equal idiom "proof")
+  (if (eq idiom 'proof)
       (let ((thm (span-property span 'name)))
         (list (vector
                "Check" ; useful?

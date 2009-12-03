@@ -19,6 +19,8 @@ proof
  qed
 qed
 
+(* quite nice I think but what if I type here? *)
+
 text {* Unstructured proof script. *}
 
 theorem  "A & B --> B & A"

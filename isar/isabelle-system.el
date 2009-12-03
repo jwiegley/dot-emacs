@@ -342,7 +342,7 @@ for you, you should disable this behaviour."
 ;;
 
 (defun isabelle-create-span-menu (span idiom name)
-  (if (string-equal idiom "proof")
+  (if (eq idiom 'proof)
       (let ((thm (span-property span 'name)))
 	(list (vector
 	       "Visualise dependencies"
