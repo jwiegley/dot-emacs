@@ -12,14 +12,16 @@
     buffer contents.  For best results, Emacs 23 is recommended.
 
 *** Document-centred mechanisms added:
+    - auto raise of prover output buffers can be disabled
     - output retained for script buffer popups
     - background colouring for locked region can be disabled
-    - auto raise of prover output buffers can be disabled
+    - ...but "sticky" colouring for errors can be used
     - edit on processed region can automatically undo
-    Depending on input language and interaction output, this
-    may enable a "document centred" way of working, when output
-    buffers can be ignored and hidden. 
-    Use full annotation to keep output when several steps are taken.
+
+    Depending on input language and interaction output, this may
+    enable a useful "document centred" way of working, when output
+    buffers can be ignored and hidden.
+    Use "full annotation" to keep output when several steps are taken.
 
 *** Improved prevention of Undo in locked region
     proof-allow-undo-in-read-only: now defaults to nil
@@ -33,8 +35,10 @@
     - new menu for useful minor modes suggests modes that PG supports
 
 *** New user configuration options (also on Proof General -> Options)
+    proof-colour-locked       (use background colour for checked text)
     proof-auto-raise-buffers  (set to nil for manual window control)
     proof-full-decoration     (add full decoration to input text)
+    proof-sticky-errors       (add highlighting for commands that caused error)
     proof-shell-quiet-errors  (non-nil to disable beep on error; default=nil)
     proof-minibuffer-messages (non-nil to show prover messages; default=nil)
 
