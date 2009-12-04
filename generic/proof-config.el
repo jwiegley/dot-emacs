@@ -758,7 +758,7 @@ At present this is used only by the `proof-easy-config' macro."
 (defcustom proof-script-span-context-menu-extensions nil
   "Extensions for the in-span context sensitive menu.
 This should be a function which accepts three arguments: SPAN IDIOM NAME.
-See pg-user.el: pg-create-in-span-context-menu for more hints."
+See pg-user.el: `pg-create-in-span-context-menu' for more hints."
   :type 'function
   :group 'proof-script)
 
