@@ -96,8 +96,8 @@ If there is no setting for the variable, DEFAULT will be returned"
   (if (or proof-rsh-command
 	  (file-executable-p isa-isabelle-command))
       (let ((setting (isa-shell-command-to-string
-		      (concat isa-isabelle-command
-			      " getenv -b " envvar))))
+		      (concat "\"" isa-isabelle-command
+			      "\" getenv -b " envvar))))
 	(if (string-equal setting "")
 	    default
 	  setting))
@@ -123,7 +123,7 @@ The logic image name is tagged onto the end."
   (if (isa-set-isabelle-command)
       (delete "" (split-string
 		  (isa-shell-command-to-string
-		   (concat isa-isabelle-command " findlogics")) "[ \t]"))))
+		   (concat "\"" isa-isabelle-command "\" findlogics")) "[ \t]"))))
 
 (defcustom isabelle-logics-available nil
   "*List of logics available to use with Isabelle.
@@ -214,9 +214,7 @@ This function sets `proof-prog-name' and `isar-prog-args'."
   (if (isa-set-isabelle-command)
       (apply 'start-process
 	     "isa-view-doc" nil
-	     (append (split-string
-		      isa-isabelle-command)
-		     (list "doc" docname)))))
+	     (list isa-isabelle-command "doc" docname))))
 
 (defun isa-tool-list-docs ()
   "Generate a list of documentation files available, with descriptions.
@@ -226,7 +224,7 @@ of Isabelle document names and descriptions.  When DOCNAME is
 passed to isa-tool-doc-command, DOCNAME will be viewed."
   (if (isa-set-isabelle-command)
       (let ((docs (isa-shell-command-to-string
-		   (concat isa-isabelle-command " doc"))))
+		   (concat "\"" isa-isabelle-command "\" doc"))))
 	(unless (string-equal docs "")
 	  (mapcan
 	   (function (lambda (docdes)
