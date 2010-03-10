@@ -15,6 +15,7 @@ Maintaining compatibility across proof assistant versions, Emacs
 versions and operating systems is virtually impossible.  In this major
 release ** XEmacs compatibility has been dropped **
 
+
 Running on Windows
 ------------------
 
