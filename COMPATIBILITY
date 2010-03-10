@@ -5,9 +5,9 @@ This version of Proof General has been tested with these Emacs versions
 on recent Linux systems:
 
  Emacs 23.1            -- recommended and supported
- Emacs 22.3.1	       -- previous version, should work well
+ Emacs 22.3.1	       -- previous version, may work
 
-and (main) prover versions:  Coq 8.1pl3, Isabelle2009
+and (main) prover versions:  Coq 8.1pl3, Isabelle2009-1
 
 See below for notes about other operating systems.
 
