@@ -9,6 +9,6 @@
             /* ${3:Description} $0*/
             /*----------------------------------------------------------------*/
             diagnostic(misra_${2:required}_severity, ec_misra_c_2004_$1);
-         }		/* if */
+         }              /* if */
 #endif /* MISRA_C_2004_VALIDATION */
 /*** END TI ADD ***/

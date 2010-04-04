@@ -1,7 +1,7 @@
 #name : TODO
 # --
-** TODO [#B] $0
+** TODO $0
    SCHEDULED: `(with-temp-buffer (org-insert-time-stamp (current-time)))`
    :PROPERTIES:
-   :ID: `(shell-command-to-string "uuidgen")`   :END:
+   :ID:       `(shell-command-to-string "uuidgen")`   :END:
    `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`

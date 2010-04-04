@@ -13,7 +13,7 @@ Impacts Tool Speed   : no
 
 Technical Description:
   ANSI/error_msg.txt:
-  ANSI/cmd_line.c:
+  ANSI/misra.c:
 
   Implemented MISRA-C:2004 $2 rule $1 which states:
 

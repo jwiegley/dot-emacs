@@ -1,5 +1,5 @@
-#name : :SCRIPT: ... :END:
+#name : :SOURCE: ... :END:
 # --
-:SCRIPT:
+#+begin_src sh
 $0
-:END:
+#+end_src
