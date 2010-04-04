@@ -118,7 +118,7 @@
    slime-presentation-streams
    slime-presentations
    slime-references
-   ;;slime-sbcl-exts
+   slime-sbcl-exts
    slime-package-fu
    slime-fontifying-fu
    slime-mdot-fu
@@ -130,61 +130,46 @@
 
 (setq slime-net-coding-system 'utf-8-unix)
 
-;;(setq slime-lisp-implementations
-;;      '(
-;;	(sbcl ("sbcl" "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86")
-;;	      :init (lambda (port-file _)
-;;		      (format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
-;;			      port-file))
-;;	      :coding-system utf-8-unix)
-;;	(sbcl64 ("/usr/local/stow/sbcl-X86-64/bin/sbcl"
-;;		 "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
-;;		:init (lambda (port-file _)
-;;			(format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
-;;				port-file))
-;;		:coding-system utf-8-unix)
-;;	(cmucl ("lisp" "-load" "/Users/johnw/Library/Lisp/lwinit.lisp"))
-;;	(ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/lwinit.lisp"))
-;;	(allegro ("/Users/johnw/Applications/AllegroCL/alisp"
-;;		  "-s" "/Users/johnw/Library/Lisp/lwinit.lisp"))
-;;	(clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp")
-;;	       :coding-system utf-8-unix)
-;;	(abcl ("java" "-jar" "/Users/johnw/src/abcl/abcl.jar")
-;;	      :init (lambda (port-file _)
-;;		      (format
-;;		       "(cl:progn 
-;;                         (cl:load \"/Users/johnw/Library/Lisp/lwinit.lisp\")
-;;                         (funcall (symbol-function
-;;                                   (find-symbol \"START-SERVER\"
-;;                                                (find-package \"SWANK\"))) %S))\n"
-;;		       port-file)))
-;;	(openmcl ("/usr/local/stow/openmcl-darwinx8664-snapshot-070722/dx86cl64"
-;;		  "-l" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
+(setq slime-lisp-implementations
+      '(
+	(sbcl ("sbcl" "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
+	      :init (lambda (port-file _)
+		      (format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
+			      port-file))
+	      :coding-system utf-8-unix)
+	(cmucl ("lisp" "-load" "/Users/johnw/Library/Lisp/lwinit.lisp"))
+	(ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/lwinit.lisp"))
+	(allegro ("/Users/johnw/Applications/AllegroCL/alisp"
+		  "-s" "/Users/johnw/Library/Lisp/lwinit.lisp"))
+	(clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp")
+	       :coding-system utf-8-unix)
+	(abcl ("java" "-jar" "/Users/johnw/src/abcl/abcl.jar")
+	      :init (lambda (port-file _)
+		      (format
+		       "(cl:progn 
+                         (cl:load \"/Users/johnw/Library/Lisp/lwinit.lisp\")
+                         (funcall (symbol-function
+                                   (find-symbol \"START-SERVER\"
+                                                (find-package \"SWANK\"))) %S))\n"
+		       port-file)))
+	(openmcl ("/usr/local/stow/openmcl-darwinx8664-snapshot-070722/dx86cl64"
+		  "-l" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
 
-(setq swank-clojure-jar-path "/opt/local/share/java/clojure/lib/clojure.jar"
-      swank-clojure-binary "clojure")
-
-(require 'clojure-mode)
-(require 'swank-clojure-autoload)
-
-(setq auto-mode-alist (cons '("\\.clj$" . clojure-mode)
-                            auto-mode-alist))
-
-;;(setq slime-default-lisp 'sbcl)
+(setq slime-default-lisp 'sbcl)
 (setq slime-complete-symbol*-fancy t)
 (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
-;;(defun sbcl (&optional arg)
-;;  (interactive "P")
-;;  (let ((slime-default-lisp (if arg 'sbcl64 'sbcl))
-;;	(current-prefix-arg nil))
-;;    (slime)))
-;;(defun clisp () (interactive) (let ((slime-default-lisp 'clisp)) (slime)))
-;;(defun cmucl () (interactive) (let ((slime-default-lisp 'cmucl)) (slime)))
-;;(defun ecl () (interactive) (let ((slime-default-lisp 'ecl)) (slime)))
-;;(defun abcl () (interactive) (let ((slime-default-lisp 'abcl)) (slime)))
-;;(defun allegro () (interactive) (let ((slime-default-lisp 'allegro)) (slime)))
-;;(defun openmcl () (interactive) (let ((slime-default-lisp 'openmcl)) (slime)))
+(defun sbcl (&optional arg)
+  (interactive "P")
+  (let ((slime-default-lisp (if arg 'sbcl64 'sbcl))
+	(current-prefix-arg nil))
+    (slime)))
+(defun clisp () (interactive) (let ((slime-default-lisp 'clisp)) (slime)))
+(defun cmucl () (interactive) (let ((slime-default-lisp 'cmucl)) (slime)))
+(defun ecl () (interactive) (let ((slime-default-lisp 'ecl)) (slime)))
+(defun abcl () (interactive) (let ((slime-default-lisp 'abcl)) (slime)))
+(defun allegro () (interactive) (let ((slime-default-lisp 'allegro)) (slime)))
+(defun openmcl () (interactive) (let ((slime-default-lisp 'openmcl)) (slime)))
 
 ;; LispWorks is run externally
 
