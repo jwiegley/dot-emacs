@@ -1,33 +1,31 @@
-;;; org-devonthink.el - Support for links to dtp messages by Message-ID
+;;; org-devonthink.el - Support for links to dtp messages by their UUID
 
 ;; version 1.1, by John Wiegley <johnw@gnu.org>
 
 (require 'org)
 
-(org-add-link-type "dtp" 'org-dtp-open)
-
-;(add-hook 'org-store-link-functions 'org-dtp-store-link)
+(org-add-link-type "x-devonthink-item" 'org-dtp-open)
 
 (defun org-dtp-open (record-location)
   "Visit the dtp message with the given Message-ID."
-  (do-applescript (format "
+  (shell-command (concat "open x-devonthink-item:" record-location)))
+
+(defun org-get-dtp-link ()
+  (interactive)
+  (let ((name (do-applescript (format "
 	tell application \"DEVONthink Pro\"
-		activate
-		open window for record (get record at \"%s\")
-	end tell" (replace-regexp-in-string "%20" " " record-location))))
+		get name of content record
+	end tell")))
+	(location (do-applescript (format "
+	tell application \"DEVONthink Pro\"
+		get uuid of content record
+	end tell"))))
+    (org-make-link-string
+     (concat "x-devonthink-item://" location) name)))
 
 (defun org-insert-dtp-link ()
   (interactive)
-  (let ((name (read (do-applescript (format "
-	tell application \"DEVONthink Pro\"
-		get name of content record
-	end tell"))))
-	(location (read (do-applescript (format "
-	tell application \"DEVONthink Pro\"
-		get location of content record
-	end tell")))))
-    (insert (org-make-link-string
-	     (concat "dtp://" (concat location name)) name))))
+  (insert (org-get-dtp-link)))
 
 (defun org-dtp-store-link ()
   "Store a link to an dtp e-mail message by Message-ID."
@@ -36,9 +34,9 @@
 	   (clipboard-yank)
 	   (buffer-string))))
     (org-store-link-props
-     :type "dtp"
-     :link (cons (concat "dtp:" link-name)
-		 (concat "dtp:" link-name))
+     :type "x-devonthink-item"
+     :link (cons (concat "x-devonthink-item://" link-name)
+		 (concat "x-devonthink-item://" link-name))
      :description (file-name-nondirectory link-name))))
 
 (provide 'org-devonthink)
