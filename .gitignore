@@ -2,3 +2,5 @@
 *~
 cus-dirs.el
 /site-lisp/
+/eshell/
+/regex-tool/
