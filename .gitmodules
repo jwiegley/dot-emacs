@@ -1,3 +1,39 @@
 [submodule "site-lisp"]
 	path = site-lisp
 	url = site-lisp
+[submodule "site-lisp/org-mode"]
+	path = site-lisp/org-mode
+	url = git://repo.or.cz/org-mode.git
+[submodule "site-lisp/muse"]
+	path = site-lisp/muse
+	url = git://github.com/jwiegley/muse.git
+[submodule "site-lisp/magit"]
+	path = site-lisp/magit
+	url = git://github.com/jwiegley/magit.git
+[submodule "site-lisp/eshell"]
+	path = site-lisp/eshell
+	url = git://github.com/jwiegley/eshell.git
+[submodule "site-lisp/chess"]
+	path = site-lisp/chess
+	url = git://github.com/jwiegley/emacs-chess.git
+[submodule "site-lisp/gist"]
+	path = site-lisp/gist
+	url = git://github.com/defunkt/gist.el.git
+[submodule "site-lisp/haskell-mode"]
+	path = site-lisp/haskell-mode
+	url = git://github.com/jwiegley/haskell-mode
+[submodule "site-lisp/planner"]
+	path = site-lisp/planner
+	url = git://repo.or.cz/planner-el.git
+[submodule "site-lisp/regex-tool"]
+	path = site-lisp/regex-tool
+	url = git://github.com/jwiegley/regex-tool.git
+[submodule "site-lisp/remember"]
+	path = site-lisp/remember
+	url = git://github.com/jwiegley/remember.git
+[submodule "site-lisp/slime"]
+	path = site-lisp/slime
+	url = git://github.com/nablaone/slime.git
+[submodule "site-lisp/zencoding"]
+	path = site-lisp/zencoding
+	url = git://github.com/chrisdone/zencoding.git
