@@ -12,19 +12,18 @@
        (expand-file-name "~/Projects/ledger/lisp")
        (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
        (expand-file-name "~/Library/Emacs")
-       (expand-file-name "~/Library/Emacs/eshell")
-       (expand-file-name "~/Library/Emacs/regex-tool")
-       (expand-file-name "~/Library/Emacs/site-lisp/circe")
-       (expand-file-name "~/Library/Emacs/site-lisp/clojure-mode")
+       (expand-file-name "~/Library/Emacs/site-lisp/apel")
+       (expand-file-name "~/Library/Emacs/site-lisp/elscreen")
+       (expand-file-name "~/Library/Emacs/site-lisp/eshell")
        (expand-file-name "~/Library/Emacs/site-lisp/ess/lisp")
        (expand-file-name "~/Library/Emacs/site-lisp/gist")
        (expand-file-name "~/Library/Emacs/site-lisp/haskell-mode")
        (expand-file-name "~/Library/Emacs/site-lisp/magit")
        (expand-file-name "~/Library/Emacs/site-lisp/org-mode/contrib/lisp")
        (expand-file-name "~/Library/Emacs/site-lisp/org-mode/lisp")
+       (expand-file-name "~/Library/Emacs/site-lisp/regex-tool")
        (expand-file-name "~/Library/Emacs/site-lisp/remember")
        (expand-file-name "~/Library/Emacs/site-lisp/scala-mode")
-       (expand-file-name "~/Library/Emacs/site-lisp/swank-clojure")
        (expand-file-name "~/Library/Emacs/site-lisp/yasnippet")
        (expand-file-name "~/Library/Emacs/site-lisp/zencoding")
        )))
@@ -110,6 +109,7 @@
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
  '(display-time-mode t)
+ '(elscreen-prefix-key "")
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
  '(enable-recursive-minibuffers t)
  '(eshell-history-size 1000)
@@ -393,6 +393,13 @@
      (add-to-list 'elint-standard-variables 'emacs-major-version)
      (add-to-list 'elint-standard-variables 'window-system)))
 
+;;;_ * elscreen
+
+(require 'elscreen)
+
+(define-key elscreen-map "\C-\\" 'elscreen-toggle)
+(define-key elscreen-map "\\"    'toggle-input-method)
+
 ;;;_ * emacs-lisp
 
 (defun elisp-indent-or-complete (&optional arg)
@@ -601,7 +608,7 @@ advice like this:
 ;; Replace completing-read wherever possible, unless directed otherwise
 (defadvice completing-read (around use-ido-when-possible activate)
   (if (or (not ido-enable-replace-completing-read) ; Manual override disable ido
-	  ido-cur-list)	   ; Avoid infinite loop from ido calling this
+	  (and (boundp 'ido-cur-list) ido-cur-list)) ; Avoid infinite loop from ido calling this
       ad-do-it
     (let ((allcomp (all-completions "" collection predicate)))
       (if allcomp
