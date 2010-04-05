@@ -1,6 +1,3 @@
 *.elc
 *~
-cus-dirs.el
-/site-lisp/
-/eshell/
-/regex-tool/
+/cus-dirs.el
