@@ -21,7 +21,7 @@
 	url = git://github.com/defunkt/gist.el.git
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
-	url = git://github.com/jwiegley/haskell-mode
+	url = http://github.com/emacsmirror/haskell-mode.git
 [submodule "site-lisp/planner"]
 	path = site-lisp/planner
 	url = git://repo.or.cz/planner-el.git
@@ -37,3 +37,18 @@
 [submodule "site-lisp/zencoding"]
 	path = site-lisp/zencoding
 	url = git://github.com/chrisdone/zencoding.git
+[submodule "site-lisp/apel"]
+	path = site-lisp/apel
+	url = http://github.com/emacsmirror/apel.git
+[submodule "site-lisp/ess"]
+	path = site-lisp/ess
+	url = http://github.com/emacsmirror/ess.git
+[submodule "site-lisp/yasnippet"]
+	path = site-lisp/yasnippet
+	url = http://github.com/emacsmirror/yasnippet.git
+[submodule "site-lisp/doxymacs"]
+	path = site-lisp/doxymacs
+	url = git://doxymacs.git.sourceforge.net/gitroot/doxymacs/doxymacs
+[submodule "site-lisp/epg"]
+	path = site-lisp/epg
+	url = git://git.sourceforge.jp/gitroot/epg/epg.git

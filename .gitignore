@@ -1,3 +1,4 @@
 *.elc
 *~
 /cus-dirs.el
+old/

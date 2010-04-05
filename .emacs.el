@@ -13,7 +13,6 @@
        (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
        (expand-file-name "~/Library/Emacs")
        (expand-file-name "~/Library/Emacs/site-lisp/apel")
-       (expand-file-name "~/Library/Emacs/site-lisp/elscreen")
        (expand-file-name "~/Library/Emacs/site-lisp/eshell")
        (expand-file-name "~/Library/Emacs/site-lisp/ess/lisp")
        (expand-file-name "~/Library/Emacs/site-lisp/gist")
