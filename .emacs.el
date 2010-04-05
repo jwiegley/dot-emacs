@@ -17,7 +17,7 @@
        (expand-file-name "~/Library/Emacs/site-lisp/circe")
        (expand-file-name "~/Library/Emacs/site-lisp/clojure-mode")
        (expand-file-name "~/Library/Emacs/site-lisp/ess/lisp")
-       (expand-file-name "~/Library/Emacs/site-lisp/gist.el")
+       (expand-file-name "~/Library/Emacs/site-lisp/gist")
        (expand-file-name "~/Library/Emacs/site-lisp/haskell-mode")
        (expand-file-name "~/Library/Emacs/site-lisp/magit")
        (expand-file-name "~/Library/Emacs/site-lisp/org-mode/contrib/lisp")
