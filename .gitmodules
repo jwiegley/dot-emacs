@@ -52,3 +52,6 @@
 [submodule "site-lisp/epg"]
 	path = site-lisp/epg
 	url = git://git.sourceforge.jp/gitroot/epg/epg.git
+[submodule "site-lisp/nxhtml"]
+	path = site-lisp/nxhtml
+	url = git://github.com/jwiegley/nxhtml.git
