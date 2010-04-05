@@ -136,11 +136,13 @@
  '(ibuffer-maybe-show-regexps nil)
  '(ibuffer-shrink-to-minimum-size t t)
  '(ibuffer-use-other-window t)
+ '(ido-auto-merge-work-directories-length 0)
+ '(ido-cannot-complete-command (quote ido-exit-minibuffer))
  '(ido-enable-flex-matching t)
  '(ido-everywhere t)
  '(ido-ignore-files (quote ("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./" "\\`\\./" "\\`\\.DS_Store" "\\`\\.localized")))
  '(ido-mode (quote both) nil (ido))
- '(ido-use-filename-at-point t)
+ '(ido-use-filename-at-point nil)
  '(ido-use-virtual-buffers t)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
@@ -586,6 +588,28 @@
 (smex-initialize)
 
 (define-key global-map [(meta ?x)] 'smex)
+
+(defvar ido-enable-replace-completing-read t
+  "If t, use ido-completing-read instead of completing-read if possible.
+Set it to nil using let in around-advice for functions where the
+original completing-read is required.  For example, if a function
+foo absolutely must use the original completing-read, define some
+advice like this:
+  (defadvice foo (around original-completing-read-only activate)
+    (let (ido-enable-replace-completing-read) ad-do-it))")
+
+;; Replace completing-read wherever possible, unless directed otherwise
+(defadvice completing-read (around use-ido-when-possible activate)
+  (if (or (not ido-enable-replace-completing-read) ; Manual override disable ido
+	  ido-cur-list)	   ; Avoid infinite loop from ido calling this
+      ad-do-it
+    (let ((allcomp (all-completions "" collection predicate)))
+      (if allcomp
+	  (setq ad-return-value
+		(ido-completing-read prompt
+				     allcomp
+				     nil require-match initial-input hist def))
+	ad-do-it))))
 
 ;;;_ * java-mode
 
