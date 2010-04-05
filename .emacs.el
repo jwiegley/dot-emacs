@@ -93,6 +93,9 @@
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-raised-buttons nil)
+ '(cycbuf-buffer-sort-function (quote cycbuf-sort-by-recency))
+ '(cycbuf-dont-show-regexp (quote ("^ " "^\\*cycbuf\\*$" "^\\*")))
+ '(cycbuf-file-name-replacements (quote (("/Users/johnw/" "~/"))))
  '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1") (cursor-color . "#b247ee"))))
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote fundamental-mode))
@@ -350,6 +353,13 @@
 ;;;_ * chess
 
 (load "chess-auto" t)
+
+;;;_ * cycbuf
+
+(require 'cycbuf)
+
+(global-set-key [(meta ?`)] 'cycbuf-switch-to-next-buffer)
+(global-set-key [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
 
 ;;;_ * doxymacs
 
