@@ -326,7 +326,7 @@
 
 ;;;_ * bookmark+
 
-(load "bookmark+" t)
+;(load "bookmark+" t)
 
 ;;;_ * browse-kill-ring
 

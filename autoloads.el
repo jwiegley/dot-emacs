@@ -115,10 +115,66 @@
 
 ;;; Generated autoloads follow (made by autoload.el).
 
+;;;### (autoloads nil "_pkg" "site-lisp/eshell/_pkg.el" (18807 50473))
+;;; Generated autoloads from site-lisp/eshell/_pkg.el
+
+(if (fboundp 'package-provide) (package-provide 'eshell :version 2.5 :type 'regular))
+
+;;;***
+
+;;;### (autoloads (vassoc set-modified-alist modify-alist remove-alist
+;;;;;;  set-alist del-alist put-alist) "alist" "site-lisp/apel/alist.el"
+;;;;;;  (19385 28150))
+;;; Generated autoloads from site-lisp/apel/alist.el
+
+(autoload 'put-alist "alist" "\
+Set cdr of an element (KEY . ...) in ALIST to VALUE and return ALIST.
+If there is no such element, create a new pair (KEY . VALUE) and
+return a new alist whose car is the new pair and cdr is ALIST.
+
+\(fn KEY VALUE ALIST)" nil nil)
+
+(autoload 'del-alist "alist" "\
+Delete an element whose car equals KEY from ALIST.
+Return the modified ALIST.
+
+\(fn KEY ALIST)" nil nil)
+
+(autoload 'set-alist "alist" "\
+Set cdr of an element (KEY . ...) in the alist bound to SYMBOL to VALUE.
+
+\(fn SYMBOL KEY VALUE)" nil nil)
+
+(autoload 'remove-alist "alist" "\
+Delete an element whose car equals KEY from the alist bound to SYMBOL.
+
+\(fn SYMBOL KEY)" nil nil)
+
+(autoload 'modify-alist "alist" "\
+Store elements in the alist MODIFIER in the alist DEFAULT.
+Return the modified alist.
+
+\(fn MODIFIER DEFAULT)" nil nil)
+
+(autoload 'set-modified-alist "alist" "\
+Store elements in the alist MODIFIER in an alist bound to SYMBOL.
+If SYMBOL is not bound, set it to nil at first.
+
+\(fn SYMBOL MODIFIER)" nil nil)
+
+(autoload 'vassoc "alist" "\
+Search AVLIST for an element whose first element equals KEY.
+AVLIST is a list of vectors.
+See also `assoc'.
+
+\(fn KEY AVLIST)" nil nil)
+
+;;;***
+
 ;;;### (autoloads (all) "all" "site-lisp/all.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/all.el
 
-(autoload (quote all) "all" "\
+(autoload 'all "all" "\
 Show all lines in the current buffer containing a match for REGEXP.
 
 If a match spreads across multiple lines, all those lines are shown.
@@ -139,12 +195,12 @@ Any changes made in that buffer will be propagated to this buffer.
 ;;;;;;  "ascii" "site-lisp/ascii.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/ascii.el
 
-(autoload (quote ascii-customize) "ascii" "\
+(autoload 'ascii-customize "ascii" "\
 Customize ASCII options.
 
 \(fn)" t nil)
 
-(autoload (quote ascii-display) "ascii" "\
+(autoload 'ascii-display "ascii" "\
 Toggle ASCII code display.
 
 If ARG is null, toggle ASCII code display.
@@ -154,24 +210,23 @@ If ARG is anything else, turn on display.
 
 \(fn &optional ARG)" t nil)
 
-(autoload (quote ascii-on) "ascii" "\
+(autoload 'ascii-on "ascii" "\
 Turn on ASCII code display.
 
 \(fn)" t nil)
 
-(autoload (quote ascii-off) "ascii" "\
+(autoload 'ascii-off "ascii" "\
 Turn off ASCII code display.
 
 \(fn)" t nil)
 
 ;;;***
-
 ;;;### (autoloads (browse-kill-ring browse-kill-ring-default-keybindings)
 ;;;;;;  "browse-kill-ring" "site-lisp/browse-kill-ring.el" (18429
 ;;;;;;  49075))
 ;;; Generated autoloads from site-lisp/browse-kill-ring.el
 
-(autoload (quote browse-kill-ring-default-keybindings) "browse-kill-ring" "\
+(autoload 'browse-kill-ring-default-keybindings "browse-kill-ring" "\
 Set up M-y (`yank-pop') so that it can invoke `browse-kill-ring'.
 Normally, if M-y was not preceeded by C-y, then it has no useful
 behavior.  This function sets things up so that M-y will invoke
@@ -179,90 +234,109 @@ behavior.  This function sets things up so that M-y will invoke
 
 \(fn)" t nil)
 
-(autoload (quote browse-kill-ring) "browse-kill-ring" "\
+(autoload 'browse-kill-ring "browse-kill-ring" "\
 Display items in the `kill-ring' in another buffer.
 
 \(fn)" t nil)
 
 ;;;***
 
-;;;### (autoloads (check-mail) "check-mail" "check-mail.el" (18429
-;;;;;;  49044))
-;;; Generated autoloads from check-mail.el
+;;;### (autoloads (chess-create-display chess) "chess" "site-lisp/chess/chess.el"
+;;;;;;  (18621 1424))
+;;; Generated autoloads from site-lisp/chess/chess.el
 
-(autoload (quote check-mail) "check-mail" "\
-Check all of the boxes listed in `mail-boxes-to-check' for new mail.
+(autoload 'chess "chess" "\
+Start a game of chess, playing against ENGINE (a module name).
 
-\(fn)" t nil)
+\(fn &optional ENGINE DISABLE-POPUP ENGINE-RESPONSE-HANDLER &rest ENGINE-CTOR-ARGS)" t nil)
 
-;;;***
-
-;;;### (autoloads (chop-move-down chop-move-up) "chop" "site-lisp/chop.el"
-;;;;;;  (18429 49075))
-;;; Generated autoloads from site-lisp/chop.el
+(defalias 'chess-session 'chess)
 
-(autoload (quote chop-move-up) "chop" "\
-Move by one 'chop' into the upper half of the remaining space.
+(autoload 'chess-create-display "chess" "\
+Create a display, letting the user's customization decide the style.
+If MODULES-TOO is non-nil, also create and associate the modules
+listed in `chess-default-modules'.
 
-\(fn)" t nil)
-
-(autoload (quote chop-move-down) "chop" "\
-Move by one 'chop' into the lower half of the remaining space.
-
-\(fn)" t nil)
+\(fn PERSPECTIVE &optional MODULES-TOO)" nil nil)
 
 ;;;***
 
-;;;### (autoloads (circe) "circe" "site-lisp/circe/circe.el" (18588
-;;;;;;  376))
-;;; Generated autoloads from site-lisp/circe/circe.el
+;;;### (autoloads (chess-ics) "chess-ics" "site-lisp/chess/chess-ics.el"
+;;;;;;  (18621 4541))
+;;; Generated autoloads from site-lisp/chess/chess-ics.el
 
-(autoload (quote circe) "circe" "\
-Connect to the IRC server HOST at SERVICE.
-NETWORK is the shorthand used for indicating where we're connected
-to. (defaults to HOST)
-PASS is the password.
-NICK is the nick name to use (defaults to `circe-default-nick')
-USER is the user name to use (defaults to `circe-default-user')
-REALNAME is the real name to use (defaults to `circe-default-realname')
+(autoload 'chess-ics "chess-ics" "\
+Connect to an Internet Chess Server.
 
-\(fn HOST SERVICE &optional NETWORK PASS NICK USER REALNAME)" t nil)
+\(fn SERVER PORT &optional HANDLE PASSWORD-OR-FILENAME HELPER &rest HELPER-ARGS)" t nil)
 
 ;;;***
 
-;;;### (autoloads (enable-circe-highlight-all-nicks) "circe-highlight-all-nicks"
-;;;;;;  "site-lisp/circe/circe-highlight-all-nicks.el" (18588 376))
-;;; Generated autoloads from site-lisp/circe/circe-highlight-all-nicks.el
+;;;### (autoloads (chess-link) "chess-link" "site-lisp/chess/chess-link.el"
+;;;;;;  (18615 28794))
+;;; Generated autoloads from site-lisp/chess/chess-link.el
 
-(autoload (quote enable-circe-highlight-all-nicks) "circe-highlight-all-nicks" "\
-Enable the Highlight Nicks module for Circe.
-This module highlights all occurances of nicks in the current
-channel in messages of other people.
+(autoload 'chess-link "chess-link" "\
+Play out a game between two engines, and watch the progress.
+If you want to run an engine as a bot, make the transport the first
+engine, and the computer the second engine.
+
+\(fn FIRST-ENGINE-TYPE SECOND-ENGINE-TYPE)" t nil)
+
+;;;***
+
+;;;### (autoloads (chess-pgn-mode chess-pgn-read) "chess-pgn" "site-lisp/chess/chess-pgn.el"
+;;;;;;  (18621 4159))
+;;; Generated autoloads from site-lisp/chess/chess-pgn.el
+
+(autoload 'chess-pgn-read "chess-pgn" "\
+Read and display a PGN game after point.
+
+\(fn &optional FILE)" t nil)
+
+(autoload 'chess-pgn-mode "chess-pgn" "\
+A mode for editing chess PGN files.
 
 \(fn)" t nil)
 
+(defalias 'pgn-mode 'chess-pgn-mode)
+
+(add-to-list 'auto-mode-alist '("\\.pgn\\'" . chess-pgn-mode))
+
 ;;;***
 
-;;;### (autoloads (enable-circe-log) "circe-log" "site-lisp/circe/circe-log.el"
-;;;;;;  (18588 376))
-;;; Generated autoloads from site-lisp/circe/circe-log.el
+;;;### (autoloads (chess-puzzle) "chess-puzzle" "site-lisp/chess/chess-puzzle.el"
+;;;;;;  (18619 23413))
+;;; Generated autoloads from site-lisp/chess/chess-puzzle.el
 
-(autoload (quote enable-circe-log) "circe-log" "\
-Enables automatic logging for all buffers matching
-`circe-log-buffer-regexp' and not matching
-`circe-log-exlude-buffer-regexp'.
+(autoload 'chess-puzzle "chess-puzzle" "\
+Pick a random puzzle from FILE, and solve it against the default engine.
+The spacebar in the display buffer is bound to `chess-puzzle-next',
+making it easy to go on to the next puzzle once you've solved one.
+
+\(fn FILE &optional INDEX)" t nil)
+
+;;;***
+
+;;;### (autoloads (chess-fischer-random-position) "chess-random"
+;;;;;;  "site-lisp/chess/chess-random.el" (18615 28794))
+;;; Generated autoloads from site-lisp/chess/chess-random.el
+
+(autoload 'chess-fischer-random-position "chess-random" "\
+Generate a Fischer Random style position.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (chess-tutorial) "chess-tutorial" "site-lisp/chess/chess-tutorial.el"
+;;;;;;  (18615 28794))
+;;; Generated autoloads from site-lisp/chess/chess-tutorial.el
+
+(autoload 'chess-tutorial "chess-tutorial" "\
+A simple chess training display.
 
 \(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (cl-info) "cl-info" "cl-info.el" (18429 49044))
-;;; Generated autoloads from cl-info.el
-
-(autoload (quote cl-info) "cl-info" "\
-Not documented
-
-\(fn SYMBOL-NAME)" t nil)
 
 ;;;***
 
@@ -284,16 +358,16 @@ instead.
 
 This variable is buffer-local.")
 
-(custom-autoload (quote cldoc-mode) "cldoc" t)
+(custom-autoload 'cldoc-mode "cldoc" t)
 
 (defvar cldoc-minor-mode-string " Cldoc" "\
 *String to display in mode line when Cldoc Mode is enabled.")
 
-(custom-autoload (quote cldoc-minor-mode-string) "cldoc" t)
+(custom-autoload 'cldoc-minor-mode-string "cldoc" t)
 
-(cond ((fboundp (quote add-minor-mode)) (add-minor-mode (quote cldoc-mode) (quote cldoc-minor-mode-string))) ((assq (quote cldoc-mode) (default-value (quote minor-mode-alist)))) (t (setq-default minor-mode-alist (append (default-value (quote minor-mode-alist)) (quote ((cldoc-mode cldoc-minor-mode-string)))))))
+(cond ((fboundp 'add-minor-mode) (add-minor-mode 'cldoc-mode 'cldoc-minor-mode-string)) ((assq 'cldoc-mode (default-value 'minor-mode-alist))) (t (setq-default minor-mode-alist (append (default-value 'minor-mode-alist) '((cldoc-mode cldoc-minor-mode-string))))))
 
-(autoload (quote cldoc-mode) "cldoc" "\
+(autoload 'cldoc-mode "cldoc" "\
 *Enable or disable cldoc mode.
 See documentation for the variable of the same name for more details.
 
@@ -304,7 +378,7 @@ the mode, respectively.
 
 \(fn &optional PREFIX)" t nil)
 
-(autoload (quote turn-on-cldoc-mode) "cldoc" "\
+(autoload 'turn-on-cldoc-mode "cldoc" "\
 Unequivocally turn on cldoc-mode (see variable documentation).
 
 \(fn)" t nil)
@@ -315,31 +389,8 @@ Unequivocally turn on cldoc-mode (see variable documentation).
 ;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/column-marker.el
 
-(autoload (quote column-marker-1) "column-marker" "\
+(autoload 'column-marker-1 "column-marker" "\
 Highlight a column." t)
-
-;;;***
-
-;;;### (autoloads (darcsum-view darcsum-whatsnew) "darcsum" "darcsum.el"
-;;;;;;  (18440 17724))
-;;; Generated autoloads from darcsum.el
-
-(autoload (quote darcsum-whatsnew) "darcsum" "\
-Run `darcs whatsnew' in DIRECTORY, displaying the output in `darcsum-mode'.
-
-When invoked interactively, prompt for the directory to display changes for.
-
-\(fn DIRECTORY &optional LOOK-FOR-ADDS NO-DISPLAY SHOW-CONTEXT)" t nil)
-
-(autoload (quote darcsum-view) "darcsum" "\
-View the contents of the current buffer as a darcs changeset for DIRECTORY.
-More precisely, searches forward from point for the next changeset-like region,
-and attempts to parse that as a darcs patch.
-
-When invoked interactively, prompts for a directory; by default, the current
-working directory is assumed.
-
-\(fn DIRECTORY)" t nil)
 
 ;;;***
 
@@ -347,7 +398,7 @@ working directory is assumed.
 ;;;;;;  "site-lisp/diminish.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/diminish.el
 
-(autoload (quote diminish) "diminish" "\
+(autoload 'diminish "diminish" "\
 Diminish mode-line display of minor mode MODE to TO-WHAT (default \"\").
 
 Interactively, enter (with completion) the name of any minor mode, followed
@@ -366,7 +417,7 @@ to TO-WHAT if it's > 1 char long & doesn't already begin with a space.
 
 \(fn MODE &optional TO-WHAT)" t nil)
 
-(autoload (quote diminish-undo) "diminish" "\
+(autoload 'diminish-undo "diminish" "\
 Restore mode-line display of diminished mode MODE to its minor-mode value.
 Do nothing if the arg is a minor mode that hasn't been diminished.
 
@@ -378,7 +429,7 @@ the arg must be quoted as a symbol, as in (diminish-undo 'diminished-modes).
 
 \(fn MODE)" t nil)
 
-(autoload (quote diminished-modes) "diminish" "\
+(autoload 'diminished-modes "diminish" "\
 Echo all active diminished or minor modes as if they were minor.
 The display goes in the echo area; if it's too long even for that,
 you can see the whole thing in the *Messages* buffer.
@@ -393,7 +444,7 @@ what diminished modes would be on the mode-line if they were still minor.
 ;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/dired-tar.el
 
-(autoload (quote dired-tar-pack-unpack) "dired-tar" "\
+(autoload 'dired-tar-pack-unpack "dired-tar" "\
 Create or unpack a tar archive for the file on the current line.
 
 If the file on the current line is a directory, make a gzipped tar
@@ -407,7 +458,7 @@ unpack it.  The file's name must end in \".tar\", \".tar.gz\", or
 
 \(fn PREFIX-ARG)" t nil)
 
-(add-hook (quote dired-mode-hook) (function (lambda nil (define-key dired-mode-map "T" (quote dired-tar-pack-unpack)))))
+(add-hook 'dired-mode-hook #'(lambda nil (define-key dired-mode-map "T" 'dired-tar-pack-unpack)))
 
 ;;;***
 
@@ -415,10 +466,28 @@ unpack it.  The file's name must end in \".tar\", \".tar.gz\", or
 ;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/edit-var.el
 
-(autoload (quote edit-variable) "edit-var" "\
+(autoload 'edit-variable "edit-var" "\
 Edit the value of VARIABLE.
 
 \(fn VARIABLE)" t nil)
+
+;;;***
+
+;;;### (autoloads (setenv) "env" "site-lisp/apel/env.el" (19385 28150))
+;;; Generated autoloads from site-lisp/apel/env.el
+
+(autoload 'setenv "env" "\
+Set the value of the environment variable named VARIABLE to VALUE.
+VARIABLE should be a string.  VALUE is optional; if not provided or is
+`nil', the environment variable VARIABLE will be removed.  
+
+Interactively, a prefix argument means to unset the variable.
+Interactively, the current value (if any) of the variable
+appears at the front of the history list when you type in the new value.
+
+This function works by modifying `process-environment'.
+
+\(fn VARIABLE &optional VALUE UNSET)" t nil)
 
 ;;;***
 
@@ -428,20 +497,20 @@ Edit the value of VARIABLE.
 ;;;;;;  epa-verify-region epa-decrypt-armor-in-region epa-decrypt-region
 ;;;;;;  epa-encrypt-file epa-sign-file epa-verify-file epa-decrypt-file
 ;;;;;;  epa-select-keys epa-list-secret-keys epa-list-keys) "epa"
-;;;;;;  "site-lisp/epg/epa.el" (18429 49075))
+;;;;;;  "site-lisp/epg/epa.el" (19385 29670))
 ;;; Generated autoloads from site-lisp/epg/epa.el
 
-(autoload (quote epa-list-keys) "epa" "\
+(autoload 'epa-list-keys "epa" "\
 List all keys matched with NAME from the public keyring.
 
 \(fn &optional NAME)" t nil)
 
-(autoload (quote epa-list-secret-keys) "epa" "\
+(autoload 'epa-list-secret-keys "epa" "\
 List all keys matched with NAME from the private keyring.
 
 \(fn &optional NAME)" t nil)
 
-(autoload (quote epa-select-keys) "epa" "\
+(autoload 'epa-select-keys "epa" "\
 Display a user's keyring and ask him to select keys.
 CONTEXT is an epg-context.
 PROMPT is a string to prompt with.
@@ -451,48 +520,48 @@ If SECRET is non-nil, list secret keys instead of public keys.
 
 \(fn CONTEXT PROMPT &optional NAMES SECRET)" nil nil)
 
-(autoload (quote epa-decrypt-file) "epa" "\
+(autoload 'epa-decrypt-file "epa" "\
 Decrypt FILE.
 
 \(fn FILE)" t nil)
 
-(autoload (quote epa-verify-file) "epa" "\
+(autoload 'epa-verify-file "epa" "\
 Verify FILE.
 
 \(fn FILE)" t nil)
 
-(autoload (quote epa-sign-file) "epa" "\
+(autoload 'epa-sign-file "epa" "\
 Sign FILE by SIGNERS keys selected.
 
 \(fn FILE SIGNERS MODE)" t nil)
 
-(autoload (quote epa-encrypt-file) "epa" "\
+(autoload 'epa-encrypt-file "epa" "\
 Encrypt FILE for RECIPIENTS.
 
 \(fn FILE RECIPIENTS)" t nil)
 
-(autoload (quote epa-decrypt-region) "epa" "\
+(autoload 'epa-decrypt-region "epa" "\
 Decrypt the current region between START and END.
 
 Don't use this command in Lisp programs!
 
 \(fn START END)" t nil)
 
-(autoload (quote epa-decrypt-armor-in-region) "epa" "\
+(autoload 'epa-decrypt-armor-in-region "epa" "\
 Decrypt OpenPGP armors in the current region between START and END.
 
 Don't use this command in Lisp programs!
 
 \(fn START END)" t nil)
 
-(autoload (quote epa-verify-region) "epa" "\
+(autoload 'epa-verify-region "epa" "\
 Verify the current region between START and END.
 
 Don't use this command in Lisp programs!
 
 \(fn START END)" t nil)
 
-(autoload (quote epa-verify-cleartext-in-region) "epa" "\
+(autoload 'epa-verify-cleartext-in-region "epa" "\
 Verify OpenPGP cleartext signed messages in the current region
 between START and END.
 
@@ -500,42 +569,42 @@ Don't use this command in Lisp programs!
 
 \(fn START END)" t nil)
 
-(autoload (quote epa-sign-region) "epa" "\
+(autoload 'epa-sign-region "epa" "\
 Sign the current region between START and END by SIGNERS keys selected.
 
 Don't use this command in Lisp programs!
 
 \(fn START END SIGNERS MODE)" t nil)
 
-(autoload (quote epa-encrypt-region) "epa" "\
+(autoload 'epa-encrypt-region "epa" "\
 Encrypt the current region between START and END for RECIPIENTS.
 
 Don't use this command in Lisp programs!
 
 \(fn START END RECIPIENTS SIGN SIGNERS)" t nil)
 
-(autoload (quote epa-delete-keys) "epa" "\
+(autoload 'epa-delete-keys "epa" "\
 Delete selected KEYS.
 
 Don't use this command in Lisp programs!
 
 \(fn KEYS &optional ALLOW-SECRET)" t nil)
 
-(autoload (quote epa-import-keys) "epa" "\
+(autoload 'epa-import-keys "epa" "\
 Import keys from FILE.
 
 Don't use this command in Lisp programs!
 
 \(fn FILE)" t nil)
 
-(autoload (quote epa-import-keys-region) "epa" "\
+(autoload 'epa-import-keys-region "epa" "\
 Import keys from the region.
 
 Don't use this command in Lisp programs!
 
 \(fn START END)" t nil)
 
-(autoload (quote epa-import-armor-in-region) "epa" "\
+(autoload 'epa-import-armor-in-region "epa" "\
 Import keys in the OpenPGP armor format in the current region
 between START and END.
 
@@ -543,21 +612,21 @@ Don't use this command in Lisp programs!
 
 \(fn START END)" t nil)
 
-(autoload (quote epa-export-keys) "epa" "\
+(autoload 'epa-export-keys "epa" "\
 Export selected KEYS to FILE.
 
 Don't use this command in Lisp programs!
 
 \(fn KEYS FILE)" t nil)
 
-(autoload (quote epa-insert-keys) "epa" "\
+(autoload 'epa-insert-keys "epa" "\
 Insert selected KEYS after the point.
 
 Don't use this command in Lisp programs!
 
 \(fn KEYS)" t nil)
 
-(autoload (quote epa-sign-keys) "epa" "\
+(autoload 'epa-sign-keys "epa" "\
 Sign selected KEYS.
 If a prefix-arg is specified, the signature is marked as non exportable.
 
@@ -568,19 +637,19 @@ Don't use this command in Lisp programs!
 ;;;***
 
 ;;;### (autoloads (epa-file-disable epa-file-enable) "epa-file" "site-lisp/epg/epa-file.el"
-;;;;;;  (18429 49075))
+;;;;;;  (19385 29670))
 ;;; Generated autoloads from site-lisp/epg/epa-file.el
 
-(put (quote epa-file-encrypt-to) (quote safe-local-variable) (lambda (val) (or (stringp val) (and (listp val) (catch (quote safe) (mapc (lambda (elt) (unless (stringp elt) (throw (quote safe) nil))) val) t)))))
+(put 'epa-file-encrypt-to 'safe-local-variable (lambda (val) (or (stringp val) (and (listp val) (catch 'safe (mapc (lambda (elt) (unless (stringp elt) (throw 'safe nil))) val) t)))))
 
-(put (quote epa-file-encrypt-to) (quote permanent-local) t)
+(put 'epa-file-encrypt-to 'permanent-local t)
 
-(autoload (quote epa-file-enable) "epa-file" "\
+(autoload 'epa-file-enable "epa-file" "\
 Not documented
 
 \(fn)" t nil)
 
-(autoload (quote epa-file-disable) "epa-file" "\
+(autoload 'epa-file-disable "epa-file" "\
 Not documented
 
 \(fn)" t nil)
@@ -589,10 +658,10 @@ Not documented
 
 ;;;### (autoloads (epa-mail-import-keys epa-mail-encrypt epa-mail-sign
 ;;;;;;  epa-mail-verify epa-mail-decrypt) "epa-mail" "site-lisp/epg/epa-mail.el"
-;;;;;;  (18429 49075))
+;;;;;;  (19385 29670))
 ;;; Generated autoloads from site-lisp/epg/epa-mail.el
 
-(autoload (quote epa-mail-decrypt) "epa-mail" "\
+(autoload 'epa-mail-decrypt "epa-mail" "\
 Decrypt OpenPGP armors in the current buffer.
 The buffer is expected to contain a mail message.
 
@@ -600,7 +669,7 @@ Don't use this command in Lisp programs!
 
 \(fn)" t nil)
 
-(autoload (quote epa-mail-verify) "epa-mail" "\
+(autoload 'epa-mail-verify "epa-mail" "\
 Verify OpenPGP cleartext signed messages in the current buffer.
 The buffer is expected to contain a mail message.
 
@@ -608,7 +677,7 @@ Don't use this command in Lisp programs!
 
 \(fn)" t nil)
 
-(autoload (quote epa-mail-sign) "epa-mail" "\
+(autoload 'epa-mail-sign "epa-mail" "\
 Sign the current buffer.
 The buffer is expected to contain a mail message.
 
@@ -616,7 +685,7 @@ Don't use this command in Lisp programs!
 
 \(fn START END SIGNERS MODE)" t nil)
 
-(autoload (quote epa-mail-encrypt) "epa-mail" "\
+(autoload 'epa-mail-encrypt "epa-mail" "\
 Encrypt the current buffer.
 The buffer is expected to contain a mail message.
 
@@ -624,7 +693,7 @@ Don't use this command in Lisp programs!
 
 \(fn START END RECIPIENTS SIGN SIGNERS)" t nil)
 
-(autoload (quote epa-mail-import-keys) "epa-mail" "\
+(autoload 'epa-mail-import-keys "epa-mail" "\
 Import keys in the OpenPGP armor format in the current buffer.
 The buffer is expected to contain a mail message.
 
@@ -642,11 +711,11 @@ Don't use this command in Lisp programs!
 ;;;;;;  epg-encrypt-string epg-encrypt-file epg-start-encrypt epg-sign-string
 ;;;;;;  epg-sign-file epg-start-sign epg-verify-string epg-verify-file
 ;;;;;;  epg-start-verify epg-decrypt-string epg-decrypt-file epg-start-decrypt
-;;;;;;  epg-cancel epg-list-keys) "epg" "site-lisp/epg/epg.el" (18429
-;;;;;;  49075))
+;;;;;;  epg-cancel epg-list-keys) "epg" "site-lisp/epg/epg.el" (19385
+;;;;;;  29670))
 ;;; Generated autoloads from site-lisp/epg/epg.el
 
-(autoload (quote epg-list-keys) "epg" "\
+(autoload 'epg-list-keys "epg" "\
 Return a list of epg-key objects matched with NAME.
 If MODE is nil or 'public, only public keyring should be searched.
 If MODE is t or 'secret, only secret keyring should be searched. 
@@ -656,12 +725,12 @@ NAME is either a string or a list of strings.
 
 \(fn CONTEXT &optional NAME MODE)" nil nil)
 
-(autoload (quote epg-cancel) "epg" "\
+(autoload 'epg-cancel "epg" "\
 Not documented
 
 \(fn CONTEXT)" nil nil)
 
-(autoload (quote epg-start-decrypt) "epg" "\
+(autoload 'epg-start-decrypt "epg" "\
 Initiate a decrypt operation on CIPHER.
 CIPHER must be a file data object.
 
@@ -673,18 +742,18 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT CIPHER)" nil nil)
 
-(autoload (quote epg-decrypt-file) "epg" "\
+(autoload 'epg-decrypt-file "epg" "\
 Decrypt a file CIPHER and store the result to a file PLAIN.
 If PLAIN is nil, it returns the result as a string.
 
 \(fn CONTEXT CIPHER PLAIN)" nil nil)
 
-(autoload (quote epg-decrypt-string) "epg" "\
+(autoload 'epg-decrypt-string "epg" "\
 Decrypt a string CIPHER and return the plain text.
 
 \(fn CONTEXT CIPHER)" nil nil)
 
-(autoload (quote epg-start-verify) "epg" "\
+(autoload 'epg-start-verify "epg" "\
 Initiate a verify operation on SIGNATURE.
 SIGNATURE and SIGNED-TEXT are a data object if they are specified.
 
@@ -699,7 +768,7 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT SIGNATURE &optional SIGNED-TEXT)" nil nil)
 
-(autoload (quote epg-verify-file) "epg" "\
+(autoload 'epg-verify-file "epg" "\
 Verify a file SIGNATURE.
 SIGNED-TEXT and PLAIN are also a file if they are specified.
 
@@ -710,7 +779,7 @@ stored into the file after successful verification.
 
 \(fn CONTEXT SIGNATURE &optional SIGNED-TEXT PLAIN)" nil nil)
 
-(autoload (quote epg-verify-string) "epg" "\
+(autoload 'epg-verify-string "epg" "\
 Verify a string SIGNATURE.
 SIGNED-TEXT is a string if it is specified.
 
@@ -721,7 +790,7 @@ successful verification.
 
 \(fn CONTEXT SIGNATURE &optional SIGNED-TEXT)" nil nil)
 
-(autoload (quote epg-start-sign) "epg" "\
+(autoload 'epg-start-sign "epg" "\
 Initiate a sign operation on PLAIN.
 PLAIN is a data object.
 
@@ -737,7 +806,7 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT PLAIN &optional MODE)" nil nil)
 
-(autoload (quote epg-sign-file) "epg" "\
+(autoload 'epg-sign-file "epg" "\
 Sign a file PLAIN and store the result to a file SIGNATURE.
 If SIGNATURE is nil, it returns the result as a string.
 If optional 3rd argument MODE is t or 'detached, it makes a detached signature.
@@ -746,7 +815,7 @@ Otherwise, it makes a cleartext signature.
 
 \(fn CONTEXT PLAIN SIGNATURE &optional MODE)" nil nil)
 
-(autoload (quote epg-sign-string) "epg" "\
+(autoload 'epg-sign-string "epg" "\
 Sign a string PLAIN and return the output as string.
 If optional 3rd argument MODE is t or 'detached, it makes a detached signature.
 If it is nil or 'normal, it makes a normal signature.
@@ -754,7 +823,7 @@ Otherwise, it makes a cleartext signature.
 
 \(fn CONTEXT PLAIN &optional MODE)" nil nil)
 
-(autoload (quote epg-start-encrypt) "epg" "\
+(autoload 'epg-start-encrypt "epg" "\
 Initiate an encrypt operation on PLAIN.
 PLAIN is a data object.
 If RECIPIENTS is nil, it performs symmetric encryption.
@@ -767,20 +836,20 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT PLAIN RECIPIENTS &optional SIGN ALWAYS-TRUST)" nil nil)
 
-(autoload (quote epg-encrypt-file) "epg" "\
+(autoload 'epg-encrypt-file "epg" "\
 Encrypt a file PLAIN and store the result to a file CIPHER.
 If CIPHER is nil, it returns the result as a string.
 If RECIPIENTS is nil, it performs symmetric encryption.
 
 \(fn CONTEXT PLAIN RECIPIENTS CIPHER &optional SIGN ALWAYS-TRUST)" nil nil)
 
-(autoload (quote epg-encrypt-string) "epg" "\
+(autoload 'epg-encrypt-string "epg" "\
 Encrypt a string PLAIN.
 If RECIPIENTS is nil, it performs symmetric encryption.
 
 \(fn CONTEXT PLAIN RECIPIENTS &optional SIGN ALWAYS-TRUST)" nil nil)
 
-(autoload (quote epg-start-export-keys) "epg" "\
+(autoload 'epg-start-export-keys "epg" "\
 Initiate an export keys operation.
 
 If you use this function, you will need to wait for the completion of
@@ -791,17 +860,17 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT KEYS)" nil nil)
 
-(autoload (quote epg-export-keys-to-file) "epg" "\
+(autoload 'epg-export-keys-to-file "epg" "\
 Extract public KEYS.
 
 \(fn CONTEXT KEYS FILE)" nil nil)
 
-(autoload (quote epg-export-keys-to-string) "epg" "\
+(autoload 'epg-export-keys-to-string "epg" "\
 Extract public KEYS and return them as a string.
 
 \(fn CONTEXT KEYS)" nil nil)
 
-(autoload (quote epg-start-import-keys) "epg" "\
+(autoload 'epg-start-import-keys "epg" "\
 Initiate an import keys operation.
 KEYS is a data object.
 
@@ -813,17 +882,17 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT KEYS)" nil nil)
 
-(autoload (quote epg-import-keys-from-file) "epg" "\
+(autoload 'epg-import-keys-from-file "epg" "\
 Add keys from a file KEYS.
 
 \(fn CONTEXT KEYS)" nil nil)
 
-(autoload (quote epg-import-keys-from-string) "epg" "\
+(autoload 'epg-import-keys-from-string "epg" "\
 Add keys from a string KEYS.
 
 \(fn CONTEXT KEYS)" nil nil)
 
-(autoload (quote epg-start-receive-keys) "epg" "\
+(autoload 'epg-start-receive-keys "epg" "\
 Initiate a receive key operation.
 KEY-ID-LIST is a list of key IDs.
 
@@ -835,15 +904,15 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT KEY-ID-LIST)" nil nil)
 
-(autoload (quote epg-receive-keys) "epg" "\
+(autoload 'epg-receive-keys "epg" "\
 Add keys from server.
 KEYS is a list of key IDs
 
 \(fn CONTEXT KEYS)" nil nil)
 
-(defalias (quote epg-import-keys-from-server) (quote epg-receive-keys))
+(defalias 'epg-import-keys-from-server 'epg-receive-keys)
 
-(autoload (quote epg-start-delete-keys) "epg" "\
+(autoload 'epg-start-delete-keys "epg" "\
 Initiate an delete keys operation.
 
 If you use this function, you will need to wait for the completion of
@@ -854,13 +923,13 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT KEYS &optional ALLOW-SECRET)" nil nil)
 
-(autoload (quote epg-delete-keys) "epg" "\
+(autoload 'epg-delete-keys "epg" "\
 Delete KEYS from the key ring.
 
 \(fn CONTEXT KEYS &optional ALLOW-SECRET)" nil nil)
 
-(autoload (quote epg-start-sign-keys) "epg" "\
-Initiate an sign keys operation.
+(autoload 'epg-start-sign-keys "epg" "\
+Initiate a sign keys operation.
 
 If you use this function, you will need to wait for the completion of
 `epg-gpg-program' by using `epg-wait-for-completion' and call
@@ -870,12 +939,12 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT KEYS &optional LOCAL)" nil nil)
 
-(autoload (quote epg-sign-keys) "epg" "\
+(autoload 'epg-sign-keys "epg" "\
 Sign KEYS from the key ring.
 
 \(fn CONTEXT KEYS &optional LOCAL)" nil nil)
 
-(autoload (quote epg-start-generate-key) "epg" "\
+(autoload 'epg-start-generate-key "epg" "\
 Initiate a key generation.
 PARAMETERS specifies parameters for the key.
 
@@ -887,13 +956,13 @@ If you are unsure, use synchronous version of this function
 
 \(fn CONTEXT PARAMETERS)" nil nil)
 
-(autoload (quote epg-generate-key-from-file) "epg" "\
+(autoload 'epg-generate-key-from-file "epg" "\
 Generate a new key pair.
 PARAMETERS is a file which tells how to create the key.
 
 \(fn CONTEXT PARAMETERS)" nil nil)
 
-(autoload (quote epg-generate-key-from-string) "epg" "\
+(autoload 'epg-generate-key-from-string "epg" "\
 Generate a new key pair.
 PARAMETERS is a string which tells how to create the key.
 
@@ -902,151 +971,61 @@ PARAMETERS is a string which tells how to create the key.
 ;;;***
 
 ;;;### (autoloads (epg-expand-group epg-check-configuration epg-configuration)
-;;;;;;  "epg-config" "site-lisp/epg/epg-config.el" (18429 49075))
+;;;;;;  "epg-config" "site-lisp/epg/epg-config.el" (19385 29670))
 ;;; Generated autoloads from site-lisp/epg/epg-config.el
 
-(autoload (quote epg-configuration) "epg-config" "\
+(autoload 'epg-configuration "epg-config" "\
 Return a list of internal configuration parameters of `epg-gpg-program'.
 
 \(fn)" nil nil)
 
-(autoload (quote epg-check-configuration) "epg-config" "\
+(autoload 'epg-check-configuration "epg-config" "\
 Verify that a sufficient version of GnuPG is installed.
 
 \(fn CONFIG &optional MINIMUM-VERSION)" nil nil)
 
-(autoload (quote epg-expand-group) "epg-config" "\
+(autoload 'epg-expand-group "epg-config" "\
 Look at CONFIG and try to expand GROUP.
 
 \(fn CONFIG GROUP)" nil nil)
 
 ;;;***
 
-;;;### (autoloads (inferior-erlang erlang-compile erlang-shell erlang-find-tag-other-window
-;;;;;;  erlang-find-tag erlang-mode) "erlang" "site-lisp/erlang.el"
-;;;;;;  (18429 49075))
-;;; Generated autoloads from site-lisp/erlang.el
+;;;### (autoloads (eshell-mode) "esh-mode" "site-lisp/eshell/esh-mode.el"
+;;;;;;  (18807 50728))
+;;; Generated autoloads from site-lisp/eshell/esh-mode.el
 
-(autoload (quote erlang-mode) "erlang" "\
-Major mode for editing Erlang source files in Emacs.
-It knows about syntax and comment, it can indent code, it is capable
-of fontifying the source file, the TAGS commands are aware of Erlang
-modules, and the Erlang man pages can be accessed.
+(autoload 'eshell-mode "esh-mode" "\
+Emacs shell interactive mode.
 
-Should this module, \"erlang.el\", be installed properly, Erlang mode
-is activated whenever an Erlang source or header file is loaded into
-Emacs.  To indicate this, the mode line should contain the word
-\"Erlang\".
+\\{eshell-mode-map}
 
-The main feature of Erlang mode is indentation, press TAB and the
-current line will be indented correctly.
-
-Comments starting with only one `%' are indented to the column stored
-in the variable `comment-column'.  Comments starting with two `%':s
-are indented with the same indentation as code.  Comments starting
-with at least three `%':s are indented to the first column.
-
-However, Erlang mode contains much more, this is a list of the most
-useful commands:
-     TAB     - Indent the line.
-     C-c C-q - Indent current function.
-     M-;     - Create a comment at the end of the line.
-     M-q     - Fill a comment, i.e. wrap lines so that they (hopefully)
-		 will look better.
-     M-a     - Goto the beginning of an Erlang clause.
-     M-C-a   - Ditto for function.
-     M-e     - Goto the end of an Erlang clause.
-     M-C-e   - Ditto for function.
-     M-h     - Mark current Erlang clause.
-     M-C-h   - Ditto for function.
-     C-c C-z - Start, or switch to, an inferior Erlang shell.
-     C-c C-k - Compile current file.
-     C-x `   - Next error.
-     ,       - Electric comma.
-     ;       - Electric semicolon.
-
-Erlang mode check the name of the file against the module name when
-saving, whenever a mismatch occurs Erlang mode offers to modify the
-source.
-
-The variable `erlang-electric-commands' controls the electric
-commands.  To deactivate all of them, set it to nil.
-
-There exists a large number of commands and variables in the Erlang
-module.  Please press `M-x apropos RET erlang RET' to see a complete
-list.  Press `C-h f name-of-function RET' and `C-h v name-of-variable
-RET'to see the full description of functions and variables,
-respectively.
-
-On entry to this mode the contents of the hook `erlang-mode-hook' is
-executed.
-
-Please see the beginning of the file `erlang.el' for more information
-and examples of hooks.
-
-Other commands:
-\\{erlang-mode-map}
-
-\(fn)" t nil)
-
-(autoload (quote erlang-find-tag) "erlang" "\
-Like `find-tag'.  Capable of retrieving Erlang modules.
-
-Tags can be given on the forms `tag', `module:', `module:tag'.
-
-\(fn MODTAGNAME &optional NEXT-P REGEXP-P)" t nil)
-
-(autoload (quote erlang-find-tag-other-window) "erlang" "\
-Like `find-tag-other-window' but aware of Erlang modules.
-
-\(fn TAGNAME &optional NEXT-P REGEXP-P)" t nil)
-
-(autoload (quote erlang-shell) "erlang" "\
-Start a new Erlang shell.
-
-The variable `erlang-shell-function' decides which method to use,
-default is to start a new Erlang host.  It is possible that, in the
-future, a new shell on an already running host will be started.
-
-\(fn)" t nil)
- (autoload 'run-erlang "erlang" "Start a new Erlang shell." t)
-
-(autoload (quote erlang-compile) "erlang" "\
-Compile Erlang module in current buffer.
-
-\(fn)" t nil)
-
-(autoload (quote inferior-erlang) "erlang" "\
-Run an inferior Erlang.
-
-This is just like running Erlang in a normal shell, except that
-an Emacs buffer is used for input and output.
-\\<comint-mode-map>
-The command line history can be accessed with  \\[comint-previous-input]  and  \\[comint-next-input].
-The history is saved between sessions.
-
-Entry to this mode calls the functions in the variables
-`comint-mode-hook' and `erlang-shell-mode-hook' with no arguments.
-
-The following commands imitate the usual Unix interrupt and
-editing control characters:
-\\{erlang-shell-mode-map}
-
-\(fn)" t nil)
+\(fn)" nil nil)
 
 ;;;***
 
-;;;### (autoloads (eshell-toggle eshell-toggle-cd) "esh-toggle" "esh-toggle.el"
-;;;;;;  (18429 49044))
-;;; Generated autoloads from esh-toggle.el
+;;;### (autoloads (eshell-test) "esh-test" "site-lisp/eshell/esh-test.el"
+;;;;;;  (18807 50540))
+;;; Generated autoloads from site-lisp/eshell/esh-test.el
 
-(autoload (quote eshell-toggle-cd) "esh-toggle" "\
+(autoload 'eshell-test "esh-test" "\
+Test Eshell to verify that it works as expected.
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
+;;;### (autoloads (eshell-toggle eshell-toggle-cd) "esh-toggle" "site-lisp/eshell/esh-toggle.el"
+;;;;;;  (18807 50473))
+;;; Generated autoloads from site-lisp/eshell/esh-toggle.el
+
+(autoload 'eshell-toggle-cd "esh-toggle" "\
 Calls `eshell-toggle' with a prefix argument.
 See the command `eshell-toggle'
 
 \(fn)" t nil)
 
-(autoload (quote eshell-toggle) "esh-toggle" "\
+(autoload 'eshell-toggle "esh-toggle" "\
 Toggles between the *eshell* buffer and the current buffer.
 With a prefix ARG also insert a \"cd DIR\" command into the eshell,
 where DIR is the directory of the current buffer.
@@ -1060,6 +1039,41 @@ editing before caling the first time.
 Options: `eshell-toggle-goto-eob'
 
 \(fn MAKE-CD)" t nil)
+
+;;;***
+
+;;;### (autoloads (eshell-command-result eshell-command eshell) "eshell"
+;;;;;;  "site-lisp/eshell/eshell.el" (18807 50540))
+;;; Generated autoloads from site-lisp/eshell/eshell.el
+
+(autoload 'eshell "eshell" "\
+Create an interactive Eshell buffer.
+The buffer used for Eshell sessions is determined by the value of
+`eshell-buffer-name'.  If there is already an Eshell session active in
+that buffer, Emacs will simply switch to it.  Otherwise, a new session
+will begin.  A numeric prefix arg (as in `C-u 42 M-x eshell RET')
+switches to the session with that number, creating it if necessary.  A
+nonnumeric prefix arg means to create a new session.  Returns the
+buffer selected (or created).
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'eshell-command "eshell" "\
+Execute the Eshell command string COMMAND.
+With prefix ARG, insert output into the current buffer at point.
+
+\(fn &optional COMMAND ARG)" t nil)
+
+(autoload 'eshell-command-result "eshell" "\
+Execute the given Eshell COMMAND, and return the result.
+The result might be any Lisp object.
+If STATUS-VAR is a symbol, it will be set to the exit status of the
+command.  This is the only way to determine whether the value returned
+corresponding to a successful execution.
+
+\(fn COMMAND &optional STATUS-VAR)" nil nil)
+
+(define-obsolete-function-alias 'eshell-report-bug 'report-emacs-bug "23.1")
 
 ;;;***
 
@@ -1091,22 +1105,22 @@ area by dynamically resizing it, so a temporary buffer is not necessary
 unless you expect the output to exceed the limits of the resize thresholds
 or want to be able to edit the results.")
 
-(defvar eval-expr-print-level (cond ((boundp (quote eval-expression-print-level)) (default-value (quote eval-expression-print-level))) ((boundp (quote print-level)) (default-value (quote print-level)))) "\
+(defvar eval-expr-print-level (cond ((boundp 'eval-expression-print-level) (default-value 'eval-expression-print-level)) ((boundp 'print-level) (default-value 'print-level))) "\
 *Like print-level, but affect results printed by `eval-expr' only.")
 
-(defvar eval-expr-print-length (cond ((boundp (quote eval-expression-print-length)) (default-value (quote eval-expression-print-length))) ((boundp (quote print-length)) (default-value (quote print-length)))) "\
+(defvar eval-expr-print-length (cond ((boundp 'eval-expression-print-length) (default-value 'eval-expression-print-length)) ((boundp 'print-length) (default-value 'print-length))) "\
 *Like print-length, but affect results printed by `eval-expr' only.")
 
-(defvar eval-expr-print-function (quote prin1) "\
+(defvar eval-expr-print-function 'prin1 "\
 *Function to use for printing objects.
 This can be set to e.g. `pp' to generate pretty-printed results.")
 
-(autoload (quote eval-expr-install) "eval-expr" "\
+(autoload 'eval-expr-install "eval-expr" "\
 Replace standard eval-expression command with enhanced eval-expr.
 
 \(fn)" t nil)
 
-(autoload (quote eval-expr) "eval-expr" "\
+(autoload 'eval-expr "eval-expr" "\
 Evaluate EXPRESSION and print value in minibuffer, temp, or current buffer.
 A temp output buffer is used if there is more than one line in the
 evaluated result.
@@ -1123,386 +1137,1668 @@ Value is also consed on to front of the variable `values'.
 ;;;;;;  "site-lisp/find-library.el" (18429 49075))
 ;;; Generated autoloads from site-lisp/find-library.el
 
-(autoload (quote find-library) "find-library" "\
+(autoload 'find-library "find-library" "\
 Find a library file with completion.
 
 \(fn)" t nil)
 
-(autoload (quote find-and-load-library) "find-library" "\
+(autoload 'find-and-load-library "find-library" "\
 Find a library file with completion.
 
 \(fn)" t nil)
 
 ;;;***
 
-;;;### (autoloads (redo-footnotes) "footnote-ext" "footnote-ext.el"
-;;;;;;  (18429 49044))
-;;; Generated autoloads from footnote-ext.el
+;;;### (autoloads (gist-fetch gist-region-or-buffer-private gist-region-or-buffer
+;;;;;;  gist-buffer-private gist-buffer gist-region-private gist-region)
+;;;;;;  "gist" "site-lisp/gist/gist.el" (19082 3388))
+;;; Generated autoloads from site-lisp/gist/gist.el
 
-(autoload (quote redo-footnotes) "footnote-ext" "\
-Redo all footnotes in a buffer, renumbering and redefining them.
-This is useful for resuming work on an article, or for renumbering
-after lots of editing has occurred.
+(autoload 'gist-region "gist" "\
+Post the current region as a new paste at gist.github.com
+Copies the URL into the kill ring.
 
-If a textual footnote references a non-existent definition, the
-footnote mark is removed.  If a definition is no longer referenced, it
-is also deleted.
+With a prefix argument, makes a private paste.
+
+\(fn BEGIN END &optional PRIVATE)" t nil)
+
+(autoload 'gist-region-private "gist" "\
+Post the current region as a new private paste at gist.github.com
+Copies the URL into the kill ring.
+
+\(fn BEGIN END)" t nil)
+
+(autoload 'gist-buffer "gist" "\
+Post the current buffer as a new paste at gist.github.com.
+Copies the URL into the kill ring.
+
+With a prefix argument, makes a private paste.
+
+\(fn &optional PRIVATE)" t nil)
+
+(autoload 'gist-buffer-private "gist" "\
+Post the current buffer as a new private paste at gist.github.com.
+Copies the URL into the kill ring.
 
 \(fn)" t nil)
 
-;;;***
-
-;;;### (autoloads (gitsum-view gitsum) "gitsum-new" "gitsum-new.el"
-;;;;;;  (18596 62320))
-;;; Generated autoloads from gitsum-new.el
+(autoload 'gist-region-or-buffer "gist" "\
+Post either the current region, or if mark is not set, the current buffer as a new paste at gist.github.com
+Copies the URL into the kill ring.
 
-(autoload (quote gitsum) "gitsum-new" "\
-Run `git-status' in DIRECTORY, displaying the output in `gitsum-mode'.
+With a prefix argument, makes a private paste.
 
-When invoked interactively, prompt for the directory to display changes for.
+\(fn &optional PRIVATE)" t nil)
 
-\(fn DIRECTORY &optional LOOK-FOR-ADDS NO-DISPLAY SHOW-CONTEXT)" t nil)
+(autoload 'gist-region-or-buffer-private "gist" "\
+Post either the current region, or if mark is not set, the current buffer as a new private paste at gist.github.com
+Copies the URL into the kill ring.
 
-(autoload (quote gitsum-view) "gitsum-new" "\
-View the contents of the current buffer as a Git changeset for DIRECTORY.
-More precisely, searches forward from point for the next changeset-like region,
-and attempts to parse that as a Git patch.
+\(fn)" t nil)
 
-When invoked interactively, prompts for a directory; by default, the current
-working directory is assumed.
+(autoload 'gist-fetch "gist" "\
+Fetches a Gist and inserts it into a new buffer
+If the Gist already exists in a buffer, switches to it
 
-\(fn DIRECTORY)" t nil)
+\(fn ID)" t nil)
 
 ;;;***
 
-;;;### (autoloads (groovy-mode) "groovy-mode" "site-lisp/groovy-mode.el"
-;;;;;;  (18429 49076))
-;;; Generated autoloads from site-lisp/groovy-mode.el
+;;;### (autoloads (groovy-mode) "groovy" "site-lisp/groovy.el" (18901
+;;;;;;  31841))
+;;; Generated autoloads from site-lisp/groovy.el
 
-(autoload (quote groovy-mode) "groovy-mode" "\
-Major mode for editing groovy scripts.
-\\[groovy-indent-command] properly indents subexpressions of multi-line
-class, module, def, if, while, for, do, and case statements, taking
-nesting into account.
+(autoload 'groovy-mode "groovy" "\
+Major mode for editing Groovy source text.
 
-The variable groovy-indent-level controls the amount of indentation.
+Key bindings:
+
 \\{groovy-mode-map}
 
 \(fn)" t nil)
 
 ;;;***
 
-;;;### (autoloads (enable-lui-irc-colors) "lui-irc-colors" "site-lisp/circe/lui-irc-colors.el"
-;;;;;;  (18588 376))
-;;; Generated autoloads from site-lisp/circe/lui-irc-colors.el
+;;;### (autoloads (haskell-c-mode) "haskell-c" "site-lisp/haskell-mode/haskell-c.el"
+;;;;;;  (19385 28295))
+;;; Generated autoloads from site-lisp/haskell-mode/haskell-c.el
 
-(autoload (quote enable-lui-irc-colors) "lui-irc-colors" "\
-Enable IRC color interpretation for Lui.
+(add-to-list 'auto-mode-alist '("\\.hsc\\'" . haskell-c-mode))
 
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (nnml-generate-nov-databases) "nnml" "nnml.el"
-;;;;;;  (18429 49044))
-;;; Generated autoloads from nnml.el
-
-(autoload (quote nnml-generate-nov-databases) "nnml" "\
-Generate NOV databases in all nnml directories.
-
-\(fn &optional SERVER)" t nil)
-
-;;;***
-
-;;;### (autoloads (nxml-glyph-display-string) "nxml-glyph" "site-lisp/nxml-mode/nxml-glyph.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/nxml-glyph.el
-
-(autoload (quote nxml-glyph-display-string) "nxml-glyph" "\
-Return a string that can display a glyph for Unicode code-point N.
-FACE gives the face that will be used for displaying the string.
-Return nil if the face cannot display a glyph for N.
-
-\(fn N FACE)" nil nil)
-
-;;;***
-
-;;;### (autoloads (nxml-mode) "nxml-mode" "site-lisp/nxml-mode/nxml-mode.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/nxml-mode.el
-
-(autoload (quote nxml-mode) "nxml-mode" "\
-Major mode for editing XML.
-
-Syntax highlighting is performed unless the variable
-`nxml-syntax-highlight-flag' is nil.
-
-\\[nxml-finish-element] finishes the current element by inserting an end-tag.
-C-c C-i closes a start-tag with `>' and then inserts a balancing end-tag
-leaving point between the start-tag and end-tag. 
-\\[nxml-balanced-close-start-tag-block] is similar but for block rather than inline elements:
-the start-tag, point, and end-tag are all left on separate lines.
-If `nxml-slash-auto-complete-flag' is non-nil, then inserting a `</'
-automatically inserts the rest of the end-tag.
-
-\\[nxml-complete] performs completion on the symbol preceding point.
-
-\\[nxml-dynamic-markup-word] uses the contents of the current buffer
-to choose a tag to put around the word preceding point.
-
-Sections of the document can be displayed in outline form.  The
-variable `nxml-section-element-name-regexp' controls when an element
-is recognized as a section.  The same key sequences that change
-visibility in outline mode are used except that they start with C-c C-o
-instead of C-c.
-
-Validation is provided by the related minor-mode `rng-validate-mode'.
-This also makes completion schema- and context- sensitive.  Element
-names, attribute names, attribute values and namespace URIs can all be
-completed. By default, `rng-validate-mode' is automatically enabled by
-`rng-nxml-mode-init' which is normally added to `nxml-mode-hook'. You
-can toggle it using \\[rng-validate-mode].
-
-\\[indent-for-tab-command] indents the current line appropriately.
-This can be customized using the variable `nxml-child-indent'
-and the variable `nxml-attribute-indent'.
-
-\\[nxml-insert-named-char] inserts a character reference using
-the character's name (by default, the Unicode name). \\[universal-argument] \\[nxml-insert-named-char]
-inserts the character directly.
-
-The Emacs commands that normally operate on balanced expressions will
-operate on XML markup items.  Thus \\[forward-sexp] will move forward
-across one markup item; \\[backward-sexp] will move backward across
-one markup item; \\[kill-sexp] will kill the following markup item;
-\\[mark-sexp] will mark the following markup item.  By default, each
-tag each treated as a single markup item; to make the complete element
-be treated as a single markup item, set the variable
-`nxml-sexp-element-flag' to t.  For more details, see the function
-`nxml-forward-balanced-item'.
-
-\\[nxml-backward-up-element] and \\[nxml-down-element] move up and down the element structure.
-
-Many aspects this mode can be customized using
-\\[customize-group] nxml RET.
+(autoload 'haskell-c-mode "haskell-c" "\
+Major mode for Haskell FFI files.
 
 \(fn)" t nil)
 
 ;;;***
 
-;;;### (autoloads (nxml-enable-unicode-char-name-sets) "nxml-uchnm"
-;;;;;;  "site-lisp/nxml-mode/nxml-uchnm.el" (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/nxml-uchnm.el
+;;;### (autoloads (haskell-cabal-mode) "haskell-cabal" "site-lisp/haskell-mode/haskell-cabal.el"
+;;;;;;  (19385 28295))
+;;; Generated autoloads from site-lisp/haskell-mode/haskell-cabal.el
 
-(autoload (quote nxml-enable-unicode-char-name-sets) "nxml-uchnm" "\
-Enable the use of Unicode standard names for characters.
-The Unicode blocks for which names are enabled is controlled by
-the variable `nxml-enabled-unicode-blocks'.
+(add-to-list 'auto-mode-alist '("\\.cabal\\'" . haskell-cabal-mode))
+
+(autoload 'haskell-cabal-mode "haskell-cabal" "\
+Major mode for Cabal package description files.
 
 \(fn)" t nil)
 
 ;;;***
 
-;;;### (autoloads (pcomplete/scp pcomplete/ssh) "pcmpl-ssh" "site-lisp/pcmpl-ssh.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/pcmpl-ssh.el
+;;;### (autoloads (haskell-decl-scan-mode) "haskell-decl-scan" "site-lisp/haskell-mode/haskell-decl-scan.el"
+;;;;;;  (19385 28295))
+;;; Generated autoloads from site-lisp/haskell-mode/haskell-decl-scan.el
 
-(autoload (quote pcomplete/ssh) "pcmpl-ssh" "\
-Completion rules for the `ssh' command.
+(autoload 'haskell-decl-scan-mode "haskell-decl-scan" "\
+Minor mode for declaration scanning for Haskell mode.
+Top-level declarations are scanned and listed in the menu item \"Declarations\".
+Selecting an item from this menu will take point to the start of the
+declaration.
 
-\(fn)" nil nil)
+\\[haskell-ds-forward-decl] and \\[haskell-ds-backward-decl] move forward and backward to the start of a declaration.
 
-(autoload (quote pcomplete/scp) "pcmpl-ssh" "\
-Completion rules for the `scp' command.
+Under XEmacs, the following keys are also defined:
 
-Includes files as well as host names followed by a colon.
+\\[fume-list-functions] lists the declarations of the current buffer,
+\\[fume-prompt-function-goto] prompts for a declaration to move to, and
+\\[fume-mouse-function-goto] moves to the declaration whose name is at point.
 
-\(fn)" nil nil)
+This may link with `haskell-doc' (only for Emacs currently).
+
+For non-literate and LaTeX-style literate scripts, we assume the
+common convention that top-level declarations start at the first
+column.  For Bird-style literate scripts, we assume the common
+convention that top-level declarations start at the third column,
+ie. after \"> \".
+
+Anything in `font-lock-comment-face' is not considered for a
+declaration.  Therefore, using Haskell font locking with comments
+coloured in `font-lock-comment-face' improves declaration scanning.
+
+To turn on declaration scanning for all Haskell buffers, add this to
+.emacs:
+
+  (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
+
+To turn declaration scanning on for the current buffer, call
+`turn-on-haskell-decl-scan'.
+
+Literate Haskell scripts are supported: If the value of
+`haskell-literate' (automatically set by the Haskell mode of
+Moss&Thorn) is `bird', a Bird-style literate script is assumed.  If it
+is nil or `tex', a non-literate or LaTeX-style literate script is
+assumed, respectively.
+
+Invokes `haskell-decl-scan-mode-hook'.
+
+\(fn &optional ARG)" nil nil)
 
 ;;;***
 
-;;;### (autoloads (run-prolog mercury-mode prolog-mode) "prolog"
-;;;;;;  "site-lisp/prolog.el" (18429 49078))
-;;; Generated autoloads from site-lisp/prolog.el
+;;;### (autoloads (haskell-doc-show-type haskell-doc-mode) "haskell-doc"
+;;;;;;  "site-lisp/haskell-mode/haskell-doc.el" (19385 28295))
+;;; Generated autoloads from site-lisp/haskell-mode/haskell-doc.el
 
-(autoload (quote prolog-mode) "prolog" "\
-Major mode for editing Prolog code.
+(autoload 'haskell-doc-mode "haskell-doc" "\
+Enter `haskell-doc-mode' for showing fct types in the echo area.
+See variable docstring.
 
-Blank lines and `%%...' separate paragraphs.  `%'s starts a comment
-line and comments can also be enclosed in /* ... */.
+\(fn &optional ARG)" t nil)
 
-If an optional argument SYSTEM is non-nil, set up mode for the given system.
+(defalias 'turn-on-haskell-doc-mode 'haskell-doc-mode)
 
-To find out what version of Prolog mode you are running, enter
-`\\[prolog-mode-version]'.
+(autoload 'haskell-doc-show-type "haskell-doc" "\
+Show the type of the function near point.
+For the function under point, show the type in the echo area.
+This information is extracted from the `haskell-doc-prelude-types' alist
+of prelude functions and their types, or from the local functions in the
+current buffer.
 
-Commands:
-\\{prolog-mode-map}
-Entry to this mode calls the value of `prolog-mode-hook'
-if that value is non-nil.
+\(fn &optional SYM)" t nil)
 
-\(fn &optional SYSTEM)" t nil)
+;;;***
+
+;;;### (autoloads (haskell-indent-mode) "haskell-indent" "site-lisp/haskell-mode/haskell-indent.el"
+;;;;;;  (19385 28295))
+;;; Generated autoloads from site-lisp/haskell-mode/haskell-indent.el
 
-(autoload (quote mercury-mode) "prolog" "\
-Major mode for editing Mercury programs.
-Actually this is just customized `prolog-mode'.
+(autoload 'haskell-indent-mode "haskell-indent" "\
+``intelligent'' Haskell indentation mode that deals with
+the layout rule of Haskell.  \\[haskell-indent-cycle] starts the cycle
+which proposes new possibilities as long as the TAB key is pressed.
+Any other key or mouse click terminates the cycle and is interpreted
+except for RET which merely exits the cycle.
+Other special keys are:
+    \\[haskell-indent-insert-equal]
+      inserts an =
+    \\[haskell-indent-insert-guard]
+      inserts an |
+    \\[haskell-indent-insert-otherwise]
+      inserts an | otherwise =
+these functions also align the guards and rhs of the current definition
+    \\[haskell-indent-insert-where]
+      inserts a where keyword
+    \\[haskell-indent-align-guards-and-rhs]
+      aligns the guards and rhs of the region
+    \\[haskell-indent-put-region-in-literate]
+      makes the region a piece of literate code in a literate script
+
+Note: \\[indent-region] which applies \\[haskell-indent-cycle] for each line
+of the region also works but it stops and asks for any line having more
+than one possible indentation.
+Use TAB to cycle until the right indentation is found and then RET to go the
+next line to indent.
+
+Invokes `haskell-indent-hook' if not nil.
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
+;;;### (autoloads (haskell-hoogle literate-haskell-mode haskell-mode)
+;;;;;;  "haskell-mode" "site-lisp/haskell-mode/haskell-mode.el" (19385
+;;;;;;  28295))
+;;; Generated autoloads from site-lisp/haskell-mode/haskell-mode.el
+
+(autoload 'haskell-mode "haskell-mode" "\
+Major mode for editing Haskell programs.
+Blank lines separate paragraphs, comments start with `-- '.
+\\<haskell-mode-map>
+Literate scripts are supported via `literate-haskell-mode'.
+The variable `haskell-literate' indicates the style of the script in the
+current buffer.  See the documentation on this variable for more details.
+
+Modules can hook in via `haskell-mode-hook'.  The following modules
+are supported with an `autoload' command:
+
+   `haskell-decl-scan', Graeme E Moss
+     Scans top-level declarations, and places them in a menu.
+
+   `haskell-doc', Hans-Wolfgang Loidl
+     Echoes types of functions or syntax of keywords when the cursor is idle.
+
+   `haskell-indent', Guy Lapalme
+     Intelligent semi-automatic indentation.
+
+   `haskell-simple-indent', Graeme E Moss and Heribert Schuetz
+     Simple indentation.
+
+Module X is activated using the command `turn-on-X'.  For example,
+`haskell-indent' is activated using `turn-on-haskell-indent'.
+For more information on a module, see the help for its `X-mode'
+function.  Some modules can be deactivated using `turn-off-X'.  (Note
+that `haskell-doc' is irregular in using `turn-(on/off)-haskell-doc-mode'.)
+
+Use `haskell-version' to find out what version this is.
+
+Invokes `haskell-mode-hook'.
 
 \(fn)" t nil)
 
-(autoload (quote run-prolog) "prolog" "\
-Run an inferior Prolog process, input and output via buffer *prolog*.
-With prefix argument ARG, restart the Prolog process if running before.
+(autoload 'literate-haskell-mode "haskell-mode" "\
+As `haskell-mode' but for literate scripts.
+
+\(fn)" t nil)
+(add-to-list 'auto-mode-alist '("\\.\\(?:[gh]s\\|hi\\)\\'" . haskell-mode))
+(add-to-list 'auto-mode-alist '("\\.l[gh]s\\'" . literate-haskell-mode))
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+
+(autoload 'haskell-hoogle "haskell-mode" "\
+Do a Hoogle search for QUERY.
+
+\(fn QUERY)" t nil)
+
+;;;***
+
+;;;### (autoloads (inferior-haskell-find-haddock inferior-haskell-find-definition
+;;;;;;  inferior-haskell-info inferior-haskell-type inferior-haskell-load-file
+;;;;;;  switch-to-haskell) "inf-haskell" "site-lisp/haskell-mode/inf-haskell.el"
+;;;;;;  (19385 28295))
+;;; Generated autoloads from site-lisp/haskell-mode/inf-haskell.el
+
+(defalias 'run-haskell 'switch-to-haskell)
+
+(autoload 'switch-to-haskell "inf-haskell" "\
+Show the inferior-haskell buffer.  Start the process if needed.
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'inferior-haskell-load-file "inf-haskell" "\
+Pass the current buffer's file to the inferior haskell process.
+If prefix arg \\[universal-argument] is given, just reload the previous file.
+
+\(fn &optional RELOAD)" t nil)
+
+(autoload 'inferior-haskell-type "inf-haskell" "\
+Query the haskell process for the type of the given expression.
+If optional argument `insert-value' is non-nil, insert the type above point
+in the buffer.  This can be done interactively with the \\[universal-argument] prefix.
+The returned info is cached for reuse by `haskell-doc-mode'.
+
+\(fn EXPR &optional INSERT-VALUE)" t nil)
+
+(autoload 'inferior-haskell-info "inf-haskell" "\
+Query the haskell process for the info of the given expression.
+
+\(fn SYM)" t nil)
+
+(autoload 'inferior-haskell-find-definition "inf-haskell" "\
+Attempt to locate and jump to the definition of the given expression.
+
+\(fn SYM)" t nil)
+
+(autoload 'inferior-haskell-find-haddock "inf-haskell" "\
+Find and open the Haddock documentation of SYM.
+Make sure to load the file into GHCi or Hugs first by using C-c C-l.
+Only works for functions in a package installed with ghc-pkg, or
+whatever the value of `haskell-package-manager-name' is.
+
+This function needs to find which package a given module belongs
+to.  In order to do this, it computes a module-to-package lookup
+alist, which is expensive to compute (it takes upwards of five
+seconds with more than about thirty installed packages).  As a
+result, we cache it across sessions using the cache file
+referenced by `inferior-haskell-module-alist-file'. We test to
+see if this is newer than `haskell-package-conf-file' every time
+we load it.
+
+\(fn SYM)" t nil)
+
+;;;***
+
+;;;### (autoloads (magit-status) "magit" "site-lisp/magit/magit.el"
+;;;;;;  (19384 63855))
+;;; Generated autoloads from site-lisp/magit/magit.el
+
+(autoload 'magit-status "magit" "\
+Not documented
+
+\(fn DIR)" t nil)
+
+;;;***
+
+;;;### (autoloads (nxhtml-byte-recompile-file nxhtml-byte-compile-file
+;;;;;;  nxhtml-get-missing-files nxhtml-update-existing-files nxhtml-setup-download-all
+;;;;;;  nxhtml-setup-auto-download nxhtml-setup-install) "nxhtml-web-vcs"
+;;;;;;  "site-lisp/nxhtml/nxhtml-web-vcs.el" (19385 29876))
+;;; Generated autoloads from site-lisp/nxhtml/nxhtml-web-vcs.el
+
+(autoload 'nxhtml-setup-install "nxhtml-web-vcs" "\
+Setup and start nXhtml installation.
+
+This is for installation and updating directly from the nXhtml
+development sources.
+
+There are two different ways to install:
+
+  (1) Download all at once: `nxhtml-setup-download-all'
+  (2) Automatically download part by part: `nxhtml-setup-auto-download'
+
+You can convert between those ways by calling this function again.
+You can also do this by setting the option `nxhtml-autoload-web' yourself.
+
+When you have nXhtml installed you can update it:
+
+  (3) Update new files in nXhtml: `nxhtml-update-existing-files'
+
+To learn more about nXhtml visit its home page at URL
+`http://www.emacswiki.com/NxhtmlMode/'.
+
+If you want to test auto download (but not use it further) there
+is a special function for that, you answer T here:
+
+   (T) Test automatic download part by part: `nxhtml-setup-test-auto-download'
+
+======
+*Note*
+If you want to download a zip file with latest released version instead then
+please see URL `http://ourcomments.org/Emacs/nXhtml/doc/nxhtml.html'.
+
+\(fn WAY)" t nil)
+
+(autoload 'nxhtml-setup-auto-download "nxhtml-web-vcs" "\
+Set up to autoload nXhtml files from the web.
+
+This function will download some initial files and then setup to
+download the rest when you need them.
+
+Files will be downloaded under the directory root you specify in
+DL-DIR.
+
+Note that files will not be upgraded automatically.  The auto
+downloading is just for files you are missing. (This may change a
+bit in the future.) If you want to upgrade those files that you
+have downloaded you can just call `nxhtml-update-existing-files'.
+
+You can easily switch between this mode of downloading or
+downloading the whole of nXhtml by once.  To switch just call the
+command `nxhtml-setup-install'.
+
+See also the command `nxhtml-setup-download-all'.
+
+Note: If your nXhtml is to old you can't use this function
+      directly.  You have to upgrade first, se the function
+      above. Version 2.07 or above is good for this.
+
+\(fn DL-DIR)" t nil)
+
+(autoload 'nxhtml-setup-download-all "nxhtml-web-vcs" "\
+Download or update all of nXhtml.
+
+You can download all if nXhtml with this command.
+
+To update existing files use `nxhtml-update-existing-files'.
+
+If you want to download only those files you are actually using
+then call `nxhtml-setup-auto-download' instead.
+
+See the command `nxhtml-setup-install' for a convenient way to
+call these commands.
+
+For more information about auto download of nXhtml files see
+`nxhtml-setup-auto-download'.
+
+\(fn DL-DIR)" t nil)
+
+(autoload 'nxhtml-update-existing-files "nxhtml-web-vcs" "\
+Update existing nXhtml files from the development sources.
+Only files you already have will be updated.
+
+Note that this works both if you have setup nXhtml to auto
+download files as you need them or if you have downloaded all of
+nXhtml at once.
+
+For more information about installing and updating nXhtml see the
+command `nxhtml-setup-install'.
+
+\(fn)" t nil)
+
+(autoload 'nxhtml-get-missing-files "nxhtml-web-vcs" "\
+Not documented
+
+\(fn SUB-DIR FILE-NAME-LIST)" nil nil)
+
+(autoload 'nxhtml-byte-compile-file "nxhtml-web-vcs" "\
+Not documented
+
+\(fn FILE &optional LOAD)" nil nil)
+
+(autoload 'nxhtml-byte-recompile-file "nxhtml-web-vcs" "\
+Byte recompile FILE file if necessary.
+For more information see `nxhtml-byte-compile-file'.
+Loading is done if recompiled and LOAD is t.
+
+\(fn FILE &optional LOAD)" t nil)
+
+;;;***
+
+;;;### (autoloads (nxhtmlmaint-byte-uncompile-all nxhtmlmaint-byte-recompile
+;;;;;;  nxhtmlmaint-start-byte-compilation) "nxhtmlmaint" "site-lisp/nxhtml/nxhtmlmaint.el"
+;;;;;;  (19385 29876))
+;;; Generated autoloads from site-lisp/nxhtml/nxhtmlmaint.el
+
+(autoload 'nxhtmlmaint-start-byte-compilation "nxhtmlmaint" "\
+Start byte compilation of nXhtml in new Emacs instance.
+Byte compiling in general makes elisp code run 5-10 times faster
+which is quite noticeable when you use nXhtml.
+
+This will also update the file nxhtml-loaddefs.el.
+
+You must restart Emacs to use the byte compiled files.
+
+If for some reason the byte compiled files does not work you can
+remove then with `nxhtmlmaint-byte-uncompile-all'.
+
+\(fn)" t nil)
+
+(autoload 'nxhtmlmaint-byte-recompile "nxhtmlmaint" "\
+Recompile or compile all nXhtml files in current Emacs.
+
+\(fn)" t nil)
+
+(autoload 'nxhtmlmaint-byte-uncompile-all "nxhtmlmaint" "\
+Delete byte compiled files in nXhtml.
+This will also update the file nxhtml-loaddefs.el.
+
+See `nxhtmlmaint-start-byte-compilation' for byte compiling.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (module-installed-p exec-installed-p file-installed-p
+;;;;;;  get-latest-path add-latest-path add-path) "path-util" "site-lisp/apel/path-util.el"
+;;;;;;  (19385 28150))
+;;; Generated autoloads from site-lisp/apel/path-util.el
+
+(autoload 'add-path "path-util" "\
+Add PATH to `load-path' if it exists under `default-load-path'
+directories and it does not exist in `load-path'.
+
+You can use following PATH styles:
+	load-path relative: \"PATH/\"
+			(it is searched from `default-load-path')
+	home directory relative: \"~/PATH/\" \"~USER/PATH/\"
+	absolute path: \"/HOO/BAR/BAZ/\"
+
+You can specify following OPTIONS:
+	'all-paths	search from `load-path'
+			instead of `default-load-path'
+	'append		add PATH to the last of `load-path'
+
+\(fn PATH &rest OPTIONS)" nil nil)
+
+(autoload 'add-latest-path "path-util" "\
+Add latest path matched by PATTERN to `load-path'
+if it exists under `default-load-path' directories
+and it does not exist in `load-path'.
+
+If optional argument ALL-PATHS is specified, it is searched from all
+of load-path instead of default-load-path.
+
+\(fn PATTERN &optional ALL-PATHS)" nil nil)
+
+(autoload 'get-latest-path "path-util" "\
+Return latest directory in default-load-path
+which is matched to regexp PATTERN.
+If optional argument ALL-PATHS is specified,
+it is searched from all of load-path instead of default-load-path.
+
+\(fn PATTERN &optional ALL-PATHS)" nil nil)
+
+(autoload 'file-installed-p "path-util" "\
+Return absolute-path of FILE if FILE exists in PATHS.
+If PATHS is omitted, `load-path' is used.
+
+\(fn FILE &optional PATHS)" nil nil)
+
+(defvar exec-suffix-list '("") "\
+*List of suffixes for executable.")
+
+(autoload 'exec-installed-p "path-util" "\
+Return absolute-path of FILE if FILE exists in PATHS.
+If PATHS is omitted, `exec-path' is used.
+If suffixes is omitted, `exec-suffix-list' is used.
+
+\(fn FILE &optional PATHS SUFFIXES)" nil nil)
+
+(autoload 'module-installed-p "path-util" "\
+Return t if module is provided or exists in PATHS.
+If PATHS is omitted, `load-path' is used.
+
+\(fn MODULE &optional PATHS)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-calendar-show planner-calendar-goto planner-search-notes
+;;;;;;  planner-search-notes-with-body planner-create-task-from-buffer
+;;;;;;  planner-create-low-priority-task-from-buffer planner-create-medium-priority-task-from-buffer
+;;;;;;  planner-create-high-priority-task-from-buffer planner-goto-next-daily-page
+;;;;;;  planner-goto-previous-daily-page planner-goto-tomorrow planner-goto-yesterday
+;;;;;;  planner-goto-most-recent planner-goto-today planner-show
+;;;;;;  planner-goto-plan-page planner-goto plan planner-create-note
+;;;;;;  planner-resolve-position-url planner-browse-position-url
+;;;;;;  planner-annotation-from-file-with-position planner-annotation-as-kill
+;;;;;;  planner-mode) "planner" "site-lisp/planner/planner.el" (18573
+;;;;;;  9421))
+;;; Generated autoloads from site-lisp/planner/planner.el
+
+(autoload 'planner-mode "planner" "\
+A personal information manager for Emacs.
+\\{planner-mode-map}
+
+\(fn)" t nil)
+
+(autoload 'planner-annotation-as-kill "planner" "\
+Copy the current annotation into the kill ring.
+When called with a prefix argument, prompt for the link display name.
 
 \(fn ARG)" t nil)
 
+(autoload 'planner-annotation-from-file-with-position "planner" "\
+Return the filename and cursor position of the current buffer.
+If `planner-annotation-use-relative-file' is t or a function that
+returns non-nil, a relative link is used instead. If
+`planner-annotation-strip-directory' is non-nil, the directory is
+stripped from the link description.
+
+\(fn)" nil nil)
+
+(autoload 'planner-browse-position-url "planner" "\
+If this is a position URL, jump to it.
+
+\(fn URL)" nil nil)
+
+(autoload 'planner-resolve-position-url "planner" "\
+Replace ID with the blog, web or e-mail address of the BBDB record.
+
+\(fn ID)" nil nil)
+
+(autoload 'planner-create-note "planner" "\
+Create a note to be remembered in PAGE (today if PAGE is nil).
+If `planner-reverse-chronological-notes' is non-nil, create the
+note at the beginning of the notes section; otherwise, add it to
+the end.  Position point after the anchor.
+
+\(fn &optional PAGE)" t nil)
+
+(autoload 'plan "planner" "\
+Start your planning for the day, carrying unfinished tasks forward.
+
+If FORCE-DAYS is a positive integer, search that many days in the past
+for unfinished tasks.
+If FORCE-DAYS is 0 or t, scan all days.
+If FORCE-DAYS is nil, use the value of `planner-carry-tasks-forward'
+instead, except t means scan only yesterday.
+
+\(fn &optional FORCE-DAYS)" t nil)
+
+(autoload 'planner-goto "planner" "\
+Jump to the planning page for DATE.
+If no page for DATE exists and JUST-SHOW is non-nil, don't create
+a new page - simply return nil.
+
+\(fn DATE &optional JUST-SHOW)" t nil)
+
+(autoload 'planner-goto-plan-page "planner" "\
+Opens PAGE in the the `planner-project' wiki.
+Use `planner-goto' if you want fancy calendar completion.
+
+\(fn PAGE)" t nil)
+
+(autoload 'planner-show "planner" "\
+Show the plan page for DATE in another window, but don't select it.
+If no page for DATE exists, return nil.
+
+\(fn DATE)" t nil)
+
+(autoload 'planner-goto-today "planner" "\
+Jump to the planning page for today.
+
+\(fn)" t nil)
+
+(autoload 'planner-goto-most-recent "planner" "\
+Go to the most recent day with planning info.
+
+\(fn)" t nil)
+
+(autoload 'planner-goto-yesterday "planner" "\
+Goto the planner page DAYS before the currently displayed date.
+If DAYS is nil, goes to the day immediately before the currently
+displayed date.  If the current buffer is not a daily planner
+page, calculates date based on today.
+
+\(fn &optional DAYS)" t nil)
+
+(autoload 'planner-goto-tomorrow "planner" "\
+Goto the planner page DAYS after the currently displayed date.
+If DAYS is nil, goes to the day immediately after the currently
+displayed date.  If the current buffer is not a daily planner
+page, calculates date based on today.
+
+\(fn &optional DAYS)" t nil)
+
+(autoload 'planner-goto-previous-daily-page "planner" "\
+Goto the last plan page before the current date.
+The current date is taken from the day page in the current
+buffer, or today if the current buffer is not a planner page.
+Does not create pages if they do not yet exist.
+
+\(fn)" t nil)
+
+(autoload 'planner-goto-next-daily-page "planner" "\
+Goto the first plan page after the current date.
+The current date is taken from the day page in the current
+buffer, or today if the current buffer is not a planner page.
+Does not create pages if they do not yet exist.
+
+\(fn)" t nil)
+
+(autoload 'planner-create-high-priority-task-from-buffer "planner" "\
+Create a high-priority task based on this buffer.
+Do not use this in LISP programs. Instead, set the value of
+`planner-default-task-priority' and call `planner-create-task' or
+`planner-create-task-from-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'planner-create-medium-priority-task-from-buffer "planner" "\
+Create a high-priority task based on this buffer.
+Do not use this in LISP programs. Instead, set the value of
+`planner-default-task-priority' and call `planner-create-task' or
+`planner-create-task-from-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'planner-create-low-priority-task-from-buffer "planner" "\
+Create a high-priority task based on this buffer.
+Do not use this in LISP programs. Instead, set the value of
+`planner-default-task-priority' and call `planner-create-task' or
+`planner-create-task-from-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'planner-create-task-from-buffer "planner" "\
+Create a new task named TITLE on DATE based on the current buffer.
+With a prefix, do not prompt for PLAN-PAGE. The task is
+associated with PLAN-PAGE if non-nil. If STATUS is non-nil, use
+that as the status for the task. Otherwise, use
+`planner-default-task-status'. See `planner-create-task' for more
+information.
+
+\(fn TITLE DATE &optional PLAN-PAGE STATUS)" t nil)
+
+(autoload 'planner-search-notes-with-body "planner" "\
+Return a buffer with all the notes returned by the query for REGEXP.
+If called with a prefix argument, prompt for LIMIT and search days on
+or after LIMIT. Display the body of the notes as well.
+
+\(fn REGEXP LIMIT)" t nil)
+
+(autoload 'planner-search-notes "planner" "\
+Return a buffer with all the notes returned by the query for REGEXP.
+If called with a prefix argument, prompt for LIMIT and search days on
+or after LIMIT. If INCLUDE-BODY is non-nil, return the body as well.
+
+\(fn REGEXP LIMIT &optional INCLUDE-BODY)" t nil)
+
+(autoload 'planner-calendar-goto "planner" "\
+Goto the plan page corresponding to the calendar date.
+
+\(fn)" t nil)
+
+(autoload 'planner-calendar-show "planner" "\
+Show the plan page for the calendar date under point in another window.
+
+\(fn)" t nil)
+
 ;;;***
 
-;;;### (autoloads (svn-status svn-checkout) "psvn" "site-lisp/psvn.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/psvn.el
+;;;### (autoloads (planner-accomplishments-show planner-accomplishments-update
+;;;;;;  planner-accomplishments-insinuate) "planner-accomplishments"
+;;;;;;  "site-lisp/planner/planner-accomplishments.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-accomplishments.el
 
-(autoload (quote svn-checkout) "psvn" "\
-Run svn checkout REPOS-URL PATH.
+(autoload 'planner-accomplishments-insinuate "planner-accomplishments" "\
+Automatically call `planner-accomplishments-update'.
 
-\(fn REPOS-URL PATH)" t nil)
- (defalias 'svn-examine 'svn-status)
+\(fn)" nil nil)
 
-(autoload (quote svn-status) "psvn" "\
-Examine the status of Subversion working copy in directory DIR.
-If ARG is -, allow editing of the parameters. One could add -N to
-run svn status non recursively to make it faster.
-For every other non nil ARG pass the -u argument to `svn status', which
-asks svn to connect to the repository and check to see if there are updates
-there.
+(autoload 'planner-accomplishments-update "planner-accomplishments" "\
+Update `planner-accomplishments-section'.
 
-If there is no .svn directory, examine if there is CVS and run
-`cvs-examine'. Otherwise ask if to run `dired'.
+\(fn)" t nil)
 
-\(fn DIR &optional ARG)" t nil)
+(autoload 'planner-accomplishments-show "planner-accomplishments" "\
+Display a buffer with the current page's accomplishment report.
+
+\(fn)" t nil)
 
 ;;;***
 
-;;;### (autoloads (inferior-qi) "qi-mode" "site-lisp/qi-mode.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/qi-mode.el
+;;;### (autoloads (planner-appt-use-tasks-and-schedule planner-appt-use-schedule
+;;;;;;  planner-appt-use-tasks planner-appt-insinuate planner-appt-insinuate-if-today
+;;;;;;  planner-appt-update) "planner-appt" "site-lisp/planner/planner-appt.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-appt.el
 
-(defvar inferior-qi-filter-regexp "\\`\\s *\\(:\\(\\w\\|\\s_\\)\\)?\\s *\\'" "\
-*What not to save on inferior Qi's input history.
-Input matching this regexp is not saved on the input history in Inferior Qi
-mode.  Default is whitespace followed by 0 or 1 single-letter colon-keyword
-\(as in :a, :c, etc.)")
+(autoload 'planner-appt-update "planner-appt" "\
+Update the appointments on the current page.
 
-(defvar inferior-qi-program "Qi" "\
-*Program name for invoking an inferior Qi with for Inferior Qi mode.")
+\(fn)" t nil)
 
-(defvar inferior-qi-load-command "(load \"%s\")\n" "\
-*Format-string for building a Qi expression to load a file.
-This format string should use `%s' to substitute a file name
-and should result in a Qi expression that will command the inferior Qi
-to load that file.  The default works acceptably on most Qis.
-The string \"(progn (load \\\"%s\\\" :verbose nil :print t) (values))\\n\"
-produces cosmetically superior output for this application,
-but it works only in Common Qi.")
-
-(defvar inferior-qi-prompt "^[^> \n]*>+:? *" "\
-Regexp to recognise prompts in the Inferior Qi mode.
-Defaults to \"^[^> \\n]*>+:? *\", which works pretty good for Lucid, kcl,
-and franz.  This variable is used to initialize `comint-prompt-regexp' in the
-Inferior Qi buffer.
-
-This variable is only used if the variable
-`comint-use-prompt-regexp-instead-of-fields' is non-nil.
-
-More precise choices:
-Lucid Common Qi: \"^\\\\(>\\\\|\\\\(->\\\\)+\\\\) *\"
-franz: \"^\\\\(->\\\\|<[0-9]*>:\\\\) *\"
-kcl: \"^>+ *\"
-
-This is a fine thing to set in your .emacs file.")
-
-(defvar inferior-qi-mode-hook (quote nil) "\
-*Hook for customising Inferior Qi mode.")
-
-(autoload (quote inferior-qi) "qi-mode" "\
-Run an inferior Qi process, input and output via buffer `*inferior-qi*'.
-If there is a process already running in `*inferior-qi*', just switch
-to that buffer.
-With argument, allows you to edit the command line (default is value
-of `inferior-qi-program').  Runs the hooks from
-`inferior-qi-mode-hook' (after the `comint-mode-hook' is run).
-\(Type \\[describe-mode] in the process buffer for a list of commands.)
-
-\(fn CMD)" t nil)
- (add-hook 'same-window-buffer-names "*inferior-qi*")
-
-(defalias (quote run-qi) (quote inferior-qi))
-
-;;;***
-
-;;;### (autoloads (rdebug) "rdebug" "site-lisp/ruby/rdebug.el" (18429
-;;;;;;  49078))
-;;; Generated autoloads from site-lisp/ruby/rdebug.el
-
-(autoload (quote rdebug) "rdebug" "\
-Run rdebug on program FILE in buffer *gud-FILE*.
-The directory containing FILE becomes the initial working directory
-and source-file directory for your debugger.
-
-\(fn COMMAND-LINE)" t nil)
-
-;;;***
-
-;;;### (autoloads (remember-destroy remember-buffer remember-clipboard
-;;;;;;  remember-region remember-other-frame remember) "remember"
-;;;;;;  "site-lisp/remember/remember.el" (18440 14782))
-;;; Generated autoloads from site-lisp/remember/remember.el
-
-(autoload (quote remember) "remember" "\
-Remember an arbitrary piece of data.
-With a prefix, uses the region as INITIAL.
-
-\(fn &optional INITIAL)" t nil)
-
-(autoload (quote remember-other-frame) "remember" "\
+(autoload 'planner-appt-insinuate-if-today "planner-appt" "\
 Not documented
 
+\(fn)" nil nil)
+
+(autoload 'planner-appt-insinuate "planner-appt" "\
+Insinuate appointment alerting into planner mode.
+Appointment methods should be set up first using one of:
+  `planner-appt-use-tasks'
+  `planner-appt-use-schedule'
+  `planner-appt-use-tasks-and-schedule'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-appt-use-tasks "planner-appt" "\
+Use tasks to derive appointment alerts.
+
+\(fn)" nil nil)
+
+(autoload 'planner-appt-use-schedule "planner-appt" "\
+Use the schedule to derive appointment alerts.
+
+\(fn)" nil nil)
+
+(autoload 'planner-appt-use-tasks-and-schedule "planner-appt" "\
+Use both tasks and the schedule to derive appointment alerts.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-bbdb-resolve-url planner-bbdb-browse-url
+;;;;;;  planner-bbdb-annotation-from-bbdb) "planner-bbdb" "site-lisp/planner/planner-bbdb.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-bbdb.el
+
+(autoload 'planner-bbdb-annotation-from-bbdb "planner-bbdb" "\
+If called from a bbdb buffer, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-bbdb-browse-url "planner-bbdb" "\
+If this is a BBDB URL, jump to it.
+
+\(fn URL)" nil nil)
+
+(autoload 'planner-bbdb-resolve-url "planner-bbdb" "\
+Replace ID with the blog, web or e-mail address of the BBDB record.
+
+\(fn ID)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-bibtex-browse-url planner-bibtex-annotation-old
+;;;;;;  planner-bibtex-annotation-new) "planner-bibtex" "site-lisp/planner/planner-bibtex.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-bibtex.el
+
+(autoload 'planner-bibtex-annotation-new "planner-bibtex" "\
+Return an annotation for the current bibtex entry.
+
+\(fn)" nil nil)
+
+(autoload 'planner-bibtex-annotation-old "planner-bibtex" "\
+Return the filename on the current line in dired.
+
+\(fn)" nil nil)
+
+(autoload 'planner-bibtex-browse-url "planner-bibtex" "\
+If this is a Bibtex URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-bookmark-browse-url planner-bookmark-annotation-from-bookmark)
+;;;;;;  "planner-bookmark" "site-lisp/planner/planner-bookmark.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-bookmark.el
+
+(autoload 'planner-bookmark-annotation-from-bookmark "planner-bookmark" "\
+If called from a bookmark buffer, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-bookmark-browse-url "planner-bookmark" "\
+If this is a bookmark URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-cyclic-create-tasks-maybe) "planner-cyclic"
+;;;;;;  "site-lisp/planner/planner-cyclic.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-cyclic.el
+
+(autoload 'planner-cyclic-create-tasks-maybe "planner-cyclic" "\
+Maybe create cyclic tasks.
+This will only create tasks for future dates or today.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-deadline-remove planner-deadline-change
+;;;;;;  planner-deadline-update) "planner-deadline" "site-lisp/planner/planner-deadline.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-deadline.el
+
+(autoload 'planner-deadline-update "planner-deadline" "\
+Replace the text for all tasks with deadlines.
+By default, deadlines are of the form {{Deadline: yyyy.mm.dd}}.
+See `planner-deadline-regexp' for details.
+
+\(fn)" t nil)
+
+(autoload 'planner-deadline-change "planner-deadline" "\
+Change the deadline of current task to DATE.
+If DATE is nil, prompt for it.
+
+\(fn DATE)" t nil)
+
+(defalias 'planner-deadline-add 'planner-deadline-change)
+
+(autoload 'planner-deadline-remove "planner-deadline" "\
+Remove the deadline of the current task.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-diary-add-entry planner-diary-insinuate
+;;;;;;  planner-diary-show-day-plan-or-diary planner-diary-insert-all-diaries-maybe
+;;;;;;  planner-diary-insert-all-diaries planner-diary-update-section)
+;;;;;;  "planner-diary" "site-lisp/planner/planner-diary.el" (18573
+;;;;;;  9421))
+;;; Generated autoloads from site-lisp/planner/planner-diary.el
+
+(autoload 'planner-diary-update-section "planner-diary" "\
+Update FILE's existing section TITLE by replacing existing text with TEXT.
+If optional arg FORCE is non-nil, update the section even if it doesn't exist,
+i.e. insert TITLE followed by TEXT at the top of the buffer.
+
+\(fn FILE TITLE TEXT &optional FORCE)" nil nil)
+
+(autoload 'planner-diary-insert-all-diaries "planner-diary" "\
+Update all diary sections in a day plan file.
+If FORCE is non-nil, insert a diary section even if there is no section header.
+Inserts only diaries if the corresponding `planner-diary-use-*' variable is t.
+
+\(fn &optional FORCE)" t nil)
+
+(autoload 'planner-diary-insert-all-diaries-maybe "planner-diary" "\
+Update all diary sections in a day plan file.
+If the current day is in the past and FORCE is nil, don't do anything.
+If FORCE is non-nil, insert a diary section even if there is no section header.
+Inserts only diaries if the corresponding `planner-diary-use-*' variable is t.
+
+\(fn &optional FORCE)" t nil)
+
+(autoload 'planner-diary-show-day-plan-or-diary "planner-diary" "\
+Show the day plan or diary entries for the date under point in calendar.
+Add this to `calendar-move-hook' if you want to use it.  In that case you
+should also `remove-hook' `planner-calendar-show' from `calendar-move-hook'.
+
+\(fn)" t nil)
+
+(autoload 'planner-diary-insinuate "planner-diary" "\
+Hook Diary into Planner.
+Automatically insert and update a Diary section in day plan files.
+This adds a new key binding to `planner-mode-map':
+C-cC-e updates the diary sections.
+
+\(fn)" nil nil)
+
+(defalias 'planner-insinuate-diary 'planner-diary-insinuate)
+
+(autoload 'planner-diary-add-entry "planner-diary" "\
+Prompt for a diary entry to add to `diary-file' on DATE.
+Uses `planner-annotation-functions' to make hyperlinks.
+TIME and TEXT are used in the description.
+
+\(fn DATE TIME TEXT)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-erc-browse-url planner-erc-annotation-from-erc)
+;;;;;;  "planner-erc" "site-lisp/planner/planner-erc.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-erc.el
+
+(autoload 'planner-erc-annotation-from-erc "planner-erc" "\
+Return an annotation for the current line.
+This function can be added to `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-erc-browse-url "planner-erc" "\
+If this is an IRC URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-export-diary planner-export-diary-setup
+;;;;;;  planner-export-diary-future) "planner-export-diary" "site-lisp/planner/planner-export-diary.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-export-diary.el
+
+(autoload 'planner-export-diary-future "planner-export-diary" "\
+Exports only `planner-export-number-of-days' days of entries.
+This function can be put into your `after-save-hook'.
+
+\(fn)" t nil)
+
+(autoload 'planner-export-diary-setup "planner-export-diary" "\
+Add `planner-export-diary-future' to `after-save-hook' in planner buffers.
+You can add this function to `planner-mode-hook'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-export-diary "planner-export-diary" "\
+Exports all the schedules or the ones from FROM to TO (inclusive).
+
+\(fn &optional FROM TO)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-gnats-browse-url planner-gnats-annotation-from-gnats)
+;;;;;;  "planner-gnats" "site-lisp/planner/planner-gnats.el" (18573
+;;;;;;  9421))
+;;; Generated autoloads from site-lisp/planner/planner-gnats.el
+
+(autoload 'planner-gnats-annotation-from-gnats "planner-gnats" "\
+If called from gnats-edit or gnats-view buffer, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-gnats-browse-url "planner-gnats" "\
+If this is a Gnats URL, view the pr (view-pr).
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-gnus-browse-url planner-gnus-annotation
+;;;;;;  planner-gnus-insinuate) "planner-gnus" "site-lisp/planner/planner-gnus.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-gnus.el
+
+(autoload 'planner-gnus-insinuate "planner-gnus" "\
+Hook Planner into Gnus.
+
+Adds special planner keybindings to the variable
+`gnus-summary-article-map'. From a summary or article buffer, you
+can type C-c C-t to call planner-create-task-from-buffer.
+
+\(fn)" nil nil)
+
+(autoload 'planner-gnus-annotation "planner-gnus" "\
+Return an annotation from a Gnus summary or message buffer.
+Suitable for use in `planner-annotation-functions'. If you
+include this, you can omit `planner-gnus-annotation-from-summary'
+and `planner-gnus-annotation-from-message'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-gnus-browse-url "planner-gnus" "\
+If this is a Gnus URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-id-setup planner-id-update-tasks-maybe
+;;;;;;  planner-id-markup planner-id-add-task-id-maybe planner-id-jump-to-linked-task
+;;;;;;  planner-id-find-task) "planner-id" "site-lisp/planner/planner-id.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-id.el
+
+(autoload 'planner-id-find-task "planner-id" "\
+Find task described by TASK-INFO. If POINT is non-nil, start from there.
+If task is found, move point to line beginning and return non-nil.
+If task is not found, leave point at POINT or the start of the buffer
+and return nil.
+
+\(fn TASK-INFO &optional POINT)" nil nil)
+
+(autoload 'planner-id-jump-to-linked-task "planner-id" "\
+Display the linked task page.
+If INFO is specified, follow that task instead.
+
+\(fn &optional INFO)" t nil)
+
+(autoload 'planner-id-add-task-id-maybe "planner-id" "\
+Add task ID if `planner-id-add-task-id-flag' is non-nil.
+
+\(fn)" nil nil)
+
+(autoload 'planner-id-markup "planner-id" "\
+Highlight IDs as unobtrusive, clickable text from BEG to END.
+VERBOSE is ignored.
+
+\(fn BEG END &optional VERBOSE)" nil nil)
+
+(autoload 'planner-id-update-tasks-maybe "planner-id" "\
+Update tasks depending on the value of `planner-id-update-automatically'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-id-setup "planner-id" "\
+Hook into `planner-mode'.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-ledger-insert-maybe) "planner-ledger"
+;;;;;;  "site-lisp/planner/planner-ledger.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-ledger.el
+
+(autoload 'planner-ledger-insert-maybe "planner-ledger" "\
+Maybe insert ledger sections into a Planner page.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-lisp-browse-url) "planner-lisp" "site-lisp/planner/planner-lisp.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-lisp.el
+
+(autoload 'planner-lisp-browse-url "planner-lisp" "\
+If this is a LISP URL, evaluate it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-log-edit-add-note) "planner-log-edit"
+;;;;;;  "site-lisp/planner/planner-log-edit.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-log-edit.el
+
+(autoload 'planner-log-edit-add-note "planner-log-edit" "\
+Add a note describing the commit to the current planner page.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-mhe-browse-url planner-mhe-annotation)
+;;;;;;  "planner-mhe" "site-lisp/planner/planner-mhe.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-mhe.el
+
+(autoload 'planner-mhe-annotation "planner-mhe" "\
+If called from a MH-E folder or message buffer, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-mhe-browse-url "planner-mhe" "\
+If this is a MH-E URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-multi-remove-task-from-pool) "planner-multi"
+;;;;;;  "site-lisp/planner/planner-multi.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-multi.el
+
+(autoload 'planner-multi-remove-task-from-pool "planner-multi" "\
+Remove completed tasks from `planner-multi-copy-tasks-to-page' if that still leaves them linked.
+
+\(fn OLD-STATUS NEW-STATUS)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-notes-index-years planner-notes-index-months
+;;;;;;  planner-notes-index-weeks planner-notes-index-days planner-notes-index
+;;;;;;  planner-notes-index-month-table-tag planner-notes-index-tag)
+;;;;;;  "planner-notes-index" "site-lisp/planner/planner-notes-index.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-notes-index.el
+
+(autoload 'planner-notes-index-tag "planner-notes-index" "\
+Mark up planner-notes-index tags.
+
+Tags can be of the form:
+
+  <planner-notes-index page=\"2004.03.02\">
+  <planner-notes-index from=\"2004.03.01\" to=\"2004.03.31\">
+  <planner-notes-index limit=\"10\">
+
+\(fn TAG-BEG TAG-END ATTRS)" nil nil)
+
+(autoload 'planner-notes-index-month-table-tag "planner-notes-index" "\
+Mark up a month note index.  Tag is from BEG to END.
+ATTRS is a list of attributes. \"Month\" is a yyyy.mm
+ string (default: current month). \"Limit\" is the maximum number
+ of items per day (default: all).
+
+Examples:
+<planner-notes-index-month-table month=\"2004.02\">
+<planner-notes-index-month-table month=\"2004.02\" limit=\"4\">
+
+\(fn BEG END ATTRS)" nil nil)
+
+(autoload 'planner-notes-index "planner-notes-index" "\
+Display a clickable notes index.
+If called from a Lisp program, display only dates between FROM
+and TO. With a prefix arg LIMIT, display only that number of
+entries.
+
+\(fn &optional FROM TO LIMIT)" t nil)
+
+(autoload 'planner-notes-index-days "planner-notes-index" "\
+Display an index of notes posted over the past few DAYS.
+The list ends with the day of the current buffer or `planner-today'.
+
+\(fn DAYS)" t nil)
+
+(autoload 'planner-notes-index-weeks "planner-notes-index" "\
+Display an index of notes posted over the past few WEEKS.
+The list ends with the week of the current buffer or `planner-today'.
+Weeks start from Sunday.
+
+\(fn WEEKS)" t nil)
+
+(autoload 'planner-notes-index-months "planner-notes-index" "\
+Display an index of notes posted over the past few MONTHS.
+The list ends with the month of the current buffer or `planner-today'.
+
+\(fn MONTHS)" t nil)
+
+(autoload 'planner-notes-index-years "planner-notes-index" "\
+Display an index of notes posted over the past few YEARS.
+The current year is included.
+
+\(fn YEARS)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-psvn-log-edit-add-note planner-psvn-browse-url
+;;;;;;  planner-annotation-from-psvn) "planner-psvn" "site-lisp/planner/planner-psvn.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-psvn.el
+
+(autoload 'planner-annotation-from-psvn "planner-psvn" "\
+If called from a psvn  *svn-log-view* buffer, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-psvn-browse-url "planner-psvn" "\
+If this is a psvn url, handle it.
+
+\(fn URL)" nil nil)
+
+(autoload 'planner-psvn-log-edit-add-note "planner-psvn" "\
+Add a note describing the commit via psvn to the current planner page.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-rank-update-all planner-rank-update-current-task
+;;;;;;  planner-rank-change planner-sort-tasks-by-urgency planner-sort-tasks-by-importance
+;;;;;;  planner-sort-tasks-by-rank) "planner-rank" "site-lisp/planner/planner-rank.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-rank.el
+
+(autoload 'planner-sort-tasks-by-rank "planner-rank" "\
+Sort tasks by status (_PDXC), priority (ABC), and rank.
+Suitable for `planner-sort-tasks-key-function'
+
+\(fn)" nil nil)
+
+(autoload 'planner-sort-tasks-by-importance "planner-rank" "\
+Sort tasks by status (_PDXC), priority (ABC), and importance.
+Suitable for `planner-sort-tasks-key-function'
+
+\(fn)" nil nil)
+
+(autoload 'planner-sort-tasks-by-urgency "planner-rank" "\
+Sort tasks by status (_PDXC), priority (ABC), and urgency.
+Suitable for `planner-sort-tasks-key-function'
+
+\(fn)" nil nil)
+
+(autoload 'planner-rank-change "planner-rank" "\
+Change the IMPORTANCE and URGENCY of the current task.
+If there's deadline available, calculate urgency instead of asking
+the user.
+
+\(fn &optional IMPORTANCE URGENCY)" t nil)
+
+(autoload 'planner-rank-update-current-task "planner-rank" "\
+Re-calculate rank for the current task.
+
+\(fn)" t nil)
+
+(autoload 'planner-rank-update-all "planner-rank" "\
+Re-calculate rank for all tasks in the current page.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-rdf-publish-index planner-rdf-publish-file)
+;;;;;;  "planner-rdf" "site-lisp/planner/planner-rdf.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-rdf.el
+
+(autoload 'planner-rdf-publish-file "planner-rdf" "\
+Publish the file in RDF format, if called by PlannerMode.
+Designed to be called via `muse-after-publish-hook'.
+Non-Planner files, matching `muse-image-regexp' will be treated
+differently. Currently they are simply ignored.
+
+\(fn FILE)" t nil)
+
+(autoload 'planner-rdf-publish-index "planner-rdf" "\
+Create an index for the .rdf files.
+Will be called via `muse-after-publish-hook'.
+Creates index.rdf, a rdf:bag, with all existing .rdf files as
+items.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-registry-initialize) "planner-registry"
+;;;;;;  "site-lisp/planner/planner-registry.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-registry.el
+
+(autoload 'planner-registry-initialize "planner-registry" "\
+Set `planner-registry-alist' from `planner-registry-file'.
+If `planner-registry-file' doesn't exist, create it.
+If FROM-SCRATCH is non-nil, make the registry from scratch.
+
+\(fn &optional FROM-SCRATCH)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-report-generate) "planner-report" "site-lisp/planner/planner-report.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-report.el
+
+(autoload 'planner-report-generate "planner-report" "\
+Generate a status report spanning a period from BEGIN to END.
+BEGIN and END are in the format YYYY.MM.DD.
+
+\(fn BEGIN END)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-rmail-browse-url planner-rmail-annotation-from-mail)
+;;;;;;  "planner-rmail" "site-lisp/planner/planner-rmail.el" (18573
+;;;;;;  9421))
+;;; Generated autoloads from site-lisp/planner/planner-rmail.el
+
+(autoload 'planner-rmail-annotation-from-mail "planner-rmail" "\
+Return an annotation for the current message.
+This function can be added to `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-rmail-browse-url "planner-rmail" "\
+If this is an RMAIL URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-rss-add-note) "planner-rss" "site-lisp/planner/planner-rss.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-rss.el
+
+(autoload 'planner-rss-add-note "planner-rss" "\
+Export the current note using `planner-rss-add-item'.
+If FEED is non-nil, add the note to the specified feed only.
+Call with the interactive prefix in order to be prompted for FEED.
+
+\(fn &optional FEED)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-schedule-show-end-project) "planner-schedule"
+;;;;;;  "site-lisp/planner/planner-schedule.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-schedule.el
+
+(autoload 'planner-schedule-show-end-project "planner-schedule" "\
+Display the estimated project completion time.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-tasks-overview-show-summary planner-tasks-overview-jump
+;;;;;;  planner-tasks-overview-jump-other-window planner-tasks-overview)
+;;;;;;  "planner-tasks-overview" "site-lisp/planner/planner-tasks-overview.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-tasks-overview.el
+
+(autoload 'planner-tasks-overview "planner-tasks-overview" "\
+Display a task overview from START to END.
+
+\(fn START END)" t nil)
+
+(autoload 'planner-tasks-overview-jump-other-window "planner-tasks-overview" "\
+Display the task under point in a different window.
+
+\(fn)" t nil)
+
+(autoload 'planner-tasks-overview-jump "planner-tasks-overview" "\
+Display the task under point.
+
+\(fn &optional OTHER-WINDOW)" t nil)
+
+(autoload 'planner-tasks-overview-show-summary "planner-tasks-overview" "\
+Count unscheduled, scheduled, and completed tasks for FILE-LIST.
+If called with an interactive prefix, prompt for the page(s) to
+display. planner-multi is required for multiple pages.
+
+\(fn &optional FILE-LIST)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-colors-timeclock-report-tag) "planner-timeclock"
+;;;;;;  "site-lisp/planner/planner-timeclock.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-timeclock.el
+
+(autoload 'planner-colors-timeclock-report-tag "planner-timeclock" "\
+Replace the region BEG to END with a timeclock report, colorizing
+the result.
+
+\(fn BEG END)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-timeclock-summary-show-2 planner-timeclock-summary-show-range-filter
+;;;;;;  planner-timeclock-summary-show-filter planner-timeclock-summary-show
+;;;;;;  planner-timeclock-summary-update planner-timeclock-summary-insinuate)
+;;;;;;  "planner-timeclock-summary" "site-lisp/planner/planner-timeclock-summary.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-timeclock-summary.el
+
+(autoload 'planner-timeclock-summary-insinuate "planner-timeclock-summary" "\
+Automatically call `planner-timeclock-summary-update'.
+This function is called when the day page is saved.
+
+\(fn)" nil nil)
+
+(autoload 'planner-timeclock-summary-update "planner-timeclock-summary" "\
+Update `planner-timeclock-summary-section'. in the current day page.
+The section is updated only if it exists.
+
+\(fn)" t nil)
+
+(autoload 'planner-timeclock-summary-show "planner-timeclock-summary" "\
+Display a buffer with the timeclock summary for DATE.
+Date is a string in the form YYYY.MM.DD.
+
+\(fn &optional DATE)" t nil)
+
+(autoload 'planner-timeclock-summary-show-filter "planner-timeclock-summary" "\
+Show a timeclock report filtered by FILTER for DATE.
+
+If FILTER is a regexp, only plan pages matching that regexp will
+be included. If FILTER is a function, it will be called with the
+current timeclock item, and the line considered if the function
+returned non-nil.
+
+If called interactively, prompt for FILTER (a regexp) and DATE.
+DATE is a string in the form YYYY.MM.DD and can be nil.
+
+\(fn FILTER DATE)" t nil)
+
+(autoload 'planner-timeclock-summary-show-range-filter "planner-timeclock-summary" "\
+Show a timeclock report filtered by FILTER for START-DATE to END-DATE.
+
+If FILTER is a regexp, only plan pages matching that regexp will
+be included. If FILTER is a function, it will be called with the
+current timeclock item, and the line considered if the function
+returned non-nil.
+
+If called interactively, prompt for FILTER (a regexp), START-DATE and END-DATE.
+Dates are strings in the form YYYY.MM.DD and can be nil.
+
+\(fn FILTER START-DATE END-DATE)" t nil)
+
+(autoload 'planner-timeclock-summary-show-2 "planner-timeclock-summary" "\
+Display a buffer with the timeclock summary for DATE.
+
+Date is a string in the form YYYY.MM.DD. It will be asked if not
+given.
+
+\(fn &optional DATE)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-timeclock-summary-proj-report planner-timeclock-summary-proj-current
+;;;;;;  planner-timeclock-summary-proj-all) "planner-timeclock-summary-proj"
+;;;;;;  "site-lisp/planner/planner-timeclock-summary-proj.el" (18573
+;;;;;;  9421))
+;;; Generated autoloads from site-lisp/planner/planner-timeclock-summary-proj.el
+
+(autoload 'planner-timeclock-summary-proj-all "planner-timeclock-summary-proj" "\
+Insert time report for all projects in the current buffer.
+
+\(fn)" t nil)
+
+(autoload 'planner-timeclock-summary-proj-current "planner-timeclock-summary-proj" "\
+Insert time report for the current project in the current buffer.
+
+\(fn)" t nil)
+
+(autoload 'planner-timeclock-summary-proj-report "planner-timeclock-summary-proj" "\
+Insert time report for PROJECT in the current buffer.
+
+\(fn PROJECT)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-trunk-tasks) "planner-trunk" "site-lisp/planner/planner-trunk.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-trunk.el
+
+(autoload 'planner-trunk-tasks "planner-trunk" "\
+Trunk(group) tasks in the current page.
+Please refer the docstring of `planner-trunk-rule-list' for how
+it works. You may want to call this function before you sort tasks
+and/or after you create new tasks. If a prefix is given or FORCE is not
+nil, trunk completed tasks together with non-completed tasks not
+matter what the `planner-trunk-rule-list' said.
+
+\(fn &optional FORCE)" t nil)
+
+;;;***
+
+;;;### (autoloads (planner-unix-mail-browse-url planner-unix-mail-annotation-from-mail)
+;;;;;;  "planner-unix-mail" "site-lisp/planner/planner-unix-mail.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-unix-mail.el
+
+(autoload 'planner-unix-mail-annotation-from-mail "planner-unix-mail" "\
+Return an annotation for the current message.
+This function can be added to `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-unix-mail-browse-url "planner-unix-mail" "\
+If this is an UNIX-MAIL URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-vm-browse-url planner-vm-annotation-from-mail)
+;;;;;;  "planner-vm" "site-lisp/planner/planner-vm.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-vm.el
+
+(autoload 'planner-vm-annotation-from-mail "planner-vm" "\
+Return an annotation for the current message.
+This function can be added to `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-vm-browse-url "planner-vm" "\
+If this is an VM URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-w3m-annotation-from-w3m) "planner-w3m"
+;;;;;;  "site-lisp/planner/planner-w3m.el" (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-w3m.el
+
+(autoload 'planner-w3m-annotation-from-w3m "planner-w3m" "\
+If called from a w3m page, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-wl-browse-url planner-wl-annotation-from-wl
+;;;;;;  planner-wl-insinuate) "planner-wl" "site-lisp/planner/planner-wl.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-wl.el
+
+(autoload 'planner-wl-insinuate "planner-wl" "\
+Hook Planner into Wanderlust.
+Add special planner keybindings to`wl-summary-mode-map'.
+From the Wanderlust Summary view, you can type C-c C-t to create a task.
+
+\(fn)" nil nil)
+
+(autoload 'planner-wl-annotation-from-wl "planner-wl" "\
+If called from wl, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-wl-browse-url "planner-wl" "\
+If this is a Wanderlust URL, jump to it.
+
+\(fn URL)" nil nil)
+
+;;;***
+
+;;;### (autoloads (planner-xtla-log-edit-add-note planner-xtla-browse-url
+;;;;;;  planner-annotation-from-xtla) "planner-xtla" "site-lisp/planner/planner-xtla.el"
+;;;;;;  (18573 9421))
+;;; Generated autoloads from site-lisp/planner/planner-xtla.el
+
+(autoload 'planner-annotation-from-xtla "planner-xtla" "\
+If called from a xtla buffer, return an annotation.
+Suitable for use in `planner-annotation-functions'.
+
+\(fn)" nil nil)
+
+(autoload 'planner-xtla-browse-url "planner-xtla" "\
+If this is a xtla url, handle it.
+
+\(fn URL)" nil nil)
+
+(autoload 'planner-xtla-log-edit-add-note "planner-xtla" "\
+Provide `planner-log-edit'-like functionality for xtla.
+This function is automatically called by `tla-commit-hook'.
+See also `planner-xtla-log-edit-notice-commit-function'.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (puppet-mode) "puppet-mode" "site-lisp/puppet-mode.el"
+;;;;;;  (18888 14284))
+;;; Generated autoloads from site-lisp/puppet-mode.el
+
+(autoload 'puppet-mode "puppet-mode" "\
+Major mode for editing puppet manifests.
+
+The variable puppet-indent-level controls the amount of indentation.
+\\{puppet-mode-map}
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (remember-diary-extract-entries remember-clipboard
+;;;;;;  remember-other-frame remember) "remember" "site-lisp/remember/remember.el"
+;;;;;;  (18454 52960))
+;;; Generated autoloads from site-lisp/remember/remember.el
+
+(autoload 'remember "remember" "\
+Remember an arbitrary piece of data.
+INITIAL is the text to initially place in the *Remember* buffer,
+or nil to bring up a blank *Remember* buffer.
+
+With a prefix or a visible region, use the region as INITIAL.
+
 \(fn &optional INITIAL)" t nil)
 
-(autoload (quote remember-region) "remember" "\
-Remember the data from BEG to END.
-If called from within the remember buffer, BEG and END are ignored,
-and the entire buffer will be remembered.
+(autoload 'remember-other-frame "remember" "\
+Call `remember' in another frame.
 
-This function is meant to be called from the *Remember* buffer.
-If you want to remember a region, supply a universal prefix to
-`remember' instead. For example: C-u M-x remember.
+\(fn &optional INITIAL)" t nil)
 
-\(fn &optional BEG END)" t nil)
-
-(autoload (quote remember-clipboard) "remember" "\
+(autoload 'remember-clipboard "remember" "\
 Remember the contents of the current clipboard.
 Most useful for remembering things from Netscape or other X Windows
 application.
 
 \(fn)" t nil)
 
-(autoload (quote remember-buffer) "remember" "\
-Remember the contents of the current buffer.
+(autoload 'remember-diary-extract-entries "remember" "\
+Extract diary entries from the region.
 
-\(fn)" t nil)
-
-(autoload (quote remember-destroy) "remember" "\
-Destroy the current *Remember* buffer.
-
-\(fn)" t nil)
+\(fn)" nil nil)
 
 ;;;***
 
 ;;;### (autoloads (remember-bbdb-store-in-mailbox) "remember-bbdb"
-;;;;;;  "site-lisp/remember/remember-bbdb.el" (18439 32216))
+;;;;;;  "site-lisp/remember/remember-bbdb.el" (18454 52960))
 ;;; Generated autoloads from site-lisp/remember/remember-bbdb.el
 
-(autoload (quote remember-bbdb-store-in-mailbox) "remember-bbdb" "\
+(autoload 'remember-bbdb-store-in-mailbox "remember-bbdb" "\
 Store remember data as if it were incoming mail.
 In which case `remember-mailbox' should be the name of the mailbox.
 Each piece of psuedo-mail created will have an `X-Todo-Priority'
@@ -1513,15 +2809,15 @@ field, for the purpose of appropriate splitting.
 ;;;***
 
 ;;;### (autoloads (remember-location remember-url) "remember-bibl"
-;;;;;;  "site-lisp/remember/remember-bibl.el" (18439 32216))
+;;;;;;  "site-lisp/remember/remember-bibl.el" (18454 52960))
 ;;; Generated autoloads from site-lisp/remember/remember-bibl.el
 
-(autoload (quote remember-url) "remember-bibl" "\
+(autoload 'remember-url "remember-bibl" "\
 Remember a URL in `bibl-mode' that is being visited with w3.
 
 \(fn)" t nil)
 
-(autoload (quote remember-location) "remember-bibl" "\
+(autoload 'remember-location "remember-bibl" "\
 Remember a bookmark location in `bibl-mode'.
 
 \(fn)" t nil)
@@ -1529,10 +2825,10 @@ Remember a bookmark location in `bibl-mode'.
 ;;;***
 
 ;;;### (autoloads (remember-blosxom) "remember-blosxom" "site-lisp/remember/remember-blosxom.el"
-;;;;;;  (18439 32216))
+;;;;;;  (18454 52960))
 ;;; Generated autoloads from site-lisp/remember/remember-blosxom.el
 
-(autoload (quote remember-blosxom) "remember-blosxom" "\
+(autoload 'remember-blosxom "remember-blosxom" "\
 Remember this text to a blosxom story.
 This function can be added to `remember-handler-functions'.
 
@@ -1542,22 +2838,22 @@ This function can be added to `remember-handler-functions'.
 
 ;;;### (autoloads (remember-emacs-wiki-journal-add-entry-maybe remember-emacs-wiki-journal-add-entry-auto
 ;;;;;;  remember-emacs-wiki-journal-add-entry) "remember-emacs-wiki-journal"
-;;;;;;  "site-lisp/remember/remember-emacs-wiki-journal.el" (18439
-;;;;;;  32216))
+;;;;;;  "site-lisp/remember/remember-emacs-wiki-journal.el" (18454
+;;;;;;  52960))
 ;;; Generated autoloads from site-lisp/remember/remember-emacs-wiki-journal.el
 
-(autoload (quote remember-emacs-wiki-journal-add-entry) "remember-emacs-wiki-journal" "\
+(autoload 'remember-emacs-wiki-journal-add-entry "remember-emacs-wiki-journal" "\
 Prompt for category and heading and add entry.
 
 \(fn)" nil nil)
 
-(autoload (quote remember-emacs-wiki-journal-add-entry-auto) "remember-emacs-wiki-journal" "\
+(autoload 'remember-emacs-wiki-journal-add-entry-auto "remember-emacs-wiki-journal" "\
 Add entry where the category is the first word and the heading the
 rest of the words on the first line.
 
 \(fn)" nil nil)
 
-(autoload (quote remember-emacs-wiki-journal-add-entry-maybe) "remember-emacs-wiki-journal" "\
+(autoload 'remember-emacs-wiki-journal-add-entry-maybe "remember-emacs-wiki-journal" "\
 Like `remember-emacs-wiki-journal-add-entry-auto' but only adds
 entry if the first line matches `emacs-wiki-journal-category-regexp'.
 
@@ -1565,16 +2861,28 @@ entry if the first line matches `emacs-wiki-journal-category-regexp'.
 
 ;;;***
 
+;;;### (autoloads (remember-planner-append) "remember-planner" "site-lisp/remember/remember-planner.el"
+;;;;;;  (18454 52960))
+;;; Generated autoloads from site-lisp/remember/remember-planner.el
+
+(autoload 'remember-planner-append "remember-planner" "\
+Remember this text to PAGE or today's page.
+This function can be added to `remember-handler-functions'.
+
+\(fn &optional PAGE)" nil nil)
+
+;;;***
+
 ;;;### (autoloads (rfcview-mode rfcview-customize) "rfcview" "site-lisp/rfcview.el"
 ;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/rfcview.el
 
-(autoload (quote rfcview-customize) "rfcview" "\
+(autoload 'rfcview-customize "rfcview" "\
 Not documented
 
 \(fn)" t nil)
 
-(autoload (quote rfcview-mode) "rfcview" "\
+(autoload 'rfcview-mode "rfcview" "\
 Major mode for viewing Internet RFCs.
 
 http://www.neilvandyke.org/rfcview/
@@ -1586,121 +2894,27 @@ Key bindings:
 
 ;;;***
 
-;;;### (autoloads (rng-c-load-schema) "rng-cmpct" "site-lisp/nxml-mode/rng-cmpct.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/rng-cmpct.el
+;;;### (autoloads (richtext-decode richtext-encode) "richtext" "site-lisp/apel/richtext.el"
+;;;;;;  (19385 28150))
+;;; Generated autoloads from site-lisp/apel/richtext.el
 
-(autoload (quote rng-c-load-schema) "rng-cmpct" "\
-Load a schema in RELAX NG compact syntax from FILENAME.
-Return a pattern.
-
-\(fn FILENAME)" nil nil)
-
-;;;***
-
-;;;### (autoloads (rng-write-version rng-format-manual rng-byte-compile-load
-;;;;;;  rng-update-autoloads) "rng-maint" "site-lisp/nxml-mode/rng-maint.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/rng-maint.el
-
-(autoload (quote rng-update-autoloads) "rng-maint" "\
-Update the autoloads in rng-auto.el.
-
-\(fn)" t nil)
-
-(autoload (quote rng-byte-compile-load) "rng-maint" "\
-Byte-compile and load all of the RELAX NG library in an appropriate order.
-
-\(fn)" t nil)
-
-(autoload (quote rng-format-manual) "rng-maint" "\
-Create manual.texi from manual.xml.
-
-\(fn)" t nil)
-
-(autoload (quote rng-write-version) "rng-maint" "\
+(autoload 'richtext-encode "richtext" "\
 Not documented
 
-\(fn)" nil nil)
+\(fn FROM TO)" nil nil)
+
+(autoload 'richtext-decode "richtext" "\
+Not documented
+
+\(fn FROM TO)" nil nil)
 
 ;;;***
 
-;;;### (autoloads (rng-nxml-mode-init) "rng-nxml" "site-lisp/nxml-mode/rng-nxml.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/rng-nxml.el
+;;;### (autoloads (ruby-mode) "ruby-mode" "site-lisp/ruby-mode/ruby-mode.el"
+;;;;;;  (19385 30190))
+;;; Generated autoloads from site-lisp/ruby-mode/ruby-mode.el
 
-(autoload (quote rng-nxml-mode-init) "rng-nxml" "\
-Initialize `nxml-mode' to take advantage of `rng-validate-mode'.
-This is typically called from `nxml-mode-hook'.
-Validation will be enabled if `rng-nxml-auto-validate-flag' is non-nil.
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (rng-validate-mode) "rng-valid" "site-lisp/nxml-mode/rng-valid.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/rng-valid.el
-
-(autoload (quote rng-validate-mode) "rng-valid" "\
-Minor mode performing continual validation against a RELAX NG schema.
-
-Checks whether the buffer is a well-formed XML 1.0 document,
-conforming to the XML Namespaces Recommendation and valid against a
-RELAX NG schema. The mode-line indicates whether it is or not.  Any
-parts of the buffer that cause it not to be are considered errors and
-are highlighted with `rng-error-face'. A description of each error is
-available as a tooltip.  \\[rng-next-error] goes to the next error
-after point. Clicking mouse-1 on the word `Invalid' in the mode-line
-goes to the first error in the buffer. If the buffer changes, then it
-will be automatically rechecked when Emacs becomes idle; the
-rechecking will be paused whenever there is input pending..
-
-By default, uses a vacuous schema that allows any well-formed XML
-document. A schema can be specified explictly using
-\\[rng-set-schema-file-and-validate], or implicitly based on the buffer's
-file name or on the root element name.  In each case the schema must
-be a RELAX NG schema using the compact schema (such schemas
-conventionally have a suffix of `.rnc').  The variable
-`rng-schema-locating-files' specifies files containing rules
-to use for finding the schema.
-
-\(fn &optional ARG NO-CHANGE-SCHEMA)" t nil)
-
-;;;***
-
-;;;### (autoloads (rng-xsd-compile) "rng-xsd" "site-lisp/nxml-mode/rng-xsd.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/rng-xsd.el
-
-(put (quote http://www\.w3\.org/2001/XMLSchema-datatypes) (quote rng-dt-compile) (quote rng-xsd-compile))
-
-(autoload (quote rng-xsd-compile) "rng-xsd" "\
-Provides W3C XML Schema as a RELAX NG datatypes library. NAME is a
-symbol giving the local name of the datatype.  PARAMS is a list of
-pairs (PARAM-NAME . PARAM-VALUE) where PARAM-NAME is a symbol giving
-the name of the parameter and PARAM-VALUE is a string giving its
-value.  If NAME or PARAMS are invalid, it calls rng-dt-error passing
-it arguments in the same style as format; the value from rng-dt-error
-will be returned.  Otherwise, it returns a list.  The first member of
-the list is t if any string is a legal value for the datatype and nil
-otherwise.  The second argument is a symbol; this symbol will be
-called as a function passing it a string followed by the remaining
-members of the list.  The function must return an object representing
-the value of the datatype that was represented by the string, or nil
-if the string is not a representation of any value. The object
-returned can be any convenient non-nil value, provided that, if two
-strings represent the same value, the returned objects must be equal.
-
-\(fn NAME PARAMS)" nil nil)
-
-;;;***
-
-;;;### (autoloads (ruby-mode) "ruby-mode" "site-lisp/ruby/ruby-mode.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/ruby/ruby-mode.el
-
-(autoload (quote ruby-mode) "ruby-mode" "\
+(autoload 'ruby-mode "ruby-mode" "\
 Major mode for editing ruby scripts.
 \\[ruby-indent-command] properly indents subexpressions of multi-line
 class, module, def, if, while, for, do, and case statements, taking
@@ -1713,11 +2927,11 @@ The variable ruby-indent-level controls the amount of indentation.
 
 ;;;***
 
-;;;### (autoloads (rubydb) "rubydb2x" "site-lisp/ruby/rubydb2x.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/ruby/rubydb2x.el
+;;;### (autoloads (rubydb) "rubydb2x" "site-lisp/ruby-mode/rubydb2x.el"
+;;;;;;  (19385 30190))
+;;; Generated autoloads from site-lisp/ruby-mode/rubydb2x.el
 
-(autoload (quote rubydb) "rubydb2x" "\
+(autoload 'rubydb "rubydb2x" "\
 Run rubydb on program FILE in buffer *gud-FILE*.
 The directory containing FILE becomes the initial working directory
 and source-file directory for your debugger.
@@ -1726,30 +2940,16 @@ and source-file directory for your debugger.
 
 ;;;***
 
-;;;### (autoloads (rubydb) "rubydb3x" "site-lisp/ruby/rubydb3x.el"
-;;;;;;  (18429 49078))
-;;; Generated autoloads from site-lisp/ruby/rubydb3x.el
+;;;### (autoloads (rubydb) "rubydb3x" "site-lisp/ruby-mode/rubydb3x.el"
+;;;;;;  (19385 30190))
+;;; Generated autoloads from site-lisp/ruby-mode/rubydb3x.el
 
-(autoload (quote rubydb) "rubydb3x" "\
+(autoload 'rubydb "rubydb3x" "\
 Run rubydb on program FILE in buffer *gud-FILE*.
 The directory containing FILE becomes the initial working directory
 and source-file directory for your debugger.
 
 \(fn COMMAND-LINE)" t nil)
-
-;;;***
-
-;;;### (autoloads (schedule-completion-time) "schedule" "schedule.el"
-;;;;;;  (18429 49044))
-;;; Generated autoloads from schedule.el
-
-(autoload (quote schedule-completion-time) "schedule" "\
-Advance THEN by COUNT seconds, skipping the weekends and holidays.
-THEN must not already be in a holiday or non-worktime.  Make sure that
-`schedule-align-now' is called at least once before this function ever
-gets called.
-
-\(fn THEN COUNT)" nil nil)
 
 ;;;***
 
@@ -1757,7 +2957,7 @@ gets called.
 ;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/session.el
 
-(autoload (quote session-initialize) "session" "\
+(autoload 'session-initialize "session" "\
 Initialize package session and read previous session file.
 Setup hooks and load `session-save-file', see `session-initialize'.  At
 best, this function is called at the end of the Emacs startup, i.e., add
@@ -1767,77 +2967,78 @@ this function to `after-init-hook'.
 
 ;;;***
 
-;;;### (autoloads (ssh) "ssh" "site-lisp/ssh.el" (18429 49078))
-;;; Generated autoloads from site-lisp/ssh.el
- (add-hook 'same-window-regexps "^\\*ssh-.*\\*\\(\\|<[0-9]+>\\)")
+;;;### (autoloads (smex-initialize) "smex" "site-lisp/smex.el" (19383
+;;;;;;  542))
+;;; Generated autoloads from site-lisp/smex.el
 
-(autoload (quote ssh) "ssh" "\
-Open a network login connection via `ssh' with args INPUT-ARGS.
-INPUT-ARGS should start with a host name; it may also contain
-other arguments for `ssh'.
+(autoload 'smex-initialize "smex" "\
+Not documented
 
-Input is sent line-at-a-time to the remote connection.
-
-Communication with the remote host is recorded in a buffer `*ssh-HOST*'
-\(or `*ssh-USER@HOST*' if the remote username differs).
-If a prefix argument is given and the buffer `*ssh-HOST*' already exists,
-a new buffer with a different connection will be made.
-
-When called from a program, if the optional second argument BUFFER is
-a string or buffer, it specifies the buffer to use.
-
-The variable `ssh-program' contains the name of the actual program to
-run.  It can be a relative or absolute path.
-
-The variable `ssh-explicit-args' is a list of arguments to give to
-the ssh when starting.  They are prepended to any arguments given in
-INPUT-ARGS.
-
-If the default value of `ssh-directory-tracking-mode' is t, then the
-default directory in that buffer is set to a remote (FTP) file name to
-access your home directory on the remote machine.  Occasionally this causes
-an error, if you cannot access the home directory on that machine.  This
-error is harmless as long as you don't try to use that default directory.
-
-If `ssh-directory-tracking-mode' is neither t nor nil, then the default
-directory is initially set up to your (local) home directory.
-This is useful if the remote machine and your local machine
-share the same files via NFS.  This is the default.
-
-If you wish to change directory tracking styles during a session, use the
-function `ssh-directory-tracking-mode' rather than simply setting the
-variable.
-
-\(fn INPUT-ARGS &optional BUFFER)" t nil)
+\(fn)" t nil)
 
 ;;;***
 
 ;;;### (autoloads (visit-url) "visit-url" "visit-url.el" (18429 49044))
 ;;; Generated autoloads from visit-url.el
 
-(autoload (quote visit-url) "visit-url" "\
+(autoload 'visit-url "visit-url" "\
 Not documented
 
 \(fn &optional URL)" t nil)
 
 ;;;***
 
-;;;### (autoloads (xmltok-get-declared-encoding-position) "xmltok"
-;;;;;;  "site-lisp/nxml-mode/xmltok.el" (18429 49078))
-;;; Generated autoloads from site-lisp/nxml-mode/xmltok.el
+;;;### (autoloads (web-vcs-investigate-elisp-file web-vcs-byte-compile-file
+;;;;;;  web-vcs-message-with-face web-vcs-get-files-from-root web-vcs-log-edit
+;;;;;;  web-vcs-default-download-directory) "web-vcs" "site-lisp/nxhtml/web-vcs.el"
+;;;;;;  (19385 29876))
+;;; Generated autoloads from site-lisp/nxhtml/web-vcs.el
 
-(autoload (quote xmltok-get-declared-encoding-position) "xmltok" "\
-Return the position of the encoding in the XML declaration at point.
-If there is a well-formed XML declaration starting at point and it
-contains an encoding declaration, then return (START . END)
-where START and END are the positions of the start and the end
-of the encoding name; if there is no encoding declaration return
-the position where and encoding declaration could be inserted.
-If there is XML that is not well-formed that looks like an XML declaration,
-return nil.  Otherwise, return t.
-If LIMIT is non-nil, then do not consider characters beyond LIMIT.
+(autoload 'web-vcs-default-download-directory "web-vcs" "\
+Try to find a suitable place.
+Considers site-start.el, site-
 
-\(fn &optional LIMIT)" nil nil)
+\(fn)" nil nil)
+
+(autoload 'web-vcs-log-edit "web-vcs" "\
+Open log file.
+
+\(fn)" t nil)
+
+(autoload 'web-vcs-get-files-from-root "web-vcs" "\
+Download a file tree from VCS system using the web interface.
+Use WEB-VCS entry in variable `web-vcs-links-regexp' to download
+files via http from URL to directory DL-DIR.
+
+Show URL first and offer to visit the page.  That page will give
+you information about version control system (VCS) system used
+etc.
+
+\(fn WEB-VCS URL DL-DIR)" nil nil)
+
+(autoload 'web-vcs-message-with-face "web-vcs" "\
+Display a colored message at the bottom of the string.
+FACE is the face to use for the message.
+FORMAT-STRING and ARGS are the same as for `message'.
+
+Also put FACE on the message in *Messages* buffer.
+
+\(fn FACE FORMAT-STRING &rest ARGS)" nil nil)
+
+(autoload 'web-vcs-byte-compile-file "web-vcs" "\
+Byte compile FILE in a new Emacs sub process.
+EXTRA-LOAD-PATH is added to the front of `load-path' during
+compilation.
+
+FILE is set to `buffer-file-name' when called interactively.
+If LOAD
+
+\(fn FILE &optional LOAD EXTRA-LOAD-PATH COMP-DIR)" t nil)
+
+(autoload 'web-vcs-investigate-elisp-file "web-vcs" "\
+Not documented
+
+\(fn FILE-OR-BUFFER)" t nil)
 
 ;;;***
 
@@ -1848,22 +3049,22 @@ If LIMIT is non-nil, then do not consider characters beyond LIMIT.
 ;;;;;;  (18429 49078))
 ;;; Generated autoloads from site-lisp/xray.el
 
-(autoload (quote xray-customize) "xray" "\
+(autoload 'xray-customize "xray" "\
 Customize xray group.
 
 \(fn)" t nil)
 
-(autoload (quote xray-on-click) "xray" "\
+(autoload 'xray-on-click "xray" "\
 Give help on an object clicked with the mouse.
 
 \(fn CLICK)" t nil)
 
-(autoload (quote xray-on-mode-line-click) "xray" "\
+(autoload 'xray-on-mode-line-click "xray" "\
 Give help on the mode line.
 
 \(fn CLICK)" t nil)
 
-(autoload (quote xray-click/key) "xray" "\
+(autoload 'xray-click/key "xray" "\
 Give help on a key/menu sequence or object clicked with the mouse.
 
 The object can be any part of an Emacs window or a name appearing in a buffer.
@@ -1888,7 +3089,7 @@ is searched.  (Once an occurrence is found, you can repeatedly type `s' in
 
 \(fn KEY)" t nil)
 
-(autoload (quote xray-symbol) "xray" "\
+(autoload 'xray-symbol "xray" "\
 Display SYMBOL internal cells in a temporary buffer.
 
 That is, displays the symbol name cell, the symbol function cell, the symbol
@@ -1903,7 +3104,7 @@ See `xray-customize' for customization.
 
 \(fn SYMBOL &optional BUFFER)" t nil)
 
-(autoload (quote xray-position) "xray" "\
+(autoload 'xray-position "xray" "\
 Display POSITION internal cells in a temporary buffer.
 
 If POSITION is nil, it's used (point).
@@ -1921,7 +3122,7 @@ See `xray-customize' for customization.
 
 \(fn &optional POSITION BUFFER)" t nil)
 
-(autoload (quote xray-buffer) "xray" "\
+(autoload 'xray-buffer "xray" "\
 Display BUFFER internal cells in a temporary buffer.
 
 If BUFFER is nil, it's used (current-buffer).
@@ -1940,7 +3141,7 @@ See `xray-customize' for customization.
 
 \(fn &optional BUFFER)" t nil)
 
-(autoload (quote xray-window) "xray" "\
+(autoload 'xray-window "xray" "\
 Display WINDOW internal cells in a temporary buffer.
 
 If WINDOW is nil, it's used (selected-window).
@@ -1958,7 +3159,7 @@ See `xray-customize' for customization.
 
 \(fn &optional WINDOW)" t nil)
 
-(autoload (quote xray-frame) "xray" "\
+(autoload 'xray-frame "xray" "\
 Display FRAME internal cells in a temporary buffer.
 
 If FRAME is nil, it's used (selected-frame).
@@ -1976,7 +3177,7 @@ See `xray-customize' for customization.
 
 \(fn &optional FRAME)" t nil)
 
-(autoload (quote xray-marker) "xray" "\
+(autoload 'xray-marker "xray" "\
 Display MARKER internal cells in a temporary buffer.
 
 If MARKER is nil, it's used (mark t).
@@ -1992,7 +3193,7 @@ See `xray-customize' for customization.
 
 \(fn &optional MARKER)" t nil)
 
-(autoload (quote xray-overlay) "xray" "\
+(autoload 'xray-overlay "xray" "\
 Display OVERLAY internal cells in a temporary buffer.
 
 If OVERLAY is nil, try to use the overlay on current buffer position (if any).
@@ -2007,7 +3208,7 @@ See `xray-customize' for customization.
 
 \(fn &optional OVERLAY)" t nil)
 
-(autoload (quote xray-screen) "xray" "\
+(autoload 'xray-screen "xray" "\
 Display SCREEN capabilities in a temporary buffer.
 
 If SCREEN is nil, use the first screen given by `x-display-list'.
@@ -2022,7 +3223,7 @@ See `xray-customize' for customization.
 
 \(fn &optional SCREEN)" t nil)
 
-(autoload (quote xray-faces) "xray" "\
+(autoload 'xray-faces "xray" "\
 Display all defined faces.
 
 It uses `xray-electric-p' to decide if it invokes `xray-ehelp-faces'
@@ -2032,7 +3233,7 @@ See `xray-customize' for customization.
 
 \(fn)" t nil)
 
-(autoload (quote xray-hooks) "xray" "\
+(autoload 'xray-hooks "xray" "\
 Display all standard hooks and other defined hooks.
 
 It uses `xray-electric-p' to decide if it invokes `xray-ehelp-hooks'
@@ -2042,7 +3243,7 @@ See `xray-customize' for customization.
 
 \(fn)" t nil)
 
-(autoload (quote xray-features) "xray" "\
+(autoload 'xray-features "xray" "\
 Display all features loaded.
 
 It uses `xray-electric-p' to decide if it invokes `xray-ehelp-features'
@@ -2054,81 +3255,375 @@ See `xray-customize' for customization.
 
 ;;;***
 
-;;;### (autoloads nil nil ("am-send.el" "cus-dirs.el" "flyspell-ext.el"
-;;;;;;  "initsplit.el" "muse-markdown.el" "org-attach.el" "org-crypt.el"
-;;;;;;  "org-devonthink.el" "regex-tool.el" "site-lisp/anything.el"
-;;;;;;  "site-lisp/anything.el" "site-lisp/circe/circe-auto.el" "site-lisp/circe/circe-chanop.el"
-;;;;;;  "site-lisp/circe/circe-e21.el" "site-lisp/circe/circe-xemacs.el"
-;;;;;;  "site-lisp/circe/incomplete.el" "site-lisp/circe/lcs.el"
-;;;;;;  "site-lisp/circe/lui-format.el" "site-lisp/circe/lui-logging.el"
-;;;;;;  "site-lisp/circe/lui-xemacs.el" "site-lisp/circe/lui.el"
-;;;;;;  "site-lisp/circe/tracking.el" "site-lisp/crypt++.el" "site-lisp/crypt++.el"
-;;;;;;  "site-lisp/csharp-mode.el" "site-lisp/csharp-mode.el" "site-lisp/css-mode.el"
-;;;;;;  "site-lisp/css-mode.el" "site-lisp/csv.el" "site-lisp/csv.el"
-;;;;;;  "site-lisp/dedicated.el" "site-lisp/dedicated.el" "site-lisp/edit-env.el"
-;;;;;;  "site-lisp/edit-env.el" "site-lisp/epg/epa-dired.el" "site-lisp/epg/epa-setup.el"
-;;;;;;  "site-lisp/epg/epg-package-info.el" "site-lisp/erlang-start.el"
-;;;;;;  "site-lisp/erlang-start.el" "site-lisp/ewoc-example.el" "site-lisp/ewoc-example.el"
-;;;;;;  "site-lisp/fdb.el" "site-lisp/fdb.el" "site-lisp/fm.el" "site-lisp/fm.el"
-;;;;;;  "site-lisp/gitsum/gitsum.el" "site-lisp/hide-search.el" "site-lisp/hide-search.el"
-;;;;;;  "site-lisp/include.el" "site-lisp/include.el" "site-lisp/indentx.el"
-;;;;;;  "site-lisp/indentx.el" "site-lisp/indirect.el" "site-lisp/indirect.el"
-;;;;;;  "site-lisp/ipython.el" "site-lisp/ipython.el" "site-lisp/js2.el"
-;;;;;;  "site-lisp/js2.el" "site-lisp/lisppaste.el" "site-lisp/lisppaste.el"
-;;;;;;  "site-lisp/marker-visit.el" "site-lisp/marker-visit.el" "site-lisp/mdfind.el"
-;;;;;;  "site-lisp/mdfind.el" "site-lisp/message-x.el" "site-lisp/message-x.el"
-;;;;;;  "site-lisp/mudel.el" "site-lisp/mudel.el" "site-lisp/multi-region.el"
-;;;;;;  "site-lisp/multi-region.el" "site-lisp/narrow-stack.el" "site-lisp/narrow-stack.el"
-;;;;;;  "site-lisp/noweb-mode.el" "site-lisp/noweb-mode.el" "site-lisp/nxml-mode/nxml-enc.el"
-;;;;;;  "site-lisp/nxml-mode/nxml-maint.el" "site-lisp/nxml-mode/nxml-ns.el"
-;;;;;;  "site-lisp/nxml-mode/nxml-outln.el" "site-lisp/nxml-mode/nxml-parse.el"
-;;;;;;  "site-lisp/nxml-mode/nxml-rap.el" "site-lisp/nxml-mode/nxml-util.el"
-;;;;;;  "site-lisp/nxml-mode/rng-auto.el" "site-lisp/nxml-mode/rng-dt.el"
-;;;;;;  "site-lisp/nxml-mode/rng-loc.el" "site-lisp/nxml-mode/rng-match.el"
-;;;;;;  "site-lisp/nxml-mode/rng-parse.el" "site-lisp/nxml-mode/rng-pttrn.el"
-;;;;;;  "site-lisp/nxml-mode/rng-uri.el" "site-lisp/nxml-mode/rng-util.el"
-;;;;;;  "site-lisp/nxml-mode/xsd-regexp.el" "site-lisp/org-ext.el"
-;;;;;;  "site-lisp/org-ext.el" "site-lisp/pabbrev.el" "site-lisp/pabbrev.el"
-;;;;;;  "site-lisp/paredit.el" "site-lisp/paredit.el" "site-lisp/parenface.el"
-;;;;;;  "site-lisp/parenface.el" "site-lisp/radio.el" "site-lisp/radio.el"
-;;;;;;  "site-lisp/redshank.el" "site-lisp/redshank.el" "site-lisp/remember/read-file-name.el"
-;;;;;;  "site-lisp/remember/remember-autoloads.el" "site-lisp/remember/remember-diary.el"
-;;;;;;  "site-lisp/remember/remember-experimental.el" "site-lisp/remember/remember-planner.el"
+;;;### (autoloads nil nil ("cus-dirs.el" "flyspell-ext.el" "org-crypt.el"
+;;;;;;  "org-devonthink.el" "org-ext.el" "site-lisp/all.el" "site-lisp/apel/apel-ver.el"
+;;;;;;  "site-lisp/apel/atype.el" "site-lisp/apel/broken.el" "site-lisp/apel/calist.el"
+;;;;;;  "site-lisp/apel/emu-mule.el" "site-lisp/apel/emu.el" "site-lisp/apel/file-detect.el"
+;;;;;;  "site-lisp/apel/filename.el" "site-lisp/apel/install.el"
+;;;;;;  "site-lisp/apel/inv-18.el" "site-lisp/apel/inv-19.el" "site-lisp/apel/inv-xemacs.el"
+;;;;;;  "site-lisp/apel/invisible.el" "site-lisp/apel/localhook.el"
+;;;;;;  "site-lisp/apel/mcharset.el" "site-lisp/apel/mcs-20.el" "site-lisp/apel/mcs-e20.el"
+;;;;;;  "site-lisp/apel/mcs-ltn1.el" "site-lisp/apel/mcs-nemacs.el"
+;;;;;;  "site-lisp/apel/mcs-om.el" "site-lisp/apel/mcs-xm.el" "site-lisp/apel/mcs-xmu.el"
+;;;;;;  "site-lisp/apel/mule-caesar.el" "site-lisp/apel/pccl-20.el"
+;;;;;;  "site-lisp/apel/pccl-om.el" "site-lisp/apel/pccl.el" "site-lisp/apel/pces-20.el"
+;;;;;;  "site-lisp/apel/pces-e20.el" "site-lisp/apel/pces-e20_2.el"
+;;;;;;  "site-lisp/apel/pces-nemacs.el" "site-lisp/apel/pces-om.el"
+;;;;;;  "site-lisp/apel/pces-raw.el" "site-lisp/apel/pces-xfc.el"
+;;;;;;  "site-lisp/apel/pces-xm.el" "site-lisp/apel/pces.el" "site-lisp/apel/pcustom.el"
+;;;;;;  "site-lisp/apel/poe-18.el" "site-lisp/apel/poe-xemacs.el"
+;;;;;;  "site-lisp/apel/poe.el" "site-lisp/apel/poem-e20.el" "site-lisp/apel/poem-e20_2.el"
+;;;;;;  "site-lisp/apel/poem-e20_3.el" "site-lisp/apel/poem-ltn1.el"
+;;;;;;  "site-lisp/apel/poem-nemacs.el" "site-lisp/apel/poem-om.el"
+;;;;;;  "site-lisp/apel/poem-xm.el" "site-lisp/apel/poem.el" "site-lisp/apel/product.el"
+;;;;;;  "site-lisp/apel/pym.el" "site-lisp/apel/static.el" "site-lisp/apel/timezone.el"
+;;;;;;  "site-lisp/apel/tinycustom.el" "site-lisp/apel/tinyrich.el"
+;;;;;;  "site-lisp/ascii.el" "site-lisp/bookmark+.el" "site-lisp/breadcrumb.el"
+;;;;;;  "site-lisp/breadcrumb.el" "site-lisp/browse-kill-ring+.el"
+;;;;;;  "site-lisp/browse-kill-ring+.el" "site-lisp/browse-kill-ring.el"
+;;;;;;  "site-lisp/chess/auto-autoloads.el" "site-lisp/chess/chess-ai.el"
+;;;;;;  "site-lisp/chess/chess-algebraic.el" "site-lisp/chess/chess-announce.el"
+;;;;;;  "site-lisp/chess/chess-auto.el" "site-lisp/chess/chess-autosave.el"
+;;;;;;  "site-lisp/chess/chess-chat.el" "site-lisp/chess/chess-clock.el"
+;;;;;;  "site-lisp/chess/chess-common.el" "site-lisp/chess/chess-crafty.el"
+;;;;;;  "site-lisp/chess/chess-database.el" "site-lisp/chess/chess-display.el"
+;;;;;;  "site-lisp/chess/chess-eco.el" "site-lisp/chess/chess-engine.el"
+;;;;;;  "site-lisp/chess/chess-epd.el" "site-lisp/chess/chess-fen.el"
+;;;;;;  "site-lisp/chess/chess-file.el" "site-lisp/chess/chess-game.el"
+;;;;;;  "site-lisp/chess/chess-german.el" "site-lisp/chess/chess-gnuchess.el"
+;;;;;;  "site-lisp/chess/chess-ics1.el" "site-lisp/chess/chess-images.el"
+;;;;;;  "site-lisp/chess/chess-input.el" "site-lisp/chess/chess-irc.el"
+;;;;;;  "site-lisp/chess/chess-kibitz.el" "site-lisp/chess/chess-log.el"
+;;;;;;  "site-lisp/chess/chess-maint.el" "site-lisp/chess/chess-message.el"
+;;;;;;  "site-lisp/chess/chess-module.el" "site-lisp/chess/chess-network.el"
+;;;;;;  "site-lisp/chess/chess-none.el" "site-lisp/chess/chess-phalanx.el"
+;;;;;;  "site-lisp/chess/chess-plain.el" "site-lisp/chess/chess-ply.el"
+;;;;;;  "site-lisp/chess/chess-pos.el" "site-lisp/chess/chess-scid.el"
+;;;;;;  "site-lisp/chess/chess-sjeng.el" "site-lisp/chess/chess-sound.el"
+;;;;;;  "site-lisp/chess/chess-test.el" "site-lisp/chess/chess-transport.el"
+;;;;;;  "site-lisp/chess/chess-ucb.el" "site-lisp/chess/chess-var.el"
+;;;;;;  "site-lisp/cldoc.el" "site-lisp/column-marker.el" "site-lisp/crypt++.el"
+;;;;;;  "site-lisp/crypt++.el" "site-lisp/csharp-mode.el" "site-lisp/csharp-mode.el"
+;;;;;;  "site-lisp/css-mode.el" "site-lisp/css-mode.el" "site-lisp/csv-mode.el"
+;;;;;;  "site-lisp/csv-mode.el" "site-lisp/csv.el" "site-lisp/csv.el"
+;;;;;;  "site-lisp/cycbuf.el" "site-lisp/cycbuf.el" "site-lisp/dedicated.el"
+;;;;;;  "site-lisp/dedicated.el" "site-lisp/diminish.el" "site-lisp/dired-tar.el"
+;;;;;;  "site-lisp/edit-env.el" "site-lisp/edit-env.el" "site-lisp/edit-var.el"
+;;;;;;  "site-lisp/elscreen.el" "site-lisp/elscreen.el" "site-lisp/epg/epa-dired.el"
+;;;;;;  "site-lisp/epg/epa-setup.el" "site-lisp/epg/pgg-epg.el" "site-lisp/eshell/auto-autoloads.el"
+;;;;;;  "site-lisp/eshell/em-alias.el" "site-lisp/eshell/em-banner.el"
+;;;;;;  "site-lisp/eshell/em-basic.el" "site-lisp/eshell/em-cmpl.el"
+;;;;;;  "site-lisp/eshell/em-dirs.el" "site-lisp/eshell/em-glob.el"
+;;;;;;  "site-lisp/eshell/em-hist.el" "site-lisp/eshell/em-ls.el"
+;;;;;;  "site-lisp/eshell/em-pred.el" "site-lisp/eshell/em-prompt.el"
+;;;;;;  "site-lisp/eshell/em-rebind.el" "site-lisp/eshell/em-script.el"
+;;;;;;  "site-lisp/eshell/em-smart.el" "site-lisp/eshell/em-term.el"
+;;;;;;  "site-lisp/eshell/em-unix.el" "site-lisp/eshell/em-xtra.el"
+;;;;;;  "site-lisp/eshell/esh-arg.el" "site-lisp/eshell/esh-cmd.el"
+;;;;;;  "site-lisp/eshell/esh-ext.el" "site-lisp/eshell/esh-groups.el"
+;;;;;;  "site-lisp/eshell/esh-io.el" "site-lisp/eshell/esh-maint.el"
+;;;;;;  "site-lisp/eshell/esh-module.el" "site-lisp/eshell/esh-opt.el"
+;;;;;;  "site-lisp/eshell/esh-proc.el" "site-lisp/eshell/esh-util.el"
+;;;;;;  "site-lisp/eshell/esh-var.el" "site-lisp/eshell/eshell-auto.el"
+;;;;;;  "site-lisp/eval-expr.el" "site-lisp/find-library.el" "site-lisp/fm.el"
+;;;;;;  "site-lisp/fm.el" "site-lisp/groovy.el" "site-lisp/haskell-mode/haskell-font-lock.el"
+;;;;;;  "site-lisp/haskell-mode/haskell-ghci.el" "site-lisp/haskell-mode/haskell-hugs.el"
+;;;;;;  "site-lisp/haskell-mode/haskell-simple-indent.el" "site-lisp/haskell-mode/haskell-site-file.el"
+;;;;;;  "site-lisp/hide-search.el" "site-lisp/hide-search.el" "site-lisp/hs-lint.el"
+;;;;;;  "site-lisp/hs-lint.el" "site-lisp/idomenu.el" "site-lisp/idomenu.el"
+;;;;;;  "site-lisp/indirect.el" "site-lisp/indirect.el" "site-lisp/js2.el"
+;;;;;;  "site-lisp/js2.el" "site-lisp/magit/50magit.el" "site-lisp/magit/magit-pkg.el"
+;;;;;;  "site-lisp/mdfind.el" "site-lisp/mdfind.el" "site-lisp/mudel.el"
+;;;;;;  "site-lisp/mudel.el" "site-lisp/nxhtml/autostart.el" "site-lisp/nxhtml/autostart22.el"
+;;;;;;  "site-lisp/nxhtml/nxhtml-base.el" "site-lisp/nxhtml/nxhtml-loaddefs.el"
+;;;;;;  "site-lisp/nxhtml/web-autoload.el" "site-lisp/paredit.el"
+;;;;;;  "site-lisp/paredit.el" "site-lisp/parenface.el" "site-lisp/parenface.el"
+;;;;;;  "site-lisp/planner/planner-authz.el" "site-lisp/planner/planner-calendar.el"
+;;;;;;  "site-lisp/planner/planner-experimental.el" "site-lisp/planner/planner-ical.el"
+;;;;;;  "site-lisp/planner/planner-publish.el" "site-lisp/planner/planner-zoom.el"
+;;;;;;  "site-lisp/po-mode.el" "site-lisp/po-mode.el" "site-lisp/puppet-mode.el"
+;;;;;;  "site-lisp/radio.el" "site-lisp/radio.el" "site-lisp/redshank.el"
+;;;;;;  "site-lisp/redshank.el" "site-lisp/regex-tool/regex-tool.el"
+;;;;;;  "site-lisp/remember/read-file-name.el" "site-lisp/remember/remember-experimental.el"
 ;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/repeat-insert.el"
-;;;;;;  "site-lisp/ruby/inf-ruby.el" "site-lisp/ruby/ri-ruby.el"
-;;;;;;  "site-lisp/ruby/ruby-electric.el" "site-lisp/ruby/ruby-style.el"
+;;;;;;  "site-lisp/rfcview.el" "site-lisp/ruby-mode/inf-ruby.el"
+;;;;;;  "site-lisp/ruby-mode/rdoc-mode.el" "site-lisp/ruby-mode/ruby-electric.el"
+;;;;;;  "site-lisp/ruby-mode/ruby-style.el" "site-lisp/session.el"
 ;;;;;;  "site-lisp/slime/hyperspec.el" "site-lisp/slime/slime-autoloads.el"
-;;;;;;  "site-lisp/slime/slime.el" "site-lisp/snippet.el" "site-lisp/snippet.el"
-;;;;;;  "site-lisp/sudo-save.el" "site-lisp/sudo-save.el" "site-lisp/sunrise-commander.el"
-;;;;;;  "site-lisp/sunrise-commander.el" "site-lisp/trac-wiki.el"
-;;;;;;  "site-lisp/trac-wiki.el" "site-lisp/vkill.el" "site-lisp/vkill.el"
+;;;;;;  "site-lisp/slime/slime.el" "site-lisp/smex.el" "site-lisp/sudo-save.el"
+;;;;;;  "site-lisp/sudo-save.el" "site-lisp/sunrise-commander.el"
+;;;;;;  "site-lisp/sunrise-commander.el" "site-lisp/vkill.el" "site-lisp/vkill.el"
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wcount.el" "site-lisp/xml-rpc.el"
-;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/yasnippet/yasnippet.el")
-;;;;;;  (18616 45647 785180))
+;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xray.el") (19385 30558
+;;;;;;  623250))
 
 ;;;***
 
-;;;### (autoloads (c-includes c-includes-current-file c-includes-add-binding)
-;;;;;;  "c-includes" "c-includes.el" (18429 49044))
-;;; Generated autoloads from c-includes.el
+;;;### (autoloads (ido-completing-read ido-read-directory-name ido-read-file-name
+;;;;;;  ido-read-buffer ido-dired ido-insert-file ido-write-file
+;;;;;;  ido-find-file-other-frame ido-display-file ido-find-file-read-only-other-frame
+;;;;;;  ido-find-file-read-only-other-window ido-find-file-read-only
+;;;;;;  ido-find-alternate-file ido-find-file-other-window ido-find-file
+;;;;;;  ido-find-file-in-dir ido-switch-buffer-other-frame ido-insert-buffer
+;;;;;;  ido-kill-buffer ido-display-buffer ido-switch-buffer-other-window
+;;;;;;  ido-switch-buffer ido-mode ido-mode) "ido" "ido.el" (19385
+;;;;;;  26890))
+;;; Generated autoloads from ido.el
 
-(autoload (quote c-includes-add-binding) "c-includes" "\
-Set binding for C-c C-i in cc-mode.
+(defvar ido-mode nil "\
+Determines for which functional group (buffer and files) ido behavior
+should be enabled.  The following values are possible:
+- `buffer': Turn only on ido buffer behavior (switching, killing,
+  displaying...)
+- `file': Turn only on ido file behavior (finding, writing, inserting...)
+- `both': Turn on ido buffer and file behavior.
+- `nil': Turn off any ido switching.
 
-\(fn)" nil nil)
+Setting this variable directly does not take effect;
+use either \\[customize] or the function `ido-mode'.")
 
-(autoload (quote c-includes-current-file) "c-includes" "\
-Find all of the header file included by the current file.
+(custom-autoload 'ido-mode "ido" nil)
 
-\(fn &optional REGEXP)" t nil)
+(autoload 'ido-mode "ido" "\
+Toggle ido speed-ups on or off.
+With ARG, turn ido speed-up on if arg is positive, off otherwise.
+Turning on ido-mode will remap (via a minor-mode keymap) the default
+keybindings for the `find-file' and `switch-to-buffer' families of
+commands to the ido versions of these functions.
+However, if ARG arg equals 'files, remap only commands for files, or
+if it equals 'buffers, remap only commands for buffer switching.
+This function also adds a hook to the minibuffer.
 
-(autoload (quote c-includes) "c-includes" "\
-Find all of the header files included by FILENAME.
-REGEXP, if non-nil, is a regular expression to search for within
-FILENAME and the files that it includes.  The output will be
-structured in the same order that the compiler will see it, enabling
-you determine order of occurrence.
+\(fn &optional ARG)" t nil)
 
-\(fn FILENAME &optional REGEXP)" t nil)
+(autoload 'ido-switch-buffer "ido" "\
+Switch to another buffer.
+The buffer is displayed according to `ido-default-buffer-method' -- the
+default is to show it in the same window, unless it is already visible
+in another frame.
+
+As you type in a string, all of the buffers matching the string are
+displayed if substring-matching is used (default).  Look at
+`ido-enable-prefix' and `ido-toggle-prefix'.  When you have found the
+buffer you want, it can then be selected.  As you type, most keys have
+their normal keybindings, except for the following: \\<ido-buffer-completion-map>
+
+RET Select the buffer at the front of the list of matches.  If the
+list is empty, possibly prompt to create new buffer.
+
+\\[ido-select-text] Select the current prompt as the buffer.
+If no buffer is found, prompt for a new one.
+
+\\[ido-next-match] Put the first element at the end of the list.
+\\[ido-prev-match] Put the last element at the start of the list.
+\\[ido-complete] Complete a common suffix to the current string that
+matches all buffers.  If there is only one match, select that buffer.
+If there is no common suffix, show a list of all matching buffers
+in a separate window.
+\\[ido-edit-input] Edit input string.
+\\[ido-fallback-command] Fallback to non-ido version of current command.
+\\[ido-toggle-regexp] Toggle regexp searching.
+\\[ido-toggle-prefix] Toggle between substring and prefix matching.
+\\[ido-toggle-case] Toggle case-sensitive searching of buffer names.
+\\[ido-completion-help] Show list of matching buffers in separate window.
+\\[ido-enter-find-file] Drop into `ido-find-file'.
+\\[ido-kill-buffer-at-head] Kill buffer at head of buffer list.
+\\[ido-toggle-ignore] Toggle ignoring buffers listed in `ido-ignore-buffers'.
+
+\(fn)" t nil)
+
+(autoload 'ido-switch-buffer-other-window "ido" "\
+Switch to another buffer and show it in another window.
+The buffer name is selected interactively by typing a substring.
+For details of keybindings, see `ido-switch-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'ido-display-buffer "ido" "\
+Display a buffer in another window but don't select it.
+The buffer name is selected interactively by typing a substring.
+For details of keybindings, see `ido-switch-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'ido-kill-buffer "ido" "\
+Kill a buffer.
+The buffer name is selected interactively by typing a substring.
+For details of keybindings, see `ido-switch-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'ido-insert-buffer "ido" "\
+Insert contents of a buffer in current buffer after point.
+The buffer name is selected interactively by typing a substring.
+For details of keybindings, see `ido-switch-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'ido-switch-buffer-other-frame "ido" "\
+Switch to another buffer and show it in another frame.
+The buffer name is selected interactively by typing a substring.
+For details of keybindings, see `ido-switch-buffer'.
+
+\(fn)" t nil)
+
+(autoload 'ido-find-file-in-dir "ido" "\
+Switch to another file starting from DIR.
+
+\(fn DIR)" t nil)
+
+(autoload 'ido-find-file "ido" "\
+Edit file with name obtained via minibuffer.
+The file is displayed according to `ido-default-file-method' -- the
+default is to show it in the same window, unless it is already
+visible in another frame.
+
+The file name is selected interactively by typing a substring.  As you
+type in a string, all of the filenames matching the string are displayed
+if substring-matching is used (default).  Look at `ido-enable-prefix' and
+`ido-toggle-prefix'.  When you have found the filename you want, it can
+then be selected.  As you type, most keys have their normal keybindings,
+except for the following: \\<ido-file-completion-map>
+
+RET Select the file at the front of the list of matches.  If the
+list is empty, possibly prompt to create new file.
+
+\\[ido-select-text] Select the current prompt as the buffer or file.
+If no buffer or file is found, prompt for a new one.
+
+\\[ido-next-match] Put the first element at the end of the list.
+\\[ido-prev-match] Put the last element at the start of the list.
+\\[ido-complete] Complete a common suffix to the current string that
+matches all files.  If there is only one match, select that file.
+If there is no common suffix, show a list of all matching files
+in a separate window.
+\\[ido-edit-input] Edit input string (including directory).
+\\[ido-prev-work-directory] or \\[ido-next-work-directory] go to previous/next directory in work directory history.
+\\[ido-merge-work-directories] search for file in the work directory history.
+\\[ido-forget-work-directory] removes current directory from the work directory history.
+\\[ido-prev-work-file] or \\[ido-next-work-file] cycle through the work file history.
+\\[ido-wide-find-file-or-pop-dir] and \\[ido-wide-find-dir-or-delete-dir] prompts and uses find to locate files or directories.
+\\[ido-make-directory] prompts for a directory to create in current directory.
+\\[ido-fallback-command] Fallback to non-ido version of current command.
+\\[ido-toggle-regexp] Toggle regexp searching.
+\\[ido-toggle-prefix] Toggle between substring and prefix matching.
+\\[ido-toggle-case] Toggle case-sensitive searching of file names.
+\\[ido-toggle-vc] Toggle version control for this file.
+\\[ido-toggle-literal] Toggle literal reading of this file.
+\\[ido-completion-help] Show list of matching files in separate window.
+\\[ido-toggle-ignore] Toggle ignoring files listed in `ido-ignore-files'.
+
+\(fn)" t nil)
+
+(autoload 'ido-find-file-other-window "ido" "\
+Switch to another file and show it in another window.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-find-alternate-file "ido" "\
+Switch to another file and show it in another window.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-find-file-read-only "ido" "\
+Edit file read-only with name obtained via minibuffer.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-find-file-read-only-other-window "ido" "\
+Edit file read-only in other window with name obtained via minibuffer.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-find-file-read-only-other-frame "ido" "\
+Edit file read-only in other frame with name obtained via minibuffer.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-display-file "ido" "\
+Display a file in another window but don't select it.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-find-file-other-frame "ido" "\
+Switch to another file and show it in another frame.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-write-file "ido" "\
+Write current buffer to a file.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-insert-file "ido" "\
+Insert contents of file in current buffer.
+The file name is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-dired "ido" "\
+Call `dired' the ido way.
+The directory is selected interactively by typing a substring.
+For details of keybindings, see `ido-find-file'.
+
+\(fn)" t nil)
+
+(autoload 'ido-read-buffer "ido" "\
+Ido replacement for the built-in `read-buffer'.
+Return the name of a buffer selected.
+PROMPT is the prompt to give to the user.  DEFAULT if given is the default
+buffer to be selected, which will go to the front of the list.
+If REQUIRE-MATCH is non-nil, an existing buffer must be selected.
+
+\(fn PROMPT &optional DEFAULT REQUIRE-MATCH)" nil nil)
+
+(autoload 'ido-read-file-name "ido" "\
+Ido replacement for the built-in `read-file-name'.
+Read file name, prompting with PROMPT and completing in directory DIR.
+See `read-file-name' for additional parameters.
+
+\(fn PROMPT &optional DIR DEFAULT-FILENAME MUSTMATCH INITIAL PREDICATE)" nil nil)
+
+(autoload 'ido-read-directory-name "ido" "\
+Ido replacement for the built-in `read-directory-name'.
+Read directory name, prompting with PROMPT and completing in directory DIR.
+See `read-directory-name' for additional parameters.
+
+\(fn PROMPT &optional DIR DEFAULT-DIRNAME MUSTMATCH INITIAL)" nil nil)
+
+(autoload 'ido-completing-read "ido" "\
+Ido replacement for the built-in `completing-read'.
+Read a string in the minibuffer with ido-style completion.
+PROMPT is a string to prompt with; normally it ends in a colon and a space.
+CHOICES is a list of strings which are the possible completions.
+PREDICATE is currently ignored; it is included to be compatible
+ with `completing-read'.
+If REQUIRE-MATCH is non-nil, the user is not allowed to exit unless
+ the input is (or completes to) an element of CHOICES or is null.
+ If the input is null, `ido-completing-read' returns DEF, or an empty
+ string if DEF is nil, regardless of the value of REQUIRE-MATCH.
+If INITIAL-INPUT is non-nil, insert it in the minibuffer initially,
+ with point positioned at the end.
+HIST, if non-nil, specifies a history list.
+DEF, if non-nil, is the default value.
+
+\(fn PROMPT CHOICES &optional PREDICATE REQUIRE-MATCH INITIAL-INPUT HIST DEF)" nil nil)
 
 ;;;***
