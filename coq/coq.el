@@ -1252,7 +1252,7 @@ buffer."
     ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
     (with-current-buffer proof-response-buffer
       (goto-char (point-max))
-      (when (re-search-backward "\n> \\(.*\\)\n> \\( *\\)\\(\\^+\\)\n" nil t)
+      (when (re-search-backward "\n> \\(.*\\)\n> \\([^^]*\\)\\(\\^+\\)\n" nil t)
         (let ((text (match-string 1))
               (pos (length (match-string 2)))
               (len (length (match-string 3))))
@@ -1260,11 +1260,13 @@ buffer."
           ;; parsed above. Don't kill the first \n
           (let ((inhibit-read-only t))
             (when clean (delete-region (+ (match-beginning 0) 1) (match-end 0))))
-          (when proof-shell-unicode
-            ;; `pos' and `len' are actually specified in bytes, apparently.
-            ;; So let's convert them, assuming the encoding used is utf-8.
+          (when proof-shell-unicode ;; TODO: remove this (when...) when coq-8.3 is out.
+            ;; `pos' and `len' are actually specified in bytes, apparently. So
+            ;; let's convert them, assuming the encoding used is utf-8.
             ;; Presumably in Emacs-23 we could use `string-bytes' for that
             ;; since the internal encoding happens to use utf-8 as well.
+            ;; Actually in coq-8.3 one utf8 char = one space so we do not need
+            ;; this at all
             (let ((bytes (encode-coding-string text 'utf-8-unix)))
               ;; Check that pos&len make sense in `bytes', if not give up.
               (when (>= (length bytes) (+ pos len))
