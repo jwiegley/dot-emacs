@@ -59,12 +59,6 @@
 
 ;;;_ * variables
 
-;; '(iswitchb-max-to-show 10)
-;; '(iswitchb-mode t)
-;; '(iswitchb-use-frame-buffer-list t)
-;; '(iswitchb-use-virtual-buffers t nil (recentf))
-;; '(org-completion-use-iswitchb t)
- 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -83,6 +77,7 @@
  '(c-default-style (quote ((java-mode . "gnu") (awk-mode . "awk") (other . "gnu"))))
  '(calendar-latitude 40.845112)
  '(calendar-longitude -74.287672)
+ '(calendar-mark-holidays-flag t)
  '(circe-ignore-list (quote ("jordanb_?")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode t)
@@ -108,6 +103,7 @@
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
  '(display-time-mode t)
+ '(elscreen-display-tab nil)
  '(elscreen-prefix-key "")
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
  '(enable-recursive-minibuffers t)
@@ -115,7 +111,7 @@
  '(eshell-ls-dired-initial-args (quote ("-h")))
  '(eshell-ls-exclude-regexp "~\\'")
  '(eshell-ls-initial-args "-h")
- '(eshell-modules-list (quote (eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-smart eshell-term eshell-unix eshell-xtra)))
+ '(eshell-modules-list (quote (eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-term eshell-unix eshell-xtra)))
  '(eshell-prefer-to-shell t nil (eshell))
  '(eshell-save-history-on-exit t)
  '(eshell-stringify-t nil)
@@ -137,8 +133,8 @@
  '(ibuffer-use-other-window t)
  '(ido-auto-merge-work-directories-length 0)
  '(ido-cannot-complete-command (quote ido-exit-minibuffer))
+ '(ido-decorations (quote ("{" "}" "," ",..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
  '(ido-enable-flex-matching t)
- '(ido-everywhere t)
  '(ido-ignore-files (quote ("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./" "\\`\\./" "\\`\\.DS_Store" "\\`\\.localized")))
  '(ido-mode (quote both) nil (ido))
  '(ido-use-filename-at-point nil)
@@ -164,13 +160,14 @@
  '(nxml-slash-auto-complete-flag t)
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 2 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+2d>\"" ((org-agenda-overriding-header "Errands (next 2 days)"))) ("A" "Today's priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Today's priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("W" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:"))) ("u" "Unscheduled tasks" alltodo "" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("l" "Ledger tasks" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:"))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("w" "Unscheduled work tasks" tags "CATEGORY=\"CEG\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY=\"CEG\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "cegbug:"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY=\"CEG\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))))))
+ '(org-agenda-custom-commands (quote (("E" "Errands (next 2 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+2d>\"" ((org-agenda-overriding-header "Errands (next 2 days)"))) ("A" "Today's priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Today's priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("W" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:"))) ("u" "Unscheduled tasks" tags "CATEGORY<>\"CEG\"&TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("l" "Ledger tasks" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:"))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("w" "Unscheduled work tasks" tags "CATEGORY=\"CEG\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY=\"CEG\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "cegbug:"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY=\"CEG\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Projects/ledger/plan/TODO")))
  '(org-agenda-fontify-priorities t)
+ '(org-agenda-include-diary t)
  '(org-agenda-ndays 1)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
@@ -181,6 +178,7 @@
  '(org-agenda-skip-scheduled-if-deadline-is-shown t)
  '(org-agenda-skip-scheduled-if-done t)
  '(org-agenda-skip-unavailable-files t)
+ '(org-agenda-sorting-strategy (quote ((agenda habit-down time-up todo-state-up priority-down category-keep) (todo priority-down category-keep) (tags priority-down category-keep) (search category-keep))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
  '(org-agenda-text-search-extra-files (quote (agenda-archives)))
@@ -226,6 +224,7 @@
  '(org-time-clocksum-use-fractional t)
  '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "dark blue" :weight bold) ("SOMEDAY" :foreground "dark blue" :weight bold))))
  '(org-todo-keywords (quote ((sequence "TODO" "APPT" "|" "DONE" "NOTE"))))
+ '(org-todo-repeat-to-state "TODO")
  '(org-use-speed-commands t)
  '(org-use-tag-inheritance nil)
  '(parens-require-spaces t)
@@ -296,6 +295,7 @@
  '(circe-highlight-all-nicks-face ((t (:foreground "dark blue"))))
  '(circe-originator-face ((t (:foreground "dark orange"))))
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
+ '(ledger-register-pending-face ((t (:weight bold))))
  '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
  '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
  '(org-habit-alert-face ((((background light)) (:background "#f5f946"))))
@@ -326,13 +326,89 @@
 
 ;;;_ * bookmark+
 
-;(load "bookmark+" t)
+(load "bookmark+" t)
 
 ;;;_ * browse-kill-ring
 
 (load "browse-kill-ring+" t)
 
 ;;;_ * cc-mode
+
+(eval-after-load "cc-styles"
+  '(progn
+     (add-to-list
+      'c-style-alist
+      '("ceg"
+	(c-basic-offset . 3)
+	(c-comment-only-line-offset . (0 . 0))
+	(c-hanging-braces-alist     . ((substatement-open before after)
+				       (arglist-cont-nonempty)))
+	(c-offsets-alist . ((statement-block-intro . +)
+			    (knr-argdecl-intro . 5)
+			    (substatement-open . 0)
+			    (substatement-label . 0)
+			    (label . 0)
+			    (statement-case-open . 0)
+			    (statement-cont . +)
+			    (arglist-intro . c-lineup-arglist-intro-after-paren)
+			    (arglist-close . c-lineup-arglist)
+			    (inline-open . 0)
+			    (brace-list-open . 0)
+			    (topmost-intro-cont
+			     . (first c-lineup-topmost-intro-cont
+				      c-lineup-gnu-DEFUN-intro-cont))))
+	(c-special-indent-hook . c-gnu-impose-minimum)
+	(c-block-comment-prefix . "")))
+     (add-to-list
+      'c-style-alist
+      '("edg"
+	(indent-tabs-mode . nil)
+	(c-basic-offset . 3)
+	(c-comment-only-line-offset . (0 . 0))
+	(c-hanging-braces-alist     . ((substatement-open before after)
+				       (arglist-cont-nonempty)))
+	(c-offsets-alist . ((statement-block-intro . +)
+			    (knr-argdecl-intro . 5)
+			    (substatement-open . 0)
+			    (substatement-label . 0)
+			    (label . 0)
+			    (case-label . +)
+			    (statement-case-open . 0)
+			    (statement-cont . +)
+			    (arglist-intro . c-lineup-arglist-intro-after-paren)
+			    (arglist-close . c-lineup-arglist)
+			    (inline-open . 0)
+			    (brace-list-open . 0)
+			    (topmost-intro-cont
+			     . (first c-lineup-topmost-intro-cont
+				      c-lineup-gnu-DEFUN-intro-cont))))
+	(c-special-indent-hook . c-gnu-impose-minimum)
+	(c-block-comment-prefix . "")))
+     (add-to-list
+      'c-style-alist
+      '("ledger"
+	(indent-tabs-mode . nil)
+	(c-basic-offset . 2)
+	(c-comment-only-line-offset . (0 . 0))
+	(c-hanging-braces-alist     . ((substatement-open before after)
+				       (arglist-cont-nonempty)))
+	(c-offsets-alist . ((statement-block-intro . +)
+			    (knr-argdecl-intro . 5)
+			    (substatement-open . 0)
+			    (substatement-label . 0)
+			    (label . 0)
+			    (case-label . +)
+			    (statement-case-open . 0)
+			    (statement-cont . +)
+			    (arglist-intro . c-lineup-arglist-intro-after-paren)
+			    (arglist-close . c-lineup-arglist)
+			    (inline-open . 0)
+			    (brace-list-open . 0)
+			    (topmost-intro-cont
+			     . (first c-lineup-topmost-intro-cont
+				      c-lineup-gnu-DEFUN-intro-cont))))
+	(c-special-indent-hook . c-gnu-impose-minimum)
+	(c-block-comment-prefix . "")))))
 
 (eval-when-compile
   (defvar c-mode-base-map))
@@ -358,9 +434,6 @@
 ;;;_ * cycbuf
 
 (require 'cycbuf)
-
-(global-set-key [(meta ?`)] 'cycbuf-switch-to-next-buffer)
-(global-set-key [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
 
 ;;;_ * doxymacs
 
@@ -583,186 +656,25 @@
 (load "inf-haskell" t)
 (load "hs-lint" t)
 
-;;;_ * ido-mode
-
-(defun my-ido-choose-from-recentf ()
-  "Use ido to select a recently opened file from the `recentf-list'"
-  (interactive)
-  (find-file (ido-completing-read "Visit file: " recentf-list nil t)))
-
-(require 'smex)
-(smex-initialize)
-
-(define-key global-map [(meta ?x)] 'smex)
-
-(defvar ido-enable-replace-completing-read t
-  "If t, use ido-completing-read instead of completing-read if possible.
-Set it to nil using let in around-advice for functions where the
-original completing-read is required.  For example, if a function
-foo absolutely must use the original completing-read, define some
-advice like this:
-  (defadvice foo (around original-completing-read-only activate)
-    (let (ido-enable-replace-completing-read) ad-do-it))")
-
-;; Replace completing-read wherever possible, unless directed otherwise
-(defadvice completing-read (around use-ido-when-possible activate)
-  (if (or (not ido-enable-replace-completing-read) ; Manual override disable ido
-	  (and (boundp 'ido-cur-list) ido-cur-list)) ; Avoid infinite loop from ido calling this
-      ad-do-it
-    (let ((allcomp (all-completions "" collection predicate)))
-      (if allcomp
-	  (setq ad-return-value
-		(ido-completing-read prompt
-				     allcomp
-				     nil require-match initial-input hist def))
-	ad-do-it))))
-
 ;;;_ * java-mode
-
-(eval-after-load "cc-styles"
-  '(progn
-     (add-to-list
-      'c-style-alist
-      '("ceg"
-	(c-basic-offset . 3)
-	(c-comment-only-line-offset . (0 . 0))
-	(c-hanging-braces-alist     . ((substatement-open before after)
-				       (arglist-cont-nonempty)))
-	(c-offsets-alist . ((statement-block-intro . +)
-			    (knr-argdecl-intro . 5)
-			    (substatement-open . 0)
-			    (substatement-label . 0)
-			    (label . 0)
-			    (statement-case-open . 0)
-			    (statement-cont . +)
-			    (arglist-intro . c-lineup-arglist-intro-after-paren)
-			    (arglist-close . c-lineup-arglist)
-			    (inline-open . 0)
-			    (brace-list-open . 0)
-			    (topmost-intro-cont
-			     . (first c-lineup-topmost-intro-cont
-				      c-lineup-gnu-DEFUN-intro-cont))))
-	(c-special-indent-hook . c-gnu-impose-minimum)
-	(c-block-comment-prefix . "")))
-     (add-to-list
-      'c-style-alist
-      '("edg"
-	(indent-tabs-mode . nil)
-	(c-basic-offset . 3)
-	(c-comment-only-line-offset . (0 . 0))
-	(c-hanging-braces-alist     . ((substatement-open before after)
-				       (arglist-cont-nonempty)))
-	(c-offsets-alist . ((statement-block-intro . +)
-			    (knr-argdecl-intro . 5)
-			    (substatement-open . 0)
-			    (substatement-label . 0)
-			    (label . 0)
-			    (case-label . +)
-			    (statement-case-open . 0)
-			    (statement-cont . +)
-			    (arglist-intro . c-lineup-arglist-intro-after-paren)
-			    (arglist-close . c-lineup-arglist)
-			    (inline-open . 0)
-			    (brace-list-open . 0)
-			    (topmost-intro-cont
-			     . (first c-lineup-topmost-intro-cont
-				      c-lineup-gnu-DEFUN-intro-cont))))
-	(c-special-indent-hook . c-gnu-impose-minimum)
-	(c-block-comment-prefix . "")))
-     (add-to-list
-      'c-style-alist
-      '("ledger"
-	(indent-tabs-mode . nil)
-	(c-basic-offset . 2)
-	(c-comment-only-line-offset . (0 . 0))
-	(c-hanging-braces-alist     . ((substatement-open before after)
-				       (arglist-cont-nonempty)))
-	(c-offsets-alist . ((statement-block-intro . +)
-			    (knr-argdecl-intro . 5)
-			    (substatement-open . 0)
-			    (substatement-label . 0)
-			    (label . 0)
-			    (case-label . +)
-			    (statement-case-open . 0)
-			    (statement-cont . +)
-			    (arglist-intro . c-lineup-arglist-intro-after-paren)
-			    (arglist-close . c-lineup-arglist)
-			    (inline-open . 0)
-			    (brace-list-open . 0)
-			    (topmost-intro-cont
-			     . (first c-lineup-topmost-intro-cont
-				      c-lineup-gnu-DEFUN-intro-cont))))
-	(c-special-indent-hook . c-gnu-impose-minimum)
-	(c-block-comment-prefix . "")))))
 
 (defun my-java-mode-hook ()
   (c-set-style "ceg")
   (setq c-basic-offset 3)
-  (setq indent-tabs-mode t)
+  (setq indent-tabs-mode nil)
   (setq tab-width 3)
   (column-marker-3 100)
   (set-fill-column 100))
 
 (add-hook 'java-mode-hook 'my-java-mode-hook)
 
-(defun wrap-thread-methods ()
-  (interactive)
-  (save-excursion
-    (while (re-search-forward "synchronized\\s-*(\\s-*\\(\\S-+\\)\\s-*)\\s-*\n\\s-*{" nil t)
-      (unless (save-excursion
-		(save-match-data
-		  (goto-char (line-beginning-position))
-		  (looking-at "\\s-*//")))
-	(let ((var (match-string 1))
-	      (beg (copy-marker( match-beginning 0)))
-	      (inside (copy-marker (match-end 0)))
-	      (paren (copy-marker (1- (match-end 0)))))
-	  (goto-char beg)
-	  (insert (format "System.out.println( \"%s:%s: synchronizing %s...\" );\n"
-			  (file-name-nondirectory (buffer-file-name))
-			  (line-number-at-pos) var))
-	  (indent-according-to-mode)
-	  (goto-char inside)
-	  (insert ?\n)
-	  (indent-according-to-mode)
-	  (insert (format "System.out.println( \"%s:%s: synchronized %s\" );"
-			  (file-name-nondirectory (buffer-file-name))
-			  (line-number-at-pos) var))
-	  (goto-char paren)
-	  (forward-sexp)
-	  (insert ?\n)
-	  (indent-according-to-mode)
-	  (insert (format "System.out.println( \"%s:%s: de-synchronized %s\" );"
-			  (file-name-nondirectory (buffer-file-name))
-			  (line-number-at-pos) var))
-	  (goto-char paren)))))
-  (while (re-search-forward "\\(\\(\\S-+\\)\\.\\)?\\(wait\\|notify\\|notifyAll\\)();" nil t)
-    (unless (save-excursion
-	      (save-match-data
-		(goto-char (line-beginning-position))
-		(looking-at "\\s-*//")))
-      (let ((var (match-string 0))
-	    (end (copy-marker (match-end 0))))
-	(goto-char (match-beginning 0))
-	(insert (format "System.out.println( \"%s:%s: calling %s ...\" );\n"
-			(file-name-nondirectory (buffer-file-name))
-			(line-number-at-pos) var))
-	(indent-according-to-mode)
-	(goto-char end)
-	(insert ?\n)
-	(indent-according-to-mode)
-	(insert (format "System.out.println( \"%s:%s: called %s\" );\n"
-			(file-name-nondirectory (buffer-file-name))
-			(line-number-at-pos) var))))))
-
 ;;;_ * ledger
 
-(require 'ledger)
-(require 'ldg-post)
-(require 'ldg-texi)
+(load "ldg-new")
 
-(eval-after-load "whitespace"
-  '(add-to-list 'whitespace-modes 'ledger-mode))
+;;;_ * linum-mode
+
+(autoload 'linum-mode "linum" nil t)
 
 ;;;_ * mule
 
@@ -825,9 +737,6 @@ advice like this:
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
 
 ;;;_ * pcomplete
-
-;;(autoload 'pcomplete/ssh "pcmpl-ssh")
-;;(autoload 'pcomplete/scp "pcmpl-ssh")
 
 ;;;_ * puppet-mode
 
@@ -910,171 +819,6 @@ advice like this:
      (add-to-list 'flymake-allowed-file-name-masks
 		  '("\\.l?hs\\'" flymake-hslint-init))))
 
-;;;_ * gnus
-
-;; (load "gnus")
-;; (load "gnus-agent")
-;; (load "eudc")
-;; 
-;; (eval-after-load "message"
-;;   '(load "message-x"))
-;; 
-;; ;;;_  * Determine layout of the summary windows
-;; 
-;; (gnus-add-configuration
-;;       '(article
-;; 	(vertical 1.0
-;; 		  (horizontal 0.25
-;; 			      (summary 0.75 point)
-;; 			      (tree 1.0))
-;; 		  (article 1.0))))
-;; 
-;; ;;;_  * Cleanup all Gnus buffers on exit
-;; 
-;; (defun exit-gnus-on-exit ()
-;;   (if (and (fboundp 'gnus-group-exit)
-;; 	   (gnus-alive-p))
-;;       (with-current-buffer (get-buffer "*Group*")
-;; 	(let (gnus-interactive-exit)
-;; 	  (gnus-group-exit)))))
-;; 
-;; (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
-;; 
-;; (defun my-gnus-get-article-date ()
-;;   "Extracts the date from the current article and converts it to Emacs time"
-;;   (save-excursion
-;;     (goto-char (point-min))
-;;     (ignore-errors
-;;       (gnus-date-get-time (mail-header-date gnus-current-headers)))))
-;; 
-;; ;;;_  * Scoring
-;; 
-;; (defun gnus-score-groups ()
-;;   (interactive)
-;;   (save-excursion
-;;     (let (info newsrc group entry)
-;;       (setq newsrc (cdr gnus-newsrc-alist))
-;;       (while (setq info (pop newsrc))
-;; 	(setq group (gnus-info-group info)
-;; 	      entry (gnus-gethash group gnus-newsrc-hashtb))
-;; 	(when (and
-;; 	       (<= (gnus-info-level info) gnus-level-subscribed)
-;; 	       (and (car entry)
-;; 		    (or (eq (car entry) t)
-;; 			(not (zerop (car entry)))))
-;; 	       ;; (string-match "^nnml:list" group)
-;; 	       )
-;; 	  (ignore-errors
-;; 	    (gnus-summary-read-group group nil t))
-;; 	  (when (and gnus-summary-buffer
-;; 		     (buffer-live-p gnus-summary-buffer)
-;; 		     (eq (current-buffer) (get-buffer gnus-summary-buffer)))
-;; 	    (gnus-summary-exit)))))))
-;; 
-;; ;;;_  * Summary line formats
-;; 
-;; (defun gnus-user-format-function-Z (header)
-;;   (let ((to (cdr (assq 'To (mail-header-extra header))))
-;; 	(newsgroups (cdr (assq 'Newsgroups (mail-header-extra header))))
-;; 	(mail-parse-charset gnus-newsgroup-charset)
-;; 	(mail-parse-ignored-charsets
-;; 	 (save-excursion
-;; 	   (set-buffer gnus-summary-buffer)
-;; 	   gnus-newsgroup-ignored-charsets)))
-;;     (cond
-;;      ((and to gnus-ignored-from-addresses
-;; 	   (string-match gnus-ignored-from-addresses
-;; 			 (mail-header-from header)))
-;;       (concat "-> "
-;; 	      (or (car (funcall gnus-extract-address-components
-;; 				(funcall
-;; 				 gnus-decode-encoded-word-function to)))
-;; 		  (funcall gnus-decode-encoded-word-function to))))
-;;      ((and newsgroups gnus-ignored-from-addresses
-;; 	   (string-match gnus-ignored-from-addresses
-;; 			 (mail-header-from header)))
-;;       (concat "=> " newsgroups))
-;;      (t
-;;       (let* ((from (mail-header-from header))
-;; 	     (data (condition-case nil
-;; 		       (mail-extract-address-components from)
-;; 		     (error nil)))
-;; 	     (name (car data))
-;; 	     (net (car (cdr data))))
-;; 	(or name net))))))
-;; 
-;; (defsubst dot-gnus-tos (time)
-;;   "Convert TIME to a floating point number."
-;;   (+ (* (car time) 65536.0)
-;;      (cadr time)
-;;      (/ (or (car (cdr (cdr time))) 0) 1000000.0)))
-;; 
-;; (defun gnus-user-format-function-S (header)
-;;   "Return how much time it's been since something was sent."
-;;   (condition-case err
-;;       (let ((date (mail-header-date header)))
-;; 	(if (> (length date) 0)
-;; 	    (let* ((then (dot-gnus-tos
-;; 			  (apply 'encode-time (parse-time-string date))))
-;; 		   (now (dot-gnus-tos (current-time)))
-;; 		   (diff (- now then)))
-;; 	      (cond ((>= diff (* 86400.0 7.0 52.0))
-;; 		     (if (>= diff (* 86400.0 7.0 52.0 10.0))
-;; 			 (format "%3dY" (floor (/ diff (* 86400.0 7.0 52.0))))
-;; 		       (format "%3.1fY" (/ diff (* 86400.0 7.0 52.0)))))
-;; 		    ((>= diff (* 86400.0 30.0))
-;; 		     (if (>= diff (* 86400.0 30.0 10.0))
-;; 			 (format "%3dM" (floor (/ diff (* 86400.0 30.0))))
-;; 		       (format "%3.1fM" (/ diff (* 86400.0 30.0)))))
-;; 		    ((>= diff (* 86400.0 7.0))
-;; 		     (if (>= diff (* 86400.0 7.0 10.0))
-;; 			 (format "%3dw" (floor (/ diff (* 86400.0 7.0))))
-;; 		       (format "%3.1fw" (/ diff (* 86400.0 7.0)))))
-;; 		    ((>= diff 86400.0)
-;; 		     (if (>= diff (* 86400.0 10.0))
-;; 			 (format "%3dd" (floor (/ diff 86400.0)))
-;; 		       (format "%3.1fd" (/ diff 86400.0))))
-;; 		    ((>= diff 3600.0)
-;; 		     (if (>= diff (* 3600.0 10.0))
-;; 			 (format "%3dh" (floor (/ diff 3600.0)))
-;; 		       (format "%3.1fh" (/ diff 3600.0))))
-;; 		    ((>= diff 60.0)
-;; 		     (if (>= diff (* 60.0 10.0))
-;; 			 (format "%3dm" (floor (/ diff 60.0)))
-;; 		       (format "%3.1fm" (/ diff 60.0))))
-;; 		    (t
-;; 		     (format "%3ds" (floor diff)))))))
-;;     (error "    ")))
-;; 
-;; (eval-when-compile
-;;   (defvar thread)
-;;   (defvar gnus-tmp-level))
-;; 
-;; (defun gnus-user-format-function-t (header)
-;;   (let ((tcount (gnus-summary-number-of-articles-in-thread
-;; 		 (and (boundp 'thread) (car thread)) gnus-tmp-level)))
-;;     (if (> tcount 1)
-;; 	(number-to-string tcount)
-;;       " ")))
-
-;;;_  * keybindings
-
-;;;_   * gnus-group-score
-
-(eval-after-load "gnus-group"
-  '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
-
-;;;_   * mml
-
-(eval-after-load "mml"
-  '(define-key mml-mode-map [(control ?c) (control ?m) ?w]
-     'muse-message-markup))
-
-;;;_   * multi-region
-
-(when (require 'multi-region nil t)
-  (define-key mode-specific-map [?2] multi-region-map))
-
 ;;;_ * org-mode
 
 (require 'org-install)
@@ -1109,15 +853,15 @@ advice like this:
 
 (defun org-my-auto-exclude-function (tag)
   (and (cond
-	((string= tag "Net")
+	((string= tag "net")
 	 (/= 0 (call-process "/sbin/ping" nil nil nil
 			     "-c1" "-q" "-t1" "mail.gnu.org")))
-	((string= tag "Home")
+	((string= tag "home")
 	 (with-temp-buffer
 	   (call-process "/sbin/ifconfig" nil t nil "en0" "inet")
 	   (goto-char (point-min))
 	   (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
-	((or (string= tag "Errand") (string= tag "Call"))
+	((or (string= tag "errand") (string= tag "call"))
 	 (let ((hour (nth 2 (decode-time))))
 	   (or (< hour 8) (> hour 21)))))
        (concat "-" tag)))
@@ -1464,7 +1208,7 @@ end tell" (match-string 1))))
 	(goto-char (point-min))))))
 
 (fset 'sort-todo-categories
-   [?\C-u ?\C-s ?^ ?\\ ?* ?\S-  ?\C-a ?^ ?p ?^ ?o ?\C-e])
+   [?\C-u ?\C-s ?^ ?\\ ?* ?\S-  ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
 
 ;;;_ * remember
 
@@ -1534,10 +1278,6 @@ end tell" (match-string 1))))
       (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
 	(if (file-readable-p (concat base ext))
 	    (find-file (concat base ext))))))))
-
-;;;_ * emacs-w3m
-
-;; (load "w3m-load" t)
 
 ;;;_ * whitespace
 
@@ -1728,7 +1468,9 @@ end tell" (match-string 1))))
 
 (define-key global-map [(meta ?\[)] 'align-code)
 (define-key global-map [(meta ?!)]  'eshell-command)
-(define-key global-map [(meta ?`)]  'other-frame)
+(define-key global-map [(meta ?`)]  'cycbuf-switch-to-next-buffer)
+(define-key global-map [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
+;;(define-key global-map [(meta ?`)]  'other-frame)
 (define-key global-map [(alt ?`)]   'delete-frame)
 
 (defun mark-line (&optional arg)
@@ -2158,7 +1900,7 @@ expand wildcards (if any) and visit multiple files."
      (add-hook 'org-mode-hook
 	       (lambda ()
 		 (org-set-local 'yas/trigger-key [tab])
-		 (define-key yas/keymap [tab] 'yas/next-field-group)))))
+		 (define-key yas/keymap [tab] 'yas/next-field)))))
 
 (eval-after-load "org-agenda"
   '(progn
@@ -2207,7 +1949,11 @@ expand wildcards (if any) and visit multiple files."
 
 ;; Finally, load the server and show the current agenda
 
-(add-hook 'after-init-hook 'org-agenda-list)
+(add-hook 'after-init-hook
+	  (function
+	   (lambda ()
+	     (org-agenda-list)
+	     (org-resolve-clocks))))
 (add-hook 'after-init-hook 'server-start)
 
 ;; .emacs.el ends here

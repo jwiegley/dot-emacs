@@ -1,4 +1,5 @@
 #name : MISRA-C:2004 rule commit description
+#expand-env : ((yas/indent-line 'fixed) (yas/wrap-around-region 'nil))
 # --
 Summary: MISRA-C:2004 - Rule $1 ($2)
 
