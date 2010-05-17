@@ -295,6 +295,39 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
     )
   )
 
+;; clone-buffer do not keep the current content of proof-response-buffer, so
+;; here is my version
+(defun proof-clone-buffer (s &optional erase)
+  (let ((nb (get-buffer-create s)))
+    (if erase (copy-to-buffer nb (point-min) (point-max))
+      (append-to-buffer nb (point-min) (point-max)))
+    nb))
+
+;; copy the content of proof-response-buffer into the "response-freeze" buffer,
+;; resetting its content if ERASE non nil.
+;; FIXME: point seems not to go at the end of the buffer
+(defun proof-store-buffer-win (buffer &optional erase)
+  (let ((newbuffer nil))
+    (save-excursion ;; didn't found a way to avoid buffer switching
+      (set-buffer buffer)
+      (setq newbuffer (proof-clone-buffer "response-freeze" erase)))
+    (set-buffer newbuffer)
+    (goto-char (point-max))
+    (insert "\n************************************\n")
+    (goto-char (point-max))
+    (display-buffer-other-frame newbuffer)
+    )
+  )
+
+(defun proof-store-response-win (&optional erase)
+  (interactive "P")
+  (proof-store-buffer-win proof-response-buffer erase)
+  )
+(defun proof-store-goals-win (&optional erase)
+  (interactive "P")
+  (proof-store-buffer-win proof-goals-buffer erase)
+  )
+
 ;; Each time the state changes (hook below), (try to) put the state number in the
 ;; last locked span (will fail if there is already a number which should happen when
 ;; going back in the script).  The state number we put is not the last one because
@@ -468,6 +501,12 @@ If locked span already has a state number, then do nothing. Also updates
      (format (concat do " %s . ") (funcall postform cmd))))
   )
 
+(defun coq-put-into-brackets (s)
+  (concat "[ " s " ]")
+  )
+
+(defun coq-put-into-quotes (s) (concat "\"" s "\""))
+
 (defun coq-SearchIsos ()
   "Search a term whose type is isomorphic to given type.
 This is specific to `coq-mode'."
@@ -478,13 +517,20 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do "Search constant" "Search" nil))
 
+
+; only in ssreflect
+;(defun coq-Searchregexp ()
+;  (interactive)
+;  (coq-ask-do "Search regexp" "Search" nil 'coq-put-into-quotes))
+
+
 (defun coq-SearchRewrite ()
   (interactive)
   (coq-ask-do "Search Rewrite" "SearchRewrite" nil))
 
 (defun coq-SearchAbout ()
   (interactive)
-  (coq-ask-do "Search About" "SearchAbout" nil))
+  (coq-ask-do "Search About (ex: eq nat -bool)" "SearchAbout" nil 'coq-put-into-brackets))
 
 (defun coq-Print () "Ask for an ident and print the corresponding term."
   (interactive)
@@ -506,14 +552,13 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do "Locate Library" "Locate Library"))
 
-(defun coq-addquotes (s) (concat "\"" s "\""))
 
 (defun coq-LocateNotation ()
   "Locate a notation.
 This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do "Locate Notation (ex: \'exists\' _ , _)" "Locate"
-              t 'coq-addquotes))
+              t 'coq-put-into-quotes))
 
 (defun coq-Pwd ()
   "Locate a notation.
@@ -1192,12 +1237,20 @@ be asked to the user."
 (define-key coq-keymap [(control ?s)] 'coq-Show)
 (define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
 (define-key coq-keymap [(control ?T)] 'coq-insert-tactical)
+(define-key coq-keymap [(control ?r)] 'proof-store-response-win)
+(define-key coq-keymap [(control ?g)] 'proof-store-goals-win)
 
 (define-key coq-keymap [(control space)] 'coq-insert-term)
 (define-key coq-keymap [(control return)] 'coq-insert-command)
 
-(define-key coq-keymap [(control ?r)] 'coq-insert-requires)
+
+;(define-key coq-keymap [(control ?)] 'coq-insert-requires)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
+; only for ssreflect??
+;(define-key coq-keymap [(control ?r)] 'coq-Searchregexp)
+
+; searchAbout is better?
+;(define-key coq-keymap [(control ?)] 'coq-SearchConstant)
 
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
