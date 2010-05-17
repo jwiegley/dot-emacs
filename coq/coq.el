@@ -299,6 +299,11 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
 ;; here is my version
 (defun proof-clone-buffer (s &optional erase)
   (let ((nb (get-buffer-create s)))
+    (save-window-excursion
+      (switch-to-buffer nb)
+      (goto-char (point-min))
+      (insert "\n************************************\n")
+      (goto-char (point-min)))
     (if erase (copy-to-buffer nb (point-min) (point-max))
       (append-to-buffer nb (point-min) (point-max)))
     nb))
@@ -308,13 +313,8 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
 ;; FIXME: point seems not to go at the end of the buffer
 (defun proof-store-buffer-win (buffer &optional erase)
   (let ((newbuffer nil))
-    (save-excursion ;; didn't found a way to avoid buffer switching
-      (set-buffer buffer)
-      (setq newbuffer (proof-clone-buffer "response-freeze" erase)))
-    (set-buffer newbuffer)
-    (goto-char (point-max))
-    (insert "\n************************************\n")
-    (goto-char (point-max))
+    (set-buffer buffer)
+    (setq newbuffer (proof-clone-buffer " response-freeze" erase))
     (display-buffer-other-frame newbuffer)
     )
   )
