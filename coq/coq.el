@@ -518,10 +518,10 @@ This is specific to `coq-mode'."
   (coq-ask-do "Search constant" "Search" nil))
 
 
-; only in ssreflect
-;(defun coq-Searchregexp ()
-;  (interactive)
-;  (coq-ask-do "Search regexp" "Search" nil 'coq-put-into-quotes))
+
+(defun coq-Searchregexp ()
+  (interactive)
+  (coq-ask-do "Search regexp (ex: \"eq_\" nat)" "SearchAbout" nil 'coq-put-into-brackets))
 
 
 (defun coq-SearchRewrite ()
@@ -530,7 +530,7 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchAbout ()
   (interactive)
-  (coq-ask-do "Search About (ex: eq nat -bool)" "SearchAbout" nil 'coq-put-into-brackets))
+  (coq-ask-do "Search About (ex: \"eq_\" eq -bool)" "SearchAbout" nil 'coq-put-into-brackets))
 
 (defun coq-Print () "Ask for an ident and print the corresponding term."
   (interactive)
@@ -1246,11 +1246,6 @@ be asked to the user."
 
 ;(define-key coq-keymap [(control ?)] 'coq-insert-requires)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
-; only for ssreflect??
-;(define-key coq-keymap [(control ?r)] 'coq-Searchregexp)
-
-; searchAbout is better?
-;(define-key coq-keymap [(control ?)] 'coq-SearchConstant)
 
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
