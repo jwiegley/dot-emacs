@@ -329,6 +329,10 @@
 
 (mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
 
+;;;_ * archive-region
+
+(load "archive-region" t)
+
 ;;;_ * bookmark+
 
 (load "bookmark+" t)
