@@ -236,6 +236,9 @@ by nnmaildir-request-article.")
 (defmacro nnmaildir--marks-dir (dir) `(nnmaildir--subdir ,dir "marks"))
 (defmacro nnmaildir--num-dir   (dir) `(nnmaildir--subdir ,dir "num"))
 
+(defun nnmaildir--num-file  (dir)
+  (expand-file-name "num" dir))
+
 (defmacro nnmaildir--unlink (file-arg)
   `(let ((file ,file-arg))
      (if (file-attributes file) (delete-file file))))
@@ -249,7 +252,7 @@ by nnmaildir-request-article.")
     (mapc 'delete-file (funcall ls dir 'full "\\`[^.]" 'nosort))
     (delete-directory dir)))
 
-(defun nnmaildir--group-maxnum (server group)
+(defun nnmaildir--group-maxnum-from-dir (server group)
   (catch 'return
     (if (zerop (nnmaildir--grp-count group)) (throw 'return 0))
     (let ((dir (nnmaildir--srvgrp-dir (nnmaildir--srv-dir server)
@@ -272,6 +275,21 @@ by nnmaildir-request-article.")
 	(or attr (throw 'return (1- number-linked)))
 	(unless (equal ino-opened (nth 10 attr))
 	  (setq number-opened number-linked))))))
+
+(defun nnmaildir--group-maxnum (server group)
+  (if (zerop (nnmaildir--grp-count group))
+      0
+    (let ((file (nnmaildir--num-file
+		 (nnmaildir--nndir
+		  (nnmaildir--srvgrp-dir (nnmaildir--srv-dir server)
+					 (nnmaildir--grp-name group))))))
+      (if (file-directory-p file)
+	  (nnmaildir--group-maxnum-from-dir server group)
+	(if (file-exists-p file)
+	    (with-temp-buffer
+	      (insert-file-contents file)
+	      (read (current-buffer)))
+	  0)))))
 
 ;; Make the given server, if non-nil, be the current server.  Then make the
 ;; given group, if non-nil, be the current group of the current server.  Then
@@ -324,8 +342,7 @@ by nnmaildir-request-article.")
 (defun nnmaildir--eexist-p (err)
   (eq (car err) 'file-already-exists))
 
-(defun nnmaildir--new-number (nndir)
-  "Allocate a new article number by atomically creating a file under NNDIR."
+(defun nnmaildir--new-number-from-dir (nndir)
   (let ((numdir (nnmaildir--num-dir nndir))
 	(make-new-file t)
 	(number-open 1)
@@ -365,6 +382,23 @@ by nnmaildir-request-article.")
 		(setq number-open number-link
 		      number-link 0))))
 	   (t (signal (car err) (cdr err)))))))))
+
+(defun nnmaildir--new-number (nndir)
+  "Allocate a new article number by atomically creating a file under NNDIR."
+  (let ((numfile (nnmaildir--num-file nndir))
+	(number 0))
+    (if (file-directory-p numfile)
+	(nnmaildir--new-number-from-dir nndir)
+      (with-current-buffer (find-file-noselect numfile t t)
+	(goto-char (point-min))
+	(unless (eobp)
+	  (setq number (1+ (read (current-buffer))))
+	  (delete-region (point-min) (point-max)))
+	(insert (number-to-string number))
+	(write-region (point-min) (point-max) numfile nil 'no-message)
+	(set-buffer-modified-p nil)
+	(kill-buffer (current-buffer)))
+      number)))
 
 (defun nnmaildir--update-nov (server group article)
   (let ((nnheader-file-coding-system 'binary)
