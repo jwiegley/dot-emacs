@@ -88,8 +88,10 @@
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-raised-buttons nil)
  '(cycbuf-buffer-sort-function (quote cycbuf-sort-by-recency))
+ '(cycbuf-clear-delay 2)
  '(cycbuf-dont-show-regexp (quote ("^ " "^\\*cycbuf\\*$" "^\\*")))
  '(cycbuf-file-name-replacements (quote (("/Users/johnw/" "~/"))))
+ '(cycbuf-max-window-height 10)
  '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1") (cursor-color . "#b247ee"))))
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote fundamental-mode))
@@ -435,7 +437,8 @@
 
 ;;;_ * cycbuf
 
-(require 'cycbuf)
+(autoload 'cycbuf-switch-to-next-buffer "cycbuf" nil t)
+(autoload 'cycbuf-switch-to-previous-buffer "cycbuf" nil t)
 
 ;;;_ * delim-kill
 
