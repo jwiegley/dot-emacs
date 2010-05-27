@@ -275,6 +275,7 @@
  '(tramp-verbose 3)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "John Wiegley")
+ '(user-init-file "/Users/johnw/Dropbox/.emacs.el" t)
  '(user-initials "jww")
  '(user-mail-address "jwiegley@gmail.com")
  '(vc-follow-symlinks t)
