@@ -173,8 +173,8 @@
 
 (defun initsplit-split-user-init-file ()
   (save-excursion
-    (if (string= (file-truename (buffer-file-name (current-buffer)))
-		 (file-truename (or custom-file user-init-file)))
+    (if (string= (buffer-file-name (current-buffer))
+		 (or custom-file user-init-file))
 	(let (initsplit-modified-buffers)
 	  (initsplit-split-customizations)
 	  (initsplit-split-customizations t)

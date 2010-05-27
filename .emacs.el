@@ -147,6 +147,7 @@
  '(large-file-warning-threshold nil)
  '(ledger-file "/Volumes/Files/ledger.dat")
  '(line-number-mode t)
+ '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil))))
  '(line-spacing 2)
  '(lui-time-stamp-position nil)
  '(mac-pass-command-to-system nil)
