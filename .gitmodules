@@ -58,3 +58,6 @@
 [submodule "site-lisp/ruby-mode"]
 	path = site-lisp/ruby-mode
 	url = git://github.com/jwiegley/ruby-mode.git
+[submodule "site-lisp/delim-kill"]
+	path = site-lisp/delim-kill
+	url = git://github.com/thomas11/delim-kill.git

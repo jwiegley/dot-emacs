@@ -13,6 +13,7 @@
        (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
        (expand-file-name "~/Library/Emacs")
        (expand-file-name "~/Library/Emacs/site-lisp/apel")
+       (expand-file-name "~/Library/Emacs/site-lisp/delim-kill")
        (expand-file-name "~/Library/Emacs/site-lisp/eshell")
        (expand-file-name "~/Library/Emacs/site-lisp/ess/lisp")
        (expand-file-name "~/Library/Emacs/site-lisp/gist")
@@ -434,6 +435,10 @@
 ;;;_ * cycbuf
 
 (require 'cycbuf)
+
+;;;_ * delim-kill
+
+(autoload 'delim-kill "delim-kill" nil t)
 
 ;;;_ * doxymacs
 
@@ -1403,6 +1408,8 @@ end tell" (match-string 1))))
 	  (setq this-command 'isearchb-activate)
 	  (call-interactively 'isearchb-activate))
       (bury-buffer))))
+
+(define-key global-map [(control meta ?w)] 'delim-kill)
 
 (define-key global-map [(control ?z)] 'collapse-or-expand)
 
