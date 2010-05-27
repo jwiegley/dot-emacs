@@ -1924,6 +1924,7 @@ expand wildcards (if any) and visit multiple files."
        (define-key map "f" 'org-agenda-date-later)
        (define-key map "b" 'org-agenda-date-earlier)
        (define-key map "r" 'org-agenda-refile)
+       (define-key map "w" 'org-agenda-refile)
        (define-key map " " 'org-agenda-tree-to-indirect-buffer)
        (define-key map "F" 'org-agenda-follow-mode)
        (define-key map "q" 'delete-window)
