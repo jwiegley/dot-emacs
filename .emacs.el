@@ -1979,4 +1979,8 @@ expand wildcards (if any) and visit multiple files."
 	     (org-resolve-clocks))))
 (add-hook 'after-init-hook 'server-start)
 
+(defun large-font ()
+  (interactive)
+  (set-frame-font "-apple-Courier-medium-normal-normal-*-16-*-*-*-m-0-iso10646-1"))
+
 ;; .emacs.el ends here
