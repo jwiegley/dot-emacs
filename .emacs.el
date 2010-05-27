@@ -217,8 +217,8 @@
  '(org-mobile-directory "/Volumes/docs")
  '(org-mobile-files (quote (org-agenda-files org-agenda-text-search-extra-files)))
  '(org-mobile-inbox-for-pull "~/Dropbox/from-mobile.org")
- '(org-modules (quote (org-crypt org-id org-habit org-mac-message org-bookmark org-eval org-R org2rem)))
- '(org-refile-targets (quote ((org-agenda-files :level . 1))))
+ '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-eval)))
+ '(org-refile-targets (quote ((org-agenda-files :level . 1) (org-agenda-files :todo . "Project"))))
  '(org-remember-store-without-prompt t)
  '(org-remember-templates (quote (("Task" 116 "* TODO %?
   SCHEDULED: %t
@@ -226,6 +226,7 @@
   :ID:       %(shell-command-to-string \"uuidgen\")  :END:
   %U" nil "Inbox" nil))))
  '(org-reverse-note-order t)
+ '(org-speed-commands-user nil)
  '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
  '(org-tag-alist (quote ((#("NASIM" 0 5 (face nil)) . 110) (#("WORK" 0 4 (face nil)) . 119))))
  '(org-tags-column -97)
@@ -963,17 +964,21 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (defun org-my-auto-exclude-function (tag)
   (and (cond
-	((string= tag "net")
-	 (/= 0 (call-process "/sbin/ping" nil nil nil
-			     "-c1" "-q" "-t1" "mail.gnu.org")))
+	((string= tag "call")
+	 (let ((hour (nth 2 (decode-time))))
+	   (or (< hour 8) (> hour 21))))
+	((string= tag "errand")
+	 t)
 	((string= tag "home")
 	 (with-temp-buffer
 	   (call-process "/sbin/ifconfig" nil t nil "en0" "inet")
 	   (goto-char (point-min))
 	   (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
-	((or (string= tag "errand") (string= tag "call"))
-	 (let ((hour (nth 2 (decode-time))))
-	   (or (< hour 8) (> hour 21)))))
+	((string= tag "net")
+	 (/= 0 (call-process "/sbin/ping" nil nil nil
+			     "-c1" "-q" "-t1" "mail.gnu.org")))
+	((string= tag "fun")
+	 org-clock-current-task))
        (concat "-" tag)))
 
 ;;(defun org-indent-empty-items (arg)
@@ -1036,6 +1041,19 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (defun org-insert-bug (bug)
   (interactive "nBug: ")
   (insert (format "[[cegbug:%s][#%s]]" bug bug)))
+
+(defun org-cmp-ceg-bugs (a b)
+  (let* ((bug-a (and (string-match "#\\([0-9]+\\)" a)
+		     (match-string 1 a)))
+	 (bug-b (and (string-match "#\\([0-9]+\\)" b)
+		     (match-string 1 b)))
+	 (cmp (and bug-a bug-b
+		   (- (string-to-number bug-b)
+		      (string-to-number bug-a)))))
+    (cond ((null cmp) nil)
+	  ((< cmp 0) -1)
+	  ((> cmp 0) 1)
+	  ((= cmp 0) nil))))
 
 (defun org-my-state-after-clock-out (state)
   (if (string= state "STARTED")
@@ -1155,7 +1173,8 @@ This can be 0 for immediate, or a floating point value.")
   :PROPERTIES:
   :ID:       %(shell-command-to-string \"uuidgen\")  :END:
   %U" "~/Dropbox/todo.txt" "Inbox"))))
-	(org-remember)))))
+	(org-remember))))
+  (set-fill-column 72))
 
 (defun jump-to-ledger-journal ()
   (interactive)
@@ -1207,6 +1226,12 @@ end tell"))
 end tell")))
     (org-make-link-string (concat "message://" message-id) subject)))
 
+(defun org-get-message-sender ()
+  (do-applescript "tell application \"Mail\"
+        set theMessages to selection
+        sender of beginning of theMessages
+end tell"))
+
 (defun org-get-url-link ()
   (let ((subject (do-applescript "tell application \"Safari\"
         name of document of front window
@@ -1248,6 +1273,11 @@ end tell")))
   "Set a property for the current headline."
   (interactive)
   (org-set-property "Message" (org-get-message-link)))
+
+(defun org-set-message-sender ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Submitter" (org-get-message-sender)))
 
 (defun org-set-url-link ()
   "Set a property for the current headline."
@@ -1319,6 +1349,15 @@ end tell" (match-string 1))))
 
 (fset 'sort-todo-categories
    [?\C-u ?\C-s ?^ ?\\ ?* ?\S-  ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
+
+(fset 'sort-subcategories
+   [?\C-u ?\C-s ?^ ?\\ ?* ?\\ ?* ?\S-  ?P ?r ?o ?j ?e ?c ?t ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
+
+(fset 'match-bug-list
+   [?\C-s ?= ?\C-b ?\C-f ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?\M-y C-return])
+
+(fset 'match-up-bugs
+   [?\C-s ?= ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?# ?\M-y C-return])
 
 ;;;_ * remember
 
@@ -1953,6 +1992,7 @@ expand wildcards (if any) and visit multiple files."
 
 (define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
 (define-key mode-specific-map [?x ?M] 'org-set-message-link)
+(define-key mode-specific-map [?x ?Y] 'org-set-message-sender)
 (define-key mode-specific-map [?x ?U] 'org-set-url-link)
 (define-key mode-specific-map [?x ?F] 'org-set-file-link)
 (define-key mode-specific-map [?x ?C] 'cvs-examine)
