@@ -120,7 +120,7 @@ by nnmaildir-request-article.")
 
 (defstruct nnmaildir--art
   (prefix nil :type string)  ;; "time.pid.host"
-  (suffix nil :type string)  ;; ":2,flags"
+  (suffix nil :type string)  ;; ":2,flags" (note: flags may be empty)
   (num    nil :type natnum)  ;; article number
   (msgid  nil :type string)  ;; "<mess.age@id>"
   (nov    nil :type vector)) ;; cached nov structure, or nil
@@ -1535,6 +1535,35 @@ by nnmaildir-request-article.")
 	(erase-buffer))
       didnt)))
 
+(defun nnmaildir-article-modify-file-flags (article dir action marks)
+  (let* ((suffix (nnmaildir--art-suffix article))
+	 (new-suffix suffix)
+	 (xlat-alist '((tick  . "F")
+		       (reply . "R")
+		       (read  . "S"))))
+    (when (eq action 'set)
+      (setq new-suffix (replace-regexp-in-string "[FRS]" "" new-suffix)
+	    action 'add))
+    (dolist (mark marks)
+      (let ((flag (cdr (assq mark xlat-alist))))
+	(if flag
+	    (cond ((eq action 'add)
+		   (unless (string-match flag new-suffix)
+		     (setq new-suffix
+			   (concat new-suffix flag))))
+		  ((eq action 'delete)
+		   (if (string-match flag new-suffix)
+		       (setq new-suffix
+			     (replace-regexp-in-string flag "" new-suffix))))
+		  ((eq action 'set))))))
+    (unless (string= suffix new-suffix)
+      (let ((nnmaildir-article-file-name
+	     (concat dir (nnmaildir--art-prefix article) suffix)))
+	(setf (nnmaildir--art-suffix article) new-suffix)
+	(rename-file nnmaildir-article-file-name
+		     (concat dir (nnmaildir--art-prefix article)
+			     new-suffix))))))
+
 (defun nnmaildir-request-set-mark (gname actions &optional server)
   (let ((group (nnmaildir--prepare server gname))
 	(coding-system-for-write nnheader-file-coding-system)
@@ -1542,13 +1571,21 @@ by nnmaildir-request-article.")
 	(file-coding-system-alist nil)
 	del-mark del-action add-action set-action marksdir nlist
 	ranges begin end article all-marks todo-marks mdir mfile
-	pgname ls permarkfile deactivate-mark)
+	pgname ls permarkfile deactivate-mark dir marks-already-set)
+    (setq dir (nnmaildir--srv-dir nnmaildir--cur-server)
+	  dir (nnmaildir--srvgrp-dir dir gname)
+	  dir (if (nnmaildir--param pgname 'read-only)
+		  (nnmaildir--new dir) (nnmaildir--cur dir)))
     (setq del-mark
 	  (lambda (mark)
 	    (setq mfile (nnmaildir--subdir marksdir (symbol-name mark))
 		  mfile (concat mfile (nnmaildir--art-prefix article)))
 	    (nnmaildir--unlink mfile))
-	  del-action (lambda (article) (mapcar del-mark todo-marks))
+	  del-action
+	  (lambda (article)
+	    (mapcar del-mark todo-marks)
+	    (nnmaildir-article-modify-file-flags article dir
+						 'delete todo-marks))
 	  add-action
 	  (lambda (article)
 	    (mapcar
@@ -1569,9 +1606,15 @@ by nnmaildir-request-article.")
 		     (rename-file permarkfilenew permarkfile 'replace)
 		     (add-name-to-file permarkfile mfile)))
 		  (t (signal (car err) (cdr err))))))
-	     todo-marks))
+	     todo-marks)
+	    (unless marks-already-set
+	      (nnmaildir-article-modify-file-flags article dir
+						   'add todo-marks)))
 	  set-action (lambda (article)
-		       (funcall add-action)
+		       (nnmaildir-article-modify-file-flags article dir
+							    'set todo-marks)
+		       (let ((marks-already-set t))
+			 (funcall add-action))
 		       (mapcar (lambda (mark)
 				 (unless (memq mark todo-marks)
 				   (funcall del-mark mark)))
