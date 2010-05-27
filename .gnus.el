@@ -134,6 +134,11 @@
 (eval-after-load "message"
   '(load "message-x"))
 
+(define-key gnus-group-mode-map (kbd "vo")
+   '(lambda ()
+      (interactive)
+      (shell-command "offlineimap &" "*offlineimap*" nil)))
+
 ;;(eval-after-load "gnus-sum"
 ;;  '(defalias 'gnus-summary-refer-article 'gnus-goto-article))
 
