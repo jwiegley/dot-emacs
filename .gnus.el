@@ -7,24 +7,36 @@
 ;;;_ + variables
 
 (custom-set-variables
+ '(starttls-use-gnutls t)
+ '(starttls-gnutls-program "/opt/local/bin/gnutls-cli")
+ '(starttls-extra-arguments nil)
+ '(smtpmail-starttls-credentials (quote (("smtp.gmail.com" 587 "jwiegley@gmail.com" nil))))
+ '(smtpmail-smtp-service 587)
+ '(smtpmail-smtp-server "smtp.gmail.com")
+ '(smtpmail-local-domain "gmail.com")
+ '(smtpmail-default-smtp-server "smtp.gmail.com")
+ '(smtpmail-debug-info t)
+ '(sendmail-program "/opt/local/bin/msmtp")
+ '(send-mail-function (quote smtpmail-send-it))
  '(nnmail-scan-directory-mail-source-once t)
- '(nnmail-message-id-cache-file "~/Documents/Mail/.nnmail-cache")
+ '(nnmail-message-id-cache-file "~/Mail/.nnmail-cache")
  '(nnmail-extra-headers (quote (To)))
  '(nnmail-expiry-wait 30)
  '(nnmail-expiry-target (quote my-gnus-expiry-target))
  '(nnmail-crosspost nil)
- '(nndraft-directory "~/Documents/Mail/" t)
+ '(nndraft-directory "~/Mail/" t)
  '(mm-text-html-renderer (quote html2text))
  '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
  '(message-setup-hook (quote (gnus-fix-gcc-header)))
  '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-sendmail-envelope-from (quote header))
  '(message-send-mail-partially-limit nil)
+ '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-mode-hook (quote (flyspell-mode footnote-mode)))
  '(message-mail-alias-type nil)
  '(message-interactive t)
- '(message-directory "~/Documents/Mail/")
- '(message-default-headers "From: John Wiegley <johnw@newartisans.com>
+ '(message-directory "~/Mail/")
+ '(message-default-headers "From: John Wiegley <jwiegley@gmail.com>
 ")
  '(mail-user-agent (quote gnus-user-agent))
  '(mail-sources (quote ((file))))
@@ -92,11 +104,11 @@
  '(gnus-always-read-dribble-file t)
  '(gnus-agent-expire-days 14)
  '(gnus-agent-expire-all t)
- '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-fixup-nnimap-unread-after-getting-new-news gnus-group-save-newsrc)))
+ '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-group-save-newsrc)))
  '(gnus-activate-level 3)
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(check-mail-summary-function (quote check-mail-box-summary))
- '(check-mail-boxes (quote ("~/Documents/Mail/incoming/mail\\..*\\.spool")))
+ '(check-mail-boxes (quote ("~/Mail/incoming/mail\\..*\\.spool")))
  '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec"))
 
 ;;;_ + faces
@@ -116,6 +128,8 @@
 (load "gnus")
 (load "gnus-agent")
 (load "eudc")
+(load "tls")
+(load "starttls")
 
 (eval-after-load "message"
   '(load "message-x"))
@@ -178,8 +192,8 @@
 					  nil nil nil (cadr addr))))))))
 
 (defun gnus-goto-article (message-id)
-  (let ((info (nnml-find-group-number message-id "nnml")))
-    (gnus-summary-read-group (concat "nnml:" (car info)) 100 t)
+  (let ((info (nnml-find-group-number message-id "nnmaildir+Mail")))
+    (gnus-summary-read-group (concat "nnmaildir+Mail:" (car info)) 100 t)
     (gnus-summary-goto-article (cdr info) nil t)))
 
 ;;;_ + Saving articles from gnu.emacs.sources
@@ -312,7 +326,8 @@
 	(message-remove-header "Gcc")
 	(message-add-header (format "Gcc: %s" gcc)))
       (cond
-       ((string-match "\\`nnml:list\\." gcc)
+       ((or (string-match "\\`nnml:list\\." gcc)
+	    (string-match "\\`nnmaildir\\+Mail:INBOX\\.Mailing Lists\\." gcc))
 	(let* ((split-addr
 		(function
 		 (lambda (field)
@@ -329,7 +344,9 @@
 	       (list-addr (and to-addr (downcase to-addr))))
 	  (when (and list-addr (member list-addr addrs))
 	    (message-remove-header "Gcc")
-	    (message-add-header "FCC: ~/Documents/Mail/listposts"))))))))
+	    (if t
+		(message-add-header "Gcc: nnmaildir+Mail:INBOX.Sent")
+	      (message-add-header "FCC: ~/Mail/listposts")))))))))
 
 ;;;_ + Archive groups
 
@@ -339,30 +356,27 @@
   :group 'nnmail)
 
 (defun gnus-determine-archive-group (group)
-  (or (if (string= "nnimap+imap.gmail.com:INBOX" group)
-	  group
-	"nnimap+mail.johnwiegley.com:INBOX")
-      (let* (lookup
-	     (group
-	      (cond
-	       ((string-match "^nntp.*:\\(.*\\)" group)
-		(setq lookup t)
-		(match-string 1 group))
-	       ((or (null group)
-		    (string= group ""))
-		"nnimap+mail.johnwiegley.com:INBOX.Sent")
-	       ((string-match "^\\([^:.]+\\.[^:]+\\)" group)
-		(setq lookup t)
-		(match-string 1 group))
-	       (t group)))
-	     (table gnus-archive-groups))
-	(if lookup
-	    (while table
-	      (if (string-match (caar table) group)
-		  (setq group (cdar table)
-			table nil)
-		(setq table (cdr table)))))
-	group)))
+  (let* (lookup
+	 (group
+	  (cond
+	   ((string-match "^nntp.*:\\(.*\\)" group)
+	    (setq lookup t)
+	    (match-string 1 group))
+	   ((or (null group)
+		(string= group ""))
+	    "nnmaildir+Mail:Archive")
+	   ((string-match "^\\([^:.]+\\.[^:]+\\)" group)
+	    (setq lookup t)
+	    (match-string 1 group))
+	   (t group)))
+	 (table gnus-archive-groups))
+    (if lookup
+	(while table
+	  (if (string-match (caar table) group)
+	      (setq group (cdar table)
+		    table nil)
+	    (setq table (cdr table)))))
+    group))
 
 ;;;_* keybindings
 
