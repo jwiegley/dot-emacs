@@ -176,6 +176,7 @@
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-ndays 1)
+ '(org-agenda-persistent-filter t)
  '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
  '(org-agenda-scheduled-relative-text "S%d: ")
