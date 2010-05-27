@@ -105,6 +105,7 @@
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
+ '(display-time-mail-directory "~/Mail/INBOX/new")
  '(display-time-mode t)
  '(elscreen-display-tab nil)
  '(elscreen-prefix-key "")
