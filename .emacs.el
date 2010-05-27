@@ -1525,6 +1525,7 @@ end tell" (match-string 1))))
 ;;;_ * global
 
 (define-key global-map [(control meta backspace)] 'backward-kill-sexp)
+(define-key global-map [(control meta delete)] 'backward-kill-sexp)
 
 (defun smart-beginning-of-line (&optional arg)
   (interactive "p")
@@ -1614,8 +1615,9 @@ end tell" (match-string 1))))
 
 (define-key global-map [(alt ?c)] 'jump-to-org-agenda)
 (define-key global-map [(alt ?m)] 'main-frame)
-(define-key global-map [(meta ?\])] 'main-frame)
 (define-key global-map [(alt ?l)] 'visit-ledger-channel)
+
+(load ".gnus.el")
 
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 (define-key global-map [(meta ?G)] 'gnus)
@@ -1635,6 +1637,7 @@ end tell" (match-string 1))))
       (align beg end-mark))))
 
 (define-key global-map [(meta ?\[)] 'align-code)
+;;(define-key global-map [(meta ?\])] 'main-frame)
 (define-key global-map [(meta ?!)]  'eshell-command)
 (define-key global-map [(meta ?`)]  'cycbuf-switch-to-next-buffer)
 (define-key global-map [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
@@ -1904,11 +1907,7 @@ expand wildcards (if any) and visit multiple files."
 
 (defun my-ledger-start-entry (&optional arg)
   (interactive "p")
-  (unless (file-directory-p "/Volumes/Files")
-    (shell-command "open /Users/johnw/Documents/Files.sparsebundle"))
-  (while (not (file-directory-p "/Volumes/Files"))
-    (sleep-for 0 50))
-  (find-file-other-window "/Volumes/Files/Accounts/ledger.dat")
+  (find-file-other-window "~/Dropbox/Accounts/ledger.dat")
   (goto-char (point-max))
   (skip-syntax-backward " ")
   (if (looking-at "\n\n")
