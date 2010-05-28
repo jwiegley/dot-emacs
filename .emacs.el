@@ -2123,6 +2123,10 @@ expand wildcards (if any) and visit multiple files."
 (eval-after-load "footnote"
   '(define-key footnote-mode-map "#" 'redo-footnotes))
 
+;;;_ * initsplit
+
+(load "initsplit")
+
 ;;;_ * isearch-mode
 
 (define-key isearch-mode-map [(control ?c)] 'isearch-toggle-case-fold)
