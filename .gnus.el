@@ -31,10 +31,11 @@
  '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-sendmail-envelope-from (quote header))
  '(message-send-mail-partially-limit nil)
- '(message-send-mail-function (quote message-send-mail-with-sendmail))
- '(message-mode-hook (quote (flyspell-mode footnote-mode)))
+ '(message-send-mail-function (quote message-smtpmail-send-it))
+ '(message-mode-hook (quote (footnote-mode auto-fill-mode)))
  '(message-mail-alias-type nil)
  '(message-interactive t)
+ '(message-fill-column 78)
  '(message-directory "~/Mail/")
  '(message-default-headers "From: John Wiegley <jwiegley@gmail.com>
 ")
