@@ -64,3 +64,6 @@
 [submodule "site-lisp/scala-mode"]
 	path = site-lisp/scala-mode
 	url = git://github.com/jwiegley/scala-mode.git
+[submodule "site-lisp/muse-blog"]
+	path = site-lisp/muse-blog
+	url = git://git.naquadah.org/muse-blog.git
