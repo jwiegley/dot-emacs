@@ -61,3 +61,6 @@
 [submodule "site-lisp/delim-kill"]
 	path = site-lisp/delim-kill
 	url = git://github.com/thomas11/delim-kill.git
+[submodule "site-lisp/scala-mode"]
+	path = site-lisp/scala-mode
+	url = git://github.com/jwiegley/scala-mode.git
