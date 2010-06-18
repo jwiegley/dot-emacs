@@ -14,6 +14,8 @@
        (expand-file-name "~/Library/Emacs")
        (expand-file-name "~/Library/Emacs/site-lisp/apel")
        (expand-file-name "~/Library/Emacs/site-lisp/delim-kill")
+       (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m")
+       (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m/shimbun")
        (expand-file-name "~/Library/Emacs/site-lisp/eshell")
        (expand-file-name "~/Library/Emacs/site-lisp/ess/lisp")
        (expand-file-name "~/Library/Emacs/site-lisp/gist")
@@ -59,6 +61,8 @@
 ;;;_* customizations
 
 ;;;_ * variables
+
+(load "initsplit")
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
@@ -123,6 +127,7 @@
  '(eshell-term-name "ansi")
  '(eshell-visual-commands (quote ("vi" "top" "screen" "less" "lynx" "ssh" "rlogin" "telnet")))
  '(eval-expr-print-function (quote pp) t)
+ '(exec-path (quote ("/Applications/MacPorts/Emacs.app/Contents/MacOS/bin" "/Users/johnw/bin" "/usr/local/bin" "/opt/local/libexec/git-core" "/opt/local/bin" "/usr/bin" "/bin" "/usr/local/sbin" "/opt/local/sbin" "/usr/sbin" "/sbin" "/usr/X11R6/bin")))
  '(fill-column 78)
  '(flyspell-abbrev-p nil)
  '(flyspell-incorrect-hook (quote (flyspell-maybe-correct-transposition)))
@@ -144,6 +149,7 @@
  '(ido-mode (quote both) nil (ido))
  '(ido-use-filename-at-point nil)
  '(ido-use-virtual-buffers t)
+ '(indent-tabs-mode nil)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 100) (height . 76))))
@@ -168,7 +174,7 @@
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
  '(org-agenda-cmp-user-defined (quote org-cmp-ceg-bugs))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Someday tasks:"))) ("l" "Ledger tasks" tags-todo "TODO<>{DEFERRED\\|SOMEDAY}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (priority-down todo-state-up category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Unscheduled work tasks" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>\"Website\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))))))
+ '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Someday tasks:"))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))))) ("L" "Ledger tasks not in Bugzilla" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(bug:\\)"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Unscheduled work tasks" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>\"Website\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
@@ -215,7 +221,7 @@
  '(org-footnote-section nil)
  '(org-habit-preceding-days 42)
  '(org-hide-leading-stars t)
- '(org-mobile-directory "/Volumes/docs")
+ '(org-mobile-directory "~/Dropbox/MobileOrg")
  '(org-mobile-files (quote (org-agenda-files org-agenda-text-search-extra-files)))
  '(org-mobile-inbox-for-pull "~/Dropbox/from-mobile.org")
  '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-eval)))
@@ -343,101 +349,6 @@
 
 (load "browse-kill-ring+" t)
 
-;;;_ * cc-mode
-
-(eval-after-load "cc-styles"
-  '(progn
-     (add-to-list
-      'c-style-alist
-      '("ceg"
-	(c-basic-offset . 3)
-	(c-comment-only-line-offset . (0 . 0))
-	(c-hanging-braces-alist     . ((substatement-open before after)
-				       (arglist-cont-nonempty)))
-	(c-offsets-alist . ((statement-block-intro . +)
-			    (knr-argdecl-intro . 5)
-			    (substatement-open . 0)
-			    (substatement-label . 0)
-			    (label . 0)
-			    (statement-case-open . 0)
-			    (statement-cont . +)
-			    (arglist-intro . c-lineup-arglist-intro-after-paren)
-			    (arglist-close . c-lineup-arglist)
-			    (inline-open . 0)
-			    (brace-list-open . 0)
-			    (topmost-intro-cont
-			     . (first c-lineup-topmost-intro-cont
-				      c-lineup-gnu-DEFUN-intro-cont))))
-	(c-special-indent-hook . c-gnu-impose-minimum)
-	(c-block-comment-prefix . "")))
-     (add-to-list
-      'c-style-alist
-      '("edg"
-	(indent-tabs-mode . nil)
-	(c-basic-offset . 3)
-	(c-comment-only-line-offset . (0 . 0))
-	(c-hanging-braces-alist     . ((substatement-open before after)
-				       (arglist-cont-nonempty)))
-	(c-offsets-alist . ((statement-block-intro . +)
-			    (knr-argdecl-intro . 5)
-			    (substatement-open . 0)
-			    (substatement-label . 0)
-			    (label . 0)
-			    (case-label . +)
-			    (statement-case-open . 0)
-			    (statement-cont . +)
-			    (arglist-intro . c-lineup-arglist-intro-after-paren)
-			    (arglist-close . c-lineup-arglist)
-			    (inline-open . 0)
-			    (brace-list-open . 0)
-			    (topmost-intro-cont
-			     . (first c-lineup-topmost-intro-cont
-				      c-lineup-gnu-DEFUN-intro-cont))))
-	(c-special-indent-hook . c-gnu-impose-minimum)
-	(c-block-comment-prefix . "")))
-     (add-to-list
-      'c-style-alist
-      '("ledger"
-	(indent-tabs-mode . nil)
-	(c-basic-offset . 2)
-	(c-comment-only-line-offset . (0 . 0))
-	(c-hanging-braces-alist     . ((substatement-open before after)
-				       (arglist-cont-nonempty)))
-	(c-offsets-alist . ((statement-block-intro . +)
-			    (knr-argdecl-intro . 5)
-			    (substatement-open . 0)
-			    (substatement-label . 0)
-			    (label . 0)
-			    (case-label . +)
-			    (statement-case-open . 0)
-			    (statement-cont . +)
-			    (arglist-intro . c-lineup-arglist-intro-after-paren)
-			    (arglist-close . c-lineup-arglist)
-			    (inline-open . 0)
-			    (brace-list-open . 0)
-			    (topmost-intro-cont
-			     . (first c-lineup-topmost-intro-cont
-				      c-lineup-gnu-DEFUN-intro-cont))))
-	(c-special-indent-hook . c-gnu-impose-minimum)
-	(c-block-comment-prefix . "")))))
-
-(eval-when-compile
-  (defvar c-mode-base-map))
-
-(defun my-c-mode-common-hook ()
-  (doxymacs-mode)
-  (define-key c-mode-base-map "\C-m" 'newline-and-indent)
-  (set (make-local-variable 'parens-require-spaces) nil)
-  (setq indicate-empty-lines t)
-  (setq fill-column 78)
-  (column-marker-3 80)
-  (font-lock-add-keywords
-   'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 widget-inactive t))))
-
-(which-function-mode t)
-
-(add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
-
 ;;;_ * chess
 
 (load "chess-auto" t)
@@ -451,36 +362,6 @@
 
 (autoload 'delim-kill "delim-kill" nil t)
 
-;;;_ * doxymacs
-
-(autoload 'doxymacs-mode "doxymacs")
-(autoload 'doxymacs-font-lock "doxymacs")
-
-(defun my-doxymacs-font-lock-hook ()
-  (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-      (doxymacs-font-lock)))
-
-(add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
-
-;;;_ * edebug
-
-(load "edebug" t)
-
-;;;_ * elint
-
-(defun elint-current-buffer ()
-  (interactive)
-  (elint-initialize)
-  (elint-current-buffer))
-
-(eval-after-load "elint"
-  '(progn
-     (add-to-list 'elint-standard-variables 'current-prefix-arg)
-     (add-to-list 'elint-standard-variables 'command-line-args-left)
-     (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-     (add-to-list 'elint-standard-variables 'emacs-major-version)
-     (add-to-list 'elint-standard-variables 'window-system)))
-
 ;;;_ * elscreen
 
 (require 'elscreen)
@@ -488,71 +369,15 @@
 (define-key elscreen-map "\C-\\" 'elscreen-toggle)
 (define-key elscreen-map "\\"    'toggle-input-method)
 
-;;;_ * emacs-lisp
-
-(defun elisp-indent-or-complete (&optional arg)
-  (interactive "p")
-  (call-interactively 'lisp-indent-line)
-  (unless (or (looking-back "^\\s-*")
-	      (bolp)
-	      (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
-    (call-interactively 'lisp-complete-symbol)))
-
-(eval-after-load "lisp-mode"
-  '(progn
-    (define-key emacs-lisp-mode-map [tab] 'elisp-indent-or-complete)))
-
-(add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
-
-(mapc (lambda (major-mode)
-	(font-lock-add-keywords
-	 major-mode
-	 `(("(\\(lambda\\)\\>"
-	    (0 (ignore
-		(compose-region (match-beginning 1)
-				(match-end 1) ?λ)))))))
-      '(emacs-lisp-mode))
-
 ;;;_  + eshell
 
 (eval-after-load "em-unix"
   '(progn
      (unintern 'eshell/rm)))
 
-;;;_  + column-marker
-
-(autoload 'column-marker-1 "column-marker")
-
-(add-hook 'emacs-lisp-mode-hook (lambda () (interactive) (column-marker-1 79)))
-
-;;;_  + paredit
-
-(autoload 'paredit-mode "paredit"
-  "Minor mode for pseudo-structurally editing Lisp code." t)
-(autoload 'turn-on-paredit-mode "paredit"
-  "Minor mode for pseudo-structurally editing Lisp code." t)
-
-(dolist (hook '(emacs-lisp-mode-hook))
-  (add-hook hook 'turn-on-paredit-mode))
-
-;;;_  + redhank
-
-(autoload 'redshank-mode "redshank"
-  "Minor mode for restructuring Lisp code (i.e., refactoring)." t)
-
-(dolist (hook '(emacs-lisp-mode-hook
-		lisp-mode-hook
-		slime-repl-mode-hook))
-  (add-hook hook #'(lambda () (redshank-mode +1))))
-
 ;;;_ * ess
 
 (load "ess-site" t)
-
-;;;_ * eval-expr
-
-(when (load "eval-expr" t)
-  (eval-expr-install))
 
 ;;;_ * flyspell
 
@@ -635,71 +460,6 @@
 	   (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
 	 (call-process "/Users/johnw/bin/del" nil nil nil file)))))
 
-;;;_ * groovy-mode
-
-(autoload 'groovy-mode "groovy" "" t)
-
-(add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
-(add-to-list 'auto-mode-alist '("\\.groovy\\'" . groovy-mode))
-
-(defun my-groovy-mode-hook ()
-  (define-key groovy-mode-map "\C-m" 'newline-and-indent)
-  (setq groovy-indent-level 3)
-  (setq indent-tabs-mode nil)
-  (set-fill-column 100))
-
-(add-hook 'groovy-mode-hook 'my-groovy-mode-hook)
-
-;;;_ * haskell-mode
-
-(load "haskell-site-file" t)
-
-(defun my-haskell-mode-hook ()
-  (flymake-mode)
-
-  (turn-on-haskell-doc-mode)
-  (turn-on-haskell-indentation)
-
-  (define-key haskell-mode-map [(control ?c) ?w]
-    'flymake-display-err-menu-for-current-line)
-  (define-key haskell-mode-map [(control ?c) ?*]
-    'flymake-start-syntax-check)
-  (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
-  (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
-
-(add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
-
-(load "inf-haskell" t)
-(load "hs-lint" t)
-
-;;;_ * java-mode
-
-(defun my-java-mode-hook ()
-  (c-set-style "ceg")
-  (setq c-basic-offset 3)
-  (setq indent-tabs-mode nil)
-  (setq tab-width 3)
-  (column-marker-3 100)
-  (set-fill-column 100))
-
-(add-hook 'java-mode-hook 'my-java-mode-hook)
-
-(defun repair ()
-  (interactive)
-  (goto-char (point-min))
-  (re-search-forward "   _o\\([a-zA-Z0-9]+\\)\\.close();")
-  (let ((type (match-string 1)))
-    (while (re-search-forward "Exception;$" nil t)
-      (goto-char (match-end 0))
-      (delete-backward-char 1)
-      (let (method)
-	(save-excursion
-	  (re-search-backward " \\([a-zA-Z0-9]+\\)(")
-	  (setq method (match-string 1)))
-	(insert ?\n "   {")
-	(insert ?\n (format "      return _o%s.%s();" type method))
-	(insert ?\n "   }")))))
-
 ;;;_ * ledger
 
 (load "ldg-new")
@@ -725,131 +485,6 @@
   (untabify (point-min) (point-max))
   (let ((require-final-newline t))
     (save-buffer)))
-
-;;;_ * nroff-mode
-
-(defun update-nroff-timestamp ()
-  (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward "^\\.Dd ")
-      (let ((stamp (format-time-string "%B %e, %Y")))
-	(unless (looking-at stamp)
-	  (delete-region (point) (line-end-position))
-	  (insert stamp)
-	  (let (after-save-hook)
-	    (save-buffer)))))))
-
-(add-hook 'nroff-mode-hook
-	  (function
-	   (lambda ()
-	     (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
-
-;;;_ * nxml-mode
-
-;(autoload 'nxml-mode "rng-auto" "" t)
-
-(defalias 'xml-mode 'nxml-mode)
-
-(defun my-nxml-mode-hook ()
-  (define-key nxml-mode-map [return] 'newline-and-indent)
-  (define-key nxml-mode-map [(control return)] 'other-window))
-
-(add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
-
-;;;_ * nxml-mode
-
-(defun load-nxhtml ()
-  (interactive)
-  (load "~/Library/Emacs/site-lisp/nxhtml/autostart.el"))
-
-;;;_ * objc++-mode
-
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.m\\'" . c-mode))
-(add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
-
-;;;_ * pcomplete
-
-;;;_ * puppet-mode
-
-(autoload 'puppet-mode "puppet-mode" "Major mode for editing puppet manifests")
-
-(add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
-
-;;;_ * python-mode
-
-(require 'python)
-
-(defvar python-keywords-wanting-colon
-  '("def" "class" "if" "elif" "while" "else" "with"
-    "try" "except" "finally" "for" "lambda"))
-
-(defvar python-kwc-regexp nil)
-
-(autoload 'word-at-point "thingatpt" nil t)
-
-(defun python-newline-and-indent ()
-  "Always make sure that colons appear in the appropriate place."
-  (interactive)
-  (unless (progn
-	    (skip-chars-backward " \t")
-	    (memq (char-before) '(?: ?, ?\\)))
-    (let ((here (point)))
-      (goto-char (line-beginning-position))
-      (skip-chars-forward " \t")
-      (let ((add-colon-p (member (word-at-point)
-				 python-keywords-wanting-colon)))
-	(goto-char here)
-	(if add-colon-p
-	    (let ((last-command-char ?:))
-	      (python-electric-colon nil))))))
-  (call-interactively 'newline-and-indent))
-
-(defun my-python-mode-hook ()
-  (flymake-mode)
-  
-  (setq indicate-empty-lines t)
-  (set (make-local-variable 'parens-require-spaces) nil)
-  (setq indent-tabs-mode nil)
-
-  (define-key python-mode-map [return] 'python-newline-and-indent)
-
-  (define-key python-mode-map [(control ?c) ?w]
-    'flymake-display-err-menu-for-current-line)
-  (define-key python-mode-map [(control ?c) (control ?w)]
-    'flymake-start-syntax-check)
-  (define-key python-mode-map [(meta ?n)] 'flymake-goto-next-error)
-  (define-key python-mode-map [(meta ?p)] 'flymake-goto-prev-error))
-
-(add-hook 'python-mode-hook 'my-python-mode-hook)
-
-;;; flymake
-
-(autoload 'flymake-mode "flymake" "" t)
-
-(eval-after-load "flymake"
-  '(progn
-     (defun flymake-pylint-init ()
-       (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-			    'flymake-create-temp-inplace))
-	      (local-file  (file-relative-name
-			    temp-file
-			    (file-name-directory buffer-file-name))))
-	 (list "epylint" (list local-file))))
-
-     (add-to-list 'flymake-allowed-file-name-masks
-		  '("\\.py\\'" flymake-pylint-init))
-
-     (defun flymake-hslint-init ()
-       (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-			    'flymake-create-temp-inplace))
-	      (local-file  (file-relative-name
-			    temp-file
-			    (file-name-directory buffer-file-name))))
-	 (list "hslint" (list local-file))))
-
-     (add-to-list 'flymake-allowed-file-name-masks
-		  '("\\.l?hs\\'" flymake-hslint-init))))
 
 ;;;_ * org-mode
 
@@ -959,7 +594,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 		  (setq bug (match-string 1))))))
 	  (save-excursion
 	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
+	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
 	    (insert (format "[[cegbug:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
 
@@ -971,7 +606,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	 (goto-char omk)
 	 (let ((components
 		(list "data" "doc" "expr" "lisp" "math" "python" "report"
-		      "test" "util" "website" "misc"))
+		      "test" "util" "website" "build" "misc"))
 	       (priorities (list "P1" "P2" "P3" "P4" "P5"))
 	       (severities (list "blocker" "critical" "major"
 				 "normal" "minor" "trivial" "enhancement"))
@@ -1036,7 +671,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 		  (setq bug (match-string 1))))))
 	  (save-excursion
 	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
+	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
 	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
 
@@ -1466,10 +1101,6 @@ end tell" (match-string 1))))
 
 (add-hook 'remember-mode-hook 'org-remember-apply-template)
 
-;;;_ * scala-mode
-
-(load "scala-mode-auto" t)
-
 ;;;_ * session
 
 (when (load "session" t)
@@ -1571,22 +1202,6 @@ end tell" (match-string 1))))
 (when (load "yasnippet" t)
   (yas/initialize)
   (yas/load-directory "~/Library/Emacs/snippets/"))
-
-;;;_ * zencoding
-
-(setq zencoding-mode-keymap (make-sparse-keymap))
-(define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)
-
-(autoload 'zencoding-mode "zencoding-mode" nil t)
-
-(add-hook 'nxml-mode-hook 'zencoding-mode)
-(add-hook 'html-mode-hook 'zencoding-mode)
-
-(add-hook 'html-mode-hook
-	  (function
-	   (lambda ()
-	     (interactive)
-	     (define-key html-mode-map [return] 'newline-and-indent))))
 
 ;;;_ * diminish
 
@@ -2123,10 +1738,6 @@ expand wildcards (if any) and visit multiple files."
 (eval-after-load "footnote"
   '(define-key footnote-mode-map "#" 'redo-footnotes))
 
-;;;_ * initsplit
-
-(load "initsplit")
-
 ;;;_ * isearch-mode
 
 (define-key isearch-mode-map [(control ?c)] 'isearch-toggle-case-fold)
@@ -2178,7 +1789,6 @@ expand wildcards (if any) and visit multiple files."
        (define-key map "f" 'org-agenda-date-later)
        (define-key map "b" 'org-agenda-date-earlier)
        (define-key map "r" 'org-agenda-refile)
-       (define-key map "w" 'org-agenda-refile)
        (define-key map " " 'org-agenda-tree-to-indirect-buffer)
        (define-key map "F" 'org-agenda-follow-mode)
        (define-key map "q" 'delete-window)

@@ -137,7 +137,7 @@
    slime-mdot-fu
    slime-scratch
    slime-tramp
-   slime-enclosing-context
+   ;; slime-enclosing-context
    ;; slime-typeout-frame
    slime-xref-browser))
 

@@ -1,13 +1,16 @@
+(add-to-list 'load-path "~/Library/Emacs/site-lisp/clojure-mode")
 (add-to-list 'load-path "~/Library/Emacs/site-lisp/slime")
 (add-to-list 'load-path "~/Library/Emacs/site-lisp/slime/contrib")
+(add-to-list 'load-path "~/Library/Emacs/site-lisp/swank-clojure")
 
 (setq slime-net-coding-system 'utf-8-unix
-      swank-clojure-jar-path (expand-file-name "~/Library/Java/clojure.jar")
+      swank-clojure-jar-path
+      (expand-file-name "/opt/local/share/java/clojure/lib/clojure.jar")
       swank-clojure-binary "clojure")
 
 (require 'slime)
 (require 'clojure-mode)
-(require 'swank-clojure-autoload)
+(require 'swank-clojure)
 
 (slime-setup
  '(slime-asdf
@@ -28,8 +31,9 @@
    slime-mdot-fu
    slime-scratch
    slime-tramp
-   slime-enclosing-context
    slime-xref-browser))
+
+;;slime-enclosing-context
 
 (setq slime-complete-symbol*-fancy t
       slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
