@@ -42,6 +42,7 @@
 ;;
 
 (require 'cl)
+(require 'quail)
 
 (eval-when-compile
   (require 'maths-menu))		; nuke compile warnings
@@ -643,8 +644,6 @@ Optional argument FACENIL means set the face property to nil, unless 'face is in
     (set-input-method "Unicode tokens")
     (set-input-method nil)))
 
-(require 'quail)
-
 (quail-define-package
  "Unicode tokens" "UTF-8" "u" t
  "Input method for tokens or unicode characters, application specific short-cuts"
@@ -744,7 +743,60 @@ Available annotations chosen from `unicode-tokens-control-regions'."
 			     (end-of-line) (point)) t))
       (kill-region (match-beginning 0) (match-end 0))))
 
-;; FIXME: behaviour with unknown tokens not good.  Should
+(defun unicode-tokens-delete-backward-char (&optional arg)
+  "Delete the last ARG visually presented characters.
+This accounts for tokens having a single character presentation
+but multiple characters in the underlying buffer."
+  (interactive "p")
+  (if arg
+      (while (> arg 0)
+	(unicode-tokens-delete-backward-1)
+	(setq arg (1- arg)))
+    (unicode-tokens-delete-backward-1)))
+
+(defun unicode-tokens-delete-char (&optional arg)
+  "Delete the next ARG visually presented characters.
+This accounts for tokens having a single character presentation
+but multiple characters in the underlying buffer."
+  (interactive "p")
+  (if arg
+      (while (> arg 0)
+	(unicode-tokens-delete-1)
+	(setq arg (1- arg)))
+    (unicode-tokens-delete-1)))
+
+(defun unicode-tokens-delete-backward-1 ()
+  "Delete the last visually presented character.
+This accounts for tokens having a single character presentation
+but multiple characters in the underlying buffer."
+  (let (tokst tokend)
+    (save-match-data
+      (save-excursion
+	(setq tokst
+	      (re-search-backward unicode-tokens-token-match-regexp
+				  (save-excursion
+				    (beginning-of-line) (point)) t))
+	(setq tokend (match-end 0))))
+    (message "End is: %d and point is: %d" tokend (point))
+    (if (and tokst (= (point) tokend))
+	(delete-region tokst tokend)
+      (delete-backward-char 1))))
+
+(defun unicode-tokens-delete-1 ()
+  "Delete the following visually presented character.
+This accounts for tokens having a single character presentation
+but multiple characters in the underlying buffer."
+  (let (tokend)
+    (save-match-data
+      (save-excursion
+	(if (looking-at unicode-tokens-token-match-regexp)
+	    (setq tokend (match-end 0)))))
+    (if tokend
+	(delete-region (point) tokend)
+      (delete-char 1))))
+
+
+;; TODO: behaviour with unknown tokens not good.  Should
 ;; use separate regexp for matching tokens known or not known.
 (defun unicode-tokens-prev-token ()
   "Return the token before point, matching with `unicode-tokens-token-match-regexp'."
@@ -1256,15 +1308,38 @@ Commands available are:
 ;; Key bindings
 ;;
 
-;(defun unicode-tokens-undo (&optional arg)
-;  (interactive)
-;  (quail-delete-last-char)
-;  (delete-backward-char))
+(define-key unicode-tokens-mode-map
+  [remap delete-backward-char]
+  'unicode-tokens-delete-backward-char)
+(define-key unicode-tokens-mode-map
+  [remap delete-char]
+  'unicode-tokens-delete-char)
 
-;; not quite right!
-;(define-key unicode-tokens-mode-map
-;  [remap undo]
-;  'unicode-tokens-undo)
+(defvar unicode-tokens-quail-translation-keymap 
+  (let ((quail-current-package 
+	 (assoc "Unicode tokens"
+		quail-package-alist)))
+    (quail-translation-keymap)))
+
+;; FIXME: does this work?
+(define-key unicode-tokens-quail-translation-keymap 
+     [remap quail-delete-last-char]
+     'unicode-tokens-quail-delete-last-char)
+
+(defun unicode-tokens-quail-delete-last-char ()
+  (interactive)
+  (if unicode-tokens-mode
+      (if (= (length quail-current-key) 1)
+	  (progn
+	    (quail-abort-translation)
+	    (unicode-tokens-delete-backward-char))
+	(quail-delete-last-char))
+    (quail-delete-last-char)))
+
+;    (setq quail-current-key (substring quail-current-key 0 -1))
+;    (quail-delete-region)
+ ;   (quail-update-translation (quail-translate-key))))
+
 
 (define-key unicode-tokens-mode-map [(control ?,)]
   'unicode-tokens-rotate-token-backward)
