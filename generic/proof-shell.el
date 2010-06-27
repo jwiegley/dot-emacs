@@ -142,7 +142,7 @@ No change to current buffer or point."
 	      (eq queuemode proof-shell-busy)
 	      (and (listp queuemode)
 		   (member proof-shell-busy queuemode)))
-    (error "Proof Process Busy!")))
+    (error "Proof process busy!")))
 
 ;;;###autoload
 (defsubst proof-shell-live-buffer ()
@@ -497,10 +497,11 @@ This simply kills the `proof-shell-buffer' relying on the hook function
 `proof-shell-kill-function' to do the hard work."
   (interactive)
   (if (buffer-live-p proof-shell-buffer)
-      (if (yes-or-no-p (format "Exit %s process? " proof-assistant))
-	  (progn (kill-buffer proof-shell-buffer)
-		 (setq proof-shell-buffer nil))
-	(error "No proof shell buffer to kill!"))))
+      (when (yes-or-no-p (format "Exit %s process? " proof-assistant))
+	(let ((kill-buffer-query-functions nil)) ; avoid extra dialog
+	  (kill-buffer proof-shell-buffer))
+	(setq proof-shell-buffer nil))
+    (error "No proof shell buffer to kill!")))
 
 (defun proof-shell-bail-out (process event)
   "Value for the process sentinel for the proof assistant process.
@@ -557,7 +558,8 @@ object files, used by Lego and Coq)."
   "Marker in proof shell buffer pointing to end of last urgent message.")
 
 (defvar proof-shell-urgent-message-scanner nil
-  "Marker in proof shell buffer pointing to scan start for urgent messages.")
+  "Marker in proof shell buffer pointing to scan start for urgent messages.
+This is only used in `proof-shell-process-urgent-message'.")
 
 (defun proof-shell-handle-error-output (start-regexp append-face)
   "Displays output from process in `proof-response-buffer'.
@@ -749,9 +751,9 @@ available point.  In the second case, you may need to press enter inside
 the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*)."
   (interactive)
   (unless (proof-shell-live-buffer)
-      (error "Proof Process Not Started!"))
+      (error "Proof process not started!"))
   (unless proof-shell-busy
-    (error "Proof Process Not Active!"))
+    (error "Proof process not active!"))
   (with-current-buffer proof-shell-buffer
     (if proof-shell-expecting-output
 	(progn
@@ -1335,56 +1337,42 @@ messages."
 Scanning starts from `proof-shell-urgent-message-scanner' or
 `scomint-last-input-end', which ever is later.  We deal with strings
 between regexps `proof-shell-eager-annotation-start' and 
-`proof-shell-eager-annotation-end'.
+`proof-shell-eager-annotation-end'.  
+
+We update `proof-shell-urgent-message-marker' to point to last message found.
 
 This is a subroutine of `proof-shell-filter'."
-  (let ((pt (point)) (end t) lastend
-	(start (max  (marker-position proof-shell-urgent-message-scanner)
-		     (marker-position scomint-last-input-end))))
-    (goto-char start)
+  (let ((pt (point)) (end t) 
+	lastend laststart
+	(initstart (max  (marker-position proof-shell-urgent-message-scanner)
+			 (marker-position scomint-last-input-end))))
+    (goto-char initstart)
     (while (and end
 		(re-search-forward proof-shell-eager-annotation-start
-				   nil t))
-      (setq start (match-beginning 0))
+				   nil 'limit))
+      (setq laststart (match-beginning 0))
       (if (setq end
 		(re-search-forward proof-shell-eager-annotation-end nil t))
-
-	  ;; Process the region including the annotations
 	  (save-excursion
 	    (setq lastend end)
-	    (proof-shell-process-urgent-message start end))))
+	    ;; Process the region including the annotations
+	    (proof-shell-process-urgent-message laststart lastend))))
 
-    ;; Marker points to char after end of last message found, if any.
+    (set-marker 
+     proof-shell-urgent-message-scanner
+     (if end ;; couldn't find message start; move forward to avoid rescanning
+	 (max initstart
+	      (- (point) 
+		 (1+ proof-shell-eager-annotation-start-length)))
+       ;; incomplete message; leave marker at start of message
+       laststart))
+
+    ;; Set position of last urgent message found
     (if lastend
-	(set-marker
-	 proof-shell-urgent-message-marker
-	 (min lastend
-	      (1- (process-mark (get-buffer-process (current-buffer)))))))
-
-    ;; An optimization avoids repeatedly searching the same text.  But
-    ;; it needs to know the maximum possible length of an annotation.
-    (if end
-	;; Couldn't find the starting annotation.  Set the scan resume
-	;; point to the limit of the last search, less the maximal
-	;; length of the annotation.
-	(set-marker
-	 proof-shell-urgent-message-scanner
-	 (min
-	  ;; NB: we don't want to go back before the start of the
-	  ;; command!  That would duplicate urgent messages less than
-	  ;; proof-shell-eager-annotation-start-length characters.
-	  ;; But if we're configured properly, this should not happen.
-	  ;; test: (max (marker-position proof-marker)
-	  (- (point) (1+ proof-shell-eager-annotation-start-length))
-	  (1- (process-mark (get-buffer-process (current-buffer))))))
-      ;; Otherwise, couldn't find the ending annotation. So set scan
-      ;; resume position to the start of the annotation found.
-      (set-marker
-       proof-shell-urgent-message-scanner
-       (min
-	start
-	(1- (process-mark (get-buffer-process (current-buffer)))))))
+	(set-marker proof-shell-urgent-message-marker lastend))
+	
     (goto-char pt)))
+
 
 
 
