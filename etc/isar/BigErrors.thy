@@ -17,4 +17,4 @@ ML {* Output.error_msg (cat_lines (List.tabulate (10000,K "This is a big error m
    interactively but does *not* generate an error when 
    required by another theory, see, BigErrorsNested *)
 
-end;
+end
