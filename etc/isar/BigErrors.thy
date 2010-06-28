@@ -3,8 +3,8 @@
 theory BigErrors imports Pure 
 begin
 
-consts foo :: 'a;
-consts bar :: 'a;
+consts foo :: 'a
+consts bar :: 'a
 
 ML {* warning (cat_lines (List.tabulate (300,K "This is a big warning message"))); *}
 
