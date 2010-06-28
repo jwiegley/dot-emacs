@@ -777,7 +777,7 @@ but multiple characters in the underlying buffer."
 				  (save-excursion
 				    (beginning-of-line) (point)) t))
 	(setq tokend (match-end 0))))
-    (message "End is: %d and point is: %d" tokend (point))
+    ;(message "End is: %d and point is: %d" tokend (point))
     (if (and tokst (= (point) tokend))
 	(delete-region tokst tokend)
       (delete-backward-char 1))))
