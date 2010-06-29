@@ -366,8 +366,6 @@ This is called when Proof General spots output matching
 (proof-definvisible isar-cmd-nitpick "nitpick" [(control n)])
 (proof-definvisible isar-cmd-refute "refute" [r])
 (proof-definvisible isar-cmd-sledgehammer "sledgehammer" [(control s)])
-(proof-definvisible isar-cmd-atp-kill "atp_kill")
-(proof-definvisible isar-cmd-atp-info "atp_info")
 
 (defpgdefault menu-entries
   (append
@@ -379,8 +377,6 @@ This is called when Proof General spots output matching
 	   ["Nitpick"            isar-cmd-nitpick        t]
 	   ["Refute"             isar-cmd-refute         t]
 	   ["Sledgehammer"       isar-cmd-sledgehammer   t]
-	   ["Sledgehammer: kill" isar-cmd-atp-kill       t]
-	   ["Sledgehammer: info" isar-cmd-atp-info       t]
 	   ["Display Draft"	 isar-cmd-display-draft  t]
 	   ["Print Draft"	 isar-cmd-print-draft    t])))
    (list
