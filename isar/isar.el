@@ -535,9 +535,7 @@ selected.")
 Checks the width in the `proof-goals-buffer'"
   (let ((ans ""))
     (and (not proof-shell-silent)
-	 (buffer-live-p proof-goals-buffer)
-	 (save-excursion
-	   (set-buffer proof-goals-buffer)
+	 (proof-with-current-buffer-if-exists proof-goals-buffer
 	   (let ((current-width
 		  ;; Actually, one might want the width of the
 		  ;; proof-response-buffer instead. Never mind.
