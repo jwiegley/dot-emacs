@@ -272,10 +272,8 @@ Given is the first SPAN which needs to be undone."
 (defun lego-shell-adjust-line-width ()
   "Use LEGO's pretty printing facilities to adjust output line width.
 Checks the width in the `proof-goals-buffer'"
-  (and (buffer-live-p proof-goals-buffer)
-       (proof-shell-live-buffer)
-       (save-excursion
-	 (set-buffer proof-goals-buffer)
+  (and (proof-shell-live-buffer)
+       (proof-with-current-buffer-if-exists proof-goals-buffer
 	 (let ((current-width
 		;; Actually, one might sometimes
 		;; want to get the width of the proof-response-buffer
