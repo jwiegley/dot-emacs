@@ -505,8 +505,7 @@ is non-nil, don't quit if the info is already there."
 	  ;; On errors, the temporary buffers don't get deleted, so here
 	  ;; we get rid of any old ones that may be hanging around.
 	  (when (buffer-live-p (get-buffer mmm-temp-buffer-name))
-	    (save-excursion
-	      (set-buffer (get-buffer mmm-temp-buffer-name))
+	    (with-current-buffer (get-buffer mmm-temp-buffer-name)
 	      (set-buffer-modified-p nil)
 	      (kill-buffer (current-buffer))))
 	  ;; Now make a new temporary buffer.
