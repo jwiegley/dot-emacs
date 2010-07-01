@@ -289,11 +289,8 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
   )
 
 (defun proof-last-locked-span ()
-  (save-excursion ;; didn't found a way to avoid buffer switching
-    (set-buffer proof-script-buffer)
-    (span-at (- (proof-unprocessed-begin) 1) 'type)
-    )
-  )
+  (with-current-buffer proof-script-buffer
+    (span-at (- (proof-unprocessed-begin) 1) 'type)))
 
 ;; clone-buffer do not keep the current content of proof-response-buffer, so
 ;; here is my version
