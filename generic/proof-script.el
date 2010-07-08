@@ -738,8 +738,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 ;; General to do the loading, to alleviate file handling there;
 ;; we could cache meta-data resulting from processing files;
 ;; or even, could include parsing inside PG.
-  (save-excursion
-    (set-buffer buffer)
+  (with-current-buffer buffer
     (save-excursion ;; prevent point moving if user viewing file
       (if (< (proof-unprocessed-begin) (proof-script-end))
 	(let ((span (span-make (proof-unprocessed-begin)

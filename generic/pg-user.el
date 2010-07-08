@@ -933,8 +933,7 @@ If NUM is negative, move upwards.  Return new span."
       (let ((win (get-buffer-window proof-script-buffer)))
 	(unless ;; end of locked already displayed
 	    (and win (pos-visible-in-window-p (proof-unprocessed-begin)))
-	  (save-excursion
-	    (set-buffer proof-script-buffer)
+	  (with-current-buffer proof-script-buffer
 	    (cond
 	     ((proof-locked-region-empty-p)) ;; nothing if empty
 	     ((proof-locked-region-full-p)

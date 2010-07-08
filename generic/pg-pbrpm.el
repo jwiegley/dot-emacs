@@ -78,8 +78,7 @@ Matches the region to be returned.")
 (defvar pbrpm-menu-desc nil)
 
 (defun pg-pbrpm-erase-buffer-menu ()
-  (save-excursion
-    (set-buffer pg-pbrpm-buffer-menu)
+  (with-current-buffer pg-pbrpm-buffer-menu
     (mapc 'span-delete pg-pbrpm-spans)
     (setq pg-pbrpm-spans nil)
     (erase-buffer)))
@@ -138,8 +137,8 @@ If stores, in the variable pg-pbrpm-goal-description, a list with shape
      start-hyp-text: the position of the first char of the hypothesis formula (no name)
      end-hyp: the position of the last char of the hypothesis
      hyp-name: then name of the hypothesis."
+  (with-current-buffer proof-goals-buffer
   (save-excursion
-    (set-buffer proof-goals-buffer)
     (goto-char 0)
     (let
 	((goals nil))
@@ -172,7 +171,7 @@ If stores, in the variable pg-pbrpm-goal-description, a list with shape
 		   (list start-goal end-goal goal-num
 			 (search-forward-regexp pg-pbrpm-start-concl-regexp nil t) hyps)
 		   goals))))
-	  (setq pg-pbrpm-goal-description goals)))))
+	  (setq pg-pbrpm-goal-description goals))))))
 
 (add-hook 'proof-shell-handle-delayed-output-hook 'pg-pbrpm-analyse-goal-buffer)
 

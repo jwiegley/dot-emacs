@@ -421,10 +421,8 @@ and start at the first error."
 (defun pg-response-has-error-location ()
   "Return non-nil if the response buffer has an error location.
 See `pg-next-error-regexp'."
-  (if (and pg-next-error-regexp
-	   (buffer-live-p proof-response-buffer))
-      (save-excursion
-	(set-buffer proof-response-buffer)
+  (if pg-next-error-regexp
+      (proof-with-current-buffer-if-exists proof-response-buffer
 	(goto-char (point-min))
 	(re-search-forward pg-next-error-regexp nil t))))
 

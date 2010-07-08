@@ -42,8 +42,7 @@
   "Parse string in ARG, same as pg-xml-parse-buffer."
   (let
       ((tempbuffer (get-buffer-create " *xml-parse*")))
-    (save-excursion
-      (set-buffer tempbuffer)
+    (with-current-buffer tempbuffer
       (delete-region (point-min) (point-max))
       (insert arg)
       (pg-xml-parse-buffer (current-buffer) 'nomessage))))
