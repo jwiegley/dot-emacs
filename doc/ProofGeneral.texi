@@ -70,7 +70,7 @@
 
 @set version 4.0
 @set emacsversion 23.1
-@set last-update November 2009
+@set last-update August 2010
 @set rcsid $Id$
 
 @ifinfo
@@ -124,7 +124,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright © 1998-2009 Proof General team, LFCS Edinburgh.
+Copyright © 1998-2010 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -234,7 +234,7 @@ The main changes are:
       @pxref{Unicode symbols and special layout support}
 @item to allow ``document centred'' working, annotating scripts with prover output
       @pxref{Document centred working}
-@item support for latest versions of provers (Isabelle2009 and Coq 8.1)
+@item support for latest versions of provers (Isabelle2009-2 and Coq 8.1)
 @item numerous smaller enhancements and efficiency improvements
 @end itemize
 
@@ -601,7 +601,7 @@ proof assistants, including these:
 @b{Coq Proof General} for Coq Version 6.3, 7.x, 8.x@*
 @xref{Coq Proof General}, for more details.
 @item 
-@b{Isabelle Proof General} for Isabelle2009@*
+@b{Isabelle Proof General} for Isabelle2009-2@*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
 @c @item
@@ -1585,7 +1585,7 @@ Some provers may ignore (and lose) interrupt signals, or fail to indicate
 that they have been acted upon but get stop in the middle of output.
 In the first case, PG will terminate the queue of commands at the first
 available point.  In the second case, you may need to press enter inside
-the prover command buffer (e.g., with Isabelle@var{2009} press RET inside @strong{isabelle}).
+the prover command buffer (e.g., with Isabelle@var{2009-2} press RET inside @strong{isabelle}).
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-minibuffer-cmd
