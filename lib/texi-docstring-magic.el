@@ -192,13 +192,10 @@ including any whitespace included to delimit matches.")
 
 (defun texi-docstring-magic-untabify (string)
   "Convert tabs in STRING into multiple spaces."
-  (save-excursion
-    (set-buffer
-     (get-buffer-create " texi-docstring-magic-untabify"))
+  (with-temp-buffer 
     (insert string)
     (untabify (point-min) (point-max))
-    (prog1 (buffer-string)
-      (kill-buffer (current-buffer)))))
+    (buffer-string)))
 
 (defun texi-docstring-magic-munge-docstring (docstring args)
   "Markup DOCSTRING for texi according to regexp matches."

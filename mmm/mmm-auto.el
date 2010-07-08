@@ -147,8 +147,7 @@ everything in `mmm-major-mode-hook' will be run."
   (remove-hook 'post-command-hook 'mmm-check-changed-buffers)
   (dolist (buffer mmm-changed-buffers-list)
     (when (buffer-live-p buffer)
-      (save-excursion
-	(set-buffer buffer)
+      (with-current-buffer buffer
 	(mmm-run-major-mode-hook))))
   (setq mmm-changed-buffers-list '()))
 
