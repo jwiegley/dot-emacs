@@ -2,6 +2,8 @@
 
 ;;;_* initial packages
 
+(defconst emacs-lisp-root "~/Library/Emacs")
+
 ;; Add other site-lisp directories, in case they were not setup by the
 ;; environment.
 
@@ -9,25 +11,18 @@
     (path
      (reverse
       (list
+       (expand-file-name "~/Dropbox")
+       (expand-file-name emacs-lisp-root)
+       (expand-file-name "site-lisp" emacs-lisp-root)
+
+       ;; Packages that bury their Lisp code in subdirectories...
+       (expand-file-name "site-lisp/ess/lisp" emacs-lisp-root)
+       (expand-file-name "site-lisp/org-mode/contrib/lisp" emacs-lisp-root)
+       (expand-file-name "site-lisp/org-mode/lisp" emacs-lisp-root)
+
+       ;; Packages located elsewhere on the system...
        (expand-file-name "~/Projects/ledger/lisp")
        (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
-       (expand-file-name "~/Library/Emacs")
-       (expand-file-name "~/Library/Emacs/site-lisp/apel")
-       (expand-file-name "~/Library/Emacs/site-lisp/delim-kill")
-       (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m")
-       (expand-file-name "~/Library/Emacs/site-lisp/emacs-w3m/shimbun")
-       (expand-file-name "~/Library/Emacs/site-lisp/eshell")
-       (expand-file-name "~/Library/Emacs/site-lisp/ess/lisp")
-       (expand-file-name "~/Library/Emacs/site-lisp/gist")
-       (expand-file-name "~/Library/Emacs/site-lisp/haskell-mode")
-       (expand-file-name "~/Library/Emacs/site-lisp/magit")
-       (expand-file-name "~/Library/Emacs/site-lisp/org-mode/contrib/lisp")
-       (expand-file-name "~/Library/Emacs/site-lisp/org-mode/lisp")
-       (expand-file-name "~/Library/Emacs/site-lisp/regex-tool")
-       (expand-file-name "~/Library/Emacs/site-lisp/remember")
-       (expand-file-name "~/Library/Emacs/site-lisp/scala-mode")
-       (expand-file-name "~/Library/Emacs/site-lisp/yasnippet")
-       (expand-file-name "~/Library/Emacs/site-lisp/zencoding")
        )))
 
   (setq path (expand-file-name path))
@@ -51,8 +46,8 @@
 		  (car (cddr (car (cddr dict))))))
 	(setq dict (cdr dict))))
     (setq exec-path nil)
-    (dolist (path (nreverse (split-string (getenv "PATH") ":")))
-      (add-to-list 'exec-path path))))
+    (mapc #'(lambda (path) (add-to-list 'exec-path path))
+          (nreverse (split-string (getenv "PATH") ":")))))
 
 ;; Set the *Message* log to something higher
 
@@ -60,7 +55,7 @@
 
 ;;;_* customizations
 
-;;;_ * variables
+;;;_ + variables
 
 (load "initsplit")
 
@@ -80,9 +75,6 @@
  '(bookmark-save-flag 1)
  '(browse-url-browser-function (quote (("\\.\\(gz\\|tgz\\|bz2\\|tbz\\|dmg\\|iso\\|pdf\\|mp3\\)\\'" . browse-url-download-file) (".*" . browse-url-default-macosx-browser))))
  '(c-default-style (quote ((java-mode . "gnu") (awk-mode . "awk") (other . "gnu"))))
- '(calendar-latitude 40.845112)
- '(calendar-longitude -74.287672)
- '(calendar-mark-holidays-flag t)
  '(circe-ignore-list (quote ("jordanb_?")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode t)
@@ -136,7 +128,8 @@
  '(frame-title-format (quote (:eval (if buffer-file-name default-directory "%b"))) t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
- '(haskell-check-command "~/.cabal/bin/hlint")
+ '(haskell-check-command "~/.cabal/bin/hlint" t)
+ '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan my-haskell-mode-hook)))
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
@@ -155,7 +148,7 @@
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 100) (height . 76))))
- '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil))))
+ '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil) ("\\`\\(org\\|calendar\\|diary\\)-" "~/Dropbox/.org.el" nil))))
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
  '(ledger-file "~/Dropbox/Accounts/ledger.dat")
@@ -173,83 +166,6 @@
  '(ns-command-modifier (quote meta))
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
- '(org-M-RET-may-split-line (quote ((headline) (default . t))))
- '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
- '(org-agenda-cmp-user-defined (quote org-cmp-ceg-bugs))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" tags-todo "TODO<>{SOMEDAY}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(bug:\\)"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Unscheduled work tasks" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>\"Website\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))))))
- '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
- '(org-agenda-deadline-relative-text "D%d: ")
- '(org-agenda-deadline-text "D: ")
- '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Projects/ledger/plan/TODO")))
- '(org-agenda-fontify-priorities t)
- '(org-agenda-include-diary t)
- '(org-agenda-ndays 1)
- '(org-agenda-persistent-filter t)
- '(org-agenda-prefix-format (quote ((agenda . "  %-11:c%?-12t% s") (timeline . "  % s") (todo . "  %-11:c") (tags . "  %-11:c"))))
- '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
- '(org-agenda-scheduled-relative-text "S%d: ")
- '(org-agenda-scheduled-text "")
- '(org-agenda-show-all-dates t)
- '(org-agenda-skip-deadline-if-done t)
- '(org-agenda-skip-scheduled-if-deadline-is-shown t)
- '(org-agenda-skip-scheduled-if-done t)
- '(org-agenda-skip-unavailable-files t)
- '(org-agenda-sorting-strategy (quote ((agenda habit-down time-up todo-state-up priority-down category-keep) (todo priority-down category-keep) (tags priority-down category-keep) (search category-keep))))
- '(org-agenda-start-on-weekday nil)
- '(org-agenda-tags-column -100)
- '(org-agenda-text-search-extra-files (quote (agenda-archives)))
- '(org-archive-location "TODO-archive::")
- '(org-archive-save-context-info (quote (time category itags)))
- '(org-attach-method (quote mv))
- '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Dropbox/todo.txt" "Inbox") "* TODO %?
-  SCHEDULED: %t
-  :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :END:
-  %U" :prepend t))))
- '(org-clock-idle-time 10)
- '(org-clock-in-resume t)
- '(org-clock-in-switch-to-state "STARTED")
- '(org-clock-into-drawer "LOGBOOK")
- '(org-clock-modeline-total (quote current))
- '(org-clock-out-remove-zero-time-clocks t)
- '(org-clock-out-switch-to-state nil)
- '(org-clock-persist (quote history))
- '(org-completion-use-ido t)
- '(org-confirm-elisp-link-function nil)
- '(org-confirm-shell-link-function nil)
- '(org-cycle-global-at-bob t)
- '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Dropbox/todo.txt")
- '(org-directory "~/Dropbox/")
- '(org-enforce-todo-dependencies t)
- '(org-extend-today-until 8)
- '(org-fast-tag-selection-single-key (quote expert))
- '(org-footnote-section nil)
- '(org-habit-preceding-days 42)
- '(org-hide-leading-stars t)
- '(org-mobile-directory "~/Dropbox/MobileOrg")
- '(org-mobile-files (quote (org-agenda-files org-agenda-text-search-extra-files)))
- '(org-mobile-inbox-for-pull "~/Dropbox/from-mobile.org")
- '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-eval)))
- '(org-refile-targets (quote ((org-agenda-files :level . 1) (org-agenda-files :todo . "Project"))))
- '(org-remember-store-without-prompt t)
- '(org-remember-templates (quote (("Task" 116 "* TODO %?
-  SCHEDULED: %t
-  :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :END:
-  %U" nil "Inbox" nil))))
- '(org-reverse-note-order t)
- '(org-speed-commands-user nil)
- '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
- '(org-tag-alist (quote ((#("NASIM" 0 5 (face nil)) . 110) (#("WORK" 0 4 (face nil)) . 119))))
- '(org-tags-column -97)
- '(org-time-clocksum-use-fractional t)
- '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "dark blue" :weight bold) ("SOMEDAY" :foreground "dark blue" :weight bold))))
- '(org-todo-keywords (quote ((sequence "TODO" "APPT" "|" "DONE" "NOTE"))))
- '(org-todo-repeat-to-state "TODO")
- '(org-use-speed-commands t)
- '(org-use-tag-inheritance nil)
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
  '(ps-font-size (quote (8 . 10)))
@@ -265,8 +181,6 @@
  '(recentf-max-saved-items 200)
  '(recentf-mode t)
  '(regex-tool-backend (quote perl))
- '(remember-annotation-functions (quote (org-remember-annotation)))
- '(remember-handler-functions (quote (org-remember-handler)))
  '(require-final-newline (quote ask))
  '(safe-local-variable-values (quote ((after-save-hook archive-done-tasks) (after-save-hook sort-done-tasks) (after-save-hook commit-after-save))))
  '(scroll-bar-mode nil)
@@ -276,16 +190,12 @@
  '(show-paren-mode (quote paren))
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
- '(special-display-regexps (quote (("#\\(ledger\\)" (menu-bar-lines . 0) (tool-bar-lines . 0) (vertical-scroll-bars) (font . "-apple-lucida grande-medium-r-normal--16-0-72-72-m-0-iso10646-1") (top . 295) (left . 2) (width . 70) (height . 40) (alpha . 0.9) (splittable . t) (unsplittable) (dedicated)) ("journal\\.txt" (menu-bar-lines) (tool-bar-lines) (width . 80) (height . 50) (dedicated) (top . 265) (left . 1130)))))
  '(sql-sqlite-program "sqlite3")
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
  '(temp-buffer-resize-mode t nil (help))
  '(text-mode-hook (quote (auto-fill-mode)))
- '(timeclock-file "/Users/johnw/doc/.timelog")
- '(timeclock-modeline-display nil nil (timeclock))
- '(timeclock-relative nil)
  '(tool-bar-mode nil)
  '(tramp-verbose 3)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
@@ -305,7 +215,7 @@
  '(x-stretch-cursor t)
  '(zencoding-preview-default nil))
 
-;;;_ * faces
+;;;_ + faces
 
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
@@ -318,20 +228,10 @@
  '(ledger-register-pending-face ((t (:weight bold))))
  '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
  '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
- '(org-habit-alert-face ((((background light)) (:background "#f5f946"))))
- '(org-habit-alert-future-face ((((background light)) (:background "#fafca9"))))
- '(org-habit-clear-face ((((background light)) (:background "#8270f9"))))
- '(org-habit-clear-future-face ((((background light)) (:background "#d6e4fc"))))
- '(org-habit-overdue-face ((((background light)) (:background "#f9372d"))))
- '(org-habit-overdue-future-face ((((background light)) (:background "#fc9590"))))
- '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
- '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
- '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
- '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
  '(trailing-whitespace ((((class color) (background light)) (:background "light salmon")))))
 
-;;;_ * disabled commands
+;;;_ + disabled commands
 
 (put 'eval-expression  'disabled nil)   ; Let ESC-ESC work
 (put 'narrow-to-region 'disabled nil)   ; Let narrowing work
@@ -342,72 +242,59 @@
 
 ;;;_* packages
 
-(mapc #'load (directory-files "~/Library/Emacs/lang" t "\\.el$" t))
+(mapc #'load (directory-files (expand-file-name "lang" emacs-lisp-root)
+                              t "\\.el$" t))
 
-;;;_ * archive-region
+;;;_ + direct loads
 
-(load "archive-region" t)
+(mapc #'(lambda (name) (load name t))
+      '(;;".gnus"
+        ".org"
+        ;;"archive-region"
+        ;;"bookmark+"
+        "browse-kill-ring+"
+        ;;"chess-auto"
+        "diminish"
+        ;;"elscreen"
+        "ess-site"
+        "flyspell-ext"
+        "gist"
+        "ldg-new"
+        "magit"
+        "session"
+        "whitespace"
+        "yasnippet"
+        ))
 
-;;;_ * bookmark+
+;;;_ + auto loads
 
-(load "bookmark+" t)
+(mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
+      '(("linum"             . linum-mode)
+        ("delim-kill"        . delim-kill)
+        ("cycbuf"            . cycbuf-switch-to-next-buffer)
+        ("cycbuf"            . cycbuf-switch-to-previous-buffer)
+        ("sunrise-commander" . sunrise)
+        ("column-marker"     . column-marker-1)
+        ))
 
-;;;_ * browse-kill-ring
+;;;_ + elscreen
 
-(load "browse-kill-ring+" t)
-
-;;;_ * chess
-
-(load "chess-auto" t)
-
-;;;_ * cycbuf
-
-(autoload 'cycbuf-switch-to-next-buffer "cycbuf" nil t)
-(autoload 'cycbuf-switch-to-previous-buffer "cycbuf" nil t)
-
-;;;_ * delim-kill
-
-(autoload 'delim-kill "delim-kill" nil t)
-
-;;;_ * elscreen
-
-(require 'elscreen)
-
-(define-key elscreen-map "\C-\\" 'elscreen-toggle)
-(define-key elscreen-map "\\"    'toggle-input-method)
+(eval-after-load "elscreen"
+  '(progn
+     (define-key elscreen-map "\C-\\" 'elscreen-toggle)
+     (define-key elscreen-map "\\"    'toggle-input-method)))
 
 ;;;_  + eshell
 
 (eval-after-load "em-unix"
-  '(progn
-     (unintern 'eshell/rm)))
+  '(unintern 'eshell/rm))
 
-;;;_ * ess
-
-(load "ess-site" t)
-
-;;;_ * flyspell
-
-(load "flyspell-ext" t)
-
-;;;_ * git
+;;;_ + git
 
 (setenv "GIT_PAGER" "")
 
-(require 'magit)
-(require 'gist)
-
-(autoload 'column-marker-1 "column-marker")
-
-(add-hook 'magit-log-edit-mode-hook
-	  (function
-	   (lambda ()
-	     (set-fill-column 72)
-	     (column-number-mode t)
-	     (column-marker-1 72))))
-
-(setq github-username "jwiegley")
-(setq github-api-key "14c811944452528f94a5b1e3488487cd")
+(setq github-username "jwiegley"
+      github-api-key "14c811944452528f94a5b1e3488487cd")
 
 (defun commit-after-save ()
   (let ((file (file-name-nondirectory (buffer-file-name))))
@@ -467,15 +354,15 @@
 	   (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
 	 (call-process "/Users/johnw/bin/del" nil nil nil file)))))
 
-;;;_ * ledger
+(eval-after-load "magit"
+  '(add-hook 'magit-log-edit-mode-hook
+             (function
+              (lambda ()
+                (set-fill-column 72)
+                (column-number-mode t)
+                (column-marker-1 72)))))
 
-(load "ldg-new")
-
-;;;_ * linum-mode
-
-(autoload 'linum-mode "linum" nil t)
-
-;;;_ * mule
+;;;_ + mule
 
 (prefer-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
@@ -493,745 +380,83 @@
   (let ((require-final-newline t))
     (save-buffer)))
 
-;;;_ * org-mode
+;;;_ + session
 
-(require 'org-install)
-(require 'org-attach)
-(require 'org-devonthink)
-(require 'ob-R)
-(require 'ob-python)
-(require 'ob-emacs-lisp)
-(require 'ob-haskell)
-(require 'ob-sh)
+(eval-after-load "session"
+  '(progn
+     (add-hook 'after-init-hook 'session-initialize)
 
-;;(load "org-log" t)
+     (defun save-information ()
+       (dolist (func kill-emacs-hook)
+         (unless (eq func 'exit-gnus-on-exit)
+           (funcall func))))
 
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+     (run-with-idle-timer 900 t 'save-information)))
 
-(defun make-ceg-bugzilla-bug (product component version priority severity)
-  (interactive
-   (let ((omk (get-text-property (point) 'org-marker)))
-     (with-current-buffer (marker-buffer omk)
-       (save-excursion
-	 (goto-char omk)
-	 (let ((products
-		(list (list "ABC" (list "Admin" "User" "Other" "CSR")
-			    (list "3.0"))
-		      (list "Bizcard" (list "Catalog" "Content Section"
-					    "Uploader" "Visual Aesthetics"
-					    "webui")
-			    (list "unspecified"))
-		      (list "Adagio" (list "DTSX" "PTS" "Satellite" "Zips"
-					   "Core")
-			    (list "unspecified"))
-		      (list "IT" (list "install" "network" "repair" "misc")
-			    (list "unspecified"))
-		      (list "EVAprint" (list "misc")
-			    (list "1.0"))))
-	       (priorities (list "P1" "P2" "P3" "P4" "P5"))
-	       (severities (list "blocker" "critical" "major"
-				 "normal" "minor" "trivial" "enhancement"))
-	       (product (org-get-category)))
-	   (list product
-		 (let ((components (nth 1 (assoc product products))))
-		   (if (= 1 (length components))
-		       (car components)
-		     (ido-completing-read "Component: " components
-					  nil t nil nil (car (last components)))))
-		 (let ((versions (nth 2 (assoc product products))))
-		   (if (= 1 (length versions))
-		       (car versions)
-		     (ido-completing-read "Version: " versions
-					  nil t nil nil (car (last versions)))))
-		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (if (and orgpri (= ?A orgpri))
-		       "P1"
-		     (ido-completing-read "Priority: " priorities
-					  nil t nil nil "P3")))
-		 (ido-completing-read "Severity: " severities nil t nil nil
-				      "normal") ))))))
-  (if (string= product "Bizcard")
-      (setq product "BizCard"))
-  (let ((omk (get-text-property (point) 'org-marker)))
-    (with-current-buffer (marker-buffer omk)
-      (save-excursion
-	(goto-char omk)
-	(let ((heading (nth 4 (org-heading-components)))
-	      (contents (buffer-substring-no-properties
-			 (org-entry-beginning-position)
-			 (org-entry-end-position)))
-	      bug)
-	  (with-temp-buffer
-	    (insert contents)
-	    (goto-char (point-min))
-	    (delete-region (point) (1+ (line-end-position)))
-	    (search-forward ":PROP")
-	    (delete-region (match-beginning 0) (point-max))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^   " nil t)
-	      (delete-region (match-beginning 0) (match-end 0)))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^SCHE" nil t)
-	      (delete-region (match-beginning 0) (1+ (line-end-position))))
-	    (goto-char (point-min))
-	    (when (eobp)
-	      (insert "No description.")
-	      (goto-char (point-min)))
-	    (insert (format "Product: %s
-Component: %s
-Version: %s
-Priority: %s
-Severity: %s
-Hardware: Other
-OS: Other
-Summary: %s" product component version priority severity heading) ?\n ?\n)
-	    (let ((buf (current-buffer)))
-	      (with-temp-buffer
-		(let ((tmpbuf (current-buffer)))
-		  (if nil
-		      (insert "Bug 999 posted.")
-		    (with-current-buffer buf
-		      (shell-command-on-region
-		       (point-min) (point-max)
-		       "~/bin/bugzilla-submit https://portal/bugzilla/"
-		       tmpbuf)))
-		  (goto-char (point-min))
-		  (re-search-forward "Bug \\([0-9]+\\) posted.")
-		  (setq bug (match-string 1))))))
-	  (save-excursion
-	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
-	    (insert (format "[[cegbug:%s][#%s]] " bug bug)))))))
-  (org-agenda-redo))
-
-(defun make-ledger-bugzilla-bug (product component version priority severity)
-  (interactive
-   (let ((omk (get-text-property (point) 'org-marker)))
-     (with-current-buffer (marker-buffer omk)
-       (save-excursion
-	 (goto-char omk)
-	 (let ((components
-		(list "data" "doc" "expr" "lisp" "math" "python" "report"
-		      "test" "util" "website" "build" "misc"))
-	       (priorities (list "P1" "P2" "P3" "P4" "P5"))
-	       (severities (list "blocker" "critical" "major"
-				 "normal" "minor" "trivial" "enhancement"))
-	       (product "Ledger")
-	       (version "3.0.0-20100615"))
-	   (list product
-		 (ido-completing-read "Component: " components
-				      nil t nil nil (car (last components)))
-		 version
-		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (if (and orgpri (= ?A orgpri))
-		       "P1"
-		     (ido-completing-read "Priority: " priorities
-					  nil t nil nil "P3")))
-		 (ido-completing-read "Severity: " severities nil t nil nil
-				      "normal") ))))))
-  (let ((omk (get-text-property (point) 'org-marker)))
-    (with-current-buffer (marker-buffer omk)
-      (save-excursion
-	(goto-char omk)
-	(let ((heading (nth 4 (org-heading-components)))
-	      (contents (buffer-substring-no-properties
-			 (org-entry-beginning-position)
-			 (org-entry-end-position)))
-	      bug)
-	  (with-temp-buffer
-	    (insert contents)
-	    (goto-char (point-min))
-	    (delete-region (point) (1+ (line-end-position)))
-	    (search-forward ":PROP")
-	    (delete-region (match-beginning 0) (point-max))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^   " nil t)
-	      (delete-region (match-beginning 0) (match-end 0)))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^SCHE" nil t)
-	      (delete-region (match-beginning 0) (1+ (line-end-position))))
-	    (goto-char (point-min))
-	    (when (eobp)
-	      (insert "No description.")
-	      (goto-char (point-min)))
-	    (insert (format "Product: %s
-Component: %s
-Version: %s
-Priority: %s
-Severity: %s
-Hardware: Other
-OS: Other
-Summary: %s" product component version priority severity heading) ?\n ?\n)
-	    (let ((buf (current-buffer)))
-	      (with-temp-buffer
-		(let ((tmpbuf (current-buffer)))
-		  (if nil
-		      (insert "Bug 999 posted.")
-		    (with-current-buffer buf
-		      (shell-command-on-region
-		       (point-min) (point-max)
-		       "~/bin/bugzilla-submit http://newartisans.com/bugzilla/"
-		       tmpbuf)))
-		  (goto-char (point-min))
-		  (re-search-forward "Bug \\([0-9]+\\) posted.")
-		  (setq bug (match-string 1))))))
-	  (save-excursion
-	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
-	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
-  (org-agenda-redo))
-
-(defun make-bugzilla-bug ()
-  (interactive)
-  (let ((omk (get-text-property (point) 'org-marker)))
-    (if (string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
-	(call-interactively #'make-ledger-bugzilla-bug)
-      (call-interactively #'make-ceg-bugzilla-bug))))
-
-(defun save-org-mode-files ()
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when (eq major-mode 'org-mode)
-	(if (and (buffer-modified-p) (buffer-file-name))
-	    (save-buffer))))))
-
-(run-with-idle-timer 25 t 'save-org-mode-files)
-
-(defun my-org-push-mobile ()
-  (interactive)
-  (with-current-buffer (find-file-noselect "~/Dropbox/todo.txt")
-    (org-mobile-push)))
-
-;; (run-with-idle-timer 600 t 'my-org-push-mobile)
-
-(defun org-my-auto-exclude-function (tag)
-  (and (cond
-	((string= tag "call")
-	 (let ((hour (nth 2 (decode-time))))
-	   (or (< hour 8) (> hour 21))))
-	((string= tag "errand")
-	 (let ((hour (nth 2 (decode-time))))
-	   (or (< hour 12) (> hour 17))))
-	((string= tag "home")
-	 (with-temp-buffer
-	   (call-process "/sbin/ifconfig" nil t nil "en0" "inet")
-	   (goto-char (point-min))
-	   (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
-	((string= tag "net")
-	 (/= 0 (call-process "/sbin/ping" nil nil nil
-			     "-c1" "-q" "-t1" "mail.gnu.org")))
-	((string= tag "fun")
-	 org-clock-current-task))
-       (concat "-" tag)))
-
-;;(defun org-indent-empty-items (arg)
-;;  (when (eq arg 'empty)
-;;    (goto-char (line-end-position))
-;;    (cond
-;;     ((org-at-item-p) (org-indent-item 1))
-;;     ((org-on-heading-p)
-;;      (if (equal this-command last-command)
-;;	  (condition-case nil
-;;	      (org-promote-subtree)
-;;	    (error
-;;	     (save-excursion
-;;	       (goto-char (point-at-bol))
-;;	       (and (looking-at "\\*+") (replace-match ""))
-;;	       (org-insert-heading)
-;;	       (org-demote-subtree))))
-;;	(org-demote-subtree))))))
-;;
-;;(add-hook 'org-pre-cycle-hook 'org-indent-empty-items)
-
-(defun my-org-mobile-post-push-hook ()
-  (shell-command "ssh root@192.168.9.144 chown admin:admin '/c/docs/'")
-  (message "Fixed permissions on https://johnw.homeunix.net/docs"))
-
-(add-hook 'org-mobile-post-push-hook 'my-org-mobile-post-push-hook)
-
-(defun my-org-convert-incoming-items ()
-  (interactive)
-  (with-current-buffer (find-file-noselect org-mobile-inbox-for-pull)
-    (goto-char (point-min))
-    (while (re-search-forward "^\\* " nil t)
-      (goto-char (match-beginning 0))
-      (insert ?*)
-      (forward-char 2)
-      (insert "TODO ")
-      (goto-char (line-beginning-position))
-      (forward-line)
-      (insert
-       (format
-	"   SCHEDULED: %s
-   :PROPERTIES:
-   :ID:       %s   :END:
-   "
-	(with-temp-buffer (org-insert-time-stamp (current-time)))
-	(shell-command-to-string "uuidgen"))))
-    (let ((tasks (buffer-string)))
-      (erase-buffer)
-      (save-buffer)
-      (kill-buffer (current-buffer))
-      (with-current-buffer (find-file-noselect "~/Dropbox/todo.txt")
-	(save-excursion
-	  (goto-char (point-min))
-	  (search-forward "* CEG")
-	  (goto-char (match-beginning 0))
-	  (insert tasks))))))
-
-(add-hook 'org-mobile-post-pull-hook 'my-org-convert-incoming-items)
-
-(defun org-insert-bug (bug)
-  (interactive "nBug: ")
-  (insert (format "[[cegbug:%s][#%s]]" bug bug)))
-
-(defun org-cmp-ceg-bugs (a b)
-  (let* ((bug-a (and (string-match "#\\([0-9]+\\)" a)
-		     (match-string 1 a)))
-	 (bug-b (and (string-match "#\\([0-9]+\\)" b)
-		     (match-string 1 b)))
-	 (cmp (and bug-a bug-b
-		   (- (string-to-number bug-b)
-		      (string-to-number bug-a)))))
-    (cond ((null cmp) nil)
-	  ((< cmp 0) -1)
-	  ((> cmp 0) 1)
-	  ((= cmp 0) nil))))
-
-(defun org-my-state-after-clock-out (state)
-  (if (string= state "STARTED")
-      "TODO"
-    state))
-
-(defun replace-named-dates ()
-  (interactive)
-  (while (re-search-forward
-	  "-\\(Jan\\|Feb\\|Mar\\|Apr\\|May\\|Jun\\|Jul\\|Aug\\|Sep\\|Oct\\|Nov\\|Dec\\)-"
-	  nil t)
-    (let ((mon (match-string 1)))
-      (replace-match
-       (format "/%s/"
-	       (cond ((equal mon "Jan") "01")
-		     ((equal mon "Feb") "02")
-		     ((equal mon "Mar") "03")
-		     ((equal mon "Apr") "04")
-		     ((equal mon "May") "05")
-		     ((equal mon "Jun") "06")
-		     ((equal mon "Jul") "07")
-		     ((equal mon "Aug") "08")
-		     ((equal mon "Sep") "09")
-		     ((equal mon "Oct") "10")
-		     ((equal mon "Nov") "11")
-		     ((equal mon "Dec") "12")))))))
-
-(defvar org-my-archive-expiry-days 1
-  "The number of days after which a completed task should be auto-archived.
-This can be 0 for immediate, or a floating point value.")
-
-(defconst org-my-ts-regexp "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
-  "Regular expression for fast inactive time stamp matching.")
-
-(defun org-my-closing-time ()
-  (let* ((state-regexp
-	  (concat "- State \"\\(?:" (regexp-opt org-done-keywords)
-		  "\\)\"\\s-*\\[\\([^]\n]+\\)\\]"))
-	 (regexp (concat "\\(" state-regexp "\\|" org-my-ts-regexp "\\)"))
-	 (end (save-excursion
-		(outline-next-heading)
-		(point)))
-	 begin
-	 end-time)
-    (goto-char (line-beginning-position))
-    (while (re-search-forward regexp end t)
-      (let ((moment (org-parse-time-string (match-string 1))))
-	(if (or (not end-time)
-		(time-less-p (apply #'encode-time end-time)
-			     (apply #'encode-time moment)))
-	    (setq end-time moment))))
-    (goto-char end)
-    end-time))
-
-(defun org-my-archive-done-tasks ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (let ((done-regexp
-	   (concat "^\\*\\* \\(" (regexp-opt org-done-keywords) "\\) ")))
-      (while (re-search-forward done-regexp nil t)
-	(if (>= (time-to-number-of-days
-		 (time-subtract (current-time)
-				(apply #'encode-time (org-my-closing-time))))
-		org-my-archive-expiry-days)
-	    (org-archive-subtree))))
-    (save-buffer)))
-
-(defalias 'archive-done-tasks 'org-my-archive-done-tasks)
-
-(defun org-get-inactive-time ()
-  (let ((begin (point)))
-    (save-excursion
-      (outline-next-heading)
-      (if (re-search-backward org-my-ts-regexp begin t)
-	  (let ((time (float-time (org-time-string-to-time (match-string 0)))))
-	    (assert (floatp time))
-	    time)
-	(debug)))))
-
-(defun org-get-completed-time ()
-  (let ((begin (point)))
-    (save-excursion
-      (outline-next-heading)
-      (and (re-search-backward "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELLED\\)\"\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)" begin t)
-	   (time-to-seconds (org-time-string-to-time (or (match-string 3)
-							 (match-string 4))))))))
-
-(defun org-my-sort-done-tasks ()
-  (interactive)
-  (goto-char (point-min))
-  (org-sort-entries-or-items t ?F #'org-get-inactive-time #'<)
-  (goto-char (point-min))
-  (while (re-search-forward "
-
-
-+" nil t)
-    (delete-region (match-beginning 0) (match-end 0))
-    (insert "
-"))
-  (let (after-save-hook)
-    (save-buffer))
-  (org-overview))
-
-(defalias 'sort-done-tasks 'org-my-sort-done-tasks)
-
-(defun org-maybe-remember (&optional done)
-  (interactive "P")
-  (if (string= (buffer-name) "*Remember*")
-      (call-interactively 'org-ctrl-c-ctrl-c)
-    (if (null done)
-	(call-interactively 'org-remember)
-      (let ((org-remember-templates
-	     '((110 "* STARTED %?
-  - State \"STARTED\"    %U
-  SCHEDULED: %t
-  :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :END:
-  %U" "~/Dropbox/todo.txt" "Inbox"))))
-	(org-remember))))
-  (set-fill-column 72))
-
-(defun jump-to-ledger-journal ()
-  (interactive)
-  (find-file-other-window "~/Dropbox/Accounts/ledger.dat")
-  (goto-char (point-max))
-  (insert (format-time-string "%Y/%m/%d ")))
-
-(defun org-inline-note ()
-  (interactive)
-  (switch-to-buffer-other-window "todo.txt")
-  (goto-char (point-min))
-  (re-search-forward "^\\* Inbox$")
-  (re-search-forward "^  :END:")
-  (forward-line)
-  (goto-char (line-beginning-position))
-  (insert "** NOTE ")
-  (save-excursion
-    (insert (format "
-   :PROPERTIES:
-   :ID:       %s   :VISIBILITY: folded
-   :END:
-   " (shell-command-to-string "uuidgen")))
-    (org-insert-time-stamp nil t 'inactive)
-    (insert ?\n))
-  (save-excursion
-    (forward-line)
-    (org-cycle)))
-
-(defun org-remember-note ()
-  (interactive)
-  (if (string= (buffer-name) "*Remember*")
-      (call-interactively 'org-ctrl-c-ctrl-c)
-    (let ((org-remember-templates
-	   '((110 "* NOTE %?
-  :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :VISIBILITY: folded
-  :END:
-  %U" "~/Dropbox/todo.txt" "Inbox"))))
-      (call-interactively 'org-remember))))
-
-(defun org-get-message-link ()
-  (let ((subject (do-applescript "tell application \"Mail\"
-        set theMessages to selection
-        subject of beginning of theMessages
-end tell"))
-        (message-id (do-applescript "tell application \"Mail\"
-        set theMessages to selection
-        message id of beginning of theMessages
-end tell")))
-    (org-make-link-string (concat "message://" message-id) subject)))
-
-(defun org-get-message-sender ()
-  (do-applescript "tell application \"Mail\"
-        set theMessages to selection
-        sender of beginning of theMessages
-end tell"))
-
-(defun org-get-url-link ()
-  (let ((subject (do-applescript "tell application \"Safari\"
-        name of document of front window
-end tell"))
-        (url (do-applescript "tell application \"Safari\"
-        URL of document of front window
-end tell")))
-    (org-make-link-string url subject)))
-
-(defun org-get-file-link ()
-  (let ((subject (do-applescript "tell application \"Finder\"
-	set theItems to the selection
-	name of beginning of theItems
-end tell"))
-        (path (do-applescript "tell application \"Finder\"
-	set theItems to the selection
-	POSIX path of (beginning of theItems as text)
-end tell")))
-    (org-make-link-string (concat "file:" path) subject)))
-
-(defun org-insert-message-link ()
-  (interactive)
-  (insert (org-get-message-link)))
-
-(defun org-insert-url-link ()
-  (interactive)
-  (insert (org-get-url-link)))
-
-(defun org-insert-file-link ()
-  (interactive)
-  (insert (org-get-file-link)))
-
-(defun org-set-dtp-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "Document" (org-get-dtp-link)D))
-
-(defun org-set-message-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "Message" (org-get-message-link)))
-
-(defun org-set-message-sender ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "Submitter" (org-get-message-sender)))
-
-(defun org-set-url-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "URL" (org-get-url-link)))
-
-(defun org-set-file-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "File" (org-get-file-link)))
-
-(defun org-dtp-message-open ()
-  "Visit the message with the given MESSAGE-ID.
-This will use the command `open' with the message URL."
-  (interactive)
-  (re-search-backward "\\[\\[message://\\(.+?\\)\\]\\[")
-  (do-applescript
-   (format "tell application \"DEVONthink Pro\"
-	set searchResults to search \"%%3C%s%%3E\" within URLs
-	open window for record (get beginning of searchResults)
-end tell" (match-string 1))))
-
-(defun org-export-tasks ()
-  (interactive)
-  (let ((index 1))
-   (org-map-entries
-    #'(lambda ()
-	(outline-mark-subtree)
-	(org-export-as-html 3)
-	(write-file (format "%d.html" index))
-	(kill-buffer (current-buffer))
-	(setq index (1+ index)))
-    "LEVEL=2")))
-
-(defun org-make-regress-test ()
-  (interactive)
-  (save-excursion
-    (outline-previous-visible-heading 1)
-    (let ((begin (point))
-	  (end (save-excursion
-		 (outline-next-heading)
-		 (point)))
-	  (input "\n") (data "") (output ""))
-      (goto-char begin)
-      (when (re-search-forward ":SCRIPT:\n" end t)
-	(goto-char (match-end 0))
-	(let ((input-beg (point)))
-	  (re-search-forward "[ 	]+:END:")
-	  (setq input (buffer-substring input-beg (match-beginning 0)))))
-      (goto-char begin)
-      (when (search-forward ":\\(DATA\\|SOURCE\\):\n" end t)
-	(goto-char (match-end 0))
-	(let ((data-beg (point)))
-	  (re-search-forward "[ 	]+:END:")
-	  (setq data (buffer-substring data-beg (match-beginning 0)))))
-      (goto-char begin)
-      (when (search-forward ":OUTPUT:\n" end t)
-	(goto-char (match-end 0))
-	(let ((output-beg (point)))
-	  (re-search-forward "[ 	]+:END:")
-	  (setq output (buffer-substring output-beg (match-beginning 0)))))
-      (goto-char begin)
-      (when (re-search-forward ":ID:\\s-+\\([^-]+\\)" end t)
-	(find-file (expand-file-name (concat (match-string 1) ".test")
-				     "~/src/ledger/test/regress/"))
-	(insert input "<<<\n" data ">>>1\n" output ">>>2\n=== 0\n")
-	(pop-to-buffer (current-buffer))
-	(goto-char (point-min))))))
-
-(fset 'sort-todo-categories
-   [?\C-u ?\C-s ?^ ?\\ ?* ?\S-  ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
-
-(fset 'sort-subcategories
-   [?\C-u ?\C-s ?^ ?\\ ?* ?\\ ?* ?\S-  ?P ?r ?o ?j ?e ?c ?t ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
-
-(fset 'match-bug-list
-   [?\C-s ?= ?\C-b ?\C-f ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?\M-y C-return])
-
-(fset 'match-up-bugs
-   [?\C-s ?= ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?# ?\M-y C-return])
-
-;;;_ * remember
-
-(require 'remember)
-
-(add-hook 'remember-mode-hook 'org-remember-apply-template)
-
-;;;_ * session
-
-(when (load "session" t)
-  (add-hook 'after-init-hook 'session-initialize)
-
-  (defun save-information ()
-    (dolist (func kill-emacs-hook)
-      (unless (eq func 'exit-gnus-on-exit)
-	(funcall func))))
-
-  (run-with-idle-timer 900 t 'save-information))
-
-;;;_ * sunrise-commander
-
-(autoload 'sunrise "sunrise-commander" nil t)
-
-;;;_ * timestamp
-
-(defcustom user-initials nil
-  "*Initials of this user."
-  :set #'(lambda (symbol value)
-	   (if (fboundp 'font-lock-add-keywords)
-	       (mapcar
-		#'(lambda (mode)
-		    (font-lock-add-keywords
-		     mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
-				      1 font-lock-warning-face t))))
-		'(c-mode c++-mode emacs-lisp-mode lisp-mode
-			 python-mode perl-mode java-mode groovy-mode)))
-	   (set symbol value))
-  :type 'string
-  :group 'mail)
-
-(defun insert-user-timestamp ()
-  "Insert a quick timestamp using the value of `user-initials'."
-  (interactive)
-  (insert (format "%s (%s): " user-initials
-		  (format-time-string "%Y-%m-%d" (current-time)))))
-
-;;;_ * toggle-code-file
-
-(defun toggle-code-file (&optional arg)
-  (interactive "p")
-  (cond
-   ((string-match "\\.as[cphma]x\\'" buffer-file-name)
-    (find-file (concat buffer-file-name ".cs")))
-   ((string-match "\\.as[cphma]x\\.cs\\'" buffer-file-name)
-    (find-file (substring buffer-file-name 0
-			  (- (length buffer-file-name) 3))))
-   ((string-match "\\.\\(c\\(c\\|pp\\)?\\|mm?\\)\\'" buffer-file-name)
-    (find-file (concat (substring buffer-file-name 0
-				  (match-beginning 0)) ".h")))
-   ((string-match "\\.h\\'" buffer-file-name)
-    (let ((base (substring buffer-file-name 0
-			   (match-beginning 0))))
-      (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
-	(if (file-readable-p (concat base ext))
-	    (find-file (concat base ext))))))))
-
-;;;_ * whitespace
-
-(autoload 'whitespace-buffer "whitespace")
-(autoload 'whitespace-cleanup "whitespace" "" t)
+;;;_ + whitespace
 
 (eval-after-load "whitespace"
   '(progn
      (remove-hook 'find-file-hooks 'whitespace-buffer)
-     (remove-hook 'kill-buffer-hook 'whitespace-buffer)))
+     (remove-hook 'kill-buffer-hook 'whitespace-buffer)
 
-(defun maybe-turn-on-whitespace ()
-  "Depending on the file, maybe turn on `whitespace-mode'."
-  (let ((file (expand-file-name ".clean"))
-	parent-dir)
-    (while (and (not (file-exists-p file))
-		(progn
-		  (setq parent-dir
-			(file-name-directory
-			 (directory-file-name
-			  (file-name-directory file))))
-		  ;; Give up if we are already at the root dir.
-		  (not (string= (file-name-directory file)
-				parent-dir))))
-      ;; Move up to the parent dir and try again.
-      (setq file (expand-file-name ".clean" parent-dir)))
-    ;; If we found a change log in a parent, use that.
-    (when (and (file-exists-p file)
-	       (not (file-exists-p ".noclean"))
-	       (not (and buffer-file-name
-			 (string-match "\\.texi$" buffer-file-name))))
-      (add-hook 'write-contents-hooks
-		#'(lambda ()
-		    (ignore (whitespace-buffer))) nil t)
-      (whitespace-buffer))))
+     (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
 
-(add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
+     (defun maybe-turn-on-whitespace ()
+       "Depending on the file, maybe turn on `whitespace-mode'."
+       (let ((file (expand-file-name ".clean"))
+             parent-dir)
+         (while (and (not (file-exists-p file))
+                     (progn
+                       (setq parent-dir
+                             (file-name-directory
+                              (directory-file-name
+                               (file-name-directory file))))
+                       ;; Give up if we are already at the root dir.
+                       (not (string= (file-name-directory file)
+                                     parent-dir))))
+           ;; Move up to the parent dir and try again.
+           (setq file (expand-file-name ".clean" parent-dir)))
+         ;; If we found a change log in a parent, use that.
+         (when (and (file-exists-p file)
+                    (not (file-exists-p ".noclean"))
+                    (not (and buffer-file-name
+                              (string-match "\\.texi$" buffer-file-name))))
+           (add-hook 'write-contents-hooks
+                     #'(lambda ()
+                         (ignore (whitespace-buffer))) nil t)
+           (whitespace-buffer))))))
 
-;;;_ * yasnippet
+;;;_ + yasnippet
 
-(when (load "yasnippet" t)
-  (yas/initialize)
-  (yas/load-directory "~/Library/Emacs/snippets/"))
+(eval-after-load "yasnippet"
+  '(progn
+     (yas/initialize)
+     (yas/load-directory (expand-file-name "snippets/" emacs-lisp-root))))
 
-;;;_ * diminish
+;;;_ + diminish
 
-(when (load "diminish" t)
-  (diminish 'abbrev-mode)
-  (diminish 'auto-fill-function)
-  (ignore-errors
-    (diminish 'yas/minor-mode))
+(eval-after-load "diminish"
+  '(progn
+     (diminish 'abbrev-mode)
+     (diminish 'auto-fill-function)
+     (ignore-errors
+       (diminish 'yas/minor-mode))
 
-  (defadvice dired-omit-startup (after diminish-dired-omit activate)
-    "Make sure to remove \"Omit\" from the modeline."
-    (diminish 'dired-omit-mode))
+     (defadvice dired-omit-startup (after diminish-dired-omit activate)
+       "Make sure to remove \"Omit\" from the modeline."
+       (diminish 'dired-omit-mode))
 
-  (eval-after-load "dot-mode" '(diminish 'dot-mode))
-  (eval-after-load "eldoc"    '(diminish 'eldoc-mode))
-  (eval-after-load "winner"   '(ignore-errors (diminish 'winner-mode))))
+     (eval-after-load "dot-mode" '(diminish 'dot-mode))
+     (eval-after-load "eldoc"    '(diminish 'eldoc-mode))
+     (eval-after-load "winner"   '(ignore-errors (diminish 'winner-mode)))))
 
 ;;;_* keybindings
 
-;;;_ * global
+;;;_ + global
 
 (define-key global-map [(control meta backspace)] 'backward-kill-sexp)
-(define-key global-map [(control meta delete)] 'backward-kill-sexp)
+(define-key global-map [(control meta delete)]    'backward-kill-sexp)
 
 (defun smart-beginning-of-line (&optional arg)
   (interactive "p")
@@ -1289,8 +514,6 @@ end tell" (match-string 1))))
 (define-key global-map [(meta ?J)] 'delete-indentation)
 (define-key global-map [(meta ?n)] 'chop-move-down)
 (define-key global-map [(meta ?p)] 'chop-move-up)
-(define-key global-map [(meta ?m)] 'org-capture)
-(define-key global-map [(meta ?z)] 'org-inline-note)
 
 (define-prefix-command 'lisp-find-map)
 (define-key global-map [(control ?h) ?e] 'lisp-find-map)
@@ -1300,32 +523,6 @@ end tell" (match-string 1))))
 (define-key lisp-find-map [?v] 'find-variable)
 (define-key lisp-find-map [?k] 'find-function-on-key)
 
-(defun visit-ledger-channel ()
-  (interactive)
-  (select-window (display-buffer "#ledger" t t)))
-
-(defun get-main-frame ()
-  (catch 'found
-    (dolist (frame (frame-list))
-      (let* ((wind (frame-first-window frame))
-	     (title (buffer-name (window-buffer wind))))
-	(unless (or (string= "*Org Agenda*" title)
-		    (string= "#ledger" title)
-		    (string= "journal.txt" title)
-		    (string-match "todo\\.txt-[0-9]+" title))
-	  (throw 'found frame))))))
-
-(defun main-frame ()
-  (interactive)
-  (select-frame-set-input-focus (get-main-frame)))
-
-(define-key global-map [(alt ?c)] 'jump-to-org-agenda)
-(define-key global-map [(alt ?m)] 'main-frame)
-(define-key global-map [(alt ?l)] 'visit-ledger-channel)
-
-(load ".gnus.el")
-
-(define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 (define-key global-map [(meta ?G)] 'gnus)
 (define-key global-map [(meta ?N)] 'winner-redo)
 (define-key global-map [(meta ?P)] 'winner-undo)
@@ -1343,12 +540,11 @@ end tell" (match-string 1))))
       (align beg end-mark))))
 
 (define-key global-map [(meta ?\[)] 'align-code)
-;;(define-key global-map [(meta ?\])] 'main-frame)
 (define-key global-map [(meta ?!)]  'eshell-command)
 (define-key global-map [(meta ?`)]  'cycbuf-switch-to-next-buffer)
 (define-key global-map [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
-;;(define-key global-map [(meta ?`)]  'other-frame)
-(define-key global-map [(alt ?`)]   'delete-frame)
+
+(define-key global-map [(alt ?`)]  'other-frame)
 
 (defun mark-line (&optional arg)
   (interactive "p")
@@ -1387,33 +583,7 @@ end tell" (match-string 1))))
       (interactive)
       (call-interactively (key-binding (kbd "M-TAB")))))
 
-;;;_ * cursor-mode
-
-;; Change cursor color according to mode; inspired by
-;; http://www.emacswiki.org/emacs/ChangingCursorDynamically
-
-(setq djcb-read-only-color       "gray"
-      djcb-read-only-cursor-type 'hbar
-      djcb-overwrite-color       "red"
-      djcb-overwrite-cursor-type 'box
-      djcb-normal-color          "#b247ee"
-      djcb-normal-cursor-type    'box)
-
-(defun set-cursor-according-to-mode ()
-  "change cursor color and type according to some minor modes."
-  (interactive)
-  (cond
-    (buffer-read-only
-      (set-cursor-color djcb-read-only-color)
-      (setq cursor-type djcb-read-only-cursor-type))
-    (overwrite-mode
-      (set-cursor-color djcb-overwrite-color)
-      (setq cursor-type djcb-overwrite-cursor-type))
-    (t 
-      (set-cursor-color djcb-normal-color)
-      (setq cursor-type djcb-normal-cursor-type))))
-
-;;;_ * ctl-x
+;;;_ + ctl-x
 
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?g] 'magit-status)
@@ -1509,32 +679,29 @@ end tell" (match-string 1))))
 
 (define-key ctl-x-map [(control ?d)] 'duplicate-line)
 
-(defun find-existing-file (file-name)
-  "Edit file FILENAME.
-Switch to a buffer visiting file FILENAME,
-creating one if none already exists.
-Interactively, or if WILDCARDS is non-nil in a call from Lisp,
-expand wildcards (if any) and visit multiple files."
-  (interactive
-   (list (read-file-name "Find file: " default-directory nil
-			 (null current-prefix-arg))))
-  (condition-case err
-      (find-file file-name)
-    (file-error
-     (if (and (string-match "^File is not readable:"
-			    (error-message-string err))
-	      (not (string-match ":" file-name)))
-	 (find-file (concat "/[root@localhost]" file-name))
-       (signal (car err) (cdr err))))))
-
-;;(define-key ctl-x-map [(control ?f)] 'find-existing-file)
-(define-key ctl-x-map [(control ?v)] 'my-ido-choose-from-recentf)
-
 (autoload 'esh-toggle "esh-toggle" nil t)
 
 (define-key ctl-x-map [(control ?z)] 'eshell-toggle)
 
-;;;_ * mode-specific
+;;;_ + mode-specific
+
+(defun toggle-code-file (&optional arg)
+  (interactive "p")
+  (cond
+   ((string-match "\\.as[cphma]x\\'" buffer-file-name)
+    (find-file (concat buffer-file-name ".cs")))
+   ((string-match "\\.as[cphma]x\\.cs\\'" buffer-file-name)
+    (find-file (substring buffer-file-name 0
+			  (- (length buffer-file-name) 3))))
+   ((string-match "\\.\\(c\\(c\\|pp\\)?\\|mm?\\)\\'" buffer-file-name)
+    (find-file (concat (substring buffer-file-name 0
+				  (match-beginning 0)) ".h")))
+   ((string-match "\\.h\\'" buffer-file-name)
+    (let ((base (substring buffer-file-name 0
+			   (match-beginning 0))))
+      (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
+	(if (file-readable-p (concat base ext))
+	    (find-file (concat base ext))))))))
 
 (define-key mode-specific-map [tab] 'toggle-code-file)
 
@@ -1542,7 +709,6 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [? ] 'just-one-space)
 (define-key mode-specific-map [?1] 'just-one-space)
 
-(define-key mode-specific-map [?a] 'org-agenda)
 (define-key mode-specific-map [?b] 'ignore)
 (define-key mode-specific-map [?c] 'compile)
 
@@ -1624,33 +790,29 @@ expand wildcards (if any) and visit multiple files."
   (insert (format-time-string "%Y/%m/%d ")))
 
 (define-key mode-specific-map [?l] 'my-ledger-start-entry)
-
-(defun jump-to-org-agenda ()
-  (interactive)
-  (let ((buf (get-buffer "*Org Agenda*"))
-	wind)
-    (if buf
-	(if (setq wind (get-buffer-window buf))
-	    (select-window wind)
-	  (if (called-interactively-p)
-	      (progn
-		(select-window (display-buffer buf t t))
-		(org-fit-window-to-buffer)
-		;; (org-agenda-redo)
-		)
-	    (with-selected-window (display-buffer buf)
-	      (org-fit-window-to-buffer)
-	      ;; (org-agenda-redo)
-	      )))
-      (call-interactively 'org-agenda-list)))
-  ;;(let ((buf (get-buffer "*Calendar*")))
-  ;;  (unless (get-buffer-window buf)
-  ;;    (org-agenda-goto-calendar)))
-  )
-
-(run-with-idle-timer 300 t 'jump-to-org-agenda)
-
 (define-key mode-specific-map [?m] 'ignore)
+
+(defcustom user-initials nil
+  "*Initials of this user."
+  :set #'(lambda (symbol value)
+	   (if (fboundp 'font-lock-add-keywords)
+	       (mapcar
+		#'(lambda (mode)
+		    (font-lock-add-keywords
+		     mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
+				      1 font-lock-warning-face t))))
+		'(c-mode c++-mode emacs-lisp-mode lisp-mode
+			 python-mode perl-mode java-mode groovy-mode)))
+	   (set symbol value))
+  :type 'string
+  :group 'mail)
+
+(defun insert-user-timestamp ()
+  "Insert a quick timestamp using the value of `user-initials'."
+  (interactive)
+  (insert (format "%s (%s): " user-initials
+		  (format-time-string "%Y-%m-%d" (current-time)))))
+
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
 (define-key mode-specific-map [?o] 'customize-option)
 (define-key mode-specific-map [?O] 'customize-group)
@@ -1663,13 +825,6 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?t ?a] 'tags-apropos)
 (define-key mode-specific-map [?t ?e] 'tags-search)
 (define-key mode-specific-map [?t ?v] 'visit-tags-table)
-
-(define-key mode-specific-map [?t ?c] 'timeclock-change)
-(define-key mode-specific-map [?t ?i] 'timeclock-in)
-(define-key mode-specific-map [?t ?o] 'timeclock-out)
-(define-key mode-specific-map [?t ?r] 'timeclock-reread-log)
-(define-key mode-specific-map [?t ?u] 'timeclock-update-modeline)
-(define-key mode-specific-map [?t (control ?m)] 'timeclock-status-string)
 
 (define-key mode-specific-map [?t ?a] 'tags-apropos)
 
@@ -1690,49 +845,6 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [(shift ?v)] 'view-clipboard)
 
 (define-key mode-specific-map [?w] 'wdired-change-to-wdired-mode)
-(define-key mode-specific-map [(meta ?w)] 'org-store-link)
-(define-key mode-specific-map [(shift ?w)] 'org-kill-entry)
-
-(define-key mode-specific-map [?x ?d]
-  #'(lambda nil (interactive) (org-todo "DONE")))
-(define-key mode-specific-map [?x ?r]
-  #'(lambda nil (interactive) (org-todo "DEFERRED")))
-(define-key mode-specific-map [?x ?y]
-  #'(lambda nil (interactive) (org-todo "SOMEDAY")))
-(define-key mode-specific-map [?x ?g]
-  #'(lambda nil (interactive) (org-todo "DELEGATED")))
-(define-key mode-specific-map [?x ?n]
-  #'(lambda nil (interactive) (org-todo "NOTE")))
-(define-key mode-specific-map [?x ?s]
-  #'(lambda nil (interactive) (org-todo "STARTED")))
-(define-key mode-specific-map [?x ?t]
-  #'(lambda nil (interactive) (org-todo "TODO")))
-(define-key mode-specific-map [?x ?w]
-  #'(lambda nil (interactive) (org-todo "WAITING")))
-(define-key mode-specific-map [?x ?x]
-  #'(lambda nil (interactive) (org-todo "CANCELLED")))
-
-(define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
-(define-key mode-specific-map [?x ?M] 'org-set-message-link)
-(define-key mode-specific-map [?x ?Y] 'org-set-message-sender)
-(define-key mode-specific-map [?x ?U] 'org-set-url-link)
-(define-key mode-specific-map [?x ?F] 'org-set-file-link)
-(define-key mode-specific-map [?x ?C] 'cvs-examine)
-(define-key mode-specific-map [?x ?S] 'svn-status)
-(define-key mode-specific-map [?x ?b] 'org-insert-bug)
-(define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
-(define-key mode-specific-map [?x ?m] 'org-insert-message-link)
-(define-key mode-specific-map [?x ?u] 'org-insert-url-link)
-(define-key mode-specific-map [?x ?f] 'org-insert-file-link)
-
-(defun org-trac-ticket-open ()
-  (interactive)
-  (browse-url (concat "http://trac.newartisans.com/ledger/ticket/"
-		      (org-entry-get (point) "Ticket"))))
-
-(define-key mode-specific-map [?x ?T] 'org-trac-ticket-open)
-
-(define-key mode-specific-map [(shift ?y)] 'org-yank-entry)
 (define-key mode-specific-map [?y] 'ignore)
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
@@ -1740,102 +852,25 @@ expand wildcards (if any) and visit multiple files."
 (define-key mode-specific-map [?=]  'count-matches)
 (define-key mode-specific-map [?\;] 'comment-or-uncomment-region)
 
-;;;_ * footnote
+;;;_ + footnote
 
 (eval-after-load "footnote"
   '(define-key footnote-mode-map "#" 'redo-footnotes))
 
-;;;_ * isearch-mode
+;;;_ + isearch-mode
 
 (define-key isearch-mode-map [(control ?c)] 'isearch-toggle-case-fold)
 (define-key isearch-mode-map [(control ?t)] 'isearch-toggle-regexp)
 (define-key isearch-mode-map [(control ?^)] 'isearch-edit-string)
 (define-key isearch-mode-map [(control ?i)] 'isearch-complete)
 
-;;;_ * mail-mode
+;;;_ + mail-mode
 
 (eval-after-load "sendmail"
   '(define-key mail-mode-map [(control ?i)] 'mail-complete))
 
-;;;_ * org-mode
-
-(eval-after-load "org"
-  '(progn
-     (org-defkey org-mode-map [(control meta return)] 'org-insert-heading-after-current)
-     (org-defkey org-mode-map [(control return)] 'other-window)
-     (define-key org-mode-map [return] 'org-return-indent)
-
-     (defun org-fit-agenda-window ()
-       "Fit the window to the buffer size."
-       (and (memq org-agenda-window-setup '(reorganize-frame))
-	    (fboundp 'fit-window-to-buffer)
-	    (fit-window-to-buffer)))
-
-     (defun yas/org-very-safe-expand ()
-       (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
-
-     (add-hook 'org-mode-hook
-	       (lambda ()
-		 ;; yasnippet (using the new org-cycle hooks)
-		 (make-variable-buffer-local 'yas/trigger-key)
-		 (setq yas/trigger-key [tab])
-		 (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-		 (define-key yas/keymap [tab] 'yas/next-field)))))
-
-(eval-after-load "org-agenda"
-  '(progn
-     (dolist (map (list org-agenda-keymap org-agenda-mode-map))
-       (define-key map "\C-n" 'next-line)
-       (define-key map "\C-p" 'previous-line)
-
-       (define-key map "g" 'org-agenda-redo)
-       (define-key map "r"
-	 #'(lambda nil
-	     (interactive)
-	     (error "The 'r' command is deprecated here; use 'g'")))
-       (define-key map "f" 'org-agenda-date-later)
-       (define-key map "b" 'org-agenda-date-earlier)
-       (define-key map "r" 'org-agenda-refile)
-       (define-key map " " 'org-agenda-tree-to-indirect-buffer)
-       (define-key map "F" 'org-agenda-follow-mode)
-       (define-key map "q" 'delete-window)
-       (define-key map [(meta ?p)] 'org-agenda-earlier)
-       (define-key map [(meta ?n)] 'org-agenda-later)
-
-       (define-prefix-command 'org-todo-state-map)
-
-       (define-key map "x" 'org-todo-state-map)
-
-       (define-key org-todo-state-map "d"
-	 #'(lambda nil (interactive) (org-agenda-todo "DONE")))
-       (define-key org-todo-state-map "r"
-	 #'(lambda nil (interactive) (org-agenda-todo "DEFERRED")))
-       (define-key org-todo-state-map "y"
-	 #'(lambda nil (interactive) (org-agenda-todo "SOMEDAY")))
-       (define-key org-todo-state-map "g"
-	 #'(lambda nil (interactive) (org-agenda-todo "DELEGATED")))
-       (define-key org-todo-state-map "n"
-	 #'(lambda nil (interactive) (org-agenda-todo "NOTE")))
-       (define-key org-todo-state-map "s"
-	 #'(lambda nil (interactive) (org-agenda-todo "STARTED")))
-       (define-key org-todo-state-map "t"
-	 #'(lambda nil (interactive) (org-agenda-todo "TODO")))
-       (define-key org-todo-state-map "w"
-	 #'(lambda nil (interactive) (org-agenda-todo "WAITING")))
-       (define-key org-todo-state-map "x"
-	 #'(lambda nil (interactive) (org-agenda-todo "CANCELLED")))
-
-       (define-key org-todo-state-map "z" #'make-bugzilla-bug))))
-
 ;;;_* startup
 
-;; Finally, load the server and show the current agenda
-
-(add-hook 'after-init-hook
-	  (function
-	   (lambda ()
-	     (org-agenda-list)
-	     (org-resolve-clocks))))
 (add-hook 'after-init-hook 'server-start)
 
 (defun large-font ()
