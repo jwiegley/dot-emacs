@@ -136,6 +136,8 @@
  '(frame-title-format (quote (:eval (if buffer-file-name default-directory "%b"))) t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
+ '(haskell-check-command "~/.cabal/bin/hlint")
+ '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan my-haskell-mode-hook)))
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-maybe-show-regexps nil)
@@ -174,7 +176,7 @@
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
  '(org-agenda-cmp-user-defined (quote org-cmp-ceg-bugs))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Someday tasks:"))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))))) ("L" "Ledger tasks not in Bugzilla" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(bug:\\)"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Unscheduled work tasks" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>\"Website\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))))))
+ '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" tags-todo "TODO<>{SOMEDAY}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(bug:\\)"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Unscheduled work tasks" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>\"Website\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
@@ -200,6 +202,11 @@
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
+ '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Dropbox/todo.txt" "Inbox") "* TODO %?
+  SCHEDULED: %t
+  :PROPERTIES:
+  :ID:       %(shell-command-to-string \"uuidgen\")  :END:
+  %U" :prepend t))))
  '(org-clock-idle-time 10)
  '(org-clock-in-resume t)
  '(org-clock-in-switch-to-state "STARTED")
@@ -491,12 +498,11 @@
 (require 'org-install)
 (require 'org-attach)
 (require 'org-devonthink)
-(require 'org-babel-init)
-(require 'org-babel-R)
-(require 'org-babel-python)
-(require 'org-babel-emacs-lisp)
-(require 'org-babel-haskell)
-(require 'org-babel-sh)
+(require 'ob-R)
+(require 'ob-python)
+(require 'ob-emacs-lisp)
+(require 'ob-haskell)
+(require 'ob-sh)
 
 ;;(load "org-log" t)
 
@@ -569,7 +575,7 @@
 	      (delete-region (match-beginning 0) (1+ (line-end-position))))
 	    (goto-char (point-min))
 	    (when (eobp)
-	      (insert "No description file.")
+	      (insert "No description.")
 	      (goto-char (point-min)))
 	    (insert (format "Product: %s
 Component: %s
@@ -611,7 +617,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	       (severities (list "blocker" "critical" "major"
 				 "normal" "minor" "trivial" "enhancement"))
 	       (product "Ledger")
-	       (version "3.0"))
+	       (version "3.0.0-20100615"))
 	   (list product
 		 (ido-completing-read "Component: " components
 				      nil t nil nil (car (last components)))
@@ -646,7 +652,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	      (delete-region (match-beginning 0) (1+ (line-end-position))))
 	    (goto-char (point-min))
 	    (when (eobp)
-	      (insert "No description file.")
+	      (insert "No description.")
 	      (goto-char (point-min)))
 	    (insert (format "Product: %s
 Component: %s
@@ -704,7 +710,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	 (let ((hour (nth 2 (decode-time))))
 	   (or (< hour 8) (> hour 21))))
 	((string= tag "errand")
-	 t)
+	 (let ((hour (nth 2 (decode-time))))
+	   (or (< hour 12) (> hour 17))))
 	((string= tag "home")
 	 (with-temp-buffer
 	   (call-process "/sbin/ifconfig" nil t nil "en0" "inet")
@@ -1282,7 +1289,7 @@ end tell" (match-string 1))))
 (define-key global-map [(meta ?J)] 'delete-indentation)
 (define-key global-map [(meta ?n)] 'chop-move-down)
 (define-key global-map [(meta ?p)] 'chop-move-up)
-(define-key global-map [(meta ?m)] 'org-maybe-remember)
+(define-key global-map [(meta ?m)] 'org-capture)
 (define-key global-map [(meta ?z)] 'org-inline-note)
 
 (define-prefix-command 'lisp-find-map)
