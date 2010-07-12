@@ -16,7 +16,7 @@
  '(smtpmail-local-domain "gmail.com")
  '(smtpmail-default-smtp-server "smtp.gmail.com")
  '(smtpmail-debug-info t)
- '(sendmail-program "/opt/local/bin/msmtp")
+ '(sendmail-program "/opt/local/bin/msmtp" t)
  '(send-mail-function (quote smtpmail-send-it))
  '(nnmail-scan-directory-mail-source-once t)
  '(nnmail-message-id-cache-file "~/Mail/.nnmail-cache")
@@ -31,7 +31,7 @@
  '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-sendmail-envelope-from (quote header))
  '(message-send-mail-partially-limit nil)
- '(message-send-mail-function (quote message-smtpmail-send-it))
+ '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-mode-hook (quote (footnote-mode auto-fill-mode)))
  '(message-mail-alias-type nil)
  '(message-interactive t)
@@ -84,7 +84,6 @@
  '(gnus-posting-styles (quote (("ceg" ("From" "\"John Wiegley\" <johnw@3dex.com>")))))
  '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
  '(gnus-novice-user nil)
- '(gnus-message-archive-group (quote gnus-determine-archive-group))
  '(gnus-local-domain "newartisans.com")
  '(gnus-large-newsgroup 4000)
  '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
@@ -354,6 +353,21 @@
 		(message-add-header "Gcc: nnmaildir+Mail:INBOX.Sent")
 	      (message-add-header "FCC: ~/Mail/listposts")))))))))
 
+;;;_ + Selecting an e-mail address
+
+(defvar pick-addr-cache nil)
+
+(defun pick-email-address ()
+  (interactive)
+  (insert
+   (ido-completing-read
+    "E-mail address: "
+    (or pick-addr-cache
+        (setq pick-addr-cache
+              (split-string  (shell-command-to-string
+                              "contacts -H -S -f '%n <%e>' | grep -v '<>'")
+                             "\n" t))) nil t)))
+
 ;;;_ + Archive groups
 
 (defcustom gnus-archive-groups nil
@@ -371,7 +385,7 @@
 	   ((or (null group)
 		(string= group "")
 		(string-match "nnmaildir\\+Mail:INBOX" group))
-	    "nnmaildir+Mail:Archive")
+	    "nnmaildir+Mail:INBOX.Archive")
 	   ((string-match "^\\([^:.]+\\.[^:]+\\)" group)
 	    (setq lookup t)
 	    (match-string 1 group))
