@@ -67,7 +67,7 @@
 			    (substatement-open . 0)
 			    (substatement-label . 0)
 			    (label . 0)
-			    (case-label . +)
+			    (case-label . 0)
 			    (statement-case-open . 0)
 			    (statement-cont . +)
 			    (arglist-intro . c-lineup-arglist-intro-after-paren)
@@ -101,6 +101,33 @@
 (which-function-mode t)
 
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+
+(defun keep-mine ()
+  (interactive)
+  (beginning-of-line)
+  (assert (looking-at "<<<<<<"))
+  (let ((beg (point)))
+    (forward-line)
+    (delete-region beg (point))
+    (re-search-forward "^=======")
+    (setq beg (match-beginning 0))
+    (re-search-forward "^>>>>>>>")
+    (forward-line)
+    (delete-region beg (point))))
+
+(defun keep-theirs ()
+  (interactive)
+  (beginning-of-line)
+  (assert (looking-at "<<<<<<"))
+  (let ((beg (point)))
+    (re-search-forward "^=======")
+    (forward-line)
+    (delete-region beg (point))
+    (re-search-forward "^>>>>>>>")
+    (beginning-of-line)
+    (setq beg (point))
+    (forward-line)
+    (delete-region beg (point))))
 
 ;;;_ * doxymacs
 
