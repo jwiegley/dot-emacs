@@ -67,3 +67,12 @@
 [submodule "site-lisp/muse-blog"]
 	path = site-lisp/muse-blog
 	url = git://git.naquadah.org/muse-blog.git
+[submodule "site-lisp/jd-el"]
+	path = site-lisp/jd-el
+	url = git://git.naquadah.org/~jd/jd-el.git
+[submodule "site-lisp/malabar-mode"]
+	path = site-lisp/malabar-mode
+	url = git://github.com/espenhw/malabar-mode.git
+[submodule "site-lisp/swank-clojure"]
+	path = site-lisp/swank-clojure
+	url = git://github.com/jochu/swank-clojure.git
