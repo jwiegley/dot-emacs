@@ -1,13 +1,17 @@
-DIRS	= . site-lisp $(shell find site-lisp -type d -maxdepth 1 | egrep -v '(org-|.hg)')
-SPECIAL = cus-dirs.el autoloads.el
-SOURCE	= $(filter-out $(SPECIAL),$(wildcard *.el) \
-	  $(wildcard site-lisp/*.el))
-TARGET	= $(patsubst %.el,%.elc,$(SPECIAL) $(SOURCE))
-EMACS   = emacs
+DIRS		 = . site-lisp $(shell find site-lisp -type d -maxdepth 1 | egrep -v '(org-|.hg)')
+SPECIAL		 = cus-dirs.el autoloads.el
+SOURCE		 = $(filter-out $(SPECIAL),$(wildcard *.el) $(wildcard site-lisp/*.el))
+TARGET		 = $(patsubst %.el,%.elc,$(SPECIAL) $(SOURCE))
+EMACS		 = emacs
 
-EMACS_BATCH		= $(EMACS) --no-init-file --no-site-file -batch
-MY_LOADPATH	 	= -L . -L site-lisp -L site-lisp/muse/lisp -L site-lisp/epg
-EMACS_BATCH_LOAD	= $(EMACS_BATCH) $(MY_LOADPATH)
+EMACS_BATCH      = $(EMACS) --no-init-file --no-site-file -batch
+MY_LOADPATH      = -L .				\
+		   -L site-lisp			\
+		   -L site-lisp/muse/lisp	\
+		   -L site-lisp/epg		\
+		   -L site-lisp/apel            \
+		   -l site-lisp/bookmark+
+EMACS_BATCH_LOAD = $(EMACS_BATCH) $(MY_LOADPATH)
 
 all: $(TARGET)
 
