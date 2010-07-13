@@ -54,7 +54,7 @@
 	url = git://git.sourceforge.jp/gitroot/epg/epg.git
 [submodule "site-lisp/nxhtml"]
 	path = site-lisp/nxhtml
-	url = git://github.com/jwiegley/nxhtml.git
+	url = git://github.com/emacsmirror/nxhtml.git
 [submodule "site-lisp/ruby-mode"]
 	path = site-lisp/ruby-mode
 	url = git://github.com/jwiegley/ruby-mode.git
