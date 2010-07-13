@@ -5,10 +5,14 @@ SOURCE	= $(filter-out $(SPECIAL),$(wildcard *.el) \
 TARGET	= $(patsubst %.el,%.elc,$(SPECIAL) $(SOURCE))
 EMACS   = emacs
 
+EMACS_BATCH		= $(EMACS) --no-init-file --no-site-file -batch
+MY_LOADPATH	 	= -L . -L site-lisp -L site-lisp/muse/lisp -L site-lisp/epg
+EMACS_BATCH_LOAD	= $(EMACS_BATCH) $(MY_LOADPATH)
+
 all: $(TARGET)
 
 cus-dirs.el: $(SOURCE)
-	$(EMACS) --no-init-file --no-site-file -batch \
+	$(EMACS_BATCH) \
 		-l cus-dep \
 		-f custom-make-dependencies $(DIRS)
 	mv cus-load.el cus-dirs.el
@@ -16,16 +20,13 @@ cus-dirs.el: $(SOURCE)
 autoloads.el: autoloads.in $(SOURCE)
 	cp autoloads.in autoloads.el
 	-rm autoloads.elc
-	$(EMACS) --no-init-file --no-site-file -batch \
+	$(EMACS_BATCH) \
 		-l $(shell pwd)/autoloads \
 		-f generate-autoloads \
 		$(shell pwd)/autoloads.el $(DIRS)
 
 %.elc: %.el
-	$(EMACS) --no-init-file --no-site-file \
-		-L . -L site-lisp -L site-lisp/muse/lisp \
-		-L site-lisp/epg \
-		-batch -f batch-byte-compile $<
+	$(EMACS_BATCH_LOAD) -l $< -f batch-byte-compile $<
 
 clean:
 	rm -f $(TARGET) *~
