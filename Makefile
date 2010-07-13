@@ -10,7 +10,6 @@ MY_LOADPATH      = -L .				\
 		   -L site-lisp/muse/lisp	\
 		   -L site-lisp/epg		\
 		   -L site-lisp/apel            \
-		   -l site-lisp/bookmark+
 EMACS_BATCH_LOAD = $(EMACS_BATCH) $(MY_LOADPATH)
 
 all: $(TARGET)
