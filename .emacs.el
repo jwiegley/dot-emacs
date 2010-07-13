@@ -10,22 +10,19 @@
 (dolist
     (path
      (reverse
-      (list
-       (expand-file-name "~/Dropbox")
-       (expand-file-name emacs-lisp-root)
-       (expand-file-name "site-lisp" emacs-lisp-root)
+      (list "~/Dropbox" "." "site-lisp"
 
-       ;; Packages that bury their Lisp code in subdirectories...
-       (expand-file-name "site-lisp/ess/lisp" emacs-lisp-root)
-       (expand-file-name "site-lisp/org-mode/contrib/lisp" emacs-lisp-root)
-       (expand-file-name "site-lisp/org-mode/lisp" emacs-lisp-root)
+            ;; Packages that bury their Lisp code in subdirectories...
+            "site-lisp/ess/lisp"
+            "site-lisp/org-mode/contrib/lisp"
+            "site-lisp/org-mode/lisp"
 
-       ;; Packages located elsewhere on the system...
-       (expand-file-name "~/Projects/ledger/lisp")
-       (expand-file-name "/opt/local/share/doc/git-core/contrib/emacs")
-       )))
+            ;; Packages located elsewhere on the system...
+            "~/Projects/ledger/lisp"
+            "/opt/local/share/doc/git-core/contrib/emacs"
+            )))
 
-  (setq path (expand-file-name path))
+  (setq path (expand-file-name path emacs-lisp-root))
   (setq load-path (delete path load-path))
 
   (when (file-directory-p path)
