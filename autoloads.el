@@ -1,7 +1,10 @@
 ;;; -*-emacs-lisp-*-
 ;;; autoloads.in --- define autoloads for a lisp directory
 
-(require 'cl)
+(eval-when-compile
+  (require 'cl))
+
+(defvar generated-autoload-file)
 
 (defun generate-autoloads ()
   (interactive)
@@ -386,6 +389,53 @@ Unequivocally turn on cldoc-mode (see variable documentation).
 
 ;;;***
 
+;;;### (autoloads (clojure-enable-slime-on-existing-buffers clojure-mode)
+;;;;;;  "clojure-mode" "site-lisp/clojure-mode/clojure-mode.el" (19516
+;;;;;;  49827))
+;;; Generated autoloads from site-lisp/clojure-mode/clojure-mode.el
+
+(autoload 'clojure-mode "clojure-mode" "\
+Major mode for editing Clojure code - similar to Lisp mode..
+Commands:
+Delete converts tabs to spaces as it moves back.
+Blank lines separate paragraphs.  Semicolons start comments.
+\\{clojure-mode-map}
+Note that `run-lisp' may be used either to start an inferior Lisp job
+or to switch back to an existing one.
+
+Entry to this mode calls the value of `clojure-mode-hook'
+if that value is non-nil.
+
+\(fn)" t nil)
+
+(autoload 'clojure-enable-slime-on-existing-buffers "clojure-mode" "\
+Not documented
+
+\(fn)" t nil)
+
+(add-hook 'slime-connected-hook 'clojure-enable-slime-on-existing-buffers)
+
+(add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
+
+;;;***
+
+;;;### (autoloads (clojure-test-mode) "clojure-test-mode" "site-lisp/clojure-mode/clojure-test-mode.el"
+;;;;;;  (19516 49827))
+;;; Generated autoloads from site-lisp/clojure-mode/clojure-test-mode.el
+
+(autoload 'clojure-test-mode "clojure-test-mode" "\
+A minor mode for running Clojure tests.
+
+\(fn &optional ARG)" t nil)
+
+(defun clojure-test-maybe-enable nil "\
+Enable clojure-test-mode if the current buffer contains Clojure tests.
+Also will enable it if the file is in a test directory." (save-excursion (save-window-excursion (goto-char (point-min)) (when (search-forward "clojure.test" nil t) (clojure-test-mode t)))))
+
+(add-hook 'clojure-mode-hook 'clojure-test-maybe-enable)
+
+;;;***
+
 ;;;### (autoloads nil "column-marker" "site-lisp/column-marker.el"
 ;;;;;;  (18429 49075))
 ;;; Generated autoloads from site-lisp/column-marker.el
@@ -442,7 +492,7 @@ what diminished modes would be on the mode-line if they were still minor.
 ;;;***
 
 ;;;### (autoloads (dired-tar-pack-unpack) "dired-tar" "site-lisp/dired-tar.el"
-;;;;;;  (18429 49075))
+;;;;;;  (19516 50789))
 ;;; Generated autoloads from site-lisp/dired-tar.el
 
 (autoload 'dired-tar-pack-unpack "dired-tar" "\
@@ -1559,6 +1609,45 @@ see if this is newer than `haskell-package-conf-file' every time
 we load it.
 
 \(fn SYM)" t nil)
+
+;;;***
+
+;;;### (autoloads (global-linum-mode linum-mode linum-format) "linum"
+;;;;;;  "site-lisp/linum.el" (19516 48981))
+;;; Generated autoloads from site-lisp/linum.el
+
+(defvar linum-format 'dynamic "\
+Format used to display line numbers. Either a format string
+like \"%7d\", 'dynamic to adapt the width as needed, or a
+function that is called with a line number as its argument and
+should evaluate to a string to be shown on that line. See also
+`linum-before-numbering-hook'.")
+
+(custom-autoload 'linum-format "linum" t)
+
+(autoload 'linum-mode "linum" "\
+Toggle display of line numbers in the left marginal area.
+
+\(fn &optional ARG)" t nil)
+
+(defvar global-linum-mode nil "\
+Non-nil if Global-Linum mode is enabled.
+See the command `global-linum-mode' for a description of this minor mode.
+Setting this variable directly does not take effect;
+either customize it (see the info node `Easy Customization')
+or call the function `global-linum-mode'.")
+
+(custom-autoload 'global-linum-mode "linum" nil)
+
+(autoload 'global-linum-mode "linum" "\
+Toggle Linum mode in every possible buffer.
+With prefix ARG, turn Global-Linum mode on if and only if
+ARG is positive.
+Linum mode is enabled in all buffers where
+`linum-on' would do it.
+See `linum-mode' for more information on Linum mode.
+
+\(fn &optional ARG)" t nil)
 
 ;;;***
 
@@ -2856,6 +2945,18 @@ The variable puppet-indent-level controls the amount of indentation.
 
 ;;;***
 
+;;;### (autoloads (rainbow-mode) "rainbow-mode" "site-lisp/jd-el/rainbow-mode.el"
+;;;;;;  (19516 48987))
+;;; Generated autoloads from site-lisp/jd-el/rainbow-mode.el
+
+(autoload 'rainbow-mode "rainbow-mode" "\
+Colorize strings that represent colors.
+This will fontify with colors the string like \"#aabbcc\" or \"blue\"
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
 ;;;### (autoloads (remember-diary-extract-entries remember-clipboard
 ;;;;;;  remember-other-frame remember) "remember" "site-lisp/remember/remember.el"
 ;;;;;;  (18454 52960))
@@ -3459,6 +3560,94 @@ See `xray-customize' for customization.
 
 ;;;***
 
+;;;### (autoloads (yas/minor-mode yas/snippet-dirs) "yasnippet" "site-lisp/yasnippet/yasnippet.el"
+;;;;;;  (19516 49982))
+;;; Generated autoloads from site-lisp/yasnippet/yasnippet.el
+
+(defvar yas/snippet-dirs nil "\
+Directory or list of snippet dirs for each major mode.
+
+The directory where user-created snippets are to be stored. Can
+also be a list of directories. In that case, when used for
+bulk (re)loading of snippets (at startup or via
+`yas/reload-all'), directories appearing earlier in the list
+shadow other dir's snippets. Also, the first directory is taken
+as the default for storing the user's new snippets.")
+
+(custom-autoload 'yas/snippet-dirs "yasnippet" nil)
+
+(autoload 'yas/minor-mode "yasnippet" "\
+Toggle YASnippet mode.
+
+When YASnippet mode is enabled, the `tas/trigger-key' key expands
+snippets of code depending on the mode.
+
+With no argument, this command toggles the mode.
+positive prefix argument turns on the mode.
+Negative prefix argument turns off the mode.
+
+You can customize the key through `yas/trigger-key'.
+
+Key bindings:
+\\{yas/minor-mode-map}
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
+;;;### (autoloads (zencoding-preview zencoding-expand-yas zencoding-mode
+;;;;;;  zencoding-expand-line) "zencoding-mode" "site-lisp/zencoding/zencoding-mode.el"
+;;;;;;  (19516 48995))
+;;; Generated autoloads from site-lisp/zencoding/zencoding-mode.el
+
+(autoload 'zencoding-expand-line "zencoding-mode" "\
+Replace the current line's zencode expression with the corresponding expansion.
+If prefix ARG is given or region is visible call `zencoding-preview' to start an
+interactive preview.
+
+Otherwise expand line directly.
+
+For more information see `zencoding-mode'.
+
+\(fn ARG)" t nil)
+
+(autoload 'zencoding-mode "zencoding-mode" "\
+Minor mode for writing HTML and CSS markup.
+With zen coding for HTML and CSS you can write a line like
+
+  ul#name>li.item*2
+
+and have it expanded to
+
+  <ul id=\"name\">
+    <li class=\"item\"></li>
+    <li class=\"item\"></li>
+  </ul>
+
+This minor mode defines keys for quick access:
+
+\\{zencoding-mode-keymap}
+
+Home page URL `http://www.emacswiki.org/emacs/ZenCoding'.
+
+See also `zencoding-expand-line'.
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'zencoding-expand-yas "zencoding-mode" "\
+Not documented
+
+\(fn)" t nil)
+
+(autoload 'zencoding-preview "zencoding-mode" "\
+Expand zencode between BEG and END interactively.
+This will show a preview of the expanded zen code and you can
+accept it or skip it.
+
+\(fn BEG END)" t nil)
+
+;;;***
+
 ;;;### (autoloads nil nil ("cus-dirs.el" "epg-package-info.el" "flyspell-ext.el"
 ;;;;;;  "initsplit.el" "misc.el" "nnmaildir.el" "org-crypt.el" "org-devonthink.el"
 ;;;;;;  "org-ext.el" "site-lisp/all.el" "site-lisp/apel/apel-ver.el"
@@ -3484,84 +3673,84 @@ See `xray-customize' for customization.
 ;;;;;;  "site-lisp/apel/pym.el" "site-lisp/apel/static.el" "site-lisp/apel/timezone.el"
 ;;;;;;  "site-lisp/apel/tinycustom.el" "site-lisp/apel/tinyrich.el"
 ;;;;;;  "site-lisp/archive-region.el" "site-lisp/archive-region.el"
-;;;;;;  "site-lisp/ascii.el" "site-lisp/bookmark+.el" "site-lisp/breadcrumb.el"
-;;;;;;  "site-lisp/breadcrumb.el" "site-lisp/browse-kill-ring+.el"
-;;;;;;  "site-lisp/browse-kill-ring+.el" "site-lisp/browse-kill-ring.el"
-;;;;;;  "site-lisp/chess/auto-autoloads.el" "site-lisp/chess/chess-ai.el"
-;;;;;;  "site-lisp/chess/chess-algebraic.el" "site-lisp/chess/chess-announce.el"
-;;;;;;  "site-lisp/chess/chess-auto.el" "site-lisp/chess/chess-autosave.el"
-;;;;;;  "site-lisp/chess/chess-chat.el" "site-lisp/chess/chess-clock.el"
-;;;;;;  "site-lisp/chess/chess-common.el" "site-lisp/chess/chess-crafty.el"
-;;;;;;  "site-lisp/chess/chess-database.el" "site-lisp/chess/chess-display.el"
-;;;;;;  "site-lisp/chess/chess-eco.el" "site-lisp/chess/chess-engine.el"
-;;;;;;  "site-lisp/chess/chess-epd.el" "site-lisp/chess/chess-fen.el"
-;;;;;;  "site-lisp/chess/chess-file.el" "site-lisp/chess/chess-game.el"
-;;;;;;  "site-lisp/chess/chess-german.el" "site-lisp/chess/chess-gnuchess.el"
-;;;;;;  "site-lisp/chess/chess-ics1.el" "site-lisp/chess/chess-images.el"
-;;;;;;  "site-lisp/chess/chess-input.el" "site-lisp/chess/chess-irc.el"
-;;;;;;  "site-lisp/chess/chess-kibitz.el" "site-lisp/chess/chess-log.el"
-;;;;;;  "site-lisp/chess/chess-maint.el" "site-lisp/chess/chess-message.el"
-;;;;;;  "site-lisp/chess/chess-module.el" "site-lisp/chess/chess-network.el"
-;;;;;;  "site-lisp/chess/chess-none.el" "site-lisp/chess/chess-phalanx.el"
-;;;;;;  "site-lisp/chess/chess-plain.el" "site-lisp/chess/chess-ply.el"
-;;;;;;  "site-lisp/chess/chess-pos.el" "site-lisp/chess/chess-scid.el"
-;;;;;;  "site-lisp/chess/chess-sjeng.el" "site-lisp/chess/chess-sound.el"
-;;;;;;  "site-lisp/chess/chess-test.el" "site-lisp/chess/chess-transport.el"
-;;;;;;  "site-lisp/chess/chess-ucb.el" "site-lisp/chess/chess-var.el"
-;;;;;;  "site-lisp/cldoc.el" "site-lisp/color-moccur.el" "site-lisp/color-moccur.el"
-;;;;;;  "site-lisp/column-marker.el" "site-lisp/crypt++.el" "site-lisp/crypt++.el"
-;;;;;;  "site-lisp/csharp-mode.el" "site-lisp/csharp-mode.el" "site-lisp/css-mode.el"
-;;;;;;  "site-lisp/css-mode.el" "site-lisp/csv-mode.el" "site-lisp/csv-mode.el"
-;;;;;;  "site-lisp/csv.el" "site-lisp/csv.el" "site-lisp/cycbuf.el"
-;;;;;;  "site-lisp/cycbuf.el" "site-lisp/dedicated.el" "site-lisp/dedicated.el"
-;;;;;;  "site-lisp/delim-kill/delim-kill.el" "site-lisp/diff-mode-.el"
-;;;;;;  "site-lisp/diff-mode-.el" "site-lisp/diminish.el" "site-lisp/dired-tar.el"
-;;;;;;  "site-lisp/edit-env.el" "site-lisp/edit-env.el" "site-lisp/edit-var.el"
-;;;;;;  "site-lisp/elscreen.el" "site-lisp/elscreen.el" "site-lisp/epg/epa-dired.el"
-;;;;;;  "site-lisp/epg/epa-setup.el" "site-lisp/epg/epg-package-info.el"
-;;;;;;  "site-lisp/epg/pgg-epg.el" "site-lisp/eshell/auto-autoloads.el"
-;;;;;;  "site-lisp/eshell/em-alias.el" "site-lisp/eshell/em-banner.el"
-;;;;;;  "site-lisp/eshell/em-basic.el" "site-lisp/eshell/em-cmpl.el"
-;;;;;;  "site-lisp/eshell/em-dirs.el" "site-lisp/eshell/em-glob.el"
-;;;;;;  "site-lisp/eshell/em-hist.el" "site-lisp/eshell/em-ls.el"
-;;;;;;  "site-lisp/eshell/em-pred.el" "site-lisp/eshell/em-prompt.el"
-;;;;;;  "site-lisp/eshell/em-rebind.el" "site-lisp/eshell/em-script.el"
-;;;;;;  "site-lisp/eshell/em-smart.el" "site-lisp/eshell/em-term.el"
-;;;;;;  "site-lisp/eshell/em-unix.el" "site-lisp/eshell/em-xtra.el"
-;;;;;;  "site-lisp/eshell/esh-arg.el" "site-lisp/eshell/esh-cmd.el"
-;;;;;;  "site-lisp/eshell/esh-ext.el" "site-lisp/eshell/esh-groups.el"
-;;;;;;  "site-lisp/eshell/esh-io.el" "site-lisp/eshell/esh-maint.el"
-;;;;;;  "site-lisp/eshell/esh-module.el" "site-lisp/eshell/esh-opt.el"
-;;;;;;  "site-lisp/eshell/esh-proc.el" "site-lisp/eshell/esh-util.el"
-;;;;;;  "site-lisp/eshell/esh-var.el" "site-lisp/eshell/eshell-auto.el"
-;;;;;;  "site-lisp/espresso.el" "site-lisp/eval-expr.el" "site-lisp/find-library.el"
-;;;;;;  "site-lisp/fm.el" "site-lisp/fm.el" "site-lisp/groovy.el"
-;;;;;;  "site-lisp/haskell-mode/haskell-font-lock.el" "site-lisp/haskell-mode/haskell-ghci.el"
-;;;;;;  "site-lisp/haskell-mode/haskell-hugs.el" "site-lisp/haskell-mode/haskell-simple-indent.el"
-;;;;;;  "site-lisp/haskell-mode/haskell-site-file.el" "site-lisp/hide-search.el"
-;;;;;;  "site-lisp/hide-search.el" "site-lisp/hs-lint.el" "site-lisp/hs-lint.el"
-;;;;;;  "site-lisp/idomenu.el" "site-lisp/idomenu.el" "site-lisp/indirect.el"
-;;;;;;  "site-lisp/indirect.el" "site-lisp/jd-el/flyguess.el" "site-lisp/jd-el/google-maps-base.el"
-;;;;;;  "site-lisp/jd-el/muse-blog.el" "site-lisp/jd-el/org-location-google-maps.el"
-;;;;;;  "site-lisp/js2.el" "site-lisp/js2.el" "site-lisp/magit/50magit.el"
+;;;;;;  "site-lisp/ascii.el" "site-lisp/breadcrumb.el" "site-lisp/breadcrumb.el"
+;;;;;;  "site-lisp/browse-kill-ring+.el" "site-lisp/browse-kill-ring+.el"
+;;;;;;  "site-lisp/browse-kill-ring.el" "site-lisp/byte-code-cache.el"
+;;;;;;  "site-lisp/byte-code-cache.el" "site-lisp/chess/auto-autoloads.el"
+;;;;;;  "site-lisp/chess/chess-ai.el" "site-lisp/chess/chess-algebraic.el"
+;;;;;;  "site-lisp/chess/chess-announce.el" "site-lisp/chess/chess-auto.el"
+;;;;;;  "site-lisp/chess/chess-autosave.el" "site-lisp/chess/chess-chat.el"
+;;;;;;  "site-lisp/chess/chess-clock.el" "site-lisp/chess/chess-common.el"
+;;;;;;  "site-lisp/chess/chess-crafty.el" "site-lisp/chess/chess-database.el"
+;;;;;;  "site-lisp/chess/chess-display.el" "site-lisp/chess/chess-eco.el"
+;;;;;;  "site-lisp/chess/chess-engine.el" "site-lisp/chess/chess-epd.el"
+;;;;;;  "site-lisp/chess/chess-fen.el" "site-lisp/chess/chess-file.el"
+;;;;;;  "site-lisp/chess/chess-game.el" "site-lisp/chess/chess-german.el"
+;;;;;;  "site-lisp/chess/chess-gnuchess.el" "site-lisp/chess/chess-ics1.el"
+;;;;;;  "site-lisp/chess/chess-images.el" "site-lisp/chess/chess-input.el"
+;;;;;;  "site-lisp/chess/chess-irc.el" "site-lisp/chess/chess-kibitz.el"
+;;;;;;  "site-lisp/chess/chess-log.el" "site-lisp/chess/chess-maint.el"
+;;;;;;  "site-lisp/chess/chess-message.el" "site-lisp/chess/chess-module.el"
+;;;;;;  "site-lisp/chess/chess-network.el" "site-lisp/chess/chess-none.el"
+;;;;;;  "site-lisp/chess/chess-phalanx.el" "site-lisp/chess/chess-plain.el"
+;;;;;;  "site-lisp/chess/chess-ply.el" "site-lisp/chess/chess-pos.el"
+;;;;;;  "site-lisp/chess/chess-scid.el" "site-lisp/chess/chess-sjeng.el"
+;;;;;;  "site-lisp/chess/chess-sound.el" "site-lisp/chess/chess-test.el"
+;;;;;;  "site-lisp/chess/chess-transport.el" "site-lisp/chess/chess-ucb.el"
+;;;;;;  "site-lisp/chess/chess-var.el" "site-lisp/cldoc.el" "site-lisp/color-moccur.el"
+;;;;;;  "site-lisp/color-moccur.el" "site-lisp/column-marker.el"
+;;;;;;  "site-lisp/crypt++.el" "site-lisp/crypt++.el" "site-lisp/csharp-mode.el"
+;;;;;;  "site-lisp/csharp-mode.el" "site-lisp/css-mode.el" "site-lisp/css-mode.el"
+;;;;;;  "site-lisp/csv-mode.el" "site-lisp/csv-mode.el" "site-lisp/csv.el"
+;;;;;;  "site-lisp/csv.el" "site-lisp/cycbuf.el" "site-lisp/cycbuf.el"
+;;;;;;  "site-lisp/dedicated.el" "site-lisp/dedicated.el" "site-lisp/delim-kill/delim-kill.el"
+;;;;;;  "site-lisp/diff-mode-.el" "site-lisp/diff-mode-.el" "site-lisp/diminish.el"
+;;;;;;  "site-lisp/dired-tar.el" "site-lisp/edit-env.el" "site-lisp/edit-env.el"
+;;;;;;  "site-lisp/edit-var.el" "site-lisp/elscreen.el" "site-lisp/elscreen.el"
+;;;;;;  "site-lisp/epg/epa-dired.el" "site-lisp/epg/epa-setup.el"
+;;;;;;  "site-lisp/epg/epg-package-info.el" "site-lisp/epg/pgg-epg.el"
+;;;;;;  "site-lisp/eshell/auto-autoloads.el" "site-lisp/eshell/em-alias.el"
+;;;;;;  "site-lisp/eshell/em-banner.el" "site-lisp/eshell/em-basic.el"
+;;;;;;  "site-lisp/eshell/em-cmpl.el" "site-lisp/eshell/em-dirs.el"
+;;;;;;  "site-lisp/eshell/em-glob.el" "site-lisp/eshell/em-hist.el"
+;;;;;;  "site-lisp/eshell/em-ls.el" "site-lisp/eshell/em-pred.el"
+;;;;;;  "site-lisp/eshell/em-prompt.el" "site-lisp/eshell/em-rebind.el"
+;;;;;;  "site-lisp/eshell/em-script.el" "site-lisp/eshell/em-smart.el"
+;;;;;;  "site-lisp/eshell/em-term.el" "site-lisp/eshell/em-unix.el"
+;;;;;;  "site-lisp/eshell/em-xtra.el" "site-lisp/eshell/esh-arg.el"
+;;;;;;  "site-lisp/eshell/esh-cmd.el" "site-lisp/eshell/esh-ext.el"
+;;;;;;  "site-lisp/eshell/esh-groups.el" "site-lisp/eshell/esh-io.el"
+;;;;;;  "site-lisp/eshell/esh-maint.el" "site-lisp/eshell/esh-module.el"
+;;;;;;  "site-lisp/eshell/esh-opt.el" "site-lisp/eshell/esh-proc.el"
+;;;;;;  "site-lisp/eshell/esh-util.el" "site-lisp/eshell/esh-var.el"
+;;;;;;  "site-lisp/eshell/eshell-auto.el" "site-lisp/espresso.el"
+;;;;;;  "site-lisp/eval-expr.el" "site-lisp/find-library.el" "site-lisp/fm.el"
+;;;;;;  "site-lisp/fm.el" "site-lisp/groovy.el" "site-lisp/haskell-mode/haskell-font-lock.el"
+;;;;;;  "site-lisp/haskell-mode/haskell-ghci.el" "site-lisp/haskell-mode/haskell-hugs.el"
+;;;;;;  "site-lisp/haskell-mode/haskell-simple-indent.el" "site-lisp/haskell-mode/haskell-site-file.el"
+;;;;;;  "site-lisp/hide-search.el" "site-lisp/hide-search.el" "site-lisp/hs-lint.el"
+;;;;;;  "site-lisp/hs-lint.el" "site-lisp/idomenu.el" "site-lisp/idomenu.el"
+;;;;;;  "site-lisp/indirect.el" "site-lisp/indirect.el" "site-lisp/jd-el/flyguess.el"
+;;;;;;  "site-lisp/jd-el/google-maps-base.el" "site-lisp/jd-el/muse-blog.el"
+;;;;;;  "site-lisp/jd-el/org-location-google-maps.el" "site-lisp/js2.el"
+;;;;;;  "site-lisp/js2.el" "site-lisp/linum.el" "site-lisp/magit/50magit.el"
 ;;;;;;  "site-lisp/magit/magit-pkg.el" "site-lisp/magit/rebase-mode.el"
 ;;;;;;  "site-lisp/mdfind.el" "site-lisp/mdfind.el" "site-lisp/message-x.el"
 ;;;;;;  "site-lisp/message-x.el" "site-lisp/moccur-edit.el" "site-lisp/moccur-edit.el"
-;;;;;;  "site-lisp/mudel.el" "site-lisp/mudel.el" "site-lisp/muse-blog/muse-blog.el"
-;;;;;;  "site-lisp/nxhtml/autostart.el" "site-lisp/nxhtml/autostart22.el"
-;;;;;;  "site-lisp/nxhtml/nxhtml-base.el" "site-lisp/nxhtml/nxhtml-loaddefs.el"
-;;;;;;  "site-lisp/nxhtml/web-autoload.el" "site-lisp/paredit.el"
-;;;;;;  "site-lisp/paredit.el" "site-lisp/parenface.el" "site-lisp/parenface.el"
-;;;;;;  "site-lisp/planner/planner-authz.el" "site-lisp/planner/planner-autoloads.el"
-;;;;;;  "site-lisp/planner/planner-calendar.el" "site-lisp/planner/planner-experimental.el"
-;;;;;;  "site-lisp/planner/planner-ical.el" "site-lisp/planner/planner-publish.el"
-;;;;;;  "site-lisp/planner/planner-zoom.el" "site-lisp/po-mode.el"
-;;;;;;  "site-lisp/po-mode.el" "site-lisp/puppet-mode.el" "site-lisp/radio.el"
-;;;;;;  "site-lisp/radio.el" "site-lisp/redshank.el" "site-lisp/redshank.el"
-;;;;;;  "site-lisp/regex-tool/regex-tool.el" "site-lisp/remember/read-file-name.el"
-;;;;;;  "site-lisp/remember/remember-autoloads.el" "site-lisp/remember/remember-experimental.el"
-;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/repeat-insert.el"
-;;;;;;  "site-lisp/rfcview.el" "site-lisp/ruby-mode/inf-ruby.el"
+;;;;;;  "site-lisp/mudel.el" "site-lisp/mudel.el" "site-lisp/nxhtml/autostart.el"
+;;;;;;  "site-lisp/nxhtml/autostart22.el" "site-lisp/nxhtml/nxhtml-base.el"
+;;;;;;  "site-lisp/nxhtml/nxhtml-loaddefs.el" "site-lisp/nxhtml/web-autoload.el"
+;;;;;;  "site-lisp/paredit.el" "site-lisp/paredit.el" "site-lisp/parenface.el"
+;;;;;;  "site-lisp/parenface.el" "site-lisp/planner/planner-authz.el"
+;;;;;;  "site-lisp/planner/planner-autoloads.el" "site-lisp/planner/planner-calendar.el"
+;;;;;;  "site-lisp/planner/planner-experimental.el" "site-lisp/planner/planner-ical.el"
+;;;;;;  "site-lisp/planner/planner-publish.el" "site-lisp/planner/planner-zoom.el"
+;;;;;;  "site-lisp/po-mode.el" "site-lisp/po-mode.el" "site-lisp/puppet-mode.el"
+;;;;;;  "site-lisp/radio.el" "site-lisp/radio.el" "site-lisp/redshank.el"
+;;;;;;  "site-lisp/redshank.el" "site-lisp/regex-tool/regex-tool.el"
+;;;;;;  "site-lisp/remember/read-file-name.el" "site-lisp/remember/remember-autoloads.el"
+;;;;;;  "site-lisp/remember/remember-experimental.el" "site-lisp/repeat-insert.el"
+;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/rfcview.el" "site-lisp/ruby-mode/inf-ruby.el"
 ;;;;;;  "site-lisp/ruby-mode/rdoc-mode.el" "site-lisp/ruby-mode/ruby-electric.el"
 ;;;;;;  "site-lisp/ruby-mode/ruby-style.el" "site-lisp/scala-mode/scala-mode-auto.el"
 ;;;;;;  "site-lisp/scala-mode/scala-mode-constants.el" "site-lisp/scala-mode/scala-mode-feature-electric.el"
@@ -3576,7 +3765,8 @@ See `xray-customize' for customization.
 ;;;;;;  "site-lisp/sunrise-commander.el" "site-lisp/vkill.el" "site-lisp/vkill.el"
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wcount.el" "site-lisp/xml-rpc.el"
 ;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
-;;;;;;  "untabify.el") (19516 48821 100300))
+;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el" "untabify.el") (19518
+;;;;;;  57250 226941))
 
 ;;;***
 

@@ -157,6 +157,7 @@
 
 ;;; Code:
 
+(require 'cl)
 (require 'dired)
 (require 'dired-x)
 (require 'font-lock)

@@ -9,7 +9,7 @@ MY_LOADPATH      = -L .				\
 		   -L site-lisp			\
 		   -L site-lisp/muse/lisp	\
 		   -L site-lisp/epg		\
-		   -L site-lisp/apel            \
+		   -L site-lisp/apel
 EMACS_BATCH_LOAD = $(EMACS_BATCH) $(MY_LOADPATH)
 
 all: $(TARGET)
@@ -25,6 +25,7 @@ autoloads.el: autoloads.in $(SOURCE)
 	-rm autoloads.elc
 	$(EMACS_BATCH) \
 		-l $(shell pwd)/autoloads \
+		-l easy-mmode \
 		-f generate-autoloads \
 		$(shell pwd)/autoloads.el $(DIRS)
 
