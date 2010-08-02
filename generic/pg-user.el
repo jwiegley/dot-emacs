@@ -1,6 +1,7 @@
 ;;; pg-user.el --- User level commands for Proof General
 ;;
-;; Copyright (C) 2000-2009 LFCS Edinburgh.
+;; Copyright (C) 2000-2010 LFCS Edinburgh.
+;; Copyright (c) 2010 Erik Martin-Dorel, ENS de Lyon (pg-protected-undo).
 ;; Author:     David Aspinall and others
 ;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -556,11 +557,11 @@ is non-nil, the command will be sent to the assistant."
 ;;
 ;; Completion based on <PA>-completion-table
 ;;
-;; Requires completion.el package.   Completion is usually
-;; a hand-wavy thing, so we don't make any attempt to maintain
-;; a precise completion table or anything.
+;; Requires completion.el package.  Completion is usually a hand-wavy
+;; thing, so we don't make any attempt to maintain a precise
+;; completion table or anything.
 ;;
-;; New in 3.2.
+;; Added in 3.2.
 ;;
 (defun proof-add-completions ()
   "Add completions from <PA>-completion-table to completion database.
@@ -581,8 +582,8 @@ last use time, to discourage saving these into the users database."
     (autoload 'complete "completion"))
 
 ;; NB: completion table is expected to be set when proof-script
-;; is loaded!  Can call proof-script-add-completions if the table
-;; is updated.
+;; is loaded!  Call `proof-script-add-completions' to update.
+
 (unless noninteractive ; during compilation
   (eval-after-load "completion"
   '(proof-add-completions)))
@@ -1307,33 +1308,93 @@ removed if it matches the last item in the ring."
 ;; previous use of `undo-make-selective-list' to hack
 ;; `buffer-undo-list' in `proof-set-queue-endpoints'.
 ;;
+;; Improved version due to Erik Martin-Dorel.  Uses auxiliary
+;; functions `pg-protected-undo-1' and `next-undo-elt'
+;;
 
 (define-key proof-mode-map [remap undo] 'pg-protected-undo)
 (define-key proof-mode-map [remap advertised-undo] 'pg-protected-undo)
 
 (defun pg-protected-undo (&optional arg)
-  "Behaves as `undo' unless undo would edit in the locked region.
-In this case, undo is only allowed in the unlocked region,
-unless `proof-allow-undo-in-read-only' is set. 
+  "Provides all features of `undo' and avoids breaking the locked region.
 
-Undoing will use the standard undo in region behaviour, which
-skips undo entries in the locked region."
+It performs each of the desired undos thanks to `pg-protected-undo-1'
+which checks that these operations will not affect the locked region.
+If this is the case, it proposes the user to retract, or do it
+silently if `proof-allow-undo-in-read-only' is non-nil.
+
+Moreover, undo/redo is allowed in comments located in the locked region."
   (interactive "*P")
   (if (or (not proof-locked-span)
-	  proof-allow-undo-in-read-only
-	  (equal (proof-queue-or-locked-end) (point-min)))
+  	  (equal (proof-queue-or-locked-end) (point-min)))
       (undo arg)
-    (let* (;(transient-mark-mode nil)
-	   (savedpoint  (point))
-	   ;(savedmark   (mark))
-	   (repeat      (if (numberp arg) arg 1)))
-      (push-mark (proof-queue-or-locked-end) t)
-      (save-excursion
-	(goto-char (point-max))
-	(while (> repeat 0)	       ; crude recovery of n-fold undo
-	  (undo t)		       ; undo in unlocked region only
-	  (decf repeat)))
-      (pop-mark))))
+    (let ((repeat ; Allow the user to perform successive undos at once
+	   (if (numberp arg)
+	       (prefix-numeric-value arg) ; arg is a raw prefix argument
+	     1))
+	  (newarg ; Allow the user to limit the undo to the current region
+	   (and
+	    ;; this Boolean expression is necessary to match
+	    ;; the behavior of GNU Emacs undo function
+	    (or (region-active-p) (and arg (not (numberp arg))))
+	    (> (region-end) (region-beginning)))))
+      (while (> repeat 0)
+	(pg-protected-undo-1 newarg) ; do some safe undos step by step
+	(setq last-command 'undo) ; need for this assignment meanwhile
+	(decf repeat)))))
+
+(defun pg-protected-undo-1 (arg)
+  "This function is intended to be called by `pg-protected-undo'.
+
+It performs a single undo/redo after checking that this operation
+will not affect the locked region.
+If this is the case, it proposes the user to retract, or do it
+silently if `proof-allow-undo-in-read-only' is non-nil.
+
+The flag ARG is passed to functions `undo' and `next-undo-elt'.
+It should be a non-numeric value saying whether an undo-in-region
+behavior is expected."
+;; Note that if ARG is non-nil, (> (region-end) (region-beginning)) must hold,
+;; at least for the first call from the loop of `pg-protected-undo'.
+  (setq arg (and arg (not (numberp arg)))) ; ensure arg is boolean
+  (if (or (not proof-locked-span)
+	  (equal (proof-queue-or-locked-end) (point-min))) ; required test
+      (undo arg)
+    (let* ((next (next-undo-elt arg))
+	   (delta (undo-delta next))  ; can be '(0 . 0) if next is nil
+	   (beg (car delta))
+	   (end (max beg (- beg (cdr delta))))) ; Key computation
+      (when (and next (> beg 0)		; the "next undo elt" exists
+		 (> (proof-queue-or-locked-end) beg)
+		 (not (and		; Allow undo in comments
+		       (proof-inside-comment beg) (proof-inside-comment end))))
+	(if (or proof-allow-undo-in-read-only
+		(y-or-n-p "Next undo will modify read-only region, retract? "))
+	    (proof-retract-before-change beg end)
+	  (when (eq last-command 'undo) (setq this-command 'undo))
+	  ;; now we can stop the function without breaking possible undo chains
+	  (error
+	   "Cannot undo without retracting to the appropriate position.")))
+      (undo arg))))
+
+(defun next-undo-elt (arg)
+  "Returns the undo element that will be processed on next undo/redo,
+assuming the undo-in-region behavior will apply if ARG is non-nil."
+  (let ((undo-list (if arg		; handle "undo in region"
+		       (undo-make-selective-list
+			(region-beginning) (region-end)) ; can be '(nil)
+		     buffer-undo-list)))		 ; can be nil
+    (if (or (null undo-list) (equal undo-list (list nil)))
+	nil				; there is clearly no undo elt
+      (while (eq (car undo-list) nil)
+	(setq undo-list (cdr undo-list))) ; get the last undo record
+      (if (and (eq last-command 'undo)
+	       (or (eq pending-undo-list t)
+		   (gethash undo-list undo-equiv-table)))
+	  ;; then we are within a run of consecutive undo commands
+	  (if (eq pending-undo-list t) nil (car pending-undo-list))
+	(car undo-list)))))
+
 
 (provide 'pg-user)
 
