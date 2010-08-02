@@ -112,7 +112,7 @@ See -k option for Isabelle interface script."
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-named-entity-regexp
-   proof-goal-with-hole-result	2
+   proof-goal-with-hole-result	isar-named-entity-name-match-number
    proof-save-with-hole-regexp  nil
    proof-script-imenu-generic-expression isar-generic-expression
    imenu-syntax-alist isar-script-syntax-table-alist
