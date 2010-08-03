@@ -22,6 +22,9 @@
 ;; Proof General though!
 ;;
 
+(eval-when-compile
+  (require 'span))
+
 (require 'pg-xml)
 
 (defconst pg-movie-xml-header "<?xml version=\"1.0\"?>")
