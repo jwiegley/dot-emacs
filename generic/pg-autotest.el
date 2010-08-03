@@ -34,7 +34,7 @@
 ;;; Some utilities
 
 (defun pg-autotest-find-file (file)
-  "Find FILE (relative to `proof-home-directory') and redisplay."
+  "Find FILE (relative to `proof-home-directory')."
   (let* ((name   (concat proof-home-directory file)))
     (if (file-exists-p name)
 	(find-file name)
@@ -64,7 +64,9 @@
 	    (if (fboundp scaffoldfn)
 		(apply scaffoldfn (list ,@args))
 	      (pg-autotest-message 
-	       (format "TEST:  %s" (cons (quote ,fn) (quote ,args))))
+ 	       (format "TEST:  %s" 
+		       (prin1-to-string (cons (quote ,fn) 
+					      (quote ,args)))))
 	      (apply (intern (concat "pg-autotest-test-" 
 				     (symbol-name (quote ,fn))))
 		     (list ,@args))))
@@ -178,10 +180,15 @@ completely processing the buffer as the last step."
 
 (defun pg-autotest-test-assert-processed (file)
   "Check that FILE has been fully processed."
-  (save-excursion
+  (save-excursion ;; TODO: also check on included files list
     (pg-autotest-find-file file)
+    (pg-autotest-test-assert-full)))
+
+(defun pg-autotest-test-assert-full ()
+  "Check that current buffer has been fully processed."
     (unless (proof-locked-region-full-p)
-      (error (format "Locked region in file `%s' is not full" file)))))
+      (error (format "Locked region in buffer `%s' is not full" 
+		     (buffer-name)))))
 
 (defun pg-autotest-test-assert-unprocessed (file)
   "Check that FILE has been fully unprocessed."
