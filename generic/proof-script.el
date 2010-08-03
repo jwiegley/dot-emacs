@@ -777,9 +777,9 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  (pg-set-span-helphighlights span 'nohighlight))))))
 
 
-;; FIXME da: cleanup of odd asymmetry here: we have a nice setting for
-;; proof-register-possibly-new-processed-file but something much more
-;; complicated for retracting, because we allow a hook function
+;; Note: desirable to clean odd asymmetry here: we have a nice setting
+;; for proof-register-possibly-new-processed-file but something much
+;; more complicated for retracting, because we allow a hook function
 ;; to calculate the new included files list.
 
 ;;;###autoload
@@ -822,12 +822,17 @@ proof assistant and Emacs has a modified buffer visiting the file."
 		 proof-query-file-save-when-activating-scripting
 		 (not noquestions))
 		(unwind-protect
-		    (save-some-buffers)))
+		    (save-some-buffers nil #'proof-query-save-this-buffer-p)))
 	    ;; Tell the prover
 	    (proof-shell-invisible-command
 	     (proof-format-filename proof-shell-inform-file-processed-cmd
 				    cfile)
 	     'wait))))))
+
+(defun proof-query-save-this-buffer-p ()
+  "Predicate testing whether save-some-buffers during scripting should query."
+  (and (eq major-mode proof-mode-for-script)
+       (not (eq (current-buffer) proof-script-buffer))))
 
 (defun proof-inform-prover-file-retracted (rfile)
   "Send a message to the prover to tell it RFILE has been undone."
@@ -1192,19 +1197,12 @@ activation is considered to have failed and an error is given."
       (setq proof-active-buffer-fake-minor-mode t)
       (force-mode-line-update)
 
-      ;; This may be a good time to ask if the user wants to save some
-      ;; buffers.  On the other hand, it's jolly annoying to be
-      ;; queried on the active scripting buffer if we've started
-      ;; writing in it.  So pretend that one is unmodified, at least
-      ;; (we certainly don't expect the proof assitant to load it)
+      ;; Perhaps a good time to ask if the user wants to save some
+      ;; buffers.  Query unsaved proof script buffers, excluding active one.
       (if (and
 	   proof-query-file-save-when-activating-scripting
 	   (not nosaves))
-	  (let ((modified (buffer-modified-p)))
-	    (set-buffer-modified-p nil)
-	    (unwind-protect
-		(save-some-buffers)
-	      (set-buffer-modified-p modified))))
+	  (save-some-buffers nil #'proof-query-save-this-buffer-p))
 
       ;; Run hooks with a variable which suggests whether or not to
       ;; block.  NB: The hook function may send commands to the
@@ -2227,8 +2225,8 @@ command."
 
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
 
-
-(proof-menu-define-keys proof-mode-map) ;; NB: proof-mode-map declared above
+;; NB: proof-mode-map declared above
+(proof-menu-define-keys proof-mode-map) 
 
 (defun proof-script-set-visited-file-name ()
   "Called when visited file name is changed.
