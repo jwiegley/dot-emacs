@@ -1316,14 +1316,21 @@ removed if it matches the last item in the ring."
 (define-key proof-mode-map [remap advertised-undo] 'pg-protected-undo)
 
 (defun pg-protected-undo (&optional arg)
-  "Provides all features of `undo' and avoids breaking the locked region.
+  "As `undo' but avoids breaking the locked region.
 
-It performs each of the desired undos thanks to `pg-protected-undo-1'
-which checks that these operations will not affect the locked region.
-If this is the case, it proposes the user to retract, or do it
-silently if `proof-allow-undo-in-read-only' is non-nil.
+It performs a single undo/redo after checking that this operation
+will not affect the locked region.
 
-Moreover, undo/redo is allowed in comments located in the locked region."
+It performs each of the desired undos checking that these
+operations will not affect the locked region, obeying
+`proof-strict-read-only' if required.  If strict read only
+behaviour is enforced, the user is queried whether to 
+retract before the undo is allowed.  If automatic retraction is
+enabled, the retract and undo will go ahead without querying
+the user.
+
+Moreover, undo/redo is always allowed in comments 
+located in the locked region."
   (interactive "*P")
   (if (or (not proof-locked-span)
   	  (equal (proof-queue-or-locked-end) (point-min)))
@@ -1346,11 +1353,6 @@ Moreover, undo/redo is allowed in comments located in the locked region."
 (defun pg-protected-undo-1 (arg)
   "This function is intended to be called by `pg-protected-undo'.
 
-It performs a single undo/redo after checking that this operation
-will not affect the locked region.
-If this is the case, it proposes the user to retract, or do it
-silently if `proof-allow-undo-in-read-only' is non-nil.
-
 The flag ARG is passed to functions `undo' and `next-undo-elt'.
 It should be a non-numeric value saying whether an undo-in-region
 behavior is expected."
@@ -1366,9 +1368,11 @@ behavior is expected."
 	   (end (max beg (- beg (cdr delta))))) ; Key computation
       (when (and next (> beg 0)		; the "next undo elt" exists
 		 (> (proof-queue-or-locked-end) beg)
-		 (not (and		; Allow undo in comments
-		       (proof-inside-comment beg) (proof-inside-comment end))))
-	(if (or proof-allow-undo-in-read-only
+		 proof-strict-read-only ; edit freely doesn't undo
+		 (not (and		; neither does edit in comments
+		       (proof-inside-comment beg) 
+		       (proof-inside-comment end))))
+	(if (or (eq proof-strict-read-only 'retract)
 		(y-or-n-p "Next undo will modify read-only region, retract? "))
 	    (proof-retract-before-change beg end)
 	  (when (eq last-command 'undo) (setq this-command 'undo))
