@@ -3246,15 +3246,6 @@ you a reprimand!).
 The default value is @code{retract}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-allow-undo-in-read-only
-@defopt proof-allow-undo-in-read-only 
-Whether Proof General allows text undo in the read-only region.@*
-If non-nil, undo will allow altering of processed text.
-If nil, undo is blocked if the next undo is in processed text.
-
-The default value is @code{nil}.
-@end defopt
-
 @c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
 @defopt proof-query-file-save-when-activating-scripting 
 If non-nil, query user to save files when activating scripting.

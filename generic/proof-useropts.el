@@ -131,13 +131,6 @@ you a reprimand!)."
   :set   'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-allow-undo-in-read-only nil
-  "*Whether Proof General allows text undo in the read-only region.
-If non-nil, undo will allow altering of processed text.
-If nil, undo is blocked if the next undo is in processed text."
-  :type  'boolean
-  :group 'proof-user-options)
-
 (defcustom proof-three-window-enable nil
   "*Whether response and goals buffers have dedicated windows.
 If non-nil, Emacs windows displaying messages from the prover will not
