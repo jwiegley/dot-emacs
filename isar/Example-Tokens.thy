@@ -9,7 +9,7 @@
       $Id$
 *)
 
-theory "Example-Xsym" imports Main begin
+theory "Example-Tokens" imports Main begin
 
 text {* Proper proof text -- \<^bitalic>naive version\<^eitalic>. *}
 
