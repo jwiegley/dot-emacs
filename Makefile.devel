@@ -211,7 +211,7 @@ tags:	$(EL) $(TAGS_EXTRAS)
 # Run tests for a particular prover and particular Emacs
 #
 test.%:	
-	if [ -f "$*/$*-autotest.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-autotest.el -f eval-current-buffer; then echo "Autotests for $* run successfully on `date`"; else echo "Autotests for $* ran with failures (see $*/.autotest.log) on `date`"; exit 1; fi; fi
+	if [ -f "$*/$*-autotest.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-autotest.el -f eval-current-buffer; then echo "Autotests for $* run successfully on `date`"; else cat $*/.autotest.log; echo "Autotests for $* ran with failures on `date`"; exit 1; fi; fi
 
 testall.%: 
 	for prover in ${PROVERS}; do $(MAKE) test.$$prover EMACS=$*; done
