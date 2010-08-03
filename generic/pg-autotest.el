@@ -64,9 +64,9 @@
 	    (if (fboundp scaffoldfn)
 		(apply scaffoldfn (list ,@args))
 	      (pg-autotest-message 
- 	       (format "TEST:  %s" 
-		       (prin1-to-string (cons (quote ,fn) 
-					      (quote ,args)))))
+ 	       "TEST:  %s" 
+	       (prin1-to-string (cons (quote ,fn) 
+				      (quote ,args))))
 	      (apply (intern (concat "pg-autotest-test-" 
 				     (symbol-name (quote ,fn))))
 		     (list ,@args))))
@@ -74,8 +74,7 @@
 	 (progn
 	   (setq pg-autotest-success nil)
 	   (pg-autotest-message
-	    (format "ERROR %s: %s" (quote ,fn)
-		    (prin1-to-string err)))))))
+	    "ERROR %s: %s" (quote ,fn) (prin1-to-string err))))))
     (setq standard-output t)))
 
 
@@ -87,16 +86,17 @@
     (erase-buffer)
     (setq pg-autotest-log (current-buffer))))
 
-(defun pg-autotest-message (msg)
+(defun pg-autotest-message (msg &rest args)
   "Give message MSG in log file output and on display."
-  (proof-with-current-buffer-if-exists 
-   pg-autotest-log
-   (insert msg "\n"))
-  (message msg)
-  (redisplay t))
+  (let ((fmsg   (if args (apply 'format msg args) msg)))
+    (proof-with-current-buffer-if-exists 
+     pg-autotest-log
+     (insert fmsg "\n"))
+    (message fmsg)
+    (redisplay t)))
 
 (defun pg-autotest-remark (msg)
-  (pg-autotest-message (concat "\n\nREMARK: " msg "\n")))
+  (pg-autotest-message "\n\nREMARK: %s\n" msg))
 
 (defun pg-autotest-timestart (&optional clockname)
   "Make a note of current time, named 'local or CLOCKNAME."
@@ -109,9 +109,10 @@
 	 (timetaken 
 	  (time-subtract (current-time) timestart)))
     (pg-autotest-message
-     (format "TIME: %f (%s)" (float-time timetaken)
-	     (if clockname (symbol-name clockname)
-	       "this test")))))
+     "TIME: %f (%s)" 
+     (float-time timetaken)
+     (if clockname (symbol-name clockname)
+       "this test"))))
 
 (defun pg-autotest-exit ()
   "Exit Emacs returning Unix success 0 if all tests succeeded."
@@ -127,6 +128,7 @@
 An error is signalled if scripting doesn't completely the whole buffer."
   (pg-autotest-find-file-restart file)
   (proof-process-buffer)
+  (proof-shell-wait)
   (pg-autotest-test-assert-processed file))
 
 (defun pg-autotest-test-script-wholefile (file)
@@ -148,9 +150,8 @@ An error is signalled if scripting doesn't complete."
                  ;; normal user error message at end of buffer		     
 		  "At end of the locked region, nothing to do to!")
 		 (pg-autotest-message 
-		  (format
-		   "proof-assert-next-command-interactive hit an error: %s" 
-		   msg))))))
+		  "proof-assert-next-command-interactive hit an error: %s" 
+		  msg)))))
 	  (proof-shell-wait))
 	(goto-char (proof-queue-or-locked-end))
 	(setq making-progress (> (point) last-locked-end)))))
@@ -163,13 +164,16 @@ completely processing the buffer as the last step."
   (pg-autotest-find-file-restart file)
   (while (> jumps 0)
     (let ((random-point   (random (point-max))))
-      ;; TODO: random use of retract whole buffer too
+      ;; TODO: random use of retract/process whole buffer too
+      (pg-autotest-message 
+       "         random jump to point: %d" random-point)
       (goto-char random-point)
-      (proof-goto-point)
-      (proof-shell-wait)
-      ;; TODO: check no error from prover
-      (decf jumps)))
+      (unless (proof-only-whitespace-to-locked-region-p)
+	(proof-goto-point)
+	(proof-shell-wait) ;; TODO: check no prover error.
+	(decf jumps))))
   (proof-process-buffer)
+  (proof-shell-wait)
   (pg-autotest-test-assert-processed file))
 
 (defun pg-autotest-test-retract-file (file)
