@@ -16,10 +16,10 @@
 
 ;; The included test files
 (unless noninteractive
-  (pg-autotest  message "Testing standard examples")
+  (pg-autotest remark "Testing standard examples...")
   (pg-autotest script-wholefile "coq/example.v")
   (pg-autotest script-wholefile "coq/example-tokens.v")
   (pg-autotest script-wholefile "coq/ex-module.v")
 
-  (pg-autotest-quit-prover)
-  (pg-autotest-finished))
+  (pg-autotest quit-prover)
+  (pg-autotest exit))
