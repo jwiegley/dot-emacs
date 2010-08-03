@@ -93,8 +93,6 @@ without adjusting window layout."
 ;;;###autoload
 (defun proof-menu-define-keys (map)
   "Prover specific keymap under C-c C-a."
-  (proof-eval-when-ready-for-assistant
-   (define-key map [(control c) (control a)] (proof-ass keymap)))
   ;; M-a and M-e are usually {forward,backward}-sentence.
   ;; Some modes also override these with similar commands
   (define-key map [(meta a)] 'proof-backward-command)

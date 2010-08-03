@@ -660,18 +660,16 @@ IDIOMSYM is a symbol and ID is a strings."
 (defun pg-last-output-displayform ()
   "Return displayable form of `proof-shell-last-output'.
 This is used to annotate the buffer with the result of proof steps."
-  ;; If there's no proof state output we try response output instead.
   ;; NOTE: Isabelle/Isar uses urgent messages (sigh) in its ordinary output.
   ;; ("Successful attempt...").  This loses here.
-  (let* ((output (if (string= proof-shell-last-output "")
-		     proof-shell-last-response-output))
-	 (text (proof-shell-strip-output-markup
-		(if (and (boundp 'unicode-tokens-mode)
-			 unicode-tokens-mode)
-		    (unicode-tokens-encode-str proof-shell-last-output)
-		  output))))
+  (if (string= proof-shell-last-output "") ""
+    (let* ((text (proof-shell-strip-output-markup
+		  (if (and (boundp 'unicode-tokens-mode)
+			   unicode-tokens-mode)
+		      (unicode-tokens-encode-str proof-shell-last-output)
+		    proof-shell-last-output))))
 
-      ;; NOTE: hack for Isabelle which puts ugly leading \n's around proofstate.
+      ;; HACK: for Isabelle which puts ugly leading \n's around proofstate.
       (if (and (> (length text) 0) 
 	       (string= (substring text 0 1) "\n"))
 	  (setq text (substring text 1)))
@@ -679,7 +677,7 @@ This is used to annotate the buffer with the result of proof steps."
 	       (string= (substring text -1) "\n"))
 	  (setq text (substring text 0 -1)))
 	
-      text))
+      text)))
 
 ;;;###autoload
 (defun pg-set-span-helphighlights (span &optional mouseface face)
@@ -2227,6 +2225,8 @@ command."
 
 ;; NB: proof-mode-map declared above
 (proof-menu-define-keys proof-mode-map) 
+(proof-eval-when-ready-for-assistant
+ (define-key proof-mode-map [(control c) (control a)] (proof-ass keymap)))
 
 (defun proof-script-set-visited-file-name ()
   "Called when visited file name is changed.
