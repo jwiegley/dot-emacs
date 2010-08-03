@@ -1,6 +1,6 @@
 header {* Some tests for \textbf{multiple modes!!} *}
 
-theory Example = Main:
+theory MultipleModes imports Main begin
 
 text {* Proper proof text -- \textit{naive version}. *}
 
@@ -15,10 +15,13 @@ proof
  qed
 qed
 
-ML_setup {*
+ML {*
   fun fact 0 = 1 
     | fact n = n * (fact (n-1))
 
   val x = 7; 
 *}
+
+end
+
 
