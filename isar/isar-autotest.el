@@ -8,35 +8,54 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
-  (require 'proof-utils)
-  (proof-ready-for-assistant 'isar))
-
+(require 'proof-utils)
 (require 'pg-autotest)
+
+(proof-ready-for-assistant 'isar)
+(require 'isar)
 
 (unless noninteractive
 
-  ;; The included test files
-  (pg-autotest message "Testing standard Example.thy, Example-Xsym.thy")
+  (pg-autotest log ".autotest.log")
+  (pg-autotest timestart 'total)
+
+  (pg-autotest remark "Testing standard Example.thy, Example-Xsym.thy")
   (pg-autotest script-wholefile "isar/Example.thy")
-  (pg-autotest script-wholefile "isar/Example-Xsym.thy")
+  (pg-autotest script-wholefile "isar/Example-Tokens.thy")
 
-; These require Complex theory
-;(pg-autotest script-wholefile "isar/Root2_Isar.thy")
-;(pg-autotest script-wholefile "isar/Root2_Tactic.thy")
+  (pg-autotest remark "Testing random jumps")
+  (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
+  (pg-autotest eval (isar-tracing:auto-solve 0)) ; autosolve hammers this!
+  (pg-autotest script-randomjumps "isar/Example.thy" 5)
+  (pg-autotest script-randomjumps "etc/isar/AHundredTheorems.thy" 10)
 
-;; The standard simple multiple file examples
+  (pg-autotest remark "Testing restarting the prover")
+  (pg-autotest quit-prover)
 
-  (pg-autotest message	       "Simple test of multiple files...")
+  (pg-autotest remark "Now in tokens mode")
+  (pg-autotest eval (proof-unicode-tokens-toggle))
+  (pg-autotest script-wholefile "isar/Example-Tokens.thy")
+
+  (pg-autotest remark "A larger file:")
+  (pg-autotest timestart)
+  (pg-autotest script-wholefile "isar/ex/Tarski.thy")
+  (pg-autotest timetaken)
+
+  (pg-autotest remark	         "Simple test of multiple file behaviour:")
   (pg-autotest script-wholefile  "etc/isar/multiple/C.thy")
   (pg-autotest assert-processed   "etc/isar/multiple/C.thy")
   (pg-autotest assert-processed   "etc/isar/multiple/A.thy")
   (pg-autotest assert-processed   "etc/isar/multiple/B.thy")
-  (pg-autotest retract-file      "etc/isar/multiple/B.thy")
+  (pg-autotest retract-file       "etc/isar/multiple/B.thy")
   (pg-autotest assert-unprocessed "etc/isar/multiple/B.thy")
   (pg-autotest assert-unprocessed "etc/isar/multiple/C.thy")
   (pg-autotest assert-processed   "etc/isar/multiple/A.thy")
 
 
-  (pg-autotest-quit-prover)
-  (pg-autotest-finished))
+  (pg-autotest quit-prover)
+  
+  (pg-autotest timetaken 'total)
+
+  (pg-autotest exit)
+
+  )

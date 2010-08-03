@@ -7,11 +7,9 @@
 ;;
 ;; TODO:
 ;; -- fix failure handling for scriptfile
-;; -- force re
 ;; -- add macros for defining test suites
 ;; -- add more precise functional tests to check results
 ;; -- add negative tests
-;; -- output test results to stdout
 ;;
 ;; $Id$
 
@@ -20,9 +18,18 @@
 
 ;;; Commentary:
 ;;
+;; Support for running a series of scripted UI tests.
+;;
 
 ;;; Code:
-(defvar pg-autotest-success t)		;; success unless error caught
+
+(defvar pg-autotest-success t
+  "Flag indicating overall successful state of tests.")
+
+(defvar pg-autotest-log t
+  "Value for 'standard-output' during tests")
+
+(setq debug-on-error t) 		;; enable in case a test goes wrong
 
 ;;; Some utilities
 
@@ -42,26 +49,87 @@
   (unless (proof-locked-region-empty-p)
     ;; Should retract and unregister if was completely full
     (proof-goto-point))
-  (pg-autotest-assert-unprocessed file))
+  (pg-autotest-test-assert-unprocessed file))
 
 ;;; Invoke a test
 
 (defmacro pg-autotest (fn &rest args)
-  `(condition-case err
-       (apply (intern (concat "pg-autotest-" (symbol-name (quote ,fn))))
-	      (list ,@args))
-     (error
-      (progn
-	(setq pg-autotest-success nil)
-	(princ (format "Error in test %s: %s" (symbol-name (quote ,fn))
-		       err)))))) ;; display-error stdout?
+  `(unwind-protect
+    (progn
+      (setq standard-output pg-autotest-log)
+      (condition-case err
+	  (let ((scaffoldfn 
+		 (intern (concat "pg-autotest-" 
+				 (symbol-name (quote ,fn))))))
+	    (if (fboundp scaffoldfn)
+		(apply scaffoldfn (list ,@args))
+	      (pg-autotest-message 
+	       (format "TEST:  %s" (cons (quote ,fn) (quote ,args))))
+	      (apply (intern (concat "pg-autotest-test-" 
+				     (symbol-name (quote ,fn))))
+		     (list ,@args))))
+	(error
+	 (progn
+	   (setq pg-autotest-success nil)
+	   (pg-autotest-message
+	    (format "ERROR %s: %s" (quote ,fn)
+		    (prin1-to-string err)))))))
+    (setq standard-output t)))
 
 
+;;; Test output and timing
 
-;;; The tests proper
+(defun pg-autotest-log (file)
+  (save-excursion
+    (find-file file)
+    (erase-buffer)
+    (setq pg-autotest-log (current-buffer))))
 
-(defun pg-autotest-script-wholefile (file)
-  "Load FILE and script line-by-line, waiting a second between each line.
+(defun pg-autotest-message (msg)
+  "Give message MSG in log file output and on display."
+  (proof-with-current-buffer-if-exists 
+   pg-autotest-log
+   (insert msg "\n"))
+  (message msg)
+  (redisplay t))
+
+(defun pg-autotest-remark (msg)
+  (pg-autotest-message (concat "\n\nREMARK: " msg "\n")))
+
+(defun pg-autotest-timestart (&optional clockname)
+  "Make a note of current time, named 'local or CLOCKNAME."
+  (put 'pg-autotest-time (or clockname 'local)
+       (current-time)))
+
+(defun pg-autotest-timetaken (&optional clockname)
+  "Report time since (startclock CLOCKNAME)."
+  (let* ((timestart (get 'pg-autotest-time (or clockname 'local)))
+	 (timetaken 
+	  (time-subtract (current-time) timestart)))
+    (pg-autotest-message
+     (format "TIME: %f (%s)" (float-time timetaken)
+	     (if clockname (symbol-name clockname)
+	       "this test")))))
+
+(defun pg-autotest-exit ()
+  "Exit Emacs returning Unix success 0 if all tests succeeded."
+  (proof-with-current-buffer-if-exists 
+   pg-autotest-log
+   (save-buffer 0))
+  (kill-emacs (if pg-autotest-success 0 1)))
+
+;;; The test script functions proper
+  
+(defun pg-autotest-test-process-wholefile (file)
+  "Load FILE and script in one go.
+An error is signalled if scripting doesn't completely the whole buffer."
+  (pg-autotest-find-file-restart file)
+  (proof-process-buffer)
+  (pg-autotest-test-assert-processed file))
+
+(defun pg-autotest-test-script-wholefile (file)
+  "Load FILE and script line-by-line, using `proof-shell-wait' before sending
+each line.
 An error is signalled if scripting doesn't complete."
   (pg-autotest-find-file-restart file)
   (save-excursion
@@ -70,49 +138,69 @@ An error is signalled if scripting doesn't complete."
 	(setq last-locked-end (proof-unprocessed-begin))
 	(goto-char last-locked-end)
 	(save-current-buffer
-	  (proof-assert-next-command-interactive)
+	  (condition-case err
+	      (proof-assert-next-command-interactive)
+	    (error 
+	     (let ((msg (car-safe (cdr-safe err))))
+	       (unless (string-equal msg
+                 ;; normal user error message at end of buffer		     
+		  "At end of the locked region, nothing to do to!")
+		 (pg-autotest-message 
+		  (format
+		   "proof-assert-next-command-interactive hit an error: %s" 
+		   msg))))))
 	  (proof-shell-wait))
 	(goto-char (proof-queue-or-locked-end))
-	(setq making-progress (> (point) last-locked-end))
-	(sit-for 1))))
-  (pg-autotest-assert-processed file))
+	(setq making-progress (> (point) last-locked-end)))))
+  (pg-autotest-test-assert-processed file))
 
-(defun pg-autotest-retract-file (file)
+(defun pg-autotest-test-script-randomjumps (file jumps)
+  "Load FILE and process in it by jumping around randomly JUMPS times.
+This should be robust against synchronization errors; we test this by
+completely processing the buffer as the last step."
+  (pg-autotest-find-file-restart file)
+  (while (> jumps 0)
+    (let ((random-point   (random (point-max))))
+      ;; TODO: random use of retract whole buffer too
+      (goto-char random-point)
+      (proof-goto-point)
+      (proof-shell-wait)
+      ;; TODO: check no error from prover
+      (decf jumps)))
+  (proof-process-buffer)
+  (pg-autotest-test-assert-processed file))
+
+(defun pg-autotest-test-retract-file (file)
   (save-excursion
     (pg-autotest-find-file file)
     (proof-retract-buffer)
     (sit-for 1)))
 
-(defun pg-autotest-assert-processed (file)
+(defun pg-autotest-test-assert-processed (file)
   "Check that FILE has been fully processed."
   (save-excursion
     (pg-autotest-find-file file)
     (unless (proof-locked-region-full-p)
-      (error (format "Locked region in file `%f' is not full" file)))))
+      (error (format "Locked region in file `%s' is not full" file)))))
 
-(defun pg-autotest-assert-unprocessed (file)
+(defun pg-autotest-test-assert-unprocessed (file)
   "Check that FILE has been fully unprocessed."
   (save-excursion
     (pg-autotest-find-file file)
     (unless (proof-locked-region-empty-p)
-      (error (format "Locked region in file `%f' is not empty" file)))))
+      (error (format "Locked region in file `%s' is not empty" file)))))
 
-(defun pg-autotest-message (msg)
-  "Give message MSG on std out & on display."
-  (message msg)
-  ;; FIXME: can we send to std out even if emacs is not batch mode?
-  (print msg)
-  (sit-for 1))
+(defun pg-autotest-test-eval (body)
+  "Evaluate given expression for side effect."
+  (eval body))
 
-(defun pg-autotest-quit-prover ()
+(defun pg-autotest-test-quit-prover ()
   "Exit prover process."
   (if (buffer-live-p proof-shell-buffer)
 	(kill-buffer proof-shell-buffer)
     (error "No proof shell buffer to kill")))
 
-(defun pg-autotest-finished ()
-  "Exit Emacs returning Unix success 0 if all tests succeeded."
-  (kill-emacs (if pg-autotest-success 0 1)))
+
 
 
 
