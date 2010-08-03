@@ -8,6 +8,9 @@
 (eval-when-compile
   (require 'cl))
 
+(declare-function isar-tracing:auto-quickcheck-toggle "isar.el")
+(declare-function isar-tracing:auto-solve-toggle "isar.el")
+
 (require 'proof-utils)
 (require 'pg-autotest)
 
@@ -25,7 +28,7 @@
 
   (pg-autotest remark "Testing random jumps")
   (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
-  (pg-autotest eval (isar-tracing:auto-solve 0)) ; autosolve hammers this!
+  (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
   (pg-autotest script-randomjumps "isar/Example.thy" 5)
   (pg-autotest script-randomjumps "etc/isar/AHundredTheorems.thy" 10)
 
