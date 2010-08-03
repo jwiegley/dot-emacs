@@ -726,7 +726,7 @@ or if the window is the only window of its frame."
 Args as for the macro `proof-deftoggle', except will be evaluated."
   (eval
    `(defun ,(if othername othername
-	      (intern (concat (symbol-name var) "-toggle"))) (arg)
+	      (intern (concat (symbol-name var) "-toggle"))) (&optional arg)
 	      ,(concat "Toggle `" (symbol-name var) "'. With ARG, turn on iff ARG>0.
 This function simply uses customize-set-variable to set the variable.
 It was constructed with `proof-deftoggle-fn'.")
