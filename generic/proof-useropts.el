@@ -369,7 +369,7 @@ signals to the remote host."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-full-annotation nil
+(defcustom proof-full-annotation t
   "*Non-nil causes Proof General to add hovers for all proof commands.
 Proof output is recorded as it occurs interactively; normally if
 many steps are taken at once, this output is suppressed.  If this
