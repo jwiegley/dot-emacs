@@ -1877,11 +1877,11 @@ comment, and insert or skip to the next semi)."
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
       (skip-chars-backward " \t\n")
-      (if (and (char-after (point))
-	       (not (= (char-after (point)) proof-terminal-char)))
-	  (unless proof-electric-terminator-noterminator
-	    (insert proof-terminal-string)
-	    (setq ins t)))
+      (unless (or proof-electric-terminator-noterminator
+		  (and (char-after (point))
+		       (= (char-after (point)) proof-terminal-char)))
+	(insert proof-terminal-string)
+	(setq ins t))
       (let* ((pos  
 	      (if proof-electric-terminator-noterminator (1- (point)) (point)))
 	     (semis
