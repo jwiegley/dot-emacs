@@ -213,6 +213,9 @@ tags:	$(EL) $(TAGS_EXTRAS)
 test.%:	
 	if [ -f "$*/$*-autotest.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-autotest.el -f eval-current-buffer; then echo "Autotests for $* run successfully on `date`"; else cat $*/.autotest.log; echo "Autotests for $* ran with failures on `date`"; exit 1; fi; fi
 
+profile.%:	
+	if [ -f "$*/$*-profiling.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-profiling.el -f eval-current-buffer; then echo "Profiling for $* run successfully on `date`"; else echo "Profiling for $* ran with failures on `date`"; exit 1; fi; cat $*/.profile.log; fi
+
 testall.%: 
 	for prover in ${PROVERS}; do $(MAKE) test.$$prover EMACS=$*; done
 
@@ -251,7 +254,7 @@ devclean: FORCE
 #
 distclean: devclean clean
 	@echo "***** CLEANING UP ALL JUNK FILES ****"
-	find . \( -name '*~' -o -name '#*#' -o -name '\.\#*' \) -print | xargs rm -f
+	find . \( -name '*~' -o -name '#*#' -o -name '\.\#*' -o -name '\.*\.log' \) -print | xargs rm -f
 	(cd doc; $(MAKE) distclean)
 
 ############################################################

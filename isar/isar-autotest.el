@@ -27,11 +27,16 @@
   (pg-autotest script-wholefile "isar/Example.thy")
   (pg-autotest script-wholefile "isar/Example-Tokens.thy")
 
-  (pg-autotest remark "Testing random jumps")
+  (pg-autotest remark "Larger files...")
   (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
   (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
+  (pg-autotest eval (proof-full-annotation-toggle 0))
+  (pg-autotest script-wholefile "etc/isar/AHundredTheorems.thy")
+  (pg-autotest script-wholefile "isar/ex/Tarski.thy")
+
+  (pg-autotest remark "Testing random jumps")
   (pg-autotest script-randomjumps "isar/Example.thy" 5)
-  (pg-autotest script-randomjumps "etc/isar/AHundredTheorems.thy" 10)
+  (pg-autotest script-randomjumps "isar/ex/Tarski.thy" 10) ; better test?
 
   (pg-autotest remark "Testing restarting the prover")
   (pg-autotest quit-prover)
@@ -40,10 +45,6 @@
   (pg-autotest eval (proof-unicode-tokens-toggle))
   (pg-autotest script-wholefile "isar/Example-Tokens.thy")
 
-  (pg-autotest remark "A larger file:")
-  (pg-autotest timestart)
-  (pg-autotest script-wholefile "isar/ex/Tarski.thy")
-  (pg-autotest timetaken)
 
   (pg-autotest remark	         "Simple test of multiple file behaviour:")
   (pg-autotest script-wholefile  "etc/isar/multiple/C.thy")
