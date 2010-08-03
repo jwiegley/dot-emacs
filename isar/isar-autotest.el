@@ -8,18 +8,19 @@
 (eval-when-compile
   (require 'cl))
 
+(eval-when (compile)
+  (require 'proof-site)
+  (proof-ready-for-assistant 'isar))  
+
 (declare-function isar-tracing:auto-quickcheck-toggle "isar.el")
 (declare-function isar-tracing:auto-solve-toggle "isar.el")
 
-(require 'proof-utils)
 (require 'pg-autotest)
-
-(proof-ready-for-assistant 'isar)
-(require 'isar)
 
 (unless noninteractive
 
-  (pg-autotest log ".autotest.log")
+  (pg-autotest log ".autotest.log")  ; convention
+
   (pg-autotest timestart 'total)
 
   (pg-autotest remark "Testing standard Example.thy, Example-Xsym.thy")
