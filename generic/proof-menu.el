@@ -573,8 +573,13 @@ without adjusting window layout."
 (defconst proof-advanced-menu
   (cons "Advanced"
 	(append
-	 '(["Complete Identifier" proof-script-complete t]
-	   ["Insert Last Output" pg-insert-last-output-as-comment proof-shell-last-output])
+	 '(["Complete Identifier" proof-script-complete 
+	    :help "Complete the identifier at point"]
+	   ["Insert Last Output" pg-insert-last-output-as-comment 
+	    :active proof-shell-last-output
+	    :help "Insert the last output into the proof script as a comment"]
+	   ["Make Movie" pg-movie-export
+	    :help "Export processed portion as Movie XML file (enable Full Annotations first!)"])
 	 (list "-----")
 	 proof-show-hide-menu
 	 (list "-----")

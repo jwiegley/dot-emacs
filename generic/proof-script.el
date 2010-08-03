@@ -510,14 +510,19 @@ IDIOM is a symbol, ID is a string."
   "Add element of type IDIOMSYM with identifier ID, referred to by SPAN.
 This records the element in `pg-script-portions' and sets span
 properties accordingly.
+
 IDIOMSYM is a symbol, whereas ID and optional NAME are strings.
 Identifiers must be unique for a given idiom; the optional NAME
 will be recorded as a textual name used instead of ID for users;
-NAME does not need to be unique."
+NAME does not need to be unique.
+
+NAME is a name that comes from the proof script or prover output.
+It is recorded in the span with the 'rawname property."
   (assert (symbolp idiomsym))
   (assert (stringp id))
   (if name (assert (stringp name)))
   (let* ((idsym    (intern id))
+	 (rawname  name)
 	 (name	   (or name id))
 	 (idiom    (symbol-name idiomsym))
 	 (delfn	   `(lambda () (pg-remove-element 
@@ -535,6 +540,7 @@ NAME does not need to be unique."
     (span-set-property span 'idiom idiomsym)
     (span-set-property span 'id idsym)
     (span-set-property span 'name name)
+    (span-set-property span 'rawname rawname)
     (span-set-property span 'span-delete-action delfn)
     
     ;; Ideally: would keep invisible property to be the idiom type
@@ -652,13 +658,19 @@ IDIOMSYM is a symbol and ID is a strings."
     "Keymap for the span context menu.")
 
 (defun pg-last-output-displayform ()
-  "Return displayable form of `proof-shell-last-output'."
-  (if (string= proof-shell-last-output "")  ""
-    (let ((text (proof-shell-strip-output-markup
-		 (if (and (boundp 'unicode-tokens-mode)
-			  unicode-tokens-mode)
-		     (unicode-tokens-encode-str proof-shell-last-output)
-		   proof-shell-last-output))))
+  "Return displayable form of `proof-shell-last-output'.
+This is used to annotate the buffer with the result of proof steps."
+  ;; If there's no proof state output we try response output instead.
+  ;; NOTE: Isabelle/Isar uses urgent messages (sigh) in its ordinary output.
+  ;; ("Successful attempt...").  This loses here.
+  (let* ((output (if (string= proof-shell-last-output "")
+		     proof-shell-last-response-output))
+	 (text (proof-shell-strip-output-markup
+		(if (and (boundp 'unicode-tokens-mode)
+			 unicode-tokens-mode)
+		    (unicode-tokens-encode-str proof-shell-last-output)
+		  output))))
+
       ;; NOTE: hack for Isabelle which puts ugly leading \n's around proofstate.
       (if (and (> (length text) 0) 
 	       (string= (substring text 0 1) "\n"))
@@ -666,39 +678,48 @@ IDIOMSYM is a symbol and ID is a strings."
       (if (and (> (length text) 0) 
 	       (string= (substring text -1) "\n"))
 	  (setq text (substring text 0 -1)))
-      text)))
+	
+      text))
 
 ;;;###autoload
 (defun pg-set-span-helphighlights (span &optional mouseface face)
   "Add a daughter help span for SPAN with help message, highlight, actions.
-We add the last output (which should be non-empty) to the hover display here.
+The daughter span covers the non whitespace content of the main span.
+
+We add the last output (which should be non-empty) to the hover display.
+
 Optional argument MOUSEFACE means use the given face as a mouse highlight
 face, if it is a face, otherwise, if it is non-nil but not a face,
 do not add a mouse highlight.
-which case no mouse hover face is added.
+
 Argument FACE means add regular face property FACE to the span."
-  (let ((helpmsg    (pg-span-name span))
-	(proofstate (pg-last-output-displayform))
+  (let ((output     (pg-last-output-displayform))
 	(newspan    (let ((newstart (save-excursion
 				      (goto-char (span-start span))
 				      (skip-chars-forward " \n\t")
 				      (point))))
 		      (span-make newstart (span-end span)))))
-    (setq helpmsg
-	  (concat (if (<= (length proofstate) 2) helpmsg)
-		  proofstate))
+
+    (span-set-property span 'pg-helpspan newspan) ; link to parent
+
     (span-set-property newspan 'pghelp t)
-    (if pg-show-hints ;; only message in minibuf if hints on
-	(span-set-property
-	 newspan 'help-echo
-	   helpmsg
-	   ;; " ("
-	   ;; (substitute-command-keys
-	   ;;  (if (span-property span 'idiom)
-	   ;;	"with point in region, \\[pg-toggle-visibility] to show/hide; "
-	   ;;    "\\<pg-span-context-menu-keymap>\\[pg-span-context-menu]"))
-	   ;; " for menu)")))
-	   ))
+    (span-set-property newspan 'response output)
+
+    (span-set-property newspan 'help-echo 
+	(if (<= (length output) 2)
+	      (pg-span-name span)
+	    output))	       
+
+    ;; Here's the message we used to show in minibuffer 
+    ;; when pg-show-hints was on:
+    ;;
+    ;; " ("
+    ;; (substitute-command-keys
+    ;;  (if (span-property span 'idiom)
+    ;;	"with point in region, \\[pg-toggle-visibility] to show/hide; "
+    ;;    "\\<pg-span-context-menu-keymap>\\[pg-span-context-menu]"))
+    ;; " for menu)")))
+
     (span-set-property newspan 'keymap pg-span-context-menu-keymap)
     (span-set-property newspan 'modification-hooks
 		       (list 'pg-delete-self-modification-hook))

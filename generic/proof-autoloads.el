@@ -197,6 +197,22 @@ Initialise the goals buffer after the child has been configured.
 
 ;;;***
 
+;;;### (autoloads (pg-movie-export-from pg-movie-export) "pg-movie"
+;;;;;;  "pg-movie.el" (19544 3005))
+;;; Generated autoloads from pg-movie.el
+
+(autoload 'pg-movie-export "pg-movie" "\
+Not documented
+
+\(fn)" t nil)
+
+(autoload 'pg-movie-export-from "pg-movie" "\
+Not documented
+
+\(fn SCRIPT)" nil nil)
+
+;;;***
+
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
 ;;;;;;  "pg-pgip" "pg-pgip.el" (19122 39720))
 ;;; Generated autoloads from pg-pgip.el
@@ -222,7 +238,7 @@ Send an <askprefs> message to the prover.
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-message pg-response-display-with-face pg-response-maybe-erase
 ;;;;;;  proof-response-config-done proof-response-mode) "pg-response"
-;;;;;;  "pg-response.el" (19159 42528))
+;;;;;;  "pg-response.el" (19542 60238))
 ;;; Generated autoloads from pg-response.el
 
 (autoload 'proof-response-mode "pg-response" "\
@@ -306,7 +322,7 @@ All of these settings are optional.
 ;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19223 1859))
+;;;;;;  "pg-user.el" (19543 7684))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -412,11 +428,11 @@ Not documented
 
 ;;;***
 
-;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (19109
-;;;;;;  19687))
+;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (19542
+;;;;;;  60238))
 ;;; Generated autoloads from pg-xml.el
 
-(autoload (quote pg-xml-parse-string) "pg-xml" "\
+(autoload 'pg-xml-parse-string "pg-xml" "\
 Parse string in ARG, same as pg-xml-parse-buffer.
 
 \(fn ARG)" nil nil)
@@ -537,7 +553,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19223 1323))
+;;;;;;  "proof-script.el" (19543 20729))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -564,11 +580,14 @@ Non-nil if the locked region is empty.  Works on any buffer.
 
 (autoload 'pg-set-span-helphighlights "proof-script" "\
 Add a daughter help span for SPAN with help message, highlight, actions.
-We add the last output (which should be non-empty) to the hover display here.
+The daughter span covers the non whitespace content of the main span.
+
+We add the last output (which should be non-empty) to the hover display.
+
 Optional argument MOUSEFACE means use the given face as a mouse highlight
 face, if it is a face, otherwise, if it is non-nil but not a face,
 do not add a mouse highlight.
-which case no mouse hover face is added.
+
 Argument FACE means add regular face property FACE to the span.
 
 \(fn SPAN &optional MOUSEFACE FACE)" nil nil)
@@ -618,7 +637,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19220 59810))
+;;;;;;  "proof-shell.el" (19543 16432))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -739,7 +758,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19220 63573))
+;;;;;;  (19542 60238))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -884,10 +903,10 @@ If PROGRAM is a string, any more args are arguments to PROGRAM.
 ;;;***
 
 ;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "../lib/texi-docstring-magic.el"
-;;;;;;  (19107 62790))
+;;;;;;  (19542 60238))
 ;;; Generated autoloads from ../lib/texi-docstring-magic.el
 
-(autoload (quote texi-docstring-magic) "texi-docstring-magic" "\
+(autoload 'texi-docstring-magic "texi-docstring-magic" "\
 Update all texi docstring magic annotations in buffer.
 With prefix arg, no errors on unknown symbols.  (This results in
 @def .. @end being deleted if not known).
@@ -910,7 +929,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19221 49730))
+;;;;;;  (19496 21913))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -924,7 +943,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
 ;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
 ;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-faces.el" "proof-useropts.el"
-;;;;;;  "proof.el") (19224 54205 534923))
+;;;;;;  "proof.el") (19544 3030 500218))
 
 ;;;***
 
