@@ -99,6 +99,12 @@
   "Apply function FN to spans between START and END with property PROP."
   (mapc fn (spans-at-region-prop start end prop)))
 
+(defsubst span-mapcar-spans-inorder (fn start end prop)
+  "Map function FN over spans between START and END with property PROP."
+  (mapcar fn 
+	  (sort (spans-at-region-prop start end prop)
+		'span-lt)))
+
 (defun span-at-before (pt prop)
   "Return the smallest SPAN at before PT with property PROP.
 A span is before PT if it begins before the character before PT."
