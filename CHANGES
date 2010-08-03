@@ -10,6 +10,7 @@
     Unicode Tokens has been significantly improved since PG 3.7.1,
     and now works purely at a "presentation" level without changing 
     buffer contents.  For best results, Emacs 23 is recommended.
+    See Tokens menu for many useful commands.
 
 *** Document-centred mechanisms added:
     - auto raise of prover output buffers can be disabled
@@ -22,6 +23,9 @@
     enable a useful "document centred" way of working, when output
     buffers can be ignored and hidden.
     Use "full annotation" to keep output when several steps are taken.
+
+*** "Movie" output: export an annotated buffer in XML
+    Basic movie output for Proviola, see http://mws.cs.ru.nl/proviola
 
 *** Improved prevention of Undo in locked region
     proof-allow-undo-in-read-only: now defaults to nil
