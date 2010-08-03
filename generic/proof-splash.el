@@ -14,7 +14,7 @@
 ;; Customization of splash screen
 ;;
 
-(defcustom proof-splash-enable t
+(defcustom proof-splash-enable nil
   "*If non-nil, display a splash screen when Proof General is loaded."
   :type 'boolean
   :group 'proof-user-options)
