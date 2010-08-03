@@ -593,7 +593,7 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ("==>" . "\\<Longrightarrow>")
     ("<==>" . "\\<Longleftrightarrow>")
     ("|-->" . "\\<longmapsto>")
-    ("<-->" . "\\<longleftrightarrow>")
+    ("<->" . "\\<longleftrightarrow>")
     ("<<" . "\\<guillemotleft>")
     (">>" . "\\<guillemotright>")
     ("<>" . "\\<diamond>")
@@ -601,7 +601,6 @@ For Isabelle, the token TOKNAME is made into the token \\< TNAME >."
     ("|]" . "\\<rbrakk>")
     ("{|" . "\\<lbrace>")
     ("|}" . "\\<rbrace>")
-    ("---" . "\\<emdash>")
     ("(|" . "\\<lparr>")
     ("|)" . "\\<rparr>")
     ;; useful for unicode-tokens-replace-shortcuts
