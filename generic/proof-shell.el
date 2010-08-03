@@ -396,9 +396,8 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
 
-    (let (;;(inhibit-quit t)		; disable C-g for now
-	  timeout-id)			; [NO: don't do that]
-      (sit-for 0)			; redisplay [does it work?]
+    (let (timeout-id)			
+      (redisplay t)			; redisplay
       (if alive				; process still there
 	  (progn
 	    (catch 'exited
@@ -410,7 +409,7 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	      ;; partly processed when exiting, and registering completed
 	      ;; files).
 	      (proof-deactivate-scripting-auto)
-	      ;; FIXME: if the shell is busy now, we should wait
+	      ;; TODO: if the shell is busy now, we should wait
 	      ;; for a while (in case deactivate causes processing)
 	      ;; and then send an interrupt.
 
@@ -1594,18 +1593,12 @@ Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
 in some cases.   May be called by `proof-shell-invisible-command'."
   (let ((proverproc (get-buffer-process proof-shell-buffer)))
-    (if proverproc ;; in case no prover process, just return (shouldn't happen)
-	(progn
-	  (sit-for 0) ;; ensure display up-to-date
-	  (while (and proof-shell-busy (not quit-flag))
-	    ;; We call both sit-for and accept-process-output, since
-	    ;; they have different behaviours in GNU Emacs/XEmacs.
-	    (accept-process-output proverproc 1)
-	    (sit-for 1))
-	  (if quit-flag
-	      ;; This *shouldn't* really happen, but lockups in this
-	      ;; function have been seen in some odd scenarios.
-	      (error "Proof General: Quit in proof-shell-wait"))))))
+    (when proverproc
+      (while (and proof-shell-busy (not quit-flag))
+	(accept-process-output proverproc 1)
+	(redisplay t))
+      (if quit-flag
+	  (error "Proof General: Quit in proof-shell-wait")))))
 
 (defun proof-done-invisible (span)
   "Callback for proof-shell-invisible-command.
