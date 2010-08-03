@@ -28,7 +28,9 @@
     Basic movie output for Proviola, see http://mws.cs.ru.nl/proviola
 
 *** Improved prevention of Undo in locked region
-    proof-allow-undo-in-read-only: now defaults to nil
+    With thanks to Erik Martin-Dorel and Stefan Monnier.
+    Undo in read only region follows `proof-strict-read-only' and
+    gives the user the chance to allow edits by retracting first.
 
 *** Simplified version of comint now used for proof shell
     To improve efficiency, a cut-down version of comint is now used.
