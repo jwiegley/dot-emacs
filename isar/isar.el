@@ -606,6 +606,8 @@ Uses variables `string' and `scriptspan' passed by dynamic scoping."
   (isar-mode-config-set-variables)
   (isar-init-syntax-table)
   (setq proof-script-font-lock-keywords isar-font-lock-keywords-1)
+  (set (make-local-variable 'font-lock-string-face)
+       'isabelle-string-face)
   (set (make-local-variable 'comment-quote-nested) nil) ;; can cope with nested comments
   (set (make-local-variable 'outline-regexp) isar-outline-regexp)
   (set (make-local-variable 'outline-heading-end-regexp) 

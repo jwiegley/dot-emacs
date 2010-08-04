@@ -283,6 +283,13 @@ matches contents of quotes for quoted identifiers.")
 
 ;; ----- Isabelle inner syntax hilite
 
+(defface isabelle-string-face 
+  (proof-face-specs
+   (:foreground "darkgray")
+   (:background "lightgray")
+   (:italic t))
+  "*Face used instead of `font-lock-string-face' for Isar.")
+
 (defface isabelle-class-name-face
   (proof-face-specs
    (:foreground "red")
