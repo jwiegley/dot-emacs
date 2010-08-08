@@ -398,7 +398,7 @@ Works on any buffer."
 
 (defun proof-only-whitespace-to-locked-region-p ()
   "Non-nil if only whitespace from char-after point and end of locked region.
-Point expected to be after the locked region."
+Point must be after the locked region or this will signal an error."
   (save-excursion
     (or (eq (point) (point-max))
 	(forward-char 1))
@@ -1890,17 +1890,17 @@ comment, and insert or skip to the next semi)."
 	     (semis
 	      (save-excursion
 		(proof-segment-up-to-using-cache pos))))
-	(if (and semis
-		 (eq 'unclosed-comment (caar semis)))
-	    (progn
-	      (setq incomment t)
-	      ;; delete spurious char in comment
-	      (if ins (backward-delete-char 1))
-	      (goto-char mrk)
-	      (insert proof-terminal-string))
-	  ;; assert a region
-	  (proof-assert-semis semis)
-	  (proof-script-next-command-advance))))))
+	(unless semis
+	  (error "Can't find a parseable command!"))
+	(when (eq 'unclosed-comment (caar semis))
+	  (setq incomment t)
+	  ;; delete spurious char in comment
+	  (if ins (backward-delete-char 1))
+	  (goto-char mrk)
+	  (insert proof-terminal-string))
+	;; assert the region
+	(proof-assert-semis semis)
+	(proof-script-next-command-advance)))))
 
 (defun proof-assert-semis (semis &optional displayflags)
   "Add to the command queue the list SEMIS of command positions.
@@ -2592,7 +2592,7 @@ Choice of function depends on configuration setting."
   "A wrapper for `proof-segment-up-to' which uses a cache to speed things up."
   (let (res pos1)
     (if (and
-	 proof-use-parser-cache ;; safety measure while testing
+	 proof-use-parser-cache ;; safety measure
 	 (setq pos1 (save-excursion (goto-char pos)
 				    (skip-chars-forward " \t\n")
 				    (point)))
