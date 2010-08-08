@@ -84,7 +84,9 @@
   (save-excursion
     (find-file file)
     (erase-buffer)
-    (setq pg-autotest-log (current-buffer))))
+    (setq pg-autotest-log (current-buffer))
+    (pg-autotest-message (concat "Tests started "
+				 (format-time-string "%D %H:%M")))))
 
 (defun pg-autotest-message (msg &rest args)
   "Give message MSG in log file output and on display."
@@ -116,6 +118,8 @@
 
 (defun pg-autotest-exit ()
   "Exit Emacs returning Unix success 0 if all tests succeeded."
+  (pg-autotest-message (concat "\nTests completed "
+			       (format-time-string "%D %H:%M")))
   (proof-with-current-buffer-if-exists
    pg-autotest-log
    (save-buffer 0))
@@ -167,7 +171,8 @@ completely processing the buffer as the last step."
       (pg-autotest-message
        "         random jump to point: %d" random-point)
       (goto-char random-point)
-      (unless (proof-only-whitespace-to-locked-region-p)
+      (unless (if (>= (point) (proof-unprocessed-begin))
+		  (proof-only-whitespace-to-locked-region-p))
 	(proof-goto-point)
 	(proof-shell-wait) ;; TODO: check no prover error.
 	(decf jumps))))
