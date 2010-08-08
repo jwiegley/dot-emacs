@@ -59,6 +59,7 @@
 
   (pg-autotest quit-prover)
   
+  (pg-autotest remark	"Complete")
   (pg-autotest timetaken 'total)
 
   (pg-autotest exit)
