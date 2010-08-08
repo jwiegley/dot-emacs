@@ -17,7 +17,7 @@
 ;;
 ;; But it's difficult to keep track of all that!
 ;; Please report any bad/failing colour
-;; combinations (with suggested improvements) at 
+;; combinations (with suggested improvements) at
 ;; http://proofgeneral.inf.ed.ac.uk/trac
 ;;
 ;; Some of these faces aren't used by default in Proof General,
@@ -108,7 +108,7 @@ Exactly what uses this face depends on the proof assistant."
 
 (defface proof-error-face
   (proof-face-specs
-   (:background "rosybrown1") ; a drab version of misty rose 
+   (:background "rosybrown1") ; a drab version of misty rose
    (:background "brown")
    (:bold t))
   "*Face for error messages from proof assistant."

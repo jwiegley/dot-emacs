@@ -1,4 +1,4 @@
-;; proof-indent.el Generic Indentation for Proof Assistants
+;;; proof-indent.el --- Generic indentation for proof assistants
 ;;
 ;; Authors:	   Markus Wenzel, David Aspinall
 ;; License:        GPL (GNU GENERAL PUBLIC LICENSE)
@@ -6,11 +6,16 @@
 ;; $Id$
 ;;
 
+
+;;; Commentary:
+;; 
+
 (require 'proof-config)			; config variables
 (require 'proof-utils)			; proof-ass
 (require 'proof-syntax)			; p-looking-at-safe, p-re-search
 (require 'proof-autoloads)		; p-locked-end
 
+;;; Code:
 (defun proof-indent-indent ()
   "Determine indentation caused by syntax element at current point."
   (cond
@@ -21,7 +26,7 @@
    (t 0)))
 
 (defun proof-indent-offset ()
-  "Determine offset of syntax element at current point"
+  "Determine offset of syntax element at current point."
   (cond
    ((proof-looking-at-syntactic-context)
     proof-indent)
@@ -54,7 +59,8 @@
        (proof-indent-goto-prev))))
 
 (defun proof-indent-calculate (indent inner)  ; Note: may change point!
-  "Calculate proper indentation level at current point"
+  "Calculate indentation level at point.
+INDENT is current indentation level, INNER a flag for inner indentation."
   (let*
       ((current (point))
        (found-prev (proof-indent-goto-prev)))
@@ -89,4 +95,7 @@
 	    (if (< (current-column) (current-indentation))
 		(back-to-indentation)))))
 
+
 (provide 'proof-indent)
+
+;;; proof-indent.el ends here

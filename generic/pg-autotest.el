@@ -1,6 +1,6 @@
 ;;; pg-autotest.el --- Simple testing framework for Proof General
 ;;
-;; Copyright (C) 2005, 2009 LFCS Edinburgh, David Aspinall.
+;; Copyright (C) 2005, 2009-10 LFCS Edinburgh, David Aspinall.
 ;; Authors:   David Aspinall
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -27,7 +27,7 @@
   "Flag indicating overall successful state of tests.")
 
 (defvar pg-autotest-log t
-  "Value for 'standard-output' during tests")
+  "Value for 'standard-output' during tests.")
 
 (setq debug-on-error t) 		;; enable in case a test goes wrong
 
@@ -58,16 +58,16 @@
     (progn
       (setq standard-output pg-autotest-log)
       (condition-case err
-	  (let ((scaffoldfn 
-		 (intern (concat "pg-autotest-" 
+	  (let ((scaffoldfn
+		 (intern (concat "pg-autotest-"
 				 (symbol-name (quote ,fn))))))
 	    (if (fboundp scaffoldfn)
 		(apply scaffoldfn (list ,@args))
-	      (pg-autotest-message 
- 	       "TEST:  %s" 
-	       (prin1-to-string (cons (quote ,fn) 
+	      (pg-autotest-message
+ 	       "TEST:  %s"
+	       (prin1-to-string (cons (quote ,fn)
 				      (quote ,args))))
-	      (apply (intern (concat "pg-autotest-test-" 
+	      (apply (intern (concat "pg-autotest-test-"
 				     (symbol-name (quote ,fn))))
 		     (list ,@args))))
 	(error
@@ -89,7 +89,7 @@
 (defun pg-autotest-message (msg &rest args)
   "Give message MSG in log file output and on display."
   (let ((fmsg   (if args (apply 'format msg args) msg)))
-    (proof-with-current-buffer-if-exists 
+    (proof-with-current-buffer-if-exists
      pg-autotest-log
      (insert fmsg "\n"))
     (message fmsg)
@@ -106,17 +106,17 @@
 (defun pg-autotest-timetaken (&optional clockname)
   "Report time since (startclock CLOCKNAME)."
   (let* ((timestart (get 'pg-autotest-time (or clockname 'local)))
-	 (timetaken 
+	 (timetaken
 	  (time-subtract (current-time) timestart)))
     (pg-autotest-message
-     "TIME: %f (%s)" 
+     "TIME: %f (%s)"
      (float-time timetaken)
      (if clockname (symbol-name clockname)
        "this test"))))
 
 (defun pg-autotest-exit ()
   "Exit Emacs returning Unix success 0 if all tests succeeded."
-  (proof-with-current-buffer-if-exists 
+  (proof-with-current-buffer-if-exists
    pg-autotest-log
    (save-buffer 0))
   (kill-emacs (if pg-autotest-success 0 1)))
@@ -132,8 +132,7 @@ An error is signalled if scripting doesn't completely the whole buffer."
   (pg-autotest-test-assert-processed file))
 
 (defun pg-autotest-test-script-wholefile (file)
-  "Load FILE and script line-by-line, using `proof-shell-wait' before sending
-each line.
+  "Process FILE line-by-line, using `proof-shell-wait'.
 An error is signalled if scripting doesn't complete."
   (pg-autotest-find-file-restart file)
   (save-excursion
@@ -144,13 +143,13 @@ An error is signalled if scripting doesn't complete."
 	(save-current-buffer
 	  (condition-case err
 	      (proof-assert-next-command-interactive)
-	    (error 
+	    (error
 	     (let ((msg (car-safe (cdr-safe err))))
 	       (unless (string-equal msg
-                 ;; normal user error message at end of buffer		     
+                 ;; normal user error message at end of buffer
 		  "At end of the locked region, nothing to do to!")
-		 (pg-autotest-message 
-		  "proof-assert-next-command-interactive hit an error: %s" 
+		 (pg-autotest-message
+		  "proof-assert-next-command-interactive hit an error: %s"
 		  msg)))))
 	  (proof-shell-wait))
 	(goto-char (proof-queue-or-locked-end))
@@ -165,7 +164,7 @@ completely processing the buffer as the last step."
   (while (> jumps 0)
     (let ((random-point   (random (point-max))))
       ;; TODO: random use of retract/process whole buffer too
-      (pg-autotest-message 
+      (pg-autotest-message
        "         random jump to point: %d" random-point)
       (goto-char random-point)
       (unless (proof-only-whitespace-to-locked-region-p)
@@ -191,7 +190,7 @@ completely processing the buffer as the last step."
 (defun pg-autotest-test-assert-full ()
   "Check that current buffer has been fully processed."
     (unless (proof-locked-region-full-p)
-      (error (format "Locked region in buffer `%s' is not full" 
+      (error (format "Locked region in buffer `%s' is not full"
 		     (buffer-name)))))
 
 (defun pg-autotest-test-assert-unprocessed (file)

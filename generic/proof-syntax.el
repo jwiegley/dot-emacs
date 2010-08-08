@@ -1,4 +1,4 @@
-;; proof-syntax.el	Functions for dealing with syntax
+;; proof-syntax.el --- Functions for dealing with syntax
 ;;
 ;; Copyright (C) 1997-2001 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Healfdene Goguen,
@@ -17,8 +17,8 @@
 (defsubst proof-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching any element.
 Uses a regexp of the form \\_<...\\_>."
-  (concat "\\_<\\(?:" 
-	  (regexp-opt l) ; was: (mapconcat 'identity l "\\|") 
+  (concat "\\_<\\(?:"
+	  (regexp-opt l) ; was: (mapconcat 'identity l "\\|")
 	  "\\)\\_>"))
 
 (defsubst proof-anchor-regexp (e)

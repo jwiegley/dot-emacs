@@ -1,6 +1,6 @@
 ;;; proof-shell.el --- Proof General shell mode.
 ;;
-;; Copyright (C) 1994-2009 LFCS Edinburgh.
+;; Copyright (C) 1994-2010 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -41,15 +41,16 @@ The value is a list of lists of the form
 
    (SPAN COMMANDS ACTION [FLAGS])
 
-which is the queue of things to do.  Flags are set for non-standard
-commands (out of script).  They may include
+which is the queue of things to do.  Flags are set for non-scripting
+commands or for when scripting should not bother the user.
+They may include
 
   'no-response-display   do not display messages in *response* buffer
   'no-error-display      do not display errors/take error action
   'no-goals-display      do not goals in *goals* buffer
 
 If flags are non-empty, other interactive cues will be surpressed.
-\(E.g., printing help messages).
+\(E.g., printing hints).
 
 See the functions `proof-start-queue' and `proof-shell-exec-loop'.")
 
@@ -396,7 +397,7 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
 
-    (let (timeout-id)			
+    (let (timeout-id)
       (redisplay t)			; redisplay
       (if alive				; process still there
 	  (progn
@@ -503,10 +504,11 @@ This simply kills the `proof-shell-buffer' relying on the hook function
     (error "No proof shell buffer to kill!")))
 
 (defun proof-shell-bail-out (process event)
-  "Value for the process sentinel for the proof assistant process.
-If the proof assistant dies, run proof-shell-kill-function to
+  "Value for the process sentinel for the proof assistant PROCESS.
+If the proof assistant dies, run `proof-shell-kill-function' to
 cleanup and remove the associated buffers.  The shell buffer is
-left around so the user may discover what killed the process."
+left around so the user may discover what killed the process.
+EVENT is the string describing the change."
   (message "Process %s %s, shutting down scripting..." process event)
   (proof-shell-kill-function)
   (message "Process %s %s, shutting down scripting...done." process event))
@@ -605,7 +607,7 @@ non-empty flags) will not invoke any of this action."  ; PG4.0 change
   (unless (memq 'no-error-display flags)
     (cond
      ((eq err-or-int 'interrupt)
-      (pg-response-maybe-erase t t t) ; force cleaned now & next 
+      (pg-response-maybe-erase t t t) ; force cleaned now & next
       (proof-shell-handle-error-output
        (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
        'proof-error-face)
@@ -626,7 +628,7 @@ non-empty flags) will not invoke any of this action."  ; PG4.0 change
     (unless proof-shell-quiet-errors
       (beep))
     (proof-with-current-buffer-if-exists proof-script-buffer
-      (proof-script-clear-queue-spans-on-error 
+      (proof-script-clear-queue-spans-on-error
        (car-safe (car-safe proof-action-list))))
     (setq proof-action-list nil)
     (proof-release-lock)
@@ -660,7 +662,7 @@ This is a hook function for proof-shell-handle-delayed-output-hook."
   "See if the output between START and END must be dealt with immediately.
 To speed up processing, PG tries to avoid displaying output that
 the user will not have a chance to see.  Some output must be
-handled immediately, however: these are errors, interrupts, 
+handled immediately, however: these are errors, interrupts,
 goals and loopbacks (proof step hints/proof by pointing results).
 
 In this function we check, in turn:
@@ -797,7 +799,7 @@ used in `proof-add-to-queue' when we start processing a queue, and in
     (goto-char (point-max))
 
     ;; TEMP: next step: preprocess list of strings directly
-    (let ((string (apply 'concat strings))) 
+    (let ((string (apply 'concat strings)))
       ;; Hook for munging `string' and other dirty hacks.
       (run-hooks 'proof-shell-insert-hook)
 
@@ -878,7 +880,7 @@ track what happens in the proof queue."
 Comments are not sent to the prover."
   (let (cbitems nextitem)
     (while (and proof-action-list
-		(not (nth 1 (setq nextitem 
+		(not (nth 1 (setq nextitem
 				  (car proof-action-list)))))
       (setq cbitems (cons nextitem cbitems))
       (setq proof-action-list (cdr proof-action-list)))
@@ -911,7 +913,7 @@ being processed."
 	  ;; (should have proof-action-list<>nil -> busy)
 	  (and proof-shell-busy queuemode
 	       (unless (eq proof-shell-busy queuemode)
-		 (proof-debug 
+		 (proof-debug
 		  "proof-append-alist: wrong queuemode detected for busy shell")
 		 (assert (eq proof-shell-busy queuemode)))))
 
@@ -1030,9 +1032,9 @@ The return value is non-nil if the action list is now empty."
 
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
-  "Insert command sequence sent from prover into script buffer.
+  "Insert command string CMD sent from prover into script buffer.
 String is inserted at the end of locked region, after a newline
-and indentation.  Assumes proof-script-buffer is active."
+and indentation.  Assumes `proof-script-buffer' is active."
   (unless (string-match "^\\s-*$" cmd)	; FIXME: assumes cmd is single line
     (with-current-buffer proof-script-buffer
       (let (span)
@@ -1088,7 +1090,7 @@ ends with text matching `proof-shell-eager-annotation-end'."
     (proof-shell-process-urgent-message-elisp))
 
    ((proof-looking-at-safe proof-shell-match-pgip-cmd)
-    (pg-pgip-process-packet 
+    (pg-pgip-process-packet
      ;; NB: xml-parse-region ignores junk before XML
      (xml-parse-region start end)))
    
@@ -1108,11 +1110,11 @@ ends with text matching `proof-shell-eager-annotation-end'."
   ;; Clear the response buffer this time, but not next, leave window.
   (pg-response-maybe-erase nil nil)
   (proof-minibuffer-message
-   (buffer-substring-no-properties 
-    (save-excursion 
+   (buffer-substring-no-properties
+    (save-excursion
       (re-search-forward proof-shell-eager-annotation-start end nil)
       (point))
-    (min end 
+    (min end
 	 (save-excursion (end-of-line) (point))
 	 (+ start 75))))
   (pg-response-display-with-face
@@ -1122,7 +1124,7 @@ ends with text matching `proof-shell-eager-annotation-end'."
 (defun proof-shell-process-urgent-message-trace (start end)
   "Display a message in the tracing buffer.
 A subroutine of `proof-shell-process-urgent-message'."
-  (proof-trace-buffer-display 
+  (proof-trace-buffer-display
    (buffer-substring-no-properties start end))
   (unless (and proof-trace-output-slow-catchup
 	       (pg-tracing-tight-loop))
@@ -1173,7 +1175,7 @@ A subroutine of `proof-shell-process-urgent-message'."
   (let ((names   (match-string 1))
 	(deps    (match-string 2))
 	(sep     proof-shell-theorem-dependency-list-split))
-    (setq 
+    (setq
      proof-last-theorem-dependencies
      (cons (split-string names sep)
 	   (split-string deps sep)))))
@@ -1219,7 +1221,7 @@ A subroutine of `proof-shell-process-urgent-message'."
   "Filter for the proof assistant shell-process.
 A function for `scomint-output-filter-functions'.
 
-Deal with output and issue new input from the queue.  This is
+Deal with output STR and issue new input from the queue.  This is
 an important internal function.
 
 Handle urgent messages first.  As many as possible are processed,
@@ -1242,9 +1244,9 @@ example, in this case:
 `proof-marker' points after INPUT.
 
 `proof-shell-urgent-message-marker' points after URGENT-MESSAGE-2,
-after both urgent messages have been processed by 
-`proof-shell-process-urgent-messages'.  Urgent messages always 
-processed; they are intended to correspond to informational 
+after both urgent messages have been processed by
+`proof-shell-process-urgent-messages'.  Urgent messages always
+processed; they are intended to correspond to informational
 notes that the prover makes to inform the user or interface on
 progress.
 
@@ -1302,7 +1304,7 @@ is only changed when input is sent in `proof-shell-insert'."
 		(progn
 		  (setq endpos (match-beginning 0))
 		  (setq proof-shell-last-prompt
-			(buffer-substring-no-properties 
+			(buffer-substring-no-properties
 			 endpos (match-end 0)))
 		  (goto-char (point-max))
 		  (setq proof-shell-expecting-output nil)
@@ -1335,13 +1337,13 @@ messages."
   "Scan the shell buffer for urgent messages.
 Scanning starts from `proof-shell-urgent-message-scanner' or
 `scomint-last-input-end', which ever is later.  We deal with strings
-between regexps `proof-shell-eager-annotation-start' and 
-`proof-shell-eager-annotation-end'.  
+between regexps `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
 
 We update `proof-shell-urgent-message-marker' to point to last message found.
 
 This is a subroutine of `proof-shell-filter'."
-  (let ((pt (point)) (end t) 
+  (let ((pt (point)) (end t)
 	lastend laststart
 	(initstart (max  (marker-position proof-shell-urgent-message-scanner)
 			 (marker-position scomint-last-input-end))))
@@ -1357,11 +1359,11 @@ This is a subroutine of `proof-shell-filter'."
 	    ;; Process the region including the annotations
 	    (proof-shell-process-urgent-message laststart lastend))))
 
-    (set-marker 
+    (set-marker
      proof-shell-urgent-message-scanner
      (if end ;; couldn't find message start; move forward to avoid rescanning
 	 (max initstart
-	      (- (point) 
+	      (- (point)
 		 (1+ proof-shell-eager-annotation-start-length)))
        ;; incomplete message; leave marker at start of message
        laststart))
@@ -1398,7 +1400,7 @@ by the filter is to send the next command from the queue."
 
     ;; Keep a copy of the last message from the prover
     ;; PG 4.0: this is kept verbatim, never modified.
-    (setq proof-shell-last-output 
+    (setq proof-shell-last-output
 	  (buffer-substring-no-properties start end))
 
     ;; sets proof-shell-last-output-kind
@@ -1429,7 +1431,7 @@ are not dealt with eagerly during script processing, namely
 This is useful even with empty delayed output as it can
 clear the buffers.
 
-The delayed output is in the region 
+The delayed output is in the region
 \[proof-shell-last-output-start,proof-shell-last-output-end].
 
 If goals output is found, the last matching instance, possibly
@@ -1446,7 +1448,7 @@ if OUTPUT has this form:
 
 then GOALS-2 will be displayed in the goals buffer, and MESSAGE-2
 in the response buffer.  Notice that the above alternation can
-only be distinguished if both `proof-shell-start-goals-regexp' 
+only be distinguished if both `proof-shell-start-goals-regexp'
 and `proof-shell-end-goals-regexp' are set.  With just the
 former, MESSAGE-1 GOALS-1 MESSAGE-2 would all appear in
 the response buffer.
@@ -1471,22 +1473,22 @@ i.e., 'goals or 'response."
        (goto-char gstart)
        (while (re-search-forward proof-shell-start-goals-regexp end t)
 	 (setq gstart (match-beginning 0))
-	 (setq gend 
+	 (setq gend
 	       (if proof-shell-end-goals-regexp
 		   (progn
 		     (re-search-forward proof-shell-end-goals-regexp end t)
 		     (match-beginning 0)
 		     (setq rstart (match-end 0)))
 		 end)))
-       (setq proof-shell-last-goals-output 
+       (setq proof-shell-last-goals-output
 	     (buffer-substring-no-properties gstart gend))
        (unless (memq 'no-goals-display flags)
 	 (pg-goals-display proof-shell-last-goals-output))
        ;; also allow (for Coq) any preceding output as a response
        ;; FIXME heuristic: 4 allows for annotation in end-goals-regexp
        (when (> (- gstart rstart) 4)
-	 (proof-shell-display-output-as-response 
-	  flags 
+	 (proof-shell-display-output-as-response
+	  flags
 	  (buffer-substring-no-properties rstart gstart)))
        ;; primary output kind is goals
        'goals))
@@ -1587,15 +1589,17 @@ Only works when system timer has microsecond count available."
 ;;
 
 ;;;###autoload
-(defun proof-shell-wait ()
+(defun proof-shell-wait (&optional interrupt-on-input)
   "Busy wait for `proof-shell-busy' to become nil.
 Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
 in some cases.   May be called by `proof-shell-invisible-command'."
   (let ((proverproc (get-buffer-process proof-shell-buffer)))
     (when proverproc
-      (while (and proof-shell-busy (not quit-flag))
-	(accept-process-output proverproc 1)
+      (while (and proof-shell-busy (not quit-flag)
+		  (or (not interrupt-on-input) (input-pending-p)))
+	(accept-process-output proverproc 0.2) ;; NB: FIXME likely GE 23-ism
+	;; assume filters ran, redisplay
 	(redisplay t))
       (if quit-flag
 	  (error "Proof General: Quit in proof-shell-wait")))))
@@ -1612,7 +1616,7 @@ Calls proof-state-change-hook."
 The CMD is `invisible' in the sense that it is not recorded in buffer.
 CMD may be a string or a string-yielding expression.
 
-Automatically add proof-terminal-char if necessary, examining
+Automatically add `proof-terminal-char' if necessary, examining
 `proof-shell-no-auto-terminate-commands'.
 
 By default, let the command be processed asynchronously.
@@ -1625,7 +1629,7 @@ INVISIBLECALLBACK will be invoked after the command has finished,
 if it is set.  It should probably run the hook variables
 `proof-state-change-hook'.
 
-If NOERROR is set, surpress usual error action."
+FLAGS are put onto the If NOERROR is set, surpress usual error action."
   (unless (stringp cmd)
     (setq cmd (eval cmd)))
   (if cmd
@@ -1715,16 +1719,16 @@ Error messages are displayed as usual."
 
   ;; scomint customisation.
 
-  (setq scomint-output-filter-functions 
+  (setq scomint-output-filter-functions
 	(append
 	 (if proof-shell-strip-crs-from-output 'scomint-strip-ctrl-m)
 	 (list 'proof-shell-filter)))
 
   (setq proof-marker 			; follows prompt
-	(make-marker)	
-	proof-shell-urgent-message-marker 
+	(make-marker)
+	proof-shell-urgent-message-marker
 	(make-marker)			; follows urgent messages
-	proof-shell-urgent-message-scanner 
+	proof-shell-urgent-message-scanner
 	(make-marker))			; last scan point
 
   (set-marker proof-shell-urgent-message-scanner (point-min))

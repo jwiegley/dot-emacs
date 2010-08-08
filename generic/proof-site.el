@@ -1,11 +1,14 @@
 ;; proof-site.el -- Loading stubs for Proof General.
-;;		    Configuration for site and choice of provers.
 ;;
 ;; Copyright (C) 1998-2003 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
+;;
+;;; Commentary:
+;; 
+;; Loading stubs and configuration for site and choice of provers.
 ;;
 ;; NB: Normally users do not need to edit this file.  Developers/installers
 ;; may want to adjust proof-assistant-table-default below.
@@ -19,6 +22,7 @@
 ;; Master table of supported proof assistants.
 ;;
 
+;;; Code:
 (defconst proof-assistant-table-default
     '((isar   "Isabelle" "\\.thy$")
       (coq    "Coq"	 "\\.v$\\|\\.v8$\\|\\.v7$")
@@ -63,7 +67,7 @@
       (string-match "Version \\([^ ]+\\)\\." proof-general-version)
       (match-string 1 proof-general-version))))
 
-(defconst proof-general-version-year "2009")
+(defconst proof-general-version-year "2010")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -89,7 +93,7 @@
 ;;
 
 (defun proof-home-directory-fn ()
-  "Used to set proof-home-directory."
+  "Used to set `proof-home-directory'."
   (let ((s (getenv  "PROOFGENERAL_HOME")))
     (if s
 	(if (string-match "/$" s) s (concat s "/"))
@@ -125,6 +129,8 @@ You can use customize to set this variable."
 (add-to-list 'load-path (concat proof-home-directory "lib/"))
 
 ;; Declare some global variables and autoloads
+
+
 (require 'pg-vars)
 (require 'proof-autoloads)
 
@@ -319,3 +325,7 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
 
 (provide 'proof-site)
 ;; proof-site.el ends here
+
+(provide 'proof-site)
+
+;;; proof-site.el ends here

@@ -31,13 +31,17 @@
 ;;
 
 (defun proof-toolbar-function (token)
+  "Construct name of toolbar function for TOKEN."
   (intern (concat "proof-toolbar-" (symbol-name token))))
 
 (defun proof-toolbar-icon (token)
+  "Construct name of toolbar icon for TOKEN."
   (intern (concat "proof-toolbar-" (symbol-name token) "-icon")))
 
 (defun proof-toolbar-enabler (token)
+  "Construct name of toolbar enabler for TOKEN."
   (intern (concat "proof-toolbar-" (symbol-name token) "-enable-p")))
+
 
 ;;
 ;; Now the toolbar icons and buttons
@@ -81,7 +85,8 @@
   "Proof mode toolbar button list.  Set in `proof-toolbar-setup'.")
 
 (defun proof-toolbar-available-p ()
-  (and ;; Check toolbar support...
+  "Check if  toolbar support is available in this Emacs."
+  (and
    window-system
    (featurep 'tool-bar)	                ;; GNU Emacs tool-bar library
    (or (image-type-available-p 'xpm)    ;; and XPM
@@ -111,8 +116,8 @@ back the default toolbar."
        (kill-local-variable 'tool-bar-map)))))
 
 (defun proof-toolbar-enable ()
+  "Take action when the toolbar is enabled or disabled."
   (proof-toolbar-setup)
-  ;; make sure changes show up (any neater way?)
   (redraw-display))
 
 ;;;###autoload (autoload 'proof-toolbar-toggle "proof-toolbar")

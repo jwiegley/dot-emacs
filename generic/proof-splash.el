@@ -1,12 +1,18 @@
 ;; proof-splash.el -- Splash welcome screen for Proof General
 ;;
-;; Copyright (C) 1998-2005, 2009 LFCS Edinburgh.
+;; Copyright (C) 1998-2005, 2009, 2010 LFCS Edinburgh.
 ;; Author:    David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
 ;;
+;;; Commentary:
+;; 
+;; Provide splash screen for Proof General.
+;;
+
+;;; Code:
 
 (require 'proof-site)
 
@@ -256,5 +262,7 @@ If TIMEOUT is non-nil, arrange for a time-out to occur outside this function."
     (setq frame-title-format proof-splash-old-frame-title-format)
     (setq proof-splash-old-frame-title-format nil)))
 
+
 (provide 'proof-splash)
-;; End of proof-splash.
+
+;;; proof-splash.el ends here

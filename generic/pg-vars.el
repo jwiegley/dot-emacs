@@ -1,6 +1,6 @@
 ;;; pg-custom.el --- Proof General global variables
 ;;
-;; Copyright (C) 2008 LFCS Edinburgh.
+;; Copyright (C) 2008, 2010 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -34,7 +34,7 @@ proof-assistant-table.")
 (defvar proof-assistant ""
   "Name of the proof assistant Proof General is using.
 Do not change this variable! It is set automatically by the mode
-stub defined in proof-site, from names given in proof-assistant-table.")
+stub defined in proof-site, from names given in `proof-assistant-table'.")
 
 (defvar proof-assistant-symbol nil
   "Symbol for the proof assistant Proof General is using.
@@ -82,7 +82,7 @@ has been set.")
 
 (defvar proof-shell-busy nil
   "A lock indicating that the proof shell is processing.
-When this is non-nil, proof-shell-ready-prover will give
+When this is non-nil, `proof-shell-ready-prover' will give
 an error.")
 
 (defvar proof-included-files-list nil
@@ -91,9 +91,9 @@ This list contains files in canonical truename format
 \(see `file-truename').
 
 Whenever a new file is being processed, it gets added to this list
-via the proof-shell-process-file configuration settings.
+via the `proof-shell-process-file' configuration settings.
 When the prover retracts a file, this list is resynchronised via the
-proof-shell-retract-files-regexp and proof-shell-compute-new-files-list
+`proof-shell-retract-files-regexp' and `proof-shell-compute-new-files-list'
 configuration settings.
 
 Only files which have been *fully* processed should be included here.
@@ -111,7 +111,7 @@ read.")
   "The currently active scripting buffer or nil if none.")
 
 (defvar proof-previous-script-buffer nil
-  "Previous value of proof-script-buffer, recorded when scripting turned off.
+  "Previous value of `proof-script-buffer', recorded when scripting turned off.
 This can be used to help multiple file handling.")
 
 (defvar proof-shell-buffer nil
@@ -265,4 +265,5 @@ where `k' is a key binding (vector) and `f' the designated function."
 
 
 (provide 'pg-vars)
-;; pg-vars.el ends here
+
+;;; pg-vars.el ends here

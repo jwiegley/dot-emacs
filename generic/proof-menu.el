@@ -1,6 +1,6 @@
-;; proof-menu.el  Menus, keymaps, and misc commands for Proof General
+;;; proof-menu.el --- Menus, keymaps, misc commands for Proof General
 ;;
-;; Copyright (C) 2000,2001,2009 LFCS Edinburgh.
+;; Copyright (C) 2000,2001,2009,2010 LFCS Edinburgh.
 ;; Authors:   David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -9,6 +9,7 @@
 
 (require 'cl)				; mapcan
 
+;;; Code:
 (eval-when (compile)
   (defvar proof-assistant-menu nil) ; defined by macro in proof-menu-define-specific
   (defvar proof-mode-map nil))
@@ -43,9 +44,9 @@ If in three window or multiple frame mode, display two buffers.
 The idea of this function is to change the window->buffer mapping
 without adjusting window layout."
   (interactive)
-  ;; Idea: a humane toggle, which allows habituation.  
+  ;; Idea: a humane toggle, which allows habituation.
   ;; E.g. two taps of C-c C-l always shows the goals buffer, three the
-  ;; trace buffer, etc.  (Makes less sense from the menu, though, 
+  ;; trace buffer, etc.  (Makes less sense from the menu, though,
   ;; where it seems more natural just to rotate from last position)
   (cond
    ((and (interactive-p)
@@ -290,6 +291,7 @@ without adjusting window layout."
 (proof-deftoggle proof-sticky-errors)
 (proof-deftoggle proof-shell-quiet-errors)
 (proof-deftoggle proof-minibuffer-messages)
+(proof-deftoggle proof-autosend)
 
 (proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
 (proof-deftoggle proof-keep-response-history)
@@ -359,7 +361,7 @@ without adjusting window layout."
       ["Auto Raise" proof-auto-raise-toggle
        :style toggle
        :selected proof-auto-raise-buffers
-       :help "Automatically raise buffers when output arrives"]      
+       :help "Automatically raise buffers when output arrives"]
       ["Use Three Panes" proof-three-window-toggle
        :style toggle
        :active (not proof-multiple-frames-enable)
@@ -392,12 +394,12 @@ without adjusting window layout."
        :selected proof-sticky-errors
        :help "Highlight commands that caused errors"])
      ("Read Only"
-      ["Strict Read Only" 
+      ["Strict Read Only"
        (customize-set-variable 'proof-strict-read-only t)
        :style radio
        :selected (eq proof-strict-read-only t)
        :help "Do not allow editing in processed region"]
-      ["Undo On Edit" 
+      ["Undo On Edit"
        (customize-set-variable 'proof-strict-read-only 'retract)
       :style radio
       :selected (eq proof-strict-read-only 'retract)
@@ -571,9 +573,9 @@ without adjusting window layout."
 (defconst proof-advanced-menu
   (cons "Advanced"
 	(append
-	 '(["Complete Identifier" proof-script-complete 
+	 '(["Complete Identifier" proof-script-complete
 	    :help "Complete the identifier at point"]
-	   ["Insert Last Output" pg-insert-last-output-as-comment 
+	   ["Insert Last Output" pg-insert-last-output-as-comment
 	    :active proof-shell-last-output
 	    :help "Insert the last output into the proof script as a comment"]
 	   ["Make Movie" pg-movie-export
@@ -664,6 +666,10 @@ suitable for adding to the proof assistant menu."
     (vector menuname menu-fn t)))
 
 
+
+;;; Commentary:
+;; 
+
 ;;; Code for adding "favourites" to the proof-assistant specific menu
 
 (defvar proof-make-favourite-cmd-history nil
@@ -708,7 +714,7 @@ suitable for adding to the proof assistant menu."
 	     "Name of command on menu: "
 	     cmd
 	     proof-make-favourite-menu-history))
-       (key (if (y-or-n-p "Set a keybinding for this command? : ")
+       (key (if (y-or-n-p "Set a keybinding for this command? ")
 		;; FIXME: better validation here would be to check
 		;; this is a new binding, or remove old binding below.
 		 (read-key-sequence
@@ -853,7 +859,7 @@ KEY is the optional key binding."
 	)))
 
 (defun proof-maybe-askprefs ()
-  "If `proof-use-pgip-askprefs' is non-nil, try to issue <askprefs>"
+  "If `proof-use-pgip-askprefs' is non-nil, try to issue <askprefs>."
   (if (and proof-use-pgip-askprefs proof-shell-issue-pgip-cmd)
       (pg-pgip-askprefs)))
 
@@ -881,7 +887,7 @@ NB: if no settings are configured, this has no effect."
    (cons "%i" '(proof-assistant-format-int curvalue))
    (cons "%s" '(proof-assistant-format-string curvalue)))
   "Table to use with `proof-format' for formatting CURVALUE for assistant.
-NB: variable curvalue is dynamically scoped (used in proof-assistant-format).")
+NB: variable curvalue is dynamically scoped (used in `proof-assistant-format').")
 
 (defun proof-assistant-format-bool (value)
   (if value proof-assistant-true-value proof-assistant-false-value))
@@ -921,4 +927,5 @@ value) and the second for false."
 
 
 (provide 'proof-menu)
-;; proof-menu.el ends here.
+
+;;; proof-menu.el ends here

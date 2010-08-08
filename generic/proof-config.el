@@ -1,6 +1,6 @@
 ;;; proof-config.el --- Proof General configuration for proof assistant
 ;;
-;; Copyright (C) 1998-2009 LFCS Edinburgh.
+;; Copyright (C) 1998-2010 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -350,7 +350,7 @@ You should set this variable for reliable working of Proof General."
 (defcustom proof-script-comment-end-regexp nil
   "Regexp which matches a comment end in the proof command language.
 
-The default value for this is set as (regexp-quote proof-script-comment-end)
+The default value for this is set as (regexp-quote `proof-script-comment-end')
 but you can set this variable to something else more precise if necessary."
   :type 'string
   :group 'proof-script)
@@ -391,7 +391,7 @@ It's safe to leave this setting as nil."
   :group 'proof-script)
 
 (defcustom proof-save-with-hole-result 2
-  "How to build theorem name after matching with `proof-save-with-hole-regexp'.
+  "How to get theorem name after `proof-save-with-hole-regexp' match.
 String or Int.
 If an int N use match-string to recover the value of the Nth parenthesis matched.
 If it is a string use replace-match. In this case, `proof-save-with-hole-regexp'
@@ -421,7 +421,7 @@ It's safe to leave this setting as nil."
   :group 'proof-script)
 
 (defcustom proof-goal-with-hole-result 2
-  "How to build theorem name after matching with `proof-goal-with-hole-regexp'.
+  "How to get theorem name after `proof-goal-with-hole-regexp' match.
 String or Int.
 If an int N use match-string to recover the value of the Nth parenthesis matched.
 If it is a string use replace-match. In this case, proof-save-with-hole-regexp
@@ -612,7 +612,7 @@ steps within the outer proof."
   "Non-nil if Proof General may undo to arbitrary positions.
 The classic behaviour of Proof General is to undo completed
 proofs in one step: this design arose because older provers
-discarded nested history once proofs were complete. The proof
+discarded nested history once proofs were complete.  The proof
 script engine amalgamates spans for a complete proof (into a
 single 'goalsave) to give this effect.
 
@@ -1163,7 +1163,7 @@ and possibly analysed further for proof-by-pointing markup."
 (defcustom proof-shell-end-goals-regexp nil
   "Regexp matching the end of the proof state output, or nil.
 This allows a shorter form of the proof state output to be displayed,
-in case several messages are combined in a command output.  
+in case several messages are combined in a command output.
 
 The portion treated as the goals output will be that between the
 *end* of the match on `proof-shell-start-goals-regexp' and the
@@ -1247,8 +1247,8 @@ used to help parse the goals buffer to annotate it for proof by pointing."
   "A pair (REGEXP . FUNCTION) to match a processed file name.
 
 If REGEXP matches output, then the function FUNCTION is invoked.
-It must return the name of a script file (with complete path) 
-that the system has successfully processed.  In practice, 
+It must return the name of a script file (with complete path)
+that the system has successfully processed.  In practice,
 FUNCTION is likely to inspect the match data.  If it returns
 the empty string, the file name of the scripting buffer is used
 instead.  If it returns nil, no action is taken.
@@ -1286,7 +1286,7 @@ date and needs to be updated with the help of the function
   "Function to update `proof-included-files list'.
 
 It needs to return an up-to-date list of all processed files.  The
-result will be stored in `proof-included-files-list'.  
+result will be stored in `proof-included-files-list'.
 
 This function is called when `proof-shell-retract-files-regexp'
 has been matched in the prover output.
@@ -1430,7 +1430,7 @@ response buffer.
 This is intended for unusual debugging output from
 the prover, rather than ordinary output from final proofs.
 
-This should match a string which is bounded by matches 
+This should match a string which is bounded by matches
 on `proof-shell-eager-annotation-start' and
 `proof-shell-eager-annotation-end'.
 
@@ -1631,7 +1631,7 @@ before returning to the top level."
 
 (defcustom proof-shell-handle-output-system-specific nil
   "Set this variable to handle system specific output.
-Errors and interrupts are recognised in the function  
+Errors and interrupts are recognised in the function
 `proof-shell-handle-immediate-output'.  Later output is
 handled by `proof-shell-handle-delayed-output', which
 displays messages to the user in *goals* and *response*
@@ -1643,7 +1643,7 @@ It should be a function which is passed (cmd string) as
 arguments, where `cmd' is a string containing the currently
 processed command and `string' is the response from the proof
 system.  If action is taken and goals/response display should
-be prevented, the function should update the variable 
+be prevented, the function should update the variable
 `proof-shell-last-output-kind' to some non-nil symbol.
 
 The symbol will be compared against standard ones, see documentation
@@ -1798,7 +1798,7 @@ See also `proof-script-font-lock-keywords' and `proof-goals-font-lock-keywords'.
 (defcustom proof-shell-font-lock-keywords nil
   "Value of `font-lock-keywords' used to fontify the shell buiffer.
 The shell mode should may this before calling `proof-response-config-done'.
-Note that by default, font lock is turned *off* in shell buffers to 
+Note that by default, font lock is turned *off* in shell buffers to
 improve performance.  If you need to understand some output it may help
 to turn it on temporarily.
 See also `proof-script-font-lock-keywords', `proof-goals-font-lock-keywords'

@@ -255,7 +255,7 @@ Usage: (defpgdefault SYM VALUE)"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Prover-assistant specific customizations 
+;; Prover-assistant specific customizations
 ;; which are recorded in `proof-assistant-settings'
 ;;
 
@@ -362,11 +362,11 @@ evaluate can be provided instead."
 ;; Buffers and filenames
 
 (defun proof-file-truename (filename)
-  "Returns the true name of the file FILENAME or nil if file non-existent."
+  "Return the true name of the file FILENAME or nil if file non-existent."
   (and filename (file-exists-p filename) (file-truename filename)))
 
 (defun proof-files-to-buffers (filenames)
-  "Converts a list of FILENAMES into a list of BUFFERS."
+  "Convert a list of FILENAMES into a list of BUFFERS."
   (let (bufs buf)
     (dolist (file filenames)
       (if (setq buf (find-buffer-visiting file))
@@ -374,7 +374,7 @@ evaluate can be provided instead."
     bufs))
 
 (defun proof-buffers-in-mode (mode &optional buflist)
-  "Return a list of the buffers in the buffer list in major-mode MODE.
+  "Return a list of the buffers in the buffer list in major mode MODE.
 Restrict to BUFLIST if it's set."
   (let ((bufs-left (or buflist (buffer-list)))
 	bufs-got)
@@ -399,7 +399,7 @@ user accidently killing an associated buffer."
 	  (set-buffer-modified-p nil)
 	  (bury-buffer)
 	  (error
-	   "Warning: buffer %s not killed; still associated with prover process."
+	   "Warning: buffer %s not killed; still associated with prover process"
 	   bufname)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -564,7 +564,7 @@ No effect if buffer is dead."
 If proof-general-debug is nil, do nothing."
   (if proof-general-debug
       (let ((formatted (apply 'format msg args)))
-	(display-warning 'proof-general 
+	(display-warning 'proof-general
 			 formatted 'debug
 			 "*PG Debug*"))))
 
@@ -738,7 +738,7 @@ It was constructed with `proof-deftoggle-fn'.")
 
 (defmacro proof-deftoggle (var &optional othername)
   "Define a function VAR-toggle for toggling a boolean customize setting VAR.
-The toggle function uses customize-set-variable to change the variable.
+The toggle function uses `customize-set-variable' to change the variable.
 OTHERNAME gives an alternative name than the default <VAR>-toggle.
 The name of the defined function is returned."
   `(proof-deftoggle-fn (quote ,var) (quote ,othername)))
@@ -761,7 +761,7 @@ It was constructed with `proof-defintset-fn'.")
 
 (defmacro proof-defintset (var &optional othername)
   "Define a function <VAR>-intset for setting an integer customize setting VAR.
-The setting function uses customize-set-variable to change the variable.
+The setting function uses `customize-set-variable' to change the variable.
 OTHERNAME gives an alternative name than the default <VAR>-intset.
 The name of the defined function is returned."
   `(proof-defintset-fn (quote ,var) (quote ,othername)))
@@ -793,14 +793,14 @@ The name of the defined function is returned."
 ;;;
 
 (defun proof-escape-keymap-doc (string)
-  ;; avoid work of substitute-command-keys
+  "Avoid action of `substitute-command-keys' on STRING."
   (replace-regexp-in-string "\\\\" "\\\\=\\\\" string))
 
 (defmacro proof-defshortcut (fn string &optional key)
   "Define shortcut function FN to insert STRING, optional keydef KEY.
 This is intended for defining proof assistant specific functions.
 STRING is inserted using `proof-insert', which see.
-KEY is added onto proof-assistant map."
+KEY is added onto proof assistant map."
   `(progn
      (if ,key
 	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
@@ -814,9 +814,9 @@ KEY is added onto proof-assistant map."
 (defmacro proof-definvisible (fn string &optional key)
   "Define function FN to send STRING to proof assistant, optional keydef KEY.
 This is intended for defining proof assistant specific functions.
-STRING is sent using proof-shell-invisible-command, which see.
+STRING is sent using `proof-shell-invisible-command', which see.
 STRING may be a string or a function which returns a string.
-KEY is added onto proof-assistant map."
+KEY is added onto proof assistant map."
   `(progn
      (if ,key
 	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
@@ -941,7 +941,7 @@ it calls `proof-looking-at-syntactic-context'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Stripping output and message 
+;; Stripping output and message
 ;;
 
 (defsubst proof-shell-strip-output-markup (string &optional push)

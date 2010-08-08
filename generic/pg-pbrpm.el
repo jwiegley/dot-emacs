@@ -1,11 +1,13 @@
 ;; pg-pbrpm.el --- Proof General - Proof By Rules Pop-up Menu - mode.
 ;;
-;; Copyright (C) 2004, 2009 - Universite de Savoie, France.
+;; Copyright (C) 2004 - Universite de Savoie, France.
 ;; Authors:   Jean-Roch SOTTY, Christophe Raffalli
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
+;;; Commentary:
+;; 
 ;; Analyse the goal buffer to produce a popup menu.
 ;;
 ;; NB: this code is currently XEmacs specific
@@ -27,6 +29,8 @@
 (declare-function mouse-track "nofile")
 
 ;;
+
+
 
 ;;; Code:
 (require 'span)
@@ -425,7 +429,7 @@ If no match found, return the empty string."
 
 (defun pg-pbrpm-translate-position (buffer pos)
   "return pos if buffer is goals-buffer otherwise, return the point position in
-   the goal buffer"
+the goal buffer"
   (if (eq proof-goals-buffer buffer)
       pos
     (with-current-buffer proof-goals-buffer

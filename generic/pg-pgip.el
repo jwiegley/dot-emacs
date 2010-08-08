@@ -1,6 +1,6 @@
 ;; pg-pgip.el --- PGIP manipulation for Proof General
 ;;
-;; Copyright (C) 2000-2002, 2009 LFCS Edinburgh.
+;; Copyright (C) 2000-2002, 2010 LFCS Edinburgh.
 ;; Author:   David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:  GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -58,16 +58,16 @@ The list PGIPS may contain one or more PGIP packets, whose contents are processe
 
 (defun pg-pgip-process-pgip (pgip)
   "Process the commands in the PGIP XML-node PGIP."
-  ;; FIXME: appearances of 'notreallyoptional below should be removed,
-  ;; but they are needed for compatibility with Isabelle 2004 whose
-  ;; PGIP messages are incomplete.
+  ;; NB: appearances of 'notreallyoptional below should be removed,
+  ;; but they are needed for compatibility with Isabelle at the moment,
+  ;; whose PGIP follows an older schema.
   (let* ((name	   (xml-node-name pgip))
 	 (tag      (pg-xml-get-attr 'tag pgip 'optional))
 	 (id	   (pg-xml-get-attr 'id pgip 'optional))
-	 (class	   (pg-xml-get-attr 'messageclass pgip 'notreallyoptional))
+ 	 (class	   (pg-xml-get-attr 'messageclass pgip 'notreallyoptional))
 	 (refseq   (pg-xml-get-attr 'refseq pgip 'optional))
 	 (refid    (pg-xml-get-attr 'refid pgip 'optional))
-	 (seq	   (pg-xml-get-attr 'seq pgip 'notreallyoptional)))
+ 	 (seq	   (pg-xml-get-attr 'seq pgip 'notreallyoptional)))
     (setq pg-pgip-last-seen-id id)
     (setq pg-pgip-last-seen-seq seq)
     (if (eq name 'pgip)
@@ -91,7 +91,7 @@ Return a symbol representing the PGIP command processed, or nil."
 
 (defvar pg-pgip-post-process-functions
   '((hasprefs . proof-assistant-menu-update)
-    (oldhaspref . proof-assistant-menu-update) ;; FIXME: for Isabelle2004 backward compat
+    (oldhaspref . proof-assistant-menu-update) ;; NB: Isabelle compatibility
     (menuadd  . proof-assistant-menu-update)
     (menudel  . proof-assistant-menu-update)
     (idtable  . pg-pgip-update-idtables)       ;; TODO: not yet implemented
@@ -104,7 +104,8 @@ Return a symbol representing the PGIP command processed, or nil."
   (let ((ppfn  (cdr-safe (assoc cmdname pg-pgip-post-process-functions))))
     (if (fboundp ppfn)
 	(progn
-	  (pg-pgip-debug "Post-processing for PGIP message type `%s' with function `%s'" cmdname ppfn)
+	  (pg-pgip-debug 
+	   "Post-processing for PGIP message type `%s' with function `%s'" cmdname ppfn)
 	  (funcall ppfn))
       (pg-pgip-debug "[No post-processing defined for PGIP message type `%s']" cmdname))))
 

@@ -1,26 +1,30 @@
 ;; proof-mmm.el --- Support for MMM mode package
 ;;
-;; Copyright (C) 2003 LFCS Edinburgh / David Aspinall
+;; Copyright (C) 2003, 2010 LFCS Edinburgh / David Aspinall
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; The MMM package is at http://mmm-mode.sourceforge.net/
 ;;
-;; With thanks to Stefan Monnier for pointing me to this package,
-;; and Michael Abraham Shulman for providing it.
-;;
 ;; $Id$
 ;;
-;; =================================================================
+;;; Commentary:
+;; 
+;; Configuration for the prover is expected to reside in <foo>-mmm.el
+;; It should define an MMM submode class called <foo>.
 ;;
 ;; NB: mmm-mode is bundled with Proof General, and PG will select
 ;; it's own version before any other version on the Emacs load path.
 ;; If you want to override this, simply load your version before
 ;; starting Emacs, with (require 'mmm-auto).
 ;;
-;; Configuration for the prover is expected to reside in <foo>-mmm.el
-;; It should define an MMM submode class called <foo>.
+;; Credits: thanks to Stefan Monnier for pointing me to this package,
+;; and Michael Abraham Shulman for providing it.
+;;
 
+
+
+;;; Code:
 (eval-when-compile
   (require 'cl))
 
@@ -61,7 +65,7 @@ in future if we have just activated it for this buffer."
   (when (proof-mmm-support-available)
     ;; Make sure auto mode follows PG's global setting. (NB: might do
     ;; only if global state changes, but by now (proof-ass mmm-mode) set).
-    (with-no-warnings ; bytecomp gives spurious error 
+    (with-no-warnings ; bytecomp gives spurious error
 		      ; "proof-mmm-set-global might not be defined"
 		      ; because the autoload overrides the definition above(!)
       (proof-mmm-set-global (not mmm-mode)))

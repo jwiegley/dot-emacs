@@ -1,15 +1,16 @@
 ;;; pg-assoc.el --- Functions for associated buffers
 ;;
-;; Copyright (C) 1994-2008 LFCS Edinburgh.
+;; Copyright (C) 1994-2008, 2010 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
+;;; Commentary:
 ;;
 ;; Defines an empty mode inherited by modes of the associated buffers.
-;;
+;; 
 
 ;;; Code:
 

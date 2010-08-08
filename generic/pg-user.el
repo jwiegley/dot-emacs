@@ -966,6 +966,7 @@ The function `substitute-command-keys' is called on the argument."
 (global-set-key [f5] 'pg-identifier-near-point-query)
 
 (defun pg-identifier-under-mouse-query (event)
+  "Query the prover about the identifier near mouse click EVENT."
   (interactive "e")
   (if proof-query-identifier-command
       (save-selected-window
@@ -975,6 +976,7 @@ The function `substitute-command-keys' is called on the argument."
 	   (pg-identifier-near-point-query))))))
 
 (defun pg-identifier-near-point-query ()
+  "Query the prover about the identifier near point."
   (interactive)
   (let* ((stend       (if (region-active-p)
 			  (cons (region-beginning) (region-end))
@@ -1005,6 +1007,7 @@ The function `substitute-command-keys' is called on the argument."
 (defvar proof-query-identifier-history nil)
 
 (defun proof-query-identifier (string)
+  "Query the prover about the identifier STRING."
   (interactive
    (list
     (completing-read "Query identifier: "
@@ -1015,8 +1018,10 @@ The function `substitute-command-keys' is called on the argument."
   (if string (pg-identifier-query string)))
 
 (defun pg-identifier-query (identifier &optional ctxt callback)
-  "Query the proof assisstant about the given identifier (or string).
+  "Query the proof assisstant about the given IDENTIFIER.
 This uses `proof-query-identifier-command'.
+Parameter CTXT allows to give a context for the identifier (which
+allows for multiple name spaces).
 If CALLBACK is set, we invoke that when the command completes."
   (unless (or (null identifier)
 	      (string-equal identifier "")) ;; or whitespace?

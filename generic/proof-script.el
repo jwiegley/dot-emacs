@@ -1,6 +1,6 @@
 ;;; proof-script.el --- Major mode for proof assistant script files.
 ;;
-;; Copyright (C) 1994-2009 LFCS Edinburgh.
+;; Copyright (C) 1994-2010 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -309,7 +309,7 @@ value of proof-locked span."
 
 (defun proof-script-clear-queue-spans-on-error (badspan)
   "Remove the queue span from buffer, cleaning spans no longer queued.
-If BADSPAN is non-nil, assume that this was the span whose command 
+If BADSPAN is non-nil, assume that this was the span whose command
 caused the error.  Go to the start of it if `proof-follow-mode' is
 'locked.
 
@@ -324,7 +324,7 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	  (goto-char (span-start badspan))
 	  (skip-chars-forward " \t\n"))
 	(when proof-sticky-errors
-	  (pg-set-span-helphighlights badspan 
+	  (pg-set-span-helphighlights badspan
 				      'proof-script-highlight-error-face
 				      'proof-script-sticky-error-face)))
       (proof-script-delete-spans start end)))
@@ -496,7 +496,7 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
       (span-detach span) ;; delete overlay, without pre-del fn
       (remhash id elts))))
 
-(defun pg-get-element (idiomsym id) 
+(defun pg-get-element (idiomsym id)
   "Return proof script element of type IDIOM identifier ID.
 IDIOM is a symbol, ID is a string."
   (assert (symbolp idiomsym))
@@ -525,15 +525,15 @@ It is recorded in the span with the 'rawname property."
 	 (rawname  name)
 	 (name	   (or name id))
 	 (idiom    (symbol-name idiomsym))
-	 (delfn	   `(lambda () (pg-remove-element 
+	 (delfn	   `(lambda () (pg-remove-element
 				(quote ,idiomsym) (quote ,idsym))))
 	 (elts (cdr-safe (assq idiomsym pg-script-portions))))
     (unless elts
-      (setq pg-script-portions 
+      (setq pg-script-portions
 	    (cons (cons idiomsym (setq elts (make-hash-table)))
 		  pg-script-portions)))
     (if (gethash idsym elts)
-	(proof-debug "Element named " name 
+	(proof-debug "Element named " name
 		     " (type " idiom ") was already in buffer."))
     (puthash idsym span elts)
     ;; Idiom and ID are stored in the span as symbols; name as a string.
@@ -575,7 +575,7 @@ It is recorded in the span with the 'rawname property."
 
 (defun pg-toggle-element-span-visibility (span)
   "Toggle visibility of SPAN."
-  (span-set-property 
+  (span-set-property
    span 'invisible
    (not (span-property span 'invisible))))
 
@@ -670,10 +670,10 @@ This is used to annotate the buffer with the result of proof steps."
 		    proof-shell-last-output))))
 
       ;; HACK: for Isabelle which puts ugly leading \n's around proofstate.
-      (if (and (> (length text) 0) 
+      (if (and (> (length text) 0)
 	       (string= (substring text 0 1) "\n"))
 	  (setq text (substring text 1)))
-      (if (and (> (length text) 0) 
+      (if (and (> (length text) 0)
 	       (string= (substring text -1) "\n"))
 	  (setq text (substring text 0 -1)))
 	
@@ -703,12 +703,12 @@ Argument FACE means add regular face property FACE to the span."
     (span-set-property newspan 'pghelp t)
     (span-set-property newspan 'response output)
 
-    (span-set-property newspan 'help-echo 
+    (span-set-property newspan 'help-echo
 	(if (<= (length output) 2)
 	      (pg-span-name span)
-	    output))	       
+	    output))
 
-    ;; Here's the message we used to show in minibuffer 
+    ;; Here's the message we used to show in minibuffer
     ;; when pg-show-hints was on:
     ;;
     ;; " ("
@@ -722,7 +722,7 @@ Argument FACE means add regular face property FACE to the span."
     (span-set-property newspan 'modification-hooks
 		       (list 'pg-delete-self-modification-hook))
     (if (or (facep mouseface)
-	    (setq mouseface 
+	    (setq mouseface
 		  (unless mouseface 'proof-mouse-highlight-face)))
 	(span-set-property newspan 'mouse-face mouseface))
     (if face
@@ -828,7 +828,7 @@ proof assistant and Emacs has a modified buffer visiting the file."
 	     'wait))))))
 
 (defun proof-query-save-this-buffer-p ()
-  "Predicate testing whether save-some-buffers during scripting should query."
+  "Predicate testing whether `save-some-buffers' during scripting should query."
   (and (eq major-mode proof-mode-for-script)
        (not (eq (current-buffer) proof-script-buffer))))
 
@@ -1404,7 +1404,7 @@ Argument SPAN has just been processed."
     (and proof-save-with-hole-regexp
 	 (proof-string-match proof-save-with-hole-regexp cmd)
 	 ;; Give a message of a name if one can be determined
-	 (proof-minibuffer-message 
+	 (proof-minibuffer-message
 	  (format "proved %s"
 		  (setq nam
 			(if (stringp proof-save-with-hole-result)
@@ -1469,7 +1469,7 @@ Argument SPAN has just been processed."
       (if proof-last-theorem-dependencies
 	  (proof-depends-process-dependencies nam gspan)))))
 
-(defun proof-make-goalsave 
+(defun proof-make-goalsave
   (gspan goalend savestart saveend nam &optional nestedundos)
   "Make new goal-save span, using GSPAN. Subroutine of `proof-done-advancing-save'.
 Argument GOALEND is the end of the goal;."
@@ -1578,7 +1578,7 @@ Subroutine of `proof-done-advancing-save'."
   ;; Hidable regions for commands: the problem is that they have no
   ;; natural surrounding region, so makes it difficult to define a
   ;; region for revealing again.
-  (cond 
+  (cond
    ((funcall proof-goal-command-p span)
     (pg-add-element 'statement id bodyspan)
     (incf proof-nesting-depth))
@@ -1604,7 +1604,7 @@ Subroutine of `proof-done-advancing-save'."
 (defun proof-segment-up-to-parser (pos &optional next-command-end)
   "Parse the script buffer from end of queue/locked region to POS.
 This partitions the script buffer into contiguous regions, classifying
-them by type.  We Return a list of lists of the form
+them by type.  Return a list of lists of the form
   
    (TYPE TEXT ENDPOS)
 
@@ -1650,7 +1650,7 @@ to the function which parses the script segment by segment."
 	   ((null type))		; nothing left in buffer
 	   (t
 	    (error
-  "Proof-segment-up-to-parser: bad TYPE value from proof-script-parse-function.")))
+  "Proof-segment-up-to-parser: bad TYPE value from proof-script-parse-function")))
 	  ;;
 	  (if seg
 	      (progn
@@ -1781,7 +1781,7 @@ to the function which parses the script segment by segment."
 	  (progn (goto-char end) 'cmd)))))
 
 
-(defun proof-semis-to-vanillas (semis)
+(defun proof-semis-to-vanillas (semis &optional queueflags)
   "Create vanilla spans for SEMIS and a list for the queue.
 Proof terminator positions SEMIS has the form returned by
 the function `proof-segment-up-to'.  The argument list is destroyed.
@@ -1789,7 +1789,9 @@ The callback in each queue element is `proof-done-advancing'.
 
 If the variable `proof-script-preprocess' is set (to the name of
 a function, call that function to construct the first element of
-each queue item."
+each queue item.
+
+The optional QUEUEFLAGS are added to each queue item."
   (let ((start (proof-queue-or-locked-end))
 	(file  (or (buffer-file-name) (buffer-name)))
 	(cb    'proof-done-advancing)
@@ -1804,7 +1806,7 @@ each queue item."
 	      (let* ((cmd  (nth 1 semi))
 		     (qcmd (if proof-script-preprocess
 			       (funcall proof-script-preprocess
-					file 
+					file
 					;; ignore spaces at start of command
 					(+ start (save-excursion
 						   (goto-char start)
@@ -1818,7 +1820,8 @@ each queue item."
 	  ;; ignored text
 	  (span-set-property span 'type 'comment)
 	  (setq alist
-		(cons (list span nil cb) alist))) ; nil was `proof-no-command'
+		(cons (list span nil cb queueflags) ; nil was `proof-no-command'
+		      alist)))
 	(setq start end)))
     (nreverse alist)))
 
@@ -1849,20 +1852,20 @@ Assumes that point is at the end of a command."
 ;; commands, and the adds the commands into the queue.
 ;;
 
-(defun proof-assert-until-point ()
+(defun proof-assert-until-point (&optional displayflags)
   "Process the region from the end of the locked-region until point."
   (if (proof-only-whitespace-to-locked-region-p)
       (error
 	 "At end of the locked region, nothing to do to!"))
   (let ((semis (save-excursion
-		 (skip-chars-backward " \t\n" 
+		 (skip-chars-backward " \t\n"
 				      (proof-queue-or-locked-end))
 		 (proof-segment-up-to-using-cache (point)))))
     (if (eq 'unclosed-comment (car semis))
 	(setq semis (cdr semis)))
     (if (null semis) ; maybe inside a string or something.
 	(error "I can't find any complete commands to process!"))
-    (proof-assert-semis semis)))
+    (proof-assert-semis semis displayflags)))
 
 (defun proof-assert-electric-terminator ()
   "Insert the proof command terminator, and assert up to it.
@@ -1882,7 +1885,7 @@ comment, and insert or skip to the next semi)."
 		       (= (char-after (point)) proof-terminal-char)))
 	(insert proof-terminal-string)
 	(setq ins t))
-      (let* ((pos  
+      (let* ((pos
 	      (if proof-electric-terminator-noterminator (1- (point)) (point)))
 	     (semis
 	      (save-excursion
@@ -1899,7 +1902,7 @@ comment, and insert or skip to the next semi)."
 	  (proof-assert-semis semis)
 	  (proof-script-next-command-advance))))))
 
-(defun proof-assert-semis (semis) 
+(defun proof-assert-semis (semis &optional displayflags)
   "Add to the command queue the list SEMIS of command positions.
 SEMIS must be a non-empty list, in reverse order (last position first).
 We assume that the list is contiguous and begins at (proof-queue-or-locked-end).
@@ -1909,7 +1912,7 @@ that these may be overwritten)."
   (proof-activate-scripting nil 'advancing)
   (let ((startpos  (proof-queue-or-locked-end))
 	(lastpos   (nth 2 (car semis)))
-	(vanillas  (proof-semis-to-vanillas semis)))
+	(vanillas  (proof-semis-to-vanillas semis displayflags)))
     (proof-script-delete-secondary-spans startpos lastpos)
     (proof-extend-queue lastpos vanillas)))
 
@@ -1957,7 +1960,7 @@ No effect if prover is busy."
     (span-set-property span 'type 'pbp)
     (span-set-property span 'cmd cmd)
     (proof-start-queue (proof-unprocessed-begin) (point)
-		       (list (list span (list cmd) 
+		       (list (list span (list cmd)
 				   'proof-done-advancing)))))
 
 ;;;###autoload
@@ -2174,10 +2177,10 @@ command."
 	  (proof-goto-end-of-locked)
 	  (backward-char)
 	  (setq span (span-at (point) 'type)))
-	(if span 
+	(if span
 	  (proof-retract-target span delete-region)
 	  ;; something wrong
-	  (proof-debug 
+	  (proof-debug
 	   "proof-retract-until-point: couldn't find a span!"))))))
 
 
@@ -2224,7 +2227,7 @@ command."
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
 
 ;; NB: proof-mode-map declared above
-(proof-menu-define-keys proof-mode-map) 
+(proof-menu-define-keys proof-mode-map)
 (proof-eval-when-ready-for-assistant
  (define-key proof-mode-map [(control c) (control a)] (proof-ass keymap)))
 
@@ -2643,6 +2646,8 @@ Choice of function depends on configuration setting."
   (add-hook 'after-change-functions
 	    'proof-script-after-change-function nil t))
 
+
+	
 
 
 (provide 'proof-script)

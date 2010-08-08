@@ -16,12 +16,13 @@
 ;;
 ;; Much more could be done to dump the prettified output from the
 ;; prover, but this is probably not the right way of doing things in
-;; general (one would rather have prover-integrated batch tools).  
+;; general (one would rather have prover-integrated batch tools).
 ;;
 ;; It does give quick and easy results for provers already supported by
 ;; Proof General though!
 ;;
 
+;;; Code:
 (eval-when-compile
   (require 'span))
 
@@ -29,10 +30,10 @@
 
 (defconst pg-movie-xml-header "<?xml version=\"1.0\"?>")
 
-(defconst pg-movie-stylesheet 
+(defconst pg-movie-stylesheet
   "<?xml-stylesheet type=\"text/xsl\" href=\"proviola-spp.xsl\"?>")
 
-(defvar pg-movie-frame 0 "Frame counter for movie")
+(defvar pg-movie-frame 0 "Frame counter for movie.")
 
 (defun pg-movie-of-span (span)
   (let* ((cmd      (buffer-substring-no-properties
@@ -40,7 +41,7 @@
 	 (helpspan (span-property span 'pg-helpspan))
 	 (resp     (and helpspan (span-property helpspan 'response)))
 	 (type     (span-property span 'type))
-	 (class    (cond 
+	 (class    (cond
 		    ((eq type 'comment) "comment")
 		    ((eq type 'proof) "lemma")
 		    ((eq type 'goalsave) "lemma")
@@ -48,11 +49,11 @@
 	 (label    (span-property span 'rawname))
 	 (frameid  (int-to-string pg-movie-frame)))
     (incf pg-movie-frame)
-    (pg-xml-node frame 
+    (pg-xml-node frame
 		 (list (pg-xml-attr frameNumber frameid))
-		 (list 
-		  (pg-xml-node command 
-			       (append 
+		 (list
+		  (pg-xml-node command
+			       (append
 				(list (pg-xml-attr class class))
 				(if label (list (pg-xml-attr label label))))
 			       (list cmd))
@@ -64,12 +65,12 @@
 	(span-mapcar-spans-inorder
 	 'pg-movie-of-span start end 'type))))))
 
-;;;###autoload  
+;;;###autoload
 (defun pg-movie-export ()
   "Export the movie file from the current script buffer."
   (interactive)
   (setq pg-movie-frame 0)
-  (let ((movie (pg-movie-of-region 
+  (let ((movie (pg-movie-of-region
 		(point-min)
 		(point-max)))
 	(movie-file-name
@@ -84,7 +85,7 @@
       (xml-print movie)
       (write-file movie-file-name t))))
 
-;;;###autoload  
+;;;###autoload
 (defun pg-movie-export-from (script)
   "Export the movie file that results from processing SCRIPT."
   (interactive "f")

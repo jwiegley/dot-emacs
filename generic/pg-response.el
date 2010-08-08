@@ -1,6 +1,6 @@
 ;; pg-response.el --- Proof General response buffer mode.
 ;;
-;; Copyright (C) 1994-2009 LFCS Edinburgh.
+;; Copyright (C) 1994-2010 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Healfdene Goguen,
 ;;		Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -10,7 +10,7 @@
 ;;; Commentary:
 ;;
 ;; This mode is used for the response buffer proper, and
-;; also the trace and theorems buffer. A sub-module of proof-shell.
+;; also the trace and theorems buffer.  A sub-module of proof-shell.
 ;;
 
 ;;; Code:
@@ -94,7 +94,7 @@ Internal variable, setting this will have no effect!")
     (unsplittable . t)
     (menu-bar-lines . 0)
     (tool-bar-lines . nil)
-    (proofgeneral . t)) ;; indicates generated for/by PG  FIXME!!
+    (proofgeneral . t)) ;; indicates generated for/by PG
   "List of GNU Emacs frame parameters for secondary frames.")
 
 (defun proof-multiple-frames-enable ()
@@ -221,12 +221,12 @@ For multiple frame mode, this function obeys the setting of
 ;;;###autoload
 (defun pg-response-maybe-erase
   (&optional erase-next-time clean-windows force)
-  "Erase the response buffer according to pg-response-erase-flag.
+  "Erase the response buffer according to `pg-response-erase-flag'.
 ERASE-NEXT-TIME is the new value for the flag.
-If CLEAN-WINDOWS is set, use proof-clean-buffer to do the erasing.
-If FORCE, override pg-response-erase-flag.
+If CLEAN-WINDOWS is set, use `proof-clean-buffer' to do the erasing.
+If FORCE, override `pg-response-erase-flag'.
 
-If the user option proof-tidy-response is nil, then
+If the user option `proof-tidy-response' is nil, then
 the buffer is only cleared when FORCE is set.
 
 No effect if there is no response buffer currently.
@@ -323,7 +323,7 @@ is set to nil, so responses are not cleared automatically."
 ;;;####autoload
 (defun pg-response-warning (&rest args)
   "Issue the warning ARGS in the response buffer and display it.
-The warning is coloured with proof-warning-face."
+The warning is coloured with `proof-warning-face'."
   (pg-response-display-with-face (apply 'concat args) 'proof-warning-face)
   (proof-display-and-keep-buffer proof-response-buffer))
 
@@ -345,9 +345,7 @@ negative means move back to previous error messages.
 Optional argument ARGP means reparse the error message buffer
 and start at the first error."
   (interactive "P")
-  (if (and ;; At least one setting must be configured
-       pg-next-error-regexp
-       ;; Response buffer must be live
+  (if (and pg-next-error-regexp
        (or
 	(buffer-live-p proof-response-buffer)
 	(error "Next error: no response buffer to parse!")))
@@ -390,9 +388,7 @@ and start at the first error."
 		      (if file
 			  (find-file-noselect file)
 			(or proof-script-buffer
-			    ;; We could make more guesses here,
-			    ;; e.g. last script buffer active
-			    ;; (keep a record of it?)
+			    ;; Could make guesses, e.g. last active script
 			    (error
 			     "Next error: can't guess file for error message"))))
 		     (pop-up-windows t)

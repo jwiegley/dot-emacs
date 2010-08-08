@@ -1,6 +1,6 @@
-;; proof-depends.el  Theorem-theorem and theorem-definition dependencies.
+;;; proof-depends.el --- Theorem-theorem and theorem-definition dependencies
 ;;
-;; Copyright (C) 2000-2004 University of Edinburgh.
+;; Copyright (C) 2000-2004, 2010 University of Edinburgh.
 ;; Authors:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;;	         Earlier version by Fiona McNeil.
 ;; License:      GPL (GNU GENERAL PUBLIC LICENSE)
@@ -8,17 +8,19 @@
 ;;
 ;; $Id$
 ;;
+;;; Commentary:
+;; 
 ;; Based on Fiona McNeill's MSc project on analysing dependencies
 ;; within proofs.  Code rewritten by David Aspinall.
 ;;
+
+
 
 (require 'cl)
 (require 'span)
 (require 'pg-vars)
 (require 'proof-config)
 (require 'proof-autoloads)
-
-;; Variables
 
 (defvar proof-thm-names-of-files nil
   "A list of file and theorems contained within.
@@ -33,6 +35,8 @@ second element a list of all the def names in that file.
 i.e.: ((file-name-1 (def1 def2 def3)) (file-name-2 (def1 def2 def3)))")
 
 
+;;; Code:
+
 ;; Utility functions
 
 (defun proof-depends-module-name-for-buffer ()
@@ -46,7 +50,7 @@ For other provers, this function may need modifying."
        (file-name-sans-extension buffer-file-name)) ""))
 
 (defun proof-depends-module-of (name)
-  "Return a pair of a module name and base name for a given item name.
+  "Return a pair of a module name and base name for given item NAME.
 Assumes module name is given by dotted prefix."
   (let ((dot (string-match "\\." name)))
     (if dot
@@ -126,7 +130,7 @@ Called from `proof-done-advancing' when a save is processed and
 
 ;;;###autoload
 (defun proof-dependency-in-span-context-menu (span)
-  "Make a portion of a context-sensitive menu showing proof dependencies."
+  "Make some menu entries showing proof dependencies of SPAN."
   ;; FIXME: might only activate this for dependency-relevant spans.
   (list
    "-------------"
@@ -192,8 +196,9 @@ Called from `proof-done-advancing' when a save is processed and
     (cons nested toplevel)))
 
 (defun proof-dep-make-submenu (name namefn appfn list)
-  "Make menu items for a submenu NAME, using appfn applied to each elt in LIST.
-If LIST is empty, return a disabled menu item with NAME."
+  "Make menu items for a submenu NAME, using APPFN applied to each elt in LIST.
+If LIST is empty, return a disabled menu item with NAME.
+NAMEFN is applied to each element of LIST to make the names."
   (if list
       (cons name
 	    (mapcar `(lambda (l)
@@ -204,7 +209,7 @@ If LIST is empty, return a disabled menu item with NAME."
 (defun proof-make-highlight-depts-menu (name fn span prop)
   "Return a menu item that for highlighting dependents/depencies of SPAN."
   (let ((deps (span-property span prop)))
-    (vector name `(,fn ,(span-property span 'name) (quote ,deps)) 
+    (vector name `(,fn ,(span-property span 'name) (quote ,deps))
 	    (not (not deps)))))
 
 
@@ -213,6 +218,7 @@ If LIST is empty, return a disabled menu item with NAME."
 ;;
 
 (defun proof-goto-dependency (name span)
+  "Go to the start of SPAN."
   ;; FIXME: check buffer is right one.  Later we'll allow switching buffer
   ;; here and jumping to different files.
   (goto-char (span-start span))
@@ -253,7 +259,7 @@ This is simply to display the dependency somehow."
 
 (defun proof-depends-save-old-face (span)
   (unless (span-property span 'depends-old-face)
-    (span-set-property span 'depends-old-face 
+    (span-set-property span 'depends-old-face
 		       (span-property span 'face))))
 
 (defun proof-depends-restore-old-face (span)
@@ -279,3 +285,7 @@ This is simply to display the dependency somehow."
 
 (provide 'proof-depends)
 ;; proof-depends.el ends here
+
+(provide 'proof-depends)
+
+;;; proof-depends.el ends here

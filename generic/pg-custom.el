@@ -60,26 +60,26 @@ support depends on whether your proof assistant supports it."
   :group 'proof-user-options)
 
 (defconst proof-toolbar-entries-default
-  `((state "Display Proof State" "Display the current proof state" t
+`((state "Display Proof State" "Display the current proof state" t
 	   proof-showproof-command)
-    (context "Display Context" "Display the current context" t
+  (context "Display Context" "Display the current context" t
 	     proof-context-command)
-    (goal      "Start a New Proof" "Start a new proof" t nil)
-    (retract   "Retract Buffer"     "Retract (undo) whole buffer" t)
-    (undo      "Undo Step"          "Undo the previous proof command" t t)
-    (delete    "Delete Step"        "Delete the last proof command" t t)
-    (next      "Next Step"          "Process the next proof command" t t)
-    (use       "Use Buffer"         "Process whole buffer" t t)
-    (goto      "Goto Point"         "Process or undo to the cursor position" t t)
-    (qed       "Finish Proof"       "Close/save proved theorem" t nil)
-    (home      "Goto Locked End"    "Goto end of the last command proceesed" t t)
-    (find      "Find Theorems"	    "Find theorems" t proof-find-theorems-command)
-    (info      "Identifier Info"    "Information about identifier" t proof-query-identifier-command)
-    (command   "Issue Command"	    "Issue a non-scripting command" t t)
-    (interrupt "Interrupt Prover"   "Interrupt the proof assistant" t t)
-    (restart   "Restart Scripting"  "Restart scripting (clear all locked regions)" t t)
-    (visibility "Toggle Visibility" "Show or hide hidden proofs" nil t)
-    (help	nil		    "Proof General manual" t t))
+  (goal      "Start a New Proof" "Start a new proof" t nil)
+  (retract   "Retract Buffer"     "Retract (undo) whole buffer" t)
+  (undo      "Undo Step"          "Undo the previous proof command" t t)
+  (delete    "Delete Step"        "Delete the last proof command" t t)
+  (next      "Next Step"          "Process the next proof command" t t)
+  (use       "Use Buffer"         "Process whole buffer" t t)
+  (goto      "Goto Point"         "Process or undo to the cursor position" t t)
+  (qed       "Finish Proof"       "Close/save proved theorem" t nil)
+  (home      "Goto Locked End"    "Goto end of the last command proceesed" t t)
+  (find      "Find Theorems"	  "Find theorems" t proof-find-theorems-command)
+  (info      "Identifier Info"    "Information about identifier" t proof-query-identifier-command)
+  (command   "Issue Command"	  "Issue a non-scripting command" t t)
+  (interrupt "Interrupt Prover"   "Interrupt the proof assistant" t t)
+  (restart   "Restart Scripting"  "Restart scripting (clear all locked regions)" t t)
+  (visibility "Toggle Visibility" "Show or hide hidden proofs" nil t)
+  (help	nil   "Proof General manual" t t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
 appropriate configuration variables are set.
@@ -124,7 +124,7 @@ arguments are -x foo -y bar, then the list should be '(\"-x\" \"foo\"
 Each element should be a string of the form ENVVARNAME=VALUE.  They will be
 added to the environment before launching the prover (but not pervasively).
 For example for coq on Windows you might need something like:
-(setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
+\(setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
   :type '(list string)
   :group 'proof-shell)
 

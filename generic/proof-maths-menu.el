@@ -1,4 +1,4 @@
-;; proof-maths-menu.el   Support for maths menu mode package
+;;; proof-maths-menu.el --- Support for maths menu mode package
 ;;
 ;; Copyright (C) 2007, 2009 LFCS Edinburgh / David Aspinall
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
@@ -10,13 +10,15 @@
 ;;
 ;; $Id$
 ;;
-;; =================================================================
-;;
-;; NB: maths-menu is bundled with Proof General in lib/, and PG will select
+;;; Commentary:
+;; 
+;; Note: maths menu is bundled with Proof General in lib/, and PG will select
 ;; it's own version before any other version on the Emacs load path.
 ;; If you want to override this, simply load your version before
 ;; starting Emacs, with (require 'maths-menu).
 ;;
+
+;;; Code:
 
 (eval-when-compile
   (require 'cl))
@@ -54,3 +56,7 @@ in future if we have just activated it for this buffer."
 
 (provide 'proof-maths-menu)
 ;; End of proof-maths-menu.el
+
+(provide 'proof-maths-menu)
+
+;;; proof-maths-menu.el ends here

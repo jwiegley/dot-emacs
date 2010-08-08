@@ -1,6 +1,6 @@
 ;;; proof-useropts.el --- Global user options for Proof General
 ;;
-;; Copyright (C) 2009 LFCS Edinburgh.
+;; Copyright (C) 2009, 2010 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -274,10 +274,8 @@ This is only useful for PG developers."
   :type 'boolean
   :group 'proof-user-options)
 
-;;; TEMPORARY FOR EXPERIMENTAL CODE:
-
 (defcustom proof-use-parser-cache nil
-  "*Non-nil to use a simple parsing cache (experimental).
+  "*Non-nil to use a simple parsing cache.
 This can be helpful when editing and reprocessing large files.
 This variable exists to disable the cache in case of problems."
   :type 'boolean
