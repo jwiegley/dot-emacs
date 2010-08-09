@@ -16,6 +16,7 @@
 (declare-function isar-tracing:auto-solve-toggle "isar.el")
 
 (require 'pg-autotest)
+(require 'pg-dev)
 
 (unless noninteractive
 
@@ -42,8 +43,7 @@
   (pg-autotest timetaken)
 
   ;; Same again with profiling
-  (elp-instrument-package "proof")
-  (elp-instrument-package "pg")
+  (profile-pg)
   (pg-autotest timestart)
   (pg-autotest process-wholefile "etc/isar/AHundredTheorems.thy")
   (pg-autotest timetaken)
