@@ -1,5 +1,5 @@
 ;; isar-syntax.el Syntax expressions for Isabelle/Isar
-;; Copyright (C) 1994-2004, 2009 LFCS Edinburgh.
+;; Copyright (C) 1994-2004, 2009, 2010 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Authors:     David Aspinall <David.Aspinall@ed.ac.uk>
@@ -288,14 +288,15 @@ matches contents of quotes for quoted identifiers.")
    (:foreground "darkgray")
    (:background "lightgray")
    (:italic t))
-  "*Face used instead of `font-lock-string-face' for Isar.")
+  "*Face used instead of `font-lock-string-face' for Isar."
+  :group 'proof-faces)
 
 (defface isabelle-class-name-face
   (proof-face-specs
    (:foreground "red")
    (:foreground "red3")
    (:bold t))
-  "*Face for Isabelle term / type hiliting"
+  "*Face for Isabelle term / type highlighting"
   :group 'proof-faces)
 
 (defface isabelle-tfree-name-face
@@ -303,7 +304,7 @@ matches contents of quotes for quoted identifiers.")
    (:foreground "purple")
    (:foreground "purple3")
    (:bold t))
-  "*Face for Isabelle term / type hiliting"
+  "*Face for Isabelle term / type highlighting"
   :group 'proof-faces)
 
 (defface isabelle-tvar-name-face
@@ -311,7 +312,7 @@ matches contents of quotes for quoted identifiers.")
    (:foreground "purple")
    (:foreground "purple3")
    (:bold t))
-  "*Face for Isabelle term / type hiliting"
+  "*Face for Isabelle term / type highlighting"
   :group 'proof-faces)
 
 (defface isabelle-free-name-face
@@ -319,7 +320,7 @@ matches contents of quotes for quoted identifiers.")
    (:foreground "blue")
    (:foreground "blue3")
    (:bold t))
-  "*Face for Isabelle term / type hiliting"
+  "*Face for Isabelle term / type highlighting"
   :group 'proof-faces)
 
 (defface isabelle-bound-name-face
@@ -327,7 +328,7 @@ matches contents of quotes for quoted identifiers.")
    (:foreground "green4")
    (:foreground "green")
    (:bold t))
-  "*Face for Isabelle term / type hiliting"
+  "*Face for Isabelle term / type highlighting"
   :group 'proof-faces)
 
 (defface isabelle-var-name-face
@@ -335,7 +336,7 @@ matches contents of quotes for quoted identifiers.")
    (:foreground "darkblue")
    (:foreground "blue3")
    (:bold t))
-  "*Face for Isabelle term / type hiliting"
+  "*Face for Isabelle term / type highlighting"
   :group 'proof-faces)
 
 (defconst isabelle-class-name-face 'isabelle-class-name-face)
