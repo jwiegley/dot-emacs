@@ -176,7 +176,8 @@ this were even more bogus...."
   (before font-lock-fontify-keywords-advice (beg end loudly))
   "Call proof assistant specific syntactic region fontify.
 If it's bound, we call <PA>-font-lock-fontify-syntactically-region."
-  (when (fboundp (proof-ass-sym font-lock-fontify-syntactically-region))
+  (when (and proof-buffer-type 
+	     (fboundp (proof-ass-sym font-lock-fontify-syntactically-region)))
     (funcall (proof-ass-sym font-lock-fontify-syntactically-region)
 	     beg end loudly)))
 (ad-activate 'font-lock-fontify-keywords-region)))
