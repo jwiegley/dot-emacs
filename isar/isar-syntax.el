@@ -281,12 +281,12 @@ matches contents of quotes for quoted identifiers.")
 	   (return t)))))
 
 
-;; ----- Isabelle inner syntax hilite
+;; ----- Isabelle inner syntax highlight
 
 (defface isabelle-string-face 
   (proof-face-specs
-   (:foreground "darkgray")
-   (:background "lightgray")
+   (:foreground "springgreen4")
+   (:background "springgreen1")
    (:italic t))
   "*Face used instead of `font-lock-string-face' for Isar."
   :group 'proof-faces)
