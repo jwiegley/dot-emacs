@@ -141,7 +141,7 @@ Warning messages can come from proof assistant or from Proof General itself."
 
 (defface proof-boring-face
   (proof-face-specs
-   (:foreground "Gray85")
+   (:foreground "Gray75")
    (:background "Gray30")
    (:italic t))
   "*Face for boring text in proof assistant output."
