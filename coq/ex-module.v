@@ -90,11 +90,3 @@ Lemma titi : O=O.
   Module Type K:=N'.
   Module N''':=M.
 Save.
-
-	 (* Here is a bug of Coq: *)
-
-Lemma bar:O=O.
-  Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
-End L. (* fails --> if we go back to Module Type: unsync *)
-Module I.
-End I.
