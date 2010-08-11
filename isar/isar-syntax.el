@@ -291,6 +291,14 @@ matches contents of quotes for quoted identifiers.")
   "*Face for fontifying string contents in Isabelle."
   :group 'proof-faces)
 
+(defface isabelle-quote-face 
+  (proof-face-specs
+   (:foreground "Gray80")
+   (:background "Gray30")
+   (:italic t))
+  "*Face for quotes (string delimiters) in Isabelle."
+  :group 'proof-faces)
+
 (defface isabelle-class-name-face
   (proof-face-specs
    (:foreground "red")
@@ -340,6 +348,7 @@ matches contents of quotes for quoted identifiers.")
   :group 'proof-faces)
 
 (defconst isabelle-string-face 'isabelle-string-face)
+(defconst isabelle-quote-face  'isabelle-quote-face)
 (defconst isabelle-class-name-face 'isabelle-class-name-face)
 (defconst isabelle-tfree-name-face 'isabelle-tfree-name-face)
 (defconst isabelle-tvar-name-face  'isabelle-tvar-name-face)
@@ -376,7 +385,7 @@ START should be at the beginning of a line."
 	     (instring
 	      (put-text-property (1+ beg)
 				 (1- (point)) 'face isabelle-string-face)
-	      (put-text-property beg (1+ beg) 'face proof-boring-face)
+	      (put-text-property beg (1+ beg) 'face isabelle-quote-face)
 	      (put-text-property (1- (point)) (point) 'face proof-boring-face))
 	     (t
 	      (put-text-property beg (point) 'face font-lock-comment-face))))
