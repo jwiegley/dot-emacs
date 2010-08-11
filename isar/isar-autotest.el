@@ -32,6 +32,10 @@
   (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
   (pg-autotest eval (proof-full-annotation-toggle 0))
   (pg-autotest script-wholefile "etc/isar/AHundredTheorems.thy")
+
+  (pg-autotest remark "Now in tokens mode")
+  (pg-autotest eval (proof-unicode-tokens-toggle))
+  (pg-autotest script-wholefile "isar/Example-Tokens.thy")
   (pg-autotest script-wholefile "isar/ex/Tarski.thy")
 
   (pg-autotest remark "Testing random jumps")
@@ -40,10 +44,6 @@
 
   (pg-autotest remark "Testing restarting the prover")
   (pg-autotest quit-prover)
-
-  (pg-autotest remark "Now in tokens mode")
-  (pg-autotest eval (proof-unicode-tokens-toggle))
-  (pg-autotest script-wholefile "isar/Example-Tokens.thy")
 
 
   (pg-autotest remark	         "Simple test of multiple file behaviour:")

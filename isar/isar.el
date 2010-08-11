@@ -1,6 +1,6 @@
 ;; isar.el --- Major mode for Isabelle/Isar proof assistant
 ;;
-;; Copyright (C) 1994-2009 LFCS Edinburgh.
+;; Copyright (C) 1994-2010 LFCS Edinburgh.
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -126,7 +126,7 @@ See -k option for Isabelle interface script."
    proof-indent-open-regexp     isar-indent-open-regexp
    proof-indent-close-regexp    isar-indent-close-regexp
 
-   ;; proof engine commands
+   ;; proof engine
    proof-showproof-command      "pr"
    proof-goal-command           "lemma \"%s\""
    proof-save-command           "qed"
@@ -606,8 +606,6 @@ Uses variables `string' and `scriptspan' passed by dynamic scoping."
   (isar-mode-config-set-variables)
   (isar-init-syntax-table)
   (setq proof-script-font-lock-keywords isar-font-lock-keywords-1)
-  (set (make-local-variable 'font-lock-string-face)
-       'isabelle-string-face)
   (set (make-local-variable 'comment-quote-nested) nil) ;; can cope with nested comments
   (set (make-local-variable 'outline-regexp) isar-outline-regexp)
   (set (make-local-variable 'outline-heading-end-regexp) 

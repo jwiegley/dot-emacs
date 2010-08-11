@@ -19,6 +19,7 @@
   (require 'scomint)		        
   (require 'proof-site)
   (require 'proof-menu)
+  (require 'proof-syntax)
   (proof-ready-for-assistant 'isar)	; compile for isar
   (defvar proof-assistant-menu nil))	
 

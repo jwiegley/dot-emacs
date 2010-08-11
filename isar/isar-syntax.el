@@ -288,7 +288,7 @@ matches contents of quotes for quoted identifiers.")
    (:foreground "springgreen4")
    (:background "springgreen1")
    (:italic t))
-  "*Face used instead of `font-lock-string-face' for Isar."
+  "*Face for fontifying string contents in Isabelle."
   :group 'proof-faces)
 
 (defface isabelle-class-name-face
@@ -339,6 +339,7 @@ matches contents of quotes for quoted identifiers.")
   "*Face for Isabelle term / type highlighting"
   :group 'proof-faces)
 
+(defconst isabelle-string-face 'isabelle-string-face)
 (defconst isabelle-class-name-face 'isabelle-class-name-face)
 (defconst isabelle-tfree-name-face 'isabelle-tfree-name-face)
 (defconst isabelle-tvar-name-face  'isabelle-tvar-name-face)
@@ -346,6 +347,44 @@ matches contents of quotes for quoted identifiers.")
 (defconst isabelle-bound-name-face 'isabelle-bound-name-face)
 (defconst isabelle-var-name-face   'isabelle-var-name-face)
 
+
+;; font-lock syntactic fontification
+
+;; adapted from font-lock.el in GNU Emacs 23.1.1
+(defun isar-font-lock-fontify-syntactically-region 
+  (start end &optional loudly ppss)
+  "Put proper face on each string and comment between START and END.
+START should be at the beginning of a line."
+  (let ((comment-end-regexp
+	 (replace-regexp-in-string "^ *" "" comment-end))
+        state beg)
+    (if loudly (message "Fontifying %s... (syntactically...)" (buffer-name)))
+    (goto-char start)
+    ;;
+    ;; Find the `start' state.
+    (setq state (or ppss (syntax-ppss start)))
+    ;;
+    ;; Find each interesting place between here and `end'.
+    (while
+	(let ((instring     (nth 3 state))
+	      (incomment    (nth 4 state)))
+	  (when (or instring incomment)
+	    (setq beg (max (nth 8 state) start))
+	    (setq state (parse-partial-sexp (point) end nil nil state
+					    'syntax-table))
+	    (cond
+	     (instring
+	      (put-text-property (1+ beg)
+				 (1- (point)) 'face isabelle-string-face)
+	      (put-text-property beg (1+ beg) 'face proof-boring-face)
+	      (put-text-property (1- (point)) (point) 'face proof-boring-face))
+	     (t
+	      (put-text-property beg (point) 'face font-lock-comment-face))))
+	  (< (point) end))
+      (setq state (parse-partial-sexp (point) end nil nil state
+				      'syntax-table)))))
+
+;; font-lock keywords fontification
 
 (defvar isar-font-lock-keywords-1
   (list
