@@ -5,6 +5,9 @@
 ;; $Id$
 ;;
 
+(defvar isar-long-tests nil
+  "Whether or not to perform lengthy tests")
+
 (eval-when-compile
   (require 'cl))
 
@@ -17,6 +20,9 @@
 
 (require 'pg-autotest)
 
+(setq proof-general-debug t)	 ; for development: see debug messages
+
+
 (unless noninteractive
 
   (pg-autotest log ".autotest.log")  ; convention
@@ -27,20 +33,38 @@
   (pg-autotest script-wholefile "isar/Example.thy")
   (pg-autotest script-wholefile "isar/Example-Tokens.thy")
 
-  (pg-autotest remark "Larger files...")
-  (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
-  (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
-  (pg-autotest eval (proof-full-annotation-toggle 0))
-  (pg-autotest script-wholefile "etc/isar/AHundredTheorems.thy")
+  (pg-autotest remark "Testing prove-as-you-go (not replay)")
+  (find-file ".autotest.thy")
+  (erase-buffer) ; just in case exists
+  (setq buffer-file-name nil)
+  (pg-autotest eval (proof-electric-terminator-toggle 1))
+  (pg-autotest eval (insert "theory Example imports Main begin ")) ; no \n
+  (proof-electric-terminator)
+  (pg-autotest eval (insert "theorem and_comms: \"A & B --> B & A\"\n"))
+  (proof-electric-terminator)
+  (pg-autotest eval (insert "apply auto done\n"))
+  (pg-autotest eval (insert "end"))
+  (proof-electric-terminator)
+  (pg-autotest assert-full)
+  (set-buffer-modified-p nil)
+  (kill-buffer ".autotest.thy")
 
   (pg-autotest remark "Now in tokens mode")
   (pg-autotest eval (proof-unicode-tokens-toggle))
   (pg-autotest script-wholefile "isar/Example-Tokens.thy")
-  (pg-autotest script-wholefile "isar/ex/Tarski.thy")
 
-  (pg-autotest remark "Testing random jumps")
+  (pg-autotest remark "Testing random jumps and edits")
   (pg-autotest script-randomjumps "isar/Example.thy" 5)
-  (pg-autotest script-randomjumps "isar/ex/Tarski.thy" 10) ; better test?
+
+  (when isar-long-tests
+      (pg-autotest remark "Larger files...")
+      (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
+      (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
+      (pg-autotest eval (proof-full-annotation-toggle 0))
+      (pg-autotest script-wholefile "etc/isar/AHundredTheorems.thy")
+      (pg-autotest script-wholefile "isar/ex/Tarski.thy")
+      (pg-autotest script-randomjumps "isar/ex/Tarski.thy" 10)) ; better test?
+
 
   (pg-autotest remark "Testing restarting the prover")
   (pg-autotest quit-prover)

@@ -5,6 +5,10 @@
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
+;;; Commentary:
+;;
+;; Support for running a series of scripted UI tests.
+;;
 ;; TODO:
 ;; -- fix failure handling for scriptfile
 ;; -- add macros for defining test suites
@@ -13,13 +17,13 @@
 ;;
 ;; $Id$
 
+(require 'proof-splash)
+(setq proof-splash-enable nil)		; prevent splash when testing
+
 (require 'proof)
 (require 'proof-shell)
+(require 'proof-utils)
 
-;;; Commentary:
-;;
-;; Support for running a series of scripted UI tests.
-;;
 
 ;;; Code:
 
@@ -30,6 +34,10 @@
   "Value for 'standard-output' during tests.")
 
 (setq debug-on-error t) 		;; enable in case a test goes wrong
+
+(defadvice proof-debug (before proof-debug-to-log (msg &rest args))
+  "Output the debug message to the test log."
+  (pg-autotest-message msg args))
 
 ;;; Some utilities
 
@@ -162,22 +170,52 @@ An error is signalled if scripting doesn't complete."
 
 (defun pg-autotest-test-script-randomjumps (file jumps)
   "Load FILE and process in it by jumping around randomly JUMPS times.
+Additionally some edits are made but undone.
 This should be robust against synchronization errors; we test this by
 completely processing the buffer as the last step."
   (pg-autotest-find-file-restart file)
   (while (> jumps 0)
-    (let ((random-point   (random (point-max))))
-      ;; TODO: random use of retract/process whole buffer too
-      (pg-autotest-message
-       "         random jump to point: %d" random-point)
-      (goto-char random-point)
-      (unless (if (>= (point) (proof-unprocessed-begin))
-		  (proof-only-whitespace-to-locked-region-p))
-	(proof-goto-point)
-	(proof-shell-wait) ;; TODO: check no prover error.
-	(decf jumps))))
-  (proof-process-buffer)
-  (proof-shell-wait)
+    (let* ((random-point     (random (point-max)))
+	   (random-edit      nil) ; (< 20 (random 100)))
+	   (random-other     (< 10 (random 100)))
+	   (random-thing     (and random-other (random 3))))
+      (cond
+       ((and (eq random-thing 0)
+	     (not (proof-locked-region-full-p)))
+	(pg-autotest-message
+	 " random jump: processing whole buffer")
+	(proof-process-buffer)
+	(proof-shell-wait)
+	(decf jumps))
+
+	((and (eq random-thing 1) 
+	      (not (proof-locked-region-empty-p)))
+	 (pg-autotest-message
+	  " random jump: retracting whole buffer")
+	 (proof-retract-buffer)
+	 (proof-shell-wait)
+	 (decf jumps))
+
+	(t
+	 (pg-autotest-message
+	  " random jump: going to point: %d" random-point))
+	 (goto-char random-point)
+	 (unless (if (>= (point) (proof-unprocessed-begin))
+		     (proof-only-whitespace-to-locked-region-p))
+	   (proof-goto-point)
+	   (if (eq random-thing 2)
+	       (progn ;; interrupt after 2 secs
+		 (sit-for 1)
+		 (sit-for 1)
+		 (when proof-shell-busy
+		   (pg-autotest-message
+		    " random jump: interrupting prover")
+		   (proof-interrupt-process)))
+	     (proof-shell-wait))
+	   (decf jumps)))))
+  (unless (proof-locked-region-full-p)
+    (proof-process-buffer)
+    (proof-shell-wait))
   (pg-autotest-test-assert-processed file))
 
 (defun pg-autotest-test-retract-file (file)
@@ -194,9 +232,10 @@ completely processing the buffer as the last step."
 
 (defun pg-autotest-test-assert-full ()
   "Check that current buffer has been fully processed."
-    (unless (proof-locked-region-full-p)
-      (error (format "Locked region in buffer `%s' is not full"
-		     (buffer-name)))))
+  (proof-shell-wait)
+  (unless (proof-locked-region-full-p)
+    (error (format "Locked region in buffer `%s' is not full"
+		   (buffer-name)))))
 
 (defun pg-autotest-test-assert-unprocessed (file)
   "Check that FILE has been fully unprocessed."
