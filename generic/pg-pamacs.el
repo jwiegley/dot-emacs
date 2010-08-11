@@ -34,6 +34,20 @@
 
 ;;; Code:
 
+(defmacro deflocal (var value &optional docstring)
+  "Define a buffer local variable VAR with default value VALUE."
+ `(progn
+    (defvar ,var nil ,docstring)
+    (make-variable-buffer-local (quote ,var))
+    (setq-default ,var ,value)))
+
+(deflocal proof-buffer-type nil
+  "Symbol for the type of this buffer: 'script, 'shell, 'goals, or 'response.")
+
+
+;;
+;; Main macros
+;;
 
 (defmacro proof-ass-sym (sym)
   "Return the symbol for SYM for the current prover.  SYM not evaluated.

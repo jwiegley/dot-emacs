@@ -45,33 +45,24 @@
 
 (require 'proof-site)			; basic vars
 (require 'proof-compat)		        ; compatibility
+(require 'pg-pamacs)			; macros for pa config
 (require 'proof-config)			; config vars
 (require 'bufhist)			; bufhist
 (require 'proof-syntax)			; syntax utils
 (require 'proof-autoloads)		; interface fns
 (require 'scomint)			; for proof-shell-live-buffer
 
+;;; Code:
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Handy macros
-
-;;; Code:
-(defmacro deflocal (var value &optional docstring)
-  "Define a buffer local variable VAR with default value VALUE."
- `(progn
-    (defvar ,var nil ,docstring)
-    (make-variable-buffer-local (quote ,var))
-    (setq-default ,var ,value)))
+;;
 
 (defmacro proof-with-current-buffer-if-exists (buf &rest body)
   "As with-current-buffer if BUF exists and is live, otherwise nothing."
   `(if (buffer-live-p ,buf)
        (with-current-buffer ,buf
 	 ,@body)))
-
-(deflocal proof-buffer-type nil
-  "Symbol for the type of this buffer: 'script, 'shell, 'goals, or 'response.")
 
 ;; Slightly specialized version of above.  This is used in commands
 ;; which work from different PG buffers (goals, response), typically
