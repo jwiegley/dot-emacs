@@ -324,8 +324,5 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
 	(setq assistants (cdr assistants)))))
 
 (provide 'proof-site)
-;; proof-site.el ends here
-
-(provide 'proof-site)
 
 ;;; proof-site.el ends here
