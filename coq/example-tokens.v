@@ -30,6 +30,8 @@ Fixpoint pow (n m:nat) {struct n} : nat :=
 	 | S p => m * pow p m
   end.
 
+Variable a b : nat.
+
 Notation "a,{b}" := (a - b)
   (at level 1, no associativity).
 
@@ -37,15 +39,15 @@ Notation "a^^b" := (pow a b)
   (at level 1, no associativity).
 
 Notation "a^{b}" := (pow a b)
-  (at level 1, no associativity).
+  (at level 1, no associativity, only parsing).
 
 
 Variable delta:nat.
 
 (* greek delta with a sub 1 and the same with super 1 *)
-Definition delta __ 1 := 0. 
-Definition delta __ 2 := delta^^1.
-Definition delta __ 3 := delta__2^{delta}.
+Definition delta__1 := 0. 
+Definition delta__2 := delta^^1.
+Definition delta__3:= delta__2^{delta}.
 
 Parameter a b x:nat.
 
@@ -70,4 +72,7 @@ Variable alpha_ : Set.
 Lemma gamma__neqn : forall n__i:nat, n__i=n__i.
 
 
-alpha lhd rhd lambda forall exists exists exist foral 
+(* Tests of things that shouldn't be 
+should be unicode characters: alpha lhd rhd lambda forall exists exists 
+shouldn't be altered: exist foral 
+*)
