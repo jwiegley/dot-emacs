@@ -1,6 +1,6 @@
 ;;; unicode-tokens.el --- Support for control and symbol tokens
 ;;
-;; Copyright(C) 2008-2009 David Aspinall / LFCS Edinburgh
+;; Copyright(C) 2008-2010 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -93,7 +93,7 @@ The sequence of FONTSYMB are optional.  Each FONTSYMB is a symbol
 indicating a set of additional text properties, looked up in
 `unicode-tokens-fontsymb-properties'.
 
-By default, tokens are displayed ")
+By default, tokens are displayed in `unicode-tokens-symbol-font-face'.")
 
 (defvar unicode-tokens-token-format "%s"
   "Format string for formatting token a name into a token.
@@ -274,8 +274,8 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 	     unicode-tokens-font-family-alternatives)))
 
 (defface unicode-tokens-symbol-font-face
-  '((t :family "STIXGeneral"))
-  "The default font used for symbols.  Only :family attribute is used."
+  '((t :family "STIXGeneral" :slant italic))
+  "The default font used for symbols.  Only :family and :slant attributes are used."
   :group 'unicode-tokens-faces)
 
 ;; (defface unicode-tokens-large-symbol-font-face
@@ -418,13 +418,13 @@ This function also initialises the important tables for the mode."
 	(unicode-tokens-control-font-lock-keywords)))))
 
 (defun unicode-tokens-calculate-token-match (toks)
-  "Calculate value for `unicode-tokens-token-match-regexp'"
+  "Calculate value for `unicode-tokens-token-match-regexp'."
 ;  (with-syntax-table (standard-syntax-table)
     ;; hairy logic based on Coq-style vs Isabelle-style configs
     (if (string= "" (format unicode-tokens-token-format ""))
 	;; no special token format, parse separate words/symbols
-	(let* ((optoks 
-		(remove* "^\\(?:\\sw\\|\\s_\\)+$" 
+	(let* ((optoks
+		(remove* "^\\(?:\\sw\\|\\s_\\)+$"
 			 toks :test 'string-match))
 	       (idtoks
 		(set-difference toks optoks))
@@ -432,7 +432,7 @@ This function also initialises the important tables for the mode."
 		(concat "\\(\\_<"
 			(regexp-opt idtoks)
 			"\\_>\\|\\(?:\\B"
-			(regexp-opt optoks) 
+			(regexp-opt optoks)
 			"\\B\\)\\)")))
 	  (if unicode-tokens-token-variant-format-regexp
 	      (format unicode-tokens-token-variant-format-regexp
@@ -511,9 +511,15 @@ The face property is set to the :family of `unicode-tokens-symbol-font-face'."
 		(intersection unicode-tokens-fonts propsyms))
       (font-lock-append-text-property
        start end 'face
-       ;; just use family to enhance merging with other faces
+       ;; just use family and slant to enhance merging with other faces
        (list :family
-	     (face-attribute 'unicode-tokens-symbol-font-face :family))))
+	     (face-attribute 'unicode-tokens-symbol-font-face :family)))
+      (if (face-attribute 'unicode-tokens-symbol-font-face :slant)
+	  (font-lock-append-text-property
+	   start end 'face
+	   (list :slant
+		 (face-attribute 'unicode-tokens-symbol-font-face :slant))))
+      )
     ;; [returning face property here seems to have no effect?]
     nil))
 
@@ -1067,7 +1073,7 @@ variables."
 (defvar unicode-tokens-mode-map (make-sparse-keymap)
   "Key map used for Unicode Tokens mode.")
 
-(defvar unicode-tokens-display-table 
+(defvar unicode-tokens-display-table
   (let ((disptab (make-display-table)))
     (set-display-table-slot disptab 'selective-display
 			    (vector ?\ #x0022ef ?\ ))
@@ -1315,14 +1321,14 @@ Commands available are:
   [remap delete-char]
   'unicode-tokens-delete-char)
 
-(defvar unicode-tokens-quail-translation-keymap 
-  (let ((quail-current-package 
+(defvar unicode-tokens-quail-translation-keymap
+  (let ((quail-current-package
 	 (assoc "Unicode tokens"
 		quail-package-alist)))
     (quail-translation-keymap)))
 
 ;; FIXME: does this work?
-(define-key unicode-tokens-quail-translation-keymap 
+(define-key unicode-tokens-quail-translation-keymap
      [remap quail-delete-last-char]
      'unicode-tokens-quail-delete-last-char)
 
