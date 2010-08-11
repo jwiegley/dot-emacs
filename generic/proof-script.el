@@ -2308,7 +2308,10 @@ mode features, but are only ever processed atomically by the proof
 assistant."
   (setq proof-script-buffer-file-name buffer-file-name)
 
-  (setq font-lock-defaults '(proof-script-font-lock-keywords))
+  (setq font-lock-defaults 
+	(list '(proof-script-font-lock-keywords)
+	      ;; see defadvice in proof-syntax 
+	      (fboundp (proof-ass-sym font-lock-fontify-syntactically-region))))
 
   ;; Has buffer already been processed?
   ;; NB: call to file-truename is needed for GNU Emacs which

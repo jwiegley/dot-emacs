@@ -1,6 +1,6 @@
 ;; proof-syntax.el --- Functions for dealing with syntax
 ;;
-;; Copyright (C) 1997-2001 LFCS Edinburgh.
+;; Copyright (C) 1997-2001, 2010 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Healfdene Goguen,
 ;;	      Thomas Kleymann, Dilip Sequiera
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -11,6 +11,7 @@
 (require 'font-lock)
 (require 'proof-config)			; proof-case-fold-search
 (require 'proof-compat)			; proof-buffer-syntactic-context
+(require 'pg-pamacs)			; proof-ass-sym
 
 ;;; Code:
 
@@ -56,6 +57,7 @@ nil if a region cannot be found."
       ((case-fold-search proof-case-fold-search))
     (search-forward string bound noerror count)))
 
+;;;###autoload
 (defsubst proof-replace-regexp-in-string (regexp rep string)
   "Like replace-regexp-in-string, but set case-fold-search to proof-case-fold-search."
   (let ((case-fold-search proof-case-fold-search))
@@ -144,22 +146,40 @@ Default is comma separated, or SEPREGEXP if set."
 	  proof-id "\\)*"))
 
 
-;;
-;; A function to unfontify commas in declarations and definitions.
-;; Useful for provers which have declarations of the form x,y,z:Ty
-;; All that can be said for it is that the previous ways of doing
-;; this were even more bogus....
-;;
-
 (defun proof-zap-commas (limit)
   "Remove the face of all `,' from point to LIMIT.
-Meant to be used from `font-lock-keywords'."
-  (while (proof-search-forward "," limit t)
+Meant to be used from `font-lock-keywords' as a way
+to unfontify commas in declarations and definitions.
+Useful for provers which have declarations of the form x,y,z:Ty
+All that can be said for it is that the previous ways of doing
+this were even more bogus...."  
+(while (proof-search-forward "," limit t)
     (if (memq (get-text-property (1- (point)) 'face)
 	      '(proof-declaration-name-face
 		font-lock-variable-name-face
 		font-lock-function-name-face))
 	(put-text-property (1- (point)) (point) 'face nil))))
+
+
+;;
+;; Font lock: providing an alternative syntactic fontify
+;; region function.
+;; 
+;; The hook font-lock-fontify-region-function is tempting but not
+;; really a convenient place.  We just want to replace the syntactic
+;; fontification function.
+;;
+
+(eval-after-load "font-lock"
+'(progn
+(defadvice font-lock-fontify-keywords-region 
+  (before font-lock-fontify-keywords-advice (beg end loudly))
+  "Call proof assistant specific syntactic region fontify.
+If it's bound, we call <PA>-font-lock-fontify-syntactically-region."
+  (when (fboundp (proof-ass-sym font-lock-fontify-syntactically-region))
+    (funcall (proof-ass-sym font-lock-fontify-syntactically-region)
+	     beg end loudly)))
+(ad-activate 'font-lock-fontify-keywords-region)))
 
 ;;
 ;; Functions for doing something like "format" but with customizable

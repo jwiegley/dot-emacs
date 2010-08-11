@@ -169,7 +169,7 @@ This mode is only useful with a font which can display the maths repertoire.
 ;;;***
 
 ;;;### (autoloads (proof-associated-windows proof-associated-buffers)
-;;;;;;  "pg-assoc" "pg-assoc.el" (19121 59721))
+;;;;;;  "pg-assoc" "pg-assoc.el" (19550 46151))
 ;;; Generated autoloads from pg-assoc.el
 
 (autoload 'proof-associated-buffers "pg-assoc" "\
@@ -198,23 +198,46 @@ Initialise the goals buffer after the child has been configured.
 ;;;***
 
 ;;;### (autoloads (pg-movie-export-from pg-movie-export) "pg-movie"
-;;;;;;  "pg-movie.el" (19544 3005))
+;;;;;;  "pg-movie.el" (19550 46151))
 ;;; Generated autoloads from pg-movie.el
 
 (autoload 'pg-movie-export "pg-movie" "\
-Not documented
+Export the movie file from the current script buffer.
 
 \(fn)" t nil)
 
 (autoload 'pg-movie-export-from "pg-movie" "\
-Not documented
+Export the movie file that results from processing SCRIPT.
 
-\(fn SCRIPT)" nil nil)
+\(fn SCRIPT)" t nil)
+
+;;;***
+
+;;;### (autoloads (defpacustom proof-defpacustom-fn) "pg-pamacs"
+;;;;;;  "pg-pamacs.el" (19554 53996))
+;;; Generated autoloads from pg-pamacs.el
+
+(autoload 'proof-defpacustom-fn "pg-pamacs" "\
+As for macro `defpacustom' but evaluating arguments.
+
+\(fn NAME VAL ARGS)" nil nil)
+
+(autoload 'defpacustom "pg-pamacs" "\
+Define a setting NAME for the current proof assitant, default VAL.
+NAME can correspond to some internal setting, flag, etc, for the
+proof assistant, in which case a :setting and :type value should be provided.
+The :type of NAME should be one of 'integer, 'boolean, 'string.
+The customization variable is automatically in group `proof-assistant-setting'.
+The function `proof-assistant-format' is used to format VAL.
+If NAME corresponds instead to a PG internal setting, then a form :eval to
+evaluate can be provided instead.
+
+\(fn NAME VAL &rest ARGS)" nil (quote macro))
 
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (19122 39720))
+;;;;;;  "pg-pgip" "pg-pgip.el" (19550 46151))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload 'pg-pgip-process-packet "pg-pgip" "\
@@ -238,7 +261,7 @@ Send an <askprefs> message to the prover.
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-message pg-response-display-with-face pg-response-maybe-erase
 ;;;;;;  proof-response-config-done proof-response-mode) "pg-response"
-;;;;;;  "pg-response.el" (19542 60238))
+;;;;;;  "pg-response.el" (19550 46151))
 ;;; Generated autoloads from pg-response.el
 
 (autoload 'proof-response-mode "pg-response" "\
@@ -252,12 +275,12 @@ Complete initialisation of a response-mode derived buffer.
 \(fn)" nil nil)
 
 (autoload 'pg-response-maybe-erase "pg-response" "\
-Erase the response buffer according to pg-response-erase-flag.
+Erase the response buffer according to `pg-response-erase-flag'.
 ERASE-NEXT-TIME is the new value for the flag.
-If CLEAN-WINDOWS is set, use proof-clean-buffer to do the erasing.
-If FORCE, override pg-response-erase-flag.
+If CLEAN-WINDOWS is set, use `proof-clean-buffer' to do the erasing.
+If FORCE, override `pg-response-erase-flag'.
 
-If the user option proof-tidy-response is nil, then
+If the user option `proof-tidy-response' is nil, then
 the buffer is only cleared when FORCE is set.
 
 No effect if there is no response buffer currently.
@@ -294,27 +317,6 @@ See `pg-next-error-regexp'.
 
 ;;;***
 
-;;;### (autoloads (pg-defthymode) "pg-thymodes" "pg-thymodes.el"
-;;;;;;  (19108 51621))
-;;; Generated autoloads from pg-thymodes.el
-
-(autoload (quote pg-defthymode) "pg-thymodes" "\
-Define a Proof General mode for theory files.
-Mode name is SYM-mode, named NAMED.  BODY is the body of a setq and
-can define a number of variables for the mode, viz:
-
-  SYM-<font-lock-keywords>      (value for font-lock-keywords)
-  SYM-<syntax-table-entries>	(list of pairs: used for modify-syntax-entry calls)
-  SYM-<menu>			(menu for the mode, arg of easy-menu-define)
-  SYM-<parent-mode>		(defaults to fundamental-mode)
-  SYM-<filename-regexp>	        (regexp matching filenames for auto-mode-alist)
-
-All of these settings are optional.
-
-\(fn SYM NAME &rest BODY)" nil (quote macro))
-
-;;;***
-
 ;;;### (autoloads (pg-clear-input-ring pg-remove-from-input-history
 ;;;;;;  pg-add-to-input-history pg-next-matching-input-from-input
 ;;;;;;  pg-previous-matching-input-from-input proof-imenu-enable
@@ -322,7 +324,7 @@ All of these settings are optional.
 ;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19543 7684))
+;;;;;;  "pg-user.el" (19550 46151))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -440,7 +442,7 @@ Parse string in ARG, same as pg-xml-parse-buffer.
 ;;;***
 
 ;;;### (autoloads (proof-dependency-in-span-context-menu proof-depends-process-dependencies)
-;;;;;;  "proof-depends" "proof-depends.el" (19222 64809))
+;;;;;;  "proof-depends" "proof-depends.el" (19550 46151))
 ;;; Generated autoloads from proof-depends.el
 
 (autoload 'proof-depends-process-dependencies "proof-depends" "\
@@ -451,7 +453,7 @@ Called from `proof-done-advancing' when a save is processed and
 \(fn NAME GSPAN)" nil nil)
 
 (autoload 'proof-dependency-in-span-context-menu "proof-depends" "\
-Make a portion of a context-sensitive menu showing proof dependencies.
+Make some menu entries showing proof dependencies of SPAN.
 
 \(fn SPAN)" nil nil)
 
@@ -471,7 +473,7 @@ the `proof-assistant-table', which see.
 ;;;***
 
 ;;;### (autoloads (proof-indent-line) "proof-indent" "proof-indent.el"
-;;;;;;  (19220 21213))
+;;;;;;  (19550 46151))
 ;;; Generated autoloads from proof-indent.el
 
 (autoload 'proof-indent-line "proof-indent" "\
@@ -482,7 +484,7 @@ Indent current line of proof script, if indentation enabled.
 ;;;***
 
 ;;;### (autoloads (proof-maths-menu-enable proof-maths-menu-set-global)
-;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (19122 39720))
+;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (19550 46151))
 ;;; Generated autoloads from proof-maths-menu.el
 
 (autoload 'proof-maths-menu-set-global "proof-maths-menu" "\
@@ -503,8 +505,8 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19223
-;;;;;;  1323))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19550
+;;;;;;  46151))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload 'proof-menu-define-keys "proof-menu" "\
@@ -530,7 +532,7 @@ Construct and return PG auxiliary menu used in non-scripting buffers.
 ;;;***
 
 ;;;### (autoloads (proof-mmm-enable proof-mmm-set-global) "proof-mmm"
-;;;;;;  "proof-mmm.el" (19121 59722))
+;;;;;;  "proof-mmm.el" (19550 46151))
 ;;; Generated autoloads from proof-mmm.el
 
 (autoload 'proof-mmm-set-global "proof-mmm" "\
@@ -553,7 +555,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19543 20729))
+;;;;;;  "proof-script.el" (19554 53098))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -637,7 +639,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19543 16432))
+;;;;;;  "proof-shell.el" (19550 46151))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -705,14 +707,14 @@ Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
 in some cases.   May be called by `proof-shell-invisible-command'.
 
-\(fn)" nil nil)
+\(fn &optional INTERRUPT-ON-INPUT)" nil nil)
 
 (autoload 'proof-shell-invisible-command "proof-shell" "\
 Send CMD to the proof process.
 The CMD is `invisible' in the sense that it is not recorded in buffer.
 CMD may be a string or a string-yielding expression.
 
-Automatically add proof-terminal-char if necessary, examining
+Automatically add `proof-terminal-char' if necessary, examining
 `proof-shell-no-auto-terminate-commands'.
 
 By default, let the command be processed asynchronously.
@@ -725,7 +727,7 @@ INVISIBLECALLBACK will be invoked after the command has finished,
 if it is set.  It should probably run the hook variables
 `proof-state-change-hook'.
 
-If NOERROR is set, surpress usual error action.
+FLAGS are put onto the If NOERROR is set, surpress usual error action.
 
 \(fn CMD &optional WAIT INVISIBLECALLBACK &rest FLAGS)" nil nil)
 
@@ -758,7 +760,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19542 60238))
+;;;;;;  (19554 54083))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -770,16 +772,16 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'.
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen)
-;;;;;;  "proof-splash" "proof-splash.el" (19109 19687))
+;;;;;;  "proof-splash" "proof-splash.el" (19550 46151))
 ;;; Generated autoloads from proof-splash.el
 
-(autoload (quote proof-splash-display-screen) "proof-splash" "\
+(autoload 'proof-splash-display-screen "proof-splash" "\
 Save window config and display Proof General splash screen.
 If TIMEOUT is non-nil, arrange for a time-out to occur outside this function.
 
 \(fn &optional TIMEOUT)" t nil)
 
-(autoload (quote proof-splash-message) "proof-splash" "\
+(autoload 'proof-splash-message "proof-splash" "\
 Make sure the user gets welcomed one way or another.
 
 \(fn)" t nil)
@@ -787,8 +789,11 @@ Make sure the user gets welcomed one way or another.
 ;;;***
 
 ;;;### (autoloads (proof-format) "proof-syntax" "proof-syntax.el"
-;;;;;;  (19220 59810))
+;;;;;;  (19554 53840))
 ;;; Generated autoloads from proof-syntax.el
+
+(defsubst proof-replace-regexp-in-string (regexp rep string) "\
+Like replace-regexp-in-string, but set case-fold-search to proof-case-fold-search." (let ((case-fold-search proof-case-fold-search)) (replace-regexp-in-string regexp rep string)))
 
 (autoload 'proof-format "proof-syntax" "\
 Format a string by matching regexps in ALIST against STRING.
@@ -800,7 +805,7 @@ may be a string or sexp evaluated to get a string.
 ;;;***
 
 ;;;### (autoloads (proof-toolbar-scripting-menu proof-toolbar-setup)
-;;;;;;  "proof-toolbar" "proof-toolbar.el" (19121 59722))
+;;;;;;  "proof-toolbar" "proof-toolbar.el" (19550 46151))
 ;;; Generated autoloads from proof-toolbar.el
 
 (autoload 'proof-toolbar-setup "proof-toolbar" "\
@@ -847,26 +852,15 @@ is changed.
 
 ;;;***
 
-;;;### (autoloads (defpacustom proof-defpacustom-fn) "proof-utils"
-;;;;;;  "proof-utils.el" (19135 42885))
+;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19554
+;;;;;;  54161))
 ;;; Generated autoloads from proof-utils.el
 
-(autoload 'proof-defpacustom-fn "proof-utils" "\
-As for macro `defpacustom' but evaluating arguments.
+(autoload 'proof-debug "proof-utils" "\
+Issue the debugging message (format MSG ARGS) in the response buffer, display it.
+If proof-general-debug is nil, do nothing.
 
-\(fn NAME VAL ARGS)" nil nil)
-
-(autoload 'defpacustom "proof-utils" "\
-Define a setting NAME for the current proof assitant, default VAL.
-NAME can correspond to some internal setting, flag, etc, for the
-proof assistant, in which case a :setting and :type value should be provided.
-The :type of NAME should be one of 'integer, 'boolean, 'string.
-The customization variable is automatically in group `proof-assistant-setting'.
-The function `proof-assistant-format' is used to format VAL.
-If NAME corresponds instead to a PG internal setting, then a form :eval to
-evaluate can be provided instead.
-
-\(fn NAME VAL &rest ARGS)" nil (quote macro))
+\(fn MSG &rest ARGS)" nil nil)
 
 ;;;***
 
@@ -929,7 +923,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19496 21913))
+;;;;;;  (19551 10455))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -943,7 +937,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
 ;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
 ;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-faces.el" "proof-useropts.el"
-;;;;;;  "proof.el") (19544 3030 500218))
+;;;;;;  "proof.el") (19554 54164 534243))
 
 ;;;***
 
