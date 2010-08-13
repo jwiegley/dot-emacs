@@ -101,7 +101,7 @@ On Windows you might need something like:
   "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
-;; da: 3.5: add experimetntal
+;; da: 3.5: add experimental
 ;; am:answer: because of bad interaction
 ;; with coq -R option.
 (defvar coq-shell-cd nil
@@ -1267,8 +1267,7 @@ be asked to the user."
 
 
 (defvar last-coq-error-location nil
-  "The last error message seen by `coq-get-last-error-location' and
-`coq-highlight-error'.")
+  "Last error from `coq-get-last-error-location' and `coq-highlight-error'.")
 
 
 ;; I don't use proof-shell-last-ouput here since it is not always set to the
@@ -1295,7 +1294,7 @@ If PARSERESP and CLEAN are non-nil, delete the error location from the response
 buffer."
   (if (not parseresp) last-coq-error-location
     ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
-    (with-current-buffer proof-response-buffer
+    (proof-with-current-buffer-if-exists proof-response-buffer
       (goto-char (point-max))
       (when (re-search-backward "\n> \\(.*\\)\n> \\([^^]*\\)\\(\\^+\\)\n" nil t)
         (let ((text (match-string 1))
@@ -1340,21 +1339,21 @@ If PARSERESP is nil, don't really parse response buffer but take the value of
 
 If PARSERESP and CLEAN are non-nil, delete the error location from the response
 buffer."
-  (let ((mtch (coq-get-last-error-location parseresp clean)))
-    (when mtch
-      (let ((pos (car mtch))
-            (lgth (cadr mtch)))
-        (set-buffer proof-script-buffer)
-        (goto-char (+ (proof-unprocessed-begin) 1))
-        (coq-find-real-start)
-
-        ; utf8 adaptation is made in coq-get-last-error-location above
-        (goto-char (+ (point) pos))
-        (let* ((sp (span-make (point) (+(point) lgth))))
-          (set-span-face sp 'proof-warning-face)
-          (unwind-protect
-              (sit-for 5) ;; da: this was 20 but seemed obnoxiously long?
-            (span-delete sp)))))))
+  (proof-with-current-buffer-if-exists proof-script-buffer
+    (let ((mtch (coq-get-last-error-location parseresp clean)))
+      (when mtch
+        (let ((pos (car mtch))
+              (lgth (cadr mtch)))
+          (goto-char (+ (proof-unprocessed-begin) 1))
+          (coq-find-real-start)
+          
+          ;; utf8 adaptation is made in coq-get-last-error-location above
+          (goto-char (+ (point) pos))
+          (let* ((sp (span-make (point) (+(point) lgth))))
+            (set-span-face sp 'proof-warning-face)
+            (unwind-protect
+                (sit-for 5) ;; da: this was 20 but seemed obnoxiously long?
+              (span-delete sp))))))))
 
 (defvar coq-allow-highlight-error t
   "Internal variable. Do not use as configuration variable.")
