@@ -1158,13 +1158,12 @@ activation is considered to have failed and an error is given."
     (save-excursion
       ;; If there's another buffer currently active, we need to
       ;; deactivate it (also fixing up the included files list).
-      (if proof-script-buffer
-	  (progn
+      (when proof-script-buffer
 	    (proof-deactivate-scripting)
 	    ;; Test whether deactivation worked
 	    (if proof-script-buffer
 		(error
-		 "You cannot have more than one active scripting buffer!"))))
+	     "You cannot have more than one active scripting buffer!")))
 
       ;; Ensure this buffer is off the included files list.  If we
       ;; re-activate scripting in an already completed buffer, the
@@ -1209,24 +1208,17 @@ activation is considered to have failed and an error is given."
       (if proof-activate-scripting-hook
 	  (let
 	      ((activated-interactively	(interactive-p)))
-	    ;; Clear flag in case no hooks run shell commands
+	    (setq proof-shell-last-output-kind nil)
 	    (run-hooks 'proof-activate-scripting-hook)
-	    ;; In case the activate scripting functions
-	    ;; caused an error in the proof assistant, we'll
-	    ;; consider activating scripting to have failed,
-	    ;; and raise an error here.
-	    ;; (Since this behaviour is intimate with the hook functions,
-	    ;;  it could be removed and left to implementors of
-	    ;;  specific instances of PG).
-	    ;; FIXME: we could consider simply running the hooks
-	    ;; as the last step before turning on scripting properly,
-	    ;; provided the hooks don't inspect proof-script-buffer.
-	    (if (or (memq 'error proof-shell-last-output-kind)
-		    (memq 'interrupt proof-shell-last-output-kind))
-		(progn
-		  (proof-deactivate-scripting) ;; turn it off again!
-		  ;; Give an error to prevent further actions.
-		  (error "Proof General: Scripting not activated because of error or interrupt"))))))))
+	    ;; If activate scripting functions caused an error,
+	    ;; prevent switching to another buffer.  Might be better
+	    ;; to leave to specific instances, or simply run the hooks
+	    ;; as the last step before turning on scripting properly.
+	    (when (or (eq 'error proof-shell-last-output-kind)
+		      (eq 'interrupt proof-shell-last-output-kind))
+	      (proof-deactivate-scripting) ;; turn off again!
+	      ;; Give an error to prevent further actions.
+	      (error "Proof General: Scripting not activated because of error or interrupt")))))))
 
 
 (defun proof-toggle-active-scripting (&optional arg)
@@ -1788,7 +1780,7 @@ the function `proof-segment-up-to'.  The argument list is destroyed.
 The callback in each queue element is `proof-done-advancing'.
 
 If the variable `proof-script-preprocess' is set (to the name of
-a function, call that function to construct the first element of
+a function), call that function to construct the first element of
 each queue item.
 
 The optional QUEUEFLAGS are added to each queue item."
@@ -1813,15 +1805,16 @@ The optional QUEUEFLAGS are added to each queue item."
 						   (skip-chars-forward " \t\n")))
 					end
 					cmd)
-			     (list cmd))))
+			     (list cmd)))
+		     (qitem  (list span qcmd cb queueflags)))
 		(span-set-property span 'type 'vanilla)
 		(span-set-property span 'cmd cmd)
-		(setq alist (cons (list span qcmd cb) alist))))
+		(setq alist (cons qitem alist))))
 	  ;; ignored text
+	  (let ((qitem  
+		 (list span nil cb queueflags))) ; nil was `proof-no-command' 
 	  (span-set-property span 'type 'comment)
-	  (setq alist
-		(cons (list span nil cb queueflags) ; nil was `proof-no-command'
-		      alist)))
+	    (setq alist (cons qitem alist))))
 	(setq start end)))
     (nreverse alist)))
 
