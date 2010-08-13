@@ -1,9 +1,11 @@
 (*
-    Example uses of X-Symbol symbols in Coq.
+    Example uses of Unicode Tokens symbols in Coq.
     See README.
     Trac this at http://proofgeneral.inf.ed.ac.uk/trac/ticket/313
 
-    Pierre Courtieu
+    Pierre Courtieu, David Aspinall.
+
+    Turn on with Proof-General → Quick Options → Display → Unicode Tokens
 
     $Id$
 *)

@@ -1,4 +1,4 @@
-(*  *)
+(* Some scripting tests for modules.  Pierre Courtieu.  *)
 Module Type O1.
   Parameter A:Set.
   Parameter B:Set.
