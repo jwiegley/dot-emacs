@@ -48,15 +48,15 @@ Variable delta:nat.
 
 (* greek delta with a sub 1 and the same with super 1 *)
 Definition delta__1 := 0. 
-Definition delta__2 := delta^^1.
-Definition delta__3:= delta__2^{delta}.
+(*Definition delta__2 := delta^^1. *)
+(* Definition delta__3:= delta__2^{delta}. *)
 
-Parameter a b x:nat.
+Parameter x:nat.
 
 (* x with a+b subscripted and then superscripted *)
-Definition x_a_b' := x^{a+b}. 
-Definition x_a_b := x,{a+b}.
-Definition x_a_b'' := x,{a+b}^{a*b}.
+(*Definition x_a_b' := x^{a+b}.  *)
+(*Definition x_a_b := x,{a+b}. *)
+(*Definition x_a_b'' := x,{a+b}^{a*b}.*)
 
 (* no greek letter should appear on this next line! *)
 Variable philosophi   : Set.
