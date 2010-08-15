@@ -2660,8 +2660,8 @@ important files, kept in the @file{generic/} subdirectory.
 
 @menu
 * Spans::                       
-* Configuration variable mechanisms::
 * Proof General site configuration::  
+* Configuration variable mechanisms::
 * Global variables::            
 * Proof script mode::           
 * Proof shell mode::
@@ -2669,7 +2669,9 @@ important files, kept in the @file{generic/} subdirectory.
 @end menu
 
 
-
+@c
+@c SECTION: Global variables
+@c
 @node Spans
 @section Spans
 @cindex spans
@@ -2682,6 +2684,9 @@ to help bridge the gulf between GNU Emacs and XEmacs. See the file
 still used in some parts of the code.
 
 
+@c
+@c SECTION: Proof General site configuration
+@c
 @node Proof General site configuration
 @section Proof General site configuration
 @cindex installation directories
@@ -2762,6 +2767,9 @@ Version string identifying Proof General release.
 
 
 
+@c
+@c SECTION: Configuration variable mechanisms
+@c
 @node Configuration variable mechanisms
 @section Configuration variable mechanisms
 @cindex conventions
@@ -2883,8 +2891,15 @@ The toggle function uses @code{customize-set-variable} to change the variable.
 @var{othername} gives an alternative name than the default <VAR>-toggle.
 The name of the defined function is returned.
 @end deffn
+
+
+@c
+@c SECTION: Global variables
+@c
 @node Global variables
 @section Global variables
+@cindex variables
+
 
 Global variables are defined in @file{proof.el}.  The same file defines
 a few utility functions and some triggers to load in the other files.
@@ -2953,6 +2968,9 @@ assistant during the last group of commands.
 @end defvar
 
 
+@c
+@c SECTION: Proof script mode
+@c
 @node Proof script mode
 @section Proof script mode
 
