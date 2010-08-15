@@ -1,9 +1,10 @@
 theory AHundredTheorems imports Main
 begin
 
+(* test this *)
 
-(* ELISP: -- (setq start (current-time)) -- *)
 ML {* val start = start_timing(); *}
+(* ELISP: -- (setq start (current-time)) -- *)
 
 lemma foo: "P --> P" by auto
 lemma foo2: "P --> P" by auto
