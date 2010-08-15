@@ -135,6 +135,7 @@ without adjusting window layout."
   (define-key map [(control meta down)] 'pg-move-region-down)
   ;;
   (define-key map [(control c) ?b] 'proof-toolbar-toggle)
+  (define-key map [(control c) ?>] 'proof-autosend-toggle)
   ;; Add the universal keys bound in all PG buffers.
   ;; NB: C-c ` is next-error in universal-keys
   (proof-define-keys map proof-universal-keys))
@@ -291,12 +292,12 @@ without adjusting window layout."
 (proof-deftoggle proof-sticky-errors)
 (proof-deftoggle proof-shell-quiet-errors)
 (proof-deftoggle proof-minibuffer-messages)
-(proof-deftoggle proof-autosend)
-
-(proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
+(proof-deftoggle proof-autosend-enable proof-autosend-toggle)
+(proof-deftoggle proof-imenu-enable proof-imenu-toggle)
 (proof-deftoggle proof-keep-response-history)
 
 (proof-eval-when-ready-for-assistant
+ ;; togglers for settings separately configurable per-prover
   (proof-deftoggle-fn
    (proof-ass-sym unicode-tokens-enable) 'proof-unicode-tokens-toggle)
   (proof-deftoggle-fn
@@ -318,6 +319,10 @@ without adjusting window layout."
      :style toggle
      :selected proof-electric-terminator-enable
      :help "Automatically send commands as typed"]
+     ["Send Automatically" proof-autosend-toggle
+      :style toggle
+      :selected proof-autosend-enable
+      :help "Automatically send commands when idle"]
      ["Fly Past Comments" proof-script-fly-past-comments-toggle
       :style toggle
       :selected proof-script-fly-past-comments
@@ -505,6 +510,7 @@ without adjusting window layout."
   "Return a list of the quick option variables."
   (list
    'proof-electric-terminator-enable
+   'proof-autosend-enable
    'proof-script-fly-past-comments
    'proof-disappearing-proofs
    'proof-full-annotation

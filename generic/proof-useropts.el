@@ -281,9 +281,6 @@ This variable exists to disable the cache in case of problems."
   :type 'boolean
   :group 'proof-user-options)
 
-
-;;; NON BOOLEAN OPTIONS
-
 (defcustom proof-follow-mode 'locked
   "*Choice of how point moves with script processing commands.
 One of the symbols: 'locked, 'follow, 'followdown, 'ignore.
@@ -377,6 +374,17 @@ are distracting or too frequent."
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-autosend-enable nil
+  "*Non-nil causes Proof General to automatically process the script."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
+(defcustom proof-autosend-delay 0.8
+  "*Delay before autosend starts sending commands."
+  :type 'float
+  :set 'proof-set-value
+  :group 'proof-user-options)
 
 
 

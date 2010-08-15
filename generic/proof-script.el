@@ -319,10 +319,11 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	  (infop (span-live-p badspan)))
       (proof-detach-queue)
       (when infop
-	(when (eq proof-follow-mode 'locked)
-	  ;; jump to start of error: should this be configurable?
-	  (goto-char (span-start badspan))
-	  (skip-chars-forward " \t\n"))
+	(unless proof-autosend-running
+	  (when (eq proof-follow-mode 'locked)
+	    ;; jump to start of error: should this be configurable?
+	    (goto-char (span-start badspan))
+	    (skip-chars-forward " \t\n")))
 	(when proof-sticky-errors
 	  (pg-set-span-helphighlights badspan
 				      'proof-script-highlight-error-face
@@ -442,6 +443,7 @@ Does nothing if there is no active scripting buffer, or if
 `proof-follow-mode' is set to 'ignore."
   (interactive)
   (if (and proof-script-buffer
+	   (not proof-autosend-running)
 	   (not (eq proof-follow-mode 'ignore)))
       (unless (proof-end-of-locked-visible-p)
 	(proof-goto-end-of-locked t))))
@@ -450,15 +452,14 @@ Does nothing if there is no active scripting buffer, or if
   "As `proof-goto-end-of-locked-if-pos-not-visible-in-window', but not for interrupts.
 Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
   (interactive)
-  (cond
-   ((eq proof-follow-mode 'ignore))
-   ((eq proof-shell-last-output-kind 'error)
-    (proof-goto-end-of-locked-if-pos-not-visible-in-window)))
-  (proof-with-current-buffer-if-exists
-   proof-script-buffer
-   ;; Give a hint of how to jump to the end of locked, unless visible.
-   (unless (proof-end-of-locked-visible-p)
-     (pg-jump-to-end-hint))))
+  (unless proof-autosend-running
+    (unless (eq proof-follow-mode 'ignore)
+      (if (eq proof-shell-last-output-kind 'error)
+	  (proof-goto-end-of-locked-if-pos-not-visible-in-window)))
+    (proof-with-current-buffer-if-exists
+      proof-script-buffer
+      (unless (proof-end-of-locked-visible-p)
+	(pg-jump-to-end-hint)))))
 
 (defun proof-end-of-locked-visible-p ()
   "Return non-nil if end of locked region is visible."
@@ -1118,7 +1119,7 @@ a scripting buffer is killed it is always retracted."
 	      ;; Make status of inactive scripting buffer show up (necessary?)
 	      (force-mode-line-update)
 
-	      ;; Finally, run hooks (added in 3.5 22.04.04)
+	      ;; Finally, run hooks
 	      (run-hooks 'proof-deactivate-scripting-hook))))))
 
 (defun proof-activate-scripting (&optional nosaves queuemode)
@@ -1172,7 +1173,7 @@ activation is considered to have failed and an error is given."
 
       ;; If automatic retraction happened in the above step, we may
       ;; have inadvertently activated scripting somewhere else.
-      ;; Better turn it off again.   This should succeed trivially.
+      ;; Better turn it off again.  This should succeed trivially.
       ;; NB: it seems that we could move the first test for an already
       ;; active buffer here, but it is more subtle: the first
       ;; deactivation can extend the proof-included-files list, which
@@ -2514,6 +2515,9 @@ finish setup which depends on specific proof assistant configuration."
   ;; Save file-less script mode buffers in case of accidental exit
   (or (buffer-file-name)
       (setq buffer-offer-save t))
+
+  ;; Turn on autosend if enabled
+  (proof-autosend-enable 'nomsg)
 
   ;; Finally, make sure the user has been welcomed!
   ;; [NB: this doesn't work well, can get zapped by loading messages]

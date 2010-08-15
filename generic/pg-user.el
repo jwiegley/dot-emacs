@@ -86,7 +86,7 @@ Assumes that point is at the end of a command."
   "Move point according to `proof-follow-mode'.
 If optional POS is set, use that position, else `proof-queue-or-locked-end'.
 Assumes script buffer is current."
-  (unless (eq proof-follow-mode 'ignore)
+  (unless (or proof-autosend-running (eq proof-follow-mode 'ignore))
     (let ((dest (or pos (proof-queue-or-locked-end))))
       (cond
        ((eq proof-follow-mode 'locked)
@@ -940,7 +940,8 @@ If NUM is negative, move upwards.  Return new span."
 	     ((proof-locked-region-full-p)
 	      (pg-hint
 	       (concat "Processing complete in " (buffer-name proof-script-buffer))))
-	     (t ;; partly complete: hint about displaying the locked end
+	     ((not proof-autosend-running)
+	      ;; partly complete: hint about displaying the locked end
 	      (pg-jump-to-end-hint))))))))
 
 ;;;###autoload
@@ -1403,6 +1404,96 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	  ;; then we are within a run of consecutive undo commands
 	  (if (eq pending-undo-list t) nil (car pending-undo-list))
 	(car undo-list)))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Automatic processing of buffer ahead of point
+;;
+;; Added in PG 4.0
+;;
+
+(defvar proof-autosend-timer nil "Timer used by autosend.")
+
+;;;###autoload
+(defun proof-autosend-enable (&optional nomsg)
+  "Enable or disable autosend behaviour."
+  (if proof-autosend-timer 
+      (cancel-timer proof-autosend-timer))
+  (when proof-autosend-enable
+    (setq proof-autosend-timer
+	  (run-with-idle-timer proof-autosend-delay 
+			       t 'proof-autosend-loop))
+    (unless nomsg (message "Automatic sending turned on.")))
+  (when (not proof-autosend-enable)
+    (setq proof-autosend-timer nil)
+    (unless nomsg (message "Automatic sending turned off."))))
+
+(defun proof-autosend-delay ()
+  "Adjust autosend timer when variable `proof-autosend-delay' changes."
+  (proof-autosend-enable t))
+
+(defvar proof-autosend-running nil
+  "Flag indicating we are sending commands to the prover automatically.")
+
+(defun proof-autosend-loop ()
+  (proof-with-current-buffer-if-exists proof-script-buffer
+    (unless (proof-locked-region-full-p)
+	(proof-autosend-loop1))))
+
+(defun proof-autosend-loop1 ()
+  "Send commands from the script until an error, complete, or input appears."
+  (let ((making-progress t) last-locked-end)
+    (setq proof-autosend-running t)
+    (message "Sending commands to prover...")
+    (unwind-protect
+	(progn
+	  (save-excursion
+	    ;; TODO: try it in chunks
+	    (goto-char (point-max))
+	    (proof-assert-until-point 
+	     (if proof-multiple-frames-enable 
+		 'no-minibuffer-messages ; nb: not API but n
+	       '(no-response-display 
+		 no-error-display
+		 no-goals-display))))
+	  (proof-shell-wait t) ; interruptible
+	  (if (input-pending-p)
+	      ;; stop things here
+	      (proof-interrupt-process)))
+      (setq proof-autosend-running nil))
+    (message "Sending commands to prover...done.")))
+
+
+;; alternative incremental, less aggressive version of above
+(defun proof-autosend-loop1-old ()
+  "Send commands from the script until an error, complete, or input appears."
+  (let ((making-progress t) last-locked-end)
+    (setq proof-autosend-running t)
+    (message "Sending commands to prover...")
+    (unwind-protect
+	(while (and making-progress (not (input-pending-p)))
+	  (setq last-locked-end (proof-unprocessed-begin))
+	  (save-excursion
+	    (goto-char last-locked-end)
+	    (skip-chars-forward " \t\n")
+	    (proof-assert-until-point 
+	     (if proof-multiple-frames-enable nil
+	       '(no-response-display 
+		 no-error-display
+		 no-goals-display
+		 no-point-movement))))
+	  (proof-shell-wait)
+	  (setq making-progress (> (proof-unprocessed-begin) 
+				   last-locked-end)))
+      ;; FIXME: not quite right behaviour: proof-done-advancing can
+      ;; still move point afterwards when prover output is processed,
+      ;; even though we didn't want that to happen.
+      ;; Really we should obey no-point-movement above.
+      (setq proof-autosend-running nil))
+    (message "Sending commands to prover...done.")))
+
 
 
 (provide 'pg-user)
