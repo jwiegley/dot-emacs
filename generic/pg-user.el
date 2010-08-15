@@ -438,14 +438,8 @@ Start up the proof assistant if necessary."
        (if (proof-in-locked-region-p)
 	   (proof-goto-end-of-locked t)))
    (proof-script-new-command-advance)
-   ;; FIXME: fixup behaviour of undo here.  Really want to temporarily
-   ;; disable undo for insertion.  but (buffer-disable-undo) trashes
-   ;; whole undo list!
    (insert cmd)
-   ;; FIXME: could do proof-indent-line here, but let's wait until
-   ;; indentation is fixed.
-   (goto-char
-    (proof-assert-until-point-interactive))
+   (proof-assert-until-point-interactive)
    (proof-script-new-command-advance)))
 
 ;;
