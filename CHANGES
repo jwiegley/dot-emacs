@@ -2,9 +2,16 @@
 
 * Main Changes for Proof General 4.0 from 3.7.1
 
-** Generic changes
+** Install/support changes
 
 *** XEmacs is no longer supported; PG only works with GNU Emacs 22.2+
+
+*** Primary distribution formats changed
+    The RPM and zip file formats have been removed.
+    We are very grateful to third-party packagers for Debian and Fedora
+    for distributing packaged versions of PG.
+
+** Generic changes
 
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
     Unicode Tokens has been significantly improved since PG 3.7.1,
@@ -19,26 +26,24 @@
     - ...but "sticky" colouring for errors can be used
     - edit on processed region can automatically undo
 
-    Depending on input language and interaction output, this may
+    Depending on the prover language and interaction output, this may
     enable a useful "document centred" way of working, when output
-    buffers can be ignored and hidden.
-    Use "full annotation" to keep output when several steps are taken.
+    buffers can be ignored and hidden.  Use "full annotation" to keep
+    output when several steps are taken.
 
-*** "Movie" output: export an annotated buffer in XML
-    Basic movie output for Proviola, see http://mws.cs.ru.nl/proviola
+*** Automatic processing mode (experimental)
+    Quick Options -> Send Automatically
+    Sends commands to the prover when Emacs is idle for a while.
+    NB: EXPERIMENTAL this is in progress, currently too obtrusive 
+    to be usable.
 
 *** Improved prevention of Undo in locked region
     With thanks to Erik Martin-Dorel and Stefan Monnier.
     Undo in read only region follows `proof-strict-read-only' and
     gives the user the chance to allow edits by retracting first.
 
-*** Simplified version of comint now used for proof shell
-    To improve efficiency, a cut-down version of comint is now used.
-    Editing, history and decoration in the shell (*coq*, *isabelle*,
-    etc) are impoverished compared with PG 3.X.
-
 *** Proof General -> Options menu extended and rearranged
-    - new menu for useful minor modes suggests modes that PG supports
+    - new menu for useful minor modes indicates modes that PG supports
 
 *** New user configuration options (also on Proof General -> Options)
     proof-colour-locked       (use background colour for checked text)
@@ -51,6 +56,9 @@
 *** Removed user configuration options
     proof-toolbar-use-button-enablers  (now always used)
     proof-output-fontify-enable        (now always enabled)
+
+*** "Movie" output: export an annotated buffer in XML
+    Basic movie output for Proviola, see http://mws.cs.ru.nl/proviola
 
 *** Altered prover configuration settings (internal)
 
@@ -69,16 +77,17 @@
     proof-shell-error-or-interrupt-seen: removed, use p-s-last-output-kind
     proof-script-next-entity-regexps,next-entity-fn: removed (func-menu dead)
 
-*** Primary distribution formats changed
-    The RPM and zip file formats have been removed.
-    We are very grateful to third-party packagers for Debian and Fedora
-    for distributing packaged versions of PG.
+*** Simplified version of comint now used for proof shell (internal)
+    To improve efficiency, a cut-down version of comint is now used.
+    Editing, history and decoration in the shell (*coq*, *isabelle*,
+    etc) are impoverished compared with PG 3.X.
 
 ** Isabelle/Isar changes
 
 *** Support undo back into completed proofs (linear_undo).
 
 *** Electric terminator works without inserting terminator
+    Hit ; to process the last command.  Easier than C-RET.
 
 *** Line numbers reported during script management
 
@@ -89,7 +98,7 @@
 
 ** Coq changes
 
-*** Only supports Coq 8.1, support for earlier versions dropped.
+*** Only supports Coq 8.1+, support for earlier versions dropped.
 
 *** Holes mode can be turned on/off and has its own minor mode
 
