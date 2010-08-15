@@ -678,9 +678,9 @@ This is specific to `coq-mode'."
   ;; Commands sent to proof engine
   (setq proof-showproof-command "Show. "
         proof-context-command "Print All. "
-        proof-goal-command "Goal %s . "
-        proof-save-command "Save %s . "
-        proof-find-theorems-command "Search %s . ")
+        proof-goal-command "Goal %s. "
+        proof-save-command "Save %s. "
+        proof-find-theorems-command "Search %s. ")
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 
