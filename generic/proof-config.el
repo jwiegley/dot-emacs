@@ -1055,6 +1055,15 @@ See `proof-shell-error-regexp' and `proof-shell-interrupt-regexp'."
   :type 'boolean
   :group 'proof-shell)
 
+(defcustom proof-shell-interrupts-after-commit nil
+  "Non-nil means the prover commits changes then checks for interruption.
+
+The default behaviour assumed by Proof General is that interruption
+interrupts the currently executing command and does not commit it.
+Isabelle has changed this since Isabelle2009-1 or thereabouts."
+  :type 'boolean
+  :group 'proof-shell)
+
 (defcustom pg-next-error-regexp nil
   "Regular expression which matches an error message, perhaps with line/column.
 Used by `proof-next-error' to jump to line numbers causing

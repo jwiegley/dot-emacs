@@ -603,7 +603,7 @@ In both cases we then sound a beep, clear the queue and spans and
 finally we call `proof-shell-handle-error-or-interrupt-hook'.
 
 Commands which are not part of regular script management (with
-non-empty flags) will not invoke any of this action."  ; PG4.0 change
+non-empty flags='no-error-display) will not cause any action." ; PG4.0
   (unless (memq 'no-error-display flags)
     (cond
      ((eq err-or-int 'interrupt)
@@ -624,17 +624,31 @@ non-empty flags) will not invoke any of this action."  ; PG4.0 change
     (proof-shell-error-or-interrupt-action err-or-int)))
 
 (defun proof-shell-error-or-interrupt-action (err-or-int)
+  "Take action on errors or interrupts.
+ERR-OR-INT is a flag, 'error or 'interrupt.
+This is a subroutine of `proof-shell-handle-error-or-interrupt'"
   (save-excursion
     (unless proof-shell-quiet-errors
       (beep))
+    (let* ((commit    (and proof-shell-interrupts-after-commit
+			   (eq err-or-int 'interrupt)))
+	   (fatalitem (if commit
+			  (nth 1 proof-action-list)
+			(car-safe proof-action-list)))
+	   (badspan   (car-safe fatalitem))
+	   (flags     (if fatalitem (nthcdr 3 fatalitem))))
     (proof-with-current-buffer-if-exists proof-script-buffer
-      (proof-script-clear-queue-spans-on-error
-       (car-safe (car-safe proof-action-list))))
+      (if commit
+	  ;; process the script effects here (TODO: messages, lost for now)
+	  (proof-shell-invoke-callback (car-safe proof-action-list)))
+      (proof-script-clear-queue-spans-on-error badspan))
+
     (setq proof-action-list nil)
-    (proof-release-lock)
+    (proof-release-lock))
     ;; Give a hint about C-c C-`.  (NB: approximate test)
-    (if (pg-response-has-error-location)
-	(pg-next-error-hint))
+    (unless flags
+      (if (pg-response-has-error-location)
+	  (pg-next-error-hint)))
     (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
 
 (defun proof-goals-pos (span maparg)
@@ -684,9 +698,9 @@ after a completed proof."
   (setq proof-shell-last-output-kind nil) ; unclassified
   (goto-char start)
   (cond
-   ;; TODO: Isabelle now is also amalgamting output between prompts,
-   ;; and does e.g.,
-   ;;   GOALS
+   ;; TODO: Isabelle has changed (since 2009) and is now amalgamating
+   ;; output between prompts, and does e.g.,
+   ;;   GOALS 
    ;;   ERROR
    ;; we need to override delayed output from the previous
    ;; command with delayed output from this command to handle that!
@@ -964,7 +978,7 @@ The queue mode is set to 'advancing"
   (proof-add-to-queue queueitems 'advancing))
 
 (defun proof-shell-exec-loop ()
-  "Process the `proof-action-list'.
+  "This is the main loop processing the `proof-action-list'.
 
 `proof-action-list' contains a list of (SPAN COMMAND ACTION [FLAGS]) lists.
 
@@ -1218,7 +1232,7 @@ A subroutine of `proof-shell-process-urgent-message'."
 ;;
 
 (defun proof-shell-filter (str)
-  "Filter for the proof assistant shell-process.
+  "Master filter for the proof assistant shell-process.
 A function for `scomint-output-filter-functions'.
 
 Deal with output STR and issue new input from the queue.  This is
@@ -1597,7 +1611,7 @@ in some cases.   May be called by `proof-shell-invisible-command'."
   (let ((proverproc (get-buffer-process proof-shell-buffer)))
     (when proverproc
       (while (and proof-shell-busy (not quit-flag)
-		  (or (not interrupt-on-input) (input-pending-p)))
+		  (not (and interrupt-on-input (input-pending-p))))
 	(accept-process-output proverproc 0.2) ;; NB: FIXME likely GE 23-ism
 	;; assume filters ran, redisplay
 	(redisplay t))
