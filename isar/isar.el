@@ -139,7 +139,7 @@ See -k option for Isabelle interface script."
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
    proof-shell-trace-output-regexp  "\^AI\^AV"
-   proof-shell-interrupts-after-commit t
+   proof-shell-interrupts-after-commit nil ; should be correct, t wrong
    proof-script-preprocess      'isar-command-wrapping
    ;; command hooks
    proof-goal-command-p         'isar-goal-command-p
