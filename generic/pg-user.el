@@ -26,8 +26,8 @@
   (require 'completion)		       ; loaded dynamically at runtime
   (defvar which-func-modes nil))       ; defined by which-func
 
-; defined in proof-script/proof-setup-parsing-mechanism
 (declare-function proof-segment-up-to "proof-script") 
+(declare-function proof-interrupt-process "proof-shell") 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1427,9 +1427,6 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 (defun proof-autosend-delay ()
   "Adjust autosend timer when variable `proof-autosend-delay' changes."
   (proof-autosend-enable t))
-
-(defvar proof-autosend-running nil
-  "Flag indicating we are sending commands to the prover automatically.")
 
 (defun proof-autosend-loop ()
   (proof-with-current-buffer-if-exists proof-script-buffer

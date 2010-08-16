@@ -220,6 +220,11 @@ in `proof-shell-clear-state'.")
   "Contains the dependencies of the last theorem.  A list of strings.
 Set in `proof-shell-process-urgent-message'.")
 
+(defvar proof-autosend-running nil
+  "Flag indicating we are sending commands to the prover automatically.
+Used in `proof-autosend-loop' and inspected in other places to inhibit
+user interaction.")
+
 
 ;;
 ;; Not variables at all: global constants (were in proof-config)

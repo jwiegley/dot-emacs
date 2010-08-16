@@ -22,6 +22,7 @@
 # Set this according to your version of Emacs.
 # NB: this is also used to set default install path names below.
 EMACS=$(shell if [ -z "`which emacs`" ]; then echo "Emacs executable not found"; exit 1; else echo emacs; fi)
+# EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
 
 # We default to /usr rather than /usr/local because installs of
 # desktop and doc files under /usr/local are unlikely to work with

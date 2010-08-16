@@ -54,6 +54,13 @@ If flags are non-empty, other interactive cues will be surpressed.
 
 See the functions `proof-start-queue' and `proof-shell-exec-loop'.")
 
+(defsubst proof-shell-invoke-callback (listitem)
+  "From `proof-action-list' LISTITEM, invoke the callback on the span."
+  (condition-case nil
+      (funcall (nth 2 listitem) (car listitem))
+    (error nil)))
+
+
 ;; We record the last output from the prover and a flag indicating its
 ;; type, as well as a previous ("delayed") version for when the end
 ;; of the queue is reached or an error or interrupt occurs.
@@ -644,12 +651,12 @@ This is a subroutine of `proof-shell-handle-error-or-interrupt'"
       (proof-script-clear-queue-spans-on-error badspan))
 
     (setq proof-action-list nil)
-    (proof-release-lock))
+    (proof-release-lock)
     ;; Give a hint about C-c C-`.  (NB: approximate test)
     (unless flags
       (if (pg-response-has-error-location)
 	  (pg-next-error-hint)))
-    (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
+    (run-hooks 'proof-shell-handle-error-or-interrupt-hook))))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."
@@ -878,12 +885,6 @@ track what happens in the proof queue."
 	  ;; More efficient: keep track of size of queue as modified.
 	  (>= (length proof-action-list) proof-shell-silent-threshold)))
 
-
-(defsubst proof-shell-invoke-callback (listitem)
-  "From `proof-action-list' LISTITEM, invoke the callback on the span."
-  (condition-case nil
-      (funcall (nth 2 listitem) (car listitem))
-    (error nil)))
 
 (defsubst proof-shell-insert-action-item (item)
   "Insert ITEM from `proof-action-list' into the proof shell."
