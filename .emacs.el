@@ -7,23 +7,23 @@
 ;; Add other site-lisp directories, in case they were not setup by the
 ;; environment.
 
-(dolist
-    (path
-     (reverse
-      (list "~/Dropbox" "." "site-lisp"
+(dolist (path
+         (reverse
+          (list "~/Dropbox" "." "site-lisp"
 
-            ;; Packages that bury their Lisp code in subdirectories...
-            "site-lisp/ess/lisp"
-            "site-lisp/org-mode/contrib/lisp"
-            "site-lisp/org-mode/lisp"
+                ;; Packages that bury their Lisp code in subdirectories...
+                "site-lisp/ess/lisp"
+                "site-lisp/org-mode/contrib/lisp"
+                "site-lisp/org-mode/lisp"
 
-            ;; Packages located elsewhere on the system...
-            "~/Projects/ledger/lisp"
-            "/opt/local/share/doc/git-core/contrib/emacs"
-            )))
+                ;; Packages located elsewhere on the system...
+                "~/Projects/ledger/lisp"
+                "/opt/local/share/doc/git-core/contrib/emacs"
+                )))
 
   (setq path (expand-file-name path emacs-lisp-root))
-  (setq load-path (delete path load-path))
+  (setq load-path (delete path load-path)
+        load-path (delete (file-name-as-directory path) load-path))
 
   (when (file-directory-p path)
     (let ((default-directory path))
@@ -108,7 +108,7 @@
  '(eshell-ls-dired-initial-args (quote ("-h")))
  '(eshell-ls-exclude-regexp "~\\'")
  '(eshell-ls-initial-args "-h")
- '(eshell-modules-list (quote (eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-term eshell-unix eshell-xtra)))
+ '(eshell-modules-list (quote (eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-smart eshell-term eshell-unix eshell-xtra)))
  '(eshell-prefer-to-shell t nil (eshell))
  '(eshell-prompt-function (lambda nil (concat (abbreviate-file-name (eshell/pwd)) (if (= (user-uid) 0) " # " " $ "))))
  '(eshell-save-history-on-exit t)
@@ -125,9 +125,10 @@
  '(frame-title-format (quote (:eval (if buffer-file-name default-directory "%b"))) t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
- '(haskell-check-command "~/.cabal/bin/hlint" t)
- '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
+ '(haskell-check-command "~/.cabal/bin/hlint")
  '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan my-haskell-mode-hook)))
+ '(haskell-program-name "ghci")
+ '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-maybe-show-regexps nil)
