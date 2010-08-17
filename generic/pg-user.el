@@ -1410,6 +1410,9 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 
 (defvar proof-autosend-timer nil "Timer used by autosend.")
 
+(deflocal proof-autosend-error-point nil
+  "If auto-sending hits an error, records the point where it is.")
+
 ;;;###autoload
 (defun proof-autosend-enable (&optional nomsg)
   "Enable or disable autosend behaviour."
@@ -1434,14 +1437,13 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
     (unless (proof-locked-region-full-p)
 	(proof-autosend-loop1))))
 
-(deflocal proof-autosend-error-point nil
-  "If autosending hit an error, records the point where it is.")
-
 (defun proof-autosend-loop1 ()
   "Send commands from the script until an error, complete, or input appears."
   (when proof-autosend-error-point
     (if (< proof-last-edited-low-watermark proof-autosend-error-point)
 	;; there was an edit before the error
+	;; FIXME: this isn't good enough, edit of the command which caused
+	;; the error, or earlier is what we want.  Need to record that.
 	(setq proof-autosend-error-point nil)))
   (unless proof-autosend-error-point 
     (message "Sending commands to prover...")
@@ -1459,13 +1461,13 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	  (proof-shell-wait t) ; interruptible
 	  (cond
 	   ((eq proof-shell-last-output-kind 'error)
-	    (setq proof-autosend-error-point (proof-unprocessed-begin)))
-	   (message "Sending commands to prover...error."))
-	  ((and (input-pending-p) proof-shell-busy)
-	   (proof-interrupt-process)
-	   (message "Sending commands to prover...interrupted."))
-	  (t
-	   (message "Sending commands to prover...done.")))
+	    (setq proof-autosend-error-point (proof-unprocessed-begin))
+	    (message "Sending commands to prover...error."))
+	   ((and (input-pending-p) proof-shell-busy)
+	    (proof-interrupt-process)
+	    (message "Sending commands to prover...interrupted."))
+	   (t
+	    (message "Sending commands to prover...done."))))
       (setq proof-autosend-running nil))))
 
 
