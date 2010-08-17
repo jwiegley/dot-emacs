@@ -11,12 +11,12 @@ Please also check the BUGS file.
 Q1. Proof General fails to load with an error message on start-up,
     containing text like this: 
   
-       Proof General was compiled for GNU Emacs 22.2 but 
-       running on XEmacs 23.0: please run "make clean; make"
+       Proof General was compiled for GNU Emacs 23.1 but 
+       is running on Emacs 22.3: please run "make clean; make"
 
     What's wrong?
 
-A1. We distribute compiled .elcs for GNU Emacs 22.2, so you will have to
+A1. We distribute compiled .elcs for GNU Emacs 23.1, so you will have to
     delete them and (optionally) recompile for your preferred 
     Emacs version.  Using the Makefile:
 
@@ -24,28 +24,13 @@ A1. We distribute compiled .elcs for GNU Emacs 22.2, so you will have to
 
     and then a command like this:
 
-     make EMACS=emacs-23.0
+     make EMACS=emacs-22.3
 
 -----------------------------------------------------------------
 
-Q2. Proof General fails to load with an error message like this: 
+Q2. Emacs appears to hang when the prover process is started.
 
-     file mode specification error: 
-	(file-error "cannot open load file" "executable")
-
-    What's wrong?
-
-A2. You're missing some Emacs (probably XEmacs) packages.  See
-    the section "Dependency on Other Emacs Packages" in INSTALL.
-    Quicker answer: install the "XEmacs Sumo" package collection.
-
-
-
------------------------------------------------------------------
-
-Q3. Emacs appears to hang when the prover process is started.
-
-A3. This is usually caused by UTF-8 support in recent linuxes with
+A2. This is usually caused by UTF-8 support in recent linuxes with
     Glibc 2.2 or later, probably enabled with UTF8 encoded output in
     your default locale.  Unfortunately Proof General traditionally
     relied on 8-bit characters which are UTF8 prefixes in the output of
@@ -53,7 +38,7 @@ A3. This is usually caused by UTF-8 support in recent linuxes with
     not flushed to stdout individually.  As a workaround we can disable
     interpretation of UTF8 in the C libraries.
 
-    Doing this inside PG/Emacs is unreliable; locale settings are
+    Doing this inside Proof General is unreliable; locale settings are
     set/inherited in strange ways.  One solution is to run the Emacs
     process itself with an altered locale setting, e.g., 
 

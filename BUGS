@@ -12,7 +12,7 @@ For latest, see: http://proofgeneral.inf.ed.ac.uk/trac
 See also FAQ:    http://proofgeneral.inf.ed.ac.uk/FAQ
 
 The bugs here are split into problems which are generic,
-and those which only apply to particular provers.
+and those which only apply to particular provers.  
 
 The FAQ mentions other issues which are not necessarily PG bugs.
 
@@ -24,7 +24,7 @@ problem carefully, include a short demonstration file and tell us the
 exact version of Emacs and Proof General that you are using.
 
 
-* Generic problems
+* General issues
 
 ** If the proof assistant goes into a loop displaying lots of information
 
