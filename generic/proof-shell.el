@@ -27,7 +27,6 @@
 (require 'pg-user)			; proof-script, new-command-advance
 
 
-;; ============================================================
 ;;
 ;; Internal variables used by proof shell
 ;;
@@ -84,6 +83,11 @@ The previous output is held back for processing at end of queue.")
 
 (defvar proof-shell-delayed-output-flags nil
   "A copy of the `proof-action-list' flags for `proof-shell-delayed-output'.")
+
+(defvar proof-shell-interrupt-pending nil
+  "A flag indicating an interrupt is pending.
+This ensures that the proof queue will be interrupted even if no
+interrupt message is printed from the prover after the last output.")
 
 
 
@@ -609,7 +613,12 @@ In both cases we then sound a beep, clear the queue and spans and
 finally we call `proof-shell-handle-error-or-interrupt-hook'.
 
 Commands which are not part of regular script management (with
-non-empty flags='no-error-display) will not cause any action." ; PG4.0
+non-empty flags='no-error-display) will not cause any display action.
+
+This is called in two places: (1) from the output processing
+functions, in case we find an error or interrupt message output,
+and (2) from the exec loop, in case of a pending interrupt which
+didn't cause prover output."
   (unless (memq 'no-error-display flags)
     (cond
      ((eq err-or-int 'interrupt)
@@ -626,7 +635,9 @@ non-empty flags='no-error-display) will not cause any action." ; PG4.0
       (proof-shell-handle-error-output
        (if proof-shell-truncate-before-error proof-shell-error-regexp)
        'proof-error-face)
-      (proof-display-and-keep-buffer proof-response-buffer)))
+      (proof-display-and-keep-buffer proof-response-buffer))))
+  
+  (proof-with-current-buffer-if-exists proof-shell-buffer
     (proof-shell-error-or-interrupt-action err-or-int)))
 
 (defun proof-shell-error-or-interrupt-action (err-or-int)
@@ -636,23 +647,18 @@ This is a subroutine of `proof-shell-handle-error-or-interrupt'"
   (save-excursion
     (unless proof-shell-quiet-errors
       (beep))
-    (let* ((commit    (and proof-shell-interrupts-after-commit
-			   (eq err-or-int 'interrupt)))
-	   (fatalitem (if commit
-			  (nth 1 proof-action-list)
-			(car-safe proof-action-list)))
-	   (badspan   (car-safe fatalitem))
-	   (flags     (if fatalitem (nthcdr 3 fatalitem))))
+    (let* ((fatalitem  (car-safe proof-action-list))
+	   (badspan    (car-safe fatalitem))
+	   (flags      (if fatalitem (nthcdr 3 fatalitem))))
+
     (proof-with-current-buffer-if-exists proof-script-buffer
-      (if commit
-	  ;; process the script effects here (TODO: messages, lost for now)
-	  (proof-shell-invoke-callback (car-safe proof-action-list)))
-      (proof-script-clear-queue-spans-on-error badspan))
+      (proof-script-clear-queue-spans-on-error badspan 
+					       (eq err-or-int 'interrupt)))
 
     (setq proof-action-list nil)
     (proof-release-lock)
-    ;; Give a hint about C-c C-`.  (NB: approximate test)
     (unless flags
+      ;; Give a hint about C-c C-`.  (NB: approximate test)
       (if (pg-response-has-error-location)
 	  (pg-next-error-hint)))
     (run-hooks 'proof-shell-handle-error-or-interrupt-hook))))
@@ -749,11 +755,6 @@ after a completed proof."
   "A flag indicating some input has been sent and we're expecting output.
 This is used when processing interrupts.")
 
-(defvar proof-shell-interrupt-pending nil
-  "A flag indicating an interrupt is pending.
-This ensures that the proof queue will be interrupted even if no
-interrupt message is printed from the prover after the last output.")
-
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General.
 
@@ -766,7 +767,7 @@ most of the time, and all of the time if the proof assistant has a careful
 handling of interrupt signals.
 
 Some provers may ignore (and lose) interrupt signals, or fail to indicate
-that they have been acted upon but get stop in the middle of output.
+that they have been acted upon yet stop in the middle of output.
 In the first case, PG will terminate the queue of commands at the first
 available point.  In the second case, you may need to press enter inside
 the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*)."
@@ -778,7 +779,7 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
   (with-current-buffer proof-shell-buffer
     (if proof-shell-expecting-output
 	(progn
-	  (setq proof-shell-interrupt-pending t) ; interrupt even if no interrupt message
+	  (setq proof-shell-interrupt-pending t)
 	  (interrupt-process))
       ;; otherwise, interrupt the queue right here
       (proof-shell-error-or-interrupt-action 'interrupt))))
@@ -978,14 +979,15 @@ The queue mode is set to 'advancing"
   (proof-add-to-queue queueitems 'advancing))
 
 (defun proof-shell-exec-loop ()
-  "This is the main loop processing the `proof-action-list'.
+  "Main loop processing the `proof-action-list', called from shell filter.
 
 `proof-action-list' contains a list of (SPAN COMMAND ACTION [FLAGS]) lists.
 
-If this function is called with a non-empty proof-action-list, the
+If this function is called with a non-empty `proof-action-list', the
 head of the list is the previously executed command which succeeded.
-We execute (ACTION SPAN) on the first item, then (ACTION SPAN) on any
-following items which have null as their cmd components.
+We execute the callback (ACTION SPAN) on the first item,
+then (ACTION SPAN) on any following items which have null as
+their cmd components.
 
 If a there is a next command after that, send it to the process.
 
@@ -998,8 +1000,8 @@ The return value is non-nil if the action list is now empty."
       (if proof-script-buffer		      ; switch to active script
 	  (set-buffer proof-script-buffer))
 
-      (let* ((item  (car proof-action-list))
-	     (flags (nthcdr 3 (car proof-action-list)))
+      (let* ((item    (car proof-action-list))
+	     (flags   (nthcdr 3 (car proof-action-list)))
 	     cbitems)
 
 	;; now we should invoke callback on just processed command,
@@ -1021,12 +1023,9 @@ The return value is non-nil if the action list is now empty."
 		  (cons (proof-shell-stop-silent-item)
 			proof-action-list)))
 
-	;; pending interrupts: sent but caused no prover error
-	(if proof-shell-interrupt-pending
-	    (progn
-	      (proof-debug "Processed pending interrupt")
-	      ;; don't pass in flags: want to see interrupt message
-	      (proof-shell-handle-error-or-interrupt 'interrupt nil)))
+	;; pending interrupts: we want to stop the queue here
+	(when proof-shell-interrupt-pending
+	  (proof-shell-handle-error-or-interrupt 'interrupt flags))
 
 	(if proof-action-list
 	    ;; send the next command to the process.
@@ -1412,8 +1411,7 @@ by the filter is to send the next command from the queue."
   (let ((cmd   (nth 1 (car proof-action-list)))
 	(flags (nthcdr 3 (car proof-action-list))))
 
-    ;; Keep a copy of the last message from the prover
-    ;; PG 4.0: this is kept verbatim, never modified.
+    ;; A copy of the last message, verbatim, never modified.
     (setq proof-shell-last-output
 	  (buffer-substring-no-properties start end))
 
@@ -1424,9 +1422,9 @@ by the filter is to send the next command from the queue."
       (setq proof-shell-delayed-output-start start)
       (setq proof-shell-delayed-output-end end)
       (setq proof-shell-delayed-output-flags flags)
-      ;; only display result for last output
       (if (proof-shell-exec-loop)
 	  (setq proof-shell-last-output-kind
+		;; only display result for last output
 		(proof-shell-handle-delayed-output))))))
 
 

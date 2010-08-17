@@ -308,11 +308,13 @@ value of proof-locked span."
   "Remove all spans from scripting buffers via `proof-restart-buffers'."
   (proof-restart-buffers (proof-script-buffers-with-spans)))
 
-(defun proof-script-clear-queue-spans-on-error (badspan)
+(defun proof-script-clear-queue-spans-on-error (badspan &optional interruptp)
   "Remove the queue span from buffer, cleaning spans no longer queued.
 If BADSPAN is non-nil, assume that this was the span whose command
 caused the error.  Go to the start of it if `proof-follow-mode' is
 'locked.
+
+If INTERRUPTP is non-nil, do not consider BADSPAN itself as faulty.
 
 This is a subroutine used in proof-shell-handle-{error,interrupt}."
     (let ((start (proof-unprocessed-begin))
@@ -325,10 +327,11 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	    ;; jump to start of error: should this be configurable?
 	    (goto-char (span-start badspan))
 	    (skip-chars-forward " \t\n")))
-	(when proof-sticky-errors
-	  (pg-set-span-helphighlights badspan
-				      'proof-script-highlight-error-face
-				      'proof-script-sticky-error-face)))
+	(unless interruptp
+	  (when proof-sticky-errors
+	    (pg-set-span-helphighlights badspan
+					'proof-script-highlight-error-face
+					'proof-script-sticky-error-face))))
       (proof-script-delete-spans start end)))
 
 (defun proof-script-delete-spans (beg end)
@@ -372,7 +375,7 @@ This position should be the first writable position in the buffer.
 An appropriate point to move point to (or make sure is displayed)
 when a queue of commands is being processed."
   (or
-   ;; span-end returns nil if span is detatched
+   ;; span-end returns nil if span is detached
    (and proof-queue-span (span-end proof-queue-span))
    (and proof-locked-span (span-end proof-locked-span))
    (point-min)))
