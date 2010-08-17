@@ -1435,9 +1435,9 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 (defun proof-autosend-loop ()
   (proof-with-current-buffer-if-exists proof-script-buffer
     (unless (proof-locked-region-full-p)
-	(proof-autosend-loop1))))
+	(proof-autosend-loop-all))))
 
-(defun proof-autosend-loop1 ()
+(defun proof-autosend-loop-all ()
   "Send commands from the script until an error, complete, or input appears."
   (when proof-autosend-error-point
     (if (< proof-last-edited-low-watermark proof-autosend-error-point)
@@ -1445,7 +1445,8 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	;; FIXME: this isn't good enough, edit of the command which caused
 	;; the error, or earlier is what we want.  Need to record that.
 	(setq proof-autosend-error-point nil)))
-  (unless proof-autosend-error-point 
+  (unless (or proof-autosend-error-point  
+	      (eq proof-shell-last-queuemode 'retracting))
     (message "Sending commands to prover...")
     (setq proof-autosend-running t)
     (unwind-protect
@@ -1470,6 +1471,10 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	   (t
 	    (message "Sending commands to prover...done."))))
       (setq proof-autosend-running nil))))
+
+;; TODO (see beyondsm)
+;; (defun proof-autosend-loop-next ()
+;;  "Send the next command from the script and indicate its success/otherwise"
 
 
 (provide 'pg-user)

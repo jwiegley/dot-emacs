@@ -83,7 +83,15 @@ has been set.")
 (defvar proof-shell-busy nil
   "A lock indicating that the proof shell is processing.
 When this is non-nil, `proof-shell-ready-prover' will give
-an error.")
+an error.
+
+When processing commands from a buffer for script management,
+this will be set to either 'advancing or 'retracting to indicate
+the direction of movement.")
+
+(defvar proof-shell-last-queuemode nil
+  "Flag indicating last direction of proof queue.
+This is actually the last non-nil value of `proof-shell-busy'.")
 
 (defvar proof-included-files-list nil
   "List of files currently included in proof process.

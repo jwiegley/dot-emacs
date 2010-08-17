@@ -2130,7 +2130,8 @@ up to the end of the locked region."
 			      (funcall proof-find-and-forget-fn target)
 			      delete-region))))
 
-    (proof-start-queue (min start end) (proof-unprocessed-begin) actions)))
+    (proof-start-queue (min start end) (proof-unprocessed-begin) 
+		       actions 'retracting)))
 
 ;; FIXME da:  I would rather that this function moved point to
 ;; the start of the region retracted?

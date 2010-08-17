@@ -176,15 +176,14 @@ No error messages.  Useful as menu or toolbar enabler."
 Runs `proof-state-change-hook' to notify state change.
 If QUEUEMODE is supplied, set the lock to that value."
   (proof-shell-ready-prover queuemode)
-  (setq proof-shell-interrupt-pending nil)
-  (setq proof-shell-busy (or queuemode t))
+  (setq proof-shell-interrupt-pending nil
+	proof-shell-busy (or queuemode t)
+	proof-shell-last-queuemode proof-shell-busy)
   (run-hooks 'proof-state-change-hook))
 
 (defun proof-release-lock ()
   "Release the proof shell lock.  Clear `proof-shell-busy'."
-  (setq proof-shell-busy nil)
-  ;; PG4.0: TODO: alter modeline indicator
-  )
+  (setq proof-shell-busy nil))
 
 
 
@@ -489,6 +488,7 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
   (setq proof-action-list nil
 	proof-included-files-list nil
 	proof-shell-busy nil
+	proof-shell-last-queuemode nil
 	proof-shell-proof-completed nil
 	proof-nesting-depth 0
 	proof-shell-silent nil
@@ -957,7 +957,7 @@ being processed."
 
 
 ;;;###autoload
-(defun proof-start-queue (start end queueitems)
+(defun proof-start-queue (start end queueitems &optional queuemode)
   "Begin processing a queue of commands in QUEUEITEMS.
 If START is non-nil, START and END are buffer positions in the
 active scripting buffer for the queue region.
@@ -965,7 +965,7 @@ active scripting buffer for the queue region.
 This function calls `proof-add-to-queue'."
   (if start
       (proof-set-queue-endpoints start end))
-  (proof-add-to-queue queueitems))
+  (proof-add-to-queue queueitems queuemode))
 
 ;;;###autoload
 (defun proof-extend-queue (end queueitems)
