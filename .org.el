@@ -126,7 +126,7 @@
 			    (list "3.0"))
 		      (list "Bizcard" (list "Catalog" "Content Section"
 					    "Uploader" "Visual Aesthetics"
-					    "webui")
+					    "webui" "Linux Port")
 			    (list "unspecified"))
 		      (list "Adagio" (list "DTSX" "PTS" "Satellite" "Zips"
 					   "Core")
