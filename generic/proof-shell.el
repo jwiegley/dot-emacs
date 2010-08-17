@@ -642,25 +642,25 @@ didn't cause prover output."
 (defun proof-shell-error-or-interrupt-action (err-or-int)
   "Take action on errors or interrupts.
 ERR-OR-INT is a flag, 'error or 'interrupt.
-This is a subroutine of `proof-shell-handle-error-or-interrupt'"
-  (save-excursion
-    (unless proof-shell-quiet-errors
-      (beep))
-    (let* ((fatalitem  (car-safe proof-action-list))
-	   (badspan    (car-safe fatalitem))
-	   (flags      (if fatalitem (nthcdr 3 fatalitem))))
+This is a subroutine of `proof-shell-handle-error-or-interrupt'.
+Must be called with proof shell buffer current."
+  (unless proof-shell-quiet-errors
+    (beep))
+  (let* ((fatalitem  (car-safe proof-action-list))
+	 (badspan    (car-safe fatalitem))
+	 (flags      (if fatalitem (nth 3 fatalitem))))
 
     (proof-with-current-buffer-if-exists proof-script-buffer
-      (proof-script-clear-queue-spans-on-error badspan 
-					       (eq err-or-int 'interrupt)))
-
+      (save-excursion
+	(proof-script-clear-queue-spans-on-error badspan 
+						 (eq err-or-int 'interrupt))))
     (setq proof-action-list nil)
     (proof-release-lock)
     (unless flags
       ;; Give a hint about C-c C-`.  (NB: approximate test)
       (if (pg-response-has-error-location)
 	  (pg-next-error-hint)))
-    (run-hooks 'proof-shell-handle-error-or-interrupt-hook))))
+    (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."
@@ -1005,7 +1005,7 @@ The return value is non-nil if the action list is now empty."
 	  (set-buffer proof-script-buffer))
 
       (let* ((item    (car proof-action-list))
-	     (flags   (nthcdr 3 (car proof-action-list)))
+	     (flags   (nth 3 (car proof-action-list)))
 	     cbitems)
 
 	;; now we should invoke callback on just processed command,
@@ -1029,6 +1029,8 @@ The return value is non-nil if the action list is now empty."
 
 	;; pending interrupts: we want to stop the queue here
 	(when proof-shell-interrupt-pending
+	  (mapc 'proof-shell-invoke-callback cbitems)
+	  (setq cbitems nil)
 	  (proof-shell-handle-error-or-interrupt 'interrupt flags))
 
 	(if proof-action-list
@@ -1036,7 +1038,7 @@ The return value is non-nil if the action list is now empty."
 	    (proof-shell-insert-action-item (car proof-action-list)))
 
 	;; process the delayed callbacks now
-	(mapc 'proof-shell-invoke-callback cbitems)
+	(mapc 'proof-shell-invoke-callback cbitems)	
 
 	(unless proof-action-list	; release lock, cleanup
 	  (proof-release-lock)
@@ -1413,7 +1415,7 @@ output that slows down processing.
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue."
   (let ((cmd   (nth 1 (car proof-action-list)))
-	(flags (nthcdr 3 (car proof-action-list))))
+	(flags (nth 3 (car proof-action-list))))
 
     ;; A copy of the last message, verbatim, never modified.
     (setq proof-shell-last-output
