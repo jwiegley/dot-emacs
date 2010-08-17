@@ -92,10 +92,11 @@ The previous output is held back for processing at end of queue.")
 ;;
 
 (defcustom proof-shell-active-scripting-indicator
-  (propertize " Scripting " 'face 'proof-queue-face)
+  '(:eval (propertize " Scripting " 'face 
+		       (if proof-shell-busy 'proof-queue-face
+		       'proof-locked-face)))
   "Modeline indicator for active scripting buffer.
-If first component is extent it will automatically follow the colour
-of the queue region."
+Changes colour to indicate whether the shell is busy."
   :type 'sexp
   :group 'proof-general-internals)
 
@@ -173,8 +174,6 @@ If QUEUEMODE is supplied, set the lock to that value."
   (proof-shell-ready-prover queuemode)
   (setq proof-shell-interrupt-pending nil)
   (setq proof-shell-busy (or queuemode t))
-  ;; Make modeline indicator follow state (on XEmacs at least)
-  ;; PG4.0: TODO: alter modeline indicator
   (run-hooks 'proof-state-change-hook))
 
 (defun proof-release-lock ()
