@@ -1465,7 +1465,8 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	    (message "Sending commands to prover...error."))
 	   ((and (input-pending-p) proof-shell-busy)
 	    (proof-interrupt-process)
-	    (message "Sending commands to prover...interrupted."))
+	    (message "Sending commands to prover...interrupted.")
+	    (proof-shell-wait))
 	   (t
 	    (message "Sending commands to prover...done."))))
       (setq proof-autosend-running nil))))
