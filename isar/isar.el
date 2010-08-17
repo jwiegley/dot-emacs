@@ -331,19 +331,19 @@ This is called when Proof General spots output matching
 
 ;;; NB: definvisible must be after derived modes (uses isar-mode-map)
 
-(proof-definvisible isar-help-antiquotations "print_antiquotations" [h A])
-(proof-definvisible isar-help-attributes "print_attributes" [h a])
-(proof-definvisible isar-help-cases "print_cases" [h c])
-(proof-definvisible isar-help-claset "print_claset" [h C])
-(proof-definvisible isar-help-commands "print_commands" [h o])
-(proof-definvisible isar-help-facts "print_facts" [h f])
-(proof-definvisible isar-help-syntax "print_syntax" [h i])
-(proof-definvisible isar-help-induct-rules "print_induct_rules" [h I])
-(proof-definvisible isar-help-methods "print_methods" [h m])
-(proof-definvisible isar-help-simpset "print_simpset" [h S])
-(proof-definvisible isar-help-binds "print_binds" [h b])
-(proof-definvisible isar-help-theorems "print_theorems" [h t])
-(proof-definvisible isar-help-trans-rules "print_trans_rules" [h T])
+(proof-definvisible isar-help-antiquotations "print_antiquotations" "hA")
+(proof-definvisible isar-help-attributes "print_attributes" "ha")
+(proof-definvisible isar-help-cases "print_cases" "hc")
+(proof-definvisible isar-help-claset "print_claset" "hC")
+(proof-definvisible isar-help-commands "print_commands" "ho")
+(proof-definvisible isar-help-facts "print_facts" "hf")
+(proof-definvisible isar-help-syntax "print_syntax" "hi")
+(proof-definvisible isar-help-induct-rules "print_induct_rules" "hI")
+(proof-definvisible isar-help-methods "print_methods" "hm")
+(proof-definvisible isar-help-simpset "print_simpset" "hS")
+(proof-definvisible isar-help-binds "print_binds" "hb")
+(proof-definvisible isar-help-theorems "print_theorems" "ht")
+(proof-definvisible isar-help-trans-rules "print_trans_rules" "hT")
 
 ;;
 ;; Command menu
@@ -366,7 +366,7 @@ This is called when Proof General spots output matching
 
 (proof-definvisible isar-cmd-quickcheck "quickcheck" [(control q)])
 (proof-definvisible isar-cmd-nitpick "nitpick" [(control n)])
-(proof-definvisible isar-cmd-refute "refute" [r])
+(proof-definvisible isar-cmd-refute "refute" "r")
 (proof-definvisible isar-cmd-sledgehammer "sledgehammer" [(control s)])
 
 (defpgdefault menu-entries
