@@ -847,7 +847,7 @@ used in `proof-add-to-queue' when we start processing a queue, and in
 (defun proof-shell-action-list-item (cmd callback &optional flags)
   "Return action list entry run CMD with callback CALLBACK and FLAGS.
 The queue entry does not refer to a span in the script buffer."
-  (append (list nil (list cmd) callback) flags))
+  (list nil (list cmd) callback flags))
 
 (defun proof-shell-set-silent (span)
   "Callback for `proof-shell-start-silent'.
