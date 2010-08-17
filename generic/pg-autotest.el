@@ -251,7 +251,8 @@ completely processing the buffer as the last step."
 (defun pg-autotest-test-quit-prover ()
   "Exit prover process."
   (if (buffer-live-p proof-shell-buffer)
-	(kill-buffer proof-shell-buffer)
+      (let ((kill-buffer-query-functions nil)) 
+	(kill-buffer proof-shell-buffer))
     (error "No proof shell buffer to kill")))
 
 
