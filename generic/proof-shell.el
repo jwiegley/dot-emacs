@@ -193,8 +193,7 @@ If QUEUEMODE is supplied, set the lock to that value."
 ;;
 
 (defcustom proof-shell-fiddle-frames t
-  "Non-nil if proof-shell functions should fire-up/delete frames.
-NB: this is a temporary config variable, it will be removed at some point!"
+  "Non-nil if proof-shell functions should fire-up/delete frames like crazy."
   :type 'boolean
   :group 'proof-shell)
 
@@ -840,11 +839,10 @@ used in `proof-add-to-queue' when we start processing a queue, and in
       (setq proof-shell-expecting-output t))))
 
 
-;; ============================================================
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Code for manipulating proof queue
 ;;
-
 
 (defun proof-shell-action-list-item (cmd callback &optional flags)
   "Return action list entry run CMD with callback CALLBACK and FLAGS.
@@ -977,6 +975,12 @@ for processing a region from (buffer-queue-or-locked-end) to END.
 The queue mode is set to 'advancing"
   (proof-set-queue-endpoints (proof-unprocessed-begin) end)
   (proof-add-to-queue queueitems 'advancing))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; MAIN LOOP
+;;
 
 (defun proof-shell-exec-loop ()
   "Main loop processing the `proof-action-list', called from shell filter.
