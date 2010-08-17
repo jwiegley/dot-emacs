@@ -307,14 +307,17 @@ process command."
 	;;		    (if proof-shell-unicode 'utf-8 'raw-text))
 	;;	      process-coding-system-alist)))
 
-	;; PG 4.0: does this setting improve performance?
-	;; A: persisting delay doesn't
-	;; (setq process-adaptive-read-buffering t)
-
 	(message "Starting: %s" prog-command-line)
 
-	(apply 'scomint-make  (append (list proc (car prog-name-list) nil)
-				      (cdr prog-name-list)))
+	(let
+	    ;; Trac #324: default for this on MacOS (Aquamacs 2.0 (23.2), GNU) is t,
+	    ;; whereas on Linux it is nil, and default of t gives poor performance.
+	    ;; On Mac, t gives better profile results on homogenous
+	    ;; test input AHundredTheorems but perhaps worse interactively?
+	    ((process-adaptive-read-buffering nil))
+
+	  (apply 'scomint-make  (append (list proc (car prog-name-list) nil)
+					(cdr prog-name-list))))
 
 	(setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
@@ -1616,9 +1619,9 @@ in some cases.   May be called by `proof-shell-invisible-command'."
     (when proverproc
       (while (and proof-shell-busy (not quit-flag)
 		  (not (and interrupt-on-input (input-pending-p))))
-	(accept-process-output proverproc 0.2) ;; NB: FIXME likely GE 23-ism
-	;; assume filters ran, redisplay
-	(redisplay t))
+	;; FIXME: check below OK on GE 22/23.1.  See Trac #324
+	(accept-process-output proverproc 0.01 nil 1)
+	(redisplay))
       (if quit-flag
 	  (error "Proof General: Quit in proof-shell-wait")))))
 
