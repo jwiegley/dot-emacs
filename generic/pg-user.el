@@ -1419,6 +1419,7 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
     (setq proof-autosend-timer
 	  (run-with-idle-timer proof-autosend-delay 
 			       t 'proof-autosend-loop))
+    (setq proof-autosend-error-point nil)
     (unless nomsg (message "Automatic sending turned on.")))
   (when (not proof-autosend-enable)
     (setq proof-autosend-timer nil)
@@ -1433,58 +1434,39 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
     (unless (proof-locked-region-full-p)
 	(proof-autosend-loop1))))
 
+(deflocal proof-autosend-error-point nil
+  "If autosending hit an error, records the point where it is.")
+
 (defun proof-autosend-loop1 ()
   "Send commands from the script until an error, complete, or input appears."
-  (let ((making-progress t) last-locked-end)
-    (setq proof-autosend-running t)
+  (when proof-autosend-error-point
+    (if (< proof-last-edited-low-watermark proof-autosend-error-point)
+	;; there was an edit before the error
+	(setq proof-autosend-error-point nil)))
+  (unless proof-autosend-error-point 
     (message "Sending commands to prover...")
+    (setq proof-autosend-running t)
     (unwind-protect
 	(progn
 	  (save-excursion
-	    ;; TODO: try it in chunks
 	    (goto-char (point-max))
 	    (proof-assert-until-point 
 	     (if proof-multiple-frames-enable 
-		 'no-minibuffer-messages ; nb: not API but n
-	       '(no-response-display 
-		 no-error-display
-		 no-goals-display))))
+		 'no-minibuffer-messages ; nb: not API
+	     '(no-response-display 
+	       no-error-display
+	       no-goals-display))))
 	  (proof-shell-wait t) ; interruptible
-	  (if (input-pending-p)
-	      ;; stop things here
-	      (proof-interrupt-process)))
-      (setq proof-autosend-running nil))
-    (message "Sending commands to prover...done.")))
-
-
-;; alternative incremental, less aggressive version of above
-(defun proof-autosend-loop1-old ()
-  "Send commands from the script until an error, complete, or input appears."
-  (let ((making-progress t) last-locked-end)
-    (setq proof-autosend-running t)
-    (message "Sending commands to prover...")
-    (unwind-protect
-	(while (and making-progress (not (input-pending-p)))
-	  (setq last-locked-end (proof-unprocessed-begin))
-	  (save-excursion
-	    (goto-char last-locked-end)
-	    (skip-chars-forward " \t\n")
-	    (proof-assert-until-point 
-	     (if proof-multiple-frames-enable nil
-	       '(no-response-display 
-		 no-error-display
-		 no-goals-display
-		 no-point-movement))))
-	  (proof-shell-wait)
-	  (setq making-progress (> (proof-unprocessed-begin) 
-				   last-locked-end)))
-      ;; FIXME: not quite right behaviour: proof-done-advancing can
-      ;; still move point afterwards when prover output is processed,
-      ;; even though we didn't want that to happen.
-      ;; Really we should obey no-point-movement above.
-      (setq proof-autosend-running nil))
-    (message "Sending commands to prover...done.")))
-
+	  (cond
+	   ((eq proof-shell-last-output-kind 'error)
+	    (setq proof-autosend-error-point (proof-unprocessed-begin)))
+	   (message "Sending commands to prover...error."))
+	  ((and (input-pending-p) proof-shell-busy)
+	   (proof-interrupt-process)
+	   (message "Sending commands to prover...interrupted."))
+	  (t
+	   (message "Sending commands to prover...done.")))
+      (setq proof-autosend-running nil))))
 
 
 (provide 'pg-user)
