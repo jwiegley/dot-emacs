@@ -136,10 +136,6 @@ See `proof-shell-thm-display-regexp' for details.")
 Set to 'error or 'interrupt if one was observed from the proof
 assistant during the last group of commands.")
 
-(defvar proof-shell-interrupt-pending nil
-  "Non-nil indicates that an interrupt is pending.
-The queue will be terminated on the next call to the filter function.")
-
 (defvar pg-response-next-error nil
   "Error counter in response buffer to count for next error message.")
 
