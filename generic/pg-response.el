@@ -419,8 +419,9 @@ and start at the first error."
 See `pg-next-error-regexp'."
   (if pg-next-error-regexp
       (proof-with-current-buffer-if-exists proof-response-buffer
-	(goto-char (point-min))
-	(re-search-forward pg-next-error-regexp nil t))))
+	(save-excursion
+	  (goto-char (point-min))
+	  (re-search-forward pg-next-error-regexp nil t)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
