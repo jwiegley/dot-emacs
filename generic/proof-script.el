@@ -13,7 +13,7 @@
 ;; parsing script buffers and setting spans inside them.
 ;;
 ;; Compile note: functions used here from proof-shell, pg-user,
-;; pg-response, pg-goals autoloaded to prevent circular dependency.
+;; pg-response, pg-goals auto-loaded to prevent circular dependency.
 
 ;;; Code:
 
@@ -1927,13 +1927,13 @@ No effect if prover is busy."
 	   (proof-retract-until-point)))))
 
 (defun proof-inside-comment (pos)
-  "Returns non-nil if POS is inside a comment."
+  "Return non-nil if POS is inside a comment."
   (save-excursion
     (goto-char pos)
     (eq (proof-buffer-syntactic-context) 'comment)))
 
 (defun proof-inside-string (pos)
-  "Returns non-nil if POS is inside a comment."
+  "Return non-nil if POS is inside a comment."
   (save-excursion
     (goto-char pos)
     (eq (proof-buffer-syntactic-context) 'string)))
@@ -2573,6 +2573,9 @@ Choice of function depends on configuration setting."
 		    (list "Saves" proof-save-with-hole-regexp
 			  proof-save-with-hole-result))))))))
 
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Caching parse results for unedited portions of the buffer
@@ -2650,8 +2653,6 @@ Choice of function depends on configuration setting."
   (add-hook 'after-change-functions
 	    'proof-script-after-change-function nil t))
 
-
-	
 
 
 (provide 'proof-script)
