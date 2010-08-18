@@ -15,6 +15,25 @@ Maintaining compatibility across proof assistant versions, Emacs
 versions and operating systems is virtually impossible.  In this major
 release ** XEmacs compatibility has been dropped **
 
+
+Running on Mac OS X
+-------------------
+
+For tips, please see here:
+
+   http://proofgeneral.inf.ed.ac.uk/wiki/PGEmacsOnMacOSX
+
+We recommend the 23.2 build of GNU Emacs, which builds natively on Mac
+OS X (based on the NextStep port).  Binaries are available at various
+websites (e.g., http://emacsformacosx.com), or you can build your own
+by compiling from the FSF CVS. See the Emacs Wiki at
+http://www.emacswiki.org/emacs/EmacsForMacOS for more.
+
+Note that Mac compatibility isn't thoroughly tested.  If you discover
+problems, please send a report and/or fix to the PG trac.  Please
+add tips to the wiki page above.
+
+
 Running on Windows
 ------------------
 
@@ -39,23 +58,6 @@ Note that Windows compatibility isn't thoroughly tested by the
 maintainers.  If you discover problems, please send a report and/or
 fix to the address above.
 
-
-
-Running on Mac OS X
--------------------
-
-For tips, please see here:
-
-   http://proofgeneral.inf.ed.ac.uk/wiki/PGEmacsOnMacOSX
-
-We recommend the 23.2 build of GNU Emacs, which builds natively on Mac
-OS X (based on the NextStep port).  Binaries are available at various
-websites (e.g., http://emacsformacosx.com), or you can build your own
-by compiling from the FSF CVS. See the Emacs Wiki at
-http://www.emacswiki.org/emacs/EmacsForMacOS for more.
-
-Note that Mac compatibility isn't thoroughly tested.  If you discover
-problems, please send a report and/or fix to the PG trac.
 
 
 
