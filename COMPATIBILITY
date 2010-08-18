@@ -20,7 +20,7 @@ Running on Windows
 
 For tips, please see here:
 
-   http://proofgeneral.inf.ed.ac.uk/wiki/PG/PGEmacsOnWindows
+   http://proofgeneral.inf.ed.ac.uk/wiki/PGEmacsOnWindows
 
 We recommend EmacsW32 available at:
 
@@ -46,7 +46,7 @@ Running on Mac OS X
 
 For tips, please see here:
 
-   http://proofgeneral.inf.ed.ac.uk/wiki/PG/PGEmacsOnMacOSX
+   http://proofgeneral.inf.ed.ac.uk/wiki/PGEmacsOnMacOSX
 
 We recommend the 23.2 build of GNU Emacs, which builds natively on Mac
 OS X (based on the NextStep port).  Binaries are available at various
