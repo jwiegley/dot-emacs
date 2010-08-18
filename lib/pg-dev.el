@@ -1,6 +1,6 @@
 ;;; pg-dev.el --- Developer settings for Proof General
 ;;
-;; Copyright (C) 2008, 2009 LFCS Edinburgh.
+;; Copyright (C) 2008, 2009, 2010 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -115,6 +115,7 @@
 ;; Proling interesting packages
 ;;
 
+;;;###autoload
 (defun profile-pg ()
   (interactive)
   (elp-instrument-package "proof-")
@@ -127,9 +128,25 @@
   (elp-instrument-package "replace-") ; for replace-regexp etc
   (elp-instrument-package "re-search-") ; for re-search-forwad etc
   (elp-instrument-package "skip-chars-") ; for skip chars etc
-  (elp-instrument-function 'string-match)
-  (elp-instrument-function 'match-string)
+  (elp-instrument-list 
+   '(string-match match-string re-search-forward re-search-backward
+     skip-chars-forward skip-chars-backward
+     goto-char insert 
+     set-marker marker-position
+     nreverse nconc mapc
+     member
+     redisplay
+     sit-for
+     overlay-put overlay-start overlay-end make-overlay
+     buffer-live-p kill-buffer
+     process-status get-buffer-process 
+     delete-overlay move-overlay))
   (elp-instrument-package "font-lock"))
+
+;; improve readability of profile results, give milliseconds
+(defun elp-pack-number (number width)
+  (format (concat "%" (number-to-string (- width 3)) ".2f")
+	  (* 100 (string-to-number number))))
 
 
 ;;
