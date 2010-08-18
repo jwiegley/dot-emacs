@@ -603,8 +603,7 @@ Optional argument FACENIL means set the face property to nil, unless 'face is in
     (remove-from-invisibility-spec 'unicode-tokens-show-controls))
   (when (not unicode-tokens-show-controls)
     (add-to-invisibility-spec 'unicode-tokens-show-controls))
-  ;; EMACS ISSUE: how to force redisplay here to notice invis spec change?
-  (redisplay t))
+  (redraw-display))
 
 (defun unicode-tokens-control-char (name s &rest props)
   `(,(format unicode-tokens-control-char-format-regexp (regexp-quote s))
