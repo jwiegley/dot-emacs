@@ -37,7 +37,7 @@
 
 (defadvice proof-debug (before proof-debug-to-log (msg &rest args))
   "Output the debug message to the test log."
-  (pg-autotest-message msg args))
+  (apply 'pg-autotest-message msg args))
 
 ;;; Some utilities
 
