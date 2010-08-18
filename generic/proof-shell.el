@@ -310,10 +310,11 @@ process command."
 	(message "Starting: %s" prog-command-line)
 
 	(let
-	    ;; Trac #324: default for this on MacOS (Aquamacs 2.0 (23.2), GNU) is t,
-	    ;; whereas on Linux it is nil, and default of t gives poor performance.
-	    ;; On Mac, t gives better profile results on homogenous
-	    ;; test input AHundredTheorems but perhaps worse interactively?
+	    ;; Trac #324: default for this on Emacs 23 versions is t.
+	    ;; nil gives marginally better results with "make profile.isar"
+	    ;; on homogenous test input AHundredTheorems but perhaps 
+	    ;; worse interactively on varying input.  Should also test
+	    ;; behaviour with tracing output.
 	    ((process-adaptive-read-buffering nil))
 
 	  (apply 'scomint-make  (append (list proc (car prog-name-list) nil)
