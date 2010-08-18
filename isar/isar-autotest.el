@@ -17,6 +17,7 @@
 
 (declare-function isar-tracing:auto-quickcheck-toggle "isar.el")
 (declare-function isar-tracing:auto-solve-toggle "isar.el")
+(declare-function isar-proof:parallel-proofs-toggle "isar.el")
 
 (require 'pg-autotest)
 
@@ -31,6 +32,14 @@
 
   (pg-autotest remark "Testing standard Example.thy, Example-Xsym.thy")
   (pg-autotest script-wholefile "isar/Example.thy")
+
+  ;; Speed up prover
+  (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
+  (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
+  (pg-autotest eval (proof-full-annotation-toggle 0))
+  (pg-autotest eval (isar-proof:parallel-proofs-toggle 0))
+  (proof-shell-wait)
+
   (pg-autotest script-wholefile "isar/Example-Tokens.thy")
 
   (pg-autotest remark "Testing prove-as-you-go (not replay)")
@@ -58,9 +67,6 @@
 
   (when isar-long-tests
       (pg-autotest remark "Larger files...")
-      (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
-      (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
-      (pg-autotest eval (proof-full-annotation-toggle 0))
       (pg-autotest script-wholefile "etc/isar/AHundredTheorems.thy")
       (pg-autotest script-wholefile "isar/ex/Tarski.thy")
       (pg-autotest script-randomjumps "isar/ex/Tarski.thy" 10)) ; better test?
