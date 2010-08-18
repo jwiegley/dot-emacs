@@ -115,6 +115,8 @@
 ;; Proling interesting packages
 ;;
 
+(require 'elp)
+
 ;;;###autoload
 (defun profile-pg ()
   (interactive)
