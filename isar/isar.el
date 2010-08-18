@@ -441,14 +441,11 @@ This is called when Proof General spots output matching
 (defun isar-find-and-forget (span)
   "Return commands to be used to forget SPAN."
   (let (str ans answers)
-    (while span
+    (while (and span (span-property span 'cmd))
       (setq str (or (span-property span 'cmd) ""))
       (setq ans nil)
       (cond
        ;; comment, diagnostic, nested proof command: skip
-       ;; (da: adding new span types may break this code,
-       ;;  ought to test for type 'cmd before looking at
-       ;;  str below)
        ;; FIXME: should adjust proof-nesting-depth here.
        ((or (eq (span-property span 'type) 'comment)
 	    (eq (span-property span 'type) 'proverproc)
@@ -468,7 +465,7 @@ This is called when Proof General spots output matching
 	(setq span nil))
        ;; theory: remove and exit
        ((proof-string-match isar-undo-remove-regexp str)
-	(setq ans (isar-remove (match-string 2 str)))
+	(setq ans (isar-remove (match-string 3 str)))
 	(setq span nil))
        ;; else: undo
        (t
