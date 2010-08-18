@@ -1594,19 +1594,21 @@ Only works when system timer has microsecond count available."
 
 ;;;###autoload
 (defun proof-shell-wait (&optional interrupt-on-input)
-  "Busy wait for `proof-shell-busy' to become nil.
+  "Busy wait for `proof-shell-busy' to become nil, reading from prover.
 Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
-in some cases.   May be called by `proof-shell-invisible-command'."
+in some cases.   Also is considerably faster than leaving the Emacs 
+top-level command loop to read from the prover.
+May be called by `proof-shell-invisible-command'."
   (let ((proverproc (get-buffer-process proof-shell-buffer)))
     (when proverproc
       (while (and proof-shell-busy (not quit-flag)
 		  (not (and interrupt-on-input (input-pending-p))))
 	;; FIXME: check below OK on GE 22/23.1.  See Trac #324
-	(accept-process-output proverproc 0.01 nil 1)
-	(redisplay))
+	(accept-process-output proverproc 0.01 nil 1))
+      (redisplay)
       (if quit-flag
-	  (error "Proof General: Quit in proof-shell-wait")))))
+	  (error "Proof General: quit in proof-shell-wait")))))
 
 (defun proof-done-invisible (span)
   "Callback for proof-shell-invisible-command.
