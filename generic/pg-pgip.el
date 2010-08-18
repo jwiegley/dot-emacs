@@ -83,7 +83,8 @@ Return a symbol representing the PGIP command processed, or nil."
     (if (fboundp fname)
 	(progn
 	  (pg-pgip-debug "Processing PGIP message seq %s, type %s"
-			 (pg-xml-get-attr 'seq pgipmsg 'notreallyoptional) name)
+			 (or (pg-xml-get-attr 'seq pgipmsg 'notreallyoptional) "<missing>")
+			 name)
 	  (funcall fname pgipmsg)
 	  name)
       (pg-internal-warning "!!! unrecognized/unimplemented PGIP message element `%s'" name)
