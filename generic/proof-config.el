@@ -1507,26 +1507,9 @@ This setting is used inside the function `proof-format-filename'."
   :type '(list (cons string string))
   :group 'proof-shell)
 
-(defcustom proof-shell-process-connection-type
-  ;; Use ptys unless it seems like we're on Solaris.  Only have
-  ;; a good chance to guess if shell-command-to-string and uname
-  ;; available.
-  (not (and
-	;; We should be using `system-type' here, instead.
-       (not (fboundp 'win32-long-file-name))
-	(fboundp 'shell-command-to-string)
-	(condition-case nil
-	    ;; Which versions of Solaris are affected?  --Stef
-	    (string-match "[sS]un" (shell-command-to-string "uname"))
-	  (error nil))))
+(defcustom proof-shell-process-connection-type nil
   "The value of `process-connection-type' for the proof shell.
-Set non-nil for ptys, nil for pipes.
-The default (and preferred) option is to use pty communication.
-However there is a long-standing backslash/long line problem with
-Solaris which gives a mess of ^G characters when some input is sent
-which has a \\ in the 256th position.
-So we select pipes by default if it seems like we're on Solaris.
-We do not force pipes everywhere because this risks loss of data."
+Set non-nil for ptys, nil for pipes."
   :type 'boolean
   :group 'proof-shell)
 
