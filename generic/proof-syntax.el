@@ -13,10 +13,14 @@
 (require 'proof-compat)			; proof-buffer-syntactic-context
 (require 'pg-pamacs)			; proof-ass-sym
 
+
+;;; Commentary:
+;; 
+
 ;;; Code:
 
 (defsubst proof-ids-to-regexp (l)
-  "Maps a non-empty list of tokens `l' to a regexp matching any element.
+  "Maps a non-empty list of tokens L to a regexp matching any element.
 Uses a regexp of the form \\_<...\\_>."
   (concat "\\_<\\(?:"
 	  (regexp-opt l) ; was: (mapconcat 'identity l "\\|")
@@ -152,7 +156,7 @@ Meant to be used from `font-lock-keywords' as a way
 to unfontify commas in declarations and definitions.
 Useful for provers which have declarations of the form x,y,z:Ty
 All that can be said for it is that the previous ways of doing
-this were even more bogus...."  
+this were even more bogus...."
 (while (proof-search-forward "," limit t)
     (if (memq (get-text-property (1- (point)) 'face)
 	      '(proof-declaration-name-face
@@ -172,11 +176,11 @@ this were even more bogus...."
 
 (eval-after-load "font-lock"
 '(progn
-(defadvice font-lock-fontify-keywords-region 
+(defadvice font-lock-fontify-keywords-region
   (before font-lock-fontify-keywords-advice (beg end loudly))
   "Call proof assistant specific syntactic region fontify.
 If it's bound, we call <PA>-font-lock-fontify-syntactically-region."
-  (when (and proof-buffer-type 
+  (when (and proof-buffer-type
 	     (fboundp (proof-ass-sym font-lock-fontify-syntactically-region)))
     (funcall (proof-ass-sym font-lock-fontify-syntactically-region)
 	     beg end loudly)))
