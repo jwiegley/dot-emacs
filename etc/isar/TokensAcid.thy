@@ -112,9 +112,6 @@ by auto
    See Tokens -> Format Char -> ...
 *)
 
-(*   NB: below here cannot be processed: just in terms to check with 
-     string font for terms. *)
-
 consts shortsub :: "['a,'a]\<Rightarrow>'a" ("_\<^sub>_")
 consts shortsup :: "['a,'a]\<Rightarrow>'a" ("_\<^sup>_")
 
@@ -135,11 +132,6 @@ term "a\<^isub>def"  (* no subscript on ef *)
 
 term "a\<^isub>x\<^isub>y"      (* x and y subscripted individually *)
 term "a\<^isub>xabc\<^isub>y"   (* x and y should be subscripted, but not ab *)
-
-(* Spanning identifier supers/subs: to be added to Isabelle lexer/latex *)
-
-term "a\<^bisup>bcd\<^eisup>"
-term "a\<^bisub>bcd\<^eisub>"
 
 (* 
    Variants on token names: different token names,
@@ -173,12 +165,21 @@ term "\<And2> {\<lambda> x. True, \<lambda> y. False}"
 
 
 
+(*   NB: below here cannot be processed: just in terms to check with 
+     string font for terms. *)
+
+
+(* Spanning identifier supers/subs: to be added to Isabelle lexer/latex *)
+
+term "a\<^bisup>bcd\<^eisup>"
+term "a\<^bisub>bcd\<^eisub>"
+
 (* More esoteric stuff *)
 
 
 term "\<^bbig>large text \<alpha> \<beta> \<Sigma>\<^ebig>"
 
-term "\<^bsmall>small\<^esmall>"
+term "\<^bsmall>small text \<alpha> \<and> \<beta> \<longrightarrow> \<gamma> \<^esmall>"
 
 term "\<^bunderline>underlined\<^eunderline>"
 
