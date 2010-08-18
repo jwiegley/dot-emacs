@@ -142,7 +142,8 @@
      overlay-put overlay-start overlay-end make-overlay
      buffer-live-p kill-buffer
      process-status get-buffer-process 
-     delete-overlay move-overlay))
+     delete-overlay move-overlay
+     accept-process-output))
   (elp-instrument-package "font-lock"))
 
 ;; improve readability of profile results, give milliseconds
