@@ -4400,7 +4400,6 @@ Edinburgh.  Visit this page for the latest news!
 @menu
 * Obtaining Proof General::     
 * Installing Proof General from tarball::  
-* Installing Proof General from RPM package::  
 * Setting the names of binaries::
 * Notes for syssies::           
 @end menu
@@ -4414,29 +4413,24 @@ You can obtain Proof General from the URL
 @uref{http://proofgeneral.inf.ed.ac.uk}.
 @end example
 
-The distribution is available in three forms
+The distribution is available in as a tarball.  It may be
+redistributed by third party packagers in other forms.  
+
+Two versions are available:
 @itemize @bullet
-@item A source tarball, @*
-@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz}
-@item A Linux RPM package (for any architecture), @*
-@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.noarch.rpm}
-@item A developer's tarball, @*
-@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz}
+@item The current stable version, @*
+@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-stable.tgz}
+@item The latest development version, @*
+@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.tgz}
 @end itemize
 
-Both the source tarball and the RPM package include the generic elisp
-code, and code for LEGO, Coq, Isabelle, and other provers. Also included
-are installation instructions (reproduced in brief below) and this
-documentation.
+The source tarball includes the generic elisp code, and code for LEGO,
+Coq, Isabelle, and other provers.  Also included are installation
+instructions (reproduced in brief below) and this documentation.
 
-The developer's tarball contains our full source tree, including all of
-the elisp and documentation, along with our low-level list of things to
-do, sources for the images, some make files used to generate the release
-itself from our CVS repository, and some test files.  Developers
-interested in accessing our CVS repository directly should contact
-@code{da+pg-support@@inf.ed.ac.uk}.
+For access to the source code repository, please see the
+Proof General web page @uref{http://proofgeneral.inf.ed.ac.uk/devel}.
 
-@c was Installing Proof General from @file{.tar.gz}
 @node Installing Proof General from tarball
 @section Installing Proof General from tarball
 
@@ -4444,38 +4438,22 @@ Copy the distribution to some directory @var{mydir}.
 Unpack it there. For example:
 @example
 # cd @var{mydir}
-# gunzip ProofGeneral-@var{version}.tar.gz
-# tar -xpf ProofGeneral-@var{version}.tar
+# tar -xpzf ProofGeneral-@var{version}.tgz
 @end example
 If you downloaded the version called @var{latest}, you'll find it
 unpacks to a numeric version number.
 
 Proof General will now be in some subdirectory of @var{mydir}.  The name
 of the subdirectory will depend on the version number of Proof General.
-For example, it might be @file{ProofGeneral-2.0}.  It's convenient to
+For example, it might be @file{ProofGeneral-4.0}.  It's convenient to
 link it to a fixed name:
 @example
-# ln -sf ProofGeneral-2.0 ProofGeneral
+# ln -sf ProofGeneral-4.0 ProofGeneral
 @end example
 Now put this line in your @file{.emacs} file:
 @lisp
     (load-file "@var{mydir}/ProofGeneral/generic/proof-site.el")
 @end lisp
-
-@node Installing Proof General from RPM package
-@section Installing Proof General from RPM package
-
-To install an RPM package you need to be root.  Then type
-@example
-# rpm -Uvh ProofGeneral-latest.noarch.rpm
-@end example
-
-Now add the line:
-@lisp
-   (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
-@end lisp
-to your @file{.emacs} or the site-wide initialisation file
-@file{site-start.el}.
 
 @node Setting the names of binaries
 @section Setting the names of binaries
@@ -4510,20 +4488,21 @@ to your @file{.emacs} file.
 
 Here are some more notes for installing Proof General in more complex
 ways.  Only attempt things in this section if you really understand what
-you're doing.
+you're doing!
 
 @unnumberedsubsec Byte compilation
 
 Compilation of the Emacs lisp files improves efficiency but can
 sometimes cause compatibility problems, especially if you use more than
-one version of Emacs with the same @code{.elc} files.  Furthermore, we
-develop Proof General with source files so may miss problems with the
-byte compiled versions.  If you discover problems using the
-byte-compiled @code{.elc} files which aren't present using the source
-@code{.el} files, please report them to us.
+one version of Emacs with the same @code{.elc} files. 
+
+If you discover problems using the byte-compiled @code{.elc} files which
+aren't present using the source @code{.el} files, please report them to
+us.
 
 You can compile Proof General by typing @code{make} in the directory
-where you installed it.  
+where you installed it.  It may be necessary to do this if you use
+a different version of Emacs.
 
 
 @unnumberedsubsec Site-wide installation
