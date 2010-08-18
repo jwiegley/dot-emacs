@@ -28,6 +28,7 @@
   (pg-autotest eval (proof-shell-ready-prover))
   (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
   (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
+  (pg-autotest eval (isar-proof:parallel-proofs-toggle 0))
   (pg-autotest eval (proof-full-annotation-toggle 0))
   (proof-shell-wait)
 
