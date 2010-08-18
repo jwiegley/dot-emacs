@@ -186,6 +186,17 @@ Dead or nil buffers are not represented in the list.
 
 ;;;***
 
+;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19563
+;;;;;;  53002))
+;;; Generated autoloads from ../lib/pg-dev.el
+
+(autoload 'profile-pg "pg-dev" "\
+Not documented
+
+\(fn)" t nil)
+
+;;;***
+
 ;;;### (autoloads (proof-goals-config-done) "pg-goals" "pg-goals.el"
 ;;;;;;  (19121 59721))
 ;;; Generated autoloads from pg-goals.el
@@ -214,7 +225,7 @@ Export the movie file that results from processing SCRIPT.
 ;;;***
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn) "pg-pamacs"
-;;;;;;  "pg-pamacs.el" (19554 53996))
+;;;;;;  "pg-pamacs.el" (19554 65355))
 ;;; Generated autoloads from pg-pamacs.el
 
 (autoload 'proof-defpacustom-fn "pg-pamacs" "\
@@ -237,7 +248,7 @@ evaluate can be provided instead.
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (19550 46151))
+;;;;;;  "pg-pgip" "pg-pgip.el" (19563 59812))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload 'pg-pgip-process-packet "pg-pgip" "\
@@ -261,7 +272,7 @@ Send an <askprefs> message to the prover.
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-message pg-response-display-with-face pg-response-maybe-erase
 ;;;;;;  proof-response-config-done proof-response-mode) "pg-response"
-;;;;;;  "pg-response.el" (19550 46151))
+;;;;;;  "pg-response.el" (19562 32774))
 ;;; Generated autoloads from pg-response.el
 
 (autoload 'proof-response-mode "pg-response" "\
@@ -317,14 +328,14 @@ See `pg-next-error-regexp'.
 
 ;;;***
 
-;;;### (autoloads (pg-clear-input-ring pg-remove-from-input-history
+;;;### (autoloads (proof-autosend-enable pg-clear-input-ring pg-remove-from-input-history
 ;;;;;;  pg-add-to-input-history pg-next-matching-input-from-input
 ;;;;;;  pg-previous-matching-input-from-input proof-imenu-enable
 ;;;;;;  pg-hint pg-next-error-hint pg-processing-complete-hint pg-jump-to-end-hint
 ;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19550 46151))
+;;;;;;  "pg-user.el" (19563 55915))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -428,6 +439,11 @@ Not documented
 
 \(fn)" nil nil)
 
+(autoload 'proof-autosend-enable "pg-user" "\
+Enable or disable autosend behaviour.
+
+\(fn &optional NOMSG)" nil nil)
+
 ;;;***
 
 ;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (19542
@@ -505,8 +521,8 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19550
-;;;;;;  46151))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19560
+;;;;;;  28844))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload 'proof-menu-define-keys "proof-menu" "\
@@ -555,7 +571,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19554 53098))
+;;;;;;  "proof-script.el" (19562 57281))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -639,7 +655,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19550 46151))
+;;;;;;  "proof-shell.el" (19563 61733))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -691,7 +707,7 @@ active scripting buffer for the queue region.
 
 This function calls `proof-add-to-queue'.
 
-\(fn START END QUEUEITEMS)" nil nil)
+\(fn START END QUEUEITEMS &optional QUEUEMODE)" nil nil)
 
 (autoload 'proof-extend-queue "proof-shell" "\
 Extend the current queue with QUEUEITEMS, queue end END.
@@ -760,7 +776,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19554 54083))
+;;;;;;  (19562 53042))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -772,12 +788,14 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'.
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen)
-;;;;;;  "proof-splash" "proof-splash.el" (19550 46151))
+;;;;;;  "proof-splash" "proof-splash.el" (19554 65279))
 ;;; Generated autoloads from proof-splash.el
 
 (autoload 'proof-splash-display-screen "proof-splash" "\
 Save window config and display Proof General splash screen.
-If TIMEOUT is non-nil, arrange for a time-out to occur outside this function.
+If TIMEOUT is non-nil, time out outside this function, definitely
+by end of configuring proof mode.  Otherwise, make a key
+binding to remove this buffer.
 
 \(fn &optional TIMEOUT)" t nil)
 
@@ -789,7 +807,7 @@ Make sure the user gets welcomed one way or another.
 ;;;***
 
 ;;;### (autoloads (proof-format) "proof-syntax" "proof-syntax.el"
-;;;;;;  (19554 53840))
+;;;;;;  (19563 59850))
 ;;; Generated autoloads from proof-syntax.el
 
 (defsubst proof-replace-regexp-in-string (regexp rep string) "\
@@ -853,7 +871,7 @@ is changed.
 ;;;***
 
 ;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19554
-;;;;;;  54161))
+;;;;;;  65355))
 ;;; Generated autoloads from proof-utils.el
 
 (autoload 'proof-debug "proof-utils" "\
@@ -923,7 +941,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19551 10455))
+;;;;;;  (19554 56287))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -933,11 +951,11 @@ Return a unicode encoded version presentation of STR.
 
 ;;;***
 
-;;;### (autoloads nil nil ("../lib/local-vars-list.el" "../lib/pg-dev.el"
-;;;;;;  "../lib/pg-fontsets.el" "../lib/proof-compat.el" "../lib/span.el"
-;;;;;;  "pg-autotest.el" "pg-custom.el" "pg-pbrpm.el" "pg-vars.el"
-;;;;;;  "proof-auxmodes.el" "proof-config.el" "proof-faces.el" "proof-useropts.el"
-;;;;;;  "proof.el") (19554 54164 534243))
+;;;### (autoloads nil nil ("../lib/local-vars-list.el" "../lib/pg-fontsets.el"
+;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
+;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
+;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el")
+;;;;;;  (19563 62261 809745))
 
 ;;;***
 
