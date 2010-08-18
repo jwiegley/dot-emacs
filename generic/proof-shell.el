@@ -250,88 +250,70 @@ process command."
 	     (process-connection-type
 	      proof-shell-process-connection-type)
 
-	     ;; Adjust the LANG variable to remove UTF-8 encoding
-	     ;; if not wanted; it conflicts with using chars 128-255 for markup
-	     ;; and results in blocking in C libraries.
-	    (process-environment
-	     (append (proof-ass prog-env)	       ;; custom environment
-		     (if proof-shell-unicode           ;; if specials not used,
-			 process-environment	       ;; leave it alone
-		       (cons
-			(if (getenv "LANG")
-			    (format "LANG=%s"
-				    (replace-regexp-in-string "\\.UTF-8" ""
-							      (getenv "LANG")))
-			  "LANG=C")
-			(delete
-			 (concat "LANG=" (getenv "LANG"))
-			 process-environment)))))
+	     ;; Trac #324, Trac #284: default with Emacs 23 variants
+	     ;; is t.  nil gives marginally better results with "make
+	     ;; profile.isar" on homogenous test input.  Top-level
+	     ;; Emacs loop causes slow down on Mac and Windows ports.
+	     (process-adaptive-read-buffering nil)
+	     
+	    
+	     ;; The next few settings control the proof assistant encoding.
+	     ;; See Elisp manual for recommendations for coding systems.  
+	     
+	     ;; Modern versions of proof systems should be Unicode
+	     ;; clean, i.e., outputing only ASCII characters or using a
+	     ;; representation such as UTF-8.  Old versions of PG
+	     ;; relied on control sequences using 8-bit characters with
+	     ;; codes between 127 and 255, this is now deprecated.
+	     
 
-	    ;; If we use troublesome codes between 128 and 255, we want to
-	    ;; treat the output of the process as binary, except for
-	    ;; end-of-line conversion (hence `raw-text').
-	    ;; It is also the only sensible choice since we make the buffer
-	    ;; unibyte below.
-	    ;;
-	    ;; Update: there are problems here with systems where
-	    ;;  i) coding-system-for-read/write is not available
-	    ;;  (e.g. MacOS XEmacs non-mule)
-	    ;; ii) 'rawtext can give wrong behaviour anyway
-	    ;;     (e.g. Mac OS GNU Emacs, maybe Windows)
-	    ;;     probably because of line-feed conversion.
-	    ;;
-	    ;; Update: much more info now in Elisp manual and recommendations
-	    ;; for sub processes.
+	     ;; Backward compatibility: remove UTF-8 encoding if not
+	     ;; wanted; it conflicts with using chars 128-255 for
+	     ;; markup and results in blocking in C libraries.
+	     (process-environment
+	      (append (proof-ass prog-env)	       ;; custom environment
+		      (if proof-shell-unicode           ;; if specials not used,
+			  process-environment	       ;; leave it alone
+			(cons
+			 (if (getenv "LANG")
+			     (format "LANG=%s"
+				     (replace-regexp-in-string "\\.UTF-8" ""
+							       (getenv "LANG")))
+			   "LANG=C")
+			 (delete
+			  (concat "LANG=" (getenv "LANG"))
+			  process-environment)))))
 
-	    (normal-coding-system-for-read (and (boundp 'coding-system-for-read)
-						coding-system-for-read))
-	    (coding-system-for-read
-	     (if proof-shell-unicode
-		 (or (condition-case nil
-			 (check-coding-system 'utf-8)
-		       (error nil))
-		     normal-coding-system-for-read)
+	     (normal-coding-system-for-read (and (boundp 'coding-system-for-read)
+						 coding-system-for-read))
+	     (coding-system-for-read
+	      (if proof-shell-unicode
+		  (or (condition-case nil
+			  (check-coding-system 'utf-8)
+			(error nil))
+		      normal-coding-system-for-read)
 
-	       (if (string-match "Linux"
-				 (shell-command-to-string "uname"))
-		   'raw-text
-		 normal-coding-system-for-read)))
+		(if (string-match "Linux"
+				  (shell-command-to-string "uname"))
+		    'raw-text
+		  normal-coding-system-for-read)))
 
-	    (coding-system-for-write coding-system-for-read))
-
-	;; PG 3.7: there is now yet another way to influence this:
-	;; (unless
-	;;    (assoc (concat proof-prog-name " .*") process-coding-system-alist)
-	;;  (setq process-coding-system-alist
-	;;	(cons (cons (concat proof-prog-name " .*")
-	;;		    (if proof-shell-unicode 'utf-8 'raw-text))
-	;;	      process-coding-system-alist)))
+	     (coding-system-for-write coding-system-for-read))
 
 	(message "Starting: %s" prog-command-line)
 
-	(let
-	    ;; Trac #324: default for this on Emacs 23 versions is t.
-	    ;; nil gives marginally better results with "make profile.isar"
-	    ;; on homogenous test input AHundredTheorems but perhaps 
-	    ;; worse interactively on varying input.  Should also test
-	    ;; behaviour with tracing output.
-	    ((process-adaptive-read-buffering nil))
-
-	  (apply 'scomint-make  (append (list proc (car prog-name-list) nil)
-					(cdr prog-name-list))))
+	(apply 'scomint-make  (append (list proc (car prog-name-list) nil)
+				      (cdr prog-name-list)))
 
 	(setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
 	(unless (proof-shell-live-buffer)
-	  ;; Give error now if shell buffer isn't live
-	  ;; Solves problem of make-comint succeeding but process
-	  ;; exiting immediately.  Sentinels may still trigger.
+	  ;; Give error now if shell buffer isn't live (process exited)
 	  (setq proof-shell-buffer nil)
-	  (error "Starting process: %s..failed" prog-command-line))
-	)
+	  (error "Starting process: %s..failed" prog-command-line)))
 
       ;; Create the associated buffers and set buffer variables
-
+      
       (let ((goals	"*goals*")
 	    (resp	"*response*")
 	    (trace	"*trace*")
