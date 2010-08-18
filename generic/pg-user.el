@@ -1434,7 +1434,8 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 
 (defun proof-autosend-loop ()
   (proof-with-current-buffer-if-exists proof-script-buffer
-    (unless (proof-locked-region-full-p)
+    (unless (or (proof-locked-region-full-p)
+		proof-shell-busy)
 	(proof-autosend-loop-all))))
 
 (defun proof-autosend-loop-all ()
