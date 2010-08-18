@@ -327,8 +327,6 @@ This is called when Proof General spots output matching
 ;; Help menu
 ;;
 
-;;; da: how about a `C-c C-a h ?' for listing available keys?
-
 ;;; NB: definvisible must be after derived modes (uses isar-mode-map)
 
 (proof-definvisible isar-help-antiquotations "print_antiquotations" "hA")
@@ -344,6 +342,12 @@ This is called when Proof General spots output matching
 (proof-definvisible isar-help-binds "print_binds" "hb")
 (proof-definvisible isar-help-theorems "print_theorems" "ht")
 (proof-definvisible isar-help-trans-rules "print_trans_rules" "hT")
+
+(define-key isar-mode-map "\C-c\C-ah?" 'isar-describe-help-keys)
+(defun isar-describe-help-keys ()
+  "Describe key bindings with prefix C-c C-a h"
+  (interactive)
+  (describe-bindings "\C-c\C-ah"))
 
 ;;
 ;; Command menu
