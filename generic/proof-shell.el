@@ -392,8 +392,8 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
     (message "%s, cleaning up and exiting..." bufname)
 
     (let (timeout-id)
-      (redisplay t)			; redisplay
-      (if alive				; process still there
+      (redisplay t)
+      (if alive
 	  (progn
 	    (catch 'exited
 	      (set-process-sentinel proc
@@ -432,7 +432,6 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 					  (current-buffer))))
 		       (throw 'exited t)) nil))
 	      (while (scomint-check-proc (current-buffer))
-		;; Perhaps XEmacs hangs too, lets try both wait forms.
 		(accept-process-output nil 1)
 		(sit-for 1)))
 	    ;; Disable timeout and sentinel in case one or
