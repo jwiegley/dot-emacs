@@ -285,9 +285,9 @@ matches contents of quotes for quoted identifiers.")
 
 (defface isabelle-string-face 
   (proof-face-specs
-   (:foreground "springgreen4" :italic t)
-   (:background "springgreen1" :italic t)
-   (:italic t))
+   (:foreground "springgreen4")
+   (:background "springgreen1")
+   ())
   "*Face for fontifying string contents in Isabelle."
   :group 'proof-faces)
 
