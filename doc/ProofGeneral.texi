@@ -819,7 +819,7 @@ default.  We often call it @i{locked}.
 Electric terminator mode is popular, but not enabled by default
 because of the principle of least surprise.  Moreover, in Isabelle,
 the semicolon terminators are optional so proof scripts are usually
-written without them to avoid clutter. You'll notice that although you
+written without them to avoid clutter.  You'll notice that although you
 typed a semi-colon it was not included in the buffer!  The electric
 terminator tries to be smart about comments and strings; in the one case
 when you are trying to add a semi-colon inside an already written
@@ -1264,20 +1264,6 @@ display or switch to a Proof General buffer: the active scripting
 buffer; the goal or response buffer; the tracing buffer; or the shell
 buffer.  Another command on this menu, @code{Clear Responses}, clears
 the response and tracing buffer.
-
-@c When
-@c Proof General sees an error in the shell buffer, it will highlight the
-@c error and display the buffer automatically.
-
-
-@c This facility was not added:
-@c
-@c Optionally, the goals buffer and script buffer can be identified
-@c @pxref{Identify goals and response}.  The disadvantage of this is that
-@c the goals display can be replaced by other messages, so you must ask for
-@c it to be refreshed.  The advantage is that it is simpler to deal with
-@c fewer Emacs buffers.
-
 
 
 @node Script editing commands
@@ -1734,20 +1720,9 @@ If you are working with large proof developments, you may want to know
 about the advanced script management and editing features of Proof
 General covered in this chapter.
 
-Large developments may contain files with many long proofs.  Proof
-General provides functions that let you hide completed proofs from view,
-temporarily.  
-
-Large proof developments are typically spread across various files which
-depend on each other in some way.  Proof General knows enough about the
-dependencies to allow script management across multiple files.  With
-large developments particularly, users may occasionally need to escape
-from script management, in case Proof General loses synchronization with
-the proof assistant.  Proof General provides you with several escape
-mechanisms if you want to do this.
-
 @menu
 * Document centred working::
+* Automatic processing::
 * Visibility of completed proofs::
 * Switching between proof scripts::  
 * View of processed files ::    
@@ -1767,7 +1742,7 @@ while they are checked.  By hovering the mouse on the completed
 regions you can see any output that was produced when they were
 checked.  Depending on the proof language (it works well with
 declarative languages), this may enable a ``document centred'' way of
-working, where you may not want to keep a separate window open for
+working, where you may not need to keep a separate window open for
 displaying prover output.
 
 Several configuration settings can be used to fine tune this behaviour.
@@ -1810,27 +1785,48 @@ on the last attempt.  If the region is edited in anyway, the
 highlight is removed. 
 @comment TODO: add documentation about overlay marker
 
-Finally, you may like to select
+Finally, you may want to ensure that
 @lisp
-Proof General -> Quick Options -> Retract On Edit
+Proof General -> Quick Options -> Undo On Edit
 @end lisp
-to enable this option, you must first @i{de}select 
+is selected.  To enable this option, you must first @i{de}select 
 @lisp
 Proof General -> Quick Options -> Strict Read Only
 @end lisp
 Retract on edit is a setting for the `proof-strict-read-only' variable.
-This allows you to freely edit the processed region, but first
-automatically undoes back to the point of the edit.  Comments can
+This allows you to freely edit the processed region, but first it
+automatically retracts back to the point of the edit.  Comments can
 be edited freely without retraction.
 
 @xref{Display customization}, for more information about
 customizing display options.
 
 
+@node Automatic processing
+@section Automatic processing
+@cindex Automatic processing
 
+If you really like making your hair stand on end, the electric
+terminator mode is probably not enough.  Proof General has another
+feature that will automatically send text to the prover, while
+you aren't looking.
 
+Enabling
+@lisp
+Proof General -> Quick Options -> Send Automatically
+@end lisp
 
+Causes Proof General to start processing text when Emacs is idle for
+a while.  The text will be sent in a fast loop that processes more
+quickly than @kbd{C-c C-b} (i.e., @code{proof-process-buffer},
+the down toolbar button).  
 
+This feature tries to be sensitive to the user: if you start to type
+something or use the mouse, it will be interrupted.  You can 
+use @kbd{C-c C-.} (@code{proof-goto-end-of-locked}) to find out where
+processing got to, as usual.  Text is only sent if the last interactive
+command processed some text (i.e., wasn't an undo step backwards into
+the buffer) and processing didn't stop with an error.
 
 
 
