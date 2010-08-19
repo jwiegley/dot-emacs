@@ -160,9 +160,15 @@ notation (xsymbols)
 term "\<And1> {True, False}"		  
 term "\<And2> {\<lambda> x. True, \<lambda> y. False}"
 
-(* Note: of course, copy and paste will produce wrong result
-   for above: default token <And> without variant is produced! *)
-
+(* Note: of course, copy and paste using Unicode to another
+   application (Tokens \<rightarrow> Copy As Unicode) and then re-reading in
+   Isabelle using another interface will probably produce wrong
+   result.  But copy-pasting within Proof General Emacs is fine since
+   the underlying token text is copied, not the presentation.
+   What happens is that the text properties are "sticky" and
+   copied as well, so you see them even in non-Unicode Tokens buffers.
+   But if you save and revisit, you'll see the real text.
+*)
 
 
 (*   NB: below here cannot be processed: just in terms to check with 
