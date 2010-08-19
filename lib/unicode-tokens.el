@@ -274,12 +274,12 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 	     unicode-tokens-font-family-alternatives)))
 
 (defface unicode-tokens-symbol-font-face
-  '((t :family "STIXGeneral" :slant italic))
+  '((t :family "STIXGeneral"))
   "The default font used for symbols.  Only :family and :slant attributes are used."
   :group 'unicode-tokens-faces)
 
 ;; (defface unicode-tokens-large-symbol-font-face
-;;    '((t :family "STIXSize3"))
+;;    '((t :family "STIXSizeThreeSym"))
 ;;    "The font used for large symbols."
 ;;    :group 'unicode-tokens-faces)
 
@@ -491,7 +491,8 @@ The check is with `char-displayable-p'."
 Regexp match data number MATCH selects the token name, while match
 number 1 matches the text to be replaced.
 Token name from MATCH is searched for in `unicode-tokens-hash-table'.
-The face property is set to the :family of `unicode-tokens-symbol-font-face'."
+The face property is set to the :family and :slant attriubutes taken from
+`unicode-tokens-symbol-font-face'."
   (let* ((start     (match-beginning 0))
 	 (end       (match-end 0))
 	 (compps    (gethash (match-string match)
@@ -1230,34 +1231,33 @@ Commands available are:
 
 (defun unicode-tokens-set-font-var-aux (fontvar font)
   "A subroutine of `unicode-tokens-set-font-var'."
-  (let (spec)
-    (when font
-      ;; Trac #311 - sometimes (on Linux/xft) :font doesn't work but
-      ;; :family does.
-      (condition-case nil
-	  (set-face-attribute fontvar (selected-frame)
-			      ;; da: don't try to reset these for token fonts.
-			      ;; :weight 'normal :slant 'normal
-			      :width 'normal
-			      :font font)
-	(error
-	  (set-face-attribute fontvar (selected-frame)
-			      :width 'normal
-			      :family font)))
-      (let ((font-object (face-attribute fontvar :font)))
-	(dolist (f (frame-list))
-	  (and (not (eq f (selected-frame)))
-	       (display-graphic-p f)
-	       (set-face-attribute fontvar f :font font-object))
-	  ;; da: add this to make sure fonts set by font lock are altered
-	  (dolist (w (window-list f))
-	    (with-current-buffer (window-buffer w)
-	      (when font-lock-mode (font-lock-fontify-buffer)))))
-	(set-face-attribute fontvar t :font font-object))
-      (setq spec (list (list t (face-attr-construct fontvar))))
-      (put fontvar 'customized-face spec)
-      (custom-push-theme 'theme-face fontvar 'user 'set spec)
-      (put fontvar 'face-modified nil))))
+  (when font
+    ;; Trac #311 - sometimes (on Linux/xft) :font doesn't work but
+    ;; :family does.
+    (condition-case nil
+	(set-face-attribute fontvar (selected-frame)
+			    ;; da: don't try to reset these for token fonts.
+			    ;; :weight 'normal :slant 'normal
+			    :width 'normal
+			    :font font)
+      (error
+       (set-face-attribute fontvar (selected-frame)
+			   :width 'normal
+			   :family font)))
+    (let ((font-object (face-attribute fontvar :font))
+	  spec)
+
+ 	(set-face-attribute fontvar t :font font-object)
+        (setq spec (list (list t (face-attr-construct fontvar))))
+	(put fontvar 'customized-face spec)
+	(custom-push-theme 'theme-face fontvar 'user 'set spec)
+	(put fontvar 'face-modified nil))
+    ;; da: add this to make sure fonts set by font lock are altered
+    (dolist (f (frame-list))
+      (and (display-graphic-p f)
+	   (dolist (w (window-list f))
+	     (with-current-buffer (window-buffer w)
+	       (when font-lock-mode (font-lock-fontify-buffer))))))))
 
 ;; based on mouse-set-font from mouse.el in Emacs 22.2.1
 (defun unicode-tokens-mouse-set-font ()
