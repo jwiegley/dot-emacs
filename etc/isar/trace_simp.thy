@@ -6,7 +6,7 @@ text {*
   this produces massive amount of simplifier trace, but terminates
   eventually: *}
 
-ML {* set trace_simp *}
+ML {* Config.put trace_simp true *}
 ML {* reset quick_and_dirty *}
 
 datatype ord = Zero | Succ ord | Limit "nat => ord"
