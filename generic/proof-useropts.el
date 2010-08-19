@@ -386,6 +386,12 @@ are distracting or too frequent."
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defcustom proof-fast-process-buffer nil
+  "*If non-nil, `proof-process-buffer' will use a busy wait to process.
+This results in faster processing, but disables user interaction."
+  :type 'boolean
+  :group 'proof-user-options)
+
 
 
 (provide 'proof-useropts)

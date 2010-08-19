@@ -194,8 +194,11 @@ If inside a comment, just process until the start of the comment."
    (save-excursion
      (goto-char (point-max))
      (proof-assert-until-point-interactive))
-   (proof-maybe-follow-locked-end)))
-
+   (proof-maybe-follow-locked-end))
+  (when proof-fast-process-buffer
+    (message "Processing buffer...")
+    (proof-shell-wait)
+    (message "Processing buffer...done")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

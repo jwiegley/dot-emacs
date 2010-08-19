@@ -293,6 +293,7 @@ without adjusting window layout."
 (proof-deftoggle proof-shell-quiet-errors)
 (proof-deftoggle proof-minibuffer-messages)
 (proof-deftoggle proof-autosend-enable proof-autosend-toggle)
+(proof-deftoggle proof-fast-process-buffer)
 (proof-deftoggle proof-imenu-enable proof-imenu-toggle)
 (proof-deftoggle proof-keep-response-history)
 
@@ -323,6 +324,10 @@ without adjusting window layout."
       :style toggle
       :selected proof-autosend-enable
       :help "Automatically send commands when idle"]
+     ["Fast Process Buffer" proof-fast-process-buffer-toggle
+      :style toggle
+      :selected proof-fast-process-buffer
+      :help "Use a fast loop when processing whole buffer (disables input)"]
      ["Fly Past Comments" proof-script-fly-past-comments-toggle
       :style toggle
       :selected proof-script-fly-past-comments
@@ -511,6 +516,7 @@ without adjusting window layout."
   (list
    'proof-electric-terminator-enable
    'proof-autosend-enable
+   'proof-fast-process-buffer
    'proof-script-fly-past-comments
    'proof-disappearing-proofs
    'proof-full-annotation
