@@ -19,7 +19,7 @@ begin
    tokens at positions 208, 262 and 263.
  
    I recommend using StixGeneral for symbols.
-   See http://olegueret.googlepages.com/stixfonts-ttf
+   See http://www.stixfonts.org/
    This is the default for the symbol font if you have it installed.
    Other good choices are: Lucida Grande, Lucida Sans Unicode, 
    or DejaVuLGC Sans Mono.
