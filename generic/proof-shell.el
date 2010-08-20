@@ -735,10 +735,6 @@ after a completed proof."
 ;; Interrupts
 ;;
 
-(defvar proof-shell-expecting-output nil
-  "A flag indicating some input has been sent and we're expecting output.
-This is used when processing interrupts.")
-
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General.
 
@@ -760,13 +756,8 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
       (error "Proof process not started!"))
   (unless proof-shell-busy
     (error "Proof process not active!"))
-  (with-current-buffer proof-shell-buffer
-    (if proof-shell-expecting-output
-	(progn
-	  (setq proof-shell-interrupt-pending t)
-	  (interrupt-process))
-      ;; otherwise, interrupt the queue right here
-      (proof-shell-error-or-interrupt-action 'interrupt))))
+  (setq proof-shell-interrupt-pending t)
+  (interrupt-process))
 
 
 
@@ -819,9 +810,8 @@ used in `proof-add-to-queue' when we start processing a queue, and in
       (unless (null (marker-position proof-marker))
 	(set-marker proof-marker (point)))
 
-      (scomint-send-input)
+      (scomint-send-input))))
 
-      (setq proof-shell-expecting-output t))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1198,23 +1188,6 @@ A subroutine of `proof-shell-process-urgent-message'."
   (buffer-substring-no-properties start end))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; "Urgent" user interaction with proof assistant (currently unused)
-;;
-
-(defvar proof-shell-minibuffer-urgent-interactive-input-history nil)
-
-(defun proof-shell-minibuffer-urgent-interactive-input (msg)
-  "Issue MSG as a prompt and receive user input."
-  (let ((input
-	 (ignore-errors
-	   (read-string msg nil
-	    'proof-shell-minibuffer-urgent-interactive-input-history))))
-    ;; Always send something, even if read-input was errorful
-    (proof-shell-insert (list (or input "")) 'interactive-input)))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1311,7 +1284,6 @@ is only changed when input is sent in `proof-shell-insert'."
 			(buffer-substring-no-properties
 			 endpos (match-end 0)))
 		  (goto-char (point-max))
-		  (setq proof-shell-expecting-output nil)
 		  ;; Process output string.
 		  (proof-shell-filter-manage-output startpos endpos))))
 
