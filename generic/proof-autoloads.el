@@ -187,7 +187,7 @@ Dead or nil buffers are not represented in the list.
 ;;;***
 
 ;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19563
-;;;;;;  53002))
+;;;;;;  64137))
 ;;; Generated autoloads from ../lib/pg-dev.el
 
 (autoload 'profile-pg "pg-dev" "\
@@ -208,19 +208,26 @@ Initialise the goals buffer after the child has been configured.
 
 ;;;***
 
-;;;### (autoloads (pg-movie-export-from pg-movie-export) "pg-movie"
-;;;;;;  "pg-movie.el" (19550 46151))
+;;;### (autoloads (pg-movie-export-directory pg-movie-export-from
+;;;;;;  pg-movie-export) "pg-movie" "pg-movie.el" (19566 20320))
 ;;; Generated autoloads from pg-movie.el
 
 (autoload 'pg-movie-export "pg-movie" "\
 Export the movie file from the current script buffer.
+If FORCE, overwrite existing file without asking.
 
-\(fn)" t nil)
+\(fn &optional FORCE)" t nil)
 
 (autoload 'pg-movie-export-from "pg-movie" "\
 Export the movie file that results from processing SCRIPT.
 
-\(fn SCRIPT)" t nil)
+\(fn SCRIPT &optional FORCE)" t nil)
+
+(autoload 'pg-movie-export-directory "pg-movie" "\
+Export movie files from directory DIR with extension EXTN.
+Existing XML files are overwritten.
+
+\(fn DIR EXTN)" t nil)
 
 ;;;***
 
@@ -335,7 +342,7 @@ See `pg-next-error-regexp'.
 ;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19563 55915))
+;;;;;;  "pg-user.el" (19565 47528))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -521,8 +528,8 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19560
-;;;;;;  28844))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19565
+;;;;;;  47528))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload 'proof-menu-define-keys "proof-menu" "\
@@ -655,7 +662,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19563 61733))
+;;;;;;  "proof-shell.el" (19565 47799))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -718,10 +725,12 @@ The queue mode is set to 'advancing
 \(fn END QUEUEITEMS)" nil nil)
 
 (autoload 'proof-shell-wait "proof-shell" "\
-Busy wait for `proof-shell-busy' to become nil.
+Busy wait for `proof-shell-busy' to become nil, reading from prover.
 Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
-in some cases.   May be called by `proof-shell-invisible-command'.
+in some cases.   Also is considerably faster than leaving the Emacs 
+top-level command loop to read from the prover.
+May be called by `proof-shell-invisible-command'.
 
 \(fn &optional INTERRUPT-ON-INPUT)" nil nil)
 
@@ -776,7 +785,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19562 53042))
+;;;;;;  (19565 47528))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -941,7 +950,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19554 56287))
+;;;;;;  (19564 63223))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -955,7 +964,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
 ;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
 ;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el")
-;;;;;;  (19563 62261 809745))
+;;;;;;  (19566 20332 496580))
 
 ;;;***
 
