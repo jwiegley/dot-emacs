@@ -31,11 +31,21 @@
     buffers can be ignored and hidden.  Use "full annotation" to keep
     output when several steps are taken.
 
-*** Automatic processing mode (experimental)
+*** Automatic processing mode
     Quick Options -> Send Automatically
     Sends commands to the prover when Emacs is idle for a while.
-    NB: EXPERIMENTAL this is in progress, currently too obtrusive 
-    to be usable.
+    This only sends commands when the last processing action has
+    been an action moving forward through the buffer.  Interrupt by
+    making a keyboard/mouse action.
+
+*** Fast buffer processing option
+    Quick Options -> Fast Process Buffer
+    This affects 'proof-process-buffer' (C-c C-b, toolbar down).
+    It causes commands to be sent to the prover in a tight loop, without 
+    updating the display or processing other input.  This speeds up
+    processing dramatically on some Emacs implementations.
+    To interrupt, use C-g, which reverts to normal processing mode.
+    (To stop that, use C-c C-c as usual).
 
 *** Improved prevention of Undo in locked region
     With thanks to Erik Martin-Dorel and Stefan Monnier.
