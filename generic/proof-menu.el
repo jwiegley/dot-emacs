@@ -105,7 +105,7 @@ without adjusting window layout."
   (define-key map [(control c) (control b)] 'proof-process-buffer)
   ;; C-c C-c is proof-interrupt-process in universal-keys
   ;; C-c C-f is proof-find-theorems in universal-keys
-  (define-key map [(control c) (control h)] 'proof-help)
+  (define-key map [(control c) h] 'proof-help)
   ;; C-c C-l is proof-layout-windows in universal-keys
   ;; C-c C-n is proof-assert-next-command-interactive in universal-keys
   ;; C-c C-o is proof-display-some-buffers in universal-keys
