@@ -107,7 +107,7 @@ If it is nil, a new line is inserted."
   (setq buffer-read-only t))
 
 (define-key proof-splash-mode-map "q" 'bury-buffer)
-(define-key proof-splash-mode-map "[mouse-3]" 'bury-buffer)
+(define-key proof-splash-mode-map [mouse-3] 'bury-buffer)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
