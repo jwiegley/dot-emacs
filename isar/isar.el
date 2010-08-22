@@ -343,12 +343,6 @@ This is called when Proof General spots output matching
 (proof-definvisible isar-help-theorems "print_theorems" "ht")
 (proof-definvisible isar-help-trans-rules "print_trans_rules" "hT")
 
-(define-key isar-mode-map "\C-c\C-ah?" 'isar-describe-help-keys)
-(defun isar-describe-help-keys ()
-  "Describe key bindings with prefix C-c C-a h"
-  (interactive)
-  (describe-bindings "\C-c\C-ah"))
-
 ;;
 ;; Command menu
 ;;
