@@ -234,7 +234,7 @@ The main changes are:
       @pxref{Unicode symbols and special layout support}
 @item to allow ``document centred'' working, annotating scripts with prover output
       @pxref{Document centred working}
-@item support for latest versions of provers (Isabelle2009-2 and Coq 8.1)
+@item support for latest versions of provers (Isabelle2009-2 and Coq 8.2)
 @item numerous smaller enhancements and efficiency improvements
 @end itemize
 
@@ -287,23 +287,22 @@ The original developers of the basis of Proof General were:
 @end itemize
 
 LEGO Proof General (the successor of @code{lego-mode}) was written by
-Thomas Kleymann and Dilip Sequeira. 
+Thomas Kleymann and Dilip Sequeira.  It is no longer maintained.
 @c
-It is presently maintained by David Aspinall and
-Paul Callaghan. 
+@c It is presently maintained by David Aspinall and
+@c Paul Callaghan. 
 @c
 Coq Proof General was written by Healfdene Goguen, with
 later contributions from Patrick Loiseleur.
 It is now maintained by Pierre Courtieu.
 @c
 Isabelle Proof General was written and is being maintained by David
-Aspinall.  It has benefited greatly from
-tweaks and suggestions by Markus Wenzel, who wrote Isabelle/Isar Proof
-General and added Proof General support inside Isabelle.  David von
-Oheimb supplied the original patches for X-Symbol support, which
-improved Proof General significantly.  Christoph Wedler, the author of
-X-Symbol, provided much useful support in adapting his package for
-PG.
+Aspinall.  It has benefited greatly from tweaks and suggestions by
+Markus Wenzel, who wrote the first support for Isar and added Proof
+General support inside Isabelle.  David von Oheimb supplied the
+original patches for X-Symbol support, which improved Proof General
+significantly.  Christoph Wedler, the author of X-Symbol, provided
+much useful support in adapting his package for PG.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
 Goguen and Aspinall. It follows some of the ideas used in Project
@@ -328,11 +327,13 @@ Co-ordination Action @i{Types} and previous related projects), and the
 support of the LFCS.  Version 3.1 was prepared whilst David Aspinall was
 visiting ETL, Japan, supported by the British Council.  
 
-Since Proof General 3.7, Graham Dutton has assisted with the project
-management system and web pages.  For testing and feedback for older
-versions of Proof General, thanks go to Rod Burstall, Martin Hofmann,
-and James McKinna, and some of those who continued to help with the
-latest 3.x series, named next.
+For Proof General 3.7, Graham Dutton assisted with the project
+management system and web pages.  Since then intermittent support has
+been provided by the Research and Teaching Services Unit of the
+computing support team at the School of Informatics.  For testing and
+feedback for older versions of Proof General, thanks go to Rod
+Burstall, Martin Hofmann, and James McKinna, and some of those who
+continued to help with the latest 3.x series, named next.
 
 For the Proof General 4.0 release, special thanks go to Stefan Monnier
 for patches and suggestions, to Makarius for many bug reports and help
