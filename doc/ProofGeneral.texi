@@ -352,14 +352,20 @@ Lennart Beringer,
 Pascal Brisset,
 James Brotherston,
 Martin Buechi,
+Pierre Casteran,
 Lucas Dixon,
 Matt Fairtlough, 
 Ivan Filippenko, 
+Georges Gonthier,
+Robin Green,
+Florian Haftmann,
 Kim Hyung Ho,
 Mark A. Hillebrand,
 Greg O'Keefe,
+Alex Krauss,
 Pierre Lescanne,
-John Longley, 
+John Longley,
+Erik Martin-Dorel,
 Assia Mahboubi,
 Stefan Monnier,
 Tobias Nipkow, 
@@ -373,7 +379,7 @@ Norbert Schirmer,
 Sebastian Skalberg,
 Mike Squire, 
 Norbert Voelker,
-Tjark Weber
+Tjark Weber,
 Mitsuharu Yamamoto.
 
 Thanks to all of you (and apologies to anyone missed).
@@ -4946,10 +4952,10 @@ X-Symbol.
 @c friendly and the display in multiple-window mode is trimmed to
 @c allow more text space for display.  
 
-Proof General 3.7 is available in RPM package format which includes
-pre-compiled code for GNU Emacs and 
-desktop integration on freedesktop.org compliant desktops (including,
-for example, many recent Linux distributions).
+@c Proof General 3.7 is available in RPM package format which includes
+@c pre-compiled code for GNU Emacs and 
+@c desktop integration on freedesktop.org compliant desktops (including,
+@c for example, many recent Linux distributions).
 
 @c Other stuff pending:
 @c Support for *thms* buffer??
