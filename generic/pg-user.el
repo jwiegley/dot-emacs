@@ -522,13 +522,14 @@ This is intended as a value for `proof-activate-scripting-hook'"
     (setq minor-mode-alist
 	  (append minor-mode-alist
 		  (list '(proof-electric-terminator-enable
-			  (concat " " proof-terminal-string))))))
+			  (:eval
+			   (if (eq major-mode proof-mode-for-script)
+			       proof-terminal-string)))))))
 
 ;; This is a function called by custom-set property = proof-set-value.
 ;;;###autoload
 (defun proof-electric-terminator-enable ()
   "Make sure the modeline is updated to display new value for electric terminator."
-  ;; TODO: probably even this isn't necessary
   (force-mode-line-update))
 
 (proof-deftoggle proof-electric-terminator-enable
