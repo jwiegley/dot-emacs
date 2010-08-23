@@ -37,7 +37,7 @@ TOC = :_1
 
 DVI2PS = dvips -Pcmz
 TEXI2PDF = texi2pdf
-TEXI2HTML = texi2html -expandinfo -number -split_chapter
+TEXI2HTML = texi2html -expandinfo -number -split_chapter --noheader
 EMACS = emacs
 EMACSFLAGS = -q -no-site-file 
 
@@ -145,7 +145,7 @@ clean:
 ## distclean: Remove documentation targets
 ##
 distclean:   clean
-	rm -f $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME)*.ps $(DOCNAME).pdf $(DOCNAME)*.html 
+	rm -rf $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME)*.ps $(DOCNAME).pdf $(DOCNAME)
 
 ##
 ## texi: update magic comments in texi from docstrings in code.
