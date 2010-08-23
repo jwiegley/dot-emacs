@@ -416,7 +416,6 @@ release: distclean tag dist
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(LATESTNAME); ln -s  $(RELEASENAME) $(LATESTNAME))
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETGZ) $(LATESTNAME).tgz)
-	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
 	(cd $(RELEASEDIR); echo $(PRERELEASE_TAG) > $(PREREL_TAG_FILE))
 	@echo "*************************************************"
 	@echo " Finished installing dist."
