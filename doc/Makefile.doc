@@ -72,7 +72,7 @@ rearrange:
 	$(DVI2PS) $< -o $*.ps
 
 .texi.html:	
-	$(TEXI2HTML) $< 
+	$(TEXI2HTML) -prefix $* $< 
 
 default: doc
 
