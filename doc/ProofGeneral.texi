@@ -395,9 +395,9 @@ Thanks to all of you (and apologies to anyone missed).
 
 @c would like the logo on the title page really but
 @c it doesn't seem to work there for html.
-@ifhtml
-<IMG SRC="ProofGeneral.jpg" ALT="[ Proof General logo ]" >
-@end ifhtml
+@html
+<img src="ProofGeneral.jpg" alt="[ Proof General logo ]" >
+@end html
 
 @dfn{Proof General} is a generic Emacs interface for interactive proof
 assistants,@footnote{A @dfn{proof assistant} is a computerized helper for
