@@ -73,13 +73,10 @@
 @set last-update August 2010
 @set rcsid $Id$
 
-@ifinfo
-@format
-START-INFO-DIR-ENTRY 
+@dircategory Theorem proving
+@direntry
 * Proof General: (ProofGeneral).          Organize your proofs with Emacs!
-END-INFO-DIR-ENTRY
-@end format
-@end ifinfo
+@end direntry
 
 @c
 @c MACROS

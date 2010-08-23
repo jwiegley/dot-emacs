@@ -65,13 +65,11 @@
 @set last-update November 2009
 @set rcsid $Id$
 
-@ifinfo
-@format
-START-INFO-DIR-ENTRY 
+@dircategory Theorem proving
+@direntry
 * Adapting Proof General: (PG-adapting).  Adapt Proof General to new provers
 END-INFO-DIR-ENTRY
-@end format
-@end ifinfo
+@end direntry
 
 @c
 @c MACROS
