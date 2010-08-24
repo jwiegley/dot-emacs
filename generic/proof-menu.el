@@ -876,22 +876,23 @@ KEY is the optional key binding."
       (pg-pgip-askprefs)))
 
 
-(defun proof-assistant-settings-cmd (&optional setting)
-  "Return string for settings kept in Proof General customizations.
-If SETTING is non-nil, return a string for just that setting.
-Otherwise return a string for configuring all settings.
-NB: if no settings are configured, this has no effect."
-  (if proof-assistant-settings
-      (let
-	  ((evalifneeded (lambda (expr)
-			   (if (and (cadr expr) ;; setting has PA string?
-				    (or (not setting)
-					(eq setting (car expr))))
-			       (proof-assistant-format
-				(cadr expr)
-				(eval (proof-ass-symv (car expr))))))))
-	(apply 'concat (mapcar evalifneeded
-			       proof-assistant-settings)))))
+(defun proof-assistant-settings-cmd (setting)
+  "Return string for making SETTING in Proof General customization."
+  (let ((expr (assoc setting proof-assistant-settings)))
+    (if (and expr (cadr expr))
+	(proof-assistant-format
+	 (cadr expr)
+	 (eval (proof-ass-symv (car expr)))))))
+
+(defun proof-assistant-settings-cmds ()
+  "Return strings for settings kept in Proof General customizations."
+  (when proof-assistant-settings
+    (mapcar (lambda (expr)
+	      (if (cadr expr)  ;; setting has PA string?
+		  (proof-assistant-format
+		   (cadr expr)
+		   (eval (proof-ass-symv (car expr))))))
+	    proof-assistant-settings)))
 
 (defvar proof-assistant-format-table
   (list
