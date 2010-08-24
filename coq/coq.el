@@ -18,8 +18,10 @@
   (require 'span)
   (require 'outline)
   (require 'newcomment)
+  (require 'etags)
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-auto-compile-vos nil)     ; defpacustom
+  (defvar coq-use-editing-holes nil)    ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 (require 'proof)
@@ -486,28 +488,29 @@ If locked span already has a state number, then do nothing. Also updates
      (format (concat do " %s . ") (funcall postform cmd))))
   )
 
-(defun coq-put-into-brackets (s)
-  (concat "[ " s " ]")
-  )
+(defsubst coq-put-into-brackets (s)
+  (concat "[ " s " ]"))
 
-(defun coq-put-into-quotes (s) (concat "\"" s "\""))
+(defsubst coq-put-into-quotes (s) 
+  (concat "\"" s "\""))
 
 (defun coq-SearchIsos ()
   "Search a term whose type is isomorphic to given type.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do "SearchPattern (parenthesis mandatory), ex: (?X1 + _ = _ + ?X1)" "SearchPattern" nil))
+  (coq-ask-do 
+   "SearchPattern (parenthesis mandatory), ex: (?X1 + _ = _ + ?X1)" 
+   "SearchPattern" nil))
 
 (defun coq-SearchConstant ()
   (interactive)
   (coq-ask-do "Search constant" "Search" nil))
 
-
-
 (defun coq-Searchregexp ()
   (interactive)
-  (coq-ask-do "Search regexp (ex: \"eq_\" nat)" "SearchAbout" nil 'coq-put-into-brackets))
-
+  (coq-ask-do 
+   "Search regexp (ex: \"eq_\" nat)" 
+   "SearchAbout" nil 'coq-put-into-brackets))
 
 (defun coq-SearchRewrite ()
   (interactive)
@@ -515,39 +518,40 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchAbout ()
   (interactive)
-  (coq-ask-do "Search About (ex: \"eq_\" eq -bool)" "SearchAbout" nil 'coq-put-into-brackets))
+  (coq-ask-do 
+   "Search About (ex: \"eq_\" eq -bool)" 
+   "SearchAbout" nil 'coq-put-into-brackets))
 
-(defun coq-Print () "Ask for an ident and print the corresponding term."
+(defun coq-Print () 
+  "Ask for an ident and print the corresponding term."
   (interactive)
   (coq-ask-do "Print" "Print"))
 
-(defun coq-About () "Ask for an ident and print information on it."
+(defun coq-About () 
+  "Ask for an ident and print information on it."
   (interactive)
   (coq-ask-do "About" "About"))
 
 (defun coq-LocateConstant ()
-  "Locate a constant.
-This is specific to `coq-mode'."
+  "Locate a constant."
   (interactive)
   (coq-ask-do "Locate" "Locate"))
 
 (defun coq-LocateLibrary ()
-  "Locate a constant.
-This is specific to `coq-mode'."
+  "Locate a constant."
   (interactive)
   (coq-ask-do "Locate Library" "Locate Library"))
-
 
 (defun coq-LocateNotation ()
   "Locate a notation.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do "Locate Notation (ex: \'exists\' _ , _)" "Locate"
-              t 'coq-put-into-quotes))
+  (coq-ask-do 
+   "Locate Notation (ex: \'exists\' _ , _)" "Locate"
+   t 'coq-put-into-quotes))
 
 (defun coq-Pwd ()
-  "Locate a notation.
-This is specific to `coq-mode'."
+  "Locate a notation."
   (interactive)
   (proof-shell-invisible-command "Pwd."))
 
@@ -632,12 +636,9 @@ This is specific to `coq-mode'."
 ;;
 ;; Holes mode switch
 
-;; TODO: complete and maybe make this generic (with prover-specific default?
-;; or use same mechanism as tokens, etc?)
-(defpacustom use-editing-holes nil
+(defpacustom use-editing-holes t
   "Enable holes for editing."
   :type 'boolean)
-;;  :eval (set-stuff-for-holes)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -645,9 +646,6 @@ This is specific to `coq-mode'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-mode-config ()
-  ;; Tags is unusable with Coq library otherwise:
-  ; da: doesn't exist in GNU Emacs tags
-  ;(set (make-local-variable 'tags-always-exact) t)
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
   (setq proof-terminal-char ?\.)
@@ -684,22 +682,14 @@ This is specific to `coq-mode'."
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
 	proof-nested-undo-regexp coq-state-changing-commands-regexp
-  proof-script-imenu-generic-expression coq-generic-expression
-  )
+        proof-script-imenu-generic-expression coq-generic-expression)
 
   (setq
+   ;; indentation is implemented in coq-indent.el
    indent-line-function 'coq-indent-line
-;indentation is implemented in coq-indent.el
-;   proof-indent-enclose-offset  (- proof-indent)
-;   proof-indent-enclose-offset 0
-;   proof-indent-close-offset 0
-;   proof-indent-open-offset 0
    proof-indent-any-regexp      coq-indent-any-regexp
-;   proof-indent-inner-regexp    coq-indent-inner-regexp
-;   proof-indent-enclose-regexp  coq-indent-enclose-regexp
    proof-indent-open-regexp     coq-indent-open-regexp
-   proof-indent-close-regexp    coq-indent-close-regexp
-   )
+   proof-indent-close-regexp    coq-indent-close-regexp)
 
   (make-local-variable 'indent-region-function)
   (setq indent-region-function 'coq-indent-region)
@@ -712,12 +702,14 @@ This is specific to `coq-mode'."
         proof-shell-stop-silent-cmd "Unset Silent. ")
 
   (coq-init-syntax-table)
-  (set (make-local-variable 'comment-quote-nested) nil) ;; we can cope with nested comments
+  ;; we can cope with nested comments
+  (set (make-local-variable 'comment-quote-nested) nil) 
 
   ;; font-lock
   (setq proof-script-font-lock-keywords coq-font-lock-keywords-1)
-  ;;holes
-  (holes-mode 1)
+
+  ;; holes
+  (if coq-use-editing-holes (holes-mode 1))
 
   (proof-config-done)
 
@@ -728,14 +720,13 @@ This is specific to `coq-mode'."
   (make-local-variable 'outline-heading-end-regexp)
   (setq outline-heading-end-regexp coq-outline-heading-end-regexp)
 
-  ;; tags  ; NOTE da: is this XEmacs tags only?
-  (and (boundp 'tag-table-alist)
-       (setq tag-table-alist
-             (append '(("\\.v$" . coq-tags)
-                       ("coq"  . coq-tags))
-                     tag-table-alist)))
-
-  (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
+  ;; tags
+  (if (file-exists-p coq-tags)
+      (set (make-local-variable 'tags-table-list)
+           (cons coq-tags tags-table-list)))
+  
+  (set (make-local-variable 
+        'blink-matching-paren-dont-ignore-comments) t)
 
   ;; multiple file handling
   (setq proof-cannot-reopen-processed-files t
@@ -743,8 +734,6 @@ This is specific to `coq-mode'."
         proof-shell-require-command-regexp coq-require-command-regexp
         proof-done-advancing-require-function 'coq-process-require-command)
 
-  ;; FIXME: PG 3.5, next one shouldn't be needed but setting is
-  ;; now lost in define-derived-mode for some reason.
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
   (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
 
@@ -779,12 +768,11 @@ This is specific to `coq-mode'."
    proof-shell-end-goals-regexp nil        ; up to next prompt
    proof-shell-init-cmd coq-shell-init-cmd
 
-                                        ; Coq has no global settings?
-                                        ; (proof-assistant-settings-cmd))
+   ;; Coq has no global settings?
+   ;; (proof-assistant-settings-cmd))
 
    proof-shell-restart-cmd coq-shell-restart-cmd
-   pg-subterm-anns-use-stack t
-   )
+   pg-subterm-anns-use-stack t)
 
   (coq-init-syntax-table)
   ; (holes-mode 1)  da: does the shell really need holes mode on?
