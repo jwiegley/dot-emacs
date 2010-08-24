@@ -248,47 +248,39 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
 (defvar coq-last-but-one-proofstack '()
   "As for `coq-last-but-one-statenum' but for proof stack symbols.")
 
-(defun coq-get-span-statenum (span)
+(defsubst coq-get-span-statenum (span)
   "Return the state number of the SPAN."
-  (span-property span 'statenum)
-  )
+  (span-property span 'statenum))
 
-(defun coq-get-span-proofnum (span)
+(defsubst coq-get-span-proofnum (span)
   "Return the proof number of the SPAN."
-  (span-property span 'proofnum)
-  )
+  (span-property span 'proofnum))
 
-(defun coq-get-span-proofstack (span)
+(defsubst coq-get-span-proofstack (span)
   "Return the proof stack (names of pending proofs) of the SPAN."
-  (span-property span 'proofstack)
-  )
+  (span-property span 'proofstack))
 
-(defun coq-set-span-statenum (span val)
+(defsubst coq-set-span-statenum (span val)
   "Set the state number of the SPAN to VAL."
-  (span-set-property span 'statenum val)
-  )
+  (span-set-property span 'statenum val))
 
-(defun coq-get-span-goalcmd (span)
+(defsubst coq-get-span-goalcmd (span)
   "Return the 'goalcmd flag of the SPAN."
-  (span-property span 'goalcmd)
-  )
+  (span-property span 'goalcmd))
 
-(defun coq-set-span-goalcmd (span val)
+(defsubst coq-set-span-goalcmd (span val)
   "Set the 'goalcmd flag of the SPAN to VAL."
-  (span-set-property span 'goalcmd val)
-  )
+  (span-set-property span 'goalcmd val))
 
-(defun coq-set-span-proofnum (span val)
+(defsubst coq-set-span-proofnum (span val)
   "Set the proof number of the SPAN to VAL."
-  (span-set-property span 'proofnum val)
-  )
+  (span-set-property span 'proofnum val))
 
-(defun coq-set-span-proofstack (span val)
+(defsubst coq-set-span-proofstack (span val)
   "Set the proof stack (names of pending proofs) of the SPAN to VAL."
-  (span-set-property span 'proofstack val)
-  )
+  (span-set-property span 'proofstack val))
 
-(defun proof-last-locked-span ()
+(defsubst proof-last-locked-span ()
   (with-current-buffer proof-script-buffer
     (span-at (- (proof-unprocessed-begin) 1) 'type)))
 
@@ -312,24 +304,21 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
   (let ((newbuffer nil))
     (set-buffer buffer)
     (setq newbuffer (proof-clone-buffer " response-freeze" erase))
-    (display-buffer-other-frame newbuffer)
-    )
-  )
+    (display-buffer-other-frame newbuffer)))
 
 (defun proof-store-response-win (&optional erase)
   (interactive "P")
-  (proof-store-buffer-win proof-response-buffer erase)
-  )
+  (proof-store-buffer-win proof-response-buffer erase))
+
 (defun proof-store-goals-win (&optional erase)
   (interactive "P")
-  (proof-store-buffer-win proof-goals-buffer erase)
-  )
+  (proof-store-buffer-win proof-goals-buffer erase))
 
-;; Each time the state changes (hook below), (try to) put the state number in the
-;; last locked span (will fail if there is already a number which should happen when
-;; going back in the script).  The state number we put is not the last one because
-;; the last one has been sent by Coq *after* the change. We use
-;; `coq-last-but-one-statenum' instead and then update it.
+;; Each time the state changes (hook below), (try to) put the state number in
+;; the last locked span (will fail if there is already a number which should
+;; happen when going back in the script).  The state number we put is not the
+;; last one because the last one has been sent by Coq *after* the change. We
+;; use `coq-last-but-one-statenum' instead and then update it.
 
 ;;TODO update docstring and comment
 
@@ -342,8 +331,7 @@ If locked span already has a state number, then do nothing. Also updates
       ;; infos = promt infos of the very last prompt
       ;; sp = last locked span, which we want to fill with prompt infos
       (let ((sp    (proof-last-locked-span))
-            (infos (or (coq-last-prompt-info-safe) '(0 0 nil)))
-            )
+            (infos (or (coq-last-prompt-info-safe) '(0 0 nil))))
         (unless (or (not sp) (coq-get-span-statenum sp))
           (coq-set-span-statenum sp coq-last-but-one-statenum))
         (setq coq-last-but-one-statenum (car infos))
