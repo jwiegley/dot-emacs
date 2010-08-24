@@ -650,7 +650,7 @@ This is specific to `coq-mode'."
   (set (make-local-variable 'indent-tabs-mode) nil)
   (setq proof-terminal-char ?\.)
   (setq proof-script-command-end-regexp
-        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|[^[:alpha:]]\\)")
+        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|[^[:alpha:]]\\|\\'\\)")
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
