@@ -267,7 +267,7 @@ The point is put exactly before first non comment letter of the command."
   (save-excursion
     (let ((st (coq-find-real-start)) ; va chercher trop loin?
           (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
-      (buffer-substring st (+ nd 1)))))
+      (if st (buffer-substring st (+ nd 1))))))
 
 (defun coq-indent-only-spaces-on-line ()
   "Non-nil if there only spaces (or nothing) on the current line after point.
