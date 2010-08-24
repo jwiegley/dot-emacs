@@ -242,7 +242,8 @@ pending proofs (in a list)."
   "The state number we want to put in a span.
 This is the prompt number given *just before* the command was sent.
 This variable remembers this number and will be updated when
-used see coq-set-state-number. Initially 1 because Coq initial state has number 1.")
+used see coq-set-state-number. 
+Initially 1 because Coq initial state has number 1.")
 
 (defvar coq-last-but-one-proofnum 1
   "As for `coq-last-but-one-statenum' but for stack depth.")
@@ -329,10 +330,12 @@ used see coq-set-state-number. Initially 1 because Coq initial state has number 
 This number is in the *last but one* prompt (variable `coq-last-but-one-statenum').
 If locked span already has a state number, then do nothing. Also updates
 `coq-last-but-one-statenum' to the last state number for next time."
-  (if (and proof-shell-last-prompt proof-script-buffer)
+  (if proof-shell-last-prompt 
+      ;; da: did test proof-script-buffer here, but that seems wrong
+      ;; since restart needs to reset these values.
       ;; infos = promt infos of the very last prompt
       ;; sp = last locked span, which we want to fill with prompt infos
-      (let ((sp    (proof-last-locked-span))
+      (let ((sp    (if proof-script-buffer (proof-last-locked-span)))
             (infos (or (coq-last-prompt-info-safe) '(0 0 nil))))
         (unless (or (not sp) (coq-get-span-statenum sp))
           (coq-set-span-statenum sp coq-last-but-one-statenum))
@@ -352,10 +355,7 @@ If locked span already has a state number, then do nothing. Also updates
         (setq coq-last-but-one-proofstack (car (cdr (cdr infos))))
         (unless (or (not sp) (coq-get-span-proofnum sp))
           (coq-set-span-proofnum sp coq-last-but-one-proofnum))
-        (setq coq-last-but-one-proofnum (car (cdr infos)))
-        )
-    )
-  )
+        (setq coq-last-but-one-proofnum (car (cdr infos))))))
 
 ;; This hook seems the one we want.
 ;; WARNING! It is applied once after each command PLUS once before a group of
@@ -402,6 +402,9 @@ If locked span already has a state number, then do nothing. Also updates
              (naborts (count-not-intersection 
                        coq-last-but-one-proofstack proofstack)))
     (unless (and 
+             nil
+             ;; FIXME da: these tests go wrong sometimes.
+             ;; Test: Open example.v, C-b, C-r. No backtrack issued.
              ;; return nil (was proof-no-command) in this case:
              ;; this is more efficient as backtrack x y z may be slow
              (equal coq-last-but-one-proofstack proofstack)
