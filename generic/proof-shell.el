@@ -1777,12 +1777,9 @@ processing."
 		  (if proof-shell-init-cmd
 		      (proof-shell-invisible-command proof-shell-init-cmd t))
 		  (if proof-assistant-settings
-		      (proof-shell-invisible-command
-		       (proof-assistant-settings-cmd) t)))
-
-	      ;; Configure for unicode input
-	      ; (proof-unicode-tokens-shell-config)
-	      ))))))
+		      (mapcar (lambda (c)
+				(proof-shell-invisible-command c t))
+			      (proof-assistant-settings-cmds))))))))))
 
 
 (provide 'proof-shell)
