@@ -274,7 +274,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	(goto-char start)
 	(let ((pos (search-forward "\\[" end 0)) (goalnum 0))
 	  (if pos (progn
-		    (delete-backward-char 2)
+		    (delete-char -2)
 		    (setq end (- end 2))
 		    (setq pos (- pos 2))))
 ;	  (message "make l span %d %d" start (if pos pos end))
@@ -284,7 +284,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	  (if pos
 	      (progn
 		(search-forward "\\]" end)
-		(delete-backward-char 2)
+		(delete-char -2)
 		(setq end (- end 2))
 		(setq start (point))
 		(save-excursion
