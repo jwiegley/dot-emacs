@@ -11,7 +11,6 @@
 ;;
 ;; Contributors:  David von Oheimb, Sebastian Skalberg
 ;;
-;;
 ;; $Id$
 ;;
 
@@ -209,12 +208,10 @@ See -k option for Isabelle interface script."
    "\^AIProof General, you can unlock the file \"\\(.*\\)\"\^AJ"
    proof-shell-process-file
    (cons
-    ;; Theory loader output
     "\^AIProof General, this file is loaded: \"\\(.*\\)\"\^AJ"
     (lambda () (match-string 1)))
-   proof-shell-match-pgip-cmd		"\^AI<pgip"
 
-   ;; configuration for these
+   proof-shell-match-pgip-cmd		"\^AI<pgip"
    proof-shell-issue-pgip-cmd		'isabelle-process-pgip
 
    proof-shell-theorem-dependency-list-split "\" \""
@@ -227,10 +224,13 @@ See -k option for Isabelle interface script."
    "ProofGeneral.inform_file_retracted \"%s\""))
 
 
-;;;
-;;; Settings for the interface
-;;;  (Settings for Isabelle are configured automatically via PGIP message)
-;;;
+;;
+;; Settings for the interface
+;;
+;; Note: settings for Isabelle are configured automatically via PGIP messages,
+;; see `pg-pgip-process-hasprefs' in pg-pgip.el and 
+;; `proof-assistant-settings-cmds' in proof-menu.el.
+;;
 
 (defun isar-set-proof-find-theorems-command ()
   (setq proof-find-theorems-command
@@ -293,7 +293,7 @@ This is called when Proof General spots output matching
 
 
 ;;
-;;   Define the derived modes
+;; Define the derived modes
 ;;
 ;; use eval-and-compile to define vars for byte comp.
 
@@ -325,8 +325,7 @@ This is called when Proof General spots output matching
 ;;
 ;; Help menu
 ;;
-
-;;; NB: definvisible must be after derived modes (uses isar-mode-map)
+;; NB: definvisible must be after derived modes (uses isar-mode-map)
 
 (proof-definvisible isar-help-antiquotations "print_antiquotations" "hA")
 (proof-definvisible isar-help-attributes "print_attributes" "ha")
