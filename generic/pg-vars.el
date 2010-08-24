@@ -82,12 +82,21 @@ has been set.")
 
 (defvar proof-shell-busy nil
   "A lock indicating that the proof shell is processing.
-When this is non-nil, `proof-shell-ready-prover' will give
-an error.
+
+The lock notes that we are processing a queue of commands being
+sent to the prover, and indicates whether the commands correspond
+to script management from a buffer (rather than being ad-hoc
+query commands to the prover).
 
 When processing commands from a buffer for script management,
-this will be set to either 'advancing or 'retracting to indicate
-the direction of movement.")
+this will be set to the queue mode 'advancing or 'retracting to
+indicate the direction of movement.
+
+When this is non-nil, `proof-shell-ready-prover' will give
+an error if called with a different requested queue mode.
+
+See also functions `proof-activate-scripting' and
+`proof-shell-available-p'.")
 
 (defvar proof-shell-last-queuemode nil
   "Flag indicating last direction of proof queue.
