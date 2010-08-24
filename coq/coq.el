@@ -1038,9 +1038,10 @@ mouse activation."
                  ,(format "Print %s." thm)))))))
 
 
-;;;;;;;;;;;;;;;;;;;;;
-; Some smart insertion function
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Some smart insertion functions
+;;
 
 (defconst module-kinds-table
   '(("Section" 0) ("Module" 1) ("Module Type" 2) ("Declare Module" 3))
@@ -1069,30 +1070,24 @@ mouse activation."
       (insert mods " " s " " typkind " #.\n#\nEnd " s ".")
       (holes-replace-string-by-holes-backward p)
       (goto-char p)
-      (holes-set-point-next-hole-destroy))
-    )
-  )
+      (holes-set-point-next-hole-destroy))))
 
 (defconst reqkinds-kinds-table
   '(("Require" 1) ("Require Export" 2) ("Import" 3))
   "Enumerates the different kinds of requiring a module.")
-
 
 (defun coq-insert-requires ()
   "Insert requires to modules, iteratively."
   (interactive)
   (let* ((s)
          (reqkind
-          (completing-read "Command (tab to see list, default Require Export) : "
-                           reqkinds-kinds-table nil nil nil nil "Require Export"))
-         )
+          (completing-read 
+           "Command (tab to see list, default Require Export) : "
+           reqkinds-kinds-table nil nil nil nil "Require Export")))
     (setq s (read-string  "Name (empty to stop) : "))
     (while (not (string-equal s ""))
       (insert (format "%s %s.\n" reqkind s))
-      (setq s (read-string  "Name (empty to stop) : ")))
-    )
-  )
-
+      (setq s (read-string  "Name (empty to stop) : ")))))
 
 (defun coq-end-Section ()
   "Ends a Coq section."
@@ -1124,15 +1119,14 @@ Based on idea mentioned in Coq reference manual."
       (insert intros)
       (indent-according-to-mode))))
 
-
 (defun coq-insert-infoH-hook ()
   (with-no-warnings  ;; NB: dynamic scoping of `string'
     (setq string (concat "infoH " string))))
 
 ;; da: FIXME untested with new generic hybrid code: hope this still works
 (defun coq-insert-as ()
-  "Insert an \"as\" suffix to the next command with names given by \"infoH\"
-tactical.  Based on idea mentioned in Coq reference manual."
+  "Insert \"as\" suffix to next command, names given by \"infoH\" tactical.  
+Based on idea mentioned in Coq reference manual."
   (interactive)
   (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
   (proof-assert-next-command-interactive)
@@ -1149,8 +1143,8 @@ tactical.  Based on idea mentioned in Coq reference manual."
 
 (defun coq-insert-match ()
   "Insert a match expression from a type name by Show Intros.
-Based on idea mentioned in Coq reference manual. Also insert holes at insertion
-positions."
+Based on idea mentioned in Coq reference manual. 
+Also insert holes at insertion positions."
   (interactive)
   (proof-shell-ready-prover)
   (let* ((cmd))
@@ -1174,10 +1168,7 @@ positions."
 	 (goto-char start)
 	 (message
           (substitute-command-keys
-           "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))
-          )))))
-
-
+           "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc."))))))))))
 
 (defun coq-insert-tactic ()
   "Ask for a tactic name, with completion on a quasi-exhaustive list of coq
