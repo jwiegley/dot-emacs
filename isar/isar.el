@@ -75,11 +75,10 @@ See -k option for Isabelle interface script."
   (save-excursion
     (goto-char (point-min))
     (while (proof-search-forward ";" (point-max) t)
-      (if (not (proof-buffer-syntactic-context))
-	  (progn
-	    (delete-backward-char 1)
-	    (or (proof-looking-at ";\\|\\s-\\|$")
-		(insert " ")))))))
+      (while (not (proof-buffer-syntactic-context))
+	(delete-char -1)
+	(or (proof-looking-at ";\\|\\s-\\|$")
+	    (insert " "))))))
 
 
 (defun isar-markup-ml (string)
