@@ -244,6 +244,9 @@ See -k option for Isabelle interface script."
   :eval (isar-set-proof-find-theorems-command))
 
 (defun isar-set-undo-commands ()
+  (proof-deactivate-scripting)
+  (when proof-script-buffer
+    (message "Warning: switching undo mechanism will break undo in this buffer"))
   (setq proof-count-undos-fn 'isar-count-undos)
   (when isar-use-linear-undo
     (setq proof-kill-goal-command nil)
@@ -254,7 +257,7 @@ See -k option for Isabelle interface script."
     (setq proof-find-and-forget-fn 'isar-find-and-forget)
     (setq proof-arbitrary-undo-positions nil)))
 
-(defpacustom use-linear-undo t
+(defpacustom use-linear-undo nil
   "Whether to allow undo to re-enter completed proofs (requires restart)."
   :type 'boolean
   :eval (isar-set-undo-commands))
