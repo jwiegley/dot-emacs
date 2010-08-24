@@ -852,8 +852,7 @@ See also `proof-shell-pre-sync-init-cmd'."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
-(defcustom proof-shell-quit-timeout 45
-  ;; FIXME could add option to quiz user before rude kill.
+(defcustom proof-shell-quit-timeout 5
   "The number of seconds to wait after sending `proof-shell-quit-cmd'.
 After this timeout, the proof shell will be killed off more rudely.
 If your proof assistant takes a long time to clean up (for
