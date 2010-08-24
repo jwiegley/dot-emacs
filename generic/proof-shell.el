@@ -119,16 +119,13 @@ Changes colour to indicate whether the shell is busy."
 ;;
 ;; Implementing the process lock
 ;;
-;; da: In fact, there is little need for a lock.  Since Emacs Lisp
-;; code is single-threaded, a loop parsing process output cannot get
-;; pre-empted by the user trying to send more input to the process,
-;; or by the process filter trying to deal with more output.
-;; (Moreover, we can tell when the process is busy because the
-;; queue is non-empty).
+;; Note that because Emacs Lisp code is single-threaded, there are no
+;; concurrency issues here (a loop parsing process output cannot get
+;; pre-empted by the user trying to send more input to the process, or
+;; by the process filter trying to deal with more output).  But the
+;; lock allows for clear management of the queue.
 ;;
-
-;;
-;; We have two functions:
+;; Three relevant functions:
 ;;
 ;;  proof-shell-ready-prover
 ;;    starts proof shell, gives error if it's busy.
@@ -137,9 +134,9 @@ Changes colour to indicate whether the shell is busy."
 ;;    calls proof-shell-ready-prover, and turns on scripting minor
 ;;    mode for current (scripting) buffer.
 ;;
-;; Also, a new enabler predicate:
+;; Also, an enabler predicate:
 ;;
-;;  proof-shell-available
+;;  proof-shell-available-p
 ;;    returns non-nil if a proof shell is active and not locked.
 ;;
 
@@ -197,14 +194,11 @@ If QUEUEMODE is supplied, set the lock to that value."
   :group 'proof-shell)
 
 (defun proof-shell-set-text-representation ()
-  "Adjust representation for the current buffer to match `proof-shell-unicode'."
-  (if proof-shell-unicode
-      nil ;; leave at default for now; new Emacsen OK
-    (and
-     ;; On GNU Emacs, prevent interpretation of multi-byte characters.
-     ;; If not done, chars 128-255 get remapped higher, breaking regexps
-     (fboundp 'toggle-enable-multibyte-characters)
-     (toggle-enable-multibyte-characters -1))))
+  "Adjust representation for current buffer, to match `proof-shell-unicode'."
+  (unless proof-shell-unicode
+    ;; Prevent interpretation of multi-byte characters.
+    ;; Otherwise, chars 128-255 get remapped higher, breaking regexps
+    (toggle-enable-multibyte-characters -1)))
 
 
 (defun proof-shell-start ()
@@ -265,27 +259,26 @@ process command."
 	     ;; representation such as UTF-8.  Old versions of PG
 	     ;; relied on control sequences using 8-bit characters with
 	     ;; codes between 127 and 255, this is now deprecated.
-	     
 
 	     ;; Backward compatibility: remove UTF-8 encoding if not
 	     ;; wanted; it conflicts with using chars 128-255 for
 	     ;; markup and results in blocking in C libraries.
 	     (process-environment
-	      (append (proof-ass prog-env)	       ;; custom environment
-		      (if proof-shell-unicode           ;; if specials not used,
-			  process-environment	       ;; leave it alone
+	      (append (proof-ass prog-env)    ; custom environment
+		      (if proof-shell-unicode ; if specials not used,
+			  process-environment ; leave it alone
 			(cons
 			 (if (getenv "LANG")
 			     (format "LANG=%s"
-				     (replace-regexp-in-string "\\.UTF-8" ""
-							       (getenv "LANG")))
+				     (replace-regexp-in-string 
+				      "\\.UTF-8" ""
+				      (getenv "LANG")))
 			   "LANG=C")
 			 (delete
 			  (concat "LANG=" (getenv "LANG"))
 			  process-environment)))))
 
-	     (normal-coding-system-for-read (and (boundp 'coding-system-for-read)
-						 coding-system-for-read))
+	     (normal-coding-system-for-read coding-system-for-read)
 	     (coding-system-for-read
 	      (if proof-shell-unicode
 		  (or (condition-case nil
@@ -391,82 +384,48 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
 
-    (let (timeout-id)
-      (redisplay t)
-      (if alive
-	  (progn
-	    (catch 'exited
-	      (set-process-sentinel proc
-				    (lambda (p m) (throw 'exited t)))
-	      ;; First, turn off scripting in any active scripting
-	      ;; buffer.  (This helps support persistent sessions with
-	      ;; Isabelle, for example, by making sure that no file is
-	      ;; partly processed when exiting, and registering completed
-	      ;; files).
-	      (proof-deactivate-scripting-auto)
-	      ;; TODO: if the shell is busy now, we should wait
-	      ;; for a while (in case deactivate causes processing)
-	      ;; and then send an interrupt.
+    (redisplay t)
+    (when (and alive proc)
+      (catch 'exited
+	(set-process-sentinel proc
+			      (lambda (p m) (throw 'exited t)))
+	
+	;; Turn off scripting (ensure buffers completely processed/undone)
+	(proof-deactivate-scripting-auto)
+	(proof-shell-wait proof-shell-quit-timeout)
+	
+	;; Try to shut down politely.  
+	(if proof-shell-quit-cmd
+	    (scomint-send-string proc
+				 (concat proof-shell-quit-cmd "\n"))
+	  (scomint-send-eof))
+	(proof-shell-wait nil proof-shell-quit-timeout)
+	
+	;; Still there, kill it rudely.
+	(when (memq (process-status proc) '(open run stop))
+	  (message "%s, cleaning up and exiting...killing process" bufname)
+	  (kill-process proc)))
+      (set-process-sentinel proc nil))
 
-	      ;; Second, we try to shut down the proof process
-	      ;; politely.  Do this before deleting other buffers,
-	      ;; etc, so that any closing down processing works okay.
-	      (if proof-shell-quit-cmd
-		  (scomint-send-string proc
-				      (concat proof-shell-quit-cmd "\n"))
-		(scomint-send-eof))
-	      ;; Wait a while for it to die before killing
-	      ;; it off more rudely.  In XEmacs, accept-process-output
-	      ;; or sit-for will run process sentinels if a process
-	      ;; changes state.
-	      ;; In Emacs I've no idea how to get the process sentinel
-	      ;; to run outside the top-level loop.
-	      ;; So put an ugly timeout and busy wait here instead
-	      ;; of simply (accept-process-output nil 10).
-	      (setq timeout-id
-		    (add-timeout
-		     proof-shell-quit-timeout
-		     (lambda (&rest args)
-		       (if (scomint-check-proc (current-buffer))
-			   (kill-process (get-buffer-process
-					  (current-buffer))))
-		       (throw 'exited t)) nil))
-	      (while (scomint-check-proc (current-buffer))
-		(accept-process-output nil 1)
-		(sit-for 1)))
-	    ;; Disable timeout and sentinel in case one or
-	    ;; other hasn't signalled yet, but we're here anyway.
-	    (disable-timeout timeout-id)
-	    ;; FIXME: this was added to fix 'No catch for exited tag'
-	    ;; problem, but it's done later below anyway?
-	    (set-process-sentinel proc nil)))
-      (if (scomint-check-proc (current-buffer))
-	  (proof-debug
-	   "Error in proof-shell-kill-function: process still lives!"))
-      ;; For GNU Emacs, proc may be nil if killed already.
-      (if proc (set-process-sentinel proc nil))
-      ;; Restart all scripting buffers
-      (proof-script-remove-all-spans-and-deactivate)
-      ;; Clear state
-      (proof-shell-clear-state)
-      ;; Run hooks
-      (run-hooks 'proof-shell-kill-function-hooks)
-      ;; Remove auxiliary windows if they were being used, to
-      ;; try to stop proliferation of frames (NB: this loses
-      ;; currently, in case user has switched buffer in one of the
-      ;; specially made frames)
-      (if (and proof-multiple-frames-enable
-	       proof-shell-fiddle-frames)
-	  (proof-delete-other-frames))
-      ;; Kill buffers associated with shell buffer
-      (let ((proof-shell-buffer nil)) ;; fool kill buffer hooks
-	(dolist (buf '(proof-goals-buffer proof-response-buffer
-					  proof-trace-buffer))
-	  (if (buffer-live-p (symbol-value buf))
-	      (progn
-		(kill-buffer (symbol-value buf))
-		(set buf nil)))))
-      (message "%s exited." bufname))))
+    ;; Clear all state
+    (proof-script-remove-all-spans-and-deactivate)
+    (proof-shell-clear-state)
+    (run-hooks 'proof-shell-kill-function-hooks)
+
+    ;; Remove auxiliary windows, trying to stop proliferation of 
+    ;; frames (NB: loses if user has switched buffer in special frame)
+    (if (and proof-multiple-frames-enable
+	     proof-shell-fiddle-frames)
+	(proof-delete-other-frames))
+
+    ;; Kill associated buffer
+    (let ((proof-shell-buffer nil)) ;; fool kill buffer hooks
+      (dolist (buf '(proof-goals-buffer proof-response-buffer
+					proof-trace-buffer))
+	(when (buffer-live-p (symbol-value buf))
+	  (kill-buffer (symbol-value buf))
+	  (set buf nil))))
+    (message "%s exited." bufname)))
 
 (defun proof-shell-clear-state ()
   "Clear internal state of proof shell."
@@ -1564,18 +1523,31 @@ Only works when system timer has microsecond count available."
 ;;
 
 ;;;###autoload
-(defun proof-shell-wait (&optional interrupt-on-input)
+(defun proof-shell-wait (&optional interrupt-on-input timeoutsecs)
   "Busy wait for `proof-shell-busy' to become nil, reading from prover.
+
 Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
 in some cases.   Also is considerably faster than leaving the Emacs 
 top-level command loop to read from the prover.
-May be called by `proof-shell-invisible-command'."
-  (let ((proverproc (get-buffer-process proof-shell-buffer)))
+
+Called by `proof-shell-invisible-command' and `proof-process-buffer'
+when setting `proof-fast-process-buffer' is enabled.
+
+If INTERRUPT-ON-INPUT is non-nil, return if input is received.
+
+If TIMEOUTSECS is a number, time out after that many seconds."
+  (let* ((proverproc  (get-buffer-process proof-shell-buffer))
+	 (accepttime  0.01)
+	 (timecount   (if (numberp timeoutsecs)
+			  (/ timeoutsecs accepttime))))
     (when proverproc
       (while (and proof-shell-busy (not quit-flag)
+		  (if timecount 
+		      (> (setq timecount (1- timecount)) 0)
+		    t)
 		  (not (and interrupt-on-input (input-pending-p))))
-	;; FIXME: check below OK on GE 22/23.1.  See Trac #324
+	;; TODO: check below OK on GE 22/23.1.  See Trac #324
 	(accept-process-output proverproc 0.01 nil 1))
       (redisplay)
       (if quit-flag
