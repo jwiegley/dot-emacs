@@ -322,11 +322,6 @@ is off (nil)."
 ;; Frobbing locked end
 ;;
 
-;; A command for making things go horribly wrong - it moves the
-;; end-of-locked-region marker backwards, so user had better move it
-;; correctly to sync with the proof state, or things will go all
-;; pear-shaped.
-
 ;; In fact, it's so risky, we'll disable it by default
 (put 'proof-frob-locked-end 'disabled t)
 
@@ -513,11 +508,8 @@ This is intended as a value for `proof-activate-scripting-hook'"
 ;;
 ;; Electric terminator mode
 ;;
-;; NB: only relevant for provers with a "terminal char" which
-;; terminates commands in proof scripts.
 
 ;; Register proof-electric-terminator as a minor mode.
-
 (or (assq 'proof-electric-terminator-enable minor-mode-alist)
     (setq minor-mode-alist
 	  (append minor-mode-alist
@@ -559,8 +551,7 @@ is non-nil, the command will be sent to the assistant."
 ;; thing, so we don't make any attempt to maintain a precise
 ;; completion table or anything.
 ;;
-;; Added in 3.2.
-;;
+
 (defun proof-add-completions ()
   "Add completions from <PA>-completion-table to completion database.
 Uses `add-completion' with a negative number of uses and ancient
@@ -899,7 +890,7 @@ If NUM is negative, move upwards.  Return new span."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Message buffer hints  (added in PG 3.5)
+;; Message buffer hints
 ;;
 
 (defun pg-goals-buffers-hint ()
@@ -1040,7 +1031,7 @@ If CALLBACK is set, we invoke that when the command completes."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Imenu and Speedbar (added in PG 3.5)
+;; Imenu and Speedbar
 ;;
 
 (eval-after-load "speedbar"
@@ -1073,7 +1064,7 @@ If CALLBACK is set, we invoke that when the command completes."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Command history  (added in PG 3.7)
+;; Command history
 ;;
 ;; This implements a history ring for commands in the locked region.
 ;; Inspired by (and code heavily copied from) comint.
@@ -1478,8 +1469,9 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
       (setq proof-autosend-running nil))))
 
 ;; TODO (see beyondsm)
-;; (defun proof-autosend-loop-next ()
-;;  "Send the next command from the script and indicate its success/otherwise"
+;(defun proof-autosend-loop-next ()
+;  "Send the next command from the script and indicate its success/otherwise"
+  
 
 
 (provide 'pg-user)
