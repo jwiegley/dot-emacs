@@ -786,7 +786,7 @@ but multiple characters in the underlying buffer."
     ;(message "End is: %d and point is: %d" tokend (point))
     (if (and tokst (= (point) tokend))
 	(delete-region tokst tokend)
-      (delete-backward-char 1))))
+      (delete-char -1))))
 
 (defun unicode-tokens-delete-1 ()
   "Delete the following visually presented character.
