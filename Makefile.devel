@@ -21,6 +21,7 @@
 ##    make untag	  - remove tag CVS_RELEASENAME from the sources 
 ##    make dist           - make a distribution from sources with above tag
 ##    make rpm		  - make RPM packages based on etc/ProofGeneral.spec
+##    make pkg		  - make Emacs tar file packages (Tromey's package.el)
 ##
 ##    make release	  - make tag, dist, and install it in RELEASEDIR.
 ##    make releaseall	  - make release, local installation and rpmrelease.
@@ -125,6 +126,7 @@ FULLVERSION=$(VERSION)
 #   Substitute points for hyphens.
 CVS_VERSION=$(shell echo $(FULLVERSION) | sed 's/\./-/g')
 
+
 # Name of tar file and RPM file.
 RELEASENAME = $(NAME)-$(VERSION)
 CVS_RELEASENAME = Release-$(CVS_VERSION)
@@ -171,9 +173,6 @@ IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
 
-# Temporary RPM topdir for building packages as non-root user.
-RPMTOPDIR=/tmp/$(NAME)-rpm
-RPMBUILD=rpmbuild --define '_topdir $(RPMTOPDIR)'
 
 # Temporary dmg root for building Mac OS X 10.4 disk image files.
 DMGTOPDIR=/tmp/$(NAME)-dmg
@@ -350,15 +349,13 @@ untag:
 ##       non-distributed files.
 ##	 (NB: lines in subshells here inherit CVSROOT settings from above)
 ##	    
-dist:	
+
+cvsexport:
 	@echo "*************************************************"
-	@echo " Cleaning dist build directory..."
+	@echo " Cleaning build directory and running cvs export..."
 	@echo "*************************************************"
 	rm -rf $(DISTBUILDIR)
 	mkdir -p $(DISTBUILDIR)
-	@echo "*************************************************"
-	@echo " Running cvs export .."
-	@echo "*************************************************"
 	if [ -z "$(NOCVS)" ]; then \
            (cd $(DISTBUILDIR); \
 	    cvs -d $(CVSROOT) export -kv -r "${CVS_RELEASENAME}" -d ${RELEASENAME} ${CVSNAME}) \
@@ -366,6 +363,8 @@ dist:
 	   mkdir -p $(DISTBUILDIR)/$(RELEASENAME); \
 	   cp -pr . $(DISTBUILDIR)/$(RELEASENAME); \
 	fi
+
+dist:	cvsexport
 	@echo "*************************************************"
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
@@ -429,6 +428,11 @@ release: distclean tag dist
 ##     using the tarball.  (Any user could do this)
 ##
 ##	  
+
+# Temporary RPM topdir for building packages as non-root user.
+RPMTOPDIR=/tmp/$(NAME)-rpm
+RPMBUILD=rpmbuild --define '_topdir $(RPMTOPDIR)'
+
 rpm:	
 	rm -rf $(RPMTOPDIR)
 	mkdir -p $(RPMTOPDIR)/RPMS
@@ -436,6 +440,26 @@ rpm:
 	mkdir -p $(RPMTOPDIR)/SOURCES
 	mkdir -p $(RPMTOPDIR)/BUILD
 	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETGZ)
+
+
+############################################################
+##
+## pkg:
+##     Build an Emacs .tar file package
+##	  
+PKGMOVES=doc/dir doc/ProofGeneral.info doc/PG-adapting.info 
+PKGDELETES=obsolete etc doc
+# Emacs package version is fussy about non-numbers in version, have to make version
+# from date.
+PKG_VERSION=$(shell echo $(FULLVERSION) | sed 's/$(PRERELEASE_PREFIX)/20/g')
+PKG_RELEASENAME=$(NAME)-$(PKG_VERSION)
+pkg:	cvsexport
+	(cd $(DISTBUILDIR); mv $(RELEASENAME) $(PKG_RELEASENAME))
+	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME)/doc; make info)
+	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME); mv $(PKGMOVES) .;  rm -rf $(PKGDELETES))
+	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME); echo '(define-package "ProofGeneral" "$(PKG_VERSION)" "Emacs interface for Proof Assistants")' > ProofGeneral-pkg.el)
+	(cd $(DISTBUILDIR); tar -cf $(PKG_RELEASENAME).tar $(PKG_RELEASENAME))
+
 
 ############################################################
 ##
