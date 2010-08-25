@@ -35,9 +35,8 @@ DEST_PREFIX=/usr
 
 PWD=$(shell pwd)
 
-PROVERS=acl2 ccc coq demoisa hol98 isar lclam lego pgshell phox plastic
+PROVERS=acl2 ccc coq hol98 isar lego pgshell phox
 OTHER_ELISP=generic lib mmm
-IGNORED_ELISP=twelf
 ELISP_DIRS=${PROVERS} ${OTHER_ELISP}
 ELISP_EXTRAS=isar/interface isar/isartags
 EXTRA_DIRS = images
