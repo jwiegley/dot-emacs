@@ -16,8 +16,9 @@ Q1. Proof General fails to load with an error message on start-up,
 
     What's wrong?
 
-A1. We distribute compiled .elcs for GNU Emacs 23.1, so you will have to
-    delete them and (optionally) recompile for your preferred 
+A1. We distribute compiled .elcs for one version of Emacs, but other
+    versions use different bytecode formats.  You will have to delete
+    the compiled files and (optionally) recompile for your preferred
     Emacs version.  Using the Makefile:
 
      make clean			#   removes all .elc files.  
@@ -25,6 +26,8 @@ A1. We distribute compiled .elcs for GNU Emacs 23.1, so you will have to
     and then a command like this:
 
      make EMACS=emacs-22.3
+
+   (without the EMACS setting just uses 'emacs').
 
 -----------------------------------------------------------------
 
