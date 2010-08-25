@@ -1917,14 +1917,16 @@ that these may be overwritten)."
 (defun proof-retract-before-change (beg end)
   "For `before-change-functions'.  Retract to BEG unless BEG and END in comment.
 No effect if prover is busy."
-  (and (> (proof-queue-or-locked-end) beg)
-       (not (and (proof-inside-comment beg)
-		 (proof-inside-comment end)))
-       (if proof-shell-busy
-	   (error "Prover busy")
-	 (save-excursion
-	   (goto-char beg)
-	   (proof-retract-until-point)))))
+  (when (and (> (proof-queue-or-locked-end) beg)
+	     (not (and (proof-inside-comment beg)
+		       (proof-inside-comment end))))
+    (when proof-shell-busy
+      (message "Interrupting prover")
+      (proof-interrupt-process)
+      (proof-shell-wait))
+    (save-excursion
+      (goto-char beg)
+      (proof-retract-until-point))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
