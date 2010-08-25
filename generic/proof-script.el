@@ -32,6 +32,7 @@
 (declare-function pg-response-warning "pg-response" (&rest args))
 (declare-function proof-segment-up-to "proof-script")
 (declare-function proof-autosend-enable "pg-user")
+(declare-function proof-interrupt-process "pg-shell")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
