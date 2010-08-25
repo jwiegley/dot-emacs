@@ -18,7 +18,7 @@ proof
   assume "\<phi> \<and> \<psi>"
   then show "\<psi> \<and> \<phi>"
   proof
-    assume \<psi> and \<phi>
+    assume "\<psi>" and "\<phi>"
     then show ?thesis ..
  qed
 qed
