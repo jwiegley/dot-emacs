@@ -28,26 +28,20 @@
       (coq    "Coq"	 "\\.v$\\|\\.v8$\\|\\.v7$")
       (phox   "PhoX"	 "\\.phx$")
       (lego   "LEGO"	 "\\.l$")
+
+      ;; Obscure:
+
       ;; (ccc    "CASL Consistency Checker"  "\\.ccc$")
+      ;; (pgshell	"PG-Shell"	"\\.pgsh$")
 
-      ;; For the demonstration instance of Proof General,
-      ;; uncomment line below and set
-      ;; export PROOFGENERAL_ASSISTANTS=demoisa.
-      ;; [NB: this is obsolete, only for old Isabelle files]a
-      ;; (demoisa    "Isabelle Demo"	"\\.ML$")
+      ;; Incomplete/obsolete:
 
-      ;; The following provers are not fully supported, and have only
-      ;; preliminary support written (please help to improve them!)
-
-      ;; To use HOL, uncomment the line below.  It's disabled
-      ;; by default because of clash with SML mode (same for .ML above).
       ;; (hol98	"HOL"		"\\.sml$")
-
       ;; (acl2	"ACL2"		"\\.acl2$")
       ;; (twelf	"Twelf"		"\\.elf$")
-      (plastic	"Plastic"	"\\.lf$")
-      ;; (lclam    "Lambda-CLAM"   "\\.lcm$")
-      ;; (pgshell	"PG-Shell"	"\\.pgsh$")
+      ;; (plastic	"Plastic"	"\\.lf$")    ; obsolete
+      ;; (lclam    "Lambda-CLAM"   "\\.lcm$")        ; obsolete
+      ;; (demoisa    "Isabelle Demo"	"\\.ML$")    ; obsolete
       )
     "Default value for `proof-assistant-table', which see.")
 
