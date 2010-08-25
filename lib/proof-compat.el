@@ -1,6 +1,6 @@
 ;; proof-compat.el   Operating system and Emacs version compatibility
 ;;
-;; Copyright (C) 2000-2009 LFCS Edinburgh.
+;; Copyright (C) 2000-2010 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -91,30 +91,6 @@ The value returned is the value of the last form in BODY."
 	   (progn ,@body)
 	 (select-frame ,old-frame))))))
 
-;; An implemenation of buffer-syntactic-context for GNU Emacs
-(defun proof-buffer-syntactic-context-emulate (&optional buffer)
-  "Return the syntactic context of BUFFER at point.
-If BUFFER is nil or omitted, the current buffer is assumed.
-The returned value is one of the following symbols:
-
-	nil		; meaning no special interpretation
-	string		; meaning point is within a string
-	comment		; meaning point is within a line comment"
-  (save-excursion
-    (if buffer (set-buffer buffer))
-    (let ((pp (syntax-ppss)))
-	   ;;(parse-partial-sexp (point-min) (point))))
-      (cond
-       ((nth 3 pp) 'string)
-       ;; ((nth 7 pp) 'block-comment)
-       ;; "Stefan Monnier" <monnier+misc/news@rum.cs.yale.edu> suggests
-       ;; distinguishing between block comments and ordinary comments
-       ;; is problematic: not what XEmacs claims and different to what
-       ;; (nth 7 pp) tells us in GNU Emacs.
-       ((nth 4 pp) 'comment)))))
-
-
-
 ;; These functions are used in the intricate logic around
 ;; shrink-to-fit.
 
@@ -155,14 +131,6 @@ The returned value is one of the following symbols:
   (if (and (symbolp this-command) (get this-command 'completion-function))
 	(funcall (get this-command 'completion-function)))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; General Emacs version compatibility
-;;;
-
-(defalias 'proof-buffer-syntactic-context
-	  'proof-buffer-syntactic-context-emulate)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

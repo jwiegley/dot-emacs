@@ -698,23 +698,6 @@ If optional arg REALLY-WORD is non-nil, it finds just a word."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Syntactic context
-;;
-
-;; [this belongs in proof-syntax but uses `proof-ass-sym' macro above]
-
-(defun proof-looking-at-syntactic-context ()
-  "Determine if current point is at beginning or within comment/string context.
-If so, return a symbol indicating this ('comment or 'string).
-This function invokes <PA-syntactic-context> if that is defined, otherwise
-it calls `proof-looking-at-syntactic-context'."
-  (if (fboundp (proof-ass-sym syntactic-context))
-      (funcall (proof-ass-sym syntactic-context))
-    (proof-looking-at-syntactic-context-default)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Stripping output and message
 ;;
 

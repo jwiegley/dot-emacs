@@ -108,6 +108,32 @@ nil if a region cannot be found."
   "Like `proof-looking-at', but return nil if REGEXP is nil."
   (if regexp (proof-looking-at regexp)))
 
+;;
+;; Syntactic context
+;;
+
+;; A function named after one in XEmacs
+(defun proof-buffer-syntactic-context (&optional buffer)
+  "Return the syntactic context of BUFFER at point.
+If BUFFER is nil or omitted, the current buffer is assumed.
+The returned value is one of the following symbols:
+
+	nil		; meaning no special interpretation
+	string		; meaning point is within a string
+	comment		; meaning point is within a line comment"
+  (save-excursion
+    (if buffer (set-buffer buffer))
+    (let ((pp (syntax-ppss)))
+	   ;;(parse-partial-sexp (point-min) (point))))
+      (cond
+       ((nth 3 pp) 'string)
+       ;; ((nth 7 pp) 'block-comment)
+       ;; "Stefan Monnier" <monnier+misc/news@rum.cs.yale.edu> suggests
+       ;; distinguishing between block comments and ordinary comments
+       ;; is problematic: not what XEmacs claims and different to what
+       ;; (nth 7 pp) tells us in GNU Emacs.
+       ((nth 4 pp) 'comment)))))
+
 (defsubst proof-looking-at-syntactic-context-default ()
   "Default function for `proof-looking-at-syntactic-context'."
   (or
@@ -117,7 +143,30 @@ nil if a region cannot be found."
    (save-match-data
      (when (proof-looking-at-safe proof-string-start-regexp) 'string))))
 
+(defun proof-looking-at-syntactic-context ()
+  "Determine if current point is at beginning or within comment/string context.
+If so, return a symbol indicating this ('comment or 'string).
+This function invokes <PA-syntactic-context> if that is defined, otherwise
+it calls `proof-looking-at-syntactic-context'."
+  (if (fboundp (proof-ass-sym syntactic-context))
+      (funcall (proof-ass-sym syntactic-context))
+    (proof-looking-at-syntactic-context-default)))
+
+(defun proof-inside-comment (pos)
+  "Return non-nil if POS is inside a comment."
+  (save-excursion
+    (goto-char pos)
+    (eq (proof-buffer-syntactic-context) 'comment)))
+
+(defun proof-inside-string (pos)
+  "Return non-nil if POS is inside a comment."
+  (save-excursion
+    (goto-char pos)
+    (eq (proof-buffer-syntactic-context) 'string)))
+
+;;
 ;; Replacing matches
+;;
 
 (defsubst proof-replace-string (string to-string)
   "Non-interactive `replace-string', using `proof-case-fold-search'."
@@ -135,7 +184,9 @@ nil if a region cannot be found."
     (while (proof-re-search-forward regexp nil t)
       (replace-match to-string nil nil))))
 
+;;
 ;; Generic font-lock
+;;
 
 (defvar proof-id "\\(\\w\\(\\w\\|\\s_\\)*\\)"
   "A regular expression for parsing identifiers.")
