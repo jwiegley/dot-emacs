@@ -10,6 +10,8 @@
     $Id$
 *)
 
+Module ExampleTokens.
+
 Fixpoint toto (x:nat) {struct x} : nat := (* n a t  should appear as |N *)
   match x with
     | O => O        (* double arrow here *)
@@ -72,9 +74,11 @@ Variable _alpha : Set.
 Variable alpha_ : Set.
 
 Lemma gamma__neqn : forall n__i:nat, n__i=n__i.
-
+Abort All.
 
 (* Tests of things that shouldn't be 
 should be unicode characters: alpha lhd rhd lambda forall exists exists 
 shouldn't be altered: exist foral 
 *)
+
+End ExampleTokens.
