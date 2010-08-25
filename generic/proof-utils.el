@@ -258,7 +258,7 @@ NB: may change the selected window."
 	      (if (not (and proof-three-window-enable associated-windows))
 		  (display-buffer buffer)
 		(select-window (car associated-windows)) ; take on assoc. win
-		(split-window-vertically)
+		(proof-safe-split-window-vertically)
 		(set-window-dedicated-p (selected-window) nil)
 		(switch-to-buffer buffer)
 		(set-window-dedicated-p (selected-window) t)

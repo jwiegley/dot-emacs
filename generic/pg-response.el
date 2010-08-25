@@ -110,16 +110,21 @@ Internal variable, setting this will have no effect!")
 (defun proof-three-window-enable ()
   (proof-layout-windows))
 
+(defun proof-safe-split-window-vertically ()
+  (if (<= (window-height) (* 2 window-min-height))
+      (enlarge-window (+ 3 (* 2 window-min-height))))
+  (split-window-vertically))
+
 (defun proof-select-three-b (b1 b2 b3 &optional nohorizontalsplit)
   "Select three buffers. Put them into three windows, selecting the last one."
   (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
   (delete-other-windows)
   (if nohorizontalsplit
-      (split-window-vertically)
+      (proof-safe-split-window-vertically)
     (split-window-horizontally))
   (switch-to-buffer b1)
   (other-window 1)
-  (split-window-vertically)
+  (proof-safe-split-window-vertically)
   (switch-to-buffer b2)
   (other-window 1)
   (switch-to-buffer b3)
