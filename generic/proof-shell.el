@@ -573,8 +573,9 @@ didn't cause prover output."
        "Interrupt: script management may be in an inconsistent state
 	   (but it's probably okay)"))
      (t ; error
-      (save-excursion
-	(proof-shell-handle-delayed-output))
+      (if proof-shell-delayed-output-start 
+	  (save-excursion
+	    (proof-shell-handle-delayed-output)))
       (proof-shell-handle-error-output
        (if proof-shell-truncate-before-error proof-shell-error-regexp)
        'proof-error-face)
