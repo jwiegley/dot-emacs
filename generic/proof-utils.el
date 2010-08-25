@@ -210,6 +210,11 @@ Leave point at END."
 ;; Messaging and display functions
 ;;
 
+(defun proof-safe-split-window-vertically ()
+  (if (<= (window-height) (* 2 window-min-height))
+      (enlarge-window (+ 3 (* 2 window-min-height))))
+  (message "ICI")
+  (split-window-vertically))
 
 (defun proof-warn-if-unset (tag sym)
   "Give a warning (with TAG) if symbol SYM is unbound or nil."
