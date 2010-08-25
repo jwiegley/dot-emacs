@@ -402,9 +402,6 @@ If locked span already has a state number, then do nothing. Also updates
              (naborts (count-not-intersection 
                        coq-last-but-one-proofstack proofstack)))
     (unless (and 
-             nil
-             ;; FIXME da: these tests go wrong sometimes.
-             ;; Test: Open example.v, C-b, C-r. No backtrack issued.
              ;; return nil (was proof-no-command) in this case:
              ;; this is more efficient as backtrack x y z may be slow
              (equal coq-last-but-one-proofstack proofstack)
