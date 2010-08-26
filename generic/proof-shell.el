@@ -1354,7 +1354,7 @@ by the filter is to send the next command from the queue."
 (defsubst proof-shell-display-output-as-response (flags str)
   "If FLAGS permit, display response STR; set `proof-shell-last-response-output'."
   (setq proof-shell-last-response-output str) ; set even if not displayed
-  (unless (memq 'no-error-display flags)
+  (unless (memq 'no-response-display flags)
     (pg-response-display str)))
 
 (defun proof-shell-handle-delayed-output ()
