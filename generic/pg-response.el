@@ -47,7 +47,6 @@
   (easy-menu-add proof-assistant-menu proof-response-mode-map)
   (proof-toolbar-setup)
   (setq pg-response-next-error nil)
-  (erase-buffer)
   (buffer-disable-undo)
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
   (set-buffer-modified-p nil)

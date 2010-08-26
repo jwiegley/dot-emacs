@@ -36,7 +36,6 @@ May enable proof-by-pointing or similar features.
   (easy-menu-add proof-goals-mode-menu proof-goals-mode-map)
   (easy-menu-add proof-assistant-menu proof-goals-mode-map)
   (proof-toolbar-setup)
-  (erase-buffer)
   (buffer-disable-undo)
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
   (set-buffer-modified-p nil)

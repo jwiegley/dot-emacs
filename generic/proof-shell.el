@@ -339,18 +339,22 @@ process command."
 
 	;; Initialise associated buffers
 
-	(set-buffer proof-response-buffer)
-	(proof-shell-set-text-representation)
-	(funcall proof-mode-for-response)
+	(with-current-buffer proof-response-buffer
+	  (erase-buffer)
+	  (proof-shell-set-text-representation)
+	  (funcall proof-mode-for-response))
+	  
+	(with-current-buffer proof-goals-buffer
+	  (erase-buffer)
+	  (proof-shell-set-text-representation)
+	  (funcall proof-mode-for-goals))
 
 	(proof-with-current-buffer-if-exists proof-trace-buffer
+  	  (erase-buffer)
 	  (proof-shell-set-text-representation)
 	  (funcall proof-mode-for-response)
 	  (setq pg-response-eagerly-raise nil))
 
-	(set-buffer proof-goals-buffer)
-	(proof-shell-set-text-representation)
-	(funcall proof-mode-for-goals)
 
 	;; Setting modes initialises local variables which
 	;; may affect frame/buffer appearance: so we fire up frames
