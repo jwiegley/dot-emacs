@@ -484,10 +484,9 @@ so that loading them the next time round only performs a re-linking
 operation, not full re-processing.  (One way of caching is via
 object files, used by Lego and Coq)."
   (interactive)
-  (if proof-shell-busy
-      (progn
-	(proof-interrupt-process)
-	(proof-shell-wait)))
+  (when proof-shell-busy
+    (proof-interrupt-process)
+    (proof-shell-wait))
   (if (not (proof-shell-live-buffer))
       (proof-shell-start) ;; start if not running
     ;; otherwise clear context
@@ -717,7 +716,8 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
   (unless proof-shell-busy
     (error "Proof process not active!"))
   (setq proof-shell-interrupt-pending t)
-  (interrupt-process))
+  (with-current-buffer proof-shell-buffer
+    (interrupt-process)))
 
 
 
