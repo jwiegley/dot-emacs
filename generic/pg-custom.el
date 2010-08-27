@@ -1,6 +1,6 @@
 ;;; pg-custom.el --- Proof General per-prover settings
 ;;
-;; Copyright (C) 2008 LFCS Edinburgh.
+;; Copyright (C) 2008, 2010 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -32,27 +32,6 @@
 
 (require 'proof-utils)		   ; defpgcustom
 (require 'proof-config)		   ; for proof-toolbar-entries-default
-
-(defpgcustom maths-menu-enable nil
-  "*Non-nil for Unicode maths menu in Proof General for this assistant."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defpgcustom unicode-tokens-enable nil
-  "*Non-nil for using Unicode token input mode in Proof General."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defpgcustom mmm-enable nil
-  "*Whether to use MMM Mode in Proof General for this assistant.
-MMM Mode allows multiple modes to be used in the same buffer.
-If you activate this variable, whether or not you really get MMM
-support depends on whether your proof assistant supports it."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
 
 (defpgcustom script-indent t
   "*If non-nil, enable indentation code for proof scripts."
@@ -179,6 +158,29 @@ Currently this setting is UNIMPLEMENTED, changes have no effect."
   :type 'boolean
   :group 'prover-config)
 
+
+;; Contributed modes
+
+(defpgcustom maths-menu-enable nil
+  "*Non-nil for Unicode maths menu in Proof General for this assistant."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
+(defpgcustom unicode-tokens-enable nil
+  "*Non-nil for using Unicode token input mode in Proof General."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
+(defpgcustom mmm-enable nil
+  "*Whether to use MMM Mode in Proof General for this assistant.
+MMM Mode allows multiple modes to be used in the same buffer.
+If you activate this variable, whether or not you really get MMM
+support depends on whether your proof assistant supports it."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
 
 
 
