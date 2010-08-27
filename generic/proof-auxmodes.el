@@ -1,6 +1,6 @@
 ;;; proof-auxmodes.el --- Arrange for auxiliary modes to be loaded when required
 ;;
-;; Copyright (C) 2008 David Aspinall / LFCS Edinburgh
+;; Copyright (C) 2008, 2010 David Aspinall / LFCS Edinburgh
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 
@@ -25,7 +25,7 @@
 	 ;; put bundled version on load path
 	 (setq load-path
 	       (cons
-		(concat proof-home-directory "mmm/")
+		(concat proof-home-directory "contrib/mmm/")
 		load-path))
 	 ;; *should* always succeed unless bundled version broken
 	 (proof-try-require 'mmm-auto)))
@@ -65,6 +65,7 @@ The test loads optional prover-specific config in <foo>-maths-menu.el"
     (if (and (proof-ass unicode-tokens-enable)
 	     (proof-unicode-tokens-support-available))
 	(proof-unicode-tokens-set-global t)))
+
 
 (provide 'proof-auxmodes)
 
