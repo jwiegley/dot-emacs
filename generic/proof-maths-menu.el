@@ -54,8 +54,6 @@ in future if we have just activated it for this buffer."
   (if (proof-maths-menu-support-available)
       (proof-maths-menu-set-global (not maths-menu-mode))))
 
-(provide 'proof-maths-menu)
-;; End of proof-maths-menu.el
 
 (provide 'proof-maths-menu)
 
