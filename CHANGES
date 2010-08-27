@@ -70,27 +70,6 @@
 *** "Movie" output: export an annotated buffer in XML
     Basic movie output for Proviola, see http://mws.cs.ru.nl/proviola
 
-*** Altered prover configuration settings (internal)
-
-    urgent message matching is now anchored; configurations for
-    `proof-shell-clear-response-regexp', etc, must match
-    strings which begin with `proof-shell-eager-annotation-start'.
-
-    proof-shell-strip-output-markup: added for cut-and-paste
-    proof-electric-terminator-noterminator: allows non-insert of terminator
-
-    pg-insert-output-as-comment-fn: removed (use p-s-last-output)
-    proof-shell-wakeup-char: removed (special chars deprecated)
-    pg-use-specials-for-fontify: removed (ditto)
-    proof-shell-prompt-pattern: removed (was only for shell UI)
-    proof-shell-abort-goal-regexp: removed (ordinary response)
-    proof-shell-error-or-interrupt-seen: removed, use p-s-last-output-kind
-    proof-script-next-entity-regexps,next-entity-fn: removed (func-menu dead)
-
-*** Simplified version of comint now used for proof shell (internal)
-    To improve efficiency, a cut-down version of comint is now used.
-    Editing, history and decoration in the shell (*coq*, *isabelle*,
-    etc) are impoverished compared with PG 3.X.
 
 ** Isabelle/Isar changes
 
@@ -112,3 +91,29 @@
 
 *** Holes mode can be turned on/off and has its own minor mode
 
+
+** Notable internal changes
+
+*** Altered prover configuration settings (internal)
+
+    proof-terminal-char replaced by proof-terminal-string
+
+    urgent message matching is now anchored; configurations for
+    `proof-shell-clear-response-regexp', etc, must match
+    strings which begin with `proof-shell-eager-annotation-start'.
+
+    proof-shell-strip-output-markup: added for cut-and-paste
+    proof-electric-terminator-noterminator: allows non-insert of terminator
+
+    pg-insert-output-as-comment-fn: removed (use p-s-last-output)
+    proof-shell-wakeup-char: removed (special chars deprecated)
+    pg-use-specials-for-fontify: removed (ditto)
+    proof-shell-prompt-pattern: removed (was only for shell UI)
+    proof-shell-abort-goal-regexp: removed (ordinary response)
+    proof-shell-error-or-interrupt-seen: removed, use p-s-last-output-kind
+    proof-script-next-entity-regexps,next-entity-fn: removed (func-menu dead)
+
+*** Simplified version of comint now used for proof shell (internal)
+    To improve efficiency, a cut-down version of comint is now used.
+    Editing, history and decoration in the shell (*coq*, *isabelle*,
+    etc) are impoverished compared with PG 3.X.
