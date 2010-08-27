@@ -304,10 +304,11 @@ Initially 1 because Coq initial state has number 1.")
 ;; resetting its content if ERASE non nil.
 ;; FIXME: point seems not to go at the end of the buffer
 (defun proof-store-buffer-win (buffer &optional erase)
-  (let ((newbuffer nil))
-    (set-buffer buffer)
-    (setq newbuffer (proof-clone-buffer " response-freeze" erase))
-    (display-buffer-other-frame newbuffer)))
+  (proof-with-current-buffer-if-exists buffer
+    (let ((newbuffer nil))
+      (set-buffer buffer)
+      (setq newbuffer (proof-clone-buffer " response-freeze" erase))
+      (display-buffer-other-frame newbuffer))))
 
 (defun proof-store-response-win (&optional erase)
   (interactive "P")
