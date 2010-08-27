@@ -170,15 +170,14 @@ An error is signalled if scripting doesn't complete."
 
 (defun pg-autotest-test-script-randomjumps (file jumps)
   "Load FILE and process in it by jumping around randomly JUMPS times.
-Additionally some edits are made but undone.
 This should be robust against synchronization errors; we test this by
 completely processing the buffer as the last step."
+;; TODO: Additionally some edits are made but undone.
   (pg-autotest-find-file-restart file)
   (while (> jumps 0)
     (let* ((random-point     (random (point-max)))
 	   (random-edit      nil) ; (< 20 (random 100)))
-	   (random-other     (< 10 (random 100)))
-	   (random-thing     (and random-other (random 3))))
+	   (random-thing     (random 10)))
       (cond
        ((and (eq random-thing 0)
 	     (not (proof-locked-region-full-p)))
