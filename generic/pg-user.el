@@ -1417,7 +1417,7 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
     (setq proof-autosend-timer
 	  (run-with-idle-timer proof-autosend-delay 
 			       t 'proof-autosend-loop))
-    (setq proof-autosend-error-point nil)
+    (setq proof-autosend-modified-tick nil)
     (unless nomsg (message "Automatic sending turned on.")))
   (when (not proof-autosend-enable)
     (setq proof-autosend-timer nil)
@@ -1457,7 +1457,6 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	  (proof-shell-wait t) ; interruptible
 	  (cond
 	   ((eq proof-shell-last-output-kind 'error)
-	    (setq proof-autosend-error-point (proof-unprocessed-begin))
 	    (message "Sending commands to prover...error"))
 	   ((and (input-pending-p) proof-shell-busy)
 	    (proof-interrupt-process)
@@ -1484,7 +1483,6 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	  (proof-shell-wait t)) ; interruptible
 	(cond
 	 ((eq proof-shell-last-output-kind 'error)
-	  (setq proof-autosend-error-point (proof-unprocessed-begin))
 	  (message "Trying next command in prover...error"))
 	 ((and (input-pending-p) proof-shell-busy)
 	  (proof-interrupt-process)
