@@ -436,30 +436,30 @@ This is called when Proof General spots output matching
 (defun isar-find-and-forget (span)
   "Return commands to be used to forget SPAN."
   (let (str ans answers)
-    (while (and span (span-property span 'cmd))
-      (setq str (or (span-property span 'cmd) ""))
+    (while span
+      (setq str (span-property span 'cmd))
       (setq ans nil)
       (cond
        ;; comment, diagnostic, nested proof command: skip
        ;; FIXME: should adjust proof-nesting-depth here.
        ((or (eq (span-property span 'type) 'comment)
 	    (eq (span-property span 'type) 'proverproc)
-	    (eq (span-property span 'type) 'proof); da: needed?
-	    (proof-string-match isar-undo-skip-regexp str)
-	    (proof-string-match isar-undo-ignore-regexp str)))
+	    (eq (span-property span 'type) 'proof)
+	    (and str (proof-string-match isar-undo-skip-regexp str))
+	    (and str (proof-string-match isar-undo-ignore-regexp str))))
        ;; finished goal: undo
        ((eq (span-property span 'type) 'goalsave)
 	(setq ans isar-undo))
        ;; open goal: skip and exit
-       ((proof-string-match isar-goal-command-regexp str)
+       ((and str (proof-string-match isar-goal-command-regexp str))
 	(setq span nil))
        ;; control command: cannot undo
-       ((and (proof-string-match isar-undo-fail-regexp str))
+       ((and str (proof-string-match isar-undo-fail-regexp str))
 	(setq ans (isar-cannot-undo (match-string 1 str)))
 	(setq answers nil)
 	(setq span nil))
        ;; theory: remove and exit
-       ((proof-string-match isar-undo-remove-regexp str)
+       ((and str (proof-string-match isar-undo-remove-regexp str))
 	(setq ans (isar-remove (match-string 3 str)))
 	(setq span nil))
        ;; else: undo

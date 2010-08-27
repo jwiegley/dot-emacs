@@ -33,6 +33,21 @@
   (pg-autotest remark "Testing standard Example.thy, Example-Xsym.thy")
   (pg-autotest script-wholefile "isar/Example.thy")
 
+  ;; Test Trac#344 (nested spans bug with old-style undo)
+  ;; TODO: should test with both undo styles
+  (pg-autotest eval (proof-retract-buffer))
+  (proof-shell-wait)
+  (goto-char 135) ; first line
+  (pg-autotest eval (proof-goto-point))
+  (proof-shell-wait)
+  (pg-autotest eval (proof-retract-buffer))
+  (proof-shell-wait)
+  (goto-char 135) ; first line
+  (pg-autotest eval (proof-goto-point))
+  (proof-shell-wait)
+  (pg-autotest eval (proof-process-buffer))
+  (pg-autotest assert-full)
+
   ;; Speed up prover
   (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
   (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
@@ -63,7 +78,7 @@
   (pg-autotest script-wholefile "isar/Example-Tokens.thy")
 
   (pg-autotest remark "Testing random jumps and edits")
-  (pg-autotest script-randomjumps "isar/Example.thy" 5)
+  (pg-autotest script-randomjumps "isar/Example.thy" 8)
 
   (when isar-long-tests
       (pg-autotest remark "Larger files...")
