@@ -65,7 +65,7 @@ support depends on whether your proof assistant supports it."
   (context "Display Context" "Display the current context" t
 	     proof-context-command)
   (goal      "Start a New Proof" "Start a new proof" t nil)
-  (retract   "Retract Buffer"     "Retract (undo) whole buffer" t)
+  (retract   "Retract Buffer"     "Retract (undo) whole buffer" t t)
   (undo      "Undo Step"          "Undo the previous proof command" t t)
   (delete    "Delete Step"        "Delete the last proof command" t t)
   (next      "Next Step"          "Process the next proof command" t t)
