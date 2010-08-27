@@ -1312,8 +1312,8 @@ Move point to start of current (or final) command of the script.
 Set point to end of command at point.
 @end deffn
 
-@vindex proof-terminal-char
-The variable @code{proof-terminal-char} is a prover-specific character
+@vindex proof-terminal-string
+The variable @code{proof-terminal-string} is a prover-specific string
 to terminate proof commands.  LEGO and Isabelle use a semicolon,
 @samp{;}. Coq employs a full-stop @samp{.}.
 
@@ -1448,7 +1448,7 @@ Retract the current buffer, and maybe move point to the start.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-electric-terminator-toggle
-@deffn Command proof-electric-terminator-toggle arg
+@deffn Command proof-electric-terminator-toggle &optional arg
 Toggle @samp{@code{proof-electric-terminator-enable}}. With @var{arg}, turn on iff ARG>0.@*
 This function simply uses @code{customize-set-variable} to set the variable.
 It was constructed with @samp{@code{proof-deftoggle-fn}}.
@@ -1572,10 +1572,10 @@ most of the time, and all of the time if the proof assistant has a careful
 handling of interrupt signals.
 
 Some provers may ignore (and lose) interrupt signals, or fail to indicate
-that they have been acted upon but get stop in the middle of output.
+that they have been acted upon yet stop in the middle of output.
 In the first case, PG will terminate the queue of commands at the first
 available point.  In the second case, you may need to press enter inside
-the prover command buffer (e.g., with Isabelle@var{2009-2} press RET inside @strong{isabelle}).
+the prover command buffer (e.g., with Isabelle@var{2009} press RET inside @strong{isabelle}).
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-minibuffer-cmd
@@ -2561,7 +2561,7 @@ General wiki at @uref{http://proofgeneral.inf.ed.ac.uk/wiki}.
 
 @c TEXI DOCSTRING MAGIC: unicode-tokens-symbol-font-face
 @deffn Face unicode-tokens-symbol-font-face 
-The default font used for symbols.  Only :family attribute is used.
+The default font used for symbols.  Only :family and :slant attributes are used.
 @end deffn
 @c TEXI DOCSTRING MAGIC: unicode-tokens-font-family-alternatives
 @defvar unicode-tokens-font-family-alternatives 
@@ -4129,7 +4129,7 @@ at the top of your theory file, like this:
 The default value is @code{nil}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: isabelle-choose-logic
-@deffn Command isabelle-choose-logic logic
+@deffn Command isabelle-choose-logic 
 Adjust isabelle-prog-name and @code{proof-prog-name} for running @var{logic}.
 @end deffn
 @node Isabelle commands

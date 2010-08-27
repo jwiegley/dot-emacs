@@ -374,7 +374,7 @@ directory and elisp file for the mode, which will be
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "\\.thy$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (lego "LEGO" "\\.l$") (plastic "Plastic" "\\.lf$"))}.
+The default value is @code{((isar "Isabelle" "\\.thy$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (lego "LEGO" "\\.l$") (hol-light "HOL Light" "\\.l$"))}.
 @end defopt
 
 
@@ -685,13 +685,13 @@ documentation to discover how to do this (particularly for the function
 @xref{Proof script mode}, for more details of the parsing
 functions.
 
-@c TEXI DOCSTRING MAGIC: proof-terminal-char
-@defvar proof-terminal-char 
-Character that terminates commands sent to prover; nil if none.
+@c TEXI DOCSTRING MAGIC: proof-terminal-string
+@defvar proof-terminal-string 
+String that terminates commands sent to prover; nil if none.
 
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}},
-@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-string}},
 or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
@@ -706,7 +706,7 @@ You should set this variable in script mode configuration.
 
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}},
-@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-string}},
 or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
@@ -717,7 +717,7 @@ You should set this variable in script mode configuration.
 
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}},
-@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-string}},
 or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
@@ -735,7 +735,7 @@ i.e. (@code{match-beginning} 1), rather than (@code{match-end} 0).
 
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}},
-@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-string}},
 or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
@@ -779,7 +779,7 @@ You should set this variable for reliable working of Proof General.
 @defvar proof-script-comment-end-regexp 
 Regexp which matches a comment end in the proof command language.
 
-The default value for this is set as (@code{regexp-quote} @code{proof-script-comment-end})
+The default value for this is set as (@code{regexp-quote} @samp{@code{proof-script-comment-end}})
 but you can set this variable to something else more precise if necessary.
 @end defvar
 
@@ -852,7 +852,7 @@ It's safe to leave this setting as nil.
 
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-result
 @defvar proof-goal-with-hole-result 
-How to build theorem name after matching with @samp{@code{proof-goal-with-hole-regexp}}.@*
+How to get theorem name after @samp{@code{proof-goal-with-hole-regexp}} match.@*
 String or Int.
 If an int N use @code{match-string} to recover the value of the Nth parenthesis matched.
 If it is a string use @code{replace-match}. In this case, @code{proof-save-with-hole-regexp}
@@ -1311,8 +1311,8 @@ are interpreted literally as part of the program name.
 Non-nil if Proof General should try to add terminator to every command.@*
 If non-nil, whenever a command is sent to the prover using
 @samp{@code{proof-shell-invisible-command}}, Proof General will check to see if it
-ends with @samp{@code{proof-terminal-char}}, and add it if not.
-If @samp{@code{proof-terminal-char}} is nil, this has no effect.
+ends with @samp{@code{proof-terminal-string}}, and add it if not.
+If @samp{@code{proof-terminal-string}} is nil, this has no effect.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-pre-sync-init-cmd
@@ -1623,7 +1623,7 @@ and possibly analysed further for proof-by-pointing markup.
 @defvar proof-shell-end-goals-regexp 
 Regexp matching the end of the proof state output, or nil.@*
 This allows a shorter form of the proof state output to be displayed,
-in case several messages are combined in a command output.  
+in case several messages are combined in a command output.
 
 The portion treated as the goals output will be that between the
 @strong{end} of the match on @samp{@code{proof-shell-start-goals-regexp}} and the
@@ -1808,8 +1808,8 @@ final four settings described here.
 A pair (@var{regexp} . @var{function}) to match a processed file name.
 
 If @var{regexp} matches output, then the function @var{function} is invoked.
-It must return the name of a script file (with complete path) 
-that the system has successfully processed.  In practice, 
+It must return the name of a script file (with complete path)
+that the system has successfully processed.  In practice,
 @var{function} is likely to inspect the match data.  If it returns
 the empty string, the file name of the scripting buffer is used
 instead.  If it returns nil, no action is taken.
@@ -1843,7 +1843,7 @@ date and needs to be updated with the help of the function
 Function to update @samp{proof-included-files list}.
 
 It needs to return an up-to-date list of all processed files.  The
-result will be stored in @samp{@code{proof-included-files-list}}.  
+result will be stored in @samp{@code{proof-included-files-list}}.
 
 This function is called when @samp{@code{proof-shell-retract-files-regexp}}
 has been matched in the prover output.
@@ -1910,12 +1910,6 @@ This setting is used inside the function @samp{@code{proof-format-filename}}.
 @defvar proof-shell-process-connection-type 
 The value of @samp{@code{process-connection-type}} for the proof shell.@*
 Set non-nil for ptys, nil for pipes.
-The default (and preferred) option is to use pty communication.
-However there is a long-standing backslash/long line problem with
-Solaris which gives a mess of ^G characters when some input is sent
-which has a \ in the 256th position.
-So we select pipes by default if it seems like we're on Solaris.
-We do not force pipes everywhere because this risks loss of data.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-or-interrupt-hook
@@ -1945,7 +1939,7 @@ before returning to the top level.
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-output-system-specific
 @defvar proof-shell-handle-output-system-specific 
 Set this variable to handle system specific output.@*
-Errors and interrupts are recognised in the function  
+Errors and interrupts are recognised in the function
 @samp{@code{proof-shell-handle-immediate-output}}.  Later output is
 handled by @samp{@code{proof-shell-handle-delayed-output}}, which
 displays messages to the user in @strong{goals} and @strong{response}
@@ -1957,7 +1951,7 @@ It should be a function which is passed (cmd string) as
 arguments, where @samp{cmd} is a string containing the currently
 processed command and @samp{string} is the response from the proof
 system.  If action is taken and goals/response display should
-be prevented, the function should update the variable 
+be prevented, the function should update the variable
 @samp{@code{proof-shell-last-output-kind}} to some non-nil symbol.
 
 The symbol will be compared against standard ones, see documentation
@@ -2125,9 +2119,9 @@ This list contains files in canonical truename format
 (see @samp{@code{file-truename}}).
 
 Whenever a new file is being processed, it gets added to this list
-via the @code{proof-shell-process-file} configuration settings.
+via the @samp{@code{proof-shell-process-file}} configuration settings.
 When the prover retracts a file, this list is resynchronised via the
-@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list}
+@samp{@code{proof-shell-retract-files-regexp}} and @samp{@code{proof-shell-compute-new-files-list}}
 configuration settings.
 
 Only files which have been @strong{fully} processed should be included here.
@@ -2355,9 +2349,13 @@ can be achieved via two hook functions which are run before and after
 fontifying the output buffers.
 
 @c TEXI DOCSTRING MAGIC: proof-zap-commas
-@defun proof-zap-commas limit
+@defun proof-zap-commas 
 Remove the face of all @samp{,} from point to @var{limit}.@*
-Meant to be used from @samp{@code{font-lock-keywords}}.
+Meant to be used from @samp{@code{font-lock-keywords}} as a way
+to unfontify commas in declarations and definitions.
+Useful for provers which have declarations of the form x,y,z:Ty
+All that can be said for it is that the previous ways of doing
+this were even more bogus....
 @end defun
 
 @c TEXI DOCSTRING MAGIC: pg-before-fontify-output-hook
@@ -2548,7 +2546,7 @@ To insert text into the current (usually script) buffer, the function
 
 
 @c TEXI DOCSTRING MAGIC: proof-insert
-@defun proof-insert text
+@defun proof-insert 
 Insert @var{text} into the current buffer.@*
 @var{text} may include these special characters:
 @lisp
@@ -2562,7 +2560,7 @@ Any other %-prefixed character inserts itself.
 Define shortcut function FN to insert @var{string}, optional keydef KEY.@*
 This is intended for defining proof assistant specific functions.
 @var{string} is inserted using @samp{@code{proof-insert}}, which see.
-KEY is added onto @code{proof-assistant} map.
+KEY is added onto proof assistant map.
 @end deffn
 The function @code{proof-shell-invisible-command} is a useful utility
 for sending a single command to the process.  You should use this to
@@ -2576,7 +2574,7 @@ Send @var{cmd} to the proof process.@*
 The @var{cmd} is @samp{invisible} in the sense that it is not recorded in buffer.
 @var{cmd} may be a string or a string-yielding expression.
 
-Automatically add @code{proof-terminal-char} if necessary, examining
+Automatically add @samp{@code{proof-terminal-string}} if necessary, examining
 @samp{proof-shell-no-auto-terminate-commands}.
 
 By default, let the command be processed asynchronously.
@@ -2589,7 +2587,7 @@ In case @var{cmd} is (or yields) nil, do nothing.
 if it is set.  It should probably run the hook variables
 @samp{@code{proof-state-change-hook}}.
 
-If @var{noerror} is set, surpress usual error action.
+@var{flags} are put onto the If @var{noerror} is set, surpress usual error action.
 @end defun
 
 There are several handy macros to help you define functions
@@ -2599,9 +2597,9 @@ which invoke @code{proof-shell-invisible-command}.
 @deffn Macro proof-definvisible 
 Define function FN to send @var{string} to proof assistant, optional keydef KEY.@*
 This is intended for defining proof assistant specific functions.
-@var{string} is sent using @code{proof-shell-invisible-command}, which see.
+@var{string} is sent using @samp{@code{proof-shell-invisible-command}}, which see.
 @var{string} may be a string or a function which returns a string.
-KEY is added onto @code{proof-assistant} map.
+KEY is added onto proof assistant map.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-define-assistant-command
@@ -2617,7 +2615,7 @@ Define command FN to prompt for string @var{cmdvar} to proof assistant.@*
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-format-filename
-@defun proof-format-filename string filename
+@defun proof-format-filename 
 Format @var{string} by replacing quoted chars by escaped version of @var{filename}.
 
 %e uses the canonicalized expanded version of filename (including
@@ -2736,7 +2734,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego} @code{'plastic}.
+A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego} @code{'hol-light}.
 If nil, the default will be ALL available proof assistants.
 
 Each proof assistant defines its own instance of Proof General,
@@ -2866,14 +2864,14 @@ behaviour and appearance for boolean user options, as well as
 interfacing properly with the @code{customize} mechanism.
 
 @c TEXI DOCSTRING MAGIC: proof-set-value
-@defun proof-set-value sym value
+@defun proof-set-value 
 Set a customize variable using @samp{@code{set-default}} and a function.@*
-We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
-Then if there is a function @var{sym} (i.e. with the same name as the
-variable @var{sym}), it is called to take some dynamic action for the new
+We first call @samp{@code{set-default}} to set SYM to @var{value}.
+Then if there is a function SYM (i.e. with the same name as the
+variable SYM), it is called to take some dynamic action for the new
 setting.
 
-If there is no function @var{sym}, we try stripping
+If there is no function SYM, we try stripping
 @samp{@code{proof-assistant-symbol}} and adding "proof-" instead to get
 a function name.  This extends @code{proof-set-value} to work with
 generic individual settings.
@@ -2885,7 +2883,7 @@ approximation we test whether proof-config is fully-loaded yet.
 @c TEXI DOCSTRING MAGIC: proof-deftoggle
 @deffn Macro proof-deftoggle 
 Define a function VAR-toggle for toggling a boolean customize setting VAR.@*
-The toggle function uses @code{customize-set-variable} to change the variable.
+The toggle function uses @samp{@code{customize-set-variable}} to change the variable.
 @var{othername} gives an alternative name than the default <VAR>-toggle.
 The name of the defined function is returned.
 @end deffn
@@ -2934,9 +2932,9 @@ This list contains files in canonical truename format
 (see @samp{@code{file-truename}}).
 
 Whenever a new file is being processed, it gets added to this list
-via the @code{proof-shell-process-file} configuration settings.
+via the @samp{@code{proof-shell-process-file}} configuration settings.
 When the prover retracts a file, this list is resynchronised via the
-@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list}
+@samp{@code{proof-shell-retract-files-regexp}} and @samp{@code{proof-shell-compute-new-files-list}}
 configuration settings.
 
 Only files which have been @strong{fully} processed should be included here.
@@ -3113,7 +3111,7 @@ configuration variables have been set.
 @itemize @bullet
 @item If @code{proof-script-sexp-commands} is set, the choice is 
  @code{proof-script-generic-parse-sexp}.
-@ item If only @code{proof-script-command-end-regexp} or @code{proof-terminal-char} are set,
+@ item If only @code{proof-script-command-end-regexp} or @code{proof-terminal-string} are set,
  then the default is @code{proof-script-generic-parse-cmdend}.
 @item If @code{proof-script-command-start-regexp} is set, the choice is
  @code{proof-script-generic-parse-cmdstart}.  
@@ -3137,15 +3135,17 @@ For @samp{@code{proof-script-parse-function}} if @samp{@code{proof-script-comman
 Used for @samp{@code{proof-script-parse-function}} if @samp{@code{proof-script-sexp-commands}} is set.
 @end defun
 @c TEXI DOCSTRING MAGIC: proof-semis-to-vanillas
-@defun proof-semis-to-vanillas semis
+@defun proof-semis-to-vanillas semis &optional queueflags
 Create vanilla spans for @var{semis} and a list for the queue.@*
 Proof terminator positions @var{semis} has the form returned by
 the function @samp{proof-segment-up-to}.  The argument list is destroyed.
 The callback in each queue element is @samp{@code{proof-done-advancing}}.
 
 If the variable @samp{@code{proof-script-preprocess}} is set (to the name of
-a function, call that function to construct the first element of
+a function), call that function to construct the first element of
 each queue item.
+
+The optional @var{queueflags} are added to each queue item.
 @end defun
 
 The function @code{proof-assert-until-point} is the main one used to
@@ -3157,7 +3157,7 @@ available until we've actually run @code{proof-segment-up-to (point)},
 hence all the different options when we've done so.
 
 @c TEXI DOCSTRING MAGIC: proof-assert-until-point
-@defun proof-assert-until-point 
+@defun proof-assert-until-point &optional displayflags
 Process the region from the end of the locked-region until point.
 @end defun
 
@@ -3165,13 +3165,13 @@ The main command for retracting parts of a script is
 @code{proof-retract-until-point}.
 
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point
-@defun proof-retract-until-point &optional delete-region
+@defun proof-retract-until-point &optional undo-action displayflags
 Set up the proof process for retracting until point.@*
 In particular, set a flag for the filter process to call
 @samp{@code{proof-done-retracting}} after the proof process has successfully
 reset its state.
-If @var{delete-region} is non-nil, delete the region in the proof script
-corresponding to the proof command sequence.
+If @var{undo-action} is non-nil, call this function on the region in
+the proof script corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command.
 @end defun
@@ -3228,9 +3228,22 @@ interaction with the process.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-busy
 @defvar proof-shell-busy 
-A lock indicating that the proof shell is processing.@*
-When this is non-nil, @code{proof-shell-ready-prover} will give
-an error.
+A lock indicating that the proof shell is processing.
+
+The lock notes that we are processing a queue of commands being
+sent to the prover, and indicates whether the commands correspond
+to script management from a buffer (rather than being ad-hoc
+query commands to the prover).
+
+When processing commands from a buffer for script management,
+this will be set to the queue mode @code{'advancing} or @code{'retracting} to
+indicate the direction of movement.
+
+When this is non-nil, @samp{@code{proof-shell-ready-prover}} will give
+an error if called with a different requested queue mode.
+
+See also functions @samp{@code{proof-activate-scripting}} and
+@samp{@code{proof-shell-available-p}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-marker
@@ -3245,15 +3258,16 @@ The value is a list of lists of the form
 @lisp
    (@var{span} @var{commands} @var{action} [FLAGS])
 @end lisp
-which is the queue of things to do.  Flags are set for non-standard
-commands (out of script).  They may include
+which is the queue of things to do.  Flags are set for non-scripting
+commands or for when scripting should not bother the user.
+They may include
 @lisp
   @code{'no-response-display}   do not display messages in @strong{response} buffer
   @code{'no-error-display}      do not display errors/take error action
   @code{'no-goals-display}      do not goals in @strong{goals} buffer
 @end lisp
 If flags are non-empty, other interactive cues will be surpressed.
-(E.g., printing help messages).
+(E.g., printing hints).
 
 See the functions @samp{@code{proof-start-queue}} and @samp{@code{proof-shell-exec-loop}}.
 @end defvar
@@ -3308,10 +3322,11 @@ This simply kills the @samp{@code{proof-shell-buffer}} relying on the hook funct
 
 @c TEXI DOCSTRING MAGIC: proof-shell-bail-out
 @defun proof-shell-bail-out process event
-Value for the process sentinel for the proof assistant process.@*
-If the proof assistant dies, run @code{proof-shell-kill-function} to
+Value for the process sentinel for the proof assistant @var{process}.@*
+If the proof assistant dies, run @samp{@code{proof-shell-kill-function}} to
 cleanup and remove the associated buffers.  The shell buffer is
 left around so the user may discover what killed the process.
+@var{event} is the string describing the change.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
@@ -3360,14 +3375,15 @@ The queue mode is set to @code{'advancing}
 @vindex proof-action-list
 @c TEXI DOCSTRING MAGIC: proof-shell-exec-loop
 @defun proof-shell-exec-loop 
-Process the @samp{@code{proof-action-list}}.
+Main loop processing the @samp{@code{proof-action-list}}, called from shell filter.
 
 @samp{@code{proof-action-list}} contains a list of (@var{span} @var{command} @var{action} [FLAGS]) lists.
 
-If this function is called with a non-empty @code{proof-action-list}, the
+If this function is called with a non-empty @samp{@code{proof-action-list}}, the
 head of the list is the previously executed command which succeeded.
-We execute (@var{action} @var{span}) on the first item, then (@var{action} @var{span}) on any
-following items which have null as their cmd components.
+We execute the callback (@var{action} @var{span}) on the first item,
+then (@var{action} @var{span}) on any following items which have null as
+their cmd components.
 
 If a there is a next command after that, send it to the process.
 
@@ -3536,7 +3552,7 @@ A copy of the @samp{@code{proof-action-list}} flags for @samp{proof-shell-delaye
 See if the output between @var{start} and @var{end} must be dealt with immediately.@*
 To speed up processing, PG tries to avoid displaying output that
 the user will not have a chance to see.  Some output must be
-handled immediately, however: these are errors, interrupts, 
+handled immediately, however: these are errors, interrupts,
 goals and loopbacks (proof step hints/proof by pointing results).
 
 In this function we check, in turn:
@@ -3568,7 +3584,7 @@ are not dealt with eagerly during script processing, namely
 This is useful even with empty delayed output as it can
 clear the buffers.
 
-The delayed output is in the region 
+The delayed output is in the region
 [proof-shell-last-output-start,proof-shell-last-output-end].
 
 If goals output is found, the last matching instance, possibly
@@ -3585,7 +3601,7 @@ if @var{output} has this form:
 @end lisp
 then @var{goals-2} will be displayed in the goals buffer, and @var{message-2}
 in the response buffer.  Notice that the above alternation can
-only be distinguished if both @samp{@code{proof-shell-start-goals-regexp}} 
+only be distinguished if both @samp{@code{proof-shell-start-goals-regexp}}
 and @samp{@code{proof-shell-end-goals-regexp}} are set.  With just the
 former, @var{message-1} @var{goals-1} @var{message-2} would all appear in
 the response buffer.
@@ -3625,10 +3641,10 @@ The main processing point which triggers other actions is
 
 @c TEXI DOCSTRING MAGIC: proof-shell-filter
 @defun proof-shell-filter str
-Filter for the proof assistant shell-process.@*
+Master filter for the proof assistant shell-process.@*
 A function for @samp{@code{scomint-output-filter-functions}}.
 
-Deal with output and issue new input from the queue.  This is
+Deal with output @var{str} and issue new input from the queue.  This is
 an important internal function.
 
 Handle urgent messages first.  As many as possible are processed,
@@ -3651,9 +3667,9 @@ example, in this case:
 @samp{@code{proof-marker}} points after @var{input}.
 
 @samp{@code{proof-shell-urgent-message-marker}} points after @var{urgent-message-2},
-after both urgent messages have been processed by 
-@samp{@code{proof-shell-process-urgent-messages}}.  Urgent messages always 
-processed; they are intended to correspond to informational 
+after both urgent messages have been processed by
+@samp{@code{proof-shell-process-urgent-messages}}.  Urgent messages always
+processed; they are intended to correspond to informational
 notes that the prover makes to inform the user or interface on
 progress.
 
@@ -3916,7 +3932,7 @@ Proof General.
 (proof-easy-config 
  'demoisa "Isabelle Demo" 
  proof-prog-name		 "isabelle"
- proof-terminal-char             ?\;
+ proof-terminal-string           ";"
  proof-script-comment-start             "(*"
  proof-script-comment-end               "*)"
  proof-goal-command-regexp       "^Goal"
@@ -4027,7 +4043,7 @@ Proof General.
 (defun demoisa-config ()
   "Configure Proof General scripting for Isabelle."
   (setq
-   proof-terminal-char		?\;	; ends every command
+   proof-terminal-string	";"
    proof-script-comment-start	"(*"
    proof-script-comment-end	"*)"
    proof-goal-command-regexp    "^Goal"
