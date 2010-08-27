@@ -215,6 +215,17 @@ Return nil if no such overlay belong to the list."
   "Set the end point of SPAN to VALUE."
   (span-set-endpoints span (span-start span) value))
 
+;;
+;; Handy overlay utils
+;;
+
+(defun span-add-self-removing-span (beg end &rest props)
+  (let ((ol (make-overlay beg end)))
+    (while props
+      (overlay-put ol (car props) (cadr props))
+      (setq props (cddr props)))
+    (add-timeout 2 'delete-overlay ol)))
+
 
 (provide 'span)
 

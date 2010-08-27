@@ -1990,7 +1990,7 @@ others)."
   (if (span-live-p span)
       (let ((start (span-start span))
 	    (end (span-end span))
-	    (kill (span-property span 'delete-me)))
+	    (killfn (span-property span 'remove-action)))
 	;; da: check for empty region seems odd here?
 	;; [prevents regions from being detached in set-locked-end]
 	(unless (proof-locked-region-empty-p)
@@ -2007,18 +2007,19 @@ others)."
 
 	(proof-script-delete-spans start end)
 	(span-delete span)
-	(if kill (kill-region start end))))
+	(if killfn (funcall killfn start end))))
   ;; State of scripting may have changed now
   (run-hooks 'proof-state-change-hook))
 
-(defun proof-setup-retract-action (start end proof-commands delete-region)
+(defun proof-setup-retract-action (start end proof-commands remove-action &optional 
+					 displayflags)
   "Make span from START to END which corresponds to retraction.
 Returns retraction action destined for proof shell queue, and make span.
 Action holds PROOF-COMMANDS and `proof-done-retracting' callback.
-Span deletion property set to flag DELETE-REGION."
+Span deletion property set to function REMOVE-ACTION."
   (let ((span (span-make start end)))
-    (span-set-property span 'delete-me delete-region)
-    (list (list span proof-commands 'proof-done-retracting))))
+    (span-set-property span 'remove-action remove-action)
+    (list (list span proof-commands 'proof-done-retracting displayflags))))
 
 
 (defun proof-last-goal-or-goalsave ()
@@ -2045,8 +2046,8 @@ Span deletion property set to flag DELETE-REGION."
 ;; It might be simpler to just use a single undo/forget
 ;; command, which is called in all cases.
 ;;
-(defun proof-retract-target (target delete-region)
-  "Retract the span TARGET and delete it if DELETE-REGION is non-nil.
+(defun proof-retract-target (target undo-action displayflags)
+  "Retract the span TARGET and apply UNDO-ACTION to undone region if non-nil.
 Notice that this necessitates retracting any spans following TARGET,
 up to the end of the locked region."
   (let ((end   (proof-unprocessed-begin))
@@ -2087,7 +2088,7 @@ up to the end of the locked region."
 			     start end
 			     (if (null span) nil ; was: proof-no-command
 			       (funcall proof-count-undos-fn span))
-			     delete-region)
+			     undo-action)
 		    end start))
 	  ;; Otherwise, start the retraction by killing off the
 	  ;; currently active goal.
@@ -2099,7 +2100,8 @@ up to the end of the locked region."
 	  (setq actions
 		(proof-setup-retract-action (span-start span) end
 					    (list proof-kill-goal-command)
-						    delete-region)
+						    undo-action
+						    displayflags)
 		end (span-start span))))
     ;; Check the start of the target span lies before the end
     ;; of the locked region (should always be true since we don't
@@ -2116,7 +2118,8 @@ up to the end of the locked region."
 	      (nconc actions (proof-setup-retract-action
 			      start end
 			      (funcall proof-find-and-forget-fn target)
-			      delete-region))))
+			      undo-action
+			      displayflags))))
 
     (proof-start-queue (min start end) (proof-unprocessed-begin) 
 		       actions 'retracting)))
@@ -2133,15 +2136,16 @@ If invoked outside a locked region, undo the last successfully processed
 command.  If called with a prefix argument (DELETE-REGION non-nil), also
 delete the retracted region from the proof-script."
   (interactive "P")
-  (proof-retract-until-point delete-region))
+  (proof-retract-until-point 
+   (if delete-region 'kill-region)))
 
-(defun proof-retract-until-point (&optional delete-region)
+(defun proof-retract-until-point (&optional undo-action displayflags)
   "Set up the proof process for retracting until point.
 In particular, set a flag for the filter process to call
 `proof-done-retracting' after the proof process has successfully
 reset its state.
-If DELETE-REGION is non-nil, delete the region in the proof script
-corresponding to the proof command sequence.
+If UNDO-ACTION is non-nil, call this function on the region in
+the proof script corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command."
   (if (proof-locked-region-empty-p)
@@ -2165,7 +2169,7 @@ command."
 	  (backward-char)
 	  (setq span (span-at (point) 'type)))
 	(if span
-	  (proof-retract-target span delete-region)
+	    (proof-retract-target span undo-action displayflags)
 	  ;; something wrong
 	  (proof-debug
 	   "proof-retract-until-point: couldn't find a span!"))))))

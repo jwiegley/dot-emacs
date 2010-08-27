@@ -1405,8 +1405,8 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 
 (defvar proof-autosend-timer nil "Timer used by autosend.")
 
-(deflocal proof-autosend-error-point nil
-  "If auto-sending hits an error, records the point where it is.")
+(deflocal proof-autosend-modified-tick nil
+  "Records 'buffer-chars-modified-tick' since last autosend.")
 
 ;;;###autoload
 (defun proof-autosend-enable (&optional nomsg)
@@ -1430,21 +1430,20 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 (defun proof-autosend-loop ()
   (proof-with-current-buffer-if-exists proof-script-buffer
     (unless (or (proof-locked-region-full-p)
-		proof-shell-busy)
-	(proof-autosend-loop-all))))
+		proof-shell-busy
+		(eq (buffer-chars-modified-tick) proof-autosend-modified-tick))
+      (setq proof-autosend-running t)
+      (setq proof-autosend-modified-tick (buffer-chars-modified-tick))
+      (if proof-autosend-all
+	  (proof-autosend-loop-all)
+	(proof-autosend-loop-next))
+      (setq proof-autosend-running nil))))
 
 (defun proof-autosend-loop-all ()
   "Send commands from the script until an error, complete, or input appears."
-  (when proof-autosend-error-point
-    (if (< proof-last-edited-low-watermark proof-autosend-error-point)
-	;; there was an edit before the error
-	;; FIXME: this isn't good enough, edit of the command which caused
-	;; the error, or earlier is what we want.  Need to record that.
-	(setq proof-autosend-error-point nil)))
-  (unless (or proof-autosend-error-point  
-	      (eq proof-shell-last-queuemode 'retracting))
+  (unless (eq proof-shell-last-queuemode 'retracting)
     (message "Sending commands to prover...")
-    (setq proof-autosend-running t)
+    (setq proof-autosend-modified-tick (buffer-chars-modified-tick))
     (unwind-protect
 	(progn
 	  (save-excursion
@@ -1465,15 +1464,51 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	    (message "Sending commands to prover...interrupted")
 	    (proof-shell-wait))
 	   (t
-	    (message "Sending commands to prover...done"))))
-      (setq proof-autosend-running nil))))
+	    (message "Sending commands to prover...done")))))))
 
-;; TODO (see beyondsm)
-;(defun proof-autosend-loop-next ()
-;  "Send the next command from the script and indicate its success/otherwise"
+(defun proof-autosend-loop-next ()
+  "Send the next command from the script and indicate its success/otherwise."
+  (unwind-protect
+      (let ((qol   (proof-queue-or-locked-end)))
+	(save-excursion
+	  ;(goto-char qol)
+	  ;(skip-chars-forward " \t\n")
+	  (message "Trying next command in prover...")
+	  (proof-assert-until-point
+	   (if proof-multiple-frames-enable 
+	       'no-minibuffer-messages ; nb: not API
+	     '(no-response-display 
+	       no-error-display
+	       no-goals-display))))
+	(let ((proof-sticky-errors t))
+	  (proof-shell-wait t)) ; interruptible
+	(cond
+	 ((eq proof-shell-last-output-kind 'error)
+	  (setq proof-autosend-error-point (proof-unprocessed-begin))
+	  (message "Trying next command in prover...error"))
+	 ((and (input-pending-p) proof-shell-busy)
+	  (proof-interrupt-process)
+	  (message "Trying next command in prover...interrupted")
+	  (proof-shell-wait))
+	 (t
+	  (message "Sending next command to prover...done")))
+	;; success: now undo in prover, but colour undone spans if OK
+	(unless (eq qol (proof-queue-or-locked-end)) ; no progress
+	  (save-excursion
+	    (goto-char qol)
+	    (proof-retract-until-point 
+	     (lambda (beg end)
+	       (span-add-self-removing-span 
+		(save-excursion
+		  (goto-char beg)
+		  (skip-chars-forward " \t\n")
+		  (point)) 
+		end
+		'face 'highlight))
+	     '(no-response-display 
+	       no-error-display
+	       no-goals-display)))))))
   
-
-
 (provide 'pg-user)
 
 ;;; pg-user.el ends here

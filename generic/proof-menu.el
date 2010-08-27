@@ -316,15 +316,7 @@ without adjusting window layout."
 (defconst proof-quick-opts-menu
   (cons
    "Quick Options"
-   `(["Electric Terminator" proof-electric-terminator-toggle
-     :style toggle
-     :selected proof-electric-terminator-enable
-     :help "Automatically send commands as typed"]
-     ["Send Automatically" proof-autosend-toggle
-      :style toggle
-      :selected proof-autosend-enable
-      :help "Automatically send commands when idle"]
-     ["Fast Process Buffer" proof-fast-process-buffer-toggle
+   `(["Fast Process Buffer" proof-fast-process-buffer-toggle
       :style toggle
       :selected proof-fast-process-buffer
       :help "Use a fast loop when processing whole buffer (disables input)"]
@@ -355,6 +347,28 @@ without adjusting window layout."
       :style toggle
       :selected (not proof-shell-quiet-errors)
       :help "Beep on errors or interrupts"]
+     ("Auto Process"
+      ["Electric Terminator" proof-electric-terminator-toggle
+       :style toggle
+       :selected proof-electric-terminator-enable
+       :help "Automatically send commands when terminator typed"]
+      ["Process Automatically" proof-autosend-toggle
+       :style toggle
+       :selected proof-autosend-enable
+       :help "Automatically send commands when idle"]
+      ("Automatic Processing Mode"
+       ["Next Command"
+	(customize-set-variable 'proof-autosend-all nil)
+       :style radio
+       :selected (eq proof-autosend-all nil)
+       :active proof-autosend-enable
+       :help "Automatically try out the next commmand"]
+       ["Send Whole Buffer"
+	(customize-set-variable 'proof-autosend-all t)
+	:style radio
+	:selected (eq proof-autosend-all t)
+	:active proof-autosend-enable
+	:help "Automatically send the whole buffer"]))
      ("Display"
       ["Unicode Tokens"
       (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
