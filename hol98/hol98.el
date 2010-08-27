@@ -21,7 +21,7 @@
 
 (proof-easy-config  'hol98 "HOL"
  proof-prog-name		 "hol.unquote"
- proof-terminal-char             ?\;
+ proof-terminal-string             ";"
  proof-script-comment-start             "(*"
  proof-script-comment-end               "*)"
  ;; These are all approximations, of course.

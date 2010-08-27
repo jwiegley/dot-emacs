@@ -184,7 +184,7 @@ Given is the first SPAN which needs to be undone."
 	    ((eq (span-property span 'type) 'pbp)
 	     (setq i 0)
 	     (while (< i (length str))
-	       (if (= (aref str i) proof-terminal-char) (setq ct (+ 1 ct)))
+	       (if (= (aref str i) ?\;) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
       (setq span (next-span span 'type)))
     (list (concat "Undo " (int-to-string ct) ";"))))
@@ -288,7 +288,7 @@ Checks the width in the `proof-goals-buffer'"
 
 (defun lego-mode-config ()
 
-  (setq proof-terminal-char ?\;)
+  (setq proof-terminal-string ";")
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
 

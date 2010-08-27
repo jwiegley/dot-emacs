@@ -1875,13 +1875,13 @@ always defaults to inserting a semi (nicer might be to parse for a
 comment, and insert or skip to the next semi)."
   (let ((mrk (point)) ins incomment)
     (if (< mrk (proof-unprocessed-begin))
-	(insert proof-terminal-char) ; insert immediately in locked region
+	(insert proof-terminal-string) ; insert immediately in locked region
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
       (skip-chars-backward " \t\n")
       (unless (or proof-electric-terminator-noterminator
 		  (and (char-after (point))
-		       (= (char-after (point)) proof-terminal-char)))
+		       (= (char-after (point)) proof-terminal-string)))
 	(insert proof-terminal-string)
 	(setq ins t))
       (let* ((pos
@@ -2313,12 +2313,6 @@ assistant."
 	       proof-included-files-list)
        (proof-complete-buffer-atomic (current-buffer)))
 
-  ;; calculate some strings and regexps for searching
-  (setq proof-terminal-string
-	(if proof-terminal-char
-	    (char-to-string proof-terminal-char)
-	  ""))
-
   (make-local-variable 'comment-start)
   (setq comment-start (concat proof-script-comment-start " "))
   (make-local-variable 'comment-end)
@@ -2379,7 +2373,8 @@ For this function to work properly, you must configure
 `proof-undo-n-times-cmd' and `proof-ignore-for-undo-count'."
   (let
       ((case-fold-search proof-case-fold-search)
-       (ct 0) str i)
+       (ct 0) str i
+       (tl (length proof-terminal-string)))
     (while span
       (setq str (span-property span 'cmd))
       (cond ((eq (span-property span 'type) 'vanilla)
@@ -2388,7 +2383,8 @@ For this function to work properly, you must configure
 	    ((eq (span-property span 'type) 'pbp)
 	     (setq i 0)
 	     (while (< i (length str))
-	       (if (= (aref str i) proof-terminal-char) (incf ct))
+	       (if (string-equal (substring str i (+ i tl)) proof-terminal-string)
+		   (incf ct))
 	       (incf i))))
       (setq span (next-span span 'type)))
     (if (= ct 0)
@@ -2484,13 +2480,13 @@ finish setup which depends on specific proof assistant configuration."
   (dolist (sym proof-script-important-settings)
     (proof-warn-if-unset "proof-config-done" sym))
 
-  ;; Additional key def for terminal char
-  (if proof-terminal-char
+  ;; Additional key def for (first character of) terminal string
+  (if proof-terminal-string
       (progn
 	(define-key proof-mode-map
-	  (vconcat [(control c)] (vector proof-terminal-char))
+	  (vconcat [(control c)] (vector (aref proof-terminal-string 0)))
 	  'proof-electric-terminator-toggle)
-	(define-key proof-mode-map (vector proof-terminal-char)
+	(define-key proof-mode-map (vector (aref proof-terminal-string 0))
 	  'proof-electric-terminator)))
 
   ;; Toolbar and main menu (loads proof-toolbar,setting p.-toolbar-scripting-menu)
@@ -2538,16 +2534,16 @@ Choice of function depends on configuration setting."
       (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
      (proof-script-command-start-regexp
       (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
-     ((or proof-script-command-end-regexp proof-terminal-char)
+     ((or proof-script-command-end-regexp proof-terminal-string)
       (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
       (unless proof-script-command-end-regexp
-	(proof-warn-if-unset "probof-config-done" 'proof-terminal-char)
+	(proof-warn-if-unset "probof-config-done" 'proof-terminal-string)
 	(setq proof-script-command-end-regexp
-	      (if proof-terminal-char
-		  (regexp-quote (char-to-string proof-terminal-char))
+	      (if proof-terminal-string
+		  (regexp-quote proof-terminal-string)
 		"$"))))
      (t
-      (error "Configuration error: must set `proof-terminal-char' or one of its friends")))))
+      (error "Configuration error: must set `proof-terminal-string' or one of its friends")))))
 
 (defun proof-setup-imenu ()
   "Setup a default for imenu, perhaps using `proof-script-imenu-generic-expression'."

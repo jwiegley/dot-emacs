@@ -213,7 +213,8 @@
 (defun plastic-count-undos (span)
   "This is how to work out what the undo commands are.
 Given is the first SPAN which needs to be undone."
-  (let ((ct 0) string i)
+  (let ((ct 0) string i
+	(tl (length proof-terminal-string)))
     (while span
       (setq string (span-property span 'cmd))
       (plastic-preprocessing)			;; dynamic scope, on string
@@ -225,7 +226,8 @@ Given is the first SPAN which needs to be undone."
 	    ((eq (span-property span 'type) 'pbp)
 	     (setq i 0)
 	     (while (< i (length string))
-	       (if (= (aref string i) proof-terminal-char) (setq ct (+ 1 ct)))
+	       (if (string-equal (substring string i (+ i tl)) proof-terminal-string)
+		   (incf ct))
 	       (setq i (+ 1 i)))))
       (setq span (next-span span 'type)))
     (list (concat plastic-lit-string 
@@ -344,7 +346,7 @@ Given is the first SPAN which needs to be undone."
 
 (defun plastic-mode-config ()
 
-  (setq proof-terminal-char ?\;)
+  (setq proof-terminal-string ";")
   (setq proof-script-comment-start "(*")			;; these still active
   (setq proof-script-comment-end "*)")
 
@@ -421,7 +423,7 @@ Given is the first SPAN which needs to be undone."
   (add-hook 'proof-shell-insert-hook       'plastic-preprocessing)
 
 ;; (add-hook 'proof-shell-handle-error-or-interrupt-hook
-;; (lambda()(goto-char (search-forward (char-to-string  proof-terminal-char)))))
+;; (lambda()(goto-char (search-forward (regexp-quote proof-terminal-char)))))
 
 ;;  (add-hook 'proof-shell-handle-delayed-output-hook `plastic-show-shell-buffer t)
 ;; this forces display of shell-buffer after each cmd, rather than goals-buffer

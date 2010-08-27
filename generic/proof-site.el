@@ -28,6 +28,7 @@
       (coq    "Coq"	 "\\.v$\\|\\.v8$\\|\\.v7$")
       (phox   "PhoX"	 "\\.phx$")
       (lego   "LEGO"	 "\\.l$")
+      (hol-light "HOL Light"	 "\\.l$")
 
       ;; Obscure:
 

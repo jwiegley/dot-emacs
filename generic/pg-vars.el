@@ -161,16 +161,6 @@ assistant during the last group of commands.")
 If non-nil, the value counts the commands from the last command
 of the proof (starting from 1).")
 
-;; TODO da: remove proof-terminal-string.  At the moment some
-;; commands need to have the terminal string, some don't.
-;; It's used variously in proof-script and proof-shell, which
-;; is another mess.  [Shell mode implicitly assumes script mode
-;; has been configured].
-;; We should assume commands are terminated at the specific level.
-
-(defvar proof-terminal-string nil
-  "End-of-line string for proof process.")
-
 
 
 ;;

@@ -20,7 +20,7 @@
 
 (proof-easy-config  'ccc "CASL Consistency Checker"
  proof-prog-name		 "ccc" ;; must be in your path.
- proof-terminal-char             ?\;
+ proof-terminal-string             ";"
  proof-script-comment-start      "(*"
  proof-script-comment-end        "*)"
  proof-goal-command-regexp       "\\(ccc\\|holcasl\\) \".*\";"

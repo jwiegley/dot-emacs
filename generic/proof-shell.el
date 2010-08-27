@@ -1570,7 +1570,7 @@ Calls proof-state-change-hook."
 The CMD is `invisible' in the sense that it is not recorded in buffer.
 CMD may be a string or a string-yielding expression.
 
-Automatically add `proof-terminal-char' if necessary, examining
+Automatically add `proof-terminal-string' if necessary, examining
 `proof-shell-no-auto-terminate-commands'.
 
 By default, let the command be processed asynchronously.
@@ -1588,13 +1588,12 @@ FLAGS are put onto the If NOERROR is set, surpress usual error action."
     (setq cmd (eval cmd)))
   (if cmd
       (progn
-	(unless (or (null proof-terminal-char)
+	(unless (or (null proof-terminal-string)
 		    (not proof-shell-auto-terminate-commands)
 		    (string-match (concat
-				   (regexp-quote
-				    (char-to-string proof-terminal-char))
+				   (regexp-quote proof-terminal-string)
 				   "[ \t]*$") cmd))
-	  (setq cmd (concat cmd (char-to-string proof-terminal-char))))
+	  (setq cmd (concat cmd proof-terminal-string)))
 	(if wait (proof-shell-wait))
 	(proof-shell-ready-prover)  ; start proof assistant; set vars.
 	(let* ((callback

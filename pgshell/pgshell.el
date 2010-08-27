@@ -20,7 +20,7 @@
 (proof-easy-config 'pgshell "PG-Shell"
 
  proof-prog-name		     "/bin/sh"  ;; or your program
- proof-terminal-char                 ?\;        ;; end of commands
+ proof-terminal-string                 ";"        ;; end of commands
  proof-script-comment-start          "\#"	;; comments
  proof-shell-annotated-prompt-regexp "^.*[$] $" ;; matches prompts
 

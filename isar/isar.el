@@ -94,7 +94,7 @@ See -k option for Isabelle interface script."
    proof-prog-name-guess	t
 
    ;; proof script syntax
-   proof-terminal-char          ?\;          ; forcibly ends a command
+   proof-terminal-string          ";"          ; forcibly ends a command
    proof-electric-terminator-noterminator t  ; don't insert it
    proof-script-command-start-regexp  isar-any-command-regexp 
 
@@ -425,7 +425,7 @@ This is called when Proof General spots output matching
 		    ;; If we find a semicolon, assume several commands,
 		    ;; and increment the undo count.
 		    (while (< i (length str))
-		      (if (= (aref str i) proof-terminal-char)
+		      (if (= (aref str i) ?\;)
 			  (setq ct (+ 1 ct)))
 		      (setq i (+ 1 i))))
 		   (t nil))))

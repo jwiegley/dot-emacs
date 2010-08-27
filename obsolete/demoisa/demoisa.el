@@ -27,7 +27,7 @@
 ;;
 ;; To make the line above take precedence over the real Isabelle mode
 ;; later in the table, set PROOFGENERAL_ASSISTANTS=demoisa in the
-;; shell before starting Emacs  (or customize proof-assistants).
+;; shell before starting Emacs	(or customize proof-assistants).
 ;;
 
 (require 'proof)			; load generic parts
@@ -43,7 +43,7 @@
 ;; proof-site provides us with two customization groups
 ;; automatically:  (based on the name of the assistant)
 ;;
-;; 'isabelledemo        -  User options for Isabelle Demo Proof General
+;; 'isabelledemo	-  User options for Isabelle Demo Proof General
 ;; 'isabelledemo-config -  Configuration of Isabelle Proof General
 ;;			   (constants, but may be nice to tweak)
 ;;
@@ -72,14 +72,14 @@
 (defun demoisa-config ()
   "Configure Proof General scripting for Isabelle."
   (setq
-   proof-terminal-char		?\;	; ends every command
-   proof-script-comment-start		"(*"
-   proof-script-comment-end		"*)"
-   proof-goal-command-regexp    "^Goal"
-   proof-save-command-regexp    "^qed"
-   proof-goal-with-hole-regexp  "qed_goal \"\\(\\(.*\\)\\)\""
-   proof-save-with-hole-regexp  "qed \"\\(\\(.*\\)\\)\""
-   proof-non-undoables-regexp   "undo\\|back"
+   proof-terminal-string	";"
+   proof-script-comment-start	"(*"
+   proof-script-comment-end	"*)"
+   proof-goal-command-regexp	"^Goal"
+   proof-save-command-regexp	"^qed"
+   proof-goal-with-hole-regexp	"qed_goal \"\\(\\(.*\\)\\)\""
+   proof-save-with-hole-regexp	"qed \"\\(\\(.*\\)\\)\""
+   proof-non-undoables-regexp	"undo\\|back"
    proof-undo-n-times-cmd	"pg_repeat undo %s;"
    proof-showproof-command	"pr()"
    proof-goal-command		"Goal \"%s\";"
@@ -87,21 +87,21 @@
    proof-kill-goal-command	"Goal \"PROP no_goal_set\";"
    proof-assistant-home-page	isabelledemo-web-page
    proof-prog-name		isabelledemo-prog-name
-   proof-auto-multiple-files    t))
+   proof-auto-multiple-files	t))
 
 
 (defun demoisa-shell-config ()
   "Configure Proof General shell for Isabelle."
   (setq
-   proof-shell-annotated-prompt-regexp   "^\\(val it = () : unit\n\\)?\\(ML\\)?> "
+   proof-shell-annotated-prompt-regexp	 "^\\(val it = () : unit\n\\)?\\(ML\\)?> "
    proof-shell-cd-cmd			"cd \"%s\""
-   proof-shell-interrupt-regexp         "Interrupt"
+   proof-shell-interrupt-regexp		"Interrupt"
    proof-shell-error-regexp		"\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
    proof-shell-start-goals-regexp	"Level [0-9]"
    proof-shell-end-goals-regexp		"val it"
-   proof-shell-proof-completed-regexp   "^No subgoals!"
-   proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading"
-   proof-shell-init-cmd  ; define a utility function, in a lib somewhere?
+   proof-shell-proof-completed-regexp	"^No subgoals!"
+   proof-shell-eager-annotation-start	"^\\[opening \\|^###\\|^Reading"
+   proof-shell-init-cmd	 ; define a utility function, in a lib somewhere?
    "fun pg_repeat f 0 = ()
       | pg_repeat f n = (f(); pg_repeat f (n-1));"
    proof-shell-quit-cmd			"quit();"))

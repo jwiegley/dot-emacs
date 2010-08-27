@@ -739,7 +739,7 @@ Send CMD to the proof process.
 The CMD is `invisible' in the sense that it is not recorded in buffer.
 CMD may be a string or a string-yielding expression.
 
-Automatically add `proof-terminal-char' if necessary, examining
+Automatically add `proof-terminal-string' if necessary, examining
 `proof-shell-no-auto-terminate-commands'.
 
 By default, let the command be processed asynchronously.

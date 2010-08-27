@@ -649,7 +649,7 @@ This is specific to `coq-mode'."
 (defun coq-mode-config ()
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
-  (setq proof-terminal-char ?\.)
+  (setq proof-terminal-string ".")
   (setq proof-script-command-end-regexp
         "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
   (setq proof-script-comment-start "(*")

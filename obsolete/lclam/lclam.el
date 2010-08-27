@@ -32,9 +32,9 @@
 (defun lclam-config ()
   "Configure Proof General scripting for Lambda-CLAM."
   (setq 
-   proof-terminal-char             ?\.
-   proof-comment-start             "/*"
-   proof-comment-end               "*/"
+   proof-terminal-string           "."
+   proof-script-comment-start      "/*"
+   proof-script-comment-end        "*/"
    proof-goal-command-regexp       "^pds_plan"
    proof-save-command-regexp       nil
    proof-goal-with-hole-regexp     nil
@@ -45,7 +45,7 @@
    proof-goal-command              "^pds_plan %s."
    proof-save-command              nil
    proof-kill-goal-command         nil
-   proof-assistant-homepage        lclam-web-page
+   proof-assistant-home-page       lclam-web-page
    proof-auto-multiple-files       nil 
    ))
 
@@ -54,7 +54,6 @@
   (setq
    proof-shell-annotated-prompt-regexp "^lclam:" 
    proof-shell-cd-cmd                  nil
-   proof-shell-prompt-pattern          nil
    proof-shell-interrupt-regexp        nil
    proof-shell-error-regexp            nil
    proof-shell-start-goals-regexp      nil
@@ -123,16 +122,18 @@
 
 ;; Remove redundant toolbar buttons
 
-(setq lclam-toolbar-entries
-      (remassoc 'state lclam-toolbar-entries))
-(setq lclam-toolbar-entries
-      (remassoc 'context lclam-toolbar-entries))
-(setq lclam-toolbar-entries
-      (remassoc 'undo lclam-toolbar-entries))
-(setq lclam-toolbar-entries
-      (remassoc 'retract lclam-toolbar-entries))
-(setq lclam-toolbar-entries
-      (remassoc 'qed lclam-toolbar-entries))
+(eval-after-load "pg-custom"
+'(progn
+  (setq lclam-toolbar-entries
+	(remassoc 'state lclam-toolbar-entries))
+  (setq lclam-toolbar-entries
+	(remassoc 'context lclam-toolbar-entries))
+  (setq lclam-toolbar-entries
+	(remassoc 'undo lclam-toolbar-entries))
+  (setq lclam-toolbar-entries
+	(remassoc 'retract lclam-toolbar-entries))
+  (setq lclam-toolbar-entries
+	(remassoc 'qed lclam-toolbar-entries))))
 
 ;;
 ;; ============ Theory file mode ==============
@@ -197,7 +198,7 @@
   (proof-shell-invisible-command
    (proof-format-filename
     ;; %r parameter means relative (don't expand) path
-    (format "use_thy \"%%r\"." (if try "try_" ""))
+    (format "use_thy \"%s%%r\"." (if try "try_" ""))
     (file-name-nondirectory file))
    wait))
 

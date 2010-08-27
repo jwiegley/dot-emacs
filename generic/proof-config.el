@@ -223,12 +223,12 @@ conversion, etc.  (No changes are done if nil)."
   :group 'prover-config
   :prefix "proof-")
 
-(defcustom proof-terminal-char nil
-  "Character that terminates commands sent to prover; nil if none.
+(defcustom proof-terminal-string nil
+  "String that terminates commands sent to prover; nil if none.
 
 To configure command recognition properly, you must set at least one
 of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
-`proof-script-command-start-regexp', `proof-terminal-char',
+`proof-script-command-start-regexp', `proof-terminal-string',
 or `proof-script-parse-function'."
   :type 'character
   :group 'prover-config)
@@ -244,7 +244,7 @@ You should set this variable in script mode configuration.
 
 To configure command recognition properly, you must set at least one
 of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
-`proof-script-command-start-regexp', `proof-terminal-char',
+`proof-script-command-start-regexp', `proof-terminal-string',
 or `proof-script-parse-function'."
   :type 'boolean
   :group 'prover-config)
@@ -262,7 +262,7 @@ i.e. (match-beginning 1), rather than (match-end 0).
 
 To configure command recognition properly, you must set at least one
 of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
-`proof-script-command-start-regexp', `proof-terminal-char',
+`proof-script-command-start-regexp', `proof-terminal-string',
 or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
@@ -273,7 +273,7 @@ You should set this variable in script mode configuration.
 
 To configure command recognition properly, you must set at least one
 of these: `proof-script-sexp-commands', `proof-script-command-end-regexp',
-`proof-script-command-start-regexp', `proof-terminal-char',
+`proof-script-command-start-regexp', `proof-terminal-string',
 or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
@@ -310,7 +310,7 @@ a symbol indicating what has been parsed:
   nil		if there is no complete next segment in the buffer
 
 If this is left unset, it will be configured automatically to
-a generic function according to which of `proof-terminal-char'
+a generic function according to which of `proof-terminal-string'
 and its friends are set."
   :type 'string
   :group 'prover-config)
@@ -806,8 +806,8 @@ are interpreted literally as part of the program name."
   "Non-nil if Proof General should try to add terminator to every command.
 If non-nil, whenever a command is sent to the prover using
 `proof-shell-invisible-command', Proof General will check to see if it
-ends with `proof-terminal-char', and add it if not.
-If `proof-terminal-char' is nil, this has no effect."
+ends with `proof-terminal-string', and add it if not.
+If `proof-terminal-string' is nil, this has no effect."
   :type 'boolean
   :group 'proof-shell)
 
