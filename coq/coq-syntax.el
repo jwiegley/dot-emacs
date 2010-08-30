@@ -627,8 +627,6 @@ See also `coq-prog-env' to adjust the environment."
  ;;; Goals (and module/sections) starters detection
 
 
-;; ----- keywords for font-lock.
-
 ;; FIXME da: this one function breaks the nice configuration of Proof General:
 ;; would like to have proof-goal-regexp instead.
 ;; Unfortunately Coq allows "Definition" and friends to perhaps have a goal,
@@ -748,6 +746,8 @@ Used by `coq-goal-command-p'"
       )
   )
 
+
+;; ----- keywords for font-lock.
 
 (defvar coq-keywords-kill-goal
   '("Abort"))
