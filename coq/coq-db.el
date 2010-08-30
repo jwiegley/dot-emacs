@@ -25,7 +25,7 @@
 Each element of a keyword database contains the definition of a \"form\", of the
 form:
 
-(MENUNAME ABBREV INSERT STATECH KWREG INSERT-FUN HIDE)
+\(MENUNAME ABBREV INSERT STATECH KWREG INSERT-FUN HIDE)
 
 MENUNAME is the name of form (or form variant) as it should appear in menus or
 completion lists.
@@ -56,7 +56,7 @@ menu but only in interactive completions.
 
 Example of what could be in your emacs init file:
 
-(defvar coq-user-tactics-db
+\(defvar coq-user-tactics-db
   '(
     (\"mytac\" \"mt\" \"mytac # #\" t \"mytac\")
     (\"myassert by\" \"massb\" \"myassert ( # : # ) by #\" t \"assert\")
@@ -64,7 +64,7 @@ Example of what could be in your emacs init file:
 
 Explanation of the first line: the tactic menu entry mytac, abbreviated by mt,
 will insert \"mytac # #\" where #s are holes to fill, and \"mytac\" becomes a
-new keyword to colorize." )
+new keyword to colorize.")
 
 (defun coq-insert-from-db (db prompt)
   "Ask for a keyword, with completion on keyword database DB and insert.
@@ -89,21 +89,15 @@ structure."
 If non-nil Optional argument FILTER is a function applying to each line of DB.
 For each line if FILTER returns nil, then the keyword is not added to the
 regexp.  See `coq-syntax-db' for DB structure."
-  (let ((l db) (res ()))
+  (let ((l db) res)
     (while l
       (let* ((hd (car l)) (tl (cdr l))	; hd is the first infos list
-	     (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
-	     (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
-	     (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
-	     )
+	     (color (nth 4 hd)))       ; colorization string
 	;; TODO delete doublons
-	(when (and e5 (or (not filter) (funcall filter hd)))
-	  (setq res (nconc res (list e5)))) ; careful: nconc destructive!
+	(when (and color (or (not filter) (funcall filter hd)))
+	  (setq res (nconc res (list color)))) ; careful: nconc destructive!
 	(setq l tl)))
-    res
-    ))
+    res))
 
 ;; Computes the max length of strings in a list
 (defun max-length-db (db)
@@ -127,29 +121,31 @@ Used by `coq-build-menu-from-db', which you should probably use instead.  See
   (let ((l db) (res ()) (size lgth)
 	(keybind-abbrev (substitute-command-keys " \\[expand-abbrev]")))
     (while (and l (> size 0))
-      (let* ((hd (car l))(tl (cdr l))	; hd is a list of length 3 or 4
-	     (e1 (car hd)) (tl1 (cdr hd)) ; e1 = menu entry
-	     (e2 (car tl1)) (tl2 (cdr tl1)) ; e2 = abbreviation
-	     (e3 (car tl2)) (tl3 (cdr tl2)) ; e3 = completion
-	     (e4 (car-safe tl3)) (tl4 (cdr-safe tl3)) ; e4 = state changing
-	     (e5 (car-safe tl4)) (tl5 (cdr-safe tl4)) ; e5 = colorization string
-	     (e6 (car-safe tl5))	; e6 = function for smart insertion
-	     (e7 (car-safe (cdr-safe tl5))) ; e7 = if non-nil : hide in menu
-	     (entry-with (max (- menuwidth (length e1)) 0))
+      (let* ((hd (car l))
+	     (menu     	 (nth 0 hd)) ; e1 = menu entry
+	     (abbrev   	 (nth 1 hd)) ; e2 = abbreviation
+	     (complt   	 (nth 2 hd)) ; e3 = completion
+	     (state    	 (nth 3 hd)) ; e4 = state changing
+	     (color    	 (nth 4 hd)) ; e5 = colorization string
+	     (insertfn 	 (nth 5 hd)) ; e6 = function for smart insertion
+	     (menuhide 	 (nth 6 hd)) ; e7 = if non-nil : hide in menu
+	     (entry-with (max (- menuwidth (length menu)) 0))
 	     (spaces (make-string entry-with ? ))
 	     ;;(restofmenu (coq-build-menu-from-db-internal tl (- size 1) menuwidth))
 	     )
-	(when (not e7) ;; if not hidden
+	(unless menuhide
 	  (let ((menu-entry
 		 (vector
 		  ;; menu entry label
-		  (concat e1 (if (not e2) "" (concat spaces "(" e2 keybind-abbrev ")")))
-		   ;;insertion function if present otherwise insert completion
-		   (if e6 e6 `(holes-insert-and-expand ,e3))
-		   t)))
+		  (concat menu 
+			  (if (not abbrev) "" 
+			    (concat spaces "(" abbrev keybind-abbrev ")")))
+		  ;;insertion function if present otherwise insert completion
+		  (if insertfn insertfn `(holes-insert-and-expand ,complt))
+		  t)))
 	    (setq res (nconc res (list menu-entry)))));; append *in place*
-	(setq l tl)
-	(setq size (- size 1))))
+	(setq l (cdr l))
+	(decf size)))
     res))
 
 
