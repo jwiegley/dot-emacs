@@ -307,7 +307,7 @@ Initially 1 because Coq initial state has number 1.")
   (proof-with-current-buffer-if-exists buffer
     (let ((newbuffer nil))
       (set-buffer buffer)
-      (setq newbuffer (proof-clone-buffer " response-freeze" erase))
+      (setq newbuffer (proof-clone-buffer "*response-freeze*" erase))
       (display-buffer-other-frame newbuffer))))
 
 (defun proof-store-response-win (&optional erase)
