@@ -10,6 +10,15 @@
 (require 'proof-utils)                  ; proof-locate-executable
 (require 'coq-db)
 
+(defsubst proof-regexp-alt-list (args)
+  "Return the regexp which matches any of the regexps ARGS."
+  ;; see regexp-opt (NB: but that is for strings, not regexps)
+  (let ((res ""))
+    (dolist (regexp args)
+      (setq res (concat res (if (string-equal res "") "\\(?:" "\\|\\(?:")
+			regexp "\\)")))
+    (concat "\\_<\\(?:"res"\\)\\_>")))
+
 (eval-when-compile
   (require 'span)
   (defvar coq-goal-command-regexp nil)
@@ -357,6 +366,8 @@ See also `coq-prog-env' to adjust the environment."
 (defvar coq-decl-db
   '(
     ("Axiom" "ax" "Axiom # : #" t "Axiom")
+    ("Global Variable" "gv" "Global Variable #: #." t "Global\\s-+Variable")
+    ("Global Variables" "gvs" "Global Variables # , #: #." t "Global\\s-+Variables")
     ("Hint Constructors" "hc" "Hint Constructors # : #." t "Hint\\s-+Constructors")
     ("Hint Extern" "he" "Hint Extern @{cost} @{pat} => @{tac} : @{db}." t "Hint\\s-+Extern")
     ("Hint Immediate" "hi" "Hint Immediate # : @{db}." t "Hint\\s-+Immediate")
@@ -504,10 +515,13 @@ See also `coq-prog-env' to adjust the environment."
      ("Extraction Language" "extrlang" "Extraction Language #." t "Extraction\\s-+Language")
      ("Extraction Library" "extrl" "Extraction Library @{id}." nil "Extraction\\s-+Library")
      ("Focus" nil "Focus #." nil "Focus")
+     ("Generalizable Variables" nil "Generalizable Variables #." t "Generalizable\\s-+Variables")
+
      ("Identity Coercion" nil "Identity Coercion #." t "Identity\\s-+Coercion")
      ("Implicit Arguments Off" nil "Implicit Arguments Off." t "Implicit\\s-+Arguments\\s-+Off")
      ("Implicit Arguments On" nil "Implicit Arguments On." t "Implicit\\s-+Arguments\\s-+On")
      ("Implicit Arguments" nil "Implicit Arguments # [#]." t "Implicit\\s-+Arguments")
+     ("Implicit Types" nil "Implicit Types # : #." t "Implicit\\s-+Types")
      ("Import" nil "Import #." t "Import")
      ("Infix" "inf" "Infix \"#\" := # (at level #) : @{scope}." t "Infix")
      ("Inspect" nil "Inspect #." nil "Inspect")
@@ -562,6 +576,7 @@ See also `coq-prog-env' to adjust the environment."
      ("Set Undo" nil "Set Undo #." nil "Set\\s-+Undo")
      ("Show" nil "Show #." nil "Show")
      ("Solve Obligations" "oblssolve" "Solve Obligations using #." nil "Solve\\s-+Obligations")
+     ("Tactic Notation" nil "Tactic Notation # := #." t "Tactic\\s-+Notation")
      ("Test" nil "Test" nil "Test" nil t)
      ("Test Printing Depth" nil "Test Printing Depth." nil "Test\\s-+Printing\\s-+Depth")
      ("Test Printing If" nil "Test Printing If #." nil "Test\\s-+Printing\\s-+If")
@@ -883,6 +898,7 @@ Used by `coq-goal-command-p'"
                                         ;               (list 0 font-lock-variable-name-face)))
    ;; parenthesized binders
    (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp "{" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
    ))
   "*Font-lock table for Coq terms.")
 
@@ -893,33 +909,35 @@ Used by `coq-goal-command-p'"
 ;; recognizing global identifiers, see coq-global-p.
 (defconst coq-save-command-regexp-strict
   (proof-anchor-regexp
-   (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save-strict)
+   (concat "\\(?:Time\\s-+\\)?\\(" (proof-regexp-alt-list coq-keywords-save-strict)
            "\\)")))
+
+
 (defconst coq-save-command-regexp
   (proof-anchor-regexp
-   (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save)
+   (concat "\\(?:Time\\s-+\\)?\\(" (proof-regexp-alt-list coq-keywords-save)
            "\\)")))
 
 (defconst coq-save-with-hole-regexp
-  (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save-strict)
+  (concat "\\(?:Time\\s-+\\)?\\(" (proof-regexp-alt-list coq-keywords-save-strict)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*\\."))
 
 (defconst coq-goal-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-goal)))
+  (proof-anchor-regexp (proof-regexp-alt-list coq-keywords-goal)))
 
 (defconst coq-goal-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp coq-keywords-goal)
+  (concat "\\(" (proof-regexp-alt-list coq-keywords-goal)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*:?"))
 
 (defconst coq-decl-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
+  (concat "\\(" (proof-regexp-alt-list coq-keywords-decl)
 	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
 
 ;;  (defconst coq-decl-with-hole-regexp
 ;;    (if coq-variable-highlight-enable coq-decl-with-hole-regexp-1 'nil))
 
 (defconst coq-defn-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
+  (concat "\\(" (proof-regexp-alt-list coq-keywords-defn)
           "\\)\\s-+\\(" coq-id "\\)"))
 
 ;; must match:
@@ -947,13 +965,13 @@ Group number 1 matches the name of the library which is required.")
    (append
     coq-font-lock-terms
     (list
-    (cons (proof-ids-to-regexp coq-solve-tactics) 'coq-solve-tactics-face)
-    (cons (proof-ids-to-regexp coq-solve-cheat-tactics) 'coq-cheat-face)
-    (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
-    (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
-    (cons (proof-ids-to-regexp coq-tactics ) 'proof-tactics-name-face)
-    (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
-    (cons (proof-ids-to-regexp (list "Set" "Type" "Prop")) 'font-lock-type-face)
+    (cons (proof-regexp-alt-list coq-solve-tactics) 'coq-solve-tactics-face)
+    (cons (proof-regexp-alt-list coq-solve-cheat-tactics) 'coq-cheat-face)
+    (cons (proof-regexp-alt-list coq-keywords) 'font-lock-keyword-face)
+    (cons (proof-regexp-alt-list coq-reserved) 'font-lock-type-face)
+    (cons (proof-regexp-alt-list coq-tactics ) 'proof-tactics-name-face)
+    (cons (proof-regexp-alt-list coq-tacticals) 'proof-tacticals-name-face)
+    (cons (proof-regexp-alt-list (list "Set" "Type" "Prop")) 'font-lock-type-face)
     (cons "============================" 'font-lock-keyword-face)
     (cons "Subtree proved!" 'font-lock-keyword-face)
     (cons "subgoal [0-9]+ is:" 'font-lock-keyword-face)

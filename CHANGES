@@ -70,7 +70,6 @@
 *** "Movie" output: export an annotated buffer in XML
     Basic movie output for Proviola, see http://mws.cs.ru.nl/proviola
 
-
 ** Isabelle/Isar changes
 
 *** Support undo back into completed proofs (linear_undo).
@@ -84,13 +83,14 @@
 
 *** Isabelle Settings now organised in sub-menus
 
-
 ** Coq changes
 
 *** Only supports Coq 8.1+, support for earlier versions dropped.
 
 *** Holes mode can be turned on/off and has its own minor mode
 
+*** Some keyboard shortcuts are now available in goals buffer
+    C-c C-a C-<c,p,o,b,a> are now available in goal buffer.
 
 ** Notable internal changes
 

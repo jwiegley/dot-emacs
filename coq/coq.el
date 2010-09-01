@@ -161,17 +161,17 @@ On Windows you might need something like:
 ;; some of them must kept when v8.1 because they are used by state preserving
 ;; check when C-c C-v
 (defconst coq-state-preserving-tactics-regexp
-  (proof-ids-to-regexp coq-state-preserving-tactics))
+  (proof-regexp-alt-list coq-state-preserving-tactics))
 (defconst coq-state-changing-commands-regexp
-  (proof-ids-to-regexp coq-keywords-state-changing-commands))
+  (proof-regexp-alt-list coq-keywords-state-changing-commands))
 (defconst coq-state-preserving-commands-regexp
-  (proof-ids-to-regexp coq-keywords-state-preserving-commands))
+  (proof-regexp-alt-list coq-keywords-state-preserving-commands))
 (defconst coq-commands-regexp
-  (proof-ids-to-regexp coq-keywords-commands))
+  (proof-regexp-alt-list coq-keywords-commands))
 (defvar coq-retractable-instruct-regexp
-  (proof-ids-to-regexp coq-retractable-instruct))
+  (proof-regexp-alt-list coq-retractable-instruct))
 (defvar coq-non-retractable-instruct-regexp
-  (proof-ids-to-regexp coq-non-retractable-instruct))
+  (proof-regexp-alt-list coq-non-retractable-instruct))
 
 ;;
 ;;   Derived modes - define keymaps

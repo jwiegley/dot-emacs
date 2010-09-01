@@ -18,7 +18,7 @@
   (defvar coq-script-indent nil))
 
 (defconst coq-any-command-regexp
-  (proof-regexp-alt (proof-ids-to-regexp coq-keywords)))
+  (proof-regexp-alt-list coq-keywords))
 
 (defconst coq-indent-inner-regexp
   (proof-regexp-alt
@@ -35,28 +35,27 @@
 (defconst coq-comment-start-or-end-regexp
   (concat coq-comment-start-regexp "\\|" coq-comment-end-regexp))
 (defconst coq-indent-open-regexp
-  (proof-regexp-alt ;(proof-ids-to-regexp coq-keywords-goal) goal-command-p instead
+  (proof-regexp-alt ;(proof-regexp-alt-list coq-keywords-goal) goal-command-p instead
    (proof-ids-to-regexp '("Cases" "match"))
    "\\s("))
 
 (defconst coq-indent-close-regexp
-  (proof-regexp-alt (proof-ids-to-regexp coq-keywords-save)
-                    (proof-ids-to-regexp '("end" "End"))
-                    "\\s)"))
+  (proof-regexp-alt-list (append coq-keywords-save '("end" "End" "\\s)"))))
 
 (defconst coq-indent-closepar-regexp "\\s)")
 (defconst coq-indent-closematch-regexp (proof-ids-to-regexp '("end")))
 (defconst coq-indent-openpar-regexp "\\s(")
 (defconst coq-indent-openmatch-regexp (proof-ids-to-regexp '("match" "Cases")))
+(defconst coq-tacticals-tactics-regex
+  (proof-regexp-alt (proof-regexp-alt-list (append coq-tacticals coq-tactics))))
 (defconst coq-indent-any-regexp
   (proof-regexp-alt coq-indent-close-regexp coq-indent-open-regexp
                     coq-indent-inner-regexp coq-any-command-regexp
-                    (proof-ids-to-regexp coq-tacticals)
-                    (proof-ids-to-regexp coq-tactics)))
+                    coq-tacticals-tactics-regex))
 (defconst coq-indent-kw
-  (proof-regexp-alt coq-any-command-regexp coq-indent-inner-regexp
-                    (proof-ids-to-regexp coq-tacticals)
-                    (proof-ids-to-regexp coq-tactics)))
+  (proof-regexp-alt-list (cons coq-any-command-regexp
+                               (cons coq-indent-inner-regexp
+                                     (append coq-tacticals coq-tactics)))))
 
 ; pattern matching detection, will be tested only at beginning of a
 ; line (only white sapces before "|") must not match "|" followed by
@@ -561,7 +560,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
         (cond
          ((proof-looking-at-safe "\\s(")
           (+ (current-indentation) proof-indent))
-         ((proof-looking-at-safe (proof-ids-to-regexp coq-keywords-defn))
+         ((proof-looking-at-safe (proof-regexp-alt-list coq-keywords-defn))
           (current-column))
          (t (+ (current-column) proof-indent)))))
 
