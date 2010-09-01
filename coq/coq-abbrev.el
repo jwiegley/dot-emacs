@@ -82,6 +82,8 @@
     ["Print..." coq-Print t]
     ["Check..." coq-Check t]
     ["About..." coq-About t]
+    [ "Store response" proof-store-response-win t]
+    [ "Store goal" proof-store-goals-win t]
     ("OTHER QUERIES"
      ["Print Hint" coq-PrintHint t]
      ["Show ith goal..." coq-Show t]

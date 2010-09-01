@@ -298,6 +298,7 @@ Initially 1 because Coq initial state has number 1.")
       (goto-char (point-min)))
     (if erase (copy-to-buffer nb (point-min) (point-max))
       (append-to-buffer nb (point-min) (point-max)))
+;    (set-window-point window pos)
     nb))
 
 ;; copy the content of proof-response-buffer into the "response-freeze" buffer,
@@ -308,7 +309,11 @@ Initially 1 because Coq initial state has number 1.")
     (let ((newbuffer nil))
       (set-buffer buffer)
       (setq newbuffer (proof-clone-buffer "*response-freeze*" erase))
-      (display-buffer-other-frame newbuffer))))
+      (let ((win (display-buffer-other-frame newbuffer))
+            (win-point-min (save-window-excursion
+                             (switch-to-buffer-other-frame newbuffer)
+                             (point-min))))
+      (set-window-point win win-point-min)))))
 
 (defun proof-store-response-win (&optional erase)
   (interactive "P")
