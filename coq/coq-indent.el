@@ -365,8 +365,8 @@ not inside the {} of a record)."
       (goto-char nextpt)
       (cond
        ((proof-looking-at-syntactic-context) ())
-		 ((proof-looking-at-safe proof-indent-close-regexp)
-		  (coq-find-unclosed 1 limit)) ;; recursive call
+       ;; ((proof-looking-at-safe proof-indent-close-regexp)
+       ;;  (coq-find-unclosed 1 limit)) ;; recursive call
        ((proof-looking-at-safe close-re) (setq lvl (+ lvl 1)))
        ((proof-looking-at-safe open-re) (setq lvl (- lvl 1))))
       (setq nextpt (save-excursion (proof-re-search-backward both-re))))

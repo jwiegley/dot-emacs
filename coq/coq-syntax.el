@@ -17,7 +17,7 @@
     (dolist (regexp args)
       (setq res (concat res (if (string-equal res "") "\\(?:" "\\|\\(?:")
 			regexp "\\)")))
-    (concat "\\_<\\(?:"res"\\)\\_>")))
+    res))
 
 (eval-when-compile
   (require 'span)
@@ -835,6 +835,8 @@ Used by `coq-goal-command-p'"
 (defvar coq-tactics
   (append coq-state-changing-tactics coq-state-preserving-tactics))
 
+(defvar coq-tactics-regexp (coq-build-opt-regexp-from-db coq-tactics-db))
+
 (defvar coq-retractable-instruct
   (append coq-state-changing-tactics coq-keywords-state-changing-commands))
 
@@ -969,7 +971,7 @@ Group number 1 matches the name of the library which is required.")
     (cons (proof-regexp-alt-list coq-solve-cheat-tactics) 'coq-cheat-face)
     (cons (proof-regexp-alt-list coq-keywords) 'font-lock-keyword-face)
     (cons (proof-regexp-alt-list coq-reserved) 'font-lock-type-face)
-    (cons (proof-regexp-alt-list coq-tactics ) 'proof-tactics-name-face)
+    (cons coq-tactics-regexp 'proof-tactics-name-face)
     (cons (proof-regexp-alt-list coq-tacticals) 'proof-tacticals-name-face)
     (cons (proof-regexp-alt-list (list "Set" "Type" "Prop")) 'font-lock-type-face)
     (cons "============================" 'font-lock-keyword-face)

@@ -92,12 +92,29 @@ regexp.  See `coq-syntax-db' for DB structure."
   (let ((l db) res)
     (while l
       (let* ((hd (car l)) (tl (cdr l))	; hd is the first infos list
-	     (color (nth 4 hd)))       ; colorization string
+	     (color (concat "\\_<" (nth 4 hd) "\\_>")))       ; colorization string
+;	     (color (nth 4 hd)))       ; colorization string
 	;; TODO delete doublons
 	(when (and color (or (not filter) (funcall filter hd)))
 	  (setq res (nconc res (list color)))) ; careful: nconc destructive!
 	(setq l tl)))
     res))
+
+(defun coq-build-opt-regexp-from-db (db &optional filter)
+  "Take a keyword database DB and return a regexps for font-lock.
+If non-nil Optional argument FILTER is a function applying to each line of DB.
+For each line if FILTER returns nil, then the keyword is not added to the
+regexp.  See `coq-syntax-db' for DB structure."
+  (let ((l db) res)
+    (while l
+      (let* ((hd (car l)) (tl (cdr l))	; hd is the first infos list
+	     (color (nth 4 hd)))       ; colorization string
+	;; TODO delete doublons
+	(when (and color (or (not filter) (funcall filter hd)))
+	  (setq res (nconc res (list color)))) ; careful: nconc destructive!
+	(setq l tl)))
+    (proof-ids-to-regexp res)))
+
 
 ;; Computes the max length of strings in a list
 (defun max-length-db (db)
