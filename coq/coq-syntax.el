@@ -804,9 +804,17 @@ Used by `coq-goal-command-p'"
   (coq-build-regexp-list-from-db coq-solve-tactics-db)
   "Keywords for closing tactic(al)s.")
 
+(defvar coq-solve-tactics-regexp
+  (coq-build-opt-regexp-from-db coq-solve-tactics-db)
+  "Keywords regexp for closing tactic(al)s.")
+
 (defvar coq-solve-cheat-tactics
   (coq-build-regexp-list-from-db coq-solve-cheat-tactics-db)
   "Keywords for closing by cheating tactic(al)s.")
+
+(defvar coq-solve-cheat-tactics-regexp
+  (coq-build-opt-regexp-from-db coq-solve-cheat-tactics-db)
+  "Keywords regexp for closing by cheating tactic(al)s.")
 
 (defvar coq-tacticals
   (coq-build-regexp-list-from-db coq-tacticals-db)
@@ -824,6 +832,7 @@ Used by `coq-goal-command-p'"
      "at" "Sort" "Time" "dest"))
   "Reserved keywords of Coq.")
 
+(defvar coq-reserved-regexp (proof-ids-to-regexp coq-reserved))
 
 (defvar coq-state-changing-tactics
   (coq-build-regexp-list-from-db coq-tactics-db 'filter-state-changing))
@@ -849,6 +858,7 @@ Used by `coq-goal-command-p'"
 	  coq-keywords-defn coq-keywords-commands)
   "All keywords in a Coq script.")
 
+(defvar coq-keywords-regexp (proof-regexp-alt-list coq-keywords))
 
 
 (defvar coq-symbols
@@ -967,10 +977,10 @@ Group number 1 matches the name of the library which is required.")
    (append
     coq-font-lock-terms
     (list
-    (cons (proof-regexp-alt-list coq-solve-tactics) 'coq-solve-tactics-face)
-    (cons (proof-regexp-alt-list coq-solve-cheat-tactics) 'coq-cheat-face)
-    (cons (proof-regexp-alt-list coq-keywords) 'font-lock-keyword-face)
-    (cons (proof-regexp-alt-list coq-reserved) 'font-lock-type-face)
+    (cons coq-solve-tactics-regexp 'coq-solve-tactics-face)
+    (cons coq-solve-cheat-tactics-regexp 'coq-cheat-face)
+    (cons coq-keywords-regexp 'font-lock-keyword-face)
+    (cons coq-reserved-regexp 'font-lock-type-face)
     (cons coq-tactics-regexp 'proof-tactics-name-face)
     (cons (proof-regexp-alt-list coq-tacticals) 'proof-tacticals-name-face)
     (cons (proof-regexp-alt-list (list "Set" "Type" "Prop")) 'font-lock-type-face)
