@@ -118,14 +118,11 @@ On Windows you might need something like:
 
 
 
-;; Configuration
-
 (defun coq-library-directory ()
   (let ((c (substring (shell-command-to-string "coqtop -where") 0 -1 )))
     (if (string-match c "not found")
 	  "/usr/local/lib/coq"
       c)))
-
 
 (defcustom coq-tags (concat (coq-library-directory) "/theories/TAGS")
   "The default TAGS table for the Coq library."
@@ -135,14 +132,16 @@ On Windows you might need something like:
 (defconst coq-interrupt-regexp "User Interrupt."
   "Regexp corresponding to an interrupt.")
 
-;; ----- web documentation
-
 (defcustom coq-www-home-page "http://coq.inria.fr/"
   "Coq home page URL."
   :type 'string
   :group 'coq)
 
-;; ----- outline
+
+;;
+;; Outline mode
+;;
+
 ;; FIXME, deal with interacive "Definition"
 (defvar coq-outline-regexp
 ;;  (concat "(\\*\\|"
@@ -157,9 +156,6 @@ On Windows you might need something like:
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
 
 
-
-;; some of them must kept when v8.1 because they are used by state preserving
-;; check when C-c C-v
 (defconst coq-state-preserving-tactics-regexp
   (proof-regexp-alt-list coq-state-preserving-tactics))
 (defconst coq-state-changing-commands-regexp
@@ -173,8 +169,9 @@ On Windows you might need something like:
 (defvar coq-non-retractable-instruct-regexp
   (proof-regexp-alt-list coq-non-retractable-instruct))
 
+
 ;;
-;;   Derived modes - define keymaps
+;; Derived modes
 ;;
 
 (eval-and-compile
@@ -194,15 +191,15 @@ On Windows you might need something like:
 \\{coq-mode-map}"
     (coq-mode-config)))
 
-
 (eval-and-compile
   (define-derived-mode coq-goals-mode proof-goals-mode
     "Coq Goals" nil
     (coq-goals-mode-config)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Code that's coq specific                                      ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;
+;; Auxiliary code for Coq modes
+;;
 
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s . " undos)))
@@ -287,8 +284,6 @@ Initially 1 because Coq initial state has number 1.")
   (with-current-buffer proof-script-buffer
     (span-at (- (proof-unprocessed-begin) 1) 'type)))
 
-;; clone-buffer do not keep the current content of proof-response-buffer, so
-;; here is my version
 (defun proof-clone-buffer (s &optional erase)
   (let ((nb (get-buffer-create s)))
     (save-window-excursion
@@ -303,7 +298,6 @@ Initially 1 because Coq initial state has number 1.")
 
 ;; copy the content of proof-response-buffer into the "response-freeze" buffer,
 ;; resetting its content if ERASE non nil.
-;; FIXME: point seems not to go at the end of the buffer
 (defun proof-store-buffer-win (buffer &optional erase)
   (proof-with-current-buffer-if-exists buffer
     (let ((newbuffer nil))
@@ -370,7 +364,6 @@ If locked span already has a state number, then do nothing. Also updates
 
 (defun count-not-intersection (l notin)
   "Return the number of elts of L that are not in NOTIN."
-
   (let ((l1 l) (l2 notin) (res 0))
     (while l1
       (if (member (car l1) l2) ()
@@ -444,10 +437,10 @@ If locked span already has a state number, then do nothing. Also updates
 ;     (message "Unknown command, hopes this won't desynchronize ProofGeneral")
 ;     t))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Commands specific to coq                                       ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;
+;; Commands for Coq
+;;
 
 (defconst notation-print-kinds-table
   '(("Print Scope(s)" 0) ("Print Visibility" 1))
@@ -997,7 +990,7 @@ Currently this doesn't take the loadpath into account."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Pre-processing of input string  (PG 3.5)
+;; Pre-processing of input string
 ;;
 
 ;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
@@ -1009,7 +1002,7 @@ Currently this doesn't take the loadpath into account."
 (add-hook 'proof-shell-insert-hook 'coq-preprocessing)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Subterm markup -- it was added to Coq by Healf, but got removed.
 ;;                   Let's try faking something by regexp matching.
@@ -1332,7 +1325,7 @@ buffer."
   "Internal variable. Do not use as configuration variable.")
 
 ;; if a command is sent to coq without being in the script, then don't
-;; higilight the error. Remark: `action' and `string' are known by
+;; highlight the error. Remark: `action' and `string' are known by
 ;; `proof-shell-insert-hook', but not by
 ;; `proof-shell-handle-error-or-interrupt-hook'
 (defun coq-decide-highlight-error ()
@@ -1348,9 +1341,10 @@ buffer."
 (add-hook 'proof-shell-insert-hook 'coq-decide-highlight-error t)
 
 
+;;
+;; Scroll response buffer to maximize display of first goal
+;;
 
-;; What follows allows to scroll response buffer to maximize display of first
-;; goal
 (defun first-word-of-buffer ()
   "Get the first word of a buffer."
   (save-excursion
