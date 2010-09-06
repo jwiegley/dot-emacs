@@ -131,7 +131,7 @@ These variable describes the coqtop arguments to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-args', it
 will be used to suggest values to the user."
   (let* ((olddirs (coq-extract-directories-from-args oldvalue))
-         (progargs "-emacs-U")
+         (progargs '("-emacs-U"))
          (option))
     ;; first suggest previous directories
     (while olddirs
@@ -152,7 +152,6 @@ will be used to suggest values to the user."
 These variable describes the coqtop command to be launched on this file.
 Optional argument OLDVALUE specifies the previous value of `coq-prog-name', it
 will be used to suggest a value to the user."
-  (message (concat "oldavalue: " oldvalue))
   (let* ((deflt (or oldvalue "coqtop"))
          (cmd (coq-read-directory
                (concat "coq program name (default \"" oldvalue "\"): ")
