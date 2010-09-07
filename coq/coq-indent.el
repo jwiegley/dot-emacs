@@ -343,7 +343,7 @@ not inside the {} of a record)."
                        (proof-looking-at-safe "Record")
                        (coq-indent-find-reg oldpt "{")))
                 4
-              2))))))))
+              2)))))))
 
 
 (defun coq-find-unclosed (&optional optlvl limit openreg closereg)
