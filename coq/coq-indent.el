@@ -327,7 +327,6 @@ not inside the {} of a record)."
       (if (not topnotreached) 0 ;; returns nil if top of buffer was reached
         ;; if we are at end of a command (dot) find this command
         ; if there is a "." alone on the line
-        (message "ICI")
         (let ((pos (point)))
           (ignore-errors (forward-char -1))
           (if (coq-indent-find-reg oldpt coq-end-command-regexp)
@@ -379,7 +378,8 @@ not inside the {} of a record)."
 (defun coq-find-at-same-level-zero (limit openreg)
   "Move to open or openreg (first found) at same parenthesis level as point.
 Returns point if found."
-  (let* ((found nil)
+  (let* (found
+         min-reached
          (open-re (if openreg
                       (proof-regexp-alt openreg proof-indent-open-regexp)
                     proof-indent-open-regexp))
@@ -388,10 +388,9 @@ Returns point if found."
          (nextpt (save-excursion
                    (proof-re-search-backward both-re))))
 
-    (while
-        (and (not found)
-             (>= nextpt (or limit (point-min)))
-             (not (= nextpt (point-min))))
+    (while ; min-reached is set to t only after we have tested if found.
+        (and (not found) (not min-reached)
+             (>= nextpt (or limit (point-min))))
       (goto-char nextpt)
       (cond
        ((proof-looking-at-syntactic-context) ())
@@ -400,6 +399,7 @@ Returns point if found."
        ;;       ((proof-looking-at-safe closereg) (coq-find-unclosed 1 limit))
        ((proof-looking-at-safe proof-indent-close-regexp)
         (coq-find-unclosed 1 limit)))
+      (if (= nextpt (point-min)) (setq min-reached t))
       (setq nextpt (save-excursion (proof-re-search-backward both-re))))
     (if found (point) nil)))
 
