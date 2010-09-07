@@ -1880,8 +1880,7 @@ comment, and insert or skip to the next semi)."
 	  (error "There's nothing to do!"))
       (skip-chars-backward " \t\n")
       (unless (or proof-electric-terminator-noterminator
-		  (and (char-after (point))
-		       (= (char-after (point)) proof-terminal-string)))
+		  (looking-at (regexp-quote proof-terminal-string)))
 	(insert proof-terminal-string)
 	(setq ins t))
       (let* ((pos
