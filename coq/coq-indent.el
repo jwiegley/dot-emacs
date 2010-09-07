@@ -314,10 +314,9 @@ not inside the {} of a record)."
     (let ((oldpt (point))
           (topnotreached (= (forward-line -1) 0))) ;;; nil if going one line backward
                                                    ;;; is not possible
-
       (while (and topnotreached
                   (not (coq-find-no-syntactic-on-line))
-                  t ;;(> (line-number (point)) (line-number (point-min)))
+                  ;(> (line-number (point)) (line-number (point-min)))
                   )
         (setq topnotreached (= (forward-line -1) 0))
         (end-of-line)
@@ -328,6 +327,7 @@ not inside the {} of a record)."
       (if (not topnotreached) 0 ;; returns nil if top of buffer was reached
         ;; if we are at end of a command (dot) find this command
         ; if there is a "." alone on the line
+        (message "ICI")
         (let ((pos (point)))
           (ignore-errors (forward-char -1))
           (if (coq-indent-find-reg oldpt coq-end-command-regexp)
@@ -337,12 +337,13 @@ not inside the {} of a record)."
                      1)
             (goto-char pos)
             (if (save-excursion
-                  (and (or (forward-char -1) t)
+                  (and (not (= (point) (point-min)))
+                       (or (forward-char -1) t)
                        (coq-find-real-start)
                        (proof-looking-at-safe "Record")
                        (coq-indent-find-reg oldpt "{")))
                 4
-              2)))))))
+              2))))))))
 
 
 (defun coq-find-unclosed (&optional optlvl limit openreg closereg)
@@ -534,7 +535,6 @@ Returns point if found."
 This function indents a *expression* line (a line inside of a command).  Use
 `coq-indent-command-offset' to indent a line belonging to a command.  The fourth
 argument must be t if inside the {}s of a record, nil otherwise."
-
   (let ((pt (point)) real-start)
     (save-excursion
       (setq real-start (coq-find-real-start)))
@@ -685,7 +685,8 @@ argument must be t if inside the {}s of a record, nil otherwise."
             prevpoint (point)))
     ;;   (message "coq-indent-offset... kind = %s ; prevcol = %s; prevpoint = %s" kind prevcol prevpoint)
 	 (cond
-	  ((= kind 0) 0) ; top of the buffer reached
+	  ((= kind 0) 0  ; top of the buffer reached
+           )
 	  ((= kind 1) ; we are at the command level
            (+ prevcol (coq-indent-command-offset kind prevcol prevpoint)))
 	  ((= kind 2) ; we are at the expression level
