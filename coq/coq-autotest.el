@@ -32,27 +32,32 @@
   (pg-autotest eval (proof-electric-terminator-toggle 1))
   (pg-autotest eval (insert "Module test")) ; no \n
   (proof-electric-terminator)
+  (proof-shell-wait)
   (pg-autotest eval (insert " Goal forall (A B:Prop),(A /\\ B) -> (B /\\ A)"))
   (proof-electric-terminator)
-  (pg-autotest eval (insert "\ntauto."))
-  ; FIXME: bug here
-  ; (backward-char)
-  ; (proof-electric-terminator) ; shouldn't insert another or delete present
-  (pg-autotest eval (proof-goto-point))
   (proof-shell-wait)
-  ;; FIXME: next test fails, why?
-  ;; (pg-autotest assert-full)
+  (pg-autotest eval (insert "\ntauto."))
+  (backward-char)
+  (proof-electric-terminator) ; shouldn't insert another or delete present
+  (proof-shell-wait)
+;; FIXME: next test fails, why?
+  (pg-autotest assert-full)
   ;; TODO: test switching active scripting buffer after
   ;; an error (see cvs log for proof-script.el 10.68)
-  (pg-autotest eval (insert " End test"))
-  (proof-electric-terminator)
+;; FIXME: bug, this causes "region is read only"
+;;  (pg-autotest eval (insert " End test"))
+;;  (proof-electric-terminator)
   (set-buffer-modified-p nil)
   (kill-buffer ".autotest.v")
   (proof-shell-wait)
 
-  ;; FIXME: this is broken too: retracting a previously
-  ;; processed file doesn't seem to work
-  ;; (pg-autotest script-wholefile "coq/example.v")
+  
+  (pg-autotest script-wholefile "etc/coq/multiple-plain/a.v")
+  (pg-autotest script-wholefile "etc/coq/multiple-plain/b.v")
+  (pg-autotest script-wholefile "etc/coq/multiple-plain/c.v")
+  ;; FIXME: this is broken: retracting a previously
+  ;; processed file doesn't work
+  (pg-autotest script-wholefile "etc/coq/multiple-plain/a.v")
 
   (pg-autotest quit-prover)
 

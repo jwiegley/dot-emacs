@@ -1,0 +1,8 @@
+Plain tests for multiple file handling, without using require.
+
+Test:
+
+ process a.v
+ process b.v
+ undo a.v, redo a.v
+
