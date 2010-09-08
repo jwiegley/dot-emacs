@@ -222,10 +222,8 @@ buffer, so the regions are made empty by this function.
 Also clear list of script portions."
   ;; Initialise queue span, remove it from buffer.
   (unless proof-queue-span
-      (setq proof-queue-span (span-make 1 1))
-      ;; FIXME: span-raise is an GNU hack to make locked span appear.
-      ;; overlays still don't work as well as they did/should pre 99.
-      (span-raise proof-queue-span))
+    (setq proof-queue-span (span-make 1 1))
+    (span-raise proof-queue-span))
   (span-set-property proof-queue-span 'start-closed t)
   (span-set-property proof-queue-span 'end-open t)
   (proof-span-read-only proof-queue-span 'always)
@@ -630,7 +628,7 @@ IDIOMSYM is a symbol and ID is a strings."
     (span-set-property span 'controlspan controlspan)
     (span-set-property controlspan 'children
 		       (cons span (span-property controlspan 'children)))
-    (pg-set-span-helphighlights span proof-boring-face)
+    (pg-set-span-helphighlights span proof-region-mouse-highlight-face)
     (span-set-property span 'priority 10)  ; lower than default
     (if proof-disappearing-proofs
 	(pg-make-element-invisible 'proof proofid))))
@@ -690,13 +688,14 @@ This is used to annotate the buffer with the result of proof steps."
   "Add a daughter help span for SPAN with help message, highlight, actions.
 The daughter span covers the non whitespace content of the main span.
 
-We add the last output (which should be non-empty) to the hover display.
+We add the last output (when non-empty) to the hover display, and
+also as the 'response property on the span.
 
 Optional argument MOUSEFACE means use the given face as a mouse highlight
 face, if it is a face, otherwise, if it is non-nil but not a face,
 do not add a mouse highlight.
 
-Argument FACE means add regular face property FACE to the span."
+Argument FACE means add 'face property FACE to the span."
   (let ((output     (pg-last-output-displayform))
 	(newspan    (let ((newstart (save-excursion
 				      (goto-char (span-start span))
@@ -1360,8 +1359,8 @@ Argument SPAN has just been processed."
     (pg-add-element 'comment id bodyspan)
     (span-set-property span 'id (intern id))
     (span-set-property span 'idiom 'comment)
-    ;; this tries to extract last output, which is wrong for comments.
-    ;; (pg-set-span-helphighlights span)
+    (let ((proof-shell-last-output "")) ; comments not sent, no last output 
+      (pg-set-span-helphighlights span))
 
     ;; possibly evaluate some arbitrary Elisp.  SECURITY RISK!
     (save-match-data
@@ -1475,7 +1474,7 @@ Argument GOALEND is the end of the goal;."
   (span-set-property gspan 'idiom 'proof);; links to nested proof element
   (span-set-property gspan 'name nam)
   (and nestedundos (span-set-property gspan 'nestedundos nestedundos))
-  (pg-set-span-helphighlights gspan)
+  (pg-set-span-helphighlights gspan proof-region-mouse-highlight-face)
   ;; Now make a nested span covering the purported body of the proof,
   ;; and add to buffer-local list of elements.
   (let ((proofbodyspan
@@ -1584,7 +1583,7 @@ Subroutine of `proof-done-advancing-save'."
   (if proof-shell-proof-completed
       (incf proof-shell-proof-completed))
 
-  (pg-set-span-helphighlights span)))
+  (pg-set-span-helphighlights span proof-command-mouse-highlight-face)))
 
 
 
