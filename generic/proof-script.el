@@ -2542,7 +2542,7 @@ finish setup which depends on specific proof assistant configuration."
   (proof-autosend-enable 'nomsg)
 
   ;; Invisibility management: show ellipsis
-  (mapcar (lambda (p)
+  (mapc (lambda (p)
 	    (add-to-invisibility-spec 
 	     (cons (pg-invisible-prop p) t)))
 	  pg-all-idioms)
