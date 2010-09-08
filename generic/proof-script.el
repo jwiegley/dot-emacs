@@ -1055,10 +1055,9 @@ a scripting buffer is killed it is always retracted."
 				(eq (current-buffer)
 				    (window-buffer (selected-window)))
 				(eq (selected-window) (minibuffer-window)))
-			     (progn
-			       (unless (one-window-p)
-				 (delete-other-windows))
-			       (switch-to-buffer proof-script-buffer t)))
+			     (unless (one-window-p)
+			       (delete-other-windows))
+			     (switch-to-buffer proof-script-buffer t))
 			   ;; Would be nicer to ask a single question, but
 			   ;; a nuisance to define our own dialogue since it
 			   ;; doesn't really fit with one of the standard ones.
@@ -1120,8 +1119,6 @@ a scripting buffer is killed it is always retracted."
 
 	      ;; Turn off Scripting indicator here.
 	      (setq proof-active-buffer-fake-minor-mode nil)
-
-	      ;; Make status of inactive scripting buffer show up (necessary?)
 	      (force-mode-line-update)
 
 	      ;; Finally, run hooks
@@ -1136,14 +1133,14 @@ will become the new active scripting buffer, provided scripting can be
 switched off in the previous active scripting buffer with
 `proof-deactivate-scripting'.
 
-Activating a new script buffer may be a good time to ask if the user
+Activating a new script buffer is a good time to ask if the user
 wants to save some buffers; this is done if the user option
-`proof-query-file-save-when-activating-scripting' is set and provided
-the optional argument NOSAVES is non-nil.
+`proof-query-file-save-when-activating-scripting' is set and
+provided the optional argument NOSAVES is non-nil.
 
 The optional argument QUEUEMODE relaxes the test for a busy proof
-shell to allow one which has mode QUEUEMODE.  In all other cases, a
-proof shell busy error is given.
+shell to allow one which has mode QUEUEMODE.  In all other cases,
+a proof shell busy error is given.
 
 Finally, the hooks `proof-activate-scripting-hook' are run.  This can
 be a useful place to configure the proof assistant for scripting in a
@@ -1224,7 +1221,8 @@ activation is considered to have failed and an error is given."
 		      (eq 'interrupt proof-shell-last-output-kind))
 	      (proof-deactivate-scripting) ;; turn off again!
 	      ;; Give an error to prevent further actions.
-	      (error "Proof General: Scripting not activated because of error or interrupt")))))))
+	      (error 
+	       "Proof General: Scripting not activated because of error or interrupt")))))))
 
 
 (defun proof-toggle-active-scripting (&optional arg)
@@ -1976,7 +1974,7 @@ No effect if prover is busy."
 ;; NB: at the moment, the adjustment is made in the wrong place!!
 
 (defun proof-done-retracting (span)
-  "Callback for proof-retract-until-point.
+  "Callback for `proof-retract-until-point'.
 We update display after proof process has reset its state.
 See also the documentation for `proof-retract-until-point'.
 Optionally delete the region corresponding to the proof sequence.
@@ -2015,7 +2013,8 @@ others)."
   "Make span from START to END which corresponds to retraction.
 Returns retraction action destined for proof shell queue, and make span.
 Action holds PROOF-COMMANDS and `proof-done-retracting' callback.
-Span deletion property set to function REMOVE-ACTION."
+Span deletion property set to function REMOVE-ACTION.
+DISPLAYFLAGS control output shown to user, see `proof-action-list'."
   (let ((span (span-make start end)))
     (span-set-property span 'remove-action remove-action)
     (list (list span proof-commands 'proof-done-retracting displayflags))))
@@ -2048,7 +2047,8 @@ Span deletion property set to function REMOVE-ACTION."
 (defun proof-retract-target (target undo-action displayflags)
   "Retract the span TARGET and apply UNDO-ACTION to undone region if non-nil.
 Notice that this necessitates retracting any spans following TARGET,
-up to the end of the locked region."
+up to the end of the locked region.
+DISPLAYFLAGS control output shown to user, see `proof-action-list'."
   (let ((end   (proof-unprocessed-begin))
 	(start (span-start target))
 	(span  (if proof-arbitrary-undo-positions
@@ -2140,25 +2140,34 @@ delete the retracted region from the proof-script."
 
 (defun proof-retract-until-point (&optional undo-action displayflags)
   "Set up the proof process for retracting until point.
-In particular, set a flag for the filter process to call
-`proof-done-retracting' after the proof process has successfully
-reset its state.
-If UNDO-ACTION is non-nil, call this function on the region in
-the proof script corresponding to the proof command sequence.
-If invoked outside a locked region, undo the last successfully processed
-command."
+This calculates the commands to undo to the current point within
+the locked region.  If invoked outside the locked region, undo
+the last successfully processed command.  See `proof-retract-target'.
+
+After retraction has succeeded in the prover, the filter will call
+`proof-done-retracting'.  If UNDO-ACTION is non-nil, it will 
+then be invoked on the region in the proof script corresponding to 
+the proof command sequence.
+DISPLAYFLAGS control output shown to user, see `proof-action-list'.
+
+Before the retraction is calculated, we enforce the file-level
+protocol with `proof-activate-scripting'.  This has a couple
+of effects:
+
+1. If the file is is completely processed, we have to re-open it
+for scripting again which may involve retracting
+other (dependent) files.
+
+2. We may query the user whether to save some buffers.  
+
+Step 2 may seem odd -- we're undoing (in) the buffer, after all
+-- but what may happen is that when scripting starts going
+forward again, we hit a command that loads other files, but the
+user hasn't saved the latest edits.  Therefore it is right to
+query saves here."
   (if (proof-locked-region-empty-p)
       (error "No locked region")
-    ;; Make sure we're ready: either not busy, or already advancing/retracting.
-    ;; Notes:
-    ;; 1. Could consider generalising here to allow retracting from queue
-    ;; 2. If this file is completely processed, we may have to re-open it for
-    ;;    scripting again which could involve retracting other files.
-    ;; 3. It seems odd at first here to allow proof-activate-scripting to
-    ;;    query saves -- we're undoing (in) the buffer, after all -- but what
-    ;;    may happen is that when scripting starts going forward again, we hit
-    ;;    a command that loads other files, but the user hasn't saved the latest
-    ;;    edits.  Therefore it is right to query saves here.
+    ;; enforces not busy (future: may allow retracting from queue in progress)
     (proof-activate-scripting)
     (unless (proof-locked-region-empty-p) ;; re-opening may discard locked region!
       (let ((span (span-at (point) 'type)))
@@ -2172,7 +2181,6 @@ command."
 	  ;; something wrong
 	  (proof-debug
 	   "proof-retract-until-point: couldn't find a span!"))))))
-
 
 
 
