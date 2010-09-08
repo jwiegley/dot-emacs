@@ -155,6 +155,22 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*General mouse highlighting face used in script buffer."
   :group 'proof-faces)
 
+(defface proof-command-mouse-highlight-face
+  (proof-face-specs
+   (:background "gold1")
+   (:background "gold4")
+   (:italic t))
+  "*Mouse highlighting face for atomic regions (usually commands) in script buffer."
+  :group 'proof-faces)
+
+(defface proof-region-mouse-highlight-face
+  (proof-face-specs
+   (:background "yellow2")
+   (:background "yellow3")
+   (:italic t))
+  "*Mouse highlighting face for compound regions (usually proofs) in script buffer."
+  :group 'proof-faces)
+
 (defface proof-highlight-dependent-face
   (proof-face-specs
    (:background "orange")
@@ -213,6 +229,8 @@ Warning messages can come from proof assistant or from Proof General itself."
 (defconst proof-debug-message-face 'proof-debug-message-face proof-face-compat-doc)
 (defconst proof-boring-face 'proof-boring-face proof-face-compat-doc)
 (defconst proof-mouse-highlight-face 'proof-mouse-highlight-face proof-face-compat-doc)
+(defconst proof-command-mouse-highlight-face 'proof-command-mouse-highlight-face proof-face-compat-doc)
+(defconst proof-region-mouse-highlight-face 'proof-region-mouse-highlight-face proof-face-compat-doc)
 (defconst proof-highlight-dependent-face 'proof-highlight-dependent-face proof-face-compat-doc)
 (defconst proof-highlight-dependency-face 'proof-highlight-dependency-face proof-face-compat-doc)
 (defconst proof-active-area-face 'proof-active-area-face proof-face-compat-doc)

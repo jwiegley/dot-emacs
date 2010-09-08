@@ -38,17 +38,17 @@
   "The main queue of things to do: spans, commands and actions.
 The value is a list of lists of the form
 
-   (SPAN COMMANDS ACTION [FLAGS])
+   (SPAN COMMANDS ACTION [DISPLAYFLAGS])
 
-which is the queue of things to do.  Flags are set for non-scripting
-commands or for when scripting should not bother the user.
-They may include
+which is the queue of things to do.  The display flags are set
+for non-scripting commands or for when scripting should not
+bother the user.  They may include
 
   'no-response-display   do not display messages in *response* buffer
   'no-error-display      do not display errors/take error action
   'no-goals-display      do not goals in *goals* buffer
 
-If flags are non-empty, other interactive cues will be surpressed.
+If flags are non-empty, interactive cues will be surpressed.
 \(E.g., printing hints).
 
 See the functions `proof-start-queue' and `proof-shell-exec-loop'.")
