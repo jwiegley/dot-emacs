@@ -518,10 +518,10 @@ This is intended as a value for `proof-activate-scripting-hook'"
 			   (if (eq major-mode proof-mode-for-script)
 			       proof-terminal-string)))))))
 
-;; This is a function called by custom-set property = proof-set-value.
 ;;;###autoload
 (defun proof-electric-terminator-enable ()
-  "Make sure the modeline is updated to display new value for electric terminator."
+  "Ensure modeline update to display new value for electric terminator.
+This a function is called by the custom-set property 'proof-set-value."
   (force-mode-line-update))
 
 (proof-deftoggle proof-electric-terminator-enable
@@ -548,8 +548,7 @@ is non-nil, the command will be sent to the assistant."
 ;; Completion based on <PA>-completion-table
 ;;
 ;; Requires completion.el package.  Completion is usually a hand-wavy
-;; thing, so we don't make any attempt to maintain a precise
-;; completion table or anything.
+;; thing, so we don't attempt to maintain a precise completion table.
 ;;
 
 (defun proof-add-completions ()
@@ -559,9 +558,7 @@ last use time, to discourage saving these into the users database."
   (interactive)
   (require 'completion)
   (mapcar (lambda (cmpl)
-	    ;; completion gives error in this case; trapping
-	    ;; the error here is tricky in FSF Emacs so duplicate
-	    ;; the test.
+	    ;; completion gives error; trapping is tricky so test again
 	    (if (>= (length cmpl) completion-min-length)
 		(add-completion cmpl -1000 0)))
 	  (proof-ass completion-table)))
@@ -604,9 +601,6 @@ last use time, to discourage saving these into the users database."
      (point)))
   (if (fboundp 'own-clipboard)		;; XEmacs function
       (own-clipboard (car kill-ring))))
-
-;; 3.3: these functions are experimental, in that they haven't
-;; been rigorously tested.  FIXME: they don't work well in GNU Emacs.
 
 (defun pg-numth-span-higher-or-lower (span num &optional noerr)
   "Find NUM'th span after/before SPAN.  NUM is positive for after."
@@ -1089,8 +1083,8 @@ If CALLBACK is set, we invoke that when the command completes."
   "Cycle backwards through input history, saving input."
   (interactive "*p")
   (if (and pg-input-ring-index
-	   (or		       ;; leaving the "end" of the ring
-	    (and (< arg 0)		; going down
+	   (or			       ; leaving the "end" of the ring
+	    (and (< arg 0)	       ; going down
 		 (eq pg-input-ring-index 0))
 	    (and (> arg 0)		; going up
 		 (eq pg-input-ring-index
