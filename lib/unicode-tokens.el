@@ -1153,6 +1153,9 @@ Commands available are:
 		       unicode-tokens-uchar-hash-table)))))
 
     (when (not unicode-tokens-mode)
+
+      (remove-from-invisibility-spec 'unicode-tokens-show-controls)
+
       (when flks
 	(font-lock-unfontify-buffer)
 	(setq font-lock-extra-managed-props
