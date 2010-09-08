@@ -483,8 +483,12 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
 ;; space.  Idioms are named with symbols.
 ;;
 
-(defvar pg-idioms '(proof)
-  "Vector of script element kinds PG is aware of for this prover.")
+(defconst pg-idioms '(proof)
+  "List of script element kinds PG is aware of for this prover.")
+
+(defconst pg-all-idioms (append pg-idioms
+				'(comment command other))
+  "List of all possible script element kinds.")
 
 (defun pg-clear-script-portions ()
   "Clear record of script portion names and types from internal list."
@@ -558,9 +562,29 @@ It is recorded in the span with the 'rawname property."
     (span-set-property span 'isearch-open-invisible-temporary
 		       'pg-open-invisible-span)))
 
-(defun pg-set-element-span-invisible (span invisible)
-  "Function to adjust visibility of span to INVISIBLE."
-  (span-set-property span 'invisible invisible))
+(defun pg-invisible-prop (idiom)
+  "Return an invisibility symbol for the given IDIOM.
+This is a value for the overlay 'invisible property."
+  (intern (concat "pg-" (symbol-name (or idiom 'other)))))
+
+(defun pg-set-element-span-invisible (span invisiblep)
+  "Function to adjust visibility of span to INVISIBLEP.
+We use list values of the 'invisible property which contain
+private symbols, that should play well with other conforming modes
+and `buffer-invisibility-spec'."
+  (let* ((invisible-prop  (pg-invisible-prop (span-property span 'idiom)))
+	 (invisible-rest  (remq invisible-prop
+				(span-property span 'invisible))))
+    (message "Using property %s" invisible-prop)
+    (span-set-property span 'invisible 
+		       (if invisiblep 
+			   (cons invisible-prop invisible-rest)
+			 invisible-rest))))
+		       
+(defun pg-toggle-element-span-visibility (span)
+  "Toggle visibility of SPAN."
+  (pg-set-element-span-invisible span
+   (not (span-property span 'invisible))))
 
 (defun pg-open-invisible-span (span &optional invisible)
   "Function for `isearch-open-invisible' property."
@@ -576,12 +600,6 @@ It is recorded in the span with the 'rawname property."
   "Make element ID of type IDIOMSYM visible."
   (let ((span (pg-get-element idiomsym id)))
     (if span (pg-set-element-span-invisible span nil))))
-
-(defun pg-toggle-element-span-visibility (span)
-  "Toggle visibility of SPAN."
-  (span-set-property
-   span 'invisible
-   (not (span-property span 'invisible))))
 
 (defun pg-toggle-element-visibility (idiomsym id)
   "Toggle visibility of script element of type IDIOMSYM, named ID.
@@ -637,13 +655,15 @@ IDIOMSYM is a symbol and ID is a strings."
   "Return a user-level name for SPAN."
   (let ((type    (span-property span 'type))
 	(idiom   (span-property span 'idiom))
-	(name    (span-property span 'name)))
+	(name    (span-property span 'name))
+	(rawname (span-property span 'rawname)))
     (cond
      (idiom
       (concat (upcase-initials (symbol-name idiom))
-	      (if (and name
-		       (not (equal name proof-unnamed-theorem-name)))
-		  (concat " [" name "]"))))
+	      ;; only use rawnames, not internally generated ones
+	      (if (and rawname
+		       (not (equal rawname proof-unnamed-theorem-name)))
+		  (concat " [" rawname "]"))))
      ((or (eq type 'proof) (eq type 'goalsave))
       (concat "Proof"
 	      (let ((name (span-property span 'name)))
@@ -696,14 +716,18 @@ face, if it is a face, otherwise, if it is non-nil but not a face,
 do not add a mouse highlight.
 
 Argument FACE means add 'face property FACE to the span."
-  (let ((output     (pg-last-output-displayform))
-	(newspan    (let ((newstart (save-excursion
-				      (goto-char (span-start span))
-				      (skip-chars-forward " \n\t")
-				      (point))))
-		      (span-make newstart (span-end span)))))
-
-    (span-set-property span 'pg-helpspan newspan) ; link to parent
+  (let* ((output     (pg-last-output-displayform))
+	 (newstart   (save-excursion
+		       (goto-char (span-start span))
+		       (skip-chars-forward " \n\t")
+		       (point)))
+	 (newend     (save-excursion
+		       (goto-char (span-end span))
+		       (skip-chars-backward " \n\t")
+		       (point)))
+	 (newspan     (span-make newstart newend)))
+    
+    (span-set-property span 'pg-helpspan newspan) ; link from parent
 
     (span-set-property newspan 'pghelp t)
     (span-set-property newspan 'response output)
@@ -1360,7 +1384,7 @@ Argument SPAN has just been processed."
     (span-set-property span 'id (intern id))
     (span-set-property span 'idiom 'comment)
     (let ((proof-shell-last-output "")) ; comments not sent, no last output 
-      (pg-set-span-helphighlights span))
+      (pg-set-span-helphighlights bodyspan))
 
     ;; possibly evaluate some arbitrary Elisp.  SECURITY RISK!
     (save-match-data
@@ -2495,7 +2519,7 @@ finish setup which depends on specific proof assistant configuration."
 	(define-key proof-mode-map (vector (aref proof-terminal-string 0))
 	  'proof-electric-terminator)))
 
-  ;; Toolbar and main menu (loads proof-toolbar,setting p.-toolbar-scripting-menu)
+  ;; Toolbar, main menu (loads proof-toolbar,setting p.-toolbar-scripting-menu)
   (proof-toolbar-setup)
 
   ;; Menus: the Proof-General and the specific menu
@@ -2517,6 +2541,12 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Turn on autosend if enabled
   (proof-autosend-enable 'nomsg)
+
+  ;; Invisibility management: show ellipsis
+  (mapcar (lambda (p)
+	    (add-to-invisibility-spec 
+	     (cons (pg-invisible-prop p) t)))
+	  pg-all-idioms)
 
   ;; Finally, make sure the user has been welcomed!
   ;; [NB: this doesn't work well, can get zapped by loading messages]
