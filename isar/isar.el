@@ -257,7 +257,7 @@ See -k option for Isabelle interface script."
     (setq proof-find-and-forget-fn 'isar-find-and-forget)
     (setq proof-arbitrary-undo-positions nil)))
 
-(defpacustom use-linear-undo nil
+(defpacustom use-linear-undo t
   "Whether to allow undo to re-enter completed proofs (requires restart)."
   :type 'boolean
   :eval (isar-set-undo-commands))
