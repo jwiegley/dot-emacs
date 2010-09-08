@@ -575,7 +575,6 @@ and `buffer-invisibility-spec'."
   (let* ((invisible-prop  (pg-invisible-prop (span-property span 'idiom)))
 	 (invisible-rest  (remq invisible-prop
 				(span-property span 'invisible))))
-    (message "Using property %s" invisible-prop)
     (span-set-property span 'invisible 
 		       (if invisiblep 
 			   (cons invisible-prop invisible-rest)
