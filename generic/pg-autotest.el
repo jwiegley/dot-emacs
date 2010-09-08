@@ -57,6 +57,7 @@
   (unless (proof-locked-region-empty-p)
     ;; Should retract and unregister if was completely full
     (proof-goto-point))
+  (proof-shell-wait)
   (pg-autotest-test-assert-unprocessed file))
 
 ;;; Invoke a test
