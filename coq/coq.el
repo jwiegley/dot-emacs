@@ -728,7 +728,8 @@ This is specific to `coq-mode'."
         'blink-matching-paren-dont-ignore-comments) t)
 
   ;; multiple file handling
-  (setq proof-cannot-reopen-processed-files t
+  (setq proof-cannot-reopen-processed-files nil
+        proof-auto-multiple-files t
         ;; proof-shell-inform-file-retracted-cmd 'coq-retract-file
         proof-shell-require-command-regexp coq-require-command-regexp
         proof-done-advancing-require-function 'coq-process-require-command)
