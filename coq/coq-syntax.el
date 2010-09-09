@@ -426,7 +426,7 @@ See also `coq-prog-env' to adjust the environment."
     ("Inductive (3 args)" "indv3" "Inductive # : # :=\n| # : #\n| # : #\n| # : #." t )
     ("Inductive (4 args)" "indv4" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #." t )
     ("Inductive (5 args)" "indv5" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #\n| # : #." t )
-    ("Instance" "instance" "Instance #:#.\nProof.\n#End." t "Instance")
+    ("Instance" nil "Instance #:#.\nProof.\n#End." t "Instance")
     ("Program Instance" "pinstance" "Program Instance [ # ] => # where \n# := #;\n# := #." t "Program\\s-+Instance")
     ("Let" "Let" "Let # : # := #." t "Let")
     ("Ltac" "ltac" "Ltac # := #" t "Ltac")

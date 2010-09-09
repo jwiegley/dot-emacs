@@ -513,62 +513,43 @@ Returns point if found."
       )))
 
 
-(defun coq-save-count (l)
- (if (eq l nil) 0
-   (+ (if (coq-save-command-p nil (car l)) 1 0)
-       (coq-save-count (cdr l)))))
+(defun coq-add-iter (l f)
+  (if (eq l nil) 0 (+ (if (funcall f (car l)) 1 0) (coq-add-iter (cdr l) f))))
 
-(defun coq-goal-count (l)
- (if (eq l nil) 0
-   (+ (if (coq-indent-goal-command-p (car l)) 1 0)
-       (coq-goal-count (cdr l)))))
+(defun coq-goal-count (l) (coq-add-iter l 'coq-indent-goal-command-p))
+
+(defun coq-save-count (l) (coq-add-iter l '(lambda (x) (coq-save-command-p nil x))))
 
 (defun coq-proof-count (l)
- (if (eq l nil) 0
-   (+ (if (proof-string-match "\\<Proof\\>" (car l)) 1 0)
-       (coq-proof-count (cdr l)))))
+  (coq-add-iter l '(lambda (x) (proof-string-match "\\<Proof\\>" x))))
 
-(defun coq-goal-save-diff (l)
- (- (coq-goal-count l) (coq-save-count l)))
-
+;; returns the difference between goal and save commands in a commands list
 (defun coq-goal-save-diff-maybe-proof (l)
   (let ((proofs (coq-proof-count l))
         (goals (coq-goal-count l)))
     (if (= goals 0) (- (if (<= proofs 0) 0 1) (coq-save-count l))
-      (- goals (coq-save-count l))
-      )
-    )
-)
-
+      (- goals (coq-save-count l)))))
 
 
 (defun coq-indent-command-offset (kind prevcol prevpoint)
   "Returns the indentation offset of the current line. This function indents a *command* line (the first line of a command). Use `coq-indent-expr-offset' to indent a line belonging to an expression."
-  (cond
-   ((proof-looking-at-safe "\\<Proof\\>") 0);; no indentation at "Proof ..."
+  (let ((diff-goal-save-current (coq-goal-save-diff-maybe-proof (coq-commands-at-line)))
+        (diff-goal-save-prev 
+         (save-excursion (goto-char prevpoint)
+                         (coq-goal-save-diff-maybe-proof (coq-commands-at-line)))))
+    (cond
+     ((proof-looking-at-safe "\\<Proof\\>") 0);; no indentation at "Proof ..."
 
-   ;; we are at an end command -> one ident left unless previous line is a goal
-   ;; (if goal and save are consecutive, then no indentation at all)
-   ((and (< (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
-         (save-excursion 
-           (goto-char prevpoint)
-           ;; if previous line is the goal then no indent
-           (<= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)))
-    (- proof-indent))
+     ;; we are at an end command -> one ident left unless previous line is a goal
+     ;; (if goal and save are consecutive, then no indentation at all)
+     ((and (< diff-goal-save-current 0) (<= diff-goal-save-prev 0)) (- proof-indent))
 
+    ;; previous command is a goal command -> one indent right unless the current one
+    ;; is an end (consecutive goal and save).
+    ((and (>= diff-goal-save-current 0) (> diff-goal-save-prev 0)) proof-indent)
 
-   ;; previous command is a goal command -> one indent right unless the current one
-   ;; is an end (consecutive goal and save).
-   ((and
-     ;; if the line is ending something, then we do not indent     
-     (>= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
-     ;; look at previous command, carreful: this line moves the point
-     (goto-char prevpoint)
-     (> (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0))
-    proof-indent)
-
-   ;; otherwise -> same indent as previous command
-   (t 0)))
+    ;; otherwise -> same indent as previous command
+    (t 0))))
 
 
 
