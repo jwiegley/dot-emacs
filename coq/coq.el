@@ -1371,9 +1371,9 @@ number of hypothesis displayed, without hiding the goal"
       (select-window curwin)
       )))
 
-(defvar coq-modeline-string2 " SUBGOALS* ")
-(defvar coq-modeline-string1 " SUBGOAL* ")
-(defvar coq-modeline-string0 " Scripting *")
+(defvar coq-modeline-string2 ")")
+(defvar coq-modeline-string1 ")")
+(defvar coq-modeline-string0 " Script(")
 (defun coq-build-subgoals-string (n)
   (concat coq-modeline-string0 (int-to-string n)
           (if (> n 1) coq-modeline-string2
@@ -1384,6 +1384,7 @@ number of hypothesis displayed, without hiding the goal"
   (save-window-excursion ; switch to buffer even if not visible
     (switch-to-buffer proof-goals-buffer)
     (let* ((nbgoals (string-to-number (first-word-of-buffer)))
+           (dummy (switch-to-buffer proof-script-buffer))
            (toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
       (while toclean ;; clean minor-mode-alist
         (setq minor-mode-alist (remove toclean minor-mode-alist))
