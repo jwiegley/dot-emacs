@@ -280,18 +280,23 @@ The point is put exactly before first non comment letter of the command."
  (or (= (coq-ident-line-number pt) (coq-ident-line-number pt2))))
 
 (defun coq-commands-at-line ()
- "Return the string of each command at current line.."
- (save-excursion
-   (back-to-indentation)
-   (let ((initpoint (point))
-         res)
-     (while (same-line (point) initpoint)
-       (setq res (cons (coq-command-at-point) res))
-       (if (coq-find-command-end-forward)
-           (ignore-errors (forward-char 1) (coq-find-real-start))
-         (goto-char (- (point-max) 1))))
-     res
-     )))
+  "Return the string of each command at current line.."
+  (save-excursion
+    (back-to-indentation)
+    (let ((initpoint (point))
+          (command-found (coq-command-at-point))
+          res 
+          )
+      (while (and command-found (same-line (point) initpoint))
+        (setq res (cons command-found res))
+        (if (and (coq-find-command-end-forward)
+                 (ignore-errors (forward-char 1) t);to fit in the "and"
+                 (coq-find-real-start))
+            (setq command-found (coq-command-at-point))
+          (setq command-found nil)
+          ))
+      res)))
+
 
 (defun coq-indent-only-spaces-on-line ()
   "Non-nil if there only spaces (or nothing) on the current line after point.
@@ -540,45 +545,30 @@ Returns point if found."
 (defun coq-indent-command-offset (kind prevcol prevpoint)
   "Returns the indentation offset of the current line. This function indents a *command* line (the first line of a command). Use `coq-indent-expr-offset' to indent a line belonging to an expression."
   (cond
-
    ((proof-looking-at-safe "\\<Proof\\>") 0);; no indentation at "Proof ..."
 
-   ;; we are at an end command -> one ident left
-   ;; FIX: we should count the number of closing item on the line
-   (;(coq-save-command-p nil (or (coq-command-at-point) ""))
-    (and (< (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
-         (save-excursion (goto-char prevpoint)
-                         (<= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0))
-         )
+   ;; we are at an end command -> one ident left unless previous line is a goal
+   ;; (if goal and save are consecutive, then no indentation at all)
+   ((and (< (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
+         (save-excursion 
+           (goto-char prevpoint)
+           ;; if previous line is the goal then no indent
+           (<= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)))
     (- proof-indent))
 
 
-   ;; previous command is a goal command -> one indent right
-   ;; carreful: this line moves the point
-   ((and (>= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
-         (goto-char prevpoint)
-         (or (and;;"Proof ..." is a proof start (but not really a goal command)
-              ;;  unless followed by a term (catch by coq-save-command-p above
-              (proof-looking-at-safe "\\<Proof\\>")
-;              (not (coq-save-command-p nil (coq-command-at-point)))
-              (<= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
-              )
-;             (coq-indent-goal-command-p (coq-command-at-point))
-             (> (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
-             ))
+   ;; previous command is a goal command -> one indent right unless the current one
+   ;; is an end (consecutive goal and save).
+   ((and
+     ;; if the line is ending something, then we do not indent     
+     (>= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
+     ;; look at previous command, carreful: this line moves the point
+     (goto-char prevpoint)
+     (> (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0))
     proof-indent)
 
-;;	((and (goto-char prevpoint)
-;;         ;"Proof <term>." is actually a Save command
-;;         ; catched only if not follwed by"." or "with"
-;;			(proof-looking-at-safe "\\<Proof\\>"))
-;;	 (- proof-indent))
-
-
    ;; otherwise -> same indent as previous command
-   (t 0)
-   )
-  )
+   (t 0)))
 
 
 
