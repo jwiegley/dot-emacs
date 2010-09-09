@@ -98,7 +98,10 @@
     Coq/Store goal.
 
 *** bug fixes
-    (Three panes mode, indentation).
+    - Three panes mode: "window would be too small" error fixed.
+    - Indentation: several error fixed. If you want to indent tactics
+    inside "Instance" or "Add Parametric Relation" etc, please put
+    "Proof." before the tactics.
 
 ** Notable internal changes
 
