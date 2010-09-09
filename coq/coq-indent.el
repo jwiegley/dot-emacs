@@ -268,16 +268,9 @@ The point is put exactly before first non comment letter of the command."
           (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
       (if st (buffer-substring st (+ nd 1))))))
 
-(defun coq-ident-line-number (pt)
- (save-excursion
-   (goto-char pt)
-   (if (= 0 (current-column)) (+ (line-number pt) 1)
-     (line-number pt))
-   )
- )
 
 (defun same-line (pt pt2)
- (or (= (coq-ident-line-number pt) (coq-ident-line-number pt2))))
+ (or (= (line-number-at-pos pt) (line-number-at-pos pt2))))
 
 (defun coq-commands-at-line ()
   "Return the string of each command at current line.."
@@ -346,7 +339,6 @@ not inside the {} of a record)."
                                                    ;;; is not possible
       (while (and topnotreached
                   (not (coq-find-no-syntactic-on-line))
-                  ;(> (line-number (point)) (line-number (point-min)))
                   )
         (setq topnotreached (= (forward-line -1) 0))
         (end-of-line)

@@ -97,11 +97,14 @@
     persistent buffer (for later use), use Coq/Store response or
     Coq/Store goal.
 
-*** bug fixes
+*** bug fixes, bugs
     - Three panes mode: "window would be too small" error fixed.
     - Indentation: several error fixed. If you want to indent tactics
     inside "Instance" or "Add Parametric Relation" etc, please put
-    "Proof." before the tactics.
+    "Proof." before the tactics, there is no way for emacs to guess
+    wether these commands initiate new goals or not.
+    - coq prog args permanent settings is working again
+    - when a proof is completed, the goals buffer is cleared again.
 
 ** Notable internal changes
 

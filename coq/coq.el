@@ -362,6 +362,7 @@ If locked span already has a state number, then do nothing. Also updates
 ;; commands is started
 (add-hook 'proof-state-change-hook 'coq-set-state-infos)
 
+
 (defun count-not-intersection (l notin)
   "Return the number of elts of L that are not in NOTIN."
   (let ((l1 l) (l2 notin) (res 0))
@@ -741,6 +742,7 @@ This is specific to `coq-mode'."
   (setq
    proof-shell-cd-cmd coq-shell-cd
    proof-shell-filename-escapes '(("\\\\" . "\\\\") ("\""   . "\\\""))
+   proof-shell-clear-goals-regexp coq-shell-proof-completed-regexp
    proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
    proof-shell-error-regexp coq-error-regexp
    proof-shell-interrupt-regexp coq-interrupt-regexp
@@ -1404,6 +1406,11 @@ number of hypothesis displayed, without hiding the goal"
 	  'coq-show-first-goal)
 (add-hook 'proof-shell-handle-delayed-output-hook
 	  'coq-update-minor-mode-alist)
+(add-hook 'proof-shell-handle-delayed-output-hook
+          '(lambda () 
+             (if (proof-string-match coq-shell-proof-completed-regexp
+                                     proof-shell-last-output)
+                 (proof-clean-buffer proof-goals-buffer))))
 
 
 (defun is-not-split-vertic (selected-window)
