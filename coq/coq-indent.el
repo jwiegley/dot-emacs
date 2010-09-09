@@ -268,6 +268,31 @@ The point is put exactly before first non comment letter of the command."
           (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
       (if st (buffer-substring st (+ nd 1))))))
 
+(defun coq-ident-line-number (pt)
+ (save-excursion
+   (goto-char pt)
+   (if (= 0 (current-column)) (+ (line-number pt) 1)
+     (line-number pt))
+   )
+ )
+
+(defun same-line (pt pt2)
+ (or (= (coq-ident-line-number pt) (coq-ident-line-number pt2))))
+
+(defun coq-commands-at-line ()
+ "Return the string of each command at current line.."
+ (save-excursion
+   (back-to-indentation)
+   (let ((initpoint (point))
+         res)
+     (while (same-line (point) initpoint)
+       (setq res (cons (coq-command-at-point) res))
+       (if (coq-find-command-end-forward)
+           (ignore-errors (forward-char 1) (coq-find-real-start))
+         (goto-char (- (point-max) 1))))
+     res
+     )))
+
 (defun coq-indent-only-spaces-on-line ()
   "Non-nil if there only spaces (or nothing) on the current line after point.
 Moves point to first non space char if present, to the end of line otherwise."
@@ -483,6 +508,35 @@ Returns point if found."
       )))
 
 
+(defun coq-save-count (l)
+ (if (eq l nil) 0
+   (+ (if (coq-save-command-p nil (car l)) 1 0)
+       (coq-save-count (cdr l)))))
+
+(defun coq-goal-count (l)
+ (if (eq l nil) 0
+   (+ (if (coq-indent-goal-command-p (car l)) 1 0)
+       (coq-goal-count (cdr l)))))
+
+(defun coq-proof-count (l)
+ (if (eq l nil) 0
+   (+ (if (proof-string-match "\\<Proof\\>" (car l)) 1 0)
+       (coq-proof-count (cdr l)))))
+
+(defun coq-goal-save-diff (l)
+ (- (coq-goal-count l) (coq-save-count l)))
+
+(defun coq-goal-save-diff-maybe-proof (l)
+  (let ((proofs (coq-proof-count l))
+        (goals (coq-goal-count l)))
+    (if (= goals 0) (- (if (<= proofs 0) 0 1) (coq-save-count l))
+      (- goals (coq-save-count l))
+      )
+    )
+)
+
+
+
 (defun coq-indent-command-offset (kind prevcol prevpoint)
   "Returns the indentation offset of the current line. This function indents a *command* line (the first line of a command). Use `coq-indent-expr-offset' to indent a line belonging to an expression."
   (cond
@@ -491,18 +545,26 @@ Returns point if found."
 
    ;; we are at an end command -> one ident left
    ;; FIX: we should count the number of closing item on the line
-   ((coq-save-command-p nil (or (coq-command-at-point) ""))
+   (;(coq-save-command-p nil (or (coq-command-at-point) ""))
+    (and (< (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
+         (save-excursion (goto-char prevpoint)
+                         (<= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0))
+         )
     (- proof-indent))
 
 
    ;; previous command is a goal command -> one indent right
    ;; carreful: this line moves the point
-   ((and (goto-char prevpoint)
+   ((and (>= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
+         (goto-char prevpoint)
          (or (and;;"Proof ..." is a proof start (but not really a goal command)
               ;;  unless followed by a term (catch by coq-save-command-p above
               (proof-looking-at-safe "\\<Proof\\>")
-              (not (coq-save-command-p nil (coq-command-at-point))))
-             (coq-indent-goal-command-p (coq-command-at-point))
+;              (not (coq-save-command-p nil (coq-command-at-point)))
+              (<= (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
+              )
+;             (coq-indent-goal-command-p (coq-command-at-point))
+             (> (coq-goal-save-diff-maybe-proof (coq-commands-at-line)) 0)
              ))
     proof-indent)
 

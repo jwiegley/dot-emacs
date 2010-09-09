@@ -92,6 +92,14 @@
 *** Some keyboard shortcuts are now available in goals buffer
     C-c C-a C-<c,p,o,b,a> are now available in goal buffer.
 
+*** Experimental storing buffer
+    To store the content of response or goals buffer in a dedicated
+    persistent buffer (for later use), use Coq/Store response or
+    Coq/Store goal.
+
+*** bug fixes
+    (Three panes mode, indentation).
+
 ** Notable internal changes
 
 *** Altered prover configuration settings (internal)
