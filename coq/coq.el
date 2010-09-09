@@ -110,7 +110,7 @@ On Windows you might need something like:
 ;;  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
-(defvar coq-shell-proof-completed-regexp "Subtree\\s-proved\\|Proof\\s-completed"
+(defvar coq-shell-proof-completed-regexp "Subtree\\s-proved!\\|Proof\\s-completed"
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar coq-goal-regexp
@@ -744,7 +744,6 @@ This is specific to `coq-mode'."
    proof-shell-filename-escapes '(("\\\\" . "\\\\") ("\""   . "\\\""))
    proof-shell-clear-goals-regexp coq-shell-proof-completed-regexp
    proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
-   proof-shell-clear-goals-regexp coq-shell-proof-completed-regexp
    proof-shell-error-regexp coq-error-regexp
    proof-shell-interrupt-regexp coq-interrupt-regexp
    proof-shell-assumption-regexp coq-id
@@ -755,17 +754,14 @@ This is specific to `coq-mode'."
    pg-subterm-end-char ?\374            ; not done
    pg-topterm-regexp "\375"
 
-   proof-shell-eager-annotation-start 
-   (concat "\376\\|\\[Reinterning\\|Warning:\\|" coq-shell-proof-completed-regexp)
-   proof-shell-eager-annotation-start-length 16
+   proof-shell-eager-annotation-start "\376\\|\\[Reinterning\\|Warning:"
+   proof-shell-eager-annotation-start-length 12
 
-   ;; ****** is added at the end of warnings in emacs mode, this is temporary. I
+   ;; ****** is added at the end of warnings in emacs mode, this is temporary I
    ;;        want xml like tags, and I want them removed before warning display.
    ;; I want the same for errors -> pgip
-   ;; additional hack: final ! or . matches end of coq-shell-proof-completed-regexp
-   ;; to get goals clearing to work with coq-shell-proof-completed-regexp
 
-   proof-shell-eager-annotation-end "\377\\|done\\]\\|\\*\\*\\*\\*\\*\\*\\|!\\|\\."
+   proof-shell-eager-annotation-end "\377\\|done\\]\\|\\*\\*\\*\\*\\*\\*" ; done
    proof-shell-annotated-prompt-regexp coq-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
