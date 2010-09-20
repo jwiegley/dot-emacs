@@ -61,6 +61,7 @@
   ;; Entry format:  (TOKEN MENUNAME TOOLTIP TOOLBAR-P [VISIBLE-P])
   (dolist (tle tles)
     (let* ((token     (nth 0 tle))
+	   (longtoken (intern (concat "pg-" (symbol-name token))))
 	   (includep  (nth 3 tle))
 	   (visiblep  (nth 4 tle))
 	   (icon      (proof-toolbar-icon token))
@@ -73,9 +74,9 @@
 			   (list :enable (list enabler)))
 		       (if visiblep
 			   (list :visible visiblep)))))
-      (if includep
+      (if (eval includep)
 	  (apply 'tool-bar-local-item
-		 (eval icon) buttonfn token map props)))))
+		 (eval icon) buttonfn longtoken map props)))))
 
 ;;
 ;; Code for displaying and refreshing toolbar
@@ -274,7 +275,7 @@ back the default toolbar."
 	     (tooltip   (nth 2 tle))
 	     (visiblep  (nth 4 tle))
 	     (enabler   (proof-toolbar-enabler token))
-	     (fnname	  (proof-toolbar-function token))
+	     (fnname	(proof-toolbar-function token))
 	     ;; fnval: remove defalias to get keybinding onto menu;
 	     ;; NB: function and alias must both be defined for this
 	     ;; to work!!
