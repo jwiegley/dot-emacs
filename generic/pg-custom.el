@@ -51,7 +51,7 @@
   (use       "Use Buffer"         "Process whole buffer" t t)
   (goto      "Goto Point"         "Process or undo to the cursor position" t t)
   (qed       "Finish Proof"       "Close/save proved theorem" t nil)
-  (home      "Goto Locked End"    "Goto end of the last command proceesed" t t)
+  (home      "Goto Locked End"    "Goto end of the last command processed" t t)
   (find      "Find Theorems"	  "Find theorems" t proof-find-theorems-command)
   (info      "Identifier Info"    "Information about identifier" t proof-query-identifier-command)
   (command   "Issue Command"	  "Issue a non-scripting command" t t)
