@@ -316,43 +316,35 @@ without adjusting window layout."
 (defconst proof-quick-opts-menu
   (cons
    "Quick Options"
-   `(["Fast Process Buffer" proof-fast-process-buffer-toggle
-      :style toggle
-      :selected proof-fast-process-buffer
-      :help "Use a fast loop when processing whole buffer (disables input)"]
-     ["Fly Past Comments" proof-script-fly-past-comments-toggle
-      :style toggle
-      :selected proof-script-fly-past-comments
-      :help "Coalesce and skip over successive comments"]
-     ["Full Annotation" proof-full-annotation-toggle
-      :style toggle
-      :selected proof-full-annotation
-      :help "Record full information to decorate scripts (may cause slowdown)"]
-     ["Disppearing Proofs" proof-disappearing-proofs-toggle
-      :style toggle
-      :selected proof-disappearing-proofs
-      :help "Hide proofs as they are completed"]
-     ["Toolbar" proof-toolbar-toggle
-      :style toggle
-      :visible (featurep 'tool-bar)
-      :selected proof-toolbar-enable
-      :help "Use the Proof General toolbar"]
+   `(
 
 ;;; TODO: Add this in PG 4.0 once bufhist robust; see trac #169
 ;;;      ["Response history" proof-keep-response-history-toggle
 ;;;       :style toggle
 ;;;       :selected proof-keep-response-history]
 
-     ["Beep on errors" proof-shell-quiet-errors-toggle
-      :style toggle
-      :selected (not proof-shell-quiet-errors)
-      :help "Beep on errors or interrupts"]
-     ("Auto Process"
+     ("Processing"
+      ["Fast Process Buffer" proof-fast-process-buffer-toggle
+       :style toggle
+       :selected proof-fast-process-buffer
+       :help "Use a fast loop when processing whole buffer (disables input)"]
       ["Electric Terminator" proof-electric-terminator-toggle
        :style toggle
        :selected proof-electric-terminator-enable
        :help "Automatically send commands when terminator typed"]
-      ["Process Automatically" proof-autosend-toggle
+      ["Beep on errors" proof-shell-quiet-errors-toggle
+       :style toggle
+       :selected (not proof-shell-quiet-errors)
+       :help "Beep on errors or interrupts"]      
+      ["Fly Past Comments" proof-script-fly-past-comments-toggle
+       :style toggle
+       :selected proof-script-fly-past-comments
+       :help "Coalesce and skip over successive comments"]
+      ["Full Annotation" proof-full-annotation-toggle
+       :style toggle
+       :selected proof-full-annotation
+       :help "Record full information to decorate scripts (may cause slowdown)"]
+     ["Process Automatically" proof-autosend-toggle
        :style toggle
        :selected proof-autosend-enable
        :help "Automatically send commands when idle"]
@@ -370,6 +362,11 @@ without adjusting window layout."
 	:active proof-autosend-enable
 	:help "Automatically send the whole buffer"]))
      ("Display"
+      ["Toolbar" proof-toolbar-toggle
+       :style toggle
+       :visible (featurep 'tool-bar)
+       :selected proof-toolbar-enable
+       :help "Use the Proof General toolbar"]
       ["Unicode Tokens"
       (proof-unicode-tokens-toggle (if (boundp 'unicode-tokens-mode)
 				       (if unicode-tokens-mode 0 1) 1))
@@ -416,7 +413,16 @@ without adjusting window layout."
       ["Sticky Errors" proof-sticky-errors-toggle
        :style toggle
        :selected proof-sticky-errors
-       :help "Highlight commands that caused errors"])
+       :help "Highlight commands that caused errors"]
+      ["Disppearing Proofs" proof-disappearing-proofs-toggle
+       :style toggle
+       :selected proof-disappearing-proofs
+       :help "Hide proofs as they are completed"]
+      "----"
+      ["Document Centred" proof-set-document-centred
+       :help "Select options for document-centred working"]
+      ["Default" proof-set-non-document-centred
+       :help "Set options for classic Proof General interaction"])
      ("Read Only"
       ["Strict Read Only"
        (customize-set-variable 'proof-strict-read-only t)
@@ -564,6 +570,35 @@ without adjusting window layout."
 (defun proof-quick-opts-changed-from-saved-p ()
   ;; NB: would be nice to add.  Custom support?
   t)
+
+;;
+;; Changing several options together (ugly UI)
+;;
+
+(defun proof-set-document-centred ()
+  "Select options for document-centred working"
+  (interactive)
+  (proof-full-annotation-toggle 1)
+  (proof-auto-raise-toggle 0)
+  (proof-colour-locked-toggle 0)
+  (proof-sticky-errors-toggle 1)
+  (proof-autosend-toggle 1)
+  (customize-set-variable 'proof-strict-read-only 'retract)
+  (customize-set-variable 'proof-autosend-all t)
+  (customize-set-variable 'proof-follow-mode 'ignore))
+
+
+(defun proof-set-non-document-centred ()
+  "Set options for classic Proof General interaction"
+  (interactive)
+  ;; default: (proof-full-annotation-toggle 1) 
+  (proof-auto-raise-toggle 1)
+  (proof-colour-locked-toggle 1)
+  (proof-sticky-errors-toggle 0)
+  (proof-autosend-toggle 0)
+  ;; default: (customize-set-variable 'proof-strict-read-only 'retract)
+  (customize-set-variable 'proof-autosend-all nil)
+  (customize-set-variable 'proof-follow-mode 'ignore))
 
 
 ;;
