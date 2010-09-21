@@ -1425,7 +1425,10 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
   (proof-with-current-buffer-if-exists proof-script-buffer
     (unless (or (proof-locked-region-full-p)
 		proof-shell-busy
-		(eq (buffer-chars-modified-tick) proof-autosend-modified-tick))
+		;; TODO: re-engage autosend after C-c C-n even if not modified.
+		(eq (buffer-chars-modified-tick) proof-autosend-modified-tick)
+		(and proof-autosend-all
+		     (eq proof-shell-last-queuemode 'retracting)))
       (setq proof-autosend-running t)
       (setq proof-autosend-modified-tick (buffer-chars-modified-tick))
       (if proof-autosend-all
@@ -1435,29 +1438,27 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 
 (defun proof-autosend-loop-all ()
   "Send commands from the script until an error, complete, or input appears."
-  (unless (eq proof-shell-last-queuemode 'retracting)
-    (message "Sending commands to prover...")
-    (setq proof-autosend-modified-tick (buffer-chars-modified-tick))
-    (unwind-protect
-	(progn
-	  (save-excursion
-	    (goto-char (point-max))
-	    (proof-assert-until-point 
-	     (if proof-multiple-frames-enable 
-		 'no-minibuffer-messages ; nb: not API
+  (message "Sending commands to prover...")
+  (unwind-protect
+      (progn
+	(save-excursion
+	  (goto-char (point-max))
+	  (proof-assert-until-point 
+	   (if proof-multiple-frames-enable 
+	       'no-minibuffer-messages ; nb: not API
 	     '(no-response-display 
 	       no-error-display
 	       no-goals-display))))
-	  (proof-shell-wait t) ; interruptible
-	  (cond
-	   ((eq proof-shell-last-output-kind 'error)
-	    (message "Sending commands to prover...error"))
-	   ((and (input-pending-p) proof-shell-busy)
-	    (proof-interrupt-process)
-	    (message "Sending commands to prover...interrupted")
-	    (proof-shell-wait))
-	   (t
-	    (message "Sending commands to prover...done")))))))
+	(proof-shell-wait t) ; interruptible
+	(cond
+	 ((eq proof-shell-last-output-kind 'error)
+	  (message "Sending commands to prover...error"))
+	 ((and (input-pending-p) proof-shell-busy)
+	  (proof-interrupt-process)
+	  (message "Sending commands to prover...interrupted")
+	  (proof-shell-wait))
+	 (t
+	  (message "Sending commands to prover...done"))))))
 
 (defun proof-autosend-loop-next ()
   "Send the next command from the script and indicate its success/otherwise."
