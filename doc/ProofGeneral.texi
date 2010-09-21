@@ -838,12 +838,12 @@ Coq, on the other hand, requires a full-stop terminator at the end of
 each line, so @kbd{C-c C-.} is the key binding used to turn on
 electric terminator.  If you don't know what the terminator character
 is, you can find the option anyway on the menu:
-@code{Proof General -> Quick Options -> Electric Terminator}
+@code{Proof General -> Quick Options -> Processing -> Electric Terminator}
 which also shows the key binding.
 
 If you want to use electric terminator, you can customize Proof
 General to enable it everytime if you want, @xref{Customizing Proof
-General}.  For the common options, customization is particularly easy: just
+General}.  For the common options, customization is easy: just
 use the menu item @code{Proof General -> Quick Options} to make your choices,
 and @code{Proof General -> Quick Options -> Save Options} to
 save your choices.
@@ -1753,7 +1753,7 @@ Several configuration settings can be used to fine tune this behaviour.
 
 First, you may select
 @lisp
-Proof General -> Quick Options -> Full Annotations
+Proof General -> Quick Options -> Processing -> Full Annotations
 @end lisp
 to ensure that the details are recorded in the script.  This is not the
 default because it can cause long sequences of commands to execute more
@@ -1779,25 +1779,23 @@ you can see the position of the next command to be processed
 with the marker.
 
 If you have no colouring on the locked region, it can be hard to see
-where processing has got to.  Or if it has stopped on a region with
-an error.  You can select
+where processing has got to.  Look for the ``overlay marker'', a triangle
+in the left-hand fringe of the display, to see which line processing has
+stopped at.   If it has stopped on a region with
+an error, you might want to see that.  You can select
 @lisp
 Proof General -> Quick Options -> Display -> Sticky Errors
 @end lisp
 to add a higlight for regions which did not successfully process
-on the last attempt.  If the region is edited in anyway, the
+on the last attempt.  Whenever the region is edited, the
 highlight is removed. 
-@comment TODO: add documentation about overlay marker
 
 Finally, you may want to ensure that
 @lisp
-Proof General -> Quick Options -> Undo On Edit
+Proof General -> Quick Options -> Read Only -> Undo On Edit
 @end lisp
-is selected.  To enable this option, you must first @i{de}select 
-@lisp
-Proof General -> Quick Options -> Strict Read Only
-@end lisp
-Retract on edit is a setting for the `proof-strict-read-only' variable.
+is selected.  
+Undo on edit is a setting for the `proof-strict-read-only' variable.
 This allows you to freely edit the processed region, but first it
 automatically retracts back to the point of the edit.  Comments can
 be edited freely without retraction.
@@ -1806,31 +1804,54 @@ be edited freely without retraction.
 customizing display options.
 
 
+To help configure the options appropriately for document-centred working,
+there are two command 
+@lisp
+Proof General -> Quick Options -> Display -> Document Centred 
+Proof General -> Quick Options -> Display -> Default
+@end lisp
+which change settings appropriately between a document centred
+mode and the classic Proof General behaviour and appearance.  
+The first command also engages automatic processing of the whole
+buffer, explained in the next section.
+
+
 @node Automatic processing
 @section Automatic processing
 @cindex Automatic processing
 
-If you really like making your hair stand on end, the electric
+If you like making your hair stand on end, the electric
 terminator mode is probably not enough.  Proof General has another
 feature that will automatically send text to the prover, while
 you aren't looking.
 
 Enabling
 @lisp
-Proof General -> Quick Options -> Send Automatically
+Proof General -> Quick Options -> Processing -> Process Automatically
 @end lisp
 
 Causes Proof General to start processing text when Emacs is idle for
-a while.  The text will be sent in a fast loop that processes more
-quickly than @kbd{C-c C-b} (i.e., @code{proof-process-buffer},
-the down toolbar button).  
+a while.  You can choose either to send just the next command, or
+the whole buffer.  See 
+@lisp
+Proof General -> Quick Options -> Processing -> Automatic Processing Mode
+@end lisp
+for the choices.
 
-This feature tries to be sensitive to the user: if you start to type
-something or use the mouse, it will be interrupted.  You can 
-use @kbd{C-c C-.} (@code{proof-goto-end-of-locked}) to find out where
-processing got to, as usual.  Text is only sent if the last interactive
-command processed some text (i.e., wasn't an undo step backwards into
-the buffer) and processing didn't stop with an error.
+The text will be sent in a fast loop that processes more
+quickly than @kbd{C-c C-b} (i.e., @code{proof-process-buffer},
+the down toolbar button), but ignores user input and doesn't update
+the display.  
+
+This feature tries to be non-intrusive to the user: if you start to type
+something or use the mouse, the fast loop will be interrupted.
+
+You can use @kbd{C-c C-.} (@code{proof-goto-end-of-locked}) to find
+out where processing got to, as usual.  Text is only sent if the last
+interactive command processed some text (i.e., wasn't an undo step
+backwards into the buffer) and processing didn't stop with an error.
+To start automatic processing again after an error, simply hit
+@kbd{C-c C-n}.
 
 
 
@@ -1852,7 +1873,7 @@ on a completed proof}, or the key @kbd{C-c v}, which runs
 
 You can also select the ``disappearing proofs'' mode from the menu,
 @lisp
-  Proof-General -> Quick Options -> Disappearing Proofs
+  Proof-General -> Quick Options -> Display -> Disappearing Proofs
 @end lisp 
 This automatically hides each the body of each proof portion
 as it is completed by the proof assistant.
@@ -2652,7 +2673,7 @@ manual for further details).
 
 To use Imenu, select the option
 @lisp
-        Proof General -> Quick Options -> Index Menu
+        Proof General -> Quick Options -> Minor Modes -> Index Menu
 @end lisp
 This adds an "Index" menu to the main menu bar for proof script buffers.
 You can also use @kbd{M-x imenu} for keyboard-driven completion of tags
