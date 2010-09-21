@@ -520,7 +520,11 @@ It was constructed with `proof-deftoggle-fn'.")
 The toggle function uses `customize-set-variable' to change the variable.
 OTHERNAME gives an alternative name than the default <VAR>-toggle.
 The name of the defined function is returned."
-  `(proof-deftoggle-fn (quote ,var) (quote ,othername)))
+  `(progn
+     (declare-function ,(if othername othername
+			  (intern (concat (symbol-name var) "-toggle")))
+		       "proof-utils")
+     (proof-deftoggle-fn (quote ,var) (quote ,othername))))
 
 (defun proof-defintset-fn (var &optional othername)
   "Define a function <VAR>-intset for setting an integer customize setting VAR.
