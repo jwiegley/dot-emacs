@@ -31,15 +31,23 @@
     buffers can be ignored and hidden.  Use "full annotation" to keep
     output when several steps are taken.
 
+    Standard values for the options can be set in one go with:
+      Quick Options -> Display -> Document Centred
+    and the defaults set back with 
+      Quick Options -> Display -> Default. 
+    See the manual for more details.
+
 *** Automatic processing mode
-    Quick Options -> Send Automatically
+      Quick Options -> Processing -> Send Automatically
     Sends commands to the prover when Emacs is idle for a while.
     This only sends commands when the last processing action has
     been an action moving forward through the buffer.  Interrupt by
     making a keyboard/mouse action.
+    See the manual for more details.
+
 
 *** Fast buffer processing option
-    Quick Options -> Fast Process Buffer
+      Quick Options -> Processing -> Fast Process Buffer
     This affects 'proof-process-buffer' (C-c C-b, toolbar down).
     It causes commands to be sent to the prover in a tight loop, without 
     updating the display or processing other input.  This speeds up
