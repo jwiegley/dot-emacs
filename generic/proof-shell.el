@@ -96,11 +96,17 @@ interrupt message is printed from the prover after the last output.")
 ;;
 
 (defcustom proof-shell-active-scripting-indicator
-  '(:eval (propertize " Scripting " 'face 
-		       (if proof-shell-busy 'proof-queue-face
-		       'proof-locked-face)))
+  '(:eval (propertize 
+   " Scripting " 'face 
+   (cond
+    (proof-shell-busy			       'proof-queue-face)
+    ((eq proof-shell-last-output-kind 'error)  'proof-script-sticky-error-face)
+    ((proof-with-current-buffer-if-exists proof-script-buffer
+					  (proof-locked-region-full-p))
+     'font-lock-type-face)
+    (t 'proof-locked-face))))
   "Modeline indicator for active scripting buffer.
-Changes colour to indicate whether the shell is busy."
+Changes colour to indicate whether the shell is busy, etc."
   :type 'sexp
   :group 'proof-general-internals)
 
