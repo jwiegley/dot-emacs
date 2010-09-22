@@ -14,7 +14,7 @@
 ;; in proof-toolbar-setup.
 ;;
 ;; See `proof-toolbar-entries-default' and `<PA>-toolbar-entries'
-;; in pg-custom for the default generic toolbar and
+;; in pg-custom.el for the default generic toolbar and
 ;; the per-prover toolbar contents variable.
 ;;
 
