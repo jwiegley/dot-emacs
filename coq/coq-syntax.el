@@ -1020,14 +1020,10 @@ Group number 1 matches the name of the library which is required.")
   (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
 
-;; should maybe be "_" but it makes coq-find-and-forget (in coq.el) bug
+  ;; should maybe be "_" but it makes coq-find-and-forget (in coq.el) bug
   (modify-syntax-entry ?\. ".")
 
-  (condition-case nil
-      ;; Try to use Emacs-21's nested comments.
-      (modify-syntax-entry ?\* ". 23n")
-    ;; Revert to non-nested comments if that failed.
-    (error (modify-syntax-entry ?\* ". 23")))
+  (modify-syntax-entry ?\* ". 23n")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4"))
 
