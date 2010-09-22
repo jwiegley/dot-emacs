@@ -46,7 +46,7 @@
   (goal      "Start a New Proof" "Start a new proof" t nil)
   (retract   "Retract Buffer"     "Retract (undo) whole buffer" t t)
   (undo      "Undo Step"          "Undo the previous proof command" t t)
-  (delete    "Delete Step"        "Delete the last proof command" t t)
+  (delete    "Delete Step"        "Delete the last proof command" nil t)
   (next      "Next Step"          "Process the next proof command" t t)
   (use       "Use Buffer"         "Process whole buffer" t t)
   (goto      "Goto Point"         "Process or undo to the cursor position" t t)
