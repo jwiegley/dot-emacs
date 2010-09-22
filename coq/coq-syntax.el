@@ -10,15 +10,6 @@
 (require 'proof-utils)                  ; proof-locate-executable
 (require 'coq-db)
 
-(defsubst proof-regexp-alt-list (args)
-  "Return the regexp which matches any of the regexps ARGS."
-  ;; see regexp-opt (NB: but that is for strings, not regexps)
-  (let ((res ""))
-    (dolist (regexp args)
-      (setq res (concat res (if (string-equal res "") "\\(?:" "\\|\\(?:")
-			regexp "\\)")))
-    res))
-
 (eval-when-compile
   (require 'span)
   (defvar coq-goal-command-regexp nil)

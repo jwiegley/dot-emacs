@@ -42,6 +42,10 @@ Uses a regexp of the form \\_<...\\_>."
 			regexp "\\)")))
     res))
 
+(defsubst proof-regexp-alt-list (args)
+  "Return the regexp which matches any of the regexps ARGS."
+  (apply 'proof-regexp-alt args))
+
 (defsubst proof-re-search-forward-region (startre endre)
   "Search for a region delimited by regexps STARTRE and ENDRE.
 Return the start position of the match for STARTRE, or
