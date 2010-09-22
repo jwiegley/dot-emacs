@@ -877,7 +877,8 @@ Used by `coq-goal-command-p'"
 (defvar coq-id proof-id)
 (defvar coq-id-shy "\\(?:\\w\\(?:\\w\\|\\s_\\)*\\)")
 
-(defvar coq-ids (proof-ids coq-id " "))
+; do not use proof-ids with a space separator! 
+(defvar coq-ids (concat proof-id "\\(" "\\s-+" proof-id "\\)*"))
 
 (defun coq-first-abstr-regexp (paren end)
   (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end))
