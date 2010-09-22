@@ -220,13 +220,12 @@ Notice that the deleted command is put into the Emacs kill ring, so
 you can use the usual `yank' and similar commands to retrieve the
 deleted text."
   (interactive)
-  (proof-undo-last-successful-command-1 'delete))
-  ; (proof-script-new-command-advance))
+  (proof-undo-last-successful-command-1 'delete-region))
 
-(defun proof-undo-last-successful-command-1 (&optional delete)
+(defun proof-undo-last-successful-command-1 (&optional undo-action)
   "Undo last successful command at end of locked region.
-If optional DELETE is non-nil, the text is also deleted from
-the proof script."
+If optional UNDO-ACTION is non-nil, that function is called on
+the text region in the proof script after undoing."
   (interactive "P")
   (proof-with-script-buffer
    (let (lastspan)
@@ -235,7 +234,7 @@ the proof script."
 	 (if (setq lastspan (span-at-before (proof-unprocessed-begin) 'type))
 	     (progn
 	       (goto-char (span-start lastspan))
-	       (proof-retract-until-point delete))
+	       (proof-retract-until-point undo-action))
 	   (error "Nothing to undo!"))))
      (if lastspan (proof-maybe-follow-locked-end
 		   (span-start lastspan))))))
