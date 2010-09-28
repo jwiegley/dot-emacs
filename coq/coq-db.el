@@ -119,7 +119,7 @@ regexp.  See `coq-syntax-db' for DB structure."
 	(setq l tl)))
 ; da: next call is wrong?
 ;    (proof-ids-to-regexp res)))
-    (proof-regexp-alt-list res)))
+    (concat "\\_<\\(?:" (proof-regexp-alt-list res) "\\)\\_>")))
 
 
 ;; Computes the max length of strings in a list

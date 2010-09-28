@@ -836,6 +836,7 @@ Used by `coq-goal-command-p'"
   (append coq-state-changing-tactics coq-state-preserving-tactics))
 
 (defvar coq-tactics-regexp (coq-build-opt-regexp-from-db coq-tactics-db))
+;(defvar coq-tactics-regexp-symb (coq-build-opt-regexp-from-db coq-tactics-db))
 
 (defvar coq-retractable-instruct
   (append coq-state-changing-tactics coq-keywords-state-changing-commands))
@@ -848,6 +849,10 @@ Used by `coq-goal-command-p'"
   (append coq-keywords-goal coq-keywords-save coq-keywords-decl
 	  coq-keywords-defn coq-keywords-commands)
   "All keywords in a Coq script.")
+
+;; coq-build-opt-regexp-from-db already adds "\\_<" "\\_>"
+(defun proof-regexp-alt-list-symb (args)
+  (concat "\\_<" (proof-regexp-alt-list args) "\\_>"))
 
 (defvar coq-keywords-regexp (proof-regexp-alt-list coq-keywords))
 
@@ -975,7 +980,7 @@ Group number 1 matches the name of the library which is required.")
     (cons coq-reserved-regexp 'font-lock-type-face)
     (cons coq-tactics-regexp 'proof-tactics-name-face)
     (cons (proof-regexp-alt-list coq-tacticals) 'proof-tacticals-name-face)
-    (cons (proof-regexp-alt-list (list "Set" "Type" "Prop")) 'font-lock-type-face)
+    (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
     (cons "============================" 'font-lock-keyword-face)
     (cons "Subtree proved!" 'font-lock-keyword-face)
     (cons "subgoal [0-9]+ is:" 'font-lock-keyword-face)
