@@ -77,7 +77,7 @@ Set to t if you want this feature."
 
 ;; Command to initialize the Coq Proof Assistant
 
-(defcustom coq-default-undo-limit 300
+(defcustom coq-default-undo-limit 200
   "Maximum number of Undo's possible when doing a proof."
   :type 'number
   :group 'coq)
@@ -843,7 +843,7 @@ This is specific to `coq-mode'."
   :type 'integer
   :setting "Set Printing Depth %i . ")
 
-(defpacustom undo-depth 200
+(defpacustom undo-depth coq-default-undo-limit
   "Depth of undo history.  Undo behaviour will break beyond this size."
   :type 'integer
   :setting "Set Undo %i . ")
@@ -851,11 +851,6 @@ This is specific to `coq-mode'."
 (defpacustom time-commands nil
   "Whether to display timing information for each command."
   :type 'boolean)
-
-(defpacustom undo-limit 100
-  "Depth of undo history."
-  :type 'integer
-  :setting "Set Undo %i . ")
 
 (defpacustom auto-compile-vos nil
   "Whether to automatically compile vos and track dependencies."
