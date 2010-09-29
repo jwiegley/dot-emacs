@@ -826,14 +826,14 @@ See also `proof-shell-init-cmd'."
    :group 'proof-shell)
 
 (defcustom proof-shell-init-cmd nil
-   "The command for initially configuring the proof process.
+   "The command(s) for initially configuring the proof process.
 This command is sent to the process as soon as synchronization is gained
 \(when an annotated prompt is first recognized).  It can be used to configure
 the proof assistant in some way, or print a welcome message
 \(since output before the first prompt is discarded).
 
 See also `proof-shell-pre-sync-init-cmd'."
-   :type '(choice string (const nil))
+   :type '(choice (list string) string (const nil))
    :group 'proof-shell)
 
 ;; TODO: remove proof-shell-init-cmd in favour of this hook

@@ -1756,8 +1756,13 @@ processing."
 	    (unwind-protect
 		(progn
 		  (run-hooks 'proof-shell-init-hook)
-		  (if proof-shell-init-cmd
-		      (proof-shell-invisible-command proof-shell-init-cmd t))
+		  (when proof-shell-init-cmd
+		    (if (listp proof-shell-init-cmd)
+			(mapcar 'proof-shell-invisible-command-invisible-result
+				proof-shell-init-cmd)
+		      (proof-shell-invisible-command-invisible-result 
+		       proof-shell-init-cmd)))
+		  (proof-shell-wait)
 		  (if proof-assistant-settings
 		      (mapcar (lambda (c)
 				(proof-shell-invisible-command c t))
