@@ -88,7 +88,7 @@ This uses the size of the hash table for IDIOM."
 ;; Notes on regions in the scripting buffer. (da)
 ;;
 ;; The locked region is covered by a collection of non-overlaping
-;; spans (our abstraction of extents/overlays).
+;; spans (spans are our abstraction of extents/overlays).
 ;;
 ;; For an unfinished proof, there is one extent for each command
 ;; or comment outside a command.   For a finished proof, there
