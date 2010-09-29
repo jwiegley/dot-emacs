@@ -266,9 +266,7 @@ NB: may change the selected window."
 		(proof-safe-split-window-vertically)
 		(set-window-dedicated-p (selected-window) nil)
 		(switch-to-buffer buffer)
-		(set-window-dedicated-p (selected-window) t)
-		))
-	    ))
+		(set-window-dedicated-p (selected-window) t)))))
   ;; Return the window, hopefully the one we first thought of.
   (get-buffer-window buffer 0))
 
