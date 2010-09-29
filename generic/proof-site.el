@@ -24,25 +24,25 @@
 
 ;;; Code:
 (defconst proof-assistant-table-default
-    '((isar   "Isabelle" "\\.thy$")
-      (coq    "Coq"	 "\\.v$\\|\\.v8$\\|\\.v7$")
-      (phox   "PhoX"	 "\\.phx$")
-      (lego   "LEGO"	 "\\.l$")
-      (hol-light "HOL Light"	 "\\.l$")
+    '((isar "Isabelle" "thy")
+      (coq "Coq" "v")
+      (phox "PhoX" "phx")
 
-      ;; Obscure:
+      ;; Obscure/conflict with other useful modes:
 
-      ;; (ccc    "CASL Consistency Checker"  "\\.ccc$")
-      ;; (pgshell	"PG-Shell"	"\\.pgsh$")
+      (lego "LEGO" "l")
+      (hol-light "HOL Light" "ml")
+      ;; (ccc    "CASL Consistency Checker" "ccc")
+      ;; (pgshell	"PG-Shell" "pgsh")
 
       ;; Incomplete/obsolete:
 
-      ;; (hol98	"HOL"		"\\.sml$")
-      ;; (acl2	"ACL2"		"\\.acl2$")
-      ;; (twelf	"Twelf"		"\\.elf$")
-      ;; (plastic	"Plastic"	"\\.lf$")    ; obsolete
-      ;; (lclam    "Lambda-CLAM"   "\\.lcm$")        ; obsolete
-      ;; (demoisa    "Isabelle Demo"	"\\.ML$")    ; obsolete
+      ;; (hol98	"HOL" "sml")
+      ;; (acl2	"ACL2" "acl2")
+      ;; (twelf	"Twelf" "elf")
+      ;; (plastic "Plastic" "lf")    ; obsolete
+      ;; (lclam "Lambda-CLAM" "lcm")        ; obsolete
+      ;; (demoisa "Isabelle Demo" "ML")    ; obsolete
       )
     "Default value for `proof-assistant-table', which see.")
 
@@ -161,13 +161,15 @@ under `proof-home-directory'.
 
 Each entry is a list of the form
 
-    (SYMBOL NAME AUTOMODE-REGEXP)
+    (SYMBOL NAME FILE-EXTENSION [AUTOMODE-REGEXP])
 
 The NAME is a string, naming the proof assistant.
 The SYMBOL is used to form the name of the mode for the
 assistant, `SYMBOL-mode', run when files with AUTOMODE-REGEXP
-are visited.  SYMBOL is also used to form the name of the
-directory and elisp file for the mode, which will be
+\(or with extension FILE-EXTENSION) are visited.  
+
+SYMBOL is also used to form the name of the directory and elisp
+file for the mode, which will be
 
     PROOF-HOME-DIRECTORY/SYMBOL/SYMBOL.el
 
@@ -201,7 +203,7 @@ edit the file `proof-site.el' itself.
 Note: to change proof assistant, you must start a new Emacs session.")
   :type (cons 'set
 	      (mapcar (lambda (astnt)
-			(list 'const ':tag (car (cdr astnt)) (car astnt)))
+			(list 'const ':tag (nth 1 astnt) (nth 0 astnt)))
 		      proof-assistant-table))
   :group 'proof-general)
 
@@ -258,24 +260,30 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
        (run-hooks 'proof-ready-for-assistant-hook))))))
 
 
+(defvar proof-general-configured-provers 
+  (or (mapcar 'intern (split-string (or (getenv "PROOFGENERAL_ASSISTANTS") "")))
+      proof-assistants
+      (mapcar (lambda (astnt) (car astnt)) proof-assistant-table))
+  "A list of the configured proof assistants.
+Set on startup to contents of environment variable PROOFGENERAL_ASSISTANTS,
+the lisp variable `proof-assistants', or the contents of `proof-assistant-table'.")
+  
 ;; Add auto-loads and load-path elements to support the
 ;; proof assistants selected, and define stub major mode functions
-(let ((assistants
-       (or (mapcar 'intern (split-string (or (getenv "PROOFGENERAL_ASSISTANTS") "")))
-	   proof-assistants
-	   (mapcar (lambda (astnt) (car astnt)) proof-assistant-table))))
+(let ((assistants proof-general-configured-provers))
   (while assistants
     (let*
 	((assistant (car assistants))	; compiler bogus warning here
-	 (nameregexp
-	  (or
-	   (cdr-safe
-	    (assoc assistant
-		   proof-assistant-table))
-	   (error "Symbol %s is not in proof-assistant-table (in proof-site)"
-		  (symbol-name assistant))))
-	 (assistant-name (car nameregexp))
-	 (regexp	 (car (cdr nameregexp)))
+	 (tableentry 
+	  (or (assoc assistant
+		     proof-assistant-table)
+	      (error "Symbol %s is not in proof-assistant-table (in proof-site)"
+		     (symbol-name assistant))))
+	 (assistant-name (nth 1 tableentry))
+	 (regexp	 (or (nth 3 tableentry)
+			     (concat (regexp-quote ".")
+				     (regexp-quote (nth 2 tableentry))
+				     "$")))
 	 (sname		 (symbol-name assistant))
 	 ;; NB: File name for each prover is the same as its symbol name!
 	 (elisp-file   sname)
@@ -317,6 +325,35 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
 	(fset proofgen-mode mode-stub)
 
 	(setq assistants (cdr assistants)))))
+
+;;
+;; Easy entry points
+;;
+
+(defun proof-chose-prover (prompt)
+  (completing-read prompt 
+		   (mapcar 'symbol-name 
+			   proof-general-configured-provers)))
+
+(defun proofgeneral (prover)
+  "Start proof general for prover PROVER."
+  (interactive
+   (list (proof-chose-prover "Start Proof General for theorem prover: ")))
+  (proof-ready-for-assistant (intern prover) 
+			     (nth 1 (assoc (intern prover) 
+					   proof-assistant-table-default)))
+  (require (intern prover)))
+
+(defun proof-visit-example-file (prover)
+  "Visit a standardly named example file for prover PROVER."
+  (interactive
+   (list (proof-chose-prover "Visit example file for prover: ")))
+  (find-file (concat proof-home-directory
+		     prover "/example."
+		     (nth 2 (assoc (intern prover) proof-assistant-table-default)))))
+
+		     
+
 
 (provide 'proof-site)
 
