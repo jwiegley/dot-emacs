@@ -1758,7 +1758,7 @@ processing."
 		  (run-hooks 'proof-shell-init-hook)
 		  (when proof-shell-init-cmd
 		    (if (listp proof-shell-init-cmd)
-			(mapcar 'proof-shell-invisible-command-invisible-result
+			(mapc 'proof-shell-invisible-command-invisible-result
 				proof-shell-init-cmd)
 		      (proof-shell-invisible-command-invisible-result 
 		       proof-shell-init-cmd)))
