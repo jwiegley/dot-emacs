@@ -340,7 +340,7 @@ The prover command is processed via pg-pbrpm-run-command."
 	   (delete-frame)))
      ;; da: why not just this?
      (pop-to-buffer proof-script-buffer)
-     (let ((proof-one-command-per-line t))
+     (let ((proof-next-command-on-new-line t))
        (proof-insert-pbp-command command))))
      ;; (let (span)
      ;;   (pop-to-buffer proof-script-buffer)

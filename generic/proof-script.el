@@ -1852,14 +1852,19 @@ The optional QUEUEFLAGS are added to each queue item."
 ;; Moving point in proof script buffer
 ;;
 
+(defun proof-next-command-new-line ()
+  "Return non-nil if next command should start a new line."
+  (or proof-next-command-on-new-line ; pg-vars
+      (with-no-warnings (proof-ass one-command-per-line))))
+
 (defun proof-script-next-command-advance ()
   "Move point to the beginning of the next command if it's nearby.
 Assumes that point is at the end of a command."
   (interactive)
-  (skip-chars-forward " \t\n"))
-;  (if (and proof-one-command-per-line (eolp))
-;      (forward-line)))
-
+  (skip-chars-forward " \t")
+  (if (and (eolp)
+	   (proof-next-command-new-line))
+      (forward-line)))
 
 
 
@@ -1959,7 +1964,7 @@ No effect if prover is busy."
   (proof-activate-scripting)
   (let (span)
     (proof-goto-end-of-locked)
-    (if proof-one-command-per-line (insert "\n"))
+    (if (proof-next-command-new-line) (insert "\n"))
     (insert cmd)
     (setq span (span-make (proof-unprocessed-begin) (point)))
     (span-set-property span 'type 'pbp)
