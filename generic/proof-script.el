@@ -722,7 +722,7 @@ Argument FACE means add 'face property FACE to the span."
 		       (goto-char (span-end span))
 		       (skip-chars-backward " \n\t")
 		       (point)))
-	 (newspan     (span-make newstart newend)))
+	 (newspan     (span-make-modifying-removing-span newstart newend)))
     
     (span-set-property span 'pg-helpspan newspan) ; link from parent
 
@@ -745,8 +745,6 @@ Argument FACE means add 'face property FACE to the span."
     ;; " for menu)")))
 
     (span-set-property newspan 'keymap pg-span-context-menu-keymap)
-    (span-set-property newspan 'modification-hooks
-		       (list 'pg-delete-self-modification-hook))
     (if (or (facep mouseface)
 	    (setq mouseface
 		  (unless mouseface 'proof-mouse-highlight-face)))
@@ -754,11 +752,6 @@ Argument FACE means add 'face property FACE to the span."
     (if face
 	(span-set-property newspan 'face face))
     (span-set-property newspan 'priority 50)))
-
-(defun pg-delete-self-modification-hook (span &rest args)
-  "Hook for overlay modification-hooks, which deletes SPAN."
-  (if (span-live-p span)
-      (span-delete span)))
 
 
 
