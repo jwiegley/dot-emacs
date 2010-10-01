@@ -219,12 +219,33 @@ Return nil if no such overlay belong to the list."
 ;; Handy overlay utils
 ;;
 
-(defun span-add-self-removing-span (beg end &rest props)
+(defun span-make-self-removing-span (beg end &rest props)
+  "Add a self-removing span from BEG to END with properties PROPS.
+The span will remove itself after a timeout of 2 seconds."
   (let ((ol (make-overlay beg end)))
     (while props
       (overlay-put ol (car props) (cadr props))
       (setq props (cddr props)))
-    (add-timeout 2 'delete-overlay ol)))
+    (add-timeout 2 'delete-overlay ol)
+    ol))
+
+(defun span-delete-self-modification-hook (span &rest args)
+  "Hook for overlay modification-hooks, which deletes SPAN."
+  (if (span-live-p span)
+      (span-delete span)))
+
+(defun span-make-modifying-removing-span (beg end &rest props)
+  "Add a self-removing span from BEG to END with properties PROPS.
+The span will remove itself after any edit within its range.
+Return the span."
+  (let ((ol (make-overlay beg end)))
+    (while props
+      (overlay-put ol (car props) (cadr props))
+      (setq props (cddr props)))
+    (span-set-property ol 'modification-hooks
+		       (list 'span-delete-self-modification-hook))
+    ol))
+
 
 
 (provide 'span)
