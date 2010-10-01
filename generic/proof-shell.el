@@ -44,6 +44,7 @@ which is the queue of things to do.  The display flags are set
 for non-scripting commands or for when scripting should not
 bother the user.  They may include
 
+  'invisible		 non-script command (`proof-shell-invisible-command')
   'no-response-display   do not display messages in *response* buffer
   'no-error-display      do not display errors/take error action
   'no-goals-display      do not goals in *goals* buffer
@@ -600,8 +601,7 @@ This is a subroutine of `proof-shell-handle-error-or-interrupt'.
 Must be called with proof shell buffer current.
 
 This function invokes `proof-shell-handle-error-or-interrupt-hook'
-unless the FLAGS for the command are non-nil (indicating errors
-are ignored somehow)."
+unless the FLAGS for the command are non-nil (see `proof-action-list')."
   (unless proof-shell-quiet-errors
     (beep))
   (let* ((fatalitem  (car-safe proof-action-list))
@@ -1594,7 +1594,8 @@ INVISIBLECALLBACK will be invoked after the command has finished,
 if it is set.  It should probably run the hook variables
 `proof-state-change-hook'.
 
-FLAGS are put onto the If NOERROR is set, surpress usual error action."
+FLAGS are additional flags to put onto the `proof-action-list'.
+The flag 'invisible is always added to FLAGS."
   (unless (stringp cmd)
     (setq cmd (eval cmd)))
   (if cmd
@@ -1617,7 +1618,7 @@ FLAGS are put onto the If NOERROR is set, surpress usual error action."
 			     (list (proof-shell-action-list-item
 				    cmd
 				    callback
-				    flags))))
+				    (cons 'invisible flags)))))
 	(if wait (proof-shell-wait)))))
 
 ;;;###autoload
