@@ -1313,8 +1313,8 @@ buffer."
           
           ;; utf8 adaptation is made in coq-get-last-error-location above
           (goto-char (+ (point) pos))
-          (span-add-self-removing-span (point) (+ (point) lgth)
-                                       'face 'proof-warning-face))))))
+          (span-make-self-removing-span (point) (+ (point) lgth)
+                                        'face 'proof-warning-face))))))
 
 (defun coq-highlight-error-hook ()
   (coq-highlight-error t t))
