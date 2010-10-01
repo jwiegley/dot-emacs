@@ -6,19 +6,15 @@ Later contributions by Patrick Loiseleur, Pierre Courtieu,
 
 Status:		supported
 Maintainer:	Pierre Courtieu
-Coq version:	8.1
+Coq version:	8.2
 Coq homepage:	http://coq.inria.fr/
 
 ===========================================================================
 
 Coq Proof General has support for Unicode Tokens, using simple character
-sequences rather than a special language of tokens (which works well
-with V8's new syntax!).  See notes below.
+sequences rather than a special language of tokens.  See notes below.
 
 There is a tags program, coqtags.
-
-There is a menu option for running Coq V8 in compatibility mode
-(i.e. with the -translate flag), see Coq -> Settings.
 
 ===========================================================================
 

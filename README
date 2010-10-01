@@ -6,9 +6,9 @@ environment for using interactive proof assistants.
 
 This is version 4.0 of Proof General.  See About for exact version.
 
-It is built for Emacs 23.  The code should also work with Emacs 22.3,
+It is built for Emacs 23.  The code *may* also work with Emacs 22.3,
 but you will need to regenerated the byte-compiled files with "make
-clean; make compile".
+clean; make compile".  Backward compatibility cannot be guaranteed.
 
 See
     INSTALL	     for installation details.
@@ -25,15 +25,16 @@ Links:
     Wiki:		  http://proofgeneral.inf.ed.ac.uk/wiki
     Lists:		  http://proofgeneral.inf.ed.ac.uk/mailinglist
 
-Supported proof assistants:  Coq, Isabelle, LEGO, PhoX, Plastic
-Experimental (less useful):  CCC,ACL2,HOL98,Lambda-Clam,Shell,Twelf,Demoisa
+Supported proof assistants:  Coq, Isabelle, LEGO, PhoX
+Experimental (less useful):  CCC,ACL2,HOL98,Hol-Light,Lambda-Clam,Shell,Twelf
+        Obsolete instances:  Demoisa,Lambda-Clam,Plastic
 
 A few example proofs are included in each prover subdirectory.  The
 "root2" proofs of the irrationality of the square root of 2 were
 proofs written for Freek Wiedijk's challenge in his comparison of
 different theorem provers, see http://www.cs.kun.nl/~freek/comparison/.  
-Those proof scripts are copyright by their named authors.  (NB: most
-of these may have rusted)
+Those proof scripts are copyright by their named authors.  
+(NB: most of these have rusted)
 
 Check BUGS files for some static problems and issues.  Please report
 new bugs on the Trac site at http://proofgeneral.inf.ed.ac.uk/trac.
@@ -42,4 +43,4 @@ For the latest news and downloads, visit Proof General on the web
 at: http://proofgeneral.inf.ed.ac.uk
 
 David Aspinall <da+pg-feedback@inf.ed.ac.uk>
-September 2010.
+October 2010.
