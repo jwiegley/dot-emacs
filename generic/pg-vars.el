@@ -228,6 +228,12 @@ Set in `proof-shell-process-urgent-message'.")
 Used in `proof-autosend-loop' and inspected in other places to inhibit
 user interaction.")
 
+(defvar proof-next-command-on-new-line nil
+  "Indicate that `proof-script-new-command-advance' should make a newline.
+Internal variable dynamically bound.")
+
+
+
 
 ;;
 ;; Not variables at all: global constants (were in proof-config)
