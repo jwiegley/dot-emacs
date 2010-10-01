@@ -134,6 +134,7 @@
     proof-shell-abort-goal-regexp: removed (ordinary response)
     proof-shell-error-or-interrupt-seen: removed, use p-s-last-output-kind
     proof-script-next-entity-regexps,next-entity-fn: removed (func-menu dead)
+    proof-script-command-separator: removed (always a space)
 
 *** Simplified version of comint now used for proof shell (internal)
     To improve efficiency, a cut-down version of comint is now used.
