@@ -268,7 +268,8 @@ Internal variable dynamically bound.")
     ([(control c) (control w)]  . pg-response-clear-displays)
     ([(control c) (control ?.)] . proof-goto-end-of-locked)
     ([(control c) (control f)]  . proof-find-theorems)
-    ([(control c) (control o)]  . proof-display-some-buffers))
+    ([(control c) (control o)]  . proof-display-some-buffers)
+    ([C-M-mouse-1]		. pg-identifier-under-mouse-query)) ; holes overrides this
 "List of key bindings made for all proof general buffers.
 Elements of the list are tuples `(k . f)'
 where `k' is a key binding (vector) and `f' the designated function."
