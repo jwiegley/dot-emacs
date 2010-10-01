@@ -852,7 +852,7 @@ Used by `coq-goal-command-p'"
 
 ;; coq-build-opt-regexp-from-db already adds "\\_<" "\\_>"
 (defun proof-regexp-alt-list-symb (args)
-  (concat "\\_<" (proof-regexp-alt-list args) "\\_>"))
+  (concat "\\_<\\(?:" (proof-regexp-alt-list args) "\\)\\_>"))
 
 (defvar coq-keywords-regexp (proof-regexp-alt-list coq-keywords))
 
