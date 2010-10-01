@@ -30,7 +30,8 @@
 
 ;;; Code:
 
-(require 'proof-utils)		   ; defpgcustom
+(require 'pg-pamacs)		   ; defpgcustom
+(require 'pg-vars)		   ; for proof-next-command-on-new-line
 (require 'proof-config)		   ; for proof-toolbar-entries-default
 
 (defpgcustom script-indent t
@@ -157,6 +158,14 @@ Enabled by default for Coq.
 Currently this setting is UNIMPLEMENTED, changes have no effect."
   :type 'boolean
   :group 'prover-config)
+
+(defpgcustom one-command-per-line
+  (cond
+   ((eq proof-assistant-symbol 'isar)  nil)
+   (t t))
+  "*If non-nil, format for newlines after each command in a script."
+  :type 'boolean
+  :group 'proof-user-options)
 
 
 ;; Contributed modes

@@ -215,13 +215,6 @@ files which are out of date with respect to the loaded buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-one-command-per-line
-  t
-  "*If non-nil, format for newlines after each proof command in a script.
-This option is not fully-functional at the moment." ;; TODO
-  :type 'boolean
-  :group 'proof-user-options)
-
 (defcustom proof-prog-name-ask
   nil
   "*If non-nil, query user which program to run for the inferior process."
@@ -326,14 +319,6 @@ is no locked region."
 	  (const :tag "No automatic action; query user" nil)
 	  (const :tag "Automatically retract" retract)
 	  (const :tag "Automatically process" process))
-  :group 'proof-user-options)
-
-(defcustom proof-script-command-separator " "
-  "*String separating commands in proof scripts.
-For example, if a proof assistant prefers one command per line, then
-this string should be set to a newline.  Otherwise it should be
-set to a space."
-  :type 'string
   :group 'proof-user-options)
 
 (defcustom proof-rsh-command nil
