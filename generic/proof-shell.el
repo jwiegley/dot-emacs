@@ -597,7 +597,11 @@ didn't cause prover output."
   "Take action on errors or interrupts.
 ERR-OR-INT is a flag, 'error or 'interrupt.
 This is a subroutine of `proof-shell-handle-error-or-interrupt'.
-Must be called with proof shell buffer current."
+Must be called with proof shell buffer current.
+
+This function invokes `proof-shell-handle-error-or-interrupt-hook'
+unless the FLAGS for the command are non-nil (indicating errors
+are ignored somehow)."
   (unless proof-shell-quiet-errors
     (beep))
   (let* ((fatalitem  (car-safe proof-action-list))
@@ -613,8 +617,9 @@ Must be called with proof shell buffer current."
     (unless flags
       ;; Give a hint about C-c C-`.  (NB: approximate test)
       (if (pg-response-has-error-location)
-	  (pg-next-error-hint)))
-    (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
+	  (pg-next-error-hint))
+      ;; Run hooks for additional effects, e.g. highlight or moving pointer
+      (run-hooks 'proof-shell-handle-error-or-interrupt-hook))))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."

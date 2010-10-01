@@ -446,7 +446,6 @@ Does nothing if there is no active scripting buffer, or if
 `proof-follow-mode' is set to 'ignore."
   (interactive)
   (if (and proof-script-buffer
-	   (not proof-autosend-running)
 	   (not (eq proof-follow-mode 'ignore)))
       (unless (proof-end-of-locked-visible-p)
 	(proof-goto-end-of-locked t))))
@@ -455,14 +454,13 @@ Does nothing if there is no active scripting buffer, or if
   "As `proof-goto-end-of-locked-if-pos-not-visible-in-window', but not for interrupts.
 Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
   (interactive)
-  (unless proof-autosend-running
-    (unless (eq proof-follow-mode 'ignore)
-      (if (eq proof-shell-last-output-kind 'error)
-	  (proof-goto-end-of-locked-if-pos-not-visible-in-window)))
-    (proof-with-current-buffer-if-exists
-      proof-script-buffer
-      (unless (proof-end-of-locked-visible-p)
-	(pg-jump-to-end-hint)))))
+  (unless (eq proof-follow-mode 'ignore)
+    (if (eq proof-shell-last-output-kind 'error)
+	(proof-goto-end-of-locked-if-pos-not-visible-in-window)))
+  (proof-with-current-buffer-if-exists
+   proof-script-buffer
+   (unless (proof-end-of-locked-visible-p)
+     (pg-jump-to-end-hint))))
 
 (defun proof-end-of-locked-visible-p ()
   "Return non-nil if end of locked region is visible."
