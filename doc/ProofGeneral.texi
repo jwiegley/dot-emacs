@@ -1500,6 +1500,8 @@ key-bindings and functions.
 @code{proof-ctxt}
 @item C-c C-h
 @code{proof-help}
+@item C-c C-i
+@code{proof-query-identifier}
 @item C-c C-f
 @code{proof-find-theorems}
 @item C-c C-w
@@ -1545,6 +1547,11 @@ Typically, a list of syntax of commands available.
 Issues a command to the assistant based on @code{proof-info-command}.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: proof-query-identifier
+@deffn Command proof-query-identifier string
+Query the prover about the identifier @var{string}.@*
+If called interactively, @var{string} defaults to the current word near point.
+@end deffn
 @c TEXI DOCSTRING MAGIC: proof-find-theorems
 @deffn Command proof-find-theorems arg
 Search for items containing given constants.@*
@@ -1657,10 +1664,11 @@ object files, used by Lego and Coq).
 @section Toolbar commands
 
 The toolbar provides a selection of functions for asserting and
-retracting portions of the script, issuing non-scripting commands, and
-inserting "goal" and "save" type commands.  The latter functions are not
-available on keys, but are available from the from the menu, or via
-@kbd{M-x}, as well as the toolbar.
+retracting portions of the script, issuing non-scripting commands to
+inspect the prover's state, and inserting "goal" and "save" type
+commands.  The latter functions are not available on keys, but are
+available from the from the menu, or via @kbd{M-x}, as well as the
+toolbar.
 
 @c TEXI DOCSTRING MAGIC: proof-issue-goal
 @deffn Command proof-issue-goal arg

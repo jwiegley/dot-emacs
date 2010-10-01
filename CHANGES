@@ -45,7 +45,6 @@
     making a keyboard/mouse action.
     See the manual for more details.
 
-
 *** Fast buffer processing option
       Quick Options -> Processing -> Fast Process Buffer
     This affects 'proof-process-buffer' (C-c C-b, toolbar down).
@@ -62,6 +61,9 @@
 
 *** Proof General -> Options menu extended and rearranged
     - new menu for useful minor modes indicates modes that PG supports
+
+*** New query identifier info button and command (C-c C-i, C-M-mouse1)
+    These are convenience commands for looking up identifiers in the running prover.
 
 *** New user configuration options (also on Proof General -> Options)
     proof-colour-locked       (use background colour for checked text)

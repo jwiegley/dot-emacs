@@ -2589,7 +2589,8 @@ In case @var{cmd} is (or yields) nil, do nothing.
 if it is set.  It should probably run the hook variables
 @samp{@code{proof-state-change-hook}}.
 
-@var{flags} are put onto the If @var{noerror} is set, surpress usual error action.
+@var{flags} are additional flags to put onto the @samp{@code{proof-action-list}}.
+The flag @code{'invisible} is always added to @var{flags}.
 @end defun
 
 There are several handy macros to help you define functions
@@ -3282,6 +3283,7 @@ which is the queue of things to do.  The display flags are set
 for non-scripting commands or for when scripting should not
 bother the user.  They may include
 @lisp
+  @code{'invisible}             non-script command (@samp{@code{proof-shell-invisible-command}})
   @code{'no-response-display}   do not display messages in @strong{response} buffer
   @code{'no-error-display}      do not display errors/take error action
   @code{'no-goals-display}      do not goals in @strong{goals} buffer
