@@ -25,8 +25,6 @@
 ;; (proof-ass name)  or (proof-assistant-name)
 ;;
 ;;
-;; Developer's note: This code was previously in proof-utils.el.
-;;
 
 (require 'proof-site)			; proof-assitant-symbol
 (require 'proof-compat)			; pg-custom-undeclare-variable

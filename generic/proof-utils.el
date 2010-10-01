@@ -659,10 +659,10 @@ EXTRAPATH is a list of extra path components"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Finding executables
+;; Word utility
 ;;
 
-;; This is taken from simple.el in GNU Emacs 23.
+;; This is adapted from simple.el in GNU Emacs 23.
 (defun pg-current-word-pos (&optional strict really-word)
   "Return the start and end positions of symbol that point is on (or nearby).
 The return value includes no text properties.
