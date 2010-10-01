@@ -903,7 +903,9 @@ The function `substitute-command-keys' is called on the argument."
 
 ;;;###autoload
 (defun pg-identifier-near-point-query ()
-  "Query the prover about the identifier near point."
+  "Query the prover about the identifier near point.
+If the result is successful, we add a span to the buffer which has
+a popup with the information in it."
   (interactive)
   (let* ((stend       (if (region-active-p)
 			  (cons (region-beginning) (region-end))
