@@ -43,43 +43,24 @@
   "Move point to a nice position for a new command.
 Assumes that point is at the end of a command."
   (interactive)
-; FIXME: pending improvement.2, needs a fix here.
-;  (if (eq (proof-unprocessed-begin) (point))
-;      ;; A hack to fix problem that the locked span
-;      ;; is [ ) so sometimes inserting at the end
-;      ;; tries to extend it, giving "read only" error.
-;      (if (> (point-max) (proof-unprocessed-begin))
-;	  (progn
-;	    (goto-char (1+ (proof-unprocessed-begin)))
-;	    (backward-char))))
-  (if proof-one-command-per-line
-      ;; One command per line: move to next new line, creating one if
-      ;; at end of buffer or at the start of a blank line.  (This has
-      ;; the pleasing effect that blank regions of the buffer are
-      ;; automatically extended when inserting new commands).
-; unfortunately if we're not at the end of a line to start,
-; it skips past stuff to the end of the line!  don't want
-; that.
-;      (cond
-;       ((eq (forward-line) 1)
-;	(newline))
-;       ((eolp)
-;        (newline)
-;	(forward-line -1)))
-      (newline)
-    ;; Multiple commands per line: skip spaces at point, and insert
-    ;; the 1/0 number of spaces that were skipped in front of point
-    ;; (at least one).  This has the pleasing effect that the spacing
-    ;; policy of the current line is copied: e.g.  <command>;
-    ;; <command>; Tab columns don't work properly, however.  Instead
-    ;; of proof-one-command-per-line we could introduce a
-    ;; "proof-command-separator" to improve this.
-    (let ((newspace (max (skip-chars-forward " \t") 1))
-	  (p (point)))
-      (if proof-script-command-separator
-	  (insert proof-script-command-separator)
-	(insert-char ?\040 newspace)
-	(goto-char p)))))
+  (let (sps)
+    (if (and (proof-next-command-new-line) 
+	     (setq sps (skip-chars-forward " \t"))
+	     ;; don't break existing lines
+	     (eolp))
+	(progn (newline)
+	       (unless proof-next-command-on-new-line
+		 (indent-relative))))
+    (unless (proof-next-command-new-line)
+      ;; Multiple commands per line: skip spaces at point, and insert
+      ;; the 1/0 number of spaces that were skipped in front of point
+      ;; (at least one).  This has the pleasing effect that the spacing
+      ;; policy of the current line is copied: e.g.  <command>;
+      ;; <command>; Tab columns don't work properly, however.
+      (let ((newspace (max (or sps 1) (skip-chars-forward " \t")))
+	    (p (point)))
+      (insert-char ?\040 newspace)
+      (goto-char p)))))
 
 
 (defun proof-maybe-follow-locked-end (&optional pos)
@@ -489,15 +470,15 @@ This is intended as a value for `proof-activate-scripting-hook'"
 (proof-define-assistant-command-witharg proof-issue-goal
  "Write a goal command in the script, prompting for the goal."
  proof-goal-command
- "Goal"
- (let ((proof-one-command-per-line t))   ; Goals always start at a new line
+ "Goal" ; Goals always start at a new line
+ (let ((proof-next-command-on-new-line t)) 
    (proof-issue-new-command arg)))
 
 (proof-define-assistant-command-witharg proof-issue-save
  "Write a save/qed command in the script, prompting for the theorem name."
  proof-save-command
- "Save as"
- (let ((proof-one-command-per-line t))   ; Saves always start at a new line
+ "Save as" ; Saves always start at a new line
+ (let ((proof-next-command-on-new-line t)) 
    (proof-issue-new-command arg)))
 
 
@@ -848,39 +829,6 @@ If NUM is negative, move upwards.  Return new span."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Generic adjustmenth of prover's pretty-printing width
-;; (adapted from Lego's mode, was also used in Isar and Plastic)
-;;
-;; FIXME: complete this.
-
-;(defvar pg-prover-current-line-width nil
-;  "Cache value for pg-adjust-line-width to avoid repeatedly changing width.")
-
-;(defun pg-adjust-line-width (buffer)
-;  "Adjust the prover's line width to match that of BUFFER."
-;  (proof-if-setting-configured proof-shell-adjust-line-width-cmd)
-;  proof-shell-(let* ((win    (get-buffer-window buffer))
-;	 (curwid (if win (window-width win))))
-;    (if (and curwid
-;	     (not (equal curwid pg-prover-current-line-width)))
-;	(progn
-;	  ;; Update the prover's output width
-;	  (proof-shell-invisible-command
-
-
-;with-current-buffer buffer
-;    (let ((current-width
-;	   (window-width (get-buffer-window proof-goals-buffer)))
-;      (if (equal current-width lego-shell-current-line-width) ()
-;	     ; else
-;	     (setq lego-shell-current-line-width current-width)
-;	     (set-buffer proof-shell-buffer)
-;	     (insert (format lego-pretty-set-width (- current-width 1)))
-;	     )))))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Message buffer hints
@@ -943,11 +891,6 @@ The function `substitute-command-keys' is called on the argument."
 ;; Symbol near point/identifier under mouse query
 ;;
 
-;; Note: making these bindings globally is perhaps a bit obnoxious, but
-;; this modifier combination is currently unused.
-(global-set-key [C-M-mouse-1] 'pg-identifier-under-mouse-query)
-(global-set-key [f5] 'pg-identifier-near-point-query)
-
 (defun pg-identifier-under-mouse-query (event)
   "Query the prover about the identifier near mouse click EVENT."
   (interactive "e")
@@ -958,6 +901,7 @@ The function `substitute-command-keys' is called on the argument."
 	   (mouse-set-point event)
 	   (pg-identifier-near-point-query))))))
 
+;;;###autoload
 (defun pg-identifier-near-point-query ()
   "Query the prover about the identifier near point."
   (interactive)
@@ -979,25 +923,24 @@ The function `substitute-command-keys' is called on the argument."
 	 ;; the callback
 	 (lexical-let ((s start) (e end))
 	   (lambda (x)
-	     (let ((idspan (span-make s e)))
+	     (save-excursion
+	       (let ((idspan (span-make s e)))
 	       (span-set-property idspan 'priority 90) ; highest
-	       (span-set-property idspan 'modification-hooks
-				  (list 'pg-delete-self-modification-hook))
 	       (span-set-property idspan 'help-echo
-				  (pg-last-output-displayform)))))))))
+				  (pg-last-output-displayform))))))))))
 
-(defvar proof-query-identifier-collection nil)
-(defvar proof-query-identifier-history nil)
+(defvar proof-query-identifier-history nil
+  "History for `proof-query-identifier'.")
 
 (defun proof-query-identifier (string)
-  "Query the prover about the identifier STRING."
+  "Query the prover about the identifier STRING.
+If called interactively, STRING defaults to the current word near point."
   (interactive
    (list
     (completing-read "Query identifier: "
-		     proof-query-identifier-collection
-		     nil nil
+		     nil nil nil
 		     (current-word)
-		     proof-query-identifier-history)))
+		     'proof-query-identifier-history)))
   (if string (pg-identifier-query string)))
 
 (defun pg-identifier-query (identifier &optional ctxt callback)
@@ -1428,12 +1371,11 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 		(eq (buffer-chars-modified-tick) proof-autosend-modified-tick)
 		(and proof-autosend-all
 		     (eq proof-shell-last-queuemode 'retracting)))
-      (setq proof-autosend-running t)
-      (setq proof-autosend-modified-tick (buffer-chars-modified-tick))
-      (if proof-autosend-all
-	  (proof-autosend-loop-all)
-	(proof-autosend-loop-next))
-      (setq proof-autosend-running nil))))
+      (let ((proof-autosend-running t))
+	(setq proof-autosend-modified-tick (buffer-chars-modified-tick))
+	(if proof-autosend-all
+	    (proof-autosend-loop-all)
+	  (proof-autosend-loop-next))))))
 
 (defun proof-autosend-loop-all ()
   "Send commands from the script until an error, complete, or input appears."
@@ -1466,7 +1408,7 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	(save-excursion
 	  ;(goto-char qol)
 	  ;(skip-chars-forward " \t\n")
-	  (message "Trying next command in prover...")
+	  (message "Trying next commands in prover...")
 	  (proof-assert-until-point
 	   (if proof-multiple-frames-enable 
 	       'no-minibuffer-messages ; nb: not API
@@ -1477,20 +1419,20 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 	  (proof-shell-wait t)) ; interruptible
 	(cond
 	 ((eq proof-shell-last-output-kind 'error)
-	  (message "Trying next command in prover...error"))
+	  (message "Trying next commands in prover...error"))
 	 ((and (input-pending-p) proof-shell-busy)
 	  (proof-interrupt-process)
-	  (message "Trying next command in prover...interrupted")
+	  (message "Trying next commands in prover...interrupted")
 	  (proof-shell-wait))
 	 (t
-	  (message "Sending next command to prover...done")))
-	;; success: now undo in prover, but colour undone spans if OK
+	  (message "Trying next commands in prover...OK")))
+	;; success: now undo in prover, highlight undone spans if OK
 	(unless (eq qol (proof-queue-or-locked-end)) ; no progress
 	  (save-excursion
 	    (goto-char qol)
 	    (proof-retract-until-point 
 	     (lambda (beg end)
-	       (span-add-self-removing-span 
+	       (span-make-self-removing-span 
 		(save-excursion
 		  (goto-char beg)
 		  (skip-chars-forward " \t\n")
