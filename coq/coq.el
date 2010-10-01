@@ -1199,9 +1199,9 @@ be asked to the user."
 (define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
 (define-key coq-keymap [(control ?T)] 'coq-insert-tactical)
 (define-key coq-keymap [(control ?r)] 'proof-store-response-win)
-(define-key coq-keymap [(control ?g)] 'proof-store-goals-win)
+(define-key coq-keymap [(control ?G)] 'proof-store-goals-win)
 
-(define-key coq-keymap [(control space)] 'coq-insert-term)
+(define-key coq-keymap [(control ?\s)] 'coq-insert-term)
 (define-key coq-keymap [(control return)] 'coq-insert-command)
 
 
@@ -1221,7 +1221,7 @@ be asked to the user."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
-(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-searchabout)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
 ; window auto-resize makes this bug sometimes. Too bad!.
 ;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
 
