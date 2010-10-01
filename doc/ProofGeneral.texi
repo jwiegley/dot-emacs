@@ -70,7 +70,7 @@
 
 @set version 4.0
 @set emacsversion 23.2
-@set last-update September 2010
+@set last-update October 2010
 @set rcsid $Id$
 
 @dircategory Theorem proving
@@ -352,6 +352,7 @@ James Brotherston,
 Martin Buechi,
 Pierre Casteran,
 Lucas Dixon,
+Erik Martin-Dorel,
 Matt Fairtlough, 
 Ivan Filippenko, 
 Georges Gonthier,
@@ -3291,10 +3292,9 @@ If non-nil, enable indentation code for proof scripts.
 The default value is @code{t}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-one-command-per-line
-@defopt proof-one-command-per-line 
-If non-nil, format for newlines after each proof command in a script.@*
-This option is not fully-functional at the moment.
+@c TEXI DOCSTRING MAGIC: PA-one-command-per-line
+@defopt PA-one-command-per-line 
+If non-nil, format for newlines after each command in a script.
 
 The default value is @code{t}.
 @end defopt
@@ -3396,16 +3396,6 @@ locked (coloured blue); a buffer is completely unprocessed when there
 is no locked region.
 
 The default value is @code{nil}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: proof-script-command-separator
-@defopt proof-script-command-separator 
-String separating commands in proof scripts.@*
-For example, if a proof assistant prefers one command per line, then
-this string should be set to a newline.  Otherwise it should be
-set to a space.
-
-The default value is @code{" "}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-rsh-command
@@ -3887,8 +3877,7 @@ Lego home page URL.
 @chapter Coq Proof General
 
 Coq Proof General is an instantiation of Proof General for the Coq proof
-assistant.  It supports most of the generic features of Proof General,
-but does not have integrated file management or proof-by-pointing yet.
+assistant.  It supports most of the generic features of Proof General.
 
 @menu
 * Coq-specific commands::
@@ -3921,26 +3910,28 @@ Inserts ``End <section-name>.'' (this should work well with nested sections).
 Prompts for a SearchIsos argument.
 @end table
 
-@node Coq-specific variables
-@section Coq-specific variables
-@kindex coq-version-is-V8-0
-@kindex coq-version-is-V8-1
+@c da: I think this section is obsolete now, Pierre?
 
-The variable
-@lisp
-  coq-version-is-Vx
-@end lisp
-(where x is 8-0 or 8-1) is used to force version of Coq, if it is t,
-then Coq is considered in version x. ProofGeneral sets it automatically
-by doing the following shell command: 
-@lisp
-  (concat coq-prog-name "-v")
-@end lisp
+@c @node Coq-specific variables
+@c @section Coq-specific variables
+@c @kindex coq-version-is-V8-0
+@c @kindex coq-version-is-V8-1
 
-So you should not have to set this variable unless you have problems
-with different versions of Coq, you can set to t the variable
-corresponding to the version you are using in your config file (before
-ProofGeneral is loaded) and ProofGeneral won't override it.
+@c The variable
+@c @lisp
+@c   coq-version-is-Vx
+@c @end lisp
+@c (where x is 8-0 or 8-1) is used to force version of Coq, if it is t,
+@c then Coq is considered in version x. ProofGeneral sets it automatically
+@c by doing the following shell command: 
+@c @lisp
+@c   (concat coq-prog-name "-v")
+@c @end lisp
+
+@c So you should not have to set this variable unless you have problems
+@c with different versions of Coq, you can set to t the variable
+@c corresponding to the version you are using in your config file (before
+@c ProofGeneral is loaded) and ProofGeneral won't override it.
 
 
 @node Editing multiple proofs
@@ -4150,7 +4141,7 @@ at the top of your theory file, like this:
 The default value is @code{nil}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: isabelle-choose-logic
-@deffn Command isabelle-choose-logic 
+@deffn Command isabelle-choose-logic logic
 Adjust isabelle-prog-name and @code{proof-prog-name} for running @var{logic}.
 @end deffn
 @node Isabelle commands

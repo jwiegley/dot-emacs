@@ -61,8 +61,8 @@
 
 
 @set version 4.0
-@set emacsversion 23.1
-@set last-update November 2009
+@set emacsversion 23.2
+@set last-update October 2010
 @set rcsid $Id$
 
 @dircategory Theorem proving
@@ -361,20 +361,22 @@ under @samp{@code{proof-home-directory}}.
 
 Each entry is a list of the form
 @lisp
-    (@var{symbol} @var{name} @var{automode-regexp})
+    (@var{symbol} @var{name} @var{file-extension} [AUTOMODE-REGEXP])
 @end lisp
 The @var{name} is a string, naming the proof assistant.
 The @var{symbol} is used to form the name of the mode for the
 assistant, @samp{SYMBOL-mode}, run when files with @var{automode-regexp}
-are visited.  @var{symbol} is also used to form the name of the
-directory and elisp file for the mode, which will be
+(or with extension @var{file-extension}) are visited.  
+
+@var{symbol} is also used to form the name of the directory and elisp
+file for the mode, which will be
 @lisp
     @var{proof-home-directory}/@var{symbol}/@var{symbol}.el
 @end lisp
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "\\.thy$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (lego "LEGO" "\\.l$") (hol-light "HOL Light" "\\.l$"))}.
+The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v") (phox "PhoX" "phx") (lego "LEGO" "l") (hol-light "HOL Light" "ml"))}.
 @end defopt
 
 
@@ -1331,7 +1333,7 @@ See also @samp{@code{proof-shell-init-cmd}}.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-init-cmd
 @defvar proof-shell-init-cmd 
-The command for initially configuring the proof process.@*
+The command(s) for initially configuring the proof process.@*
 This command is sent to the process as soon as synchronization is gained
 (when an annotated prompt is first recognized).  It can be used to configure
 the proof assistant in some way, or print a welcome message
@@ -2349,7 +2351,7 @@ can be achieved via two hook functions which are run before and after
 fontifying the output buffers.
 
 @c TEXI DOCSTRING MAGIC: proof-zap-commas
-@defun proof-zap-commas 
+@defun proof-zap-commas limit
 Remove the face of all @samp{,} from point to @var{limit}.@*
 Meant to be used from @samp{@code{font-lock-keywords}} as a way
 to unfontify commas in declarations and definitions.
@@ -2546,7 +2548,7 @@ To insert text into the current (usually script) buffer, the function
 
 
 @c TEXI DOCSTRING MAGIC: proof-insert
-@defun proof-insert 
+@defun proof-insert text
 Insert @var{text} into the current buffer.@*
 @var{text} may include these special characters:
 @lisp
@@ -2615,7 +2617,7 @@ Define command FN to prompt for string @var{cmdvar} to proof assistant.@*
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-format-filename
-@defun proof-format-filename 
+@defun proof-format-filename string filename
 Format @var{string} by replacing quoted chars by escaped version of @var{filename}.
 
 %e uses the canonicalized expanded version of filename (including
@@ -2864,14 +2866,14 @@ behaviour and appearance for boolean user options, as well as
 interfacing properly with the @code{customize} mechanism.
 
 @c TEXI DOCSTRING MAGIC: proof-set-value
-@defun proof-set-value 
+@defun proof-set-value sym value
 Set a customize variable using @samp{@code{set-default}} and a function.@*
-We first call @samp{@code{set-default}} to set SYM to @var{value}.
-Then if there is a function SYM (i.e. with the same name as the
-variable SYM), it is called to take some dynamic action for the new
+We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
+Then if there is a function @var{sym} (i.e. with the same name as the
+variable @var{sym}), it is called to take some dynamic action for the new
 setting.
 
-If there is no function SYM, we try stripping
+If there is no function @var{sym}, we try stripping
 @samp{@code{proof-assistant-symbol}} and adding "proof-" instead to get
 a function name.  This extends @code{proof-set-value} to work with
 generic individual settings.
@@ -3053,14 +3055,14 @@ will become the new active scripting buffer, provided scripting can be
 switched off in the previous active scripting buffer with
 @samp{@code{proof-deactivate-scripting}}.
 
-Activating a new script buffer may be a good time to ask if the user
+Activating a new script buffer is a good time to ask if the user
 wants to save some buffers; this is done if the user option
-@samp{@code{proof-query-file-save-when-activating-scripting}} is set and provided
-the optional argument @var{nosaves} is non-nil.
+@samp{@code{proof-query-file-save-when-activating-scripting}} is set and
+provided the optional argument @var{nosaves} is non-nil.
 
 The optional argument @var{queuemode} relaxes the test for a busy proof
-shell to allow one which has mode @var{queuemode}.  In all other cases, a
-proof shell busy error is given.
+shell to allow one which has mode @var{queuemode}.  In all other cases,
+a proof shell busy error is given.
 
 Finally, the hooks @samp{@code{proof-activate-scripting-hook}} are run.  This can
 be a useful place to configure the proof assistant for scripting in a
@@ -3167,13 +3169,31 @@ The main command for retracting parts of a script is
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point
 @defun proof-retract-until-point &optional undo-action displayflags
 Set up the proof process for retracting until point.@*
-In particular, set a flag for the filter process to call
-@samp{@code{proof-done-retracting}} after the proof process has successfully
-reset its state.
-If @var{undo-action} is non-nil, call this function on the region in
-the proof script corresponding to the proof command sequence.
-If invoked outside a locked region, undo the last successfully processed
-command.
+This calculates the commands to undo to the current point within
+the locked region.  If invoked outside the locked region, undo
+the last successfully processed command.  See @samp{@code{proof-retract-target}}.
+
+After retraction has succeeded in the prover, the filter will call
+@samp{@code{proof-done-retracting}}.  If @var{undo-action} is non-nil, it will 
+then be invoked on the region in the proof script corresponding to 
+the proof command sequence.
+@var{displayflags} control output shown to user, see @samp{@code{proof-action-list}}.
+
+Before the retraction is calculated, we enforce the file-level
+protocol with @samp{@code{proof-activate-scripting}}.  This has a couple
+of effects:
+
+1. If the file is is completely processed, we have to re-open it
+for scripting again which may involve retracting
+other (dependent) files.
+
+2. We may query the user whether to save some buffers.  
+
+Step 2 may seem odd -- we're undoing (in) the buffer, after all
+-- but what may happen is that when scripting starts going
+forward again, we hit a command that loads other files, but the
+user hasn't saved the latest edits.  Therefore it is right to
+query saves here.
 @end defun
 
 To clean up when scripting is stopped, a script buffer is killed, or the
@@ -3256,17 +3276,17 @@ Marker in proof shell buffer pointing to previous command input.
 The main queue of things to do: spans, commands and actions.@*
 The value is a list of lists of the form
 @lisp
-   (@var{span} @var{commands} @var{action} [FLAGS])
+   (@var{span} @var{commands} @var{action} [DISPLAYFLAGS])
 @end lisp
-which is the queue of things to do.  Flags are set for non-scripting
-commands or for when scripting should not bother the user.
-They may include
+which is the queue of things to do.  The display flags are set
+for non-scripting commands or for when scripting should not
+bother the user.  They may include
 @lisp
   @code{'no-response-display}   do not display messages in @strong{response} buffer
   @code{'no-error-display}      do not display errors/take error action
   @code{'no-goals-display}      do not goals in @strong{goals} buffer
 @end lisp
-If flags are non-empty, other interactive cues will be surpressed.
+If flags are non-empty, interactive cues will be surpressed.
 (E.g., printing hints).
 
 See the functions @samp{@code{proof-start-queue}} and @samp{@code{proof-shell-exec-loop}}.
