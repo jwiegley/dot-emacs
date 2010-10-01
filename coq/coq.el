@@ -1319,24 +1319,10 @@ buffer."
                 (sit-for 5) ;; da: this was 20 but seemed obnoxiously long?
               (span-delete sp))))))))
 
-(defvar coq-allow-highlight-error t
-  "Internal variable. Do not use as configuration variable.")
-
-;; if a command is sent to coq without being in the script, then don't
-;; highlight the error. Remark: `action' and `string' are known by
-;; `proof-shell-insert-hook', but not by
-;; `proof-shell-handle-error-or-interrupt-hook'
-(defun coq-decide-highlight-error ()
-  (setq coq-allow-highlight-error
-        (not (with-no-warnings ;; Dynamic scope of `action'
-               (eq action 'proof-done-invisible)))))
-
 (defun coq-highlight-error-hook ()
-  (if coq-allow-highlight-error (coq-highlight-error t t)))
+  (coq-highlight-error t t))
 
-;; We need this two hooks to highlight only when scripting
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-highlight-error-hook t)
-(add-hook 'proof-shell-insert-hook 'coq-decide-highlight-error t)
 
 
 ;;
