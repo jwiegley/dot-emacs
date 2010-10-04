@@ -1167,27 +1167,31 @@ Also insert holes at insertion positions."
           (substitute-command-keys
            "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc."))))))))))
 
+(defun coq-insert-solve-tactic ()
+  "Ask for a closing tactic name, with completion, and insert at point.
+Completion is on a quasi-exhaustive list of Coq closing tactics."
+  (interactive)
+  (coq-insert-from-db coq-solve-tactics-db "Closing tactic"))
+
 (defun coq-insert-tactic ()
-  "Ask for a tactic name, with completion on a quasi-exhaustive list of coq
-tactics and insert it at point.  Questions may be asked to the user."
+  "Insert a tactic name at point, with completion.
+Questions may be asked to the user to select the tactic."
   (interactive)
   (coq-insert-from-db coq-tactics-db "Tactic"))
 
 (defun coq-insert-tactical ()
-  "Ask for a tactical name, with completion on a quasi-exhaustive list of coq
-tacticals and insert it at point.  Questions may be asked to the user."
+  "Ask for a closing tactic name, with completion, and insert at point.
+Completion is on a quasi-exhaustive list of Coq tacticals."
   (interactive)
   (coq-insert-from-db coq-tacticals-db "Tactical"))
 
 (defun coq-insert-command ()
-  "Ask for a command name, with completion on a quasi-exhaustive list of coq
-commands and insert it at point.  Questions may be asked to the user."
+  "Ask for a command name, with completion, and insert it at point."
   (interactive)
   (coq-insert-from-db coq-commands-db "Command"))
 
 (defun coq-insert-term ()
-  "Ask for a term kind, with completion and insert it at point.  Questions may
-be asked to the user."
+  "Ask for a term kind, with completion, and insert it at point."
   (interactive)
   (coq-insert-from-db coq-terms-db "Kind of term"))
 
@@ -1200,6 +1204,9 @@ be asked to the user."
 (define-key coq-keymap [(control ?T)] 'coq-insert-tactical)
 (define-key coq-keymap [(control ?r)] 'proof-store-response-win)
 (define-key coq-keymap [(control ?G)] 'proof-store-goals-win)
+
+;(define-key coq-keymap [(control ?!)] 'coq-insert-solve-tactic)
+(define-key coq-keymap [?!] 'coq-insert-solve-tactic) ; will work in tty
 
 (define-key coq-keymap [(control ?\s)] 'coq-insert-term)
 (define-key coq-keymap [(control return)] 'coq-insert-command)
