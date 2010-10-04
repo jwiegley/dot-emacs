@@ -1552,6 +1552,7 @@ Issues a command to the assistant based on @code{proof-info-command}.
 Query the prover about the identifier @var{string}.@*
 If called interactively, @var{string} defaults to the current word near point.
 @end deffn
+
 @c TEXI DOCSTRING MAGIC: proof-find-theorems
 @deffn Command proof-find-theorems arg
 Search for items containing given constants.@*
@@ -2867,9 +2868,9 @@ The mouse bindings are these:
 @table @kbd
 @c @item button2
 @c FIXME: @code{pg-goals-button-action}
-@item C-button2
+@item C-M-mouse-3
 @code{proof-undo-and-delete-last-successful-command}
-@item button3
+@item mouse-3
 @code{pg-goals-yank-subterm}
 @end table
 
