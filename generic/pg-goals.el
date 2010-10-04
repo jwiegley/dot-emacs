@@ -56,7 +56,7 @@ May enable proof-by-pointing or similar features.
 (define-key proof-goals-mode-map [q] 'bury-buffer)
 ;; TODO: use standard Emacs button behaviour here (cf Info mode)
 (define-key proof-goals-mode-map [mouse-1] 'pg-goals-button-action)
-(define-key proof-goals-mode-map [C-mouse-3]
+(define-key proof-goals-mode-map [C-M-mouse-3]
   'proof-undo-and-delete-last-successful-command)
 
 

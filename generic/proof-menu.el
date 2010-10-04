@@ -123,7 +123,7 @@ without adjusting window layout."
   ;; C-c C-. is proof-goto-end-of-locked in universal-keys
   (define-key map [(control c) (control return)] 'proof-goto-point)
   (define-key map [(control c) ?v] 'pg-toggle-visibility)
-  (define-key map [(control mouse-3)] 'proof-mouse-goto-point)
+  (define-key map [(control meta mouse-3)] 'proof-mouse-goto-point)
   ;; NB: next binding overwrites comint-find-source-code.
   (define-key map [(meta p)] 'pg-previous-matching-input-from-input)
   (define-key map [(meta n)] 'pg-next-matching-input-from-input)
