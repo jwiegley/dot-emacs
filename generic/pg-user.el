@@ -89,7 +89,6 @@ Assumes script buffer is current."
 ;; Further movement commands 
 ;;
 
-;; TODO da: the next function is messy.
 (defun proof-goto-command-start ()
   "Move point to start of current (or final) command of the script."
   (interactive)
@@ -128,9 +127,33 @@ Assumes script buffer is current."
 	      (unless (eq (point) (point-min))
 		(backward-char))))))))
 
+(defun proof-forward-command (&optional num)
+  "Move forward to the start of the next proof region."
+  (interactive "p")
+  (skip-chars-forward " \t\n")
+  (let* ((span  (or (span-at (point) 'type)
+		    (and (skip-chars-backward " \t\n")
+			 (> (point) (point-min))
+			 (span-at (1- (point)) 'type))))
+	 (nextspan (and span (pg-numth-span-higher-or-lower
+			      (pg-control-span-of span) num 'noerr))))
+    (cond
+     ((and nextspan (> num 0))
+      (goto-char (span-start nextspan))
+      (skip-chars-forward " \t\n"))
+     ((and nextspan (< num 0))
+      (goto-char (span-end nextspan)))
+     ((and span (> num 0))
+      (goto-char (span-end span)))
+     ((and span (< num 0))
+      (goto-char (span-start span))))))
+
+(defun proof-backward-command (&optional num)
+  (interactive "p")
+  (proof-forward-command (- num)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Processing commands
 ;;
@@ -321,18 +344,8 @@ a proof command."
     (error "You can't use this command while %s is busy!" proof-assistant))
    ((not (eq (current-buffer) proof-script-buffer))
     (error "Must be in the active scripting buffer"))
-   ;; Sometimes may need to move point forwards, when locked region
-   ;; is editable.
-   ;; ((> (point) (proof-unprocessed-begin))
-   ;; (error "You can only move point backwards"))
-   ;; FIXME da: should move to a command boundary, really!
    (t (proof-set-locked-end (point))
       (span-delete-spans (proof-unprocessed-begin) (point-max) 'type))))
-
-
-
-
-
 
 
 
@@ -344,21 +357,6 @@ a proof command."
 
 ;; These are based on defcustom'd settings so that users may
 ;; re-configure the system to their liking.
-
-
-;; FIXME: da: add more general function for inserting into the
-;; script buffer and the proof process together, and using
-;; a choice of minibuffer prompting (hated by power users, perfect
-;; for novices).
-;; TODO:
-;;   Add named goals.
-;;   Coherent policy for movement here and elsewhere based on
-;;    proof-one-command-per-line user option.
-;;   Coherent policy for sending to process after writing into
-;;    script buffer.  Could have one without the other.
-;;    For example, may be more easy to edit complex goal string
-;;    first in the script buffer.  Ditto for tactics, etc.
-
 
 
 ;;
@@ -452,10 +450,9 @@ Typically, a list of syntax of commands available."
 This is intended as a value for `proof-activate-scripting-hook'"
   ;; The hook is set in proof-mode before proof-shell-cd-cmd may be set,
   ;; so we explicitly test it here.
-  (if proof-shell-cd-cmd
-      (progn
-	(proof-cd)
-	(proof-shell-wait))))
+  (when proof-shell-cd-cmd
+    (proof-cd)
+    (proof-shell-wait)))
 
 ;;
 ;; Commands which require an argument, and maybe affect the script.
@@ -617,7 +614,6 @@ last use time, to discourage saving these into the users database."
 (defun pg-move-span-contents (span num)
   "Move SPAN up/downwards in the buffer, past NUM spans.
 If NUM is negative, move upwards.  Return new span."
-  ;; TODO: maybe num arg is overkill, should only have 1?
   (save-excursion
     (let  ((downflag (> num 0)) nextspan)
       ;; Always move a control span instead; it contains
@@ -690,72 +686,13 @@ If NUM is negative, move upwards.  Return new span."
   (interactive "p")
   (pg-move-region-down (- num)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Dragging regions around
-;;
-;; FIXME: unfinished
-
-;(defvar pg-drag-region-point nil
-;  "Temporary store of point being dragged.")
-
-;(defun pg-mouse-drag-move-region-function (event click-count dragp)
-;  (save-excursion
-;    (let* ((span (span-at (mouse-set-point event) 'type)))
-;      (if span
-;	  (if pg-drag-region-point
-;	      ;; Move the region at point to region here.
-
-
-
-;(defun pg-mouse-drag-up-move-region-function (event click-count)
-;  (setq pg-drag-region-point nil))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; FIXME: not working right yet, sigh...
-(defun proof-forward-command (&optional num)
-  "Move forward to the start of the next proof region."
-  (interactive "p")
-  (skip-chars-forward " \t\n")
-  (let* ((span  (or (span-at (point) 'type)
-		    (and (skip-chars-backward " \t\n")
-			 (> (point) (point-min))
-			 (span-at (1- (point)) 'type))))
-	 (nextspan (and span (pg-numth-span-higher-or-lower
-			      (pg-control-span-of span) num 'noerr))))
-    (cond
-     ((and nextspan (> num 0))
-      (goto-char (span-start nextspan))
-      (skip-chars-forward " \t\n"))
-     ((and nextspan (< num 0))
-      (goto-char (span-end nextspan)))
-     ((and span (> num 0))
-      (goto-char (span-end span)))
-     ((and span (< num 0))
-      (goto-char (span-start span))))))
-
-(defun proof-backward-command (&optional num)
-  (interactive "p")
-  (proof-forward-command (- num)))
-
-
-
-
 
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Span menus and keymaps  (maybe belongs in pg-menu)
-;;
-
-;; FIXME: TODO here:
-;;
-;; Check for a 'type which is one of the elements we know about
-;; (pgidioms).
+;; Context menus inside spans
 ;;
 
 (defun pg-pos-for-event (event)
@@ -794,11 +731,6 @@ If NUM is negative, move upwards.  Return new span."
 
 (defun pg-create-in-span-context-menu (span idiom name)
   "Create the dynamic context-sensitive menu for a span."
-  ;; FIXME: performance here, consider caching in the span itself?
-  ;; (or maybe larger menu spans which are associated with a menu).
-  ;; FIXME: treat proof and non-proof regions alike, could add
-  ;; visibility controls for non-proof regions also, redesigning
-  ;; idiom notion.
   (append
    (list (pg-span-name span))
    (list (vector
