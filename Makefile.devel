@@ -476,7 +476,8 @@ rpmrelease: rpm
 ##
 ## dmg: [experimental]
 ##     Build (on Linux) a Mac OS X dmg disk image file
-##     This requires sudo powers for mounting, and hfsplus-tools
+##     This requires sudo powers for mounting, and
+##     (on Ubuntu), packages hfsplus and hfsprogs
 ##	  
 DMGBUILD=$(DISTBUILDIR)/dmg
 dmg:	
