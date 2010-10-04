@@ -72,7 +72,7 @@ new keyword to colorize.")
 Insert corresponding string with holes at point.  If an insertion function is
 present for the keyword, call it instead.  see `coq-syntax-db' for DB
 structure."
-  (let* ((tac (completing-read (concat prompt " (tab for completion) : ")
+  (let* ((tac (completing-read (concat prompt " (TAB for completion): ")
 			       db nil nil))
 	 (infos (cddr (assoc tac db)))
 	 (s (car infos)) ; completion to insert

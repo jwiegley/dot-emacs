@@ -1251,19 +1251,14 @@ removed if it matches the last item in the ring."
 (defun pg-protected-undo (&optional arg)
   "As `undo' but avoids breaking the locked region.
 
-It performs a single undo/redo after checking that this operation
-will not affect the locked region.
+It performs each of the desired undos checking that these operations will
+not affect the locked region, obeying `proof-strict-read-only' if required.
+If strict read only behaviour is enforced, the user is queried whether to
+retract before the undo is allowed.  If automatic retraction is enabled,
+the retract and undo will go ahead without querying the user.
 
-It performs each of the desired undos checking that these
-operations will not affect the locked region, obeying
-`proof-strict-read-only' if required.  If strict read only
-behaviour is enforced, the user is queried whether to 
-retract before the undo is allowed.  If automatic retraction is
-enabled, the retract and undo will go ahead without querying
-the user.
-
-Moreover, undo/redo is always allowed in comments 
-located in the locked region."
+Moreover, undo/redo is always allowed in comments located in \
+the locked region."
   (interactive "*P")
   (if (or (not proof-locked-span)
   	  (equal (proof-queue-or-locked-end) (point-min)))
@@ -1275,7 +1270,7 @@ located in the locked region."
 	  (newarg ; Allow the user to limit the undo to the current region
 	   (and
 	    ;; this Boolean expression is necessary to match
-	    ;; the behavior of GNU Emacs undo function
+	    ;; the behavior of GNU Emacs (23.2) undo function
 	    (or (region-active-p) (and arg (not (numberp arg))))
 	    (> (region-end) (region-beginning)))))
       (while (> repeat 0)
@@ -1301,7 +1296,7 @@ behavior is expected."
 	   (end (max beg (- beg (cdr delta))))) ; Key computation
       (when (and next (> beg 0)		; the "next undo elt" exists
 		 (> (proof-queue-or-locked-end) beg)
-		 proof-strict-read-only ; edit freely doesn't undo
+		 proof-strict-read-only ; edit freely doesn't retract
 		 (not (and		; neither does edit in comments
 		       (proof-inside-comment beg) 
 		       (proof-inside-comment end))))

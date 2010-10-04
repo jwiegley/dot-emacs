@@ -452,7 +452,7 @@ If locked span already has a state number, then do nothing. Also updates
   (interactive)
   (let*
       ((mods
-        (completing-read "Infos on notation (tab to see list): "
+        (completing-read "Infos on notation (TAB to see list): "
                          notation-print-kinds-table))
        (s (read-string  "Name (empty for all): "))
        (all (string-equal s "")))
@@ -514,12 +514,12 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchRewrite ()
   (interactive)
-  (coq-ask-do "Search Rewrite" "SearchRewrite" nil))
+  (coq-ask-do "SearchRewrite" "SearchRewrite" nil))
 
 (defun coq-SearchAbout ()
   (interactive)
   (coq-ask-do 
-   "Search About (ex: \"eq_\" eq -bool)" 
+   "SearchAbout (ex: \"eq_\" eq -bool)" 
    "SearchAbout" nil 'coq-put-into-brackets))
 
 (defun coq-Print () 
@@ -538,20 +538,20 @@ This is specific to `coq-mode'."
   (coq-ask-do "Locate" "Locate"))
 
 (defun coq-LocateLibrary ()
-  "Locate a constant."
+  "Locate a library."
   (interactive)
   (coq-ask-do "Locate Library" "Locate Library"))
 
 (defun coq-LocateNotation ()
-  "Locate a notation.
+  "Locate a notation.  Put it automatically into quotes.
 This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do 
-   "Locate Notation (ex: \'exists\' _ , _)" "Locate"
+   "Locate notation (ex: \'exists\' _ , _)" "Locate"
    t 'coq-put-into-quotes))
 
 (defun coq-Pwd ()
-  "Locate a notation."
+  "Display the current Coq working directory."
   (interactive)
   (proof-shell-invisible-command "Pwd."))
 
@@ -1052,11 +1052,11 @@ mouse activation."
   "Insert a module or a section after asking right questions."
   (interactive)
   (let*
-      ((mods (completing-read "kind of module (tab to see list): " module-kinds-table))
+      ((mods (completing-read "Kind of module (TAB to see list): " module-kinds-table))
        (s (read-string  "Name: "))
        (typkind (if (string-equal mods "Section")
                     "" ;; if not a section
-                  (completing-read "kind of type (optional, tab to see list): "
+                  (completing-read "Kind of type (optional, TAB to see list): "
                                    modtype-kinds-table)))
        (p (point)))
     (if (string-equal typkind "")
@@ -1079,7 +1079,7 @@ mouse activation."
   (let* ((s)
          (reqkind
           (completing-read 
-           "Command (tab to see list, default Require Export) : "
+           "Command (TAB to see list, default Require Export) : "
            reqkinds-kinds-table nil nil nil nil "Require Export")))
     (setq s (read-string  "Name (empty to stop) : "))
     (while (not (string-equal s ""))
@@ -1139,13 +1139,13 @@ Based on idea mentioned in Coq reference manual."
 
 
 (defun coq-insert-match ()
-  "Insert a match expression from a type name by Show Intros.
+  "Insert a match expression from a type name by Show Match.
 Based on idea mentioned in Coq reference manual. 
 Also insert holes at insertion positions."
   (interactive)
   (proof-shell-ready-prover)
   (let* ((cmd))
-    (setq cmd (read-string "Build match for type:"))
+    (setq cmd (read-string "Build match for type: "))
     (let* ((thematch
            (proof-shell-invisible-cmd-get-result (concat "Show Match " cmd ".")))
            (match (replace-regexp-in-string "=> \n" "=> #\n" thematch)))
