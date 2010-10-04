@@ -3890,7 +3890,6 @@ assistant.  It supports most of the generic features of Proof General.
 
 @menu
 * Coq-specific commands::
-* Coq-specific variables::
 * Editing multiple proofs::
 * User-loaded tactics::
 * Holes feature::
@@ -3918,29 +3917,6 @@ Inserts ``End <section-name>.'' (this should work well with nested sections).
 @item C-c C-a C-o
 Prompts for a SearchIsos argument.
 @end table
-
-@c da: I think this section is obsolete now, Pierre?
-
-@c @node Coq-specific variables
-@c @section Coq-specific variables
-@c @kindex coq-version-is-V8-0
-@c @kindex coq-version-is-V8-1
-
-@c The variable
-@c @lisp
-@c   coq-version-is-Vx
-@c @end lisp
-@c (where x is 8-0 or 8-1) is used to force version of Coq, if it is t,
-@c then Coq is considered in version x. ProofGeneral sets it automatically
-@c by doing the following shell command: 
-@c @lisp
-@c   (concat coq-prog-name "-v")
-@c @end lisp
-
-@c So you should not have to set this variable unless you have problems
-@c with different versions of Coq, you can set to t the variable
-@c corresponding to the version you are using in your config file (before
-@c ProofGeneral is loaded) and ProofGeneral won't override it.
 
 
 @node Editing multiple proofs
