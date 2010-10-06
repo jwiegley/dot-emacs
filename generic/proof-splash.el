@@ -150,7 +150,9 @@ Borrowed from startup-center-spaces."
 	 (glyph-pixwidth   (cond ((stringp glyph)
 				  (* avg-pixwidth (length glyph)))
 				 ((proof-emacs-imagep glyph)
-				  (car (image-size glyph 'inpixels)))
+				  (car (with-no-warnings 
+					; image-size not available in tty emacs
+					 (image-size glyph 'inpixels))))
 				 (t
 				  (error
 				   "proof-splash-centre-spaces: bad arg")))))
