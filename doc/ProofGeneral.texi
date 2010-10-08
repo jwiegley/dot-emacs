@@ -1449,7 +1449,6 @@ Retract the current buffer, and maybe move point to the start.
 @deffn Command proof-electric-terminator-toggle &optional arg
 Toggle @samp{@code{proof-electric-terminator-enable}}. With @var{arg}, turn on iff ARG>0.@*
 This function simply uses @code{customize-set-variable} to set the variable.
-It was constructed with @samp{@code{proof-deftoggle-fn}}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-assert-until-point-interactive
@@ -1869,10 +1868,11 @@ keyboard, you can use the keybinding:
 @code{proof-autosend-toggle}
 @end table
 
-
-
 @c TEXI DOCSTRING MAGIC: proof-autosend-toggle
-
+@deffn Command proof-autosend-toggle &optional arg
+Toggle @samp{@code{proof-autosend-enable}}. With @var{arg}, turn on iff ARG>0.@*
+This function simply uses @code{customize-set-variable} to set the variable.
+@end deffn
 
 
 @node Visibility of completed proofs
