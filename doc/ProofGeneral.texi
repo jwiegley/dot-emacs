@@ -121,7 +121,7 @@
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright © 1998-2010 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2010 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -230,7 +230,7 @@ The main changes are:
 @item a new @b{Unicode Tokens} mode, which now replaces X-Symbol
       @pxref{Unicode symbols and special layout support}
 @item to allow ``document centred'' working, annotating scripts with prover output
-      @pxref{Document centred working}
+      and automatically sending commands to the prover @pxref{Document centred working}
 @item support for latest versions of provers (Isabelle2009-2 and Coq 8.2)
 @item numerous smaller enhancements and efficiency improvements
 @end itemize
@@ -603,7 +603,7 @@ proof assistants, including these:
 @b{LEGO Proof General} for LEGO Version 1.3.1@*
 @xref{LEGO Proof General}, for more details.
 @item 
-@b{Coq Proof General} for Coq Version 6.3, 7.x, 8.x@*
+@b{Coq Proof General} for Coq Version 8.2@*
 @xref{Coq Proof General}, for more details.
 @item 
 @b{Isabelle Proof General} for Isabelle2009-2@*
@@ -731,9 +731,6 @@ then describe the concepts and functions in more detail.
 
 @node Walkthrough example in Isabelle
 @section Walkthrough example in Isabelle
-
-@i{Please note that this section is out of date and the syntax below
- may no longer work with current versions of Isabelle}
 
 Here's a short example in Isabelle to see how script management
 is used.  The file you are asked to type below is included in the
@@ -1829,6 +1826,9 @@ buffer, explained in the next section.
 @node Automatic processing
 @section Automatic processing
 @cindex Automatic processing
+@cindex autosend
+@vindex proof-autosend-enable
+
 
 If you like making your hair stand on end, the electric
 terminator mode is probably not enough.  Proof General has another
@@ -1861,8 +1861,17 @@ out where processing got to, as usual.  Text is only sent if the last
 interactive command processed some text (i.e., wasn't an undo step
 backwards into the buffer) and processing didn't stop with an error.
 To start automatic processing again after an error, simply hit
-@kbd{C-c C-n}.
+@kbd{C-c C-n}.  To turn the automatic processing on or off from the 
+keyboard, you can use the keybinding:
 
+@table @kbd
+@item C-c >
+@code{proof-autosend-toggle}
+@end table
+
+
+
+@c TEXI DOCSTRING MAGIC: proof-autosend-toggle
 
 
 
