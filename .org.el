@@ -842,26 +842,36 @@ end tell" (match-string 1))))
 
        (define-key map "x" 'org-todo-state-map)
 
-       (define-key org-todo-state-map "d"
-	 #'(lambda nil (interactive) (org-agenda-todo "DONE")))
-       (define-key org-todo-state-map "r"
-	 #'(lambda nil (interactive) (org-agenda-todo "DEFERRED")))
-       (define-key org-todo-state-map "y"
-	 #'(lambda nil (interactive) (org-agenda-todo "SOMEDAY")))
-       (define-key org-todo-state-map "g"
-	 #'(lambda nil (interactive) (org-agenda-todo "DELEGATED")))
-       (define-key org-todo-state-map "n"
-	 #'(lambda nil (interactive) (org-agenda-todo "NOTE")))
-       (define-key org-todo-state-map "s"
-	 #'(lambda nil (interactive) (org-agenda-todo "STARTED")))
-       (define-key org-todo-state-map "t"
-	 #'(lambda nil (interactive) (org-agenda-todo "TODO")))
-       (define-key org-todo-state-map "w"
-	 #'(lambda nil (interactive) (org-agenda-todo "WAITING")))
-       (define-key org-todo-state-map "x"
-	 #'(lambda nil (interactive) (org-agenda-todo "CANCELLED")))
+       (defun org-todo-mark-done ()
+         (interactive) (org-agenda-todo "DONE"))
+       (defun org-todo-mark-deferred ()
+         (interactive) (org-agenda-todo "DEFERRED"))
+       (defun org-todo-mark-someday ()
+         (interactive) (org-agenda-todo "SOMEDAY"))
+       (defun org-todo-mark-delegated ()
+         (interactive) (org-agenda-todo "DELEGATED"))
+       (defun org-todo-mark-note ()
+         (interactive) (org-agenda-todo "NOTE"))
+       (defun org-todo-mark-started ()
+         (interactive) (org-agenda-todo "STARTED"))
+       (defun org-todo-mark-todo ()
+         (interactive) (org-agenda-todo "TODO"))
+       (defun org-todo-mark-waiting ()
+         (interactive) (org-agenda-todo "WAITING"))
+       (defun org-todo-mark-cancelled ()
+         (interactive) (org-agenda-todo "CANCELLED"))
 
-       (define-key org-todo-state-map "z" #'make-bugzilla-bug))))
+       (define-key org-todo-state-map "d" #'org-todo-mark-done)
+       (define-key org-todo-state-map "r" #'org-todo-mark-deferred)
+       (define-key org-todo-state-map "y" #'org-todo-mark-someday)
+       (define-key org-todo-state-map "g" #'org-todo-mark-delegated)
+       (define-key org-todo-state-map "n" #'org-todo-mark-note)
+       (define-key org-todo-state-map "s" #'org-todo-mark-started)
+       (define-key org-todo-state-map "t" #'org-todo-mark-todo)
+       (define-key org-todo-state-map "w" #'org-todo-mark-waiting)
+       (define-key org-todo-state-map "x" #'org-todo-mark-cancelled)
+
+       (define-key org-todo-state-map "z" #'make-bug-link))))
 
 ;;;_* startup
 
