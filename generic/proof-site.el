@@ -30,8 +30,8 @@
 
       ;; Obscure/conflict with other useful modes:
 
-      (lego "LEGO" "l")
-      (hol-light "HOL Light" "ml")
+      ;  (lego "LEGO" "l")
+      ;  (hol-light "HOL Light" "ml")
       ;; (ccc    "CASL Consistency Checker" "ccc")
       ;; (pgshell	"PG-Shell" "pgsh")
 
