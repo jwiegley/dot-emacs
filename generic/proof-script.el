@@ -1889,14 +1889,23 @@ try to avoid duplicating them in the buffer.
 When used in the locked region (and so with strict read only off), it
 always defaults to inserting a semi (nicer might be to parse for a
 comment, and insert or skip to the next semi)."
-  (let ((mrk (point)) ins incomment)
+  (let ((mrk         (point)) 
+	(termregexp  (regexp-quote proof-terminal-string))
+	ins incomment nwsp)
     (if (< mrk (proof-unprocessed-begin))
 	(insert proof-terminal-string) ; insert immediately in locked region
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do!"))
       (skip-chars-backward " \t\n")
+      (setq nwsp (point)) ; char after first non-whitespace
       (unless (or proof-electric-terminator-noterminator
-		  (looking-at (regexp-quote proof-terminal-string)))
+		  ;; before the terminal
+		  (looking-at termregexp)
+		  ;; after the terminal
+		  (and
+		   (re-search-backward termregexp (proof-unprocessed-begin))
+		   (goto-char nwsp)
+		   (eq (match-end 0) nwsp)))
 	(insert proof-terminal-string)
 	(setq ins t))
       (let* ((pos
