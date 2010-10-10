@@ -110,7 +110,7 @@ all:	compile
 ## Remove generated targets
 ##
 clean:	cleanpgscripts
-	rm -f $(ELC) *~ */*~ .\#* */.\#*
+	rm -f $(ELC) *~ */*~ .\#* */.\#* */.autotest.log */.profile.log
 	(cd doc; $(MAKE) clean)
 
 distclean: clean
