@@ -335,7 +335,7 @@ process command."
 	;; Set text representation (see CVS history for comments)
 	(proof-shell-set-text-representation)
 
-	;; Initialise shell mode (does process initialisation)
+	;; Initialise shell mode (calls hook function, after process started)
 	(funcall proof-mode-for-shell)
 
 	;; Check to see that the process is still going.  If not,
