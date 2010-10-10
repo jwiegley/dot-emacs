@@ -5,7 +5,7 @@
 ** Install/support changes
 
 *** XEmacs is no longer supported; PG only works with GNU Emacs 23.1+
-    Older GNU Emacs versions in 22.X series may work but are unsupported.
+    Older GNU Emacs versions after 22.3 may work but are unsupported.
 
 *** Primary distribution formats changed
     The RPM and zip file formats have been removed.
