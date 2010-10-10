@@ -706,6 +706,7 @@ If NUM is negative, move upwards.  Return new span."
   (span-at (pg-pos-for-event event) 'type))
 
 (defun pg-span-context-menu (event)
+  "Display a context sensitive menu for proof script, around EVENT."
   (interactive "e")
   (let* ((span (pg-span-for-event event))
 	 cspan)
