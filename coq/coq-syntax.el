@@ -1028,7 +1028,9 @@ Group number 1 matches the name of the library which is required.")
 (defconst coq-generic-expression
   (mapcar (lambda (kw)
 	    (list (capitalize kw)
-		  (concat "\\<" kw "\\>" "\\s-+\\(\\w+\\)\\W" )
+; 		  (concat "\\<" kw "\\>" "\\s-+\\(\\w+\\)\\W" )
+; da: that seems buggy (kw already in \\<,\\>; want symbols, not words)
+		  (concat kw "\\s-+\\(\\_<\\(?:\\sw\\|\\s_\\)+\\_>\\)")
 		  1))
 	  (append coq-keywords-decl coq-keywords-defn coq-keywords-goal)))
 
