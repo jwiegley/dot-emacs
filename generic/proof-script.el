@@ -1903,7 +1903,7 @@ comment, and insert or skip to the next semi)."
 		  (looking-at termregexp)
 		  ;; after the terminal
 		  (and
-		   (re-search-backward termregexp (proof-unprocessed-begin))
+		   (re-search-backward termregexp (proof-unprocessed-begin) t)
 		   (goto-char nwsp)
 		   (eq (match-end 0) nwsp)))
 	(insert proof-terminal-string)
