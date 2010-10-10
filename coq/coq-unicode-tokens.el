@@ -94,6 +94,19 @@
     ("false" "false" bold sans)
     ("true" "true" bold sans)
 
+    ;; example tokens used in Benjamin C. Pierce et al's 
+    ;; Software Foundations course
+    ("WHILE" "WHILE" bold sans)
+    ("DO" "DO" bold sans)
+    ("END" "END" bold sans)
+    ("SKIP" "SKIP" bold sans)
+    ("THEN" "THEN" bold sans)
+    ("ELSE" "ELSE" bold sans)
+    ("IFB" "IFB" bold sans)
+    ("FI" "FI" bold sans)
+    ("{{" "⦃" bold)
+    ("}}" "⦄" bold)
+
     ;; symbols without utf8.v  (but also without context)
     ("lhd" "⊲")
     ("rhd" "⊳")
@@ -116,9 +129,9 @@
     
     ;; ("==" "≡")  ; Setoid equiv (NB: same presentation, pot confusing)
 
-    ;; ("-->" "⟹-") ; Morphisms
-    ;; ("++>" "⟹+") ; 
-    ;; ("==>" "⟹=") ; 
+    ("-->" "⟹-") ; Morphisms
+    ("++>" "⟹+") ; 
+    ("==>" "⟹") ; 
 
     (":=" "≔")
     ("|-" "⊢")
