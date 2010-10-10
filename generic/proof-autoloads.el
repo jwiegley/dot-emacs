@@ -186,8 +186,8 @@ Dead or nil buffers are not represented in the list.
 
 ;;;***
 
-;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19564
-;;;;;;  4338))
+;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19622
+;;;;;;  2314))
 ;;; Generated autoloads from ../lib/pg-dev.el
 
 (autoload 'profile-pg "pg-dev" "\
@@ -198,7 +198,7 @@ Not documented
 ;;;***
 
 ;;;### (autoloads (proof-goals-config-done) "pg-goals" "pg-goals.el"
-;;;;;;  (19121 59721))
+;;;;;;  (19625 55352))
 ;;; Generated autoloads from pg-goals.el
 
 (autoload 'proof-goals-config-done "pg-goals" "\
@@ -232,7 +232,7 @@ Existing XML files are overwritten.
 ;;;***
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn) "pg-pamacs"
-;;;;;;  "pg-pamacs.el" (19554 65355))
+;;;;;;  "pg-pamacs.el" (19621 61895))
 ;;; Generated autoloads from pg-pamacs.el
 
 (autoload 'proof-defpacustom-fn "pg-pamacs" "\
@@ -279,7 +279,7 @@ Send an <askprefs> message to the prover.
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-message pg-response-display-with-face pg-response-maybe-erase
 ;;;;;;  proof-response-config-done proof-response-mode) "pg-response"
-;;;;;;  "pg-response.el" (19562 32774))
+;;;;;;  "pg-response.el" (19574 64296))
 ;;; Generated autoloads from pg-response.el
 
 (autoload 'proof-response-mode "pg-response" "\
@@ -338,11 +338,12 @@ See `pg-next-error-regexp'.
 ;;;### (autoloads (proof-autosend-enable pg-clear-input-ring pg-remove-from-input-history
 ;;;;;;  pg-add-to-input-history pg-next-matching-input-from-input
 ;;;;;;  pg-previous-matching-input-from-input proof-imenu-enable
-;;;;;;  pg-hint pg-next-error-hint pg-processing-complete-hint pg-jump-to-end-hint
-;;;;;;  pg-response-buffers-hint pg-slow-fontify-tracing-hint proof-electric-terminator-enable
+;;;;;;  pg-identifier-near-point-query pg-hint pg-next-error-hint
+;;;;;;  pg-processing-complete-hint pg-jump-to-end-hint pg-response-buffers-hint
+;;;;;;  pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19570 20547))
+;;;;;;  "pg-user.el" (19633 61674))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -371,7 +372,8 @@ CMDVAR is a variable holding a function or string.  Automatically has history.
 \(fn FN DOC CMDVAR PROMPT &rest BODY)" nil (quote macro))
 
 (autoload 'proof-electric-terminator-enable "pg-user" "\
-Make sure the modeline is updated to display new value for electric terminator.
+Ensure modeline update to display new value for electric terminator.
+This a function is called by the custom-set property 'proof-set-value.
 
 \(fn)" nil nil)
 
@@ -405,6 +407,13 @@ Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
 The function `substitute-command-keys' is called on the argument.
 
 \(fn HINTMSG)" nil nil)
+
+(autoload 'pg-identifier-near-point-query "pg-user" "\
+Query the prover about the identifier near point.
+If the result is successful, we add a span to the buffer which has
+a popup with the information in it.
+
+\(fn)" t nil)
 
 (autoload 'proof-imenu-enable "pg-user" "\
 Add or remove index menu.
@@ -507,7 +516,7 @@ Indent current line of proof script, if indentation enabled.
 ;;;***
 
 ;;;### (autoloads (proof-maths-menu-enable proof-maths-menu-set-global)
-;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (19550 46151))
+;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (19575 41316))
 ;;; Generated autoloads from proof-maths-menu.el
 
 (autoload 'proof-maths-menu-set-global "proof-maths-menu" "\
@@ -528,8 +537,8 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19570
-;;;;;;  20547))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19625
+;;;;;;  55352))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload 'proof-menu-define-keys "proof-menu" "\
@@ -578,7 +587,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19564 4338))
+;;;;;;  "proof-script.el" (19633 62018))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -607,13 +616,14 @@ Non-nil if the locked region is empty.  Works on any buffer.
 Add a daughter help span for SPAN with help message, highlight, actions.
 The daughter span covers the non whitespace content of the main span.
 
-We add the last output (which should be non-empty) to the hover display.
+We add the last output (when non-empty) to the hover display, and
+also as the 'response property on the span.
 
 Optional argument MOUSEFACE means use the given face as a mouse highlight
 face, if it is a face, otherwise, if it is non-nil but not a face,
 do not add a mouse highlight.
 
-Argument FACE means add regular face property FACE to the span.
+Argument FACE means add 'face property FACE to the span.
 
 \(fn SPAN &optional MOUSEFACE FACE)" nil nil)
 
@@ -662,7 +672,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19570 20547))
+;;;;;;  "proof-shell.el" (19633 48731))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -726,13 +736,20 @@ The queue mode is set to 'advancing
 
 (autoload 'proof-shell-wait "proof-shell" "\
 Busy wait for `proof-shell-busy' to become nil, reading from prover.
+
 Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
 in some cases.   Also is considerably faster than leaving the Emacs 
 top-level command loop to read from the prover.
-May be called by `proof-shell-invisible-command'.
 
-\(fn &optional INTERRUPT-ON-INPUT)" nil nil)
+Called by `proof-shell-invisible-command' and `proof-process-buffer'
+when setting `proof-fast-process-buffer' is enabled.
+
+If INTERRUPT-ON-INPUT is non-nil, return if input is received.
+
+If TIMEOUTSECS is a number, time out after that many seconds.
+
+\(fn &optional INTERRUPT-ON-INPUT TIMEOUTSECS)" nil nil)
 
 (autoload 'proof-shell-invisible-command "proof-shell" "\
 Send CMD to the proof process.
@@ -752,7 +769,8 @@ INVISIBLECALLBACK will be invoked after the command has finished,
 if it is set.  It should probably run the hook variables
 `proof-state-change-hook'.
 
-FLAGS are put onto the If NOERROR is set, surpress usual error action.
+FLAGS are additional flags to put onto the `proof-action-list'.
+The flag 'invisible is always added to FLAGS.
 
 \(fn CMD &optional WAIT INVISIBLECALLBACK &rest FLAGS)" nil nil)
 
@@ -785,7 +803,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19570 20548))
+;;;;;;  (19634 16192))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -797,7 +815,7 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'.
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen)
-;;;;;;  "proof-splash" "proof-splash.el" (19570 20548))
+;;;;;;  "proof-splash" "proof-splash.el" (19628 18525))
 ;;; Generated autoloads from proof-splash.el
 
 (autoload 'proof-splash-display-screen "proof-splash" "\
@@ -816,7 +834,7 @@ Make sure the user gets welcomed one way or another.
 ;;;***
 
 ;;;### (autoloads (proof-format) "proof-syntax" "proof-syntax.el"
-;;;;;;  (19564 4338))
+;;;;;;  (19609 53995))
 ;;; Generated autoloads from proof-syntax.el
 
 (defsubst proof-replace-regexp-in-string (regexp rep string) "\
@@ -832,7 +850,7 @@ may be a string or sexp evaluated to get a string.
 ;;;***
 
 ;;;### (autoloads (proof-toolbar-scripting-menu proof-toolbar-setup)
-;;;;;;  "proof-toolbar" "proof-toolbar.el" (19550 46151))
+;;;;;;  "proof-toolbar" "proof-toolbar.el" (19609 20575))
 ;;; Generated autoloads from proof-toolbar.el
 
 (autoload 'proof-toolbar-setup "proof-toolbar" "\
@@ -879,8 +897,8 @@ is changed.
 
 ;;;***
 
-;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19554
-;;;;;;  65355))
+;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19630
+;;;;;;  57223))
 ;;; Generated autoloads from proof-utils.el
 
 (autoload 'proof-debug "proof-utils" "\
@@ -950,7 +968,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19570 20548))
+;;;;;;  (19591 34223))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -964,7 +982,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
 ;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
 ;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el")
-;;;;;;  (19570 20593 985026))
+;;;;;;  (19634 16926 377965))
 
 ;;;***
 

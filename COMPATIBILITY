@@ -5,7 +5,7 @@ This version of Proof General has been tested with these Emacs versions
 on recent Linux systems:
 
  Emacs 23.2            -- recommended and supported
- Emacs 22.3.1	       -- previous version, may work
+ Emacs 22.3.1	       -- previous version, may work, *unsupported*
 
 and (main) prover versions:  Coq 8.1pl3, Isabelle2009{-1,-2}
 
@@ -54,9 +54,10 @@ into .emacs.  You should put .emacs in value of HOME if you set that,
 or else in directory you installled Emacs in, e.g.  
 c:\Program Files\Emacs\.emacs
 
-Note that Windows compatibility isn't thoroughly tested by the
-maintainers.  If you discover problems, please send a report and/or
-fix to the address above.
+Note that Windows compatibility isn't tested by the maintainers.  If
+you discover problems, please add notes on the Wiki page above, and
+submit patches to http://proofgeneral.inf.ed.ac.uk/trac
+
 
 
 

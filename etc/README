@@ -1,9 +1,9 @@
-Files in the PG/etc directory  (NB: some only in devel distrib)
-===============================================================
+Files in the PG/etc directory
+=============================
 
 README                 this file
 
-ProofGeneral.spec      For building the Proof General RPM.
+ProofGeneral.spec      Sample specfile for building the Proof General RPM.
 		       Use "rpm -tb" to build from tarball.
 
 ProofGeneral.menu      Menu file for some Linux versions.  
@@ -12,8 +12,6 @@ ProofGeneral.menu      Menu file for some Linux versions.
 ProofGeneral.desktop   Menu file for some Linux versions.  
 		       Install in /etc/X11/applnk/Applications/
 
-announce	       Announcement
-		       
 lego		       Files for testing: LEGO Proof General
 isa					  Isabelle Proof General
 isar					  Isar PG
@@ -22,15 +20,11 @@ coq					  Coq
 <otherprover>				   .. others, similarly
 
 
-bug-notes.txt	       Test cases for Emacs or PG bugs
 cvs-tips.txt	       Notes on  cvs with PG project
-debugging-tips.txt     Notes on  debugging
+development-tips.txt   Notes on  development
 profiling.txt			 profiling
 
-release-log.txt	        A record of official releases 
-
-testing-log.txt	        Notes on testing 
-test-schedule.txt
-TESTS
+testsuite/	       Test suites (replaced by generic/pg-autotest)
+trac/		       Test cases for reported bugs to check regression
 
 
