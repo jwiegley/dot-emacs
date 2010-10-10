@@ -539,8 +539,8 @@ It is recorded in the span with the 'rawname property."
 	    (cons (cons idiomsym (setq elts (make-hash-table)))
 		  pg-script-portions)))
     (if (gethash idsym elts)
-	(proof-debug "Element named " name
-		     " (type " idiom ") was already in buffer."))
+	(proof-debug "Element named %s (type %s) was already in buffer."
+		     name idiom))
     (puthash idsym span elts)
     ;; Idiom and ID are stored in the span as symbols; name as a string.
     (span-set-property span 'idiom idiomsym)
