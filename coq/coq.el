@@ -395,6 +395,10 @@ If locked span already has a state number, then do nothing. Also updates
 
 (defun coq-find-and-forget (span)
   "Backtrack to SPAN.  Using the \"Backtrack n m p\" coq command."
+  (if (eq (span-property span 'type) 'proverproc)
+      ;; processed externally (i.e. Require, etc), nothing to do
+      ;; (should really be unlocked when we undo the Require).
+      nil 
   (let* (ans (naborts 0) (nundos 0)
              (proofdepth (coq-get-span-proofnum span))
              (proofstack (coq-get-span-proofstack span))
@@ -411,7 +415,7 @@ If locked span already has a state number, then do nothing. Also updates
        (format "Backtrack %s %s %s . "
                (int-to-string span-staten)
                (int-to-string proofdepth)
-               naborts)))))
+               naborts))))))
 
 (defvar coq-current-goal 1
   "Last goal that Emacs looked at.")
