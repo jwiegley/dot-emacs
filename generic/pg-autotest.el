@@ -34,10 +34,13 @@
   "Value for 'standard-output' during tests.")
 
 (setq debug-on-error t) 		;; enable in case a test goes wrong
+(setq proof-general-debug t)		;; debug messages from PG
 
 (defadvice proof-debug (before proof-debug-to-log (msg &rest args))
   "Output the debug message to the test log."
   (apply 'pg-autotest-message msg args))
+
+(ad-activate 'proof-debug)
 
 ;;; Some utilities
 
@@ -103,7 +106,7 @@
     (proof-with-current-buffer-if-exists
      pg-autotest-log
      (insert fmsg "\n"))
-    (message fmsg)
+    (message "%s" fmsg)
     (redisplay t)))
 
 (defun pg-autotest-remark (msg)
