@@ -226,13 +226,13 @@ other documentation, system downloads, etc.
 Proof General version 4.0 is a major overhaul of Proof General.
 The main changes are:
 @itemize @bullet
-@item support for GNU Emacs only, @b{you cannot use XEmacs any more}
-@item a new @b{Unicode Tokens} mode, which now replaces X-Symbol
-      @pxref{Unicode symbols and special layout support}
+@item support for GNU Emacs only, @b{you cannot use XEmacs any more};
+@item a new @b{Unicode Tokens} mode, which now replaces X-Symbol,
+      @pxref{Unicode symbols and special layout support};
 @item to allow ``document centred'' working, annotating scripts with prover output
-      and automatically sending commands to the prover @pxref{Document centred working}
-@item support for latest versions of provers (Isabelle2009-2 and Coq 8.2)
-@item numerous smaller enhancements and efficiency improvements
+      and automatically sending commands to the prover, @pxref{Document centred working};
+@item support for latest versions of provers (Isabelle2009-2 and Coq 8.2);
+@item numerous smaller enhancements and efficiency improvements.
 @end itemize
 
 See the @file{CHANGES} file in the distribution for more complete
@@ -426,7 +426,7 @@ Please help us!
 
 Send us comments, suggestsions, or (the best) patches to improve support
 for your chosen proof assistant.  Contact us at
-@code{http://proofgeneral.inf.ed.ac.uk/trac}.
+@uref{http://proofgeneral.inf.ed.ac.uk/trac}.
 
 If your chosen proof assistant isn't supported, read the accompanying
 @i{Adapting Proof General} manual to find out how to configure PG for a
