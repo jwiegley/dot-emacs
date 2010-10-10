@@ -3,23 +3,14 @@ HOL Light in Proof General.
 Written by David Aspinall.
 
 Status:	           not officially supported yet
-Maintainer:       volunteer required
-HOL-Ligh version:
+Maintainer:        volunteer required
+HOL-Light version: 
 HOL homepage:      http://hol.sourceforge.net
 
 ========================================
 
 
 This is a "technology demonstration" of Proof General for HOL-Light.
-
-It may work with other versions of HOL, but is untested (please let me
-know if you try).  Probably just a few settings need changing to
-configure for different output formats.
-
-It has basic script management support, with a little bit of
-decoration of scripts and output.
-
-There is support for Unicode Tokens.
 
 I have written this in the hope that somebody from the HOL-Light
 community will adopt it, maintain and improve it, and thus turn it
