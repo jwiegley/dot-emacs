@@ -376,7 +376,7 @@ file for the mode, which will be
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v") (phox "PhoX" "phx") (lego "LEGO" "l") (hol-light "HOL Light" "ml"))}.
+The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v") (phox "PhoX" "phx") (lego "LEGO" "l"))}.
 @end defopt
 
 
@@ -2737,7 +2737,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego} @code{'hol-light}.
+A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego}.
 If nil, the default will be ALL available proof assistants.
 
 Each proof assistant defines its own instance of Proof General,
@@ -3015,7 +3015,8 @@ For locking files loaded by a proof assistant, we use the next function.
 Ensure @var{buffer} marked completely processed, completing with a single step.
 
 If buffer already contains a locked region, only the remainder of the
-buffer is closed off atomically.
+buffer is closed off atomically (although undo for the initial portion
+is unlikely to work, the decoration may be worth retaining).
 
 This works for buffers which are not in proof scripting mode too,
 to allow other files loaded by proof assistants to be marked read-only.
