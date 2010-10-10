@@ -24,6 +24,8 @@
 (require 'proof-shell)
 (require 'proof-utils)
 
+(defconst pg-autotest-debug nil)	; run in debug mode or not
+
 
 ;;; Code:
 
@@ -33,14 +35,14 @@
 (defvar pg-autotest-log t
   "Value for 'standard-output' during tests.")
 
-(setq debug-on-error t) 		;; enable in case a test goes wrong
-(setq proof-general-debug t)		;; debug messages from PG
+(when pg-autotest-debug
+  (setq debug-on-error t) 		;; enable in case a test goes wrong
+  (setq proof-general-debug t)		;; debug messages from PG
 
-(defadvice proof-debug (before proof-debug-to-log (msg &rest args))
-  "Output the debug message to the test log."
-  (apply 'pg-autotest-message msg args))
-
-(ad-activate 'proof-debug)
+  (defadvice proof-debug (before proof-debug-to-log (msg &rest args))
+    "Output the debug message to the test log."
+    (apply 'pg-autotest-message msg args))
+  (ad-activate 'proof-debug))
 
 ;;; Some utilities
 
