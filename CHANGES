@@ -4,7 +4,8 @@
 
 ** Install/support changes
 
-*** XEmacs is no longer supported; PG only works with GNU Emacs 22.2+
+*** XEmacs is no longer supported; PG only works with GNU Emacs 23.1+
+    Older GNU Emacs versions in 22.X series may work but are unsupported.
 
 *** Primary distribution formats changed
     The RPM and zip file formats have been removed.
@@ -16,8 +17,7 @@
 *** Font-lock based Unicode Tokens mode replaces X-Symbol
     Unicode Tokens has been significantly improved since PG 3.7.1,
     and now works purely at a "presentation" level without changing 
-    buffer contents.  For best results, Emacs 23 is recommended.
-    See Tokens menu for many useful commands.
+    buffer contents.  See Tokens menu for many useful commands.
 
 *** Document-centred mechanisms added:
     - auto raise of prover output buffers can be disabled
