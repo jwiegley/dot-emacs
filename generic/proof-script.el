@@ -90,21 +90,21 @@ This uses the size of the hash table for IDIOM."
 ;; The locked region is covered by a collection of non-overlaping
 ;; spans (spans are our abstraction of extents/overlays).
 ;;
+;; Each span has a 'type property, one of:
+;;
+;;  'goalsave     A goal..savegoal region in the buffer, a completed proof.
+;;  'vanilla      Initialised in proof-semis-to-vanillas, for
+;;  'comment      A comment outside a command.
+;;  'proverproc   A region closed by the prover, processed outwith PG
+;;  'pbp	  A PBP command inserted automatically into the script
+;;
 ;; For an unfinished proof, there is one extent for each command
 ;; or comment outside a command.   For a finished proof, there
 ;; is one extent for the whole proof.
 ;;
-;; Each command span has a 'type property, one of:
-;;
-;;     'goalsave     A goal..savegoal region in the buffer, a completed proof.
-;;     'vanilla      Initialised in proof-semis-to-vanillas, for
-;;     'comment      A comment outside a command.
-;;     'proverproc   A region closed by the prover, processed outwith PG
-;;     'pbp	     A PBP command inserted automatically into the script
-;;
-;;  All spans except those of type 'comment have a 'cmd property,
-;;  which is set to a string of its command.  This is the
-;;  text in the buffer stripped of leading whitespace and any comments.
+;;  A spans corresponding to a command has a 'cmd property, which is set
+;;  to a string of its command.  This is the text in the buffer
+;;  stripped of leading whitespace and any comments.
 ;;
 
 ;; ** Variables
@@ -649,7 +649,17 @@ IDIOMSYM is a symbol and ID is a strings."
 	(pg-make-element-invisible 'proof proofid))))
 
 (defun pg-span-name (span)
-  "Return a user-level name for SPAN."
+  "Return a user-level name for SPAN.
+This is based on its name and type.
+
+Each span has a 'type property, one of:
+
+    'goalsave     A goal..savegoal region in the buffer, a completed proof.
+    'vanilla      Initialised in proof-semis-to-vanillas, for
+    'comment      A comment outside a command.
+    'proverproc   A region closed by the prover, processed outwith PG
+    'pbp	  A PBP command inserted automatically into the script
+"
   (let ((type    (span-property span 'type))
 	(idiom   (span-property span 'idiom))
 	(name    (span-property span 'name))
@@ -763,34 +773,22 @@ Argument FACE means add 'face property FACE to the span."
   "Ensure BUFFER marked completely processed, completing with a single step.
 
 If buffer already contains a locked region, only the remainder of the
-buffer is closed off atomically.
+buffer is closed off atomically (although undo for the initial portion
+is unlikely to work, the decoration may be worth retaining).
 
 This works for buffers which are not in proof scripting mode too,
 to allow other files loaded by proof assistants to be marked read-only."
-;; NB: this isn't quite right, because not all of the structure in the
-;; locked region will be preserved when processing across several
-;; files.  In particular, the span for a currently open goal should be
-;; removed.  Keeping the structure is an approximation to make up for
-;; the fact that that no structure is created by loading files via the
-;; proof assistant.  Future ideas: proof assistant could ask Proof
-;; General to do the loading, to alleviate file handling there;
-;; we could cache meta-data resulting from processing files;
-;; or even, could include parsing inside PG.
   (with-current-buffer buffer
     (save-excursion ;; prevent point moving if user viewing file
       (if (< (proof-unprocessed-begin) (proof-script-end))
 	(let ((span (span-make (proof-unprocessed-begin)
-			       (proof-script-end)))
-	      dummycmd)
+			       (proof-script-end))))
 	  ;; Reset queue and locked regions.
 	  (proof-init-segmentation)
 	  ;; End of locked region is always end of buffer
 	  (proof-set-locked-end (proof-script-end))
 	  ;; Configure the overlay span
 	  (span-set-property span 'type 'proverproc)
-	  ;; A dummy command for retraction which examines it
-	  ;; FIXME: shouldn't be necessary really
-	  (span-set-property span 'dummycmd "")
 	  (pg-set-span-helphighlights span 'nohighlight))))))
 
 
@@ -1535,15 +1533,14 @@ Subroutine of `proof-done-advancing-save'."
     ;; before a save or the start of the buffer.
     ;; FIXME: this should really do the work done in
     ;; proof-done-advancing-save above, too, with nested undos, etc.
-    (while ;; YUK!
+    (while ;; big ugly condition
 	(and
 	 gspan
 	 (or
 	  (eq (span-property gspan 'type) 'comment)
-	  ;;(eq (span-property gspan 'type) 'proverproc) ;; NB: not necess currently
 	  (and
 	   (setq ncmd (span-property gspan 'cmd))
-	   (setq cmd ncmd) ; pc: is this ok?
+	   (setq cmd ncmd) ; dynamic scope for funcall below
 	   (not (funcall proof-goal-command-p gspan))
 	   (not
 	    (and proof-save-command-regexp
@@ -2150,12 +2147,6 @@ DISPLAYFLAGS control output shown to user, see `proof-action-list'."
     (proof-start-queue (min start end) (proof-unprocessed-begin) 
 		       actions 'retracting)))
 
-;; FIXME da:  I would rather that this function moved point to
-;; the start of the region retracted?
-
-;; FIXME da: Maybe retraction to the start of
-;; a file should remove it from the list of included files?
-;; NB: the "interactive" variant is so that we get a simple docstring.
 (defun proof-retract-until-point-interactive (&optional delete-region)
   "Tell the proof process to retract until point.
 If invoked outside a locked region, undo the last successfully processed
@@ -2640,7 +2631,10 @@ Choice of function depends on configuration setting."
 	 (>= (nth 2 (car proof-segment-up-to-cache)) pos)
 	 ;; cache is fresh and may have enough parse data, try it
 	 (setq res (proof-segment-cache-contents-for pos)))
-	res
+	(progn
+	  (proof-debug "proof-segment-up-to-using-cache: re-using %d parse results"
+		       (length res))
+	  res)
       ;; Cache not useful, perform a fresh parse
       (let ((semis (proof-segment-up-to pos args)))
 	(setq proof-segment-up-to-cache-start (proof-queue-or-locked-end))
