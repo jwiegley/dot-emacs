@@ -401,20 +401,16 @@ dist:	cvsexport
 ## release:
 ##     tag the CVS sources, and make a distribution.
 ##     Then install the distribution in RELEASEDIR
-##     WARNING: RELEASEDIR is not cleaned, but files there
-##     with same names will be overwritten.
+##     WARNING: RELEASEDIR is not cleaned except to remove
+##     links, but files there with same names will be overwritten.
 ##
 release: distclean tag dist 
 	@echo "*************************************************"
 	@echo " Making release (installing tarball distributions)."
 	@echo "*************************************************"
 	mkdir -p $(RELEASEDIR)
-#	clean source dir (remove link to this release)
 	(cd $(DISTBUILDIR); rm -f $(NAME))
-#	clean target dir (remove link for latest release)
 	(cd $(RELEASEDIR); rm -rf $(RELEASENAME))
-#	Seem to need R instead of r here now,
-#	Otherwise cp tries to make hard link instead of symlink?!
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(LATESTNAME); ln -s  $(RELEASENAME) $(LATESTNAME))
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETGZ) $(LATESTNAME).tgz)
