@@ -267,7 +267,7 @@ This is only useful for PG developers."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-use-parser-cache nil
+(defcustom proof-use-parser-cache t
   "*Non-nil to use a simple parsing cache.
 This can be helpful when editing and reprocessing large files.
 This variable exists to disable the cache in case of problems."
