@@ -176,7 +176,7 @@ Currently this setting is UNIMPLEMENTED, changes have no effect."
   :set 'proof-set-value
   :group 'proof-user-options)
 
-(defpgcustom unicode-tokens-enable nil
+(defpgcustom unicode-tokens-enable (eq proof-assistant-symbol 'isar)
   "*Non-nil for using Unicode token input mode in Proof General."
   :type 'boolean
   :set 'proof-set-value
