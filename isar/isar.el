@@ -243,10 +243,11 @@ See -k option for Isabelle interface script."
   :type 'boolean
   :eval (isar-set-proof-find-theorems-command))
 
-(defun isar-set-undo-commands ()
-  (proof-deactivate-scripting)
-  (when proof-script-buffer
-    (message "Warning: switching undo mechanism will break undo in this buffer"))
+(defun isar-set-undo-commands (&optional initp)
+  (unless initp
+    (proof-deactivate-scripting)
+    (when proof-script-buffer
+      (message "Warning: switching undo mechanism will break undo in current buffer")))
   (setq proof-count-undos-fn 'isar-count-undos)
   (when isar-use-linear-undo
     (setq proof-kill-goal-command nil)
@@ -264,7 +265,7 @@ See -k option for Isabelle interface script."
 
 (defun isar-configure-from-settings ()
   (isar-set-proof-find-theorems-command)
-  (isar-set-undo-commands))
+  (isar-set-undo-commands 'init))
 
 ;;
 ;; Theory loader operations
