@@ -337,13 +337,18 @@ No effect if buffer is dead."
 
 ;;;###autoload
 (defun proof-debug (msg &rest args)
-  "Issue the debugging message (format MSG ARGS) in the response buffer, display it.
+  "Issue the debugging message (format MSG ARGS) in the *PG Debug* buffer.
 If proof-general-debug is nil, do nothing."
-  (if proof-general-debug
-      (let ((formatted (apply 'format msg args)))
+  (when proof-general-debug
+    (with-current-buffer (get-buffer-create "*PG Debug*")
+      (help-mode)
+      (let ((formatted (apply 'format msg args))
+	    (log-warning-minimum-level :debug)
+	    (warning-minimum-level :debug)
+	    (buffer-read-only nil))
 	(display-warning 'proof-general
-			 formatted 'debug
-			 "*PG Debug*"))))
+			 formatted :debug
+			 "*PG Debug*")))))
 
 ;; Utility used in the "Buffers" menu, and throughout
 (defun proof-switch-to-buffer (buf &optional noselect)
