@@ -2617,20 +2617,16 @@ Choice of function depends on configuration setting."
 
 (defun proof-segment-up-to-using-cache (pos &rest args)
   "A wrapper for `proof-segment-up-to' which uses a cache to speed things up."
-  (let (res pos1)
+  (let (res)
     (if (and
-	 proof-use-parser-cache ;; safety measure
-	 (setq pos1 (save-excursion (goto-char pos)
-				    (skip-chars-forward " \t\n")
-				    (point)))
+	 proof-use-parser-cache      ;; safety off valve
 	 proof-segment-up-to-cache
+	 (>= (proof-queue-or-locked-end) 
+	     proof-segment-up-to-cache-start)
+	 (setq res (proof-segment-cache-contents-for pos))
 	 (or (not proof-last-edited-low-watermark)
-	     (> proof-last-edited-low-watermark pos1))
-	 ;; be conservative: extending region may give different parse
-	 (>= (proof-queue-or-locked-end) proof-segment-up-to-cache-start)
-	 (>= (nth 2 (car proof-segment-up-to-cache)) pos)
-	 ;; cache is fresh and may have enough parse data, try it
-	 (setq res (proof-segment-cache-contents-for pos)))
+	     (> proof-last-edited-low-watermark
+		(nth 2 (car (last res))))))
 	(progn
 	  (proof-debug "proof-segment-up-to-using-cache: re-using %d parse results"
 		       (length res))
