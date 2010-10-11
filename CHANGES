@@ -1,5 +1,13 @@
 -*- outline -*-  
 
+* Changes of Proof General 4.1 from Proof General 4.0
+
+** Generic changes
+
+*** Parsing now uses cache by default (proof-use-parser-cache=t).
+
+
+
 * Main Changes for Proof General 4.0 from 3.7.1
 
 ** Install/support changes
