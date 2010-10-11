@@ -1,11 +1,5 @@
 -*- outline -*-
 
-
- NB: THERE ARE KNOWN BUGS IN THIS INTERIM RELEASE WITH 
- SCRIPT MANAGEMENT FOR COQ!  APOLOGIES FOR INCONVENIENCE.
- See http://proofgeneral.inf.ed.ac.uk/trac/ticket/287
-
-
 * Known Bugs and Workarounds for Proof General.
 
 For latest, see: http://proofgeneral.inf.ed.ac.uk/trac
