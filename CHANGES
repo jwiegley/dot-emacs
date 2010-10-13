@@ -5,6 +5,11 @@
 ** Generic changes
 
 *** Parsing now uses cache by default (proof-use-parser-cache=t).
+    Speeds up undo/redo in long buffers if no edits are made.
+
+** Isabelle changes
+
+*** Unicode tokens enabled by default
 
 
 
