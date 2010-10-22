@@ -1286,7 +1286,7 @@ buffer."
             ;; since the internal encoding happens to use utf-8 as well.
             ;; Actually in coq-8.3 one utf8 char = one space so we do not need
             ;; this at all
-            (let ((bytes (encode-coding-string text 'utf-8-unix)))
+            (let ((bytes text)) ;(encode-coding-string text 'utf-8-unix)
               ;; Check that pos&len make sense in `bytes', if not give up.
               (when (>= (length bytes) (+ pos len))
                 ;; We assume here that `text' is a single line and use \n as
