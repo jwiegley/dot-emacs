@@ -11,6 +11,11 @@
 
 *** Unicode tokens enabled by default
 
+** Coq changes
+
+*** Fixes for Coq 8.3
+
+
 
 
 * Main Changes for Proof General 4.0 from 3.7.1
