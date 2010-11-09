@@ -1,8 +1,9 @@
-# KDE Config File
 [Desktop Entry]
+Value=1.0
+Type=Application
 Name=Proof General
 Comment=Interface to Proof Assistants
-Type=Application
-Exec=proofgeneral
 Icon=pgicon.png
-Terminal=0
+Exec=proofgeneral
+Terminal=false
+Categories=Development;Math;
