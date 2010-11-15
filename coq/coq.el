@@ -53,7 +53,7 @@
 ;; Fixes default prog args, this is overridden by file variables
 (defun coq-build-prog-args ()
   (setq coq-prog-args
-        (append (remove-if (lambda (x) (string-match "\\-emacs" x)) coq-prog-args)
+        (append (remove-if (lambda (x) (string-match "-emacs" x)) coq-prog-args)
                 '("-emacs-U")
                 (if coq-translate-to-v8 " -translate"))))
 
@@ -86,6 +86,8 @@ Set to t if you want this feature."
   (format "Set Undo %s . " coq-default-undo-limit))
 
 (require 'coq-syntax)
+;; FIXME: Even if we don't use coq-indent for indentation, we still need it for
+;; coq-find-command-end-backward and coq-find-real-start.
 (require 'coq-indent)
 
 (defcustom coq-prog-env nil
@@ -196,6 +198,72 @@ On Windows you might need something like:
     "Coq Goals" nil
     (coq-goals-mode-config)))
 
+;; Indentation and navigation support via SMIE.
+
+(defcustom coq-use-smie t
+  "If non-nil, Coq mode will try to use SMIE for indentation.
+SMIE is a navigation and indentation framework available in Emacs â‰¥ 23.3."
+  :type 'boolean
+  :group 'coq)
+
+(require 'smie nil 'noerror)
+
+(defconst coq-smie-grammar
+  ;; FIXME: This does not cover the tactic scripts.
+  ;; FIXME: This only covers a subset of the language.
+  ;; FIXME: This does not know about Notations.
+  (when (fboundp 'smie-prec2->grammar)
+  (smie-prec2->grammar
+   (smie-bnf->prec2
+    '((exp ("match" matchexp "with" branches "end")
+           ("let" assigns "in" exp)
+           ("fun" exp "=>" exp)
+           ("if" exp "then" exp "else" exp)
+           ("forall" exp "," exp)
+           ("(" exps ")")
+           (exp ":" exp)
+           (exp "->" exp))
+      ;; Having "return" here rather than as a separate rule in `exp'
+      ;; causes it to be indented at a different level than "with".
+      (matchexp (matchexp "return" exp) (exp "in" exp) (exp "as" exp))
+      (branches (exp "=>" exp) (branches "|" branches))
+      (assigns (exp ":=" exp) (assigns ";" assigns))
+      (exps (exp) (exps "," exps))
+      (decls ("Lemma" exp ":=" exp)
+             ("Definition" exp ":=" exp)
+             ("Fixpoint" exp ":=" exp)
+             ("Inductive" exp ":=" branches)
+             ("Notation" exp ":=" exp)
+             ;; The above elements are far from the only ones terminated by "."
+             ;; (think of all the tactics).  So we won't list them all, instead
+             ;; we'll use "." as separator rather than terminator.
+             ;; This has the downside that smie-forward-sexp on a "Definition"
+             ;; stops right before the "." rather than right after.
+             (decls "." decls)))
+    ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
+    '((nonassoc "else" "in" "=>" ",") (left ":") (assoc "->"))
+    ;; Declare that we don't care about associativity of separators.
+    '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")))))
+  "Parsing table for Coq.  See `smie-grammar'.")
+
+(defun coq-smie-rules (kind token)
+  "Indentation rules for Coq.  See `smie-rules-function'."
+  (case kind
+    (:elem (case token
+             (basic proof-indent)))
+    (:list-intro (member token '("fun" "forall")))
+    (:after
+     (cond
+      ;; Override the default indent step added because of their presence
+      ;; in smie-closer-alist.
+      ((member token '("," ":=")) 0)))
+    (:before
+     (cond
+      ((equal token "return") (if (smie-rule-parent-p "match") 3))
+      ((equal token "|") (if (smie-rule-parent-p "with") 3))
+      ((equal token ":=")
+       (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive")
+           (or proof-indent smie-indent-basic)))))))
 
 ;;
 ;; Auxiliary code for Coq modes
@@ -379,7 +447,7 @@ If locked span already has a state number, then do nothing. Also updates
 ;;      state                        proof stack
 ;;      num                           depth
 ;;       __                              _
-;; aux < 12 |aux|SmallStepAntiReflexive| 4 < ù
+;; aux < 12 |aux|SmallStepAntiReflexive| 4 < \371
 ;; ^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^     ^
 ;; usual           pending proofs           usual
 ;;                                          special char
@@ -427,7 +495,7 @@ If locked span already has a state number, then do nothing. Also updates
     (cons 'goal (int-to-string coq-current-goal)))
    ((looking-at "subgoal \\([0-9]+\\) is:\n")
     (goto-char (match-end 0))
-    (cons 'goal (match-string 1))
+    (cons 'goal (match-string 1))       ;FIXME: This is dead-code!?  --Stef
     (setq coq-current-goal (string-to-number (match-string 1))))
    ((looking-at proof-shell-assumption-regexp)
     (cons 'hyp (match-string 1)))
@@ -473,7 +541,7 @@ If locked span already has a state number, then do nothing. Also updates
   (let ((guess
          (cond
           (dontguess nil)
-          ((not (eq mark-active nil)) ; region exists
+          ((use-region-p)
            (buffer-substring-no-properties (region-beginning) (region-end)))
           ((fboundp 'symbol-near-point) (symbol-near-point))
           ((fboundp 'symbol-at-point) (symbol-at-point)))))
@@ -688,15 +756,18 @@ This is specific to `coq-mode'."
 	proof-nested-undo-regexp coq-state-changing-commands-regexp
         proof-script-imenu-generic-expression coq-generic-expression)
 
-  (setq
-   ;; indentation is implemented in coq-indent.el
-   indent-line-function 'coq-indent-line
-   proof-indent-any-regexp      coq-indent-any-regexp
-   proof-indent-open-regexp     coq-indent-open-regexp
-   proof-indent-close-regexp    coq-indent-close-regexp)
+  (if (and coq-use-smie (fboundp 'smie-setup))
+      (smie-setup coq-smie-grammar #'coq-smie-rules)
+    (require 'coq-indent)
+    (setq
+     ;; indentation is implemented in coq-indent.el
+     indent-line-function 'coq-indent-line
+     proof-indent-any-regexp      coq-indent-any-regexp
+     proof-indent-open-regexp     coq-indent-open-regexp
+     proof-indent-close-regexp    coq-indent-close-regexp)
 
-  (make-local-variable 'indent-region-function)
-  (setq indent-region-function 'coq-indent-region)
+    (make-local-variable 'indent-region-function)
+    (setq indent-region-function 'coq-indent-region))
 
 
   ;; span menu
@@ -1448,6 +1519,7 @@ Only when three-buffer-mode is enabled."
 ;;   Local Variables: ***
 ;;   fill-column: 79 ***
 ;;   indent-tabs-mode: nil ***
+;;   coding: utf-8 ***
 ;;   End: ***
 
 ;;; coq.el ends here

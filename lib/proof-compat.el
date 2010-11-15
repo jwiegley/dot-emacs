@@ -119,12 +119,12 @@ The value returned is the value of the last form in BODY."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; A naughty hack to completion.el
-;;;
-;;; At the moment IMO completion too eagerly adds stuff to
-;;; its database: the completion-before-command function
-;;; makes every suffix be added as a completion!
+;;
+;; A naughty hack to completion.el
+;;
+;; At the moment IMO completion too eagerly adds stuff to
+;; its database: the completion-before-command function
+;; makes every suffix be added as a completion!
 
 (eval-after-load "completion"
 '(defun completion-before-command ()
@@ -136,6 +136,10 @@ The value returned is the value of the last form in BODY."
 ;;;
 ;;; Backward compatibility for Emacs 22
 ;;;
+
+(or (fboundp 'use-region-p)
+    (defun use-region-p ()
+      (and transient-mark-mode mark-active)))
 
 (or (fboundp 'characterp)
     (defun characterp (obj)
