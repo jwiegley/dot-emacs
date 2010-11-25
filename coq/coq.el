@@ -19,10 +19,18 @@
   (require 'outline)
   (require 'newcomment)
   (require 'etags)
+  (unless (proof-try-require 'smie)
+    (defvar smie-indent-basic nil))     ; smie
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-auto-compile-vos nil)     ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
+
+; (unless                                 ; for smie indentation
+;    (proof-try-require 'smie)
+; can't get conditional declaration to work here
+  (declare-function smie-bnf->prec2 "smie")
+  (declare-function smie-rule-parent-p "smie")
 
 (require 'proof)
 (require 'coq-local-vars)               ;
