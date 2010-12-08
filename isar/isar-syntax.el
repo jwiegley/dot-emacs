@@ -142,16 +142,19 @@ This list is in the right format for proof-easy-config.")
   (append isar-keywords-theory-goal
 	  isar-keywords-proof-goal
 	  isar-keywords-proof-asm-goal
-	  isar-keywords-proof-open))
+	  isar-keywords-proof-open
+          '("notepad")))
 
 (defconst isar-keywords-indent-close
   (append isar-keywords-save
-	  isar-keywords-proof-close))
+	  isar-keywords-proof-close
+          isar-keywords-theory-end))
 
 (defconst isar-keywords-indent-enclose
   (append isar-keywords-proof-block
 	  isar-keywords-proof-close
 	  isar-keywords-qed-block
+          isar-keywords-theory-end
 	  (list isar-keyword-begin)))
 
 
