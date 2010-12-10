@@ -5,15 +5,16 @@ This version of Proof General has been tested with these Emacs versions
 on recent Linux systems:
 
  Emacs 23.2            -- recommended and supported
- Emacs 22.3.1	       -- previous version, may work, *unsupported*
+ Emacs 23.1, 22.3.1    -- previous versions, may work, *unsupported*
 
 and (main) prover versions:  Coq 8.1pl3, Isabelle2009{-1,-2}
 
 See below for notes about other operating systems.
 
 Maintaining compatibility across proof assistant versions, Emacs
-versions and operating systems is virtually impossible.  In this major
-release ** XEmacs compatibility has been dropped **
+versions and operating systems is virtually impossible.  
+
+In the major 4.0 release ** XEmacs compatibility has been dropped **
 
 
 Running on Mac OS X
