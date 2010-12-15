@@ -1,6 +1,9 @@
 Files in the PG/etc directory
 =============================
 
+Files in this directory are auxiliary documentation and test files,
+not needed for a running Proof General installation.
+
 README                 this file
 
 ProofGeneral.spec      Sample specfile for building the Proof General RPM.
@@ -24,7 +27,9 @@ cvs-tips.txt	       Notes on  cvs with PG project
 development-tips.txt   Notes on  development
 profiling.txt			 profiling
 
+proviola/	       See README therein.
+
 testsuite/	       Test suites (replaced by generic/pg-autotest)
-trac/		       Test cases for reported bugs to check regression
 
-
+trac/		       Test cases for reported bugs to check 
+		       regression (manually)
