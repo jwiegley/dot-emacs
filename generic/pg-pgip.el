@@ -466,6 +466,7 @@ Also sets local proverid and srcid variables for buffer."
     (cond
      ((eq tyname 'pgipbool)	'boolean)
      ((eq tyname 'pgipint)	'integer) ;; TODO: implement range limits
+     ((eq tyname 'pgipfloat)	'float)   ;; TODO: implement range limits
      ((eq tyname 'pgipstring)	'string)
      ((eq tyname 'pgipconst)
       (let ((name	(pg-pgip-get-name node 'optional))
@@ -498,6 +499,7 @@ Also sets local proverid and srcid variables for buffer."
   (cond
    ((eq type 'boolean) "%b")
    ((eq type 'integer) "%i")
+   ((eq type 'float) "%f")
    (t "%s")))
 
 
@@ -515,8 +517,9 @@ Also sets local proverid and srcid variables for buffer."
      (t (progn
 	  (pg-pgip-warning "pg-pgip-interpret-value: received non-bool value %s" value)
 	  nil))))
-   ((eq type 'integer)		 (string-to-number value))
-   ((eq type 'string)		 value)
+   ((eq type 'integer)	(string-to-number value))
+   ((eq type 'float)	(string-to-number value))
+   ((eq type 'string)	 value)
    ((eq (car-safe type) 'const)  value)
    ((eq (car-safe type) 'choice)
     (pg-pgip-interpret-choice (cdr type) value))

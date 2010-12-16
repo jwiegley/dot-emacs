@@ -189,6 +189,13 @@ Default is `int-to-string'."
   :type 'function
   :group 'prover-config)
 
+(defcustom proof-assistant-format-float-fn 'number-to-string
+  "Function for converting float values to ints in proof assistant.
+Used for configuring settings in proof assistant.
+Default is `number-to-string'."
+  :type 'function
+  :group 'prover-config)
+
 (defcustom proof-assistant-format-string-fn  (lambda (value) value)
   "Function for converting string values to strings in proof assistant.
 Used for configuring settings in proof assistant.

@@ -947,6 +947,7 @@ KEY is the optional key binding."
   (list
    (cons "%b" '(proof-assistant-format-bool curvalue))
    (cons "%i" '(proof-assistant-format-int curvalue))
+   (cons "%f" '(proof-assistant-format-float curvalue))
    (cons "%s" '(proof-assistant-format-string curvalue)))
   "Table to use with `proof-format' for formatting CURVALUE for assistant.
 NB: variable curvalue is dynamically scoped (used in `proof-assistant-format').")
@@ -957,11 +958,15 @@ NB: variable curvalue is dynamically scoped (used in `proof-assistant-format')."
 (defun proof-assistant-format-int (value)
   (funcall proof-assistant-format-int-fn value))
 
+(defun proof-assistant-format-float (value)
+  (funcall proof-assistant-format-float-fn value))
+
 (defun proof-assistant-format-string (value)
   (funcall proof-assistant-format-string-fn value))
 
 (defun proof-assistant-format (string curvalue)
-  "Replace a format characters %b %i %s in STRING by formatted CURVALUE.
+  "Replace a format characters in STRING by formatted CURVALUE.
+Format character is one of %b, %i, %f, or %s.
 Formatting suitable for current proof assistant, controlled by
 `proof-assistant-format-table' which see.
 Finally, apply `proof-assistant-setting-format' if non-nil.
