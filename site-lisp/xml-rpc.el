@@ -2,10 +2,10 @@
 
 ;; Copyright (C) 2001 CodeFactory AB.
 ;; Copyright (C) 2001 Daniel Lundin.
-;; Parts Copyright (C) 2002-2005 Mark A. Hershberger
-
 ;; Copyright (C) 2006 Shun-ichi Goto
 ;;   Modified for non-ASCII character handling.
+;; Copyright (C) 2007 Wickersheimer Jeremy <jwickers@gmail.com>
+;; Copyright (C) 2002-2007 Mark A. Hershberger
 
 ;; Author: Daniel Lundin <daniel@codefactory.se>
 ;; Maintainer: Mark A. Hershberger <mah@everybody.org>
@@ -63,6 +63,7 @@
 ;;       string:  "foo"
 ;;        array:  '(1 2 3 4)   '(1 2 3 (4.1 4.2))
 ;;       struct:  '(("name" . "daniel") ("height" . 6.1))
+;; struct with array values: '(:struct "name" "daniel" "john" "riek")
 
 
 ;; Examples
@@ -110,6 +111,9 @@
 
 
 ;;; History:
+
+;; 1.6.3   - Updated to handle vectors and ISO Dates
+;;           (Thanks Wickersheimer Jeremy <jwickers@gmail.com>!)
 
 ;; 1.6.2.2 - Modified to allow non-ASCII string again.
 ;;           It can handle non-ASCII page name and comment
@@ -197,6 +201,10 @@ Set it higher to get some info in the *Messages* buffer")
 ;;
 ;; Value type handling functions
 ;;
+
+(defun xml-rpc-value-datep (value)
+  "Return t if VALUE is a date."
+  (string-match "[0-9]\\{8\\}T\\([0-9]\\{2\\}:\\)\\{2\\}[0-9]\\{2\\}" value))
 
 (defun xml-rpc-value-intp (value)
   "Return t if VALUE is an integer."
@@ -310,19 +318,24 @@ functions in xml.el."
 					;    nil)
    ((xml-rpc-value-booleanp value)
     `((value nil (boolean nil ,(xml-rpc-boolean-to-string value)))))
+   ;; might be a vector
+   ((vectorp value)
+    (xml-rpc-value-to-xml-list (append value nil)))
    ((listp value)
     (let ((result nil)
 	  (xmlval nil))
       (if (xml-rpc-value-structp value)
 	  ;; Value is a struct
 	  (progn
-	    (when (and (symbolp (caar value)) (string= (caar value) :struct))
-	      (setq value (cons (cdar value) (cdr value))))
-	    (while (setq xmlval `((member nil (name nil ,(caar value))
-					  ,(car (xml-rpc-value-to-xml-list
-						 (cdar value)))))
-			 result (if t (append result xmlval) (car xmlval))
-			 value (cdr value)))
+	    (while
+		(progn
+		  (when (and (symbolp (caar value)) (string= (caar value) :struct))
+		    (setq value (cons (cdar value) (cdr value))))
+		  (setq xmlval `((member nil (name nil ,(caar value))
+					 ,(car (xml-rpc-value-to-xml-list
+						(cdar value)))))
+			result (if t (append result xmlval) (car xmlval))
+			value (cdr value))))
 	    `((value nil ,(append '(struct nil) result))))
 	;; Value is an array
 	(while (setq xmlval (xml-rpc-value-to-xml-list (car value))
@@ -333,6 +346,10 @@ functions in xml.el."
    ;; Value is a scalar
    ((xml-rpc-value-intp value)
     `((value nil (int nil ,(int-to-string value)))))
+   ;; Value is a Date ...
+   ((xml-rpc-value-datep value)
+    `((value nil (dateTime.iso8601 nil ,value))))
+   ;; Value is a String
    ((xml-rpc-value-stringp value)
     (let ((charset-list (find-charset-string value)))
       (if (or xml-rpc-allow-unicode-string
@@ -391,6 +408,8 @@ the parsed XML response is returned."
   ;; Check if we have a methodResponse
   (cond
    ((not (eq (car-safe (car-safe xml)) 'methodResponse))
+    (setq xml-rpc-fault-string "No methodResponse found")
+    (setq xml-rpc-fault-code   0)
     (error "No methodResponse found"))
 
    ;; Did we get a fault response
@@ -403,6 +422,8 @@ the parsed XML response is returned."
    ;; Interpret the XML list and produce a more useful data structure
    (t
     (let ((valpart (cdr (cdaddr (caddar xml)))))
+      (setq xml-rpc-fault-string nil)
+      (setq xml-rpc-fault-code   nil)
       (xml-rpc-xml-list-to-value valpart)))))
 
 ;;
@@ -455,7 +476,7 @@ or nil if called with ASYNC-CALLBACK-FUNCTION."
 	      (url-request-coding-system 'utf-8)
 	      (url-http-attempt-keepalives t)
 	      (url-request-extra-headers (list 
-                                          (cons "Connection" "keep-alive")
+;;                                           (cons "Connection" "keep-alive")
 					  (cons "Content-Type" "text/xml; charset=utf-8"))))
 	  (if (> xml-rpc-debug 1)
 	      (print url-request-data (create-file-buffer "request-data")))
@@ -492,7 +513,8 @@ or nil if called with ASYNC-CALLBACK-FUNCTION."
 				  url-http-response-status))
 		       (if (> url-http-response-status 299)
 			   (error "Error during request: %s"
-				  url-http-response-status)))
+				  url-http-response-status))
+                       (url-mark-buffer-as-dead buffer))
 		     (xml-rpc-request-process-buffer buffer)))))))))
 
 
