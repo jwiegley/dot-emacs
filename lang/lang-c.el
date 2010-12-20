@@ -1,5 +1,24 @@
 ;;;_ * cc-mode
 
+(require 'cc-mode)
+
+(setq c-syntactic-indentation nil)
+
+(define-key c-mode-base-map "#"         'self-insert-command)
+(define-key c-mode-base-map "{"         'self-insert-command)
+(define-key c-mode-base-map "}"         'self-insert-command)
+(define-key c-mode-base-map "/"         'self-insert-command)
+(define-key c-mode-base-map "*"         'self-insert-command)
+(define-key c-mode-base-map ";"         'self-insert-command)
+(define-key c-mode-base-map ","         'self-insert-command)
+(define-key c-mode-base-map ":"         'self-insert-command)
+(define-key c-mode-base-map "("         'self-insert-command)
+(define-key c-mode-base-map ")"         'self-insert-command)
+(define-key c-mode-base-map [tab]       'yas/expand)
+
+(define-key c++-mode-map "<"        'self-insert-command)
+(define-key c++-mode-map ">"        'self-insert-command)
+
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.m\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
@@ -102,32 +121,63 @@
 
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
-(defun keep-mine ()
-  (interactive)
-  (beginning-of-line)
-  (assert (looking-at "<<<<<<"))
-  (let ((beg (point)))
-    (forward-line)
-    (delete-region beg (point))
-    (re-search-forward "^=======")
-    (setq beg (match-beginning 0))
-    (re-search-forward "^>>>>>>>")
-    (forward-line)
-    (delete-region beg (point))))
+(require 'rx)
 
-(defun keep-theirs ()
-  (interactive)
-  (beginning-of-line)
-  (assert (looking-at "<<<<<<"))
-  (let ((beg (point)))
-    (re-search-forward "^=======")
-    (forward-line)
-    (delete-region beg (point))
-    (re-search-forward "^>>>>>>>")
-    (beginning-of-line)
-    (setq beg (point))
-    (forward-line)
-    (delete-region beg (point))))
+(defvar c++-token-regexp
+  (rx (or (and "delete" ?\[ ?\])        ; delete[]
+          (regexp "[A-Za-z0-9_]+")      ; identifier (more or less)
+          (and (or ?! ?% ?* ?/ ?= ?^ ?~) (? ?=))
+          (and ?& (? (or ?& ?=)))       ; &, &=, &&
+          (and ?| (? (or ?| ?=)))       ; |, |=, ||
+          (and ?+ (? (or ?+ ?=)))       ; +, +=, ++
+          (and ?- (? (or ?> ?- ?=)))    ; -, -=, ->, --
+          (and ?\< (? (or (and ?\< (? ?=)) ?=)))
+                                        ; <, <=, <<, <<=
+          (and ?\> (? (or (and ?\< (? ?=)) ?=)))
+                                        ; >, >=, >>, >>=
+          (and ?: (? ?:))               ; :, ::
+          ?,                            ; comma
+          ?#                            ; preprocessor token
+          ?\;                           ; semi-colon
+          ?.                            ; dot, decimal point
+          ??                            ; ternary question
+          ?\'                           ; char literal
+          ?\"                           ; string literal
+          ?\\                           ; escape char
+          ?\(                           ; open paren
+          ?\)                           ; close paren
+          ?\[                           ; left bracket
+          ?\]                           ; right bracket
+          ?\{                           ; left brace
+          ?\}                           ; right brace
+          anything)))
+
+(defun forward-c++-token (arg)
+  (interactive "p")
+  (dotimes (n arg)
+    (let ((here (point)))
+      (skip-chars-forward " \t\n\r")
+      (when (and (= here (point))
+                 (looking-at c++-token-regexp))
+        (goto-char (match-end 0))
+        (skip-chars-forward " \t\n\r"))
+      (when (= here (point))
+        (forward-word)
+        (skip-chars-forward " \t\n\r")))))
+
+(defun backward-c++-token (arg)
+  (interactive "p")
+  (dotimes (n arg)
+    (let ((here (point)))
+      (skip-chars-backward " \t\n\r")
+      (if (looking-back c++-token-regexp nil t)
+          (goto-char (match-beginning 0))))))
+
+(defun setup-token-movement ()
+  (define-key c-mode-base-map [(meta ?f)] 'forward-c++-token)
+  (define-key c-mode-base-map [(meta ?b)] 'backward-c++-token))
+
+;(add-hook 'c-mode-common-hook 'setup-token-movement)
 
 ;;;_ * doxymacs
 
