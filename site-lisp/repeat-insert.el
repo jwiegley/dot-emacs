@@ -193,7 +193,7 @@ are not separated by anything; otherwise, they are separated by line-breaks.
   (interactive
    (let (low-i)
      (list
-      (read-string-memory "Pattern:" 'insert-patterned-last-input)
+      (read-string-memory "Pattern: " 'insert-patterned-last-input)
       (setq low-i (try-to-eval (read-from-minibuffer "From/List: " nil nil t)))
       (if (numberp low-i) (try-to-eval (read-from-minibuffer "To: " nil nil t)) '())
       current-prefix-arg)))
