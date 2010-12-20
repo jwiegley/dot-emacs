@@ -143,14 +143,26 @@
   :group 'diff-mode)
 (defvar diff-indicator-removed-face 'diff-indicator-removed)
 
+(defface diff-indicator-added2
+  '((t (:foreground "PaleGoldenrod" :background "Green")))
+  "*Face used to highlight the line-start indicator of an inserted line."
+  :group 'diff-mode)
+(defvar diff-indicator-added2-face 'diff-indicator-added2)
+
+(defface diff-indicator-removed2
+  '((t (:foreground "PaleGoldenrod" :background "Magenta")))
+  "*Face used to highlight the line-start indicator of a removed line."
+  :group 'diff-mode)
+(defvar diff-indicator-removed2-face 'diff-indicator-removed2)
+
 (defface diff-added2
-  '((t (:foreground "PaleGoldenrod" :background "DarkGreen")))
+  '((t (:foreground "PaleGoldenrod" :background "Green")))
   "*Face used to highlight the line-start indicator of an inserted line."
   :group 'diff-mode)
 (defvar diff-added2-face 'diff-added2)
 
 (defface diff-removed2
-  '((t (:foreground "PaleGoldenrod" :background "DarkMagenta")))
+  '((t (:foreground "PaleGoldenrod" :background "Magenta")))
   "*Face used to highlight the line-start indicator of a removed line."
   :group 'diff-mode)
 (defvar diff-removed2-face 'diff-removed2)
@@ -186,9 +198,10 @@
     ("^\\(---\\|\\+\\+\\+\\|\\*\\*\\*\\) \\(\\S-+\\)\\(.*[^*-]\\)?\n"
      (0 diff-header-face) (2 diff-file-header-face prepend))
     ("^\\([-<] ?\\)\\(.*\n\\)" (1 diff-indicator-removed-face) (2 diff-removed-face))
+    ("^\\([+][+]\\)\\(.*\n\\)" (1 diff-indicator-changed-face) (2 diff-changed-face))
     ("^\\([+>] ?\\)\\(.*\n\\)" (1 diff-indicator-added-face) (2 diff-added-face))
-    ("^\\( [-]\\)\\(.*\n\\)" (1 diff-indicator-removed-face) (2 diff-removed2-face))
-    ("^\\( [+]\\)\\(.*\n\\)" (1 diff-indicator-added-face) (2 diff-added2-face))
+    ("^\\( [-]\\)\\(.*\n\\)" (1 diff-indicator-removed2-face) (2 diff-removed2-face))
+    ("^\\( [+]\\)\\(.*\n\\)" (1 diff-indicator-added2-face) (2 diff-added2-face))
     ("^\\(!\\)\\(.*\n\\)" (1 diff-indicator-changed-face) (2 diff-changed-face))
     ("^Index: \\(.+\\).*\n" (0 diff-header-face) (1 diff-index-face prepend))
     ("^Only in .*\n" . diff-nonexistent-face)
