@@ -16,6 +16,10 @@
                 "site-lisp/org-mode/contrib/lisp"
                 "site-lisp/org-mode/lisp"
 
+                "site-lisp/wanderlust/elmo"
+                "site-lisp/wanderlust/wl"
+                "site-lisp/wanderlust/utils"
+
                 ;; Packages located elsewhere on the system...
                 "~/Projects/ledger/lisp"
                 "/opt/local/share/doc/git-core/contrib/emacs"
@@ -56,6 +60,8 @@
 
 (load "initsplit")
 
+(put 'set-goal-column 'disabled nil)
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -77,6 +83,8 @@
  '(column-number-mode t)
  '(compilation-scroll-output t)
  '(completion-ignored-extensions (quote (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
+ '(confluence-save-credentials t)
+ '(confluence-url "https://portal/wiki/rpc/xmlrpc" t)
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-raised-buttons nil)
@@ -98,8 +106,11 @@
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
- '(display-time-mail-directory "~/Mail/INBOX/new")
  '(display-time-mode t)
+ '(elmo-imap4-default-authenticate-type (quote clear) t)
+ '(elmo-imap4-default-port 993 t)
+ '(elmo-imap4-default-server "mail.newartisans.com" t)
+ '(elmo-imap4-default-stream-type (quote ssl) t)
  '(elscreen-display-tab nil)
  '(elscreen-prefix-key "")
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
@@ -146,7 +157,7 @@
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 100) (height . 76))))
- '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil) ("\\`\\(org\\|calendar\\|diary\\)-" "~/Dropbox/.org.el" nil))))
+ '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil) ("\\`\\(org\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil))))
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
  '(ledger-file "~/Dropbox/Accounts/ledger.dat")
@@ -160,6 +171,7 @@
  '(magit-push-script "/Users/johnw/bin/push")
  '(mark-holidays-in-calendar t)
  '(next-line-add-newlines nil)
+ '(nnimap-dont-close nil)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
  '(nxml-sexp-element-flag t)
@@ -181,7 +193,6 @@
  '(regex-tool-backend (quote perl))
  '(require-final-newline (quote ask))
  '(safe-local-variable-values (quote ((after-save-hook archive-done-tasks) (after-save-hook sort-done-tasks) (after-save-hook commit-after-save))))
- '(scroll-bar-mode nil)
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-registers (quote (t (0 . 127))))
  '(show-paren-delay 0)
@@ -189,6 +200,8 @@
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
  '(sql-sqlite-program "sqlite3")
+ '(sr-window-split-style (quote vertical))
+ '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
@@ -209,6 +222,7 @@
  '(whitespace-rescan-timer-time nil)
  '(whitespace-silent t)
  '(winner-mode t nil (winner))
+ '(wl-temporary-file-directory "/tmp/")
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
  '(zencoding-preview-default nil))
@@ -222,6 +236,17 @@
   ;; If there is more than one, they won't work right.
  '(circe-highlight-all-nicks-face ((t (:foreground "dark blue"))))
  '(circe-originator-face ((t (:foreground "dark orange"))))
+ '(diff-added ((t (:foreground "DarkGreen"))))
+ '(diff-added2 ((t (:foreground "SeaGreen"))))
+ '(diff-changed ((t (:foreground "MediumBlue"))))
+ '(diff-context ((t (:foreground "Black"))))
+ '(diff-file-header ((t (:foreground "White" :background "Gray50"))))
+ '(diff-header ((t (:foreground "Blue"))))
+ '(diff-hunk-header ((t (:foreground "Salmon" :background "Gray90"))))
+ '(diff-index ((t (:foreground "Green"))))
+ '(diff-nonexistent ((t (:foreground "DarkBlue"))))
+ '(diff-removed ((t (:foreground "Red"))))
+ '(diff-removed2 ((t (:foreground "Orange"))))
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
  '(ledger-register-pending-face ((t (:weight bold))))
  '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
@@ -246,12 +271,11 @@
 ;;;_ + direct loads
 
 (mapc #'(lambda (name) (load name t))
-      '(;;".gnus"
-        ".org"
-        ;;"archive-region"
+      '(;;"archive-region"
         ;;"bookmark+"
         "browse-kill-ring+"
         ;;"chess-auto"
+        "diff-mode-"
         "diminish"
         ;;"elscreen"
         "ess-site"
@@ -271,9 +295,15 @@
         ("delim-kill"        . delim-kill)
         ("cycbuf"            . cycbuf-switch-to-next-buffer)
         ("cycbuf"            . cycbuf-switch-to-previous-buffer)
+        ("goby"              . goby)
         ("sunrise-commander" . sunrise)
         ("column-marker"     . column-marker-1)
         ))
+
+(eval-after-load "sunrise-commander"
+  '(progn
+     (load "sunrise-x-modeline")
+     (load "sunrise-x-tree")))
 
 ;;;_ + elscreen
 
@@ -306,6 +336,9 @@
 (eval-after-load "dired-x"
   '(progn
      (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+
+     (require 'wdired)
+     (define-key dired-mode-map [?r] 'wdired-change-to-wdired-mode)
 
      (defun dired-omit-regexp ()
        (let ((file (expand-file-name ".git"))
@@ -390,6 +423,56 @@
            (funcall func))))
 
      (run-with-idle-timer 900 t 'save-information)))
+
+;;;_ + wanderlust
+
+(autoload 'wl "wl" "Wanderlust" t)
+(autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
+(autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
+
+;; IMAP
+;(setq elmo-imap4-default-server "imap.gmail.com")
+;(setq elmo-imap4-default-user "jwiegley@gmail.com") 
+(setq elmo-imap4-default-server "mail.johnwiegley.com")
+(setq elmo-imap4-default-user "johnw") 
+(setq elmo-imap4-default-authenticate-type 'clear) 
+(setq elmo-imap4-default-port '993)
+(setq elmo-imap4-default-stream-type 'ssl)
+
+(setq elmo-imap4-use-modified-utf7 t) 
+
+;; SMTP
+(setq wl-smtp-connection-type 'starttls)
+(setq wl-smtp-posting-port 587)
+(setq wl-smtp-authenticate-type "plain")
+;(setq wl-smtp-posting-user "jwiegley")
+;(setq wl-smtp-posting-server "smtp.gmail.com")
+;(setq wl-local-domain "gmail.com")
+(setq wl-smtp-posting-user "johnw")
+(setq wl-smtp-posting-server "mail.johnwiegley.com")
+(setq wl-local-domain "johnwiegley.com")
+
+(setq wl-default-folder "%inbox")
+(setq wl-default-spec "%")
+;(setq wl-draft-folder "%[Gmail]/Drafts") ; Gmail IMAP
+;(setq wl-trash-folder "%[Gmail]/Trash")
+(setq wl-draft-folder "%INBOX.Drafts")
+(setq wl-trash-folder "%INBOX.Trash")
+
+(setq wl-folder-check-async t) 
+
+(setq elmo-imap4-use-modified-utf7 t)
+
+(autoload 'wl-user-agent-compose "wl-draft" nil t)
+(if (boundp 'mail-user-agent)
+    (setq mail-user-agent 'wl-user-agent))
+(if (fboundp 'define-mail-user-agent)
+    (define-mail-user-agent
+      'wl-user-agent
+      'wl-user-agent-compose
+      'wl-draft-send
+      'wl-draft-kill
+      'mail-send-hook))
 
 ;;;_ + whitespace
 
@@ -487,22 +570,15 @@
 
 (define-key global-map [(control meta ?s)] 'isearch-forward-other-window)
 
-(defun collapse-or-expand (&optional arg)
-  (interactive "P")
+(defun collapse-or-expand ()
+  (interactive)
   (if (> (length (window-list)) 1)
-      (if arg
-	  (delete-window)
-	(delete-other-windows))
-    (if arg
-	(progn
-	  (split-window-vertically)
-	  (setq this-command 'isearchb-activate)
-	  (call-interactively 'isearchb-activate))
-      (bury-buffer))))
-
-(define-key global-map [(control meta ?w)] 'delim-kill)
+      (delete-other-windows)
+    (bury-buffer)))
 
 (define-key global-map [(control ?z)] 'collapse-or-expand)
+
+(define-key global-map [(control meta ?w)] 'delim-kill)
 
 (defun delete-indentation-forward ()
   (interactive)
@@ -510,8 +586,105 @@
 
 (define-key global-map [(meta ?j)] 'delete-indentation-forward)
 (define-key global-map [(meta ?J)] 'delete-indentation)
-(define-key global-map [(meta ?n)] 'chop-move-down)
-(define-key global-map [(meta ?p)] 'chop-move-up)
+
+(defun keep-mine ()
+  (interactive)
+  (beginning-of-line)
+  (assert (or (looking-at "<<<<<<")
+              (re-search-backward "^<<<<<<" nil t)
+              (re-search-forward "^<<<<<<" nil t)))
+  (goto-char (match-beginning 0))
+  (let ((beg (point)))
+    (forward-line)
+    (delete-region beg (point))
+    (re-search-forward "^=======")
+    (setq beg (match-beginning 0))
+    (re-search-forward "^>>>>>>>")
+    (forward-line)
+    (delete-region beg (point))))
+
+(defun keep-theirs ()
+  (interactive)
+  (beginning-of-line)
+  (assert (or (looking-at "<<<<<<")
+              (re-search-backward "^<<<<<<" nil t)
+              (re-search-forward "^<<<<<<" nil t)))
+  (goto-char (match-beginning 0))
+  (let ((beg (point)))
+    (re-search-forward "^=======")
+    (forward-line)
+    (delete-region beg (point))
+    (re-search-forward "^>>>>>>>")
+    (beginning-of-line)
+    (setq beg (point))
+    (forward-line)
+    (delete-region beg (point))))
+
+(define-key global-map [(meta ?n)] 'keep-theirs)
+(define-key global-map [(meta ?p)] 'keep-mine)
+
+(defun refill-ti-comment ()
+  (interactive)
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (let ((begin (point)) end
+          (marker ?-) (marker-re "\\(-----\\|\\*\\*\\*\\*\\*\\)")
+          (leader-width 0))
+      (unless (looking-at "[ \t]*/\\*[-* ]")
+        (search-backward "/*")
+        (goto-char (line-beginning-position)))
+      (unless (looking-at "[ \t]*/\\*[-* ]")
+        (error "Not in a comment"))
+      (while (and (looking-at "\\([ \t]*\\)/\\* ")
+                  (setq leader-width (length (match-string 1)))
+                  (not (looking-at (concat "[ \t]*/\\*" marker-re))))
+        (forward-line -1)
+        (setq begin (point)))
+      (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
+        (setq marker (if (string= (match-string 1) "-----") ?- ?*))
+        (forward-line))
+      (while (and (looking-at "[^\n]+?\\*/[ \t]*$")
+                  (not (looking-at (concat "[^\n]+?" marker-re
+                                           "\\*/[ \t]*$"))))
+        (forward-line))
+      (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
+        (forward-line))
+      (setq end (point))
+      (let ((comment (buffer-substring-no-properties begin end)))
+        (with-temp-buffer
+          (insert comment)
+          (goto-char (point-min))
+          (flush-lines (concat "^[ \t]*/\\*" marker-re "[-*]+\\*/[ \t]*$"))
+          (goto-char (point-min))
+          (while (re-search-forward "^[ \t]*/\\* ?" nil t)
+            (goto-char (match-beginning 0))
+            (delete-region (match-beginning 0) (match-end 0)))
+          (goto-char (point-min))
+          (while (re-search-forward "[ \t]*\\*/[ \t]*$" nil t)
+            (goto-char (match-beginning 0))
+            (delete-region (match-beginning 0) (match-end 0)))
+          (goto-char (point-min)) (delete-trailing-whitespace)
+          (goto-char (point-min)) (flush-lines "^$")
+          (set-fill-column (- 80         ; width of the text
+                              6          ; width of "/*  */"
+                              leader-width))
+          (goto-char (point-min)) (fill-paragraph)
+          (goto-char (point-min))
+          (while (not (eobp))
+            (insert (make-string leader-width ? ) "/* ")
+            (goto-char (line-end-position))
+            (insert (make-string (- 80 3 (current-column)) ? ) " */")
+            (forward-line))
+          (goto-char (point-min))
+          (insert (make-string leader-width ? )
+                  "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
+          (goto-char (point-max))
+          (insert (make-string leader-width ? )
+                  "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
+          (setq comment (buffer-string)))
+        (goto-char begin)
+        (delete-region begin end)
+        (insert comment)))))
 
 (define-prefix-command 'lisp-find-map)
 (define-key global-map [(control ?h) ?e] 'lisp-find-map)
@@ -539,8 +712,9 @@
 
 (define-key global-map [(meta ?\[)] 'align-code)
 (define-key global-map [(meta ?!)]  'eshell-command)
-(define-key global-map [(meta ?`)]  'cycbuf-switch-to-next-buffer)
-(define-key global-map [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
+(define-key global-map [(meta ?`)]  'other-frame)
+;;(define-key global-map [(meta ?`)]  'cycbuf-switch-to-next-buffer)
+;;(define-key global-map [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
 
 (define-key global-map [(alt ?`)]  'other-frame)
 
@@ -654,26 +828,26 @@
     (goto-char (+ end 2))))
 
 (define-key ctl-x-map [(meta ?q)] 'refill-paragraph)
-(define-key ctl-x-map [(meta ?Q)] 'unfill-paragraph)
+(define-key mode-specific-map [(meta ?q)] 'unfill-paragraph)
 
 (if (functionp 'ibuffer)
     (define-key ctl-x-map [(control ?b)] 'ibuffer)
   (define-key ctl-x-map [(control ?b)] 'list-buffers))
 
-(defun duplicate-line (&optional where)
+(defun duplicate-line ()
   "Duplicate the line containing point."
-  (interactive "d")
+  (interactive)
   (save-excursion
-    (beginning-of-line)
-    (let ((beg (point)))
-      (end-of-line)
-      (copy-region-as-kill beg (point)))
-    (end-of-line)
-    (if (eobp)
-	(insert ?\n)
-      (forward-line))
-    (open-line 1)
-    (yank)))
+    (let (line-text)
+      (goto-char (line-beginning-position))
+      (let ((beg (point)))
+        (goto-char (line-end-position))
+        (setq line-text (buffer-substring beg (point))))
+      (if (eobp)
+          (insert ?\n)
+        (forward-line))
+      (open-line 1)
+      (insert line-text))))
 
 (define-key ctl-x-map [(control ?d)] 'duplicate-line)
 
@@ -685,21 +859,18 @@
 
 (defun toggle-code-file (&optional arg)
   (interactive "p")
-  (cond
-   ((string-match "\\.as[cphma]x\\'" buffer-file-name)
-    (find-file (concat buffer-file-name ".cs")))
-   ((string-match "\\.as[cphma]x\\.cs\\'" buffer-file-name)
-    (find-file (substring buffer-file-name 0
-			  (- (length buffer-file-name) 3))))
-   ((string-match "\\.\\(c\\(c\\|pp\\)?\\|mm?\\)\\'" buffer-file-name)
-    (find-file (concat (substring buffer-file-name 0
-				  (match-beginning 0)) ".h")))
-   ((string-match "\\.h\\'" buffer-file-name)
-    (let ((base (substring buffer-file-name 0
-			   (match-beginning 0))))
-      (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
-	(if (file-readable-p (concat base ext))
-	    (find-file (concat base ext))))))))
+  (let* ((path (buffer-file-name))
+         (base (file-name-sans-extension path)))
+    (cond ((string-match "\\.as[cphma]x\\'" path)
+           (find-file (concat path ".cs")))
+          ((string-match "\\.as[cphma]x\\.cs\\'" path)
+           (find-file base))
+          ((string-match "\\.\\(c\\(c\\|pp\\)?\\|mm?\\)\\'" path)
+           (find-file (concat base ".h")))
+          ((string-match "\\.h\\'" path)
+           (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
+             (if (file-readable-p (concat base ext))
+                 (find-file (concat base ext))))))))
 
 (define-key mode-specific-map [tab] 'toggle-code-file)
 
@@ -868,6 +1039,9 @@
   '(define-key mail-mode-map [(control ?i)] 'mail-complete))
 
 ;;;_* startup
+
+(load ".org")
+(load ".gnus")
 
 (add-hook 'after-init-hook 'server-start)
 

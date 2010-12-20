@@ -1,5 +1,19 @@
 ;;; -*- mode: emacs-lisp -*-
 
+(require 'org)
+(require 'org-agenda)
+(require 'org-crypt)
+(require 'org-install)
+(require 'org-attach)
+(require 'org-devonthink)
+(require 'ob-R)
+(require 'ob-python)
+(require 'ob-emacs-lisp)
+(require 'ob-haskell)
+(require 'ob-sh)
+
+;;(load "org-log" t)
+
 ;;;_* customizations
 
 ;;;_ + variables
@@ -16,14 +30,15 @@
  '(org-stuck-projects (quote ("+LEVEL=1/-DONE" ("TODO" "STARTED" "NEXT" "NEXTACTION") nil "\\(Appointments\\|Notes\\|Anniversaries\\)")))
  '(org-speed-commands-user nil)
  '(org-reverse-note-order t)
+ '(org-return-follows-link t)
  '(org-remember-templates (quote (("Task" 116 "* TODO %?
   SCHEDULED: %t
   :PROPERTIES:
   :ID:       %(shell-command-to-string \"uuidgen\")  :END:
   %U" nil "Inbox" nil))))
  '(org-remember-store-without-prompt t)
- '(org-refile-targets (quote ((org-agenda-files :level . 1) (org-agenda-files :todo . "Project"))))
- '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-eval)))
+ '(org-refile-targets (quote (("~/Dropbox/todo.txt" :level . 1) ("~/Dropbox/todo.txt" :todo . "Project") ("~/Dropbox/Accounts/finances.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
+ '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-checklist org-depend org-eval)))
  '(org-mobile-inbox-for-pull "~/Dropbox/from-mobile.org")
  '(org-mobile-files (quote (org-agenda-files org-agenda-text-search-extra-files)))
  '(org-mobile-directory "~/Dropbox/MobileOrg")
@@ -73,18 +88,29 @@
  '(org-agenda-ndays 1)
  '(org-agenda-include-diary t)
  '(org-agenda-fontify-priorities t)
- '(org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Projects/ledger/plan/TODO")))
+ '(org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt" "~/Dropbox/BoostPro/Documents/SEO.org" "~/src/ledger/plan/TODO")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-files (quote ("~/Dropbox/todo.txt"))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" tags-todo "TODO<>{SOMEDAY}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(bug:\\)"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Unscheduled work tasks" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>\"Website\"&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELLED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))))))
+ '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"NOTE\"" ((org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"&CATEGORY<>{CEG\\|ABC\\|Bizcard\\|Adagio\\|EVAprint\\|\\<IT\\>}" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" tags-todo "TODO<>{SOMEDAY}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(bug:\\)"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Unscheduled work tasks" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>\"Website\"&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1" ((org-agenda-overriding-header "Unscheduled work tasks") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline)))) (org-agenda-sorting-strategy (quote (todo-state-up priority-down))))) ("z" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Z" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))) ("y" "CEG tasks not in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|CEG IT\\|EVAprint}&CATEGORY<>{Website\\|Admin}&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"NOTE\"&TODO<>\"\"&LEVEL>1&SCOPE<>\"local\"" ((org-agenda-overriding-header "CEG tasks not in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\(cegbug:\\)"))))) ("Y" "CEG tasks in Bugzilla" tags "CATEGORY={CEG\\|ABC\\|Bizcard\\|Adagio\\|CEG IT\\|EVAprint}&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"DELEGATED\"&TODO<>\"NOTE\"&LEVEL>1" ((org-agenda-overriding-header "CEG tasks in Bugzilla") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "cegbug:"))) (org-agenda-sorting-strategy (quote (todo-state-up category-down priority-down user-defined-up))))))))
  '(org-agenda-cmp-user-defined (quote org-cmp-ceg-bugs))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(calendar-mark-holidays-flag t)
  '(calendar-longitude -74.287672)
  '(calendar-latitude 40.845112))
+(custom-set-faces
+ '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
+ '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
+ '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
+ '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
+ '(org-habit-overdue-future-face ((((background light)) (:background "#fc9590"))))
+ '(org-habit-overdue-face ((((background light)) (:background "#f9372d"))))
+ '(org-habit-clear-future-face ((((background light)) (:background "#d6e4fc"))))
+ '(org-habit-clear-face ((((background light)) (:background "#8270f9"))))
+ '(org-habit-alert-future-face ((((background light)) (:background "#fafca9"))))
+ '(org-habit-alert-face ((((background light)) (:background "#f5f946")))))
 
 ;;;_ + faces
 
@@ -101,17 +127,6 @@
  '(org-habit-alert-face ((((background light)) (:background "#f5f946")))))
 
 ;;;_ + org-mode
-
-(require 'org-install)
-(require 'org-attach)
-(require 'org-devonthink)
-(require 'ob-R)
-(require 'ob-python)
-(require 'ob-emacs-lisp)
-(require 'ob-haskell)
-(require 'ob-sh)
-
-;;(load "org-log" t)
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
@@ -288,12 +303,112 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
 
-(defun make-bugzilla-bug ()
-  (interactive)
+(defun make-boostpro-jira-bug (product component version priority)
+  (interactive
+   (let ((omk (get-text-property (point) 'org-marker)))
+     (with-current-buffer (marker-buffer omk)
+       (save-excursion
+	 (goto-char omk)
+	 (let ((products
+		(list
+                 (list "Admin" (list "none") (list "none"))
+                 (list "IT" (list "VCS" "none") (list "none"))
+                 (list "Embarcadero" (list "admin") (list "none"))))
+	       (priorities (list "Blocker" "Critical"
+				 "Major" "Minor" "Trivial"))
+               (product (or (org-get-category) "BoostPro")))
+	   (list product
+		 (let ((components (nth 1 (assoc product products))))
+		   (if (= 1 (length components))
+		       (car components)
+		     (ido-completing-read "Component: " components
+					  nil t nil nil (car (last components)))))
+		 (let ((versions (nth 2 (assoc product products))))
+		   (if (= 1 (length versions))
+		       (car versions)
+		     (ido-completing-read "Version: " versions
+					  nil t nil nil (car (last versions)))))
+		 (let ((orgpri (nth 3 (org-heading-components))))
+		   (if (and orgpri (= ?A orgpri))
+		       "Blocker"
+		     (ido-completing-read "Priority: " priorities
+					  nil t nil nil "Minor")))))))))
   (let ((omk (get-text-property (point) 'org-marker)))
-    (if (string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
-	(call-interactively #'make-ledger-bugzilla-bug)
-      (call-interactively #'make-ceg-bugzilla-bug))))
+    (with-current-buffer (marker-buffer omk)
+      (save-excursion
+	(goto-char omk)
+	(let ((heading (nth 4 (org-heading-components)))
+	      (contents (buffer-substring-no-properties
+			 (org-entry-beginning-position)
+			 (org-entry-end-position)))
+	      description bug proj)
+	  (with-temp-buffer
+	    (insert contents)
+	    (goto-char (point-min))
+	    (delete-region (point) (1+ (line-end-position)))
+	    (search-forward ":PROP")
+	    (delete-region (match-beginning 0) (point-max))
+	    (goto-char (point-min))
+	    (while (re-search-forward "^   " nil t)
+	      (delete-region (match-beginning 0) (match-end 0)))
+	    (goto-char (point-min))
+	    (while (re-search-forward "^SCHE" nil t)
+	      (delete-region (match-beginning 0) (1+ (line-end-position))))
+	    (goto-char (point-min))
+	    (setq description (if (eobp) "No description." (buffer-string))))
+          (let ((buf (current-buffer)))
+            (with-temp-buffer
+              (let ((tmpbuf (current-buffer)))
+                (if nil
+                    (insert "Issue BP-999 created.")
+                  (with-current-buffer buf
+                    (shell-command-on-region
+                     (point-min) (point-max)
+                     (format
+                      (concat "~/.jcli/jira.sh -a createIssue "
+                              "--project %s "
+                              (if (not (string= component "none"))
+                                  (concat "--components " component) "")
+                              (if (not (string= version "none"))
+                                  (concat "--version " version) "")
+                              " --type %s "
+                              "--summary '%s' "
+                              "--reporter %s "
+                              "--assignee %s "
+                              (if priority (concat "--priority " priority) "")
+                              " --description '%s'")
+                      product (ido-completing-read
+                               "Type: "
+                               '("Bug" "New Feature" "Task" "Improvement")
+                               nil t nil nil "Task") heading "johnw" "johnw"
+                      description)
+                     tmpbuf)))
+                (goto-char (point-min))
+                (re-search-forward "Issue \\([A-Za-z0-9]+\\)-\\([0-9]+\\) created.")
+                (setq proj (match-string 1)
+                      bug (match-string 2)))))
+	  (save-excursion
+	    (org-back-to-heading t)
+	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
+	    (insert (format "[[j%s:%s][#%s]] " (downcase proj) bug bug)))))))
+  (org-agenda-redo))
+
+(defun make-bug-link ()
+  (interactive)
+  (let* ((omk (get-text-property (point) 'org-marker))
+         (path (with-current-buffer (marker-buffer omk)
+                 (save-excursion
+                   (goto-char omk)
+                   (org-get-outline-path)))))
+    (cond
+     ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
+      (call-interactively #'make-ledger-bugzilla-bug))
+     ((string= "BoostPro" (car path))
+      (call-interactively #'make-boostpro-jira-bug))
+     ((string= "CEG" (car path))
+      (call-interactively #'make-ceg-bugzilla-bug))
+     (t
+      (error "Cannot make bug, unknown category")))))
 
 (defun save-org-mode-files ()
   (dolist (buf (buffer-list))
@@ -382,15 +497,20 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
       (with-current-buffer (find-file-noselect "~/Dropbox/todo.txt")
 	(save-excursion
 	  (goto-char (point-min))
-	  (search-forward "* CEG")
-	  (goto-char (match-beginning 0))
-	  (insert tasks))))))
+          (re-search-forward "^\\* Inbox$")
+          (re-search-forward "^  :END:")
+          (forward-line)
+          (goto-char (line-beginning-position))
+          (insert tasks))))))
 
 (add-hook 'org-mobile-post-pull-hook 'my-org-convert-incoming-items)
 
-(defun org-insert-bug (bug)
-  (interactive "nBug: ")
-  (insert (format "[[cegbug:%s][#%s]]" bug bug)))
+(defun org-insert-bug (project bug)
+  (interactive
+   (list (ido-completing-read "Project: "
+                              '("redmine" "bug" "cegbug"))
+         (read-number "Bug: ")))
+  (insert (format "[[%s:%s][#%s]]" project bug bug)))
 
 (defun org-cmp-ceg-bugs (a b)
   (let* ((bug-a (and (string-match "#\\([0-9]+\\)" a)
@@ -475,27 +595,23 @@ This can be 0 for immediate, or a floating point value.")
 (defalias 'archive-done-tasks 'org-my-archive-done-tasks)
 
 (defun org-get-inactive-time ()
-  (let ((begin (point)))
-    (save-excursion
-      (outline-next-heading)
-      (if (re-search-backward org-my-ts-regexp begin t)
-	  (let ((time (float-time (org-time-string-to-time (match-string 0)))))
-	    (assert (floatp time))
-	    time)
-	(debug)))))
+  (float-time (org-time-string-to-time
+               (or (org-entry-get (point) "TIMESTAMP")
+                   (org-entry-get (point) "TIMESTAMP_IA")
+                   (debug)))))
 
 (defun org-get-completed-time ()
   (let ((begin (point)))
     (save-excursion
       (outline-next-heading)
-      (and (re-search-backward "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELLED\\)\"\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)" begin t)
+      (and (re-search-backward "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELED\\)\"\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)" begin t)
 	   (time-to-seconds (org-time-string-to-time (or (match-string 3)
 							 (match-string 4))))))))
 
 (defun org-my-sort-done-tasks ()
   (interactive)
   (goto-char (point-min))
-  (org-sort-entries-or-items t ?F #'org-get-inactive-time #'<)
+  (org-sort-entries t ?F #'org-get-inactive-time #'<)
   (goto-char (point-min))
   (while (re-search-forward "
 
@@ -516,7 +632,7 @@ This can be 0 for immediate, or a floating point value.")
       (call-interactively 'org-ctrl-c-ctrl-c)
     (if (null done)
 	(call-interactively 'org-remember)
-      (let ((org-remember-templates
+      (let ((org-capture-templates
 	     '((110 "* STARTED %?
   - State \"STARTED\"    %U
   SCHEDULED: %t
@@ -557,7 +673,7 @@ This can be 0 for immediate, or a floating point value.")
   (interactive)
   (if (string= (buffer-name) "*Remember*")
       (call-interactively 'org-ctrl-c-ctrl-c)
-    (let ((org-remember-templates
+    (let ((org-capture-templates
 	   '((110 "* NOTE %?
   :PROPERTIES:
   :ID:       %(shell-command-to-string \"uuidgen\")  :VISIBILITY: folded
@@ -734,11 +850,9 @@ end tell" (match-string 1))))
 
 (run-with-idle-timer 300 t 'jump-to-org-agenda)
 
-;;;_ + remember
-
-(require 'remember)
-
-(add-hook 'remember-mode-hook 'org-remember-apply-template)
+(defadvice org-add-log-note (after narrow-fill-column activate)
+  "Subtract 5 from the fill-column."
+  (setq fill-column (- fill-column 5)))
 
 ;;;_* keybindings
 
@@ -769,7 +883,7 @@ end tell" (match-string 1))))
 (define-key mode-specific-map [?x ?w]
   #'(lambda nil (interactive) (org-todo "WAITING")))
 (define-key mode-specific-map [?x ?x]
-  #'(lambda nil (interactive) (org-todo "CANCELLED")))
+  #'(lambda nil (interactive) (org-todo "CANCELED")))
 
 (define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
 (define-key mode-specific-map [?x ?M] 'org-set-message-link)
@@ -797,7 +911,8 @@ end tell" (match-string 1))))
 
 (eval-after-load "org"
   '(progn
-     (org-defkey org-mode-map [(control meta return)] 'org-insert-heading-after-current)
+     (org-defkey org-mode-map [(control meta return)]
+                 'org-insert-heading-after-current)
      (org-defkey org-mode-map [(control return)] 'other-window)
      (define-key org-mode-map [return] 'org-return-indent)
 
@@ -858,8 +973,8 @@ end tell" (match-string 1))))
          (interactive) (org-agenda-todo "TODO"))
        (defun org-todo-mark-waiting ()
          (interactive) (org-agenda-todo "WAITING"))
-       (defun org-todo-mark-cancelled ()
-         (interactive) (org-agenda-todo "CANCELLED"))
+       (defun org-todo-mark-canceled ()
+         (interactive) (org-agenda-todo "CANCELED"))
 
        (define-key org-todo-state-map "d" #'org-todo-mark-done)
        (define-key org-todo-state-map "r" #'org-todo-mark-deferred)
@@ -869,7 +984,7 @@ end tell" (match-string 1))))
        (define-key org-todo-state-map "s" #'org-todo-mark-started)
        (define-key org-todo-state-map "t" #'org-todo-mark-todo)
        (define-key org-todo-state-map "w" #'org-todo-mark-waiting)
-       (define-key org-todo-state-map "x" #'org-todo-mark-cancelled)
+       (define-key org-todo-state-map "x" #'org-todo-mark-canceled)
 
        (define-key org-todo-state-map "z" #'make-bug-link))))
 
@@ -879,6 +994,8 @@ end tell" (match-string 1))))
 	  (function
 	   (lambda ()
 	     (org-agenda-list)
-	     (org-resolve-clocks))))
+	     (org-resolve-clocks)
+             (remove-hook 'kill-emacs-hook
+                          'org-babel-remove-temporary-directory))))
 
 ;; .org.el ends here

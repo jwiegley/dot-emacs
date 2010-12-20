@@ -7,37 +7,34 @@
 ;;;_ + variables
 
 (custom-set-variables
- '(starttls-use-gnutls t)
- '(starttls-gnutls-program "/opt/local/bin/gnutls-cli")
  '(starttls-extra-arguments nil)
- '(smtpmail-starttls-credentials (quote (("smtp.gmail.com" 587 "jwiegley@gmail.com" nil))))
+ '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 "johnw" nil))))
  '(smtpmail-smtp-service 587)
- '(smtpmail-smtp-server "smtp.gmail.com")
- '(smtpmail-local-domain "gmail.com")
- '(smtpmail-default-smtp-server "smtp.gmail.com")
- '(smtpmail-debug-info t)
- '(sendmail-program "/opt/local/bin/msmtp" t)
+ '(smtpmail-smtp-server "mail.johnwiegley.com")
+ '(smtpmail-queue-dir "~/Library/Mail/queued-mail/")
+ '(smtpmail-default-smtp-server "mail.johnwiegley.com")
+ '(sendmail-program "/opt/local/bin/msmtp")
  '(send-mail-function (quote smtpmail-send-it))
  '(nnmail-scan-directory-mail-source-once t)
- '(nnmail-message-id-cache-file "~/Mail/.nnmail-cache")
+ '(nnmail-message-id-cache-file "~/Library/Mail/Maildir/.nnmail-cache")
  '(nnmail-extra-headers (quote (To)))
  '(nnmail-expiry-wait 30)
  '(nnmail-expiry-target (quote my-gnus-expiry-target))
  '(nnmail-crosspost nil)
- '(nndraft-directory "~/Mail/" t)
+ '(nndraft-directory "~/Library/Mail/Maildir/" t)
  '(mm-text-html-renderer (quote html2text))
  '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
  '(message-setup-hook (quote (gnus-fix-gcc-header)))
  '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-sendmail-envelope-from (quote header))
  '(message-send-mail-partially-limit nil)
- '(message-send-mail-function (quote message-send-mail-with-sendmail))
+ '(message-send-mail-function (quote smtpmail-send-it))
  '(message-mode-hook (quote (footnote-mode auto-fill-mode)))
  '(message-mail-alias-type nil)
  '(message-interactive t)
  '(message-fill-column 78)
- '(message-directory "~/Mail/")
- '(message-default-headers "From: John Wiegley <jwiegley@gmail.com>
+ '(message-directory "~/Library/Mail/Maildir/")
+ '(message-default-headers "From: John Wiegley <johnw@newartisans.com>
 ")
  '(mail-user-agent (quote gnus-user-agent))
  '(mail-sources (quote ((file))))
@@ -108,7 +105,7 @@
  '(gnus-activate-level 3)
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(check-mail-summary-function (quote check-mail-box-summary))
- '(check-mail-boxes (quote ("~/Mail/incoming/mail\\..*\\.spool")))
+ '(check-mail-boxes (quote ("~/Library/Mail/Maildir/incoming/mail\\..*\\.spool")))
  '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec"))
 
 ;;;_ + faces
@@ -325,33 +322,35 @@
 (defun gnus-fix-gcc-header ()
   "Called to fix any problems with the Gcc header."
   (let ((gcc (gnus-fetch-field "Gcc")))
-    (when gcc
-      (when (string-match "\\`nndoc:\\(.+?\\)-[0-9]+\\'" gcc)
-	(setq gcc (match-string 1 gcc))
-	(message-remove-header "Gcc")
-	(message-add-header (format "Gcc: %s" gcc)))
-      (cond
-       ((or (string-match "\\`nnml:list\\." gcc)
-	    (string-match "\\`nnmaildir\\+Mail:INBOX\\.Mailing Lists\\." gcc))
-	(let* ((split-addr
-		(function
-		 (lambda (field)
-		   (let ((value (gnus-fetch-field field)))
-		     (if value
-			 (mapcar 'downcase
-				 (split-string
-				  (gnus-mail-strip-quoted-names value)
-				  "\\s-*,\\s-*")))))))
-	       (addrs (append (funcall split-addr "To")
-			      (funcall split-addr "Cc")))
-	       (to-addr (or (gnus-group-get-parameter gcc 'to-address)
-			    (gnus-group-get-parameter gcc 'to-list)))
-	       (list-addr (and to-addr (downcase to-addr))))
-	  (when (and list-addr (member list-addr addrs))
-	    (message-remove-header "Gcc")
-	    (if t
-		(message-add-header "Gcc: nnmaildir+Mail:INBOX.Sent")
-	      (message-add-header "FCC: ~/Mail/listposts")))))))))
+    (if gcc
+        (progn
+          (when (string-match "\\`nndoc:\\(.+?\\)-[0-9]+\\'" gcc)
+            (setq gcc (match-string 1 gcc))
+            (message-remove-header "Gcc")
+            (message-add-header (format "Gcc: %s" gcc)))
+          (cond
+           ((or (string-match "\\`nnml:list\\." gcc)
+                (string-match "\\`nnmaildir\\+Mail:INBOX\\.Mailing Lists\\." gcc))
+            (let* ((split-addr
+                    (function
+                     (lambda (field)
+                       (let ((value (gnus-fetch-field field)))
+                         (if value
+                             (mapcar 'downcase
+                                     (split-string
+                                      (gnus-mail-strip-quoted-names value)
+                                      "\\s-*,\\s-*")))))))
+                   (addrs (append (funcall split-addr "To")
+                                  (funcall split-addr "Cc")))
+                   (to-addr (or (gnus-group-get-parameter gcc 'to-address)
+                                (gnus-group-get-parameter gcc 'to-list)))
+                   (list-addr (and to-addr (downcase to-addr))))
+              (when (and list-addr (member list-addr addrs))
+                (message-remove-header "Gcc")
+                (if t
+                    (message-add-header "Gcc: nnimap+VPS:INBOX.Sent")
+                  (message-add-header "FCC: ~/Library/Mail/Maildir/listposts")))))))
+      (message-add-header "Gcc: nnimap+VPS:INBOX.Sent"))))
 
 ;;;_ + Selecting an e-mail address
 
