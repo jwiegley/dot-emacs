@@ -1,0 +1,13 @@
+#name : class ... { ... }
+# --
+class ${1:Name} : public boost::noncopyable
+{
+    $0
+public:
+    $1($2) {
+      TRACE_CTOR($1, "$2");
+    }
+    ~$1() {
+      TRACE_DTOR($1);
+    }
+};
