@@ -858,7 +858,8 @@ end tell" (match-string 1))))
 
 ;;;_ + global
 
-(define-key global-map [(meta ?m)] 'org-capture)
+(define-key global-map [(meta ?m)]
+  (lambda () (interactive) (org-capture nil "t")))
 (define-key global-map [(meta ?z)] 'org-inline-note)
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 
