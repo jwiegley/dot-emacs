@@ -105,6 +105,7 @@
 (defun my-c-mode-common-hook ()
   (doxymacs-mode)
   (define-key c-mode-base-map "\C-m" 'newline-and-indent)
+  (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indicate-empty-lines t)
   (setq fill-column 72)
