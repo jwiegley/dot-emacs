@@ -76,3 +76,9 @@
 [submodule "site-lisp/clojure-mode"]
 	path = site-lisp/clojure-mode
 	url = git://github.com/jochu/clojure-mode.git
+[submodule "site-lisp/mo-git-blame"]
+	path = site-lisp/mo-git-blame
+	url = git://git.bunkus.org/mo-git-blame.git
+[submodule "site-lisp/redmine-el"]
+	path = site-lisp/redmine-el
+	url = git://github.com/fukamachi/redmine-el.git
