@@ -82,3 +82,6 @@
 [submodule "site-lisp/redmine-el"]
 	path = site-lisp/redmine-el
 	url = git://github.com/fukamachi/redmine-el.git
+[submodule "site-lisp/gnus"]
+	path = site-lisp/gnus
+	url = http://git.gnus.org/gnus.git
