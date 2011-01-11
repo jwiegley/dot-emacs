@@ -165,6 +165,8 @@ Usage: (defpgdefault SYM VALUE)"
 	(setq args (cdr args)))
        ((eq (car args) :type)
 	(setq type (cadr args))
+	(if (eq type 'float)
+	    (setq type 'number)) ; widget type for defcustom
 	(setq args (cdr args))
 	(setq newargs (cons type (cons :type newargs))))
        (t
@@ -175,7 +177,7 @@ Usage: (defpgdefault SYM VALUE)"
     (unless (and type
 		  (or (eq (eval type) 'boolean)
 		      (eq (eval type) 'integer)
-		      (eq (eval type) 'float)
+		      (eq (eval type) 'number)
 		      (eq (eval type) 'string)))
       (error "defpacustom: missing :type keyword or wrong :type value"))
     ;; Debug message in case a defpacustom is repeated.
