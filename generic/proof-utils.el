@@ -552,6 +552,29 @@ OTHERNAME gives an alternative name than the default <VAR>-intset.
 The name of the defined function is returned."
   `(proof-defintset-fn (quote ,var) (quote ,othername)))
 
+(defun proof-deffloatset-fn (var &optional othername)
+  "Define a function <VAR>-floatset for setting an float customize setting VAR.
+Args as for the macro `proof-deffloatset', except will be evaluated."
+  (eval
+   `(defun ,(if othername othername
+	      (intern (concat (symbol-name var) "-floatset"))) (arg)
+	      ,(concat "Set `" (symbol-name var) "' to ARG.
+This function simply uses customize-set-variable to set the variable.
+It was constructed with `proof-deffloatset-fn'.")
+	      (interactive (list
+			    (read-number
+			     (format "Value for %s (float, currently %s): "
+				     (symbol-name (quote ,var))
+				     (symbol-value (quote ,var))))))
+	      (customize-set-variable (quote ,var) arg))))
+
+(defmacro proof-deffloatset (var &optional othername)
+  "Define a function <VAR>-floatset for setting an float customize setting VAR.
+The setting function uses `customize-set-variable' to change the variable.
+OTHERNAME gives an alternative name than the default <VAR>-floatset.
+The name of the defined function is returned."
+  `(proof-deffloatset-fn (quote ,var) (quote ,othername)))
+
 (defun proof-defstringset-fn (var &optional othername)
   "Define a function <VAR>-toggle for setting an integer customize setting VAR.
 Args as for the macro `proof-defstringset', except will be evaluated."

@@ -206,8 +206,8 @@ to examine `proof-shell-last-output'.")
 A list of lists (SYMBOL SETTING TYPE DESCR) where SETTING is a string value
 to send to the proof assistant using the value of SYMBOL and
 and the function `proof-assistant-format'.  The TYPE item determines
-the form of the menu entry for the setting and the DESCR description
-string is used as a help tooltip in the settings menu.")
+the form of the menu entry for the setting (this is an Emacs widget type)
+and the DESCR description string is used as a help tooltip in the settings menu.")
 
 (defvar pg-tracing-slow-mode nil
   "Non-nil for slow refresh mode for tracing output.")

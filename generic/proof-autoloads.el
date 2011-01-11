@@ -8,7 +8,7 @@
 
 
 ;;;### (autoloads (bufhist-exit bufhist-init bufhist-mode) "bufhist"
-;;;;;;  "../lib/bufhist.el" (19157 7589))
+;;;;;;  "../lib/bufhist.el" (19665 37867))
 ;;; Generated autoloads from ../lib/bufhist.el
 
 (autoload 'bufhist-mode "bufhist" "\
@@ -41,15 +41,15 @@ Stop keeping ring history for current buffer.
 
 ;;;### (autoloads (holes-insert-and-expand holes-abbrev-complete
 ;;;;;;  holes-mode holes-set-make-active-hole) "holes" "../lib/holes.el"
-;;;;;;  (19108 1539))
+;;;;;;  (19665 37867))
 ;;; Generated autoloads from ../lib/holes.el
 
-(autoload (quote holes-set-make-active-hole) "holes" "\
+(autoload 'holes-set-make-active-hole "holes" "\
 Make a new hole between START and END or at point, and make it active.
 
 \(fn &optional START END)" t nil)
 
-(autoload (quote holes-mode) "holes" "\
+(autoload 'holes-mode "holes" "\
 Toggle Holes minor mode.
 With arg, turn Outline minor mode on if arg is positive, off otherwise.
 
@@ -139,7 +139,7 @@ undoing on holes cannot make holes re-appear.
 
 \(fn &optional ARG)" t nil)
 
-(autoload (quote holes-abbrev-complete) "holes" "\
+(autoload 'holes-abbrev-complete "holes" "\
 Complete abbrev by putting holes and indenting.
 Moves point at beginning of expanded text.  Put this function as
 call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
@@ -147,7 +147,7 @@ become holes.
 
 \(fn)" nil nil)
 
-(autoload (quote holes-insert-and-expand) "holes" "\
+(autoload 'holes-insert-and-expand "holes" "\
 Insert S, expand it and replace #s and @{]s by holes.
 
 \(fn S)" nil nil)
@@ -155,10 +155,10 @@ Insert S, expand it and replace #s and @{]s by holes.
 ;;;***
 
 ;;;### (autoloads (maths-menu-mode) "maths-menu" "../lib/maths-menu.el"
-;;;;;;  (19107 62723))
+;;;;;;  (19665 37867))
 ;;; Generated autoloads from ../lib/maths-menu.el
 
-(autoload (quote maths-menu-mode) "maths-menu" "\
+(autoload 'maths-menu-mode "maths-menu" "\
 Install a menu for entering mathematical characters.
 Uses window system menus only when they can display multilingual text.
 Otherwise the menu-bar item activates the text-mode menu system.
@@ -169,7 +169,7 @@ This mode is only useful with a font which can display the maths repertoire.
 ;;;***
 
 ;;;### (autoloads (proof-associated-windows proof-associated-buffers)
-;;;;;;  "pg-assoc" "pg-assoc.el" (19550 46151))
+;;;;;;  "pg-assoc" "pg-assoc.el" (19665 37866))
 ;;; Generated autoloads from pg-assoc.el
 
 (autoload 'proof-associated-buffers "pg-assoc" "\
@@ -186,8 +186,8 @@ Dead or nil buffers are not represented in the list.
 
 ;;;***
 
-;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19622
-;;;;;;  2314))
+;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19665
+;;;;;;  37867))
 ;;; Generated autoloads from ../lib/pg-dev.el
 
 (autoload 'profile-pg "pg-dev" "\
@@ -198,7 +198,7 @@ Not documented
 ;;;***
 
 ;;;### (autoloads (proof-goals-config-done) "pg-goals" "pg-goals.el"
-;;;;;;  (19625 55352))
+;;;;;;  (19665 37866))
 ;;; Generated autoloads from pg-goals.el
 
 (autoload 'proof-goals-config-done "pg-goals" "\
@@ -209,7 +209,7 @@ Initialise the goals buffer after the child has been configured.
 ;;;***
 
 ;;;### (autoloads (pg-movie-export-directory pg-movie-export-from
-;;;;;;  pg-movie-export) "pg-movie" "pg-movie.el" (19570 20547))
+;;;;;;  pg-movie-export) "pg-movie" "pg-movie.el" (19665 37866))
 ;;; Generated autoloads from pg-movie.el
 
 (autoload 'pg-movie-export "pg-movie" "\
@@ -232,7 +232,7 @@ Existing XML files are overwritten.
 ;;;***
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn) "pg-pamacs"
-;;;;;;  "pg-pamacs.el" (19621 61895))
+;;;;;;  "pg-pamacs.el" (19756 35088))
 ;;; Generated autoloads from pg-pamacs.el
 
 (autoload 'proof-defpacustom-fn "pg-pamacs" "\
@@ -255,7 +255,7 @@ evaluate can be provided instead.
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (19564 4338))
+;;;;;;  "pg-pgip" "pg-pgip.el" (19756 33437))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload 'pg-pgip-process-packet "pg-pgip" "\
@@ -279,7 +279,7 @@ Send an <askprefs> message to the prover.
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-message pg-response-display-with-face pg-response-maybe-erase
 ;;;;;;  proof-response-config-done proof-response-mode) "pg-response"
-;;;;;;  "pg-response.el" (19574 64296))
+;;;;;;  "pg-response.el" (19665 37866))
 ;;; Generated autoloads from pg-response.el
 
 (autoload 'proof-response-mode "pg-response" "\
@@ -343,7 +343,7 @@ See `pg-next-error-regexp'.
 ;;;;;;  pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19633 61674))
+;;;;;;  "pg-user.el" (19665 37866))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -462,8 +462,8 @@ Enable or disable autosend behaviour.
 
 ;;;***
 
-;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (19542
-;;;;;;  60238))
+;;;### (autoloads (pg-xml-parse-string) "pg-xml" "pg-xml.el" (19665
+;;;;;;  37866))
 ;;; Generated autoloads from pg-xml.el
 
 (autoload 'pg-xml-parse-string "pg-xml" "\
@@ -474,7 +474,7 @@ Parse string in ARG, same as pg-xml-parse-buffer.
 ;;;***
 
 ;;;### (autoloads (proof-dependency-in-span-context-menu proof-depends-process-dependencies)
-;;;;;;  "proof-depends" "proof-depends.el" (19550 46151))
+;;;;;;  "proof-depends" "proof-depends.el" (19665 37866))
 ;;; Generated autoloads from proof-depends.el
 
 (autoload 'proof-depends-process-dependencies "proof-depends" "\
@@ -492,10 +492,10 @@ Make some menu entries showing proof dependencies of SPAN.
 ;;;***
 
 ;;;### (autoloads (proof-easy-config) "proof-easy-config" "proof-easy-config.el"
-;;;;;;  (19108 51621))
+;;;;;;  (19665 37866))
 ;;; Generated autoloads from proof-easy-config.el
 
-(autoload (quote proof-easy-config) "proof-easy-config" "\
+(autoload 'proof-easy-config "proof-easy-config" "\
 Configure Proof General for proof-assistant using BODY as a setq body.
 The symbol SYM and string name NAME must match those given in
 the `proof-assistant-table', which see.
@@ -505,7 +505,7 @@ the `proof-assistant-table', which see.
 ;;;***
 
 ;;;### (autoloads (proof-indent-line) "proof-indent" "proof-indent.el"
-;;;;;;  (19550 46151))
+;;;;;;  (19665 37866))
 ;;; Generated autoloads from proof-indent.el
 
 (autoload 'proof-indent-line "proof-indent" "\
@@ -516,7 +516,7 @@ Indent current line of proof script, if indentation enabled.
 ;;;***
 
 ;;;### (autoloads (proof-maths-menu-enable proof-maths-menu-set-global)
-;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (19575 41316))
+;;;;;;  "proof-maths-menu" "proof-maths-menu.el" (19665 37866))
 ;;; Generated autoloads from proof-maths-menu.el
 
 (autoload 'proof-maths-menu-set-global "proof-maths-menu" "\
@@ -537,8 +537,8 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19625
-;;;;;;  55352))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19756
+;;;;;;  35398))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload 'proof-menu-define-keys "proof-menu" "\
@@ -564,7 +564,7 @@ Construct and return PG auxiliary menu used in non-scripting buffers.
 ;;;***
 
 ;;;### (autoloads (proof-mmm-enable proof-mmm-set-global) "proof-mmm"
-;;;;;;  "proof-mmm.el" (19550 46151))
+;;;;;;  "proof-mmm.el" (19665 37866))
 ;;; Generated autoloads from proof-mmm.el
 
 (autoload 'proof-mmm-set-global "proof-mmm" "\
@@ -587,7 +587,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19633 62018))
+;;;;;;  "proof-script.el" (19756 34673))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -672,7 +672,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19633 48731))
+;;;;;;  "proof-shell.el" (19756 34673))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -803,7 +803,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19634 16192))
+;;;;;;  (19756 33437))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -815,7 +815,7 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'.
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen)
-;;;;;;  "proof-splash" "proof-splash.el" (19628 18525))
+;;;;;;  "proof-splash" "proof-splash.el" (19665 37866))
 ;;; Generated autoloads from proof-splash.el
 
 (autoload 'proof-splash-display-screen "proof-splash" "\
@@ -834,7 +834,7 @@ Make sure the user gets welcomed one way or another.
 ;;;***
 
 ;;;### (autoloads (proof-format) "proof-syntax" "proof-syntax.el"
-;;;;;;  (19609 53995))
+;;;;;;  (19665 37866))
 ;;; Generated autoloads from proof-syntax.el
 
 (defsubst proof-replace-regexp-in-string (regexp rep string) "\
@@ -850,7 +850,7 @@ may be a string or sexp evaluated to get a string.
 ;;;***
 
 ;;;### (autoloads (proof-toolbar-scripting-menu proof-toolbar-setup)
-;;;;;;  "proof-toolbar" "proof-toolbar.el" (19609 20575))
+;;;;;;  "proof-toolbar" "proof-toolbar.el" (19665 37866))
 ;;; Generated autoloads from proof-toolbar.el
 
 (autoload 'proof-toolbar-setup "proof-toolbar" "\
@@ -870,21 +870,21 @@ Menu made from the Proof General toolbar commands.
 
 ;;;### (autoloads (proof-unicode-tokens-enable proof-unicode-tokens-set-global
 ;;;;;;  proof-unicode-tokens-mode-if-enabled) "proof-unicode-tokens"
-;;;;;;  "proof-unicode-tokens.el" (19126 41475))
+;;;;;;  "proof-unicode-tokens.el" (19665 37866))
 ;;; Generated autoloads from proof-unicode-tokens.el
 
-(autoload (quote proof-unicode-tokens-mode-if-enabled) "proof-unicode-tokens" "\
+(autoload 'proof-unicode-tokens-mode-if-enabled "proof-unicode-tokens" "\
 Turn on or off the Unicode Tokens minor mode in this buffer.
 
 \(fn)" nil nil)
 
-(autoload (quote proof-unicode-tokens-set-global) "proof-unicode-tokens" "\
+(autoload 'proof-unicode-tokens-set-global "proof-unicode-tokens" "\
 Set global status of unicode tokens mode for PG buffers to be FLAG.
 Turn on/off menu in all script buffers and ensure new buffers follow suit.
 
 \(fn FLAG)" nil nil)
 
-(autoload (quote proof-unicode-tokens-enable) "proof-unicode-tokens" "\
+(autoload 'proof-unicode-tokens-enable "proof-unicode-tokens" "\
 Turn on or off Unicode tokens mode in Proof General script buffer.
 This invokes `unicode-tokens-mode' to toggle the setting for the current
 buffer, and then sets PG's option for default to match.
@@ -897,12 +897,12 @@ is changed.
 
 ;;;***
 
-;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19630
-;;;;;;  57223))
+;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19690
+;;;;;;  31413))
 ;;; Generated autoloads from proof-utils.el
 
 (autoload 'proof-debug "proof-utils" "\
-Issue the debugging message (format MSG ARGS) in the response buffer, display it.
+Issue the debugging message (format MSG ARGS) in the *PG Debug* buffer.
 If proof-general-debug is nil, do nothing.
 
 \(fn MSG &rest ARGS)" nil nil)
@@ -910,10 +910,10 @@ If proof-general-debug is nil, do nothing.
 ;;;***
 
 ;;;### (autoloads (scomint-make scomint-make-in-buffer) "scomint"
-;;;;;;  "../lib/scomint.el" (19126 40592))
+;;;;;;  "../lib/scomint.el" (19665 37867))
 ;;; Generated autoloads from ../lib/scomint.el
 
-(autoload (quote scomint-make-in-buffer) "scomint" "\
+(autoload 'scomint-make-in-buffer "scomint" "\
 Make a Comint process NAME in BUFFER, running PROGRAM.
 If BUFFER is nil, it defaults to NAME surrounded by `*'s.
 PROGRAM should be either a string denoting an executable program to create
@@ -926,7 +926,7 @@ If PROGRAM is a string, any more args are arguments to PROGRAM.
 
 \(fn NAME BUFFER PROGRAM &optional STARTFILE &rest SWITCHES)" nil nil)
 
-(autoload (quote scomint-make) "scomint" "\
+(autoload 'scomint-make "scomint" "\
 Make a Comint process NAME in a buffer, running PROGRAM.
 The name of the buffer is made by surrounding NAME with `*'s.
 PROGRAM should be either a string denoting an executable program to create
@@ -942,7 +942,7 @@ If PROGRAM is a string, any more args are arguments to PROGRAM.
 ;;;***
 
 ;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "../lib/texi-docstring-magic.el"
-;;;;;;  (19542 60238))
+;;;;;;  (19665 37867))
 ;;; Generated autoloads from ../lib/texi-docstring-magic.el
 
 (autoload 'texi-docstring-magic "texi-docstring-magic" "\
@@ -955,10 +955,10 @@ With prefix arg, no errors on unknown symbols.  (This results in
 ;;;***
 
 ;;;### (autoloads (unicode-chars-list-chars) "unicode-chars" "../lib/unicode-chars.el"
-;;;;;;  (19107 62795))
+;;;;;;  (19665 37867))
 ;;; Generated autoloads from ../lib/unicode-chars.el
 
-(autoload (quote unicode-chars-list-chars) "unicode-chars" "\
+(autoload 'unicode-chars-list-chars "unicode-chars" "\
 Insert each Unicode character into a buffer.
 Lets you see which characters are available for literal display
 in your emacs font.
@@ -968,7 +968,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19591 34223))
+;;;;;;  (19665 37867))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -982,7 +982,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
 ;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
 ;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el")
-;;;;;;  (19634 16926 377965))
+;;;;;;  (19756 35402 417383))
 
 ;;;***
 

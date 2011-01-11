@@ -869,6 +869,10 @@ KEY is the optional key binding."
       (vector entry-name
 	      (proof-defintset-fn pasym)
 	      :help descr))
+     ((eq type 'number)
+      (vector entry-name
+	      (proof-deffloatset-fn pasym)
+	      :help descr))
      ((eq type 'string)
       (vector entry-name
 	      (proof-defstringset-fn pasym)

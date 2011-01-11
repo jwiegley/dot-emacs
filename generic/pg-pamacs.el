@@ -213,7 +213,7 @@ Usage: (defpgdefault SYM VALUE)"
   "Define a setting NAME for the current proof assitant, default VAL.
 NAME can correspond to some internal setting, flag, etc, for the
 proof assistant, in which case a :setting and :type value should be provided.
-The :type of NAME should be one of 'integer, 'boolean, 'string.
+The :type of NAME should be one of 'integer, 'float, 'boolean, 'string.
 The customization variable is automatically in group `proof-assistant-setting'.
 The function `proof-assistant-format' is used to format VAL.
 If NAME corresponds instead to a PG internal setting, then a form :eval to
