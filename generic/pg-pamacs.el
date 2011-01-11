@@ -175,6 +175,7 @@ Usage: (defpgdefault SYM VALUE)"
     (unless (and type
 		  (or (eq (eval type) 'boolean)
 		      (eq (eval type) 'integer)
+		      (eq (eval type) 'float)
 		      (eq (eval type) 'string)))
       (error "defpacustom: missing :type keyword or wrong :type value"))
     ;; Debug message in case a defpacustom is repeated.
