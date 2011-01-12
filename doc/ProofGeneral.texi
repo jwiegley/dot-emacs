@@ -1858,13 +1858,13 @@ to a slower interactive loop with display updates.
 In the check next command mode, the successfully checked region will
 briefly flash up as green to indicate it is okay.
 
-You can use @kbd{C-c C-.} (@code{proof-goto-end-of-locked}) to find
-out where processing got to, as usual.  Text is only sent if the last
+You can use @kbd{C-c C-.} (@code{proof-goto-end-of-locked}) to find out
+where processing got to, as usual.  Text is only sent if the last
 interactive command processed some text (i.e., wasn't an undo step
-backwards into the buffer) and processing didn't stop with an error.
-To start automatic processing again after an error, simply hit
-@kbd{C-c C-n}.  To turn the automatic processing on or off from the 
-keyboard, you can use the keybinding:
+backwards into the buffer) and processing didn't stop with an error.  To
+start automatic processing again after an error, simply hit @kbd{C-c
+C-n} after editing the buffer.  To turn the automatic processing on or
+off from the keyboard, you can use the keybinding:
 
 @table @kbd
 @item C-c >
