@@ -836,10 +836,6 @@ KEY is the optional key binding."
 		    (append cmds
 			    (if (> (length groups) 1) '("----"))
 			    ents)))))
-	;; (while setgs
-	;;   (setq ents (cons
-	;;	      (apply 'proof-menu-entry-for-setting (car setgs)) ents))
-	;;   (setq setgs (cdr setgs)))
 	(setq proof-menu-settings
 	      (list (cons "Settings"
 			  (nconc ents save)))))))
