@@ -543,6 +543,9 @@ It was constructed with `proof-defintset-fn'.")
 			     (format "Value for %s (int, currently %s): "
 				     (symbol-name (quote ,var))
 				     (symbol-value (quote ,var))))))
+	      (unless (integerp arg)
+		;; type-check to avoid customize type mismatch
+		(error "Value should be an integer!"))
 	      (customize-set-variable (quote ,var) arg))))
 
 (defmacro proof-defintset (var &optional othername)
