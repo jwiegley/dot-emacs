@@ -165,8 +165,8 @@ Usage: (defpgdefault SYM VALUE)"
 	(setq args (cdr args)))
        ((eq (car args) :type)
 	(setq type (cadr args))
-	(if (eq type 'float)
-	    (setq type 'number)) ; widget type for defcustom
+	(if (eq (eval type) 'float)
+	    (setq type (quote 'number))) ; widget type for defcustom
 	(setq args (cdr args))
 	(setq newargs (cons type (cons :type newargs))))
        (t
