@@ -314,7 +314,12 @@ makes sense within the proof assistant.
 
 NB: A buffer is completely processed when all non-whitespace is
 locked (coloured blue); a buffer is completely unprocessed when there
-is no locked region."
+is no locked region.
+
+For some proof assistants (such as Coq) fully processed buffers make
+no sense. Setting this option to 'process has then the same effect
+as leaving it unset (nil). (This behaviour is controlled by
+`proof-no-fully-processed-buffer'.)"
   :type '(choice
 	  (const :tag "No automatic action; query user" nil)
 	  (const :tag "Automatically retract" retract)

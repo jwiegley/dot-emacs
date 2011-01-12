@@ -69,7 +69,19 @@
 (unless noninteractive ;; compiling
   (coq-build-prog-args))
 
-(defcustom coq-compile-file-command "coqc %s"
+(defcustom coq-compiler
+  (proof-locate-executable "coqc" t nil)
+  "Command to invoke the coq compiler."
+  :type 'string
+  :group 'coq)
+
+(defcustom coq-dependency-analyzer
+  (proof-locate-executable "coqdep" t nil)
+  "Command to invoke coqdep."
+  :type 'string
+  :group 'coq)
+
+(defcustom coq-compile-file-command (concat coq-compiler " %s")
   "*Command to compile a coq file.
 This is called when `coq-auto-compile-vos' is set, unless a Makefile
 exists in the directory, in which case the `compile' command is run.
@@ -128,13 +140,16 @@ On Windows you might need something like:
 
 
 
-(defun coq-library-directory ()
+(defun get-coq-library-directory ()
   (let ((c (substring (shell-command-to-string "coqtop -where") 0 -1 )))
     (if (string-match c "not found")
 	  "/usr/local/lib/coq"
       c)))
 
-(defcustom coq-tags (concat (coq-library-directory) "/theories/TAGS")
+(defconst coq-library-directory (get-coq-library-directory)
+  "The coq library directory, as reported by \"coqtop -where\"")
+
+(defcustom coq-tags (concat coq-library-directory "/theories/TAGS")
   "The default TAGS table for the Coq library."
   :type 'string
   :group 'coq)
@@ -811,7 +826,7 @@ This is specific to `coq-mode'."
   (set (make-local-variable 
         'blink-matching-paren-dont-ignore-comments) t)
 
-  ;; multiple file handling
+  ;; multiple file handling XXX
   (setq proof-cannot-reopen-processed-files nil
         proof-auto-multiple-files t
         ;; proof-shell-inform-file-retracted-cmd 'coq-retract-file
@@ -852,6 +867,8 @@ This is specific to `coq-mode'."
    proof-shell-start-goals-regexp          "^[0-9]+ subgoals?"
    proof-shell-end-goals-regexp nil        ; up to next prompt
    proof-shell-init-cmd coq-shell-init-cmd
+
+   proof-no-fully-processed-buffer t
 
    ;; Coq has no global settings?
    ;; (proof-assistant-settings-cmd))
@@ -1068,6 +1085,480 @@ Currently this doesn't take the loadpath into account."
         ;; recursively call on ancestors: we hope coqdep doesn't give loop!
         (coq-process-file (coq-ancestors-of rfilename)))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Multiple file handling revisited
+;;
+
+;; TODO list:
+;; - work through comments on the first patch
+;; - testcases & examples
+;; - display coqdep errors in the recompile-response buffer
+;; - use a variable for the recompile-response buffer
+;; - fix problem with partial library names
+;; - clean old multiple file stuff
+;; - write docs
+;; - fix places marked with XXX
+;; - test and fix problems when switchen scripting between different directories
+;; - enable next-error in recompile-response buffers
+
+;; user options and variables
+
+(defgroup coq-auto-recompile ()
+  "Customization for automatic recompilation of required files"
+  :group 'coq
+  :package-version '(ProofGeneral . "4.1"))
+
+(defcustom coq-recompile-before-require t
+  "If `t' check dependencies of required modules and recompile if necessary.
+If `t' ProofGeneral intercepts \"Require\" commands and checks if the
+required library module and its dependencies are up-to-date. If not, they
+are recompiled from the sources before the \"Require\" command is processed."
+  :type 'boolean
+  :group 'coq-auto-recompile)
+
+(defcustom coq-recompile-command ""
+  "External recompilation command. If empty ProofGeneral recompiles itself.
+If unset (the empty string) ProofGeneral computes the dependencies of
+required modules with coqdep and recompiles as necessary. This internal
+dependency checking does currently not handle ML modules.
+
+If a non-empty string, the denoted command is called to do the dependency
+checking and recompilation. Before calling this command via `compile'
+the following keys are substituted as follows:
+  %p  the (physical) directory containing the required module
+  %m  the name of the required module (without extension or directory part)
+  %f  the file containing the Require command
+  %l  the logical path of the required module
+      (or \"<>\" for the empty logical path)
+
+For instance, \"make -C %p %m.vo\" expands to \"make -C bar foo.vo\"
+when module \"foo\" from directory \"bar\" is required."
+  :type 'string
+  :group 'coq-auto-recompile)
+
+(defconst coq-recompile-substitution-list
+  '(("%p" physical-dir)
+    ("%m" module)
+    ("%f" requiring-file)
+    ("%l" logical-dir))
+  "Substitutions for `coq-recompile-command'.
+Value must be a list of substitutions, where each substitution is a 2-element
+list. The first element of a substitution is the regexp to substitute, the
+second the replacement. The replacement is evaluated before passing it to
+`replace-regexp-in-string', so it might be a string, or one of the symbols
+'module, 'physical-dir, 'requiring-file, and 'logical-dir, which are bound,
+respectively, to the required module (without directory part), the physical
+ directory containing it, the file containing the Require command, and the
+logical path specified in the Require command.")
+
+(defcustom coq-recompile-auto-save 'ask-coq
+  "Buffers to save before checking dependencies for recompilation.
+There are two orthogonal choices: Firstly one can save all or only the coq
+buffers, where coq buffers means all buffers in coq mode except the current
+buffer. Secondly, emacs can ask about each such buffer or save all of them
+unconditionally."
+  :type
+  '(radio
+    (const :tag "ask for each coq-mode buffer, except the current buffer"
+           ask-coq)
+    (const :tag "ask for all buffers" ask-all)
+    (const
+     :tag
+     "save all coq-mode buffers except the current buffer without confirmation"
+     save-coq)
+    (const :tag "save all buffers without confirmation" save-all))
+  :group 'coq-auto-recompile)
+
+(defcustom coq-recompile-ignore-library-directory t
+  "If `t' ProofGeneral does not recompile modules from the coq library.
+Should be `t' for normal coq users. If `nil' library modules are
+recompiled if their sources are newer."
+  :type 'boolean
+  :group 'coq-auto-recompile)
+
+(defcustom coq-recompile-ignored-directories nil
+  "Directories in which ProofGeneral should not recompile modules.
+List of regular expressions for directories in which ProofGeneral should
+not recompile modules. If a file name matches one of the regular expressions
+in this list then ProofGeneral does neither recompile this file nor check
+its dependencies for recompilation. It makes sense to include non-standard
+coq library directories here if they are not changed and if they are so big
+that dependency checking takes noticeable time."
+  :type '(repeat regexp)
+  :group 'coq-auto-recompile)
+
+(defcustom coq-load-path nil
+  "Non-standard coq library load path.
+List of directories to be added to the LoadPath of coqdep, coqc
+and coqtop. Under normal circumstances this list does not need to
+contain \".\" for the current directory (see
+`coq-load-path-include-current') or the coq standard
+library.
+
+For coqdep and coqc these directories are passed via \"-I\"
+options over the command line. For interactive scripting an
+\"Add LoadPath\" command is used."
+  :type '(repeat string)
+  :group 'coq-auto-recompile)
+
+(defcustom coq-load-path-include-current t
+  "If `t' let coqdep search the current directory too.
+Should be `t' for normal users. If `t' pass \"-I dir\" to coqdep when
+processing files in directory \"dir\" in addition to any entries
+in `coq-load-path'."
+  :type 'boolean
+  :group 'coq-auto-recompile)
+
+(defconst coq-require-command-regexp
+  "^Require[ \t\n]+\\(Import\\|Export\\)?[ \t\n]*"
+  "Regular expression matching Require commands in Coq.
+Should match \"Require\" with its import and export variants up to (but not
+including) the first character of the first required module. The required
+modules are matched separately with `coq-require-id-regexp'")
+
+(defconst coq-require-id-regexp
+  "[ \t\n]*\\([A-Za-z0-9_']+\\(\\.[A-Za-z0-9_']+\\)*\\)[ \t\n]*"
+  "Regular expression matching one Coq module identifier.
+Should match precisely one complete module identifier and surrounding
+white space. The module identifier must be matched with group number 1.
+Note that the trailing dot in \"Require A.\" is not part of the module
+identifier and should therefore not be matched by this regexp.")
+
+(defvar coq-internal-load-path ()
+  "LoadPath of the coq toplevel.
+The value is a hash that maps logical directories to lists of
+physical directories. The order in these lists of physical directories is
+the same as in coq's LoadPath. `coq-internal-load-path' is initialized
+during prover initialization.")
+
+;; basic utilities
+
+(defun time-less-or-equal (time-1 time-2)
+  "Return `t' if time value time-1 is earlier or equal to time-2.
+A time value is a list of two integers as returned by `file-attributes'.
+The first integer contains the upper 16 bits and the second the lower
+16 bits of the time."
+  (if (<= (car time-1) (car time-2))
+      (if (= (car time-1) (car time-2))
+          (<= (nth 1 time-1) (nth 1 time-2))
+        t)
+    nil))
+
+;; Get internal coq LoadPath
+
+(defun get-coq-load-path ()
+  "Query LoadPath and set `coq-internal-load-path'.
+This function is run via `proof-shell-init-hook' to set
+`coq-internal-load-path' during initialization."
+  (if coq-internal-load-path
+      (clrhash coq-internal-load-path)
+    (setq coq-internal-load-path (make-hash-table :test 'equal)))
+  (let* ((response (proof-shell-invisible-cmd-get-result "Print LoadPath"))
+         (response-lines (split-string response "\n" t))
+         line-split entry)
+    ;; strip heading off
+    (setq response-lines (cdr response-lines))
+    (while response-lines
+      (setq line-split (split-string (car response-lines) " +" t))
+      ;; if the logical path is long, coq puts the directory on the next line
+      ;; in this case the following if concatenates the following two lines
+      (if (not (eq (length line-split) 2))
+          (progn
+            (setq line-split
+                  (split-string
+                   (concat (car response-lines) " " (car (cdr response-lines)))
+                   " +" t))
+            (if (not (eq (length line-split) 2))
+                (error "Unexpected output from Print LoadPath %s" line-split))
+            (setq response-lines (cdr (cdr response-lines))))
+        (setq response-lines (cdr response-lines)))
+      ;; (car line-split) is now the logical dir and
+      ;; (car (cdr line-split)) is the physical dir it is mapped to
+      ;; make the empty logical dir "<>" the empty string
+      (if (equal (car line-split) "<>")
+          (setcar line-split ""))
+      ;; put it now into the hash
+      (setq entry (gethash (car line-split) coq-internal-load-path))
+      (if entry
+          (nconc entry (list (car (cdr line-split))))
+        (puthash (car line-split) (list (car (cdr line-split)))
+                 coq-internal-load-path)))))
+
+(add-hook 'proof-shell-init-hook 'get-coq-load-path)
+
+;; issue Add LoadPath with the contents of coq-load-path
+;; when scripting is activated
+
+(defun coq-add-load-path ()
+  "Issue \"Add LoadPath\" with the contents of `coq-load-path'.
+The command is issued with `proof-shell-invisible-cmd'. This function is
+intended for `proof-activate-scripting-hook'. Because the \"Add LoadPath\"
+command can contain only one directory, we actually need to issue one
+invisible command for each element of `coq-load-path'."
+  (mapc
+   (lambda (dir)
+     (proof-shell-invisible-command
+      (format "Add LoadPath \"%s\"." (expand-file-name dir))
+      t))
+   coq-load-path))
+
+;; XXX these Add LoadPath commands are not retracted when deactivating a buffer
+(add-hook 'proof-activate-scripting-hook 'coq-add-load-path)
+
+;; handle Require commands when queue is extended
+
+(defun coq-recompile-ignore-file (lib-obj-file)
+  "Check whether ProofGeneral should handle recompilation of LIB-OBJ-FILE.
+Return `t' if ProofGeneral should skip LIB-OBJ-FILE and `nil' if
+ProofGeneral should handle the file. For normal users it does, for instance,
+not make sense to let ProofGeneral check if the coq standard library
+is up-to-date."
+  (or
+   (and
+    coq-recompile-ignore-library-directory
+    (eq (compare-strings coq-library-directory 0 nil
+                         lib-obj-file 0 (length coq-library-directory))
+        t)
+    (message "Ignore lib file %s" lib-obj-file) ; XXX
+    t)
+   (if (some
+        (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
+        coq-recompile-ignored-directories)
+       (message "Ignore %s" lib-obj-file) ;XXX
+     nil)))
+
+(defun coq-library-src-of-obj-file (lib-obj-file)
+  "Return source file name for LIB-OBJ-FILE.
+Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
+  (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
+
+(defun coq-include-options (file)
+  "Build a -I options list for coqc and coqdep.
+The options list includes all directories from `coq-load-path' and,
+if `coq-load-path-include-current' is enabled the directory base of FILE.
+The resulting list is fresh for every call, callers can append more
+arguments with `nconc'.
+
+FILE should be an absolute file name."
+  (let ((result nil))
+    (when coq-load-path
+      (setq result (list "-I" (expand-file-name (car coq-load-path))))
+      (dolist (dir (cdr coq-load-path))
+        (nconc result (list "-I" (expand-file-name dir)))))
+    (if coq-load-path-include-current
+        (setq result
+              (cons "-I" (cons (file-name-directory file) result))))
+    result))
+
+(defun coq-get-library-dependencies (lib-src-file)
+  "Compute dependencies of LIB-SRC-FILE.
+Invoke \"coq-dep\" on lib-src-file and parse the output to compute the
+compiled coq library object files on which LIB-SRC-FILE depends.
+
+LIB-SRC-FILE should be an absolute file name. If it is the dependencies
+are absolute too and the simplified treatment of
+`coq-load-path-include-current' in `coq-include-options' won't break."
+  (let ((coqdep-arguments
+         (nconc (coq-include-options lib-src-file) (list lib-src-file)))
+        coqdep-output)
+    ;(message "call coqdep arg list: %s" coqdep-arguments)
+    (with-temp-buffer
+      (apply 'call-process 
+       coq-dependency-analyzer nil (current-buffer) nil coqdep-arguments)
+      (setq coqdep-output (buffer-string)))
+    ;(message "coqdep output on %s: %s" lib-src-file coqdep-output)
+    (if (string-match "^\\*\\*\\* Warning:" coqdep-output)
+        (error "file %s has unsatisfied dependencies" lib-src-file))
+    (if (string-match ": \\(.*\\)$" coqdep-output)
+        (cdr-safe (split-string (match-string 1 coqdep-output)))
+      ())))
+
+(defun coq-recompile-library (src-file)
+  "Recompile coq library SRC-FILE.
+Display errors in buffer *coq-auto-recompile-response*."
+  (message "Recompile %s" src-file)
+  (with-current-buffer (get-buffer-create "*coq-auto-recompile-response*")
+    (erase-buffer))
+  (let ((coqc-arguments
+         (nconc (coq-include-options src-file) (list src-file)))
+        coqc-status)
+    ;(message "call coqc arg list: %s" coqc-arguments)
+    (setq coqc-status
+          (apply 'call-process
+           coq-compiler nil "*coq-auto-recompile-response*" t coqc-arguments))
+    ; (if (eq coqc-status 0)
+    ;     (message "compilation %s OK, output |%s|" src-file
+    ;              (with-current-buffer proof-response-buffer
+    ;                (buffer-string))))
+    (unless (eq coqc-status 0)
+      (let ((terminated-text
+             (if (numberp coqc-status)
+                 "terminated with exit status"
+               "was terminated by signal")))
+        (display-buffer "*coq-auto-recompile-response*")
+        (error "ERROR: Recompiling coq library %s %s %s"
+               src-file terminated-text coqc-status)))))
+
+(defun coq-recompile-library-if-necessary (force src obj)
+  "Recompile SRC to OBJ if necessary.
+Recompile SRC to the coq library object file OBJ if either
+FORCE is non-nil or if SRC is newer than OBJ. Return `t' if SRC
+was recompiled, `nil' otherwise. SRC must exist when this function
+is called. OBJ does not need to exist."
+  (let ((src-time (or force (nth 5 (file-attributes src))))
+        (obj-time (or force (nth 5 (file-attributes obj)))))
+    ;; obj-time is nil if obj does not exist
+    (if (or force (not obj-time) (time-less-or-equal obj-time src-time))
+        (progn
+          ;(if force (message "Force compilation %s" src))
+          (coq-recompile-library src)
+          t)
+      (message "Skip compilation of %s" src) ; XXX
+      nil)))
+
+(defun coq-make-lib-up-to-date (lib-obj-file)
+  "Make library object file LIB-OBJ-FILE up-to-date.
+Check if LIB-OBJ-FILE and all it dependencies are up-to-date compiled
+coq library objects. Recompile the necessary objects, if not.
+Returns `t' if LIB-OBJ-FILE was recompiled, nil if not."
+  (message "Check %s" lib-obj-file)     ;XXX
+  (unless (coq-recompile-ignore-file lib-obj-file)
+    (let* ((lib-src-file
+            (expand-file-name (coq-library-src-of-obj-file lib-obj-file)))
+           dependencies compiled-deps force-recompilation)
+      (if (file-exists-p lib-src-file)
+          (progn
+            (setq dependencies (coq-get-library-dependencies lib-src-file))
+            (setq compiled-deps (mapcar 'coq-make-lib-up-to-date dependencies))
+            (setq force-recompilation (some 'identity compiled-deps))
+            (coq-recompile-library-if-necessary
+             force-recompilation lib-src-file lib-obj-file))
+        (message "coq-auto-compile: no source file for %s" lib-obj-file)))))
+
+(defun coq-auto-recompile-externally (requiring-file logical-dir
+                                                      physical-dir module)
+  "Make MODULE up-to-date according to `coq-recompile-command'.
+Call `compile' to make MODULE up-to-date. The compile command is derived
+from `coq-recompile-command' by substituting certain keys, see
+`coq-recompile-command' for details. Customizing `compile-command' has
+therefore no effect, customize `coq-recompile-command' instead. All other
+customizations of `compile' apply, so set the variable
+`compilation-read-command' to nil if you don't want to confirm the
+recompilation command. Further, `compilation-ask-about-save' to nil
+to save all buffers without confirmation before recompilation."
+  (unless (coq-recompile-ignore-file (concat physical-dir "/" module ".vo"))
+    (let ((compile-command coq-recompile-command))
+      (if (equal logical-dir "")
+          (setq logical-dir "<>"))
+      (mapc
+       (lambda (substitution)
+         (setq compile-command
+               (replace-regexp-in-string
+                (car substitution) (eval (car (cdr substitution)))
+                compile-command)))
+       coq-recompile-substitution-list)
+      (call-interactively 'compile))))
+
+(defun coq-split-module-id (module-id)
+  "Decompose MODULE-ID into logical path and module name.
+Return logical path and module name as a list with two elements (with
+logical path first)"
+  (if (string-match "\\.[^.]+$" module-id)
+      (list (substring module-id 0 (match-beginning 0))
+            (substring module-id (+ (match-beginning 0) 1)))
+    (list "" module-id)))
+
+(defun coq-check-module (module-id)
+  "Locate MODULE-ID and recompile if necessary.
+If `coq-recompile-command' is not nil the whole task of checking which
+modules need recompilation and the recompilation itself is done by an external
+process. If `coq-recompile-command' is nil ProofGeneral computes the
+dependencies with \"coqdep\" and compiles modules as necessary. This internal
+checking does currently not handle ML modules."
+  (let* ((module-id-components (coq-split-module-id module-id))
+         (logical-dir (car module-id-components))
+         (module (car (cdr module-id-components)))
+         (physical-dir-list (gethash logical-dir coq-internal-load-path))
+         physical-dir)
+    (unless physical-dir-list
+      (error "Logical path %s not present in LoadPath" logical-dir))
+    ;; find the first directory in physical-dir-list that contains either
+    ;; module.vo or module.v
+    (setq physical-dir
+          (some
+           (lambda (physical-dir)
+             (if (or (file-exists-p (concat physical-dir "/" module ".v"))
+                     (file-exists-p (concat physical-dir "/" module ".vo")))
+                 physical-dir
+               nil))
+           physical-dir-list))
+    (unless physical-dir
+      (error "Cannot find module %s in LoadPath" module-id))
+    (if (eq (length coq-recompile-command) 0)
+        (coq-make-lib-up-to-date (concat physical-dir "/" module ".vo"))
+      (coq-auto-recompile-externally
+       buffer-file-name logical-dir physical-dir module))))
+
+(defun coq-recompile-save-buffer-filter ()
+  "Filter predicate for `coq-recompile-save-some-buffers'.
+See also `save-some-buffers'. Returns t for buffers with major mode
+'coq-mode' different from coq-process-require-current-buffer and nil
+for all other buffers. The buffer to test must be current."
+  (and
+   (eq major-mode 'coq-mode)
+   (not (eq coq-process-require-current-buffer
+            (current-buffer)))))
+  
+(defun coq-recompile-save-some-buffers ()
+  "Save buffers according to `coq-recompile-auto-save'.
+Uses the local variable coq-process-require-current-buffer to pass the
+current buffer (which contains the Require command) to
+`coq-recompile-save-buffer-filter'."
+  (let ((coq-process-require-current-buffer (current-buffer))
+        unconditionally buffer-filter)
+    (cond
+     ((eq coq-recompile-auto-save 'ask-coq)
+      (setq unconditionally nil
+            buffer-filter 'coq-recompile-save-buffer-filter))
+     ((eq coq-recompile-auto-save 'ask-all)
+      (setq unconditionally nil
+            buffer-filter nil))
+     ((eq coq-recompile-auto-save 'save-coq)
+      (setq unconditionally t
+            buffer-filter 'coq-recompile-save-buffer-filter))
+     ((eq coq-recompile-auto-save 'save-all)
+      (setq unconditionally t
+            buffer-filter nil)))
+    (save-some-buffers unconditionally buffer-filter)))
+
+(defun coq-preprocess-require-commands ()
+  "Coq function for `proof-shell-extend-queue-hook'.
+Inserts special commands before every \"Require\" command to let
+ProofGeneral (re-)compile the required files (and their dependencies)
+before coq loads them. Does nothing if
+`coq-recompile-before-require' is nil."
+  (if coq-recompile-before-require
+      (let ((items queueitems)
+            (previous-head nil)
+            item string)
+        (while items
+          (setq item (car items))
+          ;; XXX car or concat ?
+          (setq string (car (nth 1 item)))
+          (when (and string
+                     (string-match coq-require-command-regexp string))
+            (let ((start (match-end 0)))
+              (coq-recompile-save-some-buffers)
+              ;; now process all required modules
+              (while (string-match coq-require-id-regexp string start)
+                (setq start (match-end 0))
+                (coq-check-module (match-string 1 string)))))
+          (setq previous-head items)
+          (setq items (cdr items))))))
+
+(add-hook 'proof-shell-extend-queue-hook 'coq-preprocess-require-commands)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

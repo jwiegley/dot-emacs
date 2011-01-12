@@ -1539,6 +1539,14 @@ if you don't need it (slight speed penalty)."
   :type 'boolean
   :group 'proof-shell)
 
+(defcustom proof-shell-extend-queue-hook nil
+  "Hooks run by proof-extend-queue before extending `proof-action-list'.
+Can be used to run additional actions before items are added to the queue
+\(such as recompiling required modules for Coq) or to modify the items
+that are going to be added to `proof-action-list'."
+  :type '(repeat function)
+  :group 'proof-shell)  
+
 (defcustom proof-shell-insert-hook nil
   "Hooks run by `proof-shell-insert' before inserting a command.
 Can be used to configure the proof assistant to the interface in

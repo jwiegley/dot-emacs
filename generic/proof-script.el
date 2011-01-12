@@ -969,6 +969,14 @@ retracted using `proof-auto-retract-dependencies'."
 ;; taken when scripting is turned off/on.
 ;;
 
+(defconst proof-no-fully-processed-buffer nil
+  "Set to t if buffers should always retract before scripting elsewhere.
+Leave at nil if fully processd buffers make sense for the current proof
+assistant. If nil the user can choose to fully assert a buffer when
+starting scripting in a different buffer. If t there is only to choice
+to fully retract the active buffer before starting scripting in a different
+buffer. This last behavior is needed for Coq.")
+
 (defun proof-protected-process-or-retract (action &optional buffer)
   "If ACTION='process, process, If ACTION='retract, retract.
 Process or retract the current buffer, which should be the active
@@ -1015,7 +1023,13 @@ We make sure that the active scripting buffer either has no locked
 region or a full locked region (everything in it has been processed).
 If this is not already the case, we question the user whether to
 retract or assert, or automatically take the action indicated in the
-user option `proof-auto-action-when-deactivating-scripting.'
+user option `proof-auto-action-when-deactivating-scripting'.
+
+If `proof-no-fully-processed-buffer' is t there is only the choice
+to fully retract the active scripting buffer. In this case the
+active scripting buffer is retract even if it was fully processed.
+Setting `proof-auto-action-when-deactivating-scripting' to 'process
+is ignored in this case.
 
 If the scripting buffer is (or has become) fully processed, and it is
 associated with a file, it is registered on
@@ -1047,13 +1061,18 @@ a scripting buffer is killed it is always retracted."
 	;; switching between buffers during a proof makes
 	;; no sense.)
 	(if (or (proof-locked-region-empty-p)
-		(proof-locked-region-full-p)
+		(and (not proof-no-fully-processed-buffer)
+		     (proof-locked-region-full-p))
 		;; Buffer is partly-processed
 		(let*
-		    ((action
-		      (or
-		       forcedaction
-		       proof-auto-action-when-deactivating-scripting
+		    ((auto-action
+		      (if (and proof-no-fully-processed-buffer
+			       (eq proof-auto-action-when-deactivating-scripting
+				   'process))
+			  nil
+			proof-auto-action-when-deactivating-scripting))
+		     (action
+		      (or forcedaction auto-action
 		       (progn
 			 (save-window-excursion
 			   (unless
@@ -1078,10 +1097,12 @@ a scripting buffer is killed it is always retracted."
 			       "Scripting incomplete in buffer %s, retract? "
 			       proof-script-buffer))
 			     'retract)
-			    ((y-or-n-p
-			      (format
-			       "Completely process buffer %s instead? "
-			       proof-script-buffer))
+			    ((and
+			      (not proof-no-fully-processed-buffer)
+			      (y-or-n-p
+			       (format
+				"Completely process buffer %s instead? "
+				proof-script-buffer)))
 			     'process)))))))
 		  ;; Take the required action
 		  (if action

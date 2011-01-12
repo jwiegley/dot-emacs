@@ -924,6 +924,11 @@ To make sense, the commands should correspond to processing actions
 for processing a region from (buffer-queue-or-locked-end) to END.
 The queue mode is set to 'advancing"
   (proof-set-queue-endpoints (proof-unprocessed-begin) end)
+  (condition-case err
+      (run-hooks 'proof-shell-extend-queue-hook)
+    (error
+     (proof-detach-queue)
+     (signal (car err) (cdr err))))
   (proof-add-to-queue queueitems 'advancing))
 
 
