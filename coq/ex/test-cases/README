@@ -1,0 +1,12 @@
+This directory contains test cases for coq ProofGeneral,
+especially for its multi-file support.
+
+Each test case is in one subdirectory. Each such subdirectory has
+a README file, describing the test case.
+
+
+Overview of the test cases:
+
+retract-completely-asserted
+	test how proof-no-fully-processed-buffer retracts fully
+	asserted buffers

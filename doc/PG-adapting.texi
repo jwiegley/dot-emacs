@@ -666,6 +666,7 @@ the behaviour of script management.
 * Safe (state-preserving) commands::
 * Activate scripting hook::
 * Automatic multiple files::
+* Completely asserted buffers::
 * Completions::
 @end menu
 
@@ -1218,6 +1219,38 @@ setting to good effect.  If the proof assistant has more complex
 file dependencies then you should configure it to communicate with
 Proof General about the dependencies rather than using this setting.
 @end defvar
+
+@node Completely asserted buffers
+@section Completely asserted buffers
+
+When switching scripting from buffer A to buffer B Proof General
+normally offers the choice of either completely retracting or
+completely asserting buffer A. The option to completely assert
+buffer A is offered, because the material in B may depend on A.
+Even if B does not depend on A, it does no harm if one keeps the
+development of A loaded in the proof assistant. This observation
+is true for many proof assistants.
+
+One exception is Coq. Assume file B depends on file A. When Coq
+processes B it does not read the sources of A. Instead it loads a
+compiled object representation of A. Therefore, when switching
+from A to B, it does make no sense to keep the material of A
+loaded in the proof assistant. For Coq, the material of A may
+even provoke errors on correct input. Therefore, for coq, the
+right behaviour is to completely retract buffer A before
+switching to B. 
+
+@c TEXI DOCSTRING MAGIC: proof-no-fully-processed-buffer
+@defvar proof-no-fully-processed-buffer 
+Set to t if buffers should always retract before scripting elsewhere.@*
+Leave at nil if fully processd buffers make sense for the current
+proof assistant. If nil the user can choose to fully assert a
+buffer when starting scripting in a different buffer. If t there
+is only the choice to fully retract the active buffer before
+starting scripting in a different buffer. This last behavior is
+needed for Coq.
+@end defvar
+
 
 
 @node Completions
@@ -3085,7 +3118,13 @@ We make sure that the active scripting buffer either has no locked
 region or a full locked region (everything in it has been processed).
 If this is not already the case, we question the user whether to
 retract or assert, or automatically take the action indicated in the
-user option @samp{@code{proof-auto-action-when-deactivating-scripting}.}
+user option @samp{@code{proof-auto-action-when-deactivating-scripting}}.
+
+If @samp{@code{proof-no-fully-processed-buffer}} is t there is only the choice
+to fully retract the active scripting buffer. In this case the
+active scripting buffer is retract even if it was fully processed.
+Setting @samp{@code{proof-auto-action-when-deactivating-scripting}} to @code{'process}
+is ignored in this case.
 
 If the scripting buffer is (or has become) fully processed, and it is
 associated with a file, it is registered on

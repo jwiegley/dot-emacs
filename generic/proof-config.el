@@ -51,7 +51,7 @@
 ;;
 ;; i. When adding a new configuration variable, please
 ;;    (a) put it in the right customize group, and
-;;    (b) add a magical comment in ProofGeneral.texi/PG-Adapting.texi
+;;    (b) add a magical comment in ProofGeneral.texi/PG-adapting.texi
 ;;
 ;; ii.  Presently the customize library seems a bit picky over the
 ;;	:type property and some correct but complex types don't work:
@@ -665,6 +665,17 @@ The current buffer will be the recently scripting buffer.
 This hook may be useful for synchronizing with the proof
 assistant, for example, to compile a completed file."
   :type '(repeat function)
+  :group 'proof-script)
+
+(defcustom proof-no-fully-processed-buffer nil
+  "Set to t if buffers should always retract before scripting elsewhere.
+Leave at nil if fully processd buffers make sense for the current
+proof assistant. If nil the user can choose to fully assert a
+buffer when starting scripting in a different buffer. If t there
+is only the choice to fully retract the active buffer before
+starting scripting in a different buffer. This last behavior is
+needed for Coq."
+  :type 'boolean
   :group 'proof-script)
 
 (defcustom proof-script-evaluate-elisp-comment-regexp "ELISP: -- \\(.*\\) --"

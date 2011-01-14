@@ -1,0 +1,20 @@
+In coq different modules may contain definition with the same
+name, because for coq they have different "absolute names" because
+they are in different modules.
+
+To provoke an error inside ProofGeneral on correct coq input,
+do the following: 
+- Visit a.v and script the initial comment. 
+- Set proof-no-fully-processed-buffer to nil.
+- assert buffer a.v completely
+- switch to b.v
+- scripting "Definition a" in b.v will give the error "a already
+  exists"
+
+Now retract a.v, set proof-no-fully-processed-buffer to t and try
+again.
+
+To see that the example is indeed valid, script c.v. (For c.v you
+either have to switch coq-recompile-before-require to t or you
+have to compile modules a and b yourself with "coqc a" and "coqc b".)
+

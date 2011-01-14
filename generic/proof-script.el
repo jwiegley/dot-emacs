@@ -969,14 +969,6 @@ retracted using `proof-auto-retract-dependencies'."
 ;; taken when scripting is turned off/on.
 ;;
 
-(defconst proof-no-fully-processed-buffer nil
-  "Set to t if buffers should always retract before scripting elsewhere.
-Leave at nil if fully processd buffers make sense for the current proof
-assistant. If nil the user can choose to fully assert a buffer when
-starting scripting in a different buffer. If t there is only to choice
-to fully retract the active buffer before starting scripting in a different
-buffer. This last behavior is needed for Coq.")
-
 (defun proof-protected-process-or-retract (action &optional buffer)
   "If ACTION='process, process, If ACTION='retract, retract.
 Process or retract the current buffer, which should be the active
