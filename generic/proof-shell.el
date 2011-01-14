@@ -234,11 +234,16 @@ process command."
 
       ;; Starting the inferior process (asynchronous)
       (let* ((prog-name-list1
-	      (if (proof-ass prog-args)
-		 ;; If argument list supplied in <PA>-prog-args, use that.
-		  (cons proof-prog-name (proof-ass prog-args))
-		;; Otherwise, cut prog name on spaces
-		(split-string proof-prog-name)))
+	      (if (functionp (proof-ass-sym prog-args))
+		  ;; complex assistants define <PA>-prog-args as function
+		  ;; that computes the argument list.
+		  (cons proof-prog-name (funcall  (proof-ass-sym prog-args)))
+		(if (proof-ass prog-args)
+		    ;; Intermediate complex assistants set the value
+		    ;; of <PA>-prog-args to the argument list.
+		    (cons proof-prog-name (proof-ass prog-args))
+		  ;; Trivial assistants simply set proof-prog-name
+		  (split-string proof-prog-name))))
 	     (prog-name-list
 	      ;; Splice in proof-rsh-command if it's non-nil
 	      (if (and proof-rsh-command

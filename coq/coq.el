@@ -1239,6 +1239,14 @@ The first integer contains the upper 16 bits and the second the lower
         t)
     nil))
 
+;; Compute command line for starting coqtop
+
+(defun coq-prog-args ()
+  ;; coqtop always adds the current directory to the LoadPath, so don't
+  ;; include it in the -I options.
+  (let ((coq-load-path-include-current nil))
+    (append coq-prog-args (coq-include-options nil))))
+
 ;; handle Require commands when queue is extended
 
 (defun coq-recompile-ignore-file (lib-obj-file)
@@ -1273,7 +1281,8 @@ if `coq-load-path-include-current' is enabled, the directory base of FILE.
 The resulting list is fresh for every call, callers can append more
 arguments with `nconc'.
 
-FILE should be an absolute file name."
+FILE should be an absolute file name. It can be nil if
+`coq-load-path-include-current' is nil."
   (let ((result nil))
     (when coq-load-path
       (setq result (list "-I" (expand-file-name (car coq-load-path))))
