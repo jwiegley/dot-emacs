@@ -1226,13 +1226,6 @@ white space. The module identifier must be matched with group number 1.
 Note that the trailing dot in \"Require A.\" is not part of the module
 identifier and should therefore not be matched by this regexp.")
 
-(defvar coq-internal-load-path ()
-  "LoadPath of the coq toplevel.
-The value is a hash that maps logical directories to lists of
-physical directories. The order in these lists of physical directories is
-the same as in coq's LoadPath. `coq-internal-load-path' is initialized
-during prover initialization.")
-
 ;; basic utilities
 
 (defun time-less-or-equal (time-1 time-2)
@@ -1245,67 +1238,6 @@ The first integer contains the upper 16 bits and the second the lower
           (<= (nth 1 time-1) (nth 1 time-2))
         t)
     nil))
-
-;; Get internal coq LoadPath
-
-(defun get-coq-load-path ()
-  "Query LoadPath and set `coq-internal-load-path'.
-This function is run via `proof-shell-init-hook' to set
-`coq-internal-load-path' during initialization."
-  (if coq-internal-load-path
-      (clrhash coq-internal-load-path)
-    (setq coq-internal-load-path (make-hash-table :test 'equal)))
-  (let* ((response (proof-shell-invisible-cmd-get-result "Print LoadPath"))
-         (response-lines (split-string response "\n" t))
-         line-split entry)
-    ;; strip heading off
-    (setq response-lines (cdr response-lines))
-    (while response-lines
-      (setq line-split (split-string (car response-lines) " +" t))
-      ;; if the logical path is long, coq puts the directory on the next line
-      ;; in this case the following if concatenates the following two lines
-      (if (not (eq (length line-split) 2))
-          (progn
-            (setq line-split
-                  (split-string
-                   (concat (car response-lines) " " (car (cdr response-lines)))
-                   " +" t))
-            (if (not (eq (length line-split) 2))
-                (error "Unexpected output from Print LoadPath %s" line-split))
-            (setq response-lines (cdr (cdr response-lines))))
-        (setq response-lines (cdr response-lines)))
-      ;; (car line-split) is now the logical dir and
-      ;; (car (cdr line-split)) is the physical dir it is mapped to
-      ;; make the empty logical dir "<>" the empty string
-      (if (equal (car line-split) "<>")
-          (setcar line-split ""))
-      ;; put it now into the hash
-      (setq entry (gethash (car line-split) coq-internal-load-path))
-      (if entry
-          (nconc entry (list (car (cdr line-split))))
-        (puthash (car line-split) (list (car (cdr line-split)))
-                 coq-internal-load-path)))))
-
-(add-hook 'proof-shell-init-hook 'get-coq-load-path)
-
-;; issue Add LoadPath with the contents of coq-load-path
-;; when scripting is activated
-
-(defun coq-add-load-path ()
-  "Issue \"Add LoadPath\" with the contents of `coq-load-path'.
-The command is issued with `proof-shell-invisible-cmd'. This function is
-intended for `proof-activate-scripting-hook'. Because the \"Add LoadPath\"
-command can contain only one directory, we actually need to issue one
-invisible command for each element of `coq-load-path'."
-  (mapc
-   (lambda (dir)
-     (proof-shell-invisible-command
-      (format "Add LoadPath \"%s\"." (expand-file-name dir))
-      t))
-   coq-load-path))
-
-;; XXX these Add LoadPath commands are not retracted when deactivating a buffer
-(add-hook 'proof-activate-scripting-hook 'coq-add-load-path)
 
 ;; handle Require commands when queue is extended
 
@@ -1337,7 +1269,7 @@ Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
 (defun coq-include-options (file)
   "Build a -I options list for coqc and coqdep.
 The options list includes all directories from `coq-load-path' and,
-if `coq-load-path-include-current' is enabled the directory base of FILE.
+if `coq-load-path-include-current' is enabled, the directory base of FILE.
 The resulting list is fresh for every call, callers can append more
 arguments with `nconc'.
 
@@ -1354,12 +1286,18 @@ FILE should be an absolute file name."
 
 (defun coq-get-library-dependencies (lib-src-file)
   "Compute dependencies of LIB-SRC-FILE.
-Invoke \"coq-dep\" on lib-src-file and parse the output to compute the
-compiled coq library object files on which LIB-SRC-FILE depends.
+Invoke \"coq-dep\" on lib-src-file and parse the output to
+compute the compiled coq library object files on which
+LIB-SRC-FILE depends. The return value is either a string or a
+list. If it is a string then an error occurred and the string is
+the core of the error message. If the return value is a list no
+error occurred and the returned list is the (possibly empty) list
+of file names LIB-SRC-FILE depends on.
 
-LIB-SRC-FILE should be an absolute file name. If it is the dependencies
-are absolute too and the simplified treatment of
-`coq-load-path-include-current' in `coq-include-options' won't break."
+LIB-SRC-FILE should be an absolute file name. If it is, the
+dependencies are absolute too and the simplified treatment of
+`coq-load-path-include-current' in `coq-include-options' won't
+break."
   (let ((coqdep-arguments
          (nconc (coq-include-options lib-src-file) (list lib-src-file)))
         coqdep-output)
@@ -1370,10 +1308,10 @@ are absolute too and the simplified treatment of
       (setq coqdep-output (buffer-string)))
     ;(message "coqdep output on %s: %s" lib-src-file coqdep-output)
     (if (string-match "^\\*\\*\\* Warning:" coqdep-output)
-        (error "file %s has unsatisfied dependencies" lib-src-file))
-    (if (string-match ": \\(.*\\)$" coqdep-output)
-        (cdr-safe (split-string (match-string 1 coqdep-output)))
-      ())))
+        "unsatisfied dependencies"
+      (if (string-match ": \\(.*\\)$" coqdep-output)
+          (cdr-safe (split-string (match-string 1 coqdep-output)))
+        ()))))
 
 (defun coq-recompile-library (src-file)
   "Recompile coq library SRC-FILE.
@@ -1431,6 +1369,8 @@ Returns `t' if LIB-OBJ-FILE was recompiled, nil if not."
       (if (file-exists-p lib-src-file)
           (progn
             (setq dependencies (coq-get-library-dependencies lib-src-file))
+            (if (stringp dependencies)
+                (error "file %s has %s" lib-src-file dependencies))
             (setq compiled-deps (mapcar 'coq-make-lib-up-to-date dependencies))
             (setq force-recompilation (some 'identity compiled-deps))
             (coq-recompile-library-if-necessary
@@ -1461,14 +1401,33 @@ to save all buffers without confirmation before recompilation."
        coq-recompile-substitution-list)
       (call-interactively 'compile))))
 
-(defun coq-split-module-id (module-id)
-  "Decompose MODULE-ID into logical path and module name.
-Return logical path and module name as a list with two elements (with
-logical path first)"
-  (if (string-match "\\.[^.]+$" module-id)
-      (list (substring module-id 0 (match-beginning 0))
-            (substring module-id (+ (match-beginning 0) 1)))
-    (list "" module-id)))
+(defun coq-map-module-id-to-obj-file (module-id)
+  "Map MODULE-ID to the appropriate coq object file.
+The mapping depends of course on `coq-load-path'. The current
+implementation invokes coqdep with a one-line require command.
+This is probably slower but much simpler than modelling coq file
+loading inside ProofGeneral.
+
+A peculiar consequence of the current implementation is that this
+function returns () if MODULE-ID comes from the standard library."
+  (let ((coq-load-path 
+         (if coq-load-path-include-current
+             (cons default-directory coq-load-path)
+           coq-load-path))
+        (coq-load-path-include-current nil)
+        (temp-require-file (make-temp-file "ProofGeneral-coq" nil ".v"))
+        result)
+    (unwind-protect
+        (progn
+          (with-temp-file temp-require-file
+            (insert "Require " module-id "."))
+          (setq result (coq-get-library-dependencies temp-require-file)))
+      (delete-file temp-require-file))
+    (if (stringp result)
+        (error "Cannot find library %s in loadpath" module-id))
+    (assert (<= (length result) 1)
+            "Internal error in coq-map-module-id-to-obj-file")
+    (car-safe result)))
 
 (defun coq-check-module (module-id)
   "Locate MODULE-ID and recompile if necessary.
@@ -1477,29 +1436,14 @@ modules need recompilation and the recompilation itself is done by an external
 process. If `coq-recompile-command' is nil ProofGeneral computes the
 dependencies with \"coqdep\" and compiles modules as necessary. This internal
 checking does currently not handle ML modules."
-  (let* ((module-id-components (coq-split-module-id module-id))
-         (logical-dir (car module-id-components))
-         (module (car (cdr module-id-components)))
-         (physical-dir-list (gethash logical-dir coq-internal-load-path))
-         physical-dir)
-    (unless physical-dir-list
-      (error "Logical path %s not present in LoadPath" logical-dir))
-    ;; find the first directory in physical-dir-list that contains either
-    ;; module.vo or module.v
-    (setq physical-dir
-          (some
-           (lambda (physical-dir)
-             (if (or (file-exists-p (concat physical-dir "/" module ".v"))
-                     (file-exists-p (concat physical-dir "/" module ".vo")))
-                 physical-dir
-               nil))
-           physical-dir-list))
-    (unless physical-dir
-      (error "Cannot find module %s in LoadPath" module-id))
-    (if (eq (length coq-recompile-command) 0)
-        (coq-make-lib-up-to-date (concat physical-dir "/" module ".vo"))
-      (coq-auto-recompile-externally
-       buffer-file-name logical-dir physical-dir module))))
+  (let ((module-file (coq-map-module-id-to-obj-file module-id)))
+    ;; coq-map-module-id-to-obj-file currently returns () for
+    ;; standard library modules!
+    (when module-file
+      (if (eq (length coq-recompile-command) 0)
+          (coq-make-lib-up-to-date module-file)
+        (coq-auto-recompile-externally module-file)))))
+
 
 (defun coq-recompile-save-buffer-filter ()
   "Filter predicate for `coq-recompile-save-some-buffers'.
