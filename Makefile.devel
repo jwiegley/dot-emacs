@@ -84,7 +84,7 @@ DEVELOPERS=\
 -u "gklein	Gerwin Klein	gerwin.klein@nicta.com.au" \
 -u "assia	Assia Mahboubi	assia.mahboubi@inria.fr" \
 -u "monnier	Stefan Monnier	monnier@iro.umontreal.ca" \
--u "tews	Hendrik Tews	tews@os.inf.tu-dresden.de"
+-u "tews	Hendrik Tews	hendrik@askra.de"
 
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
 # line in tag target below, which edits $(DOWNLOADHTML)
