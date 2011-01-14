@@ -6,8 +6,8 @@ Contributions from David von Oheimb, Stefan Berghofer,
  Sebastian Skalberg, Gerwin Klein, Tjark Weber.
 
 Status:		    supported
-Maintainers:	    David Aspinall, Makarius Wenzel, Stefan Berghofer
-Isabelle versions:  Isabelle2009-2 (earlier versions not guaranteed)
+Maintainers:	    David Aspinall, Makarius Wenzel
+Isabelle versions:  Isabelle2011 (earlier versions not guaranteed)
 Isabelle homepage:  http://www.cl.cam.ac.uk/Research/HVG/Isabelle/
 
 ===========================================================================
