@@ -1092,7 +1092,9 @@ Currently this doesn't take the loadpath into account."
 ;;
 
 ;; TODO list:
+;; - fix that embarrassing recompilation problem
 ;; - work through comments on the first patch
+;; - fix condition-case in error messages
 ;; - testcases & examples
 ;; - display coqdep errors in the recompile-response buffer
 ;; - use a variable for the recompile-response buffer

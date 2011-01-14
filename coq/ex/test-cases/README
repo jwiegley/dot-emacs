@@ -7,6 +7,25 @@ a README file, describing the test case.
 
 Overview of the test cases:
 
+add-load-path-unsupported
+	Add LoadPath is not supported
+
+multiple-files-multiple-dir
+	working with multiple files in a multiple directories
+		(triggers known bugs)
+
+multiple-files-single-dir
+	working with multiple files in a single directory
+		(triggers known bugs)
+
+require-string
+	test Require "x.vo"
+		(triggers known bugs)
+
 retract-completely-asserted
 	test how proof-no-fully-processed-buffer retracts fully
 	asserted buffers
+
+stale-load-path
+	test switching between files with different load path.
+	     (triggers known bugs)
