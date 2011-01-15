@@ -7,40 +7,40 @@
 ;;;_ + variables
 
 (custom-set-variables
- '(starttls-extra-arguments nil)
- '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 "johnw" nil))))
- '(smtpmail-smtp-service 587)
- '(smtpmail-smtp-server "mail.johnwiegley.com")
+ '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil))))
+ '(smtpmail-smtp-service 587 t)
+ '(smtpmail-smtp-server "mail.johnwiegley.com" t)
  '(smtpmail-queue-dir "~/Library/Mail/queued-mail/")
  '(smtpmail-default-smtp-server "mail.johnwiegley.com")
  '(sendmail-program "/opt/local/bin/msmtp")
- '(send-mail-function (quote smtpmail-send-it))
+ '(send-mail-function (quote sendmail-send-it))
  '(nnmail-scan-directory-mail-source-once t)
  '(nnmail-message-id-cache-file "~/Library/Mail/Maildir/.nnmail-cache")
  '(nnmail-extra-headers (quote (To)))
  '(nnmail-expiry-wait 30)
- '(nnmail-expiry-target (quote my-gnus-expiry-target))
  '(nnmail-crosspost nil)
  '(nndraft-directory "~/Library/Mail/Maildir/" t)
  '(mm-text-html-renderer (quote html2text))
  '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
- '(message-setup-hook (quote (gnus-fix-gcc-header)))
+ '(message-setup-hook (quote (message-check-recipients (lambda nil (message-remove-header "From")))))
  '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-sendmail-envelope-from (quote header))
  '(message-send-mail-partially-limit nil)
- '(message-send-mail-function (quote smtpmail-send-it))
+ '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-mode-hook (quote (footnote-mode auto-fill-mode)))
  '(message-mail-alias-type nil)
  '(message-interactive t)
  '(message-fill-column 78)
  '(message-directory "~/Library/Mail/Maildir/")
- '(message-default-headers "From: John Wiegley <johnw@newartisans.com>
-")
  '(mail-user-agent (quote gnus-user-agent))
+ '(mail-specify-envelope-from t)
  '(mail-sources (quote ((file))))
  '(mail-source-report-new-mail-interval 15)
  '(mail-source-delete-old-incoming-confirm nil)
  '(mail-source-delete-incoming t)
+ '(mail-setup-with-from nil)
+ '(mail-envelope-from (quote header))
+ '(mail-archive-file-name "~/Library/Mail/sent.txt")
  '(gnus-use-trees t)
  '(gnus-use-cache t)
  '(gnus-use-adaptive-scoring (quote (line)))
@@ -77,14 +77,16 @@
  '(gnus-score-default-duration (quote p))
  '(gnus-save-newsrc-file nil)
  '(gnus-save-killed-list nil)
+ '(gnus-refer-article-method (quote (current (nnimap "VPS" (nnimap-address mail\.johnwiegley\.com) (nnimap-server-port 993) (nnimap-stream ssl) (nnimap-authenticator login)) (nnweb "google" (nnweb-type google)))))
  '(gnus-read-newsrc-file nil)
- '(gnus-posting-styles (quote (("ceg" ("From" "\"John Wiegley\" <johnw@3dex.com>")))))
+ '(gnus-posting-styles (quote ((".*"))))
  '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
  '(gnus-novice-user nil)
- '(gnus-local-domain "newartisans.com")
+ '(gnus-message-archive-group "nnimap+VPS:INBOX")
+ '(gnus-local-domain "boostpro.com")
  '(gnus-large-newsgroup 4000)
  '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
- '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\)\\.com\\)")
+ '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|boostpro\\)\\.com\\)")
  '(gnus-home-directory "~/Documents")
  '(gnus-group-sort-function (quote gnus-group-sort-by-method))
  '(gnus-group-mode-hook (quote (gnus-topic-mode)))
@@ -125,19 +127,49 @@
 (load "gnus")
 (load "gnus-agent")
 (load "eudc")
-(load "tls")
 (load "starttls")
 
 (eval-after-load "message"
   '(load "message-x"))
 
-(define-key gnus-group-mode-map (kbd "vo")
-   '(lambda ()
-      (interactive)
-      (shell-command "offlineimap &" "*offlineimap*" nil)))
+(setq my-smtpmailer-alist 
+      '((".*@\\(boostpro.com\\)"
+         ("johnw@boostpro.com" . "smtp.gmail.com"))
+        (".*@\\(3dex\\|smartceg\\).com"
+         ("johnw@3dex.com" . "smtp.gmail.com"))
+        (".*@\\(gmail.com\\)"
+         ("jwiegley@gmail.com" . "smtp.gmail.com"))
+        (".*"
+         ("johnw@newartisans.com" . "mail.johnwiegley.com"))))
 
-;;(eval-after-load "gnus-sum"
-;;  '(defalias 'gnus-summary-refer-article 'gnus-goto-article))
+(defun my-set-smtp-server ()
+  (let* ((to-field (cadr (mail-extract-address-components
+                          (message-field-value "to"))))
+         (from (let ((field (message-field-value "from")))
+                 (and field (cadr (mail-extract-address-components field)))))
+         (result
+          (car (assoc-default (or from to-field)
+                              my-smtpmailer-alist
+                              'string-match
+                              (cons user-mail-address
+                                    (if (boundp 'smtpmail-default-smtp-server)
+                                        smtpmail-default-smtp-server
+                                      ""))))))
+    (if from
+        (setq smtpmail-mail-address from
+              mail-envelope-from from
+              smtpmail-smtp-server (cdr result)
+              smtpmail-smtp-service 587)
+      ;; set mailer address and port
+      (setq smtpmail-mail-address (car result)
+            mail-envelope-from (car result)
+            smtpmail-smtp-server (cdr result)
+            smtpmail-smtp-service 587)
+      (message-remove-header "From")
+      (message-add-header
+       (format "From: %s <%s>" user-full-name (car result))))))
+
+(add-hook 'message-send-hook 'my-set-smtp-server)
 
 ;;;_ + Determine layout of the summary windows
 
@@ -160,22 +192,6 @@
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
-;;;_ + A function to expire old mail into an archive mailbox
-
-(defun my-gnus-expiry-target (group)
-  "inbox and sent are archived, the rest is deleted"
-  (if (string-match "drafts" group)
-      group
-    (concat "nnml:" group "."
-	    (format-time-string "%Y" (my-gnus-get-article-date)))))
-
-(defun my-gnus-get-article-date ()
-  "Extracts the date from the current article and converts it to Emacs time"
-  (save-excursion
-    (goto-char (point-min))
-    (ignore-errors
-      (gnus-date-get-time (mail-header-date gnus-current-headers)))))
-
 ;;;_ + Record e-mail addresses that I send e-mail to
 
 (defun gnus-record-recipients ()
@@ -194,9 +210,8 @@
 					  nil nil nil (cadr addr))))))))
 
 (defun gnus-goto-article (message-id)
-  (let ((info (nnml-find-group-number message-id "nnmaildir+Mail")))
-    (gnus-summary-read-group (concat "nnmaildir+Mail:" (car info)) 100 t)
-    (gnus-summary-goto-article (cdr info) nil t)))
+  (gnus-summary-read-group "nnimap+VPS:INBOX" 1 t)
+  (gnus-summary-goto-article message-id nil t))
 
 ;;;_ + Saving articles from gnu.emacs.sources
 
@@ -317,41 +332,6 @@
 	(number-to-string tcount)
       " ")))
 
-;;;_ + Smart Gcc: header generation
-
-(defun gnus-fix-gcc-header ()
-  "Called to fix any problems with the Gcc header."
-  (let ((gcc (gnus-fetch-field "Gcc")))
-    (if gcc
-        (progn
-          (when (string-match "\\`nndoc:\\(.+?\\)-[0-9]+\\'" gcc)
-            (setq gcc (match-string 1 gcc))
-            (message-remove-header "Gcc")
-            (message-add-header (format "Gcc: %s" gcc)))
-          (cond
-           ((or (string-match "\\`nnml:list\\." gcc)
-                (string-match "\\`nnmaildir\\+Mail:INBOX\\.Mailing Lists\\." gcc))
-            (let* ((split-addr
-                    (function
-                     (lambda (field)
-                       (let ((value (gnus-fetch-field field)))
-                         (if value
-                             (mapcar 'downcase
-                                     (split-string
-                                      (gnus-mail-strip-quoted-names value)
-                                      "\\s-*,\\s-*")))))))
-                   (addrs (append (funcall split-addr "To")
-                                  (funcall split-addr "Cc")))
-                   (to-addr (or (gnus-group-get-parameter gcc 'to-address)
-                                (gnus-group-get-parameter gcc 'to-list)))
-                   (list-addr (and to-addr (downcase to-addr))))
-              (when (and list-addr (member list-addr addrs))
-                (message-remove-header "Gcc")
-                (if t
-                    (message-add-header "Gcc: nnimap+VPS:INBOX.Sent")
-                  (message-add-header "FCC: ~/Library/Mail/Maildir/listposts")))))))
-      (message-add-header "Gcc: nnimap+VPS:INBOX.Sent"))))
-
 ;;;_ + Selecting an e-mail address
 
 (defvar pick-addr-cache nil)
@@ -366,37 +346,6 @@
               (split-string  (shell-command-to-string
                               "contacts -H -S -f '%n <%e>' | grep -v '<>'")
                              "\n" t))) nil t)))
-
-;;;_ + Archive groups
-
-(defcustom gnus-archive-groups nil
-  "*A list of regexp->group pairs, for compounding archive groups."
-  :type '(repeat (cons regexp (string :tag "Group")))
-  :group 'nnmail)
-
-(defun gnus-determine-archive-group (group)
-  (let* (lookup
-	 (group
-	  (cond
-	   ((string-match "^nntp.*:\\(.*\\)" group)
-	    (setq lookup t)
-	    (match-string 1 group))
-	   ((or (null group)
-		(string= group "")
-		(string-match "nnmaildir\\+Mail:INBOX" group))
-	    "nnmaildir+Mail:INBOX.Archive")
-	   ((string-match "^\\([^:.]+\\.[^:]+\\)" group)
-	    (setq lookup t)
-	    (match-string 1 group))
-	   (t group)))
-	 (table gnus-archive-groups))
-    (if lookup
-	(while table
-	  (if (string-match (caar table) group)
-	      (setq group (cdar table)
-		    table nil)
-	    (setq table (cdr table)))))
-    group))
 
 ;;;_* keybindings
 
