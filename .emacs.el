@@ -12,6 +12,8 @@
           (list "~/Dropbox" "." "site-lisp"
 
                 ;; Packages that bury their Lisp code in subdirectories...
+                "site-lisp/gnus/contrib"
+                "site-lisp/gnus/lisp"
                 "site-lisp/ess/lisp"
                 "site-lisp/org-mode/contrib/lisp"
                 "site-lisp/org-mode/lisp"
@@ -185,6 +187,7 @@
  '(ps-line-number-font-size 10)
  '(ps-print-color-p nil)
  '(python-check-command "epylint")
+ '(rcirc-track-minor-mode t)
  '(read-buffer-function (quote ido-read-buffer))
  '(recentf-auto-cleanup 600)
  '(recentf-exclude (quote ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:")))
@@ -213,7 +216,7 @@
  '(user-full-name "John Wiegley")
  '(user-init-file "/Users/johnw/Dropbox/.emacs.el" t)
  '(user-initials "jww")
- '(user-mail-address "jwiegley@gmail.com")
+ '(user-mail-address "johnw@newartisans.com")
  '(vc-follow-symlinks t)
  '(vc-handled-backends (quote (GIT)))
  '(version-control t)
@@ -277,7 +280,7 @@
         ;;"chess-auto"
         "diff-mode-"
         "diminish"
-        ;;"elscreen"
+        "elscreen"
         "ess-site"
         "flyspell-ext"
         "gist"
@@ -424,55 +427,55 @@
 
      (run-with-idle-timer 900 t 'save-information)))
 
-;;;_ + wanderlust
-
-(autoload 'wl "wl" "Wanderlust" t)
-(autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
-(autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
-
-;; IMAP
-;(setq elmo-imap4-default-server "imap.gmail.com")
-;(setq elmo-imap4-default-user "jwiegley@gmail.com") 
-(setq elmo-imap4-default-server "mail.johnwiegley.com")
-(setq elmo-imap4-default-user "johnw") 
-(setq elmo-imap4-default-authenticate-type 'clear) 
-(setq elmo-imap4-default-port '993)
-(setq elmo-imap4-default-stream-type 'ssl)
-
-(setq elmo-imap4-use-modified-utf7 t) 
-
-;; SMTP
-(setq wl-smtp-connection-type 'starttls)
-(setq wl-smtp-posting-port 587)
-(setq wl-smtp-authenticate-type "plain")
-;(setq wl-smtp-posting-user "jwiegley")
-;(setq wl-smtp-posting-server "smtp.gmail.com")
-;(setq wl-local-domain "gmail.com")
-(setq wl-smtp-posting-user "johnw")
-(setq wl-smtp-posting-server "mail.johnwiegley.com")
-(setq wl-local-domain "johnwiegley.com")
-
-(setq wl-default-folder "%inbox")
-(setq wl-default-spec "%")
-;(setq wl-draft-folder "%[Gmail]/Drafts") ; Gmail IMAP
-;(setq wl-trash-folder "%[Gmail]/Trash")
-(setq wl-draft-folder "%INBOX.Drafts")
-(setq wl-trash-folder "%INBOX.Trash")
-
-(setq wl-folder-check-async t) 
-
-(setq elmo-imap4-use-modified-utf7 t)
-
-(autoload 'wl-user-agent-compose "wl-draft" nil t)
-(if (boundp 'mail-user-agent)
-    (setq mail-user-agent 'wl-user-agent))
-(if (fboundp 'define-mail-user-agent)
-    (define-mail-user-agent
-      'wl-user-agent
-      'wl-user-agent-compose
-      'wl-draft-send
-      'wl-draft-kill
-      'mail-send-hook))
+;; ;;;_ + wanderlust
+;; 
+;; (autoload 'wl "wl" "Wanderlust" t)
+;; (autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
+;; (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
+;; 
+;; ;; IMAP
+;; ;(setq elmo-imap4-default-server "imap.gmail.com")
+;; ;(setq elmo-imap4-default-user "jwiegley@gmail.com") 
+;; (setq elmo-imap4-default-server "mail.johnwiegley.com")
+;; (setq elmo-imap4-default-user "johnw") 
+;; (setq elmo-imap4-default-authenticate-type 'clear) 
+;; (setq elmo-imap4-default-port '993)
+;; (setq elmo-imap4-default-stream-type 'ssl)
+;; 
+;; (setq elmo-imap4-use-modified-utf7 t) 
+;; 
+;; ;; SMTP
+;; (setq wl-smtp-connection-type 'starttls)
+;; (setq wl-smtp-posting-port 587)
+;; (setq wl-smtp-authenticate-type "plain")
+;; ;(setq wl-smtp-posting-user "jwiegley")
+;; ;(setq wl-smtp-posting-server "smtp.gmail.com")
+;; ;(setq wl-local-domain "gmail.com")
+;; (setq wl-smtp-posting-user "johnw")
+;; (setq wl-smtp-posting-server "mail.johnwiegley.com")
+;; (setq wl-local-domain "johnwiegley.com")
+;; 
+;; (setq wl-default-folder "%inbox")
+;; (setq wl-default-spec "%")
+;; ;(setq wl-draft-folder "%[Gmail]/Drafts") ; Gmail IMAP
+;; ;(setq wl-trash-folder "%[Gmail]/Trash")
+;; (setq wl-draft-folder "%INBOX.Drafts")
+;; (setq wl-trash-folder "%INBOX.Trash")
+;; 
+;; (setq wl-folder-check-async t) 
+;; 
+;; (setq elmo-imap4-use-modified-utf7 t)
+;; 
+;; (autoload 'wl-user-agent-compose "wl-draft" nil t)
+;; (if (boundp 'mail-user-agent)
+;;     (setq mail-user-agent 'wl-user-agent))
+;; (if (fboundp 'define-mail-user-agent)
+;;     (define-mail-user-agent
+;;       'wl-user-agent
+;;       'wl-user-agent-compose
+;;       'wl-draft-send
+;;       'wl-draft-kill
+;;       'mail-send-hook))
 
 ;;;_ + whitespace
 
