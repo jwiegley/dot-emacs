@@ -1092,7 +1092,6 @@ Currently this doesn't take the loadpath into account."
 ;;
 
 ;; TODO list:
-;; - fix that embarrassing recompilation problem
 ;; - work through comments on the first patch
 ;; - fix condition-case in error messages
 ;; - testcases & examples
@@ -1230,16 +1229,42 @@ identifier and should therefore not be matched by this regexp.")
 
 ;; basic utilities
 
-(defun time-less-or-equal (time-1 time-2)
-  "Return `t' if time value time-1 is earlier or equal to time-2.
+(defun time-less (time-1 time-2)
+  "Return `t' if time value time-1 is earlier than time-2.
 A time value is a list of two integers as returned by `file-attributes'.
 The first integer contains the upper 16 bits and the second the lower
 16 bits of the time."
-  (if (<= (car time-1) (car time-2))
-      (if (= (car time-1) (car time-2))
-          (<= (nth 1 time-1) (nth 1 time-2))
-        t)
-    nil))
+  (if (< (car time-1) (car time-2))
+      t
+    (if (= (car time-1) (car time-2))
+        (< (nth 1 time-1) (nth 1 time-2))
+        nil)))
+
+(defun time-less-or-equal (time-1 time-2)
+  "Return `t' if time value time-1 is earlier or equal to time-2.
+For time values see `time-less'."
+  (or (time-less time-1 time-2)
+      (equal time-1 time-2)))
+
+(defun coq-max-dep-mod-time (dep-mod-times)
+  "Return the maximum in DEP-MOD-TIMES.
+Argument DEP-MOD-TIMES is a list where each element is either a
+time value (see `time-less') or 'just-recompiled. The
+function returns the maximum of the elements in DEP-MOD-TIMES,
+where 'just-recompiled is considered the greatest time value. If
+DEP-MOD-TIMES is empty it returns nil."
+  (let ((max nil))
+    (while dep-mod-times
+      (cond
+       ((eq (car dep-mod-times) 'just-recompiled)
+        (setq max 'just-recompiled
+              dep-mod-times nil))
+       ((eq max nil)
+        (setq max (car dep-mod-times)))
+       ((time-less max (car dep-mod-times))
+        (setq max (car dep-mod-times))))
+      (setq dep-mod-times (cdr-safe dep-mod-times)))
+    max))
 
 ;; Compute command line for starting coqtop
 
@@ -1350,43 +1375,95 @@ Display errors in buffer *coq-auto-recompile-response*."
         (error "ERROR: Recompiling coq library %s %s %s"
                src-file terminated-text coqc-status)))))
 
-(defun coq-recompile-library-if-necessary (force src obj)
+(defun coq-recompile-library-if-necessary (max-dep-obj-time src obj)
   "Recompile SRC to OBJ if necessary.
-Recompile SRC to the coq library object file OBJ if either
-FORCE is non-nil or if SRC is newer than OBJ. Return `t' if SRC
-was recompiled, `nil' otherwise. SRC must exist when this function
-is called. OBJ does not need to exist."
-  (let ((src-time (or force (nth 5 (file-attributes src))))
-        (obj-time (or force (nth 5 (file-attributes obj)))))
-    ;; obj-time is nil if obj does not exist
-    (if (or force (not obj-time) (time-less-or-equal obj-time src-time))
-        (progn
-          ;(if force (message "Force compilation %s" src))
-          (coq-recompile-library src)
-          t)
-      (message "Skip compilation of %s" src) ; XXX
-      nil)))
+This function recompiles SRC to the coq library object file OBJ
+if one of the following conditions is true:
+- a dependency has just been recompiled
+- OBJ does not exist
+- SRC is newer than OBJ
+- OBJ is older than the the youngest object file of the dependencies.
 
-(defun coq-make-lib-up-to-date (lib-obj-file)
-  "Make library object file LIB-OBJ-FILE up-to-date.
-Check if LIB-OBJ-FILE and all it dependencies are up-to-date compiled
-coq library objects. Recompile the necessary objects, if not.
-Returns `t' if LIB-OBJ-FILE was recompiled, nil if not."
-  (message "Check %s" lib-obj-file)     ;XXX
-  (unless (coq-recompile-ignore-file lib-obj-file)
-    (let* ((lib-src-file
-            (expand-file-name (coq-library-src-of-obj-file lib-obj-file)))
-           dependencies compiled-deps force-recompilation)
-      (if (file-exists-p lib-src-file)
+Argument MAX-DEP-OBJ-TIME provides the information about the
+dependencies. It is either
+- 'just-recompiled if one of the dependencies of SRC has just
+  been compiled
+- the time value (see`time-less') of the youngest (most recently
+  created) object file among the dependencies
+- nil if there are no dependencies, or if they are all ignored
+
+If this function decides to compile SRC to OBJ it returns
+'just-recompiled. Otherwise it returns the modification time of
+OBJ."
+  (let (src-time obj-time)
+    (if (eq max-dep-obj-time 'just-recompiled)
+        (progn
+          (coq-recompile-library src)
+          'just-recompiled)
+      (setq src-time (nth 5 (file-attributes src)))
+      (setq obj-time (nth 5 (file-attributes obj)))
+      (if (or
+           (not obj-time)                     ; obj does not exist
+           (time-less-or-equal obj-time src-time) ; src is newer
+           (and
+            max-dep-obj-time            ; there is a youngest dependency
+                                        ; which is newer than obj
+            (time-less-or-equal obj-time max-dep-obj-time)))
           (progn
-            (setq dependencies (coq-get-library-dependencies lib-src-file))
-            (if (stringp dependencies)
-                (error "file %s has %s" lib-src-file dependencies))
-            (setq compiled-deps (mapcar 'coq-make-lib-up-to-date dependencies))
-            (setq force-recompilation (some 'identity compiled-deps))
-            (coq-recompile-library-if-necessary
-             force-recompilation lib-src-file lib-obj-file))
-        (message "coq-auto-compile: no source file for %s" lib-obj-file)))))
+            (coq-recompile-library src)
+            'just-recompiled)
+        (message "Skip compilation of %s" src) ; XXX
+        obj-time))))
+
+(defun coq-make-lib-up-to-date (coq-obj-hash lib-obj-file)
+  "Make library object file LIB-OBJ-FILE up-to-date.
+Check if LIB-OBJ-FILE and all it dependencies are up-to-date
+compiled coq library objects. Recompile the necessary objects, if
+not. This function returns 'just-compiled if it recompiled
+LIB-OBJ-FILE. Otherwise it returns the modification time of
+LIB-OBJ-FILE as time value (see `time-less').
+
+Either LIB-OBJ-FILE or its source file (or both) must exist when
+entering this function.
+
+Argument COQ-OBJ-HASH remembers the return values of this
+function."
+  (let ((result (gethash lib-obj-file coq-obj-hash)))
+    (if result
+        (progn
+          (message "Checked %s already" lib-obj-file) ;XXX
+          result)
+      ;; lib-obj-file has not been check -- do it now
+      (message "Check %s" lib-obj-file)     ;XXX
+      (if (coq-recompile-ignore-file lib-obj-file)
+          ;; return minimal time for ignored files
+          (setq result '(0 0))
+        (let* ((lib-src-file
+                (expand-file-name (coq-library-src-of-obj-file lib-obj-file)))
+               dependencies deps-mod-time)
+          (if (file-exists-p lib-src-file)
+              ;; recurse into dependencies now
+              (progn
+                (setq dependencies (coq-get-library-dependencies lib-src-file))
+                (if (stringp dependencies)
+                    (error "file %s has %s" lib-src-file dependencies))
+                (setq deps-mod-time
+                      (mapcar
+                       (lambda (dep)
+                         (coq-make-lib-up-to-date coq-obj-hash dep))
+                       dependencies))
+                (setq result
+                      (coq-recompile-library-if-necessary
+                       (coq-max-dep-mod-time deps-mod-time)
+                       lib-src-file lib-obj-file)))
+            (message "coq-auto-compile: no source file for %s" lib-obj-file)
+            (setq result
+                  ;; 5 value: last modification time
+                  (nth 5 (file-attributes lib-obj-file))))))
+      ;; at this point the result value has been determined
+      ;; store it in the hash then
+      (puthash lib-obj-file result coq-obj-hash)
+      result)))
 
 (defun coq-auto-recompile-externally (requiring-file logical-dir
                                                       physical-dir module)
@@ -1440,21 +1517,29 @@ function returns () if MODULE-ID comes from the standard library."
             "Internal error in coq-map-module-id-to-obj-file")
     (car-safe result)))
 
-(defun coq-check-module (module-id)
+(defun coq-check-module (coq-object-local-hash-symbol module-id)
   "Locate MODULE-ID and recompile if necessary.
 If `coq-recompile-command' is not nil the whole task of checking which
 modules need recompilation and the recompilation itself is done by an external
 process. If `coq-recompile-command' is nil ProofGeneral computes the
 dependencies with \"coqdep\" and compiles modules as necessary. This internal
-checking does currently not handle ML modules."
+checking does currently not handle ML modules.
+
+Argument COQ-OBJECT-LOCAL-HASH-SYMBOL provides a place to store
+the coq-obj-hash, which is used during internal
+recompilation (see `coq-make-lib-up-to-date'). This way one hash
+will be used for all \"Require\" commands added at once to the
+queue."
   (let ((module-file (coq-map-module-id-to-obj-file module-id)))
     ;; coq-map-module-id-to-obj-file currently returns () for
     ;; standard library modules!
     (when module-file
-      (if (eq (length coq-recompile-command) 0)
-          (coq-make-lib-up-to-date module-file)
-        (coq-auto-recompile-externally module-file)))))
-
+      (if (> (length coq-recompile-command) 0)
+          (coq-auto-recompile-externally module-file)
+        (unless (symbol-value coq-object-local-hash-symbol)
+          (set coq-object-local-hash-symbol (make-hash-table :test 'equal)))
+        (coq-make-lib-up-to-date (symbol-value coq-object-local-hash-symbol)
+                                 module-file)))))
 
 (defun coq-recompile-save-buffer-filter ()
   "Filter predicate for `coq-recompile-save-some-buffers'.
@@ -1490,13 +1575,17 @@ current buffer (which contains the Require command) to
 
 (defun coq-preprocess-require-commands ()
   "Coq function for `proof-shell-extend-queue-hook'.
-Inserts special commands before every \"Require\" command to let
-ProofGeneral (re-)compile the required files (and their dependencies)
-before coq loads them. Does nothing if
-`coq-recompile-before-require' is nil."
+If `coq-recompile-before-require' it t this function performs the
+recompilation (if necessary) of the dependencies."
   (if coq-recompile-before-require
       (let ((items queueitems)
             (previous-head nil)
+            ;; coq-object-hash-symbol serves as a pointer to the
+            ;; coq-obj-hash (see coq-make-lib-up-to-date). The hash
+            ;; will be initialized when needed and stored in the value
+            ;; cell of coq-object-hash-symbol. The symbol is initialized
+            ;; here to use one hash for all the requires that are added now.
+            (coq-object-hash-symbol nil)
             item string)
         (while items
           (setq item (car items))
@@ -1509,7 +1598,8 @@ before coq loads them. Does nothing if
               ;; now process all required modules
               (while (string-match coq-require-id-regexp string start)
                 (setq start (match-end 0))
-                (coq-check-module (match-string 1 string)))))
+                (coq-check-module 'coq-object-hash-symbol
+                                  (match-string 1 string)))))
           (setq previous-head items)
           (setq items (cdr items))))))
 

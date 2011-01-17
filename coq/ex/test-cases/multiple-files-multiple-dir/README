@@ -16,8 +16,3 @@ a.
 
 Script c.v and watch the compilation messages in *Messages*.
 Touch any file and retract and assert the Require in c.
-
-The bugs described in ../multiple-files-single-dir/README can
-also be reproduced here.
-
-        

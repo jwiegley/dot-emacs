@@ -12,11 +12,9 @@ add-load-path-unsupported
 
 multiple-files-multiple-dir
 	working with multiple files in a multiple directories
-		(triggers known bugs)
 
 multiple-files-single-dir
 	working with multiple files in a single directory
-		(triggers known bugs)
 
 require-string
 	test Require "x.vo"
