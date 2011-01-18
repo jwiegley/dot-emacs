@@ -65,6 +65,18 @@
 
   (pg-autotest quit-prover)
 
+  (pg-autotest remark "Testing multiple-file recompilation...")
+  (pg-autotest script-wholefile "coq/ex/test-cases/multiple-files-single-dir/f.v")
+  (proof-shell-wait)
+  ;; touch d.v to cause recompile (TODO: check for that)
+  (find-file "d.v")
+  (set-buffer-modified-p t)
+  (save-buffer)
+  (pg-autotest-test-retract-file  "coq/ex/test-cases/multiple-files-single-dir/f.v")
+  (proof-shell-wait)
+  (pg-autotest script-wholefile "coq/ex/test-cases/multiple-files-single-dir/f.v")
+
+  (pg-autotest quit-prover)
   (pg-autotest remark "Complete.")
 
   (pg-autotest timetaken 'total)
