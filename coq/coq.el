@@ -1095,6 +1095,8 @@ Currently this doesn't take the loadpath into account."
 ;;
 
 ;; TODO list:
+;; - restart coqtop on buffer switch
+;; - update patch website
 ;; - display coqdep errors in the recompile-response buffer
 ;; - use a variable for the recompile-response buffer
 ;; - fix problem with partial library names
@@ -1181,6 +1183,14 @@ confirmation."
      "save all coq-mode buffers except the current buffer without confirmation"
      save-coq)
     (const :tag "save all buffers without confirmation" save-all))
+  :group 'coq-auto-compile)
+
+(defcustom coq-lock-ancestors t
+  "*If t lock ancestor module files.
+If external compilation is used (via `coq-compile-command') then
+only the direct ancestors are locked. Otherwise all ancestors are
+locked when the \"Require\" command is processed."
+  :type 'boolean
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-ignore-library-directory t
@@ -1475,7 +1485,9 @@ function."
             (message "coq-auto-compile: no source file for %s" lib-obj-file)
             (setq result
                   ;; 5 value: last modification time
-                  (nth 5 (file-attributes lib-obj-file))))))
+                  (nth 5 (file-attributes lib-obj-file))))
+          (if coq-lock-ancestors
+              (proof-register-possibly-new-processed-file lib-src-file))))
       ;; at this point the result value has been determined
       ;; store it in the hash then
       (puthash lib-obj-file result coq-obj-hash)
@@ -1503,7 +1515,10 @@ to save all buffers without confirmation before compilation."
                 (car substitution) (eval (car (cdr substitution)))
                 compile-command)))
        coq-compile-substitution-list)
-      (call-interactively 'compile))))
+      (call-interactively 'compile)
+      (if coq-lock-ancestors
+          (proof-register-possibly-new-processed-file
+           (coq-library-src-of-obj-file absolute-module-obj-file))))))
 
 (defun coq-map-module-id-to-obj-file (module-id)
   "Map MODULE-ID to the appropriate coq object file.

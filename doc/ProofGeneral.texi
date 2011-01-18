@@ -4154,6 +4154,17 @@ The default value is @code{ask-coq}.
 @end defopt
 
 
+@c TEXI DOCSTRING MAGIC: coq-lock-ancestors
+@defopt coq-lock-ancestors 
+If t lock ancestor module files.@*
+If external compilation is used (via @samp{@code{coq-compile-command}}) then
+only the direct ancestors are locked. Otherwise all ancestors are
+locked when the "Require" command is processed.
+
+The default value is @code{t}.
+@end defopt
+
+
 The following two options deal with the load path. Proof General
 divides the load path into the standard load path (which is
 hardwired in the tools and need not be set explicitly), the
@@ -4479,7 +4490,7 @@ at the top of your theory file, like this:
 The default value is @code{nil}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: isabelle-choose-logic
-@deffn Command isabelle-choose-logic logic
+@deffn Command isabelle-choose-logic 
 Adjust isabelle-prog-name and @code{proof-prog-name} for running @var{logic}.
 @end deffn
 @node Isabelle commands

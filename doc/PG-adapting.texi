@@ -2384,7 +2384,7 @@ can be achieved via two hook functions which are run before and after
 fontifying the output buffers.
 
 @c TEXI DOCSTRING MAGIC: proof-zap-commas
-@defun proof-zap-commas limit
+@defun proof-zap-commas 
 Remove the face of all @samp{,} from point to @var{limit}.@*
 Meant to be used from @samp{@code{font-lock-keywords}} as a way
 to unfontify commas in declarations and definitions.
@@ -2581,7 +2581,7 @@ To insert text into the current (usually script) buffer, the function
 
 
 @c TEXI DOCSTRING MAGIC: proof-insert
-@defun proof-insert text
+@defun proof-insert 
 Insert @var{text} into the current buffer.@*
 @var{text} may include these special characters:
 @lisp
@@ -2651,7 +2651,7 @@ Define command FN to prompt for string @var{cmdvar} to proof assistant.@*
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-format-filename
-@defun proof-format-filename string filename
+@defun proof-format-filename 
 Format @var{string} by replacing quoted chars by escaped version of @var{filename}.
 
 %e uses the canonicalized expanded version of filename (including
@@ -2900,14 +2900,14 @@ behaviour and appearance for boolean user options, as well as
 interfacing properly with the @code{customize} mechanism.
 
 @c TEXI DOCSTRING MAGIC: proof-set-value
-@defun proof-set-value sym value
+@defun proof-set-value 
 Set a customize variable using @samp{@code{set-default}} and a function.@*
-We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
-Then if there is a function @var{sym} (i.e. with the same name as the
-variable @var{sym}), it is called to take some dynamic action for the new
+We first call @samp{@code{set-default}} to set SYM to @var{value}.
+Then if there is a function SYM (i.e. with the same name as the
+variable SYM), it is called to take some dynamic action for the new
 setting.
 
-If there is no function @var{sym}, we try stripping
+If there is no function SYM, we try stripping
 @samp{@code{proof-assistant-symbol}} and adding "proof-" instead to get
 a function name.  This extends @code{proof-set-value} to work with
 generic individual settings.
