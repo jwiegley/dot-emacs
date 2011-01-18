@@ -931,7 +931,7 @@ The queue mode is set to 'advancing"
   (proof-set-queue-endpoints (proof-unprocessed-begin) end)
   (condition-case err
       (run-hooks 'proof-shell-extend-queue-hook)
-    (error
+    ((error quit)
      (proof-detach-queue)
      (signal (car err) (cdr err))))
   (proof-add-to-queue queueitems 'advancing))

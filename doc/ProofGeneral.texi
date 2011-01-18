@@ -3430,6 +3430,11 @@ NB: A buffer is completely processed when all non-whitespace is
 locked (coloured blue); a buffer is completely unprocessed when there
 is no locked region.
 
+For some proof assistants (such as Coq) fully processed buffers make
+no sense. Setting this option to @code{'process} has then the same effect
+as leaving it unset (nil). (This behaviour is controlled by
+@samp{@code{proof-no-fully-processed-buffer}}.)
+
 The default value is @code{nil}.
 @end defopt
 
@@ -3916,6 +3921,7 @@ assistant.  It supports most of the generic features of Proof General.
 
 @menu
 * Coq-specific commands::
+* Multiple File Support::
 * Editing multiple proofs::
 * User-loaded tactics::
 * Holes feature::
@@ -3943,6 +3949,325 @@ Inserts ``End <section-name>.'' (this should work well with nested sections).
 @item C-c C-a C-o
 Prompts for a SearchIsos argument.
 @end table
+
+
+@node Multiple File Support
+@section Multiple File Support
+
+Since version 4.1 Coq Proof General has multiple file support. It
+consists of the following points:
+
+@table @asis
+@item Restarting @code{coqtop} when changing the active scripting buffer
+Different buffers may require different load path' or different
+sets of @code{-I} options. Because Coq cannot undo changes in the
+load path, Proof General is forced to restart @code{coqtop} when
+the active scripting buffer changes.
+@item Locking ancestors
+Locking those buffers on which the current active scripting
+buffer depends. This is controlled by the user option
+@code{coq-lock-ancestors}, 
+@ref{Customizing Coq Multiple File Support} and 
+@ref{Locking Ancestors}.
+@item (Re-)Compilation 
+Before a @code{Require} command is processed it may be necessary
+to save and compile some buffers. Because this feature
+conflicts with existing customization habits, it is switched off
+by default. When it is properly configured, one can freely switch
+between different buffers. Proof General will compile the
+necessary files whenever a @code{Require} command is processed. 
+
+The compilation feature does currently not support ML modules.
+@end table
+
+To enable the automatic compilation feature there are three
+points to adhere to:
+
+@itemize @bullet
+@item
+The option @code{coq-compile-before-require} must be
+turned on.
+@item 
+Nonstandard load path elements @emph{must} be configured in the
+option @code{coq-load-path}. @code{-I} options in
+@code{coq-prog-name} or @code{coq-prog-args} must be deleted.
+@item
+For a nonstandard compilation procedure and limited ML module
+support, @code{coq-compile-command} can be set to an external
+compilation command. For standard dependency analysis with
+@code{coqdep} and compilation with @code{coqc} the option
+@code{coq-compile-command} can be left empty. If this option is
+empty Proof General calls @code{coqdep} and @code{coqc} as
+needed.
+@end itemize
+
+
+
+@menu
+* Automatic Compilation in Detail::
+* Locking Ancestors::
+* Customizing Coq Multiple File Support::
+@end menu
+
+
+@node Automatic Compilation in Detail
+@subsection Automatic Compilation in Detail
+
+When @code{coq-compile-before-require} is enabled, Proof
+General looks for @code{Require} commands in text that gets
+asserted (i.e., in text that is moved from the editing region to
+the queue region, @ref{Locked queue and editing regions}). If
+Proof General finds a @code{Require} command, it checks the
+dependencies and (re-)compiles files as necessary. Only after
+this compilation is finished, Proof General starts sending the
+asserted text to the Coq process.
+
+@code{Declare ML Module} commands are currently not recognized.
+
+Proof General uses @code{coqdep} in order to translate the
+qualified identifiers in @code{Require} commands to coq library
+file names. Therefore @code{Require Arith} works, while
+@code{Require Arith.Le} gives an error. This is also the reason
+why nonstandard load path elements must be configured in
+@code{coq-load-path}. 
+
+Once the library file name has been determined, its dependencies
+must be checked and out-of-date files must be compiled. This can
+either be done internally, by Proof General itself, or by an
+external command. If @code{coq-compile-command} is the empty
+string, Proof General does dependency checking and compilation
+itself. Otherwise the command in @code{coq-compile-command} is
+started as an external process after substituting certain keys,
+@ref{Customizing Coq Multiple File Support}. 
+
+If Proof General uses an external command for compilation, this
+command is started via @code{compile}, @ref{Compilation,,,emacs}.
+Because Proof General cannot know if some library files have been
+updated outside of Proof General, it must perform the dependency
+checking for each @code{Require} command. The continuous
+confirmation of the external compilation commands can soon become
+tedious. Set @code{compilation-read-command} to nil to disable
+command confirmation for all invocations of @code{compile}, see
+the documentation of @code{compile} (which is displayed after
+typing C-h f compile). 
+
+When a @code{Require} command causes a compilation of some files
+one may wish to save some buffers to disk beforehand. The option
+@code{coq-compile-auto-save} controls how and which files are
+saved. There are two orthogonal choices: One may wish to save all
+or only the Coq source files, and, one may or may not want to
+confirm the saving of each file. 
+
+
+@node Locking Ancestors
+@subsection Locking Ancestors
+
+
+Locking ancestor files works as a side effect of the dependency
+checking. This means that ancestor locking does only work when
+Proof General performs dependency checking and compilation
+itself. If an external command is used, Proof General does not see
+the dependencies and can therefore not lock them. With external
+compilation only the direct ancestors are locked.
+
+Proof General's file locking machinery is at the moment only suited
+for source code processing proof assistants, such as Isabelle.
+Therefore locking ancestor files might not exactly do what Coq
+users expect. You can switch ancestor locking off by setting
+@code{coq-lock-ancestors} to nil, @ref{Customizing Coq Multiple
+File Support}. 
+
+Currently, when you want to edit a locked ancestor, you are
+forced to completely retract the current scripting buffer. The
+right behaviour for Coq would be to retract the current scripting
+buffer only up to the point before the appropriate @code{Require}
+command. At the users choice it should also be possible to unlock
+the ancestor without retracting the current scripting buffer. The
+latter would be adequate, if you just want to add a lemma in the
+ancestor @emph{and} want to continue the development in the
+current scripting buffer without interruption.
+
+
+
+@node Customizing Coq Multiple File Support
+@subsection Customizing Coq Multiple File Support
+
+The customization setting for multiple file support of Coq Proof
+General are in a separate customization group, the
+@code{coq-auto-compile} group. To view all options in this
+group do @code{M-x customize-group coq-auto-compile} or select
+menu entry @code{Proof-General -> Advanced -> Customize -> Coq ->
+Coq Auto Compile -> Coq Auto Compile}. 
+
+
+@c TEXI DOCSTRING MAGIC: coq-compile-before-require
+@defopt coq-compile-before-require 
+If @samp{t} check dependencies of required modules and compile if necessary.@*
+If @samp{t} ProofGeneral intercepts "Require" commands and checks if the
+required library module and its dependencies are up-to-date. If not, they
+are compiled from the sources before the "Require" command is processed.
+
+The default value is @code{t}.
+@end defopt
+
+
+@c TEXI DOCSTRING MAGIC: coq-compile-command
+@defopt coq-compile-command 
+External compilation command. If empty ProofGeneral compiles itself.@*
+If unset (the empty string) ProofGeneral computes the dependencies of
+required modules with coqdep and compiles as necessary. This internal
+dependency checking does currently not handle ML modules.
+
+If a non-empty string, the denoted command is called to do the dependency
+checking and compilation. Before calling this command via @samp{compile}
+the following keys are substituted as follows:
+@lisp
+  %p  the (physical) directory containing the source of
+      the required module
+  %o  the coq object file in the physical directory that will
+      be loaded
+  %q  the qualified id of the "Require" command
+  %r  the source file containing the "Require"
+@end lisp
+For instance, "make -C %p %o" expands to "make -C bar foo.vo"
+when module "foo" from directory "bar" is required.
+
+The default value is @code{""}.
+@end defopt
+
+
+@c TEXI DOCSTRING MAGIC: coq-compile-auto-save
+@defopt coq-compile-auto-save 
+Buffers to save before checking dependencies for compilation.@*
+There are two orthogonal choices: Firstly one can save all or only the coq
+buffers, where coq buffers means all buffers in coq mode except the current
+buffer. Secondly, emacs can ask about each such buffer or save all of them
+unconditionally.
+
+This makes four permitted values: @code{'ask-coq} to confirm saving all
+modified Coq buffers, @code{'ask-all} to confirm saving all modified
+buffers, @code{'save-coq} to save all modified Coq buffers without
+confirmation and @code{'save-all} to save all modified buffers without
+confirmation.
+
+The default value is @code{ask-coq}.
+@end defopt
+
+
+The following two options deal with the load path. Proof General
+divides the load path into the standard load path (which is
+hardwired in the tools and need not be set explicitly), the
+nonstandard load path (which must always be set explicitly), and
+the current directory (which must be set explicitly for
+@code{coqdep}). The option @code{coq-load-path} determines the
+nonstandard load path and @code{coq-load-path-include-current}
+determines whether the current directory is put into the load
+path of @code{coqdep}.
+
+@c TEXI DOCSTRING MAGIC: coq-load-path
+@defopt coq-load-path 
+Non-standard coq library load path.@*
+List of directories to be added to the LoadPath of coqdep, coqc
+and coqtop. Under normal circumstances this list does not need to
+contain "." for the current directory (see
+@samp{@code{coq-load-path-include-current}}) or the coq standard
+library.
+
+For coqdep and coqc these directories are passed via "-I"
+options over the command line. For interactive scripting an
+"Add LoadPath" command is used.
+
+The default value is @code{nil}.
+@end defopt
+
+
+@c TEXI DOCSTRING MAGIC: coq-load-path-include-current
+@defopt coq-load-path-include-current 
+If @samp{t} let coqdep search the current directory too.@*
+Should be @samp{t} for normal users. If @samp{t} pass "-I dir" to coqdep when
+processing files in directory "dir" in addition to any entries
+in @samp{@code{coq-load-path}}.
+
+The default value is @code{t}.
+@end defopt
+
+
+The following two options do only influence the behaviour if
+Proof General does dependency checking and compilation itself.
+These options determine whether Proof General should descend into
+other Coq libraries and into the Coq standard library. 
+
+@c TEXI DOCSTRING MAGIC: coq-compile-ignored-directories
+@defopt coq-compile-ignored-directories 
+Directories in which ProofGeneral should not compile modules.@*
+List of regular expressions for directories in which ProofGeneral
+should not compile modules. If a library file name matches one
+of the regular expressions in this list then ProofGeneral does
+neither compile this file nor check its dependencies for
+compilation. It makes sense to include non-standard coq library
+directories here if they are not changed and if they are so big
+that dependency checking takes noticeable time.
+
+The default value is @code{nil}.
+@end defopt
+
+
+@c TEXI DOCSTRING MAGIC: coq-compile-ignore-library-directory
+@defopt coq-compile-ignore-library-directory 
+If @samp{t} ProofGeneral does not compile modules from the coq library.@*
+Should be @samp{t} for normal coq users. If @samp{nil} library modules are
+compiled if their sources are newer.
+
+This option has currently no effect, because Proof General uses
+coqdep to translate qualified identifiers into library file names
+and coqdep does not output dependencies in the standard library.
+
+The default value is @code{t}.
+@end defopt
+
+
+The last three Emacs constants are internal parameters. They only
+need to be changed under very special, unforeseen circumstances.
+They can only be set in Emacs lisp code because they are no
+customizable user options.
+
+@c TEXI DOCSTRING MAGIC: coq-compile-substitution-list
+@defvar coq-compile-substitution-list 
+Substitutions for @samp{@code{coq-compile-command}}.@*
+Value must be a list of substitutions, where each substitution is
+a 2-element list. The first element of a substitution is the
+regexp to substitute, the second the replacement. The replacement
+is evaluated before passing it to @samp{@code{replace-regexp-in-string}}, so
+it might be a string, or one of the symbols @code{'physical-dir},
+@code{'module-object}, @code{'qualified-id} and @code{'requiring-file}, which are
+bound, respectively, to the the physical directory containing the
+source file, the Coq object file in @code{'physical-dir} that will be
+loaded, the qualified module identifier that occurs in the
+"Require" command, and the file that contains the
+"Require".
+@end defvar
+
+
+@c TEXI DOCSTRING MAGIC: coq-require-command-regexp
+@defvar coq-require-command-regexp 
+Regular expression matching Require commands in Coq.@*
+Should match "Require" with its import and export variants up to (but not
+including) the first character of the first required module. The required
+modules are matched separately with @samp{@code{coq-require-id-regexp}}
+@end defvar
+
+
+@c TEXI DOCSTRING MAGIC: coq-require-id-regexp
+@defvar coq-require-id-regexp 
+Regular expression matching one Coq module identifier.@*
+Should match precisely one complete module identifier and surrounding
+white space. The module identifier must be matched with group number 1.
+Note that the trailing dot in "Require A." is not part of the module
+identifier and should therefore not be matched by this regexp.
+@end defvar
+
+
+
 
 
 @node Editing multiple proofs
