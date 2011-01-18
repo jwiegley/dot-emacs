@@ -1095,14 +1095,12 @@ Currently this doesn't take the loadpath into account."
 ;;
 
 ;; TODO list:
-;; - restart coqtop on buffer switch
 ;; - update patch website
 ;; - display coqdep errors in the recompile-response buffer
 ;; - use a variable for the recompile-response buffer
 ;; - fix problem with partial library names
 ;; - clean old multiple file stuff
 ;; - fix places marked with XXX
-;; - test and fix problems when switchen scripting between different directories
 ;; - enable next-error in recompile-response buffers
 ;; - call compile more cleverly, with a coq-specific option for compile
 ;;   command confirmation
@@ -1641,6 +1639,22 @@ compilation (if necessary) of the dependencies."
           (setq items (cdr items))))))
 
 (add-hook 'proof-shell-extend-queue-hook 'coq-preprocess-require-commands)
+
+;; kill coqtop on script buffer change
+
+(defun coq-switch-buffer-kill-proof-shell ()
+  "Kill the proof shell without asking the user.
+This function is for `proof-deactivate-scripting-hook'. It kills
+the proof shell without asking the user for
+confirmation (assuming she agreed already on switching the active
+scripting buffer). This is needed to ensure the load path is
+correct in the new scripting buffer."
+  (proof-shell-exit t))
+
+
+(add-hook 'proof-deactivate-scripting-hook
+          'coq-switch-buffer-kill-proof-shell
+          t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

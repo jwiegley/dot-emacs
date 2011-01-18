@@ -8,6 +8,10 @@ Project b depends on a, more precisely, b/b.v requires a/Le.v.
 
 File c/c.v require Le, but this refers to Coq.Arith.Le!!
 
+The resulting LoadPath confusion bug, which is described in the
+following, has been fixed with the commit 
+around 2011-01-18 21:45:00 UTC.
+
 Currently coqtop is not able to reset the LoadPath, therefore,
 when first scripting b/b.v and then switching to c/c.v, coq
 wrongly loads a/Le.vo! Vice versa, when first scripting c/c.v and

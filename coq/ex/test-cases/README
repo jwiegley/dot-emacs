@@ -26,4 +26,3 @@ retract-completely-asserted
 
 stale-load-path
 	test switching between files with different load path.
-	     (triggers known bugs)

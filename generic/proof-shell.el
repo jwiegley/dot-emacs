@@ -459,14 +459,18 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	proof-shell-delayed-output-end nil
 	proof-shell-delayed-output-flags nil))
 
-(defun proof-shell-exit ()
+(defun proof-shell-exit (&optional dont-ask)
   "Query the user and exit the proof process.
 
 This simply kills the `proof-shell-buffer' relying on the hook function
-`proof-shell-kill-function' to do the hard work."
+
+`proof-shell-kill-function' to do the hard work. If optional
+argument DONT-ASK is non-nil, the proof process is terminated
+without confirmation."
   (interactive)
   (if (buffer-live-p proof-shell-buffer)
-      (when (yes-or-no-p (format "Exit %s process? " proof-assistant))
+      (when (or dont-ask
+		(yes-or-no-p (format "Exit %s process? " proof-assistant)))
 	(let ((kill-buffer-query-functions nil)) ; avoid extra dialog
 	  (kill-buffer proof-shell-buffer))
 	(setq proof-shell-buffer nil))
