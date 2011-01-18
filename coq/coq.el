@@ -15,6 +15,7 @@
 
 (eval-when (compile)
   (require 'proof-utils)
+  (require 'proof-shell)
   (require 'span)
   (require 'outline)
   (require 'newcomment)
@@ -830,7 +831,7 @@ This is specific to `coq-mode'."
   (setq proof-cannot-reopen-processed-files nil
         proof-auto-multiple-files t
         ;; proof-shell-inform-file-retracted-cmd 'coq-retract-file
-        proof-shell-require-command-regexp coq-require-command-regexp
+        ;; proof-shell-require-command-regexp coq-require-command-regexp
         proof-done-advancing-require-function 'coq-process-require-command)
 
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
@@ -1553,6 +1554,12 @@ queue."
           (set coq-object-local-hash-symbol (make-hash-table :test 'equal)))
         (coq-make-lib-up-to-date (symbol-value coq-object-local-hash-symbol)
                                  module-obj-file)))))
+
+(defvar coq-process-require-current-buffer
+  "Used in `coq-compile-save-some-buffers' and `coq-compile-save-buffer-filter'.
+This only locally used variable communicates the current buffer
+from `coq-compile-save-some-buffers' to
+`coq-compile-save-buffer-filter'.")
 
 (defun coq-compile-save-buffer-filter ()
   "Filter predicate for `coq-compile-save-some-buffers'.

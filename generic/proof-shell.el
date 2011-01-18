@@ -922,6 +922,15 @@ This function calls `proof-add-to-queue'."
       (proof-set-queue-endpoints start end))
   (proof-add-to-queue queueitems queuemode))
 
+
+(defvar queueitems
+  "Local variable of `proof-extend-queue' and `proof-shell-extend-queue-hook'.
+This only locally used variable communicates the items that are
+about to be placed into the `proof-action-list' queue into the
+hook functions in `proof-shell-extend-queue-hook'. This is the
+price to pay for using a normal hook.")
+
+
 ;;;###autoload
 (defun proof-extend-queue (end queueitems)
   "Extend the current queue with QUEUEITEMS, queue end END.

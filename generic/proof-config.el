@@ -1552,9 +1552,11 @@ if you don't need it (slight speed penalty)."
 
 (defcustom proof-shell-extend-queue-hook nil
   "Hooks run by proof-extend-queue before extending `proof-action-list'.
-Can be used to run additional actions before items are added to the queue
-\(such as recompiling required modules for Coq) or to modify the items
-that are going to be added to `proof-action-list'."
+Can be used to run additional actions before items are added to
+the queue \(such as compiling required modules for Coq) or to
+modify the items that are going to be added to
+`proof-action-list'. The items that are about to be added are
+bound to `queueitems'."
   :type '(repeat function)
   :group 'proof-shell)  
 
