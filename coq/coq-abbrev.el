@@ -65,7 +65,9 @@
       (append coq-tactics-abbrev-table coq-tacticals-abbrev-table
 	      coq-commands-abbrev-table coq-terms-abbrev-table))
     ;; if we use default coq abbrev, never ask to save it
-    (setq save-abbrevs nil)
+    ;; PC: fix trac #382 I comment this. But how to disable abbrev
+    ;; saving for coq mode only?
+    ;;(setq save-abbrevs nil) ; 
     (message "Coq default abbrevs loaded")
     ))
 
