@@ -22,6 +22,8 @@
   (require 'etags)
   (unless (proof-try-require 'smie)
     (defvar smie-indent-basic nil))     ; smie
+
+  (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook  
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-auto-compile-vos nil)     ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
