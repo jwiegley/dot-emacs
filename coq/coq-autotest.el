@@ -16,6 +16,10 @@
 
 (unless noninteractive
   
+  ;; new multiple file handling for Coq gives interactive queries
+  ;; continually unless we set this
+  (setq proof-auto-action-when-deactivating-scripting 'retract)
+
   (pg-autotest log ".autotest.log")  ; convention
 
   (pg-autotest timestart 'total)
