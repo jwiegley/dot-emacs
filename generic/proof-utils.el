@@ -213,7 +213,6 @@ Leave point at END."
 (defun proof-safe-split-window-vertically ()
   (if (<= (window-height) (* 2 window-min-height))
       (enlarge-window (+ 3 (* 2 window-min-height))))
-  (message "ICI")
   (split-window-vertically))
 
 (defun proof-warn-if-unset (tag sym)
