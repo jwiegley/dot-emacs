@@ -68,9 +68,9 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 4.0
+@set version 4.1
 @set emacsversion 23.2
-@set last-update October 2010
+@set last-update January 2011
 @set rcsid $Id$
 
 @dircategory Theorem proving
