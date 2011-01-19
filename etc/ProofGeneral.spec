@@ -1,6 +1,6 @@
 Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
-Version:	4.1pre110118
+Version:	4.1pre110119
 Release:	1
 Group:		Text Editors/Integrated Development Environments (IDE)
 License:	GPL
