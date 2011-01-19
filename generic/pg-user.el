@@ -743,12 +743,13 @@ If NUM is negative, move upwards.  Return new span."
    (list (vector
 	  "Undo"
 	  (list 'pg-span-undo span) t))
-   (list (vector
-	  "Move up"     (list 'pg-move-span-contents span -1)
-	  (pg-numth-span-higher-or-lower (pg-control-span-of span) -1 'noerr)))
-   (list (vector
-	  "Move down"   (list 'pg-move-span-contents span 1)
-	  (pg-numth-span-higher-or-lower (pg-control-span-of span) 1 'noerr)))
+   ;; PG 4.1: these commands are neither very useful nor reliable
+   ;; (list (vector
+   ;; 	  "Move up"     (list 'pg-move-span-contents span -1)
+   ;; 	  (pg-numth-span-higher-or-lower (pg-control-span-of span) -1 'noerr)))
+   ;; (list (vector
+   ;; 	  "Move down"   (list 'pg-move-span-contents span 1)
+   ;; 	  (pg-numth-span-higher-or-lower (pg-control-span-of span) 1 'noerr)))
    (if proof-script-span-context-menu-extensions
        (funcall proof-script-span-context-menu-extensions span idiom name))
    (if proof-shell-theorem-dependency-list-regexp
