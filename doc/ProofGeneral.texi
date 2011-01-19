@@ -3716,36 +3716,40 @@ and a short-cut for enabling three window mode,
 @section Using file variables
 @cindex file variables
 
-A very convenient way to customize file-specific variables is to use the
+A very convenient way to customize file-specific variables is to use 
 File Variables (@inforef{File Variables, ,(emacs)}). This feature of
-Emacs allows to specify the values to use for certain Emacs variables
-when a file is loaded. Those values are written as a list at the end of
+Emacs permits to specify values for certain Emacs variables
+when a file is loaded. File variables and their values 
+are written as a list at the end of
 the file.
 
-For example, in projects involving multiple directories, it is often
-useful to set the variables @code{proof-prog-name}, @code{proof-prog-args} and
-@code{compile-command} for each file. Here is an example for Coq users:
-for the file @file{.../dir/bar/foo.v}, if you want Coq to be started
-with the path @code{.../dir/theories/} added in the libraries path
-(@code{"-I"} option), you can put at the end of @file{foo.v}:
-@lisp
+For example, in Coq projects involving multiple directories, it is necessary
+to set the variable @code{coq-load-path} 
+(@ref{Customizing Coq Multiple File Support}). 
+Here is an example:
+Assume the file @file{.../dir/bar/foo.v} depends on modules in
+@code{.../dir/theories/}. Then you can put the following at the
+end of @file{foo.v}:
 
+@lisp
 (* 
 *** Local Variables: ***
-*** coq-prog-name: "coqtop" ***
-*** coq-prog-args: ("-emacs" "-I" "../theories") ***
+*** coq-load-path: ("../theories") ***
 *** End: ***
 *)
 @end lisp
 
-That way the good command is called when the scripting starts in
-@file{foo.v}. Notice that the command argument @code{"-I" "../theories"}
-is specific to the file @file{foo.v}, and thus if you set it via the
-configuration tool, you will need to do it each time you load this
-file. On the contrary with this method, Emacs will do this operation
-automatically when loading this file. Please notice that all the strings
-above should never contain spaces see documentation of variables
-@code{proof-prog-name} and @code{proof-prog-args}.
+This way, the right command line arguments are passed to the
+invocation of
+@code{coqtop} when scripting starts in
+@file{foo.v}. We assume here that the load path @code{"../theories"}
+is specific to the file @file{foo.v}, and that therefore a global
+setting via the
+configuration tool would be inappropriate.
+With file variables, Emacs will set @code{coq-load-path}
+automatically when visiting @code{foo.v}. Moreover, the setting of
+@code{coq-load-path} in different files or buffers will not be
+affected. (File variables become buffer local.) 
 
 Extending the previous example, if the makefile for @file{foo.v} is
 located in directory @file{.../dir/}, you can add the right compile
@@ -3754,19 +3758,18 @@ is what you should put in variables:
 
 @lisp
 (* 
- Local Variables: 
- coq-prog-name: "../../coqsrc/bin/coqtop" 
- coq-prog-args: "-emacs" "-I" "../theories"
- compile-command: "make -C .. -k bar/foo.vo" 
- End:
+*** Local Variables: ***
+*** coq-prog-name: "../../coqsrc/bin/coqtop" ***
+*** coq-load-path: ("../theories")***
+*** compile-command: "make -C .. -k bar/foo.vo" ***
+*** End:***
 *)
 @end lisp
 
 And then the right call to make will be done if you use the @kbd{M-x
-compile} command. Notice that the lines are commented in order to be
+compile} command. Note that the lines are commented in order to be
 ignored by the proof assistant. It is possible to use this mechanism for
-any other buffer local variable.  @inforef{File Variables,
-,emacs}.
+all variables, @inforef{File Variables, ,emacs}.
 
 
 
@@ -4063,21 +4066,24 @@ confirm the saving of each file.
 @subsection Locking Ancestors
 
 
-Locking ancestor files works as a side effect of the dependency
+Locking ancestor files works as a side effect of dependency
 checking. This means that ancestor locking does only work when
 Proof General performs dependency checking and compilation
 itself. If an external command is used, Proof General does not see
-the dependencies and can therefore not lock them. With external
-compilation only the direct ancestors are locked.
+all dependencies and can therefore only lock direct ancestors.
 
-Proof General's file locking machinery is at the moment only suited
-for source code processing proof assistants, such as Isabelle.
-Therefore locking ancestor files might not exactly do what Coq
-users expect. You can switch ancestor locking off by setting
-@code{coq-lock-ancestors} to nil, @ref{Customizing Coq Multiple
-File Support}. 
+Currently locking ancestor files might not exactly do what Coq
+users expect. There are two ways around this problem: 
+You can either switch ancestor locking completely off via
+@code{coq-lock-ancestors} (@ref{Customizing Coq Multiple
+File Support}) or you can generally permit editing in locked
+sections with selecting 
+@code{Proof General} -> @code{Quick Options} -> @code{Read Only}
+-> @code{Freely Edit} (which will set the option
+@code{proof-strict-read-only} to @code{nil}).
 
-Currently, when you want to edit a locked ancestor, you are
+In the default setting,
+when you want to edit a locked ancestor, you are
 forced to completely retract the current scripting buffer. The
 right behaviour for Coq would be to retract the current scripting
 buffer only up to the point before the appropriate @code{Require}
