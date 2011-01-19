@@ -1112,7 +1112,7 @@ Currently this doesn't take the loadpath into account."
   :group 'coq
   :package-version '(ProofGeneral . "4.1"))
 
-(defcustom coq-compile-before-require t
+(defcustom coq-compile-before-require nil
   "*If `t' check dependencies of required modules and compile if necessary.
 If `t' ProofGeneral intercepts \"Require\" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
