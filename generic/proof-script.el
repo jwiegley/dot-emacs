@@ -610,7 +610,9 @@ IDIOMSYM is a symbol and ID is a strings."
    (list
     (intern
      (completing-read
-      (concat "Make " (if current-prefix-arg "in" "") "visible all regions of: ")
+      (concat "Make " 
+	      (if current-prefix-arg "in" "") 
+	      "visible all regions of: ")
       (apply 'vector pg-idioms) nil t))
     current-prefix-arg))
   (let ((elts    (cdr-safe (assq idiom pg-script-portions)))
@@ -619,8 +621,9 @@ IDIOMSYM is a symbol and ID is a strings."
 		       (pg-set-element-span-invisible span t))
 		   (lambda (k span)
 		     (pg-set-element-span-invisible span nil)))))
-    (proof-with-script-buffer ; may be called from menu
-     (maphash alterfn elts))))
+    (when elts
+      (proof-with-script-buffer ; may be called from menu
+       (maphash alterfn elts)))))
 
 ;; Next two could be in pg-user.el.  No key-bindings for these.
 (defun pg-show-all-proofs ()
