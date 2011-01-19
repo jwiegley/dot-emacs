@@ -22,6 +22,7 @@
  '(nndraft-directory "~/Library/Mail/Maildir/" t)
  '(mm-text-html-renderer (quote html2text))
  '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
+ '(message-x-completion-alist (quote (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . pick-email-address) ((if (boundp (quote message-newgroups-header-regexp)) message-newgroups-header-regexp message-newsgroups-header-regexp) . message-expand-group))))
  '(message-setup-hook (quote (message-check-recipients (lambda nil (message-remove-header "From")))))
  '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-sendmail-envelope-from (quote header))
@@ -104,7 +105,7 @@
  '(gnus-agent-expire-days 14)
  '(gnus-agent-expire-all t)
  '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-group-save-newsrc)))
- '(gnus-activate-level 3)
+ '(gnus-activate-level 2)
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(check-mail-summary-function (quote check-mail-box-summary))
  '(check-mail-boxes (quote ("~/Library/Mail/Maildir/incoming/mail\\..*\\.spool")))
@@ -126,11 +127,36 @@
 
 (load "gnus")
 (load "gnus-agent")
-(load "eudc")
 (load "starttls")
 
 (eval-after-load "message"
   '(load "message-x"))
+
+(defun gnus-goto-article (message-id)
+  (gnus-summary-read-group "nnimap+VPS:INBOX" 1 t)
+  (gnus-summary-goto-article message-id nil t))
+
+(defun gnus-current-message-id ()
+  (with-current-buffer gnus-original-article-buffer
+    (nnheader-narrow-to-headers)
+    (message-fetch-field "message-id")))
+
+(defun gnus-open-article-in-apple-mail ()
+  (interactive)
+  (let ((message-id (gnus-current-message-id)))
+    (start-process (concat "open message:" message-id) nil
+                   "open" (concat "message://<"
+                                  (substring message-id 1 -1) ">"))))
+
+(eval-after-load "gnus-sum"
+  '(define-key gnus-summary-mode-map [?O ?O] 'gnus-open-article-in-apple-mail))
+
+(defadvice message-goto-from (after insert-boostpro-address activate)
+  (if (looking-back ": ")
+      (insert "John Wiegley <johnw@boostpro.com>"))
+  (goto-char (line-end-position))
+  (re-search-backward ": ")
+  (goto-char (match-end 0)))
 
 (setq my-smtpmailer-alist 
       '((".*@\\(boostpro.com\\)"
@@ -192,36 +218,6 @@
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
-;;;_ + Record e-mail addresses that I send e-mail to
-
-(defun gnus-record-recipients ()
-  (save-excursion
-    (save-restriction
-      (message-narrow-to-headers)
-      (let ((addrs
-	     (append
-	      (mail-extract-address-components
-	       (concat (mail-fetch-field "to") ","
-		       (mail-fetch-field "cc") ","
-		       (mail-fetch-field "bcc")) t))))
-	(dolist (addr addrs)
-	  (if (and addr (cdr addr))
-	      (call-process-shell-command "/home/johnw/bin/addmail"
-					  nil nil nil (cadr addr))))))))
-
-(defun gnus-goto-article (message-id)
-  (gnus-summary-read-group "nnimap+VPS:INBOX" 1 t)
-  (gnus-summary-goto-article message-id nil t))
-
-;;;_ + Saving articles from gnu.emacs.sources
-
-(defun gnus-save-site-lisp-file (newsgroup)
-  (if (equal newsgroup "gnu.emacs.sources")
-      (let ((subj (mail-header-subject gnus-current-headers)))
-	(if (string-match "[-A-Za-z0-9_]+\\.el" subj)
-	    (concat "~/Emacs/misc/" (match-string 0 subj))
-	  "~/Emacs/misc"))))
-
 ;;;_ + Scoring
 
 (defun gnus-score-groups ()
@@ -236,9 +232,7 @@
 	       (<= (gnus-info-level info) gnus-level-subscribed)
 	       (and (car entry)
 		    (or (eq (car entry) t)
-			(not (zerop (car entry)))))
-	       ;; (string-match "^nnml:list" group)
-	       )
+			(not (zerop (car entry))))))
 	  (ignore-errors
 	    (gnus-summary-read-group group nil t))
 	  (when (and gnus-summary-buffer
@@ -338,14 +332,15 @@
 
 (defun pick-email-address ()
   (interactive)
-  (insert
-   (ido-completing-read
-    "E-mail address: "
-    (or pick-addr-cache
-        (setq pick-addr-cache
-              (split-string  (shell-command-to-string
-                              "contacts -H -S -f '%n <%e>' | grep -v '<>'")
-                             "\n" t))) nil t)))
+  (let ((stub (word-at-point))
+        (choices
+         (or pick-addr-cache
+             (setq pick-addr-cache
+                   (split-string
+                    (shell-command-to-string
+                     "contacts -H -S -f '%n <%e>' | grep -v '<>'") "\n" t)))))
+    (backward-kill-word 1)
+    (insert (ido-completing-read "E-mail address: " choices nil t stub))))
 
 ;;;_* keybindings
 
@@ -353,11 +348,5 @@
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
-
-;;;_ + mml
-
-(eval-after-load "mml"
-  '(define-key mml-mode-map [(control ?c) (control ?m) ?w]
-     'muse-message-markup))
 
 ;;; .gnus.el ends here

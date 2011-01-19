@@ -68,6 +68,7 @@
  '(org-agenda-skip-unavailable-files t)
  '(org-agenda-skip-scheduled-if-done t)
  '(org-agenda-skip-scheduled-if-deadline-is-shown t)
+ '(org-agenda-skip-function-global (quote org-my-filter-tasks))
  '(org-agenda-skip-deadline-if-done t)
  '(org-agenda-show-all-dates t)
  '(org-agenda-scheduled-text "")
@@ -121,8 +122,8 @@
        (setcar (cdr protocol) 'org-my-message-open))))
 
 (defun org-my-filter-tasks ()
-  (or (not (string-match "opportunities" buffer-file-name))
-      (org-agenda-skip-entry-if 'notregexp ":John:")))
+  (and (string-match "opportunities" buffer-file-name)
+       (org-agenda-skip-entry-if 'notregexp ":John:")))
 
 (defun make-ceg-bugzilla-bug (product component version priority severity)
   (interactive
