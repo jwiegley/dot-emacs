@@ -1095,7 +1095,10 @@ Currently this doesn't take the loadpath into account."
 ;;
 
 ;; TODO list:
-;; - update patch website
+;; - 1 second precision problem
+;; - bug: killing buffer omits coqtop restart
+;; - unlock ancestors on retract, see span-delete, span-delete-action
+;; - modify behavior of locked ancestors, see proof-span-read-only
 ;; - display coqdep errors in the recompile-response buffer
 ;; - use a variable for the recompile-response buffer
 ;; - fix problem with partial library names
@@ -1253,27 +1256,18 @@ identifier and should therefore not be matched by this regexp.")
 
 ;; basic utilities
 
-(defun time-less (time-1 time-2)
-  "Return `t' if time value time-1 is earlier than time-2.
+(defun time-less-or-equal (time-1 time-2)
+  "Return `t' if time value time-1 is earlier or equal to time-2.
 A time value is a list of two integers as returned by `file-attributes'.
 The first integer contains the upper 16 bits and the second the lower
 16 bits of the time."
-  (if (< (car time-1) (car time-2))
-      t
-    (if (= (car time-1) (car time-2))
-        (< (nth 1 time-1) (nth 1 time-2))
-        nil)))
-
-(defun time-less-or-equal (time-1 time-2)
-  "Return `t' if time value time-1 is earlier or equal to time-2.
-For time values see `time-less'."
-  (or (time-less time-1 time-2)
+  (or (time-less-p time-1 time-2)
       (equal time-1 time-2)))
 
 (defun coq-max-dep-mod-time (dep-mod-times)
   "Return the maximum in DEP-MOD-TIMES.
 Argument DEP-MOD-TIMES is a list where each element is either a
-time value (see `time-less') or 'just-compiled. The
+time value (see `time-less-or-equal') or 'just-compiled. The
 function returns the maximum of the elements in DEP-MOD-TIMES,
 where 'just-compiled is considered the greatest time value. If
 DEP-MOD-TIMES is empty it returns nil."
@@ -1285,7 +1279,7 @@ DEP-MOD-TIMES is empty it returns nil."
               dep-mod-times nil))
        ((eq max nil)
         (setq max (car dep-mod-times)))
-       ((time-less max (car dep-mod-times))
+       ((time-less-p max (car dep-mod-times))
         (setq max (car dep-mod-times))))
       (setq dep-mod-times (cdr-safe dep-mod-times)))
     max))
@@ -1367,7 +1361,7 @@ break."
        coq-dependency-analyzer nil (current-buffer) nil coqdep-arguments)
       (setq coqdep-output (buffer-string)))
     ;(message "coqdep output on %s: %s" lib-src-file coqdep-output)
-    (if (string-match "^\\*\\*\\* Warning:" coqdep-output)
+    (if (string-match "^\\*\\*\\* Warning" coqdep-output)
         "unsatisfied dependencies"
       (if (string-match ": \\(.*\\)$" coqdep-output)
           (cdr-safe (split-string (match-string 1 coqdep-output)))
@@ -1412,8 +1406,8 @@ Argument MAX-DEP-OBJ-TIME provides the information about the
 dependencies. It is either
 - 'just-compiled if one of the dependencies of SRC has just
   been compiled
-- the time value (see`time-less') of the youngest (most recently
-  created) object file among the dependencies
+- the time value (see`time-less-or-equal') of the youngest (most
+  recently created) object file among the dependencies
 - nil if there are no dependencies, or if they are all ignored
 
 If this function decides to compile SRC to OBJ it returns
@@ -1445,7 +1439,7 @@ Check if LIB-OBJ-FILE and all it dependencies are up-to-date
 compiled coq library objects. Recompile the necessary objects, if
 not. This function returns 'just-compiled if it compiled
 LIB-OBJ-FILE. Otherwise it returns the modification time of
-LIB-OBJ-FILE as time value (see `time-less').
+LIB-OBJ-FILE as time value (see `time-less-or-equal').
 
 Either LIB-OBJ-FILE or its source file (or both) must exist when
 entering this function.
@@ -1613,17 +1607,14 @@ current buffer (which contains the Require command) to
 If `coq-compile-before-require' it t this function performs the
 compilation (if necessary) of the dependencies."
   (if coq-compile-before-require
-      (let ((items queueitems)
-            (previous-head nil)
-            ;; coq-object-hash-symbol serves as a pointer to the
+      (let (;; coq-object-hash-symbol serves as a pointer to the
             ;; coq-obj-hash (see coq-make-lib-up-to-date). The hash
             ;; will be initialized when needed and stored in the value
             ;; cell of coq-object-hash-symbol. The symbol is initialized
             ;; here to use one hash for all the requires that are added now.
             (coq-object-hash-symbol nil)
             item string)
-        (while items
-          (setq item (car items))
+        (dolist (item queueitems)
           ;; XXX car or concat ?
           (setq string (car (nth 1 item)))
           (when (and string
@@ -1634,9 +1625,7 @@ compilation (if necessary) of the dependencies."
               (while (string-match coq-require-id-regexp string start)
                 (setq start (match-end 0))
                 (coq-check-module 'coq-object-hash-symbol
-                                  (match-string 1 string)))))
-          (setq previous-head items)
-          (setq items (cdr items))))))
+                                  (match-string 1 string)))))))))
 
 (add-hook 'proof-shell-extend-queue-hook 'coq-preprocess-require-commands)
 

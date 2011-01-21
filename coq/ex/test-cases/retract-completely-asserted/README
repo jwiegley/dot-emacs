@@ -18,3 +18,13 @@ To see that the example is indeed valid, script c.v. (For c.v you
 either have to switch coq-recompile-before-require to t or you
 have to compile modules a and b yourself with "coqc a" and "coqc b".)
 
+
+There is a bug present on 2011-01-21 09:49:36 UTC, to reproduce:
+- visit a.v, do C-c C-n twice to fully assert the buffer
+- kill buffer a.v, notice that there is no "coq killed" message
+  apprears, and that the *coq* buffer is still live and that there is
+  no undo command in it
+- visit b.v, do C-c C-n twice to get the error "a already exists"
+
+See "no deactivation-hooks when killing fully asserted active buffer"
+on the pg-devel list.
