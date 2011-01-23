@@ -97,6 +97,7 @@
 (defun pg-autotest-log (file)
   (save-excursion
     (find-file file)
+    (setq buffer-save-without-query t)
     (erase-buffer)
     (setq pg-autotest-log (current-buffer))
     (pg-autotest-message (concat "Tests started "
