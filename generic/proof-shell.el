@@ -349,6 +349,10 @@ process command."
 	  (switch-to-buffer proof-shell-buffer)
 	  (error "%s process exited!" proc))
 
+	;; PG manages the prover process, don't query user on exit
+	(set-process-query-on-exit-flag 
+	 (get-buffer-process proof-shell-buffer) nil)
+
 	;; Initialise associated buffers
 
 	(with-current-buffer proof-response-buffer
