@@ -1,3 +1,3 @@
 (**)(**)
-theory Scratch imports Main begin
+theory CommentParsingBug imports Main begin
 
