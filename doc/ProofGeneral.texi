@@ -1628,11 +1628,17 @@ process command.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
-@deffn Command proof-shell-exit 
+@deffn Command proof-shell-exit &optional dont-ask
 Query the user and exit the proof process.
 
 This simply kills the @samp{@code{proof-shell-buffer}} relying on the hook function
-@samp{@code{proof-shell-kill-function}} to do the hard work.
+
+@samp{@code{proof-shell-kill-function}} to do the hard work. If optional
+argument @var{dont-ask} is non-nil, the proof process is terminated
+without confirmation.
+
+The kill function uses @samp{<PA>-quit-timeout} as a timeout to wait
+after sending @samp{@code{proof-shell-quit-cmd}} before rudely killing the process.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
@@ -3253,7 +3259,7 @@ The default value is @code{t}.
 @cindex Input ring
 @c @cindex formatting proof script
 
-Here is the complete set of user options for Proof General, apart from
+Here is a list of the important user options for Proof General, apart from
 the three display options mentioned above.  
 
 User options can be set via the customization system already mentioned,
@@ -3340,6 +3346,28 @@ If non-nil, query user which program to run for the inferior process.
 
 The default value is @code{nil}.
 @end defopt
+
+
+@c TEXI DOCSTRING MAGIC: PA-prog-args
+@defvar PA-prog-args 
+Arguments to be passed to @samp{@code{proof-prog-name}} to run the proof assistant.@*
+If non-nil, will be treated as a list of arguments for @samp{@code{proof-prog-name}}.
+Otherwise @samp{@code{proof-prog-name}} will be split on spaces to form arguments.
+
+Remark: Arguments are interpreted strictly: each one must contain only one
+word, with no space (unless it is the same word). For example if the
+arguments are -x foo -y bar, then the list should be '("-x" "foo"
+"-y" "bar"), notice that '("-x foo" "-y bar") is @strong{wrong}.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: PA-prog-env
+@defvar PA-prog-env 
+Modifications to @samp{@code{process-environment}} made before running @samp{@code{proof-prog-name}}.@*
+Each element should be a string of the form ENVVARNAME=@var{value}.  They will be
+added to the environment before launching the prover (but not pervasively).
+For example for coq on Windows you might need something like:
+(setq @code{coq-prog-env} '("HOME=C:\Program Files\Coq\"))
+@end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-prog-name-guess
 @defopt proof-prog-name-guess 
@@ -4113,7 +4141,7 @@ If @samp{t} ProofGeneral intercepts "Require" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the "Require" command is processed.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 

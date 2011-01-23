@@ -1243,7 +1243,7 @@ switching to B.
 @c TEXI DOCSTRING MAGIC: proof-no-fully-processed-buffer
 @defvar proof-no-fully-processed-buffer 
 Set to t if buffers should always retract before scripting elsewhere.@*
-Leave at nil if fully processd buffers make sense for the current
+Leave at nil if fully processed buffers make sense for the current
 proof assistant. If nil the user can choose to fully assert a
 buffer when starting scripting in a different buffer. If t there
 is only the choice to fully retract the active buffer before
@@ -1334,11 +1334,33 @@ to send to the prover to activate certain actions.
 @c TEXI DOCSTRING MAGIC: proof-prog-name
 @defvar proof-prog-name 
 System command to run the proof assistant in the proof shell.@*
-May contain arguments separated by spaces, but see also @samp{proof-prog-args}.
+May contain arguments separated by spaces, but see also the
+prover specific settings @samp{<PA>-prog-args} and @samp{<PA>-prog-env}.
 
-Remark: if @samp{proof-prog-args} is non-nil, then @samp{@code{proof-prog-name}} is considered
+Remark: if @samp{<PA>-prog-args} is non-nil, then @samp{@code{proof-prog-name}} is considered
 strictly: it must contain @strong{only} the program name with no option, spaces
 are interpreted literally as part of the program name.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: PA-prog-args
+@defvar PA-prog-args 
+Arguments to be passed to @samp{@code{proof-prog-name}} to run the proof assistant.@*
+If non-nil, will be treated as a list of arguments for @samp{@code{proof-prog-name}}.
+Otherwise @samp{@code{proof-prog-name}} will be split on spaces to form arguments.
+
+Remark: Arguments are interpreted strictly: each one must contain only one
+word, with no space (unless it is the same word). For example if the
+arguments are -x foo -y bar, then the list should be '("-x" "foo"
+"-y" "bar"), notice that '("-x foo" "-y bar") is @strong{wrong}.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: PA-prog-env
+@defvar PA-prog-env 
+Modifications to @samp{@code{process-environment}} made before running @samp{@code{proof-prog-name}}.@*
+Each element should be a string of the form ENVVARNAME=@var{value}.  They will be
+added to the environment before launching the prover (but not pervasively).
+For example for coq on Windows you might need something like:
+(setq @code{coq-prog-env} '("HOME=C:\Program Files\Coq\"))
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-auto-terminate-commands
@@ -1383,15 +1405,6 @@ A command for re-initialising the proof process.
 @c TEXI DOCSTRING MAGIC: proof-shell-quit-cmd
 @defvar proof-shell-quit-cmd 
 A command to quit the proof process.  If nil, send EOF instead.
-@end defvar
-
-@c TEXI DOCSTRING MAGIC: proof-shell-quit-timeout
-@defvar proof-shell-quit-timeout 
-The number of seconds to wait after sending @samp{@code{proof-shell-quit-cmd}}.@*
-After this timeout, the proof shell will be killed off more rudely.
-If your proof assistant takes a long time to clean up (for
-example writing persistent databases out or the like), you may
-need to bump up this value.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-cd-cmd
@@ -3375,11 +3388,17 @@ shell buffer, alled by @samp{@code{proof-shell-bail-out}} if process exits.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
-@deffn Command proof-shell-exit 
+@deffn Command proof-shell-exit &optional dont-ask
 Query the user and exit the proof process.
 
 This simply kills the @samp{@code{proof-shell-buffer}} relying on the hook function
-@samp{@code{proof-shell-kill-function}} to do the hard work.
+
+@samp{@code{proof-shell-kill-function}} to do the hard work. If optional
+argument @var{dont-ask} is non-nil, the proof process is terminated
+without confirmation.
+
+The kill function uses @samp{<PA>-quit-timeout} as a timeout to wait
+after sending @samp{@code{proof-shell-quit-cmd}} before rudely killing the process.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-bail-out
