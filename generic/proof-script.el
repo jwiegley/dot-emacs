@@ -972,6 +972,10 @@ retracted using `proof-auto-retract-dependencies'."
 ;; taken when scripting is turned off/on.
 ;;
 
+(defsubst proof-action-completed (action)
+  (or (and (eq action 'retract) (proof-locked-region-empty-p))
+      (and (eq action 'process) (proof-locked-region-full-p))))
+
 (defun proof-protected-process-or-retract (action &optional buffer)
   "If ACTION='process, process, If ACTION='retract, retract.
 Process or retract the current buffer, which should be the active
@@ -980,24 +984,25 @@ Retract buffer BUFFER if set, otherwise use the current buffer.
 Gives a message in the minibuffer and busy-waits for the retraction
 or processing to complete.  If it fails for some reason,
 an error is signalled here."
-  (let ((fn   (cond ((eq action 'process) 'proof-process-buffer)
-		    ((eq action 'retract) 'proof-retract-buffer)))
-	(name (cond ((eq action 'process) "Processing")
-		    ((eq action 'retract) "Retracting")))
-	(buf  (or buffer (current-buffer))))
-    (if fn
-	(unwind-protect
-	    (with-current-buffer buf
-	      (message "%s buffer %s..." name buf)
-	      (funcall fn)
-	      (proof-shell-wait) ; busy wait
-	      (message "%s buffer %s...done." name buf)
-	      (sit-for 0))
-	  ;; Test to see if action was successful
-	  (with-current-buffer buf
-	    (or (and (eq action 'retract) (proof-locked-region-empty-p))
-		(and (eq action 'process) (proof-locked-region-full-p))
-		(error "%s of %s failed!" name buf)))))))
+  (unless (or (eq action 'process) (eq action 'retract))
+    (error "proof-protected-process-or-retract: invalid argument"))
+  (let ((buf (or buffer (current-buffer))))
+    (with-current-buffer buf
+      (unless (proof-action-completed action)
+	(let ((fn   (cond ((eq action 'process) 'proof-process-buffer)
+			  ((eq action 'retract) 'proof-retract-buffer)))
+	      (name (cond ((eq action 'process) "Processing")
+			  ((eq action 'retract) "Retracting"))))
+	  (unwind-protect
+	      (progn
+		(message "%s buffer %s..." name buf)
+		(funcall fn)
+		(proof-shell-wait) ; busy wait
+		(message "%s buffer %s...done." name buf)
+		(sit-for 0))
+	    ;; Test to see if action was successful
+	    (unless (proof-action-completed action)
+	      (error "%s of %s failed!" name buf))))))))
 
 (defun proof-deactivate-scripting-auto ()
   "Deactivate scripting without asking questions or raising errors.
