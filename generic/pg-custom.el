@@ -88,14 +88,13 @@ the standard Proof General buttons.")
 
 (defpgcustom prog-args nil
   "Arguments to be passed to `proof-prog-name' to run the proof assistant.
-If non-nil, will be treated as a list of arguments for`proof-prog-name'.
+If non-nil, will be treated as a list of arguments for `proof-prog-name'.
 Otherwise `proof-prog-name' will be split on spaces to form arguments.
 
 Remark: Arguments are interpreted strictly: each one must contain only one
 word, with no space (unless it is the same word). For example if the
 arguments are -x foo -y bar, then the list should be '(\"-x\" \"foo\"
-\"-y\" \"bar\"), notice that '(\"-x foo\" \"-y bar\") is *wrong*"
-
+\"-y\" \"bar\"), notice that '(\"-x foo\" \"-y bar\") is *wrong*."
   :type '(list string)
   :group 'proof-shell)
 
