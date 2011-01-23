@@ -811,9 +811,10 @@ See pg-user.el: `pg-create-in-span-context-menu' for more hints."
 
 (defcustom proof-prog-name nil
   "System command to run the proof assistant in the proof shell.
-May contain arguments separated by spaces, but see also `proof-prog-args'.
+May contain arguments separated by spaces, but see also the
+prover specific settings `<PA>-prog-args' and `<PA>-prog-env'.
 
-Remark: if `proof-prog-args' is non-nil, then `proof-prog-name' is considered
+Remark: if `<PA>-prog-args' is non-nil, then `proof-prog-name' is considered
 strictly: it must contain *only* the program name with no option, spaces
 are interpreted literally as part of the program name."
   :type 'string
@@ -867,15 +868,6 @@ See also `proof-shell-pre-sync-init-cmd'."
 
 (defcustom proof-shell-quit-cmd nil
   "A command to quit the proof process.  If nil, send EOF instead."
-   :type '(choice string (const nil))
-   :group 'proof-shell)
-
-(defcustom proof-shell-quit-timeout 5
-  "The number of seconds to wait after sending `proof-shell-quit-cmd'.
-After this timeout, the proof shell will be killed off more rudely.
-If your proof assistant takes a long time to clean up (for
-example writing persistent databases out or the like), you may
-need to bump up this value."
    :type '(choice string (const nil))
    :group 'proof-shell)
 

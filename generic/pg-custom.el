@@ -11,7 +11,7 @@
 ;; Prover specific settings and user options.
 ;;
 ;; The settings defined here automatically use the current proof
-;; assistant symbol as a prefix, i.e.  isa-favourites, coq-favourites,
+;; assistant symbol as a prefix, i.e.  isar-favourites, coq-favourites,
 ;; or whatever will be defined on evaluation.
 ;;
 ;; This file is loaded only by mode stubs defined in `proof-site.el',
@@ -107,6 +107,18 @@ For example for coq on Windows you might need something like:
 \(setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
   :type '(list string)
   :group 'proof-shell)
+
+(defpgcustom quit-timeout 
+  (cond
+   ((eq proof-assistant-symbol 'isar)    45)
+   (t					 5))
+  "The number of seconds to wait after sending `proof-shell-quit-cmd'.
+After this timeout, the proof shell will be killed off more rudely.
+If your proof assistant takes a long time to clean up (for
+example writing persistent databases out or the like), you may
+need to bump up this value."
+   :type 'number
+   :group 'proof-shell)
 
 (defpgcustom favourites nil
   "*Favourite commands for this proof assistant.

@@ -412,14 +412,14 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
 	
 	;; Turn off scripting (ensure buffers completely processed/undone)
 	(proof-deactivate-scripting-auto)
-	(proof-shell-wait proof-shell-quit-timeout)
+	(proof-shell-wait (proof-ass quit-timeout))
 	
 	;; Try to shut down politely.  
 	(if proof-shell-quit-cmd
 	    (scomint-send-string proc
 				 (concat proof-shell-quit-cmd "\n"))
 	  (scomint-send-eof))
-	(proof-shell-wait nil proof-shell-quit-timeout)
+	(proof-shell-wait nil (proof-ass quit-timeout))
 	
 	;; Still there, kill it rudely.
 	(when (memq (process-status proc) '(open run stop))
