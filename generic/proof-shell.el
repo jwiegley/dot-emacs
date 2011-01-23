@@ -470,7 +470,10 @@ This simply kills the `proof-shell-buffer' relying on the hook function
 
 `proof-shell-kill-function' to do the hard work. If optional
 argument DONT-ASK is non-nil, the proof process is terminated
-without confirmation."
+without confirmation.
+
+The kill function uses `<PA>-quit-timeout' as a timeout to wait
+after sending `proof-shell-quit-cmd' before rudely killing the process."
   (interactive)
   (if (buffer-live-p proof-shell-buffer)
       (when (or dont-ask
