@@ -669,7 +669,7 @@ assistant, for example, to compile a completed file."
 
 (defcustom proof-no-fully-processed-buffer nil
   "Set to t if buffers should always retract before scripting elsewhere.
-Leave at nil if fully processd buffers make sense for the current
+Leave at nil if fully processed buffers make sense for the current
 proof assistant. If nil the user can choose to fully assert a
 buffer when starting scripting in a different buffer. If t there
 is only the choice to fully retract the active buffer before
