@@ -85,10 +85,15 @@
   (car-safe (spans-at-point-prop pt prop)))
 
 (defsubst span-delete (span)
-  "Delete SPAN."
-  (let ((predelfn (span-property span 'span-delete-action)))
-    (and predelfn (funcall predelfn)))
+  "Run the 'span-delete-actions and delete SPAN."
+  (mapc (lambda (predelfn) (funcall predelfn))
+	(span-property span 'span-delete-actions))
   (delete-overlay span))
+
+(defsubst span-add-delete-action (span action)
+  "Add ACTION to the list of functions called when SPAN is deleted."
+  (span-set-property span 'span-delete-actions
+		     (cons action (span-property span 'span-delete-actions))))
 
 ;; The next two change ordering of list of spans:
 (defsubst span-mapcar-spans (fn start end prop)

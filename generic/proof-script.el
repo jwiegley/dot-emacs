@@ -547,7 +547,7 @@ It is recorded in the span with the 'rawname property."
     (span-set-property span 'id idsym)
     (span-set-property span 'name name)
     (span-set-property span 'rawname rawname)
-    (span-set-property span 'span-delete-action delfn)
+    (span-add-delete-action span delfn)
     
     ;; Ideally: would keep invisible property to be the idiom type
     ;; (span-set-property span 'invisible idiom)
