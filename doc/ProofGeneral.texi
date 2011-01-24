@@ -214,10 +214,22 @@ other documentation, system downloads, etc.
 
 
 @menu
+* News for Version 4.1::
 * News for Version 4.0::
 * Future::
 * Credits::                     
 @end menu
+
+@node News for Version 4.1
+@unnumberedsec News for Version 4.0
+@cindex news
+
+Proof General version 4.1 adds some compatibility fixes to
+Proof General 4.0, specifically for Coq version 8.3
+and Isabelle 2011.
+
+It also contains a new implementation of multiple file handling
+for Coq provided by Hendrik Tews.
 
 @node News for Version 4.0
 @unnumberedsec News for Version 4.0
