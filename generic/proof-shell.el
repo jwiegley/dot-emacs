@@ -1,6 +1,6 @@
 ;;; proof-shell.el --- Proof General shell mode.
 ;;
-;; Copyright (C) 1994-2010 LFCS Edinburgh.
+;; Copyright (C) 1994-2011 LFCS Edinburgh.
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -163,7 +163,7 @@ No change to current buffer or point."
 
 ;;;###autoload
 (defsubst proof-shell-live-buffer ()
-  "Return buffer of active proof assistant, or nil if none running."
+  "Return non-nil if proof-shell-buffer is live."
   (and proof-shell-buffer
        (buffer-live-p proof-shell-buffer)
        (scomint-check-proc proof-shell-buffer)))
@@ -407,19 +407,27 @@ shell buffer, alled by `proof-shell-bail-out' if process exits."
     (redisplay t)
     (when (and alive proc)
       (catch 'exited
-	(set-process-sentinel proc
-			      (lambda (p m) (throw 'exited t)))
+	(set-process-sentinel 
+	 proc
+	 (lambda (p m) (throw 'exited t)))
 	
 	;; Turn off scripting (ensure buffers completely processed/undone)
 	(proof-deactivate-scripting-auto)
 	(proof-shell-wait (proof-ass quit-timeout))
 	
-	;; Try to shut down politely.  
+	;; Try to shut down politely.
 	(if proof-shell-quit-cmd
 	    (scomint-send-string proc
 				 (concat proof-shell-quit-cmd "\n"))
 	  (scomint-send-eof))
-	(proof-shell-wait nil (proof-ass quit-timeout))
+
+	;; Wait for it to die
+	(let ((timecount   (proof-ass quit-timeout))
+	      (proc        (get-buffer-process proof-shell-buffer)))
+	  (while (and (> timecount 0)
+		      (scomint-check-proc proof-shell-buffer))
+	    (accept-process-output proc 1 nil 1)
+	    (decf timecount)))
 	
 	;; Still there, kill it rudely.
 	(when (memq (process-status proc) '(open run stop))
@@ -1586,7 +1594,7 @@ If TIMEOUTSECS is a number, time out after that many seconds."
 		    t)
 		  (not (and interrupt-on-input (input-pending-p))))
 	;; TODO: check below OK on GE 22/23.1.  See Trac #324
-	(accept-process-output proverproc 0.01 nil 1))
+	(accept-process-output proverproc accepttime nil 1))
       (redisplay)
       (if quit-flag
 	  (error "Proof General: quit in proof-shell-wait")))))
