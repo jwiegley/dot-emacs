@@ -16,17 +16,6 @@
 ;; hard to disentangle.
 ;;
 
-(defface scomint-highlight-input '((t (:weight bold)))
-  "Face to use to highlight user input."
-  :group 'scomint)
-
-(defface scomint-highlight-prompt
-  '((((min-colors 88) (background dark)) (:foreground "cyan1"))
-    (((background dark)) (:foreground "cyan"))
-    (t (:foreground "dark blue")))
-  "Face to use to highlight prompts."
-  :group 'scomint)
-
 (defvar scomint-buffer-maximum-size 800000
   "The maximum size in characters for SComint buffers.
 SComint buffers are truncated from the top to be no greater than this number,
@@ -34,7 +23,6 @@ if non-nil.")
 
 (defvar scomint-output-filter-functions nil
   "Functions to call after output is inserted into the buffer.")
-
 
 (defvar scomint-mode-map
   (let ((map (make-sparse-keymap)))
@@ -49,8 +37,7 @@ if non-nil.")
 (defvar scomint-exec-hook nil
   "Hook run each time a process is exec'd by `scomint-exec'.
 This is called after the process is cranked up.  It is useful for things that
-must be done each time a process is executed in a Comint mode buffer (e.g.,
-`(process-kill-without-query)').")
+must be done each time a process is executed in a Comint mode buffer.")
 
 (put 'scomint-output-filter-functions 'permanent-local t)
 (put 'scomint-mode 'mode-class 'special)
@@ -233,23 +220,6 @@ NO-NEWLINE is non-nil."
 
       (unless (< (point) start)
 
-      ;; (widen)
-
-	;; (let ((beg (marker-position pmark))
-	;;       (end (if no-newline (point) (1- (point))))
-	;;       (inhibit-modification-hooks t))
-	  ;; (when (> end beg)
-	  ;;   (add-text-properties beg end
-	  ;;                        '(front-sticky t
-	  ;;                          font-lock-face scomint-highlight-input))
-
-	  ;; (unless no-newline
-	  ;;   ;; Cover the terminating newline
-	  ;;   (add-text-properties end (1+ end)
-	  ;;                        '(rear-nonsticky t
-	  ;;                          field boundary
-	  ;;                          inhibit-line-move-field-capture t))))
-
 	;; Update the markers before we send the input
 	;; in case we get output amidst sending the input.
 	(set-marker scomint-last-input-start pmark)
@@ -297,68 +267,19 @@ NO-NEWLINE is non-nil."
 	(let (;; The point should float after any insertion we do.
 	      (saved-point (copy-marker (point) t)))
 
-	  ;; We temporarily remove any buffer narrowing, in case the
-	  ;; process mark is outside of the restriction
-	  ;; (save-restriction
-	  ;;   (widen)
-	  
 	  (goto-char (process-mark process))
 	  (set-marker scomint-last-output-start (point))
 
-	    ;; insert-before-markers is a bad thing. XXX
-	    ;; Luckily we don't have to use it any more, we use
-	    ;; window-point-insertion-type instead.
-	    (insert string)
+	  (insert string)
 
-	    ;; Advance process-mark
-	    (set-marker (process-mark process) (point))
+	  ;; Advance process-mark
+	  (set-marker (process-mark process) (point))
 
-	    ;; Run these hooks with point where the user had it.
-	    (goto-char saved-point)
-	    (run-hook-with-args 'scomint-output-filter-functions string)
-	    ;; (scomint-truncate-buffer)
-
-	    (set-marker saved-point (point))
-
-;;	    (goto-char (process-mark process)) ; in case a filter moved it
-
-	    ;; (let ((inhibit-read-only t)
-	    ;;	  (inhibit-modification-hooks t))
-	    ;;   (add-text-properties scomint-last-output-start (point)
-	    ;;			   '(front-sticky
-	    ;;			     (field inhibit-line-move-field-capture)
-	    ;;			     rear-nonsticky t
-	    ;;			     field output
-	    ;;			     inhibit-line-move-field-capture t)))
-
-	    ;; Highlight the prompt, where we define `prompt' to mean
-	    ;; the most recent output that doesn't end with a newline.
-;;	    (let ((prompt-start (save-excursion (forward-line 0) (point)))
-;;		  (inhibit-read-only t)
-;;		  (inhibit-modification-hooks t))
-;;	      (when comint-prompt-read-only
-;;		(or (= (point-min) prompt-start)
-;;		    (get-text-property (1- prompt-start) 'read-only)
-;;		    (put-text-property
-;;		     (1- prompt-start) prompt-start 'read-only 'fence))
-;;		(add-text-properties
-;;		 prompt-start (point)
-;;		 '(read-only t rear-nonsticky t front-sticky (read-only))))
-;;	      (unless (and (bolp) (null comint-last-prompt-overlay))
-;;		;; Need to create or move the prompt overlay (in the case
-;;		;; where there is no prompt ((bolp) == t), we still do
-;;		;; this if there's already an existing overlay).
-;;		(if comint-last-prompt-overlay
-;;		    ;; Just move an existing overlay
-;;		    (move-overlay comint-last-prompt-overlay
-;;				  prompt-start (point))
-;;		  ;; Need to create the overlay
-;;		  (setq comint-last-prompt-overlay
-;;			(make-overlay prompt-start (point)))
-;;		  (overlay-put comint-last-prompt-overlay
-;;			       'font-lock-face 'scomint-highlight-prompt))))
-
-	    (goto-char saved-point))))))
+	  ;; Run these hooks with point where the user had it.
+	  (goto-char saved-point)
+	  (run-hook-with-args 'scomint-output-filter-functions string)
+	  ;; (scomint-truncate-buffer)
+	  (set-marker saved-point (point)))))))
 
 (defun scomint-interrupt-process ()
   (interactive)
