@@ -1097,7 +1097,6 @@ Currently this doesn't take the loadpath into account."
 ;; TODO list:
 ;; - 1 second precision problem
 ;; - bug: killing buffer omits coqtop restart
-;; - unlock ancestors on retract, see span-delete, span-delete-action
 ;; - modify behavior of locked ancestors, see proof-span-read-only
 ;; - display coqdep errors in the recompile-response buffer
 ;; - use a variable for the recompile-response buffer
@@ -1284,6 +1283,7 @@ DEP-MOD-TIMES is empty it returns nil."
       (setq dep-mod-times (cdr-safe dep-mod-times)))
     max))
 
+
 ;; Compute command line for starting coqtop
 
 (defun coq-prog-args ()
@@ -1291,6 +1291,42 @@ DEP-MOD-TIMES is empty it returns nil."
   ;; include it in the -I options.
   (let ((coq-load-path-include-current nil))
     (append coq-prog-args (coq-include-options nil))))
+
+
+;; ancestor (un-)locking
+
+(defun coq-lock-ancestor (span ancestor-src)
+  "Lock ancestor ANCESTOR-SRC and register it in SPAN.
+Lock only if `coq-lock-ancestor' is non-nil. Further, do nothing,
+if ANCESTOR-SRC is already a member of
+`proof-included-files-list'. Otherwise ANCESTOR-SRC is locked and
+registered in the 'coq-locked-ancestors property of the SPAN to
+properly unlock ANCESTOR-SRC on retract."
+  (if coq-lock-ancestors
+      (let ((true-ancestor-src (file-truename ancestor-src)))
+        (unless (member true-ancestor-src proof-included-files-list)
+          (proof-register-possibly-new-processed-file true-ancestor-src)
+          (span-set-property
+           span 'coq-locked-ancestors
+           (cons true-ancestor-src
+                 (span-property span 'coq-locked-ancestors)))))))
+
+(defun coq-unlock-ancestor (ancestor-src)
+  "Unlock ANCESTOR-SRC."
+  (let* ((true-ancestor (file-truename ancestor-src))
+         (buffer (find-buffer-visiting true-ancestor)))
+    ;(message "unlock %s in buf %s" ancestor-src buffer)
+    (setq proof-included-files-list
+          (delete true-ancestor proof-included-files-list))
+    (if buffer
+        (with-current-buffer buffer
+          (proof-set-locked-end (point-min))
+          (proof-script-delete-spans (point-min) (point-max))))))
+
+(defun coq-unlock-all-ancestors-of-span (span)
+  "Unlock all ancestors that have been locked when SPAN was asserted."
+  (mapc 'coq-unlock-ancestor (span-property span 'coq-locked-ancestors))
+  (span-set-property span 'coq-locked-ancestors ()))
 
 ;; handle Require commands when queue is extended
 
@@ -1433,7 +1469,7 @@ OBJ."
         (message "Skip compilation of %s" src) ; XXX
         obj-time))))
 
-(defun coq-make-lib-up-to-date (coq-obj-hash lib-obj-file)
+(defun coq-make-lib-up-to-date (coq-obj-hash span lib-obj-file)
   "Make library object file LIB-OBJ-FILE up-to-date.
 Check if LIB-OBJ-FILE and all it dependencies are up-to-date
 compiled coq library objects. Recompile the necessary objects, if
@@ -1443,6 +1479,10 @@ LIB-OBJ-FILE as time value (see `time-less-or-equal').
 
 Either LIB-OBJ-FILE or its source file (or both) must exist when
 entering this function.
+
+Argument SPAN is the span of the \"Require\" command.
+LIB-OBJ-FILE and its dependencies are locked and registered in
+the span for for proper unlocking on retract.
 
 Argument COQ-OBJ-HASH remembers the return values of this
 function."
@@ -1468,7 +1508,7 @@ function."
                 (setq deps-mod-time
                       (mapcar
                        (lambda (dep)
-                         (coq-make-lib-up-to-date coq-obj-hash dep))
+                         (coq-make-lib-up-to-date coq-obj-hash span dep))
                        dependencies))
                 (setq result
                       (coq-compile-library-if-necessary
@@ -1478,14 +1518,13 @@ function."
             (setq result
                   ;; 5 value: last modification time
                   (nth 5 (file-attributes lib-obj-file))))
-          (if coq-lock-ancestors
-              (proof-register-possibly-new-processed-file lib-src-file))))
+          (coq-lock-ancestor span lib-src-file)))
       ;; at this point the result value has been determined
       ;; store it in the hash then
       (puthash lib-obj-file result coq-obj-hash)
       result)))
 
-(defun coq-auto-compile-externally (qualified-id absolute-module-obj-file)
+(defun coq-auto-compile-externally (span qualified-id absolute-module-obj-file)
   "Make MODULE up-to-date according to `coq-compile-command'.
 Call `compile' to make MODULE up-to-date. The compile command is derived
 from `coq-compile-command' by substituting certain keys, see
@@ -1494,7 +1533,11 @@ therefore no effect, customize `coq-compile-command' instead. All other
 customizations of `compile' apply, so set the variable
 `compilation-read-command' to nil if you don't want to confirm the
 compilation command. Further, set `compilation-ask-about-save' to nil
-to save all buffers without confirmation before compilation."
+to save all buffers without confirmation before compilation.
+
+Argument SPAN is the span of the \"Require\" command. The
+ancestor ABSOLUTE-MODULE-OBJ-FILE is locked and registered in the
+span for for proper unlocking on retract."
   (unless (coq-compile-ignore-file absolute-module-obj-file)
     (let ((compile-command coq-compile-command)
           (physical-dir (file-name-directory absolute-module-obj-file))
@@ -1508,9 +1551,9 @@ to save all buffers without confirmation before compilation."
                 compile-command)))
        coq-compile-substitution-list)
       (call-interactively 'compile)
-      (if coq-lock-ancestors
-          (proof-register-possibly-new-processed-file
-           (coq-library-src-of-obj-file absolute-module-obj-file))))))
+      (coq-lock-ancestor
+       span
+       (coq-library-src-of-obj-file absolute-module-obj-file)))))
 
 (defun coq-map-module-id-to-obj-file (module-id)
   "Map MODULE-ID to the appropriate coq object file.
@@ -1540,13 +1583,17 @@ function returns () if MODULE-ID comes from the standard library."
             "Internal error in coq-map-module-id-to-obj-file")
     (car-safe result)))
 
-(defun coq-check-module (coq-object-local-hash-symbol module-id)
+(defun coq-check-module (coq-object-local-hash-symbol span module-id)
   "Locate MODULE-ID and compile if necessary.
 If `coq-compile-command' is not nil the whole task of checking which
 modules need compilation and the compilation itself is done by an external
 process. If `coq-compile-command' is nil ProofGeneral computes the
 dependencies with \"coqdep\" and compiles modules as necessary. This internal
 checking does currently not handle ML modules.
+
+Argument SPAN is the span of the \"Require\" command. Locked
+ancestors are registered in its 'coq-locked-ancestors property
+for proper unlocking on retract.
 
 Argument COQ-OBJECT-LOCAL-HASH-SYMBOL provides a place to store
 the coq-obj-hash, which is used during internal
@@ -1558,11 +1605,11 @@ queue."
     ;; standard library modules!
     (when module-obj-file
       (if (> (length coq-compile-command) 0)
-          (coq-auto-compile-externally module-id module-obj-file)
+          (coq-auto-compile-externally span module-id module-obj-file)
         (unless (symbol-value coq-object-local-hash-symbol)
           (set coq-object-local-hash-symbol (make-hash-table :test 'equal)))
         (coq-make-lib-up-to-date (symbol-value coq-object-local-hash-symbol)
-                                 module-obj-file)))))
+                                 span module-obj-file)))))
 
 (defvar coq-process-require-current-buffer
   "Used in `coq-compile-save-some-buffers' and `coq-compile-save-buffer-filter'.
@@ -1613,19 +1660,24 @@ compilation (if necessary) of the dependencies."
             ;; cell of coq-object-hash-symbol. The symbol is initialized
             ;; here to use one hash for all the requires that are added now.
             (coq-object-hash-symbol nil)
-            item string)
+            string)
         (dolist (item queueitems)
-          ;; XXX car or concat ?
-          (setq string (car (nth 1 item)))
-          (when (and string
-                     (string-match coq-require-command-regexp string))
-            (let ((start (match-end 0)))
-              (coq-compile-save-some-buffers)
-              ;; now process all required modules
-              (while (string-match coq-require-id-regexp string start)
-                (setq start (match-end 0))
-                (coq-check-module 'coq-object-hash-symbol
-                                  (match-string 1 string)))))))))
+          (let (;; XXX car or concat ?
+                (string (car (nth 1 item))))
+            (when (and string
+                       (string-match coq-require-command-regexp string))
+              (let ((span (car item))
+                    (start (match-end 0)))
+                (span-add-delete-action
+                 span
+                 `(lambda ()
+                    (coq-unlock-all-ancestors-of-span ,span)))
+                (coq-compile-save-some-buffers)
+                ;; now process all required modules
+                (while (string-match coq-require-id-regexp string start)
+                  (setq start (match-end 0))
+                  (coq-check-module 'coq-object-hash-symbol span
+                                    (match-string 1 string))))))))))
 
 (add-hook 'proof-shell-extend-queue-hook 'coq-preprocess-require-commands)
 
