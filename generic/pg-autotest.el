@@ -1,6 +1,6 @@
 ;;; pg-autotest.el --- Simple testing framework for Proof General
 ;;
-;; Copyright (C) 2005, 2009-10 LFCS Edinburgh, David Aspinall.
+;; Copyright (C) 2005, 2009-11 LFCS Edinburgh, David Aspinall.
 ;; Authors:   David Aspinall
 ;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -137,6 +137,15 @@
 			       (format-time-string "%D %H:%M")))
   (proof-with-current-buffer-if-exists
    pg-autotest-log
+   (goto-char (point-max))
+   (insert "\n\nContents of *Messages*:\n\n")
+   (with-current-buffer (get-buffer "*Messages*")
+     (append-to-buffer pg-autotest-log (point-min) (point-max)))
+   (goto-char (point-max))
+   (when (get-buffer "*PG Debug*")
+     (insert "\n\nContents of *PG Debug*:\n\n")
+     (proof-with-current-buffer-if-exists (get-buffer "*PG Debug*"))
+     (append-to-buffer pg-autotest-log (point-min) (point-max)))
    (save-buffer 0))
   (kill-emacs (if pg-autotest-success 0 1)))
 
