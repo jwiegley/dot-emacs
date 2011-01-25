@@ -21,9 +21,6 @@
 
 (require 'pg-autotest)
 
-(setq proof-general-debug t)	 ; for development: see debug messages
-
-
 (unless noninteractive
 
   (pg-autotest log ".autotest.log")  ; convention
