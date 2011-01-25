@@ -36,7 +36,8 @@
   (pg-autotest eval (proof-electric-terminator-toggle 1))
   (pg-autotest eval (insert "Module test")) ; no \n
   (proof-electric-terminator)
-  (proof-shell-wait)
+  ;; Note: with new multiple-file code, above fires up process.
+  ;; If we do (proof-shell-wait) here, we get a deadlock.
   (pg-autotest eval (insert " Goal forall (A B:Prop),(A /\\ B) -> (B /\\ A)"))
   (proof-electric-terminator)
   (proof-shell-wait)
