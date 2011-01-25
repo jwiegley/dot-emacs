@@ -32,13 +32,13 @@
     "Version of Emacs we're compiled for (or running on, if interpreted)."))
 
 (if (or (not (boundp 'emacs-major-version))
-	(< emacs-major-version 22)
+	(< emacs-major-version 23)
 	(string-match "XEmacs" emacs-version))
     (error "Proof General is not compatible with Emacs %s" emacs-version))
 
 (unless (equal pg-compiled-for (pg-emacs-version-cookie))
-  (error
-   "Proof General was compiled for %s but running on %s: please run \"make clean; make\""
+  (warn
+   "Proof General compiled for %s but running on %s: \"make clean; make\" is recommended."
    pg-compiled-for (pg-emacs-version-cookie)))
 
 
