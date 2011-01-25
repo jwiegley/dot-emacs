@@ -1013,11 +1013,68 @@ Otherwise retract it.  Errors are ignored"
      (proof-with-script-buffer
       (if (proof-locked-region-full-p) 'process 'retract)))))
 
-(defun proof-deactivate-scripting (&optional forcedaction)
-  "Deactivate scripting for the active scripting buffer.
+(defun proof-deactivate-scripting-query-user-action ()
+  "Display the script and query the user for a deactivate action.
+Returns 'retract, 'process or finally nil if user declined."
+  ;; Would be nicer to ask a single question, but
+  ;; a nuisance to define our own dialogue since it
+  ;; doesn't really fit with one of the standard ones.
+  (save-window-excursion
+    (unless
+	;; Test to see whether to display the buffer or not.  Could
+	;; have user option here to avoid switching or maybe borrow
+	;; similar standard setting
+	;; save-some-buffers-query-display-buffer
+	(or
+	 (eq (current-buffer)
+	     (window-buffer (selected-window)))
+	 (eq (selected-window) (minibuffer-window)))
+      (unless (one-window-p)
+	(delete-other-windows))
+      (switch-to-buffer proof-script-buffer t))
+    (let ((action  (cond
+		    ((y-or-n-p
+		      (format
+		       "Scripting incomplete in buffer %s, retract? "
+		       proof-script-buffer))
+		     'retract)
+		    ((and
+		      (not proof-no-fully-processed-buffer)
+		      (y-or-n-p
+		       (format
+			"Completely process buffer %s instead? "
+			proof-script-buffer)))
+		     'process))))
+      (or action
+	  (progn
+	    ;; Give an acknowledgement to user's choice
+	    ;; neither to assert or retract.
+	    (message "Scripting still active in %s"
+		     proof-script-buffer)
+	    ;; Delay because this can be followed by an error
+	    ;; message in proof-activate-scripting when trying
+	    ;; to switch to another scripting buffer.
+	    (sit-for 1)
+	    nil)))))
 
-Set `proof-script-buffer' to nil and turn off the modeline indicator.
-No action if there is no active scripting buffer.
+(defun proof-deactivate-scripting-choose-action ()
+  "Select a deactivation action, 'process, 'retract or nil."
+  (let ((auto-action
+	 (if (and proof-no-fully-processed-buffer
+		  (eq proof-auto-action-when-deactivating-scripting
+		      'process))
+	     nil
+	   proof-auto-action-when-deactivating-scripting)))
+    (or auto-action
+	(proof-deactivate-scripting-query-user-action))))
+
+
+(defun proof-deactivate-scripting (&optional forcedaction)
+  "Try to deactivate scripting for the active scripting buffer.
+
+Aims to set `proof-script-buffer' to nil and turn off the
+modeline indicator.  No action is required there is no active
+scripting buffer.
 
 We make sure that the active scripting buffer either has no locked
 region or a full locked region (everything in it has been processed).
@@ -1027,7 +1084,7 @@ user option `proof-auto-action-when-deactivating-scripting'.
 
 If `proof-no-fully-processed-buffer' is t there is only the choice
 to fully retract the active scripting buffer. In this case the
-active scripting buffer is retract even if it was fully processed.
+active scripting buffer is retracted even if it was fully processed.
 Setting `proof-auto-action-when-deactivating-scripting' to 'process
 is ignored in this case.
 
@@ -1050,111 +1107,64 @@ questioning the user.  It is used to make a value for
 the `kill-buffer-hook' for scripting buffers, so that when
 a scripting buffer is killed it is always retracted."
   (interactive)
-  (if proof-script-buffer
-      (with-current-buffer proof-script-buffer
-	;; Examine buffer.
+  (proof-with-current-buffer-if-exists 
+   proof-script-buffer
+   ;; Examine buffer.
 
-	;; We must ensure that the locked region is either
-	;; empty or full, to make sense for multiple-file
-	;; scripting.  (A proof assistant won't be able to
-	;; process just part of a file typically; moreover
-	;; switching between buffers during a proof makes
-	;; no sense.)
-	(if (or (proof-locked-region-empty-p)
-		(and (not proof-no-fully-processed-buffer)
-		     (proof-locked-region-full-p))
-		;; Buffer is partly-processed
-		(let*
-		    ((auto-action
-		      (if (and proof-no-fully-processed-buffer
-			       (eq proof-auto-action-when-deactivating-scripting
-				   'process))
-			  nil
-			proof-auto-action-when-deactivating-scripting))
-		     (action
-		      (or forcedaction auto-action
-		       (progn
-			 (save-window-excursion
-			   (unless
-			       ;; Test to see whether to display the
-			       ;; buffer or not.
-			       ;; Could have user option here to avoid switching
-			       ;; or maybe borrow similar standard setting
-			       ;; save-some-buffers-query-display-buffer
-			       (or
-				(eq (current-buffer)
-				    (window-buffer (selected-window)))
-				(eq (selected-window) (minibuffer-window)))
-			     (unless (one-window-p)
-			       (delete-other-windows))
-			     (switch-to-buffer proof-script-buffer t))
-			   ;; Would be nicer to ask a single question, but
-			   ;; a nuisance to define our own dialogue since it
-			   ;; doesn't really fit with one of the standard ones.
-			   (cond
-			    ((y-or-n-p
-			      (format
-			       "Scripting incomplete in buffer %s, retract? "
-			       proof-script-buffer))
-			     'retract)
-			    ((and
-			      (not proof-no-fully-processed-buffer)
-			      (y-or-n-p
-			       (format
-				"Completely process buffer %s instead? "
-				proof-script-buffer)))
-			     'process)))))))
-		  ;; Take the required action
-		  (if action
-		      (proof-protected-process-or-retract action)
-		    ;; Give an acknowledgement to user's choice
-		    ;; neither to assert or retract.
-		    (message "Scripting still active in %s"
-			     proof-script-buffer)
-		    ;; Delay because this can be followed by an error
-		    ;; message in proof-activate-scripting when trying
-		    ;; to switch to another scripting buffer.
-		    (sit-for 1)
-		    nil)))
+   ;; We must ensure that the locked region is either empty or full,
+   ;; to make sense for multiple-file scripting.  (A proof assistant
+   ;; won't be able to process just part of a file typically; moreover
+   ;; switching between buffers during a proof makes no sense.)
+   (let* ((complete   (or (proof-locked-region-empty-p)
+			  (and (not proof-no-fully-processed-buffer)
+			       (proof-locked-region-full-p))))
+	  (action     (unless complete
+			(or forcedaction
+			    (proof-deactivate-scripting-choose-action)))))
+     (if action
+	 (proof-protected-process-or-retract action))
+     
+     (unless (and (not complete) (not action))
 
-	    ;; If we get here, then the locked region is (now) either
-	    ;; completely empty or completely full.
-	    (progn
-	      ;; We can immediately indicate that there is no active
-	      ;; scripting buffer
-	      (setq proof-previous-script-buffer proof-script-buffer)
-	      (setq proof-script-buffer nil)
+       ;; If we get here, then the locked region is (now) either
+       ;; completely empty or completely full.
 
-	      (if (proof-locked-region-full-p)
-		  ;; If locked region is full, make sure that this buffer
-		  ;; is registered on the included files list, and
-		  ;; let the prover know it can consider it processed.
-		  (if (or buffer-file-name proof-script-buffer-file-name)
-		      (proof-register-possibly-new-processed-file
-		       (or buffer-file-name proof-script-buffer-file-name)
-		       'tell-the-prover
-		       forcedaction)))
+       ;; We can immediately indicate that there is no active
+       ;; scripting buffer
+       (setq proof-previous-script-buffer proof-script-buffer)
+       (setq proof-script-buffer nil)
 
-	      (if (proof-locked-region-empty-p)
-		  ;; If locked region is empty, make sure this buffer is
-		  ;; *off* the included files list.
-		  ;; FIXME: probably this isn't necessary: the
-		  ;; file should be unregistered by the retract
-		  ;; action, or in any case since it was only
-		  ;; partly processed.
-		  ;; FIXME 2: be careful about automatic
-		  ;; multiple file handling here, since it calls
-		  ;; for activating scripting elsewhere.
-		  ;; We move the onus on unregistering now to
-		  ;; the activate-scripting action.
-		  (proof-unregister-buffer-file-name))
+       (if (proof-locked-region-full-p)
+	   ;; If locked region is full, make sure that this buffer
+	   ;; is registered on the included files list, and
+	   ;; let the prover know it can consider it processed.
+	   (if (or buffer-file-name proof-script-buffer-file-name)
+	       (proof-register-possibly-new-processed-file
+		(or buffer-file-name proof-script-buffer-file-name)
+		'tell-the-prover
+		forcedaction)))
 
-	      ;; Turn off Scripting indicator here.
-	      (setq proof-active-buffer-fake-minor-mode nil)
-	      (force-mode-line-update)
+       (if (proof-locked-region-empty-p)
+	   ;; If locked region is empty, make sure this buffer is
+	   ;; *off* the included files list.
+	   ;; FIXME: probably this isn't necessary: the
+	   ;; file should be unregistered by the retract
+	   ;; action, or in any case since it was only
+	   ;; partly processed.
+	   ;; FIXME 2: be careful about automatic
+	   ;; multiple file handling here, since it calls
+	   ;; for activating scripting elsewhere.
+	   ;; We move the onus on unregistering now to
+	   ;; the activate-scripting action.
+	   (proof-unregister-buffer-file-name))
 
-	      ;; Finally, run hooks
-	      (run-hooks 'proof-deactivate-scripting-hook))))))
+       ;; Turn off Scripting indicator here.
+       (setq proof-active-buffer-fake-minor-mode nil)
+       (force-mode-line-update)
+       
+       ;; Finally, run hooks
+       (run-hooks 'proof-deactivate-scripting-hook)))))
+
 
 (defun proof-activate-scripting (&optional nosaves queuemode)
   "Ready prover and activate scripting for the current script buffer.
