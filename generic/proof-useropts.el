@@ -1,6 +1,6 @@
 ;;; proof-useropts.el --- Global user options for Proof General
 ;;
-;; Copyright (C) 2009, 2010 LFCS Edinburgh.
+;; Copyright (C) 2009, 2010, 2011 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -381,9 +381,14 @@ are distracting or too frequent."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-fast-process-buffer (featurep 'ns)
+(defcustom proof-fast-process-buffer 
+  (or (featurep 'ns) ; Mac OS X
+      ; or Windows (speed up TBC, see Trac #308)
+      (memq system-type '(windows-nt ms-dos cygwin)))
   "*If non-nil, `proof-process-buffer' will use a busy wait to process.
-This results in faster processing, but disables simultaneous user interaction."
+This results in faster processing, but disables simultaneous user interaction.
+This setting gives a big speed-up on certain platforms/Emacs ports, for example
+Mac OS X."
   :type 'boolean
   :group 'proof-user-options)
 
