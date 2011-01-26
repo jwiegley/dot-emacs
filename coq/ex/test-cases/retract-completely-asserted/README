@@ -4,6 +4,11 @@ they are in different modules.
 
 To provoke an error inside ProofGeneral on correct coq input,
 do the following: 
+- Start a fresh emacs and delete (or comment out) the lines
+    (add-hook 'proof-deactivate-scripting-hook
+	      'coq-switch-buffer-kill-proof-shell
+	      t)
+  in coq/coq.el. Safe that file.
 - Visit a.v and script the initial comment. 
 - Set proof-no-fully-processed-buffer to nil.
 - assert buffer a.v completely
@@ -18,6 +23,9 @@ To see that the example is indeed valid, script c.v. (For c.v you
 either have to switch coq-recompile-before-require to t or you
 have to compile modules a and b yourself with "coqc a" and "coqc b".)
 
+
+The following problem has been fixed by the commit of David Aspinall
+around 2011-01-25 20:54:54 UTC. It can no longer be reproduced.
 
 There is a bug present on 2011-01-21 09:49:36 UTC, to reproduce:
 - visit a.v, do C-c C-n twice to fully assert the buffer
