@@ -24,9 +24,6 @@
 (require 'proof-shell)
 (require 'proof-utils)
 
-(defconst pg-autotest-debug nil)	; run in debug mode or not
-
-
 ;;; Code:
 
 (defvar pg-autotest-success t
@@ -34,15 +31,6 @@
 
 (defvar pg-autotest-log t
   "Value for 'standard-output' during tests.")
-
-(when pg-autotest-debug
-  (setq debug-on-error t) 		;; enable in case a test goes wrong
-  (setq proof-general-debug t)		;; debug messages from PG
-
-  (defadvice proof-debug (before proof-debug-to-log (msg &rest args))
-    "Output the debug message to the test log."
-    (apply 'pg-autotest-message msg args))
-  (ad-activate 'proof-debug))
 
 ;;; Some utilities
 
@@ -67,30 +55,34 @@
 
 ;;; Invoke a test
 
-(defmacro pg-autotest (fn &rest args)
-  `(unwind-protect
-    (progn
-      (setq standard-output pg-autotest-log)
-      (condition-case err
-	  (let ((scaffoldfn
-		 (intern (concat "pg-autotest-"
-				 (symbol-name (quote ,fn))))))
-	    (if (fboundp scaffoldfn)
-		(apply scaffoldfn (list ,@args))
-	      (pg-autotest-message
- 	       "TEST:  %s"
-	       (prin1-to-string (cons (quote ,fn)
-				      (quote ,args))))
-	      (apply (intern (concat "pg-autotest-test-"
-				     (symbol-name (quote ,fn))))
-		     (list ,@args))))
-	(error
-	 (progn
-	   (setq pg-autotest-success nil)
-	   (pg-autotest-message
-	    "ERROR %s: %s" (quote ,fn) (prin1-to-string err))))))
-    (setq standard-output t)))
+(defmacro pg-autotest-apply (fn &rest args)
+  `(let ((scaffoldfn
+	  (intern (concat "pg-autotest-"
+			  (symbol-name (quote ,fn))))))
+     (if (fboundp scaffoldfn)
+	 (apply scaffoldfn (list ,@args))
+       (pg-autotest-message
+	"TEST:  %s"
+	(prin1-to-string (cons (quote ,fn)
+			       (quote ,args))))
+       (apply (intern (concat "pg-autotest-test-"
+			     (symbol-name (quote ,fn))))
+	      (list ,@args)))))
 
+(defmacro pg-autotest (fn &rest args)
+  `(if debug-on-error
+      (pg-autotest-apply ,fn ,@args)
+     (unwind-protect
+	 (progn
+	   (setq standard-output pg-autotest-log)
+	   (condition-case err
+	       (pg-autotest-apply ,fn ,@args)
+	     (error
+	      (progn
+		(setq pg-autotest-success nil)
+		(pg-autotest-message
+		 "ERROR %s: %s" (quote ,fn) (prin1-to-string err))))))
+       (setq standard-output t))))
 
 ;;; Test output and timing
 
@@ -130,6 +122,20 @@
      (float-time timetaken)
      (if clockname (symbol-name clockname)
        "this test"))))
+
+
+;;; Start up and exit
+
+(defun pg-autotest-start (&optional debug)
+  "Start a session of tests.  DEBUG indicates to capture debug output."
+  (when debug
+    (setq debug-on-error t) 		; enable in case a test goes wrong
+    (setq proof-general-debug t)	; debug messages from PG
+
+    (defadvice proof-debug (before proof-debug-to-log (msg &rest args))
+      "Output the debug message to the test log."
+      (apply 'pg-autotest-message msg args))
+    (ad-activate 'proof-debug)))
 
 (defun pg-autotest-exit ()
   "Exit Emacs returning Unix success 0 if all tests succeeded."
