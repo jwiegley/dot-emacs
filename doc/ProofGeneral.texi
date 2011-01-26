@@ -4569,7 +4569,7 @@ at the top of your theory file, like this:
 The default value is @code{nil}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: isabelle-choose-logic
-@deffn Command isabelle-choose-logic 
+@deffn Command isabelle-choose-logic logic
 Adjust isabelle-prog-name and @code{proof-prog-name} for running @var{logic}.
 @end deffn
 @node Isabelle commands

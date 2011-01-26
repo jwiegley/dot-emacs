@@ -1668,8 +1668,7 @@ compilation (if necessary) of the dependencies."
             (coq-object-hash-symbol nil)
             string)
         (dolist (item queueitems)
-          (let (;; XXX car or concat ?
-                (string (car (nth 1 item))))
+          (let ((string (mapconcat 'identity (nth 1 item) " ")))
             (when (and string
                        (string-match coq-require-command-regexp string))
               (let ((span (car item))

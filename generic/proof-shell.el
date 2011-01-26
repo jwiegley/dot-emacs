@@ -40,7 +40,25 @@ The value is a list of lists of the form
 
    (SPAN COMMANDS ACTION [DISPLAYFLAGS])
 
-which is the queue of things to do.  The display flags are set
+which is the queue of things to do.
+
+SPAN is a region in the sources, where COMMANDS come from. Often,
+additional properties are recorded as properties of SPAN.
+
+COMMANDS is a list of strings, holding the text to be send to the
+prover. It might be the empty list is nothing needs to be sent to
+the prover, such as, for instance, for comments. Usually COMMANDS
+contains just 1 string, but it might also contains more elements.
+The text should be obtained with
+`(mapconcat 'identity COMMANDS \" \")', where the last argument
+is a space.
+
+ACTION is the callback to be invoked when this item has been
+processed by the prover. For normal scripting items it is
+`proof-done-advancing', for retract items
+`proof-done-retracting', but there are more possibilities.
+
+The DISPLAYFLAGS are set
 for non-scripting commands or for when scripting should not
 bother the user.  They may include
 

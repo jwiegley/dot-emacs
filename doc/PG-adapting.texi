@@ -2397,7 +2397,7 @@ can be achieved via two hook functions which are run before and after
 fontifying the output buffers.
 
 @c TEXI DOCSTRING MAGIC: proof-zap-commas
-@defun proof-zap-commas 
+@defun proof-zap-commas limit
 Remove the face of all @samp{,} from point to @var{limit}.@*
 Meant to be used from @samp{@code{font-lock-keywords}} as a way
 to unfontify commas in declarations and definitions.
@@ -2594,7 +2594,7 @@ To insert text into the current (usually script) buffer, the function
 
 
 @c TEXI DOCSTRING MAGIC: proof-insert
-@defun proof-insert 
+@defun proof-insert text
 Insert @var{text} into the current buffer.@*
 @var{text} may include these special characters:
 @lisp
@@ -2664,7 +2664,7 @@ Define command FN to prompt for string @var{cmdvar} to proof assistant.@*
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-format-filename
-@defun proof-format-filename 
+@defun proof-format-filename string filename
 Format @var{string} by replacing quoted chars by escaped version of @var{filename}.
 
 %e uses the canonicalized expanded version of filename (including
@@ -2913,14 +2913,14 @@ behaviour and appearance for boolean user options, as well as
 interfacing properly with the @code{customize} mechanism.
 
 @c TEXI DOCSTRING MAGIC: proof-set-value
-@defun proof-set-value 
+@defun proof-set-value sym value
 Set a customize variable using @samp{@code{set-default}} and a function.@*
-We first call @samp{@code{set-default}} to set SYM to @var{value}.
-Then if there is a function SYM (i.e. with the same name as the
-variable SYM), it is called to take some dynamic action for the new
+We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
+Then if there is a function @var{sym} (i.e. with the same name as the
+variable @var{sym}), it is called to take some dynamic action for the new
 setting.
 
-If there is no function SYM, we try stripping
+If there is no function @var{sym}, we try stripping
 @samp{@code{proof-assistant-symbol}} and adding "proof-" instead to get
 a function name.  This extends @code{proof-set-value} to work with
 generic individual settings.
@@ -3122,10 +3122,11 @@ activation is considered to have failed and an error is given.
 
 @c TEXI DOCSTRING MAGIC: proof-deactivate-scripting
 @deffn Command proof-deactivate-scripting &optional forcedaction
-Deactivate scripting for the active scripting buffer.
+Try to deactivate scripting for the active scripting buffer.
 
-Set @samp{@code{proof-script-buffer}} to nil and turn off the modeline indicator.
-No action if there is no active scripting buffer.
+Aims to set @samp{@code{proof-script-buffer}} to nil and turn off the
+modeline indicator.  No action is required there is no active
+scripting buffer.
 
 We make sure that the active scripting buffer either has no locked
 region or a full locked region (everything in it has been processed).
@@ -3135,7 +3136,7 @@ user option @samp{@code{proof-auto-action-when-deactivating-scripting}}.
 
 If @samp{@code{proof-no-fully-processed-buffer}} is t there is only the choice
 to fully retract the active scripting buffer. In this case the
-active scripting buffer is retract even if it was fully processed.
+active scripting buffer is retracted even if it was fully processed.
 Setting @samp{@code{proof-auto-action-when-deactivating-scripting}} to @code{'process}
 is ignored in this case.
 
@@ -3332,7 +3333,25 @@ The value is a list of lists of the form
 @lisp
    (@var{span} @var{commands} @var{action} [DISPLAYFLAGS])
 @end lisp
-which is the queue of things to do.  The display flags are set
+which is the queue of things to do.
+
+@var{span} is a region in the sources, where @var{commands} come from. Often,
+additional properties are recorded as properties of @var{span}.
+
+@var{commands} is a list of strings, holding the text to be send to the
+prover. It might be the empty list is nothing needs to be sent to
+the prover, such as, for instance, for comments. Usually @var{commands}
+contains just 1 string, but it might also contains more elements.
+The text should be obtained with
+@samp{(mapconcat }identity @var{commands} " ")', where the last argument
+is a space.
+
+@var{action} is the callback to be invoked when this item has been
+processed by the prover. For normal scripting items it is
+@samp{@code{proof-done-advancing}}, for retract items
+@samp{@code{proof-done-retracting}}, but there are more possibilities.
+
+The @var{displayflags} are set
 for non-scripting commands or for when scripting should not
 bother the user.  They may include
 @lisp
