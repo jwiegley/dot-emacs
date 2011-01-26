@@ -1095,8 +1095,9 @@ Currently this doesn't take the loadpath into account."
 ;;
 
 ;; TODO list:
-;; - 1 second precision problem
-;; - bug: killing buffer omits coqtop restart
+;; - Bug: undo in locked ancestor
+;; - Bug: never stopping busy cursor
+;; - Bug: coq not running for the first comment after switching
 ;; - modify behavior of locked ancestors, see proof-span-read-only
 ;; - display coqdep errors in the recompile-response buffer
 ;; - use a variable for the recompile-response buffer
@@ -1448,7 +1449,12 @@ dependencies. It is either
 
 If this function decides to compile SRC to OBJ it returns
 'just-compiled. Otherwise it returns the modification time of
-OBJ."
+OBJ.
+
+Note that file modification times inside emacs have only a
+precisision of 1 second. To avoid spurious recompilations we do
+not recompile if the youngest object file of the dependencies and
+OBJ have identical modification times."
   (let (src-time obj-time)
     (if (eq max-dep-obj-time 'just-compiled)
         (progn
@@ -1462,7 +1468,7 @@ OBJ."
            (and
             max-dep-obj-time            ; there is a youngest dependency
                                         ; which is newer than obj
-            (time-less-or-equal obj-time max-dep-obj-time)))
+            (time-less-p obj-time max-dep-obj-time)))
           (progn
             (coq-compile-library src)
             'just-compiled)

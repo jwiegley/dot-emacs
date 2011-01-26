@@ -4023,6 +4023,11 @@ necessary files whenever a @code{Require} command is processed.
 The compilation feature does currently not support ML modules.
 @end table
 
+The current version works reliably, even when stress-tested with
+changing random files in large Coq projects. However, some
+features have spared for the next release, @ref{Current
+Limitations}.
+
 To enable the automatic compilation feature there are three
 points to adhere to:
 
@@ -4039,9 +4044,8 @@ For a nonstandard compilation procedure and limited ML module
 support, @code{coq-compile-command} can be set to an external
 compilation command. For standard dependency analysis with
 @code{coqdep} and compilation with @code{coqc} the option
-@code{coq-compile-command} can be left empty. If this option is
-empty Proof General calls @code{coqdep} and @code{coqc} as
-needed.
+@code{coq-compile-command} can be left empty. In this case Proof
+General calls @code{coqdep} and @code{coqc} as needed.
 @end itemize
 
 
@@ -4050,6 +4054,7 @@ needed.
 * Automatic Compilation in Detail::
 * Locking Ancestors::
 * Customizing Coq Multiple File Support::
+* Current Limitations::
 @end menu
 
 
@@ -4138,7 +4143,7 @@ current scripting buffer without interruption.
 @node Customizing Coq Multiple File Support
 @subsection Customizing Coq Multiple File Support
 
-The customization setting for multiple file support of Coq Proof
+The customization settings for multiple file support of Coq Proof
 General are in a separate customization group, the
 @code{coq-auto-compile} group. To view all options in this
 group do @code{M-x customize-group coq-auto-compile} or select
@@ -4325,6 +4330,34 @@ identifier and should therefore not be matched by this regexp.
 
 
 
+@node Current Limitations
+@subsection Current Limitations
+
+In the current release some aspects of multiple file support have
+not been implemented. The following points will hopefully
+addressed in the next release:
+
+@itemize
+@item
+Support @code{Declare ML Module} commands.
+@item
+Properly display errors from @code{coqdep} and @code{coqc},
+enable @code{C-x `} (@code{M-x next-error}) for these error
+messages.
+@item
+Improved undo behaviour for locked ancestors.
+@item
+Integrate with older options for multiple file support, such as,
+for instance, @code{coq-auto-compile-vos}.
+@item
+Increase precision when comparing modification times. Because of
+an Emacs limitation, modification time stamps of files have only a
+precision of 1 second. If several compiled Coq object files have
+been created in the same second, Proof General is optimistic and
+does not recompile. (Note that GNU make behaves the same on file
+systems that record time stamps only with a precision of 1
+second.)
+@end itemize
 
 
 @node Editing multiple proofs
