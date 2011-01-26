@@ -14,8 +14,12 @@
 
 (require 'pg-autotest)
 
+(setq pg-autotest-debug t)
+
 (unless noninteractive
-  
+
+  (pg-autotest start 'debug)
+
   ;; new multiple file handling for Coq gives interactive queries
   ;; continually unless we set this
   (setq proof-auto-action-when-deactivating-scripting 'retract)
