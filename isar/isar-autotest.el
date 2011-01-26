@@ -23,6 +23,8 @@
 
 (unless noninteractive
 
+  (pg-autotest start) ; can add 'debug flag for debug-on-error
+
   (pg-autotest log ".autotest.log")  ; convention
 
   (pg-autotest timestart 'total)
