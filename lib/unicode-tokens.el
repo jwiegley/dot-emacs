@@ -1203,10 +1203,10 @@ Commands available are:
      (t
       (apply 'old-ns-respond-to-change-font args))))
 
-  (defun ns-popup-font-panel ()
+  (defun ns-popup-font-panel (&rest args)
     (setq unicode-tokens-respond-to-change-font nil)
     (with-no-warnings
-      (old-ns-popup-font-panel)))
+      (apply 'old-ns-popup-font-panel args)))
 
   (defun unicode-tokens-popup-font-panel (fontvar)
     (setq unicode-tokens-respond-to-change-font fontvar)
