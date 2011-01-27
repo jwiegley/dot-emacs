@@ -21,6 +21,7 @@ usage()
   echo "  Options are:"
   echo "    -L NAME      abbreviates -l NAME -k NAME"
   echo "    -U BOOL      enable UTF-8 communication (default true)"
+  echo "    -f FONT      specify Emacs font"
   echo "    -g GEOMETRY  specify Emacs geometry"
   echo "    -k NAME      use specific isar-keywords for named logic"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
@@ -54,6 +55,7 @@ ISABELLE_OPTIONS=""
 KEYWORDS=""
 LOGIC="$ISABELLE_LOGIC"
 UNICODE=""
+FONT=""
 GEOMETRY=""
 PROGNAME="emacs"
 INITFILE="true"
@@ -63,7 +65,7 @@ UNICODE_SYMBOLS=""
 getoptions()
 {
   OPTIND=1
-  while getopts "L:U:g:k:l:m:p:u:w:x:" OPT
+  while getopts "L:U:f:g:k:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       L)
@@ -72,6 +74,9 @@ getoptions()
         ;;
       U)
         UNICODE="$OPTARG"
+        ;;
+      f)
+        FONT="$OPTARG"
         ;;
       g)
         GEOMETRY="$OPTARG"
@@ -132,6 +137,11 @@ fi
 ## main
 
 declare -a ARGS=()
+
+if [ -n "$FONT" ]; then
+  ARGS["${#ARGS[@]}"]="-fn"
+  ARGS["${#ARGS[@]}"]="$FONT"
+fi
 
 if [ -n "$GEOMETRY" ]; then
   ARGS["${#ARGS[@]}"]="-geometry"
