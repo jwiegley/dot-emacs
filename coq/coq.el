@@ -499,6 +499,9 @@ If locked span already has a state number, then do nothing. Also updates
              (span-staten (coq-get-span-statenum span))
              (naborts (count-not-intersection 
                        coq-last-but-one-proofstack proofstack)))
+    ;; if we move outside of any proof, coq does not print anything, so clean
+    ;; the goals buffer otherwise the old one will still be displayed
+    (if (= proofdepth 0) (proof-clean-buffer proof-goals-buffer))
     (unless (and 
              ;; return nil (was proof-no-command) in this case:
              ;; this is more efficient as backtrack x y z may be slow
