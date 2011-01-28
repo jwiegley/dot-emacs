@@ -3757,7 +3757,7 @@ and a short-cut for enabling three window mode,
 @cindex file variables
 
 A very convenient way to customize file-specific variables is to use 
-File Variables (@inforef{File Variables, ,(emacs)}). This feature of
+File Variables (@inforef{File Variables, ,emacs}). This feature of
 Emacs permits to specify values for certain Emacs variables
 when a file is loaded. File variables and their values 
 are written as a list at the end of
@@ -3782,8 +3782,8 @@ end of @file{foo.v}:
 This way, the right command line arguments are passed to the
 invocation of
 @code{coqtop} when scripting starts in
-@file{foo.v}. We assume here that the load path @code{"../theories"}
-is specific to the file @file{foo.v}, and that therefore a global
+@file{foo.v}. Note that the load path @code{"../theories"} is
+project or even file specific, and that therefore a global
 setting via the
 configuration tool would be inappropriate.
 With file variables, Emacs will set @code{coq-load-path}
@@ -3811,6 +3811,20 @@ compile} command. Note that the lines are commented in order to be
 ignored by the proof assistant. It is possible to use this mechanism for
 all variables, @inforef{File Variables, ,emacs}.
 
+One can also specify file variables on a per directory basis,
+@inforef{Directory Variables, ,emacs}. For instance,
+assume you have a Coq project with several subdirectories and you
+want to put each subdirectory into @code{coq-load-path} for every
+file in the project. You can achieve this by storing
+
+@lisp
+((coq-mode . ((coq-load-path . ("../dir_1" "../dir_2" ... )))))
+@end lisp
+
+into the file @code{.dir-locals.el} in one of the parent
+directories. The value in this file must be an alist that maps
+mode names to alists, where these latter alists map variables to
+values, @inforef{Directory Variables, ,emacs}.
 
 
 

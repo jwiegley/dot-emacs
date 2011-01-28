@@ -1124,6 +1124,7 @@ If `t' ProofGeneral intercepts \"Require\" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the \"Require\" command is processed."
   :type 'boolean
+  :safe 'booleanp
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-command ""
@@ -1145,6 +1146,7 @@ the following keys are substituted as follows:
 For instance, \"make -C %p %o\" expands to \"make -C bar foo.vo\"
 when module \"foo\" from directory \"bar\" is required."
   :type 'string
+  :safe 'stringp
   :group 'coq-auto-compile)
 
 (defconst coq-compile-substitution-list
@@ -1187,6 +1189,7 @@ confirmation."
      "save all coq-mode buffers except the current buffer without confirmation"
      save-coq)
     (const :tag "save all buffers without confirmation" save-all))
+  :safe '(lambda (v) (member v '(ask-coq ask-all save-coq save-all)))
   :group 'coq-auto-compile)
 
 (defcustom coq-lock-ancestors t
@@ -1195,6 +1198,7 @@ If external compilation is used (via `coq-compile-command') then
 only the direct ancestors are locked. Otherwise all ancestors are
 locked when the \"Require\" command is processed."
   :type 'boolean
+  :safe 'booleanp
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-ignore-library-directory t
@@ -1206,6 +1210,7 @@ This option has currently no effect, because Proof General uses
 coqdep to translate qualified identifiers into library file names
 and coqdep does not output dependencies in the standard library."
   :type 'boolean
+  :safe 'booleanp
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-ignored-directories nil
@@ -1218,6 +1223,7 @@ compilation. It makes sense to include non-standard coq library
 directories here if they are not changed and if they are so big
 that dependency checking takes noticeable time."
   :type '(repeat regexp)
+  :safe '(lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
 
 (defcustom coq-load-path nil
@@ -1232,6 +1238,7 @@ For coqdep and coqc these directories are passed via \"-I\"
 options over the command line. For interactive scripting an
 \"Add LoadPath\" command is used."
   :type '(repeat string)
+  :safe '(lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
 
 (defcustom coq-load-path-include-current t
@@ -1240,6 +1247,7 @@ Should be `t' for normal users. If `t' pass \"-I dir\" to coqdep when
 processing files in directory \"dir\" in addition to any entries
 in `coq-load-path'."
   :type 'boolean
+  :safe 'booleanp
   :group 'coq-auto-compile)
 
 (defconst coq-require-command-regexp
