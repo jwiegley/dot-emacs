@@ -1108,8 +1108,6 @@ Currently this doesn't take the loadpath into account."
 ;; - clean old multiple file stuff
 ;; - fix places marked with XXX
 ;; - enable next-error in recompile-response buffers
-;; - call compile more cleverly, with a coq-specific option for compile
-;;   command confirmation
 
 ;; user options and variables
 
@@ -1133,25 +1131,40 @@ If unset (the empty string) ProofGeneral computes the dependencies of
 required modules with coqdep and compiles as necessary. This internal
 dependency checking does currently not handle ML modules.
 
-If a non-empty string, the denoted command is called to do the dependency
-checking and compilation. Before calling this command via `compile'
-the following keys are substituted as follows:
+If a non-empty string, the denoted command is called to do the
+dependency checking and compilation. Before executing this
+command the following keys are substituted as follows:
   %p  the (physical) directory containing the source of
       the required module
   %o  the coq object file in the physical directory that will
       be loaded
+  %s  the coq source file in the physical directory whose
+      object will be loaded
   %q  the qualified id of the \"Require\" command
   %r  the source file containing the \"Require\"
 
 For instance, \"make -C %p %o\" expands to \"make -C bar foo.vo\"
-when module \"foo\" from directory \"bar\" is required."
+when module \"foo\" from directory \"bar\" is required.
+
+After the substitution the command can be changed in the
+minibuffer if `coq-confirm-external-compilation-command' is t."
   :type 'string
-  :safe 'stringp
+  :safe '(lambda (v)
+           (and (stringp v)
+                (or (not (boundp 'coq-confirm-external-compilation-command))
+                    coq-confirm-external-compilation-command)))
+  :group 'coq-auto-compile)
+
+(defcustom coq-confirm-external-compilation-command t
+  "*If set let user change and confirm the compilation command.
+Otherwise start the external compilation without confirmation."
+  :type 'boolean
   :group 'coq-auto-compile)
 
 (defconst coq-compile-substitution-list
   '(("%p" physical-dir)
     ("%o" module-object)
+    ("%s" module-source)
     ("%q" qualified-id)
     ("%r" requiring-file))
   "Substitutions for `coq-compile-command'.
@@ -1160,12 +1173,13 @@ a 2-element list. The first element of a substitution is the
 regexp to substitute, the second the replacement. The replacement
 is evaluated before passing it to `replace-regexp-in-string', so
 it might be a string, or one of the symbols 'physical-dir,
-'module-object, 'qualified-id and 'requiring-file, which are
-bound, respectively, to the the physical directory containing the
-source file, the Coq object file in 'physical-dir that will be
-loaded, the qualified module identifier that occurs in the
-\"Require\" command, and the file that contains the
-\"Require\".")
+'module-object, 'module-source, 'qualified-id and
+'requiring-file, which are bound to, respectively, the physical
+directory containing the source file, the Coq object file in
+'physical-dir that will be loaded, the Coq source file in
+'physical-dir whose object will be loaded, the qualified module
+identifier that occurs in the \"Require\" command, and the file
+that contains the \"Require\".")
 
 (defcustom coq-compile-auto-save 'ask-coq
   "*Buffers to save before checking dependencies for compilation.
@@ -1264,6 +1278,9 @@ Should match precisely one complete module identifier and surrounding
 white space. The module identifier must be matched with group number 1.
 Note that the trailing dot in \"Require A.\" is not part of the module
 identifier and should therefore not be matched by this regexp.")
+
+(defvar coq-compile-history nil
+  "History of external Coq compilation commands.")
 
 ;; basic utilities
 
@@ -1543,31 +1560,43 @@ function."
 
 (defun coq-auto-compile-externally (span qualified-id absolute-module-obj-file)
   "Make MODULE up-to-date according to `coq-compile-command'.
-Call `compile' to make MODULE up-to-date. The compile command is derived
-from `coq-compile-command' by substituting certain keys, see
-`coq-compile-command' for details. Customizing `compile-command' has
-therefore no effect, customize `coq-compile-command' instead. All other
-customizations of `compile' apply, so set the variable
-`compilation-read-command' to nil if you don't want to confirm the
-compilation command. Further, set `compilation-ask-about-save' to nil
-to save all buffers without confirmation before compilation.
+Start a compilation to make ABSOLUTE-MODULE-OBJ-FILE up-to-date.
+The compilation command is derived from `coq-compile-command' by
+substituting certain keys, see `coq-compile-command' for details.
+If `coq-confirm-external-compilation-command' is t then the user
+must confirm the external command in the minibuffer, otherwise
+the command is executed without confirmation.
 
 Argument SPAN is the span of the \"Require\" command. The
 ancestor ABSOLUTE-MODULE-OBJ-FILE is locked and registered in the
-span for for proper unlocking on retract."
+span for for proper unlocking on retract.
+
+This function uses the low-level interface `compilation-start',
+therefore the customizations for `compile' do not apply."
   (unless (coq-compile-ignore-file absolute-module-obj-file)
-    (let ((compile-command coq-compile-command)
-          (physical-dir (file-name-directory absolute-module-obj-file))
-          (module-object (file-name-nondirectory absolute-module-obj-file))
-          (requiring-file buffer-file-name))
+    (let* ((local-compile-command coq-compile-command)
+           (physical-dir (file-name-directory absolute-module-obj-file))
+           (module-object (file-name-nondirectory absolute-module-obj-file))
+           (module-source (coq-library-src-of-obj-file module-object))
+           (requiring-file buffer-file-name))
       (mapc
        (lambda (substitution)
-         (setq compile-command
+         (setq local-compile-command
                (replace-regexp-in-string
                 (car substitution) (eval (car (cdr substitution)))
-                compile-command)))
+                local-compile-command)))
        coq-compile-substitution-list)
-      (call-interactively 'compile)
+      (if coq-confirm-external-compilation-command
+          (setq local-compile-command
+                (read-shell-command
+                 "Coq compile command: " local-compile-command
+                 (if (equal (car coq-compile-history) local-compile-command)
+                     '(coq-compile-history . 1)
+                   'coq-compile-history))))
+      ;; buffers have already been saved before we entered this function
+      ;; the next line is probably necessary to make recompile work
+      (setq-default compilation-directory default-directory)
+      (compilation-start local-compile-command)
       (coq-lock-ancestor
        span
        (coq-library-src-of-obj-file absolute-module-obj-file)))))

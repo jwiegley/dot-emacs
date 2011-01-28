@@ -4102,16 +4102,23 @@ itself. Otherwise the command in @code{coq-compile-command} is
 started as an external process after substituting certain keys,
 @ref{Customizing Coq Multiple File Support}. 
 
-If Proof General uses an external command for compilation, this
-command is started via @code{compile}, @ref{Compilation,,,emacs}.
-Because Proof General cannot know if some library files have been
-updated outside of Proof General, it must perform the dependency
-checking for each @code{Require} command. The continuous
-confirmation of the external compilation commands can soon become
-tedious. Set @code{compilation-read-command} to nil to disable
-command confirmation for all invocations of @code{compile}, see
-the documentation of @code{compile} (which is displayed after
-typing C-h f compile). 
+For an external compilation command Proof General uses the
+general compilation facilities of Emacs
+(@inforef{Compilation,,emacs}) with its own customization variables.
+The compilation command must be customized in
+@code{coq-compile-command} and the flag
+@code{coq-confirm-external-compilation-command} determines
+whether the user must confirm the compilation command. The output
+of the compilation appears in the @code{*compilation*} buffer and
+one can use @code{C-x `} (bound to @code{next-error},
+@inforef{Compilation Mode,,emacs}) to jump to error locations.
+
+Proof General cannot know if some library files have been updated
+outside of Proof General, therefore, it must perform the
+dependency checking for each @code{Require} command. If the
+continuous confirmation of the external compilation commands
+becomes tedious, set
+@code{coq-confirm-external-compilation-command} to nil.
 
 When a @code{Require} command causes a compilation of some files
 one may wish to save some buffers to disk beforehand. The option
@@ -4183,21 +4190,35 @@ If unset (the empty string) ProofGeneral computes the dependencies of
 required modules with coqdep and compiles as necessary. This internal
 dependency checking does currently not handle ML modules.
 
-If a non-empty string, the denoted command is called to do the dependency
-checking and compilation. Before calling this command via @samp{compile}
-the following keys are substituted as follows:
+If a non-empty string, the denoted command is called to do the
+dependency checking and compilation. Before executing this
+command the following keys are substituted as follows:
 @lisp
   %p  the (physical) directory containing the source of
       the required module
   %o  the coq object file in the physical directory that will
       be loaded
+  %s  the coq source file in the physical directory whose
+      object will be loaded
   %q  the qualified id of the "Require" command
   %r  the source file containing the "Require"
 @end lisp
 For instance, "make -C %p %o" expands to "make -C bar foo.vo"
 when module "foo" from directory "bar" is required.
 
+After the substitution the command can be changed in the
+minibuffer if @samp{@code{coq-confirm-external-compilation-command}} is t.
+
 The default value is @code{""}.
+@end defopt
+
+
+@c TEXI DOCSTRING MAGIC: coq-confirm-external-compilation-command
+@defopt coq-confirm-external-compilation-command 
+If set let user change and confirm the compilation command.@*
+Otherwise start the external compilation without confirmation.
+
+The default value is @code{t}.
 @end defopt
 
 
@@ -4315,12 +4336,13 @@ a 2-element list. The first element of a substitution is the
 regexp to substitute, the second the replacement. The replacement
 is evaluated before passing it to @samp{@code{replace-regexp-in-string}}, so
 it might be a string, or one of the symbols @code{'physical-dir},
-@code{'module-object}, @code{'qualified-id} and @code{'requiring-file}, which are
-bound, respectively, to the the physical directory containing the
-source file, the Coq object file in @code{'physical-dir} that will be
-loaded, the qualified module identifier that occurs in the
-"Require" command, and the file that contains the
-"Require".
+@code{'module-object}, @code{'module-source}, @code{'qualified-id} and
+@code{'requiring-file}, which are bound to, respectively, the physical
+directory containing the source file, the Coq object file in
+@code{'physical-dir} that will be loaded, the Coq source file in
+@code{'physical-dir} whose object will be loaded, the qualified module
+identifier that occurs in the "Require" command, and the file
+that contains the "Require".
 @end defvar
 
 
