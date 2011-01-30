@@ -8,7 +8,7 @@ on recent Linux systems:
  Emacs 23.1            -- previous version, should work
  Emacs 22.X            -- not supported, hack proof-utils.el to try out.
 
-and (main) prover versions:  Coq 8.1pl3, Isabelle2009{-1,-2}
+and (main) prover versions:  Coq 8.3, Isabelle2009-2, Isabelle2011
 
 See below for notes about other operating systems.
 
