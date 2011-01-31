@@ -202,7 +202,7 @@ This variable can be used for instance specific functions which want
 to examine `proof-shell-last-output'.")
 
 (defvar proof-assistant-settings nil
- "A list of default values kept in Proof General for current proof assistant.
+ "Settings kept in Proof General for current proof assistant.
 A list of lists (SYMBOL SETTING TYPE DESCR) where SETTING is a string value
 to send to the proof assistant using the value of SYMBOL and
 and the function `proof-assistant-format'.  The TYPE item determines

@@ -183,7 +183,7 @@ Usage: (defpgdefault SYM VALUE)"
       (error "defpacustom: missing :type keyword or wrong :type value"))
 
     ;; Error in case a defpacustom is repeated.
-    (when (assoc name proof-assistant-settings)
+    (when (assq name proof-assistant-settings)
       (error "defpacustom: Proof assistant setting %s re-defined!"
 	     name))
 
@@ -204,7 +204,7 @@ Usage: (defpgdefault SYM VALUE)"
 	   (proof-assistant-settings-cmd (quote ,name)))))))
     (setq proof-assistant-settings
 	  (cons (list name setting (eval type) descr)
-		(assq-delete-all name proof-assistant-settings)))))
+		proof-assistant-settings))))
 
 ;;;###autoload
 (defmacro defpacustom (name val &rest args)

@@ -925,10 +925,13 @@ This will configure dynamic settings used in the current prover session
 and extend `proof-assistant-settings'.
 We first clear the dynamic settings from `proof-assistant-settings'."
   (when (and proof-use-pgip-askprefs proof-shell-issue-pgip-cmd)
-    (dolist (setting proof-assistant-settings)
-      (let ((name (car setting)))
-	(if (get name 'pgdynamic)
-	    (undefpgcustom name))))
+    (let (newsettings)
+      (dolist (setting proof-assistant-settings)
+	(let ((name (car setting)))
+	  (if (get name 'pgdynamic)
+	      (undefpgcustom name)
+	    (push setting newsettings))))
+      (setq proof-assistant-settings newsettings))
     (pg-pgip-askprefs)))
 
 

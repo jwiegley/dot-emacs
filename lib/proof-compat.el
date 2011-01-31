@@ -52,7 +52,9 @@
 ;;  "defvar treated as defconst" in XEmacs)
 (defun pg-custom-undeclare-variable (symbol)
   "Remove a custom setting SYMBOL.
-Done by `makunbound' and removing all properties mentioned by custom library."
+Done by removing all properties mentioned by custom library.
+The symbol itself is left defined, in case it has been changed
+in the current Emacs session."
   (mapc (lambda (prop) (remprop symbol prop))
 	  '(default
 	     standard-value
@@ -72,8 +74,7 @@ Done by `makunbound' and removing all properties mentioned by custom library."
 	     custom-version
 	     saved-value
 	     theme-value
-	     theme-face))
-  (makunbound symbol))
+	     theme-face)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
