@@ -203,7 +203,7 @@ See -k option for Isabelle interface script."
    proof-shell-clear-goals-regexp       
    "\^AIProof General, please clear the goals buffer."
    proof-shell-theorem-dependency-list-regexp 
-   "\^AIProof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
+   "\^AIProof General, theorem dependencies of \"\\(.*\\)\" are \"\\(.*\\)\"\\(\^AJ\\)"
    proof-shell-retract-files-regexp
    "\^AIProof General, you can unlock the file \"\\(.*\\)\"\^AJ"
    proof-shell-process-file
