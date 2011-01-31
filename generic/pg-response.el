@@ -307,11 +307,16 @@ You can use this command to clear the output from these buffers when
 it becomes overly long.  Particularly useful when `proof-tidy-response'
 is set to nil, so responses are not cleared automatically."
   (interactive)
-  (proof-map-buffers (list proof-response-buffer proof-trace-buffer)
-    (if (> (buffer-size) 0)
-	(let ((inhibit-read-only t))
-	  (bufhist-checkpoint-and-erase)
-	  (set-buffer-modified-p nil)))))
+  (proof-with-current-buffer-if-exists proof-response-buffer
+     (if (> (buffer-size) 0)
+	 (let ((inhibit-read-only t))
+	   (bufhist-checkpoint-and-erase)
+	   (set-buffer-modified-p nil))))
+  (proof-with-current-buffer-if-exists proof-trace-buffer
+     (let ((inhibit-read-only t))
+       (erase-buffer)
+       (set-buffer-modified-p nil)))
+  (message "Response buffers cleared."))
 
 ;;;###autoload
 (defun pg-response-message (&rest args)
@@ -428,38 +433,37 @@ See `pg-next-error-regexp'."
 ;; Tracing buffers
 ;;
 
-;; NB: fontifying massive trace output can be expensive: might be nice
-;; to have heuristic here (or use lazy-shot style mode) to see if we
-;; can fontify less eagerly.  Actually, this might be solved best by
-;; actually using the lazy-shot mechanism and having buffers in
-;; x-symbool and font-lock modes.  To fix that, though, we would have
-;; to fix up the cut-and-paste behaviour somehow.
-
-(defvar proof-trace-last-fontify-pos nil)
-
-(defun proof-trace-fontify-pos ()
-  "Return the position to fontify from in the tracing buffer, if any."
-  (if proof-trace-last-fontify-pos
-      (if (> proof-trace-last-fontify-pos (point))
-	  (point-min);; in case buffer cleared
-	proof-trace-last-fontify-pos)))
+(defcustom proof-trace-buffer-max-lines 10000
+  "The maximum size in lines for Proof General *trace* buffers.
+A value of 0 stands for unbounded."
+  :type 'integer
+  :group 'proof-shell)
 
 ;; An analogue of pg-response-display-with-face
-(defun proof-trace-buffer-display (str)
-  "Output STR in the trace buffer, moving the pointer downwards."
-  (with-current-buffer proof-trace-buffer
-    (goto-char (point-max))
-    (let ((inhibit-read-only t))
-      (newline)
-      ;; had clever stuff to delay fontifying here (see v10.9)
-      (insert str)
-      (unless (bolp)
-	(newline)))))
+(defun proof-trace-buffer-display (start end)
+  "Copy region START END from current buffer to end of the trace buffer."
+  (let ((cbuf   (current-buffer))
+	(nbuf   proof-trace-buffer))
+    (set-buffer nbuf)
+    (save-excursion
+      (goto-char (point-max))
+      (let ((inhibit-read-only t))
+	(insert ?\n)
+	(insert-buffer-substring cbuf start end)
+	(unless (bolp)
+	  (insert ?\n))))
+    (set-buffer cbuf)))
 
 (defun proof-trace-buffer-finish ()
-  "Signal that output in the trace buffer is complete."
-  ;; could re-engage/update font lock
-  )
+  "Call to complete a batch of tracing output.
+The buffer is truncated if its size is greater than `proof-trace-buffer-max-lines'."
+  (if (> proof-trace-buffer-max-lines 0)
+      (proof-with-current-buffer-if-exists proof-trace-buffer
+	(save-excursion
+	  (goto-char (point-max))
+	  (forward-line (- proof-trace-buffer-max-lines))
+	  (let ((inhibit-read-only t))
+	    (delete-region (point-min) (point)))))))
 
 
 

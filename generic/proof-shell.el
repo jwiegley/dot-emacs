@@ -1141,8 +1141,7 @@ ends with text matching `proof-shell-eager-annotation-end'."
 (defun proof-shell-process-urgent-message-trace (start end)
   "Display a message in the tracing buffer.
 A subroutine of `proof-shell-process-urgent-message'."
-  (proof-trace-buffer-display
-   (buffer-substring-no-properties start end))
+  (proof-trace-buffer-display start end)
   (unless (and proof-trace-output-slow-catchup
 	       (pg-tracing-tight-loop))
     (proof-display-and-keep-buffer proof-trace-buffer))
@@ -1502,79 +1501,56 @@ i.e., 'goals or 'response."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Tracing catch-up: prevent Emacs-consumes-all-CPU-fontifying phenomenon
+;; Tracing slow down: prevent Emacs-consumes-all-CPU-displaying phenomenon
 ;;
 
-;; TODO: possible improvements:
-;; -- need some way of coming out of tracing slow mode in case
-;;   tracing output has ended
-;; -- need to fontify remaining portion of buffer in case
-;;   tracing output has ended when in slow mode (and refresh
-;;   final display)
-;; -- shouldn't be trigger for only a small amount of output
-;;   (e.g. output from blast).  Or a count of number of successive
-;;   bursts?
+;; Possible improvement: add user-controlled flag to turn on/off display
 
-(defvar pg-last-tracing-output-time nil
-  "Time of last tracing output, as recorded by (current-time).")
+(defvar pg-last-tracing-output-time (float-time)
+  "Time of last tracing output, as recorded by (float-time).")
 
-(defconst pg-slow-mode-duration 2
+(defvar pg-last-trace-output-count 0
+  "Count up to `pg-slow-mode-trigger-count'.")
+
+(defconst pg-slow-mode-trigger-count 20
+  "Number of fast trace messages before turning on slow mode.")
+
+(defconst pg-slow-mode-duration 3
   "Maximum duration of slow mode in seconds.")
 
-(defconst pg-fast-tracing-mode-threshold 50000
+(defconst pg-fast-tracing-mode-threshold 500000
   "Minimum microsecond delay between tracing outputs that triggers slow mode.")
-
-(defvar pg-tracing-cleanup-timer nil)
 
 (defun pg-tracing-tight-loop ()
   "Return non-nil in case it seems like prover is dumping a lot of output.
 This is a performance hack to avoid Emacs consuming CPU when prover is output
 tracing information.
 Only works when system timer has microsecond count available."
-  (let ((tm (current-time)))
+  (let ((tm        (float-time))
+	(dontprint pg-tracing-slow-mode))
     (if pg-tracing-slow-mode
-	(if (eq (nth 0 pg-last-tracing-output-time) (nth 0 tm))
-	    ;; see if seconds has changed by at least pg-slow-mode-duration
-	    (if (> (- (nth 1 tm) (nth 1 pg-last-tracing-output-time))
-		   pg-slow-mode-duration)
-		;; go out of slow mode
-		(progn
-		  (setq pg-tracing-slow-mode nil)
-		  (setq pg-last-tracing-output-time tm)
-		  (cancel-timer pg-tracing-cleanup-timer))
-	      ;; otherwise: stay in slow mode
-	      t)
-	  ;; different seconds-major count: go out of slow mode
-	  (progn
-	    (setq pg-last-tracing-output-time tm)
-	    (setq pg-tracing-slow-mode nil)))
-      ;; ordinary mode: examine difference since last output
-      (if
-	  (and pg-last-tracing-output-time
-	       (eq (nth 0 tm) (nth 0 pg-last-tracing-output-time))
-	       (eq (nth 1 tm) (nth 1 pg-last-tracing-output-time))
-	       ;; Same second: examine microsecond
-	       (> (nth 2 tm) 0) ;; some systems always have zero count
-	       ;;
-	       (< (- (nth 2 tm) (nth 2 pg-last-tracing-output-time))
-		  pg-fast-tracing-mode-threshold))
-	  ;; quickly consecutive and large tracing outputs: go into slow mode
-	  (progn
-	    (setq pg-tracing-slow-mode t)
-	    (pg-slow-fontify-tracing-hint)
-	    (setq pg-tracing-cleanup-timer
-		  (run-with-idle-timer 2 nil 'pg-finish-tracing-display))
-	    t)
-	;; not quick enough to trigger slow mode: allow screen update
-	(setq pg-last-tracing-output-time tm)
-	nil))))
+	(when ;; seconds differs by more than slow mode max duration
+	    (> (- tm pg-last-tracing-output-time) pg-slow-mode-duration)
+	  (setq dontprint nil))
+      (when ;; time since last tracing output less than threshold
+	  (and 
+	   (< (- tm pg-last-tracing-output-time) 
+	      (/ pg-fast-tracing-mode-threshold 1000000.0))
+	   (>= (incf pg-last-trace-output-count) 
+	       pg-slow-mode-trigger-count))
+	;; quickly consecutive tracing outputs: go into slow mode
+	(setq dontprint t)
+	(pg-slow-fontify-tracing-hint)))
+    ;; return flag for non-printing is new value of slow mode
+    (setq pg-last-tracing-output-time tm)
+    (setq pg-tracing-slow-mode dontprint)))
 
 (defun pg-finish-tracing-display ()
-  "Cancel tracing slow mode and ensure tracing buffer is fontified."
-  (if pg-tracing-slow-mode
-      (progn
-	(setq pg-tracing-slow-mode nil)
-	(proof-trace-buffer-finish))))
+  (proof-trace-buffer-finish)
+  (when pg-tracing-slow-mode 
+    (proof-display-and-keep-buffer proof-trace-buffer)
+    (setq pg-tracing-slow-mode nil))
+  (setq pg-last-trace-output-count 0))
 
 
 
