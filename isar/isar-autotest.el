@@ -16,7 +16,7 @@
   (proof-ready-for-assistant 'isar))  
 
 (declare-function isar-tracing:auto-quickcheck-toggle "isar.el")
-(declare-function isar-tracing:auto-solve-toggle "isar.el")
+(declare-function isar-tracing:auto-solve-direct-toggle "isar.el")
 (declare-function isar-proof:parallel-proofs-toggle "isar.el")
 
 (require 'pg-autotest)
@@ -49,7 +49,7 @@
 
   ;; Speed up prover
   (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
-  (pg-autotest eval (isar-tracing:auto-solve-toggle 0)) ; autosolve hammers this!
+  (pg-autotest eval (isar-tracing:auto-solve-direct-toggle 0)) ; autosolve hammers this!
   (pg-autotest eval (proof-full-annotation-toggle 0))
   (pg-autotest eval (isar-proof:parallel-proofs-toggle 0))
   (proof-shell-wait)
