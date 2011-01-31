@@ -1,5 +1,5 @@
 (********** 
-  This file is copied from Isabelle2009-2. 
+  This file is copied from Isabelle2011. 
   It has been beautified with Tokens \<rightarrow> Replace Shortcuts
  **********)
 

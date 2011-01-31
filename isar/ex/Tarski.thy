@@ -1,17 +1,16 @@
 (********** 
-  This file is copied from Isabelle2009-2. 
-  It has been beautified with Tokens \<rightarrow> Replace Shortcuts
+  This file is copied from Isabelle2011. 
+  It has been beautified with Tokens -> Replace Shortcuts
  **********)
 
 (*  Title:      HOL/ex/Tarski.thy
-    ID:         $Id$
-    Author:     Florian Kammüller, Cambridge University Computer Laboratory
+    Author:     Florian KammÃ¼ller, Cambridge University Computer Laboratory
 *)
 
 header {* The Full Theorem of Tarski *}
 
 theory Tarski
-imports Main FuncSet
+imports Main "~~/src/HOL/Library/FuncSet"
 begin
 
 text {*
