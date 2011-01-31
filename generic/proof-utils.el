@@ -1,6 +1,6 @@
 ;; proof-utils.el --- Proof General utility functions and macros
 ;;
-;; Copyright (C) 1998-2002, 2009 LFCS Edinburgh.
+;; Copyright (C) 1998-2002, 2009, 2011 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -337,7 +337,7 @@ No effect if buffer is dead."
 ;;;###autoload
 (defun proof-debug (msg &rest args)
   "Issue the debugging message (format MSG ARGS) in the *PG Debug* buffer.
-If proof-general-debug is nil, do nothing."
+If flag `proof-general-debug' is nil, do nothing."
   (when proof-general-debug
     (with-current-buffer (get-buffer-create "*PG Debug*")
       (help-mode)
