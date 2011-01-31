@@ -56,6 +56,8 @@ kill buffer hook.  This variable is used when buffer-file-name is nil.")
 (deflocal pg-script-portions nil
   "Alist of hash tables for symbols naming processed script portions.")
 
+(defalias 'proof-active-buffer-fake-minor-mode
+  'proof-toggle-active-scripting)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
