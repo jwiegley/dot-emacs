@@ -14,8 +14,6 @@
 
 (require 'pg-autotest)
 
-(setq pg-autotest-debug t)
-
 (unless noninteractive
 
   (pg-autotest start 'debug)
