@@ -193,7 +193,8 @@ Return a symbol representing the PGIP command processed, or nil."
      `(defpacustom ,symname ,default ,descr
 	:type (quote ,type)
 	:pggroup ,prefcat
-	:pgipcmd ,pgipcmd))))
+	:pgipcmd ,pgipcmd
+	:pgdynamic t))))
 
 (defun pg-pgip-process-prefval (node)
 ;;

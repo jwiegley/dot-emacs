@@ -1,6 +1,6 @@
 ;;; pg-pamacs.el --- Macros for per-proof assistant configuration
 ;;
-;; Copyright (C) 2010  LFCS Edinburgh, David Aspinall.
+;; Copyright (C) 2010, 2011  LFCS Edinburgh, David Aspinall.
 ;;
 ;; Author: David Aspinall <da@longitude>
 ;; Keywords: internal
@@ -101,8 +101,6 @@ Arguments as for `defcustom', which see.
 Usage: (defpgcustom SYM &rest ARGS)."
   `(proof-defpgcustom-fn (quote ,sym) (quote ,args)))
 
-
-
 (defun proof-defpgdefault-fn (sym value)
   "Helper for `defpgdefault', which see.  SYM and VALUE are evaluated."
   ;; NB: we need this because nothing in customize library seems to do
@@ -163,13 +161,16 @@ Usage: (defpgdefault SYM VALUE)"
 	(setq name (intern (concat (downcase (cadr args)) ":" (symbol-name name))))
 	(put name 'pggroup (cadr args))
 	(setq args (cdr args)))
+       ((eq (car args) :pgdynamic) 
+	(put name 'pgdynamic (cadr args))
+	(setq args (cdr args)))
        ((eq (car args) :type)
 	(setq type (cadr args))
 	(if (eq (eval type) 'float)
 	    (setq type (quote 'number))) ; widget type for defcustom
 	(setq args (cdr args))
 	(setq newargs (cons type (cons :type newargs))))
-       (t
+       (t ; first element, description
 	(setq newargs (cons (car args) newargs))))
       (setq args (cdr args)))
     (setq newargs (reverse newargs))
@@ -180,15 +181,12 @@ Usage: (defpgdefault SYM VALUE)"
 		      (eq (eval type) 'number)
 		      (eq (eval type) 'string)))
       (error "defpacustom: missing :type keyword or wrong :type value"))
-    ;; Debug message in case a defpacustom is repeated.
-    ;; NB: this *may* happen dynamically, but shouldn't: if the
-    ;; interface queries the prover for the settings it supports,
-    ;; then the internal list should be cleared first.
-    (if (assoc name proof-assistant-settings)
-	(progn
-	  (proof-debug "defpacustom: Proof assistant setting %s re-defined!"
-		       name)
-	  (undefpgcustom name)))
+
+    ;; Error in case a defpacustom is repeated.
+    (when (assoc name proof-assistant-settings)
+      (error "defpacustom: Proof assistant setting %s re-defined!"
+	     name))
+
     (eval
      `(defpgcustom ,name ,val
 	,@newargs
@@ -210,14 +208,40 @@ Usage: (defpgdefault SYM VALUE)"
 
 ;;;###autoload
 (defmacro defpacustom (name val &rest args)
-  "Define a setting NAME for the current proof assitant, default VAL.
-NAME can correspond to some internal setting, flag, etc, for the
-proof assistant, in which case a :setting and :type value should be provided.
-The :type of NAME should be one of 'integer, 'float, 'boolean, 'string.
-The customization variable is automatically in group `proof-assistant-setting'.
+  "Define a setting NAME for the current proof assistant, default VAL.
+Mainly intended for configuring settings of running provers,
+which can be changed by sending commands.
+
+In this case, NAME stands for the internal setting, flag, etc,
+for the proof assistant, and a :setting and :type value should be
+provided.  The :type of NAME should be one of 'integer, 'float,
+'boolean, 'string.
+
 The function `proof-assistant-format' is used to format VAL.
+
+This macro invokes the standard Emacs `defcustom' macro, so this
+also defines a customizable setting inside Emacs.  The
+customization variable is automatically in group
+`proof-assistant-setting'.
+
 If NAME corresponds instead to a PG internal setting, then a form :eval to
-evaluate can be provided instead."
+evaluate can be provided instead.
+
+Additional properties in the ARGS prop list may include:
+
+ pggroup   string    A grouping name for the setting, in case there are many.
+		     For example, \"Timing\", \"Tracing\", etc.  Used
+		     to generate sub-menus in the UI.
+
+ pgipgcmd  string    Alternative to :setting.
+		     Send a PGIP formatted command based on given string.
+
+ pgdynamic flag      If flag is non-nil, this setting is a dynamic one
+		     that is particular to the running instance of the prover.
+		     Automatically set by preferences configured from PGIP 
+		     askprefs message.
+
+This macro also extends the `proof-assistant-settings' list."
   (eval-when-compile
     (if (boundp 'proof-assistant-symbol)
 	;; declare variable to compiler to prevent warnings

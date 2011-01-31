@@ -1,6 +1,6 @@
 ;;; proof-menu.el --- Menus, keymaps, misc commands for Proof General
 ;;
-;; Copyright (C) 2000,2001,2009,2010 LFCS Edinburgh.
+;; Copyright (C) 2000,2001,2009,2010,2011 LFCS Edinburgh.
 ;; Authors:   David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -920,9 +920,16 @@ KEY is the optional key binding."
 	)))
 
 (defun proof-maybe-askprefs ()
-  "If `proof-use-pgip-askprefs' is non-nil, try to issue <askprefs>."
-  (if (and proof-use-pgip-askprefs proof-shell-issue-pgip-cmd)
-      (pg-pgip-askprefs)))
+  "If `proof-use-pgip-askprefs' is non-nil, try to issue <askprefs>.
+This will configure dynamic settings used in the current prover session
+and extend `proof-assistant-settings'.
+We first clear the dynamic settings from `proof-assistant-settings'."
+  (when (and proof-use-pgip-askprefs proof-shell-issue-pgip-cmd)
+    (dolist (setting proof-assistant-settings)
+      (let ((name (car setting)))
+	(if (get name 'pgdynamic)
+	    (undefpgcustom name))))
+    (pg-pgip-askprefs)))
 
 
 (defun proof-assistant-settings-cmd (setting)
