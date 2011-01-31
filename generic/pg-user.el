@@ -769,11 +769,11 @@ If NUM is negative, move upwards.  Return new span."
 ;;
 
 (defun pg-goals-buffers-hint ()
-  (pg-hint "Use \\[proof-display-some-buffers] to rotate output buffers; \\[pg-response-clear-displays] to clear response & trace."))
+  (pg-hint "Use \\<proof-mode-map>\\[proof-display-some-buffers] to rotate output buffers; \\<proof-mode-map>\\[pg-response-clear-displays] to clear response & trace."))
 
 ;;;###autoload
 (defun pg-slow-fontify-tracing-hint ()
-  (pg-hint "Large tracing output; decorating intermittently.  Use \\[pg-response-clear-displays] to clear trace."))
+  (pg-hint "Large tracing output; refreshing intermittently.  Use \\<proof-mode-map>\\[pg-response-clear-displays] to clear trace."))
 
 ;;;###autoload
 (defun pg-response-buffers-hint (&optional nextbuf)
