@@ -65,6 +65,12 @@ This macro should only be invoked once a specific prover is engaged."
   `(symbol-value (intern (concat (symbol-name proof-assistant-symbol) "-"
 				 (symbol-name ',sym)))))
 
+(defun proof-ass-differs-from-default (sym)
+  "Return non-nil if SYM for current prover differs from its customize standard value."
+  (let ((pasym (proof-ass-symv sym)))
+    (not (equal (eval (car (get pasym 'standard-value)))
+		(symbol-value pasym)))))
+
 (defun proof-defpgcustom-fn (sym args)
   "Define a new customization variable <PA>-sym for current proof assistant.
 Helper for macro `defpgcustom'."

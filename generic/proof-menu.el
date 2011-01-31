@@ -937,7 +937,7 @@ We first clear the dynamic settings from `proof-assistant-settings'."
 
 (defun proof-assistant-settings-cmd (setting)
   "Return string for making SETTING in Proof General customization."
-  (let ((expr (assoc setting proof-assistant-settings)))
+  (let ((expr (assq setting proof-assistant-settings)))
     (if (and expr (cadr expr))
 	(proof-assistant-format
 	 (cadr expr)
@@ -945,13 +945,18 @@ We first clear the dynamic settings from `proof-assistant-settings'."
 
 (defun proof-assistant-settings-cmds ()
   "Return strings for settings kept in Proof General customizations."
-  (when proof-assistant-settings
-    (mapcar (lambda (expr)
-	      (if (cadr expr)  ;; setting has PA string?
-		  (proof-assistant-format
-		   (cadr expr)
-		   (eval (proof-ass-symv (car expr))))))
-	    proof-assistant-settings)))
+  (let (cmds)
+    (dolist (setting proof-assistant-settings)
+      (let ((sym       (car setting))
+	    (pacmd     (cadr setting))) 
+	(if (and pacmd
+		 (or (not (get sym 'pgdynamic))
+		     (proof-ass-differs-from-default sym)))
+	    (push (proof-assistant-format pacmd
+					  (eval (proof-ass-symv sym)))
+		  cmds))))
+    cmds))
+
 
 (defvar proof-assistant-format-table
   (list
