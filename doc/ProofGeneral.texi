@@ -4109,9 +4109,18 @@ The compilation command must be customized in
 @code{coq-compile-command} and the flag
 @code{coq-confirm-external-compilation-command} determines
 whether the user must confirm the compilation command. The output
-of the compilation appears in the @code{*compilation*} buffer and
+of the compilation appears then in the @code{*compilation*}
+buffer.
+
+When Proof General compiles itself, output is only shown in case
+of errors. It then appears in the buffer
+@code{*coq-compile-response*}. Both with internal and external
+compilation 
 one can use @code{C-x `} (bound to @code{next-error},
 @inforef{Compilation Mode,,emacs}) to jump to error locations.
+Note however, that @code{coqdep} does not produce error messages
+with location information, so @code{C-x `} cannot work for errors
+from @code{coqdep}.
 
 Proof General cannot know if some library files have been updated
 outside of Proof General, therefore, it must perform the
@@ -4376,10 +4385,6 @@ addressed in the next release:
 @itemize
 @item
 Support @code{Declare ML Module} commands.
-@item
-Properly display errors from @code{coqdep} and @code{coqc},
-enable @code{C-x `} (@code{M-x next-error}) for these error
-messages.
 @item
 Improved undo behaviour for locked ancestors.
 @item

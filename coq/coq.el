@@ -1102,12 +1102,9 @@ Currently this doesn't take the loadpath into account."
 ;; - Bug: never stopping busy cursor
 ;; - Bug: coq not running for the first comment after switching
 ;; - modify behavior of locked ancestors, see proof-span-read-only
-;; - display coqdep errors in the recompile-response buffer
-;; - use a variable for the recompile-response buffer
 ;; - fix problem with partial library names
 ;; - clean old multiple file stuff
 ;; - fix places marked with XXX
-;; - enable next-error in recompile-response buffers
 
 ;; user options and variables
 
@@ -1282,6 +1279,13 @@ identifier and should therefore not be matched by this regexp.")
 (defvar coq-compile-history nil
   "History of external Coq compilation commands.")
 
+(defvar coq-compile-response-buffer-name "*coq-compile-response*"
+  "Name of the buffer to display error messages from coqc and coqdep.")
+
+(defvar coq-compile-response-buffer nil
+  "Buffer to display error messages from coqc and coqdep.")
+
+
 ;; basic utilities
 
 (defun time-less-or-equal (time-1 time-2)
@@ -1403,7 +1407,43 @@ FILE should be an absolute file name. It can be nil if
               (cons "-I" (cons (file-name-directory file) result))))
     result))
 
-(defun coq-get-library-dependencies (lib-src-file)
+(defun coq-init-compile-response-buffer (command)
+  "Initialize the buffer for the compilation output.
+If `coq-compile-response-buffer' exists, empty it. Otherwise
+create a buffer with name `coq-compile-response-buffer-name', put
+it into `compilation-mode' and store it in
+`coq-compile-response-buffer' for later use. Argument COMMAND is
+the command whose output will appear in the buffer."
+  (if (bufferp coq-compile-response-buffer)
+      (let ((inhibit-read-only t))
+        (with-current-buffer coq-compile-response-buffer
+          (erase-buffer)))
+    (setq coq-compile-response-buffer
+          (get-buffer-create coq-compile-response-buffer-name))
+    (with-current-buffer coq-compile-response-buffer
+      (compilation-mode)))
+  ;; I don't really care if somebody gets the right mode when
+  ;; he saves and reloads this buffer. However, error messages in
+  ;; the first line are not found for some reason ... 
+  (let ((inhibit-read-only t))
+    (with-current-buffer coq-compile-response-buffer
+      (insert "-*- mode: compilation; -*-\n\n" command "\n"))))
+
+(defun coq-display-compile-response-buffer ()
+  "Display the errors in `coq-compile-response-buffer'."
+  (with-current-buffer coq-compile-response-buffer
+    ;; fontification enables the error messages
+    (let ((font-lock-verbose nil)) ; shut up font-lock messages  
+      (font-lock-fontify-buffer)))
+  ;; Make it so the next C-x ` will use this buffer.
+  (setq next-error-last-buffer coq-compile-response-buffer)
+  (let ((window (display-buffer coq-compile-response-buffer)))
+    (if proof-shrink-windows-tofit
+        (save-excursion
+          (save-selected-window
+            (proof-resize-window-tofit window))))))
+
+(defun coq-get-library-dependencies (lib-src-file &optional command-intro)
   "Compute dependencies of LIB-SRC-FILE.
 Invoke \"coq-dep\" on lib-src-file and parse the output to
 compute the compiled coq library object files on which
@@ -1412,6 +1452,11 @@ list. If it is a string then an error occurred and the string is
 the core of the error message. If the return value is a list no
 error occurred and the returned list is the (possibly empty) list
 of file names LIB-SRC-FILE depends on.
+
+If an error occurs this funtion displays the
+`coq-compile-response-buffer' with the complete command and its
+output. The optional argument COMMAND-INTRO is only used in the
+error case. It is prepended to the displayed command.
 
 LIB-SRC-FILE should be an absolute file name. If it is, the
 dependencies are absolute too and the simplified treatment of
@@ -1427,34 +1472,44 @@ break."
       (setq coqdep-output (buffer-string)))
     ;(message "coqdep output on %s: %s" lib-src-file coqdep-output)
     (if (string-match "^\\*\\*\\* Warning" coqdep-output)
-        "unsatisfied dependencies"
+        (let* ((this-command (cons coq-dependency-analyzer coqdep-arguments))
+               (full-command (if command-intro
+                                 (cons command-intro this-command)
+                               this-command)))
+          ;; display the error
+          (coq-init-compile-response-buffer
+           (mapconcat 'identity full-command " "))
+          (let ((inhibit-read-only t))
+            (with-current-buffer coq-compile-response-buffer
+              (insert coqdep-output)))
+          (coq-display-compile-response-buffer)
+          "unsatisfied dependencies")
       (if (string-match ": \\(.*\\)$" coqdep-output)
           (cdr-safe (split-string (match-string 1 coqdep-output)))
         ()))))
 
 (defun coq-compile-library (src-file)
   "Recompile coq library SRC-FILE.
-Display errors in buffer *coq-auto-compile-response*."
+Display errors in buffer `coq-compile-response-buffer'."
   (message "Recompile %s" src-file)
-  (with-current-buffer (get-buffer-create "*coq-auto-compile-response*")
-    (erase-buffer))
   (let ((coqc-arguments
          (nconc (coq-include-options src-file) (list src-file)))
         coqc-status)
+    (coq-init-compile-response-buffer
+     (mapconcat 'identity (cons coq-compiler coqc-arguments) " "))
     ;(message "call coqc arg list: %s" coqc-arguments)
     (setq coqc-status
           (apply 'call-process
-           coq-compiler nil "*coq-auto-compile-response*" t coqc-arguments))
+           coq-compiler nil coq-compile-response-buffer t coqc-arguments))
     ; (if (eq coqc-status 0)
     ;     (message "compilation %s OK, output |%s|" src-file
     ;              (with-current-buffer proof-response-buffer
     ;                (buffer-string))))
     (unless (eq coqc-status 0)
-      (let ((terminated-text
-             (if (numberp coqc-status)
-                 "terminated with exit status"
-               "was terminated by signal")))
-        (display-buffer "*coq-auto-compile-response*")
+      (coq-display-compile-response-buffer)
+      (let ((terminated-text (if (numberp coqc-status)
+                                 "terminated with exit status"
+                               "was terminated by signal")))
         (error "ERROR: Recompiling coq library %s %s %s"
                src-file terminated-text coqc-status)))))
 
@@ -1601,12 +1656,14 @@ therefore the customizations for `compile' do not apply."
        span
        (coq-library-src-of-obj-file absolute-module-obj-file)))))
 
-(defun coq-map-module-id-to-obj-file (module-id)
+(defun coq-map-module-id-to-obj-file (module-id span)
   "Map MODULE-ID to the appropriate coq object file.
 The mapping depends of course on `coq-load-path'. The current
 implementation invokes coqdep with a one-line require command.
 This is probably slower but much simpler than modelling coq file
-loading inside ProofGeneral.
+loading inside ProofGeneral. Argument SPAN is only used for error
+handling. It provides the location information of MODULE-ID for a
+decent error message.
 
 A peculiar consequence of the current implementation is that this
 function returns () if MODULE-ID comes from the standard library."
@@ -1616,15 +1673,37 @@ function returns () if MODULE-ID comes from the standard library."
            coq-load-path))
         (coq-load-path-include-current nil)
         (temp-require-file (make-temp-file "ProofGeneral-coq" nil ".v"))
+        (coq-string (concat "Require " module-id "."))
         result)
     (unwind-protect
         (progn
           (with-temp-file temp-require-file
-            (insert "Require " module-id "."))
-          (setq result (coq-get-library-dependencies temp-require-file)))
+            (insert coq-string))
+          (setq result
+                (coq-get-library-dependencies
+                 temp-require-file
+                 (concat "echo \"" coq-string "\" > " temp-require-file))))
       (delete-file temp-require-file))
     (if (stringp result)
-        (error "Cannot find library %s in loadpath" module-id))
+        ;; Error handling: coq-get-library-dependencies was not able to
+        ;; translate module-id into a file name. We insert now a faked error
+        ;; message into coq-compile-response-buffer to make next-error happy.
+        (let ((error-message
+               (format "Cannot find library %s in loadpath" module-id))
+              (inhibit-read-only t))
+          ;; Writing a message into coq-compile-response-buffer for next-error
+          ;; does currently not work. We do have exact position information
+          ;; about the span, but we don't know how much white space there is
+          ;; between the start of the span and the start of the command string.
+          ;; (with-current-buffer coq-compile-response-buffer
+          ;;   (insert
+          ;;    (format "File \"%s\", line %d\n%s.\n"
+          ;;            (buffer-file-name (span-buffer span))
+          ;;            (with-current-buffer (span-buffer span)
+          ;;              (line-number-at-pos (span-start span)))
+          ;;            error-message)))
+          ;; (coq-display-compile-response-buffer)
+          (error error-message)))
     (assert (<= (length result) 1)
             "Internal error in coq-map-module-id-to-obj-file")
     (car-safe result)))
@@ -1646,7 +1725,7 @@ the coq-obj-hash, which is used during internal
 compilation (see `coq-make-lib-up-to-date'). This way one hash
 will be used for all \"Require\" commands added at once to the
 queue."
-  (let ((module-obj-file (coq-map-module-id-to-obj-file module-id)))
+  (let ((module-obj-file (coq-map-module-id-to-obj-file module-id span)))
     ;; coq-map-module-id-to-obj-file currently returns () for
     ;; standard library modules!
     (when module-obj-file
