@@ -286,6 +286,7 @@
         "gist"
         "ldg-new"
         "magit"
+        "magit-topgit"
         "session"
         "whitespace"
         "yasnippet"
@@ -527,7 +528,8 @@
      (ignore-errors
        (diminish 'yas/minor-mode))
 
-     (defadvice dired-omit-startup (after diminish-dired-omit activate)
+     
+(defadvice dired-omit-startup (after diminish-dired-omit activate)
        "Make sure to remove \"Omit\" from the modeline."
        (diminish 'dired-omit-mode))
 
@@ -1044,6 +1046,7 @@
 ;;;_* startup
 
 (load ".org")
+(setq gnus-directory "~/Library/Mail/Gnus/News/")
 (load ".gnus")
 
 (add-hook 'after-init-hook 'server-start)
