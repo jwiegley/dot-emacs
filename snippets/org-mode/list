@@ -3,5 +3,5 @@
 *** NOTE $1 [/]
     - [ ] $0
     :PROPERTIES:
-    :ID:       `(shell-command-to-string "uuidgen")`   :END:
-    `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
+    :ID:       `(shell-command-to-string "uuidgen")`   :CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
+    :END:
