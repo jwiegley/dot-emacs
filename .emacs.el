@@ -4,6 +4,8 @@
 
 (defconst emacs-lisp-root "~/Library/Emacs")
 
+(setq gnus-home-directory "~/Library/Mail/Gnus/")
+
 ;; Add other site-lisp directories, in case they were not setup by the
 ;; environment.
 
@@ -214,7 +216,7 @@
  '(tramp-verbose 3)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "John Wiegley")
- '(user-init-file "/Users/johnw/Dropbox/.emacs.el" t)
+ '(user-init-file "/Users/johnw/Library/Emacs/.emacs.el" t)
  '(user-initials "jww")
  '(user-mail-address "johnw@newartisans.com")
  '(vc-follow-symlinks t)
@@ -1046,7 +1048,6 @@
 ;;;_* startup
 
 (load ".org")
-(setq gnus-directory "~/Library/Mail/Gnus/News/")
 (load ".gnus")
 
 (add-hook 'after-init-hook 'server-start)

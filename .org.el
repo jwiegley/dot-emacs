@@ -56,8 +56,8 @@
  '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Dropbox/todo.txt" "Inbox") "* TODO %?
   SCHEDULED: %t
   :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :END:
-  %U" :prepend t))))
+  :ID:       %(shell-command-to-string \"uuidgen\")  :CREATED:  %U
+  :END:" :prepend t))))
  '(org-attach-method (quote mv))
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-archive-location "TODO-archive::")
@@ -629,8 +629,8 @@ This can be 0 for immediate, or a floating point value.")
   - State \"STARTED\"    %U
   SCHEDULED: %t
   :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :END:
-  %U" "~/Dropbox/todo.txt" "Inbox"))))
+  :ID:       %(shell-command-to-string \"uuidgen\")  :CREATED:  %U
+  :END:" "~/Dropbox/todo.txt" "Inbox"))))
 	(org-remember))))
   (set-fill-column 72))
 
@@ -669,8 +669,8 @@ This can be 0 for immediate, or a floating point value.")
 	   '((110 "* NOTE %?
   :PROPERTIES:
   :ID:       %(shell-command-to-string \"uuidgen\")  :VISIBILITY: folded
-  :END:
-  %U" "~/Dropbox/todo.txt" "Inbox"))))
+  :CREATED:  %U
+  :END:" "~/Dropbox/todo.txt" "Inbox"))))
       (call-interactively 'org-remember))))
 
 (defun org-get-apple-message-link ()
@@ -873,9 +873,12 @@ end tell" (match-string 1))))
                  "\\[.*? - Bug #\\([0-9]+\\)\\] (New)" "[[redmine:\\1][#\\1]]"
                  (replace-regexp-in-string "^\\(Re\\|Fwd\\): " ""
                                            subject))))
-      (org-set-property "Message" (format "[[message://%s][%s]]"
-                                          (substring message-id 1 -1)
-                                          subject))))
+      (org-set-property "Message"
+                        (format "[[message://%s][%s]]"
+                                (substring message-id 1 -1)
+                                (subst-char-in-string
+                                 ?\[ ?\{ (subst-char-in-string
+                                          ?\] ?\} subject))))))
    (t (org-capture nil "t"))))
 
 (define-key global-map [(meta ?m)] 'org-smart-capture)
