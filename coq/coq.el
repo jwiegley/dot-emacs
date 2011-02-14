@@ -1113,11 +1113,14 @@ Currently this doesn't take the loadpath into account."
   :group 'coq
   :package-version '(ProofGeneral . "4.1"))
 
-(defcustom coq-compile-before-require nil
+(defpacustom compile-before-require nil
   "*If `t' check dependencies of required modules and compile if necessary.
 If `t' ProofGeneral intercepts \"Require\" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
-are compiled from the sources before the \"Require\" command is processed."
+are compiled from the sources before the \"Require\" command is processed.
+
+This option can be set/reset via menu
+`Coq -> Settings -> Compile Before Require'."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
@@ -1144,17 +1147,20 @@ For instance, \"make -C %p %o\" expands to \"make -C bar foo.vo\"
 when module \"foo\" from directory \"bar\" is required.
 
 After the substitution the command can be changed in the
-minibuffer if `coq-confirm-external-compilation-command' is t."
+minibuffer if `coq-confirm-external-compilation' is t."
   :type 'string
   :safe '(lambda (v)
            (and (stringp v)
-                (or (not (boundp 'coq-confirm-external-compilation-command))
-                    coq-confirm-external-compilation-command)))
+                (or (not (boundp 'coq-confirm-external-compilation))
+                    coq-confirm-external-compilation)))
   :group 'coq-auto-compile)
 
-(defcustom coq-confirm-external-compilation-command t
+(defpacustom confirm-external-compilation t
   "*If set let user change and confirm the compilation command.
-Otherwise start the external compilation without confirmation."
+Otherwise start the external compilation without confirmation.
+
+This option can be set/reset via menu
+`Coq -> Settings -> Confirm External Compilation'."
   :type 'boolean
   :group 'coq-auto-compile)
 
@@ -1618,7 +1624,7 @@ function."
 Start a compilation to make ABSOLUTE-MODULE-OBJ-FILE up-to-date.
 The compilation command is derived from `coq-compile-command' by
 substituting certain keys, see `coq-compile-command' for details.
-If `coq-confirm-external-compilation-command' is t then the user
+If `coq-confirm-external-compilation' is t then the user
 must confirm the external command in the minibuffer, otherwise
 the command is executed without confirmation.
 
@@ -1641,7 +1647,7 @@ therefore the customizations for `compile' do not apply."
                 (car substitution) (eval (car (cdr substitution)))
                 local-compile-command)))
        coq-compile-substitution-list)
-      (if coq-confirm-external-compilation-command
+      (if coq-confirm-external-compilation
           (setq local-compile-command
                 (read-shell-command
                  "Coq compile command: " local-compile-command

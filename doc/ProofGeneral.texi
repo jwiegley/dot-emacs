@@ -4048,7 +4048,7 @@ points to adhere to:
 @itemize @bullet
 @item
 The option @code{coq-compile-before-require} must be
-turned on.
+turned on (menu @code{Coq -> Settings -> Compile Before Require}).
 @item 
 Nonstandard load path elements @emph{must} be configured in the
 option @code{coq-load-path}. @code{-I} options in
@@ -4107,7 +4107,9 @@ general compilation facilities of Emacs
 (@inforef{Compilation,,emacs}) with its own customization variables.
 The compilation command must be customized in
 @code{coq-compile-command} and the flag
-@code{coq-confirm-external-compilation-command} determines
+@code{coq-confirm-external-compilation} (menu @code{Coq ->
+Settings -> Confirm External Compilation})
+determines
 whether the user must confirm the compilation command. The output
 of the compilation appears then in the @code{*compilation*}
 buffer.
@@ -4126,8 +4128,9 @@ Proof General cannot know if some library files have been updated
 outside of Proof General, therefore, it must perform the
 dependency checking for each @code{Require} command. If the
 continuous confirmation of the external compilation commands
-becomes tedious, set
-@code{coq-confirm-external-compilation-command} to nil.
+becomes tedious, disable
+@code{coq-confirm-external-compilation} (see menu @code{Coq ->
+Settings}).
 
 When a @code{Require} command causes a compilation of some files
 one may wish to save some buffers to disk beforehand. The option
@@ -4188,6 +4191,9 @@ If @samp{t} ProofGeneral intercepts "Require" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the "Require" command is processed.
 
+This option can be set/reset via menu
+@samp{Coq -> Settings -> Compile Before Require}.
+
 The default value is @code{nil}.
 @end defopt
 
@@ -4216,16 +4222,19 @@ For instance, "make -C %p %o" expands to "make -C bar foo.vo"
 when module "foo" from directory "bar" is required.
 
 After the substitution the command can be changed in the
-minibuffer if @samp{@code{coq-confirm-external-compilation-command}} is t.
+minibuffer if @samp{@code{coq-confirm-external-compilation}} is t.
 
 The default value is @code{""}.
 @end defopt
 
 
-@c TEXI DOCSTRING MAGIC: coq-confirm-external-compilation-command
-@defopt coq-confirm-external-compilation-command 
+@c TEXI DOCSTRING MAGIC: coq-confirm-external-compilation
+@defopt coq-confirm-external-compilation 
 If set let user change and confirm the compilation command.@*
 Otherwise start the external compilation without confirmation.
+
+This option can be set/reset via menu
+@samp{Coq -> Settings -> Confirm External Compilation}.
 
 The default value is @code{t}.
 @end defopt

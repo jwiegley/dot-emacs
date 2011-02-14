@@ -46,8 +46,8 @@ SPAN is a region in the sources, where COMMANDS come from. Often,
 additional properties are recorded as properties of SPAN.
 
 COMMANDS is a list of strings, holding the text to be send to the
-prover. It might be the empty list is nothing needs to be sent to
-the prover, such as, for instance, for comments. Usually COMMANDS
+prover. It might be the empty list if nothing needs to be sent to
+the prover, such as, for comments. Usually COMMANDS
 contains just 1 string, but it might also contains more elements.
 The text should be obtained with
 `(mapconcat 'identity COMMANDS \" \")', where the last argument
