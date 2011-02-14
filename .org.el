@@ -94,7 +94,9 @@
 ;;;_ + faces
 
 (custom-set-faces
- '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
+ '(org-upcoming-deadline ((((class color) (min-colors 88) (background light))
+ (:foreground "Brown"))))
+ 
  '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
  '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
@@ -685,12 +687,14 @@ end tell")))
     (org-make-link-string (concat "message://" message-id) subject)))
 
 (defun org-get-message-link ()
-  (let (message-id subject)
-    (with-current-buffer gnus-original-article-buffer
-      (nnheader-narrow-to-headers)
-      (setq message-id (substring (message-fetch-field "message-id") 1 -1)
-            subject (message-fetch-field "subject")))
-    (org-make-link-string (concat "message://" message-id) subject)))
+  (if (string-match "\\`\\*Summary " (buffer-name))
+      (let (message-id subject)
+        (with-current-buffer gnus-original-article-buffer
+          (nnheader-narrow-to-headers)
+          (setq message-id (substring (message-fetch-field "message-id") 1 -1)
+                subject (message-fetch-field "subject")))
+        (org-make-link-string (concat "message://" message-id) subject))
+    (org-get-apple-message-link)))
 
 (defun org-get-message-sender ()
   (do-applescript "tell application \"Mail\"
@@ -813,6 +817,59 @@ end tell" (match-string 1))))
 	(pop-to-buffer (current-buffer))
 	(goto-char (point-min))))))
 
+(defun org-normalize-entry ()
+  "Go through an Org, checking for any deviations from the norm.
+
+Where possible and completely unambiguous, fix the entry;
+otherwise, flag an error."
+  (interactive)
+  (save-restriction
+    (save-excursion
+      (narrow-to-region (outline-back-to-heading t)
+                        (progn (outline-next-heading) (point)))
+      (goto-char (point-min))
+
+      ;; RULE: The headline is at most 60 characters wide.
+
+      ;; RULE: The headline tag is properly aligned.  This means the total
+      ;; heading line, including stars, must be 97 characters wide.
+
+      ;; RULE: The TODO state must appear within SEQ_TODO for that file.
+
+      ;; RULE: Every item has a CATEGORY or an ARCHIVE_CATEGORY.
+
+      ;; RULE: Every entry has a properly formatted ID tag, which is a UUID of
+      ;; the following form:
+      ;;
+      ;;   :ID:       9E948C90-7733-41CA-92E5-91F2701B36AE
+
+      ;; RULE: Every entry has a :CREATED: property, for example:
+      ;;
+      ;;   :CREATED:  2010-11-22 Mon 03:45
+      ;;
+      ;; Note that a time is now required, but is optional for old entries.
+
+      ;; RULE: SCHEDULED and/or DEADLINE tags appear on the first line.
+
+      ;; RULE: The State Log appears first, but after scheduling tags.
+
+      ;; RULE: Never use [#B] to mean normal priority, only #A and #C.
+      (when (string-match org-priority-regexp (org-get-heading))
+        (let ((priority-cookie (match-string 1 (org-get-heading))))
+          (unless (string-match "\\`\\[#[AC]\\]\\'" priority-cookie)
+            (error "Bad priority cookie: %s" priority-cookie))))
+
+      ;; RULE: Entry contents are left-aligned with the first letter of the
+      ;; heading.
+      
+      ;; RULE: The PROPERTIES drawer always occurs last.
+
+      ;; RULE: There is no trailing whitespace on any line, or trailing
+      ;; whitespace after the PROPERTIES drawer.
+
+      ;; RULE: Completed entries without a LOGBOOK should be archived.
+      )))
+
 (fset 'sort-todo-categories
    [?\C-u ?\C-s ?^ ?\\ ?* ?\S-  ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
 
@@ -824,6 +881,9 @@ end tell" (match-string 1))))
 
 (fset 'match-up-bugs
    [?\C-s ?= ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?# ?\M-y C-return])
+
+(fset 'move-created-dates
+   [?\C-u ?\C-s ?^ ?  ?+ ?\\ ?\[ ?2 ?\C-b ?\C-x ?n ?s ?\C-b ?\C-\M-k ?\C-x ?\C-o ?\C-r ?: ?P ?R ?O ?P ?\C-b ?\C-c ?\C-x ?p ?C ?R ?E ?A ?T ?E ?D return ?\C-y return ?\C-x ?n ?w ?\C-x ?\C-o ?\C-a ?\C-n ?\C-x ?\C-o])
 
 (defun jump-to-org-agenda ()
   (interactive)
@@ -860,26 +920,29 @@ end tell" (match-string 1))))
 
 (defun org-smart-capture ()
   (interactive)
-  (cond
-   ((string-match "\\`\\*Summary " (buffer-name))
-    (let (message-id subject)
-      (with-current-buffer gnus-original-article-buffer
-        (nnheader-narrow-to-headers)
-        (setq message-id (message-fetch-field "message-id")
-              subject (message-fetch-field "subject")))
-      (org-capture nil "t")
-      (save-excursion
-        (insert (replace-regexp-in-string
-                 "\\[.*? - Bug #\\([0-9]+\\)\\] (New)" "[[redmine:\\1][#\\1]]"
-                 (replace-regexp-in-string "^\\(Re\\|Fwd\\): " ""
-                                           subject))))
-      (org-set-property "Message"
-                        (format "[[message://%s][%s]]"
-                                (substring message-id 1 -1)
-                                (subst-char-in-string
-                                 ?\[ ?\{ (subst-char-in-string
-                                          ?\] ?\} subject))))))
-   (t (org-capture nil "t"))))
+  (if (string-match "\\`\\*Summary " (buffer-name))
+      (let (message-id subject)
+        (with-current-buffer gnus-original-article-buffer
+          (nnheader-narrow-to-headers)
+          (setq message-id (message-fetch-field "message-id")
+                subject (message-fetch-field "subject")
+                from (message-fetch-field "from")
+                date-sent (message-fetch-field "date")))
+        (org-capture nil "t")
+        (save-excursion
+          (insert (replace-regexp-in-string
+                   "\\[.*? - Bug #\\([0-9]+\\)\\] (New)" "[[redmine:\\1][#\\1]]"
+                   (replace-regexp-in-string "^\\(Re\\|Fwd\\): " ""
+                                             subject))))
+        (org-set-property "Message"
+                          (format "[[message://%s][%s]]"
+                                  (substring message-id 1 -1)
+                                  (subst-char-in-string
+                                   ?\[ ?\{ (subst-char-in-string
+                                            ?\] ?\} subject))))
+        (org-set-property "Submitter" from)
+        (org-set-property "Date" date))
+    (org-capture nil "t")))
 
 (define-key global-map [(meta ?m)] 'org-smart-capture)
 (define-key global-map [(meta ?z)] 'org-inline-note)
