@@ -25,8 +25,9 @@
 
   (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook  
   (defvar coq-time-commands nil)        ; defpacustom
-  (defvar coq-auto-compile-vos nil)     ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
+  (defvar coq-compile-before-require nil)       ; defpacustom
+  (defvar coq-confirm-external-compilation nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 ; (unless                                 ; for smie indentation
@@ -81,14 +82,6 @@
 (defcustom coq-dependency-analyzer
   (proof-locate-executable "coqdep" t nil)
   "Command to invoke coqdep."
-  :type 'string
-  :group 'coq)
-
-(defcustom coq-compile-file-command (concat coq-compiler " %s")
-  "*Command to compile a coq file.
-This is called when `coq-auto-compile-vos' is set, unless a Makefile
-exists in the directory, in which case the `compile' command is run.
-To disable coqc being called (and use only make), set this to nil."
   :type 'string
   :group 'coq)
 
@@ -832,15 +825,9 @@ This is specific to `coq-mode'."
   (set (make-local-variable 
         'blink-matching-paren-dont-ignore-comments) t)
 
-  ;; multiple file handling XXX
-  (setq proof-cannot-reopen-processed-files nil
-        proof-auto-multiple-files t
-        ;; proof-shell-inform-file-retracted-cmd 'coq-retract-file
-        ;; proof-shell-require-command-regexp coq-require-command-regexp
-        proof-done-advancing-require-function 'coq-process-require-command)
+  (setq proof-cannot-reopen-processed-files nil)
 
-  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
-  (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
+  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
 
 (defun coq-shell-mode-config ()
   (setq
@@ -958,152 +945,20 @@ This is specific to `coq-mode'."
   "Whether to display timing information for each command."
   :type 'boolean)
 
-(defpacustom auto-compile-vos nil
-  "Whether to automatically compile vos and track dependencies."
-  :type 'boolean)
-
-;; old adjustments:
-;;  :eval (if coq-auto-compile-vos
-;            (setq proof-shell-process-file
-;                  coq-proof-shell-process-file
-;                  proof-shell-inform-file-retracted-cmd
-;                  coq-proof-shell-inform-file-retracted-cmd)
-;          (setq proof-shell-inform-file-processed-cmd nil
-;                proof-shell-process-file nil
-;                proof-shell-inform-file-retracted-cmd nil)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Multiple file handling
-;;
-;; This is an imperfect attempt.  It really needs prover assistance.
-;;
-;; Experimental support for multiple files was first added
-;; for Coq 6.X based on discussions at TYPES 2000 between DA and PC.
-;; Updated and simplified for Coq 8, PG 3.5 (22.04.04) by DA.
-
-;; First note that coq-shell-cd is sent whenever we activate scripting,
-;; it extends the loadpath with the current directory.
-
-;; When scripting is turned off, we compile the file to update the .vo.
-(defun coq-maybe-compile-buffer ()
-  "If the current buffer is completely processed, maybe compile it.
-The attempt is made if `coq-auto-compile-vos' is non-nil.
-This is a value for the `proof-deactivate-scripting-hook'."
-  (if (and coq-auto-compile-vos
-           (proof-locked-region-full-p)
-           buffer-file-name)
-      (progn
-        ;; FIXME: in PG 4, this next step should be done inside
-        ;; proof-register-possibly-new-processed-file.
-        ;; NB: we might save dependent buffers too!
-        (ignore-errors
-          (proof-save-some-buffers (list (current-buffer))))
-        ;; Now re-compile.
-        ;; Coq users like Make, let's see if we have a Makefile
-        ;; here and choose compile.
-        (cond
-         ((and (proof-try-require 'compile)
-               compile-command
-               (file-exists-p "Makefile"))
-          ;; NB: compilation is run in the background in this case!
-          (let ((compilation-read-command nil))
-            (call-interactively 'compile)))
-         (coq-compile-file-command
-          (message "Compiling %s..." buffer-file-name)
-          (shell-command
-           ;; Could be run in the background here if we
-           ;; added & to the end of the command.
-           (format coq-compile-file-command buffer-file-name)))))))
-
-
-;; Dependency management 1: when a buffer is retracted, we also
-;; need to retract any children buffers.
-;; To do that, we run coqdep on each of the processed files,
-;; and see whether the buffer being retracted is an ancestor.
-
-(defun coq-ancestors-of (filename)
-  "Return ancestor .v files of RFILENAME.
-This is based on the output of coqtop FILENAME.
-Currently this doesn't take the loadpath into account."
-  ;; FIXME: is there any way to bring in the load path here in coqdep?
-  ;; We might use Coq's "Locate File string." command to help.
-  (let* ((filedir   (file-name-directory filename))
-         (cdline    (shell-command-to-string
-                     (format "coqdep -I %s %s" filedir filename)))
-         (matchdeps (string-match ": \\(.*\\)$" cdline))
-         (deps      (and matchdeps
-                         (split-string (match-string 1 cdline)))))
-    (mapcar
-     ;; normalise to include directories, defaulting
-     ;; to same dir.  Change .vo -> v
-     (lambda (file)
-       (concat
-        (if (file-name-directory file) "" filedir)
-        (file-name-sans-extension file) ".v"))
-     ;; first dep is vacuous: file itself
-     (cdr-safe deps))))
-
-;; FIXME: memoise here
-(defun coq-all-ancestors-of (filename)
-  "Return transitive closure of `coq-ancestors-of'."
-  (let ((ancs   (coq-ancestors-of filename))
-        all)
-    (dolist (anc ancs)
-      (setq all (union (cons anc
-                             (coq-all-ancestors-of anc))
-                       all
-                       :test 'string-equal)))
-    all))
-
-(defun coq-process-require-command (span cmd)
-  "Calculate the ancestors of a loaded file and lock them."
-  ;; FIXME todo
-  )
-
-(defun coq-included-children (filename)
-  "Return a list of children of FILENAME on `proof-included-files-list'."
-  (let (children)
-    (dolist (incf proof-included-files-list)
-      ;; Compute all ancestors transitively: could be expensive
-      ;; if we have a lot of included files with many ancestors.
-      (let ((ancestors (coq-all-ancestors-of incf)))
-        (if (member filename ancestors)
-            (setq children (cons incf children)))))
-    children))
-
-
-;; Dependency management 2: when a "Require " is executed,
-;; PG should lock all files whose .vo's are loaded.
-;; This would be easy if Coq would output some handy
-;; messages tracking dependencies in .vo's as it loads
-;; those files.   But it doesn't.
-;; FIXME: to do this we'll need to watch the
-;; Require commands ourselves, and then *lock* their
-;; ancestors. TBD.
-
-(defun coq-process-file (rfilename)
-  "Adjust the value of `proof-included-files-list' when processing RFILENAME."
-  (if coq-auto-compile-vos
-      (progn
-        (add-to-list proof-included-files-list rfilename)
-        ;; recursively call on ancestors: we hope coqdep doesn't give loop!
-        (coq-process-file (coq-ancestors-of rfilename)))))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Multiple file handling revisited
 ;;
 
 ;; TODO list:
+;; - proof-done-advancing-require-function and
+;;   proof-shell-require-command-regexp seem to have been only used for coq,
+;;   maybe delete them
 ;; - Bug: undo in locked ancestor
 ;; - Bug: never stopping busy cursor
 ;; - Bug: coq not running for the first comment after switching
 ;; - modify behavior of locked ancestors, see proof-span-read-only
 ;; - fix problem with partial library names
-;; - clean old multiple file stuff
 ;; - fix places marked with XXX
 
 ;; user options and variables
