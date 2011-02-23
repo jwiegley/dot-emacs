@@ -255,17 +255,17 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;;
 ;; This is a fallback for when fontconfig is not used/available.
 ;;
-;; NB: even with fontconfig, aliasing has undesirable effects
+;; NB: even with fontconfig, name aliasing has undesirable effects
 ;; (e.g., can end up with version of font without anti-aliasing)
 ;;
 (defconst unicode-tokens-font-family-alternatives
   '(("STIXGeneral"
      "Lucida Grande" "Lucida Sans Unicode"
-     "DejaVu Sans Mono" "DejaVuLGC Sans Mono")
+     "DejaVu Sans Mono" "DejaVuLGC Sans Mono" "Apple Symbols")
     ("Script"
      "Lucida Calligraphy" "URW Chancery L" "Zapf Chancery")
     ("Fraktur"
-     "Lucida Blackletter" "URW Bookman L Light")))
+     "Lucida Blackletter" "Isabella" "URW Bookman L")))
 
 (if (boundp 'face-font-family-alternatives)
     (custom-set-default
@@ -343,7 +343,7 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
     (preprocessor "Preprocessor face"  (face font-lock-preprocessor-face))
     (doc	  "Documentation face" (face font-lock-preprocessor-face))
     (builtin	  "Builtin face"       (face font-lock-builtin-face))
-    (tacticals "Tacticals face"   (face proof-tacticals-name-face)))
+    (tacticals    "Tacticals face"     (face proof-tacticals-name-face)))
  "Association list mapping a symbol to a name and list of text properties.
 Used in `unicode-tokens-token-symbol-map', `unicode-tokens-control-regions',
 and `unicode-tokens-control-characters'.
@@ -1322,6 +1322,10 @@ Commands available are:
 (define-key unicode-tokens-mode-map
   [remap delete-char]
   'unicode-tokens-delete-char)
+
+;; support delete selection mode
+(put 'unicode-tokens-delete-backward-char 'delete-selection 'supersede)
+(put 'unicode-tokens-delete-char 'delete-selection 'supersede)
 
 (defvar unicode-tokens-quail-translation-keymap
   (let ((quail-current-package
