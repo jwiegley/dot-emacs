@@ -85,3 +85,6 @@
 [submodule "site-lisp/gnus"]
 	path = site-lisp/gnus
 	url = http://git.gnus.org/gnus.git
+[submodule "site-lisp/initsplit"]
+	path = site-lisp/initsplit
+	url = git://github.com/dabrahams/initsplit.git
