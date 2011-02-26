@@ -94,9 +94,7 @@
 ;;;_ + faces
 
 (custom-set-faces
- '(org-upcoming-deadline ((((class color) (min-colors 88) (background light))
- (:foreground "Brown"))))
- 
+ '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
  '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
  '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
@@ -480,10 +478,12 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
        (format
 	"   SCHEDULED: %s
    :PROPERTIES:
-   :ID:       %s   :END:
+   :ID:       %s   :CREATED:  %s
+   :END:
    "
-	(with-temp-buffer (org-insert-time-stamp (current-time)))
-	(shell-command-to-string "uuidgen"))))
+        (format-time-string (org-time-stamp-format))
+        (shell-command-to-string "uuidgen")
+        (format-time-string (org-time-stamp-format t t)))))
     (let ((tasks (buffer-string)))
       (erase-buffer)
       (save-buffer)
@@ -655,9 +655,9 @@ This can be 0 for immediate, or a floating point value.")
     (insert (format "
    :PROPERTIES:
    :ID:       %s   :VISIBILITY: folded
-   :END:
-   " (shell-command-to-string "uuidgen")))
-    (org-insert-time-stamp nil t 'inactive)
+   :CREATED:  %s
+   :END:" (shell-command-to-string "uuidgen")
+   (format-time-string (org-time-stamp-format t t))))
     (insert ?\n))
   (save-excursion
     (forward-line)
@@ -687,7 +687,7 @@ end tell")))
     (org-make-link-string (concat "message://" message-id) subject)))
 
 (defun org-get-message-link ()
-  (if (string-match "\\`\\*Summary " (buffer-name))
+  (if (get-buffer "*Group*")
       (let (message-id subject)
         (with-current-buffer gnus-original-article-buffer
           (nnheader-narrow-to-headers)
@@ -941,7 +941,7 @@ otherwise, flag an error."
                                    ?\[ ?\{ (subst-char-in-string
                                             ?\] ?\} subject))))
         (org-set-property "Submitter" from)
-        (org-set-property "Date" date))
+        (org-set-property "Date" date-sent))
     (org-capture nil "t")))
 
 (define-key global-map [(meta ?m)] 'org-smart-capture)
