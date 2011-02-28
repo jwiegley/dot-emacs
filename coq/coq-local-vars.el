@@ -13,77 +13,84 @@
 
 (eval-when-compile
   (defvar coq-prog-name nil)
-  (defvar coq-prog-args nil))
+  (defvar coq-load-path nil))
 
 
 ;;; Code:
 (defconst coq-local-vars-doc nil
   "Documentation-only variable.
-A very convenient way to customize file-specific variables is to use the
-File Variables (info:(Emacs)File Variables).  This feature of Emacs allows to
-specify the values to use for certain Emacs variables when a file is
-loaded.  Those values are written as a list at the end of the file.
+A very convenient way to customize file-specific variables is to
+use File Variables (info:(Emacs)File Variables). This feature of
+Emacs allows to set Emacs variables on a per-file basis. File
+Variables are (usually) written as a list at the end of the file.
 
 We provide the following feature to help you:
 
-\\[coq-ask-insert-coq-prog-name] that builds standard local variable list for a
-coq file by asking you some questions.  it is accessible in the menu:
+\\[coq-ask-insert-coq-prog-name] builds a standard file variable
+list for a coq file by asking you some questions. It is
+accessible in the menu
+`Coq' -> `COQ PROG (ARGS)' -> `Set coq prog *persistently*'.
 
-\"coq\"/\"set coq prog *persistently*\".
+You should be able to use this feature without reading the rest
+of this documentation, which explains how it is used for coq. For
+more precision, refer to the Emacs info manual at ((Emacs)File
+Variables).
 
-You should be able to use this feature without reading the rest of this
-documentation, which explains how it is used for coq.  For more precision, refer
-to the Emacs info manual at ((Emacs)File Variables).
-
-In projects involving multiple directories, it is often useful to set the
-variables `proof-prog-name', `proof-prog-args' and `compile-command' for each
-file.  Here is an example for Coq users: for the file .../dir/bar/foo.v, if you
-want Coq to be started with the path .../dir/theories/ added in the libraries
-path (\"-I\" option), you can put at the end of foo.v:
-
-\(*
-*** Local Variables: ***
-*** coq-prog-name: \"coqtop\" ***
-*** coq-prog-args: (\"-emacs\" \"-I\" \"../theories\") ***
-*** End: ***
-*)
-
-That way the good command is called when the scripting starts in foo.v.  Notice
-that the command argument \"-I\" \"../theories\" is specific to the file foo.v,
-and thus if you set it via the configuration tool, you will need to do it each
-time you load this file.  On the contrary with this method, Emacs will do this
-operation automatically when loading this file.  Please notice that all the
-strings above should never contain spaces see documentation of variables
-`proof-prog-name' and <prover>-prog-args (see for example `coq-prog-args').
-
-Extending the previous example, if the makefile for foo.v is located in
-directory .../dir/, you can add the right compile command.  And if you want a
-non standard coq executable to be used, here is what you should put in
-variables:
+In Coq projects involving multiple directories, it is usually
+necessary to set the variable `coq-load-path' for each file. For
+example, if the file .../dir/bar/foo.v builds on material in
+.../dir/theories/, then one would put the following local
+variable section at the end of foo.v:
 
 \(*
- Local Variables:
- coq-prog-name: \"../../coqsrc/bin/coqtop\"
- coq-prog-args: \"-emacs\" \"-I\" \"../theories\"
- compile-command: \"make -C .. -k bar/foo.vo\"
- End:
+*** Local Variables:
+*** coq-load-path: (\"../theories\")
+*** End:
 *)
 
-And then the right call to make will be done if you use the \\[compile]
-command. Notice that the lines are commented in order to be ignored by the
-proof assistant. It is possible to use this mechanism for any other buffer
-local variable (info:(Emacs)File Variables)." )
+This way the necessary \"-I\" options are added to all
+invocations of `coqtop', `coqdep' and `coqc'. Note that the
+option \"-I\" \"../theories\" is specific to file foo.v. Setting
+`coq-load-path' globally via Emacs Customization is therefore
+usually inappropriate. With this local variables list, Emacs will
+set `coq-load-path' only when inside a buffer that visits foo.v.
+Other buffers can have their own value of
+`coq-load-path' (probably coming from their own local variable
+lists).
+
+If you use `make' for the compilation of coq modules you can set
+`coq-compile-command' as local variable. For instance, if the
+makefile is located in \".../dir\", you could set
+
+\(*
+*** Local Variables:
+*** coq-load-path: (\"../theories\")
+*** coq-compile-command: \"make -C .. %p/%o\"
+*** End:
+*)
+
+This way, if foo.v contains the command \"Require bar.\" then
+\"make -C .. .../theories/bar.vo\" will run, just before the
+require command is sent to coqtop (assuming that bar.v is found
+in .../theories).
+
+\(Note that `coq-compile-command' is quite flexible because of
+its use of substitution keys. A file local setting of
+`coq-compile-command' should therefore usually not be
+necessary.)")
 
 
 (defun coq-insert-coq-prog-name (progname progargs)
-  "Insert or modify the local variables `coq-prog-name' and `coq-prog-args'.
+  "Insert or modify the local variables `coq-prog-name' and `coq-load-path'.
 Set them to PROGNAME and PROGARGS respectively.  These variables describe the
 coqtop command to be launched on this file."
   (local-vars-list-set 'coq-prog-name progname)
-  (local-vars-list-set 'coq-prog-args progargs)
+  (local-vars-list-set 'coq-load-path progargs)
   ;; coq-guess-command-line uses coq-prog-name, so set it
+  (make-local-variable 'coq-prog-name)
   (setq coq-prog-name progname)
-  (setq coq-prog-args progargs))
+  (make-local-variable 'coq-load-path)
+  (setq coq-load-path progargs))
 
 
 (defun coq-read-directory (prompt &optional default maynotmatch initialcontent)
@@ -103,49 +110,23 @@ Do not insert the default directory."
     (setq use-dialog-box current-use-dialog-box)
     path))
 
-;(read-file-name prompt &optional dir default-filename mustmatch
-; initial predicate)
-;(read-from-minibuffer
-;  PROMPT &optional INITIAL-CONTENTS KEYMAP READP HISTORY ABBREV-TABLE DEFAULT)
-;(read-directory-name
-;         PROMPT &optional DIR DEFAULT MUST-MATCH INITIAL-CONTENTS HISTORY)
-
-(defun coq-extract-directories-from-args (args)
-  "Extract directory names from coq option list ARGS."
-  (if (not args) ()
-    (let ((hd (car args)) (tl (cdr args)))
-      (cond
-       ((string-equal hd "-I")
-        (cond
-         ((not tl) nil)
-         ; if the option following -I starts with '-', forget the -I :
-         ((char-equal ?- (string-to-char (car tl)))
-          (coq-extract-directories-from-args tl))
-         (t (cons (car tl) (coq-extract-directories-from-args (cdr tl))))))
-       (t (coq-extract-directories-from-args tl))))))
-
-
-(defun coq-ask-prog-args (&optional oldvalue)
-  "Ask for and return the information to put into variables `coq-prog-args'.
-These variable describes the coqtop arguments to be launched on this file.
-Optional argument OLDVALUE specifies the previous value of `coq-prog-args', it
+(defun coq-ask-load-path (&optional olddirs)
+  "Ask for and return the information to put into `coq-load-path'.
+Optional argument OLDVALUE specifies the previous value of `coq-load-path', it
 will be used to suggest values to the user."
-  (let* ((olddirs (coq-extract-directories-from-args oldvalue))
-         (progargs '("-emacs-U"))
-         (option))
+  (let (load-path option)
     ;; first suggest previous directories
-    (while olddirs
-      (if (y-or-n-p (format "Keep the directory %s? " (car olddirs)))
-          (setq progargs (cons (car olddirs) (cons "-I" progargs))))
-      (setq olddirs (cdr olddirs)))
+    (dolist (olddir olddirs)
+      (if (y-or-n-p (format "Keep the directory %s? " olddir))
+          (setq load-path (cons olddir load-path))))
     ;; then ask for more
     (setq option (coq-read-directory
                   "Add directory (TAB to complete, empty to stop): -I " ""))
     (while (not (string-equal option ""))
-      (setq progargs (cons option (cons "-I" progargs))) ;reversed
+      (setq load-path (cons option load-path)) ;reversed
       (setq option (coq-read-directory
                     "Add directory (TAB to complete, empty to stop): -I " "")))
-    (reverse progargs)))
+    (reverse load-path)))
 
 (defun coq-ask-prog-name (&optional oldvalue)
   "Ask for and return the local variables `coq-prog-name'.
@@ -169,10 +150,10 @@ will be used to suggest a value to the user."
 These variables describe the coqtop command to be launched on this file."
   (interactive)
   (let* ((oldname (local-vars-list-get-safe 'coq-prog-name))
-         (oldargs (local-vars-list-get-safe 'coq-prog-args))
+         (oldpath (local-vars-list-get-safe 'coq-load-path))
          (progname (coq-ask-prog-name oldname))
-         (progargs (coq-ask-prog-args oldargs)))
-    (coq-insert-coq-prog-name progname progargs)))
+         (load-path (coq-ask-load-path oldpath)))
+    (coq-insert-coq-prog-name progname load-path)))
 
 
 

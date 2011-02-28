@@ -1147,6 +1147,10 @@ identifier and should therefore not be matched by this regexp.")
   "Buffer to display error messages from coqc and coqdep.")
 
 
+(defvar coq-debug-auto-compilation nil
+  "Display more messages during compilation")
+
+
 ;; basic utilities
 
 (defun time-less-or-equal (time-1 time-2)
@@ -1326,12 +1330,14 @@ break."
   (let ((coqdep-arguments
          (nconc (coq-include-options lib-src-file) (list lib-src-file)))
         coqdep-output)
-    ;(message "call coqdep arg list: %s" coqdep-arguments)
+    (if coq-debug-auto-compilation
+        (message "call coqdep arg list: %s" coqdep-arguments))
     (with-temp-buffer
       (apply 'call-process 
        coq-dependency-analyzer nil (current-buffer) nil coqdep-arguments)
       (setq coqdep-output (buffer-string)))
-    ;(message "coqdep output on %s: %s" lib-src-file coqdep-output)
+    (if coq-debug-auto-compilation
+        (message "coqdep output on %s: %s" lib-src-file coqdep-output))
     (if (string-match "^\\*\\*\\* Warning" coqdep-output)
         (let* ((this-command (cons coq-dependency-analyzer coqdep-arguments))
                (full-command (if command-intro
@@ -1358,14 +1364,16 @@ Display errors in buffer `coq-compile-response-buffer'."
         coqc-status)
     (coq-init-compile-response-buffer
      (mapconcat 'identity (cons coq-compiler coqc-arguments) " "))
-    ;(message "call coqc arg list: %s" coqc-arguments)
+    (if coq-debug-auto-compilation
+        (message "call coqc arg list: %s" coqc-arguments))
     (setq coqc-status
           (apply 'call-process
            coq-compiler nil coq-compile-response-buffer t coqc-arguments))
-    ; (if (eq coqc-status 0)
-    ;     (message "compilation %s OK, output |%s|" src-file
-    ;              (with-current-buffer proof-response-buffer
-    ;                (buffer-string))))
+    (if coq-debug-auto-compilation
+        (message "compilation %s exited with %s, output |%s|"
+                 src-file coqc-status
+                 (with-current-buffer proof-response-buffer
+                   (buffer-string))))
     (unless (eq coqc-status 0)
       (coq-display-compile-response-buffer)
       (let ((terminated-text (if (numberp coqc-status)
@@ -1416,7 +1424,8 @@ OBJ have identical modification times."
           (progn
             (coq-compile-library src)
             'just-compiled)
-        (message "Skip compilation of %s" src) ; XXX
+        (if coq-debug-auto-compilation
+            (message "Skip compilation of %s" src))
         obj-time))))
 
 (defun coq-make-lib-up-to-date (coq-obj-hash span lib-obj-file)
@@ -1439,7 +1448,8 @@ function."
   (let ((result (gethash lib-obj-file coq-obj-hash)))
     (if result
         (progn
-          (message "Checked %s already" lib-obj-file) ;XXX
+          (if coq-debug-auto-compilation
+              (message "Checked %s already" lib-obj-file))
           result)
       ;; lib-obj-file has not been check -- do it now
       (message "Check %s" lib-obj-file)     ;XXX
