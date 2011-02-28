@@ -959,7 +959,6 @@ This is specific to `coq-mode'."
 ;; - Bug: coq not running for the first comment after switching
 ;; - modify behavior of locked ancestors, see proof-span-read-only
 ;; - fix problem with partial library names
-;; - fix places marked with XXX
 
 ;; user options and variables
 
@@ -1240,12 +1239,16 @@ is up-to-date."
     (eq (compare-strings coq-library-directory 0 nil
                          lib-obj-file 0 (length coq-library-directory))
         t)
-    (message "Ignore lib file %s" lib-obj-file) ; XXX
+    (if coq-debug-auto-compilation
+        (message "Ignore lib file %s" lib-obj-file))
     t)
    (if (some
         (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
         coq-compile-ignored-directories)
-       (message "Ignore %s" lib-obj-file) ;XXX
+       (progn
+         (if coq-debug-auto-compilation
+             (message "Ignore %s" lib-obj-file))
+         t)
      nil)))
 
 (defun coq-library-src-of-obj-file (lib-obj-file)
@@ -1452,7 +1455,7 @@ function."
               (message "Checked %s already" lib-obj-file))
           result)
       ;; lib-obj-file has not been check -- do it now
-      (message "Check %s" lib-obj-file)     ;XXX
+      (message "Check %s" lib-obj-file)
       (if (coq-compile-ignore-file lib-obj-file)
           ;; return minimal time for ignored files
           (setq result '(0 0))
