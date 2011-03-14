@@ -1151,7 +1151,12 @@ A subroutine of `proof-shell-process-urgent-message'."
       (proof-interrupt-process)))
 
 (defun proof-shell-process-urgent-message-retract (start end)
-  "A subroutine of `proof-shell-process-urgent-message'."
+  "A subroutine of `proof-shell-process-urgent-message'.
+Takes files off `proof-included-files-list' and calls
+`proof-restart-buffers' to do the necessary clean-up on those
+buffers visting a file that disappears from
+`proof-included-files-list'. So in some respect this function is
+inverse to `proof-register-possibly-new-processed-file'."
   (let ((current-included proof-included-files-list))
     (setq proof-included-files-list
 	  (funcall proof-shell-compute-new-files-list))

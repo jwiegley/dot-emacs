@@ -275,9 +275,11 @@ next time an error is processed."
 
 (defun proof-restart-buffers (buffers)
   "Remove all extents in BUFFERS and maybe reset `proof-script-buffer'.
-No effect on a buffer which is nil or killed.  If one of the buffers
-is the current scripting buffer, then `proof-script-buffer'
-will deactivated."
+The high-level effect is that all members of BUFFERS are
+completely unlocked, including all the necessary cleanup. No
+effect on a buffer which is nil or killed. If one of the buffers
+is the current scripting buffer, then `proof-script-buffer' will
+deactivated."
   (mapcar
    (lambda (buffer)
      (save-excursion

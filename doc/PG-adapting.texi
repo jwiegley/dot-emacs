@@ -2185,8 +2185,11 @@ read.
 @end defvar
 
 The way that @code{proof-included-files-list} is maintained is the key
-to multiple file management.  (But you should not set this variable
-directly, it is managed via the configuration settings).
+to multiple file management.  Ideally you should not set this
+variable directly, but instead use (some of) the various
+configuration settings that enable functionality inside Proof
+General for managing @code{proof-included-files-list} (see below
+if the configuration setting do not suffice).
 
 @vindex proof-shell-process-file
 @vindex proof-shell-retract-files-regexp
@@ -2287,6 +2290,20 @@ files, set @code{proof-cannot-reopen-processed-files} to @code{t}.
   Finally, set the flag @code{proof-auto-multiple-files} 
 for a automatic approximation to multiple file handling.
 @xref{Proof Script Settings}.
+
+Internally Proof General uses
+@code{proof-register-possibly-new-processed-file} to add a file
+to @code{proof-included-files-list} and to possibly inform the
+prover about this fact, @xref{Proof script mode}. The function
+@code{proof-shell-process-urgent-message-retract} is responsible
+for taking (possibly several) files off
+@code{proof-included-files-list}. It relies on
+@code{proof-shell-compute-new-files-list} (@pxref{Settings for
+matching urgent messages from proof process}) to compute the new
+value of @code{proof-included-files-list} and then calls
+@code{proof-restart-buffers} on all those buffers that have been
+taken off from @code{proof-included-files-list}, @xref{Proof
+script mode}.
 
 
 @node Configuring Editing Syntax
@@ -3088,6 +3105,10 @@ A warning message is issued if the register request came from the
 proof assistant and Emacs has a modified buffer visiting the file.
 @end defun
 
+(Unlocking is done by
+@code{proof-shell-process-urgent-message-retract} together with
+@code{proof-restart-buffers}.)
+
 An important pair of functions activate and deactivate scripting for the
 current buffer.  A change in the state of active scripting can trigger
 various actions, such as starting up the proof assistant, or altering
@@ -3251,7 +3272,8 @@ user hasn't saved the latest edits.  Therefore it is right to
 query saves here.
 @end defun
 
-To clean up when scripting is stopped, a script buffer is killed, or the
+To clean up when scripting is stopped, a script buffer is killed,
+a file is retract (and thus must be unlocked), or the
 proof assistant exits, we use the functions
 @code{proof-restart-buffers} and
 @code{proof-script-remove-all-spans-and-deactivate}.
@@ -3259,9 +3281,11 @@ proof assistant exits, we use the functions
 @c TEXI DOCSTRING MAGIC: proof-restart-buffers
 @defun proof-restart-buffers buffers
 Remove all extents in @var{buffers} and maybe reset @samp{@code{proof-script-buffer}}.@*
-No effect on a buffer which is nil or killed.  If one of the buffers
-is the current scripting buffer, then @samp{@code{proof-script-buffer}}
-will deactivated.
+The high-level effect is that all members of @var{buffers} are
+completely unlocked, including all the necessary cleanup. No
+effect on a buffer which is nil or killed. If one of the buffers
+is the current scripting buffer, then @samp{@code{proof-script-buffer}} will
+deactivated.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-script-remove-all-spans-and-deactivate

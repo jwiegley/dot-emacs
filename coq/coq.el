@@ -1210,15 +1210,10 @@ properly unlock ANCESTOR-SRC on retract."
 
 (defun coq-unlock-ancestor (ancestor-src)
   "Unlock ANCESTOR-SRC."
-  (let* ((true-ancestor (file-truename ancestor-src))
-         (buffer (find-buffer-visiting true-ancestor)))
-    ;(message "unlock %s in buf %s" ancestor-src buffer)
+  (let* ((true-ancestor (file-truename ancestor-src)))
     (setq proof-included-files-list
           (delete true-ancestor proof-included-files-list))
-    (if buffer
-        (with-current-buffer buffer
-          (proof-set-locked-end (point-min))
-          (proof-script-delete-spans (point-min) (point-max))))))
+    (proof-restart-buffers (proof-files-to-buffers (list true-ancestor)))))
 
 (defun coq-unlock-all-ancestors-of-span (span)
   "Unlock all ancestors that have been locked when SPAN was asserted."
