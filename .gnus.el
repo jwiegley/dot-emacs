@@ -6,6 +6,8 @@
 
 ;;;_ + variables
 
+ '(gnus-refer-article-method (quote ((nnregistry) (nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
+
 (custom-set-variables
  '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil))))
  '(smtpmail-smtp-service 587 t)
@@ -76,7 +78,7 @@
  '(gnus-save-newsrc-file nil)
  '(gnus-save-killed-list nil)
  '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
- '(gnus-refer-article-method (quote ((nnregistry) (nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
+ '(gnus-refer-article-method (quote ((nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
  '(gnus-read-newsrc-file nil)
  '(gnus-posting-styles (quote ((".*"))))
  '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
@@ -129,7 +131,7 @@
 (load "gnus-agent")
 (load "starttls")
 
-(gnus-registry-initialize)
+;;(gnus-registry-initialize)
 
 (eval-after-load "message"
   '(load "message-x"))

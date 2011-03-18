@@ -27,7 +27,7 @@
  '(org-tags-column -97)
  '(org-reverse-note-order t)
  '(org-return-follows-link t)
- '(org-refile-targets (quote (("~/Dropbox/todo.txt" :level . 1) ("~/Dropbox/todo.txt" :todo . "Project") ("~/Dropbox/Accounts/finances.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1) ("~/Dropbox/BoostPro/Tasks/opportunities.org" :level . 1))))
+ '(org-refile-targets (quote (("~/Dropbox/todo.txt" :level . 1) ("~/Dropbox/todo.txt" :todo . "Project") ("~/Dropbox/Accounts/finances.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-checklist org-depend org-eval)))
  '(org-mobile-inbox-for-pull "~/Dropbox/from-mobile.org")
  '(org-mobile-files (quote (org-agenda-files org-agenda-text-search-extra-files)))
@@ -79,7 +79,7 @@
  '(org-agenda-ndays 1)
  '(org-agenda-include-diary t)
  '(org-agenda-fontify-priorities t)
- '(org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt" "~/Dropbox/BoostPro/Tasks/SEO.org" "~/Dropbox/BoostPro/Tasks/opportunities.org" "~/src/ledger/plan/TODO")))
+ '(org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt" "~/src/ledger/plan/TODO")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-deadline-relative-text "D%d: ")
@@ -87,6 +87,7 @@
  '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"NOTE\"" ((org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
+ '(diary-file "~/Documents/diary")
  '(calendar-mark-holidays-flag t)
  '(calendar-longitude -74.287672)
  '(calendar-latitude 40.845112))
@@ -111,7 +112,7 @@
 
 (defun org-my-message-open (message-id)
   (condition-case err
-      (if (get-buffer "*Group*")
+      (if (and nil (get-buffer "*Group*"))
           (gnus-goto-article
            (gnus-string-remove-all-properties (substring message-id 2)))
         (org-mac-message-open message-id))

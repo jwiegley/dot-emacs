@@ -14,6 +14,7 @@
           (list "~/Dropbox" "." "site-lisp"
 
                 ;; Packages that bury their Lisp code in subdirectories...
+                "site-lisp/eshell"
                 "site-lisp/gnus/contrib"
                 "site-lisp/gnus/lisp"
                 "site-lisp/ess/lisp"
@@ -280,15 +281,17 @@
         ;;"bookmark+"
         "browse-kill-ring+"
         ;;"chess-auto"
-        "diff-mode-"
+        ;;"diff-mode-"
         "diminish"
-        "elscreen"
+        ;;"elscreen"
+        "escreen"
         "ess-site"
         "flyspell-ext"
         "gist"
         "ldg-new"
         "magit"
         "magit-topgit"
+        "rebase-mode"
         "session"
         "whitespace"
         "yasnippet"
@@ -318,7 +321,31 @@
      (define-key elscreen-map "\C-\\" 'elscreen-toggle)
      (define-key elscreen-map "\\"    'toggle-input-method)))
 
+(eval-after-load "escreen"
+  '(progn
+     (escreen-install)
+     (define-key escreen-map "\\" 'toggle-input-method)
+
+     (defvar escreen-e21-mode-line-string "[0]")
+     (defun escreen-e21-mode-line-update ()
+       (setq escreen-e21-mode-line-string
+             (format "[%d]" escreen-current-screen-number))
+       (force-mode-line-update))
+
+     (let ((point (or
+                   ;; GNU Emacs 21.3.50 or later
+                   (memq 'mode-line-position mode-line-format)
+                   ;; GNU Emacs 21.3.1
+                   (memq 'mode-line-buffer-identification mode-line-format)))
+           (escreen-mode-line-elm '(t (" " escreen-e21-mode-line-string))))
+       (when (null (member escreen-mode-line-elm mode-line-format))
+         (setcdr point (cons escreen-mode-line-elm (cdr point)))))
+
+     (add-hook 'escreen-goto-screen-hook 'escreen-e21-mode-line-update)))
+
 ;;;_  + eshell
+
+(load "esh-toggle" t)
 
 (eval-after-load "em-unix"
   '(unintern 'eshell/rm))
