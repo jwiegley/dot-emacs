@@ -755,6 +755,10 @@ This is specific to `coq-mode'."
   (setq proof-guess-command-line 'coq-guess-command-line)
   (setq proof-prog-name-guess t)
 
+  ;; We manage file saveing via coq-compile-auto-save and for coq
+  ;; it is not necessary to save files when starting a new buffer.
+  (setq proof-query-file-save-when-activating-scripting nil)
+  
   ;; Commands sent to proof engine
   (setq proof-showproof-command "Show. "
         proof-context-command "Print All. "
