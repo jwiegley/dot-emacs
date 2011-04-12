@@ -1830,7 +1830,7 @@ customizing display options.
 
 
 To help configure the options appropriately for document-centred working,
-there are two command 
+there are two commands:
 @lisp
 Proof General -> Quick Options -> Display -> Document Centred 
 Proof General -> Quick Options -> Display -> Default
