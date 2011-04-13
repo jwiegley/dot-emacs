@@ -1567,13 +1567,15 @@ Before sending `string', it will be stripped of carriage returns.
 Additionally, the hook can examine the variable `action'.  It will be
 a symbol, set to the callback command which is executed in the proof
 shell filter once `string' has been processed.  The `action' variable
-suggests what class of command is about to be inserted:
+suggests what class of command is about to be inserted, the first two
+are normally the ones of interest:
 
- 'proof-done-invisible	     A non-scripting command
  'proof-done-advancing	     A \"forward\" scripting command
  'proof-done-retracting	     A \"backward\" scripting command
- 'init-cmd		     Initialization command sent to prover
- 'interactive-input	     Special interactive input direct to prover
+ 'proof-done-invisible	     A non-scripting command
+ 'proof-shell-set-silent     Indicates prover output has been surpressed
+ 'proof-shell-clear-silent   Indicates prover output has been restored
+ 'init-cmd	             Early initialization command sent to prover
 
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between
