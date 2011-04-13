@@ -348,11 +348,23 @@ signals to the remote host."
   :group 'proof-user-options)
 
 (defcustom proof-full-annotation t
-  "*Non-nil causes Proof General to add hovers for all proof commands.
+  "*Non-nil causes Proof General to record output for all proof commands.
 Proof output is recorded as it occurs interactively; normally if
 many steps are taken at once, this output is suppressed.  If this
-setting is used to enable it, the proof script will be annotated
-with full details."
+setting is used to enable it, the proof script can be annotated
+with full details.  See also `proof-output-tooltips' to enable
+automatic display of output on mouse hovers."
+  :type 'boolean
+  :group 'proof-user-options)
+
+(defcustom proof-output-tooltips t
+  "*Non-nil causes Proof General to add tooltips for prover output.
+Hovers will be added when this option is non-nil.  Prover outputs
+can be displayed when the mouse hovers over the region that
+produced it and output is available (see `proof-full-annotation').
+If output is not available, the type of the output region is displayed.
+Changes of this option will not be reflected in already-processed 
+regions of the script."
   :type 'boolean
   :group 'proof-user-options)
 

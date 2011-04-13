@@ -292,6 +292,7 @@ without adjusting window layout."
 (proof-deftoggle proof-sticky-errors)
 (proof-deftoggle proof-shell-quiet-errors)
 (proof-deftoggle proof-minibuffer-messages)
+(proof-deftoggle proof-output-tooltips)
 (proof-deftoggle proof-autosend-enable proof-autosend-toggle)
 (proof-deftoggle proof-fast-process-buffer)
 (proof-deftoggle proof-imenu-enable proof-imenu-toggle)
@@ -379,6 +380,10 @@ without adjusting window layout."
        :style toggle
        :selected proof-minibuffer-messages
        :help "Show progress messages in minibuffer"]
+      ["Output tooltips" proof-output-tooltips-toggle
+       :style toggle
+       :selected proof-output-tooltips
+       :help "Add tooltips for prover output"]
       ["Auto Raise" proof-auto-raise-toggle
        :style toggle
        :selected proof-auto-raise-buffers

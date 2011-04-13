@@ -727,7 +727,10 @@ also as the 'response property on the span.
 
 Optional argument MOUSEFACE means use the given face as a mouse highlight
 face, if it is a face, otherwise, if it is non-nil but not a face,
-do not add a mouse highlight.
+do not add a mouse highlight.  
+
+In any case, a mouse highlight and tooltip are only set if
+`proof-output-tooltips' is non-nil.
 
 Argument FACE means add 'face property FACE to the span."
   (let* ((output     (pg-last-output-displayform))
@@ -746,10 +749,11 @@ Argument FACE means add 'face property FACE to the span."
     (span-set-property newspan 'pghelp t)
     (span-set-property newspan 'response output)
 
-    (span-set-property newspan 'help-echo
-	(if (<= (length output) 2)
-	      (pg-span-name span)
-	    output))
+    (when proof-output-tooltips
+      (span-set-property newspan 'help-echo
+			 (if (<= (length output) 2)
+			     (pg-span-name span)
+			   output)))
 
     ;; Here's the message we used to show in minibuffer
     ;; when pg-show-hints was on:
@@ -765,7 +769,8 @@ Argument FACE means add 'face property FACE to the span."
     (if (or (facep mouseface)
 	    (setq mouseface
 		  (unless mouseface 'proof-mouse-highlight-face)))
-	(span-set-property newspan 'mouse-face mouseface))
+	(when proof-output-tooltips
+	  (span-set-property newspan 'mouse-face mouseface)))
     (if face
 	(span-set-property newspan 'face face))
     (span-set-property newspan 'priority 50)))

@@ -3244,11 +3244,25 @@ goals and response windows to fit their contents.
 
 The default value is @code{nil}.
 @end defopt
+
 @c TEXI DOCSTRING MAGIC: proof-colour-locked
 @defopt proof-colour-locked 
 If non-nil, colour the locked region with @samp{@code{proof-locked-face}}.@*
 If this is not set, buffers will have no special face set
 on locked regions.
+
+The default value is @code{t}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-output-tooltips
+@defopt proof-output-tooltips 
+Non-nil causes Proof General to add tooltips for prover output.@*
+Hovers will be added when this option is non-nil.  Prover outputs
+can be displayed when the mouse hovers over the region that
+produced it and output is available (see @samp{@code{proof-full-annotation}}).
+If output is not available, the type of the output region is displayed.
+Changes of this option will not be reflected in already-processed 
+regions of the script.
 
 The default value is @code{t}.
 @end defopt
