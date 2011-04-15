@@ -27,11 +27,6 @@ See also `coq-prog-env' to adjust the environment."
    :type 'string
    :group 'coq)
 
-;; da: please take care that the compiled version of this file works!
-;; Top-level forms need to be delayed during compile.
-
-(eval-when (load eval)
-  (custom-reevaluate-setting 'coq-prog-name))
 
  ;;; keyword databases
 

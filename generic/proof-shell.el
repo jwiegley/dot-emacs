@@ -56,7 +56,9 @@ is a space.
 ACTION is the callback to be invoked when this item has been
 processed by the prover. For normal scripting items it is
 `proof-done-advancing', for retract items
-`proof-done-retracting', but there are more possibilities.
+`proof-done-retracting', but there are more possibilities (e.g.
+`proof-done-invisible', `proof-shell-set-silent' and
+`proof-shell-clear-silent').
 
 The DISPLAYFLAGS are set
 for non-scripting commands or for when scripting should not

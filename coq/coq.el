@@ -37,8 +37,8 @@
   (declare-function smie-rule-parent-p "smie")
 
 (require 'proof)
-(require 'coq-local-vars)               ;
 (require 'coq-syntax)                   ; sets coq-prog-name
+(require 'coq-local-vars)               ;
 (require 'coq-abbrev)                   ; coq specific menu
 
 
