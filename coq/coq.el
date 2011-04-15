@@ -2054,17 +2054,16 @@ buffer."
 First goal is displayed on the bottom of its window, maximizing the
 number of hypothesis displayed, without hiding the goal"
   (interactive)
-  (let* ((curwin (selected-window))
-         (goalbuf (get-buffer-window proof-goals-buffer)))
-    (if (eq goalbuf nil) ()
-      (select-window goalbuf)
-      (search-forward-regexp "subgoal 2\\|\\'"); find snd goal or buffer end
-      (beginning-of-line)
-      (ignore-errors (search-backward-regexp "\\S-")) ; find something else than a space
-      (recenter (- 1)) ; put it at bottom og window
-      (beginning-of-line)
-      (select-window curwin)
-      )))
+  (let ((goal-win (get-buffer-window proof-goals-buffer)))
+    (if goal-win
+        (with-selected-window goal-win
+          ;; find snd goal or buffer end
+          (search-forward-regexp "subgoal 2\\|\\'")
+          (beginning-of-line)
+          ;; find something else than a space
+          (ignore-errors (search-backward-regexp "\\S-"))
+          (recenter (- 1)) ; put it at bottom og window
+          (beginning-of-line)))))
 
 (defvar coq-modeline-string2 ")")
 (defvar coq-modeline-string1 ")")
