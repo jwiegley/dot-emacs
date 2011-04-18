@@ -1,6 +1,6 @@
 ;;; pg-dev.el --- Developer settings for Proof General
 ;;
-;; Copyright (C) 2008, 2009, 2010 LFCS Edinburgh.
+;; Copyright (C) 2008-2011 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -117,6 +117,7 @@
 
 ;;;###autoload
 (defun profile-pg ()
+  "Configure Proof General for profiling.  Use M-x elp-results to see results."
   (interactive)
   (elp-instrument-package "proof-")
   (elp-instrument-package "pg-")
