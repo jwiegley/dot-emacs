@@ -1436,7 +1436,7 @@ This is useful even with empty delayed output as it can
 clear the buffers.
 
 The delayed output is in the region
-\[proof-shell-last-output-start,proof-shell-last-output-end].
+\[proof-shell-delayed-output-start,proof-shell-delayed-output-end].
 
 If goals output is found, the last matching instance, possibly
 bounded by `proof-shell-end-goals-regexp', will be displayed.
