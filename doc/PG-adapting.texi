@@ -1540,13 +1540,15 @@ Before sending @samp{string}, it will be stripped of carriage returns.
 Additionally, the hook can examine the variable @samp{action}.  It will be
 a symbol, set to the callback command which is executed in the proof
 shell filter once @samp{string} has been processed.  The @samp{action} variable
-suggests what class of command is about to be inserted:
+suggests what class of command is about to be inserted, the first two
+are normally the ones of interest:
 @lisp
- @code{'proof-done-invisible}       A non-scripting command
  @code{'proof-done-advancing}       A "forward" scripting command
  @code{'proof-done-retracting}      A "backward" scripting command
- @code{'init-cmd}                   Initialization command sent to prover
- @code{'interactive-input}          Special interactive input direct to prover
+ @code{'proof-done-invisible}       A non-scripting command
+ @code{'proof-shell-set-silent}     Indicates prover output has been surpressed
+ @code{'proof-shell-clear-silent}   Indicates prover output has been restored
+ @code{'init-cmd}                   Early initialization command sent to prover
 @end lisp
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between
@@ -3373,7 +3375,9 @@ is a space.
 @var{action} is the callback to be invoked when this item has been
 processed by the prover. For normal scripting items it is
 @samp{@code{proof-done-advancing}}, for retract items
-@samp{@code{proof-done-retracting}}, but there are more possibilities.
+@samp{@code{proof-done-retracting}}, but there are more possibilities (e.g.
+@samp{@code{proof-done-invisible}}, @samp{@code{proof-shell-set-silent}} and
+@samp{@code{proof-shell-clear-silent}}).
 
 The @var{displayflags} are set
 for non-scripting commands or for when scripting should not
@@ -3709,7 +3713,7 @@ This is useful even with empty delayed output as it can
 clear the buffers.
 
 The delayed output is in the region
-[proof-shell-last-output-start,proof-shell-last-output-end].
+[@code{proof-shell-delayed-output-start},@code{proof-shell-delayed-output-end}].
 
 If goals output is found, the last matching instance, possibly
 bounded by @samp{@code{proof-shell-end-goals-regexp}}, will be displayed.

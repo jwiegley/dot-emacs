@@ -4199,21 +4199,19 @@ Coq Auto Compile -> Coq Auto Compile}.
 
 
 @c TEXI DOCSTRING MAGIC: coq-compile-before-require
-@defopt coq-compile-before-require 
-If @samp{t} check dependencies of required modules and compile if necessary.@*
-If @samp{t} ProofGeneral intercepts "Require" commands and checks if the
+@defvar coq-compile-before-require 
+If non-nil, check dependencies of required modules and compile if necessary.@*
+If non-nil ProofGeneral intercepts "Require" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the "Require" command is processed.
 
 This option can be set/reset via menu
 @samp{Coq -> Settings -> Compile Before Require}.
-
-The default value is @code{nil}.
-@end defopt
+@end defvar
 
 
 @c TEXI DOCSTRING MAGIC: coq-compile-command
-@defopt coq-compile-command 
+@defvar coq-compile-command 
 External compilation command. If empty ProofGeneral compiles itself.@*
 If unset (the empty string) ProofGeneral computes the dependencies of
 required modules with coqdep and compiles as necessary. This internal
@@ -4237,25 +4235,21 @@ when module "foo" from directory "bar" is required.
 
 After the substitution the command can be changed in the
 minibuffer if @samp{@code{coq-confirm-external-compilation}} is t.
-
-The default value is @code{""}.
-@end defopt
+@end defvar
 
 
 @c TEXI DOCSTRING MAGIC: coq-confirm-external-compilation
-@defopt coq-confirm-external-compilation 
+@defvar coq-confirm-external-compilation 
 If set let user change and confirm the compilation command.@*
 Otherwise start the external compilation without confirmation.
 
 This option can be set/reset via menu
 @samp{Coq -> Settings -> Confirm External Compilation}.
-
-The default value is @code{t}.
-@end defopt
+@end defvar
 
 
 @c TEXI DOCSTRING MAGIC: coq-compile-auto-save
-@defopt coq-compile-auto-save 
+@defvar coq-compile-auto-save 
 Buffers to save before checking dependencies for compilation.@*
 There are two orthogonal choices: Firstly one can save all or only the coq
 buffers, where coq buffers means all buffers in coq mode except the current
@@ -4267,20 +4261,16 @@ modified Coq buffers, @code{'ask-all} to confirm saving all modified
 buffers, @code{'save-coq} to save all modified Coq buffers without
 confirmation and @code{'save-all} to save all modified buffers without
 confirmation.
-
-The default value is @code{ask-coq}.
-@end defopt
+@end defvar
 
 
 @c TEXI DOCSTRING MAGIC: coq-lock-ancestors
-@defopt coq-lock-ancestors 
-If t lock ancestor module files.@*
+@defvar coq-lock-ancestors 
+If non-nil, lock ancestor module files.@*
 If external compilation is used (via @samp{@code{coq-compile-command}}) then
 only the direct ancestors are locked. Otherwise all ancestors are
 locked when the "Require" command is processed.
-
-The default value is @code{t}.
-@end defopt
+@end defvar
 
 
 The following two options deal with the load path. Proof General
@@ -4294,7 +4284,7 @@ determines whether the current directory is put into the load
 path of @code{coqdep}.
 
 @c TEXI DOCSTRING MAGIC: coq-load-path
-@defopt coq-load-path 
+@defvar coq-load-path 
 Non-standard coq library load path.@*
 List of directories to be added to the LoadPath of coqdep, coqc
 and coqtop. Under normal circumstances this list does not need to
@@ -4305,20 +4295,16 @@ library.
 For coqdep and coqc these directories are passed via "-I"
 options over the command line. For interactive scripting an
 "Add LoadPath" command is used.
-
-The default value is @code{nil}.
-@end defopt
+@end defvar
 
 
 @c TEXI DOCSTRING MAGIC: coq-load-path-include-current
-@defopt coq-load-path-include-current 
+@defvar coq-load-path-include-current 
 If @samp{t} let coqdep search the current directory too.@*
 Should be @samp{t} for normal users. If @samp{t} pass "-I dir" to coqdep when
 processing files in directory "dir" in addition to any entries
 in @samp{@code{coq-load-path}}.
-
-The default value is @code{t}.
-@end defopt
+@end defvar
 
 
 The following two options do only influence the behaviour if
@@ -4327,7 +4313,7 @@ These options determine whether Proof General should descend into
 other Coq libraries and into the Coq standard library. 
 
 @c TEXI DOCSTRING MAGIC: coq-compile-ignored-directories
-@defopt coq-compile-ignored-directories 
+@defvar coq-compile-ignored-directories 
 Directories in which ProofGeneral should not compile modules.@*
 List of regular expressions for directories in which ProofGeneral
 should not compile modules. If a library file name matches one
@@ -4336,23 +4322,19 @@ neither compile this file nor check its dependencies for
 compilation. It makes sense to include non-standard coq library
 directories here if they are not changed and if they are so big
 that dependency checking takes noticeable time.
-
-The default value is @code{nil}.
-@end defopt
+@end defvar
 
 
 @c TEXI DOCSTRING MAGIC: coq-compile-ignore-library-directory
-@defopt coq-compile-ignore-library-directory 
-If @samp{t} ProofGeneral does not compile modules from the coq library.@*
+@defvar coq-compile-ignore-library-directory 
+If non-nil, ProofGeneral does not compile modules from the coq library.@*
 Should be @samp{t} for normal coq users. If @samp{nil} library modules are
 compiled if their sources are newer.
 
 This option has currently no effect, because Proof General uses
 coqdep to translate qualified identifiers into library file names
 and coqdep does not output dependencies in the standard library.
-
-The default value is @code{t}.
-@end defopt
+@end defvar
 
 
 The last three Emacs constants are internal parameters. They only

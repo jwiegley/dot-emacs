@@ -150,11 +150,12 @@ distclean:   clean
 ##
 ## texi: update magic comments in texi from docstrings in code.
 ##	  (developer use only!)
+##       Must be run from source .els otherwise function arguments lost
 ##
-## remove this for now: no magic during dist ../*/*.el 
 $(DOCNAME).texi: 
 	$(MAKE) magic
 magic:
+	(cd ..; make clean)
 	$(EMACS) $(EMACSFLAGS) -batch -l ./docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
 
 debugmagic:
