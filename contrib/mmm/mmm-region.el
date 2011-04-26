@@ -548,7 +548,8 @@ is non-nil, don't quit if the info is already there."
 	    (put mode 'mmm-fontify-region-function
 		 font-lock-fontify-region-function))
 	  (put mode 'mmm-beginning-of-syntax-function
-	       font-lock-beginning-of-syntax-function))
+	       ;font-lock-beginning-of-syntax-function))
+	       syntax-begin-function))
 	;; Get variables
 	(setq global-vars (mmm-get-locals 'global)
 	      buffer-vars (mmm-get-locals 'buffer)
@@ -768,7 +769,8 @@ of the REGIONS covers START to STOP."
   ;; For some reason `font-lock-fontify-block' binds this to nil, thus
   ;; preventing `mmm-beginning-of-syntax' from doing The Right Thing.
   ;; I don't know why it does this, but let's undo it here.
-  (let ((font-lock-beginning-of-syntax-function 'mmm-beginning-of-syntax))
+  (let ((;font-lock-beginning-of-syntax-function 
+	 syntax-begin-function 'mmm-beginning-of-syntax))
     (mapc #'(lambda (elt)
 		(when (get (car elt) 'mmm-font-lock-mode)
 		  (mmm-fontify-region-list (car elt) (cdr elt))))

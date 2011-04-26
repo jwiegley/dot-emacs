@@ -160,9 +160,11 @@ available through M-x customize under Programming | Tools | Mmm."
      (mmm-add-hooks)
      (mmm-fixup-skeleton)
      (make-local-variable 'font-lock-fontify-region-function)
-     (make-local-variable 'font-lock-beginning-of-syntax-function)
+     ;(make-local-variable 'font-lock-beginning-of-syntax-function)
+     (make-local-variable 'syntax-beginning-function)
      (setq font-lock-fontify-region-function 'mmm-fontify-region
-	   font-lock-beginning-of-syntax-function 'mmm-beginning-of-syntax)
+	   ; font-lock-beginning-of-syntax-function 'mmm-beginning-of-syntax
+	   syntax-begin-function 'mmm-beginning-of-syntax)
      (setq mmm-mode t)
      (condition-case err
 	 (mmm-apply-all)
@@ -190,7 +192,8 @@ available through M-x customize under Programming | Tools | Mmm."
     (mmm-update-submode-region)
     (setq font-lock-fontify-region-function
 	  (get mmm-primary-mode 'mmm-fontify-region-function)
-	  font-lock-beginning-of-syntax-function
+	   ; font-lock-beginning-of-syntax-function
+	   syntax-begin-function
 	  (get mmm-primary-mode 'mmm-beginning-of-syntax-function))
     (mmm-update-font-lock-buffer)
     (mmm-refontify-maybe)
