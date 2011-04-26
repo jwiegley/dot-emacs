@@ -1203,8 +1203,6 @@ activation is considered to have failed and an error is given."
   (unless (eq proof-buffer-type 'script)
     (error "Must be running in a script buffer!"))
 
-  (proof-shell-ready-prover queuemode) ; fire up/check mode
-
   (unless (equal (current-buffer) proof-script-buffer)
 
     ;; TODO: narrow the scope of this save-excursion.
@@ -1237,19 +1235,20 @@ activation is considered to have failed and an error is given."
       (assert (null proof-script-buffer)
 	      "Bug in proof-activate-scripting: deactivate failed.")
 
-      ;; Set the active scripting buffer, and initialise regions
+      ;; Fire up the prover (or check it's going the right way).
+      (proof-shell-ready-prover queuemode)
 
+      ;; Set the active scripting buffer, and initialise regions
       (setq proof-script-buffer (current-buffer))
-      (if (proof-locked-region-empty-p)
-	  ;; Clear locked regions, unless buffer is "full".
+      (if (proof-locked-region-empty-p) ; leave alone if non-empty
 	  (proof-init-segmentation))
 
       ;; Turn on the minor mode, make it show up.
       (setq proof-active-buffer-fake-minor-mode t)
       (force-mode-line-update)
 
-      ;; Perhaps a good time to ask if the user wants to save some
-      ;; buffers.  Query unsaved proof script buffers, excluding active one.
+      ;; A good time to ask if the user wants to save some buffers
+      ;; (idea being they may be included in imports at top of new buffer).
       (if (and
 	   proof-query-file-save-when-activating-scripting
 	   (not nosaves))
@@ -1273,7 +1272,7 @@ activation is considered to have failed and an error is given."
 	      (proof-deactivate-scripting) ;; turn off again!
 	      ;; Give an error to prevent further actions.
 	      (error 
-	       "Proof General: Scripting not activated because of error or interrupt")))))))
+	       "Scripting not activated because of error or interrupt")))))))
 
 
 (defun proof-toggle-active-scripting (&optional arg)
