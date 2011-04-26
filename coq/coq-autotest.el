@@ -62,16 +62,12 @@
   (pg-autotest script-wholefile "etc/coq/multiple-plain/a.v")
   (pg-autotest script-wholefile "etc/coq/multiple-plain/b.v")
   (pg-autotest script-wholefile "etc/coq/multiple-plain/c.v")
-  ;; FIXME: this is broken: retracting a previously
-  ;; processed file doesn't work
   (pg-autotest script-wholefile "etc/coq/multiple-plain/a.v")
 
-  (pg-autotest quit-prover)
-
   (pg-autotest remark "Testing multiple-file recompilation...")
+  (setq coq-compile-before-require t)
   (pg-autotest script-wholefile "coq/ex/test-cases/multiple-files-single-dir/f.v")
   (proof-shell-wait)
-  ;; touch d.v to cause recompile (TODO: check for that)
   (find-file "d.v")
   (set-buffer-modified-p t)
   (save-buffer)
@@ -79,7 +75,6 @@
   (proof-shell-wait)
   (pg-autotest script-wholefile "coq/ex/test-cases/multiple-files-single-dir/f.v")
 
-  (pg-autotest quit-prover)
   (pg-autotest remark "Complete.")
 
   (pg-autotest timetaken 'total)
