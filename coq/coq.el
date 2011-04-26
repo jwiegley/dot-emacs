@@ -58,7 +58,7 @@
 ;; is set.  The list is not altered if the user has set this herself.
 
 (defcustom coq-translate-to-v8 nil
-  "*Whether to use -translate argument to Coq"
+  "Whether to use -translate argument to Coq"
   :type 'boolean
   :group 'coq)
 
@@ -86,7 +86,7 @@
   :group 'coq)
 
 (defcustom coq-use-makefile nil
-  "*Whether to look for a Makefile to attempt to guess the command line.
+  "Whether to look for a Makefile to attempt to guess the command line.
 Set to t if you want this feature."
   :type 'string
   :group 'coq)
@@ -107,7 +107,7 @@ Set to t if you want this feature."
 (require 'coq-indent)
 
 (defcustom coq-prog-env nil
-  "*List of environment settings d to pass to Coq process.
+  "List of environment settings d to pass to Coq process.
 On Windows you might need something like:
   (setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
   :group 'coq)
@@ -972,8 +972,8 @@ This is specific to `coq-mode'."
   :package-version '(ProofGeneral . "4.1"))
 
 (defpacustom compile-before-require nil
-  "*If `t' check dependencies of required modules and compile if necessary.
-If `t' ProofGeneral intercepts \"Require\" commands and checks if the
+  "If non-nil, check dependencies of required modules and compile if necessary.
+If non-nil ProofGeneral intercepts \"Require\" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the \"Require\" command is processed.
 
@@ -984,7 +984,7 @@ This option can be set/reset via menu
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-command ""
-  "*External compilation command. If empty ProofGeneral compiles itself.
+  "External compilation command. If empty ProofGeneral compiles itself.
 If unset (the empty string) ProofGeneral computes the dependencies of
 required modules with coqdep and compiles as necessary. This internal
 dependency checking does currently not handle ML modules.
@@ -1014,7 +1014,7 @@ minibuffer if `coq-confirm-external-compilation' is t."
   :group 'coq-auto-compile)
 
 (defpacustom confirm-external-compilation t
-  "*If set let user change and confirm the compilation command.
+  "If set let user change and confirm the compilation command.
 Otherwise start the external compilation without confirmation.
 
 This option can be set/reset via menu
@@ -1043,7 +1043,7 @@ identifier that occurs in the \"Require\" command, and the file
 that contains the \"Require\".")
 
 (defcustom coq-compile-auto-save 'ask-coq
-  "*Buffers to save before checking dependencies for compilation.
+  "Buffers to save before checking dependencies for compilation.
 There are two orthogonal choices: Firstly one can save all or only the coq
 buffers, where coq buffers means all buffers in coq mode except the current
 buffer. Secondly, emacs can ask about each such buffer or save all of them
@@ -1068,7 +1068,7 @@ confirmation."
   :group 'coq-auto-compile)
 
 (defcustom coq-lock-ancestors t
-  "*If t lock ancestor module files.
+  "If non-nil, lock ancestor module files.
 If external compilation is used (via `coq-compile-command') then
 only the direct ancestors are locked. Otherwise all ancestors are
 locked when the \"Require\" command is processed."
@@ -1077,7 +1077,7 @@ locked when the \"Require\" command is processed."
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-ignore-library-directory t
-  "*If `t' ProofGeneral does not compile modules from the coq library.
+  "If non-nil, ProofGeneral does not compile modules from the coq library.
 Should be `t' for normal coq users. If `nil' library modules are
 compiled if their sources are newer.
 
@@ -1089,7 +1089,7 @@ and coqdep does not output dependencies in the standard library."
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-ignored-directories nil
-  "*Directories in which ProofGeneral should not compile modules.
+  "Directories in which ProofGeneral should not compile modules.
 List of regular expressions for directories in which ProofGeneral
 should not compile modules. If a library file name matches one
 of the regular expressions in this list then ProofGeneral does
@@ -1102,7 +1102,7 @@ that dependency checking takes noticeable time."
   :group 'coq-auto-compile)
 
 (defcustom coq-load-path nil
-  "*Non-standard coq library load path.
+  "Non-standard coq library load path.
 List of directories to be added to the LoadPath of coqdep, coqc
 and coqtop. Under normal circumstances this list does not need to
 contain \".\" for the current directory (see
@@ -1117,7 +1117,7 @@ options over the command line. For interactive scripting an
   :group 'coq-auto-compile)
 
 (defcustom coq-load-path-include-current t
-  "*If `t' let coqdep search the current directory too.
+  "If `t' let coqdep search the current directory too.
 Should be `t' for normal users. If `t' pass \"-I dir\" to coqdep when
 processing files in directory \"dir\" in addition to any entries
 in `coq-load-path'."
@@ -1649,7 +1649,7 @@ current buffer (which contains the Require command) to
 
 (defun coq-preprocess-require-commands ()
   "Coq function for `proof-shell-extend-queue-hook'.
-If `coq-compile-before-require' it t this function performs the
+If `coq-compile-before-require' is non-nil, this function performs the
 compilation (if necessary) of the dependencies."
   (if coq-compile-before-require
       (let (;; coq-object-hash-symbol serves as a pointer to the
