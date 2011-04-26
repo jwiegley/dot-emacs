@@ -10,7 +10,8 @@
 
 (eval-when (compile)
   (require 'proof-site)
-  (proof-ready-for-assistant 'coq))  
+  (proof-ready-for-assistant 'coq)
+  (defvar coq-compile-before-require nil))
 
 (require 'pg-autotest)
 
