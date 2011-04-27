@@ -960,9 +960,16 @@ This is specific to `coq-mode'."
 ;;   maybe delete them
 ;; - Bug: undo in locked ancestor
 ;; - Bug: never stopping busy cursor
-;; - Bug: coq not running for the first comment after switching
 ;; - modify behavior of locked ancestors, see proof-span-read-only
+;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000094.html)
 ;; - fix problem with partial library names
+;; - set completion-ignored-extensions
+;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000122.html)
+;; - avoid restarting coqtop when the load path does not change
+;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000088.html)
+;; - defpacustom customization groups
+;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000115.html)
+;; - broken pg cache (http://proofgeneral.inf.ed.ac.uk/trac/ticket/395)
 
 ;; user options and variables
 
