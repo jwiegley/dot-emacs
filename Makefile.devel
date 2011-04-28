@@ -454,7 +454,7 @@ PKGDELETES=obsolete etc doc
 PKG_VERSION=$(shell echo $(FULLVERSION) | sed 's/$(PRERELEASE_PREFIX)/20/g')
 PKG_RELEASENAME=$(NAME)-$(PKG_VERSION)
 pkg:	cvsexport
-	(cd $(DISTBUILDIR); mv $(RELEASENAME) $(PKG_RELEASENAME))
+	(cd $(DISTBUILDIR); if [ "$(RELEASENAME)" != "$(PKG_RELEASENAME)" ]; then mv $(RELEASENAME) $(PKG_RELEASENAME); fi)
 	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME)/doc; make info)
 	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME); mv $(PKGMOVES) .;  rm -rf $(PKGDELETES))
 	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME); echo '(define-package "ProofGeneral" "$(PKG_VERSION)" "Emacs interface for Proof Assistants")' > ProofGeneral-pkg.el)
