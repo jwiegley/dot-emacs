@@ -15,12 +15,6 @@
 @settitle Adapting Proof General
 @setchapternewpage odd
 @paragraphindent 0
-@c A flag for whether to include the front image in the
-@c DVI file.  You can download the front image from
-@c http://proofgeneral.inf.ed.ac.uk/ProofGeneralPortrait.eps.gz
-@c then put it into this directory and 'make dvi' (pdf,ps)
-@c will set the flag below automatically.
-@clear haveeps
 @iftex
 @afourpaper
 @end iftex
@@ -62,7 +56,7 @@
 
 @set version 4.1
 @set emacsversion 23.2
-@set last-update January 2011
+@set last-update May 2011
 @set rcsid $Id$
 
 @dircategory Theorem proving
@@ -95,25 +89,15 @@ END-INFO-DIR-ENTRY
 @subtitle @value{last-update}
 @subtitle @b{proofgeneral.inf.ed.ac.uk}
 
-@c nested ifs fail here completely, WHY?
 @iftex
-@ifset haveeps
-@c @vskip 1cm
-@c The .eps file takes 8.4M!  A pity texi can't seem
-@c to deal with gzipped files? (goes down to 1.7M).
-@c But this still seems too much to put into the
-@c PG distribution just for an image on the manual page,
-@c so we take it out for now.
-@c Ideally would like some way of generating eps from
-@c the .jpg file.   
-@c image{ProofGeneralPortrait}
-@end ifset
+@vskip 1cm
+@image{ProofGeneral}
 @end iftex
 @author David Aspinall with T. Kleymann
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 2000-2004 by members
+Copyright @copyright{} 2000-2011 by members
 of the Proof General team, LFCS Edinburgh.
 
 
