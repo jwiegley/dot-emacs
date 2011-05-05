@@ -10,8 +10,8 @@
 ###########################################################################
 ##
 ## Use:
-##	make info,dvi,pdf,html    - build respective docs from texi source.
-##	make doc		  - make default kinds of doc (dvi, info).
+##	make info,pdf,html    - build respective docs from texi source.
+##	make doc              - make default kinds of doc (, info).
 ##
 ###########################################################################
 
