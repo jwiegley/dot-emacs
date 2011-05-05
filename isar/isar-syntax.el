@@ -389,7 +389,7 @@ START should be at the beginning of a line."
 	      (put-text-property (1+ beg)
 				 (1- (point)) 'face isabelle-string-face)
 	      (put-text-property beg (1+ beg) 'face isabelle-quote-face)
-	      (put-text-property (1- (point)) (point) 'face proof-boring-face))
+	      (put-text-property (1- (point)) (point) 'face isabelle-quote-face))
 	     (t
 	      (put-text-property beg (point) 'face font-lock-comment-face))))
 	  (< (point) end))
