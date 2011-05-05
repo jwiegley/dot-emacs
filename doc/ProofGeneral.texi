@@ -19,12 +19,6 @@
 @settitle Proof General
 @setchapternewpage odd
 @paragraphindent 0
-@c A flag for whether to include the front image in the
-@c DVI file.  You can download the front image from
-@c http://proofgeneral.inf.ed.ac.uk/ProofGeneralPortrait.eps.gz
-@c then put it into this directory and 'make dvi' (pdf,ps)
-@c will set the flag below automatically.
-@clear haveeps
 @iftex
 @afourpaper
 @end iftex
@@ -102,26 +96,16 @@
 @subtitle @value{last-update}
 @subtitle @b{proofgeneral.inf.ed.ac.uk}
 
-@c nested ifs fail here completely, WHY?
 @iftex
-@ifset haveeps
-@c @vskip 1cm
-@c The .eps file takes 8.4M!  A pity texi can't seem
-@c to deal with gzipped files? (goes down to 1.7M).
-@c But this still seems too much to put into the
-@c PG distribution just for an image on the manual page,
-@c so we take it out for now.
-@c Ideally would like some way of generating eps from
-@c the .jpg file.   
-@c image{ProofGeneralPortrait}
-@end ifset
+@vskip 1cm
+@image{ProofGeneral}
 @end iftex
 @author David Aspinall and Thomas Kleymann
 @author with P. Courtieu, H. Goguen, D. Sequeira, M. Wenzel.
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2010 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2011 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -321,12 +305,12 @@ proof mode for LEGO was initiated in 1994 and coordinated until October
 1998, the project became Proof General and has been managed by David
 Aspinall since then.
 
-This manual was written by David Aspinall and Thomas Kleymann.  Some
-words found their way here from the user documentation of LEGO mode,
-prepared by Dilip Sequeira.  Healfdene Goguen supplied some text for
-Coq Proof General.  Since Proof General 2.0, this manual has been
-maintained and improved by David Aspinall.  Pierre Courtieu and Markus
-Wenzel have contributed some sections.
+This manual was written by David Aspinall and Thomas Kleymann, with
+words borrowed from user documentation of LEGO mode, prepared by Dilip
+Sequeira.  Healfdene Goguen wrote some text for Coq Proof General.
+Since Proof General 2.0, this manual has been maintained by David
+Aspinall, with contributions from Pierre Courtieu, Markus Wenzel
+and Hendrik Tews.
 
 The Proof General project has benefited from (indirect) funding by EPSRC
 (@i{Applications of a Type Theory Based Proof Assistant} in the late
@@ -336,13 +320,11 @@ Co-ordination Action @i{Types} and previous related projects), and the
 support of the LFCS.  Version 3.1 was prepared whilst David Aspinall was
 visiting ETL, Japan, supported by the British Council.  
 
-For Proof General 3.7, Graham Dutton assisted with the project
-management system and web pages.  Since then intermittent support has
-been provided by the Research and Teaching Services Unit of the
-computing support team at the School of Informatics.  For testing and
-feedback for older versions of Proof General, thanks go to Rod
-Burstall, Martin Hofmann, and James McKinna, and some of those who
-continued to help with the latest 3.x series, named next.
+For Proof General 3.7, Graham Dutton helped with web pages and
+infrastructure; since then the the computing support team at the School
+of Informatics have given help.  For testing and feedback for older
+versions of Proof General, thanks go to Rod Burstall, Martin Hofmann,
+and James McKinna, and several on the longer list below.
 
 For the Proof General 4.0 release, special thanks go to Stefan Monnier
 for patches and suggestions, to Makarius for many bug reports and help
@@ -374,6 +356,7 @@ Kim Hyung Ho,
 Mark A. Hillebrand,
 Greg O'Keefe,
 Alex Krauss,
+Peter Lammich,
 Pierre Lescanne,
 John Longley,
 Erik Martin-Dorel,
@@ -390,11 +373,12 @@ Robert R. Schneck,
 Norbert Schirmer,
 Sebastian Skalberg,
 Mike Squire, 
+Hendrik Tews,
 Norbert Voelker,
 Tjark Weber,
 Mitsuharu Yamamoto.
 
-Thanks to all of you (and apologies to anyone missed).
+Thanks to all of you (and apologies to anyone missed)!
 
 
 
