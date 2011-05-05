@@ -1365,19 +1365,8 @@ Argument SPAN has just been processed."
       (proof-done-advancing-autosave span))
 
      ;; CASE 4: A "Require" type of command is seen (Coq).
-     ;;
-     ((and
-       proof-shell-require-command-regexp
-       (proof-string-match proof-shell-require-command-regexp cmd))
-      ;; We take additional action dependent on prover
-      ;; [FIXME: use same method as in proof-shell here to
-      ;;  recompute proof-included-files and adjust it]
-      ;; FIXME 2: we could annotate the Require ourselves
-      ;; at this point to contain the buffers which are
-      ;; being included!  Then undoing can retract them.
-      (funcall proof-done-advancing-require-function span cmd)
-      ;; But do what we would have done anyway
-      (proof-done-advancing-other span))
+     ;; Case 4 has been flushed, because its functionality has been
+     ;; superseeded by the new auto-compilation feature for Coq.
 
      ;; CASE 5:  Some other kind of command (or a nested goal).
      (t

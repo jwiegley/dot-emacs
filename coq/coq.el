@@ -955,9 +955,6 @@ This is specific to `coq-mode'."
 ;;
 
 ;; TODO list:
-;; - proof-done-advancing-require-function and
-;;   proof-shell-require-command-regexp seem to have been only used for coq,
-;;   maybe delete them
 ;; - Bug: undo in locked ancestor
 ;; - Bug: never stopping busy cursor
 ;; - modify behavior of locked ancestors, see proof-span-read-only
@@ -970,7 +967,10 @@ This is specific to `coq-mode'."
 ;; - defpacustom customization groups
 ;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000115.html)
 ;; - broken pg cache (http://proofgeneral.inf.ed.ac.uk/trac/ticket/395)
-
+;; - do not kill coqtop when unlocking ancestors
+;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000138.html)
+;; - don't move point in invisible scripting buffer
+;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000139.html)
 ;; user options and variables
 
 (defgroup coq-auto-compile ()

@@ -992,23 +992,6 @@ scripting (to do undo operations), the whole history is discarded."
   :type 'boolean
   :group 'proof-shell)  ;; not really proof shell
 
-(defcustom proof-shell-require-command-regexp nil
-  "A regular expression to match a Require-type of command, or nil.
-If set to a regexp, then `proof-done-advancing-require-function'
-should also be set, and will be called immediately after the match.
-
-This can be used to adjust `proof-included-files-list' based on the
-lines of script that have been processed/parsed, rather than relying
-on information from the prover."
-  :type 'regexp
-  :group 'proof-shell)
-
-(defcustom proof-done-advancing-require-function nil
-  "Used in `proof-done-advancing', see `proof-shell-require-command-regexp'.
-The function is passed the span and the command as arguments."
-  :type 'function
-  :group 'proof-shell)
-
 ;; (defcustom  proof-shell-adjust-line-width-cmd nil
 
 ;;
