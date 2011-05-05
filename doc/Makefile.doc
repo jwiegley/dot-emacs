@@ -1,9 +1,9 @@
 ##
 ## Makefile for Proof General doc directory.
 ##
-## Author:  David Aspinall <da@dcs.ed.ac.uk>
+## Author:  David Aspinall <da@inf.ed.ac.uk>
 ##
-## Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+## Maintainer:  Proof General maintainer <da+proofgen@inf.ed.ac.uk>
 ##
 ## $Id$
 ## 
