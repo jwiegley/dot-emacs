@@ -10,22 +10,21 @@
 ###########################################################################
 ##
 ## Use:
-##	make info,dvi,pdf,html    - build respective docs from texi source.
-##	make doc		  - make default kinds of doc (dvi, info).
+##	make info,pdf,html    - build respective docs from texi source.
+##	make doc	      - make default kinds of doc (pdf, info).
 ##
 ###########################################################################
 
 
 MAKE = make -f Makefile.doc 
 MAKEINFO = makeinfo
-# `texinfo-tex' package contains texi2dvi and texi2pdf
-TEXI2DVI = texi2dvi
-
+TEXI2HTML = texi2html -expandinfo -number -split_chapter --noheader
+# `texinfo-tex' package contains texi2pdf
+TEXI2PDF = texi2pdf
 # `dviutils' package contains these useful utilities.
 # "make rearrange" will only be called if you have dviselect.
 DVISELECT = dviselect
 DVICONCAT = dviconcat
-
 
 # Assumes actual first two pages belong to titlepage
 TITLERANGE = =1,=2
@@ -36,40 +35,20 @@ MAINRANGE = =3,=4,3:
 TOC = :_1
 
 DVI2PS = dvips -Pcmz
-TEXI2PDF = texi2pdf
-TEXI2HTML = texi2html -expandinfo -number -split_chapter --noheader
 EMACS = emacs
 EMACSFLAGS = -q -no-site-file 
 
 TMPFILE=pgt
 
-.SUFFIXES:  .texi .info .html .pdf .ps .eps .tiff .gz
+.SUFFIXES:  .texi .info .html .pdf .gz
 
 default: doc
 
 .texi.info:
 	$(MAKEINFO) $< 
 
-.texi.dvi:
-	$(TEXI2DVI) $<
-	if `which $(DVISELECT) > /dev/null`; then $(MAKE) rearrange DOCNAME=$*; fi
-
-rearrange:
-	$(DVISELECT) -i $(DOCNAME).dvi -o $(DOCNAME).tmp1 $(TITLERANGE)
-	$(DVISELECT) -i $(DOCNAME).dvi -o $(DOCNAME).tmp2 $(MAINRANGE)
-	$(DVISELECT) -i $(DOCNAME).dvi -o $(DOCNAME).tmp3 $(TOC)
-	$(DVICONCAT) -o $(DOCNAME).dvi $(DOCNAME).tmp1 $(DOCNAME).tmp3 $(DOCNAME).tmp2 
-	rm -f $(DOCNAME).tmp1 $(DOCNAME).tmp2 $(DOCNAME).tmp3
-
-.tiff.eps:
-	tiff2ps -e -w 3.48 -h 5 $*.tiff > $*.eps
-
-## FIXME: need to do page rearrangement here, too!
 .texi.pdf:
 	$(TEXI2PDF) $< 
-
-.dvi.ps:
-	$(DVI2PS) $< -o $*.ps
 
 .texi.html:	
 	$(TEXI2HTML) --output $* $< 
@@ -77,31 +56,6 @@ rearrange:
 default: doc
 
 FORCE:
-
-ProofGeneral.txt:
-	echo > ProofGeneral.txt
-
-ProofGeneralPortrait.eps: FORCE
-#	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
-	if [ -f ProofGeneralPortrait.eps ]; then \
-	  sed 's/@clear haveeps/@set haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
-	  sed 's/@c image{ProofGeneralPortrait}/@image{ProofGeneralPortrait}/g' $(TMPFILE) > $(DOCNAME).texi; \
-	else   \
-	  sed 's/@set haveeps/@clear haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
-	  sed 's/@image{ProofGeneralPortrait}/@c image{ProofGeneralPortrait}/g' $(TMPFILE) > $(DOCNAME).texi; \
-	fi
-	rm -f $(TMPFILE)
-
-ProofGeneralPortrait.pdf:
-#	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; epstopdf ProofGeneralPortrait.eps; fi
-	if [ -f ProofGeneralPortrait.pdf ]; then \
-	  sed 's/@clear haveeps/@set haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
-	  sed 's/@c image{ProofGeneralPortrait}/@image{ProofGeneralPortrait}/g' $(TMPFILE) > $(DOCNAME).texi; \
-	else   \
-	  sed 's/@set haveeps/@clear haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
-	  sed 's/@image{ProofGeneralPortrait}/@c image{ProofGeneralPortrait}/g' $(TMPFILE) > $(DOCNAME).texi; \
-	fi
-	rm -f $(TMPFILE)
 
 %.gz : %
 	gzip -f -9 $*
@@ -111,22 +65,21 @@ ProofGeneralPortrait.pdf:
 ##
 doc:	pdf info
 
-
 ## 
 ## all : build all documentation targets
 ##
-all:    dvi ps html info pdf
+all:    html info pdf
 
 ##
 ## dist: build distribution targets
 ##
 dist:   info html pdf
 
-pdf:    ProofGeneralPortrait.pdf $(DOCNAME).pdf
+pdf:    $(DOCNAME).pdf
 
 # da: target is a fake: we actually make in a subdir
 html:   $(DOCNAME).html
-info:   ProofGeneral.txt $(DOCNAME).info
+info:   $(DOCNAME).info
 
 # NB: for info, could make localdir automatically from
 # START-INFO-DIR-ENTRY / END-INFO-DIR-ENTRY.
@@ -137,7 +90,6 @@ info:   ProofGeneral.txt $(DOCNAME).info
 ##
 CLEANTARGS:=$(DOCNAME).cp $(DOCNAME).fn $(DOCNAME).vr $(DOCNAME).tp $(DOCNAME).ky $(DOCNAME).kys $(DOCNAME).pg $(DOCNAME).fns $(DOCNAME).vrs $(DOCNAME).cps $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).cp $(DOCNAME).cp0 $(DOCNAME).toc
 clean:
-	rm -f ProofGeneral.txt ProofGeneralPortrait.eps ProofGeneralPortrait.pdf
 	rm -f $(CLEANTARGS)
 	rm -f *~
 
@@ -145,7 +97,7 @@ clean:
 ## distclean: Remove documentation targets
 ##
 distclean:   clean
-	rm -rf $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME)*.ps $(DOCNAME).pdf $(DOCNAME)
+	rm -rf $(DOCNAME).info* $(DOCNAME).pdf $(DOCNAME)
 
 ##
 ## texi: update magic comments in texi from docstrings in code.
