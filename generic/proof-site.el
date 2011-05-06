@@ -62,7 +62,7 @@
       (string-match "Version \\([^ ]+\\)\\." proof-general-version)
       (match-string 1 proof-general-version))))
 
-(defconst proof-general-version-year "2010")
+(defconst proof-general-version-year "2011")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
