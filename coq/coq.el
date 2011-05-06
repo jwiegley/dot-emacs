@@ -23,7 +23,7 @@
   (unless (proof-try-require 'smie)
     (defvar smie-indent-basic nil))     ; smie
 
-  (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook  
+  (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-compile-before-require nil)       ; defpacustom
@@ -296,7 +296,7 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
   "Build a list of string from a string S of the form \"id1|id2|...|idn\"."
   (if (or (not s) (string= s "")) '()
     (let ((x (string-match (concat "\\(" coq-id-shy "\\)\\(?:|\\|\\'\\)\\(.*\\)") s)))
-      (if (not x) (error "cannot extract list of ids from string")
+      (if (not x) (error "Cannot extract list of ids from string")
         (cons (match-string 1 s)
               (build-list-id-from-string (match-string 2 s))
               )))
@@ -306,7 +306,7 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
 ;; Use the statenumber inside the coq prompt to backtrack more easily
 (defun coq-last-prompt-info (s)
   "Extract info from the coq prompt S.  See `coq-last-prompt-info-safe'."
-  (let ((lastprompt (or s (error "no prompt !!?")))
+  (let ((lastprompt (or s (error "No prompt !!?")))
         (regex
          (concat "\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
                  "|?\\)*\\)| \\([0-9]+\\) < ")))
@@ -326,7 +326,7 @@ pending proofs (in a list)."
   "The state number we want to put in a span.
 This is the prompt number given *just before* the command was sent.
 This variable remembers this number and will be updated when
-used see coq-set-state-number. 
+used see coq-set-state-number.
 Initially 1 because Coq initial state has number 1.")
 
 (defvar coq-last-but-one-proofnum 1
@@ -417,7 +417,7 @@ Initially 1 because Coq initial state has number 1.")
 This number is in the *last but one* prompt (variable `coq-last-but-one-statenum').
 If locked span already has a state number, then do nothing. Also updates
 `coq-last-but-one-statenum' to the last state number for next time."
-  (if proof-shell-last-prompt 
+  (if proof-shell-last-prompt
       ;; da: did test proof-script-buffer here, but that seems wrong
       ;; since restart needs to reset these values.
       ;; infos = promt infos of the very last prompt
@@ -485,17 +485,17 @@ If locked span already has a state number, then do nothing. Also updates
   (if (eq (span-property span 'type) 'proverproc)
       ;; processed externally (i.e. Require, etc), nothing to do
       ;; (should really be unlocked when we undo the Require).
-      nil 
+      nil
   (let* (ans (naborts 0) (nundos 0)
              (proofdepth (coq-get-span-proofnum span))
              (proofstack (coq-get-span-proofstack span))
              (span-staten (coq-get-span-statenum span))
-             (naborts (count-not-intersection 
+             (naborts (count-not-intersection
                        coq-last-but-one-proofstack proofstack)))
     ;; if we move outside of any proof, coq does not print anything, so clean
     ;; the goals buffer otherwise the old one will still be displayed
     (if (= proofdepth 0) (proof-clean-buffer proof-goals-buffer))
-    (unless (and 
+    (unless (and
              ;; return nil (was proof-no-command) in this case:
              ;; this is more efficient as backtrack x y z may be slow
              (equal coq-last-but-one-proofstack proofstack)
@@ -585,15 +585,15 @@ If locked span already has a state number, then do nothing. Also updates
 (defsubst coq-put-into-brackets (s)
   (concat "[ " s " ]"))
 
-(defsubst coq-put-into-quotes (s) 
+(defsubst coq-put-into-quotes (s)
   (concat "\"" s "\""))
 
 (defun coq-SearchIsos ()
   "Search a term whose type is isomorphic to given type.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do 
-   "SearchPattern (parenthesis mandatory), ex: (?X1 + _ = _ + ?X1)" 
+  (coq-ask-do
+   "SearchPattern (parenthesis mandatory), ex: (?X1 + _ = _ + ?X1)"
    "SearchPattern" nil))
 
 (defun coq-SearchConstant ()
@@ -602,8 +602,8 @@ This is specific to `coq-mode'."
 
 (defun coq-Searchregexp ()
   (interactive)
-  (coq-ask-do 
-   "Search regexp (ex: \"eq_\" nat)" 
+  (coq-ask-do
+   "Search regexp (ex: \"eq_\" nat)"
    "SearchAbout" nil 'coq-put-into-brackets))
 
 (defun coq-SearchRewrite ()
@@ -612,16 +612,16 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchAbout ()
   (interactive)
-  (coq-ask-do 
-   "SearchAbout (ex: \"eq_\" eq -bool)" 
+  (coq-ask-do
+   "SearchAbout (ex: \"eq_\" eq -bool)"
    "SearchAbout" nil 'coq-put-into-brackets))
 
-(defun coq-Print () 
+(defun coq-Print ()
   "Ask for an ident and print the corresponding term."
   (interactive)
   (coq-ask-do "Print" "Print"))
 
-(defun coq-About () 
+(defun coq-About ()
   "Ask for an ident and print information on it."
   (interactive)
   (coq-ask-do "About" "About"))
@@ -640,7 +640,7 @@ This is specific to `coq-mode'."
   "Locate a notation.  Put it automatically into quotes.
 This is specific to `coq-mode'."
   (interactive)
-  (coq-ask-do 
+  (coq-ask-do
    "Locate notation (ex: \'exists\' _ , _)" "Locate"
    t 'coq-put-into-quotes))
 
@@ -804,7 +804,7 @@ This is specific to `coq-mode'."
 
   (coq-init-syntax-table)
   ;; we can cope with nested comments
-  (set (make-local-variable 'comment-quote-nested) nil) 
+  (set (make-local-variable 'comment-quote-nested) nil)
 
   ;; font-lock
   (setq proof-script-font-lock-keywords coq-font-lock-keywords-1)
@@ -826,7 +826,7 @@ This is specific to `coq-mode'."
       (set (make-local-variable 'tags-table-list)
            (cons coq-tags tags-table-list)))
   
-  (set (make-local-variable 
+  (set (make-local-variable
         'blink-matching-paren-dont-ignore-comments) t)
 
   (setq proof-cannot-reopen-processed-files nil)
@@ -1001,9 +1001,9 @@ dependency checking and compilation. Before executing this
 command the following keys are substituted as follows:
   %p  the (physical) directory containing the source of
       the required module
-  %o  the coq object file in the physical directory that will
+  %o  the Coq object file in the physical directory that will
       be loaded
-  %s  the coq source file in the physical directory whose
+  %s  the Coq source file in the physical directory whose
       object will be loaded
   %q  the qualified id of the \"Require\" command
   %r  the source file containing the \"Require\"
@@ -1298,7 +1298,7 @@ the command whose output will appear in the buffer."
       (compilation-mode)))
   ;; I don't really care if somebody gets the right mode when
   ;; he saves and reloads this buffer. However, error messages in
-  ;; the first line are not found for some reason ... 
+  ;; the first line are not found for some reason ...
   (let ((inhibit-read-only t))
     (with-current-buffer coq-compile-response-buffer
       (insert "-*- mode: compilation; -*-\n\n" command "\n"))))
@@ -1307,7 +1307,7 @@ the command whose output will appear in the buffer."
   "Display the errors in `coq-compile-response-buffer'."
   (with-current-buffer coq-compile-response-buffer
     ;; fontification enables the error messages
-    (let ((font-lock-verbose nil)) ; shut up font-lock messages  
+    (let ((font-lock-verbose nil)) ; shut up font-lock messages
       (font-lock-fontify-buffer)))
   ;; Make it so the next C-x ` will use this buffer.
   (setq next-error-last-buffer coq-compile-response-buffer)
@@ -1342,7 +1342,7 @@ break."
     (if coq-debug-auto-compilation
         (message "call coqdep arg list: %s" coqdep-arguments))
     (with-temp-buffer
-      (apply 'call-process 
+      (apply 'call-process
        coq-dependency-analyzer nil (current-buffer) nil coqdep-arguments)
       (setq coqdep-output (buffer-string)))
     (if coq-debug-auto-compilation
@@ -1473,7 +1473,7 @@ function."
               (progn
                 (setq dependencies (coq-get-library-dependencies lib-src-file))
                 (if (stringp dependencies)
-                    (error "file %s has %s" lib-src-file dependencies))
+                    (error "File %s has %s" lib-src-file dependencies))
                 (setq deps-mod-time
                       (mapcar
                        (lambda (dep)
@@ -1547,7 +1547,7 @@ decent error message.
 
 A peculiar consequence of the current implementation is that this
 function returns () if MODULE-ID comes from the standard library."
-  (let ((coq-load-path 
+  (let ((coq-load-path
          (if coq-load-path-include-current
              (cons default-directory coq-load-path)
            coq-load-path))
@@ -1793,7 +1793,7 @@ mouse activation."
   (interactive)
   (let* ((s)
          (reqkind
-          (completing-read 
+          (completing-read
            "Command (TAB to see list, default Require Export) : "
            reqkinds-kinds-table nil nil nil nil "Require Export")))
     (setq s (read-string  "Name (empty to stop) : "))
@@ -1827,7 +1827,7 @@ Based on idea mentioned in Coq reference manual."
          (intros (replace-regexp-in-string "^\\([^\n]+\\)\n"  "intros \\1." shints t)))
     (if (or (< (length shints) 2);; empty response is just NL
             (string-match coq-error-regexp shints))
-        (error "Don't know what to intro. ")
+        (error "Don't know what to intro")
       (insert intros)
       (indent-according-to-mode))))
 
@@ -1837,7 +1837,7 @@ Based on idea mentioned in Coq reference manual."
 
 ;; da: FIXME untested with new generic hybrid code: hope this still works
 (defun coq-insert-as ()
-  "Insert \"as\" suffix to next command, names given by \"infoH\" tactical.  
+  "Insert \"as\" suffix to next command, names given by \"infoH\" tactical.
 Based on idea mentioned in Coq reference manual."
   (interactive)
   (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
@@ -1849,13 +1849,13 @@ Based on idea mentioned in Coq reference manual."
                           proof-shell-last-response-output))
        (substr (match-string 1 proof-shell-last-response-output)))
     (coq-find-command-end-backward)
-    (let ((inhibit-read-only t)) 
+    (let ((inhibit-read-only t))
       (insert (concat " as " substr)))))
 
 
 (defun coq-insert-match ()
   "Insert a match expression from a type name by Show Match.
-Based on idea mentioned in Coq reference manual. 
+Based on idea mentioned in Coq reference manual.
 Also insert holes at insertion positions."
   (interactive)
   (proof-shell-ready-prover)
@@ -2106,7 +2106,7 @@ number of hypothesis displayed, without hiding the goal"
 (add-hook 'proof-shell-handle-delayed-output-hook
 	  'coq-update-minor-mode-alist)
 (add-hook 'proof-shell-handle-delayed-output-hook
-          '(lambda () 
+          '(lambda ()
              (if (proof-string-match coq-shell-proof-completed-regexp
                                      proof-shell-last-output)
                  (proof-clean-buffer proof-goals-buffer))))
