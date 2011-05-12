@@ -186,12 +186,12 @@ Dead or nil buffers are not represented in the list.
 
 ;;;***
 
-;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19665
-;;;;;;  37867))
+;;;### (autoloads (profile-pg) "pg-dev" "../lib/pg-dev.el" (19894
+;;;;;;  52924))
 ;;; Generated autoloads from ../lib/pg-dev.el
 
 (autoload 'profile-pg "pg-dev" "\
-Not documented
+Configure Proof General for profiling.  Use M-x elp-results to see results.
 
 \(fn)" t nil)
 
@@ -232,7 +232,7 @@ Existing XML files are overwritten.
 ;;;***
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn) "pg-pamacs"
-;;;;;;  "pg-pamacs.el" (19756 35088))
+;;;;;;  "pg-pamacs.el" (19782 44340))
 ;;; Generated autoloads from pg-pamacs.el
 
 (autoload 'proof-defpacustom-fn "pg-pamacs" "\
@@ -241,21 +241,47 @@ As for macro `defpacustom' but evaluating arguments.
 \(fn NAME VAL ARGS)" nil nil)
 
 (autoload 'defpacustom "pg-pamacs" "\
-Define a setting NAME for the current proof assitant, default VAL.
-NAME can correspond to some internal setting, flag, etc, for the
-proof assistant, in which case a :setting and :type value should be provided.
-The :type of NAME should be one of 'integer, 'boolean, 'string.
-The customization variable is automatically in group `proof-assistant-setting'.
+Define a setting NAME for the current proof assistant, default VAL.
+Mainly intended for configuring settings of running provers,
+which can be changed by sending commands.
+
+In this case, NAME stands for the internal setting, flag, etc,
+for the proof assistant, and a :setting and :type value should be
+provided.  The :type of NAME should be one of 'integer, 'float,
+'boolean, 'string.
+
 The function `proof-assistant-format' is used to format VAL.
+
+This macro invokes the standard Emacs `defcustom' macro, so this
+also defines a customizable setting inside Emacs.  The
+customization variable is automatically in group
+`proof-assistant-setting'.
+
 If NAME corresponds instead to a PG internal setting, then a form :eval to
 evaluate can be provided instead.
+
+Additional properties in the ARGS prop list may include:
+
+ pggroup   string    A grouping name for the setting, in case there are many.
+		     For example, \"Timing\", \"Tracing\", etc.  Used
+		     to generate sub-menus in the UI.
+
+ pgipgcmd  string    Alternative to :setting.
+		     Send a PGIP formatted command based on given string.
+
+ pgdynamic flag      If flag is non-nil, this setting is a dynamic one
+		     that is particular to the running instance of the prover.
+		     Automatically set by preferences configured from PGIP 
+		     askprefs message.
+
+This macro also extends the `proof-assistant-settings' list.
 
 \(fn NAME VAL &rest ARGS)" nil (quote macro))
 
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (19756 33437))
+;;;;;;  "pg-pgip" "pg-pgip.el" (19782 36454))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload 'pg-pgip-process-packet "pg-pgip" "\
@@ -279,7 +305,7 @@ Send an <askprefs> message to the prover.
 ;;;### (autoloads (pg-response-has-error-location proof-next-error
 ;;;;;;  pg-response-message pg-response-display-with-face pg-response-maybe-erase
 ;;;;;;  proof-response-config-done proof-response-mode) "pg-response"
-;;;;;;  "pg-response.el" (19665 37866))
+;;;;;;  "pg-response.el" (19782 36455))
 ;;; Generated autoloads from pg-response.el
 
 (autoload 'proof-response-mode "pg-response" "\
@@ -343,7 +369,7 @@ See `pg-next-error-regexp'.
 ;;;;;;  pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19665 37866))
+;;;;;;  "pg-user.el" (19782 36455))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -537,8 +563,8 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-aux-menu proof-menu-define-specific proof-menu-define-main
-;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19756
-;;;;;;  35398))
+;;;;;;  proof-menu-define-keys) "proof-menu" "proof-menu.el" (19894
+;;;;;;  52923))
 ;;; Generated autoloads from proof-menu.el
 
 (autoload 'proof-menu-define-keys "proof-menu" "\
@@ -587,7 +613,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19756 34673))
+;;;;;;  "proof-script.el" (19916 725))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -621,7 +647,10 @@ also as the 'response property on the span.
 
 Optional argument MOUSEFACE means use the given face as a mouse highlight
 face, if it is a face, otherwise, if it is non-nil but not a face,
-do not add a mouse highlight.
+do not add a mouse highlight.  
+
+In any case, a mouse highlight and tooltip are only set if
+`proof-output-tooltips' is non-nil.
 
 Argument FACE means add 'face property FACE to the span.
 
@@ -672,7 +701,7 @@ finish setup which depends on specific proof assistant configuration.
 ;;;;;;  proof-shell-invisible-cmd-get-result proof-shell-invisible-command
 ;;;;;;  proof-shell-wait proof-extend-queue proof-start-queue proof-shell-insert
 ;;;;;;  proof-shell-available-p proof-shell-ready-prover) "proof-shell"
-;;;;;;  "proof-shell.el" (19756 34673))
+;;;;;;  "proof-shell.el" (19894 52923))
 ;;; Generated autoloads from proof-shell.el
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
@@ -685,7 +714,7 @@ No change to current buffer or point.
 \(fn &optional QUEUEMODE)" nil nil)
 
 (defsubst proof-shell-live-buffer nil "\
-Return buffer of active proof assistant, or nil if none running." (and proof-shell-buffer (buffer-live-p proof-shell-buffer) (scomint-check-proc proof-shell-buffer)))
+Return non-nil if proof-shell-buffer is live." (and proof-shell-buffer (buffer-live-p proof-shell-buffer) (scomint-check-proc proof-shell-buffer)))
 
 (autoload 'proof-shell-available-p "proof-shell" "\
 Return non-nil if there is a proof shell active and available.
@@ -803,7 +832,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19756 33437))
+;;;;;;  (19915 53348))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -897,20 +926,20 @@ is changed.
 
 ;;;***
 
-;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19690
-;;;;;;  31413))
+;;;### (autoloads (proof-debug) "proof-utils" "proof-utils.el" (19782
+;;;;;;  36455))
 ;;; Generated autoloads from proof-utils.el
 
 (autoload 'proof-debug "proof-utils" "\
 Issue the debugging message (format MSG ARGS) in the *PG Debug* buffer.
-If proof-general-debug is nil, do nothing.
+If flag `proof-general-debug' is nil, do nothing.
 
 \(fn MSG &rest ARGS)" nil nil)
 
 ;;;***
 
 ;;;### (autoloads (scomint-make scomint-make-in-buffer) "scomint"
-;;;;;;  "../lib/scomint.el" (19665 37867))
+;;;;;;  "../lib/scomint.el" (19774 44455))
 ;;; Generated autoloads from ../lib/scomint.el
 
 (autoload 'scomint-make-in-buffer "scomint" "\
@@ -942,7 +971,7 @@ If PROGRAM is a string, any more args are arguments to PROGRAM.
 ;;;***
 
 ;;;### (autoloads (texi-docstring-magic) "texi-docstring-magic" "../lib/texi-docstring-magic.el"
-;;;;;;  (19665 37867))
+;;;;;;  (19894 57151))
 ;;; Generated autoloads from ../lib/texi-docstring-magic.el
 
 (autoload 'texi-docstring-magic "texi-docstring-magic" "\
@@ -968,7 +997,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19665 37867))
+;;;;;;  (19813 3247))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -982,7 +1011,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
 ;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
 ;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el")
-;;;;;;  (19756 35402 417383))
+;;;;;;  (19916 830 168425))
 
 ;;;***
 
