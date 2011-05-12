@@ -955,6 +955,9 @@ This is specific to `coq-mode'."
 ;;
 
 ;; TODO list:
+;; - Bug: assert newly appended text in locked ancestor apparently
+;;   sends text before killing coqtop
+;;   (unreported)
 ;; - Bug: undo in locked ancestor
 ;; - Bug: never stopping busy cursor
 ;; - modify behavior of locked ancestors, see proof-span-read-only
@@ -971,6 +974,8 @@ This is specific to `coq-mode'."
 ;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000138.html)
 ;; - don't move point in invisible scripting buffer
 ;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000139.html)
+
+
 ;; user options and variables
 
 (defgroup coq-auto-compile ()
