@@ -2631,8 +2631,12 @@ Choice of function depends on configuration setting."
 ;; Added (in progress) in PG 4.0
 ;;
 
-(deflocal proof-segment-up-to-cache nil)
+(deflocal proof-segment-up-to-cache nil
+  "Cache used to speed up parsing.
+Stores recent results of `proof-segment-up-to' in reverse order.")
+
 (deflocal proof-segment-up-to-cache-start 0)
+(deflocal proof-segment-up-to-cache-end 0)
 (deflocal proof-last-edited-low-watermark nil)
 
 ;; A simplistic first attempt: we only cache the last region that was
@@ -2652,36 +2656,43 @@ Choice of function depends on configuration setting."
 	 (>= (proof-queue-or-locked-end) 
 	     proof-segment-up-to-cache-start)
 	 (setq res (proof-segment-cache-contents-for pos))
+	 ;; only use result if last edit point is >1 segment below
 	 (or (not proof-last-edited-low-watermark)
 	     (> proof-last-edited-low-watermark
-		(nth 2 (car (last res))))))
+		(nth 2 (car res)))))
 	(progn
 	  (proof-debug "proof-segment-up-to-using-cache: re-using %d parse results"
 		       (length res))
 	  res)
       ;; Cache not useful, perform a fresh parse
       (let ((semis (proof-segment-up-to pos args)))
+	(setq proof-segment-up-to-cache (reverse semis))
 	(setq proof-segment-up-to-cache-start (proof-queue-or-locked-end))
-	(setq proof-segment-up-to-cache (copy-list semis))
-	(if (car-safe semis)
-	    (setq proof-last-edited-low-watermark
-		  (max
-		   (or proof-last-edited-low-watermark (point-max))
-		   ;; nudge up
-		   (nth 2 (car semis)))))
+	(setq proof-segment-up-to-cache-end (if semis (nth 2 (car semis))))
+	(when semis
+	  (setq proof-last-edited-low-watermark
+		(max
+		 (or proof-last-edited-low-watermark (point-max))
+		 ;; nudge up
+		 proof-segment-up-to-cache-end)))
 	semis))))
 
 (defun proof-segment-cache-contents-for (pos)
-  (let ((semis  (reverse proof-segment-up-to-cache))
-	(start  (proof-queue-or-locked-end))
-	usedsemis semiend)
-    (while semis
-      (setq semiend (nth 2 (car semis)))
-      (if (> semiend start)
-	  (setq usedsemis (cons (car semis) usedsemis)))
-      (setq semis
-	    (if (<= semiend pos) (cdr semis))))
-    usedsemis))
+  ;; only return result if we have cache for complete region
+  (when (< pos proof-segment-up-to-cache-end) 
+    (let ((semis   proof-segment-up-to-cache)
+	  (start  (proof-queue-or-locked-end))
+	  usedsemis semiend)
+      (while semis
+	(setq semiend (nth 2 (car semis)))
+	(if (> semiend start)
+	    (setq usedsemis (cons (car semis) usedsemis)))
+	(setq semis
+	      (if (or (< semiend pos) 
+		      ;; matches parsing-until-find-something behaviour
+		      (and (= semiend pos) (not usedsemis)))
+		  (cdr semis))))
+      usedsemis)))
 
 (defun proof-script-after-change-function (start end prelength)
   "Value for `after-change-functions' in proof script buffers."
