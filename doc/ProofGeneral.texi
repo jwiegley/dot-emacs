@@ -4207,9 +4207,9 @@ command the following keys are substituted as follows:
 @lisp
   %p  the (physical) directory containing the source of
       the required module
-  %o  the coq object file in the physical directory that will
+  %o  the Coq object file in the physical directory that will
       be loaded
-  %s  the coq source file in the physical directory whose
+  %s  the Coq source file in the physical directory whose
       object will be loaded
   %q  the qualified id of the "Require" command
   %r  the source file containing the "Require"

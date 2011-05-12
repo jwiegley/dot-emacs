@@ -345,12 +345,15 @@ under @samp{@code{proof-home-directory}}.
 
 Each entry is a list of the form
 @lisp
-    (@var{symbol} @var{name} @var{file-extension} [AUTOMODE-REGEXP])
+  (@var{symbol} @var{name} @var{file-extension} [AUTOMODE-REGEXP] [IGNORED-EXTENSIONS-LIST])
 @end lisp
 The @var{name} is a string, naming the proof assistant.
 The @var{symbol} is used to form the name of the mode for the
 assistant, @samp{SYMBOL-mode}, run when files with @var{automode-regexp}
-(or with extension @var{file-extension}) are visited.  
+(or with extension @var{file-extension}) are visited. If present,
+@var{ignored-extensions-list} is a list of file-name extensions to be
+ignored when doing file-name completion (@var{ignored-extensions-list}
+is added to @code{completion-ignored-extensions}).
 
 @var{symbol} is also used to form the name of the directory and elisp
 file for the mode, which will be
@@ -360,7 +363,7 @@ file for the mode, which will be
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v") (phox "PhoX" "phx") (lego "LEGO" "l"))}.
+The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (lego "LEGO" "l"))}.
 @end defopt
 
 
