@@ -23,9 +23,18 @@
 ;;
 
 ;;; Code:
+
+;; Entries in proof-assistant-table-default are lists of the form
+;; 
+;;   (SYMBOL NAME FILE-EXTENSION [AUTOMODE-REGEXP] [IGNORED-EXTENSIONS-LIST])
+;;
+;; FILE-EXTENSION is without dot ".". AUTOMODE-REGEXP is put into
+;; auto-mode-alist, if it is not present, a regexp will be made up from
+;; FILE-EXTENSION. IGNORED-EXTENSIONS-LIST, if present, is appended to 
+;; completion-ignored-extensions. See proof-assistant-table for more info.
 (defconst proof-assistant-table-default
     '((isar "Isabelle" "thy")
-      (coq "Coq" "v")
+      (coq "Coq" "v" nil (".vo" ".glob"))
       (phox "PhoX" "phx")
 
       ;; Obscure/conflict with other useful modes:
@@ -161,12 +170,15 @@ under `proof-home-directory'.
 
 Each entry is a list of the form
 
-    (SYMBOL NAME FILE-EXTENSION [AUTOMODE-REGEXP])
+  (SYMBOL NAME FILE-EXTENSION [AUTOMODE-REGEXP] [IGNORED-EXTENSIONS-LIST])
 
 The NAME is a string, naming the proof assistant.
 The SYMBOL is used to form the name of the mode for the
 assistant, `SYMBOL-mode', run when files with AUTOMODE-REGEXP
-\(or with extension FILE-EXTENSION) are visited.  
+\(or with extension FILE-EXTENSION) are visited. If present,
+IGNORED-EXTENSIONS-LIST is a list of file-name extensions to be
+ignored when doing file-name completion (IGNORED-EXTENSIONS-LIST
+is added to completion-ignored-extensions).
 
 SYMBOL is also used to form the name of the directory and elisp
 file for the mode, which will be
@@ -175,7 +187,8 @@ file for the mode, which will be
 
 where PROOF-HOME-DIRECTORY is the value of the
 variable `proof-home-directory'."
-  :type '(repeat (list symbol string string))
+  ;; FIXME: make the last two elements optional in the type
+  :type '(repeat (list symbol string regexp string))
   :group 'proof-general-internals)
 
 
@@ -323,6 +336,9 @@ the lisp variable `proof-assistants', or the contents of `proof-assistant-table'
 	      (cons (cons regexp proofgen-mode) auto-mode-alist))
 
 	(fset proofgen-mode mode-stub)
+
+	(dolist (ext (nth 4 tableentry))
+	  (add-to-list 'completion-ignored-extensions ext))
 
 	(setq assistants (cdr assistants)))))
 
