@@ -2628,8 +2628,18 @@ Choice of function depends on configuration setting."
 ;;
 ;; Caching parse results for unedited portions of the buffer
 ;;
-;; Added (in progress) in PG 4.0
+;; Added in PG 4.1
 ;;
+;; A simplistic first attempt: we only cache the last region that was
+;; parsed.  It would be better to maintain a parse cache for the
+;; unedited prefix of the buffer or for individual segments like
+;; PGIP Emacs PG does.  Or to parse during idle like font-lock.
+;;
+;; We assume that extending the parsed region can only possibly affect
+;; the last command in the cache but leaves the rest intact.  (NB: in
+;; Isabelle/Isar a command can be a proper prefix of a longer one and
+;; there are no explicit terminators).
+
 
 (deflocal proof-segment-up-to-cache nil
   "Cache used to speed up parsing.
@@ -2638,14 +2648,6 @@ Stores recent results of `proof-segment-up-to' in reverse order.")
 (deflocal proof-segment-up-to-cache-start 0)
 (deflocal proof-segment-up-to-cache-end 0)
 (deflocal proof-last-edited-low-watermark nil)
-
-;; A simplistic first attempt: we only cache the last region that was
-;; parsed.  It would be better to maintain a parse cache for the
-;; unedited prefix of the buffer.  Also, we may perhaps assume that
-;; extending the parsed region can only possibly affect the last command
-;; in the cache but leaves the rest intact.  (NB: in Isabelle/Isar a
-;; command can be a proper prefix of a longer one and there are no
-;; explicit terminators).
 
 (defun proof-segment-up-to-using-cache (pos &rest args)
   "A wrapper for `proof-segment-up-to' which uses a cache to speed things up."
@@ -2669,17 +2671,15 @@ Stores recent results of `proof-segment-up-to' in reverse order.")
 	(setq proof-segment-up-to-cache (reverse semis))
 	(setq proof-segment-up-to-cache-start (proof-queue-or-locked-end))
 	(setq proof-segment-up-to-cache-end (if semis (nth 2 (car semis))))
-	(when semis
-	  (setq proof-last-edited-low-watermark
-		(max
-		 (or proof-last-edited-low-watermark (point-max))
-		 ;; nudge up
-		 proof-segment-up-to-cache-end)))
+	(when proof-last-edited-low-watermark
+	  (if (<= proof-last-edited-low-watermark
+		  proof-segment-up-to-cache-end)
+	      (setq proof-last-edited-low-watermark nil)))
 	semis))))
 
 (defun proof-segment-cache-contents-for (pos)
   ;; only return result if we have cache for complete region
-  (when (< pos proof-segment-up-to-cache-end) 
+  (when (<= pos proof-segment-up-to-cache-end) 
     (let ((semis   proof-segment-up-to-cache)
 	  (start  (proof-queue-or-locked-end))
 	  usedsemis semiend)
