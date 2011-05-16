@@ -2835,11 +2835,15 @@ automatically be prefixed by the current proof assistant symbol.
 @c TEXI DOCSTRING MAGIC: defpgcustom
 @deffn Macro defpgcustom 
 Define a new customization variable <PA>@var{-sym} for the current proof assistant.@*
+This is intended for defining settings which are useful for any prover,
+but which the user may require different values of across provers.
+
 The function proof-assistant-<SYM> is also defined, which can be used in the
 generic portion of Proof General to access the value for the current prover.
-Arguments as for @samp{defcustom}, which see.
 
-Usage: (defpgcustom SYM &rest @var{args}).
+Arguments are as for @samp{defcustom}, which see.  If a :group argument is
+not supplied, the setting will be added to the internal settings for the
+current prover (named <PA>-config).
 @end deffn
 
 In specific instances of Proof General, the macro @code{defpgdefault}
