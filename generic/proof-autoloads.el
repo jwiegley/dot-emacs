@@ -232,7 +232,7 @@ Existing XML files are overwritten.
 ;;;***
 
 ;;;### (autoloads (defpacustom proof-defpacustom-fn) "pg-pamacs"
-;;;;;;  "pg-pamacs.el" (19782 44340))
+;;;;;;  "pg-pamacs.el" (19921 2648))
 ;;; Generated autoloads from pg-pamacs.el
 
 (autoload 'proof-defpacustom-fn "pg-pamacs" "\
@@ -254,8 +254,8 @@ The function `proof-assistant-format' is used to format VAL.
 
 This macro invokes the standard Emacs `defcustom' macro, so this
 also defines a customizable setting inside Emacs.  The
-customization variable is automatically in group
-`proof-assistant-setting'.
+customization variable is automatically put into the group
+named after the prover.
 
 If NAME corresponds instead to a PG internal setting, then a form :eval to
 evaluate can be provided instead.
@@ -613,7 +613,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
 ;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
 ;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19916 725))
+;;;;;;  "proof-script.el" (19921 15858))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -832,7 +832,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19915 53348))
+;;;;;;  (19916 929))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -1011,7 +1011,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
 ;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
 ;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el")
-;;;;;;  (19916 830 168425))
+;;;;;;  (19921 15897 383645))
 
 ;;;***
 
