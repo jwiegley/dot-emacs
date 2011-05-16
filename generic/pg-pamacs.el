@@ -75,12 +75,15 @@ This macro should only be invoked once a specific prover is engaged."
   "Define a new customization variable <PA>-sym for current proof assistant.
 Helper for macro `defpgcustom'."
   (let ((specific-var (proof-ass-symv sym))
-	 (generic-var  (intern (concat "proof-assistant-" (symbol-name sym)))))
+	 (generic-var  (intern (concat "proof-assistant-" (symbol-name sym))))
+	 (newargs     (if (member :group args) 
+			  args 
+			(append (list :group 
+				      proof-assistant-internals-cusgrp)
+				args))))
     (eval
      `(defcustom ,specific-var
-       ,@args
-       ;; We could grab :group from @args and prefix it.
-       :group ,(quote proof-assistant-internals-cusgrp)))
+	,@args))
     ;; For functions, we could simply use defalias.  Unfortunately there
     ;; is nothing similar for values, so we define a new set/get function.
     (eval
@@ -100,11 +103,15 @@ If NEWVAL is present, set the variable, otherwise return its current value.")
 
 (defmacro defpgcustom (sym &rest args)
   "Define a new customization variable <PA>-SYM for the current proof assistant.
+This is intended for defining settings which are useful for any prover,
+but which the user may require different values of across provers.
+
 The function proof-assistant-<SYM> is also defined, which can be used in the
 generic portion of Proof General to access the value for the current prover.
-Arguments as for `defcustom', which see.
 
-Usage: (defpgcustom SYM &rest ARGS)."
+Arguments are as for `defcustom', which see.  If a :group argument is
+not supplied, the setting will be added to the internal settings for the
+current prover (named <PA>-config)."
   `(proof-defpgcustom-fn (quote ,sym) (quote ,args)))
 
 (defun proof-defpgdefault-fn (sym value)
@@ -197,7 +204,7 @@ Usage: (defpgdefault SYM VALUE)"
      `(defpgcustom ,name ,val
 	,@newargs
 	:set 'proof-set-value
-	:group 'proof-assistant-setting))
+	:group (quote ,proof-assistant-cusgrp)))
     (cond
      (evalform
       (eval
@@ -227,8 +234,8 @@ The function `proof-assistant-format' is used to format VAL.
 
 This macro invokes the standard Emacs `defcustom' macro, so this
 also defines a customizable setting inside Emacs.  The
-customization variable is automatically in group
-`proof-assistant-setting'.
+customization variable is automatically put into the group
+named after the prover.
 
 If NAME corresponds instead to a PG internal setting, then a form :eval to
 evaluate can be provided instead.
