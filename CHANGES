@@ -27,7 +27,7 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     scripting Require commands, either internally or externally (by
     running Make).  Additionally, it will automatically retract 
     buffers when switching to new files, to model separate compilation
-    properly.  For more details, see XXXX.
+    properly.  For details, see the Coq chapter in the Proof General manual.
     Addition by Hendrik Tews.
 
 *** Fixes for Coq 8.3
