@@ -1897,6 +1897,7 @@ Assumes that point is at the end of a command."
   (if (proof-only-whitespace-to-locked-region-p)
       (error
 	 "At end of the locked region, nothing to do to!"))
+  (proof-activate-scripting nil 'advancing)
   (let ((semis (save-excursion
 		 (skip-chars-backward " \t\n"
 				      (proof-queue-or-locked-end))
@@ -1933,6 +1934,7 @@ comment, and insert or skip to the next semi)."
 		   (eq (match-end 0) nwsp)))
 	(insert proof-terminal-string)
 	(setq ins t))
+      (proof-activate-scripting nil 'advancing)
       (let* ((pos
 	      (if proof-electric-terminator-noterminator (1- (point)) (point)))
 	     (semis
@@ -1955,9 +1957,9 @@ comment, and insert or skip to the next semi)."
 SEMIS must be a non-empty list, in reverse order (last position first).
 We assume that the list is contiguous and begins at (proof-queue-or-locked-end).
 We also delete help spans which appear in the same region (in the expectation
-that these may be overwritten)."
+that these may be overwritten).
+This function expects the buffer to be activated for advancing."
   (assert semis nil "proof-assert-semis: argument must be a list")
-  (proof-activate-scripting nil 'advancing)
   (let ((startpos  (proof-queue-or-locked-end))
 	(lastpos   (nth 2 (car semis)))
 	(vanillas  (proof-semis-to-vanillas semis displayflags)))
