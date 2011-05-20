@@ -87,6 +87,7 @@
  '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"NOTE\"" ((org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
+ '(org2blog/wp-track-posts nil)
  '(diary-file "~/Documents/diary")
  '(calendar-mark-holidays-flag t)
  '(calendar-longitude -74.287672)
@@ -109,6 +110,328 @@
 ;;;_ + org-mode
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+
+(load "org2blog-autoloads" t)
+
+(setq org2blog/wp-blog-alist
+      '(("thoughts"
+         :url "http://johnwiegley.com/xmlrpc.php"
+         :username "johnw"   
+         :default-categories ("journal")
+         :tags-as-categories nil)))
+
+(defun org-agenda-add-overlays (&optional line)
+  "Add overlays found in OVERLAY properties to agenda items.
+Note that habitual items are excluded, as they already
+extensively use text properties to draw the habits graph.
+
+For example, for work tasks I like to use a subtle, yellow
+background color; for tasks involving other people, green; and
+for tasks concerning only myself, blue.  This way I know at a
+glance how different responsibilities are divided for any given
+day.
+
+To achieve this, I have the following in my todo file:
+
+  * Work
+    :PROPERTIES:
+    :CATEGORY: Work
+    :OVERLAY:  (face (:background \"#fdfdeb\"))
+    :END:
+  ** TODO Task
+  * Family
+    :PROPERTIES:
+    :CATEGORY: Personal
+    :OVERLAY:  (face (:background \"#e8f9e8\"))
+    :END:
+  ** TODO Task
+  * Personal
+    :PROPERTIES:
+    :CATEGORY: Personal
+    :OVERLAY:  (face (:background \"#e8eff9\"))
+    :END:
+  ** TODO Task
+
+The colors (which only work well for white backgrounds) are:
+
+  Yellow: #fdfdeb
+  Green:  #e8f9e8
+  Blue:   #e8eff9
+
+To use this function, add it to `org-agenda-finalize-hook':
+
+  (add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)"
+  (let ((inhibit-read-only t) l c
+	(buffer-invisibility-spec '(org-link)))
+    (save-excursion
+      (goto-char (if line (point-at-bol) (point-min)))
+      (while (not (eobp))
+	(let ((org-marker (get-text-property (point) 'org-marker)))
+          (when (and org-marker
+                     (null (overlays-at (point)))
+                     (not (get-text-property (point) 'org-habit-p))
+                     (string-match "\\(sched\\|dead\\|todo\\)"
+                                   (get-text-property (point) 'type)))
+            (let ((overlays (org-entry-get org-marker "OVERLAY" t)))
+              (when overlays
+                (goto-char (line-end-position))
+                (let ((rest (- (window-width) (current-column))))
+                  (if (> rest 0)
+                      (insert (make-string rest ? ))))
+                (let ((ol (make-overlay (line-beginning-position)
+                                        (line-end-position)))
+                      (proplist (read overlays)))
+                  (while proplist
+                    (overlay-put ol (car proplist) (cadr proplist))
+                    (setq proplist (cddr proplist))))))))
+	(forward-line)))))
+
+(add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)
+
+(defun plist-to-alist (sym)
+  (let ((l (symbol-plist sym))
+        props)
+    (while l
+      (unless (or (null (cadr l))
+                  (and (stringp (cadr l))
+                       (= 0 (length (cadr l)))))
+        (push (cons (car l) (cadr l)) props))
+      (setq l (cddr l)))
+    props))
+
+(defsubst trim-string (str)
+  (replace-regexp-in-string "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" ""
+                            str))
+
+(defmacro resolve-log-entry ()
+  `(when log-entry
+     (put 'log-entry 'body
+          (trim-string (get 'log-entry 'body)))
+     (put 'item 'log
+          (cons (plist-to-alist 'log-entry)
+                (get 'item 'log)))
+     (setq log-entry nil)
+     (setplist 'log-entry '())))
+
+(defun org-parse-entry ()
+  (save-restriction
+    (save-excursion
+      (outline-back-to-heading)
+      (narrow-to-region (point) (progn (outline-next-heading) (point)))
+      (goto-char (point-min))
+
+      (let (item log-entry)
+        (setplist 'item '())
+        (put 'item 'body "")
+        (put 'item 'tags '())
+        (put 'item 'log '())
+        (put 'item 'properties '())
+        (while (not (eobp))
+          (cond
+           ((looking-at "^\\(\\*+\\)\\( \\([A-Z][A-Z]+\\)\\)?\\( \\[#\\([A-C]\\)\\]\\)? \\(.+?\\)\\( +:\\(.+?\\):\\)?$")
+            (put 'item 'depth (length (match-string-no-properties 1)))
+            (if (match-string-no-properties 2)
+                (put 'item 'state (match-string-no-properties 3)))
+            (put 'item 'priority (or (match-string-no-properties 5) "B"))
+            (put 'item 'title (match-string-no-properties 6))
+            (if (match-string-no-properties 8)
+                (put 'item 'tags
+                     (split-string (match-string-no-properties 8) ":" t))))
+
+           ((looking-at "^\\(\\s-*\\)- State \"\\([A-Z]+\\)\"\\s-*\\(from \"\\([A-Z]*\\)\"\\s-*\\)?\\[\\([^]]+\\)\\]\\(\\s-*\\\\\\\\\\)?\\s-*$")
+            (resolve-log-entry)
+
+            (put 'log-entry 'depth
+                 (+ 1 (length (match-string-no-properties 1))))
+            (put 'log-entry 'to (match-string-no-properties 2))
+            (if (and (match-string-no-properties 3)
+                     (match-string-no-properties 4))
+                (put 'log-entry 'from (match-string-no-properties 4)))
+            (put 'log-entry 'date (match-string-no-properties 5))
+            (if (match-string-no-properties 6)
+                (progn
+                  (put 'log-entry 'body "")
+                  (setq log-entry t))
+              (put 'item 'log
+                   (cons (plist-to-alist 'log-entry)
+                         (get 'item 'log)))
+              (setplist 'log-entry '())))
+
+           ((looking-at "^\\(\\s-*\\)- Note taken on\\s-*\\[\\([^]]+\\)\\]\\(\\s-*\\\\\\\\\\)?\\s-*$")
+            (resolve-log-entry)
+
+            (put 'log-entry 'depth
+                 (+ 1 (length (match-string-no-properties 1))))
+            (put 'log-entry 'date (match-string-no-properties 2))
+            (put 'log-entry 'note t)
+            (if (match-string-no-properties 3)
+                (progn
+                  (put 'log-entry 'body "")
+                  (setq log-entry t))
+              (put 'item 'log
+                   (cons (plist-to-alist 'log-entry)
+                         (get 'item 'log)))
+              (setplist 'log-entry '())))
+
+           ((re-search-forward ":PROPERTIES:" (line-end-position) t)
+            (while (not (re-search-forward ":END:" (line-end-position) t))
+              (assert (not (eobp)))
+              (if (looking-at "^\\s-*:\\([^:]+\\):\\s-*\\(.*\\)")
+                  (let ((name (match-string-no-properties 1))
+                        (data (match-string-no-properties 2)))
+                    ;;(if (and (string= name "CREATED")
+                    ;;         (string-match "\\[\\([^]\n]+\\)\\]" data))
+                    ;;    (setq data (match-string 1 data)))
+                    (unless (assoc name (get 'item 'properties))
+                      (put 'item 'properties
+                           (cons (cons name data)
+                                 (get 'item 'properties))))))
+              (forward-line)))
+
+           ;; My old way of timestamping entries
+           ((looking-at "^\\s-*\\[\\([^]]+\\)\\]\\s-*$")
+            (unless (assoc "CREATED" (get 'item 'properties))
+              (put 'item 'properties
+                   (cons (cons "CREATED"
+                               (concat "[" (match-string-no-properties 1) "]"))
+                         (get 'item 'properties)))))
+
+           (t
+            (let (skip-line)
+              (goto-char (line-beginning-position))
+              (when (re-search-forward "SCHEDULED:\\s-*<\\([^>\n]+\\)>"
+                                       (line-end-position) t)
+                (put 'item 'scheduled (match-string-no-properties 1))
+                (setq skip-line t))
+              (goto-char (line-beginning-position))
+              (when (re-search-forward "DEADLINE:\\s-*<\\([^>\n]+\\)>"
+                                       (line-end-position) t)
+                (put 'item 'deadline (match-string-no-properties 1))
+                (setq skip-line t))
+              (goto-char (line-beginning-position))
+              (when (re-search-forward "CLOSED:\\s-*\\[\\([^]\n]+\\)\\]"
+                                       (line-end-position) t)
+                (put 'log-entry 'to (get 'item 'state))
+                (put 'log-entry 'date (match-string-no-properties 1))
+                (put 'item 'log
+                     (cons (plist-to-alist 'log-entry)
+                           (get 'item 'log)))
+                (setplist 'log-entry '())
+                (setq skip-line t))
+              (goto-char (line-beginning-position))
+              (when (re-search-forward "ARCHIVED:\\s-*<\\([^>\n]+\\)>"
+                                       (line-end-position) t)
+                (unless (assoc "ARCHIVE_TIME" (get 'item 'properties))
+                  (put 'item 'properties
+                       (cons (cons "ARCHIVE_TIME"
+                                   (match-string-no-properties 1))
+                             (get 'item 'properties))))
+                (setq skip-line t))
+              (if skip-line
+                  (goto-char (line-end-position))))
+
+            (assert (get (if log-entry 'log-entry 'item) 'depth))
+            (dotimes (i (1+ (get (if log-entry 'log-entry 'item) 'depth)))
+              (if (eq (char-after) ? )
+                  (forward-char)
+                (unless (looking-at "^\\s-*$")
+                  (resolve-log-entry))))
+
+            (put (if log-entry 'log-entry 'item) 'body
+                 (concat (get (if log-entry 'log-entry 'item) 'body) "\n"
+                         (buffer-substring-no-properties
+                          (point) (line-end-position))))))
+          (forward-line))
+
+        (resolve-log-entry)
+
+        (put 'item 'body (trim-string (get 'item 'body)))
+        (plist-to-alist 'item)))))
+
+(defun org-normalize-entry ()
+  (interactive)
+  (let ((entry (org-parse-entry)))
+    (save-restriction
+      (save-excursion
+        (outline-back-to-heading)
+        (narrow-to-region (point) (progn (outline-next-heading) (point)))
+        (delete-region (point-min) (point-max))
+
+        (insert (make-string (cdr (assq 'depth entry)) ?*) ? )
+        (if (assq 'state entry)
+            (insert (cdr (assq 'state entry)) ? ))
+        (if (and (assq 'priority entry)
+                 (not (string= "B" (cdr (assq 'priority entry)))))
+            (insert "[#" (cdr (assq 'priority entry)) "] "))
+        (insert (cdr (assq 'title entry)))
+        (when (assq 'tags entry)
+          (insert "  :" (mapconcat 'identity (cdr (assq 'tags entry)) ":") ":")
+          (org-align-all-tags))
+        (insert ?\n)
+
+        (when (or (assq 'scheduled entry) (assq 'deadline entry))
+          (insert (make-string (+ 1 (cdr (assq 'depth entry))) ? ))
+          (if (assq 'scheduled entry)
+              (insert "SCHEDULED: <" (cdr (assq 'scheduled entry)) ">"))
+          (when (assq 'deadline entry)
+            (if (assq 'scheduled entry)
+                (insert ? ))
+            (insert "DEADLINE: <" (cdr (assq 'deadline entry)) ">"))
+          (insert ?\n))
+        
+        (when (assq 'log entry)
+          (dolist (log (reverse (cdr (assq 'log entry))))
+            (insert (make-string (+ 1 (cdr (assq 'depth entry))) ? ))
+            (cond
+             ((assq 'note log)
+              (insert "- Note taken on [" (cdr (assq 'date log)) "]"))
+             ((assq 'from log)
+              (insert (format "- State %-12s from %-12s [%s]"
+                              (concat "\"" (cdr (assq 'to log)) "\"")
+                              (concat "\"" (cdr (assq 'from log)) "\"")
+                              (cdr (assq 'date log)))))
+             (t
+              (insert (format "- State %-12s [%s]"
+                              (concat "\"" (cdr (assq 'to log)) "\"")
+                              (cdr (assq 'date log))))))
+            (if (assq 'body log)
+                (progn
+                  (insert " \\\\\n")
+                  (dolist (line (split-string (cdr (assq 'body log)) "\n"))
+                    (insert (make-string (+ 3 (cdr (assq 'depth entry))) ? )
+                            line ?\n)))
+              (insert ?\n))))
+
+        (when (assq 'body entry)
+          (dolist (line (split-string (cdr (assq 'body entry)) "\n"))
+            (insert (make-string (+ 1 (cdr (assq 'depth entry))) ? )
+                    line ?\n)))
+
+        (when (assq 'properties entry)
+          (insert (make-string (+ 1 (cdr (assq 'depth entry))) ? )
+                  ":PROPERTIES:\n")
+          (dolist (prop (if nil
+                            (sort (cdr (assq 'properties entry))
+                                  (lambda (a b) (or (string= (car a) "ID")
+                                               (string< (car a) (car b)))))
+                          (reverse (cdr (assq 'properties entry)))))
+            (insert (make-string (+ 1 (cdr (assq 'depth entry))) ? )
+                    (format "%-10s %s\n"
+                            (concat ":" (car prop) ":") (cdr prop))))
+          (insert (make-string (+ 1 (cdr (assq 'depth entry))) ? )
+                  ":END:\n"))))))
+
+(defun org-normalize-all ()
+  (interactive)
+  (goto-char (point-min))
+  (show-all)
+  (untabify (point-min) (point-max))
+  (while (re-search-forward "^\\*" nil t)
+    (org-normalize-entry)
+    (forward-line))
+  (goto-char (point-min))
+  (delete-trailing-whitespace)
+  (save-buffer))
 
 (defun org-my-message-open (message-id)
   (condition-case err
@@ -935,14 +1258,14 @@ otherwise, flag an error."
                    "\\[.*? - Bug #\\([0-9]+\\)\\] (New)" "[[redmine:\\1][#\\1]]"
                    (replace-regexp-in-string "^\\(Re\\|Fwd\\): " ""
                                              subject))))
+        (org-set-property "Date" date-sent)
         (org-set-property "Message"
                           (format "[[message://%s][%s]]"
                                   (substring message-id 1 -1)
                                   (subst-char-in-string
                                    ?\[ ?\{ (subst-char-in-string
                                             ?\] ?\} subject))))
-        (org-set-property "Submitter" from)
-        (org-set-property "Date" date-sent))
+        (org-set-property "Submitter" from))
     (org-capture nil "t")))
 
 (define-key global-map [(meta ?m)] 'org-smart-capture)

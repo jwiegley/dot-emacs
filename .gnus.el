@@ -83,7 +83,6 @@
  '(gnus-posting-styles (quote ((".*"))))
  '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
  '(gnus-novice-user nil)
- '(gnus-message-archive-group "nnimap+VPS:INBOX")
  '(gnus-local-domain "boostpro.com")
  '(gnus-large-newsgroup 4000)
  '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))

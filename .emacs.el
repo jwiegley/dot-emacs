@@ -134,6 +134,7 @@
  '(eval-expr-print-function (quote pp) t)
  '(exec-path (quote ("/Applications/MacPorts/Emacs.app/Contents/MacOS/bin" "/Users/johnw/bin" "/usr/local/bin" "/opt/local/libexec/git-core" "/opt/local/bin" "/usr/bin" "/bin" "/usr/local/sbin" "/opt/local/sbin" "/usr/sbin" "/sbin" "/usr/X11R6/bin")))
  '(fill-column 78)
+ '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
  '(flyspell-abbrev-p nil)
  '(flyspell-incorrect-hook (quote (flyspell-maybe-correct-transposition)))
  '(focus-follows-mouse t)
@@ -141,6 +142,7 @@
  '(frame-title-format (quote (:eval (if buffer-file-name default-directory "%b"))) t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
+ '(grep-find-command (quote ("find . -type f -print0 | xargs -0 grep -nH -e " . 47)))
  '(haskell-check-command "~/.cabal/bin/hlint")
  '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan my-haskell-mode-hook)))
  '(haskell-program-name "ghci")
@@ -161,8 +163,8 @@
  '(indent-tabs-mode nil)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
- '(initial-frame-alist (quote ((top . 25) (left . 515) (width . 100) (height . 76))))
- '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil) ("\\`\\(org\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil))))
+ '(initial-frame-alist (quote ((width . 100) (height . 76))))
+ '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil) ("\\`\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil))))
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
  '(ledger-file "~/Dropbox/Accounts/ledger.dat")
@@ -214,6 +216,7 @@
  '(temp-buffer-resize-mode t nil (help))
  '(text-mode-hook (quote (auto-fill-mode)))
  '(tool-bar-mode nil)
+ '(tramp-default-proxies-alist (quote (("\\`.+\\'" "\\`root\\'" "/ssh:%h:"))))
  '(tramp-verbose 3)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(user-full-name "John Wiegley")
@@ -224,6 +227,7 @@
  '(vc-handled-backends (quote (GIT)))
  '(version-control t)
  '(visible-bell t)
+ '(weblogger-config-alist (quote (("thoughts" "http://johnwiegley.com/xmlrpc.php" "johnw" "=k2h4LEQ$&32qX%r" "9"))))
  '(whitespace-auto-cleanup t)
  '(whitespace-rescan-timer-time nil)
  '(whitespace-silent t)
@@ -286,6 +290,7 @@
         ;;"elscreen"
         "escreen"
         "ess-site"
+        "fit-frame"
         "flyspell-ext"
         "gist"
         "ldg-new"
@@ -1078,9 +1083,10 @@
 (load ".gnus")
 
 (add-hook 'after-init-hook 'server-start)
-
-(defun large-font ()
-  (interactive)
-  (set-frame-font "-apple-Courier-medium-normal-normal-*-16-*-*-*-m-0-iso10646-1"))
+(add-hook 'after-init-hook
+          (function (lambda ()
+                      (set-frame-parameter (selected-frame) 'top 25)
+                      (set-frame-parameter (selected-frame) 'left
+                                           (- (x-display-pixel-width) 930)))))
 
 ;; .emacs.el ends here
