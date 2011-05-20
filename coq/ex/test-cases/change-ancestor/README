@@ -16,8 +16,11 @@ To reproduce the test do the following:
 
 
 This test case triggers a bug in the cvs version from
-2011-05-12 12:10:00 UTC. The bug is that after unlocking the
-ancestor a.v only the newly added text is sent to Coq. Therefore
+2011-05-12 12:10:00 UTC. The bug has been fixed, see issue 
+http://proofgeneral.inf.ed.ac.uk/trac/ticket/400 .
+
+The bug is that after unlocking the
+ancestor a.v, only the newly added text is sent to Coq. Therefore
 Coq responds with an error (reference a was not found in the
 current environment). When one asserts a.v from the beginning,
 the definition of b is of course accepted.

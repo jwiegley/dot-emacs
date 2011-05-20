@@ -954,28 +954,6 @@ This is specific to `coq-mode'."
 ;; Multiple file handling revisited
 ;;
 
-;; TODO list:
-;; - Bug: assert newly appended text in locked ancestor apparently
-;;   sends text before killing coqtop
-;;   (unreported)
-;; - Bug: undo in locked ancestor
-;; - Bug: never stopping busy cursor
-;; - modify behavior of locked ancestors, see proof-span-read-only
-;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000094.html)
-;; - fix problem with partial library names
-;; - set completion-ignored-extensions
-;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000122.html)
-;; - avoid restarting coqtop when the load path does not change
-;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000088.html)
-;; - defpacustom customization groups
-;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000115.html)
-;; - broken pg cache (http://proofgeneral.inf.ed.ac.uk/trac/ticket/395)
-;; - do not kill coqtop when unlocking ancestors
-;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000138.html)
-;; - don't move point in invisible scripting buffer
-;;   (http://lists.inf.ed.ac.uk/pipermail/proofgeneral-devel/2011/000139.html)
-
-
 ;; user options and variables
 
 (defgroup coq-auto-compile ()
