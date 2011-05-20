@@ -3,7 +3,7 @@
 (load "haskell-site-file" t)
 
 (defun my-haskell-mode-hook ()
-  (flymake-mode)
+  ;;(flymake-mode)
 
   (setq haskell-saved-check-command haskell-check-command)
 
