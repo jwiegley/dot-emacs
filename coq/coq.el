@@ -1141,7 +1141,7 @@ identifier and should therefore not be matched by this regexp.")
 
 
 (defvar coq-debug-auto-compilation nil
-  "Display more messages during compilation")
+  "*Display more messages during compilation")
 
 
 ;; basic utilities
@@ -1364,7 +1364,7 @@ Display errors in buffer `coq-compile-response-buffer'."
     (if coq-debug-auto-compilation
         (message "compilation %s exited with %s, output |%s|"
                  src-file coqc-status
-                 (with-current-buffer proof-response-buffer
+                 (with-current-buffer coq-compile-response-buffer
                    (buffer-string))))
     (unless (eq coqc-status 0)
       (coq-display-compile-response-buffer)
