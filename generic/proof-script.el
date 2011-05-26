@@ -1977,8 +1977,10 @@ No effect if prover is busy."
       (proof-interrupt-process)
       (proof-shell-wait))
     (save-excursion
-      (goto-char beg)
-      (proof-retract-until-point))))
+      (save-restriction ;; see Trac#403
+	(widen)
+	(goto-char beg)
+	(proof-retract-until-point)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
