@@ -2674,7 +2674,7 @@ Stores recent results of `proof-segment-up-to' in reverse order.")
       (let ((semis (proof-segment-up-to pos args)))
 	(setq proof-segment-up-to-cache (reverse semis))
 	(setq proof-segment-up-to-cache-start (proof-queue-or-locked-end))
-	(setq proof-segment-up-to-cache-end (if semis (nth 2 (car semis))))
+	(setq proof-segment-up-to-cache-end (if semis (nth 2 (car semis)) 0))
 	(when proof-last-edited-low-watermark
 	  (if (<= proof-last-edited-low-watermark
 		  proof-segment-up-to-cache-end)
