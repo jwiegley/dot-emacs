@@ -263,32 +263,48 @@ The point is put exactly before first non comment letter of the command."
   (coq-find-current-start)
   (coq-find-not-in-comment-forward "\\S-"))
 
-
-(defun coq-command-at-point ()
-  "Return the string of the command at point."
-  (save-excursion
-    (let ((st (coq-find-real-start)) ; va chercher trop loin?
-          (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
-      (if st (buffer-substring st (+ nd 1))))))
-
-
 (defun same-line (pt pt2)
  (or (= (line-number-at-pos pt) (line-number-at-pos pt2))))
 
-(defun coq-commands-at-line ()
-  "Return the string of each command at current line.."
+(defun coq-command-at-point (&optional nojumplines)
+  "Return the string of the command at point, nil if none.
+Can jump line if NOJUMPLINES = nil."
+  (let ((initpos (point)))
+    (save-excursion
+      (let* ((st (coq-find-real-start)) ; va chercher trop loin? OUI
+             (linejumped (not (same-line initpos (point))))
+             (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
+        (if (and st (or (not nojumplines) (not linejumped)))
+            (buffer-substring st (+ nd 1))
+          nil)))))
+
+;
+;(defun coq-command-at-point ()
+;  "Return the string of the command at point."
+;  (save-excursion
+;    (let ((st (coq-find-real-start)) ; va chercher trop loin?
+;          (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
+;      (if st (buffer-substring st (+ nd 1))))))
+;
+
+
+
+(defun coq-commands-at-line (&optional nojumplines)
+  "Return the string of each command at current line."
   (save-excursion
     (back-to-indentation)
     (let ((initpoint (point))
-          (command-found (coq-command-at-point))
+          (command-found (coq-command-at-point nojumplines))
           res 
           )
-      (while (and command-found (same-line (point) initpoint))
+      (while (and command-found 
+                  ;; need this second test even with nojumplines:
+                  (same-line (point) initpoint)) 
         (setq res (cons command-found res))
         (if (and (coq-find-command-end-forward)
                  (ignore-errors (forward-char 1) t);to fit in the "and"
                  (coq-find-real-start))
-            (setq command-found (coq-command-at-point))
+            (setq command-found (coq-command-at-point nojumplines))
           (setq command-found nil)
           ))
       res)))
@@ -515,11 +531,11 @@ Returns point if found."
 
 (defun coq-save-count (l)
   (coq-add-iter l '(lambda (x) (or (coq-save-command-p nil x)
-                                   (proof-string-match "\\<EndSubproof\\>" x)))))
+                                   (eq (proof-string-match "\\<EndSubproof\\>" x) 0)))))
 
 (defun coq-proof-count (l)
   (coq-add-iter l '(lambda (x)
-                     (proof-string-match "\\<\\(?:Proof\\|BeginSubproof\\)\\>" x))))
+                     (eq (proof-string-match "\\<\\(?:Proof\\|BeginSubproof\\)\\>" x) 0))))
 
 ;; returns the difference between goal (and assimilate Proof and BeginSubproof) and
 ;; save commands in a commands list. This is to 
@@ -532,10 +548,10 @@ Returns point if found."
 
 (defun coq-indent-command-offset (kind prevcol prevpoint)
   "Returns the indentation offset of the current line. This function indents a *command* line (the first line of a command). Use `coq-indent-expr-offset' to indent a line belonging to an expression."
-  (let ((diff-goal-save-current (coq-goal-save-diff-maybe-proof (coq-commands-at-line)))
+  (let ((diff-goal-save-current (coq-goal-save-diff-maybe-proof (coq-commands-at-line t)))
         (diff-goal-save-prev 
          (save-excursion (goto-char prevpoint)
-                         (coq-goal-save-diff-maybe-proof (coq-commands-at-line)))))
+                         (coq-goal-save-diff-maybe-proof (coq-commands-at-line t)))))
     (cond
      ((proof-looking-at-safe "\\<Proof\\>") 0);; no indentation at "Proof ..."
 
