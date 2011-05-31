@@ -157,6 +157,7 @@ See also `coq-prog-env' to adjust the environment."
      ("change with" "chw" "change # with" t)
      ("change" "ch" "change " t "change")
      ("clear" "cl" "clear" t "clear")
+     ("clear dependent" "cldep" "clear dependent" t "clear\\s-+dependent")
      ("clearbody" "cl" "clearbody" t "clearbody")
      ("cofix" "cof" "cofix" t "cofix")
      ("coinduction" "coind" "coinduction" t "coinduction")
@@ -168,6 +169,9 @@ See also `coq-prog-env' to adjust the environment."
      ("cut" "cut" "cut" t "cut")
      ("cutrewrite" "cutr" "cutrewrite -> # = #" t "cutrewrite")
      ;;     ("decide equality" "deg" "decide equality" t "decide\\s-+equality")
+     ("decide_right" "decr" "decide_right" t "decide\\s-+right")
+     ("decide_left" "decl" "decide_left" t "decide\\s-+left")
+     ("decide" nil "decide" t "decide")
      ("decompose record" "decr" "decompose record #" t "decompose\\s-+record")
      ("decompose sum" "decs" "decompose sum #" t "decompose\\s-+sum")
      ("decompose" "dec" "decompose [#] #" t "decompose")
@@ -177,9 +181,12 @@ See also `coq-prog-env' to adjust the environment."
      ("dependent inversion_clear with" "depinvw" "dependent inversion_clear # with #" t)
      ("dependent rewrite ->" "depr" "dependent rewrite -> @{id}" t "dependent\\s-+rewrite")
      ("dependent rewrite <-" "depr<" "dependent rewrite <- @{id}" t)
+     ("destr_eq" "deseq" "destr_eq " t  "destr_eq")
      ("destruct as" "desa" "destruct # as #" t)
      ("destruct using" "desu" "destruct # using #" t)
      ("destruct" "des" "destruct " t  "destruct")
+     ("destruct_with_eqn" "deswe" "destruct_with_eqn " t  "destruct_with_eqn")
+     ("destruct_all" "desall" "destruct_all " t  "destruct_all")
      ;;     ("discriminate" "dis" "discriminate" t "discriminate")
      ("discrR" "discrR" "discrR" t "discrR")
      ("double induction" "dind" "double induction # #" t "double\\s-+induction")
@@ -196,9 +203,11 @@ See also `coq-prog-env' to adjust the environment."
      ("eright" "erig" "eright" "eright")
      ("esplit" "esp" "esplit" t "esplit")
      ;;     ("exact" "exa" "exact" t "exact")
+     ("exfalso" "exf" "exfalso" t "exfalso")
      ("exists" "ex" "exists #" t "exists")
      ;;     ("fail" "fa" "fail" nil)
      ;;     ("field" "field" "field" t "field")
+     ("false_hyp" nil "false_hyp @{H} @{G}" t "false_hyp")
      ("firstorder" "fsto" "firstorder" t "firstorder")
      ("firstorder with" "fsto" "firstorder with #" t)
      ("firstorder with using" "fsto" "firstorder # with #" t)
@@ -232,6 +241,7 @@ See also `coq-prog-env' to adjust the environment."
      ("linear" "lin" "linear" t "linear")
      ("load" "load" "load" t "load")
      ("move after" "mov" "move # after #" t "move")
+     ("now_show" nil "now_show" t "now_show")     
      ("omega" "o" "omega" t "omega")
      ("pattern" "pat" "pattern" t "pattern")
      ("pattern(s)" "pats" "pattern # , #" t)
@@ -246,6 +256,10 @@ See also `coq-prog-env' to adjust the environment."
      ("rename into" "ren" "rename # into #" t "rename")
      ("replace with" "rep" "replace # with #" t "replace")
      ("replace with in" "repi" "replace # with # in #" t)
+     ("revert dependent" "r" "revert dependent" t "revert\\s-+dependent")
+     ("revert" "r" "revert" t "revert")
+     ("rewrite_all" nil "rewrite_all" t "rewrite_all")
+     ("rewrite_all <-" nil "rewrite_all" t "rewrite_all")
      ("rewrite <- in" "ri<" "rewrite <- # in #" t)
      ("rewrite <-" "r<" "rewrite <- #" t)
      ("rewrite in" "ri" "rewrite # in #" t)
@@ -286,6 +300,7 @@ See also `coq-prog-env' to adjust the environment."
      ("unfold(s)" "us" "unfold # , #" t)
      ("unfold in" "unfi" "unfold # in #" t)
      ("unfold at" "unfa" "unfold # at #" t)
+     ("vm_compute" "vmc" "vm_compute." t "vm_compute")
      ))
   "Coq tactics information list. See `coq-syntax-db' for syntax. "
   )
@@ -295,8 +310,12 @@ See also `coq-prog-env' to adjust the environment."
    coq-user-solve-tactics-db
    '(
      ("assumption" "as" "assumption" t "assumption")
+     ("eassumption" "eas" "eassumption" t "eassumption")
+     ("easy" nil "easy" t "easy")
+     ("now" nil "now" t "now")
      ("by" "by" "by #" t "by")
      ("congruence" "cong" "congruence" t "congruence")
+     ("contradict" "contr" "contradict" t "contradict")
      ("contradiction" "contr" "contradiction" t "contradiction")
      ("decide equality" "deg" "decide equality" t "decide\\s-+equality")
      ("discriminate" "dis" "discriminate" t "discriminate")
@@ -463,6 +482,8 @@ See also `coq-prog-env' to adjust the environment."
 ;; command that are not declarations, definition or goal starters
 (defvar coq-other-commands-db
    '(
+     ("BeginSubproof" "bs" "BeginSubproof.\n#\nEndSubproof." t "BeginSubproof")
+     ("EndSubproof" "es" "EndSubproof.#" t "EndSubproof")
      ;; ("Abort" nil "Abort." t "Abort" nil nil);don't appear in menu
      ("About" nil "About #." nil "About")
 ;     ("Add" nil "Add #." nil "Add" nil t)
@@ -488,6 +509,7 @@ See also `coq-prog-env' to adjust the environment."
      ("Local Close Scope" "lclsc" "Local Close Scope #" t "Local\\s-+Close\\s-+Scope")
      ("Close Scope" "clsc" "Close Scope #" t "Close\\s-+Scope")
      ("Comments" nil "Comments #." nil "Comments")
+     ("Declare" nil "Declare #." nil "Declare")
      ("Delimit Scope" "delsc" "Delimit Scope @{scope} with @{id}." t "Delimit\\s-+Scope" )
      ("Eval" nil "Eval #." nil "Eval")
      ("Export" nil "Export #." t "Export")
@@ -502,6 +524,7 @@ See also `coq-prog-env' to adjust the environment."
      ("Extraction" "extr" "Extraction @{id}." nil "Extraction")
      ("Focus" nil "Focus #." nil "Focus")
      ("Generalizable Variables" nil "Generalizable Variables #." t "Generalizable\\s-+Variables")
+     ("Generalizable All Variables" nil "Generalizable All Variables." t "Generalizable\\s-+All\\s-+Variables")
      ("Identity Coercion" nil "Identity Coercion #." t "Identity\\s-+Coercion")
      ("Implicit Arguments Off" nil "Implicit Arguments Off." t "Implicit\\s-+Arguments\\s-+Off")
      ("Implicit Arguments On" nil "Implicit Arguments On." t "Implicit\\s-+Arguments\\s-+On")
@@ -524,7 +547,8 @@ See also `coq-prog-env' to adjust the environment."
      ("Typeclasses Opaque" nil "Typeclasses Opaque #." nil "Typeclasses\\s-+Opaque")
      ("Opaque" nil "Opaque #." nil "Opaque")
      ("Obligation Tactic" nil "Obligation Tactic := #." t "Obligation\\s-+Tactic")
-     ("Local Open Scope" "lopsc" "Local Open Scope #" t "Local\\s-+Open\\s-+Scope")
+     ("Local Open Scope" nil "Local Open Scope #" t "Local\\s-+Open\\s-+Scope")
+     ("Open Local Scope" nil "Open Local Scope #" t "Open\\s-+Local\\s-+Scope")
      ("Open Scope" "opsc" "Open Scope #" t "Open\\s-+Scope")
      ("Print Coercions" nil "Print Coercions." nil "Print\\s-+Coercions")
      ("Print Hint" nil "Print Hint." nil "Print\\s-+Hint" coq-PrintHint)
@@ -729,6 +753,7 @@ Used by `coq-goal-command-p'"
   '("Defined"
     "Save"
     "Qed"
+;    "EndSubproof" ;; care: this must happen before "End"
     "End"
     "Admitted"
     "Abort"
@@ -737,6 +762,7 @@ Used by `coq-goal-command-p'"
 (defvar coq-keywords-save
   (append coq-keywords-save-strict '("Proof"))
   )
+
 
 (defun coq-save-command-p (span str)
   "Decide whether argument is a Save command or not"
@@ -814,10 +840,12 @@ Used by `coq-goal-command-p'"
      "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
      "return" "struct" "else" "end" "if" "in" "into" "let" "then"
      "using" "with" "beta" "delta" "iota" "zeta" "after" "until"
-     "at" "Sort" "Time" "dest"))
+     "at" "Sort" "Time" "dest" "where"))
   "Reserved keywords of Coq.")
 
-(defvar coq-reserved-regexp (proof-ids-to-regexp coq-reserved))
+(defvar coq-reserved-regexp 
+  (concat "\\<with\\s-+signature\\>\\|"
+   (proof-ids-to-regexp coq-reserved) ))
 
 (defvar coq-state-changing-tactics
   (coq-build-regexp-list-from-db coq-tactics-db 'filter-state-changing))
@@ -848,7 +876,7 @@ Used by `coq-goal-command-p'"
 (defun proof-regexp-alt-list-symb (args)
   (concat "\\_<\\(?:" (proof-regexp-alt-list args) "\\)\\_>"))
 
-(defvar coq-keywords-regexp (proof-regexp-alt-list coq-keywords))
+(defvar coq-keywords-regexp (proof-regexp-alt-list-symb coq-keywords))
 
 
 (defvar coq-symbols
@@ -865,6 +893,9 @@ Used by `coq-goal-command-p'"
     "}"
     ":="
     "=>"
+    "==>"
+    "++>"
+    "@"
     "->"
     ".")
   "Punctuation Symbols used by Coq.")
@@ -912,13 +943,13 @@ Used by `coq-goal-command-p'"
 ;; recognizing global identifiers, see coq-global-p.
 (defconst coq-save-command-regexp-strict
   (proof-anchor-regexp
-   (concat "\\(?:Time\\s-+\\)?\\(" (proof-regexp-alt-list coq-keywords-save-strict)
+   (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save-strict)
            "\\)")))
 
 
 (defconst coq-save-command-regexp
   (proof-anchor-regexp
-   (concat "\\(?:Time\\s-+\\)?\\(" (proof-regexp-alt-list coq-keywords-save)
+   (concat "\\(?:Time\\s-+\\)?\\(" (proof-ids-to-regexp coq-keywords-save)
            "\\)")))
 
 (defconst coq-save-with-hole-regexp

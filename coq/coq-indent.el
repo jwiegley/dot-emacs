@@ -36,11 +36,14 @@
   (concat coq-comment-start-regexp "\\|" coq-comment-end-regexp))
 (defconst coq-indent-open-regexp
   (proof-regexp-alt ;(proof-regexp-alt-list coq-keywords-goal) goal-command-p instead
-   (proof-ids-to-regexp '("Cases" "match"))
+   (proof-ids-to-regexp '("Cases" "match" "BeginSubproof"))
    "\\s("))
 
 (defconst coq-indent-close-regexp
-  (proof-regexp-alt-list (append coq-keywords-save '("end" "End" "\\s)"))))
+  (proof-regexp-alt "\\s)"
+                    (proof-ids-to-regexp '("EndSubproof" "end"))
+                    (proof-ids-to-regexp coq-keywords-save)))
+
 
 (defconst coq-indent-closepar-regexp "\\s)")
 (defconst coq-indent-closematch-regexp (proof-ids-to-regexp '("end")))
@@ -510,12 +513,16 @@ Returns point if found."
 
 (defun coq-goal-count (l) (coq-add-iter l 'coq-indent-goal-command-p))
 
-(defun coq-save-count (l) (coq-add-iter l '(lambda (x) (coq-save-command-p nil x))))
+(defun coq-save-count (l)
+  (coq-add-iter l '(lambda (x) (or (coq-save-command-p nil x)
+                                   (proof-string-match "\\<EndSubproof\\>" x)))))
 
 (defun coq-proof-count (l)
-  (coq-add-iter l '(lambda (x) (proof-string-match "\\<Proof\\>" x))))
+  (coq-add-iter l '(lambda (x)
+                     (proof-string-match "\\<\\(?:Proof\\|BeginSubproof\\)\\>" x))))
 
-;; returns the difference between goal and save commands in a commands list
+;; returns the difference between goal (and assimilate Proof and BeginSubproof) and
+;; save commands in a commands list. This is to 
 (defun coq-goal-save-diff-maybe-proof (l)
   (let ((proofs (coq-proof-count l))
         (goals (coq-goal-count l)))
