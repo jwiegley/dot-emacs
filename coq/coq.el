@@ -1271,7 +1271,7 @@ create a buffer with name `coq-compile-response-buffer-name', put
 it into `compilation-mode' and store it in
 `coq-compile-response-buffer' for later use. Argument COMMAND is
 the command whose output will appear in the buffer."
-  (if (bufferp coq-compile-response-buffer)
+  (if (buffer-live-p coq-compile-response-buffer)
       (let ((inhibit-read-only t))
         (with-current-buffer coq-compile-response-buffer
           (erase-buffer)))
