@@ -1,3 +1,4 @@
+
 ;;; pg-user.el --- User level commands for Proof General
 ;;
 ;; Copyright (C) 2000-2010 LFCS Edinburgh.
@@ -224,7 +225,7 @@ Notice that the deleted command is put into the Emacs kill ring, so
 you can use the usual `yank' and similar commands to retrieve the
 deleted text."
   (interactive)
-  (proof-undo-last-successful-command-1 'delete-region))
+  (proof-undo-last-successful-command-1 'kill-region))
 
 (defun proof-undo-last-successful-command-1 (&optional undo-action)
   "Undo last successful command at end of locked region.
