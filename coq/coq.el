@@ -1899,25 +1899,24 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [(control ?))] 'coq-end-Section)
 (define-key coq-keymap [(control ?s)] 'coq-Show)
 (define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
-(define-key coq-keymap [(control ?T)] 'coq-insert-tactical)
-(define-key coq-keymap [(control ?r)] 'proof-store-response-win)
-(define-key coq-keymap [(control ?G)] 'proof-store-goals-win)
+(define-key coq-keymap [?t] 'coq-insert-tactical)
+(define-key coq-keymap [?r] 'proof-store-response-win)
+(define-key coq-keymap [?g] 'proof-store-goals-win)
 
-;(define-key coq-keymap [(control ?!)] 'coq-insert-solve-tactic)
 (define-key coq-keymap [?!] 'coq-insert-solve-tactic) ; will work in tty
 
 (define-key coq-keymap [(control ?\s)] 'coq-insert-term)
 (define-key coq-keymap [(control return)] 'coq-insert-command)
 
 
-;(define-key coq-keymap [(control ?)] 'coq-insert-requires)
+(define-key coq-keymap [(control ?r)] 'coq-insert-requires)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
 (define-key coq-keymap [(control ?a)] 'coq-SearchAbout)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
-(define-key coq-keymap [(control ?H)] 'coq-PrintHint)
+(define-key coq-keymap [?h] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
 
