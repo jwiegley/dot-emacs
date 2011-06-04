@@ -431,7 +431,7 @@ See also `coq-prog-env' to adjust the environment."
     ("Inductive (3 args)" "indv3" "Inductive # : # :=\n| # : #\n| # : #\n| # : #." t )
     ("Inductive (4 args)" "indv4" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #." t )
     ("Inductive (5 args)" "indv5" "Inductive # : # :=\n| # : #\n| # : #\n| # : #\n| # : #\n| # : #." t )
-    ("Instance" nil "Instance #:#.\nProof.\n#End." t "Instance")
+    ("Instance" nil "Instance #:#.\nProof.\n#Defined." t "Instance")
     ("Program Instance" "pinstance" "Program Instance [ # ] => # where \n# := #;\n# := #." t "Program\\s-+Instance")
     ("Let" "Let" "Let # : # := #." t "Let")
     ("Ltac" "ltac" "Ltac # := #" t "Ltac")
@@ -451,18 +451,25 @@ See also `coq-prog-env' to adjust the environment."
   )
 
 ;; modules and section are indented like goal starters
+;;; PC TODO: this category is used only for indentation, because
+;;; scripting uses information from coq to decide if a goal is
+;;; started. Since it is impossible for some commands to know
+;;; syntactically if they start something (ex: Instance), the
+;;; right thing to do would be to indent only on "Proof." and forget
+;;; about this category for indentation.
+
 (defvar coq-goal-starters-db
   '(
-    ("Add Morphism" "addmor" "Add Morphism @{f} : @{id}" t "Add\\s-+Morphism")
-    ("Add Parametric Morphism" nil "Add Parametric Morphism : " t "Add\\s-+Parametric\\s-+Morphism")
-    ("Add Parametric Relation" nil "Add Parametric Relation : " t "Add\\s-+Parametric\\s-+Relation")
+     ("Add Morphism" "addmor" "Add Morphism @{f} : @{id}" t "Add\\s-+Morphism")
+     ("Add Parametric Morphism" nil "Add Parametric Morphism : " t "Add\\s-+Parametric\\s-+Morphism")
     ("Chapter" "chp" "Chapter # : #." t "Chapter")
     ("Corollary" "cor" "Corollary # : #.\nProof.\n#\nQed." t "Corollary")
     ("Declare Module :" "dmi" "Declare Module # : #.\n#\nEnd #." t)
     ("Declare Module <:" "dmi2" "Declare Module # <: #.\n#\nEnd #." t)
-    ("Definition goal" "defg" "Definition #:#.\n#\nSave." t);; careful
+    ("Definition goal" "defg" "Definition #:#.\n#\nDefined." t);; careful
     ("Fact" "fct" "Fact # : #." t "Fact")
     ("Goal" nil "Goal #." t "Goal")
+    ("Instance goal" "instg" "Instance #:#.\n#\nDefined." t);; careful
     ("Lemma" "l" "Lemma # : #.\nProof.\n#\nQed." t "Lemma")
     ("Program Lemma" "pl" "Program Lemma # : #.\nProof.\n#\nQed." t "Program\\s-+Lemma")
     ("Module! (interactive)" nil "Module # : #.\n#\nEnd #." nil nil coq-insert-section-or-module)
@@ -482,6 +489,7 @@ See also `coq-prog-env' to adjust the environment."
 ;; command that are not declarations, definition or goal starters
 (defvar coq-other-commands-db
    '(
+     ("Add Parametric Relation" nil "Add Parametric Relation : " t "Add\\s-+Parametric\\s-+Relation")
      ("BeginSubproof" "bs" "BeginSubproof.\n#\nEndSubproof." t "BeginSubproof")
      ("EndSubproof" "es" "EndSubproof.#" t "EndSubproof")
      ;; ("Abort" nil "Abort." t "Abort" nil nil);don't appear in menu
@@ -749,15 +757,13 @@ Used by `coq-goal-command-p'"
 	    (coq-module-opening-p str))
         )))
 
+;; TODO: rely on coq response nistead for span grouping
 (defvar coq-keywords-save-strict
-  '("Defined"
-    "Save"
-    "Qed"
-;    "EndSubproof" ;; care: this must happen before "End"
-    "End"
-    "Admitted"
-    "Abort"
-    ))
+  '("Defined" "Save" "Qed" "End" "Admitted" "Abort" )
+  "This regexp must match *exactly* commands that close a goal/Module.
+It is used:
+ 1) for grouping spans into one when scripting
+ 2) for indentation.")
 
 (defvar coq-keywords-save
   (append coq-keywords-save-strict '("Proof"))

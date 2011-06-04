@@ -103,7 +103,7 @@ Set to t if you want this feature."
 
 (require 'coq-syntax)
 ;; FIXME: Even if we don't use coq-indent for indentation, we still need it for
-;; coq-find-command-end-backward and coq-find-real-start.
+;; coq-script-parse-cmdend-forward/backward and coq-find-real-start.
 (require 'coq-indent)
 
 (defcustom coq-prog-env nil
@@ -287,6 +287,44 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
 ;;
 ;; Auxiliary code for Coq modes
 ;;
+
+
+
+;;;;;;;;;;; Trying to accept { and } as terminator for empty commands. Actually
+;;;;;;;;;;; I am experimenting two new commands "{" and "}" (without no
+;;;;;;;;;;; trailing ".") which behave like BeginSubProof and EndSubproof. The
+;;;;;;;;;;; absence of a trailing "." makes it difficult to distinguish between
+;;;;;;;;;;; "{" of normal coq code (implicits, records) and this the new
+;;;;;;;;;;; commands. We therefore define a coq-script-parse-function to this
+;;;;;;;;;;; purpose.
+
+; coq-end-command-regexp is ni coq-indent.el
+(setq coq-script-command-end-regexp coq-end-command-regexp)
+;        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
+
+
+
+(defun coq-empty-command-p ()
+  "Test if between point and previous command is empty.
+Comments are ignored, of course."
+  (let ((end (point))
+        (start (coq-find-not-in-comment-backward "[^[:space:]]")))
+    ;; we must find a "." to be sure, because {O} {P} is allowed in definitions
+    ;; with implicits --> this function is recursive
+    (if (looking-at "{\\|}") (coq-empty-command-p)
+      (looking-at "\\."))))
+
+
+; slight modification of proof-script-generic-parse-cmdend (one of the
+; candidate for proof-script-parse-function), to allow "{" and "}" to be
+; command terminator when the command is empty. TO PLUG: swith the comment
+; below and rename coq-script-parse-function2 into coq-script-parse-function
+(defun coq-script-parse-function ()
+  "For `proof-script-parse-function' if `proof-script-command-end-regexp' set."
+  (coq-script-parse-cmdend-forward))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; End of "{" and "} experiments ;;;;;;;;;;;;
+
 
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s . " undos)))
@@ -743,8 +781,8 @@ This is specific to `coq-mode'."
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
   (setq proof-terminal-string ".")
-  (setq proof-script-command-end-regexp
-        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
+  (setq proof-script-command-end-regexp coq-script-command-end-regexp)
+  (setq proof-script-parse-function 'coq-script-parse-function)
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
@@ -1831,7 +1869,7 @@ Based on idea mentioned in Coq reference manual."
       ((str (string-match "<info type=\"infoH\">\\([^<]*\\)</info>"
                           proof-shell-last-response-output))
        (substr (match-string 1 proof-shell-last-response-output)))
-    (coq-find-command-end-backward)
+    (coq-script-parse-cmdend-backward)
     (let ((inhibit-read-only t))
       (insert (concat " as " substr)))))
 

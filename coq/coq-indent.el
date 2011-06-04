@@ -22,7 +22,7 @@
 
 (defconst coq-indent-inner-regexp
   (proof-regexp-alt
-   "[[]()]" "|" "ö’"
+   "[[]()]" "[^{]|[^}]" "ö’"
    ;; forall with must not be enclosed by \\< and
    ;;\\> . "~" forall but interacts with 'not'
    (proof-ids-to-regexp
@@ -37,11 +37,11 @@
 (defconst coq-indent-open-regexp
   (proof-regexp-alt ;(proof-regexp-alt-list coq-keywords-goal) goal-command-p instead
    (proof-ids-to-regexp '("Cases" "match" "BeginSubproof"))
-   "\\s("))
+   "\\s(" "{|"))
 
 (defconst coq-indent-close-regexp
-  (proof-regexp-alt "\\s)"
-                    (proof-ids-to-regexp '("EndSubproof" "end"))
+  (proof-regexp-alt "\\s)" "|}" "}"
+                    (proof-ids-to-regexp '("end" "EndSubProof"))
                     (proof-ids-to-regexp coq-keywords-save)))
 
 
@@ -81,7 +81,7 @@ detect if they start something or not."
 
     (and (proof-string-match coq-goal-command-regexp str)
          (not
-          (and (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
+          (and (proof-string-match "\\`\\(Definition\\|Instance\\|Lemma\\|Module\\)\\>" str)
                (not (= letwith affect))))
          (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
          (not
@@ -92,8 +92,11 @@ detect if they start something or not."
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-end-command-regexp
-  "\\(?:[^.]\\|\\.\\.\\)\\(\\.\\)\\(?:\\s-\\|\\'\\)")
-;  "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\(\\.\\)\\(?:\\s-\\|\\'\\)")
+  "\\(?2:[^.]\\|\\.\\.\\)?\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)"
+  "Regexp matching end of a command. There are 3 substrings:
+* number 1 is the real coq ending string,
+* number 2 is the left context matched that is not part of the ending string
+* number 3 is the right context matched that is not part of the ending string")
 
 
 (defun coq-search-comment-delimiter-forward ()
@@ -177,7 +180,6 @@ Use this one for coq instead of the generic one."
 (defconst coq-end-command-or-comment-start-regexp
   (concat coq-comment-start-regexp "\\|" coq-end-command-regexp))
 
-
 (defun coq-find-not-in-comment-backward (reg &optional lim submatch)
   "Moves to the first not commented occurrence of REG found looking up.
 The point is
@@ -190,7 +192,7 @@ found, go as far as possible and return nil."
     (while (and (not found) continue)
       (setq continue (re-search-backward regexp lim 'dummy))
       (when continue
-        (if (looking-at coq-comment-end-regexp)
+        (if (coq-looking-at-comment)
             (progn (coq-skip-until-one-comment-backward))
           (progn (when submatch (goto-char (match-beginning submatch)))
                  (setq found t))
@@ -217,43 +219,107 @@ and return nil."
         (goto-char (match-beginning 0))
         (if (looking-at coq-comment-start-regexp)
             (progn (forward-char 2) (coq-skip-until-one-comment-forward))
-          (progn (when submatch (goto-char (match-beginning submatch)))
+          (progn (when (and submatch (match-beginning submatch))  (goto-char (match-beginning submatch)))
                  (setq found t))
           )))
     (when found (point))))
 
-(defun coq-find-command-end-backward ()
+
+(defun coq-is-on-ending-context ()
+  (cond 
+   ((looking-at "}") -1)
+   ((save-excursion 
+      (ignore-errors 
+        (forward-char -1) ; always nil, don't use "and"
+        (looking-at "{\\|\\."))) 1)
+   (t 0)))
+
+; slight modification of proof-script-generic-parse-cmdend (one of the
+; candidate for proof-script-parse-function), to allow "{" and "}" to be
+; command terminator when the command is empty. TO PLUG: swith the comment
+; below and rename coq-script-parse-function2 into coq-script-parse-function
+(defun coq-script-parse-cmdend-forward (&optional limit)
+  "Move to the first end of command found looking forward from point.
+Point is put exactly after the the ending token (but before matching
+substring if present). If no end command is found, go as far as possible
+and return nil. End of command appearing in comments are ignored."
+  (if (looking-at proof-script-comment-start-regexp)
+      ;; Handle comments
+      (if (proof-script-generic-parse-find-comment-end) 'comment)
+    ;; Handle non-comments: assumed to be commands
+    (if (< (coq-is-on-ending-context) 0) (ignore-errors (forward-char (coq-is-on-ending-context))))
+    (let (foundend)
+      ;; Find end of command
+      (while (and (setq foundend
+			(progn
+			  (and
+			   (re-search-forward proof-script-command-end-regexp limit t)
+			   (match-end 1))))
+                  (or (if (or (string-equal (match-string 1) "}")
+                              (string-equal (match-string 1) "{"))
+                          (save-excursion
+                            ;; "{[^|]\\|[^|]}" matched, use length of match-string instead?
+                            (goto-char (match-beginning 1))
+                            (not (coq-empty-command-p)))
+                        nil)
+                      (proof-buffer-syntactic-context)))
+	;; inside a string or comment before the command end
+	)
+      (if (and foundend
+	       (goto-char foundend)	; move to command end
+	       (not (proof-buffer-syntactic-context)))
+	  ;; Found command end outside string/comment
+	  'cmd
+	;; Didn't find command end
+	nil))))
+
+
+; slight modification of proof-script-generic-parse-cmdend (one of the
+; candidate for proof-script-parse-function), to allow "{" and "}" to be
+; command terminator when the command is empty. TO PLUG: swith the comment
+; below and rename coq-script-parse-function2 into coq-script-parse-function
+(defun coq-script-parse-cmdend-backward (&optional limit)
   "Move to the first end of command (not commented) found looking up.
-Point is put exactly before the last \".\" of the ending token.
-If no end command is found, go as far as possible and return
-nil."
-  (ignore-errors (forward-char 1)); because regexp looks one char after last "."
-  (coq-find-not-in-comment-backward coq-end-command-regexp nil 1))
+Point is put exactly before the last ending token (before the last
+\".\" if \"...\"). If no end command is found, go as far as possible
+and return nil."
+  (if (looking-at proof-script-comment-start-regexp)
+      ;; Handle comments
+      (if (proof-script-generic-parse-find-comment-end) 'comment) ; start?
+    ;; Handle non-comments: assumed to be commands
+    ;; first shift if we are in the middle of a ending pattern
+    (if (> (coq-is-on-ending-context) 0) (ignore-errors(forward-char (coq-is-on-ending-context))))
+    (let (foundend)
+      ;; Find end of command
+      (while (and (setq foundend
+			(progn
+			  (and
+			   (re-search-backward proof-script-command-end-regexp limit t)
+			   (match-beginning 1))))
+                  (or (if (or (string-equal (match-string 1) "}")
+                              (string-equal (match-string 1) "{"))
+                          (save-excursion
+                            (goto-char (match-beginning 1))
+                            (not (coq-empty-command-p)))
+                        nil)
+                      (proof-buffer-syntactic-context)))
+	;; inside a string or comment before the command end
+	)
+      (if (and foundend
+	       (goto-char foundend)	; move to command end
+	       (not (proof-buffer-syntactic-context)))
+	  ;; Found command end outside string/comment
+	  'cmd
+	;; Didn't find command end
+	nil))))
 
-
-(defun coq-find-command-end-forward ()
-  "Move to the first end of command found looking down.
-The point is put exactly before the last \".\" of the ending
-token.  If no end command is found, go as far as possible and
-return nil."
-  (ignore-errors (backward-char 1)); because regexp looks one char before "."
-  (coq-find-not-in-comment-forward coq-end-command-regexp nil 1))
-
-
-(defun coq-find-command-end (direction)
-  "Move to the first end of command found looking at DIRECTION.
-The point is put exactly before the last \".\" of the ending
-token.  If no end command is found, go as far as possible and
-return nil."
-  (if (< direction 0) (coq-find-command-end-backward)
-    (coq-find-command-end-forward)))
 
 (defun coq-find-current-start ()
   "Move to the start of command at point.
 The point is put exactly after the end of previous command, or at the (point-min if
 there is no previous command)."
-  (coq-find-command-end-backward)
-  (if (proof-looking-at "\\.\\s-") (forward-char 1))
+  (coq-script-parse-cmdend-backward)
+  (if (proof-looking-at "\\.\\s-\\|{\\|}") (forward-char 1)) ; else = no match found
   (point))
 
 
@@ -273,35 +339,29 @@ Can jump line if NOJUMPLINES = nil."
     (save-excursion
       (let* ((st (coq-find-real-start)) ; va chercher trop loin? OUI
              (linejumped (not (same-line initpos (point))))
-             (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
+             (xxx (goto-char (- (point) 1)))
+             (nd (or (if (coq-script-parse-cmdend-forward) (point) nil) (- (point-max) 1)))) ; idem?
         (if (and st (or (not nojumplines) (not linejumped)))
             (buffer-substring st (+ nd 1))
           nil)))))
-
-;
-;(defun coq-command-at-point ()
-;  "Return the string of the command at point."
-;  (save-excursion
-;    (let ((st (coq-find-real-start)) ; va chercher trop loin?
-;          (nd (or (coq-find-command-end-forward) (- (point-max) 1)))) ; idem?
-;      (if st (buffer-substring st (+ nd 1))))))
-;
-
 
 
 (defun coq-commands-at-line (&optional nojumplines)
   "Return the string of each command at current line."
   (save-excursion
-    (back-to-indentation)
+    ;; we must capture a "." or a "{" at start of the line. So we go at the end of
+    ;; previous line to have a left context to match
     (let ((initpoint (point))
+          (forward-char (coq-is-on-ending-context))
           (command-found (coq-command-at-point nojumplines))
           res 
           )
+      (if command-found (coq-find-real-start))
       (while (and command-found 
                   ;; need this second test even with nojumplines:
                   (same-line (point) initpoint)) 
         (setq res (cons command-found res))
-        (if (and (coq-find-command-end-forward)
+        (if (and (coq-script-parse-cmdend-forward)
                  (ignore-errors (forward-char 1) t);to fit in the "and"
                  (coq-find-real-start))
             (setq command-found (coq-command-at-point nojumplines))
@@ -362,26 +422,29 @@ not inside the {} of a record)."
         (setq topnotreached (= (forward-line -1) 0))
         (end-of-line)
         (if (proof-looking-at-syntactic-context)
-            (coq-find-comment-start) ; (re-search-backward coq-comment-start-regexp nil 'dummy)
+            (re-search-backward coq-comment-start-regexp nil 'dummy)
           ))
       (back-to-indentation)
       (if (not topnotreached) 0 ;; returns nil if top of buffer was reached
         ;; if we are at end of a command (dot) find this command
         ; if there is a "." alone on the line
         (let ((pos (point)))
-          (ignore-errors (forward-char -1))
-          (if (coq-indent-find-reg oldpt coq-end-command-regexp)
-              (progn (forward-char -2)
+          ;(ignore-errors (forward-char -1))
+          (if (coq-script-parse-cmdend-forward oldpt)
+              (progn (forward-char -1)
+                     ;; one more if "." found, no more if "{" or "}"
+                     (when (proof-looking-at "\\.") (forward-char -1))
                      (coq-find-real-start)
                      (back-to-indentation)
                      1)
             (goto-char pos)
             (if (save-excursion
-                  (and (not (= (point) (point-min)))
+                  (and
+                       (not (= (point) (point-min)))
                        (or (forward-char -1) t)
                        (coq-find-real-start)
-                       (proof-looking-at-safe "Record")
-                       (coq-indent-find-reg oldpt "{")))
+                       (proof-looking-at-safe "Record\\|Class\\|Instance"); {struct} should not match this
+                       (coq-indent-find-reg oldpt "{[^|]")))
                 4
               2)))))))
 
@@ -530,41 +593,79 @@ Returns point if found."
 (defun coq-goal-count (l) (coq-add-iter l 'coq-indent-goal-command-p))
 
 (defun coq-save-count (l)
-  (coq-add-iter l '(lambda (x) (or (coq-save-command-p nil x)
-                                   (eq (proof-string-match "\\<EndSubproof\\>" x) 0)))))
+  (coq-add-iter l '(lambda (x) 
+                     (or (coq-save-command-p nil x)
+                         (eq (proof-string-match "\\<\\(?:EndSubproof\\)\\>\\|}" x) 0)))))
 
 (defun coq-proof-count (l)
   (coq-add-iter l '(lambda (x)
-                     (eq (proof-string-match "\\<\\(?:Proof\\|BeginSubproof\\)\\>" x) 0))))
+                     (eq (proof-string-match "\\<\\(?:Proof\\|BeginSubproof\\)\\>\\|{" x) 0))))
 
 ;; returns the difference between goal (and assimilate Proof and BeginSubproof) and
 ;; save commands in a commands list. This is to 
 (defun coq-goal-save-diff-maybe-proof (l)
   (let ((proofs (coq-proof-count l))
+        (saves (coq-save-count l))
         (goals (coq-goal-count l)))
-    (if (= goals 0) (- (if (<= proofs 0) 0 1) (coq-save-count l))
-      (- goals (coq-save-count l)))))
+;    (if (= goals 0) (- (if (<= proofs 0) 0 1) (coq-save-count l))
+;      (- goals (coq-save-count l)))
+    (- (+ proofs goals) saves)
+    ))
 
 
 (defun coq-indent-command-offset (kind prevcol prevpoint)
-  "Returns the indentation offset of the current line. This function indents a *command* line (the first line of a command). Use `coq-indent-expr-offset' to indent a line belonging to an expression."
-  (let ((diff-goal-save-current (coq-goal-save-diff-maybe-proof (coq-commands-at-line t)))
+  "Returns the indentation offset of the current line.
+This function indents a *command* line (the first line of a command).
+Use `coq-indent-expr-offset' to indent a line belonging to an expression."
+  (let ((diff-goal-save-current
+         (coq-goal-save-diff-maybe-proof (coq-commands-at-line t)))
         (diff-goal-save-prev 
-         (save-excursion (goto-char prevpoint)
-                         (coq-goal-save-diff-maybe-proof (coq-commands-at-line t)))))
+         (save-excursion
+           (goto-char prevpoint)
+           (coq-goal-save-diff-maybe-proof (coq-commands-at-line t))))
+        (prev-closing-beginning ; t if the closing is at start of the (prev) line
+         (save-excursion
+           (goto-char prevpoint)
+           (back-to-indentation)
+           ;(forward-char -1)
+           (looking-at coq-indent-close-regexp)))
+        (current-closing-beginning  ; t if the closing is at start of the (current) line
+         (save-excursion 
+           (back-to-indentation)
+           (looking-at coq-indent-close-regexp))))
+    ;(message "currentkind,prevcol,prevpoint = %d , %d ,%d " kind prevcol prevpoint)
     (cond
      ((proof-looking-at-safe "\\<Proof\\>") 0);; no indentation at "Proof ..."
 
-     ;; we are at an end command -> one ident left unless previous line is a goal
-     ;; (if goal and save are consecutive, then no indentation at all)
-     ((and (< diff-goal-save-current 0) (<= diff-goal-save-prev 0)) (- proof-indent))
-
-    ;; previous command is a goal command -> one indent right unless the current one
-    ;; is an end (consecutive goal and save).
-    ((and (>= diff-goal-save-current 0) (> diff-goal-save-prev 0)) proof-indent)
-
-    ;; otherwise -> same indent as previous command
-    (t 0))))
+     (t (* proof-indent 
+           (let ((res
+                  (let ((a diff-goal-save-prev) (b diff-goal-save-current)
+                        (a2 prev-closing-beginning) (b2 current-closing-beginning))
+                    ;(message "a,b,a2,b2 = %d,%d,%S,%S" a b a2 b2)
+                    (cond
+                     ((and (>= a 0) (>= b 0)) a)
+                     ((and (>= a 0) (< b 0) b2) (+ a -1)) ; a + b 
+                     ((and (>= a 0) (< b 0) (not b2)) a)
+                     ((and (< a 0) (< b 0) a2 b2) a) ; a +1 -1
+                     ((and (< a 0) (< b 0) a2 (not b2)) (+ a 1))
+                     ((and (< a 0) (< b 0) (not a2) b2) (+ a -1))
+                     ((and (< a 0) (< b 0) (not a2) (not b2)) a)
+                     ((and (< a 0) (>= b 0) a2) (+ a 1))
+                     ((and (< a 0) (>= b 0) (not a2)) a)
+                     (t (error "Muh?"))))))
+             ;(message "RES = %S" res)
+             ;(message "********************")
+             res))
+        )
+    ;;  ;; we are at an end command -> one ident left unless previous line is a goal
+    ;;  ;; (if goal and save are consecutive, then no indentation at all)
+    ;;  ((and (< diff-goal-save-current 0) (<= diff-goal-save-prev 0)) (- proof-indent))
+    ;; ;; previous command is a goal command -> one indent right unless the current one
+    ;; ;; is an end (consecutive goal and save).
+    ;; ((and (>= diff-goal-save-current 0) (> diff-goal-save-prev 0)) proof-indent)
+    ;; ;; otherwise -> same indent as previous command
+    ;; (t 0)
+     )))
 
 
 
@@ -583,6 +684,7 @@ Returns point if found."
 This function indents a *expression* line (a line inside of a command).  Use
 `coq-indent-command-offset' to indent a line belonging to a command.  The fourth
 argument must be t if inside the {}s of a record, nil otherwise."
+  ;(message "COQ-INDENT-EXPR-OFFSET")
   (let ((pt (point)) real-start)
     (save-excursion
       (setq real-start (coq-find-real-start)))
@@ -660,8 +762,10 @@ argument must be t if inside the {}s of a record, nil otherwise."
      ;; just for side effect: jumps to end of previous line
      ((and (goto-char prevpoint)
            (or (and (end-of-line) nil)
-               (and (forward-char -1) t)) nil))
+               (and (coq-find-not-in-comment-backward "[^[:space:]]") t)) nil))
 
+     ;; TODO fix with new use of { for tactics enclosing
+     ;; should be ok if record is ok.
      ((and  (proof-looking-at-safe ";") ;prev line has ";" at the end
             record)                     ; and we are inside {}s of a record
       (save-excursion
@@ -683,6 +787,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
      ;; There is a indent keyword (fun, forall etc)
      ;; and we are not in {}s of a record just after a ";"
      ((coq-find-at-same-level-zero prevpoint coq-indent-kw)
+      ;(message "COQ-INDENT-KW")
       (+ prevcol proof-indent))
 
      ((and (goto-char prevpoint) nil)) ;; just for side effect: go back to previous line
@@ -720,7 +825,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
             ;;we were at the first line of a comment and the current line is the
             ;;previous one
          (t (goto-char oldpt)
-            (coq-find-command-end-backward)
+            (coq-script-parse-cmdend-backward)
             (coq-find-real-start)
             (current-column))))))))
 
@@ -731,7 +836,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
       (setq kind (coq-back-to-indentation-prevline) ;go to previous *command* (assert)
             prevcol (current-column)
             prevpoint (point)))
-    ;;   (message "coq-indent-offset... kind = %s ; prevcol = %s; prevpoint = %s" kind prevcol prevpoint)
+       ;(message "coq-indent-offset... kind = %s ; prevcol = %s; prevpoint = %s" kind prevcol prevpoint)
 	 (cond
 	  ((= kind 0) 0  ; top of the buffer reached
            )
