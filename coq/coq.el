@@ -250,6 +250,7 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
       (exps (exp) (exps "," exps))
       (decls ("Lemma" exp ":=" exp)
              ("Definition" exp ":=" exp)
+             ("Function" exp ":=" exp)
              ("Fixpoint" exp ":=" exp)
              ("Inductive" exp ":=" branches)
              ("Notation" exp ":=" exp)
@@ -264,6 +265,45 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
     ;; Declare that we don't care about associativity of separators.
     '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
+
+(defun coq-smie-forward-token ()
+  (let ((tok (smie-default-forward-token)))
+    (cond
+     ((equal tok ".")
+      ;; Distinguish field-selector "." from terminator ".".
+      (if (or (looking-at "(")                ;Record selector.
+              (and (looking-at "[[:alpha:]]") ;Maybe qualified id.
+                   (save-excursion
+                     (goto-char (1- (point)))
+                     (skip-syntax-backward "w_")
+                     (looking-at "[[:upper:]]"))))
+          ".-selector" "."))
+     ((equal tok "Program")
+      (let ((pos (point))
+            (next (smie-default-forward-token)))
+        (if (member next '("Fixpoint" "Declaration" "Lemma"))
+            next
+          (goto-char pos)
+          tok)))
+     (tok))))
+
+(defun coq-smie-backward-token ()
+  (let ((tok (smie-default-backward-token)))
+    (cond
+     ((equal tok ".")
+      ;; Distinguish field-selector "." from terminator ".".
+      (if (or (looking-at "\\.(")             ;Record selector.
+              (and (looking-at "\\.[[:alpha:]]") ;Maybe qualified id.
+                   (save-excursion
+                     (skip-syntax-backward "w_")
+                     (looking-at "[[:upper:]]"))))
+          ".-selector" "."))
+     ((member tok '("Fixpoint" "Declaration" "Lemma"))
+      (let ((pos (point))
+            (prev (smie-default-backward-token)))
+        (unless (equal prev "Program") (goto-char pos))
+        tok))
+     (tok))))
 
 (defun coq-smie-rules (kind token)
   "Indentation rules for Coq.  See `smie-rules-function'."
@@ -281,7 +321,8 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
       ((equal token "|") (if (smie-rule-parent-p "with") 3))
       ((equal token ":=")
-       (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive")
+       (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
+                               "Function")
            (or proof-indent smie-indent-basic)))))))
 
 ;;
@@ -821,7 +862,9 @@ This is specific to `coq-mode'."
         proof-script-imenu-generic-expression coq-generic-expression)
 
   (if (and coq-use-smie (fboundp 'smie-setup))
-      (smie-setup coq-smie-grammar #'coq-smie-rules)
+      (smie-setup coq-smie-grammar #'coq-smie-rules
+                  :forward-token #'coq-smie-forward-token
+                  :backward-token #'coq-smie-backward-token)
     (require 'coq-indent)
     (setq
      ;; indentation is implemented in coq-indent.el
