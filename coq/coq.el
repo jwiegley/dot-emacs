@@ -333,7 +333,7 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
       (let ((pos (point))
             (prev (smie-default-backward-token)))
         (if (equal prev "Module")
-            pref
+            prev
           (goto-char pos)
           tok)))
      ((equal tok "Module")
