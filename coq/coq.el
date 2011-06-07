@@ -240,6 +240,7 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
            ("if" exp "then" exp "else" exp)
            ("forall" exp "," exp)
            ("(" exps ")")
+           ("{|" exps "|}")
            (exp ":" exp)
            (exp "->" exp))
       ;; Having "return" here rather than as a separate rule in `exp'
@@ -250,21 +251,36 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
       (exps (exp) (exps "," exps))
       (decls ("Lemma" exp ":=" exp)
              ("Definition" exp ":=" exp)
+             ("Let" exp ":=" exp)
              ("Function" exp ":=" exp)
              ("Fixpoint" exp ":=" exp)
              ("Inductive" exp ":=" branches)
              ("Notation" exp ":=" exp)
+             ("Record" exp ":=" exp)
              ;; The above elements are far from the only ones terminated by "."
              ;; (think of all the tactics).  So we won't list them all, instead
              ;; we'll use "." as separator rather than terminator.
              ;; This has the downside that smie-forward-sexp on a "Definition"
              ;; stops right before the "." rather than right after.
-             (decls "." decls)))
+             (decls "." decls)
+             ("BeginSubproof" decls "EndSubproof")
+             ("Module" decls "End")
+             ("Section" decls "End")))
     ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
     '((nonassoc "else" "in" "=>" ",") (left ":") (assoc "->"))
     ;; Declare that we don't care about associativity of separators.
     '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
+
+(defun coq-smie-search-token (tokens &optional end)
+  "Search for one of TOKENS between point and END."
+  (unless end (setq end (point-max)))
+  (catch 'found
+    (while (< (point) end)
+      (let ((next (funcall smie-forward-token-function)))
+        (cond
+         ((zerop (length next)) (forward-sexp 1))
+         ((member next tokens) (throw 'found next)))))))
 
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
@@ -285,6 +301,16 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
             next
           (goto-char pos)
           tok)))
+     ((equal tok "Module")
+      (let ((pos (point))
+            (next (smie-default-forward-token)))
+        (unless (equal next "Type") (goto-char pos))
+        (save-excursion
+          (if (equal (coq-smie-search-token '(":=" ".")) ":=")
+              "Module def" tok))))
+     ((and (equal tok "") (looking-at "{|")) (goto-char (match-end 0)) "{|")
+     ((and (equal tok "|") (eq (char-after) ?\}))
+      (goto-char (1+ (point))) "|}")
      (tok))))
 
 (defun coq-smie-backward-token ()
@@ -303,27 +329,61 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
             (prev (smie-default-backward-token)))
         (unless (equal prev "Program") (goto-char pos))
         tok))
+     ((equal tok "Type")
+      (let ((pos (point))
+            (prev (smie-default-backward-token)))
+        (if (equal prev "Module")
+            pref
+          (goto-char pos)
+          tok)))
+     ((equal tok "Module")
+      (save-excursion
+        (if (equal (coq-smie-search-token '(":=" ".")) ":=")
+            "Module def" tok)))
+     ((and (equal tok "|") (eq (char-before) ?\{))
+      (goto-char (1- (point))) "{|")
+     ((and (equal tok "") (looking-back "|}" (- (point) 2)))
+      (goto-char (match-beginning 0)) "|}")
      (tok))))
 
 (defun coq-smie-rules (kind token)
-  "Indentation rules for Coq.  See `smie-rules-function'."
+  "Indentation rules for Coq.  See `smie-rules-function'.
+KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
   (case kind
     (:elem (case token
              (basic proof-indent)))
-    (:list-intro (member token '("fun" "forall")))
+    (:list-intro
+     (or (member token '("fun" "forall"))
+         ;; We include "." in list-intro for the ". { .. } \n { .. }" so the
+         ;; second {..} is aligned with the first rather than being indented as
+         ;; if it were an argument to the first.
+         (when (equal token ".")
+           (smie-default-forward-token)
+           (forward-comment (point-max))
+           (looking-at "{"))))
     (:after
      (cond
       ;; Override the default indent step added because of their presence
       ;; in smie-closer-alist.
+      ((equal token "with") 4)
       ((member token '("," ":=")) 0)))
     (:before
      (cond
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
-      ((equal token "|") (if (smie-rule-parent-p "with") 3))
+      ((equal token "|")
+       (if (smie-rule-parent-p "with")
+           (- (funcall smie-rules-function :after "with") 2)))
       ((equal token ":=")
        (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
-                               "Function")
-           (or proof-indent smie-indent-basic)))))))
+                               "Function" "Let" "Record")
+           (or proof-indent smie-indent-basic)))
+      ((equal token ".")
+       (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
+      ((and (equal token "{") (smie-rule-prev-p ":="))
+       (smie-rule-parent))
+      ((and (equal token ",") (smie-rule-parent-p "forall")) 2)
+      ((and (equal token ":") (smie-rule-parent-p "Lemma")) 2)
+      ))))
 
 ;;
 ;; Auxiliary code for Coq modes

@@ -61,12 +61,9 @@
       ;; da: this test will always fail.  Assume bound-->non-empty
       ;; (not (equal coq-mode-abbrev-table (make-abbrev-table))))
       (message "Coq abbrevs already exists, default not loaded")
-    (let 
-	;; prevent query to immediately save these abbrevs
-	((save-abbrevs nil)) 
-      (define-abbrev-table 'coq-mode-abbrev-table
-	(append coq-tactics-abbrev-table coq-tacticals-abbrev-table
-		coq-commands-abbrev-table coq-terms-abbrev-table)))
+    (define-abbrev-table 'coq-mode-abbrev-table
+      (append coq-tactics-abbrev-table coq-tacticals-abbrev-table
+              coq-commands-abbrev-table coq-terms-abbrev-table))
     ;; if we use default coq abbrev, never ask to save it
     ;; PC: fix trac #382 I comment this. But how to disable abbrev
     ;; saving for coq mode only?

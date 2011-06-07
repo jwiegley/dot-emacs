@@ -227,11 +227,11 @@ See `coq-syntax-db' for DB structure."
 	     )
 	;; careful: nconc destructive!
 	(when e2
-	  (if coq-holes-minor-mode
-	      (setq res (nconc res (list `(,e2 ,e3 holes-abbrev-complete))))
-	      (setq res (nconc res (list `(,e2 ,e3))))))
+	  (push `(,e2 ,e3 ,(if coq-holes-minor-mode #'holes-abbrev-complete)
+                      :system t)
+                res))
 	(setq l tl)))
-    res))
+    (nreverse res)))
 
 
 (defun filter-state-preserving (l)
