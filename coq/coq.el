@@ -249,38 +249,78 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
       (branches (exp "=>" exp) (branches "|" branches))
       (assigns (exp ":=" exp) (assigns ";" assigns))
       (exps (exp) (exps "," exps))
-      (decls ("Lemma" exp ":=" exp)
-             ("Definition" exp ":=" exp)
-             ("Let" exp ":=" exp)
-             ("Function" exp ":=" exp)
-             ("Fixpoint" exp ":=" exp)
-             ("Inductive" exp ":=" branches)
-             ("Notation" exp ":=" exp)
-             ("Record" exp ":=" exp)
-             ;; The above elements are far from the only ones terminated by "."
-             ;; (think of all the tactics).  So we won't list them all, instead
-             ;; we'll use "." as separator rather than terminator.
-             ;; This has the downside that smie-forward-sexp on a "Definition"
-             ;; stops right before the "." rather than right after.
-             (decls "." decls)
-             ("BeginSubproof" decls "EndSubproof")
-             ("Module" decls "End")
-             ("Section" decls "End")))
+      (subtactics (tactics "|" tactics))
+      (tactics (tactics ";" tactics) ("[" subtactics "]"))
+      (cmds ("Lemma" exp ":=" exp)
+            ("Definition" exp ":=" exp)
+            ("Let" exp ":=" exp)
+            ("Function" exp ":=" exp)
+            ("Fixpoint" exp ":=" exp)
+            ("Inductive" exp ":= inductive" branches)
+            ("CoInductive" exp ":= inductive" branches)
+            ("Notation" exp ":=" exp)
+            ("Record" exp ":=" exp)
+            (tactics)
+            ;; The above elements are far from the only ones terminated by "."
+            ;; (think of all the tactics).  So we won't list them all, instead
+            ;; we'll use "." as separator rather than terminator.
+            ;; This has the downside that smie-forward-sexp on a "Definition"
+            ;; stops right before the "." rather than right after.
+            (cmds "." cmds)
+            ;; The elements below are trying to capture the syntactic structure
+            ;; layered above the commands language.
+            ("BeginSubproof" cmds "EndSubproof")
+            ("Proof" cmds "Qed")
+            ("Proof" cmds "Save")
+            ("Proof" cmds "Defined")
+            ("Proof" cmds "Admitted")
+            ("Proof" cmds "Abort")
+            ("Module" cmds "End")
+            ("Section" cmds "End")))
     ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
     '((nonassoc "else" "in" "=>" ",") (left ":") (assoc "->"))
     ;; Declare that we don't care about associativity of separators.
     '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 
-(defun coq-smie-search-token (tokens &optional end)
+(defun coq-smie-search-token-forward (tokens &optional end)
   "Search for one of TOKENS between point and END."
   (unless end (setq end (point-max)))
-  (catch 'found
-    (while (< (point) end)
-      (let ((next (funcall smie-forward-token-function)))
-        (cond
-         ((zerop (length next)) (forward-sexp 1))
-         ((member next tokens) (throw 'found next)))))))
+  (condition-case nil
+      (catch 'found
+        (while (< (point) end)
+          ;; The default lexer is faster and is good enough for our needs.
+          (let ((next (smie-default-forward-token)))
+            (cond
+             ((zerop (length next)) (forward-sexp 1))
+             ((member next tokens) (throw 'found next))))))
+    (scan-error nil)))
+
+(defun coq-smie-search-token-backward (tokens &optional end)
+  "Search for one of TOKENS between point and END."
+  (unless end (setq end (point-min)))
+  (condition-case nil
+      (catch 'found
+        (while (> (point) end)
+          ;; The default lexer is faster and is good enough for our needs.
+          (let ((next (smie-default-backward-token)))
+            (cond
+             ((zerop (length next)) (forward-sexp -1))
+             ((member next tokens) (throw 'found next))))))
+    (scan-error nil)))
+
+;; Lexer.
+;; - We distinguish ":=" from ":= inductive" to avoid the circular precedence
+;;   constraint ":= < | < ; < :=" where ":= < |" is due to Inductive
+;;   definitions, "| < ;" is due to tactics precedence, "; < :=" is due to
+;;   "let x:=3; y:=4 in...".
+;; - We distinguish the ".-selector" from the terminator "." for
+;;   obvious reasons.
+;; - We distinguish the "Module M." from "Module M := exp." since the first
+;;   opens a new scope (closed by End) whereas the other doesn't.
+;; - We drop "Program" because it's easier to consider "Program Function"
+;;   as a single token (which behaves like "Function" w.r.t indentation and
+;;   parsing) than to get the parser to handle it correctly.
 
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
@@ -306,11 +346,17 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
             (next (smie-default-forward-token)))
         (unless (equal next "Type") (goto-char pos))
         (save-excursion
-          (if (equal (coq-smie-search-token '(":=" ".")) ":=")
+          (if (equal (coq-smie-search-token-forward '(":=" ".")) ":=")
               "Module def" tok))))
      ((and (equal tok "") (looking-at "{|")) (goto-char (match-end 0)) "{|")
      ((and (equal tok "|") (eq (char-after) ?\}))
       (goto-char (1+ (point))) "|}")
+     ((and (equal tok ":=")
+           (save-excursion
+             (member (coq-smie-search-token-backward
+                      '("let" "Inductive" "Coinductive" "."))
+                     '("Inductive" "CoInductive"))))
+      ":= inductive")
      (tok))))
 
 (defun coq-smie-backward-token ()
@@ -338,12 +384,18 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
           tok)))
      ((equal tok "Module")
       (save-excursion
-        (if (equal (coq-smie-search-token '(":=" ".")) ":=")
+        (if (equal (coq-smie-search-token-forward '(":=" ".")) ":=")
             "Module def" tok)))
      ((and (equal tok "|") (eq (char-before) ?\{))
       (goto-char (1- (point))) "{|")
      ((and (equal tok "") (looking-back "|}" (- (point) 2)))
       (goto-char (match-beginning 0)) "|}")
+     ((and (equal tok ":=")
+           (save-excursion
+             (member (coq-smie-search-token-backward
+                      '("let" "Inductive" "Coinductive" "."))
+                     '("Inductive" "CoInductive"))))
+      ":= inductive")
      (tok))))
 
 (defun coq-smie-rules (kind token)
@@ -371,8 +423,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
      (cond
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
-       (if (smie-rule-parent-p "with")
-           (- (funcall smie-rules-function :after "with") 2)))
+       (if (smie-rule-prev-p "with")
+           (- (funcall smie-rules-function :after "with") 2)
+         (smie-rule-separator kind)))
       ((equal token ":=")
        (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
                                "Function" "Let" "Record")
@@ -383,6 +436,18 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        (smie-rule-parent))
       ((and (equal token ",") (smie-rule-parent-p "forall")) 2)
       ((and (equal token ":") (smie-rule-parent-p "Lemma")) 2)
+      ((and (member token '("Qed" "Save" "Defined" "Admitted" "Abort"))
+            (smie-rule-parent-p "Module" "Section"))
+       ;; ¡¡Major gross hack!!
+       ;; This typically happens when a Lemma had no "Proof" keyword.
+       ;; We should ideally find some other way to handle it (e.g. matching Qed
+       ;; not with Proof but with any of the keywords like Lemma that can
+       ;; start a new proof), but we can workaround the problem here, because
+       ;; SMIE happened to decide arbitrarily that Qed will stop before Module
+       ;; when parsing backward.
+       ;; FIXME: This is fundamentally very wrong, but it seems to work
+       ;; OK in practice.
+       (smie-rule-parent 2))
       ))))
 
 ;;

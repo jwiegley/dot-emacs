@@ -884,10 +884,9 @@ argument must be t if inside the {}s of a record, nil otherwise."
     (goto-char fin)))
 
 
-;;;   Local Variables: ***
-;;;   fill-column: 85 ***
-;;;   indent-tabs-mode:nil ***
-;;;   End: ***
+;;   Local Variables: ***
+;;   indent-tabs-mode:nil ***
+;;   End: ***
 
 
 (provide 'coq-indent)
