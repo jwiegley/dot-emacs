@@ -1339,11 +1339,8 @@ identifier and should therefore not be matched by this regexp.")
 (defvar coq-compile-history nil
   "History of external Coq compilation commands.")
 
-(defvar coq-compile-response-buffer-name "*coq-compile-response*"
+(defvar coq-compile-response-buffer "*coq-compile-response*"
   "Name of the buffer to display error messages from coqc and coqdep.")
-
-(defvar coq-compile-response-buffer nil
-  "Buffer to display error messages from coqc and coqdep.")
 
 
 (defvar coq-debug-auto-compilation nil
@@ -1473,24 +1470,25 @@ FILE should be an absolute file name. It can be nil if
 (defun coq-init-compile-response-buffer (command)
   "Initialize the buffer for the compilation output.
 If `coq-compile-response-buffer' exists, empty it. Otherwise
-create a buffer with name `coq-compile-response-buffer-name', put
+create a buffer with name `coq-compile-response-buffer', put
 it into `compilation-mode' and store it in
 `coq-compile-response-buffer' for later use. Argument COMMAND is
 the command whose output will appear in the buffer."
-  (if (buffer-live-p coq-compile-response-buffer)
-      (let ((inhibit-read-only t))
-        (with-current-buffer coq-compile-response-buffer
-          (erase-buffer)))
-    (setq coq-compile-response-buffer
-          (get-buffer-create coq-compile-response-buffer-name))
-    (with-current-buffer coq-compile-response-buffer
-      (compilation-mode)))
-  ;; I don't really care if somebody gets the right mode when
-  ;; he saves and reloads this buffer. However, error messages in
-  ;; the first line are not found for some reason ...
-  (let ((inhibit-read-only t))
-    (with-current-buffer coq-compile-response-buffer
-      (insert "-*- mode: compilation; -*-\n\n" command "\n"))))
+  (let ((buffer-object (get-buffer coq-compile-response-buffer)))
+    (if buffer-object
+        (let ((inhibit-read-only t))
+          (with-current-buffer buffer-object
+            (erase-buffer)))
+      (setq buffer-object
+            (get-buffer-create coq-compile-response-buffer))
+      (with-current-buffer buffer-object
+        (compilation-mode)))
+    ;; I don't really care if somebody gets the right mode when
+    ;; he saves and reloads this buffer. However, error messages in
+    ;; the first line are not found for some reason ...
+    (let ((inhibit-read-only t))
+      (with-current-buffer buffer-object
+        (insert "-*- mode: compilation; -*-\n\n" command "\n")))))
 
 (defun coq-display-compile-response-buffer ()
   "Display the errors in `coq-compile-response-buffer'."
@@ -1499,7 +1497,7 @@ the command whose output will appear in the buffer."
     (let ((font-lock-verbose nil)) ; shut up font-lock messages
       (font-lock-fontify-buffer)))
   ;; Make it so the next C-x ` will use this buffer.
-  (setq next-error-last-buffer coq-compile-response-buffer)
+  (setq next-error-last-buffer (get-buffer coq-compile-response-buffer))
   (let ((window (display-buffer coq-compile-response-buffer)))
     (if proof-shrink-windows-tofit
         (save-excursion
@@ -1508,7 +1506,7 @@ the command whose output will appear in the buffer."
 
 (defun coq-get-library-dependencies (lib-src-file &optional command-intro)
   "Compute dependencies of LIB-SRC-FILE.
-Invoke \"coq-dep\" on lib-src-file and parse the output to
+Invoke \"coqdep\" on lib-src-file and parse the output to
 compute the compiled coq library object files on which
 LIB-SRC-FILE depends. The return value is either a string or a
 list. If it is a string then an error occurred and the string is
@@ -1764,6 +1762,7 @@ function returns () if MODULE-ID comes from the standard library."
           ;; does currently not work. We do have exact position information
           ;; about the span, but we don't know how much white space there is
           ;; between the start of the span and the start of the command string.
+          ;; Check that coq-compile-response-buffer is a valid buffer!
           ;; (with-current-buffer coq-compile-response-buffer
           ;;   (insert
           ;;    (format "File \"%s\", line %d\n%s.\n"

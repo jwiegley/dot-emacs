@@ -2205,7 +2205,7 @@ Before the retraction is calculated, we enforce the file-level
 protocol with `proof-activate-scripting'.  This has a couple
 of effects:
 
-1. If the file is is completely processed, we have to re-open it
+1. If the file is completely processed, we have to re-open it
 for scripting again which may involve retracting
 other (dependent) files.
 
