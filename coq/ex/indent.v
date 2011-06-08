@@ -1,5 +1,10 @@
 Require Import Arith.
 
+Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
+Proof.
+  intros x;
+    toto.
+Qed.
 
 Function div2 (n : nat) {struct n}: nat :=
   match n with
