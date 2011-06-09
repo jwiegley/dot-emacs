@@ -32,6 +32,9 @@
   (pg-autotest script-wholefile "coq/example-tokens.v")
   (pg-autotest script-wholefile "coq/ex-module.v")
 
+  (pg-autotest remark "Regression testing bug cases...")
+  (pg-autotest script-wholefile "etc/coq/parsingcheck-410.v")
+
   (pg-autotest remark "Testing prove-as-you-go (not replay)")
   (find-file ".autotest.v")
   (erase-buffer) ; just in case exists
