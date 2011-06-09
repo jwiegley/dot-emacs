@@ -1704,6 +1704,7 @@ to the function which parses the script segment by segment."
       ;; Return segment list
       segs)))
 
+;;;###autoload
 (defun proof-script-generic-parse-find-comment-end ()
   "Find the end of the comment point is at the start of.  Nil if not found."
   (let ((notout t))

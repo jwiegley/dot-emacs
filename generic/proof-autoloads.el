@@ -369,7 +369,7 @@ See `pg-next-error-regexp'.
 ;;;;;;  pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-goto-point proof-script-new-command-advance) "pg-user"
-;;;;;;  "pg-user.el" (19782 36455))
+;;;;;;  "pg-user.el" (19948 52704))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -610,10 +610,11 @@ in future if we have just activated it for this buffer.
 ;;;***
 
 ;;;### (autoloads (proof-config-done proof-mode proof-insert-sendback-command
-;;;;;;  proof-insert-pbp-command proof-register-possibly-new-processed-file
-;;;;;;  pg-set-span-helphighlights proof-locked-region-empty-p proof-locked-region-full-p
-;;;;;;  proof-unprocessed-begin proof-colour-locked) "proof-script"
-;;;;;;  "proof-script.el" (19921 15858))
+;;;;;;  proof-insert-pbp-command proof-script-generic-parse-find-comment-end
+;;;;;;  proof-register-possibly-new-processed-file pg-set-span-helphighlights
+;;;;;;  proof-locked-region-empty-p proof-locked-region-full-p proof-unprocessed-begin
+;;;;;;  proof-colour-locked) "proof-script" "proof-script.el" (19952
+;;;;;;  46160))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -671,6 +672,11 @@ A warning message is issued if the register request came from the
 proof assistant and Emacs has a modified buffer visiting the file.
 
 \(fn FILE &optional INFORMPROVER NOQUESTIONS)" nil nil)
+
+(autoload 'proof-script-generic-parse-find-comment-end "proof-script" "\
+Find the end of the comment point is at the start of.  Nil if not found.
+
+\(fn)" nil nil)
 
 (autoload 'proof-insert-pbp-command "proof-script" "\
 Insert CMD into the proof queue.
@@ -832,7 +838,7 @@ processing.
 ;;;***
 
 ;;;### (autoloads (proof-ready-for-assistant) "proof-site" "proof-site.el"
-;;;;;;  (19916 929))
+;;;;;;  (19950 5774))
 ;;; Generated autoloads from proof-site.el
 
 (autoload 'proof-ready-for-assistant "proof-site" "\
@@ -997,7 +1003,7 @@ in your emacs font.
 ;;;***
 
 ;;;### (autoloads (unicode-tokens-encode-str) "unicode-tokens" "../lib/unicode-tokens.el"
-;;;;;;  (19813 3247))
+;;;;;;  (19934 30095))
 ;;; Generated autoloads from ../lib/unicode-tokens.el
 
 (autoload 'unicode-tokens-encode-str "unicode-tokens" "\
@@ -1011,7 +1017,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
 ;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
 ;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el")
-;;;;;;  (19921 15897 383645))
+;;;;;;  (19952 46162 435002))
 
 ;;;***
 
