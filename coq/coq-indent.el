@@ -234,6 +234,17 @@ and return nil."
         (looking-at "{\\|\\."))) 1)
    (t 0)))
 
+(defun coq-empty-command-p ()
+  "Test if between point and previous command is empty.
+Comments are ignored, of course."
+  (let ((end (point))
+        (start (coq-find-not-in-comment-backward "[^[:space:]]")))
+    ;; we must find a "." to be sure, because {O} {P} is allowed in definitions
+    ;; with implicits --> this function is recursive
+    (if (looking-at "{\\|}") (coq-empty-command-p)
+      (looking-at "\\."))))
+
+
 ; slight modification of proof-script-generic-parse-cmdend (one of the
 ; candidate for proof-script-parse-function), to allow "{" and "}" to be
 ; command terminator when the command is empty. TO PLUG: swith the comment

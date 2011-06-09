@@ -465,20 +465,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 ;;;;;;;;;;; purpose.
 
 ; coq-end-command-regexp is ni coq-indent.el
-(setq coq-script-command-end-regexp coq-end-command-regexp)
+(defconst coq-script-command-end-regexp coq-end-command-regexp)
 ;        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
 
-
-
-(defun coq-empty-command-p ()
-  "Test if between point and previous command is empty.
-Comments are ignored, of course."
-  (let ((end (point))
-        (start (coq-find-not-in-comment-backward "[^[:space:]]")))
-    ;; we must find a "." to be sure, because {O} {P} is allowed in definitions
-    ;; with implicits --> this function is recursive
-    (if (looking-at "{\\|}") (coq-empty-command-p)
-      (looking-at "\\."))))
 
 
 ; slight modification of proof-script-generic-parse-cmdend (one of the
