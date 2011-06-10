@@ -1,3 +1,8 @@
+(* First check that ".." is not considered as a command end. *)
+Require Export Coq.Lists.List.
+Notation "[ ]" := nil : list_scope.
+Notation "[ a ; .. ; b ]" := (a :: .. (b :: []) ..) : list_scope.
+
 Require Import Arith.
 
 Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
@@ -75,7 +80,7 @@ Module M1'.
       {destruct n.
         {
           auto. }
-        {auto.}
+        {auto. }
       }
     Qed.
   End M2'.
@@ -99,10 +104,10 @@ Class cla {X:Set}:Set := {
 Lemma l :
   forall r:rec,
     exists r':rec,
-      r'.(fld1) = r.(fld2) /\ r'.(fld2) = r.(fld1).
+      r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
 Proof.
   intros r.  
-  {exists 
+  { exists 
     {|
       fld1:=r.(fld2);
       fld2:=r.(fld1);
@@ -119,7 +124,6 @@ Lemma l2 :
   forall r:rec,
     exists r':rec,
       r'.(fld1) = r.(fld2) /\ r'.(fld2) = r.(fld1).
-Proof.
   intros r.  
   {
     idtac;
@@ -145,20 +149,23 @@ Open Local Scope signature_scope.
 Require Import RelationClasses.
 
 Module foo.
-Instance: (@RewriteRelation nat) impl.
-(* No goal created *)
-Definition XX := 0.
+  Instance: (@RewriteRelation nat) impl.
+  (* No goal created *)
+  Definition XX := 0.
+  
+  
+  Instance StrictOrder_Asymmetric `(StrictOrder A R) : Asymmetric R.
+  (* One goal created. Then the user MUST put "Proof." to help indentation *)
+  Proof.
+    firstorder.
+  Qed.
 
 
-Instance StrictOrder_Asymmetric `(StrictOrder A R) : Asymmetric R.
-(* One goal created. Then the user MUST put "Proof." to help indentation *)
-Proof.
-firstorder.
-Qed.
+  Program Fixpoint f (x:nat) {struct x} : nat :=
+    match x with
+      | 0 => 0
+      | S y => S (f y)
+    end.
 
-  Program Fixpoint f (x:nat) {struct n} : nat :=
-            match x with
-               | 0 => 0
-               | S y => S (f y)
-            end.
-End Foo.
+
+End foo.
