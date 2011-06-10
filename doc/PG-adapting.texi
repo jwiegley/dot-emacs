@@ -55,8 +55,8 @@
 
 
 @set version 4.1
-@set emacsversion 23.2
-@set last-update May 2011
+@set emacsversion 23.3
+@set last-update June 2011
 @set rcsid $Id$
 
 @dircategory Theorem proving
@@ -3239,7 +3239,7 @@ Before the retraction is calculated, we enforce the file-level
 protocol with @samp{@code{proof-activate-scripting}}.  This has a couple
 of effects:
 
-1. If the file is is completely processed, we have to re-open it
+1. If the file is completely processed, we have to re-open it
 for scripting again which may involve retracting
 other (dependent) files.
 

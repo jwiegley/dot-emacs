@@ -63,8 +63,8 @@
 @c
 
 @set version 4.1
-@set emacsversion 23.2
-@set last-update May 2011
+@set emacsversion 23.3
+@set last-update June 2011
 @set rcsid $Id$
 
 @dircategory Theorem proving
