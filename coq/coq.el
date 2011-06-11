@@ -30,9 +30,9 @@
   (defvar coq-confirm-external-compilation nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
-; (unless                                 ; for smie indentation
-;    (proof-try-require 'smie)
-; can't get conditional declaration to work here
+;; (unless                                 ; for smie indentation
+;;    (proof-try-require 'smie)
+;; can't get conditional declaration to work here
   (declare-function smie-bnf->prec2 "smie")
   (declare-function smie-rule-parent-p "smie")
 
@@ -58,7 +58,7 @@
 ;; is set.  The list is not altered if the user has set this herself.
 
 (defcustom coq-translate-to-v8 nil
-  "Whether to use -translate argument to Coq"
+  "Whether to use -translate argument to Coq."
   :type 'boolean
   :group 'coq)
 
@@ -143,7 +143,7 @@ On Windows you might need something like:
       c)))
 
 (defconst coq-library-directory (get-coq-library-directory)
-  "The coq library directory, as reported by \"coqtop -where\"")
+  "The coq library directory, as reported by \"coqtop -where\".")
 
 (defcustom coq-tags (concat coq-library-directory "/theories/TAGS")
   "The default TAGS table for the Coq library."
@@ -169,7 +169,7 @@ On Windows you might need something like:
   (concat "[ ]*" (regexp-opt
 	   '(
              "Ltac" "Corr" "Modu" "Sect" "Chap" "Goal" "Definition" "Lemm" "Theo" "Fact" "Rema" "Mutu" "Fixp" "Func") t)))
-;)
+;;)
 
 (defvar coq-outline-heading-end-regexp "\\.[ \t\n]")
 
@@ -270,11 +270,7 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
             ;; The elements below are trying to capture the syntactic structure
             ;; layered above the commands language.
             ("BeginSubproof" cmds "EndSubproof")
-            ("Proof" cmds "Qed")
-            ("Proof" cmds "Save")
-            ("Proof" cmds "Defined")
-            ("Proof" cmds "Admitted")
-            ("Proof" cmds "Abort")
+            ("Proof" cmds "Proof End")
             ("Module" cmds "End")
             ("Section" cmds "End")))
     ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
@@ -322,6 +318,10 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
 ;;   as a single token (which behaves like "Function" w.r.t indentation and
 ;;   parsing) than to get the parser to handle it correctly.
 
+(defconst coq-smie-proof-end-tokens
+  ;; '("Qed" "Save" "Defined" "Admitted" "Abort")
+  (remove "End" coq-keywords-save-strict))
+
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
     (cond
@@ -357,6 +357,15 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
                       '("let" "Inductive" "Coinductive" "."))
                      '("Inductive" "CoInductive"))))
       ":= inductive")
+     ((member tok coq-smie-proof-end-tokens) "Proof End")
+     ((member tok '("Proof" "Obligation")) "Proof")
+     ((equal tok "Next")
+      (let ((pos (point))
+            (next (smie-default-forward-token)))
+        (if (equal next "Obligation")
+            next
+          (goto-char pos)
+          tok)))
      (tok))))
 
 (defun coq-smie-backward-token ()
@@ -396,6 +405,12 @@ SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
                       '("let" "Inductive" "Coinductive" "."))
                      '("Inductive" "CoInductive"))))
       ":= inductive")
+     ((member tok coq-smie-proof-end-tokens) "Proof End")
+     ((equal tok "Obligation")
+      (let ((pos (point))
+            (prev (smie-default-backward-token)))
+        (unless (equal prev "Next") (goto-char pos))
+        "Proof"))
      (tok))))
 
 (defun coq-smie-rules (kind token)
@@ -418,6 +433,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;; Override the default indent step added because of their presence
       ;; in smie-closer-alist.
       ((equal token "with") 4)
+      ((and (equal token ";") (smie-rule-parent-p "." "|")) 2)
       ((member token '("," ":=")) 0)))
     (:before
      (cond
@@ -436,7 +452,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        (smie-rule-parent))
       ((and (equal token ",") (smie-rule-parent-p "forall")) 2)
       ((and (equal token ":") (smie-rule-parent-p "Lemma")) 2)
-      ((and (member token '("Qed" "Save" "Defined" "Admitted" "Abort"))
+      ((and (equal token "Proof End")
             (smie-rule-parent-p "Module" "Section"))
        ;; ¡¡Major gross hack!!
        ;; This typically happens when a Lemma had no "Proof" keyword.
@@ -448,6 +464,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;; FIXME: This is fundamentally very wrong, but it seems to work
        ;; OK in practice.
        (smie-rule-parent 2))
+      ((and (equal token "forall") (smie-rule-prev-p ":")
+            (smie-rule-parent-p "Lemma"))
+       (smie-rule-parent))
       ))))
 
 ;;
@@ -464,16 +483,16 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 ;;;;;;;;;;; commands. We therefore define a coq-script-parse-function to this
 ;;;;;;;;;;; purpose.
 
-; coq-end-command-regexp is ni coq-indent.el
+;; coq-end-command-regexp is ni coq-indent.el
 (defconst coq-script-command-end-regexp coq-end-command-regexp)
-;        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
+;;        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
 
 
 
-; slight modification of proof-script-generic-parse-cmdend (one of the
-; candidate for proof-script-parse-function), to allow "{" and "}" to be
-; command terminator when the command is empty. TO PLUG: swith the comment
-; below and rename coq-script-parse-function2 into coq-script-parse-function
+;; slight modification of proof-script-generic-parse-cmdend (one of the
+;; candidate for proof-script-parse-function), to allow "{" and "}" to be
+;; command terminator when the command is empty. TO PLUG: swith the comment
+;; below and rename coq-script-parse-function2 into coq-script-parse-function
 (defun coq-script-parse-function ()
   "For `proof-script-parse-function' if `proof-script-command-end-regexp' set."
   (coq-script-parse-cmdend-forward))
@@ -573,7 +592,7 @@ Initially 1 because Coq initial state has number 1.")
       (goto-char (point-min)))
     (if erase (copy-to-buffer nb (point-min) (point-max))
       (append-to-buffer nb (point-min) (point-max)))
-;    (set-window-point window pos)
+    ;; (set-window-point window pos)
     nb))
 
 ;; copy the content of proof-response-buffer into the "response-freeze" buffer,
@@ -717,13 +736,13 @@ If locked span already has a state number, then do nothing. Also updates
    (t nil)))
 
 (defun coq-state-preserving-p (cmd)
-;  (or
+  ;; (or
    (proof-string-match coq-non-retractable-instruct-regexp cmd))
-;   (and
-;    (not (proof-string-match coq-retractable-instruct-regexp cmd))
-;    (or
-;     (message "Unknown command, hopes this won't desynchronize ProofGeneral")
-;     t))))
+  ;; (and
+  ;;  (not (proof-string-match coq-retractable-instruct-regexp cmd))
+  ;;  (or
+  ;;   (message "Unknown command, hopes this won't desynchronize ProofGeneral")
+  ;;   t))))
 
 
 ;;
@@ -894,8 +913,8 @@ This is specific to `coq-mode'."
            (makedir
            (cond
             ((file-exists-p (concat dir "Makefile")) ".")
-;            ((file-exists-p (concat dir "../Makefile")) "..")
-;            ((file-exists-p (concat dir "../../Makefile")) "../..")
+            ;; ((file-exists-p (concat dir "../Makefile")) "..")
+            ;; ((file-exists-p (concat dir "../../Makefile")) "../..")
             (t nil))))
       (if (and coq-use-makefile makedir)
           (let*
@@ -1069,7 +1088,7 @@ This is specific to `coq-mode'."
    pg-subterm-anns-use-stack t)
 
   (coq-init-syntax-table)
-  ; (holes-mode 1)  da: does the shell really need holes mode on?
+  ;; (holes-mode 1)  da: does the shell really need holes mode on?
   (setq proof-shell-font-lock-keywords 'coq-font-lock-keywords-1)
   (proof-shell-config-done))
 
@@ -1094,13 +1113,13 @@ This is specific to `coq-mode'."
 ;; These appear on the Coq -> Setting menu.
 ;;
 
-; FIXME da: we should send this command only inside a proof,
-; otherwise it gives an error message.  It should be on
-; a different menu command.
-;(defpacustom print-only-first-subgoal  nil
-;  "Whether to just print the first subgoal in Coq."
-;  :type 'boolean
-;  :setting ("Focus. " . "Unfocus. "))
+;; FIXME da: we should send this command only inside a proof,
+;; otherwise it gives an error message.  It should be on
+;; a different menu command.
+;; (defpacustom print-only-first-subgoal  nil
+;;  "Whether to just print the first subgoal in Coq."
+;;  :type 'boolean
+;;  :setting ("Focus. " . "Unfocus. "))
 
 
 ;; FIXME: to handle "printing all" properly, we should change the state
@@ -1231,7 +1250,7 @@ that contains the \"Require\".")
   "Buffers to save before checking dependencies for compilation.
 There are two orthogonal choices: Firstly one can save all or only the coq
 buffers, where coq buffers means all buffers in coq mode except the current
-buffer. Secondly, emacs can ask about each such buffer or save all of them
+buffer. Secondly, Emacs can ask about each such buffer or save all of them
 unconditionally.
 
 This makes four permitted values: 'ask-coq to confirm saving all
@@ -1263,7 +1282,7 @@ locked when the \"Require\" command is processed."
 
 (defcustom coq-compile-ignore-library-directory t
   "If non-nil, ProofGeneral does not compile modules from the coq library.
-Should be `t' for normal coq users. If `nil' library modules are
+Should be t for normal coq users. If nil library modules are
 compiled if their sources are newer.
 
 This option has currently no effect, because Proof General uses
@@ -1588,7 +1607,7 @@ If this function decides to compile SRC to OBJ it returns
 'just-compiled. Otherwise it returns the modification time of
 OBJ.
 
-Note that file modification times inside emacs have only a
+Note that file modification times inside Emacs have only a
 precisision of 1 second. To avoid spurious recompilations we do
 not recompile if the youngest object file of the dependencies and
 OBJ have identical modification times."
@@ -2120,8 +2139,8 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
-; window auto-resize makes this bug sometimes. Too bad!.
-;(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
+;; Window auto-resize makes this bug sometimes. Too bad!.
+;; (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
