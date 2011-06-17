@@ -219,7 +219,7 @@ On Windows you might need something like:
 
 ;; Indentation and navigation support via SMIE.
 
-(defcustom coq-use-smie t
+(defcustom coq-use-smie nil
   "If non-nil, Coq mode will try to use SMIE for indentation.
 SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
   :type 'boolean
@@ -520,13 +520,12 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
   "Extract info from the coq prompt S.  See `coq-last-prompt-info-safe'."
   (let ((lastprompt (or s (error "No prompt !!?")))
         (regex
-         (concat "\\(?1:" coq-id-shy "\\) < \\(?2:[0-9]+\\) \\(?:|\\(?3:[0-9]+\\)\\)?|\\(?4:\\(?:" coq-id-shy
-                 "|?\\)*\\)| \\(?5:[0-9]+\\) < ")))
+         (concat "\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
+                 "|?\\)*\\)| \\([0-9]+\\) < ")))
     (when (string-match regex lastprompt)
       (list (string-to-number (match-string 2 lastprompt))
-            (string-to-number (match-string 5 lastprompt))
-            (string-to-number (or (match-string 3 lastprompt) "0"))
-            (build-list-id-from-string (match-string 4 lastprompt))))))
+            (string-to-number (match-string 4 lastprompt))
+            (build-list-id-from-string (match-string 3 lastprompt))))))
 
 
 (defun coq-last-prompt-info-safe ()
@@ -568,14 +567,6 @@ Initially 1 because Coq initial state has number 1.")
   "Return the 'goalcmd flag of the SPAN."
   (span-property span 'goalcmd))
 
-(defsubst coq-get-span-nsubgoals (span)
-  "Return the 'nsubgoals flag of the SPAN."
-  (span-property span 'nsubgoals))
-
-(defsubst coq-get-span-path (span)
-  "Return the 'path flag of the SPAN."
-  (span-property span 'path))
-
 (defsubst coq-set-span-goalcmd (span val)
   "Set the 'goalcmd flag of the SPAN to VAL."
   (span-set-property span 'goalcmd val))
@@ -587,14 +578,6 @@ Initially 1 because Coq initial state has number 1.")
 (defsubst coq-set-span-proofstack (span val)
   "Set the proof stack (names of pending proofs) of the SPAN to VAL."
   (span-set-property span 'proofstack val))
-
-(defsubst coq-set-span-nsubgoals (span val)
-  "Set the 'nsubgoal of the SPAN to VAL."
-  (span-set-property span 'nsubgoals val))
-
-(defsubst coq-set-span-path (span val)
-  "Set the 'path of the SPAN to VAL."
-  (span-set-property span 'path val))
 
 (defsubst proof-last-locked-span ()
   (with-current-buffer proof-script-buffer
@@ -633,142 +616,6 @@ Initially 1 because Coq initial state has number 1.")
   (interactive "P")
   (proof-store-buffer-win proof-goals-buffer erase))
 
-;;;;;;;;;; PROOF PATHS ;;;;;;;;;;;;;;;;
-
-(defun coq-segment-of-ints (n goalpath)
-  "Return n versions of the list GOALPATH, each with a additional
-first argument from 1 to N."
-  (let ((res nil) (i n))
-    (while (> i 0)
-      (setq res (cons (cons i goalpath) res))
-      (setq i (- i 1)))
-    res))
-
-
-;; Computation of the path associated to each tactic in a proof script. We set
-;; the 'path property of each span to the proof path *after* the tactic. A path
-;; is a int list to be read from right to left.
-;;
-;; Example of a proof script with paths and indentation, should be viewed with
-;; tab-width = 8:
-;;
-;; |- Lemma foo.	(1)
-;; |- xxx.		(1 1) (2 1)
-;;  ||
-;;  ||- xxx.		(1 1 1) (2 1)
-;;  ||- xxx.		(1 1 1 1) (2 1 1 1) (2 1)
-;;  | ||
-;;  | ||- xxx.		(1 1 1 1 1) (2 1 1 1) (2 1)
-;;  | ||- xxx.		(2 1 1 1) (2 1)
-;;  | |
-;;  | |-
-;;  |  |- xxx.		(1 2 1 1 1) (2 1)
-;;  |  |- xxx.		(1 1 2 1 1 1) (2 1)
-;;  |  |- xxx.		(2 1)
-;;  |
-;;  |--
-;;    |- xxx.		(1 2 1)
-;;    |- xxx.		(1 1 2 1) (2 1 2 1) (3 1 2 1)
-;;     |||
-;;     |||- xxx.	(1 1 1 2 1) (2 1 2 1) (3 1 2 1)
-;;     |||- xxx.	(2 1 2 1) (3 1 2 1)
-;;     ||
-;;     ||-
-;;     | |- xxx.	(1 2 1 2 1) (3 1 2 1)
-;;     | |- xxx.	(1 1 2 1 2 1) (3 1 2 1)
-;;     | |- xxx.	(3 1 2 1)
-;;     |
-;;     |--
-;;       |- xxx.	(1 3 1 2 1)
-;;       |- xxx.	(1 1 3 1 2 1)
-;;       |- xxx.	nil
-
-; coq-last-nsubgoals is the current number of goals set by coq-set-state-infos
-; which happens before this. The previous number of goals can be found in
-; the 'path of previous span (length last-path below).
-(defun coq-compute-and-set-proof-path ()
-  "Computation of the path associated to each tactic in a proof script.
-We set the 'path property of each span to the proof path *after*
-the tactic. This function must be called from `coq-set-state-infos'
-*after* the setting of `coq-last-nsubgoals'.
-
-A path is a int list to be read from right to left. Ex:
-
-|- Lemma foo.	(1)
-|- xxx.		(1 1) (2 1)
- ||
- ||- xxx.		(1 1 1) (2 1)
- ||- xxx.		(1 1 1 1) (2 1 1 1) (2 1)
- | ||
- | ||- xxx.		(1 1 1 1 1) (2 1 1 1) (2 1)
- | ||- xxx.		(2 1 1 1) (2 1)
- . .. etc
-"
-  (save-excursion
-    (switch-to-buffer proof-script-buffer)
-    (unless (or (not proof-locked-span) (span-detached-p proof-locked-span))
-      (goto-char (span-end proof-locked-span))
-      (forward-char -1)
-      (unless (not (span-at (point) 'type))
-        (let* (
-               (span (span-at (point) 'type))
-               (num-of-goals coq-last-nsubgoals)
-               (dummy (goto-char (span-start span)))
-               (last-path
-                (save-excursion
-                  (if (or (not (ignore-errors (or (forward-char -1) t)))
-                          (not (span-at (point) 'type)))
-                      nil
-                    (coq-get-span-path (span-at (point) 'type)))))
-               (nbinitgoals (length last-path))
-               (diffnbgoals (- num-of-goals nbinitgoals))
-               (new-path
-                (progn
-                  (cond
-                   ((< diffnbgoals 0) (cdr last-path))
-                   ((and (= nbinitgoals 0) (= diffnbgoals 0)) nil)
-                   ((and (= nbinitgoals 0) (> diffnbgoals 0)) '((1)))
-                   (t (append (coq-segment-of-ints (+ 1 diffnbgoals) (car last-path))
-                              (cdr last-path)))))))
-          ;;when backtracking, do nothing
-          (unless nil; (coq-get-span-path span) ;; do not set if backtracking
-            (coq-set-span-path span new-path)))))))
-
-
-(defun is-father (f s) (equal (cdr s) f))
-
-(defun coq-find-father-path-span ()
-;  (save-excursion
-    (switch-to-buffer proof-script-buffer)
-    (unless (or (not proof-locked-span) (span-detached-p proof-locked-span))
-      (goto-char (span-end proof-locked-span))
-      (forward-char -1)
-      ;; The path of last span is stored in prevuious span 
-      (goto-char (span-start (span-at (point) 'type)))
-      (forward-char -1)
-      (let* ((sp (span-at (point) 'type))
-             (endpath (car (coq-get-span-path sp)))
-             (auxsp sp))
-        (while (and (goto-char (span-start auxsp))
-                    (ignore-errors (or (forward-char -1) t))
-                    (setq auxsp (span-at (point) 'type))
-                    (message " f = %S, s = %S" (car (coq-get-span-path auxsp)) endpath)
-                    (not (is-father (car (coq-get-span-path auxsp)) endpath)))
-          
-;          )
-        )
-      )
-    )
-  )
-
-;; Debugging:
-(defun coq-show-path () (interactive)
-  (message "%S" (span-property (span-at (point) 'type) 'path)))
-;(defun coq-show-ngoals () (interactive)
-;  (message "%S" (span-property (span-at (point) 'type) 'nsubgoals)))
-
-;;;;;;;;;;;;;;;;;;;;; END PROOF PATHS ;;;;;;;;;;;;;;;;;;;;
-
 ;; Each time the state changes (hook below), (try to) put the state number in
 ;; the last locked span (will fail if there is already a number which should
 ;; happen when going back in the script).  The state number we put is not the
@@ -788,7 +635,7 @@ If locked span already has a state number, then do nothing. Also updates
       ;; infos = promt infos of the very last prompt
       ;; sp = last locked span, which we want to fill with prompt infos
       (let ((sp    (if proof-script-buffer (proof-last-locked-span)))
-            (infos (or (coq-last-prompt-info-safe) '(0 0 0 nil))))
+            (infos (or (coq-last-prompt-info-safe) '(0 0 nil))))
         (unless (or (not sp) (coq-get-span-statenum sp))
           (coq-set-span-statenum sp coq-last-but-one-statenum))
         (setq coq-last-but-one-statenum (car infos))
@@ -796,7 +643,7 @@ If locked span already has a state number, then do nothing. Also updates
         ;; (ie proofstack has changed and not a save cmd)
         (unless
             (or (not sp) (equal (span-property sp 'type) 'goalsave)
-                (<= (length (car (last infos))) ; last is robust to old version of infos
+                (<= (length (car (cdr (cdr infos))))
                     (length coq-last-but-one-proofstack)))
           (coq-set-span-goalcmd sp t))
         ;; testing proofstack=nil is not good here because nil is the empty list OR
@@ -804,30 +651,26 @@ If locked span already has a state number, then do nothing. Also updates
         ;; This is why this test is done before the next one (which sets proofnum)
         (unless (or (not sp) (coq-get-span-proofnum sp))
           (coq-set-span-proofstack sp coq-last-but-one-proofstack))
-        (setq coq-last-but-one-proofstack (car (last infos))); idem, last is robust
+        (setq coq-last-but-one-proofstack (car (cdr (cdr infos))))
         (unless (or (not sp) (coq-get-span-proofnum sp))
           (coq-set-span-proofnum sp coq-last-but-one-proofnum))
-        (setq coq-last-but-one-proofnum (car (cdr infos)))
-        ;(unless (< (length infos) 4)
-          (unless (or (not sp) (coq-get-span-nsubgoals sp))
-            (coq-set-span-nsubgoals sp coq-last-nsubgoals))
-          (setq coq-last-nsubgoals (car (cdr (cdr infos))))
-          (coq-compute-and-set-proof-path))))
-        ;)
+        (setq coq-last-but-one-proofnum (car (cdr infos))))))
 
-
-;; This hook seems the one we want. WARNING! It is applied once after each
-;; command PLUS once before a group of commands is started. This is good, as we
-;; want to update some information (ex: 'path property) after agregating.
+;; This hook seems the one we want.
+;; WARNING! It is applied once after each command PLUS once before a group of
+;; commands is started
 (add-hook 'proof-state-change-hook 'coq-set-state-infos)
+
 
 (defun count-not-intersection (l notin)
   "Return the number of elts of L that are not in NOTIN."
   (let ((l1 l) (l2 notin) (res 0))
     (while l1
-      (unless (member (car l1) l2) (setq res (+ res 1)))
+      (if (member (car l1) l2) ()
+        (setq res (+ res 1))) ; else
       (setq l1 (cdr l1)))
-    res))
+    res
+    ))
 
 ;; Simplified version of backtracking which uses state numbers, proof stack depth and
 ;; pending proofs put inside the coq (> v8.1) prompt. It uses the new coq command
@@ -1155,7 +998,6 @@ This is specific to `coq-mode'."
       (smie-setup coq-smie-grammar #'coq-smie-rules
                   :forward-token #'coq-smie-forward-token
                   :backward-token #'coq-smie-backward-token)
-    (message "Using coq old code for indentation")
     (require 'coq-indent)
     (setq
      ;; indentation is implemented in coq-indent.el
@@ -2401,6 +2243,13 @@ buffer."
 ;; Scroll response buffer to maximize display of first goal
 ;;
 
+(defun first-word-of-buffer ()
+  "Get the first word of a buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (buffer-substring (point)
+                      (progn (forward-word 1) (point)))))
+
 
 (defun coq-show-first-goal ()
   "Scroll the goal buffer so that the first goal is visible.
@@ -2429,7 +2278,8 @@ number of hypothesis displayed, without hiding the goal"
 (defun coq-update-minor-mode-alist ()
   "Modify `minor-mode-alist' to display the number of subgoals in the modeline."
   (save-window-excursion ; switch to buffer even if not visible
-    (let* ((nbgoals coq-last-nsubgoals);(coq-get-current-number-of-goals)
+    (switch-to-buffer proof-goals-buffer)
+    (let* ((nbgoals (string-to-number (first-word-of-buffer)))
            (dummy (switch-to-buffer proof-script-buffer))
            (toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
       (while toclean ;; clean minor-mode-alist
@@ -2495,7 +2345,6 @@ Only when three-buffer-mode is enabled."
 (add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
 ;; Adapt when displaying an error or interrupt
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'optim-resp-windows)
-
 
 (provide 'coq)
 

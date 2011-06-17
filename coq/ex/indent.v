@@ -7,8 +7,7 @@ Require Import Arith.
 
 Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
 Proof.
-  intros x;
-    toto.
+  induction x;simpl;intros;auto with arith.
 Qed.
 
 Function div2 (n : nat) {struct n}: nat :=
@@ -167,5 +166,15 @@ Module foo.
       | S y => S (f y)
     end.
 
+Program Instance all_iff_morphism {A : Type} :
+  Proper (pointwise_relation A iff ==> iff) (@all A).
 
+  Next Obligation.
+  Proof.
+    unfold pointwise_relation, all in * .
+    intro.
+    intros y H.    
+    intuition ; specialize (H x0) ; intuition.
+  Qed.
+    
 End foo.
