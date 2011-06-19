@@ -92,7 +92,8 @@ detect if they start something or not."
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-end-command-regexp
-  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)"
+;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)"
+  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
   "Regexp matching end of a command. There are 3 substrings:
 * number 1 is the real coq ending string,
 * number 2 is the left context matched that is not part of the ending string
@@ -219,17 +220,18 @@ and return nil."
         (goto-char (match-beginning 0))
         (if (looking-at coq-comment-start-regexp)
             (progn (forward-char 2) (coq-skip-until-one-comment-forward))
-          (progn (when (and submatch (match-beginning submatch))  (goto-char (match-beginning submatch)))
+          (progn (when (and submatch (match-beginning submatch))
+                   (goto-char (match-beginning submatch)))
                  (setq found t))
           )))
     (when found (point))))
 
 
 (defun coq-is-on-ending-context ()
-  (cond 
+  (cond
    ((looking-at "}") -1)
-   ((save-excursion 
-      (ignore-errors 
+   ((save-excursion
+      (ignore-errors
         (forward-char -1) ; always nil, don't use "and"
         (looking-at "{\\|\\."))) 1)
    (t 0)))
