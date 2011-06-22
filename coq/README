@@ -61,8 +61,8 @@ Grammar for Unicode Tokens:
 
 	See example-tokens.v in this directory for examples.
 
-  See trac ticket http://proofgeneral.inf.ed.ac.uk/trac/ticket/313
-  to suggest fixes/changes/adjustments.
+  Please suggest any extensions/improvements on Trac, at
+  http://proofgeneral.inf.ed.ac.uk/trac/
 
 ========================================
 
