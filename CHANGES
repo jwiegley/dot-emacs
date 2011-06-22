@@ -17,8 +17,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 ** Coq changes
 
 *** A new indentation algorithm, using SMIE.
-    This is used by default if SMIE is available (Emacs >= 23.3), but is
-    controlled by the variable `coq-use-smie'.  It also provides improved
+    This works when SMIE is available (Emacs >= 23.3), but must be enabled
+    by the variable `coq-use-smie'.  It also provides improved
     navigation facilities for things like C-M-t, C-M-f and C-M-b.
     Addition by Stefan Monnier.
 
