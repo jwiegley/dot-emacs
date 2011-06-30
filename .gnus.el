@@ -6,7 +6,7 @@
 
 ;;;_ + variables
 
- '(gnus-refer-article-method (quote ((nnregistry) (nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
+;; '(gnus-refer-article-method (quote ((nnregistry) (nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
 
 (custom-set-variables
  '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil))))
@@ -166,10 +166,13 @@
          ("johnw@boostpro.com" . "smtp.gmail.com"))
         (".*@\\(3dex\\|smartceg\\).com"
          ("johnw@3dex.com" . "smtp.gmail.com"))
-        (".*@\\(gmail.com\\)"
-         ("jwiegley@gmail.com" . "smtp.gmail.com"))
+        ;;(".*@\\(gmail.com\\)"
+        ;; ("jwiegley@gmail.com" . "smtp.gmail.com"))
+        ;;(".*"
+        ;; ("johnw@newartisans.com" . "mail.johnwiegley.com"))
         (".*"
-         ("johnw@newartisans.com" . "mail.johnwiegley.com"))))
+         ("jwiegley@gmail.com" . "smtp.gmail.com"))
+        ))
 
 (defun my-set-smtp-server ()
   (let* ((to-field (cadr (mail-extract-address-components

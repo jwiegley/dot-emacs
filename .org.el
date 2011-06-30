@@ -19,17 +19,17 @@
 ;;;_ + variables
 
 (custom-set-variables
- '(org-use-tag-inheritance nil)
+ '(org2blog/wp-track-posts nil)
  '(org-use-speed-commands t)
  '(org-todo-repeat-to-state "TODO")
- '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "dark blue" :weight bold) ("SOMEDAY" :foreground "dark blue" :weight bold))))
+ '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "dark blue" :weight bold) ("SOMEDAY" :foreground "dark blue" :weight bold) ("PROJECT" :foreground "#088e8e" :weight bold))))
  '(org-time-clocksum-use-fractional t)
  '(org-tags-column -97)
  '(org-reverse-note-order t)
  '(org-return-follows-link t)
- '(org-refile-targets (quote (("~/Dropbox/todo.txt" :level . 1) ("~/Dropbox/todo.txt" :todo . "Project") ("~/Dropbox/Accounts/finances.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
+ '(org-refile-targets (quote (("~/Documents/Tasks/todo.txt" :level . 1) ("~/Documents/Tasks/todo.txt" :todo . "PROJECT") ("~/Documents/Accounts/finances.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-checklist org-depend org-eval)))
- '(org-mobile-inbox-for-pull "~/Dropbox/from-mobile.org")
+ '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
  '(org-mobile-files (quote (org-agenda-files org-agenda-text-search-extra-files)))
  '(org-mobile-directory "~/Dropbox/MobileOrg")
  '(org-hide-leading-stars t)
@@ -38,8 +38,8 @@
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-extend-today-until 8)
  '(org-enforce-todo-dependencies t)
- '(org-directory "~/Dropbox/")
- '(org-default-notes-file "~/Dropbox/todo.txt")
+ '(org-directory "~/Documents/Tasks/")
+ '(org-default-notes-file "~/Documents/Tasks/todo.txt")
  '(org-deadline-warning-days 14)
  '(org-cycle-global-at-bob t)
  '(org-confirm-shell-link-function nil)
@@ -53,7 +53,7 @@
  '(org-clock-in-switch-to-state "STARTED")
  '(org-clock-in-resume t)
  '(org-clock-idle-time 10)
- '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Dropbox/todo.txt" "Inbox") "* TODO %?
+ '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Documents/Tasks/todo.txt" "Inbox") "* TODO %?
   SCHEDULED: %t
   :PROPERTIES:
   :ID:       %(shell-command-to-string \"uuidgen\")  :CREATED:  %U
@@ -68,7 +68,6 @@
  '(org-agenda-skip-unavailable-files t)
  '(org-agenda-skip-scheduled-if-done t)
  '(org-agenda-skip-scheduled-if-deadline-is-shown t)
- '(org-agenda-skip-function-global (quote org-my-filter-tasks))
  '(org-agenda-skip-deadline-if-done t)
  '(org-agenda-show-all-dates t)
  '(org-agenda-scheduled-text "")
@@ -79,16 +78,15 @@
  '(org-agenda-ndays 1)
  '(org-agenda-include-diary t)
  '(org-agenda-fontify-priorities t)
- '(org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt" "~/src/ledger/plan/TODO")))
+ '(org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt" "~/src/ledger/plan/TODO")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-deadline-text "D: ")
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>\"DONE\"&TODO<>\"CANCELED\"&TODO<>\"NOTE\"" ((org-agenda-files (quote ("~/Dropbox/todo.txt" "~/Dropbox/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))))))
+ '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("B" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("W" "Work tasks" tags "AREA=\"Work\"" nil))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
- '(org2blog/wp-track-posts nil)
- '(diary-file "~/Documents/diary")
+ '(diary-file "~/Documents/Tasks/diary")
  '(calendar-mark-holidays-flag t)
  '(calendar-longitude -74.287672)
  '(calendar-latitude 40.845112))
@@ -745,7 +743,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/Dropbox/todo.txt")
+  (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
     (org-mobile-push)))
 
 (defun org-my-auto-exclude-function (tag)
@@ -759,6 +757,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	((string= tag "home")
 	 (with-temp-buffer
 	   (call-process "/sbin/ifconfig" nil t nil "en0" "inet")
+	   (call-process "/sbin/ifconfig" nil t nil "en1" "inet")
+	   (call-process "/sbin/ifconfig" nil t nil "bond0" "inet")
 	   (goto-char (point-min))
 	   (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
 	((string= tag "net")
@@ -812,7 +812,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
       (erase-buffer)
       (save-buffer)
       (kill-buffer (current-buffer))
-      (with-current-buffer (find-file-noselect "~/Dropbox/todo.txt")
+      (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
 	(save-excursion
 	  (goto-char (point-min))
           (re-search-forward "^\\* Inbox$")
@@ -956,13 +956,13 @@ This can be 0 for immediate, or a floating point value.")
   SCHEDULED: %t
   :PROPERTIES:
   :ID:       %(shell-command-to-string \"uuidgen\")  :CREATED:  %U
-  :END:" "~/Dropbox/todo.txt" "Inbox"))))
+  :END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
 	(org-remember))))
   (set-fill-column 72))
 
 (defun jump-to-ledger-journal ()
   (interactive)
-  (find-file-other-window "~/Dropbox/Accounts/ledger.dat")
+  (find-file-other-window "~/Documents/Accounts/ledger.dat")
   (goto-char (point-max))
   (insert (format-time-string "%Y/%m/%d ")))
 
@@ -996,7 +996,7 @@ This can be 0 for immediate, or a floating point value.")
   :PROPERTIES:
   :ID:       %(shell-command-to-string \"uuidgen\")  :VISIBILITY: folded
   :CREATED:  %U
-  :END:" "~/Dropbox/todo.txt" "Inbox"))))
+  :END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
       (call-interactively 'org-remember))))
 
 (defun org-get-apple-message-link ()
@@ -1049,6 +1049,10 @@ end tell")))
 (defun org-insert-message-link ()
   (interactive)
   (insert (org-get-message-link)))
+
+(defun org-insert-apple-message-link ()
+  (interactive)
+  (insert (org-get-apple-message-link)))
 
 (defun org-insert-url-link ()
   (interactive)
@@ -1141,64 +1145,11 @@ end tell" (match-string 1))))
 	(pop-to-buffer (current-buffer))
 	(goto-char (point-min))))))
 
-(defun org-normalize-entry ()
-  "Go through an Org, checking for any deviations from the norm.
-
-Where possible and completely unambiguous, fix the entry;
-otherwise, flag an error."
-  (interactive)
-  (save-restriction
-    (save-excursion
-      (narrow-to-region (outline-back-to-heading t)
-                        (progn (outline-next-heading) (point)))
-      (goto-char (point-min))
-
-      ;; RULE: The headline is at most 60 characters wide.
-
-      ;; RULE: The headline tag is properly aligned.  This means the total
-      ;; heading line, including stars, must be 97 characters wide.
-
-      ;; RULE: The TODO state must appear within SEQ_TODO for that file.
-
-      ;; RULE: Every item has a CATEGORY or an ARCHIVE_CATEGORY.
-
-      ;; RULE: Every entry has a properly formatted ID tag, which is a UUID of
-      ;; the following form:
-      ;;
-      ;;   :ID:       9E948C90-7733-41CA-92E5-91F2701B36AE
-
-      ;; RULE: Every entry has a :CREATED: property, for example:
-      ;;
-      ;;   :CREATED:  2010-11-22 Mon 03:45
-      ;;
-      ;; Note that a time is now required, but is optional for old entries.
-
-      ;; RULE: SCHEDULED and/or DEADLINE tags appear on the first line.
-
-      ;; RULE: The State Log appears first, but after scheduling tags.
-
-      ;; RULE: Never use [#B] to mean normal priority, only #A and #C.
-      (when (string-match org-priority-regexp (org-get-heading))
-        (let ((priority-cookie (match-string 1 (org-get-heading))))
-          (unless (string-match "\\`\\[#[AC]\\]\\'" priority-cookie)
-            (error "Bad priority cookie: %s" priority-cookie))))
-
-      ;; RULE: Entry contents are left-aligned with the first letter of the
-      ;; heading.
-      
-      ;; RULE: The PROPERTIES drawer always occurs last.
-
-      ;; RULE: There is no trailing whitespace on any line, or trailing
-      ;; whitespace after the PROPERTIES drawer.
-
-      ;; RULE: Completed entries without a LOGBOOK should be archived.
-      )))
-
 (fset 'sort-todo-categories
    [?\C-u ?\C-s ?^ ?\\ ?* ?\S-  ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
 
 (fset 'sort-subcategories
-   [?\C-u ?\C-s ?^ ?\\ ?* ?\\ ?* ?\S-  ?P ?r ?o ?j ?e ?c ?t ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
+   [?\C-u ?\C-s ?\\ ?* ?\\ ?* ?\S-  ?P ?R ?O ?J ?E ?C ?T ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
 
 (fset 'match-bug-list
    [?\C-s ?= ?\C-b ?\C-f ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?\M-y C-return])
@@ -1305,6 +1256,7 @@ otherwise, flag an error."
 (define-key mode-specific-map [?x ?b] 'org-insert-bug)
 (define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
 (define-key mode-specific-map [?x ?m] 'org-insert-message-link)
+(define-key mode-specific-map [?x ?a] 'org-insert-apple-message-link)
 (define-key mode-specific-map [?x ?u] 'org-insert-url-link)
 (define-key mode-specific-map [?x ?f] 'org-insert-file-link)
 
