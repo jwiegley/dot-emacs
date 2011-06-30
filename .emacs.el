@@ -66,7 +66,6 @@
 (load "initsplit")
 
 (put 'set-goal-column 'disabled nil)
-
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -236,9 +235,7 @@
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
  '(zencoding-preview-default nil))
-
 ;;;_ + faces
-
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -263,7 +260,6 @@
  '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
  '(trailing-whitespace ((((class color) (background light)) (:background "light salmon")))))
-
 ;;;_ + disabled commands
 
 (put 'eval-expression  'disabled nil)   ; Let ESC-ESC work
