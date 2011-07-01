@@ -5,6 +5,18 @@ Notation "[ a ; .. ; b ]" := (a :: .. (b :: []) ..) : list_scope.
 
 Require Import Arith.
 
+Record a : Type := make_a {
+  aa : nat
+}.
+
+Lemma toto:nat.
+Proof.
+  {{
+    exact 3.
+  }}
+Qed.
+
+
 Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
 Proof.
   induction x;simpl;intros;auto with arith.
@@ -99,48 +111,47 @@ Class cla {X:Set}:Set := {
 
 
 
+Module X.
+  Lemma l :
+    forall r:rec,
+      exists r':rec,
+        r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
+  Proof.
+    intros r.  
+    { exists 
+      {|
+        fld1:=r.(fld2);
+        fld2:=r.(fld1);
+        fld3:=false
+      |}.
+      split.
+      {auto. }
+      {auto. }
+    }
+  Qed.
 
-Lemma l :
-  forall r:rec,
-    exists r':rec,
-      r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
-Proof.
-  intros r.  
-  { exists 
-    {|
-      fld1:=r.(fld2);
-      fld2:=r.(fld1);
-      fld3:=false
-    |}.
-    split.
-    {auto. }
-    {auto. }
-  }
-Qed.
 
-
-Lemma l2 :
-  forall r:rec,
-    exists r':rec,
-      r'.(fld1) = r.(fld2) /\ r'.(fld2) = r.(fld1).
-  intros r.  
-  {
-    idtac;
-      exists 
-        {|
-          fld1:=r.(fld2);
-          fld2:=r.(fld1);
-          fld3:=false
-        |}.
+  Lemma l2 :
+    forall r:rec,
+      exists r':rec,r'.(fld1) = r.(fld2) /\ r'.(fld2) = r.(fld1).
+    intros r.  
+    {{
+        idtac;
+          exists 
+            {|
+              fld1:=r.(fld2);
+              fld2:=r.(fld1);
+              fld3:=false
+            |}.
     (* ltac *)
-    match goal with
-      | _:rec |- ?a /\ ?b => split
-      | _ => fail    
-    end.
-    {auto. }
-    {auto. }
-  }
-Qed.
+        match goal with
+          | _:rec |- ?a /\ ?b => split
+          | _ => fail    
+        end.
+        {auto. }
+        {auto. }}}
+  Qed.
+End X.
 
 Require Import Morphisms.
 Generalizable All Variables.
@@ -166,8 +177,8 @@ Module foo.
       | S y => S (f y)
     end.
 
-Program Instance all_iff_morphism {A : Type} :
-  Proper (pointwise_relation A iff ==> iff) (@all A).
+  Program Instance all_iff_morphism {A : Type} :
+    Proper (pointwise_relation A iff ==> iff) (@all A).
 
   Next Obligation.
   Proof.
@@ -176,5 +187,5 @@ Program Instance all_iff_morphism {A : Type} :
     intros y H.    
     intuition ; specialize (H x0) ; intuition.
   Qed.
-    
+  
 End foo.
