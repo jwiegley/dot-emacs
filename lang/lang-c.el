@@ -110,11 +110,13 @@
   (setq indicate-empty-lines t)
   (setq fill-column 72)
   (column-marker-3 80)
-  (cond
-   ((string-match "/ledger/" (buffer-file-name))
-    (c-set-style "ledger"))
-   ((string-match "/ANSI/" (buffer-file-name))
-    (c-set-style "edg")))
+  (let ((bufname (buffer-file-name)))
+    (when bufname
+      (cond
+       ((string-match "/ledger/" bufname)
+        (c-set-style "ledger"))
+       ((string-match "/ANSI/" bufname)
+        (c-set-style "edg")))))
   (font-lock-add-keywords
    'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
 
