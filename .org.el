@@ -81,7 +81,7 @@
  '(org-habit-preceding-days 42)
  '(org-hide-leading-stars t)
  '(org-mobile-directory "~/Dropbox/MobileOrg")
- '(org-mobile-files (quote (org-agenda-files org-agenda-text-search-extra-files)))
+ '(org-mobile-files nil)
  '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
  '(org-modules (quote (org-crypt org-gnus org-id org-habit org-mac-message org-bookmark org-checklist org-depend org-eval)))
  '(org-refile-targets (quote (("~/Documents/Tasks/todo.txt" :level . 1) ("~/Documents/Tasks/todo.txt" :todo . "PROJECT") ("~/Documents/Accounts/finances.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
@@ -825,6 +825,13 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
           (forward-line)
           (goto-char (line-beginning-position))
           (insert tasks))))))
+
+(add-hook 'org-mobile-post-push-hook
+          (function
+           (lambda ()
+             (shell-command "/bin/rm -f ~/Dropbox/MobileOrg/agendas.org")
+             (shell-command "perl -i -ne 'print unless /agendas\\.org/;' ~/Dropbox/MobileOrg/checksums.dat")
+             (shell-command "perl -i -ne 'print unless /agendas\\.org/;' ~/Dropbox/MobileOrg/index.org"))))
 
 (add-hook 'org-mobile-post-pull-hook 'my-org-convert-incoming-items)
 
