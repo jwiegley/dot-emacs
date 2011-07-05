@@ -4080,14 +4080,16 @@ the queue region, @ref{Locked queue and editing regions}). If
 Proof General finds a @code{Require} command, it checks the
 dependencies and (re-)compiles files as necessary. Only after
 this compilation is finished, Proof General starts sending the
-asserted text to the Coq process.
+asserted text to the Coq process. 
 
 @code{Declare ML Module} commands are currently not recognized.
 
 Proof General uses @code{coqdep} in order to translate the
 qualified identifiers in @code{Require} commands to coq library
-file names. Therefore @code{Require Arith} works, while
-@code{Require Arith.Le} gives an error. This is also the reason
+file names. Therefore, in Coq version prior to @code{8.3pl2},
+@code{Require Arith} works, while
+@code{Require Arith.Le} gives an error. The use of @code{coqdep}
+is also the reason
 why nonstandard load path elements must be configured in
 @code{coq-load-path}. 
 
@@ -4121,6 +4123,11 @@ one can use @code{C-x `} (bound to @code{next-error},
 Note however, that @code{coqdep} does not produce error messages
 with location information, so @code{C-x `} cannot work for errors
 from @code{coqdep}.
+
+For simplicity, internal compilation is currently done with
+synchronously running external commands. Therefore, for internal
+compilation, Emacs is locked and unresponsive until the
+compilation finishes.
 
 Proof General cannot know if some library files have been updated
 outside of Proof General, therefore, it must perform the
@@ -4377,8 +4384,8 @@ Support @code{Declare ML Module} commands.
 @item
 Improved undo behaviour for locked ancestors.
 @item
-Integrate with older options for multiple file support, such as,
-for instance, @code{coq-auto-compile-vos}.
+Use always asynchronous processes for compilation and do not lock
+up Emacs in internal compilation mode.
 @item
 Increase precision when comparing modification times. Because of
 an Emacs limitation, modification time stamps of files have only a

@@ -1655,7 +1655,7 @@ function."
           (if coq-debug-auto-compilation
               (message "Checked %s already" lib-obj-file))
           result)
-      ;; lib-obj-file has not been check -- do it now
+      ;; lib-obj-file has not been checked -- do it now
       (message "Check %s" lib-obj-file)
       (if (coq-compile-ignore-file lib-obj-file)
           ;; return minimal time for ignored files
