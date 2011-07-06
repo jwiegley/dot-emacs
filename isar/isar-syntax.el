@@ -163,6 +163,7 @@ This list is in the right format for proof-easy-config.")
 (defconst isar-ext-first "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z]\\)")
 (defconst isar-ext-rest "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)")
 
+(defconst isar-text "[^\^A- ]*")
 (defconst isar-long-id-stuff (concat "\\(?:" isar-ext-rest "\\|\\.\\)+"))
 (defconst isar-id (concat "\\(" isar-ext-first isar-ext-rest "*\\)"))
 (defconst isar-idx (concat isar-id "\\(?:\\.[0-9]+\\)?"))
@@ -439,25 +440,13 @@ START should be at the beginning of a line."
 ;; done generically at the moment:
 ;; (isar-output-flk "\^AM" "\\(?:[^\^A]\\|\^A[^N]\\)*" "\^AN" 'proof-error-face)
 
-   (isar-output-flk "\^AB" isar-long-id-stuff
-		    "\^AA" 'isabelle-class-name-face)
-   (isar-output-flk "\^AC" (concat "'" isar-id)
-		    "\^AA" 'isabelle-tfree-name-face)
-   (isar-output-flk "\^AD" (concat "\\?+'" isar-idx)
-		    "\^AA" 'isabelle-tvar-name-face)
-   (isar-output-flk "\^AE" isar-id "\^AA" 'isabelle-free-name-face)
-   (isar-output-flk "\^AF" isar-id "\^AA" 'isabelle-bound-name-face)
-   (isar-output-flk "\^AG" (concat "\\??" isar-idx)
-		    "\^AA" 'isabelle-var-name-face)
-   (isar-output-flk "\^AH" (concat "\\??" isar-idx)
-		    "\^AA" 'proof-declaration-name-face)
-
-   ;; may alternatively hide the spurious ASCII characters which
-   ;; aren't needed when working in colour (Isabelle printing switch
-   ;; allows this for ?'s but not for 's):
-   ; (isar-output-flk "\^AC'" isar-id "\^AA" 'isabelle-tfree-name-face)
-   ; (isar-output-flk "\^AG\\?" isar-idx "\^AA" 'isabelle-var-name-face)
-   ; etc
+   (isar-output-flk "\^AB" isar-text "\^AA" 'isabelle-class-name-face)
+   (isar-output-flk "\^AC" isar-text "\^AA" 'isabelle-tfree-name-face)
+   (isar-output-flk "\^AD" isar-text "\^AA" 'isabelle-tvar-name-face)
+   (isar-output-flk "\^AE" isar-text "\^AA" 'isabelle-free-name-face)
+   (isar-output-flk "\^AF" isar-text "\^AA" 'isabelle-bound-name-face)
+   (isar-output-flk "\^AG" isar-text "\^AA" 'isabelle-var-name-face)
+   (isar-output-flk "\^AH" isar-text "\^AA" 'proof-declaration-name-face)
    )
   "*Font-lock table for Isabelle output terms.")
 
