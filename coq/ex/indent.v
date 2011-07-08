@@ -16,11 +16,12 @@ Proof.
   }}
 Qed.
 
-
-Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
-Proof.
-  induction x;simpl;intros;auto with arith.
-Qed.
+Module Y.
+  Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
+  Proof with auto with arith.
+    induction x;simpl;intros...
+  Qed.
+End Y.
 
 Function div2 (n : nat) {struct n}: nat :=
   match n with
@@ -86,7 +87,7 @@ Module M1'.
             ].
           }
           auto.
-        }        
+        } 
       Qed.
       {destruct n.
         {
@@ -96,6 +97,20 @@ Module M1'.
     Qed.
   End M2'.
 End M1'.
+
+
+Module M1''.
+  Module M2''.
+    Lemma l7: forall n:nat, n = n. 
+      destruct n.
+      { auto. }
+      { destruct n.
+        { idtac; [ auto ]. }
+        auto. } 
+    Qed.
+  End M2''.
+End M1''.
+
 
 Record rec:Set := { 
   fld1:nat;

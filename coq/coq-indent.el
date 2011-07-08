@@ -92,8 +92,8 @@ detect if they start something or not."
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-end-command-regexp
-;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)"
-  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
+  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)"
+;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
   "Regexp matching end of a command. There are 3 substrings:
 * number 1 is the real coq ending string,
 * number 2 is the left context matched that is not part of the ending string
@@ -253,31 +253,38 @@ Comments are ignored, of course."
 ; below and rename coq-script-parse-function2 into coq-script-parse-function
 (defun coq-script-parse-cmdend-forward (&optional limit)
   "Move to the first end of command found looking forward from point.
-Point is put exactly after the the ending token (but before matching
-substring if present). If no end command is found, go as far as possible
-and return nil. End of command appearing in comments are ignored."
+Point is put exactly after the ending token (but before matching
+substring if present). If no end command is found, go as far as
+possible and return nil. End of command appearing in comments are
+ignored. This function makes use of the substring 1 of the
+command end regexp."
   (if (looking-at proof-script-comment-start-regexp)
       ;; Handle comments
       (if (proof-script-generic-parse-find-comment-end) 'comment)
     ;; Handle non-comments: assumed to be commands
-    (if (< (coq-is-on-ending-context) 0) (ignore-errors (forward-char (coq-is-on-ending-context))))
-    (let (foundend)
+    (if (< (coq-is-on-ending-context) 0)
+        (ignore-errors (forward-char (coq-is-on-ending-context))))
+    (let (foundend next-pos)
       ;; Find end of command
       (while (and (setq foundend
-			(progn
-			  (and
-			   (re-search-forward proof-script-command-end-regexp limit t)
-			   (match-end 1))))
-                  (or (if (or (string-equal (match-string 1) "}")
+                        (and
+                         (re-search-forward proof-script-command-end-regexp limit t)
+                         (match-end 1)))
+                  (setq next-pos (+ 1 (match-beginning 0)))
+                  (or 
+                      (if (or (string-equal (match-string 1) "}")
                               (string-equal (match-string 1) "{"))
                           (save-excursion
-                            ;; "{[^|]\\|[^|]}" matched, use length of match-string instead?
                             (goto-char (match-beginning 1))
                             (not (coq-empty-command-p)))
                         nil)
                       (proof-buffer-syntactic-context)))
-	;; inside a string or comment before the command end
-	)
+        ;; go back as far as possible before the start of the current
+        ;; matching string, this way we will match consecutive endings
+        ;; like ine "}."
+        (ignore-errors (goto-char next-pos))
+;        (ignore-errors (forward-char -1))
+        )
       (if (and foundend
 	       (goto-char foundend)	; move to command end
 	       (not (proof-buffer-syntactic-context)))
@@ -301,14 +308,15 @@ and return nil."
       (if (proof-script-generic-parse-find-comment-end) 'comment) ; start?
     ;; Handle non-comments: assumed to be commands
     ;; first shift if we are in the middle of a ending pattern
-    (if (> (coq-is-on-ending-context) 0) (ignore-errors(forward-char (coq-is-on-ending-context))))
-    (let (foundend)
+    (if (> (coq-is-on-ending-context) 0)
+        (ignore-errors(forward-char (coq-is-on-ending-context))))
+    (let (foundend next-pos)
       ;; Find end of command
       (while (and (setq foundend
-			(progn
-			  (and
-			   (re-search-backward proof-script-command-end-regexp limit t)
-			   (match-beginning 1))))
+                        (and
+                         (re-search-backward proof-script-command-end-regexp limit t)
+                         (match-beginning 1)))
+                  (setq next-pos (- (match-end 0) 1))
                   (or (if (or (string-equal (match-string 1) "}")
                               (string-equal (match-string 1) "{"))
                           (save-excursion
@@ -316,8 +324,7 @@ and return nil."
                             (not (coq-empty-command-p)))
                         nil)
                       (proof-buffer-syntactic-context)))
-	;; inside a string or comment before the command end
-	)
+        (ignore-errors (goto-char next-pos)))
       (if (and foundend
 	       (goto-char foundend)	; move to command end
 	       (not (proof-buffer-syntactic-context)))
@@ -352,10 +359,11 @@ Can jump line if NOJUMPLINES = nil."
     (save-excursion
       (let* ((st (coq-find-real-start)) ; va chercher trop loin? OUI
              (linejumped (not (same-line initpos (point))))
-             (xxx (goto-char (- (point) 1)))
-             (nd (or (if (coq-script-parse-cmdend-forward) (point) nil) (- (point-max) 1)))) ; idem?
+             ;(xxx (goto-char (- (point) 1)))
+             (nd (or (if (coq-script-parse-cmdend-forward) (point) nil)
+                     (- (point-max) 1)))) ; idem?
         (if (and st (or (not nojumplines) (not linejumped)))
-            (buffer-substring st (+ nd 1))
+            (buffer-substring st nd)
           nil)))))
 
 
@@ -375,7 +383,7 @@ Can jump line if NOJUMPLINES = nil."
                   (same-line (point) initpoint)) 
         (setq res (cons command-found res))
         (if (and (coq-script-parse-cmdend-forward)
-                 (ignore-errors (forward-char 1) t);to fit in the "and"
+                 ;(ignore-errors (forward-char 1) t);to fit in the "and"
                  (coq-find-real-start))
             (setq command-found (coq-command-at-point nojumplines))
           (setq command-found nil)
