@@ -110,7 +110,11 @@
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
+ '(display-time-mail-function (quote gmail-unread))
  '(display-time-mode t)
+ '(display-time-use-mail-icon t)
+ '(el-get-apt-get-base "/opt/local/share/emacs/site-lisp")
+ '(el-get-growl-notify "~/bin/growlnotify")
  '(elmo-imap4-default-authenticate-type (quote clear) t)
  '(elmo-imap4-default-port 993 t)
  '(elmo-imap4-default-server "mail.newartisans.com" t)
@@ -164,6 +168,7 @@
  '(inhibit-startup-screen t)
  '(initial-frame-alist (quote ((width . 100) (height . 76))))
  '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil) ("\\`\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil))))
+ '(ispell-extra-args (quote ("--sug-mode=ultra" "--keyboard=dvorak" "--dont-suggest")))
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
  '(ledger-file "~/Documents/Accounts/ledger.dat")
@@ -280,13 +285,11 @@
 ;;;_ + direct loads
 
 (mapc #'(lambda (name) (load name t))
-      '(;;"archive-region"
-        ;;"bookmark+"
+      '(
+        "breadcrumb"
         "browse-kill-ring+"
         ;;"chess-auto"
-        ;;"diff-mode-"
         "diminish"
-        ;;"elscreen"
         "escreen"
         "ess-site"
         "fit-frame"
@@ -304,26 +307,11 @@
 ;;;_ + auto loads
 
 (mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
-      '(("linum"             . linum-mode)
-        ("delim-kill"        . delim-kill)
-        ("cycbuf"            . cycbuf-switch-to-next-buffer)
-        ("cycbuf"            . cycbuf-switch-to-previous-buffer)
-        ("goby"              . goby)
-        ("sunrise-commander" . sunrise)
-        ("column-marker"     . column-marker-1)
+      '(("linum"         . linum-mode)
+        ("column-marker" . column-marker-1)
         ))
 
-(eval-after-load "sunrise-commander"
-  '(progn
-     (load "sunrise-x-modeline")
-     (load "sunrise-x-tree")))
-
 ;;;_ + elscreen
-
-(eval-after-load "elscreen"
-  '(progn
-     (define-key elscreen-map "\C-\\" 'elscreen-toggle)
-     (define-key elscreen-map "\\"    'toggle-input-method)))
 
 (eval-after-load "escreen"
   '(progn
@@ -461,56 +449,6 @@
 
      (run-with-idle-timer 900 t 'save-information)))
 
-;; ;;;_ + wanderlust
-;; 
-;; (autoload 'wl "wl" "Wanderlust" t)
-;; (autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
-;; (autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
-;; 
-;; ;; IMAP
-;; ;(setq elmo-imap4-default-server "imap.gmail.com")
-;; ;(setq elmo-imap4-default-user "jwiegley@gmail.com") 
-;; (setq elmo-imap4-default-server "mail.johnwiegley.com")
-;; (setq elmo-imap4-default-user "johnw") 
-;; (setq elmo-imap4-default-authenticate-type 'clear) 
-;; (setq elmo-imap4-default-port '993)
-;; (setq elmo-imap4-default-stream-type 'ssl)
-;; 
-;; (setq elmo-imap4-use-modified-utf7 t) 
-;; 
-;; ;; SMTP
-;; (setq wl-smtp-connection-type 'starttls)
-;; (setq wl-smtp-posting-port 587)
-;; (setq wl-smtp-authenticate-type "plain")
-;; ;(setq wl-smtp-posting-user "jwiegley")
-;; ;(setq wl-smtp-posting-server "smtp.gmail.com")
-;; ;(setq wl-local-domain "gmail.com")
-;; (setq wl-smtp-posting-user "johnw")
-;; (setq wl-smtp-posting-server "mail.johnwiegley.com")
-;; (setq wl-local-domain "johnwiegley.com")
-;; 
-;; (setq wl-default-folder "%inbox")
-;; (setq wl-default-spec "%")
-;; ;(setq wl-draft-folder "%[Gmail]/Drafts") ; Gmail IMAP
-;; ;(setq wl-trash-folder "%[Gmail]/Trash")
-;; (setq wl-draft-folder "%INBOX.Drafts")
-;; (setq wl-trash-folder "%INBOX.Trash")
-;; 
-;; (setq wl-folder-check-async t) 
-;; 
-;; (setq elmo-imap4-use-modified-utf7 t)
-;; 
-;; (autoload 'wl-user-agent-compose "wl-draft" nil t)
-;; (if (boundp 'mail-user-agent)
-;;     (setq mail-user-agent 'wl-user-agent))
-;; (if (fboundp 'define-mail-user-agent)
-;;     (define-mail-user-agent
-;;       'wl-user-agent
-;;       'wl-user-agent-compose
-;;       'wl-draft-send
-;;       'wl-draft-kill
-;;       'mail-send-hook))
-
 ;;;_ + whitespace
 
 (eval-after-load "whitespace"
@@ -561,14 +499,13 @@
      (ignore-errors
        (diminish 'yas/minor-mode))
 
-     
 (defadvice dired-omit-startup (after diminish-dired-omit activate)
        "Make sure to remove \"Omit\" from the modeline."
        (diminish 'dired-omit-mode))
 
-     (eval-after-load "dot-mode" '(diminish 'dot-mode))
-     (eval-after-load "eldoc"    '(diminish 'eldoc-mode))
-     (eval-after-load "winner"   '(ignore-errors (diminish 'winner-mode)))))
+(eval-after-load "dot-mode" '(diminish 'dot-mode))
+(eval-after-load "eldoc"    '(diminish 'eldoc-mode))
+(eval-after-load "winner"   '(ignore-errors (diminish 'winner-mode)))))
 
 ;;;_* keybindings
 
@@ -693,7 +630,7 @@
 (define-key global-map [(meta ?n)] 'keep-theirs)
 (define-key global-map [(alt ?b)] 'keep-both)
 
-(defun refill-ti-comment ()
+(defun ti-refill-comment ()
   (interactive)
   (save-excursion
     (goto-char (line-beginning-position))
@@ -764,7 +701,11 @@
 (define-key lisp-find-map [?v] 'find-variable)
 (define-key lisp-find-map [?k] 'find-function-on-key)
 
-(define-key global-map [(meta ?G)] 'gnus)
+(defun gnus-level-1 ()
+  (interactive)
+  (gnus 1))
+
+(define-key global-map [(meta ?G)] 'gnus-level-1)
 (define-key global-map [(meta ?N)] 'winner-redo)
 (define-key global-map [(meta ?P)] 'winner-undo)
 (define-key global-map [(meta ?T)] 'tags-search)
@@ -783,8 +724,6 @@
 (define-key global-map [(meta ?\[)] 'align-code)
 (define-key global-map [(meta ?!)]  'eshell-command)
 (define-key global-map [(meta ?`)]  'other-frame)
-;;(define-key global-map [(meta ?`)]  'cycbuf-switch-to-next-buffer)
-;;(define-key global-map [(meta ?~)]  'cycbuf-switch-to-previous-buffer)
 
 (define-key global-map [(alt ?`)]  'other-frame)
 
@@ -824,6 +763,16 @@
   #'(lambda ()
       (interactive)
       (call-interactively (key-binding (kbd "M-TAB")))))
+
+;;;_ + breadcrumb
+
+(define-key global-map [(alt ?m)] 'bc-set)
+(define-key global-map [(alt ?p)] 'bc-previous)
+(define-key global-map [(alt ?n)] 'bc-next)
+(define-key global-map [(alt ?u)] 'bc-local-previous)
+(define-key global-map [(alt ?d)] 'bc-local-next)
+(define-key global-map [(alt ?g)] 'bc-goto-current)
+(define-key global-map [(alt ?l)] 'bc-list)
 
 ;;;_ + ctl-x
 

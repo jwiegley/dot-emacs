@@ -16,8 +16,8 @@
  '(check-mail-boxes (quote ("~/Library/Mail/incoming/mail\\..*\\.spool")))
  '(check-mail-summary-function (quote check-mail-box-summary))
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
- '(gnus-activate-level 2)
- '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-group-save-newsrc)))
+ '(gnus-activate-level 1)
+ '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-group-save-newsrc (lambda nil (if (file-exists-p "/tmp/unread") (delete-file "/tmp/unread")) (display-time-update)))))
  '(gnus-agent-expire-all t)
  '(gnus-agent-expire-days 14)
  '(gnus-agent-go-online t)
@@ -26,6 +26,7 @@
  '(gnus-article-date-lapsed-new-header t)
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
+ '(gnus-check-new-newsgroups nil)
  '(gnus-default-adaptive-score-alist (quote ((gnus-dormant-mark (from 20) (subject 100)) (gnus-ticked-mark (subject 30)) (gnus-read-mark (subject 30)) (gnus-del-mark (subject -150)) (gnus-catchup-mark (subject -150)) (gnus-killed-mark (subject -1000)) (gnus-expirable-mark (from -1000) (subject -1000)))))
  '(gnus-default-article-saver (quote gnus-summary-write-to-file))
  '(gnus-extra-headers (quote (To)))
@@ -42,9 +43,11 @@
  '(gnus-large-newsgroup 4000)
  '(gnus-local-domain "boostpro.com")
  '(gnus-message-archive-group (quote ((format-time-string "sent.%Y"))))
+ '(gnus-message-replyencrypt nil)
  '(gnus-novice-user nil)
  '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
- '(gnus-posting-styles (quote ((".*"))))
+ '(gnus-posting-styles (quote ((".*" ("From" "johnw@boostpro.com")))))
+ '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
  '(gnus-refer-article-method (quote ((nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
  '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
@@ -94,11 +97,12 @@
  '(mail-sources (quote ((file))))
  '(mail-specify-envelope-from t)
  '(mail-user-agent (quote gnus-user-agent))
+ '(message-alternative-emails "\\(johnw?\\|jwiegley\\)@\\(gmail\\|newartisans\\|boostpro\\).com")
  '(message-directory "~/Library/Mail/Gnus/Mail/")
  '(message-fill-column 78)
  '(message-interactive t)
  '(message-mail-alias-type nil)
- '(message-mode-hook (quote (footnote-mode auto-fill-mode)))
+ '(message-mode-hook (quote (footnote-mode auto-fill-mode flyspell-mode)))
  '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
@@ -111,7 +115,6 @@
  '(nnmail-extra-headers (quote (To)))
  '(nnmail-scan-directory-mail-source-once t)
  '(send-mail-function (quote sendmail-send-it))
- '(sendmail-program "/opt/local/bin/msmtp")
  '(smtpmail-default-smtp-server "mail.johnwiegley.com")
  '(smtpmail-smtp-server "mail.johnwiegley.com" t)
  '(smtpmail-smtp-service 587 t)
@@ -141,9 +144,46 @@
 (eval-after-load "message"
   '(load "message-x"))
 
+(defun gmail-unread ()
+  (file-exists-p "/tmp/unread"))
+
+(defun gnus-query (query)
+  (interactive "sMail Query: ")
+  (setq nnir-current-query nil
+	nnir-current-server nil
+	nnir-current-group-marked nil
+	nnir-artlist nil)
+  (let* ((parms (list (cons 'query query)))
+         (srv (if (gnus-server-server-name)
+                  "all"	""))
+         (gnus-group-marked (list "nnimap+Gmail:Mail"
+                                  "nnimap+Gmail:[Gmail]/Sent Mail")))
+    (add-to-list 'parms (cons 'unique-id (message-unique-id)) t)
+    (gnus-group-read-ephemeral-group
+     (concat "nnir:" (prin1-to-string parms)) (list 'nnir srv) t
+     (cons (current-buffer) gnus-current-window-configuration) nil)))
+
 (defun gnus-goto-article (message-id)
-  (gnus-summary-read-group "nnimap+VPS:INBOX" 1 t)
-  (gnus-summary-refer-article message-id))
+  (setq nnir-current-query nil
+	nnir-current-server nil
+	nnir-current-group-marked nil
+	nnir-artlist nil)
+  (let* ((query (format "HEADER \"Message-Id\" %s" message-id))
+         (parms (list (cons 'query query)))
+         (srv (if (gnus-server-server-name)
+                  "all"	""))
+         (gnus-group-marked (list "nnimap+Gmail:Mail"
+                                  "nnimap+Gmail:[Gmail]/Sent Mail"
+                                  "nnimap+Gmail:Lists/Ledger")))
+    (add-to-list 'parms (cons 'unique-id (message-unique-id)) t)
+    (gnus-group-read-ephemeral-group
+     (concat "nnir:" (prin1-to-string parms)) (list 'nnir srv) t
+     (cons (current-buffer) gnus-current-window-configuration) nil)
+    (gnus-summary-refer-article message-id)))
+
+;;(defun gnus-goto-article (message-id)
+;;  (gnus-summary-read-group "nnimap+Gmail:Mail" 1 t)
+;;  (gnus-summary-refer-article message-id))
 
 (defun gnus-current-message-id ()
   (with-current-buffer gnus-original-article-buffer
@@ -162,7 +202,7 @@
 
 (defadvice message-goto-from (after insert-boostpro-address activate)
   (if (looking-back ": ")
-      (insert "John Wiegley <johnw@boostpro.com>"))
+      (insert "John Wiegley <jwiegley@gmail.com>"))
   (goto-char (line-end-position))
   (re-search-backward ": ")
   (goto-char (match-end 0)))
