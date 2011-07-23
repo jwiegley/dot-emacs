@@ -116,7 +116,10 @@
        ((string-match "/ledger/" bufname)
         (c-set-style "ledger"))
        ((string-match "/ANSI/" bufname)
-        (c-set-style "edg")))))
+        (c-set-style "edg")
+        (substitute-key-definition 'fill-paragraph 'ti-refill-comment
+                                   c-mode-base-map global-map)
+        (define-key )))))
   (font-lock-add-keywords
    'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
 
@@ -181,6 +184,69 @@
   (define-key c-mode-base-map [(meta ?b)] 'backward-c++-token))
 
 ;(add-hook 'c-mode-common-hook 'setup-token-movement)
+
+(defun ti-refill-comment ()
+  (interactive)
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (let ((begin (point)) end
+          (marker ?-) (marker-re "\\(-----\\|\\*\\*\\*\\*\\*\\)")
+          (leader-width 0))
+      (unless (looking-at "[ \t]*/\\*[-* ]")
+        (search-backward "/*")
+        (goto-char (line-beginning-position)))
+      (unless (looking-at "[ \t]*/\\*[-* ]")
+        (error "Not in a comment"))
+      (while (and (looking-at "\\([ \t]*\\)/\\* ")
+                  (setq leader-width (length (match-string 1)))
+                  (not (looking-at (concat "[ \t]*/\\*" marker-re))))
+        (forward-line -1)
+        (setq begin (point)))
+      (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
+        (setq marker (if (string= (match-string 1) "-----") ?- ?*))
+        (forward-line))
+      (while (and (looking-at "[^\n]+?\\*/[ \t]*$")
+                  (not (looking-at (concat "[^\n]+?" marker-re
+                                           "\\*/[ \t]*$"))))
+        (forward-line))
+      (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
+        (forward-line))
+      (setq end (point))
+      (let ((comment (buffer-substring-no-properties begin end)))
+        (with-temp-buffer
+          (insert comment)
+          (goto-char (point-min))
+          (flush-lines (concat "^[ \t]*/\\*" marker-re "[-*]+\\*/[ \t]*$"))
+          (goto-char (point-min))
+          (while (re-search-forward "^[ \t]*/\\* ?" nil t)
+            (goto-char (match-beginning 0))
+            (delete-region (match-beginning 0) (match-end 0)))
+          (goto-char (point-min))
+          (while (re-search-forward "[ \t]*\\*/[ \t]*$" nil t)
+            (goto-char (match-beginning 0))
+            (delete-region (match-beginning 0) (match-end 0)))
+          (goto-char (point-min)) (delete-trailing-whitespace)
+          (goto-char (point-min)) (flush-lines "^$")
+          (set-fill-column (- 80         ; width of the text
+                              6          ; width of "/*  */"
+                              leader-width))
+          (goto-char (point-min)) (fill-paragraph)
+          (goto-char (point-min))
+          (while (not (eobp))
+            (insert (make-string leader-width ? ) "/* ")
+            (goto-char (line-end-position))
+            (insert (make-string (- 80 3 (current-column)) ? ) " */")
+            (forward-line))
+          (goto-char (point-min))
+          (insert (make-string leader-width ? )
+                  "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
+          (goto-char (point-max))
+          (insert (make-string leader-width ? )
+                  "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
+          (setq comment (buffer-string)))
+        (goto-char begin)
+        (delete-region begin end)
+        (insert comment)))))
 
 ;;;_ * doxymacs
 
