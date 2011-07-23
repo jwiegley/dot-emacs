@@ -4,7 +4,7 @@
 
 (defconst emacs-lisp-root "~/Library/Emacs")
 
-(setq gnus-home-directory "~/Library/Mail/Gnus/")
+(setq gnus-home-directory "~/Library/Mail/Gnus/") ; override gnus.el
 
 ;; Add other site-lisp directories, in case they were not setup by the
 ;; environment.
@@ -21,17 +21,13 @@
                 "site-lisp/org-mode/contrib/lisp"
                 "site-lisp/org-mode/lisp"
 
-                "site-lisp/wanderlust/elmo"
-                "site-lisp/wanderlust/wl"
-                "site-lisp/wanderlust/utils"
-
                 ;; Packages located elsewhere on the system...
-                "~/Projects/ledger/lisp"
+                "~/src/ledger/lisp"
                 "/opt/local/share/doc/git-core/contrib/emacs"
                 )))
 
-  (setq path (expand-file-name path emacs-lisp-root))
-  (setq load-path (delete path load-path)
+  (setq path (expand-file-name path emacs-lisp-root)
+        load-path (delete path load-path)
         load-path (delete (file-name-as-directory path) load-path))
 
   (when (file-directory-p path)
@@ -57,7 +53,7 @@
 
 ;; Set the *Message* log to something higher
 
-(setq message-log-max 2048)
+(setq message-log-max 8192)
 
 ;;;_* customizations
 
@@ -65,7 +61,6 @@
 
 (load "initsplit")
 
-(put 'set-goal-column 'disabled nil)
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -241,7 +236,9 @@
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
  '(zencoding-preview-default nil))
+
 ;;;_ + faces
+
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -268,19 +265,21 @@
  '(magit-topgit-current ((t nil)))
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
  '(trailing-whitespace ((((class color) (background light)) (:background "light salmon")))))
+
 ;;;_ + disabled commands
 
-(put 'eval-expression  'disabled nil)   ; Let ESC-ESC work
-(put 'narrow-to-region 'disabled nil)   ; Let narrowing work
-(put 'narrow-to-page   'disabled nil)   ; Let narrowing work
-(put 'upcase-region    'disabled nil)   ; Let downcasing work
 (put 'downcase-region  'disabled nil)   ; Let upcasing work
 (put 'erase-buffer     'disabled nil)
+(put 'eval-expression  'disabled nil)   ; Let ESC-ESC work
+(put 'narrow-to-page   'disabled nil)   ; Let narrowing work
+(put 'narrow-to-region 'disabled nil)   ; Let narrowing work
+(put 'set-goal-column  'disabled nil)
+(put 'upcase-region    'disabled nil)   ; Let downcasing work
 
 ;;;_* packages
 
-(mapc #'load (directory-files (expand-file-name "lang" emacs-lisp-root)
-                              t "\\.el$" t))
+(mapc #'load (directory-files
+              (expand-file-name "lang" emacs-lisp-root) t "\\.el$" t))
 
 ;;;_ + direct loads
 
@@ -309,9 +308,10 @@
 (mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
       '(("linum"         . linum-mode)
         ("column-marker" . column-marker-1)
+        ("esh-toggle"    . esh-toggle) 
         ))
 
-;;;_ + elscreen
+;;;_ + escreen
 
 (eval-after-load "escreen"
   '(progn
@@ -352,11 +352,10 @@
 (defun commit-after-save ()
   (let ((file (file-name-nondirectory (buffer-file-name))))
     (message "Committing changes to Git...")
-    (if (= 0 (shell-command
-	      (format "git add \"%s\" ; git commit -m \"changes to %s\""
-		      file file)))
-	(message "Committed changes to %s" file)
-      (message "NO changes saved for %s" file))))
+    (if (call-process "git" nil nil nil "add" file)
+        (if (call-process "git" nil nil nil "commit" "-m"
+                          (concat "changes to " file))
+            (message "Committed changes to %s" file)))))
 
 (eval-after-load "dired-x"
   '(progn
@@ -426,6 +425,8 @@
 
 (defun normalize-file ()
   (interactive)
+  (goto-char (point-min))
+  (delete-trailing-whitespace)
   (set-buffer-file-coding-system 'unix)
   (save-excursion
     (goto-char (point-min))
@@ -553,8 +554,6 @@
 
 (define-key global-map [(control ?z)] 'collapse-or-expand)
 
-(define-key global-map [(control meta ?w)] 'delim-kill)
-
 (defun delete-indentation-forward ()
   (interactive)
   (delete-indentation t))
@@ -630,69 +629,6 @@
 (define-key global-map [(meta ?n)] 'keep-theirs)
 (define-key global-map [(alt ?b)] 'keep-both)
 
-(defun ti-refill-comment ()
-  (interactive)
-  (save-excursion
-    (goto-char (line-beginning-position))
-    (let ((begin (point)) end
-          (marker ?-) (marker-re "\\(-----\\|\\*\\*\\*\\*\\*\\)")
-          (leader-width 0))
-      (unless (looking-at "[ \t]*/\\*[-* ]")
-        (search-backward "/*")
-        (goto-char (line-beginning-position)))
-      (unless (looking-at "[ \t]*/\\*[-* ]")
-        (error "Not in a comment"))
-      (while (and (looking-at "\\([ \t]*\\)/\\* ")
-                  (setq leader-width (length (match-string 1)))
-                  (not (looking-at (concat "[ \t]*/\\*" marker-re))))
-        (forward-line -1)
-        (setq begin (point)))
-      (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
-        (setq marker (if (string= (match-string 1) "-----") ?- ?*))
-        (forward-line))
-      (while (and (looking-at "[^\n]+?\\*/[ \t]*$")
-                  (not (looking-at (concat "[^\n]+?" marker-re
-                                           "\\*/[ \t]*$"))))
-        (forward-line))
-      (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
-        (forward-line))
-      (setq end (point))
-      (let ((comment (buffer-substring-no-properties begin end)))
-        (with-temp-buffer
-          (insert comment)
-          (goto-char (point-min))
-          (flush-lines (concat "^[ \t]*/\\*" marker-re "[-*]+\\*/[ \t]*$"))
-          (goto-char (point-min))
-          (while (re-search-forward "^[ \t]*/\\* ?" nil t)
-            (goto-char (match-beginning 0))
-            (delete-region (match-beginning 0) (match-end 0)))
-          (goto-char (point-min))
-          (while (re-search-forward "[ \t]*\\*/[ \t]*$" nil t)
-            (goto-char (match-beginning 0))
-            (delete-region (match-beginning 0) (match-end 0)))
-          (goto-char (point-min)) (delete-trailing-whitespace)
-          (goto-char (point-min)) (flush-lines "^$")
-          (set-fill-column (- 80         ; width of the text
-                              6          ; width of "/*  */"
-                              leader-width))
-          (goto-char (point-min)) (fill-paragraph)
-          (goto-char (point-min))
-          (while (not (eobp))
-            (insert (make-string leader-width ? ) "/* ")
-            (goto-char (line-end-position))
-            (insert (make-string (- 80 3 (current-column)) ? ) " */")
-            (forward-line))
-          (goto-char (point-min))
-          (insert (make-string leader-width ? )
-                  "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
-          (goto-char (point-max))
-          (insert (make-string leader-width ? )
-                  "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
-          (setq comment (buffer-string)))
-        (goto-char begin)
-        (delete-region begin end)
-        (insert comment)))))
-
 (define-prefix-command 'lisp-find-map)
 (define-key global-map [(control ?h) ?e] 'lisp-find-map)
 (define-key lisp-find-map [?a] 'apropos)
@@ -724,8 +660,7 @@
 (define-key global-map [(meta ?\[)] 'align-code)
 (define-key global-map [(meta ?!)]  'eshell-command)
 (define-key global-map [(meta ?`)]  'other-frame)
-
-(define-key global-map [(alt ?`)]  'other-frame)
+(define-key global-map [(alt ?`)]   'other-frame)
 
 (defun mark-line (&optional arg)
   (interactive "p")
@@ -869,9 +804,6 @@
       (insert line-text))))
 
 (define-key ctl-x-map [(control ?d)] 'duplicate-line)
-
-(autoload 'esh-toggle "esh-toggle" nil t)
-
 (define-key ctl-x-map [(control ?z)] 'eshell-toggle)
 
 ;;;_ + mode-specific
@@ -897,16 +829,15 @@
 (define-key mode-specific-map [? ] 'just-one-space)
 (define-key mode-specific-map [?1] 'just-one-space)
 
-(define-key mode-specific-map [?b] 'ignore)
 (define-key mode-specific-map [?c] 'compile)
 
 (defun clone-region-set-mode (start end &optional mode)
-  (interactive "r")
+  (interactive "r\nCMode: ")
   (with-current-buffer (clone-indirect-buffer "*clone*" t)
     (narrow-to-region start end)
     (if mode
 	(funcall mode)
-      (lisp-mode))))
+      (call-interactively mode))))
 
 (define-key mode-specific-map [?C] 'clone-region-set-mode)
 
@@ -919,18 +850,10 @@
 
 (define-key mode-specific-map [?d] 'delete-current-line)
 
-(define-key mode-specific-map [?e ?a] 'byte-recompile-directory)
-
 (defun do-eval-buffer ()
   (interactive)
   (call-interactively 'eval-buffer)
   (message "Buffer has been evaluated"))
-
-(define-key mode-specific-map [?e ?b] 'do-eval-buffer)
-(define-key mode-specific-map [?e ?c] 'cancel-debug-on-entry)
-(define-key mode-specific-map [?e ?d] 'debug-on-entry)
-(define-key mode-specific-map [?e ?f] 'emacs-lisp-byte-compile-and-load)
-(define-key mode-specific-map [?e ?r] 'eval-region)
 
 (defun scratch ()
   (interactive)
@@ -945,6 +868,12 @@
       (delete-region (point-min) (point)))
     (goto-char (point-max))))
 
+(define-key mode-specific-map [?e ?a] 'byte-recompile-directory)
+(define-key mode-specific-map [?e ?b] 'do-eval-buffer)
+(define-key mode-specific-map [?e ?c] 'cancel-debug-on-entry)
+(define-key mode-specific-map [?e ?d] 'debug-on-entry)
+(define-key mode-specific-map [?e ?f] 'emacs-lisp-byte-compile-and-load)
+(define-key mode-specific-map [?e ?r] 'eval-region)
 (define-key mode-specific-map [?e ?s] 'scratch)
 (define-key mode-specific-map [?e ?v] 'edit-variable)
 (define-key mode-specific-map [?e ?e] 'toggle-debug-on-error)
@@ -952,7 +881,6 @@
 
 (define-key mode-specific-map [?f] 'flush-lines)
 (define-key mode-specific-map [?g] 'goto-line)
-(define-key mode-specific-map [?h] 'ignore)
 
 (define-key mode-specific-map [?i ?b] 'flyspell-buffer)
 (define-key mode-specific-map [?i ?c] 'ispell-comments-and-strings)
@@ -962,7 +890,6 @@
 (define-key mode-specific-map [?i ?m] 'ispell-message)
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
-(define-key mode-specific-map [?j] 'ignore)
 (define-key mode-specific-map [?k] 'keep-lines)
 
 (defun my-ledger-start-entry (&optional arg)
@@ -979,44 +906,19 @@
 
 (define-key mode-specific-map [?l] 'my-ledger-start-entry)
 
-(defun ledger-create-test ()
-  (interactive)
-  (save-restriction
-    (org-narrow-to-subtree)
-    (save-excursion
-      (let (text beg)
-        (goto-char (point-min))
-        (forward-line 1)
-        (setq beg (point))
-        (search-forward ":PROPERTIES:")
-        (goto-char (line-beginning-position))
-        (setq text (buffer-substring-no-properties beg (point)))
-        (goto-char (point-min))
-        (re-search-forward ":ID:\\s-+\\([^-]+\\)")
-        (find-file-other-window
-         (format "~/src/ledger/test/regress/%s.test" (match-string 1)))
-        (sit-for 0)
-        (insert text)
-        (goto-char (point-min))
-        (while (not (eobp))
-          (goto-char (line-beginning-position))
-          (delete-char 3)
-          (forward-line 1))))))
-
-(define-key mode-specific-map [?m] 'ignore)
-
 (defcustom user-initials nil
   "*Initials of this user."
-  :set #'(lambda (symbol value)
-	   (if (fboundp 'font-lock-add-keywords)
-	       (mapcar
-		#'(lambda (mode)
-		    (font-lock-add-keywords
-		     mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
-				      1 font-lock-warning-face t))))
-		'(c-mode c++-mode emacs-lisp-mode lisp-mode
-			 python-mode perl-mode java-mode groovy-mode)))
-	   (set symbol value))
+  :set
+  #'(lambda (symbol value)
+      (if (fboundp 'font-lock-add-keywords)
+          (mapcar
+           #'(lambda (mode)
+               (font-lock-add-keywords
+                mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
+                                 1 font-lock-warning-face t))))
+           '(c-mode c++-mode emacs-lisp-mode lisp-mode
+                    python-mode perl-mode java-mode groovy-mode)))
+      (set symbol value))
   :type 'string
   :group 'mail)
 
@@ -1029,7 +931,6 @@
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
 (define-key mode-specific-map [?o] 'customize-option)
 (define-key mode-specific-map [?O] 'customize-group)
-(define-key mode-specific-map [?p] 'ignore)
 (define-key mode-specific-map [?q] 'fill-region)
 (define-key mode-specific-map [?r] 'replace-regexp)
 (define-key mode-specific-map [?s] 'replace-string)
@@ -1038,8 +939,6 @@
 (define-key mode-specific-map [?t ?a] 'tags-apropos)
 (define-key mode-specific-map [?t ?e] 'tags-search)
 (define-key mode-specific-map [?t ?v] 'visit-tags-table)
-
-(define-key mode-specific-map [?t ?a] 'tags-apropos)
 
 (define-key mode-specific-map [?u] 'rename-uniquely)
 (define-key mode-specific-map [?v] 'visit-url)
@@ -1055,10 +954,8 @@
     (html-mode)
     (view-mode)))
 
-(define-key mode-specific-map [(shift ?v)] 'view-clipboard)
-
+(define-key mode-specific-map [?V] 'view-clipboard)
 (define-key mode-specific-map [?w] 'wdired-change-to-wdired-mode)
-(define-key mode-specific-map [?y] 'ignore)
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
 (define-key mode-specific-map [?\[] 'align-regexp)
@@ -1072,15 +969,19 @@
 
 ;;;_ + isearch-mode
 
-(define-key isearch-mode-map [(control ?c)] 'isearch-toggle-case-fold)
-(define-key isearch-mode-map [(control ?t)] 'isearch-toggle-regexp)
-(define-key isearch-mode-map [(control ?^)] 'isearch-edit-string)
-(define-key isearch-mode-map [(control ?i)] 'isearch-complete)
+(eval-after-load "isearch"
+  '(progn
+     (define-key isearch-mode-map [(control ?c)] 'isearch-toggle-case-fold)
+     (define-key isearch-mode-map [(control ?t)] 'isearch-toggle-regexp)
+     (define-key isearch-mode-map [(control ?^)] 'isearch-edit-string)
+     (define-key isearch-mode-map [(control ?i)] 'isearch-complete)))
 
 ;;;_ + mail-mode
 
 (eval-after-load "sendmail"
-  '(define-key mail-mode-map [(control ?i)] 'mail-complete))
+  '(progn
+     (define-key mail-mode-map [tab] 'mail-complete)
+     (define-key mail-mode-map [(control ?i)] 'mail-complete)))
 
 ;;;_* startup
 
@@ -1089,9 +990,10 @@
 
 (add-hook 'after-init-hook 'server-start)
 (add-hook 'after-init-hook
-          (function (lambda ()
-                      (set-frame-parameter (selected-frame) 'top 25)
-                      (set-frame-parameter (selected-frame) 'left
-                                           (- (x-display-pixel-width) 930)))))
+          (function
+           (lambda ()
+             (set-frame-parameter (selected-frame) 'top 25)
+             (set-frame-parameter (selected-frame) 'left
+                                  (- (x-display-pixel-width) 930)))))
 
 ;; .emacs.el ends here

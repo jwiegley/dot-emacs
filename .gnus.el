@@ -102,7 +102,7 @@
  '(message-fill-column 78)
  '(message-interactive t)
  '(message-mail-alias-type nil)
- '(message-mode-hook (quote (footnote-mode auto-fill-mode flyspell-mode)))
+ '(message-mode-hook (quote (footnote-mode auto-fill-mode)))
  '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
@@ -202,7 +202,7 @@
 
 (defadvice message-goto-from (after insert-boostpro-address activate)
   (if (looking-back ": ")
-      (insert "John Wiegley <jwiegley@gmail.com>"))
+      (insert "John Wiegley <johnw@boostpro.com>"))
   (goto-char (line-end-position))
   (re-search-backward ": ")
   (goto-char (match-end 0)))

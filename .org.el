@@ -28,7 +28,7 @@
  '(diary-file "~/Documents/Tasks/diary")
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("b" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("V" "Unscheduled work-related tasks" tags "AREA=\"Work\"TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Unscheduled work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))) ("W" "Work-related tasks" tags "AREA=\"Work\"TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))))))
+ '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("b" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("V" "Unscheduled work-related tasks" tags "AREA=\"Work\"TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Unscheduled work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))) ("W" "Work-related tasks" tags "AREA=\"Work\"TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up priority-down todo-state-up alpha-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
@@ -462,103 +462,6 @@ To use this function, add it to `org-agenda-finalize-hook':
        (not (member "John" (org-get-tags-at)))
        (progn (outline-next-heading) (point))))
 
-
-(defun make-ceg-bugzilla-bug (product component version priority severity)
-  (interactive
-   (let ((omk (get-text-property (point) 'org-marker)))
-     (with-current-buffer (marker-buffer omk)
-       (save-excursion
-	 (goto-char omk)
-	 (let ((products
-		(list (list "ABC" (list "Admin" "User" "Other" "CSR")
-			    (list "3.0"))
-		      (list "Bizcard" (list "Catalog" "Content Section"
-					    "Uploader" "Visual Aesthetics"
-					    "webui" "Linux Port")
-			    (list "unspecified"))
-		      (list "Adagio" (list "DTSX" "PTS" "Satellite" "Zips"
-					   "Core")
-			    (list "unspecified"))
-		      (list "IT" (list "install" "network" "repair" "misc")
-			    (list "unspecified"))
-		      (list "EVAprint" (list "misc")
-			    (list "1.0"))))
-	       (priorities (list "P1" "P2" "P3" "P4" "P5"))
-	       (severities (list "blocker" "critical" "major"
-				 "normal" "minor" "trivial" "enhancement"))
-	       (product (org-get-category)))
-	   (list product
-		 (let ((components (nth 1 (assoc product products))))
-		   (if (= 1 (length components))
-		       (car components)
-		     (ido-completing-read "Component: " components
-					  nil t nil nil (car (last components)))))
-		 (let ((versions (nth 2 (assoc product products))))
-		   (if (= 1 (length versions))
-		       (car versions)
-		     (ido-completing-read "Version: " versions
-					  nil t nil nil (car (last versions)))))
-		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (if (and orgpri (= ?A orgpri))
-		       "P1"
-		     (ido-completing-read "Priority: " priorities
-					  nil t nil nil "P3")))
-		 (ido-completing-read "Severity: " severities nil t nil nil
-				      "normal") ))))))
-  (if (string= product "Bizcard")
-      (setq product "BizCard"))
-  (let ((omk (get-text-property (point) 'org-marker)))
-    (with-current-buffer (marker-buffer omk)
-      (save-excursion
-	(goto-char omk)
-	(let ((heading (nth 4 (org-heading-components)))
-	      (contents (buffer-substring-no-properties
-			 (org-entry-beginning-position)
-			 (org-entry-end-position)))
-	      bug)
-	  (with-temp-buffer
-	    (insert contents)
-	    (goto-char (point-min))
-	    (delete-region (point) (1+ (line-end-position)))
-	    (search-forward ":PROP")
-	    (delete-region (match-beginning 0) (point-max))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^   " nil t)
-	      (delete-region (match-beginning 0) (match-end 0)))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^SCHE" nil t)
-	      (delete-region (match-beginning 0) (1+ (line-end-position))))
-	    (goto-char (point-min))
-	    (when (eobp)
-	      (insert "No description.")
-	      (goto-char (point-min)))
-	    (insert (format "Product: %s
-Component: %s
-Version: %s
-Priority: %s
-Severity: %s
-Hardware: Other
-OS: Other
-Summary: %s" product component version priority severity heading) ?\n ?\n)
-	    (let ((buf (current-buffer)))
-	      (with-temp-buffer
-		(let ((tmpbuf (current-buffer)))
-		  (if nil
-		      (insert "Bug 999 posted.")
-		    (with-current-buffer buf
-		      (shell-command-on-region
-		       (point-min) (point-max)
-		       "~/bin/bugzilla-submit https://portal/bugzilla/"
-		       tmpbuf)))
-		  (goto-char (point-min))
-		  (re-search-forward "Bug \\([0-9]+\\) posted.")
-		  (setq bug (match-string 1))))))
-	  (save-excursion
-	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
-	    (insert (format "[[cegbug:%s][#%s]] " bug bug)))))))
-  (org-agenda-redo))
-
 (defun make-ledger-bugzilla-bug (product component version priority severity)
   (interactive
    (let ((omk (get-text-property (point) 'org-marker)))
@@ -636,37 +539,54 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
 
-(defun make-boostpro-jira-bug (product component version priority)
+(defvar my-boostpro-redmine-id 13)
+(defvar my-boostpro-redmine-key "f3dc6c4da15cf001cce6dd775452b576bd07feb5")
+
+(defun make-boostpro-redmine-bug (project category priority &optional tracker)
   (interactive
    (let ((omk (get-text-property (point) 'org-marker)))
      (with-current-buffer (marker-buffer omk)
        (save-excursion
 	 (goto-char omk)
-	 (let ((products
-		(list
-                 (list "Admin" (list "none") (list "none"))
-                 (list "IT" (list "VCS" "none") (list "none"))
-                 (list "Embarcadero" (list "admin") (list "none"))))
-	       (priorities (list "Blocker" "Critical"
-				 "Major" "Minor" "Trivial"))
-               (product (or (org-get-category) "BoostPro")))
-	   (list product
-		 (let ((components (nth 1 (assoc product products))))
-		   (if (= 1 (length components))
-		       (car components)
-		     (ido-completing-read "Component: " components
-					  nil t nil nil (car (last components)))))
-		 (let ((versions (nth 2 (assoc product products))))
-		   (if (= 1 (length versions))
-		       (car versions)
-		     (ido-completing-read "Version: " versions
-					  nil t nil nil (car (last versions)))))
+	 (let ((projects
+		'(
+                  ;; Add projects here.  The first member is the name of the
+                  ;; project, the second is the list of categories, or just
+                  ;; 'none' if that project has none defined.
+                  ("IT" ("none"))
+                  ))
+	       (priorities '(("Immediate" . 1)
+                             ("Urgent"    . 2)
+                             ("High"      . 3)
+                             ("Normal"    . 4)
+                             ("Low"       . 5)))
+               (project (or (org-get-category) "IT")))
+	   (list project
+		 (let ((categories (nth 1 (assoc project projects))))
+		   (if (= 1 (length categories))
+		       (car categories)
+		     (ido-completing-read "Category: " categories
+					  nil t nil nil
+                                          (car (last categories)))))
 		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (if (and orgpri (= ?A orgpri))
-		       "Blocker"
-		     (ido-completing-read "Priority: " priorities
-					  nil t nil nil "Minor")))))))))
-  (let ((omk (get-text-property (point) 'org-marker)))
+		   (cond
+                    ((and orgpri (= ?A orgpri))
+                     (cdr (assoc "High" priorities)))
+                    ((and orgpri (= ?C orgpri))
+                     (cdr (assoc "Low" priorities)))
+                    (t
+                     (cdr (assoc "Normal" priorities))
+                     ;;(cdr (assoc
+                     ;;      (ido-completing-read "Priority: "
+                     ;;                           (mapcar #'car priorities)
+                     ;;                           nil t nil nil
+                     ;;                           "Normal")
+                     ;;      priorities))
+                     )))))))))
+  (let ((omk (get-text-property (point) 'org-marker))
+        (trackers '(("Bug"     . 1)
+                    ("Feature" . 2)
+                    ("Support" . 3))))
     (with-current-buffer (marker-buffer omk)
       (save-excursion
 	(goto-char omk)
@@ -689,41 +609,44 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	      (delete-region (match-beginning 0) (1+ (line-end-position))))
 	    (goto-char (point-min))
 	    (setq description (if (eobp) "No description." (buffer-string))))
-          (let ((buf (current-buffer)))
-            (with-temp-buffer
-              (let ((tmpbuf (current-buffer)))
-                (if nil
-                    (insert "Issue BP-999 created.")
-                  (with-current-buffer buf
-                    (shell-command-on-region
-                     (point-min) (point-max)
-                     (format
-                      (concat "~/.jcli/jira.sh -a createIssue "
-                              "--project %s "
-                              (if (not (string= component "none"))
-                                  (concat "--components " component) "")
-                              (if (not (string= version "none"))
-                                  (concat "--version " version) "")
-                              " --type %s "
-                              "--summary '%s' "
-                              "--reporter %s "
-                              "--assignee %s "
-                              (if priority (concat "--priority " priority) "")
-                              " --description '%s'")
-                      product (ido-completing-read
-                               "Type: "
-                               '("Bug" "New Feature" "Task" "Improvement")
-                               nil t nil nil "Task") heading "johnw" "johnw"
-                      description)
-                     tmpbuf)))
-                (goto-char (point-min))
-                (re-search-forward "Issue \\([A-Za-z0-9]+\\)-\\([0-9]+\\) created.")
-                (setq proj (match-string 1)
-                      bug (match-string 2)))))
+          (with-temp-buffer
+            (insert (format "<?xml version=\"1.0\"?>
+<issue>
+  <project_id>%s</project_id>
+  <subject>%s</subject>
+  <tracker_id>%s</tracker_id>
+  <assigned_to_id>%s</assigned_to_id>
+  <priority_id>%s</priority_id>
+  <description>%s</description>
+</issue>
+"
+                            project
+                            (xml-escape-string heading)
+                            (cdr (assoc
+                                  (ido-completing-read
+                                   "Tracker: " (mapcar #'car trackers)
+                                   nil t nil nil "Support")
+                                  trackers))
+                            (number-to-string my-boostpro-redmine-id)
+                            priority
+                            (xml-escape-string description)))
+            (shell-command-on-region
+             (point-min) (point-max)
+             (format
+              (concat
+               "curl -k -X POST "
+               "-H 'Content-type: text/xml' "
+               "-H 'Accept: text/xml' -d @- "
+               "'https://hub.boostpro.com/issues.xml?format=xml&key=%s'")
+              my-boostpro-redmine-key)
+             nil t)
+            (goto-char (point-min))
+            (re-search-forward "<id>\\([0-9]+\\)</id>")
+            (setq bug (match-string 1)))
 	  (save-excursion
 	    (org-back-to-heading t)
 	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
-	    (insert (format "[[j%s:%s][#%s]] " (downcase proj) bug bug)))))))
+	    (insert (format "[[redmine:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
 
 (defun make-bug-link ()
@@ -737,9 +660,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
      ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
       (call-interactively #'make-ledger-bugzilla-bug))
      ((string= "BoostPro" (car path))
-      (call-interactively #'make-boostpro-jira-bug))
-     ((string= "CEG" (car path))
-      (call-interactively #'make-ceg-bugzilla-bug))
+      (call-interactively #'make-boostpro-redmine-bug))
      (t
       (error "Cannot make bug, unknown category")))))
 
@@ -843,7 +764,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (defun org-insert-bug (project bug)
   (interactive
-   (list (ido-completing-read "Project: " '("redmine" "bug" "cegbug"))
+   (list (ido-completing-read "Project: " '("redmine" "bug"))
          (read-number "Bug: ")))
   (insert (format "[[%s:%s][#%s]]" project bug bug)))
 
