@@ -1,7 +1,7 @@
 ;;; ido.el --- interactively do things with buffers and files.
 
 ;; Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-;;   2004, 2005, 2006, 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
+;;   2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software Foundation, Inc.
 
 ;; Author: Kim F. Storm <storm@cua.dk>
 ;; Based on: iswitchb by Stephen Eglen <stephen@cns.ed.ac.uk>
@@ -322,6 +322,7 @@
 
 ;;; Code:
 
+(defvar cua-inhibit-cua-keys)
 (defvar recentf-list)
 
 ;;; User Variables
@@ -1085,11 +1086,11 @@ Only used if `ido-use-virtual-buffers' is non-nil.")
 ;; Stores the current list of items that will be searched through.
 ;; The list is ordered, so that the most interesting item comes first,
 ;; although by default, the files visible in the current frame are put
-;; at the end of the list.
+;; at the end of the list.  Created by `ido-make-item-list'.
 (defvar ido-cur-list nil)
 
 ;; Stores the choice list for ido-completing-read
-(defvar ido-choice-list nil)
+(defvar ido-choice-list)
 
 ;; Stores the list of items which are ignored when building
 ;; `ido-cur-list'.  It is in no specific order.
@@ -1482,6 +1483,11 @@ Removes badly formatted data and ignored directories."
   ;; ido kill emacs hook
   (ido-save-history))
 
+(defun ido-common-initialization ()
+  (ido-init-completion-maps)
+  (add-hook 'minibuffer-setup-hook 'ido-minibuffer-setup)
+  (add-hook 'choose-completion-string-functions 'ido-choose-completion-string))
+
 (define-minor-mode ido-everywhere
   "Toggle using ido speed-ups everywhere file and directory names are read.
 With ARG, turn ido speed-up on if arg is positive, off otherwise."
@@ -1525,12 +1531,9 @@ This function also adds a hook to the minibuffer."
 	 (t nil)))
 
   (ido-everywhere (if ido-everywhere 1 -1))
-  (when ido-mode
-    (ido-init-completion-maps))
 
   (when ido-mode
-    (add-hook 'minibuffer-setup-hook 'ido-minibuffer-setup)
-    (add-hook 'choose-completion-string-functions 'ido-choose-completion-string)
+    (ido-common-initialization)
     (ido-load-history)
 
     (add-hook 'kill-emacs-hook 'ido-kill-emacs-hook)
@@ -1638,6 +1641,7 @@ This function also adds a hook to the minibuffer."
     (define-key map "\C-o" 'ido-copy-current-word)
     (define-key map "\C-w" 'ido-copy-current-file-name)
     (define-key map [(meta ?l)] 'ido-toggle-literal)
+    (define-key map "\C-v" 'ido-toggle-vc)
     (set-keymap-parent map ido-file-dir-completion-map)
     (setq ido-file-completion-map map))
 
@@ -3512,7 +3516,7 @@ This is to make them appear as if they were \"virtual buffers\"."
     ;; Strip method:user@host: part of tramp completions.
     ;; Tramp completions do not include leading slash.
     (let* ((len (1- (length dir)))
-	   (non-essential t)
+	   (tramp-completion-mode t)
 	   (compl
 	    (or (file-name-all-completions "" dir)
 		;; work around bug in ange-ftp.
@@ -3710,7 +3714,6 @@ This is to make them appear as if they were \"virtual buffers\"."
   ;; Used by `ido-get-buffers-in-frames' to walk through all windows
   (let ((buf (buffer-name (window-buffer win))))
 	(unless (or (member buf ido-bufs-in-frame)
-		    (minibufferp buf)
 		    (member buf ido-ignore-item-temp-list))
 	  ;; Only add buf if it is not already in list.
 	  ;; This prevents same buf in two different windows being
@@ -4659,6 +4662,7 @@ For details of keybindings, see `ido-find-file'."
   (when (ido-active)
     (add-hook 'pre-command-hook 'ido-tidy nil t)
     (add-hook 'post-command-hook 'ido-exhibit nil t)
+    (setq cua-inhibit-cua-keys t)
     (when (featurep 'xemacs)
       (ido-exhibit)
       (goto-char (point-min)))
@@ -4822,6 +4826,8 @@ DEF, if non-nil, is the default value."
 	(ido-directory-too-big nil)
 	(ido-context-switch-command 'ignore)
 	(ido-choice-list choices))
+    ;; Initialize ido before invoking ido-read-internal
+    (ido-common-initialization)
     (ido-read-internal 'list prompt hist def require-match initial-input)))
 
 (defun ido-unload-function ()
