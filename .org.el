@@ -17,6 +17,7 @@
 ;;;_* customizations
 
 ;;;_ + variables
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -28,7 +29,7 @@
  '(diary-file "~/Documents/Tasks/diary")
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
- '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("b" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("V" "Unscheduled work-related tasks" tags "AREA=\"Work\"TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Unscheduled work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))) ("W" "Work-related tasks" tags "AREA=\"Work\"TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up priority-down todo-state-up alpha-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))))))
+ '(org-agenda-custom-commands (quote (("E" "Errands (next 3 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+3d>\"" ((org-agenda-overriding-header "Errands (next 3 days)"))) ("A" "Priority #A tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]"))))) ("b" "Priority #A and #B tasks" agenda "" ((org-agenda-ndays 1) (org-agenda-overriding-header "Today's priority #A and #B tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("w" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\"" ((org-agenda-overriding-header "Waiting/delegated tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("u" "Unscheduled tasks" tags "AREA<>\"Work\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Unscheduled tasks: ") (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))) (org-agenda-sorting-strategy (quote (priority-down))))) ("U" "Deferred tasks" tags "TODO=\"DEFERRED\"" ((org-agenda-files (quote ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt"))) (org-agenda-overriding-header "Deferred tasks:"))) ("S" "Someday tasks" tags "TODO=\"SOMEDAY\"" ((org-agenda-overriding-header "Someday tasks:"))) ("G" "Ledger tasks (all)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))))) ("N" "Ledger tasks (all, alphabetical)" alltodo "" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks, alphabetical:") (org-agenda-sorting-strategy (quote (alpha-up))))) ("l" "Ledger tasks" tags-todo "TODO<>{SOMEDAY\\|DEFERRED}" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\=.*\\[#C\\]"))))) ("L" "Ledger tasks not in Bugzilla" tags "TODO<>{DONE\\|TESTED\\|CLOSED\\|NOTE}&LEVEL=2" ((org-agenda-files (quote ("~/src/ledger/plan/TODO"))) (org-agenda-overriding-header "Ledger tasks:") (org-agenda-sorting-strategy (quote (todo-state-up priority-down category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "#"))))) ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2" ((org-agenda-overriding-header "Uncategorized items"))) ("V" "Unscheduled work-related tasks" tags "AREA=\"Work\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Unscheduled work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote scheduled) (quote deadline) (quote timestamp) (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))) ("W" "Work-related tasks" tags "AREA=\"Work\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}" ((org-agenda-overriding-header "Work-related tasks") (org-agenda-files (quote ("~/Documents/Tasks/todo.txt"))) (org-agenda-sorting-strategy (quote (category-up priority-down todo-state-up alpha-up))) (org-agenda-skip-function (quote (org-agenda-skip-entry-if (quote regexp) "\\* \\(DEFERRED\\|SOMEDAY\\)"))))))))
  '(org-agenda-deadline-leaders (quote ("D: " "D%d: ")))
  '(org-agenda-deadline-relative-text "D%d: ")
  '(org-agenda-deadline-text "D: ")
@@ -94,7 +95,9 @@
  '(org-use-property-inheritance (quote ("AREA")))
  '(org-use-speed-commands t)
  '(org2blog/wp-track-posts nil))
+
 ;;;_ + faces
+
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -110,6 +113,7 @@
  '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
  '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown")))))
+
 ;;;_ + org-mode
 
 (defun org-info (&optional node)
@@ -700,25 +704,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	 org-clock-current-task))
        (concat "-" tag)))
 
-;;(defun org-indent-empty-items (arg)
-;;  (when (eq arg 'empty)
-;;    (goto-char (line-end-position))
-;;    (cond
-;;     ((org-at-item-p) (org-indent-item 1))
-;;     ((org-on-heading-p)
-;;      (if (equal this-command last-command)
-;;	  (condition-case nil
-;;	      (org-promote-subtree)
-;;	    (error
-;;	     (save-excursion
-;;	       (goto-char (point-at-bol))
-;;	       (and (looking-at "\\*+") (replace-match ""))
-;;	       (org-insert-heading)
-;;	       (org-demote-subtree))))
-;;	(org-demote-subtree))))))
-;;
-;;(add-hook 'org-pre-cycle-hook 'org-indent-empty-items)
-
 (defun my-org-convert-incoming-items ()
   (interactive)
   (with-current-buffer (find-file-noselect org-mobile-inbox-for-pull)
@@ -753,12 +738,20 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
           (goto-char (line-beginning-position))
           (insert tasks))))))
 
+;;; Don't sync agendas.org to MobileOrg.  I do this because I only use
+;;; MobileOrg for recording new tasks on the phone, and never for viewing
+;;; tasks.  This allows MobileOrg to start up and sync extremely quickly.
+
 (add-hook 'org-mobile-post-push-hook
           (function
            (lambda ()
              (shell-command "/bin/rm -f ~/Dropbox/MobileOrg/agendas.org")
-             (shell-command "perl -i -ne 'print unless /agendas\\.org/;' ~/Dropbox/MobileOrg/checksums.dat")
-             (shell-command "perl -i -ne 'print unless /agendas\\.org/;' ~/Dropbox/MobileOrg/index.org"))))
+             (shell-command
+              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
+                      "~/Dropbox/MobileOrg/checksums.dat"))
+             (shell-command
+              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
+                      "~/Dropbox/MobileOrg/index.org")))))
 
 (add-hook 'org-mobile-post-pull-hook 'my-org-convert-incoming-items)
 
@@ -768,44 +761,10 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
          (read-number "Bug: ")))
   (insert (format "[[%s:%s][#%s]]" project bug bug)))
 
-(defun org-cmp-bugs (a b)
-  (let* ((bug-a (and (string-match "#\\([0-9]+\\)" a)
-		     (match-string 1 a)))
-	 (bug-b (and (string-match "#\\([0-9]+\\)" b)
-		     (match-string 1 b)))
-	 (cmp (and bug-a bug-b
-		   (- (string-to-number bug-b)
-		      (string-to-number bug-a)))))
-    (cond ((null cmp) nil)
-	  ((< cmp 0) -1)
-	  ((> cmp 0) 1)
-	  ((= cmp 0) nil))))
-
 (defun org-my-state-after-clock-out (state)
   (if (string= state "STARTED")
       "TODO"
     state))
-
-(defun replace-named-dates ()
-  (interactive)
-  (while (re-search-forward
-	  "-\\(Jan\\|Feb\\|Mar\\|Apr\\|May\\|Jun\\|Jul\\|Aug\\|Sep\\|Oct\\|Nov\\|Dec\\)-"
-	  nil t)
-    (let ((mon (match-string 1)))
-      (replace-match
-       (format "/%s/"
-	       (cond ((equal mon "Jan") "01")
-		     ((equal mon "Feb") "02")
-		     ((equal mon "Mar") "03")
-		     ((equal mon "Apr") "04")
-		     ((equal mon "May") "05")
-		     ((equal mon "Jun") "06")
-		     ((equal mon "Jul") "07")
-		     ((equal mon "Aug") "08")
-		     ((equal mon "Sep") "09")
-		     ((equal mon "Oct") "10")
-		     ((equal mon "Nov") "11")
-		     ((equal mon "Dec") "12")))))))
 
 (defvar org-my-archive-expiry-days 1
   "The number of days after which a completed task should be auto-archived.
@@ -883,6 +842,26 @@ This can be 0 for immediate, or a floating point value.")
 
 (defalias 'sort-done-tasks 'org-my-sort-done-tasks)
 
+(defun org-sort-all ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^\* " nil t)
+      (goto-char (match-beginning 0))
+      (ignore-errors
+        (org-sort-entries t ?a)
+        (org-sort-entries t ?p)
+        (org-sort-entries t ?o))
+      (forward-line))
+    (goto-char (point-min))
+    (while (re-search-forward "\* PROJECT " nil t)
+      (goto-char (line-beginning-position))
+      (ignore-errors
+        (org-sort-entries t ?a)
+        (org-sort-entries t ?p)
+        (org-sort-entries t ?o))
+      (forward-line))))
+
 (defun org-maybe-remember (&optional done)
   (interactive "P")
   (if (string= (buffer-name) "*Remember*")
@@ -898,12 +877,6 @@ This can be 0 for immediate, or a floating point value.")
   :END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
 	(org-remember))))
   (set-fill-column 72))
-
-(defun jump-to-ledger-journal ()
-  (interactive)
-  (find-file-other-window "~/Documents/Accounts/ledger.dat")
-  (goto-char (point-max))
-  (insert (format-time-string "%Y/%m/%d ")))
 
 (defun org-inline-note ()
   (interactive)
@@ -949,6 +922,16 @@ end tell"))
 end tell")))
     (org-make-link-string (concat "message://" message-id) subject)))
 
+(defun org-get-message-sender ()
+  (do-applescript "tell application \"Mail\"
+        set theMessages to selection
+        sender of beginning of theMessages
+end tell"))
+
+(defun org-insert-apple-message-link ()
+  (interactive)
+  (insert (org-get-apple-message-link)))
+
 (defun org-get-message-link ()
   (if (get-buffer "*Group*")
       (let (message-id subject)
@@ -959,11 +942,9 @@ end tell")))
         (org-make-link-string (concat "message://" message-id) subject))
     (org-get-apple-message-link)))
 
-(defun org-get-message-sender ()
-  (do-applescript "tell application \"Mail\"
-        set theMessages to selection
-        sender of beginning of theMessages
-end tell"))
+(defun org-insert-message-link ()
+  (interactive)
+  (insert (org-get-message-link)))
 
 (defun org-get-url-link ()
   (let ((subject (do-applescript "tell application \"Safari\"
@@ -973,6 +954,10 @@ end tell"))
         URL of document of front window
 end tell")))
     (org-make-link-string url subject)))
+
+(defun org-insert-url-link ()
+  (interactive)
+  (insert (org-get-url-link)))
 
 (defun org-get-file-link ()
   (let ((subject (do-applescript "tell application \"Finder\"
@@ -984,18 +969,6 @@ end tell"))
 	POSIX path of (beginning of theItems as text)
 end tell")))
     (org-make-link-string (concat "file:" path) subject)))
-
-(defun org-insert-message-link ()
-  (interactive)
-  (insert (org-get-message-link)))
-
-(defun org-insert-apple-message-link ()
-  (interactive)
-  (insert (org-get-apple-message-link)))
-
-(defun org-insert-url-link ()
-  (interactive)
-  (insert (org-get-url-link)))
 
 (defun org-insert-file-link ()
   (interactive)
@@ -1037,68 +1010,6 @@ This will use the command `open' with the message URL."
 	open window for record (get beginning of searchResults)
 end tell" (match-string 1))))
 
-(defun org-export-tasks ()
-  (interactive)
-  (let ((index 1))
-   (org-map-entries
-    #'(lambda ()
-	(outline-mark-subtree)
-	(org-export-as-html 3)
-	(write-file (format "%d.html" index))
-	(kill-buffer (current-buffer))
-	(setq index (1+ index)))
-    "LEVEL=2")))
-
-(defun org-make-regress-test ()
-  (interactive)
-  (save-excursion
-    (outline-previous-visible-heading 1)
-    (let ((begin (point))
-	  (end (save-excursion
-		 (outline-next-heading)
-		 (point)))
-	  (input "\n") (data "") (output ""))
-      (goto-char begin)
-      (when (re-search-forward ":SCRIPT:\n" end t)
-	(goto-char (match-end 0))
-	(let ((input-beg (point)))
-	  (re-search-forward "[ 	]+:END:")
-	  (setq input (buffer-substring input-beg (match-beginning 0)))))
-      (goto-char begin)
-      (when (search-forward ":\\(DATA\\|SOURCE\\):\n" end t)
-	(goto-char (match-end 0))
-	(let ((data-beg (point)))
-	  (re-search-forward "[ 	]+:END:")
-	  (setq data (buffer-substring data-beg (match-beginning 0)))))
-      (goto-char begin)
-      (when (search-forward ":OUTPUT:\n" end t)
-	(goto-char (match-end 0))
-	(let ((output-beg (point)))
-	  (re-search-forward "[ 	]+:END:")
-	  (setq output (buffer-substring output-beg (match-beginning 0)))))
-      (goto-char begin)
-      (when (re-search-forward ":ID:\\s-+\\([^-]+\\)" end t)
-	(find-file (expand-file-name (concat (match-string 1) ".test")
-				     "~/src/ledger/test/regress/"))
-	(insert input "<<<\n" data ">>>1\n" output ">>>2\n=== 0\n")
-	(pop-to-buffer (current-buffer))
-	(goto-char (point-min))))))
-
-(fset 'sort-todo-categories
-   [?\C-u ?\C-s ?^ ?\\ ?* ?\S-  ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
-
-(fset 'sort-subcategories
-   [?\C-u ?\C-s ?\\ ?* ?\\ ?* ?\S-  ?P ?R ?O ?J ?E ?C ?T ?\C-a ?^ ?a ?^ ?p ?^ ?o ?\C-e])
-
-(fset 'match-bug-list
-   [?\C-s ?= ?\C-b ?\C-f ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?\M-y C-return])
-
-(fset 'match-up-bugs
-   [?\C-s ?= ?\C-  ?\C-e ?\M-w ?\C-a ?\C-n C-return ?\M-< ?\C-s ?# ?\M-y C-return])
-
-(fset 'move-created-dates
-   [?\C-u ?\C-s ?^ ?  ?+ ?\\ ?\[ ?2 ?\C-b ?\C-x ?n ?s ?\C-b ?\C-\M-k ?\C-x ?\C-o ?\C-r ?: ?P ?R ?O ?P ?\C-b ?\C-c ?\C-x ?p ?C ?R ?E ?A ?T ?E ?D return ?\C-y return ?\C-x ?n ?w ?\C-x ?\C-o ?\C-a ?\C-n ?\C-x ?\C-o])
-
 (fset 'orgify-line
    [?\C-k ?\C-o ?t ?o ?d ?o tab ?\C-y backspace ?\C-a ?l ?\C-u ?\C-n ?\C-n ?\C-n])
 
@@ -1112,18 +1023,10 @@ end tell" (match-string 1))))
 	  (if (called-interactively-p)
 	      (progn
 		(select-window (display-buffer buf t t))
-		(org-fit-window-to-buffer)
-		;; (org-agenda-redo)
-		)
+		(org-fit-window-to-buffer))
 	    (with-selected-window (display-buffer buf)
-	      (org-fit-window-to-buffer)
-	      ;; (org-agenda-redo)
-	      )))
-      (call-interactively 'org-agenda-list)))
-  ;;(let ((buf (get-buffer "*Calendar*")))
-  ;;  (unless (get-buffer-window buf)
-  ;;    (org-agenda-goto-calendar)))
-  )
+	      (org-fit-window-to-buffer))))
+      (call-interactively 'org-agenda-list))))
 
 (run-with-idle-timer 300 t 'jump-to-org-agenda)
 
@@ -1148,7 +1051,8 @@ end tell" (match-string 1))))
         (org-capture nil "t")
         (save-excursion
           (insert (replace-regexp-in-string
-                   "\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)" "[[redmine:\\1][#\\1]]"
+                   "\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)"
+                   "[[redmine:\\1][#\\1]]"
                    (replace-regexp-in-string "^\\(Re\\|Fwd\\): " ""
                                              subject))))
         (org-set-property "Date" date-sent)
@@ -1166,8 +1070,6 @@ end tell" (match-string 1))))
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 
 (define-key mode-specific-map [?a] 'org-agenda)
-(define-key mode-specific-map [(meta ?w)] 'org-store-link)
-(define-key mode-specific-map [(shift ?w)] 'org-kill-entry)
 
 (define-key mode-specific-map [?x ?d]
   #'(lambda nil (interactive) (org-todo "DONE")))
@@ -1188,28 +1090,21 @@ end tell" (match-string 1))))
 (define-key mode-specific-map [?x ?x]
   #'(lambda nil (interactive) (org-todo "CANCELED")))
 
-(define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
-(define-key mode-specific-map [?x ?M] 'org-set-message-link)
-(define-key mode-specific-map [?x ?Y] 'org-set-message-sender)
-(define-key mode-specific-map [?x ?U] 'org-set-url-link)
-(define-key mode-specific-map [?x ?F] 'org-set-file-link)
-(define-key mode-specific-map [?x ?C] 'cvs-examine)
-(define-key mode-specific-map [?x ?S] 'svn-status)
-(define-key mode-specific-map [?x ?b] 'org-insert-bug)
 (define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
+(define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
+
 (define-key mode-specific-map [?x ?m] 'org-insert-message-link)
+(define-key mode-specific-map [?x ?M] 'org-set-message-link)
 (define-key mode-specific-map [?x ?a] 'org-insert-apple-message-link)
+(define-key mode-specific-map [?x ?Y] 'org-set-message-sender)
+
 (define-key mode-specific-map [?x ?u] 'org-insert-url-link)
+(define-key mode-specific-map [?x ?U] 'org-set-url-link)
+
 (define-key mode-specific-map [?x ?f] 'org-insert-file-link)
+(define-key mode-specific-map [?x ?F] 'org-set-file-link)
 
-(defun org-trac-ticket-open ()
-  (interactive)
-  (browse-url (concat "http://trac.newartisans.com/ledger/ticket/"
-		      (org-entry-get (point) "Ticket"))))
-
-(define-key mode-specific-map [?x ?T] 'org-trac-ticket-open)
-
-(define-key mode-specific-map [(shift ?y)] 'org-yank-entry)
+(define-key mode-specific-map [?x ?b] 'org-insert-bug)
 
 ;;;_ + org-mode
 
