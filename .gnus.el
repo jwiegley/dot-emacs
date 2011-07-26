@@ -109,7 +109,8 @@
  '(message-sent-hook (quote (gnus-score-followup-article)))
  '(message-setup-hook (quote (message-check-recipients (lambda nil (message-remove-header "From")))))
  '(message-x-completion-alist (quote (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . pick-email-address) ((if (boundp (quote message-newgroups-header-regexp)) message-newgroups-header-regexp message-newsgroups-header-regexp) . message-expand-group))))
- '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
+ '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext")))
+ '(mm-text-html-renderer (quote w3m))
  '(nnmail-crosspost nil)
  '(nnmail-expiry-wait 30)
  '(nnmail-extra-headers (quote (To)))
@@ -119,7 +120,9 @@
  '(smtpmail-smtp-server "mail.johnwiegley.com" t)
  '(smtpmail-smtp-service 587 t)
  '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil)))))
+
 ;;;_ + faces
+
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -133,6 +136,7 @@
  '(message-header-xheader ((((class color)) (:foreground "Blue"))))
  '(message-mml ((((class color)) (:foreground "DarkGreen"))))
  '(message-separator ((((class color)) (:foreground "Tan")))))
+
 ;;;_* configuration
 
 (load "gnus")
