@@ -21,7 +21,8 @@
   (require 'newcomment)
   (require 'etags)
   (unless (proof-try-require 'smie)
-    (defvar smie-indent-basic nil))     ; smie
+    (defvar smie-indent-basic nil)
+    (defvar smie-rules-function nil))     ; smie
 
   (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook
   (defvar coq-time-commands nil)        ; defpacustom
@@ -30,11 +31,15 @@
   (defvar coq-confirm-external-compilation nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
-;; (unless                                 ; for smie indentation
-;;    (proof-try-require 'smie)
-;; can't get conditional declaration to work here
-  (declare-function smie-bnf->prec2 "smie")
-  (declare-function smie-rule-parent-p "smie")
+
+;; FIXME: making these declarations conditional doesn't work
+(declare-function smie-bnf->prec2 "smie")
+(declare-function smie-rule-parent-p "smie")
+(declare-function smie-default-forward-token "smie")
+(declare-function smie-default-backward-token "smie")
+(declare-function smie-rule-prev-p "smie")
+(declare-function smie-rule-separator "smie")
+(declare-function smie-rule-parent "smie")
 
 (require 'proof)
 (require 'coq-syntax)                   ; sets coq-prog-name
