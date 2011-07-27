@@ -208,7 +208,8 @@
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
  '(sql-sqlite-program "sqlite3")
- '(sr-listing-switches "-alh")
+ '(sr-listing-switches "-lh")
+ '(sr-modeline-use-utf8-marks t)
  '(sr-virtual-listing-switches "-aldh")
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
@@ -898,7 +899,13 @@
 (define-key mode-specific-map [?i ?m] 'ispell-message)
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
-(define-key mode-specific-map [?j] 'sunrise)
+(defun switch-to-sunrise ()
+  (interactive)
+  (if sr-running
+      (sr-setup-windows)
+    (call-interactively #'sunrise)))
+
+(define-key mode-specific-map [?j] 'switch-to-sunrise)
 (define-key mode-specific-map [?J] 'sunrise-cd)
 (define-key mode-specific-map [?k] 'keep-lines)
 
