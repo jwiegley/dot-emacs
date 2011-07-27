@@ -731,6 +731,20 @@
 
 ;;;_ + ctl-x
 
+(defun ido-bookmark-jump (bookmark &optional display-func)
+  (interactive
+   (list
+    (ido-completing-read "Jump to bookmark: "
+                         (mapcar #'car bookmark-alist)
+                         nil 0 nil 'bookmark-history)))
+  (unless bookmark
+    (error "No bookmark specified"))
+  (bookmark-maybe-historicize-string bookmark)
+  (bookmark--jump-via bookmark (or display-func 'switch-to-buffer)))
+
+(define-key ctl-x-map [?B] 'ido-bookmark-jump)
+(define-key ctl-x-map [?r ?b] 'ido-bookmark-jump)
+
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?g] 'magit-status)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
