@@ -208,7 +208,8 @@
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
  '(sql-sqlite-program "sqlite3")
- '(sr-window-split-style (quote vertical))
+ '(sr-listing-switches "-alh")
+ '(sr-virtual-listing-switches "-aldh")
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
@@ -306,9 +307,11 @@
 ;;;_ + auto loads
 
 (mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
-      '(("linum"         . linum-mode)
-        ("column-marker" . column-marker-1)
-        ("esh-toggle"    . esh-toggle) 
+      '(("linum"             . linum-mode)
+        ("column-marker"     . column-marker-1)
+        ("esh-toggle"        . esh-toggle) 
+        ("sunrise-commander" . sunrise) 
+        ("sunrise-commander" . sunrise-cd) 
         ))
 
 ;;;_ + escreen
@@ -449,6 +452,11 @@
            (funcall func))))
 
      (run-with-idle-timer 900 t 'save-information)))
+
+;;;_ + sunrise-commander
+
+(eval-after-load "sunrise-commander"
+  '(load "sunrise-x-modeline"))
 
 ;;;_ + whitespace
 
@@ -890,6 +898,8 @@
 (define-key mode-specific-map [?i ?m] 'ispell-message)
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
+(define-key mode-specific-map [?j] 'sunrise)
+(define-key mode-specific-map [?J] 'sunrise-cd)
 (define-key mode-specific-map [?k] 'keep-lines)
 
 (defun my-ledger-start-entry (&optional arg)
