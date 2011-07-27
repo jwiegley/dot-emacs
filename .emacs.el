@@ -92,7 +92,7 @@
  '(cycbuf-dont-show-regexp (quote ("^ " "^\\*cycbuf\\*$" "^\\*")))
  '(cycbuf-file-name-replacements (quote (("/Users/johnw/" "~/"))))
  '(cycbuf-max-window-height 10)
- '(default-frame-alist (quote ((font . "-apple-courier-medium-r-normal--15-0-72-72-m-0-iso10646-1") (cursor-color . "#b247ee"))))
+ '(default-frame-alist (quote ((font . "-apple-Courier-medium-normal-normal-*-15-*-*-*-m-0-iso10646-1") (cursor-color . "#b247ee"))))
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote fundamental-mode) t)
  '(delete-by-moving-to-trash t)
@@ -916,6 +916,29 @@
 
 (define-key mode-specific-map [?l] 'my-ledger-start-entry)
 
+(defun emacs-min ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'top 26)
+  (set-frame-parameter (selected-frame) 'left
+                       (- (x-display-pixel-width) 925))
+  (set-frame-parameter (selected-frame) 'width 100)
+  (set-frame-parameter (selected-frame) 'height 100))
+
+(defun emacs-max ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'top 26)
+  (set-frame-parameter (selected-frame) 'left 3)
+  (set-frame-parameter (selected-frame) 'width 300)
+  (set-frame-parameter (selected-frame) 'height 100))
+
+(defun emacs-toggle-size ()
+  (interactive)
+  (if (> (cdr (assq 'width (frame-parameters))) 100)
+      (emacs-min)
+    (emacs-max)))
+
+(define-key mode-specific-map [?m] 'emacs-toggle-size)
+
 (defcustom user-initials nil
   "*Initials of this user."
   :set
@@ -999,11 +1022,6 @@
 (load ".gnus")
 
 (add-hook 'after-init-hook 'server-start)
-(add-hook 'after-init-hook
-          (function
-           (lambda ()
-             (set-frame-parameter (selected-frame) 'top 25)
-             (set-frame-parameter (selected-frame) 'left
-                                  (- (x-display-pixel-width) 930)))))
+(add-hook 'after-init-hook 'emacs-min)
 
 ;; .emacs.el ends here
