@@ -91,3 +91,9 @@
 [submodule "site-lisp/xcscope"]
 	path = site-lisp/xcscope
 	url = git://github.com/To1ne/xcscope.git
+[submodule "site-lisp/sunrise-commander"]
+	path = site-lisp/sunrise-commander
+	url = git://github.com/escherdragon/sunrise-commander.git
+[submodule "site-lisp/emacs-w3m"]
+	path = site-lisp/emacs-w3m
+	url = git://github.com/jwiegley/emacs-w3m.git
