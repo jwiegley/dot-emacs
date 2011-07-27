@@ -346,6 +346,17 @@
 (eval-after-load "em-unix"
   '(unintern 'eshell/rm))
 
+(defun eshell-spawn-external-command (beg end)
+  "Parse and expand any history references in current input."
+  (save-excursion
+    (goto-char end)
+    (when (looking-back "&!" beg)
+      (delete-region (match-beginning 0) (match-end 0))
+      (goto-char beg)
+      (insert "spawn "))))
+
+(add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
+
 ;;;_ + git
 
 (setenv "GIT_PAGER" "")
