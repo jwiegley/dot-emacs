@@ -964,6 +964,21 @@
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
 (define-key mode-specific-map [?o] 'customize-option)
 (define-key mode-specific-map [?O] 'customize-group)
+
+(defvar printf-index 0)
+
+(defun insert-counting-printf (arg)
+  (interactive "P")
+  (if arg
+      (setq printf-index 0))
+  (insert (format "printf(\"step %d..\\n\");\n"
+                  (setq printf-index (1+ printf-index))))
+  (forward-line -1)
+  (indent-according-to-mode)
+  (forward-line))
+
+(define-key mode-specific-map [?p] 'insert-counting-printf)
+
 (define-key mode-specific-map [?q] 'fill-region)
 (define-key mode-specific-map [?r] 'replace-regexp)
 (define-key mode-specific-map [?s] 'replace-string)
