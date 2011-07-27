@@ -88,7 +88,6 @@
  '(gnus-use-adaptive-scoring (quote (line)))
  '(gnus-use-cache t)
  '(gnus-use-trees t)
- '(mail-archive-file-name "~/Library/Mail/sent.txt")
  '(mail-envelope-from (quote header))
  '(mail-setup-with-from nil)
  '(mail-source-delete-incoming t)
