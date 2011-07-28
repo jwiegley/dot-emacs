@@ -357,6 +357,10 @@
 
 (add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
 
+(defun ss (server)
+  (interactive "sServer: ")
+  (call-process "spawn" nil nil nil "ss" server))
+
 ;;;_ + git
 
 (setenv "GIT_PAGER" "")
