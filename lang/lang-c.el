@@ -119,7 +119,7 @@
         (c-set-style "edg")
         (substitute-key-definition 'fill-paragraph 'ti-refill-comment
                                    c-mode-base-map global-map)
-        (define-key )))))
+        (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment)))))
   (font-lock-add-keywords
    'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
 
