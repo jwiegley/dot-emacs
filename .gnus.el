@@ -50,6 +50,7 @@
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
  '(gnus-refer-article-method (quote ((nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
+ '(gnus-refer-thread-use-nnir t)
  '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
  '(gnus-save-killed-list nil)
  '(gnus-save-newsrc-file nil)
@@ -150,6 +151,16 @@
 (defun gmail-unread ()
   (file-exists-p "/tmp/unread"))
 
+;;(defun gnus-query (query)
+;;  (interactive "sMail Query: ")
+;;  (let ((nnir-imap-default-search-key "imap")
+;;        (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
+;;    (gnus-group-make-nnir-group
+;;     nil
+;;     `((query    . ,query)
+;;       (criteria . "")
+;;       (server   . "nnimap:Gmail") ))))
+
 (defun gnus-query (query)
   (interactive "sMail Query: ")
   (setq nnir-current-query nil
@@ -157,27 +168,34 @@
 	nnir-current-group-marked nil
 	nnir-artlist nil)
   (let* ((parms (list (cons 'query query)))
-         (srv (if (gnus-server-server-name)
-                  "all"	""))
-         (gnus-group-marked (list "nnimap+Gmail:Mail"
-                                  "nnimap+Gmail:[Gmail]/Sent Mail")))
+         (srv (or (gnus-server-server-name) "nnir"))
+         (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
     (add-to-list 'parms (cons 'unique-id (message-unique-id)) t)
     (gnus-group-read-ephemeral-group
      (concat "nnir:" (prin1-to-string parms)) (list 'nnir srv) t
      (cons (current-buffer) gnus-current-window-configuration) nil)))
+
+(define-key global-map [(alt meta ?f)] 'gnus-query)
+
+;;(defun gnus-goto-article (message-id)
+;;  (let ((nnir-imap-default-search-key "imap")
+;;        (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
+;;    (gnus-group-make-nnir-group
+;;     nil
+;;     `((query    . ,(concat "header message-id " message-id))
+;;       (criteria . "")
+;;       (server   . "nnimap:Gmail") )))
+;;  (gnus-summary-refer-article message-id))
 
 (defun gnus-goto-article (message-id)
   (setq nnir-current-query nil
 	nnir-current-server nil
 	nnir-current-group-marked nil
 	nnir-artlist nil)
-  (let* ((query (format "HEADER \"Message-Id\" %s" message-id))
+  (let* ((query (concat "header message-id " message-id))
          (parms (list (cons 'query query)))
-         (srv (if (gnus-server-server-name)
-                  "all"	""))
-         (gnus-group-marked (list "nnimap+Gmail:Mail"
-                                  "nnimap+Gmail:[Gmail]/Sent Mail"
-                                  "nnimap+Gmail:Lists/Ledger")))
+         (srv (or (gnus-server-server-name) "nnir"))
+         (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
     (add-to-list 'parms (cons 'unique-id (message-unique-id)) t)
     (gnus-group-read-ephemeral-group
      (concat "nnir:" (prin1-to-string parms)) (list 'nnir srv) t
@@ -210,7 +228,7 @@
   (re-search-backward ": ")
   (goto-char (match-end 0)))
 
-(setq my-smtpmailer-alist 
+(setq my-smtpmailer-alist
       '((".*@\\(boostpro.com\\)"
          ("johnw@boostpro.com" . "smtp.gmail.com"))
         (".*@\\(3dex\\|smartceg\\).com"
