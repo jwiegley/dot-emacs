@@ -97,3 +97,9 @@
 [submodule "site-lisp/emacs-w3m"]
 	path = site-lisp/emacs-w3m
 	url = git://github.com/jwiegley/emacs-w3m.git
+[submodule "site-lisp/anything"]
+	path = site-lisp/anything
+	url = git://repo.or.cz/anything-config.git
+[submodule "site-lisp/ee"]
+	path = site-lisp/ee
+	url = git://git.sv.gnu.org/ee.git
