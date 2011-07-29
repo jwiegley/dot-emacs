@@ -187,7 +187,7 @@
 
 (defun ti-refill-comment ()
   (interactive)
-  (save-excursion
+  (let ((here (point)))
     (goto-char (line-beginning-position))
     (let ((begin (point)) end
           (marker ?-) (marker-re "\\(-----\\|\\*\\*\\*\\*\\*\\)")
@@ -246,7 +246,8 @@
           (setq comment (buffer-string)))
         (goto-char begin)
         (delete-region begin end)
-        (insert comment)))))
+        (insert comment)))
+    (goto-char here)))
 
 ;;;_ * doxymacs
 
