@@ -121,6 +121,11 @@
  '(elscreen-prefix-key "")
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
  '(enable-recursive-minibuffers t)
+ '(erc-modules (quote (autojoin button completion fill irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp track)))
+ '(erc-nick "johnw")
+ '(erc-port 6667)
+ '(erc-server "irc.freenode.net")
+ '(erc-user-full-name (quote user-full-name))
  '(eshell-history-size 1000)
  '(eshell-ls-dired-initial-args (quote ("-h")))
  '(eshell-ls-exclude-regexp "~\\'")
