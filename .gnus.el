@@ -16,16 +16,17 @@
  '(check-mail-boxes (quote ("~/Library/Mail/incoming/mail\\..*\\.spool")))
  '(check-mail-summary-function (quote check-mail-box-summary))
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
- '(gnus-activate-level 1)
- '(gnus-after-getting-new-news-hook (quote (gnus-score-groups gnus-group-list-groups gnus-display-time-event-handler gnus-group-save-newsrc (lambda nil (if (file-exists-p "/tmp/unread") (delete-file "/tmp/unread")) (display-time-update)))))
+ '(gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-display-time-event-handler gnus-score-groups gnus-agent-fetch-session gnus-group-save-newsrc (lambda nil (if (file-exists-p "/tmp/unread") (delete-file "/tmp/unread")) (display-time-update)))))
  '(gnus-agent-expire-all t)
  '(gnus-agent-expire-days 14)
  '(gnus-agent-go-online t)
+ '(gnus-agent-mark-unread-after-downloaded nil)
  '(gnus-agent-synchronize-flags t)
  '(gnus-always-read-dribble-file t)
  '(gnus-article-date-lapsed-new-header t)
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
+ '(gnus-cache-enter-articles (quote (ticked dormant unread)))
  '(gnus-check-new-newsgroups nil)
  '(gnus-default-adaptive-score-alist (quote ((gnus-dormant-mark (from 20) (subject 100)) (gnus-ticked-mark (subject 30)) (gnus-read-mark (subject 30)) (gnus-del-mark (subject -150)) (gnus-catchup-mark (subject -150)) (gnus-killed-mark (subject -1000)) (gnus-expirable-mark (from -1000) (subject -1000)))))
  '(gnus-default-article-saver (quote gnus-summary-write-to-file))
@@ -49,7 +50,7 @@
  '(gnus-posting-styles (quote ((".*" ("From" "johnw@boostpro.com")))))
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
- '(gnus-refer-article-method (quote ((nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
+ '(gnus-refer-article-method (quote (current (nnir) (nnir "nnimap:BoostPro") (nntp "news.gmane.org"))))
  '(gnus-refer-thread-use-nnir t)
  '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
  '(gnus-save-killed-list nil)
@@ -73,7 +74,7 @@
  '(gnus-summary-mark-below -100)
  '(gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
  '(gnus-thread-hide-subtree nil)
- '(gnus-thread-sort-functions (quote (gnus-thread-sort-by-number gnus-thread-sort-by-subject (not gnus-thread-sort-by-date) gnus-thread-sort-by-total-score)))
+ '(gnus-thread-sort-functions (quote (gnus-thread-sort-by-number gnus-thread-sort-by-total-score)))
  '(gnus-topic-display-empty-topics nil)
  '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")
@@ -140,71 +141,36 @@
 ;;;_* configuration
 
 (load "gnus")
-(load "gnus-agent")
 (load "starttls")
+
+(autoload 'gnus-dired-mode "gnus-dired" nil t)
+
+(add-hook 'dired-mode-hook 'gnus-dired-mode)
 
 ;;(gnus-registry-initialize)
 
 (eval-after-load "message"
   '(load "message-x"))
 
-(defun gmail-unread ()
-  (file-exists-p "/tmp/unread"))
-
-;;(defun gnus-query (query)
-;;  (interactive "sMail Query: ")
-;;  (let ((nnir-imap-default-search-key "imap")
-;;        (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
-;;    (gnus-group-make-nnir-group
-;;     nil
-;;     `((query    . ,query)
-;;       (criteria . "")
-;;       (server   . "nnimap:Gmail") ))))
-
 (defun gnus-query (query)
   (interactive "sMail Query: ")
-  (setq nnir-current-query nil
-	nnir-current-server nil
-	nnir-current-group-marked nil
-	nnir-artlist nil)
-  (let* ((parms (list (cons 'query query)))
-         (srv (or (gnus-server-server-name) "nnir"))
-         (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
-    (add-to-list 'parms (cons 'unique-id (message-unique-id)) t)
-    (gnus-group-read-ephemeral-group
-     (concat "nnir:" (prin1-to-string parms)) (list 'nnir srv) t
-     (cons (current-buffer) gnus-current-window-configuration) nil)))
+  (let ((nnir-imap-default-search-key "imap"))
+    (gnus-group-make-nnir-group
+     nil
+     `((query    . ,query)
+       (criteria . "")
+       (server   . "nnimap:Gmail") ))))
 
 (define-key global-map [(alt meta ?f)] 'gnus-query)
 
-;;(defun gnus-goto-article (message-id)
-;;  (let ((nnir-imap-default-search-key "imap")
-;;        (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
-;;    (gnus-group-make-nnir-group
-;;     nil
-;;     `((query    . ,(concat "header message-id " message-id))
-;;       (criteria . "")
-;;       (server   . "nnimap:Gmail") )))
-;;  (gnus-summary-refer-article message-id))
-
 (defun gnus-goto-article (message-id)
-  (setq nnir-current-query nil
-	nnir-current-server nil
-	nnir-current-group-marked nil
-	nnir-artlist nil)
-  (let* ((query (concat "header message-id " message-id))
-         (parms (list (cons 'query query)))
-         (srv (or (gnus-server-server-name) "nnir"))
-         (gnus-group-marked (list "nnimap+Gmail:[Gmail]/All Mail")))
-    (add-to-list 'parms (cons 'unique-id (message-unique-id)) t)
-    (gnus-group-read-ephemeral-group
-     (concat "nnir:" (prin1-to-string parms)) (list 'nnir srv) t
-     (cons (current-buffer) gnus-current-window-configuration) nil)
-    (gnus-summary-refer-article message-id)))
-
-;;(defun gnus-goto-article (message-id)
-;;  (gnus-summary-read-group "nnimap+Gmail:Mail" 1 t)
-;;  (gnus-summary-refer-article message-id))
+  (let ((nnir-imap-default-search-key "imap"))
+    (gnus-group-make-nnir-group
+     nil
+     `((query    . ,(concat "header message-id " message-id))
+       (criteria . "")
+       (server   . "nnimap:Gmail") )))
+  (gnus-summary-refer-article message-id))
 
 (defun gnus-current-message-id ()
   (with-current-buffer gnus-original-article-buffer
@@ -293,25 +259,29 @@
 
 ;;;_ + Scoring
 
+;; Add to `gnus-after-getting-new-news-hook' for pre-scoring
+
 (defun gnus-score-groups ()
   (interactive)
   (save-excursion
-    (let (info newsrc group entry)
-      (setq newsrc (cdr gnus-newsrc-alist))
-      (while (setq info (pop newsrc))
-	(setq group (gnus-info-group info)
-	      entry (gnus-gethash group gnus-newsrc-hashtb))
-	(when (and
-	       (<= (gnus-info-level info) gnus-level-subscribed)
-	       (and (car entry)
-		    (or (eq (car entry) t)
-			(not (zerop (car entry))))))
-	  (ignore-errors
-	    (gnus-summary-read-group group nil t))
-	  (when (and gnus-summary-buffer
-		     (buffer-live-p gnus-summary-buffer)
-		     (eq (current-buffer) (get-buffer gnus-summary-buffer)))
-	    (gnus-summary-exit)))))))
+    (dolist (info (cdr gnus-newsrc-alist))
+      ;; Only consider this group if it's at or below the current level
+      (when (<= (gnus-info-level info)
+                (if (numberp arg)
+                    arg
+                  (or (gnus-group-default-level nil t)
+                      (gnus-group-default-list-level)
+                      gnus-level-subscribed)))
+        (let ((group (gnus-info-group info)))
+          (when (and (not (string= "nnimap+Gmail:INBOX" group))
+                     (> (gnus-group-unread group) 0))
+            (ignore-errors
+              (gnus-summary-read-group group nil t))
+            (when (and gnus-summary-buffer
+                       (buffer-live-p gnus-summary-buffer)
+                       (eq (current-buffer)
+                           (get-buffer gnus-summary-buffer)))
+              (gnus-summary-exit))))))))
 
 ;;;_ + Summary line formats
 
@@ -413,7 +383,13 @@
                     (shell-command-to-string
                      "contacts -H -S -f '%n <%e>' | grep -v '<>'") "\n" t)))))
     (backward-kill-word 1)
-    (insert (ido-completing-read "E-mail address: " choices nil t stub))))
+    (insert (ido-completing-read
+             "E-mail address: "
+             (append choices
+                     (split-string (shell-command-to-string
+                                    (concat "find-addr " stub))
+                                   "\n" t))
+             nil t stub))))
 
 ;;;_* keybindings
 
@@ -421,5 +397,8 @@
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
+
+(eval-after-load "w3m"
+  '(define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser))
 
 ;;; .gnus.el ends here

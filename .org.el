@@ -3,6 +3,7 @@
 (require 'org)
 (require 'org-agenda)
 (require 'org-crypt)
+(require 'org-redmine)
 (require 'org-install)
 (require 'org-attach)
 (require 'org-devonthink)
@@ -447,13 +448,17 @@ To use this function, add it to `org-agenda-finalize-hook':
   (save-buffer))
 
 (defun org-my-message-open (message-id)
-  (condition-case err
-      (if (get-buffer "*Group*")
-          (gnus-goto-article
-           (gnus-string-remove-all-properties (substring message-id 2)))
-        (org-mac-message-open message-id))
-    (error
-     (org-mac-message-open message-id))))
+  (gnus-goto-article
+   (gnus-string-remove-all-properties (substring message-id 2))))
+
+;;(defun org-my-message-open (message-id)
+;;  (condition-case err
+;;      (if (get-buffer "*Group*")
+;;          (gnus-goto-article
+;;           (gnus-string-remove-all-properties (substring message-id 2)))
+;;        (org-mac-message-open message-id))
+;;    (error
+;;     (org-mac-message-open message-id))))
 
 (eval-after-load "org-mac-message"
   '(progn
@@ -542,131 +547,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
 	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
-
-(defvar my-boostpro-redmine-id 13)
-(defvar my-boostpro-redmine-key "f3dc6c4da15cf001cce6dd775452b576bd07feb5")
-
-(defun make-boostpro-redmine-bug (project category priority &optional tracker)
-  (interactive
-   (let ((omk (get-text-property (point) 'org-marker)))
-     (with-current-buffer (marker-buffer omk)
-       (save-excursion
-	 (goto-char omk)
-	 (let ((projects
-		'(
-                  ;; Add projects here.  The first member is the name of the
-                  ;; project, the second is the list of categories, or just
-                  ;; 'none' if that project has none defined.
-                  ("IT" ("none"))
-                  ))
-	       (priorities '(("Immediate" . 1)
-                             ("Urgent"    . 2)
-                             ("High"      . 3)
-                             ("Normal"    . 4)
-                             ("Low"       . 5)))
-               (project (or (org-get-category) "IT")))
-	   (list project
-		 (let ((categories (nth 1 (assoc project projects))))
-		   (if (= 1 (length categories))
-		       (car categories)
-		     (ido-completing-read "Category: " categories
-					  nil t nil nil
-                                          (car (last categories)))))
-		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (cond
-                    ((and orgpri (= ?A orgpri))
-                     (cdr (assoc "High" priorities)))
-                    ((and orgpri (= ?C orgpri))
-                     (cdr (assoc "Low" priorities)))
-                    (t
-                     (cdr (assoc "Normal" priorities))
-                     ;;(cdr (assoc
-                     ;;      (ido-completing-read "Priority: "
-                     ;;                           (mapcar #'car priorities)
-                     ;;                           nil t nil nil
-                     ;;                           "Normal")
-                     ;;      priorities))
-                     )))))))))
-  (let ((omk (get-text-property (point) 'org-marker))
-        (trackers '(("Bug"     . 1)
-                    ("Feature" . 2)
-                    ("Support" . 3))))
-    (with-current-buffer (marker-buffer omk)
-      (save-excursion
-	(goto-char omk)
-	(let ((heading (nth 4 (org-heading-components)))
-	      (contents (buffer-substring-no-properties
-			 (org-entry-beginning-position)
-			 (org-entry-end-position)))
-	      description bug proj)
-	  (with-temp-buffer
-	    (insert contents)
-	    (goto-char (point-min))
-	    (delete-region (point) (1+ (line-end-position)))
-	    (search-forward ":PROP")
-	    (delete-region (match-beginning 0) (point-max))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^   " nil t)
-	      (delete-region (match-beginning 0) (match-end 0)))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^SCHE" nil t)
-	      (delete-region (match-beginning 0) (1+ (line-end-position))))
-	    (goto-char (point-min))
-	    (setq description (if (eobp) "No description." (buffer-string))))
-          (with-temp-buffer
-            (insert (format "<?xml version=\"1.0\"?>
-<issue>
-  <project_id>%s</project_id>
-  <subject>%s</subject>
-  <tracker_id>%s</tracker_id>
-  <assigned_to_id>%s</assigned_to_id>
-  <priority_id>%s</priority_id>
-  <description>%s</description>
-</issue>
-"
-                            project
-                            (xml-escape-string heading)
-                            (cdr (assoc
-                                  (ido-completing-read
-                                   "Tracker: " (mapcar #'car trackers)
-                                   nil t nil nil "Support")
-                                  trackers))
-                            (number-to-string my-boostpro-redmine-id)
-                            priority
-                            (xml-escape-string description)))
-            (shell-command-on-region
-             (point-min) (point-max)
-             (format
-              (concat
-               "curl -k -X POST "
-               "-H 'Content-type: text/xml' "
-               "-H 'Accept: text/xml' -d @- "
-               "'https://hub.boostpro.com/issues.xml?format=xml&key=%s'")
-              my-boostpro-redmine-key)
-             nil t)
-            (goto-char (point-min))
-            (re-search-forward "<id>\\([0-9]+\\)</id>")
-            (setq bug (match-string 1)))
-	  (save-excursion
-	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
-	    (insert (format "[[redmine:%s][#%s]] " bug bug)))))))
-  (org-agenda-redo))
-
-(defun make-bug-link ()
-  (interactive)
-  (let* ((omk (get-text-property (point) 'org-marker))
-         (path (with-current-buffer (marker-buffer omk)
-                 (save-excursion
-                   (goto-char omk)
-                   (org-get-outline-path)))))
-    (cond
-     ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
-      (call-interactively #'make-ledger-bugzilla-bug))
-     ((string= "BoostPro" (car path))
-      (call-interactively #'make-boostpro-redmine-bug))
-     (t
-      (error "Cannot make bug, unknown category")))))
 
 (defun save-org-mode-files ()
   (dolist (buf (buffer-list))

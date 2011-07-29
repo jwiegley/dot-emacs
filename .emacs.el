@@ -61,6 +61,9 @@
 
 (load "initsplit")
 
+(defun imap-unread ()
+  (file-exists-p "/tmp/unread"))
+
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -178,6 +181,7 @@
  '(mark-holidays-in-calendar t)
  '(next-line-add-newlines nil)
  '(nnimap-dont-close nil)
+ '(nnir-ignored-newsgroups "^\"\\([^[]\\|\\[Gmail]/[^A]\\)")
  '(nnir-imap-default-search-key "imap")
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
@@ -229,6 +233,7 @@
  '(vc-handled-backends (quote (GIT)))
  '(version-control t)
  '(visible-bell t)
+ '(w3m-use-cookies t)
  '(weblogger-config-alist (quote (("thoughts" "http://johnwiegley.com/xmlrpc.php" "johnw" "=k2h4LEQ$&32qX%r" "9"))))
  '(whitespace-auto-cleanup t)
  '(whitespace-rescan-timer-time nil)
@@ -524,13 +529,13 @@
      (ignore-errors
        (diminish 'yas/minor-mode))
 
-(defadvice dired-omit-startup (after diminish-dired-omit activate)
+     (defadvice dired-omit-startup (after diminish-dired-omit activate)
        "Make sure to remove \"Omit\" from the modeline."
        (diminish 'dired-omit-mode))
 
-(eval-after-load "dot-mode" '(diminish 'dot-mode))
-(eval-after-load "eldoc"    '(diminish 'eldoc-mode))
-(eval-after-load "winner"   '(ignore-errors (diminish 'winner-mode)))))
+     (eval-after-load "dot-mode" '(diminish 'dot-mode))
+     (eval-after-load "eldoc"    '(diminish 'eldoc-mode))
+     (eval-after-load "winner"   '(ignore-errors (diminish 'winner-mode)))))
 
 ;;;_* keybindings
 
@@ -663,7 +668,7 @@
 
 (defun gnus-level-1 ()
   (interactive)
-  (gnus 1))
+  (gnus-no-server 1))
 
 (define-key global-map [(meta ?G)] 'gnus-level-1)
 (define-key global-map [(meta ?N)] 'winner-redo)
@@ -928,6 +933,8 @@
 (define-key mode-specific-map [?i ?m] 'ispell-message)
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
+(defvar sr-running nil)
+
 (defun switch-to-sunrise ()
   (interactive)
   (if sr-running
@@ -1039,7 +1046,6 @@
     (view-mode)))
 
 (define-key mode-specific-map [?V] 'view-clipboard)
-(define-key mode-specific-map [?w] 'wdired-change-to-wdired-mode)
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
 (define-key mode-specific-map [?\[] 'align-regexp)
