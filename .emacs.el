@@ -59,7 +59,7 @@
 
 ;;;_ + variables
 
-(load "initsplit")
+(require 'initsplit)
 
 (defun imap-unread ()
   (file-exists-p "/tmp/unread"))
@@ -108,7 +108,7 @@
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
- '(display-time-mail-function (quote gmail-unread))
+ '(display-time-mail-function (quote imap-unread))
  '(display-time-mode t)
  '(display-time-use-mail-icon t)
  '(el-get-apt-get-base "/opt/local/share/emacs/site-lisp")
@@ -318,11 +318,12 @@
 ;;;_ + auto loads
 
 (mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
-      '(("linum"             . linum-mode)
-        ("column-marker"     . column-marker-1)
-        ("esh-toggle"        . esh-toggle) 
-        ("sunrise-commander" . sunrise) 
-        ("sunrise-commander" . sunrise-cd) 
+      '(("linum"              . linum-mode)
+        ("column-marker"      . column-marker-1)
+        ("esh-toggle"         . esh-toggle)
+        ("sunrise-commander"  . sunrise)
+        ("sunrise-conmmander" . sunrise-cd)
+        ("fm"                 . fm-start)
         ))
 
 ;;;_ + escreen
@@ -351,7 +352,7 @@
 
 ;;;_  + eshell
 
-(load "esh-toggle" t)
+(require 'esh-toggle nil t)
 
 (eval-after-load "em-unix"
   '(unintern 'eshell/rm))
@@ -482,7 +483,7 @@
 ;;;_ + sunrise-commander
 
 (eval-after-load "sunrise-commander"
-  '(load "sunrise-x-modeline"))
+  '(require 'sunrise-x-modeline))
 
 ;;;_ + whitespace
 
