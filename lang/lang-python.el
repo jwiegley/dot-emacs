@@ -1,6 +1,13 @@
 ;;;_ * python-mode
 
-(require 'python)
+;;(require 'python)
+
+(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
+
+(setq interpreter-mode-alist (cons '("python" . python-mode)
+                                   interpreter-mode-alist))
+
+(autoload 'python-mode "python-mode" "Python editing mode." t)
 
 (defvar python-keywords-wanting-colon
   '("def" "class" "if" "elif" "while" "else" "with"
@@ -73,3 +80,4 @@
      (add-to-list 'flymake-allowed-file-name-masks
 		  '("\\.l?hs\\'" flymake-hslint-init))))
 
+;;; lang-python.el ends here
