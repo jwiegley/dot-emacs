@@ -447,6 +447,11 @@
                 (column-number-mode t)
                 (column-marker-1 72)))))
 
+;;;_ + grep-ed
+
+(eval-after-load "grep"
+  '(require 'grep-ed nil t))
+
 ;;;_ + mule
 
 (prefer-coding-system 'utf-8)
