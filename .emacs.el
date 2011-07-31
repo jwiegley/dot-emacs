@@ -121,10 +121,19 @@
  '(elscreen-prefix-key "")
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
  '(enable-recursive-minibuffers t)
+ '(erc-autojoin-channels-alist (quote (("freenode.net" "#ledger" "#git"))))
+ '(erc-autojoin-mode t)
+ '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
+ '(erc-log-channels-directory "~/Library/Mail/ERC")
  '(erc-modules (quote (autojoin button completion fill irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly ring services stamp track)))
  '(erc-nick "johnw")
  '(erc-port 6667)
  '(erc-server "irc.freenode.net")
+ '(erc-track-enable-keybindings t)
+ '(erc-track-exclude-server-buffer t)
+ '(erc-track-exclude-types (quote ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
+ '(erc-track-faces-priority-list (quote (erc-error-face (erc-nick-default-face erc-current-nick-face) erc-current-nick-face erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face erc-nick-msg-face erc-direct-msg-face erc-notice-face erc-input-face)))
+ '(erc-track-priority-faces-only (quote ("#emacs" "#git")))
  '(erc-user-full-name (quote user-full-name))
  '(eshell-history-size 1000)
  '(eshell-ls-dired-initial-args (quote ("-h")))
@@ -170,7 +179,7 @@
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-frame-alist (quote ((width . 100) (height . 76))))
- '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil) ("\\`\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil))))
+ '(initsplit-customizations-alist (quote (("\\`\\(canlock\\|eudc\\|spam\\|nnmail\\|nndraft\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil nil) ("\\`\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil nil) ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.ercpass" nil nil))))
  '(ispell-extra-args (quote ("--sug-mode=ultra" "--keyboard=dvorak" "--dont-suggest")))
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
@@ -325,6 +334,41 @@
         ("sunrise-conmmander" . sunrise-cd)
         ("fm"                 . fm-start)
         ))
+
+;;;_ + erc
+
+(load ".ercpass")
+
+(defun irc ()
+  (interactive)
+  (erc :server "irc.freenode.net" :port 6667 :nick "johnw")
+  (erc :server "localhost" :port 6667 :nick "johnw"))
+
+(defvar growlnotify-command (executable-find "growlnotify")
+  "The path to growlnotify")
+
+(defun growl (title message)
+  "Shows a message through the growl notification system using
+ `growlnotify-command` as the program."
+  (flet ((encfn (s) (encode-coding-string s (keyboard-coding-system))) )
+    (let* ((process (start-process "growlnotify" nil
+                                   growlnotify-command
+                                   (encfn title)
+                                   "-a" "Emacs"
+                                   "-n" "Emacs")))
+      (process-send-string process (encfn message))
+      (process-send-string process "\n")
+      (process-send-eof process)))
+  t)
+
+(defun my-erc-hook (match-type nick message)
+  "Shows a growl notification, when user's nick was mentioned.
+If the buffer is currently not visible, makes it sticky."
+  (unless (posix-string-match "^\\** *Users on #" message)
+    (growl (concat "ERC: " (buffer-name (current-buffer)))
+           message)))
+
+(add-hook 'erc-text-matched-hook 'my-erc-hook)
 
 ;;;_ + escreen
 
