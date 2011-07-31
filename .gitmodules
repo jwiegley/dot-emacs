@@ -36,7 +36,7 @@
 	url = git://github.com/nablaone/slime.git
 [submodule "site-lisp/zencoding"]
 	path = site-lisp/zencoding
-	url = git://github.com/chrisdone/zencoding.git
+	url = git://github.com/rooney/zencoding.git
 [submodule "site-lisp/apel"]
 	path = site-lisp/apel
 	url = http://github.com/emacsmirror/apel.git
@@ -103,3 +103,9 @@
 [submodule "site-lisp/ee"]
 	path = site-lisp/ee
 	url = git://git.sv.gnu.org/ee.git
+[submodule "site-lisp/redmine"]
+	path = site-lisp/redmine
+	url = git://github.com/fukamachi/redmine-el.git
+[submodule "site-lisp/python-mode"]
+	path = site-lisp/python-mode
+	url = git://github.com/jwiegley/python-mode.git
