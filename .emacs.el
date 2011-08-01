@@ -1015,15 +1015,16 @@ If the buffer is currently not visible, makes it sticky."
   (interactive)
   (set-frame-parameter (selected-frame) 'top 26)
   (set-frame-parameter (selected-frame) 'left
-                       (- (x-display-pixel-width) 925))
+                       (- (x-display-pixel-width) 937))
   (set-frame-parameter (selected-frame) 'width 100)
   (set-frame-parameter (selected-frame) 'height 100))
 
 (defun emacs-max ()
   (interactive)
   (set-frame-parameter (selected-frame) 'top 26)
-  (set-frame-parameter (selected-frame) 'left 3)
-  (set-frame-parameter (selected-frame) 'width 300)
+  (set-frame-parameter (selected-frame) 'left 2)
+  (set-frame-parameter (selected-frame) 'width
+                       (floor (/ (float (x-display-pixel-width)) 9.15)))
   (set-frame-parameter (selected-frame) 'height 100))
 
 (defun emacs-toggle-size ()
