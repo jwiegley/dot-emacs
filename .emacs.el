@@ -196,7 +196,6 @@
  '(ledger-file "~/Documents/Accounts/ledger.dat")
  '(ledger-post-use-ido t)
  '(line-number-mode t)
- '(line-spacing 2)
  '(lui-time-stamp-position nil)
  '(mac-option-modifier (quote alt))
  '(mac-pass-command-to-system nil)
@@ -344,7 +343,7 @@
         ("sunrise-commander"  . sunrise)
         ("sunrise-conmmander" . sunrise-cd)
         ("fm"                 . fm-start)
-        ("highline"           . highline-local-mode)
+        ("highline"           . highline-mode)
         ))
 
 ;;;_ + erc
@@ -1093,7 +1092,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?t ?v] 'visit-tags-table)
 
 (define-key mode-specific-map [?u] 'rename-uniquely)
-(define-key mode-specific-map [?v] 'visit-url)
+(define-key mode-specific-map [?v] 'ffap)
 
 (defun view-clipboard ()
   (interactive)

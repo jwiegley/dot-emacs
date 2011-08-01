@@ -88,7 +88,7 @@
  '(gnus-use-adaptive-scoring (quote (line)))
  '(gnus-use-cache t)
  '(gnus-use-trees t)
- '(mail-envelope-from (quote header))
+ '(mail-envelope-from (quote header) t)
  '(mail-setup-with-from nil)
  '(mail-source-delete-incoming t)
  '(mail-source-delete-old-incoming-confirm nil)
@@ -274,9 +274,10 @@
                   (or (gnus-group-default-level nil t)
                       (gnus-group-default-list-level)
                       gnus-level-subscribed)))
-        (let ((group (gnus-info-group info)))
+        (let* ((group (gnus-info-group info))
+               (unread (gnus-group-unread group)))
           (when (and (not (string= "nnimap+Gmail:INBOX" group))
-                     (> (gnus-group-unread group) 0))
+                     (numberp unread) (> unread 0))
             (ignore-errors
               (gnus-summary-read-group group nil t))
             (when (and gnus-summary-buffer
