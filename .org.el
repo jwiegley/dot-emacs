@@ -1065,7 +1065,11 @@ end tell" (match-string 1))))
        (define-key org-todo-state-map "w" #'org-todo-mark-waiting)
        (define-key org-todo-state-map "x" #'org-todo-mark-canceled)
 
-       (define-key org-todo-state-map "z" #'make-bug-link))))
+       (define-key org-todo-state-map "z" #'make-bug-link)
+
+       (defadvice org-agenda-redo (after fit-windows-for-agenda activate)
+         "Fit the Org Agenda to its buffer."
+         (fit-window-to-buffer)))))
 
 ;;;_* startup
 
