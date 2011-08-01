@@ -46,7 +46,7 @@
  '(gnus-message-replyencrypt nil)
  '(gnus-novice-user nil)
  '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
- '(gnus-posting-styles (quote ((".*" ("From" "johnw@boostpro.com")))))
+ '(gnus-posting-styles (quote ((".*" ("From" "johnw@boostpro.com") (organization "BoostPro Computing, Inc.")))))
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
  '(gnus-refer-article-method (quote (current (nnir) (nnir "nnimap:BoostPro") (nntp "news.gmane.org"))))
