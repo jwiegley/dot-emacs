@@ -249,7 +249,7 @@
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
  '(temp-buffer-resize-mode t nil (help))
- '(text-mode-hook (quote (turn-on-flyspell turn-on-auto-fill)))
+ '(text-mode-hook (quote (turn-on-auto-fill)))
  '(tool-bar-mode nil)
  '(tramp-default-proxies-alist (quote (("\\`.+\\'" "\\`root\\'" "/ssh:%h:"))))
  '(tramp-verbose 3)
