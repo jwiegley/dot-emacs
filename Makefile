@@ -5,10 +5,11 @@ TARGET		 = $(patsubst %.el,%.elc,$(SPECIAL) $(SOURCE))
 EMACS		 = emacs
 
 EMACS_BATCH      = $(EMACS) --no-init-file --no-site-file -batch
-MY_LOADPATH      = -L .				\
-		   -L site-lisp			\
-		   -L site-lisp/muse/lisp	\
-		   -L site-lisp/epg		\
+MY_LOADPATH      = -L .					\
+		   -L site-lisp				\
+		   -L site-lisp/muse/lisp		\
+		   -L site-lisp/epg			\
+		   -L site-lisp/sunrise-commander	\
 		   -L site-lisp/apel
 EMACS_BATCH_LOAD = $(EMACS_BATCH) $(MY_LOADPATH)
 
