@@ -343,13 +343,13 @@
 ;;;_ + auto loads
 
 (mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
-      '(("linum"              . linum-mode)
-        ("column-marker"      . column-marker-1)
-        ("esh-toggle"         . esh-toggle)
-        ("sunrise-commander"  . sunrise)
-        ("sunrise-conmmander" . sunrise-cd)
-        ("fm"                 . fm-start)
-        ("highline"           . highline-mode)
+      '(("linum"             . linum-mode)
+        ("column-marker"     . column-marker-1)
+        ("esh-toggle"        . esh-toggle)
+        ("sunrise-commander" . sunrise)
+        ("sunrise-commander" . sunrise-cd)
+        ("fm"                . fm-start)
+        ("highline"          . highline-mode)
         ))
 
 ;;;_ + erc
