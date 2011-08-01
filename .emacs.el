@@ -917,22 +917,7 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;_ + mode-specific
 
-(defun toggle-code-file (&optional arg)
-  (interactive "p")
-  (let* ((path (buffer-file-name))
-         (base (file-name-sans-extension path)))
-    (cond ((string-match "\\.as[cphma]x\\'" path)
-           (find-file (concat path ".cs")))
-          ((string-match "\\.as[cphma]x\\.cs\\'" path)
-           (find-file base))
-          ((string-match "\\.\\(c\\(c\\|pp\\)?\\|mm?\\)\\'" path)
-           (find-file (concat base ".h")))
-          ((string-match "\\.h\\'" path)
-           (dolist (ext '(".cc" ".cpp" ".c" ".mm" ".m"))
-             (if (file-readable-p (concat base ext))
-                 (find-file (concat base ext))))))))
-
-(define-key mode-specific-map [tab] 'toggle-code-file)
+(define-key mode-specific-map [tab] 'ff-find-other-file)
 
 (define-key mode-specific-map [space] 'just-one-space)
 (define-key mode-specific-map [? ] 'just-one-space)
