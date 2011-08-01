@@ -344,6 +344,7 @@
         ("sunrise-commander"  . sunrise)
         ("sunrise-conmmander" . sunrise-cd)
         ("fm"                 . fm-start)
+        ("highline"           . highline-local-mode)
         ))
 
 ;;;_ + erc

@@ -141,8 +141,9 @@
 (load "gnus")
 (load "starttls")
 
-(autoload 'gnus-dired-mode "gnus-dired" nil t)
+(add-hook 'gnus-summary-mode-hook 'highline-mode)
 
+(autoload 'gnus-dired-mode "gnus-dired" nil t)
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
 
 ;;(gnus-registry-initialize)
