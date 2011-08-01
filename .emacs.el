@@ -349,7 +349,7 @@
         ("sunrise-commander" . sunrise)
         ("sunrise-commander" . sunrise-cd)
         ("fm"                . fm-start)
-        ("highline"          . highline-mode)
+        ("hl-line"           . hl-line-mode)
         ))
 
 ;;;_ + erc

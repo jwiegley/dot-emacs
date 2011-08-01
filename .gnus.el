@@ -141,7 +141,7 @@
 (load "gnus")
 (load "starttls")
 
-(add-hook 'gnus-summary-mode-hook 'highline-mode)
+(add-hook 'gnus-summary-mode-hook 'hl-line-mode)
 
 (autoload 'gnus-dired-mode "gnus-dired" nil t)
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
