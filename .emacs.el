@@ -158,6 +158,7 @@
  '(eshell-visual-commands (quote ("vi" "top" "screen" "less" "lynx" "ssh" "rlogin" "telnet")))
  '(eval-expr-print-function (quote pp) t)
  '(exec-path (quote ("/Applications/MacPorts/Emacs.app/Contents/MacOS/bin" "/Users/johnw/bin" "/usr/local/bin" "/opt/local/libexec/git-core" "/opt/local/bin" "/usr/bin" "/bin" "/usr/local/sbin" "/opt/local/sbin" "/usr/sbin" "/sbin" "/usr/X11R6/bin")))
+ '(ffap-directory-finder (quote sr-dired))
  '(fill-column 78)
  '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
  '(flyspell-abbrev-p nil)
