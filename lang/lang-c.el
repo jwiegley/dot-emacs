@@ -2,6 +2,8 @@
 
 (require 'cc-mode)
 
+(load "xcscope" t)
+
 (setq c-syntactic-indentation nil)
 
 (define-key c-mode-base-map "#"         'self-insert-command)
