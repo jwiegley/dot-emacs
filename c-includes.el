@@ -183,7 +183,7 @@
 ;;;###autoload
 (defun c-includes-current-file (&optional regexp)
   "Find all of the header file included by the current file."
-  (interactive "sSearch for regexp: ")
+  (interactive "sSearch for regexp in #include files: ")
   (c-includes buffer-file-name regexp))
 
 ;;;###autoload
@@ -192,12 +192,11 @@
 REGEXP, if non-nil, is a regular expression to search for within
 FILENAME and the files that it includes.  The output will be
 structured in the same order that the compiler will see it, enabling
-you determine order of occurrence."
+you to determine order of occurrence."
   (interactive "fFind all includes brought in by: \nsSearch for regexp: ")
   (with-output-to-temp-buffer c-includes-buffer
     (c-includes-search filename nil nil nil t 0 regexp))
-  (save-excursion
-    (set-buffer c-includes-buffer)
+  (with-current-buffer c-includes-buffer
     (outline-minor-mode 1)
     (make-local-variable 'outline-regexp)
     (setq outline-regexp "^=> +")
@@ -240,8 +239,7 @@ code file where this file was #include'd, the line within the buffer
 that this line's parent is located at, and any other corresponding
 line information, such as relating multiple inclusions to the first
 occurrence."
-  (save-excursion
-    (set-buffer c-includes-buffer)
+  (with-current-buffer c-includes-buffer
     (goto-char (point-max))
     (let ((beg (point)))
       (insert "=> " (make-string (* depth 2) ? ))
@@ -328,8 +326,7 @@ first argument."
 		     (re-search-forward regexp eol t))
 		(let ((string (buffer-substring beg eol))
 		      (line (1+ (c-includes-current-line beg))))
-		  (save-excursion
-		    (set-buffer c-includes-buffer)
+		  (with-current-buffer c-includes-buffer
 		    (goto-char (point-max))
 		    (setq beg (point))
 		    (insert "   " (number-to-string line))
