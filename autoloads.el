@@ -3913,52 +3913,10 @@ Visit the given directory in `sr-mode'.
 
 ;;;***
 
-;;;### (autoloads nil "sunrise-x-buttons" "site-lisp/sunrise-commander/sunrise-x-buttons.el"
-;;;;;;  (20015 24445))
-;;; Generated autoloads from site-lisp/sunrise-commander/sunrise-x-buttons.el
- (require 'sunrise-x-buttons)
-
-;;;***
-
-;;;### (autoloads nil "sunrise-x-loop" "site-lisp/sunrise-commander/sunrise-x-loop.el"
-;;;;;;  (20015 24445))
-;;; Generated autoloads from site-lisp/sunrise-commander/sunrise-x-loop.el
- (require 'sunrise-x-loop)
-
-;;;***
-
-;;;### (autoloads nil "sunrise-x-mirror" "site-lisp/sunrise-commander/sunrise-x-mirror.el"
-;;;;;;  (20015 24445))
-;;; Generated autoloads from site-lisp/sunrise-commander/sunrise-x-mirror.el
- (require 'sunrise-x-mirror)
-
-;;;***
-
 ;;;### (autoloads nil "sunrise-x-modeline" "site-lisp/sunrise-commander/sunrise-x-modeline.el"
 ;;;;;;  (20015 31664))
 ;;; Generated autoloads from site-lisp/sunrise-commander/sunrise-x-modeline.el
  (require 'sunrise-x-modeline)
-
-;;;***
-
-;;;### (autoloads nil "sunrise-x-popviewer" "site-lisp/sunrise-commander/sunrise-x-popviewer.el"
-;;;;;;  (20015 24445))
-;;; Generated autoloads from site-lisp/sunrise-commander/sunrise-x-popviewer.el
- (require 'sunrise-x-popviewer)
-
-;;;***
-
-;;;### (autoloads nil "sunrise-x-tabs" "site-lisp/sunrise-commander/sunrise-x-tabs.el"
-;;;;;;  (20015 24445))
-;;; Generated autoloads from site-lisp/sunrise-commander/sunrise-x-tabs.el
- (require 'sunrise-x-tabs)
-
-;;;***
-
-;;;### (autoloads nil "sunrise-x-tree" "site-lisp/sunrise-commander/sunrise-x-tree.el"
-;;;;;;  (20015 24445))
-;;; Generated autoloads from site-lisp/sunrise-commander/sunrise-x-tree.el
- (require 'sunrise-x-tree)
 
 ;;;***
 
