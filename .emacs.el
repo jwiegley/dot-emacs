@@ -924,6 +924,16 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [? ] 'just-one-space)
 (define-key mode-specific-map [?1] 'just-one-space)
 
+(define-prefix-command 'my-grep-map)
+(define-key mode-specific-map [?b] 'my-grep-map)
+(define-key mode-specific-map [?b ?b] 'occur)
+(define-key mode-specific-map [?b ?d] 'find-grep-dired)
+(define-key mode-specific-map [?b ?f] 'find-grep)
+(define-key mode-specific-map [?b ?g] 'grep)
+(define-key mode-specific-map [?b ?n] 'find-name-dired)
+(define-key mode-specific-map [?b ?o] 'occur)
+(define-key mode-specific-map [?b ?r] 'rgrep)
+
 (define-key mode-specific-map [?c] 'compile)
 
 (defun clone-region-set-mode (start end &optional mode)
