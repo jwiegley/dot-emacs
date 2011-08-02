@@ -222,7 +222,7 @@
      nil
      `((query    . ,query)
        (criteria . "")
-       (server   . "nnimap:Gmail") ))))
+       (server   . "nnimap:Local") ))))
 
 (define-key global-map [(alt meta ?f)] 'gnus-query)
 
@@ -232,7 +232,7 @@
      nil
      `((query    . ,(concat "header message-id " message-id))
        (criteria . "")
-       (server   . "nnimap:Gmail") )))
+       (server   . "nnimap:Local") )))
   (gnus-summary-refer-article message-id))
 
 (defun gnus-current-message-id ()
@@ -340,7 +340,7 @@
                       gnus-level-subscribed)))
         (let* ((group (gnus-info-group info))
                (unread (gnus-group-unread group)))
-          (when (and (not (string= "nnimap+Gmail:INBOX" group))
+          (when (and (not (string= "nnimap+Local:INBOX" group))
                      (numberp unread) (> unread 0))
             (ignore-errors
               (gnus-summary-read-group group nil t))
