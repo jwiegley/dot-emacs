@@ -69,6 +69,8 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
+ '(Info-additional-directory-list (quote ("~/Library/Info")))
+ '(Info-fit-frame-flag nil)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
  '(align-to-tab-stop nil)
