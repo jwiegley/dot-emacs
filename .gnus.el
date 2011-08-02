@@ -140,8 +140,72 @@
 
 (require 'gnus)
 (require 'starttls)
+(require 'pgg)
 
-(add-hook 'gnus-summary-mode-hook 'hl-line-mode)
+(defun my-process-running-p (name)
+  (catch 'proc-running
+    (dolist (proc (process-list))
+      (if (and (string-match name (process-name proc))
+               (eq 'run (process-status proc)))
+          (throw 'proc-running proc)))))
+
+(defvar dovecot-process nil)
+
+(defun start-dovecot ()
+  (unless (my-process-running-p "dovecot")
+    (setq dovecot-process
+          (start-process "*dovecot*"
+                         (get-buffer-create "*dovecot*")
+                         "/usr/bin/sudo" "/opt/local/sbin/dovecot" "-F"))
+    (message "Waiting 5 seconds for Dovecot to start up...")
+    (sleep-for 5)
+    (message "Waiting 5 seconds for Dovecot to start up...done")))
+
+;;(add-hook 'gnus-before-startup-hook 'start-dovecot)
+
+(defvar offlineimap-process nil)
+
+(defun start-offlineimap ()
+  (unless (my-process-running-p "offlineimap")
+    (setq offlineimap-process
+          (start-process "*offlineimap*"
+                         (get-buffer-create "*offlineimap*")
+                         "/opt/local/bin/offlineimap"))))
+
+;;(add-hook 'gnus-started-hook 'start-offlineimap)
+
+(defun safely-kill-process (name)
+  (let ((proc (my-process-running-p name)))
+    (when (and proc (eq 'run (process-status proc)))
+      (let ((sigs '(SIGTERM SIGINT SIGQUIT SIGKILL))
+            (first t))
+        (while sigs
+          (if (not (eq 'run (process-status proc)))
+              (setq sigs nil)
+            (if first
+                (setq first nil)
+              (sleep-for 5))
+            (message "Signaling process %s with %s..." name (car sigs))
+            (signal-process proc (car sigs))
+            (setq sigs (cdr sigs))))))))
+
+(defun my-shutdown-external-processes ()
+  (safely-kill-process "offlineimap")
+  (message "Waiting 5 seconds for offlineimap to terminate...")
+  (sleep-for 5)
+  (message "Shutting down Dovecot...")
+  (shell-command
+   (format "sudo kill -TERM `sudo cat %s`"
+           "/opt/local/var/run/dovecot/master.pid"))
+  (message "Shutting down Dovecot...done"))
+
+;;(add-hook 'gnus-after-exiting-gnus-hook 'my-shutdown-external-processes)
+
+(defun gnus-info (&optional node)
+  (interactive)
+  (info "/Users/johnw/Library/Emacs/site-lisp/gnus/texi/gnus"))
+
+;;(add-hook 'gnus-summary-mode-hook 'hl-line-mode)
 
 (autoload 'gnus-dired-mode "gnus-dired" nil t)
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
