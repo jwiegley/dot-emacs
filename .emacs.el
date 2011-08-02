@@ -999,16 +999,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?b ?r] 'rgrep)
 
 (define-key mode-specific-map [?c] 'compile)
-
-(defun clone-region-set-mode (start end &optional mode)
-  (interactive "r\nCMode: ")
-  (with-current-buffer (clone-indirect-buffer "*clone*" t)
-    (narrow-to-region start end)
-    (if mode
-	(funcall mode)
-      (call-interactively mode))))
-
-(define-key mode-specific-map [?C] 'clone-region-set-mode)
+(define-key mode-specific-map [?C] 'indirect-region)
 
 (defun delete-current-line (&optional arg)
   (interactive "p")
