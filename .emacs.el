@@ -348,14 +348,42 @@
 ;;;_ + auto loads
 
 (mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
-      '(("linum"             . linum-mode)
-        ("column-marker"     . column-marker-1)
-        ("esh-toggle"        . esh-toggle)
-        ("sunrise-commander" . sunrise)
-        ("sunrise-commander" . sunrise-cd)
-        ("fm"                . fm-start)
-        ("hl-line"           . hl-line-mode)
+      '(("linum"                . linum-mode)
+        ("column-marker"        . column-marker-1)
+        ("esh-toggle"           . esh-toggle)
+        ("sunrise-commander"    . sunrise)
+        ("sunrise-commander"    . sunrise-cd)
+        ("fm"                   . fm-start)
+        ("hl-line"              . hl-line-mode)
+        ("indirect"             . indirect-region)
+        ("vkill"                . vkill)
+        ("whole-line-or-region" . whole-line-or-region-mode)
         ))
+
+;;;_ + rubikitch
+
+(load "archive-region" t)
+
+;;;_ + Drew Adams
+
+(require 'compile-)
+(setq compilation-message-face nil)
+(eval-after-load "compile"
+  '(require 'compile+))
+
+(eval-after-load "grep"
+  '(require 'grep+))
+
+(eval-after-load "info"
+  '(require 'info+))
+
+(require 'hl-line+)
+
+(require 'bookmark+)
+
+(require 'crosshairs)
+(require 'col-highlight)
+(require 'vline)
 
 ;;;_ + erc
 
@@ -432,6 +460,12 @@ If the buffer is currently not visible, makes it sticky."
 (defun ss (server)
   (interactive "sServer: ")
   (call-process "spawn" nil nil nil "ss" server))
+
+;;;_ + eval-expr
+
+(require 'eval-expr)
+
+(eval-expr-install)
 
 ;;;_ + git
 
@@ -531,6 +565,14 @@ If the buffer is currently not visible, makes it sticky."
   (untabify (point-min) (point-max))
   (let ((require-final-newline t))
     (save-buffer)))
+
+;;;_ + redmine
+
+;;(require 'redmine)
+;;
+;;(setq redmine-project-alist
+;;      '(("IT" "https://hub.boostpro.com/it/"
+;;         "f3dc6c4da15cf001cce6dd775452b576bd07feb5")))
 
 ;;;_ + session
 
