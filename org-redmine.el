@@ -31,6 +31,8 @@
 
 ;;; Commentary:
 
+(require 'org-parse)
+
 (defcustom org-redmine-id 13
   "The user id to create new bugs under in Redmine."
   :type 'integer
@@ -67,12 +69,12 @@
   :type '(alist :key-type string :value-type integer)
   :group 'org)
 
-(defcustom org-redmine-statuses '(("TODO"    . ("New"         . 1))
-                                  ("STARTED" . ("In Progress" . 2))
-                                  ("DONE"    . ("Resolved"    . 3))
-                                  ("WAITING" . ("Feedback"    . 4))
-                                  (nil       . ("Closed"      . 5))
-                                  (nil       . ("Rejected"    . 6)))
+(defcustom org-redmine-statuses '(("TODO"      . ("New"         . 1))
+                                  ("STARTED"   . ("In Progress" . 2))
+                                  ("DONE"      . ("Resolved"    . 3))
+                                  ("WAITING"   . ("Feedback"    . 4))
+                                  (nil         . ("Closed"      . 5))
+                                  ("CANCELLED" . ("Rejected"    . 6)))
   "An alist of all the statuses on the Redmine installation.
 These are keyed by the related Org mode state."
   :type '(alist :key-type string :value-type integer)
@@ -129,9 +131,177 @@ These are keyed by the related Org mode state."
     (unless (eobp)
       (nthcdr 2 (car (xml-parse-region (point-min) (point-max)))))))
 
+;; ((id nil "744")
+;;  (project ((name . "IT") (id . "5")))
+;;  (tracker ((name . "Support") (id . "3")))
+;;  (status ((name . "New") (id . "1")))
+;;  (priority ((name . "Low") (id . "3")))
+;;  (author ((name . "Dave Abrahams") (id . "3")))
+;;  (assigned_to ((name . "John Wiegley") (id . "13")))
+;;  (subject nil "Enable issue updates via email")
+;;  (description nil "I think this would make our Redmine installation much nicer to use: http://www.redmine.org/projects/redmine/wiki/RedmineReceivingEmails")
+;;  (start_date nil "2011-07-14")
+;;  (due_date nil)
+;;  (done_ratio nil "0")
+;;  (estimated_hours nil)
+;;  (spent_hours nil "0.0")
+;;  (created_on nil "2011-07-14T13:22:38-07:00")
+;;  (updated_on nil "2011-07-24T23:02:24-07:00")
+;;  (journals ((type . "array"))
+;;            (journal
+;;             ((id . "2055"))
+;;             (user ((name . "John Wiegley") (id . "13")))
+;;             (notes nil "I do have a command-line utility right now that lets you add new tasks to Redmine with surpassing ease.  I just haven't integrated it with Org-mode yet, the way I have for a similar script I use with Bugzilla.")
+;;             (created_on nil "2011-07-14T13:35:56-07:00")
+;;             (details ((type . "array"))))
+;;            (journal
+;;             ((id . "2056"))
+;;             (user ((name . "Dave Abrahams") (id . "3")))
+;;             (notes nil "Thanks, but that doesn't address the desire here.  I get updates in my email already; I want to be able to reply there.  I also want this capability for \"regular users\" who aren't going to fire up the script.")
+;;             (created_on nil "2011-07-14T13:48:18-07:00")
+;;             (details ((type . "array"))))
+;;            (journal
+;;             ((id . "2057"))
+;;             (user ((name . "John Wiegley") (id . "13")))
+;;             (notes nil "I see.")
+;;             (created_on nil "2011-07-14T14:00:07-07:00")
+;;             (details ((type . "array"))))
+;;            (journal
+;;             ((id . "2069"))
+;;             (user ((name . "John Wiegley") (id . "13")))
+;;             (notes nil)
+;;             (created_on nil "2011-07-24T23:02:24-07:00")
+;;             (details ((type . "array"))
+;;                      (detail ((name . "tracker_id") (property . "attr"))
+;;                              (old_value nil "2")
+;;                              (new_value nil "3"))))))
+
+;; ((scheduled . "2011-08-02 Tue")
+;;  (title . "[[redmine:772][#772]] WordPress logins not working")
+;;  (priority . "B")
+;;  (state . "DONE")
+;;  (depth . 4)
+;;  (properties
+;;   ("Submitter" . "Jere Matlock <jere@wordsinarow.com>")
+;;   ("Message" . "[[message://20110801001929.22873j25xv7o1hog@www.wordsinarow.com][wp logins not working]]")
+;;   ("Date" . "Mon, 01 Aug 2011 00:19:29 -0700")
+;;   ("CREATED" . "[2011-08-01 Mon 16:16]")
+;;   ("ID" . "5C2E2321-16A2-4CA3-9785-6A17B6A00A33"))
+;;  (log
+;;   ((date . "2011-08-02 Tue 11:02")
+;;    (from . "TODO")
+;;    (to . "DONE")
+;;    (depth . 6)
+;;    (initsplit-saved-to . "/Users/johnw/Library/Emacs/.emacs.el")))
+;;  (tags "Net"))
+
+(defun org-redmine-convert-timestamp (stamp &optional with-hm inactive)
+  (when (string-match (concat "\\([0-9]+\\)-\\([0-9]+\\)-\\([0-9]+\\)"
+                              "T\\([0-9]+\\):\\([0-9]+\\):\\([0-9]+\\)-.+")
+                      stamp)
+    (let ((year (string-to-number (match-string 1 stamp)))
+          (mon  (string-to-number (match-string 2 stamp)))
+          (day  (string-to-number (match-string 3 stamp)))
+          (hour (string-to-number (match-string 4 stamp)))
+          (min  (string-to-number (match-string 5 stamp)))
+          (sec  (string-to-number (match-string 6 stamp))))
+      (with-temp-buffer
+        (org-insert-time-stamp (encode-time sec min hour day mon year)
+                               with-hm inactive)
+        (buffer-string)))))
+
+(defun org-redmine-convert-to-org (data &optional existing)
+  (let ((result (or existing (list (cons 'depth 1))))
+        id)
+    (dolist (elem data)
+      (cond
+       ((eq 'id (car elem))
+        (setq id (string-to-number (nth 2 elem))))
+
+       ((eq 'subject (car elem))
+        (add-to-list 'result
+                     (cons 'title (format "[[redmine:%d][#%d]] %s"
+                                          id id (nth 2 elem)))))
+
+       ((eq 'description (car elem))
+        (unless (assq 'body result)
+          (add-to-list 'result (cons 'body (nth 2 elem)))))
+
+       ((eq 'status (car elem))
+        (setq result (delq (assq 'status result) result))
+
+        (let ((stat (cdr (assq 'name (cadr elem)))))
+          (dolist (status org-redmine-statuses)
+            (if (string= stat (cadr status))
+                (setq stat (car status))))
+          (add-to-list 'result
+                       (cons 'state stat))))
+
+       ((eq 'priority (car elem))
+        (setq result (delq (assq 'priority result) result))
+        (add-to-list
+         'result
+         (cons 'priority
+               (let ((pri (cdr (assq 'name (cadr elem)))))
+                 (cond
+                  ((string-match "\\(High\\|Urgent\\|Immediate\\)" pri)
+                   "A")
+                  ((string= "Normal" pri)
+                   "B")
+                  ((string= "Low" pri)
+                   "C"))))))
+
+       ((eq 'created_on (car elem))
+        (unless (assq 'properties result)
+          (add-to-list
+           'result
+           (cons 'properties
+                 (list
+                  (cons "CREATED"
+                        (org-redmine-convert-timestamp (nth 2 elem) t t)))))))
+
+       ((eq 'journals (car elem))
+        (dolist (journal (nthcdr 2 elem))
+          (let* ((body (nth 2 (assq 'notes journal)))
+                 (date (replace-regexp-in-string
+                        "\\(\\`<\\|>\\'\\)" ""
+                        (org-redmine-convert-timestamp
+                         (nth 2 (assq 'created_on journal)) t)))
+                 (entry-exists
+                  (catch 'entry-exists
+                    (dolist (entry (cdr (assq 'log result)))
+                      (if (string= date (cdr (assq 'date entry)))
+                          (throw 'entry-exists t)))))
+                 log)
+            (unless entry-exists
+              (add-to-list
+               'log (cons 'body
+                          (concat (cdr (assq 'name
+                                             (cadr (assq 'user journal))))
+                                  ": " body)))
+              (add-to-list 'log (cons 'date date))
+              (when body
+                (add-to-list 'log (cons 'note t))
+                (let ((journal (assq 'log result)))
+                  (if journal
+                      (nconc journal (list log))
+                    (add-to-list 'result
+                                 (cons 'log (list log))))))))))))
+    result))
+
 (defun org-redmine-get-issue (issue-id)
   (org-redmine-rest-api "GET" (format "issues/%d.xml" issue-id)
                         nil "include=journals"))
+
+(defun org-redmine-update ()
+  (interactive)
+  (let* ((heading (nth 4 (org-heading-components)))
+         (id (and (string-match "\\[\\[redmine:\\([0-9]+\\)\\]" heading)
+                  (string-to-number (match-string 1 heading)))))
+    (if id
+        (org-replace-entry
+         (org-redmine-convert-to-org (org-redmine-get-issue id)
+                                     (org-parse-entry))))))
 
 (defun org-redmine-submit-issue
   (project &optional subject priority assigned-to tracker description)
@@ -185,12 +355,12 @@ These are keyed by the related Org mode state."
    (let ((omk (get-text-property (point) 'org-marker)))
      (with-current-buffer (marker-buffer omk)
        (save-excursion
-	 (goto-char omk)
-	 (let ((project
+         (goto-char omk)
+         (let ((project
                 (or (org-get-category)
                     (error "Current Org task has no category")))
                (components (org-heading-components)))
-	   (list
+           (list
             (or (cdr (assoc project org-redmine-projects))
                 (error "Could not determine Redmine project from Org category '%s'"
                        project))
