@@ -138,8 +138,8 @@
 
 ;;;_* configuration
 
-(load "gnus")
-(load "starttls")
+(require 'gnus)
+(require 'starttls)
 
 (add-hook 'gnus-summary-mode-hook 'hl-line-mode)
 
@@ -149,7 +149,7 @@
 ;;(gnus-registry-initialize)
 
 (eval-after-load "message"
-  '(load "message-x"))
+  '(require 'message-x))
 
 (defun gnus-query (query)
   (interactive "sMail Query: ")
