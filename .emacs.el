@@ -590,7 +590,25 @@ If the buffer is currently not visible, makes it sticky."
 ;;;_ + sunrise-commander
 
 (eval-after-load "sunrise-commander"
-  '(require 'sunrise-x-modeline))
+  '(progn
+     (require 'sunrise-x-modeline)
+
+     (defun sr-goto-dir (dir)
+       "Change the current directory in the active pane to the given one."
+       (interactive
+        (list (ido-read-directory-name
+               "Change directory (file or pattern): "
+               nil nil (confirm-nonexistent-file-or-buffer) "~/")))
+       (unless (and (eq major-mode 'sr-mode)
+                    (sr-equal-dirs dir default-directory))
+         (if (and sr-avfs-root
+                  (null (posix-string-match "#" dir)))
+             (setq dir (replace-regexp-in-string
+                        (expand-file-name sr-avfs-root) "" dir)))
+         (sr-save-aspect
+          (sr-within dir (sr-alternate-buffer (dired dir))))
+         (sr-history-push default-directory)
+         (sr-beginning-of-buffer)))))
 
 ;;;_ + whitespace
 
