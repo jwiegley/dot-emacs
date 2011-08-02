@@ -59,7 +59,7 @@
  '(gnus-score-find-score-files-function (quote (gnus-score-find-hierarchical)))
  '(gnus-secondary-select-methods nil)
  '(gnus-select-group-hook (quote (gnus-group-set-timestamp)))
- '(gnus-select-method (quote (nnml "")))
+ '(gnus-select-method (quote (nnimap "Local" (nnimap-address "localhost") (nnimap-user "johnw") (nnimap-server-port 143) (nnimap-stream network))))
  '(gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
  '(gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
  '(gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
