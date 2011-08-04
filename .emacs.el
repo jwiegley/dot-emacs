@@ -14,12 +14,15 @@
           (list "." "site-lisp"
 
                 ;; Packages that bury their Lisp code in subdirectories...
+                "site-lisp/auctex/style"
+                "site-lisp/auctex/preview"
                 "site-lisp/eshell"
                 "site-lisp/gnus/contrib"
                 "site-lisp/gnus/lisp"
                 "site-lisp/ess/lisp"
                 "site-lisp/org-mode/contrib/lisp"
                 "site-lisp/org-mode/lisp"
+                "site-lisp/session/lisp"
 
                 ;; Packages located elsewhere on the system...
                 "~/src/ledger/lisp"
