@@ -269,6 +269,7 @@
  '(vc-handled-backends (quote (GIT)))
  '(version-control t)
  '(visible-bell t)
+ '(w3m-command "/opt/local/bin/w3m")
  '(w3m-use-cookies t)
  '(wdired-use-dired-vertical-movement (quote sometimes))
  '(weblogger-config-alist (quote (("thoughts" "http://johnwiegley.com/xmlrpc.php" "johnw" "=k2h4LEQ$&32qX%r" "9"))))
