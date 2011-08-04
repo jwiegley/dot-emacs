@@ -14,7 +14,6 @@
           (list "." "site-lisp"
 
                 ;; Packages that bury their Lisp code in subdirectories...
-                "site-lisp/auctex/style"
                 "site-lisp/auctex/preview"
                 "site-lisp/eshell"
                 "site-lisp/gnus/contrib"
@@ -931,12 +930,16 @@ If the buffer is currently not visible, makes it sticky."
 
 (define-key global-map [(control return)] 'other-window)
 
-(define-key global-map [f5] 'gud-cont)
+;;(define-key global-map [f5] 'gud-cont)
 (define-key global-map [f10] 'gud-next)
 (define-key global-map [f11] 'gud-step)
 (define-key global-map [(shift f11)] 'gud-finish)
 
 (define-key global-map [(alt ?v)] 'scroll-down)
+
+(eval-after-load "anything"
+  '(define-key anything-map (kbd "A-v") 'anything-previous-page))
+
 (define-key global-map [(meta ?v)] 'yank)
 
 (define-key global-map [(alt tab)]
@@ -1095,9 +1098,11 @@ If the buffer is currently not visible, makes it sticky."
 
 (define-prefix-command 'my-grep-map)
 (define-key mode-specific-map [?b] 'my-grep-map)
+(define-key mode-specific-map [?b ?a] 'anything-do-grep)
 (define-key mode-specific-map [?b ?b] 'occur)
 (define-key mode-specific-map [?b ?d] 'find-grep-dired)
 (define-key mode-specific-map [?b ?f] 'find-grep)
+(define-key mode-specific-map [?b ?F] 'anything-for-files)
 (define-key mode-specific-map [?b ?g] 'grep)
 (define-key mode-specific-map [?b ?n] 'find-name-dired)
 (define-key mode-specific-map [?b ?o] 'occur)
