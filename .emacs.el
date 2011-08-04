@@ -1190,6 +1190,7 @@ If the buffer is currently not visible, makes it sticky."
 
 (defun emacs-min ()
   (interactive)
+  (set-frame-parameter (selected-frame) 'fullscreen nil)
   (set-frame-parameter (selected-frame) 'top 26)
   (set-frame-parameter (selected-frame) 'left
                        (- (x-display-pixel-width) 937))
@@ -1198,11 +1199,13 @@ If the buffer is currently not visible, makes it sticky."
 
 (defun emacs-max ()
   (interactive)
-  (set-frame-parameter (selected-frame) 'top 26)
-  (set-frame-parameter (selected-frame) 'left 2)
-  (set-frame-parameter (selected-frame) 'width
-                       (floor (/ (float (x-display-pixel-width)) 9.15)))
-  (set-frame-parameter (selected-frame) 'height 100))
+  (if t
+      (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+    (set-frame-parameter (selected-frame) 'top 26)
+    (set-frame-parameter (selected-frame) 'left 2)
+    (set-frame-parameter (selected-frame) 'width
+                         (floor (/ (float (x-display-pixel-width)) 9.15)))
+    (set-frame-parameter (selected-frame) 'height 100)))
 
 (defun emacs-toggle-size ()
   (interactive)
