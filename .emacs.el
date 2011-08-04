@@ -634,6 +634,11 @@ If the buffer is currently not visible, makes it sticky."
   (let ((require-final-newline t))
     (save-buffer)))
 
+;;;_ + per-window-point
+
+(if (load "per-window-point" t)
+    (pwp-mode 1))
+
 ;;;_ + redmine
 
 ;;(require 'redmine)
