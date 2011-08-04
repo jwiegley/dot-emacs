@@ -582,7 +582,17 @@ end tell"))
   (interactive)
   (insert (org-get-message-link)))
 
-(defun org-get-url-link ()
+(defun org-set-message-link ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Message" (org-get-message-link)))
+
+(defun org-set-message-sender ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Submitter" (org-get-message-sender)))
+
+(defun org-get-safari-link ()
   (let ((subject (do-applescript "tell application \"Safari\"
         name of document of front window
 end tell"))
@@ -591,9 +601,23 @@ end tell"))
 end tell")))
     (org-make-link-string url subject)))
 
+(defun org-get-chrome-link ()
+  (let ((subject (do-applescript "tell application \"Google Chrome\"
+        title of active tab of front window
+end tell"))
+        (url (do-applescript "tell application \"Google Chrome\"
+        URL of active tab of front window
+end tell")))
+    (org-make-link-string url subject)))
+
 (defun org-insert-url-link ()
   (interactive)
-  (insert (org-get-url-link)))
+  (insert (org-get-chrome-link)))
+
+(defun org-set-url-link ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "URL" (org-get-chrome-link)))
 
 (defun org-get-file-link ()
   (let ((subject (do-applescript "tell application \"Finder\"
@@ -610,30 +634,15 @@ end tell")))
   (interactive)
   (insert (org-get-file-link)))
 
-(defun org-set-dtp-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "Document" (org-get-dtp-link)))
-
-(defun org-set-message-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "Message" (org-get-message-link)))
-
-(defun org-set-message-sender ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "Submitter" (org-get-message-sender)))
-
-(defun org-set-url-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "URL" (org-get-url-link)))
-
 (defun org-set-file-link ()
   "Set a property for the current headline."
   (interactive)
   (org-set-property "File" (org-get-file-link)))
+
+(defun org-set-dtp-link ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Document" (org-get-dtp-link)))
 
 (defun org-dtp-message-open ()
   "Visit the message with the given MESSAGE-ID.
