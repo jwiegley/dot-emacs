@@ -134,7 +134,7 @@
  '(erc-auto-query (quote window-noselect))
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autoaway-mode t)
- '(erc-autojoin-channels-alist (quote (("localhost" "#twitter_jwiegley" "&bitlbee") ("freenode.net" "#emacs" "#ledger" "#git"))))
+ '(erc-autojoin-channels-alist (quote (("localhost" "#twitter_jwiegley" "&bitlbee") ("freenode.net" "#ledger"))))
  '(erc-autojoin-mode t)
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
