@@ -264,3 +264,13 @@
 
 (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
 
+;;;_ * ulp
+
+(defun ulp ()
+  (interactive)
+  (find-file "~/src/ansi/ulp.c")
+  (visit-tags-table "~/src/ansi/TAGS")
+  (magit-status "~/src/ansi")
+  (gdb "gdb --annotate=3 ~/Contracts/TI/bin/acpia470"))
+
+;;; lang-c.el ends here
