@@ -242,10 +242,12 @@
  '(safe-local-variable-values (quote ((after-save-hook archive-done-tasks) (after-save-hook sort-done-tasks) (after-save-hook commit-after-save))))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-registers (quote (t (0 . 127))))
+ '(session-use-package t nil (session))
  '(show-paren-delay 0)
  '(show-paren-mode (quote paren))
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
+ '(special-display-regexps (quote ("\\*compilation\\*")))
  '(sql-sqlite-program "sqlite3")
  '(sr-listing-switches "-lh")
  '(sr-modeline-use-utf8-marks t)
@@ -1069,7 +1071,27 @@ If the buffer is currently not visible, makes it sticky."
 
 (define-key mode-specific-map [space] 'just-one-space)
 (define-key mode-specific-map [? ] 'just-one-space)
-(define-key mode-specific-map [?1] 'just-one-space)
+
+;; inspired by Erik Naggum's `recursive-edit-with-single-window'
+ (defmacro recursive-edit-preserving-window-config (body)
+   "*Return a command that enters a recursive edit after executing BODY.
+ Upon exiting the recursive edit (with\\[exit-recursive-edit] (exit)
+ or \\[abort-recursive-edit] (abort)), restore window configuration
+ in current frame."
+   `(lambda ()
+      "See the documentation for `recursive-edit-preserving-window-config'."
+      (interactive)
+      (save-window-excursion
+        ,body
+        (recursive-edit))))
+
+(define-key mode-specific-map [?0]
+  (recursive-edit-preserving-window-config (delete-window)))
+(define-key mode-specific-map [?1]
+  (recursive-edit-preserving-window-config
+   (if (one-window-p 'ignore-minibuffer)
+       (error "Current window is the only window in its frame")
+     (delete-other-windows))))
 
 (define-prefix-command 'my-grep-map)
 (define-key mode-specific-map [?b] 'my-grep-map)
