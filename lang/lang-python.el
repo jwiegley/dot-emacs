@@ -9,6 +9,9 @@
 
 (autoload 'python-mode "python-mode" "Python editing mode." t)
 
+(eval-after-load "python-mode"
+  '(define-key py-mode-map [(control return)] 'other-window))
+
 (defvar python-keywords-wanting-colon
   '("def" "class" "if" "elif" "while" "else" "with"
     "try" "except" "finally" "for" "lambda"))
@@ -41,14 +44,15 @@
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indent-tabs-mode nil)
 
-  (define-key python-mode-map [return] 'python-newline-and-indent)
-
-  (define-key python-mode-map [(control ?c) ?w]
-    'flymake-display-err-menu-for-current-line)
-  (define-key python-mode-map [(control ?c) (control ?w)]
-    'flymake-start-syntax-check)
-  (define-key python-mode-map [(meta ?n)] 'flymake-goto-next-error)
-  (define-key python-mode-map [(meta ?p)] 'flymake-goto-prev-error))
+  ;;(define-key python-mode-map [return] 'python-newline-and-indent)
+  ;;
+  ;;(define-key python-mode-map [(control ?c) ?w]
+  ;;  'flymake-display-err-menu-for-current-line)
+  ;;(define-key python-mode-map [(control ?c) (control ?w)]
+  ;;  'flymake-start-syntax-check)
+  ;;(define-key python-mode-map [(meta ?n)] 'flymake-goto-next-error)
+  ;;(define-key python-mode-map [(meta ?p)] 'flymake-goto-prev-error)
+  )
 
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
