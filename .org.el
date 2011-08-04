@@ -713,7 +713,8 @@ end tell" (match-string 1))))
     (org-capture nil "t")))
 
 (define-key global-map [(meta ?m)] 'org-smart-capture)
-(define-key global-map [(meta ?z)] 'org-inline-note)
+(define-key global-map [(meta ?M)] 'org-inline-note)
+;;(define-key global-map [(meta ?z)] 'org-inline-note)
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 
 (define-key mode-specific-map [?a] 'org-agenda)
