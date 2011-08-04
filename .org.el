@@ -664,7 +664,9 @@ end tell" (match-string 1))))
 	wind)
     (if buf
 	(if (setq wind (get-buffer-window buf))
-	    (select-window wind)
+            (when (called-interactively-p)
+              (select-window wind)
+              (org-fit-window-to-buffer))
 	  (if (called-interactively-p)
 	      (progn
 		(select-window (display-buffer buf t t))
@@ -834,7 +836,7 @@ end tell" (match-string 1))))
 
        (defadvice org-agenda-redo (after fit-windows-for-agenda activate)
          "Fit the Org Agenda to its buffer."
-         (fit-window-to-buffer)))))
+         (org-fit-agenda-window)))))
 
 ;;;_* startup
 
