@@ -46,7 +46,13 @@
 
 (autoload 'column-marker-1 "column-marker")
 
-(add-hook 'emacs-lisp-mode-hook (lambda () (interactive) (column-marker-1 79)))
+(add-hook 'emacs-lisp-mode-hook (lambda () (column-marker-1 79)))
+
+;;;_  + highlight-parentheses
+
+(autoload 'highlight-parentheses-mode "highlight-parentheses")
+
+(add-hook 'emacs-lisp-mode-hook 'highlight-parentheses-mode)
 
 ;;;_  + paredit
 
