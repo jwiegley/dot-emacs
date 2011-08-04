@@ -395,8 +395,8 @@
 
 ;;;_ + backup-each-save
 
-(if (load "backup-each-save" t)
-    (add-hook 'after-save-hook 'backup-each-save))
+;;(if (load "backup-each-save" t)
+;;    (add-hook 'after-save-hook 'backup-each-save))
 
 ;;;_ + edit-server
 
