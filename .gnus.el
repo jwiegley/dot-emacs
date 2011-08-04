@@ -149,30 +149,24 @@
                (eq 'run (process-status proc)))
           (throw 'proc-running proc)))))
 
-(defvar dovecot-process nil)
-
 (defun start-dovecot ()
-  (unless (my-process-running-p "dovecot")
-    (setq dovecot-process
-          (start-process "*dovecot*"
-                         (get-buffer-create "*dovecot*")
-                         "/usr/bin/sudo" "/opt/local/sbin/dovecot" "-F"))
-    (message "Waiting 5 seconds for Dovecot to start up...")
-    (sleep-for 5)
-    (message "Waiting 5 seconds for Dovecot to start up...done")))
+  (shell-command "sudo port load dovecot")
 
-;;(add-hook 'gnus-before-startup-hook 'start-dovecot)
+  (message "Waiting 3 seconds for Dovecot to start up...")
+  (sleep-for 3)
+  (message "Waiting 3 seconds for Dovecot to start up...done"))
+
+(add-hook 'gnus-before-startup-hook 'start-dovecot)
 
 (defvar offlineimap-process nil)
 
 (defun start-offlineimap ()
+  (interactive)
   (unless (my-process-running-p "offlineimap")
-    (setq offlineimap-process
-          (start-process "*offlineimap*"
-                         (get-buffer-create "*offlineimap*")
-                         "/opt/local/bin/offlineimap"))))
-
-;;(add-hook 'gnus-started-hook 'start-offlineimap)
+    (let ((buf (get-buffer-create "*offlineimap*")))
+      (setq offlineimap-process
+            (start-process "*offlineimap*" buf "/opt/local/bin/offlineimap"))
+      (display-buffer buf))))
 
 (defun safely-kill-process (name)
   (let ((proc (my-process-running-p name)))
@@ -191,15 +185,16 @@
 
 (defun my-shutdown-external-processes ()
   (safely-kill-process "offlineimap")
-  (message "Waiting 5 seconds for offlineimap to terminate...")
-  (sleep-for 5)
+
+  (message "Waiting 3 seconds for Offlineimap to shutdown...")
+  (sleep-for 3)
+  (message "Waiting 3 seconds for Offlineimap to shutdown...done")
+
   (message "Shutting down Dovecot...")
-  (shell-command
-   (format "sudo kill -TERM `sudo cat %s`"
-           "/opt/local/var/run/dovecot/master.pid"))
+  (shell-command "sudo port unload dovecot")
   (message "Shutting down Dovecot...done"))
 
-;;(add-hook 'gnus-after-exiting-gnus-hook 'my-shutdown-external-processes)
+(add-hook 'gnus-after-exiting-gnus-hook 'my-shutdown-external-processes)
 
 (defun gnus-info (&optional node)
   (interactive)
@@ -521,7 +516,9 @@
 ;;;_ + gnus-group-score
 
 (eval-after-load "gnus-group"
-  '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
+  '(progn
+     (define-key gnus-group-score-map [?s] 'gnus-score-groups)
+     (define-key gnus-group-mode-map [?v ?o] 'start-offlineimap)))
 
 (eval-after-load "w3m"
   '(define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser))
