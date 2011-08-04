@@ -121,6 +121,7 @@
  '(display-time-mode t)
  '(display-time-use-mail-icon t)
  '(ediff-diff-options "-w")
+ '(edit-server-new-frame nil)
  '(el-get-apt-get-base "/opt/local/share/emacs/site-lisp")
  '(el-get-growl-notify "~/bin/growlnotify")
  '(elmo-imap4-default-authenticate-type (quote clear) t)
@@ -386,6 +387,20 @@
 (require 'crosshairs)
 (require 'col-highlight)
 (require 'vline)
+
+;;;_ + auctex
+
+(if (load "auctex.el" t t t)
+    (load "preview-latex.el" nil t t))
+
+;;;_ + backup-each-save
+
+(if (load "backup-each-save" t)
+    (add-hook 'after-save-hook 'backup-each-save))
+
+;;;_ + edit-server
+
+(load "edit-server" t)
 
 ;;;_ + erc
 
@@ -1251,6 +1266,7 @@ If the buffer is currently not visible, makes it sticky."
 (load ".gnus")
 
 (add-hook 'after-init-hook 'server-start)
+(add-hook 'after-init-hook 'edit-server-start)
 (add-hook 'after-init-hook 'emacs-min)
 
 ;; .emacs.el ends here
