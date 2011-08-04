@@ -46,10 +46,10 @@
   (when (file-readable-p plist)
     (let ((dict (cdr (assq 'dict (cdar (xml-parse-file plist))))))
       (while dict
-	(when (and (listp (car dict)) (eq 'key (caar dict)))
-	  (setenv (car (cddr (car dict)))
-		  (car (cddr (car (cddr dict))))))
-	(setq dict (cdr dict))))
+        (when (and (listp (car dict)) (eq 'key (caar dict)))
+          (setenv (car (cddr (car dict)))
+                  (car (cddr (car (cddr dict))))))
+        (setq dict (cdr dict))))
     (setq exec-path nil)
     (mapc #'(lambda (path) (add-to-list 'exec-path path))
           (nreverse (split-string (getenv "PATH") ":")))))
@@ -543,48 +543,48 @@ If the buffer is currently not visible, makes it sticky."
 
      (defun dired-omit-regexp ()
        (let ((file (expand-file-name ".git"))
-	     parent-dir)
-	 (while (and (not (file-exists-p file))
-		     (progn
-		       (setq parent-dir
-			     (file-name-directory
-			      (directory-file-name
-			       (file-name-directory file))))
-		       ;; Give up if we are already at the root dir.
-		       (not (string= (file-name-directory file)
-				     parent-dir))))
-	   ;; Move up to the parent dir and try again.
-	   (setq file (expand-file-name ".git" parent-dir)))
-	 ;; If we found a change log in a parent, use that.
-	 (if (file-exists-p file)
-	     (let ((regexp (funcall dired-omit-regexp-orig))
-		   (omitted-files (shell-command-to-string
-				   "git clean -d -x -n")))
-	       (if (= 0 (length omitted-files))
-		   regexp
-		 (concat
-		  regexp
-		  (if (> (length regexp) 0)
-		      "\\|" "")
-		  "\\("
-		  (mapconcat
-		   #'(lambda (str)
-		       (concat "^"
-			       (regexp-quote
-				(substring str 13
-					   (if (= ?/ (aref str (1- (length str))))
-					       (1- (length str))
-					     nil)))
-			       "$"))
-		   (split-string omitted-files "\n" t)
-		   "\\|")
-		  "\\)")))
-	   (funcall dired-omit-regexp-orig))))
+             parent-dir)
+         (while (and (not (file-exists-p file))
+                     (progn
+                       (setq parent-dir
+                             (file-name-directory
+                              (directory-file-name
+                               (file-name-directory file))))
+                       ;; Give up if we are already at the root dir.
+                       (not (string= (file-name-directory file)
+                                     parent-dir))))
+           ;; Move up to the parent dir and try again.
+           (setq file (expand-file-name ".git" parent-dir)))
+         ;; If we found a change log in a parent, use that.
+         (if (file-exists-p file)
+             (let ((regexp (funcall dired-omit-regexp-orig))
+                   (omitted-files (shell-command-to-string
+                                   "git clean -d -x -n")))
+               (if (= 0 (length omitted-files))
+                   regexp
+                 (concat
+                  regexp
+                  (if (> (length regexp) 0)
+                      "\\|" "")
+                  "\\("
+                  (mapconcat
+                   #'(lambda (str)
+                       (concat "^"
+                               (regexp-quote
+                                (substring str 13
+                                           (if (= ?/ (aref str (1- (length str))))
+                                               (1- (length str))
+                                             nil)))
+                               "$"))
+                   (split-string omitted-files "\n" t)
+                   "\\|")
+                  "\\)")))
+           (funcall dired-omit-regexp-orig))))
 
      (defun dired-delete-file (file &optional recursive)
        (if recursive
-	   (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
-	 (call-process "/Users/johnw/bin/del" nil nil nil file)))))
+           (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
+         (call-process "/Users/johnw/bin/del" nil nil nil file)))))
 
 (eval-after-load "magit"
   '(add-hook 'magit-log-edit-mode-hook
@@ -733,7 +733,7 @@ If the buffer is currently not visible, makes it sticky."
   (let ((here (point)))
     (beginning-of-line-text arg)
     (if (= here (point))
-	(beginning-of-line arg))))
+        (beginning-of-line arg))))
 
 (define-key global-map [(control ?.)] 'smart-beginning-of-line)
 
@@ -741,7 +741,7 @@ If the buffer is currently not visible, makes it sticky."
   (interactive)
   (save-excursion
     (call-process-region (point-min) (point-max) "tidy" t t nil
-			 "-xml" "-i" "-wrap" "0" "-omit" "-q")))
+                         "-xml" "-i" "-wrap" "0" "-omit" "-q")))
 
 (define-key global-map [(control shift ?h)] 'tidy-xml-buffer)
 
@@ -949,20 +949,20 @@ If the buffer is currently not visible, makes it sticky."
     (setq end (copy-marker (- (point) 2)))
     (backward-paragraph arg)
     (if (eolp)
-	(forward-char))
+        (forward-char))
     (setq beg (point-marker))
     (when (> (count-lines beg end) 1)
       (while (< (point) end)
-	(goto-char (line-end-position))
-	(let ((sent-end (memq (char-before) '(?. ?\; ?! ??))))
-	  (delete-indentation 1)
-	  (if sent-end
-	      (insert ? )))
-	(end-of-line))
+        (goto-char (line-end-position))
+        (let ((sent-end (memq (char-before) '(?. ?\; ?! ??))))
+          (delete-indentation 1)
+          (if sent-end
+              (insert ? )))
+        (end-of-line))
       (save-excursion
-	(goto-char beg)
-	(while (re-search-forward "[^.;!?:]\\([ \t][ \t]+\\)" end t)
-	  (replace-match " " nil nil nil 1))))))
+        (goto-char beg)
+        (while (re-search-forward "[^.;!?:]\\([ \t][ \t]+\\)" end t)
+          (replace-match " " nil nil nil 1))))))
 
 (defun unfill-region (beg end)
   (interactive "r")
@@ -976,11 +976,11 @@ If the buffer is currently not visible, makes it sticky."
 (defun refill-paragraph (arg)
   (interactive "*P")
   (let ((fun (if (memq major-mode '(c-mode c++-mode))
-		 'c-fill-paragraph
-	       (or fill-paragraph-function
-		   'fill-paragraph)))
-	(width (if (numberp arg) arg))
-	prefix beg end)
+                 'c-fill-paragraph
+               (or fill-paragraph-function
+                   'fill-paragraph)))
+        (width (if (numberp arg) arg))
+        prefix beg end)
     (forward-paragraph 1)
     (setq end (copy-marker (- (point) 2)))
     (forward-line -1)
@@ -989,23 +989,23 @@ If the buffer is currently not visible, makes it sticky."
       (setq prefix (buffer-substring-no-properties b (point))))
     (backward-paragraph 1)
     (if (eolp)
-	(forward-char))
+        (forward-char))
     (setq beg (point-marker))
     (delete-horizontal-space)
     (while (< (point) end)
       (delete-indentation 1)
       (end-of-line))
     (let ((fill-column (or width fill-column))
-	  (fill-prefix prefix))
+          (fill-prefix prefix))
       (if prefix
-	  (setq fill-column
-		(- fill-column (* 2 (length prefix)))))
+          (setq fill-column
+                (- fill-column (* 2 (length prefix)))))
       (funcall fun nil)
       (goto-char beg)
       (insert prefix)
       (funcall fun nil)
       (if (memq major-mode '(c-mode c++-mode))
-	  (c-recomment-region beg (+ end 2))))
+          (c-recomment-region beg (+ end 2))))
     (goto-char (+ end 2))))
 
 (define-key ctl-x-map [(meta ?q)] 'refill-paragraph)
@@ -1174,7 +1174,7 @@ If the buffer is currently not visible, makes it sticky."
   "Insert a quick timestamp using the value of `user-initials'."
   (interactive)
   (insert (format "%s (%s): " user-initials
-		  (format-time-string "%Y-%m-%d" (current-time)))))
+                  (format-time-string "%Y-%m-%d" (current-time)))))
 
 (define-key mode-specific-map [?n] 'insert-user-timestamp)
 (define-key mode-specific-map [?o] 'customize-option)
