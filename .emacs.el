@@ -1081,7 +1081,7 @@ If the buffer is currently not visible, makes it sticky."
       (delete-region (point-min) (point)))
     (goto-char (point-max))))
 
-(define-key mode-specific-map [?e ?a] 'byte-recompile-directory)
+(define-key mode-specific-map [?e ?a] 'apropos)
 (define-key mode-specific-map [?e ?b] 'do-eval-buffer)
 (define-key mode-specific-map [?e ?c] 'cancel-debug-on-entry)
 (define-key mode-specific-map [?e ?d] 'debug-on-entry)
