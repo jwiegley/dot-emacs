@@ -112,3 +112,9 @@
 [submodule "site-lisp/undo-tree"]
 	path = site-lisp/undo-tree
 	url = http://www.dr-qubit.org/git/undo-tree.git
+[submodule "site-lisp/auctex"]
+	path = site-lisp/auctex
+	url = git://github.com/jwiegley/auctex.git
+[submodule "site-lisp/session"]
+	path = site-lisp/session
+	url = git://github.com/jwiegley/session.git
