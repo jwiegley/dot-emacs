@@ -246,7 +246,7 @@
  '(show-paren-mode (quote paren))
  '(slime-kill-without-query-p t)
  '(slime-startup-animation nil)
- '(special-display-regexps (quote ("\\*compilation\\*")))
+ '(special-display-regexps (quote ("\\*compilation\\*" ("&bitlbee@BitlBee" (width . 80) (height . 20)))))
  '(sql-sqlite-program "sqlite3")
  '(sr-listing-switches "-lh")
  '(sr-modeline-use-utf8-marks t)
