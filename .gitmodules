@@ -109,3 +109,6 @@
 [submodule "site-lisp/python-mode"]
 	path = site-lisp/python-mode
 	url = git://github.com/jwiegley/python-mode.git
+[submodule "site-lisp/undo-tree"]
+	path = site-lisp/undo-tree
+	url = http://www.dr-qubit.org/git/undo-tree.git
