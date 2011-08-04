@@ -683,39 +683,44 @@ If the buffer is currently not visible, makes it sticky."
          (sr-history-push default-directory)
          (sr-beginning-of-buffer)))))
 
+;;;_ + undo-tree
+
+(if (load "undo-tree" t)
+    (global-undo-tree-mode))
+
 ;;;_ + whitespace
 
-(eval-after-load "whitespace"
-  '(progn
-     (remove-hook 'find-file-hooks 'whitespace-buffer)
-     (remove-hook 'kill-buffer-hook 'whitespace-buffer)
-
-     (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
-
-     (defun maybe-turn-on-whitespace ()
-       "Depending on the file, maybe turn on `whitespace-mode'."
-       (let ((file (expand-file-name ".clean"))
-             parent-dir)
-         (while (and (not (file-exists-p file))
-                     (progn
-                       (setq parent-dir
-                             (file-name-directory
-                              (directory-file-name
-                               (file-name-directory file))))
-                       ;; Give up if we are already at the root dir.
-                       (not (string= (file-name-directory file)
-                                     parent-dir))))
-           ;; Move up to the parent dir and try again.
-           (setq file (expand-file-name ".clean" parent-dir)))
-         ;; If we found a change log in a parent, use that.
-         (when (and (file-exists-p file)
-                    (not (file-exists-p ".noclean"))
-                    (not (and buffer-file-name
-                              (string-match "\\.texi$" buffer-file-name))))
-           (add-hook 'write-contents-hooks
-                     #'(lambda ()
-                         (ignore (whitespace-buffer))) nil t)
-           (whitespace-buffer))))))
+;;(eval-after-load "whitespace"
+;;  '(progn
+;;     (remove-hook 'find-file-hooks 'whitespace-buffer)
+;;     (remove-hook 'kill-buffer-hook 'whitespace-buffer)
+;;
+;;     (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
+;;
+;;     (defun maybe-turn-on-whitespace ()
+;;       "Depending on the file, maybe turn on `whitespace-mode'."
+;;       (let ((file (expand-file-name ".clean"))
+;;             parent-dir)
+;;         (while (and (not (file-exists-p file))
+;;                     (progn
+;;                       (setq parent-dir
+;;                             (file-name-directory
+;;                              (directory-file-name
+;;                               (file-name-directory file))))
+;;                       ;; Give up if we are already at the root dir.
+;;                       (not (string= (file-name-directory file)
+;;                                     parent-dir))))
+;;           ;; Move up to the parent dir and try again.
+;;           (setq file (expand-file-name ".clean" parent-dir)))
+;;         ;; If we found a change log in a parent, use that.
+;;         (when (and (file-exists-p file)
+;;                    (not (file-exists-p ".noclean"))
+;;                    (not (and buffer-file-name
+;;                              (string-match "\\.texi$" buffer-file-name))))
+;;           (add-hook 'write-contents-hooks
+;;                     #'(lambda ()
+;;                         (ignore (whitespace-buffer))) nil t)
+;;           (whitespace-buffer))))))
 
 ;;;_ + yasnippet
 
@@ -739,7 +744,12 @@ If the buffer is currently not visible, makes it sticky."
 
      (eval-after-load "dot-mode" '(diminish 'dot-mode))
      (eval-after-load "eldoc"    '(diminish 'eldoc-mode))
-     (eval-after-load "winner"   '(ignore-errors (diminish 'winner-mode)))))
+     (eval-after-load "undo-tree" '(diminish 'undo-tree-mode))
+
+     (eval-after-load "highlight-parentheses"
+       '(diminish 'highlight-parentheses-mode))
+     (eval-after-load "winner"
+       '(ignore-errors (diminish 'winner-mode)))))
 
 ;;;_* keybindings
 
