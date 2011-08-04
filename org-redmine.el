@@ -69,12 +69,12 @@
   :type '(alist :key-type string :value-type integer)
   :group 'org)
 
-(defcustom org-redmine-statuses '(("TODO"      . ("New"         . 1))
-                                  ("STARTED"   . ("In Progress" . 2))
-                                  ("DONE"      . ("Resolved"    . 3))
-                                  ("WAITING"   . ("Feedback"    . 4))
-                                  (nil         . ("Closed"      . 5))
-                                  ("CANCELLED" . ("Rejected"    . 6)))
+(defcustom org-redmine-statuses '(("TODO"     . ("New"         . 1))
+                                  ("STARTED"  . ("In Progress" . 2))
+                                  ("DONE"     . ("Resolved"    . 3))
+                                  ("WAITING"  . ("Feedback"    . 4))
+                                  (nil        . ("Closed"      . 5))
+                                  ("CANCELED" . ("Rejected"    . 6)))
   "An alist of all the statuses on the Redmine installation.
 These are keyed by the related Org mode state."
   :type '(alist :key-type string :value-type integer)
@@ -191,8 +191,7 @@ These are keyed by the related Org mode state."
 ;;   ((date . "2011-08-02 Tue 11:02")
 ;;    (from . "TODO")
 ;;    (to . "DONE")
-;;    (depth . 6)
-;;    (initsplit-saved-to . "/Users/johnw/Library/Emacs/.emacs.el")))
+;;    (depth . 6)))
 ;;  (tags "Net"))
 
 (defun org-redmine-convert-timestamp (stamp &optional with-hm inactive)
