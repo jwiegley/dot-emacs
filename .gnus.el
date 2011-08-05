@@ -101,7 +101,7 @@
  '(message-fill-column 78)
  '(message-interactive t)
  '(message-mail-alias-type nil)
- '(message-mode-hook (quote (footnote-mode turn-on-auto-fill flyspell-mode turn-on-orgstruct++)))
+ '(message-mode-hook (quote (footnote-mode turn-on-auto-fill flyspell-mode turn-on-orgstruct)))
  '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
