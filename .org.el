@@ -833,6 +833,21 @@ end tell" (match-string 1))))
        (define-key org-todo-state-map "w" #'org-todo-mark-waiting)
        (define-key org-todo-state-map "x" #'org-todo-mark-canceled)
 
+       (defun make-bug-link ()
+         (interactive)
+         (let* ((omk (get-text-property (point) 'org-marker))
+                (path (with-current-buffer (marker-buffer omk)
+                        (save-excursion
+                          (goto-char omk)
+                          (org-get-outline-path)))))
+           (cond
+            ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
+             (call-interactively #'make-ledger-bugzilla-bug))
+            ((string= "BoostPro" (car path))
+             (call-interactively #'org-x-redmine-post-issue))
+            (t
+             (error "Cannot make bug, unknown category")))))
+
        (define-key org-todo-state-map "z" #'make-bug-link)
 
        (defadvice org-agenda-redo (after fit-windows-for-agenda activate)
