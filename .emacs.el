@@ -182,6 +182,7 @@
  '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan my-haskell-mode-hook)))
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
+ '(howm-directory "~/Documents/Notes/")
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-maybe-show-regexps nil)

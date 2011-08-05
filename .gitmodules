@@ -118,3 +118,6 @@
 [submodule "site-lisp/session"]
 	path = site-lisp/session
 	url = git://github.com/jwiegley/session.git
+[submodule "site-lisp/howm"]
+	path = site-lisp/howm
+	url = git://github.com/jwiegley/howm.git

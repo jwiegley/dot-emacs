@@ -77,6 +77,7 @@
  '(org-deadline-warning-days 14)
  '(org-default-notes-file "~/Documents/Tasks/todo.txt")
  '(org-directory "~/Documents/Tasks/")
+ '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-enforce-todo-dependencies t)
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
@@ -680,6 +681,27 @@ end tell" (match-string 1))))
 (defadvice org-add-log-note (after narrow-fill-column activate)
   "Subtract 5 from the fill-column."
   (setq fill-column (- fill-column 5)))
+
+;;;_ + howm-mode
+
+(when t
+  (setq howm-view-title-header "*") ;; *BEFORE* loading howm!
+
+  (when (load "howm" t)
+    (add-hook 'org-mode-hook 'howm-mode)
+    (add-to-list 'auto-mode-alist '("\\.howm$" . org-mode))
+
+    (defun org-howm-template (&rest ignore-args)
+      (format
+	"* %%title%%cursor
+  :PROPERTIES:
+  :ID:       %s  :CREATED:  %s
+  :END:
+   "
+        (shell-command-to-string "uuidgen")
+        (format-time-string (org-time-stamp-format t t))))
+
+    (setq howm-template 'org-howm-template)))
 
 ;;;_* keybindings
 
