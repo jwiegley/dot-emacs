@@ -885,6 +885,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key lisp-find-map [?a] 'apropos)
 (define-key lisp-find-map [?e] 'view-echo-area-messages)
 (define-key lisp-find-map [?f] 'find-function)
+(define-key lisp-find-map [?i] 'info-apropos)
 (define-key lisp-find-map [?v] 'find-variable)
 (define-key lisp-find-map [?k] 'find-function-on-key)
 
