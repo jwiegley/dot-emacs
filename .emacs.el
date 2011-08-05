@@ -187,6 +187,7 @@
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(howm-directory "~/Documents/Notes/")
+ '(howm-view-use-grep t)
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-maybe-show-regexps nil)
