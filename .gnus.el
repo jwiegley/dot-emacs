@@ -200,7 +200,11 @@
   (interactive)
   (info "/Users/johnw/Library/Emacs/site-lisp/gnus/texi/gnus"))
 
-;;(add-hook 'gnus-summary-mode-hook 'hl-line-mode)
+(add-hook 'gnus-summary-mode-hook
+          (lambda ()
+            (make-variable-buffer-local 'hl-line-face)
+            (setq hl-line-face 'underline)
+            (hl-line-mode 1)))
 
 (autoload 'gnus-dired-mode "gnus-dired" nil t)
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
