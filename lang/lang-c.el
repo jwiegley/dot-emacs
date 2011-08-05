@@ -4,8 +4,6 @@
 
 (load "xcscope" t)
 
-(autoload 'gtags-mode "gtags" "" t)
-
 (add-hook 'gtags-select-mode-hook
           (lambda ()
             (make-variable-buffer-local 'hl-line-face)
@@ -112,9 +110,15 @@
 (eval-when-compile
   (defvar c-mode-base-map))
 
+(autoload 'gtags-mode "gtags" "" t)
+(autoload 'company-mode "company" "" t)
+
 (defun my-c-mode-common-hook ()
   (doxymacs-mode)
+  (gtags-mode)
+  (company-mode)
   (define-key c-mode-base-map "\C-m" 'newline-and-indent)
+  (define-key c-mode-base-map [(alt tab)] 'company-complete-common)
   (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
   (define-key c-mode-base-map [(control ?c) (control ?i)]
     'c-includes-current-file)

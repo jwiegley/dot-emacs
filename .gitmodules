@@ -121,3 +121,6 @@
 [submodule "site-lisp/howm"]
 	path = site-lisp/howm
 	url = git://github.com/jwiegley/howm.git
+[submodule "site-lisp/company"]
+	path = site-lisp/company
+	url = git://github.com/jwiegley/company.git
