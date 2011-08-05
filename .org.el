@@ -903,7 +903,10 @@ end tell" (match-string 1))))
 
        (defadvice org-agenda-redo (after fit-windows-for-agenda activate)
          "Fit the Org Agenda to its buffer."
-         (org-fit-agenda-window)))))
+         (org-fit-agenda-window))
+
+       (define-key org-mode-map [(control ?c) tab]
+         'action-lock-magic-return))))
 
 ;;;_* startup
 
