@@ -695,13 +695,40 @@ end tell" (match-string 1))))
 
     (defun org-howm-template (&rest ignore-args)
       (format
-	"* %%title%%cursor
+       "* %%title%%cursor
   :PROPERTIES:
   :ID:       %s  :CREATED:  %s
   :END:
    "
-        (shell-command-to-string "uuidgen")
-        (format-time-string (org-time-stamp-format t t))))
+       (shell-command-to-string "uuidgen")
+       (format-time-string (org-time-stamp-format t t))))
+
+    (defun move-org-note-to-howm ()
+      (interactive)
+      (let* ((created
+              (save-excursion
+                (re-search-forward
+                 ":CREATED:\\s-*\\[\\(.+?\\)\\]")
+                (match-string 1)))
+             (path
+              (expand-file-name
+               (format-time-string "%Y/%m/%Y-%m-%d-%H%M%S.howm"
+                                   (apply 'encode-time
+                                          (org-parse-time-string created)))
+               howm-directory))
+             (entry (org-x-parse-entry)))
+        (org-x-delete-entry)
+        (org-x-remove-state entry)
+        (org-x-set-depth entry 1)
+        (org-x-set-property entry "VISIBILITY" "all")
+        (let ((dir (file-name-directory path)))
+          (unless (file-directory-p dir)
+            (make-directory dir t))
+          (with-current-buffer (find-file-noselect path)
+            (erase-buffer)
+            (org-x-insert-entry entry)
+            (save-buffer)
+            (kill-buffer (current-buffer))))))
 
     (setq howm-template 'org-howm-template)))
 
