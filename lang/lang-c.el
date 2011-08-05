@@ -4,6 +4,14 @@
 
 (load "xcscope" t)
 
+(autoload 'gtags-mode "gtags" "" t)
+
+(add-hook 'gtags-select-mode-hook
+          (lambda ()
+            (make-variable-buffer-local 'hl-line-face)
+            (setq hl-line-face 'underline)
+            (hl-line-mode 1)))
+
 (setq c-syntactic-indentation nil)
 
 (define-key c-mode-base-map "#"         'self-insert-command)
@@ -253,9 +261,18 @@
         (insert comment)))
     (goto-char here)))
 
+;;;_ * cmake-mode
+
+(autoload 'cmake-mode "cmake-mode" nil t)
+
+(setq auto-mode-alist
+      (append '(("CMakeLists\\.txt\\'" . cmake-mode)
+                ("\\.cmake\\'" . cmake-mode))
+              auto-mode-alist))
+
 ;;;_ * doxymacs
 
-(autoload 'doxymacs-mode "doxymacs")
+(autoload 'doxymacs-mode "doxymacs" nil t)
 (autoload 'doxymacs-font-lock "doxymacs")
 
 (defun my-doxymacs-font-lock-hook ()
