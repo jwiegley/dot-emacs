@@ -181,6 +181,7 @@
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
  '(grep-find-command (quote ("find . -type f -print0 | xargs -0 grep -nH -e " . 47)))
+ '(grepp-default-regexp-fn nil)
  '(haskell-check-command "~/.cabal/bin/hlint")
  '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan my-haskell-mode-hook)))
  '(haskell-program-name "ghci")
