@@ -26,6 +26,7 @@
                 ;; Packages located elsewhere on the system...
                 "~/src/ledger/lisp"
                 "/opt/local/share/doc/git-core/contrib/emacs"
+                "/opt/local/share/emacs/site-lisp"
                 )))
 
   (setq path (expand-file-name path emacs-lisp-root)
