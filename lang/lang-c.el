@@ -4,12 +4,6 @@
 
 (load "xcscope" t)
 
-(add-hook 'gtags-select-mode-hook
-          (lambda ()
-            (make-variable-buffer-local 'hl-line-face)
-            (setq hl-line-face 'underline)
-            (hl-line-mode 1)))
-
 (setq c-syntactic-indentation nil)
 
 (define-key c-mode-base-map "#"         'self-insert-command)
@@ -110,8 +104,14 @@
 (eval-when-compile
   (defvar c-mode-base-map))
 
-(autoload 'gtags-mode "gtags" "" t)
+(autoload 'xgtags-mode "xgtags" "" t)
 (autoload 'company-mode "company" "" t)
+
+;;(add-hook 'gtags-select-mode-hook
+;;          (lambda ()
+;;            (make-variable-buffer-local 'hl-line-face)
+;;            (setq hl-line-face 'underline)
+;;            (hl-line-mode 1)))
 
 (defun gtags-update ()
   "Make GTAGS incremental update"
@@ -130,9 +130,9 @@
 
 (defun my-c-mode-common-hook ()
   (doxymacs-mode)
-  (gtags-mode)
+  (xgtags-mode)
   (company-mode)
-  (define-key c-mode-base-map [(meta ?.)] 'gtags-find-tag)
+  (define-key c-mode-base-map [(meta ?.)] 'xgtags-find-tag)
   (define-key c-mode-base-map [return] 'newline-and-indent)
   (make-variable-buffer-local 'yas/fallback-behavior)
   (setq yas/fallback-behavior '(apply my-c-indent-or-complete . nil))
