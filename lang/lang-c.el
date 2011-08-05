@@ -113,11 +113,30 @@
 (autoload 'gtags-mode "gtags" "" t)
 (autoload 'company-mode "company" "" t)
 
+(defun gtags-update ()
+  "Make GTAGS incremental update"
+  (call-process "global" nil nil nil "-u"))
+
+(defun gtags-update-hook ()
+  (if (gtags-get-rootpath)
+      (gtags-update)))
+
+(defun my-c-indent-or-complete ()
+  (interactive)
+  (if (or (bolp)
+          (= 0 (syntax-class (syntax-after (1- (point))))))
+      (call-interactively 'indent-according-to-mode)
+    (call-interactively 'company-complete-common)))
+
 (defun my-c-mode-common-hook ()
   (doxymacs-mode)
   (gtags-mode)
   (company-mode)
-  (define-key c-mode-base-map "\C-m" 'newline-and-indent)
+  (define-key c-mode-base-map [(meta ?.)] 'gtags-find-tag)
+  (define-key c-mode-base-map [return] 'newline-and-indent)
+  (make-variable-buffer-local 'yas/fallback-behavior)
+  (setq yas/fallback-behavior '(apply my-c-indent-or-complete . nil))
+  (define-key c-mode-base-map [tab] 'yas/expand-from-trigger-key)
   (define-key c-mode-base-map [(alt tab)] 'company-complete-common)
   (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
   (define-key c-mode-base-map [(control ?c) (control ?i)]
@@ -126,6 +145,9 @@
   (setq indicate-empty-lines t)
   (setq fill-column 72)
   (column-marker-3 80)
+
+  (add-hook 'after-save-hook 'gtags-update-hook)
+
   (let ((bufname (buffer-file-name)))
     (when bufname
       (cond
@@ -136,6 +158,7 @@
         (substitute-key-definition 'fill-paragraph 'ti-refill-comment
                                    c-mode-base-map global-map)
         (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment)))))
+
   (font-lock-add-keywords
    'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
 
@@ -290,7 +313,7 @@
 (defun ulp ()
   (interactive)
   (find-file "~/src/ansi/ulp.c")
-  (visit-tags-table "~/src/ansi/TAGS")
+  ;;(visit-tags-table "~/src/ansi/TAGS")
   (magit-status "~/src/ansi")
   (gdb "gdb --annotate=3 ~/Contracts/TI/bin/acpia470"))
 

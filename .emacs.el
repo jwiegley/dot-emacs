@@ -1266,10 +1266,10 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?r] 'replace-regexp)
 (define-key mode-specific-map [?s] 'replace-string)
 
-(define-key global-map [(meta ?.)] 'gtags-find-tag)
 (define-key mode-specific-map [?t ?e] 'gtags-find-with-grep)
 (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
 (define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
+(define-key mode-specific-map [?t ?t] 'gtags-find-tag)
 (define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
 ;;(define-key mode-specific-map [?t ?%] 'tags-query-replace)
 ;;(define-key mode-specific-map [?t ?a] 'tags-apropos)
