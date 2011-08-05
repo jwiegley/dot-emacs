@@ -203,6 +203,8 @@ To use this function, add it to `org-agenda-finalize-hook':
 	(forward-line)))))
 
 (add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)
+(add-hook 'org-agenda-mode-hook (lambda () (local-unset-key (kbd "\C-c,"))))
+(add-hook 'org-mode-hook (lambda () (local-unset-key (kbd "\C-c,"))))
 
 (defun org-my-message-open (message-id)
   (gnus-goto-article
