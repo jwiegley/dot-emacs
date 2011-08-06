@@ -1,18 +1,23 @@
 ;;;_ * groovy-mode
 
-(load "haskell-site-file" t)
+(autoload 'haskell-mode "haskell-site-file" nil t)
 
-(defun my-haskell-mode-hook ()
-  ;;(flymake-mode)
+(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+(add-to-list 'auto-mode-alist '("\\.lhs$" . haskell-mode))
 
-  (setq haskell-saved-check-command haskell-check-command)
+(eval-after-load "haskell-site-file"
+  '(progn
+     (defun my-haskell-mode-hook ()
+       ;;(flymake-mode)
 
-  (define-key haskell-mode-map [(control ?c) ?w]
-    'flymake-display-err-menu-for-current-line)
-  (define-key haskell-mode-map [(control ?c) ?*]
-    'flymake-start-syntax-check)
-  (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
-  (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
+       (setq haskell-saved-check-command haskell-check-command)
 
-(load "inf-haskell" t)
-(load "hs-lint" t)
+       (define-key haskell-mode-map [(control ?c) ?w]
+         'flymake-display-err-menu-for-current-line)
+       (define-key haskell-mode-map [(control ?c) ?*]
+         'flymake-start-syntax-check)
+       (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
+       (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
+
+     (load "inf-haskell" t)
+     (load "hs-lint" t)))

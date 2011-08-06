@@ -1,6 +1,7 @@
-;;;_ * edebug
+;;;_ * eldoc
 
-(load "edebug" t)
+(eval-after-load "eldoc"
+  '(diminish 'eldoc-mode))
 
 ;;;_ * elint
 
@@ -19,6 +20,14 @@
 
 ;;;_ * emacs-lisp
 
+(add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
+
+(font-lock-add-keywords 'emacs-lisp-mode
+                        '(("(\\(lambda\\)\\>"
+                           (0 (ignore
+                               (compose-region (match-beginning 1)
+                                               (match-end 1) ?λ))))))
+
 (defun elisp-indent-or-complete (&optional arg)
   (interactive "p")
   (call-interactively 'lisp-indent-line)
@@ -31,20 +40,7 @@
   '(progn
     (define-key emacs-lisp-mode-map [tab] 'elisp-indent-or-complete)))
 
-(add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
-
-(mapc (lambda (major-mode)
-	(font-lock-add-keywords
-	 major-mode
-	 `(("(\\(lambda\\)\\>"
-	    (0 (ignore
-		(compose-region (match-beginning 1)
-				(match-end 1) ?λ)))))))
-      '(emacs-lisp-mode))
-
 ;;;_  + column-marker
-
-(autoload 'column-marker-1 "column-marker")
 
 (add-hook 'emacs-lisp-mode-hook (lambda () (column-marker-1 79)))
 
@@ -61,20 +57,19 @@
 (autoload 'turn-on-paredit-mode "paredit"
   "Minor mode for pseudo-structurally editing Lisp code." t)
 
-(dolist (hook '(emacs-lisp-mode-hook))
-  (add-hook hook 'turn-on-paredit-mode))
+(add-hook 'emacs-lisp-mode-hook 'turn-on-paredit-mode)
+
+(eval-after-load "paredit"
+  '(diminish 'paredit-mode))
 
 ;;;_  + redshank
 
 (autoload 'redshank-mode "redshank"
   "Minor mode for restructuring Lisp code (i.e., refactoring)." t)
 
-(dolist (hook '(emacs-lisp-mode-hook
-		lisp-mode-hook
-		slime-repl-mode-hook))
-  (add-hook hook #'(lambda () (redshank-mode +1))))
+(add-hook 'emacs-lisp-mode-hook #'(lambda () (redshank-mode +1)))
 
-;;;_ * eval-expr
+(eval-after-load "redshank"
+  '(diminish 'redshank-mode))
 
-(when (load "eval-expr" t)
-  (eval-expr-install))
+;;; lang-emacs-lisp.el ends here

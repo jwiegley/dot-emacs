@@ -6,17 +6,28 @@
 
 ;;;_ + variables
 
-;; '(gnus-refer-article-method (quote ((nnregistry) (nnweb "gmane" (nnweb-type gmane)) (nnweb "google" (nnweb-type google)))))
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec")
- '(check-mail-boxes (quote ("~/Library/Mail/incoming/mail\\..*\\.spool")))
- '(check-mail-summary-function (quote check-mail-box-summary))
- '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
- '(gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-display-time-event-handler gnus-score-groups gnus-group-save-newsrc (lambda nil (if (file-exists-p "/tmp/unread") (delete-file "/tmp/unread")) (display-time-update)))))
+ '(check-mail-boxes
+   (quote
+    ("~/Library/Mail/incoming/mail\\..*\\.spool")))
+ '(check-mail-summary-function
+   (quote check-mail-box-summary))
+ '(eudc-inline-expansion-format
+   (quote
+    ("%s <%s>" name email)))
+ '(gnus-after-getting-new-news-hook
+   (quote
+    (gnus-group-list-groups gnus-display-time-event-handler gnus-score-groups gnus-group-save-newsrc
+                            (lambda nil
+                              (if
+                                  (file-exists-p "/tmp/unread")
+                                  (delete-file "/tmp/unread"))
+                              (display-time-update)))))
  '(gnus-agent-expire-all t)
  '(gnus-agent-expire-days 14)
  '(gnus-agent-go-online t)
@@ -27,56 +38,130 @@
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
  '(gnus-check-new-newsgroups nil)
- '(gnus-default-adaptive-score-alist (quote ((gnus-dormant-mark (from 20) (subject 100)) (gnus-ticked-mark (subject 30)) (gnus-read-mark (subject 30)) (gnus-del-mark (subject -150)) (gnus-catchup-mark (subject -150)) (gnus-killed-mark (subject -1000)) (gnus-expirable-mark (from -1000) (subject -1000)))))
- '(gnus-default-article-saver (quote gnus-summary-write-to-file))
- '(gnus-extra-headers (quote (To)))
+ '(gnus-default-adaptive-score-alist
+   (quote
+    ((gnus-dormant-mark
+      (from 20)
+      (subject 100))
+     (gnus-ticked-mark
+      (subject 30))
+     (gnus-read-mark
+      (subject 30))
+     (gnus-del-mark
+      (subject -150))
+     (gnus-catchup-mark
+      (subject -150))
+     (gnus-killed-mark
+      (subject -1000))
+     (gnus-expirable-mark
+      (from -1000)
+      (subject -1000)))))
+ '(gnus-default-article-saver
+   (quote gnus-summary-write-to-file))
+ '(gnus-extra-headers
+   (quote
+    (To)))
  '(gnus-gcc-mark-as-read t)
- '(gnus-generate-tree-function (quote gnus-generate-horizontal-tree))
+ '(gnus-generate-tree-function
+   (quote gnus-generate-horizontal-tree))
  '(gnus-group-default-list-level 4)
  '(gnus-group-line-format "%S%p%P%5y%5T: %(%G%)
 ")
- '(gnus-group-mode-hook (quote (gnus-topic-mode)))
- '(gnus-group-sort-function (quote gnus-group-sort-by-method))
+ '(gnus-group-mode-hook
+   (quote
+    (gnus-topic-mode)))
+ '(gnus-group-sort-function
+   (quote gnus-group-sort-by-method))
  '(gnus-home-directory "~/Library/Mail/Gnus/")
  '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|boostpro\\)\\.com\\)")
- '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
+ '(gnus-ignored-mime-types
+   (quote
+    ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
  '(gnus-large-newsgroup 4000)
  '(gnus-local-domain "boostpro.com")
- '(gnus-message-archive-group (quote ((format-time-string "sent.%Y"))))
+ '(gnus-message-archive-group
+   (quote
+    ((format-time-string "sent.%Y"))))
  '(gnus-message-replyencrypt nil)
  '(gnus-novice-user nil)
- '(gnus-post-method (quote (nngateway "mail2news@nym.alias.net" (nngateway-header-transformation nngateway-mail2news-header-transformation))))
- '(gnus-posting-styles (quote ((".*" ("From" "johnw@boostpro.com") (organization "BoostPro Computing, Inc.")))))
+ '(gnus-post-method
+   (quote
+    (nngateway "mail2news@nym.alias.net"
+               (nngateway-header-transformation nngateway-mail2news-header-transformation))))
+ '(gnus-posting-styles
+   (quote
+    ((".*"
+      ("From" "johnw@boostpro.com")
+      (organization "BoostPro Computing, Inc.")))))
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
- '(gnus-refer-article-method (quote (current (nnir) (nnir "nnimap:BoostPro") (nntp "news.gmane.org"))))
+ '(gnus-refer-article-method
+   (quote
+    (current
+     (nnir)
+     (nnir "nnimap:BoostPro")
+     (nntp "news.gmane.org"))))
  '(gnus-refer-thread-use-nnir t)
- '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
+ '(gnus-registry-ignored-groups
+   (quote
+    (("nntp" t)
+     ("^INBOX" t))))
  '(gnus-save-killed-list nil)
  '(gnus-save-newsrc-file nil)
- '(gnus-score-default-duration (quote p))
+ '(gnus-score-default-duration
+   (quote p))
  '(gnus-score-expiry-days 30)
- '(gnus-score-find-score-files-function (quote (gnus-score-find-hierarchical)))
+ '(gnus-score-find-score-files-function
+   (quote
+    (gnus-score-find-hierarchical)))
  '(gnus-secondary-select-methods nil)
- '(gnus-select-group-hook (quote (gnus-group-set-timestamp)))
- '(gnus-select-method (quote (nnimap "Local" (nnimap-address "localhost") (nnimap-user "johnw") (nnimap-server-port 143) (nnimap-stream network))))
- '(gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
- '(gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
- '(gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
- '(gnus-split-methods (quote ((gnus-save-site-lisp-file) (gnus-article-archive-name) (gnus-article-nndoc-name))))
- '(gnus-started-hook (quote ((lambda nil (run-hooks (quote gnus-after-getting-new-news-hook))))))
- '(gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
+ '(gnus-select-group-hook
+   (quote
+    (gnus-group-set-timestamp)))
+ '(gnus-select-method
+   (quote
+    (nnimap "Local"
+            (nnimap-address "localhost")
+            (nnimap-user "johnw")
+            (nnimap-server-port 143)
+            (nnimap-stream network))))
+ '(gnus-signature-separator
+   (quote
+    ("^-- $" "^-- *$" "^_____+$")))
+ '(gnus-simplify-subject-functions
+   (quote
+    (gnus-simplify-subject-fuzzy)))
+ '(gnus-sort-gathered-threads-function
+   (quote gnus-thread-sort-by-date)
+   t)
+ '(gnus-split-methods
+   (quote
+    ((gnus-save-site-lisp-file)
+     (gnus-article-archive-name)
+     (gnus-article-nndoc-name))))
+ '(gnus-started-hook
+   (quote
+    ((lambda nil
+       (run-hooks
+        (quote gnus-after-getting-new-news-hook))))))
+ '(gnus-subscribe-newsgroup-method
+   (quote gnus-subscribe-topics))
  '(gnus-summary-expunge-below -100)
  '(gnus-summary-line-format "%U%R%I%(%ut: %uS %S, %uZ%)
 ")
  '(gnus-summary-mark-below -100)
- '(gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
+ '(gnus-suspend-gnus-hook
+   (quote
+    (gnus-group-save-newsrc)))
  '(gnus-thread-hide-subtree nil)
- '(gnus-thread-sort-functions (quote (gnus-thread-sort-by-number gnus-thread-sort-by-total-score)))
+ '(gnus-thread-sort-functions
+   (quote
+    (gnus-thread-sort-by-number gnus-thread-sort-by-total-score)))
  '(gnus-topic-display-empty-topics nil)
  '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")
- '(gnus-treat-date-lapsed (quote head))
+ '(gnus-treat-date-lapsed
+   (quote head))
  '(gnus-treat-hide-citation-maybe t)
  '(gnus-treat-strip-cr t)
  '(gnus-treat-strip-leading-blank-lines t)
@@ -85,56 +170,98 @@
  '(gnus-treat-unsplit-urls t)
  '(gnus-tree-minimize-window nil)
  '(gnus-uncacheable-groups "^nnml")
- '(gnus-use-adaptive-scoring (quote (line)))
+ '(gnus-use-adaptive-scoring
+   (quote
+    (line)))
  '(gnus-use-cache t)
  '(gnus-use-trees t)
- '(mail-envelope-from (quote header))
+ '(mail-envelope-from
+   (quote header))
  '(mail-setup-with-from nil)
  '(mail-source-delete-incoming t)
  '(mail-source-delete-old-incoming-confirm nil)
  '(mail-source-report-new-mail-interval 15)
- '(mail-sources (quote ((file))))
+ '(mail-sources
+   (quote
+    ((file))))
  '(mail-specify-envelope-from t)
- '(mail-user-agent (quote gnus-user-agent))
+ '(mail-user-agent
+   (quote gnus-user-agent))
  '(message-alternative-emails "\\(johnw?\\|jwiegley\\)@\\(gmail\\|newartisans\\|boostpro\\).com")
  '(message-directory "~/Library/Mail/Gnus/Mail/")
  '(message-fill-column 78)
  '(message-interactive t)
  '(message-mail-alias-type nil)
- '(message-mode-hook (quote (footnote-mode turn-on-auto-fill flyspell-mode turn-on-orgstruct)))
- '(message-send-mail-function (quote message-send-mail-with-sendmail))
+ '(message-mode-hook
+   (quote
+    (footnote-mode turn-on-auto-fill flyspell-mode turn-on-orgstruct)))
+ '(message-send-mail-function
+   (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
- '(message-sendmail-envelope-from (quote header))
- '(message-sent-hook (quote (gnus-score-followup-article)))
- '(message-setup-hook (quote (message-check-recipients (lambda nil (message-remove-header "From")))))
- '(message-x-completion-alist (quote (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . pick-email-address) ((if (boundp (quote message-newgroups-header-regexp)) message-newgroups-header-regexp message-newsgroups-header-regexp) . message-expand-group))))
- '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext")))
- '(mm-text-html-renderer (quote w3m))
- '(nnmail-crosspost nil)
- '(nnmail-expiry-wait 30)
- '(nnmail-extra-headers (quote (To)))
- '(nnmail-scan-directory-mail-source-once t)
- '(send-mail-function (quote sendmail-send-it))
+ '(message-sendmail-envelope-from
+   (quote header))
+ '(message-sent-hook
+   (quote
+    (gnus-score-followup-article)))
+ '(message-setup-hook
+   (quote
+    (message-check-recipients
+     (lambda nil
+       (message-remove-header "From")))))
+ '(message-x-completion-alist
+   (quote
+    (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . pick-email-address)
+     ((if
+          (boundp
+           (quote message-newgroups-header-regexp))
+          message-newgroups-header-regexp message-newsgroups-header-regexp)
+      . message-expand-group))))
+ '(mm-discouraged-alternatives
+   (quote
+    ("application/msword" "text/richtext")))
+ '(mm-text-html-renderer
+   (quote w3m))
+ '(send-mail-function
+   (quote sendmail-send-it))
  '(smtpmail-default-smtp-server "mail.johnwiegley.com")
  '(smtpmail-smtp-server "mail.johnwiegley.com" t)
  '(smtpmail-smtp-service 587 t)
- '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil)))))
+ '(smtpmail-starttls-credentials
+   (quote
+    (("mail.johnwiegley.com" 587 nil nil)
+     ("smtp.gmail.com" 587 nil nil)))))
 
 ;;;_ + faces
 
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(message-cited-text ((((class color)) (:foreground "Blue"))))
- '(message-header-cc ((((class color)) (:bold t :foreground "green2"))))
- '(message-header-name ((((class color)) (:bold nil :foreground "Blue"))))
- '(message-header-other ((((class color)) (:foreground "Firebrick"))))
- '(message-header-subject ((((class color)) (:foreground "black"))))
- '(message-header-xheader ((((class color)) (:foreground "Blue"))))
- '(message-mml ((((class color)) (:foreground "DarkGreen"))))
- '(message-separator ((((class color)) (:foreground "Tan")))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(message-cited-text
+   ((((class color))
+     (:foreground "Blue"))))
+ '(message-header-cc
+   ((((class color))
+     (:bold t :foreground "green2"))))
+ '(message-header-name
+   ((((class color))
+     (:bold nil :foreground "Blue"))))
+ '(message-header-other
+   ((((class color))
+     (:foreground "Firebrick"))))
+ '(message-header-subject
+   ((((class color))
+     (:foreground "black"))))
+ '(message-header-xheader
+   ((((class color))
+     (:foreground "Blue"))))
+ '(message-mml
+   ((((class color))
+     (:foreground "DarkGreen"))))
+ '(message-separator
+   ((((class color))
+     (:foreground "Tan")))))
 
 ;;;_* configuration
 
