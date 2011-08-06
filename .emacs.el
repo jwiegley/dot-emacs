@@ -624,6 +624,8 @@
 
 (eval-after-load "dired-x"
   '(progn
+     (setq dired-use-ls-dired t)
+
      (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
      (define-key dired-mode-map [?l] 'dired-up-directory)
