@@ -615,7 +615,9 @@ If the buffer is currently not visible, makes it sticky."
               (lambda ()
                 (set-fill-column 72)
                 (column-number-mode t)
-                (column-marker-1 72)))))
+                (column-marker-1 72)
+                (flyspell-mode)
+                (orgstruct++-mode)))))
 
 ;;;_ + grep-ed
 
