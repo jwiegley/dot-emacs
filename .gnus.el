@@ -81,7 +81,7 @@
  '(gnus-local-domain "boostpro.com")
  '(gnus-message-archive-group
    (quote
-    ((format-time-string "sent.%Y"))))
+    ((format-time-string "sent.%Y-%m"))))
  '(gnus-message-replyencrypt nil)
  '(gnus-novice-user nil)
  '(gnus-post-method
