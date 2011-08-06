@@ -627,6 +627,7 @@
      (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
      (define-key dired-mode-map [?l] 'dired-up-directory)
+     (define-key dired-mode-map [tab] 'other-window)
 
      ;; Trash files instead of deleting them
      (defun dired-delete-file (file &optional recursive)
@@ -1427,14 +1428,27 @@ If the buffer is currently not visible, makes it sticky."
 
 (defvar sr-running nil)
 
-(defun switch-to-sunrise ()
-  (interactive)
-  (if sr-running
-      (sr-setup-windows)
-    (call-interactively #'sunrise)))
+;;(defun switch-to-sunrise ()
+;;  (interactive)
+;;  (if sr-running
+;;      (sr-setup-windows)
+;;    (call-interactively #'sunrise)))
+;;
+;;(define-key mode-specific-map [?j] 'switch-to-sunrise)
+;;(define-key mode-specific-map [?J] 'sunrise-cd)
+(define-key mode-specific-map [?j] 'dired-jump)
 
-(define-key mode-specific-map [?j] 'switch-to-sunrise)
-(define-key mode-specific-map [?J] 'sunrise-cd)
+(defun dired-double-jump (first-dir second-dir)
+  (interactive
+   (list (ido-read-directory-name "First directory: "
+                                  (expand-file-name "~/") "~/dl")
+         (ido-read-directory-name "Second directory: "
+                                  (expand-file-name "~/") "~/dl")))
+  (dired first-dir)
+  (dired-other-window second-dir))
+
+(define-key mode-specific-map [?J] 'dired-double-jump)
+
 (define-key mode-specific-map [(control ?j)] 'dired-jump)
 (define-key mode-specific-map [?k] 'keep-lines)
 
