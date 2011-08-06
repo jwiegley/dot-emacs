@@ -678,8 +678,24 @@
 
 ;;;_ + erc
 
+(defadvice customize-option (before cust-opt-load-dotfiles activate)
+  (unless (featurep 'dot-gnus-el) (load ".gnus"))
+  (unless (featurep 'dot-org-el) (load ".org"))
+  (unless (featurep 'dot-ercpass-el) (load ".ercpass")))
+
+(defadvice customize-variable (before cust-var-load-dotfiles activate)
+  (unless (featurep 'dot-gnus-el) (load ".gnus"))
+  (unless (featurep 'dot-org-el) (load ".org"))
+  (unless (featurep 'dot-ercpass-el) (load ".ercpass")))
+
+(defadvice customize-group (before cust-group-load-dotfiles activate)
+  (unless (featurep 'dot-gnus-el) (load ".gnus"))
+  (unless (featurep 'dot-org-el) (load ".org"))
+  (unless (featurep 'dot-ercpass-el) (load ".ercpass")))
+
 (defun irc ()
   (interactive)
+
   (load ".ercpass")
 
   (shell-command "bitlbee -F")
