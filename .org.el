@@ -128,6 +128,18 @@ With optional NODE, go directly to that node."
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
+(defun org-export-tasks ()
+  (interactive)
+  (let ((index 1))
+    (org-map-entries
+     #'(lambda ()
+         (outline-mark-subtree)
+         (org-export-as-html 3)
+         (write-file (format "%d.html" index))
+         (kill-buffer (current-buffer))
+         (setq index (1+ index)))
+     "LEVEL=2")))
+
 (load "org2blog-autoloads" t)
 
 (setq org2blog/wp-blog-alist
