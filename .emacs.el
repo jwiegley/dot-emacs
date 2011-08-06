@@ -97,7 +97,7 @@
  '(bookmark-save-flag 1)
  '(browse-url-browser-function
    (quote
-    (".*" . browse-url-default-macosx-browser)))
+    ((".*" . browse-url-default-macosx-browser))))
  '(c-default-style
    (quote
     ((java-mode . "gnu")
