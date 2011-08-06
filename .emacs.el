@@ -629,11 +629,15 @@
      (define-key dired-mode-map [?l] 'dired-up-directory)
      (define-key dired-mode-map [tab] 'other-window)
 
+     (defvar dired-delete-file-orig (symbol-function 'dired-delete-file))
+
      ;; Trash files instead of deleting them
      (defun dired-delete-file (file &optional recursive)
-       (if recursive
-           (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
-         (call-process "/Users/johnw/bin/del" nil nil nil file)))
+       (if (string-match "/\\(ssh\\|sudo\\):" dired-directory)
+           (funcall dired-delete-file-orig)
+         (if recursive
+             (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
+           (call-process "/Users/johnw/bin/del" nil nil nil file))))
 
      ;; Omit files that Git would ignore
      (defun dired-omit-regexp ()
