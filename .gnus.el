@@ -298,25 +298,17 @@
 (defun safely-kill-process (name)
   (let ((proc (my-process-running-p name)))
     (when (and proc (eq 'run (process-status proc)))
-      (let ((sigs '(SIGTERM SIGINT SIGQUIT SIGKILL))
-            (first t))
+      (let ((sigs '(SIGTERM SIGINT SIGQUIT SIGKILL)))
         (while sigs
           (if (not (eq 'run (process-status proc)))
               (setq sigs nil)
-            (if first
-                (setq first nil)
-              (sleep-for 5))
             (message "Signaling process %s with %s..." name (car sigs))
             (signal-process proc (car sigs))
+            (sleep-for 3)
             (setq sigs (cdr sigs))))))))
 
 (defun my-shutdown-external-processes ()
   (safely-kill-process "offlineimap")
-
-  (message "Waiting 3 seconds for Offlineimap to shutdown...")
-  (sleep-for 3)
-  (message "Waiting 3 seconds for Offlineimap to shutdown...done")
-
   (message "Shutting down Dovecot...")
   (shell-command "sudo port unload dovecot")
   (message "Shutting down Dovecot...done"))
