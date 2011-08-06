@@ -550,9 +550,6 @@
         "browse-kill-ring+"
         "diminish"
         "edit-server"
-        "esh-toggle"
-        "edebug"
-        "eval-expr"
         "escreen"
         "per-window-point"
         "session"
@@ -562,43 +559,42 @@
 
 ;;;_ + auto loads
 
-(mapc #'(lambda (entry) (autoload (cdr entry) (car entry) nil t))
+(mapc #'(lambda (entry)
+          (autoload (cdr entry) (car entry) nil t))
       '(
-        (".gnus"                . gnus)
-        (".org"                 . org-agenda)
-        (".org"                 . org-agenda-list)
-        (".org"                 . org-inline-note)
-        (".org"                 . org-smart-capture)
-        (".org"                 . orgstruct++-mode)
-        ("breadcrumb"           . bc-goto-current)
-        ("breadcrumb"           . bc-list)
-        ("breadcrumb"           . bc-local-next)
-        ("breadcrumb"           . bc-local-previous)
-        ("breadcrumb"           . bc-next)
-        ("breadcrumb"           . bc-previous)
-        ("breadcrumb"           . bc-set)
-        ("chess-auto"           . chess)
-        ("col-highlight"        . column-highlight-mode)
-        ("column-marker"        . column-marker-1)
-        ("crosshairs"           . crosshairs)
-        ("crosshairs"           . crosshairs-mode)
-        ("esh-toggle"           . esh-toggle)
-        ("ess-site"             . R)
-        ("fit-frame"            . fit-frame)
-        ("fm"                   . fm-start)
-        ("gist"                 . gist-region)
-        ("hl-line"              . hl-line-mode)
-        ("indirect"             . indirect-region)
-        ("ldg-new"              . ledger-mode)
-        ("linum"                . linum-mode)
-        ("magit"                . magit-status)
-        ("sunrise-commander"    . sunrise)
-        ("sunrise-commander"    . sunrise-cd)
-        ("tex-site"             . latex-mode)
-        ("tex-site"             . texinfo-mode)
-        ("vkill"                . vkill)
-        ("whitespace"           . whitespace-cleanup)
-        ("whole-line-or-region" . whole-line-or-region-mode)
+        (".gnus"         . gnus)
+        (".org"          . howm-create)
+        (".org"          . howm-list-grep)
+        (".org"          . org-agenda)
+        (".org"          . org-agenda-list)
+        (".org"          . org-inline-note)
+        (".org"          . org-smart-capture)
+        (".org"          . orgstruct++-mode)
+        ("breadcrumb"    . bc-goto-current)
+        ("breadcrumb"    . bc-list)
+        ("breadcrumb"    . bc-local-next)
+        ("breadcrumb"    . bc-local-previous)
+        ("breadcrumb"    . bc-next)
+        ("breadcrumb"    . bc-previous)
+        ("breadcrumb"    . bc-set)
+        ("css-mode"      . css-mode)
+        ("ess-site"      . R)
+        ("eval-expr"     . eval-expr)
+        ("fm"            . fm-start)
+        ("indirect"      . indirect-region)
+        ("ldg-new"       . ledger-mode)
+        ("puppet-mode"   . puppet-mode)
+        ("repeat-insert" . insert-patterned)
+        ("repeat-insert" . insert-patterned-2)
+        ("repeat-insert" . insert-patterned-3)
+        ("repeat-insert" . insert-patterned-4)
+        ("session"       . session-save-session)
+        ("tex-site"      . latex-mode)
+        ("tex-site"      . texinfo-mode)
+        ("vkill"         . list-unix-processes)
+        ("vkill"         . vkill)
+        ("wcount"        . wcount-mode)
+        ("whitespace"    . whitespace-cleanup)
         ))
 
 ;;;_ + Drew Adams
@@ -606,14 +602,22 @@
 (require 'compile-)
 (setq compilation-message-face nil)
 (eval-after-load "compile"  '(require 'compile+))
-(eval-after-load "grep"     '(require 'grep+))
 (eval-after-load "hl-line"  '(require 'hl-line+))
 (eval-after-load "bookmark" '(require 'bookmark+))
+
+(eval-after-load "grep"
+  '(progn
+     (require 'grep+)
+     (require 'grep-ed)))
 
 (eval-after-load "info"
   '(progn
      (require 'easy-mmode)
      (require 'info+)))
+
+;;;_ + css-mode
+
+(add-to-list 'auto-mode-alist '("\\.css$" . css-mode))
 
 ;;;_ + dired-x
 
@@ -814,11 +818,6 @@ If the buffer is currently not visible, makes it sticky."
 (eval-after-load "em-unix"
   '(unintern 'eshell/rm))
 
-;;;_ + eval-expr
-
-(eval-after-load "eval-expr"
-  '(eval-expr-install))
-
 ;;;_ + git
 
 (eval-after-load "magit"
@@ -848,11 +847,6 @@ If the buffer is currently not visible, makes it sticky."
                   (flyspell-mode)
                   (orgstruct++-mode))))))
 
-;;;_ + grep-ed
-
-(eval-after-load "grep"
-  '(require 'grep-ed nil t))
-
 ;;;_ + mule
 
 (prefer-coding-system 'utf-8)
@@ -872,6 +866,24 @@ If the buffer is currently not visible, makes it sticky."
   (untabify (point-min) (point-max))
   (let ((require-final-newline t))
     (save-buffer)))
+
+;;;_ * nroff-mode
+
+(defun update-nroff-timestamp ()
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward "^\\.Dd ")
+      (let ((stamp (format-time-string "%B %e, %Y")))
+	(unless (looking-at stamp)
+	  (delete-region (point) (line-end-position))
+	  (insert stamp)
+	  (let (after-save-hook)
+	    (save-buffer)))))))
+
+(add-hook 'nroff-mode-hook
+	  (function
+	   (lambda ()
+	     (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
 
 ;;;_ + org-mode
 
@@ -900,6 +912,10 @@ If the buffer is currently not visible, makes it sticky."
 
 (eval-after-load "per-window-point"
   '(pwp-mode 1))
+
+;;;_ * puppet-mode
+
+(add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
 
 ;;;_ + session
 
@@ -995,11 +1011,7 @@ If the buffer is currently not visible, makes it sticky."
        (diminish 'dired-omit-mode))
 
      (eval-after-load "dot-mode" '(diminish 'dot-mode))
-     (eval-after-load "eldoc"    '(diminish 'eldoc-mode))
      (eval-after-load "undo-tree" '(diminish 'undo-tree-mode))
-
-     (eval-after-load "highlight-parentheses"
-       '(diminish 'highlight-parentheses-mode))
      (eval-after-load "winner"
        '(ignore-errors (diminish 'winner-mode)))))
 
@@ -1144,6 +1156,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(meta ?T)] 'xgtags-find-with-grep)
 ;;(define-key global-map [(meta ?T)] 'tags-search)
 
+(define-key global-map [(meta ?:)] 'eval-expr)
 (define-key global-map [(meta ?\')] 'insert-pair)
 (define-key global-map [(meta ?\")] 'insert-pair)
 
@@ -1535,6 +1548,9 @@ If the buffer is currently not visible, makes it sticky."
 
 (define-key mode-specific-map [?V] 'view-clipboard)
 (define-key mode-specific-map [?z] 'clean-buffer-list)
+
+(define-key mode-specific-map [?, ?c] 'howm-create)
+(define-key mode-specific-map [?, ?g] 'howm-list-grep)
 
 (define-key mode-specific-map [?\[] 'align-regexp)
 (define-key mode-specific-map [?=]  'count-matches)

@@ -1,5 +1,9 @@
 ;;;_ * eldoc
 
+(add-hook 'emacs-lisp-mode-hook (lambda () (require 'edebug)))
+
+;;;_ * eldoc
+
 (eval-after-load "eldoc"
   '(diminish 'eldoc-mode))
 
@@ -49,6 +53,9 @@
 (autoload 'highlight-parentheses-mode "highlight-parentheses")
 
 (add-hook 'emacs-lisp-mode-hook 'highlight-parentheses-mode)
+
+(eval-after-load "highlight-parentheses"
+  '(diminish 'highlight-parentheses-mode))
 
 ;;;_  + paredit
 

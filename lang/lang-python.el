@@ -2,12 +2,11 @@
 
 ;;(require 'python)
 
-(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
-
-(setq interpreter-mode-alist (cons '("python" . python-mode)
-                                   interpreter-mode-alist))
-
 (autoload 'python-mode "python-mode" "Python editing mode." t)
+
+(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist)
+      interpreter-mode-alist (cons '("python" . python-mode)
+                                   interpreter-mode-alist))
 
 (eval-after-load "python-mode"
   '(define-key py-mode-map [(control return)] 'other-window))

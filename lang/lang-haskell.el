@@ -2,8 +2,7 @@
 
 (autoload 'haskell-mode "haskell-site-file" nil t)
 
-(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
-(add-to-list 'auto-mode-alist '("\\.lhs$" . haskell-mode))
+(add-to-list 'auto-mode-alist '("\\.l?hs$" . haskell-mode))
 
 (eval-after-load "haskell-site-file"
   '(progn

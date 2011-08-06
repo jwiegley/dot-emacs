@@ -18,104 +18,6 @@
 (unless (fboundp 'package-provide)
   (defalias 'package-provide 'ignore))
 
-;;; Manually create autoloads for some packages
-
-(autoload 'ange-ftp-get-passwd "ange-ftp")
-
-(autoload 'auto-capitalize-mode "auto-capitalize" nil t)
-(autoload 'turn-on-auto-capitalize-mode "auto-capitalize" nil t)
-(autoload 'enable-auto-capitalize-mode "auto-capitalize" nil t)
-
-(autoload 'browse-kill-ring "browse-kill-ring")
-
-(autoload 'mc-install-read-mode "mailcrypt")
-(autoload 'mc-install-write-mode "mailcrypt")
-
-(defalias 'define-minor-mode 'easy-mmode-define-minor-mode)
-
-(autoload 'highlight-line "highlight-line" nil t)
-
-(autoload 'inform-mode "inform-mode" "Inform editing mode." t)
-(autoload 'inform-maybe-mode "inform-mode" "Inform/C header editing mode.")
-
-(autoload 'insert-patterned "repeat-insert" nil t)
-(autoload 'insert-patterned-2 "repeat-insert" nil t)
-(autoload 'insert-patterned-3 "repeat-insert" nil t)
-(autoload 'insert-patterned-4 "repeat-insert" nil t)
-
-(autoload 'move-chop-up "chop" nil t)
-(autoload 'move-chop-down "chop" nil t)
-
-(autoload 'debian-changelog-mode "debian-changelog" nil t)
-(autoload 'deb-view "deb-view" nil t)
-
-(autoload 'dictionary "dictionary" nil t)
-(autoload 'dictionary-lookup-definition "dictionary" nil t)
-
-(autoload 'dismal-mode "dismal" nil t)
-
-(autoload 'dot-mode "dot-mode" nil t)
-(autoload 'dot-mode-on "dot-mode" nil t)
-
-(autoload 'edit-env "edit-env" nil t)
-
-(autoload 'remem-toggle "remem" nil t)
-
-(autoload 'balance-mode "balance" nil t)
-
-(autoload 'css-mode "css-mode" nil t)
-
-(autoload 'fm-start "fm" nil t)
-
-(autoload 'glimpse-list-hits "glimpse" nil t)
-(autoload 'glimpse-dired "glimpse" nil t)
-(autoload 'glimpse-find-file "glimpse" nil t)
-(autoload 'glimpse "glimpse" nil t)
-(autoload 'glimpse-in-files "glimpse" nil t)
-
-(autoload 'ics "ics" nil t)
-
-(autoload 'thumbs-show-all-from-dir "thumbs" nil t)
-
-(autoload 'unscroll "unscroll")
-
-(autoload 'uptimes-float-time "uptimes")
-
-(autoload 'sawmill-mode "sawmill")
-
-(autoload 'session-save-session "session")
-
-(autoload 'visit-url "visit-url")
-
-(autoload 'vkill "vkill" nil t)
-(autoload 'list-unix-processes "vkill" nil t)
-
-(autoload 'wcount-mode "wcount" nil t)
-
-(autoload 'outdent-mode "outdent" nil t)
-
-(autoload 'manued-minor-mode "manued" nil t)
-
-(autoload 'refill-mode "refill" nil t)
-
-(autoload 'tnt-open "tnt" nil t)
-
-(autoload 'make-password "make-password")
-
-(autoload 'fancy-schedule-display-desk-calendar "cal-desk-calendar")
-
-(autoload 'debian-bug "debian-bug" nil t)
-(autoload 'report-debian-bug "debian-bug" nil t)
-
-(autoload 'thing-at-point-url-regexp "thingatpt")
-
-(autoload 'w3m-browse-url "w3m" nil t)
-(autoload 'w3m-find-file "w3m" nil t)
-(autoload 'w3m-region "w3m" nil t)
-(autoload 'w3m-search "w3m" nil t)
-(autoload 'w3m-download "w3m" nil t)
-(autoload 'w3m "w3m" nil t)
-
 ;;; Generated autoloads follow (made by autoload.el).
 
 ;;;### (autoloads nil "_pkg" "site-lisp/eshell/_pkg.el" (18807 50473))
@@ -195,7 +97,7 @@ Any changes made in that buffer will be propagated to this buffer.
 ;;;***
 
 ;;;### (autoloads (anything-other-buffer anything-at-point anything)
-;;;;;;  "anything" "site-lisp/anything/anything.el" (20019 11640))
+;;;;;;  "anything" "site-lisp/anything/anything.el" (20026 26090))
 ;;; Generated autoloads from site-lisp/anything/anything.el
 
 (autoload 'anything "anything" "\
@@ -1081,6 +983,25 @@ Turn on ASCII code display.
 Turn off ASCII code display.
 
 \(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (turn-on-bib-cite bib-cite-minor-mode) "bib-cite"
+;;;;;;  "site-lisp/auctex/bib-cite.el" (18341 54637))
+;;; Generated autoloads from site-lisp/auctex/bib-cite.el
+
+(autoload 'bib-cite-minor-mode "bib-cite" "\
+Toggle bib-cite mode.
+When bib-cite mode is enabled, citations, labels and refs are highlighted
+when the mouse is over them.  Clicking on these highlights with [mouse-2]
+runs bib-find, and [mouse-3] runs bib-display.
+
+\(fn ARG)" t nil)
+
+(autoload 'turn-on-bib-cite "bib-cite" "\
+Unconditionally turn on Bib Cite mode.
+
+\(fn)" nil nil)
 
 ;;;***
 
@@ -4267,6 +4188,218 @@ Highlight a column." t)
 
 ;;;***
 
+;;;### (autoloads (company-mode) "company" "site-lisp/company/company.el"
+;;;;;;  (19333 2704))
+;;; Generated autoloads from site-lisp/company/company.el
+
+(autoload 'company-mode "company" "\
+\"complete anything\"; in in-buffer completion framework.
+Completion starts automatically, depending on the values
+`company-idle-delay' and `company-minimum-prefix-length'.
+
+Completion can be controlled with the commands:
+`company-complete-common', `company-complete-selection', `company-complete',
+`company-select-next', `company-select-previous'.  If these commands are
+called before `company-idle-delay', completion will also start.
+
+Completions can be searched with `company-search-candidates' or
+`company-filter-candidates'.  These can be used while completion is
+inactive, as well.
+
+The completion data is retrieved using `company-backends' and displayed using
+`company-frontends'.  If you want to start a specific back-end, call it
+interactively or use `company-begin-backend'.
+
+regular keymap (`company-mode-map'):
+
+\\{company-mode-map}
+keymap during active completions (`company-active-map'):
+
+\\{company-active-map}
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-abbrev) "company-abbrev" "site-lisp/company/company-abbrev.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-abbrev.el
+
+(autoload 'company-abbrev "company-abbrev" "\
+A `company-mode' completion back-end for abbrev.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-css) "company-css" "site-lisp/company/company-css.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-css.el
+
+(autoload 'company-css "company-css" "\
+A `company-mode' completion back-end for `css-mode'.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-dabbrev) "company-dabbrev" "site-lisp/company/company-dabbrev.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-dabbrev.el
+
+(autoload 'company-dabbrev "company-dabbrev" "\
+A dabbrev-like `company-mode' completion back-end.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-dabbrev-code) "company-dabbrev-code" "site-lisp/company/company-dabbrev-code.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-dabbrev-code.el
+
+(autoload 'company-dabbrev-code "company-dabbrev-code" "\
+A dabbrev-like `company-mode' back-end for code.
+The back-end looks for all symbols in the current buffer that aren't in
+comments or strings.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-elisp) "company-elisp" "site-lisp/company/company-elisp.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-elisp.el
+
+(autoload 'company-elisp "company-elisp" "\
+A `company-mode' completion back-end for `emacs-lisp-mode'.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-etags) "company-etags" "site-lisp/company/company-etags.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-etags.el
+
+(autoload 'company-etags "company-etags" "\
+A `company-mode' completion back-end for etags.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-files) "company-files" "site-lisp/company/company-files.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-files.el
+
+(autoload 'company-files "company-files" "\
+a `company-mode' completion back-end existing file names.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-gtags) "company-gtags" "site-lisp/company/company-gtags.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-gtags.el
+
+(autoload 'company-gtags "company-gtags" "\
+A `company-mode' completion back-end for GNU Global.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-ispell) "company-ispell" "site-lisp/company/company-ispell.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-ispell.el
+
+(autoload 'company-ispell "company-ispell" "\
+A `company-mode' completion back-end using ispell.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-keywords) "company-keywords" "site-lisp/company/company-keywords.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-keywords.el
+
+(autoload 'company-keywords "company-keywords" "\
+A `company-mode' back-end for programming language keywords.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-nxml) "company-nxml" "site-lisp/company/company-nxml.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-nxml.el
+
+(autoload 'company-nxml "company-nxml" "\
+A `company-mode' completion back-end for `nxml-mode'.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-oddmuse) "company-oddmuse" "site-lisp/company/company-oddmuse.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-oddmuse.el
+
+(autoload 'company-oddmuse "company-oddmuse" "\
+A `company-mode' completion back-end for `oddmuse-mode'.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-pysmell) "company-pysmell" "site-lisp/company/company-pysmell.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-pysmell.el
+
+(autoload 'company-pysmell "company-pysmell" "\
+A `company-mode' completion back-end for pysmell.
+This requires pysmell.el and pymacs.el.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-semantic) "company-semantic" "site-lisp/company/company-semantic.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-semantic.el
+
+(autoload 'company-semantic "company-semantic" "\
+A `company-mode' completion back-end using CEDET Semantic.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-tempo) "company-tempo" "site-lisp/company/company-tempo.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-tempo.el
+
+(autoload 'company-tempo "company-tempo" "\
+A `company-mode' completion back-end for tempo.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
+;;;### (autoloads (company-xcode) "company-xcode" "site-lisp/company/company-xcode.el"
+;;;;;;  (19332 59877))
+;;; Generated autoloads from site-lisp/company/company-xcode.el
+
+(autoload 'company-xcode "company-xcode" "\
+A `company-mode' completion back-end for Xcode projects.
+
+\(fn COMMAND &optional ARG &rest IGNORED)" t nil)
+
+;;;***
+
 ;;;### (autoloads (compile-mode-summary) "compile+" "site-lisp/drewadams/compile+.el"
 ;;;;;;  (19802 51197))
 ;;; Generated autoloads from site-lisp/drewadams/compile+.el
@@ -4292,6 +4425,62 @@ Faces `compilation-error-face', `compilation-warning-face',
 
 (defface compilation-mouseover '((t (:underline t))) "\
 *Face used to highlight text the mouse is over." :group (quote compilation) :group (quote font-lock-highlighting-faces))
+
+;;;***
+
+;;;### (autoloads (context-mode) "context" "site-lisp/auctex/context.el"
+;;;;;;  (19318 46167))
+;;; Generated autoloads from site-lisp/auctex/context.el
+
+(defalias 'ConTeXt-mode 'context-mode)
+
+(autoload 'context-mode "context" "\
+Major mode in AUCTeX for editing ConTeXt files.
+
+Special commands:
+\\{ConTeXt-mode-map}
+
+Entering `context-mode' calls the value of `text-mode-hook',
+then the value of `TeX-mode-hook', and then the value
+of context-mode-hook.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (context-en-mode) "context-en" "site-lisp/auctex/context-en.el"
+;;;;;;  (18541 18440))
+;;; Generated autoloads from site-lisp/auctex/context-en.el
+
+(autoload 'context-en-mode "context-en" "\
+Major mode for editing files for ConTeXt using its english interface.
+
+Special commands:
+\\{ConTeXt-mode-map}
+
+Entering `context-mode' calls the value of `text-mode-hook',
+then the value of TeX-mode-hook, and then the value
+of context-mode-hook.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (context-nl-mode) "context-nl" "site-lisp/auctex/context-nl.el"
+;;;;;;  (18489 3127))
+;;; Generated autoloads from site-lisp/auctex/context-nl.el
+
+(autoload 'context-nl-mode "context-nl" "\
+Major mode for editing files for ConTeXt using its dutch interface.
+
+Special commands:
+\\{ConTeXt-mode-map}
+
+Entering `context-mode' calls the value of `text-mode-hook',
+then the value of TeX-mode-hook, and then the value
+of context-mode-hook.
+
+\(fn)" t nil)
 
 ;;;***
 
@@ -5282,6 +5471,17 @@ This function assumes that FRAME has only one window.
 If only window in frame, `fit-frame'; else `mouse-drag-vertical-line'.
 
 \(fn START-EVENT)" t nil)
+
+;;;***
+
+;;;### (autoloads (font-latex-setup) "font-latex" "site-lisp/auctex/font-latex.el"
+;;;;;;  (19254 11585))
+;;; Generated autoloads from site-lisp/auctex/font-latex.el
+
+(autoload 'font-latex-setup "font-latex" "\
+Setup this buffer for LaTeX font-lock.  Usually called from a hook.
+
+\(fn)" nil nil)
 
 ;;;***
 
@@ -6370,6 +6570,44 @@ top-level call to `Info-merge-subnodes'.
 
 ;;;***
 
+;;;### (autoloads (docTeX-mode TeX-latex-mode BibTeX-auto-store)
+;;;;;;  "latex" "site-lisp/auctex/latex.el" (19180 28128))
+;;; Generated autoloads from site-lisp/auctex/latex.el
+
+(autoload 'BibTeX-auto-store "latex" "\
+This function should be called from `bibtex-mode-hook'.
+It will setup BibTeX to store keys in an auto file.
+
+\(fn)" nil nil)
+
+(add-to-list 'auto-mode-alist '("\\.drv\\'" . latex-mode))
+
+(autoload 'TeX-latex-mode "latex" "\
+Major mode in AUCTeX for editing LaTeX files.
+See info under AUCTeX for full documentation.
+
+Special commands:
+\\{LaTeX-mode-map}
+
+Entering LaTeX mode calls the value of `text-mode-hook',
+then the value of `TeX-mode-hook', and then the value
+of `LaTeX-mode-hook'.
+
+\(fn)" t nil)
+
+(add-to-list 'auto-mode-alist '("\\.dtx\\'" . doctex-mode))
+
+(autoload 'docTeX-mode "latex" "\
+Major mode in AUCTeX for editing .dtx files derived from `LaTeX-mode'.
+Runs `LaTeX-mode', sets a few variables and
+runs the hooks in `docTeX-mode-hook'.
+
+\(fn)" t nil)
+
+(defalias 'TeX-doctex-mode 'docTeX-mode)
+
+;;;***
+
 ;;;### (autoloads (global-linum-mode linum-mode linum-format) "linum"
 ;;;;;;  "site-lisp/linum.el" (19516 48981))
 ;;; Generated autoloads from site-lisp/linum.el
@@ -6410,7 +6648,7 @@ See `linum-mode' for more information on Linum mode.
 ;;;***
 
 ;;;### (autoloads (magit-status) "magit" "site-lisp/magit/magit.el"
-;;;;;;  (19989 63556))
+;;;;;;  (20028 26506))
 ;;; Generated autoloads from site-lisp/magit/magit.el
 
 (autoload 'magit-status "magit" "\
@@ -6439,6 +6677,36 @@ Major mode for editing Markdown files.
 Not documented
 
 \(fn ENTITY SITUATION)" nil nil)
+
+;;;***
+
+;;;### (autoloads (multi-prompt-key-value multi-prompt) "multi-prompt"
+;;;;;;  "site-lisp/auctex/multi-prompt.el" (18915 28236))
+;;; Generated autoloads from site-lisp/auctex/multi-prompt.el
+
+(autoload 'multi-prompt "multi-prompt" "\
+Completing prompt for a list of strings.  
+The first argument SEPARATOR should be the string (of length 1) to
+separate the elements in the list.  The second argument UNIQUE should
+be non-nil, if each element must be unique.  The remaining elements
+are the arguments to `completing-read'.  See that.
+
+\(fn SEPARATOR UNIQUE PROMPT TABLE &optional MP-PREDICATE REQUIRE-MATCH INITIAL HISTORY)" nil nil)
+
+(autoload 'multi-prompt-key-value "multi-prompt" "\
+Read multiple strings, with completion and key=value support.
+PROMPT is a string to prompt with, usually ending with a colon
+and a space.  TABLE is an alist.  The car of each element should
+be a string representing a key and the optional cdr should be a
+list with strings to be used as values for the key.
+
+See the documentation for `completing-read' for details on the
+other arguments: PREDICATE, REQUIRE-MATCH, INITIAL-INPUT, HIST,
+DEF, and INHERIT-INPUT-METHOD.
+
+The return value is the string as entered in the minibuffer.
+
+\(fn PROMPT TABLE &optional PREDICATE REQUIRE-MATCH INITIAL-INPUT HIST DEF INHERIT-INPUT-METHOD)" nil nil)
 
 ;;;***
 
@@ -6729,7 +6997,7 @@ The variable puppet-indent-level controls the amount of indentation.
 ;;;***
 
 ;;;### (autoloads (py-shell python-mode empty-line-p) "python-mode"
-;;;;;;  "site-lisp/python-mode/python-mode.el" (20024 27498))
+;;;;;;  "site-lisp/python-mode/python-mode.el" (20026 23246))
 ;;; Generated autoloads from site-lisp/python-mode/python-mode.el
 
 (autoload 'empty-line-p "python-mode" "\
@@ -6806,7 +7074,7 @@ filter.
 ;;;***
 
 ;;;### (autoloads (rebase-mode) "rebase-mode" "site-lisp/magit/rebase-mode.el"
-;;;;;;  (19989 63405))
+;;;;;;  (20028 26506))
 ;;; Generated autoloads from site-lisp/magit/rebase-mode.el
 
 (autoload 'rebase-mode "rebase-mode" "\
@@ -6904,6 +7172,176 @@ Run Sunrise but give it the current directory to use.
 Visit the given directory in `sr-mode'.
 
 \(fn DIRECTORY &optional SWITCHES)" t nil)
+
+;;;***
+
+;;;### (autoloads (TeX-submit-bug-report ams-tex-mode TeX-auto-generate-global
+;;;;;;  TeX-auto-generate TeX-plain-tex-mode TeX-tex-mode) "tex"
+;;;;;;  "site-lisp/auctex/tex.el" (19327 63823))
+;;; Generated autoloads from site-lisp/auctex/tex.el
+
+(autoload 'TeX-tex-mode "tex" "\
+Major mode in AUCTeX for editing TeX or LaTeX files.
+Tries to guess whether this file is for plain TeX or LaTeX.
+
+The algorithm is as follows:
+
+   1) if the file is empty or `TeX-force-default-mode' is not set to nil,
+      `TeX-default-mode' is chosen
+   2) If \\documentstyle or \\begin{, \\section{, \\part{ or \\chapter{ is
+      found, `latex-mode' is selected.
+   3) Otherwise, use `plain-tex-mode'
+
+\(fn)" t nil)
+
+(autoload 'TeX-plain-tex-mode "tex" "\
+Major mode in AUCTeX for editing plain TeX files.
+See info under AUCTeX for documentation.
+
+Special commands:
+\\{plain-TeX-mode-map}
+
+Entering `plain-tex-mode' calls the value of `text-mode-hook',
+then the value of `TeX-mode-hook', and then the value
+of plain-TeX-mode-hook.
+
+\(fn)" t nil)
+
+(autoload 'TeX-auto-generate "tex" "\
+Generate style file for TEX and store it in AUTO.
+If TEX is a directory, generate style files for all files in the directory.
+
+\(fn TEX AUTO)" t nil)
+
+(autoload 'TeX-auto-generate-global "tex" "\
+Create global auto directory for global TeX macro definitions.
+
+\(fn)" t nil)
+
+(autoload 'ams-tex-mode "tex" "\
+Major mode in AUCTeX for editing AmS-TeX files.
+See info under AUCTeX for documentation.
+
+Special commands:
+\\{AmSTeX-mode-map}
+
+Entering AmS-tex-mode calls the value of `text-mode-hook',
+then the value of `TeX-mode-hook', and then the value
+of `AmS-TeX-mode-hook'.
+
+\(fn)" t nil)
+
+(autoload 'TeX-submit-bug-report "tex" "\
+Submit a bug report on AUCTeX via mail.
+
+Don't hesitate to report any problems or inaccurate documentation.
+
+If you don't have setup sending mail from (X)Emacs, please copy the
+output buffer into your mail program, as it gives us important
+information about your AUCTeX version and AUCTeX configuration.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (LaTeX-install-toolbar TeX-install-toolbar) "tex-bar"
+;;;;;;  "site-lisp/auctex/tex-bar.el" (18580 49499))
+;;; Generated autoloads from site-lisp/auctex/tex-bar.el
+
+(autoload 'TeX-install-toolbar "tex-bar" "\
+Install toolbar buttons for TeX mode.
+
+\(fn)" t nil)
+
+(autoload 'LaTeX-install-toolbar "tex-bar" "\
+Install toolbar buttons for LaTeX mode.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads nil "tex-fold" "site-lisp/auctex/tex-fold.el" (19227
+;;;;;;  40177))
+;;; Generated autoloads from site-lisp/auctex/tex-fold.el
+ (autoload 'TeX-fold-mode "tex-fold" "Minor mode for hiding and revealing macros and environments." t)
+
+(defalias 'tex-fold-mode 'TeX-fold-mode)
+
+;;;***
+
+;;;### (autoloads (tex-font-setup) "tex-font" "site-lisp/auctex/tex-font.el"
+;;;;;;  (18341 54636))
+;;; Generated autoloads from site-lisp/auctex/tex-font.el
+
+(autoload 'tex-font-setup "tex-font" "\
+Setup font lock support for TeX.
+
+\(fn)" nil nil)
+
+;;;***
+
+;;;### (autoloads (TeX-texinfo-mode) "tex-info" "site-lisp/auctex/tex-info.el"
+;;;;;;  (18903 48810))
+;;; Generated autoloads from site-lisp/auctex/tex-info.el
+
+(defalias 'Texinfo-mode 'texinfo-mode)
+
+(autoload 'TeX-texinfo-mode "tex-info" "\
+Major mode in AUCTeX for editing Texinfo files.
+
+Special commands:
+\\{Texinfo-mode-map}
+
+Entering Texinfo mode calls the value of `text-mode-hook'  and then the
+value of `Texinfo-mode-hook'.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (japanese-latex-mode japanese-plain-tex-mode) "tex-jp"
+;;;;;;  "site-lisp/auctex/tex-jp.el" (18768 5174))
+;;; Generated autoloads from site-lisp/auctex/tex-jp.el
+
+(autoload 'japanese-plain-tex-mode "tex-jp" "\
+Major mode in AUCTeX for editing Japanese plain TeX files.
+Set `japanese-TeX-mode' to t, and enter `TeX-plain-tex-mode'.
+
+\(fn)" t nil)
+
+(autoload 'japanese-latex-mode "tex-jp" "\
+Major mode in AUCTeX for editing Japanese LaTeX files.
+Set `japanese-TeX-mode' to t, and enter `TeX-latex-mode'.
+
+\(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (texmathp-match-switch texmathp) "texmathp" "site-lisp/auctex/texmathp.el"
+;;;;;;  (18489 3128))
+;;; Generated autoloads from site-lisp/auctex/texmathp.el
+
+(autoload 'texmathp "texmathp" "\
+Determine if point is inside (La)TeX math mode.
+Returns t or nil.  Additional info is placed into `texmathp-why'.
+The functions assumes that you have (almost) syntactically correct (La)TeX in
+the buffer.
+See the variable `texmathp-tex-commands' about which commands are checked.
+
+\(fn)" t nil)
+
+(autoload 'texmathp-match-switch "texmathp" "\
+Search backward for any of the math switches.
+Limit searched to BOUND.
+
+\(fn BOUND)" nil nil)
+
+;;;***
+
+;;;### (autoloads nil "toolbar-x" "site-lisp/auctex/toolbar-x.el"
+;;;;;;  (18580 49487))
+;;; Generated autoloads from site-lisp/auctex/toolbar-x.el
+ (autoload 'toolbarx-install-toolbar "toolbar-x")
 
 ;;;***
 
@@ -7877,8 +8315,8 @@ accept it or skip it.
 ;;;***
 
 ;;;### (autoloads nil nil ("cus-dirs.el" "org-crypt.el" "org-devonthink.el"
-;;;;;;  "org-parse.el" "org-redmine.el" "site-lisp/all.el" "site-lisp/anything/anything-match-plugin.el"
-;;;;;;  "site-lisp/anything/anything-rubikitch.el" "site-lisp/anything/anything-startup.el"
+;;;;;;  "org-parse.el" "org-redmine.el" "site-lisp/all.el" "site-lisp/anything/anything-gtags.el"
+;;;;;;  "site-lisp/anything/anything-match-plugin.el" "site-lisp/anything/anything-startup.el"
 ;;;;;;  "site-lisp/apel/apel-ver.el" "site-lisp/apel/atype.el" "site-lisp/apel/broken.el"
 ;;;;;;  "site-lisp/apel/calist.el" "site-lisp/apel/emu-mule.el" "site-lisp/apel/emu.el"
 ;;;;;;  "site-lisp/apel/file-detect.el" "site-lisp/apel/filename.el"
@@ -7902,10 +8340,13 @@ accept it or skip it.
 ;;;;;;  "site-lisp/apel/pym.el" "site-lisp/apel/static.el" "site-lisp/apel/timezone.el"
 ;;;;;;  "site-lisp/apel/tinycustom.el" "site-lisp/apel/tinyrich.el"
 ;;;;;;  "site-lisp/archive-region.el" "site-lisp/archive-region.el"
-;;;;;;  "site-lisp/ascii.el" "site-lisp/backup-each-save.el" "site-lisp/backup-each-save.el"
-;;;;;;  "site-lisp/bookmark+/bookmark+-chg.el" "site-lisp/bookmark+/bookmark+-doc.el"
-;;;;;;  "site-lisp/bookmark+/bookmark+-key.el" "site-lisp/breadcrumb.el"
-;;;;;;  "site-lisp/breadcrumb.el" "site-lisp/browse-kill-ring+.el"
+;;;;;;  "site-lisp/ascii.el" "site-lisp/auctex/auctex.el" "site-lisp/auctex/auto-loads.el"
+;;;;;;  "site-lisp/auctex/lpath.el" "site-lisp/auctex/tex-buf.el"
+;;;;;;  "site-lisp/auctex/tex-fptex.el" "site-lisp/auctex/tex-mik.el"
+;;;;;;  "site-lisp/auctex/tex-site.el" "site-lisp/auctex/tex-style.el"
+;;;;;;  "site-lisp/auctex/tex-wizard.el" "site-lisp/bookmark+/bookmark+-chg.el"
+;;;;;;  "site-lisp/bookmark+/bookmark+-doc.el" "site-lisp/bookmark+/bookmark+-key.el"
+;;;;;;  "site-lisp/breadcrumb.el" "site-lisp/breadcrumb.el" "site-lisp/browse-kill-ring+.el"
 ;;;;;;  "site-lisp/browse-kill-ring+.el" "site-lisp/browse-kill-ring.el"
 ;;;;;;  "site-lisp/chess/auto-autoloads.el" "site-lisp/chess/chess-ai.el"
 ;;;;;;  "site-lisp/chess/chess-algebraic.el" "site-lisp/chess/chess-announce.el"
@@ -7928,9 +8369,11 @@ accept it or skip it.
 ;;;;;;  "site-lisp/chess/chess-sjeng.el" "site-lisp/chess/chess-sound.el"
 ;;;;;;  "site-lisp/chess/chess-test.el" "site-lisp/chess/chess-transport.el"
 ;;;;;;  "site-lisp/chess/chess-ucb.el" "site-lisp/chess/chess-var.el"
-;;;;;;  "site-lisp/column-marker.el" "site-lisp/css-mode.el" "site-lisp/css-mode.el"
-;;;;;;  "site-lisp/csv-mode.el" "site-lisp/csv-mode.el" "site-lisp/diminish.el"
-;;;;;;  "site-lisp/double-insert.el" "site-lisp/double-insert.el"
+;;;;;;  "site-lisp/column-marker.el" "site-lisp/company/company-clang.el"
+;;;;;;  "site-lisp/company/company-eclim.el" "site-lisp/company/company-ropemacs.el"
+;;;;;;  "site-lisp/company/company-template.el" "site-lisp/css-mode.el"
+;;;;;;  "site-lisp/css-mode.el" "site-lisp/csv-mode.el" "site-lisp/csv-mode.el"
+;;;;;;  "site-lisp/diminish.el" "site-lisp/double-insert.el" "site-lisp/double-insert.el"
 ;;;;;;  "site-lisp/edit-server.el" "site-lisp/edit-server.el" "site-lisp/ee/ee-autoloads.el"
 ;;;;;;  "site-lisp/emacs-w3m/mew-w3m.el" "site-lisp/emacs-w3m/w3m-bug.el"
 ;;;;;;  "site-lisp/emacs-w3m/w3m-ccl.el" "site-lisp/emacs-w3m/w3m-ems.el"
@@ -8003,10 +8446,9 @@ accept it or skip it.
 ;;;;;;  "site-lisp/undo-tree/undo-tree.el" "site-lisp/vkill.el" "site-lisp/vkill.el"
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wcount.el" "site-lisp/wgrep.el"
 ;;;;;;  "site-lisp/wgrep.el" "site-lisp/whole-line-or-region.el"
-;;;;;;  "site-lisp/workgroups/workgroups.el" "site-lisp/xcscope/xcscope.el"
-;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xml-rpc.el" "site-lisp/xray.el"
-;;;;;;  "site-lisp/yasnippet/dropdown-list.el" "site-lisp/yasnippet/yasnippet-debug.el")
-;;;;;;  (20026 234 737938))
+;;;;;;  "site-lisp/xcscope/xcscope.el" "site-lisp/xml-rpc.el" "site-lisp/xml-rpc.el"
+;;;;;;  "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
+;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20028 56196 950881))
 
 ;;;***
 
