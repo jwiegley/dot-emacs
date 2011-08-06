@@ -79,6 +79,7 @@
  '(org-directory "~/Documents/Tasks/")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-enforce-todo-dependencies t)
+ '(org-export-babel-evaluate nil)
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-footnote-section nil)
