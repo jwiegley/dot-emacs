@@ -443,8 +443,6 @@
 
 ;;;_ + Scoring
 
-;; Add to `gnus-after-getting-new-news-hook' for pre-scoring
-
 (defun gnus-score-groups ()
   (interactive)
   (save-excursion
@@ -588,8 +586,7 @@
   (let ((temp-buffer (generate-new-buffer " *Article URLS*"))
         (urls (gnus-article-get-current-urls))
         (this-window (selected-window))
-        (browse-window (or (get-buffer-window gnus-article-buffer)
-                           ))
+        (browse-window (get-buffer-window gnus-article-buffer))
         (count 0))
     (save-excursion
       (save-window-excursion
