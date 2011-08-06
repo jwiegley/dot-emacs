@@ -703,7 +703,6 @@ end tell" (match-string 1))))
   (setq howm-view-title-header "*") ;; *BEFORE* loading howm!
 
   (when (load "howm" t)
-    (add-hook 'org-mode-hook 'howm-mode)
     (add-to-list 'auto-mode-alist '("\\.howm$" . org-mode))
 
     (defun org-howm-template (&rest ignore-args)
