@@ -643,6 +643,9 @@
      (define-key gnus-group-score-map [?s] 'gnus-score-groups)
      (define-key gnus-group-mode-map [?v ?o] 'start-offlineimap)))
 
+(eval-after-load "message"
+  '(define-key message-mode-map [?s] 'gnus-score-groups))
+
 (eval-after-load "w3m"
   '(define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser))
 
