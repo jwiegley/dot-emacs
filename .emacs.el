@@ -1617,4 +1617,6 @@ If the buffer is currently not visible, makes it sticky."
                   (org-fit-agenda-window)
                   (org-resolve-clocks)))))
 
+(provide 'dot-emacs-el)
+
 ;; .emacs.el ends here

@@ -646,4 +646,6 @@
 (eval-after-load "w3m"
   '(define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser))
 
+(provide 'dot-gnus-el)
+
 ;;; .gnus.el ends here

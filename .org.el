@@ -1088,4 +1088,6 @@ end tell" (match-string 1))))
   "Fit the Org Agenda to its buffer."
   (org-fit-agenda-window))
 
+(provide 'dot-org-el)
+
 ;; .org.el ends here
