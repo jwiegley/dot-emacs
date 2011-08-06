@@ -22,6 +22,7 @@
                 "site-lisp/org-mode/contrib/lisp"
                 "site-lisp/org-mode/lisp"
                 "site-lisp/session/lisp"
+                "site-lisp/tramp/lisp"
 
                 ;; Packages located elsewhere on the system...
                 "~/src/ledger/lisp"

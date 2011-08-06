@@ -124,3 +124,6 @@
 [submodule "site-lisp/company"]
 	path = site-lisp/company
 	url = git://github.com/jwiegley/company.git
+[submodule "site-lisp/tramp"]
+	path = site-lisp/tramp
+	url = git://github.com/jwiegley/tramp.git
