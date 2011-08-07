@@ -5,8 +5,6 @@
 
 (eval-after-load "cc-mode"
   '(progn
-     (load "xcscope" t)
-
      (setq c-syntactic-indentation nil)
 
      (define-key c-mode-base-map "#"         'self-insert-command)
