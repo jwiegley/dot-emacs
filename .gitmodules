@@ -3,7 +3,7 @@
 	url = site-lisp
 [submodule "site-lisp/org-mode"]
 	path = site-lisp/org-mode
-	url = git://repo.or.cz/org-mode.git
+	url = git://github.com/jwiegley/org-mode.git
 [submodule "site-lisp/muse"]
 	path = site-lisp/muse
 	url = git://github.com/jwiegley/muse.git
