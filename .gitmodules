@@ -127,3 +127,6 @@
 [submodule "site-lisp/tramp"]
 	path = site-lisp/tramp
 	url = git://github.com/jwiegley/tramp.git
+[submodule "site-lisp/pymacs"]
+	path = site-lisp/pymacs
+	url = git://github.com/pinard/Pymacs.git

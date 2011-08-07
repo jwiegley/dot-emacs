@@ -55,32 +55,50 @@
 
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
-;;; flymake
+;;;_ * flymake
 
 (autoload 'flymake-mode "flymake" "" t)
 
+(defun flymake-pylint-init ()
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "epylint" (list local-file))))
+
+(defun flymake-hslint-init ()
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "hslint" (list local-file))))
+
 (eval-after-load "flymake"
   '(progn
-     (defun flymake-pylint-init ()
-       (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-			    'flymake-create-temp-inplace))
-	      (local-file  (file-relative-name
-			    temp-file
-			    (file-name-directory buffer-file-name))))
-	 (list "epylint" (list local-file))))
-
      (add-to-list 'flymake-allowed-file-name-masks
 		  '("\\.py\\'" flymake-pylint-init))
-
-     (defun flymake-hslint-init ()
-       (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-			    'flymake-create-temp-inplace))
-	      (local-file  (file-relative-name
-			    temp-file
-			    (file-name-directory buffer-file-name))))
-	 (list "hslint" (list local-file))))
-
      (add-to-list 'flymake-allowed-file-name-masks
 		  '("\\.l?hs\\'" flymake-hslint-init))))
+
+;;;_ * pymacs
+
+(autoload 'pymacs-apply "pymacs")
+(autoload 'pymacs-call "pymacs")
+(autoload 'pymacs-eval "pymacs" nil t)
+(autoload 'pymacs-exec "pymacs" nil t)
+(autoload 'pymacs-load "pymacs" nil t)
+
+(defvar pymacs-loaded nil)
+
+(eval-after-load "python-mode"
+  '(unless pymacs-loaded
+     (setenv "PYTHONPATH"
+             (expand-file-name "~/Library/Emacs/site-lisp/pymacs"))
+     (pymacs-load "ropemacs" "rope-")
+     ;; (rope-init)
+     (setq ropemacs-enable-autoimport t)
+     (setq pymacs-loaded t)))
 
 ;;; lang-python.el ends here
