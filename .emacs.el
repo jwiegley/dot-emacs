@@ -214,6 +214,8 @@
      erc-current-nick-face erc-keyword-face
      (erc-nick-default-face erc-pal-face)
      erc-pal-face erc-nick-msg-face erc-direct-msg-face)))
+ '(erc-track-minor-mode t)
+ '(erc-track-mode t)
  '(erc-user-full-name
    (quote user-full-name))
  '(eshell-history-size 1000)
