@@ -325,7 +325,7 @@
    (quote
     (("\\`\\(canlock\\|eudc\\|spam\\|nn\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil nil)
      ("\\`\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil nil)
-     ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.ercpass" nil nil))))
+     ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.passwd" nil nil))))
  '(initsplit-pretty-print t)
  '(ispell-extra-args
    (quote
