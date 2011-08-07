@@ -10,25 +10,24 @@
 ;; environment.
 
 (dolist (path
-         (reverse
-          (list "." "site-lisp"
+         (list "." "site-lisp"
 
-                ;; Packages that bury their Lisp code in subdirectories...
-                "site-lisp/auctex/preview"
-                "site-lisp/eshell"
-                "site-lisp/gnus/contrib"
-                "site-lisp/gnus/lisp"
-                "site-lisp/ess/lisp"
-                "site-lisp/org-mode/contrib/lisp"
-                "site-lisp/org-mode/lisp"
-                "site-lisp/session/lisp"
-                "site-lisp/tramp/lisp"
+               ;; Packages that bury their Lisp code in subdirectories...
+               "site-lisp/auctex/preview"
+               "site-lisp/eshell"
+               "site-lisp/gnus/contrib"
+               "site-lisp/gnus/lisp"
+               "site-lisp/ess/lisp"
+               "site-lisp/org-mode/contrib/lisp"
+               "site-lisp/org-mode/lisp"
+               "site-lisp/session/lisp"
+               "site-lisp/tramp/lisp"
 
-                ;; Packages located elsewhere on the system...
-                "~/src/ledger/lisp"
-                "/opt/local/share/doc/git-core/contrib/emacs"
-                "/opt/local/share/emacs/site-lisp"
-                )))
+               ;; Packages located elsewhere on the system...
+               "~/src/ledger/lisp"
+               "/opt/local/share/doc/git-core/contrib/emacs"
+               "/opt/local/share/emacs/site-lisp"
+               ))
 
   (setq path (expand-file-name path emacs-lisp-root)
         load-path (delete path load-path)
@@ -180,7 +179,7 @@
  '(erc-autojoin-channels-alist
    (quote
     (("localhost" "#twitter_jwiegley" "&bitlbee")
-     ("freenode.net" "#ledger"))))
+     ("freenode.net" "#emacs" "#git" "#org-mode" "#ledger"))))
  '(erc-autojoin-mode t)
  '(erc-generate-log-file-name-function
    (quote erc-generate-log-file-name-short))
@@ -713,9 +712,7 @@
   (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
        (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords)))))
   (erc :server "localhost" :port 6667 :nick "johnw" :password
-       (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords)))))
-
-  (erc-track-mode))
+       (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords))))))
 
 (eval-after-load "erc"
   '(progn
