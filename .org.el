@@ -255,7 +255,10 @@
  '(org-use-property-inheritance
    (quote
     ("AREA")))
- '(org-use-speed-commands t))
+ '(org-use-speed-commands t)
+ '(org-x-backends
+   (quote
+    (ox-org ox-redmine))))
 
 ;;;_ + faces
 
