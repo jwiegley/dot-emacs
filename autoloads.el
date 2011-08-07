@@ -7107,49 +7107,6 @@ Not documented
 
 ;;;***
 
-;;;### (autoloads (ruby-mode) "ruby-mode" "site-lisp/ruby-mode/ruby-mode.el"
-;;;;;;  (19385 30190))
-;;; Generated autoloads from site-lisp/ruby-mode/ruby-mode.el
-
-(autoload 'ruby-mode "ruby-mode" "\
-Major mode for editing ruby scripts.
-\\[ruby-indent-command] properly indents subexpressions of multi-line
-class, module, def, if, while, for, do, and case statements, taking
-nesting into account.
-
-The variable ruby-indent-level controls the amount of indentation.
-\\{ruby-mode-map}
-
-\(fn)" t nil)
-
-;;;***
-
-;;;### (autoloads (rubydb) "rubydb2x" "site-lisp/ruby-mode/rubydb2x.el"
-;;;;;;  (19385 30190))
-;;; Generated autoloads from site-lisp/ruby-mode/rubydb2x.el
-
-(autoload 'rubydb "rubydb2x" "\
-Run rubydb on program FILE in buffer *gud-FILE*.
-The directory containing FILE becomes the initial working directory
-and source-file directory for your debugger.
-
-\(fn COMMAND-LINE)" t nil)
-
-;;;***
-
-;;;### (autoloads (rubydb) "rubydb3x" "site-lisp/ruby-mode/rubydb3x.el"
-;;;;;;  (19385 30190))
-;;; Generated autoloads from site-lisp/ruby-mode/rubydb3x.el
-
-(autoload 'rubydb "rubydb3x" "\
-Run rubydb on program FILE in buffer *gud-FILE*.
-The directory containing FILE becomes the initial working directory
-and source-file directory for your debugger.
-
-\(fn COMMAND-LINE)" t nil)
-
-;;;***
-
 ;;;### (autoloads (sr-dired sunrise-cd sunrise) "sunrise-commander"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-commander.el" (20024
 ;;;;;;  6655))
