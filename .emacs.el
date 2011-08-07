@@ -743,59 +743,7 @@ If the buffer is currently not visible, makes it sticky."
          (growl (concat "ERC: " (buffer-name (current-buffer)))
                 message)))
 
-     (add-hook 'erc-text-matched-hook 'my-erc-hook)
-
-     (defadvice erc-track-find-face
-       (around erc-track-find-face-promote-query activate)
-       (if (erc-query-buffer-p)
-           (setq ad-return-value 'erc-current-nick-face)
-         ad-do-it))
-
-     (defadvice erc-track-modified-channels
-       (around erc-track-modified-channels-promote-query activate)
-       (if (erc-query-buffer-p) (setq erc-track-priority-faces-only 'nil))
-       ad-do-it
-       (if (erc-query-buffer-p) (setq erc-track-priority-faces-only 'all)))
-
-     (defun erc-cmd-UNTRACK (&optional target)
-       "Add TARGET to the list of target to be tracked."
-       (if target
-           (erc-with-server-buffer
-            (let ((untracked
-                   (car (erc-member-ignore-case target erc-track-exclude))))
-              (if untracked
-                  (erc-display-line
-                   (erc-make-notice (format "%s is not currently tracked!" target))
-                   'active)
-                (add-to-list 'erc-track-exclude target)
-                (erc-display-line
-                 (erc-make-notice (format "Now not tracking %s" target))
-                 'active))))
-
-         (if (null erc-track-exclude)
-             (erc-display-line (erc-make-notice "Untracked targets list is empty")
-                               'active)
-           (erc-display-line (erc-make-notice "Untracked targets list:") 'active)
-           (mapc #'(lambda (item)
-                     (erc-display-line (erc-make-notice item) 'active))
-                 (erc-with-server-buffer erc-track-exclude))))
-       t)
-
-     (defun erc-cmd-TRACK (target)
-       "Remove TARGET of the list of targets which they should not be tracked."
-       (when target
-         (erc-with-server-buffer
-          (let ((tracked
-                 (not (car (erc-member-ignore-case target erc-track-exclude)))))
-            (if tracked
-                (erc-display-line
-                 (erc-make-notice (format "%s is currently tracked!" target))
-                 'active)
-              (setq erc-track-exclude (remove target erc-track-exclude))
-              (erc-display-line
-               (erc-make-notice (format "Now tracking %s" target))
-               'active)))))
-       t)))
+     (add-hook 'erc-text-matched-hook 'my-erc-hook)))
 
 ;;;_ + escreen
 
