@@ -21,7 +21,7 @@
 	url = git://github.com/defunkt/gist.el.git
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
-	url = http://github.com/emacsmirror/haskell-mode.git
+	url = git://github.com/jwiegley/haskell-mode.git
 [submodule "site-lisp/planner"]
 	path = site-lisp/planner
 	url = git://repo.or.cz/planner-el.git
