@@ -548,6 +548,7 @@
 
 (mapc #'(lambda (name) (load name t))
       '(
+        ".passwd"
         "archive-region"
         "browse-kill-ring+"
         "diminish"
@@ -623,87 +624,82 @@
 
 ;;;_ + dired-x
 
-(eval-after-load "dired-x"
+(defvar dired-delete-file-orig (symbol-function 'dired-delete-file))
+
+;; Trash files instead of deleting them
+(defun dired-delete-file (file &optional recursive)
+  (if (string-match "/\\(ssh\\|sudo\\):" dired-directory)
+      (funcall dired-delete-file-orig)
+    (if recursive
+        (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
+      (call-process "/Users/johnw/bin/del" nil nil nil file))))
+
+(defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+
+;; Omit files that Git would ignore
+(defun dired-omit-regexp ()
+  (let ((file (expand-file-name ".git"))
+        parent-dir)
+    (while (and (not (file-exists-p file))
+                (progn
+                  (setq parent-dir
+                        (file-name-directory
+                         (directory-file-name
+                          (file-name-directory file))))
+                  ;; Give up if we are already at the root dir.
+                  (not (string= (file-name-directory file)
+                                parent-dir))))
+      ;; Move up to the parent dir and try again.
+      (setq file (expand-file-name ".git" parent-dir)))
+    ;; If we found a change log in a parent, use that.
+    (if (file-exists-p file)
+        (let ((regexp (funcall dired-omit-regexp-orig))
+              (omitted-files (shell-command-to-string
+                              "git clean -d -x -n")))
+          (if (= 0 (length omitted-files))
+              regexp
+            (concat
+             regexp
+             (if (> (length regexp) 0)
+                 "\\|" "")
+             "\\("
+             (mapconcat
+              #'(lambda (str)
+                  (concat "^"
+                          (regexp-quote
+                           (substring str 13
+                                      (if (= ?/ (aref str (1- (length str))))
+                                          (1- (length str))
+                                        nil)))
+                          "$"))
+              (split-string omitted-files "\n" t)
+              "\\|")
+             "\\)")))
+      (funcall dired-omit-regexp-orig))))
+
+(eval-after-load "dired"
   '(progn
      (setq dired-use-ls-dired t)
 
-     (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
-
      (define-key dired-mode-map [?l] 'dired-up-directory)
-     (define-key dired-mode-map [tab] 'other-window)
-
-     (defvar dired-delete-file-orig (symbol-function 'dired-delete-file))
-
-     ;; Trash files instead of deleting them
-     (defun dired-delete-file (file &optional recursive)
-       (if (string-match "/\\(ssh\\|sudo\\):" dired-directory)
-           (funcall dired-delete-file-orig)
-         (if recursive
-             (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
-           (call-process "/Users/johnw/bin/del" nil nil nil file))))
-
-     ;; Omit files that Git would ignore
-     (defun dired-omit-regexp ()
-       (let ((file (expand-file-name ".git"))
-             parent-dir)
-         (while (and (not (file-exists-p file))
-                     (progn
-                       (setq parent-dir
-                             (file-name-directory
-                              (directory-file-name
-                               (file-name-directory file))))
-                       ;; Give up if we are already at the root dir.
-                       (not (string= (file-name-directory file)
-                                     parent-dir))))
-           ;; Move up to the parent dir and try again.
-           (setq file (expand-file-name ".git" parent-dir)))
-         ;; If we found a change log in a parent, use that.
-         (if (file-exists-p file)
-             (let ((regexp (funcall dired-omit-regexp-orig))
-                   (omitted-files (shell-command-to-string
-                                   "git clean -d -x -n")))
-               (if (= 0 (length omitted-files))
-                   regexp
-                 (concat
-                  regexp
-                  (if (> (length regexp) 0)
-                      "\\|" "")
-                  "\\("
-                  (mapconcat
-                   #'(lambda (str)
-                       (concat "^"
-                               (regexp-quote
-                                (substring str 13
-                                           (if (= ?/ (aref str (1- (length str))))
-                                               (1- (length str))
-                                             nil)))
-                               "$"))
-                   (split-string omitted-files "\n" t)
-                   "\\|")
-                  "\\)")))
-           (funcall dired-omit-regexp-orig))))))
+     (define-key dired-mode-map [tab] 'other-window)))
 
 ;;;_ + erc
 
 (defadvice customize-option (before cust-opt-load-dotfiles activate)
   (unless (featurep 'dot-gnus-el) (load ".gnus"))
-  (unless (featurep 'dot-org-el) (load ".org"))
-  (unless (featurep 'dot-ercpass-el) (load ".ercpass")))
+  (unless (featurep 'dot-org-el) (load ".org")))
 
 (defadvice customize-variable (before cust-var-load-dotfiles activate)
   (unless (featurep 'dot-gnus-el) (load ".gnus"))
-  (unless (featurep 'dot-org-el) (load ".org"))
-  (unless (featurep 'dot-ercpass-el) (load ".ercpass")))
+  (unless (featurep 'dot-org-el) (load ".org")))
 
 (defadvice customize-group (before cust-group-load-dotfiles activate)
   (unless (featurep 'dot-gnus-el) (load ".gnus"))
-  (unless (featurep 'dot-org-el) (load ".org"))
-  (unless (featurep 'dot-ercpass-el) (load ".ercpass")))
+  (unless (featurep 'dot-org-el) (load ".org")))
 
 (defun irc ()
   (interactive)
-
-  (load ".ercpass")
 
   (shell-command "bitlbee -F")
   (sleep-for 3)
@@ -714,109 +710,100 @@
   (erc :server "localhost" :port 6667 :nick "johnw" :password
        (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords))))))
 
-(eval-after-load "erc"
-  '(progn
-     (defvar growlnotify-command (executable-find "growlnotify")
-       "The path to growlnotify")
+(defvar growlnotify-command (executable-find "growlnotify")
+   "The path to growlnotify")
 
-     (defun growl (title message)
-       "Shows a message through the growl notification system using
+(defun growl (title message)
+  "Shows a message through the growl notification system using
  `growlnotify-command` as the program."
-       (flet ((encfn (s) (encode-coding-string s (keyboard-coding-system))) )
-         (let* ((process (start-process "growlnotify" nil
-                                        growlnotify-command
-                                        (encfn title)
-                                        "-a" "Emacs"
-                                        "-n" "Emacs")))
-           (process-send-string process (encfn message))
-           (process-send-string process "\n")
-           (process-send-eof process)))
-       t)
+  (flet ((encfn (s) (encode-coding-string s (keyboard-coding-system))) )
+    (let* ((process (start-process "growlnotify" nil
+                                   growlnotify-command
+                                   (encfn title)
+                                   "-a" "Emacs"
+                                   "-n" "Emacs")))
+      (process-send-string process (encfn message))
+      (process-send-string process "\n")
+      (process-send-eof process)))
+  t)
 
-     (defun my-erc-hook (match-type nick message)
-       "Shows a growl notification, when user's nick was mentioned.
+(defun my-erc-hook (match-type nick message)
+  "Shows a growl notification, when user's nick was mentioned.
 If the buffer is currently not visible, makes it sticky."
-       (unless (posix-string-match "^\\** *Users on #" message)
-         (growl (concat "ERC: " (buffer-name (current-buffer)))
-                message)))
+  (unless (posix-string-match "^\\** *Users on #" message)
+    (growl (concat "ERC: " (buffer-name (current-buffer)))
+           message)))
 
-     (add-hook 'erc-text-matched-hook 'my-erc-hook)))
+(add-hook 'erc-text-matched-hook 'my-erc-hook)
 
 ;;;_ + escreen
 
-(eval-after-load "escreen"
-  '(progn
-     (escreen-install)
+(escreen-install)
 
-     (define-key escreen-map "\\" 'toggle-input-method)
+(define-key escreen-map "\\" 'toggle-input-method)
 
-     (defvar escreen-e21-mode-line-string "[0]")
-     (defun escreen-e21-mode-line-update ()
-       (setq escreen-e21-mode-line-string
-             (format "[%d]" escreen-current-screen-number))
-       (force-mode-line-update))
+(defvar escreen-e21-mode-line-string "[0]")
+(defun escreen-e21-mode-line-update ()
+  (setq escreen-e21-mode-line-string
+        (format "[%d]" escreen-current-screen-number))
+  (force-mode-line-update))
 
-     (let ((point (or
-                   ;; GNU Emacs 21.3.50 or later
-                   (memq 'mode-line-position mode-line-format)
-                   ;; GNU Emacs 21.3.1
-                   (memq 'mode-line-buffer-identification mode-line-format)))
-           (escreen-mode-line-elm '(t (" " escreen-e21-mode-line-string))))
-       (when (null (member escreen-mode-line-elm mode-line-format))
-         (setcdr point (cons escreen-mode-line-elm (cdr point)))))
+(let ((point (or
+              ;; GNU Emacs 21.3.50 or later
+              (memq 'mode-line-position mode-line-format)
+              ;; GNU Emacs 21.3.1
+              (memq 'mode-line-buffer-identification mode-line-format)))
+      (escreen-mode-line-elm '(t (" " escreen-e21-mode-line-string))))
+  (when (null (member escreen-mode-line-elm mode-line-format))
+    (setcdr point (cons escreen-mode-line-elm (cdr point)))))
 
-     (add-hook 'escreen-goto-screen-hook 'escreen-e21-mode-line-update)))
+(add-hook 'escreen-goto-screen-hook 'escreen-e21-mode-line-update)
 
 ;;;_  + eshell
 
-(eval-after-load "eshell"
-  '(progn
-     (defun eshell-spawn-external-command (beg end)
-       "Parse and expand any history references in current input."
-       (save-excursion
-         (goto-char end)
-         (when (looking-back "&!" beg)
-           (delete-region (match-beginning 0) (match-end 0))
-           (goto-char beg)
-           (insert "spawn "))))
+(defun eshell-spawn-external-command (beg end)
+   "Parse and expand any history references in current input."
+   (save-excursion
+     (goto-char end)
+     (when (looking-back "&!" beg)
+       (delete-region (match-beginning 0) (match-end 0))
+       (goto-char beg)
+       (insert "spawn "))))
 
-     (add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
+(add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
 
-     (defun ss (server)
-       (interactive "sServer: ")
-       (call-process "spawn" nil nil nil "ss" server))))
+(defun ss (server)
+  (interactive "sServer: ")
+  (call-process "spawn" nil nil nil "ss" server))
 
 (eval-after-load "em-unix"
   '(unintern 'eshell/rm))
 
 ;;;_ + git
 
+(defun commit-after-save ()
+  (let ((file (file-name-nondirectory (buffer-file-name))))
+    (message "Committing changes to Git...")
+    (if (call-process "git" nil nil nil "add" file)
+        (if (call-process "git" nil nil nil "commit" "-m"
+                          (concat "changes to " file))
+            (message "Committed changes to %s" file)))))
+
+(setenv "GIT_PAGER" "")
+
+(add-hook 'magit-log-edit-mode-hook
+          (function
+           (lambda ()
+             (set-fill-column 72)
+             (column-number-mode t)
+             (column-marker-1 72)
+             (flyspell-mode)
+             (orgstruct++-mode))))
+
 (eval-after-load "magit"
   '(progn
      (require 'magit-topgit)
-     (require 'rebase-mode)
-        
-     (setenv "GIT_PAGER" "")
-
-     (setq github-username "jwiegley"
-           github-api-key "14c811944452528f94a5b1e3488487cd")
-
-     (defun commit-after-save ()
-       (let ((file (file-name-nondirectory (buffer-file-name))))
-         (message "Committing changes to Git...")
-         (if (call-process "git" nil nil nil "add" file)
-             (if (call-process "git" nil nil nil "commit" "-m"
-                               (concat "changes to " file))
-                 (message "Committed changes to %s" file)))))
-     
-     (add-hook 'magit-log-edit-mode-hook
-               (function
-                (lambda ()
-                  (set-fill-column 72)
-                  (column-number-mode t)
-                  (column-marker-1 72)
-                  (flyspell-mode)
-                  (orgstruct++-mode))))))
+     (require 'rebase-mode)))
 
 ;;;_ + mule
 
@@ -881,8 +868,7 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;_ + per-window-point
 
-(eval-after-load "per-window-point"
-  '(pwp-mode 1))
+(pwp-mode 1)
 
 ;;;_ * puppet-mode
 
@@ -890,101 +876,96 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;_ + session
 
-(eval-after-load "session"
-  '(progn
-     (defun save-information ()
-       (dolist (func kill-emacs-hook)
-         (unless (eq func 'exit-gnus-on-exit)
-           (funcall func))))
+(defun save-information ()
+  (dolist (func kill-emacs-hook)
+    (unless (eq func 'exit-gnus-on-exit)
+      (funcall func))))
 
-     (run-with-idle-timer 900 t 'save-information)))
+(run-with-idle-timer 900 t 'save-information)
 
 ;;;_ + sunrise-commander
 
-(eval-after-load "sunrise-commander"
-  '(progn
-     (require 'sunrise-x-modeline)
+(defun sr-goto-dir (dir)
+  "Change the current directory in the active pane to the given one."
+  (interactive
+   (list (ido-read-directory-name
+          "Change directory (file or pattern): "
+          nil nil (confirm-nonexistent-file-or-buffer) "~/")))
+  (unless (and (eq major-mode 'sr-mode)
+               (sr-equal-dirs dir default-directory))
+    (if (and sr-avfs-root
+             (null (posix-string-match "#" dir)))
+        (setq dir (replace-regexp-in-string
+                   (expand-file-name sr-avfs-root) "" dir)))
+    (sr-save-aspect
+     (sr-within dir (sr-alternate-buffer (dired dir))))
+    (sr-history-push default-directory)
+    (sr-beginning-of-buffer)))
 
-     (defun sr-goto-dir (dir)
-       "Change the current directory in the active pane to the given one."
-       (interactive
-        (list (ido-read-directory-name
-               "Change directory (file or pattern): "
-               nil nil (confirm-nonexistent-file-or-buffer) "~/")))
-       (unless (and (eq major-mode 'sr-mode)
-                    (sr-equal-dirs dir default-directory))
-         (if (and sr-avfs-root
-                  (null (posix-string-match "#" dir)))
-             (setq dir (replace-regexp-in-string
-                        (expand-file-name sr-avfs-root) "" dir)))
-         (sr-save-aspect
-          (sr-within dir (sr-alternate-buffer (dired dir))))
-         (sr-history-push default-directory)
-         (sr-beginning-of-buffer)))))
+(eval-after-load "sunrise-commander"
+  '(require 'sunrise-x-modeline))
 
 ;;;_ + undo-tree
 
-(eval-after-load "undo-tree"
-  '(global-undo-tree-mode))
+(global-undo-tree-mode)
+
+;;;_ + vkill
+
+(eval-after-load "vkill"
+  '(setq vkill-show-all-processes t))
 
 ;;;_ + whitespace
 
-(eval-after-load "whitespace"
-  '(progn
-     (remove-hook 'find-file-hooks 'whitespace-buffer)
-     (remove-hook 'kill-buffer-hook 'whitespace-buffer)
+(remove-hook 'find-file-hooks 'whitespace-buffer)
+(remove-hook 'kill-buffer-hook 'whitespace-buffer)
 
-     (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
+(add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
 
-     (defun maybe-turn-on-whitespace ()
-       "Depending on the file, maybe turn on `whitespace-mode'."
-       (let ((file (expand-file-name ".clean"))
-             parent-dir)
-         (while (and (not (file-exists-p file))
-                     (progn
-                       (setq parent-dir
-                             (file-name-directory
-                              (directory-file-name
-                               (file-name-directory file))))
-                       ;; Give up if we are already at the root dir.
-                       (not (string= (file-name-directory file)
-                                     parent-dir))))
-           ;; Move up to the parent dir and try again.
-           (setq file (expand-file-name ".clean" parent-dir)))
-         ;; If we found a change log in a parent, use that.
-         (when (and (file-exists-p file)
-                    (not (file-exists-p ".noclean"))
-                    (not (and buffer-file-name
-                              (string-match "\\.texi$" buffer-file-name))))
-           (add-hook 'write-contents-hooks
-                     #'(lambda ()
-                         (ignore (whitespace-buffer))) nil t)
-           (whitespace-buffer))))))
+(defun maybe-turn-on-whitespace ()
+  "Depending on the file, maybe turn on `whitespace-mode'."
+  (let ((file (expand-file-name ".clean"))
+        parent-dir)
+    (while (and (not (file-exists-p file))
+                (progn
+                  (setq parent-dir
+                        (file-name-directory
+                         (directory-file-name
+                          (file-name-directory file))))
+                  ;; Give up if we are already at the root dir.
+                  (not (string= (file-name-directory file)
+                                parent-dir))))
+      ;; Move up to the parent dir and try again.
+      (setq file (expand-file-name ".clean" parent-dir)))
+    ;; If we found a change log in a parent, use that.
+    (when (and (file-exists-p file)
+               (not (file-exists-p ".noclean"))
+               (not (and buffer-file-name
+                         (string-match "\\.texi$" buffer-file-name))))
+      (add-hook 'write-contents-hooks
+                #'(lambda ()
+                    (ignore (whitespace-cleanup))) nil t)
+      (whitespace-cleanup))))
 
 ;;;_ + yasnippet
 
-(eval-after-load "yasnippet"
-  '(progn
-     (yas/initialize)
-     (yas/load-directory (expand-file-name "snippets/" emacs-lisp-root))))
+(yas/initialize)
+(yas/load-directory (expand-file-name "snippets/" emacs-lisp-root))
 
 ;;;_ + diminish (this must come last)
 
-(eval-after-load "diminish"
-  '(progn
-     (diminish 'abbrev-mode)
-     (diminish 'auto-fill-function)
-     (ignore-errors
-       (diminish 'yas/minor-mode))
+(diminish 'abbrev-mode)
+(diminish 'auto-fill-function)
+(ignore-errors
+  (diminish 'yas/minor-mode))
 
-     (defadvice dired-omit-startup (after diminish-dired-omit activate)
-       "Make sure to remove \"Omit\" from the modeline."
-       (diminish 'dired-omit-mode))
+(defadvice dired-omit-startup (after diminish-dired-omit activate)
+  "Make sure to remove \"Omit\" from the modeline."
+  (diminish 'dired-omit-mode))
 
-     (eval-after-load "dot-mode" '(diminish 'dot-mode))
-     (eval-after-load "undo-tree" '(diminish 'undo-tree-mode))
-     (eval-after-load "winner"
-       '(ignore-errors (diminish 'winner-mode)))))
+(eval-after-load "dot-mode" '(diminish 'dot-mode))
+(eval-after-load "undo-tree" '(diminish 'undo-tree-mode))
+(eval-after-load "winner"
+  '(ignore-errors (diminish 'winner-mode)))
 
 ;;;_* keybindings
 

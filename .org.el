@@ -989,10 +989,12 @@ end tell" (match-string 1))))
 
 ;;;_ + org-mode
 
-(org-defkey org-mode-map [(control meta return)]
-            'org-insert-heading-after-current)
-(org-defkey org-mode-map [(control return)] 'other-window)
-(define-key org-mode-map [return] 'org-return-indent)
+(eval-after-load "org"
+  '(progn
+     (org-defkey org-mode-map [(control meta return)]
+                 'org-insert-heading-after-current)
+     (org-defkey org-mode-map [(control return)] 'other-window)
+     (org-defkey org-mode-map [return] 'org-return-indent)))
 
 (defun org-fit-agenda-window ()
   "Fit the window to the buffer size."

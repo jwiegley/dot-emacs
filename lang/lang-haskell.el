@@ -4,9 +4,7 @@
 
 (add-to-list 'auto-mode-alist '("\\.l?hs$" . haskell-mode))
 
-(eval-after-load "haskell-site-file"
-  '(progn
-     (defun my-haskell-mode-hook ()
+(defun my-haskell-mode-hook ()
        ;;(flymake-mode)
 
        (setq haskell-saved-check-command haskell-check-command)
@@ -18,5 +16,7 @@
        (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
        (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
 
-     (load "inf-haskell" t)
-     (load "hs-lint" t)))
+(eval-after-load "haskell-site-file"
+  '(progn
+     (require 'inf-haskell)
+     (require 'hs-lint)))

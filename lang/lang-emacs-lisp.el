@@ -41,8 +41,7 @@
     (call-interactively 'lisp-complete-symbol)))
 
 (eval-after-load "lisp-mode"
-  '(progn
-    (define-key emacs-lisp-mode-map [tab] 'elisp-indent-or-complete)))
+  '(define-key emacs-lisp-mode-map [tab] 'elisp-indent-or-complete))
 
 ;;;_  + column-marker
 
