@@ -84,21 +84,21 @@
 
 ;;;_ * pymacs
 
-(autoload 'pymacs-apply "pymacs")
-(autoload 'pymacs-call "pymacs")
-(autoload 'pymacs-eval "pymacs" nil t)
-(autoload 'pymacs-exec "pymacs" nil t)
-(autoload 'pymacs-load "pymacs" nil t)
-
-(defvar pymacs-loaded nil)
-
-(eval-after-load "python-mode"
-  '(unless pymacs-loaded
-     (setenv "PYTHONPATH"
-             (expand-file-name "~/Library/Emacs/site-lisp/pymacs"))
-     (pymacs-load "ropemacs" "rope-")
-     ;; (rope-init)
-     (setq ropemacs-enable-autoimport t)
-     (setq pymacs-loaded t)))
+;;(autoload 'pymacs-apply "pymacs")
+;;(autoload 'pymacs-call "pymacs")
+;;(autoload 'pymacs-eval "pymacs" nil t)
+;;(autoload 'pymacs-exec "pymacs" nil t)
+;;(autoload 'pymacs-load "pymacs" nil t)
+;;
+;;(defvar pymacs-loaded nil)
+;;
+;;(eval-after-load "python-mode"
+;;  '(unless pymacs-loaded
+;;     (setenv "PYTHONPATH"
+;;             (expand-file-name "~/Library/Emacs/site-lisp/pymacs"))
+;;     (pymacs-load "ropemacs" "rope-")
+;;     ;; (rope-init)
+;;     (setq ropemacs-enable-autoimport t)
+;;     (setq pymacs-loaded t)))
 
 ;;; lang-python.el ends here
