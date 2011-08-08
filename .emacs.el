@@ -267,9 +267,8 @@
  '(frame-title-format
    (quote
     (:eval
-     (concat "%["
-             (if buffer-file-name default-directory "%b")
-             " - %I%]    "
+     (concat (if buffer-file-name default-directory "%b")
+             "    "
              (number-to-string
               (cdr
                (assq
