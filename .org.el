@@ -258,7 +258,11 @@
  '(org-use-speed-commands t)
  '(org-x-backends
    (quote
-    (ox-org ox-redmine))))
+    (ox-org ox-redmine)))
+ '(org-x-redmine-title-prefix-function
+   (quote org-x-redmine-title-prefix))
+ '(org-x-redmine-title-prefix-match-function
+   (quote org-x-redmine-title-prefix-match)))
 
 ;;;_ + faces
 
