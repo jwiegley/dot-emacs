@@ -563,6 +563,7 @@
 (mapc #'(lambda (name) (load name t))
       '(
         ".passwd"
+        ".org"
         "archive-region"
         "browse-kill-ring+"
         "diminish"
@@ -582,13 +583,13 @@
           (autoload (cdr entry) (car entry) nil t))
       '(
         (".gnus"         . gnus)
-        (".org"          . howm-create)
-        (".org"          . howm-list-grep)
-        (".org"          . org-agenda)
-        (".org"          . org-agenda-list)
-        (".org"          . org-inline-note)
-        (".org"          . org-smart-capture)
-        (".org"          . orgstruct++-mode)
+        ;;(".org"          . howm-create)
+        ;;(".org"          . howm-list-grep)
+        ;;(".org"          . org-agenda)
+        ;;(".org"          . org-agenda-list)
+        ;;(".org"          . org-inline-note)
+        ;;(".org"          . org-smart-capture)
+        ;;(".org"          . orgstruct++-mode)
         ("breadcrumb"    . bc-goto-current)
         ("breadcrumb"    . bc-list)
         ("breadcrumb"    . bc-local-next)
@@ -703,16 +704,13 @@
 ;;;_ + erc
 
 (defadvice customize-option (before cust-opt-load-dotfiles activate)
-  (unless (featurep 'dot-gnus-el) (load ".gnus"))
-  (unless (featurep 'dot-org-el) (load ".org")))
+  (unless (featurep 'dot-gnus-el) (load ".gnus")))
 
 (defadvice customize-variable (before cust-var-load-dotfiles activate)
-  (unless (featurep 'dot-gnus-el) (load ".gnus"))
-  (unless (featurep 'dot-org-el) (load ".org")))
+  (unless (featurep 'dot-gnus-el) (load ".gnus")))
 
 (defadvice customize-group (before cust-group-load-dotfiles activate)
-  (unless (featurep 'dot-gnus-el) (load ".gnus"))
-  (unless (featurep 'dot-org-el) (load ".org")))
+  (unless (featurep 'dot-gnus-el) (load ".gnus")))
 
 (defun irc ()
   (interactive)
@@ -1515,13 +1513,11 @@ If the buffer is currently not visible, makes it sticky."
   (add-hook 'after-init-hook 'server-start)
   (add-hook 'after-init-hook 'edit-server-start)
   (add-hook 'after-init-hook 'emacs-min)
-
-  (if nil
-      (add-hook 'after-init-hook
-                (lambda ()
-                  (org-agenda-list)
-                  (org-fit-agenda-window)
-                  (org-resolve-clocks)))))
+  (add-hook 'after-init-hook
+            (lambda ()
+              (org-agenda-list)
+              (org-fit-agenda-window)
+              (org-resolve-clocks))))
 
 (provide 'dot-emacs-el)
 
