@@ -123,9 +123,6 @@
  '(completion-ignored-extensions
    (quote
     (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
- '(curchg-default-cursor-color "purple")
- '(curchg-overwrite/read-only-cursor-type
-   (quote hollow))
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function
    (quote kill-buffer))
@@ -568,7 +565,6 @@
         ".passwd"
         "archive-region"
         "browse-kill-ring+"
-        "cursor-chg"
         "diminish"
         "edit-server"
         "escreen"
@@ -636,11 +632,6 @@
   '(progn
      (require 'easy-mmode)
      (require 'info+)))
-
-;;;_ + cursor-chg
-
-(change-cursor-mode)
-(toggle-cursor-type-when-idle)
 
 ;;;_ + css-mode
 
