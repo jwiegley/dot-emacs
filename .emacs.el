@@ -453,7 +453,7 @@
  '(vc-follow-symlinks t)
  '(vc-handled-backends
    (quote
-    (GIT)))
+    (Git Bzr Hg)))
  '(version-control t)
  '(visible-bell t)
  '(w3m-command "/opt/local/bin/w3m")
