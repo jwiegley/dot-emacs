@@ -267,19 +267,20 @@
  '(frame-title-format
    (quote
     (:eval
-     (concat (if buffer-file-name default-directory "%b")
-             "    "
-             (number-to-string
-              (cdr
-               (assq
-                (quote width)
-                (frame-parameters))))
-             "x"
-             (number-to-string
-              (cdr
-               (assq
-                (quote height)
-                (frame-parameters)))))))
+     (concat
+      (if buffer-file-name default-directory "%b")
+      "    "
+      (number-to-string
+       (cdr
+        (assq
+         (quote width)
+         (frame-parameters))))
+      "x"
+      (number-to-string
+       (cdr
+        (assq
+         (quote height)
+         (frame-parameters)))))))
    t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil
