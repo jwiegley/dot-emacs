@@ -97,7 +97,7 @@ Any changes made in that buffer will be propagated to this buffer.
 ;;;***
 
 ;;;### (autoloads (anything-other-buffer anything-at-point anything)
-;;;;;;  "anything" "site-lisp/anything/anything.el" (20026 26090))
+;;;;;;  "anything" "site-lisp/anything/anything.el" (20029 58378))
 ;;; Generated autoloads from site-lisp/anything/anything.el
 
 (autoload 'anything "anything" "\
@@ -177,8 +177,8 @@ Simplified interface of `anything' with other `anything-buffer'
 ;;;;;;  anything-c-call-interactively w32-shell-execute-open-file
 ;;;;;;  anything-ratpoison-commands anything-c-run-external-command
 ;;;;;;  anything-c-complete-file-name-at-point anything-lisp-completion-at-point-or-indent
-;;;;;;  anything-lisp-completion-at-point anything-esh-pcomplete
-;;;;;;  anything-completion-mode anything-c-shell-command-if-needed
+;;;;;;  anything-lisp-completion-at-point anything-eshell-history
+;;;;;;  anything-esh-pcomplete anything-completion-mode anything-c-shell-command-if-needed
 ;;;;;;  anything-apt anything-world-time anything-select-xfont anything-top
 ;;;;;;  anything-create anything-execute-anything-command anything-call-source
 ;;;;;;  anything-surfraw anything-calcul-expression anything-eval-expression-with-eldoc
@@ -193,7 +193,7 @@ Simplified interface of `anything' with other `anything-buffer'
 ;;;;;;  anything-dired-symlink-file anything-dired-copy-file anything-dired-rename-file
 ;;;;;;  anything-insert-file anything-write-file anything-find-files
 ;;;;;;  anything-ff-run-kill-buffer-persistent anything-ff-properties-persistent
-;;;;;;  anything-ff-run-print-file anything-ff-run-gnus-attach-files
+;;;;;;  anything-ff-run-print-file anything-ff-run-etags anything-ff-run-gnus-attach-files
 ;;;;;;  anything-ff-run-open-file-externally anything-ff-run-switch-other-frame
 ;;;;;;  anything-ff-run-switch-other-window anything-ff-run-switch-to-eshell
 ;;;;;;  anything-ff-run-complete-fn-at-point anything-ff-run-delete-file
@@ -220,7 +220,7 @@ Simplified interface of `anything' with other `anything-buffer'
 ;;;;;;  anything-show-kill-ring anything-info-emacs anything-info-at-point
 ;;;;;;  anything-recentf anything-for-files anything-mini anything-configuration)
 ;;;;;;  "anything-config" "site-lisp/anything/anything-config.el"
-;;;;;;  (20019 11640))
+;;;;;;  (20029 58378))
 ;;; Generated autoloads from site-lisp/anything/anything-config.el
 
 (autoload 'anything-configuration "anything-config" "\
@@ -616,6 +616,11 @@ Run gnus attach files command action from `anything-c-source-find-files'.
 
 \(fn)" t nil)
 
+(autoload 'anything-ff-run-etags "anything-config" "\
+Run Etags command action from `anything-c-source-find-files'.
+
+\(fn)" t nil)
+
 (autoload 'anything-ff-run-print-file "anything-config" "\
 Run Print file action from `anything-c-source-find-files'.
 
@@ -732,7 +737,7 @@ Yank text at point in minibuffer.
 \(fn)" t nil)
 
 (autoload 'anything-etags-help "anything-config" "\
-Not documented
+The help function for etags.
 
 \(fn)" t nil)
 
@@ -894,6 +899,11 @@ Toggle generic anything completion.
 
 (autoload 'anything-esh-pcomplete "anything-config" "\
 Preconfigured anything to provide anything completion in eshell.
+
+\(fn)" t nil)
+
+(autoload 'anything-eshell-history "anything-config" "\
+Preconfigured anything for eshell history.
 
 \(fn)" t nil)
 
@@ -6680,6 +6690,38 @@ Not documented
 
 ;;;***
 
+;;;### (autoloads (size-indication-mode modelinepos-column-limit)
+;;;;;;  "modeline-posn" "site-lisp/modeline-posn.el" (19747 30566))
+;;; Generated autoloads from site-lisp/modeline-posn.el
+
+(defface modelinepos-column-warning '((t (:foreground "Red"))) "\
+*Face used to highlight the modeline column number.
+This is used when the current column number is greater than
+`modelinepos-column-limit'." :group (quote Modeline) :group (quote Convenience) :group (quote Help) :group (quote faces))
+
+(defvar modelinepos-column-limit 70 "\
+Current column greater than this means highlight column in mode-line.")
+
+(custom-autoload 'modelinepos-column-limit "modeline-posn" t)
+
+(defvar size-indication-mode nil "\
+Non-nil if Size-Indication mode is enabled.
+See the command `size-indication-mode' for a description of this minor mode.")
+
+(custom-autoload 'size-indication-mode "modeline-posn" nil)
+
+(autoload 'size-indication-mode "modeline-posn" "\
+Toggle Size Indication mode.
+With arg, turn Size Indication mode on iff arg is positive.
+When Size Indication mode is enabled, the buffer or region size
+appears in the mode line.  If Transient Mark mode is enabled, the
+region size is shown; otherwise, the size of the accessible part
+of the buffer is shown.
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
 ;;;### (autoloads (multi-prompt-key-value multi-prompt) "multi-prompt"
 ;;;;;;  "site-lisp/auctex/multi-prompt.el" (18915 28236))
 ;;; Generated autoloads from site-lisp/auctex/multi-prompt.el
@@ -6713,7 +6755,7 @@ The return value is the string as entered in the minibuffer.
 ;;;### (autoloads (nxhtml-byte-recompile-file nxhtml-byte-compile-file
 ;;;;;;  nxhtml-get-missing-files nxhtml-update-existing-files nxhtml-setup-download-all
 ;;;;;;  nxhtml-setup-auto-download nxhtml-setup-install) "nxhtml-web-vcs"
-;;;;;;  "site-lisp/nxhtml/nxhtml-web-vcs.el" (19385 29876))
+;;;;;;  "site-lisp/nxhtml/nxhtml-web-vcs.el" (19412 55566))
 ;;; Generated autoloads from site-lisp/nxhtml/nxhtml-web-vcs.el
 
 (autoload 'nxhtml-setup-install "nxhtml-web-vcs" "\
@@ -6827,7 +6869,7 @@ Loading is done if recompiled and LOAD is t.
 
 ;;;### (autoloads (nxhtmlmaint-byte-uncompile-all nxhtmlmaint-byte-recompile
 ;;;;;;  nxhtmlmaint-start-byte-compilation) "nxhtmlmaint" "site-lisp/nxhtml/nxhtmlmaint.el"
-;;;;;;  (19385 29876))
+;;;;;;  (19379 9076))
 ;;; Generated autoloads from site-lisp/nxhtml/nxhtmlmaint.el
 
 (autoload 'nxhtmlmaint-start-byte-compilation "nxhtmlmaint" "\
@@ -6954,6 +6996,31 @@ Return t if module is provided or exists in PATHS.
 If PATHS is omitted, `load-path' is used.
 
 \(fn MODULE &optional PATHS)" nil nil)
+
+;;;***
+
+;;;### (autoloads (refresh-pretty-control-l pp^L-^L-string Pretty-Control-L)
+;;;;;;  "pp-c-l" "site-lisp/pp-c-l.el" (19747 36364))
+;;; Generated autoloads from site-lisp/pp-c-l.el
+
+(let ((loads (get 'Pretty-Control-L 'custom-loads))) (if (member '"pp-c-l" loads) nil (put 'Pretty-Control-L 'custom-loads (cons '"pp-c-l" loads))))
+
+(defface pp^L-highlight (if (> emacs-major-version 21) '((((type x w32 mac graphic) (class color)) (:box (:line-width 3 :style pressed-button))) (t (:inverse-video t))) '((((type x w32 mac graphic) (class color)) (:foreground "Blue" :background "DarkSeaGreen1")) (t (:inverse-video t)))) "\
+*Face used to highlight `pp^L-^L-vector'." :group (quote Pretty-Control-L) :group (quote faces))
+
+(defvar pp^L-^L-string "          Section (Printable Page)          " "\
+*Highlighted string displayed in place of each Control-l (^L) character.
+If `pp^L-^L-string-function' is non-nil, then the string that function
+returns is used instead of `pp^L-^L-string'.")
+
+(custom-autoload 'pp^L-^L-string "pp-c-l" t)
+
+(defalias 'pp^l 'pretty-control-l-mode)
+
+(autoload 'refresh-pretty-control-l "pp-c-l" "\
+Reinitialize `pretty-control-l-mode', if on, to update the display.
+
+\(fn)" t nil)
 
 ;;;***
 
@@ -7853,7 +7920,7 @@ Not documented
 ;;;### (autoloads (web-vcs-investigate-elisp-file web-vcs-byte-compile-file
 ;;;;;;  web-vcs-message-with-face web-vcs-get-files-from-root web-vcs-log-edit
 ;;;;;;  web-vcs-default-download-directory) "web-vcs" "site-lisp/nxhtml/web-vcs.el"
-;;;;;;  (19385 29876))
+;;;;;;  (19412 55566))
 ;;; Generated autoloads from site-lisp/nxhtml/web-vcs.el
 
 (autoload 'web-vcs-default-download-directory "web-vcs" "\
@@ -8382,30 +8449,28 @@ accept it or skip it.
 ;;;;;;  "site-lisp/magit/magit-key-mode.el" "site-lisp/magit/magit-pkg.el"
 ;;;;;;  "site-lisp/magit/magit-stgit.el" "site-lisp/magit/magit-svn.el"
 ;;;;;;  "site-lisp/magit/magit-topgit.el" "site-lisp/markdown-mode.el"
-;;;;;;  "site-lisp/message-x.el" "site-lisp/message-x.el" "site-lisp/muse/muse-markdown.el"
-;;;;;;  "site-lisp/nxhtml/autostart.el" "site-lisp/nxhtml/autostart22.el"
-;;;;;;  "site-lisp/nxhtml/nxhtml-base.el" "site-lisp/nxhtml/nxhtml-loaddefs.el"
-;;;;;;  "site-lisp/nxhtml/web-autoload.el" "site-lisp/per-window-point.el"
-;;;;;;  "site-lisp/per-window-point.el" "site-lisp/po-mode.el" "site-lisp/po-mode.el"
-;;;;;;  "site-lisp/psvn.el" "site-lisp/puppet-mode.el" "site-lisp/python-mode/highlight-indentation.el"
-;;;;;;  "site-lisp/python-mode/pars-part-output.el" "site-lisp/python-mode/py-bug-numbered-tests.el"
-;;;;;;  "site-lisp/python-mode/pycomplete.el" "site-lisp/python-mode/python-components-test.el"
-;;;;;;  "site-lisp/python-mode/python-mode-test.el" "site-lisp/redmine/redmine.el"
+;;;;;;  "site-lisp/message-x.el" "site-lisp/message-x.el" "site-lisp/modeline-posn.el"
+;;;;;;  "site-lisp/muse/muse-markdown.el" "site-lisp/nxhtml/autostart.el"
+;;;;;;  "site-lisp/nxhtml/autostart22.el" "site-lisp/nxhtml/nxhtml-base.el"
+;;;;;;  "site-lisp/nxhtml/nxhtml-loaddefs.el" "site-lisp/nxhtml/web-autoload.el"
+;;;;;;  "site-lisp/per-window-point.el" "site-lisp/per-window-point.el"
+;;;;;;  "site-lisp/po-mode.el" "site-lisp/po-mode.el" "site-lisp/pp-c-l.el"
+;;;;;;  "site-lisp/psvn.el" "site-lisp/puppet-mode.el" "site-lisp/pymacs/pymacs.el"
+;;;;;;  "site-lisp/python-mode/highlight-indentation.el" "site-lisp/python-mode/pars-part-output.el"
+;;;;;;  "site-lisp/python-mode/py-bug-numbered-tests.el" "site-lisp/python-mode/pycomplete.el"
+;;;;;;  "site-lisp/python-mode/python-components-test.el" "site-lisp/python-mode/python-mode-test.el"
 ;;;;;;  "site-lisp/regex-tool/regex-tool.el" "site-lisp/repeat-insert.el"
-;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/ruby-mode/inf-ruby.el"
-;;;;;;  "site-lisp/ruby-mode/rdoc-mode.el" "site-lisp/ruby-mode/ruby-electric.el"
-;;;;;;  "site-lisp/ruby-mode/ruby-style.el" "site-lisp/sunrise-commander/sunrise-x-buttons.el"
+;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/sunrise-commander/sunrise-x-buttons.el"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-x-checkpoints.el" "site-lisp/sunrise-commander/sunrise-x-loop.el"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-x-mirror.el" "site-lisp/sunrise-commander/sunrise-x-modeline.el"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-x-old-checkpoints.el"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-x-popviewer.el" "site-lisp/sunrise-commander/sunrise-x-tabs.el"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-x-tree.el" "site-lisp/sunrise-commander/sunrise-x-w32-addons.el"
-;;;;;;  "site-lisp/undo-tree/undo-tree.el" "site-lisp/vkill.el" "site-lisp/vkill.el"
-;;;;;;  "site-lisp/wcount.el" "site-lisp/wcount.el" "site-lisp/wgrep.el"
-;;;;;;  "site-lisp/wgrep.el" "site-lisp/whole-line-or-region.el"
-;;;;;;  "site-lisp/xcscope/xcscope.el" "site-lisp/xml-rpc.el" "site-lisp/xml-rpc.el"
-;;;;;;  "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
-;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20028 56196 950881))
+;;;;;;  "site-lisp/vkill.el" "site-lisp/vkill.el" "site-lisp/wcount.el"
+;;;;;;  "site-lisp/wcount.el" "site-lisp/wgrep.el" "site-lisp/wgrep.el"
+;;;;;;  "site-lisp/whole-line-or-region.el" "site-lisp/xml-rpc.el"
+;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
+;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20032 15135 61883))
 
 ;;;***
 
