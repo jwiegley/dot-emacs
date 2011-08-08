@@ -576,7 +576,6 @@
         "page-ext"
         "per-window-point"
         "session"
-        "undo-tree"
         "yasnippet"
         ))
 
@@ -938,10 +937,6 @@ If the buffer is currently not visible, makes it sticky."
 (eval-after-load "sunrise-commander"
   '(require 'sunrise-x-modeline))
 
-;;;_ + undo-tree
-
-(global-undo-tree-mode)
-
 ;;;_ + vkill
 
 (eval-after-load "vkill"
@@ -996,7 +991,6 @@ If the buffer is currently not visible, makes it sticky."
   (diminish 'dired-omit-mode))
 
 (eval-after-load "dot-mode" '(diminish 'dot-mode))
-(eval-after-load "undo-tree" '(diminish 'undo-tree-mode))
 (eval-after-load "winner"
   '(ignore-errors (diminish 'winner-mode)))
 
