@@ -571,6 +571,7 @@
         "modeline-posn"
         "page-ext"
         "per-window-point"
+        "pp-c-l"
         "session"
         "yasnippet"
         ))
@@ -891,7 +892,7 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;_ + pp-c-l
 
-(pretty-control-l-mode)
+(pretty-control-l-mode 1)
 
 ;;;_ * puppet-mode
 
