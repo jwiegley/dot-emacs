@@ -374,6 +374,8 @@
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function
    (quote file-newer-than-file-p))
+ '(pp^L-^L-string "                                                                              ")
+ '(pretty-control-l-mode t)
  '(ps-font-size
    (quote
     (8 . 10)))
@@ -895,7 +897,11 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;_ + per-window-point
 
-(pwp-mode 1)
+(pwp-mode)
+
+;;;_ + pp-c-l
+
+(pretty-control-l-mode)
 
 ;;;_ * puppet-mode
 
