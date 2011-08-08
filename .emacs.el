@@ -123,6 +123,9 @@
  '(completion-ignored-extensions
    (quote
     (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
+ '(curchg-default-cursor-color "purple")
+ '(curchg-overwrite/read-only-cursor-type
+   (quote hollow))
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function
    (quote kill-buffer))
@@ -341,6 +344,7 @@
  '(mac-pass-control-to-system nil)
  '(magit-process-popup-time 15)
  '(mark-holidays-in-calendar t)
+ '(modelinepos-column-limit 80)
  '(next-line-add-newlines nil)
  '(nnir-ignored-newsgroups "^\"\\([^[]\\|\\[Gmail]/[^A]\\)")
  '(nnir-imap-default-search-key "imap")
@@ -551,9 +555,12 @@
         ".passwd"
         "archive-region"
         "browse-kill-ring+"
+        "cursor-chg"
         "diminish"
         "edit-server"
         "escreen"
+        "modeline-posn"
+        "page-ext"
         "per-window-point"
         "session"
         "undo-tree"
@@ -617,6 +624,11 @@
   '(progn
      (require 'easy-mmode)
      (require 'info+)))
+
+;;;_ + cursor-chg
+
+(change-cursor-mode)
+(toggle-cursor-type-when-idle)
 
 ;;;_ + css-mode
 
@@ -804,6 +816,10 @@ If the buffer is currently not visible, makes it sticky."
   '(progn
      (require 'magit-topgit)
      (require 'rebase-mode)))
+
+;;;_ + modeline-posn
+
+(size-indication-mode)
 
 ;;;_ + mule
 
@@ -1016,6 +1032,9 @@ If the buffer is currently not visible, makes it sticky."
 (defun delete-indentation-forward ()
   (interactive)
   (delete-indentation t))
+
+(define-key global-map [(meta ?n)] 'tabbar-forward)
+(define-key global-map [(meta ?p)] 'tabbar-backward)
 
 (define-key global-map [(meta ?j)] 'delete-indentation-forward)
 (define-key global-map [(meta ?J)] 'delete-indentation)
