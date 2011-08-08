@@ -310,6 +310,8 @@
 (defun ulp ()
   (interactive)
   (find-file "~/src/ansi/ulp.c")
+  (find-file-noselect "~/Contracts/TI/test/ulp_suite/invoke.sh")
+  (find-file-noselect "~/Contracts/TI/test/ulp_suite")
   ;;(visit-tags-table "~/src/ansi/TAGS")
   (magit-status "~/src/ansi")
   (gdb "gdb --annotate=3 ~/Contracts/TI/bin/acpia470"))
