@@ -712,6 +712,14 @@
 (defadvice customize-group (before cust-group-load-dotfiles activate)
   (unless (featurep 'dot-gnus-el) (load ".gnus")))
 
+(defun shrink-erc-frame ()
+  (interactive)
+  (set-background-color "grey80")
+  (set-frame-parameter (selected-frame) 'width 80) 
+  (set-frame-parameter (selected-frame) 'height 22) 
+  (set-frame-parameter (selected-frame) 'has-modeline-p nil) 
+  (set-frame-parameter (selected-frame) 'minibuffer 'none))
+
 (defun irc ()
   (interactive)
 
