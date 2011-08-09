@@ -2,7 +2,7 @@
 
 (autoload 'c-mode "cc-mode" nil t)
 (autoload 'c++-mode "cc-mode" nil t)
-(autoload 'xgtags-mode "xgtags" "" t)
+(autoload 'gtags-mode "gtags" "" t)
 (autoload 'company-mode "company" "" t)
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
@@ -14,17 +14,18 @@
 
 (defun my-c-indent-or-complete ()
   (interactive)
-  (if (or (bolp)
-          (= 0 (syntax-class (syntax-after (1- (point))))))
-      (call-interactively 'indent-according-to-mode)
-    (call-interactively 'company-complete-common)))
+  (let ((class (syntax-class (syntax-after (1- (point))))))
+   (if (or (bolp) (and (/= 2 class)
+                       (/= 3 class)))
+       (call-interactively 'indent-according-to-mode)
+     (call-interactively 'company-complete-common))))
 
 (defun my-c-mode-common-hook ()
   (doxymacs-mode 1)
-  (xgtags-mode 1)
+  (gtags-mode 1)
   (company-mode 1)
   (which-function-mode 1)
-  (define-key c-mode-base-map [(meta ?.)] 'xgtags-find-tag)
+  (define-key c-mode-base-map [(meta ?.)] 'my-gtags-find-tag)
   (define-key c-mode-base-map [return] 'newline-and-indent)
   (make-variable-buffer-local 'yas/fallback-behavior)
   (setq yas/fallback-behavior '(apply my-c-indent-or-complete . nil))
