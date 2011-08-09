@@ -585,13 +585,6 @@
           (autoload (cdr entry) (car entry) nil t))
       '(
         (".gnus"         . gnus)
-        ;;(".org"          . howm-create)
-        ;;(".org"          . howm-list-grep)
-        ;;(".org"          . org-agenda)
-        ;;(".org"          . org-agenda-list)
-        ;;(".org"          . org-inline-note)
-        ;;(".org"          . org-smart-capture)
-        ;;(".org"          . orgstruct++-mode)
         ("breadcrumb"    . bc-goto-current)
         ("breadcrumb"    . bc-list)
         ("breadcrumb"    . bc-local-next)

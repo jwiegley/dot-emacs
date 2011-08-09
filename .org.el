@@ -427,88 +427,6 @@ To use this function, add it to `org-agenda-finalize-hook':
        (assert protocol)
        (setcar (cdr protocol) 'org-my-message-open))))
 
-(defun org-my-filter-tasks ()
-  (and (string-match "opportunities" buffer-file-name)
-       (not (member "John" (org-get-tags-at)))
-       (progn (outline-next-heading) (point))))
-
-(defun make-ledger-bugzilla-bug (product component version priority severity)
-  (interactive
-   (let ((omk (get-text-property (point) 'org-marker)))
-     (with-current-buffer (marker-buffer omk)
-       (save-excursion
-	 (goto-char omk)
-	 (let ((components
-		(list "data" "doc" "expr" "lisp" "math" "python" "report"
-		      "test" "util" "website" "build" "misc"))
-	       (priorities (list "P1" "P2" "P3" "P4" "P5"))
-	       (severities (list "blocker" "critical" "major"
-				 "normal" "minor" "trivial" "enhancement"))
-	       (product "Ledger")
-	       (version "3.0.0-20100623"))
-	   (list product
-		 (ido-completing-read "Component: " components
-				      nil t nil nil (car (last components)))
-		 version
-		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (if (and orgpri (= ?A orgpri))
-		       "P1"
-		     (ido-completing-read "Priority: " priorities
-					  nil t nil nil "P3")))
-		 (ido-completing-read "Severity: " severities nil t nil nil
-				      "normal") ))))))
-  (let ((omk (get-text-property (point) 'org-marker)))
-    (with-current-buffer (marker-buffer omk)
-      (save-excursion
-	(goto-char omk)
-	(let ((heading (nth 4 (org-heading-components)))
-	      (contents (buffer-substring-no-properties
-			 (org-entry-beginning-position)
-			 (org-entry-end-position)))
-	      bug)
-	  (with-temp-buffer
-	    (insert contents)
-	    (goto-char (point-min))
-	    (delete-region (point) (1+ (line-end-position)))
-	    (search-forward ":PROP")
-	    (delete-region (match-beginning 0) (point-max))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^   " nil t)
-	      (delete-region (match-beginning 0) (match-end 0)))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^SCHE" nil t)
-	      (delete-region (match-beginning 0) (1+ (line-end-position))))
-	    (goto-char (point-min))
-	    (when (eobp)
-	      (insert "No description.")
-	      (goto-char (point-min)))
-	    (insert (format "Product: %s
-Component: %s
-Version: %s
-Priority: %s
-Severity: %s
-Hardware: Other
-OS: Other
-Summary: %s" product component version priority severity heading) ?\n ?\n)
-	    (let ((buf (current-buffer)))
-	      (with-temp-buffer
-		(let ((tmpbuf (current-buffer)))
-		  (if nil
-		      (insert "Bug 999 posted.")
-		    (with-current-buffer buf
-		      (shell-command-on-region
-		       (point-min) (point-max)
-		       "~/bin/bugzilla-submit http://newartisans.com/bugzilla/"
-		       tmpbuf)))
-		  (goto-char (point-min))
-		  (re-search-forward "Bug \\([0-9]+\\) posted.")
-		  (setq bug (match-string 1))))))
-	  (save-excursion
-	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
-	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
-  (org-agenda-redo))
-
 (defun save-org-mode-files ()
   (dolist (buf (buffer-list))
     (with-current-buffer buf
@@ -605,12 +523,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
                       "~/Dropbox/MobileOrg/index.org")))))
 
 (add-hook 'org-mobile-pre-pull-hook 'my-org-convert-incoming-items)
-
-(defun org-insert-bug (project bug)
-  (interactive
-   (list (ido-completing-read "Project: " '("redmine" "bug"))
-         (read-number "Bug: ")))
-  (insert (format "[[%s:%s][#%s]]" project bug bug)))
 
 (defun org-my-state-after-clock-out (state)
   (if (string= state "STARTED")
@@ -750,48 +662,35 @@ This can be 0 for immediate, or a floating point value.")
     (forward-line)
     (org-cycle)))
 
-(defun org-remember-note ()
-  (interactive)
-  (if (string= (buffer-name) "*Remember*")
-      (call-interactively 'org-ctrl-c-ctrl-c)
-    (let ((org-capture-templates
-	   '((110 "* NOTE %?
-  :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :VISIBILITY: folded
-  :CREATED:  %U
-  :END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
-      (call-interactively 'org-remember))))
-
-(defun org-get-apple-message-link ()
-  (let ((subject (do-applescript "tell application \"Mail\"
-        set theMessages to selection
-        subject of beginning of theMessages
-end tell"))
-        (message-id (do-applescript "tell application \"Mail\"
-        set theMessages to selection
-        message id of beginning of theMessages
-end tell")))
-    (org-make-link-string (concat "message://" message-id) subject)))
-
-(defun org-get-message-sender ()
-  (do-applescript "tell application \"Mail\"
-        set theMessages to selection
-        sender of beginning of theMessages
-end tell"))
-
-(defun org-insert-apple-message-link ()
-  (interactive)
-  (insert (org-get-apple-message-link)))
+;;(defun org-get-apple-message-link ()
+;;  (let ((subject (do-applescript "tell application \"Mail\"
+;;        set theMessages to selection
+;;        subject of beginning of theMessages
+;;end tell"))
+;;        (message-id (do-applescript "tell application \"Mail\"
+;;        set theMessages to selection
+;;        message id of beginning of theMessages
+;;end tell")))
+;;    (org-make-link-string (concat "message://" message-id) subject)))
+;;
+;;(defun org-get-message-sender ()
+;;  (do-applescript "tell application \"Mail\"
+;;        set theMessages to selection
+;;        sender of beginning of theMessages
+;;end tell"))
+;;
+;;(defun org-insert-apple-message-link ()
+;;  (interactive)
+;;  (insert (org-get-apple-message-link)))
 
 (defun org-get-message-link ()
-  (if (get-buffer "*Group*")
-      (let (message-id subject)
-        (with-current-buffer gnus-original-article-buffer
-          (nnheader-narrow-to-headers)
-          (setq message-id (substring (message-fetch-field "message-id") 1 -1)
-                subject (message-fetch-field "subject")))
-        (org-make-link-string (concat "message://" message-id) subject))
-    (org-get-apple-message-link)))
+  (assert (get-buffer "*Group*"))
+  (let (message-id subject)
+    (with-current-buffer gnus-original-article-buffer
+      (nnheader-narrow-to-headers)
+      (setq message-id (substring (message-fetch-field "message-id") 1 -1)
+            subject (message-fetch-field "subject")))
+    (org-make-link-string (concat "message://" message-id) subject)))
 
 (defun org-insert-message-link ()
   (interactive)
@@ -807,14 +706,14 @@ end tell"))
   (interactive)
   (org-set-property "Submitter" (org-get-message-sender)))
 
-(defun org-get-safari-link ()
-  (let ((subject (do-applescript "tell application \"Safari\"
-        name of document of front window
-end tell"))
-        (url (do-applescript "tell application \"Safari\"
-        URL of document of front window
-end tell")))
-    (org-make-link-string url subject)))
+;;(defun org-get-safari-link ()
+;;  (let ((subject (do-applescript "tell application \"Safari\"
+;;        name of document of front window
+;;end tell"))
+;;        (url (do-applescript "tell application \"Safari\"
+;;        URL of document of front window
+;;end tell")))
+;;    (org-make-link-string url subject)))
 
 (defun org-get-chrome-link ()
   (let ((subject (do-applescript "tell application \"Google Chrome\"
@@ -834,25 +733,25 @@ end tell")))
   (interactive)
   (org-set-property "URL" (org-get-chrome-link)))
 
-(defun org-get-file-link ()
-  (let ((subject (do-applescript "tell application \"Finder\"
-	set theItems to the selection
-	name of beginning of theItems
-end tell"))
-        (path (do-applescript "tell application \"Finder\"
-	set theItems to the selection
-	POSIX path of (beginning of theItems as text)
-end tell")))
-    (org-make-link-string (concat "file:" path) subject)))
-
-(defun org-insert-file-link ()
-  (interactive)
-  (insert (org-get-file-link)))
-
-(defun org-set-file-link ()
-  "Set a property for the current headline."
-  (interactive)
-  (org-set-property "File" (org-get-file-link)))
+;;(defun org-get-file-link ()
+;;  (let ((subject (do-applescript "tell application \"Finder\"
+;;	set theItems to the selection
+;;	name of beginning of theItems
+;;end tell"))
+;;        (path (do-applescript "tell application \"Finder\"
+;;	set theItems to the selection
+;;	POSIX path of (beginning of theItems as text)
+;;end tell")))
+;;    (org-make-link-string (concat "file:" path) subject)))
+;;
+;;(defun org-insert-file-link ()
+;;  (interactive)
+;;  (insert (org-get-file-link)))
+;;
+;;(defun org-set-file-link ()
+;;  "Set a property for the current headline."
+;;  (interactive)
+;;  (org-set-property "File" (org-get-file-link)))
 
 (defun org-set-dtp-link ()
   "Set a property for the current headline."
@@ -932,6 +831,25 @@ end tell" (match-string 1))))
 
 ;;;_ + global
 
+(defvar org-subject-transforms
+  '((("\\`\\(Re\\|Fwd\\): "        . "")
+     ("\\`\\{ledger\\} "           . "")
+     ("(#[0-9]+)\\'"               . "")
+     ("\\`\\{\\([0-9]+\\)\\} New:" . "[[bug:\\1][#\\1]]")
+     ("\\`\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)" .
+      "[[redmine:\\1][#\\1]]"))))
+
+(defun convert-dates ()
+  (interactive)
+  (while (re-search-forward ":Date:\\s-*\\(.+\\)" nil t)
+    (let ((date-sent (match-string 1)))
+      (goto-char (match-beginning 1))
+      (delete-region (match-beginning 1) (match-end 1))
+      (insert ?\[ (time-to-org-timestamp
+                   (apply 'encode-time
+                          (parse-time-string date-sent)) t t)
+              ?\]))))
+
 (defun org-smart-capture ()
   (interactive)
   (if (string-match "\\`\\*Summary " (buffer-name))
@@ -943,13 +861,16 @@ end tell" (match-string 1))))
                 from (message-fetch-field "from")
                 date-sent (message-fetch-field "date")))
         (org-capture nil "t")
+        (dolist (transform org-subject-transforms)
+          (setq subject (replace-regexp-in-string (car transform)
+                                                  (cdr transform) subject)))
         (save-excursion
-          (insert (replace-regexp-in-string
-                   "\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)"
-                   "[[redmine:\\1][#\\1]]"
-                   (replace-regexp-in-string "^\\(Re\\|Fwd\\): " ""
-                                             subject))))
-        (org-set-property "Date" date-sent)
+          (insert subject))
+        (org-set-property "Date"
+                          (or date-sent
+                              (time-to-org-timestamp
+                               (apply 'encode-time
+                                      (parse-time-string date-sent)) t t)))
         (org-set-property "Message"
                           (format "[[message://%s][%s]]"
                                   (substring message-id 1 -1)
@@ -959,31 +880,32 @@ end tell" (match-string 1))))
         (org-set-property "Submitter" from))
     (org-capture nil "t")))
 
-(define-key mode-specific-map [?x ?d]
-  #'(lambda nil (interactive) (org-todo "DONE")))
-(define-key mode-specific-map [?x ?r]
-  #'(lambda nil (interactive) (org-todo "DEFERRED")))
-(define-key mode-specific-map [?x ?y]
-  #'(lambda nil (interactive) (org-todo "SOMEDAY")))
-(define-key mode-specific-map [?x ?g]
-  #'(lambda nil (interactive) (org-todo "DELEGATED")))
-(define-key mode-specific-map [?x ?n]
-  #'(lambda nil (interactive) (org-todo "NOTE")))
-(define-key mode-specific-map [?x ?s]
-  #'(lambda nil (interactive) (org-todo "STARTED")))
-(define-key mode-specific-map [?x ?t]
-  #'(lambda nil (interactive) (org-todo "TODO")))
-(define-key mode-specific-map [?x ?w]
-  #'(lambda nil (interactive) (org-todo "WAITING")))
-(define-key mode-specific-map [?x ?x]
-  #'(lambda nil (interactive) (org-todo "CANCELED")))
+(defun my-org-todo-done () (interactive) (org-todo "DONE"))
+(defun my-org-todo-deferred () (interactive) (org-todo "DEFERRED"))
+(defun my-org-todo-someday () (interactive) (org-todo "SOMEDAY"))
+(defun my-org-todo-delegated () (interactive) (org-todo "DELEGATED"))
+(defun my-org-todo-note () (interactive) (org-todo "NOTE"))
+(defun my-org-todo-started () (interactive) (org-todo "STARTED"))
+(defun my-org-todo-todo () (interactive) (org-todo "TODO"))
+(defun my-org-todo-waiting () (interactive) (org-todo "WAITING"))
+(defun my-org-todo-canceled () (interactive) (org-todo "CANCELED"))
+
+(define-key mode-specific-map [?x ?d] 'my-org-todo-done)
+(define-key mode-specific-map [?x ?r] 'my-org-todo-deferred)
+(define-key mode-specific-map [?x ?y] 'my-org-todo-someday)
+(define-key mode-specific-map [?x ?g] 'my-org-todo-delegated)
+(define-key mode-specific-map [?x ?n] 'my-org-todo-note)
+(define-key mode-specific-map [?x ?s] 'my-org-todo-started)
+(define-key mode-specific-map [?x ?t] 'my-org-todo-todo)
+(define-key mode-specific-map [?x ?w] 'my-org-todo-waiting)
+(define-key mode-specific-map [?x ?x] 'my-org-todo-canceled)
 
 (define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
 (define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
 
 (define-key mode-specific-map [?x ?m] 'org-insert-message-link)
 (define-key mode-specific-map [?x ?M] 'org-set-message-link)
-(define-key mode-specific-map [?x ?a] 'org-insert-apple-message-link)
+;;(define-key mode-specific-map [?x ?a] 'org-insert-apple-message-link)
 (define-key mode-specific-map [?x ?Y] 'org-set-message-sender)
 
 (define-key mode-specific-map [?x ?u] 'org-insert-url-link)
@@ -992,7 +914,7 @@ end tell" (match-string 1))))
 (define-key mode-specific-map [?x ?f] 'org-insert-file-link)
 (define-key mode-specific-map [?x ?F] 'org-set-file-link)
 
-(define-key mode-specific-map [?x ?b] 'org-insert-bug)
+(define-key mode-specific-map [?x ?b] 'ignore)
 
 ;;;_ + org-mode
 
@@ -1002,12 +924,6 @@ end tell" (match-string 1))))
                  'org-insert-heading-after-current)
      (org-defkey org-mode-map [(control return)] 'other-window)
      (org-defkey org-mode-map [return] 'org-return-indent)))
-
-(defun org-fit-agenda-window ()
-  "Fit the window to the buffer size."
-  (and (memq org-agenda-window-setup '(reorganize-frame))
-       (fboundp 'fit-window-to-buffer)
-       (fit-window-to-buffer)))
 
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
@@ -1020,8 +936,7 @@ end tell" (match-string 1))))
             (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
             (define-key yas/keymap [tab] 'yas/next-field)))
 
-(remove-hook 'kill-emacs-hook
-             'org-babel-remove-temporary-directory)
+(remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
 ;;;_ + org-agenda-mode
 
@@ -1030,10 +945,6 @@ end tell" (match-string 1))))
   (define-key map "\C-p" 'previous-line)
 
   (define-key map "g" 'org-agenda-redo)
-  (define-key map "r"
-    #'(lambda nil
-        (interactive)
-        (error "The 'r' command is deprecated here; use 'g'")))
   (define-key map "f" 'org-agenda-date-later)
   (define-key map "b" 'org-agenda-date-earlier)
   (define-key map "r" 'org-agenda-refile)
@@ -1044,54 +955,44 @@ end tell" (match-string 1))))
   (define-key map [(meta ?n)] 'org-agenda-later)
 
   (define-prefix-command 'org-todo-state-map)
-
   (define-key map "x" 'org-todo-state-map)
 
-  (defun org-todo-mark-done ()
+  (defun my-org-agenda-todo-done ()
     (interactive) (org-agenda-todo "DONE"))
-  (defun org-todo-mark-deferred ()
+  (defun my-org-agenda-todo-deferred ()
     (interactive) (org-agenda-todo "DEFERRED"))
-  (defun org-todo-mark-someday ()
+  (defun my-org-agenda-todo-someday ()
     (interactive) (org-agenda-todo "SOMEDAY"))
-  (defun org-todo-mark-delegated ()
+  (defun my-org-agenda-todo-delegated ()
     (interactive) (org-agenda-todo "DELEGATED"))
-  (defun org-todo-mark-note ()
+  (defun my-org-agenda-todo-note ()
     (interactive) (org-agenda-todo "NOTE"))
-  (defun org-todo-mark-started ()
+  (defun my-org-agenda-todo-started ()
     (interactive) (org-agenda-todo "STARTED"))
-  (defun org-todo-mark-todo ()
+  (defun my-org-agenda-todo-todo ()
     (interactive) (org-agenda-todo "TODO"))
-  (defun org-todo-mark-waiting ()
+  (defun my-org-agenda-todo-waiting ()
     (interactive) (org-agenda-todo "WAITING"))
-  (defun org-todo-mark-canceled ()
+  (defun my-org-agenda-todo-canceled ()
     (interactive) (org-agenda-todo "CANCELED"))
 
-  (define-key org-todo-state-map "d" #'org-todo-mark-done)
-  (define-key org-todo-state-map "r" #'org-todo-mark-deferred)
-  (define-key org-todo-state-map "y" #'org-todo-mark-someday)
-  (define-key org-todo-state-map "g" #'org-todo-mark-delegated)
-  (define-key org-todo-state-map "n" #'org-todo-mark-note)
-  (define-key org-todo-state-map "s" #'org-todo-mark-started)
-  (define-key org-todo-state-map "t" #'org-todo-mark-todo)
-  (define-key org-todo-state-map "w" #'org-todo-mark-waiting)
-  (define-key org-todo-state-map "x" #'org-todo-mark-canceled)
+  (define-key org-todo-state-map "d" 'my-org-agenda-todo-done)
+  (define-key org-todo-state-map "r" 'my-org-agenda-todo-deferred)
+  (define-key org-todo-state-map "y" 'my-org-agenda-todo-someday)
+  (define-key org-todo-state-map "g" 'my-org-agenda-todo-delegated)
+  (define-key org-todo-state-map "n" 'my-org-agenda-todo-note)
+  (define-key org-todo-state-map "s" 'my-org-agenda-todo-started)
+  (define-key org-todo-state-map "t" 'my-org-agenda-todo-todo)
+  (define-key org-todo-state-map "w" 'my-org-agenda-todo-waiting)
+  (define-key org-todo-state-map "x" 'my-org-agenda-todo-canceled)
 
-  (defun make-bug-link ()
-    (interactive)
-    (let* ((omk (get-text-property (point) 'org-marker))
-           (path (with-current-buffer (marker-buffer omk)
-                   (save-excursion
-                     (goto-char omk)
-                     (org-get-outline-path)))))
-      (cond
-       ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
-        (call-interactively #'make-ledger-bugzilla-bug))
-       ((string= "BoostPro" (car path))
-        (call-interactively #'org-x-redmine-post-issue))
-       (t
-        (error "Cannot make bug, unknown category")))))
+  (define-key org-todo-state-map "z" 'ignore))
 
-  (define-key org-todo-state-map "z" #'make-bug-link))
+(defun org-fit-agenda-window ()
+  "Fit the window to the buffer size."
+  (and (memq org-agenda-window-setup '(reorganize-frame))
+       (fboundp 'fit-window-to-buffer)
+       (fit-window-to-buffer)))
 
 (defadvice org-agenda-redo (after fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer."
