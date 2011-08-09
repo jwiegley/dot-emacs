@@ -5515,7 +5515,7 @@ Major mode for GHC Core files.
 
 ;;;### (autoloads (gist-fetch gist-list gist-region-or-buffer-private
 ;;;;;;  gist-region-or-buffer gist-buffer-private gist-buffer gist-region-private
-;;;;;;  gist-region) "gist" "site-lisp/gist/gist.el" (19516 48467))
+;;;;;;  gist-region) "gist" "site-lisp/gist/gist.el" (20032 31679))
 ;;; Generated autoloads from site-lisp/gist/gist.el
 
 (autoload 'gist-region "gist" "\
@@ -5743,6 +5743,49 @@ between /* and */.
 Toggle removal of commented lines in grep output.
 
 \(fn)" t nil)
+
+;;;***
+
+;;;### (autoloads (gtags-mode) "gtags" "site-lisp/gtags.el" (20032
+;;;;;;  41059))
+;;; Generated autoloads from site-lisp/gtags.el
+
+(autoload 'gtags-mode "gtags" "\
+Toggle Gtags mode, a minor mode for browsing source code using GLOBAL.
+
+Specify the root directory of project.
+	\\[gtags-visit-rootdir]
+Input tag name and move to the definition.
+	\\[gtags-find-tag]
+Input tag name and move to the definition in other window.
+        \\[gtags-find-tag-other-window]
+Input tag name and move to the referenced point.
+	\\[gtags-find-rtag]
+Input symbol and move to the locations.
+	\\[gtags-find-symbol]
+Input pattern, search with grep(1) and move to the locations.
+	\\[gtags-find-with-grep]
+Input pattern, search with idutils(1) and move to the locations.
+	\\[gtags-find-with-idutils]
+Input pattern and move to the top of the file.
+	\\[gtags-find-file]
+Input pattern and show the list of definitions of the file.
+	\\[gtags-parse-file]
+Get the expression as a tagname around here and move there.
+	\\[gtags-find-tag-from-here]
+Display current screen on hypertext browser.
+	\\[gtags-display-browser]
+Get the expression as a tagname around here and move there.
+	\\[gtags-find-tag-by-event]
+Move to previous point on the stack.
+	\\[gtags-pop-stack]
+
+Key definitions:
+\\{gtags-mode-map}
+Turning on Gtags mode calls the value of the variable `gtags-mode-hook'
+with no args, if that value is non-nil.
+
+\(fn &optional FORCES)" t nil)
 
 ;;;***
 
@@ -6031,8 +6074,8 @@ With a prefix argument, highlight for that many seconds.
 ;;;;;;  ido-find-alternate-file ido-find-file-other-window ido-find-file
 ;;;;;;  ido-find-file-in-dir ido-switch-buffer-other-frame ido-insert-buffer
 ;;;;;;  ido-kill-buffer ido-display-buffer ido-switch-buffer-other-window
-;;;;;;  ido-switch-buffer ido-mode ido-mode) "ido" "ido.el" (20011
-;;;;;;  17574))
+;;;;;;  ido-switch-buffer ido-mode ido-mode) "ido" "ido.el" (20032
+;;;;;;  25852))
 ;;; Generated autoloads from ido.el
 
 (defvar ido-mode nil "\
@@ -6050,8 +6093,8 @@ use either \\[customize] or the function `ido-mode'.")
 (custom-autoload 'ido-mode "ido" nil)
 
 (autoload 'ido-mode "ido" "\
-Toggle ido speed-ups on or off.
-With ARG, turn ido speed-up on if arg is positive, off otherwise.
+Toggle ido mode on or off.
+With ARG, turn ido-mode on if arg is positive, off otherwise.
 Turning on ido-mode will remap (via a minor-mode keymap) the default
 keybindings for the `find-file' and `switch-to-buffer' families of
 commands to the ido versions of these functions.
@@ -6278,8 +6321,8 @@ Ido replacement for the built-in `completing-read'.
 Read a string in the minibuffer with ido-style completion.
 PROMPT is a string to prompt with; normally it ends in a colon and a space.
 CHOICES is a list of strings which are the possible completions.
-PREDICATE is currently ignored; it is included to be compatible
- with `completing-read'.
+PREDICATE and INHERIT-INPUT-METHOD is currently ignored; it is included
+ to be compatible with `completing-read'.
 If REQUIRE-MATCH is non-nil, the user is not allowed to exit unless
  the input is (or completes to) an element of CHOICES or is null.
  If the input is null, `ido-completing-read' returns DEF, or an empty
@@ -6289,7 +6332,7 @@ If INITIAL-INPUT is non-nil, insert it in the minibuffer initially,
 HIST, if non-nil, specifies a history list.
 DEF, if non-nil, is the default value.
 
-\(fn PROMPT CHOICES &optional PREDICATE REQUIRE-MATCH INITIAL-INPUT HIST DEF)" nil nil)
+\(fn PROMPT CHOICES &optional _PREDICATE REQUIRE-MATCH INITIAL-INPUT HIST DEF _INHERIT-INPUT-METHOD)" nil nil)
 
 ;;;***
 
@@ -8339,7 +8382,7 @@ accept it or skip it.
 ;;;***
 
 ;;;### (autoloads nil nil ("cus-dirs.el" "org-crypt.el" "org-devonthink.el"
-;;;;;;  "org-parse.el" "org-redmine.el" "site-lisp/all.el" "site-lisp/anything/anything-gtags.el"
+;;;;;;  "site-lisp/all.el" "site-lisp/anything/anything-gtags.el"
 ;;;;;;  "site-lisp/anything/anything-match-plugin.el" "site-lisp/anything/anything-startup.el"
 ;;;;;;  "site-lisp/apel/apel-ver.el" "site-lisp/apel/atype.el" "site-lisp/apel/broken.el"
 ;;;;;;  "site-lisp/apel/calist.el" "site-lisp/apel/emu-mule.el" "site-lisp/apel/emu.el"
@@ -8426,23 +8469,24 @@ accept it or skip it.
 ;;;;;;  "site-lisp/find-library.el" "site-lisp/fit-frame.el" "site-lisp/fm.el"
 ;;;;;;  "site-lisp/fm.el" "site-lisp/gnuplot-gui.el" "site-lisp/gnuplot-gui.el"
 ;;;;;;  "site-lisp/gnuplot.el" "site-lisp/grep-ed.el" "site-lisp/grep-ed.el"
-;;;;;;  "site-lisp/haskell-mode/haskell-font-lock.el" "site-lisp/haskell-mode/haskell-ghci.el"
-;;;;;;  "site-lisp/haskell-mode/haskell-hugs.el" "site-lisp/haskell-mode/haskell-simple-indent.el"
-;;;;;;  "site-lisp/haskell-mode/haskell-site-file.el" "site-lisp/hide-region.el"
-;;;;;;  "site-lisp/hide-search.el" "site-lisp/hide-search.el" "site-lisp/highlight-parentheses.el"
-;;;;;;  "site-lisp/howm/action-lock.el" "site-lisp/howm/bcomp.el"
-;;;;;;  "site-lisp/howm/cheat-font-lock.el" "site-lisp/howm/gfunc.el"
-;;;;;;  "site-lisp/howm/honest-report.el" "site-lisp/howm/howm-backend.el"
-;;;;;;  "site-lisp/howm/howm-cl.el" "site-lisp/howm/howm-common.el"
-;;;;;;  "site-lisp/howm/howm-date.el" "site-lisp/howm/howm-lang-en.el"
-;;;;;;  "site-lisp/howm/howm-lang-ja.el" "site-lisp/howm/howm-menu-en.el"
-;;;;;;  "site-lisp/howm/howm-menu-ja.el" "site-lisp/howm/howm-menu.el"
-;;;;;;  "site-lisp/howm/howm-misc.el" "site-lisp/howm/howm-mkmenu.el"
-;;;;;;  "site-lisp/howm/howm-mode.el" "site-lisp/howm/howm-reminder.el"
-;;;;;;  "site-lisp/howm/howm-vars.el" "site-lisp/howm/howm-version.el"
-;;;;;;  "site-lisp/howm/howm-view.el" "site-lisp/howm/howm.el" "site-lisp/howm/illusion.el"
-;;;;;;  "site-lisp/howm/riffle.el" "site-lisp/hs-lint.el" "site-lisp/hs-lint.el"
-;;;;;;  "site-lisp/indirect.el" "site-lisp/indirect.el" "site-lisp/initsplit/initsplit-test.el"
+;;;;;;  "site-lisp/gtags.el" "site-lisp/haskell-mode/haskell-font-lock.el"
+;;;;;;  "site-lisp/haskell-mode/haskell-ghci.el" "site-lisp/haskell-mode/haskell-hugs.el"
+;;;;;;  "site-lisp/haskell-mode/haskell-simple-indent.el" "site-lisp/haskell-mode/haskell-site-file.el"
+;;;;;;  "site-lisp/hide-region.el" "site-lisp/hide-search.el" "site-lisp/hide-search.el"
+;;;;;;  "site-lisp/highlight-parentheses.el" "site-lisp/howm/action-lock.el"
+;;;;;;  "site-lisp/howm/bcomp.el" "site-lisp/howm/cheat-font-lock.el"
+;;;;;;  "site-lisp/howm/gfunc.el" "site-lisp/howm/honest-report.el"
+;;;;;;  "site-lisp/howm/howm-backend.el" "site-lisp/howm/howm-cl.el"
+;;;;;;  "site-lisp/howm/howm-common.el" "site-lisp/howm/howm-date.el"
+;;;;;;  "site-lisp/howm/howm-lang-en.el" "site-lisp/howm/howm-lang-ja.el"
+;;;;;;  "site-lisp/howm/howm-menu-en.el" "site-lisp/howm/howm-menu-ja.el"
+;;;;;;  "site-lisp/howm/howm-menu.el" "site-lisp/howm/howm-misc.el"
+;;;;;;  "site-lisp/howm/howm-mkmenu.el" "site-lisp/howm/howm-mode.el"
+;;;;;;  "site-lisp/howm/howm-reminder.el" "site-lisp/howm/howm-vars.el"
+;;;;;;  "site-lisp/howm/howm-version.el" "site-lisp/howm/howm-view.el"
+;;;;;;  "site-lisp/howm/howm.el" "site-lisp/howm/illusion.el" "site-lisp/howm/riffle.el"
+;;;;;;  "site-lisp/hs-lint.el" "site-lisp/hs-lint.el" "site-lisp/indirect.el"
+;;;;;;  "site-lisp/indirect.el" "site-lisp/initsplit/initsplit-test.el"
 ;;;;;;  "site-lisp/initsplit/initsplit.el" "site-lisp/linum.el" "site-lisp/lisp/paredit.el"
 ;;;;;;  "site-lisp/lisp/parenface.el" "site-lisp/lisp/redshank.el"
 ;;;;;;  "site-lisp/magit/50magit.el" "site-lisp/magit/magit-bisect.el"
@@ -8470,7 +8514,7 @@ accept it or skip it.
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wgrep.el" "site-lisp/wgrep.el"
 ;;;;;;  "site-lisp/whole-line-or-region.el" "site-lisp/xml-rpc.el"
 ;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
-;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20032 15135 61883))
+;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20032 50015 549356))
 
 ;;;***
 
