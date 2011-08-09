@@ -179,10 +179,11 @@
  '(erc-autojoin-channels-alist
    (quote
     (("localhost" "#twitter_jwiegley" "&bitlbee")
-     ("freenode.net" "#emacs" "#git" "#org-mode" "#ledger"))))
+     ("freenode.net" "#emacs" "#ledger"))))
  '(erc-autojoin-mode t)
  '(erc-generate-log-file-name-function
    (quote erc-generate-log-file-name-short))
+ '(erc-header-line-format nil)
  '(erc-hide-list
    (quote
     ("JOIN" "NICK" "PART" "QUIT" "MODE")))
