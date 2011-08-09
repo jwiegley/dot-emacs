@@ -438,10 +438,11 @@
    (quote
     (turn-on-auto-fill)))
  '(tool-bar-mode nil)
- '(tramp-default-proxies-alist
+ '(tramp-auto-save-directory "~/.emacs.d/backups")
+ '(tramp-default-method "rsyncc")
+ '(tramp-default-method-alist
    (quote
-    (("\\`.+\\'" "\\`root\\'" "/ssh:%h:"))))
- '(tramp-verbose 3)
+    (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))))
  '(uniquify-buffer-name-style
    (quote post-forward-angle-brackets)
    nil
