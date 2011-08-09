@@ -723,7 +723,7 @@
 (defun irc ()
   (interactive)
 
-  (shell-command "bitlbee -F")
+  (shell-command "bitlbee -D -i 127.0.0.1")
   (sleep-for 3)
   (add-hook 'kill-emacs-hook (lambda () (shell-command "killall bitlbee")))
 
