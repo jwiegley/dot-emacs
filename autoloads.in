@@ -18,4 +18,36 @@
 (unless (fboundp 'package-provide)
   (defalias 'package-provide 'ignore))
 
+;;; Autoloads for packages that lack them
+
+(mapc #'(lambda (entry)
+          (autoload (cdr entry) (car entry) nil t))
+      '(
+        ("breadcrumb"    . bc-goto-current)
+        ("breadcrumb"    . bc-list)
+        ("breadcrumb"    . bc-local-next)
+        ("breadcrumb"    . bc-local-previous)
+        ("breadcrumb"    . bc-next)
+        ("breadcrumb"    . bc-previous)
+        ("breadcrumb"    . bc-set)
+        ("css-mode"      . css-mode)
+        ("ess-site"      . R)
+        ("eval-expr"     . eval-expr)
+        ("fm"            . fm-start)
+        ("indirect"      . indirect-region)
+        ("ldg-new"       . ledger-mode)
+        ("puppet-mode"   . puppet-mode)
+        ("repeat-insert" . insert-patterned)
+        ("repeat-insert" . insert-patterned-2)
+        ("repeat-insert" . insert-patterned-3)
+        ("repeat-insert" . insert-patterned-4)
+        ("session"       . session-save-session)
+        ("tex-site"      . latex-mode)
+        ("tex-site"      . texinfo-mode)
+        ("vkill"         . list-unix-processes)
+        ("vkill"         . vkill)
+        ("wcount"        . wcount-mode)
+        ("whitespace"    . whitespace-cleanup)
+        ))
+
 ;;; Generated autoloads follow (made by autoload.el).

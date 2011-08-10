@@ -18,6 +18,38 @@
 (unless (fboundp 'package-provide)
   (defalias 'package-provide 'ignore))
 
+;;; Autoloads for packages that lack them
+
+(mapc #'(lambda (entry)
+          (autoload (cdr entry) (car entry) nil t))
+      '(
+        ("breadcrumb"    . bc-goto-current)
+        ("breadcrumb"    . bc-list)
+        ("breadcrumb"    . bc-local-next)
+        ("breadcrumb"    . bc-local-previous)
+        ("breadcrumb"    . bc-next)
+        ("breadcrumb"    . bc-previous)
+        ("breadcrumb"    . bc-set)
+        ("css-mode"      . css-mode)
+        ("ess-site"      . R)
+        ("eval-expr"     . eval-expr)
+        ("fm"            . fm-start)
+        ("indirect"      . indirect-region)
+        ("ldg-new"       . ledger-mode)
+        ("puppet-mode"   . puppet-mode)
+        ("repeat-insert" . insert-patterned)
+        ("repeat-insert" . insert-patterned-2)
+        ("repeat-insert" . insert-patterned-3)
+        ("repeat-insert" . insert-patterned-4)
+        ("session"       . session-save-session)
+        ("tex-site"      . latex-mode)
+        ("tex-site"      . texinfo-mode)
+        ("vkill"         . list-unix-processes)
+        ("vkill"         . vkill)
+        ("wcount"        . wcount-mode)
+        ("whitespace"    . whitespace-cleanup)
+        ))
+
 ;;; Generated autoloads follow (made by autoload.el).
 
 ;;;### (autoloads nil "_pkg" "site-lisp/eshell/_pkg.el" (18807 50473))
@@ -7217,6 +7249,33 @@ Not documented
 
 ;;;***
 
+;;;### (autoloads (shell-toggle shell-toggle-cd) "sh-toggle" "sh-toggle.el"
+;;;;;;  (20034 52464))
+;;; Generated autoloads from sh-toggle.el
+
+(autoload 'shell-toggle-cd "sh-toggle" "\
+Calls `shell-toggle' with a prefix argument.
+See the command `shell-toggle'
+
+\(fn)" t nil)
+
+(autoload 'shell-toggle "sh-toggle" "\
+Toggles between the *shell* buffer and the current buffer.
+With a prefix ARG also insert a \"cd DIR\" command into the shell,
+where DIR is the directory of the current buffer.
+
+Call twice in a row to get a full screen window for the *shell*
+buffer.
+
+When called in the *shell* buffer returns you to the buffer you were
+editing before caling the first time.
+
+Options: `shell-toggle-goto-eob'
+
+\(fn MAKE-CD)" t nil)
+
+;;;***
+
 ;;;### (autoloads (sr-dired sunrise-cd sunrise) "sunrise-commander"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-commander.el" (20024
 ;;;;;;  6655))
@@ -8382,7 +8441,7 @@ accept it or skip it.
 ;;;***
 
 ;;;### (autoloads nil nil ("cus-dirs.el" "org-crypt.el" "org-devonthink.el"
-;;;;;;  "site-lisp/all.el" "site-lisp/anything/anything-gtags.el"
+;;;;;;  "site-lisp/all.el" "site-lisp/anything-gtags.el" "site-lisp/anything-gtags.el"
 ;;;;;;  "site-lisp/anything/anything-match-plugin.el" "site-lisp/anything/anything-startup.el"
 ;;;;;;  "site-lisp/apel/apel-ver.el" "site-lisp/apel/atype.el" "site-lisp/apel/broken.el"
 ;;;;;;  "site-lisp/apel/calist.el" "site-lisp/apel/emu-mule.el" "site-lisp/apel/emu.el"
@@ -8494,27 +8553,26 @@ accept it or skip it.
 ;;;;;;  "site-lisp/magit/magit-stgit.el" "site-lisp/magit/magit-svn.el"
 ;;;;;;  "site-lisp/magit/magit-topgit.el" "site-lisp/markdown-mode.el"
 ;;;;;;  "site-lisp/message-x.el" "site-lisp/message-x.el" "site-lisp/modeline-posn.el"
-;;;;;;  "site-lisp/muse/muse-markdown.el" "site-lisp/nxhtml/autostart.el"
-;;;;;;  "site-lisp/nxhtml/autostart22.el" "site-lisp/nxhtml/nxhtml-base.el"
-;;;;;;  "site-lisp/nxhtml/nxhtml-loaddefs.el" "site-lisp/nxhtml/web-autoload.el"
-;;;;;;  "site-lisp/per-window-point.el" "site-lisp/per-window-point.el"
-;;;;;;  "site-lisp/po-mode.el" "site-lisp/po-mode.el" "site-lisp/pp-c-l.el"
-;;;;;;  "site-lisp/psvn.el" "site-lisp/puppet-mode.el" "site-lisp/pymacs/pymacs.el"
-;;;;;;  "site-lisp/python-mode/highlight-indentation.el" "site-lisp/python-mode/pars-part-output.el"
-;;;;;;  "site-lisp/python-mode/py-bug-numbered-tests.el" "site-lisp/python-mode/pycomplete.el"
-;;;;;;  "site-lisp/python-mode/python-components-test.el" "site-lisp/python-mode/python-mode-test.el"
-;;;;;;  "site-lisp/regex-tool/regex-tool.el" "site-lisp/repeat-insert.el"
-;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/sunrise-commander/sunrise-x-buttons.el"
-;;;;;;  "site-lisp/sunrise-commander/sunrise-x-checkpoints.el" "site-lisp/sunrise-commander/sunrise-x-loop.el"
-;;;;;;  "site-lisp/sunrise-commander/sunrise-x-mirror.el" "site-lisp/sunrise-commander/sunrise-x-modeline.el"
-;;;;;;  "site-lisp/sunrise-commander/sunrise-x-old-checkpoints.el"
+;;;;;;  "site-lisp/nxhtml/autostart.el" "site-lisp/nxhtml/autostart22.el"
+;;;;;;  "site-lisp/nxhtml/nxhtml-base.el" "site-lisp/nxhtml/nxhtml-loaddefs.el"
+;;;;;;  "site-lisp/nxhtml/web-autoload.el" "site-lisp/per-window-point.el"
+;;;;;;  "site-lisp/per-window-point.el" "site-lisp/po-mode.el" "site-lisp/po-mode.el"
+;;;;;;  "site-lisp/pp-c-l.el" "site-lisp/psvn.el" "site-lisp/puppet-mode.el"
+;;;;;;  "site-lisp/pymacs/pymacs.el" "site-lisp/python-mode/highlight-indentation.el"
+;;;;;;  "site-lisp/python-mode/pars-part-output.el" "site-lisp/python-mode/py-bug-numbered-tests.el"
+;;;;;;  "site-lisp/python-mode/pycomplete.el" "site-lisp/python-mode/python-components-test.el"
+;;;;;;  "site-lisp/python-mode/python-mode-test.el" "site-lisp/regex-tool/regex-tool.el"
+;;;;;;  "site-lisp/repeat-insert.el" "site-lisp/repeat-insert.el"
+;;;;;;  "site-lisp/sunrise-commander/sunrise-x-buttons.el" "site-lisp/sunrise-commander/sunrise-x-checkpoints.el"
+;;;;;;  "site-lisp/sunrise-commander/sunrise-x-loop.el" "site-lisp/sunrise-commander/sunrise-x-mirror.el"
+;;;;;;  "site-lisp/sunrise-commander/sunrise-x-modeline.el" "site-lisp/sunrise-commander/sunrise-x-old-checkpoints.el"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-x-popviewer.el" "site-lisp/sunrise-commander/sunrise-x-tabs.el"
 ;;;;;;  "site-lisp/sunrise-commander/sunrise-x-tree.el" "site-lisp/sunrise-commander/sunrise-x-w32-addons.el"
 ;;;;;;  "site-lisp/vkill.el" "site-lisp/vkill.el" "site-lisp/wcount.el"
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wgrep.el" "site-lisp/wgrep.el"
 ;;;;;;  "site-lisp/whole-line-or-region.el" "site-lisp/xml-rpc.el"
 ;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
-;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20032 50015 549356))
+;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20034 57886 899107))
 
 ;;;***
 
