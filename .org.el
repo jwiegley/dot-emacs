@@ -422,11 +422,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 ;;    (error
 ;;     (org-mac-message-open message-id))))
 
-(eval-after-load "org-mac-message"
-  '(progn
-     (let ((protocol (assoc "message" org-link-protocols)))
-       (assert protocol)
-       (setcar (cdr protocol) 'org-my-message-open))))
+(add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
 
 (defun save-org-mode-files ()
   (dolist (buf (buffer-list))
