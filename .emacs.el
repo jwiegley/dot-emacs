@@ -565,6 +565,7 @@
 (mapc #'(lambda (name) (load name t))
       '(
         "archive-region"
+        "bookmark+"
         "browse-kill-ring+"
         "diminish"
         "edit-server"
@@ -619,7 +620,6 @@
 (setq compilation-message-face nil)
 (eval-after-load "compile"  '(require 'compile+))
 (eval-after-load "hl-line"  '(require 'hl-line+))
-(eval-after-load "bookmark" '(require 'bookmark+))
 
 (eval-after-load "grep"
   '(progn
