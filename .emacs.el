@@ -179,7 +179,7 @@
  '(erc-autojoin-channels-alist
    (quote
     (("localhost" "#twitter_jwiegley" "&bitlbee")
-     ("freenode.net" "#emacs" "#ledger"))))
+     ("freenode.net" "#ledger"))))
  '(erc-autojoin-mode t)
  '(erc-generate-log-file-name-function
    (quote erc-generate-log-file-name-short))
@@ -564,8 +564,6 @@
 
 (mapc #'(lambda (name) (load name t))
       '(
-        ".passwd"
-        ".org"
         "archive-region"
         "browse-kill-ring+"
         "diminish"
@@ -577,6 +575,9 @@
         "pp-c-l"
         "session"
         "yasnippet"
+        ".passwd"
+        ".org"
+        ".gnus"
         ))
 
 ;;;_ + auto loads
@@ -584,7 +585,7 @@
 (mapc #'(lambda (entry)
           (autoload (cdr entry) (car entry) nil t))
       '(
-        (".gnus"         . gnus)
+        ;;(".gnus"         . gnus)
         ("breadcrumb"    . bc-goto-current)
         ("breadcrumb"    . bc-list)
         ("breadcrumb"    . bc-local-next)
@@ -666,8 +667,7 @@
     ;; If we found a change log in a parent, use that.
     (if (file-exists-p file)
         (let ((regexp (funcall dired-omit-regexp-orig))
-              (omitted-files (shell-command-to-string
-                              "git clean -d -x -n")))
+              (omitted-files (shell-command-to-string "git clean -d -x -n")))
           (if (= 0 (length omitted-files))
               regexp
             (concat
@@ -698,15 +698,6 @@
 
 ;;;_ + erc
 
-(defadvice customize-option (before cust-opt-load-dotfiles activate)
-  (unless (featurep 'dot-gnus-el) (load ".gnus")))
-
-(defadvice customize-variable (before cust-var-load-dotfiles activate)
-  (unless (featurep 'dot-gnus-el) (load ".gnus")))
-
-(defadvice customize-group (before cust-group-load-dotfiles activate)
-  (unless (featurep 'dot-gnus-el) (load ".gnus")))
-
 (defun shrink-erc-frame ()
   (interactive)
   (set-background-color "grey80")
@@ -718,9 +709,10 @@
 (defun irc ()
   (interactive)
 
-  (shell-command "bitlbee -D -i 127.0.0.1")
-  (sleep-for 3)
-  (add-hook 'kill-emacs-hook (lambda () (shell-command "killall bitlbee")))
+  ;;(shell-command "bitlbee -D -n -v -i 127.0.0.1 &"
+  ;;               (get-buffer-create "*bitlbee*"))
+  ;;(sleep-for 3)
+  ;;(add-hook 'kill-emacs-hook (lambda () (shell-command "killall bitlbee")))
 
   (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
        (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords)))))
@@ -903,10 +895,12 @@ If the buffer is currently not visible, makes it sticky."
 
 (defun save-information ()
   (dolist (func kill-emacs-hook)
-    (unless (eq func 'exit-gnus-on-exit)
-      (funcall func))))
+    (unless (memq func '(exit-gnus-on-exit server-force-stop))
+      (funcall func)))
+  (unless (eq 'listen (process-status server-process))
+    (server-start)))
 
-(run-with-idle-timer 900 t 'save-information)
+(run-with-idle-timer 300 t 'save-information)
 
 ;;;_ + sunrise-commander
 
@@ -1142,8 +1136,6 @@ If the buffer is currently not visible, makes it sticky."
 
 (defun my-gnus-compose-mail ()
   (interactive)
-  (unless (featurep 'gnus)
-    (load ".gnus"))
   (call-interactively 'compose-mail))
 
 (define-key ctl-x-map [?m] 'my-gnus-compose-mail)
@@ -1512,15 +1504,17 @@ If the buffer is currently not visible, makes it sticky."
 ;;;_* startup
 
 (unless (null window-system)
-  (add-hook 'after-init-hook 'session-initialize)
-  (add-hook 'after-init-hook 'server-start)
-  (add-hook 'after-init-hook 'edit-server-start)
   (add-hook 'after-init-hook 'emacs-min)
+
+  (add-hook 'after-init-hook 'session-initialize t)
+  (add-hook 'after-init-hook 'server-start t)
+  (add-hook 'after-init-hook 'edit-server-start t)
+
   (add-hook 'after-init-hook
             (lambda ()
               (org-agenda-list)
               (org-fit-agenda-window)
-              (org-resolve-clocks))))
+              (org-resolve-clocks)) t))
 
 (provide 'dot-emacs-el)
 
