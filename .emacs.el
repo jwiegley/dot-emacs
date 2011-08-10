@@ -1072,7 +1072,6 @@ If the buffer is currently not visible, makes it sticky."
       (align beg end-mark))))
 
 (define-key global-map [(meta ?\[)] 'align-code)
-(define-key global-map [(meta ?!)]  'eshell-command)
 (define-key global-map [(meta ?`)]  'other-frame)
 (define-key global-map [(alt ?`)]   'other-frame)
 
