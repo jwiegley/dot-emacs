@@ -602,6 +602,19 @@ This can be 0 for immediate, or a floating point value.")
 
 (defalias 'sort-done-tasks 'org-my-sort-done-tasks)
 
+(defun org-archive-done-tasks ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "\* \\(DONE\\|CANCELED\\) " nil t)
+      (if (save-restriction
+            (save-excursion
+              (org-x-narrow-to-entry)
+              (search-forward ":LOGBOOK:" nil t)))
+          (forward-line)
+        (org-archive-subtree)
+        (goto-char (line-beginning-position))))))
+
 (defun org-sort-all ()
   (interactive)
   (save-excursion
