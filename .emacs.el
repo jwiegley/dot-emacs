@@ -160,6 +160,9 @@
  '(display-time-mode t)
  '(display-time-use-mail-icon t)
  '(ediff-diff-options "-w")
+ '(ediff-highlight-all-diffs nil)
+ '(ediff-window-setup-function
+   (quote ediff-setup-windows-plain))
  '(edit-server-new-frame nil)
  '(emacs-lisp-mode-hook
    (quote
