@@ -310,6 +310,7 @@
 
 (require 'org)
 (require 'org-agenda)
+(require 'org-x)
 
 ;;(require 'org-crypt)
 (require 'org-devonthink)
