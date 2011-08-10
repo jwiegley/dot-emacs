@@ -10,7 +10,8 @@
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
 
 (defun gtags-update-hook ()
-  (call-process "global" nil nil nil "-u" "-q"))
+  ;;(call-process "global" nil nil nil "-u" "-q")
+  )
 
 (defun my-c-indent-or-complete ()
   (interactive)
