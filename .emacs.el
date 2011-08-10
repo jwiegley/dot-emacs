@@ -424,10 +424,7 @@
    (quote
     (("\\*compilation\\*"
       (width . 80)
-      (height . 60))
-     ("&bitlbee@BitlBee"
-      (width . 80)
-      (height . 20)))))
+      (height . 60)))))
  '(sql-sqlite-program "sqlite3")
  '(sr-listing-switches "-lh")
  '(sr-modeline-use-utf8-marks t)
