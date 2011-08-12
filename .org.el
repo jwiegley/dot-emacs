@@ -148,7 +148,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt" "~/src/ledger/plan/TODO")))
+    ("~/Documents/Tasks/todo.txt" "~/src/ledger/plan/TODO")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-ndays 1)
