@@ -59,6 +59,34 @@
 
 ;;;***
 
+;;;### (autoloads (ace-jump-mode) "ace-jump-mode" "site-lisp/ace-jump-mode/ace-jump-mode.el"
+;;;;;;  (20035 24581))
+;;; Generated autoloads from site-lisp/ace-jump-mode/ace-jump-mode.el
+
+(autoload 'ace-jump-mode "ace-jump-mode" "\
+AceJump mode is a minor mode for you to quick jump to a
+position in the curret view.
+   There is three submode now:
+     `ace-jump-char-mode'
+     `ace-jump-word-mode'
+     `ace-jump-line-mode'
+
+You can specify the sequence about which mode should enter
+by customize `ace-jump-mode-submode-list'.
+
+If you do not want to query char for word mode, you can change
+`ace-jump-word-mode-use-query-char' to nil.
+
+If you don't like the default move keys, you can change it by
+setting `ace-jump-mode-move-keys'.
+
+You can constrol whether use the case sensitive via
+`ace-jump-mode-case-sensitive-search'.
+
+\(fn &optional PREFIX)" t nil)
+
+;;;***
+
 ;;;### (autoloads (vassoc set-modified-alist modify-alist remove-alist
 ;;;;;;  set-alist del-alist put-alist) "alist" "site-lisp/apel/alist.el"
 ;;;;;;  (19385 28150))
@@ -6368,6 +6396,38 @@ DEF, if non-nil, is the default value.
 
 ;;;***
 
+;;;### (autoloads (iedit-mode) "iedit" "site-lisp/iedit.el" (19815
+;;;;;;  22474))
+;;; Generated autoloads from site-lisp/iedit.el
+
+(autoload 'iedit-mode "iedit" "\
+Toggle iedit mode.
+If iedit mode is off, turn iedit mode on, off otherwise.
+
+In Transient Mark mode, when iedit mode is turned on, all the
+occurrences of the current region are highlighted. If one
+occurrence is modified, the change are propagated to all other
+occurrences simultaneously.
+
+If Transient Mark mode is disabled or the region is not active,
+the `current-word' is used as occurrence. All the occurrences of
+the `current-word' are highlighted.
+
+You can also switch to iedit mode from isearch mode directly. The
+current search string is used as occurrence.  All occurrences of
+the current search string are highlighted.
+
+With a prefix argument, the occurrence when iedit is turned off
+last time is used as occurrence.  This is intended to recover
+last iedit which is turned off by mistake.
+
+Commands:
+\\{iedit-mode-map}
+
+\(fn &optional ARG)" t nil)
+
+;;;***
+
 ;;;### (autoloads (imenu-add-defs-to-menubar imenu-toggle-sort) "imenu+"
 ;;;;;;  "site-lisp/drewadams/imenu+.el" (19935 51692))
 ;;; Generated autoloads from site-lisp/drewadams/imenu+.el
@@ -8441,7 +8501,11 @@ accept it or skip it.
 ;;;***
 
 ;;;### (autoloads nil nil ("cus-dirs.el" "org-crypt.el" "org-devonthink.el"
-;;;;;;  "site-lisp/all.el" "site-lisp/anything-gtags.el" "site-lisp/anything-gtags.el"
+;;;;;;  "site-lisp/all.el" "site-lisp/anything-R.el" "site-lisp/anything-R.el"
+;;;;;;  "site-lisp/anything-dabbrev-expand.el" "site-lisp/anything-dabbrev-expand.el"
+;;;;;;  "site-lisp/anything-extension.el" "site-lisp/anything-extension.el"
+;;;;;;  "site-lisp/anything-gtags.el" "site-lisp/anything-gtags.el"
+;;;;;;  "site-lisp/anything-include.el" "site-lisp/anything-include.el"
 ;;;;;;  "site-lisp/anything/anything-match-plugin.el" "site-lisp/anything/anything-startup.el"
 ;;;;;;  "site-lisp/apel/apel-ver.el" "site-lisp/apel/atype.el" "site-lisp/apel/broken.el"
 ;;;;;;  "site-lisp/apel/calist.el" "site-lisp/apel/emu-mule.el" "site-lisp/apel/emu.el"
@@ -8499,6 +8563,7 @@ accept it or skip it.
 ;;;;;;  "site-lisp/company/company-eclim.el" "site-lisp/company/company-ropemacs.el"
 ;;;;;;  "site-lisp/company/company-template.el" "site-lisp/css-mode.el"
 ;;;;;;  "site-lisp/css-mode.el" "site-lisp/csv-mode.el" "site-lisp/csv-mode.el"
+;;;;;;  "site-lisp/descbinds-anything.el" "site-lisp/descbinds-anything.el"
 ;;;;;;  "site-lisp/diminish.el" "site-lisp/double-insert.el" "site-lisp/double-insert.el"
 ;;;;;;  "site-lisp/edit-server.el" "site-lisp/edit-server.el" "site-lisp/ee/ee-autoloads.el"
 ;;;;;;  "site-lisp/emacs-w3m/mew-w3m.el" "site-lisp/emacs-w3m/w3m-bug.el"
@@ -8544,8 +8609,8 @@ accept it or skip it.
 ;;;;;;  "site-lisp/howm/howm-reminder.el" "site-lisp/howm/howm-vars.el"
 ;;;;;;  "site-lisp/howm/howm-version.el" "site-lisp/howm/howm-view.el"
 ;;;;;;  "site-lisp/howm/howm.el" "site-lisp/howm/illusion.el" "site-lisp/howm/riffle.el"
-;;;;;;  "site-lisp/hs-lint.el" "site-lisp/hs-lint.el" "site-lisp/indirect.el"
-;;;;;;  "site-lisp/indirect.el" "site-lisp/initsplit/initsplit-test.el"
+;;;;;;  "site-lisp/hs-lint.el" "site-lisp/hs-lint.el" "site-lisp/iedit.el"
+;;;;;;  "site-lisp/indirect.el" "site-lisp/indirect.el" "site-lisp/initsplit/initsplit-test.el"
 ;;;;;;  "site-lisp/initsplit/initsplit.el" "site-lisp/linum.el" "site-lisp/lisp/paredit.el"
 ;;;;;;  "site-lisp/lisp/parenface.el" "site-lisp/lisp/redshank.el"
 ;;;;;;  "site-lisp/magit/50magit.el" "site-lisp/magit/magit-bisect.el"
@@ -8572,7 +8637,7 @@ accept it or skip it.
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wgrep.el" "site-lisp/wgrep.el"
 ;;;;;;  "site-lisp/whole-line-or-region.el" "site-lisp/xml-rpc.el"
 ;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
-;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20034 57886 899107))
+;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20037 33235 25296))
 
 ;;;***
 
