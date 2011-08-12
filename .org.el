@@ -310,11 +310,13 @@
 
 (require 'org)
 (require 'org-agenda)
-(require 'org-x)
 
 ;;(require 'org-crypt)
 (require 'org-devonthink)
+(require 'org-magit)
 (require 'org-x)
+(require 'ox-org)
+(require 'ox-redmine)
 (require 'ob-R)
 (require 'ob-python)
 (require 'ob-emacs-lisp)
