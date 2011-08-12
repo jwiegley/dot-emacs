@@ -1404,6 +1404,9 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?r] 'replace-regexp)
 (define-key mode-specific-map [?s] 'replace-string)
 
+(define-key mode-specific-map [?S] 'org-store-link)
+(define-key mode-specific-map [?L] 'org-insert-link)
+
 (define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
 (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
 (define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
