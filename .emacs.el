@@ -1199,6 +1199,7 @@ If the buffer is currently not visible, makes it sticky."
 
 (define-key ctl-x-map [(control ?d)] 'duplicate-line)
 (define-key ctl-x-map [(control ?z)] 'eshell-toggle)
+(define-key ctl-x-map [(meta ?z)] 'shell-toggle)
 
 ;;;_ + mode-specific
 
