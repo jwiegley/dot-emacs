@@ -127,3 +127,6 @@
 [submodule "site-lisp/pymacs"]
 	path = site-lisp/pymacs
 	url = git://github.com/pinard/Pymacs.git
+[submodule "site-lisp/org-magit"]
+	path = site-lisp/org-magit
+	url = git://github.com/sigma/org-magit.git
