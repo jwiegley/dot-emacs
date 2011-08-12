@@ -677,14 +677,11 @@
 
 (defun irc ()
   (interactive)
-
-  ;;(shell-command "bitlbee -D -n -v -i 127.0.0.1 &"
-  ;;               (get-buffer-create "*bitlbee*"))
-  ;;(sleep-for 3)
-  ;;(add-hook 'kill-emacs-hook (lambda () (shell-command "killall bitlbee")))
-
   (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
-       (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords)))))
+       (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords))))))
+
+(defun im ()
+  (interactive)
   (erc :server "localhost" :port 6667 :nick "johnw" :password
        (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords))))))
 
