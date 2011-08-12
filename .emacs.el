@@ -67,6 +67,9 @@
 (defun imap-unread ()
   (file-exists-p "/tmp/unread"))
 
+(require 'recentf)
+(setq recentf-auto-cleanup 'never)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -393,7 +396,6 @@
  '(ps-print-color-p nil)
  '(read-buffer-function
    (quote ido-read-buffer))
- '(recentf-auto-cleanup 600)
  '(recentf-exclude
    (quote
     ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:")))
