@@ -460,7 +460,7 @@
     (Git Bzr Hg)))
  '(version-control t)
  '(visible-bell t)
- '(w3m-command "/opt/local/bin/w3m")
+ '(w3m-command "/opt/local/bin/w3m" t)
  '(w3m-use-cookies t)
  '(wdired-use-dired-vertical-movement
    (quote sometimes))
@@ -610,7 +610,7 @@
 
 ;; Trash files instead of deleting them
 (defun dired-delete-file (file &optional recursive)
-  (if (string-match "/\\(ssh\\|sudo\\):" dired-directory)
+  (if (string-match ":" dired-directory)
       (funcall dired-delete-file-orig)
     (if recursive
         (call-process "/Users/johnw/bin/del" nil nil nil "-fr" file)
@@ -667,7 +667,7 @@
 
 ;;;_ + erc
 
-(defun shrink-erc-frame ()
+(defun erc-shrink-frame ()
   (interactive)
   (set-background-color "grey80")
   (set-frame-parameter (selected-frame) 'width 80) 
@@ -1234,7 +1234,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-prefix-command 'my-grep-map)
 (define-key mode-specific-map [?b] 'my-grep-map)
 (define-key mode-specific-map [?b ?a] 'anything-do-grep)
-(define-key mode-specific-map [?b ?b] 'occur)
+(define-key mode-specific-map [?b ?b] 'anything-occur)
 (define-key mode-specific-map [?b ?d] 'find-grep-dired)
 (define-key mode-specific-map [?b ?f] 'find-grep)
 (define-key mode-specific-map [?b ?F] 'anything-for-files)
