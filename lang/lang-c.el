@@ -2,16 +2,18 @@
 
 (autoload 'c-mode "cc-mode" nil t)
 (autoload 'c++-mode "cc-mode" nil t)
-(autoload 'gtags-mode "gtags" "" t)
-(autoload 'company-mode "company" "" t)
+(autoload 'gtags-mode "gtags" nil t)
+(autoload 'anything-gtags-select "anything-gtags" nil t)
+(autoload 'company-mode "company" nil t)
+(autoload 'doxymacs-mode "doxymacs" nil t)
+(autoload 'doxymacs-font-lock "doxymacs")
+(autoload 'cmake-mode "cmake-mode" nil t)
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.m\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
-
-(defun gtags-update-hook ()
-  ;;(call-process "global" nil nil nil "-u" "-q")
-  )
+(add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
+(add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))
 
 (defun my-c-indent-or-complete ()
   (interactive)
@@ -26,6 +28,8 @@
   (gtags-mode 1)
   (company-mode 1)
   (which-function-mode 1)
+  (doxymacs-mode 1)
+  (doxymacs-font-lock)
   (define-key c-mode-base-map [(meta ?.)] 'my-gtags-find-tag)
   (define-key c-mode-base-map [return] 'newline-and-indent)
   (make-variable-buffer-local 'yas/fallback-behavior)
@@ -40,8 +44,6 @@
   (setq fill-column 72)
   (column-marker-3 80)
 
-  (add-hook 'after-save-hook 'gtags-update-hook t t)
-
   (let ((bufname (buffer-file-name)))
     (when bufname
       (cond
@@ -53,8 +55,8 @@
                                    c-mode-base-map global-map)
         (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment)))))
 
-  (font-lock-add-keywords
-   'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
+  (font-lock-add-keywords 'c++-mode '(("\\<\\(assert\\|DEBUG\\)("
+                                       1 font-lock-warning-face t))))
 
 (defun ti-refill-comment ()
   (interactive)
@@ -286,26 +288,6 @@
                       c-lineup-gnu-DEFUN-intro-cont))))
         (c-special-indent-hook . c-gnu-impose-minimum)
         (c-block-comment-prefix . "")))))
-
-;;_ * cmake-mode
-
-(autoload 'cmake-mode "cmake-mode" nil t)
-
-(setq auto-mode-alist
-      (append '(("CMakeLists\\.txt\\'" . cmake-mode)
-                ("\\.cmake\\'" . cmake-mode))
-              auto-mode-alist))
-
-;;_ * doxymacs
-
-(autoload 'doxymacs-mode "doxymacs" nil t)
-(autoload 'doxymacs-font-lock "doxymacs")
-
-(defun my-doxymacs-font-lock-hook ()
-  (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-      (doxymacs-font-lock)))
-
-(add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
 
 ;;;_ * ulp
 
