@@ -1072,7 +1072,9 @@ If the buffer is currently not visible, makes it sticky."
 
 (define-key global-map [(alt ?v)] 'scroll-down)
 (eval-after-load "anything"
-  '(define-key anything-map [(alt ?v)] 'anything-previous-page))
+  '(progn
+     (require 'anything-match-plugin)
+     (define-key anything-map [(alt ?v)] 'anything-previous-page)))
 (define-key global-map [(meta ?v)] 'yank)
 
 (define-key global-map [(alt tab)]
