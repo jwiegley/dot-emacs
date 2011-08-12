@@ -153,7 +153,7 @@
  '(gnus-suspend-gnus-hook
    (quote
     (gnus-group-save-newsrc)))
- '(gnus-thread-hide-subtree nil)
+ '(gnus-thread-hide-subtree t)
  '(gnus-thread-sort-functions
    (quote
     (gnus-thread-sort-by-number gnus-thread-sort-by-total-score)))
