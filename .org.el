@@ -637,6 +637,13 @@ This can be 0 for immediate, or a floating point value.")
         (org-sort-entries t ?o))
       (forward-line))))
 
+(defun org-cleangup ()
+  (interactive)
+  (org-archive-done-tasks)
+  (org-sort-all)
+  ;;(org-x-normalize-all-entries)
+  )
+
 (defun org-maybe-remember (&optional done)
   (interactive "P")
   (if (string= (buffer-name) "*Remember*")
