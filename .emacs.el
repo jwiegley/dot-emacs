@@ -603,6 +603,9 @@
 ;;;_ + css-mode
 
 (autoload 'anything-dabbrev-expand "anything-dabbrev-expand" nil t)
+(autoload 'descbinds-anything "descbinds-anything" nil t)
+
+(fset 'describe-bindings 'descbinds-anything)
 
 (eval-after-load "anything"
   '(progn
