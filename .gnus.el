@@ -365,8 +365,15 @@
                    "open" (concat "message://<"
                                   (substring message-id 1 -1) ">"))))
 
+(defun gmail-report-spam ()
+  "Report the current or marked mails as spam.
+This moves them into the Spam folder."
+  (interactive)
+  (gnus-summary-move-article nil "nnimap+Local:[Gmail]/Spam"))
+
 (eval-after-load "gnus-sum"
   '(progn
+     (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
      (define-key gnus-summary-mode-map [?O ?O] 'gnus-open-article-in-apple-mail)
      (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
        'gnus-article-browse-urls)))
