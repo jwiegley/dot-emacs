@@ -679,17 +679,20 @@
 
 ;;;_ + erc
 
-(defun erc-shrink-frame ()
+(defun erc-tiny-frame ()
   (interactive)
-  (set-background-color "grey80")
-  (set-frame-parameter (selected-frame) 'width 80)
-  (set-frame-parameter (selected-frame) 'height 22)
-  (set-frame-parameter (selected-frame) 'left-fringe 0)
-  (set-frame-parameter (selected-frame) 'right-fringe 0)
-  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'unsplittable t)
-  (set-frame-parameter (selected-frame) 'has-modeline-p nil)
-  (set-frame-parameter (selected-frame) 'minibuffer 'none))
+  (with-selected-frame
+      (make-frame '((width                . 80)
+                    (height               . 22)
+                    (left-fringe          . 0)
+                    (right-fringe         . 0)
+                    (vertical-scroll-bars . nil)
+                    (unsplittable         . t)
+                    (has-modeline-p       . nil)
+                    (background-color     . "grey80")
+                    (minibuffer           . nil)))
+    (switch-to-buffer "#emacs")
+    (set (make-local-variable 'mode-line-format) nil)))
 
 (defun irc ()
   (interactive)
