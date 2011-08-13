@@ -965,7 +965,8 @@ If the buffer is currently not visible, makes it sticky."
     (if (= here (point))
         (beginning-of-line arg))))
 
-(define-key global-map [(control ?.)] 'smart-beginning-of-line)
+;;(define-key global-map [(control ?.)] 'smart-beginning-of-line)
+(define-key global-map [(control ?.)] 'ace-jump-mode)
 
 (defun tidy-xml-buffer ()
   (interactive)
