@@ -602,6 +602,15 @@
 
 ;;;_ + css-mode
 
+(autoload 'anything-dabbrev-expand "anything-dabbrev-expand" nil t)
+
+(eval-after-load "anything"
+  '(progn
+     (require 'anything-match-plugin)
+     (define-key anything-map [(alt ?v)] 'anything-previous-page)))
+
+;;;_ + css-mode
+
 (add-to-list 'auto-mode-alist '("\\.css$" . css-mode))
 
 ;;;_ + dired-x
@@ -958,6 +967,8 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(control meta backspace)] 'backward-kill-sexp)
 (define-key global-map [(control meta delete)]    'backward-kill-sexp)
 
+(define-key global-map [(meta ?/)] 'anything-dabbrev-expand)
+
 (defun smart-beginning-of-line (&optional arg)
   (interactive "p")
   (let ((here (point)))
@@ -1076,10 +1087,6 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(shift f11)] 'gud-finish)
 
 (define-key global-map [(alt ?v)] 'scroll-down)
-(eval-after-load "anything"
-  '(progn
-     (require 'anything-match-plugin)
-     (define-key anything-map [(alt ?v)] 'anything-previous-page)))
 (define-key global-map [(meta ?v)] 'yank)
 
 (define-key global-map [(alt tab)]
