@@ -6396,38 +6396,6 @@ DEF, if non-nil, is the default value.
 
 ;;;***
 
-;;;### (autoloads (iedit-mode) "iedit" "site-lisp/iedit.el" (19815
-;;;;;;  22474))
-;;; Generated autoloads from site-lisp/iedit.el
-
-(autoload 'iedit-mode "iedit" "\
-Toggle iedit mode.
-If iedit mode is off, turn iedit mode on, off otherwise.
-
-In Transient Mark mode, when iedit mode is turned on, all the
-occurrences of the current region are highlighted. If one
-occurrence is modified, the change are propagated to all other
-occurrences simultaneously.
-
-If Transient Mark mode is disabled or the region is not active,
-the `current-word' is used as occurrence. All the occurrences of
-the `current-word' are highlighted.
-
-You can also switch to iedit mode from isearch mode directly. The
-current search string is used as occurrence.  All occurrences of
-the current search string are highlighted.
-
-With a prefix argument, the occurrence when iedit is turned off
-last time is used as occurrence.  This is intended to recover
-last iedit which is turned off by mistake.
-
-Commands:
-\\{iedit-mode-map}
-
-\(fn &optional ARG)" t nil)
-
-;;;***
-
 ;;;### (autoloads (imenu-add-defs-to-menubar imenu-toggle-sort) "imenu+"
 ;;;;;;  "site-lisp/drewadams/imenu+.el" (19935 51692))
 ;;; Generated autoloads from site-lisp/drewadams/imenu+.el
@@ -8501,42 +8469,40 @@ accept it or skip it.
 ;;;***
 
 ;;;### (autoloads nil nil ("cus-dirs.el" "org-crypt.el" "org-devonthink.el"
-;;;;;;  "site-lisp/all.el" "site-lisp/anything-R.el" "site-lisp/anything-R.el"
-;;;;;;  "site-lisp/anything-dabbrev-expand.el" "site-lisp/anything-dabbrev-expand.el"
-;;;;;;  "site-lisp/anything-extension.el" "site-lisp/anything-extension.el"
-;;;;;;  "site-lisp/anything-gtags.el" "site-lisp/anything-gtags.el"
-;;;;;;  "site-lisp/anything-include.el" "site-lisp/anything-include.el"
-;;;;;;  "site-lisp/anything/anything-match-plugin.el" "site-lisp/anything/anything-startup.el"
-;;;;;;  "site-lisp/apel/apel-ver.el" "site-lisp/apel/atype.el" "site-lisp/apel/broken.el"
-;;;;;;  "site-lisp/apel/calist.el" "site-lisp/apel/emu-mule.el" "site-lisp/apel/emu.el"
-;;;;;;  "site-lisp/apel/file-detect.el" "site-lisp/apel/filename.el"
-;;;;;;  "site-lisp/apel/install.el" "site-lisp/apel/inv-18.el" "site-lisp/apel/inv-19.el"
-;;;;;;  "site-lisp/apel/inv-23.el" "site-lisp/apel/inv-xemacs.el"
-;;;;;;  "site-lisp/apel/invisible.el" "site-lisp/apel/localhook.el"
-;;;;;;  "site-lisp/apel/mcharset.el" "site-lisp/apel/mcs-20.el" "site-lisp/apel/mcs-e20.el"
-;;;;;;  "site-lisp/apel/mcs-ltn1.el" "site-lisp/apel/mcs-nemacs.el"
-;;;;;;  "site-lisp/apel/mcs-om.el" "site-lisp/apel/mcs-xm.el" "site-lisp/apel/mcs-xmu.el"
-;;;;;;  "site-lisp/apel/mule-caesar.el" "site-lisp/apel/pccl-20.el"
-;;;;;;  "site-lisp/apel/pccl-om.el" "site-lisp/apel/pccl.el" "site-lisp/apel/pces-20.el"
-;;;;;;  "site-lisp/apel/pces-e20.el" "site-lisp/apel/pces-e20_2.el"
-;;;;;;  "site-lisp/apel/pces-nemacs.el" "site-lisp/apel/pces-om.el"
-;;;;;;  "site-lisp/apel/pces-raw.el" "site-lisp/apel/pces-xfc.el"
-;;;;;;  "site-lisp/apel/pces-xm.el" "site-lisp/apel/pces.el" "site-lisp/apel/pcustom.el"
-;;;;;;  "site-lisp/apel/poe-18.el" "site-lisp/apel/poe-xemacs.el"
-;;;;;;  "site-lisp/apel/poe.el" "site-lisp/apel/poem-e20.el" "site-lisp/apel/poem-e20_2.el"
-;;;;;;  "site-lisp/apel/poem-e20_3.el" "site-lisp/apel/poem-ltn1.el"
-;;;;;;  "site-lisp/apel/poem-nemacs.el" "site-lisp/apel/poem-om.el"
-;;;;;;  "site-lisp/apel/poem-xm.el" "site-lisp/apel/poem.el" "site-lisp/apel/product.el"
-;;;;;;  "site-lisp/apel/pym.el" "site-lisp/apel/static.el" "site-lisp/apel/timezone.el"
-;;;;;;  "site-lisp/apel/tinycustom.el" "site-lisp/apel/tinyrich.el"
-;;;;;;  "site-lisp/archive-region.el" "site-lisp/archive-region.el"
-;;;;;;  "site-lisp/ascii.el" "site-lisp/auctex/auctex.el" "site-lisp/auctex/auto-loads.el"
-;;;;;;  "site-lisp/auctex/lpath.el" "site-lisp/auctex/tex-buf.el"
-;;;;;;  "site-lisp/auctex/tex-fptex.el" "site-lisp/auctex/tex-mik.el"
-;;;;;;  "site-lisp/auctex/tex-site.el" "site-lisp/auctex/tex-style.el"
-;;;;;;  "site-lisp/auctex/tex-wizard.el" "site-lisp/bookmark+/bookmark+-chg.el"
-;;;;;;  "site-lisp/bookmark+/bookmark+-doc.el" "site-lisp/bookmark+/bookmark+-key.el"
-;;;;;;  "site-lisp/breadcrumb.el" "site-lisp/breadcrumb.el" "site-lisp/browse-kill-ring+.el"
+;;;;;;  "site-lisp/all.el" "site-lisp/anything-dabbrev-expand.el"
+;;;;;;  "site-lisp/anything-dabbrev-expand.el" "site-lisp/anything-gtags.el"
+;;;;;;  "site-lisp/anything-gtags.el" "site-lisp/anything/anything-match-plugin.el"
+;;;;;;  "site-lisp/anything/anything-startup.el" "site-lisp/apel/apel-ver.el"
+;;;;;;  "site-lisp/apel/atype.el" "site-lisp/apel/broken.el" "site-lisp/apel/calist.el"
+;;;;;;  "site-lisp/apel/emu-mule.el" "site-lisp/apel/emu.el" "site-lisp/apel/file-detect.el"
+;;;;;;  "site-lisp/apel/filename.el" "site-lisp/apel/install.el"
+;;;;;;  "site-lisp/apel/inv-18.el" "site-lisp/apel/inv-19.el" "site-lisp/apel/inv-23.el"
+;;;;;;  "site-lisp/apel/inv-xemacs.el" "site-lisp/apel/invisible.el"
+;;;;;;  "site-lisp/apel/localhook.el" "site-lisp/apel/mcharset.el"
+;;;;;;  "site-lisp/apel/mcs-20.el" "site-lisp/apel/mcs-e20.el" "site-lisp/apel/mcs-ltn1.el"
+;;;;;;  "site-lisp/apel/mcs-nemacs.el" "site-lisp/apel/mcs-om.el"
+;;;;;;  "site-lisp/apel/mcs-xm.el" "site-lisp/apel/mcs-xmu.el" "site-lisp/apel/mule-caesar.el"
+;;;;;;  "site-lisp/apel/pccl-20.el" "site-lisp/apel/pccl-om.el" "site-lisp/apel/pccl.el"
+;;;;;;  "site-lisp/apel/pces-20.el" "site-lisp/apel/pces-e20.el"
+;;;;;;  "site-lisp/apel/pces-e20_2.el" "site-lisp/apel/pces-nemacs.el"
+;;;;;;  "site-lisp/apel/pces-om.el" "site-lisp/apel/pces-raw.el"
+;;;;;;  "site-lisp/apel/pces-xfc.el" "site-lisp/apel/pces-xm.el"
+;;;;;;  "site-lisp/apel/pces.el" "site-lisp/apel/pcustom.el" "site-lisp/apel/poe-18.el"
+;;;;;;  "site-lisp/apel/poe-xemacs.el" "site-lisp/apel/poe.el" "site-lisp/apel/poem-e20.el"
+;;;;;;  "site-lisp/apel/poem-e20_2.el" "site-lisp/apel/poem-e20_3.el"
+;;;;;;  "site-lisp/apel/poem-ltn1.el" "site-lisp/apel/poem-nemacs.el"
+;;;;;;  "site-lisp/apel/poem-om.el" "site-lisp/apel/poem-xm.el" "site-lisp/apel/poem.el"
+;;;;;;  "site-lisp/apel/product.el" "site-lisp/apel/pym.el" "site-lisp/apel/static.el"
+;;;;;;  "site-lisp/apel/timezone.el" "site-lisp/apel/tinycustom.el"
+;;;;;;  "site-lisp/apel/tinyrich.el" "site-lisp/archive-region.el"
+;;;;;;  "site-lisp/archive-region.el" "site-lisp/ascii.el" "site-lisp/auctex/auctex.el"
+;;;;;;  "site-lisp/auctex/auto-loads.el" "site-lisp/auctex/lpath.el"
+;;;;;;  "site-lisp/auctex/tex-buf.el" "site-lisp/auctex/tex-fptex.el"
+;;;;;;  "site-lisp/auctex/tex-mik.el" "site-lisp/auctex/tex-site.el"
+;;;;;;  "site-lisp/auctex/tex-style.el" "site-lisp/auctex/tex-wizard.el"
+;;;;;;  "site-lisp/bookmark+/bookmark+-chg.el" "site-lisp/bookmark+/bookmark+-doc.el"
+;;;;;;  "site-lisp/bookmark+/bookmark+-key.el" "site-lisp/breadcrumb.el"
+;;;;;;  "site-lisp/breadcrumb.el" "site-lisp/browse-kill-ring+.el"
 ;;;;;;  "site-lisp/browse-kill-ring+.el" "site-lisp/browse-kill-ring.el"
 ;;;;;;  "site-lisp/chess/auto-autoloads.el" "site-lisp/chess/chess-ai.el"
 ;;;;;;  "site-lisp/chess/chess-algebraic.el" "site-lisp/chess/chess-announce.el"
@@ -8609,8 +8575,8 @@ accept it or skip it.
 ;;;;;;  "site-lisp/howm/howm-reminder.el" "site-lisp/howm/howm-vars.el"
 ;;;;;;  "site-lisp/howm/howm-version.el" "site-lisp/howm/howm-view.el"
 ;;;;;;  "site-lisp/howm/howm.el" "site-lisp/howm/illusion.el" "site-lisp/howm/riffle.el"
-;;;;;;  "site-lisp/hs-lint.el" "site-lisp/hs-lint.el" "site-lisp/iedit.el"
-;;;;;;  "site-lisp/indirect.el" "site-lisp/indirect.el" "site-lisp/initsplit/initsplit-test.el"
+;;;;;;  "site-lisp/hs-lint.el" "site-lisp/hs-lint.el" "site-lisp/indirect.el"
+;;;;;;  "site-lisp/indirect.el" "site-lisp/initsplit/initsplit-test.el"
 ;;;;;;  "site-lisp/initsplit/initsplit.el" "site-lisp/linum.el" "site-lisp/lisp/paredit.el"
 ;;;;;;  "site-lisp/lisp/parenface.el" "site-lisp/lisp/redshank.el"
 ;;;;;;  "site-lisp/magit/50magit.el" "site-lisp/magit/magit-bisect.el"
@@ -8637,7 +8603,7 @@ accept it or skip it.
 ;;;;;;  "site-lisp/wcount.el" "site-lisp/wgrep.el" "site-lisp/wgrep.el"
 ;;;;;;  "site-lisp/whole-line-or-region.el" "site-lisp/xml-rpc.el"
 ;;;;;;  "site-lisp/xml-rpc.el" "site-lisp/xray.el" "site-lisp/yasnippet/dropdown-list.el"
-;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20037 33235 25296))
+;;;;;;  "site-lisp/yasnippet/yasnippet-debug.el") (20038 10744 184056))
 
 ;;;***
 
