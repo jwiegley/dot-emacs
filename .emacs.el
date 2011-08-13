@@ -1335,7 +1335,7 @@ If the buffer is currently not visible, makes it sticky."
     (insert ?\n))
   (insert (format-time-string "%Y/%m/%d ")))
 
-(define-key mode-specific-map [?l] 'my-ledger-start-entry)
+(define-key mode-specific-map [?L] 'my-ledger-start-entry)
 
 (defun emacs-min ()
   (interactive)
@@ -1409,7 +1409,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?s] 'replace-string)
 
 (define-key mode-specific-map [?S] 'org-store-link)
-(define-key mode-specific-map [?L] 'org-insert-link)
+(define-key mode-specific-map [?l] 'org-insert-link)
 
 (define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
 (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
