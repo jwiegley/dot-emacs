@@ -156,7 +156,7 @@
  '(gnus-thread-hide-subtree t)
  '(gnus-thread-sort-functions
    (quote
-    (gnus-thread-sort-by-number gnus-thread-sort-by-total-score)))
+    (gnus-thread-sort-by-total-score gnus-thread-sort-by-most-recent-date)))
  '(gnus-topic-display-empty-topics nil)
  '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")
