@@ -815,16 +815,16 @@ If the buffer is currently not visible, makes it sticky."
     (goto-char (point-min))
     (when (re-search-forward "^\\.Dd ")
       (let ((stamp (format-time-string "%B %e, %Y")))
-	(unless (looking-at stamp)
-	  (delete-region (point) (line-end-position))
-	  (insert stamp)
-	  (let (after-save-hook)
-	    (save-buffer)))))))
+        (unless (looking-at stamp)
+          (delete-region (point) (line-end-position))
+          (insert stamp)
+          (let (after-save-hook)
+            (save-buffer)))))))
 
 (add-hook 'nroff-mode-hook
-	  (function
-	   (lambda ()
-	     (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
+          (function
+           (lambda ()
+             (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
 
 ;;;_ + org-mode
 
@@ -833,18 +833,18 @@ If the buffer is currently not visible, makes it sticky."
   (unless (featurep 'org-agenda)
     (load ".org"))
   (let ((buf (get-buffer "*Org Agenda*"))
-	wind)
+        wind)
     (if buf
-	(if (setq wind (get-buffer-window buf))
+        (if (setq wind (get-buffer-window buf))
             (when (called-interactively-p)
               (select-window wind)
               (org-fit-window-to-buffer))
-	  (if (called-interactively-p)
-	      (progn
-		(select-window (display-buffer buf t t))
-		(org-fit-window-to-buffer))
-	    (with-selected-window (display-buffer buf)
-	      (org-fit-window-to-buffer))))
+          (if (called-interactively-p)
+              (progn
+                (select-window (display-buffer buf t t))
+                (org-fit-window-to-buffer))
+            (with-selected-window (display-buffer buf)
+              (org-fit-window-to-buffer))))
       (call-interactively 'org-agenda-list))))
 
 (run-with-idle-timer 300 t 'jump-to-org-agenda)
