@@ -130,3 +130,6 @@
 [submodule "site-lisp/org-magit"]
 	path = site-lisp/org-magit
 	url = git://github.com/sigma/org-magit.git
+[submodule "site-lisp/ace-jump-mode"]
+	path = site-lisp/ace-jump-mode
+	url = git://github.com/winterTTr/ace-jump-mode.git
