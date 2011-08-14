@@ -123,7 +123,7 @@
             (nnimap-user "johnw")
             (nnimap-server-port 143)
             (nnimap-stream network)
-            (nnmail-expiry-target "nnimap+Local:[Gmail]/All Mail")
+            (nnmail-expiry-target "[Gmail].All Mail")
             (nnmail-expiry-wait immediate))))
  '(gnus-signature-separator
    (quote
@@ -210,7 +210,7 @@
        (message-remove-header "From")))))
  '(message-x-completion-alist
    (quote
-    (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . pick-email-address)
+    (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-observe-find-address)
      ((if
           (boundp
            (quote message-newgroups-header-regexp))
@@ -330,9 +330,6 @@
 
 ;;(gnus-registry-initialize)
 
-(eval-after-load "message"
-  '(require 'message-x))
-
 (defun gnus-query (query)
   (interactive "sMail Query: ")
   (let ((nnir-imap-default-search-key "imap"))
@@ -369,7 +366,7 @@
   "Report the current or marked mails as spam.
 This moves them into the Spam folder."
   (interactive)
-  (gnus-summary-move-article nil "nnimap+Local:[Gmail]/Spam"))
+  (gnus-summary-move-article nil "[Gmail].Spam"))
 
 (eval-after-load "gnus-sum"
   '(progn
@@ -559,26 +556,53 @@ This moves them into the Spam folder."
 	(number-to-string tcount)
       " ")))
 
-;;;_ + Selecting an e-mail address
+;;;_ + Selecting e-mail addresses
 
-(defvar pick-addr-cache nil)
+;; This code requires the following prerequisites:
+;;
+;;   - SQLite3 (command name "sqlite3")
+;;   - message-x.el
+;;   - a script named addr
+;;   - optionally, the "contacts" program (from MacPorts)
+;;
+;; If you have contacts and want to "seed" your address database with those
+;; addresses, run:
+;;
+;;   addr seed
 
-(defun pick-email-address ()
+(eval-after-load "message"
+  '(require 'message-x))
+
+(defun gnus-observe-addresses ()
+  "Observe and remember the addresses in the current article buffer."
+  (mapc (lambda (info)
+          (call-process "addr" nil nil nil
+                        "insert" (cadr info) (or (car info) "")
+                        (number-to-string (floor (time-to-seconds)))))
+        (delete
+         nil
+         (append
+          (mapcar (lambda (field)
+                    (let ((value (message-field-value field t)))
+                      (and value
+                           (mail-extract-address-components value))))
+                  '("to" "from" "cc" "bcc"))))))
+
+(add-hook 'gnus-article-prepare-hook 'gnus-observe-addresses)
+(add-hook 'message-send-hook 'gnus-observe-addresses)
+
+(defun gnus-observe-find-address ()
   (interactive)
-  (let ((stub (word-at-point))
-        (choices
-         (or pick-addr-cache
-             (setq pick-addr-cache
-                   (split-string
-                    (shell-command-to-string
-                     "contacts -H -S -f '%n <%e>' | grep -v '<>'") "\n" t)))))
+  (let ((stub (word-at-point)))
     (backward-kill-word 1)
     (insert (ido-completing-read
-             "E-mail address: "
-             (append choices
-                     (split-string (shell-command-to-string
-                                    (concat "find-addr " stub))
-                                   "\n" t))
+             "Use address: "
+             (delete-dups
+              (split-string
+               (with-temp-buffer
+                 (call-process "addr" nil (current-buffer)
+                               nil "search" stub)
+                 (buffer-string)) "\n" t))
              nil t stub))))
 
 ;;;_ + gnus-article-browse-urls
