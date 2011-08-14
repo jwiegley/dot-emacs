@@ -122,9 +122,7 @@
             (nnimap-address "localhost")
             (nnimap-user "johnw")
             (nnimap-server-port 143)
-            (nnimap-stream network)
-            (nnmail-expiry-target "[Gmail].All Mail")
-            (nnmail-expiry-wait immediate))))
+            (nnimap-stream network))))
  '(gnus-signature-separator
    (quote
     ("^-- $" "^-- *$" "^_____+$")))
