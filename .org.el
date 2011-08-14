@@ -810,6 +810,7 @@ end tell" (match-string 1))))
      "* %%title%%cursor
   :PROPERTIES:
   :ID:       %s  :CREATED:  %s
+  :VISIBILITY: all
   :END:
    "
      (shell-command-to-string "uuidgen")
