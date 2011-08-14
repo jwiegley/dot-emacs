@@ -341,7 +341,7 @@
  '(inhibit-startup-screen t)
  '(initsplit-customizations-alist
    (quote
-    (("\\`\\(canlock\\|eudc\\|spam\\|nn\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil nil)
+    (("\\`\\(canlock\\|eudc\\|spam\\|nn[a-z]+\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil nil)
      ("\\`\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil nil)
      ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.passwd" nil nil))))
  '(initsplit-pretty-print t)
@@ -361,14 +361,6 @@
  '(mark-holidays-in-calendar t)
  '(modelinepos-column-limit 80)
  '(next-line-add-newlines nil)
- '(nnir-ignored-newsgroups "^\"\\([^[]\\|\\[Gmail]/[^A]\\)")
- '(nnir-imap-default-search-key "imap")
- '(nnmail-crosspost nil)
- '(nnmail-expiry-wait 30)
- '(nnmail-extra-headers
-   (quote
-    (To)))
- '(nnmail-scan-directory-mail-source-once t)
  '(ns-alternate-modifier
    (quote alt))
  '(ns-command-modifier

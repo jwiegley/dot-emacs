@@ -221,6 +221,14 @@
     ("application/msword" "text/richtext")))
  '(mm-text-html-renderer
    (quote w3m))
+ '(nnir-ignored-newsgroups "^\"\\([^[]\\|\\[Gmail]/[^A]\\)")
+ '(nnir-imap-default-search-key "imap")
+ '(nnmail-crosspost nil)
+ '(nnmail-expiry-wait 30)
+ '(nnmail-extra-headers
+   (quote
+    (To)))
+ '(nnmail-scan-directory-mail-source-once t)
  '(send-mail-function
    (quote sendmail-send-it))
  '(smtpmail-default-smtp-server "mail.johnwiegley.com")
