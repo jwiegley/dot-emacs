@@ -1011,8 +1011,8 @@ If the buffer is currently not visible, makes it sticky."
   (interactive)
   (delete-indentation t))
 
-(define-key global-map [(meta ?n)] 'tabbar-forward)
-(define-key global-map [(meta ?p)] 'tabbar-backward)
+(define-key global-map [(meta ?n)] 'ignore)
+(define-key global-map [(meta ?p)] 'ignore)
 
 (define-key global-map [(meta ?j)] 'delete-indentation-forward)
 (define-key global-map [(meta ?J)] 'delete-indentation)
