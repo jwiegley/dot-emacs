@@ -381,6 +381,12 @@ This moves them into the Spam folder."
   '(progn
      (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
      (define-key gnus-summary-mode-map [?O ?O] 'gnus-open-article-in-apple-mail)
+     (define-key gnus-summary-mode-map [?B backspace]
+       (function
+        (lambda (arg) (interactive "P")
+          (if gnus-newsgroup-name
+              (gnus-summary-move-article arg "[Gmail].Trash")
+            (gnus-summary-delete-article arg)))))
      (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
        'gnus-article-browse-urls)))
 
