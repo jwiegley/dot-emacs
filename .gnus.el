@@ -276,7 +276,7 @@
 (require 'starttls)
 (require 'pgg)
 
-(gnus-harvest-install)
+(gnus-harvest-install 'message-x)
 
 (defun my-process-running-p (name)
   (catch 'proc-running
