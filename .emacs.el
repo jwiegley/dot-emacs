@@ -591,7 +591,7 @@
      (require 'easy-mmode)
      (require 'info+)))
 
-;;;_ + css-mode
+;;;_ + anything
 
 (autoload 'anything-dabbrev-expand "anything-dabbrev-expand" nil t)
 (autoload 'descbinds-anything "descbinds-anything" nil t)
