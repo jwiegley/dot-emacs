@@ -9,10 +9,14 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(calendar-daylight-time-zone-name "CDT")
  '(calendar-latitude 40.845112)
  '(calendar-longitude -74.287672)
  '(calendar-mark-holidays-flag t)
+ '(calendar-standard-time-zone-name "CST")
+ '(calendar-time-zone -420)
  '(diary-file "~/Documents/Tasks/diary")
+ '(mark-holidays-in-calendar t)
  '(org-M-RET-may-split-line
    (quote
     ((headline)
