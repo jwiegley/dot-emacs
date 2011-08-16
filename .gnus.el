@@ -208,7 +208,7 @@
        (message-remove-header "From")))))
  '(message-x-completion-alist
    (quote
-    (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-observe-find-address)
+    (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-harvest-find-address)
      ((if
           (boundp
            (quote message-newgroups-header-regexp))
@@ -272,8 +272,11 @@
 ;;;_* configuration
 
 (require 'gnus)
+(require 'gnus-harvest)
 (require 'starttls)
 (require 'pgg)
+
+(gnus-harvest-install)
 
 (defun my-process-running-p (name)
   (catch 'proc-running
