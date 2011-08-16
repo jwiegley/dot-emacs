@@ -15,9 +15,9 @@
                ;; Packages that bury their Lisp code in subdirectories...
                "site-lisp/auctex/preview"
                "site-lisp/eshell"
+               "site-lisp/ess/lisp"
                "site-lisp/gnus/contrib"
                "site-lisp/gnus/lisp"
-               "site-lisp/ess/lisp"
                "site-lisp/org-mode/contrib/lisp"
                "site-lisp/org-mode/lisp"
                "site-lisp/session/lisp"
