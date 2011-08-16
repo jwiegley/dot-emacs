@@ -337,6 +337,8 @@
 (autoload 'gnus-dired-mode "gnus-dired" nil t)
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
 
+(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+
 ;;(gnus-registry-initialize)
 
 (defun gnus-query (query)

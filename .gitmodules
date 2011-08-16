@@ -136,3 +136,6 @@
 [submodule "site-lisp/gnus-harvest"]
 	path = site-lisp/gnus-harvest
 	url = git://github.com/jwiegley/gnus-harvest.git
+[submodule "site-lisp/bbdb"]
+	path = site-lisp/bbdb
+	url = git://github.com/emacsmirror/bbdb.git

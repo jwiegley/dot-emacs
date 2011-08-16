@@ -14,6 +14,8 @@
 
                ;; Packages that bury their Lisp code in subdirectories...
                "site-lisp/auctex/preview"
+               "site-lisp/bbdb/lisp"
+               "site-lisp/bbdb/bits"
                "site-lisp/eshell"
                "site-lisp/ess/lisp"
                "site-lisp/gnus/contrib"
@@ -97,6 +99,10 @@
      (".*" . "~/.emacs.d/backups"))))
  '(backward-delete-char-untabify-method
    (quote untabify))
+ '(bbdb-offer-save
+   (quote savenoprompt))
+ '(bbdb-use-pop-up nil)
+ '(bbdb/mail-auto-create-p nil)
  '(bookmark-save-flag 1)
  '(browse-url-browser-function
    (quote
@@ -603,6 +609,20 @@
      (require 'anything-match-plugin)
      (define-key anything-map [(alt ?v)] 'anything-previous-page)))
 
+;;;_ + bbdb
+
+(when (load "bbdb-autoloads" t)
+  (bbdb-insinuate-w3)
+
+  (eval-after-load "bbdb"
+    '(progn
+       (require 'bbdb-outlook)
+       (require 'bbdb-pgp))))
+
+(defun bbdb-info ()
+  (interactive)
+  (info "/Users/johnw/Library/Emacs/site-lisp/bbdb/texinfo/bbdb.info"))
+
 ;;;_ + css-mode
 
 (add-to-list 'auto-mode-alist '("\\.css$" . css-mode))
@@ -1030,6 +1050,7 @@ If the buffer is currently not visible, makes it sticky."
   (interactive)
   (gnus 1))
 
+(define-key global-map [(meta ?B)] 'bbdb)
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 (define-key global-map [(meta ?G)] 'gnus-level-1)
 (define-key global-map [(meta ?m)] 'org-smart-capture)
@@ -1073,7 +1094,6 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(meta shift ?l)] 'mark-line)
 (define-key global-map [(meta shift ?s)] 'mark-sentence)
 (define-key global-map [(meta shift ?x)] 'mark-sexp)
-(define-key global-map [(meta shift ?b)] 'python-mark-block)
 (define-key global-map [(meta shift ?h)] 'mark-paragraph)
 (define-key global-map [(meta shift ?d)] 'mark-defun)
 
