@@ -964,7 +964,8 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(control meta backspace)] 'backward-kill-sexp)
 (define-key global-map [(control meta delete)]    'backward-kill-sexp)
 
-(define-key global-map [(meta ?/)] 'anything-dabbrev-expand)
+(define-key global-map [(meta ?/)] 'dabbrev-expand)
+(define-key global-map [(meta ??)] 'anything-dabbrev-expand)
 
 (defun smart-beginning-of-line (&optional arg)
   (interactive "p")
