@@ -342,7 +342,7 @@
  '(initsplit-customizations-alist
    (quote
     (("\\`\\(canlock\\|eudc\\|spam\\|nn[a-z]+\\|mm\\|message\\|mail\\|gnus\\|sendmail\\|send-mail\\|starttls\\|smtpmail\\|check-mail\\)-" "~/Library/Emacs/.gnus.el" nil nil)
-     ("\\`\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-" "~/Library/Emacs/.org.el" nil nil)
+     ("\\`\\(\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-\\|mark-holidays-in-calendar\\'\\)" "~/Library/Emacs/.org.el" nil nil)
      ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.passwd" nil nil))))
  '(initsplit-pretty-print t)
  '(ispell-extra-args
@@ -358,7 +358,6 @@
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
  '(magit-process-popup-time 15)
- '(mark-holidays-in-calendar t)
  '(modelinepos-column-limit 80)
  '(next-line-add-newlines nil)
  '(ns-alternate-modifier
