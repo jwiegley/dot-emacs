@@ -571,55 +571,6 @@ This moves them into the Spam folder."
 	(number-to-string tcount)
       " ")))
 
-;;;_ + Selecting e-mail addresses
-
-;; This code requires the following prerequisites:
-;;
-;;   - SQLite3 (command name "sqlite3")
-;;   - message-x.el
-;;   - a script named addr
-;;   - optionally, the "contacts" program (from MacPorts)
-;;
-;; If you have contacts and want to "seed" your address database with those
-;; addresses, run:
-;;
-;;   addr seed
-
-(eval-after-load "message"
-  '(require 'message-x))
-
-(defun gnus-observe-addresses ()
-  "Observe and remember the addresses in the current article buffer."
-  (mapc (lambda (info)
-          (call-process "addr" nil nil nil
-                        "insert" (cadr info) (or (car info) "")
-                        (number-to-string (floor (time-to-seconds)))))
-        (delete
-         nil
-         (append
-          (mapcar (lambda (field)
-                    (let ((value (message-field-value field t)))
-                      (and value
-                           (mail-extract-address-components value))))
-                  '("to" "from" "cc" "bcc"))))))
-
-(add-hook 'gnus-article-prepare-hook 'gnus-observe-addresses)
-(add-hook 'message-send-hook 'gnus-observe-addresses)
-
-(defun gnus-observe-find-address ()
-  (interactive)
-  (let ((stub (word-at-point)))
-    (backward-kill-word 1)
-    (insert (ido-completing-read
-             "Use address: "
-             (delete-dups
-              (split-string
-               (with-temp-buffer
-                 (call-process "addr" nil (current-buffer)
-                               nil "search" stub)
-                 (buffer-string)) "\n" t))
-             nil t stub))))
-
 ;;;_ + gnus-article-browse-urls
 
 (defun gnus-article-browse-urls ()
