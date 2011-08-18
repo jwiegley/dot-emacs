@@ -462,7 +462,7 @@
     (Git Bzr Hg)))
  '(version-control t)
  '(visible-bell t)
- '(w3m-command "/opt/local/bin/w3m")
+ '(w3m-command "/opt/local/bin/w3m" t)
  '(w3m-use-cookies t)
  '(wdired-use-dired-vertical-movement
    (quote sometimes))
