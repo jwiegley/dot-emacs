@@ -109,6 +109,7 @@
  '(browse-url-browser-function
    (quote
     ((".*" . browse-url-default-macosx-browser))))
+ '(byte-compile-verbose nil)
  '(c-default-style
    (quote
     ((java-mode . "gnu")
@@ -279,6 +280,7 @@
     (flyspell-maybe-correct-transposition)))
  '(font-lock-support-mode
    (quote jit-lock-mode))
+ '(font-lock-verbose nil)
  '(frame-title-format
    (quote
     (:eval
