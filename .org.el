@@ -243,6 +243,7 @@
      ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
+ '(org-src-fontify-natively t)
  '(org-tags-column -97)
  '(org-time-clocksum-use-fractional t)
  '(org-todo-keyword-faces
