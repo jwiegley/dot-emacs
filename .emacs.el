@@ -1295,6 +1295,16 @@ If the buffer is currently not visible, makes it sticky."
 
 (define-key mode-specific-map [?a] 'org-agenda)
 
+(defun find-grep-in-project (command-args)
+  (interactive
+   (progn
+     (list (read-shell-command "Run find (like this): "
+                               '("git ls-files -z | xargs -0 egrep -nH -e " . 41)
+                               'grep-find-history))))
+  (when command-args
+    (let ((null-device nil))		; see grep
+      (grep command-args))))
+
 (define-prefix-command 'my-grep-map)
 (define-key mode-specific-map [?b] 'my-grep-map)
 (define-key mode-specific-map [?b ?a] 'anything-do-grep)
@@ -1305,6 +1315,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?b ?g] 'grep)
 (define-key mode-specific-map [?b ?n] 'find-name-dired)
 (define-key mode-specific-map [?b ?o] 'occur)
+(define-key mode-specific-map [?b ?p] 'find-grep-in-project)
 (define-key mode-specific-map [?b ?r] 'rgrep)
 
 (define-key mode-specific-map [?c] 'compile)
