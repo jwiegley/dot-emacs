@@ -490,8 +490,7 @@ To use this function, add it to `org-agenda-finalize-hook':
                       (format-time-string (org-time-stamp-format))))
       (insert (format "   :ID:       %s\n   :CREATED:  " uuid)))
     (forward-line)
-    (insert (format "   :END:"
-                    (format-time-string (org-time-stamp-format t t))))))
+    (insert "   :END:")))
 
 (defun my-org-convert-incoming-items ()
   (interactive)
@@ -589,8 +588,8 @@ This can be 0 for immediate, or a floating point value.")
     (save-excursion
       (outline-next-heading)
       (and (re-search-backward "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELED\\)\"\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)" begin t)
-	   (time-to-seconds (org-time-string-to-time (or (match-string 3)
-							 (match-string 4))))))))
+	   (float-time (org-time-string-to-time (or (match-string 3)
+                                                    (match-string 4))))))))
 
 (defun org-my-sort-done-tasks ()
   (interactive)
@@ -725,6 +724,13 @@ This can be 0 for immediate, or a floating point value.")
   "Set a property for the current headline."
   (interactive)
   (org-set-property "Message" (org-get-message-link)))
+
+(defun org-get-message-sender ()
+  (assert (get-buffer "*Group*"))
+  (let (message-id subject)
+    (with-current-buffer gnus-original-article-buffer
+      (nnheader-narrow-to-headers)
+      (message-fetch-field "from"))))
 
 (defun org-set-message-sender ()
   "Set a property for the current headline."
@@ -957,8 +963,7 @@ end tell" (match-string 1))))
 (add-hook 'org-mode-hook
           (lambda ()
             ;; yasnippet (using the new org-cycle hooks)
-            (make-variable-buffer-local 'yas/trigger-key)
-            (setq yas/trigger-key [tab])
+            (set (make-local-variable 'yas/trigger-key) [tab])
             (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
             (define-key yas/keymap [tab] 'yas/next-field)))
 
