@@ -212,6 +212,7 @@
  '(org-completion-use-ido t)
  '(org-confirm-elisp-link-function nil)
  '(org-confirm-shell-link-function nil)
+ '(org-crypt-disable-auto-save nil)
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
  '(org-default-notes-file "~/Documents/Tasks/todo.txt")
