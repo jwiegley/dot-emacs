@@ -99,6 +99,7 @@
      (".*" . "~/.emacs.d/backups"))))
  '(backward-delete-char-untabify-method
    (quote untabify))
+ '(bbdb-default-country "")
  '(bbdb-offer-save
    (quote savenoprompt))
  '(bbdb-use-pop-up nil)
