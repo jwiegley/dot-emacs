@@ -387,9 +387,9 @@ This moves them into the Spam folder."
      (define-key gnus-summary-mode-map [?B backspace]
        (function
         (lambda (arg) (interactive "P")
-          (if gnus-newsgroup-name
-              (gnus-summary-move-article arg "[Gmail].Trash")
-            (gnus-summary-delete-article arg)))))
+          (if (string-match "\\(drafts\\|queue\\)" gnus-newsgroup-name)
+              (gnus-summary-delete-article arg)
+            (gnus-summary-move-article arg "[Gmail].Trash")))))
      (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
        'gnus-article-browse-urls)))
 
