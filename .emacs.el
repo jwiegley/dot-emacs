@@ -194,7 +194,8 @@
  '(erc-autojoin-channels-alist
    (quote
     (("localhost" "#twitter_jwiegley" "&bitlbee")
-     ("freenode.net" "#ledger"))))
+     ("freenode.net" "#ledger")
+     ("irc.oftc.net" "#llvm"))))
  '(erc-autojoin-mode t)
  '(erc-generate-log-file-name-function
    (quote erc-generate-log-file-name-short))
