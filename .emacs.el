@@ -204,7 +204,7 @@
     ("JOIN" "NICK" "PART" "QUIT" "MODE")))
  '(erc-keywords
    (quote
-    ("wiegley" "ledger" "eshell" "The following message received")))
+    ("wiegley" "ledger" "eshell")))
  '(erc-log-channels-directory "~/Library/Mail/ERC")
  '(erc-log-write-after-send t)
  '(erc-modules
