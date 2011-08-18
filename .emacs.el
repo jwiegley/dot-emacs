@@ -614,7 +614,7 @@
 
   (eval-after-load "bbdb"
     '(progn
-       (require 'bbdb-outlook)
+       (require 'bbdb-to-outlook)
        (require 'bbdb-pgp))))
 
 (defun bbdb-info ()
