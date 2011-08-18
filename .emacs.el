@@ -302,6 +302,7 @@
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil
                          (font-lock))
+ '(grep-command "grep -nH -e")
  '(grep-find-command
    (quote
     ("find . -type f -print0 | xargs -0 egrep -nH -e " . 48)))
