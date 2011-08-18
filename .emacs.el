@@ -23,6 +23,7 @@
                "site-lisp/org-mode/contrib/lisp"
                "site-lisp/org-mode/lisp"
                "site-lisp/session/lisp"
+               "site-lisp/slime/contrib"
                "site-lisp/tramp/lisp"
 
                ;; Packages located elsewhere on the system...
@@ -71,7 +72,6 @@
 
 (require 'recentf)
 (setq recentf-auto-cleanup 'never)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
