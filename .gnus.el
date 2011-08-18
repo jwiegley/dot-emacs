@@ -319,6 +319,7 @@
 
 (defun my-shutdown-external-processes ()
   (safely-kill-process "offlineimap")
+
   (message "Shutting down Dovecot...")
   (shell-command "sudo port unload dovecot")
   (message "Shutting down Dovecot...done"))
@@ -331,8 +332,7 @@
 
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
-            (make-variable-buffer-local 'hl-line-face)
-            (setq hl-line-face 'underline)
+            (set (make-local-variable 'hl-line-face) 'underline)
             (hl-line-mode 1)))
 
 (autoload 'gnus-dired-mode "gnus-dired" nil t)
@@ -465,6 +465,9 @@ This moves them into the Spam folder."
 
 ;;;_ + Scoring
 
+(eval-when-compile
+  (defvar arg))
+
 (defun gnus-score-groups ()
   (interactive)
   (save-excursion
@@ -495,9 +498,8 @@ This moves them into the Spam folder."
 	(newsgroups (cdr (assq 'Newsgroups (mail-header-extra header))))
 	(mail-parse-charset gnus-newsgroup-charset)
 	(mail-parse-ignored-charsets
-	 (save-excursion
-	   (set-buffer gnus-summary-buffer)
-	   gnus-newsgroup-ignored-charsets)))
+	 (with-current-buffer gnus-summary-buffer
+           gnus-newsgroup-ignored-charsets)))
     (cond
      ((and to gnus-ignored-from-addresses
 	   (string-match gnus-ignored-from-addresses
@@ -591,10 +593,9 @@ This moves them into the Spam folder."
     (save-excursion
       (save-window-excursion
         (set-buffer temp-buffer)
-        (mapcar
-         (lambda (string)
-           (insert (format "\t%d: %s\n" count string))
-           (setq count (1+ count))) urls)
+        (mapc (lambda (string)
+                (insert (format "\t%d: %s\n" count string))
+                (setq count (1+ count))) urls)
         (not-modified)
         (pop-to-buffer temp-buffer)
         (setq count
@@ -612,8 +613,7 @@ This moves them into the Spam folder."
 (defun gnus-article-get-current-urls ()
   "Return a list of the urls found in the current `gnus-article-buffer'"
   (let (url-list)
-    (save-excursion
-      (set-buffer gnus-article-buffer)
+    (with-current-buffer gnus-article-buffer
       (setq url-list (gnus-article-get-urls-region (point-min) (point-max))))
     url-list))
 
