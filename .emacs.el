@@ -1352,6 +1352,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?e ?d] 'debug-on-entry)
 (define-key mode-specific-map [?e ?f] 'emacs-lisp-byte-compile-and-load)
 (define-key mode-specific-map [?e ?r] 'eval-region)
+(define-key mode-specific-map [?e ?l] 'find-library)
 (define-key mode-specific-map [?e ?s] 'scratch)
 (define-key mode-specific-map [?e ?v] 'edit-variable)
 (define-key mode-specific-map [?e ?e] 'toggle-debug-on-error)
