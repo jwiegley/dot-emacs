@@ -706,12 +706,30 @@
 (defun irc ()
   (interactive)
   (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
-       (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords))))))
+       (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords)))))
+  (erc :server "irc.oftc.net" :port 6667 :nick "johnw"))
 
 (defun im ()
   (interactive)
   (erc :server "localhost" :port 6667 :nick "johnw" :password
        (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords))))))
+
+(defcustom erc-active-unselected-buffer-color "grey50"
+  "Color used for the background of inactive windows with new messages."
+  :type 'color
+  :group 'erc)
+
+(defun remove-overlays-after-other-window ()
+  (when (eq this-command 'other-window)
+    (remove-overlays)
+    (goto-char (point-max))))
+
+(defun erc-colorize-active-unselected-buffer ()
+  (let ((buffer-overlay (make-overlay (window-start) (window-end))))
+    (overlay-put buffer-overlay 'face
+                 (cons 'background-color
+                       erc-active-unselected-buffer-color))
+    (add-hook 'post-command-hook 'remove-overlays-after-other-window nil t)))
 
 (defvar growlnotify-command (executable-find "growlnotify")
    "The path to growlnotify")
@@ -730,14 +748,31 @@
       (process-send-eof process)))
   t)
 
-(defun my-erc-hook (match-type nick message)
+(defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
 If the buffer is currently not visible, makes it sticky."
-  (unless (posix-string-match "^\\** *Users on #" message)
-    (growl (concat "ERC: " (buffer-name (current-buffer)))
-           message)))
+  (let ((wind (get-buffer-window)))
+    (if wind
+        (unless (eq wind (selected-window))
+          (with-selected-window wind
+            (erc-colorize-active-unselected-buffer)))
+      (if message
+          (unless (posix-string-match "^\\** *Users on #" message)
+            (growl (concat "ERC: " (buffer-name)) message))
+        (goto-char (point-min))
+        (let ((nick (and (looking-at "<\\([^>]+?\\)>\\s-*")
+                         (prog1
+                             (match-string 1)
+                           (goto-char (match-end 0))))))
+          (if (or (string-match "\\`[^&].*@BitlBee\\'"
+                                (erc-format-target-and/or-network)))
+              (growl (if nick
+                         (format "ERC <%s>" nick)
+                       "ERC")
+                     (buffer-substring (point) (point-max)))))))))
 
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
+(add-hook 'erc-insert-modify-hook 'my-erc-hook)
 
 ;;;_ + escreen
 
