@@ -142,7 +142,7 @@
     
     (column-marker-1 79)
 
-    (define-key mode-map [(control ?h) ?f] 'info-lookup-symbol)))
+    (define-key mode-map [(control ?h) ?F] 'info-lookup-symbol)))
 
 (mapc (lambda (hook)
         (add-hook hook 'my-lisp-mode-hook))
@@ -222,6 +222,6 @@
      (define-key slime-repl-mode-map [(control return)] 'other-window)
 
      (define-key slime-mode-map [return] 'paredit-newline)
-     (define-key slime-mode-map [(control ?h) ?f] 'info-lookup-symbol)))
+     (define-key slime-mode-map [(control ?h) ?F] 'info-lookup-symbol)))
 
 ;;; lang-lisp.el ends here
