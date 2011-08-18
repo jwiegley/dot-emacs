@@ -301,7 +301,8 @@
   (unless (my-process-running-p "offlineimap")
     (let ((buf (get-buffer-create "*offlineimap*")))
       (setq offlineimap-process
-            (start-process "*offlineimap*" buf "/opt/local/bin/offlineimap"))
+            (start-process "*offlineimap*" buf "/opt/local/bin/offlineimap"
+                           "-l" (expand-file-name "~/Library/Mail/offlineimap.log")))
       (display-buffer buf))))
 
 (defun safely-kill-process (name)
