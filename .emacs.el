@@ -576,9 +576,6 @@
         "pp-c-l"
         "session"
         "yasnippet"
-        ".passwd"
-        ".org"
-        ".gnus"
         ))
 
 ;;;_ + Drew Adams
