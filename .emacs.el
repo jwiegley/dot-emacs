@@ -583,6 +583,9 @@
 (require 'compile-)
 (setq compilation-message-face nil)
 (eval-after-load "compile"  '(require 'compile+))
+
+(require 'diff-mode-)
+
 (eval-after-load "hl-line"  '(require 'hl-line+))
 
 (eval-after-load "grep"
