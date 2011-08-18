@@ -409,7 +409,8 @@
    (quote
     ((after-save-hook archive-done-tasks)
      (after-save-hook sort-done-tasks)
-     (after-save-hook commit-after-save))))
+     (after-save-hook commit-after-save)
+     (after-save-hook . byte-compile-file-after-save))))
  '(session-globals-exclude
    (quote
     (load-history flyspell-auto-correct-ring)))
