@@ -895,10 +895,10 @@ If the buffer is currently not visible, makes it sticky."
         wind)
     (if buf
         (if (setq wind (get-buffer-window buf))
-            (when (called-interactively-p)
+            (when (called-interactively-p 'any)
               (select-window wind)
               (org-fit-window-to-buffer))
-          (if (called-interactively-p)
+          (if (called-interactively-p 'any)
               (progn
                 (select-window (display-buffer buf t t))
                 (org-fit-window-to-buffer))
@@ -932,6 +932,9 @@ If the buffer is currently not visible, makes it sticky."
 (run-with-idle-timer 300 t 'save-information)
 
 ;;;_ + sunrise-commander
+
+(eval-when-compile
+  (require 'sunrise-commander))
 
 (defun sr-goto-dir (dir)
   "Change the current directory in the active pane to the given one."
@@ -1233,9 +1236,7 @@ If the buffer is currently not visible, makes it sticky."
       (funcall fun nil)
       (goto-char beg)
       (insert prefix)
-      (funcall fun nil)
-      (if (memq major-mode '(c-mode c++-mode))
-          (c-recomment-region beg (+ end 2))))
+      (funcall fun nil))
     (goto-char (+ end 2))))
 
 (define-key ctl-x-map [(meta ?q)] 'refill-paragraph)
@@ -1428,7 +1429,7 @@ If the buffer is currently not visible, makes it sticky."
   :set
   #'(lambda (symbol value)
       (if (fboundp 'font-lock-add-keywords)
-          (mapcar
+          (mapc
            #'(lambda (mode)
                (font-lock-add-keywords
                 mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
