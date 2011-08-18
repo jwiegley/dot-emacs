@@ -234,7 +234,7 @@
  '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
  '(org-modules
    (quote
-    (org-crypt org-id org-info org-habit org-irc org-git-link)))
+    (org-id org-habit)))
  '(org-refile-targets
    (quote
     (("~/Documents/Tasks/todo.txt" :level . 1)
