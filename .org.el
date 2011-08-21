@@ -220,6 +220,7 @@
  '(org-drawers
    (quote
     ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
+ '(org-edit-src-content-indentation 0)
  '(org-enforce-todo-dependencies t)
  '(org-export-babel-evaluate nil)
  '(org-extend-today-until 8)
