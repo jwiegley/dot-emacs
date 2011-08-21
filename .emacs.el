@@ -193,7 +193,7 @@
  '(erc-autoaway-mode t)
  '(erc-autojoin-channels-alist
    (quote
-    (("localhost" "#twitter_jwiegley" "&bitlbee")
+    (("localhost" "&bitlbee")
      ("freenode.net" "#ledger")
      ("irc.oftc.net" "#llvm"))))
  '(erc-autojoin-mode t)
