@@ -450,6 +450,7 @@
  '(tramp-default-method-alist
    (quote
     (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))))
+ '(trash-directory "~/.Trash")
  '(uniquify-buffer-name-style
    (quote post-forward-angle-brackets)
    nil
