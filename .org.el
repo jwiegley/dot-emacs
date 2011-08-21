@@ -644,7 +644,7 @@ This can be 0 for immediate, or a floating point value.")
         (org-sort-entries t ?o))
       (forward-line))))
 
-(defun org-cleangup ()
+(defun org-cleanup ()
   (interactive)
   (org-archive-done-tasks)
   (org-sort-all)
