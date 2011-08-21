@@ -628,11 +628,13 @@ This can be 0 for immediate, or a floating point value.")
     (goto-char (point-min))
     (while (re-search-forward "^\* " nil t)
       (goto-char (match-beginning 0))
-      (ignore-errors
-        (org-sort-entries t ?a)
-        (org-sort-entries t ?p)
-        (org-sort-entries t ?o))
-      (forward-line))
+      (condition-case err
+          (progn
+            (org-sort-entries t ?a)
+            (org-sort-entries t ?p)
+            (org-sort-entries t ?o)
+            (forward-line))
+        (error nil)))
     (goto-char (point-min))
     (while (re-search-forward "\* PROJECT " nil t)
       (goto-char (line-beginning-position))
