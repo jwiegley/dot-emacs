@@ -353,9 +353,9 @@
  '(inhibit-startup-screen t)
  '(initsplit-customizations-alist
    (quote
-    (("\\`\\(canlock\\|eudc\\|gnus\\|nn[a-z]+\\|mm\\|message\\|\\(send-?\\|smtp\\|check-\\)?mail\\|spam\\|starttls\\|sc\\)-" "~/Library/Emacs/.gnus.el" nil t)
-     ("\\`\\(\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-\\|mark-holidays-in-calendar\\'\\)" "~/Library/Emacs/.org.el" nil t)
-     ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.passwd" nil t))))
+    (("\\`\\(canlock\\|eudc\\|gnus\\|nn[a-z]+\\|mm\\|message\\|\\(send-?\\|smtp\\|check-\\)?mail\\|spam\\|starttls\\|sc\\)-" "~/Library/Emacs/.gnus.el" nil nil)
+     ("\\`\\(\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-\\|mark-holidays-in-calendar\\'\\)" "~/Library/Emacs/.org.el" nil nil)
+     ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.passwd" nil nil))))
  '(initsplit-pretty-print t)
  '(ispell-extra-args
    (quote
