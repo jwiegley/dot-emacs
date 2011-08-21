@@ -51,7 +51,7 @@
      ("u" "Unscheduled tasks" tags "AREA<>\"Work\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-files
         (quote
-         ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt")))
+         ("~/Documents/Tasks/todo.txt")))
        (org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         (quote
@@ -67,7 +67,7 @@
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-files
         (quote
-         ("~/Documents/Tasks/todo.txt" "~/Documents/Accounts/finances.txt")))
+         ("~/Documents/Tasks/todo.txt")))
        (org-agenda-overriding-header "Deferred tasks:")))
      ("S" "Someday tasks" tags "TODO=\"SOMEDAY\""
       ((org-agenda-overriding-header "Someday tasks:")))
@@ -239,7 +239,6 @@
    (quote
     (("~/Documents/Tasks/todo.txt" :level . 1)
      ("~/Documents/Tasks/todo.txt" :todo . "PROJECT")
-     ("~/Documents/Accounts/finances.txt" :level . 1)
      ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
