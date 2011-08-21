@@ -142,3 +142,6 @@
 [submodule "site-lisp/el-staging"]
 	path = site-lisp/el-staging
 	url = git://github.com/boostpro/el-staging.git
+[submodule "site-lisp/color-theme"]
+	path = site-lisp/color-theme
+	url = git://github.com/jwiegley/color-theme.git
