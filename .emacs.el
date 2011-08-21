@@ -700,6 +700,17 @@
 
 ;;;_ + erc
 
+(defun irc ()
+  (interactive)
+  (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
+       (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords)))))
+  (erc :server "irc.oftc.net" :port 6667 :nick "johnw"))
+
+(defun im ()
+  (interactive)
+  (erc :server "localhost" :port 6667 :nick "johnw" :password
+       (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords))))))
+
 (defun erc-tiny-frame ()
   (interactive)
   (with-selected-frame
@@ -715,36 +726,37 @@
     (switch-to-buffer "#emacs")
     (set (make-local-variable 'mode-line-format) nil)))
 
-(defun irc ()
-  (interactive)
-  (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
-       (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords)))))
-  (erc :server "irc.oftc.net" :port 6667 :nick "johnw"))
-
-(defun im ()
-  (interactive)
-  (erc :server "localhost" :port 6667 :nick "johnw" :password
-       (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords))))))
-
-(defcustom erc-active-unselected-buffer-color "grey50"
+(defcustom erc-active-unselected-fringe-color "blue"
   "Color used for the background of inactive windows with new messages."
   :type 'color
   :group 'erc)
 
-(defun remove-overlays-after-other-window ()
-  (when (eq this-command 'other-window)
-    (remove-overlays)
-    (goto-char (point-max))))
+(defcustom erc-active-unselected-idle-time 120
+  "If idle this many seconds, also highlight buffers with new input."
+  :type 'integer
+  :group 'erc)
 
-(defun erc-colorize-active-unselected-buffer ()
-  (let ((buffer-overlay (make-overlay (window-start) (window-end))))
-    (overlay-put buffer-overlay 'face
-                 (cons 'background-color
-                       erc-active-unselected-buffer-color))
-    (add-hook 'post-command-hook 'remove-overlays-after-other-window nil t)))
+(defcustom erc-priority-people-regexp ".*"
+  "Regexp that matches BitlBee users you want active notification for."
+  :type 'regexp
+  :group 'erc)
+
+(defcustom erc-growl-noise-regexp "\\(Logging in:\\|Signing off\\)"
+  "Regexp that matches BitlBee users you want active notification for."
+  :type 'regexp
+  :group 'erc)
 
 (defvar growlnotify-command (executable-find "growlnotify")
    "The path to growlnotify")
+
+(copy-face 'fringe 'erc-active-unselected-old-fringe-face)
+
+(defun restore-default-fringe ()
+  (copy-face 'erc-active-unselected-old-fringe-face 'fringe))
+
+(defun erc-colorize-active-unselected-buffer ()
+  (set-face-background 'fringe erc-active-unselected-fringe-color)
+  (add-hook 'post-command-hook 'restore-default-fringe nil t))
 
 (defun growl (title message)
   "Shows a message through the growl notification system using
@@ -763,25 +775,29 @@
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
 If the buffer is currently not visible, makes it sticky."
-  (let ((wind (get-buffer-window)))
+  (let ((wind (get-buffer-window))
+        (priority-p
+         (string-match (concat "\\`[^&]" erc-priority-people-regexp
+                               "@BitlBee\\'")
+                       (erc-format-target-and/or-network))))
     (if wind
-        (unless (eq wind (selected-window))
-          (with-selected-window wind
-            (erc-colorize-active-unselected-buffer)))
+        (if (and priority-p
+                 (or (not (eq wind (selected-window)))
+                     (and (current-idle-time)
+                          (> (float-time (current-idle-time))
+                             erc-active-unselected-idle-time))))
+            (erc-colorize-active-unselected-buffer))
       (if message
-          (unless (posix-string-match "^\\** *Users on #" message)
+          (unless (or (string-match "^\\** *Users on #" message)
+                      (string-match erc-growl-noise-regexp message))
             (growl (concat "ERC: " (buffer-name)) message))
         (goto-char (point-min))
-        (let ((nick (and (looking-at "<\\([^>]+?\\)>\\s-*")
-                         (prog1
-                             (match-string 1)
-                           (goto-char (match-end 0))))))
-          (if (or (string-match "\\`[^&].*@BitlBee\\'"
-                                (erc-format-target-and/or-network)))
-              (growl (if nick
-                         (format "ERC <%s>" nick)
-                       "ERC")
-                     (buffer-substring (point) (point-max)))))))))
+        (when priority-p
+          (erc-colorize-active-unselected-buffer)
+          (growl (if nick
+                     (concact "ERC: " (buffer-name))
+                   "ERC")
+                 (buffer-string)))))))
 
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
