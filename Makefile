@@ -16,6 +16,7 @@ MY_LOADPATH      = -L .					\
 EMACS_BATCH_LOAD = $(EMACS_BATCH) $(MY_LOADPATH)
 
 all: $(TARGET)
+	$(EMACS_BATCH_LOAD) -f batch-byte-recompile-directory .
 
 cus-dirs.el: $(SOURCE)
 	$(EMACS_BATCH) \
