@@ -227,6 +227,15 @@
    (quote
     (To)))
  '(nnmail-scan-directory-mail-source-once t)
+ '(sc-attrib-selection-list
+   (quote
+    (("sc-from-address"
+      ((".*" bbdb/sc-consult-attr
+        (sc-mail-field "sc-from-address")))))))
+ '(sc-citation-leader "")
+ '(sc-preferred-attribution-list
+   (quote
+    ("sc-lastchoice" "x-attribution" "sc-consult" "firstname" "initials" "lastname")))
  '(send-mail-function
    (quote sendmail-send-it))
  '(smtpmail-default-smtp-server "mail.johnwiegley.com")
@@ -277,6 +286,7 @@
 (require 'pgg)
 
 (gnus-harvest-install 'message-x)
+(add-hook 'mail-citation-hook 'sc-cite-original)
 
 (defun my-process-running-p (name)
   (catch 'proc-running
@@ -339,6 +349,19 @@
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
 
 (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+(add-hook 'gnus-startup-hook 'bbdb-insinuate-sc)
+
+(eval-after-load "supercite"
+  '(setq
+    sc-mail-glom-frame
+    '((begin                        (setq sc-mail-headers-start (point)))
+      ("^x-attribution:[ \t]+.*$"   (sc-mail-fetch-field t) nil t)
+      ("^\\S +:.*$"                 (sc-mail-fetch-field) nil t)
+      ("^$"                         (progn (bbdb/sc-default)
+                                           (list 'abort '(step . 0))))
+      ("^[ \t]+"                    (sc-mail-append-field))
+      (sc-mail-warn-if-non-rfc822-p (sc-mail-error-in-mail-field))
+      (end                          (setq sc-mail-headers-end (point))))))
 
 ;;(gnus-registry-initialize)
 
