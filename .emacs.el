@@ -610,7 +610,6 @@
 
 ;;;_ + anything
 
-(autoload 'anything-dabbrev-expand "anything-dabbrev-expand" nil t)
 (autoload 'descbinds-anything "descbinds-anything" nil t)
 
 (fset 'describe-bindings 'descbinds-anything)
