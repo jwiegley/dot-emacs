@@ -69,7 +69,7 @@
 ")
  '(gnus-group-mode-hook
    (quote
-    (gnus-topic-mode)))
+    (gnus-topic-mode gnus-agent-mode)))
  '(gnus-home-directory "~/Library/Mail/Gnus/")
  '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|boostpro\\)\\.com\\)")
  '(gnus-ignored-mime-types
