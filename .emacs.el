@@ -1435,6 +1435,11 @@ This function assumes that the file is registered."
     (delete-region (point-min) (point)))
   (goto-char (point-max)))
 
+(defun find-which (name)
+  (interactive "sCommand name: ")
+  (find-file-other-window
+   (substring (shell-command-to-string (format "which %s" name)) 0 -1)))
+
 (define-key mode-specific-map [?e ?a] 'apropos)
 (define-key mode-specific-map [?e ?b] 'do-eval-buffer)
 (define-key mode-specific-map [?e ?c] 'cancel-debug-on-entry)
@@ -1444,6 +1449,7 @@ This function assumes that the file is registered."
 (define-key mode-specific-map [?e ?l] 'find-library)
 (define-key mode-specific-map [?e ?s] 'scratch)
 (define-key mode-specific-map [?e ?v] 'edit-variable)
+(define-key mode-specific-map [?e ?w] 'find-which)
 (define-key mode-specific-map [?e ?e] 'toggle-debug-on-error)
 (define-key mode-specific-map [?e ?E] 'elint-current-buffer)
 
