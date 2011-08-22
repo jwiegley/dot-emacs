@@ -331,12 +331,6 @@
 
 ;;(load "org-log" t)
 
-(defun org-info (&optional node)
-  "Read documentation for Org-mode in the info system.
-With optional NODE, go directly to that node."
-  (interactive)
-  (info "/Users/johnw/Library/Emacs/site-lisp/org-mode/doc/org"))
-
 (defun org-export-tasks ()
   (interactive)
   (let ((index 1))

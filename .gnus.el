@@ -323,10 +323,6 @@
 
 (add-hook 'gnus-after-exiting-gnus-hook 'my-shutdown-external-processes)
 
-(defun gnus-info (&optional node)
-  (interactive)
-  (info "/Users/johnw/Library/Emacs/site-lisp/gnus/texi/gnus"))
-
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
             (set (make-local-variable 'hl-line-face) 'underline)

@@ -41,9 +41,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(Info-additional-directory-list
-   (quote
-    ("~/Library/Info" "/usr/local/share/info" "/opt/local/share/info")))
  '(Info-fit-frame-flag nil)
  '(after-save-hook
    (quote
@@ -592,10 +589,6 @@
     '(progn
        (require 'bbdb-to-outlook)
        (require 'bbdb-pgp))))
-
-(defun bbdb-info ()
-  (interactive)
-  (info "/Users/johnw/Library/Emacs/site-lisp/bbdb/texinfo/bbdb.info"))
 
 ;;;_ + css-mode
 
