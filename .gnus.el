@@ -121,7 +121,7 @@
     (nnimap "Local"
             (nnimap-address "localhost")
             (nnimap-user "johnw")
-            (nnimap-server-port 143)
+            (nnimap-server-port 9143)
             (nnimap-stream network))))
  '(gnus-signature-separator
    (quote
@@ -295,15 +295,6 @@
                (eq 'run (process-status proc)))
           (throw 'proc-running proc)))))
 
-(defun start-dovecot ()
-  (shell-command "sudo port load dovecot")
-
-  (message "Waiting 3 seconds for Dovecot to start up...")
-  (sleep-for 3)
-  (message "Waiting 3 seconds for Dovecot to start up...done"))
-
-(add-hook 'gnus-before-startup-hook 'start-dovecot)
-
 (defvar offlineimap-process nil)
 
 (defun start-offlineimap ()
@@ -328,11 +319,7 @@
             (setq sigs (cdr sigs))))))))
 
 (defun my-shutdown-external-processes ()
-  (safely-kill-process "offlineimap")
-
-  (message "Shutting down Dovecot...")
-  (shell-command "sudo port unload dovecot")
-  (message "Shutting down Dovecot...done"))
+  (safely-kill-process "offlineimap"))
 
 (add-hook 'gnus-after-exiting-gnus-hook 'my-shutdown-external-processes)
 
