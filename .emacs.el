@@ -6,7 +6,6 @@
 
 ;; Bootstrap the load-path, autoloads and el-get
 
-(require 'load-path)
 (require 'autoloads)
 (require 'initsplit)
 
