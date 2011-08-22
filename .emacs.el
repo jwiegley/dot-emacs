@@ -1,77 +1,41 @@
 ;;; -*- mode: emacs-lisp -*-
 
-;;;_* initial packages
-
-(defconst emacs-lisp-root "~/Library/Emacs")
-
-(setq gnus-home-directory "~/Library/Mail/Gnus/") ; override gnus.el
-
-;; Add other site-lisp directories, in case they were not setup by the
-;; environment.
-
-(dolist (path
-         (list "." "site-lisp"
-
-               ;; Packages that bury their Lisp code in subdirectories...
-               "site-lisp/auctex/preview"
-               "site-lisp/bbdb/lisp"
-               "site-lisp/bbdb/bits"
-               "site-lisp/eshell"
-               "site-lisp/ess/lisp"
-               "site-lisp/gnus/contrib"
-               "site-lisp/gnus/lisp"
-               "site-lisp/org-mode/contrib/lisp"
-               "site-lisp/org-mode/lisp"
-               "site-lisp/session/lisp"
-               "site-lisp/slime/contrib"
-               "site-lisp/tramp/lisp"
-
-               ;; Packages located elsewhere on the system...
-               "~/src/ledger/lisp"
-               "/opt/local/share/doc/git-core/contrib/emacs"
-               "/opt/local/share/emacs/site-lisp"
-               ))
-
-  (setq path (expand-file-name path emacs-lisp-root)
-        load-path (delete path load-path)
-        load-path (delete (file-name-as-directory path) load-path))
-
-  (when (file-directory-p path)
-    (let ((default-directory path))
-      (normal-top-level-add-subdirs-to-load-path)
-      (add-to-list 'load-path path))))
-
-(load "autoloads" t)
-
-;; Read in the Mac's global environment settings.
-
-(let ((plist (expand-file-name "~/.MacOSX/environment.plist")))
-  (when (file-readable-p plist)
-    (let ((dict (cdr (assq 'dict (cdar (xml-parse-file plist))))))
-      (while dict
-        (when (and (listp (car dict)) (eq 'key (caar dict)))
-          (setenv (car (cddr (car dict)))
-                  (car (cddr (car (cddr dict))))))
-        (setq dict (cdr dict))))
-    (setq exec-path nil)
-    (mapc #'(lambda (path) (add-to-list 'exec-path path))
-          (nreverse (split-string (getenv "PATH") ":")))))
-
 ;; Set the *Message* log to something higher
 
 (setq message-log-max 8192)
 
-;;;_* customizations
+;; Bootstrap the load-path, autoloads and el-get
 
-;;;_ + variables
-
+(require 'load-path)
+(require 'autoloads)
 (require 'initsplit)
-
-(defun imap-unread ()
-  (file-exists-p "/tmp/unread"))
 
 (require 'recentf)
 (setq recentf-auto-cleanup 'never)
+
+(require 'el-get)
+(el-get)
+
+;; Read in the Mac's global environment settings.
+
+(defun read-mac-environment ()
+  (let ((plist (expand-file-name "~/.MacOSX/environment.plist")))
+    (when (file-readable-p plist)
+      (let ((dict (cdr (assq 'dict (cdar (xml-parse-file plist))))))
+        (while dict
+          (when (and (listp (car dict)) (eq 'key (caar dict)))
+            (setenv (car (cddr (car dict)))
+                    (car (cddr (car (cddr dict))))))
+          (setq dict (cdr dict))))
+      (setq exec-path nil)
+      (mapc #'(lambda (path) (add-to-list 'exec-path path))
+            (nreverse (split-string (getenv "PATH") ":"))))))
+
+(read-mac-environment)
+
+;;;_* customizations
+
+;;;_ + variables
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -168,7 +132,7 @@
  '(dired-recursive-deletes
    (quote always))
  '(display-time-mail-function
-   (quote imap-unread))
+   (quote (lambda () (file-exists-p "/tmp/unread"))))
  '(display-time-mode t)
  '(display-time-use-mail-icon t)
  '(ediff-diff-options "-w")
@@ -562,11 +526,6 @@
 
 ;;;_* packages
 
-(mapc #'load
-      (mapcar #'file-name-sans-extension
-              (directory-files
-               (expand-file-name "lang" emacs-lisp-root) t "\\.el$" t)))
-
 ;;;_ + direct loads
 
 (mapc #'(lambda (name) (load name t))
@@ -583,20 +542,30 @@
         "pp-c-l"
         "session"
         "yasnippet"
+
         ".passwd"
         ".org"
         ".gnus"
         ))
 
+;;;_ + language-specific
+
+(mapc #'load
+      (mapcar #'file-name-sans-extension
+              (directory-files
+               (expand-file-name "lang" emacs-lisp-root) t "\\.el$" t)))
+
 ;;;_ + Drew Adams
 
 (require 'compile-)
 (setq compilation-message-face nil)
-(eval-after-load "compile"  '(require 'compile+))
+(eval-after-load "compile"
+  '(require 'compile+))
 
 (require 'diff-mode-)
 
-(eval-after-load "hl-line"  '(require 'hl-line+))
+(eval-after-load "hl-line"
+  '(require 'hl-line+))
 
 (eval-after-load "grep"
   '(progn
@@ -611,7 +580,6 @@
 ;;;_ + anything
 
 (autoload 'descbinds-anything "descbinds-anything" nil t)
-
 (fset 'describe-bindings 'descbinds-anything)
 
 (eval-after-load "anything"
