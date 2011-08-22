@@ -5,3 +5,5 @@ old/
 /nnmaildir.el
 /.ercpass
 /.passwd
+/emacs.el
+/reference/
