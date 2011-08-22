@@ -14,7 +14,7 @@
 
 (defun load-nxhtml ()
   (interactive)
-  (load "~/Library/Emacs/site-lisp/nxhtml/autostart.el"))
+  (load "autostart"))
 
 ;;;_ * zencoding
 
