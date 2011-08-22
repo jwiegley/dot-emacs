@@ -1,0 +1,34 @@
+#+TITLE: .emacs
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is my .emacs file, literate-style.
+
+* Inbox
+  :PROPERTIES:
+  :CATEGORY: Emacs
+  :END:
+* Prologue
+** Global constants
+
+   #+begin_src emacs-lisp
+   (defconst emacs-site-lisp (expand-file-name "site-lisp" emacs-lisp-root))
+   #+end_src
+
+* Configuration
+
+** Wrap up
+
+   Load the old .emacs.el, which still contains configuration details that
+   haven't been moved into this file yet.
+
+   #+begin_src emacs-lisp
+   (load ".emacs")
+   #+end_src emacs-lisp
+
+* Epilogue
+
+  #+begin_src emacs-lisp
+  (provide 'dot-emacs-el)
+  #+end_src
+
+/.emacs ends here/
