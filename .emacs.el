@@ -706,7 +706,8 @@
   :type 'regexp
   :group 'erc)
 
-(defcustom erc-growl-noise-regexp "\\(Logging in:\\|Signing off\\)"
+(defcustom erc-growl-noise-regexp
+  "\\(Logging in:\\|Signing off\\|You're now away\\|Welcome back\\)"
   "Regexp that matches BitlBee users you want active notification for."
   :type 'regexp
   :group 'erc)
