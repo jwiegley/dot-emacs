@@ -125,7 +125,8 @@
 
           (setq mode-map emacs-lisp-mode-map)
 
-          (define-key mode-map [tab] 'elisp-indent-or-complete))
+          (define-key mode-map [tab] 'elisp-indent-or-complete)
+          (define-key mode-map [tab] 'yas/expand))
 
       (turn-on-cldoc-mode)
 
@@ -154,29 +155,36 @@
 
 (require 'slime)
 
-(slime-setup
- '(slime-asdf
-   slime-autodoc
-   slime-banner
-   slime-c-p-c
-   slime-editing-commands
-   slime-fancy-inspector
-   slime-fancy
-   slime-fuzzy
-   slime-highlight-edits
-   slime-parse
-   slime-presentation-streams
-   slime-presentations
-   slime-references
-   slime-sbcl-exts
-   slime-package-fu
-   slime-fontifying-fu
-   slime-mdot-fu
-   slime-scratch
-   slime-tramp
-   ;; slime-enclosing-context
-   ;; slime-typeout-frame
-   slime-xref-browser))
+(add-hook 'slime-load-hook
+          #'(lambda ()
+              (slime-setup
+               '(slime-asdf
+                 slime-autodoc
+                 slime-banner
+                 slime-c-p-c
+                 slime-editing-commands
+                 slime-fancy-inspector
+                 slime-fancy
+                 slime-fuzzy
+                 slime-highlight-edits
+                 slime-parse
+                 slime-presentation-streams
+                 slime-presentations
+                 slime-references
+                 slime-sbcl-exts
+                 slime-package-fu
+                 slime-fontifying-fu
+                 slime-mdot-fu
+                 slime-scratch
+                 slime-tramp
+                 ;; slime-enclosing-context
+                 ;; slime-typeout-frame
+                 slime-xref-browser))
+
+              (define-key slime-repl-mode-map [(control return)] 'other-window)
+
+              (define-key slime-mode-map [return] 'paredit-newline)
+              (define-key slime-mode-map [(control ?h) ?F] 'info-lookup-symbol)))
 
 (setq slime-net-coding-system 'utf-8-unix)
 
@@ -216,12 +224,5 @@
   '(progn
      (setq common-lisp-hyperspec-root
 	   "/opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")))
-
-(eval-after-load "slime"
-  '(progn
-     (define-key slime-repl-mode-map [(control return)] 'other-window)
-
-     (define-key slime-mode-map [return] 'paredit-newline)
-     (define-key slime-mode-map [(control ?h) ?F] 'info-lookup-symbol)))
 
 ;;; lang-lisp.el ends here
