@@ -69,7 +69,7 @@
         (quote
          ("~/Documents/Tasks/todo.txt")))
        (org-agenda-overriding-header "Deferred tasks:")))
-     ("S" "Someday tasks" tags "TODO=\"SOMEDAY\""
+     ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
       ((org-agenda-overriding-header "Someday tasks:")))
      ("G" "Ledger tasks (all)" alltodo ""
       ((org-agenda-files
