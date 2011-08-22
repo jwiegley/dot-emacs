@@ -50,4 +50,6 @@
         ("whitespace"    . whitespace-cleanup)
         ))
 
+(provide 'autoloads)
+
 ;;; Generated autoloads follow (made by autoload.el).
