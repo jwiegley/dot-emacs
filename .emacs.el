@@ -128,7 +128,9 @@
  '(dired-recursive-deletes
    (quote always))
  '(display-time-mail-function
-   (quote (lambda () (file-exists-p "/tmp/unread"))))
+   (quote
+    (lambda nil
+      (file-exists-p "/tmp/unread"))))
  '(display-time-mode t)
  '(display-time-use-mail-icon t)
  '(ediff-diff-options "-w")
