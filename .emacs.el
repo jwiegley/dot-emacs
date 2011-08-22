@@ -396,9 +396,6 @@
       (width . 80)
       (height . 60)))))
  '(sql-sqlite-program "sqlite3")
- '(sr-listing-switches "-lh")
- '(sr-modeline-use-utf8-marks t)
- '(sr-virtual-listing-switches "-aldh")
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
@@ -927,31 +924,6 @@ If the buffer is currently not visible, makes it sticky."
 
 (run-with-idle-timer 300 t 'save-information)
 
-;;;_ + sunrise-commander
-
-(eval-when-compile
-  (require 'sunrise-commander))
-
-(defun sr-goto-dir (dir)
-  "Change the current directory in the active pane to the given one."
-  (interactive
-   (list (ido-read-directory-name
-          "Change directory (file or pattern): "
-          nil nil (confirm-nonexistent-file-or-buffer) "~/")))
-  (unless (and (eq major-mode 'sr-mode)
-               (sr-equal-dirs dir default-directory))
-    (if (and sr-avfs-root
-             (null (posix-string-match "#" dir)))
-        (setq dir (replace-regexp-in-string
-                   (expand-file-name sr-avfs-root) "" dir)))
-    (sr-save-aspect
-     (sr-within dir (sr-alternate-buffer (dired dir))))
-    (sr-history-push default-directory)
-    (sr-beginning-of-buffer)))
-
-(eval-after-load "sunrise-commander"
-  '(require 'sunrise-x-modeline))
-
 ;;;_ + vc
 
 (eval-after-load "vc-hooks"
@@ -1432,17 +1404,8 @@ This function assumes that the file is registered."
 (define-key mode-specific-map [?i ?m] 'ispell-message)
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
-(defvar sr-running nil)
-
-;;(defun switch-to-sunrise ()
-;;  (interactive)
-;;  (if sr-running
-;;      (sr-setup-windows)
-;;    (call-interactively #'sunrise)))
-;;
-;;(define-key mode-specific-map [?j] 'switch-to-sunrise)
-;;(define-key mode-specific-map [?J] 'sunrise-cd)
 (define-key mode-specific-map [?j] 'dired-jump)
+(define-key mode-specific-map [?J] 'dired-jump-other-window)
 
 (defun dired-double-jump (first-dir second-dir)
   (interactive
