@@ -424,31 +424,32 @@ This moves them into the Spam folder."
         ))
 
 (defun my-set-smtp-server ()
-  (let* ((to-field (cadr (mail-extract-address-components
-                          (message-field-value "to"))))
-         (from (let ((field (message-field-value "from")))
-                 (and field (cadr (mail-extract-address-components field)))))
-         (result
-          (car (assoc-default (or from to-field)
-                              my-smtpmailer-alist
-                              'string-match
-                              (cons user-mail-address
-                                    (if (boundp 'smtpmail-default-smtp-server)
-                                        smtpmail-default-smtp-server
-                                      ""))))))
-    (if from
-        (setq smtpmail-mail-address from
-              mail-envelope-from from
+  (when (message-field-value "to")
+    (let* ((to-field (cadr (mail-extract-address-components
+                            (message-field-value "to"))))
+           (from (let ((field (message-field-value "from")))
+                   (and field (cadr (mail-extract-address-components field)))))
+           (result
+            (car (assoc-default (or from to-field)
+                                my-smtpmailer-alist
+                                'string-match
+                                (cons user-mail-address
+                                      (if (boundp 'smtpmail-default-smtp-server)
+                                          smtpmail-default-smtp-server
+                                        ""))))))
+      (if from
+          (setq smtpmail-mail-address from
+                mail-envelope-from from
+                smtpmail-smtp-server (cdr result)
+                smtpmail-smtp-service 587)
+        ;; set mailer address and port
+        (setq smtpmail-mail-address (car result)
+              mail-envelope-from (car result)
               smtpmail-smtp-server (cdr result)
               smtpmail-smtp-service 587)
-      ;; set mailer address and port
-      (setq smtpmail-mail-address (car result)
-            mail-envelope-from (car result)
-            smtpmail-smtp-server (cdr result)
-            smtpmail-smtp-service 587)
-      (message-remove-header "From")
-      (message-add-header
-       (format "From: %s <%s>" user-full-name (car result))))))
+        (message-remove-header "From")
+        (message-add-header
+         (format "From: %s <%s>" user-full-name (car result)))))))
 
 (add-hook 'message-send-hook 'my-set-smtp-server)
 
