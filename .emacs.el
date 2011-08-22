@@ -1392,6 +1392,7 @@ This function assumes that the file is registered."
 (define-key mode-specific-map [?e ?w] 'find-which)
 (define-key mode-specific-map [?e ?e] 'toggle-debug-on-error)
 (define-key mode-specific-map [?e ?E] 'elint-current-buffer)
+(define-key mode-specific-map [?e ?z] 'byte-recompile-directory)
 
 (define-key mode-specific-map [?f] 'flush-lines)
 (define-key mode-specific-map [?g] 'goto-line)
