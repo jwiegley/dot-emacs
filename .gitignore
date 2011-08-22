@@ -7,3 +7,4 @@ old/
 /.passwd
 /emacs.el
 /reference/
+/autoloads.el
