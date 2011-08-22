@@ -1,43 +1,42 @@
-DIRS		 = . site-lisp $(shell find site-lisp -type d -maxdepth 1 | egrep -v '(org-|.hg)')
-SPECIAL		 = cus-dirs.el autoloads.el
-SOURCE		 = $(filter-out $(SPECIAL),$(wildcard *.el) $(wildcard site-lisp/*.el))
-TARGET		 = $(patsubst %.el,%.elc,$(SPECIAL) $(SOURCE))
-EMACS		 = emacs
+### -*- mode: makefile-gmake -*-
 
-EMACS_BATCH      = $(EMACS) --no-init-file --no-site-file -batch
-MY_LOADPATH      = -L .					\
-		   -L site-lisp				\
-		   -L site-lisp/ess/lisp		\
-		   -L site-lisp/muse/lisp		\
-		   -L site-lisp/epg			\
-		   -L site-lisp/sunrise-commander	\
-		   -L site-lisp/anything		\
-		   -L site-lisp/apel
-EMACS_BATCH_LOAD = $(EMACS_BATCH) $(MY_LOADPATH)
+DIRS	    = . site-lisp
+SPECIAL	    = cus-dirs.el autoloads.el
+ORGSRC	    = $(patsubst %.org,%.el,$(wildcard *.org))
+SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) $(wildcard site-lisp/*.el))
+TARGET	    = $(patsubst %.el,%.elc,autoloads.el $(SOURCE))
+EMACS	    = emacs
+EMACS_BATCH = $(EMACS) --no-init-file --no-site-file -batch
+MY_LOADPATH = -L $(HOME)/.emacs.d -L . -L site-lisp
+BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(TARGET)
-	$(EMACS_BATCH_LOAD) -f batch-byte-recompile-directory .
+all: $(ORGSRC) $(SPECIAL) $(TARGET)
 
 cus-dirs.el: $(SOURCE)
-	$(EMACS_BATCH) \
-		-l cus-dep \
-		-f custom-make-dependencies $(DIRS)
+	$(EMACS_BATCH) -l cus-dep -f custom-make-dependencies $(DIRS)
 	mv cus-load.el cus-dirs.el
 
 autoloads.el: autoloads.in $(SOURCE)
-	cp autoloads.in autoloads.el
-	-rm autoloads.elc
-	$(EMACS_BATCH) \
-		-l $(shell pwd)/autoloads \
-		-l easy-mmode \
-		-f generate-autoloads \
-		$(shell pwd)/autoloads.el $(DIRS)
+	cp -p autoloads.in autoloads.el
+	-rm -f autoloads.elc
+	$(EMACS_BATCH) -l $(shell pwd)/autoloads -l easy-mmode \
+	    -f generate-autoloads $(shell pwd)/autoloads.el $(DIRS)
+
+%.el: %.org
+	$(BATCH_LOAD) -l load-path --eval '(org-babel-load-file "$<")'
+
+emacs.elc: emacs.el
+	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
+
+cus-dirs.elc:
 
 %.elc: %.el
-	$(EMACS_BATCH_LOAD) -l $< -f batch-byte-compile $<
+	$(BATCH_LOAD) -l load-path -l $< -f batch-byte-compile $<
 
 clean:
-	rm -f $(TARGET) *~
+	rm -f autoloads.el* cus-dirs.el
 
 fullclean: clean
-	-rm *.elc cus-dirs.el autoloads.el
+	rm -f *.elc site-lisp/*.elc
+
+### Makefile ends here
