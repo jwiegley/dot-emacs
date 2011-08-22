@@ -93,8 +93,12 @@
    (quote
     (current
      (nnir)
-     (nnir "nnimap:BoostPro")
-     (nntp "news.gmane.org"))))
+     (nnir "nnimap:Local")
+     (nntp "LocalNews")
+     (nnweb "gmane"
+            (nnweb-type gmane))
+     (nnweb "google"
+            (nnweb-type google)))))
  '(gnus-refer-thread-use-nnir t)
  '(gnus-registry-ignored-groups
    (quote
