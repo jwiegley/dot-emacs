@@ -1026,7 +1026,6 @@ This function assumes that the file is registered."
 
 (yas/initialize)
 (yas/load-directory (expand-file-name "snippets/" emacs-lisp-root))
-(yas-template-install)
 
 ;;;_ + diminish (this must come last)
 
