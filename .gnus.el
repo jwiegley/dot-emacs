@@ -82,10 +82,6 @@
     ((format-time-string "sent.%Y-%m"))))
  '(gnus-message-replyencrypt nil)
  '(gnus-novice-user nil)
- '(gnus-post-method
-   (quote
-    (nngateway "mail2news@nym.alias.net"
-               (nngateway-header-transformation nngateway-mail2news-header-transformation))))
  '(gnus-posting-styles
    (quote
     ((".*"
