@@ -62,6 +62,7 @@
   (kill-buffer ".autotest.v")
   (proof-shell-wait)
 
+  ;; TODO: test indentation.  E.g., to avoid regression of Trac #416
   
   (pg-autotest script-wholefile "etc/coq/multiple-plain/a.v")
   (pg-autotest script-wholefile "etc/coq/multiple-plain/b.v")
