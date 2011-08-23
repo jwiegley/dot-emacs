@@ -234,9 +234,10 @@
       ((".*" bbdb/sc-consult-attr
         (sc-mail-field "sc-from-address")))))))
  '(sc-citation-leader "")
- '(sc-preferred-attribution-list
-   (quote
-    ("sc-lastchoice" "x-attribution" "sc-consult" "firstname" "initials" "lastname")))
+ '(sc-confirm-always-p nil)
+ '(sc-default-attribution "")
+ '(sc-preferred-attribution-list nil)
+ '(sc-use-only-preference-p t)
  '(send-mail-function
    (quote sendmail-send-it))
  '(smtpmail-default-smtp-server "mail.johnwiegley.com")
