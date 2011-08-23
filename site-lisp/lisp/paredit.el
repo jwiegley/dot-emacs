@@ -337,7 +337,7 @@ Deprecated: use `paredit-mode' instead."
    ("M-("       paredit-wrap-sexp
                 ("(foo |bar baz)"
                  "(foo (|bar) baz)"))
-   ("M-s"       paredit-splice-sexp
+   ("M-p"       paredit-splice-sexp
                 ("(foo (bar| baz) quux)"
                  "(foo bar| baz quux)"))
    (("M-<up>" "ESC <up>")
