@@ -226,8 +226,8 @@ without adjusting window layout."
 (defvar proof-help-menu
   '("Help"
     ["About PG"        proof-splash-display-screen t]
-    ["PG Info"	(info "ProofGeneral") t]
-    ["PG Homepage"	(browse-url proof-general-home-page) t]
+    ["Info"	(info "ProofGeneral") t]
+    ["Homepage"	(browse-url proof-general-home-page) t]
     ["Send Bug Report" proof-submit-bug-report t])
   "Proof General help menu.")
 

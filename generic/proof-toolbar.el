@@ -61,7 +61,7 @@
   ;; Entry format:  (TOKEN MENUNAME TOOLTIP TOOLBAR-P [VISIBLE-P])
   (dolist (tle tles)
     (let* ((token     (nth 0 tle))
-	   (longtoken (intern (concat "pg-" (symbol-name token))))
+	   (longtoken (intern (symbol-name token)))
 	   (includep  (nth 3 tle))
 	   (visiblep  (nth 4 tle))
 	   (icon      (proof-toolbar-icon token))
