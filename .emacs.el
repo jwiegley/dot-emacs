@@ -850,6 +850,35 @@ If the buffer is currently not visible, makes it sticky."
      (require 'magit-topgit)
      (require 'rebase-mode)))
 
+;;;_ + ido
+
+(defun ido-smart-select-text ()
+  "Select the current completed item.  Do NOT descend into directories."
+  (interactive)
+  (when (and (or (not ido-require-match)
+                 (if (memq ido-require-match
+                           '(confirm confirm-after-completion))
+                     (if (or (eq ido-cur-item 'dir)
+                             (eq last-command this-command))
+                         t
+                       (setq ido-show-confirm-message t)
+                       nil))
+                 (ido-existing-item-p))
+             (not ido-incomplete-regexp))
+    (when ido-current-directory
+      (setq ido-exit 'takeprompt)
+      (if (not (and ido-text (= 0 (length ido-text))))
+          (throw 'ido
+                 (let ((match (ido-name (car ido-matches))))
+                   (setq ido-selected
+                         (replace-regexp-in-string "/\\'" "" match)
+                         ido-text ido-selected
+                         ido-final-text ido-text)))))
+    (exit-minibuffer)))
+
+(eval-after-load "ido"
+  '(define-key ido-common-completion-map "\C-m" 'ido-smart-select-text))
+
 ;;;_ + modeline-posn
 
 (size-indication-mode)
