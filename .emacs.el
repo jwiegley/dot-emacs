@@ -1394,6 +1394,16 @@ This function assumes that the file is registered."
 (define-key mode-specific-map [?b ?p] 'find-grep-in-project)
 (define-key mode-specific-map [?b ?r] 'rgrep)
 
+(define-key global-map [(meta ?s) ?a] 'anything-do-grep)
+(define-key global-map [(meta ?s) ?b] 'anything-occur)
+(define-key global-map [(meta ?s) ?d] 'find-grep-dired)
+(define-key global-map [(meta ?s) ?f] 'find-grep)
+(define-key global-map [(meta ?s) ?F] 'anything-for-files)
+(define-key global-map [(meta ?s) ?g] 'grep)
+(define-key global-map [(meta ?s) ?n] 'find-name-dired)
+(define-key global-map [(meta ?s) ?p] 'find-grep-in-project)
+(define-key global-map [(meta ?s) ?r] 'rgrep)
+
 (define-key mode-specific-map [?c] 'compile)
 (define-key mode-specific-map [?C] 'indirect-region)
 
