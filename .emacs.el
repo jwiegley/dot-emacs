@@ -576,7 +576,6 @@
   '(require 'compile+))
 
 (require 'diff-mode-)
-(require 'cus-edit+)
 
 (eval-after-load "hl-line"
   '(require 'hl-line+))
