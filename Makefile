@@ -10,7 +10,8 @@ EMACS_BATCH = $(EMACS) --no-init-file --no-site-file -batch
 MY_LOADPATH = -L . -L site-lisp
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(SPECIAL) load-path.elc $(ORGSRC) $(TARGET)
+all: load-path.elc $(SPECIAL) $(ORGSRC) $(TARGET)
+	$(BATCH_LOAD) -f batch-byte-recompile-directory .
 
 cus-dirs.el: $(SOURCE)
 	$(EMACS_BATCH) -l cus-dep -f custom-make-dependencies $(DIRS)
@@ -25,13 +26,16 @@ autoloads.el: autoloads.in $(SOURCE)
 %.el: %.org
 	$(BATCH_LOAD) -l load-path -l site-lisp/org-mode/lisp/ob-tangle --eval '(org-babel-load-file "$<")'
 
+load-path.elc: load-path.el
+	$(BATCH_LOAD) -f batch-byte-compile $<
+
 emacs.elc: emacs.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
 
 cus-dirs.elc:
 
 %.elc: %.el
-	$(BATCH_LOAD) -l load-path -l $< -f batch-byte-compile $<
+	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
 
 clean:
 	rm -f autoloads.el* cus-dirs.el $(ORGSRC)
