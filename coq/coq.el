@@ -1299,7 +1299,7 @@ locked when the \"Require\" command is processed."
 
 (defcustom coq-compile-ignore-library-directory t
   "If non-nil, ProofGeneral does not compile modules from the coq library.
-Should be t for normal coq users. If nil library modules are
+Should be `t' for normal coq users. If `nil' library modules are
 compiled if their sources are newer.
 
 This option has currently no effect, because Proof General uses
