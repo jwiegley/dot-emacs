@@ -24,6 +24,7 @@
           (autoload (cdr entry) (car entry) nil t))
       '(
         ("anything-complete" . anything-apropos)
+
         ("breadcrumb"        . bc-goto-current)
         ("breadcrumb"        . bc-list)
         ("breadcrumb"        . bc-local-next)
@@ -31,24 +32,46 @@
         ("breadcrumb"        . bc-next)
         ("breadcrumb"        . bc-previous)
         ("breadcrumb"        . bc-set)
+
         ("css-mode"          . css-mode)
+
+        ("el-get"            . el-get-emacswiki-refresh)
+        ("el-get"            . el-get-install)
+        ("el-get"            . el-get-list-packages)
+        ("el-get"            . el-get-remove)
+        ("el-get"            . el-get-self-update)
+        ("el-get"            . el-get-update)
+        ("el-get"            . el-get-update-all)
+
         ("ess-site"          . R)
+
         ("eval-expr"         . eval-expr)
+
         ("fm"                . fm-start)
+
         ("indirect"          . indirect-region)
+
         ("ldg-new"           . ledger-mode)
+
         ("puppet-mode"       . puppet-mode)
+
         ("repeat-insert"     . insert-patterned)
         ("repeat-insert"     . insert-patterned-2)
         ("repeat-insert"     . insert-patterned-3)
         ("repeat-insert"     . insert-patterned-4)
+
         ("session"           . session-save-session)
+
         ("tex-site"          . latex-mode)
         ("tex-site"          . texinfo-mode)
+
         ("vkill"             . list-unix-processes)
         ("vkill"             . vkill)
+
         ("wcount"            . wcount-mode)
+
         ("whitespace"        . whitespace-cleanup)
+
         ("yaoddmuse"         . yaoddmuse-edit-default)
         ("yaoddmuse"         . yaoddmuse-browse-page-default)
         ("yaoddmuse"         . yaoddmuse-post-library-default)
