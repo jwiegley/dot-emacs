@@ -1,20 +1,20 @@
 [submodule "site-lisp"]
 	path = site-lisp
 	url = site-lisp
-[submodule "site-lisp/org-mode"]
-	path = site-lisp/org-mode
+[submodule "override/org-mode"]
+	path = override/org-mode
 	url = git://github.com/jwiegley/org-mode.git
-[submodule "site-lisp/muse"]
-	path = site-lisp/muse
+[submodule "lisp/muse"]
+	path = lisp/muse
 	url = git://github.com/jwiegley/muse.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
 	url = git://github.com/jwiegley/magit.git
-[submodule "site-lisp/eshell"]
-	path = site-lisp/eshell
+[submodule "lisp/eshell"]
+	path = lisp/eshell
 	url = git://github.com/jwiegley/eshell.git
-[submodule "site-lisp/chess"]
-	path = site-lisp/chess
+[submodule "lisp/chess"]
+	path = lisp/chess
 	url = git://github.com/jwiegley/emacs-chess.git
 [submodule "site-lisp/gist"]
 	path = site-lisp/gist
@@ -22,11 +22,11 @@
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
 	url = git://github.com/jwiegley/haskell-mode.git
-[submodule "site-lisp/planner"]
-	path = site-lisp/planner
+[submodule "lisp/planner"]
+	path = lisp/planner
 	url = git://repo.or.cz/planner-el.git
-[submodule "site-lisp/regex-tool"]
-	path = site-lisp/regex-tool
+[submodule "lisp/regex-tool"]
+	path = lisp/regex-tool
 	url = git://github.com/jwiegley/regex-tool.git
 [submodule "site-lisp/remember"]
 	path = site-lisp/remember
@@ -82,11 +82,11 @@
 [submodule "site-lisp/redmine-el"]
 	path = site-lisp/redmine-el
 	url = git://github.com/fukamachi/redmine-el.git
-[submodule "site-lisp/gnus"]
-	path = site-lisp/gnus
+[submodule "override/gnus"]
+	path = override/gnus
 	url = http://git.gnus.org/gnus.git
-[submodule "site-lisp/initsplit"]
-	path = site-lisp/initsplit
+[submodule "lisp/initsplit"]
+	path = lisp/initsplit
 	url = git://github.com/dabrahams/initsplit.git
 [submodule "site-lisp/xcscope"]
 	path = site-lisp/xcscope
@@ -133,8 +133,8 @@
 [submodule "site-lisp/ace-jump-mode"]
 	path = site-lisp/ace-jump-mode
 	url = git://github.com/winterTTr/ace-jump-mode.git
-[submodule "site-lisp/gnus-harvest"]
-	path = site-lisp/gnus-harvest
+[submodule "lisp/gnus-harvest"]
+	path = lisp/gnus-harvest
 	url = git://github.com/jwiegley/gnus-harvest.git
 [submodule "site-lisp/bbdb"]
 	path = site-lisp/bbdb

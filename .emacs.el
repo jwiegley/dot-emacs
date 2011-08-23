@@ -12,6 +12,8 @@
 (require 'recentf)
 (setq recentf-auto-cleanup 'never)
 
+(setq gnus-home-directory "~/Library/Mail/Gnus/") ; override gnus.el
+
 ;; Read in the Mac's global environment settings.
 
 (defun read-mac-environment ()
