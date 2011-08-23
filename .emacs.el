@@ -868,18 +868,20 @@ If the buffer is currently not visible, makes it sticky."
              (not ido-incomplete-regexp))
     (when ido-current-directory
       (setq ido-exit 'takeprompt)
-      (if (not (and ido-text (= 0 (length ido-text))))
+      (unless (and ido-text (= 0 (length ido-text)))
+        (let ((match (ido-name (car ido-matches))))
           (throw 'ido
-                 (let ((match (ido-name (car ido-matches))))
-                   (setq ido-selected
-                         (replace-regexp-in-string "/\\'" "" match)
-                         ido-text ido-selected
-                         ido-final-text ido-text)))))
+                 (setq ido-selected
+                       (if match
+                           (replace-regexp-in-string "/\\'" "" match)
+                         ido-text)
+                       ido-text ido-selected
+                       ido-final-text ido-text)))))
     (exit-minibuffer)))
 
 (add-hook 'ido-minibuffer-setup-hook
           (lambda ()
-            (define-key ido-common-completion-map "\C-m"
+            (define-key ido-file-completion-map "\C-m"
               'ido-smart-select-text)))
 
 ;;;_ + modeline-posn
