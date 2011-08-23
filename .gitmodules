@@ -139,8 +139,8 @@
 [submodule "site-lisp/bbdb"]
 	path = site-lisp/bbdb
 	url = git://github.com/emacsmirror/bbdb.git
-[submodule "site-lisp/el-staging"]
-	path = site-lisp/el-staging
+[submodule "staging"]
+	path = staging
 	url = git://github.com/boostpro/el-staging.git
 [submodule "site-lisp/color-theme"]
 	path = site-lisp/color-theme
