@@ -148,3 +148,6 @@
 [submodule "site-lisp/el-get"]
 	path = site-lisp/el-get
 	url = git://github.com/dimitri/el-get.git
+[submodule "el-get/el-get"]
+	path = el-get/el-get
+	url = git://github.com/dimitri/el-get.git
