@@ -61,10 +61,14 @@
  '(backward-delete-char-untabify-method
    (quote untabify))
  '(bbdb-default-country "")
+ '(bbdb-file "~/Documents/bbdb")
  '(bbdb-offer-save
    (quote savenoprompt))
  '(bbdb-use-pop-up nil)
  '(bbdb/mail-auto-create-p nil)
+ '(bc-bookmark-file "~/.emacs.d/data/breadcrumb")
+ '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
+ '(bookmark-default-file "~/.emacs.d/data/emacs.bmk")
  '(bookmark-save-flag 1)
  '(browse-url-browser-function
    (quote
@@ -196,6 +200,7 @@
  '(erc-track-mode t)
  '(erc-user-full-name
    (quote user-full-name))
+ '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-history-size 1000)
  '(eshell-ls-dired-initial-args
    (quote
@@ -277,6 +282,8 @@
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(howm-directory "~/Documents/Notes/")
+ '(howm-history-file "~/.emacs.d/data/howm-history")
+ '(howm-keyword-file "~/.emacs.d/data/howm-keys")
  '(howm-view-use-grep t)
  '(ibuffer-expert t)
  '(ibuffer-formats
@@ -301,6 +308,13 @@
    (quote
     ("{" "}" "," ",..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
  '(ido-enable-flex-matching t)
+ '(ido-enable-last-directory-history nil)
+ '(ido-enable-tramp-completion nil)
+ '(ido-enter-matching-directory
+   (quote first))
+ '(ido-gather-virtual-filenames
+   (quote
+    (ido-gather-recent-files ido-gather-git-project-files)))
  '(ido-ignore-files
    (quote
     ("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./" "\\`\\./" "\\`\\.DS_Store" "\\`\\.localized" "\\.sparsebundle/" "\\.dmg\\'")))
@@ -308,7 +322,7 @@
    (quote both)
    nil
    (ido))
- '(ido-use-filename-at-point nil)
+ '(ido-save-directory-list-file "~/.emacs.d/data/ido.last")
  '(ido-use-virtual-buffers t)
  '(indent-tabs-mode nil)
  '(inhibit-startup-echo-area-message "johnw")
@@ -366,6 +380,7 @@
     ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:")))
  '(recentf-max-saved-items 200)
  '(recentf-mode t)
+ '(recentf-save-file "~/.emacs.d/data/recentf")
  '(regex-tool-backend
    (quote perl))
  '(safe-local-variable-values
@@ -381,6 +396,7 @@
    (quote
     (t
      (0 . 127))))
+ '(session-save-file "~/.emacs.d/data/session")
  '(session-use-package t nil
                        (session))
  '(show-paren-delay 0)
@@ -409,6 +425,7 @@
  '(tramp-default-method-alist
    (quote
     (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))))
+ '(tramp-persistency-file-name "~/.emacs.d/data/tramp")
  '(trash-directory "~/.Trash")
  '(uniquify-buffer-name-style
    (quote post-forward-angle-brackets)
@@ -439,6 +456,7 @@
                (winner))
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
+ '(yaoddmuse-directory "~/.emacs.d/yaoddmuse")
  '(zencoding-preview-default nil))
 
 ;;;_ + faces
@@ -548,7 +566,7 @@
 (mapc #'load
       (mapcar #'file-name-sans-extension
               (directory-files
-               (expand-file-name "lang" emacs-lisp-root) t "\\.el$" t)))
+               (expand-file-name "lang" user-emacs-directory) t "\\.el$" t)))
 
 ;;;_ + Drew Adams
 
@@ -558,6 +576,7 @@
   '(require 'compile+))
 
 (require 'diff-mode-)
+(require 'cus-edit+)
 
 (eval-after-load "hl-line"
   '(require 'hl-line+))
@@ -1019,7 +1038,7 @@ This function assumes that the file is registered."
 ;;;_ + yasnippet
 
 (yas/initialize)
-(yas/load-directory (expand-file-name "snippets/" emacs-lisp-root))
+(yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
 
 ;;;_ + diminish (this must come last)
 
@@ -1119,7 +1138,7 @@ This function assumes that the file is registered."
 (define-key global-map [(meta ?T)] 'gtags-find-with-grep)
 ;;(define-key global-map [(meta ?T)] 'tags-search)
 
-(define-key global-map [(meta ?:)] 'eval-expr)
+(define-key global-map [(meta ?:)] 'pp-eval-expression)
 (define-key global-map [(meta ?\')] 'insert-pair)
 (define-key global-map [(meta ?\")] 'insert-pair)
 
@@ -1374,7 +1393,8 @@ This function assumes that the file is registered."
   (find-file-other-window
    (substring (shell-command-to-string (format "which %s" name)) 0 -1)))
 
-(define-key mode-specific-map [?e ?a] 'apropos)
+(define-key global-map [(control ?h) ?e ?a] 'anything-apropos)
+(define-key mode-specific-map [?e ?a] 'anything-apropos)
 (define-key mode-specific-map [?e ?b] 'do-eval-buffer)
 (define-key mode-specific-map [?e ?c] 'cancel-debug-on-entry)
 (define-key mode-specific-map [?e ?d] 'debug-on-entry)
