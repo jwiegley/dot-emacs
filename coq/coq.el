@@ -55,6 +55,18 @@
 ;; (defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
 ;; End debugging
 
+(defcustom coq-prog-name
+  (proof-locate-executable "coqtop" t '("C:/Program Files/Coq/bin"))
+   "*Name of program to run as Coq. See `proof-prog-name', set from this. 
+On Windows with latest Coq package you might need something like:
+   C:/Program Files/Coq/bin/coqtop.opt.exe
+instead of just \"coqtop\".
+This must be a single program name with no arguments; see `coq-prog-args'
+to manually adjust the arguments to the Coq process.
+See also `coq-prog-env' to adjust the environment."
+   :type 'string
+   :group 'coq)
+
 ;; coq-prog-args is the user-set list of arguments to pass to Coq process,
 ;; see 'defpacustom prog-args' in proof-config for documentation.
 
