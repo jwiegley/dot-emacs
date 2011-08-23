@@ -384,6 +384,12 @@ Can jump line if NOJUMPLINES = nil."
         (setq res (cons command-found res))
         (if (and (coq-script-parse-cmdend-forward)
                  ;(ignore-errors (forward-char 1) t);to fit in the "and"
+                 ;; da: My PATCH for Trac #416, to avoid looping at buffer end
+                 (not (let ((p  (point)))
+                        (skip-chars-forward " \t\n")
+                        (prog1
+                            (eobp)
+                          (goto-char p))))
                  (coq-find-real-start))
             (setq command-found (coq-command-at-point nojumplines))
           (setq command-found nil)
