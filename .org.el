@@ -880,7 +880,7 @@ end tell" (match-string 1))))
 
 (defun org-smart-capture ()
   (interactive)
-  (if (string-match "\\`\\*Summary " (buffer-name))
+  (if (eq major-mode 'gnus-summary-mode)
       (let (message-id subject)
         (with-current-buffer gnus-original-article-buffer
           (nnheader-narrow-to-headers)
