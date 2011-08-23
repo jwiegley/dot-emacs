@@ -978,8 +978,6 @@ end tell" (match-string 1))))
   (define-key map " " 'org-agenda-tree-to-indirect-buffer)
   (define-key map "F" 'org-agenda-follow-mode)
   (define-key map "q" 'delete-window)
-  (define-key map "z"
-    (lambda () (interactive) (bury-buffer) (delete-window)))
   (define-key map [(meta ?p)] 'org-agenda-earlier)
   (define-key map [(meta ?n)] 'org-agenda-later)
 

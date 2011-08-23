@@ -239,7 +239,7 @@
     (dired-noselect)))
  '(find-ls-option
    (quote
-    ("-print0 | xargs -0 ls -lhd" . "-lhd")))
+    ("-print0 | xargs -0 gls -ld" . "-ld")))
  '(find-ls-subdir-switches "-alh")
  '(flyspell-abbrev-p nil)
  '(flyspell-incorrect-hook
@@ -877,7 +877,10 @@ If the buffer is currently not visible, makes it sticky."
                          ido-final-text ido-text)))))
     (exit-minibuffer)))
 
-(define-key ido-common-completion-map "\C-m" 'ido-smart-select-text)
+(add-hook 'ido-minibuffer-setup-hook
+          (lambda ()
+            (define-key ido-common-completion-map "\C-m"
+              'ido-smart-select-text)))
 
 ;;;_ + modeline-posn
 

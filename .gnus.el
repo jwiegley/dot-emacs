@@ -84,9 +84,12 @@
  '(gnus-novice-user nil)
  '(gnus-posting-styles
    (quote
-    ((".*"
+    (("\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)"
       ("From" "johnw@boostpro.com")
-      (organization "BoostPro Computing, Inc.")))))
+      (organization "BoostPro Computing, Inc.")
+      (signature "  John Wiegley
+  BoostPro Computing, Inc.
+  http://www.boostpro.com")))))
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
  '(gnus-refer-article-method
@@ -112,7 +115,6 @@
  '(gnus-score-find-score-files-function
    (quote
     (gnus-score-find-hierarchical)))
- '(gnus-secondary-select-methods nil)
  '(gnus-select-group-hook
    (quote
     (gnus-group-set-timestamp)))
@@ -386,7 +388,7 @@
   "Report the current or marked mails as spam.
 This moves them into the Spam folder."
   (interactive)
-  (gnus-summary-move-article nil "[Gmail].Spam"))
+  (gnus-summary-move-article nil "Spam"))
 
 (eval-after-load "gnus-sum"
   '(progn
