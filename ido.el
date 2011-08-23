@@ -806,6 +806,16 @@ input does not match any existing buffers."
   :type 'boolean
   :group 'ido)
 
+(defcustom ido-gather-virtual-filenames
+  '(ido-gather-recent-files)
+  "A list of functions used to determine \"virtual\" buffer names."
+  :type '(set (function-item ido-gather-recent-files
+                             :tag "All recently visited files")
+              (function-item ido-gather-git-project-files
+                             :tag "All files in the current Git project")
+              (function :tag "Other"))
+  :group 'ido)
+
 (defcustom ido-use-faces t
   "Non-nil means use ido faces to highlighting first match, only match and
 subdirs in the alternatives."
@@ -3435,6 +3445,18 @@ for first matching file."
         (setq dup-p nil)))
     dups))
 
+(defun ido-gather-recent-files ()
+  "Return a list of all recently visited files."
+  recentf-list)
+
+(defun ido-gather-git-project-files ()
+  "Return a list of all files in the current Git project."
+  (mapcar (lambda (file)
+            (expand-file-name file default-directory))
+          (with-temp-buffer
+            (call-process "git" nil (current-buffer) nil "ls-files" "-z")
+            (split-string (buffer-string) "\0"))))
+
 (defun ido-add-virtual-buffers-to-list ()
   "Add recently visited files, and bookmark files, to the buffer list.
 This is to make them appear as if they were \"virtual buffers\"."
@@ -3446,7 +3468,9 @@ This is to make them appear as if they were \"virtual buffers\"."
   (let ((dups (unless (zerop ido-handle-duplicate-virtual-buffers)
                 (ido-find-duplicate-basenames recentf-list)))
         name dir)
-    (dolist (head recentf-list)
+    (dolist (head (delete-dups
+                   (apply 'append (mapcar 'funcall
+                                          ido-gather-virtual-filenames))))
       (and (setq name (file-name-nondirectory head))
            (null (get-file-buffer head))
            (if (not (member name dups))
