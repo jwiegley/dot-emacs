@@ -7,10 +7,10 @@ SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) $(wildcard site-lisp/*.el)
 TARGET	    = $(patsubst %.el,%.elc,autoloads.el $(SOURCE))
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) --no-init-file --no-site-file -batch
-MY_LOADPATH = -L $(HOME)/.emacs.d -L . -L site-lisp
+MY_LOADPATH = -L . -L site-lisp
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(ORGSRC) $(SPECIAL) $(TARGET)
+all: $(SPECIAL) load-path.elc $(ORGSRC) $(TARGET)
 
 cus-dirs.el: $(SOURCE)
 	$(EMACS_BATCH) -l cus-dep -f custom-make-dependencies $(DIRS)
@@ -23,7 +23,7 @@ autoloads.el: autoloads.in $(SOURCE)
 	    -f generate-autoloads $(shell pwd)/autoloads.el $(DIRS)
 
 %.el: %.org
-	$(BATCH_LOAD) -l load-path --eval '(org-babel-load-file "$<")'
+	$(BATCH_LOAD) -l load-path -l site-lisp/org-mode/lisp/ob-tangle --eval '(org-babel-load-file "$<")'
 
 emacs.elc: emacs.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
@@ -34,7 +34,7 @@ cus-dirs.elc:
 	$(BATCH_LOAD) -l load-path -l $< -f batch-byte-compile $<
 
 clean:
-	rm -f autoloads.el* cus-dirs.el
+	rm -f autoloads.el* cus-dirs.el $(ORGSRC)
 
 fullclean: clean
 	rm -f *.elc site-lisp/*.elc
