@@ -4244,7 +4244,7 @@ This option can be set/reset via menu
 Buffers to save before checking dependencies for compilation.@*
 There are two orthogonal choices: Firstly one can save all or only the coq
 buffers, where coq buffers means all buffers in coq mode except the current
-buffer. Secondly, emacs can ask about each such buffer or save all of them
+buffer. Secondly, Emacs can ask about each such buffer or save all of them
 unconditionally.
 
 This makes four permitted values: @code{'ask-coq} to confirm saving all
