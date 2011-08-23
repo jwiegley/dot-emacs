@@ -12,9 +12,6 @@
 (require 'recentf)
 (setq recentf-auto-cleanup 'never)
 
-(require 'el-get)
-(el-get)
-
 ;; Read in the Mac's global environment settings.
 
 (defun read-mac-environment ()
