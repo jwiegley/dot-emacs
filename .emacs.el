@@ -518,6 +518,9 @@
      (:weight bold))))
  '(magit-topgit-current
    ((t nil)))
+ '(match
+   ((t
+     (:background "light cyan"))))
  '(slime-highlight-edits-face
    ((((class color)
       (background light))
