@@ -16,7 +16,6 @@
  '(calendar-standard-time-zone-name "CST")
  '(calendar-time-zone -420)
  '(diary-file "~/Documents/Tasks/diary")
- '(mark-holidays-in-calendar t)
  '(org-M-RET-may-split-line
    (quote
     ((headline)
@@ -229,13 +228,14 @@
  '(org-footnote-section nil)
  '(org-habit-preceding-days 42)
  '(org-hide-leading-stars t)
+ '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-irc-link-to-logs t t)
  '(org-mobile-directory "~/Dropbox/MobileOrg")
  '(org-mobile-files nil)
  '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
  '(org-modules
    (quote
-    (org-id org-habit)))
+    (org-id org-info org-habit)))
  '(org-refile-targets
    (quote
     (("~/Documents/Tasks/todo.txt" :level . 1)
@@ -978,6 +978,8 @@ end tell" (match-string 1))))
   (define-key map " " 'org-agenda-tree-to-indirect-buffer)
   (define-key map "F" 'org-agenda-follow-mode)
   (define-key map "q" 'delete-window)
+  (define-key map "z"
+    (lambda () (interactive) (bury-buffer) (delete-window)))
   (define-key map [(meta ?p)] 'org-agenda-earlier)
   (define-key map [(meta ?n)] 'org-agenda-later)
 
@@ -1021,7 +1023,11 @@ end tell" (match-string 1))))
        (fboundp 'fit-window-to-buffer)
        (fit-window-to-buffer)))
 
-(defadvice org-agenda-redo (after fit-windows-for-agenda activate)
+(defadvice org-agenda-redo (after fit-windows-for-agenda-redo activate)
+  "Fit the Org Agenda to its buffer."
+  (org-fit-agenda-window))
+
+(defadvice org-agenda (after fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer."
   (org-fit-agenda-window))
 

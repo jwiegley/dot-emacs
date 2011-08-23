@@ -8,12 +8,6 @@ This is my .emacs file, literate-style.
   :CATEGORY: Emacs
   :END:
 * Prologue
-** Global constants
-
-   #+begin_src emacs-lisp
-   (defconst emacs-site-lisp (expand-file-name "site-lisp" emacs-lisp-root))
-   #+end_src
-
 * Configuration
 
 ** Wrap up
