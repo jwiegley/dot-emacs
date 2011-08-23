@@ -875,8 +875,7 @@ If the buffer is currently not visible, makes it sticky."
                          ido-final-text ido-text)))))
     (exit-minibuffer)))
 
-(eval-after-load "ido"
-  '(define-key ido-common-completion-map "\C-m" 'ido-smart-select-text))
+(define-key ido-common-completion-map "\C-m" 'ido-smart-select-text)
 
 ;;;_ + modeline-posn
 
