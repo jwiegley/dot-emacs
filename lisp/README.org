@@ -1,0 +1,302 @@
+#+TITLE: Modules written by John Wiegley
+#+STARTUP: content
+
+This directory contains Lisp modules I've written, or maintain, and which are
+still actively used.  For older modules, see the ../retired directory.
+
+* Modules
+
+** c-includes.el
+   Perform a regex search through a C/C++ file, and also every file causes to
+   be included.  Displays the output in outline-mode so you can see the
+   structure of how things are included.  It includes a simple preprocessor
+   and colorizes the results according to whether the matched would be included
+   in the compilation or not (this part needs a bit more work though).
+
+*** TODO Improve the preprocessor to include system defines from gcc
+    SCHEDULED: <2011-08-23 Tue>
+    :PROPERTIES:
+    :ID:       B240BCE9-7DD4-43DE-828F-E60D9ADC821A
+    :CREATED:  [2011-08-23 Tue 21:01]
+    :END:
+
+** cl-info.el
+   Perform a quick HyperSpec lookup in Emacs, using the Info pages.  This is
+   *incredibly* helpful if you've forgotten the exactly syntax to `loop', for
+   example.  Oh wait, I just forgot it again, looking it up in cl-info...
+   
+** org-devonthink.el
+   Code for obtaining a URL to the currently selected database item in
+   DEVONthink, a database program on Mac OS X (and one of my favorite programs
+   of all time!).  You can then use `org-insert-link' to insert the link into
+   any Org file.
+
+* Packages
+
+** chess
+   A complete chess client and library (but with only a minimal chess AI).
+   The main use to play against Crafty, or GnuChess, or online at
+   freechess.org.  It can also be used for working through puzzles, annotating
+   games, visualizing a PGN file, playing against an Emacs Chess friend on
+   IRC, and much, much more.
+
+*** TODO Rebuild Emacs 23 with sound support, for playing Emacs Chess
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2009-11-24 Tue 04:42]
+    - State "TODO"       from "DEFERRED"   [2009-10-07 Wed 14:53]
+    - State "DEFERRED"   [2008-08-30 Sat 01:11] \\
+      I don't think this is supported yet.
+    - State "STARTED"    [2008-08-27 Wed 16:21] \\
+      I don't seem to have the required libraries.  I need to ask on #emacs.
+    :PROPERTIES:
+    :ID:       B6E799EE-1C3A-45EA-9D3D-3845DB444B57
+    :CREATED:  [2008-08-26 Tue]
+    :END:
+*** TODO Submit Emacs Chess for inclusion as part of Emacs
+    - State "DEFERRED"   from "TODO"       [2010-04-27 Tue 09:00]
+    - State "TODO"       from "DEFERRED"   [2010-03-16 Tue 23:50]
+    - State "DEFERRED"   from "TODO"       [2010-01-29 Fri 03:20]
+    - State "TODO"       from "DEFERRED"   [2010-01-18 Mon 03:56]
+    - State "DEFERRED"   from "TODO"       [2009-11-24 Tue 04:52]
+    :PROPERTIES:
+    :ID:       11433893-EF33-4F15-A661-D70C216AA413
+    :CREATED:  [2009-10-30 Fri 05:46]
+    :END:
+*** TODO Write a simple tutorial and usage reference for Emacs Chess
+    - State "DEFERRED"   from "TODO"       [2010-04-27 Tue 09:00]
+    - State "TODO"       from "DEFERRED"   [2010-03-16 Tue 23:50]
+    - State "DEFERRED"   from "TODO"       [2010-01-29 Fri 03:20]
+    - State "TODO"       from "DEFERRED"   [2010-01-18 Mon 03:56]
+    - State "DEFERRED"   from "TODO"       [2009-11-24 Tue 04:52]
+    :PROPERTIES:
+    :ID:       A57823CD-DA1C-4658-8F23-0099184C5855
+    :CREATED:  [2009-10-30 Fri 05:46]
+    :END:
+
+** eshell
+   An operating system shell written entirely in Emacs Lisp.  It's main
+   selling points are excellent integration with Lisp, and the fact that it
+   works the same on all operating systems that run Emacs, as most are the
+   core commands (cp, rm, ls, etc.) are in Lisp too.
+
+*** TODO Eshell and ^M (PATCH attached)
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - State "TODO"       from "DEFERRED"   [2011-06-14 Tue 20:33]
+    - State "DEFERRED"   from "TODO"       [2010-12-20 Mon 11:24]
+    :PROPERTIES:
+    :ID:       0F498EFB-B02E-49B8-A942-0A5103C461AB
+    :Submitter: Leo <sdl.web@gmail.com>
+    :Message:  [[message://m17hkn356r.fsf@cam.ac.uk][Re: 23.2; Eshell and ^M (PATCH attached)]]
+    :CREATED:  [2010-07-26 Mon 00:21]
+    :END:
+*** TODO Eshell remote commands patch
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    :PROPERTIES:
+    :ID:       8D3123A3-D210-468C-AE2A-D1CDB6E2626D
+    :CREATED:  [2011-02-18 Fri 16:47]
+    :Message:  [[message://AANLkTi=bQkWLBpZj7MEtZpv2bDpKORKex83dP_mLi85b@mail.gmail.com][Eshell remote commands patch]]
+    :Submitter: Seppo Sade <sepposade1@gmail.com>
+    :Date:     Fri, 18 Feb 2011 21:13:40 +0200
+    :END:
+*** TODO Eshell's argument parser is too naïve
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2009-11-24 Tue 03:36]
+    For example, echo -ss dd should print an error, not just swallow the -ss.
+    :PROPERTIES:
+    :ID:       3F586191-E24E-4FFC-898D-9420A6DBD7DA
+    :CREATED:  [2009-11-24 Tue 03:10]
+    :END:
+*** TODO Eshell: ln -s target.dir destination.dir hard (not soft) links
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - State "TODO"       from "DEFERRED"   [2011-06-14 Tue 20:33]
+    - State "DEFERRED"   from "SOMEDAY"    [2010-11-06 Sat 15:56]
+    - State "SOMEDAY"    from "TODO"       [2009-11-24 Tue 04:52]
+    :PROPERTIES:
+    :ID:       BDA61C8A-43D0-416C-8CEB-568DA38BBB1D
+    :Message:  [[message://4AD6807A.1090409@suddenlink.net][{eshell}bug: ln -s target.dir destination.dir hard (not soft) links]]
+    :CREATED:  [2009-10-15 Thu 02:53]
+    :END:
+*** TODO Improve eshell-remove-entries
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - State "TODO"       from "DEFERRED"   [2011-06-14 Tue 20:33]
+    - State "DEFERRED"   from "TODO"       [2011-01-05 Wed 16:52]
+    :PROPERTIES:
+    :ID:       CEE54F1A-0A71-45CE-A0ED-75F8E7CB3811
+    :Submitter: Leo <sdl.web@gmail.com>
+    :Message:  [[message://m1tylxdmfz.fsf@cam.ac.uk][24.1; {PATCH} improve eshell-remove-entries]]
+    :CREATED:  [2010-09-12 Sun 23:12]
+    :END:
+*** TODO Possible bug in eshell with $+
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - State "TODO"       from "DEFERRED"   [2011-06-14 Tue 20:33]
+    - State "DEFERRED"   from "TODO"       [2011-01-05 Wed 16:52]
+    - Note taken on [2010-11-14 Sun 20:50] \\
+      [[message://AANLkTi%3D86MzZGzomMyKzB0%3DQ9yJOh%3DGdzZWeuCf4fpy9@mail.gmail.com][Re: Possible bug in eshell with $+]]
+    :PROPERTIES:
+    :ID:       84B8FE14-58AF-41C9-AAF5-4BB0D1A672C2
+    :Submitter: Paul Michael Reilly <pmr@pajato.com>
+    :Message:  [[message://AANLkTik01etaqx%3Df12%3DFuU7w0%2BBt4iSpoPDYRVYg_9WF@mail.gmail.com][Possible bug in eshell with $+]]
+    :CREATED:  [2010-11-13 Sat 12:02]
+    :END:
+*** TODO Problem with Eshell's globbing syntax
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    :PROPERTIES:
+    :ID:       ACACD8BA-BDA8-43CF-A332-A6F624635592
+    :CREATED:  [2011-07-14 Thu 15:11]
+    :Date:     Thu, 14 Jul 2011 16:09:33 -0400
+    :Message:  [[message://m21uxspqte.fsf@boostpro.com][Came across this today]]
+    :Submitter: Dave Abrahams <dave@boostpro.com>
+    :END:
+*** TODO Release Eshell 2.5 into the wild
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - State "TODO"       from "DEFERRED"   [2011-06-14 Tue 20:33]
+    - State "DEFERRED"   from "TODO"       [2010-04-27 Tue 09:00]
+    - State "TODO"       from "DEFERRED"   [2010-03-16 Tue 23:51]
+    - State "DEFERRED"   from "TODO"       [2009-11-24 Tue 04:53]
+    :PROPERTIES:
+    :ID:       AA0E31EA-CEFE-402D-AE8B-BA5C6D129F93
+    :CREATED:  [2009-02-01 Sun 03:03]
+    :END:
+*** TODO eshell-command fails when run from its own output buffer
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - State "TODO"       from "DEFERRED"   [2011-06-14 Tue 20:33]
+    - State "DEFERRED"   from "SOMEDAY"    [2010-11-06 Sat 15:56]
+    - State "DEFERRED"   from "TODO"       [2009-11-24 Tue 04:42]
+    This was found by SvekloB in #emacs:
+    1. M-: (eshell-command "ls")
+    2. Switch to *Eshell Command Output*
+    3. Repeat.  The buffer contents get replaced by another buffer.
+    :PROPERTIES:
+    :ID:       ABA17B30-B16E-448B-B690-87F4F16D5D00
+    :CREATED:  [2009-11-09 Mon 17:27]
+    :END:
+*** TODO pcmpl-git.el
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - State "TODO"       from "DEFERRED"   [2011-06-14 Tue 20:33]
+    - State "DEFERRED"   from "TODO"       [2010-12-20 Mon 11:24]
+    - Note taken on [2010-07-26 Mon 00:21] \\
+      [[message://m1aapj3ftw.fsf@cam.ac.uk][pcmpl-git.el]]
+    - Note taken on [2010-06-24 Thu 17:26] \\
+      From Leo: The following is directly from my init.  My copyright
+      assignment with FSF is now complete.  (A copy is attached for reference).
+      So feel free to merge it with eshell I have been using and polishing it.
+      pcml-git.el on the hand hasn't seen much new development.  But I will get
+      it in a better shape at some point.
+
+      #+begin_src emacs-lisp
+      (defun eshell/git (&rest args)
+       ;; `eshell-interactive-output-p' returns non-nil when output is not
+       ;; re-directed. This allows, for example, 'git diff > fix.diff' to work
+       ;; smoothly.
+       (unless (or (eshell-interactive-output-p)
+                   (member "--no-pager" args))
+         (push "--no-pager" args))
+       ;; view man pages of any git CMD followed by '--help' or following 'help'
+       (let* ((tail (or (member "help" args)
+                        (member "--help" (reverse args))))
+              (cmd (cadr tail)))
+         (if (and tail cmd (not (string-match "^-" cmd)))
+             ;; The following (prog1 ...) can be replaced with (apply
+             ;; 'eshell-exec-visual "git" args) to open man pages in term-mode.
+             (prog1 nil
+               (switch-to-buffer (generate-new-buffer
+                                  (concat "*Man " (capitalize cmd) "*")))
+               (shell-command (eshell-flatten-and-stringify "git" args) t)
+               (require 'man)
+               (Man-fontify-manpage)
+               (goto-char (point-min))
+               (when (re-search-forward "^\\(\\S-+\\)\\s-+" nil t)
+                 (rename-buffer (concat "*" (match-string 1) "*") t))
+               ;; Man-mode moves point to a suitable location
+               (Man-mode))
+           ;; see line 1195 in esh-cmd.el for the explantion of the tag
+           ;; 'eshell-replace-command; "git" must be in `eshell-complex-commands'.
+           (throw 'eshell-replace-command
+                  (eshell-parse-command (eshell-search-path "git") args)))))
+
+      (add-to-list 'eshell-complex-commands "git")
+      #+end_src
+    :PROPERTIES:
+    :ID:       6ED58363-E5DD-415E-920E-E03D7991511A
+    :Message:  [[message://m139ygiofo.fsf@cam.ac.uk][pcmpl-git.el]]
+    :CREATED:  [2010-04-27 Tue 17:38]
+    :END:
+*** TODO pcomplete-uniquify-list
+    - State "DEFERRED"   from "TODO"       [2011-08-18 Thu 13:14]
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    :PROPERTIES:
+    :ID:       4BAF6569-2422-4281-B809-31D8AABEEC74
+    :Message:  [[message://5D8A5874-1237-407A-921E-AA37856D28DD@gmail.com][pcomplete-uniquify-list]]
+    :CREATED:  [2011-01-18 Tue 04:08]
+    :END:
+
+** gnus-harvest
+   Observe the e-mail addresses that you see while reading and writing e-mail,
+   and record them all in an SQLite database, along with weighting values and
+   a time stamp.  Then, when you write a message, you can complete against the
+   most likely candidates for a given substring.
+
+** initsplit
+   Split up your Emacs customizations across multiple files.
+
+*** TODO Commit the final version of initsplit.el to Emacs proper                           :Net:
+    - State "DEFERRED"   from "TODO"       [2011-06-16 Thu 17:49]
+    - Note taken on [2011-01-02 Sun 09:16] \\
+      [[message://m27heqcxtc.wl%dave@boostpro.com][initsplit]]
+    :PROPERTIES:
+    :ID:       2523EF02-EAEE-442F-B425-74277FBFC5DA
+    :CREATED:  [2010-12-27 Mon 03:37]
+    :END:
+*** TODO Convert my dot-files into a literate emacs.org file
+    :PROPERTIES:
+    :ID:       75A4E702-13B1-4C7E-8EFB-60EE64BB2FDA
+    :CREATED:  [2011-08-21 Sun 18:54]
+    :END:
+**** TODO Add support to initsplit to split within a literate file
+     :PROPERTIES:
+     :ID:       D4299119-8800-4460-BE0F-17925E1B0824
+     :CREATED:  [2011-08-21 Sun 11:15]
+     :END:
+***** TODO [initsplit] Remove runtime dependency on cl.el (f2159ef)
+      :PROPERTIES:
+      :ID:       BF7E84E7-F187-41F2-9BDF-10726DC8ADEC
+      :CREATED:  [2011-08-22 Mon 19:12]
+      :Date:     Thu, 18 Aug 2011 14:32:17 -0700
+      :Message:  [[message://jwiegley/initsplit/commit/f2159ef74e9a8b21f800c3d90816c600df9596b7/539641@github.com][{initsplit} Remove runtime dependency on cl.el (f2159ef)]]
+      :Submitter: dabrahams <reply+c-539641-8adfedfceb193e46a45bffa4c1ff728d76572b16@reply.github.com>
+      :END:
+***** TODO [initsplit] Remove runtime dependency on cl.el (f2159ef)
+      :PROPERTIES:
+      :ID:       36B69621-20F3-4906-BF16-43FAF8AC2CEF
+      :CREATED:  [2011-08-22 Mon 19:12]
+      :Date:     Thu, 18 Aug 2011 14:33:58 -0700
+      :Message:  [[message://jwiegley/initsplit/commit/f2159ef74e9a8b21f800c3d90816c600df9596b7/539644@github.com][{initsplit} Remove runtime dependency on cl.el (f2159ef)]]
+      :Submitter: dabrahams <reply+c-539644-7dc13ed080e743d9491e011b3d18f7de83d4d140@reply.github.com>
+      :END:
+
+** muse
+   An authoring and publishing tool for Emacs.  Write in a simplified markup
+   format -- similar, but not identical to, Markdown -- and then publish to
+   multiple output formats: HTML, LaTeX, DocBook, and more.  Support projects,
+   the creation of websites, and easy integration of additional backends.
+
+** regex-tool
+
+   A regular expression workshop for programmers, supporting both Perl and
+   Emacs Lisp regexp syntax.  Basically it creates a new frame with three
+   windows: one where you type the target data, another where you type the
+   regexp, and a third that shows the matching groups.  The target data gets
+   color-highlighted as you type, so you can easily find problems in really
+   complex regexps.
+
+
+#+LINK: gmane http://mid.gmane.org/
+#+LINK: emacswiki http://www.emacswiki.org/emacs/
