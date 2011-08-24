@@ -705,16 +705,6 @@
     (switch-to-buffer "#emacs")
     (set (make-local-variable 'mode-line-format) nil)))
 
-(defcustom erc-active-unselected-fringe-color "blue"
-  "Color used for the background of inactive windows with new messages."
-  :type 'color
-  :group 'erc)
-
-(defcustom erc-active-unselected-idle-time 120
-  "If idle this many seconds, also highlight buffers with new input."
-  :type 'integer
-  :group 'erc)
-
 (defcustom erc-priority-people-regexp ".*"
   "Regexp that matches BitlBee users you want active notification for."
   :type 'regexp
@@ -726,58 +716,28 @@
   :type 'regexp
   :group 'erc)
 
-(defvar growlnotify-command (executable-find "growlnotify")
-   "The path to growlnotify")
+(require 'alert)
 
-(copy-face 'fringe 'erc-active-unselected-old-fringe-face)
+;; If the ERC buffer is not visible, tell the user through Growl 
+(alert-configure-alert
+ 'erc-mode t 'buried #'alert-growl-notify
+ #'(lambda (severity message &rest ignore)
+     (not (or (string-match "^\\** *Users on #" message)
+              (string-match erc-growl-noise-regexp message)))))
 
-(defun restore-default-fringe ()
-  (copy-face 'erc-active-unselected-old-fringe-face 'fringe))
-
-(defun erc-colorize-active-unselected-buffer ()
-  (set-face-background 'fringe erc-active-unselected-fringe-color)
-  (add-hook 'post-command-hook 'restore-default-fringe nil t))
-
-(defun growl (title message)
-  "Shows a message through the growl notification system using
- `growlnotify-command` as the program."
-  (flet ((encfn (s) (encode-coding-string s (keyboard-coding-system))) )
-    (let* ((process (start-process "growlnotify" nil
-                                   growlnotify-command
-                                   (encfn title)
-                                   "-a" "Emacs"
-                                   "-n" "Emacs")))
-      (process-send-string process (encfn message))
-      (process-send-string process "\n")
-      (process-send-eof process)))
-  t)
+;; Unless the user has recently typed in the ERC buffer, highlight the fringe
+(alert-configure-alert
+ 'erc-mode '(moderate high urgent) '(buried visible idle)
+ #'alert-fringe-notify
+ #'(lambda (severity message &rest ignore)
+     (string-match (concat "\\`[^&]" erc-priority-people-regexp "@BitlBee\\'")
+                   (erc-format-target-and/or-network))))
 
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
 If the buffer is currently not visible, makes it sticky."
-  (let ((wind (get-buffer-window))
-        (priority-p
-         (string-match (concat "\\`[^&]" erc-priority-people-regexp
-                               "@BitlBee\\'")
-                       (erc-format-target-and/or-network))))
-    (if wind
-        (if (and priority-p
-                 (or (not (eq wind (selected-window)))
-                     (and (current-idle-time)
-                          (> (float-time (current-idle-time))
-                             erc-active-unselected-idle-time))))
-            (erc-colorize-active-unselected-buffer))
-      (if message
-          (unless (or (string-match "^\\** *Users on #" message)
-                      (string-match erc-growl-noise-regexp message))
-            (growl (concat "ERC: " (buffer-name)) message))
-        (goto-char (point-min))
-        (when priority-p
-          (erc-colorize-active-unselected-buffer)
-          (growl (if nick
-                     (concact "ERC: " (buffer-name))
-                   "ERC")
-                 (buffer-string)))))))
+  (alert 'moderate (or message (buffer-string))
+         (concat "ERC: " (or nick (buffer-name)))))
 
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
