@@ -11,7 +11,8 @@
 
 (require 'local-vars-list)              ; in lib directory
 
-(eval-when-compile
+(require 'cl)
+(eval-when (compile)
   (defvar coq-prog-name nil)
   (defvar coq-load-path nil))
 
