@@ -298,33 +298,16 @@
                (eq 'run (process-status proc)))
           (throw 'proc-running proc)))))
 
-(defvar offlineimap-process nil)
-
 (defun start-offlineimap ()
   (interactive)
-  (unless (my-process-running-p "offlineimap")
-    (let ((buf (get-buffer-create "*offlineimap*")))
-      (setq offlineimap-process
-            (start-process "*offlineimap*" buf "/opt/local/bin/offlineimap"
-                           "-l" (expand-file-name "~/Library/Mail/offlineimap.log")))
-      (display-buffer buf))))
+  (shell-command
+   "launchctl load -S Aqua -w ~/Library/LaunchAgents/mac.offlineimap.plist"))
 
-(defun safely-kill-process (name)
-  (let ((proc (my-process-running-p name)))
-    (when (and proc (eq 'run (process-status proc)))
-      (let ((sigs '(SIGTERM SIGINT SIGQUIT SIGKILL)))
-        (while sigs
-          (if (not (eq 'run (process-status proc)))
-              (setq sigs nil)
-            (message "Signaling process %s with %s..." name (car sigs))
-            (signal-process proc (car sigs))
-            (sleep-for 3)
-            (setq sigs (cdr sigs))))))))
+(defun shutdown-offlineimap ()
+  (shell-command
+   "launchctl unload -w ~/Library/LaunchAgents/mac.offlineimap.plist"))
 
-(defun my-shutdown-external-processes ()
-  (safely-kill-process "offlineimap"))
-
-(add-hook 'gnus-after-exiting-gnus-hook 'my-shutdown-external-processes)
+(add-hook 'gnus-after-exiting-gnus-hook 'shutdown-offlineimap)
 
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
