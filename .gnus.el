@@ -177,7 +177,6 @@
  '(gnus-use-trees t)
  '(mail-envelope-from
    (quote header))
- '(mail-self-blind t)
  '(mail-setup-with-from nil)
  '(mail-source-delete-incoming t)
  '(mail-source-delete-old-incoming-confirm nil)
