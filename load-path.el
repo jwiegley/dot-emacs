@@ -33,6 +33,7 @@
                     "site-lisp/auctex/preview"
                     "site-lisp/bbdb/lisp"
                     "site-lisp/bbdb/bits"
+                    "site-lisp/doxymacs/lisp"
                     "site-lisp/ess/lisp"
                     "site-lisp/session/lisp"
                     "site-lisp/slime/contrib"
