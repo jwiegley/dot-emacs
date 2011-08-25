@@ -83,7 +83,7 @@
   :type '(alist :key-type symbol :value-type color)
   :group 'alert)
 
-(defcustom alert-reveal-idle-time 120
+(defcustom alert-reveal-idle-time 5
   "If idle this many seconds, show alerts that would otherwise be hidden."
   :type 'integer
   :group 'alert)
@@ -292,6 +292,8 @@ For customization, use the variable `alert-user-configuration'.")
               (cons rule alert-internal-configuration))))
 
     rule))
+
+(alert-define-style 'ignore :title "Don't display alert")
 
 (defun alert-colorize-message (message severity)
   (set-text-properties 0 (length message)
@@ -534,7 +536,9 @@ if they wish."
                              (funcall (cdr condition) info))))
                         (nth 0 config)))))
 
-               (funcall (plist-get style-def :notifier) info)
+               (let ((notifier (plist-get style-def :notifier)))
+                 (if notifier
+                     (funcall notifier info)))
                (setq matched t)
 
                (let ((remover (plist-get style-def :remover))
@@ -561,9 +565,12 @@ if they wish."
 
        (if (and alert-default-style
                 (not matched))
-           (funcall (plist-get (cdr (assq alert-default-style
-                                          alert-styles)) :notifier)
-                    info))))))
+           (let ((notifier
+                  (plist-get (cdr (assq alert-default-style
+                                        alert-styles))
+                             :notifier)))
+             (if notifier
+                 (funcall notifier info))))))))
 
 ;;(alert "Hello" :severity 'moderate :buffer (get-buffer "*scratch*")
 ;;       :style 'fringe)
