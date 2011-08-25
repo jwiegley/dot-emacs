@@ -455,7 +455,7 @@
                (winner))
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
- '(yaoddmuse-directory "~/.emacs.d/wiki")
+ '(yaoddmuse-directory "~/.emacs.d/doc")
  '(zencoding-preview-default nil))
 
 ;;;_ + faces
