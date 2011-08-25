@@ -440,7 +440,6 @@
     (Git Bzr Hg)))
  '(version-control t)
  '(visible-bell t)
- '(w3m-command "/opt/local/bin/w3m" t)
  '(w3m-use-cookies t)
  '(wdired-use-dired-vertical-movement
    (quote sometimes))
@@ -1012,6 +1011,11 @@ This function assumes that the file is registered."
 
 (eval-after-load "vkill"
   '(setq vkill-show-all-processes t))
+
+
+;;;_ + w3m
+
+(setq w3m-command "/opt/local/bin/w3m")
 
 ;;;_ + whitespace
 
