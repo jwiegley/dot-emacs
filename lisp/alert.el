@@ -281,10 +281,10 @@ For customization, use the variable `alert-user-configuration'.")
     (if persistent
         (nconc (nth 2 rule) (list (cons :persistent persistent))))
     (if continue
-        (nconc (nth 2 rule) (list :continue)))
+        (nconc (nth 2 rule) (list (cons :continue continue))))
     (setcdr (cdr rule) (list (cdr (nth 2 rule))))
 
-    (if alert-internal-configuration
+    (if (null alert-internal-configuration)
         (setq alert-internal-configuration (list rule))
       (if append
           (nconc alert-internal-configuration (list rule))

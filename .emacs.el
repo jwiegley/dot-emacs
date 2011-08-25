@@ -718,17 +718,6 @@
 
 (require 'alert)
 
-;; If the ERC buffer is not visible, tell the user through Growl 
-(alert-add-rule :status 'buried
-                :mode   'erc-mode
-                :predicate
-                #'(lambda (info)
-                    (let ((message (plist-get info :message)))
-                      (not (or (string-match "^\\** *Users on #" message)
-                               (string-match erc-growl-noise-regexp
-                                             message)))))
-                :style 'growl)
-
 ;; Unless the user has recently typed in the ERC buffer, highlight the fringe
 (alert-add-rule :status   '(buried visible idle)
                 :severity '(moderate high urgent)
@@ -747,6 +736,18 @@
                     (memq (plist-get info :status) '(buried idle)))
                 :style 'fringe
                 :continue t)
+
+;; If the ERC buffer is not visible, tell the user through Growl 
+(alert-add-rule :status 'buried
+                :mode   'erc-mode
+                :predicate
+                #'(lambda (info)
+                    (let ((message (plist-get info :message)))
+                      (not (or (string-match "^\\** *Users on #" message)
+                               (string-match erc-growl-noise-regexp
+                                             message)))))
+                :style 'growl
+                :append t)
 
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
