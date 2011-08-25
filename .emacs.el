@@ -719,25 +719,37 @@
 (require 'alert)
 
 ;; If the ERC buffer is not visible, tell the user through Growl 
-(alert-configure-alert
- 'erc-mode t 'buried #'alert-growl-notify
- #'(lambda (severity message &rest ignore)
-     (not (or (string-match "^\\** *Users on #" message)
-              (string-match erc-growl-noise-regexp message)))))
+(add-to-list
+ 'alert-configuration
+ '(((:status . (buried))
+    (:mode   . "\\`erc-mode\\'")
+    (:predicate
+     . (lambda (info)
+         (let ((message (plist-get info :message)))
+           (not (or (string-match "^\\** *Users on #" message)
+                    (string-match erc-growl-noise-regexp message)))))))
+   growl
+   (:last)))
 
 ;; Unless the user has recently typed in the ERC buffer, highlight the fringe
-(alert-configure-alert
- 'erc-mode '(moderate high urgent) '(buried visible idle)
- #'alert-fringe-notify
- #'(lambda (severity message &rest ignore)
-     (string-match (concat "\\`[^&]" erc-priority-people-regexp "@BitlBee\\'")
-                   (erc-format-target-and/or-network))))
+(add-to-list
+ 'alert-configuration
+ '(((:severity . (moderate high urgent))
+    (:status   . (buried visible idle))
+    (:mode     . "\\`erc-mode\\'")
+    (:predicate
+     . (lambda (info)
+         (string-match (concat "\\`[^&]" erc-priority-people-regexp
+                               "@BitlBee\\'")
+                       (erc-format-target-and/or-network)))))
+   growl
+   nil))
 
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
 If the buffer is currently not visible, makes it sticky."
-  (alert 'moderate (or message (buffer-string))
-         (concat "ERC: " (or nick (buffer-name)))))
+  (alert (or message (buffer-string)) :severity 'high 
+         :title (concat "ERC: " (or nick (buffer-name)))))
 
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
