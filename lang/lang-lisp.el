@@ -225,4 +225,6 @@
      (setq common-lisp-hyperspec-root
 	   "/opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")))
 
+(define-key ctl-x-map [(control ?e)] 'pp-eval-last-sexp)
+
 ;;; lang-lisp.el ends here
