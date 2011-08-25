@@ -30,6 +30,7 @@
   (which-function-mode 1)
   (doxymacs-mode 1)
   (doxymacs-font-lock)
+  (turn-on-filladapt-mode)
   ;;(define-key c-mode-base-map [(meta ?.)] 'gtags-find-tag)
   (define-key c-mode-base-map [return] 'newline-and-indent)
   (make-variable-buffer-local 'yas/fallback-behavior)

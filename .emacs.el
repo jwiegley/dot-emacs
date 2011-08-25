@@ -1060,7 +1060,10 @@ This function assumes that the file is registered."
   "Make sure to remove \"Omit\" from the modeline."
   (diminish 'dired-omit-mode))
 
-(eval-after-load "dot-mode" '(diminish 'dot-mode))
+(eval-after-load "dot-mode"
+  '(diminish 'dot-mode))
+(eval-after-load "filladapt"
+  '(diminish 'filladapt-mode))
 (eval-after-load "winner"
   '(ignore-errors (diminish 'winner-mode)))
 

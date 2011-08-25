@@ -47,6 +47,8 @@
 
         ("eval-expr"         . eval-expr)
 
+        ("filladapt"         . turn-on-filladapt-mode)
+
         ("fm"                . fm-start)
 
         ("indirect"          . indirect-region)
