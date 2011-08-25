@@ -183,7 +183,7 @@
  '(mail-source-report-new-mail-interval 15)
  '(mail-sources
    (quote
-    ((file))))
+    ((file :path "/var/mail/johnw"))))
  '(mail-specify-envelope-from t)
  '(mail-user-agent
    (quote gnus-user-agent))
