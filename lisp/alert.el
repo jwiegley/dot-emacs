@@ -102,6 +102,8 @@
   :type 'boolean
   :group 'alert)
 
+(defvar alert-styles nil)
+
 (defun alert-configuration-type ()
   (list 'repeat
         (list
@@ -222,8 +224,6 @@ also `ding' the user if the :severity of the message is either
   "Trivial alert face."
   :group 'alert)
 
-(defvar alert-styles nil)
-
 (defun alert-define-style (name &rest plist)
   (add-to-list 'alert-styles (cons name plist))
   (put 'alert-configuration 'custom-type (alert-configuration-type)))
@@ -304,6 +304,51 @@ also `ding' the user if the :severity of the message is either
 (alert-define-style 'growl :title "Notify using Growl"
                     :notifier #'alert-growl-notify)
 
+(defun alert-insert-active-alerts (buffer)
+  (with-current-buffer buffer
+    (delete-region (point-min) (point-max))
+    (dolist (alert alert-active-alerts)
+      (insert (alert-colorize-message (plist-get (nth 1 alert) :message)
+                                      (plist-get (nth 1 alert) :severity))
+              ?\n))))
+
+(defvar alert-current-timer)
+
+(defun alert-frame-notify (info)
+  (with-selected-frame
+      (make-frame '((width                . 50)
+                    (height               . 10)
+                    (top                  . -1)
+                    (left                 . 0)
+                    (left-fringe          . 0)
+                    (right-fringe         . 0)
+                    (tool-bar-lines       . nil)
+                    (menu-bar-lines       . nil)
+                    (vertical-scroll-bars . nil)
+                    (unsplittable         . t)
+                    (has-modeline-p       . nil)
+                    (minibuffer           . nil)))
+    (switch-to-buffer (get-buffer-create "*Outstanding Alerts*"))
+    (set (make-local-variable 'mode-line-format) nil)
+    (set (make-local-variable 'alert-current-timer)
+         (run-with-timer 0 1 #'alert-insert-active-alerts
+                         (current-buffer)))
+    (add-hook 'kill-buffer-hook
+              (lambda () (cancel-timer alert-current-timer)) nil t)
+    (nconc info (list :frame (selected-frame)
+                      :frame-buffer (current-buffer)))))
+
+(defun alert-frame-remove (info)
+  (delete-frame (plist-get info :frame) t)
+  (with-current-buffer (plist-get info :buffer)
+    (alert-remove-on-command))
+  (with-current-buffer (plist-get info :frame-buffer)
+    (kill-buffer (current-buffer))))
+
+(alert-define-style 'frame :title "Show alert in a frame"
+                    :notifier #'alert-frame-notify
+                    :remover #'alert-frame-remove)
+
 (defun alert-buffer-status (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
     (let ((wind (get-buffer-window)))
@@ -330,15 +375,19 @@ also `ding' the user if the :severity of the message is either
      (t
       (funcall remover info)))))
 
+(defvar alert-currently-removing nil)
+
 (defun alert-remove-on-command ()
-  (let (to-delete)
-    (dolist (alert alert-active-alerts)
-      (when (eq (current-buffer) (nth 0 alert))
-        (push alert to-delete)
-        (if (nth 2 alert)
-            (funcall (nth 2 alert) (nth 1 alert)))))
-    (dolist (alert to-delete)
-      (setq alert-active-alerts (delq alert alert-active-alerts)))))
+  (unless alert-currently-removing
+    (let (to-delete)
+      (dolist (alert alert-active-alerts)
+        (when (eq (current-buffer) (nth 0 alert))
+          (push alert to-delete)
+          (if (nth 2 alert)
+              (let ((alert-currently-removing t))
+                (funcall (nth 2 alert) (nth 1 alert))))))
+      (dolist (alert to-delete)
+        (setq alert-active-alerts (delq alert alert-active-alerts))))))
 
 ;;;###autoload
 (defun* alert (message &key (severity 'normal) title category
@@ -426,7 +475,13 @@ if they wish."
                  (if remover
                      (run-with-timer alert-fade-time nil
                                      #'alert-remove-when-active
-                                     remover info)))))))))))
+                                     remover info)))
+
+               (if (or style (memq :last options))
+                   (throw 'finish t))))))))))
+
+(alert "Hello" :severity 'moderate :buffer (get-buffer "*scratch*")
+       :style 'frame)
 
 (provide 'alert)
 
