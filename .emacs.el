@@ -742,7 +742,7 @@
          (string-match (concat "\\`[^&]" erc-priority-people-regexp
                                "@BitlBee\\'")
                        (erc-format-target-and/or-network)))))
-   growl
+   fringe
    nil))
 
 (defun my-erc-hook (&optional match-type nick message)
