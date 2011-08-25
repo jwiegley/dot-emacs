@@ -1,3 +1,4 @@
+
 ;;; alert --- Growl-style notification system for Emacs
 
 ;; Copyright (C) 2011 John Wiegley
@@ -59,6 +60,17 @@
 (defgroup alert nil
   "Notification system for Emacs similar to Growl"
   :group 'emacs)
+
+(defcustom alert-severity-faces
+  '((urgent   . alert-urgent-face)
+    (high     . alert-high-face)
+    (moderate . alert-moderate-face)
+    (normal   . alert-normal-face)
+    (low      . alert-low-face)
+    (trivial  . alert-trivial-face))
+  "Colors associated by default with Alert severities."
+  :type '(alist :key-type symbol :value-type color)
+  :group 'alert)
 
 (defcustom alert-severity-colors
   '((urgent   . "red")
@@ -67,17 +79,6 @@
     (normal   . "green")
     (low      . "blue")
     (trivial  . "purple"))
-  "Colors associated by default with Alert severities."
-  :type '(alist :key-type symbol :value-type color)
-  :group 'alert)
-
-(defcustom alert-severity-faces
-  '((urgent   . alert-urgent-face)
-    (high     . alert-high-face)
-    (moderate . alert-moderate-face)
-    (normal   . alert-normal-face)
-    (low      . alert-low-face)
-    (trivial  . alert-trivial-face))
   "Colors associated by default with Alert severities."
   :type '(alist :key-type symbol :value-type color)
   :group 'alert)
@@ -102,7 +103,33 @@
   :type 'boolean
   :group 'alert)
 
+(defcustom alert-log-messages t
+  "If non-nil, log alerts to the *Alerts* buffer."
+  :type 'boolean
+  :group 'alert)
+
 (defvar alert-styles nil)
+
+(defun alert-styles-radio-type (widget-name)
+  (append
+   (list widget-name :tag "Style")
+   (mapcar (lambda (style)
+             (list 'const
+                   :tag (or (plist-get (cdr style) :title)
+                            (symbol-name (car style)))
+                   (car style)))
+           (setq alert-styles
+                 (sort alert-styles
+                       (lambda (l r)
+                         (string< (symbol-name (car l))
+                                  (symbol-name (car r)))))))))
+
+(defcustom alert-default-style 'message
+  "The style to use if none match the current configuration.
+If a configured rule does match an alert, this style is not used.
+It is strictly a fallback."
+  :type (alert-styles-radio-type 'radio)
+  :group 'alert)
 
 (defun alert-configuration-type ()
   (list 'repeat
@@ -110,7 +137,6 @@
          'list :tag "Select style if alert matches selector"
          '(repeat
            :tag "Selector"
-           :doc "If there are no selectors in the list, it matches all alerts."
            (choice
             (cons :tag "Severity"
                   (const :format "" :severity)
@@ -125,7 +151,7 @@
                   (set (const :tag "Buffer not visible" buried)
                        (const :tag "Buffer visible" visible)
                        (const :tag "Buffer selected" selected)
-                       (const :tag "User Idle" idle)))
+                       (const :tag "Buffer selected, user idle" idle)))
             (cons :tag "Major Mode"
                   (const :format "" :mode)
                   regexp)
@@ -141,17 +167,16 @@
             (cons :tag "Predicate"
                   (const :format "" :predicate)
                   function)))
-         (append
-          (list 'choice :tag "Alert style")
-          (mapcar (lambda (style)
-                    (list 'const
-                          :tag (or (plist-get (cdr style) :title)
-                                   (symbol-name (car style)))
-                          (car style)))
-                  alert-styles))
+         (alert-styles-radio-type 'choice)
          '(set :tag "Options"
-               (const :tag "Persistent" :persistent)
-               (const :tag "Last Style" :last)
+               (cons :tag "Make alert display persistent"
+                     (const :format "" :persistent)
+                     (choice :value t (const :tag "Yes" t)
+                             (function :tag "Predicate")))
+               (cons :tag "Continue to next rule"
+                     (const :format "" :continue)
+                     (choice :value t (const :tag "Yes" t)
+                             (function :tag "Predicate")))
                ;;(list :tag "Change Severity"
                ;;      (radio :tag "From"
                ;;             (const :tag "Urgent" urgent)
@@ -169,8 +194,7 @@
                ;;             (const :tag "Trivial" trivial)))
                ))))
 
-(defcustom alert-configuration '((nil log nil)
-                                 (nil message nil))
+(defcustom alert-user-configuration nil
   "Configure how and when alerts are displayed.
 The default is to use the Emacs `message' function, which will
 also `ding' the user if the :severity of the message is either
@@ -178,21 +202,9 @@ also `ding' the user if the :severity of the message is either
   :type (alert-configuration-type)
   :group 'alert)
 
-(defcustom alert-growl-command (executable-find "growlnotify")
-  "The path to growlnotify"
-  :type 'file
-  :group 'alert)
-
-(defcustom alert-growl-priorities
-  '((urgent   . 2)
-    (high     . 2)
-    (moderate . 1)
-    (normal   . 0)
-    (low      . -1)
-    (trivial  . -2))
-  ""
-  :type '(alist :key-type symbol :value-type integer)
-  :group 'alert)
+(defvar alert-internal-configuration nil
+  "Rules added by `alert-add-rule'.
+For customization, use the variable `alert-user-configuration'.")
 
 (defface alert-urgent-face
   '((t (:foreground "Red" :bold t)))
@@ -226,11 +238,61 @@ also `ding' the user if the :severity of the message is either
 
 (defun alert-define-style (name &rest plist)
   (add-to-list 'alert-styles (cons name plist))
-  (put 'alert-configuration 'custom-type (alert-configuration-type)))
+  (put 'alert-user-configuration 'custom-type (alert-configuration-type))
+  (put 'alert-define-style 'custom-type (alert-styles-radio-type 'radio)))
 
 (alert-define-style 'ignore :title "Ignore Alert"
-                    :notifier #'ignore :remover #'ignore)
+                    :notifier #'ignore
+                    :remover #'ignore)
+
+(defun* alert-add-rule (&key severity status mode category title
+                             message predicate (style alert-default-style)
+                             persistent continue append)
+  (let ((rule (list (list t) style (list t))))
+    (if severity
+        (nconc (nth 0 rule)
+               (list (cons :severity
+                           (if (listp severity)
+                               severity
+                             (list severity))))))
+    (if status
+        (nconc (nth 0 rule)
+               (list (cons :status
+                           (if (listp status)
+                               status
+                             (list status))))))
+    (if mode
+        (nconc (nth 0 rule)
+               (list (cons :mode
+                           (if (stringp mode)
+                               mode
+                             (concat "\\`" (symbol-name mode)
+                                     "\\'"))))))
+    (if category
+        (nconc (nth 0 rule) (list (cons :category category))))
+    (if title
+        (nconc (nth 0 rule) (list (cons :title title))))
+    (if message
+        (nconc (nth 0 rule) (list (cons :message message))))
+    (if predicate
+        (nconc (nth 0 rule) (list (cons :predicate predicate))))
+    (setcar rule (cdr (nth 0 rule)))
 
+    (if persistent
+        (nconc (nth 2 rule) (list (cons :persistent persistent))))
+    (if continue
+        (nconc (nth 2 rule) (list :continue)))
+    (setcdr (cdr rule) (list (cdr (nth 2 rule))))
+
+    (if alert-internal-configuration
+        (setq alert-internal-configuration (list rule))
+      (if append
+          (nconc alert-internal-configuration (list rule))
+        (setq alert-internal-configuration
+              (cons rule alert-internal-configuration))))
+
+    rule))
+
 (defun alert-colorize-message (message severity)
   (set-text-properties 0 (length message)
                        (list 'face (cdr (assq severity
@@ -259,12 +321,13 @@ also `ding' the user if the :severity of the message is either
                     :notifier #'alert-log-notify
                     ;;:remover #'alert-log-clear
                     )
-
+
 (defun alert-message-notify (info)
   (message (alert-colorize-message (plist-get info :message)
                                    (plist-get info :severity)))
-  (if (memq (plist-get info :severity) '(high urgency))
-      (ding)))
+  ;;(if (memq (plist-get info :severity) '(high urgency))
+  ;;    (ding))
+  )
 
 (defun alert-message-remove (info)
   (message ""))
@@ -286,6 +349,22 @@ also `ding' the user if the :severity of the message is either
                     :notifier #'alert-fringe-notify
                     :remover #'alert-fringe-restore)
 
+(defcustom alert-growl-command (executable-find "growlnotify")
+  "The path to growlnotify"
+  :type 'file
+  :group 'alert)
+
+(defcustom alert-growl-priorities
+  '((urgent   . 2)
+    (high     . 2)
+    (moderate . 1)
+    (normal   . 0)
+    (low      . -1)
+    (trivial  . -2))
+  ""
+  :type '(alist :key-type symbol :value-type integer)
+  :group 'alert)
+
 (defsubst alert-encode-string (str)
   (encode-coding-string str (keyboard-coding-system)))
 
@@ -304,50 +383,36 @@ also `ding' the user if the :severity of the message is either
 (alert-define-style 'growl :title "Notify using Growl"
                     :notifier #'alert-growl-notify)
 
-(defun alert-insert-active-alerts (buffer)
-  (with-current-buffer buffer
-    (delete-region (point-min) (point-max))
-    (dolist (alert alert-active-alerts)
-      (insert (alert-colorize-message (plist-get (nth 1 alert) :message)
-                                      (plist-get (nth 1 alert) :severity))
-              ?\n))))
-
-(defvar alert-current-timer)
-
 (defun alert-frame-notify (info)
-  (with-selected-frame
-      (make-frame '((width                . 50)
-                    (height               . 10)
-                    (top                  . -1)
-                    (left                 . 0)
-                    (left-fringe          . 0)
-                    (right-fringe         . 0)
-                    (tool-bar-lines       . nil)
-                    (menu-bar-lines       . nil)
-                    (vertical-scroll-bars . nil)
-                    (unsplittable         . t)
-                    (has-modeline-p       . nil)
-                    (minibuffer           . nil)))
-    (switch-to-buffer (get-buffer-create "*Outstanding Alerts*"))
-    (set (make-local-variable 'mode-line-format) nil)
-    (set (make-local-variable 'alert-current-timer)
-         (run-with-timer 0 1 #'alert-insert-active-alerts
-                         (current-buffer)))
-    (add-hook 'kill-buffer-hook
-              (lambda () (cancel-timer alert-current-timer)) nil t)
-    (nconc info (list :frame (selected-frame)
-                      :frame-buffer (current-buffer)))))
+  (let ((buf (plist-get info :buffer)))
+    (if (eq (alert-buffer-status buf) 'buried)
+        (let ((current-frame (selected-frame)))
+          (with-selected-frame
+              (make-frame '((width                . 80)
+                            (height               . 20)
+                            (top                  . -1)
+                            (left                 . 0)
+                            (left-fringe          . 0)
+                            (right-fringe         . 0)
+                            (tool-bar-lines       . nil)
+                            (menu-bar-lines       . nil)
+                            (vertical-scroll-bars . nil)
+                            (unsplittable         . t)
+                            (has-modeline-p       . nil)
+                            (minibuffer           . nil)))
+            (switch-to-buffer buf)
+            ;;(set (make-local-variable 'mode-line-format) nil)
+            (nconc info (list :frame (selected-frame))))
+          (select-frame current-frame)))))
 
 (defun alert-frame-remove (info)
-  (delete-frame (plist-get info :frame) t)
-  (with-current-buffer (plist-get info :buffer)
-    (alert-remove-on-command))
-  (with-current-buffer (plist-get info :frame-buffer)
-    (kill-buffer (current-buffer))))
+  (unless (eq this-command 'handle-switch-frame)
+    (delete-frame (plist-get info :frame) t)))
 
-(alert-define-style 'frame :title "Show alert in a frame"
-                    :notifier #'alert-frame-notify
-                    :remover #'alert-frame-remove)
+;; jww (2011-08-25): Not quite working yet
+;;(alert-define-style 'frame :title "Popup buffer in a frame"
+;;                    :notifier #'alert-frame-notify
+;;                    :remover #'alert-frame-remove)
 
 (defun alert-buffer-status (&optional buffer)
   (with-current-buffer (or buffer (current-buffer))
@@ -375,20 +440,16 @@ also `ding' the user if the :severity of the message is either
      (t
       (funcall remover info)))))
 
-(defvar alert-currently-removing nil)
-
 (defun alert-remove-on-command ()
-  (unless alert-currently-removing
-    (let (to-delete)
-      (dolist (alert alert-active-alerts)
-        (when (eq (current-buffer) (nth 0 alert))
-          (push alert to-delete)
-          (if (nth 2 alert)
-              (let ((alert-currently-removing t))
-                (funcall (nth 2 alert) (nth 1 alert))))))
-      (dolist (alert to-delete)
-        (setq alert-active-alerts (delq alert alert-active-alerts))))))
-
+  (let (to-delete)
+    (dolist (alert alert-active-alerts)
+      (when (eq (current-buffer) (nth 0 alert))
+        (push alert to-delete)
+        (if (nth 2 alert)
+            (funcall (nth 2 alert) (nth 1 alert)))))
+    (dolist (alert to-delete)
+      (setq alert-active-alerts (delq alert alert-active-alerts)))))
+
 ;;;###autoload
 (defun* alert (message &key (severity 'normal) title category
                        buffer mode data style persistent)
@@ -424,65 +485,90 @@ if they wish."
                (or mode major-mode)
                (alert-buffer-status)
                (buffer-name)))
-     (catch 'finish
-       (let ((info (list :message message
-                         :title (or title current-buffer-name)
-                         :severity severity
-                         :category category
-                         :buffer alert-buffer
-                         :mode current-major-mode
-                         :data data)))
-         (dolist (config alert-configuration)
+
+     (let ((info (list :message message
+                       :title (or title current-buffer-name)
+                       :severity severity
+                       :category category
+                       :buffer alert-buffer
+                       :mode current-major-mode
+                       :data data))
+           matched)
+
+       (if alert-log-messages
+           (alert-log-notify info))
+
+       (catch 'finish
+         (dolist (config (append alert-user-configuration
+                                 alert-internal-configuration))
            (let ((style-def (cdr (assq (or style (nth 1 config))
                                        alert-styles)))
                  (options (nth 2 config)))
-             (when (not
-                    (memq
-                     nil
-                     (mapcar
-                      (lambda (condition)
-                        (case (car condition)
-                          (:severity
-                           (memq severity (cdr condition)))
-                          (:status
-                           (memq current-buffer-status (cdr condition)))
-                          (:mode
-                           (string-match (cdr condition)
-                                         (symbol-name current-major-mode)))
-                          (:category
-                           (and category
-                                (string-match (cdr condition)
-                                              (if (stringp category)
-                                                  category
-                                                (symbol-name category)))))
-                          (:title
-                           (and title
-                                (string-match (cdr condition) title)))
-                          (:message
-                           (string-match (cdr condition) message))
-                          (:predicate
-                           (funcall (cdr condition) info))))
-                      (nth 0 config))))
+             (when
+                 (or style              ; using :style always "matches"
+                     (not
+                      (memq
+                       nil
+                       (mapcar
+                        (lambda (condition)
+                          (case (car condition)
+                            (:severity
+                             (memq severity (cdr condition)))
+                            (:status
+                             (memq current-buffer-status (cdr condition)))
+                            (:mode
+                             (string-match (cdr condition)
+                                           (symbol-name current-major-mode)))
+                            (:category
+                             (and category
+                                  (string-match (cdr condition)
+                                                (if (stringp category)
+                                                    category
+                                                  (symbol-name category)))))
+                            (:title
+                             (and title
+                                  (string-match (cdr condition) title)))
+                            (:message
+                             (string-match (cdr condition) message))
+                            (:predicate
+                             (funcall (cdr condition) info))))
+                        (nth 0 config)))))
 
                (funcall (plist-get style-def :notifier) info)
+               (setq matched t)
 
-               (let ((remover (plist-get style-def :remover)))
+               (let ((remover (plist-get style-def :remover))
+                     (persist (or persistent
+                                  (cdr (assq :persistent options))))
+                     (continue (cdr (assq :continue options))))
                  (add-to-list 'alert-active-alerts
                               (list alert-buffer info remover))
                  (with-current-buffer alert-buffer
                    (add-hook 'post-command-hook
                              'alert-remove-on-command nil t))
-                 (if remover
+                 (if (and remover
+                          (not (if (functionp persist)
+                                   (funcall persist info)
+                                 persist)))
                      (run-with-timer alert-fade-time nil
                                      #'alert-remove-when-active
-                                     remover info)))
+                                     remover info))
+                 (if (or style
+                         (not (if (functionp continue)
+                                  (funcall continue info)
+                                continue)))
+                     (throw 'finish t)))))))
 
-               (if (or style (memq :last options))
-                   (throw 'finish t))))))))))
-
-(alert "Hello" :severity 'moderate :buffer (get-buffer "*scratch*")
-       :style 'frame)
+       (if (and alert-default-style
+                (not matched))
+           (funcall (plist-get (cdr (assq alert-default-style
+                                          alert-styles)) :notifier)
+                    info))))))
+
+;;(alert "Hello" :severity 'moderate :buffer (get-buffer "*scratch*")
+;;       :style 'fringe)
 
 (provide 'alert)
 
 ;;; alert.el ends here
+

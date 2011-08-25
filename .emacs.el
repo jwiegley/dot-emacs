@@ -719,31 +719,34 @@
 (require 'alert)
 
 ;; If the ERC buffer is not visible, tell the user through Growl 
-(add-to-list
- 'alert-configuration
- '(((:status . (buried))
-    (:mode   . "\\`erc-mode\\'")
-    (:predicate
-     . (lambda (info)
-         (let ((message (plist-get info :message)))
-           (not (or (string-match "^\\** *Users on #" message)
-                    (string-match erc-growl-noise-regexp message)))))))
-   growl
-   (:last)))
+(alert-add-rule :status 'buried
+                :mode   'erc-mode
+                :predicate
+                #'(lambda (info)
+                    (let ((message (plist-get info :message)))
+                      (not (or (string-match "^\\** *Users on #" message)
+                               (string-match erc-growl-noise-regexp
+                                             message)))))
+                :style 'growl)
 
 ;; Unless the user has recently typed in the ERC buffer, highlight the fringe
-(add-to-list
- 'alert-configuration
- '(((:severity . (moderate high urgent))
-    (:status   . (buried visible idle))
-    (:mode     . "\\`erc-mode\\'")
-    (:predicate
-     . (lambda (info)
-         (string-match (concat "\\`[^&]" erc-priority-people-regexp
-                               "@BitlBee\\'")
-                       (erc-format-target-and/or-network)))))
-   fringe
-   nil))
+(alert-add-rule :status   '(buried visible idle)
+                :severity '(moderate high urgent)
+                :mode     'erc-mode
+                :predicate
+                #'(lambda (info)
+                    (string-match (concat "\\`[^&]" erc-priority-people-regexp
+                                          "@BitlBee\\'")
+                                  (erc-format-target-and/or-network)))
+                :persistent
+                #'(lambda (info)
+                    ;; If the buffer is buried, or the user has been idle for
+                    ;; `alert-reveal-idle-time' seconds, make this alert
+                    ;; persistent.  Normally, alerts become persistent after
+                    ;; `alert-persist-idle-time' seconds.
+                    (memq (plist-get info :status) '(buried idle)))
+                :style 'fringe
+                :continue t)
 
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
