@@ -7,6 +7,7 @@
 /backups/
 /cus-dirs.el
 /data/
+/doc/
 /emacs.el
 /eshell/
 /inbox/
@@ -14,5 +15,4 @@
 /nnmaildir.el
 /reference/
 /src/
-/wiki/
 /yaoddmuse/
