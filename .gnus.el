@@ -301,11 +301,13 @@
 (defun start-offlineimap ()
   (interactive)
   (shell-command
-   "launchctl load -S Aqua -w ~/Library/LaunchAgents/mac.offlineimap.plist"))
+   "launchctl load -S Aqua -w ~/Library/LaunchAgents/mac.offlineimap.plist")
+  (message "Offlineimap started"))
 
 (defun shutdown-offlineimap ()
   (shell-command
-   "launchctl unload -w ~/Library/LaunchAgents/mac.offlineimap.plist"))
+   "launchctl unload -w ~/Library/LaunchAgents/mac.offlineimap.plist")
+  (message "Offlineimap stopped"))
 
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-offlineimap)
 
