@@ -175,7 +175,7 @@
  '(erc-log-write-after-send t)
  '(erc-modules
    (quote
-    (autoaway autojoin button completion dcc fill identd irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp spelling)))
+    (autoaway autojoin button completion dcc fill identd irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp spelling track)))
  '(erc-nick "johnw")
  '(erc-port 6667)
  '(erc-prompt-for-nickserv-password nil)
