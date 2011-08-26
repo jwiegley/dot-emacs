@@ -372,14 +372,17 @@ For customization, use the variable `alert-user-configuration'.")
 
 (defun alert-growl-notify (info)
   (if alert-growl-command
-      (call-process alert-growl-command nil nil nil
-                    "-a" "Emacs"
-                    "-n" "Emacs"
-                    "-t" (alert-encode-string (plist-get info :title))
-                    "-m" (alert-encode-string (plist-get info :message))
-                    "-p" (number-to-string
-                          (cdr (assq (plist-get info :severity)
-                                     alert-growl-priorities))))
+      (let ((args
+             (list "--appIcon"  "Emacs"
+                   "--name"     "Emacs"
+                   "--title"    (alert-encode-string (plist-get info :title))
+                   "--message"  (alert-encode-string (plist-get info :message))
+                   "--priority" (number-to-string
+                                 (cdr (assq (plist-get info :severity)
+                                            alert-growl-priorities))))))
+        (if (plist-get info :persistent)
+            (nconc args (list "--sticky")))
+        (apply #'call-process alert-growl-command nil nil nil args))
     (alert-message-notify info)))
 
 (alert-define-style 'growl :title "Notify using Growl"
@@ -488,24 +491,33 @@ if they wish."
                (alert-buffer-status)
                (buffer-name)))
 
-     (let ((info (list :message message
-                       :title (or title current-buffer-name)
-                       :severity severity
-                       :category category
-                       :buffer alert-buffer
-                       :mode current-major-mode
-                       :data data))
+     (let ((base-info (list :message message
+                            :title (or title current-buffer-name)
+                            :severity severity
+                            :category category
+                            :buffer alert-buffer
+                            :mode current-major-mode
+                            :data data))
            matched)
 
        (if alert-log-messages
-           (alert-log-notify info))
+           (alert-log-notify base-info))
 
        (catch 'finish
          (dolist (config (append alert-user-configuration
                                  alert-internal-configuration))
-           (let ((style-def (cdr (assq (or style (nth 1 config))
-                                       alert-styles)))
-                 (options (nth 2 config)))
+           (let* ((style-def (cdr (assq (or style (nth 1 config))
+                                        alert-styles)))
+                  (options (nth 2 config))
+                  (persist-p (or persistent
+                                 (cdr (assq :persistent options))))
+                  (persist (if (functionp persist-p)
+                               (funcall persist-p base-info)
+                             persist-p))
+                  (continue (cdr (assq :continue options)))
+                  (info (if (not (memq :persistent base-info))
+                            (append base-info (list :persistent persist))
+                          base-info)))
              (when
                  (or style              ; using :style always "matches"
                      (not
@@ -541,19 +553,13 @@ if they wish."
                      (funcall notifier info)))
                (setq matched t)
 
-               (let ((remover (plist-get style-def :remover))
-                     (persist (or persistent
-                                  (cdr (assq :persistent options))))
-                     (continue (cdr (assq :continue options))))
+               (let ((remover (plist-get style-def :remover)))
                  (add-to-list 'alert-active-alerts
                               (list alert-buffer info remover))
                  (with-current-buffer alert-buffer
                    (add-hook 'post-command-hook
                              'alert-remove-on-command nil t))
-                 (if (and remover
-                          (not (if (functionp persist)
-                                   (funcall persist info)
-                                 persist)))
+                 (if (and remover (not persist))
                      (run-with-timer alert-fade-time nil
                                      #'alert-remove-when-active
                                      remover info))
