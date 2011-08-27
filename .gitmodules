@@ -154,3 +154,6 @@
 [submodule "override/cc-mode"]
 	path = override/cc-mode
 	url = git://github.com/emacsmirror/cc-mode.git
+[submodule "lisp/alert"]
+	path = lisp/alert
+	url = git://github.com/jwiegley/alert.git
