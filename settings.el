@@ -215,7 +215,6 @@
  '(ido-enable-last-directory-history nil)
  '(ido-enable-tramp-completion nil)
  '(ido-enter-matching-directory (quote first))
- '(ido-gather-virtual-filenames (quote (ido-gather-recent-files ido-gather-git-project-files)))
  '(ido-ignore-files (quote ("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./" "\\`\\./" "\\`\\.DS_Store" "\\`\\.localized" "\\.sparsebundle/" "\\.dmg\\'")))
  '(ido-mode (quote both) nil (ido))
  '(ido-save-directory-list-file "~/.emacs.d/data/ido.last")
