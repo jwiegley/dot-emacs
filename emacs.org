@@ -11,6 +11,7 @@ This is my .emacs file, literate-style.
 * Configuration
 
 ** General
+   #+srcname: dot-emacs-general
    #+begin_src emacs-lisp
    ;; Set the *Message* log to something higher
 
