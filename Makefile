@@ -1,7 +1,7 @@
 ### -*- mode: makefile-gmake -*-
 
 DIRS	    = lisp site-lisp override el-get
-SPECIAL	    = cus-dirs.el autoloads.el
+SPECIAL	    = autoloads.el cus-dirs.el
 ORGSRC	    = $(patsubst %.org,%.el,$(wildcard *.org))
 SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) $(wildcard site-lisp/*.el))
 TARGET	    = $(patsubst %.el,%.elc,autoloads.el $(SOURCE))
@@ -10,7 +10,7 @@ EMACS_BATCH = $(EMACS) --no-init-file --no-site-file -batch
 MY_LOADPATH = -L . $(patsubst %,-L %,$(DIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: load-path.elc $(SPECIAL) $(ORGSRC) $(TARGET)
+all: load-path.elc autoloads.el autoloads.elc cus-dirs.el $(ORGSRC) $(TARGET)
 	for dir in $(DIRS); do \
 	    $(BATCH_LOAD) -f batch-byte-recompile-directory $$dir; \
 	done
