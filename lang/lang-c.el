@@ -24,7 +24,6 @@
      (call-interactively 'company-complete-common))))
 
 (defun my-c-mode-common-hook ()
-  (doxymacs-mode 1)
   ;;(gtags-mode 1)
   (company-mode 1)
   (which-function-mode 1)
