@@ -3451,11 +3451,12 @@ for first matching file."
 
 (defun ido-gather-git-project-files ()
   "Return a list of all files in the current Git project."
-  (mapcar (lambda (file)
-            (expand-file-name file default-directory))
-          (with-temp-buffer
-            (call-process "git" nil (current-buffer) nil "ls-files" "-z")
-            (split-string (buffer-string) "\0"))))
+  (if (file-directory-p default-directory)
+      (mapcar (lambda (file)
+                (expand-file-name file default-directory))
+              (with-temp-buffer
+                (call-process "git" nil (current-buffer) nil "ls-files" "-z")
+                (split-string (buffer-string) "\0")))))
 
 (defun ido-add-virtual-buffers-to-list ()
   "Add recently visited files, and bookmark files, to the buffer list.
