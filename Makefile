@@ -36,7 +36,11 @@ load-path.elc: load-path.el
 emacs.elc: emacs.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
 
-cus-dirs.elc:
+cus-dirs.elc: cus-dirs.el
+	@echo Not compiling cus-dirs.el
+
+settings.elc: settings.el
+	@echo Not compiling settings.el
 
 %.elc: %.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
