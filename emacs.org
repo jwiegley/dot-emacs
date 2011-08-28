@@ -2978,6 +2978,31 @@ This is my .emacs file, literate-style.
                    (setq url-list (cons match-string url-list)))))))
        url-list))
 
+   ;;;_ + mairix
+
+   (defun gnus-ivan-mairix-massage (dir)
+     "Turn DIR into nndir compatible file.
+   It basically rename mairix file to incremental number. DIR must
+   end with a slash."
+     (let ((files (directory-files dir))
+           (number 1))
+       (while files
+         (let ((file (concat dir (car files))))
+           (if (file-symlink-p file)
+               (progn
+                 (rename-file file (concat dir (number-to-string number)))
+                 (incf number))))
+         (setq files (cdr files)))))
+
+   (defun ivan-gnus-mairix-search (arg query)
+     "Sends QUERY to mairix, display result in an ephemeral group."
+     (interactive "P\nsquery: ")
+     (apply 'call-process "mairix" nil nil nil (split-string query " "))
+     (let ((maildir (concat ivan-gnus-mairix-mfolder "cur/")))
+       (gnus-ivan-mairix-massage maildir)
+       (gnus-group-read-ephemeral-group
+        "search" (list 'nndir "" (list 'nndir-directory maildir)))))
+
    ;;;_* keybindings
 
    ;;;_ + gnus-group-score
