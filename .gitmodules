@@ -157,3 +157,6 @@
 [submodule "lisp/alert"]
 	path = lisp/alert
 	url = git://github.com/jwiegley/alert.git
+[submodule "override/tramp"]
+	path = override/tramp
+	url = git://github.com/jwiegley/tramp.git
