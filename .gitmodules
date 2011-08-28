@@ -163,3 +163,6 @@
 [submodule "site-lisp/info-lookmore"]
 	path = site-lisp/info-lookmore
 	url = git://github.com/emacsmirror/info-lookmore.git
+[submodule "site-lisp/markdown-mode"]
+	path = site-lisp/markdown-mode
+	url = git://github.com/emacsmirror/markdown-mode.git
