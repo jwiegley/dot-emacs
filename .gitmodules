@@ -169,3 +169,6 @@
 [submodule "site-lisp/offlineimap"]
 	path = site-lisp/offlineimap
 	url = git://github.com/emacsmirror/offlineimap.git
+[submodule "site-lisp/anything-etags-plus"]
+	path = site-lisp/anything-etags-plus
+	url = git://github.com/emacsmirror/anything-etags-plus.git
