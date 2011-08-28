@@ -160,3 +160,6 @@
 [submodule "override/tramp"]
 	path = override/tramp
 	url = git://github.com/jwiegley/tramp.git
+[submodule "site-lisp/info-lookmore"]
+	path = site-lisp/info-lookmore
+	url = git://github.com/emacsmirror/info-lookmore.git
