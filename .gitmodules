@@ -172,3 +172,6 @@
 [submodule "site-lisp/anything-etags-plus"]
 	path = site-lisp/anything-etags-plus
 	url = git://github.com/emacsmirror/anything-etags-plus.git
+[submodule "site-lisp/org-mac-protocol"]
+	path = site-lisp/org-mac-protocol
+	url = git://github.com/emacsmirror/org-mac-protocol.git
