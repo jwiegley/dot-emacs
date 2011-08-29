@@ -238,7 +238,7 @@ On Windows you might need something like:
 
 (defcustom coq-use-smie nil
   "If non-nil, Coq mode will try to use SMIE for indentation.
-SMIE is a navigation and indentation framework available in Emacs ≥ 23.3."
+SMIE is a navigation and indentation framework available in Emacs >= 23.3."
   :type 'boolean
   :group 'coq)
 
