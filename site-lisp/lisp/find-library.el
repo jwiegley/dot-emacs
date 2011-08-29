@@ -125,8 +125,8 @@ directories to be used as library search paths."
        (mapcar '(lambda (dir) (elt (file-attributes dir) 5)) lp))))
 
 (defun find-library-update-cache (lp)
-  "Rescan library and renew the completion table cache. LP is a list
-of directories to be used as library search paths."
+  "Rescan library and renew the completion table cache. LP is a
+list of directories to be used as library search paths."
   (setq find-library-completion-table-cache
  (find-library-make-completion-table lp))
   (setq find-library-load-path-snap
@@ -138,40 +138,39 @@ of directories to be used as library search paths."
 completion table of the library files. LP is a list of directories to
 be used as library search paths."
   (let (completion-table path library libraries reduced-list
-    table-entry result-list count)
+                         table-entry result-list count)
     (while lp
       (setq path (car lp))
       (setq lp (cdr lp))
       (if (file-directory-p path)
-   (progn
-     (setq libraries (directory-files path nil nil t))
-     (setq reduced-list nil)
-     (while libraries
-       (setq library (car libraries))
-       (setq libraries (cdr libraries))
-       ;; For faster processing, assume that a file with ".el"
-       ;; or ".elc" suffix is a regular file.
-       (if (or (and (string-match "^\\(.+\\)\\.\\(elc\\|el\\)$" library)
-      (setq library (match-string 1 library)))
-	(file-regular-p (expand-file-name library path)))
-    (if (not (member library reduced-list))
-	(setq reduced-list (cons library reduced-list)))))
-     (while reduced-list
-       (setq library (car reduced-list))
-       (setq table-entry (list library path))
-       (setq reduced-list (cdr reduced-list))
-       (if (member library result-list)
-    (progn
-      (setq count 1)
-      (while (member
-       (concat library "<" count ">")
-       result-list)
-	(setq count (1+ count)))
-      (setq library (concat library "<" count ">"))))
-       (setq result-list (cons library result-list))
-       (setq completion-table
-      (cons (cons library table-entry)
-     completion-table))))))
+          (progn
+            (setq libraries (directory-files path nil nil t))
+            (setq reduced-list nil)
+            (while libraries
+              (setq library (car libraries))
+              (setq libraries (cdr libraries))
+              ;; For faster processing, assume that a file with ".el"
+              ;; or ".elc" suffix is a regular file.
+              (if (or (and (string-match "^\\(.+\\)\\.\\(elc\\|el\\)$" library)
+                           (setq library (match-string 1 library)))
+                      (file-regular-p (expand-file-name library path)))
+                  (if (not (member library reduced-list))
+                      (setq reduced-list (cons library reduced-list)))))
+            (while reduced-list
+              (setq library (car reduced-list))
+              (setq table-entry (list library path))
+              (setq reduced-list (cdr reduced-list))
+              (if (member library result-list)
+                  (progn
+                    (setq count 1)
+                    (while (member (concat library "<" (number-to-string count) ">")
+                                   result-list)
+                      (setq count (1+ count)))
+                    (setq library (concat library "<" (number-to-string count) ">"))))
+              (setq result-list (cons library result-list))
+              (setq completion-table
+                    (cons (cons library table-entry)
+                          completion-table))))))
     completion-table))
 
 (provide 'find-library)
