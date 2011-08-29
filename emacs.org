@@ -291,6 +291,8 @@ This is my .emacs file, literate-style.
 
    ;;;_ + escreen
 
+   (require 'escreen)
+
    (escreen-install)
 
    (define-key escreen-map "\\" 'toggle-input-method)
@@ -359,6 +361,8 @@ This is my .emacs file, literate-style.
         (require 'rebase-mode)))
 
    ;;;_ + ido
+
+   (require 'ido)
 
    (defun ido-smart-select-text ()
      "Select the current completed item.  Do NOT descend into directories."
