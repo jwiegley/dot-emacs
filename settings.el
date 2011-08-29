@@ -256,7 +256,7 @@
  '(mm-text-html-renderer (quote w3m))
  '(modelinepos-column-limit 80)
  '(next-line-add-newlines nil)
- '(nnir-ignored-newsgroups "^\"\\([^[]\\|\\[Gmail]/[^A]\\)")
+ '(nnir-ignored-newsgroups "^\"\\([^[]\\|\\[Gmail]\\.[^A]\\)")
  '(nnir-imap-default-search-key "imap")
  '(nnmail-crosspost nil)
  '(nnmail-expiry-wait 30)
