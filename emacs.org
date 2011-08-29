@@ -2952,19 +2952,19 @@ This is my .emacs file, literate-style.
            (count 0))
        (save-excursion
          (save-window-excursion
-           (set-buffer temp-buffer)
-           (mapc (lambda (string)
-                   (insert (format "\t%d: %s\n" count string))
-                   (setq count (1+ count))) urls)
-           (not-modified)
-           (pop-to-buffer temp-buffer)
-           (setq count
-                 (string-to-number
-                  (char-to-string (if (fboundp
-                                       'read-char-exclusive)
-                                      (read-char-exclusive)
-                                    (read-char)))))
-           (kill-buffer temp-buffer))
+           (with-current-buffer temp-buffer
+            (mapc (lambda (string)
+                    (insert (format "\t%d: %s\n" count string))
+                    (setq count (1+ count))) urls)
+            (not-modified)
+            (pop-to-buffer temp-buffer)
+            (setq count
+                  (string-to-number
+                   (char-to-string (if (fboundp
+                                        'read-char-exclusive)
+                                       (read-char-exclusive)
+                                     (read-char)))))
+            (kill-buffer temp-buffer)))
          (if browse-window
              (progn (select-window browse-window)
                     (browse-url (nth count urls)))))
