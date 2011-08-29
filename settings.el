@@ -459,3 +459,9 @@
  '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
  '(trailing-whitespace ((((class color) (background light)) (:background "light salmon")))))
 
+;; '(initsplit-customizations-alist
+;;   (quote
+;;    (("\\`\\(canlock\\|eudc\\|gnus\\|nn[a-z]+\\|mm\\|message\\|\\(send-?\\|smtp\\|check-\\)?mail\\|spam\\|starttls\\|sc\\)-" "~/Library/Emacs/.gnus.el" nil nil)
+;;     ("\\`\\(\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-\\|mark-holidays-in-calendar\\'\\)" "~/Library/Emacs/.org.el" nil nil)
+;;     ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.passwd" nil nil))))
+;; '(initsplit-pretty-print t)
