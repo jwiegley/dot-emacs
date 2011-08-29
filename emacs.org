@@ -483,63 +483,63 @@ This is my .emacs file, literate-style.
 
    ;;;_ + vc
 
-   (eval-after-load "vc-hooks"
-     '(defun vc-default-mode-line-string (backend file)
-        "Return string for placement in modeline by `vc-mode-line' for FILE.
-   Format:
-
-     \"BACKEND-REV\"        if the file is up-to-date
-     \"BACKEND:REV\"        if the file is edited (or locked by the calling user)
-     \"BACKEND:LOCKER:REV\" if the file is locked by somebody else
-     \"BACKEND@REV\"        if the file was locally added
-     \"BACKEND!REV\"        if the file contains conflicts or was removed
-     \"BACKEND?REV\"        if the file is under VC, but is missing
-
-   This function assumes that the file is registered."
-        (let* ((backend-name (symbol-name backend))
-               (state   (vc-state file backend))
-               (state-echo nil)
-               (rev     (vc-working-revision file backend)))
-          (if (with-temp-buffer
-                (when (= 0 (call-process "git" nil (current-buffer) nil
-                                         "stash" "list"))
-                  (goto-char (point-min))
-                  (not (eobp))))
-              (setq rev (propertize rev 'face 'custom-invalid))
-            (if (with-temp-buffer
-                  (when (= 0 (call-process "git" nil (current-buffer) nil
-                                           "ls-files" "--modified"))
-                    (goto-char (point-min))
-                    (not (eobp))))
-                (setq rev (propertize rev 'face 'bold))))
-          (propertize
-           (cond ((or (eq state 'up-to-date)
-                      (eq state 'needs-update))
-                  (setq state-echo "Up to date file")
-                  (concat backend-name "-" rev))
-                 ((stringp state)
-                  (setq state-echo (concat "File locked by" state))
-                  (concat backend-name ":" state ":" rev))
-                 ((eq state 'added)
-                  (setq state-echo "Locally added file")
-                  (concat backend-name "@" rev))
-                 ((eq state 'conflict)
-                  (setq state-echo "File contains conflicts after the last merge")
-                  (concat backend-name "!" rev))
-                 ((eq state 'removed)
-                  (setq state-echo "File removed from the VC system")
-                  (concat backend-name "!" rev))
-                 ((eq state 'missing)
-                  (setq state-echo "File tracked by the VC system, but missing from the file system")
-                  (concat backend-name "?" rev))
-                 (t
-                  ;; Not just for the 'edited state, but also a fallback
-                  ;; for all other states.  Think about different symbols
-                  ;; for 'needs-update and 'needs-merge.
-                  (setq state-echo "Locally modified file")
-                  (concat backend-name ":" rev)))
-           'help-echo (concat state-echo " under the " backend-name
-                              " version control system")))))
+   ;;(eval-after-load "vc-hooks"
+   ;;  '(defun vc-default-mode-line-string (backend file)
+   ;;     "Return string for placement in modeline by `vc-mode-line' for FILE.
+   ;;Format:
+   ;;
+   ;;  \"BACKEND-REV\"        if the file is up-to-date
+   ;;  \"BACKEND:REV\"        if the file is edited (or locked by the calling user)
+   ;;  \"BACKEND:LOCKER:REV\" if the file is locked by somebody else
+   ;;  \"BACKEND@REV\"        if the file was locally added
+   ;;  \"BACKEND!REV\"        if the file contains conflicts or was removed
+   ;;  \"BACKEND?REV\"        if the file is under VC, but is missing
+   ;;
+   ;;This function assumes that the file is registered."
+   ;;     (let* ((backend-name (symbol-name backend))
+   ;;            (state   (vc-state file backend))
+   ;;            (state-echo nil)
+   ;;            (rev     (vc-working-revision file backend)))
+   ;;       (if (with-temp-buffer
+   ;;             (when (= 0 (call-process "git" nil (current-buffer) nil
+   ;;                                      "stash" "list"))
+   ;;               (goto-char (point-min))
+   ;;               (not (eobp))))
+   ;;           (setq rev (propertize rev 'face 'custom-invalid))
+   ;;         (if (with-temp-buffer
+   ;;               (when (= 0 (call-process "git" nil (current-buffer) nil
+   ;;                                        "ls-files" "--modified"))
+   ;;                 (goto-char (point-min))
+   ;;                 (not (eobp))))
+   ;;             (setq rev (propertize rev 'face 'bold))))
+   ;;       (propertize
+   ;;        (cond ((or (eq state 'up-to-date)
+   ;;                   (eq state 'needs-update))
+   ;;               (setq state-echo "Up to date file")
+   ;;               (concat backend-name "-" rev))
+   ;;              ((stringp state)
+   ;;               (setq state-echo (concat "File locked by" state))
+   ;;               (concat backend-name ":" state ":" rev))
+   ;;              ((eq state 'added)
+   ;;               (setq state-echo "Locally added file")
+   ;;               (concat backend-name "@" rev))
+   ;;              ((eq state 'conflict)
+   ;;               (setq state-echo "File contains conflicts after the last merge")
+   ;;               (concat backend-name "!" rev))
+   ;;              ((eq state 'removed)
+   ;;               (setq state-echo "File removed from the VC system")
+   ;;               (concat backend-name "!" rev))
+   ;;              ((eq state 'missing)
+   ;;               (setq state-echo "File tracked by the VC system, but missing from the file system")
+   ;;               (concat backend-name "?" rev))
+   ;;              (t
+   ;;               ;; Not just for the 'edited state, but also a fallback
+   ;;               ;; for all other states.  Think about different symbols
+   ;;               ;; for 'needs-update and 'needs-merge.
+   ;;               (setq state-echo "Locally modified file")
+   ;;               (concat backend-name ":" rev)))
+   ;;        'help-echo (concat state-echo " under the " backend-name
+   ;;                           " version control system")))))
 
    ;;;_ + vkill
 
