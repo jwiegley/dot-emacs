@@ -200,13 +200,21 @@ This is my .emacs file, literate-style.
    (defun irc ()
      (interactive)
      (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
-          (cdr (assoc "johnw" (cadr (assq 'freenode erc-nickserv-passwords)))))
+          (funcall (plist-get (car (auth-source-search :host "irc.freenode.net"
+                                                       :user "johnw"
+                                                       :type 'netrc
+                                                       :port 6667))
+                              :secret)))
      (erc :server "irc.oftc.net" :port 6667 :nick "johnw"))
 
    (defun im ()
      (interactive)
      (erc :server "localhost" :port 6667 :nick "johnw" :password
-          (cdr (assoc "johnw" (cadr (assq 'BitlBee erc-nickserv-passwords))))))
+          (funcall (plist-get (car (auth-source-search :host "bitlbee"
+                                                       :user "johnw"
+                                                       :type 'netrc
+                                                       :port 6667))
+                              :secret))))
 
    (defun erc-tiny-frame ()
      (interactive)
