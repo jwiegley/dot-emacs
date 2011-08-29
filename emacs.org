@@ -549,6 +549,7 @@ This is my .emacs file, literate-style.
 
    ;;;_ + w3m
 
+   (eval-when-compile (defvar w3m-command))
    (setq w3m-command "/opt/local/bin/w3m")
 
    ;;;_ + whitespace
@@ -666,6 +667,7 @@ This is my .emacs file, literate-style.
    (define-key global-map [(meta ?j)] 'delete-indentation-forward)
    (define-key global-map [(meta ?J)] 'delete-indentation)
 
+   (defvar lisp-find-map)
    (define-prefix-command 'lisp-find-map)
    (define-key global-map [(control ?h) ?e] 'lisp-find-map)
    (define-key lisp-find-map [?a] 'apropos)
