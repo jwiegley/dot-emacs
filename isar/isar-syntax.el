@@ -216,7 +216,7 @@ Group number 1 matches the identifier possibly with quotes; group number 2
 matches contents of quotes for quoted identifiers.")
 
 (defconst isar-improper-regexp
-  "\\(\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>\\|\\<goal[0-9]+\\>\\|\\<prems\\>\\)"
+  "\\(\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>\\|\\<goal[0-9]+\\>\\)"
   "Regexp matching low-level features")
 
 (defconst isar-save-command-regexp
