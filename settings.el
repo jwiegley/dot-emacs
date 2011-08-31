@@ -383,7 +383,6 @@
  '(smtpmail-smtp-server "mail.johnwiegley.com" t)
  '(smtpmail-smtp-service 587 t)
  '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil))))
- '(special-display-regexps (quote (("\\*compilation\\*" (width . 80) (height . 60)))))
  '(sql-sqlite-program "sqlite3")
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
