@@ -51,8 +51,8 @@
 (mapc #'(lambda (name) (load name t))
       '(
         "archive-region"
-        "bookmark+"
         "browse-kill-ring+"
+        "bookmark"
         "diminish"
         "edit-server"
         "escreen"
@@ -65,6 +65,9 @@
         ))
 
 ;;; ** Drew Adams
+
+(eval-after-load "bookmark"
+  '(require 'bookmark+))
 
 (require 'compile-)
 (setq compilation-message-face nil)
@@ -720,6 +723,9 @@ If the buffer is currently not visible, makes it sticky."
       (call-interactively (key-binding (kbd "M-TAB")))))
 
 ;;; ** ctl-x
+
+(eval-when-compile
+  (require 'bookmark))
 
 (defun ido-bookmark-jump (bookmark &optional display-func)
   (interactive
