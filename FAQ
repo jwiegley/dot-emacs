@@ -33,17 +33,28 @@ A1. We distribute compiled .elcs for one version of Emacs, but other
 
 Q2. Emacs appears to hang when the prover process is started.
 
-A2. This is usually caused by UTF-8 support in recent linuxes with
-    Glibc 2.2 or later, probably enabled with UTF8 encoded output in
-    your default locale.  Unfortunately Proof General traditionally
-    relied on 8-bit characters which are UTF8 prefixes in the output of
-    proof assistants (inc Coq, Isabelle).  These prefix characters are
-    not flushed to stdout individually.  As a workaround we can disable
-    interpretation of UTF8 in the C libraries.
+A2. One thing is to check the variable 'comint-process-echoes' which
+    might be non-nil for the *coq* (or other prover) buffer.  It
+    should be nil.
 
-    Doing this inside Proof General is unreliable; locale settings are
-    set/inherited in strange ways.  One solution is to run the Emacs
-    process itself with an altered locale setting, e.g., 
+    The default value of comint-process-echoes is nil.  Move any
+    modifications of this variable away from the top level (e.g.,
+    .emacs file, which affects the *coq*-buffer), and down to the
+    mode-hooks which require them (e.g. shell-mode-hook).  The
+    variable might also have been set by Customize, it can be reset
+    with M-x customize-variable RET comint-process-echoes RET.
+
+    A reason with older versions of Isabelle and Coq (before 2007) was
+    the emergence of UTF-8 support in linuxes with Glibc 2.2 and
+    later, enabled with UTF8 encoded output in your default locale.
+    Proof General used on 8-bit characters which are UTF8 prefixes in
+    the output of proof assistants.  These prefix characters were not
+    flushed to stdout individually.  
+
+     As a workaround we can disable interpretation of UTF8 in the C
+    libraries.  Doing this inside Proof General is unreliable; locale
+    settings are set/inherited in strange ways.  One solution is to
+    run the Emacs process itself with an altered locale setting, e.g.,
 
     $  LC_CTYPE=en_GB xemacs &
 
@@ -52,14 +63,13 @@ A2. This is usually caused by UTF-8 support in recent linuxes with
      the prompt).
 
     (This fix is attempted in the supplied "proofgeneral" script, as
-     well as making an adjustment in Proof General when the string UTF
-     appears in the current value of LC_CTYPE).
+    well as making an adjustment in Proof General when the string UTF
+    appears in the current value of LC_CTYPE.  Alternatively you can
+    set LC_CTYPE inside a file ~/.i18n, which will be read the shell.
+    Put a line such as "LC_CTYPE=en_GB" into this file.  However, this
+    action will affect all applications.
 
-    Alternatively you can set LC_CTYPE inside a file ~/.i18n, which will
-    be read the shell.  Put a line such as "LC_CTYPE=en_GB" into this file.
-    However, this action will affect all applications.
-
-    NB: a related issue is warnings from x-symbol: "Emacs language 
+    NB: a related issue is warnings from X-Symbol: "Emacs language 
     environment and system locale specify different encoding, I'll 
     assume `iso-8859-1'".  This warning appears to be mostly harmless.
     Notice that the variable `buffer-file-coding-system' may determine
@@ -71,8 +81,6 @@ A2. This is usually caused by UTF-8 support in recent linuxes with
       (prefer-coding-system 'ctext)
 
     but I haven't tried this.
-
-    ** Update for PG 3.7 **
 
     The above fixes should not be necessary with most recent prover
     versions.  Isabelle 2007 has a "Unicode-safe" interaction mode,
