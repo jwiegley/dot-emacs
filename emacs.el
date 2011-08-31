@@ -1,11 +1,11 @@
+;;; emacs.el
+
 ;; Set the *Message* log to something higher
 
 (setq message-log-max 8192)
 
 ;; Bootstrap the load-path, autoloads and el-get
 
-(require 'autoloads)
-(require 'cus-load)
 ;;(require 'initsplit)
 
 (require 'recentf)
@@ -2952,3 +2952,5 @@ end with a slash."
 
 (eval-after-load "w3m"
   '(define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser))
+
+;;; emacs.el ends here

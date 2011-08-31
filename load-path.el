@@ -1,4 +1,4 @@
-;;;_* initial packages
+;;; load-path.el
 
 (defconst user-lisp-directory
   (expand-file-name "lisp/" user-emacs-directory))
@@ -50,6 +50,9 @@
         load-path (delete (file-name-as-directory path) load-path))
 
   (add-to-list 'load-path path))
+
+(require 'autoloads)
+(require 'cus-load)
 
 (provide 'load-path)
 
