@@ -176,8 +176,12 @@
 
 ;;; ** erc
 
+(eval-when-compile
+  (require 'auth-source))
+
 (defun irc ()
   (interactive)
+  (require 'auth-source)
   (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
        (funcall (plist-get (car (auth-source-search :host "irc.freenode.net"
                                                     :user "johnw"
@@ -188,6 +192,7 @@
 
 (defun im ()
   (interactive)
+  (require 'auth-source)
   (erc :server "localhost" :port 6667 :nick "johnw" :password
        (funcall (plist-get (car (auth-source-search :host "bitlbee"
                                                     :user "johnw"
