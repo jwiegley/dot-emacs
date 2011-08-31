@@ -143,6 +143,7 @@
  '(gnus-group-line-format "%S%p%P%5y%5T: %(%G%)
 ")
  '(gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode)))
+ '(gnus-group-use-permanent-levels t)
  '(gnus-home-directory "~/Library/Mail/Gnus/")
  '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|boostpro\\)\\.com\\)")
  '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
