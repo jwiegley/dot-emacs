@@ -2611,6 +2611,8 @@ end tell" (match-string 1))))
   (message "Offlineimap stopped"))
 
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-offlineimap)
+(add-hook 'gnus-agent-plugged-hook 'start-offlineimap)
+(add-hook 'gnus-agent-unplugged-hook 'shutdown-offlineimap)
 
 (add-hook 'gnus-summary-mode-hook
           (lambda ()
