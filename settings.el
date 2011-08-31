@@ -196,7 +196,7 @@
  '(gnus-use-cache t)
  '(gnus-use-trees t)
  '(grep-command "grep -nH -e")
- '(grep-find-command (quote ("find . -type f -print0 | xargs -0 egrep -nH -e " . 48)))
+ '(grep-find-command (quote ("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52)))
  '(grepp-default-regexp-fn nil)
  '(haskell-check-command "~/.cabal/bin/hlint")
  '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan my-haskell-mode-hook)))
