@@ -5,6 +5,8 @@
 
    Note:
     Unicode Tokens mode works much better in Emacs 23 than 22.
+
+   jEdit properties :tabSize=8:indentSize=8:noTabs=false:
 *)
 
 theory TokensAcid imports Main 
