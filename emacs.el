@@ -884,9 +884,10 @@ If the buffer is currently not visible, makes it sticky."
 (defun find-grep-in-project (command-args)
   (interactive
    (progn
-     (list (read-shell-command "Run find (like this): "
-                               '("git ls-files -z | xargs -0 egrep -nH -e " . 41)
-                               'grep-find-history))))
+     (list (read-shell-command
+            "Run find (like this): "
+            '("git ls-files -z | xargs -P4 -0 egrep -nH -e " . 45)
+            'grep-find-history))))
   (when command-args
     (let ((null-device nil))            ; see grep
       (grep command-args))))
@@ -2750,17 +2751,17 @@ This moves them into the Spam folder."
 
 (add-hook 'message-send-hook 'my-set-smtp-server)
 
-;;; ** Determine layout of the summary windows
+;;;  - Determine layout of the summary windows
 
 (gnus-add-configuration
-      '(article
-        (vertical 1.0
-                  (horizontal 0.25
-                              (summary 0.75 point)
-                              (tree 1.0))
-                  (article 1.0))))
+ '(article
+   (vertical 1.0
+             (horizontal 0.25
+                         (summary 0.75 point)
+                         (tree 1.0))
+             (article 1.0))))
 
-;;; ** Cleanup all Gnus buffers on exit
+;;;  - Cleanup all Gnus buffers on exit
 
 (defun exit-gnus-on-exit ()
   (if (and (fboundp 'gnus-group-exit)
