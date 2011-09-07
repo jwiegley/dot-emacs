@@ -1,0 +1,16 @@
+(1 .  ; version number
+
+ (((22 0) .
+   ((erc . [(5 2) nil "An Emacs Internet Relay Chat client"])
+    ;; The external URL is version 1.15, so make sure the built-in one
+    ;; looks newer.
+    (url . [(1 16) nil "URL handling libary"])))
+  ((23 0) .
+   (;; Strangely, nxml-version is missing in Emacs 23.
+    ;; We pick the merge date as the version.
+    (nxml . [(20071123) nil "Major mode for editing XML documents."])
+    (bubbles . [(0 5) nil "Puzzle game for Emacs."])
+    (ruby-mode . [(1 0)
+	     nil "Major mode for editing Ruby files" single])
+    ))))
+
