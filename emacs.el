@@ -1781,7 +1781,9 @@ If the buffer is currently not visible, makes it sticky."
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indent-tabs-mode nil)
 
-  ;;(define-key python-mode-map [return] 'python-newline-and-indent)
+  (define-key py-mode-map [(control ?c) (control ?z)] 'python-shell)
+
+  ;;(define-key py-mode-map [return] 'python-newline-and-indent)
   ;;
   ;;(define-key python-mode-map [(control ?c) ?w]
   ;;  'flymake-display-err-menu-for-current-line)
