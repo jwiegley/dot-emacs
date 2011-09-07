@@ -1,5 +1,8 @@
 ;;; emacs.el
 
+(eval-when-compile
+ (require 'cl))
+
 ;; Set the *Message* log to something higher
 
 (setq message-log-max 8192)
