@@ -405,7 +405,7 @@
  '(user-initials "jww")
  '(user-mail-address "jwiegley@gmail.com")
  '(vc-follow-symlinks t)
- '(vc-handled-backends (quote (Git Bzr Hg)))
+ '(vc-handled-backends nil)
  '(version-control t)
  '(visible-bell t)
  '(w3m-use-cookies t)
