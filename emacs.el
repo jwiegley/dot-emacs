@@ -2976,5 +2976,11 @@ end with a slash."
 
 (eval-after-load "w3m"
   '(define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser))
+
+;; Local Variables:
+;;   mode: emacs-lisp
+;;   mode: outline-minor
+;;   outline-regexp: "\\(\f\\|;;; \\(\\*+\\| +[-+]\\)\\)"
+;; End:
 
 ;;; emacs.el ends here
