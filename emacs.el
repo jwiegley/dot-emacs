@@ -2268,9 +2268,10 @@ This can be 0 for immediate, or a floating point value.")
   (assert (get-buffer "*Group*"))
   (let (message-id subject)
     (with-current-buffer gnus-original-article-buffer
-      (nnheader-narrow-to-headers)
-      (setq message-id (substring (message-fetch-field "message-id") 1 -1)
-            subject (message-fetch-field "subject")))
+      (save-restriction
+        (nnheader-narrow-to-headers)
+        (setq message-id (substring (message-fetch-field "message-id") 1 -1)
+              subject (message-fetch-field "subject"))))
     (org-make-link-string (concat "message://" message-id) subject)))
 
 (defun org-insert-message-link ()
@@ -2286,8 +2287,9 @@ This can be 0 for immediate, or a floating point value.")
   (assert (get-buffer "*Group*"))
   (let (message-id subject)
     (with-current-buffer gnus-original-article-buffer
-      (nnheader-narrow-to-headers)
-      (message-fetch-field "from"))))
+      (save-restriction
+        (nnheader-narrow-to-headers)
+        (message-fetch-field "from")))))
 
 (defun org-set-message-sender ()
   "Set a property for the current headline."
@@ -2444,11 +2446,12 @@ end tell" (match-string 1))))
   (if (eq major-mode 'gnus-summary-mode)
       (let (message-id subject)
         (with-current-buffer gnus-original-article-buffer
-          (nnheader-narrow-to-headers)
-          (setq message-id (message-fetch-field "message-id")
-                subject (message-fetch-field "subject")
-                from (message-fetch-field "from")
-                date-sent (message-fetch-field "date")))
+          (save-restriction
+            (nnheader-narrow-to-headers)
+            (setq message-id (message-fetch-field "message-id")
+                  subject (message-fetch-field "subject")
+                  from (message-fetch-field "from")
+                  date-sent (message-fetch-field "date"))))
         (org-capture nil "t")
         (dolist (transform org-subject-transforms)
           (setq subject (replace-regexp-in-string (car transform)
@@ -2667,8 +2670,9 @@ end tell" (match-string 1))))
 
 (defun gnus-current-message-id ()
   (with-current-buffer gnus-original-article-buffer
-    (nnheader-narrow-to-headers)
-    (message-fetch-field "message-id")))
+    (save-restriction
+      (nnheader-narrow-to-headers)
+      (message-fetch-field "message-id"))))
 
 (defun gnus-open-article-in-apple-mail ()
   (interactive)
