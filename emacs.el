@@ -64,6 +64,7 @@
         "per-window-point"
         "pp-c-l"
         "session"
+        "tex-site"
         "yasnippet"
         ))
 
