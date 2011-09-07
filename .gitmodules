@@ -118,3 +118,6 @@
 [submodule "staging"]
 	path = staging
 	url = git://github.com/boostpro/el-staging.git
+[submodule "site-lisp/mo-git-blame"]
+	path = site-lisp/mo-git-blame
+	url = git://github.com/mbunkus/mo-git-blame.git
