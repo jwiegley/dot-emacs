@@ -34,7 +34,7 @@
 
 (load "~/.emacs.d/settings")
 
-;;; ** disabled commands
+;;;  - disabled commands
 
 (put 'downcase-region  'disabled nil)   ; Let upcasing work
 (put 'erase-buffer     'disabled nil)
@@ -46,7 +46,7 @@
 
 ;;; * packages
 
-;;; ** direct loads
+;;;  - direct loads
 
 (mapc #'(lambda (name) (load name t))
       '(
@@ -64,7 +64,7 @@
         "yasnippet"
         ))
 
-;;; ** Drew Adams
+;;;  - Drew Adams
 
 (eval-after-load "bookmark"
   '(require 'bookmark+))
@@ -89,7 +89,7 @@
      (require 'easy-mmode)
      (require 'info+)))
 
-;;; ** anything
+;;;  - anything
 
 (autoload 'descbinds-anything "descbinds-anything" nil t)
 (fset 'describe-bindings 'descbinds-anything)
@@ -99,7 +99,7 @@
      (require 'anything-match-plugin)
      (define-key anything-map [(alt ?v)] 'anything-previous-page)))
 
-;;; ** bbdb
+;;;  - bbdb
 
 (when (load "bbdb-autoloads" t)
   (bbdb-insinuate-w3)
@@ -109,11 +109,11 @@
        (require 'bbdb-to-outlook)
        (require 'bbdb-pgp))))
 
-;;; ** css-mode
+;;;  - css-mode
 
 (add-to-list 'auto-mode-alist '("\\.css$" . css-mode))
 
-;;; ** dired-x
+;;;  - dired-x
 
 (defvar dired-delete-file-orig (symbol-function 'dired-delete-file))
 
@@ -174,7 +174,7 @@
      (define-key dired-mode-map [?l] 'dired-up-directory)
      (define-key dired-mode-map [tab] 'other-window)))
 
-;;; ** erc
+;;;  - erc
 
 (eval-when-compile
   (require 'auth-source))
@@ -273,7 +273,7 @@ If the buffer is currently not visible, makes it sticky."
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
 
-;;; ** escreen
+;;;  - escreen
 
 (require 'escreen)
 
@@ -298,7 +298,7 @@ If the buffer is currently not visible, makes it sticky."
 
 (add-hook 'escreen-goto-screen-hook 'escreen-e21-mode-line-update)
 
-;;; ** eshell
+;;;  - eshell
 
 (defun eshell-spawn-external-command (beg end)
    "Parse and expand any history references in current input."
@@ -318,7 +318,7 @@ If the buffer is currently not visible, makes it sticky."
 (eval-after-load "em-unix"
   '(unintern 'eshell/rm))
 
-;;; ** git
+;;;  - git
 
 (defun commit-after-save ()
   (let ((file (file-name-nondirectory (buffer-file-name))))
@@ -344,7 +344,7 @@ If the buffer is currently not visible, makes it sticky."
      (require 'magit-topgit)
      (require 'rebase-mode)))
 
-;;; ** ido
+;;;  - ido
 
 (require 'ido)
 
@@ -379,11 +379,11 @@ If the buffer is currently not visible, makes it sticky."
             (define-key ido-file-completion-map "\C-m"
               'ido-smart-select-text)))
 
-;;; ** modeline-posn
+;;;  - modeline-posn
 
 (size-indication-mode)
 
-;;; ** mule
+;;;  - mule
 
 (prefer-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
@@ -403,7 +403,7 @@ If the buffer is currently not visible, makes it sticky."
   (let ((require-final-newline t))
     (save-buffer)))
 
-;;; ** nroff-mode
+;;;  - nroff-mode
 
 (defun update-nroff-timestamp ()
   (save-excursion
@@ -421,7 +421,7 @@ If the buffer is currently not visible, makes it sticky."
            (lambda ()
              (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
 
-;;; ** org-mode
+;;;  - org-mode
 
 (defun jump-to-org-agenda ()
   (interactive)
@@ -442,19 +442,19 @@ If the buffer is currently not visible, makes it sticky."
 
 (run-with-idle-timer 300 t 'jump-to-org-agenda)
 
-;;; ** per-window-point
+;;;  - per-window-point
 
 (pwp-mode)
 
-;;; ** pp-c-l
+;;;  - pp-c-l
 
 (pretty-control-l-mode 1)
 
-;;; ** puppet-mode
+;;;  - puppet-mode
 
 (add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
 
-;;; ** session
+;;;  - session
 
 (defun save-information ()
   (dolist (func kill-emacs-hook)
@@ -465,7 +465,7 @@ If the buffer is currently not visible, makes it sticky."
 
 (run-with-idle-timer 300 t 'save-information)
 
-;;; ** vc
+;;;  - vc
 
 ;;(eval-after-load "vc-hooks"
 ;;  '(defun vc-default-mode-line-string (backend file)
@@ -525,18 +525,18 @@ If the buffer is currently not visible, makes it sticky."
 ;;        'help-echo (concat state-echo " under the " backend-name
 ;;                           " version control system")))))
 
-;;; ** vkill
+;;;  - vkill
 
 (eval-after-load "vkill"
   '(setq vkill-show-all-processes t))
 
 
-;;; ** w3m
+;;;  - w3m
 
 (eval-when-compile (defvar w3m-command))
 (setq w3m-command "/opt/local/bin/w3m")
 
-;;; ** whitespace
+;;;  - whitespace
 
 (remove-hook 'find-file-hooks 'whitespace-buffer)
 (remove-hook 'kill-buffer-hook 'whitespace-buffer)
@@ -568,12 +568,12 @@ If the buffer is currently not visible, makes it sticky."
                     (ignore (whitespace-cleanup))) nil t)
       (whitespace-cleanup))))
 
-;;; ** yasnippet
+;;;  - yasnippet
 
 (yas/initialize)
 (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
 
-;;; ** diminish (this must come last)
+;;;  - diminish (this must come last)
 
 (diminish 'abbrev-mode)
 (diminish 'auto-fill-function)
@@ -593,7 +593,7 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;; * keybindings
 
-;;; ** global
+;;;  - global
 
 (define-key global-map [(control meta backspace)] 'backward-kill-sexp)
 (define-key global-map [(control meta delete)]    'backward-kill-sexp)
@@ -727,7 +727,7 @@ If the buffer is currently not visible, makes it sticky."
       (interactive)
       (call-interactively (key-binding (kbd "M-TAB")))))
 
-;;; ** ctl-x
+;;;  - ctl-x
 
 (eval-when-compile
   (require 'bookmark))
@@ -847,7 +847,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key ctl-x-map [(control ?z)] 'eshell-toggle)
 (define-key ctl-x-map [(meta ?z)] 'shell-toggle)
 
-;;; ** mode-specific
+;;;  - mode-specific
 
 (define-key mode-specific-map [tab] 'ff-find-other-file)
 
@@ -1134,7 +1134,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key mode-specific-map [?=]  'count-matches)
 (define-key mode-specific-map [?\;] 'comment-or-uncomment-region)
 
-;;; ** breadcrumb
+;;;  - breadcrumb
 
 (define-key global-map [(alt ?m)] 'bc-set)
 (define-key global-map [(alt ?p)] 'bc-previous)
@@ -1144,12 +1144,12 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(alt ?g)] 'bc-goto-current)
 (define-key global-map [(alt ?l)] 'bc-list)
 
-;;; ** footnote
+;;;  - footnote
 
 (eval-after-load "footnote"
   '(define-key footnote-mode-map "#" 'redo-footnotes))
 
-;;; ** isearch-mode
+;;;  - isearch-mode
 
 (eval-after-load "isearch"
   '(progn
@@ -1158,7 +1158,7 @@ If the buffer is currently not visible, makes it sticky."
      (define-key isearch-mode-map [(control ?^)] 'isearch-edit-string)
      (define-key isearch-mode-map [(control ?i)] 'isearch-complete)))
 
-;;; ** mail-mode
+;;;  - mail-mode
 
 (eval-after-load "sendmail"
   '(progn
@@ -1469,7 +1469,7 @@ If the buffer is currently not visible, makes it sticky."
         (c-special-indent-hook . c-gnu-impose-minimum)
         (c-block-comment-prefix . "")))))
 
-;;; ** ulp
+;;;  - ulp
 
 (defun ulp ()
   (interactive)
@@ -1501,7 +1501,7 @@ If the buffer is currently not visible, makes it sticky."
      (require 'inf-haskell)
      (require 'hs-lint)))
 
-;;; ** ansicl
+;;;  - ansicl
 
 (require 'info-look)
 
@@ -1520,16 +1520,16 @@ If the buffer is currently not visible, makes it sticky."
   (if (> (length (window-list)) 1)
       (delete-window)))
 
-;;; ** cldoc
+;;;  - cldoc
 
 (autoload 'turn-on-cldoc-mode "cldoc" nil t)
 
-;;; ** eldoc
+;;;  - eldoc
 
 (eval-after-load "eldoc"
   '(diminish 'eldoc-mode))
 
-;;; ** elint
+;;;  - elint
 
 (defun elint-current-buffer ()
   (interactive)
@@ -1544,14 +1544,14 @@ If the buffer is currently not visible, makes it sticky."
      (add-to-list 'elint-standard-variables 'emacs-major-version)
      (add-to-list 'elint-standard-variables 'window-system)))
 
-;;; ** highlight-parentheses
+;;;  - highlight-parentheses
 
 (autoload 'highlight-parentheses-mode "highlight-parentheses")
 
 (eval-after-load "highlight-parentheses"
   '(diminish 'highlight-parentheses-mode))
 
-;;; ** paredit
+;;;  - paredit
 
 (autoload 'paredit-mode "paredit"
   "Minor mode for pseudo-structurally editing Lisp code." t)
@@ -1559,7 +1559,7 @@ If the buffer is currently not visible, makes it sticky."
 (eval-after-load "paredit"
   '(diminish 'paredit-mode))
 
-;;; ** redhank
+;;;  - redhank
 
 (autoload 'redshank-mode "redshank"
   "Minor mode for restructuring Lisp code (i.e., refactoring)." t)
@@ -1567,7 +1567,7 @@ If the buffer is currently not visible, makes it sticky."
 (eval-after-load "redshank"
   '(diminish 'redshank-mode))
 
-;;; ** lisp
+;;;  - lisp
 
 (defun format-it ()
   (interactive)
@@ -1606,7 +1606,7 @@ If the buffer is currently not visible, makes it sticky."
      (intern (concat (symbol-name x) "-mode"))
      '(("(\\|)" . 'esk-paren-face)))))
 
-;;; ** lisp-mode-hook
+;;;  - lisp-mode-hook
 
 (defun elisp-indent-or-complete (&optional arg)
   (interactive "p")
@@ -1658,7 +1658,7 @@ If the buffer is currently not visible, makes it sticky."
 
 (add-hook 'emacs-lisp-mode-hook (function (lambda () (my-lisp-mode-hook t))))
 
-;;; ** slime
+;;;  - slime
 
 (require 'slime)
 
@@ -1789,7 +1789,7 @@ If the buffer is currently not visible, makes it sticky."
 
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
-;;; ** flymake
+;;;  - flymake
 
 (autoload 'flymake-mode "flymake" "" t)
 
@@ -1816,7 +1816,7 @@ If the buffer is currently not visible, makes it sticky."
      (add-to-list 'flymake-allowed-file-name-masks
                   '("\\.l?hs\\'" flymake-hslint-init))))
 
-;;; ** pymacs
+;;;  - pymacs
 
 ;;(autoload 'pymacs-apply "pymacs")
 ;;(autoload 'pymacs-call "pymacs")
@@ -1835,7 +1835,7 @@ If the buffer is currently not visible, makes it sticky."
 ;;     (setq ropemacs-enable-autoimport t)
 ;;     (setq pymacs-loaded t)))
 
-;;; ** nxml-mode
+;;;  - nxml-mode
 
 ;(autoload 'nxml-mode "rng-auto" "" t)
 
@@ -1847,13 +1847,13 @@ If the buffer is currently not visible, makes it sticky."
 
 (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
 
-;;; ** nxml-mode
+;;;  - nxml-mode
 
 (defun load-nxhtml ()
   (interactive)
   (load "autostart"))
 
-;;; ** zencoding
+;;;  - zencoding
 
 (setq zencoding-mode-keymap (make-sparse-keymap))
 (define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)
@@ -2358,7 +2358,7 @@ end tell" (match-string 1))))
           (lambda ()
             (setq fill-column (- fill-column 5))))
 
-;;; ** howm-mode
+;;;  - howm-mode
 
 (setq howm-view-title-header "*") ;; *BEFORE* loading howm!
 
@@ -2412,7 +2412,7 @@ end tell" (match-string 1))))
 
 ;;; * keybindings
 
-;;; ** global
+;;;  - global
 
 (defvar org-subject-transforms
   '(("\\`\\(Re\\|Fwd\\): "        . "")
@@ -2499,7 +2499,7 @@ end tell" (match-string 1))))
 
 (define-key mode-specific-map [?x ?b] 'ignore)
 
-;;; ** org-mode
+;;;  - org-mode
 
 (eval-after-load "org"
   '(progn
@@ -2520,7 +2520,7 @@ end tell" (match-string 1))))
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
-;;; ** org-agenda-mode
+;;;  - org-agenda-mode
 
 (dolist (map (list org-agenda-keymap org-agenda-mode-map))
   (define-key map "\C-n" 'next-line)
@@ -2761,7 +2761,7 @@ This moves them into the Spam folder."
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
-;;; ** Scoring
+;;;  - Scoring
 
 (eval-when-compile
   (defvar arg))
@@ -2789,7 +2789,7 @@ This moves them into the Spam folder."
                            (get-buffer gnus-summary-buffer)))
               (gnus-summary-exit))))))))
 
-;;; ** Summary line formats
+;;;  - Summary line formats
 
 (defun gnus-user-format-function-Z (header)
   (let ((to (cdr (assq 'To (mail-header-extra header))))
@@ -2874,7 +2874,7 @@ This moves them into the Spam folder."
         (number-to-string tcount)
       " ")))
 
-;;; ** gnus-article-browse-urls
+;;;  - gnus-article-browse-urls
 
 (defun gnus-article-browse-urls ()
   "Visit a URL from the `gnus-article-buffer' by prompting via a
@@ -2929,7 +2929,7 @@ This moves them into the Spam folder."
                 (setq url-list (cons match-string url-list)))))))
     url-list))
 
-;;; ** mairix
+;;;  - mairix
 
 (defun gnus-ivan-mairix-massage (dir)
   "Turn DIR into nndir compatible file.
@@ -2956,7 +2956,7 @@ end with a slash."
 
 ;;; * keybindings
 
-;;; ** gnus-group-score
+;;;  - gnus-group-score
 
 (eval-after-load "gnus-group"
   '(progn
