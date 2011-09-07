@@ -174,6 +174,6 @@ window configuration then `switch-buffer-other-window')"
 	  (split-window-vertically)
 	  (other-window 1)))))
 
-(provide 'esh-toggle)
+(provide 'sh-toggle)
 
-;;; esh-toggle.el ends here
+;;; sh-toggle.el ends here
