@@ -22,62 +22,75 @@
 (mapc #'(lambda (entry)
           (autoload (cdr entry) (car entry) nil t))
       '(
-        ("anything-complete" . anything-apropos)
+        ("anything-complete"  . anything-apropos)
 
-        ("breadcrumb"        . bc-goto-current)
-        ("breadcrumb"        . bc-list)
-        ("breadcrumb"        . bc-local-next)
-        ("breadcrumb"        . bc-local-previous)
-        ("breadcrumb"        . bc-next)
-        ("breadcrumb"        . bc-previous)
-        ("breadcrumb"        . bc-set)
+        ("breadcrumb"         . bc-goto-current)
+        ("breadcrumb"         . bc-list)
+        ("breadcrumb"         . bc-local-next)
+        ("breadcrumb"         . bc-local-previous)
+        ("breadcrumb"         . bc-next)
+        ("breadcrumb"         . bc-previous)
+        ("breadcrumb"         . bc-set)
 
-        ("css-mode"          . css-mode)
+        ("cmake-mode"         . cmake-mode)
 
-        ("el-get"            . el-get-emacswiki-refresh)
-        ("el-get"            . el-get-install)
-        ("el-get"            . el-get-list-packages)
-        ("el-get"            . el-get-remove)
-        ("el-get"            . el-get-self-update)
-        ("el-get"            . el-get-update)
-        ("el-get"            . el-get-update-all)
+        ("css-mode"           . css-mode)
 
-        ("ess-site"          . R)
+        ("descbinds-anything" . descbinds-anything)
 
-        ("eval-expr"         . eval-expr)
+        ("doxymacs"           . doxymacs-mode)
+        ("doxymacs"           . doxymacs-font-lock)
 
-        ("filladapt"         . turn-on-filladapt-mode)
+        ("el-get"             . el-get-emacswiki-refresh)
+        ("el-get"             . el-get-install)
+        ("el-get"             . el-get-list-packages)
+        ("el-get"             . el-get-remove)
+        ("el-get"             . el-get-self-update)
+        ("el-get"             . el-get-update)
+        ("el-get"             . el-get-update-all)
 
-        ("fm"                . fm-start)
+        ("ess-site"           . R)
 
-        ("indirect"          . indirect-region)
+        ("eval-expr"          . eval-expr)
 
-        ("ldg-new"           . ledger-mode)
+        ("filladapt"          . turn-on-filladapt-mode)
 
-        ("puppet-mode"       . puppet-mode)
+        ("fm"                 . fm-start)
 
-        ("repeat-insert"     . insert-patterned)
-        ("repeat-insert"     . insert-patterned-2)
-        ("repeat-insert"     . insert-patterned-3)
-        ("repeat-insert"     . insert-patterned-4)
+        ("gnus-dired"         . gnus-dired-mode)
 
-        ("session"           . session-save-session)
+        ("indirect"           . indirect-region)
 
-        ("tex-site"          . latex-mode)
-        ("tex-site"          . texinfo-mode)
+        ("ldg-new"            . ledger-mode)
 
-        ("vkill"             . list-unix-processes)
-        ("vkill"             . vkill)
+        ("paredit"            . paredit-mode)
 
-        ("wcount"            . wcount-mode)
+        ("puppet-mode"        . puppet-mode)
 
-        ("whitespace"        . whitespace-cleanup)
+        ("redshank"           . redshank-mode)
 
-        ("yaoddmuse"         . yaoddmuse-edit-default)
-        ("yaoddmuse"         . yaoddmuse-browse-page-default)
-        ("yaoddmuse"         . yaoddmuse-post-library-default)
+        ("repeat-insert"      . insert-patterned)
+        ("repeat-insert"      . insert-patterned-2)
+        ("repeat-insert"      . insert-patterned-3)
+        ("repeat-insert"      . insert-patterned-4)
+
+        ("session"            . session-save-session)
+
+        ("tex-site"           . latex-mode)
+        ("tex-site"           . texinfo-mode)
+
+        ("vkill"              . list-unix-processes)
+        ("vkill"              . vkill)
+
+        ("wcount"             . wcount-mode)
+
+        ("whitespace"         . whitespace-cleanup)
+
+        ("yaoddmuse"          . yaoddmuse-edit-default)
+        ("yaoddmuse"          . yaoddmuse-browse-page-default)
+        ("yaoddmuse"          . yaoddmuse-post-library-default)
         ))
 
 (provide 'autoloads)
 
-;;; Generated autoloads follow -- DO NOT EDIT
+;;; Generated autoloads follow -- DO NOT EDIT  -*- emacs-lisp -*-
