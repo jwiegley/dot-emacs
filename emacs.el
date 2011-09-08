@@ -614,6 +614,9 @@ If the buffer is currently not visible, makes it sticky."
        (call-interactively 'indent-according-to-mode)
      (call-interactively 'company-complete-common))))
 
+(eval-when-compile
+  (defvar c-mode-base-map))
+
 (defun my-c-mode-common-hook ()
   ;;(gtags-mode 1)
   (company-mode 1)
@@ -1145,6 +1148,9 @@ If the buffer is currently not visible, makes it sticky."
       interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))
 
+(eval-when-compile
+  (defvar py-mode-map))
+
 (defun my-python-mode-hook ()
   (setq indicate-empty-lines t)
   (set (make-local-variable 'parens-require-spaces) nil)
@@ -1183,6 +1189,9 @@ If the buffer is currently not visible, makes it sticky."
 ;;;   - nxml-mode
 
 (defalias 'xml-mode 'nxml-mode)
+
+(eval-when-compile
+  (defvar nxml-mode-map))
 
 (defun my-nxml-mode-hook ()
   (define-key nxml-mode-map [return] 'newline-and-indent)
