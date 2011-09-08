@@ -362,6 +362,7 @@
  '(ps-line-number-font-size 10)
  '(ps-print-color-p nil)
  '(read-buffer-function (quote ido-read-buffer))
+ '(recentf-auto-cleanup (quote never))
  '(recentf-exclude (quote ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:")))
  '(recentf-max-saved-items 200)
  '(recentf-mode t)
