@@ -4037,7 +4037,7 @@ The compilation feature does currently not support ML modules.
 
 The current version works reliably, even when stress-tested with
 changing random files in large Coq projects. However, some
-features have spared for the next release, @ref{Current
+features have been spared for the next release, @ref{Current
 Limitations}.
 
 To enable the automatic compilation feature there are three
@@ -4116,7 +4116,7 @@ buffer.
 
 When Proof General compiles itself, output is only shown in case
 of errors. It then appears in the buffer
-@code{*coq-compile-response*}. Both with internal and external
+@code{*coq-compile-response*}. With internal as well as with external
 compilation 
 one can use @code{C-x `} (bound to @code{next-error},
 @inforef{Compilation Mode,,emacs}) to jump to error locations.
@@ -4155,7 +4155,7 @@ Proof General performs dependency checking and compilation
 itself. If an external command is used, Proof General does not see
 all dependencies and can therefore only lock direct ancestors.
 
-Currently locking ancestor files might not exactly do what Coq
+Currently, locking ancestor files might not exactly do what Coq
 users expect. There are two ways around this problem: 
 You can either switch ancestor locking completely off via
 @code{coq-lock-ancestors} (@ref{Customizing Coq Multiple
@@ -4279,13 +4279,11 @@ path of @code{coqdep}.
 Non-standard coq library load path.@*
 List of directories to be added to the LoadPath of coqdep, coqc
 and coqtop. Under normal circumstances this list does not need to
-contain "." for the current directory (see
-@samp{@code{coq-load-path-include-current}}) or the coq standard
-library.
+contain the coq standard library or "." for the current
+directory (see @samp{@code{coq-load-path-include-current}}).
 
-For coqdep and coqc these directories are passed via "-I"
-options over the command line. For interactive scripting an
-"Add LoadPath" command is used.
+Elements of this list should be strings, which are passed as
+"-I" options over the command line to coqdep, coqc and coqtop.
 @end defvar
 
 
@@ -4379,6 +4377,8 @@ not been implemented. The following points will hopefully
 addressed in the next release:
 
 @itemize
+@item
+Support directory trees in @code{coq-load-path} (option @code{-R}).
 @item
 Support @code{Declare ML Module} commands.
 @item

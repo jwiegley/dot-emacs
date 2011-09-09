@@ -1326,13 +1326,11 @@ that dependency checking takes noticeable time."
   "Non-standard coq library load path.
 List of directories to be added to the LoadPath of coqdep, coqc
 and coqtop. Under normal circumstances this list does not need to
-contain \".\" for the current directory (see
-`coq-load-path-include-current') or the coq standard
-library.
+contain the coq standard library or \".\" for the current
+directory (see `coq-load-path-include-current').
 
-For coqdep and coqc these directories are passed via \"-I\"
-options over the command line. For interactive scripting an
-\"Add LoadPath\" command is used."
+Elements of this list should be strings, which are passed as
+\"-I\" options over the command line to coqdep, coqc and coqtop."
   :type '(repeat string)
   :safe '(lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
