@@ -42,6 +42,7 @@
                      ;; Packages located elsewhere on the system...
                      "/opt/local/share/emacs/site-lisp/"
                      "/opt/local/share/doc/git-core/contrib/emacs/"
+                     "/opt/local/share/texmf-texlive-dist/doc/latex/latex2e-help-texinfo"
 
                      "~/src/ledger/lisp/"
                      )))
