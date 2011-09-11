@@ -132,6 +132,22 @@
         ;; System:
         anything-c-source-emacs-process))
 
+;;;   - auctex
+
+(defun texinfo-outline-level ()
+  ;; Calculate level of current texinfo outline heading.
+  (require 'texinfo)
+  (save-excursion
+    (if (bobp)
+        0
+      (forward-char 1)
+      (let* ((word (buffer-substring-no-properties
+                    (point) (progn (forward-word 1) (point))))
+             (entry (assoc word texinfo-section-list)))
+        (if entry
+            (nth 1 entry)
+          5)))))
+
 ;;;   - bbdb
 
 (eval-after-load "bbdb"
