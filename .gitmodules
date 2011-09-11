@@ -124,3 +124,6 @@
 [submodule "site-lisp/boxquote"]
 	path = site-lisp/boxquote
 	url = git://github.com/emacsmirror/boxquote.git
+[submodule "site-lisp/workgroups"]
+	path = site-lisp/workgroups
+	url = git://github.com/tlh/workgroups.el.git
