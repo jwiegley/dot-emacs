@@ -415,6 +415,9 @@
  '(w3m-use-cookies t)
  '(wdired-use-dired-vertical-movement (quote sometimes))
  '(wg-morph-on nil)
+ '(wg-prefix-key "")
+ '(wg-query-for-save-on-emacs-exit nil)
+ '(wg-query-for-save-on-workgroups-mode-exit nil)
  '(whitespace-action (quote (auto-cleanup)))
  '(whitespace-auto-cleanup t)
  '(whitespace-global-modes nil)
