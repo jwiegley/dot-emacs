@@ -121,3 +121,6 @@
 [submodule "site-lisp/mo-git-blame"]
 	path = site-lisp/mo-git-blame
 	url = git://github.com/mbunkus/mo-git-blame.git
+[submodule "site-lisp/boxquote"]
+	path = site-lisp/boxquote
+	url = git://github.com/emacsmirror/boxquote.git
