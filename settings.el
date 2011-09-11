@@ -151,6 +151,7 @@
  '(gnus-home-directory "~/Library/Mail/Gnus/")
  '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)\\(-[^@]+\\)?@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|boostpro\\)\\.com\\|public\\.gmane\\.org\\)")
  '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
+ '(gnus-interactive-exit (quote quiet))
  '(gnus-large-newsgroup 4000)
  '(gnus-local-domain "boostpro.com")
  '(gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
