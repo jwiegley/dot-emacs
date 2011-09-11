@@ -26,7 +26,7 @@
 
 ;;;   - Load customizations
 
-(setq gnus-home-directory "~/Library/Mail/Gnus/") ; override gnus.el
+(setq gnus-home-directory "~/Library/Mail/Gnus/") ; necessary override
 
 (load "~/.emacs.d/settings")
 
@@ -45,20 +45,24 @@
 (eval-when-compile
   (require 'cl))
 
-(mapc #'load '("archive-region"
-               "browse-kill-ring+"
-               "bookmark"
-               "diminish"
-               "edit-server"
-               "escreen"
-               "modeline-posn"
-               "page-ext"
-               "per-window-point"
-               "pp-c-l"
-               "recentf"
-               "session"
-               "tex-site"
-               "yasnippet"))
+(mapc #'require
+      '(archive-region
+        bbdb-autoloads
+        browse-kill-ring+
+        bookmark
+        diminish
+        edit-server
+        escreen
+        ido
+        info-look
+        modeline-posn
+        page-ext
+        per-window-point
+        pp-c-l
+        recentf
+        session
+        tex-site
+        yasnippet))
 
 ;;; * Packages
 
@@ -96,15 +100,45 @@
      (require 'anything-match-plugin)
      (define-key anything-map [(alt ?v)] 'anything-previous-page)))
 
+(setq anything-sources
+      '(
+        ;; Buffer:
+        anything-c-source-buffers
+        anything-c-source-buffer-not-found
+        anything-c-source-buffers+
+        ;; File:
+        anything-c-source-file-name-history
+        anything-c-source-files-in-current-dir
+        anything-c-source-files-in-current-dir+
+        anything-c-source-file-cache
+        anything-c-source-locate
+        anything-c-source-recentf
+        anything-c-source-ffap-guesser
+        anything-c-source-ffap-line
+        ;; Command:
+        anything-c-source-complex-command-history
+        anything-c-source-extended-command-history
+        anything-c-source-emacs-commands
+        ;; Bookmark:
+        anything-c-source-bookmarks
+        anything-c-source-bookmark-set
+        anything-c-source-bookmarks-ssh
+        anything-c-source-bookmarks-su
+        anything-c-source-bookmarks-local
+        ;; Library:
+        anything-c-source-elisp-library-scan
+        ;; Misc:
+        anything-c-source-google-suggest
+        anything-c-source-mac-spotlight
+        ;; System:
+        anything-c-source-emacs-process))
+
 ;;;   - bbdb
 
-(when (load "bbdb-autoloads" t)
-  (bbdb-insinuate-w3)
-
-  (eval-after-load "bbdb"
-    '(progn
-       (require 'bbdb-to-outlook)
-       (require 'bbdb-pgp))))
+(eval-after-load "bbdb"
+  '(progn
+     (require 'bbdb-to-outlook)
+     (require 'bbdb-pgp)))
 
 ;;;   - css-mode
 
@@ -169,23 +203,30 @@
 (defun irc ()
   (interactive)
   (require 'auth-source)
-  (erc :server "irc.freenode.net" :port 6667 :nick "johnw" :password
-       (funcall (plist-get (car (auth-source-search :host "irc.freenode.net"
-                                                    :user "johnw"
-                                                    :type 'netrc
-                                                    :port 6667))
-                           :secret)))
-  (erc :server "irc.oftc.net" :port 6667 :nick "johnw"))
+  (erc :server "irc.freenode.net"
+       :port 6667
+       :nick "johnw"
+       :password (funcall
+                  (plist-get
+                   (car (auth-source-search :host "irc.freenode.net"
+                                            :user "johnw"
+                                            :type 'netrc
+                                            :port 6667))
+                   :secret))))
 
 (defun im ()
   (interactive)
   (require 'auth-source)
-  (erc :server "localhost" :port 6667 :nick "johnw" :password
-       (funcall (plist-get (car (auth-source-search :host "bitlbee"
-                                                    :user "johnw"
-                                                    :type 'netrc
-                                                    :port 6667))
-                           :secret))))
+  (erc :server "localhost"
+       :port 6667
+       :nick "johnw"
+       :password (funcall
+                  (plist-get
+                   (car (auth-source-search :host "bitlbee"
+                                            :user "johnw"
+                                            :type 'netrc
+                                            :port 6667))
+                   :secret))))
 
 (defun erc-tiny-frame ()
   (interactive)
@@ -209,11 +250,9 @@
 
 (defcustom erc-growl-noise-regexp
   "\\(Logging in:\\|Signing off\\|You're now away\\|Welcome back\\)"
-  "Regexp that matches BitlBee users you want active notification for."
+  "This regexp matches unwanted noise."
   :type 'regexp
   :group 'erc)
-
-(require 'alert)
 
 ;; Unless the user has recently typed in the ERC buffer, highlight the fringe
 (alert-add-rule :status   '(buried visible idle)
@@ -262,28 +301,22 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;   - escreen
 
-(require 'escreen)
-
 (escreen-install)
 
 (define-key escreen-map "\\" 'toggle-input-method)
 
-(defvar escreen-e21-mode-line-string "[0]")
-(defun escreen-e21-mode-line-update ()
-  (setq escreen-e21-mode-line-string
+(defvar my-escreen-mode-line-string "[0]")
+(defun my-escreen-mode-line-update ()
+  (setq my-escreen-mode-line-string
         (format "[%d]" escreen-current-screen-number))
   (force-mode-line-update))
 
-(let ((point (or
-              ;; GNU Emacs 21.3.50 or later
-              (memq 'mode-line-position mode-line-format)
-              ;; GNU Emacs 21.3.1
-              (memq 'mode-line-buffer-identification mode-line-format)))
-      (escreen-mode-line-elm '(t (" " escreen-e21-mode-line-string))))
-  (when (null (member escreen-mode-line-elm mode-line-format))
+(let ((point (memq 'mode-line-position mode-line-format))
+      (escreen-mode-line-elm '(t (" " my-escreen-mode-line-string))))
+  (unless (member escreen-mode-line-elm mode-line-format)
     (setcdr point (cons escreen-mode-line-elm (cdr point)))))
 
-(add-hook 'escreen-goto-screen-hook 'escreen-e21-mode-line-update)
+(add-hook 'escreen-goto-screen-hook 'my-escreen-mode-line-update)
 
 ;;;   - eshell
 
@@ -307,24 +340,15 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;   - git
 
-(defun commit-after-save ()
-  (let ((file (file-name-nondirectory (buffer-file-name))))
-    (message "Committing changes to Git...")
-    (if (call-process "git" nil nil nil "add" file)
-        (if (call-process "git" nil nil nil "commit" "-m"
-                          (concat "changes to " file))
-            (message "Committed changes to %s" file)))))
-
 (setenv "GIT_PAGER" "")
 
 (add-hook 'magit-log-edit-mode-hook
-          (function
-           (lambda ()
-             (set-fill-column 72)
-             (column-number-mode t)
-             (column-marker-1 72)
-             (flyspell-mode)
-             (orgstruct++-mode))))
+          #'(lambda ()
+              (set-fill-column 72)
+              (column-marker-1 72)
+              (flyspell-mode)
+              (orgstruct++-mode)
+              (turn-on-filladapt-mode)))
 
 (eval-after-load "magit"
   '(progn
@@ -332,8 +356,6 @@ If the buffer is currently not visible, makes it sticky."
      (require 'rebase-mode)))
 
 ;;;   - ido
-
-(require 'ido)
 
 (eval-when-compile
   (defvar ido-require-match)
@@ -386,14 +408,13 @@ If the buffer is currently not visible, makes it sticky."
 (defun normalize-file ()
   (interactive)
   (goto-char (point-min))
-  (delete-trailing-whitespace)
+  (whitespace-cleanup)
   (set-buffer-file-coding-system 'unix)
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward "\r$" nil t)
       (replace-match "")))
   (set-buffer-file-coding-system 'utf-8)
-  (untabify (point-min) (point-max))
   (let ((require-final-newline t))
     (save-buffer)))
 
@@ -414,27 +435,6 @@ If the buffer is currently not visible, makes it sticky."
           (function
            (lambda ()
              (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
-
-;;;   - org-mode
-
-(defun jump-to-org-agenda ()
-  (interactive)
-  (let ((buf (get-buffer "*Org Agenda*"))
-        wind)
-    (if buf
-        (if (setq wind (get-buffer-window buf))
-            (when (called-interactively-p 'any)
-              (select-window wind)
-              (org-fit-window-to-buffer))
-          (if (called-interactively-p 'any)
-              (progn
-                (select-window (display-buffer buf t t))
-                (org-fit-window-to-buffer))
-            (with-selected-window (display-buffer buf)
-              (org-fit-window-to-buffer))))
-      (call-interactively 'org-agenda-list))))
-
-(run-with-idle-timer 300 t 'jump-to-org-agenda)
 
 ;;;   - per-window-point
 
@@ -459,83 +459,22 @@ If the buffer is currently not visible, makes it sticky."
 
 (run-with-idle-timer 300 t 'save-information)
 
-;;;   - vc
-
-;;(eval-after-load "vc-hooks"
-;;  '(defun vc-default-mode-line-string (backend file)
-;;     "Return string for placement in modeline by `vc-mode-line' for FILE.
-;;Format:
-;;
-;;  \"BACKEND-REV\"        if the file is up-to-date
-;;  \"BACKEND:REV\"        if the file is edited (or locked by the calling user)
-;;  \"BACKEND:LOCKER:REV\" if the file is locked by somebody else
-;;  \"BACKEND@REV\"        if the file was locally added
-;;  \"BACKEND!REV\"        if the file contains conflicts or was removed
-;;  \"BACKEND?REV\"        if the file is under VC, but is missing
-;;
-;;This function assumes that the file is registered."
-;;     (let* ((backend-name (symbol-name backend))
-;;            (state   (vc-state file backend))
-;;            (state-echo nil)
-;;            (rev     (vc-working-revision file backend)))
-;;       (if (with-temp-buffer
-;;             (when (= 0 (call-process "git" nil (current-buffer) nil
-;;                                      "stash" "list"))
-;;               (goto-char (point-min))
-;;               (not (eobp))))
-;;           (setq rev (propertize rev 'face 'custom-invalid))
-;;         (if (with-temp-buffer
-;;               (when (= 0 (call-process "git" nil (current-buffer) nil
-;;                                        "ls-files" "--modified"))
-;;                 (goto-char (point-min))
-;;                 (not (eobp))))
-;;             (setq rev (propertize rev 'face 'bold))))
-;;       (propertize
-;;        (cond ((or (eq state 'up-to-date)
-;;                   (eq state 'needs-update))
-;;               (setq state-echo "Up to date file")
-;;               (concat backend-name "-" rev))
-;;              ((stringp state)
-;;               (setq state-echo (concat "File locked by" state))
-;;               (concat backend-name ":" state ":" rev))
-;;              ((eq state 'added)
-;;               (setq state-echo "Locally added file")
-;;               (concat backend-name "@" rev))
-;;              ((eq state 'conflict)
-;;               (setq state-echo "File contains conflicts after the last merge")
-;;               (concat backend-name "!" rev))
-;;              ((eq state 'removed)
-;;               (setq state-echo "File removed from the VC system")
-;;               (concat backend-name "!" rev))
-;;              ((eq state 'missing)
-;;               (setq state-echo "File tracked by the VC system, but missing from the file system")
-;;               (concat backend-name "?" rev))
-;;              (t
-;;               ;; Not just for the 'edited state, but also a fallback
-;;               ;; for all other states.  Think about different symbols
-;;               ;; for 'needs-update and 'needs-merge.
-;;               (setq state-echo "Locally modified file")
-;;               (concat backend-name ":" rev)))
-;;        'help-echo (concat state-echo " under the " backend-name
-;;                           " version control system")))))
-
 ;;;   - vkill
 
 (eval-after-load "vkill"
   '(setq vkill-show-all-processes t))
 
-
 ;;;   - w3m
 
-(eval-when-compile (defvar w3m-command))
+(eval-when-compile
+  (defvar w3m-command))
+
 (setq w3m-command "/opt/local/bin/w3m")
 
 ;;;   - whitespace
 
 (remove-hook 'find-file-hooks 'whitespace-buffer)
 (remove-hook 'kill-buffer-hook 'whitespace-buffer)
-
-(add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
 
 (defun maybe-turn-on-whitespace ()
   "Depending on the file, maybe turn on `whitespace-mode'."
@@ -562,6 +501,8 @@ If the buffer is currently not visible, makes it sticky."
                     (ignore (whitespace-cleanup))) nil t)
       (whitespace-cleanup))))
 
+(add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
+
 ;;;   - yasnippet
 
 (yas/initialize)
@@ -584,8 +525,8 @@ If the buffer is currently not visible, makes it sticky."
   '(diminish 'filladapt-mode))
 (eval-after-load "winner"
   '(ignore-errors (diminish 'winner-mode)))
-
-;;;   - cc-mode
+
+;;;  * Post initialization
 
 (unless (null window-system)
   (add-hook 'after-init-hook 'emacs-min)
@@ -599,10 +540,15 @@ If the buffer is currently not visible, makes it sticky."
               (org-agenda-list)
               (org-fit-agenda-window)
               (org-resolve-clocks)) t))
+
+;;;  * Programming modes
+
+;;;   - cc-mode
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.m\\'" . c-mode))
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
+
 (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
 (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))
 
@@ -618,21 +564,22 @@ If the buffer is currently not visible, makes it sticky."
   (defvar c-mode-base-map))
 
 (defun my-c-mode-common-hook ()
-  ;;(gtags-mode 1)
   (company-mode 1)
   (which-function-mode 1)
   ;;(doxymacs-mode 1)
   ;;(doxymacs-font-lock)
-  ;;(turn-on-filladapt-mode)
-  ;;(define-key c-mode-base-map [(meta ?.)] 'gtags-find-tag)
+
   (define-key c-mode-base-map [return] 'newline-and-indent)
+
   (set (make-local-variable 'yas/fallback-behavior)
        '(apply my-c-indent-or-complete . nil))
   (define-key c-mode-base-map [tab] 'yas/expand-from-trigger-key)
+
   (define-key c-mode-base-map [(alt tab)] 'company-complete-common)
   (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
   (define-key c-mode-base-map [(control ?c) (control ?i)]
     'c-includes-current-file)
+
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indicate-empty-lines t)
   (setq fill-column 72)
@@ -805,31 +752,6 @@ If the buffer is currently not visible, makes it sticky."
   '(progn
      (add-to-list
       'c-style-alist
-      '("ceg"
-        (c-basic-offset . 3)
-        (c-comment-only-line-offset . (0 . 0))
-        (c-hanging-braces-alist
-         . ((substatement-open before after)
-            (arglist-cont-nonempty)))
-        (c-offsets-alist
-         . ((statement-block-intro . +)
-            (knr-argdecl-intro . 5)
-            (substatement-open . 0)
-            (substatement-label . 0)
-            (label . 0)
-            (statement-case-open . 0)
-            (statement-cont . +)
-            (arglist-intro . c-lineup-arglist-intro-after-paren)
-            (arglist-close . c-lineup-arglist)
-            (inline-open . 0)
-            (brace-list-open . 0)
-            (topmost-intro-cont
-             . (first c-lineup-topmost-intro-cont
-                      c-lineup-gnu-DEFUN-intro-cont))))
-        (c-special-indent-hook . c-gnu-impose-minimum)
-        (c-block-comment-prefix . "")))
-     (add-to-list
-      'c-style-alist
       '("edg"
         (indent-tabs-mode . nil)
         (c-basic-offset . 3)
@@ -855,6 +777,7 @@ If the buffer is currently not visible, makes it sticky."
                       c-lineup-gnu-DEFUN-intro-cont))))
         (c-special-indent-hook . c-gnu-impose-minimum)
         (c-block-comment-prefix . "")))
+
      (add-to-list
       'c-style-alist
       '("ledger"
@@ -894,6 +817,8 @@ If the buffer is currently not visible, makes it sticky."
   (magit-status "~/src/ansi")
   (gdb "gdb --annotate=3 ~/Contracts/TI/bin/acpia470"))
 
+;;;   - haskell-mode
+
 (add-to-list 'auto-mode-alist '("\\.l?hs$" . haskell-mode))
 
 (eval-when-compile
@@ -901,8 +826,6 @@ If the buffer is currently not visible, makes it sticky."
   (defvar haskell-mode-map))
 
 (defun my-haskell-mode-hook ()
-  ;;(flymake-mode)
-
   (setq haskell-saved-check-command haskell-check-command)
 
   (define-key haskell-mode-map [(control ?c) ?w]
@@ -918,8 +841,6 @@ If the buffer is currently not visible, makes it sticky."
      (require 'hs-lint)))
 
 ;;;   - ansicl
-
-(require 'info-look)
 
 (info-lookmore-elisp-cl)
 
@@ -956,11 +877,6 @@ If the buffer is currently not visible, makes it sticky."
      (add-to-list 'elint-standard-variables 'emacs-major-version)
      (add-to-list 'elint-standard-variables 'window-system)))
 
-;;;   - highlight-parentheses
-
-(eval-after-load "highlight-parentheses"
-  '(diminish 'highlight-parentheses-mode))
-
 ;;;   - paredit
 
 (eval-after-load "paredit"
@@ -973,29 +889,6 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;   - lisp
 
-(defun format-it ()
-  (interactive)
-  (let ((sym (thing-at-point 'symbol)))
-    (delete-char (- (length sym)))
-    (insert "(format t \"" sym " = ~S~%\" " sym ")")))
-
-(put 'iterate 'lisp-indent-function 1)
-(put 'mapping 'lisp-indent-function 1)
-(put 'producing 'lisp-indent-function 1)
-
-(mapc (lambda (major-mode)
-        (font-lock-add-keywords
-         major-mode
-         `(("(\\(lambda\\)\\>"
-            (0 (ignore
-                (compose-region (match-beginning 1)
-                                (match-end 1) ?λ)))))))
-      '(emacs-lisp-mode
-        inferior-emacs-lisp-mode
-        lisp-mode
-        inferior-lisp-mode
-        slime-repl-mode))
-
 (defface esk-paren-face
   '((((class color) (background dark))
      (:foreground "grey50"))
@@ -1004,15 +897,23 @@ If the buffer is currently not visible, makes it sticky."
   "Face used to dim parentheses."
   :group 'starter-kit-faces)
 
-(dolist (x '(scheme emacs-lisp lisp clojure))
-  (when window-system
-    (font-lock-add-keywords
-     (intern (concat (symbol-name x) "-mode"))
-     '(("(\\|)" . 'esk-paren-face)))))
+(mapc (lambda (major-mode)
+        (font-lock-add-keywords
+         major-mode
+         `(("(\\(lambda\\)\\>"
+            (0 (ignore
+                (compose-region (match-beginning 1)
+                                (match-end 1) ?λ))))
+           ("(\\|)" . 'esk-paren-face))))
+      '(emacs-lisp-mode
+        inferior-emacs-lisp-mode
+        lisp-mode
+        inferior-lisp-mode
+        slime-repl-mode))
 
 ;;;   - lisp-mode-hook
 
-(defun elisp-indent-or-complete (&optional arg)
+(defun my-elisp-indent-or-complete (&optional arg)
   (interactive "p")
   (call-interactively 'lisp-indent-line)
   (unless (or (looking-back "^\\s-*")
@@ -1020,7 +921,7 @@ If the buffer is currently not visible, makes it sticky."
               (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
     (call-interactively 'lisp-complete-symbol)))
 
-(defun indent-or-complete (&optional arg)
+(defun my-lisp-indent-or-complete (&optional arg)
   (interactive "p")
   (if (or (looking-back "^\\s-*") (bolp))
       (call-interactively 'lisp-indent-line)
@@ -1032,25 +933,41 @@ If the buffer is currently not visible, makes it sticky."
         (progn
           (require 'edebug)
 
-          (setq outline-regexp "\\(\\|;;; \\*+\\)")
           (setq mode-map emacs-lisp-mode-map)
 
+          (define-key mode-map [(control ?c) ?I]
+            (lambda ()
+              (interactive)
+              (anything
+               :prompt "Info about: "
+               :candidate-number-limit 5
+               :sources
+               '(anything-c-source-apropos-emacs-commands
+                 anything-c-source-apropos-emacs-functions
+                 anything-c-source-apropos-emacs-variables
+                 anything-c-source-apropos-emacs-faces
+                 anything-c-source-info-emacs
+                 anything-c-source-info-elisp
+                 anything-c-source-info-gnus
+                 anything-c-source-info-org
+                 anything-c-source-info-cl
+                 anything-c-source-emacs-source-defun))))
+
           (define-key mode-map [(meta return)] 'outline-insert-heading)
-          (define-key mode-map [tab] 'elisp-indent-or-complete)
+          (define-key mode-map [tab] 'my-elisp-indent-or-complete)
           (define-key mode-map [tab] 'yas/expand))
 
       (turn-on-cldoc-mode)
 
       (setq mode-map lisp-mode-map)
 
-      (define-key mode-map [tab] 'indent-or-complete)
+      (define-key mode-map [tab] 'my-lisp-indent-or-complete)
       (define-key mode-map [(meta ?q)] 'slime-reindent-defun)
       (define-key mode-map [(meta ?l)] 'slime-selector))
 
     (auto-fill-mode 1)
     (paredit-mode 1)
     (redshank-mode 1)
-    ;;(highlight-parentheses-mode 1)
 
     (column-marker-1 79)
 
@@ -1062,91 +979,10 @@ If the buffer is currently not visible, makes it sticky."
 
 (add-hook 'emacs-lisp-mode-hook (function (lambda () (my-lisp-mode-hook t))))
 
-;;;   - slime
+;;;   - python-mode
 
-(require 'slime)
-
-(eval-when-compile
-  (defvar slime-repl-mode-map))
-
-(add-hook
- 'slime-load-hook
- #'(lambda ()
-     (slime-setup
-      '(slime-asdf
-        slime-autodoc
-        slime-banner
-        slime-c-p-c
-        slime-editing-commands
-        slime-fancy-inspector
-        slime-fancy
-        slime-fuzzy
-        slime-highlight-edits
-        slime-parse
-        slime-presentation-streams
-        slime-presentations
-        slime-references
-        slime-sbcl-exts
-        slime-package-fu
-        slime-fontifying-fu
-        slime-mdot-fu
-        slime-scratch
-        slime-tramp
-        ;; slime-enclosing-context
-        ;; slime-typeout-frame
-        slime-xref-browser))
-
-     (define-key slime-repl-mode-map [(control return)] 'other-window)
-
-     (define-key slime-mode-map [return] 'paredit-newline)
-     (define-key slime-mode-map [(control ?h) ?F] 'info-lookup-symbol)))
-
-(setq slime-net-coding-system 'utf-8-unix)
-
-(setq slime-lisp-implementations
-      '(
-        (sbcl ("sbcl" "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
-              :init (lambda (port-file _)
-                      (format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
-                              port-file))
-              :coding-system utf-8-unix)
-        (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/lwinit.lisp"))
-        (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp")
-               :coding-system utf-8-unix)))
-
-(setq slime-default-lisp 'sbcl)
-(setq slime-complete-symbol*-fancy t)
-(setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-
-(defun sbcl (&optional arg)
-  (interactive "P")
-  (let ((slime-default-lisp (if arg 'sbcl64 'sbcl))
-        (current-prefix-arg nil))
-    (slime)))
-(defun clisp () (interactive) (let ((slime-default-lisp 'clisp)) (slime)))
-(defun ecl () (interactive) (let ((slime-default-lisp 'ecl)) (slime)))
-
-(defun start-slime ()
-  (interactive)
-  (unless (slime-connected-p)
-    (save-excursion (slime))))
-
-(add-hook 'slime-mode-hook 'start-slime)
-(add-hook 'slime-load-hook #'(lambda () (require 'slime-fancy)))
-(add-hook 'inferior-lisp-mode-hook #'(lambda () (inferior-slime-mode t)))
-
-(eval-after-load "hyperspec"
-  '(progn
-     (setq common-lisp-hyperspec-root
-           "/opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")))
-
-(define-key ctl-x-map [(control ?e)] 'pp-eval-last-sexp)
-
-;;(require 'python)
-
-(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist)
-      interpreter-mode-alist (cons '("python" . python-mode)
-                                   interpreter-mode-alist))
+(add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
+(add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
 (eval-when-compile
   (defvar py-mode-map))
@@ -1161,31 +997,6 @@ If the buffer is currently not visible, makes it sticky."
 
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
-;;;   - flymake
-
-(defun flymake-pylint-init ()
-  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
-         (local-file  (file-relative-name
-                       temp-file
-                       (file-name-directory buffer-file-name))))
-    (list "epylint" (list local-file))))
-
-(defun flymake-hslint-init ()
-  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
-         (local-file  (file-relative-name
-                       temp-file
-                       (file-name-directory buffer-file-name))))
-    (list "hslint" (list local-file))))
-
-(eval-after-load "flymake"
-  '(progn
-     (add-to-list 'flymake-allowed-file-name-masks
-                  '("\\.py\\'" flymake-pylint-init))
-     (add-to-list 'flymake-allowed-file-name-masks
-                  '("\\.l?hs\\'" flymake-hslint-init))))
-
 ;;;   - nxml-mode
 
 (defalias 'xml-mode 'nxml-mode)
@@ -1198,12 +1009,6 @@ If the buffer is currently not visible, makes it sticky."
   (define-key nxml-mode-map [(control return)] 'other-window))
 
 (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
-
-;;;   - nxhtml-mode
-
-(defun load-nxhtml ()
-  (interactive)
-  (load "autostart"))
 
 ;;;   - zencoding
 
@@ -1232,14 +1037,6 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(meta ?/)] 'dabbrev-expand)
 (define-key global-map [(meta ??)] 'anything-dabbrev-expand)
 
-(defun smart-beginning-of-line (&optional arg)
-  (interactive "p")
-  (let ((here (point)))
-    (beginning-of-line-text arg)
-    (if (= here (point))
-        (beginning-of-line arg))))
-
-;;(define-key global-map [(control ?.)] 'smart-beginning-of-line)
 (define-key global-map [(control ?.)] 'ace-jump-mode)
 
 (defun tidy-xml-buffer ()
@@ -1303,8 +1100,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key global-map [(meta ?M)] 'org-inline-note)
 (define-key global-map [(meta ?N)] 'winner-redo)
 (define-key global-map [(meta ?P)] 'winner-undo)
-(define-key global-map [(meta ?T)] 'gtags-find-with-grep)
-;;(define-key global-map [(meta ?T)] 'tags-search)
+(define-key global-map [(meta ?T)] 'tags-search)
 
 (define-key global-map [(meta ?:)] 'pp-eval-expression)
 (define-key global-map [(meta ?\')] 'insert-pair)
@@ -1374,18 +1170,11 @@ If the buffer is currently not visible, makes it sticky."
   (bookmark-maybe-historicize-string bookmark)
   (bookmark--jump-via bookmark (or display-func 'switch-to-buffer)))
 
-(define-key ctl-x-map [?B] 'ido-bookmark-jump)
 (define-key ctl-x-map [?r ?b] 'ido-bookmark-jump)
 
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?g] 'magit-status)
-
-(defun my-gnus-compose-mail ()
-  (interactive)
-  (call-interactively 'compose-mail))
-
-(define-key ctl-x-map [?m] 'my-gnus-compose-mail)
-
+(define-key ctl-x-map [?m] 'compose-mail)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
 
 (defun unfill-paragraph (arg)
@@ -1455,9 +1244,7 @@ If the buffer is currently not visible, makes it sticky."
 (define-key ctl-x-map [(meta ?q)] 'refill-paragraph)
 (define-key mode-specific-map [(meta ?q)] 'unfill-paragraph)
 
-(if (functionp 'ibuffer)
-    (define-key ctl-x-map [(control ?b)] 'ibuffer)
-  (define-key ctl-x-map [(control ?b)] 'list-buffers))
+(define-key ctl-x-map [(control ?b)] 'ibuffer)
 
 (defun duplicate-line ()
   "Duplicate the line containing point."
@@ -1475,6 +1262,7 @@ If the buffer is currently not visible, makes it sticky."
       (insert line-text))))
 
 (define-key ctl-x-map [(control ?d)] 'duplicate-line)
+(define-key ctl-x-map [(control ?e)] 'pp-eval-last-sexp)
 (define-key ctl-x-map [(control ?z)] 'eshell-toggle)
 (define-key ctl-x-map [(meta ?z)] 'shell-toggle)
 
@@ -1816,6 +1604,25 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;(load "org-log" t)
 
+(defun jump-to-org-agenda ()
+  (interactive)
+  (let ((buf (get-buffer "*Org Agenda*"))
+        wind)
+    (if buf
+        (if (setq wind (get-buffer-window buf))
+            (when (called-interactively-p 'any)
+              (select-window wind)
+              (org-fit-window-to-buffer))
+          (if (called-interactively-p 'any)
+              (progn
+                (select-window (display-buffer buf t t))
+                (org-fit-window-to-buffer))
+            (with-selected-window (display-buffer buf)
+              (org-fit-window-to-buffer))))
+      (call-interactively 'org-agenda-list))))
+
+(run-with-idle-timer 300 t 'jump-to-org-agenda)
+
 (defun org-export-tasks ()
   (interactive)
   (let ((index 1))
@@ -1991,7 +1798,8 @@ To use this function, add it to `org-agenda-finalize-hook':
           (re-search-forward "^  :END:")
           (forward-line)
           (goto-char (line-beginning-position))
-          (insert tasks ?\n))))))
+          (if (and tasks (> (length tasks) 0))
+              (insert tasks ?\n)))))))
 
 ;;; Don't sync agendas.org to MobileOrg.  I do this because I only use
 ;;; MobileOrg for recording new tasks on the phone, and never for viewing
@@ -2515,6 +2323,7 @@ end tell" (match-string 1))))
 (require 'gnus)
 (require 'gnus-harvest)
 (require 'starttls)
+(require 'message)
 (require 'pgg)
 
 (gnus-harvest-install 'message-x)
@@ -2613,35 +2422,6 @@ This moves them into the Spam folder."
 
 ;;;   - Summary line format functions
 
-(defun gnus-user-format-function-Z (header)
-  (let ((to (cdr (assq 'To (mail-header-extra header))))
-        (newsgroups (cdr (assq 'Newsgroups (mail-header-extra header))))
-        (mail-parse-charset gnus-newsgroup-charset)
-        (mail-parse-ignored-charsets
-         (with-current-buffer gnus-summary-buffer
-           gnus-newsgroup-ignored-charsets)))
-    (cond
-     ((and to gnus-ignored-from-addresses
-           (string-match gnus-ignored-from-addresses
-                         (mail-header-from header)))
-      (concat "-> "
-              (or (car (funcall gnus-extract-address-components
-                                (funcall
-                                 gnus-decode-encoded-word-function to)))
-                  (funcall gnus-decode-encoded-word-function to))))
-     ((and newsgroups gnus-ignored-from-addresses
-           (string-match gnus-ignored-from-addresses
-                         (mail-header-from header)))
-      (concat "=> " newsgroups))
-     (t
-      (let* ((from (mail-header-from header))
-             (data (condition-case nil
-                       (mail-extract-address-components from)
-                     (error nil)))
-             (name (car data))
-             (net (car (cdr data))))
-        (or name net))))))
-
 (defsubst dot-gnus-tos (time)
   "Convert TIME to a floating point number."
   (+ (* (car time) 65536.0)
@@ -2695,6 +2475,43 @@ This moves them into the Spam folder."
     (if (> tcount 1)
         (number-to-string tcount)
       " ")))
+
+(defun gnus-user-format-function-j (headers)
+  (let ((to (gnus-extra-header 'To headers)))
+    (if (string-match gnus-ignored-from-addresses to)
+        (if (string-match "," to) "~" "»")
+      (if (string-match gnus-ignored-from-addresses
+                        (gnus-extra-header 'Cc headers))
+          "~"
+        " "))))
+
+(defvar gnus-count-recipients-threshold 5
+  "*Number of recipients to consider as large.")
+
+(defun gnus-user-format-function-r (header)
+  "Given a Gnus message header, returns priority mark.
+If I am the only recipient, return \"!\".
+If I am one of a few recipients, but I'm listed in To:, return \"*\".
+If I am one of a few recipients, return \"/\".
+If I am one of many recipients, return \".\".
+Else, return \" \"."
+  (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
+         (cc (or (cdr (assoc 'Cc (mail-header-extra header))) "")))
+    (cond
+     ((string-match gnus-ignored-from-addresses to)
+      (let ((len (length (bbdb-split to ","))))
+        (cond
+         ((and (= len 1) (string= cc "")) "▻")
+         ((= len 1) "►")
+         ((< len gnus-count-recipients-threshold) "»")
+         (t "☀"))))
+     ((string-match gnus-ignored-from-addresses
+                    (concat to ", " cc))
+      (if (< (length (bbdb-split (concat to ", " cc) ","))
+             gnus-count-recipients-threshold)
+          "·"
+        ":"))
+     (t " "))))
 
 ;;;   - Browsing article URLs
 
