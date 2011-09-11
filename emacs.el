@@ -52,7 +52,6 @@
         bookmark
         diminish
         edit-server
-        escreen
         ido
         info-look
         modeline-posn
@@ -299,25 +298,6 @@ If the buffer is currently not visible, makes it sticky."
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
 
-;;;   - escreen
-
-(escreen-install)
-
-(define-key escreen-map "\\" 'toggle-input-method)
-
-(defvar my-escreen-mode-line-string "[0]")
-(defun my-escreen-mode-line-update ()
-  (setq my-escreen-mode-line-string
-        (format "[%d]" escreen-current-screen-number))
-  (force-mode-line-update))
-
-(let ((point (memq 'mode-line-position mode-line-format))
-      (escreen-mode-line-elm '(t (" " my-escreen-mode-line-string))))
-  (unless (member escreen-mode-line-elm mode-line-format)
-    (setcdr point (cons escreen-mode-line-elm (cdr point)))))
-
-(add-hook 'escreen-goto-screen-hook 'my-escreen-mode-line-update)
-
 ;;;   - eshell
 
 (defun eshell-spawn-external-command (beg end)
@@ -502,6 +482,14 @@ If the buffer is currently not visible, makes it sticky."
       (whitespace-cleanup))))
 
 (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
+
+;;;   - workgroups
+
+(workgroups-mode 1)
+
+(define-key wg-map [(control ?\\)] 'wg-switch-to-previous-workgroup)
+
+(diminish 'workgroups-mode)
 
 ;;;   - yasnippet
 

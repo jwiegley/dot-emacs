@@ -86,6 +86,8 @@
 
         ("whitespace"         . whitespace-cleanup)
 
+        ("workgroups"         . workgroups)
+
         ("yaoddmuse"          . yaoddmuse-edit-default)
         ("yaoddmuse"          . yaoddmuse-browse-page-default)
         ("yaoddmuse"          . yaoddmuse-post-library-default)
