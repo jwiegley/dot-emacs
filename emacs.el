@@ -61,6 +61,7 @@
         recentf
         session
         tex-site
+        workgroups
         yasnippet))
 
 ;;; * Packages
@@ -92,6 +93,39 @@
 
 ;;;   - anything
 
+(defvar anything-sources
+  '(
+    ;; Buffer:
+    anything-c-source-buffers
+    anything-c-source-buffer-not-found
+    anything-c-source-buffers+
+    ;; File:
+    anything-c-source-file-name-history
+    anything-c-source-files-in-current-dir
+    anything-c-source-files-in-current-dir+
+    anything-c-source-file-cache
+    anything-c-source-locate
+    anything-c-source-recentf
+    anything-c-source-ffap-guesser
+    anything-c-source-ffap-line
+    ;; Command:
+    anything-c-source-complex-command-history
+    anything-c-source-extended-command-history
+    anything-c-source-emacs-commands
+    ;; Bookmark:
+    anything-c-source-bookmarks
+    anything-c-source-bookmark-set
+    anything-c-source-bookmarks-ssh
+    anything-c-source-bookmarks-su
+    anything-c-source-bookmarks-local
+    ;; Library:
+    anything-c-source-elisp-library-scan
+    ;; Misc:
+    anything-c-source-google-suggest
+    anything-c-source-mac-spotlight
+    ;; System:
+    anything-c-source-emacs-process))
+
 (fset 'describe-bindings 'descbinds-anything)
 
 (eval-after-load "anything"
@@ -99,40 +133,12 @@
      (require 'anything-match-plugin)
      (define-key anything-map [(alt ?v)] 'anything-previous-page)))
 
-(setq anything-sources
-      '(
-        ;; Buffer:
-        anything-c-source-buffers
-        anything-c-source-buffer-not-found
-        anything-c-source-buffers+
-        ;; File:
-        anything-c-source-file-name-history
-        anything-c-source-files-in-current-dir
-        anything-c-source-files-in-current-dir+
-        anything-c-source-file-cache
-        anything-c-source-locate
-        anything-c-source-recentf
-        anything-c-source-ffap-guesser
-        anything-c-source-ffap-line
-        ;; Command:
-        anything-c-source-complex-command-history
-        anything-c-source-extended-command-history
-        anything-c-source-emacs-commands
-        ;; Bookmark:
-        anything-c-source-bookmarks
-        anything-c-source-bookmark-set
-        anything-c-source-bookmarks-ssh
-        anything-c-source-bookmarks-su
-        anything-c-source-bookmarks-local
-        ;; Library:
-        anything-c-source-elisp-library-scan
-        ;; Misc:
-        anything-c-source-google-suggest
-        anything-c-source-mac-spotlight
-        ;; System:
-        anything-c-source-emacs-process))
-
 ;;;   - auctex
+
+(eval-when-compile
+  (defvar texinfo-section-list)
+  (defvar latex-help-cmd-alist)
+  (defvar latex-help-file))
 
 (defun texinfo-outline-level ()
   ;; Calculate level of current texinfo outline heading.
@@ -501,6 +507,9 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;   - workgroups
 
+(eval-when-compile
+  (defvar wg-map))
+
 (workgroups-mode 1)
 
 (define-key wg-map [(control ?\\)] 'wg-switch-to-previous-workgroup)
@@ -651,7 +660,7 @@ If the buffer is currently not visible, makes it sticky."
           (set-fill-column (- 80   ; width of the text
                               6    ; width of "/*  */"
                               leader-width))
-          (goto-char (point-min)) (fill-paragraph)
+          (goto-char (point-min)) (fill-paragraph nil)
           (goto-char (point-min))
           (while (not (eobp))
             (insert (make-string leader-width ? ) "/* ")
@@ -830,6 +839,7 @@ If the buffer is currently not visible, makes it sticky."
 
 (eval-when-compile
   (defvar haskell-check-command)
+  (defvar haskell-saved-check-command)
   (defvar haskell-mode-map))
 
 (defun my-haskell-mode-hook ()
@@ -934,7 +944,14 @@ If the buffer is currently not visible, makes it sticky."
       (call-interactively 'lisp-indent-line)
     (call-interactively 'slime-indent-and-complete-symbol)))
 
+(defvar slime-mode nil)
+
 (defun my-lisp-mode-hook (&optional emacs-lisp-p)
+  (auto-fill-mode 1)
+  (paredit-mode 1)
+  (redshank-mode 1)
+
+  (column-marker-1 79)
   (let (mode-map)
     (if emacs-lisp-p
         (progn
@@ -970,15 +987,7 @@ If the buffer is currently not visible, makes it sticky."
 
       (define-key mode-map [tab] 'my-lisp-indent-or-complete)
       (define-key mode-map [(meta ?q)] 'slime-reindent-defun)
-      (define-key mode-map [(meta ?l)] 'slime-selector))
-
-    (auto-fill-mode 1)
-    (paredit-mode 1)
-    (redshank-mode 1)
-
-    (column-marker-1 79)
-
-    (define-key mode-map [(control ?h) ?F] 'info-lookup-symbol)))
+      (define-key mode-map [(meta ?l)] 'slime-selector))))
 
 (mapc (lambda (hook)
         (add-hook hook 'my-lisp-mode-hook))
@@ -1019,15 +1028,15 @@ If the buffer is currently not visible, makes it sticky."
 
 ;;;   - zencoding
 
-(setq zencoding-mode-keymap (make-sparse-keymap))
+(eval-when-compile
+  (defvar html-mode-map))
+
+(defvar zencoding-mode-keymap (make-sparse-keymap))
 
 (define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)
 
 (add-hook 'nxml-mode-hook 'zencoding-mode)
 (add-hook 'html-mode-hook 'zencoding-mode)
-
-(eval-when-compile
-  (defvar html-mode-map))
 
 (add-hook 'html-mode-hook
           #'(lambda ()
@@ -2106,7 +2115,11 @@ end tell" (match-string 1))))
 
 ;;;   - howm-mode
 
-(setq howm-view-title-header "*") ;; *BEFORE* loading howm!
+(eval-when-compile
+  (defvar howm-template)
+  (defvar howm-directory))
+
+(defvar howm-view-title-header "*") ;; *BEFORE* loading howm!
 
 (add-hook 'org-agenda-mode-hook (lambda () (local-unset-key (kbd "\C-c,"))))
 (add-hook 'org-mode-hook (lambda () (local-unset-key (kbd "\C-c,"))))
@@ -2121,7 +2134,7 @@ end tell" (match-string 1))))
   :ID:       %s  :CREATED:  %s
   :VISIBILITY: all
   :END:
-   "
+"
      (shell-command-to-string "uuidgen")
      (format-time-string (org-time-stamp-format t t))))
 
@@ -2252,6 +2265,9 @@ end tell" (match-string 1))))
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
 
+(eval-when-compile
+  (defvar yas/keymap))
+
 (add-hook 'org-mode-hook
           (lambda ()
             ;; yasnippet (using the new org-cycle hooks)
@@ -2263,7 +2279,9 @@ end tell" (match-string 1))))
 
 ;;;   - org-agenda-mode
 
-(dolist (map (list org-agenda-keymap org-agenda-mode-map))
+(defvar org-todo-state-map nil)
+
+(let ((map org-agenda-mode-map))
   (define-key map "\C-n" 'next-line)
   (define-key map "\C-p" 'previous-line)
 
@@ -2333,6 +2351,11 @@ end tell" (match-string 1))))
 (require 'message)
 (require 'pgg)
 
+(eval-when-compile
+  (require 'gnus-group)
+  (require 'gnus-sum)
+  (require 'nnir))
+
 (gnus-harvest-install 'message-x)
 
 (add-hook 'mail-citation-hook 'sc-cite-original)
@@ -2365,7 +2388,8 @@ end tell" (match-string 1))))
 (defun gnus-query (query)
   (interactive "sMail Query: ")
   (let ((nnir-imap-default-search-key "imap"))
-    (gnus-group-make-nnir-group
+    (funcall
+     (symbol-function 'gnus-group-make-nnir-group)
      nil
      `((query    . ,query)
        (criteria . "")
@@ -2402,7 +2426,8 @@ This moves them into the Spam folder."
 ;;;   - Scoring
 
 (eval-when-compile
-  (defvar arg))
+  (defvar arg)
+  (defvar gnus-level-subscribed))
 
 (defun gnus-score-groups ()
   (interactive)
@@ -2413,7 +2438,8 @@ This moves them into the Spam folder."
                 (if (numberp arg)
                     arg
                   (or (gnus-group-default-level nil t)
-                      (gnus-group-default-list-level)
+                      (funcall
+                       (symbol-function 'gnus-group-default-list-level))
                       gnus-level-subscribed)))
         (let* ((group (gnus-info-group info))
                (unread (gnus-group-unread group)))
@@ -2474,7 +2500,8 @@ This moves them into the Spam folder."
 
 (eval-when-compile
   (defvar thread)
-  (defvar gnus-tmp-level))
+  (defvar gnus-tmp-level)
+  (defvar gnus-ignored-from-addresses))
 
 (defun gnus-user-format-function-t (header)
   (let ((tcount (gnus-summary-number-of-articles-in-thread
@@ -2521,6 +2548,9 @@ Else, return \" \"."
      (t " "))))
 
 ;;;   - Browsing article URLs
+
+(eval-when-compile
+  (defvar gnus-button-url-regexp))
 
 (defun gnus-article-get-urls-region (min max)
   "Return a list of urls found in the region between MIN and MAX"
