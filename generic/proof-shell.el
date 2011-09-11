@@ -370,7 +370,7 @@ process command."
 	  (error "%s process exited!" proc))
 
 	;; PG manages the prover process, don't query user on exit
-	(set-process-query-on-exit-flag 
+	(set-process-query-on-exit-flag
 	 (get-buffer-process proof-shell-buffer) nil)
 
 	;; Initialise associated buffers
@@ -502,7 +502,7 @@ without confirmation.
 
 The kill function uses `<PA>-quit-timeout' as a timeout to wait
 after sending `proof-shell-quit-cmd' before rudely killing the process."
-  (interactive)
+  (interactive "P")
   (if (buffer-live-p proof-shell-buffer)
       (when (or dont-ask
 		(yes-or-no-p (format "Exit %s process? " proof-assistant)))
