@@ -1,4 +1,4 @@
-;;; autoloads.in --- define autoloads for a lisp directory
+;;; autoloads.in   -*- emacs-lisp -*-
 
 (eval-when-compile
   (require 'cl))
@@ -93,4 +93,4 @@
 
 (provide 'autoloads)
 
-;;; Generated autoloads follow -- DO NOT EDIT  -*- emacs-lisp -*-
+;;; Generated autoloads follow -- DO NOT EDIT
