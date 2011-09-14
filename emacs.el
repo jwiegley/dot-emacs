@@ -1637,32 +1637,49 @@ end tell" (match-string 1))))
 
 (defun org-smart-capture ()
   (interactive)
-  (if (eq major-mode 'gnus-summary-mode)
-      (let (message-id subject from date-sent)
-        (with-current-buffer gnus-original-article-buffer
-          (setq message-id (message-field-value "message-id")
-                subject (rfc2047-decode-string (message-field-value "subject"))
-                from (rfc2047-decode-string (message-field-value "from"))
-                date-sent (message-field-value "date")))
-        (org-capture nil "t")
-        (dolist (transform org-subject-transforms)
-          (setq subject (replace-regexp-in-string (car transform)
-                                                  (cdr transform) subject)))
-        (save-excursion
-          (insert subject))
-        (org-set-property "Date"
-                          (or date-sent
-                              (time-to-org-timestamp
-                               (apply 'encode-time
-                                      (parse-time-string date-sent)) t t)))
-        (org-set-property "Message"
-                          (format "[[message://%s][%s]]"
-                                  (substring message-id 1 -1)
-                                  (subst-char-in-string
-                                   ?\[ ?\{ (subst-char-in-string
-                                            ?\] ?\} subject))))
-        (org-set-property "Submitter" from))
-    (org-capture nil "t")))
+  (if (not (memq major-mode '(gnus-summary-mode gnus-article-mode)))
+      (org-capture nil "t")
+    (if (eq major-mode 'gnus-article-mode)
+        (with-current-buffer gnus-summary-buffer
+          (gnus-summary-mark-as-dormant 1)))
+    (let ((body (and (eq major-mode 'gnus-article-mode)
+                     (region-active-p)
+                     (buffer-substring-no-properties (region-beginning)
+                                                     (region-end))))
+          message-id subject from date-sent)
+      (with-current-buffer gnus-original-article-buffer
+        (setq message-id (message-field-value "message-id")
+              subject (rfc2047-decode-string (message-field-value "subject"))
+              from (rfc2047-decode-string (message-field-value "from"))
+              date-sent (message-field-value "date")))
+      (org-capture nil "t")
+      (save-excursion
+        (insert subject))
+      (when body
+        (flet ((trim-string (str)
+                            (replace-regexp-in-string
+                             "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" ""
+                             str)))
+          (save-excursion
+            (forward-line 2)
+            (dolist (line (split-string (trim-string body) "\n"))
+              (insert "   " line ?\n)))))
+      (dolist (transform org-subject-transforms)
+        (setq subject (replace-regexp-in-string (car transform)
+                                                (cdr transform) subject)))
+
+      (org-set-property "Date"
+                        (or date-sent
+                            (time-to-org-timestamp
+                             (apply 'encode-time
+                                    (parse-time-string date-sent)) t t)))
+      (org-set-property "Message"
+                        (format "[[message://%s][%s]]"
+                                (substring message-id 1 -1)
+                                (subst-char-in-string
+                                 ?\[ ?\{ (subst-char-in-string
+                                          ?\] ?\} subject))))
+      (org-set-property "Submitter" from))))
 
 (defun my-org-todo-done () (interactive) (org-todo "DONE"))
 (defun my-org-todo-deferred () (interactive) (org-todo "DEFERRED"))
