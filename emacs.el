@@ -852,7 +852,7 @@ If the buffer is currently not visible, makes it sticky."
   (find-file-noselect "~/Contracts/TI/test/ulp_suite")
   ;;(visit-tags-table "~/src/ansi/TAGS")
   (magit-status "~/src/ansi")
-  (gdb "gdb --annotate=3 ~/Contracts/TI/bin/acpia470"))
+  (gdb "gdb --annotate=3 ~/Contracts/TI/bin/msp/acpia430"))
 
 ;;;_  . haskell-mode
 
