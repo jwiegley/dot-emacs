@@ -1905,7 +1905,8 @@ the proof shell without asking the user for
 confirmation (assuming she agreed already on switching the active
 scripting buffer). This is needed to ensure the load path is
 correct in the new scripting buffer."
-  (proof-shell-exit t))
+  (unless proof-shell-exit-in-progress
+    (proof-shell-exit t)))
 
 
 (add-hook 'proof-deactivate-scripting-hook

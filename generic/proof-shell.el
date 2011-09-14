@@ -110,6 +110,12 @@ The previous output is held back for processing at end of queue.")
 This ensures that the proof queue will be interrupted even if no
 interrupt message is printed from the prover after the last output.")
 
+(defvar proof-shell-exit-in-progress nil
+  "A flag indicating that the current proof process is about to exit.
+This flag is set for the duration of `proof-shell-kill-function'
+to tell hooks in `proof-deactivate-scripting-hook' to refrain
+from calling `proof-shell-exit'.")
+
 
 
 ;;
@@ -423,6 +429,7 @@ shell buffer, called by `proof-shell-bail-out' if process exits."
     (redisplay t)
     (when (and alive proc)
       (catch 'exited
+	(setq proof-shell-exit-in-progress t)
 	(set-process-sentinel 
 	 proc
 	 (lambda (p m) (throw 'exited t)))
@@ -469,6 +476,7 @@ shell buffer, called by `proof-shell-bail-out' if process exits."
 	(when (buffer-live-p (symbol-value buf))
 	  (kill-buffer (symbol-value buf))
 	  (set buf nil))))
+    (setq proof-shell-exit-in-progress nil)
     (message "%s exited." bufname)))
 
 (defun proof-shell-clear-state ()
@@ -497,7 +505,11 @@ argument DONT-ASK is non-nil, the proof process is terminated
 without confirmation.
 
 The kill function uses `<PA>-quit-timeout' as a timeout to wait
-after sending `proof-shell-quit-cmd' before rudely killing the process."
+after sending `proof-shell-quit-cmd' before rudely killing the process.
+
+This function should not be called if
+`proof-shell-exit-in-progress' is t, because a recursive call of
+`proof-shell-kill-function' will give strange errors."
   (interactive "P")
   (if (buffer-live-p proof-shell-buffer)
       (when (or dont-ask
