@@ -505,18 +505,22 @@ This a function is called by the custom-set property 'proof-set-value."
 (proof-deftoggle proof-electric-terminator-enable
 		 proof-electric-terminator-toggle)
 
-(defun proof-electric-terminator ()
+(defun proof-electric-terminator (&optional count)
   "Insert terminator char, maybe sending the command to the assistant.
 If we are inside a comment or string, insert the terminator.
 Otherwise, if the variable `proof-electric-terminator-enable' 
-is non-nil, the command will be sent to the assistant."
-  (interactive)
+is non-nil, the command will be sent to the assistant.
+
+To side-step the electric action and possibly insert multiple 
+characters, use a numeric prefix arg, like M-3 <terminator>."
+  (interactive "P")
   (if (and 
+       (not count)
        proof-electric-terminator-enable
        (not (proof-inside-comment (point)))
        (not (proof-inside-string (point))))
       (proof-assert-electric-terminator)
-    (self-insert-command 1)))
+    (self-insert-command (prefix-numeric-value count))))
 
 
 
