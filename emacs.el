@@ -1857,8 +1857,10 @@ end tell" (match-string 1))))
        (criteria . "")
        (server   . "nnimap:Local") ))))
 
+  ;;(gnus-query (concat "header message-id " message-id))
+
 (defun gnus-goto-article (message-id)
-  (gnus-query (concat "header message-id " message-id))
+  (gnus-summary-read-group "INBOX" nil t)
   (gnus-summary-refer-article message-id))
 
 (defun gmail-report-spam ()
