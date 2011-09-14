@@ -95,7 +95,7 @@ Remark: Arguments are interpreted strictly: each one must contain only one
 word, with no space (unless it is the same word). For example if the
 arguments are -x foo -y bar, then the list should be '(\"-x\" \"foo\"
 \"-y\" \"bar\"), notice that '(\"-x foo\" \"-y bar\") is *wrong*."
-  :type '(list string)
+  :type '(repeat string)
   :group 'proof-shell)
 
 (defpgcustom prog-env nil
@@ -104,7 +104,7 @@ Each element should be a string of the form ENVVARNAME=VALUE.  They will be
 added to the environment before launching the prover (but not pervasively).
 For example for coq on Windows you might need something like:
 \(setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
-  :type '(list string)
+  :type '(repeat string)
   :group 'proof-shell)
 
 (defpgcustom quit-timeout 
@@ -150,7 +150,7 @@ Completion is activated with \\[complete].
 If this table is empty or needs adjusting, please make changes using
 `customize-variable' and post suggestions at
 http://proofgeneral.inf.ed.ac.uk/trac"
-  :type '(list string)
+  :type '(repeat string)
   :group 'prover-config)
 
 ;; TODO: not used yet.
