@@ -414,7 +414,7 @@ process command."
   "Function run when a proof-shell buffer is killed.
 Try to shut down the proof process nicely and clear locked
 regions and state variables.  Value for `kill-buffer-hook' in
-shell buffer, alled by `proof-shell-bail-out' if process exits."
+shell buffer, called by `proof-shell-bail-out' if process exits."
   (let* ((alive    (scomint-check-proc (current-buffer)))
 	 (proc     (get-buffer-process (current-buffer)))
 	 (bufname  (buffer-name)))
