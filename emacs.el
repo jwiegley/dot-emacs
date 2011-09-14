@@ -2066,7 +2066,7 @@ Else, return \" \"."
         (urls (gnus-article-get-current-urls))
         (this-window (selected-window))
         (browse-window (get-buffer-window gnus-article-buffer))
-        (count 0))
+        (count 1))
     (save-excursion
       (save-window-excursion
         (with-current-buffer temp-buffer
