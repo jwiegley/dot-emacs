@@ -333,13 +333,14 @@ features for Coq support.
 
 
 @c FIXME: watch contributors here!
-During the development of Proof General 3.x and 4.0 releases, 
+During the development of Proof General 3.x and 4.x releases, 
 many people helped provide testing and other feedback, 
 including the Proof General maintainers,
 Paul Callaghan, Pierre Courtieu, and Markus Wenzel, 
 Stefan Berghofer, Gerwin Klein, and other folk who
 tested pre-releases or sent bug reports and patches, including 
 Cuihtlauac Alvarado,
+Esben Andreasen,
 Lennart Beringer,
 Pascal Brisset,
 James Brotherston,
