@@ -1283,13 +1283,17 @@ contain the coq standard library or \".\" for the current
 directory (see `coq-load-path-include-current')."
   :type '(repeat (choice (string :tag "simple directory without path (-I)")
                          (list :tag "recursive directory without path (-R)"
-                               (const rec) (string))
+                               (const rec) (string :tag "directory"))
                          (list :tag
                                "recursive directory with path (-R ... -as ...)"
-                               (const rec) (string) (string))
+                               (const rec)
+                               (string :tag "directory")
+                               (string :tag "log path"))
                          (list :tag
-                               "simple directory with path (-R ... -as ...)"
-                               (const nonrec) (string) (string))))
+                               "simple directory with path (-I ... -as ...)"
+                               (const nonrec)
+                               (string :tag "directory")
+                               (string :tag "log path"))))
   :safe '(lambda (v) (every
                       '(lambda (entry)
                          (or (stringp entry)
