@@ -3409,7 +3409,7 @@ restarting the process.
 Function run when a proof-shell buffer is killed.@*
 Try to shut down the proof process nicely and clear locked
 regions and state variables.  Value for @samp{@code{kill-buffer-hook}} in
-shell buffer, alled by @samp{@code{proof-shell-bail-out}} if process exits.
+shell buffer, called by @samp{@code{proof-shell-bail-out}} if process exits.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
@@ -3424,6 +3424,10 @@ without confirmation.
 
 The kill function uses @samp{<PA>-quit-timeout} as a timeout to wait
 after sending @samp{@code{proof-shell-quit-cmd}} before rudely killing the process.
+
+This function should not be called if
+@samp{@code{proof-shell-exit-in-progress}} is t, because a recursive call of
+@samp{@code{proof-shell-kill-function}} will give strange errors.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-bail-out

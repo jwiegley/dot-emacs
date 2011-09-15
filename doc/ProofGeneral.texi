@@ -1636,6 +1636,10 @@ without confirmation.
 
 The kill function uses @samp{<PA>-quit-timeout} as a timeout to wait
 after sending @samp{@code{proof-shell-quit-cmd}} before rudely killing the process.
+
+This function should not be called if
+@samp{@code{proof-shell-exit-in-progress}} is t, because a recursive call of
+@samp{@code{proof-shell-kill-function}} will give strange errors.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
@@ -4053,6 +4057,12 @@ Nonstandard load path elements @emph{must} be configured in the
 option @code{coq-load-path}. @code{-I} options in
 @code{coq-prog-name} or @code{coq-prog-args} must be deleted.
 @item
+In @code{coq-load-path} use strings @code{"dir"} for @code{-I}
+options and lists of two strings @code{("dir" "path")} for
+@code{-R "dir" -as "path"} (for more details see the
+documentation of `coq-load-path' or @ref{Customizing Coq Multiple
+File Support}).
+@item
 For a nonstandard compilation procedure and limited ML module
 support, @code{coq-compile-command} can be set to an external
 compilation command. For standard dependency analysis with
@@ -4202,6 +4212,76 @@ This option can be set/reset via menu
 @end defvar
 
 
+@c TEXI DOCSTRING MAGIC: coq-compile-auto-save
+@defvar coq-compile-auto-save 
+Buffers to save before checking dependencies for compilation.@*
+There are two orthogonal choices: Firstly one can save all or only the coq
+buffers, where coq buffers means all buffers in coq mode except the current
+buffer. Secondly, Emacs can ask about each such buffer or save all of them
+unconditionally.
+
+This makes four permitted values: @code{'ask-coq} to confirm saving all
+modified Coq buffers, @code{'ask-all} to confirm saving all modified
+buffers, @code{'save-coq} to save all modified Coq buffers without
+confirmation and @code{'save-all} to save all modified buffers without
+confirmation.
+@end defvar
+
+
+The following two options deal with the load path. Proof General
+divides the load path into the standard load path (which is
+hardwired in the tools and need not be set explicitly), the
+nonstandard load path (which must always be set explicitly), and
+the current directory (which must be set explicitly for
+@code{coqdep}). The option @code{coq-load-path} determines the
+nonstandard load path and @code{coq-load-path-include-current}
+determines whether the current directory is put into the load
+path of @code{coqdep}.
+
+@c TEXI DOCSTRING MAGIC: coq-load-path
+@defvar coq-load-path 
+Non-standard coq library load path.@*
+This list specifies the LoadPath extension for coqdep, coqc and
+coqtop. Usually, the elements of this list are strings (for
+"-I") or lists of two strings (for "-R" dir "-as" path).
+
+The possible forms of elements of this list correspond to the 4
+possible forms of the Add LoadPath command and the 4 forms of the
+include options ('-I' and @code{'-R'}). An element can be
+@lisp
+  - A string, specifying a directory to be mapped to the empty
+    logical path ('-I').
+  - A list of the form '(rec dir path)' (where dir and path are
+    strings) specifying a directory to be recursively mapped to the
+    logical path @code{'path'} ('-R dir -as path').
+  - A list of the form '(rec dir)', specifying a directory to be
+    recursively mapped to the empty logical path ('-R dir').
+  - A list of the form '(norec dir path)', specifying a directory
+    to be mapped to the logical path @code{'path'} ('-I dir -as path').
+@end lisp
+For convenience the symbol @code{'rec'} can be omitted and entries of
+the form '(dir)' and '(dir path)' are interpreted as '(rec dir)
+and '(rec dir path)', respectively.
+
+Under normal circumstances this list does not need to
+contain the coq standard library or "." for the current
+directory (see @samp{@code{coq-load-path-include-current}}).
+@end defvar
+
+
+@c TEXI DOCSTRING MAGIC: coq-load-path-include-current
+@defvar coq-load-path-include-current 
+If @samp{t} let coqdep search the current directory too.@*
+Should be @samp{t} for normal users. If @samp{t} pass "-I dir" to coqdep when
+processing files in directory "dir" in addition to any entries
+in @samp{@code{coq-load-path}}.
+@end defvar
+
+
+The following two options configure an external compilation
+process.
+
+
 @c TEXI DOCSTRING MAGIC: coq-compile-command
 @defvar coq-compile-command 
 External compilation command. If empty ProofGeneral compiles itself.@*
@@ -4240,21 +4320,7 @@ This option can be set/reset via menu
 @end defvar
 
 
-@c TEXI DOCSTRING MAGIC: coq-compile-auto-save
-@defvar coq-compile-auto-save 
-Buffers to save before checking dependencies for compilation.@*
-There are two orthogonal choices: Firstly one can save all or only the coq
-buffers, where coq buffers means all buffers in coq mode except the current
-buffer. Secondly, Emacs can ask about each such buffer or save all of them
-unconditionally.
-
-This makes four permitted values: @code{'ask-coq} to confirm saving all
-modified Coq buffers, @code{'ask-all} to confirm saving all modified
-buffers, @code{'save-coq} to save all modified Coq buffers without
-confirmation and @code{'save-all} to save all modified buffers without
-confirmation.
-@end defvar
-
+Locking ancestors can be disabled with the following option.
 
 @c TEXI DOCSTRING MAGIC: coq-lock-ancestors
 @defvar coq-lock-ancestors 
@@ -4262,38 +4328,6 @@ If non-nil, lock ancestor module files.@*
 If external compilation is used (via @samp{@code{coq-compile-command}}) then
 only the direct ancestors are locked. Otherwise all ancestors are
 locked when the "Require" command is processed.
-@end defvar
-
-
-The following two options deal with the load path. Proof General
-divides the load path into the standard load path (which is
-hardwired in the tools and need not be set explicitly), the
-nonstandard load path (which must always be set explicitly), and
-the current directory (which must be set explicitly for
-@code{coqdep}). The option @code{coq-load-path} determines the
-nonstandard load path and @code{coq-load-path-include-current}
-determines whether the current directory is put into the load
-path of @code{coqdep}.
-
-@c TEXI DOCSTRING MAGIC: coq-load-path
-@defvar coq-load-path 
-Non-standard coq library load path.@*
-List of directories to be added to the LoadPath of coqdep, coqc
-and coqtop. Under normal circumstances this list does not need to
-contain the coq standard library or "." for the current
-directory (see @samp{@code{coq-load-path-include-current}}).
-
-Elements of this list should be strings, which are passed as
-"-I" options over the command line to coqdep, coqc and coqtop.
-@end defvar
-
-
-@c TEXI DOCSTRING MAGIC: coq-load-path-include-current
-@defvar coq-load-path-include-current 
-If @samp{t} let coqdep search the current directory too.@*
-Should be @samp{t} for normal users. If @samp{t} pass "-I dir" to coqdep when
-processing files in directory "dir" in addition to any entries
-in @samp{@code{coq-load-path}}.
 @end defvar
 
 

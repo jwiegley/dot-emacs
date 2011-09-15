@@ -1234,15 +1234,6 @@ minibuffer if `coq-confirm-external-compilation' is t."
                     coq-confirm-external-compilation)))
   :group 'coq-auto-compile)
 
-(defpacustom confirm-external-compilation t
-  "If set let user change and confirm the compilation command.
-Otherwise start the external compilation without confirmation.
-
-This option can be set/reset via menu
-`Coq -> Settings -> Confirm External Compilation'."
-  :type 'boolean
-  :group 'coq-auto-compile)
-
 (defconst coq-compile-substitution-list
   '(("%p" physical-dir)
     ("%o" module-object)
@@ -1262,6 +1253,53 @@ directory containing the source file, the Coq object file in
 'physical-dir whose object will be loaded, the qualified module
 identifier that occurs in the \"Require\" command, and the file
 that contains the \"Require\".")
+
+(defcustom coq-load-path nil
+  "Non-standard coq library load path.
+This list specifies the LoadPath extension for coqdep, coqc and
+coqtop. Usually, the elements of this list are strings (for
+\"-I\") or lists of two strings (for \"-R\" dir \"-as\" path).
+
+The possible forms of elements of this list correspond to the 4
+possible forms of the Add LoadPath command and the 4 forms of the
+include options ('-I' and '-R'). An element can be
+
+  - A string, specifying a directory to be mapped to the empty
+    logical path ('-I').
+  - A list of the form '(rec dir path)' (where dir and path are
+    strings) specifying a directory to be recursively mapped to the
+    logical path 'path' ('-R dir -as path').
+  - A list of the form '(rec dir)', specifying a directory to be
+    recursively mapped to the empty logical path ('-R dir').
+  - A list of the form '(norec dir path)', specifying a directory
+    to be mapped to the logical path 'path' ('-I dir -as path').
+
+For convenience the symbol 'rec' can be omitted and entries of
+the form '(dir)' and '(dir path)' are interpreted as '(rec dir)
+and '(rec dir path)', respectively.
+
+Under normal circumstances this list does not need to
+contain the coq standard library or \".\" for the current
+directory (see `coq-load-path-include-current')."
+  :type '(repeat (choice (string :tag "simple directory without path (-I)")
+                         (list :tag "recursive directory without path (-R)"
+                               (const rec) (string))
+                         (list :tag
+                               "recursive directory with path (-R ... -as ...)"
+                               (const rec) (string) (string))
+                         (list :tag
+                               "simple directory with path (-R ... -as ...)"
+                               (const nonrec) (string) (string))))
+  :safe '(lambda (v) (every
+                      '(lambda (entry)
+                         (or (stringp entry)
+                             (and (eq (car entry) 'rec)
+                                  (every 'stringp (cdr entry)))
+                             (and (eq (car entry) 'nonrec)
+                                  (every 'stringp (cdr entry)))
+                             (every 'stringp entry)))
+                      v))
+  :group 'coq-auto-compile)
 
 (defcustom coq-compile-auto-save 'ask-coq
   "Buffers to save before checking dependencies for compilation.
@@ -1297,14 +1335,20 @@ locked when the \"Require\" command is processed."
   :safe 'booleanp
   :group 'coq-auto-compile)
 
-(defcustom coq-compile-ignore-library-directory t
-  "If non-nil, ProofGeneral does not compile modules from the coq library.
-Should be `t' for normal coq users. If `nil' library modules are
-compiled if their sources are newer.
+(defpacustom confirm-external-compilation t
+  "If set let user change and confirm the compilation command.
+Otherwise start the external compilation without confirmation.
 
-This option has currently no effect, because Proof General uses
-coqdep to translate qualified identifiers into library file names
-and coqdep does not output dependencies in the standard library."
+This option can be set/reset via menu
+`Coq -> Settings -> Confirm External Compilation'."
+  :type 'boolean
+  :group 'coq-auto-compile)
+
+(defcustom coq-load-path-include-current t
+  "If `t' let coqdep search the current directory too.
+Should be `t' for normal users. If `t' pass \"-I dir\" to coqdep when
+processing files in directory \"dir\" in addition to any entries
+in `coq-load-path'."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
@@ -1322,24 +1366,14 @@ that dependency checking takes noticeable time."
   :safe '(lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
 
-(defcustom coq-load-path nil
-  "Non-standard coq library load path.
-List of directories to be added to the LoadPath of coqdep, coqc
-and coqtop. Under normal circumstances this list does not need to
-contain the coq standard library or \".\" for the current
-directory (see `coq-load-path-include-current').
+(defcustom coq-compile-ignore-library-directory t
+  "If non-nil, ProofGeneral does not compile modules from the coq library.
+Should be `t' for normal coq users. If `nil' library modules are
+compiled if their sources are newer.
 
-Elements of this list should be strings, which are passed as
-\"-I\" options over the command line to coqdep, coqc and coqtop."
-  :type '(repeat string)
-  :safe '(lambda (v) (every 'stringp v))
-  :group 'coq-auto-compile)
-
-(defcustom coq-load-path-include-current t
-  "If `t' let coqdep search the current directory too.
-Should be `t' for normal users. If `t' pass \"-I dir\" to coqdep when
-processing files in directory \"dir\" in addition to any entries
-in `coq-load-path'."
+This option has currently no effect, because Proof General uses
+coqdep to translate qualified identifiers into library file names
+and coqdep does not output dependencies in the standard library."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
@@ -1471,20 +1505,37 @@ is up-to-date."
 Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
 
+(defun coq-option-of-load-path-entry (entry)
+  "Translate a single element from `coq-load-path' into options.
+See `coq-load-path' for the possible forms of entry and to which
+options they are translated."
+  (cond
+   ((stringp entry)
+    (list "-I" (expand-file-name entry)))
+   ((eq (car entry) 'nonrec)
+    (list "-I" (expand-file-name (nth 1 entry)) "-as" (nth 2 entry)))
+   (t
+    (if (eq (car entry) 'rec)
+        (setq entry (cdr entry)))
+    (if (nth 1 entry)
+        (list "-R" (expand-file-name (car entry)) "-as" (nth 1 entry))
+      (list "-R" (expand-file-name (car entry)))))))
+
 (defun coq-include-options (file)
-  "Build a -I options list for coqc and coqdep.
-The options list includes all directories from `coq-load-path' and,
-if `coq-load-path-include-current' is enabled, the directory base of FILE.
-The resulting list is fresh for every call, callers can append more
-arguments with `nconc'.
+  "Build the list of include options for coqc, coqdep and coqtop.
+The options list includes all entries from `coq-load-path'
+prefixed with suitable options and, if
+`coq-load-path-include-current' is enabled, the directory base of
+FILE. The resulting list is fresh for every call, callers can
+append more arguments with `nconc'.
 
 FILE should be an absolute file name. It can be nil if
 `coq-load-path-include-current' is nil."
   (let ((result nil))
     (when coq-load-path
-      (setq result (list "-I" (expand-file-name (car coq-load-path))))
-      (dolist (dir (cdr coq-load-path))
-        (nconc result (list "-I" (expand-file-name dir)))))
+      (setq result (coq-option-of-load-path-entry (car coq-load-path)))
+      (dolist (entry (cdr coq-load-path))
+        (nconc result (coq-option-of-load-path-entry entry))))
     (if coq-load-path-include-current
         (setq result
               (cons "-I" (cons (file-name-directory file) result))))
