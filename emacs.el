@@ -265,7 +265,15 @@
      (setq dired-use-ls-dired t)
 
      (define-key dired-mode-map [?l] 'dired-up-directory)
-     (define-key dired-mode-map [tab] 'other-window)))
+     (define-key dired-mode-map [tab] 'other-window)
+     (define-key dired-mode-map [(meta ?s) ?f] 'find-grep)))
+
+;;;_ , deft
+
+(eval-after-load "deft"
+  '(progn
+     (define-key deft-mode-map [? ] 'deft-complete)
+     (define-key deft-mode-map [(control return)] 'other-window)))
 
 ;;;_ , erc
 
