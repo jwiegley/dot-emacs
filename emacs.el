@@ -349,9 +349,10 @@
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
 If the buffer is currently not visible, makes it sticky."
-  (alert (or message (buffer-string)) :severity 'high
-         :title (concat "ERC: " (or nick (buffer-name)))
-         :data message))
+  (let (alert-log-messages)
+    (alert (or message (buffer-string)) :severity 'high
+           :title (concat "ERC: " (or nick (buffer-name)))
+           :data message)))
 
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
