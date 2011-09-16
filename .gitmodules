@@ -127,3 +127,6 @@
 [submodule "site-lisp/workgroups"]
 	path = site-lisp/workgroups
 	url = git://github.com/tlh/workgroups.el.git
+[submodule "site-lisp/dired-sync"]
+	path = site-lisp/dired-sync
+	url = git://github.com/renard/dired-sync.git
