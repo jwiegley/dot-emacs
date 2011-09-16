@@ -190,8 +190,8 @@
   ;; mm, does it contain any cached entries
   (if (not (assoc "\\begin" latex-help-cmd-alist))
       (save-window-excursion
-  	(setq latex-help-cmd-alist nil)
-  	(Info-goto-node (concat latex-help-file "Command Index"))
+        (setq latex-help-cmd-alist nil)
+        (Info-goto-node (concat latex-help-file "Command Index"))
         (goto-char (point-max))
         (while (re-search-backward "^\\* \\(.+\\): *\\(.+\\)\\." nil t)
           (let ((key (buffer-substring (match-beginning 1) (match-end 1)))
@@ -1857,7 +1857,7 @@ end tell" (match-string 1))))
        (criteria . "")
        (server   . "nnimap:Local") ))))
 
-  ;;(gnus-query (concat "header message-id " message-id))
+;;(gnus-query (concat "header message-id " message-id))
 
 (defun gnus-goto-article (message-id)
   (gnus-summary-read-group "INBOX" nil t)
