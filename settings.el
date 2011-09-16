@@ -73,6 +73,7 @@
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
+ '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
  '(display-time-mail-function (quote (lambda nil (file-exists-p "/tmp/unread"))))
  '(display-time-mode t)
  '(display-time-use-mail-icon t)
