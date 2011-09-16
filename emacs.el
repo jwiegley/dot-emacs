@@ -549,6 +549,7 @@ If the buffer is currently not visible, makes it sticky."
 (workgroups-mode 1)
 
 (define-key wg-map [(control ?\\)] 'wg-switch-to-previous-workgroup)
+(define-key wg-map [?\\] 'toggle-input-method)
 
 (if (file-readable-p "~/.emacs.d/data/workgroups")
     (wg-load "~/.emacs.d/data/workgroups"))
