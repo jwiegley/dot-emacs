@@ -432,13 +432,15 @@
  '(whitespace-action (quote (auto-cleanup)))
  '(whitespace-auto-cleanup t)
  '(whitespace-global-modes nil)
+ '(whitespace-line-column 90)
  '(whitespace-rescan-timer-time nil)
  '(whitespace-silent t)
+ '(whitespace-style (quote (face trailing lines space-before-tab indentation empty space-after-tab)))
  '(winner-mode t nil (winner))
  '(workgroups-mode t)
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
- '(yaoddmuse-directory "~/.emacs.d/doc")
+ '(yaoddmuse-directory "~/.emacs.d/doc" t)
  '(zencoding-preview-default nil))
 
 (custom-set-faces
