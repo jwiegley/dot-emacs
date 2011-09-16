@@ -881,6 +881,9 @@ If the buffer is currently not visible, makes it sticky."
 ;;;_  . ansicl
 
 (info-lookmore-elisp-cl)
+(info-lookmore-elisp-userlast)
+(info-lookmore-elisp-gnus)
+(info-lookmore-apropos-elisp)
 
 (mapc (lambda (mode)
         (info-lookup-add-help
