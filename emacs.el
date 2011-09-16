@@ -2181,7 +2181,12 @@ Else, return \" \"."
       (grep command-args))))
 
 (define-key global-map [(meta ?s) ?a] 'anything-do-grep)
-(define-key global-map [(meta ?s) ?b] 'anything-occur)
+
+(defun my-anything-occur ()
+  (interactive)
+  (anything-other-buffer 'anything-c-source-occur "*Anything Occur*"))
+
+(define-key global-map [(meta ?s) ?b] 'my-anything-occur)
 (define-key global-map [(meta ?s) ?d] 'find-grep-dired)
 (define-key global-map [(meta ?s) ?f] 'find-grep)
 (define-key global-map [(meta ?s) ?F] 'anything-for-files)
@@ -2533,7 +2538,9 @@ Else, return \" \"."
 (define-key mode-specific-map [?e ?d] 'debug-on-entry)
 (define-key mode-specific-map [?e ?e] 'toggle-debug-on-error)
 (define-key mode-specific-map [?e ?f] 'emacs-lisp-byte-compile-and-load)
+(define-key mode-specific-map [?e ?l] 'find-library)
 (define-key mode-specific-map [?e ?r] 'eval-region)
+(define-key mode-specific-map [?e ?s] 'scratch)
 (define-key mode-specific-map [?e ?v] 'edit-variable)
 (define-key mode-specific-map [?e ?z] 'byte-recompile-directory)
 
