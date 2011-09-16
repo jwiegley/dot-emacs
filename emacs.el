@@ -2326,12 +2326,50 @@ Else, return \" \"."
   (find-file-other-window
    (substring (shell-command-to-string (format "which %s" name)) 0 -1)))
 
+(defun my-describe-symbol  (symbol &optional mode)
+  (interactive
+   (info-lookup-interactive-arguments 'symbol current-prefix-arg))
+  (let (info-buf find-buf desc-buf cust-buf)
+    (save-window-excursion
+      (ignore-errors
+        (info-lookup-symbol symbol mode)
+        (setq info-buf (get-buffer "*info*")))
+      (let ((sym (intern-soft symbol)))
+        (when sym
+          (if (functionp sym)
+              (progn
+                (find-function sym)
+                (setq find-buf (current-buffer))
+                (describe-function sym)
+                (setq desc-buf (get-buffer "*Help*")))
+            (find-variable sym)
+            (setq find-buf (current-buffer))
+            (describe-variable sym)
+            (setq desc-buf (get-buffer "*Help*"))
+            ;;(customize-variable sym)
+            ;;(setq cust-buf (current-buffer))
+            ))))
+
+    (delete-other-windows)
+
+    (flet ((switch-in-other-buffer
+            (buf)
+            (when buf
+              (split-window-vertically)
+              (switch-to-buffer-other-window buf))))
+      (switch-to-buffer find-buf)
+      (switch-in-other-buffer desc-buf)
+      (switch-in-other-buffer info-buf)
+      ;;(switch-in-other-buffer cust-buf)
+      (balance-windows))))
+
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
 (define-key global-map [(control ?h) ?e] 'lisp-find-map)
 (define-key lisp-find-map [?a] 'my-anything-apropos)
 (define-key lisp-find-map [?e] 'view-echo-area-messages)
 (define-key lisp-find-map [?f] 'find-function)
+(define-key lisp-find-map [?d] 'my-describe-symbol)
 (define-key lisp-find-map [?i] 'info-apropos)
 (define-key lisp-find-map [?k] 'find-function-on-key)
 (define-key lisp-find-map [?l] 'find-library)
