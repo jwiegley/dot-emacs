@@ -205,13 +205,6 @@
                       :doc-spec '(("(latex2e)Concept Index" )
                                   ("(latex2e)Command Index")))
 
-;;;_ , bbdb
-
-(eval-after-load "bbdb"
-  '(progn
-     (require 'bbdb-to-outlook)
-     (require 'bbdb-pgp)))
-
 ;;;_ , css-mode
 
 (add-to-list 'auto-mode-alist '("\\.css$" . css-mode))
