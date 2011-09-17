@@ -496,10 +496,3 @@
  '(wg-mode-line-face ((((class color)) (:foreground "dark blue"))))
  '(wg-other-workgroup-face ((((class color)) (:foreground "dark slate grey"))))
  '(wg-previous-workgroup-face ((((class color)) (:foreground "dark blue")))))
-
-;; '(initsplit-customizations-alist
-;;   (quote
-;;    (("\\`\\(canlock\\|eudc\\|gnus\\|nn[a-z]+\\|mm\\|message\\|\\(send-?\\|smtp\\|check-\\)?mail\\|spam\\|starttls\\|sc\\)-" "~/Library/Emacs/.gnus.el" nil nil)
-;;     ("\\`\\(\\(org\\(2blog/wp\\)?\\|calendar\\|diary\\)-\\|mark-holidays-in-calendar\\'\\)" "~/Library/Emacs/.org.el" nil nil)
-;;     ("\\`erc-nickserv-passwords\\'" "~/Library/Emacs/.passwd" nil nil))))
-;; '(initsplit-pretty-print t)
