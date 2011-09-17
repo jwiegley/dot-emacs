@@ -11,6 +11,12 @@
 ;;
 
 ;;
+;; Tool bar
+;;
+
+(if (and window-system (fboundp 'tool-bar-mode)) (tool-bar-mode t))
+
+;;
 ;; Unicode
 ;;
 
