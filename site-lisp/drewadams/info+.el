@@ -610,38 +610,38 @@ Don't forget to mention your Emacs and library versions."))
   (set-face-bold-p     'info-xref nil))
 
 ;; Standard faces from vanilla Emacs `info.el', but without `:weight', `:height' and `:inherit'.
-;;;###autoload
-(defface info-title-1
-    '((((type tty pc) (class color) (background dark))  :foreground "yellow" :weight bold)
-      (((type tty pc) (class color) (background light)) :foreground "brown"  :weight bold))
-  "*Face for info titles at level 1."
-  :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; backward-compatibility alias
-(put 'Info-title-1-face 'face-alias 'info-title-1)
+;; ;;;###autoload
+;; (defface info-title-1
+;;     '((((type tty pc) (class color) (background dark))  :foreground "yellow" :weight bold)
+;;       (((type tty pc) (class color) (background light)) :foreground "brown"  :weight bold))
+;;   "*Face for info titles at level 1."
+;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; ;; backward-compatibility alias
+;; (put 'Info-title-1-face 'face-alias 'info-title-1)
 
-;;;###autoload
-(defface info-title-2
-    '((((type tty pc) (class color)) :foreground "lightblue" :weight bold))
-  "*Face for info titles at level 2."
-  :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; backward-compatibility alias
-(put 'Info-title-2-face 'face-alias 'info-title-2)
+;; ;;;###autoload
+;; (defface info-title-2
+;;     '((((type tty pc) (class color)) :foreground "lightblue" :weight bold))
+;;   "*Face for info titles at level 2."
+;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; ;; backward-compatibility alias
+;; (put 'Info-title-2-face 'face-alias 'info-title-2)
 
-;;;###autoload
-(defface info-title-3
-    '((((type tty pc) (class color)) :weight bold))
-  "*Face for info titles at level 3."
-  :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; backward-compatibility alias
-(put 'Info-title-3-face 'face-alias 'info-title-3)
+;; ;;;###autoload
+;; (defface info-title-3
+;;     '((((type tty pc) (class color)) :weight bold))
+;;   "*Face for info titles at level 3."
+;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; ;; backward-compatibility alias
+;; (put 'Info-title-3-face 'face-alias 'info-title-3)
 
-;;;###autoload
-(defface info-title-4
-    '((((type tty pc) (class color)) :weight bold))
-  "*Face for info titles at level 4."
-  :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; backward-compatibility alias
-(put 'Info-title-4-face 'face-alias 'info-title-4)
+;; ;;;###autoload
+;; (defface info-title-4
+;;     '((((type tty pc) (class color)) :weight bold))
+;;   "*Face for info titles at level 4."
+;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; ;; backward-compatibility alias
+;; (put 'Info-title-4-face 'face-alias 'info-title-4)
 
 (when (<= emacs-major-version 21)
   (setq Info-title-face-alist  '((?* info-title-1 bold underline)
