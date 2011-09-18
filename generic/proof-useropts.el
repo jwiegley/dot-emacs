@@ -347,7 +347,7 @@ signals to the remote host."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-full-annotation t
+(defcustom proof-full-annotation nil
   "*Non-nil causes Proof General to record output for all proof commands.
 Proof output is recorded as it occurs interactively; normally if
 many steps are taken at once, this output is suppressed.  If this
