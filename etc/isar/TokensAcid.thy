@@ -89,12 +89,13 @@ begin
 
 consts longsub :: "['a,'a]\<Rightarrow>'a" ("_\<^bsub>_\<^esub>")
 consts longsup :: "['a,'a]\<Rightarrow>'a" ("_\<^bsup>_\<^esup>")
-consts bold    :: "['a,'a]\<Rightarrow>'a" ("\<^bbold>_ _\<^ebold>")
-consts italic  :: "['a,'a,'a,'a]\<Rightarrow>'a" ("\<^bitalic>_ _ _ _\<^eitalic>")
-consts sans    :: "['a,'a]\<Rightarrow>'a" ("\<^bsans>_ _\<^esans>")
-consts script  :: "['a,'a]\<Rightarrow>'a" ("\<^bscript>_ _\<^escript>")
-consts frakt   :: "['a,'a]\<Rightarrow>'a" ("\<^bfrakt>_ _\<^efrakt>")
-consts serif   :: "['a,'a]\<Rightarrow>'a" ("\<^bserif>_ _\<^eserif>")
+
+consts bold    :: "'a\<Rightarrow>'a" ("\<^bbold>_\<^ebold>")
+consts italic  :: "'a\<Rightarrow>'a" ("\<^bitalic>_\<^eitalic>")
+consts sans    :: "'a\<Rightarrow>'a" ("\<^bsans>_\<^esans>")
+consts script  :: "'a\<Rightarrow>'a" ("\<^bscript>_\<^escript>")
+consts frakt   :: "'a\<Rightarrow>'a" ("\<^bfrakt>_\<^efrakt>")
+consts serif   :: "'a\<Rightarrow>'a" ("\<^bserif>_\<^eserif>")
 
 term "a\<^bsub>longsub\<^esub>"   term "b\<^bsup>longsuper\<^esup>"
 
@@ -102,13 +103,11 @@ term "\<^bbold>Bold text\<^ebold>"  term "\<^bitalic>Italic text \<alpha> \<beta
 term "\<^bsans>Sans \<gamma>\<^esans>"     term "\<^bscript>Script text\<^escript>"
 term "\<^bfrakt>Frakt stuff\<^efrakt>"  term "\<^bserif>Roman stuff\<^eserif>"
    
-lemma "\<lbrakk> \<^bbold>Bold text\<^ebold>; Q \<rbrakk> \<Longrightarrow> Q"
+lemma "\<lbrakk> \<^bbold>(Bold text)\<^ebold>; Q \<rbrakk> \<Longrightarrow> Q"
 by auto
 
 (* Tokens controlling layout and fonts: next character.
- 
    These are tokens that affect the following character/identifier only.
-
    Similar to previous case.
 
    See Tokens -> Format Char -> ...
@@ -164,7 +163,7 @@ term "\<And2> {\<lambda> x. True, \<lambda> y. False}"
 
 (* Note: of course, copy and paste using Unicode to another
    application (Tokens \<rightarrow> Copy As Unicode) and then re-reading in
-   Isabelle using another interface will probably produce wrong
+   Isabelle using another interface will probably produce the wrong
    result.  But copy-pasting within Proof General Emacs is fine since
    the underlying token text is copied, not the presentation.
    What happens is that the text properties are "sticky" and
@@ -173,21 +172,23 @@ term "\<And2> {\<lambda> x. True, \<lambda> y. False}"
 *)
 
 
-(*   NB: below here cannot be processed: just in terms to check with 
-     string font for terms. *)
+(* More esoteric non-standard stuff: unlikely in other interfaces *)
 
+consts 
+  shout :: "'a \<Rightarrow> 'a"
+  whisper :: "'a \<Rightarrow> 'a"
+  underline :: "'a \<Rightarrow> 'a"
+  overline :: "'a \<Rightarrow> 'a"
 
-(* Spanning identifier supers/subs: to be added to Isabelle lexer/latex *)
-
-term "a\<^bisup>bcd\<^eisup>"
-term "a\<^bisub>bcd\<^eisub>"
-
-(* More esoteric stuff *)
-
+notation (xsymbols)
+  shout ("\<^bbig>_\<^ebig>") and
+  whisper ("\<^bsmall>_\<^esmall>") and
+  underline ("\<^bunderline>_\<^eunderline>") and
+  overline ("\<^boverline>_\<^eoverline>")
 
 term "\<^bbig>large text \<alpha> \<beta> \<Sigma>\<^ebig>"
 
-term "\<^bsmall>small text \<alpha> \<and> \<beta> \<longrightarrow> \<gamma> \<^esmall>"
+term "\<^bsmall>smaller text ((\<alpha> \<and> \<beta>) \<longrightarrow> \<gamma>) \<^esmall>"
 
 term "\<^bunderline>underlined\<^eunderline>"
 
@@ -195,12 +196,17 @@ term "\<^boverline>overlined\<^eoverline>"
 
 
 (* Bold and italic combinations for regions *)
-term "\<^bbold>Bold and \<^bitalic>italic\<^eitalic>\<^ebold>"
+term "\<^bbold>Bold and (\<^bitalic>italic\<^eitalic>)\<^ebold>"
 term "\<^bitalic>Italic and \<^bbold>bold\<^ebold>\<^eitalic>"
 
 (* Font and weight/shape changes for regions *)
 term "\<^bbold>Bold and \<^bscript>script\<^escript>\<^ebold>"
 term "\<^bserif>Roman and \<^bitalic>italic\<^eitalic> and \<^bbold>bold\<^ebold> \<^eserif>"
 term "\<^bfrakt>Frakt and \<^bitalic>italic\<^eitalic> and \<^bbold>bold\<^ebold> \<^efrakt>"
+
+(* Spanning identifier supers/subs: not included in standard Isabelle lexer/latex *)
+
+(* term "a\<^bisup>bcd\<^eisup>"
+   term "a\<^bisub>bcd\<^eisub>"  *)
 
 end
