@@ -350,13 +350,31 @@
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
 If the buffer is currently not visible, makes it sticky."
-  (let (alert-log-messages)
-    (alert (or message (buffer-string)) :severity 'high
-           :title (concat "ERC: " (or nick (buffer-name)))
-           :data message)))
+  (if (or (null match-type) (not (eq match-type 'fool)))
+      (let (alert-log-messages)
+        (alert (or message (buffer-string)) :severity 'high
+               :title (concat "ERC: " (or nick (buffer-name)))
+               :data message))))
 
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
+
+(defun erc-cmd-WTF (term &rest ignore)
+  "Look up definition for TERM."
+  (let ((def (wtf-is term)))
+    (if def
+        (let ((msg (concat "{Term} " (upcase term) " is " def)))
+          (with-temp-buffer
+            (insert msg)
+            (kill-ring-save (point-min) (point-max)))
+          (message msg))
+      (message (concat "No definition found for " (upcase term))))))
+
+(defun erc-cmd-FOOL (term &rest ignore)
+  (add-to-list 'erc-fools term))
+
+(defun erc-cmd-UNFOOL (term &rest ignore)
+  (setq erc-fools (delete term erc-fools)))
 
 ;;;_ , eshell
 
