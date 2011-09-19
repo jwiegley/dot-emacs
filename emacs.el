@@ -2057,6 +2057,8 @@ Else, return \" \"."
 
 (eval-after-load "gnus-sum"
   '(progn
+     (define-key gnus-summary-mode-map [(meta ?q)]
+       'gnus-article-fill-long-lines)
      (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
      (define-key gnus-summary-mode-map [?B delete]
        'gnus-summary-delete-article)
