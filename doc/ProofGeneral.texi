@@ -4461,8 +4461,6 @@ addressed in the next release:
 
 @itemize
 @item
-Support directory trees in @code{coq-load-path} (option @code{-R}).
-@item
 Support @code{Declare ML Module} commands.
 @item
 Improved undo behaviour for locked ancestors.
