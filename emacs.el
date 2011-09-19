@@ -973,6 +973,10 @@ If the buffer is currently not visible, makes it sticky."
         inferior-lisp-mode
         slime-repl-mode))
 
+(defun byte-recompile-file ()
+  (save-excursion
+    (byte-compile-file buffer-file-name)))
+
 ;;;_  . lisp-mode-hook
 
 (defun my-elisp-indent-or-complete (&optional arg)
@@ -2721,6 +2725,7 @@ Else, return \" \"."
 ;; Local Variables:
 ;;   mode: emacs-lisp
 ;;   mode: allout
+;;   after-save-hook: (byte-recompile-file)
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
 ;; End:
 
