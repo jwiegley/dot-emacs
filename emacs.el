@@ -1685,7 +1685,8 @@ end tell" (match-string 1))))
      (org-defkey org-mode-map [(control meta return)]
                  'org-insert-heading-after-current)
      (org-defkey org-mode-map [(control return)] 'other-window)
-     (org-defkey org-mode-map [return] 'org-return-indent)))
+     (org-defkey org-mode-map [return] 'org-return-indent)
+     (org-defkey org-mode-map [(control ?c) (control ?x) ?@] 'visible-mode)))
 
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
