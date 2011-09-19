@@ -101,6 +101,7 @@
  '(erc-replace-alist (quote (("</?FONT>" . ""))))
  '(erc-server "irc.freenode.net")
  '(erc-services-mode t)
+ '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools my-erc-hook)))
  '(erc-track-enable-keybindings t)
  '(erc-track-exclude-types (quote ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
  '(erc-track-faces-priority-list (quote (erc-error-face (erc-nick-default-face erc-current-nick-face) erc-current-nick-face erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face erc-nick-msg-face erc-direct-msg-face)))
