@@ -382,7 +382,7 @@
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
  '(regex-tool-backend (quote perl))
- '(safe-local-variable-values (quote ((after-save-hook archive-done-tasks) (after-save-hook sort-done-tasks) (after-save-hook commit-after-save) (after-save-hook . byte-compile-file-after-save))))
+ '(safe-local-variable-values (quote ((after-save-hook byte-recompile-file))))
  '(sc-attrib-selection-list (quote (("sc-from-address" ((".*" bbdb/sc-consult-attr (sc-mail-field "sc-from-address")))))))
  '(sc-citation-leader "")
  '(sc-confirm-always-p nil)
