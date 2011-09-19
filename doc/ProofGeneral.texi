@@ -760,7 +760,7 @@ The notation @kbd{C-x C-f} means control key with `x' followed by
 control key with `f'.  This is a standard notation for Emacs key
 bindings, used throughout this manual.  This function also appears on
 the @code{File} menu of Emacs.  The remaining commands used will be on
-the @code{Proof-General} menu.
+the @code{Proof-General} menu or toolbar.
 
 If you're not using Isabelle, you must choose a different file
 extension, appropriately for your proof assistant.  If you don't know
@@ -806,42 +806,63 @@ which reflects the command just executed.
 @c FIXME: explain window layouts a bit
 
 In this case of this first command, it is hard to see the orange/pink
-stage because the command is processed very quickly on most machines.
-But in general, processing commands can take an arbitrary amount of
-time (or not terminate at all).  For this reason, Proof General
-maintains a queue of commands which are sent one-by-one from the proof
-script.  As Isabelle successfully processes commands in the queue,
-they will turn from the orange/pink colour into blue (by default).
+stage because the command is processed very quickly on modern machines.
+But in general, processing commands can take an arbitrary amount of time
+(or not terminate at all).  For this reason, Proof General maintains a
+queue of commands which are sent one-by-one from the proof script.  As
+Isabelle successfully processes commands in the queue, they will turn
+from the orange/pink colour into blue.  
+
 The blue regions indicate text that has been read by the prover and
-should not be edited; for this reason it is made read-only, by
-default.  We often call it @i{locked}.
+should not be edited, to avoid confusion between what the prover has
+processed and what you are looking at.  To enforce this (and avoid
+potentially expensive reprocessing) the blue region can be made
+read-only.  This is controlled by the menu item: 
+@lisp
+  Proof-General -> Quick Options -> Read Only
+@end lisp
+The first option `Strict Read Only' was formerly the default for Proof
+General, and causes the blue region to be @i{locked}.  Because of this,
+the term @dfn{locked region} term is used in Proof General documentation
+to mean the blue portion of the text which has been processed, although
+it is no longer locked by default.  The current default is `Undo on
+Edit' which causes the prover to undo back to any user edits.  So if you
+change a processed piece of text you will need to re-process it.  The
+final option, `Freely Edit', allows you to freely edit the buffer
+without causing the prover to reprocess it.  This can quickly lead to
+confusion and a loss of synchronization between what you are reading and
+what the prover has processed, so it is best used sparingly.
 
-Electric terminator mode is popular, but not enabled by default
-because of the principle of least surprise.  Moreover, in Isabelle,
-the semicolon terminators are optional so proof scripts are usually
-written without them to avoid clutter.  You'll notice that although you
-typed a semi-colon it was not included in the buffer!  The electric
-terminator tries to be smart about comments and strings; in the one case
-when you are trying to add a semi-colon inside an already written
-comment, you need to use @kbd{C-q ;} to quote the character.
+Electric terminator mode is popular, but not enabled by default because
+of the principle of least surprise.  Moreover, in Isabelle, the
+semicolon terminators are optional so proof scripts are usually written
+without them to avoid clutter.  You'll notice that although you typed a
+semi-colon it was not included in the buffer!  The electric terminator
+tries to be smart about comments and strings but sometimes it may be
+confused (e.g., adding a semi-colon inside an already written comment),
+or you may need to type several terminator commands together.
+In this case you can use the standard Emacs @b{quote next character},
+typing @kbd{C-q ;} to quote the semi-colon.  Alternatively you can use
+a prefix argument, as in @kbd{M-3 ;} to type three semi-colons.
 
-Without electric terminator, you can trigger processing the text up to
-the current position of the point with the key @kbd{C-c C-RET}, or just
-up to the next command with @kbd{C-c C-n}.  We show the rest of the
-example in Isabelle with semi-colons, but you can miss them out.
+Without using electric terminator, you can trigger processing the text
+up to the current position of the point with the key @kbd{C-c C-RET}, or
+just up to the next command with @kbd{C-c C-n}.  We show the rest of the
+example in Isabelle with semi-colons, but these will not appear in the
+final text.
 
 Coq, on the other hand, requires a full-stop terminator at the end of
 each line, so @kbd{C-c C-.} is the key binding used to turn on
 electric terminator.  If you don't know what the terminator character
 is, you can find the option anyway on the menu:
-@code{Proof General -> Quick Options -> Processing -> Electric Terminator}
+@code{Proof-General -> Quick Options -> Processing -> Electric Terminator}
 which also shows the key binding.
 
 If you want to use electric terminator, you can customize Proof
 General to enable it everytime if you want, @xref{Customizing Proof
 General}.  For the common options, customization is easy: just
 use the menu item @code{Proof General -> Quick Options} to make your choices,
-and @code{Proof General -> Quick Options -> Save Options} to
+and @code{Proof-General -> Quick Options -> Save Options} to
 save your choices.
 
 
@@ -862,7 +883,7 @@ should be displayed in the @i{goals buffer}.
 @item 
 Now type:
 @lisp
-proof;
+proof
   assume "A & C";
 @end lisp
 @end itemize
@@ -878,7 +899,7 @@ Press @kbd{C-c C-BS} to pretend that didn't happen.
 Note: @kbd{BS} means the backspace key.  This key press sends an undo
 command to Isabelle, and deletes the @code{assume} command from the proof
 script.  If you just want to undo without deleting, you can type
-@kbd{C-c C-u} instead, or use the toolbar navigation button.
+@kbd{C-c C-u} instead, or use the left-arrow toolbar navigation button.
 
 @itemize @bullet
 @item
@@ -920,9 +941,10 @@ This last command closes the proof and saves the proved theorem.
 
 Moving the mouse pointer over the qed command now reveals that the
 entire proof has been aggregated into a single segment (if you did this
-before, you would see highlighting of each command separately).  This
-reflects the fact that Isabelle has thrown away the history of the
-proof, so if we want to undo now, the whole proof must be retracted.
+before, you would see highlighting of each command separately).
+@c This is no longer true!
+@c This reflects the fact that Isabelle has thrown away the history of the
+@c proof, so if we want to undo now, the whole proof must be retracted.
 
 @itemize  @bullet
 @item 
@@ -1124,9 +1146,9 @@ As commands in a proof script are transferred to the locked region, they
 are aggregated into segments which constitute the smallest units which
 can be undone. Typically a segment consists of a declaration or
 definition, or all the text from a @dfn{goal} command to the
-corresponding @dfn{save} command, or the individual commands in the
-proof of an unfinished goal.  As the mouse moves over the the region,
-the segment containing the pointer will be highlighted.
+corresponding @dfn{save} (e.g. @code{qed}) command, or the individual
+commands in the proof of an unfinished goal.  As the mouse moves over
+the the region, the segment containing the pointer will be highlighted.
 
 Proof General therefore assumes that the proof script has a series of
 proofs which look something like this:
@@ -1157,7 +1179,11 @@ one buffer at a time can be used to process a proof script
 incrementally: this is the @dfn{active scripting buffer}.
 
 The active scripting buffer has a special indicator: the word
-@code{Scripting} appears in its mode line.  
+@code{Scripting} appears in its mode line at the bottom of
+the screen.  This is coloured to indicate the status:
+if it has a pink or blue background, the prover is processing the
+text (busy when pink).  If it is in green, the buffer is
+completely processed.
 
 When you use a scripting command, it will automatically turn a buffer
 into the active scripting mode.  You can also do this by hand, via the
@@ -1763,21 +1789,34 @@ declarative languages), this may enable a ``document centred'' way of
 working, where you may not need to keep a separate window open for
 displaying prover output.
 
-Several configuration settings can be used to fine tune this behaviour.
-
-First, you may select
+This way of working is controlled by several settings.  To help
+configure things appropriately for document-centred working, there are
+two short-cut commands:
 @lisp
-Proof General -> Quick Options -> Processing -> Full Annotations
+Proof-General -> Quick Options -> Display -> Document Centred 
+Proof-General -> Quick Options -> Display -> Default
+@end lisp
+which change settings appropriately between a document centred
+mode and the original classic Proof General behaviour and appearance.  
+The first command also engages automatic processing of the whole
+buffer, explained in the following section further below.
+
+The behaviour can be fine-tuned with the individual settings.
+Starting with the classic settings, first, you may select
+@lisp
+Proof-General -> Quick Options -> Processing -> Full Annotations
 @end lisp
 to ensure that the details are recorded in the script.  This is not the
 default because it can cause long sequences of commands to execute more
-slowly as the prover must output information.  It also increases the
-space requirements for Emacs buffers.  However, when interactively
-developing smaller files, it is very useful.
+slowly as the output is collected from the prover eagerly when the
+commands are executed, and printing can be be slow for large and complex
+expressions.  It also increases the space requirements for Emacs
+buffers.  However, when interactively developing smaller files, it is
+very useful.
 
 Next, you may @i{de}select 
 @lisp
-Proof General -> Quick Options -> Display -> Auto Raise
+Proof-General -> Quick Options -> Display -> Auto Raise
 @end lisp
 which will prevent the prover output being eagerly displayed.  You can
 still manually arrange your Emacs windows and frames to ensure the
@@ -1798,7 +1837,7 @@ in the left-hand fringe of the display, to see which line processing has
 stopped at.   If it has stopped on a region with
 an error, you might want to see that.  You can select
 @lisp
-Proof General -> Quick Options -> Display -> Sticky Errors
+Proof-General -> Quick Options -> Display -> Sticky Errors
 @end lisp
 to add a higlight for regions which did not successfully process
 on the last attempt.  Whenever the region is edited, the
@@ -1806,28 +1845,48 @@ highlight is removed.
 
 Finally, you may want to ensure that
 @lisp
-Proof General -> Quick Options -> Read Only -> Undo On Edit
+Proof-General -> Quick Options -> Read Only -> Undo On Edit
 @end lisp
 is selected.  
-Undo on edit is a setting for the `proof-strict-read-only' variable.
+Undo on edit is a setting for the @code{proof-strict-read-only} variable.
 This allows you to freely edit the processed region, but first it
 automatically retracts back to the point of the edit.  Comments can
 be edited freely without retraction.
 
-@xref{Display customization}, for more information about
-customizing display options.
+The configuration variables controlled by the above menu items can be
+customized as Emacs variables.  The two settings which control
+interaction with the prover are @code{proof-full-annotation} and
+@code{proof-strict-read-only}.  Note that you can also record the
+history of output from the prover @i{without} adding mouse hovers to the
+script.  This is controlled by @code{proof-output-tooltips} which is
+also on the Display menu in Quick Options.  @xref{Display
+customization}, for more information about customizing display options.
+
+@c TEXI DOCSTRING MAGIC: proof-full-annotation
+@defopt proof-full-annotation 
+Non-nil causes Proof General to record output for all proof commands.@*
+Proof output is recorded as it occurs interactively; normally if
+many steps are taken at once, this output is suppressed.  If this
+setting is used to enable it, the proof script can be annotated
+with full details.  See also @samp{@code{proof-output-tooltips}} to enable
+automatic display of output on mouse hovers.
+
+The default value is @code{nil}.
+@end defopt
 
 
-To help configure the options appropriately for document-centred working,
-there are two commands:
-@lisp
-Proof General -> Quick Options -> Display -> Document Centred 
-Proof General -> Quick Options -> Display -> Default
-@end lisp
-which change settings appropriately between a document centred
-mode and the classic Proof General behaviour and appearance.  
-The first command also engages automatic processing of the whole
-buffer, explained in the next section.
+@c TEXI DOCSTRING MAGIC: proof-strict-read-only
+@defopt proof-strict-read-only 
+Whether Proof General is strict about the read-only region in buffers.@*
+If non-nil, an error is given when an attempt is made to edit the
+read-only region, except for the special value @code{'retract} which means
+undo first.  If nil, Proof General is more relaxed (but may give
+you a reprimand!).
+
+The default value is @code{retract}.
+@end defopt
+
+
 
 
 @node Automatic processing
@@ -1844,14 +1903,14 @@ you aren't looking.
 
 Enabling
 @lisp
-Proof General -> Quick Options -> Processing -> Process Automatically
+Proof-General -> Quick Options -> Processing -> Process Automatically
 @end lisp
 
 Causes Proof General to start processing text when Emacs is idle for a
 while.  You can choose either to send just the next command beyond the
 point, or the whole buffer.  See
 @lisp
-Proof General -> Quick Options -> Processing -> Automatic Processing Mode
+Proof-General -> Quick Options -> Processing -> Automatic Processing Mode
 @end lisp
 for the choices.
 
@@ -2704,7 +2763,7 @@ manual for further details).
 
 To use Imenu, select the option
 @lisp
-        Proof General -> Quick Options -> Minor Modes -> Index Menu
+        Proof-General -> Quick Options -> Minor Modes -> Index Menu
 @end lisp
 This adds an "Index" menu to the main menu bar for proof script buffers.
 You can also use @kbd{M-x imenu} for keyboard-driven completion of tags
@@ -2718,7 +2777,7 @@ file or tag.
 
 To use Speedbar, use 
 @lisp
-        Proof General -> Quick Options -> Minor Modes -> Speedbar 
+        Proof-General -> Quick Options -> Minor Modes -> Speedbar 
 @end lisp
 If you prefer the old fashioned way, `M-x speedbar' does
 the same job.
@@ -3031,7 +3090,7 @@ on this menu are described shortly.  @xref{Display customization}.
 To save the current settings for these options (only), use the Save
 Options command in the submenu:
 @lisp
-   Proof General -> Quick Options -> Save Options
+   Proof-General -> Quick Options -> Save Options
 @end lisp
 or @code{M-x customize-save-customized}.
 
@@ -3311,17 +3370,6 @@ The default value is @code{nil}.
 If non-nil, display Proof General toolbar for script buffers.
 
 The default value is @code{t}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: proof-strict-read-only
-@defopt proof-strict-read-only 
-Whether Proof General is strict about the read-only region in buffers.@*
-If non-nil, an error is given when an attempt is made to edit the
-read-only region, except for the special value @code{'retract} which means
-undo first.  If nil, Proof General is more relaxed (but may give
-you a reprimand!).
-
-The default value is @code{retract}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
@@ -4172,7 +4220,7 @@ You can either switch ancestor locking completely off via
 @code{coq-lock-ancestors} (@ref{Customizing Coq Multiple
 File Support}) or you can generally permit editing in locked
 sections with selecting 
-@code{Proof General} -> @code{Quick Options} -> @code{Read Only}
+@code{Proof-General} -> @code{Quick Options} -> @code{Read Only}
 -> @code{Freely Edit} (which will set the option
 @code{proof-strict-read-only} to @code{nil}).
 
