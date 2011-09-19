@@ -1,6 +1,6 @@
 ### -*- mode: makefile-gmake -*-
 
-DIRS	    = lisp site-lisp override el-get
+DIRS	    = lisp site-lisp override
 SPECIAL	    = autoloads.el cus-dirs.el
 ORGSRC	    = $(patsubst %.org,%.el,$(wildcard *.org))
 SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) $(wildcard site-lisp/*.el))

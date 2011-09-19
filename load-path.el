@@ -6,17 +6,12 @@
   (expand-file-name "site-lisp/" user-emacs-directory))
 (defconst user-override-directory
   (expand-file-name "override/" user-emacs-directory))
-(defconst user-el-get-directory
-  (expand-file-name "el-get/" user-emacs-directory))
-(defconst user-staging-directory
-  (expand-file-name "staging/" user-emacs-directory))
 
 ;; Add top-level lisp directories, in case they were not setup by the
 ;; environment.
 (dolist (dir (list user-lisp-directory
                    user-site-lisp-directory
-                   user-override-directory
-                   user-el-get-directory))
+                   user-override-directory))
  (dolist (entry (directory-files-and-attributes dir))
    (if (cadr entry)
        (add-to-list 'load-path (expand-file-name (car entry) dir)))))
