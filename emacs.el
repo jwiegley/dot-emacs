@@ -2689,6 +2689,10 @@ Else, return \" \"."
 (define-key mode-specific-map [?y ?r] 'yas/reload-all)
 (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file)
 
+(define-key mode-specific-map [?w ?f] 'yaoddmuse-browse-page-default)
+(define-key mode-specific-map [?w ?e] 'yaoddmuse-edit-default)
+(define-key mode-specific-map [?w ?p] 'yaoddmuse-post-library-default)
+
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
 (define-key mode-specific-map [?, ?c] 'howm-create)
