@@ -2080,6 +2080,7 @@ Else, return \" \"."
 
 ;;;_  . M-<?>
 
+(define-key global-map [(meta ?!)] 'async-shell-command)
 (define-key global-map [(meta ?/)] 'dabbrev-expand)
 (define-key global-map [(meta ??)] 'anything-dabbrev-expand)
 
