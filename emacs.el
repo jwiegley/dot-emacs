@@ -2683,15 +2683,15 @@ Else, return \" \"."
 
 (define-key mode-specific-map [?V] 'view-clipboard)
 
+(define-key mode-specific-map [?w ?f] 'yaoddmuse-browse-page-default)
+(define-key mode-specific-map [?w ?e] 'yaoddmuse-edit-default)
+(define-key mode-specific-map [?w ?p] 'yaoddmuse-post-library-default)
+
 (define-key mode-specific-map [?y ?n] 'yas/new-snippet)
 (define-key mode-specific-map [?y tab] 'yas/expand)
 (define-key mode-specific-map [?y ?f] 'yas/find-snippets)
 (define-key mode-specific-map [?y ?r] 'yas/reload-all)
 (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file)
-
-(define-key mode-specific-map [?w ?f] 'yaoddmuse-browse-page-default)
-(define-key mode-specific-map [?w ?e] 'yaoddmuse-edit-default)
-(define-key mode-specific-map [?w ?p] 'yaoddmuse-post-library-default)
 
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
