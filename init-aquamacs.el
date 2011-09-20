@@ -1,5 +1,5 @@
 ;;; init-aquamacs.el --- Where all the magic begins, for Aquamacs
 
-(assert (featurep 'aquamacs))
+(message "This is Aquamacs")
 
 ;;; init-aquamacs.el ends here
