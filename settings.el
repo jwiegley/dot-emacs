@@ -88,6 +88,7 @@
  '(erc-autoaway-mode t)
  '(erc-autojoin-channels-alist (quote (("localhost" "&bitlbee") ("freenode.net" "#ledger") ("irc.oftc.net" "#llvm"))))
  '(erc-autojoin-mode t)
+ '(erc-fools (quote ("JordiGH")))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
