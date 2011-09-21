@@ -1530,6 +1530,18 @@ end tell" (match-string 1))))
           (lambda ()
             (setq fill-column (- fill-column 5))))
 
+(defun org-message-reply ()
+  (interactive)
+  (let* ((org-marker (get-text-property (point) 'org-marker))
+         (submitter (org-entry-get (or org-marker (point)) "Submitter"))
+         (subject (if org-marker
+                      (with-current-buffer (marker-buffer org-marker)
+                        (goto-char org-marker)
+                        (nth 4 (org-heading-components)))
+                    (nth 4 (org-heading-components)))))
+    (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
+    (compose-mail-other-window submitter (concat "Re: " subject))))
+
 ;;;_  . howm-mode
 
 (eval-when-compile
