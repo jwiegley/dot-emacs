@@ -1949,6 +1949,17 @@ Else, return \" \"."
         ":"))
      (t " "))))
 
+;; prettier summary buffers
+
+(when window-system
+  (setq gnus-sum-thread-tree-indent          "  ")                   ;; "  "
+  (setq gnus-sum-thread-tree-root            "\u25cf ")              ;; "● "
+  (setq gnus-sum-thread-tree-false-root      "\u25ef ")              ;; "◯ "
+  (setq gnus-sum-thread-tree-single-indent   "\u25ce ")              ;; "◎ "
+  (setq gnus-sum-thread-tree-vertical        "\u2502")               ;; "│"
+  (setq gnus-sum-thread-tree-leaf-with-other "\u251c\u2500\u25b8 ")  ;; "├─▸ "
+  (setq gnus-sum-thread-tree-single-leaf     "\u2570\u2500\u25b8 ")) ;; "╰─▸ "
+
 ;;;_  . Browsing article URLs
 
 (eval-when-compile
