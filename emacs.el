@@ -2104,28 +2104,30 @@ Else, return \" \"."
 
 (defun switch-to-gnus ()
   (interactive)
-  (let ((alist '(("\\`\\*unsent")
-                 ("\\`\\*Article" nil
-                  (lambda () (buffer-live-p gnus-article-current-summary)))
-                 ("\\`\\*Summary")
-                 ("\\`\\*Group")))
+  (let ((alist
+         '(("\\`\\*unsent")
+           ("\\`\\*Article"
+            (lambda (buf)
+              (buffer-live-p gnus-article-current-summary)))
+           ("\\`\\*Summary")
+           ("\\`\\*Group"
+            (lambda (buf)
+              (with-current-buffer buf
+                (gnus-group-get-new-news))))))
         candidate)
-    (catch 'none-found
+    (catch 'found
       (dolist (item alist)
         (let ((regexp (nth 0 item))
-              (optional (nth 1 item))
-              (test (nth 2 item)) last)
+              (test (nth 1 item))
+              last)
           (dolist (buf (buffer-list))
-            (if (and (string-match regexp (buffer-name buf))
-                     (> (buffer-size buf) 0))
+            (if (string-match regexp (buffer-name buf))
                 (setq last buf)))
-          (cond ((and last (or (not test) (funcall test)))
-                 (setq candidate last)
-                 (throw 'none-found nil))
-                (optional nil)
-                (t (throw 'none-found t))))))
+          (if (and last (or (null test)
+                            (funcall test last)))
+              (throw 'found (setq candidate last))))))
     (if candidate
-        (switch-to-buffer candidate)
+        (ido-visit-buffer candidate ido-default-buffer-method)
       (gnus))))
 
 (define-key global-map [(meta ?B)] 'bbdb)
