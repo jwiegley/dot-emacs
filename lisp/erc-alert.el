@@ -27,6 +27,9 @@
 
 ;; Notify me using alert.el when people talk to me in ERC.
 
+(require 'erc)
+(require 'alert)
+
 (defgroup erc-alert nil
   "Alert me using alert.el for important ERC messages"
   :group 'erc)
