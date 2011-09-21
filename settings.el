@@ -350,6 +350,7 @@
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-footnote-section nil)
  '(org-habit-preceding-days 42)
+ '(org-habit-today-glyph 45)
  '(org-hide-leading-stars t)
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-irc-link-to-logs t t)
