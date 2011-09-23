@@ -4379,6 +4379,23 @@ locked when the "Require" command is processed.
 @end defvar
 
 
+The following option controls which warnings of @code{coqdep}
+are treated as errors.
+
+@c TEXI DOCSTRING MAGIC: coq-coqdep-error-regexp
+@defvar coq-coqdep-error-regexp 
+Regexp to match errors in the output of coqdep.@*
+coqdep indicates errors not via a non-zero exit status, but only
+via printing warnings. This regular expression is used for
+recognizing error conditions in the output of coqdep. Its
+default value matches the warning that some required library
+cannot be found on the load path and ignores the warning for
+finding a library at multiple places in the load path. If you
+want to turn the latter condition into an error, then set this
+variable to "^\*\*\* Warning".
+@end defvar
+
+
 The following two options do only influence the behaviour if
 Proof General does dependency checking and compilation itself.
 These options determine whether Proof General should descend into

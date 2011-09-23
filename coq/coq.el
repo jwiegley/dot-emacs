@@ -1382,6 +1382,22 @@ and coqdep does not output dependencies in the standard library."
   :safe 'booleanp
   :group 'coq-auto-compile)
 
+(defcustom coq-coqdep-error-regexp
+  (concat "^\\*\\*\\* Warning: in file .*, library .* is required "
+          "and has not been found")
+  "Regexp to match errors in the output of coqdep.
+coqdep indicates errors not via a non-zero exit status, but only
+via printing warnings. This regular expression is used for
+recognizing error conditions in the output of coqdep. Its
+default value matches the warning that some required library
+cannot be found on the load path and ignores the warning for
+finding a library at multiple places in the load path. If you
+want to turn the latter condition into an error, then set this
+variable to \"^\\*\\*\\* Warning\"."
+  :type 'string
+  :safe 'stringp
+  :group 'coq-auto-compile)
+
 (defconst coq-require-command-regexp
   "^Require[ \t\n]+\\(Import\\|Export\\)?[ \t\n]*"
   "Regular expression matching Require commands in Coq.
@@ -1584,7 +1600,7 @@ the command whose output will appear in the buffer."
 
 (defun coq-get-library-dependencies (lib-src-file &optional command-intro)
   "Compute dependencies of LIB-SRC-FILE.
-Invoke \"coqdep\" on lib-src-file and parse the output to
+Invoke \"coqdep\" on LIB-SRC-FILE and parse the output to
 compute the compiled coq library object files on which
 LIB-SRC-FILE depends. The return value is either a string or a
 list. If it is a string then an error occurred and the string is
@@ -1592,7 +1608,7 @@ the core of the error message. If the return value is a list no
 error occurred and the returned list is the (possibly empty) list
 of file names LIB-SRC-FILE depends on.
 
-If an error occurs this funtion displays the
+If an error occurs this funtion displays
 `coq-compile-response-buffer' with the complete command and its
 output. The optional argument COMMAND-INTRO is only used in the
 error case. It is prepended to the displayed command.
@@ -1612,7 +1628,7 @@ break."
       (setq coqdep-output (buffer-string)))
     (if coq-debug-auto-compilation
         (message "coqdep output on %s: %s" lib-src-file coqdep-output))
-    (if (string-match "^\\*\\*\\* Warning" coqdep-output)
+    (if (string-match coq-coqdep-error-regexp coqdep-output)
         (let* ((this-command (cons coq-dependency-analyzer coqdep-arguments))
                (full-command (if command-intro
                                  (cons command-intro this-command)
