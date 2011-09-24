@@ -356,6 +356,9 @@
      (require 'magit-topgit)
      (require 'rebase-mode)))
 
+(defun git-commit-changes ()
+  (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
+
 ;;;_ , ido
 
 (eval-when-compile
