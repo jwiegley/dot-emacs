@@ -78,6 +78,18 @@
                 :style 'growl
                 :append t)
 
+(alert-add-rule :mode 'erc-mode
+                :predicate
+                #'(lambda (info)
+                    (let ((message (plist-get info :message))
+                          (erc-message (plist-get info :data)))
+                      (and erc-message
+                           (not (or (string-match "^\\** *Users on #" message)
+                                    (string-match erc-growl-noise-regexp
+                                                  message))))))
+                :style 'log
+                :append t)
+
 (alert-add-rule :mode 'erc-mode :style 'ignore :append t)
 
 (defun my-erc-hook (&optional match-type nick message)
