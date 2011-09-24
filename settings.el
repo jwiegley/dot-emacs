@@ -136,7 +136,7 @@
  '(frame-title-format (quote (:eval (concat (if buffer-file-name default-directory "%b") "    " (number-to-string (cdr (assq (quote width) (frame-parameters)))) "x" (number-to-string (cdr (assq (quote height) (frame-parameters))))))) t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
- '(gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-display-time-event-handler gnus-score-groups gnus-group-save-newsrc (lambda nil (if (file-exists-p "/tmp/unread") (delete-file "/tmp/unread")) (display-time-update)))))
+ '(gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-group-save-newsrc (lambda nil (if (file-exists-p "/tmp/unread") (delete-file "/tmp/unread")) (display-time-update)) gnus-display-time-event-handler)))
  '(gnus-agent-expire-all t)
  '(gnus-agent-expire-days 14)
  '(gnus-agent-go-online t)
