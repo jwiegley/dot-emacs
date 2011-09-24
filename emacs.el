@@ -985,6 +985,19 @@
 (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
+(info-lookup-add-help
+ :mode 'python-mode
+ :regexp "[a-zA-Z_0-9.]+"
+ :doc-spec
+ '(("(python)Python Module Index" )
+   ("(python)Index"
+    (lambda
+      (item)
+      (cond
+       ((string-match
+         "\\([A-Za-z0-9_]+\\)() (in module \\([A-Za-z0-9_.]+\\))" item)
+        (format "%s.%s" (match-string 2 item) (match-string 1 item))))))))
+
 (eval-when-compile
   (defvar py-mode-map))
 
@@ -1010,6 +1023,13 @@
   (define-key nxml-mode-map [(control return)] 'other-window))
 
 (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
+
+;;;_  . shell-script
+
+(info-lookup-add-help :mode 'shell-script-mode
+                      :regexp ".*"
+                      :doc-spec
+                      '(("(bash)Index")))
 
 ;;;_  . zencoding
 
