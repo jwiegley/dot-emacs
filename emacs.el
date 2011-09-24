@@ -1875,7 +1875,7 @@ This moves them into the Spam folder."
   (defvar arg)
   (defvar gnus-level-subscribed))
 
-(defun gnus-score-groups ()
+(defun gnus-score-groups (&optional arg)
   (interactive)
   (save-excursion
     (dolist (info (cdr gnus-newsrc-alist))
