@@ -17,7 +17,8 @@
        (add-to-list 'load-path (expand-file-name (car entry) dir)))))
 
 (dolist (path (nreverse
-               (list "override/eshell/"
+               (list "override/bbdb/lisp/"
+                     "override/eshell/"
                      "override/gnus/contrib/"
                      "override/gnus/lisp/"
                      "override/org-mode/contrib/lisp/"

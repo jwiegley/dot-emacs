@@ -47,7 +47,6 @@
 
 (mapc #'require
       '(archive-region
-        bbdb-autoloads
         browse-kill-ring+
         bookmark
         diminish

@@ -46,9 +46,9 @@
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
 	url = git://github.com/jwiegley/auctex.git
-[submodule "site-lisp/bbdb"]
-	path = site-lisp/bbdb
-	url = git://github.com/emacsmirror/bbdb.git
+[submodule "override/bbdb"]
+	path = override/bbdb
+	url = git://git.savannah.nongnu.org/bbdb.git
 [submodule "site-lisp/color-theme"]
 	path = site-lisp/color-theme
 	url = git://github.com/jwiegley/color-theme.git
