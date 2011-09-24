@@ -1792,7 +1792,6 @@ end tell" (match-string 1))))
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-offlineimap)
 
 (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
-(add-hook 'gnus-startup-hook 'bbdb-insinuate-sc)
 
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
 
