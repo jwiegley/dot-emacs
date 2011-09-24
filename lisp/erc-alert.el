@@ -64,29 +64,23 @@
                 :style 'fringe
                 :continue t)
 
+(defun erc-alert-important-p (info)
+  (let ((message (plist-get info :message))
+        (erc-message (plist-get info :data)))
+    (and erc-message
+         (not (or (string-match "^\\** *Users on #" message)
+                  (string-match erc-growl-noise-regexp
+                                message))))))
+
 ;; If the ERC buffer is not visible, tell the user through Growl
 (alert-add-rule :status 'buried
                 :mode   'erc-mode
-                :predicate
-                #'(lambda (info)
-                    (let ((message (plist-get info :message))
-                          (erc-message (plist-get info :data)))
-                      (and erc-message
-                           (not (or (string-match "^\\** *Users on #" message)
-                                    (string-match erc-growl-noise-regexp
-                                                  message))))))
+                :predicate #'erc-alert-important-p
                 :style 'growl
                 :append t)
 
 (alert-add-rule :mode 'erc-mode
-                :predicate
-                #'(lambda (info)
-                    (let ((message (plist-get info :message))
-                          (erc-message (plist-get info :data)))
-                      (and erc-message
-                           (not (or (string-match "^\\** *Users on #" message)
-                                    (string-match erc-growl-noise-regexp
-                                                  message))))))
+                :predicate #'erc-alert-important-p
                 :style 'log
                 :append t)
 
