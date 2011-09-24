@@ -34,12 +34,11 @@
   :group 'org)
 
 (defvar org-subject-transforms
-  '(("\\`\\(Re\\|Fwd\\): "        . "")
-    ("\\`{ledger} "           . "")
-    ("(#[0-9]+)\\'"               . "")
-    ("\\`{\\([0-9]+\\)} New:" . "[[bug:\\1][#\\1]]")
-    ("\\`\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)" .
-     "[[redmine:\\1][#\\1]]")))
+  '(("\\`\\(Re\\|Fwd\\): "                          . "")
+    ("\\`{ledger} "                                 . "")
+    ("(#[0-9]+)\\'"                                 . "")
+    ("\\`\\[Bug \\([0-9]+\\)\\] New:"               . "[[bug:\\1][#\\1]]")
+    ("\\`\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)" . "[[redmine:\\1][#\\1]]")))
 
 (defun convert-dates ()
   (interactive)
@@ -76,7 +75,7 @@
                      (error nil))
               name (car data)
               date-sent (message-field-value "date")))
-      (when (stringp from)
+      (when (stringp name)
         ;; Guess first name and last name:
         (cond ((string-match
                 "\\`\\(\\w\\|[-.]\\)+ \\(\\w\\|[-.]\\)+\\'" name)
@@ -96,8 +95,13 @@
         (if (and arg (stringp lname))
             (insert ?  lname))
         (insert ?\) ? ))
-      (save-excursion
-        (insert subject))
+      (let ((new-subject subject))
+        (dolist (transform org-subject-transforms)
+          (setq new-subject
+                (replace-regexp-in-string (car transform)
+                                          (cdr transform) new-subject)))
+        (save-excursion
+          (insert new-subject)))
       (when body
         (flet ((trim-string (str)
                             (replace-regexp-in-string
@@ -107,10 +111,6 @@
             (forward-line 2)
             (dolist (line (split-string (trim-string body) "\n"))
               (insert "   " line ?\n)))))
-      (dolist (transform org-subject-transforms)
-        (setq subject (replace-regexp-in-string (car transform)
-                                                (cdr transform) subject)))
-
       (org-set-property "Date"
                         (or date-sent
                             (time-to-org-timestamp
