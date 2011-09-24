@@ -164,7 +164,7 @@
  '(gnus-large-newsgroup 4000)
  '(gnus-local-domain "boostpro.com")
  '(gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
- '(gnus-message-archive-group (quote ((format-time-string "sent.%Y-%m"))))
+ '(gnus-message-archive-group (quote ((format-time-string "sent.%Y"))))
  '(gnus-message-replyencrypt nil)
  '(gnus-novice-user nil)
  '(gnus-posting-styles (quote (("\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" ("From" "johnw@boostpro.com") (organization "BoostPro Computing, Inc.") (signature "  John Wiegley
