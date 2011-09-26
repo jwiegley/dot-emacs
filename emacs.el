@@ -537,6 +537,25 @@
 (yas/initialize)
 (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
 
+(defun yas/new-snippet (&optional choose-instead-of-guess)
+  (interactive "P")
+  (let ((guessed-directories (yas/guess-snippet-directories)))
+    (switch-to-buffer "*new snippet*")
+    (erase-buffer)
+    (kill-all-local-variables)
+    (snippet-mode)
+    (set (make-local-variable 'yas/guessed-modes)
+         (mapcar #'(lambda (d)
+                     (intern (yas/table-name (car d))))
+                 guessed-directories))
+    (unless (and choose-instead-of-guess
+                 (not (y-or-n-p "Insert a snippet with useful headers? ")))
+      (yas/expand-snippet "\
+# -*- mode: snippet -*-
+# name: $1
+# --
+$0"))))
+
 ;;;_ , diminish (this must come last)
 
 (diminish 'abbrev-mode)
