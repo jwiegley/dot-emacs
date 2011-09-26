@@ -1651,15 +1651,15 @@ end tell" (match-string 1))))
 
 ;;;_  . keybindings
 
-(defun my-org-todo-done () (interactive) (org-todo "DONE"))
-(defun my-org-todo-deferred () (interactive) (org-todo "DEFERRED"))
-(defun my-org-todo-someday () (interactive) (org-todo "SOMEDAY"))
+(defun my-org-todo-done ()      (interactive) (org-todo "DONE"))
+(defun my-org-todo-deferred ()  (interactive) (org-todo "DEFERRED"))
+(defun my-org-todo-someday ()   (interactive) (org-todo "SOMEDAY"))
 (defun my-org-todo-delegated () (interactive) (org-todo "DELEGATED"))
-(defun my-org-todo-note () (interactive) (org-todo "NOTE"))
-(defun my-org-todo-started () (interactive) (org-todo "STARTED"))
-(defun my-org-todo-todo () (interactive) (org-todo "TODO"))
-(defun my-org-todo-waiting () (interactive) (org-todo "WAITING"))
-(defun my-org-todo-canceled () (interactive) (org-todo "CANCELED"))
+(defun my-org-todo-note ()      (interactive) (org-todo "NOTE"))
+(defun my-org-todo-started ()   (interactive) (org-todo "STARTED"))
+(defun my-org-todo-todo ()      (interactive) (org-todo "TODO"))
+(defun my-org-todo-waiting ()   (interactive) (org-todo "WAITING"))
+(defun my-org-todo-canceled ()  (interactive) (org-todo "CANCELED"))
 
 (define-key mode-specific-map [?x ?d] 'my-org-todo-done)
 (define-key mode-specific-map [?x ?r] 'my-org-todo-deferred)
