@@ -1,6 +1,6 @@
 (* -*- isabelle-chosen-logic: "HOL" -*- *)
 
-theory ChosenLogic imports HOL
+theory ChosenLogic2 imports HOL
 begin
 
 end

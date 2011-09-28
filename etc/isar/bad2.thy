@@ -1,1 +1,1 @@
-theory A = unknown:
+theory bad2 imports unknown begin

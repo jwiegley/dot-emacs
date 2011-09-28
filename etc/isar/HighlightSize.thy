@@ -6,7 +6,7 @@ begin
 lemmas rules = sym refl trans sym refl trans sym refl trans sym refl trans sym refl trans
 
 ML_command {* Pretty.writeln (Pretty.markup Markup.hilite
-  [ProofContext.pretty_fact @{context} ("foo", @{thms rules(1-14)})]) *}
+  [Proof_Context.pretty_fact @{context} ("foo", @{thms rules(1-14)})]) *}
 
 end
 

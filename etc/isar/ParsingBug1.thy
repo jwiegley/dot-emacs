@@ -6,7 +6,7 @@
 *)
   
 
-theory ParsingBug1 = Main:
+theory ParsingBug1 imports Main begin
 
 theorem "P"
 proof -

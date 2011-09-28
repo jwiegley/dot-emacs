@@ -12,7 +12,7 @@ text {*
 subsection {* and this one. *}
 
 
-ML_setup {*
+ML {*
   (* Whereas this region is edited in SML mode.  For that to work, you
   need to have installed SML mode in your Emacs, otherwise MMM mode
   won't bother.  See Stefan Monnier's page at
@@ -22,11 +22,11 @@ ML_setup {*
     | foo (x::xs) = x * foo xs
 *}
 
-ML {* (* and this one *) *}
+ML_val {* (* and this one *) *}
 
 ML_command {* (* and this one *) *}
 
-typed_print_translation {* (* and even this one *) *}
+print_translation {* [] (* and even this one *) *}
 
 text {* 
   You can enter the text for a MMM region conveniently 

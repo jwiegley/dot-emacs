@@ -6,8 +6,8 @@ text {*
   this produces massive amount of simplifier trace, but terminates
   eventually: *}
 
-declare [[trace_simp]]
-ML {* reset quick_and_dirty *}
+declare [[simp_trace]]
+ML {* quick_and_dirty := false *}
 
 datatype ord = Zero | Succ ord | Limit "nat => ord"
 

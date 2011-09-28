@@ -1,4 +1,4 @@
-theory Test imports Main begin
+theory "Trac280-subrev" imports Main begin
 
 lemma 
  assumes asm: "P\<^isub>i \<and> Q\<^isub>i"
@@ -11,5 +11,4 @@ proof -
 qed
 
 end
-
 

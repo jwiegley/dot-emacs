@@ -1,6 +1,6 @@
-(*  Copied from Isabelle2009/src/HOL/Isar_examples/ *)
+(*  Copied from Isabelle2011-1/src/HOL/Isar_examples/ *)
 
-(*  Title:      HOL/Isar_examples/Fibonacci.thy
+(*  Title:      HOL/Isar_Examples/Fibonacci.thy
     Author:     Gertrud Bauer
     Copyright   1999 Technische Universitaet Muenchen
 
@@ -17,31 +17,32 @@ Fibonacci numbers: proofs of laws taken from
 header {* Fib and Gcd commute *}
 
 theory Fibonacci
-imports Primes
+imports "~~/src/HOL/Number_Theory/Primes"
 begin
 
-text_raw {*
- \footnote{Isar version by Gertrud Bauer.  Original tactic script by
- Larry Paulson.  A few proofs of laws taken from
- \cite{Concrete-Math}.}
-*}
+text_raw {* \footnote{Isar version by Gertrud Bauer.  Original tactic
+  script by Larry Paulson.  A few proofs of laws taken from
+  \cite{Concrete-Math}.} *}
+
+
+declare One_nat_def [simp]
 
 
 subsection {* Fibonacci numbers *}
 
 fun fib :: "nat \<Rightarrow> nat" where
   "fib 0 = 0"
-  | "fib (Suc 0) = 1"
-  | "fib (Suc (Suc x)) = fib x + fib (Suc x)"
+| "fib (Suc 0) = 1"
+| "fib (Suc (Suc x)) = fib x + fib (Suc x)"
 
-lemma [simp]: "0 < fib (Suc n)"
+lemma [simp]: "fib (Suc n) > 0"
   by (induct n rule: fib.induct) simp_all
 
 
 text {* Alternative induction rule. *}
 
 theorem fib_induct:
-    "P 0 \<Longrightarrow> P 1 \<Longrightarrow> (\<And>n. P (n + 1) \<Longrightarrow> P n \<Longrightarrow> P (n + 2)) \<Longrightarrow> P (n::nat)"
+    "P 0 ==> P 1 ==> (!!n. P (n + 1) ==> P n ==> P (n + 2)) ==> P (n::nat)"
   by (induct rule: fib.induct) simp_all
 
 
@@ -78,20 +79,21 @@ proof (induct n rule: fib_induct)
   fix n
   have "fib (n + 2 + 1) = fib (n + 1) + fib (n + 2)"
     by simp
+  also have "... = fib (n + 2) + fib (n + 1)" by simp
   also have "gcd (fib (n + 2)) ... = gcd (fib (n + 2)) (fib (n + 1))"
-    by (simp only: gcd_add2')
+    by (rule gcd_add2_nat)
   also have "... = gcd (fib (n + 1)) (fib (n + 1 + 1))"
-    by (simp add: gcd_commute)
+    by (simp add: gcd_commute_nat)
   also assume "... = 1"
   finally show "?P (n + 2)" .
 qed
 
-lemma gcd_mult_add: "0 < n \<Longrightarrow> gcd (n * k + m) n = gcd m n"
+lemma gcd_mult_add: "(0::nat) < n ==> gcd (n * k + m) n = gcd m n"
 proof -
   assume "0 < n"
   then have "gcd (n * k + m) n = gcd n (m mod n)"
-    by (simp add: gcd_non_0 add_commute)
-  also from `0 < n` have "... = gcd m n" by (simp add: gcd_non_0)
+    by (simp add: gcd_non_0_nat add_commute)
+  also from `0 < n` have "... = gcd m n" by (simp add: gcd_non_0_nat)
   finally show ?thesis .
 qed
 
@@ -102,26 +104,26 @@ proof (cases m)
 next
   case (Suc k)
   then have "gcd (fib m) (fib (n + m)) = gcd (fib (n + k + 1)) (fib (k + 1))"
-    by (simp add: gcd_commute)
+    by (simp add: gcd_commute_nat)
   also have "fib (n + k + 1)
-    = fib (k + 1) * fib (n + 1) + fib k * fib n"
+      = fib (k + 1) * fib (n + 1) + fib k * fib n"
     by (rule fib_add)
   also have "gcd ... (fib (k + 1)) = gcd (fib k * fib n) (fib (k + 1))"
     by (simp add: gcd_mult_add)
   also have "... = gcd (fib n) (fib (k + 1))"
-    by (simp only: gcd_fib_Suc_eq_1 gcd_mult_cancel)
+    by (simp only: gcd_fib_Suc_eq_1 gcd_mult_cancel_nat)
   also have "... = gcd (fib m) (fib n)"
-    using Suc by (simp add: gcd_commute)
+    using Suc by (simp add: gcd_commute_nat)
   finally show ?thesis .
 qed
 
 lemma gcd_fib_diff:
-  assumes "m \<le> n"
+  assumes "m <= n"
   shows "gcd (fib m) (fib (n - m)) = gcd (fib m) (fib n)"
 proof -
   have "gcd (fib m) (fib (n - m)) = gcd (fib m) (fib (n - m + m))"
     by (simp add: gcd_fib_add)
-  also from `m \<le> n` have "n - m + m = n" by simp
+  also from `m <= n` have "n - m + m = n" by simp
   finally show ?thesis .
 qed
 
@@ -130,7 +132,7 @@ lemma gcd_fib_mod:
   shows "gcd (fib m) (fib (n mod m)) = gcd (fib m) (fib n)"
 proof (induct n rule: nat_less_induct)
   case (1 n) note hyp = this
-  show ?case 
+  show ?case
   proof -
     have "n mod m = (if n < m then n else (n - m) mod m)"
       by (rule mod_if)
@@ -138,29 +140,28 @@ proof (induct n rule: nat_less_induct)
     proof (cases "n < m")
       case True then show ?thesis by simp
     next
-      case False then have "m \<le> n" by simp
+      case False then have "m <= n" by simp
       from `0 < m` and False have "n - m < n" by simp
       with hyp have "gcd (fib m) (fib ((n - m) mod m))
-        = gcd (fib m) (fib (n - m))" by simp
+          = gcd (fib m) (fib (n - m))" by simp
       also have "... = gcd (fib m) (fib n)"
-        using `m \<le> n` by (rule gcd_fib_diff)
+        using `m <= n` by (rule gcd_fib_diff)
       finally have "gcd (fib m) (fib ((n - m) mod m)) =
-        gcd (fib m) (fib n)" .
+          gcd (fib m) (fib n)" .
       with False show ?thesis by simp
     qed
     finally show ?thesis .
   qed
 qed
 
-
 theorem fib_gcd: "fib (gcd m n) = gcd (fib m) (fib n)" (is "?P m n")
-proof (induct m n rule: gcd_induct)
+proof (induct m n rule: gcd_nat_induct)
   fix m show "fib (gcd m 0) = gcd (fib m) (fib 0)" by simp
   fix n :: nat assume n: "0 < n"
-  then have "gcd m n = gcd n (m mod n)" by (rule gcd_non_0)
+  then have "gcd m n = gcd n (m mod n)" by (simp add: gcd_non_0_nat)
   also assume hyp: "fib ... = gcd (fib n) (fib (m mod n))"
   also from n have "... = gcd (fib n) (fib m)" by (rule gcd_fib_mod)
-  also have "... = gcd (fib m) (fib n)" by (rule gcd_commute)
+  also have "... = gcd (fib m) (fib n)" by (rule gcd_commute_nat)
   finally show "fib (gcd m n) = gcd (fib m) (fib n)" .
 qed
 

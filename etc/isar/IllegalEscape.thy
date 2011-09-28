@@ -3,5 +3,5 @@
 theory IllegalEscape imports Main begin
 
     lemma X: "a=b ==> b=a" by simp -- "Text with \illegal escape sequence"
-
+      oops
 end 

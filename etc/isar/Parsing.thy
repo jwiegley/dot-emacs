@@ -3,7 +3,7 @@
 
 (* First, start with successive comments before a real command *)
 
-theory Parsing = Main:
+theory Parsing imports Main begin
 
 (* Then a comment *after* a command.  Also one which mentions
    the names of commands, such as theory or theorem or proof itself,
@@ -38,12 +38,12 @@ text {* nesting (* may be the other way around *) *}
 theorem and_comms: "A & B --> B & A"
 proof
   assume "A & B"  (* it's "important" that we test "strings" I guess *)
-    thus "B & A"
-    proof
-      assume A B (* blah boo bah *)
-	show ?thesis (* bah boo bah *)
-	..
-    qed
+  then show "B & A"
+  proof
+    assume B A (* blah boo bah *)
+    then show ?thesis (* bah boo bah *)
+      ..
+  qed
 qed
 
 (* Another thing: nesting with { and } can be tricky. *)
@@ -51,12 +51,14 @@ qed
 theorem and_comms_again: "A & B --> B & A"
 proof
   assume "A & B" 
-    thus "B & A"
-    proof {
-      assume A B
-	show ?thesis
+  then show "B & A"
+  proof
+    {
+      assume B A
+      then show ?thesis
 	..
-    } qed
+    }
+  qed
 qed
 
 (* Now the end of file is coming up.  Funny things happen

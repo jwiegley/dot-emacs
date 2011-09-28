@@ -25,7 +25,7 @@ Tests:
 *)
 
 
-theory Persistent = Main:
+theory Persistent imports Main begin
 
 theorem and_comms: "A & B --> B & A"
 proof

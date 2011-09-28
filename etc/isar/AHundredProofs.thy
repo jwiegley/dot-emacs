@@ -1,7 +1,8 @@
-theory AHundredProofs imports Main
+theory AHundredProofs
+imports Main
 begin
 
-ML {* val start = start_timing(); *}
+ML {* val start = Timing.start () *}
 
 theorem and_comms1: "A & B --> B & A"
 proof
@@ -1003,6 +1004,6 @@ proof
  qed
 qed
 
-ML {* Output.warning (#message (end_timing start)); *}
+ML {* warning (Timing.message (Timing.result start)) *}
 
 end

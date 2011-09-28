@@ -10,7 +10,7 @@
    Workaround added Fri Aug 10 13:55:28 BST 2001
 *)
 
-theory XEmacsSyntacticContextProb = Main:
+theory XEmacsSyntacticContextProb imports Main begin
 
 term "
 (f x)" 
