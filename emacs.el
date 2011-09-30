@@ -2106,9 +2106,7 @@ Else, return \" \"."
   (interactive)
   (let ((alist
          '(("\\`\\*unsent")
-           ("\\`\\*Article"
-            (lambda (buf)
-              (buffer-live-p gnus-article-current-summary)))
+           ("\\`\\*Article")
            ("\\`\\*Summary")
            ("\\`\\*Group"
             (lambda (buf)
