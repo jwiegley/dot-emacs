@@ -99,6 +99,7 @@
      (define-key gnus-group-mode-map [?v ?o] 'start-offlineimap)
      (define-key gnus-group-mode-map [?v ?d] 'shutdown-offlineimap)
      (define-key gnus-group-mode-map [?v ?g] 'kick-offlineimap)
+     (define-key gnus-group-mode-map [?v ?k] 'kick-offlineimap)
 
      (define-key gnus-group-mode-map [?v ?f] 'fetchnews-fetch)
      (define-key gnus-group-mode-map [?v ?p] 'fetchnews-post)))
