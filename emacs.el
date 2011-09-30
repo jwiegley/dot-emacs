@@ -2128,7 +2128,7 @@ Else, return \" \"."
               (throw 'found (setq candidate last))))))
     (if candidate
         (ido-visit-buffer candidate ido-default-buffer-method)
-      (gnus))))
+      (gnus 1))))
 
 (define-key global-map [(meta ?B)] 'bbdb)
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
