@@ -1783,6 +1783,7 @@ end tell" (match-string 1))))
 (require 'starttls)
 (require 'message)
 (require 'pgg)
+(require 'offlineimap-ctl)
 
 (eval-when-compile
   (require 'gnus-group)
@@ -1797,21 +1798,6 @@ end tell" (match-string 1))))
           (lambda ()
             (set (make-local-variable 'hl-line-face) 'underline)
             (hl-line-mode 1)))
-
-(defun start-offlineimap ()
-  (interactive)
-  (shell-command
-   "launchctl load -S Aqua -w ~/Library/LaunchAgents/mac.offlineimap.plist")
-  (message "Offlineimap started"))
-
-(defun shutdown-offlineimap ()
-  (shell-command
-   "launchctl unload -w ~/Library/LaunchAgents/mac.offlineimap.plist")
-  (message "Offlineimap stopped"))
-
-(add-hook 'gnus-agent-plugged-hook 'start-offlineimap)
-(add-hook 'gnus-agent-unplugged-hook 'shutdown-offlineimap)
-(add-hook 'gnus-after-exiting-gnus-hook 'shutdown-offlineimap)
 
 (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
 
@@ -2098,9 +2084,7 @@ Else, return \" \"."
 (define-key global-map [(alt meta ?f)] 'gnus-query)
 
 (eval-after-load "gnus-group"
-  '(progn
-     (define-key gnus-group-score-map [?s] 'gnus-score-groups)
-     (define-key gnus-group-mode-map [?v ?o] 'start-offlineimap)))
+  '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
 
 (eval-after-load "gnus-sum"
   '(progn
