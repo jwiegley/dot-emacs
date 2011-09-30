@@ -77,7 +77,7 @@
 
 (defun switch-to-offlineimap ()
   (interactive)
-  (switch-to-buffer-other-window (get-buffer "*offlineimap*")))
+  (display-buffer (get-buffer "*offlineimap*")))
 
 (add-hook 'gnus-agent-plugged-hook 'start-offlineimap)
 (add-hook 'gnus-agent-unplugged-hook 'shutdown-offlineimap)
