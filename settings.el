@@ -395,6 +395,7 @@
  '(sc-default-attribution "")
  '(sc-preferred-attribution-list nil)
  '(sc-use-only-preference-p t)
+ '(scroll-bar-mode nil)
  '(send-mail-function (quote sendmail-send-it))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-registers (quote (t (0 . 127))))
