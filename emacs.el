@@ -1832,30 +1832,6 @@ This moves them into the Spam folder."
   (re-search-backward ": ")
   (goto-char (match-end 0)))
 
-(defvar sender-alist
-  '((".*@\\(boostpro\\|boost-consulting\\).com" .
-     "johnw@boostpro.com")
-    (".*@gmail.com" .
-     "jwiegley@gmail.com")))
-
-(defun message-set-from ()
-  (let ((to (message-field-value "to")))
-    (when to
-      (let ((from (message-field-value "from")))
-        (if from
-            (setq mail-envelope-from
-                  (cadr (mail-extract-address-components from)))
-          (let ((result
-                 (assoc-default (cadr (mail-extract-address-components to))
-                                sender-alist 'string-match
-                                user-mail-address)))
-            (setq mail-envelope-from result)
-            (message-remove-header "From")
-            (message-add-header (format "From: %s <%s>"
-                                        user-full-name result))))))))
-
-(add-hook 'message-send-hook 'message-set-from)
-
 ;;;_  . Cleanup Gnus buffers on exit
 
 (defun exit-gnus-on-exit ()
