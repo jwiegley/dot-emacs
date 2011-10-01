@@ -58,7 +58,9 @@
       (org-capture nil "t")
     (cond ((eq major-mode 'gnus-article-mode)
            (with-current-buffer gnus-summary-buffer
-             (gnus-summary-mark-as-dormant 1)))
+             (if (string= (buffer-name) "*Summary INBOX*")
+                 (gnus-summary-mark-as-read)
+               (gnus-summary-mark-as-dormant 1))))
           ((eq major-mode 'gnus-summary-mode)
            (gnus-summary-mark-as-dormant 1)))
     (let ((body (and (eq major-mode 'gnus-article-mode)
