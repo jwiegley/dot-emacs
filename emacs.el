@@ -2596,36 +2596,47 @@ Else, return \" \"."
 (defun emacs-min ()
   (interactive)
   (set-frame-parameter (selected-frame) 'fullscreen nil)
+  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
   (set-frame-parameter (selected-frame) 'top 26)
   (set-frame-parameter (selected-frame) 'left
                        (- (x-display-pixel-width)
                           (if (>= emacs-major-version 24)
-                              940
+                              925
                             920)))
   (set-frame-parameter (selected-frame) 'width 100)
   (if (= 1050 (x-display-pixel-height))
       (set-frame-parameter (selected-frame) 'height
                            (if (>= emacs-major-version 24)
-                              66
-                            55))
+                               66
+                             55))
     (set-frame-parameter (selected-frame) 'height
                          (if (>= emacs-major-version 24)
-                              75
-                            64)))
+                             76
+                           64)))
   (if (>= emacs-major-version 24)
       (setq-default line-spacing 2)))
 
 (defun emacs-max ()
   (interactive)
   (if t
-      (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+      (progn
+        (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+        (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+        (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
     (set-frame-parameter (selected-frame) 'top 26)
     (set-frame-parameter (selected-frame) 'left 2)
     (set-frame-parameter (selected-frame) 'width
                          (floor (/ (float (x-display-pixel-width)) 9.15)))
     (if (= 1050 (x-display-pixel-height))
-        (set-frame-parameter (selected-frame) 'height 55)
-      (set-frame-parameter (selected-frame) 'height 55))))
+        (set-frame-parameter (selected-frame) 'height
+                             (if (>= emacs-major-version 24)
+                                 66
+                               55))
+      (set-frame-parameter (selected-frame) 'height
+                           (if (>= emacs-major-version 24)
+                               75
+                             64)))))
 
 (defun emacs-toggle-size ()
   (interactive)
