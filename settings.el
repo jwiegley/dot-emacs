@@ -473,6 +473,7 @@
  '(diff-removed ((t (:foreground "Red"))))
  '(diff-removed2 ((t (:foreground "Orange"))))
  '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
+ '(hl-line ((t (:background "cornsilk"))))
  '(ledger-register-pending-face ((t (:weight bold))))
  '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
  '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
