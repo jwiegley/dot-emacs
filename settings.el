@@ -252,6 +252,7 @@
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
  '(mac-wheel-button-is-mouse-2 nil)
+ '(magit-completing-read-function (quote magit-ido-completing-read))
  '(magit-process-popup-time 15)
  '(mail-envelope-from (quote header))
  '(mail-setup-with-from nil)
