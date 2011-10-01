@@ -270,6 +270,7 @@
 ;;;_ , erc
 
 (require 'erc-alert)
+(require 'erc-highlight-nicknames)
 
 (eval-when-compile
   (require 'auth-source))
