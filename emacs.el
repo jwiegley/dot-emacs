@@ -2,6 +2,17 @@
 
 ;;;_. Initialization
 
+;;;_ , Create my own global minor-mode, to hold key remappings
+
+(defvar override-global-map (make-keymap)
+  "override-global-mode keymap")
+
+(require 'easy-mmode)
+
+(define-minor-mode override-global-mode
+  "A minor mode so my key settings override all other modes."
+  t "" override-global-map)
+
 ;;;_ , Increase *Message* log max
 
 (setq message-log-max 16384)
@@ -87,7 +98,6 @@
 
 (eval-after-load "info"
   '(progn
-     (require 'easy-mmode)
      (require 'info+)))
 
 ;;;_ , allout
@@ -145,9 +155,7 @@
 (fset 'describe-bindings 'descbinds-anything)
 
 (eval-after-load "anything"
-  '(progn
-     (require 'anything-match-plugin)
-     (define-key anything-map [(alt ?v)] 'anything-previous-page)))
+  '(require 'anything-match-plugin))
 
 ;;;_ , auctex
 
@@ -1069,6 +1077,15 @@ $0"))))
           #'(lambda ()
               (interactive)
               (define-key html-mode-map [return] 'newline-and-indent)))
+
+(defun tidy-xml-buffer ()
+  (interactive)
+  (save-excursion
+    (call-process-region (point-min) (point-max) "tidy" t t nil
+                         "-xml" "-i" "-wrap" "0" "-omit" "-q")))
+
+(eval-after-load "nxml-mode"
+  '(define-key nxml-mode-map [(control shift ?h)] 'tidy-xml-buffer))
 
 ;;;_ , Org-mode
 
@@ -2060,7 +2077,7 @@ Else, return \" \"."
 
 ;;;_  . Keybindings
 
-(define-key global-map [(alt meta ?f)] 'gnus-query)
+(define-key override-global-map [(alt meta ?f)] 'gnus-query)
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
@@ -2090,7 +2107,6 @@ Else, return \" \"."
 
 ;;;_  . M-<?>
 
-(define-key global-map [(meta ?/)] 'dabbrev-expand)
 (define-key global-map [(meta ??)] 'anything-dabbrev-expand)
 
 (defun delete-indentation-forward ()
@@ -2131,14 +2147,14 @@ Else, return \" \"."
         (ido-visit-buffer candidate ido-default-buffer-method)
       (gnus 1))))
 
-(define-key global-map [(meta ?B)] 'bbdb)
-(define-key global-map [(meta ?C)] 'jump-to-org-agenda)
-(define-key global-map [(meta ?G)] 'switch-to-gnus)
-(define-key global-map [(meta ?m)] 'org-smart-capture)
-(define-key global-map [(meta ?M)] 'org-inline-note)
-(define-key global-map [(meta ?N)] 'winner-redo)
-(define-key global-map [(meta ?P)] 'winner-undo)
-(define-key global-map [(meta ?T)] 'tags-search)
+(define-key override-global-map [(meta ?B)] 'bbdb)
+(define-key override-global-map [(meta ?C)] 'jump-to-org-agenda)
+(define-key override-global-map [(meta ?G)] 'switch-to-gnus)
+(define-key override-global-map [(meta ?m)] 'org-smart-capture)
+(define-key override-global-map [(meta ?M)] 'org-inline-note)
+(define-key override-global-map [(meta ?N)] 'winner-redo)
+(define-key override-global-map [(meta ?P)] 'winner-undo)
+(define-key override-global-map [(meta ?T)] 'tags-search)
 
 (defun find-grep-in-project (command-args)
   (interactive
@@ -2151,27 +2167,23 @@ Else, return \" \"."
     (let ((null-device nil))            ; see grep
       (grep command-args))))
 
-(define-key global-map [(meta ?s) ?a] 'anything-do-grep)
-
 (defun my-anything-occur ()
   (interactive)
   (anything-other-buffer 'anything-c-source-occur "*Anything Occur*"))
 
-(define-key global-map [(meta ?s) ?b] 'my-anything-occur)
-(define-key global-map [(meta ?s) ?d] 'find-grep-dired)
-(define-key global-map [(meta ?s) ?f] 'find-grep)
-(define-key global-map [(meta ?s) ?F] 'anything-for-files)
-(define-key global-map [(meta ?s) ?g] 'grep)
-(define-key global-map [(meta ?s) ?n] 'find-name-dired)
-(define-key global-map [(meta ?s) ?o] 'occur)
-(define-key global-map [(meta ?s) ?p] 'find-grep-in-project)
-(define-key global-map [(meta ?s) ?r] 'rgrep)
+(define-key override-global-map [(meta ?s) ?a] 'anything-do-grep)
+(define-key override-global-map [(meta ?s) ?b] 'my-anything-occur)
+(define-key override-global-map [(meta ?s) ?d] 'find-grep-dired)
+(define-key override-global-map [(meta ?s) ?f] 'find-grep)
+(define-key override-global-map [(meta ?s) ?F] 'anything-for-files)
+(define-key override-global-map [(meta ?s) ?g] 'grep)
+(define-key override-global-map [(meta ?s) ?n] 'find-name-dired)
+(define-key override-global-map [(meta ?s) ?o] 'occur)
+(define-key override-global-map [(meta ?s) ?p] 'find-grep-in-project)
+(define-key override-global-map [(meta ?s) ?r] 'rgrep)
 
-;; These are for the sake of TextExpander and QuickKeys
-(define-key global-map [(alt ?v)] 'scroll-down)
-(define-key global-map [(meta ?v)] 'yank)
+(define-key override-global-map [remap eval-expression] 'pp-eval-expression)
 
-(define-key global-map [(meta ?:)] 'pp-eval-expression)
 (define-key global-map [(meta ?\')] 'insert-pair)
 (define-key global-map [(meta ?\")] 'insert-pair)
 
@@ -2184,7 +2196,7 @@ Else, return \" \"."
       (align beg end-mark))))
 
 (define-key global-map [(meta ?\[)] 'align-code)
-(define-key global-map [(meta ?`)]  'other-frame)
+(define-key override-global-map [(meta ?`)]  'other-frame)
 
 (defun mark-line (&optional arg)
   (interactive "p")
@@ -2209,38 +2221,31 @@ Else, return \" \"."
 
 ;;;_  . C-<?>
 
-(define-key global-map [(control return)] 'other-window)
+(define-key override-global-map [(control return)] 'other-window)
 
-(define-key global-map [(control ?.)] 'ace-jump-mode)
+(define-key override-global-map [(control ?.)] 'ace-jump-mode)
 
-(defun tidy-xml-buffer ()
-  (interactive)
-  (save-excursion
-    (call-process-region (point-min) (point-max) "tidy" t t nil
-                         "-xml" "-i" "-wrap" "0" "-omit" "-q")))
-
-(define-key global-map [(control shift ?h)] 'tidy-xml-buffer)
-
-(define-key global-map [(control ?z)] 'collapse-or-expand)
+(define-key override-global-map [(control ?z)] 'collapse-or-expand)
 
 ;;;_  . C-M-<?>
 
-(define-key global-map [(control meta backspace)] 'backward-kill-sexp)
-(define-key global-map [(control meta delete)]    'backward-kill-sexp)
+(define-key override-global-map [(control meta backspace)] 'backward-kill-sexp)
 
 (defun isearch-backward-other-window ()
   (interactive)
   (split-window-vertically)
   (call-interactively 'isearch-backward))
 
-(define-key global-map [(control meta ?r)] 'isearch-backward-other-window)
+(define-key override-global-map [(control meta ?r)]
+  'isearch-backward-other-window)
 
 (defun isearch-forward-other-window ()
   (interactive)
   (split-window-vertically)
   (call-interactively 'isearch-forward))
 
-(define-key global-map [(control meta ?s)] 'isearch-forward-other-window)
+(define-key override-global-map [(control meta ?s)]
+  'isearch-forward-other-window)
 
 (defun collapse-or-expand ()
   (interactive)
@@ -2266,7 +2271,7 @@ Else, return \" \"."
               anything-c-source-info-cl
               anything-c-source-emacs-source-defun)))
 
-(define-key global-map [(control ?h) ?a] 'anything-apropos)
+(define-key override-global-map [(control ?h) ?a] 'anything-apropos)
 
 (defun scratch ()
   (interactive)
@@ -2323,7 +2328,7 @@ Else, return \" \"."
 
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
-(define-key global-map [(control ?h) ?e] 'lisp-find-map)
+(define-key override-global-map [(control ?h) ?e] 'lisp-find-map)
 (define-key lisp-find-map [?a] 'my-anything-apropos)
 (define-key lisp-find-map [?e] 'view-echo-area-messages)
 (define-key lisp-find-map [?f] 'find-function)
@@ -2337,17 +2342,16 @@ Else, return \" \"."
 
 ;;;_  . f<?>
 
-(define-key global-map [f9] 'gud-cont)
-(define-key global-map [f10] 'gud-next)
-(define-key global-map [f11] 'gud-step)
-(define-key global-map [(shift f11)] 'gud-finish)
+(define-key override-global-map [f9] 'gud-cont)
+(define-key override-global-map [f10] 'gud-next)
+(define-key override-global-map [f11] 'gud-step)
+(define-key override-global-map [(shift f11)] 'gud-finish)
 
 ;;;_  . A-<?>
 
-(define-key global-map [(alt tab)]
-  #'(lambda ()
-      (interactive)
-      (call-interactively (key-binding (kbd "M-TAB")))))
+(if t
+    (define-key key-translation-map (kbd "A-TAB") (kbd "M-TAB"))
+  (define-key key-translation-map [(alt tab)] [(meta tab)]))
 
 ;;;_   , breadcrumb
 
@@ -2756,6 +2760,8 @@ Else, return \" \"."
               (org-agenda-list)
               (org-fit-agenda-window)
               (org-resolve-clocks)) t))
+
+(add-hook 'after-init-hook 'override-global-mode)
 
 ;; Local Variables:
 ;;   mode: emacs-lisp
