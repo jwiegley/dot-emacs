@@ -1795,10 +1795,14 @@ end tell" (match-string 1))))
 
 (add-hook 'mail-citation-hook 'sc-cite-original)
 
-(add-hook 'gnus-summary-mode-hook
-          (lambda ()
-            (set (make-local-variable 'hl-line-face) 'underline)
-            (hl-line-mode 1)))
+(defun my-setup-hl-line ()
+  ;;(set (make-local-variable 'hl-line-face) 'underline)
+  (hl-line-mode 1)
+  ;;(setq cursor-type nil)
+  )
+
+(add-hook 'gnus-group-mode-hook 'my-setup-hl-line)
+(add-hook 'gnus-summary-mode-hook 'my-setup-hl-line)
 
 (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
 
