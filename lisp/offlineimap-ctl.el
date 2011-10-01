@@ -62,7 +62,7 @@
       (sit-for 0.5)
       (if (eq 'run (process-status proc))
           (display-buffer (process-buffer proc)))
-      (if (eq signal 'SIGUSR2)
+      (if (null signal)
           (while (eq 'run (process-status proc))
             (sit-for 1)))
       (message "%s process %s...done" (or verb "Killing") name))))
