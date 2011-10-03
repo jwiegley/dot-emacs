@@ -160,10 +160,9 @@ EMACSFLAGS=-q -no-site-file
 TAR=tar
 
 # Files not to include the distribution area or tarball 
-# FIXME: really this should be an opt-in list!
 UNFINISHED_ELISP=
-ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit etc/Mailman
-NONDISTFILES=.cvsignore */.cvsignore Makefile.devel doc/notes.txt doc/ProofGeneral.jpg doc/ProofGeneralPortrait.eps.gz etc/trac etc/testsuite $(UNFINISHED_ELISP) $(ETC_FILES)
+ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/*.txt 
+NONDISTFILES=.cvsignore */.cvsignore Makefile.devel doc/ProofGeneral.jpg etc/trac etc/testsuite $(UNFINISHED_ELISP) $(ETC_FILES)
 DOCDISTFILES=ProofGeneral.info PG-adapting.info
 
 # Files not to include in the ordinary distribution tarball, but left
@@ -174,8 +173,7 @@ IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
 
-
-# Temporary dmg root for building Mac OS X 10.4 disk image files.
+# Temporary dmg root for building Mac OS X disk image files.
 DMGTOPDIR=/tmp/$(NAME)-dmg
 
 RELEASENAMETGZ = $(RELEASENAME).tgz
