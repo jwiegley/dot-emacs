@@ -64,7 +64,7 @@
 
 @set version 4.1
 @set emacsversion 23.3
-@set last-update June 2011
+@set last-update October 2011
 @set rcsid $Id$
 
 @dircategory Theorem proving
