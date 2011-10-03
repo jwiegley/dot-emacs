@@ -108,14 +108,13 @@ Set to t if you want this feature."
   :type 'string
   :group 'coq)
 
-;; Command to initialize the Coq Proof Assistant
-
 (defcustom coq-default-undo-limit 200
   "Maximum number of Undo's possible when doing a proof."
   :type 'number
   :group 'coq)
 
 (defconst coq-shell-init-cmd
+  "Command to initialize the Coq Proof Assistant."
   (format "Set Undo %s . " coq-default-undo-limit))
 
 (require 'coq-syntax)
@@ -1141,6 +1140,7 @@ This is specific to `coq-mode'."
 
 ;; FIXME: to handle "printing all" properly, we should change the state
 ;; of the variables that also depend on it.
+;; da: 
 (defpacustom print-fully-explicit nil
   "Print fully explicit terms."
   :type 'boolean
