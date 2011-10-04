@@ -2613,11 +2613,11 @@ Else, return \" \"."
       (set-frame-parameter (selected-frame) 'height
                            (if (>= emacs-major-version 24)
                                66
-                             55))
+                             100))
     (set-frame-parameter (selected-frame) 'height
                          (if (>= emacs-major-version 24)
                              76
-                           64)))
+                           100)))
   (if (>= emacs-major-version 24)
       (setq-default line-spacing 2)))
 
