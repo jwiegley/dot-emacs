@@ -2375,7 +2375,7 @@ Else, return \" \"."
                     (vertical-scroll-bars . nil)
                     (unsplittable         . t)
                     (has-modeline-p       . nil)
-                    (background-color     . "grey80")
+                    ;;(background-color     . "grey80")
                     (minibuffer           . nil)))
     (switch-to-buffer buffer)
     (set (make-local-variable 'mode-line-format) nil)))
