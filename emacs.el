@@ -2225,7 +2225,7 @@ Else, return \" \"."
 
 (define-key override-global-map [(control ?.)] 'ace-jump-mode)
 
-(define-key override-global-map [(control ?z)] 'collapse-or-expand)
+(define-key global-map [(control ?z)] 'collapse-or-expand)
 
 ;;;_  . C-M-<?>
 
