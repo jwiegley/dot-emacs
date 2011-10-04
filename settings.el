@@ -362,6 +362,7 @@
  '(org-refile-targets (quote (("~/Documents/Tasks/todo.txt" :level . 1) ("~/Documents/Tasks/todo.txt" :todo . "PROJECT") ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
+ '(org-special-ctrl-a/e t)
  '(org-tags-column -97)
  '(org-time-clocksum-use-fractional t)
  '(org-todo-keyword-faces (quote (("TODO" :foreground "medium blue" :weight bold) ("APPT" :foreground "medium blue" :weight bold) ("NOTE" :foreground "brown" :weight bold) ("STARTED" :foreground "dark orange" :weight bold) ("WAITING" :foreground "red" :weight bold) ("DELEGATED" :foreground "dark violet" :weight bold) ("DEFERRED" :foreground "dark blue" :weight bold) ("SOMEDAY" :foreground "dark blue" :weight bold) ("PROJECT" :foreground "#088e8e" :weight bold))))
