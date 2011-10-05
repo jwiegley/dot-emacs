@@ -1720,11 +1720,15 @@ end tell" (match-string 1))))
   (defvar yas/keymap))
 
 (add-hook 'org-mode-hook
-          (lambda ()
-            ;; yasnippet (using the new org-cycle hooks)
-            (set (make-local-variable 'yas/trigger-key) [tab])
-            (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-            (define-key yas/keymap [tab] 'yas/next-field)))
+          #'(lambda ()
+              ;; yasnippet (using the new org-cycle hooks)
+              (set (make-local-variable 'yas/trigger-key) [tab])
+              (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+              (define-key yas/keymap [tab] 'yas/next-field)))
+
+(add-hook 'org-mode-hook
+          #'(lambda ()
+              (override-global-mode 1)))
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
