@@ -1823,6 +1823,7 @@ end tell" (match-string 1))))
   )
 
 (add-hook 'gnus-group-mode-hook 'my-setup-hl-line)
+(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-summary-mode-hook 'my-setup-hl-line)
 
 (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
