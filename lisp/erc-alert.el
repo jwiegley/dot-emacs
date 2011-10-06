@@ -40,7 +40,7 @@
   :group 'erc-alert)
 
 (defcustom erc-growl-noise-regexp
-  "\\(Logging in:\\|Signing off\\|You're now away\\|Welcome back\\)"
+  "\\(Logging in:\\|Signing off\\|You're now away\\|Welcome back\\|Setting automatically away\\)"
   "This regexp matches unwanted noise."
   :type 'regexp
   :group 'erc-alert)
