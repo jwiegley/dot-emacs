@@ -1,3 +1,4 @@
+# -*- mode: snippet -*-
 # expand-env: ((yas/indent-line 'fixed))
 # --
 Our standard Boost support is $2999 per platform* yearly.
