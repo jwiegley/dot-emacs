@@ -100,6 +100,16 @@
   '(progn
      (require 'info+)))
 
+;;;_ , abbrev/expand
+
+(if (file-exists-p abbrev-file-name)
+    (quietly-read-abbrev-file))
+
+(add-hook 'expand-load-hook
+	  (lambda ()
+	    (add-hook 'expand-expand-hook 'indent-according-to-mode)
+	    (add-hook 'expand-jump-hook 'indent-according-to-mode)))
+
 ;;;_ , allout
 
 (defvar allout-unprefixed-keybindings nil)
@@ -606,8 +616,11 @@ $0"))))
   (defvar c-mode-base-map))
 
 (defun my-c-mode-common-hook ()
+  (abbrev-mode 1)
+
   (company-mode 1)
   (which-function-mode 1)
+
   ;;(doxymacs-mode 1)
   ;;(doxymacs-font-lock)
 
@@ -2112,6 +2125,7 @@ Else, return \" \"."
 
 ;;;_  . M-<?>
 
+(define-key global-map [(meta ?/)] 'hippie-expand)
 (define-key global-map [(meta ??)] 'anything-dabbrev-expand)
 
 (defun delete-indentation-forward ()
