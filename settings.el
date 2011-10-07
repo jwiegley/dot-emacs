@@ -158,7 +158,7 @@
 ")
  '(gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode my-setup-hl-line)))
  '(gnus-group-use-permanent-levels t)
- '(gnus-harvest-sender-alist (quote ((".*@\\(boostpro\\|boost-consulting\\).com" . johnw@boostpro\.com) (".*@gmail.com" . jwiegley@gmail\.com) (".*" . johnw@newartisans\.com))))
+ '(gnus-harvest-sender-alist (quote ((".*@\\(boostpro\\|boost-consulting\\|ti\\).com" . johnw@boostpro\.com) (".*@gmail.com" . jwiegley@gmail\.com) (".*" . johnw@newartisans\.com))))
  '(gnus-home-directory "~/Library/Mail/Gnus/")
  '(gnus-ignored-from-addresses "\\(johnw\\|jwiegley\\)\\(-[^@]+\\)?@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|boostpro\\)\\.com\\|public\\.gmane\\.org\\)")
  '(gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
