@@ -89,9 +89,11 @@
                 "\\`\\(\\w\\|[-.]\\)+, \\(\\w\\|[-.]\\)+\\'" name)
                (setq fname (nth 1 (split-string name "[ \t,]+"))
                      lname (nth 0 (split-string name "[ \t,]+"))))
-              ((string-match
-                "\\`\\(\\w\\|[-.]\\)+\\'" name)
+              ((string-match "\\`\\(\\w\\|[-.]\\)+\\'" name)
                (setq fname name
+                     lname ""))
+              ((string-match "\\`\\(\\w+?\\) " name)
+               (setq fname (match-string 1 name)
                      lname ""))))
       (org-capture nil "t")
       (when (stringp fname)
