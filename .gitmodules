@@ -111,7 +111,7 @@
 	url = git://github.com/jwiegley/sunrise-commander.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
-	url = http://github.com/emacsmirror/yasnippet.git
+	url = http://github.com/jwiegley/yasnippet.git
 [submodule "site-lisp/zencoding"]
 	path = site-lisp/zencoding
 	url = git://github.com/rooney/zencoding.git
