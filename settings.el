@@ -128,7 +128,7 @@
  '(exec-path (quote ("/Applications/Misc/Emacs.app/Contents/MacOS/bin" "/Users/johnw/bin" "/usr/local/bin" "/opt/local/libexec/git-core" "/opt/local/bin" "/usr/bin" "/bin" "/usr/local/sbin" "/opt/local/sbin" "/usr/sbin" "/sbin" "/usr/X11R6/bin")))
  '(fill-column 78)
  '(find-directory-functions (quote (dired-noselect)))
- '(find-ls-option (quote ("-print0 | xargs -0 gls -ld" . "-ld")))
+ '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
  '(find-ls-subdir-switches "-alh")
  '(flyspell-abbrev-p nil)
  '(flyspell-incorrect-hook (quote (flyspell-maybe-correct-transposition)))
