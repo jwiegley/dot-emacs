@@ -272,7 +272,7 @@
  '(message-fill-column 78)
  '(message-interactive t)
  '(message-mail-alias-type nil)
- '(message-mode-hook (quote (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell turn-on-orgstruct turn-on-filladapt-mode turn-on-gnus-message-citation-mode (lambda nil (set-fill-column 78)) (lambda nil (column-marker-1 78)))))
+ '(message-mode-hook (quote (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell turn-on-orgstruct turn-on-filladapt-mode (lambda nil (set-fill-column 78)) (lambda nil (column-marker-1 78)))))
  '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
