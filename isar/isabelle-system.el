@@ -292,7 +292,7 @@ for you, you should disable this behaviour."
   "Refresh isabelle-logics-menu-entries, returning new entries."
   (interactive)
   (if (and isabelle-refresh-logics
-	   (or isabelle-time-to-refresh-logics (interactive-p)))
+	   (or isabelle-time-to-refresh-logics (called-interactively-p 'any)))
       (progn
 	(setq isabelle-logics-available (isa-tool-list-logics))
 	(isabelle-logics-menu-calculate)

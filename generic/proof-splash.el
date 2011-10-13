@@ -287,7 +287,7 @@ binding to remove this buffer."
 	(progn
 	  ;; disable ordinary emacs splash
 	  (setq inhibit-startup-message t)
-	  (proof-splash-display-screen (not (interactive-p))))
+	  (proof-splash-display-screen (not (called-interactively-p 'any))))
       ;; Otherwise, a message
       (message "Welcome to %s Proof General!" proof-assistant))
     (setq proof-splash-seen t)))

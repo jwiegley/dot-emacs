@@ -431,13 +431,13 @@ Point must be after the locked region or this will signal an error."
 If called interactively or SWITCH is non-nil, switch to script buffer.
 If called interactively, a mark is set at the current location with `push-mark'"
   (interactive)
-  (if (and proof-script-buffer (interactive-p))
+  (if (and proof-script-buffer (called-interactively-p 'any))
       (push-mark))
   (proof-with-script-buffer
    (if ;; there is an active scripting buffer and it's not displayed
        (and proof-script-buffer
 	    (not (get-buffer-window proof-script-buffer))
-	    (or switch (interactive-p)))
+	    (or switch (called-interactively-p 'any)))
        ;; display it
        (switch-to-buffer proof-script-buffer))
    (goto-char (proof-unprocessed-begin))))
@@ -1260,7 +1260,7 @@ activation is considered to have failed and an error is given."
       ;; immediately because scripting has been turned on now.
       (if proof-activate-scripting-hook
 	  (let
-	      ((activated-interactively	(interactive-p)))
+	      ((activated-interactively	(called-interactively-p 'any)))
 	    (setq proof-shell-last-output-kind nil)
 	    (run-hooks 'proof-activate-scripting-hook)
 	    ;; If activate scripting functions caused an error,

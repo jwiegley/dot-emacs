@@ -251,7 +251,7 @@ NO-NEWLINE is non-nil."
     (save-excursion
       (condition-case nil
 	  (goto-char
-	   (if (interactive-p) scomint-last-input-end scomint-last-output-start))
+	   (if (called-interactively-p 'any) scomint-last-input-end scomint-last-output-start))
 	(error nil))
       (while (re-search-forward "\r+$" pmark t)
 	(replace-match "" t t)))))

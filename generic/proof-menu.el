@@ -49,7 +49,7 @@ without adjusting window layout."
   ;; trace buffer, etc.  (Makes less sense from the menu, though,
   ;; where it seems more natural just to rotate from last position)
   (cond
-   ((and (interactive-p)
+   ((and (called-interactively-p 'any)
 	 (eq last-command 'proof-display-some-buffers))
     (incf proof-display-some-buffers-count))
    (t
