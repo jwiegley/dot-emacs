@@ -72,8 +72,6 @@ NB: this merging will always create conficts with
 $Id$ tags in source. (Is there a way to avoid this?)
   
   
------------------------------------------------------------------
-
 Overriding the CVS/Root setting temporarily:
 ============================================
 
@@ -90,9 +88,6 @@ Useful command:
 to force this behaviour.
 
 
-
------------------------------------------------------------------
-
 Moving to a new branch
 ======================
 
@@ -102,4 +97,14 @@ This only works on a clean repository (no spurious files):
 
 (The tr is needed because of some nasty filenames, e.g. etc/isa/\backslashname)
 
+
+Updating base revision number
+=============================
+
+Starting with a new base revision number is handy to easily see changes since last release.
+
+  cvs commit -f -R -r 12.0 -m"Update base revision number for 4.2 development cycle" .
+  cvs up -A
+
+Need second update to remove automatically added sticky tag.
 
