@@ -798,10 +798,13 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
 (defun proof-shell-insert (strings action &optional scriptspan)
   "Insert STRINGS at the end of the proof shell, call `scomint-send-input'.
 
-The ACTION argument is a symbol which is typically the name of a
-callback for when STRING has been processed.
+STRINGS is a list of strings (which will be concatenated), or a
+single string.
 
-First we call `proof-shell-insert-hook'.  The arguments `action' and
+The ACTION argument is a symbol which is typically the name of a
+callback for when each string has been processed.
+
+This calls `proof-shell-insert-hook'.  The arguments `action' and
 `scriptspan' may be examined by the hook to determine how to modify
 the `string' variable (exploiting dynamic scoping) which will be
 the command actually sent to the shell.
@@ -809,20 +812,23 @@ the command actually sent to the shell.
 Note that the hook is not called for the empty (null) string
 or a carriage return.
 
-Then we strip STRING of carriage returns before inserting it
+We strip the string of carriage returns before inserting it
 and updating `proof-marker' to point to the end of the newly
 inserted text.
 
 Do not use this function directly, or output will be lost.  It is only
 used in `proof-add-to-queue' when we start processing a queue, and in
 `proof-shell-exec-loop', to process the next item."
-  (assert (listp strings) nil "proof-shell-insert: expected string argument")
+  (assert (or (stringp strings)
+	      (listp strings))
+	  nil "proof-shell-insert: expected string list argument")
 
   (with-current-buffer proof-shell-buffer
     (goto-char (point-max))
 
     ;; TEMP: next step: preprocess list of strings directly
-    (let ((string (apply 'concat strings)))
+    (let ((string (if (stringp strings) strings
+		    (apply 'concat strings))))
       ;; Hook for munging `string' and other dirty hacks.
       (run-hooks 'proof-shell-insert-hook)
 
@@ -1479,7 +1485,8 @@ i.e., 'goals or 'response."
 	(flags proof-shell-delayed-output-flags))
   (goto-char start)
   (cond
-   ((proof-re-search-forward proof-shell-start-goals-regexp end t)
+   ((and proof-shell-start-goals-regexp
+	 (proof-re-search-forward proof-shell-start-goals-regexp end t))
      (let* ((gstart (match-beginning 0))  (rstart start) gend)
        ;; Find the last goal string in the output
        (goto-char gstart)

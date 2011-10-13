@@ -1148,7 +1148,8 @@ is shown to the user.  Set to nil to disable."
   "Regexp matching the start of the proof state output.
 This is an important setting.  Output between `proof-shell-start-goals-regexp'
 and `proof-shell-end-goals-regexp' will be pasted into the goals buffer
-and possibly analysed further for proof-by-pointing markup."
+and possibly analysed further for proof-by-pointing markup.
+If it is left as nil, the goals buffer will not be used."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
