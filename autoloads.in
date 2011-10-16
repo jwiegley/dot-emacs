@@ -70,6 +70,8 @@
 
         ("puppet-mode"        . puppet-mode)
 
+        ("python-mode"        . python-mode)
+
         ("redshank"           . redshank-mode)
 
         ("repeat-insert"      . insert-patterned)
