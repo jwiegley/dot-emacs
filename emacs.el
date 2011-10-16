@@ -1934,7 +1934,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-summary-mode-hook 'my-setup-hl-line)
 
-(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+;;(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
 
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
 
@@ -2104,7 +2104,7 @@ Else, return \" \"."
          (cc (or (cdr (assoc 'Cc (mail-header-extra header))) "")))
     (cond
      ((string-match gnus-ignored-from-addresses to)
-      (let ((len (length (bbdb-split to ","))))
+      (let ((len (length (split-string to "\\s-*,\\s-*"))))
         (cond
          ((and (= len 1) (string= cc "")) "▻")
          ((= len 1) "►")
@@ -2112,7 +2112,7 @@ Else, return \" \"."
          (t "☀"))))
      ((string-match gnus-ignored-from-addresses
                     (concat to ", " cc))
-      (if (< (length (bbdb-split (concat to ", " cc) ","))
+      (if (< (length (split-string (concat to ", " cc) "\\s-*,\\s-*"))
              gnus-count-recipients-threshold)
           "·"
         ":"))
@@ -2261,7 +2261,7 @@ Else, return \" \"."
         (ido-visit-buffer candidate ido-default-buffer-method)
       (gnus 1))))
 
-(define-key override-global-map [(meta ?B)] 'bbdb)
+;;(define-key override-global-map [(meta ?B)] 'bbdb)
 (define-key override-global-map [(meta ?C)] 'jump-to-org-agenda)
 (define-key override-global-map [(meta ?G)] 'switch-to-gnus)
 (define-key override-global-map [(meta ?m)] 'org-smart-capture)
