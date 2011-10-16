@@ -1680,6 +1680,101 @@ end tell" (match-string 1))))
 
   (define-key org-mode-map [(control ?c) tab] 'action-lock-magic-return))
 
+;;;_  . make-bug-link
+
+(defun make-ledger-bugzilla-bug (product component version priority severity)
+  (interactive
+   (let ((omk (get-text-property (point) 'org-marker)))
+     (with-current-buffer (marker-buffer omk)
+       (save-excursion
+	 (goto-char omk)
+	 (let ((components
+		(list "data" "doc" "expr" "lisp" "math" "python" "report"
+		      "test" "util" "website" "build" "misc"))
+	       (priorities (list "P1" "P2" "P3" "P4" "P5"))
+	       (severities (list "blocker" "critical" "major"
+				 "normal" "minor" "trivial" "enhancement"))
+	       (product "Ledger")
+	       (version "3.0.0-20100623"))
+	   (list product
+		 (ido-completing-read "Component: " components
+				      nil t nil nil (car (last components)))
+		 version
+		 (let ((orgpri (nth 3 (org-heading-components))))
+		   (if (and orgpri (= ?A orgpri))
+		       "P1"
+		     (ido-completing-read "Priority: " priorities
+					  nil t nil nil "P3")))
+		 (ido-completing-read "Severity: " severities nil t nil nil
+				      "normal") ))))))
+  (let ((omk (get-text-property (point) 'org-marker)))
+    (with-current-buffer (marker-buffer omk)
+      (save-excursion
+	(goto-char omk)
+	(let ((heading (nth 4 (org-heading-components)))
+	      (contents (buffer-substring-no-properties
+			 (org-entry-beginning-position)
+			 (org-entry-end-position)))
+	      bug)
+	  (with-temp-buffer
+	    (insert contents)
+	    (goto-char (point-min))
+	    (delete-region (point) (1+ (line-end-position)))
+	    (search-forward ":PROP")
+	    (delete-region (match-beginning 0) (point-max))
+	    (goto-char (point-min))
+	    (while (re-search-forward "^   " nil t)
+	      (delete-region (match-beginning 0) (match-end 0)))
+	    (goto-char (point-min))
+	    (while (re-search-forward "^SCHE" nil t)
+	      (delete-region (match-beginning 0) (1+ (line-end-position))))
+	    (goto-char (point-min))
+	    (when (eobp)
+	      (insert "No description.")
+	      (goto-char (point-min)))
+	    (insert (format "Product: %s
+Component: %s
+Version: %s
+Priority: %s
+Severity: %s
+Hardware: Other
+OS: Other
+Summary: %s" product component version priority severity heading) ?\n ?\n)
+	    (let ((buf (current-buffer)))
+	      (with-temp-buffer
+		(let ((tmpbuf (current-buffer)))
+		  (if nil
+		      (insert "Bug 999 posted.")
+		    (with-current-buffer buf
+		      (shell-command-on-region
+		       (point-min) (point-max)
+		       "~/bin/bugzilla-submit http://bugs.ledger-cli.org/"
+		       tmpbuf)))
+		  (goto-char (point-min))
+		  (or (re-search-forward "Bug \\([0-9]+\\) posted." nil t)
+                      (error (buffer-string)))
+		  (setq bug (match-string 1))))))
+	  (save-excursion
+	    (org-back-to-heading t)
+	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
+	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
+  (org-agenda-redo))
+
+(defun make-bug-link ()
+  (interactive)
+  (let* ((omk (get-text-property (point) 'org-marker))
+         (path (with-current-buffer (marker-buffer omk)
+                 (save-excursion
+                   (goto-char omk)
+                   (org-get-outline-path)))))
+    (cond
+     ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
+      (call-interactively #'make-ledger-bugzilla-bug))
+     ((string= "BoostPro" (car path))
+      (call-interactively #'org-x-redmine-post-issue))
+     (t
+      (error "Cannot make bug, unknown category")))))
+
 ;;;_  . keybindings
 
 (defun my-org-todo-done ()      (interactive) (org-todo "DONE"))
@@ -1795,7 +1890,7 @@ end tell" (match-string 1))))
   (define-key org-todo-state-map "w" 'my-org-agenda-todo-waiting)
   (define-key org-todo-state-map "x" 'my-org-agenda-todo-canceled)
 
-  (define-key org-todo-state-map "z" 'ignore))
+  (define-key org-todo-state-map "z" 'make-bug-link))
 
 (defun org-fit-agenda-window ()
   "Fit the window to the buffer size."
