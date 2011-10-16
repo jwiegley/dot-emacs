@@ -2444,6 +2444,7 @@ Else, return \" \"."
 (define-prefix-command 'lisp-find-map)
 (define-key override-global-map [(control ?h) ?e] 'lisp-find-map)
 (define-key lisp-find-map [?a] 'my-anything-apropos)
+(define-key lisp-find-map [?c] 'finder-commentary)
 (define-key lisp-find-map [?e] 'view-echo-area-messages)
 (define-key lisp-find-map [?f] 'find-function)
 (define-key lisp-find-map [?d] 'my-describe-symbol)
