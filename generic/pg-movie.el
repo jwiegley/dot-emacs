@@ -25,8 +25,7 @@
 ;;; Code:
 (eval-when-compile
   (require 'span)
-  (require 'unicode-tokens)
-  (require 'pg-user))
+  (require 'unicode-tokens))
 
 (require 'pg-xml)
 

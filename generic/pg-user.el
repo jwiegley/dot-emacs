@@ -192,6 +192,7 @@ If inside a comment, just process until the start of the comment."
   (interactive)
   (proof-assert-until-point))
 
+;;;###autoload
 (defun proof-process-buffer ()
   "Process the current (or script) buffer, and maybe move point to the end."
   (interactive)
