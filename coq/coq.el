@@ -3,15 +3,14 @@
 ;; Authors: Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
-
+;;
 ;; $Id$
 
 
-;;; Commentary:
-;;
-;;; History:
 
-(require 'cl)
+(eval-when-compile
+  (require 'cl)
+  (require 'proof-compat))
 
 (eval-when (compile)
   (require 'proof-utils)
@@ -22,8 +21,7 @@
   (require 'etags)
   (unless (proof-try-require 'smie)
     (defvar smie-indent-basic nil)
-    (defvar smie-rules-function nil))     ; smie
-
+    (defvar smie-rules-function nil))
   (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
@@ -31,8 +29,14 @@
   (defvar coq-confirm-external-compilation nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
+(require 'proof)
+(require 'pg-custom)                    ; declares coq-prog-args
+(require 'coq-syntax)                   ; sets coq-prog-name
+(require 'coq-local-vars)               ;
+(require 'coq-abbrev)                   ; coq specific menu
 
-;; FIXME: making these declarations conditional doesn't work
+
+;; for compilation in Emacs < 23.3 (NB: declare function only works at top level)
 (declare-function smie-bnf->prec2 "smie")
 (declare-function smie-rule-parent-p "smie")
 (declare-function smie-default-forward-token "smie")
@@ -41,10 +45,7 @@
 (declare-function smie-rule-separator "smie")
 (declare-function smie-rule-parent "smie")
 
-(require 'proof)
-(require 'coq-syntax)                   ; sets coq-prog-name
-(require 'coq-local-vars)               ;
-(require 'coq-abbrev)                   ; coq specific menu
+(declare-function some "cl-extra")      ; spurious bytecomp warning
 
 
 
@@ -68,7 +69,7 @@ See also `coq-prog-env' to adjust the environment."
    :group 'coq)
 
 ;; coq-prog-args is the user-set list of arguments to pass to Coq process,
-;; see 'defpacustom prog-args' in proof-config for documentation.
+;; see 'defpacustom prog-args' in pg-custom.el for documentation.
 
 ;; For Coq, this should contain -emacs.
 ;; -translate will be added automatically to this list if `coq-translate-to-v8'
@@ -79,15 +80,14 @@ See also `coq-prog-env' to adjust the environment."
   :type 'boolean
   :group 'coq)
 
-;; Fixes default prog args, this is overridden by file variables
 (defun coq-build-prog-args ()
-  (setq coq-prog-args
-        (append (remove-if (lambda (x) (string-match "-emacs" x)) coq-prog-args)
-                '("-emacs-U")
-                (if coq-translate-to-v8 " -translate"))))
+  "Adjusts default `coq-prog-args'.  May be overridden by file variables."
+  (delete "-emacs" coq-prog-args)
+  (add-to-list 'coq-prog-args "-emacs-U")
+  (if coq-translate-to-v8 
+      (add-to-list 'coq-prog-args "-translate")))
 
-;; fix it
-(unless noninteractive ;; compiling
+(unless noninteractive   ;; compiling
   (coq-build-prog-args))
 
 (defcustom coq-compiler
@@ -1512,8 +1512,8 @@ is up-to-date."
         (message "Ignore lib file %s" lib-obj-file))
     t)
    (if (some
-        (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
-        coq-compile-ignored-directories)
+          (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
+          coq-compile-ignored-directories)
        (progn
          (if coq-debug-auto-compilation
              (message "Ignore %s" lib-obj-file))

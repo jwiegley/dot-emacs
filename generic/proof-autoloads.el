@@ -209,7 +209,7 @@ Initialise the goals buffer after the child has been configured.
 ;;;***
 
 ;;;### (autoloads (pg-movie-export-directory pg-movie-export-from
-;;;;;;  pg-movie-export) "pg-movie" "pg-movie.el" (20123 64083))
+;;;;;;  pg-movie-export) "pg-movie" "pg-movie.el" (20123 64158))
 ;;; Generated autoloads from pg-movie.el
 
 (autoload 'pg-movie-export "pg-movie" "\
@@ -281,7 +281,7 @@ This macro also extends the `proof-assistant-settings' list.
 ;;;***
 
 ;;;### (autoloads (pg-pgip-askprefs pg-pgip-maybe-askpgip pg-pgip-process-packet)
-;;;;;;  "pg-pgip" "pg-pgip.el" (20118 50210))
+;;;;;;  "pg-pgip" "pg-pgip.el" (20123 64607))
 ;;; Generated autoloads from pg-pgip.el
 
 (autoload 'pg-pgip-process-packet "pg-pgip" "\
@@ -369,7 +369,7 @@ See `pg-next-error-regexp'.
 ;;;;;;  pg-slow-fontify-tracing-hint proof-electric-terminator-enable
 ;;;;;;  proof-define-assistant-command-witharg proof-define-assistant-command
 ;;;;;;  proof-process-buffer proof-goto-point proof-script-new-command-advance)
-;;;;;;  "pg-user" "pg-user.el" (20123 64108))
+;;;;;;  "pg-user" "pg-user.el" (20123 64158))
 ;;; Generated autoloads from pg-user.el
 
 (autoload 'proof-script-new-command-advance "pg-user" "\
@@ -619,7 +619,7 @@ in future if we have just activated it for this buffer.
 ;;;;;;  proof-register-possibly-new-processed-file pg-set-span-helphighlights
 ;;;;;;  proof-locked-region-empty-p proof-locked-region-full-p proof-unprocessed-begin
 ;;;;;;  proof-colour-locked) "proof-script" "proof-script.el" (20123
-;;;;;;  63408))
+;;;;;;  64988))
 ;;; Generated autoloads from proof-script.el
 
 (autoload 'proof-colour-locked "proof-script" "\
@@ -1025,7 +1025,7 @@ Return a unicode encoded version presentation of STR.
 ;;;;;;  "../lib/proof-compat.el" "../lib/span.el" "pg-autotest.el"
 ;;;;;;  "pg-custom.el" "pg-pbrpm.el" "pg-vars.el" "proof-auxmodes.el"
 ;;;;;;  "proof-config.el" "proof-faces.el" "proof-useropts.el" "proof.el"
-;;;;;;  "proofgeneral-pkg.el") (20123 64110 868313))
+;;;;;;  "proofgeneral-pkg.el") (20123 65399 608731))
 
 ;;;***
 
