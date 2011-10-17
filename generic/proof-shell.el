@@ -920,34 +920,27 @@ If the proof shell is busy when this function is called,
 then QUEUEMODE must match the mode of the queue currently
 being processed."
 
-  (let ((nothingthere (null proof-action-list))
-	(nothingnew   (null queueitems)))
+  (when (and queueitems proof-action-list)
+    ;; internal check: correct queuemode in force if busy
+    ;; (should have proof-action-list<>nil -> busy)
+    (and proof-shell-busy queuemode
+	 (unless (eq proof-shell-busy queuemode)
+	   (proof-debug
+	    "proof-append-alist: wrong queuemode detected for busy shell")
+	   (assert (eq proof-shell-busy queuemode)))))
+
+
+  (let ((nothingthere (null proof-action-list)))
+    ;; Now extend or start the queue.
+    (setq proof-action-list
+	  (nconc proof-action-list queueitems))
     
-    (if (and nothingthere nothingnew)
-	;; remove the queue (otherwise done in proof-shell-exec-loop)
-	(proof-detach-queue)
-
-      (unless nothingnew
-
-	(when (and queueitems proof-action-list)
-	  ;; internal check: correct queuemode in force if busy
-	  ;; (should have proof-action-list<>nil -> busy)
-	  (and proof-shell-busy queuemode
-	       (unless (eq proof-shell-busy queuemode)
-		 (proof-debug
-		  "proof-append-alist: wrong queuemode detected for busy shell")
-		 (assert (eq proof-shell-busy queuemode)))))
-
-	;; Now extend or start the queue.
-	(setq proof-action-list
-	      (nconc proof-action-list queueitems))
-
-	(when nothingthere ; process comments immediately
-	  (let ((cbitems  (proof-shell-slurp-comments)))
-	    (mapc 'proof-shell-invoke-callback cbitems)))
-
-	(when proof-action-list ; still something to do
-	  
+    (when nothingthere ; process comments immediately
+      (let ((cbitems  (proof-shell-slurp-comments)))
+	(mapc 'proof-shell-invoke-callback cbitems)))
+  
+    (if proof-action-list ;; something to do
+	(progn
 	  (if (proof-shell-should-be-silent)
 	      ;; do this ASAP, either first or just after current command
 	      (setq proof-action-list
@@ -957,11 +950,12 @@ being processed."
 		      (cons (car proof-action-list) ; after current
 			    (cons (proof-shell-start-silent-item)
 				  (cdr proof-action-list))))))
-	  
 	  (when nothingthere  ; start sending commands
 	    (proof-grab-lock queuemode)
 	    (setq proof-shell-last-output-kind nil)
-	    (proof-shell-insert-action-item (car proof-action-list))))))))
+	    (proof-shell-insert-action-item (car proof-action-list))))
+      ;; nothing to do: maybe we completed a list of comments without sending them
+      (proof-detach-queue))))
 
 
 ;;;###autoload

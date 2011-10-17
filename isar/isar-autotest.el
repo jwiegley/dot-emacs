@@ -46,6 +46,7 @@
   (proof-shell-wait)
   (pg-autotest eval (proof-process-buffer))
   (pg-autotest assert-full)
+  
 
   ;; Speed up prover
   (pg-autotest eval (isar-tracing:auto-quickcheck-toggle 0))
@@ -69,6 +70,15 @@
   (pg-autotest eval (insert "end"))
   (proof-electric-terminator)
   (pg-autotest assert-full)
+  ;; Test Trac#138
+  (pg-autotest eval (proof-undo-last-successful-command))
+  (proof-shell-wait)
+  (pg-autotest eval (proof-goto-end-of-locked))
+  (pg-autotest eval (insert "(* this is a comment *)"))
+  (pg-autotest eval (proof-goto-point))
+  (proof-shell-wait)
+  (pg-autotest eval (skip-chars-backward " \n\t"))
+  (pg-autotest eval (insert " ")) ;; shouldn't give read-only error!
   (set-buffer-modified-p nil)
   (kill-buffer ".autotest.thy")
 
