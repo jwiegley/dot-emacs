@@ -22,7 +22,9 @@
   (require 'proof-menu)
   (require 'proof-syntax)
   (proof-ready-for-assistant 'isar)	; compile for isar
-  (defvar proof-assistant-menu nil))	
+  (defvar proof-assistant-menu nil))
+
+(declare-function mapcan "cl-extra")	; spurious bytecomp warning
 
 
 ;; The isabelle custom group won't have been defined yet.
