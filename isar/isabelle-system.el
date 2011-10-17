@@ -12,7 +12,8 @@
 ;;
 
 ;;; Code:
-(require 'cl)			        ; mapcan, eval-when
+(eval-when-compile
+  (require 'cl))			;  mapcan, eval-when
 
 (eval-when (compile)
   (require 'span)		        
