@@ -3,8 +3,7 @@
 ;;                      PARAMÉTRAGE du MODE outline
 ;;--------------------------------------------------------------------------;;
 
-(eval-when-compile
-  (require 'outline))
+(require 'outline)
 
 (declare-function phox-lang-absurd "nofile")
 (declare-function phox-lang-suppress "nofile")
