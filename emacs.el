@@ -37,7 +37,7 @@
 
 ;;;_ , Load customizations
 
-(setq gnus-home-directory "~/Library/Mail/Gnus/") ; necessary override
+(setq gnus-home-directory "~/Messages/Gnus/") ; necessary override
 
 (load "~/.emacs.d/settings")
 
