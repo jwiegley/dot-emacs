@@ -2447,6 +2447,7 @@ Else, return \" \"."
 (define-key lisp-find-map [?c] 'finder-commentary)
 (define-key lisp-find-map [?e] 'view-echo-area-messages)
 (define-key lisp-find-map [?f] 'find-function)
+(define-key lisp-find-map [?F] 'find-face-definition)
 (define-key lisp-find-map [?d] 'my-describe-symbol)
 (define-key lisp-find-map [?i] 'info-apropos)
 (define-key lisp-find-map [?k] 'find-function-on-key)
