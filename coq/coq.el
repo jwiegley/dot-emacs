@@ -267,6 +267,16 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
       (exps (exp) (exps "," exps))
       (subtactics (tactics "|" tactics))
       (tactics (tactics ";" tactics) ("[" subtactics "]"))
+      ;; The elements below are trying to capture the syntactic structure
+      ;; layered above the commands language.
+      ;; Bullets are all the same as a first approximation
+      (subcmds (cmds)
+               (subcmds "+*- bullet" subcmds)
+               ("BeginSubproof" subcmds "EndSubproof")
+               ("{" subcmds "}")
+               ("Proof" subcmds "Proof End")
+               ("Module" subcmds "End")
+               ("Section" subcmds "End"))
       (cmds ("Lemma" exp ":=" exp)
             ("Definition" exp ":=" exp)
             ("Let" exp ":=" exp)
@@ -282,17 +292,12 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
             ;; we'll use "." as separator rather than terminator.
             ;; This has the downside that smie-forward-sexp on a "Definition"
             ;; stops right before the "." rather than right after.
-            (cmds "." cmds)
-            ;; The elements below are trying to capture the syntactic structure
-            ;; layered above the commands language.
-            ("BeginSubproof" cmds "EndSubproof")
-            ("Proof" cmds "Proof End")
-            ("Module" cmds "End")
-            ("Section" cmds "End")))
+            (cmds "." cmds)))
     ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
     '((nonassoc "else" "in" "=>" ",") (left ":") (assoc "->"))
     ;; Declare that we don't care about associativity of separators.
-    '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")))))
+    '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")) 
+    '((assoc "+*- bullet")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 
 (defun coq-smie-search-token-forward (tokens &optional end)
@@ -333,6 +338,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 ;; - We drop "Program" because it's easier to consider "Program Function"
 ;;   as a single token (which behaves like "Function" w.r.t indentation and
 ;;   parsing) than to get the parser to handle it correctly.
+;; - We identify the different types of bullets (First approximation)
 
 (defconst coq-smie-proof-end-tokens
   ;; '("Qed" "Save" "Defined" "Admitted" "Abort")
@@ -373,6 +379,15 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
                       '("let" "Inductive" "Coinductive" "."))
                      '("Inductive" "CoInductive"))))
       ":= inductive")
+     ((and (or (equal tok "+") (equal tok "-") (equal tok "*"))
+           (save-excursion
+             (goto-char (- (point) 1))
+             (let ((prev (coq-smie-backward-token)))
+               (or (equal prev ".")
+                   (and (equal prev "") 
+                        (or (eq (char-before) ?\{)
+                            (eq (char-before) ?\})))))))
+      "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Proof" "Obligation")) "Proof")
      ((equal tok "Next")
@@ -421,6 +436,14 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
                       '("let" "Inductive" "Coinductive" "."))
                      '("Inductive" "CoInductive"))))
       ":= inductive")
+     ((and (or (equal tok "+") (equal tok "-") (equal tok "*"))
+           (save-excursion
+             (let ((prev (coq-smie-backward-token)))
+               (or (equal prev ".")
+                   (and (equal prev "") 
+                        (or (eq (char-before) ?\{)
+                            (eq (char-before) ?\})))))))
+      "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((equal tok "Obligation")
       (let ((pos (point))
