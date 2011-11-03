@@ -250,7 +250,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
   (when (fboundp 'smie-prec2->grammar)
   (smie-prec2->grammar
    (smie-bnf->prec2
-    '((exp ("match" matchexp "with" branches "end")
+    '((exp ("match" matchexp "withmatch" branches "end")
            ("let" assigns "in" exp)
            ("fun" exp "=>" exp)
            ("if" exp "then" exp "else" exp)
@@ -338,7 +338,8 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 ;; - We drop "Program" because it's easier to consider "Program Function"
 ;;   as a single token (which behaves like "Function" w.r.t indentation and
 ;;   parsing) than to get the parser to handle it correctly.
-;; - We identify the different types of bullets (First approximation)
+;; - We identify the different types of bullets (First approximation).
+;; - We distinguish "withmatch" from other "with".
 
 (defconst coq-smie-proof-end-tokens
   ;; '("Qed" "Save" "Defined" "Admitted" "Abort")
@@ -390,6 +391,11 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
       "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Proof" "Obligation")) "Proof")
+     ((and (equal tok "with")
+           (save-excursion
+             (goto-char (- (point) 4))
+             (equal (coq-smie-search-token-backward '("match" ".")) "match")))
+      "withmatch")
      ((equal tok "Next")
       (let ((pos (point))
             (next (smie-default-forward-token)))
@@ -445,6 +451,10 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
                             (eq (char-before) ?\})))))))
       "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
+     ((and (equal tok "with")
+           (save-excursion
+             (equal (coq-smie-search-token-backward '("match" ".")) "match")))
+      "withmatch")
      ((equal tok "Obligation")
       (let ((pos (point))
             (prev (smie-default-backward-token)))
@@ -471,15 +481,15 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
      (cond
       ;; Override the default indent step added because of their presence
       ;; in smie-closer-alist.
-      ((equal token "with") 4)
+      ((equal token "withmatch") 4)
       ((and (equal token ";") (smie-rule-parent-p "." "|")) 2)
       ((member token '("," ":=")) 0)))
     (:before
      (cond
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
-       (if (smie-rule-prev-p "with")
-           (- (funcall smie-rules-function :after "with") 2)
+       (if (smie-rule-prev-p "withmatch")
+           (- (funcall smie-rules-function :after "withmatch") 2)
          (smie-rule-separator kind)))
       ((equal token ":=")
        (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
