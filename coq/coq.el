@@ -244,8 +244,6 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 (require 'smie nil 'noerror)
 
 (defconst coq-smie-grammar
-  ;; FIXME: This does not cover the tactic scripts.
-  ;; FIXME: This only covers a subset of the language.
   ;; FIXME: This does not know about Notations.
   (when (fboundp 'smie-prec2->grammar)
   (smie-prec2->grammar
@@ -269,7 +267,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
       (tactics (tactics ";" tactics) ("[" subtactics "]"))
       ;; The elements below are trying to capture the syntactic structure
       ;; layered above the commands language.
-      ;; Bullets are all the same as a first approximation
+      ;; Bullets are all the same as a first approximation.
       (subcmds (cmds)
                (subcmds "+*- bullet" subcmds)
                ("BeginSubproof" subcmds "EndSubproof")
@@ -348,15 +346,11 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
     (cond
-     ((equal tok ".")
-      ;; Distinguish field-selector "." from terminator ".".
-      (if (or (looking-at "(")                ;Record selector.
-              (and (looking-at "[[:alpha:]]") ;Maybe qualified id.
-                   (save-excursion
-                     (goto-char (1- (point)))
-                     (skip-syntax-backward "w_")
-                     (looking-at "[[:upper:]]"))))
-          ".-selector" "."))
+     ((member tok '("." ":=" "+" "-" "*" "with"))
+      ;; The important lexer for indentation's performance is the backward
+      ;; lexer, so for the forward lexer we delegate to the backward one when
+      ;; we can.
+      (save-excursion (coq-smie-backward-token))))
      ((equal tok "Program")
       (let ((pos (point))
             (next (smie-default-forward-token)))
@@ -374,28 +368,8 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
      ((and (equal tok "") (looking-at "{|")) (goto-char (match-end 0)) "{|")
      ((and (equal tok "|") (eq (char-after) ?\}))
       (goto-char (1+ (point))) "|}")
-     ((and (equal tok ":=")
-           (save-excursion
-             (member (coq-smie-search-token-backward
-                      '("let" "Inductive" "Coinductive" "."))
-                     '("Inductive" "CoInductive"))))
-      ":= inductive")
-     ((and (or (equal tok "+") (equal tok "-") (equal tok "*"))
-           (save-excursion
-             (goto-char (- (point) 1))
-             (let ((prev (coq-smie-backward-token)))
-               (or (equal prev ".")
-                   (and (equal prev "") 
-                        (or (eq (char-before) ?\{)
-                            (eq (char-before) ?\})))))))
-      "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Proof" "Obligation")) "Proof")
-     ((and (equal tok "with")
-           (save-excursion
-             (goto-char (- (point) 4))
-             (equal (coq-smie-search-token-backward '("match" ".")) "match")))
-      "withmatch")
      ((equal tok "Next")
       (let ((pos (point))
             (next (smie-default-forward-token)))
@@ -410,7 +384,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
     (cond
      ((equal tok ".")
       ;; Distinguish field-selector "." from terminator ".".
-      (if (or (looking-at "\\.(")             ;Record selector.
+      (if (or (looking-at "\\.(")                ;Record selector.
               (and (looking-at "\\.[[:alpha:]]") ;Maybe qualified id.
                    (save-excursion
                      (skip-syntax-backward "w_")
@@ -442,13 +416,12 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
                       '("let" "Inductive" "Coinductive" "."))
                      '("Inductive" "CoInductive"))))
       ":= inductive")
-     ((and (or (equal tok "+") (equal tok "-") (equal tok "*"))
+     ((and (member tok '("+" "-" "*"))
            (save-excursion
              (let ((prev (coq-smie-backward-token)))
                (or (equal prev ".")
-                   (and (equal prev "") 
-                        (or (eq (char-before) ?\{)
-                            (eq (char-before) ?\})))))))
+                   (and (equal prev "")
+                        (memq (char-before) '(?\{ ?\})))))))
       "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((and (equal tok "with")
