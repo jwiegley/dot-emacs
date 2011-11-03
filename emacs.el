@@ -1818,7 +1818,10 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
                  'org-insert-heading-after-current)
      (org-defkey org-mode-map [(control return)] 'other-window)
      (org-defkey org-mode-map [return] 'org-return-indent)
-     (org-defkey org-mode-map [(control ?c) (control ?x) ?@] 'visible-mode)))
+     (org-defkey org-mode-map
+                 [(control ?c) (control ?x) ?@] 'visible-mode)
+     (org-defkey org-mode-map
+                 [(control ?c) (control ?x) ?r] 'org-refer-by-number)))
 
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))

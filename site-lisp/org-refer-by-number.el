@@ -3,9 +3,9 @@
 ;; Copyright (C) 2011
 ;;   Free Software Foundation, Inc.
 
-;; Author: Marc-Oliver Ihm
+;; Author: Marc-Oliver Ihm <ihm@online.de>
 ;; Keywords: Org-mode, references
-;; Version: 0.99
+;; Version: 1.0
 
 ;;; License:
 
@@ -28,14 +28,16 @@
 
 ;; Purpose:
 ;;
-;;  Refer to things by number, when direct links are not possible. This is done by
-;;  keeping a table with increasing numbers in the first column and a timestamp in the
-;;  second.
+;;  Refer to things by number, when direct linking is not possible. These reference
+;;  numbers are added to and kept in a table along with the timestamp of their creation.
 ;;
-;;  These numbers may then be used to refer to things outside of Org (e.g. you may write
-;;  them on a piece of paper or use them as part of a directory name). Within Org you may
-;;  then refer to these things by their number (e.g. "R277").
+;;  The refernce numbers may then be used to refer to things outside of Org (e.g. you may
+;;  write them on a piece of paper or use them as part of a directory name). Within Org
+;;  you may then refer to these things by their number (e.g. "R277"). Later, these
+;;  reference numbers may be looked up easily.
 ;;
+;;  All of this functionality is available through the function `org-refer-by-number'; the
+;;  necessary setup is described in the documentation of the variable `org-refer-by-number-id'.
 ;;
 ;; Setup:
 ;;
@@ -45,8 +47,8 @@
 ;;
 ;; Further reading:
 ;;
-;;  Setup: See the variable `org-refer-by-number-id'
-;;  Usage: See the function `org-refer-by-number'
+;;  For the necessary setup, see the variable `org-refer-by-number-id';
+;;  for regular usage, see the function `org-refer-by-number'.
 
 ;;
 
@@ -55,7 +57,7 @@
 (require 'org-table)
 
 (defvar org-refer-by-number-id nil 
-  "Id of the node, that contains the table with reference numbers.
+  "Id of the Org-mode node, that contains the table with reference numbers.
 
 Read below on how to set up things. See the documentation of
 `org-refer-by-number' for normal usage after setup.
@@ -63,24 +65,50 @@ Read below on how to set up things. See the documentation of
 To create the Org-mode structure for `org-refer-by-number', you
 need to:
 
-- Create an Org-mode node, anywhere, any level.
+- Create an Org-mode node, anywhere, any level, with any heading
+  you like (e.g. \"Reference numbers\").
+
 - Get or create the Org-mode id of this node with `org-id-get-create'.
-- Store this Id within `org-refer-by-number-id'; within your .emacs
-  you may have a line like this:
+  This requires these steps:
+
+  - Position the cursor anywhere within the Org-mode node created above.
+
+  - Invoke `org-id-get-create', e.g. type \"M-x org-id-get-create RET\"
+
+  - This will add a property-drawer to your node. Open this
+    drawer by pressing TAB.
+
+  - Copy the value of the ID-Property (the string after
+    \":ID:\"); you will need to yank it below.
+
+- Now, that you have created the id, store it within the variable
+  `org-refer-by-number-id'. For this you may add a line like this
+  to your initialization-file .emacs:
 
   (setq org-refer-by-number-id \"7f480c3e-312f-4b9b-b833-6a7a253d1404\")
 
-  your id, of course, will be different. The easiest way to get 
-  your id, is to copy it from the property drawer of your reference node.
+  your id, of course, will be different. As described above, the
+  easiest way is to copy it from the property drawer of your
+  reference node.
 
+  Do not forget to make this variable-assignment effective by
+  restarting emacs.
 
-- Within your node: Add a table, that has at least two columns: a number 
-  and a timstamp.
-- Add one initial row to your table.
+- Within your node: Add a table, that has at least two columns: a
+  number and a timstamp. Having additional columns (like a
+  comment) is highly useful, but their number and purpose are at
+  you own choosing. Having headings for your table is not
+  strictly required, but again, highly recommended.
+  
+
+- Finally you need to add one initial row to your table. Letting
+  the reference table completely empty is not possible, because
+  `org-refer-by-number' needs to figure out, with which number to
+  start for your next reference.
 
 As an Example, your node may look like this:
 
-*** My node for org-refer-by-number
+* My node for org-refer-by-number
   :PROPERTIES:
   :ID:       7f480c3e-312f-4b9b-b833-6a7a253d1404
   :END:
@@ -91,14 +119,18 @@ As an Example, your node may look like this:
 
 
 
+From this example you also see, that your reference number does
+not need to be a plain number; it only needs to contain one.
+
 Now you may invoke `org-refer-by-number' to create a new
-reference number.  For convenience, you might like to bind it to
-a key like this:
+reference number. However, for convenience, you might first like
+to bind it to a key like this:
 
   (global-set-key (kbd \"C-c C-x r\") 'org-refer-by-number)
 
 
-So, putting it all together, your setup may look like this:
+Putting it all together, your .emacs should contain three lines
+like this:
 
 
   (require 'org-refer-by-number)
@@ -106,9 +138,10 @@ So, putting it all together, your setup may look like this:
   (global-set-key (kbd \"C-c C-x r\") 'org-refer-by-number)
 
 
-Create a node with a table as above, copy these lines to your .emacs,
-replace the id with the one from your node and you are ready to 
-use `org-refer-by-number'.
+So, the whole setup in a nutshell: Create a node with a table
+as above, copy the lines above to your .emacs, replace the id with
+the one from your node and restart emacs and you are ready to use
+`org-refer-by-number'.
 
 ")
 
@@ -118,83 +151,93 @@ use `org-refer-by-number'.
 (defvar org-refer-by-number-last-action nil 
   "Last action performed by `org-refer-by-number', only used internally.")
 
+;;;###autoload
 (defun org-refer-by-number (arg) 
   "Add a new reference number or search for an existing one.
 
-These numbers may then be used to refer to things outside of Org
-for cases, where direct links are not possible. For example you
-may write them on paper documents you receive or use them within
-folder names you create.
+These reference numbers may then be used to refer to things
+outside of Org for cases, where direct links are not
+possible. E.g. you may write them on letters or papers you
+receive or use them on your computer as part of names of folders,
+that you create.
 
 Read below for a detailed description of this function and
 three scenarios of common usage. See the documentation of
 `org-refer-by-number-id' for the necessary setup.
 
 
-This function operates on a dedicated table (called the reference
-table) within a special Org-mode node, which you need to create
-as part of your initial setup. The table has at least two
-columns, the reference number (automatically increasing from row
-to row) and the date of creation. The table is found through the
-id of the containing node; this id must be stored within
+The function `org-refer-by-number' operates on a dedicated
+table (called the reference table) within a special Org-mode
+node. The node has to be created as part of your initial
+setup. The reference table has at least two columns: The
+reference number (automatically increasing by one from row to
+row) and the date of creation. The table is found through the id
+of the containing node; this id must be stored within
 `org-refer-by-number-id' (see there for an example).
 
 
-This single function `org-refer-by-number' is the only
-interactive function of this package. Its behaviour depends on
-the position of the cursor, in the moment that you invoke it, as
-well as on the possible presence of a prefix argument. There are
-four cases:
+The function `org-refer-by-number' is the only interactive
+function of this package and its sole entry point. The functions
+behaviour depends on the position of the cursor, at the moment
+you invoke it: If the cursor is outside the reference table, the
+function assumes, that you want to create a new reference or
+search for an existing reference (if there is one under the
+cursor). If the cursor is within the reference table, the
+function assumes, that you have just added or searched a
+reference and would like to return to your initial
+position. Finally, if you supply a prefix argument, the function
+assumes, that you want to search for it.
+
+In detail, there are four cases:
 
 
-Case one: Add a row. For this the cursor must be outside the node
-containing your reference table and it must be on whitespace or
-within a word that does not look like (see below for details) one
-of your references.
+Case one: Add a row. For this the cursor must be outside the
+Org-mode node containing your reference table and it must not be
+within a word that looks like one of your references.
 
-In that case the current window configuration is saved and the
-cursor jumps to the node, that contains your table. There, a
-new line is added: The value within the first column is simply
-created by incrementing the value from the previous line. This
-new number is then pushed onto the kill ring, so that you may
-later yank it. The second column of the new line is filled with
-the current date. Any further columns are created empty and you
-may fill them by hand, e.g. with a comment, which is higly
-recommended.
+In this case the current window configuration is saved and the
+cursor moves to the node, that contains your reference
+table. There, a new line is added: The value within the first
+column is created by incrementing the value from the previous
+line. This new reference number is then pushed onto the kill
+ring, so that you may later yank it. The second column of the new
+line is filled with the current date. Any further columns are
+created empty and you may fill them by hand, e.g. with a
+comment (which is higly recommended).
 
 Please note, that any decoration (e.g. non-numeric characters)
 before or after the reference number are copied verbatim to the
-newly added line. That means, if one row contains for example
-\"R277\" within the first column, the next row will contain
-\"R278\" by virtue of copying the \"R\" and adding 1 to 277 to
-get 278.
+newly added line. That means, if the last row contains for
+example \"R277\" within the first column, the next row will
+contain \"R278\" by virtue of copying the \"R\" and adding 1 to
+277 to get 278.
 
 If you like, you may even get more fancy and use references like
-\"Reference-{277}\", e.g.
+\"Reference-{277}\" (e.g.).
 
 The main result of `org-refer-by-number' in this case is the new
 number, that you may later use for reference-purposes, i.e. write
-it down on some printed document or yank it into Org-mode or use
-it within any non-Org application. The new row, that you just
-have added to your table, records, when you have created this
-reference along with any comment, that you supply.
+it down on some printed or hand-written document or yank it into
+Org-mode or use it within any non-Org application. The new row,
+that you just have added to your table, records, when you have
+created this reference along with any comment, that you did
+supply. This informatin may then later be looked up.
 
 
-Case two: Search for a reference within your table. For this, the
-cursor must not be the node with your reference table, but it can
-be anywhere in emacs and be within or immediately after a word,
-that looks like one of your references (the cursor position makes
-all the difference to case one). This reference then is searched
-within the first column of your reference table (but before the
-initial window configuration is stored away for a later
-restore). This provides a quick way to look up references you
-find within your Org-files: Just place the cursor on them
-and invoke the function.
+Case two: Search for a reference within your reference table. For
+this, the cursor must not be within the node with your reference
+table and it must be within or immediately after a word, that
+looks like one of your references numbers. Then, this reference
+is searched within the first column of your reference table and
+the cursor is positioned on the respective row. This provides a
+quick way to look up references you find within your Org-files:
+Just place the cursor on them and invoke the function
+`org-refer-by-number'.
 
 
-Case three: Return back to where you were and take the new
+Case three: Return back to where you came from and take the new
 reference with you. For this, the cursor can be anywhere within
-the node containing your reference table. The function then
+the node containing your reference table. The function first
 restores the window configuration, that has been saved away
 before. If a new reference has been created, it is appended to
 the kill ring, so it may be yanked later on.
@@ -203,14 +246,13 @@ the kill ring, so it may be yanked later on.
 Case four: Search a reference within all your Org-files. For this
 you need to supply a number as a prefix argument. On its first
 invocation, the function will then search for this number within
-your reference table; the cursor will be positioned on the
-matching row. 
+your reference table and the cursor will be positioned on the
+matching row.
 
 If then, from within your reference table, you invoke the
-function again with a prefix argument, a multi-occur search over
-all of your Org files is done (with the help of
-`multi-occur'). You need not supply the reference number again in
-this case, a sole and simple `C-u' as a prefix will do.
+function `org-refer-by-number' again with a prefix argument (a
+single `C-u' will do), a multi-occur search over all of your Org
+files is done (see also `multi-occur').
 
 
 As examples, lets look at the three main scenarios where this
@@ -221,59 +263,88 @@ Scenario 1: You receive a printed document and want to refer to
 it from within Org-mode. For this you would:
 
 - Type `C-c C-x r' (or whatever key you have chosen for
-  `org-refer-by-number') to create a new reference number
-  (e.g. \"R277\"). This positions the cursor within your
-  reference table.
+  `org-refer-by-number') to create a new line in your reference
+  table with a new reference number (e.g. \"R277\"). This
+  also positions the cursor within your reference table.
+
 - Add some comments, if you like.
-- Write this reference onto the printed paper document.
-- Type `C-c C-x r' in emacs again to switch back to your original 
-  window configuration.
-- If you want, you may yank the newly generated number back
-  anywhere into Org-mode as \"R277\".
+
+- Write this reference onto the printed document.
+
+- Type `C-c C-x r' again to switch back to your original window
+  configuration.
+
+- If you like, you may yank the newly generated number back
+  anywhere into Org-mode (e.g. as \"R277\").
 
 
 Scenario 2: Some weeks later you read your Org-mode notes and
-within them you find the reference \"R277\". You want to know,
-what this reference refers to. For this you would:
+come across the reference \"R277\". You want to know, what this
+number refers to. For this you would:
 
 - Position the cursor anywhere within this reference or
   immediately after it.
+
 - Type `C-c C-x r' to look up this number within your reference table.
-- Read the comment, that you have added before.
+
+- Read the date and the comment, that you have hopefully added
+  before.
+
 - Type `C-c C-x r' to go back to your original window
   configuration and position.
+
 - Alternatively you could try `C-u C-c C-x r' for a `multi-occur'
-  like described below.
+  as described below.
 
 
-Scenario 3: Within one of your desktop drawers, you find a paper
+Scenario 3: Within one of your desktop drawers, you find a printed
 document with the reference \"R277\" written onto it and you
 would like to know, where within Org-mode, you have referred to
 this document. Then you would:
 
 - Type `C-u 277 C-c C-x r' to search for this reference within
   your reference table.
+
 - Read the respective line, date and maybe comment.
+
 - If you want to find all of the occurences of this reference
   within your Org-files, type `C-u C-c C-x r' to do a
   `multi-occur' for this reference.
+
 - Browse all the locations found.
+
 - From within your reference table, type `C-c C-x r' to return to
   your original window configuration.
 
 
-The three scenarios cover the most common cases of adding a reference
-and looking up references, that you find either within Org or
-somewhere outside.
+These three scenarios cover the most common cases of adding a
+reference or looking up references, that you find either within
+Org or somewhere outside.
+
+Read the documentation of `org-refer-by-number-id' for instructions on
+how to set up things properly.
 
 "
   (interactive "P")
 
-  (let (within-table parts maybe-search search what head last-number tail regex-tail columns kill-new-text message-text)
-         
+  (let (within-table    ; True, if we are within node with reference table (false
+                        ; otherwise, even if we are in the right buffer)
+        maybe-search    ; Word under cursor or region, we might want to search for
+        search          ; Contains the search string and serves as a flag
+        what            ; What are we supposed to do ? Will be stored in org-refer-by-number-last-action
+        parts           ; Parts of a typical reference number (which need not be a plain number); these are:
+        head            ; Any header before number (e.g. "R")
+        last-number     ; Last number used in reference table (e.g. "277")
+        tail            ; Tail after number (e.g. "}" or "")
+        columns         ; Number of columns in reference table
+        kill-new-text   ; Text that will be appended to kill ring
+        message-text    ; Text that will be issued as an explanation, what we have done
+        initial-marker  ; Initial position within buffer with reference table; will be stored away for later
+        )
+        
     ;; Find out, if we are within reference table or not
     (setq within-table (string= (org-id-get) org-refer-by-number-id))
-    
+
     ;; Get the content of the active region or the word under cursor; do this before examinig reference table
     (if (and transient-mark-mode
              mark-active)
@@ -281,16 +352,15 @@ somewhere outside.
       (setq maybe-search (thing-at-point 'symbol)))
     (if (string= maybe-search "") (setq maybe-search nil))
 
-
     ;; Get decoration and number of last row from reference table
     (let ((m (org-id-find org-refer-by-number-id 'marker)))
       (unless m
         (error "Cannot find reference table with id \"%s\"; please check the value of 'org-refer-by-number-id'" org-refer-by-number-id))
       (with-current-buffer (marker-buffer m)
-        (save-excursion
-          (goto-char m)
-          (setq parts (org-refer-by-number-trim-table nil t))
-          )
+        (setq initial-marker (point-marker))
+        (goto-char m)
+        (setq parts (org-refer-by-number-trim-table nil t))
+        (goto-char initial-marker)
         )
       (move-marker m nil)
       )
@@ -300,9 +370,8 @@ somewhere outside.
     (setq tail (nth 2 parts))
     (setq columns (nth 3 parts))
     
-    ;; correct last action, if we have returned after leave
+    ;; correct last action, if user has silently returned after leave
     (if (and within-table (eq org-refer-by-number-last-action 'leave))
-        ;; we went back, but that was within reference table too
         (setq org-refer-by-number-last-action 'enter))
 
 
@@ -337,19 +406,20 @@ somewhere outside.
     ;; clean up search string
     (if (string= search "") (setq search nil))
     (if search (setq search (org-trim search)))
-    (if (string= tail "") (setq regex-tail "\\($\\|[^0-9]\\)"))
-
 
     ;; Find out, what we are supposed to do
     (setq what (if within-table (if search 'multi-occur 'leave) (if search 'search 'add)))
+    (when (eq org-refer-by-number-last-action 'multi-occur) (setq what 'leave))
     (when (and arg (not search)) (setq what 'enter))
 
 
-    ;; move into table, if outside
+    ;; Move into table, if outside ...
     (when (not within-table)
       ;; save current window configuration
-      (setq org-refer-by-number-windowconfig (current-window-configuration))
-      (put 'org-refer-by-number-windowconfig 'marker (point-marker))
+      (if (or (not org-refer-by-number-windowconfig)
+              (not (eq what 'leave)))
+        (setq org-refer-by-number-windowconfig (current-window-configuration)))
+      (put 'org-refer-by-number-windowconfig 'marker initial-marker)
       
       ;; switch to reference table; this needs to duplicate some code from org-id-goto,
       ;; because point should be moved, if what equals 'enter
@@ -365,7 +435,7 @@ somewhere outside.
         )
       )
 
-    ;; and actually do, what we are supposed to
+    ;; ... and actually do, what we are supposed to
     (cond
      ((eq what 'multi-occur) 
       (let (buff org-buffers)
@@ -375,7 +445,10 @@ somewhere outside.
           (if (string= major-mode "org-mode")
               (setq org-buffers (cons buff org-buffers))))
         
-        (multi-occur org-buffers (concat (regexp-quote search) regex-tail))
+        ;; Do multi-occur
+        (multi-occur org-buffers (concat (regexp-quote search)
+                                        ; if there is no tail in reference number, we have to guard agains trailing digits
+                                         (if (string= tail "") "\\($\\|[^0-9]\\)" ""))) 
         (if (get-buffer "*Occur*")
             (setq message-text (format "multi-occur for '%s'" search))
           (setq message-text (format "Did not find '%s'" search))
@@ -406,15 +479,23 @@ somewhere outside.
           )
 
         ;; clean up table before leaving
-        (org-refer-by-number-trim-table)
-        (when org-refer-by-number-windowconfig 
-          (set-window-configuration org-refer-by-number-windowconfig)
-          (goto-char (marker-position (get 'org-refer-by-number-windowconfig 'marker)))
-          (set-marker (get 'org-refer-by-number-windowconfig 'marker) nil)
-          (setq org-refer-by-number-windowconfig nil)
+        (org-refer-by-number-trim-table t)
+        (org-table-align)
+        (if org-refer-by-number-windowconfig 
+          ;; restore position within buffer with reference table
+            (cond 
+             ((with-current-buffer (marker-buffer (get 'org-refer-by-number-windowconfig 'marker))
+                (goto-char (get 'org-refer-by-number-windowconfig 'marker))
+                (set-marker (get 'org-refer-by-number-windowconfig 'marker) nil)
+                )
+              ;; restore initial window configuration
+              (set-window-configuration org-refer-by-number-windowconfig)
+              (setq org-refer-by-number-windowconfig nil)
+              (setq message-text "Back"))
+             )
+          ;; we did not have a window-configuratin to restore, so we cannot pretend we have retturned back
+          (setq message-text "At reference table")
           )
-        
-        (setq message-text "Back")
         )
       )
         
@@ -465,8 +546,7 @@ somewhere outside.
     
     ;; remember what we have done for next time
     (setq org-refer-by-number-last-action what)
-        
-    
+
     ;; tell, what we have done and what can be yanked
     (if (string= kill-new-text "") (setq kill-new-text nil))
     (let ((m (concat 
@@ -497,7 +577,7 @@ somewhere outside.
     (while (progn
              (forward-line -1)
              (org-table-goto-column 1)
-             (save-excursion (string= "" (org-trim (org-table-get-field 1))))
+             (string= "" (org-trim (org-table-get-field 1)))
              )
       (org-table-kill-row)
       )
@@ -526,4 +606,3 @@ somewhere outside.
 
 
 (provide 'org-refer-by-number)
-
