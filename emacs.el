@@ -1833,10 +1833,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
               (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
               (define-key yas/keymap [tab] 'yas/next-field)))
 
-(add-hook 'org-mode-hook
-          #'(lambda ()
-              (override-global-mode 1)))
-
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
 ;;;_  . org-agenda-mode
@@ -2189,7 +2185,7 @@ Else, return \" \"."
 
 ;;;_  . Keybindings
 
-(define-key override-global-map [(alt meta ?f)] 'gnus-query)
+(define-key global-map [(alt meta ?f)] 'gnus-query)
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
@@ -2260,14 +2256,14 @@ Else, return \" \"."
         (ido-visit-buffer candidate ido-default-buffer-method)
       (gnus 1))))
 
-;;(define-key override-global-map [(meta ?B)] 'bbdb)
-(define-key override-global-map [(meta ?C)] 'jump-to-org-agenda)
-(define-key override-global-map [(meta ?G)] 'switch-to-gnus)
-(define-key override-global-map [(meta ?m)] 'org-smart-capture)
-(define-key override-global-map [(meta ?M)] 'org-inline-note)
-(define-key override-global-map [(meta ?N)] 'winner-redo)
-(define-key override-global-map [(meta ?P)] 'winner-undo)
-(define-key override-global-map [(meta ?T)] 'tags-search)
+;;(define-key global-map [(meta ?B)] 'bbdb)
+(define-key global-map [(meta ?C)] 'jump-to-org-agenda)
+(define-key global-map [(meta ?G)] 'switch-to-gnus)
+(define-key global-map [(meta ?m)] 'org-smart-capture)
+(define-key global-map [(meta ?M)] 'org-inline-note)
+(define-key global-map [(meta ?N)] 'winner-redo)
+(define-key global-map [(meta ?P)] 'winner-undo)
+(define-key global-map [(meta ?T)] 'tags-search)
 
 (defun find-grep-in-project (command-args)
   (interactive
@@ -2284,18 +2280,18 @@ Else, return \" \"."
   (interactive)
   (anything-other-buffer 'anything-c-source-occur "*Anything Occur*"))
 
-(define-key override-global-map [(meta ?s) ?a] 'anything-do-grep)
-(define-key override-global-map [(meta ?s) ?b] 'my-anything-occur)
-(define-key override-global-map [(meta ?s) ?d] 'find-grep-dired)
-(define-key override-global-map [(meta ?s) ?f] 'find-grep)
-(define-key override-global-map [(meta ?s) ?F] 'anything-for-files)
-(define-key override-global-map [(meta ?s) ?g] 'grep)
-(define-key override-global-map [(meta ?s) ?n] 'find-name-dired)
-(define-key override-global-map [(meta ?s) ?o] 'occur)
-(define-key override-global-map [(meta ?s) ?p] 'find-grep-in-project)
-(define-key override-global-map [(meta ?s) ?r] 'rgrep)
+(define-key global-map [(meta ?s) ?a] 'anything-do-grep)
+(define-key global-map [(meta ?s) ?b] 'my-anything-occur)
+(define-key global-map [(meta ?s) ?d] 'find-grep-dired)
+(define-key global-map [(meta ?s) ?f] 'find-grep)
+(define-key global-map [(meta ?s) ?F] 'anything-for-files)
+(define-key global-map [(meta ?s) ?g] 'grep)
+(define-key global-map [(meta ?s) ?n] 'find-name-dired)
+(define-key global-map [(meta ?s) ?o] 'occur)
+(define-key global-map [(meta ?s) ?p] 'find-grep-in-project)
+(define-key global-map [(meta ?s) ?r] 'rgrep)
 
-(define-key override-global-map [remap eval-expression] 'pp-eval-expression)
+(define-key global-map [remap eval-expression] 'pp-eval-expression)
 
 (define-key global-map [(meta ?\')] 'insert-pair)
 (define-key global-map [(meta ?\")] 'insert-pair)
@@ -2309,7 +2305,7 @@ Else, return \" \"."
       (align beg end-mark))))
 
 (define-key global-map [(meta ?\[)] 'align-code)
-(define-key override-global-map [(meta ?`)]  'other-frame)
+(define-key global-map [(meta ?`)]  'other-frame)
 
 (defun mark-line (&optional arg)
   (interactive "p")
@@ -2334,22 +2330,22 @@ Else, return \" \"."
 
 ;;;_  . C-<?>
 
-(define-key override-global-map [(control return)] 'other-window)
+(define-key global-map [(control return)] 'other-window)
 
-(define-key override-global-map [(control ?.)] 'ace-jump-mode)
+(define-key global-map [(control ?.)] 'ace-jump-mode)
 
 (define-key global-map [(control ?z)] 'collapse-or-expand)
 
 ;;;_  . C-M-<?>
 
-(define-key override-global-map [(control meta backspace)] 'backward-kill-sexp)
+(define-key global-map [(control meta backspace)] 'backward-kill-sexp)
 
 (defun isearch-backward-other-window ()
   (interactive)
   (split-window-vertically)
   (call-interactively 'isearch-backward))
 
-(define-key override-global-map [(control meta ?r)]
+(define-key global-map [(control meta ?r)]
   'isearch-backward-other-window)
 
 (defun isearch-forward-other-window ()
@@ -2357,7 +2353,7 @@ Else, return \" \"."
   (split-window-vertically)
   (call-interactively 'isearch-forward))
 
-(define-key override-global-map [(control meta ?s)]
+(define-key global-map [(control meta ?s)]
   'isearch-forward-other-window)
 
 (defun collapse-or-expand ()
@@ -2384,7 +2380,7 @@ Else, return \" \"."
               anything-c-source-info-cl
               anything-c-source-emacs-source-defun)))
 
-(define-key override-global-map [(control ?h) ?a] 'anything-apropos)
+(define-key global-map [(control ?h) ?a] 'anything-apropos)
 
 (defun scratch ()
   (interactive)
@@ -2441,7 +2437,7 @@ Else, return \" \"."
 
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
-(define-key override-global-map [(control ?h) ?e] 'lisp-find-map)
+(define-key global-map [(control ?h) ?e] 'lisp-find-map)
 (define-key lisp-find-map [?a] 'my-anything-apropos)
 (define-key lisp-find-map [?c] 'finder-commentary)
 (define-key lisp-find-map [?e] 'view-echo-area-messages)
@@ -2457,10 +2453,10 @@ Else, return \" \"."
 
 ;;;_  . f<?>
 
-(define-key override-global-map [f9] 'gud-cont)
-(define-key override-global-map [f10] 'gud-next)
-(define-key override-global-map [f11] 'gud-step)
-(define-key override-global-map [(shift f11)] 'gud-finish)
+(define-key global-map [f9] 'gud-cont)
+(define-key global-map [f10] 'gud-next)
+(define-key global-map [f11] 'gud-step)
+(define-key global-map [(shift f11)] 'gud-finish)
 
 ;;;_  . A-<?>
 
