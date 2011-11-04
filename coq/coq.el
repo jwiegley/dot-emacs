@@ -235,7 +235,7 @@ On Windows you might need something like:
 
 ;; Indentation and navigation support via SMIE.
 
-(defcustom coq-use-smie nil
+(defcustom coq-use-smie t
   "If non-nil, Coq mode will try to use SMIE for indentation.
 SMIE is a navigation and indentation framework available in Emacs >= 23.3."
   :type 'boolean
@@ -350,7 +350,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
-      (save-excursion (coq-smie-backward-token))))
+      (save-excursion (coq-smie-backward-token)))
      ((equal tok "Program")
       (let ((pos (point))
             (next (smie-default-forward-token)))
@@ -377,7 +377,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
             next
           (goto-char pos)
           tok)))
-     (tok)))
+     (tok))))
 
 (defun coq-smie-backward-token ()
   (let ((tok (smie-default-backward-token)))
