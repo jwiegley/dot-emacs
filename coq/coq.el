@@ -241,6 +241,23 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
   :type 'boolean
   :group 'coq)
 
+(defcustom coq-indent-box-style nil
+  "If non-nil, Coq mode will try to indent with a box style (SMIE code only).
+Box style looke like this:
+Lemma foo: forall n,
+             n = n.
+
+instead of 
+
+Lemma foo: forall n,
+  n = n.
+"
+  :type 'boolean
+  :group 'coq)
+
+
+
+
 (require 'smie nil 'noerror)
 
 (defconst coq-smie-grammar
@@ -252,6 +269,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
            ("let" assigns "in" exp)
            ("fun" exp "=>" exp)
            ("if" exp "then" exp "else" exp)
+           ("exists" exp "," exp)
            ("forall" exp "," exp)
            ("(" exps ")")
            ("{|" exps "|}")
@@ -366,6 +384,13 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
           (if (equal (coq-smie-search-token-forward '(":=" ".")) ":=")
               "Module def" tok))))
      ((and (equal tok "") (looking-at "{|")) (goto-char (match-end 0)) "{|")
+;     ((and (equal tok "")
+;           (looking-at "{")
+;           (or (goto-char (match-end 0)) t)
+;           (save-excursion
+;             (skip-syntax-backward "s-")
+;             (member (char-before) '("." "}" "{"))))
+;      "{ recordtype")
      ((and (equal tok "|") (eq (char-after) ?\}))
       (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
@@ -442,7 +467,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
     (:elem (case token
              (basic proof-indent)))
     (:list-intro
-     (or (member token '("fun" "forall"))
+     (or (member token '("fun" "forall" "exists"))
          ;; We include "." in list-intro for the ". { .. } \n { .. }" so the
          ;; second {..} is aligned with the first rather than being indented as
          ;; if it were an argument to the first.
@@ -455,7 +480,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;; Override the default indent step added because of their presence
       ;; in smie-closer-alist.
       ((equal token "withmatch") 4)
-      ((and (equal token ";") (smie-rule-parent-p "." "|")) 2)
+      ((and (equal token ";") (smie-rule-parent-p "." "{" "}" "|")) 2)
       ((member token '("," ":=")) 0)))
     (:before
      (cond
@@ -472,7 +497,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
       ((and (equal token "{") (smie-rule-prev-p ":="))
        (smie-rule-parent))
-      ((and (equal token ",") (smie-rule-parent-p "forall")) 2)
+      ((and (equal token ",") (smie-rule-parent-p "forall" "exists")) 2)
       ((and (equal token ":") (smie-rule-parent-p "Lemma")) 2)
       ((and (equal token "Proof End")
             (smie-rule-parent-p "Module" "Section"))
@@ -486,8 +511,13 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;; FIXME: This is fundamentally very wrong, but it seems to work
        ;; OK in practice.
        (smie-rule-parent 2))
-      ((and (equal token "forall") (smie-rule-prev-p ":")
-            (smie-rule-parent-p "Lemma"))
+      ;; CHECK: pc: Stefan, I don't understand this last rule,
+      ;((and (equal token "forall" "exists") (smie-rule-prev-p ":")
+      ;      (smie-rule-parent-p "Lemma"))
+      ; (smie-rule-parent))
+      ;; pc: replaced by this to follow the coq usual indentation.
+      ((and (member token '("forall" "exists")); (smie-rule-prev-p ":")
+            (not (smie-rule-parent-p "Lemma")))
        (smie-rule-parent))
       ))))
 
