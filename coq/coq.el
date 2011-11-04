@@ -377,7 +377,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
             next
           (goto-char pos)
           tok)))
-     (tok))))
+     (tok)))
 
 (defun coq-smie-backward-token ()
   (let ((tok (smie-default-backward-token)))
