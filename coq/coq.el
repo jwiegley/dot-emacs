@@ -265,14 +265,15 @@ Lemma foo: forall n,
   (when (fboundp 'smie-prec2->grammar)
   (smie-prec2->grammar
    (smie-bnf->prec2
-    '((exp ("match" matchexp "withmatch" branches "end")
+    '((exp ("match" matchexp "with match" branches "end")
            ("let" assigns "in" exp)
            ("fun" exp "=>" exp)
            ("if" exp "then" exp "else" exp)
-           ("exists" exp "," exp)
+           ("quantif exists" exp "," exp)
            ("forall" exp "," exp)
            ("(" exps ")")
            ("{|" exps "|}")
+           ("{" exps "}")
            (exp ":" exp)
            (exp "->" exp))
       ;; Having "return" here rather than as a separate rule in `exp'
@@ -288,12 +289,14 @@ Lemma foo: forall n,
       ;; Bullets are all the same as a first approximation.
       (subcmds (cmds)
                (subcmds "+*- bullet" subcmds)
+               ; lexer interpret tactical { and } into this:
                ("BeginSubproof" subcmds "EndSubproof")
-               ("{" subcmds "}")
                ("Proof" subcmds "Proof End")
                ("Module" subcmds "End")
                ("Section" subcmds "End"))
       (cmds ("Lemma" exp ":=" exp)
+            ("Instance" exp ":=" exp)
+            ("Class" exp ":=" exp)
             ("Definition" exp ":=" exp)
             ("Let" exp ":=" exp)
             ("Function" exp ":=" exp)
@@ -355,7 +358,7 @@ Lemma foo: forall n,
 ;;   as a single token (which behaves like "Function" w.r.t indentation and
 ;;   parsing) than to get the parser to handle it correctly.
 ;; - We identify the different types of bullets (First approximation).
-;; - We distinguish "withmatch" from other "with".
+;; - We distinguish "with match" from other "with".
 
 (defconst coq-smie-proof-end-tokens
   ;; '("Qed" "Save" "Defined" "Admitted" "Abort")
@@ -364,7 +367,7 @@ Lemma foo: forall n,
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
     (cond
-     ((member tok '("." ":=" "+" "-" "*" "with"))
+     ((member tok '("." ":=" "+" "-" "*" "with" "exists"))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
@@ -372,25 +375,41 @@ Lemma foo: forall n,
      ((equal tok "Program")
       (let ((pos (point))
             (next (smie-default-forward-token)))
-        (if (member next '("Fixpoint" "Declaration" "Lemma"))
+        (if (member next '("Fixpoint" "Declaration" "Lemma" "Instance"))
             next
           (goto-char pos)
           tok)))
-     ((equal tok "Module")
+     ((member tok '("Module"))
       (let ((pos (point))
             (next (smie-default-forward-token)))
         (unless (equal next "Type") (goto-char pos))
         (save-excursion
           (if (equal (coq-smie-search-token-forward '(":=" ".")) ":=")
               "Module def" tok))))
+     ;; Trying to solve the ambiuity of Definition ... := := ... := ...
+     ;; ((member tok '("Definition" "Instance" "Lemma" "Theorem"))
+     ;;  (let ((pos (point))
+     ;;        (next (smie-default-forward-token)))
+     ;;    (let* ((begofcmd (progn (coq-find-real-start) (point)))
+     ;;          (endofcmd (progn (coq-script-parse-cmdend-forward) (point)))
+     ;;          (str (buffer-substring begofcmd endofcmd))
+     ;;          )
+     ;;      (if (coq-indent-goal-command-p str) "def" tok)
+     ;;    )))
+
      ((and (equal tok "") (looking-at "{|")) (goto-char (match-end 0)) "{|")
-;     ((and (equal tok "")
-;           (looking-at "{")
-;           (or (goto-char (match-end 0)) t)
-;           (save-excursion
-;             (skip-syntax-backward "s-")
-;             (member (char-before) '("." "}" "{"))))
-;      "{ recordtype")
+     ((and (equal tok "") (looking-at "{")
+           (save-excursion
+             (skip-syntax-backward "s-") ; FIXME and similar for comments
+             (member (char-before) '(?\. ?\} ?\{))))
+      (goto-char (match-end 0)) ; go after token "{"
+      "BeginSubproof")
+     ((and (equal tok "") (looking-at "}")
+           (save-excursion
+             (skip-syntax-backward "s-")
+             (member (char-before) '(?\. ?\} ?\{))))
+      (goto-char (match-end 0)) ; go after token "{"
+      "EndSubproof")
      ((and (equal tok "|") (eq (char-after) ?\}))
       (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
@@ -415,7 +434,7 @@ Lemma foo: forall n,
                      (skip-syntax-backward "w_")
                      (looking-at "[[:upper:]]"))))
           ".-selector" "."))
-     ((member tok '("Fixpoint" "Declaration" "Lemma"))
+     ((member tok '("Fixpoint" "Declaration" "Lemma" "Instance"))
       (let ((pos (point))
             (prev (smie-default-backward-token)))
         (unless (equal prev "Program") (goto-char pos))
@@ -433,6 +452,22 @@ Lemma foo: forall n,
             "Module def" tok)))
      ((and (equal tok "|") (eq (char-before) ?\{))
       (goto-char (1- (point))) "{|")
+     ((and (equal tok "") (equal (char-before) ?\{)
+           (let ((pos (- (point) 1)))
+             (and (save-excursion
+                    (forward-char -1)
+                    (skip-syntax-backward "s-")
+                    (member (char-before) '(?\. ?\} ?\{)))
+                  (goto-char pos))))
+      "BeginSubproof")
+     ((and (equal tok "") (equal (char-before) ?\})
+           (let ((pos (- (point) 1)))
+             (and (save-excursion
+                    (forward-char -1)
+                    (skip-syntax-backward "s-")
+                    (member (char-before) '(?\. ?\} ?\{)))
+                  (goto-char pos))))
+      "EndSubproof")
      ((and (equal tok "") (looking-back "|}" (- (point) 2)))
       (goto-char (match-beginning 0)) "|}")
      ((and (equal tok ":=")
@@ -449,10 +484,16 @@ Lemma foo: forall n,
                         (memq (char-before) '(?\{ ?\})))))))
       "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
+     ((and (equal tok "exists")
+           (save-excursion
+             (not (member
+                   (coq-smie-backward-token)
+                   '("." ";" "[" "]" "|" "BeginSubproof" "EndSubproof"))))
+      "quantif exists"))
      ((and (equal tok "with")
            (save-excursion
              (equal (coq-smie-search-token-backward '("match" ".")) "match")))
-      "withmatch")
+      "with match")
      ((equal tok "Obligation")
       (let ((pos (point))
             (prev (smie-default-backward-token)))
@@ -467,38 +508,40 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
     (:elem (case token
              (basic proof-indent)))
     (:list-intro
-     (or (member token '("fun" "forall" "exists"))
+     (or (member token'("fun" "forall" "quantif exists"))
          ;; We include "." in list-intro for the ". { .. } \n { .. }" so the
          ;; second {..} is aligned with the first rather than being indented as
          ;; if it were an argument to the first.
+         ;; FIXME: this gives a strange indentation for ". { \n .. } \n { .. }"
          (when (equal token ".")
-           (smie-default-forward-token)
-           (forward-comment (point-max))
-           (looking-at "{"))))
+           (forward-char 1) ; skip de "."
+           (equal (coq-smie-forward-token) "BeginSubproof"))))
     (:after
      (cond
       ;; Override the default indent step added because of their presence
       ;; in smie-closer-alist.
-      ((equal token "withmatch") 4)
-      ((and (equal token ";") (smie-rule-parent-p "." "{" "}" "|")) 2)
+      ((equal token "with match") 4)
+      ((and (equal token ";")
+            (smie-rule-parent-p "." "[" "]" "BeginSubproof" "EndSubproof" "|"))
+       2)
       ((member token '("," ":=")) 0)))
     (:before
      (cond
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
-       (if (smie-rule-prev-p "withmatch")
-           (- (funcall smie-rules-function :after "withmatch") 2)
+       (if (smie-rule-prev-p "with match")
+           (- (funcall smie-rules-function :after "with match") 2)
          (smie-rule-separator kind)))
       ((equal token ":=")
        (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
-                               "Function" "Let" "Record")
+                               "Function" "Let" "Record" "Instance" "Class")
            (or proof-indent smie-indent-basic)))
       ((equal token ".")
        (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
-      ((and (equal token "{") (smie-rule-prev-p ":="))
-       (smie-rule-parent))
-      ((and (equal token ",") (smie-rule-parent-p "forall" "exists")) 2)
-      ((and (equal token ":") (smie-rule-parent-p "Lemma")) 2)
+      ((and (equal token ",")
+            (smie-rule-parent-p "forall" "quantif exists"))
+       2)
+      ((and (equal token ":") (smie-rule-parent-p "Lemma" "Instance" )) 2)
       ((and (equal token "Proof End")
             (smie-rule-parent-p "Module" "Section"))
        ;; ¡¡Major gross hack!!
@@ -511,13 +554,13 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;; FIXME: This is fundamentally very wrong, but it seems to work
        ;; OK in practice.
        (smie-rule-parent 2))
-      ;; CHECK: pc: Stefan, I don't understand this last rule,
+      ;; CHECK: pc: Stefan, I don't understand this rule and replaced it by
+      ;; the next one to follow the coq usual indentation:
       ;((and (equal token "forall" "exists") (smie-rule-prev-p ":")
       ;      (smie-rule-parent-p "Lemma"))
       ; (smie-rule-parent))
-      ;; pc: replaced by this to follow the coq usual indentation.
-      ((and (member token '("forall" "exists")); (smie-rule-prev-p ":")
-            (not (smie-rule-parent-p "Lemma")))
+      ((and (member token '("forall" "quantif exists")); (smie-rule-prev-p ":")
+            (not (smie-rule-parent-p "Lemma" "Instance"))) ;; FIXME add more
        (smie-rule-parent))
       ))))
 
