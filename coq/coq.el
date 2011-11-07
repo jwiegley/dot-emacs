@@ -444,14 +444,6 @@ Lemma foo: forall n,
                  (and (equal prev "") (member (char-before) '(?\{ ?\})))))))
       (forward-char -1)
       (if (looking-at "{") "BeginSubproof" "EndSubproof"))
-     ;; ((and (equal tok "") (equal (char-before) ?\})
-     ;;       (let ((pos (- (point) 1)))
-     ;;         (and (save-excursion
-     ;;                (forward-char -1)
-     ;;                (skip-syntax-backward "s-")
-     ;;                (member (char-before) '(?\. ?\} ?\{)))
-     ;;              (goto-char pos))))
-     ;;  "EndSubproof")
      ((and (equal tok "") (looking-back "|}" (- (point) 2)))
       (goto-char (match-beginning 0)) "|}")
      ((and (equal tok ":=")
@@ -1033,6 +1025,8 @@ This is specific to `coq-mode'."
 (defun coq-mode-config ()
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
+  ;; Coq defninition never start by a parenthesis
+  (set (make-local-variable 'open-paren-in-column-0-is-defun-start) nil)
   (setq proof-terminal-string ".")
   (setq proof-script-command-end-regexp coq-script-command-end-regexp)
   (setq proof-script-parse-function 'coq-script-parse-function)
