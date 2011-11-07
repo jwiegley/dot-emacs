@@ -386,30 +386,14 @@ Lemma foo: forall n,
         (save-excursion
           (if (equal (coq-smie-search-token-forward '(":=" ".")) ":=")
               "Module def" tok))))
-     ;; Trying to solve the ambiuity of Definition ... := := ... := ...
-     ;; ((member tok '("Definition" "Instance" "Lemma" "Theorem"))
-     ;;  (let ((pos (point))
-     ;;        (next (smie-default-forward-token)))
-     ;;    (let* ((begofcmd (progn (coq-find-real-start) (point)))
-     ;;          (endofcmd (progn (coq-script-parse-cmdend-forward) (point)))
-     ;;          (str (buffer-substring begofcmd endofcmd))
-     ;;          )
-     ;;      (if (coq-indent-goal-command-p str) "def" tok)
-     ;;    )))
-
      ((and (equal tok "") (looking-at "{|")) (goto-char (match-end 0)) "{|")
-     ((and (equal tok "") (looking-at "{")
-           (save-excursion
-             (skip-syntax-backward "s-") ; FIXME and similar for comments
-             (member (char-before) '(?\. ?\} ?\{))))
-      (goto-char (match-end 0)) ; go after token "{"
-      "BeginSubproof")
+     ;; this must be after detecting "{|":
+     ((and (equal tok "") (looking-at "{") 
+           (save-excursion (forward-char 1)
+                           (coq-smie-backward-token))))
      ((and (equal tok "") (looking-at "}")
-           (save-excursion
-             (skip-syntax-backward "s-")
-             (member (char-before) '(?\. ?\} ?\{))))
-      (goto-char (match-end 0)) ; go after token "{"
-      "EndSubproof")
+           (save-excursion (forward-char 1)
+                           (coq-smie-backward-token))))
      ((and (equal tok "|") (eq (char-after) ?\}))
       (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
@@ -452,22 +436,22 @@ Lemma foo: forall n,
             "Module def" tok)))
      ((and (equal tok "|") (eq (char-before) ?\{))
       (goto-char (1- (point))) "{|")
-     ((and (equal tok "") (equal (char-before) ?\{)
-           (let ((pos (- (point) 1)))
-             (and (save-excursion
-                    (forward-char -1)
-                    (skip-syntax-backward "s-")
-                    (member (char-before) '(?\. ?\} ?\{)))
-                  (goto-char pos))))
-      "BeginSubproof")
-     ((and (equal tok "") (equal (char-before) ?\})
-           (let ((pos (- (point) 1)))
-             (and (save-excursion
-                    (forward-char -1)
-                    (skip-syntax-backward "s-")
-                    (member (char-before) '(?\. ?\} ?\{)))
-                  (goto-char pos))))
-      "EndSubproof")
+     ((and (equal tok "") (member (char-before) '(?\{ ?\}))
+           (save-excursion
+             (forward-char -1)
+             (let ((prev (smie-default-backward-token)))
+             (or (and (equal prev ".") (looking-at "\\."))
+                 (and (equal prev "") (member (char-before) '(?\{ ?\})))))))
+      (forward-char -1)
+      (if (looking-at "{") "BeginSubproof" "EndSubproof"))
+     ;; ((and (equal tok "") (equal (char-before) ?\})
+     ;;       (let ((pos (- (point) 1)))
+     ;;         (and (save-excursion
+     ;;                (forward-char -1)
+     ;;                (skip-syntax-backward "s-")
+     ;;                (member (char-before) '(?\. ?\} ?\{)))
+     ;;              (goto-char pos))))
+     ;;  "EndSubproof")
      ((and (equal tok "") (looking-back "|}" (- (point) 2)))
       (goto-char (match-beginning 0)) "|}")
      ((and (equal tok ":=")
