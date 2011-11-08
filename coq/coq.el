@@ -271,6 +271,7 @@ Lemma foo: forall n,
            ("if" exp "then" exp "else" exp)
            ("quantif exists" exp "," exp)
            ("forall" exp "," exp)
+           ("∀" exp "," exp)
            ("(" exps ")")
            ("{|" exps "|}")
            ("{" exps "}")
@@ -460,7 +461,7 @@ Lemma foo: forall n,
                         (memq (char-before) '(?\{ ?\})))))))
       "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
-     ((and (equal tok "exists")
+     ((and (member tok '("exists" "∃"))
            (save-excursion
              (not (member
                    (coq-smie-backward-token)
@@ -470,6 +471,10 @@ Lemma foo: forall n,
            (save-excursion
              (equal (coq-smie-search-token-backward '("match" ".")) "match")))
       "with match")
+     ((and (equal tok "with")
+           (save-excursion
+             (equal (coq-smie-search-token-backward '("Proof" ".")) "Proof")))
+      "with Proof")
      ((equal tok "Obligation")
       (let ((pos (point))
             (prev (smie-default-backward-token)))
@@ -484,7 +489,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
     (:elem (case token
              (basic proof-indent)))
     (:list-intro
-     (or (member token'("fun" "forall" "quantif exists"))
+     (or (member token'("fun" "forall" "∀" "quantif exists"))
          ;; We include "." in list-intro for the ". { .. } \n { .. }" so the
          ;; second {..} is aligned with the first rather than being indented as
          ;; if it were an argument to the first.
@@ -500,7 +505,11 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((and (equal token ";")
             (smie-rule-parent-p "." "[" "]" "BeginSubproof" "EndSubproof" "|"))
        2)
-      ((member token '("," ":=")) 0)))
+      ((member token '(":=")) 0)
+      ((and (equal token ",")
+            (not (smie-rule-parent-p "forall" "∀" "quantif exists")))
+       0)
+      ))
     (:before
      (cond
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
@@ -515,8 +524,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token ".")
        (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
       ((and (equal token ",")
-            (smie-rule-parent-p "forall" "quantif exists"))
-       2)
+            (smie-rule-parent-p "forall" "∀" "quantif exists"))
+       0)
       ((and (equal token ":") (smie-rule-parent-p "Lemma" "Instance" )) 2)
       ((and (equal token "Proof End")
             (smie-rule-parent-p "Module" "Section"))
@@ -535,7 +544,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;((and (equal token "forall" "exists") (smie-rule-prev-p ":")
       ;      (smie-rule-parent-p "Lemma"))
       ; (smie-rule-parent))
-      ((and (member token '("forall" "quantif exists")); (smie-rule-prev-p ":")
+      ((and (member token '("forall" "∀" "quantif exists")); (smie-rule-prev-p ":")
             (not (smie-rule-parent-p "Lemma" "Instance"))) ;; FIXME add more
        (smie-rule-parent))
       ))))
