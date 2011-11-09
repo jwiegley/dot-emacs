@@ -1541,14 +1541,14 @@ This can be 0 for immediate, or a floating point value.")
   (interactive)
   (org-set-property "Submitter" (org-get-message-sender)))
 
-;;(defun org-get-safari-link ()
-;;  (let ((subject (do-applescript "tell application \"Safari\"
-;;        name of document of front window
-;;end tell"))
-;;        (url (do-applescript "tell application \"Safari\"
-;;        URL of document of front window
-;;end tell")))
-;;    (org-make-link-string url subject)))
+(defun org-get-safari-link ()
+  (let ((subject (do-applescript "tell application \"Safari\"
+        name of document of front window
+end tell"))
+        (url (do-applescript "tell application \"Safari\"
+        URL of document of front window
+end tell")))
+    (org-make-link-string url subject)))
 
 (defun org-get-chrome-link ()
   (let ((subject (do-applescript "tell application \"Google Chrome\"
@@ -1561,12 +1561,12 @@ end tell")))
 
 (defun org-insert-url-link ()
   (interactive)
-  (insert (org-get-chrome-link)))
+  (insert (org-get-safari-link)))
 
 (defun org-set-url-link ()
   "Set a property for the current headline."
   (interactive)
-  (org-set-property "URL" (org-get-chrome-link)))
+  (org-set-property "URL" (org-get-safari-link)))
 
 ;;(defun org-get-file-link ()
 ;;  (let ((subject (do-applescript "tell application \"Finder\"
