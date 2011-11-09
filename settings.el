@@ -87,7 +87,7 @@
  '(erc-auto-query (quote window-noselect))
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autoaway-mode t)
- '(erc-autojoin-channels-alist (quote (("localhost" "&bitlbee") ("freenode.net" "#ledger") ("irc.oftc.net" "#llvm"))))
+ '(erc-autojoin-channels-alist (quote (("localhost" "&bitlbee") ("freenode.net" "#emacs" "#ledger") ("irc.oftc.net" "#llvm"))))
  '(erc-autojoin-mode t)
  '(erc-fools (quote ("JordiGH")))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
