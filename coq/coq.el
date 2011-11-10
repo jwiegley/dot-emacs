@@ -263,62 +263,65 @@ Lemma foo: forall n,
 (defconst coq-smie-grammar
   ;; FIXME: This does not know about Notations.
   (when (fboundp 'smie-prec2->grammar)
-  (smie-prec2->grammar
-   (smie-bnf->prec2
-    '((exp ("match" matchexp "with match" branches "end")
-           ("let" assigns "in" exp)
-           ("fun" exp "=>" exp)
-           ("if" exp "then" exp "else" exp)
-           ("quantif exists" exp "," exp)
-           ("forall" exp "," exp)
-           ("∀" exp "," exp)
-           ("(" exps ")")
-           ("{|" exps "|}")
-           ("{" exps "}")
-           (exp ":" exp)
-           (exp "->" exp))
-      ;; Having "return" here rather than as a separate rule in `exp'
-      ;; causes it to be indented at a different level than "with".
-      (matchexp (matchexp "return" exp) (exp "in" exp) (exp "as" exp))
-      (assigns (exp ":=" exp) (assigns ";" assigns))
-      (branches (exp "=>" exp) (branches "|" branches))
-      (exps (exp) (exps "," exps))
-      (subtactics (tactics "|" tactics))
-      (tactics (tactics ";" tactics) ("[" subtactics "]"))
-      ;; The elements below are trying to capture the syntactic structure
-      ;; layered above the commands language.
-      ;; Bullets are all the same as a first approximation.
-      (subcmds (cmds)
-               (subcmds "+*- bullet" subcmds)
-               ; lexer interpret tactical { and } into this:
-               ("BeginSubproof" subcmds "EndSubproof")
-               ("Proof" subcmds "Proof End")
-               ("Proof" subcmds "Proof End")
-               ("Module" subcmds "End")
-               ("Section" subcmds "End"))
-      (cmds ("Lemma" exp ":=" exp)
-            ("Instance" exp ":=" exp)
-            ("Class" exp ":=" exp)
-            ("Definition" exp ":=" exp)
-            ("Let" exp ":=" exp)
-            ("Function" exp ":=" exp)
-            ("Fixpoint" exp ":=" exp)
-            ("Inductive" exp ":= inductive" branches)
-            ("CoInductive" exp ":= inductive" branches)
-            ("Notation" exp ":=" exp)
-            ("Record" exp ":=" exp)
-            (tactics)
-            ;; The above elements are far from the only ones terminated by "."
-            ;; (think of all the tactics).  So we won't list them all, instead
-            ;; we'll use "." as separator rather than terminator.
-            ;; This has the downside that smie-forward-sexp on a "Definition"
-            ;; stops right before the "." rather than right after.
-            (cmds "." cmds)))
-    ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
-    '((nonassoc "else" "in" "in tactic" "=>" ",") (left ":") (assoc "->"))
-    ;; Declare that we don't care about associativity of separators.
-    '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")) 
-    '((assoc "+*- bullet")))))
+    (smie-prec2->grammar
+     (smie-bnf->prec2
+      '((exp ("match" matchexp "with match" expssss "end")
+             ("let" assigns "in" exp)
+             ("fun" exp "=>" exp)
+             ("if" exp "then" exp "else" exp)
+             ("quantif exists" exp "," exp)
+             ("forall" exp "," exp)
+             ("∀" exp "," exp)
+             ("(" exps ")")
+             ("{|" exps "|}")
+             ("{" exps "}")
+             ("[" expssss "]")
+             (exp "->" exp)
+             (exp ":" exp))
+        ;; Having "return" here rather than as a separate rule in `exp' causes
+        ;; it to be indented at a different level than "with".
+        (matchexp (matchexp "return" exp) (exp "in" exp)) ;(exp "as" exp)
+        (assigns (exp ":=" exp) (assigns ";" assigns))
+        (exps (exp) (exps "," exps))
+        (expss (exps) (expss ";" expss))
+        (expsss (expss) (expsss "=>" expsss))
+        (expssss (expsss) (expssss "|" expssss))
+        ;; The elements below are trying to capture the syntactic structure
+        ;; layered above the commands language. Bullets are all the same as a
+        ;; first approximation.
+        (subcmds (cmds)
+                 (subcmds "+*- bullet" subcmds)
+                 ("BeginSubproof" subcmds "EndSubproof") ;captures also { and }
+                 ("Proof" subcmds "Proof End")
+                 ("Proof" subcmds "Proof End")
+                 ("Module" subcmds "End")
+                 ("Section" subcmds "End"))
+        (cmds ("Add" exp ":=" exp)
+              ("Lemma" exp ":=" exp)
+              ("Instance" exp ":=" exp)
+              ("Class" exp ":=" exp)
+              ("Definition" exp ":=" exp)
+              ("Let" exp ":=" exp)
+              ("Function" exp ":=" exp)
+              ("Fixpoint" exp ":=" exp)
+              ("Inductive" exp ":= inductive")
+              ("CoInductive" exp ":= inductive" expssss)
+              ("Notation" exp ":=" exp)
+              ("Record" exp ":=" exp)
+              ("Ltac" exp ":=" exp)
+              (expss) ; tactics
+              ;; The above elements are far from the only ones terminated by
+              ;; "." (think of all the tactics). So we won't list them all,
+              ;; instead we'll use "." as separator rather than terminator.
+              ;; This has the downside that smie-forward-sexp on a "Definition"
+              ;; stops right before the "." rather than right after.
+              (cmds "." cmds)))
+      ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
+      '((assoc ",") (nonassoc "as") (assoc ":") (assoc "->") (nonassoc "else")
+        (nonassoc "in") (assoc "in tactic") (left "=>"))
+      '((assoc ",")(assoc ";")(assoc "|")(left "=>"))
+      '((left "+*- bullet"))
+      '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 
 (defun coq-smie-search-token-forward (tokens &optional end)
@@ -390,7 +393,7 @@ Lemma foo: forall n,
               "Module def" tok))))
      ((and (equal tok "") (looking-at "{|")) (goto-char (match-end 0)) "{|")
      ;; this must be after detecting "{|":
-     ((and (equal tok "") (looking-at "{") 
+     ((and (equal tok "") (looking-at "{")
            (save-excursion (forward-char 1)
                            (coq-smie-backward-token))))
      ((and (equal tok "") (looking-at "}")
@@ -465,9 +468,7 @@ Lemma foo: forall n,
      ((and (member tok '("+" "-" "*"))
            (save-excursion
              (let ((prev (coq-smie-backward-token)))
-               (or (equal prev ".")
-                   (and (equal prev "")
-                        (memq (char-before) '(?\{ ?\})))))))
+               (member prev '("." "BeginSubproof" "EndSubproof")))))
       "+*- bullet")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((and (member tok '("exists" "∃"))
@@ -494,13 +495,13 @@ Lemma foo: forall n,
         "Proof"))
      ((equal tok "in")
       (save-excursion
-        (member
-         (coq-smie-search-token-backward '("in" "let" "eval" "rewrite" "unfold" "."))
-         '("in" "let"))
-         "in" "in tactic"
-         )
-        )
-
+        (if (member
+             (coq-smie-search-token-backward
+              ;; careful not to stop when "." is found: dotted notation
+              ;; are not recognized by coq-smie-search-token-backward
+              '("in" "let" "eval" "rewrite" "unfold"))
+             '("in" "let"))
+            "in" "in tactic")))
      (tok))))
 
 (defun coq-smie-rules (kind token)
@@ -528,26 +529,28 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        2)
       ((member token '(":=")) 0)
       ((and (equal token ",")
-            (not (smie-rule-parent-p "forall" "∀" "quantif exists")))
-       0)
-      ))
+            (not (smie-rule-parent-p "forall" "∀" "quantif exists"))) 0)))
     (:before
      (cond
+      ((equal token "+*- bullet") 2)
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
        (if (smie-rule-prev-p "with match")
            (- (funcall smie-rules-function :after "with match") 2)
          (smie-rule-separator kind)))
-      ((equal token ":=")
-       (if (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
-                               "Function" "Let" "Record" "Instance" "Class")
-           (or proof-indent smie-indent-basic)))
+      ((and (equal token ":=")
+            (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
+                                "Function" "Let" "Record" "Instance" "Class"
+                                "Ltac" "Add"))
+       ;(or proof-indent smie-indent-basic)
+       2
+       )
+      ((and (equal token ":")
+            (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
+                                "Function" "Let" "Record" "Instance" "Class"
+                                "Ltac" "Add")) 2)
       ((equal token ".")
        (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
-      ((and (equal token ",")
-            (smie-rule-parent-p "forall" "∀" "quantif exists"))
-       0)
-      ((and (equal token ":") (smie-rule-parent-p "Lemma" "Instance" )) 2)
       ((and (equal token "Proof End")
             (smie-rule-parent-p "Module" "Section"))
        ;; ¡¡Major gross hack!!
@@ -565,10 +568,11 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;((and (equal token "forall" "exists") (smie-rule-prev-p ":")
       ;      (smie-rule-parent-p "Lemma"))
       ; (smie-rule-parent))
-      ((and (member token '("forall" "∀" "quantif exists")); (smie-rule-prev-p ":")
-            (not (smie-rule-parent-p "Lemma" "Instance"))) ;; FIXME add more
-       (smie-rule-parent))
-      ))))
+      ((and (member token '("forall" "∀" "quantif exists"))
+            (not (smie-rule-parent-p
+                  "Definition" "Lemma" "Fixpoint" "Inductive" "Function" "Let"
+                  "Record" "Instance" "Class" "Ltac" "Add"))) ;; FIXME add more
+       (smie-rule-parent))))))
 
 ;;
 ;; Auxiliary code for Coq modes
@@ -611,10 +615,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
     (let ((x (string-match (concat "\\(" coq-id-shy "\\)\\(?:|\\|\\'\\)\\(.*\\)") s)))
       (if (not x) (error "Cannot extract list of ids from string")
         (cons (match-string 1 s)
-              (build-list-id-from-string (match-string 2 s))
-              )))
-    )
-  )
+              (build-list-id-from-string (match-string 2 s)))))))
 
 ;; Use the statenumber inside the coq prompt to backtrack more easily
 (defun coq-last-prompt-info (s)
