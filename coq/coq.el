@@ -280,8 +280,8 @@ Lemma foo: forall n,
       ;; Having "return" here rather than as a separate rule in `exp'
       ;; causes it to be indented at a different level than "with".
       (matchexp (matchexp "return" exp) (exp "in" exp) (exp "as" exp))
-      (branches (exp "=>" exp) (branches "|" branches))
       (assigns (exp ":=" exp) (assigns ";" assigns))
+      (branches (exp "=>" exp) (branches "|" branches))
       (exps (exp) (exps "," exps))
       (subtactics (tactics "|" tactics))
       (tactics (tactics ";" tactics) ("[" subtactics "]"))
@@ -292,6 +292,7 @@ Lemma foo: forall n,
                (subcmds "+*- bullet" subcmds)
                ; lexer interpret tactical { and } into this:
                ("BeginSubproof" subcmds "EndSubproof")
+               ("Proof" subcmds "Proof End")
                ("Proof" subcmds "Proof End")
                ("Module" subcmds "End")
                ("Section" subcmds "End"))
@@ -314,7 +315,7 @@ Lemma foo: forall n,
             ;; stops right before the "." rather than right after.
             (cmds "." cmds)))
     ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
-    '((nonassoc "else" "in" "=>" ",") (left ":") (assoc "->"))
+    '((nonassoc "else" "in" "in tactic" "=>" ",") (left ":") (assoc "->"))
     ;; Declare that we don't care about associativity of separators.
     '((assoc "|")) '((assoc ",")) '((assoc ";")) '((assoc ".")) 
     '((assoc "+*- bullet")))))
@@ -368,7 +369,7 @@ Lemma foo: forall n,
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
     (cond
-     ((member tok '("." ":=" "+" "-" "*" "with" "exists"))
+     ((member tok '("." ":=" "+" "-" "*" "with" "exists" "in"))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
@@ -398,7 +399,14 @@ Lemma foo: forall n,
      ((and (equal tok "|") (eq (char-after) ?\}))
       (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
-     ((member tok '("Proof" "Obligation")) "Proof")
+     ((member tok '("Obligation")) "Proof")
+     ((equal tok "Proof") ;; put point after with if present
+      (let ((pos (point))
+            (next (smie-default-forward-token)))
+        (if (equal next "with")
+            "Proof"
+          (goto-char pos)
+          tok)))
      ((equal tok "Next")
       (let ((pos (point))
             (next (smie-default-forward-token)))
@@ -453,6 +461,7 @@ Lemma foo: forall n,
                       '("let" "Inductive" "Coinductive" "."))
                      '("Inductive" "CoInductive"))))
       ":= inductive")
+     ((equal tok "*.") (forward-char 1) ".") ; for "auto with *."
      ((and (member tok '("+" "-" "*"))
            (save-excursion
              (let ((prev (coq-smie-backward-token)))
@@ -472,14 +481,26 @@ Lemma foo: forall n,
              (equal (coq-smie-search-token-backward '("match" ".")) "match")))
       "with match")
      ((and (equal tok "with")
-           (save-excursion
-             (equal (coq-smie-search-token-backward '("Proof" ".")) "Proof")))
-      "with Proof")
+           (let ((pos (point))
+                 (next (smie-default-backward-token)))
+             (if (equal next "Proof")
+                 next
+               (goto-char pos)
+               tok))))
      ((equal tok "Obligation")
       (let ((pos (point))
             (prev (smie-default-backward-token)))
         (unless (equal prev "Next") (goto-char pos))
         "Proof"))
+     ((equal tok "in")
+      (save-excursion
+        (member
+         (coq-smie-search-token-backward '("in" "let" "eval" "rewrite" "unfold" "."))
+         '("in" "let"))
+         "in" "in tactic"
+         )
+        )
+
      (tok))))
 
 (defun coq-smie-rules (kind token)
