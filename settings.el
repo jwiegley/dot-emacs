@@ -396,7 +396,7 @@
  '(redisplay-dont-pause t t)
  '(regex-tool-backend (quote perl))
  '(safe-local-variable-values (quote ((after-save-hook byte-recompile-file) (after-save-hook git-commit-changes) (org-refer-by-number-id . "1C72AB51-33C2-4FF8-9367-2B494D125027"))))
- '(same-window-buffer-names (quote ("*eshell*" "*shell*" "*mail*" "*inferior-lisp*" "*ielm*" "*scheme*" "*compilation*")))
+ '(same-window-buffer-names (quote ("*eshell*" "*shell*" "*mail*" "*inferior-lisp*" "*ielm*" "*scheme*")))
  '(sc-attrib-selection-list (quote (("sc-from-address" ((".*" bbdb/sc-consult-attr (sc-mail-field "sc-from-address")))))))
  '(sc-citation-leader "")
  '(sc-confirm-always-p nil)
