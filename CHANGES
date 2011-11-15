@@ -4,14 +4,19 @@ This is a summary of main changes.  For details, please see
 the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 
-
-* Changes of Proof General 4.2 from Proof General 4.1
+* Changes of Proof General 4.1.1 from Proof General 4.1
 
 ** Generic/misc changes
 
 *** Compilation fixes for Emacs 24.
 
 *** Fix "pgshell" mode for shell/CLI prover interaction
+
+** Coq changes
+
+*** Indentation improvements using SMIE
+
+*** Minor parsing fixes
 
 
 * Changes of Proof General 4.1 from Proof General 4.0
