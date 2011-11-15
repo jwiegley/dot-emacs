@@ -1166,14 +1166,17 @@ This is specific to `coq-mode'."
    pg-subterm-end-char ?\374            ; not done
    pg-topterm-regexp "\375"
 
-   proof-shell-eager-annotation-start "\376\\|\\[Reinterning\\|Warning:"
+   ;; FIXME: ideally, the eager annotation should just be a single "special" char,
+   ;; this requires changes in Coq.
+   proof-shell-eager-annotation-start 
+   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug "
    proof-shell-eager-annotation-start-length 12
 
    ;; ****** is added at the end of warnings in emacs mode, this is temporary I
    ;;        want xml like tags, and I want them removed before warning display.
    ;; I want the same for errors -> pgip
 
-   proof-shell-eager-annotation-end "\377\\|done\\]\\|\\*\\*\\*\\*\\*\\*" ; done
+   proof-shell-eager-annotation-end "\377\\|done\\]\\|\\*\\*\\*\\*\\*\\*\\|) >" ; done
    proof-shell-annotated-prompt-regexp coq-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"

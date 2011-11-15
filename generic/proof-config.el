@@ -1440,6 +1440,20 @@ response buffer."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+(defcustom proof-shell-interactive-prompt-regexp nil
+  "Matches output from the prover which indicates an interactive prompt.
+If we match this, we suppose that the prover has switched to an
+interactive diagnostic mode which requires direct interaction
+with the shell rather than via script management.  In this case,
+the shell buffer will be displayed and the user left to their own
+devices.
+
+Note: this should match a string which is bounded by matches
+on `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'."
+  :type '(choice nil regexp)
+  :group 'proof-shell)
+
 
 ;;
 ;; 3c. tokens mode: turning on/off tokens output

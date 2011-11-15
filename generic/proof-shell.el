@@ -1086,8 +1086,9 @@ and indentation.  Assumes `proof-script-buffer' is active."
 (defun proof-shell-process-urgent-message (start end)
   "Analyse urgent message between START and END for various cases.
 
-Cases are: included file, retracted file, cleared response buffer,
-variable setting, PGIP response, or theorem dependency list.
+Cases are: *trace* output, included/retracted files, cleared 
+goals/response buffer, variable setting, xml-encoded PGIP response, 
+theorem dependency message or interactive output indicator.
 
 If none of these apply, display the text between START and END.
 
@@ -1123,6 +1124,12 @@ ends with text matching `proof-shell-eager-annotation-end'."
    
    ((proof-looking-at-safe proof-shell-theorem-dependency-list-regexp)
     (proof-shell-process-urgent-message-thmdeps))
+
+   ((proof-looking-at-safe proof-shell-theorem-dependency-list-regexp)
+    (proof-shell-process-urgent-message-thmdeps))
+
+   ((proof-looking-at-safe proof-shell-interactive-prompt-regexp)
+    (proof-shell-process-interactive-prompt-regexp))
 
    (t
     (proof-shell-process-urgent-message-default start end))))
@@ -1210,6 +1217,14 @@ inverse to `proof-register-possibly-new-processed-file'."
      proof-last-theorem-dependencies
      (cons (split-string names sep)
 	   (split-string deps sep)))))
+
+(defun proof-shell-process-interactive-prompt-regexp ()
+  "Action taken when `proof-shell-interactive-prompt-regexp' is observed."
+  (when (and (proof-shell-live-buffer)
+	     ; not already visible
+	     t)
+    (switch-to-buffer proof-shell-buffer)
+    (message "Prover expects input in %s buffer" proof-shell-buffer)))
 
 ;;
 ;; urgent message utilities
