@@ -87,11 +87,11 @@
   (interactive)
   (if (executable-find "getnews")
       (async-shell-command "getnews")
-    (async-shell-command "fetchnews -vv")))
+    (async-shell-command "fetchnews -vv -n")))
 
 (defun fetchnews-post ()
   (interactive)
-  (async-shell-command "fetchnews -vv -P"))
+  (async-shell-command "fetchnews -vv -n -P"))
 
 (eval-after-load "gnus-group"
   '(progn
