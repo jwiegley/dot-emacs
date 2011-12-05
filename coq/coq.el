@@ -108,14 +108,14 @@ Set to t if you want this feature."
   :type 'string
   :group 'coq)
 
-(defcustom coq-default-undo-limit 200
+(defcustom coq-default-undo-limit 500
   "Maximum number of Undo's possible when doing a proof."
   :type 'number
   :group 'coq)
 
 (defconst coq-shell-init-cmd
-  "Command to initialize the Coq Proof Assistant."
-  (format "Set Undo %s . " coq-default-undo-limit))
+  (format "Set Undo %s . " coq-default-undo-limit)
+  "Command to initialize the Coq Proof Assistant.")
 
 (require 'coq-syntax)
 ;; FIXME: Even if we don't use coq-indent for indentation, we still need it for
@@ -2454,19 +2454,19 @@ number of hypothesis displayed, without hiding the goal"
 
 (defun coq-update-minor-mode-alist ()
   "Modify `minor-mode-alist' to display the number of subgoals in the modeline."
-  (save-window-excursion ; switch to buffer even if not visible
-    (switch-to-buffer proof-goals-buffer)
-    (let* ((nbgoals (string-to-number (first-word-of-buffer)))
-           (dummy (switch-to-buffer proof-script-buffer))
-           (toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
-      (while toclean ;; clean minor-mode-alist
-        (setq minor-mode-alist (remove toclean minor-mode-alist))
-        (setq toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
-      (setq minor-mode-alist
-            (append (list (list 'proof-active-buffer-fake-minor-mode
-                                (coq-build-subgoals-string nbgoals)))
-                    minor-mode-alist
-                    )))))
+  (when (and proof-goals-buffer proof-script-buffer)
+    (let ((nbgoals (with-current-buffer proof-goals-buffer
+                     (string-to-number (first-word-of-buffer)))))
+      (with-current-buffer proof-script-buffer
+        (let ((toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
+          (while toclean ;; clean minor-mode-alist
+            (setq minor-mode-alist (remove toclean minor-mode-alist))
+            (setq toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
+          (setq minor-mode-alist
+                (append (list (list 'proof-active-buffer-fake-minor-mode
+                                    (coq-build-subgoals-string nbgoals)))
+                        minor-mode-alist)))))))
+
 
 
 
