@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# expand-env: ((yas/indent-line 'fixed))
+# --
+We offer a downloadable ISO version of the installer (which you can burn to
+CD/DVD), for a single platform, with a 10-seat developer license, for \$499.
+The same ISO plus updates for all versions of Boost released within the
+following 12-month period is \$999.
+
+A platform is defined to be a compiler toolchain, OS version, and instruction
+set architecture triple.
+
+Thank you,
+  John Wiegley
+  BoostPro Computing
+  http://www.boostpro.com
