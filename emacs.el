@@ -1319,16 +1319,16 @@ To use this function, add it to `org-agenda-finalize-hook':
 ;;;_MobileOrg for recording new tasks on the phone, and never for viewing
 ;;;_tasks.  This allows MobileOrg to start up and sync extremely quickly.
 
-(add-hook 'org-mobile-post-push-hook
-          (function
-           (lambda ()
-             (shell-command "/bin/rm -f ~/Dropbox/MobileOrg/agendas.org")
-             (shell-command
-              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
-                      "~/Dropbox/MobileOrg/checksums.dat"))
-             (shell-command
-              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
-                      "~/Dropbox/MobileOrg/index.org")))))
+;;(add-hook 'org-mobile-post-push-hook
+;;          (function
+;;           (lambda ()
+;;             (shell-command "/bin/rm -f ~/Dropbox/MobileOrg/agendas.org")
+;;             (shell-command
+;;              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
+;;                      "~/Dropbox/MobileOrg/checksums.dat"))
+;;             (shell-command
+;;              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
+;;                      "~/Dropbox/MobileOrg/index.org")))))
 
 (add-hook 'org-mobile-pre-pull-hook 'my-org-convert-incoming-items)
 
