@@ -2331,6 +2331,29 @@ Else, return \" \"."
 (define-key global-map [(meta shift ?h)] 'mark-paragraph)
 (define-key global-map [(meta shift ?d)] 'mark-defun)
 
+(defun copy-code-as-rtf (&optional font-size)
+  (interactive "P")
+  (let* ((real-font-size
+          (if (and font-size
+                   (/= (abs font-size) 4))
+              (abs font-size)
+            18))
+         (common-options
+          (format "--font Monaco --font-size %d %s --rtf"
+                  real-font-size
+                  (if (and font-size (= (abs font-size) 4))
+                      "--linenumbers" ""))))
+    (shell-command-on-region
+     (if (region-active-p) (region-beginning) (point-min))
+     (if (region-active-p) (region-end) (point-max))
+     (format "highlight --syntax %s %s | pbcopy"
+             (file-name-extension (buffer-file-name)) common-options))
+    (message "Copied %s to pasteboard as RTF with font-size of %d"
+             (if (region-active-p) "region" "file")
+             real-font-size)))
+
+(define-key global-map [(meta alt ?w)] 'copy-code-as-rtf)
+
 ;;;_  . C-<?>
 
 (define-key global-map [(control return)] 'other-window)
