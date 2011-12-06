@@ -2218,7 +2218,8 @@ Else, return \" \"."
 
 ;;;_  . M-<?>
 
-(define-key global-map [(meta ?/)] 'hippie-expand)
+;;(define-key global-map [(meta ?/)] 'hippie-expand)
+(define-key global-map [(meta ?/)] 'dabbrev-expand)
 (define-key global-map [(meta ??)] 'anything-dabbrev-expand)
 
 (defun delete-indentation-forward ()
