@@ -2644,6 +2644,14 @@ Else, return \" \"."
 
 (define-key mode-specific-map [?a] 'org-agenda)
 
+(defun switch-to-bitlbee ()
+  (interactive)
+  (switch-to-buffer-other-window "&bitlbee")
+  (call-interactively 'erc-channel-names)
+  (goto-char (point-max)))
+
+(define-key mode-specific-map [?b] 'switch-to-bitlbee)
+
 (define-key mode-specific-map [?c] 'compile)
 (define-key mode-specific-map [?C] 'indirect-region)
 
