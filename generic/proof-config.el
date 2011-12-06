@@ -210,7 +210,7 @@ Setting strings are calculated by replacing a format character
 `defpacustom', using the current value of that variable.  This
 function  is applied as a final step to do any extra markup, or
 conversion, etc.  (No changes are done if nil)."
-  :type '(choice string nil)
+  :type '(choice string (const nil))
   :group 'prover-config)
 
 
@@ -403,7 +403,7 @@ String or Int.
 If an int N use match-string to recover the value of the Nth parenthesis matched.
 If it is a string use replace-match. In this case, `proof-save-with-hole-regexp'
 should match the entire command"
-  :type '(choice string int)
+  :type '(choice string integer)
   :group 'proof-script)
 
 ;; FIXME: unify uses so that proof-anchor-regexp works sensibly
@@ -433,7 +433,7 @@ String or Int.
 If an int N use match-string to recover the value of the Nth parenthesis matched.
 If it is a string use replace-match. In this case, proof-save-with-hole-regexp
 should match the entire command"
-  :type '(choice string int)
+  :type '(choice string integer)
   :group 'proof-script)
 
 (defcustom proof-non-undoables-regexp nil
@@ -444,7 +444,7 @@ cannot \"redo\" an \"undo\").
 Used in default functions `proof-generic-state-preserving-p'
 and `proof-generic-count-undos'.  If you don't use those,
 may be left as nil."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-script)
 
 (defcustom proof-nested-undo-regexp nil
@@ -460,7 +460,7 @@ customized undo command to retract the goal-save region, based on the
 'nestedundos setting.  Coq uses this to forget declarations, since
 declarations in Coq reside in a separate context with its own (flat)
 history."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-script)
 
 (defcustom proof-ignore-for-undo-count nil
@@ -468,7 +468,7 @@ history."
 May be left as nil, in which case it will be set to
 `proof-non-undoables-regexp'.
 Used in default function `proof-generic-count-undos'."
-  :type '(choice nil regexp function)
+  :type '(choice (const nil) regexp function)
   :group 'proof-script)
 
 (defcustom proof-script-imenu-generic-expression nil
@@ -575,7 +575,7 @@ The second element is a string: the goal, hypothesis, or literal command itself.
 
 If you leave this variable unset, no proof-by-pointing markup
 will be attempted."
-  :type '(choice function nil)
+  :type '(choice function (const nil))
   :group 'proof-script)
 
 (defcustom proof-kill-goal-command nil
@@ -1030,7 +1030,7 @@ error message is displayed.
 The engine matches interrupts before errors, see `proof-shell-interrupt-regexp'.
 
 It is safe to leave this variable unset (as nil)."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-truncate-before-error t
@@ -1104,7 +1104,7 @@ will be lost.
 The engine matches interrupts before errors, see `proof-shell-error-regexp'.
 
 It is safe to leave this variable unset (as nil)."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-proof-completed-regexp nil
@@ -1117,7 +1117,7 @@ message.
 We also enable the QED function (save a proof) and we may automatically
 close off the proof region if another goal appears before a save
 command, depending on whether the prover supports nested proofs or not."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-clear-response-regexp nil
@@ -1129,7 +1129,7 @@ matches on `proof-shell-eager-annotation-start' and
 
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-clear-goals-regexp nil
@@ -1141,7 +1141,7 @@ matches on `proof-shell-eager-annotation-start' and
 
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-start-goals-regexp nil
@@ -1150,7 +1150,7 @@ This is an important setting.  Output between `proof-shell-start-goals-regexp'
 and `proof-shell-end-goals-regexp' will be pasted into the goals buffer
 and possibly analysed further for proof-by-pointing markup.
 If it is left as nil, the goals buffer will not be used."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-end-goals-regexp nil
@@ -1164,7 +1164,7 @@ The portion treated as the goals output will be that between the
 
 If nil, use the whole of the output after
 `proof-shell-start-goals-regexp' up to the next prompt."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-eager-annotation-start nil
@@ -1329,7 +1329,7 @@ from PG to the prover, but this is not really supported (most settings
 must be made before this mechanism will work).  In future, the PG
 standard protocol, PGIP, will use this mechanism for making all
 settings."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 
@@ -1342,14 +1342,14 @@ matches on `proof-shell-eager-annotation-start' and
 
 The matching string will be parsed as XML and then processed by
 `pg-pgip-process-cmd'."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 ;; FIXME: next one needs changing to be a function, or have function
 ;; built from it.
 (defcustom proof-shell-issue-pgip-cmd nil
   "Command sent to prover to process PGIP command in %s placeholder."
-  :type '(choice nil string)
+  :type '(choice (const nil) string)
   :group 'proof-shell)
 
 (defcustom proof-use-pgip-askprefs nil
@@ -1380,7 +1380,7 @@ be set to a regexp to match the overall message (which should
 be an urgent message), with two sub-matches for X Y Z and A B C.
 
 This is an experimental feature, currently work-in-progress."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-theorem-dependency-list-split nil
@@ -1389,7 +1389,7 @@ Used as an argument to `split-string'; nil defaults to whitespace.
 \(This setting is necessary for provers which allow whitespace in
 the names of theorems/definitions/constants), see setting for
 Isabelle in isa/isa.el and isar/isar.el."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-show-dependency-cmd nil
@@ -1428,7 +1428,7 @@ on `proof-shell-eager-annotation-start' and
 `proof-shell-eager-annotation-end'.
 
 Set to nil to disable."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 
@@ -1437,7 +1437,7 @@ Set to nil to disable."
 Each line which matches this regexp but would otherwise be treated
 as an ordinary response, is sent to the theorem buffer as well as the
 response buffer."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-interactive-prompt-regexp nil
@@ -1451,7 +1451,7 @@ devices.
 Note: this should match a string which is bounded by matches
 on `proof-shell-eager-annotation-start' and
 `proof-shell-eager-annotation-end'."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
 
@@ -1711,30 +1711,30 @@ For LEGO 1.3.1 use nil, for Coq 6.2, use t."
 
 (defcustom pbp-goal-command nil
   "Command sent when `pg-goals-button-action' is requested on a goal."
-  :type '(choice nil string)
+  :type '(choice (const nil) string)
   :group 'proof-goals)
 
 (defcustom pbp-hyp-command nil
   "Command sent when `pg-goals-button-action' is requested on an assumption."
-  :type '(choice nil string)
+  :type '(choice (const nil) string)
   :group 'proof-goals)
 
 (defcustom pg-subterm-help-cmd nil
   "Command to display mouse help about a subterm.
 This command is sent to the proof assistant, replacing %s by the
 subterm that the mouse is over."
-  :type '(choice nil string)
+  :type '(choice (const nil) string)
   :group 'proof-goals)
 
 (defcustom pg-goals-error-regexp nil
   "Regexp indicating that the proof process has identified an error."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-goals)
 
 (defcustom proof-shell-result-start nil
   "Regexp matching start of an output from the prover after pbp commands.
 In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
-  :type '(choice nil regexp)
+  :type '(choice (const nil) regexp)
   :group 'proof-goals)
 
 (defcustom proof-shell-result-end ""
