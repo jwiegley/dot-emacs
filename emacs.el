@@ -1286,11 +1286,11 @@ To use this function, add it to `org-agenda-finalize-hook':
                  (match-string 1)
                (delete-region (match-beginning 0)
                               (match-end 0))))))
-      (insert (format "   SCHEDULED: %s\n   :PROPERTIES:\n"
+      (insert (format "SCHEDULED: %s\n:PROPERTIES:\n"
                       (format-time-string (org-time-stamp-format))))
-      (insert (format "   :ID:       %s\n   :CREATED:  " uuid)))
+      (insert (format ":ID:       %s\n:CREATED:  " uuid)))
     (forward-line)
-    (insert "   :END:")))
+    (insert ":END:")))
 
 (eval-when-compile
   (require 'org-mobile))
@@ -1463,11 +1463,11 @@ This can be 0 for immediate, or a floating point value.")
         (call-interactively 'org-remember)
       (let ((org-capture-templates
              '((110 "* STARTED %?
-  - State \"STARTED\"    %U
-  SCHEDULED: %t
-  :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :CREATED:  %U
-  :END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
+- State \"STARTED\"    %U
+SCHEDULED: %t
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
         (org-remember))))
   (set-fill-column 72))
 
@@ -1482,10 +1482,10 @@ This can be 0 for immediate, or a floating point value.")
   (insert "** NOTE ")
   (save-excursion
     (insert (format "
-   :PROPERTIES:
-   :ID:       %s   :VISIBILITY: folded
-   :CREATED:  %s
-   :END:" (shell-command-to-string "uuidgen")
+:PROPERTIES:
+:ID:       %s   :VISIBILITY: folded
+:CREATED:  %s
+:END:" (shell-command-to-string "uuidgen")
    (format-time-string (org-time-stamp-format t t))))
     (insert ?\n))
   (save-excursion
@@ -1640,10 +1640,10 @@ end tell" (match-string 1))))
   (defun org-howm-template (&rest ignore-args)
     (format
      "* %%title%%cursor
-  :PROPERTIES:
-  :ID:       %s  :CREATED:  %s
-  :VISIBILITY: all
-  :END:
+:PROPERTIES:
+:ID:       %s:CREATED:  %s
+:VISIBILITY: all
+:END:
 "
      (shell-command-to-string "uuidgen")
      (format-time-string (org-time-stamp-format t t))))

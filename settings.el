@@ -329,10 +329,10 @@
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
  '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Documents/Tasks/todo.txt" "Inbox") "* TODO %?
-  SCHEDULED: %t
-  :PROPERTIES:
-  :ID:       %(shell-command-to-string \"uuidgen\")  :CREATED:  %U
-  :END:" :prepend t))))
+SCHEDULED: %t
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t))))
  '(org-clock-idle-time 10)
  '(org-clock-in-resume t)
  '(org-clock-in-switch-to-state "STARTED")
