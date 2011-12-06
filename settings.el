@@ -268,6 +268,7 @@
  '(mail-specify-envelope-from t)
  '(mail-user-agent (quote gnus-user-agent))
  '(message-alternative-emails "\\(johnw?\\|jwiegley\\)@\\(gmail\\|newartisans\\|boostpro\\).com")
+ '(message-cite-reply-position (quote below))
  '(message-directory "~/Messages/Gnus/Mail/")
  '(message-fill-column 78)
  '(message-interactive t)
