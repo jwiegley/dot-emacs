@@ -1505,8 +1505,8 @@ i.e., 'goals or 'response."
 	       (if proof-shell-end-goals-regexp
 		   (progn
 		     (re-search-forward proof-shell-end-goals-regexp end t)
-		     (match-beginning 0)
-		     (setq rstart (match-end 0)))
+		     (setq rstart (match-end 0))
+		     (match-beginning 0))
 		 end)))
        (setq proof-shell-last-goals-output
 	     (buffer-substring-no-properties gstart gend))
