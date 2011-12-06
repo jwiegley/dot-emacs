@@ -2456,6 +2456,8 @@ Else, return \" \"."
 
 ;;;_  . f<?>
 
+(define-key global-map [f8] 'stopwatch)
+
 (define-key global-map [f9] 'gud-cont)
 (define-key global-map [f10] 'gud-next)
 (define-key global-map [f11] 'gud-step)
