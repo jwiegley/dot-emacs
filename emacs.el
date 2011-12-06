@@ -1542,12 +1542,12 @@ SCHEDULED: %t
   (org-set-property "Submitter" (org-get-message-sender)))
 
 (defun org-get-safari-link ()
-  (let ((subject (do-applescript "tell application \"Safari\"
+  (let ((subject (substring (do-applescript "tell application \"Safari\"
         name of document of front window
-end tell"))
-        (url (do-applescript "tell application \"Safari\"
+end tell") 1 -1))
+        (url (substring (do-applescript "tell application \"Safari\"
         URL of document of front window
-end tell")))
+end tell") 1 -1)))
     (org-make-link-string url subject)))
 
 (defun org-get-chrome-link ()
