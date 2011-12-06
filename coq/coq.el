@@ -2499,22 +2499,20 @@ Only when three-buffer-mode is enabled."
   (when (and proof-three-window-enable
              (> (frame-height) 10)
              (get-buffer-window proof-response-buffer))
-    (let ((curwin (selected-window))
-          ;; maxhgth is the max height of both resp and goals buffers to avoid
+    (let (;; maxhgth is the max height of both resp and goals buffers to avoid
           ;; make the other disappear
           (maxhgth (- (window-height) window-min-height))
           hgt-resp nline-resp)
-      (select-window (get-buffer-window proof-response-buffer))
-      (setq hgt-resp (window-height))
-      (setq nline-resp ; number of lines we want for response buffer
-            (min maxhgth (max window-min-height ; + 1 here for comfort
-                              (+ 1 (count-lines (point-max) (point-min))))))
-      (unless (is-not-split-vertic (selected-window))
-        (shrink-window (- hgt-resp nline-resp)))
-      (goto-char (point-min))
-      (recenter)
-      (select-window curwin)
-      )))
+      (with-selected-window (get-buffer-window proof-response-buffer)
+        (setq hgt-resp (window-height))
+        (setq nline-resp ; number of lines we want for response buffer
+              (min maxhgth (max window-min-height ; + 1 here for comfort
+                                (+ 1 (count-lines (point-max) (point-min))))))
+        (unless (is-not-split-vertic (selected-window))
+          (shrink-window (- hgt-resp nline-resp)))
+        (goto-char (point-min))
+        (recenter)
+      ))))
 
 ;; TODO: I would rather have a response-insert-hook thant this two hooks
 ;; Careful: optim-resp-windows must be called AFTER proof-show-first-goal
