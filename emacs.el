@@ -1932,8 +1932,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-summary-mode-hook 'my-setup-hl-line)
 
-;;(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
-
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
 
 (defun gnus-query (query)
@@ -2260,7 +2258,6 @@ Else, return \" \"."
         (ido-visit-buffer candidate ido-default-buffer-method)
       (gnus 1))))
 
-;;(define-key global-map [(meta ?B)] 'bbdb)
 (define-key global-map [(meta ?C)] 'jump-to-org-agenda)
 (define-key global-map [(meta ?G)] 'switch-to-gnus)
 (define-key global-map [(meta ?m)] 'org-smart-capture)
