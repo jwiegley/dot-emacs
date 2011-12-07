@@ -2333,14 +2333,16 @@ Else, return \" \"."
   (interactive "P")
   (let* ((real-font-size
           (if (and font-size
-                   (/= (abs font-size) 4))
+                   (/= (prefix-numeric-value font-size) 4))
               (abs font-size)
             18))
          (common-options
           (format "--font Monaco --font-size %d %s --rtf"
                   real-font-size
-                  (if (and font-size (= (abs font-size) 4))
-                      "--linenumbers" ""))))
+                  (if (and font-size
+                           (or (= (prefix-numeric-value font-size) 4)
+                               (< (prefix-numeric-value font-size) 0)))
+                      "" "--linenumbers"))))
     (shell-command-on-region
      (if (region-active-p) (region-beginning) (point-min))
      (if (region-active-p) (region-end) (point-max))
