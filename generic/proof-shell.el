@@ -1502,9 +1502,9 @@ i.e., 'goals or 'response."
        (while (re-search-forward proof-shell-start-goals-regexp end t)
 	 (setq gstart (match-beginning 0))
 	 (setq gend
-	       (if proof-shell-end-goals-regexp
+	       (if (and proof-shell-end-goals-regexp
+			(re-search-forward proof-shell-end-goals-regexp end t))
 		   (progn
-		     (re-search-forward proof-shell-end-goals-regexp end t)
 		     (setq rstart (match-end 0))
 		     (match-beginning 0))
 		 end)))

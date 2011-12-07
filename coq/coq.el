@@ -27,6 +27,7 @@
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-compile-before-require nil)       ; defpacustom
   (defvar coq-confirm-external-compilation nil) ; defpacustom
+  (defvar coq-hide-additional-subgoals nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 (require 'proof)
@@ -172,6 +173,19 @@ On Windows you might need something like:
 (defcustom coq-www-home-page "http://coq.inria.fr/"
   "Coq home page URL."
   :type 'string
+  :group 'coq)
+
+(defcustom coq-end-goals-regexp-hide-subgoals "\nsubgoal 2 is:"
+  "Regexp for `proof-shell-end-goals-regexp' when hiding additional subgoals.
+See also `coq-hide-additional-subgoals'."
+  :type '(choice regexp (const nil))
+  :group 'coq)
+
+(defcustom coq-end-goals-regexp-show-subgoals nil
+  "Regexp for `proof-shell-end-goals-regexp' when showing all subgoals.
+A setting of nil means show all output from Coq. See also
+`coq-hide-additional-subgoals'."
+  :type '(choice regexp (const nil))
   :group 'coq)
 
 
@@ -846,6 +860,15 @@ If locked span already has a state number, then do nothing. Also updates
   ;;   t))))
 
 
+(defun coq-hide-additional-subgoals-switch ()
+  "Function invoked when the user switches `coq-hide-additional-subgoals'."
+  (message "chass")
+  (if coq-hide-additional-subgoals
+      (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
+    (setq proof-shell-end-goals-regexp coq-end-goals-regexp-show-subgoals)))
+    
+
+
 ;;
 ;; Commands for Coq
 ;;
@@ -1182,7 +1205,11 @@ This is specific to `coq-mode'."
    proof-shell-result-end "\372 End Pbp result \373"
 
    proof-shell-start-goals-regexp          "^[0-9]+ subgoals?"
-   proof-shell-end-goals-regexp nil        ; up to next prompt
+   proof-shell-end-goals-regexp
+   (if coq-hide-additional-subgoals
+       (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
+     (setq proof-shell-end-goals-regexp coq-end-goals-regexp-show-subgoals))
+
    proof-shell-init-cmd coq-shell-init-cmd
 
    proof-no-fully-processed-buffer t
@@ -1226,6 +1253,13 @@ This is specific to `coq-mode'."
 ;;  "Whether to just print the first subgoal in Coq."
 ;;  :type 'boolean
 ;;  :setting ("Focus. " . "Unfocus. "))
+
+
+(defpacustom hide-additional-subgoals nil
+  "Only show the current goal, hiding additional subgoals."
+  :type 'boolean
+  :safe 'booleanp
+  :eval (coq-hide-additional-subgoals-switch))
 
 
 ;; FIXME: to handle "printing all" properly, we should change the state

@@ -18,6 +18,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** Minor parsing fixes
 
+*** New setting for hiding additional goals from the *goals* buffer
+
 
 * Changes of Proof General 4.1 from Proof General 4.0
 
