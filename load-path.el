@@ -17,8 +17,7 @@
        (add-to-list 'load-path (expand-file-name (car entry) dir)))))
 
 (dolist (path (nreverse
-               (list "override/bbdb/lisp/"
-                     "override/eshell/"
+               (list "override/eshell/"
                      "override/gnus/contrib/"
                      "override/gnus/lisp/"
                      "override/org-mode/contrib/lisp/"
@@ -28,8 +27,6 @@
                      ;; Packages with Lisp code in subdirectories...
                      "site-lisp/anything/extensions/"
                      "site-lisp/auctex/preview/"
-                     "site-lisp/bbdb/lisp/"
-                     "site-lisp/bbdb/bits/"
                      "site-lisp/doxymacs/lisp/"
                      "site-lisp/ess/lisp/"
                      "site-lisp/session/lisp/"

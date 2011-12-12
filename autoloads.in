@@ -24,9 +24,6 @@
       '(
         ("anything-complete"  . anything-apropos)
 
-        ("bbdb"               . bbdb)
-        ("bbdb-gnus"          . bbdb-insinuate-gnus)
-
         ("breadcrumb"         . bc-goto-current)
         ("breadcrumb"         . bc-list)
         ("breadcrumb"         . bc-local-next)
