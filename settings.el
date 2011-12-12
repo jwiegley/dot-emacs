@@ -354,7 +354,7 @@ SCHEDULED: %t
  '(org-hide-leading-stars t)
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-irc-link-to-logs t t)
- '(org-mobile-agendas (quote ("z")))
+ '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/MobileOrg")
  '(org-mobile-files (quote ("~/Documents/Tasks/todo.txt")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
