@@ -10,12 +10,13 @@
   "Visit the dtp message with the given Message-ID."
   (shell-command (concat "open x-devonthink-item:" record-location)))
 
-(defun org-get-dtp-link ()
+(defun org-get-dtp-link (&optional given-name)
   (interactive)
-  (let ((name (substring (do-applescript (format "
+  (let ((name (or given-name
+                  (substring (do-applescript (format "
 	tell application \"DEVONthink Pro\"
 		get name of content record
-	end tell")) 1 -1))
+	end tell")) 1 -1)))
 	(location (substring (do-applescript (format "
 	tell application \"DEVONthink Pro\"
 		get uuid of content record
@@ -25,7 +26,12 @@
 
 (defun org-insert-dtp-link ()
   (interactive)
-  (insert (org-get-dtp-link)))
+  (let (name)
+    (when (region-active-p)
+      (setq name (buffer-substring-no-properties (region-beginning)
+                                                 (region-end)))
+      (delete-region (region-beginning) (region-end)))
+    (insert (org-get-dtp-link name))))
 
 (defun org-dtp-store-link ()
   "Store a link to an dtp e-mail message by Message-ID."
