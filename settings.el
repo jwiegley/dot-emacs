@@ -369,6 +369,7 @@ SCHEDULED: %t
  '(org-todo-repeat-to-state "TODO")
  '(org-use-property-inheritance (quote ("AREA")))
  '(org-use-speed-commands t)
+ '(org-use-tag-inheritance nil)
  '(org-x-backends (quote (ox-org ox-redmine)))
  '(org-x-redmine-title-prefix-function (quote org-x-redmine-title-prefix))
  '(org-x-redmine-title-prefix-match-function (quote org-x-redmine-title-prefix-match))
