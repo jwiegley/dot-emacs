@@ -92,7 +92,7 @@ detect if they start something or not."
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-end-command-regexp
-  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)"
+  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)\\|\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)"
 ;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
   "Regexp matching end of a command. There are 3 substrings:
 * number 1 is the real coq ending string,
@@ -243,8 +243,8 @@ Comments are ignored, of course."
         (start (coq-find-not-in-comment-backward "[^[:space:]]")))
     ;; we must find a "." to be sure, because {O} {P} is allowed in definitions
     ;; with implicits --> this function is recursive
-    (if (looking-at "{\\|}") (coq-empty-command-p)
-      (looking-at "\\."))))
+    (if (looking-at "{\\|}\\|-\\|\\+\\|\\*") (coq-empty-command-p)
+      (looking-at "\\.\\|\\`"))))
 
 
 ; slight modification of proof-script-generic-parse-cmdend (one of the
@@ -273,7 +273,10 @@ command end regexp."
                   (setq next-pos (+ 1 (match-beginning 0)))
                   (or 
                       (if (or (string-equal (match-string 1) "}")
-                              (string-equal (match-string 1) "{"))
+                              (string-equal (match-string 1) "{")
+                              (string-equal (match-string 1) "-")
+                              (string-equal (match-string 1) "+")
+                              (string-equal (match-string 1) "*"))
                           (save-excursion
                             (goto-char (match-beginning 1))
                             (not (coq-empty-command-p)))
@@ -320,7 +323,10 @@ and return nil."
                          (match-beginning 1)))
                   (setq next-pos (- (match-end 0) 1))
                   (or (if (or (string-equal (match-string 1) "}")
-                              (string-equal (match-string 1) "{"))
+                              (string-equal (match-string 1) "{")
+                              (string-equal (match-string 1) "-")
+                              (string-equal (match-string 1) "+")
+                              (string-equal (match-string 1) "*"))
                           (save-excursion
                             (goto-char (match-beginning 1))
                             (not (coq-empty-command-p)))
