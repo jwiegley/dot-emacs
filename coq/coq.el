@@ -145,7 +145,7 @@ On Windows you might need something like:
 ;;  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
-(defvar coq-shell-proof-completed-regexp "Subtree\\s-proved!\\|Proof\\s-completed"
+(defvar coq-shell-proof-completed-regexp "No\\s-+more\\s-+subgoals\\.\\|Subtree\\s-proved!\\|Proof\\s-completed"
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar coq-goal-regexp
@@ -1204,7 +1204,7 @@ This is specific to `coq-mode'."
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
 
-   proof-shell-start-goals-regexp          "^[0-9]+ subgoals?"
+   proof-shell-start-goals-regexp          "^\\((dependent evars:[^)]*)\\s-+\\)?[0-9]+ subgoals?"
    proof-shell-end-goals-regexp
    (if coq-hide-additional-subgoals
        (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
@@ -2454,10 +2454,13 @@ buffer."
 ;; Scroll response buffer to maximize display of first goal
 ;;
 
-(defun first-word-of-buffer ()
-  "Get the first word of a buffer."
+(defun coq-first-word-before (reg)
+  "Get the word before first string matching REG in current buffer."
   (save-excursion
     (goto-char (point-min))
+    (re-search-forward reg nil t)
+    (goto-char (match-beginning 0))
+    (backward-word 1)
     (buffer-substring (point)
                       (progn (forward-word 1) (point)))))
 
@@ -2490,7 +2493,7 @@ number of hypothesis displayed, without hiding the goal"
   "Modify `minor-mode-alist' to display the number of subgoals in the modeline."
   (when (and proof-goals-buffer proof-script-buffer)
     (let ((nbgoals (with-current-buffer proof-goals-buffer
-                     (string-to-number (first-word-of-buffer)))))
+                     (string-to-number (coq-first-word-before "subgoal")))))
       (with-current-buffer proof-script-buffer
         (let ((toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
           (while toclean ;; clean minor-mode-alist
