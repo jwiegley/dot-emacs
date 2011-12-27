@@ -186,7 +186,7 @@ notation (xsymbols)
   underline ("\<^bunderline>_\<^eunderline>") and
   overline ("\<^boverline>_\<^eoverline>")
 
-term "\<^bbig>large text \<alpha> \<beta> \<Sigma>\<^ebig>"
+term "\<^bbig>large text \<alpha> \<beta> \<Sigma> \<integral>\<^ebig>"
 
 term "\<^bsmall>smaller text ((\<alpha> \<and> \<beta>) \<longrightarrow> \<gamma>) \<^esmall>"
 
