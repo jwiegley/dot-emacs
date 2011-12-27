@@ -20,8 +20,9 @@
   (pg-autotest start 'debug)
 
   ;; new multiple file handling for Coq gives interactive queries
-  ;; continually unless we set this
+  ;; continually unless we set this.
   (setq proof-auto-action-when-deactivating-scripting 'retract)
+  (setq proof-no-fully-processed-buffer t)
 
   (pg-autotest log ".autotest.log")  ; convention
 
@@ -31,9 +32,11 @@
   (pg-autotest script-wholefile "coq/example.v")
   (pg-autotest script-wholefile "coq/example-tokens.v")
   (pg-autotest script-wholefile "coq/ex-module.v")
+  (proof-shell-wait)
 
   (pg-autotest remark "Regression testing bug cases...")
   (pg-autotest script-wholefile "etc/coq/parsingcheck-410.v")
+  (pg-autotest script-wholefile "etc/coq/parsingcheck-412.v")
 
   (pg-autotest remark "Testing prove-as-you-go (not replay)")
   (find-file ".autotest.v")
