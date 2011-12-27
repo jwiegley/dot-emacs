@@ -1,4 +1,4 @@
 
-(* The following defines the absolut name a.a *)
+(* The following defines the absolute name a.a *)
 
 Definition a := 0.
