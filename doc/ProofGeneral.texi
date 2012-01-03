@@ -199,14 +199,28 @@ other documentation, system downloads, etc.
 
 
 @menu
+* News for Version 4.2::
 * News for Version 4.1::
 * News for Version 4.0::
 * Future::
 * Credits::                     
 @end menu
 
+@node News for Version 4.2
+@unnumberedsec News for Version 4.2
+@cindex news
+
+Proof General version 4.2 adds the usual round of compatibility fixes,
+to support newer versions of Emacs and Coq.  It also contains some
+updates to support HOL Light in a primitive fashion.
+
+It also contains a new mechanism to display proof trees, provided by
+Hendrik Tews and using a bespoke rendering application named
+@uref{http://askra.de/software/prooftree/, Prooftree}.
+
+
 @node News for Version 4.1
-@unnumberedsec News for Version 4.0
+@unnumberedsec News for Version 4.1
 @cindex news
 
 Proof General version 4.1 adds some compatibility fixes to
@@ -471,6 +485,7 @@ script file for your proof assistant, for example:
 @item       Isabelle      @tab @file{.thy}    @tab @code{isar-mode}
 @item       Phox          @tab @file{.phx}    @tab @code{phox-mode}
 @item       HOL98         @tab @file{.sml}    @tab @code{hol98-mode}
+@item       HOL Light     @tab @file{.ml}     @tab @code{hol-light-mode}
 @item       ACL2          @tab @file{.acl2}   @tab @code{acl2-mode}
 @item       Twelf         @tab @file{.elf}    @tab @code{twelf-mode}
 @item       Plastic       @tab @file{.lf}     @tab @code{plastic-mode}
