@@ -182,7 +182,7 @@ See also `coq-hide-additional-subgoals'."
   :type '(choice regexp (const nil))
   :group 'coq)
 
-(defcustom coq-end-goals-regexp-show-subgoals nil
+(defcustom coq-end-goals-regexp-show-subgoals "\n(dependent evars:"
   "Regexp for `proof-shell-end-goals-regexp' when showing all subgoals.
 A setting of nil means show all output from Coq. See also
 `coq-hide-additional-subgoals'."
