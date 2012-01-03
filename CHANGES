@@ -8,11 +8,19 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 ** Generic/misc changes
 
+*** Support proof-tree visualization via the external Prooftree program
+    Currently only Coq (using Coq version 8.4beta or newer)
+    supports proof-tree visualization. If Prooftree is installed,
+    the proof-tree display can be started via the toolbar, the
+    Proof-General menu or by C-c C-d.
+
 *** Compilation fixes for Emacs 24.
 
 *** Fix "pgshell" mode for shell/CLI prover interaction
 
 ** Coq changes
+
+*** Support proof-tree visulization
 
 *** Indentation improvements using SMIE
 
