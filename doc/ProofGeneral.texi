@@ -161,6 +161,7 @@ provided for several other provers.
 * Unicode symbols and special layout support::
 * Support for other Packages::  
 * Subterm Activation and Proof by Pointing::
+* Graphical Proof-Tree Visualization::
 * Customizing Proof General::   
 * Hints and Tips::
 * LEGO Proof General::          
@@ -514,7 +515,8 @@ Proof General is designed to be useful for novices and expert users
 alike.  It will be useful to you if you use a proof assistant, and you'd
 like an interface with the following features: simplified interaction,
 script management, multiple file scripting, a script editing mode, proof
-by pointing, toolbar and menus, syntax highlighting, real symbols,
+by pointing, proof-tree visualization,
+toolbar and menus, syntax highlighting, real symbols,
 functions menu, tags, and finally, adaptability.
 
 Here is an outline of some of these features.   Look in the contents
@@ -554,6 +556,7 @@ regions.
 For more details, @pxref{Basic Script Management},
 @ref{Script processing commands},
 and @ref{Advanced Script Management and Editing}.
+
 @item @i{Script editing mode}@*
 Proof General provides useful facilities for editing proof scripts,
 including syntax hilighting and a menu to jump to particular goals,
@@ -563,6 +566,21 @@ assistant, or undo previous proof steps.
 
 For more details, @pxref{Script editing commands},
 and @ref{Script processing commands}.
+
+@item @i{Proof-tree visualization}@*
+In cooperation with the external program Prooftree
+(available from the @uref{http://askra.de/software/prooftree/,
+Prooftree website}), Proof General can display proof trees
+graphically and provide visual information about the proof status
+of different branches in a proof. The proof-tree display provides
+additional means for inspecting the proof tree and thus helps
+against loosing track in proofs.
+
+The graphical proof-tree visualization is currently only
+supported for Coq. For more details, @pxref{Graphical Proof-Tree
+Visualization}. 
+
+
 @item @i{Toolbar and menus}@*
 A script buffer has a toolbar with navigation buttons for processing
 parts of the proof script.  A menu provides further functions for
@@ -3035,6 +3053,113 @@ Query the prover about the identifier near mouse click @var{event}.
 @c
 @c CHAPTER
 @c
+@node Graphical Proof-Tree Visualization
+@chapter Graphical Proof-Tree Visualization
+@cindex proof-tree visualization
+
+Since version 4.2, Proof General supports proof-tree
+visualization on graphical desktops via the additional program
+Prooftree. Currently, proof-tree visualization is only supported
+for the Coq proof assistant. For installation instructions and
+more detailed information about Prooftree, please refer to the
+@uref{http://askra.de/software/prooftree/, Prooftree website} and
+the @uref{http://askra.de/software/prooftree/prooftree.man.html,
+Prooftree man page}. For information about how to support
+proof-tree visualization for a different proof assistant, see
+Section @i{Configuring Proof-Tree Visualization} in the
+@i{Adapting Proof General} manual.
+
+@menu
+* Starting and Stopping Proof-Tree Visualization::
+* Features of Prooftree::
+* Prooftree Customization::
+@end menu
+
+
+@node Starting and Stopping Proof-Tree Visualization
+@section Starting and Stopping Proof-Tree Visualization
+
+When proof-tree visualization is supported (currently only for
+the Coq proof assistant), you can start the visualization via the
+proof-tree button in the tool-bar, via the menu 
+@lisp
+   Proof-General -> Start/Stop Prooftree
+@end lisp
+or via the keyboard shortcut @kbd{C-c C-d}, all of which invoke
+@code{proof-tree-external-display-toggle}.
+
+If you are inside a proof, the graphical display is started
+immediately for your current proof. Otherwise the display starts
+as soon as you start the next proof. Starting the proof-tree
+display in the middle of a proof involves an automatic
+reexecution of your current proof script in the locked region,
+which should be almost unnoticeable, except for the time it
+takes.
+
+The proof-tree display stops at the end of the proof or when you
+invoke @code{proof-tree-external-display-toggle} by one of the
+three indicated means again. Alternatively you can also close the
+proof-tree window. 
+
+Proof General launches only one instance of Prooftree,
+which can manage an arbitrary amount of proof-tree windows. 
+
+@node Features of Prooftree
+@section Features of Prooftree
+
+The proof-tree window provides visual information about the
+status of the different branches in your proof (by coloring
+completely proved branches in green, for example) and means for
+inspecting previous proof states without the need to retract
+parts of your proof script. Currently, Prooftree provides
+the following features:
+
+@itemize @bullet
+@item Navigation in the proof tree and display of all previous
+proof states and proof commands.
+@item Display branches of the proof in different colors according to
+their proof state, distinguishing branches with open, partially
+or fully instantiated existential variables as well as branches
+that have been finished by a cheating command such as
+@code{admit}.
+@item Display the status of existential variables and their
+dependencies.
+@item Mark proof commands that introduce or instantiate a
+given existential variable.
+@item Snapshots of proof trees for reference when you retract
+your proof to try an different approach.
+@end itemize
+
+For a more elaborated description please consult the help dialog
+of Prooftree or the
+@uref{http://askra.de/software/prooftree/prooftree.man.html,
+Prooftree man page}.
+
+
+@node Prooftree Customization
+@section Prooftree Customization
+
+The location of the Prooftree program and command line
+arguments can be configured in the customization group
+@code{proof-tree}. You can visit this customization group inside
+a running instance of Proof General by typing @code{M-x
+customize-group <RET> proof-tree <RET>}.
+
+The graphical aspects of the proof-tree rendering, fonts and
+colors can be changed inside Prooftree by invoking the
+@code{Configuration} item of the main menu.
+
+Prover specific parts such as the regular expressions for
+recognizing subgoals, existential variables and navigation and
+cheating commands are in the customization group
+@code{proof-tree-internals}. Under normal circumstances there
+should be no need to change one of these internal settings. 
+
+
+@c =================================================================
+@c
+@c CHAPTER
+@c
 @node Customizing Proof General
 @chapter Customizing Proof General
 @cindex Customization
@@ -4033,6 +4158,7 @@ assistant.  It supports most of the generic features of Proof General.
 * Editing multiple proofs::
 * User-loaded tactics::
 * Holes feature::
+* Proof-Tree Visualization::
 @end menu
 
 
@@ -4606,6 +4732,14 @@ with ProofGeneral's abbreviations: @code{M-x read-abbrev-file}, then
 select the file named @code{coq-abbrev.el} in the
 @code{ProofGeneral/coq} directory. At Emacs exit you will be asked if
 you want to save abbrevs; answer yes.
+
+
+@node Proof-Tree Visualization
+@section Proof-Tree Visualization
+
+Starting with Proof General version 4.2 and Coq version 8.4, Coq
+Proof General has full support for proof-tree visualization, 
+@pxref{Graphical Proof-Tree Visualization}.
 
 
 @c =================================================================

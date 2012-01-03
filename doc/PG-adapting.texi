@@ -161,6 +161,7 @@ Proof General.
 * Configuring Editing Syntax::
 * Configuring Font Lock::
 * Configuring Tokens::
+* Configuring Proof-Tree Visualization::
 * Writing More Lisp Code::
 * Internals of Proof General::  
 * Plans and Ideas::             
@@ -1655,6 +1656,7 @@ Regexp matching the start of the proof state output.@*
 This is an important setting.  Output between @samp{@code{proof-shell-start-goals-regexp}}
 and @samp{@code{proof-shell-end-goals-regexp}} will be pasted into the goals buffer
 and possibly analysed further for proof-by-pointing markup.
+If it is left as nil, the goals buffer will not be used.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-end-goals-regexp
 @defvar proof-shell-end-goals-regexp 
@@ -2463,6 +2465,407 @@ Set this variable if you want additional modes to also display
 tokens (for example, editing documentation or source code files).
 @end defvar
 
+
+
+@node Configuring Proof-Tree Visualization
+@chapter Configuring Proof-Tree Visualization
+
+The proof-tree visualization feature was written with the idea of
+supporting Coq as well as other proof assistants. Nevertheless,
+supporting proof-tree visualization for a second proof assistant
+will almost certainly require changes in the generic Elisp code
+in @code{generic/proof-tree.el} as well as in the
+Prooftree program.
+
+@menu
+* Prerequisites::
+* Proof-Tree Display Internals::
+* Configuring Prooftree for a New Proof Assistant::
+@end menu
+
+
+@node Prerequisites
+@section Prerequisites
+
+Proof-tree visualization requires certain support from the proof
+assistant. Patching the proof assistant is therefore the first
+step of adding support for proof-tree visualization. The
+following features are needed.
+
+@table @asis
+@item Unique goal identification
+The proof assistant must assign and output a unique string for
+each goal. For Coq the internal @code{evar} index number is used,
+which is printed for each goal in the form @code{(ID XXX)} when
+Coq is started with the option @code{-emacs}.
+
+The unique goal identification is needed to distinguish newly
+spawned subgoals from older open subgoals and to mark the current
+goal in the proof-tree display.
+
+@item Indication of newly generated subgoals
+A proof command that spawns additional subgoals must somehow
+indicate the goal ID's of these new subgoals. Otherwise the
+proof-tree display will not be able to reconstruct the proof-tree
+structure. 
+
+For Coq the newly spawned subgoals appear always in the list of
+additional subgoals below the current goal. Note, that it is not
+required to mark the newly spawned subgoals. They may appear in a
+mixed list with older open subgoals. Note further, that it is not
+required that always the complete set of all open subgoals is
+printed (which is indeed not the case after of @code{Focus}
+command in Coq). It is only required that the goal ID's of all
+newly spawned subgoals is somehow printed.
+
+@item State number for undo
+There must be a state number that is strictly increasing when
+asserting proof commands and that is reset to the appropriate
+number after retracting some proof commands.
+
+For Coq the state number in the extended prompt (visible only
+with option @code{-emacs}) is used. 
+
+@item Information about existential variables
+Existential variables are placeholders that might or must be
+instantiated later in the proof. Prooftree supports
+existential variables with three features. Firstly, it can update
+goals when existential variables get instantiated. Secondly, it
+can mark the proof commands that introduced or instantiated
+existential variables and, thirdly, it can display and track
+dependencies between existential variables.
+
+For the first feature, the proof assistant must list the currently
+instantiated existential variables for every goal. For the second
+feature it must additionally list the not instantiated
+existential variables. Finally, for the third feature, it must
+display the dependencies for instantiated existential variables.
+
+For Coq, all necessary information is provided in the existential
+evar line, that is printed with the @code{-emacs} switch.
+
+@end table
+
+
+@node Proof-Tree Display Internals
+@section Proof-Tree Display Internals
+
+This section gives some information about the inner structure of
+the code that realizes the proof-tree display. The idea here is
+that this section provides the background information to make the
+documentation of the customizable variables of the proof-tree
+Elisp code easy to understand.
+
+@menu
+* Organization of the Code::
+* Communication::
+* Guards::
+* Urgent and Delayed Actions::
+* Full Annotation::
+@end menu
+
+
+@node Organization of the Code
+@subsection Organization of the Code
+
+The proof-tree display is realized by Proof General in
+cooperation with the external Prooftree program. The
+latter is a GTK application in OCaml. Both, the Elisp code in
+Proof General and the Prooftree OCaml code is divided into
+a generic and a proof assistant specific part.
+
+The generic Elisp code lives in @code{generic/proof-tree.el}. As
+usual in Proof General, it contains various customizable
+variables, which the proof assistant specific code must set. Most
+of these variables contain regular expressions, but there are also
+some that hold functions. The Coq specific code for the
+proof-tree display is distributed in a few chunks over
+@code{coq/coq.el}. 
+
+The main task of the Elisp code is to extract goals, undo events
+and information about existential variables from the
+proof-assistant output and to send all this data to Prooftree.
+The Elisp code does also determine if additional output must be
+requested from the proof assistant. In that case it adds
+appropriate commands to @code{proof-action-list}, @pxref{Proof
+script mode}. These additional commands are flagged with
+@code{proof-tree-show-subgoal}, @code{no-goals-display} and
+@code{no-response-display}. The flag
+@code{proof-tree-show-subgoal} ensures that a number of internal
+functions ignore these additional commands. The other two flags
+ensure that their output is neither displayed in the goals nor
+the response buffer.
+
+For the decision about which goals must be sent to Prooftree, the
+Elisp code maintains the following two state variables.
+
+@c TEXI DOCSTRING MAGIC: proof-tree-sequent-hash
+@defvar proof-tree-sequent-hash 
+Hash table to remember sequent ID's.@*
+Needed because some proof assistants do not distinguish between
+new subgoals, which have been created by the last proof command,
+and older, currently unfocussed subgoals. If Proof General meets
+a goal, it is treated as new subgoal if it is not in this hash yet.
+
+The hash is mostly used as a set of sequent ID's. However, for
+undo operations it is necessary to delete all those sequents from
+the hash that have been created in a state later than the undo
+state. For this purpose this hash maps sequent ID's to the state
+number in which the sequent has been created.
+
+The hash table is initialized in @samp{@code{proof-tree-start-process}}.
+@end defvar
+
+
+@c TEXI DOCSTRING MAGIC: proof-tree-existentials-alist
+@defvar proof-tree-existentials-alist 
+Alist mapping existential variables to sequent ID's.@*
+Used to remember which goals need a refresh when an existential
+variable gets instantiated. To support undo commands the old
+contents of this list must be stored in
+@samp{@code{proof-tree-existentials-alist-history}}. To ensure undo is
+properly working, this variable should only be changed by using
+@samp{@code{proof-tree-delete-existential-assoc}},
+@samp{@code{proof-tree-add-existential-assoc}} or
+@samp{@code{proof-tree-reset-existentials}}.
+@end defvar
+
+When retracting these two variables must be set to their previous
+state. For @code{proof-tree-sequent-hash} this is done with the
+state numbers that are stored in the hash. For
+@code{proof-tree-existentials-alist} a separate alist stores
+previous states.
+
+@c TEXI DOCSTRING MAGIC: proof-tree-existentials-alist-history
+@defvar proof-tree-existentials-alist-history 
+Alist mapping state numbers to old values of @samp{@code{proof-tree-existentials-alist}}.@*
+Needed for undo.
+@end defvar
+
+
+In Prooftree the separation between generic and proof-assistant
+specific code is less obvious. The Coq specific code is in the
+file @code{coq.ml}. All the remaining code is generic. 
+
+Prooftree opens for each proof a separate window. It reconstructs
+the proof tree and orders the existential variables in a
+dependency hierarchy. It stores a complete history of previous
+states to support arbitrary undo operations. Under normal
+circumstances one starts just one Prooftree process that keeps
+running for the remainder of the Proof General session,
+regardless of how many proof-tree windows are displayed.
+
+A fair amount of the Prooftree code is documented with
+@code{ocamldoc} documentation comments. With @code{make doc} they
+can be converted into a set of html pages in the @code{doc}
+subdirectory.
+
+
+@node Communication
+@subsection Communication
+
+Prooftree is a standard Emacs subprocess that reads goals and
+other proof status messages from its standard input. The
+communication between Proof General and Prooftree is almost one
+way only. Proof General sends proof status messages to Prooftree,
+from which Prooftree reconstructs the current proof status and
+the complete proof tree. Prooftree never requests additional
+information from Proof General. The only message that is sent
+from Prooftree to Proof General is a @code{stop-displaying}
+command, when the user closes the proof-tree display of the
+current proof.
+
+The communication protocol is completely described in the
+@code{ocamldoc} documentation of @code{input.ml} in the Prooftree
+sources. All messages consist of UTF-8 encoded human-readable
+strings. The strings have either a fixed length or their byte-length
+is encoded in the message before the string itself. 
+
+For debugging purposes Prooftree can save all input in a file.
+This feature can be turned on in the @code{Debug} tab of the
+Prooftree configuration dialog or with option @code{-tee}.
+
+
+@node Guards
+@subsection Guards
+
+The proof-tree display code inside Proof General uses two guard
+variables. 
+
+@c TEXI DOCSTRING MAGIC: proof-tree-configured
+@defvar proof-tree-configured 
+Whether external proof-tree display is configured.@*
+This boolean enables the proof-tree menu entry and the function
+that starts external proof-tree display.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-tree-external-display
+@defvar proof-tree-external-display 
+Display proof trees in external prooftree windows if t.@*
+Actually, if this variable is t then the user requested an
+external proof-tree display. If there was no unfinished proof
+when proof-tree display was requested and if no proof has been
+started since then, then there is obviously no proof-tree
+display. In this case, this variable stays t and the proof-tree
+display will be started for the next proof.
+
+Controlled by @samp{@code{proof-tree-external-display-toggle}}.
+@end defvar
+
+In Proof General, the code for the external proof-tree display is
+called from the proof-shell filter function in
+@code{proof-shell-exec-loop} and
+@code{proof-shell-filter-manage-output}, @pxref{Proof shell
+mode}. The variable @code{proof-tree-external-display} is a guard
+for these calls, to ensure that the proof-tree specific code is
+only called if the user requested a proof-tree display.
+
+The whole proof-tree package contains only one function that can
+be called interactively:
+@code{proof-tree-external-display-toggle}, which switches
+@code{proof-tree-external-display} on and off. When
+@code{proof-tree-configured} is @code{nil},
+@code{proof-tree-external-display-toggle} aborts with an error
+message. 
+
+@c TEXI DOCSTRING MAGIC: proof-tree-external-display-toggle
+@deffn Command proof-tree-external-display-toggle 
+Toggle the external proof-tree display.@*
+When called outside a proof the external proof-tree display will
+be enabled for the next proof. When called inside a proof the
+proof display will be created for the current proof. If the
+external proof-tree display is currently on, then this toggle
+will switch it off. At the end of the proof the proof-tree
+display is switched off.
+@end deffn
+
+
+@node Urgent and Delayed Actions
+@subsection Urgent and Delayed Actions
+
+The proof-shell filter functions contains two calls to proof-tree
+specific code. One for urgent actions and one for all remaining
+actions, that can be delayed.
+
+Urgent actions are those that must be executed before
+@code{proof-shell-exec-loop} sends the next item from
+@code{proof-action-list} to the proof assistant. For execution
+speed, the amount of urgent code should be kept small.
+
+@c TEXI DOCSTRING MAGIC: proof-tree-urgent-action
+@defun proof-tree-urgent-action flags
+Handle urgent points before the next item is sent to the proof assistant.@*
+Schedule goal updates when existential variables have changed and
+call @samp{@code{proof-tree-urgent-action-hook}}. All this is only done if
+the current output does not come from a command (with the
+@code{'proof-tree-show-subgoal} flag) that this package inserted itself.
+
+Urgent actions are only needed if the external proof display is
+currently running. Therefore this function should not be called
+when @samp{@code{proof-tree-external-display}} is nil. 
+
+This function assumes that the prover output is not suppressed.
+Therefore, @samp{@code{proof-tree-external-display}} being t is actually a
+necessary precondition.
+
+The not yet delayed output is in the region
+[@code{proof-shell-delayed-output-start}, @code{proof-shell-delayed-output-end}].
+@end defun
+
+
+The function @code{proof-tree-urgent-action} is called at a point
+where it is save to manipulate @code{proof-action-list}. This is
+essential, because @code{proof-tree-urgent-action} inserts goal
+display commands into @code{proof-action-list} when existential
+variables got instantiated and when the sequent text from newly
+created subgoals is missing.
+
+
+Most of the proof-tree specific code runs when the proof
+assistant is already busy with the next item from
+@code{proof-action-list}. 
+
+@c TEXI DOCSTRING MAGIC: proof-tree-handle-delayed-output
+@defun proof-tree-handle-delayed-output cmd flags span
+Process delayed output for prooftree.@*
+This function is the main entry point of the Proof General
+prooftree support. It examines the delayed output in order to
+take appropriate actions and maintains the internal state.
+
+All arguments are (former) fields of the @samp{@code{proof-action-list}}
+entry that is now finally retired. @var{cmd} is the command, @var{flags} are
+the flags and @var{span} is the span.
+@end defun
+
+The function @code{proof-tree-handle-delayed-output} does all the
+communication with Prooftree. 
+
+
+@node Full Annotation
+@subsection Full Annotation
+
+In the default configuration Proof General switches the proof
+assistant into quiet mode if there are more than
+@code{proof-shell-silent-threshold} items in
+@code{proof-action-list}, see Section @i{Document centred
+working} (in Chapter @i{Advanced Script Management and Editing})
+in the @i{Proof General} users manual. The proof-tree display
+needs of course the full output from the proof assistant.
+Therefore @code{proof-shell-should-be-silent} keeps the proof
+assistant noisy when the proof-tree display is switched on.
+
+
+@node Configuring Prooftree for a New Proof Assistant
+@section Configuring Prooftree for a New Proof Assistant
+
+To get the proof-tree display running for a new proof assistant
+one has to configure the proof-tree Elisp code and adapt the
+Prooftree program.
+
+@menu
+* Proof Tree Elisp configuration::
+* Prooftree Adaption::
+@end menu
+
+@node Proof Tree Elisp configuration
+@subsection Proof Tree Elisp configuration
+
+All variables that need to be configured are in the customization
+group @code{proof-tree-internals}. Most of these variables are
+regular expressions for extracting various parts from the proof
+assistant output. However, some are functions that need to be
+implemented as prover specific part of the proof display code.
+
+The variables @code{proof-tree-configured},
+@code{proof-tree-get-proof-info} and
+@code{proof-tree-find-begin-of-unfinished-proof} might be used
+before the proof assistant is running inside a proof shell. They
+must therefore be configured as part of the proof assistant
+editing mode. 
+
+The other variables are only used when the proof shell is
+running. They can therefore be configured with the
+proof-assistent proof-shell mode.
+
+
+@node Prooftree Adaption
+@subsection Prooftree Adaption
+
+To make the new proof assistant known to Prooftree, the match in
+function @code{configure_prooftree} in @code{input.ml} must be
+extended. If the new proof assistant does not support existential
+variables adding a line
+@example
+  | "new-pa-name" -> ()
+@end example
+suffices.
+
+If the new prover supports existential variables, Prooftree must
+be extended with a parser for the existential variable
+information printout of the proof assistant. The parser for Coq
+is contained in the file @code{coq.ml}. Then the function
+@code{configure_prooftree} must assign this new parser to the
+reference @code{parse_existential_info}.
 
 
 @node Writing More Lisp Code
@@ -3354,20 +3757,22 @@ is a space.
 processed by the prover. For normal scripting items it is
 @samp{@code{proof-done-advancing}}, for retract items
 @samp{@code{proof-done-retracting}}, but there are more possibilities (e.g.
-@samp{@code{proof-done-invisible}}, @samp{@code{proof-shell-set-silent}} and
-@samp{@code{proof-shell-clear-silent}}).
+@samp{@code{proof-done-invisible}}, @samp{@code{proof-shell-set-silent}},
+@samp{@code{proof-shell-clear-silent}} and @samp{@code{proof-tree-show-goal-callback}}).
 
 The @var{displayflags} are set
 for non-scripting commands or for when scripting should not
 bother the user.  They may include
 @lisp
-  @code{'invisible}             non-script command (@samp{@code{proof-shell-invisible-command}})
-  @code{'no-response-display}   do not display messages in @strong{response} buffer
-  @code{'no-error-display}      do not display errors/take error action
-  @code{'no-goals-display}      do not goals in @strong{goals} buffer
+  @code{'invisible}                non-script command (@samp{@code{proof-shell-invisible-command}})
+  @code{'no-response-display}      do not display messages in @strong{response} buffer
+  @code{'no-error-display}         do not display errors/take error action
+  @code{'no-goals-display}         do not goals in @strong{goals} buffer
+  @code{'proof-tree-show-subgoal}  item inserted by the proof-tree package
 @end lisp
-If flags are non-empty, interactive cues will be surpressed.
-(E.g., printing hints).
+Note that @code{'invisible} does not imply any of the others. If flags
+are non-empty, interactive cues will be surpressed. (E.g.,
+printing hints).
 
 See the functions @samp{@code{proof-start-queue}} and @samp{@code{proof-shell-exec-loop}}.
 @end defvar
@@ -3500,7 +3905,8 @@ If a there is a next command after that, send it to the process.
 If the action list becomes empty, unlock the process and remove
 the queue region.
 
-The return value is non-nil if the action list is now empty.
+The return value is non-nil if the action list is now empty or
+contains only invisible elements for Prooftree synchronization.
 @end defun
 
 Input is actually inserted into the shell buffer and sent to the process
@@ -3510,10 +3916,13 @@ by the low-level function @code{proof-shell-insert}.
 @defun proof-shell-insert strings action &optional scriptspan
 Insert @var{strings} at the end of the proof shell, call @samp{@code{scomint-send-input}}.
 
-The @var{action} argument is a symbol which is typically the name of a
-callback for when @var{string} has been processed.
+@var{strings} is a list of strings (which will be concatenated), or a
+single string.
 
-First we call @samp{@code{proof-shell-insert-hook}}.  The arguments @samp{action} and
+The @var{action} argument is a symbol which is typically the name of a
+callback for when each string has been processed.
+
+This calls @samp{@code{proof-shell-insert-hook}}.  The arguments @samp{action} and
 @samp{scriptspan} may be examined by the hook to determine how to modify
 the @samp{string} variable (exploiting dynamic scoping) which will be
 the command actually sent to the shell.
@@ -3521,7 +3930,7 @@ the command actually sent to the shell.
 Note that the hook is not called for the empty (null) string
 or a carriage return.
 
-Then we strip @var{string} of carriage returns before inserting it
+We strip the string of carriage returns before inserting it
 and updating @samp{@code{proof-marker}} to point to the end of the newly
 inserted text.
 
@@ -3736,8 +4145,9 @@ Marker in proof shell buffer pointing to end of last urgent message.
 @defun proof-shell-process-urgent-message start end
 Analyse urgent message between @var{start} and @var{end} for various cases.
 
-Cases are: included file, retracted file, cleared response buffer,
-variable setting, @var{pgip} response, or theorem dependency list.
+Cases are: @strong{trace} output, included/retracted files, cleared 
+goals/response buffer, variable setting, xml-encoded @var{pgip} response, 
+theorem dependency message or interactive output indicator.
 
 If none of these apply, display the text between @var{start} and @var{end}.
 

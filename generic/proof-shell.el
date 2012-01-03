@@ -15,7 +15,7 @@
 
 ;;; Code:
 
-(require 'cl)				; set-difference
+(require 'cl)				; set-difference, every
 
 (eval-when-compile
   (require 'span)
@@ -25,6 +25,7 @@
 (require 'pg-response)
 (require 'pg-goals)
 (require 'pg-user)			; proof-script, new-command-advance
+(require 'proof-tree)
 
 
 ;;
@@ -57,20 +58,22 @@ ACTION is the callback to be invoked when this item has been
 processed by the prover. For normal scripting items it is
 `proof-done-advancing', for retract items
 `proof-done-retracting', but there are more possibilities (e.g.
-`proof-done-invisible', `proof-shell-set-silent' and
-`proof-shell-clear-silent').
+`proof-done-invisible', `proof-shell-set-silent',
+`proof-shell-clear-silent' and `proof-tree-show-goal-callback').
 
 The DISPLAYFLAGS are set
 for non-scripting commands or for when scripting should not
 bother the user.  They may include
 
-  'invisible		 non-script command (`proof-shell-invisible-command')
-  'no-response-display   do not display messages in *response* buffer
-  'no-error-display      do not display errors/take error action
-  'no-goals-display      do not goals in *goals* buffer
+  'invisible		    non-script command (`proof-shell-invisible-command')
+  'no-response-display      do not display messages in *response* buffer
+  'no-error-display         do not display errors/take error action
+  'no-goals-display         do not goals in *goals* buffer
+  'proof-tree-show-subgoal  item inserted by the proof-tree package
 
-If flags are non-empty, interactive cues will be surpressed.
-\(E.g., printing hints).
+Note that 'invisible does not imply any of the others. If flags
+are non-empty, interactive cues will be surpressed. (E.g.,
+printing hints).
 
 See the functions `proof-start-queue' and `proof-shell-exec-loop'.")
 
@@ -885,6 +888,7 @@ track what happens in the proof queue."
   "Non-nil if we should switch to silent mode based on size of queue."
   (if (and proof-shell-start-silent-cmd ; configured
 	   (not proof-full-annotation)  ; always noisy
+	   (not proof-tree-external-display) ; no proof-tree display 
 	   (not proof-shell-silent))	; already silent
 	  ;; NB: to be more accurate we should only count number
 	  ;; of scripting items in the list (not e.g. invisibles).
@@ -1006,14 +1010,15 @@ If a there is a next command after that, send it to the process.
 If the action list becomes empty, unlock the process and remove
 the queue region.
 
-The return value is non-nil if the action list is now empty."
+The return value is non-nil if the action list is now empty or
+contains only invisible elements for Prooftree synchronization."
   (unless (null proof-action-list)
     (save-excursion
       (if proof-script-buffer		      ; switch to active script
 	  (set-buffer proof-script-buffer))
 
       (let* ((item    (car proof-action-list))
-	     (flags   (nth 3 (car proof-action-list)))
+	     (flags   (nth 3 item))
 	     cbitems)
 
 	;; now we should invoke callback on just processed command,
@@ -1024,6 +1029,16 @@ The return value is non-nil if the action list is now empty."
 
 	(setq cbitems (cons item
 			    (proof-shell-slurp-comments)))
+
+	;; This is the point where old items have been removed from
+	;; proof-action-list and where the next item has not yet been
+	;; sent to the proof assistent. This is therefore one of the
+	;; few points where it is safe to manipulate
+	;; proof-action-list. The urgent proof-tree display actions
+	;; must therefore be called here, because they might add some
+	;; Show actions at the front of proof-action-list.
+	(if proof-tree-external-display
+	    (proof-tree-urgent-action flags))
 
 	;; if action list is (nearly) empty, ensure prover is noisy.
 	(if (and proof-shell-silent
@@ -1055,7 +1070,10 @@ The return value is non-nil if the action list is now empty."
 	    (pg-processing-complete-hint))
 	  (pg-finish-tracing-display))
 
-	(null proof-action-list)))))
+	(or (null proof-action-list)
+	    (every
+	     (lambda (item) (memq 'proof-tree-show-subgoal (nth 3 item)))
+	     proof-action-list))))))
 
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
@@ -1423,7 +1441,8 @@ output that slows down processing.
 
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue."
-  (let ((cmd   (nth 1 (car proof-action-list)))
+  (let ((span  (caar proof-action-list))
+	(cmd   (nth 1 (car proof-action-list)))
 	(flags (nth 3 (car proof-action-list))))
 
     ;; A copy of the last message, verbatim, never modified.
@@ -1440,7 +1459,10 @@ by the filter is to send the next command from the queue."
       (if (proof-shell-exec-loop)
 	  (setq proof-shell-last-output-kind
 		;; only display result for last output
-		(proof-shell-handle-delayed-output))))))
+		(proof-shell-handle-delayed-output)))
+      ;; send output to the proof tree visualizer
+      (if proof-tree-external-display
+	  (proof-tree-handle-delayed-output cmd flags span)))))
 
 
 (defsubst proof-shell-display-output-as-response (flags str)

@@ -23,6 +23,7 @@
     (defvar smie-indent-basic nil)
     (defvar smie-rules-function nil))
   (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook
+  (defvar proof-info nil)       ; dynamic scope in proof-tree-urgent-action
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-compile-before-require nil)       ; defpacustom
@@ -187,6 +188,82 @@ A setting of nil means show all output from Coq. See also
 `coq-hide-additional-subgoals'."
   :type '(choice regexp (const nil))
   :group 'coq)
+
+
+;;
+;; prooftree customization
+;;
+
+(defgroup coq-proof-tree ()
+  "Coq specific customization for prooftree."
+  :group 'coq-config
+  :package-version '(ProofGeneral . "4.2"))
+
+(defcustom coq-proof-tree-ignored-commands-regexp
+  "^\\(Show\\)\\|\\(Locate\\)"
+  "Regexp for `proof-tree-ignored-commands-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-navigation-command-regexp
+  "^\\(Focus\\)\\|\\(Unfocus\\)"
+  "Regexp for `proof-tree-navigation-command-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-cheating-regexp
+  "admit"
+  "Regexp for `proof-tree-cheating-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-current-goal-regexp
+  (concat "^[0-9]+ subgoal\\(?:s, subgoal 1\\)? "
+	  "(ID \\([0-9]+\\))\n\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)")
+  "Regexp for `proof-tree-current-goal-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-update-goal-regexp
+  (concat "^goal / evar \\([0-9]+\\) is:\n"
+          "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)")
+  "Regexp for `proof-tree-update-goal-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-additional-subgoal-ID-regexp
+  "^subgoal [0-9]+ (ID \\([0-9]+\\)) is:"
+  "Regexp for `proof-tree-additional-subgoal-ID-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-existential-regexp "\\(\\?[0-9]+\\)"
+  "Regexp for `proof-tree-existential-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-instantiated-existential-regexp
+  (concat coq-proof-tree-existential-regexp " using")
+  "Regexp for recognizing an instantiated existential variable."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-existentials-state-start-regexp
+  "^(dependent evars:"
+  "Coq instance of `proof-tree-existentials-state-start-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-existentials-state-end-regexp ")\n"
+  "Coq instance of `proof-tree-existentials-state-end-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
+
+(defcustom coq-proof-tree-proof-completed-regexp
+  "^\\(?:Proof completed\\)\\|\\(?:No more subgoals\\)\\."
+  "Regexp for `proof-tree-proof-completed-regexp'."
+  :type 'regexp
+  :group 'coq-proof-tree)
 
 
 ;;
@@ -635,18 +712,26 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
   "Extract info from the coq prompt S.  See `coq-last-prompt-info-safe'."
   (let ((lastprompt (or s (error "No prompt !!?")))
         (regex
-         (concat "\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
+         (concat ">\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
                  "|?\\)*\\)| \\([0-9]+\\) < ")))
     (when (string-match regex lastprompt)
-      (list (string-to-number (match-string 2 lastprompt))
-            (string-to-number (match-string 4 lastprompt))
-            (build-list-id-from-string (match-string 3 lastprompt))))))
+      (let ((current-proof-name (match-string 1 lastprompt))
+            (state-number (string-to-number (match-string 2 lastprompt)))
+            (proof-state-number (string-to-number (match-string 4 lastprompt)))
+            ;; bind pending-proofs last, because build-list-id-from-string
+            ;; modifies the match data
+            (pending-proofs
+             (build-list-id-from-string (match-string 3 lastprompt))))
+        (list state-number proof-state-number pending-proofs
+              (if pending-proofs current-proof-name nil))))))
 
 
 (defun coq-last-prompt-info-safe ()
   "Return a list with all informations from the last prompt.
-The list contains the state number, the proof stack depth, and the names of all
-pending proofs (in a list)."
+The list contains in the following order the state number, the
+proof stack depth, a list with the names of all pending proofs,
+and as last element the name of the current proof (or nil if
+there is none)."
   (coq-last-prompt-info proof-shell-last-prompt))
 
 (defvar coq-last-but-one-statenum 1
@@ -750,7 +835,7 @@ If locked span already has a state number, then do nothing. Also updates
       ;; infos = promt infos of the very last prompt
       ;; sp = last locked span, which we want to fill with prompt infos
       (let ((sp    (if proof-script-buffer (proof-last-locked-span)))
-            (infos (or (coq-last-prompt-info-safe) '(0 0 nil))))
+            (infos (or (coq-last-prompt-info-safe) '(0 0 nil nil))))
         (unless (or (not sp) (coq-get-span-statenum sp))
           (coq-set-span-statenum sp coq-last-but-one-statenum))
         (setq coq-last-but-one-statenum (car infos))
@@ -1152,6 +1237,13 @@ This is specific to `coq-mode'."
   ;; holes
   (if coq-use-editing-holes (holes-mode 1))
 
+  ;; prooftree config
+  (setq
+   proof-tree-configured t
+   proof-tree-get-proof-info 'coq-proof-tree-get-proof-info
+   proof-tree-find-begin-of-unfinished-proof
+     'coq-find-begin-of-unfinished-proof)   
+
   (proof-config-done)
 
   ;; outline
@@ -1223,6 +1315,27 @@ This is specific to `coq-mode'."
   (coq-init-syntax-table)
   ;; (holes-mode 1)  da: does the shell really need holes mode on?
   (setq proof-shell-font-lock-keywords 'coq-font-lock-keywords-1)
+
+  ;; prooftree config
+  (setq
+   proof-tree-ignored-commands-regexp coq-proof-tree-ignored-commands-regexp
+   proof-tree-navigation-command-regexp coq-navigation-command-regexp
+   proof-tree-cheating-regexp coq-proof-tree-cheating-regexp
+   proof-tree-current-goal-regexp coq-proof-tree-current-goal-regexp
+   proof-tree-update-goal-regexp coq-proof-tree-update-goal-regexp
+   proof-tree-existential-regexp coq-proof-tree-existential-regexp
+   proof-tree-existentials-state-start-regexp
+                      coq-proof-tree-existentials-state-start-regexp
+   proof-tree-existentials-state-end-regexp
+                        coq-proof-tree-existentials-state-end-regexp
+   proof-tree-additional-subgoal-ID-regexp
+                              coq-proof-tree-additional-subgoal-ID-regexp
+   proof-tree-proof-completed-regexp coq-proof-tree-proof-completed-regexp
+   proof-tree-extract-instantiated-existentials
+     'coq-extract-instantiated-existentials
+   proof-tree-show-sequent-command 'coq-show-sequent-command
+   )
+        
   (proof-shell-config-done))
 
 (defun coq-goals-mode-config ()
@@ -2107,6 +2220,97 @@ correct in the new scripting buffer."
 (add-hook 'proof-deactivate-scripting-hook
           'coq-switch-buffer-kill-proof-shell
           t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; prooftree support
+;;
+
+(defun coq-proof-tree-get-proof-info ()
+  "Coq instance of `proof-tree-get-proof-info'."
+  (let* ((info (or (coq-last-prompt-info-safe) '(0 0 nil nil))))
+         ;; info is now a list with
+         ;; * the state number
+         ;; * the proof stack depth
+         ;; * the list of all open proofs
+         ;; * the name of the current proof or nil
+    (list (car info) (nth 3 info))))
+
+(defun coq-extract-instantiated-existentials (start end)
+  "Coq specific function for `proof-tree-extract-instantiated-existentials'.
+Returns the list of currently instantiated existential variables."
+  (proof-tree-extract-list
+   start end
+   coq-proof-tree-existentials-state-start-regexp
+   coq-proof-tree-existentials-state-end-regexp
+   coq-proof-tree-instantiated-existential-regexp))
+
+(defun coq-show-sequent-command (sequent-id)
+  "Coq specific function for `proof-tree-show-sequent-command'."
+  (format "Show Goal \"%s\"." sequent-id))
+
+(defun coq-proof-tree-get-new-subgoals ()
+  "Check for new subgoals and issue appropriate Show commands.
+This is a hook function for `proof-tree-urgent-action-hook'. This
+function examines the current goal output and searches for new
+unknown subgoals. Those subgoals have been generated by the last
+proof command and we must send their complete sequent text
+eventually to prooftree. Because subgoals may change with
+the next proof command, we must execute the additionally needed
+Show commands before the next real proof command.
+
+The ID's of the open goals are checked with
+`proof-tree-sequent-hash' in order to find out if they are new.
+For any new goal an appropriate Show Goal command with a
+'proof-tree-show-subgoal flag is inserted into
+`proof-action-list'. Then, in the normal delayed output
+processing, the sequent text is send to prooftree as a sequent
+update (see `proof-tree-update-sequent') and the ID of the
+sequent is registered as known in `proof-tree-sequent-hash'.
+
+The not yet delayed output is in the region
+\[proof-shell-delayed-output-start, proof-shell-delayed-output-end]."
+  ;; (message "CPTGNS start %s end %s"
+  ;;          proof-shell-delayed-output-start
+  ;;          proof-shell-delayed-output-end)
+  (with-current-buffer proof-shell-buffer
+    (let ((start proof-shell-delayed-output-start)
+          (end proof-shell-delayed-output-end))
+      (goto-char start)
+      (while (proof-re-search-forward
+              coq-proof-tree-additional-subgoal-ID-regexp end t)
+        (let ((subgoal-id (match-string-no-properties 1)))
+          (unless (gethash subgoal-id proof-tree-sequent-hash)
+            (setq proof-action-list
+                  (cons (proof-shell-action-list-item
+                         (coq-show-sequent-command subgoal-id)
+                         (proof-tree-make-show-goal-callback (car proof-info))
+                         '(no-goals-display
+                           no-response-display
+                           proof-tree-show-subgoal))
+                        proof-action-list))))))))
+  
+(add-hook 'proof-tree-urgent-action-hook 'coq-proof-tree-get-new-subgoals)
+
+
+(defun coq-find-begin-of-unfinished-proof ()
+  "Return start position of current unfinished proof or nil."
+  (let ((span (span-at (1- (proof-unprocessed-begin)) 'type)))
+    ;; go backward as long as we are inside the proof
+    ;; the proofstack property is set inside the proof
+    ;; the command before the proof has the goalcmd property
+    (while (and span
+                (span-property span 'proofstack)
+                (not (span-property span 'goalcmd)))
+          (setq span (span-at (1- (span-start span)) 'type)))
+    ;; Beware of completed proofs! They have type goalsave and for
+    ;; strange reasons the whole completed proof has the goalcmd property.
+    (if (and span
+             (not (eq 'goalsave (span-property span 'type)))
+             (span-property span 'goalcmd))
+        (span-start span)
+      nil)))
+    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

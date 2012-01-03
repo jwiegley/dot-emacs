@@ -34,6 +34,7 @@
 (require 'proof-config)			; configuration variables
 (require 'proof-auxmodes)		; auxmode functions
 (require 'proof-script)			; script mode
+(require 'proof-tree)			; proof tree visualization with prooftree
 (require 'proof-shell)			; shell mode
 
 (provide 'proof)

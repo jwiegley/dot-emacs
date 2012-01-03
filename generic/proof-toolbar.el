@@ -198,6 +198,10 @@ back the default toolbar."
 (defalias 'proof-toolbar-use 'proof-process-buffer)
 (defalias 'proof-toolbar-use-enable-p 'proof-toolbar-next-enable-p)
 
+;; Prooftree
+
+(defalias 'proof-toolbar-prooftree 'proof-tree-external-display-toggle)
+
 ;; Restart
 
 (defalias 'proof-toolbar-restart 'proof-shell-restart)

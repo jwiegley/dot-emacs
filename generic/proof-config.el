@@ -213,6 +213,12 @@ conversion, etc.  (No changes are done if nil)."
   :type '(choice string (const nil))
   :group 'prover-config)
 
+(defcustom proof-tree-configured nil
+  "Whether external proof-tree display is configured.
+This boolean enables the proof-tree menu entry and the function
+that starts external proof-tree display."
+  :type 'boolean
+  :group 'proof-tree-internals)
 
 
 ;;

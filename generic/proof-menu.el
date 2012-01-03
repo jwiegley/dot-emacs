@@ -104,6 +104,7 @@ without adjusting window layout."
   (define-key map [(control meta e)] 'proof-goto-command-end)
   (define-key map [(control c) (control b)] 'proof-process-buffer)
   ;; C-c C-c is proof-interrupt-process in universal-keys
+  (define-key map [(control c) (control d)] 'proof-tree-external-display-toggle)
   ;; C-c C-f is proof-find-theorems in universal-keys
   (define-key map [(control c) (control H)] 'proof-help)
   ;; C-c C-l is proof-layout-windows in universal-keys
