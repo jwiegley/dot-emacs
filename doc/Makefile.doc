@@ -34,7 +34,6 @@ MAINRANGE = =3,=4,3:
 
 TOC = :_1
 
-DVI2PS = dvips -Pcmz
 EMACS = emacs
 EMACSFLAGS = -q -no-site-file 
 
