@@ -51,6 +51,7 @@
     (let ((buf (get-buffer-create "*offlineimap*")))
       (setq offlineimap-process
             (start-process "*offlineimap*" buf
+                           "/opt/local/bin/python2.7"
                            "/opt/local/bin/offlineimap")))
     (message "Starting Offlineimap...done")))
 
