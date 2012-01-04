@@ -259,9 +259,9 @@ A setting of nil means show all output from Coq. See also
   :type 'regexp
   :group 'coq-proof-tree)
 
-(defcustom coq-proof-tree-proof-completed-regexp
+(defcustom coq-proof-tree-proof-finished-regexp
   "^\\(?:Proof completed\\)\\|\\(?:No more subgoals\\)\\."
-  "Regexp for `proof-tree-proof-completed-regexp'."
+  "Regexp for `proof-tree-proof-finished-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
 
@@ -1330,7 +1330,7 @@ This is specific to `coq-mode'."
                         coq-proof-tree-existentials-state-end-regexp
    proof-tree-additional-subgoal-ID-regexp
                               coq-proof-tree-additional-subgoal-ID-regexp
-   proof-tree-proof-completed-regexp coq-proof-tree-proof-completed-regexp
+   proof-tree-proof-finished-regexp coq-proof-tree-proof-finished-regexp
    proof-tree-extract-instantiated-existentials
      'coq-extract-instantiated-existentials
    proof-tree-show-sequent-command 'coq-show-sequent-command

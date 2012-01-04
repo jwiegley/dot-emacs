@@ -208,8 +208,8 @@ the state display expands to the end of the prover output."
   :type '(choice regexp (const nil))
   :group 'proof-tree-internals)
 
-(defcustom proof-tree-proof-completed-regexp nil
-  "Regexp to match the proof-is-complete message."
+(defcustom proof-tree-proof-finished-regexp nil
+  "Regexp to match the no-more-subgoals message."
   :type 'regexp
   :group 'proof-tree-internals)
 
@@ -361,7 +361,7 @@ contents of this list must be stored in
 properly working, this variable should only be changed by using
 `proof-tree-delete-existential-assoc',
 `proof-tree-add-existential-assoc' or
-`proof-tree-reset-existentials'.")
+`proof-tree-clear-existentials'.")
 
 (defvar proof-tree-existentials-alist-history nil
   "Alist mapping state numbers to old values of `proof-tree-existentials-alist'.
@@ -469,7 +469,7 @@ variables."
 ;; Low-level communication primitives
 ;;
 
-(defconst proof-tree-protocol-version 1
+(defconst proof-tree-protocol-version 2
   "Version of the communication protocol between Proof General and Prooftree.
 Must be increased if one of the low-level communication
 primitives is changed.")
@@ -544,19 +544,27 @@ DATA as data sections to Prooftree."
 		 (1+ (string-bytes proof-name)))))
     (proof-tree-send-message second-line (list proof-name))))
 
-(defun proof-tree-send-proof-completed (state proof-name
-					      cmd-string cheated-flag)
-  "Send proof completed to prooftree."
-  (let ((second-line
-	 (format
-	  "proof-complete state %d %s proof-name-bytes %d command-bytes %d"
-	  state
-	  (if cheated-flag "cheated" "not-cheated")
-	  (1+ (string-bytes proof-name))
-	  (1+ (string-bytes cmd-string)))))
-    (proof-tree-send-message
-     second-line
-     (list proof-name cmd-string))))
+(defun proof-tree-send-proof-finished (state proof-name cmd-string
+					     cheated-flag existential-info)
+  "Send proof-finished to prooftree."
+  (proof-tree-send-message
+   (format
+    (concat "proof-finished state %d %s proof-name-bytes %d command-bytes %d "
+	    "existential-bytes %d")
+    state
+    (if cheated-flag "cheated" "not-cheated")
+    (1+ (string-bytes proof-name))
+    (1+ (string-bytes cmd-string))
+    (1+ (string-bytes existential-info)))
+   (list proof-name cmd-string existential-info)))
+
+(defun proof-tree-send-proof-complete (state proof-name)
+  "Send proof-complete to prooftree."
+  (proof-tree-send-message
+   (format "proof-complete state %d proof-name-bytes %d"
+	   state
+	   (1+ (string-bytes proof-name)))
+   (list proof-name)))
 
 (defun proof-tree-send-undo (proof-state)
   "Tell prooftree to undo."
@@ -633,10 +641,10 @@ Do nothing if this mapping does already exist."
 	    (cons (cons ex-var (list sequent-id))
 		  proof-tree-existentials-alist)))))
 
-(defun proof-tree-reset-existentials (proof-state)
-  "Clear the mapping in `proof-tree-existentials-alist'."
-  (proof-tree-record-existentials-state proof-state 'dont-copy)
-  (setq proof-tree-existentials-alist nil))
+(defun proof-tree-clear-existentials ()
+  "Clear the mapping in `proof-tree-existentials-alist' and its history."
+  (setq proof-tree-existentials-alist nil)
+  (setq proof-tree-existentials-alist-history nil))
 
 
 ;;
@@ -740,7 +748,7 @@ proof, we can safely flush the `proof-tree-sequent-hash' and
 `proof-tree-existentials-alist-history' when the current proof is
 finished or quit."
   (clrhash proof-tree-sequent-hash)
-  (setq proof-tree-existentials-alist-history nil)
+  (proof-tree-clear-existentials)
   (setq proof-tree-current-proof nil))
 
 (defun proof-tree-register-existentials (current-state sequent-id sequent-text)
@@ -825,7 +833,7 @@ regexp is nil, the match expands to the end of the prover output."
   "Send CMD-STRING and goals in delayed output to prooftree.
 This function is called if there is some real progress in a
 proof. This function sends the current state, the current goal
-and the list of additional open subgoals to prooftree. Prooftree
+and the list of additional open subgoals to Prooftree. Prooftree
 will sort out the rest.
 
 The delayed output is in the region
@@ -841,13 +849,14 @@ The delayed output is in the region
 	 (cheated-flag
 	  (and proof-tree-cheating-regexp
 	       (proof-string-match proof-tree-cheating-regexp cmd-string)))
-	 (current-goals (proof-tree-extract-goals start end)))
+	 (current-goals (proof-tree-extract-goals start end))
+	 (existential-info
+	  (proof-tree-extract-existential-info start end)))
     (if current-goals
 	(let ((current-sequent-id (car current-goals))
 	      (current-sequent-text (nth 1 current-goals))
 	      ;; nth 2 current-goals  contains the  additional ID's
-	      (existential-info
-	       (proof-tree-extract-existential-info start end)))
+	      )
 	  ;; send all to prooftree
 	  (proof-tree-send-goal-state
 	   proof-state proof-name cmd-string
@@ -863,13 +872,13 @@ The delayed output is in the region
 					    current-sequent-id
 					    current-sequent-text))
       
-      ;; no current goal found, maybe the proof has been completed?
+      ;; no current goal found, maybe the proof has been finished?
       (goto-char start)
-      (if (proof-re-search-forward proof-tree-proof-completed-regexp end t)
+      (if (proof-re-search-forward proof-tree-proof-finished-regexp end t)
 	  (progn
-	    (proof-tree-send-proof-completed proof-state proof-name
-					     cmd-string cheated-flag)
-	    (proof-tree-reset-existentials proof-state))))))
+	    (proof-tree-send-proof-finished
+	     proof-state proof-name cmd-string
+	     cheated-flag existential-info))))))
 
 (defun proof-tree-handle-navigation (proof-info)
   "Handle a navigation command.
@@ -1005,6 +1014,8 @@ the flags and SPAN is the span."
 	    (setq proof-tree-current-proof current-proof-name))
 	   ((and proof-tree-current-proof (null current-proof-name))
 	    ;; finished the current proof
+	    (proof-tree-send-proof-complete (car proof-info)
+					    proof-tree-current-proof)
 	    (proof-tree-quit-proof)
 	    (setq proof-tree-external-display nil))
 	   ((and proof-tree-current-proof current-proof-name
