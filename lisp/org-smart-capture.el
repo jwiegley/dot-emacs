@@ -72,8 +72,10 @@
           message-id subject from date-sent data name fname lname)
       (with-current-buffer gnus-original-article-buffer
         (setq message-id (message-field-value "message-id")
-              subject (rfc2047-decode-string (message-field-value "subject"))
-              from (rfc2047-decode-string (message-field-value "from"))
+              subject (message-field-value "subject")
+              subject (and subject (rfc2047-decode-string subject))
+              from (message-field-value "from")
+              from (if from (rfc2047-decode-string from) "unknown")
               data (condition-case ()
                        (mail-extract-address-components from)
                      (error nil))
@@ -101,13 +103,14 @@
         (if (and arg (stringp lname))
             (insert ?  lname))
         (insert ?\) ? ))
-      (let ((new-subject subject))
-        (dolist (transform org-subject-transforms)
-          (setq new-subject
-                (replace-regexp-in-string (car transform)
-                                          (cdr transform) new-subject)))
-        (save-excursion
-          (insert new-subject)))
+      (if subject
+          (let ((new-subject subject))
+            (dolist (transform org-subject-transforms)
+              (setq new-subject
+                    (replace-regexp-in-string (car transform)
+                                              (cdr transform) new-subject)))
+            (save-excursion
+              (insert new-subject))))
       (when body
         (flet ((trim-string (str)
                             (replace-regexp-in-string
