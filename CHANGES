@@ -12,7 +12,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Currently only Coq (using Coq version 8.4beta or newer)
     supports proof-tree visualization. If Prooftree is installed,
     the proof-tree display can be started via the toolbar, the
-    Proof-General menu or by C-c C-d.
+    Proof-General menu or by C-c C-d.  To get Prooftree, visit
+    http://askra.de/software/prooftree
 
 *** Compilation fixes for Emacs 24.
 
