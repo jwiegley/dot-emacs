@@ -40,7 +40,7 @@
       ;; Obscure/conflict with other useful modes:
 
       (lego "LEGO" "l")
-      ;  (hol-light "HOL Light" "ml")
+      (hol-light "HOL Light" "ml") ; [for testing]
       ;; (ccc    "CASL Consistency Checker" "ccc")
       ;; (pgshell	"PG-Shell" "pgsh")
 
@@ -49,9 +49,9 @@
       ;; (hol98	"HOL" "sml")
       ;; (acl2	"ACL2" "acl2")
       ;; (twelf	"Twelf" "elf")
-      ;; (plastic "Plastic" "lf")    ; obsolete
-      ;; (lclam "Lambda-CLAM" "lcm")        ; obsolete
-      ;; (demoisa "Isabelle Demo" "ML")    ; obsolete
+      ;; (plastic "Plastic" "lf")        ; obsolete
+      ;; (lclam "Lambda-CLAM" "lcm")     ; obsolete
+      ;; (demoisa "Isabelle Demo" "ML")  ; obsolete
       )
     "Default value for `proof-assistant-table', which see.")
 
