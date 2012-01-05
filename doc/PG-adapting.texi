@@ -364,7 +364,7 @@ file for the mode, which will be
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (lego "LEGO" "l"))}.
+The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (lego "LEGO" "l") (hol-light "HOL Light" "ml"))}.
 @end defopt
 
 
@@ -2627,7 +2627,7 @@ contents of this list must be stored in
 properly working, this variable should only be changed by using
 @samp{@code{proof-tree-delete-existential-assoc}},
 @samp{@code{proof-tree-add-existential-assoc}} or
-@samp{@code{proof-tree-reset-existentials}}.
+@samp{@code{proof-tree-clear-existentials}}.
 @end defvar
 
 When retracting these two variables must be set to their previous
@@ -3179,7 +3179,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego}.
+A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego} @code{'hol-light}.
 If nil, the default will be ALL available proof assistants.
 
 Each proof assistant defines its own instance of Proof General,

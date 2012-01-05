@@ -64,7 +64,7 @@
 
 @set version 4.2pre
 @set emacsversion 23.3
-@set last-update October 2011
+@set last-update January 2012
 @set rcsid $Id$
 
 @dircategory Theorem proving
@@ -167,7 +167,7 @@ provided for several other provers.
 * LEGO Proof General::          
 * Coq Proof General::           
 * Isabelle Proof General::    
-* HOL Proof General::
+* HOL Light Proof General::
 * Shell Proof General::
 @c * PhoX Proof General::
 * Obtaining and Installing::  
@@ -643,9 +643,12 @@ Isabelle for more details.
 @c @item
 @c @b{PhoX Proof General} for PhoX 0.8X@*
 @c @xref{PhoX Proof General}, for more details.
+@c @item
+@c @b{HOL Proof General} for HOL98 (HOL4)@*
+@c @xref{HOL Proof General}, for more details.
 @item
-@b{HOL Proof General} for HOL98 (HOL4)@*
-@xref{HOL Proof General}, for more details.
+@b{HOL Light Proof General} for HOL Light@*
+@xref{HOL Light Proof General}, for more details.
 @item
 @b{Shell Proof General} for shell scripts (not really a proof assistant!)@*
 @xref{Shell Proof General}, for more details.
@@ -4136,14 +4139,12 @@ We refer to chapter @ref{Customizing Proof General}, for an introduction
 to the customisation mechanism. In addition to customizations at the
 generic level, for LEGO you can also customize:
 
-@c TEXI DOCSTRING MAGIC: lego-tags
 @defopt lego-tags 
 The directory of the @var{tags} table for the @var{lego} library
 
 The default value is @code{"/usr/lib/lego/lib_Type/"}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: lego-www-home-page
 @defvar lego-www-home-page 
 Lego home page URL.
 @end defvar
@@ -5034,43 +5035,48 @@ URL of web page for Isabelle.
 
 @c =================================================================
 @c
-@c  CHAPTER: HOL Proof General
+@c  CHAPTER: HOL Light Proof General
 @c
-@node HOL Proof General
-@chapter HOL Proof General
-@cindex HOL Proof General
+@node HOL Light Proof General
+@chapter HOL Light Proof General
+@cindex HOL Light Proof General
 
-HOL Proof General is a "technology demonstration" of Proof General for
-HOL4 (aka HOL98).  This means that only a basic instantiation has been
+HOL Light Proof General is a "technology demonstration" of Proof General
+for HOL Light.  This means that only a basic instantiation has been
 provided, and that it is not yet supported as a maintained instantiation
 of Proof General.
 
-HOL Proof General has basic script management support, with a little bit
-of decoration of scripts and output.  It does not rely on a modified
-version of HOL, so the pattern matching may be fragile in certain cases.
-Support for multiple files deduces dependencies automatically, so there
-is no interaction with the HOL make system yet.
+HOL Light Proof General has basic script management support, with a
+little bit of decoration of scripts and output.  It does not rely on a
+modified version of HOL Light, so the pattern matching may be fragile in
+certain cases.  
 
-See the @file{example.sml} file for a demonstration proof script
+@c Support for multiple files deduces dependencies
+@c automatically, so there is no interaction with the HOL make system yet.
+
+See the @file{example.ml} file for a demonstration proof script
 which works with Proof General.
 
-Note that HOL proof scripts often use batch-oriented single step tactic
-proofs, but Proof General does not (yet) offer an easy way to edit these
-kind of proofs.  They will replay simply as a single step proof and you
-will need to convert from the interactive to batch form as usual if you
-wish to obtain batch proofs.  Also note that Proof General does not
-contain an SML parser, so there can be problems if you write complex ML
-in proof scripts. 
+Note that HOL Light Proof Script proof scripts often use batch-oriented
+single step tactic proofs, but Proof General does not (yet) offer an
+easy way to edit these kind of proofs.  They will replay simply as a
+single step proof and you will need to convert from the interactive to
+batch form as usual if you wish to obtain batch proofs.  Also note that
+Proof General does not contain an SML parser, so there can be problems
+if you write complex ML in proof scripts.
 @c Old section was helpful on this: @xref{ML files}, for the same issue with Isabelle.
 
-HOL Proof General may work with variants of HOL other than HOL98, but is
-untested.  Probably a few of the settings would need to be changed in a
-simple way, to cope with small differences in output between the
-systems.  (Please let us know if you modify the HOL98 version for
-another variant of HOL).
+HOL Light is the most recently tested version of HOL with Proof General,
+but the Proof General distribution also contains experimental support
+for HOL 4 (aka HOL 98).  To improve this older version, or to support a
+new HOL variant, a few of the settings probably need to be tweaked to
+cope with small differences in output between the systems.  Please let
+us know if you try this out and want help.  We welcome any interested
+collaborators from the HOL communities to help improve Proof General as
+an interface for HOL provers.
 
-Perhaps somebody from the HOL community is willing to adopt HOL Proof
-General and support and improve it.  Please volunteer!  
+
+
 
 
 
