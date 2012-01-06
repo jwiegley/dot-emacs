@@ -14,13 +14,27 @@
 (require 'proof-easy-config)            ; easy configure mechanism
 (require 'proof-syntax)			; functions for making regexps
 
+(defcustom hol-light-home "/home/da/hol_light"
+  "*Directory holding the installation of HOL Light."
+  :type 'string
+  :group 'hol-light)
+
+(defcustom hol-light-startup-cmds 
+  (list (concat "#cd \"" hol-light-home "\"") 
+	"#use \"hol.ml\"")
+  "*Commands used to start up a running HOL Light session."
+  :type '(list string)
+  :group 'hol-light)
+
+
+
 (defvar hol-light-keywords nil)
 (defvar hol-light-rules nil)
 (defvar hol-light-tactics nil)
 (defvar hol-light-tacticals nil)
 
 (proof-easy-config  'hol-light "HOL Light"
- proof-prog-name		 "/usr/local/bin/ocaml" ;; std: "ocaml"
+ proof-prog-name		 "ocaml"
  proof-terminal-string           ";;"
  proof-script-comment-start      "(*"
  proof-script-comment-end        "*)"
@@ -49,12 +63,12 @@
 		   "^[ \t]*: GoalstackPure.proofs")
  proof-assistant-home-page           "https://www.cl.cam.ac.uk/~jrh13/hol-light/"
  proof-shell-annotated-prompt-regexp "# "
- proof-shell-error-regexp "Characters [0-9]+-[0-9]+:"
+ proof-shell-error-regexp 
+ (proof-regexp-alt "Characters [0-9]+-[0-9]+:" "Exception: Failure")
  proof-shell-init-cmd
- '("#cd \"/Users/da/hol_light\"" 
-   "#use \"hol.ml\""
-   "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1))"
-   "let pg_top_thm_and_drop () = let t = top_thm() in ((let _ = b() in ()); t)")
+ (append hol-light-startup-cmds
+	 '("let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1))"
+	   "let pg_top_thm_and_drop () = let t = top_thm() in ((let _ = b() in ()); t)"))
 
  ;; FIXME: add optional help topic parameter to help command.
  proof-info-command		    "help \"hol\""
