@@ -1155,7 +1155,11 @@ is shown to the user.  Set to nil to disable."
 This is an important setting.  Output between `proof-shell-start-goals-regexp'
 and `proof-shell-end-goals-regexp' will be pasted into the goals buffer
 and possibly analysed further for proof-by-pointing markup.
-If it is left as nil, the goals buffer will not be used."
+If it is left as nil, the goals buffer will not be used.
+
+The goals display starts at the beginning of the match on this
+regexp, unless it has a match group, in which case it starts
+at (match-end 1)."
   :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
@@ -1165,10 +1169,10 @@ This allows a shorter form of the proof state output to be displayed,
 in case several messages are combined in a command output.
 
 The portion treated as the goals output will be that between the
-start of the match on `proof-shell-start-goals-regexp' and the
+match on `proof-shell-start-goals-regexp' (which see) and the
 start of the match on `proof-shell-end-goals-regexp'.
 
-If nil, use the whole of the output after
+If nil, use the whole of the output from the match on
 `proof-shell-start-goals-regexp' up to the next prompt."
   :type '(choice (const nil) regexp)
   :group 'proof-shell)

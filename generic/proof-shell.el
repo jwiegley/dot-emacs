@@ -1518,11 +1518,16 @@ i.e., 'goals or 'response."
   (cond
    ((and proof-shell-start-goals-regexp
 	 (proof-re-search-forward proof-shell-start-goals-regexp end t))
-     (let* ((gstart (match-beginning 0))  (rstart start) gend)
+     (let* ((gmark  (match-beginning 0)) ; start of goals message
+	    (gstart (or (match-end 1)    ; start of actual display
+			gmark))
+	    (rstart start)		 ; possible response before goals
+	    (gend   end))
        ;; Find the last goal string in the output
        (goto-char gstart)
        (while (re-search-forward proof-shell-start-goals-regexp end t)
-	 (setq gstart (match-beginning 0))
+	 (setq gmark (match-beginning 0))
+	 (setq gstart (or (match-end 1) gmark))
 	 (setq gend
 	       (if (and proof-shell-end-goals-regexp
 			(re-search-forward proof-shell-end-goals-regexp end t))
@@ -1536,10 +1541,10 @@ i.e., 'goals or 'response."
 	 (pg-goals-display proof-shell-last-goals-output))
        ;; also allow (for Coq) any preceding output as a response
        ;; FIXME heuristic: 4 allows for annotation in end-goals-regexp
-       (when (> (- gstart rstart) 4)
+       (when (> (- gmark rstart) 4)
 	 (proof-shell-display-output-as-response
 	  flags
-	  (buffer-substring-no-properties rstart gstart)))
+	  (buffer-substring-no-properties rstart gmark)))
        ;; primary output kind is goals
        'goals))
 

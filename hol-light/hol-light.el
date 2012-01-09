@@ -34,10 +34,12 @@
 (defvar hol-light-tacticals nil)
 
 (proof-easy-config  'hol-light "HOL Light"
+ proof-assistant-home-page       "https://www.cl.cam.ac.uk/~jrh13/hol-light/"
  proof-prog-name		 "ocaml"
  proof-terminal-string           ";;"
  proof-script-comment-start      "(*"
  proof-script-comment-end        "*)"
+
  ;; These are all approximations, of course.
  proof-goal-command-regexp     "^g[ `]"
  proof-save-command-regexp     "pg_top_thm_and_drop"
@@ -46,22 +48,17 @@
  proof-non-undoables-regexp      "b()" ; and others..
  proof-goal-command              "g `%s`;;"
  proof-save-command              "val %s = pg_top_thm_and_drop();;"
- proof-kill-goal-command         "print_string \"Goal killed.\";;" ; nothing to do, repeated goals OK
+ proof-kill-goal-command         "current_goalstack:=[];;" ; for cleanliness
  proof-showproof-command         "p()"
  proof-undo-n-times-cmd          "(pg_repeat b %s; p());;"
  proof-auto-multiple-files       t
  proof-shell-cd-cmd              "#cd \"%s\";;"
  proof-shell-filename-escapes    '(("\\\\" . "\\\\") ("\""   . "\\\""))
  proof-shell-interrupt-regexp    "Interrupted"
- proof-shell-start-goals-regexp
- (regexp-quote "val it : goalstack = ")
-; (proof-regexp-alt "Proof manager status"
-;		   "OK.."
-;		   "val it =\n")
- proof-shell-end-goals-regexp
- (proof-regexp-alt "^[ \t]*: GoalstackPure.goalstack"
-		   "^[ \t]*: GoalstackPure.proofs")
- proof-assistant-home-page           "https://www.cl.cam.ac.uk/~jrh13/hol-light/"
+ proof-shell-start-goals-regexp  
+ (concat
+  "^\\(" (regexp-quote "val it : goalstack = ") "\\)"
+  "\\(?:[0-9]*[0-9] subgoals? ([0-9]+ total)\\|No subgoals\\)")
  proof-shell-annotated-prompt-regexp "# "
  proof-shell-error-regexp 
  (proof-regexp-alt "Characters [0-9]+-[0-9]+:" "Exception: Failure")
