@@ -1165,8 +1165,8 @@ This allows a shorter form of the proof state output to be displayed,
 in case several messages are combined in a command output.
 
 The portion treated as the goals output will be that between the
-*end* of the match on `proof-shell-start-goals-regexp' and the
-*start* of the match on `proof-shell-end-goals-regexp'.
+start of the match on `proof-shell-start-goals-regexp' and the
+start of the match on `proof-shell-end-goals-regexp'.
 
 If nil, use the whole of the output after
 `proof-shell-start-goals-regexp' up to the next prompt."
