@@ -1296,7 +1296,7 @@ This is specific to `coq-mode'."
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
 
-   proof-shell-start-goals-regexp          "^\\((dependent evars:[^)]*)\\s-+\\)?[0-9]+ subgoals?"
+   proof-shell-start-goals-regexp          "^\\(?:(dependent evars:[^)]*)\\s-+\\)?[0-9]+ subgoals?"
    proof-shell-end-goals-regexp
    (if coq-hide-additional-subgoals
        (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
