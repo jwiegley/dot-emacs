@@ -91,7 +91,8 @@ compile: $(EL)
 ## careful to add proper requires in source files and prevent
 ## evaluating/optimising top-level forms too early.  Using a separate
 ## emacs process for each file is slower but avoids any chance of
-## accidently polluting the compilation environment.
+## accidently polluting the compilation environment, it also should
+## work with make -j n.
 ##
 .el.elc:
 	$(BYTECOMP) $*.el
