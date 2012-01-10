@@ -8,7 +8,7 @@ Please also check the BUGS file.
 
 -----------------------------------------------------------------
 
-Q1. Proof General fails to load with an error message on start-up,
+Q. Proof General fails to load with an error message on start-up,
     containing text like this: 
   
        Proof General was compiled for GNU Emacs 23.1 but 
@@ -16,7 +16,7 @@ Q1. Proof General fails to load with an error message on start-up,
 
     What's wrong?
 
-A1. We distribute compiled .elcs for one version of Emacs, but other
+A. We distribute compiled .elcs for one version of Emacs, but other
     versions use different bytecode formats.  You will have to delete
     the compiled files and (optionally) recompile for your preferred
     Emacs version.  Using the Makefile:
@@ -31,9 +31,180 @@ A1. We distribute compiled .elcs for one version of Emacs, but other
 
 -----------------------------------------------------------------
 
-Q2. Emacs appears to hang when the prover process is started.
+Q. Help, I'm stuck!! Emacs keeps telling me "Cannot switch buffers in a
+    dedicated window"  
 
-A2. One thing is to check the variable 'comint-process-echoes' which
+A. This can happen if you enabled "Use Three Panes" and then change
+    the panes (window) layout manually, typically by deleting another 
+    window or frame so you only have a "dedicated" window on the 
+    display.  Don't kill Emacs!  There are many ways of getting out,
+    e.g.
+    -- In single window mode, C-c C-l (proof-layout-windows) refreshes
+       the display
+
+    -- In multiple window mode, if you have accidently deleted the main
+       window, get a new one with M-x new-frame RET
+
+
+
+-----------------------------------------------------------------
+
+Q. I have a problem installing/using Proof General, what can I do?
+
+A. Please check the documentation carefully, particularly the
+    requirements for a full-featured and recent Emacs version, as
+    mentioned in INSTALL (see "Dependency on Other Emacs Packages").  
+    If you still cannot solve your problem, try to contact someone
+    else who is using Proof General with a similar setup.  The
+    best way to do this may be through the user mailing list for your
+    proof assistant.  If you think the problem is Proof General related,
+    consult the PG Wiki and Trac pages.
+
+
+
+-----------------------------------------------------------------
+
+Q. I'm using Proof General for prover X, then I load a file for
+    prover Y.  I get an error.  Why?
+
+A. Unfortunately the architecture of Proof General is designed so
+    that you can only use one prover at a time in the same Emacs
+    session.   If you want to run more than one prover at a time,
+    you have to run more than one Emacs.
+
+
+
+-----------------------------------------------------------------
+
+Q. I have just installed Emacs, ProofGeneral and a proof assistant.
+    It works but Tokens (e.g. \<Longrightarrow>) are not being displayed 
+    as symbols.
+
+A. You need to enable Unicode Tokens by the menu item:
+
+      Proof-General -> Options -> Unicode Tokens
+  
+    To enable it automatically every time you use Proof General,
+    use 
+
+      Proof-General -> Options -> Save Options
+
+    after doing this.
+
+    Note that we don't do this by default, because from the system's
+    perspective it is difficult to determine if this will succeed ---
+    or just produce funny characters that confuse new users even more.
+
+    If you are using Isabelle, the wrapper script will load Tokens
+    from any location, and you can enable it by passing the option 
+    "-x true".
+
+
+-----------------------------------------------------------------
+
+
+Q.  With Unicode symbols enabled, arrows and other symbols appear
+    compressed and overlap one another.
+
+A.  Unfortunately this is a bug in the display engine inside
+    certain versions of Emacs, for example the default version
+    of emacs, Emacs 23.3.1 on Ubuntu 11.10, suffers.
+
+    The solution is to switch to another version (e.g. Emacs 23.2).
+    (See Trac#409).
+
+-----------------------------------------------------------------
+
+
+Q. I'm afraid I got stuck very early on.  I sent the following line:
+
+      by (swap_res_tac [psubsetI] 1;
+
+    Notice that I forgot the right bracket.  The line went pink, the
+    buffer went read-only and nothing I tried would let me fix the
+    error.  
+
+A. The proof process is waiting for more input because of the missing
+    parenthesis, but Proof General doesn't realise this and waits for a
+    response.  You should type something in the proof shell buffer
+    (*isabelle*), or interrupt the process with C-c C-c or the Stop button.
+
+
+-----------------------------------------------------------------
+
+Q. How can I keep the Proof General option settings across sessions?
+
+A. For options set in the Proof General -> Options menu use the 
+    "Save Options" menu item (Proof General -> Options -> Save Options).
+
+    For other options set via customize (Proof General -> Advanced -> 
+    Customize), use the customize buttons, or M-x customize-save-customized.
+
+
+-----------------------------------------------------------------
+
+Q. The "Favourites" feature to insert/send fixed strings is great, 
+     but I'd like to define a command which takes arguments.
+
+A. You can do that in Elisp with a command like this: 
+
+      (proof-definvisible isar-theorem
+        '(format "thm %s" (read-string "theorem: "))
+         [(control t)])
+
+     (NB: it binds the key C-c C-a C-t).  See the documentation for
+     `proof-definvisible' and `proof-defshortcut`.
+
+
+-----------------------------------------------------------------
+
+Q. Why do I get a warning "Bad version of xml.el found, ..."?
+
+A. Your Emacs distribution includes a version of xml.el which has 
+     fundamental bugs.   The patched version of xml.el, in lib/xml-fixed.el
+     has been loaded instead.  This works for Proof General because it fixes
+     the basic bugs, but it may cause compatibility issues in other packages
+     (e.g. it is quite different from the latest xml.el with GNU Emacs
+     development versions).
+   
+     This message is probably nothing to worry about unless you are using
+     the same Emacs session for other packages that heavily use xml.el
+     (e.g. GNUS).
+
+
+-----------------------------------------------------------------
+
+Q. Undo behaviour in Coq seems to stop working with very long
+     sequences of commands.
+
+A. Coq has a limited history for Undo.  Change 
+
+	Coq -> Settings -> Undo Depth
+
+     to something higher.  Default is 200 (100 outside PG).
+
+
+-----------------------------------------------------------------
+
+
+Q. Can I join any mailing lists for Proof General?
+
+A. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
+     with the line "subscribe" in the message body, to join the
+     users' and announcements list.
+
+     There is also a list for developers, proofgeneral-devel:
+
+        http://proofgeneral.inf.ed.ac.uk/mailinglist 
+
+     for more details.
+
+
+-----------------------------------------------------------------
+
+Q. Emacs appears to hang when the prover process is started.
+
+A. One thing is to check the variable 'comint-process-echoes' which
     might be non-nil for the *coq* (or other prover) buffer.  It
     should be nil.
 
@@ -90,161 +261,6 @@ A2. One thing is to check the variable 'comint-process-echoes' which
 
   
 
------------------------------------------------------------------
-
-Q4. Help, I'm stuck!! Emacs keeps telling me "Cannot switch buffers in a
-    dedicated window"  
-
-A4. This can happen if you enabled "Use Three Panes" and then change
-    the panes (window) layout manually, typically by deleting another 
-    window or frame so you only have a "dedicated" window on the 
-    display.  Don't kill Emacs!  There are many ways of getting out,
-    e.g.
-    -- In single window mode, C-c C-l (proof-layout-windows) refreshes
-       the display
-
-    -- In multiple window mode, if you have accidently deleted the main
-       window, get a new one with M-x new-frame RET
-
-
-
------------------------------------------------------------------
-
-Q5. I have a problem installing/using Proof General, what can I do?
-
-A5. Please check the documentation carefully, particularly the
-    requirements for a full-featured and recent Emacs version, as
-    mentioned in INSTALL (see "Dependency on Other Emacs Packages").  
-    If you still cannot solve your problem, try to contact someone
-    else who is using Proof General with a similar setup.  The
-    best way to do this may be through the user mailing list for your
-    proof assistant.  If you think the problem is Proof General related,
-    consult the PG Wiki and Trac pages.
-
-
-
------------------------------------------------------------------
-
-Q6. I'm using Proof General for prover X, then I load a file for
-    prover Y.  I get an error.  Why?
-
-A6. Unfortunately the architecture of Proof General is designed so
-    that you can only use one prover at a time in the same Emacs
-    session.   If you want to run more than one prover at a time,
-    you have to run more than one Emacs.
-
-
-
------------------------------------------------------------------
-
-Q7. I have just installed Emacs, ProofGeneral and a proof assistant.
-    It works but Tokens (e.g. \<Longrightarrow>) are not being displayed 
-    as symbols.
-
-A7. You need to enable Unicode Tokens by the menu item:
-
-      Proof-General -> Options -> Unicode Tokens
-  
-    To enable it automatically every time you use Proof General,
-    use 
-
-      Proof-General -> Options -> Save Options
-
-    after doing this.
-
-    Note that we don't do this by default, because from the system's
-    perspective it is difficult to determine if this will succeed ---
-    or just produce funny characters that confuse new users even more.
-
-    If you are using Isabelle, the wrapper script will load Tokens
-    from any location, and you can enable it by passing the option 
-    "-x true".
-
------------------------------------------------------------------
-
-
-Q8. I'm afraid I got stuck very early on.  I sent the following line:
-
-      by (swap_res_tac [psubsetI] 1;
-
-    Notice that I forgot the right bracket.  The line went pink, the
-    buffer went read-only and nothing I tried would let me fix the
-    error.  
-
-A8. The proof process is waiting for more input because of the missing
-    parenthesis, but Proof General doesn't realise this and waits for a
-    response.  You should type something in the proof shell buffer
-    (*isabelle*), or interrupt the process with C-c C-c or the Stop button.
-
-
------------------------------------------------------------------
-
-Q9. How can I keep the Proof General option settings across sessions?
-
-A9. For options set in the Proof General -> Options menu use the 
-    "Save Options" menu item (Proof General -> Options -> Save Options).
-
-    For other options set via customize (Proof General -> Advanced -> 
-    Customize), use the customize buttons, or M-x customize-save-customized.
-
-
------------------------------------------------------------------
-
-Q10. The "Favourites" feature to insert/send fixed strings is great, 
-     but I'd like to define a command which takes arguments.
-
-A10. You can do that in Elisp with a command like this: 
-
-      (proof-definvisible isar-theorem
-        '(format "thm %s" (read-string "theorem: "))
-         [(control t)])
-
-     (NB: it binds the key C-c C-a C-t).  See the documentation for
-     `proof-definvisible' and `proof-defshortcut`.
-
-
------------------------------------------------------------------
-
-Q11. Why do I get a warning "Bad version of xml.el found, ..."?
-
-A11. Your Emacs distribution includes a version of xml.el which has 
-     fundamental bugs.   The patched version of xml.el, in lib/xml-fixed.el
-     has been loaded instead.  This works for Proof General because it fixes
-     the basic bugs, but it may cause compatibility issues in other packages
-     (e.g. it is quite different from the latest xml.el with GNU Emacs
-     development versions).
-   
-     This message is probably nothing to worry about unless you are using
-     the same Emacs session for other packages that heavily use xml.el
-     (e.g. GNUS).
-
-
------------------------------------------------------------------
-
-Q12. Undo behaviour in Coq seems to stop working with very long
-     sequences of commands.
-
-A12. Coq has a limited history for Undo.  Change 
-
-	Coq -> Settings -> Undo Depth
-
-     to something higher.  Default is 200 (100 outside PG).
-
-
------------------------------------------------------------------
-
-
-Q13. Can I join any mailing lists for Proof General?
-
-A13. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
-     with the line "subscribe" in the message body, to join the
-     users' and announcements list.
-
-     There is also a list for developers, proofgeneral-devel:
-
-        http://proofgeneral.inf.ed.ac.uk/mailinglist 
-
-     for more details.
 
 
 
