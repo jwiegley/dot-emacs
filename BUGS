@@ -10,6 +10,10 @@ and those which only apply to particular provers.
 
 The FAQ mentions other issues which are not necessarily PG bugs.
 
+This list is incomplete and only occasionally updated, please search
+on Trac for current issues.
+
+
 * Reporting bugs
 
 If you have a problem that is not mentioned here, please visit the
