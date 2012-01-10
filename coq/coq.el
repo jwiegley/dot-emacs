@@ -1287,6 +1287,8 @@ This is specific to `coq-mode'."
    "\376\\|\\[Reinterning\\|Warning:\\|TcDebug "
    proof-shell-eager-annotation-start-length 12
 
+   proof-shell-interactive-prompt-regexp "TcDebug "
+
    ;; ****** is added at the end of warnings in emacs mode, this is temporary I
    ;;        want xml like tags, and I want them removed before warning display.
    ;; I want the same for errors -> pgip
