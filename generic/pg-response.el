@@ -219,14 +219,27 @@ For multiple frame mode, this function obeys the setting of
 
 ;;;###autoload
 (defun pg-response-maybe-erase
-  (&optional erase-next-time clean-windows force)
-  "Erase the response buffer according to `pg-response-erase-flag'.
-ERASE-NEXT-TIME is the new value for the flag.
-If CLEAN-WINDOWS is set, use `proof-clean-buffer' to do the erasing.
-If FORCE, override `pg-response-erase-flag'.
+  (&optional erase-next-time clean-windows force keep)
+  "Erase the response buffer, according to confusing flag combinations.
 
-If the user option `proof-tidy-response' is nil, then
-the buffer is only cleared when FORCE is set.
+Mainly, we look at `pg-response-erase-flag' and clear the
+response buffer if this is non-nil, but NOT the special
+symbol 'invisible.
+
+ERASE-NEXT-TIME is the new value for the flag.
+
+FORCE overrides the flag to force cleaning.
+
+KEEP overrides the flag to prevent cleaning.
+
+FORCE takes precedent over KEEP.
+
+If CLEAN-WINDOWS is set, use `proof-clean-buffer' to do the erasing,
+otherwise we use `bufhist-checkpoint-and-erase' to record an
+undo history entry for the current buffer contents.
+
+If the user option `proof-tidy-response' is nil, the buffer
+will never be cleared unless FORCE is set.
 
 No effect if there is no response buffer currently.
 Returns non-nil if response buffer was cleared."
@@ -234,6 +247,7 @@ Returns non-nil if response buffer was cleared."
     (let ((inhibit-read-only t)
 	  (doit (or (and
 		     proof-tidy-response
+		     (not keep)
 		     (not (eq pg-response-erase-flag 'invisible))
 		     pg-response-erase-flag)
 		    force)))

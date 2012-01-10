@@ -73,23 +73,25 @@ May enable proof-by-pointing or similar features.
 ;;
 ;; Goals buffer processing
 ;;
-(defun pg-goals-display (string)
+(defun pg-goals-display (string keepresponse)
   "Display STRING in the `proof-goals-buffer', properly marked up.
-Converts term substructure markup into mouse-highlighted extents."
+Converts term substructure markup into mouse-highlighted extents.
+
+The response buffer may be cleared to avoid confusing the user
+with output associated with a previous goals message.  This
+function tries to do that by calling `pg-response-maybe-erase'.
+
+If KEEPRESPONSE is non-nil, we assume that a response message
+corresponding to this goals message has already been displayed
+before this goals message (see `proof-shell-handle-delayed-output'),  
+so the response buffer should not be cleared."
   (save-excursion
     ;; Response buffer may be out of date. It may contain (error)
     ;; messages relating to earlier proof states
 
-    ;; NB: this isn't always the case.  In Isabelle
-    ;; we get <WARNING MESSAGE> <CURRENT GOALS> output,
-    ;; or <WARNING MESSAGE> <ORDINARY MESSAGE>.  Both times
-    ;; <WARNING MESSAGE> would be relevant.
-    ;; We should only clear the output that was displayed from
-    ;; the *previous* prompt.
-
     ;; Erase the response buffer if need be, maybe removing the
     ;; window.  Indicate it should be erased before the next output.
-    (pg-response-maybe-erase t t)
+    (pg-response-maybe-erase t t nil keepresponse)
 
     ;; Erase the goals buffer and add in the new string
     (set-buffer proof-goals-buffer)

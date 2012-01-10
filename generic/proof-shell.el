@@ -1472,42 +1472,48 @@ by the filter is to send the next command from the queue."
     (pg-response-display str)))
 
 (defun proof-shell-handle-delayed-output ()
-  "Display delayed outputs, when queue is stopped or completed.
+  "Display delayed goals/responses, when queue is stopped or completed.
 This function handles the cases of `proof-shell-output-kind' which
 are not dealt with eagerly during script processing, namely
 'response and 'goals types.
 
-This is useful even with empty delayed output as it can
-clear the buffers.
+This is useful even with empty delayed output as it will empty
+the buffers.
 
 The delayed output is in the region
 \[proof-shell-delayed-output-start,proof-shell-delayed-output-end].
 
+If no goals classified output is found, the whole output is
+displayed in the response buffer.
+
 If goals output is found, the last matching instance, possibly
-bounded by `proof-shell-end-goals-regexp', will be displayed.
-Any output that appears *before* the first goals output (but
+bounded by `proof-shell-end-goals-regexp', will be displayed
+in the goals buffer (and may be further analysed by Proof General).
+
+Any output that appears *before* the last goals output (but
 after messages classified as urgent, see `proof-shell-filter')
-will also be displayed in the response buffer.  For example,
-if OUTPUT has this form:
+will also be displayed in the response buffer.
+
+For example, if OUTPUT has this form:
 
   MESSSAGE-1
   GOALS-1
   MESSAGE-2
   GOALS-2
+  JUNK
 
 then GOALS-2 will be displayed in the goals buffer, and MESSAGE-2
-in the response buffer.  Notice that the above alternation can
+in the response buffer.  JUNK will be ignored.
+
+Notice that the above alternation (and separation of JUNK) can
 only be distinguished if both `proof-shell-start-goals-regexp'
-and `proof-shell-end-goals-regexp' are set.  With just the
-former, MESSAGE-1 GOALS-1 MESSAGE-2 would all appear in
-the response buffer.
+and `proof-shell-end-goals-regexp' are set.  With just the start
+goals regexp set, GOALS-2 JUNK will appear in the goals buffer
+and no response output would occur.
    
 The goals and response outputs are copied into
 `proof-shell-last-goals-output' and
 `proof-shell-last-response-output' respectively.
-
-If no other kind of classified output is found, the default
-is to display the output in the response buffer.
 
 The value returned is the value for `proof-shell-last-output-kind',
 i.e., 'goals or 'response."
@@ -1522,8 +1528,9 @@ i.e., 'goals or 'response."
 	    (gstart (or (match-end 1)    ; start of actual display
 			gmark))
 	    (rstart start)		 ; possible response before goals
-	    (gend   end))
-       ;; Find the last goal string in the output
+	    (gend   end)
+	    both)			 ; flag for response+goals
+
        (goto-char gstart)
        (while (re-search-forward proof-shell-start-goals-regexp end t)
 	 (setq gmark (match-beginning 0))
@@ -1537,19 +1544,23 @@ i.e., 'goals or 'response."
 		 end)))
        (setq proof-shell-last-goals-output
 	     (buffer-substring-no-properties gstart gend))
+
+       ;; FIXME heuristic: 4 allows for annotation in end-goals-regexp [is it needed?]
+       (setq both
+	     (> (- gmark rstart) 4))
+       (if both
+	   (proof-shell-display-output-as-response 
+	    flags
+	    (buffer-substring-no-properties rstart gmark)))
+       ;; display goals output second so it persists in 2-pane mode
        (unless (memq 'no-goals-display flags)
-	 (pg-goals-display proof-shell-last-goals-output))
-       ;; also allow (for Coq) any preceding output as a response
-       ;; FIXME heuristic: 4 allows for annotation in end-goals-regexp
-       (when (> (- gmark rstart) 4)
-	 (proof-shell-display-output-as-response
-	  flags
-	  (buffer-substring-no-properties rstart gmark)))
-       ;; primary output kind is goals
+	 (pg-goals-display proof-shell-last-goals-output both))
+       ;; indicate a goals output has been given
        'goals))
 
-   (t ; Any unclassified output will appear as a response.
+   (t
     (proof-shell-display-output-as-response flags proof-shell-last-output)
+    ;; indicate that (only) a response output has been given
     'response))
   
   (run-hooks 'proof-shell-handle-delayed-output-hook)))
