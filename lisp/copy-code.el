@@ -55,7 +55,7 @@
                   (if (and font-size
                            (or (= (prefix-numeric-value font-size) 4)
                                (< (prefix-numeric-value font-size) 0)))
-                      "" "--linenumbers")))
+                      "--linenumbers" "")))
          (temp-buffer (get-buffer-create " *code*")))
     (shell-command-on-region
      (if (region-active-p) (region-beginning) (point-min))

@@ -131,7 +131,7 @@
                                 (subst-char-in-string
                                  ?\[ ?\{ (subst-char-in-string
                                           ?\] ?\} subject))))
-      (org-set-property "Submitter" from))))
+      (org-set-property "Author" from))))
 
 (provide 'org-smart-capture)
 
