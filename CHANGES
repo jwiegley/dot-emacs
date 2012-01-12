@@ -21,13 +21,17 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 ** Coq changes
 
-*** Support proof-tree visulization
+*** Support proof-tree visualization
 
 *** Indentation improvements using SMIE
 
 *** Minor parsing fixes
 
 *** New setting for hiding additional goals from the *goals* buffer
+
+** HOL Light  [WORK IN PROGRESS]
+
+*** Basic support now works, see hol-light directory  [WORK IN PROGRESS]
 
 
 * Changes of Proof General 4.1 from Proof General 4.0
