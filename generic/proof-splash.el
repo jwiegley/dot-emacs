@@ -296,7 +296,7 @@ binding to remove this buffer."
   "Wait for proof-splash-timeout or input, then remove self from hook."
   (while (and proof-splash-timeout-conf ;; timeout still active
 	      (not (input-pending-p)))
-    (sit-for 0))
+    (sit-for 0.1))
   (if proof-splash-timeout-conf         ;; not removed yet
       (proof-splash-remove-screen))
   (if (fboundp 'next-command-event) ; 3.3: Emacs removed this
