@@ -592,7 +592,9 @@ Lemma foo: forall n,
              (coq-smie-search-token-backward
               ;; careful not to stop when "." is found: dotted notation
               ;; are not recognized by coq-smie-search-token-backward
-              '("in" "let" "eval" "rewrite" "unfold"))
+              ;; TODO: add all tactics accepting "in" TODO or better: find
+              ;; another way to distinguish tactic "in" from "let in"
+              '("in" "let" "eval" "rewrite" "unfold" "apply"))
              '("in" "let"))
             "in" "in tactic")))
      (tok))))
