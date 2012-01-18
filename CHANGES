@@ -24,6 +24,9 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** Support proof-tree visualization
 
 *** Indentation improvements using SMIE
+    Limitations:
+**** hard-wired precedence between bullets - < + < *
+**** no "{" following a bullet.
 
 *** Minor parsing fixes
 
