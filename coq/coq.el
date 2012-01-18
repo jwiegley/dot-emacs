@@ -380,7 +380,9 @@ Lemma foo: forall n,
         ;; layered above the commands language. Bullets are all the same as a
         ;; first approximation.
         (subcmds (cmds)
-                 (subcmds "+*- bullet" subcmds)
+                 (subcmds "- bullet" subcmds)
+                 (subcmds "+ bullet" subcmds)
+                 (subcmds "* bullet" subcmds)
                  ("BeginSubproof" subcmds "EndSubproof") ;captures also { and }
                  ("Proof" subcmds "Proof End")
                  ("Proof" subcmds "Proof End")
@@ -411,7 +413,7 @@ Lemma foo: forall n,
       '((assoc ",") (nonassoc "as") (assoc ":") (assoc "->") (nonassoc "else")
         (nonassoc "in") (assoc "in tactic") (left "=>"))
       '((assoc ",")(assoc ";")(assoc "|")(left "=>"))
-      '((left "+*- bullet"))
+      '((left "- bullet") (left "+ bullet") (left "* bullet"))
       '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 
@@ -560,7 +562,7 @@ Lemma foo: forall n,
            (save-excursion
              (let ((prev (coq-smie-backward-token)))
                (member prev '("." "BeginSubproof" "EndSubproof")))))
-      "+*- bullet")
+      (concat tok " bullet"))
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((and (member tok '("exists" "∃"))
            (save-excursion
@@ -627,7 +629,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
             (not (smie-rule-parent-p "forall" "quantif exists"))) 0)))
     (:before
      (cond
-      ((equal token "+*- bullet") 2)
+      ((equal token "- bullet") 2)
+      ((equal token "+ bullet") 2)
+      ((equal token "* bullet") 2)
       ((equal token "return") (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
        (if (smie-rule-prev-p "with match")
