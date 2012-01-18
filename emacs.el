@@ -2133,6 +2133,11 @@ Else, return \" \"."
 
 ;;;_  . Keybindings
 
+(define-key override-global-map [(alt ?v)] 'scroll-down)
+(define-key global-map [(alt ?v)] 'scroll-down)
+(define-key override-global-map [(meta ?v)] 'yank)
+(define-key global-map [(meta ?v)] 'yank)
+
 (define-key global-map [(alt meta ?f)] 'gnus-query)
 
 (eval-after-load "gnus-group"
