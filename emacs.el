@@ -1626,62 +1626,6 @@ end tell" (match-string 1))))
     (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
     (compose-mail-other-window submitter (concat "Re: " subject))))
 
-;;;_  . howm-mode
-
-(eval-when-compile
-  (defvar howm-template)
-  (defvar howm-directory))
-
-(defvar howm-view-title-header "*") ;; *BEFORE* loading howm!
-
-(add-hook 'org-agenda-mode-hook (lambda () (local-unset-key (kbd "\C-c,"))))
-(add-hook 'org-mode-hook (lambda () (local-unset-key (kbd "\C-c,"))))
-
-(when (load "howm" t)
-  (add-to-list 'auto-mode-alist '("\\.howm$" . org-mode))
-
-  (defun org-howm-template (&rest ignore-args)
-    (format
-     "* %%title%%cursor
-:PROPERTIES:
-:ID:       %s:CREATED:  %s
-:VISIBILITY: all
-:END:
-"
-     (shell-command-to-string "uuidgen")
-     (format-time-string (org-time-stamp-format t t))))
-
-  (defun move-org-note-to-howm ()
-    (interactive)
-    (let* ((created
-            (save-excursion
-              (re-search-forward
-               ":CREATED:\\s-*\\[\\(.+?\\)\\]")
-              (match-string 1)))
-           (path
-            (expand-file-name
-             (format-time-string "%Y/%m/%Y-%m-%d-%H%M%S.howm"
-                                 (apply 'encode-time
-                                        (org-parse-time-string created)))
-             howm-directory))
-           (entry (org-x-parse-entry)))
-      (org-x-delete-entry)
-      (org-x-clear-state entry)
-      (org-x-set-depth entry 1)
-      (org-x-set-property entry "VISIBILITY" "all")
-      (let ((dir (file-name-directory path)))
-        (unless (file-directory-p dir)
-          (make-directory dir t))
-        (with-current-buffer (find-file-noselect path)
-          (erase-buffer)
-          (org-x-insert-entry entry)
-          (save-buffer)
-          (kill-buffer (current-buffer))))))
-
-  (setq howm-template 'org-howm-template)
-
-  (define-key org-mode-map [(control ?c) tab] 'action-lock-magic-return))
-
 ;;;_  . make-bug-link
 
 (defun make-ledger-bugzilla-bug (product component version priority severity)
@@ -2856,9 +2800,6 @@ Else, return \" \"."
 (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file)
 
 (define-key mode-specific-map [?z] 'clean-buffer-list)
-
-(define-key mode-specific-map [?, ?c] 'howm-create)
-(define-key mode-specific-map [?, ?g] 'howm-list-grep)
 
 (define-key mode-specific-map [?\[] 'align-regexp)
 (define-key mode-specific-map [?=]  'count-matches)
