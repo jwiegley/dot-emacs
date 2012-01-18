@@ -2724,7 +2724,18 @@ Else, return \" \"."
       (emacs-min)
     (emacs-max)))
 
-(define-key mode-specific-map [?m] 'emacs-toggle-size)
+;;(define-key mode-specific-map [?m] 'emacs-toggle-size)
+
+(defun markdown-preview-file ()
+  "run Marked on the current file and revert the buffer"
+  (interactive)
+  (shell-command 
+   (format "open -a /Applications/Marked.app %s" 
+           (shell-quote-argument (buffer-file-name)))))
+
+(add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
+
+(define-key mode-specific-map [?m] 'markdown-preview-file)
 
 (defcustom user-initials nil
   "*Initials of this user."
