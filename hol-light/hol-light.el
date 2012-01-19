@@ -3,29 +3,29 @@
 ;; Copyright (C) 2010-12 LFCS Edinburgh, David Aspinall.
 ;;
 ;; Author: David Aspinall <David.Aspinall@ed.ac.uk>
+;;         Mark Adams <mark@proof-technologies.com>
 ;;
 ;; $Id$
 ;;
-;; Needs improvement!
-;;
 ;; See the README file in this directory for information.
-
+;;
 
 (require 'proof-easy-config)            ; easy configure mechanism
 (require 'proof-syntax)			; functions for making regexps
 
 (defcustom hol-light-home "/home/da/hol_light"
-  "*Directory holding the installation of HOL Light."
+  "*Directory holding the local installation of HOL Light."
   :type 'string
   :group 'hol-light)
 
 (defcustom hol-light-startup-cmds 
-  (list (concat "#cd \"" hol-light-home "\"") 
-	"#use \"hol.ml\"")
+  (list (format "#cd \"%s\"" hol-light-home)
+	"#use \"hol.ml\""
+	(format "#cd \"%s\"" proof-home-directory)
+	"#use \"pt_tactics.ml\"")
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
-
 
 
 (defvar hol-light-keywords nil)
@@ -41,27 +41,33 @@
  proof-script-comment-end        "*)"
 
  ;; These are all approximations, of course.
- proof-goal-command-regexp     "^g[ `]"
- proof-save-command-regexp     "pg_top_thm_and_drop"
- proof-goal-with-hole-regexp   "let \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*prove"
- proof-save-with-hole-regexp   "let \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*top_thm()"
- proof-non-undoables-regexp      "b()" ; and others..
- proof-goal-command              "g `%s`;;"
- proof-save-command              "val %s = pg_top_thm_and_drop();;"
- proof-kill-goal-command         "current_goalstack:=[];;" ; for cleanliness
- proof-showproof-command         "p()"
- proof-undo-n-times-cmd          "(pg_repeat b %s; p());;"
- proof-auto-multiple-files       t
- proof-shell-cd-cmd              "#cd \"%s\";;"
- proof-shell-filename-escapes    '(("\\\\" . "\\\\") ("\""   . "\\\""))
- proof-shell-interrupt-regexp    "Interrupted"
+ proof-goal-command-regexp     	"^g[ `]"
+ proof-save-command-regexp     	"pg_top_thm_and_drop"
+ proof-goal-with-hole-regexp   	"let \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*prove"
+ proof-save-with-hole-regexp   	"let \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*top_thm()"
+ proof-non-undoables-regexp    	"b()" ; and others..
+ proof-goal-command            	"g `%s`;;"
+ proof-save-command            	"val %s = top_thm();;"
+ proof-kill-goal-command       	"current_goalstack:=[];;" ; for cleanliness
+ proof-showproof-command       	"p()"
+ proof-undo-n-times-cmd        	"(pg_repeat b %s; p());;"
+ proof-auto-multiple-files     	t
+ proof-shell-cd-cmd            	"#cd \"%s\";;"
+ proof-shell-filename-escapes  	'(("\\\\" . "\\\\") ("\""   . "\\\""))
+ proof-shell-interrupt-regexp   "Interrupted"
  proof-shell-start-goals-regexp  
+(setq proof-shell-start-goals-regexp  
  (concat
-  "^\\(" (regexp-quote "val it : goalstack = ") "\\)"
+  "^\\(val it : x?goalstack = \\)"
+  "\\(?:.+\n\\)*"
   "\\(?:[0-9]*[0-9] subgoals? ([0-9]+ total)\\|No subgoals\\)")
- proof-shell-annotated-prompt-regexp "# "
+ )
+
+ proof-shell-annotated-prompt-regexp "^# "
  proof-shell-error-regexp 
- (proof-regexp-alt "Characters [0-9]+-[0-9]+:" "Exception: Failure")
+ (proof-regexp-alt "Characters [0-9]+-[0-9]+:" 
+		   "Exception: Failure"
+		   "Parse error: ")
  proof-shell-init-cmd
  (append hol-light-startup-cmds
 	 '("let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1))"
@@ -73,10 +79,10 @@
  ;; FIXME: next one needs setting so that "urgent" messages are displayed
  ;; eagerly from HOL.
  ;; proof-shell-eager-annotation-start
- proof-find-theorems-command	"DB.match [] (%s);"
+ proof-find-theorems-command	"DB.match [] (%s);;"
 
- proof-forget-id-command	";" ;; vacuous: but empty string doesn't give
-				    ;; new prompt
+ proof-forget-id-command	"();;" ;; candidate for making nil, change generic
+
  ;; We must force this to use ptys since mosml doesn't flush its output
  ;; (on Linux, presumably on Solaris too).
  proof-shell-process-connection-type t
@@ -213,6 +219,122 @@
 
  ;; End of easy config.
  )
+
+
+;;; Prooftree configuration  (experimental, ongoing)
+;;
+
+;; regexps for recognising additional markup in output
+
+(defvar hol-light-update-goal-regexp 
+  (concat "\\[Goal ID \\([0-9]+\\)\\]"
+	  "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
+
+(defvar hol-light-current-goal-regexp
+  ;; match final (focused) subgoal 
+  (concat (regexp-quote "[*]") 
+	  "\\[Goal ID \\([0-9]+\\)\\]"
+	  "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
+
+(defvar hol-light-newgoals-match "\\[New Goal IDs: \\([0-9 ]+\\)\\]")
+
+(defvar hol-light-statenumber-match "\\[State Counter \\([0-9]+\\)\\]")
+
+
+(setq 
+ ;; These ones belong in script mode config
+ proof-tree-configured t
+ proof-tree-get-proof-info 'hol-light-get-proof-info
+ proof-tree-find-begin-of-unfinished-proof 
+           'hol-light-find-begin-of-unfinished-proof
+ ;; These ones belong in shell mode
+ proof-tree-proof-finished-regexp "No subgoals"	  
+ proof-tree-show-sequent-command 
+ (lambda (id) (format "print_xgoal_of_id \\"%s\\";;" id))
+
+ proof-tree-update-goal-regexp hol-light-update-goal-regexp
+ proof-tree-cheating-regexp "CHEAT_TAC" ;; others...
+
+ ) ;; end setq proof tree stuff
+
+
+
+;;; get proof info: uses last goals output
+;;; FIXME problem here: this is called BEFORE last goals output 
+;;; is set.  Can we move order without harming Coq?
+
+(defun hol-light-get-proof-info ()
+  "Return proof info for Prooftree for HOL Light.
+See `proof-tree-get-proof-info'."
+  (let ((proof-state-number 0)
+	proof-name)
+    (when (and (> 0 proof-nesting-depth) ; inside a proof
+	       (string-match hol-light-statenumber-match 
+			     proof-shell-last-goals-output))
+      (setq proof-state-number 
+	    (string-to-int 
+	     (match-string 1 proof-shell-last-goals-output))))
+    (list 
+     proof-state-number
+     proof-name)))
+
+(defun hol-light-find-begin-of-unfinished-proof ()
+  ;; Quick hack, we should use some internal proof script stuff here
+  (save-excursion
+    (re-search-backward "^xg" nil t)))
+
+
+;;; FIXME: this is duplicated from coq.el.  It might be kind of generic.
+;;; However, for HOL Light the default behaviour is actually to print out
+;;; exactly the new subgoals arising from a previous tactic allocation,
+;;; or the currently focused goal (top of stack).
+
+(defun hol-light-proof-tree-get-new-subgoals ()
+  "Check for new subgoals and issue appropriate Show commands.
+This is a hook function for `proof-tree-urgent-action-hook'. This
+function examines the current goal output and searches for new
+unknown subgoals. Those subgoals have been generated by the last
+proof command and we must send their complete sequent text
+eventually to prooftree. Because subgoals may change with
+the next proof command, we must execute the additionally needed
+Show commands before the next real proof command.
+
+The ID's of the open goals are checked with
+`proof-tree-sequent-hash' in order to find out if they are new.
+For any new goal an appropriate Show Goal command with a
+'proof-tree-show-subgoal flag is inserted into
+`proof-action-list'. Then, in the normal delayed output
+processing, the sequent text is send to prooftree as a sequent
+update (see `proof-tree-update-sequent') and the ID of the
+sequent is registered as known in `proof-tree-sequent-hash'.
+
+The not yet delayed output is in the region
+\[proof-shell-delayed-output-start, proof-shell-delayed-output-end]."
+  ;; (message "CPTGNS start %s end %s"
+  ;;          proof-shell-delayed-output-start
+  ;;          proof-shell-delayed-output-end)
+  (with-current-buffer proof-shell-buffer
+    (let ((start proof-shell-delayed-output-start)
+          (end proof-shell-delayed-output-end))
+      (goto-char start)
+      (while (proof-re-search-forward
+              hol-light-update-goal-regexp end t)
+        (let ((subgoal-id (match-string-no-properties 1)))
+          (unless (gethash subgoal-id proof-tree-sequent-hash)
+            (setq proof-action-list
+                  (cons (proof-shell-action-list-item
+                         (hol-light-show-sequent-command subgoal-id)
+                         (proof-tree-make-show-goal-callback (car proof-info))
+                         '(no-goals-display
+                           no-response-display
+                           proof-tree-show-subgoal))
+                        proof-action-list))))))))
+  
+(add-hook 'proof-tree-urgent-action-hook 'hol-light-proof-tree-get-new-subgoals)
+
+
+
+
 
 
 (warn "Hol Light Proof General is incomplete!  Please help improve it!
