@@ -2882,7 +2882,7 @@ editing mode.
 
 The other variables are only used when the proof shell is
 running. They can therefore be configured with the
-proof-assistent proof-shell mode.
+proof assistant proof-shell mode.
 
 
 @node Prooftree Adaption

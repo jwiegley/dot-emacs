@@ -272,7 +272,7 @@ function should return nil and prooftree will not get updated."
   "Proof assistant specific function for the start of the current proof.
 This function is called with no argument when the user switches
 the external proof-tree display on. Then, this function must
-determin if there is a currently unfinished proof for which the
+determine if there is a currently unfinished proof for which the
 proof-tree display should be started. If yes this function must
 return the starting position of the command that started this
 proof. If there is no such proof, this function must return nil."

@@ -1032,7 +1032,7 @@ contains only invisible elements for Prooftree synchronization."
 
 	;; This is the point where old items have been removed from
 	;; proof-action-list and where the next item has not yet been
-	;; sent to the proof assistent. This is therefore one of the
+	;; sent to the proof assistant. This is therefore one of the
 	;; few points where it is safe to manipulate
 	;; proof-action-list. The urgent proof-tree display actions
 	;; must therefore be called here, because they might add some
