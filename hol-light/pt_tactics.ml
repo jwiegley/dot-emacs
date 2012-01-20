@@ -261,3 +261,18 @@ let jump_back_to_state n : xgoalstack =
 
 #install_printer print_xgoal;;
 #install_printer print_xgoalstack;;
+
+(* ------------------------------------------------------------------------- *)
+(* Replace the top-level prompt                                              *)
+(* ------------------------------------------------------------------------- *)
+
+(* TODO: something like this
+
+let prompt () =>
+   "[State Counter " ^ string_of_int (length (!current_xgoalstack)) ^ "]# ");
+
+Toploop.read_interactive_input := 
+  let old = !Toploop.read_interactive_input in fun prompt buffer len -> 
+     old (prompt()) buffer len ;;
+
+*)
