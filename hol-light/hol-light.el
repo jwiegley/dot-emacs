@@ -22,7 +22,7 @@
   (list (format "#cd \"%s\"" hol-light-home)
 	"#use \"hol.ml\""
 	(format "#cd \"%s\"" proof-home-directory)
-	"#use \"pt_tactics.ml\"")
+	"#use \"pg_tactics.ml\"")
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
