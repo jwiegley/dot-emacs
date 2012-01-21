@@ -16,29 +16,32 @@
    (if (cadr entry)
        (add-to-list 'load-path (expand-file-name (car entry) dir)))))
 
-(dolist (path (nreverse
-               (list "override/eshell/"
-                     "override/gnus/contrib/"
-                     "override/gnus/lisp/"
-                     "override/org-mode/contrib/lisp/"
-                     "override/org-mode/lisp/"
-                     "override/tramp/lisp/"
+(dolist
+    (path
+     (nreverse
+      (list "override/eshell/"
+            "override/gnus/contrib/"
+            "override/gnus/lisp/"
+            "override/org-mode/contrib/lisp/"
+            "override/org-mode/lisp/"
+            "override/tramp/lisp/"
 
-                     ;; Packages with Lisp code in subdirectories...
-                     "site-lisp/anything/extensions/"
-                     "site-lisp/auctex/preview/"
-                     "site-lisp/doxymacs/lisp/"
-                     "site-lisp/ess/lisp/"
-                     "site-lisp/session/lisp/"
-                     "site-lisp/slime/contrib/"
+            ;; Packages with Lisp code in subdirectories...
+            "site-lisp/anything/extensions/"
+            "site-lisp/auctex/preview/"
+            "site-lisp/doxymacs/lisp/"
+            "site-lisp/ess/lisp/"
+            "site-lisp/session/lisp/"
+            "site-lisp/slime/contrib/"
 
-                     ;; Packages located elsewhere on the system...
-                     "/opt/local/share/emacs/site-lisp/"
-                     "/opt/local/share/doc/git-core/contrib/emacs/"
-                     "/opt/local/share/texmf-texlive-dist/doc/latex/latex2e-help-texinfo"
+            ;; Packages located elsewhere on the system...
+            "/opt/local/share/emacs/site-lisp/"
+            "/opt/local/share/doc/git-core/contrib/emacs/"
+            "/Users/johnw/Archives/Languages/Ruby/Sources/ruby/misc"
+            "/opt/local/share/texmf-texlive-dist/doc/latex/latex2e-help-texinfo"
 
-                     "~/src/ledger/lisp/"
-                     )))
+            "~/src/ledger/lisp/"
+            )))
   (setq path (expand-file-name path user-emacs-directory)
         load-path (delete path load-path)
         load-path (delete (file-name-as-directory path) load-path))

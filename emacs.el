@@ -471,6 +471,24 @@
 
 (add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
 
+;;;_ , ruby
+
+(require 'inf-ruby)
+(require 'ruby-electric)
+(require 'yari)
+
+(defun my-ruby-mode-hook ()
+  (ruby-electric-mode)
+
+  (define-key ruby-mode-map [return] 'newline-and-indent)
+  (define-key ruby-mode-map [(control ?h) (control ?i)] 'yari-anything)
+
+  (set (make-local-variable 'yas/fallback-behavior)
+       '(apply ruby-indent-command . nil))
+  (define-key ruby-mode-map [tab] 'yas/expand-from-trigger-key))
+
+(add-hook 'ruby-mode-hook 'my-ruby-mode-hook)
+
 ;;;_ , session
 
 (defun save-information ()
@@ -2139,6 +2157,8 @@ Else, return \" \"."
 (define-key global-map [(meta ?v)] 'yank)
 
 (define-key global-map [(alt meta ?f)] 'gnus-query)
+
+(define-key global-map [(control ?h) (control ?i)] 'info-lookup-symbol)
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
