@@ -12,6 +12,7 @@
 ;;
 
 (require 'proof-site)			; proof-assistant, proof-assistant-symbol
+(require 'proof-auxmodes)		; make sure extra modes available
 
 (defconst proof-easy-config-derived-modes-table
   '((""         "script"     proof-mode (proof-config-done))
