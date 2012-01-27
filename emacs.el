@@ -477,10 +477,17 @@
 (require 'ruby-electric)
 (require 'yari)
 
+(defun my-ruby-smart-return ()
+  (interactive)
+  (when (memq (char-after) '(?\| ?\" ?\'))
+    (forward-char))
+  (call-interactively 'newline-and-indent))
+
 (defun my-ruby-mode-hook ()
   (ruby-electric-mode)
+  (inf-ruby-keys)
 
-  (define-key ruby-mode-map [return] 'newline-and-indent)
+  (define-key ruby-mode-map [return] 'my-ruby-smart-return)
   (define-key ruby-mode-map [(control ?h) (control ?i)] 'yari-anything)
 
   (set (make-local-variable 'yas/fallback-behavior)
