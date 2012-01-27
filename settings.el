@@ -385,6 +385,7 @@ SCHEDULED: %t
  '(ps-header-title-font-size (quote (14 . 16)))
  '(ps-line-number-font-size 10)
  '(ps-print-color-p nil)
+ '(rdebug-many-windows nil)
  '(read-buffer-function (quote ido-read-buffer))
  '(recentf-auto-cleanup (quote never))
  '(recentf-exclude (quote ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:")))
