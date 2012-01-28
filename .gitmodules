@@ -133,3 +133,6 @@
 [submodule "site-lisp/yari-with-buttons"]
 	path = site-lisp/yari-with-buttons
 	url = git://github.com/pedz/yari-with-buttons.git
+[submodule "site-lisp/wrap-region"]
+	path = site-lisp/wrap-region
+	url = git://github.com/rejeep/wrap-region.git
