@@ -1065,16 +1065,13 @@ $0"))))
          "\\([A-Za-z0-9_]+\\)() (in module \\([A-Za-z0-9_.]+\\))" item)
         (format "%s.%s" (match-string 2 item) (match-string 1 item))))))))
 
-(eval-when-compile
-  (defvar py-mode-map))
-
 (defun my-python-mode-hook ()
   (setq indicate-empty-lines t)
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indent-tabs-mode nil)
 
-  (define-key py-mode-map [(control return)] 'other-window)
-  (define-key py-mode-map [(control ?c) (control ?z)] 'python-shell))
+  (define-key python-mode-map [(control return)] 'other-window)
+  (define-key python-mode-map [(control ?c) (control ?z)] 'python-shell))
 
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
