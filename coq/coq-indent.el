@@ -92,7 +92,7 @@ detect if they start something or not."
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-end-command-regexp
-  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)\\|\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)"
+  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)\\|\\(?2:\\s-\\)\\(?:\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)\\)"
 ;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
   "Regexp matching end of a command. There are 3 substrings:
 * number 1 is the real coq ending string,
@@ -271,7 +271,7 @@ command end regexp."
                          (re-search-forward proof-script-command-end-regexp limit t)
                          (match-end 1)))
                   (setq next-pos (+ 1 (match-beginning 0)))
-                  (or 
+                  (or
                       (if (or (string-equal (match-string 1) "}")
                               (string-equal (match-string 1) "{")
                               (string-equal (match-string 1) "-")
@@ -281,7 +281,7 @@ command end regexp."
                             (goto-char (match-beginning 1))
                             (not (coq-empty-command-p)))
                         nil)
-                      (and 
+                      (and
                        (goto-char foundend)
                        (proof-buffer-syntactic-context))))
         ;; go back as far as possible before the start of the current
@@ -291,12 +291,12 @@ command end regexp."
 ;        (ignore-errors (forward-char -1))
         )
       (if (and foundend
-	       (goto-char foundend)	; move to command end
-	       (not (proof-buffer-syntactic-context)))
-	  ;; Found command end outside string/comment
-	  'cmd
-	;; Didn't find command end
-	nil))))
+               (goto-char foundend) ; move to command end
+               (not (proof-buffer-syntactic-context)))
+          ;; Found command end outside string/comment
+          'cmd
+        ;; Didn't find command end
+        nil))))
 
 
 ; slight modification of proof-script-generic-parse-cmdend (one of the
@@ -336,12 +336,12 @@ and return nil."
                        (proof-buffer-syntactic-context))))
         (ignore-errors (goto-char next-pos)))
       (if (and foundbeg
-	       (goto-char foundbeg)	; move to command end
-	       (not (proof-buffer-syntactic-context)))
-	  ;; Found command end outside string/comment
-	  'cmd
-	;; Didn't find command end
-	nil))))
+               (goto-char foundbeg) ; move to command end
+               (not (proof-buffer-syntactic-context)))
+          ;; Found command end outside string/comment
+          'cmd
+        ;; Didn't find command end
+        nil))))
 
 
 (defun coq-find-current-start ()
