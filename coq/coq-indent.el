@@ -86,19 +86,48 @@ detect if they start something or not."
          (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
          (not
           (and (proof-string-match "\\`\\(Function\\|GenFixpoint\\)\\>" str)
-               (not (proof-string-match "{\\s-*\\(wf\\|measure\\)" str))))
-         )))
+               (not (proof-string-match "{\\s-*\\(wf\\|measure\\)" str)))))))
+
+
+;; matches regular command end (. and ... followed by a space or buffer end)
+(defconst coq-period-end-command
+  "\\(?2:[^.]\\|\\=\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)")
+
+;; matches curly bracket but not {| and |} WARNING this matches more
+;; than the script parenthesizing '{' and '}' as curly bracket may
+;; match this when used in regular expressions
+(defconst coq-curlybracket-end-command
+  "\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\|\\=\\)\\(?1:}\\)")
+
+;; matches bullets. WARNING this matches more than real bullets as - +
+;; and * may match this when used in regular expressions
+(defconst coq-bullet-end-command
+  "\\(?2:\\s-\\|\\=\\)\\(?:\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)\\)")
 
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
-;; bullets must be preceded by a space
+
+;; HACK: bullets must be preceded by a space but since we usually
+;; search for this expression from the first non white char of the
+;; command, the space will not be seen by re-search-forward, so we
+;; allow + - and * to be detected
+;;
+
+
 (defconst coq-end-command-regexp
-  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\|\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\)\\(?1:}\\)\\|\\(?2:\\s-\\|\\=\\)\\(?:\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)\\)"
+  (concat coq-period-end-command "\\|"
+          coq-curlybracket-end-command  "\\|"
+          coq-bullet-end-command)
 ;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
   "Regexp matching end of a command. There are 3 substrings:
 * number 1 is the real coq ending string,
 * number 2 is the left context matched that is not part of the ending string
-* number 3 is the right context matched that is not part of the ending string")
+* number 3 is the right context matched that is not part of the ending string
+
+WARNING: this regexp accepts curly brackets (if not preceded by
+'|') and bullets (+ - *) (if preceded by a space or at cursor).
+This is of course not correct and some more check is needed to
+distinguish between the different uses of this characters. ")
 
 
 (defun coq-search-comment-delimiter-forward ()
