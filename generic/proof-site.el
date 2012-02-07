@@ -32,18 +32,28 @@
 ;; auto-mode-alist, if it is not present, a regexp will be made up from
 ;; FILE-EXTENSION. IGNORED-EXTENSIONS-LIST, if present, is appended to 
 ;; completion-ignored-extensions. See proof-assistant-table for more info.
+;;
 (defconst proof-assistant-table-default
-    '((isar "Isabelle" "thy")
+    '(
+      ;; Main instances of PG.
+
+      (isar "Isabelle" "thy")
       (coq "Coq" "v" nil (".vo" ".glob"))
       (phox "PhoX" "phx")
 
-      ;; Obscure/conflict with other useful modes:
+      ;; Obscure instances or conflict with other Emacs modes.
 
-      (lego "LEGO" "l")
-      (hol-light "HOL Light" "ml") ; [for testing]
+      ;; (lego "LEGO" "l")
       ;; (ccc    "CASL Consistency Checker" "ccc")
-      ;; (pgshell	"PG-Shell" "pgsh")
 
+      (hol-light "HOL Light" "ml") ; [for testing]
+
+      ;; Cut-and-paste management only
+
+      (pgshell	 "PG-Shell" "pgsh")
+      (pgocaml	 "PG-OCaml" "pgml")
+      (pghaskell "PG-Haskell" "pghci")
+      
       ;; Incomplete/obsolete:
 
       ;; (hol98	"HOL" "sml")
