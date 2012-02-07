@@ -39,3 +39,18 @@ let original_prompt_fn = !Toploop.read_interactive_input in
       original_prompt_fn prompt' buffer len);;
 
 
+(* ------------------------------------------------------------------------- *)
+(* Adjust error printing to markup error message			     *)
+(* ------------------------------------------------------------------------- *)
+
+(* FIXME: rebinding failwith has an odd effect on top level, triggering
+   new errors which were perhaps previously caught?*)
+
+(*
+let plain_failwith = failwith
+
+let failwith s = if (!pg_mode)
+		  then plain_failwith ("<error>" ^ s ^ "</error>")
+		 else plain_failwith s;;
+*)
+
