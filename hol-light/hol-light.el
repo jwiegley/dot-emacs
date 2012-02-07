@@ -13,6 +13,10 @@
 (require 'proof-easy-config)            ; easy configure mechanism
 (require 'proof-syntax)			; functions for making regexps
 
+(proof-try-require 'caml-font)		   ; use OCaml Emacs mode syntax 
+(or (boundp 'caml-font-lock-keywords)      ; if available
+    (defvar caml-font-lock-keywords nil))  ;
+
 (eval-when (compile)
  (require 'proof-tree))
 
@@ -39,7 +43,7 @@ You need to restart Emacs if you change this setting."
 
 
 (defconst hol-light-pre-sync-cmd
-  (format "#use \"%spg_prompt.ml\";; " proof-home-directory)
+  (format "#use \"%s/hol-light/pg_prompt.ml\";; " proof-home-directory)
   "Command used to configure prompt annotations for Proof General.")
 
 (defcustom hol-light-init-cmd 
@@ -79,19 +83,23 @@ You need to restart Emacs if you change this setting."
   "Value for `proof-shell-annotated-prompt-regexp' with standard top level.")
 
 (defconst hol-light-annotated-prompt-regexp
-  "<prompt>.+</prompt>"
+  "<prompt>.*</prompt>"
   "Value for `proof-shell-annotated-prompt-regexp' with custom top level.")
 
 (defconst hol-light-plain-error-regexp
   (proof-regexp-alt "Characters [0-9]+-[0-9]+:" 
-		    "Exception: Failure"
-		    "Parse error: "
-		    ;; TODO: more here, file not found, etc.
+		    "^Exception: Failure"
+		    "^Parse error: "
+		    "^Cannot find file"
+		    "^Error: Unbound value"
+		    "^Error: Syntax error"
+		    ;; TODO: more here
 		    )
   "Value for `proof-shell-error-regexp' with standard top level.")
 
 (defconst hol-light-annotated-error-regexp 
-  "<error>.+</error>" ;; FIXME: include new lines
+  ;; "<error>.+</error>" ;; FIXME: include new lines, also fix pg_prompt.ml
+  hol-light-plain-error-regexp
   "Value for `proof-shell-error-regexp' with custom top level.")
 
 (defconst hol-light-plain-proof-completed-regexp
@@ -103,19 +111,19 @@ You need to restart Emacs if you change this setting."
    "Value for `proof-shell-proof-completed-regexp' with standard top level.")
 
 (defconst hol-light-plain-message-start 
-  nil ;; TODO
+  "^Warning "
   "Value for `proof-shell-eager-annotation-start' with standard top level.")
 
 (defconst hol-light-annotated-message-start
-  nil ;; TODO
+  "^Warning " ;; TODO
   "Value for `proof-shell-eager-annotation-start' with custom top level.")
 
 (defconst hol-light-plain-message-end
-  nil ;; TODO
+  "\n" ;; TODO
   "Value for `proof-shell-eager-annotation-start' with standard top level.")
 
 (defconst hol-light-annotated-message-end
-  nil ;; TODO
+  "\n" ;; TODO
   "Value for `proof-shell-eager-annotation-start' with custom top level.")
   
 
@@ -150,7 +158,7 @@ You need to restart Emacs if you change this setting."
  proof-save-command            	"val %s = top_thm();;"
  proof-kill-goal-command       	"current_goalstack:=[];;" ; for cleanliness
  proof-showproof-command       	"p()"
- proof-undo-n-times-cmd        	"(funpow %s b %s; p());;"
+ proof-undo-n-times-cmd        	"(funpow %s b; p());;"
  proof-auto-multiple-files     	t
  proof-shell-cd-cmd            	"#cd \"%s\";;"
  proof-shell-filename-escapes  	'(("\\\\" . "\\\\") ("\""   . "\\\""))
@@ -227,7 +235,7 @@ You need to restart Emacs if you change this setting."
  ;; lists like this from the proof assistant, we don't really
  ;; want to duplicate all this information here!
  ;;
- hol-light-keywords  '("g" "expand" "e" "let" "store_thm" "top_thm" "by"
+ hol-light-keywords  '("g" "expand" "e" "store_thm" "top_thm" "by"
 		       "Define" "xDefine" "Hol_defn"
 		       "Induct" "Cases" "Cases_on" "Induct_on"
 		       "std_ss" "arith_ss" "list_ss"
@@ -283,11 +291,13 @@ You need to restart Emacs if you change this setting."
    "CHOOSE_THEN" "STRIP_THM_THEN" "SUBGOAL_THEN" "FREEZE_THEN")
 
  proof-script-font-lock-keywords
- (list
-  (cons (proof-ids-to-regexp hol-light-keywords) 'font-lock-keyword-face)
-  (cons (proof-ids-to-regexp hol-light-tactics) 'proof-tactics-name-face)
-  (cons (proof-ids-to-regexp hol-light-rules) 'font-lock-keyword-face)
-  (cons (proof-ids-to-regexp hol-light-tacticals) 'proof-tacticals-name-face))
+ (append
+  caml-font-lock-keywords
+  (list
+   (cons (proof-ids-to-regexp hol-light-keywords) 'font-lock-keyword-face)
+   (cons (proof-ids-to-regexp hol-light-tactics) 'proof-tactics-name-face)
+   (cons (proof-ids-to-regexp hol-light-rules) 'font-lock-keyword-face)
+   (cons (proof-ids-to-regexp hol-light-tacticals) 'proof-tacticals-name-face)))
 
  ;;
  ;; Some decoration of the goals output [FIXME: not yet HOL Light]
