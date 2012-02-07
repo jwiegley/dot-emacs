@@ -13,12 +13,12 @@
 (require 'proof-easy-config)            ; easy configure mechanism
 (require 'proof-syntax)			; functions for making regexps
 
-(proof-try-require 'caml-font)		   ; use OCaml Emacs mode syntax 
-(or (boundp 'caml-font-lock-keywords)      ; if available
-    (defvar caml-font-lock-keywords nil))  ;
+(or (proof-try-require 'caml-font)	  ; use OCaml Emacs mode syntax 
+    (defvar caml-font-lock-keywords nil)) ;
 
 (eval-when (compile)
- (require 'proof-tree))
+ (require 'proof-tree)
+ (defvar caml-font-lock-keywords nil))
 
 (defcustom hol-light-home 
   (or (getenv "HOLLIGHT_HOME")
@@ -353,16 +353,21 @@ You need to restart Emacs if you change this setting."
   (concat "\\[Goal ID \\([0-9]+\\)\\]"
 	  "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
 
-(defvar hol-light-current-goal-regexp
-  ;; match final (focused) subgoal 
+(defconst hol-light-additional-subgoal-regexp 
+  ;; Group 1 is goal id, 2 is goal text.
+  (concat 
+   "\\[Goal ID \\([0-9]+\\)\\]"
+   "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
+
+(defconst hol-light-current-goal-regexp
+  ;; match final (focused) subgoal.  
   (concat (regexp-quote "[*]") 
-	  "\\[Goal ID \\([0-9]+\\)\\]"
-	  "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
+	  hol-light-additional-subgoal-regexp))
 
 (defvar hol-light-newgoals-match "\\[New Goal IDs: \\([0-9 ]+\\)\\]")
 
-(defvar hol-light-statenumber-match "\\[State Counter \\([0-9]+\\)\\]")
-
+(defconst hol-light-statenumber-regexp 
+  "<prompt>\\([0-9]+\\)|\\([0-9]+\\)</prompt>")
 
 (setq 
  ;; These ones belong in script mode config
@@ -375,6 +380,8 @@ You need to restart Emacs if you change this setting."
  proof-tree-show-sequent-command 
  (lambda (id) (format "print_xgoal_of_id \"%s\";;" id))
 
+ proof-tree-current-goal-regexp hol-light-current-goal-regexp
+ proof-tree-additional-subgoal-ID-regexp hol-light-additional-subgoal-regexp
  proof-tree-update-goal-regexp hol-light-update-goal-regexp
  proof-tree-cheating-regexp "CHEAT_TAC" ;; others...
 
@@ -387,25 +394,26 @@ You need to restart Emacs if you change this setting."
 ;;; is set.  Can we move order without harming Coq?
 
 ;; TEMP to fix compile.  Will use Coq-stype annotated prompt for proof tree now.
-(defvar proof-shell-last-goals-output nil)
 (defvar proof-shell-delayed-output-start nil)
 (defvar proof-shell-delayed-output-end nil)
 (defvar proof-info nil)
 (defvar proof-action-list nil)
 (defun proof-shell-action-list-item (&rest args))
-(defun hol-light-show-sequent-command (&rest args))
+
+(defconst hol-light-show-sequent-command "print_xgoal_of_id %s;;")
 
 (defun hol-light-get-proof-info ()
   "Return proof info for Prooftree for HOL Light.
 See `proof-tree-get-proof-info'."
   (let ((proof-state-number 0)
-	proof-name)
-    (when (and (> 0 proof-nesting-depth) ; inside a proof
-	       (string-match hol-light-statenumber-match 
-			     proof-shell-last-goals-output))
+	(proof-name         "Goal")) ; no named goals
+
+    (when (and t ; (> proof-nesting-depth 0) ; inside a proof
+	       (string-match hol-light-statenumber-regexp 
+		proof-shell-last-prompt))
       (setq proof-state-number 
 	    (string-to-number 
-	     (match-string 1 proof-shell-last-goals-output))))
+	     (match-string 1 proof-shell-last-prompt))))
     (list 
      proof-state-number
      proof-name)))
@@ -413,7 +421,7 @@ See `proof-tree-get-proof-info'."
 (defun hol-light-find-begin-of-unfinished-proof ()
   ;; Quick hack, we should use some internal proof script stuff here
   (save-excursion
-    (re-search-backward "^xg" nil t)))
+    (re-search-backward "^g" nil t)))
 
 
 ;;; FIXME: this is duplicated from coq.el.  It might be kind of generic.
@@ -455,7 +463,7 @@ The not yet delayed output is in the region
           (unless (gethash subgoal-id proof-tree-sequent-hash)
             (setq proof-action-list
                   (cons (proof-shell-action-list-item
-                         (hol-light-show-sequent-command subgoal-id)
+                         (format hol-light-show-sequent-command subgoal-id)
                          (proof-tree-make-show-goal-callback (car proof-info))
                          '(no-goals-display
                            no-response-display
