@@ -180,7 +180,6 @@ You need to restart Emacs if you change this setting.")
  
  ;; FIXME: add optional help topic parameter to help command.
  proof-info-command		    "help \"hol\""
- proof-shell-proof-completed-regexp
 
  ;; FIXME: next one needs setting so that "urgent" messages are displayed
  ;; eagerly from HOL.
