@@ -41,14 +41,17 @@ You need to restart Emacs if you change this setting."
   :type 'boolean
   :group 'hol-light)
 
-
 (defconst hol-light-pre-sync-cmd
   (format "#use \"%s/hol-light/pg_prompt.ml\";; " proof-home-directory)
   "Command used to configure prompt annotations for Proof General.")
 
 (defcustom hol-light-init-cmd 
-  (list (format "#cd \"%s\"" hol-light-home)
-	"#use \"hol.ml\"")
+  (append
+   (list (format "#cd \"%s\"" hol-light-home)
+	 "#use \"hol.ml\"")
+   (if hol-light-use-custom-toplevel
+       (list (format "#use \"%shol-light/pg_tactics.ml\""
+		     proof-home-directory))))
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
@@ -158,7 +161,7 @@ You need to restart Emacs if you change this setting."
  proof-save-command            	"val %s = top_thm();;"
  proof-kill-goal-command       	"current_goalstack:=[];;" ; for cleanliness
  proof-showproof-command       	"p()"
- proof-undo-n-times-cmd        	"(funpow %s b; p());;"
+ proof-undo-n-times-cmd        	"(funpow %s (fun ()->let _ = b() in ()); p());;"
  proof-auto-multiple-files     	t
  proof-shell-cd-cmd            	"#cd \"%s\";;"
  proof-shell-filename-escapes  	'(("\\\\" . "\\\\") ("\""   . "\\\""))
