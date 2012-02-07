@@ -13,36 +13,130 @@
 (require 'proof-easy-config)            ; easy configure mechanism
 (require 'proof-syntax)			; functions for making regexps
 
-(defcustom hol-light-home "/home/da/hol_light"
+(defcustom hol-light-home 
+  (or (getenv "HOLLIGHT_HOME")
+      (concat (getenv "HOME") "/hol_light"))
   "*Directory holding the local installation of HOL Light."
   :type 'string
   :group 'hol-light)
 
+(defcustom hol-light-use-custom-toplevel t
+  "*If non-nil, we use a custom toplevel for Proof General.
+This configures extra annotations inside HOL Light to help
+recognise portions of output from the proof assistant.
+
+If this is incompatible with your usage of HOL Light for
+some reason, you can change this setting to run in a
+degraded (less robust) way which interfaces with the
+standard top level.
+
+You need to restart Emacs if you change this setting.")
+
+(defconst hol-light-pre-sync-cmd
+  (format "#use \"%spg_prompt.ml\";; " proof-home-directory)
+  "Command used to configure prompt annotations for Proof General.")
+
 (defcustom hol-light-startup-cmds 
   (list (format "#cd \"%s\"" hol-light-home)
-	"#use \"hol.ml\""
-	(format "#cd \"%s\"" proof-home-directory)
-	"#use \"pg_tactics.ml\"")
+	"#use \"hol.ml\"")
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
 
+
+;;
+;; Regular expressions for matching output with  
+;; standard or custom top levels
+;;
+
+(defconst hol-light-plain-start-goals-regexp
+  (concat
+  "^\\(val it : x?goalstack = \\)"
+  "\\(?:.+\n\\)*"
+  "\\(?:[0-9]*[0-9] subgoals? ([0-9]+ total)\\|No subgoals\\)")
+  "Value for `proof-shell-start-goals-regexp' with standard top level.")
+
+(defconst hol-light-annotated-start-goals-regexp 
+  hol-light-plain-start-goals-regexp
+  "Value for `proof-shell-start-goals-regexp' with custom top level.")
+
+(defconst hol-light-plain-interrupt-regexp
+  "Interrupted"
+  "Value for `proof-shell-interrupt-regexp' with standard top level.")
+
+(defconst hol-light-annotated-interrupt-regexp
+  hol-light-plain-interrupt-regexp ;; TODO
+  "Value for `proof-shell-interrupt-regexp' with custom top level.")  
+
+(defconst hol-light-plain-prompt-regexp
+  "^# "
+  "Value for `proof-shell-annotated-prompt-regexp' with standard top level.")
+
+(defconst hol-light-annotated-prompt-regexp
+  "<prompt>.+</prompt>"
+  "Value for `proof-shell-annotated-prompt-regexp' with custom top level.")
+
+(defconst hol-light-plain-error-regexp
+  (proof-regexp-alt "Characters [0-9]+-[0-9]+:" 
+		    "Exception: Failure"
+		    "Parse error: "
+		    ;; TODO: more here, file not found, etc.
+		    )
+  "Value for `proof-shell-error-regexp' with standard top level.")
+
+(defconst hol-light-annotated-error-regexp 
+  "<error>.+</error>" ;; FIXME: include new lines
+  "Value for `proof-shell-error-regexp' with custom top level.")
+
+(defconst hol-light-plain-proof-completed-regexp
+   "Initial goal proved"
+   "Value for `proof-shell-proof-completed-regexp' with standard top level.")
+
+(defconst hol-light-annotated-proof-completed-regexp
+  hol-light-plain-proof-completed-regexp ;; TODO
+   "Value for `proof-shell-proof-completed-regexp' with standard top level.")
+
+(defconst hol-light-plain-message-start 
+  nil ;; TODO
+  "Value for `proof-shell-eager-annotation-start' with standard top level.")
+
+(defconst hol-light-annotated-message-start
+  nil ;; TODO
+  "Value for `proof-shell-eager-annotation-start' with custom top level.")
+
+(defconst hol-light-plain-message-end
+  nil ;; TODO
+  "Value for `proof-shell-eager-annotation-start' with standard top level.")
+
+(defconst hol-light-annotated-message-end
+  nil ;; TODO
+  "Value for `proof-shell-eager-annotation-start' with custom top level.")
+  
+
+;;;
+;;; State 
+;;;
 
 (defvar hol-light-keywords nil)
 (defvar hol-light-rules nil)
 (defvar hol-light-tactics nil)
 (defvar hol-light-tacticals nil)
 
+
+;;;
+;;; Main configuration
+;;;
+
 (proof-easy-config  'hol-light "HOL Light"
  proof-assistant-home-page       "https://www.cl.cam.ac.uk/~jrh13/hol-light/"
  proof-prog-name		 "ocaml"
  proof-terminal-string           ";;"
- proof-script-comment-start      "(*"
- proof-script-comment-end        "*)"
+ proof-shell-pre-sync-init-cmd   hol-light-pre-sync-cmd
+ proof-shell-startup-cmds        hol-light-startup-cmds
 
- ;; These are all approximations, of course.
+ ;; Regexps for matching tactic script inputs: all approximations, of course.
  proof-goal-command-regexp     	"^g[ `]"
- proof-save-command-regexp     	"pg_top_thm_and_drop"
+ proof-save-command-regexp     	"top_thm()"
  proof-goal-with-hole-regexp   	"let \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*prove"
  proof-save-with-hole-regexp   	"let \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*top_thm()"
  proof-non-undoables-regexp    	"b()" ; and others..
@@ -50,32 +144,44 @@
  proof-save-command            	"val %s = top_thm();;"
  proof-kill-goal-command       	"current_goalstack:=[];;" ; for cleanliness
  proof-showproof-command       	"p()"
- proof-undo-n-times-cmd        	"(pg_repeat b %s; p());;"
+ proof-undo-n-times-cmd        	"(funpow %s b %s; p());;"
  proof-auto-multiple-files     	t
  proof-shell-cd-cmd            	"#cd \"%s\";;"
  proof-shell-filename-escapes  	'(("\\\\" . "\\\\") ("\""   . "\\\""))
- proof-shell-interrupt-regexp   "Interrupted"
- proof-shell-start-goals-regexp  
-(setq proof-shell-start-goals-regexp  
- (concat
-  "^\\(val it : x?goalstack = \\)"
-  "\\(?:.+\n\\)*"
-  "\\(?:[0-9]*[0-9] subgoals? ([0-9]+ total)\\|No subgoals\\)")
- )
 
- proof-shell-annotated-prompt-regexp "^# "
- proof-shell-error-regexp 
- (proof-regexp-alt "Characters [0-9]+-[0-9]+:" 
-		   "Exception: Failure"
-		   "Parse error: ")
- proof-shell-init-cmd
- (append hol-light-startup-cmds
-	 '("let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1))"
-	   "let pg_top_thm_and_drop () = let t = top_thm() in ((let _ = b() in ()); t)"))
+ proof-shell-annotated-prompt-regexp (if hol-light-use-custom-toplevel
+					 hol-light-annotated-prompt-regexp
+				       hol-light-plain-prompt-regexp)
 
+ proof-shell-interrupt-regexp        (if hol-light-use-custom-toplevel
+					 hol-light-annotated-interrupt-regexp
+				       hol-light-plain-interrupt-regexp)
+
+ proof-shell-start-goals-regexp      (if hol-light-use-custom-toplevel
+					 hol-light-annotated-start-goals-regexp
+				       hol-light-plain-start-goals-regexp)
+
+ proof-shell-error-regexp	     (if hol-light-use-custom-toplevel
+					 hol-light-annotated-error-regexp
+				       hol-light-plain-error-regexp)
+
+ proof-shell-proof-completed-regexp  (if hol-light-use-custom-toplevel
+					 hol-light-annotated-proof-completed-regexp
+				       hol-light-plain-proof-completed-regexp)
+
+ proof-shell-eager-annotation-start  (if hol-light-use-custom-toplevel
+					 hol-light-annotated-message-start
+				       hol-light-plain-message-start)
+
+ proof-shell-eager-annotation-end    (if hol-light-use-custom-toplevel
+					 hol-light-annotated-message-end
+				       hol-light-plain-message-end)
+
+ 
  ;; FIXME: add optional help topic parameter to help command.
  proof-info-command		    "help \"hol\""
- proof-shell-proof-completed-regexp "Initial goal proved"
+ proof-shell-proof-completed-regexp
+
  ;; FIXME: next one needs setting so that "urgent" messages are displayed
  ;; eagerly from HOL.
  ;; proof-shell-eager-annotation-start
@@ -83,13 +189,11 @@
 
  proof-forget-id-command	"();;" ;; candidate for making nil, change generic
 
- ;; We must force this to use ptys since mosml doesn't flush its output
- ;; (on Linux, presumably on Solaris too).
- proof-shell-process-connection-type t
-
  ;;
- ;; Syntax table entries for proof scripts
+ ;; Syntax and syntax table entries for proof scripts
  ;;
+ proof-script-comment-start      "(*"
+ proof-script-comment-end        "*)"
  proof-script-syntax-table-entries
  '(?\` "\""
    ?\$ "."
@@ -221,8 +325,9 @@
  )
 
 
+;;;
 ;;; Prooftree configuration  (experimental, ongoing)
-;;
+;;;
 
 ;; regexps for recognising additional markup in output
 
@@ -332,12 +437,5 @@ The not yet delayed output is in the region
   
 (add-hook 'proof-tree-urgent-action-hook 'hol-light-proof-tree-get-new-subgoals)
 
-
-
-
-
-
-(warn "Hol Light Proof General is incomplete!  Please help improve it!
-Read the manual, make improvements, upload at http://proofgeneral.inf.ed.ac.uk/trac")
 
 (provide 'hol-light)

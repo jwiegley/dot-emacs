@@ -1,23 +1,30 @@
-(* 
-   Modified HOL Light goalstack to support Hendrik Tew's Prooftree
-   application via Proof General.
+(* ========================================================================= *)
+(* HOL Light subgoal package amended for Proof General and Prooftree.        *)
+(*                                                                           *)
+(* Mark Adams, David Aspinall.						     *)
+(* LFCS, School of Informatics, University of Edinburgh			     *)
+(*                                                                           *)
+(* (c) Copyright University of Edinburgh and authors, 2012.                  *)
+(*									     *)
+(* This file contains some functions that are modified from the		     *)
+(* original HOL Light code, and is therefore subject to the HOL Light	     *)
+(* copyright, see the file LICENSE-HOL-LIGHT in this directory.		     *)
+(*									     *)
+(* ========================================================================= *)
+(*									     *)
+(* This file overwrites HOL Light's subgoal package commands with variants   *)
+(* that output additional annotations specifically for Prooftree.  These get *)
+(* intercepted by Proof General, which removes them from the output          *)
+(* displayed to the Proof General user.					     *)
 
-   Mark Adams, David Aspinall
-   January 2012.
-
-   This file contains some functions that are modified from the
-   original HOL Light code, and is therefore subject to the HOL Light
-   copyright, see the file LICENSE-HOL-LIGHT in this directory.
-
-   TODO:
-    1) rebind top-level identifiers for g, e, r, b and add a flag
-       to turn on/off extended behaviour
+(* TODO: 
+   1. add urgent message annotations for errors and strings output during
+      long-running tactics
+   2. fix on/off: don't turn off prompt annotation, support Prooftree on/off.
 *)
 
-
-
 (* ------------------------------------------------------------------------- *)
-(* Goal counter for providing goad ids.                                      *)
+(* Goal counter for providing goal ids.                                      *)
 (* ------------------------------------------------------------------------- *)
 
 type goal_id = int;;
@@ -27,8 +34,7 @@ let string_of_goal_id id = string_of_int id;;
 let the_goal_counter = ref (0 : goal_id);;
 
 let inc_goal_counter () =
-  (the_goal_counter := !the_goal_counter + 1;
-   !the_goal_counter);;
+  (the_goal_counter := !the_goal_counter + 1);;
 
 let reset_goal_counter () =
   (the_goal_counter := 0;
@@ -49,10 +55,10 @@ let dest_xgoal (gx : xgoal) = gx;;
 type xgoalstate = (term list * instantiation) * xgoal list * justification;;
 
 (* ------------------------------------------------------------------------- *)
-(* A goalstack but for xgoals.                                               *)
+(* A goalstack but for xgoals.  Overwrites original HL datatype.             *)
 (* ------------------------------------------------------------------------- *)
 
-type xgoalstack = xgoalstate list;;
+type goalstack = xgoalstate list;;
 
 (* ------------------------------------------------------------------------- *)
 (* A refinement but for xgoals.                                              *)
@@ -61,7 +67,7 @@ type xgoalstack = xgoalstate list;;
 type xrefinement = xgoalstate -> xgoalstate;;
 
 (* ------------------------------------------------------------------------- *)
-(* Apply instantiation to a goal.                                            *)
+(* Instantiation of xgoals.                                                  *)
 (* ------------------------------------------------------------------------- *)
 
 let (inst_xgoal:instantiation->xgoal->xgoal) =
@@ -69,19 +75,26 @@ let (inst_xgoal:instantiation->xgoal->xgoal) =
     (map (I F_F INSTANTIATE_ALL p) thms,instantiate p w),id;;
 
 (* ------------------------------------------------------------------------- *)
-(* A printer for xgoals etc.                                                 *)
+(* A printer for xgoals and xgoalstacks.                                     *)
 (* ------------------------------------------------------------------------- *)
 
 let the_new_goal_ids = ref ([] : goal_id list);;
 
 let the_tactic_flag = ref false;;
 
+let print_string_seplist sep xs =
+  if (xs = [])
+    then ()
+    else (print_string (hd xs);
+          do_list (fun x -> print_string sep; print_string x) (tl xs));;
+
 let print_xgoal ((g,id) : xgoal) : unit =
-  (print_string ("[Goal ID " ^ string_of_goal_id id ^ "]");
-   print_newline ();
+  ((if (!pg_mode)
+      then (print_string ("[Goal ID " ^ string_of_goal_id id ^ "]");
+            print_newline ()));
    print_goal g);;
 
-let (print_xgoalstack:xgoalstack->unit) =
+let (print_xgoalstack:goalstack->unit) =
   let print_xgoalstate k gs =
     let (_,gl,_) = gs in
     let n = length gl in
@@ -91,35 +104,48 @@ let (print_xgoalstack:xgoalstack->unit) =
     print_string s; print_newline();
     if gl = [] then () else
     (do_list (print_xgoal o C el gl) (rev(1--(k-1)));
-     print_string "[*]";
+     (if (!pg_mode) then print_string "[*]");
      print_xgoal (el 0 gl)) in
   fun l ->
-   (print_string ("[State Counter " ^ string_of_int (length l) ^ "]");
-    (if (!the_tactic_flag)
+   ((if (!pg_mode) & (!the_tactic_flag)
        then let xs = map string_of_int (!the_new_goal_ids) in
-            the_tactic_flag := false;
-            if (length xs > 0) then
-              print_string
-                ("[New Goal IDs: " ^
-                 end_itlist (fun x1 x2 -> x1 ^ " " ^ x2) xs ^ "]"));
-    print_newline ();
-    if l = [] then print_string "Empty goalstack"
-    else if tl l = [] then
-      let (_,gl,_ as gs) = hd l in
-      print_xgoalstate 1 gs
-    else
-      let (_,gl,_ as gs) = hd l
-      and (_,gl0,_) = hd(tl l) in
-      let p = length gl - length gl0 in
-      let p' = if p < 1 then 1 else p + 1 in
-      print_xgoalstate p' gs);;
+            (the_tactic_flag := false;
+             print_string  "[New Goal IDs: ";
+             print_string_seplist " " xs;
+             print_string "]";
+             print_newline ()));
+    (if l = [] then print_string "Empty goalstack"
+     else if tl l = [] then
+       let (_,gl,_ as gs) = hd l in
+       print_xgoalstate 1 gs
+     else
+       let (_,gl,_ as gs) = hd l
+       and (_,gl0,_) = hd(tl l) in
+       let p = length gl - length gl0 in
+       let p' = if p < 1 then 1 else p + 1 in
+       print_xgoalstate p' gs);
+    (if (!pg_mode) then
+     let (vs,theta) =
+        if (l = []) then ([],[])
+                    else let ((vs,(_,theta,_)),_,_) = hd l in
+                         (vs,theta) in
+     let foo v =
+        let (x,_) = dest_var v in
+        x ^ if (can (rev_assoc v) theta) then " using" else " open" in
+     let xs = map foo vs in
+     (print_newline();
+      print_string "(dependent evars: ";
+      print_string_seplist ", " xs;
+      print_string ")";
+      print_newline ())));;
 
 (* ------------------------------------------------------------------------- *)
 (* Goal labelling, for fresh xgoals.                                         *)
 (* ------------------------------------------------------------------------- *)
 
 let label_goals (gs : goal list) : xgoal list =
-  let gxs = map (fun g -> (g, inc_goal_counter ())) gs in
+  let gxs = map (fun g -> inc_goal_counter (); (g, !the_goal_counter))
+                gs in
   (the_new_goal_ids := map snd gxs;
    gxs);;
 
@@ -146,7 +172,7 @@ let (xby:tactic->xrefinement) =
     (mvs',inst'),glsx',just';;
 
 (* ------------------------------------------------------------------------- *)
-(* Rotate but for xgoalstate.  Completely trivial redefinition.              *)
+(* Rotate but for xgoalstate.  Only change is different ML datatype.         *)
 (* ------------------------------------------------------------------------- *)
 
 let (xrotate:int->xrefinement) =
@@ -177,102 +203,116 @@ let (mk_xgoalstate:goal->xgoalstate) =
     else failwith "mk_goalstate: Non-boolean goal";;
 
 (* ------------------------------------------------------------------------- *)
-(* Subgoal package but for xgoals.                                           *)
+(* The Prooftree global state is an ever increasing counter.                 *)
 (* ------------------------------------------------------------------------- *)
 
-let current_xgoalstack = ref ([] :xgoalstack);;
+let the_pt_global_state = ref 1;;
 
-let (xrefine:xrefinement->xgoalstack) =
+let inc_pt_global_state () =
+  (the_pt_global_state := !the_pt_global_state + 1);;
+
+let pt_global_state () = !the_pt_global_state;;
+
+(* ------------------------------------------------------------------------- *)
+(* The Prooftree proof state is the length of the goal stack.                *)
+(* ------------------------------------------------------------------------- *)
+
+let the_current_xgoalstack = ref ([] : goalstack);;
+
+let pt_proof_state () = length !the_current_xgoalstack;;
+
+let pt_back_to_proof_state n : goalstack =
+  let pst = pt_proof_state () in
+  if (0 <= n) & (n <= pst)
+    then (the_current_xgoalstack :=
+               snd (chop_list (pst-n) !the_current_xgoalstack);
+          !the_current_xgoalstack)
+    else failwith "Not a valid Prooftree state number";;
+
+(* ------------------------------------------------------------------------- *)
+(* Subgoal package but for xgoals.  These overwrite the existing commands.   *)
+(* ------------------------------------------------------------------------- *)
+
+let (xrefine:xrefinement->goalstack) =
   fun r ->
-    let l = !current_xgoalstack in
+    let l = !the_current_xgoalstack in
     let h = hd l in
     let res = r h :: l in
-    current_xgoalstack := res;
-    !current_xgoalstack;;
+    the_current_xgoalstack := res;
+    !the_current_xgoalstack;;
 
-let flush_xgoalstack() =
-  let l = !current_xgoalstack in
-  current_xgoalstack := [hd l];;
+let flush_goalstack() =
+  let l = !the_current_xgoalstack in
+  the_current_xgoalstack := [hd l];;
 
-let xe tac =
-  the_tactic_flag := true;
-  xrefine(xby(VALID tac));;
+let e tac =
+  let result = xrefine(xby(VALID tac)) in
+  (inc_pt_global_state ();
+   the_tactic_flag := true;
+   result);;
 
-let xr n = xrefine(xrotate n);;
+let r n =
+  (inc_pt_global_state ();
+   xrefine(xrotate n));;
 
-let set_xgoal(asl,w) =
-  current_xgoalstack :=
-    [mk_xgoalstate(map (fun t -> "",ASSUME t) asl,w)];
-  !current_xgoalstack;;
+let set_goal(asl,w) =
+  let aths = map ASSUME asl in
+  (inc_pt_global_state ();
+   the_current_xgoalstack :=
+     [mk_xgoalstate(map (fun th -> "",th) aths,w)];
+   !the_current_xgoalstack);;
 
-let xg t =
+let g t =
   let fvs = sort (<) (map (fst o dest_var) (frees t)) in
   (if fvs <> [] then
      let errmsg = end_itlist (fun s t -> s^", "^t) fvs in
      warn true ("Free variables in goal: "^errmsg)
    else ());
-   set_xgoal([],t);;
+  set_goal([],t);;
 
-let xb() =
-  let l = !current_xgoalstack in
+let b() =
+  let l = !the_current_xgoalstack in
   if length l = 1 then failwith "Can't back up any more" else
-  current_xgoalstack := tl l;
-  !current_xgoalstack;;
+  (inc_pt_global_state ();
+   the_current_xgoalstack := tl l;
+   !the_current_xgoalstack);;
 
-let xp() =
-  !current_xgoalstack;;
+let p() = !the_current_xgoalstack;;
 
-let xtop_realgoal() =
-  let (_,(((asl,w),id)::_),_)::_ = !current_xgoalstack in
+let top_realgoal() =
+  let (_,(((asl,w),id)::_),_)::_ = !the_current_xgoalstack in
   asl,w;;
 
-let xtop_goal() =
-  let asl,w = xtop_realgoal() in
+let top_goal() =
+  let asl,w = top_realgoal() in
   map (concl o snd) asl,w;;
 
-let xtop_thm() =
-  let (_,[],f)::_ = !current_xgoalstack in
+let top_thm() =
+  let (_,[],f)::_ = !the_current_xgoalstack in
   f null_inst [];;
 
 (* ------------------------------------------------------------------------- *)
-(* Goal id to goal lookup function.                                          *)
+(* Configure the annotated prompt.				             *)
+(* ------------------------------------------------------------------------- *)
+
+pg_prompt_info := 
+   fun () -> 
+   let pst = pt_proof_state () and gst = pt_global_state () in
+   string_of_int gst ^ "|" ^ string_of_int pst;;
+
+(* ------------------------------------------------------------------------- *)
+(* Printing the goal of a given Prooftree goal id.                           *)
 (* ------------------------------------------------------------------------- *)
 
 let print_xgoal_of_id (id:goal_id) : unit =
-  let gsts = !current_xgoalstack in
+  let gsts = !the_current_xgoalstack in
   let find_goal (_,xgs,_) = find (fun (g,id0) -> id0 = id) xgs in
   let xg = tryfind find_goal gsts in
   print_xgoal xg;;
 
 (* ------------------------------------------------------------------------- *)
-(* Jumping back to a previous state.                                         *)
-(* ------------------------------------------------------------------------- *)
-
-let jump_back_to_state n : xgoalstack =
-  let l = length !current_xgoalstack in
-  if (0 <= n) & (n <= l)
-    then (current_xgoalstack := snd (chop_list (l-n) !current_xgoalstack);
-          !current_xgoalstack)
-    else failwith "Not a valid state number";;
-
-(* ------------------------------------------------------------------------- *)
-(* Install the goal-related printers.                                        *)
+(* Install the new goal-related printers.                                    *)
 (* ------------------------------------------------------------------------- *)
 
 #install_printer print_xgoal;;
 #install_printer print_xgoalstack;;
-
-(* ------------------------------------------------------------------------- *)
-(* Replace the top-level prompt                                              *)
-(* ------------------------------------------------------------------------- *)
-
-(* TODO: something like this
-
-let prompt () =>
-   "[State Counter " ^ string_of_int (length (!current_xgoalstack)) ^ "]# ");
-
-Toploop.read_interactive_input := 
-  let old = !Toploop.read_interactive_input in fun prompt buffer len -> 
-     old (prompt()) buffer len ;;
-
-*)
