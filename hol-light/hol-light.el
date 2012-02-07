@@ -13,6 +13,9 @@
 (require 'proof-easy-config)            ; easy configure mechanism
 (require 'proof-syntax)			; functions for making regexps
 
+(eval-when (compile)
+ (require 'proof-tree))
+
 (defcustom hol-light-home 
   (or (getenv "HOLLIGHT_HOME")
       (concat (getenv "HOME") "/hol_light"))
@@ -30,13 +33,16 @@ some reason, you can change this setting to run in a
 degraded (less robust) way which interfaces with the
 standard top level.
 
-You need to restart Emacs if you change this setting.")
+You need to restart Emacs if you change this setting."
+  :type 'boolean
+  :group 'hol-light)
+
 
 (defconst hol-light-pre-sync-cmd
   (format "#use \"%spg_prompt.ml\";; " proof-home-directory)
   "Command used to configure prompt annotations for Proof General.")
 
-(defcustom hol-light-startup-cmds 
+(defcustom hol-light-init-cmd 
   (list (format "#cd \"%s\"" hol-light-home)
 	"#use \"hol.ml\"")
   "*Commands used to start up a running HOL Light session."
@@ -132,7 +138,7 @@ You need to restart Emacs if you change this setting.")
  proof-prog-name		 "ocaml"
  proof-terminal-string           ";;"
  proof-shell-pre-sync-init-cmd   hol-light-pre-sync-cmd
- proof-shell-startup-cmds        hol-light-startup-cmds
+ proof-shell-init-cmd            hol-light-init-cmd
 
  ;; Regexps for matching tactic script inputs: all approximations, of course.
  proof-goal-command-regexp     	"^g[ `]"
@@ -354,7 +360,7 @@ You need to restart Emacs if you change this setting.")
  ;; These ones belong in shell mode
  proof-tree-proof-finished-regexp "No subgoals"	  
  proof-tree-show-sequent-command 
- (lambda (id) (format "print_xgoal_of_id \\"%s\\";;" id))
+ (lambda (id) (format "print_xgoal_of_id \"%s\";;" id))
 
  proof-tree-update-goal-regexp hol-light-update-goal-regexp
  proof-tree-cheating-regexp "CHEAT_TAC" ;; others...
@@ -367,6 +373,15 @@ You need to restart Emacs if you change this setting.")
 ;;; FIXME problem here: this is called BEFORE last goals output 
 ;;; is set.  Can we move order without harming Coq?
 
+;; TEMP to fix compile.  Will use Coq-stype annotated prompt for proof tree now.
+(defvar proof-shell-last-goals-output nil)
+(defvar proof-shell-delayed-output-start nil)
+(defvar proof-shell-delayed-output-end nil)
+(defvar proof-info nil)
+(defvar proof-action-list nil)
+(defun proof-shell-action-list-item (&rest args))
+(defun hol-light-show-sequent-command (&rest args))
+
 (defun hol-light-get-proof-info ()
   "Return proof info for Prooftree for HOL Light.
 See `proof-tree-get-proof-info'."
@@ -376,7 +391,7 @@ See `proof-tree-get-proof-info'."
 	       (string-match hol-light-statenumber-match 
 			     proof-shell-last-goals-output))
       (setq proof-state-number 
-	    (string-to-int 
+	    (string-to-number 
 	     (match-string 1 proof-shell-last-goals-output))))
     (list 
      proof-state-number
