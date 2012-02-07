@@ -1746,25 +1746,59 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 ;;;_  . keybindings
 
-(defun my-org-todo-done ()      (interactive) (org-todo "DONE"))
-(defun my-org-todo-deferred ()  (interactive) (org-todo "DEFERRED"))
-(defun my-org-todo-someday ()   (interactive) (org-todo "SOMEDAY"))
-(defun my-org-todo-delegated () (interactive) (org-todo "DELEGATED"))
-(defun my-org-todo-note ()      (interactive) (org-todo "NOTE"))
-(defun my-org-todo-started ()   (interactive) (org-todo "STARTED"))
-(defun my-org-todo-todo ()      (interactive) (org-todo "TODO"))
-(defun my-org-todo-waiting ()   (interactive) (org-todo "WAITING"))
-(defun my-org-todo-canceled ()  (interactive) (org-todo "CANCELED"))
+(defvar org-mode-completion-keys
+  '(
+    (?d . "DONE")
+    (?g . "DELEGATED")
+    (?n . "NOTE")
+    (?r . "DEFERRED")
+    (?s . "STARTED")
+    (?t . "TODO")
+    (?w . "WAITING")
+    (?x . "CANCELED")
+    (?y . "SOMEDAY")
+    ))
 
-(define-key mode-specific-map [?x ?d] 'my-org-todo-done)
-(define-key mode-specific-map [?x ?r] 'my-org-todo-deferred)
-(define-key mode-specific-map [?x ?y] 'my-org-todo-someday)
-(define-key mode-specific-map [?x ?g] 'my-org-todo-delegated)
-(define-key mode-specific-map [?x ?n] 'my-org-todo-note)
-(define-key mode-specific-map [?x ?s] 'my-org-todo-started)
-(define-key mode-specific-map [?x ?t] 'my-org-todo-todo)
-(define-key mode-specific-map [?x ?w] 'my-org-todo-waiting)
-(define-key mode-specific-map [?x ?x] 'my-org-todo-canceled)
+(defvar org-todo-state-map nil)
+
+(define-prefix-command 'org-todo-state-map)
+
+(dolist (ckey org-mode-completion-keys)
+  (let* ((key (car ckey))
+         (label (cdr ckey))
+         (org-sym (intern (concat "my-org-todo-" (downcase label))))
+         (org-sym-no-logging
+          (intern (concat "my-org-todo-" (downcase label) "-no-logging")))
+         (org-agenda-sym
+          (intern (concat "my-org-agenda-todo-" (downcase label))))
+         (org-agenda-sym-no-logging
+          (intern (concat "my-org-agenda-todo-"
+                          (downcase label) "-no-logging"))))
+    (eval
+     `(progn
+        (defun ,org-sym ()
+          (interactive)
+          (org-todo ,label))
+        (define-key mode-specific-map [?x ,key] ',org-sym)
+
+        (defun ,org-sym-no-logging ()
+          (interactive)
+          (let ((org-inhibit-logging t))
+            (org-todo ,label)))
+        (define-key mode-specific-map [?x ,(upcase key)]
+          ',org-sym-no-logging)
+
+        (defun ,org-agenda-sym ()
+          (interactive)
+          (org-agenda-todo ,label))
+        (define-key org-todo-state-map [,key] ',org-agenda-sym)
+
+        (defun ,org-agenda-sym-no-logging ()
+          (interactive)
+          (let ((org-inhibit-logging t))
+            (org-agenda-todo ,label)))
+        (define-key org-todo-state-map [,(upcase key)]
+          ',org-agenda-sym-no-logging)))))
 
 (define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
 (define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
@@ -1810,8 +1844,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 ;;;_  . org-agenda-mode
 
-(defvar org-todo-state-map nil)
-
 (let ((map org-agenda-mode-map))
   (define-key map "\C-n" 'next-line)
   (define-key map "\C-p" 'previous-line)
@@ -1825,39 +1857,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (define-key map "q" 'delete-window)
   (define-key map [(meta ?p)] 'org-agenda-earlier)
   (define-key map [(meta ?n)] 'org-agenda-later)
-
-  (define-prefix-command 'org-todo-state-map)
   (define-key map "x" 'org-todo-state-map)
-
-  (defun my-org-agenda-todo-done ()
-    (interactive) (org-agenda-todo "DONE"))
-  (defun my-org-agenda-todo-deferred ()
-    (interactive) (org-agenda-todo "DEFERRED"))
-  (defun my-org-agenda-todo-someday ()
-    (interactive) (org-agenda-todo "SOMEDAY"))
-  (defun my-org-agenda-todo-delegated ()
-    (interactive) (org-agenda-todo "DELEGATED"))
-  (defun my-org-agenda-todo-note ()
-    (interactive) (org-agenda-todo "NOTE"))
-  (defun my-org-agenda-todo-started ()
-    (interactive) (org-agenda-todo "STARTED"))
-  (defun my-org-agenda-todo-todo ()
-    (interactive) (org-agenda-todo "TODO"))
-  (defun my-org-agenda-todo-waiting ()
-    (interactive) (org-agenda-todo "WAITING"))
-  (defun my-org-agenda-todo-canceled ()
-    (interactive) (org-agenda-todo "CANCELED"))
-
-  (define-key org-todo-state-map "d" 'my-org-agenda-todo-done)
-  (define-key org-todo-state-map "r" 'my-org-agenda-todo-deferred)
-  (define-key org-todo-state-map "y" 'my-org-agenda-todo-someday)
-  (define-key org-todo-state-map "g" 'my-org-agenda-todo-delegated)
-  (define-key org-todo-state-map "n" 'my-org-agenda-todo-note)
-  (define-key org-todo-state-map "s" 'my-org-agenda-todo-started)
-  (define-key org-todo-state-map "t" 'my-org-agenda-todo-todo)
-  (define-key org-todo-state-map "w" 'my-org-agenda-todo-waiting)
-  (define-key org-todo-state-map "x" 'my-org-agenda-todo-canceled)
-
+  
   (define-key org-todo-state-map "z" 'make-bug-link))
 
 (defun org-fit-agenda-window ()
