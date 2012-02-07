@@ -22,7 +22,7 @@
 # Set this according to your version of Emacs.
 # NB: this is also used to set default install path names below.
 EMACS=$(shell if [ -z "`which emacs`" ]; then echo "Emacs executable not found"; exit 1; else echo emacs; fi)
-# EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
+# EMACS=/Applications/Emacs\ 23.4.app/Contents/MacOS/Emacs
 
 # We default to /usr rather than /usr/local because installs of
 # desktop and doc files under /usr/local are unlikely to work with
@@ -35,7 +35,7 @@ DEST_PREFIX=/usr
 
 PWD=$(shell pwd)
 
-PROVERS=acl2 ccc coq hol98 isar lego pgshell phox
+PROVERS=acl2 ccc coq hol98 isar lego hol-light phox pgshell pgocaml pghaskell
 OTHER_ELISP=generic lib contrib/mmm
 ELISP_DIRS=${PROVERS} ${OTHER_ELISP}
 ELISP_EXTRAS=isar/interface isar/isartags
