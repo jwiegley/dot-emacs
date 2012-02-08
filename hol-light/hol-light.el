@@ -60,12 +60,12 @@ You need to restart Emacs if you change this setting."
    (if hol-light-use-custom-toplevel
        (list (format "#use \"%shol-light/pg_tactics.ml\""
 		     proof-home-directory))
-  (list
+     (list
   "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1));;"
   "let pg_undo n = (pg_repeat n (fun ()->let _ = b() in ()); p());;"
   "let pg_kill() = current_goalstack:=[];;"
-  "let pg_forget id = ();;")
-  "let pg_restart() = print_string \"*** Session restarted.\";;"))
+  "let pg_forget id = ();;"
+  "let pg_restart() = print_string \"*** Session restarted.\";;")))
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
