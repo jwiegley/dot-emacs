@@ -203,18 +203,18 @@ let (mk_xgoalstate:goal->xgoalstate) =
     else failwith "mk_goalstate: Non-boolean goal";;
 
 (* ------------------------------------------------------------------------- *)
-(* The global state counts the total number of undoable proof steps.         *)
+(* The global state counts the total number of proof steps taken.            *)
 (* ------------------------------------------------------------------------- *)
 
-let the_pt_global_state = ref 1;;
+let the_pg_global_state = ref 1;;
 
-let inc_pt_global_state () =
-  (the_pt_global_state := !the_pt_global_state + 1);;
+let inc_pg_global_state () =
+  (the_pg_global_state := !the_pg_global_state + 1);;
 
-let dec_pt_global_state () =
-  (the_pt_global_state := !the_pt_global_state - 1);;
+let dec_pg_global_state n =
+  (the_pg_global_state := !the_pg_global_state - n);;
 
-let pt_global_state () = !the_pt_global_state;;
+let pg_global_state () = !the_pg_global_state;;
 
 (* ------------------------------------------------------------------------- *)
 (* The proof state number is the length of the current goal stack.           *)
@@ -222,15 +222,7 @@ let pt_global_state () = !the_pt_global_state;;
 
 let the_current_xgoalstack = ref ([] : goalstack);;
 
-let pt_proof_state () = length !the_current_xgoalstack;;
-
-let pt_back_to_proof_state n : goalstack =
-  let pst = pt_proof_state () in
-  if (0 <= n) & (n <= pst)
-    then (the_current_xgoalstack :=
-               snd (chop_list (pst-n) !the_current_xgoalstack);
-          !the_current_xgoalstack)
-    else failwith "Not a valid Prooftree state number";;
+let pg_proof_state () = length !the_current_xgoalstack;;
 
 (* ------------------------------------------------------------------------- *)
 (* Subgoal package but for xgoals.  These overwrite the existing commands.   *)
@@ -250,17 +242,17 @@ let flush_goalstack() =
 
 let e tac =
   let result = xrefine(xby(VALID tac)) in
-  (inc_pt_global_state ();
+  (inc_pg_global_state ();
    the_tactic_flag := true;
    result);;
 
 let r n =
-  (inc_pt_global_state ();
+  (inc_pg_global_state ();
    xrefine(xrotate n));;
 
 let set_goal(asl,w) =
   let aths = map ASSUME asl in
-  (inc_pt_global_state ();
+  (inc_pg_global_state ();
    the_current_xgoalstack :=
      [mk_xgoalstate(map (fun th -> "",th) aths,w)];
    !the_current_xgoalstack);;
@@ -273,16 +265,23 @@ let g t =
    else ());
   set_goal([],t);;
 
-let b() =
-  let l = !the_current_xgoalstack in
-  (* FIXME: this is wrong wrt "global" state, we might try to keep
-     a stack of proof states to be closer. 
-    if length l = 1 then failwith "Can't back up any more" *)
-  (dec_pt_global_state ();
-   the_current_xgoalstack := if length l > 1 then tl l else l;
-   !the_current_xgoalstack);;
-
 let p() = !the_current_xgoalstack;;
+
+let b() =
+  failwith "Undo with b() is not available in Proof General top level";;
+
+let pg_undo n =
+  let l = !the_current_xgoalstack in
+   if length l < n then failwith "pg_undo: called with too many steps"
+   else (dec_pg_global_state n;
+         the_current_xgoalstack := snd (chop_list n l);
+         p());;
+
+let pg_kill () = 
+  let n = length (!the_current_xgoalstack) in
+  (dec_pg_global_state n;
+   the_current_xgoalstack := [];
+   p());;
 
 let top_realgoal() =
   let (_,(((asl,w),id)::_),_)::_ = !the_current_xgoalstack in
@@ -302,7 +301,7 @@ let top_thm() =
 
 pg_prompt_info := 
    fun () -> 
-   let pst = pt_proof_state () and gst = pt_global_state () in
+   let pst = pg_proof_state () and gst = pg_global_state () in
    string_of_int gst ^ "|" ^ string_of_int pst;;
 
 (* ------------------------------------------------------------------------- *)

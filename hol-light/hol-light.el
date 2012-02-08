@@ -51,13 +51,14 @@ You need to restart Emacs if you change this setting."
 	 "#use \"hol.ml\"")
    (if hol-light-use-custom-toplevel
        (list (format "#use \"%shol-light/pg_tactics.ml\""
-		     proof-home-directory)))
-   (list
-    "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1));;"))
+		     proof-home-directory))
+     (list
+      "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1));;"
+      "let pg_undo n = (pg_repeat n (fun ()->let _ = b() in ()); p());;"
+      "let pg_kill () = current_goalstack:=[];;")))
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
-
 
 ;;
 ;; Regular expressions for matching output with  
@@ -161,9 +162,9 @@ You need to restart Emacs if you change this setting."
  proof-non-undoables-regexp    	"b()" ; and others..
  proof-goal-command            	"g `%s`;;"
  proof-save-command            	"val %s = top_thm();;"
- proof-kill-goal-command       	"current_goalstack:=[];;" ; for cleanliness
+ proof-kill-goal-command       	"pg_kill();;"
+ proof-undo-n-times-cmd        	"pg_undo %s;;"
  proof-showproof-command       	"p()"
- proof-undo-n-times-cmd        	"(pg_repeat b %s; p());;"
  proof-auto-multiple-files     	t
  proof-shell-cd-cmd            	"#cd \"%s\";;"
  proof-shell-filename-escapes  	'(("\\\\" . "\\\\") ("\""   . "\\\""))
