@@ -27,6 +27,14 @@
   :type 'string
   :group 'hol-light)
 
+(defcustom hol-light-prog-name 
+  (or (getenv "HOLLIGHT_OCMAL")
+      (getenv "OCAML")
+      "ocaml")
+  "*Name of the OCaml interpreter to launch HOL Light."
+  :type 'string
+  :group 'hol-light)
+
 (defcustom hol-light-use-custom-toplevel t
   "*If non-nil, we use a custom toplevel for Proof General.
 This configures extra annotations inside HOL Light to help
@@ -42,7 +50,7 @@ You need to restart Emacs if you change this setting."
   :group 'hol-light)
 
 (defconst hol-light-pre-sync-cmd
-  (format "#use \"%s/hol-light/pg_prompt.ml\";; " proof-home-directory)
+  (format "#use \"%shol-light/pg_prompt.ml\";; " proof-home-directory)
   "Command used to configure prompt annotations for Proof General.")
 
 (defcustom hol-light-init-cmd 
@@ -55,8 +63,9 @@ You need to restart Emacs if you change this setting."
   (list
   "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1));;"
   "let pg_undo n = (pg_repeat n (fun ()->let _ = b() in ()); p());;"
-  "let pg_kill () = current_goalstack:=[];;"
-  "let pg_forget id = ();;")))
+  "let pg_kill() = current_goalstack:=[];;"
+  "let pg_forget id = ();;")
+  "let pg_restart() = print_string \"*** Session restarted.\";;"))
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
@@ -118,11 +127,11 @@ You need to restart Emacs if you change this setting."
    "Value for `proof-shell-proof-completed-regexp' with standard top level.")
 
 (defconst hol-light-plain-message-start 
-  "^Warning "
+  "^Warning \\|\\*\*\\*"
   "Value for `proof-shell-eager-annotation-start' with standard top level.")
 
 (defconst hol-light-annotated-message-start
-  "^Warning " ;; TODO
+  "^Warning \\|\\*\\*\\*" ;; TODO
   "Value for `proof-shell-eager-annotation-start' with custom top level.")
 
 (defconst hol-light-plain-message-end
@@ -150,7 +159,7 @@ You need to restart Emacs if you change this setting."
 
 (proof-easy-config  'hol-light "HOL Light"
  proof-assistant-home-page       "https://www.cl.cam.ac.uk/~jrh13/hol-light/"
- proof-prog-name		 "ocaml"
+ proof-prog-name		 hol-light-prog-name
  proof-terminal-string           ";;"
  proof-shell-pre-sync-init-cmd   hol-light-pre-sync-cmd
  proof-shell-init-cmd            hol-light-init-cmd
@@ -166,7 +175,8 @@ You need to restart Emacs if you change this setting."
  proof-kill-goal-command       	"pg_kill();;"
  proof-undo-n-times-cmd        	"pg_undo %s;;"
  proof-forget-id-command	"pg_forget \"%s\";;"
- proof-showproof-command       	"p()"
+ proof-shell-restart-cmd        "pg_restart();;"
+ proof-showproof-command       	"p();;"
  proof-auto-multiple-files     	t
  proof-shell-cd-cmd            	"#cd \"%s\";;"
  proof-shell-filename-escapes  	'(("\\\\" . "\\\\") ("\""   . "\\\""))
