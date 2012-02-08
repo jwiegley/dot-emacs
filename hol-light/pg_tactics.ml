@@ -131,11 +131,15 @@ let (print_xgoalstack:goalstack->unit) =
                          (vs,theta) in
      let foo v =
         let (x,_) = dest_var v in
-        x ^ if (can (rev_assoc v) theta) then " using" else " open" in
+        "?" (* FIXME: Coq syntax for meta vars is expected by Prooftree *)
+        ^ x ^ if (can (rev_assoc v) theta) then " using" else " open" in
      let xs = map foo vs in
      (print_newline();
       print_string "(dependent evars:";
-      print_string_seplist ", " xs;
+      if xs != [] then 
+       (print_string " ";
+	print_string_seplist ", " xs;
+	print_string ",");
       print_string ")";
       print_newline ())));;
 
