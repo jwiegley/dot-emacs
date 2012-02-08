@@ -24,7 +24,7 @@ let pg_prompt_info = ref (fun () -> "");;
 
 
 (* ------------------------------------------------------------------------- *)
-(* Adjust the OCaml prompt to carry information for Proof General.           *)
+(* Adjust the OCaml prompt to carry information for Proof General            *)
 (* ------------------------------------------------------------------------- *)
 
 let original_prompt_fn = !Toploop.read_interactive_input in
@@ -40,17 +40,15 @@ let original_prompt_fn = !Toploop.read_interactive_input in
 
 
 (* ------------------------------------------------------------------------- *)
-(* Adjust error printing to markup error message			     *)
+(* Adjust error printing to markup error messages			     *)
 (* ------------------------------------------------------------------------- *)
 
-(* FIXME: rebinding failwith has an odd effect on top level, triggering
-   new errors which were perhaps previously caught?*)
+let print_exn e =
+    match e with
+      Failure x -> Format.print_string 
+		     (if (!pg_mode) then 
+		         "<error>" ^ x ^ "</error>"
+		      else x)
+    | _  -> Format.print_string (Printexc.to_string e);;
 
-(*
-let plain_failwith = failwith
-
-let failwith s = if (!pg_mode)
-		  then plain_failwith ("<error>" ^ s ^ "</error>")
-		 else plain_failwith s;;
-*)
-
+#install_printer print_exn;;
