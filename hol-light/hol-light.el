@@ -500,4 +500,13 @@ The not yet delayed output is in the region
 (add-hook 'proof-tree-urgent-action-hook 'hol-light-proof-tree-get-new-subgoals)
 
 
+;;;
+;;; Menu commands
+;;;
+
+(proof-definvisible hol-light-dump-proof "dump_proof();;")
+
+(defpgdefault menu-entries
+  '(["Dump refactored proof" hol-light-dump-proof t]))
+
 (provide 'hol-light)
