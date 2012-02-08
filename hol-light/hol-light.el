@@ -51,7 +51,9 @@ You need to restart Emacs if you change this setting."
 	 "#use \"hol.ml\"")
    (if hol-light-use-custom-toplevel
        (list (format "#use \"%shol-light/pg_tactics.ml\""
-		     proof-home-directory))))
+		     proof-home-directory)))
+   (list
+    "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1));;"))
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
@@ -161,7 +163,7 @@ You need to restart Emacs if you change this setting."
  proof-save-command            	"val %s = top_thm();;"
  proof-kill-goal-command       	"current_goalstack:=[];;" ; for cleanliness
  proof-showproof-command       	"p()"
- proof-undo-n-times-cmd        	"(funpow %s (fun ()->let _ = b() in ()); p());;"
+ proof-undo-n-times-cmd        	"(pg_repeat b %s; p());;"
  proof-auto-multiple-files     	t
  proof-shell-cd-cmd            	"#cd \"%s\";;"
  proof-shell-filename-escapes  	'(("\\\\" . "\\\\") ("\""   . "\\\""))
@@ -353,21 +355,32 @@ You need to restart Emacs if you change this setting."
   (concat "\\[Goal ID \\([0-9]+\\)\\]"
 	  "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
 
-(defconst hol-light-additional-subgoal-regexp 
-  ;; Group 1 is goal id, 2 is goal text.
-  (concat 
-   "\\[Goal ID \\([0-9]+\\)\\]"
-   "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
-
 (defconst hol-light-current-goal-regexp
   ;; match final (focused) subgoal.  
   (concat (regexp-quote "[*]") 
-	  hol-light-additional-subgoal-regexp))
-
-(defvar hol-light-newgoals-match "\\[New Goal IDs: \\([0-9 ]+\\)\\]")
+	  "\\[Goal ID \\([0-9]+\\)\\]"
+	  "\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)"))
+	  
+(defconst hol-light-additional-subgoal-regexp 
+  "\\[New Goal IDs: \\([0-9 ]+\\)\\]"
+  "HOL Light instance of `proof-tree-additional-subgoal-ID-regexp'.")
 
 (defconst hol-light-statenumber-regexp 
-  "<prompt>\\([0-9]+\\)|\\([0-9]+\\)</prompt>")
+  "<prompt>\\([0-9]+\\)|\\([0-9]+\\)</prompt>"
+  "Regular expression to match prompt with state numbers.
+The first number is a global state counter which increases with
+processed steps.  The second number is the number of steps within
+the currently open proof.")
+
+(defconst hol-light-existential-regexp "\\(\\?[0-9]+\\)"
+  "Regexp for `proof-tree-existential-regexp'.")
+
+(defconst hol-light-existentials-state-start-regexp "^(dependent evars:"
+  "HOL Light instance of `proof-tree-existentials-state-start-regexp'.")
+
+(defconst hol-light-existentials-state-end-regexp ")\n"
+  "HOL Light instance of `proof-tree-existentials-state-end-regexp'.")
+
 
 (setq 
  ;; These ones belong in script mode config
@@ -385,6 +398,9 @@ You need to restart Emacs if you change this setting."
  proof-tree-update-goal-regexp hol-light-update-goal-regexp
  proof-tree-cheating-regexp "CHEAT_TAC" ;; others...
 
+ proof-tree-existential-regexp hol-light-existential-regexp
+ proof-tree-existentials-state-start-regexp hol-light-existentials-state-start-regexp
+ proof-tree-existentials-state-end-regexp hol-light-existentials-state-end-regexp
  ) ;; end setq proof tree stuff
 
 
