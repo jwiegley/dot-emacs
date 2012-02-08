@@ -364,22 +364,11 @@ process command."
 
       (with-current-buffer proof-shell-buffer
 
+	;; Clear and set text representation (see CVS history for comments)
 	(erase-buffer)
-
-	;; Set text representation (see CVS history for comments)
 	(proof-shell-set-text-representation)
 
-	;; Initialise shell mode (calls hook function, after process started)
-	(funcall proof-mode-for-shell)
-
-	;; Check to see that the process is still going.  If not,
-	;; switch buffer to display the error messages to the user.
-	(unless (proof-shell-live-buffer)
-	  (switch-to-buffer proof-shell-buffer)
-	  (error "%s process exited!" proc))
-
 	;; Initialise associated buffers
-
 	(with-current-buffer proof-response-buffer
 	  (erase-buffer)
 	  (proof-shell-set-text-representation)
@@ -396,6 +385,14 @@ process command."
 	  (funcall proof-mode-for-response)
 	  (setq pg-response-eagerly-raise nil))
 
+	;; Initialise shell mode (calls hook function, after process started)
+	(funcall proof-mode-for-shell)
+
+	;; Check to see that the process is still going.  If not,
+	;; switch buffer to display the error messages to the user.
+	(unless (proof-shell-live-buffer)
+	  (switch-to-buffer proof-shell-buffer)
+	  (error "%s process exited!" proc))
 
 	;; Setting modes initialises local variables which
 	;; may affect frame/buffer appearance: so we fire up frames
