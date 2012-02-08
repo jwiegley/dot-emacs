@@ -134,7 +134,7 @@ let (print_xgoalstack:goalstack->unit) =
         x ^ if (can (rev_assoc v) theta) then " using" else " open" in
      let xs = map foo vs in
      (print_newline();
-      print_string "(dependent evars: ";
+      print_string "(dependent evars:";
       print_string_seplist ", " xs;
       print_string ")";
       print_newline ())));;
@@ -203,7 +203,7 @@ let (mk_xgoalstate:goal->xgoalstate) =
     else failwith "mk_goalstate: Non-boolean goal";;
 
 (* ------------------------------------------------------------------------- *)
-(* The Prooftree global state is an ever increasing counter.                 *)
+(* The global state counts the total number of undoable proof steps.         *)
 (* ------------------------------------------------------------------------- *)
 
 let the_pt_global_state = ref 1;;
@@ -211,10 +211,13 @@ let the_pt_global_state = ref 1;;
 let inc_pt_global_state () =
   (the_pt_global_state := !the_pt_global_state + 1);;
 
+let dec_pt_global_state () =
+  (the_pt_global_state := !the_pt_global_state - 1);;
+
 let pt_global_state () = !the_pt_global_state;;
 
 (* ------------------------------------------------------------------------- *)
-(* The Prooftree proof state is the length of the goal stack.                *)
+(* The proof state number is the length of the current goal stack.           *)
 (* ------------------------------------------------------------------------- *)
 
 let the_current_xgoalstack = ref ([] : goalstack);;
@@ -272,9 +275,11 @@ let g t =
 
 let b() =
   let l = !the_current_xgoalstack in
-  if length l = 1 then failwith "Can't back up any more" else
-  (inc_pt_global_state ();
-   the_current_xgoalstack := tl l;
+  (* FIXME: this is wrong wrt "global" state, we might try to keep
+     a stack of proof states to be closer. 
+    if length l = 1 then failwith "Can't back up any more" *)
+  (dec_pt_global_state ();
+   the_current_xgoalstack := if length l > 1 then tl l else l;
    !the_current_xgoalstack);;
 
 let p() = !the_current_xgoalstack;;
