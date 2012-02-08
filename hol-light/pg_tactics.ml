@@ -225,7 +225,14 @@ let the_current_xgoalstack = ref ([] : goalstack);;
 let pg_proof_state () = length !the_current_xgoalstack;;
 
 (* ------------------------------------------------------------------------- *)
-(* Subgoal package but for xgoals.  These overwrite the existing commands.   *)
+(* Subgoal package for xgoals and with a constrained undo protocol for       *)
+(* interacting with Proof General to track the state.  These overwrite the   *)
+(* existing commands and may cause breakage of interactive proofs.           *)
+(*								             *)
+(* The restrictions are:						     *)
+(*  - top_thm may only be called once and closes the currently open proof.   *)
+(*  - the back command b() is not allowed to appear in a file.		     *)
+(*								             *)
 (* ------------------------------------------------------------------------- *)
 
 let (xrefine:xrefinement->goalstack) =
@@ -270,6 +277,28 @@ let p() = !the_current_xgoalstack;;
 let b() =
   failwith "Undo with b() is not available in Proof General top level";;
 
+let top_realgoal() =
+  let (_,(((asl,w),id)::_),_)::_ = !the_current_xgoalstack in
+  asl,w;;
+
+let top_goal() =
+  let asl,w = top_realgoal() in
+  map (concl o snd) asl,w;;
+
+let plain_top_thm() =
+  let (_,[],f)::_ = !the_current_xgoalstack in
+   f null_inst [];;
+
+let top_thm() = 
+  let t = plain_top_thm() in
+  (inc_pg_global_state();
+   the_current_xgoalstack := [];
+   t);;
+
+(* ------------------------------------------------------------------------- *)
+(* Undo handling functions for Proof General		                     *)
+(* ------------------------------------------------------------------------- *)
+
 let pg_undo n =
   let l = !the_current_xgoalstack in
    if length l < n then failwith "pg_undo: called with too many steps"
@@ -283,17 +312,9 @@ let pg_kill () =
    the_current_xgoalstack := [];
    p());;
 
-let top_realgoal() =
-  let (_,(((asl,w),id)::_),_)::_ = !the_current_xgoalstack in
-  asl,w;;
+let pg_forget s = ();;
 
-let top_goal() =
-  let asl,w = top_realgoal() in
-  map (concl o snd) asl,w;;
 
-let top_thm() =
-  let (_,[],f)::_ = !the_current_xgoalstack in
-  f null_inst [];;
 
 (* ------------------------------------------------------------------------- *)
 (* Configure the annotated prompt.				             *)

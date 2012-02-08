@@ -52,10 +52,11 @@ You need to restart Emacs if you change this setting."
    (if hol-light-use-custom-toplevel
        (list (format "#use \"%shol-light/pg_tactics.ml\""
 		     proof-home-directory))
-     (list
-      "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1));;"
-      "let pg_undo n = (pg_repeat n (fun ()->let _ = b() in ()); p());;"
-      "let pg_kill () = current_goalstack:=[];;")))
+  (list
+  "let rec pg_repeat f n = match n with 0 -> () | _ -> (f(); pg_repeat f (n-1));;"
+  "let pg_undo n = (pg_repeat n (fun ()->let _ = b() in ()); p());;"
+  "let pg_kill () = current_goalstack:=[];;"
+  "let pg_forget id = ();;")))
   "*Commands used to start up a running HOL Light session."
   :type '(list string)
   :group 'hol-light)
@@ -164,6 +165,7 @@ You need to restart Emacs if you change this setting."
  proof-save-command            	"val %s = top_thm();;"
  proof-kill-goal-command       	"pg_kill();;"
  proof-undo-n-times-cmd        	"pg_undo %s;;"
+ proof-forget-id-command	"pg_forget \"%s\";;"
  proof-showproof-command       	"p()"
  proof-auto-multiple-files     	t
  proof-shell-cd-cmd            	"#cd \"%s\";;"
@@ -205,8 +207,6 @@ You need to restart Emacs if you change this setting."
  ;; eagerly from HOL.
  ;; proof-shell-eager-annotation-start
  proof-find-theorems-command	"DB.match [] (%s);;"
-
- proof-forget-id-command	"();;" ;; candidate for making nil, change generic
 
  ;;
  ;; Syntax and syntax table entries for proof scripts
