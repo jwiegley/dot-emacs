@@ -95,11 +95,11 @@ You need to restart Emacs if you change this setting."
   "Value for `proof-shell-interrupt-regexp' with custom top level.")  
 
 (defconst hol-light-plain-prompt-regexp
-  "^# "
+  "\\(val it : unit = ()\n\\)?^# "
   "Value for `proof-shell-annotated-prompt-regexp' with standard top level.")
 
 (defconst hol-light-annotated-prompt-regexp
-  "<prompt>.*</prompt>"
+  "\\(val it : unit = ()\n\\)?<prompt>.*</prompt>"
   "Value for `proof-shell-annotated-prompt-regexp' with custom top level.")
 
 (defconst hol-light-plain-error-regexp

@@ -314,12 +314,13 @@ let pg_kill() =
   let n = length (!the_current_xgoalstack) in
   (dec_pg_global_state n;
    the_current_xgoalstack := [];
-   print_string "*** Proof aborted.");;
+   print_string "*** Proof aborted.\n");;
 
-let pg_forget s = ();;  (* TODO *)
+let pg_forget s = 
+   print_string ("*** Remove theorem "^s^"\n");;
 
 let pg_restart() = 
-   print_string "*** Session restarted.";;
+   print_string "*** Session restarted.\n";;
 
 (* ------------------------------------------------------------------------- *)
 (* Configure the annotated prompt.				             *)
