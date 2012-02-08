@@ -310,15 +310,16 @@ let pg_undo n =
          the_current_xgoalstack := snd (chop_list n l);
          p());;
 
-let pg_kill () = 
+let pg_kill() = 
   let n = length (!the_current_xgoalstack) in
   (dec_pg_global_state n;
    the_current_xgoalstack := [];
-   p());;
+   print_string "*** Proof aborted.");;
 
-let pg_forget s = ();;
+let pg_forget s = ();;  (* TODO *)
 
-
+let pg_restart() = 
+   print_string "*** Session restarted.";;
 
 (* ------------------------------------------------------------------------- *)
 (* Configure the annotated prompt.				             *)
