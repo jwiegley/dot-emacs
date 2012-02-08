@@ -114,7 +114,7 @@ You need to restart Emacs if you change this setting."
   "Value for `proof-shell-error-regexp' with standard top level.")
 
 (defconst hol-light-annotated-error-regexp 
-  ;; "<error>.+</error>" ;; FIXME: include new lines, also fix pg_prompt.ml
+  ;; "<error>.+</error>" ;; unfortunately not enough, this is only for failwith
   hol-light-plain-error-regexp
   "Value for `proof-shell-error-regexp' with custom top level.")
 

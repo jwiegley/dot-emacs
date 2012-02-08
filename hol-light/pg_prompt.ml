@@ -43,6 +43,9 @@ let original_prompt_fn = !Toploop.read_interactive_input in
 (* Adjust error printing to markup error messages			     *)
 (* ------------------------------------------------------------------------- *)
 
+(* Doesn't really work, as many errors are from OCaml top level and
+   not printed in this way.
+
 let print_exn e =
     match e with
       Failure x -> Format.print_string 
@@ -52,3 +55,5 @@ let print_exn e =
     | _  -> Format.print_string (Printexc.to_string e);;
 
 #install_printer print_exn;;
+
+*) 
