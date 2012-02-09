@@ -33,6 +33,11 @@
   "Capture Gnus messages as tasks, with context"
   :group 'org)
 
+(defcustom org-smart-capture-use-lastname nil
+  "If non-nil, include last names in smart captures."
+  :type 'boolean
+  :group 'org-smart-capture)
+
 (defvar org-subject-transforms
   '(("\\`\\(Re\\|Fwd\\): "                          . "")
     ("\\`{ledger} "                                 . "")
@@ -51,66 +56,58 @@
                           (parse-time-string date-sent)) t t)
               ?\]))))
 
-;;;###autoload
-(defun org-smart-capture (&optional arg)
-  (interactive "P")
-  (if (not (memq major-mode '(gnus-summary-mode gnus-article-mode)))
-      (org-capture nil "t")
-    (cond ((eq major-mode 'gnus-article-mode)
-           (with-current-buffer gnus-summary-buffer
-             (if (string= (buffer-name) "*Summary INBOX*")
-                 (gnus-summary-mark-as-read)
-               (gnus-summary-mark-as-dormant 1))))
-          ((eq major-mode 'gnus-summary-mode)
-           (if (string= (buffer-name) "*Summary INBOX*")
-               (gnus-summary-mark-as-read)
-             (gnus-summary-mark-as-dormant 1))))
+(defun org-smart-capture-article (&optional article)
+  (let* ((article (or article (gnus-summary-article-number)))
+         (data (gnus-data-find-list article))
+         (ghead (gnus-data-header (car data)))
+         (message-id (mail-header-message-id ghead))
+         (raw-subject (mail-header-subject ghead))
+         (subject (and raw-subject (rfc2047-decode-string raw-subject)))
+         (date-sent (mail-header-date ghead))
+         (from (mail-header-from ghead))
+         (from (if from (rfc2047-decode-string from) "unknown"))
+         (name (car (ignore-errors
+                      (mail-extract-address-components from))))
+         fname lname)
+
+    (when (stringp name)
+      ;; Guess first name and last name:
+      (cond ((string-match
+              "\\`\\(\\w\\|[-.]\\)+ \\(\\w\\|[-.]\\)+\\'" name)
+             (setq fname (nth 0 (split-string name "[ \t]+"))
+                   lname (nth 1 (split-string name "[ \t]+"))))
+            ((string-match
+              "\\`\\(\\w\\|[-.]\\)+, \\(\\w\\|[-.]\\)+\\'" name)
+             (setq fname (nth 1 (split-string name "[ \t,]+"))
+                   lname (nth 0 (split-string name "[ \t,]+"))))
+            ((string-match "\\`\\(\\w\\|[-.]\\)+\\'" name)
+             (setq fname name
+                   lname ""))
+            ((string-match "\\`\\(\\w+?\\) " name)
+             (setq fname (match-string 1 name)
+                   lname ""))))
+
+    (org-capture nil "t")
+
+    (when (stringp fname)
+      (insert ?\( fname)
+      (if (and org-smart-capture-use-lastname (stringp lname))
+          (insert ?  lname))
+      (insert ?\) ? ))
+
+    (if subject
+        (let ((new-subject subject))
+          (dolist (transform org-subject-transforms)
+            (setq new-subject
+                  (replace-regexp-in-string (car transform)
+                                            (cdr transform) new-subject)))
+          (save-excursion
+            (insert new-subject))))
+
     (let ((body (and (eq major-mode 'gnus-article-mode)
                      (region-active-p)
                      (buffer-substring-no-properties (region-beginning)
-                                                     (region-end))))
-          message-id subject from date-sent data name fname lname)
-      (with-current-buffer gnus-original-article-buffer
-        (setq message-id (message-field-value "message-id")
-              subject (message-field-value "subject")
-              subject (and subject (rfc2047-decode-string subject))
-              from (message-field-value "from")
-              from (if from (rfc2047-decode-string from) "unknown")
-              data (condition-case ()
-                       (mail-extract-address-components from)
-                     (error nil))
-              name (car data)
-              date-sent (message-field-value "date")))
-      (when (stringp name)
-        ;; Guess first name and last name:
-        (cond ((string-match
-                "\\`\\(\\w\\|[-.]\\)+ \\(\\w\\|[-.]\\)+\\'" name)
-               (setq fname (nth 0 (split-string name "[ \t]+"))
-                     lname (nth 1 (split-string name "[ \t]+"))))
-              ((string-match
-                "\\`\\(\\w\\|[-.]\\)+, \\(\\w\\|[-.]\\)+\\'" name)
-               (setq fname (nth 1 (split-string name "[ \t,]+"))
-                     lname (nth 0 (split-string name "[ \t,]+"))))
-              ((string-match "\\`\\(\\w\\|[-.]\\)+\\'" name)
-               (setq fname name
-                     lname ""))
-              ((string-match "\\`\\(\\w+?\\) " name)
-               (setq fname (match-string 1 name)
-                     lname ""))))
-      (org-capture nil "t")
-      (when (stringp fname)
-        (insert ?\( fname)
-        (if (and arg (stringp lname))
-            (insert ?  lname))
-        (insert ?\) ? ))
-      (if subject
-          (let ((new-subject subject))
-            (dolist (transform org-subject-transforms)
-              (setq new-subject
-                    (replace-regexp-in-string (car transform)
-                                              (cdr transform) new-subject)))
-            (save-excursion
-              (insert new-subject))))
+                                                     (region-end)))))
       (when body
         (flet ((trim-string (str)
                             (replace-regexp-in-string
@@ -119,19 +116,49 @@
           (save-excursion
             (forward-line 2)
             (dolist (line (split-string (trim-string body) "\n"))
-              (insert "   " line ?\n)))))
-      (org-set-property "Date"
-                        (or date-sent
-                            (time-to-org-timestamp
-                             (apply 'encode-time
-                                    (parse-time-string date-sent)) t t)))
-      (org-set-property "Message"
-                        (format "[[message://%s][%s]]"
-                                (substring message-id 1 -1)
-                                (subst-char-in-string
-                                 ?\[ ?\{ (subst-char-in-string
-                                          ?\] ?\} subject))))
-      (org-set-property "Author" from))))
+              (insert "   " line ?\n))))))
+
+    (org-set-property "Date"
+                      (or date-sent
+                          (time-to-org-timestamp
+                           (apply 'encode-time
+                                  (parse-time-string date-sent)) t t)))
+    (org-set-property "Message"
+                      (format "[[message://%s][%s]]"
+                              (substring message-id 1 -1)
+                              (subst-char-in-string
+                               ?\[ ?\{ (subst-char-in-string
+                                        ?\] ?\} subject))))
+    (org-set-property "Author" from)
+
+    (org-capture-finalize)
+    (message "Captured: (%s) %s" fname subject)))
+
+;;;###autoload
+(defun org-smart-capture (&optional arg)
+  (interactive "P")
+  (if (not (memq major-mode '(gnus-summary-mode gnus-article-mode)))
+      (org-capture nil "t")
+
+    (cond ((eq major-mode 'gnus-article-mode)
+           (org-smart-capture-article)
+           (with-current-buffer gnus-summary-buffer
+             (gnus-summary-mark-as-read
+              nil (unless (string= (buffer-name) "*Summary INBOX*")
+                    gnus-dormant-mark))))
+
+          ((eq major-mode 'gnus-summary-mode)
+           (save-excursion
+             (dolist (article (gnus-summary-work-articles arg))
+               (gnus-summary-remove-process-mark article)
+               (gnus-summary-mark-as-read
+                article (unless (string= (buffer-name gnus-summary-buffer)
+                                         "*Summary INBOX*")
+                          gnus-dormant-mark))
+               (save-excursion
+                 (org-smart-capture-article article))))
+           (gnus-summary-position-point)
+           (gnus-set-mode-line 'summary)))))
 
 (provide 'org-smart-capture)
 
