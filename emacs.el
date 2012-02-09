@@ -1908,12 +1908,10 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (defun gnus-query (query)
   (interactive "sMail Query: ")
   (let ((nnir-imap-default-search-key "imap"))
-    (funcall
-     (symbol-function 'gnus-group-make-nnir-group)
-     nil
-     `((query    . ,query)
-       (criteria . "")
-       (server   . "nnimap:Local") ))))
+    (gnus-group-make-nnir-group
+     nil `((query    . ,query)
+           (criteria . "")
+           (server   . "nnimap:Local") ))))
 
 ;;(gnus-query (concat "header message-id " message-id))
 
