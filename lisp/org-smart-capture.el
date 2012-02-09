@@ -56,7 +56,7 @@
                           (parse-time-string date-sent)) t t)
               ?\]))))
 
-(defun org-smart-capture-article (&optional article)
+(defun org-smart-capture-article (&optional article multiple)
   (let* ((article (or article (gnus-summary-article-number)))
          (data (gnus-data-find-list article))
          (ghead (gnus-data-header (car data)))
@@ -131,8 +131,9 @@
                                         ?\] ?\} subject))))
     (org-set-property "Author" from)
 
-    (org-capture-finalize)
-    (message "Captured: (%s) %s" fname subject)))
+    (when multiple
+      (org-capture-finalize)
+      (message "Captured: (%s) %s" fname subject))))
 
 ;;;###autoload
 (defun org-smart-capture (&optional arg)
@@ -149,14 +150,16 @@
 
           ((eq major-mode 'gnus-summary-mode)
            (save-excursion
-             (dolist (article (gnus-summary-work-articles arg))
-               (gnus-summary-remove-process-mark article)
-               (gnus-summary-mark-as-read
-                article (unless (string= (buffer-name gnus-summary-buffer)
-                                         "*Summary INBOX*")
-                          gnus-dormant-mark))
-               (save-excursion
-                 (org-smart-capture-article article))))
+             (let* ((articles (gnus-summary-work-articles arg))
+                    (multiple (> (length articles) 1)))
+               (dolist (article articles)
+                 (gnus-summary-remove-process-mark article)
+                 (gnus-summary-mark-as-read
+                  article (unless (string= (buffer-name gnus-summary-buffer)
+                                           "*Summary INBOX*")
+                            gnus-dormant-mark))
+                 (save-excursion
+                   (org-smart-capture-article article multiple)))))
            (gnus-summary-position-point)
            (gnus-set-mode-line 'summary)))))
 
