@@ -174,18 +174,19 @@ if found, to (point-max) otherwise. return true if found, nil otherwise."
 
 (defun coq-looking-at-comment ()
   "Return non-nil if point is inside a comment."
-  (save-excursion (coq-skip-until-one-comment-backward)))
+  (proof-inside-comment (+ 1 (point))))
 
 (defun coq-find-comment-start ()
   "Go to the current comment start.
 If inside nested comments, go to the start of the
 outer most comment. Return the position of the comment start. If not inside a
 comment, return nil and does not move the point."
-  (let ((prevpos (point)) (init (point)))
-    (while (coq-skip-until-one-comment-backward)
-      (setq prevpos (point)))
-    (goto-char prevpos)
-    (if (= prevpos init) nil prevpos)))
+  (when (coq-looking-at-comment)
+    (let ((prevpos (point)) (init (point)))
+      (while (coq-skip-until-one-comment-backward)
+        (setq prevpos (point)))
+      (goto-char prevpos)
+      (if (= prevpos init) nil prevpos))))
 
 (defun coq-find-comment-end ()
   "Go to the current comment end.

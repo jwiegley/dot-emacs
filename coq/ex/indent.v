@@ -6,13 +6,13 @@ Notation "[ a ; .. ; b ]" := (a :: .. (b :: []) ..) : list_scope.
 Require Import Arith.
 
 Record a : Type := make_a {
-  aa : nat
-}.
+                       aa : nat
+                     }.
 
 Lemma toto:nat.
 Proof.
   {{
-    exact 3.
+     exact 3.
   }}
 Qed.
 
@@ -34,37 +34,37 @@ Function div2 (n : nat) {struct n}: nat :=
 Module M1.
   Module M2.
     Lemma l1: forall n:nat, n = n. 
-      auto.
+    auto.
     Qed.
     Lemma l2: forall n:nat, n = n. 
-      auto. Qed.
+    auto. Qed.
     Lemma l3: forall n:nat, n <= n. auto. Qed.
     (*   Lemma l4: forall n:nat, n <= n. Proof. intro. Qed. *)
     Lemma l5 : forall n:nat, n <= n.
     Proof. auto.
     Qed.
     Lemma l6: forall n:nat, n = n. 
-      intros.
-      Lemma l7: forall n:nat, n = n. 
-        destruct n.
-        BeginSubproof.
-          auto.
-        EndSubproof.
-        BeginSubproof.
-          destruct n.
-          BeginSubproof.
-            auto.
-          EndSubproof.
-          auto.
-        EndSubproof.        
-      Qed.
+    intros.
+    Lemma l7: forall n:nat, n = n. 
+    destruct n.
+    BeginSubproof.
+      auto.
+    EndSubproof.
+    BeginSubproof.
+      destruct n.
       BeginSubproof.
-        destruct n.
-        BeginSubproof.
-          auto. EndSubproof.
-        BeginSubproof. auto.
-        EndSubproof.
+        auto.
       EndSubproof.
+      auto.
+    EndSubproof.        
+    Qed.
+    BeginSubproof.
+      destruct n.
+      BeginSubproof.
+        auto. EndSubproof.
+      BeginSubproof. auto.
+      EndSubproof.
+    EndSubproof.
     Qed.
   End M2.
 End M1.
@@ -73,8 +73,10 @@ End M1.
 Module M1'.
   Module M2'.
     Lemma l6: forall n:nat, n = n. 
+    Proof.
       intros.
       Lemma l7: forall n:nat, n = n. 
+      Proof.
         destruct n.
         {
           auto.
@@ -83,8 +85,8 @@ Module M1'.
           destruct n.
           {
             idtac;[
-              auto
-            ].
+                     auto
+                   ].
           }
           auto.
         } 
@@ -99,46 +101,70 @@ Module M1'.
 End M1'.
 
 
+Module M4'.
+  Module M2'.
+    Lemma l6: forall n:nat, n = n. 
+    Proof.
+      intros.
+      Lemma l7: forall n:nat, n = n. 
+      Proof.
+        destruct n.
+        - auto.
+        - destruct n.
+          + idtac;[
+              auto
+            ].
+          + auto.
+      Qed.
+      {destruct n.
+        - auto.
+        - auto. 
+      }
+    Qed.
+  End M2'.
+End M1'.
+
+
 Module M1''.
   Module M2''.
     Lemma l7: forall n:nat, n = n. 
-      destruct n.
-      { auto. }
-      { destruct n.
-        { idtac; [ auto ]. }
-        auto. } 
+    destruct n.
+    { auto. }
+    { destruct n.
+      { idtac; [ auto ]. }
+      auto. } 
     Qed.
   End M2''.
 End M1''.
 
 
 Record rec:Set := { 
-  fld1:nat;
-  fld2:nat;
-  fld3:bool
-}.
+                 fld1:nat;
+                 fld2:nat;
+                 fld3:bool
+               }.
 
 Class cla {X:Set}:Set := { 
-  cfld1:nat;
-  cld2:nat;
-  cld3:bool
-}.
+                        cfld1:nat;
+                        cld2:nat;
+                        cld3:bool
+                      }.
 
 
 
 Module X.
   Lemma l :
     forall r:rec,
-      exists r':rec,
-        r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
+    exists r':rec,
+      r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
   Proof.
     intros r.  
     { exists 
-      {|
-        fld1:=r.(fld2);
-        fld2:=r.(fld1);
-        fld3:=false
-      |}.
+        {|
+          fld1:=r.(fld2);
+          fld2:=r.(fld1);
+          fld3:=false
+        |}.
       split.
       {auto. }
       {auto. }
@@ -148,23 +174,24 @@ Module X.
 
   Lemma l2 :
     forall r:rec,
-      exists r':rec,r'.(fld1) = r.(fld2) /\ r'.(fld2) = r.(fld1).
+    exists r':rec,r'.(fld1) = r.(fld2) /\ r'.(fld2) = r.(fld1).
+  Proof.
     intros r.  
     {{
-        idtac;
-          exists 
-            {|
-              fld1:=r.(fld2);
-              fld2:=r.(fld1);
-              fld3:=false
-            |}.
-    (* ltac *)
-        match goal with
-          | _:rec |- ?a /\ ?b => split
-          | _ => fail    
-        end.
-        {auto. }
-        {auto. }}}
+       idtac;
+         exists 
+           {|
+             fld1:=r.(fld2);
+             fld2:=r.(fld1);
+             fld3:=false
+           |}.
+       (* ltac *)
+       match goal with
+         | _:rec |- ?a /\ ?b => split
+         | _ => fail    
+       end.
+       {auto. }
+       {auto. }}}
   Qed.
 End X.
 
@@ -196,11 +223,11 @@ Module foo.
     Proper (pointwise_relation A iff ==> iff) (@all A).
 
   Next Obligation.
-  Proof.
-    unfold pointwise_relation, all in * .
-    intro.
-    intros y H.    
-    intuition ; specialize (H x0) ; intuition.
-  Qed.
-  
+    Proof.
+      unfold pointwise_relation, all in * .
+      intro.
+      intros y H.    
+      intuition ; specialize (H x0) ; intuition.
+    Qed.
+    
 End foo.
