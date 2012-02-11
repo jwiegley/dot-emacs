@@ -1071,7 +1071,8 @@ $0"))))
   (setq indent-tabs-mode nil)
 
   (define-key python-mode-map [(control return)] 'other-window)
-  (define-key python-mode-map [(control ?c) (control ?z)] 'python-shell))
+  (define-key python-mode-map [(control ?c) (control ?z)] 'python-shell)
+  (define-key python-mode-map [(control ?c) ?c] 'compile))
 
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
