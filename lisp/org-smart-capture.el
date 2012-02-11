@@ -150,7 +150,8 @@
 
           ((eq major-mode 'gnus-summary-mode)
            (save-excursion
-             (let* ((articles (gnus-summary-work-articles arg))
+             (let* ((current-article (gnus-summary-article-number))
+                    (articles (gnus-summary-work-articles nil))
                     (multiple (> (length articles) 1)))
                (dolist (article articles)
                  (gnus-summary-remove-process-mark article)
@@ -158,8 +159,30 @@
                   article (unless (string= (buffer-name gnus-summary-buffer)
                                            "*Summary INBOX*")
                             gnus-dormant-mark))
-                 (save-excursion
-                   (org-smart-capture-article article multiple)))))
+                 (unless arg
+                   (save-excursion
+                     (org-smart-capture-article article multiple))))
+
+               (when arg
+                 (let ((index 1))
+                   (org-smart-capture-article current-article)
+
+                   (dolist (article articles)
+                     (unless (eq article current-article)
+                       (let* ((ghead (gnus-data-header
+                                      (car (gnus-data-find-list article))))
+                              (message-id (mail-header-message-id ghead))
+                              (raw-subject (mail-header-subject ghead))
+                              (subject (and raw-subject
+                                            (rfc2047-decode-string raw-subject))))
+
+                         (org-set-property
+                          (format "Message%d" (setq index (1+ index)))
+                          (format "[[message://%s][%s]]"
+                                  (substring message-id 1 -1)
+                                  (subst-char-in-string
+                                   ?\[ ?\{ (subst-char-in-string
+                                            ?\] ?\} subject)))))))))))
            (gnus-summary-position-point)
            (gnus-set-mode-line 'summary)))))
 
