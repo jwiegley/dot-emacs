@@ -1631,14 +1631,15 @@ and coqdep does not output dependencies in the standard library."
   (concat "^\\*\\*\\* Warning: in file .*, library .* is required "
           "and has not been found")
   "Regexp to match errors in the output of coqdep.
-coqdep indicates errors not via a non-zero exit status, but only
-via printing warnings. This regular expression is used for
-recognizing error conditions in the output of coqdep. Its
-default value matches the warning that some required library
-cannot be found on the load path and ignores the warning for
-finding a library at multiple places in the load path. If you
-want to turn the latter condition into an error, then set this
-variable to \"^\\*\\*\\* Warning\"."
+coqdep indicates errors not always via a non-zero exit status,
+but sometimes only via printing warnings. This regular expression
+is used for recognizing error conditions in the output of
+coqdep (when coqdep terminates with exit status 0). Its default
+value matches the warning that some required library cannot be
+found on the load path and ignores the warning for finding a
+library at multiple places in the load path. If you want to turn
+the latter condition into an error, then set this variable to
+\"^\\*\\*\\* Warning\"."
   :type 'string
   :safe 'stringp
   :group 'coq-auto-compile)
@@ -1864,16 +1865,21 @@ dependencies are absolute too and the simplified treatment of
 break."
   (let ((coqdep-arguments
          (nconc (coq-include-options lib-src-file) (list lib-src-file)))
-        coqdep-output)
+        coqdep-status coqdep-output)
     (if coq-debug-auto-compilation
         (message "call coqdep arg list: %s" coqdep-arguments))
     (with-temp-buffer
-      (apply 'call-process
-       coq-dependency-analyzer nil (current-buffer) nil coqdep-arguments)
+      (setq coqdep-status
+            (apply 'call-process
+                   coq-dependency-analyzer nil (current-buffer) nil
+                   coqdep-arguments))
       (setq coqdep-output (buffer-string)))
     (if coq-debug-auto-compilation
-        (message "coqdep output on %s: %s" lib-src-file coqdep-output))
-    (if (string-match coq-coqdep-error-regexp coqdep-output)
+        (message "coqdep status %s, output on %s: %s"
+                 coqdep-status lib-src-file coqdep-output))
+    (if (or
+         (not (eq coqdep-status 0))
+         (string-match coq-coqdep-error-regexp coqdep-output))
         (let* ((this-command (cons coq-dependency-analyzer coqdep-arguments))
                (full-command (if command-intro
                                  (cons command-intro this-command)
