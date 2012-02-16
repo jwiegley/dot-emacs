@@ -2194,7 +2194,22 @@ Else, return \" \"."
        'gnus-article-browse-urls)))
 
 (eval-after-load "w3m"
-  '(define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser))
+  '(let (proxy-host proxy-port)
+     (with-temp-buffer
+       (shell-command "scutil --proxy" (current-buffer))
+       (when (re-search-forward "HTTPPort : \\([0-9]+\\)" nil t)
+         (setq proxy-port (match-string 1)))
+       (when (re-search-forward "HTTPProxy : \\(\\S-+\\)" nil t)
+         (setq proxy-host (match-string 1))))
+     (when (and proxy-host proxy-port)
+       (setq w3m-command-arguments
+             (nconc w3m-command-arguments
+                    (list "-o" (format "http_proxy=http://%s:%s/"
+                                       proxy-host proxy-port)))))
+
+     (add-hook 'w3m-mode-hook 'w3m-type-ahead-mode)
+
+     (define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser)))
 
 ;;;_. Keybindings
 
