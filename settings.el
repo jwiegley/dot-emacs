@@ -37,7 +37,7 @@
  '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec")
  '(check-mail-boxes (quote ("~/Messages/incoming/mail\\..*\\.spool")))
  '(check-mail-summary-function (quote check-mail-box-summary))
- '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt")))
+ '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "&bitlbee")))
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode t)
