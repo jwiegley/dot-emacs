@@ -367,7 +367,7 @@
 (add-hook 'magit-log-edit-mode-hook
           #'(lambda ()
               (set-fill-column 72)
-              (column-marker-1 72)
+              ;;(column-marker-1 72)
               (flyspell-mode)
               (orgstruct++-mode)
               (turn-on-filladapt-mode)))
@@ -665,7 +665,7 @@ $0"))))
   (set (make-local-variable 'parens-require-spaces) nil)
   (setq indicate-empty-lines t)
   (setq fill-column 72)
-  (column-marker-3 80)
+  ;;(column-marker-3 80)
 
   (let ((bufname (buffer-file-name)))
     (when bufname
@@ -1023,7 +1023,7 @@ $0"))))
   (paredit-mode 1)
   (redshank-mode 1)
 
-  (column-marker-1 79)
+  ;;(column-marker-1 79)
   (let (mode-map)
     (if emacs-lisp-p
         (progn
