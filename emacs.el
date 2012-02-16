@@ -272,6 +272,8 @@
 
 (eval-after-load "dired"
   '(progn
+     (require 'runner nil t)
+
      (setq dired-use-ls-dired t)
 
      (define-key dired-mode-map [?l] 'dired-up-directory)
