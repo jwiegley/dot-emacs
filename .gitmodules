@@ -106,9 +106,6 @@
 [submodule "site-lisp/slime"]
 	path = site-lisp/slime
 	url = git://github.com/nablaone/slime.git
-[submodule "site-lisp/sunrise-commander"]
-	path = site-lisp/sunrise-commander
-	url = git://github.com/jwiegley/sunrise-commander.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = http://github.com/jwiegley/yasnippet.git
