@@ -2257,15 +2257,15 @@ Else, return \" \"."
               (throw 'found (setq candidate last))))))
     (if candidate
         (ido-visit-buffer candidate ido-default-buffer-method)
-      (gnus 1))))
+      (gnus-unplugged))))
 
-(define-key global-map [(meta ?C)] 'jump-to-org-agenda)
-(define-key global-map [(meta ?G)] 'switch-to-gnus)
+(define-key global-map [(meta shift ?c)] 'jump-to-org-agenda)
+(define-key global-map [(meta shift ?g)] 'switch-to-gnus)
 (define-key global-map [(meta ?m)] 'org-smart-capture)
-(define-key global-map [(meta ?M)] 'org-inline-note)
-(define-key global-map [(meta ?N)] 'winner-redo)
-(define-key global-map [(meta ?P)] 'winner-undo)
-(define-key global-map [(meta ?T)] 'tags-search)
+(define-key global-map [(meta shift ?m)] 'org-inline-note)
+(define-key global-map [(meta shift ?n)] 'winner-redo)
+(define-key global-map [(meta shift ?p)] 'winner-undo)
+(define-key global-map [(meta shift ?t)] 'tags-search)
 
 (defun find-grep-in-project (command-args)
   (interactive
