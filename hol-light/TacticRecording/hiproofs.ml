@@ -30,7 +30,7 @@ type hiproof =
     Hactive                             (* Active subgoal *)
   | Hatomic of (finfo * int)            (* Atomic tactic + arity *)
   | Hidentity                           (* Null, for wiring *)
-  | Hlabelled of (finfo * hiproof)      (* Box *)
+  | Hlabelled of (label * hiproof)      (* Box *)
   | Hsequence of (hiproof * hiproof)    (* Serial application *)
   | Htensor of hiproof list             (* Parallel application *)
   | Hempty;;                            (* Completed goal *)
@@ -87,9 +87,9 @@ type hitrace =
 let rec refactor_hiproof r foo h =
   let h' =
      match h with
-       Hlabelled (info,h0)
+       Hlabelled (l,h0)
           -> let h0' = refactor_hiproof r foo h0 in
-             Hlabelled (info,h0')
+             Hlabelled (l,h0')
      | Hsequence (h1,h2)
           -> let h1' = refactor_hiproof r foo h1 in
              let h2' = refactor_hiproof r foo h2 in
@@ -169,7 +169,7 @@ let separate_hiproofs hs = foldr separate_hiproofs0 hs ([],[]);;
 let delabel_hiproof h =
   let delabel h =
      match h with
-       Hlabelled ((Some "SUBGOAL_THEN",_),h0)
+       Hlabelled (Tactical (Some "SUBGOAL_THEN",_), h0)
           -> h
      | Hlabelled (_,h0)
           -> h0
@@ -221,12 +221,12 @@ let thenise_hiproof h =
      match h with
        Hsequence (h1, Htensor (h2::h2s))
           -> if (forall (fun h0 -> h0 = h2) h2s)
-               then Hlabelled ((Some "THEN", []), h)
+               then Hlabelled (Tactical (Some "THEN", []), h)
                else h
      | Hsequence (h1, Hsequence (Htensor (h2::h2s), h3))
           -> if (forall (fun h0 -> h0 = h2) h2s)
                then Hsequence
-                     (Hlabelled ((Some "THEN", []),
+                     (Hlabelled (Tactical (Some "THEN", []),
                                  Hsequence (h1, Htensor (h2::h2s))), h3)
                else h
      | _  -> h in
@@ -250,7 +250,7 @@ let rec hiproof_tactic_trace0 h =
        -> [info]
   | Hidentity
        -> []
-  | Hlabelled (info,h0)
+  | Hlabelled (_,h0)
        -> hiproof_tactic_trace0 h0
   | Hsequence (h1,h2)
        -> (hiproof_tactic_trace0 h1) @ (hiproof_tactic_trace0 h2)

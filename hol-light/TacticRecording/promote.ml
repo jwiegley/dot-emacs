@@ -24,6 +24,8 @@ let ASSUME_TAC = thm_tactic_wrap "ASSUME_TAC" ASSUME_TAC;;
 
 let ACCEPT_TAC = thm_tactic_wrap "ACCEPT_TAC" ACCEPT_TAC;;
 
+let CONV_TAC = conv_tactic_wrap "CONV_TAC" CONV_TAC;;
+
 let REFL_TAC = tactic_wrap "REFL_TAC" REFL_TAC;;
 let ABS_TAC = tactic_wrap "ABS_TAC" ABS_TAC;;
 let MK_COMB_TAC = tactic_wrap "MK_COMB_TAC" MK_COMB_TAC;;
@@ -65,7 +67,6 @@ let ANTS_TAC = tactic_wrap "ANTS_TAC" ANTS_TAC;;
 
 (* Special cases, already fully hand-promoted *)
 
-let CONV_TAC = xCONV_TAC;;
 let SUBGOAL_THEN = xSUBGOAL_THEN;;
 
 
@@ -218,6 +219,8 @@ let PURE_ASM_REWRITE_TAC =
         thmlist_tactic_wrap "PURE_ASM_REWRITE_TAC" PURE_ASM_REWRITE_TAC;;
 let ONCE_ASM_REWRITE_TAC =
         thmlist_tactic_wrap "ONCE_ASM_REWRITE_TAC" ONCE_ASM_REWRITE_TAC;;
+let GEN_REWRITE_TAC =
+        convconvthmlist_tactic_wrap "GEN_REWRITE_TAC" GEN_REWRITE_TAC;;
 let SIMP_TAC = thmlist_tactic_wrap "SIMP_TAC" SIMP_TAC;;
 let PURE_SIMP_TAC = thmlist_tactic_wrap "PURE_SIMP_TAC" PURE_SIMP_TAC;;
 let ONCE_SIMP_TAC = thmlist_tactic_wrap "ONCE_SIMP_TAC" ONCE_SIMP_TAC;;
@@ -241,12 +244,20 @@ let ASM_REAL_ARITH_TAC = tactic_wrap "ASM_REAL_ARITH_TAC" ASM_REAL_ARITH_TAC;;
 
 (* More rules *)
 
+let RATOR_CONV = conv_conv_wrap "RATOR_CONV" RATOR_CONV;;
+let RAND_CONV = conv_conv_wrap "RAND_CONV" RAND_CONV;;
+let LAND_CONV = conv_conv_wrap "LAND_CONV" LAND_CONV;;
+let ABS_CONV = conv_conv_wrap "ABS_CONV" ABS_CONV;;
+let BINDER_CONV = conv_conv_wrap "BINDER_CONV" BINDER_CONV;;
+let SUB_CONV = conv_conv_wrap "SUB_CONV" SUB_CONV;;
+let BINOP_CONV = conv_conv_wrap "BINOP_CONV" BINOP_CONV;;
 let GSYM = rule_wrap "GSYM" GSYM;;
 let ISPECL = termlist_rule_wrap "ISPECL" ISPECL;;
 let ALL_CONV = conv_wrap "ALL_CONV" ALL_CONV;;
 let (REPEATC) = conv_conv_wrap "REPEATC" REPEATC;;
 let ONCE_DEPTH_CONV = conv_conv_wrap "ONCE_DEPTH_CONV" ONCE_DEPTH_CONV;;
 
+let num_CONV = conv_wrap "num_CONV" num_CONV;;
 let ARITH_RULE = conv_wrap "ARITH_RULE" ARITH_RULE;;
 
 let REAL_ARITH = conv_wrap "REAL_ARITH" REAL_ARITH;;
@@ -262,9 +273,13 @@ let EQ_IMP = theorem_wrap "EQ_IMP" EQ_IMP;;
 let ARITH = theorem_wrap "ARITH" ARITH;;
 let ARITH_EQ = theorem_wrap "ARITH_EQ" ARITH_EQ;;
 let ADD_CLAUSES = theorem_wrap "ADD_CLAUSES" ADD_CLAUSES;;
+let MULT_CLAUSES =theorem_wrap "MULT_CLAUSES" MULT_CLAUSES;;
 let SUB_REFL = theorem_wrap "SUB_REFL" SUB_REFL;;
 let ADD1 =  theorem_wrap "ADD1" ADD1;;
 let LE_1 = theorem_wrap "LE_1" LE_1;;
+let LE_REFL = theorem_wrap "LE_REFL" LE_REFL;;
+let LT_SUC = theorem_wrap "LT_SUC" LT_SUC;;
+let FACT = theorem_wrap "FACT" FACT;;
 
 let REAL_ADD_LDISTRIB = theorem_wrap "REAL_ADD_LDISTRIB" REAL_ADD_LDISTRIB;;
 let REAL_OF_NUM_ADD = theorem_wrap "REAL_OF_NUM_ADD" REAL_OF_NUM_ADD;;
@@ -294,4 +309,5 @@ let SUM_ADD_SPLIT = theorem_wrap "SUM_ADD_SPLIT" SUM_ADD_SPLIT;;
 let SUM_POS_LE_NUMSEG = theorem_wrap "SUM_POS_LE_NUMSEG" SUM_POS_LE_NUMSEG;;
 let SUM_CLAUSES_NUMSEG = theorem_wrap "SUM_CLAUSES_NUMSEG" SUM_CLAUSES_NUMSEG;;
 let SUM_SING_NUMSEG = theorem_wrap "SUM_SING_NUMSEG" SUM_SING_NUMSEG;;
-let PRODUCT_CLAUSES_NUMSEG = theorem_wrap "PRODUCT_CLAUSES_NUMSEG" PRODUCT_CLAUSES_NUMSEG;;
+let PRODUCT_CLAUSES_NUMSEG =
+   theorem_wrap "PRODUCT_CLAUSES_NUMSEG" PRODUCT_CLAUSES_NUMSEG;;

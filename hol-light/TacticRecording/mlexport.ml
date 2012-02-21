@@ -24,10 +24,10 @@ let rec gtree_to_hiproof gtr =
   | Gexecuted (gstp,gtrs)
        -> let h1 =
              match gstp with
-               Gatom info | Gbox (info,_,true)
+               Gatom info | Gbox (Tactical info, _, true)
                   -> Hatomic (info, length gtrs)
-             | Gbox (info,gtr,false)
-                  -> Hlabelled (info, gtree_to_hiproof gtr) in
+             | Gbox (l,gtr,false)
+                  -> Hlabelled (l, gtree_to_hiproof gtr) in
           let h2 = Htensor (map gtree_to_hiproof gtrs) in
           Hsequence (h1,h2);;
 
@@ -122,7 +122,7 @@ let print_hiproof0 pr br h =
        -> print_tactic br info
   | Hidentity
        -> print_string "ALL_TAC"
-  | Hlabelled (info,h0)
+  | Hlabelled (_,h0)
        -> pr br h0
   | Hsequence (h1, Htensor h2s)
        -> (print_string_if br "(";
@@ -154,20 +154,28 @@ let rec print_hiproof1 br h = print_hiproof0 print_hiproof1 br h;;
 
 let rec print_hiproof2 br h =
   match h with
-    Hlabelled ((Some "REPEAT", _), Hsequence (h1,h2))  (* only if repeats *)
+    Hlabelled (Tactical (Some "REPEAT", _), Hsequence (h1,h2)) (* if repeated *)
        -> (print_string_if br "(";
            print_string "REPEAT ";
            print_hiproof2 true h1;
            print_string_if br ")")
-  | Hlabelled ((Some "THEN", _),
-               Hsequence (h1, Htensor (h2::h2s)))      (* only if tac2 used *)
+  | Hlabelled (Tactical (Some "THEN", _),                     (* if tac2 used *)
+               Hsequence (h1, Htensor (h2::h2s)))
        -> (print_string_if br "(";
            print_hiproof2 false h1;
            print_string " THEN ";
            print_hiproof2 true h2;
            print_string_if br ")")
-  | Hlabelled (((Some "SUBGOAL_THEN", (Fterm tm)::[farg]) as info), _)
+  | Hlabelled (Tactical ((Some "SUBGOAL_THEN",                (* special case *)
+                         (Fterm tm)::[farg]) as info),
+               _)
        -> (print_tactic br info)
+  | Hlabelled (Label x, h)
+       -> (print_string_if br "(";
+           print_string "HILABEL ";
+           print_fstring x; print_string " ";
+           print_hiproof2 true h;
+           print_string_if br ")")
   | _  -> (print_hiproof0 print_hiproof2 br h);;
 
 

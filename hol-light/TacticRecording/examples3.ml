@@ -5,6 +5,9 @@ needs "Library/products.ml";;
 
 prioritize_real();;
 
+AIM: CONT_COMPOSE (Library/analysis.ml)
+- used by John in his Proof Style paper
+
 
 (* ** LEMMA1 from HOL Light's 100/arithmetic_geometric_mean.ml ** *)
 
@@ -20,17 +23,50 @@ let LEMMA_1 = prove
   ASM_REWRITE_TAC[SUM_RMUL; REAL_MUL_ASSOC; REAL_ADD_LDISTRIB] THEN
   REWRITE_TAC[GSYM REAL_OF_NUM_SUC; REAL_POW_ADD] THEN REAL_ARITH_TAC);;
 
+let LEMMA_1 = prove
+ (`!x n. x pow (n + 1) - (&n + &1) * x + &n =
+         (x - &1) pow 2 * sum(1..n) (\k. &k * x pow (n - k))`,
+  CONV_TAC(ONCE_DEPTH_CONV SYM_CONV) THEN GEN_TAC THEN
+  HILABEL "induction"
+         (INDUCT_TAC THEN
+          REWRITE_TAC[SUM_CLAUSES_NUMSEG; ARITH_EQ; ADD_CLAUSES]) THENL
+   [HILABEL "base case" REAL_ARITH_TAC; ALL_TAC] THEN
+  HILABEL "step case" (REWRITE_TAC[ARITH_RULE `1 <= SUC n`] THEN
+  SIMP_TAC[ARITH_RULE `k <= n ==> SUC n - k = SUC(n - k)`; SUB_REFL] THEN
+  REWRITE_TAC[real_pow; REAL_MUL_RID] THEN
+  REWRITE_TAC[REAL_ARITH `k * x * x pow n = (k * x pow n) * x`] THEN
+  ASM_REWRITE_TAC[SUM_RMUL; REAL_MUL_ASSOC; REAL_ADD_LDISTRIB] THEN
+  REWRITE_TAC[GSYM REAL_OF_NUM_SUC; REAL_POW_ADD] THEN REAL_ARITH_TAC));;
+
 let LEMMA_1 = theorem_wrap "LEMMA_1" LEMMA_1;;
 
 top_thm ();;
 print_executed_proof true;;
-print_flat_proof true;;
+print_flat_proof false;;
 print_packaged_proof ();;
+print_thenl_proof ();;
 
 g `!x n. x pow (n + 1) - (&n + &1) * x + &n =
          (x - &1) pow 2 * sum(1..n) (\k. &k * x pow (n - k))`;;
+e (CONV_TAC (ONCE_DEPTH_CONV SYM_CONV));;
+e (GEN_TAC);;
+e (INDUCT_TAC);;
+(* *** Subgoal 1 *** *)
+e (REWRITE_TAC [SUM_CLAUSES_NUMSEG;ARITH_EQ;ADD_CLAUSES]);;
+e (REAL_ARITH_TAC);;
+(* *** Subgoal 2 *** *)
+e (REWRITE_TAC [SUM_CLAUSES_NUMSEG;ARITH_EQ;ADD_CLAUSES]);;
+e (REWRITE_TAC [ARITH_RULE `1 <= SUC n`]);;
+e (SIMP_TAC [ARITH_RULE `k <= n ==> SUC n - k = SUC (n - k)`; SUB_REFL]);;
+e (REWRITE_TAC [real_pow;REAL_MUL_RID]);;
+e (REWRITE_TAC [REAL_ARITH `k * x * x pow n = (k * x pow n) * x`]);;
+e (ASM_REWRITE_TAC [SUM_RMUL;REAL_MUL_ASSOC;REAL_ADD_LDISTRIB]);;
+e (REWRITE_TAC [GSYM REAL_OF_NUM_SUC; REAL_POW_ADD]);;
+e (REAL_ARITH_TAC);;
 
-print_executed_proof ();;
+print_executed_proof true;;
+print_packaged_proof ();;
+print_thenl_proof ();;
 
 (* LEMMA 2 *)
 
@@ -108,3 +144,30 @@ let AGM = prove
                  ARITH_RULE `i <= n ==> i <= n + 1`] THEN
     GEN_REWRITE_TAC RAND_CONV [REAL_MUL_SYM] THEN MATCH_MP_TAC REAL_LE_RMUL THEN
     ASM_SIMP_TAC[LE_REFL; LE_1; ARITH_RULE `i <= n ==> i <= n + 1`]]);;
+
+g `!n a. 1 <= n /\ (!i. 1 <= i /\ i <= n ==> &0 <= a(i))
+         ==> product(1..n) a <= (sum(1..n) a / &n) pow n`;;
+e (INDUCT_TAC);;
+(* *** Subgoal 1 *** *)
+e (REWRITE_TAC [ARITH;PRODUCT_CLAUSES_NUMSEG]);;
+(* *** Subgoal 2 *** *)
+e (REWRITE_TAC [ARITH;PRODUCT_CLAUSES_NUMSEG]);;
+e (REWRITE_TAC [ARITH_RULE `1 <= SUC n`]);;
+e (X_GEN_TAC `x:num->real`);;
+e (ASM_CASES_TAC `n = 0`);;
+(* *** Subgoal 2.1 *** *)
+e (ASM_REWRITE_TAC [PRODUCT_CLAUSES_NUMSEG;ARITH;SUM_SING_NUMSEG]);;
+e (REAL_ARITH_TAC);;
+(* *** Subgoal 2.2 *** *)
+e (REWRITE_TAC [ADD1]);;
+e (STRIP_TAC);;
+e (MATCH_MP_TAC REAL_LE_TRANS);;
+e (EXISTS_TAC `x (n + 1) * (sum (1..n) x / &n) pow n`);;
+e (ASM_SIMP_TAC [LEMMA_3; GSYM REAL_OF_NUM_ADD; LE_1; ARITH_RULE `i <= n ==> i <= n + 1`]);;
+e (GEN_REWRITE_TAC RAND_CONV [REAL_MUL_SYM]);;
+e (MATCH_MP_TAC REAL_LE_RMUL);;
+e (ASM_SIMP_TAC [LE_REFL; LE_1; ARITH_RULE `i <= n ==> i <= n + 1`]);;
+
+g `!n a. 1 <= n /\ (!i. 1 <= i /\ i <= n ==> &0 <= a(i))
+         ==> product(1..n) a <= (sum(1..n) a / &n) pow n`;;
+e (INDUCT_TAC THEN REWRITE_TAC [ARITH;PRODUCT_CLAUSES_NUMSEG] THEN REWRITE_TAC [ARITH_RULE `1 <= SUC n`] THEN X_GEN_TAC `x:num->real` THEN ASM_CASES_TAC `n = 0` THENL [ASM_REWRITE_TAC [PRODUCT_CLAUSES_NUMSEG;ARITH;SUM_SING_NUMSEG] THEN REAL_ARITH_TAC; REWRITE_TAC [ADD1] THEN STRIP_TAC THEN MATCH_MP_TAC REAL_LE_TRANS THEN EXISTS_TAC `x (n + 1) * (sum (1..n) x / &n) pow n` THEN ASM_SIMP_TAC [LEMMA_3; GSYM REAL_OF_NUM_ADD; LE_1; ARITH_RULE `i <= n ==> i <= n + 1`] THEN GEN_REWRITE_TAC RAND_CONV [REAL_MUL_SYM] THEN MATCH_MP_TAC REAL_LE_RMUL THEN ASM_SIMP_TAC [LE_REFL; LE_1; ARITH_RULE `i <= n ==> i <= n + 1`]]);;
