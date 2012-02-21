@@ -1,0 +1,6 @@
+* Prooftree support: fix problem with successive proofs
+  (try example.ml with tree turned on, gives exn in Prooftree)
+
+* Prooftree: fix evar support so it works
+  Need patch for proof tree program and (maybe) modification of 
+  output
