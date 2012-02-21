@@ -4,3 +4,8 @@
 * Prooftree: fix evar support so it works
   Need patch for proof tree program and (maybe) modification of 
   output
+
+* PG: add patch for background startup (needs testing)
+
+* Integrate Tacticrecording/proof refactoring (e.g. menu option)
+
