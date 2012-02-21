@@ -7,5 +7,5 @@
 
 * PG: add patch for background startup (needs testing)
 
-* Integrate Tacticrecording/proof refactoring (e.g. menu option)
+* Integrate Tactic recording/proof refactoring (e.g. menu option)
 
