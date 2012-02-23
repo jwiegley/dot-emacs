@@ -4,6 +4,13 @@ let rec copy n x =
              else [];;
 
 
+let rec enumerate0 n xs =
+  match xs with
+    []     -> []
+  | x::xs0 -> (n,x)::enumerate0 (n+1) xs0;;
+let enumerate xs = enumerate0 1 xs;;
+
+
 (* foldr : ('a -> 'b -> 'b) -> 'a list -> 'b -> 'b                            *)
 
 let rec foldr f xs a =

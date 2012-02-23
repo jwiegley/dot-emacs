@@ -45,10 +45,11 @@ let th = top_thm ();;
 
 #use"TacticRecording/mlexport.ml";;
 
-print_executed_proof ();;
-print_flat_proof ();;
+print_executed_proof true;;
+print_flat_proof true;;
 print_thenl_proof ();;
-print_optimal_proof ();;
+print_packaged_proof ();;
+print_gv_proof ();;
 
 g `(y:A) = z ==> (x:A) = x /\ y = y /\ z = z`;;
 e (STRIP_TAC);;

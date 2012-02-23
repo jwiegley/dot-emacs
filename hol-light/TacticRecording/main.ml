@@ -15,9 +15,14 @@
 
 #use "TacticRecording/prooftree.ml";;
 
-(* Hiproofs, refactoring and export *)
+(* Hiproofs & refactoring *)
 
 #use "TacticRecording/hiproofs.ml";;
+
+(* Export *)
+
+#use "TacticRecording/printutils.ml";;
+#use "TacticRecording/gvexport.ml";;
 #use "TacticRecording/mlexport.ml";;
 
 (* Overwriting the existing HOL Light objects *)

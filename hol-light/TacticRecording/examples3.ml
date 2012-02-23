@@ -42,9 +42,14 @@ let LEMMA_1 = theorem_wrap "LEMMA_1" LEMMA_1;;
 
 top_thm ();;
 print_executed_proof true;;
-print_flat_proof false;;
+print_flat_proof true;;
 print_packaged_proof ();;
 print_thenl_proof ();;
+print_gv_proof ();;
+
+let gtr = !the_goal_tree;;
+let h = gtree_to_hiproof gtr;;
+let h' = (trivsimp_hiproof o dethen_hiproof) h;;
 
 g `!x n. x pow (n + 1) - (&n + &1) * x + &n =
          (x - &1) pow 2 * sum(1..n) (\k. &k * x pow (n - k))`;;
@@ -82,6 +87,7 @@ let LEMMA_2 = theorem_wrap "LEMMA_2" LEMMA_2;;
 print_executed_proof true;;
 print_flat_proof true;;
 print_packaged_proof ();;
+print_gv_proof ();;
 
 g `!n x. &0 <= x ==> &0 <= x pow (n + 1) - (&n + &1) * x + &n`;;
 
@@ -123,10 +129,67 @@ print_executed_proof true;;
 print_flat_proof true;;
 print_thenl_proof ();;
 print_packaged_proof ();;
+print_gv_proof ();;
 
 g `!n x. 1 <= n /\ (!i. 1 <= i /\ i <= n + 1 ==> &0 <= x i)
          ==> x(n + 1) * (sum(1..n) x / &n) pow n
                 <= (sum(1..n+1) x / (&n + &1)) pow (n + 1)`;;
+
+print_flat_proof true;;
+e (STRIP_TAC);;
+e (STRIP_TAC);;
+e (STRIP_TAC);;
+e (ABBREV_TAC `a = sum (1..n + 1) x / (&n + &1)`);;
+e (ABBREV_TAC `b = sum (1..n) x / &n`);;
+e (SUBGOAL_THEN `x (n + 1) = (&n + &1) * a - &n * b` SUBST1_TAC);;
+(* *** Subgoal 1 *** *)
+e (EXPAND_TAC "a");;
+e (EXPAND_TAC "b");;
+e (ASM_SIMP_TAC [REAL_DIV_LMUL; REAL_OF_NUM_EQ; LE_1; REAL_ARITH `~(&n + &1 = &0)`]);;
+e (SIMP_TAC [SUM_ADD_SPLIT; ARITH_RULE `1 <= n + 1`; SUM_SING_NUMSEG]);;
+e (REAL_ARITH_TAC);;
+(* *** Subgoal 2 *** *)
+e (SUBGOAL_THEN `&0 <= a /\ &0 <= b` STRIP_ASSUME_TAC);;
+(* *** Subgoal 2.1 *** *)
+e (EXPAND_TAC "a");;
+e (EXPAND_TAC "b");;
+e (CONJ_TAC);;
+(* *** Subgoal 2.1.1 *** *)
+e (MATCH_MP_TAC REAL_LE_DIV);;
+e (CONJ_TAC);;
+(* *** Subgoal 2.1.1.1 *** *)
+e (MATCH_MP_TAC SUM_POS_LE_NUMSEG);;
+e (ASM_SIMP_TAC [ARITH_RULE `p <= n ==> p <= n + 1`]);;
+(* *** Subgoal 2.1.1.2 *** *)
+e (REAL_ARITH_TAC);;
+(* *** Subgoal 2.1.2 *** *)
+e (MATCH_MP_TAC REAL_LE_DIV);;
+e (CONJ_TAC);;
+(* *** Subgoal 2.1.2.1 *** *)
+e (MATCH_MP_TAC SUM_POS_LE_NUMSEG);;
+e (ASM_SIMP_TAC [ARITH_RULE `p <= n ==> p <= n + 1`]);;
+(* *** Subgoal 2.1.2.2 *** *)
+e (REAL_ARITH_TAC);;
+(* *** Subgoal 2.2 *** *)
+e (ASM_CASES_TAC `b = &0`);;
+(* *** Subgoal 2.2.1 *** *)
+e (ASM_SIMP_TAC [REAL_POW_ZERO;LE_1;REAL_MUL_RZERO;REAL_POW_LE]);;
+(* *** Subgoal 2.2.2 *** *)
+e (ASM_SIMP_TAC [REAL_POW_ZERO;LE_1;REAL_MUL_RZERO;REAL_POW_LE]);;
+e (MP_TAC (ISPECL [`n`;`a / b`] LEMMA_2));;
+e (ASM_SIMP_TAC [REAL_LE_DIV]);;
+e (REWRITE_TAC [REAL_ARITH `&0 <= x - a + b <=> a - b <= x`; REAL_POW_DIV]);;
+e (SUBGOAL_THEN `&0 < b` ASSUME_TAC);;
+(* *** Subgoal 2.2.2.1 *** *)
+e (ASM_REAL_ARITH_TAC);;
+(* *** Subgoal 2.2.2.2 *** *)
+e (ASM_SIMP_TAC [REAL_LE_RDIV_EQ;REAL_POW_LT]);;
+e (MATCH_MP_TAC EQ_IMP);;
+e (AP_THM_TAC);;
+e (AP_TERM_TAC);;
+e (REWRITE_TAC [REAL_POW_ADD]);;
+e (UNDISCH_TAC `~(b = &0)`);;
+e (CONV_TAC REAL_FIELD);;
 
 (* AGM *)
 

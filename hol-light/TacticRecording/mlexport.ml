@@ -8,74 +8,11 @@
 
 
 (* Routines for exporting an ML tactic proof script from the recorded tactic  *)
-(* proof tree.                                                                *)
+(* proof tree, via a hiproof representation.                                  *)
 
 
 
-(* Translation to hiproof *)
-
-let rec gtree_to_hiproof gtr =
-  let (_,gtrm) = gtr in
-  match !gtrm with
-    Gactive
-       -> Hactive
-  | Gexit id
-       -> Hidentity
-  | Gexecuted (gstp,gtrs)
-       -> let h1 =
-             match gstp with
-               Gatom info | Gbox (Tactical info, _, true)
-                  -> Hatomic (info, length gtrs)
-             | Gbox (l,gtr,false)
-                  -> Hlabelled (l, gtree_to_hiproof gtr) in
-          let h2 = Htensor (map gtree_to_hiproof gtrs) in
-          Hsequence (h1,h2);;
-
-
-
-(* ** PRINT UTILITIES ** *)
-
-
-(* Basics *)
-
-let print_string_if b x = if b then print_string x;;
-
-let print_fstring x = print_string ("\"" ^ String.escaped x ^ "\"");;
-
-let print_fterm tm = print_string ("`" ^ string_of_term tm ^ "`");;
-
-let print_ftype ty = print_string ("`" ^ string_of_type ty ^ "`");;
-
-
-(* Printer for 'finfo' *)
-
-let rec print_farg x0 br arg =
-  match arg with
-    Fint n       -> print_int n
-  | Fstring x    -> print_fstring x
-  | Fterm tm     -> print_fterm tm
-  | Ftype ty     -> print_ftype ty
-  | Fthm prf     -> print_finfo "<rule>" br prf
-  | Fpair (arg1,arg2)
-       -> let sep = if (forall is_atomic_farg [arg1;arg2]) then "," else ", " in
-          (print_string_if br "(";
-           print_farg x0 false arg1;
-           print_string sep;
-           print_farg x0 false arg2;
-           print_string_if br ")")
-  | Flist args 
-       -> let sep = if (forall is_atomic_farg args) then ";" else "; " in
-          (print_string "[";
-           print_seplist (print_farg x0 false) sep args;
-           print_string "]")
-  | Ffn f
-       -> (print_finfo x0 br f)
-
-and print_finfo x0 br ((x_,args):finfo) =
-  (print_string_if (br & not (is_empty args)) "(";
-   print_option x0 x_;
-   do_list (fun arg -> print_string " "; print_farg x0 true arg) args;
-   print_string_if (br & not (is_empty args)) ")");;
+(* ** UTILS ** *)
 
 
 (* Printer for tactic 'finfo' *)
@@ -116,11 +53,11 @@ let print_hitrace_line_with fl pr htr =
 
 let print_hiproof0 pr br h =
   match h with
-    Hactive
+    Hactive _
        -> print_string "..."
-  | Hatomic (info,_)
-       -> print_tactic br info
-  | Hidentity
+  | Hatomic (id,_)
+       -> print_tactic br (gtree_tactic (get_gtree id))
+  | Hidentity _
        -> print_string "ALL_TAC"
   | Hlabelled (_,h0)
        -> pr br h0

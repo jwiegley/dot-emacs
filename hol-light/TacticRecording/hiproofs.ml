@@ -27,9 +27,9 @@
 (* indicates a tactic that completes its goal.                                *)
 
 type hiproof =
-    Hactive                             (* Active subgoal *)
-  | Hatomic of (finfo * int)            (* Atomic tactic + arity *)
-  | Hidentity                           (* Null, for wiring *)
+    Hactive of goalid                   (* Active subgoal *)
+  | Hatomic of (goalid * int)           (* Atomic tactic + arity *)
+  | Hidentity of goalid                 (* Null, for wiring *)
   | Hlabelled of (label * hiproof)      (* Box *)
   | Hsequence of (hiproof * hiproof)    (* Serial application *)
   | Htensor of hiproof list             (* Parallel application *)
@@ -47,19 +47,21 @@ let dest_hsequence h =
 
 let is_hsequence h = can dest_hsequence h;;
 
-let dest_atomic_hiproof h =
+let is_hidentity h = match h with Hidentity _ -> true | _ -> false;;
+
+let hiproof_id h =
   match h with
-    Hatomic (info,n) -> (info,n)
-  | _ -> failwith "dest_atomic_hiproof: Not an atomic hiproof";;
+    Hactive id | Hatomic (id,_) | Hidentity id -> id
+  | _  -> failwith "hiproof_id: Not a unit hiproof";;
 
 
 (* Arity *)
 
 let rec hiproof_arity h =
   match h with
-    Hactive           -> 1
+    Hactive _         -> 1
   | Hatomic (_,n)     -> n
-  | Hidentity         -> 1
+  | Hidentity _       -> 1
   | Hlabelled (_,h0)  -> hiproof_arity h0
   | Hsequence (h1,h2) -> hiproof_arity h2
   | Htensor hs        -> sum (map hiproof_arity hs)
@@ -71,6 +73,29 @@ let rec hiproof_arity h =
 type hitrace =
    Hicomment of int list
  | Hiproof of hiproof;;
+
+
+
+(* ** TRANSLATION OF GOAL TREE TO HIPROOF ** *)
+
+
+let rec gtree_to_hiproof gtr =
+  let id = gtree_id gtr in
+  let (_,gtrm) = gtr in
+  match !gtrm with
+    Gactive
+       -> Hactive id
+  | Gexit _
+       -> Hidentity id
+  | Gexecuted (gstp,gtrs)
+       -> let h1 =
+             match gstp with
+               Gatom _ | Gbox (_,_,true)
+                  -> Hatomic (id, length gtrs)
+             | Gbox (l,gtr,false)
+                  -> Hlabelled (l, gtree_to_hiproof gtr) in
+          let h2 = Htensor (map gtree_to_hiproof gtrs) in
+          Hsequence (h1,h2);;
 
 
 
@@ -118,22 +143,27 @@ let collapse_tensor h hs =
 let trivsimp_hiproof h =
   let trivsimp h =
      match h with
-       Hatomic ((Some"ALL_TAC",[]), _) -> Hidentity
-     | Hsequence (h1, Hempty)    -> h1
-     | Hsequence (h1, Hidentity) -> h1
-     | Hsequence (Hidentity, h2) -> h2
-     | Htensor []    -> Hempty
-     | Htensor [h0]  -> h0
-     | Htensor hs0   -> if (forall (fun h0 -> h0 = Hidentity) hs0)
-                          then Hidentity
-                          else Htensor (foldr collapse_tensor hs0 [])
-     | _   -> h in
+       Hatomic (id,_) when (gtree_tactic (get_gtree id) = (Some "ALL_TAC",[]))
+                                   -> Hidentity id
+     | Hsequence (h1, Hempty)      -> h1
+     | Hsequence (h1, Hidentity _) -> h1
+     | Hsequence (h1, Htensor hs2) -> if (forall is_hidentity hs2)
+                                        then h1
+                                        else h
+     | Hsequence (Hidentity _, h2) -> h2
+     | Hsequence (Htensor hs1, h2) -> if (forall is_hidentity hs1)
+                                        then h2
+                                        else h
+     | Htensor []                  -> Hempty
+     | Htensor [h0]                -> h0
+     | Htensor hs0                 -> Htensor (foldr collapse_tensor hs0 [])
+     | _  -> h in
   refactor_hiproof true trivsimp h;;
 
 
 (* Matching up lists of hiproofs *)
 
-let rec matchup_hiproofs hs1 hs2 =
+let rec matchup_hiproofs0 hs1 hs2 =
   match hs1 with
     [] -> []
   | h1::hs01
@@ -144,11 +174,16 @@ let rec matchup_hiproofs hs1 hs2 =
                        then failwith "matchup_hiproofs: unknown arity"
                        else failwith "matchup_hiproofs: Internal error - \
                                                       inconsistent arities" in
-          Hsequence (h1, Htensor hs2a) :: (matchup_hiproofs hs01 hs2b);;
+          (h1,hs2a) :: (matchup_hiproofs0 hs01 hs2b);;
+
+let matchup_hiproofs hs1 hs2 =
+  let hhs = matchup_hiproofs0 hs1 hs2 in
+  map (fun (h1,hs2) -> Hsequence (h1, Htensor hs2)) hhs;;
 
 
 (* Separating out lists of hiproofs *)
 
+(*
 let separate_hiproofs0 h (hs01,hs02) =
   match h with
     Hsequence (h1,h2)
@@ -158,6 +193,7 @@ let separate_hiproofs0 h (hs01,hs02) =
           (h::hs01, h2::hs02);;
 
 let separate_hiproofs hs = foldr separate_hiproofs0 hs ([],[]);;
+*)
 
 
 (* Delabelling *)
@@ -176,6 +212,14 @@ let delabel_hiproof h =
      | _  -> h in
   refactor_hiproof true delabel h;;
 
+let dethen_hiproof h =
+  let dethen h =
+     match h with
+       Hlabelled (Tactical (Some ("THEN" | "THENL"),_), h0)
+          -> h0
+     | _  -> h in
+  refactor_hiproof true dethen h;;
+
 
 (* Right-grouping *)
 
@@ -189,6 +233,8 @@ let rightgroup_hiproof h =
           -> Hsequence (h1, Htensor (matchup_hiproofs hs2 hs3))
      | Hsequence (Hsequence (h1, Htensor hs2), h3)
           -> Hsequence (h1, Htensor (matchup_hiproofs hs2 [h3]))
+     | Hsequence (Hsequence (h1,h2), h3)
+          -> Hsequence (h1, Hsequence (h2,h3))
      | _  -> h in
   refactor_hiproof true rightgroup h;;
 
@@ -234,21 +280,94 @@ let thenise_hiproof h =
 
 
 
+(* ** HIPROOF GRAPH ** *)
+
+
+(* Graph element datatype *)
+
+type graph_elem =
+    Box of (label * graph_elem list)
+  | Line of (goalid * goalid)
+  | Single of goalid;;
+
+let is_box ge =
+  match ge with Box _ -> true | _ -> false;;
+
+let mk_line id1 id2 = Line (id1,id2);;
+
+
+(* Utils *)
+
+let rec hiproof_ins h =
+  match h with
+    Hactive id        -> [id]
+  | Hatomic (id,n)    -> [id]
+  | Hidentity id      -> [-1]
+  | Hlabelled (l,h0)  -> hiproof_ins h0
+  | Hsequence (h1,h2) -> hiproof_ins h1
+  | Htensor hs        -> flat (map hiproof_ins hs)
+  | Hempty            -> [];;
+
+let rec hiproof_outs (h:hiproof) : goalid list =
+  match h with
+    Hactive id        -> [id]
+  | Hatomic (id,n)    -> copy n id
+  | Hidentity id      -> [id]
+  | Hlabelled (l,h0)  -> hiproof_outs h0
+  | Hsequence (h1, Htensor hs2)
+       -> let nhs2 = enumerate hs2 in
+          let ids1 = hiproof_outs h1 in
+          let foo (n2,h2) =
+             if (is_hidentity h2) then [el (n2-1) ids1]
+                                  else hiproof_outs h2 in
+          flat (map foo nhs2)
+  | Hsequence (h1,h2) -> hiproof_outs h2
+  | Htensor hs        -> flat (map hiproof_outs hs)
+  | Hempty            -> [];;
+
+
+(* Graph production *)
+
+let rec hiproof_graph0 h =
+  match h with
+    Hactive _      -> []
+  | Hatomic _      -> []
+  | Hidentity _    -> []
+  | Hlabelled (l,Hatomic (id,_))
+       -> [Box (l, [Single id])]
+  | Hlabelled (l,h0)
+       -> [Box (l, hiproof_graph0 h0)]
+  | Hsequence (h1,h2)
+       -> let idids = zip (hiproof_outs h1) (hiproof_ins h2) in
+          let idids' = filter (fun (_,id2) -> (id2 > 0)) idids in
+          (hiproof_graph0 h1) @
+          (map (fun idid -> Line idid) idids') @
+          (hiproof_graph0 h2)
+  | Htensor hs     -> flat (map hiproof_graph0 hs)
+  | Hempty         -> [];;
+
+let hiproof_graph h =
+  let ges = hiproof_graph0 h in
+  let (ges1,ges2) = partition is_box ges in
+  ges1 @ ges2;;
+
+
+
 (* ** OTHER OPERATIONS ** *)
 
 
 (* Tactic trace *)
 
-(* Gives a trace of the basic tactics used in the proof, ignoring how they    *)
-(* were combined by tacticals.                                                *)
+(* Gives a linear trace of the basic tactics used in the proof, ignoring how  *)
+(* they were combined by tacticals.                                           *)
 
 let rec hiproof_tactic_trace0 h =
   match h with
-    Hactive
+    Hactive _
        -> [active_info]
-  | Hatomic (info, _)
-       -> [info]
-  | Hidentity
+  | Hatomic (id, _)
+       -> [gtree_tactic (get_gtree id)]
+  | Hidentity _
        -> []
   | Hlabelled (_,h0)
        -> hiproof_tactic_trace0 h0
@@ -264,7 +383,7 @@ let hiproof_tactic_trace h = (hiproof_tactic_trace0 o delabel_hiproof) h;;
 
 (* Block trace *)
 
-(* Gives a trace of the hiproofs used in the proof, stopping at boxes.        *)
+(* Gives a linear trace of the hiproofs used in the proof, stopping at boxes. *)
 
 let rec hiproof_block_trace0 ns0 h =
   match h with
