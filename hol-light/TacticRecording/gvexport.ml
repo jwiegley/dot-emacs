@@ -23,7 +23,10 @@ let rec print_gv_graphelem d ge =
        -> (print_indent d; print_goalid id1; print_string " -> ";
              print_goalid id2; print_string ";\n")
   | Single id
-       -> (print_indent d; print_goalid id; print_string ";\n");;
+       -> (print_indent d; print_goalid id; print_string ";\n")
+  | Name (id,x)
+       -> (print_indent d; print_goalid id;
+             print_string " [label = "; print_fstring x; print_string "];\n");;
 
 let print_gv_graph ges =
   let () = (cluster_count := 0) in

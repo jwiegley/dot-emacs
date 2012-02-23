@@ -288,12 +288,23 @@ let thenise_hiproof h =
 type graph_elem =
     Box of (label * graph_elem list)
   | Line of (goalid * goalid)
-  | Single of goalid;;
+  | Single of goalid
+  | Name of (goalid * string);;
 
 let is_box ge =
   match ge with Box _ -> true | _ -> false;;
 
 let mk_line id1 id2 = Line (id1,id2);;
+
+let rec graph_elem_nodes ge =
+  match ge with
+    Box (_,ges)    -> graph_nodes ges
+  | Line (id1,id2) -> [id1;id2]
+  | Single id      -> [id]
+  | Name (id,x)    -> [id]
+
+and graph_nodes ges =
+  foldr (fun ge ids -> union (graph_elem_nodes ge) ids) ges [];;
 
 
 (* Utils *)
@@ -348,8 +359,13 @@ let rec hiproof_graph0 h =
 
 let hiproof_graph h =
   let ges = hiproof_graph0 h in
-  let (ges1,ges2) = partition is_box ges in
-  ges1 @ ges2;;
+  let ids = graph_nodes ges in
+  let tacname_of_id id =
+     match ((fst o gtree_tactic1 o get_gtree) id) with
+       Some x -> x
+     | None   -> "<tactic>" in
+  let ges' = map (fun id -> Name (id, tacname_of_id id)) ids in
+  ges' @ ges;;
 
 
 
