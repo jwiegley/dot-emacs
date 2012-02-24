@@ -22,34 +22,35 @@ let print_goalid id = print_int id;;
 let print_indent d = print_string (String.make d ' ');;
 
 
-(* Printer for 'finfo' *)
+(* Printer for 'mldata' *)
 
-let rec print_farg x0 br arg =
+let rec print_mlarg br arg =
   match arg with
-    Fint n       -> print_int n
-  | Fstring x    -> print_fstring x
-  | Fterm tm     -> print_fterm tm
-  | Ftype ty     -> print_ftype ty
-  | Fthm prf     -> print_finfo "<rule>" br prf
-  | Fpair (arg1,arg2)
-       -> let sep = if (forall is_atomic_farg [arg1;arg2]) then "," else ", " in
+    Mlint n       -> print_int n
+  | Mlstring x    -> print_fstring x
+  | Mlterm tm     -> print_fterm tm
+  | Mltype ty     -> print_ftype ty
+  | Mlthm prf     -> print_mldata br prf
+  | Mlpair (arg1,arg2)
+       -> let sep =
+             if (forall is_atomic_mlarg [arg1;arg2]) then "," else ", " in
           (print_string_if br "(";
-           print_farg x0 false arg1;
+           print_mlarg false arg1;
            print_string sep;
-           print_farg x0 false arg2;
+           print_mlarg false arg2;
            print_string_if br ")")
-  | Flist args 
-       -> let sep = if (forall is_atomic_farg args) then ";" else "; " in
+  | Mllist args 
+       -> let sep = if (forall is_atomic_mlarg args) then ";" else "; " in
           (print_string "[";
-           print_seplist (print_farg x0 false) sep args;
+           print_seplist (print_mlarg false) sep args;
            print_string "]")
-  | Ffn f
-       -> (print_finfo x0 br f)
+  | Mlfn f
+       -> (print_mldata br f)
 
-and print_finfo x0 br ((x_,args):finfo) =
+and print_mldata br ((x,args):mldata) =
   (print_string_if (br & not (is_empty args)) "(";
-   print_option x0 x_;
-   do_list (fun arg -> print_string " "; print_farg x0 true arg) args;
+   print_string x;
+   do_list (fun arg -> print_string " "; print_mlarg true arg) args;
    print_string_if (br & not (is_empty args)) ")");;
 
 
@@ -57,5 +58,4 @@ and print_finfo x0 br ((x_,args):finfo) =
 
 let print_label l =
   match l with
-    Tactical (Some x, _) | Label x  -> print_fstring x
-  | Tactical (None, _)              -> print_fstring "<tactical>";;
+    Tactical (x,_) | Label x  -> print_fstring x;;

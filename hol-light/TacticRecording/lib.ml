@@ -19,6 +19,15 @@ let rec foldr f xs a =
   | []      -> a;;
 
 
+(* foldr1 : ('a -> 'a -> 'a) -> 'a list -> 'a                                 *)
+
+let rec foldr1 f xs =
+  match xs with
+    x::[]   -> x
+  | x1::xs2 -> f x1 (foldr1 f xs2)
+  | []      -> failwith "foldr1: Empty list";;
+
+
 (* foldl : ('b -> 'a -> 'b) -> 'b -> 'a list -> 'b                            *)
 
 let rec foldl f a xs =

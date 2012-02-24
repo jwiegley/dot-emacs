@@ -6,6 +6,7 @@
 
 (* Datatypes and recording mechanism *)
 
+#use "TacticRecording/mldata.ml";;
 #use "TacticRecording/xthm.ml";;
 #use "TacticRecording/xtactics.ml";;
 #use "TacticRecording/tacticrec.ml";;

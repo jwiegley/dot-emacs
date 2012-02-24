@@ -11,19 +11,19 @@
 (* ** THEOREM-RELATED WRAPPER FUNCTIONS ** *)
 
 
-(* finfo_as_meta_arg *)
+(* mldata_as_meta_arg *)
 
-let finfo_as_meta_arg (info:finfo) =
-  match info with
-    (x_, ((_::_) as args))
-       -> Ffn (x_, front args)
-  | _  -> failwith "finfo_as_meta_arg: Unexpected empty rule arg list";;
+let mldata_as_meta_arg (obj:mldata) =
+  match obj with
+    (x, ((_::_) as args))
+       -> Mlfn (x, front args)
+  | _  -> failwith "mldata_as_meta_arg: Unexpected empty rule arg list";;
 
-let finfo_as_meta2_arg (info:finfo) =
-  match info with
-    (x_, ((_::_) as args))
-       -> Ffn (x_, (front o front) args)
-  | _  -> failwith "finfo_as_meta_arg: Unexpected empty rule arg list";;
+let mldata_as_meta2_arg (obj:mldata) =
+  match obj with
+    (x, ((_::_) as args))
+       -> Mlfn (x, (front o front) args)
+  | _  -> failwith "mldata_as_meta_arg: Unexpected empty rule arg list";;
 
 
 (* detect_rule_app *)
@@ -34,24 +34,24 @@ let finfo_as_meta2_arg (info:finfo) =
 (* result is returned along with an 'farg' that captures the rule.            *)
 
 let detect_rule_app (mfunc:('a->thm)->'b) (xr:'a->xthm) : 'c =
-  let temp = ref (Ffn (Some "<rule>", []) : farg) in
+  let temp = ref (Mlfn ("<rule>", []) : mlarg) in
   let r arg = let xth = xr arg in
-              let (th,info) = dest_xthm xth in
-              (temp := finfo_as_meta_arg info;
+              let (th,obj) = dest_xthm xth in
+              (temp := mldata_as_meta_arg obj;
                th) in
   let th = mfunc r in
   (th,!temp);;
 
 let detect_metarule_app (mfunc:(('a->thm)->'b->thm)->'c)
                         (xmr:('a->xthm)->'b->xthm) : 'd =
-  let temp = ref (Ffn (Some "<meta-rule>", []) : farg) in
+  let temp = ref (Mlfn ("<meta-rule>",[]) : mlarg) in
   let mr marg arg = let xmarg arg0 =
                        let th = marg arg0 in
-                       let info = (Some "<rule>", [Ffn (Some "<arg>",[])]) in
-                       mk_xthm (th,info) in
+                       let obj = ("<rule>", [Mlfn ("<arg>",[])]) in
+                       mk_xthm (th,obj) in
                     let xth = xmr xmarg arg in
-                    let (th,info) = dest_xthm xth in
-                    (temp := finfo_as_meta2_arg info;
+                    let (th,obj) = dest_xthm xth in
+                    (temp := mldata_as_meta2_arg obj;
                      th) in
   let th = mfunc mr in
   (th,!temp);;
@@ -60,7 +60,7 @@ let detect_metarule_app (mfunc:(('a->thm)->'b->thm)->'c)
 (* Theorem wrapper *)
 
 let theorem_wrap (x:string) (th:thm) : xthm =
-  (th, (Some x, []));;
+  (th, (x,[]));;
 
 
 (* Rule wrappers *)
@@ -68,81 +68,96 @@ let theorem_wrap (x:string) (th:thm) : xthm =
 (* Lots of rule wrappers are required because there are many different type   *)
 (* shapes for rules.                                                          *)
 
-let rule_wrap0 finfo (r:'a->thm) (arg:'a) : xthm =
+let rule_wrap0 obj (r:'a->thm) (arg:'a) : xthm =
   let th' = r arg in
-  mk_xthm (th',finfo);;
+  mk_xthm (th',obj);;
 
 let conv_wrap x (r:term->thm) (tm:term) : xthm =
-  rule_wrap0 (Some x, [Fterm tm]) r tm;;
+  rule_wrap0 (x, [Mlterm tm]) r tm;;
 
 let thm_conv_wrap x (r:thm->term->thm) (xth:xthm) tm : xthm =
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x, [Fthm prf; Fterm tm]) (r th) tm;;
+  rule_wrap0 (x, [Mlthm prf; Mlterm tm]) (r th) tm;;
 
 let thmlist_conv_wrap x (r:thm list->term->thm) xths (tm:term) : xthm =
   let (ths,prfs) = unzip (map dest_xthm xths) in
-  rule_wrap0 (Some x, [Flist (map (fun prf -> Fthm prf) prfs); Fterm tm])
+  rule_wrap0 (x, [Mllist (map (fun prf -> Mlthm prf) prfs); Mlterm tm])
              (r ths) tm;;
 
 let rule_wrap x (r:thm->thm) (xth:xthm) : xthm =
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x, [Fthm prf]) r th;;
+  rule_wrap0 (x, [Mlthm prf]) r th;;
 
 let drule_wrap x (r:thm->thm->thm) (xth1:xthm) (xth2:xthm) : xthm =
   let (th1,prf1) = dest_xthm xth1 in
   let (th2,prf2) = dest_xthm xth2 in
-  rule_wrap0 (Some x, [Fthm prf1; Fthm prf2]) (r th1) th2;;
+  rule_wrap0 (x, [Mlthm prf1; Mlthm prf2]) (r th1) th2;;
 
 let prule_wrap x (r:thm*thm->thm) ((xth1:xthm),(xth2:xthm)) : xthm =
   let (th1,prf1) = dest_xthm xth1 in
   let (th2,prf2) = dest_xthm xth2 in
-  rule_wrap0 (Some x, [Fpair(Fthm prf1, Fthm prf2)]) r (th1,th2);;
+  rule_wrap0 (x, [Mlpair(Mlthm prf1, Mlthm prf2)]) r (th1,th2);;
 
 let trule_wrap x (r:thm->thm->thm->thm)
                  (xth1:xthm) (xth2:xthm) (xth3:xthm) : xthm =
   let (th1,prf1) = dest_xthm xth1 in
   let (th2,prf2) = dest_xthm xth2 in
   let (th3,prf3) = dest_xthm xth3 in
-  rule_wrap0 (Some x, [Fthm prf1; Fthm prf2; Fthm prf3]) (r th1 th2) th3;;
+  rule_wrap0 (x, [Mlthm prf1; Mlthm prf2; Mlthm prf3]) (r th1 th2) th3;;
 
 let term_rule_wrap x (r:term->thm->thm) tm (xth:xthm) : xthm =
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x, [Fterm tm; Fthm prf]) (r tm) th;;
+  rule_wrap0 (x, [Mlterm tm; Mlthm prf]) (r tm) th;;
 
 let termpair_rule_wrap x (r:term*term->thm->thm) (tm1,tm2) (xth:xthm) : xthm =
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x, [Fpair(Fterm tm1,Fterm tm2); Fthm prf]) (r (tm1,tm2)) th;;
+  rule_wrap0 (x, [Mlpair(Mlterm tm1,Mlterm tm2); Mlthm prf]) (r (tm1,tm2)) th;;
 
 let termthmpair_rule_wrap x (r:term*thm->thm->thm) (tm,xth0) (xth:xthm) : xthm =
   let (th0,prf0) = dest_xthm xth0 in
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x, [Fpair(Fterm tm, Fthm prf0); Fthm prf]) (r (tm,th0)) th;;
+  rule_wrap0 (x, [Mlpair(Mlterm tm, Mlthm prf0); Mlthm prf]) (r (tm,th0)) th;;
 
 let termlist_rule_wrap x (r:term list->thm->thm) tms (xth:xthm) : xthm =
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x, [Flist (map (fun tm -> Fterm tm) tms); Fthm prf])
+  rule_wrap0 (x, [Mllist (map (fun tm -> Mlterm tm) tms); Mlthm prf])
              (r tms) th;;
 
 let terminst_rule_wrap x (r:(term*term)list->thm->thm) theta (xth:xthm) : xthm =
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x,
-              [Flist (map (fun (tm1,tm2) -> Fpair(Fterm tm1, Fterm tm2)) theta);
-               Fthm prf])
+  rule_wrap0 (x,
+              [Mllist (map (fun (tm1,tm2) -> Mlpair(Mlterm tm1, Mlterm tm2))
+                           theta);
+               Mlthm prf])
              (r theta) th;;
 
 let typeinst_rule_wrap x (r:(hol_type*hol_type)list->thm->thm)
                          theta (xth:xthm) : xthm =
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x,
-              [Flist (map (fun (tm1,tm2) -> Fpair(Ftype tm1, Ftype tm2)) theta);
-               Fthm prf])
+  rule_wrap0 (x,
+              [Mllist (map (fun (tm1,tm2) -> Mlpair(Mltype tm1, Mltype tm2))
+                           theta);
+               Mlthm prf])
              (r theta) th;;
 
 let thmlist_rule_wrap x (r:thm list->thm->thm) xths (xth:xthm) : xthm =
   let (ths,prfs) = unzip (map dest_xthm xths) in
   let (th,prf) = dest_xthm xth in
-  rule_wrap0 (Some x, [Flist (map (fun prf -> Fthm prf) prfs); Fthm prf])
+  rule_wrap0 (x, [Mllist (map (fun prf -> Mlthm prf) prfs); Mlthm prf])
              (r ths) th;;
+
+
+(* Multi-rule wrappers *)
+
+let multirule_wrap0 obj (r:'a->thm list) (arg:'a) : xthm list =
+  let ths' = r arg in
+  let n = length ths' in
+  let infos' = map (fun i -> ("el", [Mlint i; Mlfn obj])) (0 -- (n-1)) in
+  map mk_xthm (zip ths' infos');; 
+
+let multirule_wrap x (r:thm->thm list) (xth:xthm) : xthm list =
+  let (th,prf) = dest_xthm xth in
+  multirule_wrap0 (x, [Mlthm prf]) r th;;
 
 
 (* Meta rule wrappers *)
@@ -150,12 +165,12 @@ let thmlist_rule_wrap x (r:thm list->thm->thm) xths (xth:xthm) : xthm =
 let meta_rule_wrap0 info0 (mr:('a->thm)->'b->thm)
                           (xr:'a->xthm) (arg:'b) : xthm =
   let (th',f) = detect_rule_app (fun r -> mr r arg) xr in
-  let (x_,args0) = info0 in
-  let info' = (x_, f::args0) in
-  (th',info');;
+  let (x,args0) = info0 in
+  let obj' = (x, f::args0) in
+  (th',obj');;
 
 let conv_conv_wrap x (mc:conv->conv) (xc:term->xthm) (tm:term) : xthm =
-  meta_rule_wrap0 (Some x, [Fterm tm]) mc xc tm;;
+  meta_rule_wrap0 (x, [Mlterm tm]) mc xc tm;;
 
 
 
@@ -171,10 +186,10 @@ let conv_conv_wrap x (mc:conv->conv) (xc:term->xthm) (tm:term) : xthm =
 (* returns 'goalstate', but that also returns a 'gstep' summary of the        *)
 (* operation.  This is used to promote every basic tactic-based function.     *)
 
-let infotactic_wrap (infotac:goal->goalstate*finfo) (xg:xgoal) : xgoalstate =
+let infotactic_wrap (infotac:goal->goalstate*mldata) (xg:xgoal) : xgoalstate =
   let (g,id) = dest_xgoal xg in
-  let ((meta,gs,just),info) = infotac g in
-  let xgs = extend_gtree id (Gatom info) gs in
+  let ((meta,gs,just),obj) = infotac g in
+  let xgs = extend_gtree id (Gatom obj) gs in
   (meta,xgs,just);;
 
 
@@ -203,36 +218,36 @@ let infobox_wrap (xinfotac:xgoal->xgoalstate*label) (xg:xgoal) : xgoalstate =
 (* This is for wrapping around a tactic, to promote it to work on xgoals and  *)
 (* incorporate the results into an existing gtree.                            *)
 
-let tactic_wrap0 info (tac:tactic) : xtactic =
-  let infotac g = (tac g, info) in
+let tactic_wrap0 obj (tac:tactic) : xtactic =
+  let infotac g = (tac g, obj) in
   infotactic_wrap infotac;;
 
 let tactic_wrap x tac =
-  tactic_wrap0 (Some x, []) tac;;
+  tactic_wrap0 (x, []) tac;;
 
 let string_tactic_wrap x (tac:string->tactic) (s:string) : xtactic =
-  tactic_wrap0 (Some x, [Fstring s]) (tac s);;
+  tactic_wrap0 (x, [Mlstring s]) (tac s);;
 
 let term_tactic_wrap x (tac:term->tactic) (tm:term) : xtactic =
-  tactic_wrap0 (Some x, [Fterm tm]) (tac tm);;
+  tactic_wrap0 (x, [Mlterm tm]) (tac tm);;
 
 let termpair_tactic_wrap x (tac:term*term->tactic) (tm1,tm2) : xtactic =
-  tactic_wrap0 (Some x, [Fpair (Fterm tm1, Fterm tm2)]) (tac (tm1,tm2));;
+  tactic_wrap0 (x, [Mlpair (Mlterm tm1, Mlterm tm2)]) (tac (tm1,tm2));;
 
 let termlist_tactic_wrap x (tac:term list->tactic) tms : xtactic =
-  tactic_wrap0 (Some x, [Flist (map (fun tm -> Fterm tm) tms)]) (tac tms);;
+  tactic_wrap0 (x, [Mllist (map (fun tm -> Mlterm tm) tms)]) (tac tms);;
 
 let thm_tactic_wrap x (tac:thm->tactic) (xth:xthm) : xtactic =
   let (th,prf) = dest_xthm xth in
-  tactic_wrap0 (Some x, [Fthm prf]) (tac th);;
+  tactic_wrap0 (x, [Mlthm prf]) (tac th);;
 
 let thmlist_tactic_wrap x (tac:thm list->tactic) (xths:xthm list) : xtactic =
   let (ths,prfs) = unzip (map dest_xthm xths) in
-  tactic_wrap0 (Some x, [Flist (map (fun prf -> Fthm prf) prfs)]) (tac ths);;
+  tactic_wrap0 (x, [Mllist (map (fun prf -> Mlthm prf) prfs)]) (tac ths);;
 
 let stringthm_tactic_wrap x (tac:string->thm->tactic) s (xth:xthm) : xtactic =
   let (th,prf) = dest_xthm xth in
-  tactic_wrap0 (Some x, [Fstring s; Fthm prf]) (tac s th);;
+  tactic_wrap0 (x, [Mlstring s; Mlthm prf]) (tac s th);;
 
 
 (* Meta-tactic wrapper *)
@@ -243,27 +258,27 @@ let meta_tactic_wrap0 info0 (mtac:('a->thm)->tactic)
                             (xr:'a->xthm) : xtactic =
   let infotac g =
      let (gst,f) = detect_rule_app (fun r -> mtac r g) xr in
-     let (x_,args0) = info0 in
-     let info = (x_, f::args0) in
-     (gst,info) in
+     let (x,args0) = info0 in
+     let obj = (x, f::args0) in
+     (gst,obj) in
   infotactic_wrap infotac;;
 
 let conv_tactic_wrap x (mtac:conv->tactic) (xc:xconv) : xtactic =
-  meta_tactic_wrap0 (Some x, []) mtac xc;;
+  meta_tactic_wrap0 (x, []) mtac xc;;
 
 let metameta_tactic_wrap info0 (mmtac:(('a->thm)->'b->thm)->tactic)
                                (xmr:('a->xthm)->'b->xthm) : xtactic =
   let infotac g =
      let (gst,f) = detect_metarule_app (fun mr -> mmtac mr g) xmr in
-     let (x_,args0) = info0 in
-     let info = (x_, f::args0) in
-     (gst,info) in
+     let (x,args0) = info0 in
+     let obj = (x, f::args0) in
+     (gst,obj) in
   infotactic_wrap infotac;;
 
 let convconvthmlist_tactic_wrap x (mmtac:(conv->conv)->thm list->tactic)
                                  (xmc:xconv->xconv) (xths:xthm list) : xtactic =
   let (ths,prfs) = unzip (map dest_xthm xths) in
-  metameta_tactic_wrap (Some x, [Flist (map (fun prf -> Fthm prf) prfs)])
+  metameta_tactic_wrap (x, [Mllist (map (fun prf -> Mlthm prf) prfs)])
                        (fun mc -> mmtac mc ths)
                        xmc;;
 
@@ -277,22 +292,22 @@ let convconvthmlist_tactic_wrap x (mmtac:(conv->conv)->thm list->tactic)
 (* already be promoted to work with xtactics and xgoals.  This must done by   *)
 (* hand for each tactical by trivially adjusting its original source code.    *)
 
-let tactical_wrap0 info (xttcl:'a->xtactic) (arg:'a) : xtactic =
-  let xinfotac xg = (xttcl arg xg, Tactical info) in
+let tactical_wrap0 obj (xttcl:'a->xtactic) (arg:'a) : xtactic =
+  let xinfotac xg = (xttcl arg xg, Tactical obj) in
   infobox_wrap xinfotac;;
 
 let tactical_wrap x (xttcl:'a->xtactic) (xtac:'a) : xtactic =
-  tactical_wrap0 (Some x, []) xttcl xtac;;
+  tactical_wrap0 (x,[]) xttcl xtac;;
 
 let btactical_wrap x (xttcl:'a->'b->xtactic) (xtac1:'a) (xtac2:'b) : xtactic =
-  tactical_wrap0 (Some x, []) (xttcl xtac1) xtac2;;
+  tactical_wrap0 (x,[]) (xttcl xtac1) xtac2;;
 
 let int_tactical_wrap x (xttcl:int->'a->xtactic) (n:int) (xtac:'a) : xtactic =
-  tactical_wrap0 (Some x, [Fint n]) (xttcl n) xtac;;
+  tactical_wrap0 (x, [Mlint n]) (xttcl n) xtac;;
 
 let list_tactical_wrap x (xttcl:('a->xtactic)->'a list->xtactic)
                          (xtac:'a->xtactic) (l:'a list) : xtactic =
-  tactical_wrap0 (Some x, []) (xttcl xtac) l;;
+  tactical_wrap0 (x,[]) (xttcl xtac) l;;
 
 
 (* HILABEL *)
@@ -319,11 +334,11 @@ let xSUBGOAL_THEN (tm:term) (ttac:xthm_tactic) (xg:xgoal) : xgoalstate =
 
   let (asl,_) = g in
   let g2 = (asl,tm) in
-  let finfo = (Some "SUBGOAL_THEN",
-               [Fterm tm; (finfo_as_meta_arg o gtree_tactic) gtr0]) in
+  let obj = ("SUBGOAL_THEN",
+               [Mlterm tm; (mldata_as_meta_arg o gtree_tactic) gtr0]) in
 
   let (gs0,ids0) = unzip (map dest_xgoal xgs0) in
-  let xgs = extend_gtree id (Gbox (Tactical finfo, gtr0, true)) (g2::gs0) in
+  let xgs = extend_gtree id (Gbox (Tactical obj, gtr0, true)) (g2::gs0) in
   let ids1 = map xgoal_id (tl xgs) in
   let just' = fun i l -> PROVE_HYP (hd l) (just i (tl l)) in
   (do_list externalise_gtree (zip ids0 ids1);

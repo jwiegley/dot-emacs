@@ -143,7 +143,7 @@ let collapse_tensor h hs =
 let trivsimp_hiproof h =
   let trivsimp h =
      match h with
-       Hatomic (id,_) when (gtree_tactic (get_gtree id) = (Some "ALL_TAC",[]))
+       Hatomic (id,_) when (gtree_tactic (get_gtree id) = ("ALL_TAC",[]))
                                    -> Hidentity id
      | Hsequence (h1, Hempty)      -> h1
      | Hsequence (h1, Hidentity _) -> h1
@@ -161,7 +161,7 @@ let trivsimp_hiproof h =
   refactor_hiproof true trivsimp h;;
 
 
-(* Matching up lists of hiproofs *)
+(* Matching up two tensored lists to create single tensored list *)
 
 let rec matchup_hiproofs0 hs1 hs2 =
   match hs1 with
@@ -181,19 +181,17 @@ let matchup_hiproofs hs1 hs2 =
   map (fun (h1,hs2) -> Hsequence (h1, Htensor hs2)) hhs;;
 
 
-(* Separating out lists of hiproofs *)
+(* Separating out tensored list into head tensor and tail tensor  *)
 
-(*
 let separate_hiproofs0 h (hs01,hs02) =
   match h with
     Hsequence (h1,h2)
        -> (h1::hs01, h2::hs02)
   | _  -> let n = hiproof_arity h in
-          let h2 = Htensor (copy n Hidentity) in
+          let h2 = Htensor (copy n (Hidentity (-1))) in
           (h::hs01, h2::hs02);;
 
 let separate_hiproofs hs = foldr separate_hiproofs0 hs ([],[]);;
-*)
 
 
 (* Delabelling *)
@@ -205,7 +203,7 @@ let separate_hiproofs hs = foldr separate_hiproofs0 hs ([],[]);;
 let delabel_hiproof h =
   let delabel h =
      match h with
-       Hlabelled (Tactical (Some "SUBGOAL_THEN",_), h0)
+       Hlabelled (Tactical ("SUBGOAL_THEN",_), h0)
           -> h
      | Hlabelled (_,h0)
           -> h0
@@ -215,7 +213,7 @@ let delabel_hiproof h =
 let dethen_hiproof h =
   let dethen h =
      match h with
-       Hlabelled (Tactical (Some ("THEN" | "THENL"),_), h0)
+       Hlabelled (Tactical (("THEN" | "THENL"),_), h0)
           -> h0
      | _  -> h in
   refactor_hiproof true dethen h;;
@@ -248,32 +246,40 @@ let leftgroup_hiproof h =
      match h with
        Hsequence (h1, Hsequence (h2, h3))
           -> Hsequence (Hsequence (h1,h2), h3)
-(*     | Hsequence (h1, Htensor hs2)
-          -> if (exists is_hsequence hs2)
-               then let (hs2a,hs2b) = separate_hiproofs hs2 in
-                    Hsequence (Hsequence (h1, Htensor hs2a), Htensor hs2b)
-               else h  *)
      | _  -> h in
   refactor_hiproof true leftgroup h;;
 
 
 (* THEN insertion *)
 
-(* Looks for opportunities to use 'THEN' tacticals.  Note that this disrupts  *)
-(* arity consistency.                                                         *)
+(* Looks for opportunities to use 'THEN' tacticals.  Note that assumes a      *)
+(* normal form where trivsimp has taken place.                                *)
+
+let rec head_hiproof_equiv h1 h2 =
+  match (h1,h2) with
+    (Hatomic (id1,_), Hatomic (id2,_))
+       -> (gtree_tactic o get_gtree) id1 = (gtree_tactic o get_gtree) id2
+  | (Hidentity _, Hidentity _)
+       -> true
+  | (Hsequence (h1a,h1b), h2)
+       -> head_hiproof_equiv h1a h2
+  | (h1, Hsequence (h2a,h2b))
+       -> head_hiproof_equiv h1 h2a
+  | (Hempty, Hempty)
+       -> true
+  | _  -> false;;
 
 let thenise_hiproof h =
-  let thenise h =
+  let rec thenise h =
      match h with
        Hsequence (h1, Htensor (h2::h2s))
-          -> if (forall (fun h0 -> h0 = h2) h2s)
-               then Hlabelled (Tactical (Some "THEN", []), h)
-               else h
-     | Hsequence (h1, Hsequence (Htensor (h2::h2s), h3))
-          -> if (forall (fun h0 -> h0 = h2) h2s)
-               then Hsequence
-                     (Hlabelled (Tactical (Some "THEN", []),
-                                 Hsequence (h1, Htensor (h2::h2s))), h3)
+          -> if not (is_hidentity h2) & (forall (head_hiproof_equiv h2) h2s) 
+               then let (hs2a,hs2b) = separate_hiproofs (h2::h2s) in
+                    let h' = Hsequence
+                               (Hlabelled (Tactical ("THEN",[]),
+                                           Hsequence (h1, Htensor hs2a)),
+                                Htensor hs2b) in
+                    thenise h'
                else h
      | _  -> h in
   refactor_hiproof false thenise h;;
@@ -360,10 +366,7 @@ let rec hiproof_graph0 h =
 let hiproof_graph h =
   let ges = hiproof_graph0 h in
   let ids = graph_nodes ges in
-  let tacname_of_id id =
-     match ((fst o gtree_tactic1 o get_gtree) id) with
-       Some x -> x
-     | None   -> "<tactic>" in
+  let tacname_of_id id = (fst o gtree_tactic1 o get_gtree) id in
   let ges' = map (fun id -> Name (id, tacname_of_id id)) ids in
   ges' @ ges;;
 

@@ -43,8 +43,6 @@ g `(!x. x = x) /\ (!y.y = y) /\ (!z.z = z)`;;
 e (REPEAT CONJ_TAC THEN GEN_TAC THEN REFL_TAC);;
 let th = top_thm ();;
 
-#use"TacticRecording/mlexport.ml";;
-
 print_executed_proof true;;
 print_flat_proof true;;
 print_thenl_proof ();;

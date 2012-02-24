@@ -252,10 +252,14 @@ let BINDER_CONV = conv_conv_wrap "BINDER_CONV" BINDER_CONV;;
 let SUB_CONV = conv_conv_wrap "SUB_CONV" SUB_CONV;;
 let BINOP_CONV = conv_conv_wrap "BINOP_CONV" BINOP_CONV;;
 let GSYM = rule_wrap "GSYM" GSYM;;
+let CONJUNCTS = multirule_wrap "CONJUNCTS" CONJUNCTS;;
+let SPEC_ALL = rule_wrap "SPEC_ALL" SPEC_ALL;;
 let ISPECL = termlist_rule_wrap "ISPECL" ISPECL;;
 let ALL_CONV = conv_wrap "ALL_CONV" ALL_CONV;;
 let (REPEATC) = conv_conv_wrap "REPEATC" REPEATC;;
 let ONCE_DEPTH_CONV = conv_conv_wrap "ONCE_DEPTH_CONV" ONCE_DEPTH_CONV;;
+
+let REWRITE_RULE = thmlist_rule_wrap "REWRITE_RULE" REWRITE_RULE;;
 
 let num_CONV = conv_wrap "num_CONV" num_CONV;;
 let ARITH_RULE = conv_wrap "ARITH_RULE" ARITH_RULE;;
@@ -272,14 +276,24 @@ let EQ_IMP = theorem_wrap "EQ_IMP" EQ_IMP;;
 
 let ARITH = theorem_wrap "ARITH" ARITH;;
 let ARITH_EQ = theorem_wrap "ARITH_EQ" ARITH_EQ;;
+let ADD_ASSOC = theorem_wrap "ADD_ASSOC" ADD_ASSOC;;
 let ADD_CLAUSES = theorem_wrap "ADD_CLAUSES" ADD_CLAUSES;;
+let LEFT_ADD_DISTRIB = theorem_wrap "LEFT_ADD_DISTRIB" LEFT_ADD_DISTRIB;;
+let RIGHT_ADD_DISTRIB = theorem_wrap "RIGHT_ADD_DISTRIB" RIGHT_ADD_DISTRIB;;
 let MULT_CLAUSES =theorem_wrap "MULT_CLAUSES" MULT_CLAUSES;;
 let SUB_REFL = theorem_wrap "SUB_REFL" SUB_REFL;;
 let ADD1 =  theorem_wrap "ADD1" ADD1;;
+let EQ_MULT_LCANCEL = theorem_wrap "EQ_MULT_LCANCEL" EQ_MULT_LCANCEL;;
+let LE_EXISTS = theorem_wrap "LE_EXISTS" LE_EXISTS;;
+let LE_ADD = theorem_wrap "LE_ADD" LE_ADD;;
 let LE_1 = theorem_wrap "LE_1" LE_1;;
 let LE_REFL = theorem_wrap "LE_REFL" LE_REFL;;
 let LT_SUC = theorem_wrap "LT_SUC" LT_SUC;;
+let LT_EXISTS = theorem_wrap "LT_EXISTS" LT_EXISTS;;
+let LT_NZ = theorem_wrap "LT_NZ" LT_NZ;;
+let EXP_EQ_0 = theorem_wrap "EXP_EQ_0" EXP_EQ_0;;
 let FACT = theorem_wrap "FACT" FACT;;
+let  = theorem_wrap "" ;;
 
 let REAL_ADD_LDISTRIB = theorem_wrap "REAL_ADD_LDISTRIB" REAL_ADD_LDISTRIB;;
 let REAL_OF_NUM_ADD = theorem_wrap "REAL_OF_NUM_ADD" REAL_OF_NUM_ADD;;

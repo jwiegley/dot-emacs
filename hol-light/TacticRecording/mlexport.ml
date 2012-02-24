@@ -15,10 +15,9 @@
 (* ** UTILS ** *)
 
 
-(* Printer for tactic 'finfo' *)
+(* Printer for tactic is just the ML data printer *)
 
-let print_tactic br ((x_,args):finfo) =
-  print_finfo "<tactic>" br ((x_,args):finfo);;
+let print_tactic br obj = print_mldata br obj;;
 
 
 (* Printer for subgoal comments *)
@@ -35,8 +34,8 @@ let print_hicomment_line ns =
 let print_tactic_line_with pr arg =
   (print_string "e ("; pr false arg; print_string ");;\n");;
 
-let print_tactic_line info =
-  (print_tactic_line_with print_tactic info);;
+let print_tactic_line obj =
+  (print_tactic_line_with print_tactic obj);;
 
 let print_hitrace_line_with fl pr htr =
   match htr with
@@ -91,22 +90,22 @@ let rec print_hiproof1 br h = print_hiproof0 print_hiproof1 br h;;
 
 let rec print_hiproof2 br h =
   match h with
-    Hlabelled (Tactical (Some "REPEAT", _), Hsequence (h1,h2)) (* if repeated *)
+    Hlabelled (Tactical ("REPEAT", _), Hsequence (h1,h2)) (* if repeated *)
        -> (print_string_if br "(";
            print_string "REPEAT ";
            print_hiproof2 true h1;
            print_string_if br ")")
-  | Hlabelled (Tactical (Some "THEN", _),                     (* if tac2 used *)
+  | Hlabelled (Tactical ("THEN", _),                     (* if tac2 used *)
                Hsequence (h1, Htensor (h2::h2s)))
        -> (print_string_if br "(";
            print_hiproof2 false h1;
            print_string " THEN ";
            print_hiproof2 true h2;
            print_string_if br ")")
-  | Hlabelled (Tactical ((Some "SUBGOAL_THEN",                (* special case *)
-                         (Fterm tm)::[farg]) as info),
+  | Hlabelled (Tactical (("SUBGOAL_THEN",                (* special case *)
+                         (Mlterm tm)::[_]) as obj),
                _)
-       -> (print_tactic br info)
+       -> (print_tactic br obj)
   | Hlabelled (Label x, h)
        -> (print_string_if br "(";
            print_string "HILABEL ";
@@ -145,7 +144,8 @@ let print_executed_proof fl = print_gtree_executed_proof fl !the_goal_tree;;
 (* ! 'REPEAT' not currently catered for.                                      *)
 
 let print_hiproof_packaged_proof h =
-  let h' = (thenise_hiproof o trivsimp_hiproof o leftgroup_hiproof) h in
+  let h' = (trivsimp_hiproof o thenise_hiproof o
+            trivsimp_hiproof o leftgroup_hiproof) h in
   print_tactic_line_with print_hiproof2 h';;
 
 let print_gtree_packaged_proof gtr =

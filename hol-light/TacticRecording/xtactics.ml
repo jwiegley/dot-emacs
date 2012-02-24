@@ -381,9 +381,11 @@ let (xTAC_PROOF : goal * xtactic -> thm) =
 let xprove(t,tac) =
   let th = xTAC_PROOF(([],t),tac) in
   let t' = concl th in
-  if t' = t then th else
-  try EQ_MP (ALPHA t' t) th
-  with Failure _ -> failwith "prove: justification generated wrong theorem";;
+  let th' =
+    if t' = t then th else
+    try EQ_MP (ALPHA t' t) th
+    with Failure _ -> failwith "prove: justification generated wrong theorem" in
+  mk_xthm (th', ("<tactic-proof>",[]))
 
 (* ------------------------------------------------------------------------- *)
 (* Subgoal package for xgoals.                                               *)
@@ -439,7 +441,7 @@ let xtop_goal() =
 
 let xtop_thm() =
   let (_,[],f)::_ = !current_xgoalstack in
-  f null_inst [];;
+  mk_xthm (f null_inst [], ("<tactic-proof>",[]));;
 
 (* ------------------------------------------------------------------------- *)
 (* Install the goal-related printers.                                        *)

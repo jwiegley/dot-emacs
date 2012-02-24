@@ -60,7 +60,7 @@ type ginfo =
  * unit option ref;;                 (* Formal proof (optional) *)
 
 type gstep =
-   Gatom of finfo                    (* Atomic tactic *)
+   Gatom of mldata                   (* Atomic tactic *)
  | Gbox of (label * gtree * bool)    (* Box for a tactical; flag for special *)
 
 and gtree0 =
@@ -80,19 +80,19 @@ and gtree =
 (*                                                                            *)
 (*  (_, ref                                                                   *)
 (*   Gexecuted                                                                *)
-(*     (Gbox (Tactical (Some "T1"))                                           *)
+(*     (Gbox (Tactical ("T1",[])                                              *)
 (*        (_, ref                                                             *)
 (*         Gexecuted                                                          *)
-(*           (Gatom (Some "T2"),                                              *)
-(*            [ (_, ref Gexecuted (Gatom (Some "WF"), []));                   *)
+(*           (Gatom ("T2",[]),                                                *)
+(*            [ (_, ref Gexecuted (Gatom ("WF",[]), []));                     *)
 (*              (_, ref Gexit _) ])),                                         *)
 (*      [ (_, ref                                                             *)
 (*         Gexecuted                                                          *)
-(*           (Gbox (Tactical (Some "DP"))                                     *)
+(*           (Gbox (Tactical ("DP",[]))                                       *)
 (*              (_, ref                                                       *)
 (*               Gexecuted                                                    *)
-(*                 (Gatom (Some "Normalise"),                                 *)
-(*                  [ (_, ref Gexecuted (Gatom (Some "Taut"), [])) ])),       *)
+(*                 (Gatom ("Normalise",[]),                                   *)
+(*                  [ (_, ref Gexecuted (Gatom ("Taut",[]), [])) ])),         *)
 (*            [])) ]))                                                        *)
 
 
@@ -125,7 +125,7 @@ let gtree_fproof ((info,_):gtree) = ginfo_fproof info;;
 
 let gstep_tactic (gstp:gstep) =
   match gstp with
-    Gatom info | Gbox (Tactical info, _, true) -> info
+    Gatom obj | Gbox (Tactical obj, _, true) -> obj
   | Gbox _ -> failwith "gstep_tactic: Not an atomic tactic";;
 
 let gtree_proof ((_,gtrm):gtree) =
@@ -304,9 +304,11 @@ let (xTAC_PROOF : goal * xtactic -> thm) =
 let xprove(t,tac) =
   let th = xTAC_PROOF(([],t),tac) in
   let t' = concl th in
-  if t' = t then th else
-  try EQ_MP (ALPHA t' t) th
-  with Failure _ -> failwith "prove: justification generated wrong theorem";;
+  let th' =
+    if t' = t then th else
+    try EQ_MP (ALPHA t' t) th
+    with Failure _ -> failwith "prove: justification generated wrong theorem" in
+  mk_xthm (th', ("<tactic-proof>",[]))
 
 let xset_goal(asl,w) =
   current_xgoalstack :=

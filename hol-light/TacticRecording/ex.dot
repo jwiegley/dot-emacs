@@ -1,13 +1,24 @@
 digraph G {
-  subgraph cluster0 {
-    label = "process #1"
-    a0->a1->a2->a3
-  }
   subgraph cluster1 {
-    label = "process #2"
-    b0->b1->b2->b3
+    label = "induction";
+    517 -> 518;
+    517 -> 519;
   }
-  b3->23
-  b2->a3
-  a3->23
+  subgraph cluster2 {
+    label = "base case";
+    528;
+  }
+  subgraph cluster3 {
+    label = "step case";
+    537 -> 538;
+    538 -> 540;
+    540 -> 542;
+    542 -> 544;
+    544 -> 546;
+    546 -> 548;
+  }
+  512 -> 513;
+  513 -> 517;
+  518 -> 528;
+  519 -> 537;
 }
