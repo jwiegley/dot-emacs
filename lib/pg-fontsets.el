@@ -21,6 +21,9 @@
 
 ;;; Code:
 
+(eval-and-compile
+  (require 'fontset))			; needed for some emacsen without X
+
 (defcustom pg-fontsets-default-fontset nil
   "*Name of default fontset to use with Proof General."
   :type 'string

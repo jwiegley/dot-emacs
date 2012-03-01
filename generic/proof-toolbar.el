@@ -23,7 +23,8 @@
 (eval-and-compile
   (require 'span)
   (require 'proof-utils)
-  (require 'proof-config))
+  (require 'proof-config)
+  (require 'tool-bar))			; needed for some emacsen without X
 
 
 ;;
