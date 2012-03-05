@@ -30,8 +30,10 @@ EMACS=$(shell if [ -z "`which emacs`" ]; then echo "Emacs executable not found";
 # individually before the install section.
 # NB: DEST_PREFIX is used for final destination prefix, in case we're
 # packaging into a build prefix rather than live root (e.g. in rpmbuild).
-PREFIX=/usr
-DEST_PREFIX=/usr
+# NBB: DESTDIR provides for staged installs, for instance when building 
+# Debian packages, see http://www.gnu.org/prep/standards/html_node/DESTDIR.html
+PREFIX=$(DESTDIR)/usr
+DEST_PREFIX=$(DESTDIR)/usr
 
 PWD=$(shell pwd)
 
