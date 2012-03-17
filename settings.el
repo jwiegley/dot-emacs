@@ -460,6 +460,7 @@ SCHEDULED: %t
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
  '(yaoddmuse-directory "~/.emacs.d/doc" t)
+ '(yas/wrap-around-region t)
  '(zencoding-preview-default nil))
 
 (custom-set-faces
