@@ -57,7 +57,11 @@
               ?\]))))
 
 (defun org-smart-capture-article (&optional article multiple)
-  (let* ((article (or article (gnus-summary-article-number)))
+  (let* ((body (and (eq major-mode 'gnus-article-mode)
+                    (region-active-p)
+                    (buffer-substring-no-properties (region-beginning)
+                                                    (region-end))))
+         (article (or article (cdr gnus-article-current)))
          (data (gnus-data-find-list article))
          (ghead (gnus-data-header (car data)))
          (message-id (mail-header-message-id ghead))
@@ -104,19 +108,14 @@
           (save-excursion
             (insert new-subject))))
 
-    (let ((body (and (eq major-mode 'gnus-article-mode)
-                     (region-active-p)
-                     (buffer-substring-no-properties (region-beginning)
-                                                     (region-end)))))
-      (when body
-        (flet ((trim-string (str)
-                            (replace-regexp-in-string
-                             "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" ""
-                             str)))
-          (save-excursion
-            (forward-line 2)
-            (dolist (line (split-string (trim-string body) "\n"))
-              (insert "   " line ?\n))))))
+    (when body
+      (flet ((trim-string
+              (str)
+              (replace-regexp-in-string
+               "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" "" str)))
+        (save-excursion
+          (forward-line 2)
+          (insert body))))
 
     (org-set-property "Date"
                       (or date-sent
