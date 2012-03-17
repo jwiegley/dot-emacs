@@ -2550,6 +2550,8 @@ Else, return \" \"."
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?g] 'magit-status)
 (define-key ctl-x-map [?m] 'compose-mail)
+(define-key ctl-x-map [(control ?n)] 'next-line)
+(define-key ctl-x-map [(meta ?n)] 'set-goal-column)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
 
 (defun unfill-paragraph (arg)
