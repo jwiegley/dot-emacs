@@ -288,6 +288,36 @@
      (define-key deft-mode-map [? ] 'deft-complete)
      (define-key deft-mode-map [(control return)] 'other-window)))
 
+;;;_ , ediff
+
+(defun ediff-keep-both ()
+  (interactive)
+  (with-current-buffer ediff-buffer-C
+    (beginning-of-line)
+    (assert (or (looking-at "<<<<<<")
+                (re-search-backward "^<<<<<<" nil t)
+                (re-search-forward "^<<<<<<" nil t)))
+    (beginning-of-line)
+    (let ((beg (point)))
+      (forward-line)
+      (delete-region beg (point))
+      (re-search-forward "^>>>>>>>")
+      (beginning-of-line)
+      (setq beg (point))
+      (forward-line)
+      (delete-region beg (point))
+      (re-search-forward "^#######")
+      (beginning-of-line)
+      (setq beg (point))
+      (re-search-forward "^=======")
+      (beginning-of-line)
+      (forward-line)
+      (delete-region beg (point)))))
+
+(add-hook 'ediff-keymap-setup-hook
+          (lambda ()
+            (define-key ediff-mode-map [?c] 'ediff-keep-both)))
+
 ;;;_ , erc
 
 (require 'erc-alert)
