@@ -1,5 +1,5 @@
 #name : :SOURCE: ... :END:
+#binding: C-c C-e C-s
 # --
-#+begin_src ${1:sh} :results output
-$0
-#+end_src
+#+begin_src ${1:ledger}
+$0#+end_src
