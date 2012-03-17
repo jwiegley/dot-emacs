@@ -133,3 +133,6 @@
 [submodule "site-lisp/wrap-region"]
 	path = site-lisp/wrap-region
 	url = git://github.com/rejeep/wrap-region.git
+[submodule "site-lisp/xcscope"]
+	path = site-lisp/xcscope
+	url = git://github.com/To1ne/xcscope.git
