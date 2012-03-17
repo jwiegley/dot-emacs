@@ -278,6 +278,7 @@
 
      (define-key dired-mode-map [?l] 'dired-up-directory)
      (define-key dired-mode-map [tab] 'other-window)
+     (define-key dired-mode-map [(meta shift ?g)] 'switch-to-gnus)
      (define-key dired-mode-map [(meta ?s) ?f] 'find-grep)))
 
 ;;;_ , deft
