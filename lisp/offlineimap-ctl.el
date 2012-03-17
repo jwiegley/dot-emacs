@@ -80,8 +80,8 @@
   (interactive)
   (display-buffer (get-buffer "*offlineimap*")))
 
-(add-hook 'gnus-agent-plugged-hook 'start-offlineimap)
-(add-hook 'gnus-agent-unplugged-hook 'shutdown-offlineimap)
+;; (add-hook 'gnus-agent-plugged-hook 'start-offlineimap)
+;; (add-hook 'gnus-agent-unplugged-hook 'shutdown-offlineimap)
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-offlineimap)
 
 (defun fetchnews-fetch ()
