@@ -1894,7 +1894,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (define-key map [(meta ?p)] 'org-agenda-earlier)
   (define-key map [(meta ?n)] 'org-agenda-later)
   (define-key map "x" 'org-todo-state-map)
-  
+
   (define-key org-todo-state-map "z" 'make-bug-link))
 
 (defun org-fit-agenda-window ()
@@ -2810,8 +2810,8 @@ Else, return \" \"."
 (defun markdown-preview-file ()
   "run Marked on the current file and revert the buffer"
   (interactive)
-  (shell-command 
-   (format "open -a /Applications/Marked.app %s" 
+  (shell-command
+   (format "open -a /Applications/Marked.app %s"
            (shell-quote-argument (buffer-file-name)))))
 
 (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
