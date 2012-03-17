@@ -74,6 +74,7 @@
  '(display-time-use-mail-icon t)
  '(ediff-diff-options "-w")
  '(ediff-highlight-all-diffs nil)
+ '(ediff-show-clashes-only t)
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(edit-server-new-frame nil)
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
