@@ -1700,16 +1700,20 @@ end tell" (match-string 1))))
 	       (severities (list "blocker" "critical" "major"
 				 "normal" "minor" "trivial" "enhancement"))
 	       (product "Ledger")
-	       (version "3.0.0-20100623"))
+	       (version "3.0.0-20120217"))
 	   (list product
 		 (ido-completing-read "Component: " components
 				      nil t nil nil (car (last components)))
 		 version
 		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (if (and orgpri (= ?A orgpri))
-		       "P1"
+		   (cond
+                    ((and orgpri (= ?A orgpri))
+                     "P1")
+                    ((and orgpri (= ?C orgpri))
+                     "P3")
+                    (t
 		     (ido-completing-read "Priority: " priorities
-					  nil t nil nil "P3")))
+					  nil t nil nil "P2"))))
 		 (ido-completing-read "Severity: " severities nil t nil nil
 				      "normal") ))))))
   (let ((omk (get-text-property (point) 'org-marker)))
@@ -1755,9 +1759,9 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 		       (point-min) (point-max)
 		       "~/bin/bugzilla-submit http://bugs.ledger-cli.org/"
 		       tmpbuf)))
-		  (goto-char (point-min))
+                  (goto-char (point-min))
 		  (or (re-search-forward "Bug \\([0-9]+\\) posted." nil t)
-                      (error (buffer-string)))
+                      (debug))
 		  (setq bug (match-string 1))))))
 	  (save-excursion
 	    (org-back-to-heading t)
