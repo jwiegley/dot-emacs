@@ -1,5 +1,5 @@
 #name : :SOURCE: ... :END:
-#binding: C-c C-e C-s
+#binding : C-c C-e C-s
 # --
-#+begin_src ${1:ledger}
+#+begin_src ledger
 $0#+end_src
