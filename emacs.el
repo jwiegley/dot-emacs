@@ -2293,7 +2293,9 @@ Else, return \" \"."
               (throw 'found (setq candidate last))))))
     (if candidate
         (ido-visit-buffer candidate ido-default-buffer-method)
-      (gnus-unplugged))))
+      ;;(gnus-unplugged)
+      (gnus)
+      )))
 
 (define-key global-map [(meta shift ?c)] 'jump-to-org-agenda)
 (define-key global-map [(meta shift ?g)] 'switch-to-gnus)
