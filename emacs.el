@@ -1856,6 +1856,11 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (define-key mode-specific-map [?x ?b] 'ignore)
 
+(autoload 'ledger-test-create "ldg-test" nil t)
+(autoload 'ledger-test-run "ldg-test" nil t)
+
+(add-to-list 'auto-mode-alist '("\\.test$" . ledger-mode))
+
 (eval-after-load "org"
   '(progn
      (org-defkey org-mode-map [(control meta return)]
@@ -1864,8 +1869,11 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
      (org-defkey org-mode-map [return] 'org-return-indent)
      (org-defkey org-mode-map
                  [(control ?c) (control ?x) ?@] 'visible-mode)
-     (org-defkey org-mode-map
-                 [(control ?c) (control ?x) ?r] 'org-refer-by-number)))
+
+     (define-prefix-command 'my-org-expand-map)
+     (define-key org-mode-map [(control ?c) (control ?e)] 'my-org-expand-map)
+
+     (define-key my-org-expand-map [(control ?t)] 'ledger-test-create)))
 
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
