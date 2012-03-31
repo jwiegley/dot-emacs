@@ -3,11 +3,10 @@
 # --
 Hi $0,
 
-We don't have an installer at this time, and we are shortly about to remove
-that section from our website.  The Boost build instructions can be found
-here:
+We don't have an installer at this time, but we are currently working on it.
+In the meantime, the Boost build instructions can be found here:
 
-  http://www.boost.org/doc/libs/1_48_0/more/getting_started/windows.html
+  http://www.boost.org/doc/libs/1_49_0/more/getting_started/windows.html
 
 It's possible you might find what you're looking for here, but BoostPro cannot
 vouch for its correctness in any way:

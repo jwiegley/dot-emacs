@@ -1,4 +1,3 @@
-#name : :SOURCE: ... :END:
 #binding : C-c C-e C-s
 # --
 #+begin_src ledger
