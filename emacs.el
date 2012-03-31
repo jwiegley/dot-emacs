@@ -91,11 +91,6 @@
 (eval-after-load "hl-line"
   '(require 'hl-line+))
 
-(eval-after-load "grep"
-  '(progn
-     (require 'grep+)
-     (require 'grep-ed)))
-
 (eval-after-load "info"
   '(progn
      (require 'info+)))

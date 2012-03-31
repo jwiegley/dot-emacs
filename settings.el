@@ -211,7 +211,7 @@
  '(gnus-use-adaptive-scoring (quote (line)))
  '(gnus-use-cache t)
  '(gnus-verbose 4)
- '(grep-command "grep -nH -e")
+ '(grep-command "grep -nH -e ")
  '(grep-find-command (quote ("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52)))
  '(grepp-default-regexp-fn nil)
  '(haskell-check-command "~/.cabal/bin/hlint")
