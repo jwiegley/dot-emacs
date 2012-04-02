@@ -1,0 +1,5 @@
+#name : #if OPENCL_EXTENSIONS_SUPPORTED ... #endif
+#binding : C-c C-e C-i
+# --
+#if OPENCL_EXTENSIONS_SUPPORTED
+$0#endif /* OPENCL_EXTENSIONS_SUPPORTED */
