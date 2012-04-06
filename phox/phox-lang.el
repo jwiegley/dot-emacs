@@ -7,12 +7,16 @@
 (require 'cl)				; for case
 
 (defvar phox-lang
-  (let* ((s1 (getenv "LANG")) (s2 (getenv "LC_LANG")) (s (substring (if s1 s1 (if s2 s2 "en")) 0 2)))
+  (let* ((s (or (getenv "LC_ALL")
+		(getenv "LANG")
+		(getenv "LANGUAGE")))
+	 (loc   (and s 
+		     (> (length s) 1)
+		     (substring s 0 2))))
     (cond
-      ((or (string= s "en") (string= s "us")) 'en)
-      ((string= s "fr") 'fr)
+      ((or (string= loc "en") (string= loc "us")) 'en)
+      ((string= loc "fr") 'fr)
       (t 'en))))
-
 
 (defun phox-lang-absurd ()
   (case phox-lang
