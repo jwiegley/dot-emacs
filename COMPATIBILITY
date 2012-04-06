@@ -4,10 +4,10 @@ Compatibility of Proof General
 This version of Proof General has been tested with these Emacs versions
 on recent Linux systems:
 
- Emacs 23.2,3          -- recommended and supported
- Emacs 24	       -- next version, should work
- Emacs 23.1            -- previous version, should work
- Emacs 22.X            -- not supported, hack proof-utils.el to try out.
+ Emacs 23.4             -- recommended and supported
+ Emacs 23.3,23.2        -- previous versions, should work
+ Emacs 24 (development) -- next version, should work
+ Emacs 23.1, earlier    -- obsolete versions, do NOT work
 
 and (main) prover versions:  Coq 8.3, Isabelle2011[-1]
 
