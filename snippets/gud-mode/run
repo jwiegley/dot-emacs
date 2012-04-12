@@ -1,1 +1,1 @@
-run --abi=eabi --advice:power=all --remarks --c -I.. ulp_$0.c
+run --abi=eabi --opencl --c -I.. cl_$0.c
