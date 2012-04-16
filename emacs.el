@@ -1171,6 +1171,21 @@ $0"))))
 
 ;;(load "org-log" t)
 
+(defun org-find-top-category (&optional pos)
+  (let ((cat
+         (save-excursion
+           (with-current-buffer (if pos (marker-buffer pos) (current-buffer))
+             (if pos (goto-char pos))
+             ;; Skip up to the topmost parent
+             (while (ignore-errors (outline-up-heading 1) t))
+             (ignore-errors
+               (nth 4 (org-heading-components)))))))
+    (if (and cat (string= cat "BoostPro"))
+        cat
+      (save-excursion
+        (with-current-buffer (if pos (marker-buffer pos) (current-buffer))
+          (org-entry-get pos "OVERLAY" t))))))
+
 (defun jump-to-org-agenda ()
   (interactive)
   (let ((buf (get-buffer "*Org Agenda*"))
@@ -1901,6 +1916,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (define-key map [(meta ?p)] 'org-agenda-earlier)
   (define-key map [(meta ?n)] 'org-agenda-later)
   (define-key map "x" 'org-todo-state-map)
+
+  (define-key map ">" 'org-agenda-filter-by-top-category)
 
   (define-key org-todo-state-map "z" 'make-bug-link))
 
