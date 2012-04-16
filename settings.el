@@ -193,6 +193,7 @@
  '(gnus-summary-mark-below -100)
  '(gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)
 ")
+ '(gnus-summary-save-parts-default-mime ".*")
  '(gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
  '(gnus-thread-hide-subtree t)
  '(gnus-thread-sort-functions (quote (gnus-thread-sort-by-most-recent-number gnus-thread-sort-by-total-score)))
