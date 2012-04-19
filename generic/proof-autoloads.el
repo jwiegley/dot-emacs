@@ -4,6 +4,15 @@
 
 (if (featurep 'proof-autoloads) (error "Already loaded"))
   
+(eval-when-compile
+  (require 'cl))
+
+(eval-when (compile)
+  (require 'pg-vars)
+  (require 'proof-config)
+  (require 'scomint))
+
+
 (provide 'proof-autoloads)
 
 
@@ -1031,7 +1040,6 @@ Return a unicode encoded version presentation of STR.
 
 ;; Local Variables:
 ;; version-control: never
-;; no-byte-compile: t
 ;; no-update-autoloads: t
 ;; End:
 
