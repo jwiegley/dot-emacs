@@ -700,12 +700,13 @@ $0"))))
   (setq fill-column 72)
   ;;(column-marker-3 80)
 
+  (define-key c-mode-base-map [(meta ?q)] 'c-fill-paragraph)
+
   (let ((bufname (buffer-file-name)))
     (when bufname
       (cond
        ((string-match "/ledger/" bufname)
-        (c-set-style "ledger")
-        (define-key c-mode-base-map [(meta ?q)] 'c-fill-paragraph))
+        (c-set-style "ledger"))
        ((string-match "/ANSI/" bufname)
         (c-set-style "edg")
         (substitute-key-definition 'fill-paragraph 'ti-refill-comment
