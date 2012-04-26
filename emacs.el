@@ -922,6 +922,25 @@ $0"))))
         (c-special-indent-hook . c-gnu-impose-minimum)
         (c-block-comment-prefix . "")))))
 
+;;;_  . gdb
+
+(eval-after-load "gdb-ui"
+  '(defun gdb-display-buffer (buf dedicated &optional frame)
+     (let ((answer (get-buffer-window buf (or frame 0))))
+       (if answer
+           (display-buffer buf t (or frame 0)) ;Deiconify the frame if necessary.
+         (let ((window (get-lru-window)))
+           (if (memq (buffer-local-value 'gud-minor-mode (window-buffer window))
+                     '(gdba gdbmi))
+               (let* ((largest (get-largest-window))
+                      (cur-size (window-height largest)))
+                 (setq answer (split-window largest))
+                 (set-window-buffer answer buf)
+                 (set-window-dedicated-p answer dedicated)
+                 answer)
+             (set-window-buffer window buf)
+             window))))))
+
 ;;;_  . ulp
 
 (defun ulp ()
