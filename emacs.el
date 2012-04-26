@@ -401,7 +401,14 @@
 (eval-after-load "magit"
   '(progn
      (require 'magit-topgit)
-     (require 'rebase-mode)))
+     (require 'rebase-mode)
+
+     (defun start-git-monitor ()
+       (interactive)
+       (start-process "git-monitor" (current-buffer) "~/bin/git-monitor"))
+
+     ;;(add-hook 'magit-status-mode-hook 'start-git-monitor)
+     ))
 
 (defun git-commit-changes ()
   (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
