@@ -224,6 +224,7 @@
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(hippie-expand-try-functions-list (quote (yas/hippie-try-expand try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
+ '(history-length 300)
  '(howm-directory "~/Documents/Notes/")
  '(howm-history-file "~/.emacs.d/data/howm-history")
  '(howm-keyword-file "~/.emacs.d/data/howm-keys")
