@@ -2344,6 +2344,18 @@ Else, return \" \"."
       (gnus)
       )))
 
+(defun show-debugger ()
+  (interactive)
+  (let ((gud-buf
+         (catch 'found
+           (dolist (buf (buffer-list))
+             (if (string-match "\\*gud-" (buffer-name buf))
+                 (throw 'found buf))))))
+    (if gud-buf
+        (switch-to-buffer-other-window gud-buf)
+      (call-interactively 'gdb))))
+
+(define-key global-map [(meta shift ?b)] 'show-debugger)
 (define-key global-map [(meta shift ?c)] 'jump-to-org-agenda)
 (define-key global-map [(meta shift ?g)] 'switch-to-gnus)
 (define-key global-map [(meta ?m)] 'org-smart-capture)
