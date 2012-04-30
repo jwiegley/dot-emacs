@@ -260,8 +260,8 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 ;;
 (defconst unicode-tokens-font-family-alternatives
   '(("STIXGeneral"
-     "Lucida Grande" "Lucida Sans Unicode"
-     "DejaVu Sans Mono" "DejaVuLGC Sans Mono" "Apple Symbols")
+     "DejaVu Sans Mono" "DejaVuLGC Sans Mono" 
+     "Lucida Grande" "Lucida Sans Unicode" "Apple Symbols")
     ("Script"
      "Lucida Calligraphy" "URW Chancery L" "Zapf Chancery")
     ("Fraktur"
@@ -274,7 +274,8 @@ This is used for an approximate reverse mapping, see `unicode-tokens-paste'.")
 	     unicode-tokens-font-family-alternatives)))
 
 (defface unicode-tokens-symbol-font-face
-  '((t :family "STIXGeneral"))
+ '((t :family "STIXGeneral"))      ;; best, but needs installation/config
+;  '((t :family "DejaVu Sans Mono")) ;; more reliable default on Ubuntu
   "The default font used for symbols.  Only :family and :slant attributes are used."
   :group 'unicode-tokens-faces)
 

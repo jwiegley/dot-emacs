@@ -4,7 +4,7 @@
       View and process this document with Unicode Tokens engaged.
    
       For a more exhaustive test of token display, visit the test
-      file etc/isar/TokensAcid.thy
+      file etc/isar/TokensAcid.thy.  Check the FAQ for more advice.
 
       $Id$
 *)

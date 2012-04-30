@@ -31,6 +31,62 @@ A. We distribute compiled .elcs for one version of Emacs, but other
 
 -----------------------------------------------------------------
 
+Q. I have just installed Emacs, ProofGeneral and a proof assistant.
+    It works but Tokens (e.g. \<Longrightarrow>) are not being displayed 
+    as symbols.
+
+A. You need to enable Unicode Tokens by the menu item:
+
+      Proof-General -> Options -> Unicode Tokens
+  
+    To enable it automatically every time you use Proof General,
+    use 
+
+      Proof-General -> Options -> Save Options
+
+    after doing this.
+
+    Note that we don't do this by default, because from the system's
+    perspective it is difficult to determine if this will succeed ---
+    or just produce funny characters that confuse new users even more.
+
+    If you are using Isabelle, the wrapper script will load Tokens
+    from any location, and you can enable it by passing the option 
+    "-x true".
+
+-----------------------------------------------------------------
+
+
+Q.  With Unicode symbols enabled, the symbols look a mess, e.g.
+    compressed and overlap one another.
+
+A.  Unfortunately this is a bug in the display engine inside
+    certain versions of Emacs, for example the default version
+    of emacs, Emacs 23.3.1 on Ubuntu 11.10, suffers.
+
+    The solution is to switch to another version (e.g. Emacs 23.2).
+    (See Trac#409: http://proofgeneral.inf.ed.ac.uk/trac/ticket/409)
+
+    You may be able to get better results with different fonts, even
+    without upgrading Emacs.
+
+    Proof General uses Deja Vu Sans Mono by default because
+    this often works out-of-the-box.  But STIX is better if you 
+    install it.  See http://www.stixfonts.org/.   On Ubuntu try:  
+
+         sudo apt-get install fonts-stix
+
+    To change to STIX, either
+
+         M-x customize face RET unicode-tokens-symbol-font-face RET
+
+    and edit to set the family name to "STIXGeneral", or edit 
+    the line beginning "(defface unicode-tokens-symbol-font-face" in
+    lib/unicode-tokens.el.
+
+
+-----------------------------------------------------------------
+
 Q. Help, I'm stuck!! Emacs keeps telling me "Cannot switch buffers in a
     dedicated window"  
 
@@ -73,45 +129,6 @@ A. Unfortunately the architecture of Proof General is designed so
     you have to run more than one Emacs.
 
 
-
------------------------------------------------------------------
-
-Q. I have just installed Emacs, ProofGeneral and a proof assistant.
-    It works but Tokens (e.g. \<Longrightarrow>) are not being displayed 
-    as symbols.
-
-A. You need to enable Unicode Tokens by the menu item:
-
-      Proof-General -> Options -> Unicode Tokens
-  
-    To enable it automatically every time you use Proof General,
-    use 
-
-      Proof-General -> Options -> Save Options
-
-    after doing this.
-
-    Note that we don't do this by default, because from the system's
-    perspective it is difficult to determine if this will succeed ---
-    or just produce funny characters that confuse new users even more.
-
-    If you are using Isabelle, the wrapper script will load Tokens
-    from any location, and you can enable it by passing the option 
-    "-x true".
-
-
------------------------------------------------------------------
-
-
-Q.  With Unicode symbols enabled, arrows and other symbols appear
-    compressed and overlap one another.
-
-A.  Unfortunately this is a bug in the display engine inside
-    certain versions of Emacs, for example the default version
-    of emacs, Emacs 23.3.1 on Ubuntu 11.10, suffers.
-
-    The solution is to switch to another version (e.g. Emacs 23.2).
-    (See Trac#409).
 
 -----------------------------------------------------------------
 
