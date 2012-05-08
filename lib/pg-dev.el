@@ -16,6 +16,12 @@
 
 (require 'whitespace)
 
+(eval-when-compile
+  (require 'cl))
+
+(eval-when (compile)
+  (require 'proof-site))
+
 (with-no-warnings
   (setq proof-general-debug t))
 
@@ -77,8 +83,8 @@
 
 (defun pg-loadpath ()
   (interactive)
-  (add-to-list 'load-path "../generic/")
-  (add-to-list 'load-path "../lib/"))
+  (proof-add-to-load-path "../generic/")
+  (proof-add-to-load-path "../lib/"))
 
 
 ;;;

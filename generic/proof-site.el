@@ -138,9 +138,22 @@ You can use customize to set this variable."
   :type 'directory
   :group 'proof-general-internals)
 
-;; Extend load path for the generic and library files.
-(add-to-list 'load-path (concat proof-home-directory "generic/"))
-(add-to-list 'load-path (concat proof-home-directory "lib/"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; load path. Have one function that adds elements to load-path.
+;; Distributions having specific requirements (such as using
+;; debian-pkg-add-load-path-item on Debian) only need to change
+;; this function.
+;;
+
+(defun proof-add-to-load-path (dir)
+  "Add DIR to `load-path' if not contained already"
+  (add-to-list 'load-path dir))
+
+(proof-add-to-load-path (concat proof-home-directory "generic/"))
+(proof-add-to-load-path (concat proof-home-directory "lib/"))
+
 
 ;; Declare some global variables and autoloads
 
@@ -277,8 +290,7 @@ If ASSISTANT-NAME is omitted, look up in `proof-assistant-table'."
        (setq proof-mode-for-goals (proof-ass-sym goals-mode))
        (setq proof-mode-for-script (proof-ass-sym mode))
        ;; Extend the load path if necessary
-       (if (not (member ,loadpath-elt load-path))
-	   (setq load-path (cons ,loadpath-elt load-path)))
+       (proof-add-to-load-path ,loadpath-elt)
        ;; Run hooks for late initialisation
        (run-hooks 'proof-ready-for-assistant-hook))))))
 

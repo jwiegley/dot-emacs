@@ -23,10 +23,8 @@
    (or (featurep 'mmm-auto)
        (progn
 	 ;; put bundled version on load path
-	 (setq load-path
-	       (cons
-		(concat proof-home-directory "contrib/mmm/")
-		load-path))
+	 (proof-add-to-load-path 
+		(concat proof-home-directory "contrib/mmm/"))
 	 ;; *should* always succeed unless bundled version broken
 	 (proof-try-require 'mmm-auto)))
    ;; Load prover-specific config in <foo>-mmm.el
