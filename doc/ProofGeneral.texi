@@ -3145,7 +3145,7 @@ dependencies.
 @item Mark proof commands that introduce or instantiate a
 given existential variable.
 @item Snapshots of proof trees for reference when you retract
-your proof to try an different approach.
+your proof to try a different approach.
 @end itemize
 
 For a more elaborated description please consult the help dialog
