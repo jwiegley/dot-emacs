@@ -2098,6 +2098,12 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 ;;(gnus-query (concat "header message-id " message-id))
 
+(defun my-dont-backup-files-p (filename)
+  (unless (string-match filename "/\\(archive/sent/\\|recentf$\\)")
+    (normal-backup-enable-predicate filename)))
+
+(setq backup-enable-predicate 'my-dont-backup-files-p)
+
 (defun gnus-goto-article (message-id)
   (gnus-summary-read-group "INBOX" 15 t)
   (gnus-summary-refer-article message-id))
