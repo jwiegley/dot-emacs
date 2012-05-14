@@ -136,3 +136,6 @@
 [submodule "site-lisp/xcscope"]
 	path = site-lisp/xcscope
 	url = git://github.com/To1ne/xcscope.git
+[submodule "site-lisp/ghc-mod"]
+	path = site-lisp/ghc-mod
+	url = git://github.com/kazu-yamamoto/ghc-mod.git

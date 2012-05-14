@@ -31,6 +31,7 @@
             "site-lisp/auctex/preview/"
             "site-lisp/doxymacs/lisp/"
             "site-lisp/ess/lisp/"
+            "site-lisp/ghc-mod/elisp/"
             "site-lisp/session/lisp/"
             "site-lisp/slime/contrib/"
 

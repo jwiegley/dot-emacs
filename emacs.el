@@ -1068,8 +1068,12 @@ $0"))))
   (defvar haskell-saved-check-command)
   (defvar haskell-mode-map))
 
+(autoload 'ghc-init "ghc" nil t)
+
 (defun my-haskell-mode-hook ()
   (setq haskell-saved-check-command haskell-check-command)
+
+  (ghc-init)
 
   (define-key haskell-mode-map [(control ?c) ?w]
     'flymake-display-err-menu-for-current-line)
