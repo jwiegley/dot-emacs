@@ -23,11 +23,11 @@
 	     (setq indirect-mode-name
 		   (intern
 		    (completing-read
-		     "Mode: "
+		     "Mode (default `org-mode'): "
 		     (mapcar (lambda (e)
 			       (list (symbol-name e)))
 			     (apropos-internal "-mode$" 'commandp))
-		     nil t)))
+		     nil t nil nil "org-mode")))
 	   indirect-mode-name)))
     (pop-to-buffer (make-indirect-buffer (current-buffer) buffer-name))
     (funcall mode)
