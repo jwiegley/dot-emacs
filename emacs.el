@@ -1,5 +1,7 @@
 ;;; emacs.el
 
+(defvar using-textexpander t)
+
 ;;;_. Initialization
 
 ;;;_ , Create my own global minor-mode, to hold key remappings
@@ -160,7 +162,13 @@
 (fset 'describe-bindings 'descbinds-anything)
 
 (eval-after-load "anything"
-  '(require 'anything-match-plugin))
+  '(progn
+     (require 'anything-match-plugin)
+
+     (define-key anything-map "." 'anything-select-with-prefix-shortcut)
+
+     (if using-textexpander
+         (define-key anything-map [(alt ?v)] 'anything-previous-page))))
 
 ;;;_ , auctex
 
@@ -419,9 +427,12 @@
 
 (eval-after-load "gtags"
   '(progn
-     (diminish 'gtags-mode)
+     ;;(diminish 'gtags-mode)
 
-     (define-key gtags-mode-map "\e," 'gtags-find-tag-from-here)))
+     (require 'anything-gtags)
+
+     (define-key gtags-mode-map "\e," 'anything-gtags-resume)
+     (define-key gtags-mode-map "\e." 'gtags-find-tag)))
 
 ;;;_ , ido
 
@@ -2359,10 +2370,11 @@ Else, return \" \"."
 
 ;;;_  . Keybindings
 
-(define-key override-global-map [(alt ?v)] 'scroll-down)
-(define-key global-map [(alt ?v)] 'scroll-down)
-(define-key override-global-map [(meta ?v)] 'yank)
-(define-key global-map [(meta ?v)] 'yank)
+(when using-textexpander
+  ;;(define-key override-global-map [(alt ?v)] 'scroll-down)
+  (define-key global-map [(alt ?v)] 'scroll-down)
+  (define-key override-global-map [(meta ?v)] 'yank)
+  (define-key global-map [(meta ?v)] 'yank))
 
 (defun wikipedia-query (term)
   (interactive (list (read-string "Wikipedia search: " (word-at-point))))
@@ -2417,9 +2429,12 @@ Else, return \" \"."
 
 ;;;_  . M-<?>
 
+(autoload 'anything-lisp-complete-symbol-partial-match "anything-complete" nil t)
+
 ;;(define-key global-map [(meta ?/)] 'hippie-expand)
+(define-key global-map [(meta ?,)] 'anything-resume)
 (define-key global-map [(meta ?/)] 'dabbrev-expand)
-(define-key global-map [(meta ??)] 'anything-dabbrev-expand)
+(define-key global-map [(meta ??)] 'anything-lisp-complete-symbol-partial-match)
 
 (defun delete-indentation-forward ()
   (interactive)
@@ -2482,8 +2497,6 @@ Else, return \" \"."
     (if gud-buf
         (switch-to-buffer-other-window gud-buf)
       (call-interactively 'gdb))))
-
-(autoload 'anything-gtags-select "anything-gtags" nil t)
 
 (define-key global-map [(meta shift ?o)] 'show-compilation)
 (define-key global-map [(meta shift ?b)] 'show-debugger)
@@ -3119,14 +3132,13 @@ Else, return \" \"."
 (define-key mode-specific-map [?S] 'org-store-link)
 (define-key mode-specific-map [?l] 'org-insert-link)
 
-(define-key mode-specific-map [?t ?.] 'gtags-find-tag-from-here)
+(define-key mode-specific-map [?t ?.] 'gtags-find-rtag)
 (define-key mode-specific-map [?t ?f] 'gtags-find-file)
 (define-key mode-specific-map [?t ?p] 'gtags-parse-file)
 (define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
 (define-key mode-specific-map [?t ?i] 'gtags-find-with-idutils)
 (define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
 (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
-(define-key mode-specific-map [?t ?%] 'gtags-find-tag)
 (define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
 
 ;;(define-key mode-specific-map [?t ?%] 'tags>-query-replace)

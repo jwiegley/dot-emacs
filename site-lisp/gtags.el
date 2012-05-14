@@ -186,7 +186,8 @@
 (defun gtags-current-token ()
   (save-excursion
     (cond
-     ((not (looking-at "[0-9A-Za-z_]"))
+     ((or (looking-at "[0-9A-Za-z_]")
+          (looking-back "[0-9A-Za-z_]"))
       (forward-char -1)
       (while (and (not (bolp)) (looking-at "[0-9A-Za-z_]"))
         (forward-char -1))
@@ -424,7 +425,7 @@
   (let (tagname flag)
     (setq tagname (gtags-current-token))
     (if (not tagname)
-        nil
+        (call-interactively 'gtags-find-tag)
       (gtags-push-context)
       (gtags-goto-tag tagname "C"))))
 
