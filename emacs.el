@@ -2943,7 +2943,7 @@ Else, return \" \"."
         (goto-char account-beg)
         (delete-region account-beg account-end)
         (insert account))
-      (next-line))))
+      (forward-line))))
 
 (defun emacs-min ()
   (interactive)
