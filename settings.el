@@ -18,7 +18,7 @@
  '(auto-compression-mode t nil (jka-compr))
  '(auto-image-file-mode t)
  '(auto-save-interval 1024)
- '(backup-directory-alist (quote (("/Volumes/Files/" . "/Volumes/Files/.backups") ("\\(recentf\\|archive!sent\\)" . "/tmp") (".*" . "~/.emacs.d/backups"))))
+ '(backup-directory-alist (quote (("/Volumes/Files/" . "/Volumes/Files/.backups") ("\\(recentf\\|archive/sent\\)" . "/tmp") (".*" . "~/.emacs.d/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bc-bookmark-file "~/.emacs.d/data/breadcrumb")
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
