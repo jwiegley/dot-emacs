@@ -139,3 +139,6 @@
 [submodule "site-lisp/ghc-mod"]
 	path = site-lisp/ghc-mod
 	url = git://github.com/kazu-yamamoto/ghc-mod.git
+[submodule "site-lisp/ruby-tools"]
+	path = site-lisp/ruby-tools
+	url = git://github.com/rejeep/ruby-tools.git

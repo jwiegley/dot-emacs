@@ -628,6 +628,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (require 'inf-ruby)
 (require 'ruby-electric)
 (require 'yari)
+(require 'ruby-tools nil t)
 
 (defun my-ruby-smart-return ()
   (interactive)
