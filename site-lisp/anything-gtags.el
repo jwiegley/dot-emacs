@@ -284,12 +284,14 @@ If it is other symbol, display file name in candidates even if classification is
 (defun aggs-select-it (candidate)
   (with-temp-buffer
     ;; `pwd' is defined at `ag-hijack-gtags-select-mode'.
-    (setq default-directory (buffer-local-value 'pwd (get-buffer anything-buffer)))
+    (setq default-directory
+          (let (rootdir)
+            (or gtags-rootdir (gtags-get-rootpath))))
     (insert candidate "\n")
     (forward-line -1)
     (gtags-select-it nil)
     ;; TODO fboundp
-     (when (and anything-in-persistent-action
+    (when (and anything-in-persistent-action
                (fboundp 'anything-persistent-highlight-point))
       (anything-persistent-highlight-point (point-at-bol) (point-at-eol)))))
 
