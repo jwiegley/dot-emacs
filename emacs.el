@@ -2440,6 +2440,17 @@ Else, return \" \"."
       (gnus)
       )))
 
+(defun show-compilation ()
+  (interactive)
+  (let ((compile-buf
+         (catch 'found
+           (dolist (buf (buffer-list))
+             (if (string-match "\\*compilation\\*" (buffer-name buf))
+                 (throw 'found buf))))))
+    (if compile-buf
+        (switch-to-buffer-other-window compile-buf)
+      (call-interactively 'compile))))
+
 (defun show-debugger ()
   (interactive)
   (let ((gud-buf
@@ -2451,6 +2462,7 @@ Else, return \" \"."
         (switch-to-buffer-other-window gud-buf)
       (call-interactively 'gdb))))
 
+(define-key global-map [(meta shift ?o)] 'show-compilation)
 (define-key global-map [(meta shift ?b)] 'show-debugger)
 (define-key global-map [(meta shift ?c)] 'jump-to-org-agenda)
 (define-key global-map [(meta shift ?g)] 'switch-to-gnus)
