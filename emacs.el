@@ -2527,9 +2527,36 @@ Else, return \" \"."
 
 ;;;_  . C-<?>
 
+(eval-when-compile
+  (require 'ace-jump-mode))
+
 (define-key global-map [(control return)] 'other-window)
 
+(defun quick-jump-char (&optional prefix no-ace-jump)
+  (interactive "P")
+  (let* ((query-char (event-basic-type last-command-event))
+         (regexp (regexp-quote (char-to-string query-char)))
+         (ace-jump-mode-hook
+          (list (function
+                 (lambda ()
+                   (define-key overriding-local-map
+                     [(alt ?-)]
+                     (function
+                      (lambda (&optional prefix)
+                        (interactive "P")
+                        (ace-jump-done)
+                        (quick-jump-char prefix)))))))))
+    (if (looking-at regexp)
+        (forward-char))
+    (re-search-forward regexp)
+    (backward-char)
+    (unless no-ace-jump
+      (ace-jump-do (regexp-quote (char-to-string query-char))))))
+
 (define-key global-map [(control ?.)] 'ace-jump-mode)
+(define-key override-global-map [(control ?.)] 'ace-jump-mode)
+(eval-after-load "flyspell"
+  '(define-key flyspell-mode-map [(control ?\.)] 'ace-jump-mode))
 
 (define-key global-map [(control ?z)] 'collapse-or-expand)
 
