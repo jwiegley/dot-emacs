@@ -415,6 +415,14 @@
 (defun git-commit-changes ()
   (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
 
+;;;_ , gtags
+
+(eval-after-load "gtags"
+  '(progn
+     (diminish 'gtags-mode)
+
+     (define-key gtags-mode-map "\e," 'gtags-find-tag-from-here)))
+
 ;;;_ , ido
 
 (eval-when-compile
@@ -776,6 +784,7 @@ $0"))))
 (defun my-c-mode-common-hook ()
   (abbrev-mode 1)
 
+  (gtags-mode 1)
   (company-mode 1)
   (which-function-mode 1)
 
@@ -2470,6 +2479,8 @@ Else, return \" \"."
         (switch-to-buffer-other-window gud-buf)
       (call-interactively 'gdb))))
 
+(autoload 'anything-gtags-select "anything-gtags" nil t)
+
 (define-key global-map [(meta shift ?o)] 'show-compilation)
 (define-key global-map [(meta shift ?b)] 'show-debugger)
 (define-key global-map [(meta shift ?c)] 'jump-to-org-agenda)
@@ -2478,7 +2489,8 @@ Else, return \" \"."
 (define-key global-map [(meta shift ?m)] 'org-inline-note)
 (define-key global-map [(meta shift ?n)] 'winner-redo)
 (define-key global-map [(meta shift ?p)] 'winner-undo)
-(define-key global-map [(meta shift ?t)] 'tags-search)
+;;(define-key global-map [(meta shift ?t)] 'tags-search)
+(define-key global-map [(meta shift ?t)] 'anything-gtags-select)
 
 (defun find-grep-in-project (command-args)
   (interactive
@@ -3103,10 +3115,20 @@ Else, return \" \"."
 (define-key mode-specific-map [?S] 'org-store-link)
 (define-key mode-specific-map [?l] 'org-insert-link)
 
-(define-key mode-specific-map [?t ?%] 'tags>-query-replace)
-(define-key mode-specific-map [?t ?a] 'tags-apropos)
-(define-key mode-specific-map [?t ?e] 'tags-search)
-(define-key mode-specific-map [?t ?v] 'visit-tags-table)
+(define-key mode-specific-map [?t ?.] 'gtags-find-tag-from-here)
+(define-key mode-specific-map [?t ?f] 'gtags-find-file)
+(define-key mode-specific-map [?t ?p] 'gtags-parse-file)
+(define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
+(define-key mode-specific-map [?t ?i] 'gtags-find-with-idutils)
+(define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
+(define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
+(define-key mode-specific-map [?t ?%] 'gtags-find-tag)
+(define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
+
+;;(define-key mode-specific-map [?t ?%] 'tags>-query-replace)
+;;(define-key mode-specific-map [?t ?a] 'tags-apropos)
+;;(define-key mode-specific-map [?t ?e] 'tags-search)
+;;(define-key mode-specific-map [?t ?v] 'visit-tags-table)
 
 (define-key mode-specific-map [?u] 'rename-uniquely)
 (define-key mode-specific-map [?v] 'ffap)
