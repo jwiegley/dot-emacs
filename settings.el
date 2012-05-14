@@ -41,7 +41,7 @@
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode t)
- '(company-backends (quote (company-elisp company-nxml company-css (company-etags company-dabbrev-code company-keywords) company-oddmuse company-files company-dabbrev)))
+ '(company-backends (quote (company-elisp company-nxml company-css (company-gtags company-dabbrev-code company-keywords) company-oddmuse company-files company-dabbrev)))
  '(company-idle-delay nil)
  '(compilation-auto-jump-to-first-error t)
  '(compilation-context-lines 10)
