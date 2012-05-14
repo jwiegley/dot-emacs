@@ -371,7 +371,7 @@ SCHEDULED: %t
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
  '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
  '(org-modules (quote (org-gnus org-id org-info org-habit org-depend)))
- '(org-refile-targets (quote (("~/Documents/Tasks/todo.txt" :level . 1) ("~/Documents/Tasks/todo.txt" :todo . "PROJECT") ("~/src/ledger/plan/TODO" :level . 1))))
+ '(org-refile-targets (quote (("~/Documents/Tasks/todo.txt" :level . 1) ("~/Documents/Tasks/todo.txt" :todo . "PROJECT") ("~/Documents/Tasks/notes.txt" :level . 1) ("~/src/ledger/plan/TODO" :level . 1))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-tags-column -97)
