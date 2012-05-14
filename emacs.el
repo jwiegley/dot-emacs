@@ -309,9 +309,11 @@
       (forward-line)
       (delete-region beg (point)))))
 
-(add-hook 'ediff-keymap-setup-hook
-          (lambda ()
-            (define-key ediff-mode-map [?c] 'ediff-keep-both)))
+
+(eval-after-load "ediff-init"
+  '(add-hook 'ediff-keymap-setup-hook
+             (lambda ()
+               (define-key ediff-mode-map [?c] 'ediff-keep-both))))
 
 ;;;_ , erc
 
