@@ -1504,7 +1504,7 @@ To use this function, add it to `org-agenda-finalize-hook':
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
-            (re-search-forward "^  :END:")
+            (re-search-forward "^:END:")
             (forward-line)
             (goto-char (line-beginning-position))
             (if (and tasks (> (length tasks) 0))
@@ -1671,7 +1671,7 @@ SCHEDULED: %t
   (switch-to-buffer-other-window "todo.txt")
   (goto-char (point-min))
   (re-search-forward "^\\* Inbox$")
-  (re-search-forward "^  :END:")
+  (re-search-forward "^:END:")
   (forward-line)
   (goto-char (line-beginning-position))
   (insert "** NOTE ")
