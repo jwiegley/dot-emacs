@@ -225,6 +225,16 @@
                       :doc-spec '(("(latex2e)Concept Index" )
                                   ("(latex2e)Command Index")))
 
+;;;_ , auto-complete
+
+(require 'auto-complete-config)
+(require 'auto-complete-clang)
+
+(setq ac-use-menu-map t)
+;; Default settings
+(define-key ac-menu-map "\C-n" 'ac-next)
+(define-key ac-menu-map "\C-p" 'ac-previous)
+
 ;;;_ , css-mode
 
 (add-to-list 'auto-mode-alist '("\\.css$" . css-mode))
@@ -785,10 +795,12 @@ $0"))))
 (defun my-c-indent-or-complete ()
   (interactive)
   (let ((class (syntax-class (syntax-after (1- (point))))))
-   (if (or (bolp) (and (/= 2 class)
-                       (/= 3 class)))
-       (call-interactively 'indent-according-to-mode)
-     (call-interactively 'company-complete-common))))
+    (if (or (bolp) (and (/= 2 class)
+                        (/= 3 class)))
+        (call-interactively 'indent-according-to-mode)
+      (if t
+          (call-interactively 'ac-complete)
+        (call-interactively 'company-complete-common)))))
 
 (eval-when-compile
   (defvar c-mode-base-map))
@@ -797,7 +809,16 @@ $0"))))
   (abbrev-mode 1)
 
   (gtags-mode 1)
-  (company-mode 1)
+  (if t
+      (progn
+        (auto-complete-mode 1)
+        (setq ac-sources (append '(ac-source-gtags
+                                   ac-source-clang
+                                   ac-source-yasnippet)
+                                 ac-sources))
+        (define-key c-mode-base-map [(alt tab)] 'ac-complete))
+    (company-mode 1)
+    (define-key c-mode-base-map [(alt tab)] 'company-complete-common))
   (which-function-mode 1)
 
   ;;(doxymacs-mode 1)
@@ -809,7 +830,6 @@ $0"))))
        '(apply my-c-indent-or-complete . nil))
   (define-key c-mode-base-map [tab] 'yas/expand-from-trigger-key)
 
-  (define-key c-mode-base-map [(alt tab)] 'company-complete-common)
   (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
   (define-key c-mode-base-map [(control ?c) (control ?i)]
     'c-includes-current-file)

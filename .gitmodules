@@ -142,3 +142,12 @@
 [submodule "site-lisp/ruby-tools"]
 	path = site-lisp/ruby-tools
 	url = git://github.com/rejeep/ruby-tools.git
+[submodule "site-lisp/auto-complete"]
+	path = site-lisp/auto-complete
+	url = git://github.com/m2ym/auto-complete.git
+[submodule "site-lisp/popup-el"]
+	path = site-lisp/popup-el
+	url = git://github.com/m2ym/popup-el.git
+[submodule "site-lisp/auto-complete-clang"]
+	path = site-lisp/auto-complete-clang
+	url = git://github.com/brianjcj/auto-complete-clang.git
