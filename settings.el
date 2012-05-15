@@ -11,6 +11,7 @@
  '(TeX-view-program-selection (quote (((output-dvi style-pstricks) "dvips and gv") (output-dvi "xdvi") (output-pdf "Skim") (output-html "xdg-open"))))
  '(abbrev-file-name "~/.emacs.d/abbrev_defs")
  '(ac-auto-start 4)
+ '(ac-comphist-file "/Users/johnw/.emacs.d/data/ac-comphist.dat")
  '(ac-delay 0.2)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
