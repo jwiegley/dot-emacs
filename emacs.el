@@ -230,6 +230,8 @@
 (require 'auto-complete-config)
 ;; (require 'auto-complete-clang)
 
+(ac-set-trigger-key "TAB")
+
 (setq ac-use-menu-map t)
 ;; Default settings
 (define-key ac-menu-map "\C-n" 'ac-next)
@@ -799,7 +801,7 @@ $0"))))
                         (/= 3 class)))
         (call-interactively 'indent-according-to-mode)
       (if t
-          (call-interactively 'ac-complete)
+          (call-interactively 'auto-complete)
         (call-interactively 'company-complete-common)))))
 
 (eval-when-compile
@@ -814,8 +816,7 @@ $0"))))
         (auto-complete-mode 1)
         (setq ac-sources (append '(ac-source-gtags
                                    ;; ac-source-clang
-                                   ;; ac-source-yasnippet
-                                   )
+                                   ac-source-yasnippet)
                                  ac-sources))
         (define-key c-mode-base-map [(alt tab)] 'ac-complete))
     (company-mode 1)
