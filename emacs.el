@@ -442,7 +442,7 @@
      (require 'anything-gtags)
 
      (define-key gtags-mode-map "\e," 'anything-gtags-resume)
-     (define-key gtags-mode-map "\e." 'gtags-find-tag)))
+     (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)))
 
 ;;;_ , ido
 
