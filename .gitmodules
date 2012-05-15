@@ -154,3 +154,6 @@
 [submodule "site-lisp/git-commit-mode"]
 	path = site-lisp/git-commit-mode
 	url = git://github.com/rafl/git-commit-mode.git
+[submodule "site-lisp/fuzzy-el"]
+	path = site-lisp/fuzzy-el
+	url = git://github.com/m2ym/fuzzy-el.git
