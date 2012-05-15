@@ -228,7 +228,7 @@
 ;;;_ , auto-complete
 
 (require 'auto-complete-config)
-(require 'auto-complete-clang)
+;; (require 'auto-complete-clang)
 
 (setq ac-use-menu-map t)
 ;; Default settings
@@ -813,8 +813,9 @@ $0"))))
       (progn
         (auto-complete-mode 1)
         (setq ac-sources (append '(ac-source-gtags
-                                   ac-source-clang
-                                   ac-source-yasnippet)
+                                   ;; ac-source-clang
+                                   ;; ac-source-yasnippet
+                                   )
                                  ac-sources))
         (define-key c-mode-base-map [(alt tab)] 'ac-complete))
     (company-mode 1)
