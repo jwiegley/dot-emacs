@@ -741,6 +741,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (yas/initialize)
 (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
 
+(define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)
+
 (defun yas/new-snippet (&optional choose-instead-of-guess)
   (interactive "P")
   (let ((guessed-directories (yas/guess-snippet-directories)))
@@ -2063,7 +2065,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
               ;; yasnippet (using the new org-cycle hooks)
               (set (make-local-variable 'yas/trigger-key) [tab])
               (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-              (define-key yas/keymap [tab] 'yas/next-field)))
+              (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
