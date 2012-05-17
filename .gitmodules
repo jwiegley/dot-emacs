@@ -160,3 +160,6 @@
 [submodule "site-lisp/git-emacs"]
 	path = site-lisp/git-emacs
 	url = git://github.com/tsgates/git-emacs.git
+[submodule "site-lisp/flymake-ruby"]
+	path = site-lisp/flymake-ruby
+	url = git://github.com/purcell/flymake-ruby.git
