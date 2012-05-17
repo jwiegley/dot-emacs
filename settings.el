@@ -46,7 +46,6 @@
  '(column-number-mode t)
  '(company-backends (quote (company-elisp company-nxml company-css (company-gtags company-dabbrev-code company-keywords) company-oddmuse company-files company-dabbrev)))
  '(company-idle-delay nil)
- '(compilation-auto-jump-to-first-error t)
  '(compilation-context-lines 10)
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
