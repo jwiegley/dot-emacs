@@ -10,6 +10,7 @@
  '(TeX-view-program-list (quote (("Skim" ("osascript" " ~/bin/skim-gotopage.script" " %O" (mode-io-correlate " %(outpage)"))))))
  '(TeX-view-program-selection (quote (((output-dvi style-pstricks) "dvips and gv") (output-dvi "xdvi") (output-pdf "Skim") (output-html "xdg-open"))))
  '(abbrev-file-name "~/.emacs.d/abbrev_defs")
+ '(ac-auto-show-menu nil)
  '(ac-auto-start 3)
  '(ac-comphist-file "/Users/johnw/.emacs.d/data/ac-comphist.dat")
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
