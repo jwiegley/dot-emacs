@@ -83,11 +83,6 @@
 (eval-after-load "bookmark"
   '(require 'bookmark+))
 
-(require 'compile-)
-(setq compilation-message-face nil)
-(eval-after-load "compile"
-  '(require 'compile+))
-
 (require 'diff-mode-)
 
 (eval-after-load "hl-line"
