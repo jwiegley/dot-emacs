@@ -411,8 +411,7 @@
               (set-fill-column 72)
               ;;(column-marker-1 72)
               (flyspell-mode)
-              (orgstruct++-mode)
-              (turn-on-filladapt-mode)))
+              (orgstruct++-mode)))
 
 (eval-after-load "magit"
   '(progn
@@ -773,8 +772,6 @@ $0"))))
 
 (eval-after-load "dot-mode"
   '(diminish 'dot-mode))
-(eval-after-load "filladapt"
-  '(diminish 'filladapt-mode))
 (eval-after-load "winner"
   '(ignore-errors (diminish 'winner-mode)))
 
