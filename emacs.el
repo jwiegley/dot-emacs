@@ -3061,9 +3061,7 @@ Else, return \" \"."
     (set-frame-parameter (selected-frame) 'height
                          (if (>= emacs-major-version 24)
                              76
-                           100)))
-  (if (>= emacs-major-version 24)
-      (setq-default line-spacing 2)))
+                           100))))
 
 (defun emacs-max ()
   (interactive)
