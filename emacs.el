@@ -59,8 +59,7 @@
   (require 'cl))
 
 (mapc #'require
-      '(archive-region
-        browse-kill-ring+
+      '(browse-kill-ring+
         bookmark
         diminish
         edit-server
