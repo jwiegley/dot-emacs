@@ -484,19 +484,18 @@
 
 (require 'rx)
 
-(defvar merlin-timestamp-re
-  '(and (= 2 num) ?/ (= 2 num) ?/ (= 2 num)
-        space (= 2 num) ?: (= 2 num) space
-        (in "AP") ?M))
-
 (defun merlin-record-times ()
   (interactive)
   (let* ((text (buffer-substring-no-properties (line-beginning-position)
                                                (line-end-position)))
          (regex
           (rx (and string-start (0+ space)
-                   (group (eval merlin-timestamp-re)) (1+ space)
-                   (group (eval merlin-timestamp-re)) (1+ space)
+                   (group (and (= 2 num) ?/ (= 2 num) ?/ (= 2 num)
+                               space (= 2 num) ?: (= 2 num) space
+                               (in "AP") ?M)) (1+ space)
+                   (group (and (= 2 num) ?/ (= 2 num) ?/ (= 2 num)
+                               space (= 2 num) ?: (= 2 num) space
+                               (in "AP") ?M)) (1+ space)
                    (? (and (group ?*) (1+ space)))
                    (group (1+ (or digit (in ".hms"))))
                    (1+ space) (group (1+ nonl)) string-end))))
