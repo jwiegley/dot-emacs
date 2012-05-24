@@ -474,6 +474,7 @@ shell buffer, called by `proof-shell-bail-out' if process exits."
       (dolist (buf '(proof-goals-buffer proof-response-buffer
 					proof-trace-buffer))
 	(when (buffer-live-p (symbol-value buf))
+	  (delete-windows-on (symbol-value buf))
 	  (kill-buffer (symbol-value buf))
 	  (set buf nil))))
     (setq proof-shell-exit-in-progress nil)
