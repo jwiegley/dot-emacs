@@ -176,7 +176,7 @@ On Windows you might need something like:
   :type 'string
   :group 'coq)
 
-(defcustom coq-end-goals-regexp-hide-subgoals "\nsubgoal 2 is:"
+(defcustom coq-end-goals-regexp-hide-subgoals "\nsubgoal 2 "
   "Regexp for `proof-shell-end-goals-regexp' when hiding additional subgoals.
 See also `coq-hide-additional-subgoals'."
   :type '(choice regexp (const nil))
@@ -953,7 +953,6 @@ If locked span already has a state number, then do nothing. Also updates
 
 (defun coq-hide-additional-subgoals-switch ()
   "Function invoked when the user switches `coq-hide-additional-subgoals'."
-  (message "chass")
   (if coq-hide-additional-subgoals
       (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
     (setq proof-shell-end-goals-regexp coq-end-goals-regexp-show-subgoals)))
