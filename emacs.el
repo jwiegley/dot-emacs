@@ -2149,6 +2149,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (require 'message)
 (require 'pgg)
 (require 'offlineimap-ctl)
+(require 'nnmairix)
 
 (eval-when-compile
   (require 'gnus-group)
