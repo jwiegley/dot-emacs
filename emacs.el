@@ -2438,8 +2438,14 @@ Else, return \" \"."
   (interactive (list (read-string "Wikipedia search: " (word-at-point))))
   (w3m-search "en.wikipedia" term))
 
+(defun wolfram-alpha-query (term)
+  (interactive (list (read-string "Ask Wolfram Alpha: " (word-at-point))))
+  (w3m-browse-url (format "http://m.wolframalpha.com/input/?i=%s"
+                          (w3m-search-escape-query-string term))))
+
 (define-key global-map [(alt meta ?f)] 'gnus-query)
 (define-key global-map [(alt meta ?g)] 'w3m-search)
+(define-key global-map [(alt meta ?h)] 'wolfram-alpha-query)
 (define-key global-map [(alt meta ?w)] 'wikipedia-query)
 
 (define-key global-map [(control ?h) (control ?i)] 'info-lookup-symbol)
