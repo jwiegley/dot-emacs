@@ -78,7 +78,11 @@
 
 (defun switch-to-offlineimap ()
   (interactive)
-  (display-buffer (get-buffer "*offlineimap*")))
+  (let ((buf (get-buffer "*offlineimap*")))
+    (unless buf
+      (start-offlineimap)
+      (setq buf (get-buffer "*offlineimap*")))
+    (display-buffer buf)))
 
 ;; (add-hook 'gnus-agent-plugged-hook 'start-offlineimap)
 ;; (add-hook 'gnus-agent-unplugged-hook 'shutdown-offlineimap)
