@@ -734,6 +734,17 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;      (ignore-errors
 ;;        (wg-switch-to-workgroup it))))
 
+;;;_ , wrap-region
+
+(require 'wrap-region)
+
+(wrap-region-add-wrappers
+ '(("$" "$")
+   ("{-" "-}" "#")
+   ("/" "/" nil 'ruby-mode)
+   ("/* " " */" "#" '(java-mode javascript-mode css-mode))
+   ("`" "`" nil '(markdown-mode ruby-mode))))
+
 ;;;_ , yasnippet
 
 (yas/initialize)
