@@ -3019,6 +3019,7 @@ Else, return \" \"."
 
 (define-key mode-specific-map [?f] 'flush-lines)
 (define-key mode-specific-map [?g] 'goto-line)
+(define-key mode-specific-map [?h] 'crosshairs-mode)
 
 (define-key mode-specific-map [?i ?b] 'flyspell-buffer)
 (define-key mode-specific-map [?i ?c] 'ispell-comments-and-strings)
