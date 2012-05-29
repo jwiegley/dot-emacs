@@ -1,6 +1,6 @@
 ;;; emacs.el
 
-(defvar using-textexpander t)
+(defvar using-textexpander nil)
 
 ;;;_. Initialization
 
