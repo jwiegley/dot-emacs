@@ -349,7 +349,10 @@
                                             :user "johnw"
                                             :type 'netrc
                                             :port 6667))
-                   :secret))))
+                   :secret)))
+  (erc :server "irc.oftc.net"
+       :port 6667
+       :nick "johnw"))
 
 (defun im ()
   (interactive)
