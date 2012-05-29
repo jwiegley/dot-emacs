@@ -1504,30 +1504,24 @@ This list specifies the LoadPath extension for coqdep, coqc and
 coqtop. Usually, the elements of this list are strings (for
 \"-I\") or lists of two strings (for \"-R\" dir \"-as\" path).
 
-The possible forms of elements of this list correspond to the 4
-possible forms of the Add LoadPath command and the 4 forms of the
-include options ('-I' and '-R'). An element can be
+The possible forms of elements of this list correspond to the 3
+forms of include options ('-I' and '-R'). An element can be
 
   - A string, specifying a directory to be mapped to the empty
     logical path ('-I').
   - A list of the form '(rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
     logical path 'path' ('-R dir -as path').
-  - A list of the form '(rec dir)', specifying a directory to be
-    recursively mapped to the empty logical path ('-R dir').
   - A list of the form '(norec dir path)', specifying a directory
     to be mapped to the logical path 'path' ('-I dir -as path').
 
 For convenience the symbol 'rec' can be omitted and entries of
-the form '(dir)' and '(dir path)' are interpreted as '(rec dir)
-and '(rec dir path)', respectively.
+the form '(dir path)' are interpreted as '(rec dir path)'.
 
 Under normal circumstances this list does not need to
 contain the coq standard library or \".\" for the current
 directory (see `coq-load-path-include-current')."
   :type '(repeat (choice (string :tag "simple directory without path (-I)")
-                         (list :tag "recursive directory without path (-R)"
-                               (const rec) (string :tag "directory"))
                          (list :tag
                                "recursive directory with path (-R ... -as ...)"
                                (const rec)
@@ -1538,15 +1532,7 @@ directory (see `coq-load-path-include-current')."
                                (const nonrec)
                                (string :tag "directory")
                                (string :tag "log path"))))
-  :safe '(lambda (v) (every
-                      '(lambda (entry)
-                         (or (stringp entry)
-                             (and (eq (car entry) 'rec)
-                                  (every 'stringp (cdr entry)))
-                             (and (eq (car entry) 'nonrec)
-                                  (every 'stringp (cdr entry)))
-                             (every 'stringp entry)))
-                      v))
+  :safe 'coq-load-path-safep
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-auto-save 'ask-coq
@@ -1700,6 +1686,28 @@ DEP-MOD-TIMES is empty it returns nil."
     max))
 
 
+;; safety predicate for coq-load-path
+
+(defun coq-load-path-safep (path)
+  "Check if PATH is a safe value for `coq-load-path'."
+  (and
+   (listp path)
+   (every
+    '(lambda (entry)
+       (or (stringp entry)
+           (and (listp entry)
+                (eq (car entry) 'rec)
+                (every 'stringp (cdr entry))
+                (equal (length entry) 3))
+           (and (listp entry)
+                (eq (car entry) 'nonrec)
+                (every 'stringp (cdr entry))
+                (equal (length entry) 3))
+           (and (listp entry)
+                (every 'stringp entry)
+                (equal (length entry) 2))))
+    path)))
+
 ;; Compute command line for starting coqtop
 
 (defun coq-prog-args ()
@@ -1782,9 +1790,7 @@ options they are translated."
    (t
     (if (eq (car entry) 'rec)
         (setq entry (cdr entry)))
-    (if (nth 1 entry)
-        (list "-R" (expand-file-name (car entry)) "-as" (nth 1 entry))
-      (list "-R" (expand-file-name (car entry)))))))
+    (list "-R" (expand-file-name (car entry)) "-as" (nth 1 entry)))))
 
 (defun coq-include-options (file)
   "Build the list of include options for coqc, coqdep and coqtop.
@@ -1797,6 +1803,8 @@ append more arguments with `nconc'.
 FILE should be an absolute file name. It can be nil if
 `coq-load-path-include-current' is nil."
   (let ((result nil))
+    (unless (coq-load-path-safep coq-load-path)
+      (error "Invalid value in coq-load-path"))
     (when coq-load-path
       (setq result (coq-option-of-load-path-entry (car coq-load-path)))
       (dolist (entry (cdr coq-load-path))

@@ -4435,23 +4435,19 @@ This list specifies the LoadPath extension for coqdep, coqc and
 coqtop. Usually, the elements of this list are strings (for
 "-I") or lists of two strings (for "-R" dir "-as" path).
 
-The possible forms of elements of this list correspond to the 4
-possible forms of the Add LoadPath command and the 4 forms of the
-include options ('-I' and @code{'-R'}). An element can be
+The possible forms of elements of this list correspond to the 3
+forms of include options ('-I' and @code{'-R'}). An element can be
 @lisp
   - A string, specifying a directory to be mapped to the empty
     logical path ('-I').
   - A list of the form '(rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
     logical path @code{'path'} ('-R dir -as path').
-  - A list of the form '(rec dir)', specifying a directory to be
-    recursively mapped to the empty logical path ('-R dir').
   - A list of the form '(norec dir path)', specifying a directory
     to be mapped to the logical path @code{'path'} ('-I dir -as path').
 @end lisp
 For convenience the symbol @code{'rec'} can be omitted and entries of
-the form '(dir)' and '(dir path)' are interpreted as '(rec dir)
-and '(rec dir path)', respectively.
+the form '(dir path)' are interpreted as '(rec dir path)'.
 
 Under normal circumstances this list does not need to
 contain the coq standard library or "." for the current
@@ -4527,14 +4523,15 @@ are treated as errors.
 @c TEXI DOCSTRING MAGIC: coq-coqdep-error-regexp
 @defvar coq-coqdep-error-regexp 
 Regexp to match errors in the output of coqdep.@*
-coqdep indicates errors not via a non-zero exit status, but only
-via printing warnings. This regular expression is used for
-recognizing error conditions in the output of coqdep. Its
-default value matches the warning that some required library
-cannot be found on the load path and ignores the warning for
-finding a library at multiple places in the load path. If you
-want to turn the latter condition into an error, then set this
-variable to "^\*\*\* Warning".
+coqdep indicates errors not always via a non-zero exit status,
+but sometimes only via printing warnings. This regular expression
+is used for recognizing error conditions in the output of
+coqdep (when coqdep terminates with exit status 0). Its default
+value matches the warning that some required library cannot be
+found on the load path and ignores the warning for finding a
+library at multiple places in the load path. If you want to turn
+the latter condition into an error, then set this variable to
+"^\*\*\* Warning".
 @end defvar
 
 

@@ -364,7 +364,7 @@ file for the mode, which will be
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (lego "LEGO" "l") (hol-light "HOL Light" "ml"))}.
+The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (hol-light "HOL Light" "ml") (pgshell "PG-Shell" "pgsh") (pgocaml "PG-OCaml" "pgml") (pghaskell "PG-Haskell" "pghci"))}.
 @end defopt
 
 
@@ -3216,7 +3216,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'lego} @code{'hol-light}.
+A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'hol-light} @code{'pgshell} @code{'pgocaml} @code{'pghaskell}.
 If nil, the default will be ALL available proof assistants.
 
 Each proof assistant defines its own instance of Proof General,
@@ -4132,43 +4132,49 @@ after a completed proof.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-delayed-output
 @defun proof-shell-handle-delayed-output 
-Display delayed outputs, when queue is stopped or completed.@*
+Display delayed goals/responses, when queue is stopped or completed.@*
 This function handles the cases of @samp{proof-shell-output-kind} which
 are not dealt with eagerly during script processing, namely
 @code{'response} and @code{'goals} types.
 
-This is useful even with empty delayed output as it can
-clear the buffers.
+This is useful even with empty delayed output as it will empty
+the buffers.
 
 The delayed output is in the region
 [@code{proof-shell-delayed-output-start},@code{proof-shell-delayed-output-end}].
 
+If no goals classified output is found, the whole output is
+displayed in the response buffer.
+
 If goals output is found, the last matching instance, possibly
-bounded by @samp{@code{proof-shell-end-goals-regexp}}, will be displayed.
-Any output that appears @strong{before} the first goals output (but
+bounded by @samp{@code{proof-shell-end-goals-regexp}}, will be displayed
+in the goals buffer (and may be further analysed by Proof General).
+
+Any output that appears @strong{before} the last goals output (but
 after messages classified as urgent, see @samp{@code{proof-shell-filter}})
-will also be displayed in the response buffer.  For example,
-if @var{output} has this form:
+will also be displayed in the response buffer.
+
+For example, if @var{output} has this form:
 @lisp
   @var{messsage-1}
   @var{goals-1}
   @var{message-2}
   @var{goals-2}
+  @var{junk}
 @end lisp
 then @var{goals-2} will be displayed in the goals buffer, and @var{message-2}
-in the response buffer.  Notice that the above alternation can
+in the response buffer.  @var{junk} will be ignored.
+
+Notice that the above alternation (and separation of @var{junk}) can
 only be distinguished if both @samp{@code{proof-shell-start-goals-regexp}}
-and @samp{@code{proof-shell-end-goals-regexp}} are set.  With just the
-former, @var{message-1} @var{goals-1} @var{message-2} would all appear in
-the response buffer.
+and @samp{@code{proof-shell-end-goals-regexp}} are set.  With just the start
+goals regexp set, @var{goals-2} @var{junk} will appear in the goals buffer
+and no response output would occur.
 @lisp
 @end lisp
 The goals and response outputs are copied into
 @samp{@code{proof-shell-last-goals-output}} and
 @samp{@code{proof-shell-last-response-output}} respectively.
-
-If no other kind of classified output is found, the default
-is to display the output in the response buffer.
 
 The value returned is the value for @samp{@code{proof-shell-last-output-kind}},
 i.e., @code{'goals} or @code{'response}.
