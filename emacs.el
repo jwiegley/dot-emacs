@@ -856,7 +856,9 @@ $0"))))
         (c-set-style "edg")
         (substitute-key-definition 'fill-paragraph 'ti-refill-comment
                                    c-mode-base-map global-map)
-        (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment)))))
+        (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment))
+       (t
+        (c-set-style "clang")))))
 
   (font-lock-add-keywords 'c++-mode '(("\\<\\(assert\\|DEBUG\\)("
                                        1 font-lock-warning-face t))))
@@ -1057,8 +1059,36 @@ $0"))))
             (case-label . 0)
             (statement-case-open . 0)
             (statement-cont . +)
-            (arglist-intro . c-lineup-arglist-intro-after-paren)
-            (arglist-close . c-lineup-arglist)
+            (arglist-intro . +)
+            (arglist-close . +)
+            (inline-open . 0)
+            (brace-list-open . 0)
+            (topmost-intro-cont
+             . (first c-lineup-topmost-intro-cont
+                      c-lineup-gnu-DEFUN-intro-cont))))
+        (c-special-indent-hook . c-gnu-impose-minimum)
+        (c-block-comment-prefix . "")))
+
+     (add-to-list
+      'c-style-alist
+      '("clang"
+        (indent-tabs-mode . nil)
+        (c-basic-offset . 2)
+        (c-comment-only-line-offset . (0 . 0))
+        (c-hanging-braces-alist
+         . ((substatement-open before after)
+            (arglist-cont-nonempty)))
+        (c-offsets-alist
+         . ((statement-block-intro . +)
+            (knr-argdecl-intro . 5)
+            (substatement-open . 0)
+            (substatement-label . 0)
+            (label . 0)
+            (case-label . 0)
+            (statement-case-open . 0)
+            (statement-cont . +)
+            (arglist-intro . +)
+            (arglist-close . +)
             (inline-open . 0)
             (brace-list-open . 0)
             (topmost-intro-cont
