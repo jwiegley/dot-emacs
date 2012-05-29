@@ -633,7 +633,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , ruby
 
 (require 'inf-ruby)
-(require 'ruby-electric)
 (require 'yari)
 (require 'ruby-tools nil t)
 
@@ -644,7 +643,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
   (call-interactively 'newline-and-indent))
 
 (defun my-ruby-mode-hook ()
-  (ruby-electric-mode)
   (inf-ruby-keys)
 
   (define-key ruby-mode-map [return] 'my-ruby-smart-return)
