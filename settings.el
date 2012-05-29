@@ -177,9 +177,9 @@
  '(gnus-message-archive-group (quote ((format-time-string "sent.%Y"))))
  '(gnus-message-replyencrypt nil)
  '(gnus-novice-user nil)
- '(gnus-posting-styles (quote (("\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" ("From" "johnw@boostpro.com") (organization "BoostPro Computing, Inc.") (signature "  John Wiegley
-  BoostPro Computing, Inc.
-  http://www.boostpro.com")))))
+ '(gnus-posting-styles (quote (("\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" ("From" "johnw@boostpro.com") (organization "BoostPro Computing, Inc.") (signature "John Wiegley
+BoostPro Computing
+http://www.boostpro.com")))))
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
  '(gnus-refer-article-method (quote (current (nnir "nnimap:Local") (nntp "LocalNews" (nntp-address "localhost") (nntp-port-number 9119)) (nntp "Gmane" (nntp-address "news.gmane.org")) (nntp "GigaNews" (nntp-address "text.giganews.com") (nntp-authinfo-user "jwiegley")))))
