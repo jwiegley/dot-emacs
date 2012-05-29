@@ -1835,16 +1835,16 @@ end tell"))
         (url (do-applescript "tell application \"Google Chrome\"
         URL of active tab of front window
 end tell")))
-    (org-make-link-string url subject)))
+    (org-make-link-string (substring url 1 -1) (substring subject 1 -1))))
 
 (defun org-insert-url-link ()
   (interactive)
-  (insert (org-get-safari-link)))
+  (insert (org-get-chrome-link)))
 
 (defun org-set-url-link ()
   "Set a property for the current headline."
   (interactive)
-  (org-set-property "URL" (org-get-safari-link)))
+  (org-set-property "URL" (org-get-chrome-link)))
 
 ;;(defun org-get-file-link ()
 ;;  (let ((subject (do-applescript "tell application \"Finder\"
