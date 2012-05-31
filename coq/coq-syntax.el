@@ -901,7 +901,7 @@ It is used:
   "A regexp indicating that the Coq process has identified an error.")
 
 (defvar coq-id proof-id)
-(defvar coq-id-shy "\\(?:\\w\\(?:\\w\\|\\s_\\)*\\)")
+(defvar coq-id-shy "\\(?:\\w\\|\\s_\\)+")
 
 ; do not use proof-ids with a space separator! 
 (defvar coq-ids (concat proof-id "\\(" "\\s-+" proof-id "\\)*"))
