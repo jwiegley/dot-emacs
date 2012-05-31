@@ -245,14 +245,20 @@ the text region in the proof script after undoing."
      (if lastspan (proof-maybe-follow-locked-end
 		   (span-start lastspan))))))
 
-(defun proof-retract-buffer ()
-  "Retract the current buffer, and maybe move point to the start."
-  (interactive)
+(defun proof-retract-buffer (&optional called-interactively)
+  "Retract the current buffer, and maybe move point to the start.
+Point is only moved according to `proof-follow-mode', if
+CALLED-INTERACTIVELY is non-nil, which is the case for all
+interactive calls."
+  ;; The numeric prefix argument "p" is never nil,
+  ;; see Section  "Distinguish Interactive Calls" in the Elisp manual.
+  (interactive "p")
   (proof-with-script-buffer
    (save-excursion
     (goto-char (point-min))
     (proof-retract-until-point-interactive))
-   (proof-maybe-follow-locked-end (point-min))))
+   (if called-interactively
+       (proof-maybe-follow-locked-end (point-min)))))
 
 (defun proof-retract-current-goal ()
   "Retract the current proof, and move point to its start."
