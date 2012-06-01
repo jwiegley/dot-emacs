@@ -2999,6 +2999,12 @@ Else, return \" \"."
 
 ;;;_ , mode-specific
 
+(defun delete-to-end-of-buffer ()
+  (interactive)
+  (kill-region (point) (point-max)))
+
+(define-key mode-specific-map [(control ?z)] 'delete-to-end-of-buffer)
+
 (define-key mode-specific-map [tab] 'ff-find-other-file)
 
 (define-key mode-specific-map [space] 'just-one-space)
