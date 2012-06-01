@@ -97,9 +97,9 @@
     (quietly-read-abbrev-file))
 
 (add-hook 'expand-load-hook
-	  (lambda ()
-	    (add-hook 'expand-expand-hook 'indent-according-to-mode)
-	    (add-hook 'expand-jump-hook 'indent-according-to-mode)))
+          (lambda ()
+            (add-hook 'expand-expand-hook 'indent-according-to-mode)
+            (add-hook 'expand-jump-hook 'indent-according-to-mode)))
 
 ;;;_ , allout
 
@@ -455,8 +455,6 @@
 
 (eval-after-load "gtags"
   '(progn
-     ;;(diminish 'gtags-mode)
-
      (require 'anything-gtags)
 
      (define-key gtags-mode-map "\e," 'anything-gtags-resume)
@@ -703,7 +701,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (remove-hook 'kill-buffer-hook 'whitespace-buffer)
 
 (defun maybe-turn-on-whitespace ()
-  "Depending on the file, maybe turn on `whitespace-mode'."
+  "Depending on the file, maybe clean up whitespace."
   (let ((file (expand-file-name ".clean"))
         parent-dir)
     (while (and (not (file-exists-p file))
@@ -1394,9 +1392,8 @@ $0"))))
 (add-hook 'html-mode-hook 'zencoding-mode)
 
 (add-hook 'html-mode-hook
-          #'(lambda ()
-              (interactive)
-              (define-key html-mode-map [return] 'newline-and-indent)))
+          (lambda ()
+            (define-key html-mode-map [return] 'newline-and-indent)))
 
 (defun tidy-xml-buffer ()
   (interactive)
@@ -1958,56 +1955,56 @@ end tell" (match-string 1))))
    (let ((omk (get-text-property (point) 'org-marker)))
      (with-current-buffer (marker-buffer omk)
        (save-excursion
-	 (goto-char omk)
-	 (let ((components
-		(list "data" "doc" "expr" "lisp" "math" "python" "report"
-		      "test" "util" "website" "build" "misc"))
-	       (priorities (list "P1" "P2" "P3" "P4" "P5"))
-	       (severities (list "blocker" "critical" "major"
-				 "normal" "minor" "trivial" "enhancement"))
-	       (product "Ledger")
-	       (version "3.0.0-20120217"))
-	   (list product
-		 (ido-completing-read "Component: " components
-				      nil t nil nil (car (last components)))
-		 version
-		 (let ((orgpri (nth 3 (org-heading-components))))
-		   (cond
+         (goto-char omk)
+         (let ((components
+                (list "data" "doc" "expr" "lisp" "math" "python" "report"
+                      "test" "util" "website" "build" "misc"))
+               (priorities (list "P1" "P2" "P3" "P4" "P5"))
+               (severities (list "blocker" "critical" "major"
+                                 "normal" "minor" "trivial" "enhancement"))
+               (product "Ledger")
+               (version "3.0.0-20120217"))
+           (list product
+                 (ido-completing-read "Component: " components
+                                      nil t nil nil (car (last components)))
+                 version
+                 (let ((orgpri (nth 3 (org-heading-components))))
+                   (cond
                     ((and orgpri (= ?A orgpri))
                      "P1")
                     ((and orgpri (= ?C orgpri))
                      "P3")
                     (t
-		     (ido-completing-read "Priority: " priorities
-					  nil t nil nil "P2"))))
-		 (ido-completing-read "Severity: " severities nil t nil nil
-				      "normal") ))))))
+                     (ido-completing-read "Priority: " priorities
+                                          nil t nil nil "P2"))))
+                 (ido-completing-read "Severity: " severities nil t nil nil
+                                      "normal") ))))))
   (let ((omk (get-text-property (point) 'org-marker)))
     (with-current-buffer (marker-buffer omk)
       (save-excursion
-	(goto-char omk)
-	(let ((heading (nth 4 (org-heading-components)))
-	      (contents (buffer-substring-no-properties
-			 (org-entry-beginning-position)
-			 (org-entry-end-position)))
-	      bug)
-	  (with-temp-buffer
-	    (insert contents)
-	    (goto-char (point-min))
-	    (delete-region (point) (1+ (line-end-position)))
-	    (search-forward ":PROP")
-	    (delete-region (match-beginning 0) (point-max))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^   " nil t)
-	      (delete-region (match-beginning 0) (match-end 0)))
-	    (goto-char (point-min))
-	    (while (re-search-forward "^SCHE" nil t)
-	      (delete-region (match-beginning 0) (1+ (line-end-position))))
-	    (goto-char (point-min))
-	    (when (eobp)
-	      (insert "No description.")
-	      (goto-char (point-min)))
-	    (insert (format "Product: %s
+        (goto-char omk)
+        (let ((heading (nth 4 (org-heading-components)))
+              (contents (buffer-substring-no-properties
+                         (org-entry-beginning-position)
+                         (org-entry-end-position)))
+              bug)
+          (with-temp-buffer
+            (insert contents)
+            (goto-char (point-min))
+            (delete-region (point) (1+ (line-end-position)))
+            (search-forward ":PROP")
+            (delete-region (match-beginning 0) (point-max))
+            (goto-char (point-min))
+            (while (re-search-forward "^   " nil t)
+              (delete-region (match-beginning 0) (match-end 0)))
+            (goto-char (point-min))
+            (while (re-search-forward "^SCHE" nil t)
+              (delete-region (match-beginning 0) (1+ (line-end-position))))
+            (goto-char (point-min))
+            (when (eobp)
+              (insert "No description.")
+              (goto-char (point-min)))
+            (insert (format "Product: %s
 Component: %s
 Version: %s
 Priority: %s
@@ -2015,24 +2012,24 @@ Severity: %s
 Hardware: Other
 OS: Other
 Summary: %s" product component version priority severity heading) ?\n ?\n)
-	    (let ((buf (current-buffer)))
-	      (with-temp-buffer
-		(let ((tmpbuf (current-buffer)))
-		  (if nil
-		      (insert "Bug 999 posted.")
-		    (with-current-buffer buf
-		      (shell-command-on-region
-		       (point-min) (point-max)
-		       "~/bin/bugzilla-submit http://bugs.ledger-cli.org/"
-		       tmpbuf)))
+            (let ((buf (current-buffer)))
+              (with-temp-buffer
+                (let ((tmpbuf (current-buffer)))
+                  (if nil
+                      (insert "Bug 999 posted.")
+                    (with-current-buffer buf
+                      (shell-command-on-region
+                       (point-min) (point-max)
+                       "~/bin/bugzilla-submit http://bugs.ledger-cli.org/"
+                       tmpbuf)))
                   (goto-char (point-min))
-		  (or (re-search-forward "Bug \\([0-9]+\\) posted." nil t)
+                  (or (re-search-forward "Bug \\([0-9]+\\) posted." nil t)
                       (debug))
-		  (setq bug (match-string 1))))))
-	  (save-excursion
-	    (org-back-to-heading t)
-	    (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
-	    (insert (format "[[bug:%s][#%s]] " bug bug)))))))
+                  (setq bug (match-string 1))))))
+          (save-excursion
+            (org-back-to-heading t)
+            (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
+            (insert (format "[[bug:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
 
 (defun make-bug-link ()
@@ -2148,11 +2145,11 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (defvar yas/keymap))
 
 (add-hook 'org-mode-hook
-          #'(lambda ()
-              ;; yasnippet (using the new org-cycle hooks)
-              (set (make-local-variable 'yas/trigger-key) [tab])
-              (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-              (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
+          (lambda ()
+            ;; yasnippet (using the new org-cycle hooks)
+            (set (make-local-variable 'yas/trigger-key) [tab])
+            (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+            (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 

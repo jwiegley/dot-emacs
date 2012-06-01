@@ -474,7 +474,7 @@ SCHEDULED: %t
  '(whitespace-line-column 80)
  '(whitespace-rescan-timer-time nil)
  '(whitespace-silent t)
- '(whitespace-style (quote (face trailing lines space-before-tab indentation empty space-after-tab)))
+ '(whitespace-style (quote (face trailing lines space-before-tab indentation empty)))
  '(winner-mode t nil (winner))
  '(workgroups-mode t)
  '(x-select-enable-clipboard t)
