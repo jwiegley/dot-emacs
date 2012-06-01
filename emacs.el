@@ -2852,13 +2852,14 @@ Else, return \" \"."
 
 ;;;_   , breadcrumb
 
-(define-key global-map [(alt ?m)] 'bc-set)
-(define-key global-map [(alt ?p)] 'bc-previous)
-(define-key global-map [(alt ?n)] 'bc-next)
-(define-key global-map [(alt ?u)] 'bc-local-previous)
+(define-key global-map [(alt ?b)] 'bc-set)
 (define-key global-map [(alt ?d)] 'bc-local-next)
 (define-key global-map [(alt ?g)] 'bc-goto-current)
 (define-key global-map [(alt ?l)] 'bc-list)
+(define-key global-map [(alt ?m)] 'bc-set)
+(define-key global-map [(alt ?n)] 'bc-next)
+(define-key global-map [(alt ?p)] 'bc-previous)
+(define-key global-map [(alt ?u)] 'bc-local-previous)
 
 ;;;_ , ctl-x
 
