@@ -500,6 +500,13 @@
             (define-key ido-file-completion-map "\C-m"
               'ido-smart-select-text)))
 
+;;;_ , lusty-explorer
+
+(add-hook 'lusty-setup-hook
+          (lambda ()
+            (define-key lusty-mode-map [space] 'lusty-select-match)
+            (define-key lusty-mode-map [? ] 'lusty-select-match)))
+
 ;;;_ , merlin
 
 (require 'rx)
@@ -2906,6 +2913,7 @@ Else, return \" \"."
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?g] 'magit-status)
 (define-key ctl-x-map [?m] 'compose-mail)
+(define-key ctl-x-map [(control ?f)] 'lusty-file-explorer)
 (define-key ctl-x-map [(control ?n)] 'next-line)
 (define-key ctl-x-map [(meta ?n)] 'set-goal-column)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
