@@ -2637,14 +2637,19 @@ Else, return \" \"."
 
 (define-key global-map [(meta ?s) ?a] 'anything-do-grep)
 (define-key global-map [(meta ?s) ?b] 'my-anything-occur)
+(define-key global-map [(meta ?s) ?c] 'highlight-changes-mode)
 (define-key global-map [(meta ?s) ?d] 'find-grep-dired)
 (define-key global-map [(meta ?s) ?f] 'find-grep)
 (define-key global-map [(meta ?s) ?F] 'anything-for-files)
 (define-key global-map [(meta ?s) ?g] 'grep)
+(define-key global-map [(meta ?s) ?h] 'crosshairs-mode)
+(define-key global-map [(meta ?s) ?l] 'hl-line-mode)
 (define-key global-map [(meta ?s) ?n] 'find-name-dired)
 (define-key global-map [(meta ?s) ?o] 'occur)
 (define-key global-map [(meta ?s) ?p] 'find-grep-in-project)
-(define-key global-map [(meta ?s) ?r] 'rgrep)
+(define-key global-map [(meta ?s) ?r] 'highlight-regexp)
+(define-key global-map [(meta ?s) ?R] 'highlight-lines-matching-regexp)
+(define-key global-map [(meta ?s) ?w] 'highlight-phrase)
 
 (define-key global-map [remap eval-expression] 'pp-eval-expression)
 
