@@ -2299,7 +2299,8 @@ This moves them into the Spam folder."
                       gnus-level-subscribed)))
         (let* ((group (gnus-info-group info))
                (unread (gnus-group-unread group)))
-          (when (and (not (string= "nnimap+Local:INBOX" group))
+          (when (and (string-match "^\\(list\\.\\|nntp\\+LocalNews:\\)" group)
+                     (not (string= "INBOX" group))
                      (numberp unread) (> unread 0))
             (ignore-errors
               (gnus-summary-read-group group nil t))
