@@ -1351,6 +1351,36 @@ $0"))))
                       :doc-spec
                       '(("(bash)Index")))
 
+;;;_  . write-room
+
+(defun write-room ()
+  "Make a frame without any bling."
+  (interactive)
+  ;; to restore:
+  ;; (setq mode-line-format (default-value 'mode-line-format))
+  (let ((frame (make-frame '((minibuffer . nil)
+                             (vertical-scroll-bars . nil)
+                             (left-fringe . 0); no fringe
+                             (right-fringe . 0)
+                             (background-mode . dark)
+                             (background-color . "cornsilk")
+                             (foreground-color . "black")
+                             (cursor-color . "green")
+                             (border-width . 0)
+                             (border-color . "black"); should be unnecessary
+                             (internal-border-width . 64); whitespace!
+                             (cursor-type . box)
+                             (menu-bar-lines . 0)
+                             (tool-bar-lines . 0)
+                             (mode-line-format . nil) ; dream on... has no effect
+                             (fullscreen . fullboth)  ; this should work
+                             (unsplittable . t)))))
+    (select-frame frame)
+    (find-file "~/Documents/Notes.txt")
+    (setq mode-line-format nil
+          fill-column 65)
+    (set-window-margins (selected-window) 50 50)))
+
 ;;;_  . zencoding
 
 (eval-when-compile
