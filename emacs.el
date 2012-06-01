@@ -831,8 +831,10 @@ $0"))))
 
 (defun my-c-mode-common-hook ()
   (abbrev-mode 1)
-
   (gtags-mode 1)
+  (diminish 'gtags-mode)
+  (diminish 'auto-complete-mode)
+
   (if t
       (progn
         (auto-complete-mode 1)
