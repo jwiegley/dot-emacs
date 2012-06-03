@@ -367,7 +367,8 @@ Lemma foo: forall n,
              ("{" exps "}")
              ("[" expssss "]")
              (exp "->" exp)
-             (exp ":" exp))
+             (exp ":" exp)
+             (exp ".-selector" exp))
         ;; Having "return" here rather than as a separate rule in `exp' causes
         ;; it to be indented at a different level than "with".
         (matchexp (matchexp "return" exp) (exp "in" exp)) ;(exp "as" exp)
