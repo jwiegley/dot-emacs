@@ -51,7 +51,7 @@
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
   (set-buffer-modified-p nil)
   (setq buffer-read-only t)
-  (setq cursor-type 'bar))
+  (setq cursor-in-non-selected-windows nil))
 
 ;;
 ;; Menu for response buffer

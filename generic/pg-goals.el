@@ -39,7 +39,7 @@ May enable proof-by-pointing or similar features.
   (buffer-disable-undo)
   (if proof-keep-response-history (bufhist-mode)) ; history for contents
   (set-buffer-modified-p nil)
-  (setq cursor-type 'bar))
+  (setq cursor-in-non-selected-windows nil))
 
 ;;
 ;; Menu for goals buffer
