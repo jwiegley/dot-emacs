@@ -367,8 +367,7 @@ Lemma foo: forall n,
              ("{" exps "}")
              ("[" expssss "]")
              (exp "->" exp)
-             (exp ":" exp)
-             (exp ".-selector" exp))
+             (exp ":" exp))
         ;; Having "return" here rather than as a separate rule in `exp' causes
         ;; it to be indented at a different level than "with".
         (matchexp (matchexp "return" exp) (exp "in" exp)) ;(exp "as" exp)
@@ -450,6 +449,7 @@ Lemma foo: forall n,
 ;;   "let x:=3; y:=4 in...".
 ;; - We distinguish the ".-selector" from the terminator "." for
 ;;   obvious reasons.
+;; - We consider qualified.names as one single token for obvious reasons.
 ;; - We distinguish the "Module M." from "Module M := exp." since the first
 ;;   opens a new scope (closed by End) whereas the other doesn't.
 ;; - We drop "Program" because it's easier to consider "Program Function"
