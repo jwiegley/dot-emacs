@@ -366,6 +366,8 @@ Lemma foo: forall n,
              ("{|" exps "|}")
              ("{" exps "}")
              ("[" expssss "]")
+             (exp "<->" exp)
+             (exp "=" exp)
              (exp "->" exp)
              (exp ":" exp))
         ;; Having "return" here rather than as a separate rule in `exp' causes
@@ -409,7 +411,8 @@ Lemma foo: forall n,
               ;; stops right before the "." rather than right after.
               (cmds "." cmds)))
       ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
-      '((assoc ",") (nonassoc "as") (assoc ":") (assoc "->") (nonassoc "else")
+      '((assoc ",") (nonassoc "as") (assoc ":") (assoc "->")
+        (assoc "=") (assoc "<->") (nonassoc "else")
         (nonassoc "in") (assoc "in tactic") (left "=>"))
       '((assoc ",")(assoc ";")(assoc "|")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))

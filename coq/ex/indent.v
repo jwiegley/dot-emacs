@@ -174,10 +174,11 @@ Module X.
   
   Lemma l2 :
     forall r:rec,
-    exists r':rec,r'.(fld1)
-                       = r.(fld2)
-                             /\ r'.(fld2)
-                                     = r.(fld1).
+    exists r':rec,
+      ressai.(fld1)
+            = r.(fld2)
+            /\ r'.(fld2)
+            = r.(fld1).
   Proof.
     intros r.  
     {{
