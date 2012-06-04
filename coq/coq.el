@@ -386,7 +386,6 @@ Lemma foo: forall n,
                  (subcmds "* bullet" subcmds)
                  ("BeginSubproof" subcmds "EndSubproof") ;captures also { and }
                  ("Proof" subcmds "Proof End")
-                 ("Proof" subcmds "Proof End")
                  ("Module" subcmds "End")
                  ("Section" subcmds "End"))
         (cmds ("Add" exp ":=" exp)
@@ -466,7 +465,24 @@ Lemma foo: forall n,
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
     (cond
-     ((member tok '("." ":=" "+" "-" "*" "with" "exists" "in" "∀" "∃" "→"))
+     ;; detecting if some qualification (dot notation) follows that id and
+     ;; extend it if yes. Does not capture other alphanumerical token (captured
+     ;; below)
+     ((and (string-match "[[:alpha:]_][[:word:]]*" tok) (looking-at "\\.[[:alpha:]_]")
+           (progn (forward-char 1)
+                  (let ((newtok (coq-smie-forward-token)))
+                    (concat tok "." newtok)))
+           tok)) ;; .( .<space> and other user defined syntax
+     ((equal tok ".")
+      ;; detect what kind of dot this is: record selector, module qualification
+      ;; or command end
+      (cond
+       ((looking-at "(") ".-selector")
+       ((looking-at "[[:alpha:]]") ;; extend qualifier
+        (let ((newtok (coq-smie-forward-token)))
+          (concat tok newtok)))
+       (t tok)))
+     ((member tok '(":=" "+" "-" "*" "with" "exists" "in" "∀" "∃" "→"))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
@@ -516,14 +532,22 @@ Lemma foo: forall n,
 (defun coq-smie-backward-token ()
   (let ((tok (smie-default-backward-token)))
     (cond
+     ;; extending on the left if this id is a module qualifier
+     ((and (looking-at "[[:alpha:]]") (looking-back "\\."))
+      (forward-char -1)
+      (let ((newtok (coq-smie-backward-token)))
+        (concat newtok "." tok)))
      ((equal tok ".")
-      ;; Distinguish field-selector "." from terminator ".".
-      (if (or (looking-at "\\.(")                ;Record selector.
-              (and (looking-at "\\.[[:alpha:]]") ;Maybe qualified id.
-                   (save-excursion
-                     (skip-syntax-backward "w_")
-                     (looking-at "[[:upper:]]"))))
-          ".-selector" "."))
+      ;; Distinguish field-selector "." from terminator "." from module
+      ;; qualifier.
+      (if (looking-at "\\.(") ".-selector"  ;;Record selector.
+        (if (looking-at "\\.[[:space:]]") "." ;; command terminator
+          (if (looking-at "\\.[[:alpha:]]") ;; qualified id
+            (let ((newtok (coq-smie-backward-token)))
+              (concat newtok tok))
+            ".-selector"  ;; probably a user defined syntax
+            ))))
+
      ((member tok '("Fixpoint" "Declaration" "Lemma" "Instance"))
       (let ((pos (point))
             (prev (smie-default-backward-token)))
