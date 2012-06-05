@@ -169,3 +169,6 @@
 [submodule "lib/logito"]
 	path = lib/logito
 	url = git://github.com/sigma/logito.git
+[submodule "lib/pcache"]
+	path = lib/pcache
+	url = git://github.com/sigma/pcache.git
