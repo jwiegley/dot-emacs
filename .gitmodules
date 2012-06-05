@@ -36,31 +36,16 @@
 	url = git://github.com/winterTTr/ace-jump-mode.git
 [submodule "site-lisp/anything"]
 	path = site-lisp/anything
-	url = git://repo.or.cz/anything-config.git
-[submodule "site-lisp/anything-etags-plus"]
-	path = site-lisp/anything-etags-plus
-	url = git://github.com/emacsmirror/anything-etags-plus.git
+	url = https://github.com/jwiegley/anything-config.git
 [submodule "lib/apel"]
 	path = lib/apel
 	url = http://github.com/emacsmirror/apel.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
 	url = git://github.com/jwiegley/auctex.git
-[submodule "override/bbdb"]
-	path = override/bbdb
-	url = git://git.savannah.nongnu.org/bbdb.git
-[submodule "site-lisp/color-theme"]
-	path = site-lisp/color-theme
-	url = git://github.com/jwiegley/color-theme.git
-[submodule "site-lisp/company"]
-	path = site-lisp/company
-	url = git://github.com/jwiegley/company.git
 [submodule "site-lisp/doxymacs"]
 	path = site-lisp/doxymacs
 	url = git://doxymacs.git.sourceforge.net/gitroot/doxymacs/doxymacs
-[submodule "site-lisp/ee"]
-	path = site-lisp/ee
-	url = git://git.sv.gnu.org/ee.git
 [submodule "site-lisp/emacs-w3m"]
 	path = site-lisp/emacs-w3m
 	url = git://github.com/jwiegley/emacs-w3m.git
@@ -73,9 +58,6 @@
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
 	url = git://github.com/jwiegley/haskell-mode.git
-[submodule "site-lisp/howm"]
-	path = site-lisp/howm
-	url = git://github.com/jwiegley/howm.git
 [submodule "site-lisp/info-lookmore"]
 	path = site-lisp/info-lookmore
 	url = git://github.com/emacsmirror/info-lookmore.git
@@ -93,7 +75,7 @@
 	url = git://github.com/emacsmirror/offlineimap.git
 [submodule "site-lisp/org-mac-protocol"]
 	path = site-lisp/org-mac-protocol
-	url = git://github.com/emacsmirror/org-mac-protocol.git 
+	url = git://github.com/emacsmirror/org-mac-protocol.git
 [submodule "site-lisp/org-magit"]
 	path = site-lisp/org-magit
 	url = git://github.com/sigma/org-magit.git
