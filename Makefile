@@ -1,10 +1,9 @@
 ### -*- mode: makefile-gmake -*-
 
-DIRS	    = lisp lib site-lisp unused override
+DIRS	    = lisp lib site-lisp override
 SPECIAL	    = autoloads.el cus-dirs.el
 SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) \
-	        $(wildcard lib/*.el) $(wildcard site-lisp/*.el) \
-	        $(wildcard unused/*.el))
+		$(wildcard lib/*.el) $(wildcard site-lisp/*.el))
 TARGET	    = $(patsubst %.el,%.elc,autoloads.el $(SOURCE))
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) --no-init-file --no-site-file -batch
