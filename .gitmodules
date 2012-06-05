@@ -126,10 +126,10 @@
 	url = https://github.com/kazu-yamamoto/ghc-mod.git
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
-	url = https://github.com/m2ym/auto-complete.git
+	url = https://github.com/jwiegley/auto-complete.git
 [submodule "site-lisp/git-commit-mode"]
 	path = site-lisp/git-commit-mode
 	url = https://github.com/rafl/git-commit-mode.git
 [submodule "site-lisp/sunrise-commander"]
 	path = site-lisp/sunrise-commander
-	url = https://github.com/escherdragon/sunrise-commander.git
+	url = https://github.com/jwiegley/sunrise-commander.git
