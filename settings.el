@@ -167,7 +167,7 @@
  '(gnus-group-default-list-level 4)
  '(gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
 ")
- '(gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode my-setup-hl-line)))
+ '(gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
  '(gnus-group-use-permanent-levels t)
  '(gnus-harvest-sender-alist (quote ((".*@\\(boostpro\\|boost-consulting\\|ti\\).com" . johnw@boostpro\.com) (".*@gmail.com" . jwiegley@gmail\.com) (".*" . johnw@newartisans\.com))))
  '(gnus-home-directory "~/Messages/Gnus/")
