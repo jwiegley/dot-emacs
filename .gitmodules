@@ -40,8 +40,8 @@
 [submodule "site-lisp/anything-etags-plus"]
 	path = site-lisp/anything-etags-plus
 	url = git://github.com/emacsmirror/anything-etags-plus.git
-[submodule "site-lisp/apel"]
-	path = site-lisp/apel
+[submodule "lib/apel"]
+	path = lib/apel
 	url = http://github.com/emacsmirror/apel.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
@@ -145,8 +145,8 @@
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = git://github.com/m2ym/auto-complete.git
-[submodule "site-lisp/popup-el"]
-	path = site-lisp/popup-el
+[submodule "lib/popup-el"]
+	path = lib/popup-el
 	url = git://github.com/m2ym/popup-el.git
 [submodule "site-lisp/auto-complete-clang"]
 	path = site-lisp/auto-complete-clang
@@ -154,8 +154,8 @@
 [submodule "site-lisp/git-commit-mode"]
 	path = site-lisp/git-commit-mode
 	url = git://github.com/rafl/git-commit-mode.git
-[submodule "site-lisp/fuzzy-el"]
-	path = site-lisp/fuzzy-el
+[submodule "lib/fuzzy-el"]
+	path = lib/fuzzy-el
 	url = git://github.com/m2ym/fuzzy-el.git
 [submodule "site-lisp/git-emacs"]
 	path = site-lisp/git-emacs
