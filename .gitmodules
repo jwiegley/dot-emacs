@@ -172,3 +172,6 @@
 [submodule "lib/pcache"]
 	path = lib/pcache
 	url = git://github.com/sigma/pcache.git
+[submodule "site-lisp/sunrise-commander"]
+	path = site-lisp/sunrise-commander
+	url = git://github.com/escherdragon/sunrise-commander.git
