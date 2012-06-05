@@ -166,3 +166,6 @@
 [submodule "lib/gh-el"]
 	path = lib/gh-el
 	url = git://github.com/sigma/gh.el.git
+[submodule "lib/logito"]
+	path = lib/logito
+	url = git://github.com/sigma/logito.git
