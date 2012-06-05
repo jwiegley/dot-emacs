@@ -120,7 +120,7 @@ on the system \"/user@host:\"."
 		  (subst-char-in-string ?/ ?! containing-dir))))
     (when (not (file-exists-p backup-container))
       (make-directory backup-container t))
-    (format "%s%s-%s" backup-container basename
+    (format "%s%s~%s~" backup-container basename
 	    (format-time-string backup-each-save-time-format))))
 
 (provide 'backup-each-save)

@@ -18,17 +18,17 @@
  Otherwise, use the value of said variable as argument to a funcall."
   (interactive "r")
   (let ((buffer-name (generate-new-buffer-name "*indirect*"))
-	(mode
-	 (if (not indirect-mode-name)
-	     (setq indirect-mode-name
-		   (intern
-		    (completing-read
-		     "Mode (default `org-mode'): "
-		     (mapcar (lambda (e)
-			       (list (symbol-name e)))
-			     (apropos-internal "-mode$" 'commandp))
-		     nil t nil nil "org-mode")))
-	   indirect-mode-name)))
+        (mode
+         (if (not indirect-mode-name)
+             (setq indirect-mode-name
+                   (intern
+                    (completing-read
+                     "Mode (default `org-mode'): "
+                     (mapcar (lambda (e)
+                               (list (symbol-name e)))
+                             (apropos-internal "-mode$" 'commandp))
+                     nil t nil nil "org-mode")))
+           indirect-mode-name)))
     (pop-to-buffer (make-indirect-buffer (current-buffer) buffer-name))
     (funcall mode)
     (narrow-to-region start end)

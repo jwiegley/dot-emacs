@@ -1,8 +1,10 @@
+;; '(gnus-select-method (quote (nnimap "Local" (nnimap-address "localhost") (nnimap-user "johnw") (nnimap-server-port 9143) (nnimap-stream network))))
+
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(Info-fit-frame-flag nil)
  '(TeX-PDF-mode t)
  '(TeX-engine (quote xetex))
@@ -10,14 +12,17 @@
  '(TeX-view-program-list (quote (("Skim" ("osascript" " ~/bin/skim-gotopage.script" " %O" (mode-io-correlate " %(outpage)"))))))
  '(TeX-view-program-selection (quote (((output-dvi style-pstricks) "dvips and gv") (output-dvi "xdvi") (output-pdf "Skim") (output-html "xdg-open"))))
  '(abbrev-file-name "~/.emacs.d/abbrev_defs")
+ '(abbrev-mode t t)
  '(ac-auto-show-menu nil)
  '(ac-auto-start 3)
  '(ac-clang-flags (quote ("-isystem" "/usr/local/include/c++/v1" "-isystem" "/usr/local/include/boost-1_49" "-isystem" "/opt/local/include" "-I/Users/johnw/Products/ledger/debug" "-include" "/Users/johnw/Products/ledger/debug/system.hh" "-I/Users/johnw/Projects/ledger/src" "-I/Users/johnw/Projects/ledger/lib" "-I/Users/johnw/Projects/ledger/lib/utfcpp/source")))
  '(ac-comphist-file "/Users/johnw/.emacs.d/data/ac-comphist.dat")
  '(ac-ignore-case nil)
+ '(ac-use-fuzzy nil)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
  '(align-to-tab-stop nil)
+ '(allout-auto-activation t)
  '(allout-command-prefix ".")
  '(ansi-color-names-vector ["black" "red" "green" "brown" "blue" "magenta" "blue" "white"])
  '(auto-compression-mode t nil (jka-compr))
@@ -73,6 +78,7 @@
  '(dired-listing-switches "-lh")
  '(dired-load-hook (quote ((lambda nil (load "dired-x")))))
  '(dired-no-confirm (quote (byte-compile chgrp chmod chown copy hardlink symlink touch)))
+ '(dired-omit-files "^\\.?#\\|^\\.\\(DS_Store\\|localized\\|AppleDouble\\)$\\|^\\.\\.$")
  '(dired-omit-mode nil t)
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
@@ -89,7 +95,7 @@
  '(erc-auto-query (quote window-noselect))
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autoaway-mode t)
- '(erc-autojoin-channels-alist (quote (("localhost" "&bitlbee") ("freenode.net" "#boost" "#ledger") ("irc.oftc.net" "#llvm") ("irc.schmorp.de" "#schmorpforge"))))
+ '(erc-autojoin-channels-alist (quote (("localhost" "&bitlbee") ("freenode.net" "#macports" "#boost" "#ledger") ("irc.oftc.net" "#llvm") ("irc.schmorp.de" "#schmorpforge"))))
  '(erc-autojoin-mode t)
  '(erc-fools (quote ("JordiGH")))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
@@ -129,7 +135,6 @@
  '(eval-expr-print-function (quote pp) t)
  '(exec-path (quote ("/Users/johnw/bin" "/usr/local/bin" "/opt/local/libexec/git-core" "/opt/local/bin" "/usr/bin" "/bin" "/usr/local/sbin" "/opt/local/sbin" "/usr/sbin" "/sbin" "/usr/X11R6/bin")))
  '(fill-column 78)
- '(find-directory-functions (quote (dired-noselect)))
  '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
  '(find-ls-subdir-switches "-alh")
  '(flyspell-abbrev-p nil)
@@ -140,7 +145,6 @@
  '(frame-title-format (quote (:eval (concat (if buffer-file-name default-directory "%b") "    " (number-to-string (cdr (assq (quote width) (frame-parameters)))) "x" (number-to-string (cdr (assq (quote height) (frame-parameters))))))) t)
  '(gdb-find-source-frame t)
  '(gdb-same-frame nil)
- '(global-auto-complete-mode t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
  '(global-whitespace-mode t)
@@ -191,7 +195,7 @@ http://www.boostpro.com")))))
  '(gnus-score-expiry-days 30)
  '(gnus-score-find-score-files-function (quote (gnus-score-find-hierarchical)))
  '(gnus-select-group-hook (quote (gnus-group-set-timestamp)))
- '(gnus-select-method (quote (nnimap "Local" (nnimap-address "localhost") (nnimap-user "johnw") (nnimap-server-port 9143) (nnimap-stream network))))
+ '(gnus-select-method (quote (nnimap "Local" (nnimap-stream shell))))
  '(gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
  '(gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
  '(gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
@@ -283,7 +287,7 @@ http://www.boostpro.com")))))
  '(message-fill-column 78)
  '(message-interactive t)
  '(message-mail-alias-type nil)
- '(message-mode-hook (quote (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell turn-on-orgstruct (lambda nil (set-fill-column 78)) (lambda nil (column-marker-1 78)))))
+ '(message-mode-hook (quote (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell turn-on-orgstruct (lambda nil (set-fill-column 78)))))
  '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
@@ -410,7 +414,7 @@ SCHEDULED: %t
  '(redisplay-dont-pause t t)
  '(regex-tool-backend (quote perl))
  '(runner-init-file "~/.emacs.d/data/runner-conf.el")
- '(safe-local-variable-values (quote ((after-save-hook byte-recompile-file) (after-save-hook git-commit-changes) (org-refer-by-number-id . "1C72AB51-33C2-4FF8-9367-2B494D125027"))))
+ '(safe-local-variable-values (quote ((after-save-hook my-byte-recompile-file) (after-save-hook git-commit-changes) (org-refer-by-number-id . "1C72AB51-33C2-4FF8-9367-2B494D125027"))))
  '(same-window-buffer-names (quote ("*eshell*" "*shell*" "*mail*" "*inferior-lisp*" "*ielm*" "*scheme*")))
  '(sc-citation-leader "")
  '(sc-confirm-always-p nil)
@@ -420,6 +424,7 @@ SCHEDULED: %t
  '(scroll-bar-mode nil)
  '(send-mail-function (quote sendmail-send-it))
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
+ '(session-globals-include (quote ((kill-ring 10 nil) (session-file-alist 100 t) (file-name-history 200 nil) search-ring regexp-search-ring sr-history-registry)))
  '(session-registers (quote (t (0 . 127))))
  '(session-save-file "~/.emacs.d/data/session")
  '(session-use-package t nil (session))
@@ -433,6 +438,13 @@ SCHEDULED: %t
  '(smtpmail-smtp-service 587 t)
  '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil))))
  '(sql-sqlite-program "sqlite3")
+ '(sr-attributes-display-mask (quote (nil nil t nil nil nil)))
+ '(sr-listing-switches "--time-style=locale --group-directories-first -alDhgG")
+ '(sr-loop-use-popups nil)
+ '(sr-popviewer-style (quote single-frame))
+ '(sr-show-file-attributes nil)
+ '(sr-show-hidden-files t)
+ '(sr-use-commander-keys nil)
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
@@ -470,7 +482,7 @@ SCHEDULED: %t
  '(wg-query-for-save-on-workgroups-mode-exit nil)
  '(whitespace-action (quote (report-on-bogus)))
  '(whitespace-auto-cleanup t)
- '(whitespace-global-modes t)
+ '(whitespace-global-modes (quote (not org-mode erc-mode dired-mode)))
  '(whitespace-line-column 80)
  '(whitespace-rescan-timer-time nil)
  '(whitespace-silent t)
@@ -485,10 +497,10 @@ SCHEDULED: %t
  '(zencoding-preview-default nil))
 
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(diff-added ((t (:foreground "DarkGreen"))))
  '(diff-added2 ((t (:foreground "SeaGreen"))))
  '(diff-changed ((t (:foreground "MediumBlue"))))

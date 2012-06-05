@@ -2,15 +2,21 @@
 
 (defconst user-lisp-directory
   (expand-file-name "lisp/" user-emacs-directory))
+(defconst user-lib-directory
+  (expand-file-name "lib/" user-emacs-directory))
 (defconst user-site-lisp-directory
   (expand-file-name "site-lisp/" user-emacs-directory))
+(defconst user-unused-directory
+  (expand-file-name "unused/" user-emacs-directory))
 (defconst user-override-directory
   (expand-file-name "override/" user-emacs-directory))
 
 ;; Add top-level lisp directories, in case they were not setup by the
 ;; environment.
 (dolist (dir (list user-lisp-directory
+                   user-lib-directory
                    user-site-lisp-directory
+                   user-unused-directory
                    user-override-directory))
  (dolist (entry (directory-files-and-attributes dir))
    (if (cadr entry)
@@ -28,12 +34,13 @@
 
             ;; Packages with Lisp code in subdirectories...
             "site-lisp/anything/extensions/"
-            "site-lisp/auctex/preview/"
-            "site-lisp/doxymacs/lisp/"
-            "site-lisp/ess/lisp/"
-            "site-lisp/ghc-mod/elisp/"
             "site-lisp/session/lisp/"
-            "site-lisp/slime/contrib/"
+
+            "unused/auctex/preview/"
+            "unused/doxymacs/lisp/"
+            "unused/ess/lisp/"
+            "unused/ghc-mod/elisp/"
+            "unused/slime/contrib/"
 
             ;; Packages located elsewhere on the system...
             "/usr/local/share/emacs/site-lisp/"

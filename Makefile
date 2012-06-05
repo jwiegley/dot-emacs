@@ -1,16 +1,17 @@
 ### -*- mode: makefile-gmake -*-
 
-DIRS	    = lisp site-lisp override
+DIRS	    = lisp lib site-lisp unused override
 SPECIAL	    = autoloads.el cus-dirs.el
-ORGSRC	    = $(patsubst %.org,%.el,$(wildcard *.org))
-SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) $(wildcard site-lisp/*.el))
+SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) \
+	        $(wildcard lib/*.el) $(wildcard site-lisp/*.el) \
+	        $(wildcard unused/*.el))
 TARGET	    = $(patsubst %.el,%.elc,autoloads.el $(SOURCE))
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) --no-init-file --no-site-file -batch
 MY_LOADPATH = -L . $(patsubst %,-L %,$(DIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: load-path.elc autoloads.el autoloads.elc cus-dirs.el $(ORGSRC) $(TARGET)
+all: load-path.elc autoloads.el autoloads.elc cus-dirs.el $(TARGET)
 	for dir in $(DIRS); do \
 	    $(BATCH_LOAD) -f batch-byte-recompile-directory $$dir; \
 	done
@@ -26,29 +27,22 @@ autoloads.el: Makefile autoloads.in $(SOURCE)
 	    -f generate-autoloads $(shell pwd)/autoloads.el $(DIRS) \
 	    $(shell find $(DIRS) -maxdepth 1 -type d -print)
 
-%.el: %.org
-	$(BATCH_LOAD) -l load-path -l override/org-mode/lisp/ob-tangle \
-	    --eval '(org-babel-load-file "$<")'
-
-load-path.elc: load-path.el
-	$(BATCH_LOAD) -f batch-byte-compile $<
-
-emacs.elc: emacs.el
-	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
-
 cus-dirs.elc: cus-dirs.el
 	@echo Not compiling cus-dirs.el
 
 settings.elc: settings.el
 	@echo Not compiling settings.el
 
+load-path.elc: load-path.el
+	$(BATCH_LOAD) -f batch-byte-compile $<
+
 %.elc: %.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
 
 clean:
-	rm -f autoloads.el* cus-dirs.el $(ORGSRC) *.elc
+	rm -f autoloads.el* cus-dirs.el *.elc
 
 fullclean: clean
-	rm -f *.elc site-lisp/*.elc
+	find . -name '*.elc' -type f -delete
 
 ### Makefile ends here
