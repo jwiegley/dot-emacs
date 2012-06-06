@@ -3346,6 +3346,8 @@ Else, return \" \"."
 
 ;;;_  . C-c C-?
 
+(define-key mode-specific-map [(control ?r)] 'quickrun)
+
 (defun delete-to-end-of-buffer ()
   (interactive)
   (kill-region (point) (point-max)))
