@@ -1507,6 +1507,11 @@ $0"))))
 (eval-after-load "redshank"
   '(diminish 'redshank-mode))
 
+;;;_  . lua-mode
+
+(add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
+(add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
+
 ;;;_  . python-mode
 
 (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))

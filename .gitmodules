@@ -136,3 +136,6 @@
 [submodule "site-lisp/bm"]
 	path = site-lisp/bm
 	url = https://github.com/joodland/bm.git
+[submodule "site-lisp/lua-mode"]
+	path = site-lisp/lua-mode
+	url = https://github.com/immerrr/lua-mode.git
