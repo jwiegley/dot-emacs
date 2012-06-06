@@ -440,30 +440,39 @@ Lemma foo: forall n,
   "Parsing table for Coq.  See `smie-grammar'.")
 
 (defun coq-smie-search-token-forward (tokens &optional end)
-  "Search for one of TOKENS between point and END."
+  "Search for one of TOKENS between point and END.
+Token \".\" is considered only if followed by a space."
   (unless end (setq end (point-max)))
   (condition-case nil
       (catch 'found
         (while (< (point) end)
           ;; The default lexer is faster and is good enough for our needs.
           (let ((next (smie-default-forward-token)))
-            (cond
-             ((zerop (length next)) (forward-sexp 1))
-             ((member next tokens) (throw 'found next))))))
+            ;; Do not consider "." when not followed by a space
+            (when (or (not (equal next "."))
+                      (looking-at ".[[:space:]]"))
+              (cond
+               ((zerop (length next)) (forward-sexp 1))
+               ((member next tokens) (throw 'found next)))))))
     (scan-error nil)))
 
 (defun coq-smie-search-token-backward (tokens &optional end)
-  "Search for one of TOKENS between point and END."
+  "Search for one of TOKENS between point and END.
+Token \".\" is considered only if followed by a space."
   (unless end (setq end (point-min)))
   (condition-case nil
       (catch 'found
         (while (> (point) end)
           ;; The default lexer is faster and is good enough for our needs.
           (let ((next (smie-default-backward-token)))
-            (cond
-             ((zerop (length next)) (forward-sexp -1))
-             ((member next tokens) (throw 'found next))))))
+            ;; Do not consider "." when not followed by a space
+            (when (or (not (equal next "."))
+                      (looking-at ".[[:space:]]"))
+              (cond
+               ((zerop (length next)) (forward-sexp -1))
+               ((member next tokens) (throw 'found next)))))))
     (scan-error nil)))
+
 
 ;; Lexer.
 ;; - We distinguish ":=" from ":= inductive" to avoid the circular precedence
