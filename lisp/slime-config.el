@@ -40,12 +40,14 @@
 (setq slime-net-coding-system 'utf-8-unix)
 
 (setq slime-lisp-implementations
-      '(
-        (sbcl ("sbcl" "--core" "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
-              :init (lambda (port-file _)
-                      (format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
-                              port-file))
-              :coding-system utf-8-unix)
+      '((sbcl
+         ("sbcl" "--core"
+          "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
+         :init
+         (lambda (port-file _)
+           (format "(swank:start-server %S :coding-system \"utf-8-unix\")\n"
+                   port-file))
+         :coding-system utf-8-unix)
         (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/lwinit.lisp"))
         (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp")
                :coding-system utf-8-unix)))
@@ -75,4 +77,3 @@
   '(progn
      (setq common-lisp-hyperspec-root
            "/opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/")))
-

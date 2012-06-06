@@ -590,7 +590,6 @@
 (eval-after-load "gtags"
   '(progn
      (require 'anything-gtags)
-
      (define-key gtags-mode-map "\e," 'anything-gtags-resume)
      (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)))
 
@@ -655,7 +654,8 @@
   (add-hook 'lusty-setup-hook
             (lambda ()
               (define-key lusty-mode-map [space] 'lusty-select-match)
-              (define-key lusty-mode-map [? ] 'lusty-select-match))))
+              (define-key lusty-mode-map [? ] 'lusty-select-match)
+              (define-key lusty-mode-map [(control ?d)] 'exit-minibuffer))))
 
 ;;;_ , merlin
 
@@ -2397,7 +2397,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (require 'gnus-harvest)
 (require 'starttls)
 (require 'message)
-(require 'offlineimap-ctl)
+(require 'fetchmail-ctl)
+;; (require 'offlineimap-ctl)
 (require 'nnmairix)
 
 (eval-when-compile
@@ -2416,13 +2417,34 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
 
-(defun gnus-query (query)
-  (interactive "sMail Query: ")
-  (let ((nnir-imap-default-search-key "imap"))
+(defun my-message-header-setup-hook ()
+  (let ((group (or gnus-newsgroup-name "")))
+    (message-remove-header "From")
+    (message-remove-header "Gcc")
+    (message-add-header
+     (format "Gcc: %s" (if (string-match "\\`list\\." group)
+                           "mail.sent"
+                         "INBOX")))))
+
+(add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
+
+(defvar gnus-query-history nil)
+
+(defun gnus-query (query &optional arg)
+  (interactive
+   (list (read-string "Mail Query: "
+                      (format-time-string "SINCE 1-%b-%Y FROM ")
+                      'gnus-query-history)
+         current-prefix-arg))
+  (let ((nnir-imap-default-search-key "imap")
+        (nnir-ignored-newsgroups
+         (if arg
+             nnir-ignored-newsgroups
+           "\\(list\\.\\|mail\\.\\(spam\\)\\)")))
     (gnus-group-make-nnir-group
      nil `((query    . ,query)
            (criteria . "")
-           (server   . "nnimap:Local") ))))
+           (server   . "nnimap:Local")))))
 
 ;;(gnus-query (concat "header message-id " message-id))
 
@@ -2440,7 +2462,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   "Report the current or marked mails as spam.
 This moves them into the Spam folder."
   (interactive)
-  (gnus-summary-move-article nil "Spam"))
+  (gnus-summary-move-article nil "mail.spam"))
 
 (defadvice message-goto-from (after insert-boostpro-address activate)
   (if (looking-back ": ")
@@ -2685,12 +2707,14 @@ Else, return \" \"."
      (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
      (define-key gnus-summary-mode-map [?B delete]
        'gnus-summary-delete-article)
-     (define-key gnus-summary-mode-map [?B backspace]
-       #'(lambda (arg)
-           (interactive "P")
-           (if (string-match "\\(drafts\\|queue\\)" gnus-newsgroup-name)
-               (gnus-summary-delete-article arg)
-             (gnus-summary-move-article arg "[Gmail].Trash"))))
+
+     (defun my-gnus-trash-article (arg)
+       (interactive "P")
+       (if (string-match "\\(drafts\\|queue\\)" gnus-newsgroup-name)
+           (gnus-summary-delete-article arg)
+         (gnus-summary-move-article arg "mail.trash")))
+
+     (define-key gnus-summary-mode-map [?B backspace] 'my-gnus-trash-article)
      (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
        'gnus-article-browse-urls)))
 
@@ -2819,7 +2843,7 @@ Else, return \" \"."
                  (throw 'found buf))))))
     (if gud-buf
         (switch-to-buffer-other-window gud-buf)
-      (call-interactively 'gdb))))
+      (call-interactively 'gud-gdb))))
 
 (define-key global-map [(meta shift ?o)] 'show-compilation)
 (define-key global-map [(meta shift ?b)] 'show-debugger)
@@ -3096,6 +3120,11 @@ Else, return \" \"."
   (interactive)
   (call-interactively 'eval-buffer)
   (message "Buffer has been evaluated"))
+
+(defun find-which (name)
+  (interactive "sCommand name: ")
+  (find-file-other-window
+   (substring (shell-command-to-string (format "which %s" name)) 0 -1)))
 
 (define-key mode-specific-map [?e ?E] 'elint-current-buffer)
 (define-key mode-specific-map [?e ?b] 'do-eval-buffer)
@@ -3403,11 +3432,6 @@ Else, return \" \"."
     (forward-line 4)
     (delete-region (point-min) (point)))
   (goto-char (point-max)))
-
-(defun find-which (name)
-  (interactive "sCommand name: ")
-  (find-file-other-window
-   (substring (shell-command-to-string (format "which %s" name)) 0 -1)))
 
 (defun my-describe-symbol  (symbol &optional mode)
   (interactive
