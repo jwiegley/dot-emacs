@@ -318,20 +318,34 @@
 
 (setq backup-each-save-filter-function 'backup-each-save-filter)
 
-;;;_ , breadcrumb
+;;;_ , bm
 
-(use-package breadcrumb
-  :commands bc-set
+(use-package bm
+  :commands (bm-toggle bm-next bm-previous bm-show bm-show-all)
   :init
   (progn
-    (define-key global-map [(alt ?b)] 'bc-set)
-    (define-key global-map [(alt ?d)] 'bc-local-next)
-    (define-key global-map [(alt ?g)] 'bc-goto-current)
-    (define-key global-map [(alt ?l)] 'bc-list)
-    (define-key global-map [(alt ?m)] 'bc-set)
-    (define-key global-map [(alt ?n)] 'bc-next)
-    (define-key global-map [(alt ?p)] 'bc-previous)
-    (define-key global-map [(alt ?u)] 'bc-local-previous)))
+    (define-key global-map [(alt ?b)] 'bm-last-in-previous-buffer)
+    (define-key global-map [(alt ?f)] 'bm-first-in-next-buffer)
+    (define-key global-map [(alt ?g)] 'bm-previous)
+    (define-key global-map [(alt ?l)] 'bm-show-all)
+    (define-key global-map [(alt ?m)] 'bm-toggle)
+    (define-key global-map [(alt ?n)] 'bm-next)
+    (define-key global-map [(alt ?p)] 'bm-previous)))
+
+;;;_ , breadcrumb
+
+(if nil
+    (use-package breadcrumb
+      :commands bc-set
+      :init
+      (progn
+        (define-key global-map [(alt ?b)] 'bc-local-previous)
+        (define-key global-map [(alt ?f)] 'bc-local-next)
+        (define-key global-map [(alt ?g)] 'bc-goto-current)
+        (define-key global-map [(alt ?l)] 'bc-list)
+        (define-key global-map [(alt ?m)] 'bc-set)
+        (define-key global-map [(alt ?n)] 'bc-next)
+        (define-key global-map [(alt ?p)] 'bc-previous))))
 
 ;;;_ , css-mode
 
