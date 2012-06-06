@@ -133,3 +133,6 @@
 [submodule "site-lisp/sunrise-commander"]
 	path = site-lisp/sunrise-commander
 	url = https://github.com/jwiegley/sunrise-commander.git
+[submodule "site-lisp/bm"]
+	path = site-lisp/bm
+	url = https://github.com/joodland/bm.git
