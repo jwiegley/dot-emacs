@@ -367,12 +367,23 @@ Lemma foo: forall n,
              ("{" exps "}")
              ("[" expssss "]")
              (exp "<->" exp)
-             (exp "=" exp)
+             (exp "/\\" exp)
+             (exp "\\/" exp)
+             (exp "==" exp)
+             (exp "^" exp)
+             (exp "+" exp)
+             (exp "-" exp)
+             (exp "*" exp)
+             ;(exp "/" exp)
+             (exp "=" exp) (exp "<>" exp) (exp "<=" exp) (exp "<" exp) (exp ">=" exp) (exp ">" exp)
+             (exp "=?" exp) (exp "<=?" exp) (exp "<?" exp)
              (exp "->" exp)
              (exp ":" exp))
         ;; Having "return" here rather than as a separate rule in `exp' causes
         ;; it to be indented at a different level than "with".
-        (matchexp (matchexp "return" exp) (exp "in" exp)) ;(exp "as" exp)
+        (matchexp (exp) (exp "return" exp) (exp "as" exp "return" exp) (exp "as" exp "in" exp "return" exp))
+;        (matchexpp (matchexppp) (matchexppp "as" exp))
+;        (matchexppp (exo) (exp "as" exp))
         (assigns (exp ":=" exp) (assigns ";" assigns))
         (exps (exp) (exps "," exps))
         (expss (exps) (expss ";" expss))
@@ -411,8 +422,17 @@ Lemma foo: forall n,
               ;; stops right before the "." rather than right after.
               (cmds "." cmds)))
       ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
-      '((assoc ",") (nonassoc "as") (assoc ":") (assoc "->")
-        (assoc "=") (assoc "<->") (nonassoc "else")
+      ;; each line orders tokens by increasing proprity
+      '((nonassoc "return") (nonassoc "as") 
+        (assoc ",") (assoc ":") (assoc "->")
+        (left "<->")
+        (left "^") 
+        (assoc "-")(assoc "+") (assoc "\\/")
+        (assoc "*") (assoc "/\\")
+        (assoc "<?") (assoc "<=?") (assoc "=?")
+        (assoc ">") (assoc ">=") (assoc "<") (assoc "<=")
+        (left "<>") (left "=") (left "==")
+        (nonassoc "else")
         (nonassoc "in") (assoc "in tactic") (left "=>"))
       '((assoc ",")(assoc ";")(assoc "|")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))
@@ -468,14 +488,17 @@ Lemma foo: forall n,
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
     (cond
+     ;; @ may be  ahead of an id, it is part of the id.
+     ((and (equal tok "@") (looking-at "\\.[[:alpha:]_]"))
+      (let ((newtok (coq-smie-forward-token)))
+        (concat tok newtok)))
      ;; detecting if some qualification (dot notation) follows that id and
      ;; extend it if yes. Does not capture other alphanumerical token (captured
      ;; below)
-     ((and (string-match "[[:alpha:]_][[:word:]]*" tok) (looking-at "\\.[[:alpha:]_]")
+     ((and (string-match "@?[[:alpha:]_][[:word:]]*" tok) (looking-at "\\.[[:alpha:]_]")
            (progn (forward-char 1)
                   (let ((newtok (coq-smie-forward-token)))
-                    (concat tok "." newtok)))
-           tok)) ;; .( .<space> and other user defined syntax
+                    (concat tok "." newtok)))))
      ((equal tok ".")
       ;; detect what kind of dot this is: record selector, module qualification
       ;; or command end
@@ -535,6 +558,9 @@ Lemma foo: forall n,
 (defun coq-smie-backward-token ()
   (let ((tok (smie-default-backward-token)))
     (cond
+     ((and (looking-at "[[:alpha:]]") (looking-back "@"))
+      (forward-char -1)
+      (concat "@" tok))
      ;; extending on the left if this id is a module qualifier
      ((and (looking-at "[[:alpha:]]") (looking-back "\\."))
       (forward-char -1)
