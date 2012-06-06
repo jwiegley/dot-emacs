@@ -470,7 +470,7 @@ SCHEDULED: %t
  '(user-initials "jww")
  '(user-mail-address "jwiegley@gmail.com")
  '(vc-follow-symlinks t)
- '(vc-handled-backends nil)
+ '(vc-handled-backends (quote (GIT Svn CVS)))
  '(version-control t)
  '(visible-bell t)
  '(w3m-cookie-accept-bad-cookies (quote ask))
