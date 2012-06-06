@@ -451,6 +451,8 @@ SCHEDULED: %t
  '(svn-status-hide-unmodified t)
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
+ '(tail-max-size 25)
+ '(tail-volatile nil)
  '(temp-buffer-resize-mode t nil (help))
  '(text-mode-hook (quote (turn-on-auto-fill)))
  '(tool-bar-mode nil)
