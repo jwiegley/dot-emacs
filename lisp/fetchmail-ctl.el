@@ -89,8 +89,8 @@
 
 (defun fetchnews-fetch ()
   (interactive)
-  (if (executable-find "getnews")
-      (async-shell-command "getnews")
+  (if t
+      (async-shell-command "fetchmail -f ~/Messages/fetchmailrc.news")
     (async-shell-command "fetchnews -vv -n")))
 
 (defun fetchnews-post ()
