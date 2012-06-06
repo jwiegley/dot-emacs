@@ -139,3 +139,6 @@
 [submodule "site-lisp/lua-mode"]
 	path = site-lisp/lua-mode
 	url = https://github.com/immerrr/lua-mode.git
+[submodule "site-lisp/emacs-quickrun"]
+	path = site-lisp/emacs-quickrun
+	url = https://github.com/syohex/emacs-quickrun.git
