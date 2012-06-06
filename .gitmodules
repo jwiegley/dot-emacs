@@ -142,3 +142,6 @@
 [submodule "site-lisp/emacs-quickrun"]
 	path = site-lisp/emacs-quickrun
 	url = https://github.com/syohex/emacs-quickrun.git
+[submodule "site-lisp/helm"]
+	path = site-lisp/helm
+	url = https://github.com/emacs-helm/helm.git
