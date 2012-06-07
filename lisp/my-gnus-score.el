@@ -203,7 +203,7 @@
 (defadvice gnus-score-adaptive (around my-gnus-score-adaptive activate)
   "Create adaptive score rules for this newsgroup, if applicable."
   (if (my-gnus-score-group-p)
-      (ad-do-it)))
+      ad-do-it))
 
 (add-hook 'message-sent-hook 'my-gnus-score-followup)
 
