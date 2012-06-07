@@ -2394,6 +2394,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (setq imap-shell-program "/usr/local/libexec/dovecot/imap")
 
 (require 'gnus)
+(require 'my-gnus-score)
 (require 'gnus-harvest)
 (require 'starttls)
 (require 'message)
@@ -2489,36 +2490,6 @@ This moves them into the Spam folder."
         (gnus-save-newsrc-file))))
 
 (run-with-idle-timer 25 t 'save-gnus-newsrc)
-
-;;;_  . Scoring
-
-(eval-when-compile
-  (defvar gnus-level-subscribed))
-
-(defun gnus-score-groups (&optional arg)
-  (interactive)
-  (save-excursion
-    (dolist (info (cdr gnus-newsrc-alist))
-      ;; Only consider this group if it's at or below the current level
-      (when (<= (gnus-info-level info)
-                (if (numberp arg)
-                    arg
-                  (or (gnus-group-default-level nil t)
-                      (funcall
-                       (symbol-function 'gnus-group-default-list-level))
-                      gnus-level-subscribed)))
-        (let* ((group (gnus-info-group info))
-               (unread (gnus-group-unread group)))
-          (when (and (string-match "^\\(list\\.\\|nntp\\+LocalNews:\\|nnvirtual:\\)" group)
-                     (not (string= "INBOX" group))
-                     (numberp unread) (> unread 0))
-            (ignore-errors
-              (gnus-summary-read-group group nil t))
-            (when (and gnus-summary-buffer
-                       (buffer-live-p gnus-summary-buffer)
-                       (eq (current-buffer)
-                           (get-buffer gnus-summary-buffer)))
-              (gnus-summary-exit))))))))
 
 ;;;_  . Summary line format functions
 
@@ -2696,9 +2667,6 @@ Else, return \" \"."
 ;;;_  . Gnus keybindings
 
 (define-key global-map [(alt meta ?f)] 'gnus-query)
-
-(eval-after-load "gnus-group"
-  '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
 
 (eval-after-load "gnus-sum"
   '(progn
