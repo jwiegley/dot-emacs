@@ -701,7 +701,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((and (equal token ";")
             (smie-rule-parent-p "." "[" "]" "BeginSubproof" "EndSubproof" "|"))
        2)
-      ((member token '(":=")) 0)
+     ;((member token '(":=")) 0)
       ((and (equal token ",")
             (not (smie-rule-parent-p "forall" "quantif exists"))) 0)))
     (:before
@@ -715,16 +715,17 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        (if (smie-rule-prev-p "with match")
            (- (funcall smie-rules-function :after "with match") 2)
          (smie-rule-separator kind)))
-      ((and (equal token ":=")
-            (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
-                                "Function" "Let" "Record" "Instance" "Class"
-                                "Ltac" "Add" "Theorem"))
-       2) ;(or proof-indent smie-indent-basic)
+;      ((and (equal token ":=")
+;            (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
+;                                "Function" "Let" "Record" "Instance" "Class"
+;                                "Ltac" "Add" "Theorem"))
+;       (message ":= FOUND")
+;       0) ;(or proof-indent smie-indent-basic)
       ((and (equal token ":")
             (smie-rule-parent-p "Definition" "Lemma" "Theorem" "Fixpoint"
                                 "Inductive" "Function" "Let" "Record"
                                 "Instance" "Class" "Ltac" "Add"))
-                                2)
+       2)
       ((equal token ".")
        (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
       ((and (equal token "Proof End")
