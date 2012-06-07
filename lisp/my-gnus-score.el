@@ -28,10 +28,10 @@
 ;; Here's how these scoring rules work:
 ;;
 ;;  - If you type 'c y' to catch-up a group and don't read certain
-;;    threads in at all, you should never see those threads again
-;;    (unless some manual scoring rule applies in the future, or an
-;;    author in the thread gets boosted later because you keep reading
-;;    his or her posts).
+;;    threads at all, you should never see those threads again (unless
+;;    some manual scoring rule applies in the future, or an author in
+;;    the thread gets boosted later because you keep reading his or her
+;;    posts).
 ;;
 ;;  - Use 'I A', 'I S' or 'I T' to manually boost authors, subjects and
 ;;    threads.  This interacts well with adaptive scoring, and guides
