@@ -2407,6 +2407,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (require 'gnus-sum)
   (require 'nnir))
 
+(gnus-compile)
+
 (gnus-harvest-install 'message-x)
 
 (add-hook 'mail-citation-hook 'sc-cite-original)
