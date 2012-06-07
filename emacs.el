@@ -2391,6 +2391,14 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 ;;;_ , Gnus
 
+(defface gnus-summary-expirable-face
+  '((((class color) (background dark))
+     (:foreground "grey50" :italic t :strike-through t))
+    (((class color) (background light))
+     (:foreground "grey55" :italic t :strike-through t)))
+  "Face used to highlight articles marked as expirable."
+  :group 'gnus-summary-visual)
+
 (setq imap-shell-program "/usr/local/libexec/dovecot/imap")
 
 (require 'gnus)
