@@ -21,6 +21,17 @@ Module Y.
   Proof with auto with arith.
     induction x;simpl;intros...
   Qed.
+  Lemma L2 : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
+  Proof with auto with arith.
+    (* "as" tactical *)
+    induction x
+      as
+        [ | x IHx]. 
+    - auto with arith.
+    - simpl.
+      intros.
+      auto with arith.
+  Qed.
 End Y.
 
 Function div2 (n : nat) {struct n}: nat :=
@@ -122,7 +133,7 @@ Module M4'.
       }
     Qed.
   End M2'.
-End M1'.
+End M4'.
 
 
 Module M1''.
@@ -175,10 +186,10 @@ Module X.
   Lemma l2 :
     forall r:rec,
     exists r':rec,
-      ressai.(fld1)
-            = r.(fld2)
-            /\ r'.(fld2)
-            = r.(fld1).
+      r.(fld1)
+      = r'.(fld2)
+      /\ r.(fld2)
+         = r'.(fld1).
   Proof.
     intros r.  
     {{
@@ -194,8 +205,8 @@ Module X.
          | _:rec |- ?a /\ ?b => split
          | _ => fail    
        end.
-       {auto. }
-       {auto. }}}
+       { simpl. auto. }
+       { simpl. auto. }}}
   Qed.
 End X.
 
@@ -235,3 +246,46 @@ Module foo.
     Qed.
     
 End foo.
+
+Require Import Sets.Ensembles.
+Require Import Bool.Bvector.
+
+Section SET.
+  Definition set (T : Type) := Ensemble T.
+  
+  Require Import Program.
+  
+
+  Definition eq_n : forall A n (v:Vector.t A n) n', n=n' -> Vector.t A n'.
+  Proof.
+    intros A n v n' H.
+    rewrite <- H.
+    assumption.
+  Defined.
+  
+  Fixpoint setVecProd (T : Type) (n : nat) (v1:Vector.t (set T) n) {struct v1}:
+    (Vector.t T n) ->  Prop :=
+    match v1 with
+        Vector.nil =>
+          fun v2 =>
+            match v2 with 
+                Vector.nil => True
+              | _ => False
+            end
+      | (Vector.cons x n' v1') =>
+          fun v2 =>
+            (* indentation of dependen "match" clause. *)
+            match v2
+               as
+                 X
+               in
+                 Vector.t _ n''
+               return
+                 (Vector.t T (pred n'') -> Prop) -> Prop
+            with 
+              | Vector.nil => fun _ => False 
+              | (Vector.cons y n'' v2') => fun v2'' => (x y) /\ (v2'' v2')
+            end (setVecProd T n' v1')
+    end.
+  
+End SET.

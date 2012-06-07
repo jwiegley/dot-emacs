@@ -381,12 +381,10 @@ Lemma foo: forall n,
              (exp ":" exp))
         ;; Having "return" here rather than as a separate rule in `exp' causes
         ;; it to be indented at a different level than "with".
-        (matchexp (exp) (exp "return" exp) (exp "as" exp "return" exp) (exp "as" exp "in" exp "return" exp))
-;        (matchexpp (matchexppp) (matchexppp "as" exp))
-;        (matchexppp (exo) (exp "as" exp))
+        (matchexp (exp) (exp "as match" exp) (exp "in match" exp) (exp "return" exp) )
         (assigns (exp ":=" exp) (assigns ";" assigns))
         (exps (exp) (exps "," exps))
-        (expss (exps) (expss ";" expss))
+        (expss (exps) (expss ";" expss) (expss "as" expss))
         (expsss (expss) (expsss "=>" expsss))
         (expssss (expsss) (expssss "|" expssss))
         ;; The elements below are trying to capture the syntactic structure
@@ -423,7 +421,7 @@ Lemma foo: forall n,
               (cmds "." cmds)))
       ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
       ;; each line orders tokens by increasing proprity
-      '((nonassoc "return") (nonassoc "as") 
+      '( 
         (assoc ",") (assoc ":") (assoc "->")
         (left "<->")
         (left "^") 
@@ -434,7 +432,8 @@ Lemma foo: forall n,
         (left "<>") (left "=") (left "==")
         (nonassoc "else")
         (nonassoc "in") (assoc "in tactic") (left "=>"))
-      '((assoc ",")(assoc ";")(assoc "|")(left "=>"))
+      ;;'((nonassoc "return") (nonassoc "in match") (nonassoc "as match"))
+      '((assoc ",")(assoc ";")(right "as")(assoc "|")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))
       '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
@@ -450,7 +449,7 @@ Token \".\" is considered only if followed by a space."
           (let ((next (smie-default-forward-token)))
             ;; Do not consider "." when not followed by a space
             (when (or (not (equal next "."))
-                      (looking-at ".[[:space:]]"))
+                      (looking-at "[[:space:]]"))
               (cond
                ((zerop (length next)) (forward-sexp 1))
                ((member next tokens) (throw 'found next)))))))
@@ -517,7 +516,7 @@ Token \".\" is considered only if followed by a space."
         (let ((newtok (coq-smie-forward-token)))
           (concat tok newtok)))
        (t tok)))
-     ((member tok '(":=" "+" "-" "*" "with" "exists" "in" "∀" "∃" "→"))
+     ((member tok '(":=" "+" "-" "*" "with" "exists" "in" "as" "∀" "∃" "→"))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
@@ -651,17 +650,28 @@ Token \".\" is considered only if followed by a space."
             (prev (smie-default-backward-token)))
         (unless (equal prev "Next") (goto-char pos))
         "Proof"))
+     ((equal tok "as")
+      (save-excursion
+        (let ((prev-interesting 
+               (coq-smie-search-token-backward
+                ;; coq-smie-search... do not stop on the "." of qualified.names
+                '("match" "as" "." ))))
+          (cond
+           ((member prev-interesting '("." "as")) "as")
+           ((equal prev-interesting "match") "as match")
+           ))))     ;; "in" is for let and match .. as .. in ... "in tactic" is for rewrite in.
      ((equal tok "in")
       (save-excursion
-        (if (member
-             (coq-smie-search-token-backward
-              ;; careful not to stop when "." is found: dotted notation
-              ;; are not recognized by coq-smie-search-token-backward
-              ;; TODO: add all tactics accepting "in" TODO or better: find
-              ;; another way to distinguish tactic "in" from "let in"
-              '("in" "let" "eval" "rewrite" "unfold" "apply" "simpl" "compute" "symmetry"))
-             '("in" "let"))
-            "in" "in tactic")))
+        (let ((prev-interesting 
+               (coq-smie-search-token-backward
+                ;; coq-smie-search... do not stop on the "." of qualified.names
+                '("in" "let" "match" "." ));;"eval" "rewrite" "unfold" "apply" "simpl" "compute" "symmetry"
+               ))
+          (cond
+           ((equal prev-interesting ".") "in tactic")
+           ((member prev-interesting '("in" "let")) "in")
+           ((equal prev-interesting "match") "in match")
+           ))))
      (tok))))
 
 (defun coq-smie-rules (kind token)
@@ -684,6 +694,10 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;; Override the default indent step added because of their presence
       ;; in smie-closer-alist.
       ((equal token "with match") 4)
+      ((equal token "in match") 2)
+      ((equal token "as match") 2)
+      ((equal token "return") 2)
+      ((equal token "as") 2)
       ((and (equal token ";")
             (smie-rule-parent-p "." "[" "]" "BeginSubproof" "EndSubproof" "|"))
        2)
@@ -695,7 +709,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token "- bullet") 2)
       ((equal token "+ bullet") 2)
       ((equal token "* bullet") 2)
-      ((equal token "return") (if (smie-rule-parent-p "match") 3))
+      ((equal token "as") 2)
+      ((member token '("return" "in match" "as match")) (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
        (if (smie-rule-prev-p "with match")
            (- (funcall smie-rules-function :after "with match") 2)
