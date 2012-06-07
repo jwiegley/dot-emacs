@@ -64,6 +64,18 @@
 ;;    triggered again.  If an adaptive rule does get triggered, the 30
 ;;    day counter resets.
 ;;
+;;  - If any article's score ends up beneath 0 -- but above
+;;    `my-gnus-summary-expunge-below' -- it will still be in the
+;;    *Summary* buffer, it just won't be visible.  Use '/ w' to reveal
+;;    these silent articles.
+;;
+;;  - If any article's score ends up beneath
+;;    `my-gnus-summary-expunge-below', it will not be in the *Summary*
+;;    before at all.  You'll have to use '/ o' to pull in old articles
+;;    to see these expunged articles (NOTE: This is not the same as
+;;    IMAP's meaning of 'expunge', it just means it's not in the summary
+;;    buffer at all).
+;;
 ;; Some guidelines about proper using of scoring in Gnus:
 ;;
 ;; 1. Decide exactly which groups you will score in.  Configure
@@ -178,8 +190,9 @@
               (gnus-summary-exit))))))))
 
 (defun my-gnus-score-followup-thread (&optional score)
-  (if (my-gnus-score-group-p)
-      (gnus-score-followup-thread score)))
+  (when (my-gnus-score-group-p)
+    (gnus-score-followup-article score)
+    (gnus-score-followup-thread score)))
 
 ;; Install into Gnus
 
@@ -188,7 +201,7 @@
   (if (my-gnus-score-group-p)
       (ad-do-it)))
 
-(add-hook 'message-sent-hook 'my-gnus-score-followup-thread)
+(add-hook 'message-sent-hook 'my-gnus-score-followup)
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
