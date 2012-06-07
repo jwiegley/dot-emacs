@@ -208,7 +208,7 @@
 (add-hook 'message-sent-hook 'my-gnus-score-followup)
 
 (eval-after-load "gnus-group"
-  '(define-key gnus-group-score-map [?s] 'gnus-score-groups))
+  '(define-key gnus-group-score-map [?s] 'my-gnus-score-groups))
 
 (provide 'my-gnus-score)
 
