@@ -22,9 +22,6 @@
 [submodule "lisp/chess"]
 	path = lisp/chess
 	url = https://github.com/jwiegley/emacs-chess.git
-[submodule "lisp/eshell"]
-	path = lisp/eshell
-	url = https://github.com/jwiegley/eshell.git
 [submodule "lisp/gnus-harvest"]
 	path = lisp/gnus-harvest
 	url = https://github.com/jwiegley/gnus-harvest.git
