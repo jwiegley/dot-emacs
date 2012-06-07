@@ -44,15 +44,17 @@
                (throw 'proc-running proc)
              (throw 'proc-running nil)))))))
 
-(defun start-fetchmail ()
+(defun start-fetchmail (&optional name &rest extra-args)
   (interactive)
-  (unless (process-running-p "*fetchmail*")
-    (message "Starting Fetchmail...")
-    (let ((buf (get-buffer-create "*fetchmail*")))
-      (setq fetchmail-process
-            (start-process "*fetchmail*" buf
-                           "/opt/local/bin/fetchmail" "-d" "900" "-N")))
-    (message "Starting Fetchmail...done")))
+  (let ((procname (or name "*fetchmail*")))
+    (unless (process-running-p procname)
+      (message "Starting Fetchmail...")
+      (let ((buf (get-buffer-create procname)))
+        (setq fetchmail-process
+              (apply #'start-process procname buf
+                     "/opt/local/bin/fetchmail" "-d" "900" "-N"
+                     extra-args)))
+      (message "Starting Fetchmail...done"))))
 
 (defun safely-kill-process (name &optional signal verb)
   (let ((proc (process-running-p name)))
@@ -69,11 +71,13 @@
 
 (defun shutdown-fetchmail ()
   (interactive)
-  (safely-kill-process "*fetchmail*"))
+  (safely-kill-process "*fetchmail*")
+  (safely-kill-process "*fetchmail-news*"))
 
 (defun kick-fetchmail ()
   (interactive)
-  (safely-kill-process "*fetchmail*" 'SIGUSR1 "Kicking"))
+  (safely-kill-process "*fetchmail*" 'SIGUSR1 "Kicking")
+  (safely-kill-process "*fetchmail-news*" 'SIGUSR1 "Kicking"))
 
 (defun switch-to-fetchmail ()
   (interactive)
@@ -83,15 +87,25 @@
       (setq buf (get-buffer "*fetchmail*")))
     (display-buffer buf)))
 
+(defun switch-to-fetchmail-and-news ()
+  (interactive)
+  (fetchnews-fetch)
+  (switch-to-fetchmail))
+
 ;; (add-hook 'gnus-agent-plugged-hook 'start-fetchmail)
 ;; (add-hook 'gnus-agent-unplugged-hook 'shutdown-fetchmail)
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-fetchmail)
 
 (defun fetchnews-fetch ()
   (interactive)
-  (if t
-      (async-shell-command "fetchmail -f ~/Messages/fetchmailrc.news")
-    (async-shell-command "fetchnews -vv -n")))
+  (let ((buf (get-buffer "*fetchmail-news*")))
+    (unless buf
+      (let ((process-environment (copy-alist process-environment)))
+        (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
+        (start-fetchmail "*fetchmail-news*"
+                         "-f" (expand-file-name "~/Messages/fetchmailrc.news")))
+      (setq buf (get-buffer "*fetchmail-news*")))
+    (display-buffer buf)))
 
 (defun fetchnews-post ()
   (interactive)
@@ -99,6 +113,7 @@
 
 (eval-after-load "gnus-group"
   '(progn
+     (define-key gnus-group-mode-map [?v ?B] 'switch-to-fetchmail-and-news)
      (define-key gnus-group-mode-map [?v ?b] 'switch-to-fetchmail)
      (define-key gnus-group-mode-map [?v ?o] 'start-fetchmail)
      (define-key gnus-group-mode-map [?v ?d] 'shutdown-fetchmail)
