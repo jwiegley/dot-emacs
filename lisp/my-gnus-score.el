@@ -159,6 +159,7 @@
 (my-gnus-score-defcustom gnus-summary-expunge-below -100)
 (my-gnus-score-defcustom gnus-thread-expunge-below -1000)
 (my-gnus-score-defcustom gnus-score-thread-simplify nil)
+(my-gnus-score-defcustom gnus-decay-scores "\\.ADAPT\\'")
 
 ;;; Functions:
 
