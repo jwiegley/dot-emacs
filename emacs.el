@@ -2468,6 +2468,19 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
            (criteria . "")
            (server   . "nnimap:Local")))))
 
+(defun gnus-group-get-all-new-news ()
+  (interactive)
+  (message "Getting new mail and news...")
+  (gnus-group-get-new-news 5)
+  (message "Getting new mail and news...done")
+  (gnus-group-list-groups 4)
+  (message "Scoring new articles in groups...")
+  (my-gnus-score-groups)
+  (message "Scoring new articles in groups...done"))
+
+(eval-after-load "gnus-group"
+  '(define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
+
 ;;(gnus-query (concat "header message-id " message-id))
 
 (defun my-dont-backup-files-p (filename)
