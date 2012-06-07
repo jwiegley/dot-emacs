@@ -72,7 +72,8 @@
 (defun shutdown-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*")
-  (safely-kill-process "*fetchmail-news*"))
+  (safely-kill-process "*fetchmail-news*")
+  (do-applescript "tell application \"Notify\" to quit"))
 
 (defun kick-fetchmail ()
   (interactive)
@@ -84,7 +85,8 @@
   (let ((buf (get-buffer "*fetchmail*")))
     (unless buf
       (start-fetchmail)
-      (setq buf (get-buffer "*fetchmail*")))
+      (setq buf (get-buffer "*fetchmail*"))
+      (do-applescript "tell application \"Notify\" to run"))
     (display-buffer buf)))
 
 (defun switch-to-fetchmail-and-news ()
