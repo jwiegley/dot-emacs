@@ -60,9 +60,12 @@
 ;;    other purpose (I use total expiry, or external expiration in tools
 ;;    like Leafnode).
 ;;
-;;  - Adaptive scoring rules will decay after 30 days if they are not
-;;    triggered again.  If an adaptive rule does get triggered, the 30
-;;    day counter resets.
+;;  - Scoring rules will decay after 30 days if they are not triggered
+;;    again.  If a rule does get triggered, the 30 day counter resets.
+;;    _Adaptive_ scoring rules are further "decayed" every day, so that
+;;    they slowly migrate toward becoming disabled, rather than simply
+;;    the "on/off" switch after 30 days that applies to normal scoring
+;;    rules.
 ;;
 ;;  - If any article's score ends up beneath 0 -- but above
 ;;    `my-gnus-summary-expunge-below' -- it will still be in the
