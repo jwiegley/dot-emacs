@@ -189,7 +189,7 @@ BoostPro Computing
 http://www.boostpro.com")))))
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
- '(gnus-refer-article-method (quote (current (nnir "nnimap:Local") (nntp "LocalNews" (nntp-address "localhost") (nntp-port-number 9119)) (nntp "Gmane" (nntp-address "news.gmane.org")) (nntp "GigaNews" (nntp-address "text.giganews.com") (nntp-authinfo-user "jwiegley")))))
+ '(gnus-refer-article-method (quote (current (nnir "nnimap:Local") (nntp "LocalNews" (nntp-address "localhost") (nntp-port-number 9119)) (nntp "Gmane" (nntp-address "news.gmane.org")) (nntp "Eternal September" (nntp-address "news.eternal-september.org") (nntp-authinfo-user "jwiegley")))))
  '(gnus-refer-thread-use-nnir t)
  '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
  '(gnus-save-killed-list nil)
