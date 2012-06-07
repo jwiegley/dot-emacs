@@ -2409,11 +2409,11 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (require 'fetchmail-ctl)
 ;; (require 'offlineimap-ctl)
 (require 'nnmairix)
+(require 'nnir)
 
 (eval-when-compile
   (require 'gnus-group)
-  (require 'gnus-sum)
-  (require 'nnir))
+  (require 'gnus-sum))
 
 (gnus-compile)
 
@@ -2448,12 +2448,16 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (defvar gnus-query-history nil)
 
+(defun activate-gnus ()
+  (unless (get-buffer "*Group*") (gnus)))
+
 (defun gnus-query (query &optional arg)
   (interactive
    (list (read-string "Mail Query: "
                       (format-time-string "SINCE 1-%b-%Y FROM ")
                       'gnus-query-history)
          current-prefix-arg))
+  (activate-gnus)
   (let ((nnir-imap-default-search-key "imap")
         (nnir-ignored-newsgroups
          (if arg
@@ -2473,6 +2477,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (setq backup-enable-predicate 'my-dont-backup-files-p)
 
 (defun gnus-goto-article (message-id)
+  (activate-gnus)
   (gnus-summary-read-group "INBOX" 15 t)
   (gnus-summary-refer-article message-id))
 
