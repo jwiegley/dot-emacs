@@ -2419,10 +2419,17 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (gnus-harvest-install 'message-x)
 
+(defun maybe-switch-to-fetchmail-and-news ()
+  (interactive)
+  (if (= 0 (call-process "/sbin/ping" nil nil nil
+                         "-c1" "-W50" "-q" "imap.gmail.com"))
+      (switch-to-fetchmail-and-news)))
+
+(add-hook 'gnus-startup-hook 'maybe-switch-to-fetchmail-and-news)
+
 (add-hook 'mail-citation-hook 'sc-cite-original)
 
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
-
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
 (add-hook 'gnus-summary-mode-hook 'hl-line-mode)
 
