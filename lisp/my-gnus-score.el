@@ -193,7 +193,7 @@
                            (get-buffer gnus-summary-buffer)))
               (gnus-summary-exit))))))))
 
-(defun my-gnus-score-followup-thread (&optional score)
+(defun my-gnus-score-followup (&optional score)
   (when (my-gnus-score-group-p)
     (gnus-score-followup-article score)
     (gnus-score-followup-thread score)))
