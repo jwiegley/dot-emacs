@@ -928,12 +928,16 @@ If CALLBACK is set, we invoke that when the command completes."
   "Add or remove index menu."
   ;; NB: next two a bit interferring, but we suppose use-case is PG.
   (which-function-mode (if proof-imenu-enable 1 0))
-  (add-to-list 'which-func-modes proof-mode-for-script)
+  (when (listp which-func-modes)
+    ;; FIXME: It's not PG's business to decide whether to use
+    ;; which-function-mode.
+    (add-to-list 'which-func-modes proof-mode-for-script))
   (if proof-imenu-enable
       (imenu-add-to-menubar "Index")
     (progn
-      (setq which-func-modes 
-	    (remove proof-mode-for-script which-func-modes))
+      (when (listp which-func-modes)
+        (setq which-func-modes 
+              (remove proof-mode-for-script which-func-modes)))
       (let ((oldkeymap (keymap-parent (current-local-map))))
 	(if ;; sanity checks in case someone else set local keymap
 	    (and oldkeymap
