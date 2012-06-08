@@ -2416,8 +2416,22 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (require 'gnus-sum))
 
 (gnus-compile)
+(gnus-delay-initialize)
 
 (gnus-harvest-install 'message-x)
+
+;; Alias for the content-type function:
+(defalias 'gnus-user-format-function-ct 'rs-gnus-summary-line-content-type)
+;; Alias for the size function:
+(defalias 'gnus-user-format-function-size 'rs-gnus-summary-line-message-size)
+;; Alias for the score function:
+(defalias 'gnus-user-format-function-score 'rs-gnus-summary-line-score)
+;;
+(defalias 'gnus-user-format-function-label 'rs-gnus-summary-line-label)
+;;
+;; Use them:
+(setq gnus-balloon-face-0 'rs-gnus-balloon-0)
+(setq gnus-balloon-face-1 'rs-gnus-balloon-1)
 
 (defun maybe-switch-to-fetchmail-and-news ()
   (interactive)
@@ -2445,6 +2459,14 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
                          "INBOX")))))
 
 (add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
+
+(defun message-send-in-one-hour (&optional arg)
+  (interactive "P")
+  (if arg
+      (message-send-and-exit)
+    (gnus-delay-article "1h")))
+
+(define-key message-mode-map "\C-c\C-c" 'message-send-in-one-hour)
 
 (defvar gnus-query-history nil)
 
@@ -2632,14 +2654,14 @@ Else, return \" \"."
 ;; prettier summary buffers
 
 (when window-system
-  (setq gnus-sum-thread-tree-indent          "  ")                   ;; "  "
-  (setq gnus-sum-thread-tree-root            "\u25ef ")              ;; "◯ "
-  (setq gnus-sum-thread-tree-false-root      "\u25ce ")              ;; "◎ "
-  ;;(setq gnus-sum-thread-tree-single-indent   "\u25cf ")              ;; "● "
-  (setq gnus-sum-thread-tree-single-indent   "  ")              ;; "◎ "
-  (setq gnus-sum-thread-tree-vertical        "\u2502")               ;; "│"
-  (setq gnus-sum-thread-tree-leaf-with-other "\u251c\u2500\u25b8 ")  ;; "├─▸ "
-  (setq gnus-sum-thread-tree-single-leaf     "\u2570\u2500\u25b8 ")) ;; "╰─▸ "
+  (setq
+   gnus-sum-thread-tree-false-root      "┌┬▷ "
+   gnus-sum-thread-tree-single-indent   ""
+   gnus-sum-thread-tree-root            "┌┬▶ "
+   gnus-sum-thread-tree-vertical        "│"
+   gnus-sum-thread-tree-leaf-with-other "├┬▶ "
+   gnus-sum-thread-tree-single-leaf     "╰┬▶ "
+   gnus-sum-thread-tree-indent          " "))
 
 ;;;_  . Browsing article URLs
 
