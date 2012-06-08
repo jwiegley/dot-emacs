@@ -2823,8 +2823,8 @@ Else, return \" \"."
 
 (defvar gnus-unbury-window-configuration nil)
 
-(defun switch-to-gnus ()
-  (interactive)
+(defun switch-to-gnus (&optional arg)
+  (interactive "P")
   (let ((alist '(("\\`\\*unsent")
                  ("\\`\\*Article")
                  ("\\`\\*Summary")
@@ -2846,7 +2846,8 @@ Else, return \" \"."
               (throw 'found (setq candidate last))))))
     (if candidate
         (ido-visit-buffer candidate ido-default-buffer-method)
-      (gnus))))
+      (let ((gnus-startup-hook (if arg nil gnus-startup-hook)))
+        (gnus)))))
 
 (defun show-compilation ()
   (interactive)
