@@ -2468,6 +2468,16 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (define-key message-mode-map "\C-c\C-c" 'message-send-in-one-hour)
 
+(defun kick-postfix-if-needed ()
+  (if (and (= 0 (call-process "/sbin/ping" nil nil nil
+                              "-c1" "-W50" "-q" "imap.gmail.com"))
+           (= 0 (call-process "/usr/bin/sudo" nil nil nil
+                              "/opt/local/libexec/postfix/master" "-t")))
+      (start-process "postfix" nil "/usr/bin/sudo"
+                     "/opt/local/libexec/postfix/master" "-e" "60")))
+
+(add-hook 'message-sent-hook 'kick-postfix-if-needed)
+
 (defvar gnus-query-history nil)
 
 (defun activate-gnus ()
