@@ -496,7 +496,7 @@ SCHEDULED: %t
  '(wg-query-for-save-on-workgroups-mode-exit nil)
  '(whitespace-action (quote (report-on-bogus)))
  '(whitespace-auto-cleanup t)
- '(whitespace-global-modes (quote (not org-mode erc-mode dired-mode)))
+ '(whitespace-global-modes (quote (not org-mode erc-mode dired-mode log4j-mode)))
  '(whitespace-line-column 80)
  '(whitespace-rescan-timer-time nil)
  '(whitespace-silent t)

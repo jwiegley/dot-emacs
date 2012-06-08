@@ -657,6 +657,13 @@
               (define-key lusty-mode-map [? ] 'lusty-select-match)
               (define-key lusty-mode-map [(control ?d)] 'exit-minibuffer))))
 
+;;;_ , log4j-mode
+
+(use-package log4j-mode
+  :commands log4j-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.log$" . log4j-mode)))
+
 ;;;_ , merlin
 
 (require 'rx)
