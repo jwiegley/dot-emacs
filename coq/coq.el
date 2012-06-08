@@ -382,9 +382,9 @@ Lemma foo: forall n,
         ;; Having "return" here rather than as a separate rule in `exp' causes
         ;; it to be indented at a different level than "with".
         (matchexp (exp) (exp "as match" exp) (exp "in match" exp) (exp "return" exp) )
-        (assigns (exp ":=" exp) (assigns ";" assigns))
+        (assigns (exp ":= let" exp) (assigns ";" assigns))
         (exps (exp) (exps "," exps))
-        (expss (exps) (expss ";" expss) (expss "as" expss))
+        (expss (exps) (exps ":= record" exps) (expss ";" expss) (expss "as" expss))
         (expsss (expss) (expsss "=>" expsss))
         (expssss (expsss) (expssss "|" expssss))
         ;; The elements below are trying to capture the syntactic structure
@@ -398,16 +398,16 @@ Lemma foo: forall n,
                  ("Proof" subcmds "Proof End")
                  ("Module" subcmds "End")
                  ("Section" subcmds "End"))
-        (cmds ("Add" exp ":=" exp)
-              ("Lemma" exp ":=" exp)
-              ("Theorem" exp ":=" exp)
-              ("Instance" exp ":=" exp)
-              ("Class" exp ":=" exp)
-              ("Definition" exp ":=" exp)
-              ("Let" exp ":=" exp)
+        (cmds ("Add" exp ":=" exp) ("Add" exp) 
+              ("Lemma" exp ":=" exp) ("Lemma" exp)
+              ("Theorem" exp ":=" exp) ("Theorem" exp)
+              ("Instance" exp ":=" exp) ("Instance" exp)
+              ("Class" exp ":=" exp) ("Class" exp)
+              ("Definition" exp ":=" exp) ("Definition" exp)
+              ("Let" exp ":=" exp) ("Let" exp)
               ("Function" exp ":=" exp)
-              ("Fixpoint" exp ":=" exp)
-              ("Inductive" exp ":= inductive")
+              ("Program Fixpoint" exp ":=" exp) ("Fixpoint" exp ":=" exp)
+              ("Inductive" exp ":= inductive" expssss)
               ("CoInductive" exp ":= inductive" expssss)
               ("Notation" exp ":=" exp)
               ("Record" exp ":=" exp)
@@ -431,14 +431,15 @@ Lemma foo: forall n,
         (assoc ">") (assoc ">=") (assoc "<") (assoc "<=")
         (left "<>") (left "=") (left "==")
         (nonassoc "else")
-        (nonassoc "in") (assoc "in tactic") (left "=>"))
+        (nonassoc "in") (assoc "in tactic")  (left ":= record") (left "=>"))
       ;;'((nonassoc "return") (nonassoc "in match") (nonassoc "as match"))
       '((assoc ",")(assoc ";")(right "as")(assoc "|")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))
       '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 
-(defun coq-smie-search-token-forward (tokens &optional end)
+
+(defun coq-smie-search-token-forward (tokens &optional end ignore-between)
   "Search for one of TOKENS between point and END.
 Token \".\" is considered only if followed by a space."
   (unless end (setq end (point-max)))
@@ -446,16 +447,20 @@ Token \".\" is considered only if followed by a space."
       (catch 'found
         (while (< (point) end)
           ;; The default lexer is faster and is good enough for our needs.
-          (let ((next (smie-default-forward-token)))
-            ;; Do not consider "." when not followed by a space
-            (when (or (not (equal next "."))
-                      (looking-at "[[:space:]]"))
-              (cond
-               ((zerop (length next)) (forward-sexp 1))
-               ((member next tokens) (throw 'found next)))))))
+          (let* ((next (smie-default-forward-token))
+                 (parop (assoc next ignore-between)))
+            (if parop ; if we find something to ignore, we directly
+                                        ; go to corresponding closer
+                (coq-smie-search-token-forward (cons (cdr parop) nil) end ignore-between)
+              ;; Do not consider "." when not followed by a space
+              (when (or (not (equal next "."))
+                        (looking-at "[[:space:]]"))
+                (cond
+                 ((zerop (length next)) (forward-sexp 1))
+                 ((member next tokens) (throw 'found next))))))))
     (scan-error nil)))
 
-(defun coq-smie-search-token-backward (tokens &optional end)
+(defun coq-smie-search-token-backward (tokens &optional end ignore-between)
   "Search for one of TOKENS between point and END.
 Token \".\" is considered only if followed by a space."
   (unless end (setq end (point-min)))
@@ -463,13 +468,17 @@ Token \".\" is considered only if followed by a space."
       (catch 'found
         (while (> (point) end)
           ;; The default lexer is faster and is good enough for our needs.
-          (let ((next (smie-default-backward-token)))
-            ;; Do not consider "." when not followed by a space
-            (when (or (not (equal next "."))
-                      (looking-at ".[[:space:]]"))
-              (cond
-               ((zerop (length next)) (forward-sexp -1))
-               ((member next tokens) (throw 'found next)))))))
+          (let* ((next (smie-default-backward-token))
+                 (parop (rassoc next ignore-between)))
+            (if parop ; if we find something to ignore, we directly
+                                        ; go to corresponding closer
+                (coq-smie-search-token-backward (cons (car parop) nil) end ignore-between)
+              ;; Do not consider "." when not followed by a space
+              (when (or (not (equal next "."))
+                        (looking-at ".[[:space:]]"))
+                (cond
+                 ((zerop (length next)) (forward-sexp -1))
+                 ((member next tokens) (throw 'found next))))))))
     (scan-error nil)))
 
 
@@ -613,12 +622,16 @@ Token \".\" is considered only if followed by a space."
       (if (looking-at "{") "BeginSubproof" "EndSubproof"))
      ((and (equal tok "") (looking-back "|}" (- (point) 2)))
       (goto-char (match-beginning 0)) "|}")
-     ((and (equal tok ":=")
-           (save-excursion
-             (member (coq-smie-search-token-backward
-                      '("let" "Inductive" "Coinductive" "."))
-                     '("Inductive" "CoInductive"))))
-      ":= inductive")
+
+     ((equal tok ":=")
+      (save-excursion
+        (let ((corresp (coq-smie-search-token-backward
+                        '("let" "Inductive" "Coinductive" "{|" ".") nil '(("let" . ":=")))))
+          (cond
+           ((member corresp '("Inductive" "CoInductive")) ":= inductive")
+           ((equal corresp "let") ":= let")
+           ((or (looking-back "{")) ":= record")
+           (t tok)))))
      ((equal tok "*.") (forward-char 1) ".") ; for "auto with *."
      ((and (member tok '("+" "-" "*"))
            (save-excursion
@@ -699,9 +712,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token "return") 2)
       ((equal token "as") 2)
       ((and (equal token ";")
-            (smie-rule-parent-p "." "[" "]" "BeginSubproof" "EndSubproof" "|"))
-       2)
-     ;((member token '(":=")) 0)
+            (smie-rule-parent-p "." "{|" "[" "]" "BeginSubproof" "EndSubproof" "|"))
+       (smie-rule-separator kind))
+     ((member token '(":= inductive")) 2)
       ((and (equal token ",")
             (not (smie-rule-parent-p "forall" "quantif exists"))) 0)))
     (:before
@@ -712,9 +725,13 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token "as") 2)
       ((member token '("return" "in match" "as match")) (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
-       (if (smie-rule-prev-p "with match")
-           (- (funcall smie-rules-function :after "with match") 2)
-         (smie-rule-separator kind)))
+       (cond ((smie-rule-prev-p "with match")
+              (- (funcall smie-rules-function :after "with match") 2))
+             ((smie-rule-prev-p ":= inductive")
+              (- (funcall smie-rules-function :after ":= inductive") 2))
+             (t (smie-rule-separator kind)))
+         ;(smie-rule-separator kind)
+         )
 ;      ((and (equal token ":=")
 ;            (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
 ;                                "Function" "Let" "Record" "Instance" "Class"

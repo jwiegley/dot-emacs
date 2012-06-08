@@ -9,6 +9,13 @@ Record a : Type := make_a {
                        aa : nat
                      }.
 
+Inductive test : nat -> Prop :=
+| C1 : forall n, test n
+| C2 : forall n, test n
+| C3 : forall n, test n
+| C4 : forall n, test n.
+
+
 Lemma toto:nat.
 Proof.
   {{
@@ -96,8 +103,8 @@ Module M1'.
           destruct n.
           {
             idtac;[
-                     auto
-                   ].
+              auto
+            ].
           }
           auto.
         } 
@@ -150,16 +157,16 @@ End M1''.
 
 
 Record rec:Set := { 
-                 fld1:nat;
-                 fld2:nat;
-                 fld3:bool
-               }.
+    fld1:nat;
+    fld2:nat;
+    fld3:bool
+  }.
 
 Class cla {X:Set}:Set := { 
-                        cfld1:nat;
-                        cld2:nat;
-                        cld3:bool
-                      }.
+    cfld1:nat;
+    cld2:nat;
+    cld3:bool
+  }.
 
 
 
@@ -194,12 +201,12 @@ Module X.
     intros r.  
     {{
        idtac;
-         exists 
-           {|
-             fld1:=r.(fld2);
-             fld2:=r.(fld1);
-             fld3:=false
-           |}.
+       exists 
+         {|
+           fld1:=r.(fld2);
+           fld2:=r.(fld1);
+           fld3:=false
+         |}.
        (* ltac *)
        match goal with
          | _:rec |- ?a /\ ?b => split
@@ -226,17 +233,17 @@ Module foo.
   Proof.
     firstorder.
   Qed.
-
-
+  
+  
   Program Fixpoint f (x:nat) {struct x} : nat :=
     match x with
       | 0 => 0
       | S y => S (f y)
     end.
-
+  
   Program Instance all_iff_morphism {A : Type} :
     Proper (pointwise_relation A iff ==> iff) (@all A).
-
+  
   Next Obligation.
     Proof.
       unfold pointwise_relation, all in * .
@@ -255,7 +262,7 @@ Section SET.
   
   Require Import Program.
   
-
+  
   Definition eq_n : forall A n (v:Vector.t A n) n', n=n' -> Vector.t A n'.
   Proof.
     intros A n v n' H.
