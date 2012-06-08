@@ -448,7 +448,7 @@ SCHEDULED: %t
  '(smtpmail-smtp-service 587)
  '(smtpmail-smtp-user "jwiegley@gmail.com")
  '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil))))
- '(smtpmail-stream-type (quote ssl))
+ '(smtpmail-stream-type (quote starttls))
  '(sql-sqlite-program "sqlite3")
  '(sr-attributes-display-mask (quote (nil nil t nil nil nil)))
  '(sr-listing-switches "--time-style=locale --group-directories-first -alDhgG")
