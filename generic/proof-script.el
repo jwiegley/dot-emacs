@@ -2390,11 +2390,13 @@ assistant."
 	      (regexp-quote "\n") ;; end-of-line terminated comments
 	    (regexp-quote proof-script-comment-end))))
 
+  ;; BOGUS
   (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip
-	(if (string-equal "" proof-script-comment-end)
-	    (regexp-quote "\n") ;; end-of-line terminated comments
-	  (regexp-quote proof-script-comment-end))))
+  (unless comment-start-skip
+    (setq comment-start-skip
+	  (if (string-equal "" proof-script-comment-end)
+	      (regexp-quote "\n") ;; end-of-line terminated comments
+	    (regexp-quote proof-script-comment-end)))))
 
 
 

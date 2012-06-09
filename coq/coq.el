@@ -1271,6 +1271,11 @@ This is specific to `coq-mode'."
   (setq proof-script-parse-function 'coq-script-parse-function)
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
+  (make-local-variable 'comment-start-skip)
+  (setq comment-start-skip
+        (if (string-equal "" proof-script-comment-start)
+            (regexp-quote "\n") ;; end-of-line terminated comments
+          (regexp-quote proof-script-comment-start)))
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
 
   (setq proof-assistant-home-page coq-www-home-page)
