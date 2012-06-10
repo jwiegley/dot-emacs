@@ -2051,17 +2051,17 @@ SCHEDULED: %t
 ;;  (interactive)
 ;;  (insert (org-get-apple-message-link)))
 
-(defun org-get-message-link ()
+(defun org-get-message-link (&optional title)
   (assert (get-buffer "*Group*"))
   (let (message-id subject)
     (with-current-buffer gnus-original-article-buffer
       (setq message-id (substring (message-field-value "message-id") 1 -1)
-            subject (message-field-value "subject")))
+            subject (or title (message-field-value "subject"))))
     (org-make-link-string (concat "message://" message-id) subject)))
 
-(defun org-insert-message-link ()
-  (interactive)
-  (insert (org-get-message-link)))
+(defun org-insert-message-link (&optional arg)
+  (interactive "P")
+  (insert (org-get-message-link (if arg "writes"))))
 
 (defun org-set-message-link ()
   "Set a property for the current headline."
