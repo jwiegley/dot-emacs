@@ -358,6 +358,7 @@ Lemma foo: forall n,
      (smie-bnf->prec2
       '((exp ("match" matchexp "with match" expssss "end")
              ("let" assigns "in" exp)
+             ("eval" assigns "in" exp)
              ("fun" exp "=>" exp)
              ("if" exp "then" exp "else" exp)
              ("quantif exists" exp "," exp)
@@ -376,9 +377,8 @@ Lemma foo: forall n,
         (assigns  (exp ":= let" exp) (assigns "; record" assigns))
         (exps (exp) (exps "," exps))
         (expss (exps) (exps ":= record" exps) (expss ";" expss)
-               (expss "as" expss))
-        (expsss (expss) (expsss "=>" expsss))
-        (expssss (expsss) (expssss "|" expssss))
+                (expss "in tactic" expss) (expss "as" expss))
+        (expssss (expss) (expssss "|" expssss) (exp "=>" expss))
         ;; The elements below are trying to capture the syntactic structure
         ;; layered above the commands language. Bullets are all the same as a
         ;; first approximation.
@@ -414,15 +414,14 @@ Lemma foo: forall n,
       ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
       ;; each line orders tokens by increasing proprity
       '((left ",") (assoc ":")
-        (assoc "\\/") (assoc "/\\") 
-        (assoc "->") (left "<->")
+        (assoc "->") (left "<->") (assoc "\\/") (assoc "/\\")
         (assoc "<?") (assoc "<=?") (assoc "=?") (assoc ">") (assoc ">=")
         (assoc "<") (assoc "<=") (left "<>") (left "=") (left "==")
-        (nonassoc "else") (nonassoc "in") (assoc "in tactic")
-        (assoc ":= record") (assoc "; record") (left "=>")
+        (nonassoc "else") (nonassoc "in") (left "as") (left "in tactic")
+        (assoc ":= record") (left "; record") (left "=>")
         (left "^")
-        (assoc "-")(assoc "+") (assoc "*") )
-      '((left ",")(assoc ";")(right "as")(left "|")(left "=>"))
+        (assoc "-")(assoc "+") (assoc "*"))
+      '((left ",")(left "|")(left ";")(left "as") (left "in tactic")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))
       '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
@@ -587,8 +586,12 @@ Token \".\" is considered only if followed by a space."
             ".-selector"))))  ;; probably a user defined syntax
      ((equal tok ";")
       (save-excursion
-        (if (equal (coq-smie-search-token-forward '("." "{")) ".")
-            tok "; record")))
+        (let ((backtok (coq-smie-search-token-backward '("." "[" "{"))))
+          (cond
+           ((equal backtok ".") tok)
+           ((equal backtok nil)
+            (if (looking-back "{") "; record" tok))))))
+
      ((member tok '("Fixpoint" "Declaration" "Lemma" "Instance"))
       (let ((pos (point))
             (prev (smie-default-backward-token)))
@@ -671,8 +674,8 @@ Token \".\" is considered only if followed by a space."
      ((equal tok "in")
       (save-excursion
         (let ((prev-interesting
-               (coq-smie-search-token-backward
-                '("in" "let" "match" "." ))))
+               (coq-smie-search-token-backward '("in" "let" "match" "." )
+                                               nil '(("match" . "with")))))
           (cond
            ((equal prev-interesting ".") "in tactic")
            ((member prev-interesting '("in" "let")) "in")
@@ -709,10 +712,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token "as match") 2)
       ((equal token "return") 2)
       ((equal token "as") 2)
-      ((equal token "; record")
-       (cond
-        ((smie-rule-prev-p "; record") (smie-rule-separator kind))
-        (t 0)))
       ((equal token ";")
        (cond
         ((smie-rule-parent-p ";") (smie-rule-separator kind))
