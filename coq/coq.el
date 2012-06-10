@@ -412,12 +412,13 @@ Lemma foo: forall n,
               (cmds "." cmds)))
       ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
       ;; each line orders tokens by increasing proprity
-      '((assoc ",") (assoc ":") (assoc "->") (left "<->") (left "^")
-        (assoc "-")(assoc "+") (assoc "\\/") (assoc "*") (assoc "/\\")
+      '((assoc ",") (assoc ":") (assoc "->") (left "<->")
         (assoc "<?") (assoc "<=?") (assoc "=?") (assoc ">") (assoc ">=")
         (assoc "<") (assoc "<=") (left "<>") (left "=") (left "==")
         (nonassoc "else") (nonassoc "in") (assoc "in tactic")
-        (assoc ":= record") (assoc "; record") (left "=>"))
+        (assoc ":= record") (assoc "; record") (left "=>")
+        (left "^")
+        (assoc "-")(assoc "+") (assoc "\\/") (assoc "*") (assoc "/\\"))
       '((assoc ",")(assoc ";")(right "as")(left "|")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))
       '((assoc ".")))))
@@ -695,6 +696,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;; in smie-closer-alist.
       ((equal token "with match") 4)
       ((equal token ":") 2)
+      ((equal token ":= record") 2)
       ((equal token "in match") 2)
       ((equal token "as match") 2)
       ((equal token "return") 2)
@@ -725,12 +727,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
              (t (smie-rule-separator kind)))
          ;(smie-rule-separator kind)
          )
-;      ((and (equal token ":=")
-;            (smie-rule-parent-p "Definition" "Lemma" "Fixpoint" "Inductive"
-;                                "Function" "Let" "Record" "Instance" "Class"
-;                                "Ltac" "Add" "Theorem"))
-;       (message ":= FOUND")
-;       0) ;(or proof-indent smie-indent-basic)
       ((and (equal token ":")
             (smie-rule-parent-p "Definition" "Lemma" "Theorem" "Fixpoint"
                                 "Inductive" "Function" "Let" "Record"
