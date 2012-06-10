@@ -372,10 +372,12 @@ Lemma foo: forall n,
              (exp ":" exp))
         ;; Having "return" here rather than as a separate rule in `exp' causes
         ;; it to be indented at a different level than "with".
-        (matchexp (exp) (exp "as match" exp) (exp "in match" exp) (exp "return" exp) )
+        (matchexp (exp) (exp "as match" exp) (exp "in match" exp)
+                  (exp "return" exp) )
         (assigns  (exp ":= let" exp) (assigns "; record" assigns))
         (exps (exp) (exps "," exps))
-        (expss (exps) (exps ":= record" exps) (expss ";" expss) (expss "as" expss))
+        (expss (exps) (exps ":= record" exps) (expss ";" expss)
+               (expss "as" expss))
         (expsss (expss) (expsss "=>" expsss))
         (expssss (expsss) (expssss "|" expssss))
         ;; The elements below are trying to capture the syntactic structure
@@ -412,14 +414,14 @@ Lemma foo: forall n,
               (cmds "." cmds)))
       ;; Resolve the "trailing expression ambiguity" as in "else x -> b".
       ;; each line orders tokens by increasing proprity
-      '((assoc ",") (assoc ":") (assoc "->") (left "<->")
+      '((left ",") (assoc ":") (assoc "->") (left "<->")
         (assoc "<?") (assoc "<=?") (assoc "=?") (assoc ">") (assoc ">=")
         (assoc "<") (assoc "<=") (left "<>") (left "=") (left "==")
         (nonassoc "else") (nonassoc "in") (assoc "in tactic")
         (assoc ":= record") (assoc "; record") (left "=>")
         (left "^")
         (assoc "-")(assoc "+") (assoc "\\/") (assoc "*") (assoc "/\\"))
-      '((assoc ",")(assoc ";")(right "as")(left "|")(left "=>"))
+      '((left ",")(assoc ";")(right "as")(left "|")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))
       '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
@@ -437,7 +439,8 @@ Token \".\" is considered only if followed by a space."
                  (parop (assoc next ignore-between)))
             (if parop ; if we find something to ignore, we directly
                                         ; go to corresponding closer
-                (coq-smie-search-token-forward (cons (cdr parop) nil) end ignore-between)
+                (coq-smie-search-token-forward (cons (cdr parop) nil)
+                                               end ignore-between)
               ;; Do not consider "." when not followed by a space
               (when (or (not (equal next "."))
                         (looking-at "[[:space:]]"))
@@ -458,7 +461,8 @@ Token \".\" is considered only if followed by a space."
                  (parop (rassoc next ignore-between)))
             (if parop ; if we find something to ignore, we directly
                                         ; go to corresponding closer
-                (coq-smie-search-token-backward (cons (car parop) nil) end ignore-between)
+                (coq-smie-search-token-backward (cons (car parop) nil)
+                                                end ignore-between)
               ;; Do not consider "." when not followed by a space
               (when (or (not (equal next "."))
                         (looking-at ".[[:space:]]"))
@@ -498,7 +502,8 @@ Token \".\" is considered only if followed by a space."
      ;; detecting if some qualification (dot notation) follows that id and
      ;; extend it if yes. Does not capture other alphanumerical token (captured
      ;; below)
-     ((and (string-match "@?[[:alpha:]_][[:word:]]*" tok) (looking-at "\\.[[:alpha:]_]")
+     ((and (string-match "@?[[:alpha:]_][[:word:]]*" tok)
+           (looking-at "\\.[[:alpha:]_]")
            (progn (forward-char 1)
                   (let ((newtok (coq-smie-forward-token)))
                     (concat tok "." newtok)))))
@@ -511,7 +516,8 @@ Token \".\" is considered only if followed by a space."
         (let ((newtok (coq-smie-forward-token)))
           (concat tok newtok)))
        (t tok)))
-     ((member tok '(":=" "+" "-" "*" "with" "exists" "in" "as" "∀" "∃" "→" ";"))
+     ((member tok
+              '(":=" "+" "-" "*" "with" "exists" "in" "as" "∀" "∃" "→" ";"))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
@@ -577,8 +583,7 @@ Token \".\" is considered only if followed by a space."
           (if (looking-at "\\.[[:alpha:]]") ;; qualified id
             (let ((newtok (coq-smie-backward-token)))
               (concat newtok tok))
-            ".-selector"  ;; probably a user defined syntax
-            ))))
+            ".-selector"))))  ;; probably a user defined syntax
      ((equal tok ";")
       (save-excursion
         (if (equal (coq-smie-search-token-forward '("." "{")) ".")
@@ -611,11 +616,11 @@ Token \".\" is considered only if followed by a space."
       (if (looking-at "{") "BeginSubproof" "EndSubproof"))
      ((and (equal tok "") (looking-back "|}" (- (point) 2)))
       (goto-char (match-beginning 0)) "|}")
-
      ((equal tok ":=")
       (save-excursion
         (let ((corresp (coq-smie-search-token-backward
-                        '("let" "Inductive" "Coinductive" "{|" ".") nil '(("let" . ":=")))))
+                        '("let" "Inductive" "Coinductive" "{|" ".")
+                        nil '(("let" . ":=")))))
           (cond
            ((member corresp '("Inductive" "CoInductive")) ":= inductive")
            ((equal corresp "let") ":= let")
@@ -660,8 +665,7 @@ Token \".\" is considered only if followed by a space."
                 '("match" "as" "." ))))
           (cond
            ((member prev-interesting '("." "as")) "as")
-           ((equal prev-interesting "match") "as match")
-           ))))
+           ((equal prev-interesting "match") "as match")))))
      ;; three uses of "in": let, match .. as .. in ... and tactics
      ((equal tok "in")
       (save-excursion
@@ -671,8 +675,7 @@ Token \".\" is considered only if followed by a space."
           (cond
            ((equal prev-interesting ".") "in tactic")
            ((member prev-interesting '("in" "let")) "in")
-           ((equal prev-interesting "match") "in match")
-           ))))
+           ((equal prev-interesting "match") "in match")))))
      (tok))))
 
 (defun coq-smie-rules (kind token)
@@ -695,7 +698,11 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;; Override the default indent step added because of their presence
       ;; in smie-closer-alist.
       ((equal token "with match") 4)
-      ((equal token ":") 2)
+      ((equal token ":")
+       (if (smie-rule-parent-p "Definition" "Lemma" "Theorem" "Fixpoint"
+                                "Inductive" "Function" "Let" "Record"
+                                "Instance" "Class" "Ltac" "Add")
+          (smie-rule-parent 2) 2))
       ((equal token ":= record") 2)
       ((equal token "in match") 2)
       ((equal token "as match") 2)
@@ -703,22 +710,27 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token "as") 2)
       ((equal token "; record")
        (cond
-        ((smie-rule-parent-p "; record") (smie-rule-separator kind))
-        (t (smie-rule-parent 2))))
+        ((smie-rule-prev-p "; record") (smie-rule-separator kind))
+        (t 0)))
       ((equal token ";")
        (cond
         ((smie-rule-parent-p ";") (smie-rule-separator kind))
         (t (smie-rule-parent 2))))
       ((equal token ":= inductive") 2)
-      ((and (equal token ",")
-            (not (smie-rule-parent-p "forall" "quantif exists"))) 0)))
+      ((equal token ",")
+       (cond
+        ;; fIXME: when using utf8 quantifiers, is is better to have 1 instead
+        ;; of 2 here:
+        ((smie-rule-parent-p "forall" "quantif exists") (smie-rule-parent 2))
+        (t (smie-rule-parent 2))))))
     (:before
      (cond
       ((equal token "- bullet") 2)
       ((equal token "+ bullet") 2)
       ((equal token "* bullet") 2)
       ((equal token "as") 2)
-      ((member token '("return" "in match" "as match")) (if (smie-rule-parent-p "match") 3))
+      ((member token '("return" "in match" "as match"))
+       (if (smie-rule-parent-p "match") 3))
       ((equal token "|")
        (cond ((smie-rule-parent-p "with match")
               (- (funcall smie-rules-function :after "with match") 2))
@@ -727,11 +739,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
              (t (smie-rule-separator kind)))
          ;(smie-rule-separator kind)
          )
-      ((and (equal token ":")
-            (smie-rule-parent-p "Definition" "Lemma" "Theorem" "Fixpoint"
-                                "Inductive" "Function" "Let" "Record"
-                                "Instance" "Class" "Ltac" "Add"))
-       2)
       ((equal token ".")
        (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
       ((and (equal token "Proof End")
@@ -751,7 +758,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ;((and (equal token "forall" "exists") (smie-rule-prev-p ":")
       ;      (smie-rule-parent-p "Lemma"))
       ; (smie-rule-parent))
-      ((and (member token '("forall" "∀" "quantif exists"))
+      ((and (member token '("forall" "quantif exists"))
             (smie-rule-parent-p "forall" "exists quantif"))
        (smie-rule-parent))))))
 
