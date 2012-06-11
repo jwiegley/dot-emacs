@@ -390,15 +390,21 @@ Lemma foo: forall n,
                  ("Proof" subcmds "Proof End")
                  ("Module" subcmds "End")
                  ("Section" subcmds "End"))
-        (cmds ("Add" exp ":=" exp) ("Add" exp)
-              ("Lemma" exp ":=" exp) ("Lemma" exp)
-              ("Theorem" exp ":=" exp) ("Theorem" exp)
-              ("Instance" exp ":=" exp) ("Instance" exp)
-              ("Class" exp ":=" exp) ("Class" exp)
-              ("Definition" exp ":=" exp) ("Definition" exp)
-              ("Let" exp ":=" exp) ("Let" exp)
+        (cmds ("Add" exp ":=" exp) ; Not sure this exists
+              ("Add" exp) ; LoadPath etc
+              ("Lemma" exp ":=" exp)
+              ("Theorem" exp ":=" exp)
+              ("Instance" exp ":=" exp)
+              ("Class" exp ":=" exp)
+              ("Definition" exp ":=" exp)
+              ("Let" exp ":=" exp)
               ("Function" exp ":=" exp)
+              ("Scheme" exp ":=" exp)
+              ("Function" "Scheme" exp ":=" exp)
+              ("Combine" "Scheme" exp ":=" exp)
+              ("with" exp ":=" exp)
               ("Program Fixpoint" exp ":=" exp) ("Fixpoint" exp ":=" exp)
+              ("goalcmd" exp)
               ("Inductive" exp ":= inductive" expssss)
               ("CoInductive" exp ":= inductive" expssss)
               ("Notation" exp ":=" exp)
@@ -421,7 +427,8 @@ Lemma foo: forall n,
         (assoc ":= record") (left "; record") (left "=>")
         (left "^")
         (assoc "-")(assoc "+") (assoc "*"))
-      '((left ",")(left "|")(left ";")(left "as") (left "in tactic")(left "=>"))
+      '((left ",")(left "|")(left ";") ; indent rule uses this left
+        (left "as") (left "in tactic")(left "=>"))
       '((left "- bullet") (left "+ bullet") (left "* bullet"))
       '((assoc ".")))))
   "Parsing table for Coq.  See `smie-grammar'.")
@@ -470,6 +477,22 @@ Token \".\" is considered only if followed by a space."
                  ((zerop (length next)) (forward-sexp -1))
                  ((member next tokens) (throw 'found next))))))))
     (scan-error nil)))
+
+;; Heuristic to detect a goal opening command: there must be a lonely ":="
+(defun coq-smie-detect-goal-command ()
+  "Return t if the next command is a goal starting command.
+The point should be at the beginning of the command name."
+  (save-excursion ; FIXME add other commands that potentialy open goals
+    (when (proof-looking-at "\\(Local\\|Definition\\|Lemma\\|Theorem\\|Fact\\|Add\\|Let\\|Program\\|Class\\|Instance\\)\\>")
+      (unless ; FIXME: there are probably other "Add xxx" that start goals
+          (save-excursion
+            (and (proof-looking-at "Add")
+                 (or (forward-char 3) t)
+                 (not (member (smie-default-forward-token) '("Parametric" "Morphism")))))
+        ;; This avoids parenthesized expression containing := and let .. := ...
+        ;; in. We consider any other occurrence of := as an evidence of explicite
+        ;; definition by contrast to goal opening.
+        (equal (coq-smie-search-token-forward '("." ":=") nil '(("let" . "in"))) ".")))))
 
 
 ;; Lexer.
@@ -529,6 +552,11 @@ Token \".\" is considered only if followed by a space."
             next
           (goto-char pos)
           tok)))
+     ((member tok  '("Definition" "Lemma" "Theorem" "Local"
+                     "Fact"  "Let" "Program"
+                     "Class" "Instance"))
+      (save-excursion (coq-smie-backward-token)))
+
      ((member tok '("Module"))
       (let ((pos (point))
             (next (smie-default-forward-token)))
@@ -579,10 +607,32 @@ Token \".\" is considered only if followed by a space."
       ;; Distinguish field-selector "." from terminator "." from module
       ;; qualifier.
       (if (looking-at "\\.(") ".-selector"  ;;Record selector.
-        (if (looking-at "\\.[[:space:]]") "." ;; command terminator
+        (if (looking-at "\\.[[:space:]]")  ;; command terminator
+            (let ((p (point))
+                  (prev (coq-smie-search-token-backward
+                         '("." "Proof" "BeginSubproof" "Module" "Section"))))
+              (cond
+               ((null prev) (goto-char p) ".")
+               ((equal prev ".")
+                ;; This is a bit complex. We replace the "." by "Proof" if the
+                ;; previous command is detected as a goal starter and there is
+                ;; no "Proof" and the next command is not a "Proof". This way
+                ;; we insert missing "Proof" and avoid the major hack signalled
+                ;; in smie-rules. In particular this speeds up alot indentation
+                ;; on big files
+                (goto-char p)
+                (if (and (save-excursion
+                           (coq-find-real-start)
+                           (coq-smie-detect-goal-command))
+                         (save-excursion
+                           (forward-char 1)
+                           (not (equal (smie-default-forward-token) "Proof"))))
+                    "Proof"
+                  "."))
+               (t prev)))
           (if (looking-at "\\.[[:alpha:]]") ;; qualified id
-            (let ((newtok (coq-smie-backward-token)))
-              (concat newtok tok))
+              (let ((newtok (coq-smie-backward-token)))
+                (concat newtok tok))
             ".-selector"))))  ;; probably a user defined syntax
      ((equal tok ";")
       (save-excursion
@@ -592,11 +642,6 @@ Token \".\" is considered only if followed by a space."
            ((equal backtok nil)
             (if (looking-back "{") "; record" tok))))))
 
-     ((member tok '("Fixpoint" "Declaration" "Lemma" "Instance"))
-      (let ((pos (point))
-            (prev (smie-default-backward-token)))
-        (unless (equal prev "Program") (goto-char pos))
-        tok))
      ((equal tok "Type")
       (let ((pos (point))
             (prev (smie-default-backward-token)))
@@ -610,14 +655,16 @@ Token \".\" is considered only if followed by a space."
             "Module def" tok)))
      ((and (equal tok "|") (eq (char-before) ?\{))
       (goto-char (1- (point))) "{|")
-     ((and (equal tok "") (member (char-before) '(?\{ ?\}))
-           (save-excursion
-             (forward-char -1)
-             (let ((prev (smie-default-backward-token)))
-             (or (and (equal prev ".") (looking-at "\\."))
-                 (and (equal prev "") (member (char-before) '(?\{ ?\})))))))
-      (forward-char -1)
-      (if (looking-at "{") "BeginSubproof" "EndSubproof"))
+     ;; FIXME: bugs when { } { } happens for some other reason
+     ;; FIXME: it seems to even loop sometime
+     ;; ((and (equal tok "") (member (char-before) '(?\{ ?\}))
+     ;;       (save-excursion
+     ;;         (forward-char -1)
+     ;;         (let ((prev (smie-default-backward-token)))
+     ;;         (or (and (equal prev ".") (looking-at "\\."))
+     ;;             (and (equal prev "") (member (char-before) '(?\{ ?\})))))))
+     ;;  (forward-char -1)
+     ;;  (if (looking-at "{") "BeginSubproof" "EndSubproof"))
      ((and (equal tok "") (looking-back "|}" (- (point) 2)))
       (goto-char (match-beginning 0)) "|}")
      ((equal tok ":=")
@@ -630,7 +677,8 @@ Token \".\" is considered only if followed by a space."
            ((equal corresp "let") ":= let")
            ((or (looking-back "{")) ":= record")
            (t tok)))))
-     ((equal tok "*.") (forward-char 1) ".") ; for "auto with *."
+     ;; FIXME: no token should end with "." except "." itself
+     ((member tok '("*." "-*." "|-*." "*|-*.")) (forward-char 1) ".") ; for "unfold in *|-*." etc
      ((and (member tok '("+" "-" "*"))
            (save-excursion
              (let ((prev (coq-smie-backward-token)))
@@ -680,6 +728,12 @@ Token \".\" is considered only if followed by a space."
            ((equal prev-interesting ".") "in tactic")
            ((member prev-interesting '("in" "let")) "in")
            ((equal prev-interesting "match") "in match")))))
+;     ((member tok '("Fixpoint" "Declaration" "Lemma" "Instance"))
+;      (let ((pos (point))
+;            (prev (smie-default-backward-token)))
+;        (unless (equal prev "Program") (goto-char pos))
+;        tok))
+     ((coq-smie-detect-goal-command) "goalcmd")
      (tok))))
 
 (defun coq-smie-rules (kind token)
@@ -705,7 +759,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token ":")
        (if (smie-rule-parent-p "Definition" "Lemma" "Theorem" "Fixpoint"
                                 "Inductive" "Function" "Let" "Record"
-                                "Instance" "Class" "Ltac" "Add")
+                                "Instance" "Class" "Ltac" "Add" "goalcmd")
           (smie-rule-parent 2) 2))
       ((equal token ":= record") 2)
       ((equal token "in match") 2)
@@ -719,10 +773,13 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       ((equal token ":= inductive") 2)
       ((equal token ",")
        (cond
-        ;; fIXME: when using utf8 quantifiers, is is better to have 1 instead
-        ;; of 2 here:
+        ;; FIXME: when using utf8 quantifiers, is is better to have 1 instead
+        ;; of 2 here, workaround: write "∀x" instead of "∀ x".
         ((smie-rule-parent-p "forall" "quantif exists") (smie-rule-parent 2))
-        (t (smie-rule-parent 2))))))
+        (t (smie-rule-parent 2))))
+      ((equal token "Proof") ;; ("BeginSubproof" "Module" "Section" "Proof")
+       (message "PROOF FOUND")
+       (smie-rule-parent 2))))
     (:before
      (cond
       ((equal token "- bullet") 2)
@@ -736,13 +793,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
               (- (funcall smie-rules-function :after "with match") 2))
              ((smie-rule-prev-p ":= inductive")
               (- (funcall smie-rules-function :after ":= inductive") 2))
-             (t (smie-rule-separator kind)))
-         ;(smie-rule-separator kind)
-         )
-      ((equal token ".")
-       (if (smie-rule-parent-p "BeginSubproof" "Module" "Section" "Proof") 2))
+             (t (smie-rule-separator kind))))
       ((and (equal token "Proof End")
-            (smie-rule-parent-p "Module" "Section"))
+            (smie-rule-parent-p "Module" "Section" "goalcmd"))
        ;; ¡¡Major gross hack!!
        ;; This typically happens when a Lemma had no "Proof" keyword.
        ;; We should ideally find some other way to handle it (e.g. matching Qed
@@ -1029,7 +1082,7 @@ If locked span already has a state number, then do nothing. Also updates
     (goto-char (match-end 0))
     (cons 'goal (match-string 1))       ;FIXME: This is dead-code!?  --Stef
     (setq coq-current-goal (string-to-number (match-string 1))))
-   ((looking-at proof-shell-assumption-regexp)
+   ((proof-looking-at proof-shell-assumption-regexp)
     (cons 'hyp (match-string 1)))
    (t nil)))
 
@@ -1048,7 +1101,7 @@ If locked span already has a state number, then do nothing. Also updates
   (if coq-hide-additional-subgoals
       (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
     (setq proof-shell-end-goals-regexp coq-end-goals-regexp-show-subgoals)))
-    
+
 
 
 ;;

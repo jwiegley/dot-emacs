@@ -74,9 +74,9 @@
 Only used in indentation code and in
 v8.0 compatibility mode.  Module, Definition and Function need a special parsing to
 detect if they start something or not."
-  (let* ((match (coq-count-match "\\<match\\>" str))
-         (with (coq-count-match "\\<with\\>" str))
-         (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+  (let* ((match (coq-count-match "\\_<match\\_>" str))
+         (with (coq-count-match "\\_<with\\_>" str))
+         (letwith (+ (coq-count-match "\\_<let\\_>" str) (- with match)))
          (affect (coq-count-match ":=" str)))
 
     (and (proof-string-match coq-goal-command-regexp str)

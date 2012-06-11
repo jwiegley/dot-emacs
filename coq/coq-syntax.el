@@ -700,12 +700,11 @@
   "Decide whether STR is a module or section opening or not.
 Used by `coq-goal-command-p'"
   (let* ((match (coq-count-match "\\<match\\>" str))
-	 (with (coq-count-match "\\<with\\>" str))
-	 (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
-	 (affect (coq-count-match ":=" str)))
+         (with (coq-count-match "\\<with\\>" str))
+         (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+         (affect (coq-count-match ":=" str)))
     (and (proof-string-match "\\`\\(Module\\)\\>" str)
-	 (= letwith affect))
-    ))
+         (= letwith affect))))
 
 (defun coq-section-command-p (str)
   (proof-string-match "\\`\\(Section\\|Chapter\\)\\>" str))
@@ -714,20 +713,19 @@ Used by `coq-goal-command-p'"
 (defun coq-goal-command-str-p (str)
   "Decide syntactically whether STR is a goal start or not. Use
 `coq-goal-command-p' on a span instead if possible."
-  (let* ((match (coq-count-match "\\<match\\>" str))
-	 (with (coq-count-match "\\<with\\>" str))
-	 (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
-	 (affect (coq-count-match ":=" str)))
-
+  (let* ((match (coq-count-match "\\_<match\\_>" str))
+         (with (- (coq-count-match "\\_<with\\_>" str) (coq-count-match "\\<with\\s-+signature\\>" str)))
+         (letwith (+ (coq-count-match "\\_<let\\_>" str) (- with match)))
+         (affect (coq-count-match ":=" str)))
     (and (proof-string-match coq-goal-command-regexp str)
-	 (not				;
-	  (and
-	   (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
-	   (not (= letwith affect))))
-	 (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
-	 )
-    )
-  )
+         (not
+          (and
+           (proof-string-match
+            (concat "\\`\\(Local\\|Definition\\|Lemma\\|Theorem\\|Fact\\|Add\\|Let\\|Program\\|Module\\|Class\\|Instance\\)\\>")
+            str)
+           (not (= letwith affect))))
+         (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:"
+                                  str)))))
 
 ;; This is the function that tests if a SPAN is a goal start. All it
 ;; has to do is look at the 'goalcmd attribute of the span.
@@ -743,9 +741,8 @@ Used by `coq-goal-command-p'"
   (or (span-property span 'goalcmd)
       ;; module and section starts are detected here
       (let ((str (or (span-property span 'cmd) "")))
-	(or (coq-section-command-p str)
-	    (coq-module-opening-p str))
-        )))
+        (or (coq-section-command-p str)
+            (coq-module-opening-p str)))))
 
 ;; TODO: rely on coq response nistead for span grouping
 (defvar coq-keywords-save-strict
