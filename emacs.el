@@ -318,6 +318,12 @@
 
 (setq backup-each-save-filter-function 'backup-each-save-filter)
 
+(defun my-dont-backup-files-p (filename)
+  (unless (string-match filename "/\\(archive/sent/\\|recentf$\\)")
+    (normal-backup-enable-predicate filename)))
+
+(setq backup-enable-predicate 'my-dont-backup-files-p)
+
 ;;;_ , bm
 
 (use-package bm
@@ -367,6 +373,95 @@
      (diminish 'global-whitespace-mode)
      (diminish 'whitespace-mode)
      (diminish 'whitespace-newline-mode)))
+
+;;;_ , dired
+
+(eval-after-load "dired-aux"
+  '(progn
+     (defun start-process-and-kill-buffer (&rest args)
+       (set-process-sentinel
+        (apply #'start-process args)
+        (lambda (proc change)
+          (if (and (eq 'exit (process-status proc))
+                   (= 0 (process-exit-status proc)))
+              (kill-buffer (process-buffer proc))))))
+
+     (defun rsync-file-asynchronously (from to)
+       (let ((args (list "-avHAXEy" "--fileflags" "--delete-during"
+                         "--force-delete")))
+         (nconc args (list from to))
+         (apply #'start-process-and-kill-buffer "rsync"
+                (generate-new-buffer "*rsync*")
+                (executable-find "rsync") args)))
+
+     (defun copy-file-asynchronously (from to ok-flag)
+       (let ((args (list "-pvR")))
+         (if ok-flag
+             (nconc args (list "-i")))
+         (nconc args (list from to))
+         (apply #'start-process-and-kill-buffer "cp"
+                (generate-new-buffer "*cp*")
+                (executable-find "cp") args)))
+
+     (defun dired-copy-file (from to ok-flag)
+       (dired-handle-overwrite to)
+       (if (or (string-match ":" from) (string-match ":" to))
+           (dired-copy-file-recursive from to ok-flag dired-copy-preserve-time t
+                                      dired-recursive-copies)
+         (if (file-exists-p to)
+             (rsync-file-asynchronously from to)
+           (copy-file-asynchronously from to ok-flag))))
+
+     (defun move-file-asynchronously (file newname ok-flag)
+       (let ((args (list "-v")))
+         (if ok-flag
+             (nconc args (list "-i")))
+         (nconc args (list file newname))
+         (apply #'start-process-and-kill-buffer "mv"
+                (generate-new-buffer "*mv*")
+                (executable-find "mv") args)))
+
+     (defun dired-rename-file (file newname ok-if-already-exists)
+       (dired-handle-overwrite newname)
+       (if (or (string-match ":" from) (string-match ":" to))
+           (rename-file file newname ok-if-already-exists)
+         (if (file-exists-p to)
+             (rsync-file-asynchronously from to)
+           (move-file-asynchronously from to ok-if-already-exists)))
+       (and (get-file-buffer file)
+            (with-current-buffer (get-file-buffer file)
+              (set-visited-file-name newname nil t)))
+       (dired-remove-file file)
+       (dired-rename-subdir file newname))
+
+     (defun delete-file-asynchronously (file &optional recursive)
+       (let ((args (list "-f")))
+         (if recursive
+             (nconc args (list "-r")))
+         (nconc args (list file))
+         (apply #'start-process-and-kill-buffer "rm"
+                (generate-new-buffer "*rm*")
+                (executable-find "rm") args)))
+
+     (defun dired-delete-file (file &optional recursive trash)
+       (if (not (eq t (car (file-attributes file))))
+           (if (string-match ":" file)
+               (delete-file file trash)
+             (delete-file-asynchronously file))
+         (if (and recursive
+                  (directory-files file t dired-re-no-dot) ; Not empty.
+                  (or (eq recursive 'always)
+                      (yes-or-no-p (format "Recursively %s %s? "
+                                           (if (and trash
+                                                    delete-by-moving-to-trash)
+                                               "trash"
+                                             "delete")
+                                           (dired-make-relative file)))))
+             (if (eq recursive 'top) (setq recursive 'always)) ; Don't ask again.
+           (setq recursive nil))
+         (if (string-match ":" file)
+             (delete-directory file recursive trash)
+           (delete-file-asynchronously file t))))))
 
 ;;;_ , dired-x
 
@@ -421,7 +516,26 @@
      (define-key dired-mode-map [?l] 'dired-up-directory)
      ;; (define-key dired-mode-map [tab] 'other-window)
      (define-key dired-mode-map [(meta shift ?g)] 'switch-to-gnus)
-     (define-key dired-mode-map [(meta ?s) ?f] 'find-grep)))
+     (define-key dired-mode-map [(meta ?s) ?f] 'find-grep)
+
+     (defadvice dired-next-line (around dired-next-line+ activate)
+       "Replace current buffer if file is a directory."
+       ad-do-it
+       (while (and  (not  (eobp)) (not ad-return-value))
+         (forward-line)
+         (setq ad-return-value(dired-move-to-filename)))
+       (when (eobp)
+         (forward-line -1)
+         (setq ad-return-value(dired-move-to-filename))))
+
+     (defadvice dired-previous-line (around dired-previous-line+ activate)
+       "Replace current buffer if file is a directory."
+       ad-do-it
+       (while (and  (not  (bobp)) (not ad-return-value))
+         (forward-line -1)
+         (setq ad-return-value(dired-move-to-filename)))
+       (when (bobp)
+         (call-interactively 'dired-next-line)))))
 
 ;;;_ , ediff
 
@@ -806,6 +920,17 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , pp-c-l
 
 (pretty-control-l-mode 1)
+
+;;;_ , ps-print
+
+(defun ps-spool-to-pdf (beg end &rest ignore)
+  (interactive "r")
+  (let ((temp-file (concat (make-temp-name "ps2pdf") ".pdf")))
+    (call-process-region beg end (executable-find "ps2pdf")
+                         nil nil nil "-" temp-file)
+    (call-process (executable-find "open") nil nil nil temp-file)))
+
+(setq ps-print-region-function 'ps-spool-to-pdf)
 
 ;;;_ , puppet-mode
 
@@ -1868,7 +1993,23 @@ To use this function, add it to `org-agenda-finalize-hook':
 ;;              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
 ;;                      "~/Dropbox/MobileOrg/index.org")))))
 
-(add-hook 'org-mobile-pre-pull-hook 'my-org-convert-incoming-items)
+(defun my-org-mobile-pre-pull-function ()
+  (do-applescript "tell application \"Dropbox\" to run")
+  (message "Waiting 30 seconds for Dropbox to download tasks...")
+  (sleep-for 30)
+  (message "Waiting 30 seconds for Dropbox to download tasks...done")
+  (do-applescript "tell application \"Dropbox\" to quit")
+  (my-org-convert-incoming-items))
+
+(defun my-org-mobile-post-push-function ()
+  (do-applescript "tell application \"Dropbox\" to run")
+  (message "Waiting 30 seconds for Dropbox to upload tasks...")
+  (sleep-for 30)
+  (message "Waiting 30 seconds for Dropbox to upload tasks...done")
+  (do-applescript "tell application \"Dropbox\" to quit"))
+
+(add-hook 'org-mobile-pre-pull-hook 'my-org-mobile-pre-pull-function)
+(add-hook 'org-mobile-post-push-hook 'my-org-mobile-post-push-function)
 
 (defun org-my-state-after-clock-out (state)
   (if (string= state "STARTED")
@@ -2398,6 +2539,19 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 ;;;_ , Gnus
 
+(require 'gnus)
+(require 'nnir)
+(require 'nnmairix)
+(require 'message)
+(require 'starttls)
+(require 'my-gnus-score)
+(require 'gnus-harvest)
+(require 'fetchmail-ctl)
+
+(eval-when-compile
+  (require 'gnus-group)
+  (require 'gnus-sum))
+
 (defface gnus-summary-expirable-face
   '((((class color) (background dark))
      (:foreground "grey50" :italic t :strike-through t))
@@ -2406,47 +2560,14 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   "Face used to highlight articles marked as expirable."
   :group 'gnus-summary-visual)
 
-(setq imap-shell-program "/usr/local/libexec/dovecot/imap")
-
-(require 'gnus)
-(require 'my-gnus-score)
-(require 'gnus-harvest)
-(require 'starttls)
-(require 'message)
-(require 'fetchmail-ctl)
-;; (require 'offlineimap-ctl)
-(require 'nnmairix)
-(require 'nnir)
-
-(eval-when-compile
-  (require 'gnus-group)
-  (require 'gnus-sum))
-
 (gnus-compile)
 (gnus-delay-initialize)
 
 (gnus-harvest-install 'message-x)
 
-;; Alias for the content-type function:
-(defalias 'gnus-user-format-function-ct 'rs-gnus-summary-line-content-type)
-;; Alias for the size function:
-(defalias 'gnus-user-format-function-size 'rs-gnus-summary-line-message-size)
-;; Alias for the score function:
-(defalias 'gnus-user-format-function-score 'rs-gnus-summary-line-score)
-;;
-(defalias 'gnus-user-format-function-label 'rs-gnus-summary-line-label)
-;;
-;; Use them:
-(setq gnus-balloon-face-0 'rs-gnus-balloon-0)
-(setq gnus-balloon-face-1 'rs-gnus-balloon-1)
-
-(defun maybe-switch-to-fetchmail-and-news ()
-  (interactive)
-  (if (= 0 (call-process "/sbin/ping" nil nil nil
-                         "-c1" "-W50" "-q" "imap.gmail.com"))
-      (switch-to-fetchmail-and-news)))
-
-(add-hook 'gnus-startup-hook 'maybe-switch-to-fetchmail-and-news)
+(add-hook 'message-setup-hook 'gnus-alias-determine-identity)
+(add-hook 'message-x-after-completion-functions
+          'gnus-alias-message-x-completion)
 
 (add-hook 'mail-citation-hook 'sc-cite-original)
 
@@ -2455,6 +2576,23 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (add-hook 'gnus-summary-mode-hook 'hl-line-mode)
 
 (add-hook 'dired-mode-hook 'gnus-dired-mode)
+
+(defalias 'gnus-user-format-function-size 'rs-gnus-summary-line-message-size)
+
+(setq gnus-balloon-face-0 'rs-gnus-balloon-0)
+(setq gnus-balloon-face-1 'rs-gnus-balloon-1)
+
+(defun quickping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
+
+(defun maybe-start-fetchmail-and-news ()
+  (interactive)
+  (when (quickping "imap.gmail.com")
+    (do-applescript "tell application \"Notify\" to run")
+    (start-fetchmail)
+    (fetchnews-fetch)))
+
+(add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
 
 (defun my-message-header-setup-hook ()
   (let ((group (or gnus-newsgroup-name "")))
@@ -2467,6 +2605,12 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
 
+(defun queue-message-if-not-connected ()
+  (set (make-local-variable 'gnus-agent-queue-mail)
+       (if (quickping "smtp.gmail.com") t 'always)))
+
+(add-hook 'message-send-hook 'queue-message-if-not-connected)
+
 (defun message-send-in-one-hour (&optional arg)
   (interactive "P")
   (if arg
@@ -2476,8 +2620,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (define-key message-mode-map "\C-c\C-c" 'message-send-in-one-hour)
 
 (defun kick-postfix-if-needed ()
-  (if (and (= 0 (call-process "/sbin/ping" nil nil nil
-                              "-c1" "-W50" "-q" "imap.gmail.com"))
+  (if (and (quickping "imap.gmail.com")
            (= 0 (call-process "/usr/bin/sudo" nil nil nil
                               "/opt/local/libexec/postfix/master" "-t")))
       (start-process "postfix" nil "/usr/bin/sudo"
@@ -2485,15 +2628,20 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (add-hook 'message-sent-hook 'kick-postfix-if-needed)
 
-(defvar gnus-query-history nil)
+(eval-after-load "message"
+  '(define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity))
 
 (defun activate-gnus ()
   (unless (get-buffer "*Group*") (gnus)))
 
+(defvar gnus-query-history nil)
+
 (defun gnus-query (query &optional arg)
   (interactive
    (list (read-string "Mail Query: "
-                      (format-time-string "SINCE 1-%b-%Y FROM ")
+                      (format-time-string "SINCE %d-%b-%Y "
+                                          (time-subtract (current-time)
+                                                         (days-to-time 90)))
                       'gnus-query-history)
          current-prefix-arg))
   (activate-gnus)
@@ -2507,26 +2655,33 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
            (criteria . "")
            (server   . "nnimap:Local")))))
 
+(define-key global-map [(alt meta ?f)] 'gnus-query)
+
 (defun gnus-group-get-all-new-news ()
   (interactive)
-  (message "Getting new mail and news...")
   (gnus-group-get-new-news 5)
-  (message "Getting new mail and news...done")
   (gnus-group-list-groups 4)
-  (message "Scoring new articles in groups...")
-  (my-gnus-score-groups)
-  (message "Scoring new articles in groups...done"))
+  (my-gnus-score-groups))
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
 
-;;(gnus-query (concat "header message-id " message-id))
+(defun gnus-demon-scan-news-2 ()
+  (when gnus-plugged
+    (let ((win (current-window-configuration))
+          (gnus-read-active-file nil)
+          (gnus-check-new-newsgroups nil)
+          (gnus-verbose 2)
+          (gnus-verbose-backends 5)
+          (level 21))
+      (unwind-protect
+          (save-window-excursion
+            (when (gnus-alive-p)
+              (with-current-buffer gnus-group-buffer
+                (gnus-group-get-new-news level))))
+        (set-window-configuration win)))))
 
-(defun my-dont-backup-files-p (filename)
-  (unless (string-match filename "/\\(archive/sent/\\|recentf$\\)")
-    (normal-backup-enable-predicate filename)))
-
-(setq backup-enable-predicate 'my-dont-backup-files-p)
+(gnus-demon-add-handler 'gnus-demon-scan-news-2 5 2)
 
 (defun gnus-goto-article (message-id)
   (activate-gnus)
@@ -2538,13 +2693,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 This moves them into the Spam folder."
   (interactive)
   (gnus-summary-move-article nil "mail.spam"))
-
-(defadvice message-goto-from (after insert-boostpro-address activate)
-  (if (looking-back ": ")
-      (insert "John Wiegley <johnw@boostpro.com>"))
-  (goto-char (line-end-position))
-  (re-search-backward ": ")
-  (goto-char (match-end 0)))
 
 ;;;_  . Cleanup Gnus buffers on exit
 
@@ -2563,9 +2711,19 @@ This moves them into the Spam folder."
       (with-current-buffer (get-buffer "*Group*")
         (gnus-save-newsrc-file))))
 
-(run-with-idle-timer 25 t 'save-gnus-newsrc)
+(gnus-demon-add-handler 'save-gnus-newsrc 1 1)
 
 ;;;_  . Summary line format functions
+
+(when window-system
+  (setq
+   gnus-sum-thread-tree-false-root      "┌┬▷ "
+   gnus-sum-thread-tree-single-indent   ""
+   gnus-sum-thread-tree-root            "┌┬▶ "
+   gnus-sum-thread-tree-vertical        "│"
+   gnus-sum-thread-tree-leaf-with-other "├┬▶ "
+   gnus-sum-thread-tree-single-leaf     "╰┬▶ "
+   gnus-sum-thread-tree-indent          " "))
 
 (defsubst dot-gnus-tos (time)
   "Convert TIME to a floating point number."
@@ -2621,24 +2779,7 @@ This moves them into the Spam folder."
     (error "    ")))
 
 (eval-when-compile
-  (defvar gnus-tmp-level)
   (defvar gnus-ignored-from-addresses))
-
-(defun gnus-user-format-function-t (header)
-  (let ((tcount (gnus-summary-number-of-articles-in-thread
-                 (and (boundp 'thread) (car thread)) gnus-tmp-level)))
-    (if (> tcount 1)
-        (number-to-string tcount)
-      " ")))
-
-(defun gnus-user-format-function-j (headers)
-  (let ((to (gnus-extra-header 'To headers)))
-    (if (string-match gnus-ignored-from-addresses to)
-        (if (string-match "," to) "~" "»")
-      (if (string-match gnus-ignored-from-addresses
-                        (gnus-extra-header 'Cc headers))
-          "~"
-        " "))))
 
 (defvar gnus-count-recipients-threshold 5
   "*Number of recipients to consider as large.")
@@ -2667,18 +2808,6 @@ Else, return \" \"."
           "·"
         ":"))
      (t " "))))
-
-;; prettier summary buffers
-
-(when window-system
-  (setq
-   gnus-sum-thread-tree-false-root      "┌┬▷ "
-   gnus-sum-thread-tree-single-indent   ""
-   gnus-sum-thread-tree-root            "┌┬▶ "
-   gnus-sum-thread-tree-vertical        "│"
-   gnus-sum-thread-tree-leaf-with-other "├┬▶ "
-   gnus-sum-thread-tree-single-leaf     "╰┬▶ "
-   gnus-sum-thread-tree-indent          " "))
 
 ;;;_  . Browsing article URLs
 
@@ -2740,11 +2869,27 @@ Else, return \" \"."
 
 ;;;_  . Gnus keybindings
 
-(define-key global-map [(alt meta ?f)] 'gnus-query)
-
 (eval-after-load "gnus-sum"
   '(progn
      (define-key gnus-summary-mode-map [(meta ?q)]
+       'gnus-article-fill-long-lines)
+     (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
+     (define-key gnus-summary-mode-map [?B delete]
+       'gnus-summary-delete-article)
+
+     (defun my-gnus-trash-article (arg)
+       (interactive "P")
+       (if (string-match "\\(drafts\\|queue\\)" gnus-newsgroup-name)
+           (gnus-summary-delete-article arg)
+         (gnus-summary-move-article arg "mail.trash")))
+
+     (define-key gnus-summary-mode-map [?B backspace] 'my-gnus-trash-article)
+     (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
+       'gnus-article-browse-urls)))
+
+(eval-after-load "gnus-art"
+  '(progn
+     (define-key gnus-article-mode-map [(meta ?q)]
        'gnus-article-fill-long-lines)
      (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
      (define-key gnus-summary-mode-map [?B delete]
@@ -3035,11 +3180,16 @@ Else, return \" \"."
 
 (define-key ctl-x-map [?r ?b] 'ido-bookmark-jump)
 
+(defun edit-with-sudo ()
+  (interactive)
+  (find-file (concat "/sudo::" (buffer-file-name))))
+
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?f] 'anything-find-git-file)
 (define-key ctl-x-map [(shift ?f)] 'set-fill-column)
 (define-key ctl-x-map [?g] 'magit-status)
 (define-key ctl-x-map [?m] 'compose-mail)
+(define-key ctl-x-map [(shift ?s)] 'edit-with-sudo)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
 
 ;;;_  . C-x C-?
@@ -3361,8 +3511,11 @@ Else, return \" \"."
   (interactive "P")
   (if arg
       (setq printf-index 0))
-  (insert (format "printf(\"step %d..\\n\");\n"
-                  (setq printf-index (1+ printf-index))))
+  (if t
+      (insert (format "std::cerr << \"step %d..\" << std::endl;\n"
+                      (setq printf-index (1+ printf-index))))
+    (insert (format "printf(\"step %d..\\n\");\n"
+                    (setq printf-index (1+ printf-index)))))
   (forward-line -1)
   (indent-according-to-mode)
   (forward-line))
