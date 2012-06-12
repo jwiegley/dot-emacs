@@ -1,4 +1,4 @@
-;;;_. Initialization  -*- allout-layout: (-1 :) -*-
+;;;_. Initialization  -*- allout-layout: (1 :) -*-
 
 (defvar using-textexpander nil)
 
