@@ -2711,7 +2711,7 @@ This moves them into the Spam folder."
       (with-current-buffer (get-buffer "*Group*")
         (gnus-save-newsrc-file))))
 
-(gnus-demon-add-handler 'save-gnus-newsrc 1 1)
+(gnus-demon-add-handler 'save-gnus-newsrc nil 1)
 
 ;;;_  . Summary line format functions
 
