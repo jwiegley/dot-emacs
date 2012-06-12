@@ -193,10 +193,45 @@
                            (get-buffer gnus-summary-buffer)))
               (gnus-summary-exit))))))))
 
+;; Increase Score for all follow-ups to my own articles (can't
+;; use message-id for scoring since it is changed later by
+;; my news feed)
+(defun hcz-gnus-score-followup (&optional score)
+  "Add SCORE to all later articles in the thread the current
+buffer is part of.  This version is for cases where the own
+message-id will later be rewritten upstream.  It scores on the
+message-id of the parent article (which has nearly the same eff
+ect but also scores parallel replies).  If there is no parent
+article (we are opening a thread), score on subject is done
+instead."
+  (interactive "P")
+  (setq score (gnus-score-delta-default score))
+  (when (gnus-buffer-live-p gnus-summary-buffer)
+    (save-excursion
+      (save-restriction
+        (goto-char (point-min))
+        (let ((refs (mail-fetch-field "references")))
+          (if (and refs
+                   (string-match "\\(<[^<]+>\\)\\'" refs))
+              (progn
+                (set-buffer gnus-summary-buffer)
+                (gnus-summary-score-entry
+                 "references" (format "%s" (match-string 1 refs)) 's
+                 score (current-time-string)))
+            ;; if we didn't find a reference (probably due to no
+            ;; parent article), we increase the score on subject:
+            (let ((subj (mail-fetch-field "subject")))
+              (when subj
+                (set-buffer gnus-summary-buffer)
+                (gnus-summary-score-entry
+                 "subject" subj 's
+                 score (current-time-string))))))))))
+
 (defun my-gnus-score-followup (&optional score)
   (when (my-gnus-score-group-p)
     (gnus-score-followup-article score)
-    (gnus-score-followup-thread score)))
+    (gnus-score-followup-thread score)
+    (hcz-gnus-score-followup score)))
 
 ;; Install into Gnus
 
