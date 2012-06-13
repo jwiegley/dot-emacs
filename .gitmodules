@@ -142,3 +142,6 @@
 [submodule "site-lisp/helm"]
 	path = site-lisp/helm
 	url = https://github.com/emacs-helm/helm.git
+[submodule "site-lisp/helm-descbinds"]
+	path = site-lisp/helm-descbinds
+	url = https://github.com/emacs-helm/helm-descbinds.git
