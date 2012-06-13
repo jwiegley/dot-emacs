@@ -414,8 +414,6 @@
 
      (defun move-file-asynchronously (file newname ok-flag)
        (let ((args (list "-v")))
-         (if ok-flag
-             (nconc args (list "-i")))
          (nconc args (list file newname))
          (apply #'start-process-and-kill-buffer "mv"
                 (generate-new-buffer "*mv*")
@@ -426,7 +424,9 @@
        (if (or (string-match ":" from) (string-match ":" to))
            (rename-file file newname ok-if-already-exists)
          (if (file-exists-p to)
-             (rsync-file-asynchronously from to)
+             (progn
+               (rsync-file-asynchronously from to)
+               (delete-file-asynchronously from (file-directory-p from)))
            (move-file-asynchronously from to ok-if-already-exists)))
        (and (get-file-buffer file)
             (with-current-buffer (get-file-buffer file)
