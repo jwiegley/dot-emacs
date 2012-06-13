@@ -216,67 +216,6 @@
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
 
-;;;_ , anything
-
-(defvar anything-sources
-  '(
-    ;; Buffer:
-    anything-c-source-buffers
-    anything-c-source-buffer-not-found
-    anything-c-source-buffers+
-    ;; File:
-    anything-c-source-file-name-history
-    anything-c-source-files-in-current-dir
-    anything-c-source-files-in-current-dir+
-    anything-c-source-file-cache
-    anything-c-source-locate
-    anything-c-source-recentf
-    anything-c-source-ffap-guesser
-    anything-c-source-ffap-line
-    ;; Command:
-    anything-c-source-complex-command-history
-    anything-c-source-extended-command-history
-    anything-c-source-emacs-commands
-    ;; Bookmark:
-    anything-c-source-bookmarks
-    anything-c-source-bookmark-set
-    anything-c-source-bookmarks-ssh
-    anything-c-source-bookmarks-su
-    anything-c-source-bookmarks-local
-    ;; Library:
-    anything-c-source-elisp-library-scan
-    ;; Misc:
-    anything-c-source-google-suggest
-    anything-c-source-mac-spotlight
-    ;; System:
-    anything-c-source-emacs-process))
-
-(fset 'describe-bindings 'descbinds-anything)
-
-(eval-after-load "anything"
-  '(progn
-     (require 'anything-match-plugin)
-
-     (define-key anything-map "." 'anything-select-with-prefix-shortcut)
-     (if using-textexpander
-         (define-key anything-map [(alt ?v)] 'anything-previous-page))))
-
-(defun my-anything-apropos ()
-  (interactive)
-  (require 'anything-config)
-  (anything
-   :prompt "Info about: "
-   :candidate-number-limit 5
-   :sources '(anything-c-source-emacs-commands
-              anything-c-source-emacs-functions
-              anything-c-source-emacs-variables
-              anything-c-source-info-emacs
-              anything-c-source-info-elisp
-              anything-c-source-info-gnus
-              anything-c-source-info-org
-              anything-c-source-info-cl
-              anything-c-source-emacs-source-defun)))
-
 ;;;_ , auctex
 
 (use-package tex-site
@@ -506,13 +445,13 @@
 
          (defun dired-rename-file (file newname ok-if-already-exists)
            (dired-handle-overwrite newname)
-           (if (or (string-match ":" from) (string-match ":" to))
+           (if (or (string-match ":" file) (string-match ":" newname))
                (rename-file file newname ok-if-already-exists)
-             (if (file-exists-p to)
+             (if (file-exists-p newname)
                  (progn
-                   (rsync-file-asynchronously from to)
-                   (delete-file-asynchronously from (file-directory-p from)))
-               (move-file-asynchronously from to ok-if-already-exists)))
+                   (rsync-file-asynchronously file newname)
+                   (delete-file-asynchronously file (file-directory-p file)))
+               (move-file-asynchronously file newname ok-if-already-exists)))
            (and (get-file-buffer file)
                 (with-current-buffer (get-file-buffer file)
                   (set-visited-file-name newname nil t)))
@@ -712,10 +651,10 @@
 
     (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)
 
-    (when (featurep 'anything)
-      (require 'anything-gtags)
-      (define-key global-map [(meta shift ?t)] 'anything-gtags-select)
-      (define-key gtags-mode-map "\e," 'anything-gtags-resume))))
+    (when (featurep 'helm)
+      (require 'helm-gtags)
+      (define-key global-map [(meta shift ?t)] 'helm-gtags-select)
+      (define-key gtags-mode-map "\e," 'helm-gtags-resume))))
 
 ;;;_ , ido
 
@@ -852,28 +791,28 @@
     (defun git-commit-changes ()
       (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
 
-    (when (featurep 'anything)
-      (defvar anything-c-source-git-files
+    (when (featurep 'helm)
+      (defvar helm-c-source-git-files
         '((name . "Files under Git version control")
-          (init . anything-c-source-git-files-init)
+          (init . helm-c-source-git-files-init)
           (candidates-in-buffer)
           (type . file))
         "Search for files in the current Git project.")
 
-      (defun anything-c-source-git-files-init ()
-        "Build `anything-candidate-buffer' of Git files."
-        (with-current-buffer (anything-candidate-buffer 'local)
+      (defun helm-c-source-git-files-init ()
+        "Build `helm-candidate-buffer' of Git files."
+        (with-current-buffer (helm-candidate-buffer 'local)
           (mapcar
            (lambda (item)
              (insert (expand-file-name item) ?\n))
            (split-string (shell-command-to-string "git ls-files") "\n"))))
 
-      (defun anything-find-git-file ()
+      (defun helm-find-git-file ()
         (interactive)
-        (anything :sources 'anything-c-source-git-files
-                  :input ""
-                  :prompt "Find file: "
-                  :buffer "*Anything git file*")))))
+        (helm :sources 'helm-c-source-git-files
+              :input ""
+              :prompt "Find file: "
+              :buffer "*Helm git file*")))))
 
 ;;;_ , merlin
 
@@ -1165,12 +1104,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :commands vkill
   :init
   (progn
-    (defun vkill-and-anything-occur ()
-      (interactive)
-      (vkill)
-      (call-interactively #'anything-occur))
+    (if (featurep 'helm)
+        (progn
+          (defun vkill-and-helm-occur ()
+            (interactive)
+            (vkill)
+            (call-interactively #'helm-occur))
 
-    (define-key ctl-x-map [?L] 'vkill-and-anything-occur))
+          (define-key ctl-x-map [?L] 'vkill-and-helm-occur))
+      (define-key ctl-x-map [?L] 'vkill)))
   :config
   (setq vkill-show-all-processes t))
 
@@ -1408,6 +1350,7 @@ $0"))))
   (gtags-mode 1)
   (hs-minor-mode 1)
   (hide-ifdef-mode 1)
+  (whitespace-mode 1)
 
   (diminish 'auto-complete-mode)
   (diminish 'hs-minor-mode)
@@ -1959,11 +1902,25 @@ $0"))))
     (forward-char))
   (call-interactively 'newline-and-indent))
 
+(defvar yari-helm-source-ri-pages
+  '((name . "RI documentation")
+    (candidates . (lambda () (yari-ruby-obarray)))
+    (action  ("Show with Yari" . yari))
+    (candidate-number-limit . 300)
+    (requires-pattern . 2)
+    "Source for completing RI documentation."))
+
+;;;###autoload
+(defun helm-yari (&optional rehash)
+  (interactive (list current-prefix-arg))
+  (when current-prefix-arg (yari-ruby-obarray rehash))
+  (helm 'yari-helm-source-ri-pages (yari-symbol-at-point)))
+
 (defun my-ruby-mode-hook ()
   (inf-ruby-keys)
 
   (define-key ruby-mode-map [return] 'my-ruby-smart-return)
-  (define-key ruby-mode-map [(control ?h) (control ?i)] 'yari-anything)
+  (define-key ruby-mode-map [(control ?h) (control ?i)] 'helm-yari)
 
   (set (make-local-variable 'yas/fallback-behavior)
        '(apply ruby-indent-command . nil))
@@ -2177,8 +2134,12 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)
 
+(autoload 'gnus-goto-article ".gnus")
+(autoload 'gnus-string-remove-all-properties "gnus-util")
+
 (defun org-my-message-open (message-id)
   (gnus-goto-article
+   (remove-text-properties 2 (length message-id))
    (gnus-string-remove-all-properties (substring message-id 2))))
 
 ;;(defun org-my-message-open (message-id)
@@ -2859,14 +2820,10 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 ;;;_  . M-?
 
-(autoload 'anything-lisp-complete-symbol-partial-match
-  "anything-complete" nil t)
-
-(define-key global-map [(meta ?,)] 'anything-resume)
 (define-key global-map [(meta ?/)] 'dabbrev-expand)
-(define-key global-map [(meta ??)] 'anything-lisp-complete-symbol-partial-match)
+(define-key global-map [(meta ?,)] 'helm-resume)
 
-(define-key global-map [(meta ?g) ?g] 'anything-find-git-file)
+(define-key global-map [(meta ?g) ?g] 'helm-find-git-file)
 
 (defun delete-indentation-forward ()
   (interactive)
@@ -2918,17 +2875,17 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
     (let ((null-device nil))            ; see grep
       (grep command-args))))
 
-(defun my-anything-occur ()
+(defun my-helm-occur ()
   (interactive)
-  (require 'anything-config)
-  (anything-other-buffer 'anything-c-source-occur "*Anything Occur*"))
+  (require 'helm-regexp)
+  (helm-other-buffer 'helm-c-source-occur "*Helm Occur*"))
 
-(define-key global-map [(meta ?s) ?a] 'anything-do-grep)
-(define-key global-map [(meta ?s) ?b] 'my-anything-occur)
+(define-key global-map [(meta ?s) ?a] 'helm-do-grep)
+(define-key global-map [(meta ?s) ?b] 'my-helm-occur)
 (define-key global-map [(meta ?s) ?c] 'highlight-changes-mode)
 (define-key global-map [(meta ?s) ?d] 'find-grep-dired)
 (define-key global-map [(meta ?s) ?f] 'find-grep)
-(define-key global-map [(meta ?s) ?F] 'anything-for-files)
+(define-key global-map [(meta ?s) ?F] 'helm-for-files)
 (define-key global-map [(meta ?s) ?g] 'grep)
 (define-key global-map [(meta ?s) ?h] 'crosshairs-mode)
 (define-key global-map [(meta ?s) ?l] 'hl-line-mode)
@@ -3017,7 +2974,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (find-file (concat "/sudo::" (buffer-file-name))))
 
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
-(define-key ctl-x-map [?f] 'anything-find-git-file)
+(define-key ctl-x-map [?f] 'helm-find-git-file)
 (define-key ctl-x-map [(shift ?f)] 'set-fill-column)
 (define-key ctl-x-map [?m] 'compose-mail)
 (define-key ctl-x-map [(shift ?s)] 'edit-with-sudo)
@@ -3409,9 +3366,46 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (define-key mode-specific-map [(meta ?q)] 'unfill-paragraph)
 
+;;;_ , helm
+
+(use-package helm
+  :init
+  (progn
+    (use-package helm-descbinds
+      :commands helm-descbinds
+      :init
+      (fset 'describe-bindings 'helm-descbinds))
+
+    (use-package helm-match-plugin
+      :init
+      (helm-match-plugin-mode t))))
+
+(defun my-helm-apropos ()
+  (interactive)
+  (require 'helm-elisp)
+  (require 'helm-misc)
+  (let ((default (thing-at-point 'symbol)))
+    (helm
+     :prompt "Info about: "
+     :candidate-number-limit 5
+     :sources
+     (append (mapcar (lambda (func)
+                       (funcall func default))
+                     '(helm-c-source-emacs-commands
+                       helm-c-source-emacs-functions
+                       helm-c-source-emacs-variables
+                       helm-c-source-emacs-faces
+                       helm-c-source-helm-attributes))
+             '(helm-c-source-info-emacs
+               helm-c-source-info-elisp
+               helm-c-source-info-gnus
+               helm-c-source-info-org
+               helm-c-source-info-cl
+               helm-c-source-emacs-source-defun)))))
+
 ;;;_ , help-map
 
-(define-key help-map [?a] 'anything-apropos)
+(define-key help-map [?a] 'helm-c-apropos)
 
 (defun scratch ()
   (interactive)
@@ -3464,7 +3458,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
 (define-key help-map [?e] 'lisp-find-map)
-(define-key lisp-find-map [?a] 'my-anything-apropos)
+(define-key lisp-find-map [?a] 'my-helm-apropos)
 (define-key lisp-find-map [?c] 'finder-commentary)
 (define-key lisp-find-map [?e] 'view-echo-area-messages)
 (define-key lisp-find-map [?f] 'find-function)
