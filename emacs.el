@@ -1,21 +1,49 @@
-;;;_. Initialization  -*- allout-layout: (1 :) -*-
+;;;_. Initialization
+
+(eval-when-compile
+  (require 'cl))
 
 (defvar using-textexpander nil)
 
 ;;;_ , Create use-package macro, to simplify customizations
 
+(autoload 'diminish "diminish")
+
 (defmacro use-package (name &rest args)
-  (let ((commands (plist-get args :commands))
-        (init-body (plist-get args :init))
-        (config-body (plist-get args :config))
-        (diminish-var (plist-get args :diminish))
-        (name-string (if (stringp name) name
-                       (symbol-name name))))
+  (let* ((commands (plist-get args :commands))
+         (init-body (plist-get args :init))
+         (config-body (plist-get args :config))
+         (diminish-var (plist-get args :diminish))
+         (defines (plist-get args :defines))
+         (defines-eval (if (null defines)
+                           nil
+                         (if (listp defines)
+                             (mapcar (lambda (var) `(defvar ,var)) defines)
+                           `((defvar ,defines)))))
+         (requires (plist-get args :requires))
+         (requires-test (if (null requires)
+                            t
+                          (if (listp requires)
+                              `(not (member nil (mapcar #'featurep
+                                                        (quote ,requires))))
+                            `(featurep (quote ,requires)))))
+         (name-string (if (stringp name) name
+                        (symbol-name name))))
     (if diminish-var
         (setq config-body
               `(progn
                  ,config-body
-                 (ignore-errors (diminish (quote ,diminish-var))))))
+                 (ignore-errors
+                   ,@(if (listp diminish-var)
+                         (mapcar (lambda (var) `(diminish (quote ,var)))
+                                 diminish-var)
+                       `((diminish (quote ,diminish-var))))))))
+    ;;(setq init-body
+    ;;      `(progn
+    ;;         (message "Loading package: %s\n%s\n%s\n%s" ,name-string
+    ;;                  (format-time-string "%H:%M:%S.%N") gc-elapsed
+    ;;                  (memory-use-counts))
+    ;;         ,init-body))
     (if (or commands (plist-get args :defer))
         (let (form)
           (unless (listp commands)
@@ -25,15 +53,29 @@
              'form `(autoload (function ,command)
                       ,name-string nil t)))
           `(progn
+             (eval-when-compile
+               ,@defines-eval
+               ,(if (stringp name)
+                    `(load ,name t)
+                  `(require ',name nil t)))
              ,@form
              ,init-body
-             (eval-after-load ,name-string
-               (quote ,config-body))))
-      `(when ,(if (stringp name)
-                  `(load ,name t)
-                `(require ',name nil t))
-         ,init-body
-         ,config-body))))
+             ,(when config-body
+                `(eval-after-load ,name-string
+                   '(if ,requires-test
+                        ,config-body)))))
+      `(progn
+         (eval-when-compile
+           ,@defines-eval
+           ,(if (stringp name)
+                `(load ,name t)
+              `(require ',name nil t)))
+         (when (and ,requires-test
+                    ,(if (stringp name)
+                         `(load ,name t)
+                       `(require ',name nil t)))
+           ,init-body
+           ,config-body)))))
 
 (put 'use-package 'lisp-indent-function 1)
 
@@ -52,8 +94,9 @@
   t "" override-global-map)
 
 (add-hook 'after-init-hook
-          (lambda ()
-            (override-global-mode 1)))
+          (function
+           (lambda ()
+             (override-global-mode 1))))
 
 ;;;_ , Increase *Messages* max length
 
@@ -79,7 +122,8 @@
 
 ;;;_ , Load customizations
 
-(setq gnus-home-directory "~/Messages/Gnus/") ; a necessary override
+(setq gnus-init-file (expand-file-name ".gnus" user-emacs-directory)
+      gnus-home-directory "~/Messages/Gnus/") ; a necessary override
 
 (load "~/.emacs.d/settings")
 
@@ -95,22 +139,12 @@
 
 ;;;_ , Perform direct loads
 
-(eval-when-compile
-  (require 'cl))
-
 (mapc #'require
       '(browse-kill-ring+
         bookmark
-        diminish
-        ido
         info-look
         page-ext
-        per-window-point
-        pp-c-l
-        recentf
-        tex-site
-        workgroups
-        yasnippet))
+        recentf))
 
 ;;;_. Packages
 
@@ -138,17 +172,16 @@
 
 ;;;_ , abbrev
 
-(if (file-exists-p abbrev-file-name)
-    (quietly-read-abbrev-file))
-
-(ignore-errors (diminish 'abbrev-mode))
-
-;;;_  . expand
-
-(add-hook 'expand-load-hook
-          (lambda ()
-            (add-hook 'expand-expand-hook 'indent-according-to-mode)
-            (add-hook 'expand-jump-hook 'indent-according-to-mode)))
+(use-package abbrev
+  :diminish abbrev-mode
+  :init
+  (if (file-exists-p abbrev-file-name)
+      (quietly-read-abbrev-file))
+  :config
+  (add-hook 'expand-load-hook
+            (lambda ()
+              (add-hook 'expand-expand-hook 'indent-according-to-mode)
+              (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
 ;;;_ , ace-jump-mode
 
@@ -163,20 +196,25 @@
 
 ;;;_ , allout
 
-(defvar allout-unprefixed-keybindings nil)
+(use-package allout
+  :diminish allout-mode
+  :defer t
+  :config
+  (progn
+    (defvar allout-unprefixed-keybindings nil)
 
-(defun my-allout-mode-hook ()
-  (dolist (mapping '((?b . allout-hide-bodies)
-                     (?c . allout-hide-current-entry)
-                     (?l . allout-hide-current-leaves)
-                     (?i . allout-show-current-branches)
-                     (?e . allout-show-entry)
-                     (?o . allout-show-to-offshoot)))
-    (define-key allout-mode-map
-      (vconcat allout-command-prefix
-               (vector (car mapping))) (cdr mapping))))
+    (defun my-allout-mode-hook ()
+      (dolist (mapping '((?b . allout-hide-bodies)
+                         (?c . allout-hide-current-entry)
+                         (?l . allout-hide-current-leaves)
+                         (?i . allout-show-current-branches)
+                         (?e . allout-show-entry)
+                         (?o . allout-show-to-offshoot)))
+        (define-key allout-mode-map
+          (vconcat allout-command-prefix
+                   (vector (car mapping))) (cdr mapping))))
 
-(add-hook 'allout-mode-hook 'my-allout-mode-hook)
+    (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
 
 ;;;_ , anything
 
@@ -241,58 +279,32 @@
 
 ;;;_ , auctex
 
-(eval-when-compile
-  (defvar texinfo-section-list)
-  (defvar latex-help-cmd-alist)
-  (defvar latex-help-file))
-
-(defun my-texinfo-mode-hook ()
-  (dolist (mapping '((?b . "emph")
-                     (?c . "code")
-                     (?s . "samp")
-                     (?d . "dfn")
-                     (?o . "option")
-                     (?x . "pxref")))
-    (local-set-key (vector (list 'alt (car mapping)))
-                   `(lambda () (interactive)
-                      (TeX-insert-macro ,(cdr mapping))))))
-
-(add-hook 'texinfo-mode-hook 'my-texinfo-mode-hook)
-
-(defun texinfo-outline-level ()
-  ;; Calculate level of current texinfo outline heading.
-  (require 'texinfo)
-  (save-excursion
-    (if (bobp)
-        0
-      (forward-char 1)
-      (let* ((word (buffer-substring-no-properties
-                    (point) (progn (forward-word 1) (point))))
-             (entry (assoc word texinfo-section-list)))
-        (if entry
-            (nth 1 entry)
-          5)))))
-
-(defun latex-help-get-cmd-alist () ;corrected version:
-  "Scoop up the commands in the index of the latex info manual.
+(use-package tex-site
+  :defines (latex-help-cmd-alist
+            latex-help-file)
+  :init
+  (progn
+    (defun latex-help-get-cmd-alist ()  ;corrected version:
+      "Scoop up the commands in the index of the latex info manual.
    The values are saved in `latex-help-cmd-alist' for speed."
-  ;; mm, does it contain any cached entries
-  (if (not (assoc "\\begin" latex-help-cmd-alist))
-      (save-window-excursion
-        (setq latex-help-cmd-alist nil)
-        (Info-goto-node (concat latex-help-file "Command Index"))
-        (goto-char (point-max))
-        (while (re-search-backward "^\\* \\(.+\\): *\\(.+\\)\\." nil t)
-          (let ((key (buffer-substring (match-beginning 1) (match-end 1)))
-                (value (buffer-substring (match-beginning 2) (match-end 2))))
-            (add-to-list 'latex-help-cmd-alist (cons key value))))))
-  latex-help-cmd-alist)
+      ;; mm, does it contain any cached entries
+      (if (not (assoc "\\begin" latex-help-cmd-alist))
+          (save-window-excursion
+            (setq latex-help-cmd-alist nil)
+            (Info-goto-node (concat latex-help-file "Command Index"))
+            (goto-char (point-max))
+            (while (re-search-backward "^\\* \\(.+\\): *\\(.+\\)\\." nil t)
+              (let ((key (buffer-substring (match-beginning 1) (match-end 1)))
+                    (value (buffer-substring (match-beginning 2) (match-end 2))))
+                (add-to-list 'latex-help-cmd-alist (cons key value))))))
+      latex-help-cmd-alist)
 
-(info-lookup-add-help :mode 'latex-mode
-                      :regexp ".*"
-                      :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-                      :doc-spec '(("(latex2e)Concept Index" )
-                                  ("(latex2e)Command Index")))
+    (when (featurep 'info-look)
+      (info-lookup-add-help :mode 'latex-mode
+                            :regexp ".*"
+                            :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+                            :doc-spec '(("(latex2e)Concept Index" )
+                                        ("(latex2e)Command Index"))))))
 
 ;;;_ , auto-complete
 
@@ -368,289 +380,309 @@
 (eval-after-load "dot-mode"
   '(ignore-errors (diminish 'dot-mode)))
 
-(eval-after-load "whitespace"
-  '(ignore-errors
-     (diminish 'global-whitespace-mode)
-     (diminish 'whitespace-mode)
-     (diminish 'whitespace-newline-mode)))
-
 ;;;_ , dired
 
-(eval-after-load "dired-aux"
-  '(progn
-     (defun start-process-and-kill-buffer (&rest args)
-       (set-process-sentinel
-        (apply #'start-process args)
-        (lambda (proc change)
-          (if (and (eq 'exit (process-status proc))
-                   (= 0 (process-exit-status proc)))
-              (kill-buffer (process-buffer proc))))))
+(use-package dired
+  :defer t
+  :config
+  (progn
+    (use-package dired-x)
+    (use-package runner)
 
-     (defun rsync-file-asynchronously (from to)
-       (let ((args (list "-avHAXEy" "--fileflags" "--delete-during"
-                         "--force-delete")))
-         (nconc args (list from to))
-         (apply #'start-process-and-kill-buffer "rsync"
-                (generate-new-buffer "*rsync*")
-                (executable-find "rsync") args)))
+    (setq dired-use-ls-dired t)
 
-     (defun copy-file-asynchronously (from to ok-flag)
-       (let ((args (list "-pvR")))
-         (if ok-flag
-             (nconc args (list "-i")))
-         (nconc args (list from to))
-         (apply #'start-process-and-kill-buffer "cp"
-                (generate-new-buffer "*cp*")
-                (executable-find "cp") args)))
+    (define-key dired-mode-map [?l] 'dired-up-directory)
+    (define-key dired-mode-map [tab] 'other-window)
 
-     (defun dired-copy-file (from to ok-flag)
-       (dired-handle-overwrite to)
-       (if (or (string-match ":" from) (string-match ":" to))
-           (dired-copy-file-recursive from to ok-flag dired-copy-preserve-time t
-                                      dired-recursive-copies)
-         (if (file-exists-p to)
-             (rsync-file-asynchronously from to)
-           (copy-file-asynchronously from to ok-flag))))
+    (define-key dired-mode-map [(meta shift ?g)] nil)
+    (define-key dired-mode-map [(meta ?s) ?f] nil)
 
-     (defun move-file-asynchronously (file newname ok-flag)
-       (let ((args (list "-v")))
-         (nconc args (list file newname))
-         (apply #'start-process-and-kill-buffer "mv"
-                (generate-new-buffer "*mv*")
-                (executable-find "mv") args)))
+    (defadvice dired-next-line (around dired-next-line+ activate)
+      "Replace current buffer if file is a directory."
+      ad-do-it
+      (while (and  (not  (eobp)) (not ad-return-value))
+        (forward-line)
+        (setq ad-return-value(dired-move-to-filename)))
+      (when (eobp)
+        (forward-line -1)
+        (setq ad-return-value(dired-move-to-filename))))
 
-     (defun dired-rename-file (file newname ok-if-already-exists)
-       (dired-handle-overwrite newname)
-       (if (or (string-match ":" from) (string-match ":" to))
-           (rename-file file newname ok-if-already-exists)
-         (if (file-exists-p to)
-             (progn
-               (rsync-file-asynchronously from to)
-               (delete-file-asynchronously from (file-directory-p from)))
-           (move-file-asynchronously from to ok-if-already-exists)))
-       (and (get-file-buffer file)
-            (with-current-buffer (get-file-buffer file)
-              (set-visited-file-name newname nil t)))
-       (dired-remove-file file)
-       (dired-rename-subdir file newname))
+    (defadvice dired-previous-line (around dired-previous-line+ activate)
+      "Replace current buffer if file is a directory."
+      ad-do-it
+      (while (and  (not  (bobp)) (not ad-return-value))
+        (forward-line -1)
+        (setq ad-return-value(dired-move-to-filename)))
+      (when (bobp)
+        (call-interactively 'dired-next-line)))
 
-     (defun delete-file-asynchronously (file &optional recursive)
-       (let ((args (list "-f")))
-         (if recursive
-             (nconc args (list "-r")))
-         (nconc args (list file))
-         (apply #'start-process-and-kill-buffer "rm"
-                (generate-new-buffer "*rm*")
-                (executable-find "rm") args)))
+    (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
-     (defun dired-delete-file (file &optional recursive trash)
-       (if (not (eq t (car (file-attributes file))))
-           (if (string-match ":" file)
-               (delete-file file trash)
-             (delete-file-asynchronously file))
-         (if (and recursive
-                  (directory-files file t dired-re-no-dot) ; Not empty.
-                  (or (eq recursive 'always)
-                      (yes-or-no-p (format "Recursively %s %s? "
-                                           (if (and trash
-                                                    delete-by-moving-to-trash)
-                                               "trash"
-                                             "delete")
-                                           (dired-make-relative file)))))
-             (if (eq recursive 'top) (setq recursive 'always)) ; Don't ask again.
-           (setq recursive nil))
-         (if (string-match ":" file)
-             (delete-directory file recursive trash)
-           (delete-file-asynchronously file t))))))
+    ;; Omit files that Git would ignore
+    (defun dired-omit-regexp ()
+      (let ((file (expand-file-name ".git"))
+            parent-dir)
+        (while (and (not (file-exists-p file))
+                    (progn
+                      (setq parent-dir
+                            (file-name-directory
+                             (directory-file-name
+                              (file-name-directory file))))
+                      ;; Give up if we are already at the root dir.
+                      (not (string= (file-name-directory file)
+                                    parent-dir))))
+          ;; Move up to the parent dir and try again.
+          (setq file (expand-file-name ".git" parent-dir)))
+        ;; If we found a change log in a parent, use that.
+        (if (file-exists-p file)
+            (let ((regexp (funcall dired-omit-regexp-orig))
+                  (omitted-files
+                   (shell-command-to-string "git clean -d -x -n")))
+              (if (= 0 (length omitted-files))
+                  regexp
+                (concat
+                 regexp
+                 (if (> (length regexp) 0)
+                     "\\|" "")
+                 "\\("
+                 (mapconcat
+                  #'(lambda (str)
+                      (concat
+                       "^"
+                       (regexp-quote
+                        (substring str 13
+                                   (if (= ?/ (aref str (1- (length str))))
+                                       (1- (length str))
+                                     nil)))
+                       "$"))
+                  (split-string omitted-files "\n" t)
+                  "\\|")
+                 "\\)")))
+          (funcall dired-omit-regexp-orig))))
 
-;;;_ , dired-x
+    (eval-after-load "dired-aux"
+      '(progn
+         (defun start-process-and-kill-buffer (&rest args)
+           (set-process-sentinel
+            (apply #'start-process args)
+            (lambda (proc change)
+              (if (and (eq 'exit (process-status proc))
+                       (= 0 (process-exit-status proc)))
+                  (kill-buffer (process-buffer proc))))))
 
-(defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+         (defun rsync-file-asynchronously (from to)
+           (let ((args (list "-avHAXEy" "--fileflags" "--delete-during"
+                             "--force-delete")))
+             (nconc args (list from to))
+             (apply #'start-process-and-kill-buffer "rsync"
+                    (generate-new-buffer "*rsync*")
+                    (executable-find "rsync") args)))
 
-;; Omit files that Git would ignore
-(defun dired-omit-regexp ()
-  (let ((file (expand-file-name ".git"))
-        parent-dir)
-    (while (and (not (file-exists-p file))
-                (progn
-                  (setq parent-dir
-                        (file-name-directory
-                         (directory-file-name
-                          (file-name-directory file))))
-                  ;; Give up if we are already at the root dir.
-                  (not (string= (file-name-directory file)
-                                parent-dir))))
-      ;; Move up to the parent dir and try again.
-      (setq file (expand-file-name ".git" parent-dir)))
-    ;; If we found a change log in a parent, use that.
-    (if (file-exists-p file)
-        (let ((regexp (funcall dired-omit-regexp-orig))
-              (omitted-files (shell-command-to-string "git clean -d -x -n")))
-          (if (= 0 (length omitted-files))
-              regexp
-            (concat
-             regexp
-             (if (> (length regexp) 0)
-                 "\\|" "")
-             "\\("
-             (mapconcat
-              #'(lambda (str)
-                  (concat "^"
-                          (regexp-quote
-                           (substring str 13
-                                      (if (= ?/ (aref str (1- (length str))))
-                                          (1- (length str))
-                                        nil)))
-                          "$"))
-              (split-string omitted-files "\n" t)
-              "\\|")
-             "\\)")))
-      (funcall dired-omit-regexp-orig))))
+         (defun copy-file-asynchronously (from to ok-flag)
+           (let ((args (list "-pvR")))
+             (if ok-flag
+                 (nconc args (list "-i")))
+             (nconc args (list from to))
+             (apply #'start-process-and-kill-buffer "cp"
+                    (generate-new-buffer "*cp*")
+                    (executable-find "cp") args)))
 
-(eval-after-load "dired"
-  '(progn
-     (require 'runner nil t)
+         (defun dired-copy-file (from to ok-flag)
+           (dired-handle-overwrite to)
+           (if (or (string-match ":" from) (string-match ":" to))
+               (dired-copy-file-recursive from to ok-flag
+                                          dired-copy-preserve-time t
+                                          dired-recursive-copies)
+             (if (file-exists-p to)
+                 (rsync-file-asynchronously from to)
+               (copy-file-asynchronously from to ok-flag))))
 
-     (setq dired-use-ls-dired t)
+         (defun move-file-asynchronously (file newname ok-flag)
+           (let ((args (list "-v")))
+             (nconc args (list file newname))
+             (apply #'start-process-and-kill-buffer "mv"
+                    (generate-new-buffer "*mv*")
+                    (executable-find "mv") args)))
 
-     (define-key dired-mode-map [?l] 'dired-up-directory)
-     ;; (define-key dired-mode-map [tab] 'other-window)
-     (define-key dired-mode-map [(meta shift ?g)] 'switch-to-gnus)
-     (define-key dired-mode-map [(meta ?s) ?f] 'find-grep)
+         (defun dired-rename-file (file newname ok-if-already-exists)
+           (dired-handle-overwrite newname)
+           (if (or (string-match ":" from) (string-match ":" to))
+               (rename-file file newname ok-if-already-exists)
+             (if (file-exists-p to)
+                 (progn
+                   (rsync-file-asynchronously from to)
+                   (delete-file-asynchronously from (file-directory-p from)))
+               (move-file-asynchronously from to ok-if-already-exists)))
+           (and (get-file-buffer file)
+                (with-current-buffer (get-file-buffer file)
+                  (set-visited-file-name newname nil t)))
+           (dired-remove-file file)
+           (dired-rename-subdir file newname))
 
-     (defadvice dired-next-line (around dired-next-line+ activate)
-       "Replace current buffer if file is a directory."
-       ad-do-it
-       (while (and  (not  (eobp)) (not ad-return-value))
-         (forward-line)
-         (setq ad-return-value(dired-move-to-filename)))
-       (when (eobp)
-         (forward-line -1)
-         (setq ad-return-value(dired-move-to-filename))))
+         (defun delete-file-asynchronously (file &optional recursive)
+           (let ((args (list "-f")))
+             (if recursive
+                 (nconc args (list "-r")))
+             (nconc args (list file))
+             (apply #'start-process-and-kill-buffer "rm"
+                    (generate-new-buffer "*rm*")
+                    (executable-find "rm") args)))
 
-     (defadvice dired-previous-line (around dired-previous-line+ activate)
-       "Replace current buffer if file is a directory."
-       ad-do-it
-       (while (and  (not  (bobp)) (not ad-return-value))
-         (forward-line -1)
-         (setq ad-return-value(dired-move-to-filename)))
-       (when (bobp)
-         (call-interactively 'dired-next-line)))))
+         (defun dired-delete-file (file &optional recursive trash)
+           (if (not (eq t (car (file-attributes file))))
+               (if (string-match ":" file)
+                   (delete-file file trash)
+                 (delete-file-asynchronously file))
+             (if (and recursive
+                      (directory-files file t dired-re-no-dot) ; Not empty.
+                      (or (eq recursive 'always)
+                          (yes-or-no-p
+                           (format "Recursively %s %s? "
+                                   (if (and trash
+                                            delete-by-moving-to-trash)
+                                       "trash"
+                                     "delete")
+                                   (dired-make-relative file)))))
+                 (if (eq recursive 'top) (setq recursive 'always))
+               (setq recursive nil))
+             (if (string-match ":" file)
+                 (delete-directory file recursive trash)
+               (delete-file-asynchronously file t))))))))
 
 ;;;_ , ediff
 
-(defun ediff-keep-both ()
-  (interactive)
-  (with-current-buffer ediff-buffer-C
-    (beginning-of-line)
-    (assert (or (looking-at "<<<<<<")
-                (re-search-backward "^<<<<<<" nil t)
-                (re-search-forward "^<<<<<<" nil t)))
-    (beginning-of-line)
-    (let ((beg (point)))
-      (forward-line)
-      (delete-region beg (point))
-      (re-search-forward "^>>>>>>>")
-      (beginning-of-line)
-      (setq beg (point))
-      (forward-line)
-      (delete-region beg (point))
-      (re-search-forward "^#######")
-      (beginning-of-line)
-      (setq beg (point))
-      (re-search-forward "^=======")
-      (beginning-of-line)
-      (forward-line)
-      (delete-region beg (point)))))
+(use-package ediff
+  :defer t
+  :config
+  (progn
+    (defun ediff-keep-both ()
+      (interactive)
+      (with-current-buffer ediff-buffer-C
+        (beginning-of-line)
+        (assert (or (looking-at "<<<<<<")
+                    (re-search-backward "^<<<<<<" nil t)
+                    (re-search-forward "^<<<<<<" nil t)))
+        (beginning-of-line)
+        (let ((beg (point)))
+          (forward-line)
+          (delete-region beg (point))
+          (re-search-forward "^>>>>>>>")
+          (beginning-of-line)
+          (setq beg (point))
+          (forward-line)
+          (delete-region beg (point))
+          (re-search-forward "^#######")
+          (beginning-of-line)
+          (setq beg (point))
+          (re-search-forward "^=======")
+          (beginning-of-line)
+          (forward-line)
+          (delete-region beg (point)))))
 
-
-(eval-after-load "ediff-init"
-  '(add-hook 'ediff-keymap-setup-hook
-             (lambda ()
-               (define-key ediff-mode-map [?c] 'ediff-keep-both))))
+    (add-hook 'ediff-keymap-setup-hook
+              (function
+               (lambda ()
+                 (define-key ediff-mode-map [?c] 'ediff-keep-both))))))
 
 ;;;_ , edit-server
 
 (use-package edit-server
-  :config
+  :init
   (if window-system
       (add-hook 'after-init-hook 'edit-server-start t)))
 
 ;;;_ , erc
 
-(require 'erc-alert)
-(require 'erc-highlight-nicknames)
+(use-package erc
+  :commands erc
+  :init
+  (progn
+    (use-package auth-source
+      :commands auth-source-search)
 
-(eval-when-compile
-  (require 'auth-source))
+    (defun irc ()
+      (interactive)
+      (erc :server "irc.freenode.net"
+           :port 6667
+           :nick "johnw"
+           :password (funcall
+                      (plist-get
+                       (car (auth-source-search :host "irc.freenode.net"
+                                                :user "johnw"
+                                                :type 'netrc
+                                                :port 6667))
+                       :secret)))
+      (erc :server "irc.oftc.net"
+           :port 6667
+           :nick "johnw"))
 
-(defun irc ()
-  (interactive)
-  (require 'auth-source)
-  (erc :server "irc.freenode.net"
-       :port 6667
-       :nick "johnw"
-       :password (funcall
-                  (plist-get
-                   (car (auth-source-search :host "irc.freenode.net"
-                                            :user "johnw"
-                                            :type 'netrc
-                                            :port 6667))
-                   :secret)))
-  (erc :server "irc.oftc.net"
-       :port 6667
-       :nick "johnw"))
+    (defun im ()
+      (interactive)
+      (erc :server "localhost"
+           :port 6667
+           :nick "johnw"
+           :password (funcall
+                      (plist-get
+                       (car (auth-source-search :host "bitlbee"
+                                                :user "johnw"
+                                                :type 'netrc
+                                                :port 6667))
+                       :secret)))))
 
-(defun im ()
-  (interactive)
-  (require 'auth-source)
-  (erc :server "localhost"
-       :port 6667
-       :nick "johnw"
-       :password (funcall
-                  (plist-get
-                   (car (auth-source-search :host "bitlbee"
-                                            :user "johnw"
-                                            :type 'netrc
-                                            :port 6667))
-                   :secret))))
+  :config
+  (progn
+    (use-package erc-alert)
+    (use-package erc-highlight-nicknames)
 
-(defun erc-cmd-WTF (term &rest ignore)
-  "Look up definition for TERM."
-  (let ((def (wtf-is term)))
-    (if def
-        (let ((msg (concat "{Term} " (upcase term) " is " def)))
-          (with-temp-buffer
-            (insert msg)
-            (kill-ring-save (point-min) (point-max)))
-          (message msg))
-      (message (concat "No definition found for " (upcase term))))))
+    (erc-track-minor-mode 1)
+    (erc-track-mode 1)
 
-(defun erc-cmd-FOOL (term &rest ignore)
-  (add-to-list 'erc-fools term))
+    (defun erc-cmd-WTF (term &rest ignore)
+      "Look up definition for TERM."
+      (let ((def (wtf-is term)))
+        (if def
+            (let ((msg (concat "{Term} " (upcase term) " is " def)))
+              (with-temp-buffer
+                (insert msg)
+                (kill-ring-save (point-min) (point-max)))
+              (message msg))
+          (message (concat "No definition found for " (upcase term))))))
 
-(defun erc-cmd-UNFOOL (term &rest ignore)
-  (setq erc-fools (delete term erc-fools)))
+    (defun erc-cmd-FOOL (term &rest ignore)
+      (add-to-list 'erc-fools term))
+
+    (defun erc-cmd-UNFOOL (term &rest ignore)
+      (setq erc-fools (delete term erc-fools)))))
 
 ;;;_ , eshell
 
-(defun eshell-spawn-external-command (beg end)
-   "Parse and expand any history references in current input."
-   (save-excursion
-     (goto-char end)
-     (when (looking-back "&!" beg)
-       (delete-region (match-beginning 0) (match-end 0))
-       (goto-char beg)
-       (insert "spawn "))))
+(use-package eshell
+  :defer t
+  :config
+  (progn
+    (defun eshell-spawn-external-command (beg end)
+      "Parse and expand any history references in current input."
+      (save-excursion
+        (goto-char end)
+        (when (looking-back "&!" beg)
+          (delete-region (match-beginning 0) (match-end 0))
+          (goto-char beg)
+          (insert "spawn "))))
 
-(add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
+    (add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
 
-(defun ss (server)
-  (interactive "sServer: ")
-  (call-process "spawn" nil nil nil "ss" server))
+    (defun ss (server)
+      (interactive "sServer: ")
+      (call-process "spawn" nil nil nil "ss" server))
 
-(eval-after-load "em-unix"
-  '(unintern 'eshell/rm))
+    (eval-after-load "em-unix"
+      '(unintern 'eshell/rm))))
+
+(use-package esh-toggle
+  :requires eshell
+  :commands eshell-toggle
+  :init
+  (define-key ctl-x-map [(control ?z)] 'eshell-toggle))
 
 ;;;_ , fold-dwim
 
@@ -662,100 +694,104 @@
     (define-key global-map [f14] 'fold-dwim-hide-all)
     (define-key global-map [f15] 'fold-dwim-show-all)))
 
-;;;_ , git
-
-(setenv "GIT_PAGER" "")
-
-(add-hook 'magit-log-edit-mode-hook
-          #'(lambda ()
-              (set-fill-column 72)
-              (flyspell-mode)
-              (orgstruct++-mode)))
-
-(eval-after-load "magit"
-  '(progn
-     (require 'magit-topgit)
-     (require 'rebase-mode)
-
-     (defun start-git-monitor ()
-       (interactive)
-       (start-process "git-monitor" (current-buffer) "~/bin/git-monitor"))
-
-     ;;(add-hook 'magit-status-mode-hook 'start-git-monitor)
-     ))
-
-(defun git-commit-changes ()
-  (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
-
-(defvar anything-c-source-git-files
-  '((name . "Files under Git version control")
-    (init . anything-c-source-git-files-init)
-    (candidates-in-buffer)
-    (type . file))
-  "Search for files in the current Git project.")
-
-(defun anything-c-source-git-files-init ()
-  "Build `anything-candidate-buffer' of Git files."
-  (with-current-buffer (anything-candidate-buffer 'local)
-    (mapcar
-     (lambda (item)
-       (insert (expand-file-name item) ?\n))
-     (split-string (shell-command-to-string "git ls-files") "\n"))))
-
-(defun anything-find-git-file ()
-  (interactive)
-  (anything :sources 'anything-c-source-git-files
-            :input ""
-            :prompt "Find file: "
-            :buffer "*Anything git file*"))
-
 ;;;_ , gtags
 
-(eval-after-load "gtags"
-  '(progn
-     (require 'anything-gtags)
-     (define-key gtags-mode-map "\e," 'anything-gtags-resume)
-     (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)))
+(use-package gtags
+  :commands gtags-mode
+  :diminish gtags-mode
+  :config
+  (progn
+    (define-key mode-specific-map [?t ?.] 'gtags-find-rtag)
+    (define-key mode-specific-map [?t ?f] 'gtags-find-file)
+    (define-key mode-specific-map [?t ?p] 'gtags-parse-file)
+    (define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
+    (define-key mode-specific-map [?t ?i] 'gtags-find-with-idutils)
+    (define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
+    (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
+    (define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
+
+    (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)
+
+    (when (featurep 'anything)
+      (require 'anything-gtags)
+      (define-key global-map [(meta shift ?t)] 'anything-gtags-select)
+      (define-key gtags-mode-map "\e," 'anything-gtags-resume))))
 
 ;;;_ , ido
 
-(eval-when-compile
-  (defvar ido-require-match)
-  (defvar ido-cur-item)
-  (defvar ido-show-confirm-message)
-  (defvar ido-selected)
-  (defvar ido-final-text))
+(use-package ido
+  :defines (ido-cur-item
+            ido-require-match
+            ido-selected
+            ido-final-text
+            ido-show-confirm-message)
+  :commands (ido-find-file
+             ido-switch-buffer
+             ido-completing-read
+             ido-read-directory-name)
+  :config
+  (progn
+    (defun ido-smart-select-text ()
+      "Select the current completed item.  Do NOT descend into directories."
+      (interactive)
+      (when (and (or (not ido-require-match)
+                     (if (memq ido-require-match
+                               '(confirm confirm-after-completion))
+                         (if (or (eq ido-cur-item 'dir)
+                                 (eq last-command this-command))
+                             t
+                           (setq ido-show-confirm-message t)
+                           nil))
+                     (ido-existing-item-p))
+                 (not ido-incomplete-regexp))
+        (when ido-current-directory
+          (setq ido-exit 'takeprompt)
+          (unless (and ido-text (= 0 (length ido-text)))
+            (let ((match (ido-name (car ido-matches))))
+              (throw 'ido
+                     (setq ido-selected
+                           (if match
+                               (replace-regexp-in-string "/\\'" "" match)
+                             ido-text)
+                           ido-text ido-selected
+                           ido-final-text ido-text)))))
+        (exit-minibuffer)))
 
-(defun ido-smart-select-text ()
-  "Select the current completed item.  Do NOT descend into directories."
-  (interactive)
-  (when (and (or (not ido-require-match)
-                 (if (memq ido-require-match
-                           '(confirm confirm-after-completion))
-                     (if (or (eq ido-cur-item 'dir)
-                             (eq last-command this-command))
-                         t
-                       (setq ido-show-confirm-message t)
-                       nil))
-                 (ido-existing-item-p))
-             (not ido-incomplete-regexp))
-    (when ido-current-directory
-      (setq ido-exit 'takeprompt)
-      (unless (and ido-text (= 0 (length ido-text)))
-        (let ((match (ido-name (car ido-matches))))
-          (throw 'ido
-                 (setq ido-selected
-                       (if match
-                           (replace-regexp-in-string "/\\'" "" match)
-                         ido-text)
-                       ido-text ido-selected
-                       ido-final-text ido-text)))))
-    (exit-minibuffer)))
+    (add-hook 'ido-minibuffer-setup-hook
+              (function
+               (lambda ()
+                 (define-key ido-file-completion-map "\C-m"
+                   'ido-smart-select-text))))
 
-(add-hook 'ido-minibuffer-setup-hook
-          (lambda ()
-            (define-key ido-file-completion-map "\C-m"
-              'ido-smart-select-text)))
+    (defun ido-switch-buffer-tiny-frame (buffer)
+      (interactive (list (ido-read-buffer "Buffer: " nil t)))
+      (with-selected-frame
+          (make-frame '((width                . 80)
+                        (height               . 22)
+                        (left-fringe          . 0)
+                        (right-fringe         . 0)
+                        (vertical-scroll-bars . nil)
+                        (unsplittable         . t)
+                        (has-modeline-p       . nil)
+                        ;;(background-color     . "grey80")
+                        (minibuffer           . nil)))
+        (switch-to-buffer buffer)
+        (set (make-local-variable 'mode-line-format) nil)))
+
+    (define-key ctl-x-map [?5 ?t] 'ido-switch-buffer-tiny-frame)
+
+    (defun ido-bookmark-jump (bookmark &optional display-func)
+      (interactive
+       (list
+        (ido-completing-read "Jump to bookmark: "
+                             (mapcar #'car bookmark-alist)
+                             nil 0 nil 'bookmark-history)))
+      (unless bookmark
+        (error "No bookmark specified"))
+      (bookmark-maybe-historicize-string bookmark)
+      (bookmark--jump-via bookmark (or display-func 'switch-to-buffer)))
+
+    (define-key ctl-x-map [?r ?b] 'ido-bookmark-jump)))
 
 ;;;_ , isearch
 
@@ -788,12 +824,62 @@
   :init
   (add-to-list 'auto-mode-alist '("\\.log$" . log4j-mode)))
 
-;;;_ , merlin
+;;;_ , magit
 
-(require 'rx)
+(use-package magit
+  :commands magit-status
+  :init
+  (define-key ctl-x-map [?g] 'magit-status)
+  :config
+  (progn
+    (setenv "GIT_PAGER" "")
+
+    (add-hook 'magit-log-edit-mode-hook
+              #'(lambda ()
+                  (set-fill-column 72)
+                  (flyspell-mode)
+                  (orgstruct++-mode)))
+
+    (require 'magit-topgit)
+    (require 'rebase-mode)
+
+    (defun start-git-monitor ()
+      (interactive)
+      (start-process "git-monitor" (current-buffer) "~/bin/git-monitor"))
+
+    ;;(add-hook 'magit-status-mode-hook 'start-git-monitor)
+
+    (defun git-commit-changes ()
+      (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
+
+    (when (featurep 'anything)
+      (defvar anything-c-source-git-files
+        '((name . "Files under Git version control")
+          (init . anything-c-source-git-files-init)
+          (candidates-in-buffer)
+          (type . file))
+        "Search for files in the current Git project.")
+
+      (defun anything-c-source-git-files-init ()
+        "Build `anything-candidate-buffer' of Git files."
+        (with-current-buffer (anything-candidate-buffer 'local)
+          (mapcar
+           (lambda (item)
+             (insert (expand-file-name item) ?\n))
+           (split-string (shell-command-to-string "git ls-files") "\n"))))
+
+      (defun anything-find-git-file ()
+        (interactive)
+        (anything :sources 'anything-c-source-git-files
+                  :input ""
+                  :prompt "Find file: "
+                  :buffer "*Anything git file*")))))
+
+;;;_ , merlin
 
 (defun merlin-record-times ()
   (interactive)
+  (require 'rx)
   (let* ((text (buffer-substring-no-properties (line-beginning-position)
                                                (line-end-position)))
          (regex
@@ -885,71 +971,72 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 ;;;_ , mule
 
-(prefer-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
-
-(defun normalize-file ()
-  (interactive)
-  (save-excursion
-   (goto-char (point-min))
-   (whitespace-cleanup)
-   (delete-trailing-whitespace)
-   (goto-char (point-max))
-   (delete-blank-lines)
-   (set-buffer-file-coding-system 'unix)
-   (goto-char (point-min))
-   (while (re-search-forward "\r$" nil t)
-     (replace-match ""))
-   (set-buffer-file-coding-system 'utf-8)
-   (let ((require-final-newline t))
-     (save-buffer))))
+(use-package mule
+  :init
+  (progn
+    (prefer-coding-system 'utf-8)
+    (set-terminal-coding-system 'utf-8)
+    (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))))
 
 ;;;_ , nroff-mode
 
-(defun update-nroff-timestamp ()
-  (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward "^\\.Dd ")
-      (let ((stamp (format-time-string "%B %e, %Y")))
-        (unless (looking-at stamp)
-          (delete-region (point) (line-end-position))
-          (insert stamp)
-          (let (after-save-hook)
-            (save-buffer)))))))
+(use-package nroff-mode
+  :init
+  (progn
+    (defun update-nroff-timestamp ()
+      (save-excursion
+        (goto-char (point-min))
+        (when (re-search-forward "^\\.Dd ")
+          (let ((stamp (format-time-string "%B %e, %Y")))
+            (unless (looking-at stamp)
+              (delete-region (point) (line-end-position))
+              (insert stamp)
+              (let (after-save-hook)
+                (save-buffer)))))))
 
-(add-hook 'nroff-mode-hook
-          (function
-           (lambda ()
-             (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
+    (add-hook 'nroff-mode-hook
+              (function
+               (lambda ()
+                 (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))))
 
 ;;;_ , per-window-point
 
-(pwp-mode)
+(use-package per-window-point
+  :init
+  (pwp-mode))
 
 ;;;_ , pp-c-l
 
-(pretty-control-l-mode 1)
+(use-package pp-c-l
+  :init
+  (pretty-control-l-mode 1))
 
 ;;;_ , ps-print
 
-(defun ps-spool-to-pdf (beg end &rest ignore)
-  (interactive "r")
-  (let ((temp-file (concat (make-temp-name "ps2pdf") ".pdf")))
-    (call-process-region beg end (executable-find "ps2pdf")
-                         nil nil nil "-" temp-file)
-    (call-process (executable-find "open") nil nil nil temp-file)))
+(use-package ps-print
+  :defer t
+  :config
+  (progn
+    (defun ps-spool-to-pdf (beg end &rest ignore)
+      (interactive "r")
+      (let ((temp-file (concat (make-temp-name "ps2pdf") ".pdf")))
+        (call-process-region beg end (executable-find "ps2pdf")
+                             nil nil nil "-" temp-file)
+        (call-process (executable-find "open") nil nil nil temp-file)))
 
-(setq ps-print-region-function 'ps-spool-to-pdf)
+    (setq ps-print-region-function 'ps-spool-to-pdf)))
 
 ;;;_ , puppet-mode
 
-(add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode))
+(use-package puppet-mode
+  :commands puppet-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode)))
 
 ;;;_ , session
 
 (use-package session
-  :config
+  :init
   (progn
     (defun save-information ()
       (dolist (func kill-emacs-hook)
@@ -972,87 +1059,225 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 ;;;_ , sunrise-commander
 
-(eval-after-load "sunrise-commander"
-  '(progn
-     (require 'sunrise-x-modeline)
-     (require 'sunrise-x-tree)
-     (require 'sunrise-x-tabs)
-     (require 'sunrise-x-loop)
+(use-package sunrise-commander
+  :commands (sunrise sunrise-cd)
+  :init
+  (progn
+    (defun my-activate-sunrise ()
+      (interactive)
+      (let ((sunrise-exists
+             (count-if (lambda (buf)
+                         (string-match " (Sunrise)$" (buffer-name buf)))
+                       (buffer-list))))
+        (if (> sunrise-exists 0)
+            (call-interactively 'sunrise)
+          (sunrise "~/dl/" "~/Archives/"))))
 
-     (define-key sr-mode-map "/" 'sr-sticky-isearch-forward)
-     (define-key sr-mode-map "\C-e" 'end-of-line)
-     (define-key sr-mode-map "l" 'sr-dired-prev-subdir)
+    (define-key mode-specific-map [?j] 'my-activate-sunrise)
+    (define-key mode-specific-map [(control ?j)] 'sunrise-cd)
 
-     (define-key sr-tabs-mode-map [(control ?p)] 'previous-line)
-     (define-key sr-tabs-mode-map [(control ?n)] 'next-line)
+    (defun dired-double-jump (first-dir second-dir)
+      (interactive
+       (list (ido-read-directory-name "First directory: "
+                                      (expand-file-name "~") nil nil "dl/")
+             (ido-read-directory-name "Second directory: "
+                                      (expand-file-name "~") nil nil "Archives/")))
+      (if t
+          (sunrise first-dir second-dir)
+        (dired first-dir)
+        (dired-other-window second-dir)))
 
-     (define-key sr-tabs-mode-map [(meta ?\[)] 'sr-tabs-prev)
-     (define-key sr-tabs-mode-map [(meta ?\])] 'sr-tabs-next)
+    (define-key mode-specific-map [?J] 'dired-double-jump))
 
-     (defun sr-browse-file (&optional file)
-       "Display the selected file with the default appication."
-       (interactive)
-       (setq file (or file (dired-get-filename)))
-       (save-selected-window
-         (sr-select-viewer-window)
-         (let ((buff (current-buffer))
-               (fname (if (file-directory-p file)
-                          file
-                        (file-name-nondirectory file)))
-               (app (cond
-                     ((eq system-type 'darwin)       "open %s")
-                     ((eq system-type 'windows-nt)   "open %s")
-                     (t                              "xdg-open %s"))))
-           (start-process-shell-command "open" nil (format app file))
-           (unless (eq buff (current-buffer))
-             (sr-scrollable-viewer (current-buffer)))
-           (message "Opening \"%s\" ..." fname))))))
+  :config
+  (progn
+    (require 'sunrise-x-modeline)
+    (require 'sunrise-x-tree)
+    (require 'sunrise-x-tabs)
+    (require 'sunrise-x-loop)
+
+    (define-key sr-mode-map "/" 'sr-sticky-isearch-forward)
+    (define-key sr-mode-map "\C-e" 'end-of-line)
+    (define-key sr-mode-map "l" 'sr-dired-prev-subdir)
+
+    (define-key sr-tabs-mode-map [(control ?p)] 'previous-line)
+    (define-key sr-tabs-mode-map [(control ?n)] 'next-line)
+
+    (define-key sr-tabs-mode-map [(meta ?\[)] 'sr-tabs-prev)
+    (define-key sr-tabs-mode-map [(meta ?\])] 'sr-tabs-next)
+
+    (defun sr-browse-file (&optional file)
+      "Display the selected file with the default appication."
+      (interactive)
+      (setq file (or file (dired-get-filename)))
+      (save-selected-window
+        (sr-select-viewer-window)
+        (let ((buff (current-buffer))
+              (fname (if (file-directory-p file)
+                         file
+                       (file-name-nondirectory file)))
+              (app (cond
+                    ((eq system-type 'darwin)       "open %s")
+                    ((eq system-type 'windows-nt)   "open %s")
+                    (t                              "xdg-open %s"))))
+          (start-process-shell-command "open" nil (format app file))
+          (unless (eq buff (current-buffer))
+            (sr-scrollable-viewer (current-buffer)))
+          (message "Opening \"%s\" ..." fname))))))
+
+;;;_ , texinfo
+
+(use-package texinfo
+  :defines texinfo-section-list
+  :init
+  (progn
+    (defun my-texinfo-mode-hook ()
+      (dolist (mapping '((?b . "emph")
+                         (?c . "code")
+                         (?s . "samp")
+                         (?d . "dfn")
+                         (?o . "option")
+                         (?x . "pxref")))
+        (local-set-key (vector (list 'alt (car mapping)))
+                       `(lambda () (interactive)
+                          (TeX-insert-macro ,(cdr mapping))))))
+
+    (add-hook 'texinfo-mode-hook 'my-texinfo-mode-hook))
+
+  :config
+  (defun texinfo-outline-level ()
+    ;; Calculate level of current texinfo outline heading.
+    (require 'texinfo)
+    (save-excursion
+      (if (bobp)
+          0
+        (forward-char 1)
+        (let* ((word (buffer-substring-no-properties
+                      (point) (progn (forward-word 1) (point))))
+               (entry (assoc word texinfo-section-list)))
+          (if entry
+              (nth 1 entry)
+            5))))))
 
 ;;;_ , vkill
 
 (use-package vkill
   :commands vkill
+  :init
+  (progn
+    (defun vkill-and-anything-occur ()
+      (interactive)
+      (vkill)
+      (call-interactively #'anything-occur))
+
+    (define-key ctl-x-map [?L] 'vkill-and-anything-occur))
   :config
   (setq vkill-show-all-processes t))
 
 ;;;_ , w3m
 
-(eval-when-compile
-  (defvar w3m-command))
+(use-package w3m
+  :commands (w3m-browse-url
+             w3m-search
+             w3m-search-escape-query-string)
+  :init
+  (progn
+    (setq w3m-command "/opt/local/bin/w3m")
 
-(setq w3m-command "/opt/local/bin/w3m")
+    (defun wikipedia-query (term)
+      (interactive (list (read-string "Wikipedia search: " (word-at-point))))
+      (w3m-search "en.wikipedia" term))
+
+    (defun wolfram-alpha-query (term)
+      (interactive (list (read-string "Ask Wolfram Alpha: " (word-at-point))))
+      (w3m-browse-url (format "http://m.wolframalpha.com/input/?i=%s"
+                              (w3m-search-escape-query-string term))))
+
+    (define-key global-map [(alt meta ?g)] 'w3m-search)
+    (define-key global-map [(alt meta ?h)] 'wolfram-alpha-query)
+    (define-key global-map [(alt meta ?w)] 'wikipedia-query))
+
+  :config
+  (let (proxy-host proxy-port)
+    (with-temp-buffer
+      (shell-command "scutil --proxy" (current-buffer))
+
+      (when (re-search-forward "HTTPPort : \\([0-9]+\\)" nil t)
+        (setq proxy-port (match-string 1)))
+      (when (re-search-forward "HTTPProxy : \\(\\S-+\\)" nil t)
+        (setq proxy-host (match-string 1))))
+
+    (if (and proxy-host proxy-port)
+        (setq w3m-command-arguments
+              (nconc w3m-command-arguments
+                     (list "-o" (format "http_proxy=http://%s:%s/"
+                                        proxy-host proxy-port)))))
+
+    (use-package w3m-type-ahead
+      :requires w3m
+      :init
+      (add-hook 'w3m-mode-hook 'w3m-type-ahead-mode))
+
+    (define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser)))
 
 ;;;_ , whitespace
 
-(remove-hook 'find-file-hooks 'whitespace-buffer)
-(remove-hook 'kill-buffer-hook 'whitespace-buffer)
+(use-package whitespace
+  :diminish (global-whitespace-mode
+             whitespace-mode
+             whitespace-newline-mode)
+  :commands (whitespace-buffer
+             whitespace-cleanup
+             whitespace-mode)
+  :init
+  (progn
+    (defun normalize-file ()
+      (interactive)
+      (save-excursion
+        (goto-char (point-min))
+        (whitespace-cleanup)
+        (delete-trailing-whitespace)
+        (goto-char (point-max))
+        (delete-blank-lines)
+        (set-buffer-file-coding-system 'unix)
+        (goto-char (point-min))
+        (while (re-search-forward "\r$" nil t)
+          (replace-match ""))
+        (set-buffer-file-coding-system 'utf-8)
+        (let ((require-final-newline t))
+          (save-buffer))))
 
-(defun maybe-turn-on-whitespace ()
-  "Depending on the file, maybe clean up whitespace."
-  (let ((file (expand-file-name ".clean"))
-        parent-dir)
-    (while (and (not (file-exists-p file))
-                (progn
-                  (setq parent-dir
-                        (file-name-directory
-                         (directory-file-name
-                          (file-name-directory file))))
-                  ;; Give up if we are already at the root dir.
-                  (not (string= (file-name-directory file)
-                                parent-dir))))
-      ;; Move up to the parent dir and try again.
-      (setq file (expand-file-name ".clean" parent-dir)))
-    ;; If we found a change log in a parent, use that.
-    (when (and (file-exists-p file)
-               (not (file-exists-p ".noclean"))
-               (not (and buffer-file-name
-                         (string-match "\\.texi$" buffer-file-name))))
-      (add-hook 'write-contents-hooks
-                #'(lambda ()
-                    (ignore (whitespace-cleanup))) nil t)
-      (whitespace-cleanup))))
+    (defun maybe-turn-on-whitespace ()
+      "Depending on the file, maybe clean up whitespace."
+      (let ((file (expand-file-name ".clean"))
+            parent-dir)
+        (while (and (not (file-exists-p file))
+                    (progn
+                      (setq parent-dir
+                            (file-name-directory
+                             (directory-file-name
+                              (file-name-directory file))))
+                      ;; Give up if we are already at the root dir.
+                      (not (string= (file-name-directory file)
+                                    parent-dir))))
+          ;; Move up to the parent dir and try again.
+          (setq file (expand-file-name ".clean" parent-dir)))
+        ;; If we found a change log in a parent, use that.
+        (when (and (file-exists-p file)
+                   (not (file-exists-p ".noclean"))
+                   (not (and buffer-file-name
+                             (string-match "\\.texi$" buffer-file-name))))
+          (add-hook 'write-contents-hooks
+                    #'(lambda ()
+                        (ignore (whitespace-cleanup))) nil t)
+          (whitespace-cleanup))))
 
-(add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
+    (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t))
+
+  :config
+  (progn
+    (remove-hook 'find-file-hooks 'whitespace-buffer)
+    (remove-hook 'kill-buffer-hook 'whitespace-buffer)))
 
 ;;;_ , winner
 
@@ -1122,37 +1347,40 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 ;;;_ , yasnippet
 
-(yas/initialize)
-(yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
+(use-package yasnippet
+  :diminish yas/minor-mode
+  :init
+  (progn
+    (yas/initialize)
+    (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
 
-(ignore-errors (diminish 'yas/minor-mode))
-
-(define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)
-
-(defun yas/new-snippet (&optional choose-instead-of-guess)
-  (interactive "P")
-  (let ((guessed-directories (yas/guess-snippet-directories)))
-    (switch-to-buffer "*new snippet*")
-    (erase-buffer)
-    (kill-all-local-variables)
-    (snippet-mode)
-    (set (make-local-variable 'yas/guessed-modes)
-         (mapcar #'(lambda (d)
-                     (intern (yas/table-name (car d))))
-                 guessed-directories))
-    (unless (and choose-instead-of-guess
-                 (not (y-or-n-p "Insert a snippet with useful headers? ")))
-      (yas/expand-snippet "\
+    (defun yas/new-snippet (&optional choose-instead-of-guess)
+      (interactive "P")
+      (let ((guessed-directories (yas/guess-snippet-directories)))
+        (switch-to-buffer "*new snippet*")
+        (erase-buffer)
+        (kill-all-local-variables)
+        (snippet-mode)
+        (set (make-local-variable 'yas/guessed-modes)
+             (mapcar #'(lambda (d)
+                         (intern (yas/table-name (car d))))
+                     guessed-directories))
+        (unless (and choose-instead-of-guess
+                     (not (y-or-n-p "Insert a snippet with useful headers? ")))
+          (yas/expand-snippet "\
 # -*- mode: snippet -*-
 # name: $1
 # --
 $0"))))
 
-(define-key mode-specific-map [?y ?n] 'yas/new-snippet)
-(define-key mode-specific-map [?y tab] 'yas/expand)
-(define-key mode-specific-map [?y ?f] 'yas/find-snippets)
-(define-key mode-specific-map [?y ?r] 'yas/reload-all)
-(define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file)
+    (define-key mode-specific-map [?y ?n] 'yas/new-snippet)
+    (define-key mode-specific-map [?y tab] 'yas/expand)
+    (define-key mode-specific-map [?y ?f] 'yas/find-snippets)
+    (define-key mode-specific-map [?y ?r] 'yas/reload-all)
+    (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file))
+
+  :config
+  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand))
 
 ;;;_ , Programming modes
 
@@ -1175,16 +1403,12 @@ $0"))))
           (call-interactively 'auto-complete)
         (call-interactively 'company-complete-common)))))
 
-(eval-when-compile
-  (defvar c-mode-base-map))
-
 (defun my-c-mode-common-hook ()
   (abbrev-mode 1)
   (gtags-mode 1)
   (hs-minor-mode 1)
   (hide-ifdef-mode 1)
 
-  (diminish 'gtags-mode)
   (diminish 'auto-complete-mode)
   (diminish 'hs-minor-mode)
   (diminish 'hide-ifdef-mode)
@@ -1470,16 +1694,15 @@ $0"))))
         (c-special-indent-hook . c-gnu-impose-minimum)
         (c-block-comment-prefix . "")))))
 
-;;;_   , ulp
+;;;_   , opencl
 
-(defun ulp ()
+(defun opencl ()
   (interactive)
-  (find-file "~/src/ansi/ulp.c")
-  (find-file-noselect "~/Contracts/TI/test/ulp_suite/invoke.sh")
-  (find-file-noselect "~/Contracts/TI/test/ulp_suite")
-  ;;(visit-tags-table "~/src/ansi/TAGS")
+  (find-file "~/src/ansi/opencl.c")
+  (find-file-noselect "~/Contracts/TI/bugslayer/cl_0603o/cl_0603o.c")
+  (find-file-noselect "~/Contracts/TI/bugslayer")
   (magit-status "~/src/ansi")
-  (gdb "gdb --annotate=3 ~/Contracts/TI/bin/msp/acpia430"))
+  (gud-gdb "gdb --fullname ~/Contracts/TI/bin/c60/acpia6x"))
 
 ;;;_  . gdb
 
@@ -1502,31 +1725,33 @@ $0"))))
 
 ;;;_  . haskell-mode
 
-(add-to-list 'auto-mode-alist '("\\.l?hs$" . haskell-mode))
+(use-package haskell-mode
+  :commands haskell-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.l?hs$" . haskell-mode))
+  :config
+  (progn
+    (eval-after-load "haskell-site-file"
+      '(progn
+         (require 'inf-haskell)
+         (require 'hs-lint)))
 
-(eval-when-compile
-  (defvar haskell-check-command)
-  (defvar haskell-saved-check-command)
-  (defvar haskell-mode-map))
+    (defun my-haskell-mode-hook ()
+      (setq haskell-saved-check-command haskell-check-command)
 
-(autoload 'ghc-init "ghc" nil t)
+      (define-key haskell-mode-map [(control ?c) ?w]
+        'flymake-display-err-menu-for-current-line)
+      (define-key haskell-mode-map [(control ?c) ?*]
+        'flymake-start-syntax-check)
+      (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
+      (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
 
-(defun my-haskell-mode-hook ()
-  (setq haskell-saved-check-command haskell-check-command)
+    (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
-  (ghc-init)
-
-  (define-key haskell-mode-map [(control ?c) ?w]
-    'flymake-display-err-menu-for-current-line)
-  (define-key haskell-mode-map [(control ?c) ?*]
-    'flymake-start-syntax-check)
-  (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
-  (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
-
-(eval-after-load "haskell-site-file"
-  '(progn
-     (require 'inf-haskell)
-     (require 'hs-lint)))
+    (use-package ghc
+      :commands ghc-init
+      :init
+      (add-hook 'haskell-mode-hook 'ghc-init))))
 
 ;;;_  . lisp
 
@@ -1646,47 +1871,81 @@ $0"))))
 
 ;;;_   , paredit
 
-(eval-after-load "paredit"
-  '(diminish 'paredit-mode))
+(use-package paredit
+  :diminish paredit-mode
+  :commands paredit-mode)
 
 ;;;_   , redhank
 
-(eval-after-load "redshank"
-  '(diminish 'redshank-mode))
+(use-package redshank
+  :diminish redshank-mode
+  :commands paredit-mode)
 
 ;;;_  . lua-mode
 
-(add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
-(add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
+(use-package lua-mode
+  :commands lua-mode
+  :init
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
+    (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))))
+
+;;;_  . nxml-mode
+
+(use-package nxml-mode
+  :commands nxml-mode
+  :init
+  (defalias 'xml-mode 'nxml-mode)
+  :config
+  (progn
+    (defun my-nxml-mode-hook ()
+      (define-key nxml-mode-map [return] 'newline-and-indent)
+      (define-key nxml-mode-map [(control return)] 'other-window))
+
+    (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
+
+    (defun tidy-xml-buffer ()
+      (interactive)
+      (save-excursion
+        (call-process-region (point-min) (point-max) "tidy" t t nil
+                             "-xml" "-i" "-wrap" "0" "-omit" "-q")))
+
+    (define-key nxml-mode-map [(control shift ?h)] 'tidy-xml-buffer)))
 
 ;;;_  . python-mode
 
-(add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
-(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+(use-package python-mode
+  :commands python-mode
+  :init
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
+    (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
-(info-lookup-add-help
- :mode 'python-mode
- :regexp "[a-zA-Z_0-9.]+"
- :doc-spec
- '(("(python)Python Module Index" )
-   ("(python)Index"
-    (lambda
-      (item)
-      (cond
-       ((string-match
-         "\\([A-Za-z0-9_]+\\)() (in module \\([A-Za-z0-9_.]+\\))" item)
-        (format "%s.%s" (match-string 2 item) (match-string 1 item))))))))
+    (when (featurep 'info-look)
+      (info-lookup-add-help
+       :mode 'python-mode
+       :regexp "[a-zA-Z_0-9.]+"
+       :doc-spec
+       '(("(python)Python Module Index" )
+         ("(python)Index"
+          (lambda
+            (item)
+            (cond
+             ((string-match
+               "\\([A-Za-z0-9_]+\\)() (in module \\([A-Za-z0-9_.]+\\))" item)
+              (format "%s.%s" (match-string 2 item)
+                      (match-string 1 item)))))))))
 
-(defun my-python-mode-hook ()
-  (setq indicate-empty-lines t)
-  (set (make-local-variable 'parens-require-spaces) nil)
-  (setq indent-tabs-mode nil)
+    (defun my-python-mode-hook ()
+      (setq indicate-empty-lines t)
+      (set (make-local-variable 'parens-require-spaces) nil)
+      (setq indent-tabs-mode nil)
 
-  (define-key python-mode-map [(control return)] 'other-window)
-  (define-key python-mode-map [(control ?c) (control ?z)] 'python-shell)
-  (define-key python-mode-map [(control ?c) ?c] 'compile))
+      (define-key python-mode-map [(control return)] 'other-window)
+      (define-key python-mode-map [(control ?c) (control ?z)] 'python-shell)
+      (define-key python-mode-map [(control ?c) ?c] 'compile))
 
-(add-hook 'python-mode-hook 'my-python-mode-hook)
+    (add-hook 'python-mode-hook 'my-python-mode-hook)))
 
 ;;;_  . ruby-mode
 
@@ -1712,50 +1971,77 @@ $0"))))
 
 (add-hook 'ruby-mode-hook 'my-ruby-mode-hook)
 
-;;;_  . nxml-mode
-
-(defalias 'xml-mode 'nxml-mode)
-
-(eval-when-compile
-  (defvar nxml-mode-map))
-
-(defun my-nxml-mode-hook ()
-  (define-key nxml-mode-map [return] 'newline-and-indent)
-  (define-key nxml-mode-map [(control return)] 'other-window))
-
-(add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
-
 ;;;_  . shell-script
 
-(info-lookup-add-help :mode 'shell-script-mode
-                      :regexp ".*"
-                      :doc-spec
-                      '(("(bash)Index")))
+(when (featurep 'info-look)
+  (info-lookup-add-help :mode 'shell-script-mode
+                        :regexp ".*"
+                        :doc-spec
+                        '(("(bash)Index"))))
 
-;;;_  . zencoding
+;;;_  . zencoding-mode
 
-(eval-when-compile
-  (defvar html-mode-map))
+(use-package zencoding-mode
+  :commands zencoding-mode
+  :config
+  (progn
+    (defvar zencoding-mode-keymap (make-sparse-keymap))
+    (define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)
 
-(defvar zencoding-mode-keymap (make-sparse-keymap))
+    (add-hook 'nxml-mode-hook 'zencoding-mode)
+    (add-hook 'html-mode-hook 'zencoding-mode)
+    (add-hook 'html-mode-hook
+              (function
+               (lambda ()
+                 (define-key html-mode-map [return] 'newline-and-indent))))))
 
-(define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)
+;;;_ , Gnus
 
-(add-hook 'nxml-mode-hook 'zencoding-mode)
-(add-hook 'html-mode-hook 'zencoding-mode)
+(defvar gnus-unbury-window-configuration nil)
 
-(add-hook 'html-mode-hook
-          (lambda ()
-            (define-key html-mode-map [return] 'newline-and-indent)))
+(defun switch-to-gnus (&optional arg)
+  (interactive "P")
+  (let ((alist '(("\\`\\*unsent")
+                 ("\\`\\*Article")
+                 ("\\`\\*Summary")
+                 ("\\`\\*Group"
+                  (lambda (buf)
+                    (with-current-buffer buf
+                      (gnus-group-get-new-news))))))
+        candidate)
+    (catch 'found
+      (dolist (item alist)
+        (let ((regexp (nth 0 item))
+              (test (nth 1 item))
+              last)
+          (dolist (buf (buffer-list))
+            (if (string-match regexp (buffer-name buf))
+                (setq last buf)))
+          (if (and last (or (null test)
+                            (funcall test last)))
+              (throw 'found (setq candidate last))))))
+    (if candidate
+        (ido-visit-buffer candidate ido-default-buffer-method)
+      (let ((gnus-startup-hook (if arg nil gnus-startup-hook)))
+        (gnus)))))
 
-(defun tidy-xml-buffer ()
-  (interactive)
-  (save-excursion
-    (call-process-region (point-min) (point-max) "tidy" t t nil
-                         "-xml" "-i" "-wrap" "0" "-omit" "-q")))
+(define-key global-map [(meta shift ?g)] 'switch-to-gnus)
 
-(eval-after-load "nxml-mode"
-  '(define-key nxml-mode-map [(control shift ?h)] 'tidy-xml-buffer))
+(use-package fetchmail-ctl
+  :init
+  (progn
+    (defun quickping (host)
+      (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
+
+    (defun maybe-start-fetchmail-and-news ()
+      (interactive)
+      (when (quickping "imap.gmail.com")
+        (do-applescript "tell application \"Notify\" to run")
+        (start-fetchmail)
+        (save-window-excursion
+          (fetchnews-fetch))))
+
+    (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)))
 
 ;;;_ , Org-mode
 
@@ -1965,9 +2251,6 @@ To use this function, add it to `org-agenda-finalize-hook':
       (insert (format ":ID:       %s\n:CREATED:  " uuid)))
     (forward-line)
     (insert ":END:")))
-
-(eval-when-compile
-  (require 'org-mobile))
 
 (defun my-org-convert-incoming-items ()
   (interactive)
@@ -2506,9 +2789,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
 
-(eval-when-compile
-  (defvar yas/keymap))
-
 (add-hook 'org-mode-hook
           (lambda ()
             (set (make-local-variable 'yas/trigger-key) [tab])
@@ -2552,367 +2832,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   "Fit the Org Agenda to its buffer."
   (org-fit-agenda-window))
 
-;;;_ , Gnus
-
-(require 'gnus)
-(require 'nnir)
-(require 'nnmairix)
-(require 'message)
-(require 'starttls)
-(require 'my-gnus-score)
-(require 'gnus-harvest)
-(require 'fetchmail-ctl)
-
-(eval-when-compile
-  (require 'gnus-group)
-  (require 'gnus-sum))
-
-(defface gnus-summary-expirable-face
-  '((((class color) (background dark))
-     (:foreground "grey50" :italic t :strike-through t))
-    (((class color) (background light))
-     (:foreground "grey55" :italic t :strike-through t)))
-  "Face used to highlight articles marked as expirable."
-  :group 'gnus-summary-visual)
-
-(gnus-compile)
-(gnus-delay-initialize)
-
-(gnus-harvest-install 'message-x)
-
-(add-hook 'message-setup-hook 'gnus-alias-determine-identity)
-(add-hook 'message-x-after-completion-functions
-          'gnus-alias-message-x-completion)
-
-(add-hook 'mail-citation-hook 'sc-cite-original)
-
-(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
-(add-hook 'gnus-group-mode-hook 'hl-line-mode)
-(add-hook 'gnus-summary-mode-hook 'hl-line-mode)
-
-(add-hook 'dired-mode-hook 'gnus-dired-mode)
-
-(defalias 'gnus-user-format-function-size 'rs-gnus-summary-line-message-size)
-
-(setq gnus-balloon-face-0 'rs-gnus-balloon-0)
-(setq gnus-balloon-face-1 'rs-gnus-balloon-1)
-
-(defun quickping (host)
-  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
-
-(defun maybe-start-fetchmail-and-news ()
-  (interactive)
-  (when (quickping "imap.gmail.com")
-    (do-applescript "tell application \"Notify\" to run")
-    (start-fetchmail)
-    (fetchnews-fetch)))
-
-(add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
-
-(defun my-message-header-setup-hook ()
-  (let ((group (or gnus-newsgroup-name "")))
-    (message-remove-header "From")
-    (message-remove-header "Gcc")
-    (message-add-header
-     (format "Gcc: %s" (if (string-match "\\`list\\." group)
-                           "mail.sent"
-                         "INBOX")))))
-
-(add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
-
-(defun queue-message-if-not-connected ()
-  (set (make-local-variable 'gnus-agent-queue-mail)
-       (if (quickping "smtp.gmail.com") t 'always)))
-
-(add-hook 'message-send-hook 'queue-message-if-not-connected)
-
-(defun kick-postfix-if-needed ()
-  (if (and (quickping "imap.gmail.com")
-           (= 0 (call-process "/usr/bin/sudo" nil nil nil
-                              "/opt/local/libexec/postfix/master" "-t")))
-      (start-process "postfix" nil "/usr/bin/sudo"
-                     "/opt/local/libexec/postfix/master" "-e" "60")))
-
-(add-hook 'message-sent-hook 'kick-postfix-if-needed)
-
-(eval-after-load "message"
-  '(define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity))
-
-(defun activate-gnus ()
-  (unless (get-buffer "*Group*") (gnus)))
-
-(defvar gnus-query-history nil)
-
-(defun gnus-query (query &optional arg)
-  (interactive
-   (list (read-string "Mail Query: "
-                      (format-time-string "SINCE %d-%b-%Y "
-                                          (time-subtract (current-time)
-                                                         (days-to-time 90)))
-                      'gnus-query-history)
-         current-prefix-arg))
-  (activate-gnus)
-  (let ((nnir-imap-default-search-key "imap")
-        (nnir-ignored-newsgroups
-         (if arg
-             nnir-ignored-newsgroups
-           "\\(list\\.\\|mail\\.\\(spam\\)\\)")))
-    (gnus-group-make-nnir-group
-     nil `((query    . ,query)
-           (criteria . "")
-           (server   . "nnimap:Local")))))
-
-(define-key global-map [(alt meta ?f)] 'gnus-query)
-
-(defun gnus-group-get-all-new-news ()
-  (interactive)
-  (gnus-group-get-new-news 5)
-  (gnus-group-list-groups 4)
-  (my-gnus-score-groups)
-  (gnus-group-list-groups 4))
-
-(eval-after-load "gnus-group"
-  '(define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
-
-(defun gnus-demon-scan-news-2 ()
-  (when gnus-plugged
-    (let ((win (current-window-configuration))
-          (gnus-read-active-file nil)
-          (gnus-check-new-newsgroups nil)
-          (gnus-verbose 2)
-          (gnus-verbose-backends 5)
-          (level 21))
-      (unwind-protect
-          (save-window-excursion
-            (when (gnus-alive-p)
-              (with-current-buffer gnus-group-buffer
-                (gnus-group-get-new-news level))))
-        (set-window-configuration win)))))
-
-(gnus-demon-add-handler 'gnus-demon-scan-news-2 5 2)
-
-(defun gnus-goto-article (message-id)
-  (activate-gnus)
-  (gnus-summary-read-group "INBOX" 15 t)
-  (gnus-summary-refer-article message-id))
-
-(defun gmail-report-spam ()
-  "Report the current or marked mails as spam.
-This moves them into the Spam folder."
-  (interactive)
-  (gnus-summary-move-article nil "mail.spam"))
-
-;;;_  . Cleanup Gnus buffers on exit
-
-(defun exit-gnus-on-exit ()
-  (if (and (fboundp 'gnus-group-exit)
-           (gnus-alive-p))
-      (with-current-buffer (get-buffer "*Group*")
-        (let (gnus-interactive-exit)
-          (gnus-group-exit)))))
-
-(add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
-
-(defun save-gnus-newsrc ()
-  (if (and (fboundp 'gnus-group-exit)
-           (gnus-alive-p))
-      (with-current-buffer (get-buffer "*Group*")
-        (gnus-save-newsrc-file))))
-
-(gnus-demon-add-handler 'save-gnus-newsrc nil 1)
-
-;;;_  . Summary line format functions
-
-(when window-system
-  (setq
-   gnus-sum-thread-tree-false-root      "┌┬▷ "
-   gnus-sum-thread-tree-single-indent   ""
-   gnus-sum-thread-tree-root            "┌┬▶ "
-   gnus-sum-thread-tree-vertical        "│"
-   gnus-sum-thread-tree-leaf-with-other "├┬▶ "
-   gnus-sum-thread-tree-single-leaf     "╰┬▶ "
-   gnus-sum-thread-tree-indent          " "))
-
-(defsubst dot-gnus-tos (time)
-  "Convert TIME to a floating point number."
-  (+ (* (car time) 65536.0)
-     (cadr time)
-     (/ (or (car (cdr (cdr time))) 0) 1000000.0)))
-
-(defun gnus-user-format-function-S (header)
-  "Return how much time it's been since something was sent."
-  (condition-case err
-      (let ((date (mail-header-date header)))
-        (if (> (length date) 0)
-            (let*
-                ((then (dot-gnus-tos
-                        (apply 'encode-time (parse-time-string date))))
-                 (now (dot-gnus-tos (current-time)))
-                 (diff (- now then))
-                 (str
-                  (cond
-                   ((>= diff (* 86400.0 7.0 52.0))
-                    (if (>= diff (* 86400.0 7.0 52.0 10.0))
-                        (format "%3dY" (floor (/ diff (* 86400.0 7.0 52.0))))
-                      (format "%3.1fY" (/ diff (* 86400.0 7.0 52.0)))))
-                   ((>= diff (* 86400.0 30.0))
-                    (if (>= diff (* 86400.0 30.0 10.0))
-                        (format "%3dM" (floor (/ diff (* 86400.0 30.0))))
-                      (format "%3.1fM" (/ diff (* 86400.0 30.0)))))
-                   ((>= diff (* 86400.0 7.0))
-                    (if (>= diff (* 86400.0 7.0 10.0))
-                        (format "%3dw" (floor (/ diff (* 86400.0 7.0))))
-                      (format "%3.1fw" (/ diff (* 86400.0 7.0)))))
-                   ((>= diff 86400.0)
-                    (if (>= diff (* 86400.0 10.0))
-                        (format "%3dd" (floor (/ diff 86400.0)))
-                      (format "%3.1fd" (/ diff 86400.0))))
-                   ((>= diff 3600.0)
-                    (if (>= diff (* 3600.0 10.0))
-                        (format "%3dh" (floor (/ diff 3600.0)))
-                      (format "%3.1fh" (/ diff 3600.0))))
-                   ((>= diff 60.0)
-                    (if (>= diff (* 60.0 10.0))
-                        (format "%3dm" (floor (/ diff 60.0)))
-                      (format "%3.1fm" (/ diff 60.0))))
-                   (t
-                    (format "%3ds" (floor diff)))))
-                 (stripped
-                  (replace-regexp-in-string "\\.0" "" str)))
-              (concat (cond
-                       ((= 2 (length stripped)) "  ")
-                       ((= 3 (length stripped)) " ")
-                       (t ""))
-                      stripped))))
-    (error "    ")))
-
-(eval-when-compile
-  (defvar gnus-ignored-from-addresses))
-
-(defvar gnus-count-recipients-threshold 5
-  "*Number of recipients to consider as large.")
-
-(defun gnus-user-format-function-r (header)
-  "Given a Gnus message header, returns priority mark.
-If I am the only recipient, return \"!\".
-If I am one of a few recipients, but I'm listed in To:, return \"*\".
-If I am one of a few recipients, return \"/\".
-If I am one of many recipients, return \".\".
-Else, return \" \"."
-  (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
-         (cc (or (cdr (assoc 'Cc (mail-header-extra header))) "")))
-    (cond
-     ((string-match gnus-ignored-from-addresses to)
-      (let ((len (length (split-string to "\\s-*,\\s-*"))))
-        (cond
-         ((and (= len 1) (string= cc "")) "▻")
-         ((= len 1) "►")
-         ((< len gnus-count-recipients-threshold) "»")
-         (t "☀"))))
-     ((string-match gnus-ignored-from-addresses
-                    (concat to ", " cc))
-      (if (< (length (split-string (concat to ", " cc) "\\s-*,\\s-*"))
-             gnus-count-recipients-threshold)
-          "·"
-        ":"))
-     (t " "))))
-
-;;;_  . Browsing article URLs
-
-(eval-when-compile
-  (defvar gnus-button-url-regexp))
-
-(defun gnus-article-get-urls-region (min max)
-  "Return a list of urls found in the region between MIN and MAX"
-  (let (url-list)
-    (save-excursion
-      (save-restriction
-        (narrow-to-region min max)
-        (goto-char (point-min))
-        (while (re-search-forward gnus-button-url-regexp nil t)
-          (let ((match-string (match-string-no-properties 0)))
-            (if (and (not (equal (substring match-string 0 4) "file"))
-                     (not (member match-string url-list)))
-                (setq url-list (cons match-string url-list)))))))
-    url-list))
-
-(defun gnus-article-get-current-urls ()
-  "Return a list of the urls found in the current `gnus-article-buffer'"
-  (let (url-list)
-    (with-current-buffer gnus-article-buffer
-      (setq url-list (gnus-article-get-urls-region (point-min) (point-max))))
-    url-list))
-
-(defun gnus-article-browse-urls ()
-  "Visit a URL from the `gnus-article-buffer' by prompting via a
-    poping up a buffer showing the list of URLs found with the
-    `gnus-button-url-regexp'."
-  (interactive)
-  (gnus-configure-windows 'article)
-  (gnus-summary-select-article nil nil 'pseudo)
-  (let ((temp-buffer (generate-new-buffer " *Article URLS*"))
-        (urls (gnus-article-get-current-urls))
-        (this-window (selected-window))
-        (browse-window (get-buffer-window gnus-article-buffer))
-        (count 0))
-    (save-excursion
-      (save-window-excursion
-        (with-current-buffer temp-buffer
-         (mapc (lambda (string)
-                 (insert (format "\t%d: %s\n" count string))
-                 (setq count (1+ count))) urls)
-         (not-modified)
-         (pop-to-buffer temp-buffer)
-         (setq count
-               (string-to-number
-                (char-to-string (if (fboundp
-                                     'read-char-exclusive)
-                                    (read-char-exclusive)
-                                  (read-char)))))
-         (kill-buffer temp-buffer)))
-      (if browse-window
-          (progn (select-window browse-window)
-                 (browse-url (nth count urls)))))
-    (select-window this-window)))
-
-;;;_  . Gnus keybindings
-
-(eval-after-load "gnus-sum"
-  '(progn
-     (define-key gnus-summary-mode-map [(meta ?q)]
-       'gnus-article-fill-long-lines)
-     (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
-     (define-key gnus-summary-mode-map [?B delete]
-       'gnus-summary-delete-article)
-
-     (defun my-gnus-trash-article (arg)
-       (interactive "P")
-       (if (string-match "\\(drafts\\|queue\\)" gnus-newsgroup-name)
-           (gnus-summary-delete-article arg)
-         (gnus-summary-move-article arg "mail.trash")))
-
-     (define-key gnus-summary-mode-map [?B backspace] 'my-gnus-trash-article)
-     (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
-       'gnus-article-browse-urls)))
-
-(eval-after-load "gnus-art"
-  '(progn
-     (define-key gnus-article-mode-map [(meta ?q)]
-       'gnus-article-fill-long-lines)
-     (define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
-     (define-key gnus-summary-mode-map [?B delete]
-       'gnus-summary-delete-article)
-
-     (defun my-gnus-trash-article (arg)
-       (interactive "P")
-       (if (string-match "\\(drafts\\|queue\\)" gnus-newsgroup-name)
-           (gnus-summary-delete-article arg)
-         (gnus-summary-move-article arg "mail.trash")))
-
-     (define-key gnus-summary-mode-map [?B backspace] 'my-gnus-trash-article)
-     (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
-       'gnus-article-browse-urls)))
-
 ;;;_. Keybindings
 
 ;;;_ , global-map
@@ -2923,39 +2842,7 @@ Else, return \" \"."
   (define-key override-global-map [(meta ?v)] 'yank)
   (define-key global-map [(meta ?v)] 'yank))
 
-(defun wikipedia-query (term)
-  (interactive (list (read-string "Wikipedia search: " (word-at-point))))
-  (w3m-search "en.wikipedia" term))
-
-(defun wolfram-alpha-query (term)
-  (interactive (list (read-string "Ask Wolfram Alpha: " (word-at-point))))
-  (w3m-browse-url (format "http://m.wolframalpha.com/input/?i=%s"
-                          (w3m-search-escape-query-string term))))
-
-(define-key global-map [(alt meta ?g)] 'w3m-search)
-(define-key global-map [(alt meta ?h)] 'wolfram-alpha-query)
-(define-key global-map [(alt meta ?w)] 'wikipedia-query)
-
 (define-key global-map [(control ?h) (control ?i)] 'info-lookup-symbol)
-
-(eval-after-load "w3m"
-  '(let (proxy-host proxy-port)
-     (with-temp-buffer
-       (shell-command "scutil --proxy" (current-buffer))
-       (when (re-search-forward "HTTPPort : \\([0-9]+\\)" nil t)
-         (setq proxy-port (match-string 1)))
-       (when (re-search-forward "HTTPProxy : \\(\\S-+\\)" nil t)
-         (setq proxy-host (match-string 1))))
-     (when (and proxy-host proxy-port)
-       (setq w3m-command-arguments
-             (nconc w3m-command-arguments
-                    (list "-o" (format "http_proxy=http://%s:%s/"
-                                       proxy-host proxy-port)))))
-
-     (add-hook 'w3m-mode-hook 'w3m-type-ahead-mode)
-
-     (define-key w3m-minor-mode-map "\C-m"
-       'w3m-view-url-with-external-browser)))
 
 ;;;_  . f?
 
@@ -2991,34 +2878,6 @@ Else, return \" \"."
 (define-key global-map [(meta ?j)] 'delete-indentation-forward)
 (define-key global-map [(meta ?J)] 'delete-indentation)
 
-(defvar gnus-unbury-window-configuration nil)
-
-(defun switch-to-gnus (&optional arg)
-  (interactive "P")
-  (let ((alist '(("\\`\\*unsent")
-                 ("\\`\\*Article")
-                 ("\\`\\*Summary")
-                 ("\\`\\*Group"
-                  (lambda (buf)
-                    (with-current-buffer buf
-                      (gnus-group-get-new-news))))))
-        candidate)
-    (catch 'found
-      (dolist (item alist)
-        (let ((regexp (nth 0 item))
-              (test (nth 1 item))
-              last)
-          (dolist (buf (buffer-list))
-            (if (string-match regexp (buffer-name buf))
-                (setq last buf)))
-          (if (and last (or (null test)
-                            (funcall test last)))
-              (throw 'found (setq candidate last))))))
-    (if candidate
-        (ido-visit-buffer candidate ido-default-buffer-method)
-      (let ((gnus-startup-hook (if arg nil gnus-startup-hook)))
-        (gnus)))))
-
 (defun show-compilation ()
   (interactive)
   (let ((compile-buf
@@ -3044,11 +2903,9 @@ Else, return \" \"."
 (define-key global-map [(meta shift ?o)] 'show-compilation)
 (define-key global-map [(meta shift ?b)] 'show-debugger)
 (define-key global-map [(meta shift ?c)] 'jump-to-org-agenda)
-(define-key global-map [(meta shift ?g)] 'switch-to-gnus)
 (define-key global-map [(meta ?m)] 'org-smart-capture)
 (define-key global-map [(meta shift ?m)] 'org-inline-note)
 ;;(define-key global-map [(meta shift ?t)] 'tags-search)
-(define-key global-map [(meta shift ?t)] 'anything-gtags-select)
 
 (defun find-grep-in-project (command-args)
   (interactive
@@ -3155,39 +3012,6 @@ Else, return \" \"."
 
 ;;;_ , ctl-x-map
 
-(defun ido-switch-buffer-tiny-frame (buffer)
-  (interactive (list (ido-read-buffer "Buffer: " nil t)))
-  (with-selected-frame
-      (make-frame '((width                . 80)
-                    (height               . 22)
-                    (left-fringe          . 0)
-                    (right-fringe         . 0)
-                    (vertical-scroll-bars . nil)
-                    (unsplittable         . t)
-                    (has-modeline-p       . nil)
-                    ;;(background-color     . "grey80")
-                    (minibuffer           . nil)))
-    (switch-to-buffer buffer)
-    (set (make-local-variable 'mode-line-format) nil)))
-
-(define-key ctl-x-map [?5 ?t] 'ido-switch-buffer-tiny-frame)
-
-(eval-when-compile
-  (require 'bookmark))
-
-(defun ido-bookmark-jump (bookmark &optional display-func)
-  (interactive
-   (list
-    (ido-completing-read "Jump to bookmark: "
-                         (mapcar #'car bookmark-alist)
-                         nil 0 nil 'bookmark-history)))
-  (unless bookmark
-    (error "No bookmark specified"))
-  (bookmark-maybe-historicize-string bookmark)
-  (bookmark--jump-via bookmark (or display-func 'switch-to-buffer)))
-
-(define-key ctl-x-map [?r ?b] 'ido-bookmark-jump)
-
 (defun edit-with-sudo ()
   (interactive)
   (find-file (concat "/sudo::" (buffer-file-name))))
@@ -3195,7 +3019,6 @@ Else, return \" \"."
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?f] 'anything-find-git-file)
 (define-key ctl-x-map [(shift ?f)] 'set-fill-column)
-(define-key ctl-x-map [?g] 'magit-status)
 (define-key ctl-x-map [?m] 'compose-mail)
 (define-key ctl-x-map [(shift ?s)] 'edit-with-sudo)
 (define-key ctl-x-map [?t] 'toggle-truncate-lines)
@@ -3222,7 +3045,6 @@ Else, return \" \"."
 (define-key ctl-x-map [(control ?d)] 'duplicate-line)
 (define-key ctl-x-map [(control ?e)] 'pp-eval-last-sexp)
 (define-key ctl-x-map [(control ?n)] 'next-line)
-(define-key ctl-x-map [(control ?z)] 'eshell-toggle)
 
 ;;;_  . C-x M-?
 
@@ -3354,32 +3176,6 @@ Else, return \" \"."
 (define-key mode-specific-map [?i ?r] 'ispell-region)
 
 ;; (define-key mode-specific-map [?j] 'dired-jump-other-window)
-
-(defun my-activate-sunrise ()
-  (interactive)
-  (let ((sunrise-exists
-         (count-if (lambda (buf)
-                     (string-match " (Sunrise)$" (buffer-name buf)))
-                   (buffer-list))))
-    (if (> sunrise-exists 0)
-        (call-interactively 'sunrise)
-      (sunrise "~/dl/" "~/Archives/"))))
-
-(define-key mode-specific-map [?j] 'my-activate-sunrise)
-(define-key mode-specific-map [(control ?j)] 'sunrise-cd)
-
-(defun dired-double-jump (first-dir second-dir)
-  (interactive
-   (list (ido-read-directory-name "First directory: "
-                                  (expand-file-name "~") nil nil "dl/")
-         (ido-read-directory-name "Second directory: "
-                                  (expand-file-name "~") nil nil "Archives/")))
-  (if t
-      (sunrise first-dir second-dir)
-    (dired first-dir)
-    (dired-other-window second-dir)))
-
-(define-key mode-specific-map [?J] 'dired-double-jump)
 
 (define-key mode-specific-map [?k] 'keep-lines)
 
@@ -3536,15 +3332,6 @@ Else, return \" \"."
 
 (define-key mode-specific-map [?S] 'org-store-link)
 (define-key mode-specific-map [?l] 'org-insert-link)
-
-(define-key mode-specific-map [?t ?.] 'gtags-find-rtag)
-(define-key mode-specific-map [?t ?f] 'gtags-find-file)
-(define-key mode-specific-map [?t ?p] 'gtags-parse-file)
-(define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
-(define-key mode-specific-map [?t ?i] 'gtags-find-with-idutils)
-(define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
-(define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
-(define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
 
 ;;(define-key mode-specific-map [?t ?%] 'tags>-query-replace)
 ;;(define-key mode-specific-map [?t ?a] 'tags-apropos)

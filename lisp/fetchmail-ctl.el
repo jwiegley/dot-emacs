@@ -119,7 +119,6 @@
      (define-key gnus-group-mode-map [?v ?b] 'switch-to-fetchmail)
      (define-key gnus-group-mode-map [?v ?o] 'start-fetchmail)
      (define-key gnus-group-mode-map [?v ?d] 'shutdown-fetchmail)
-     (define-key gnus-group-mode-map [?v ?g] 'kick-fetchmail)
      (define-key gnus-group-mode-map [?v ?k] 'kick-fetchmail)
 
      (define-key gnus-group-mode-map [?v ?f] 'fetchnews-fetch)
