@@ -3693,11 +3693,13 @@ Else, return \" \"."
 (when window-system
   (add-hook 'after-init-hook 'emacs-min)
   (add-hook 'after-init-hook 'server-start t)
-  (add-hook 'after-init-hook
-            (lambda ()
-              (org-agenda-list)
-              (org-fit-agenda-window)
-              (org-resolve-clocks)) t))
+  (if nil
+      (add-hook 'after-init-hook
+                (lambda ()
+                  (org-agenda-list)
+                  (org-fit-agenda-window)
+                  (org-resolve-clocks)) t))
+  )
 
 ;; Local Variables:
 ;;   mode: emacs-lisp
