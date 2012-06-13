@@ -652,6 +652,16 @@
 (eval-after-load "em-unix"
   '(unintern 'eshell/rm))
 
+;;;_ , fold-dwim
+
+(use-package fold-dwim
+  :commands (fold-dwim-toggle fold-dwim-hide-all fold-dwim-show-all)
+  :init
+  (progn
+    (define-key global-map [f13] 'fold-dwim-toggle)
+    (define-key global-map [f14] 'fold-dwim-hide-all)
+    (define-key global-map [f15] 'fold-dwim-show-all)))
+
 ;;;_ , git
 
 (setenv "GIT_PAGER" "")
@@ -1171,8 +1181,13 @@ $0"))))
 (defun my-c-mode-common-hook ()
   (abbrev-mode 1)
   (gtags-mode 1)
+  (hs-minor-mode 1)
+  (hide-ifdef-mode 1)
+
   (diminish 'gtags-mode)
   (diminish 'auto-complete-mode)
+  (diminish 'hs-minor-mode)
+  (diminish 'hide-ifdef-mode)
 
   (if t
       (progn
