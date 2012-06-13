@@ -2668,7 +2668,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (interactive)
   (gnus-group-get-new-news 5)
   (gnus-group-list-groups 4)
-  (my-gnus-score-groups))
+  (my-gnus-score-groups)
+  (gnus-group-list-groups 4))
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
