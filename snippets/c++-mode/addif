@@ -1,0 +1,7 @@
+#name : START TI ADD + #if OPENCL
+# --
+/*** START TI ADD ***/
+#if OPENCL_EXTENSIONS_SUPPORTED
+$0
+#endif /* OPENCL_EXTENSIONS_SUPPORTED */
+/*** END TI ADD ***/
