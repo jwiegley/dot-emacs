@@ -373,9 +373,7 @@ If ARG is anything else, turn on display."
     (setq ascii-display         t
 	  ascii-reference-count (1+ ascii-reference-count))
     ;; local hooks
-    (make-local-hook 'post-command-hook)
-    (add-hook 'post-command-hook 'ascii-post-command)
-    (make-local-hook 'kill-buffer-hook)
+    (add-hook 'post-command-hook 'ascii-post-command nil t)
     (add-hook 'kill-buffer-hook 'ascii-off nil t)
     ;; own hook
     (run-hooks 'ascii-hook)
@@ -407,9 +405,6 @@ If ARG is anything else, turn on display."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Internal variables
-
-
-(make-local-hook 'ascii-hook)
 
 
 (defconst ascii-table
