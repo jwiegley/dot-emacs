@@ -3425,7 +3425,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 ;; Local Variables:
 ;;   mode: emacs-lisp
 ;;   mode: allout
-;;   after-save-hook: (my-byte-recompile-file)
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
 ;; End:
 
