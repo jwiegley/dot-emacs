@@ -2,7 +2,7 @@
 
 DIRS	    = lisp lib site-lisp override
 SPECIAL	    = autoloads.el cus-dirs.el
-SOURCE	    = $(filter-out $(SPECIAL),$(wildcard *.el) \
+SOURCE	    = .gnus.el $(filter-out $(SPECIAL),$(wildcard *.el) \
 		$(wildcard lib/*.el) $(wildcard site-lisp/*.el))
 TARGET	    = $(patsubst %.el,%.elc,autoloads.el $(SOURCE))
 EMACS	    = emacs
@@ -34,6 +34,14 @@ settings.elc: settings.el
 
 load-path.elc: load-path.el
 	$(BATCH_LOAD) -f batch-byte-compile $<
+
+emacs.elc: emacs.el
+	rm -f $@
+	$(BATCH_LOAD) -l one-key -l init -f batch-byte-compile $<
+
+.gnus.elc: .gnus.el emacs.elc
+	rm -f $@
+	$(BATCH_LOAD) -l init -l .gnus -f batch-byte-compile .gnus.el
 
 %.elc: %.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
