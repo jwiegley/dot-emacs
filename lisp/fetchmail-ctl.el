@@ -52,7 +52,7 @@
       (let ((buf (get-buffer-create procname)))
         (setq fetchmail-process
               (apply #'start-process procname buf
-                     "/opt/local/bin/fetchmail" "-d" "900" "-N"
+                     "/opt/local/bin/fetchmail" "-d" "900" "-N" "--idle"
                      extra-args)))
       (message "Starting Fetchmail...done"))))
 
