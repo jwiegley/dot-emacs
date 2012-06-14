@@ -18,13 +18,15 @@
 
 (defun my-message-header-setup-hook ()
   (message-remove-header "From")
-  (unless (message-field-value "Gcc")
-    (message-remove-header "Gcc")
-    (message-add-header
-     (format "Gcc: %s"
-             (if (string-match "\\`list\\." (or gnus-newsgroup-name ""))
-                 "mail.sent"
-               "INBOX")))))
+  (let ((gcc (message-field-value "Gcc")))
+   (when (or (null gcc)
+             (string-match "nnfolder\\+archive:" gcc))
+     (message-remove-header "Gcc")
+     (message-add-header
+      (format "Gcc: %s"
+              (if (string-match "\\`list\\." (or gnus-newsgroup-name ""))
+                  "mail.sent"
+                "INBOX"))))))
 
 (add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
 
