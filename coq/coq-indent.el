@@ -350,7 +350,7 @@ and return nil."
       ;; Find end of command
       (while (and (setq foundbeg
                         (and
-                         (re-search-backward proof-script-command-end-regexp limit t)
+                         (re-search-backward proof-script-command-end-regexp limit 'dummy)
                          (match-beginning 1)))
                   (setq next-pos (- (match-end 0) 1))
                   (or (if (or (string-equal (match-string 1) "}")
