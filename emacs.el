@@ -194,10 +194,10 @@
   :commands ace-jump-mode
   :init
   (progn
-    (define-key global-map [(control ?.)] 'ace-jump-mode)
-    (define-key override-global-map [(control ?.)] 'ace-jump-mode)
+    (define-key global-map [(meta ?,)] 'ace-jump-mode)
+    (define-key override-global-map [(meta ?,)] 'ace-jump-mode)
     (eval-after-load "flyspell"
-      '(define-key flyspell-mode-map [(control ?.)] 'ace-jump-mode))))
+      '(define-key flyspell-mode-map [(meta ?,)] 'ace-jump-mode))))
 
 ;;;_ , allout
 
