@@ -145,3 +145,6 @@
 [submodule "site-lisp/helm-descbinds"]
 	path = site-lisp/helm-descbinds
 	url = https://github.com/emacs-helm/helm-descbinds.git
+[submodule "lisp/springboard"]
+	path = lisp/springboard
+	url = git://github.com/jwiegley/springboard.git

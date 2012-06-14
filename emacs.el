@@ -902,6 +902,17 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (if window-system
         (add-hook 'after-init-hook 'session-initialize t))))
 
+;;;_ , springboard
+
+(use-package springboard
+  :commands springboard
+  :init
+  (progn
+    (define-key global-map [(control ?.)] 'springboard)
+    (define-key override-global-map [(control ?.)] 'springboard)
+    (eval-after-load "flyspell"
+      '(define-key flyspell-mode-map [(control ?.)] 'springboard))))
+
 ;;;_ , stopwatch
 
 (use-package stopwatch
