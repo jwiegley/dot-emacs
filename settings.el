@@ -267,6 +267,8 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(indent-tabs-mode nil)
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
+ '(ipa-file "~/Documents/ipa")
+ '(ipa-overlay-position "above")
  '(irfc-directory "~/Archives/Admin/RFC/")
  '(ispell-extra-args (quote ("--sug-mode=fast" "--keyboard=dvorak")))
  '(kill-whole-line t)

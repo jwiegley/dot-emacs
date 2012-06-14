@@ -645,6 +645,10 @@
 
     (define-key ctl-x-map [?r ?b] 'ido-bookmark-jump)))
 
+;;;_ , ipa
+
+(use-package ipa)
+
 ;;;_ , isearch
 
 (use-package "isearch"

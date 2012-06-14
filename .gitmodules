@@ -148,3 +148,6 @@
 [submodule "lisp/springboard"]
 	path = lisp/springboard
 	url = git://github.com/jwiegley/springboard.git
+[submodule "site-lisp/ipa-el"]
+	path = site-lisp/ipa-el
+	url = https://github.com/idomagal/ipa.el.git
