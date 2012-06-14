@@ -75,7 +75,7 @@
  '(dired-clean-up-buffers-too nil)
  '(dired-dwim-target t)
  '(dired-guess-shell-gnutar "tar")
- '(dired-listing-switches "--time-style=locale --group-directories-first -lDhgG")
+ '(dired-listing-switches "-lah")
  '(dired-load-hook (quote ((lambda nil (load "dired-x")))))
  '(dired-no-confirm (quote (byte-compile chgrp chmod chown copy hardlink symlink touch)))
  '(dired-omit-files "^\\.?#\\|^\\.\\(DS_Store\\|localized\\|AppleDouble\\)$\\|^\\.\\.$")
