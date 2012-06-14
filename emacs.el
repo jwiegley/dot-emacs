@@ -15,6 +15,7 @@
          (config-body (plist-get args :config))
          (diminish-var (plist-get args :diminish))
          (defines (plist-get args :defines))
+         (predicate (plist-get args :if))
          (defines-eval (if (null defines)
                            nil
                          (if (listp defines)
@@ -58,24 +59,28 @@
                ,(if (stringp name)
                     `(load ,name t)
                   `(require ',name nil t)))
-             ,@form
-             ,init-body
-             ,(when config-body
-                `(eval-after-load ,name-string
-                   '(if ,requires-test
-                        ,config-body)))))
+             (when ,(or predicate t)
+               ,@form
+               ,init-body
+               ,(when config-body
+                  `(eval-after-load ,name-string
+                     '(if ,requires-test
+                          ,config-body))
+                  t))))
       `(progn
          (eval-when-compile
            ,@defines-eval
            ,(if (stringp name)
                 `(load ,name t)
               `(require ',name nil t)))
-         (when (and ,requires-test
+         (when (and ,(or predicate t)
+                    ,requires-test
                     ,(if (stringp name)
                          `(load ,name t)
                        `(require ',name nil t)))
            ,init-body
-           ,config-body)))))
+           ,config-body
+           t)))))
 
 (put 'use-package 'lisp-indent-function 1)
 
