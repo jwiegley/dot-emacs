@@ -571,10 +571,49 @@
 
     (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)
 
-    (when (featurep 'helm)
+    (when (use-package helm)
       (require 'helm-gtags)
       (define-key global-map [(meta shift ?t)] 'helm-gtags-select)
       (define-key gtags-mode-map "\e," 'helm-gtags-resume))))
+
+;;;_ , helm
+
+(use-package helm-config
+  :init
+  (progn
+    (use-package helm-descbinds
+      :commands helm-descbinds
+      :init
+      (fset 'describe-bindings 'helm-descbinds))
+
+    (use-package helm-match-plugin
+      :init
+      (helm-match-plugin-mode t))
+
+    (define-key mode-specific-map [(meta ?x)] 'helm-M-x)
+
+    (defun my-helm-apropos ()
+      (interactive)
+      (require 'helm-elisp)
+      (require 'helm-misc)
+      (let ((default (thing-at-point 'symbol)))
+        (helm
+         :prompt "Info about: "
+         :candidate-number-limit 5
+         :sources
+         (append (mapcar (lambda (func)
+                           (funcall func default))
+                         '(helm-c-source-emacs-commands
+                           helm-c-source-emacs-functions
+                           helm-c-source-emacs-variables
+                           helm-c-source-emacs-faces
+                           helm-c-source-helm-attributes))
+                 '(helm-c-source-info-emacs
+                   helm-c-source-info-elisp
+                   helm-c-source-info-gnus
+                   helm-c-source-info-org
+                   helm-c-source-info-cl
+                   helm-c-source-emacs-source-defun)))))))
 
 ;;;_ , ido
 
@@ -715,7 +754,7 @@
     (defun git-commit-changes ()
       (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
 
-    (when (featurep 'helm)
+    (when (use-package helm)
       (defvar helm-c-source-git-files
         '((name . "Files under Git version control")
           (init . helm-c-source-git-files-init)
@@ -1039,7 +1078,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :commands vkill
   :init
   (progn
-    (if (featurep 'helm)
+    (if (use-package helm)
         (progn
           (defun vkill-and-helm-occur ()
             (interactive)
@@ -3302,43 +3341,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
       (forward-paragraph))))
 
 (define-key mode-specific-map [(meta ?q)] 'unfill-paragraph)
-
-;;;_ , helm
-
-(use-package helm
-  :init
-  (progn
-    (use-package helm-descbinds
-      :commands helm-descbinds
-      :init
-      (fset 'describe-bindings 'helm-descbinds))
-
-    (use-package helm-match-plugin
-      :init
-      (helm-match-plugin-mode t))))
-
-(defun my-helm-apropos ()
-  (interactive)
-  (require 'helm-elisp)
-  (require 'helm-misc)
-  (let ((default (thing-at-point 'symbol)))
-    (helm
-     :prompt "Info about: "
-     :candidate-number-limit 5
-     :sources
-     (append (mapcar (lambda (func)
-                       (funcall func default))
-                     '(helm-c-source-emacs-commands
-                       helm-c-source-emacs-functions
-                       helm-c-source-emacs-variables
-                       helm-c-source-emacs-faces
-                       helm-c-source-helm-attributes))
-             '(helm-c-source-info-emacs
-               helm-c-source-info-elisp
-               helm-c-source-info-gnus
-               helm-c-source-info-org
-               helm-c-source-info-cl
-               helm-c-source-emacs-source-defun)))))
 
 ;;;_ , help-map
 
