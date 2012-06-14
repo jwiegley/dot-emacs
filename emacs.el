@@ -221,6 +221,10 @@
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
 
+;;;_ , archive-region
+
+(use-package archive-region)
+
 ;;;_ , auctex
 
 (use-package tex-site
