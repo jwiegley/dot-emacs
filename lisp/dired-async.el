@@ -46,8 +46,9 @@
 
 (defun rsync-file-asynchronously (from to)
   (let ((args (list "-avHy" "--delete-during" "--force-delete")))
-    (nconc args (list (dired-async-translate-for-rsync from)
-                      (dired-async-translate-for-rsync to)))
+    (nconc args
+           (list (expand-file-name (dired-async-translate-for-rsync from))
+                 (expand-file-name (dired-async-translate-for-rsync to))))
     (apply #'start-process-and-kill-buffer "rsync"
            (generate-new-buffer "*rsync*")
            (executable-find "rsync") args)))
@@ -56,7 +57,7 @@
   (let ((args (list "-pvR")))
     (if ok-flag
         (nconc args (list "-i")))
-    (nconc args (list from to))
+    (nconc args (list (expand-file-name from) (expand-file-name to)))
     (apply #'start-process-and-kill-buffer "cp"
            (generate-new-buffer "*cp*")
            (executable-find "cp") args)))
@@ -74,7 +75,7 @@
 
 (defun move-file-asynchronously (file newname ok-flag)
   (let ((args (list "-v")))
-    (nconc args (list file newname))
+    (nconc args (list (expand-file-name file) (expand-file-name newname)))
     (apply #'start-process-and-kill-buffer "mv"
            (generate-new-buffer "*mv*")
            (executable-find "mv") args)))
@@ -99,7 +100,7 @@
   (let ((args (list "-f")))
     (if recursive
         (nconc args (list "-r")))
-    (nconc args (list file))
+    (nconc args (list (expand-file-name file)))
     (apply #'start-process-and-kill-buffer "rm"
            (generate-new-buffer "*rm*")
            (executable-find "rm") args)))
