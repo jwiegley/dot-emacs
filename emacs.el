@@ -558,6 +558,8 @@
   :diminish gtags-mode
   :config
   (progn
+    (define-key global-map [(meta ?.)] 'gtags-find-tag)
+
     (define-key mode-specific-map [?t ?.] 'gtags-find-rtag)
     (define-key mode-specific-map [?t ?f] 'gtags-find-file)
     (define-key mode-specific-map [?t ?p] 'gtags-parse-file)
