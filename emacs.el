@@ -938,6 +938,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , session
 
 (use-package session
+  :if window-system
   :init
   (progn
     (defun save-information ()
@@ -1215,6 +1216,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package workgroups
   :diminish workgroups-mode
+  :if window-system
   :config
   (progn
     (workgroups-mode 1)
