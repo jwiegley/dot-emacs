@@ -2959,7 +2959,9 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (defun edit-with-sudo ()
   (interactive)
-  (find-file (concat "/sudo::" (buffer-file-name))))
+  (let ((buf (current-buffer)))
+    (find-file (concat "/sudo::" (buffer-file-name)))
+    (kill-buffer buf)))
 
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
 (define-key ctl-x-map [?f] 'helm-find-git-file)
