@@ -1674,8 +1674,11 @@ $0"))))
 
 ;;;_   , eldoc
 
-(eval-after-load "eldoc"
-  '(diminish 'eldoc-mode))
+(use-package eldoc
+  :defer t
+  :diminish eldoc-mode
+  :config
+  (use-package eldoc-extension))
 
 ;;;_   , elint
 
