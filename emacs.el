@@ -2070,7 +2070,6 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun org-my-message-open (message-id)
   (gnus-goto-article
-   (remove-text-properties 2 (length message-id))
    (gnus-string-remove-all-properties (substring message-id 2))))
 
 ;;(defun org-my-message-open (message-id)
