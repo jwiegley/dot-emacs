@@ -2853,11 +2853,12 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (defun find-grep-in-project (command-args)
   (interactive
-   (progn
-     (list (read-shell-command
-            "Run find (like this): "
-            '("git ls-files -z | xargs -P4 -0 egrep -nH -e " . 45)
-            'grep-find-history))))
+   (let ((default (thing-at-point 'symbol)))
+     (list (read-shell-command "Run find (like this): "
+                               (cons (concat "git --no-pager grep -n "
+                                             default)
+                                     (+ 24 (length default)))
+                               'grep-find-history))))
   (when command-args
     (let ((null-device nil))            ; see grep
       (grep command-args))))
