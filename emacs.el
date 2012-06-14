@@ -939,10 +939,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :init
   (add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode)))
 
-;;;_ , savekill
-
-(use-package savekill)
-
 ;;;_ , session
 
 (use-package session
