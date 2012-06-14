@@ -2799,7 +2799,9 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (define-key global-map [(meta ?/)] 'dabbrev-expand)
 (define-key global-map [(meta ?,)] 'helm-resume)
 
+(define-key global-map [(meta ?g) ?c] 'goto-char)
 (define-key global-map [(meta ?g) ?g] 'helm-find-git-file)
+(define-key global-map [(meta ?g) ?l] 'goto-line)
 
 (defun delete-indentation-forward ()
   (interactive)
@@ -3096,7 +3098,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (define-key mode-specific-map [?e ?z] 'byte-recompile-directory)
 
 (define-key mode-specific-map [?f] 'flush-lines)
-(define-key mode-specific-map [?g] 'goto-line)
+(define-key mode-specific-map [?g] 'ignore)
 (define-key mode-specific-map [?G] 'gist-region-or-buffer)
 (define-key mode-specific-map [?h] 'crosshairs-mode)
 
