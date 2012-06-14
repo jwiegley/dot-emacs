@@ -952,6 +952,13 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (if window-system
         (add-hook 'after-init-hook 'session-initialize t))))
 
+;;;_ , smart-compile
+
+(use-package smart-compile
+  :commands smart-compile
+  :init
+  (define-key mode-specific-map [?c] 'smart-compile))
+
 ;;;_ , springboard
 
 (use-package springboard
