@@ -1,5 +1,7 @@
 ;;; load-path.el
 
+(defconst user-data-directory
+  (expand-file-name "data/" user-emacs-directory))
 (defconst user-lisp-directory
   (expand-file-name "lisp/" user-emacs-directory))
 (defconst user-lib-directory

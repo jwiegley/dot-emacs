@@ -1,5 +1,9 @@
 ;;;_. Initialization
 
+(defconst emacs-start-time (current-time))
+
+(message "Loading %s..." load-file-name)
+
 (eval-when-compile
   (require 'cl))
 
@@ -39,53 +43,68 @@
                          (mapcar (lambda (var) `(diminish (quote ,var)))
                                  diminish-var)
                        `((diminish (quote ,diminish-var))))))))
-    ;;(setq init-body
-    ;;      `(progn
-    ;;         (message "Loading package: %s\n%s\n%s\n%s" ,name-string
-    ;;                  (format-time-string "%H:%M:%S.%N") gc-elapsed
-    ;;                  (memory-use-counts))
-    ;;         ,init-body))
-    (if (or commands (plist-get args :defer))
-        (let (form)
-          (unless (listp commands)
-            (setq commands (list commands)))
-          (dolist (command commands)
-            (add-to-list
-             'form `(autoload (function ,command)
-                      ,name-string nil t)))
-          `(progn
-             (eval-when-compile
-               ,@defines-eval
-               ,(if (stringp name)
-                    `(load ,name t)
-                  `(require ',name nil t)))
-             (when ,(or predicate t)
-               ,@form
+    (unless (plist-get args :disabled)
+      (if (or commands (plist-get args :defer))
+          (let (form)
+            (unless (listp commands)
+              (setq commands (list commands)))
+            (dolist (command commands)
+              (add-to-list
+               'form `(autoload (function ,command)
+                        ,name-string nil t)))
+            `(progn
+               (eval-when-compile
+                 ,@defines-eval
+                 ,(if (stringp name)
+                      `(load ,name t)
+                    `(require ',name nil t)))
+               (when ,(or predicate t)
+                 (let ((now (current-time)))
+                   (message "Loading package %s..." ,name-string)
+                   ,@form
+                   ,init-body
+                   ,(unless (null config-body)
+                      `(eval-after-load ,name-string
+                         '(if ,requires-test
+                              ,config-body)))
+                   (let ((elapsed (float-time (time-subtract (current-time)
+                                                             now))))
+                     (if (> elapsed 0.01)
+                         (message "Loading package %s...done (%.3fs)"
+                                  ,name-string elapsed)
+                       (message "Loading package %s...done" ,name-string))))
+                 t)))
+        `(progn
+           (eval-when-compile
+             ,@defines-eval
+             ,(if (stringp name)
+                  `(load ,name t)
+                `(require ',name nil t)))
+           (when (and ,(or predicate t)
+                      ,requires-test
+                      ,(if (stringp name)
+                           `(load ,name t)
+                         `(require ',name nil t)))
+             (let ((now (current-time)))
+               (message "Loading package %s..." ,name-string)
                ,init-body
-               ,(when config-body
-                  `(eval-after-load ,name-string
-                     '(if ,requires-test
-                          ,config-body))
-                  t))))
-      `(progn
-         (eval-when-compile
-           ,@defines-eval
-           ,(if (stringp name)
-                `(load ,name t)
-              `(require ',name nil t)))
-         (when (and ,(or predicate t)
-                    ,requires-test
-                    ,(if (stringp name)
-                         `(load ,name t)
-                       `(require ',name nil t)))
-           ,init-body
-           ,config-body
-           t)))))
+               ,config-body
+               (let ((elapsed (float-time (time-subtract (current-time)
+                                                         now))))
+                 (if (> elapsed 0.01)
+                     (message "Loading package %s...done (%.3fs)"
+                              ,name-string elapsed)
+                   (message "Loading package %s...done" ,name-string))))
+             t))))))
 
 (put 'use-package 'lisp-indent-function 1)
 
 (font-lock-add-keywords 'emacs-lisp-mode
                         '(("(use-package\\>" . font-lock-keyword-face)))
+
+(defmacro hook-into-modes (func modes)
+  `(dolist (mode-hook ,modes)
+     (add-hook mode-hook ,func)))
 
 ;;;_ , Create my own global minor-mode, to hold key remappings
 
@@ -131,6 +150,33 @@
       gnus-home-directory "~/Messages/Gnus/") ; a necessary override
 
 (load "~/.emacs.d/settings")
+
+(defvar running-emacs-alternate nil)
+
+(unless (string= invocation-directory
+                 "/Applications/Misc/Emacs.app/Contents/MacOS/")
+  (setq running-emacs-alternate t)
+  (let ((regexp
+         (concat "\\`" (regexp-quote (expand-file-name user-data-directory))))
+        (user-emacs-alt-directory
+         (replace-regexp-in-string "/data/" "/data-alt/"
+                                   (expand-file-name user-data-directory))))
+    (dolist (incl (apropos-internal "-\\(file\\(-name\\)?\\|directory\\)\\'"
+                                    'boundp))
+      (let* ((symbol (if (consp incl) (car incl) incl))
+             (value (symbol-value symbol)))
+        (when (stringp value)
+          (setq value (expand-file-name value))
+          (if t
+              (message "(set %s \"%s\")"
+                       (symbol-name symbol)
+                       (replace-regexp-in-string
+                        regexp (expand-file-name user-emacs-alt-directory)
+                        value))
+            (set symbol
+                 (replace-regexp-in-string
+                  regexp (expand-file-name user-emacs-alt-directory)
+                  value))))))))
 
 ;;;_ , Enable disabled commands
 
@@ -266,6 +312,19 @@
 (define-key ac-menu-map "\C-n" 'ac-next)
 (define-key ac-menu-map "\C-p" 'ac-previous)
 
+;;;_ , auto-complete
+
+(use-package image-file
+  :init
+  (auto-image-file-mode 1))
+
+;;;_ , autorevert
+
+(use-package autorevert
+  :disabled t
+  :init
+  (global-auto-revert-mode 1))
+
 ;;;_ , backup-each-save
 
 (require 'backup-each-save)
@@ -274,7 +333,8 @@
 
 (defun backup-each-save-filter (filename)
   (message "Checking '%s'" filename)
-  (not (string-match "\\(^/tmp\\|\\.emacs\\.d/data/\\|\\.newsrc\\(\\.eld\\)?\\)" filename)))
+  (not (string-match "\\(^/tmp\\|\\.emacs\\.d/data/\\|\\.newsrc\\(\\.eld\\)?\\)"
+                     filename)))
 
 (setq backup-each-save-filter-function 'backup-each-save-filter)
 
@@ -331,84 +391,85 @@
 ;;;_ , dired
 
 (use-package dired
-  :defer t
-  :config
+  :init
   (progn
-    (use-package dired-x)
-    (use-package runner)
+    (defun dired-package-initialize ()
+      (use-package dired-x)
+      (use-package dired-async)
+      (use-package runner)
 
-    (setq dired-use-ls-dired t)
+      (setq dired-use-ls-dired t)
 
-    (define-key dired-mode-map [?l] 'dired-up-directory)
-    (define-key dired-mode-map [tab] 'other-window)
+      (define-key dired-mode-map [?l] 'dired-up-directory)
+      (define-key dired-mode-map [tab] 'other-window)
 
-    (define-key dired-mode-map [(meta shift ?g)] nil)
-    (define-key dired-mode-map [(meta ?s) ?f] nil)
+      (define-key dired-mode-map [(meta shift ?g)] nil)
+      (define-key dired-mode-map [(meta ?s) ?f] nil)
 
-    (defadvice dired-next-line (around dired-next-line+ activate)
-      "Replace current buffer if file is a directory."
-      ad-do-it
-      (while (and  (not  (eobp)) (not ad-return-value))
-        (forward-line)
-        (setq ad-return-value(dired-move-to-filename)))
-      (when (eobp)
-        (forward-line -1)
-        (setq ad-return-value(dired-move-to-filename))))
+      (defadvice dired-next-line (around dired-next-line+ activate)
+        "Replace current buffer if file is a directory."
+        ad-do-it
+        (while (and  (not  (eobp)) (not ad-return-value))
+          (forward-line)
+          (setq ad-return-value(dired-move-to-filename)))
+        (when (eobp)
+          (forward-line -1)
+          (setq ad-return-value(dired-move-to-filename))))
 
-    (defadvice dired-previous-line (around dired-previous-line+ activate)
-      "Replace current buffer if file is a directory."
-      ad-do-it
-      (while (and  (not  (bobp)) (not ad-return-value))
-        (forward-line -1)
-        (setq ad-return-value(dired-move-to-filename)))
-      (when (bobp)
-        (call-interactively 'dired-next-line)))
+      (defadvice dired-previous-line (around dired-previous-line+ activate)
+        "Replace current buffer if file is a directory."
+        ad-do-it
+        (while (and  (not  (bobp)) (not ad-return-value))
+          (forward-line -1)
+          (setq ad-return-value(dired-move-to-filename)))
+        (when (bobp)
+          (call-interactively 'dired-next-line)))
 
-    (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+      (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
-    ;; Omit files that Git would ignore
-    (defun dired-omit-regexp ()
-      (let ((file (expand-file-name ".git"))
-            parent-dir)
-        (while (and (not (file-exists-p file))
-                    (progn
-                      (setq parent-dir
-                            (file-name-directory
-                             (directory-file-name
-                              (file-name-directory file))))
-                      ;; Give up if we are already at the root dir.
-                      (not (string= (file-name-directory file)
-                                    parent-dir))))
-          ;; Move up to the parent dir and try again.
-          (setq file (expand-file-name ".git" parent-dir)))
-        ;; If we found a change log in a parent, use that.
-        (if (file-exists-p file)
-            (let ((regexp (funcall dired-omit-regexp-orig))
-                  (omitted-files
-                   (shell-command-to-string "git clean -d -x -n")))
-              (if (= 0 (length omitted-files))
-                  regexp
-                (concat
-                 regexp
-                 (if (> (length regexp) 0)
-                     "\\|" "")
-                 "\\("
-                 (mapconcat
-                  #'(lambda (str)
-                      (concat
-                       "^"
-                       (regexp-quote
-                        (substring str 13
-                                   (if (= ?/ (aref str (1- (length str))))
-                                       (1- (length str))
-                                     nil)))
-                       "$"))
-                  (split-string omitted-files "\n" t)
-                  "\\|")
-                 "\\)")))
-          (funcall dired-omit-regexp-orig))))
+      ;; Omit files that Git would ignore
+      (defun dired-omit-regexp ()
+        (let ((file (expand-file-name ".git"))
+              parent-dir)
+          (while (and (not (file-exists-p file))
+                      (progn
+                        (setq parent-dir
+                              (file-name-directory
+                               (directory-file-name
+                                (file-name-directory file))))
+                        ;; Give up if we are already at the root dir.
+                        (not (string= (file-name-directory file)
+                                      parent-dir))))
+            ;; Move up to the parent dir and try again.
+            (setq file (expand-file-name ".git" parent-dir)))
+          ;; If we found a change log in a parent, use that.
+          (if (file-exists-p file)
+              (let ((regexp (funcall dired-omit-regexp-orig))
+                    (omitted-files
+                     (shell-command-to-string "git clean -d -x -n")))
+                (if (= 0 (length omitted-files))
+                    regexp
+                  (concat
+                   regexp
+                   (if (> (length regexp) 0)
+                       "\\|" "")
+                   "\\("
+                   (mapconcat
+                    #'(lambda (str)
+                        (concat
+                         "^"
+                         (regexp-quote
+                          (substring str 13
+                                     (if (= ?/ (aref str (1- (length str))))
+                                         (1- (length str))
+                                       nil)))
+                         "$"))
+                    (split-string omitted-files "\n" t)
+                    "\\|")
+                   "\\)")))
+            (funcall dired-omit-regexp-orig)))))
 
-    (use-package dired-async)))
+    (add-hook 'dired-load-hook 'dired-package-initialize)))
 
 ;;;_ , ediff
 
@@ -555,30 +616,43 @@
     (define-key global-map [f14] 'fold-dwim-hide-all)
     (define-key global-map [f15] 'fold-dwim-show-all)))
 
-;;;_ , gtags
+;;;_ , grep
 
-(use-package gtags
-  :commands gtags-mode
-  :diminish gtags-mode
+(use-package grep
+  :defer t
   :config
   (progn
-    (define-key global-map [(meta ?.)] 'gtags-find-tag)
+    (grep-apply-setting 'grep-command "grep -nH -e ")
+    (grep-apply-setting
+     'grep-find-command
+     '("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52))))
 
-    (define-key mode-specific-map [?t ?.] 'gtags-find-rtag)
-    (define-key mode-specific-map [?t ?f] 'gtags-find-file)
-    (define-key mode-specific-map [?t ?p] 'gtags-parse-file)
-    (define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
-    (define-key mode-specific-map [?t ?i] 'gtags-find-with-idutils)
-    (define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
-    (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
-    (define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
+;;;_ , gtags
 
-    (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)
+(macroexpand
+ '(use-package gtags
+   :commands gtags-mode
+   :diminish gtags-mode
+   :config
+   (progn
+     (define-key global-map [(meta ?.)] 'gtags-find-tag)
 
-    (when (use-package helm)
-      (require 'helm-gtags)
-      (define-key global-map [(meta shift ?t)] 'helm-gtags-select)
-      (define-key gtags-mode-map "\e," 'helm-gtags-resume))))
+     (define-key mode-specific-map [?t ?.] 'gtags-find-rtag)
+     (define-key mode-specific-map [?t ?f] 'gtags-find-file)
+     (define-key mode-specific-map [?t ?p] 'gtags-parse-file)
+     (define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
+     (define-key mode-specific-map [?t ?i] 'gtags-find-with-idutils)
+     (define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
+     (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
+     (define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
+
+     (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)
+
+     (when (featurep 'helm)
+       (use-package helm-gtags)
+
+       (define-key global-map [(meta shift ?t)] 'helm-gtags-select)
+       (define-key gtags-mode-map "\e," 'helm-gtags-resume)))))
 
 ;;;_ , helm
 
@@ -627,10 +701,8 @@
             ido-selected
             ido-final-text
             ido-show-confirm-message)
-  :commands (ido-find-file
-             ido-switch-buffer
-             ido-completing-read
-             ido-read-directory-name)
+  :init
+  (ido-mode 'buffer)
   :config
   (progn
     (defun ido-smart-select-text ()
@@ -726,6 +798,7 @@
 ;;;_ , log4j-mode
 
 (use-package log4j-mode
+  :disabled t
   :commands log4j-mode
   :init
   (add-to-list 'auto-mode-alist '("\\.log$" . log4j-mode)))
@@ -758,7 +831,7 @@
     (defun git-commit-changes ()
       (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
 
-    (when (use-package helm)
+    (when (featurep 'helm)
       (defvar helm-c-source-git-files
         '((name . "Files under Git version control")
           (init . helm-c-source-git-files-init)
@@ -779,7 +852,10 @@
         (helm :sources 'helm-c-source-git-files
               :input ""
               :prompt "Find file: "
-              :buffer "*Helm git file*")))))
+              :buffer "*Helm git file*"))
+
+      (define-key ctl-x-map [?f] 'helm-find-git-file)
+      (define-key global-map [(meta ?g) ?g] 'helm-find-git-file))))
 
 ;;;_ , merlin
 
@@ -914,8 +990,9 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , pp-c-l
 
 (use-package pp-c-l
+  :commands pretty-control-l-mode
   :init
-  (pretty-control-l-mode 1))
+  (hook-into-modes 'pretty-control-l-mode '(emacs-lisp-mode-hook)))
 
 ;;;_ , ps-print
 
@@ -939,12 +1016,21 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :init
   (add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode)))
 
+;;;_ , recentf
+
+(use-package recentf
+  :if window-system
+  :init
+  (recentf-mode 1))
+
 ;;;_ , session
 
 (use-package session
   :if window-system
   :init
   (progn
+    (session-initialize)
+
     (defun save-information ()
       (dolist (func kill-emacs-hook)
         (unless (memq func '(exit-gnus-on-exit server-force-stop))
@@ -1090,7 +1176,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :commands vkill
   :init
   (progn
-    (if (use-package helm)
+    (if (featurep 'helm)
         (progn
           (defun vkill-and-helm-occur ()
             (interactive)
@@ -1211,8 +1297,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package winner
   :diminish winner-mode
+  :if window-system
   :init
   (progn
+    (winner-mode 1)
+
     (define-key global-map [(meta shift ?n)] 'winner-redo)
     (define-key global-map [(meta shift ?p)] 'winner-undo)))
 
@@ -1221,15 +1310,16 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (use-package workgroups
   :diminish workgroups-mode
   :if window-system
-  :config
+  :init
   (progn
     (workgroups-mode 1)
 
-    (define-key wg-map [(control ?\\)] 'wg-switch-to-previous-workgroup)
-    (define-key wg-map [?\\] 'toggle-input-method)
+    (let ((workgroups-file (expand-file-name "workgroups" user-data-directory)))
+      (if (file-readable-p workgroups-file)
+          (wg-load workgroups-file)))
 
-    (if (file-readable-p "~/.emacs.d/data/workgroups")
-        (wg-load "~/.emacs.d/data/workgroups"))))
+    (define-key wg-map [(control ?\\)] 'wg-switch-to-previous-workgroup)
+    (define-key wg-map [?\\] 'toggle-input-method)))
 
 ;;;_ , wrap-region
 
@@ -1278,10 +1368,20 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package yasnippet
   :diminish yas/minor-mode
+  :commands (yas/minor-mode yas/expand)
   :init
+  (hook-into-modes 'yas/minor-mode
+                   '(org-mode-hook
+                     c-mode-common-hook
+                     ruby-mode-hook
+                     message-mode-hook
+                     gud-mode-hook))
+  :config
   (progn
     (yas/initialize)
     (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
+
+    (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)
 
     (defun yas/new-snippet (&optional choose-instead-of-guess)
       (interactive "P")
@@ -1306,10 +1406,7 @@ $0"))))
     (define-key mode-specific-map [?y tab] 'yas/expand)
     (define-key mode-specific-map [?y ?f] 'yas/find-snippets)
     (define-key mode-specific-map [?y ?r] 'yas/reload-all)
-    (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file))
-
-  :config
-  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand))
+    (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file)))
 
 ;;;_ , Programming modes
 
@@ -1734,25 +1831,31 @@ $0"))))
 ;;;_   , eldoc
 
 (use-package eldoc
-  :defer t
   :diminish eldoc-mode
-  :config
-  (use-package eldoc-extension))
+  :defer t)
+
+(use-package eldoc-extension
+  :defer t
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'(lambda () (require 'eldoc-extension))))
 
 ;;;_   , elint
 
-(defun elint-current-buffer ()
-  (interactive)
-  (elint-initialize)
-  (elint-current-buffer))
+(use-package elint
+  :commands 'elint-initialize
+  :init
+  (defun elint-current-buffer ()
+    (interactive)
+    (elint-initialize)
+    (elint-current-buffer))
 
-(eval-after-load "elint"
-  '(progn
-     (add-to-list 'elint-standard-variables 'current-prefix-arg)
-     (add-to-list 'elint-standard-variables 'command-line-args-left)
-     (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-     (add-to-list 'elint-standard-variables 'emacs-major-version)
-     (add-to-list 'elint-standard-variables 'window-system)))
+  :config
+  (progn
+    (add-to-list 'elint-standard-variables 'current-prefix-arg)
+    (add-to-list 'elint-standard-variables 'command-line-args-left)
+    (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
+    (add-to-list 'elint-standard-variables 'emacs-major-version)
+    (add-to-list 'elint-standard-variables 'window-system)))
 
 ;;;_   , lisp-mode-hook
 
@@ -1786,7 +1889,8 @@ $0"))))
 
           (define-key mode-map [(meta return)] 'outline-insert-heading)
           (define-key mode-map [tab] 'my-elisp-indent-or-complete)
-          (define-key mode-map [tab] 'yas/expand))
+          ;; (define-key mode-map [tab] 'yas/expand)
+          )
 
       (turn-on-cldoc-mode)
 
@@ -1808,6 +1912,12 @@ $0"))))
   :diminish paredit-mode
   :commands paredit-mode)
 
+;;;_   , paren
+
+(use-package paren
+  :init
+  (show-paren-mode 1))
+
 ;;;_   , redhank
 
 (use-package redshank
@@ -1817,6 +1927,7 @@ $0"))))
 ;;;_  . lua-mode
 
 (use-package lua-mode
+  :disabled t
   :commands lua-mode
   :init
   (progn
@@ -1929,18 +2040,21 @@ $0"))))
 ;;;_  . zencoding-mode
 
 (use-package zencoding-mode
+  :disabled t
   :commands zencoding-mode
-  :config
+  :init
   (progn
-    (defvar zencoding-mode-keymap (make-sparse-keymap))
-    (define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)
-
     (add-hook 'nxml-mode-hook 'zencoding-mode)
     (add-hook 'html-mode-hook 'zencoding-mode)
     (add-hook 'html-mode-hook
               (function
                (lambda ()
-                 (define-key html-mode-map [return] 'newline-and-indent))))))
+                 (define-key html-mode-map [return] 'newline-and-indent)))))
+
+  :config
+  (progn
+    (defvar zencoding-mode-keymap (make-sparse-keymap))
+    (define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)))
 
 ;;;_ , Gnus
 
@@ -2741,6 +2855,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (add-hook 'org-mode-hook
           (lambda ()
+            (require 'yasnippet)
             (set (make-local-variable 'yas/trigger-key) [tab])
             (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
             (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
@@ -2810,10 +2925,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 ;;;_  . M-?
 
 (define-key global-map [(meta ?/)] 'dabbrev-expand)
-(define-key global-map [(meta ?,)] 'helm-resume)
 
 (define-key global-map [(meta ?g) ?c] 'goto-char)
-(define-key global-map [(meta ?g) ?g] 'helm-find-git-file)
 (define-key global-map [(meta ?g) ?l] 'goto-line)
 
 (defun delete-indentation-forward ()
@@ -2968,7 +3081,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
     (kill-buffer buf)))
 
 (define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
-(define-key ctl-x-map [?f] 'helm-find-git-file)
 (define-key ctl-x-map [(shift ?f)] 'set-fill-column)
 (define-key ctl-x-map [?m] 'compose-mail)
 (define-key ctl-x-map [(shift ?s)] 'edit-with-sudo)
@@ -3366,8 +3478,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (defun scratch ()
   (interactive)
   (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
-  ;;(lisp-interaction-mode)
-  (text-mode)
   (goto-char (point-min))
   (when (looking-at ";")
     (forward-line 4)
@@ -3438,6 +3548,18 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
                   (org-fit-agenda-window)
                   (org-resolve-clocks)) t))
   )
+
+(let ((elapsed (float-time (time-subtract (current-time)
+                                          emacs-start-time))))
+  (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+(add-hook 'after-init-hook
+          `(lambda ()
+             (let ((elapsed (float-time (time-subtract (current-time)
+                                                       emacs-start-time))))
+               (message "Loading %s...done (%.3fs) [after-init]"
+                        ,load-file-name elapsed)))
+          t)
 
 ;; Local Variables:
 ;;   mode: emacs-lisp
