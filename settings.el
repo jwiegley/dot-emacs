@@ -271,6 +271,7 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(ipa-overlay-position "above")
  '(irfc-directory "~/Archives/Admin/RFC/")
  '(ispell-extra-args (quote ("--sug-mode=fast" "--keyboard=dvorak")))
+ '(kill-do-not-save-duplicates t)
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
  '(ledger-file "~/Documents/Accounts/ledger.dat")
