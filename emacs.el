@@ -3074,7 +3074,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (define-key mode-specific-map [?b] 'switch-to-bitlbee)
 
-(define-key mode-specific-map [?c] 'compile)
 (define-key mode-specific-map [?C] 'indirect-region)
 
 (defun delete-current-line (&optional arg)
