@@ -1,7 +1,5 @@
 ;;;_. Initialization
 
-(defconst emacs-start-time (current-time))
-
 (message "Loading %s..." load-file-name)
 
 (setq message-log-max 16384)
