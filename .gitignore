@@ -11,3 +11,4 @@ info/
 mirror
 override/cc-mode/
 var/
+/compile.log
