@@ -42,13 +42,15 @@
          (kill-buffer (process-buffer proc))))))
 
 (defun dired-async-translate-for-rsync (path)
-  (replace-regexp-in-string "/rsyncc:" "" path))
+  (unless (string-match ":" path)
+    (setq path (expand-file-name path)))
+  (replace-regexp-in-string "/rsyncc:" "" (shell-quote-argument path)))
 
 (defun rsync-file-asynchronously (from to)
   (let ((args (list "-avHy" "--delete-during" "--force-delete")))
     (nconc args
-           (list (expand-file-name (dired-async-translate-for-rsync from))
-                 (expand-file-name (dired-async-translate-for-rsync to))))
+           (list (dired-async-translate-for-rsync from)
+                 (dired-async-translate-for-rsync to)))
     (apply #'start-process-and-kill-buffer "rsync"
            (generate-new-buffer "*rsync*")
            (executable-find "rsync") args)))

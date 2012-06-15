@@ -34,3 +34,5 @@
     (narrow-to-region start end)
     (goto-char (point-min))
     (shrink-window-if-larger-than-buffer)))
+
+(provide 'indirect)
