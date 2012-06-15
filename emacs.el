@@ -1222,13 +1222,20 @@
                      "\\)")))
               (funcall dired-omit-regexp-orig))))))
 
-    (add-hook 'dired-mode-hook 'dired-package-initialize)))
+    (add-hook 'dired-mode-hook 'dired-package-initialize)
 
-;;;_ , dot-mode
+    (defun dired-double-jump (first-dir second-dir)
+      (interactive
+       (list (ido-read-directory-name "First directory: "
+                                      (expand-file-name "~")
+                                      nil nil "dl/")
+             (ido-read-directory-name "Second directory: "
+                                      (expand-file-name "~")
+                                      nil nil "Archives/")))
+      (dired first-dir)
+      (dired-other-window second-dir))
 
-(use-package dot-mode
-  :diminish dot-mode
-  :defer t)
+    (define-key mode-specific-map [?J] 'dired-double-jump)))
 
 ;;;_ , ediff
 
@@ -2397,22 +2404,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
           (sunrise "~/dl/" "~/Archives/"))))
 
     (define-key mode-specific-map [?j] 'my-activate-sunrise)
-    (define-key mode-specific-map [(control ?j)] 'sunrise-cd)
-
-    (defun dired-double-jump (first-dir second-dir)
-      (interactive
-       (list (ido-read-directory-name "First directory: "
-                                      (expand-file-name "~")
-                                      nil nil "dl/")
-             (ido-read-directory-name "Second directory: "
-                                      (expand-file-name "~")
-                                      nil nil "Archives/")))
-      (if t
-          (sunrise first-dir second-dir)
-        (dired first-dir)
-        (dired-other-window second-dir)))
-
-    (define-key mode-specific-map [?J] 'dired-double-jump))
+    (define-key mode-specific-map [(control ?j)] 'sunrise-cd))
 
   :config
   (progn
