@@ -1145,6 +1145,7 @@
       (unless (featurep 'dired-async)
         (use-package dired-x)
         (use-package dired-async)
+        (use-package dired-sort-map)
         (use-package runner)
 
         (setq dired-use-ls-dired t)
