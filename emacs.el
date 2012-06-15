@@ -180,7 +180,9 @@
                     (goto-char (point-min))
                     (read (current-buffer)))))
 
-    (setq running-alternate-emacs t)
+    (setq running-alternate-emacs t
+          user-data-directory
+          (replace-regexp-in-string "/data/" "/data-alt/" user-data-directory))
 
     (let ((regexp
            (concat "\\`" (regexp-quote (expand-file-name user-data-directory))))
@@ -1353,7 +1355,8 @@
 ;;;_ , erc
 
 (use-package erc
-  :commands erc
+  ;; :commands erc
+  :if running-alternate-emacs
   :init
   (progn
     (use-package auth-source
@@ -1392,6 +1395,7 @@
   (progn
     (use-package erc-alert)
     (use-package erc-highlight-nicknames)
+    (use-package erc-patch)
 
     (erc-track-minor-mode 1)
     (erc-track-mode 1)
@@ -2231,7 +2235,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , org-mode
 
 (use-package dot-org
-  :commands (org-agenad
+  :if (not running-alternate-emacs)
+  :commands (org-agenda
              jump-to-org-agenda
              org-smart-capture
              org-inline-note
