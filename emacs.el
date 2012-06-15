@@ -194,7 +194,7 @@
               (setcar (nthcdr 1 (nth 1 setting))
                       (replace-regexp-in-string regexp replace value)))))
 
-      settings)))
+      (eval settings))))
 
 ;;;_ , Enable disabled commands
 
