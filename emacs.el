@@ -1120,6 +1120,10 @@
     (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
     (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))))
 
+;;;_ , color-moccur
+
+(use-package color-moccur)
+
 ;;;_ , crosshairs
 
 (use-package crosshairs
@@ -1669,6 +1673,33 @@
 
   :config
   (use-package hl-line+))
+
+;;;_ , icicles
+
+(use-package icicles
+  ;; :commands icy-mode
+  :init
+  (progn
+    (defun icicles-initialize ()
+      (define-key global-map [(control ?x) ?b] 'ido-switch-buffer))
+
+    (add-hook 'icicle-mode-hook 'icicles-initialize)
+
+    ;; This mode is slow to load, and slow to start.  Best to keep it off
+    ;; until the last possible moment.
+    (add-hook 'after-init-hook 'icy-mode))
+
+  :config
+  (progn
+    (use-package fuzzy-match)
+
+    (defadvice lusty-file-explorer (around lusty-file-explorer-without-icy
+                                           activate)
+      (let ((icy-was-on icicle-mode))
+        (if icy-was-on (icy-mode 0))
+        (unwind-protect
+            ad-do-it
+          (if icy-was-on (icy-mode 1)))))))
 
 ;;;_ , ido
 
