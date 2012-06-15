@@ -87,7 +87,7 @@
   (or buffer-file-name (error "Need filename"))
   (save-restriction
     (narrow-to-region s e)
-    (uncomment-region (point-min) (point-max))
+    ;; (uncomment-region (point-min) (point-max))
     (archive-region-add-header)
     (goto-char (point-max))
     (insert "\n")
