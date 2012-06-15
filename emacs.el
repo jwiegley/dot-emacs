@@ -798,6 +798,7 @@
 
 (use-package auto-complete-config
   :commands auto-complete-mode
+  :diminish auto-complete-mode
   :config
   (progn
     (ac-set-trigger-key "TAB")
