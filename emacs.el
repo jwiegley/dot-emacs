@@ -2619,8 +2619,18 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package workgroups
   :diminish workgroups-mode
+  :commands wg-switch-to-index-1
   :if window-system
   :init
+  (progn
+    (defvar workgroups-preload-map)
+    (define-prefix-command 'workgroups-preload-map)
+    (define-key global-map [(control ?\\)] 'workgroups-preload-map)
+
+    (define-key workgroups-preload-map [(control ?\\)] 'wg-switch-to-index-1)
+    (define-key workgroups-preload-map [?1] 'wg-switch-to-index-1))
+
+  :config
   (progn
     (workgroups-mode 1)
 
