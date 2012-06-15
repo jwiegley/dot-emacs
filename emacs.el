@@ -11,8 +11,6 @@
 (eval-when-compile
   (require 'cl))
 
-(autoload 'diminish "diminish")
-
 (defvar use-package-verbose nil)
 
 (defmacro hook-into-modes (func modes)
@@ -636,15 +634,9 @@
   (helm-other-buffer 'helm-c-source-occur "*Helm Occur*"))
 
 (define-key global-map [(meta ?s) ?b] 'my-helm-occur)
-(define-key global-map [(meta ?s) ?c] 'highlight-changes-mode)
 (define-key global-map [(meta ?s) ?F] 'helm-for-files)
-(define-key global-map [(meta ?s) ?h] 'crosshairs-mode)
-(define-key global-map [(meta ?s) ?l] 'hl-line-mode)
 (define-key global-map [(meta ?s) ?n] 'find-name-dired)
 (define-key global-map [(meta ?s) ?o] 'occur)
-(define-key global-map [(meta ?s) ?r] 'highlight-regexp)
-(define-key global-map [(meta ?s) ?R] 'highlight-lines-matching-regexp)
-(define-key global-map [(meta ?s) ?w] 'highlight-phrase)
 
 (define-key global-map [remap eval-expression] 'pp-eval-expression)
 
@@ -765,7 +757,11 @@
 (use-package tex-site
   :defines (latex-help-cmd-alist
             latex-help-file)
+  :commands latex-mode
   :init
+  (add-to-list 'auto-mode-alist '("\\.tex$" . latex-mode))
+
+  :config
   (progn
     (defun latex-help-get-cmd-alist ()  ;corrected version:
       "Scoop up the commands in the index of the latex info manual.
@@ -1118,6 +1114,13 @@
     (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
     (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))))
 
+;;;_ , crosshairs
+
+(use-package crosshairs
+  :commands crosshairs-mode
+  :init
+  (define-key global-map [(meta ?o) ?c] 'crosshairs-mode))
+
 ;;;_ , css-mode
 
 (use-package css-mode
@@ -1125,21 +1128,23 @@
   :init
   (add-to-list 'auto-mode-alist '("\\.css$" . css-mode)))
 
-;;;_ , diff-mode-
+;;;_ , diff-mode
 
-(use-package diff-mode-)
+(use-package diff-mode
+  :commands diff-mode
+  :config
+  (use-package diff-mode-))
 
 ;;;_ , diminish
 
 (use-package diminish
-  :init
-  (progn
-    (ignore-errors (diminish 'auto-fill-function))))
+  :commands diminish)
 
 ;;;_ , dired
 
 (use-package dired
-  :init
+  :defer t
+  :config
   (progn
     (defun dired-package-initialize ()
       (unless (featurep 'dired-async)
@@ -1621,10 +1626,32 @@
                    helm-c-source-info-cl
                    helm-c-source-emacs-source-defun)))))))
 
+;;;_ , hi-lock
+
+(use-package hi-lock
+  :commands (highlight-regexp
+             highlight-phrase
+             highlight-lines-matching-regexp)
+  :init
+  (progn
+    (define-key global-map [(meta ?o) ?l] 'highlight-lines-matching-regexp)
+    (define-key global-map [(meta ?o) ?r] 'highlight-regexp)
+    (define-key global-map [(meta ?o) ?w] 'highlight-phrase)))
+
+;;;_ , hilit-chg
+
+(use-package hilit-chg
+  :commands highlight-changes-mode
+  :init
+  (define-key global-map [(meta ?o) ?C] 'highlight-changes-mode))
+
 ;;;_ , hl-line
 
 (use-package hl-line
-  :defer t
+  :commands hl-line-mode
+  :init
+  (define-key global-map [(meta ?o) ?h] 'hl-line-mode)
+
   :config
   (use-package hl-line+))
 
@@ -2158,7 +2185,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , nroff-mode
 
 (use-package nroff-mode
-  :init
+  :commands nroff-mode
+  :config
   (progn
     (defun update-nroff-timestamp ()
       (save-excursion
@@ -2447,7 +2475,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package texinfo
   :defines texinfo-section-list
+  :commands texinfo-mode
   :init
+  (add-to-list 'auto-mode-alist '("\\.texi$" . texinfo-mode))
+
+  :config
   (progn
     (defun my-texinfo-mode-hook ()
       (dolist (mapping '((?b . "emph")
@@ -2460,22 +2492,21 @@ end tell" account account start duration commodity (if cleared "true" "false")
                        `(lambda () (interactive)
                           (TeX-insert-macro ,(cdr mapping))))))
 
-    (add-hook 'texinfo-mode-hook 'my-texinfo-mode-hook))
+    (add-hook 'texinfo-mode-hook 'my-texinfo-mode-hook)
 
-  :config
-  (defun texinfo-outline-level ()
-    ;; Calculate level of current texinfo outline heading.
-    (require 'texinfo)
-    (save-excursion
-      (if (bobp)
-          0
-        (forward-char 1)
-        (let* ((word (buffer-substring-no-properties
-                      (point) (progn (forward-word 1) (point))))
-               (entry (assoc word texinfo-section-list)))
-          (if entry
-              (nth 1 entry)
-            5))))))
+    (defun texinfo-outline-level ()
+      ;; Calculate level of current texinfo outline heading.
+      (require 'texinfo)
+      (save-excursion
+        (if (bobp)
+            0
+          (forward-char 1)
+          (let* ((word (buffer-substring-no-properties
+                        (point) (progn (forward-word 1) (point))))
+                 (entry (assoc word texinfo-section-list)))
+            (if entry
+                (nth 1 entry)
+              5)))))))
 
 ;;;_ , vkill
 

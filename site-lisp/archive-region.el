@@ -180,7 +180,12 @@ C-u C-u C-w: `archive-region-open-archive-file-other-window' (open archive file)
   (interactive "p\nr")
   (case arg
     (4  (kill-region s e))
-    (1  (kill-new (buffer-substring s e)) (archive-region s e))
+    (1  (condition-case nil
+            (progn
+              (kill-new (buffer-substring s e))
+              (archive-region s e))
+          (error
+           (kill-region s e))))
     (16 (archive-region-open-archive-file-other-window))))
 (substitute-key-definition 'kill-region 'kill-region-or-archive-region global-map)
 

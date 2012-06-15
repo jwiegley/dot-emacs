@@ -50,6 +50,8 @@
 (push #'load-persistent-scratch after-init-hook)
 (push #'save-persistent-scratch kill-emacs-hook)
 
+(run-with-idle-timer 300 t 'save-persistent-scratch)
+
 (provide 'persistent-scratch)
 
 ;;; persistent-scratch.el ends here
