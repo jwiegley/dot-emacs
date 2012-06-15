@@ -39,7 +39,8 @@
     (if candidate
         (ido-visit-buffer candidate ido-default-buffer-method)
       (let ((gnus-startup-hook (if arg nil gnus-startup-hook)))
-        (gnus)))))
+        (gnus)))
+    (gnus-group-list-groups gnus-activate-level)))
 
 (use-package fetchmail-ctl
   :init
