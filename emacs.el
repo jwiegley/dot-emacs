@@ -401,7 +401,7 @@
 
   (when running-alternate-emacs
     (set-background-color "grey85")
-    (set-fringe-style 'none)))
+    (set-fringe-style 0)))
 
 (if window-system
     (add-hook 'after-init-hook 'emacs-min))
