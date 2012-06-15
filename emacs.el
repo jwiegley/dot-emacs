@@ -11,7 +11,7 @@
 (eval-when-compile
   (require 'cl))
 
-(defvar use-package-verbose t)
+(defvar use-package-verbose nil)
 
 (defmacro hook-into-modes (func modes)
   `(dolist (mode-hook ,modes)
