@@ -401,7 +401,11 @@
   (set-frame-parameter (selected-frame) 'top emacs-min-top)
   (set-frame-parameter (selected-frame) 'left emacs-min-left)
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
-  (set-frame-parameter (selected-frame) 'width emacs-min-width))
+  (set-frame-parameter (selected-frame) 'width emacs-min-width)
+
+  (when running-alternate-emacs
+    (set-background-color "grey85")
+    (set-fringe-style 'none)))
 
 (if window-system
     (add-hook 'after-init-hook 'emacs-min))
