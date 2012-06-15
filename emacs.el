@@ -811,7 +811,6 @@
 ;;;_ , autorevert
 
 (use-package autorevert
-  :disabled t
   :init
   (global-auto-revert-mode 1))
 
