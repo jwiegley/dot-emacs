@@ -38,6 +38,20 @@
 
 (defun jump-to-org-agenda ()
   (interactive)
+
+  (let ((recordings-dir "~/Dropbox/iTalk Recordings"))
+    (if (directory-files recordings-dir nil "\\`[^.]")
+        (do-applescript (format "
+set the_folder to (POSIX file \"%s\") as alias
+tell application \"Finder\"
+  activate
+  if window 1 exists then
+    set target of window 1 to the_folder
+  else
+    reveal the_folder
+  end if
+end tell" (expand-file-name recordings-dir)))))
+
   (let ((buf (get-buffer "*Org Agenda*"))
         wind)
     (if buf
