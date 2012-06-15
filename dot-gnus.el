@@ -3,9 +3,6 @@
 (load "gnus-settings")
 
 (require 'gnus)
-(require 'gnus-group)
-(require 'gnus-sum)
-(require 'gnus-art)
 (require 'starttls)
 (require 'nnmairix)
 (require 'message)
@@ -13,7 +10,27 @@
 (gnus-compile)
 (gnus-delay-initialize)
 
-(defvar gnus-unbury-window-configuration nil)
+(defvar switch-to-gnus-unplugged nil)
+(defvar switch-to-gnus-run nil)
+
+(defun switch-to-gnus (&optional arg)
+  (interactive "P")
+  (let* ((alist '("\\`\\*unsent" "\\`\\*Article"
+                  "\\`\\*Summary" "\\`\\*Group"))
+         (candidate
+          (catch 'found
+            (dolist (regexp alist)
+              (dolist (buf (buffer-list))
+                (if (string-match regexp (buffer-name buf))
+                    (throw 'found buf)))))))
+    (if (and switch-to-gnus-run candidate)
+        (if (featurep 'ido)
+            (ido-visit-buffer candidate ido-default-buffer-method)
+          (switch-to-buffer candidate))
+      (let ((switch-to-gnus-unplugged arg))
+        (gnus)
+        (gnus-group-list-groups gnus-activate-level)
+        (setq switch-to-gnus-run t)))))
 
 (use-package fetchmail-ctl
   :init
@@ -47,6 +64,9 @@
                 "INBOX"))))))
 
 (add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
+
+(defadvice gnus-summary-resend-message-edit (after call-my-mhs-hook activate)
+  (my-message-header-setup-hook))
 
 (defun queue-message-if-not-connected ()
   (set (make-local-variable 'gnus-agent-queue-mail)

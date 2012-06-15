@@ -1110,10 +1110,6 @@
     (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
     (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))))
 
-;;;_ , color-moccur
-
-(use-package color-moccur)
-
 ;;;_ , crosshairs
 
 (use-package crosshairs
@@ -1489,43 +1485,12 @@
 ;;;_ , gnus
 
 (use-package dot-gnus
-  :commands gnus
+  :if (not running-alternate-emacs)
+  :commands switch-to-gnus
   :init
   (progn
     (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
           gnus-home-directory "~/Messages/Gnus/") ; a necessary override
-
-    (defvar switch-to-gnus-unplugged nil)
-
-    (defun switch-to-gnus (&optional arg)
-      (interactive "P")
-      (require 'dot-gnus)
-      (let ((alist '(("\\`\\*unsent")
-                     ("\\`\\*Article")
-                     ("\\`\\*Summary")
-                     ("\\`\\*Group"
-                      (lambda (buf)
-                        (with-current-buffer buf
-                          (gnus-group-get-new-news))))))
-            candidate)
-        (catch 'found
-          (dolist (item alist)
-            (let ((regexp (nth 0 item))
-                  (test (nth 1 item))
-                  last)
-              (dolist (buf (buffer-list))
-                (if (string-match regexp (buffer-name buf))
-                    (setq last buf)))
-              (if (and last (or (null test)
-                                (funcall test last)))
-                  (throw 'found (setq candidate last))))))
-        (if candidate
-            (if (featurep 'ido)
-                (ido-visit-buffer candidate ido-default-buffer-method)
-              (switch-to-buffer candidate))
-          (let ((switch-to-gnus-unplugged t))
-            (gnus)))
-        (gnus-group-list-groups gnus-activate-level)))
 
     (define-key global-map [(meta shift ?g)] 'switch-to-gnus)))
 
@@ -1644,6 +1609,7 @@
 ;;;_ , helm
 
 (use-package helm
+  :if (not running-alternate-emacs)
   :init
   (progn
     (use-package helm-config)
@@ -1716,6 +1682,7 @@
 ;;;_ , icicles
 
 (use-package icicles
+  :if (not running-alternate-emacs)
   :init
   (progn
     (defun icicles-initialize ()
@@ -1730,6 +1697,7 @@
   :config
   (progn
     (use-package fuzzy-match)
+    (use-package color-moccur)
 
     (defadvice lusty-file-explorer (around lusty-file-explorer-without-icy
                                            activate)
@@ -2830,8 +2798,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (add-to-list 'auto-mode-alist
                  '("/\\.emacs\\.d/snippets/" . snippet-mode))
 
-    (hook-into-modes 'yas/minor-mode
-                     '(org-mode-hook
+    (hook-into-modes (function
+                      (lambda ()
+                        (yas/minor-mode 1)))
+                     '(prog-mode-hook
+                       org-mode-hook
                        ruby-mode-hook
                        message-mode-hook
                        gud-mode-hook)))
