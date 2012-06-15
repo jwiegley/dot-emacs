@@ -2731,14 +2731,18 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package yasnippet
   :diminish yas/minor-mode
-  :commands (yas/minor-mode yas/expand)
+  :commands (yas/minor-mode yas/expand snippet-mode)
   :init
-  (hook-into-modes 'yas/minor-mode
-                   '(org-mode-hook
-                     c-mode-common-hook
-                     ruby-mode-hook
-                     message-mode-hook
-                     gud-mode-hook))
+  (progn
+    (add-to-list 'auto-mode-alist
+                 '("/\\.emacs\\.d/snippets/" . snippet-mode))
+
+    (hook-into-modes 'yas/minor-mode
+                     '(org-mode-hook
+                       c-mode-common-hook
+                       ruby-mode-hook
+                       message-mode-hook
+                       gud-mode-hook)))
   :config
   (progn
     (yas/initialize)
