@@ -9,6 +9,8 @@
 (eval-when-compile
   (require 'cl))
 
+(require 'diminish)
+
 (defvar use-package-verbose nil)
 
 (defmacro hook-into-modes (func modes)
@@ -498,10 +500,6 @@
 
 (define-key mode-specific-map [(shift ?v)] 'view-clipboard)
 
-(define-key mode-specific-map [?w ?f] 'yaoddmuse-browse-page-default)
-(define-key mode-specific-map [?w ?e] 'yaoddmuse-edit-default)
-(define-key mode-specific-map [?w ?p] 'yaoddmuse-post-library-default)
-
 (define-key mode-specific-map [?z] 'clean-buffer-list)
 
 (define-key mode-specific-map [?\[] 'align-regexp)
@@ -750,8 +748,8 @@
           (vconcat allout-command-prefix
                    (vector (car mapping))) (cdr mapping)))
 
-      (if (eq 'emacs-lisp-mode major-mode)
-          (define-key emacs-lisp-mode-map [(control ?k)] 'paredit-kill)))
+      (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+          (define-key allout-mode-map [(control ?k)] nil)))
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
 
@@ -764,6 +762,7 @@
 (use-package tex-site
   :defines (latex-help-cmd-alist
             latex-help-file)
+  ;; jww (2012-06-15): Do I want to use AucTeX for texinfo-mode?
   :commands latex-mode
   :init
   (add-to-list 'auto-mode-alist '("\\.tex$" . latex-mode))
@@ -1146,11 +1145,6 @@
   :config
   (use-package diff-mode-))
 
-;;;_ , diminish
-
-(use-package diminish
-  :commands diminish)
-
 ;;;_ , dired
 
 (use-package dired
@@ -1469,6 +1463,12 @@
   :init
   (define-key ctl-x-map [(control ?z)] 'eshell-toggle))
 
+;;;_ , ess
+
+(use-package ess-site
+  :disabled t
+  :commands R)
+
 ;;;_ , fold-dwim
 
 (use-package fold-dwim
@@ -1637,8 +1637,7 @@
 ;;;_ , helm
 
 (use-package helm
-  :defer t
-  :config
+  :init
   (progn
     (use-package helm-config)
 
@@ -1720,7 +1719,7 @@
 
     ;; This mode is slow to load, and slow to start.  Best to keep it off
     ;; until the last possible moment.
-    (add-hook 'after-init-hook 'icy-mode))
+    (icy-mode 1))
 
   :config
   (progn
@@ -1916,13 +1915,29 @@
              inferior-lisp-mode
              lisp-interaction-mode)
   :init
-  (defface esk-paren-face
-    '((((class color) (background dark))
-       (:foreground "grey50"))
-      (((class color) (background light))
-       (:foreground "grey55")))
-    "Face used to dim parentheses."
-    :group 'starter-kit-faces)
+  (progn
+    (defface esk-paren-face
+      '((((class color) (background dark))
+         (:foreground "grey50"))
+        (((class color) (background light))
+         (:foreground "grey55")))
+      "Face used to dim parentheses."
+      :group 'starter-kit-faces)
+
+    ;; Change lambda to an actual lambda symbol
+    (mapc (lambda (major-mode)
+            (font-lock-add-keywords
+             major-mode
+             `(("(\\(lambda\\)\\>"
+                (0 (ignore
+                    (compose-region (match-beginning 1)
+                                    (match-end 1) ?λ))))
+               ("(\\|)" . 'esk-paren-face))))
+          '(emacs-lisp-mode
+            inferior-emacs-lisp-mode
+            lisp-mode
+            inferior-lisp-mode
+            slime-repl-mode)))
 
   :config
   (progn
@@ -1939,92 +1954,78 @@
 
         (use-package paredit
           :diminish paredit-mode
-          :commands paredit-mode
+          :commands paredit-mode)
 
-          (use-package redshank
-            :diminish redshank-mode
-            :commands paredit-mode)
+        (use-package redshank
+          :diminish redshank-mode
+          :commands paredit-mode)
 
-          (use-package edebug)
+        (use-package edebug)
 
-          (use-package eldoc
-            :diminish eldoc-mode
+        (use-package eldoc
+          :diminish eldoc-mode
+          :defer t
+          :init
+          (use-package eldoc-extension
             :defer t
             :init
-            (use-package eldoc-extension
-              :defer t
-              :init
-              (add-hook 'emacs-lisp-mode-hook
-                        #'(lambda () (require 'eldoc-extension)) t)))
+            (add-hook 'emacs-lisp-mode-hook
+                      #'(lambda () (require 'eldoc-extension)) t)))
 
-          (use-package elint
-            :commands 'elint-initialize
-            :init
-            (defun elint-current-buffer ()
-              (interactive)
-              (elint-initialize)
-              (elint-current-buffer))
+        (use-package cldoc
+          :diminish cldoc-mode)
 
-            :config
-            (progn
-              (add-to-list 'elint-standard-variables 'current-prefix-arg)
-              (add-to-list 'elint-standard-variables 'command-line-args-left)
-              (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-              (add-to-list 'elint-standard-variables 'emacs-major-version)
-              (add-to-list 'elint-standard-variables 'window-system)))
+        (use-package elint
+          :commands 'elint-initialize
+          :init
+          (defun elint-current-buffer ()
+            (interactive)
+            (elint-initialize)
+            (elint-current-buffer))
 
-          (defun my-elisp-indent-or-complete (&optional arg)
-            (interactive "p")
-            (call-interactively 'lisp-indent-line)
-            (unless (or (looking-back "^\\s-*")
-                        (bolp)
-                        (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
-              (call-interactively 'lisp-complete-symbol)))
+          :config
+          (progn
+            (add-to-list 'elint-standard-variables 'current-prefix-arg)
+            (add-to-list 'elint-standard-variables 'command-line-args-left)
+            (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
+            (add-to-list 'elint-standard-variables 'emacs-major-version)
+            (add-to-list 'elint-standard-variables 'window-system)))
 
-          (defun my-lisp-indent-or-complete (&optional arg)
-            (interactive "p")
-            (if (or (looking-back "^\\s-*") (bolp))
-                (call-interactively 'lisp-indent-line)
-              (call-interactively 'slime-indent-and-complete-symbol)))
+        (defun my-elisp-indent-or-complete (&optional arg)
+          (interactive "p")
+          (call-interactively 'lisp-indent-line)
+          (unless (or (looking-back "^\\s-*")
+                      (bolp)
+                      (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
+            (call-interactively 'lisp-complete-symbol)))
 
+        (defun my-lisp-indent-or-complete (&optional arg)
+          (interactive "p")
+          (if (or (looking-back "^\\s-*") (bolp))
+              (call-interactively 'lisp-indent-line)
+            (call-interactively 'slime-indent-and-complete-symbol)))
 
+        (defun my-byte-recompile-file ()
+          (save-excursion
+            (byte-recompile-file buffer-file-name)))
 
-          (defun my-byte-recompile-file ()
-            (save-excursion
-              (byte-recompile-file buffer-file-name)))
+        ;; Register Info manuals related to Lisp
+        (use-package info-lookmore
+          :init
+          (progn
+            (info-lookmore-elisp-cl)
+            (info-lookmore-elisp-userlast)
+            (info-lookmore-elisp-gnus)
+            (info-lookmore-apropos-elisp)))
 
-          ;; Change lambda to an actual lambda symbol
-          (mapc (lambda (major-mode)
-                  (font-lock-add-keywords
-                   major-mode
-                   `(("(\\(lambda\\)\\>"
-                      (0 (ignore
-                          (compose-region (match-beginning 1)
-                                          (match-end 1) ?λ))))
-                     ("(\\|)" . 'esk-paren-face))))
-                '(emacs-lisp-mode
-                  inferior-emacs-lisp-mode
-                  lisp-mode
-                  inferior-lisp-mode
-                  slime-repl-mode))
-
-          ;; Register Info manuals related to Lisp
-          (use-package info-lookmore
-            :init
-            (progn
-              (info-lookmore-elisp-cl)
-              (info-lookmore-elisp-userlast)
-              (info-lookmore-elisp-gnus)
-              (info-lookmore-apropos-elisp)))
-
-          (mapc (lambda (mode)
-                  (info-lookup-add-help
-                   :mode mode
-                   :regexp "[^][()'\" \t\n]+"
-                   :ignore-case t
-                   :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
-                '(lisp-mode slime-mode slime-repl-mode
-                            inferior-slime-mode)))))
+        (mapc (lambda (mode)
+                (info-lookup-add-help
+                 :mode mode
+                 :regexp "[^][()'\" \t\n]+"
+                 :ignore-case t
+                 :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
+              '(lisp-mode slime-mode slime-repl-mode
+                          inferior-slime-mode))))
 
     (defun my-lisp-mode-hook (&optional emacs-lisp-p)
       (initialize-lisp-mode)
@@ -2422,6 +2423,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :init
   (recentf-mode 1))
 
+;;;_ , repeat-insert
+
+(use-package repeat-insert
+  :disabled t
+  :commands (insert-patterned
+             insert-patterned-2
+             insert-patterned-3
+             insert-patterned-4))
+
 ;;;_ , session
 
 (use-package session
@@ -2607,22 +2617,27 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , w3m
 
 (use-package w3m
-  :commands (w3m-browse-url
-             w3m-search
-             w3m-search-escape-query-string)
+  :commands w3m-browse-url
   :init
   (progn
     (setq w3m-command "/opt/local/bin/w3m")
 
     (defun wikipedia-query (term)
       (interactive (list (read-string "Wikipedia search: " (word-at-point))))
+      (require 'w3m-search)
       (w3m-search "en.wikipedia" term))
 
     (defun wolfram-alpha-query (term)
       (interactive (list (read-string "Ask Wolfram Alpha: " (word-at-point))))
+      (require 'w3m-search)
       (w3m-browse-url (format "http://m.wolframalpha.com/input/?i=%s"
                               (w3m-search-escape-query-string term))))
 
+    (defun goto-emacswiki ()
+      (interactive)
+      (w3m-browse-url "http://www.emacswiki.org"))
+
+    (define-key global-map [(alt meta ?e)] 'goto-emacswiki)
     (define-key global-map [(alt meta ?g)] 'w3m-search)
     (define-key global-map [(alt meta ?h)] 'wolfram-alpha-query)
     (define-key global-map [(alt meta ?w)] 'wikipedia-query))
@@ -2649,6 +2664,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (add-hook 'w3m-mode-hook 'w3m-type-ahead-mode))
 
     (define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser)))
+
+;;;_ , wcount-mode
+
+(use-package wcount-mode
+  :commands wcount)
 
 ;;;_ , whitespace
 
@@ -2840,6 +2860,18 @@ $0"))))
     (define-key mode-specific-map [?y ?f] 'yas/find-snippets)
     (define-key mode-specific-map [?y ?r] 'yas/reload-all)
     (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file)))
+
+;;;_ , yaoddmuse
+
+(use-package yaoddmuse
+  :commands (yaoddmuse-edit-default
+             yaoddmuse-browse-page-default
+             yaoddmuse-post-library-default)
+  :init
+  (progn
+    (define-key mode-specific-map [?w ?f] 'yaoddmuse-browse-page-default)
+    (define-key mode-specific-map [?w ?e] 'yaoddmuse-edit-default)
+    (define-key mode-specific-map [?w ?p] 'yaoddmuse-post-library-default)))
 
 ;;;_ , zencoding-mode
 

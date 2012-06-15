@@ -40,7 +40,7 @@ settings.elc: settings.el
 load-path.elc: load-path.el
 	$(BATCH_LOAD) -f batch-byte-compile $<
 
-emacs.elc: emacs.el
+emacs.elc: emacs.el init.elc load-path.elc
 	@rm -f $@ dot-*.elc
 	$(BATCH_LOAD) -l init -f batch-byte-compile $<
 
