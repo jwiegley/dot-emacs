@@ -210,7 +210,7 @@
 
 ;;;_ , C-?
 
-(define-key global-map [(control return)] 'other-window)
+(global-override-key [(control return)] 'other-window)
 
 (defun collapse-or-expand ()
   (interactive)
@@ -1162,7 +1162,14 @@
         (setq dired-use-ls-dired t)
 
         (define-key dired-mode-map [?l] 'dired-up-directory)
-        (define-key dired-mode-map [tab] 'other-window)
+
+        (defun my-dired-switch-window ()
+          (interactive)
+          (if (eq major-mode 'sr-mode)
+              (call-interactively #'sr-change-window)
+            (call-interactively #'other-window)))
+
+        (define-key dired-mode-map [tab] 'my-dired-switch-window)
 
         (define-key dired-mode-map [(meta shift ?g)] nil)
         (define-key dired-mode-map [(meta ?s) ?f] nil)
@@ -2221,8 +2228,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :config
   (progn
     (defun my-nxml-mode-hook ()
-      (define-key nxml-mode-map [return] 'newline-and-indent)
-      (define-key nxml-mode-map [(control return)] 'other-window))
+      (define-key nxml-mode-map [return] 'newline-and-indent))
 
     (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
 
@@ -2333,7 +2339,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (set (make-local-variable 'parens-require-spaces) nil)
       (setq indent-tabs-mode nil)
 
-      (define-key python-mode-map [(control return)] 'other-window)
       (define-key python-mode-map [(control ?c) (control ?z)] 'python-shell)
       (define-key python-mode-map [(control ?c) ?c] 'compile))
 
