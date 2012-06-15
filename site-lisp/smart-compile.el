@@ -113,84 +113,92 @@ It calls `compile' or other compile function, which is defined in
   (let ((name (buffer-file-name))
         (not-yet t))
     
-    (if (not name)(error "cannot get filename."))
-;;     (message (number-to-string arg))
+    (if (not name)
+        (let ((compile-history
+               (append compile-history
+                       (delete nil
+                               (mapcar #'(lambda (elem)
+                                           (let ((val (cdr elem)))
+                                             (and (stringp val) val)))
+                                       smart-compile-alist)))))
+          (call-interactively #'compile))
+      ;;     (message (number-to-string arg))
 
-    (cond
+      (cond
 
-     ;; local command
-     ;; The prefix 4 (C-u M-x smart-compile) skips this section
-     ;; in order to re-generate the compile-command
-     ((and (not (= arg 4)) ; C-u M-x smart-compile
-           (local-variable-p 'compile-command)
-           compile-command)
-      (call-interactively 'compile)
-      (setq not-yet nil)
-      )
+       ;; local command
+       ;; The prefix 4 (C-u M-x smart-compile) skips this section
+       ;; in order to re-generate the compile-command
+       ((and (not (= arg 4))            ; C-u M-x smart-compile
+             (local-variable-p 'compile-command)
+             compile-command)
+        (call-interactively 'compile)
+        (setq not-yet nil)
+        )
 
-     ;; make?
-     ((and smart-compile-check-makefile
-           (or (file-readable-p "Makefile")
-               (file-readable-p "makefile")))
-      (if (y-or-n-p "Makefile is found. Try 'make'? ")
-          (progn
-            (set (make-local-variable 'compile-command) "make ")
-            (call-interactively 'compile)
-            (setq not-yet nil)
-            )
-        (setq smart-compile-check-makefile nil)))
-
-     ) ;; end of (cond ...)
-
-    ;; compile
-    (let( (alist smart-compile-alist) 
-          (case-fold-search nil)
-          (function nil) )
-      (while (and alist not-yet)
-        (if (or
-             (and (symbolp (caar alist))
-                  (eq (caar alist) major-mode))
-             (and (stringp (caar alist))
-                  (string-match (caar alist) name))
-             (and (listp (caar alist))
-                  (eq 'lambda (car (caar alist)))
-                  (funcall (caar alist) (current-buffer)))
-             )
+       ;; make?
+       ((and smart-compile-check-makefile
+             (or (file-readable-p "Makefile")
+                 (file-readable-p "makefile")))
+        (if (y-or-n-p "Makefile is found. Try 'make'? ")
             (progn
-              (setq function (cdar alist))
-              (if (stringp function)
-                  (progn
-                    (set (make-local-variable 'compile-command)
-                         (smart-compile-string function))
-                    (call-interactively 'compile)
-                    )
-                (if (listp function)
-                    (eval function)
-                    ))
-              (setq alist nil)
+              (set (make-local-variable 'compile-command) "make ")
+              (call-interactively 'compile)
               (setq not-yet nil)
               )
-          (setq alist (cdr alist)) )
-        ))
+          (setq smart-compile-check-makefile nil)))
 
-    ;; If compile-command is not defined and the contents begins with "#!",
-    ;; set compile-command to filename.
-    (if (and not-yet
-             (not (memq system-type '(windows-nt ms-dos)))
-             (not (string-match "/\\.[^/]+$" name))
-             (not
-              (and (local-variable-p 'compile-command)
-                   compile-command))
-             )
-        (save-restriction
-          (widen)
-          (if (equal "#!" (buffer-substring 1 (min 3 (point-max))))
-              (set (make-local-variable 'compile-command) name)
-            ))
-      )
-    
-    ;; compile
-    (if not-yet (call-interactively 'compile) )
+       ) ;; end of (cond ...)
+
+      ;; compile
+      (let( (alist smart-compile-alist) 
+            (case-fold-search nil)
+            (function nil) )
+        (while (and alist not-yet)
+          (if (or
+               (and (symbolp (caar alist))
+                    (eq (caar alist) major-mode))
+               (and (stringp (caar alist))
+                    (string-match (caar alist) name))
+               (and (listp (caar alist))
+                    (eq 'lambda (car (caar alist)))
+                    (funcall (caar alist) (current-buffer)))
+               )
+              (progn
+                (setq function (cdar alist))
+                (if (stringp function)
+                    (progn
+                      (set (make-local-variable 'compile-command)
+                           (smart-compile-string function))
+                      (call-interactively 'compile)
+                      )
+                  (if (listp function)
+                      (eval function)
+                    ))
+                (setq alist nil)
+                (setq not-yet nil)
+                )
+            (setq alist (cdr alist)) )
+          ))
+
+      ;; If compile-command is not defined and the contents begins with "#!",
+      ;; set compile-command to filename.
+      (if (and not-yet
+               (not (memq system-type '(windows-nt ms-dos)))
+               (not (string-match "/\\.[^/]+$" name))
+               (not
+                (and (local-variable-p 'compile-command)
+                     compile-command))
+               )
+          (save-restriction
+            (widen)
+            (if (equal "#!" (buffer-substring 1 (min 3 (point-max))))
+                (set (make-local-variable 'compile-command) name)
+              ))
+        )
+      
+      ;; compile
+      (if not-yet (call-interactively 'compile) ))
 
     ))
 
