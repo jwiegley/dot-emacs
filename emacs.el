@@ -184,21 +184,17 @@
           user-data-directory
           (replace-regexp-in-string "/data/" "/data-alt/" user-data-directory))
 
-    (let ((regexp
-           (concat "\\`" (regexp-quote (expand-file-name user-data-directory))))
-          (user-emacs-directory-alt
-           (replace-regexp-in-string "/data/" "/data-alt/"
-                                     (expand-file-name user-data-directory))))
+    (let* ((regexp "/\\.emacs\\.d/data/")
+           (replace "/.emacs.d/data-alt/"))
       (dolist (setting settings)
         (let ((value (and (listp setting)
                           (nth 1 (nth 1 setting)))))
           (if (and (stringp value)
-                   (string-match regexp (expand-file-name value)))
+                   (string-match regexp value))
               (setcar (nthcdr 1 (nth 1 setting))
-                      (replace-regexp-in-string regexp user-emacs-directory-alt
-                                                (expand-file-name value))))))
+                      (replace-regexp-in-string regexp replace value)))))
 
-      (eval settings))))
+      settings)))
 
 ;;;_ , Enable disabled commands
 
