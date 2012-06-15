@@ -36,7 +36,7 @@
 (defun save-persistent-scratch ()
   "Write the contents of *scratch* to the file name
 `persistent-scratch-file-name'."
-  (with-current-buffer (get-buffer "*scratch*")
+  (with-current-buffer (get-buffer-create "*scratch*")
     (write-region (point-min) (point-max) persistent-scratch-file-name)))
 
 (defun load-persistent-scratch ()
