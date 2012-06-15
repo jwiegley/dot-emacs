@@ -369,14 +369,6 @@
 (define-key mode-specific-map [?G] 'gist-region-or-buffer)
 (define-key mode-specific-map [?h] 'crosshairs-mode)
 
-(define-key mode-specific-map [?i ?b] 'flyspell-buffer)
-(define-key mode-specific-map [?i ?c] 'ispell-comments-and-strings)
-(define-key mode-specific-map [?i ?d] 'ispell-change-dictionary)
-(define-key mode-specific-map [?i ?f] 'flyspell-mode)
-(define-key mode-specific-map [?i ?k] 'ispell-kill-ispell)
-(define-key mode-specific-map [?i ?m] 'ispell-message)
-(define-key mode-specific-map [?i ?r] 'ispell-region)
-
 (define-key mode-specific-map [?k] 'keep-lines)
 
 (when window-system
@@ -890,16 +882,14 @@
       (which-function-mode 1)
       (auto-complete-mode 1)
 
+      (diminish 'gtags-mode)
       (diminish 'hs-minor-mode)
       (diminish 'hide-ifdef-mode)
 
       (if t
           (progn
             (auto-complete-mode 1)
-            (setq ac-sources (append '(ac-source-gtags
-                                       ;; ac-source-clang
-                                       ac-source-yasnippet)
-                                     ac-sources))
+            (setq ac-sources '(ac-source-gtags))
             (define-key c-mode-base-map [(alt tab)] 'ac-complete))
         (company-mode 1)
         (define-key c-mode-base-map [(alt tab)] 'company-complete-common))
@@ -1469,6 +1459,23 @@
   :disabled t
   :commands R)
 
+;;;_ , flyspell
+
+(use-package flyspell
+  :commands (flyspell-mode flyspell-buffer)
+  :init
+  (progn
+    (define-key mode-specific-map [?i ?b] 'flyspell-buffer)
+    (define-key mode-specific-map [?i ?c] 'ispell-comments-and-strings)
+    (define-key mode-specific-map [?i ?d] 'ispell-change-dictionary)
+    (define-key mode-specific-map [?i ?f] 'flyspell-mode)
+    (define-key mode-specific-map [?i ?k] 'ispell-kill-ispell)
+    (define-key mode-specific-map [?i ?m] 'ispell-message)
+    (define-key mode-specific-map [?i ?r] 'ispell-region))
+
+  :config
+  (define-key flyspell-mode-map [(control ?.)] nil))
+
 ;;;_ , fold-dwim
 
 (use-package fold-dwim
@@ -1709,7 +1716,6 @@
 ;;;_ , icicles
 
 (use-package icicles
-  ;; :commands icy-mode
   :init
   (progn
     (defun icicles-initialize ()
@@ -2495,7 +2501,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (use-package springboard
   :commands springboard
   :init
-  (global-override-key [(control ?.)] 'springboard))
+  (define-key global-map [(control ?.)] 'springboard))
 
 ;;;_ , stopwatch
 
