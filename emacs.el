@@ -869,7 +869,77 @@
   (progn
     (add-to-list 'auto-mode-alist '("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode))
     (add-to-list 'auto-mode-alist '("\\.m\\'" . c-mode))
-    (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode)))
+    (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
+
+    (defun my-c-indent-or-complete ()
+      (interactive)
+      (let ((class (syntax-class (syntax-after (1- (point))))))
+        (if (or (bolp) (and (/= 2 class)
+                            (/= 3 class)))
+            (call-interactively 'indent-according-to-mode)
+          (if t
+              (call-interactively 'auto-complete)
+            (call-interactively 'company-complete-common)))))
+
+    (defun my-c-mode-common-hook ()
+      (abbrev-mode 1)
+      (gtags-mode 1)
+      (hs-minor-mode 1)
+      (hide-ifdef-mode 1)
+      (whitespace-mode 1)
+      (which-function-mode 1)
+      (auto-complete-mode 1)
+
+      (diminish 'hs-minor-mode)
+      (diminish 'hide-ifdef-mode)
+
+      (if t
+          (progn
+            (auto-complete-mode 1)
+            (setq ac-sources (append '(ac-source-gtags
+                                       ;; ac-source-clang
+                                       ac-source-yasnippet)
+                                     ac-sources))
+            (define-key c-mode-base-map [(alt tab)] 'ac-complete))
+        (company-mode 1)
+        (define-key c-mode-base-map [(alt tab)] 'company-complete-common))
+
+      ;;(doxymacs-mode 1)
+      ;;(doxymacs-font-lock)
+
+      (define-key c-mode-base-map [return] 'newline-and-indent)
+
+      (set (make-local-variable 'yas/fallback-behavior)
+           '(apply my-c-indent-or-complete . nil))
+      (define-key c-mode-base-map [tab] 'yas/expand-from-trigger-key)
+
+      (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
+      (define-key c-mode-base-map [(control ?c) (control ?i)]
+        'c-includes-current-file)
+
+      (set (make-local-variable 'parens-require-spaces) nil)
+      (setq indicate-empty-lines t)
+      (setq fill-column 72)
+
+      (define-key c-mode-base-map [(meta ?q)] 'c-fill-paragraph)
+
+      (let ((bufname (buffer-file-name)))
+        (when bufname
+          (cond
+           ((string-match "/ledger/" bufname)
+            (c-set-style "ledger"))
+           ((string-match "/ansi/" bufname)
+            (c-set-style "edg")
+            (substitute-key-definition 'fill-paragraph 'ti-refill-comment
+                                       c-mode-base-map global-map)
+            (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment))
+           (t
+            (c-set-style "clang")))))
+
+      (font-lock-add-keywords 'c++-mode '(("\\<\\(assert\\|DEBUG\\)("
+                                           1 font-lock-warning-face t))))
+
+    (add-hook 'c-mode-common-hook 'my-c-mode-common-hook))
 
   :config
   (progn
@@ -887,8 +957,6 @@
     (define-key c-mode-base-map ")" 'self-insert-command)
     (define-key c++-mode-map "<"    'self-insert-command)
     (define-key c++-mode-map ">"    'self-insert-command)
-
-    (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
     (add-to-list 'c-style-alist
                  '("edg"
@@ -971,73 +1039,13 @@
                    (c-special-indent-hook . c-gnu-impose-minimum)
                    (c-block-comment-prefix . "")))
 
-    (defun my-c-indent-or-complete ()
+    (defun opencl ()
       (interactive)
-      (let ((class (syntax-class (syntax-after (1- (point))))))
-        (if (or (bolp) (and (/= 2 class)
-                            (/= 3 class)))
-            (call-interactively 'indent-according-to-mode)
-          (if t
-              (call-interactively 'auto-complete)
-            (call-interactively 'company-complete-common)))))
-
-    (defun my-c-mode-common-hook ()
-      (abbrev-mode 1)
-      (gtags-mode 1)
-      (hs-minor-mode 1)
-      (hide-ifdef-mode 1)
-      (whitespace-mode 1)
-      (which-function-mode 1)
-
-      (diminish 'auto-complete-mode)
-      (diminish 'hs-minor-mode)
-      (diminish 'hide-ifdef-mode)
-
-      (if t
-          (progn
-            (auto-complete-mode 1)
-            (setq ac-sources (append '(ac-source-gtags
-                                       ;; ac-source-clang
-                                       ac-source-yasnippet)
-                                     ac-sources))
-            (define-key c-mode-base-map [(alt tab)] 'ac-complete))
-        (company-mode 1)
-        (define-key c-mode-base-map [(alt tab)] 'company-complete-common))
-
-      ;;(doxymacs-mode 1)
-      ;;(doxymacs-font-lock)
-
-      (define-key c-mode-base-map [return] 'newline-and-indent)
-
-      (set (make-local-variable 'yas/fallback-behavior)
-           '(apply my-c-indent-or-complete . nil))
-      (define-key c-mode-base-map [tab] 'yas/expand-from-trigger-key)
-
-      (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
-      (define-key c-mode-base-map [(control ?c) (control ?i)]
-        'c-includes-current-file)
-
-      (set (make-local-variable 'parens-require-spaces) nil)
-      (setq indicate-empty-lines t)
-      (setq fill-column 72)
-
-      (define-key c-mode-base-map [(meta ?q)] 'c-fill-paragraph)
-
-      (let ((bufname (buffer-file-name)))
-        (when bufname
-          (cond
-           ((string-match "/ledger/" bufname)
-            (c-set-style "ledger"))
-           ((string-match "/ansi/" bufname)
-            (c-set-style "edg")
-            (substitute-key-definition 'fill-paragraph 'ti-refill-comment
-                                       c-mode-base-map global-map)
-            (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment))
-           (t
-            (c-set-style "clang")))))
-
-      (font-lock-add-keywords 'c++-mode '(("\\<\\(assert\\|DEBUG\\)("
-                                           1 font-lock-warning-face t))))
+      (find-file "~/src/ansi/opencl.c")
+      (find-file-noselect "~/Contracts/TI/bugslayer/cl_0603o/cl_0603o.c")
+      (find-file-noselect "~/Contracts/TI/bugslayer")
+      (magit-status "~/src/ansi")
+      (gud-gdb "gdb --fullname ~/Contracts/TI/bin/c60/acpia6x"))
 
     (defun ti-refill-comment ()
       (interactive)
@@ -1101,15 +1109,7 @@
             (goto-char begin)
             (delete-region begin end)
             (insert comment)))
-        (goto-char here)))
-
-    (defun opencl ()
-      (interactive)
-      (find-file "~/src/ansi/opencl.c")
-      (find-file-noselect "~/Contracts/TI/bugslayer/cl_0603o/cl_0603o.c")
-      (find-file-noselect "~/Contracts/TI/bugslayer")
-      (magit-status "~/src/ansi")
-      (gud-gdb "gdb --fullname ~/Contracts/TI/bin/c60/acpia6x"))))
+        (goto-char here)))))
 
 ;;;_ , cmake-mode
 
@@ -2737,7 +2737,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
     (hook-into-modes 'yas/minor-mode
                      '(org-mode-hook
-                       c-mode-common-hook
                        ruby-mode-hook
                        message-mode-hook
                        gud-mode-hook)))
