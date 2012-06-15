@@ -866,7 +866,7 @@
 ;;;_ , cc-mode
 
 (use-package cc-mode
-  :commands c-mode c++-mode
+  :commands (c-mode c++-mode)
   :init
   (progn
     (add-to-list 'auto-mode-alist '("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode))
@@ -989,6 +989,7 @@
       (hs-minor-mode 1)
       (hide-ifdef-mode 1)
       (whitespace-mode 1)
+      (which-function-mode 1)
 
       (diminish 'auto-complete-mode)
       (diminish 'hs-minor-mode)
@@ -1004,7 +1005,6 @@
             (define-key c-mode-base-map [(alt tab)] 'ac-complete))
         (company-mode 1)
         (define-key c-mode-base-map [(alt tab)] 'company-complete-common))
-      (which-function-mode 1)
 
       ;;(doxymacs-mode 1)
       ;;(doxymacs-font-lock)
