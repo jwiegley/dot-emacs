@@ -11,7 +11,7 @@
 (eval-when-compile
   (require 'cl))
 
-(defvar use-package-verbose nil)
+(defvar use-package-verbose t)
 
 (defmacro hook-into-modes (func modes)
   `(dolist (mode-hook ,modes)
@@ -167,35 +167,36 @@
 
 ;;;_ , Load customization settings
 
-(load (expand-file-name "settings" user-emacs-directory))
-
 (defvar running-alternate-emacs nil)
 
-(unless (string= invocation-directory
-                 "/Applications/Misc/Emacs.app/Contents/MacOS/")
-  (setq running-alternate-emacs t)
+(if (string= invocation-directory
+             "/Applications/Misc/Emacs.app/Contents/MacOS/")
 
-  (let ((regexp
-         (concat "\\`" (regexp-quote (expand-file-name user-data-directory))))
-        (user-emacs-directory-alt
-         (replace-regexp-in-string "/data/" "/data-alt/"
-                                   (expand-file-name user-data-directory))))
-    (dolist (incl (apropos-internal "-\\(file\\(-name\\)?\\|directory\\)\\'"
-                                    'boundp))
-      (let* ((symbol (if (consp incl) (car incl) incl))
-             (value (symbol-value symbol)))
-        (when (stringp value)
-          (setq value (expand-file-name value))
-          (if t
-              (message "(set %s \"%s\")"
-                       (symbol-name symbol)
-                       (replace-regexp-in-string
-                        regexp (expand-file-name user-emacs-directory-alt)
-                        value))
-            (set symbol
-                 (replace-regexp-in-string
-                  regexp (expand-file-name user-emacs-directory-alt)
-                  value))))))))
+    (load (expand-file-name "settings" user-emacs-directory))
+
+  (let ((settings (with-temp-buffer
+                    (insert-file-contents
+                     (expand-file-name "settings.el" user-emacs-directory))
+                    (goto-char (point-min))
+                    (read (current-buffer)))))
+
+    (setq running-alternate-emacs t)
+
+    (let ((regexp
+           (concat "\\`" (regexp-quote (expand-file-name user-data-directory))))
+          (user-emacs-directory-alt
+           (replace-regexp-in-string "/data/" "/data-alt/"
+                                     (expand-file-name user-data-directory))))
+      (dolist (setting settings)
+        (let ((value (and (listp setting)
+                          (nth 1 (nth 1 setting)))))
+          (if (and (stringp value)
+                   (string-match regexp (expand-file-name value)))
+              (setcar (nthcdr 1 (nth 1 setting))
+                      (replace-regexp-in-string regexp user-emacs-directory-alt
+                                                (expand-file-name value))))))
+
+      (eval settings))))
 
 ;;;_ , Enable disabled commands
 
@@ -377,27 +378,28 @@
 
 (define-key mode-specific-map [?k] 'keep-lines)
 
+(when window-system
+  (if running-alternate-emacs
+      (progn
+        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 537 537))
+        (defvar emacs-min-left 9)
+        (defvar emacs-min-height 35)
+        (defvar emacs-min-width 80))
+
+    (defvar emacs-min-top 22)
+    (defvar emacs-min-left (- (x-display-pixel-width) 918))
+    (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 64 64))
+    (defvar emacs-min-width 100)))
+
 (defun emacs-min ()
   (interactive)
   (set-frame-parameter (selected-frame) 'fullscreen nil)
   (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
   (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'top 26)
-  (set-frame-parameter (selected-frame) 'left
-                       (- (x-display-pixel-width)
-                          (if (>= emacs-major-version 24)
-                              925
-                            920)))
-  (set-frame-parameter (selected-frame) 'width 100)
-  (if (= 1050 (x-display-pixel-height))
-      (set-frame-parameter (selected-frame) 'height
-                           (if (>= emacs-major-version 24)
-                               66
-                             100))
-    (set-frame-parameter (selected-frame) 'height
-                         (if (>= emacs-major-version 24)
-                             76
-                           100))))
+  (set-frame-parameter (selected-frame) 'top emacs-min-top)
+  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  (set-frame-parameter (selected-frame) 'height emacs-min-height)
+  (set-frame-parameter (selected-frame) 'width emacs-min-width))
 
 (if window-system
     (add-hook 'after-init-hook 'emacs-min))
@@ -1342,7 +1344,7 @@
 ;;;_ , edit-server
 
 (use-package edit-server
-  :if window-system
+  :if (and window-system (not running-alternate-emacs))
   :init
   (progn
     (add-hook 'after-init-hook 'server-start t)
