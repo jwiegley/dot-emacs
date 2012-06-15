@@ -30,17 +30,22 @@ cus-dirs.elc: cus-dirs.el
 	@echo Not compiling cus-dirs.el
 
 settings.elc: settings.el
-	@echo Not compiling settings.el
+	@rm -f $@
+	@echo Not compiling $<
+
+%-settings.elc: %-settings.el
+	@rm -f $@
+	@echo Not compiling $<
 
 load-path.elc: load-path.el
 	$(BATCH_LOAD) -f batch-byte-compile $<
 
 emacs.elc: emacs.el
-	rm -f $@
+	@rm -f $@ dot-*.elc
 	$(BATCH_LOAD) -l init -f batch-byte-compile $<
 
 dot-%.elc: dot-%.el emacs.elc
-	rm -f $@
+	@rm -f $@
 	$(BATCH_LOAD) -l init -l $< -f batch-byte-compile $<
 
 %.elc: %.el

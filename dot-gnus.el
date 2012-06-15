@@ -15,42 +15,13 @@
 
 (defvar gnus-unbury-window-configuration nil)
 
-(defun switch-to-gnus (&optional arg)
-  (interactive "P")
-  (let ((alist '(("\\`\\*unsent")
-                 ("\\`\\*Article")
-                 ("\\`\\*Summary")
-                 ("\\`\\*Group"
-                  (lambda (buf)
-                    (with-current-buffer buf
-                      (gnus-group-get-new-news))))))
-        candidate)
-    (catch 'found
-      (dolist (item alist)
-        (let ((regexp (nth 0 item))
-              (test (nth 1 item))
-              last)
-          (dolist (buf (buffer-list))
-            (if (string-match regexp (buffer-name buf))
-                (setq last buf)))
-          (if (and last (or (null test)
-                            (funcall test last)))
-              (throw 'found (setq candidate last))))))
-    (if candidate
-        (ido-visit-buffer candidate ido-default-buffer-method)
-      (let ((gnus-startup-hook (if arg nil gnus-startup-hook)))
-        (gnus)))
-    (gnus-group-list-groups gnus-activate-level)))
-
 (use-package fetchmail-ctl
   :init
   (progn
-    (defun quickping (host)
-      (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
-
     (defun maybe-start-fetchmail-and-news ()
       (interactive)
-      (when (quickping "imap.gmail.com")
+      (when (and (not switch-to-gnus-unplugged)
+                 (quickping "imap.gmail.com"))
         (do-applescript "tell application \"Notify\" to run")
         (start-fetchmail)
         (save-window-excursion
@@ -250,13 +221,12 @@ Else, return \" \"."
               (gnus-read-active-file nil)
               (gnus-check-new-newsgroups nil)
               (gnus-verbose 2)
-              (gnus-verbose-backends 5)
-              (level 21))
+              (gnus-verbose-backends 5))
           (unwind-protect
               (save-window-excursion
                 (when (gnus-alive-p)
                   (with-current-buffer gnus-group-buffer
-                    (gnus-group-get-new-news level))))
+                    (gnus-group-get-new-news gnus-activate-level))))
             (set-window-configuration win)))))
 
     (gnus-demon-add-handler 'gnus-demon-scan-news-2 5 2)
