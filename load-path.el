@@ -55,7 +55,7 @@
 
   (add-to-list 'load-path path))
 
-(require 'autoloads)
+;; (require 'autoloads)
 (require 'cus-load)
 
 (provide 'load-path)

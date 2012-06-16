@@ -1,4 +1,4 @@
-;;;_. Initialization
+;;_. Initialization
 
 (message "Loading %s..." load-file-name)
 
@@ -11,7 +11,7 @@
 
 (require 'diminish)
 
-(defvar use-package-verbose nil)
+(defvar use-package-verbose t)
 
 (defmacro hook-into-modes (func modes)
   `(dolist (mode-hook ,modes)
@@ -63,7 +63,8 @@
                       `(load ,name t)
                     `(require ',name nil t)))
                (when ,(or predicate t)
-                 (let ((now (current-time)))
+                 (let ((now ,(if use-package-verbose
+                                 '(current-time))))
                    ,(if use-package-verbose
                         `(message "Pre-loading package %s..." ,name-string))
                    ,@form
@@ -71,7 +72,8 @@
                    ,(unless (null config-body)
                       `(eval-after-load ,name-string
                          '(when ,requires-test
-                            (let ((now (current-time)))
+                            (let ((now ,(if use-package-verbose
+                                            '(current-time))))
                               ,(if use-package-verbose
                                    `(message "Configuring package %s..."
                                              ,name-string))
@@ -107,7 +109,8 @@
                       ,(if (stringp name)
                            `(load ,name t)
                          `(require ',name nil t)))
-             (let ((now (current-time)))
+             (let ((now ,(if use-package-verbose
+                             '(current-time))))
                ,(if use-package-verbose
                     `(message "Loading package %s..." ,name-string))
                ,init-body
@@ -127,9 +130,6 @@
 (font-lock-add-keywords 'emacs-lisp-mode
                         '(("(use-package\\>" . font-lock-keyword-face)))
 
-(defun quickping (host)
-  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
-
 ;;;_ , Create override-global-mode to force key remappings
 
 (require 'easy-mmode)
@@ -141,14 +141,105 @@
   "A minor mode so that keymap settings override other modes."
   t "" override-global-map)
 
-(defun global-override-key (key command)
-  (define-key global-map key command)
-  (define-key override-global-map key command))
-
 (add-hook 'after-init-hook
           (function
            (lambda ()
              (override-global-mode 1))))
+
+;;;_ , Utility macros and functions
+
+(defvar personal-keybindings nil)
+
+(defmacro bind-key (key-name command)
+  `(let* ((key (kbd ,key-name))
+          (binding (lookup-key (current-global-map) key)))
+     (let ((entry (assoc ,key-name personal-keybindings)))
+       (if entry
+           (setq personal-keybindings
+                 (delq entry personal-keybindings))))
+     (setq personal-keybindings
+           (cons (cons ,key-name
+                       (cons (unless (numberp binding) binding)
+                             ,command))
+                 personal-keybindings))
+     (global-set-key key ,command)))
+
+(defmacro bind-key* (key-name command)
+  `(progn
+     (bind-key ,key-name ,command)
+     (define-key override-global-map ,(read-kbd-macro key-name) ,command)))
+
+(defun get-binding-description (elem)
+  (cond
+   ((listp elem)
+    (cond
+     ((eq 'lambda (car elem))
+      "#<lambda>")
+     ((eq 'closure (car elem))
+      "#<closure>")
+     ((eq 'keymap (car elem))
+      "#<keymap>")
+     (t
+      elem)))
+   ((keymapp elem)
+    "#<keymap>")
+   ((symbolp elem)
+    elem)
+   (t
+    elem)))
+
+(defun compare-keybindings (l r)
+  (let* ((regex  "\\`\\(\\(C-[chx] \\|M-[gso] \\)\\([CM]-\\)?\\|.+-\\)")
+         (lgroup (and (string-match regex (car l))
+                      (match-string 0 (car l))))
+         (rgroup (and (string-match regex (car r))
+                      (match-string 0 (car r)))))
+    (cond
+     ((and (null lgroup) rgroup)
+      (cons t t))
+     ((and lgroup (null rgroup))
+      (cons nil t))
+     ((and lgroup rgroup)
+      (if (string= lgroup rgroup)
+          (cons (string< (car l) (car r)) nil)
+        (cons (string< lgroup rgroup) t)))
+     (t
+      (cons (string< (car l) (car r)) nil)))))
+
+(defun describe-personal-keybindings ()
+  (interactive)
+  (with-current-buffer (get-buffer-create "*Personal Keybindings*")
+    (delete-region (point-min) (point-max))
+    (insert "Key name          Command                                 Comments
+----------------- --------------------------------------- --------------------
+")
+    (let (last-binding)
+      (dolist (binding (setq personal-keybindings
+                             (sort personal-keybindings
+                                   #'(lambda (l r)
+                                       (car (compare-keybindings l r))))))
+        (if (and last-binding
+                 (cdr (compare-keybindings last-binding binding)))
+            (insert ?\n))
+        (let ((at-present (lookup-key (current-global-map)
+                                      (read-kbd-macro (car binding)))))
+          (insert
+           (format
+            "%-18s%-40s%s\n"
+            (car binding) (get-binding-description (cddr binding))
+            (if (eq (cddr binding) at-present)
+                (if (cadr binding)
+                    (format "(%s)"
+                            (get-binding-description (cadr binding)))
+                  "")
+              (format "[now: %s]"
+                      (get-binding-description at-present))))))
+        (setq last-binding binding)))
+    (goto-char (point-min))
+    (display-buffer (current-buffer))))
+
+(defun quickping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
 
 ;;;_ , Read system environment
 
@@ -213,7 +304,7 @@
 
 ;;;_ , C-?
 
-(global-override-key [(control return)] 'other-window)
+(bind-key* "<C-return>" 'other-window)
 
 (defun collapse-or-expand ()
   (interactive)
@@ -221,13 +312,13 @@
       (delete-other-windows)
     (bury-buffer)))
 
-(define-key global-map [(control ?z)] 'collapse-or-expand)
+(bind-key "C-z" 'collapse-or-expand)
 
 ;;;_ , ctl-x-map
 
-(define-key ctl-x-map [?d] 'delete-whitespace-rectangle)
-(define-key ctl-x-map [(shift ?f)] 'set-fill-column)
-(define-key ctl-x-map [?m] 'compose-mail)
+(bind-key "C-x d" 'delete-whitespace-rectangle)
+(bind-key "C-x F" 'set-fill-column)
+(bind-key "C-x m" 'compose-mail)
 
 (defun edit-with-sudo ()
   (interactive)
@@ -235,12 +326,12 @@
     (find-file (concat "/sudo::" (buffer-file-name)))
     (kill-buffer buf)))
 
-(define-key ctl-x-map [(shift ?s)] 'edit-with-sudo)
-(define-key ctl-x-map [?t] 'toggle-truncate-lines)
+(bind-key "C-x S" 'edit-with-sudo)
+(bind-key "C-x t" 'toggle-truncate-lines)
 
 ;;;_  . C-x C-?
 
-(define-key ctl-x-map [(control ?b)] 'ibuffer)
+(bind-key "C-x C-b" 'ibuffer)
 
 (defun duplicate-line ()
   "Duplicate the line containing point."
@@ -257,13 +348,13 @@
       (open-line 1)
       (insert line-text))))
 
-(define-key ctl-x-map [(control ?d)] 'duplicate-line)
-(define-key ctl-x-map [(control ?e)] 'pp-eval-last-sexp)
-(define-key ctl-x-map [(control ?n)] 'next-line)
+(bind-key "C-x C-d" 'duplicate-line)
+(bind-key "C-x C-e" 'pp-eval-last-sexp)
+(bind-key "C-x C-n" 'next-line)
 
 ;;;_  . C-x M-?
 
-(define-key ctl-x-map [(meta ?n)] 'set-goal-column)
+(bind-key "C-x M-n" 'set-goal-column)
 
 (defun refill-paragraph (arg)
   (interactive "*P")
@@ -298,16 +389,15 @@
       (funcall fun nil))
     (goto-char (+ end 2))))
 
-(define-key ctl-x-map [(meta ?q)] 'refill-paragraph)
-(define-key ctl-x-map [(meta ?z)] 'shell-toggle)
+(bind-key "C-x M-q" 'refill-paragraph)
+(bind-key "C-x M-z" 'shell-toggle)
 
 ;;;_ , mode-specific-map
 
 ;;;_  . C-c ?
 
-(define-key mode-specific-map [tab] 'ff-find-other-file)
-(define-key mode-specific-map [space] 'just-one-space)
-(define-key mode-specific-map [? ] 'just-one-space)
+(bind-key "C-c TAB" 'ff-find-other-file)
+(bind-key "C-c <space>" 'just-one-space)
 
 ;; inspired by Erik Naggum's `recursive-edit-with-single-window'
 (defmacro recursive-edit-preserving-window-config (body)
@@ -322,9 +412,9 @@
        ,body
        (recursive-edit))))
 
-(define-key mode-specific-map [?0]
+(bind-key "C-c 0"
   (recursive-edit-preserving-window-config (delete-window)))
-(define-key mode-specific-map [?1]
+(bind-key "C-c 1"
   (recursive-edit-preserving-window-config
    (if (one-window-p 'ignore-minibuffer)
        (error "Current window is the only window in its frame")
@@ -337,39 +427,39 @@
     (kill-line arg)
     (goto-char here)))
 
-(define-key mode-specific-map [?d] 'delete-current-line)
+(bind-key "C-c d" 'delete-current-line)
 
-(define-key mode-specific-map [?e ?E] 'elint-current-buffer)
+(bind-key "C-c e E" 'elint-current-buffer)
 
 (defun do-eval-buffer ()
   (interactive)
   (call-interactively 'eval-buffer)
   (message "Buffer has been evaluated"))
 
-(define-key mode-specific-map [?e ?b] 'do-eval-buffer)
-(define-key mode-specific-map [?e ?c] 'cancel-debug-on-entry)
-(define-key mode-specific-map [?e ?d] 'debug-on-entry)
-(define-key mode-specific-map [?e ?e] 'toggle-debug-on-error)
-(define-key mode-specific-map [?e ?f] 'emacs-lisp-byte-compile-and-load)
-(define-key mode-specific-map [?e ?l] 'find-library)
-(define-key mode-specific-map [?e ?r] 'eval-region)
-(define-key mode-specific-map [?e ?s] 'scratch)
-(define-key mode-specific-map [?e ?v] 'edit-variable)
+(bind-key "C-c e b" 'do-eval-buffer)
+(bind-key "C-c e c" 'cancel-debug-on-entry)
+(bind-key "C-c e d" 'debug-on-entry)
+(bind-key "C-c e e" 'toggle-debug-on-error)
+(bind-key "C-c e f" 'emacs-lisp-byte-compile-and-load)
+(bind-key "C-c e l" 'find-library)
+(bind-key "C-c e r" 'eval-region)
+(bind-key "C-c e s" 'scratch)
+(bind-key "C-c e v" 'edit-variable)
 
 (defun find-which (name)
   (interactive "sCommand name: ")
   (find-file-other-window
    (substring (shell-command-to-string (format "which %s" name)) 0 -1)))
 
-(define-key mode-specific-map [?e ?w] 'find-which)
-(define-key mode-specific-map [?e ?z] 'byte-recompile-directory)
+(bind-key "C-c e w" 'find-which)
+(bind-key "C-c e z" 'byte-recompile-directory)
 
-(define-key mode-specific-map [?f] 'flush-lines)
-(define-key mode-specific-map [?g] 'ignore)
-(define-key mode-specific-map [?G] 'gist-region-or-buffer)
-(define-key mode-specific-map [?h] 'crosshairs-mode)
+(bind-key "C-c f" 'flush-lines)
+(bind-key "C-c g" 'ignore)
+(bind-key "C-c G" 'gist-region-or-buffer)
+(bind-key "C-c h" 'crosshairs-mode)
 
-(define-key mode-specific-map [?k] 'keep-lines)
+(bind-key "C-c k" 'keep-lines)
 
 (when window-system
   (if running-alternate-emacs
@@ -396,7 +486,7 @@
 
   (when running-alternate-emacs
     (set-background-color "grey85")
-    (set-fringe-style 0)))
+    (set-face-background 'fringe "gray80")))
 
 (if window-system
     (add-hook 'after-init-hook 'emacs-min))
@@ -428,7 +518,7 @@
       (emacs-min)
     (emacs-max)))
 
-(define-key mode-specific-map [?m] 'emacs-toggle-size)
+(bind-key "C-c m" 'emacs-toggle-size)
 
 (defcustom user-initials nil
   "*Initials of this user."
@@ -452,9 +542,9 @@
   (insert (format "%s (%s): " user-initials
                   (format-time-string "%Y-%m-%d" (current-time)))))
 
-(define-key mode-specific-map [?n] 'insert-user-timestamp)
-(define-key mode-specific-map [?o] 'customize-option)
-(define-key mode-specific-map [?O] 'customize-group)
+(bind-key "C-c n" 'insert-user-timestamp)
+(bind-key "C-c o" 'customize-option)
+(bind-key "C-c O" 'customize-group)
 
 (defvar printf-index 0)
 
@@ -471,13 +561,13 @@
   (indent-according-to-mode)
   (forward-line))
 
-(define-key mode-specific-map [?p] 'insert-counting-printf)
+(bind-key "C-c p" 'insert-counting-printf)
 
-(define-key mode-specific-map [?q] 'fill-region)
-(define-key mode-specific-map [?r] 'replace-regexp)
-(define-key mode-specific-map [?s] 'replace-string)
-(define-key mode-specific-map [?u] 'rename-uniquely)
-(define-key mode-specific-map [?v] 'ffap)
+(bind-key "C-c q" 'fill-region)
+(bind-key "C-c r" 'replace-regexp)
+(bind-key "C-c s" 'replace-string)
+(bind-key "C-c u" 'rename-uniquely)
+(bind-key "C-c v" 'ffap)
 
 (defun view-clipboard ()
   (interactive)
@@ -490,13 +580,13 @@
     (html-mode)
     (view-mode)))
 
-(define-key mode-specific-map [(shift ?v)] 'view-clipboard)
+(bind-key "C-c V" 'view-clipboard)
 
-(define-key mode-specific-map [?z] 'clean-buffer-list)
+(bind-key "C-c z" 'clean-buffer-list)
 
-(define-key mode-specific-map [?\[] 'align-regexp)
-(define-key mode-specific-map [?=]  'count-matches)
-(define-key mode-specific-map [?\;] 'comment-or-uncomment-region)
+(bind-key "C-c [" 'align-regexp)
+(bind-key "C-c ="  'count-matches)
+(bind-key "C-c ;" 'comment-or-uncomment-region)
 
 ;;;_  . C-c C-?
 
@@ -504,7 +594,7 @@
   (interactive)
   (kill-region (point) (point-max)))
 
-(define-key mode-specific-map [(control ?z)] 'delete-to-end-of-buffer)
+(bind-key "C-c C-z" 'delete-to-end-of-buffer)
 
 ;;;_  . C-c M-?
 
@@ -530,7 +620,7 @@
         (while (re-search-forward "[^.;!?:]\\([ \t][ \t]+\\)" end t)
           (replace-match " " nil nil nil 1))))))
 
-(define-key mode-specific-map [(meta ?q)] 'unfill-paragraph)
+(bind-key "C-c M-q" 'unfill-paragraph)
 
 (defun unfill-region (beg end)
   (interactive "r")
@@ -545,12 +635,11 @@
 
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
-(define-key help-map [?e] 'lisp-find-map)
-(define-key lisp-find-map [?a] 'my-helm-apropos)
-(define-key lisp-find-map [?c] 'finder-commentary)
-(define-key lisp-find-map [?e] 'view-echo-area-messages)
-(define-key lisp-find-map [?f] 'find-function)
-(define-key lisp-find-map [?F] 'find-face-definition)
+(bind-key "C-h e" 'lisp-find-map)
+(bind-key "C-h e c" 'finder-commentary)
+(bind-key "C-h e e" 'view-echo-area-messages)
+(bind-key "C-h e f" 'find-function)
+(bind-key "C-h e F" 'find-face-definition)
 
 ;;; jww (2012-06-14): Change this to use helm
 (defun my-describe-symbol  (symbol &optional mode)
@@ -590,10 +679,10 @@
       ;;(switch-in-other-buffer cust-buf)
       (balance-windows))))
 
-(define-key lisp-find-map [?d] 'my-describe-symbol)
-(define-key lisp-find-map [?i] 'info-apropos)
-(define-key lisp-find-map [?k] 'find-function-on-key)
-(define-key lisp-find-map [?l] 'find-library)
+(bind-key "C-h e d" 'my-describe-symbol)
+(bind-key "C-h e i" 'info-apropos)
+(bind-key "C-h e k" 'find-function-on-key)
+(bind-key "C-h e l" 'find-library)
 
 (defun scratch ()
   (interactive)
@@ -604,41 +693,33 @@
       (forward-line 4)
       (delete-region (point-min) (point)))
     (goto-char (point-max))
-    (funcall current-mode)))
+    ;; (funcall current-mode)
+    ))
 
-(define-key lisp-find-map [?s] 'scratch)
-(define-key lisp-find-map [?v] 'find-variable)
+(bind-key "C-h e s" 'scratch)
+(bind-key "C-h e v" 'find-variable)
 
 ;;;_ , M-?
 
-(define-key global-map [(meta ?/)] 'dabbrev-expand)
+(bind-key "M-/" 'dabbrev-expand)
 
-(define-key global-map [(meta ?g) ?c] 'goto-char)
-(define-key global-map [(meta ?g) ?l] 'goto-line)
+(bind-key "M-g c" 'goto-char)
+(bind-key "M-g l" 'goto-line)
 
 (defun delete-indentation-forward ()
   (interactive)
   (delete-indentation t))
 
-(define-key global-map [(meta ?j)] 'delete-indentation-forward)
-(define-key global-map [(meta ?J)] 'delete-indentation)
+(bind-key "M-j" 'delete-indentation-forward)
+(bind-key "M-J" 'delete-indentation)
 
-(define-key global-map [(meta ?s) ?a] 'helm-do-grep)
-
-(defun my-helm-occur ()
-  (interactive)
-  (require 'helm-regexp)
-  (helm-other-buffer 'helm-c-source-occur "*Helm Occur*"))
-
-(define-key global-map [(meta ?s) ?b] 'my-helm-occur)
-(define-key global-map [(meta ?s) ?F] 'helm-for-files)
-(define-key global-map [(meta ?s) ?n] 'find-name-dired)
-(define-key global-map [(meta ?s) ?o] 'occur)
+(bind-key "M-s n" 'find-name-dired)
+(bind-key "M-s o" 'occur)
 
 (define-key global-map [remap eval-expression] 'pp-eval-expression)
 
-(define-key global-map [(meta ?\')] 'insert-pair)
-(define-key global-map [(meta ?\")] 'insert-pair)
+(bind-key "M-'" 'insert-pair)
+(bind-key "M-\"" 'insert-pair)
 
 (defun align-code (beg end &optional arg)
   (interactive "rP")
@@ -648,10 +729,10 @@
       (indent-region beg end-mark nil)
       (align beg end-mark))))
 
-(define-key global-map [(meta ?\[)] 'align-code)
-(define-key global-map [(meta ?`)]  'other-frame)
+(bind-key "M-[" 'align-code)
+(bind-key "M-)"  'other-frame)
 
-(define-key global-map [(meta shift ?w)] 'mark-word)
+(bind-key "M-W" 'mark-word)
 
 (defun mark-line (&optional arg)
   (interactive "p")
@@ -662,37 +743,37 @@
     (set-mark (point))
     (goto-char here)))
 
-(define-key global-map [(meta shift ?l)] 'mark-line)
+(bind-key "M-L" 'mark-line)
 
 (defun mark-sentence (&optional arg)
   (interactive "P")
   (backward-sentence)
   (mark-end-of-sentence arg))
 
-(define-key global-map [(meta shift ?s)] 'mark-sentence)
-(define-key global-map [(meta shift ?x)] 'mark-sexp)
-(define-key global-map [(meta shift ?h)] 'mark-paragraph)
-(define-key global-map [(meta shift ?d)] 'mark-defun)
+(bind-key "M-S" 'mark-sentence)
+(bind-key "M-X" 'mark-sexp)
+(bind-key "M-H" 'mark-paragraph)
+(bind-key "M-D" 'mark-defun)
 
-(define-key global-map [(meta alt ?w)] 'copy-code-as-rtf)
+(bind-key "A-M-w" 'copy-code-as-rtf)
 
-;;;_ , C-M-?
+;;;_ , M-C-?
 
-(define-key global-map [(control meta backspace)] 'backward-kill-sexp)
+(bind-key "<C-M-backspace>" 'backward-kill-sexp)
 
 (defun isearch-backward-other-window ()
   (interactive)
   (split-window-vertically)
   (call-interactively 'isearch-backward))
 
-(define-key global-map [(control meta ?r)] 'isearch-backward-other-window)
+(bind-key "C-M-r" 'isearch-backward-other-window)
 
 (defun isearch-forward-other-window ()
   (interactive)
   (split-window-vertically)
   (call-interactively 'isearch-forward))
 
-(define-key global-map [(control meta ?s)] 'isearch-forward-other-window)
+(bind-key "C-M-s" 'isearch-forward-other-window)
 
 ;;;_ , A-?
 
@@ -718,7 +799,7 @@
 (use-package ace-jump-mode
   :commands ace-jump-mode
   :init
-  (global-override-key [(meta ?,)] 'ace-jump-mode))
+  (bind-key* "M-," 'ace-jump-mode))
 
 ;;;_ , allout
 
@@ -834,13 +915,13 @@
   :commands (bm-toggle bm-next bm-previous bm-show bm-show-all)
   :init
   (progn
-    (define-key global-map [(alt ?b)] 'bm-last-in-previous-buffer)
-    (define-key global-map [(alt ?f)] 'bm-first-in-next-buffer)
-    (define-key global-map [(alt ?g)] 'bm-previous)
-    (define-key global-map [(alt ?l)] 'bm-show-all)
-    (define-key global-map [(alt ?m)] 'bm-toggle)
-    (define-key global-map [(alt ?n)] 'bm-next)
-    (define-key global-map [(alt ?p)] 'bm-previous)))
+    (bind-key "A-b" 'bm-last-in-previous-buffer)
+    (bind-key "A-f" 'bm-first-in-next-buffer)
+    (bind-key "A-g" 'bm-previous)
+    (bind-key "A-l" 'bm-show-all)
+    (bind-key "A-m" 'bm-toggle)
+    (bind-key "A-n" 'bm-next)
+    (bind-key "A-p" 'bm-previous)))
 
 ;;;_ , bookmark
 
@@ -1115,7 +1196,7 @@
 (use-package crosshairs
   :commands crosshairs-mode
   :init
-  (define-key global-map [(meta ?o) ?c] 'crosshairs-mode))
+  (bind-key "M-o c" 'crosshairs-mode))
 
 ;;;_ , css-mode
 
@@ -1123,6 +1204,12 @@
   :commands css-mode
   :init
   (add-to-list 'auto-mode-alist '("\\.css$" . css-mode)))
+
+;;;_ , delsel
+
+(use-package delsel
+  :init
+  (delete-selection-mode 1))
 
 ;;;_ , diff-mode
 
@@ -1239,7 +1326,7 @@
       (dired first-dir)
       (dired-other-window second-dir))
 
-    (define-key mode-specific-map [?J] 'dired-double-jump)))
+    (bind-key "C-c J" 'dired-double-jump)))
 
 ;;;_ , ediff
 
@@ -1400,7 +1487,7 @@
       (call-interactively 'erc-channel-names)
       (goto-char (point-max)))
 
-    (define-key mode-specific-map [?b] 'switch-to-bitlbee)
+    (bind-key "C-c b" 'switch-to-bitlbee)
 
     (defun erc-cmd-WTF (term &rest ignore)
       "Look up definition for TERM."
@@ -1447,7 +1534,7 @@
   :requires eshell
   :commands eshell-toggle
   :init
-  (define-key ctl-x-map [(control ?z)] 'eshell-toggle))
+  (bind-key "C-x C-z" 'eshell-toggle))
 
 ;;;_ , ess
 
@@ -1461,13 +1548,13 @@
   :commands (flyspell-mode flyspell-buffer)
   :init
   (progn
-    (define-key mode-specific-map [?i ?b] 'flyspell-buffer)
-    (define-key mode-specific-map [?i ?c] 'ispell-comments-and-strings)
-    (define-key mode-specific-map [?i ?d] 'ispell-change-dictionary)
-    (define-key mode-specific-map [?i ?f] 'flyspell-mode)
-    (define-key mode-specific-map [?i ?k] 'ispell-kill-ispell)
-    (define-key mode-specific-map [?i ?m] 'ispell-message)
-    (define-key mode-specific-map [?i ?r] 'ispell-region))
+    (bind-key "C-c i b" 'flyspell-buffer)
+    (bind-key "C-c i c" 'ispell-comments-and-strings)
+    (bind-key "C-c i d" 'ispell-change-dictionary)
+    (bind-key "C-c i f" 'flyspell-mode)
+    (bind-key "C-c i k" 'ispell-kill-ispell)
+    (bind-key "C-c i m" 'ispell-message)
+    (bind-key "C-c i r" 'ispell-region))
 
   :config
   (define-key flyspell-mode-map [(control ?.)] nil))
@@ -1478,9 +1565,9 @@
   :commands (fold-dwim-toggle fold-dwim-hide-all fold-dwim-show-all)
   :init
   (progn
-    (define-key global-map [f13] 'fold-dwim-toggle)
-    (define-key global-map [f14] 'fold-dwim-hide-all)
-    (define-key global-map [f15] 'fold-dwim-show-all)))
+    (bind-key "<f13>" 'fold-dwim-toggle)
+    (bind-key "<f14>" 'fold-dwim-hide-all)
+    (bind-key "<f15>" 'fold-dwim-show-all)))
 
 ;;;_ , gnus
 
@@ -1492,7 +1579,7 @@
     (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
           gnus-home-directory "~/Messages/Gnus/") ; a necessary override
 
-    (define-key global-map [(meta shift ?g)] 'switch-to-gnus)))
+    (bind-key "M-G" 'switch-to-gnus)))
 
 ;;;_ , grep
 
@@ -1500,9 +1587,9 @@
   :defer t
   :init
   (progn
-    (define-key global-map [(meta ?s) ?d] 'find-grep-dired)
-    (define-key global-map [(meta ?s) ?f] 'find-grep)
-    (define-key global-map [(meta ?s) ?g] 'grep)
+    (bind-key "M-s d" 'find-grep-dired)
+    (bind-key "M-s f" 'find-grep)
+    (bind-key "M-s g" 'grep)
 
     (defun find-grep-in-project (command-args)
       (interactive
@@ -1516,7 +1603,7 @@
         (let ((null-device nil))        ; see grep
           (grep command-args))))
 
-    (define-key global-map [(meta ?s) ?p] 'find-grep-in-project))
+    (bind-key "M-s p" 'find-grep-in-project))
   :config
   (progn
     (grep-apply-setting 'grep-command "grep -nH -e ")
@@ -1531,23 +1618,23 @@
   :diminish gtags-mode
   :config
   (progn
-    (define-key global-map [(meta ?.)] 'gtags-find-tag)
+    (bind-key "M-." 'gtags-find-tag)
 
-    (define-key mode-specific-map [?t ?.] 'gtags-find-rtag)
-    (define-key mode-specific-map [?t ?f] 'gtags-find-file)
-    (define-key mode-specific-map [?t ?p] 'gtags-parse-file)
-    (define-key mode-specific-map [?t ?g] 'gtags-find-with-grep)
-    (define-key mode-specific-map [?t ?i] 'gtags-find-with-idutils)
-    (define-key mode-specific-map [?t ?s] 'gtags-find-symbol)
-    (define-key mode-specific-map [?t ?r] 'gtags-find-rtag)
-    (define-key mode-specific-map [?t ?v] 'gtags-visit-rootdir)
+    (bind-key "C-c t ." 'gtags-find-rtag)
+    (bind-key "C-c t f" 'gtags-find-file)
+    (bind-key "C-c t p" 'gtags-parse-file)
+    (bind-key "C-c t g" 'gtags-find-with-grep)
+    (bind-key "C-c t i" 'gtags-find-with-idutils)
+    (bind-key "C-c t s" 'gtags-find-symbol)
+    (bind-key "C-c t r" 'gtags-find-rtag)
+    (bind-key "C-c t v" 'gtags-visit-rootdir)
 
     (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)
 
     (when (featurep 'helm)
       (use-package helm-gtags)
 
-      (define-key global-map [(meta shift ?t)] 'helm-gtags-select)
+      (bind-key "M-T" 'helm-gtags-select)
       (define-key gtags-mode-map "\e," 'helm-gtags-resume))))
 
 ;;;_ , gud
@@ -1567,14 +1654,14 @@
             (switch-to-buffer-other-window gud-buf)
           (call-interactively 'gud-gdb))))
 
-    (define-key global-map [(meta shift ?b)] 'show-debugger))
+    (bind-key "M-B" 'show-debugger))
 
   :config
   (progn
-    (define-key global-map [f9] 'gud-cont)
-    (define-key global-map [f10] 'gud-next)
-    (define-key global-map [f11] 'gud-step)
-    (define-key global-map [(shift f11)] 'gud-finish)))
+    (bind-key "<f9>" 'gud-cont)
+    (bind-key "<f10>" 'gud-next)
+    (bind-key "<f11>" 'gud-step)
+    (bind-key "S-<f11>" 'gud-finish)))
 
 ;;;_ , haskell-mode
 
@@ -1584,10 +1671,13 @@
   (add-to-list 'auto-mode-alist '("\\.l?hs$" . haskell-mode))
   :config
   (progn
-    (eval-after-load "haskell-site-file"
-      '(progn
-         (require 'inf-haskell)
-         (require 'hs-lint)))
+    (use-package inf-haskell)
+    (use-package hs-lint)
+
+    (use-package ghc
+      :commands ghc-init
+      :init
+      (add-hook 'haskell-mode-hook 'ghc-init))
 
     (defun my-haskell-mode-hook ()
       (setq haskell-saved-check-command haskell-check-command)
@@ -1599,33 +1689,29 @@
       (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
       (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
 
-    (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
-
-    (use-package ghc
-      :commands ghc-init
-      :init
-      (add-hook 'haskell-mode-hook 'ghc-init))))
+    (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
 
 ;;;_ , helm
 
-(use-package helm
+(use-package helm-config
   :if (not running-alternate-emacs)
+  :commands (helm-M-x helm-c-apropos helm-do-grep helm-for-files)
   :init
   (progn
-    (use-package helm-config)
 
-    (use-package helm-descbinds
-      :commands helm-descbinds
-      :init
-      (fset 'describe-bindings 'helm-descbinds))
+    (bind-key "C-c M-x" 'helm-M-x)
 
-    (use-package helm-match-plugin
-      :init
-      (helm-match-plugin-mode t))
+    (bind-key "C-h a" 'helm-c-apropos)
 
-    (define-key mode-specific-map [(meta ?x)] 'helm-M-x)
+    (bind-key "M-s a" 'helm-do-grep)
 
-    (define-key help-map [?a] 'helm-c-apropos)
+    (defun my-helm-occur ()
+      (interactive)
+      (require 'helm-regexp)
+      (helm-other-buffer 'helm-c-source-occur "*Helm Occur*"))
+
+    (bind-key "M-s b" 'my-helm-occur)
+    (bind-key "M-s F" 'helm-for-files)
 
     (defun my-helm-apropos ()
       (interactive)
@@ -1648,7 +1734,49 @@
                    helm-c-source-info-gnus
                    helm-c-source-info-org
                    helm-c-source-info-cl
-                   helm-c-source-emacs-source-defun)))))))
+                   helm-c-source-emacs-source-defun)))))
+
+    (bind-key "C-h e a" 'my-helm-apropos)
+
+    (defun helm-c-source-git-files-init ()
+      "Build `helm-candidate-buffer' of Git files."
+      (with-current-buffer (helm-candidate-buffer 'local)
+        (mapcar
+         (lambda (item)
+           (insert (expand-file-name item) ?\n))
+         (split-string (shell-command-to-string "git ls-files") "\n"))))
+
+    (defun helm-find-git-file ()
+      (interactive)
+      (helm :sources 'helm-c-source-git-files
+            :input ""
+            :prompt "Find file: "
+            :buffer "*Helm git file*"))
+
+    (bind-key "C-x f" 'helm-find-git-file)
+    (bind-key "M-g g" 'helm-find-git-file))
+
+  :config
+  (progn
+    (use-package helm-descbinds
+      :commands helm-descbinds
+      :init
+      (fset 'describe-bindings 'helm-descbinds))
+
+    (use-package helm-match-plugin
+      :init
+      (helm-match-plugin-mode t))
+
+    (defvar helm-c-source-git-files
+      '((name . "Files under Git version control")
+        (init . helm-c-source-git-files-init)
+        (candidates-in-buffer)
+        (type . file))
+      "Search for files in the current Git project.")
+
+    (eval-after-load "helm-files"
+      '(add-to-list 'helm-for-files-prefered-list
+                    'helm-c-source-git-files))))
 
 ;;;_ , hi-lock
 
@@ -1658,23 +1786,23 @@
              highlight-lines-matching-regexp)
   :init
   (progn
-    (define-key global-map [(meta ?o) ?l] 'highlight-lines-matching-regexp)
-    (define-key global-map [(meta ?o) ?r] 'highlight-regexp)
-    (define-key global-map [(meta ?o) ?w] 'highlight-phrase)))
+    (bind-key "M-o l" 'highlight-lines-matching-regexp)
+    (bind-key "M-o r" 'highlight-regexp)
+    (bind-key "M-o w" 'highlight-phrase)))
 
 ;;;_ , hilit-chg
 
 (use-package hilit-chg
   :commands highlight-changes-mode
   :init
-  (define-key global-map [(meta ?o) ?C] 'highlight-changes-mode))
+  (bind-key "M-o C" 'highlight-changes-mode))
 
 ;;;_ , hl-line
 
 (use-package hl-line
   :commands hl-line-mode
   :init
-  (define-key global-map [(meta ?o) ?h] 'hl-line-mode)
+  (bind-key "M-o h" 'hl-line-mode)
 
   :config
   (use-package hl-line+))
@@ -1682,11 +1810,12 @@
 ;;;_ , icicles
 
 (use-package icicles
+  :disabled t
   :if (not running-alternate-emacs)
   :init
   (progn
     (defun icicles-initialize ()
-      (define-key global-map [(control ?x) ?b] 'ido-switch-buffer))
+      (bind-key "C-x b" 'ido-switch-buffer))
 
     (add-hook 'icicle-mode-hook 'icicles-initialize)
 
@@ -1697,7 +1826,13 @@
   :config
   (progn
     (use-package fuzzy-match)
-    (use-package color-moccur)
+
+    (use-package color-moccur
+      :init
+      (bind-key "M-s o" 'moccur)
+
+      :config
+      (use-package moccur-edit))
 
     (defadvice lusty-file-explorer (around lusty-file-explorer-without-icy
                                            activate)
@@ -1717,8 +1852,13 @@
             ido-show-confirm-message)
   :init
   (ido-mode 'buffer)
+
   :config
   (progn
+    (use-package ido-hacks
+      :init
+      (ido-hacks-mode 1))
+
     (defun ido-smart-select-text ()
       "Select the current completed item.  Do NOT descend into directories."
       (interactive)
@@ -1766,7 +1906,7 @@
         (switch-to-buffer buffer)
         (set (make-local-variable 'mode-line-format) nil)))
 
-    (define-key ctl-x-map [?5 ?t] 'ido-switch-buffer-tiny-frame)
+    (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)
 
     (defun ido-bookmark-jump (bookmark &optional display-func)
       (interactive
@@ -1779,7 +1919,7 @@
       (bookmark-maybe-historicize-string bookmark)
       (bookmark--jump-via bookmark (or display-func 'switch-to-buffer)))
 
-    (define-key ctl-x-map [?r ?b] 'ido-bookmark-jump)))
+    (bind-key "C-x r b" 'ido-bookmark-jump)))
 
 ;;;_ , image-file
 
@@ -1793,7 +1933,7 @@
   :defer t
   :init
   (progn
-    (define-key global-map [(control ?h) (control ?i)] 'info-lookup-symbol))
+    (bind-key "C-h C-i" 'info-lookup-symbol))
 
   :config
   (progn
@@ -1810,7 +1950,7 @@
 (use-package indirect
   :commands indirect-region
   :init
-  (define-key mode-specific-map [?C] 'indirect-region))
+  (bind-key "C-c C" 'indirect-region))
 
 ;;;_ , initsplit
 
@@ -1849,7 +1989,7 @@
         (insert ?\n))
       (insert (format-time-string "%Y/%m/%d ")))
 
-    (define-key mode-specific-map [?L] 'my-ledger-start-entry)
+    (bind-key "C-c L" 'my-ledger-start-entry)
 
     (defun ledger-matchup ()
       (interactive)
@@ -2054,7 +2194,7 @@
 (use-package lusty-explorer
   :commands lusty-file-explorer
   :init
-  (define-key ctl-x-map [(control ?f)] 'lusty-file-explorer)
+  (bind-key "C-x C-f" 'lusty-file-explorer)
   :config
   (add-hook 'lusty-setup-hook
             (lambda ()
@@ -2067,7 +2207,7 @@
 (use-package magit
   :commands magit-status
   :init
-  (define-key ctl-x-map [?g] 'magit-status)
+  (bind-key "C-x g" 'magit-status)
   :config
   (progn
     (setenv "GIT_PAGER" "")
@@ -2086,35 +2226,7 @@
       (start-process "git-monitor" (current-buffer) "~/bin/git-monitor"))
 
     ;;(add-hook 'magit-status-mode-hook 'start-git-monitor)
-
-    (defun git-commit-changes ()
-      (start-process "*git commit*" nil "git" "commit" "-a" "-m" "changes"))
-
-    (when (featurep 'helm)
-      (defvar helm-c-source-git-files
-        '((name . "Files under Git version control")
-          (init . helm-c-source-git-files-init)
-          (candidates-in-buffer)
-          (type . file))
-        "Search for files in the current Git project.")
-
-      (defun helm-c-source-git-files-init ()
-        "Build `helm-candidate-buffer' of Git files."
-        (with-current-buffer (helm-candidate-buffer 'local)
-          (mapcar
-           (lambda (item)
-             (insert (expand-file-name item) ?\n))
-           (split-string (shell-command-to-string "git ls-files") "\n"))))
-
-      (defun helm-find-git-file ()
-        (interactive)
-        (helm :sources 'helm-c-source-git-files
-              :input ""
-              :prompt "Find file: "
-              :buffer "*Helm git file*"))
-
-      (define-key ctl-x-map [?f] 'helm-find-git-file)
-      (define-key global-map [(meta ?g) ?g] 'helm-find-git-file))))
+    ))
 
 ;;;_ , markdown-mode
 
@@ -2131,7 +2243,7 @@
        (format "open -a /Applications/Marked.app %s"
                (shell-quote-argument (buffer-file-name)))))
 
-    (define-key mode-specific-map [shift ?m] 'markdown-preview-file)))
+    (bind-key "C-c M" 'markdown-preview-file)))
 
 ;;;_ , merlin
 
@@ -2292,14 +2404,14 @@ end tell" account account start duration commodity (if cleared "true" "false")
              orgstruct++-mode)
   :init
   (progn
-    (define-key global-map [(meta shift ?c)] 'jump-to-org-agenda)
-    (define-key global-map [(meta ?m)] 'org-smart-capture)
-    (define-key global-map [(meta shift ?m)] 'org-inline-note)
+    (bind-key "M-C" 'jump-to-org-agenda)
+    (bind-key "M-m" 'org-smart-capture)
+    (bind-key "M-M" 'org-inline-note)
 
-    (define-key mode-specific-map [?a] 'org-agenda)
+    (bind-key "C-c a" 'org-agenda)
 
-    (define-key mode-specific-map [?S] 'org-store-link)
-    (define-key mode-specific-map [?l] 'org-insert-link)
+    (bind-key "C-c S" 'org-store-link)
+    (bind-key "C-c l" 'org-insert-link)
 
     (run-with-idle-timer 300 t 'jump-to-org-agenda)))
 
@@ -2312,12 +2424,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , persistent-scratch
 
 (use-package persistent-scratch
-  :if window-system)
+  :if (and window-system (not running-alternate-emacs)))
 
 ;;;_ , pp-c-l
 
 (use-package pp-c-l
-  :commands pretty-control-l-mode
   :init
   (hook-into-modes 'pretty-control-l-mode '(emacs-lisp-mode-hook)))
 
@@ -2388,7 +2499,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (use-package quickrun
   :commands quickrun
   :init
-  (define-key mode-specific-map [(control ?r)] 'quickrun))
+  (bind-key "C-c C-r" 'quickrun))
 
 ;;;_ , recentf
 
@@ -2449,7 +2560,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :commands smart-compile
   :init
   (progn
-    (define-key mode-specific-map [?c] 'smart-compile)
+    (bind-key "C-c c" 'smart-compile)
 
     (defun show-compilation ()
       (interactive)
@@ -2462,21 +2573,21 @@ end tell" account account start duration commodity (if cleared "true" "false")
             (switch-to-buffer-other-window compile-buf)
           (call-interactively 'compile))))
 
-    (define-key global-map [(meta shift ?o)] 'show-compilation)))
+    (bind-key "M-O" 'show-compilation)))
 
 ;;;_ , springboard
 
 (use-package springboard
   :commands springboard
   :init
-  (define-key global-map [(control ?.)] 'springboard))
+  (bind-key "C-." 'springboard))
 
 ;;;_ , stopwatch
 
 (use-package stopwatch
   :commands stopwatch
   :init
-  (define-key global-map [f8] 'stopwatch))
+  (bind-key "<f8>" 'stopwatch))
 
 ;;;_ , sunrise-commander
 
@@ -2494,8 +2605,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
             (call-interactively 'sunrise)
           (sunrise "~/dl/" "~/Archives/"))))
 
-    (define-key mode-specific-map [?j] 'my-activate-sunrise)
-    (define-key mode-specific-map [(control ?j)] 'sunrise-cd))
+    (bind-key "C-c j" 'my-activate-sunrise)
+    (bind-key "C-c C-j" 'sunrise-cd))
 
   :config
   (progn
@@ -2583,15 +2694,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
             (vkill)
             (call-interactively #'helm-occur))
 
-          (define-key ctl-x-map [?L] 'vkill-and-helm-occur))
-      (define-key ctl-x-map [?L] 'vkill)))
+          (bind-key "C-x L" 'vkill-and-helm-occur))
+      (bind-key "C-x L" 'vkill)))
   :config
   (setq vkill-show-all-processes t))
 
 ;;;_ , w3m
 
 (use-package w3m
-  :commands w3m-browse-url
+  :commands (w3m-browse-url w3m-session-crash-recovery-remove)
   :init
   (progn
     (setq w3m-command "/opt/local/bin/w3m")
@@ -2611,10 +2722,10 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (interactive)
       (w3m-browse-url "http://www.emacswiki.org"))
 
-    (define-key global-map [(alt meta ?e)] 'goto-emacswiki)
-    (define-key global-map [(alt meta ?g)] 'w3m-search)
-    (define-key global-map [(alt meta ?h)] 'wolfram-alpha-query)
-    (define-key global-map [(alt meta ?w)] 'wikipedia-query))
+    (bind-key "A-M-e" 'goto-emacswiki)
+    (bind-key "A-M-g" 'w3m-search)
+    (bind-key "A-M-h" 'wolfram-alpha-query)
+    (bind-key "A-M-w" 'wikipedia-query))
 
   :config
   (let (proxy-host proxy-port)
@@ -2716,8 +2827,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
   (progn
     (winner-mode 1)
 
-    (define-key global-map [(meta shift ?n)] 'winner-redo)
-    (define-key global-map [(meta shift ?p)] 'winner-undo)))
+    (bind-key "M-N" 'winner-redo)
+    (bind-key "M-P" 'winner-undo)))
 
 ;;;_ , workgroups
 
@@ -2729,7 +2840,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
   (progn
     (defvar workgroups-preload-map)
     (define-prefix-command 'workgroups-preload-map)
-    (define-key global-map [(control ?\\)] 'workgroups-preload-map)
+    (bind-key "C-\\" 'workgroups-preload-map)
 
     (define-key workgroups-preload-map [(control ?\\)] 'wg-switch-to-index-1)
     (define-key workgroups-preload-map [?1] 'wg-switch-to-index-1))
@@ -2832,11 +2943,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
 # --
 $0"))))
 
-    (define-key mode-specific-map [?y ?n] 'yas/new-snippet)
-    (define-key mode-specific-map [?y tab] 'yas/expand)
-    (define-key mode-specific-map [?y ?f] 'yas/find-snippets)
-    (define-key mode-specific-map [?y ?r] 'yas/reload-all)
-    (define-key mode-specific-map [?y ?v] 'yas/visit-snippet-file)))
+    (bind-key "C-c y n" 'yas/new-snippet)
+    (bind-key "C-c y TAB" 'yas/expand)
+    (bind-key "C-c y f" 'yas/find-snippets)
+    (bind-key "C-c y r" 'yas/reload-all)
+    (bind-key "C-c y v" 'yas/visit-snippet-file)))
 
 ;;;_ , yaoddmuse
 
@@ -2846,9 +2957,9 @@ $0"))))
              yaoddmuse-post-library-default)
   :init
   (progn
-    (define-key mode-specific-map [?w ?f] 'yaoddmuse-browse-page-default)
-    (define-key mode-specific-map [?w ?e] 'yaoddmuse-edit-default)
-    (define-key mode-specific-map [?w ?p] 'yaoddmuse-post-library-default)))
+    (bind-key "C-c w f" 'yaoddmuse-browse-page-default)
+    (bind-key "C-c w e" 'yaoddmuse-edit-default)
+    (bind-key "C-c w p" 'yaoddmuse-post-library-default)))
 
 ;;;_ , zencoding-mode
 
