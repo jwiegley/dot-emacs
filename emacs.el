@@ -1350,7 +1350,7 @@
                        currently-idle)
              ad-do-it)
           (let ((erc-autoaway-idle-seconds
-                 (+ 10 (- erc-autoaway-idle-seconds currently-idle))))
+                 (+ 60 (- erc-autoaway-idle-seconds currently-idle))))
             (message "System was idle for only %d seconds, waiting %d more..."
                      currently-idle erc-autoaway-idle-seconds)
             (erc-autoaway-reestablish-idletimer)))))
