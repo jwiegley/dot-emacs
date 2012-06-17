@@ -1450,11 +1450,10 @@
 
 ;;;_ , fold-dwim
 
-(macroexpand
- '(use-package fold-dwim
-   :bind (("<f13>" . fold-dwim-toggle)
-          ("<f14>" . fold-dwim-hide-all)
-          ("<f15>" . fold-dwim-show-all))))
+(use-package fold-dwim
+  :bind (("<f13>" . fold-dwim-toggle)
+         ("<f14>" . fold-dwim-hide-all)
+         ("<f15>" . fold-dwim-show-all)))
 
 ;;;_ , gist
 
