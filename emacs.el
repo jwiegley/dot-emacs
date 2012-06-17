@@ -609,6 +609,23 @@
 
 ;;;_. Packages
 
+;;;_ , el-get
+
+(defvar el-get-sources nil)
+
+(use-package el-get
+  :commands (el-get
+             el-get-install
+             el-get-update
+             el-get-list-packages)
+  :config
+  (progn
+    (defun el-get-read-status-file ()
+      (mapcar #'(lambda (entry)
+                  (cons (plist-get entry :symbol)
+                        `(status "installed" recipe ,entry)))
+              el-get-sources))))
+
 ;;;_ , abbrev
 
 (use-package abbrev
@@ -2800,7 +2817,8 @@ $0"))))
 ;;;_ , zencoding-mode
 
 (use-package zencoding-mode
-  :disabled t
+  :type git
+  :url "git://github.com/rooney/zencoding.git"
   :commands zencoding-mode
   :init
   (progn

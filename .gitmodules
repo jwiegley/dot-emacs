@@ -163,3 +163,6 @@
 [submodule "lisp/use-package"]
 	path = lisp/use-package
 	url = git://github.com/jwiegley/use-package.git
+[submodule "site-lisp/el-get"]
+	path = site-lisp/el-get
+	url = https://github.com/dimitri/el-get.git

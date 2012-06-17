@@ -12,3 +12,5 @@ mirror
 override/cc-mode/
 var/
 /compile.log
+/site-lisp/.loaddefs.el
+/site-lisp/.status.el
