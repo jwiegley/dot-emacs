@@ -2827,8 +2827,6 @@ $0"))))
 ;;;_ , zencoding-mode
 
 (use-package zencoding-mode
-  :type git
-  :url "git://github.com/rooney/zencoding.git"
   :commands zencoding-mode
   :init
   (progn
