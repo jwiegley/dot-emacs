@@ -157,3 +157,6 @@
 [submodule "site-lisp/ido-hacks"]
 	path = site-lisp/ido-hacks
 	url = https://github.com/scottjad/ido-hacks.git
+[submodule "lisp/bind-key"]
+	path = lisp/bind-key
+	url = git://github.com/jwiegley/bind-key.git

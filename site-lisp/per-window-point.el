@@ -167,8 +167,7 @@ and `pwp-reposition-tests'."
           (ad-activate fn t))
         (dolist (hook pwp-hook-assignments)
           (add-hook (car hook) (cdr hook)))
-        (run-hooks 'pwp-mode-on-hook)
-        (message "Per-window-point mode enabled"))
+        (run-hooks 'pwp-mode-on-hook))
     ;; Disabling
     (setq pwp-alist nil)      
     (ad-disable-regexp "per-window-point")
@@ -176,8 +175,7 @@ and `pwp-reposition-tests'."
       (ad-activate fn))
     (dolist (hook pwp-hook-assignments)
       (remove-hook (car hook) (cdr hook)))
-    (run-hooks 'pwp-mode-off-hook)
-    (message "Per-window-point mode disabled"))
+    (run-hooks 'pwp-mode-off-hook))
   (run-mode-hooks 'pwp-mode-hook))
 
 ;;; ---------------------------------------------------------------------

@@ -179,6 +179,11 @@ To use this function, add it to `org-agenda-finalize-hook':
   (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
     (org-mobile-push)))
 
+(eval-when-compile
+  (defvar org-clock-current-task)
+  (defvar org-mobile-directory)
+  (defvar org-mobile-capture-file))
+
 (defun org-my-auto-exclude-function (tag)
   (and (cond
         ((string= tag "call")

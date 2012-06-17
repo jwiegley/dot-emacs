@@ -1,6 +1,9 @@
 ;;_. Initialization
 
-(message "Loading %s..." load-file-name)
+(defconst at-command-line command-line-args-left)
+
+(unless at-command-line
+  (message "Loading %s..." load-file-name))
 
 (setq message-log-max 16384)
 
@@ -9,13 +12,29 @@
 (eval-when-compile
   (require 'cl))
 
+(require 'bind-key)
 (require 'diminish)
 
-(defvar use-package-verbose t)
+(defvar use-package-verbose (not at-command-line))
 
 (defmacro hook-into-modes (func modes)
   `(dolist (mode-hook ,modes)
      (add-hook mode-hook ,func)))
+
+(defmacro with-elapsed-timer (text &rest forms)
+  `(let ((now ,(if use-package-verbose
+                   '(current-time))))
+     ,(if use-package-verbose
+          `(message "%s..." ,text))
+     ,@forms
+     ,(when use-package-verbose
+        `(let ((elapsed
+                (float-time (time-subtract (current-time) now))))
+           (if (> elapsed 0.01)
+               (message "%s...done (%.3fs)" ,text elapsed)
+             (message "%s...done" ,text))))))
+
+(put 'with-elapsed-timer 'lisp-indent-function 1)
 
 (defmacro use-package (name &rest args)
   (let* ((commands (plist-get args :commands))
@@ -23,6 +42,7 @@
          (config-body (plist-get args :config))
          (diminish-var (plist-get args :diminish))
          (defines (plist-get args :defines))
+         (keybindings (plist-get args :bind))
          (predicate (plist-get args :if))
          (defines-eval (if (null defines)
                            nil
@@ -38,6 +58,7 @@
                             `(featurep (quote ,requires)))))
          (name-string (if (stringp name) name
                         (symbol-name name))))
+
     (if diminish-var
         (setq config-body
               `(progn
@@ -47,6 +68,22 @@
                          (mapcar (lambda (var) `(diminish (quote ,var)))
                                  diminish-var)
                        `((diminish (quote ,diminish-var))))))))
+
+    (when keybindings
+      (if (and commands (symbolp commands))
+          (setq commands (list commands)))
+      (setq init-body
+            `(progn
+               ,init-body
+               ,@(mapcar #'(lambda (binding)
+                             (push (cdr binding) commands)
+                             `(bind-key ,(car binding)
+                                        (quote ,(cdr binding))))
+                         (if (and (consp keybindings)
+                                  (stringp (car keybindings)))
+                             (list keybindings)
+                           keybindings)))))
+
     (unless (plist-get args :disabled)
       (if (or commands (plist-get args :defer))
           (let (form)
@@ -65,38 +102,15 @@
                (when ,(or predicate t)
                  (let ((now ,(if use-package-verbose
                                  '(current-time))))
-                   ,(if use-package-verbose
-                        `(message "Pre-loading package %s..." ,name-string))
                    ,@form
                    ,init-body
                    ,(unless (null config-body)
                       `(eval-after-load ,name-string
                          '(when ,requires-test
-                            (let ((now ,(if use-package-verbose
-                                            '(current-time))))
-                              ,(if use-package-verbose
-                                   `(message "Configuring package %s..."
-                                             ,name-string))
-                              ,config-body
-                              ,(when use-package-verbose
-                                 `(let ((elapsed
-                                         (float-time
-                                          (time-subtract (current-time) now))))
-                                    (if (> elapsed 0.01)
-                                        (message
-                                         "Configuring package %s...done (%.3fs)"
-                                         ,name-string elapsed)
-                                      (message "Configuring package %s...done"
-                                               ,name-string))))))))
-                   ,(when use-package-verbose
-                      `(let ((elapsed
-                              (float-time
-                               (time-subtract (current-time) now))))
-                         (if (> elapsed 0.01)
-                             (message "Pre-loading package %s...done (%.3fs)"
-                                      ,name-string elapsed)
-                           (message "Pre-loading package %s...done"
-                                    ,name-string)))))
+                            (with-elapsed-timer
+                                ,(format "Configuring package %s"
+                                         name-string)
+                              ,config-body)))))
                  t)))
         `(progn
            (eval-when-compile
@@ -109,134 +123,15 @@
                       ,(if (stringp name)
                            `(load ,name t)
                          `(require ',name nil t)))
-             (let ((now ,(if use-package-verbose
-                             '(current-time))))
-               ,(if use-package-verbose
-                    `(message "Loading package %s..." ,name-string))
+             (with-elapsed-timer ,(format "Loading package %s"
+                                          name-string)
                ,init-body
-               ,config-body
-               ,(when use-package-verbose
-                  `(let ((elapsed (float-time (time-subtract (current-time)
-                                                             now))))
-                     (if (> elapsed 0.01)
-                         (message "Loading package %s...done (%.3fs)"
-                                  ,name-string elapsed)
-                       (message "Loading package %s...done"
-                                ,name-string)))))
+               ,config-body)
              t))))))
 
 (put 'use-package 'lisp-indent-function 1)
 
-(font-lock-add-keywords 'emacs-lisp-mode
-                        '(("(use-package\\>" . font-lock-keyword-face)))
-
-;;;_ , Create override-global-mode to force key remappings
-
-(require 'easy-mmode)
-
-(defvar override-global-map (make-keymap)
-  "override-global-mode keymap")
-
-(define-minor-mode override-global-mode
-  "A minor mode so that keymap settings override other modes."
-  t "" override-global-map)
-
-(add-hook 'after-init-hook
-          (function
-           (lambda ()
-             (override-global-mode 1))))
-
 ;;;_ , Utility macros and functions
-
-(defvar personal-keybindings nil)
-
-(defmacro bind-key (key-name command)
-  `(let* ((key (kbd ,key-name))
-          (binding (lookup-key (current-global-map) key)))
-     (let ((entry (assoc ,key-name personal-keybindings)))
-       (if entry
-           (setq personal-keybindings
-                 (delq entry personal-keybindings))))
-     (setq personal-keybindings
-           (cons (cons ,key-name
-                       (cons (unless (numberp binding) binding)
-                             ,command))
-                 personal-keybindings))
-     (global-set-key key ,command)))
-
-(defmacro bind-key* (key-name command)
-  `(progn
-     (bind-key ,key-name ,command)
-     (define-key override-global-map ,(read-kbd-macro key-name) ,command)))
-
-(defun get-binding-description (elem)
-  (cond
-   ((listp elem)
-    (cond
-     ((eq 'lambda (car elem))
-      "#<lambda>")
-     ((eq 'closure (car elem))
-      "#<closure>")
-     ((eq 'keymap (car elem))
-      "#<keymap>")
-     (t
-      elem)))
-   ((keymapp elem)
-    "#<keymap>")
-   ((symbolp elem)
-    elem)
-   (t
-    elem)))
-
-(defun compare-keybindings (l r)
-  (let* ((regex  "\\`\\(\\(C-[chx] \\|M-[gso] \\)\\([CM]-\\)?\\|.+-\\)")
-         (lgroup (and (string-match regex (car l))
-                      (match-string 0 (car l))))
-         (rgroup (and (string-match regex (car r))
-                      (match-string 0 (car r)))))
-    (cond
-     ((and (null lgroup) rgroup)
-      (cons t t))
-     ((and lgroup (null rgroup))
-      (cons nil t))
-     ((and lgroup rgroup)
-      (if (string= lgroup rgroup)
-          (cons (string< (car l) (car r)) nil)
-        (cons (string< lgroup rgroup) t)))
-     (t
-      (cons (string< (car l) (car r)) nil)))))
-
-(defun describe-personal-keybindings ()
-  (interactive)
-  (with-current-buffer (get-buffer-create "*Personal Keybindings*")
-    (delete-region (point-min) (point-max))
-    (insert "Key name          Command                                 Comments
------------------ --------------------------------------- --------------------
-")
-    (let (last-binding)
-      (dolist (binding (setq personal-keybindings
-                             (sort personal-keybindings
-                                   #'(lambda (l r)
-                                       (car (compare-keybindings l r))))))
-        (if (and last-binding
-                 (cdr (compare-keybindings last-binding binding)))
-            (insert ?\n))
-        (let ((at-present (lookup-key (current-global-map)
-                                      (read-kbd-macro (car binding)))))
-          (insert
-           (format
-            "%-18s%-40s%s\n"
-            (car binding) (get-binding-description (cddr binding))
-            (if (eq (cddr binding) at-present)
-                (if (cadr binding)
-                    (format "(%s)"
-                            (get-binding-description (cadr binding)))
-                  "")
-              (format "[now: %s]"
-                      (get-binding-description at-present))))))
-        (setq last-binding binding)))
-    (goto-char (point-min))
-    (display-buffer (current-buffer))))
 
 (defun quickping (host)
   (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
@@ -245,7 +140,7 @@
 
 (let ((plist (expand-file-name "~/.MacOSX/environment.plist")))
   (when (file-readable-p plist)
-    (let ((dict (cdr (assq #'dict (cdar (xml-parse-file plist))))))
+    (let ((dict (cdr (assq 'dict (cdar (xml-parse-file plist))))))
       (while dict
         (if (and (listp (car dict))
                  (eq 'key (caar dict)))
@@ -264,31 +159,31 @@
 (defvar running-alternate-emacs nil)
 
 (if (string= invocation-directory
-             "/Applications/Misc/Emacs.app/Contents/MacOS/")
+             "/Applications/EmacsAlt.app/Contents/MacOS/")
 
-    (load (expand-file-name "settings" user-emacs-directory))
+    (let ((settings (with-temp-buffer
+                      (insert-file-contents
+                       (expand-file-name "settings.el" user-emacs-directory))
+                      (goto-char (point-min))
+                      (read (current-buffer)))))
 
-  (let ((settings (with-temp-buffer
-                    (insert-file-contents
-                     (expand-file-name "settings.el" user-emacs-directory))
-                    (goto-char (point-min))
-                    (read (current-buffer)))))
+      (setq running-alternate-emacs t
+            user-data-directory
+            (replace-regexp-in-string "/data/" "/data-alt/" user-data-directory))
 
-    (setq running-alternate-emacs t
-          user-data-directory
-          (replace-regexp-in-string "/data/" "/data-alt/" user-data-directory))
+      (let* ((regexp "/\\.emacs\\.d/data/")
+             (replace "/.emacs.d/data-alt/"))
+        (dolist (setting settings)
+          (let ((value (and (listp setting)
+                            (nth 1 (nth 1 setting)))))
+            (if (and (stringp value)
+                     (string-match regexp value))
+                (setcar (nthcdr 1 (nth 1 setting))
+                        (replace-regexp-in-string regexp replace value)))))
 
-    (let* ((regexp "/\\.emacs\\.d/data/")
-           (replace "/.emacs.d/data-alt/"))
-      (dolist (setting settings)
-        (let ((value (and (listp setting)
-                          (nth 1 (nth 1 setting)))))
-          (if (and (stringp value)
-                   (string-match regexp value))
-              (setcar (nthcdr 1 (nth 1 setting))
-                      (replace-regexp-in-string regexp replace value)))))
+        (eval settings)))
 
-      (eval settings))))
+  (load (expand-file-name "settings" user-emacs-directory)))
 
 ;;;_ , Enable disabled commands
 
@@ -396,7 +291,7 @@
 
 ;;;_  . C-c ?
 
-(bind-key "C-c TAB" 'ff-find-other-file)
+(bind-key "C-c <tab>" 'ff-find-other-file)
 (bind-key "C-c <space>" 'just-one-space)
 
 ;; inspired by Erik Naggum's `recursive-edit-with-single-window'
@@ -456,22 +351,27 @@
 
 (bind-key "C-c f" 'flush-lines)
 (bind-key "C-c g" 'ignore)
-(bind-key "C-c G" 'gist-region-or-buffer)
 (bind-key "C-c h" 'crosshairs-mode)
 
 (bind-key "C-c k" 'keep-lines)
 
+(eval-when-compile
+  (defvar emacs-min-top)
+  (defvar emacs-min-left)
+  (defvar emacs-min-height)
+  (defvar emacs-min-width))
+
 (when window-system
   (if running-alternate-emacs
       (progn
-        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 537 537))
+        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 389 537))
         (defvar emacs-min-left 9)
-        (defvar emacs-min-height 35)
+        (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 25 35))
         (defvar emacs-min-width 80))
 
     (defvar emacs-min-top 22)
     (defvar emacs-min-left (- (x-display-pixel-width) 918))
-    (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 64 64))
+    (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 55 64))
     (defvar emacs-min-width 100)))
 
 (defun emacs-min ()
@@ -641,7 +541,6 @@
 (bind-key "C-h e f" 'find-function)
 (bind-key "C-h e F" 'find-face-definition)
 
-;;; jww (2012-06-14): Change this to use helm
 (defun my-describe-symbol  (symbol &optional mode)
   (interactive
    (info-lookup-interactive-arguments 'symbol current-prefix-arg))
@@ -701,6 +600,7 @@
 
 ;;;_ , M-?
 
+(bind-key "M-!" 'async-shell-command)
 (bind-key "M-/" 'dabbrev-expand)
 
 (bind-key "M-g c" 'goto-char)
@@ -716,8 +616,7 @@
 (bind-key "M-s n" 'find-name-dired)
 (bind-key "M-s o" 'occur)
 
-(define-key global-map [remap eval-expression] 'pp-eval-expression)
-
+(bind-key "M-:" 'pp-eval-expression)
 (bind-key "M-'" 'insert-pair)
 (bind-key "M-\"" 'insert-pair)
 
@@ -775,6 +674,12 @@
 
 (bind-key "C-M-s" 'isearch-forward-other-window)
 
+;; Some further isearch bindings
+(bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
+(bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
+(bind-key "C-^" 'isearch-edit-string isearch-mode-map)
+(bind-key "C-i" 'isearch-complete isearch-mode-map)
+
 ;;;_ , A-?
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "M-TAB"))
@@ -797,9 +702,7 @@
 ;;;_ , ace-jump-mode
 
 (use-package ace-jump-mode
-  :commands ace-jump-mode
-  :init
-  (bind-key* "M-," 'ace-jump-mode))
+  :bind ("M-," . ace-jump-mode))
 
 ;;;_ , allout
 
@@ -817,12 +720,13 @@
                          (?i . allout-show-current-branches)
                          (?e . allout-show-entry)
                          (?o . allout-show-to-offshoot)))
-        (define-key allout-mode-map
-          (vconcat allout-command-prefix
-                   (vector (car mapping))) (cdr mapping)))
+        (bind-key (concat (format-kbd-macro allout-command-prefix)
+                          " " (char-to-string (car mapping)))
+                  (cdr mapping)
+                  allout-mode-map))
 
       (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-          (define-key allout-mode-map [(control ?k)] nil)))
+          (unbind-key "C-k" allout-mode-map)))
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
 
@@ -879,8 +783,8 @@
     (setq ac-use-menu-map t)
 
     ;; Default settings
-    (define-key ac-menu-map "\C-n" 'ac-next)
-    (define-key ac-menu-map "\C-p" 'ac-previous)))
+    (bind-key "C-n" 'ac-next ac-menu-map)
+    (bind-key "C-p" 'ac-previous ac-menu-map)))
 
 ;;;_ , autorevert
 
@@ -912,16 +816,13 @@
 ;;;_ , bm
 
 (use-package bm
-  :commands (bm-toggle bm-next bm-previous bm-show bm-show-all)
-  :init
-  (progn
-    (bind-key "A-b" 'bm-last-in-previous-buffer)
-    (bind-key "A-f" 'bm-first-in-next-buffer)
-    (bind-key "A-g" 'bm-previous)
-    (bind-key "A-l" 'bm-show-all)
-    (bind-key "A-m" 'bm-toggle)
-    (bind-key "A-n" 'bm-next)
-    (bind-key "A-p" 'bm-previous)))
+  :bind (("A-b" . bm-last-in-previous-buffer)
+         ("A-f" . bm-first-in-next-buffer)
+         ("A-g" . bm-previous)
+         ("A-l" . bm-show-all)
+         ("A-m" . bm-toggle)
+         ("A-n" . bm-next)
+         ("A-p" . bm-previous)))
 
 ;;;_ , bookmark
 
@@ -971,28 +872,27 @@
           (progn
             (auto-complete-mode 1)
             (setq ac-sources '(ac-source-gtags))
-            (define-key c-mode-base-map [(alt tab)] 'ac-complete))
+            (bind-key "<A-tab>" 'ac-complete c-mode-base-map))
         (company-mode 1)
-        (define-key c-mode-base-map [(alt tab)] 'company-complete-common))
+        (bind-key "<A-tab>" 'company-complete-common c-mode-base-map))
 
       ;;(doxymacs-mode 1)
       ;;(doxymacs-font-lock)
 
-      (define-key c-mode-base-map [return] 'newline-and-indent)
+      (bind-key "<return>" 'newline-and-indent c-mode-base-map)
 
       (set (make-local-variable 'yas/fallback-behavior)
            '(apply my-c-indent-or-complete . nil))
-      (define-key c-mode-base-map [tab] 'yas/expand-from-trigger-key)
+      (bind-key "<tab>" 'yas/expand-from-trigger-key c-mode-base-map)
 
-      (define-key c-mode-base-map [(meta ?j)] 'delete-indentation-forward)
-      (define-key c-mode-base-map [(control ?c) (control ?i)]
-        'c-includes-current-file)
+      (bind-key "M-j" 'delete-indentation-forward c-mode-base-map)
+      (bind-key "C-c C-i" 'c-includes-current-file c-mode-base-map)
 
       (set (make-local-variable 'parens-require-spaces) nil)
       (setq indicate-empty-lines t)
       (setq fill-column 72)
 
-      (define-key c-mode-base-map [(meta ?q)] 'c-fill-paragraph)
+      (bind-key "M-q" 'c-fill-paragraph c-mode-base-map)
 
       (let ((bufname (buffer-file-name)))
         (when bufname
@@ -1003,7 +903,7 @@
             (c-set-style "edg")
             (substitute-key-definition 'fill-paragraph 'ti-refill-comment
                                        c-mode-base-map global-map)
-            (define-key c-mode-base-map [(meta ?q)] 'ti-refill-comment))
+            (bind-key "M-q" 'ti-refill-comment c-mode-base-map))
            (t
             (c-set-style "clang")))))
 
@@ -1016,18 +916,18 @@
   (progn
     (setq c-syntactic-indentation nil)
 
-    (define-key c-mode-base-map "#" 'self-insert-command)
-    (define-key c-mode-base-map "{" 'self-insert-command)
-    (define-key c-mode-base-map "}" 'self-insert-command)
-    (define-key c-mode-base-map "/" 'self-insert-command)
-    (define-key c-mode-base-map "*" 'self-insert-command)
-    (define-key c-mode-base-map ";" 'self-insert-command)
-    (define-key c-mode-base-map "," 'self-insert-command)
-    (define-key c-mode-base-map ":" 'self-insert-command)
-    (define-key c-mode-base-map "(" 'self-insert-command)
-    (define-key c-mode-base-map ")" 'self-insert-command)
-    (define-key c++-mode-map "<"    'self-insert-command)
-    (define-key c++-mode-map ">"    'self-insert-command)
+    (bind-key "#" 'self-insert-command c-mode-base-map)
+    (bind-key "{" 'self-insert-command c-mode-base-map)
+    (bind-key "}" 'self-insert-command c-mode-base-map)
+    (bind-key "/" 'self-insert-command c-mode-base-map)
+    (bind-key "*" 'self-insert-command c-mode-base-map)
+    (bind-key ";" 'self-insert-command c-mode-base-map)
+    (bind-key "," 'self-insert-command c-mode-base-map)
+    (bind-key ":" 'self-insert-command c-mode-base-map)
+    (bind-key "(" 'self-insert-command c-mode-base-map)
+    (bind-key ")" 'self-insert-command c-mode-base-map)
+    (bind-key "<" 'self-insert-command c++-mode-map)
+    (bind-key ">" 'self-insert-command c++-mode-map)
 
     (add-to-list 'c-style-alist
                  '("edg"
@@ -1194,9 +1094,7 @@
 ;;;_ , crosshairs
 
 (use-package crosshairs
-  :commands crosshairs-mode
-  :init
-  (bind-key "M-o c" 'crosshairs-mode))
+  :bind ("M-o c" . crosshairs-mode))
 
 ;;;_ , css-mode
 
@@ -1233,7 +1131,7 @@
 
         (setq dired-use-ls-dired t)
 
-        (define-key dired-mode-map [?l] 'dired-up-directory)
+        (bind-key "l" 'dired-up-directory dired-mode-map)
 
         (defun my-dired-switch-window ()
           (interactive)
@@ -1241,14 +1139,15 @@
               (call-interactively #'sr-change-window)
             (call-interactively #'other-window)))
 
-        (define-key dired-mode-map [tab] 'my-dired-switch-window)
+        (bind-key "<tab>" 'my-dired-switch-window dired-mode-map)
 
-        (define-key dired-mode-map [(meta shift ?g)] nil)
-        (define-key dired-mode-map [(meta ?s) ?f] nil)
+        (bind-key "M-l" 'async-shell-command dired-mode-map)
+        (unbind-key "M-G" dired-mode-map)
+        (unbind-key "M-s f" dired-mode-map)
 
         (defadvice dired-omit-startup (after diminish-dired-omit activate)
           "Make sure to remove \"Omit\" from the modeline."
-          (diminish 'dired-omit-mode))
+          (diminish 'dired-omit-mode) dired-mode-map)
 
         (defadvice dired-next-line (around dired-next-line+ activate)
           "Replace current buffer if file is a directory."
@@ -1361,7 +1260,7 @@
     (add-hook 'ediff-keymap-setup-hook
               (function
                (lambda ()
-                 (define-key ediff-mode-map [?c] 'ediff-keep-both))))
+                 (bind-key "c" 'ediff-keep-both ediff-mode-map))))
 
     (defun keep-mine ()
       (interactive)
@@ -1427,7 +1326,8 @@
 ;;;_ , edit-server
 
 (use-package edit-server
-  :if (and window-system (not running-alternate-emacs))
+  :if (and window-system (not running-alternate-emacs)
+           (not at-command-line))
   :init
   (progn
     (add-hook 'after-init-hook 'server-start t)
@@ -1474,12 +1374,26 @@
 
   :config
   (progn
+    (erc-track-minor-mode 1)
+    (erc-track-mode 1)
+
     (use-package erc-alert)
     (use-package erc-highlight-nicknames)
     (use-package erc-patch)
 
-    (erc-track-minor-mode 1)
-    (erc-track-mode 1)
+    (use-package wtf
+      :commands wtf-is
+      :init
+      (defun erc-cmd-WTF (term &rest ignore)
+        "Look up definition for TERM."
+        (let ((def (wtf-is term)))
+          (if def
+              (let ((msg (concat "{Term} " (upcase term) " is " def)))
+                (with-temp-buffer
+                  (insert msg)
+                  (kill-ring-save (point-min) (point-max)))
+                (message msg))
+            (message (concat "No definition found for " (upcase term)))))))
 
     (defun switch-to-bitlbee ()
       (interactive)
@@ -1489,16 +1403,8 @@
 
     (bind-key "C-c b" 'switch-to-bitlbee)
 
-    (defun erc-cmd-WTF (term &rest ignore)
-      "Look up definition for TERM."
-      (let ((def (wtf-is term)))
-        (if def
-            (let ((msg (concat "{Term} " (upcase term) " is " def)))
-              (with-temp-buffer
-                (insert msg)
-                (kill-ring-save (point-min) (point-max)))
-              (message msg))
-          (message (concat "No definition found for " (upcase term))))))
+    (eval-when-compile
+      (defvar erc-fools))
 
     (defun erc-cmd-FOOL (term &rest ignore)
       (add-to-list 'erc-fools term))
@@ -1510,31 +1416,32 @@
 
 (use-package eshell
   :defer t
-  :config
+  :init
   (progn
-    (defun eshell-spawn-external-command (beg end)
-      "Parse and expand any history references in current input."
-      (save-excursion
-        (goto-char end)
-        (when (looking-back "&!" beg)
-          (delete-region (match-beginning 0) (match-end 0))
-          (goto-char beg)
-          (insert "spawn "))))
+    (defun eshell-initialize ()
+      (defun eshell-spawn-external-command (beg end)
+        "Parse and expand any history references in current input."
+        (save-excursion
+          (goto-char end)
+          (when (looking-back "&!" beg)
+            (delete-region (match-beginning 0) (match-end 0))
+            (goto-char beg)
+            (insert "spawn "))))
 
-    (add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
+      (add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
 
-    (defun ss (server)
-      (interactive "sServer: ")
-      (call-process "spawn" nil nil nil "ss" server))
+      (defun ss (server)
+        (interactive "sServer: ")
+        (call-process "spawn" nil nil nil "ss" server))
 
-    (eval-after-load "em-unix"
-      '(unintern 'eshell/rm))))
+      (eval-after-load "em-unix"
+        '(unintern 'eshell/rm)))
+
+    (add-hook 'eshell-first-time-mode-hook 'eshell-initialize)))
 
 (use-package esh-toggle
   :requires eshell
-  :commands eshell-toggle
-  :init
-  (bind-key "C-x C-z" 'eshell-toggle))
+  :bind ("C-x C-z" . eshell-toggle))
 
 ;;;_ , ess
 
@@ -1544,53 +1451,50 @@
 
 ;;;_ , flyspell
 
-(use-package flyspell
-  :commands (flyspell-mode flyspell-buffer)
-  :init
-  (progn
-    (bind-key "C-c i b" 'flyspell-buffer)
-    (bind-key "C-c i c" 'ispell-comments-and-strings)
-    (bind-key "C-c i d" 'ispell-change-dictionary)
-    (bind-key "C-c i f" 'flyspell-mode)
-    (bind-key "C-c i k" 'ispell-kill-ispell)
-    (bind-key "C-c i m" 'ispell-message)
-    (bind-key "C-c i r" 'ispell-region))
+(use-package ispell
+  :bind (("C-c i c" . ispell-comments-and-strings)
+         ("C-c i d" . ispell-change-dictionary)
+         ("C-c i k" . ispell-kill-ispell)
+         ("C-c i m" . ispell-message)
+         ("C-c i r" . ispell-region)))
 
+(use-package flyspell
+  :bind (("C-c i b" . flyspell-buffer)
+         ("C-c i f" . flyspell-mode))
   :config
   (define-key flyspell-mode-map [(control ?.)] nil))
 
 ;;;_ , fold-dwim
 
-(use-package fold-dwim
-  :commands (fold-dwim-toggle fold-dwim-hide-all fold-dwim-show-all)
-  :init
-  (progn
-    (bind-key "<f13>" 'fold-dwim-toggle)
-    (bind-key "<f14>" 'fold-dwim-hide-all)
-    (bind-key "<f15>" 'fold-dwim-show-all)))
+(macroexpand
+ '(use-package fold-dwim
+   :bind (("<f13>" . fold-dwim-toggle)
+          ("<f14>" . fold-dwim-hide-all)
+          ("<f15>" . fold-dwim-show-all))))
+
+;;;_ , gist
+
+(use-package gist
+  :bind ("C-c G" . gist-region-or-buffer))
 
 ;;;_ , gnus
 
 (use-package dot-gnus
   :if (not running-alternate-emacs)
-  :commands switch-to-gnus
+  :bind ("M-G" . switch-to-gnus)
   :init
-  (progn
-    (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
-          gnus-home-directory "~/Messages/Gnus/") ; a necessary override
-
-    (bind-key "M-G" 'switch-to-gnus)))
+  (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
+        gnus-home-directory "~/Messages/Gnus/")) ; a necessary override
 
 ;;;_ , grep
 
 (use-package grep
   :defer t
+  :bind (("M-s d" . find-grep-dired)
+         ("M-s f" . find-grep)
+         ("M-s g" . grep))
   :init
   (progn
-    (bind-key "M-s d" 'find-grep-dired)
-    (bind-key "M-s f" 'find-grep)
-    (bind-key "M-s g" 'grep)
-
     (defun find-grep-in-project (command-args)
       (interactive
        (let ((default (thing-at-point 'symbol)))
@@ -1604,6 +1508,7 @@
           (grep command-args))))
 
     (bind-key "M-s p" 'find-grep-in-project))
+
   :config
   (progn
     (grep-apply-setting 'grep-command "grep -nH -e ")
@@ -1629,13 +1534,12 @@
     (bind-key "C-c t r" 'gtags-find-rtag)
     (bind-key "C-c t v" 'gtags-visit-rootdir)
 
-    (define-key gtags-mode-map [mouse-2] 'gtags-find-tag-from-here)
+    (bind-key "<mouse-2>" 'gtags-find-tag-from-here gtags-mode-map)
 
-    (when (featurep 'helm)
-      (use-package helm-gtags)
-
-      (bind-key "M-T" 'helm-gtags-select)
-      (define-key gtags-mode-map "\e," 'helm-gtags-resume))))
+    (use-package helm-gtags
+      :bind ("M-T" . helm-gtags-select)
+      :config
+      (bind-key "M-," 'helm-gtags-resume gtags-mode-map))))
 
 ;;;_ , gud
 
@@ -1682,27 +1586,23 @@
     (defun my-haskell-mode-hook ()
       (setq haskell-saved-check-command haskell-check-command)
 
-      (define-key haskell-mode-map [(control ?c) ?w]
-        'flymake-display-err-menu-for-current-line)
-      (define-key haskell-mode-map [(control ?c) ?*]
-        'flymake-start-syntax-check)
-      (define-key haskell-mode-map [(meta ?n)] 'flymake-goto-next-error)
-      (define-key haskell-mode-map [(meta ?p)] 'flymake-goto-prev-error))
+      (bind-key "C-c w" 'flymake-display-err-menu-for-current-line
+                haskell-mode-map)
+      (bind-key "C-c *" 'flymake-start-syntax-check haskell-mode-map)
+      (bind-key "M-n" 'flymake-goto-next-error haskell-mode-map)
+      (bind-key "M-p" 'flymake-goto-prev-error haskell-mode-map))
 
     (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
 
 ;;;_ , helm
 
 (use-package helm-config
-  :if (not running-alternate-emacs)
-  :commands (helm-M-x helm-c-apropos helm-do-grep helm-for-files)
+  :if (and (not running-alternate-emacs)
+           (not at-command-line))
   :init
   (progn
-
     (bind-key "C-c M-x" 'helm-M-x)
-
     (bind-key "C-h a" 'helm-c-apropos)
-
     (bind-key "M-s a" 'helm-do-grep)
 
     (defun my-helm-occur ()
@@ -1720,7 +1620,7 @@
       (let ((default (thing-at-point 'symbol)))
         (helm
          :prompt "Info about: "
-         :candidate-number-limit 5
+         :candidate-number-limit 15
          :sources
          (append (mapcar (lambda (func)
                            (funcall func default))
@@ -1754,7 +1654,8 @@
             :buffer "*Helm git file*"))
 
     (bind-key "C-x f" 'helm-find-git-file)
-    (bind-key "M-g g" 'helm-find-git-file))
+    (bind-key "M-g g" 'helm-find-git-file)
+    (bind-key "C-h b" 'helm-descbinds))
 
   :config
   (progn
@@ -1781,29 +1682,19 @@
 ;;;_ , hi-lock
 
 (use-package hi-lock
-  :commands (highlight-regexp
-             highlight-phrase
-             highlight-lines-matching-regexp)
-  :init
-  (progn
-    (bind-key "M-o l" 'highlight-lines-matching-regexp)
-    (bind-key "M-o r" 'highlight-regexp)
-    (bind-key "M-o w" 'highlight-phrase)))
+  :bind (("M-o l" . highlight-lines-matching-regexp)
+         ("M-o r" . highlight-regexp)
+         ("M-o w" . highlight-phrase)))
 
 ;;;_ , hilit-chg
 
 (use-package hilit-chg
-  :commands highlight-changes-mode
-  :init
-  (bind-key "M-o C" 'highlight-changes-mode))
+  :bind ("M-o C" . highlight-changes-mode))
 
 ;;;_ , hl-line
 
 (use-package hl-line
-  :commands hl-line-mode
-  :init
-  (bind-key "M-o h" 'hl-line-mode)
-
+  :bind ("M-o h" . hl-line-mode)
   :config
   (use-package hl-line+))
 
@@ -1888,8 +1779,8 @@
     (add-hook 'ido-minibuffer-setup-hook
               (function
                (lambda ()
-                 (define-key ido-file-completion-map "\C-m"
-                   'ido-smart-select-text))))
+                 (bind-key "<return>" 'ido-smart-select-text
+                           ido-file-completion-map))))
 
     (defun ido-switch-buffer-tiny-frame (buffer)
       (interactive (list (ido-read-buffer "Buffer: " nil t)))
@@ -1930,10 +1821,9 @@
 ;;;_ , info
 
 (use-package info
-  :defer t
+  :bind ("C-h C-i" . info-lookup-symbol)
   :init
-  (progn
-    (bind-key "C-h C-i" 'info-lookup-symbol))
+  (remove-hook 'menu-bar-update-hook 'mac-setup-help-topics)
 
   :config
   (progn
@@ -1948,9 +1838,7 @@
 ;;;_ , indirect
 
 (use-package indirect
-  :commands indirect-region
-  :init
-  (bind-key "C-c C" 'indirect-region))
+  :bind ("C-c C" . indirect-region))
 
 ;;;_ , initsplit
 
@@ -1959,17 +1847,6 @@
 ;;;_ , ipa
 
 (use-package ipa)
-
-;;;_ , isearch
-
-(use-package "isearch"
-  :defer t
-  :config
-  (progn
-    (define-key isearch-mode-map [(control ?c)] 'isearch-toggle-case-fold)
-    (define-key isearch-mode-map [(control ?t)] 'isearch-toggle-regexp)
-    (define-key isearch-mode-map [(control ?^)] 'isearch-edit-string)
-    (define-key isearch-mode-map [(control ?i)] 'isearch-complete)))
 
 ;;;_ , ledger
 
@@ -2024,10 +1901,6 @@
 ;;;_ , lisp-mode
 
 (use-package lisp-mode
-  :commands (emacs-lisp-mode
-             lisp-mode
-             inferior-lisp-mode
-             lisp-interaction-mode)
   :init
   (progn
     (defface esk-paren-face
@@ -2051,10 +1924,8 @@
             inferior-emacs-lisp-mode
             lisp-mode
             inferior-lisp-mode
-            slime-repl-mode)))
+            slime-repl-mode))
 
-  :config
-  (progn
     (defvar slime-mode nil)
     (defvar lisp-mode-initialized nil)
 
@@ -2148,20 +2019,17 @@
       (paredit-mode 1)
       (redshank-mode 1)
 
-      (let (mode-map)
-        (if emacs-lisp-p
-            (progn
-              (setq mode-map emacs-lisp-mode-map)
-              (define-key mode-map [(meta return)] 'outline-insert-heading)
-              (define-key mode-map [tab] 'my-elisp-indent-or-complete)
-              ;; (define-key mode-map [tab] 'yas/expand)
-              )
-          (turn-on-cldoc-mode)
+      (if emacs-lisp-p
+          (progn
+            (bind-key "<M-return>" 'outline-insert-heading emacs-lisp-mode-map)
+            (bind-key "<tab>" 'my-elisp-indent-or-complete emacs-lisp-mode-map)
+            ;; (bind-key [tab] 'yas/expand emacs-lisp-mode-map)
+            )
+        (turn-on-cldoc-mode)
 
-          (setq mode-map lisp-mode-map)
-          (define-key mode-map [tab] 'my-lisp-indent-or-complete)
-          (define-key mode-map [(meta ?q)] 'slime-reindent-defun)
-          (define-key mode-map [(meta ?l)] 'slime-selector))))
+        (bind-key "<tab>" 'my-lisp-indent-or-complete lisp-mode-map)
+        (bind-key "M-q" 'slime-reindent-defun lisp-mode-map)
+        (bind-key "M-l" 'slime-selector lisp-mode-map)))
 
     (hook-into-modes #'my-lisp-mode-hook
                      '(lisp-mode-hook
@@ -2192,22 +2060,17 @@
 ;;;_ , lusty-explorer
 
 (use-package lusty-explorer
-  :commands lusty-file-explorer
-  :init
-  (bind-key "C-x C-f" 'lusty-file-explorer)
+  :bind ("C-x C-f" . lusty-file-explorer)
   :config
   (add-hook 'lusty-setup-hook
             (lambda ()
-              (define-key lusty-mode-map [space] 'lusty-select-match)
-              (define-key lusty-mode-map [? ] 'lusty-select-match)
-              (define-key lusty-mode-map [(control ?d)] 'exit-minibuffer))))
+              (bind-key "<space>" 'lusty-select-match lusty-mode-map)
+              (bind-key "C-d" 'exit-minibuffer lusty-mode-map))))
 
 ;;;_ , magit
 
 (use-package magit
-  :commands magit-status
-  :init
-  (bind-key "C-x g" 'magit-status)
+  :bind ("C-x g" . magit-status)
   :config
   (progn
     (setenv "GIT_PAGER" "")
@@ -2379,7 +2242,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :config
   (progn
     (defun my-nxml-mode-hook ()
-      (define-key nxml-mode-map [return] 'newline-and-indent))
+      (bind-key "<return>" 'newline-and-indent nxml-mode-map))
 
     (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
 
@@ -2389,31 +2252,21 @@ end tell" account account start duration commodity (if cleared "true" "false")
         (call-process-region (point-min) (point-max) "tidy" t t nil
                              "-xml" "-i" "-wrap" "0" "-omit" "-q")))
 
-    (define-key nxml-mode-map [(control shift ?h)] 'tidy-xml-buffer)))
+    (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
 
 ;;;_ , org-mode
 
 (use-package dot-org
   :if (not running-alternate-emacs)
-  :commands (org-agenda
-             jump-to-org-agenda
-             org-smart-capture
-             org-inline-note
-             org-store-link
-             org-insert-link
-             orgstruct++-mode)
+  :commands orgstruct++-mode
+  :bind (("M-C"   . jump-to-org-agenda)
+         ("M-m"   . org-smart-capture)
+         ("M-M"   . org-inline-note)
+         ("C-c a" . org-agenda)
+         ("C-c S" . org-store-link)
+         ("C-c l" . org-insert-link))
   :init
-  (progn
-    (bind-key "M-C" 'jump-to-org-agenda)
-    (bind-key "M-m" 'org-smart-capture)
-    (bind-key "M-M" 'org-inline-note)
-
-    (bind-key "C-c a" 'org-agenda)
-
-    (bind-key "C-c S" 'org-store-link)
-    (bind-key "C-c l" 'org-insert-link)
-
-    (run-with-idle-timer 300 t 'jump-to-org-agenda)))
+  (run-with-idle-timer 300 t 'jump-to-org-agenda))
 
 ;;;_ , per-window-point
 
@@ -2424,7 +2277,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , persistent-scratch
 
 (use-package persistent-scratch
-  :if (and window-system (not running-alternate-emacs)))
+  :if (and window-system (not running-alternate-emacs)
+           (not at-command-line)))
 
 ;;;_ , pp-c-l
 
@@ -2489,22 +2343,20 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (set (make-local-variable 'parens-require-spaces) nil)
       (setq indent-tabs-mode nil)
 
-      (define-key python-mode-map [(control ?c) (control ?z)] 'python-shell)
-      (define-key python-mode-map [(control ?c) ?c] 'compile))
+      (bind-key "C-c C-z" 'python-shell python-mode-map)
+      (unbind-key "C-c c" python-mode-map))
 
     (add-hook 'python-mode-hook 'my-python-mode-hook)))
 
 ;;;_ , quickrun
 
 (use-package quickrun
-  :commands quickrun
-  :init
-  (bind-key "C-c C-r" 'quickrun))
+  :bind ("C-c C-r" . quickrun))
 
 ;;;_ , recentf
 
 (use-package recentf
-  :if window-system
+  :if (and window-system (not at-command-line))
   :init
   (recentf-mode 1))
 
@@ -2520,7 +2372,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , session
 
 (use-package session
-  :if window-system
+  :if (and window-system (not at-command-line))
   :init
   (progn
     (session-initialize)
@@ -2558,10 +2410,9 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package smart-compile
   :commands smart-compile
+  :bind ("C-c c" . smart-compile)
   :init
   (progn
-    (bind-key "C-c c" 'smart-compile)
-
     (defun show-compilation ()
       (interactive)
       (let ((compile-buf
@@ -2578,16 +2429,12 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , springboard
 
 (use-package springboard
-  :commands springboard
-  :init
-  (bind-key "C-." 'springboard))
+  :bind ("C-." . springboard))
 
 ;;;_ , stopwatch
 
 (use-package stopwatch
-  :commands stopwatch
-  :init
-  (bind-key "<f8>" 'stopwatch))
+  :bind ("<f8>" . stopwatch))
 
 ;;;_ , sunrise-commander
 
@@ -2598,9 +2445,12 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (defun my-activate-sunrise ()
       (interactive)
       (let ((sunrise-exists
-             (count-if (lambda (buf)
-                         (string-match " (Sunrise)$" (buffer-name buf)))
-                       (buffer-list))))
+             (throw 'found
+                    (mapc (lambda (buf)
+                            (if (string-match " (Sunrise)$"
+                                              (buffer-name buf))
+                                (throw 'found t)))
+                          (buffer-list)))))
         (if (> sunrise-exists 0)
             (call-interactively 'sunrise)
           (sunrise "~/dl/" "~/Archives/"))))
@@ -2615,15 +2465,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (require 'sunrise-x-tabs)
     (require 'sunrise-x-loop)
 
-    (define-key sr-mode-map "/" 'sr-sticky-isearch-forward)
-    (define-key sr-mode-map "\C-e" 'end-of-line)
-    (define-key sr-mode-map "l" 'sr-dired-prev-subdir)
+    (bind-key "/" 'sr-sticky-isearch-forward sr-mode-map)
+    (bind-key "\C-e" 'end-of-line sr-mode-map)
+    (bind-key "l" 'sr-dired-prev-subdir sr-mode-map)
 
-    (define-key sr-tabs-mode-map [(control ?p)] 'previous-line)
-    (define-key sr-tabs-mode-map [(control ?n)] 'next-line)
+    (bind-key "C-p" nil sr-tabs-mode-map)
+    (bind-key "C-n" nil sr-tabs-mode-map)
 
-    (define-key sr-tabs-mode-map [(meta ?\[)] 'sr-tabs-prev)
-    (define-key sr-tabs-mode-map [(meta ?\])] 'sr-tabs-next)
+    (bind-key "M-[" 'sr-tabs-prev sr-tabs-mode-map)
+    (bind-key "M-]" 'sr-tabs-next sr-tabs-mode-map)
 
     (defun sr-browse-file (&optional file)
       "Display the selected file with the default appication."
@@ -2687,15 +2537,13 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :commands vkill
   :init
   (progn
-    (if (featurep 'helm)
-        (progn
-          (defun vkill-and-helm-occur ()
-            (interactive)
-            (vkill)
-            (call-interactively #'helm-occur))
+    (defun vkill-and-helm-occur ()
+      (interactive)
+      (vkill)
+      (call-interactively #'helm-occur))
 
-          (bind-key "C-x L" 'vkill-and-helm-occur))
-      (bind-key "C-x L" 'vkill)))
+    (bind-key "C-x L" 'vkill-and-helm-occur))
+
   :config
   (setq vkill-show-all-processes t))
 
@@ -2711,6 +2559,9 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (interactive (list (read-string "Wikipedia search: " (word-at-point))))
       (require 'w3m-search)
       (w3m-search "en.wikipedia" term))
+
+    (eval-when-compile
+      (autoload 'w3m-search-escape-query-string "w3m-search"))
 
     (defun wolfram-alpha-query (term)
       (interactive (list (read-string "Ask Wolfram Alpha: " (word-at-point))))
@@ -2748,7 +2599,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
       :init
       (add-hook 'w3m-mode-hook 'w3m-type-ahead-mode))
 
-    (define-key w3m-minor-mode-map "\C-m" 'w3m-view-url-with-external-browser)))
+    (bind-key "<return>" 'w3m-view-url-with-external-browser
+              w3m-minor-mode-map)))
 
 ;;;_ , wcount-mode
 
@@ -2842,8 +2694,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (define-prefix-command 'workgroups-preload-map)
     (bind-key "C-\\" 'workgroups-preload-map)
 
-    (define-key workgroups-preload-map [(control ?\\)] 'wg-switch-to-index-1)
-    (define-key workgroups-preload-map [?1] 'wg-switch-to-index-1))
+    (bind-key "C-\\" 'wg-switch-to-index-1 workgroups-preload-map)
+    (bind-key "1" 'wg-switch-to-index-1 workgroups-preload-map))
 
   :config
   (progn
@@ -2853,8 +2705,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (if (file-readable-p workgroups-file)
           (wg-load workgroups-file)))
 
-    (define-key wg-map [(control ?\\)] 'wg-switch-to-previous-workgroup)
-    (define-key wg-map [?\\] 'toggle-input-method)))
+    (bind-key "C-\\" 'wg-switch-to-previous-workgroup wg-map)
+    (bind-key "\\" 'toggle-input-method wg-map)))
 
 ;;;_ , wrap-region
 
@@ -2902,6 +2754,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , yasnippet
 
 (use-package yasnippet
+  :if (not at-command-line)
   :diminish yas/minor-mode
   :commands (yas/minor-mode yas/expand snippet-mode)
   :init
@@ -2922,7 +2775,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (yas/initialize)
     (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
 
-    (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)
+    (bind-key "<tab>" 'yas/next-field-or-maybe-expand yas/keymap)
 
     (defun yas/new-snippet (&optional choose-instead-of-guess)
       (interactive "P")
@@ -2952,14 +2805,9 @@ $0"))))
 ;;;_ , yaoddmuse
 
 (use-package yaoddmuse
-  :commands (yaoddmuse-edit-default
-             yaoddmuse-browse-page-default
-             yaoddmuse-post-library-default)
-  :init
-  (progn
-    (bind-key "C-c w f" 'yaoddmuse-browse-page-default)
-    (bind-key "C-c w e" 'yaoddmuse-edit-default)
-    (bind-key "C-c w p" 'yaoddmuse-post-library-default)))
+  :bind (("C-c w f" . yaoddmuse-browse-page-default)
+         ("C-c w e" . yaoddmuse-edit-default)
+         ("C-c w p" . yaoddmuse-post-library-default)))
 
 ;;;_ , zencoding-mode
 
@@ -2973,12 +2821,12 @@ $0"))))
     (add-hook 'html-mode-hook
               (function
                (lambda ()
-                 (define-key html-mode-map [return] 'newline-and-indent)))))
+                 (bind-key "<return>" 'newline-and-indent html-mode-map)))))
 
   :config
   (progn
     (defvar zencoding-mode-keymap (make-sparse-keymap))
-    (define-key zencoding-mode-keymap (kbd "C-c C-c") 'zencoding-expand-line)))
+    (bind-key "C-c C-c" 'zencoding-expand-line zencoding-mode-keymap)))
 
 ;;;_ , ruby-mode
 
@@ -3015,28 +2863,29 @@ $0"))))
     (defun my-ruby-mode-hook ()
       (inf-ruby-keys)
 
-      (define-key ruby-mode-map [return] 'my-ruby-smart-return)
-      (define-key ruby-mode-map [(control ?h) (control ?i)] 'helm-yari)
+      (bind-key "<return>" 'my-ruby-smart-return ruby-mode-map)
+      (bind-key "C-h C-i" 'helm-yari ruby-mode-map)
 
       (set (make-local-variable 'yas/fallback-behavior)
            '(apply ruby-indent-command . nil))
-      (define-key ruby-mode-map [tab] 'yas/expand-from-trigger-key))
+      (bind-key "<tab>" 'yas/expand-from-trigger-key ruby-mode-map))
 
     (add-hook 'ruby-mode-hook 'my-ruby-mode-hook)))
 
 ;;;_. Post initialization
 
-(let ((elapsed (float-time (time-subtract (current-time)
-                                          emacs-start-time))))
-  (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+(unless at-command-line
+  (let ((elapsed (float-time (time-subtract (current-time)
+                                            emacs-start-time))))
+    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
 
-(add-hook 'after-init-hook
-          `(lambda ()
-             (let ((elapsed (float-time (time-subtract (current-time)
-                                                       emacs-start-time))))
-               (message "Loading %s...done (%.3fs) [after-init]"
-                        ,load-file-name elapsed)))
-          t)
+  (add-hook 'after-init-hook
+            `(lambda ()
+               (let ((elapsed (float-time (time-subtract (current-time)
+                                                         emacs-start-time))))
+                 (message "Loading %s...done (%.3fs) [after-init]"
+                          ,load-file-name elapsed)))
+            t))
 
 ;; Local Variables:
 ;;   mode: emacs-lisp
