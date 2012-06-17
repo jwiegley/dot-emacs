@@ -1325,12 +1325,13 @@
       (let ((currently-idle (floor (system-idle-time))))
         (if (>= currently-idle erc-autoaway-idle-seconds)
             (progn
-              (message "System was idle for %d seconds, setting AWAY flag...")
+              (message "System was idle for %d seconds, setting AWAY flag..."
+                       currently-idle)
              ad-do-it)
           (let ((erc-autoaway-idle-seconds
                  (+ 10 (- erc-autoaway-idle-seconds currently-idle))))
             (message "System was idle for only %d seconds, waiting %d more..."
-                     erc-autoaway-idle-seconds)
+                     currently-idle erc-autoaway-idle-seconds)
             (erc-autoaway-reestablish-idletimer)))))
 
     (use-package wtf
