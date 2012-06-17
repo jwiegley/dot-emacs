@@ -1,4 +1,4 @@
-;;-*-coding: emacs-mule;-*-
+;;-*- emacs-lisp -*-
 (define-abbrev-table 'Buffer-menu-mode-abbrev-table '())
 
 (define-abbrev-table 'Custom-mode-abbrev-table '())

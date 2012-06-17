@@ -612,16 +612,20 @@
 ;;;_ , abbrev
 
 (use-package abbrev
+  :commands abbrev-mode
   :diminish abbrev-mode
   :init
-  (if (file-exists-p abbrev-file-name)
-      (quietly-read-abbrev-file))
+  (hook-into-modes #'abbrev-mode '(text-mode-hook))
 
   :config
-  (add-hook 'expand-load-hook
-            (lambda ()
-              (add-hook 'expand-expand-hook 'indent-according-to-mode)
-              (add-hook 'expand-jump-hook 'indent-according-to-mode))))
+  (progn
+   (if (file-exists-p abbrev-file-name)
+       (quietly-read-abbrev-file))
+
+   (add-hook 'expand-load-hook
+             (lambda ()
+               (add-hook 'expand-expand-hook 'indent-according-to-mode)
+               (add-hook 'expand-jump-hook 'indent-according-to-mode)))))
 
 ;;;_ , ace-jump-mode
 
@@ -656,7 +660,9 @@
 
 ;;;_ , archive-region
 
-(use-package archive-region)
+(use-package archive-region
+  :commands kill-region-or-archive-region
+  :bind ("C-w" . kill-region-or-archive-region))
 
 ;;;_ , auctex
 
@@ -708,16 +714,24 @@
 ;;;_ , autorevert
 
 (use-package autorevert
+  :commands auto-revert-mode
+  :diminish auto-revert-mode
   :init
-  (global-auto-revert-mode 1))
+  (add-hook 'find-file-hook
+            #'(lambda ()
+                (auto-revert-mode 1))))
 
 ;;;_ , backup-each-save
 
 (use-package backup-each-save
+  :defer t
   :init
   (progn
-    (add-hook 'after-save-hook 'backup-each-save)
+    (autoload 'backup-each-save "backup-each-save")
+    (add-hook 'after-save-hook 'backup-each-save))
 
+  :config
+  (progn
     (defun backup-each-save-filter (filename)
       (message "Checking '%s'" filename)
       (not (string-match
@@ -1185,9 +1199,8 @@
           (delete-region beg (point)))))
 
     (add-hook 'ediff-keymap-setup-hook
-              (function
-               (lambda ()
-                 (bind-key "c" 'ediff-keep-both ediff-mode-map))))
+              #'(lambda ()
+                  (bind-key "c" 'ediff-keep-both ediff-mode-map)))
 
     (defun keep-mine ()
       (interactive)
@@ -1733,10 +1746,9 @@
         (exit-minibuffer)))
 
     (add-hook 'ido-minibuffer-setup-hook
-              (function
-               (lambda ()
-                 (bind-key "<return>" 'ido-smart-select-text
-                           ido-file-completion-map))))
+              #'(lambda ()
+                  (bind-key "<return>" 'ido-smart-select-text
+                            ido-file-completion-map)))
 
     (defun ido-switch-buffer-tiny-frame (buffer)
       (interactive (list (ido-read-buffer "Buffer: " nil t)))
@@ -1771,6 +1783,7 @@
 ;;;_ , image-file
 
 (use-package image-file
+  :disabled t
   :init
   (auto-image-file-mode 1))
 
@@ -1798,11 +1811,17 @@
 
 ;;;_ , initsplit
 
-(use-package initsplit)
+(eval-after-load "cus-edit"
+  '(use-package initsplit))
 
 ;;;_ , ipa
 
-(use-package ipa)
+(use-package ipa
+  :commands ipa-insert
+  :init
+  (progn
+    (autoload 'ipa-load-annotations-into-buffer "ipa")
+    (add-hook 'find-file-hook 'ipa-load-annotations-into-buffer)))
 
 ;;;_ , ledger
 
@@ -2195,9 +2214,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
                 (save-buffer)))))))
 
     (add-hook 'nroff-mode-hook
-              (function
-               (lambda ()
-                 (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))))
+              #'(lambda ()
+                  (add-hook 'after-save-hook 'update-nroff-timestamp nil t)))))
 
 ;;;_ , nxml-mode
 
@@ -2733,9 +2751,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (add-to-list 'auto-mode-alist
                  '("/\\.emacs\\.d/snippets/" . snippet-mode))
 
-    (hook-into-modes (function
-                      (lambda ()
-                        (yas/minor-mode 1)))
+    (hook-into-modes #'(lambda () (yas/minor-mode 1))
                      '(prog-mode-hook
                        org-mode-hook
                        ruby-mode-hook
@@ -2790,9 +2806,8 @@ $0"))))
     (add-hook 'nxml-mode-hook 'zencoding-mode)
     (add-hook 'html-mode-hook 'zencoding-mode)
     (add-hook 'html-mode-hook
-              (function
-               (lambda ()
-                 (bind-key "<return>" 'newline-and-indent html-mode-map)))))
+              #'(lambda ()
+                (bind-key "<return>" 'newline-and-indent html-mode-map))))
 
   :config
   (progn
@@ -2843,7 +2858,7 @@ $0"))))
 
 ;;;_. Post initialization
 
-(if (and (not at-command-line) use-package-verbose)
+(if (not at-command-line)
   (let ((elapsed (float-time (time-subtract (current-time)
                                             emacs-start-time))))
     (message "Loading %s...done (%.3fs)" load-file-name elapsed))
