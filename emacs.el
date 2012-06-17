@@ -2439,6 +2439,18 @@ end tell" account account start duration commodity (if cleared "true" "false")
   (progn
     (session-initialize)
 
+    (defun remove-session-use-package-from-settings ()
+      (when (string= (buffer-file-name)
+                     (expand-file-name "settings.el"
+                                       user-emacs-directory))
+        (save-excursion
+          (goto-char (point-min))
+          (when (re-search-forward "^ '(session-use-package " nil t)
+            (delete-region (line-beginning-position)
+                           (1+ (line-end-position)))))))
+
+    (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
+
     (defun save-information ()
       (dolist (func kill-emacs-hook)
         (unless (memq func '(exit-gnus-on-exit server-force-stop))
