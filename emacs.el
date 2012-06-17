@@ -1306,19 +1306,19 @@
 
     (defun irc ()
       (interactive)
-      (erc :server "irc.freenode.net"
-           :port 6667
-           :nick "johnw"
-           :password (funcall
-                      (plist-get
-                       (car (auth-source-search :host "irc.freenode.net"
-                                                :user "johnw"
-                                                :type 'netrc
-                                                :port 6667))
-                       :secret)))
-      (erc :server "irc.oftc.net"
-           :port 6667
-           :nick "johnw"))
+      (erc-tls :server "irc.freenode.net"
+               :port 6697
+               :nick "johnw"
+               :password (funcall
+                          (plist-get
+                           (car (auth-source-search :host "irc.freenode.net"
+                                                    :user "johnw"
+                                                    :type 'netrc
+                                                    :port 6667))
+                           :secret)))
+      (erc-tls :server "irc.oftc.net"
+               :port 6697
+               :nick "johnw"))
 
     (defun im ()
       (interactive)
@@ -1343,17 +1343,9 @@
     (use-package erc-patch)
 
     (defadvice erc-autoaway-set-away (around erc-autoaway-on-real-idle activate)
-      (let ((currently-idle (floor (system-idle-time))))
-        (if (>= currently-idle erc-autoaway-idle-seconds)
-            (progn
-              (message "System was idle for %d seconds, setting AWAY flag..."
-                       currently-idle)
-             ad-do-it)
-          (let ((erc-autoaway-idle-seconds
-                 (+ 60 (- erc-autoaway-idle-seconds currently-idle))))
-            (message "System was idle for only %d seconds, waiting %d more..."
-                     currently-idle erc-autoaway-idle-seconds)
-            (erc-autoaway-reestablish-idletimer)))))
+      (if (>=  (floor (system-idle-time))
+               erc-autoaway-idle-seconds)
+          ad-do-it))
 
     (use-package wtf
       :commands wtf-is
