@@ -8,6 +8,7 @@
 (setq message-log-max 16384)
 
 (require 'use-package)
+(setq use-package-verbose nil)
 
 ;;;_ , Utility macros and functions
 
@@ -104,20 +105,9 @@
 
 (bind-key "C-x d" 'delete-whitespace-rectangle)
 (bind-key "C-x F" 'set-fill-column)
-(bind-key "C-x m" 'compose-mail)
-
-(defun edit-with-sudo ()
-  (interactive)
-  (let ((buf (current-buffer)))
-    (find-file (concat "/sudo::" (buffer-file-name)))
-    (kill-buffer buf)))
-
-(bind-key "C-x S" 'edit-with-sudo)
 (bind-key "C-x t" 'toggle-truncate-lines)
 
 ;;;_  . C-x C-?
-
-(bind-key "C-x C-b" 'ibuffer)
 
 (defun duplicate-line ()
   "Duplicate the line containing point."
@@ -137,6 +127,15 @@
 (bind-key "C-x C-d" 'duplicate-line)
 (bind-key "C-x C-e" 'pp-eval-last-sexp)
 (bind-key "C-x C-n" 'next-line)
+
+
+(defun find-alternate-file-with-sudo (filename)
+  (interactive
+   (read-file-name "Find alternate file: " nil
+                   nil nil (concat "/sudo::" (buffer-file-name))))
+  (find-alternate-file filename))
+
+(bind-key "C-x C-v" 'find-alternate-file-with-sudo)
 
 ;;;_  . C-x M-?
 
@@ -176,14 +175,13 @@
     (goto-char (+ end 2))))
 
 (bind-key "C-x M-q" 'refill-paragraph)
-(bind-key "C-x M-z" 'shell-toggle)
 
 ;;;_ , mode-specific-map
 
 ;;;_  . C-c ?
 
 (bind-key "C-c <tab>" 'ff-find-other-file)
-(bind-key "C-c <space>" 'just-one-space)
+(bind-key "C-c SPC" 'just-one-space)
 
 ;; inspired by Erik Naggum's `recursive-edit-with-single-window'
 (defmacro recursive-edit-preserving-window-config (body)
@@ -242,7 +240,6 @@
 
 (bind-key "C-c f" 'flush-lines)
 (bind-key "C-c g" 'ignore)
-(bind-key "C-c h" 'crosshairs-mode)
 
 (bind-key "C-c k" 'keep-lines)
 
@@ -353,7 +350,6 @@
   (forward-line))
 
 (bind-key "C-c p" 'insert-counting-printf)
-
 (bind-key "C-c q" 'fill-region)
 (bind-key "C-c r" 'replace-regexp)
 (bind-key "C-c s" 'replace-string)
@@ -372,11 +368,10 @@
     (view-mode)))
 
 (bind-key "C-c V" 'view-clipboard)
-
 (bind-key "C-c z" 'clean-buffer-list)
 
 (bind-key "C-c [" 'align-regexp)
-(bind-key "C-c ="  'count-matches)
+(bind-key "C-c =" 'count-matches)
 (bind-key "C-c ;" 'comment-or-uncomment-region)
 
 ;;;_  . C-c C-?
@@ -426,6 +421,7 @@
 
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
+
 (bind-key "C-h e" 'lisp-find-map)
 (bind-key "C-h e c" 'finder-commentary)
 (bind-key "C-h e e" 'view-echo-area-messages)
@@ -493,20 +489,6 @@
 
 (bind-key "M-!" 'async-shell-command)
 (bind-key "M-/" 'dabbrev-expand)
-
-(bind-key "M-g c" 'goto-char)
-(bind-key "M-g l" 'goto-line)
-
-(defun delete-indentation-forward ()
-  (interactive)
-  (delete-indentation t))
-
-(bind-key "M-j" 'delete-indentation-forward)
-(bind-key "M-J" 'delete-indentation)
-
-(bind-key "M-s n" 'find-name-dired)
-(bind-key "M-s o" 'occur)
-
 (bind-key "M-:" 'pp-eval-expression)
 (bind-key "M-'" 'insert-pair)
 (bind-key "M-\"" 'insert-pair)
@@ -520,7 +502,10 @@
       (align beg end-mark))))
 
 (bind-key "M-[" 'align-code)
-(bind-key "M-)"  'other-frame)
+(bind-key "M-`" 'other-frame)
+
+(bind-key "M-j" 'delete-indentation-forward)
+(bind-key "M-J" 'delete-indentation)
 
 (bind-key "M-W" 'mark-word)
 
@@ -544,6 +529,16 @@
 (bind-key "M-X" 'mark-sexp)
 (bind-key "M-H" 'mark-paragraph)
 (bind-key "M-D" 'mark-defun)
+
+(bind-key "M-g c" 'goto-char)
+(bind-key "M-g l" 'goto-line)
+
+(defun delete-indentation-forward ()
+  (interactive)
+  (delete-indentation t))
+
+(bind-key "M-s n" 'find-name-dired)
+(bind-key "M-s o" 'occur)
 
 (bind-key "A-M-w" 'copy-code-as-rtf)
 
@@ -671,12 +666,7 @@
   :config
   (progn
     (ac-set-trigger-key "TAB")
-
-    (setq ac-use-menu-map t)
-
-    ;; Default settings
-    (bind-key "C-n" 'ac-next ac-menu-map)
-    (bind-key "C-p" 'ac-previous ac-menu-map)))
+    (setq ac-use-menu-map t)))
 
 ;;;_ , autorevert
 
@@ -777,7 +767,7 @@
            '(apply my-c-indent-or-complete . nil))
       (bind-key "<tab>" 'yas/expand-from-trigger-key c-mode-base-map)
 
-      (bind-key "M-j" 'delete-indentation-forward c-mode-base-map)
+      (unbind-key "M-j" c-mode-base-map)
       (bind-key "C-c C-i" 'c-includes-current-file c-mode-base-map)
 
       (set (make-local-variable 'parens-require-spaces) nil)
@@ -985,10 +975,11 @@
 
 ;;;_ , color-moccur
 
-(use-package color-moccur
-  :bind ("M-s o" . moccur)
-  :config
-  (use-package moccur-edit))
+(let ((ad-redefinition-action 'accept))
+  (use-package color-moccur
+    :bind ("M-s o" . moccur)
+    :config
+    (use-package moccur-edit)))
 
 ;;;_ , crosshairs
 
@@ -1392,7 +1383,8 @@
 
 (use-package dot-gnus
   :if (not running-alternate-emacs)
-  :bind ("M-G" . switch-to-gnus)
+  :bind (("M-G" . switch-to-gnus)
+         ("C-x m" . compose-mail))
   :init
   (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
         gnus-home-directory "~/Messages/Gnus/")) ; a necessary override
@@ -1606,9 +1598,15 @@
   :config
   (use-package hl-line+))
 
+;;;_ , ibuffer
+
+(use-package ibuffer
+  :bind ("C-x C-b" . ibuffer))
+
 ;;;_ , icicles
 
 (use-package icicles
+  :disabled t
   :if (not running-alternate-emacs)
   :init
   (progn
@@ -1641,34 +1639,35 @@
       (progn
         (ido-hacks-mode 1)
 
-        (defmacro ido-hacks-create-wrapper (command)
-          `(defun ,(intern (concat "ido-hacks-"
-                                   (symbol-name (eval command))))
-             ()
-             (interactive)
-             (flet ((completing-read (&rest args)
-                                     (apply #'ido-hacks-completing-read args)))
-               (call-interactively ,command))))
+        (when nil
+          (defmacro ido-hacks-create-wrapper (command)
+            `(defun ,(intern (concat "ido-hacks-"
+                                     (symbol-name (eval command))))
+               ()
+               (interactive)
+               (flet ((completing-read (&rest args)
+                                       (apply #'ido-hacks-completing-read args)))
+                 (call-interactively ,command))))
 
-        (ido-hacks-create-wrapper 'ido-hacks-execute-extended-command)
-        (ido-hacks-create-wrapper 'describe-function)
-        (ido-hacks-create-wrapper 'describe-variable)
-        (ido-hacks-create-wrapper 'find-function)
-        (ido-hacks-create-wrapper 'find-variable)
-        (ido-hacks-create-wrapper 'find-library)
-        (ido-hacks-create-wrapper 'customize-option)
-        (ido-hacks-create-wrapper 'customize-group)
+          (ido-hacks-create-wrapper 'ido-hacks-execute-extended-command)
+          (ido-hacks-create-wrapper 'describe-function)
+          (ido-hacks-create-wrapper 'describe-variable)
+          (ido-hacks-create-wrapper 'find-function)
+          (ido-hacks-create-wrapper 'find-variable)
+          (ido-hacks-create-wrapper 'find-library)
+          (ido-hacks-create-wrapper 'customize-option)
+          (ido-hacks-create-wrapper 'customize-group)
 
-        (bind-key "M-x" 'ido-hacks-ido-hacks-execute-extended-command)
-        (bind-key "C-h f" 'ido-hacks-describe-function)
-        (bind-key "C-h v" 'ido-hacks-describe-variable)
+          (bind-key "M-x" 'ido-hacks-ido-hacks-execute-extended-command)
+          (bind-key "C-h f" 'ido-hacks-describe-function)
+          (bind-key "C-h v" 'ido-hacks-describe-variable)
 
-        (bind-key "C-h e f" 'ido-hacks-find-function)
-        (bind-key "C-h e v" 'ido-hacks-find-variable)
-        (bind-key "C-h e l" 'ido-hacks-find-library)
+          (bind-key "C-h e f" 'ido-hacks-find-function)
+          (bind-key "C-h e v" 'ido-hacks-find-variable)
+          (bind-key "C-h e l" 'ido-hacks-find-library)
 
-        (bind-key "C-c o" 'ido-hacks-customize-option)
-        (bind-key "C-c O" 'ido-hacks-customize-group)))
+          (bind-key "C-c o" 'ido-hacks-customize-option)
+          (bind-key "C-c O" 'ido-hacks-customize-group))))
 
     (defun ido-smart-select-text ()
       "Select the current completed item.  Do NOT descend into directories."
@@ -1872,6 +1871,7 @@
           :defer t
           :init
           (use-package eldoc-extension
+            :disabled t
             :defer t
             :init
             (add-hook 'emacs-lisp-mode-hook
@@ -1932,19 +1932,17 @@
               '(lisp-mode slime-mode slime-repl-mode
                           inferior-slime-mode))))
 
-    (defun my-lisp-mode-hook (&optional emacs-lisp-p)
+    (defun my-lisp-mode-hook ()
       (initialize-lisp-mode)
 
       (auto-fill-mode 1)
       (paredit-mode 1)
       (redshank-mode 1)
 
-      (if emacs-lisp-p
+      (if emacs-lisp-mode
           (progn
             (bind-key "<M-return>" 'outline-insert-heading emacs-lisp-mode-map)
-            (bind-key "<tab>" 'my-elisp-indent-or-complete emacs-lisp-mode-map)
-            ;; (bind-key [tab] 'yas/expand emacs-lisp-mode-map)
-            )
+            (bind-key "<tab>" 'my-elisp-indent-or-complete emacs-lisp-mode-map))
         (turn-on-cldoc-mode)
 
         (bind-key "<tab>" 'my-lisp-indent-or-complete lisp-mode-map)
@@ -2337,6 +2335,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
     (add-hook 'shell-mode-hook 'initialize-sh-script)))
 
+;;;_ , sh-toggle
+
+(use-package sh-toggle
+  :bind ("C-x M-z" . shell-toggle))
+
 ;;;_ , smart-compile
 
 (use-package smart-compile
@@ -2397,11 +2400,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (require 'sunrise-x-loop)
 
     (bind-key "/" 'sr-sticky-isearch-forward sr-mode-map)
-    (bind-key "\C-e" 'end-of-line sr-mode-map)
     (bind-key "l" 'sr-dired-prev-subdir sr-mode-map)
 
-    (bind-key "C-p" nil sr-tabs-mode-map)
-    (bind-key "C-n" nil sr-tabs-mode-map)
+    (unbind-key "C-e" sr-mode-map)
+    (unbind-key "C-p" sr-tabs-mode-map)
+    (unbind-key "C-n" sr-tabs-mode-map)
 
     (bind-key "M-[" 'sr-tabs-prev sr-tabs-mode-map)
     (bind-key "M-]" 'sr-tabs-next sr-tabs-mode-map)
@@ -2623,8 +2626,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
   (progn
     (defvar workgroups-preload-map)
     (define-prefix-command 'workgroups-preload-map)
-    (bind-key "C-\\" 'workgroups-preload-map)
 
+    (bind-key "C-\\" 'workgroups-preload-map)
     (bind-key "C-\\" 'wg-switch-to-index-1 workgroups-preload-map)
     (bind-key "1" 'wg-switch-to-index-1 workgroups-preload-map))
 
@@ -2727,8 +2730,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 # --
 $0"))))
 
-    (bind-key "C-c y n" 'yas/new-snippet)
     (bind-key "C-c y TAB" 'yas/expand)
+    (bind-key "C-c y n" 'yas/new-snippet)
     (bind-key "C-c y f" 'yas/find-snippets)
     (bind-key "C-c y r" 'yas/reload-all)
     (bind-key "C-c y v" 'yas/visit-snippet-file)))
@@ -2803,7 +2806,7 @@ $0"))))
 
 ;;;_. Post initialization
 
-(unless at-command-line
+(if (and (not at-command-line) use-package-verbose)
   (let ((elapsed (float-time (time-subtract (current-time)
                                             emacs-start-time))))
     (message "Loading %s...done (%.3fs)" load-file-name elapsed))
