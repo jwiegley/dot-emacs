@@ -1460,8 +1460,9 @@
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
-  (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
-        gnus-home-directory "~/Messages/Gnus/")) ; a necessary override
+  (progn
+    (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
+          gnus-home-directory "~/Messages/Gnus/")))
 
 ;;;_ , grep
 
@@ -2265,6 +2266,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package dot-org
   :if (not running-alternate-emacs)
+  :commands org-agenda-list
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
          ("M-M"   . org-inline-note)
@@ -2272,7 +2274,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
          ("C-c S" . org-store-link)
          ("C-c l" . org-insert-link))
   :init
-  (run-with-idle-timer 300 t 'jump-to-org-agenda))
+  (progn
+    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+
+    (add-hook 'after-init-hook
+              #'(lambda ()
+                  (unless use-package-verbose
+                    (org-agenda-list)
+                    (org-fit-agenda-window)
+                    (org-resolve-clocks))) t)))
 
 ;;;_ , per-window-point
 
