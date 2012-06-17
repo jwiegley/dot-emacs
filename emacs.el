@@ -1939,7 +1939,7 @@
       (paredit-mode 1)
       (redshank-mode 1)
 
-      (if emacs-lisp-mode
+      (if (eq major-mode 'emacs-lisp-mode)
           (progn
             (bind-key "<M-return>" 'outline-insert-heading emacs-lisp-mode-map)
             (bind-key "<tab>" 'my-elisp-indent-or-complete emacs-lisp-mode-map))
