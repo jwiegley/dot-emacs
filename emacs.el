@@ -2394,7 +2394,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :commands ruby-mode
   :config
   (progn
-    (require 'inf-ruby)
+    (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
+    (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))
 
     (use-package yari
       :init
@@ -2419,6 +2420,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (call-interactively 'newline-and-indent))
 
     (defun my-ruby-mode-hook ()
+      (require 'inf-ruby)
       (inf-ruby-keys)
 
       (bind-key "<return>" 'my-ruby-smart-return ruby-mode-map)
