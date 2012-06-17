@@ -709,13 +709,13 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
         (defun ,org-sym ()
           (interactive)
           (org-todo ,label))
-        (define-key mode-specific-map [?x ,key] ',org-sym)
+        (bind-key (concat "C-c x " (char-to-string ,key)) ',org-sym)
 
         (defun ,org-sym-no-logging ()
           (interactive)
           (let ((org-inhibit-logging t))
             (org-todo ,label)))
-        (define-key mode-specific-map [?x ,(upcase key)]
+        (bind-key (concat "C-c x " (char-to-string  ,(upcase key)))
           ',org-sym-no-logging)
 
         (defun ,org-agenda-sym ()
@@ -730,19 +730,14 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
         (define-key org-todo-state-map [,(upcase key)]
           ',org-agenda-sym-no-logging)))))
 
-(define-key mode-specific-map [?x ?l] 'org-insert-dtp-link)
-(define-key mode-specific-map [?x ?L] 'org-set-dtp-link)
-
-(define-key mode-specific-map [?x ?m] 'org-insert-message-link)
-(define-key mode-specific-map [?x ?M] 'org-set-message-link)
-;;(define-key mode-specific-map [?x ?a] 'org-insert-apple-message-link)
-(define-key mode-specific-map [?x ?Y] 'org-set-message-sender)
-
-(define-key mode-specific-map [?x ?u] 'org-insert-url-link)
-(define-key mode-specific-map [?x ?U] 'org-set-url-link)
-
-(define-key mode-specific-map [?x ?f] 'org-insert-file-link)
-(define-key mode-specific-map [?x ?F] 'org-set-file-link)
+(bind-key "C-c x l" 'org-insert-dtp-link)
+(bind-key "C-c x L" 'org-set-dtp-link)
+(bind-key "C-c x m" 'org-insert-message-link)
+(bind-key "C-c x M" 'org-set-message-link)
+(bind-key "C-c x u" 'org-insert-url-link)
+(bind-key "C-c x U" 'org-set-url-link)
+(bind-key "C-c x f" 'org-insert-file-link)
+(bind-key "C-c x F" 'org-set-file-link)
 
 (autoload 'ledger-test-create "ldg-test" nil t)
 (autoload 'ledger-test-run "ldg-test" nil t)
@@ -756,6 +751,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (org-defkey org-mode-map
             [(control ?c) (control ?x) ?@] 'visible-mode)
 
+(defvar my-org-expand-map)
 (define-prefix-command 'my-org-expand-map)
 (define-key org-mode-map [(control ?c) (control ?e)] 'my-org-expand-map)
 

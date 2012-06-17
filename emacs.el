@@ -79,17 +79,43 @@
 
 ;;;_ , Enable disabled commands
 
-(put 'downcase-region  'disabled nil)   ; Let upcasing work
+(put 'downcase-region  'disabled nil)   ; Let downcasing work
 (put 'erase-buffer     'disabled nil)
 (put 'eval-expression  'disabled nil)   ; Let ESC-ESC work
 (put 'narrow-to-page   'disabled nil)   ; Let narrowing work
 (put 'narrow-to-region 'disabled nil)   ; Let narrowing work
 (put 'set-goal-column  'disabled nil)
-(put 'upcase-region    'disabled nil)   ; Let downcasing work
+(put 'upcase-region    'disabled nil)   ; Let upcasing work
 
 ;;;_. Keybindings
 
-;;;_ , C-?
+;; Main keymaps for personal bindings are:
+;;
+;;   C-x <letter>  primary map (has many defaults too)
+;;   C-c <letter>  secondary map (not just for mode-specific)
+;;   C-. <letter>  tertiary map
+;;
+;;   M-g <letter>  goto map
+;;   M-s <letter>  search map
+;;   M-o <letter>  markup map (even if only temporarily)
+;;
+;;   C-<capital letter>
+;;   M-<capital letter>
+;;
+;;   A-<anything>
+;;   M-A-<anything>
+;;
+;; Single-letter bindings still available:
+;;   C- ,'";:?<>|!#$%^&*`~ <tab>
+;;   M- ?#
+
+;;;_ , global-map
+
+;;;_  . C-?
+
+(defvar ctl-period-map)
+(define-prefix-command 'ctl-period-map)
+(bind-key "C-." 'ctl-period-map)
 
 (bind-key* "<C-return>" 'other-window)
 
@@ -101,9 +127,95 @@
 
 (bind-key "C-z" 'collapse-or-expand)
 
+;;;_  . M-?
+
+(bind-key "M-!" 'async-shell-command)
+(bind-key "M-/" 'dabbrev-expand)
+(bind-key "M-:" 'pp-eval-expression)
+(bind-key "M-'" 'insert-pair)
+(bind-key "M-\"" 'insert-pair)
+
+(defun align-code (beg end &optional arg)
+  (interactive "rP")
+  (if (null arg)
+      (align beg end)
+    (let ((end-mark (copy-marker end)))
+      (indent-region beg end-mark nil)
+      (align beg end-mark))))
+
+(bind-key "M-[" 'align-code)
+(bind-key "M-`" 'other-frame)
+
+(bind-key "M-j" 'delete-indentation-forward)
+(bind-key "M-J" 'delete-indentation)
+
+(bind-key "M-W" 'mark-word)
+
+(defun mark-line (&optional arg)
+  (interactive "p")
+  (beginning-of-line)
+  (let ((here (point)))
+    (dotimes (i arg)
+      (end-of-line))
+    (set-mark (point))
+    (goto-char here)))
+
+(bind-key "M-L" 'mark-line)
+
+(defun mark-sentence (&optional arg)
+  (interactive "P")
+  (backward-sentence)
+  (mark-end-of-sentence arg))
+
+(bind-key "M-S" 'mark-sentence)
+(bind-key "M-X" 'mark-sexp)
+(bind-key "M-H" 'mark-paragraph)
+(bind-key "M-D" 'mark-defun)
+
+(bind-key "M-g c" 'goto-char)
+(bind-key "M-g l" 'goto-line)
+
+(defun delete-indentation-forward ()
+  (interactive)
+  (delete-indentation t))
+
+(bind-key "M-s n" 'find-name-dired)
+(bind-key "M-s o" 'occur)
+
+(bind-key "A-M-w" 'copy-code-as-rtf)
+
+;;;_  . M-C-?
+
+(bind-key "<C-M-backspace>" 'backward-kill-sexp)
+
+(defun isearch-backward-other-window ()
+  (interactive)
+  (split-window-vertically)
+  (call-interactively 'isearch-backward))
+
+(bind-key "C-M-r" 'isearch-backward-other-window)
+
+(defun isearch-forward-other-window ()
+  (interactive)
+  (split-window-vertically)
+  (call-interactively 'isearch-forward))
+
+(bind-key "C-M-s" 'isearch-forward-other-window)
+
+;; Some further isearch bindings
+(bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
+(bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
+(bind-key "C-^" 'isearch-edit-string isearch-mode-map)
+(bind-key "C-i" 'isearch-complete isearch-mode-map)
+
+;;;_  . A-?
+
+(define-key key-translation-map (kbd "A-TAB") (kbd "M-TAB"))
+
 ;;;_ , ctl-x-map
 
-(bind-key "C-x d" 'delete-whitespace-rectangle)
+;;;_  . C-x ?
+
 (bind-key "C-x F" 'set-fill-column)
 (bind-key "C-x t" 'toggle-truncate-lines)
 
@@ -417,12 +529,22 @@
       (unfill-paragraph 1)
       (forward-paragraph))))
 
+;;;_ , ctl-period-map
+
+;;;_  . C-. ?
+
+(bind-key "C-. d" 'delete-whitespace-rectangle)
+(bind-key "C-. r" 'indent-rigidly)
+
 ;;;_ , help-map
 
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
 
 (bind-key "C-h e" 'lisp-find-map)
+
+;;;_  . C-h e ?
+
 (bind-key "C-h e c" 'finder-commentary)
 (bind-key "C-h e e" 'view-echo-area-messages)
 (bind-key "C-h e f" 'find-function)
@@ -484,91 +606,6 @@
 
 (bind-key "C-h e s" 'scratch)
 (bind-key "C-h e v" 'find-variable)
-
-;;;_ , M-?
-
-(bind-key "M-!" 'async-shell-command)
-(bind-key "M-/" 'dabbrev-expand)
-(bind-key "M-:" 'pp-eval-expression)
-(bind-key "M-'" 'insert-pair)
-(bind-key "M-\"" 'insert-pair)
-
-(defun align-code (beg end &optional arg)
-  (interactive "rP")
-  (if (null arg)
-      (align beg end)
-    (let ((end-mark (copy-marker end)))
-      (indent-region beg end-mark nil)
-      (align beg end-mark))))
-
-(bind-key "M-[" 'align-code)
-(bind-key "M-`" 'other-frame)
-
-(bind-key "M-j" 'delete-indentation-forward)
-(bind-key "M-J" 'delete-indentation)
-
-(bind-key "M-W" 'mark-word)
-
-(defun mark-line (&optional arg)
-  (interactive "p")
-  (beginning-of-line)
-  (let ((here (point)))
-    (dotimes (i arg)
-      (end-of-line))
-    (set-mark (point))
-    (goto-char here)))
-
-(bind-key "M-L" 'mark-line)
-
-(defun mark-sentence (&optional arg)
-  (interactive "P")
-  (backward-sentence)
-  (mark-end-of-sentence arg))
-
-(bind-key "M-S" 'mark-sentence)
-(bind-key "M-X" 'mark-sexp)
-(bind-key "M-H" 'mark-paragraph)
-(bind-key "M-D" 'mark-defun)
-
-(bind-key "M-g c" 'goto-char)
-(bind-key "M-g l" 'goto-line)
-
-(defun delete-indentation-forward ()
-  (interactive)
-  (delete-indentation t))
-
-(bind-key "M-s n" 'find-name-dired)
-(bind-key "M-s o" 'occur)
-
-(bind-key "A-M-w" 'copy-code-as-rtf)
-
-;;;_ , M-C-?
-
-(bind-key "<C-M-backspace>" 'backward-kill-sexp)
-
-(defun isearch-backward-other-window ()
-  (interactive)
-  (split-window-vertically)
-  (call-interactively 'isearch-backward))
-
-(bind-key "C-M-r" 'isearch-backward-other-window)
-
-(defun isearch-forward-other-window ()
-  (interactive)
-  (split-window-vertically)
-  (call-interactively 'isearch-forward))
-
-(bind-key "C-M-s" 'isearch-forward-other-window)
-
-;; Some further isearch bindings
-(bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
-(bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
-(bind-key "C-^" 'isearch-edit-string isearch-mode-map)
-(bind-key "C-i" 'isearch-complete isearch-mode-map)
-
-;;;_ , A-?
-
-(define-key key-translation-map (kbd "A-TAB") (kbd "M-TAB"))
 
 ;;;_. Packages
 
@@ -2363,7 +2400,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , springboard
 
 (use-package springboard
-  :bind ("C-." . springboard))
+  :bind ("C-x d" . springboard))
 
 ;;;_ , stopwatch
 

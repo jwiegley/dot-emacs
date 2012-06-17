@@ -27,7 +27,7 @@
 	url = https://github.com/jwiegley/gnus-harvest.git
 [submodule "lisp/initsplit"]
 	path = lisp/initsplit
-	url = https://github.com/dabrahams/initsplit.git
+	url = https://github.com/jwiegley/initsplit.git
 [submodule "lisp/muse"]
 	path = lisp/muse
 	url = https://github.com/jwiegley/muse.git
