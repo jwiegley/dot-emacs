@@ -620,12 +620,11 @@
              el-get-update
              el-get-list-packages)
   :config
-  (progn
-    (defun el-get-read-status-file ()
-      (mapcar #'(lambda (entry)
-                  (cons (plist-get entry :symbol)
-                        `(status "installed" recipe ,entry)))
-              el-get-sources))))
+  (defun el-get-read-status-file ()
+    (mapcar #'(lambda (entry)
+                (cons (plist-get entry :symbol)
+                      `(status "installed" recipe ,entry)))
+            el-get-sources)))
 
 ;;;_ , abbrev
 
