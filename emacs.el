@@ -61,7 +61,8 @@
 
       (setq running-alternate-emacs t
             user-data-directory
-            (replace-regexp-in-string "/data/" "/data-alt/" user-data-directory))
+            (replace-regexp-in-string "/data/" "/data-alt/"
+                                      user-data-directory))
 
       (let* ((regexp "/\\.emacs\\.d/data/")
              (replace "/.emacs.d/data-alt/"))
