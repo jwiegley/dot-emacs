@@ -2085,6 +2085,11 @@
                   ad-do-it
                 (if icy-was-on (icy-mode 1)))))))))
 
+;;;_ , macrostep
+
+(use-package macrostep
+  :bind ("C-c x e" . macrostep-expand))
+
 ;;;_ , magit
 
 (use-package magit

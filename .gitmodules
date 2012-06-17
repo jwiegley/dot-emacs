@@ -169,3 +169,6 @@
 [submodule "site-lisp/zencoding-mode"]
 	path = site-lisp/zencoding-mode
 	url = git://github.com/rooney/zencoding.git
+[submodule "site-lisp/macrostep"]
+	path = site-lisp/macrostep
+	url = https://github.com/emacsmirror/macrostep.git
