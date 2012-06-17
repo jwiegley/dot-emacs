@@ -534,7 +534,7 @@
 ;;;_  . C-. ?
 
 (bind-key "C-. d" 'delete-whitespace-rectangle)
-(bind-key "C-. r" 'indent-rigidly)
+(bind-key "C-. i" 'indent-rigidly)
 
 ;;;_ , help-map
 
