@@ -1,9 +1,7 @@
 ;;_. Initialization
 
-(defconst at-command-line command-line-args-left)
-
-(unless at-command-line
-  (message "Loading %s..." load-file-name))
+(if window-system
+    (message "Loading %s..." load-file-name))
 
 (setq message-log-max 16384)
 
@@ -536,6 +534,7 @@
 
 (bind-key "C-. d" 'delete-whitespace-rectangle)
 (bind-key "C-. i" 'indent-rigidly)
+(bind-key "C-. m" 'kmacro-keymap)
 
 ;;;_ , help-map
 
@@ -647,7 +646,7 @@
 ;;;_ , ace-jump-mode
 
 (use-package ace-jump-mode
-  :bind ("M-," . ace-jump-mode))
+  :bind ("C-," . ace-jump-mode))
 
 ;;;_ , allout
 
@@ -1290,8 +1289,7 @@
 ;;;_ , edit-server
 
 (use-package edit-server
-  :if (and window-system (not running-alternate-emacs)
-           (not at-command-line))
+  :if (and window-system (not running-alternate-emacs))
   :init
   (progn
     (add-hook 'after-init-hook 'server-start t)
@@ -1459,7 +1457,7 @@
 
 (use-package dot-gnus
   :if (not running-alternate-emacs)
-  :bind (("M-G" . switch-to-gnus)
+  :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
   (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
@@ -1575,8 +1573,7 @@
 ;;;_ , helm
 
 (use-package helm-config
-  :if (and (not running-alternate-emacs)
-           (not at-command-line))
+  :if (not running-alternate-emacs)
   :init
   (progn
     (bind-key "C-c M-x" 'helm-M-x)
@@ -2090,8 +2087,7 @@
     (add-hook 'magit-log-edit-mode-hook
               #'(lambda ()
                   (set-fill-column 72)
-                  (flyspell-mode)
-                  (orgstruct++-mode)))
+                  (flyspell-mode)))
 
     (require 'magit-topgit)
     (require 'rebase-mode)
@@ -2269,7 +2265,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package dot-org
   :if (not running-alternate-emacs)
-  :commands orgstruct++-mode
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
          ("M-M"   . org-inline-note)
@@ -2288,8 +2283,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , persistent-scratch
 
 (use-package persistent-scratch
-  :if (and window-system (not running-alternate-emacs)
-           (not at-command-line)))
+  :if (and window-system (not running-alternate-emacs)))
 
 ;;;_ , pp-c-l
 
@@ -2367,7 +2361,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , recentf
 
 (use-package recentf
-  :if (and window-system (not at-command-line))
+  :if window-system
   :init
   (recentf-mode 1))
 
@@ -2425,7 +2419,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , session
 
 (use-package session
-  :if (and window-system (not at-command-line))
+  :if window-system
   :load-path "site-lisp/session/lisp/"
   :init
   (progn
@@ -2609,10 +2603,12 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , w3m
 
 (use-package w3m
-  :commands (w3m-browse-url w3m-session-crash-recovery-remove)
+  :commands w3m-browse-url
   :init
   (progn
     (setq w3m-command "/opt/local/bin/w3m")
+
+    (autoload 'w3m-session-crash-recovery-remove "w3m-session")
 
     (defun wikipedia-query (term)
       (interactive (list (read-string "Wikipedia search: " (word-at-point))))
@@ -2813,7 +2809,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , yasnippet
 
 (use-package yasnippet
-  :if (not at-command-line)
+  :if window-system
   :diminish yas/minor-mode
   :commands (yas/minor-mode yas/expand snippet-mode)
   :init
@@ -2885,7 +2881,7 @@ $0"))))
 
 ;;;_. Post initialization
 
-(if (not at-command-line)
+(when window-system
   (let ((elapsed (float-time (time-subtract (current-time)
                                             emacs-start-time))))
     (message "Loading %s...done (%.3fs)" load-file-name elapsed))
