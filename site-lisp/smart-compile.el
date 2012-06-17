@@ -115,12 +115,13 @@ It calls `compile' or other compile function, which is defined in
     
     (if (not name)
         (let ((compile-history
-               (append compile-history
-                       (delete nil
-                               (mapcar #'(lambda (elem)
-                                           (let ((val (cdr elem)))
-                                             (and (stringp val) val)))
-                                       smart-compile-alist)))))
+               (delete-dups
+                (append compile-history
+                        (delete nil
+                                (mapcar #'(lambda (elem)
+                                            (let ((val (cdr elem)))
+                                              (and (stringp val) val)))
+                                        smart-compile-alist))))))
           (call-interactively #'compile))
       ;;     (message (number-to-string arg))
 

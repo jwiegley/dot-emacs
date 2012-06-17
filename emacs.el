@@ -7,134 +7,25 @@
 
 (setq message-log-max 16384)
 
-;;;_ , Create use-package macro, to simplify customizations
+(require 'use-package)
 
-(eval-when-compile
-  (require 'cl))
-
-(require 'bind-key)
-(require 'diminish)
-
-(defvar use-package-verbose (not at-command-line))
+;;;_ , Utility macros and functions
 
 (defmacro hook-into-modes (func modes)
   `(dolist (mode-hook ,modes)
      (add-hook mode-hook ,func)))
 
-(defmacro with-elapsed-timer (text &rest forms)
-  `(let ((now ,(if use-package-verbose
-                   '(current-time))))
-     ,(if use-package-verbose
-          `(message "%s..." ,text))
-     ,@forms
-     ,(when use-package-verbose
-        `(let ((elapsed
-                (float-time (time-subtract (current-time) now))))
-           (if (> elapsed 0.01)
-               (message "%s...done (%.3fs)" ,text elapsed)
-             (message "%s...done" ,text))))))
-
-(put 'with-elapsed-timer 'lisp-indent-function 1)
-
-(defmacro use-package (name &rest args)
-  (let* ((commands (plist-get args :commands))
-         (init-body (plist-get args :init))
-         (config-body (plist-get args :config))
-         (diminish-var (plist-get args :diminish))
-         (defines (plist-get args :defines))
-         (keybindings (plist-get args :bind))
-         (predicate (plist-get args :if))
-         (defines-eval (if (null defines)
-                           nil
-                         (if (listp defines)
-                             (mapcar (lambda (var) `(defvar ,var)) defines)
-                           `((defvar ,defines)))))
-         (requires (plist-get args :requires))
-         (requires-test (if (null requires)
-                            t
-                          (if (listp requires)
-                              `(not (member nil (mapcar #'featurep
-                                                        (quote ,requires))))
-                            `(featurep (quote ,requires)))))
-         (name-string (if (stringp name) name
-                        (symbol-name name))))
-
-    (if diminish-var
-        (setq config-body
-              `(progn
-                 ,config-body
-                 (ignore-errors
-                   ,@(if (listp diminish-var)
-                         (mapcar (lambda (var) `(diminish (quote ,var)))
-                                 diminish-var)
-                       `((diminish (quote ,diminish-var))))))))
-
-    (when keybindings
-      (if (and commands (symbolp commands))
-          (setq commands (list commands)))
-      (setq init-body
-            `(progn
-               ,init-body
-               ,@(mapcar #'(lambda (binding)
-                             (push (cdr binding) commands)
-                             `(bind-key ,(car binding)
-                                        (quote ,(cdr binding))))
-                         (if (and (consp keybindings)
-                                  (stringp (car keybindings)))
-                             (list keybindings)
-                           keybindings)))))
-
-    (unless (plist-get args :disabled)
-      (if (or commands (plist-get args :defer))
-          (let (form)
-            (unless (listp commands)
-              (setq commands (list commands)))
-            (dolist (command commands)
-              (add-to-list
-               'form `(autoload (function ,command)
-                        ,name-string nil t)))
-            `(progn
-               (eval-when-compile
-                 ,@defines-eval
-                 ,(if (stringp name)
-                      `(load ,name t)
-                    `(require ',name nil t)))
-               (when ,(or predicate t)
-                 (let ((now ,(if use-package-verbose
-                                 '(current-time))))
-                   ,@form
-                   ,init-body
-                   ,(unless (null config-body)
-                      `(eval-after-load ,name-string
-                         '(when ,requires-test
-                            (with-elapsed-timer
-                                ,(format "Configuring package %s"
-                                         name-string)
-                              ,config-body)))))
-                 t)))
-        `(progn
-           (eval-when-compile
-             ,@defines-eval
-             ,(if (stringp name)
-                  `(load ,name t)
-                `(require ',name nil t)))
-           (when (and ,(or predicate t)
-                      ,requires-test
-                      ,(if (stringp name)
-                           `(load ,name t)
-                         `(require ',name nil t)))
-             (with-elapsed-timer ,(format "Loading package %s"
-                                          name-string)
-               ,init-body
-               ,config-body)
-             t))))))
-
-(put 'use-package 'lisp-indent-function 1)
-
-;;;_ , Utility macros and functions
-
 (defun quickping (host)
   (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
+
+(defun system-idle-time ()
+  (with-temp-buffer
+    (call-process "ioreg" nil (current-buffer) nil
+                  "-c" "IOHIDSystem" "-d" "4" "-S")
+    (goto-char (point-min))
+    (and (re-search-forward "\"HIDIdleTime\" = \\([0-9]+\\)" nil t)
+         (/ (float (string-to-number (match-string 1)))
+            1000000000.0))))
 
 ;;;_ , Read system environment
 
@@ -693,6 +584,7 @@
   :init
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file))
+
   :config
   (add-hook 'expand-load-hook
             (lambda ()
@@ -1091,6 +983,13 @@
     (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
     (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))))
 
+;;;_ , color-moccur
+
+(use-package color-moccur
+  :bind ("M-s o" . moccur)
+  :config
+  (use-package moccur-edit))
+
 ;;;_ , crosshairs
 
 (use-package crosshairs
@@ -1381,6 +1280,18 @@
     (use-package erc-highlight-nicknames)
     (use-package erc-patch)
 
+    (defadvice erc-autoaway-set-away (around erc-autoaway-on-real-idle activate)
+      (let ((currently-idle (floor (system-idle-time))))
+        (if (>= currently-idle erc-autoaway-idle-seconds)
+            (progn
+              (message "System was idle for %d seconds, setting AWAY flag...")
+             ad-do-it)
+          (let ((erc-autoaway-idle-seconds
+                 (+ 10 (- erc-autoaway-idle-seconds currently-idle))))
+            (message "System was idle for only %d seconds, waiting %d more..."
+                     erc-autoaway-idle-seconds)
+            (erc-autoaway-reestablish-idletimer)))))
+
     (use-package wtf
       :commands wtf-is
       :init
@@ -1489,7 +1400,6 @@
 ;;;_ , grep
 
 (use-package grep
-  :defer t
   :bind (("M-s d" . find-grep-dired)
          ("M-s f" . find-grep)
          ("M-s g" . grep))
@@ -1659,14 +1569,12 @@
 
   :config
   (progn
+    (helm-match-plugin-mode t)
+
     (use-package helm-descbinds
       :commands helm-descbinds
       :init
       (fset 'describe-bindings 'helm-descbinds))
-
-    (use-package helm-match-plugin
-      :init
-      (helm-match-plugin-mode t))
 
     (defvar helm-c-source-git-files
       '((name . "Files under Git version control")
@@ -1701,7 +1609,6 @@
 ;;;_ , icicles
 
 (use-package icicles
-  :disabled t
   :if (not running-alternate-emacs)
   :init
   (progn
@@ -1710,28 +1617,11 @@
 
     (add-hook 'icicle-mode-hook 'icicles-initialize)
 
-    ;; This mode is slow to load, and slow to start.  Best to keep it off
-    ;; until the last possible moment.
     (icy-mode 1))
 
   :config
   (progn
-    (use-package fuzzy-match)
-
-    (use-package color-moccur
-      :init
-      (bind-key "M-s o" 'moccur)
-
-      :config
-      (use-package moccur-edit))
-
-    (defadvice lusty-file-explorer (around lusty-file-explorer-without-icy
-                                           activate)
-      (let ((icy-was-on icicle-mode))
-        (if icy-was-on (icy-mode 0))
-        (unwind-protect
-            ad-do-it
-          (if icy-was-on (icy-mode 1)))))))
+    (use-package fuzzy-match)))
 
 ;;;_ , ido
 
@@ -1748,7 +1638,37 @@
   (progn
     (use-package ido-hacks
       :init
-      (ido-hacks-mode 1))
+      (progn
+        (ido-hacks-mode 1)
+
+        (defmacro ido-hacks-create-wrapper (command)
+          `(defun ,(intern (concat "ido-hacks-"
+                                   (symbol-name (eval command))))
+             ()
+             (interactive)
+             (flet ((completing-read (&rest args)
+                                     (apply #'ido-hacks-completing-read args)))
+               (call-interactively ,command))))
+
+        (ido-hacks-create-wrapper 'ido-hacks-execute-extended-command)
+        (ido-hacks-create-wrapper 'describe-function)
+        (ido-hacks-create-wrapper 'describe-variable)
+        (ido-hacks-create-wrapper 'find-function)
+        (ido-hacks-create-wrapper 'find-variable)
+        (ido-hacks-create-wrapper 'find-library)
+        (ido-hacks-create-wrapper 'customize-option)
+        (ido-hacks-create-wrapper 'customize-group)
+
+        (bind-key "M-x" 'ido-hacks-ido-hacks-execute-extended-command)
+        (bind-key "C-h f" 'ido-hacks-describe-function)
+        (bind-key "C-h v" 'ido-hacks-describe-variable)
+
+        (bind-key "C-h e f" 'ido-hacks-find-function)
+        (bind-key "C-h e v" 'ido-hacks-find-variable)
+        (bind-key "C-h e l" 'ido-hacks-find-library)
+
+        (bind-key "C-c o" 'ido-hacks-customize-option)
+        (bind-key "C-c O" 'ido-hacks-customize-group)))
 
     (defun ido-smart-select-text ()
       "Select the current completed item.  Do NOT descend into directories."
@@ -2062,10 +1982,21 @@
 (use-package lusty-explorer
   :bind ("C-x C-f" . lusty-file-explorer)
   :config
-  (add-hook 'lusty-setup-hook
-            (lambda ()
-              (bind-key "<space>" 'lusty-select-match lusty-mode-map)
-              (bind-key "C-d" 'exit-minibuffer lusty-mode-map))))
+  (progn
+    (add-hook 'lusty-setup-hook
+              (lambda ()
+                (bind-key "<space>" 'lusty-select-match lusty-mode-map)
+                (bind-key "C-d" 'exit-minibuffer lusty-mode-map)))
+
+    (if (featurep 'icicles)
+        (defadvice lusty-file-explorer (around lusty-file-explorer-without-icy
+                                               activate)
+          (flet ((message (&rest ignore)))
+            (let ((icy-was-on icicle-mode))
+              (if icy-was-on (icy-mode 0))
+              (unwind-protect
+                  ad-do-it
+                (if icy-was-on (icy-mode 1)))))))))
 
 ;;;_ , magit
 
@@ -2835,8 +2766,6 @@ $0"))))
   :config
   (progn
     (require 'inf-ruby)
-
-    (use-package ruby-tools)
 
     (use-package yari
       :init
