@@ -214,6 +214,7 @@
 
 ;;;_  . C-x ?
 
+(bind-key "C-x d" 'delete-whitespace-rectangle)
 (bind-key "C-x F" 'set-fill-column)
 (bind-key "C-x t" 'toggle-truncate-lines)
 
@@ -531,7 +532,6 @@
 
 ;;;_  . C-. ?
 
-(bind-key "C-. d" 'delete-whitespace-rectangle)
 (bind-key "C-. i" 'indent-rigidly)
 (bind-key "C-. m" 'kmacro-keymap)
 
@@ -2500,7 +2500,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , springboard
 
 (use-package springboard
-  :bind ("C-x d" . springboard))
+  :bind ("C-. s" . springboard))
 
 ;;;_ , stopwatch
 
