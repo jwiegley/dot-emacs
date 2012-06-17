@@ -749,19 +749,23 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (add-to-list 'auto-mode-alist '("\\.test$" . ledger-mode))
 
-(eval-after-load "org"
-  '(progn
-     (org-defkey org-mode-map [(control meta return)]
-                 'org-insert-heading-after-current)
-     (org-defkey org-mode-map [(control return)] 'other-window)
-     (org-defkey org-mode-map [return] 'org-return-indent)
-     (org-defkey org-mode-map
-                 [(control ?c) (control ?x) ?@] 'visible-mode)
+(org-defkey org-mode-map [(control meta return)]
+            'org-insert-heading-after-current)
+(org-defkey org-mode-map [(control return)] 'other-window)
+(org-defkey org-mode-map [return] 'org-return-indent)
+(org-defkey org-mode-map
+            [(control ?c) (control ?x) ?@] 'visible-mode)
 
-     (define-prefix-command 'my-org-expand-map)
-     (define-key org-mode-map [(control ?c) (control ?e)] 'my-org-expand-map)
+(define-prefix-command 'my-org-expand-map)
+(define-key org-mode-map [(control ?c) (control ?e)] 'my-org-expand-map)
 
-     (define-key my-org-expand-map [(control ?t)] 'ledger-test-create)))
+(define-key my-org-expand-map [(control ?t)] 'ledger-test-create)
+
+(eval-when-compile
+  (defvar yas/trigger-key)
+  (defvar yas/keymap)
+
+  (autoload 'yas/expand "yasnippet"))
 
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
