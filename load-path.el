@@ -13,13 +13,13 @@
 
 ;; Add top-level lisp directories, in case they were not setup by the
 ;; environment.
-(dolist (dir (list user-lisp-directory
+(dolist (dir (list user-override-directory
+                   user-lisp-directory
                    user-lib-directory
-                   user-site-lisp-directory
-                   user-override-directory))
- (dolist (entry (directory-files-and-attributes dir))
-   (if (cadr entry)
-       (add-to-list 'load-path (expand-file-name (car entry) dir)))))
+                   user-site-lisp-directory))
+  (dolist (entry (directory-files-and-attributes dir))
+    (if (cadr entry)
+        (add-to-list 'load-path (expand-file-name (car entry) dir)))))
 
 (dolist
     (path
@@ -30,15 +30,6 @@
             "override/org-mode/contrib/lisp/"
             "override/org-mode/lisp/"
             "override/tramp/lisp/"
-
-            ;; Packages with Lisp code in subdirectories...
-            "site-lisp/anything/extensions/"
-            "site-lisp/auctex/preview/"
-            "site-lisp/doxymacs/lisp/"
-            "site-lisp/ess/lisp/"
-            "site-lisp/ghc-mod/elisp/"
-            "site-lisp/session/lisp/"
-            "site-lisp/slime/contrib/"
 
             ;; Packages located elsewhere on the system...
             "/usr/local/share/emacs/site-lisp/"

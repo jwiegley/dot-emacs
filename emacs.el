@@ -684,6 +684,7 @@
 ;;;_ , auctex
 
 (use-package tex-site
+  :load-path "site-lisp/auctex/preview/"
   :defines (latex-help-cmd-alist
             latex-help-file)
   ;; jww (2012-06-15): Do I want to use AucTeX for texinfo-mode?
@@ -1185,6 +1186,12 @@
 
     (bind-key "C-c J" 'dired-double-jump)))
 
+;;;_ , doxymacs
+
+(use-package doxymacs
+  :disabled t
+  :load-path "site-lisp/doxymacs/lisp/")
+
 ;;;_ , ediff
 
 (use-package ediff
@@ -1417,6 +1424,7 @@
 
 (use-package ess-site
   :disabled t
+  :load-path "site-lisp/ess/lisp/"
   :commands R)
 
 ;;;_ , flyspell
@@ -1894,6 +1902,7 @@
 ;;;_ , lisp-mode
 
 (use-package lisp-mode
+  ;; :load-path "site-lisp/slime/contrib/"
   :init
   (progn
     (defface esk-paren-face
@@ -2375,6 +2384,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package session
   :if (and window-system (not at-command-line))
+  :load-path "site-lisp/session/lisp/"
   :init
   (progn
     (session-initialize)
