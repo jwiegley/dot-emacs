@@ -130,7 +130,6 @@
 
 (bind-key "M-!" 'async-shell-command)
 (bind-key "M-/" 'dabbrev-expand)
-(bind-key "M-:" 'pp-eval-expression)
 (bind-key "M-'" 'insert-pair)
 (bind-key "M-\"" 'insert-pair)
 
@@ -1424,6 +1423,15 @@
   :disabled t
   :load-path "site-lisp/ess/lisp/"
   :commands R)
+
+;;;_ , eval-expr
+
+(use-package eval-expr
+  :bind ("M-:" . eval-expr)
+  :config
+  (setq eval-expr-print-function 'pp
+        eval-expr-print-level 20
+        eval-expr-print-length 100))
 
 ;;;_ , flyspell
 
