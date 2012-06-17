@@ -645,7 +645,7 @@
 ;;;_ , ace-jump-mode
 
 (use-package ace-jump-mode
-  :bind ("C-," . ace-jump-mode))
+  :bind ("S-<return>" . ace-jump-mode))
 
 ;;;_ , allout
 
@@ -2072,7 +2072,7 @@
   (progn
     (add-hook 'lusty-setup-hook
               (lambda ()
-                (bind-key "<space>" 'lusty-select-match lusty-mode-map)
+                (bind-key "SPC" 'lusty-select-match lusty-mode-map)
                 (bind-key "C-d" 'exit-minibuffer lusty-mode-map)))
 
     (if (featurep 'icicles)
