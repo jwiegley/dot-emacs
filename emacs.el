@@ -2887,7 +2887,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
                      org-mode-hook
                      ruby-mode-hook
                      message-mode-hook
-                     gud-mode-hook))
+                     gud-mode-hook
+                     erc-mode-hook))
   :config
   (progn
     (yas/initialize)
