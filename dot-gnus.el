@@ -68,6 +68,15 @@
 (defadvice gnus-summary-resend-message-edit (after call-my-mhs-hook activate)
   (my-message-header-setup-hook))
 
+(defun my-gnus-summary-save-parts (&optional arg)
+  (interactive "P")
+  (let ((directory "~/Downloads"))
+    (message "Saving all MIME parts to %s..." directory)
+    (gnus-summary-save-parts ".*" directory arg)
+    (message "Saving all MIME parts to %s...done" directory)))
+
+(bind-key "X m" 'my-gnus-summary-save-parts gnus-summary-mode-map)
+
 (defun queue-message-if-not-connected ()
   (set (make-local-variable 'gnus-agent-queue-mail)
        (if (quickping "smtp.gmail.com") t 'always)))
