@@ -646,7 +646,10 @@
     (mapcar #'(lambda (entry)
                 (cons (plist-get entry :symbol)
                       `(status "installed" recipe ,entry)))
-            el-get-sources)))
+            el-get-sources))
+
+  (defalias 'el-get-init 'ignore
+    "Don't use el-get for making packages available for use."))
 
 ;;;_ , abbrev
 
