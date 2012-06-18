@@ -465,6 +465,30 @@
 (bind-key "C-c r" 'replace-regexp)
 (bind-key "C-c s" 'replace-string)
 (bind-key "C-c u" 'rename-uniquely)
+
+(defun tinify-url (url)
+  (interactive "sURL to shorten: ")
+  (let* ((api-login "jwiegley")
+         (api-key
+          (funcall
+           (plist-get
+            (car (auth-source-search :host "api.j.mp" :user api-login
+                                     :type 'netrc :port 80))
+            :secret))))
+    (flet ((message (&rest ignore)))
+      (with-current-buffer
+          (let ((query
+                 (format "format=txt&longUrl=%s&login=%s&apiKey=%s"
+                         (url-hexify-string url) api-login api-key)))
+            (url-retrieve-synchronously
+             (concat "http://api.j.mp/v3/shorten?" query)))
+        (goto-char (point-min))
+        (re-search-forward "^$")
+        (prog1
+            (kill-new (buffer-substring (1+ (point)) (1- (point-max))))
+          (kill-buffer (current-buffer)))))))
+
+(bind-key "C-c U" 'tinify-url)
 (bind-key "C-c v" 'ffap)
 
 (defun view-clipboard ()
