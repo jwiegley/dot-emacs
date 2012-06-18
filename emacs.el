@@ -686,13 +686,10 @@
   :defines (latex-help-cmd-alist
             latex-help-file)
   ;; jww (2012-06-15): Do I want to use AucTeX for texinfo-mode?
-  :commands latex-mode
-  :init
-  (add-to-list 'auto-mode-alist '("\\.tex$" . latex-mode))
-
+  :mode ("\\.tex$" . latex-mode)
   :config
   (progn
-    (defun latex-help-get-cmd-alist ()  ;corrected version:
+    (defun latex-help-get-cmd-alist () ;corrected version:
       "Scoop up the commands in the index of the latex info manual.
    The values are saved in `latex-help-cmd-alist' for speed."
       ;; mm, does it contain any cached entries
@@ -787,13 +784,11 @@
 ;;;_ , cc-mode
 
 (use-package cc-mode
-  :commands (c-mode c++-mode)
+  :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
+         ("\\.m\\'"                   . c-mode)
+         ("\\.mm\\'"                  . c++-mode))
   :init
   (progn
-    (add-to-list 'auto-mode-alist '("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode))
-    (add-to-list 'auto-mode-alist '("\\.m\\'" . c-mode))
-    (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
-
     (defun my-c-indent-or-complete ()
       (interactive)
       (let ((class (syntax-class (syntax-after (1- (point))))))
@@ -1034,11 +1029,8 @@
 ;;;_ , cmake-mode
 
 (use-package cmake-mode
-  :commands cmake-mode
-  :init
-  (progn
-    (add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-mode))
-    (add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-mode))))
+  :mode (("CMakeLists\\.txt\\'" . cmake-mode)
+         ("\\.cmake\\'"         . cmake-mode)))
 
 ;;;_ , color-moccur
 
@@ -1056,9 +1048,7 @@
 ;;;_ , css-mode
 
 (use-package css-mode
-  :commands css-mode
-  :init
-  (add-to-list 'auto-mode-alist '("\\.css$" . css-mode)))
+  :mode ("\\.css$" . css-mode))
 
 ;;;_ , delsel
 
@@ -1580,9 +1570,7 @@ FORM => (eval FORM)."
 ;;;_ , haskell-mode
 
 (use-package haskell-mode
-  :commands haskell-mode
-  :init
-  (add-to-list 'auto-mode-alist '("\\.l?hs$" . haskell-mode))
+  :mode ("\\.l?hs$" . haskell-mode)
   :config
   (progn
     (use-package inf-haskell)
@@ -2075,19 +2063,14 @@ FORM => (eval FORM)."
 
 (use-package log4j-mode
   :disabled t
-  :commands log4j-mode
-  :init
-  (add-to-list 'auto-mode-alist '("\\.log$" . log4j-mode)))
+  :mode ("\\.log$" . log4j-mode))
 
 ;;;_ , lua-mode
 
 (use-package lua-mode
   :disabled t
-  :commands lua-mode
-  :init
-  (progn
-    (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
-    (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))))
+  :mode ("\\.lua$" . lua-mode)
+  :interpreter ("lua" . lua-mode))
 
 ;;;_ , lusty-explorer
 
@@ -2141,11 +2124,9 @@ FORM => (eval FORM)."
 ;;;_ , markdown-mode
 
 (use-package markdown-mode
-  :commands markdown-mode
+  :mode ("\\.md$" . markdown-mode)
   :init
   (progn
-    (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
-
     (defun markdown-preview-file ()
       "run Marked on the current file and revert the buffer"
       (interactive)
@@ -2357,19 +2338,13 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , puppet-mode
 
 (use-package puppet-mode
-  :commands puppet-mode
-  :init
-  (add-to-list 'auto-mode-alist '("\\.pp$" . puppet-mode)))
+  :mode ("\\.pp$" . puppet-mode))
 
 ;;;_ , python-mode
 
 (use-package python-mode
-  :commands python-mode
-  :init
-  (progn
-    (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
-    (add-to-list 'interpreter-mode-alist '("python" . python-mode)))
-
+  :mode ("\\.py$" . python-mode)
+  :interpreter ("python" . python-mode)
   :config
   (progn
     (defvar python-mode-initialized nil)
@@ -2425,12 +2400,10 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , ruby-mode
 
 (use-package ruby-mode
-  :commands ruby-mode
+  :mode ("\\.rb$" . ruby-mode)
+  :interpreter ("ruby" . ruby-mode)
   :config
   (progn
-    (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
-    (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))
-
     (use-package yari
       :init
       (progn
@@ -2613,10 +2586,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package texinfo
   :defines texinfo-section-list
-  :commands texinfo-mode
-  :init
-  (add-to-list 'auto-mode-alist '("\\.texi$" . texinfo-mode))
-
+  :mode ("\\.texi$" . texinfo-mode)
   :config
   (progn
     (defun my-texinfo-mode-hook ()
@@ -2873,18 +2843,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (use-package yasnippet
   :if window-system
   :diminish yas/minor-mode
-  :commands (yas/minor-mode yas/expand snippet-mode)
+  :commands (yas/minor-mode yas/expand)
+  :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :init
-  (progn
-    (add-to-list 'auto-mode-alist
-                 '("/\\.emacs\\.d/snippets/" . snippet-mode))
-
-    (hook-into-modes #'(lambda () (yas/minor-mode 1))
-                     '(prog-mode-hook
-                       org-mode-hook
-                       ruby-mode-hook
-                       message-mode-hook
-                       gud-mode-hook)))
+  (hook-into-modes #'(lambda () (yas/minor-mode 1))
+                   '(prog-mode-hook
+                     org-mode-hook
+                     ruby-mode-hook
+                     message-mode-hook
+                     gud-mode-hook))
   :config
   (progn
     (yas/initialize)
