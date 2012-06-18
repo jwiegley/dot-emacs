@@ -773,7 +773,6 @@
   :config
   (progn
     (defun backup-each-save-filter (filename)
-      (message "Checking '%s'" filename)
       (not (string-match
             "\\(^/tmp\\|\\.emacs\\.d/data/\\|\\.newsrc\\(\\.eld\\)?\\)"
             filename)))
