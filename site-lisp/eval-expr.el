@@ -224,7 +224,8 @@ Value is also consed on to front of the variable `values'."
     expr))
 
 (defun eval-expr-minibuffer-setup ()
-  (set-syntax-table emacs-lisp-mode-syntax-table))
+  (set-syntax-table emacs-lisp-mode-syntax-table)
+  (paredit-mode))
 
 
 ;;; Display routines
