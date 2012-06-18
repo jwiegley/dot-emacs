@@ -1,3 +1,5 @@
+;; This file make erc-scrolltobottom work again in Emacs 24.
+
 (defun erc-display-line-1 (string buffer)
   "Display STRING in `erc-mode' BUFFER.
 Auxiliary function used in `erc-display-line'.  The line gets filtered to
