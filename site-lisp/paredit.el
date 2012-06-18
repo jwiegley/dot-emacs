@@ -348,7 +348,7 @@ Deprecated: use `paredit-mode' instead."
                 paredit-splice-sexp-killing-forward
                 ("(a (b c| d e) f)"
                  "(a b c f)"))
-   ("M-n"       paredit-raise-sexp
+   ("M-k"       paredit-raise-sexp
                 ("(dynamic-wind in (lambda () |body) out)"
                  "(dynamic-wind in |body out)"
                  "|body"))
