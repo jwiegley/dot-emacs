@@ -370,10 +370,10 @@ is:
   :config
   (defun sc-fill-if-different (&optional prefix)
     "Fill the region bounded by `sc-fill-begin' and point.
-Only fill if optional PREFIX is different than `sc-fill-line-prefix'.
-If `sc-auto-fill-region-p' is nil, do not fill region.  If PREFIX is
-not supplied, initialize fill variables.  This is useful for a regi
-`begin' frame-entry."
+Only fill if optional PREFIX is different than
+`sc-fill-line-prefix'.  If `sc-auto-fill-region-p' is nil, do not
+fill region.  If PREFIX is not supplied, initialize fill
+variables.  This is useful for a regi `begin' frame-entry."
     (if (not prefix)
         (setq sc-fill-line-prefix ""
               sc-fill-begin (line-beginning-position))
@@ -383,7 +383,11 @@ not supplied, initialize fill variables.  This is useful for a regi
             (unless (or (string= fill-prefix "")
                         (save-excursion
                           (goto-char sc-fill-begin)
-                          (looking-at ">+  +")))
+                          (or (looking-at ">+  +")
+                              (< (length
+                                  (buffer-substring (point)
+                                                    (line-end-position)))
+                                 65))))
               (fill-region sc-fill-begin (line-beginning-position)))
             (setq sc-fill-line-prefix prefix
                   sc-fill-begin (line-beginning-position)))))
