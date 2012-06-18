@@ -235,6 +235,7 @@
  '(smart-compile-alist (quote (((lambda (buf) (and (string-match "/\\(src/ansi\\|src/.*?ansi\\)/" (buffer-file-name buf)) (string-match "/opencl" (shell-command-to-string "git symbolic-ref HEAD")))) . "cd ~/Contracts/TI/src/c60_iaansi ; ~/Contracts/TI/bin/build.sh c60") ((lambda (buf) (and (string-match "/\\(src/ansi\\|src/.*?ansi\\)/" (buffer-file-name buf)) (string-match "/merge_4_2" (shell-command-to-string "git symbolic-ref HEAD")))) . "cd ~/Contracts/TI/src/msp_iaansi ; ~/Contracts/TI/bin/build.sh msp") ((lambda (buf) (string-match "/\\(\\(src\\|Projects\\)/ledger\\)/" (buffer-file-name buf))) . "cd ~/src/ledger ; ~/src/ledger/tools/build.sh debug") (emacs-lisp-mode emacs-lisp-byte-compile-and-load))))
  '(sql-sqlite-program "sqlite3")
  '(sr-attributes-display-mask (quote (nil nil t nil nil nil)))
+ '(sr-kill-unused-buffers nil)
  '(sr-listing-switches "--time-style=locale --group-directories-first -alDhgG")
  '(sr-loop-use-popups nil)
  '(sr-popviewer-style (quote single-frame))
