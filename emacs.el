@@ -1369,6 +1369,29 @@
 
     (bind-key "C-c b" 'switch-to-bitlbee)
 
+    (defun erc-cmd-SHOW (&rest form)
+      "Eval FORM and send the result and the original form as:
+FORM => (eval FORM)."
+      (let* ((form-string (mapconcat 'identity form " "))
+             (result
+              (condition-case err
+                  (eval (read-from-whole-string form-string))
+                (error
+                 (format "Error: %s" err)))))
+        (erc-send-message (format "%s => %S" form-string result))))
+
+    (defun erc-cmd-INFO (&rest ignore)
+      "Send current info node."
+      (unless (get-buffer "*info*")
+        (error "No *info* buffer"))
+      (let (output)
+        (with-current-buffer "*info*"
+          (let* ((file (file-name-nondirectory Info-current-file))
+                 (node Info-current-node))
+            (setq output (format "(info \"(%s)%s\") <-- hit C-x C-e to evaluate"
+                                 file node))))
+        (erc-send-message output)))
+
     (eval-when-compile
       (defvar erc-fools))
 
