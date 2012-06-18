@@ -2517,7 +2517,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , springboard
 
 (use-package springboard
-  :bind ("C-. s" . springboard))
+  :bind ("C-. c" . springboard))
 
 ;;;_ , stopwatch
 
