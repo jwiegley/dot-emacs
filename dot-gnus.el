@@ -133,12 +133,12 @@ This moves them into the Spam folder."
 
 (if window-system
     (setq
-     gnus-sum-thread-tree-false-root      "┌┬▷ "
+     gnus-sum-thread-tree-false-root      ""
      gnus-sum-thread-tree-single-indent   ""
-     gnus-sum-thread-tree-root            "┌┬▶ "
-     gnus-sum-thread-tree-vertical        "│"
-     gnus-sum-thread-tree-leaf-with-other "├┬▶ "
-     gnus-sum-thread-tree-single-leaf     "╰┬▶ "
+     gnus-sum-thread-tree-root            ""
+     gnus-sum-thread-tree-vertical        "|"
+     gnus-sum-thread-tree-leaf-with-other "+-> "
+     gnus-sum-thread-tree-single-leaf     "\\-> "
      gnus-sum-thread-tree-indent          " "))
 
 (defsubst dot-gnus-tos (time)
