@@ -2565,6 +2565,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
     (bind-key "/" 'sr-sticky-isearch-forward sr-mode-map)
     (bind-key "l" 'sr-dired-prev-subdir sr-mode-map)
+    (bind-key "<backspace>" 'sr-scroll-quick-view-down sr-mode-map)
 
     (unbind-key "C-e" sr-mode-map)
     (unbind-key "C-p" sr-tabs-mode-map)
