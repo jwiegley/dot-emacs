@@ -1,0 +1,53 @@
+Lisp:use-package.el is a combined installer and configurer, which defines an
+"autofetch" (like autoload, but downloading from the network -- or
+other media) and also conveniently sets up various things it's useful
+to have on eval-after-load forms.
+
+Its entry point is the macro use-package; you might also want to use autofetch in its own right.
+
+This lets you write package descriptions such as:
+
+    (use-package vm
+		 nil                        ; download to default directory
+		 (nil                       ; use default getter function
+		  "http://www.seanet.com/~kylemonger/vm/vm-7.19.tar.gz"
+		  ;; after-download form:
+		  (shell-command "cd vm-7.19; make"))
+		 ;; configuration arg to use-package:
+		 ("$COMMON/emacs/email"   ; string means directory for load-path
+		  (require 'jcgs-vm-stuff)  ; can add your own aux stuff
+		  ([ C-f11 ] . js-vm-get-mail) ; key definitions
+		  ([ M-C-f11 ] . vm-continue-composing-message)
+		  ;; autoloads/autofetches
+		  (vm "vm" "Run the VM mail reader" t)
+		  ;; things that look like auto-mode-alist entries are
+		  ("~/vm" . vm-mode)
+		  ("$COMMON/vm" . vm-mode))
+		 ;; remaining args to use-package are eval-after-load forms
+		 (setq vm-mutable-frames nil
+		       bbdb-completion-type 'primary-or-name
+		       read-mail-command 'vm
+		       vm-folder-directory (if (file-directory-p
+						(expand-file-name "~/vm/"))
+					       (expand-file-name "~/vm/")
+					     (substitute-in-file-name "$COMMON/vm/"))
+		       vm-primary-inbox (expand-file-name "john" vm-folder-directory)))
+
+I find this a handy way for keeping together definitions of how to get
+a package, with how to configure it; it's particularly nice when I
+arrive on an unfamiliar machine, and can load one startup file from
+the web or my USB key drive, and have it pull the rest across as I use
+it for the first time on that machine.
+
+The next enhancement will probably be indirect URLs, where it searches
+the page at the specified URL, for links whose anchor text matches a
+particular pattern -- intended for giving it a downloads page such as
+on SourceForge, and picking the URL from that. I'll probably add SHA1/
+MD5 verirfication, too. 
+
+[new]
+I've created something similar to this package, also called
+[https://github.com/jwiegley/use-package use-package.el], except that it
+focuses only on configuration, not installation or updating.  It optionally
+links to el-get for that behavior.  Further, my version emphasizes startup
+performance. -- JohnWiegley
