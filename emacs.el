@@ -2543,13 +2543,13 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (defun my-activate-sunrise ()
       (interactive)
       (let ((sunrise-exists
-             (throw 'found
-                    (mapc (lambda (buf)
-                            (if (string-match " (Sunrise)$"
-                                              (buffer-name buf))
-                                (throw 'found t)))
-                          (buffer-list)))))
-        (if (> sunrise-exists 0)
+             (catch 'found
+               (mapc (lambda (buf)
+                       (if (string-match " (Sunrise)$"
+                                         (buffer-name buf))
+                           (throw 'found t)))
+                     (buffer-list)))))
+        (if sunrise-exists
             (call-interactively 'sunrise)
           (sunrise "~/dl/" "~/Archives/"))))
 
