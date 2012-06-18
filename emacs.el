@@ -1399,7 +1399,18 @@ FORM => (eval FORM)."
       (add-to-list 'erc-fools term))
 
     (defun erc-cmd-UNFOOL (term &rest ignore)
-      (setq erc-fools (delete term erc-fools)))))
+      (setq erc-fools (delete term erc-fools)))
+
+    (defun erc-cmd-OPME ()
+      "Request chanserv to op me."
+      (erc-message "PRIVMSG"
+                   (format "chanserv op %s %s"
+                           (erc-default-target)
+                           (erc-current-nick)) nil))
+
+    (defun erc-cmd-DEOPME ()
+      "Deop myself from current channel."
+      (erc-cmd-DEOP (format "%s" (erc-current-nick))))))
 
 ;;;_ , eshell
 
