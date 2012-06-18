@@ -205,7 +205,7 @@ The first column represent my relationship to the To: field.  It can be:
 
          I didn't appear (and the letter had one recipient)
    :     I didn't appear (and the letter had more than one recipient)
-   >     I was the sole recipient
+   <     I was the sole recipient
    +     I was among a few recipients
    *     There were many recipients
 
@@ -213,7 +213,7 @@ The second column represents the Cc: field:
 
     .    I wasn't mentioned, but one other was
     :    I wasn't mentioned, but others were
-    <    I was the only Cc mentioned
+    ^    I was the only Cc mentioned
     &    I was among a few Cc recipients
     %    I was among many Cc recipients
 
@@ -230,9 +230,9 @@ is:
          (to-char (cond )))
     (cond ((string-match gnus-ignored-from-addresses to)
            (cond ((= to-len 1)
-                  (cond ((string= cc "") "> ")
-                        ((= cc-len 1) ">.")
-                        (t ">:")))
+                  (cond ((string= cc "") "< ")
+                        ((= cc-len 1) "<.")
+                        (t "<:")))
                  ((< to-len gnus-count-recipients-threshold)
                   (cond ((string= cc "") "+ ")
                         ((= cc-len 1) "+.")
@@ -244,8 +244,8 @@ is:
 
           ((string-match gnus-ignored-from-addresses cc)
            (cond ((= cc-len 1)
-                  (cond ((= to-len 1) " <")
-                        (t ":<")))
+                  (cond ((= to-len 1) " ^")
+                        (t ":^")))
                  ((< cc-len gnus-count-recipients-threshold)
                   (cond ((= to-len 1) " &")
                         (t ":&")))
