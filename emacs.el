@@ -2569,6 +2569,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (unbind-key "C-e" sr-mode-map)
     (unbind-key "C-p" sr-tabs-mode-map)
     (unbind-key "C-n" sr-tabs-mode-map)
+    (unbind-key "M-<backspace>" sr-term-line-minor-mode-map)
 
     (bind-key "M-[" 'sr-tabs-prev sr-tabs-mode-map)
     (bind-key "M-]" 'sr-tabs-next sr-tabs-mode-map)
