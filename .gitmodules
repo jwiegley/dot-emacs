@@ -175,3 +175,6 @@
 [submodule "site-lisp/Enhanced-Ruby-Mode"]
 	path = site-lisp/Enhanced-Ruby-Mode
 	url = http://github.com/jacott/Enhanced-Ruby-Mode.git
+[submodule "lisp/erc-yank"]
+	path = lisp/erc-yank
+	url = git://github.com/jwiegley/erc-yank.git
