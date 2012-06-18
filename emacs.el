@@ -1949,6 +1949,17 @@ FORM => (eval FORM)."
 
 ;;;_ , lisp-mode
 
+;; Utilities every Emacs Lisp coders should master:
+;;
+;;   paredit          Let's you manipulate sexps with ease
+;;   redshank         Think: Lisp refactoring
+;;   edebug           Knowing the traditional debugger is good too
+;;   eldoc
+;;   cldoc
+;;   elint
+;;   elp
+;;   ert
+
 (use-package lisp-mode
   ;; :load-path "site-lisp/slime/contrib/"
   :init
@@ -1989,11 +2000,81 @@ FORM => (eval FORM)."
 
         (use-package paredit
           :diminish paredit-mode
-          :commands paredit-mode)
+          (:init
+           progn
+           (bind-key ")" 'paredit-close-round-and-newline paredit-mode-map)
+           (bind-key "M-)" 'paredit-close-round paredit-mode-map)
+
+           (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
+           (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
+           (bind-key "M-p" 'paredit-splice-sexp paredit-mode-map)
+
+           (defun paredit-barf-all-the-way-backward ()
+             (interactive)
+             (paredit-split-sexp)
+             (paredit-backward-down)
+             (paredit-splice-sexp))
+
+           (defun paredit-barf-all-the-way-forward ()
+             (interactive)
+             (paredit-split-sexp)
+             (paredit-forward-down)
+             (paredit-splice-sexp)
+             (if (eolp) (delete-horizontal-space)))
+
+           (defun paredit-slurp-all-the-way-backward ()
+             (interactive)
+             (catch 'done
+               (while (not (bobp))
+                 (save-excursion
+                   (paredit-backward-up)
+                   (if (eq (char-before) ?\()
+                       (throw 'done t)))
+                 (paredit-backward-slurp-sexp))))
+
+           (defun paredit-slurp-all-the-way-forward ()
+             (interactive)
+             (catch 'done
+               (while (not (eobp))
+                 (save-excursion
+                   (paredit-forward-up)
+                   (if (eq (char-after) ?\))
+                       (throw 'done t)))
+                 (paredit-forward-slurp-sexp))))
+
+           (nconc paredit-commands
+                  '("Extreme Barfage & Slurpage"
+                    (("C-M-)")
+                                 paredit-slurp-all-the-way-forward
+                                 ("(foo (bar |baz) quux zot)"
+                                  "(foo (bar |baz quux zot))")
+                                 ("(a b ((c| d)) e f)"
+                                  "(a b ((c| d)) e f)"))
+                    (("C-M-}" "M-F")
+                                 paredit-barf-all-the-way-forward
+                                 ("(foo (bar |baz quux) zot)"
+                                  "(foo (bar|) baz quux zot)"))
+                    (("C-M-(")
+                                 paredit-slurp-all-the-way-backward
+                                 ("(foo bar (baz| quux) zot)"
+                                  "((foo bar baz| quux) zot)")
+                                 ("(a b ((c| d)) e f)"
+                                  "(a b ((c| d)) e f)"))
+                    (("C-M-{" "M-B")
+                                 paredit-barf-all-the-way-backward
+                                 ("(foo (bar baz |quux) zot)"
+                                  "(foo bar baz (|quux) zot)"))))
+
+           (paredit-define-keys)
+           (paredit-annotate-mode-with-examples)
+           (paredit-annotate-functions-with-examples)
+
+           (bind-key "C-. b" 'paredit-splice-sexp-killing-backward)
+           (bind-key "C-. d" 'paredit-forward-down)
+           (bind-key "C-. f" 'paredit-splice-sexp-killing-forward)))
 
         (use-package redshank
-          :diminish redshank-mode
-          :commands paredit-mode)
+          :diminish redshank-mode)
 
         (use-package edebug)
 
@@ -2005,8 +2086,12 @@ FORM => (eval FORM)."
             :disabled t
             :defer t
             :init
-            (add-hook 'emacs-lisp-mode-hook
-                      #'(lambda () (require 'eldoc-extension)) t)))
+            (progn
+              (add-hook 'emacs-lisp-mode-hook
+                        #'(lambda () (require 'eldoc-extension)) t)
+
+              (eldoc-add-command 'paredit-backward-delete
+                                 'paredit-close-round))))
 
         (use-package cldoc
           :diminish cldoc-mode)
