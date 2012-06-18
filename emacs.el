@@ -1333,8 +1333,9 @@
     (use-package erc-patch)
 
     (defadvice erc-autoaway-set-away (around erc-autoaway-on-real-idle activate)
-      (if (>=  (floor (system-idle-time))
-               erc-autoaway-idle-seconds)
+      (if (and (not erc-away)
+               (>=  (floor (system-idle-time))
+                    erc-autoaway-idle-seconds))
           ad-do-it))
 
     (use-package wtf
