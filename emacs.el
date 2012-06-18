@@ -1363,12 +1363,6 @@
       :init
       (bind-key "C-y" 'erc-yank erc-mode-map))
 
-    (defadvice erc-autoaway-set-away (around erc-autoaway-on-real-idle activate)
-      (if (and (not erc-away)
-               (>=  (floor (system-idle-time))
-                    erc-autoaway-idle-seconds))
-          ad-do-it))
-
     (use-package wtf
       :commands wtf-is
       :init
