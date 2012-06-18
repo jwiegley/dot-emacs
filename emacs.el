@@ -14,9 +14,6 @@
   `(dolist (mode-hook ,modes)
      (add-hook mode-hook ,func)))
 
-(defun quickping (host)
-  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
-
 (defun system-idle-time ()
   (with-temp-buffer
     (call-process "ioreg" nil (current-buffer) nil
@@ -25,6 +22,9 @@
     (and (re-search-forward "\"HIDIdleTime\" = \\([0-9]+\\)" nil t)
          (/ (float (string-to-number (match-string 1)))
             1000000000.0))))
+
+(defun quickping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
 
 ;;;_ , Read system environment
 
@@ -1769,8 +1769,9 @@ FORM => (eval FORM)."
                                      (symbol-name (eval command))))
                ()
                (interactive)
-               (flet ((completing-read (&rest args)
-                                       (apply #'ido-hacks-completing-read args)))
+               (flet ((completing-read
+                       (&rest args)
+                       (apply #'ido-hacks-completing-read args)))
                  (call-interactively ,command))))
 
           (ido-hacks-create-wrapper 'ido-hacks-execute-extended-command)
