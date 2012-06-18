@@ -171,7 +171,7 @@
 	url = git://github.com/rooney/zencoding.git
 [submodule "site-lisp/macrostep"]
 	path = site-lisp/macrostep
-	url = https://github.com/emacsmirror/macrostep.git
+	url = https://github.com/jwiegley/macrostep.git
 [submodule "site-lisp/Enhanced-Ruby-Mode"]
 	path = site-lisp/Enhanced-Ruby-Mode
 	url = http://github.com/jacott/Enhanced-Ruby-Mode.git
