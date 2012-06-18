@@ -556,8 +556,11 @@
 
 ;;;_  . C-. ?
 
-(bind-key "C-. i" 'indent-rigidly)
 (bind-key "C-. m" 'kmacro-keymap)
+
+;;;_  . C-. C-i
+
+(bind-key "C-. C-i" 'indent-rigidly)
 
 ;;;_ , help-map
 
