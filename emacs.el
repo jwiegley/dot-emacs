@@ -2439,6 +2439,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
     (add-hook 'ruby-mode-hook 'my-ruby-mode-hook)))
 
+;;;_ , selectkey
+
+(use-package selectkey
+  :bind ("C-. b" . selectkey-select-prefix-map))
+
 ;;;_ , session
 
 (use-package session
