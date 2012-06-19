@@ -2156,7 +2156,7 @@ FORM => (eval FORM)."
 
       (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
       (bind-key "M-h" 'mark-containing-sexp paredit-mode-map)
-      (bind-key "M-P" 'paredit-splice-sexp paredit-mode-map)
+      (bind-key "M-I" 'paredit-splice-sexp paredit-mode-map)
 
       (unbind-key "M-r" paredit-mode-map)
       (unbind-key "M-s" paredit-mode-map)
