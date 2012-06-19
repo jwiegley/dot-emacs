@@ -175,16 +175,10 @@
  ;; '(diff-function ((t (:foreground "Orange"))) 'now)
  '(diff-header ((((background dark)) (:foreground "Cyan"))
                 (t (:foreground "Red"))) 'now)
- '(diff-hunk-header
-   ((((background dark))
-     (:foreground "Black" :background "#05057F7F8D8D")) ; ~ dark cyan
-    (t (:foreground "White" :background "Salmon"))) 'now)
  '(diff-index ((((background dark)) (:foreground "Magenta"))
                (t (:foreground "Green"))) 'now)
  '(diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474")) ; ~ yellow
                      (t (:foreground "DarkBlue"))) 'now)
- '(diff-removed ((((background dark)) (:foreground "#7474FFFF7474"))
-                 (t (:foreground "DarkMagenta"))) 'now)
  )
 
 ;;; The only real difference here now from the standard Emacs 22 version is the
