@@ -3987,14 +3987,15 @@ affected. (File variables become buffer local.)
 
 Extending the previous example, if the makefile for @file{foo.v} is
 located in directory @file{.../dir/}, you can add the right compile
-command. And if you want a non standard coq executable to be used, here
-is what you should put in variables:
+command. You can also specify a "-R" command. And if you want a non
+standard coq executable to be used, here is what you should put in
+variables:
 
 @lisp
 (* 
 *** Local Variables: ***
 *** coq-prog-name: "../../coqsrc/bin/coqtop" ***
-*** coq-load-path: ("../theories")***
+*** coq-load-path: (("../util" "util") "../theories") ***
 *** compile-command: "make -C .. -k bar/foo.vo" ***
 *** End:***
 *)
