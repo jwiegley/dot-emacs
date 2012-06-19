@@ -152,6 +152,7 @@
  '(ibuffer-expert t)
  '(ibuffer-formats (quote ((mark modified read-only " " (name 16 -1) " " (size 6 -1 :right) " " (mode 16 16) " " filename) (mark " " (name 16 -1) " " filename))))
  '(ibuffer-maybe-show-regexps nil)
+ '(ibuffer-saved-filter-groups (quote (("default" ("dired" (mode . dired-mode)) ("c++" (or (mode . c-mode) (mode . c++-mode))) ("erc" (mode . erc-mode)) ("org" (or (name . "^\\*Calendar\\*$") (name . "^diary$") (mode . org-mode))) ("emacs" (or (name . "^\\*scratch\\*$") (name . "^\\*Messages\\*$"))) ("gnus" (or (mode . message-mode) (mode . mail-mode) (mode . gnus-group-mode) (mode . gnus-summary-mode) (mode . gnus-article-mode) (name . "^\\.newsrc-dribble")))))))
  '(ibuffer-shrink-to-minimum-size t t)
  '(ibuffer-use-other-window t)
  '(icicle-Completions-text-scale-decrease 0)

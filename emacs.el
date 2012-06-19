@@ -1098,6 +1098,15 @@
 (use-package css-mode
   :mode ("\\.css$" . css-mode))
 
+;;;_ , ibuffer
+
+(use-package ibuffer
+  :defer t
+  :init
+  (add-hook 'ibuffer-mode-hook
+            #'(lambda ()
+                (ibuffer-switch-to-saved-filter-groups "default"))))
+
 ;;;_ , iflipb
 
 (use-package iflipb
