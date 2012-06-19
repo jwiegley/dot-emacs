@@ -151,9 +151,6 @@
 [submodule "site-lisp/ipa-el"]
 	path = site-lisp/ipa-el
 	url = https://github.com/idomagal/ipa.el.git
-[submodule "site-lisp/icicles"]
-	path = site-lisp/icicles
-	url = https://github.com/emacsmirror/icicles.git
 [submodule "site-lisp/ido-hacks"]
 	path = site-lisp/ido-hacks
 	url = https://github.com/scottjad/ido-hacks.git
