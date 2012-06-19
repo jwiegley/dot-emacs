@@ -43,17 +43,17 @@
 
 ;; (setq erc-robot-commands
 ;;       '(
-;; 	("cmds" t (lambda (args)
-;; 		  (concat "commands available: "
-;; 			  (mapconcat
-;; 			   (lambda (e)
-;; 			     (car e))
-;; 			   erc-robot-commands " "))))
-;; 	("hello" t (lambda (args) "hello to you too !"))
-;; 	("zippy" t (lambda (args) (erc-replace-regexp-in-string "\n" " " (yow))))
-;; 	("echo" t (lambda (args) args))
+;;      ("cmds" t (lambda (args)
+;;                (concat "commands available: "
+;;                        (mapconcat
+;;                         (lambda (e)
+;;                           (car e))
+;;                         erc-robot-commands " "))))
+;;      ("hello" t (lambda (args) "hello to you too !"))
+;;      ("zippy" t (lambda (args) (erc-replace-regexp-in-string "\n" " " (yow))))
+;;      ("echo" t (lambda (args) args))
 ;;	; only i'm allowed to talk to my doctor !
-;; 	("version" t (lambda (args) (erc-version)))
+;;      ("version" t (lambda (args) (erc-version)))
 ;;       ))
 
 (require 'erc)
@@ -81,7 +81,7 @@
   "Implements a simple robot for erc.  Messages to the robot are of the form:
 \"nick: !command args\", where:
 nick	- the nickname of the user who is the target of the command, i.e. the
-	  person running the robot,
+          person running the robot,
 command	- the specific command,
 args	- arguments to the command (optional)."
   (let* ((sspec (aref parsed 1))
@@ -100,62 +100,60 @@ args	- arguments to the command (optional)."
   "Robot worker."
   (let ((me (erc-current-nick)))
     (if (and erc-robot-commands
-	     (string-match (concat "^" (regexp-quote me)
-				   ": !\\([^ ]+\\) ?\\(.*\\)") msg))
-					; this is a robot command to me.
-	(let* ((cmd (substring msg (match-beginning 1) (match-end 1)))
-	       (args (substring msg (match-beginning 2)))
-	       (l (assoc cmd erc-robot-commands))
-	       (allowed-users (nth 1 l))
-	       (function (nth 2 l))
-	       (permitted (or (eq t allowed-users)
-			      (and (eq nil allowed-users) locally-generated)
-			      (and (stringp allowed-users)
-				   (string-match allowed-users
-						 (regexp-quote from)))))
-	       (reply
-		(if permitted
-		    (if l
-			(funcall function args)
-		      (concat "unknown command: " cmd
-			      ": try \"cmds\""))
-		  (concat "no access to command \"" cmd
-			  "\" for " from ".")))
+             (string-match (concat "^" (regexp-quote me)
+                                   ": !\\([^ ]+\\) ?\\(.*\\)") msg))
+                                        ; this is a robot command to me.
+        (let* ((cmd (substring msg (match-beginning 1) (match-end 1)))
+               (args (substring msg (match-beginning 2)))
+               (l (assoc cmd erc-robot-commands))
+               (allowed-users (nth 1 l))
+               (function (nth 2 l))
+               (permitted (or (eq t allowed-users)
+                              (and (eq nil allowed-users) locally-generated)
+                              (and (stringp allowed-users)
+                                   (string-match allowed-users
+                                                 (regexp-quote from)))))
+               (reply
+                (if permitted
+                    (if l
+                        (funcall function args)
+                      (concat "unknown command: " cmd
+                              ": try \"cmds\""))
+                  (concat "no access to command \"" cmd
+                          "\" for " from ".")))
 ;; dme: this version allows you to cause the robot to do things, for
 ;;	example you can try "dme: !echo /kick fred", and it will send
 ;;	to the server "/kick fred", rather than "joe: /kick fred".
-;; 	       (full-reply (if (string-match "^/" reply)
-;; 			       reply
-;; 			     (concat from ": " reply))))
-	       (full-reply (concat from ": " reply)))
-	  (erc-log (substring-no-properties full-reply))
-	  (save-excursion
-	    (set-buffer (erc-get-buffer tgt proc))
-	    (let* ((inhibit-read-only t)
-		   (lines (split-string full-reply "\n"))
-		   (multiline-p (< 1 (length lines)))
-		   p)
-	      (mapc
-	       (lambda (line)
-		 (goto-char (point-max))
-		 (setq p (re-search-backward (erc-prompt)))
-		 (insert (erc-format-timestamp (current-time)
-					       erc-timestamp-format)
-			 "<" me "> ")
-		 (erc-put-text-property 0 (length line) 'face
-					'erc-robot-face line)
-		 (insert line "\n")
-		 (save-excursion
-		   (save-match-data
-		     (save-restriction
-		       (narrow-to-region p (point))
-		       (run-hook-with-args 'erc-send-modify-hook)
-		       (run-hook-with-args 'erc-send-post-hook))))
-		 (set-marker (process-mark erc-process) (point))
-		 (set-marker erc-insert-marker (point))
-		 (goto-char (point-max))
+;;             (full-reply (if (string-match "^/" reply)
+;;                             reply
+;;                           (concat from ": " reply))))
+               (full-reply (concat from ": " reply)))
+          (erc-log (substring-no-properties full-reply))
+          (save-excursion
+            (set-buffer (erc-get-buffer tgt proc))
+            (let* ((inhibit-read-only t)
+                   (lines (split-string full-reply "\n"))
+                   (multiline-p (< 1 (length lines)))
+                   p)
+              (mapc
+               (lambda (line)
+                 (goto-char (point-max))
+                 (setq p (re-search-backward (erc-prompt)))
+                 (insert "<" me "> ")
+                 (erc-put-text-property 0 (length line) 'face
+                                        'erc-robot-face line)
+                 (insert line "\n")
+                 (save-excursion
+                   (save-match-data
+                     (save-restriction
+                       (narrow-to-region p (point))
+                       (run-hook-with-args 'erc-send-modify-hook)
+                       (run-hook-with-args 'erc-send-post-hook))))
+                 (set-marker (process-mark erc-process) (point))
+                 (set-marker erc-insert-marker (point))
+                 (goto-char (point-max))
 
-		 (erc-process-input-line (concat line "\n") t multiline-p))
-	       lines)))))))
+                 (erc-process-input-line (concat line "\n") t multiline-p))
+               lines)))))))
 
 (provide 'erc-robot)
