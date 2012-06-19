@@ -47,7 +47,7 @@ variable section at the end of foo.v:
 
 \(*
 *** Local Variables:
-*** coq-load-path: (\"../theories\")
+*** coq-load-path: ((\"../util\" \"util\") \"../theories\")
 *** End:
 *)
 
@@ -83,17 +83,17 @@ its use of substitution keys. A file local setting of
 necessary.)")
 
 
-(defun coq-insert-coq-prog-name (progname progargs)
+(defun coq-insert-coq-prog-name (progname coqloadpath)
   "Insert or modify the local variables `coq-prog-name' and `coq-load-path'.
 Set them to PROGNAME and PROGARGS respectively.  These variables describe the
 coqtop command to be launched on this file."
-  (local-vars-list-set 'coq-prog-name progname)
-  (local-vars-list-set 'coq-load-path progargs)
+  (add-file-local-variable 'coq-prog-name progname)
+  (add-file-local-variable 'coq-load-path coqloadpath)
   ;; coq-guess-command-line uses coq-prog-name, so set it
   (make-local-variable 'coq-prog-name)
   (setq coq-prog-name progname)
   (make-local-variable 'coq-load-path)
-  (setq coq-load-path progargs))
+  (setq coq-load-path coqloadpath))
 
 
 (defun coq-read-directory (prompt &optional default maynotmatch initialcontent)
@@ -117,19 +117,20 @@ Do not insert the default directory."
   "Ask for and return the information to put into `coq-load-path'.
 Optional argument OLDVALUE specifies the previous value of `coq-load-path', it
 will be used to suggest values to the user."
-  (let (load-path option)
+  (let (loadpath option)
     ;; first suggest previous directories
     (dolist (olddir olddirs)
       (if (y-or-n-p (format "Keep the directory %s? " olddir))
-          (setq load-path (cons olddir load-path))))
+          (setq loadpath (cons olddir loadpath))))
     ;; then ask for more
     (setq option (coq-read-directory
                   "Add directory (TAB to complete, empty to stop): -I " ""))
     (while (not (string-equal option ""))
-      (setq load-path (cons option load-path)) ;reversed
+      (setq loadpath (cons option loadpath)) ;reversed
       (setq option (coq-read-directory
                     "Add directory (TAB to complete, empty to stop): -I " "")))
-    (reverse load-path)))
+    (message "Note: Syntax for option \"-R physicalpath logicalpath\":\ncoq-load-path: ((\"physicalpath\" \"logicalpath\") <other paths>)")
+    (reverse loadpath)))
 
 (defun coq-ask-prog-name (&optional oldvalue)
   "Ask for and return the local variables `coq-prog-name'.
@@ -155,8 +156,8 @@ These variables describe the coqtop command to be launched on this file."
   (let* ((oldname (local-vars-list-get-safe 'coq-prog-name))
          (oldpath (local-vars-list-get-safe 'coq-load-path))
          (progname (coq-ask-prog-name oldname))
-         (load-path (coq-ask-load-path oldpath)))
-    (coq-insert-coq-prog-name progname load-path)))
+         (loadpath (coq-ask-load-path oldpath)))
+    (coq-insert-coq-prog-name progname loadpath)))
 
 
 
