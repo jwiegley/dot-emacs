@@ -2043,7 +2043,40 @@ FORM => (eval FORM)."
                     (paredit-forward-up)
                     (if (eq (char-after) ?\))
                         (throw 'done t)))
-                  (paredit-forward-slurp-sexp))))))
+                  (paredit-forward-slurp-sexp))))
+
+            (nconc paredit-commands
+                   '("Extreme Barfage & Slurpage"
+                     (("C-M-)")
+                      paredit-slurp-all-the-way-forward
+                      ("(foo (bar |baz) quux zot)"
+                       "(foo (bar |baz quux zot))")
+                      ("(a b ((c| d)) e f)"
+                       "(a b ((c| d)) e f)"))
+                     (("C-M-}" "M-F")
+                      paredit-barf-all-the-way-forward
+                      ("(foo (bar |baz quux) zot)"
+                       "(foo (bar|) baz quux zot)"))
+                     (("C-M-(")
+                      paredit-slurp-all-the-way-backward
+                      ("(foo bar (baz| quux) zot)"
+                       "((foo bar baz| quux) zot)")
+                      ("(a b ((c| d)) e f)"
+                       "(a b ((c| d)) e f)"))
+                     (("C-M-{" "M-B")
+                      paredit-barf-all-the-way-backward
+                      ("(foo (bar baz |quux) zot)"
+                       "(foo bar baz (|quux) zot)"))))
+
+            (paredit-define-keys)
+            (paredit-annotate-mode-with-examples)
+            (paredit-annotate-functions-with-examples)
+
+            (add-hook 'allout-mode-hook
+                      #'(lambda ()
+                          (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
+                          (bind-key "M-h" 'mark-containing-sexp
+                                    allout-mode-map)))))
 
         (use-package redshank
           :diminish redshank-mode)
@@ -2135,39 +2168,9 @@ FORM => (eval FORM)."
       (bind-key "M-p" 'paredit-splice-sexp paredit-mode-map)
       (unbind-key "M-r" paredit-mode-map)
 
-      (nconc paredit-commands
-             '("Extreme Barfage & Slurpage"
-               (("C-M-)")
-                paredit-slurp-all-the-way-forward
-                ("(foo (bar |baz) quux zot)"
-                 "(foo (bar |baz quux zot))")
-                ("(a b ((c| d)) e f)"
-                 "(a b ((c| d)) e f)"))
-               (("C-M-}" "M-F")
-                paredit-barf-all-the-way-forward
-                ("(foo (bar |baz quux) zot)"
-                 "(foo (bar|) baz quux zot)"))
-               (("C-M-(")
-                paredit-slurp-all-the-way-backward
-                ("(foo bar (baz| quux) zot)"
-                 "((foo bar baz| quux) zot)")
-                ("(a b ((c| d)) e f)"
-                 "(a b ((c| d)) e f)"))
-               (("C-M-{" "M-B")
-                paredit-barf-all-the-way-backward
-                ("(foo (bar baz |quux) zot)"
-                 "(foo bar baz (|quux) zot)"))))
-
-      (paredit-define-keys)
-      (paredit-annotate-mode-with-examples)
-      (paredit-annotate-functions-with-examples)
-
       (bind-key "C-. b" 'paredit-splice-sexp-killing-backward)
       (bind-key "C-. d" 'paredit-forward-down)
       (bind-key "C-. f" 'paredit-splice-sexp-killing-forward)
-
-      (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
-      (bind-key "M-h" 'mark-containing-sexp allout-mode-map)
 
       (if (eq major-mode 'emacs-lisp-mode)
           (progn
