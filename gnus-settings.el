@@ -98,6 +98,7 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(gnus-use-cache t)
  '(gnus-verbose 4)
  '(mail-envelope-from (quote header))
+ '(mail-host-address "vulcan")
  '(mail-setup-with-from nil)
  '(mail-source-delete-incoming t)
  '(mail-source-delete-old-incoming-confirm nil)
