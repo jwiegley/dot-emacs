@@ -2167,7 +2167,6 @@ FORM => (eval FORM)."
 ;;;_ , lua-mode
 
 (use-package lua-mode
-  :disabled t
   :mode ("\\.lua$" . lua-mode)
   :interpreter ("lua" . lua-mode))
 
