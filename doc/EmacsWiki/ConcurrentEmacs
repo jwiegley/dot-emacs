@@ -1,0 +1,263 @@
+== Definition ==
+ConcurrentEmacs is a page about performing actions "in the background" without resorting to OperatingSystem level threads.  See: NoThreading
+
+== Justification ==
+Emacs is the start of a great Operating System, but sometimes blocks the entire interface instead of just the buffer with pending IO.
+
+Concurrency allows individual buffers to be "locked", hopefully with a progress-bar, when keyboard input could cause data corruption.
+
+=== Use Cases: ===
+Pressing "!" (`dired-do-shell-command') in `dired':  Researching... maybe bg-shell-command.el?
+
+Pressing "g" (`revert-buffer') in a `dired' buffer.
+
+Pressing "% g" (`dired-mark-files-containing-regexp') in a `dired' buffer.
+
+All IMAP operation in [[Gnus]] (see [[GnusSpeed]])
+
+== Already Concurrent ==
+
+Font Lock: `jit-lock-stealth-fontify' solves this.
+
+Shell: EmacsShell must be doing this right?
+
+Introspection: EmacsDebugger seems like it must do this, but maybe I'm thinking about it wrong.
+
+
+== Research ==
+CoRoutines, jit-lock-stealth*, ECB, Lisp:later-do.el, Lisp:coroutine.el, Lisp:tagbody.el, AsyncEval
+
+
+
+http://www.hpl.hp.com/personal/ange/archives/archives-95/ange-ftp-lovers-archive/0073.html
+
+<pre>
+Re: ange-ftp.el patch to always asynchronously copy files
+Andy Norman (ange@otter.hpl.hp.com)
+Fri, 09 Sep 1994 11:52:05 +0100
+
+    * Messages sorted by: [ date ][ thread ][ subject ][ author ]
+    * Next message: Peter Mutsaers: "Re: ange-ftp.el patch to always asynchronously copy files"
+    * Previous message: Richard Tait: "Re: ange-ftp.el patch to always asynchronously copy files"
+    * In reply to: Richard Tait: "Re: ange-ftp.el patch to always asynchronously copy files"
+    * Next in thread: Peter Mutsaers: "Re: ange-ftp.el patch to always asynchronously copy files" 
+
+Rick writes:
+
+>>>>>> "Andy" == Andy Norman <ange@hplb.hpl.hp.com> writes:
+Andy> I'd advise against this change as it would confuse dired when
+Andy> multiple tagged files are being copied.  (Note that efs
+Andy> 1.12-beta / dired 7.5 have asynchronous file copying support).
+
+> Hmmm. I've been using ange-ftp on 19.25 for a long while now and the fact
+> that I did have to wait around was major factor of cheese for me. Then I
+> switched to Lucid 19.10 and the ange-ftp I'm using there is (I guess)
+> asynchronously copying files, because I can edit, read mail etc while the
+> file is being transferred.
+
+> So how come this is implemented in Lucid but not GNU Emacs?
+
+A bit of history may help new listeners here...
+
+ange-ftp was developed under GNU Emacs 18.  It worked mainly by overloading
+functions.  Around the same time, an extended version of dired (=tree dired)
+was developed by Sebastian Kremer and both Sebastian and I worked together to
+make sure that both packages were compatible as far as possible.
+
+ange-ftp 4.20 (the last v18 release) came with several functions which
+re-defined what tree dired did when copying files.  It allowed both single
+file copy (=copy-file) and dired's "c" command to work asynchronously even on
+multiple files.
+
+RMS then took tree dired and ange-ftp 4.20 and incorporated them into FSF GNU
+Emacs 19.<somelowdigit>.  He renamed several ange-ftp variables, removed a lot
+of the non-UNIX support in ange-ftp and stripped out a lot of the dired
+overloading, including the multiple file async copying.
+
+In addition, RMS wasn't too keen on the way that ange-ftp overwrote functions,
+so he added a different mechanism for ange-ftp and other packages that might
+play with filenames could hook into GNU Emacs.  This mechanism has been
+refined a few times since its original introduction.
+
+The fallout from all these changes is that RMS's version of ange-ftp/dired
+doesn't currently do any copying asynchronously.
+
+Now, Lucid Emacs (or XEmacs as it is probably called now) took the v18
+ange-ftp 4.20 and made a few improvements to it.  I believe that they took
+"tree" dired 6.0, but I'm not sure.  The offshoot is that ange-ftp works under
+XEmacs in the same way as it worked under v18, namely that async copying is
+supported and works fine.
+
+I hope this ramble helps a bit...
+					-- ange -- <><
+</pre>
+
+== Discussion ==
+
+: Is it the tail call capability that allows CoRoutines in [[Scheme]] to CommonLisp to be used as a type of Thread?  Is that what a continuation is?
+:: No. Tail Call Optimization allows Scheme to express iterative loops (that is, iterative algorithms) as recursive programs. CoRoutines are a type of cooperative threading, so not the type you are looking for (which would be preemptive threading).
+
+: I've studied this in the past but was somehow never able to get it understood.
+: In other words, would it ever be possible to create a ConcurrentEmacs with the current EmacsLisp engine?
+:: Difficult. Dynamic scoping has a really hard time with threads, so that would be the biggest problem. Also, threads are not The One Solution...
+
+: On the other hand, it seems FontLock and parts of EmacsShell use a kind of cooperative threading with timers...  Am I looking at this the right way?
+:: Sort-of. They do stuff when the user is idle. Look at my LaterDo for a generalized example of that.
+::: I've been looking-for/trying-to-build something like LaterDo for quite some time.  Thanks! -- PatrickAnderson
+
+: The main question (in my mind at least) is: how can we migrate Emacs toward a level of performance needed for fully serious replacement of other "!OperatingSystems" - so that we can begin considering the editing of heavy content such as audio, video, game physics etc. including JIT compilation etc.
+:: Easy. Replace emacs with a Lisp machine. (Emacs is closer to a [[WikiPedia:Lisp machine]]
+ than some would think, but still miles away...) --[[forcer]]
+
+: For now an interface that doesn't lock up when you revert a buffer would be sufficient. -- PatrickAnderson
+
+
+[new]
+On the WhyDoesElispSuck page, someone wrote: ''Allegedly optional lexical scoping is coming after Emacs 23 is released. (according to emacs-devel) Once it’s in place, adding coroutines will be feasible, which addresses the “single-threading sucks” argument that’s surprisingly absent on this page. Should also make closures possible.''
+
+[new]
+StefanMonnier at http://Article.GMANE.org/gmane.emacs.devel/96339 wrote on 2008-05-02:
+<pre>
+>> The issue is when we start putting global variables into the mix:
+> ...
+>> Anyway, hopefully someone has some ideas on what to do here.  I admit I
+>> haven't looked at how sxemacs handles this yet. Maybe we can just deal
+>> with locks?  At least in that case my IMAP mail could download while I
+>> am typing in another buffer :)
+
+> If the multi-threading were cooperative (as rms suggested), then such
+> problems would obviously be a bit easier to manage -- you can basically
+> just say "no context switches except at well defined points", and define
+> these "points" to be (1) user interaction/recursive edits [where the
+> user can do something to "screw up the state" even today], or (2)
+> explicit calls to yield.
+
+W.r.t to concurrency, I think we need to think about how to introduce it
+into Emacs, indeed.  The reason why I think so is because in order to
+evolve Emacs needs to eat up more CPU.  You may think Emacs is not CPU
+bound, but it's only the case because it only uses what is available.
+Try to run Emacs-22 on a 486 to get an idea of what I mean.
+Single-thread CPU power is very unlikely to increase significantly in
+the future, so if we want to get access to the additional CPU power
+we'll need concurrency.
+
+Now we already have concurrency, in the form of start-process.
+`flyparse' and `flymake' do just that.  And maybe that's good enough.
+But I expect that closer integration of additional threads will be
+needed/useful at some point.
+
+Other than separate processes, we can add threads without affecting
+Elisp, by using separate threads for the GUI and for the redisplay.
+Even the redisplay could be parallel by using separate threads per
+frame/window.
+
+As for adding concurrency to Elisp, the core difficulty will be the heap
+of code that assumes concurrency doesn't exist, as well as the
+interaction between buffer-local and let-bound variables.
+
+But indeed, I think a good first step is to add coroutines.  This should
+not be terribly difficult to do (especially since it's OK for it to
+break code as long as it's only broken when you use `yield').
+Patches welcome.
+
+> However I think there are potentially additional problems with dynamic
+> scope:  remember, elisp uses shallow scoping, where binding a variable
+> is basically "save old value, and set global".  For normal variables,
+> this could be replaced by deep-binding, which is more multi-threading
+> friendly (my "lexbind" branch already uses deep-binding in the
+> interpreter), but afaik, the use of shallow-binding in elisp is kind of
+> intertwined with the implementation of buffer-local variables and the
+> like, and I'm not so sure how easy it would be to handle such things
+> with a new deep-binding implementation.
+
+The way I see it, multithreading within a buffer is a problem we can
+ignore for the next 20 years.  So let-binding a buffer-local var can
+be handled via shallow-binding (whereas let-binding of global variables
+needs to use deep binding).  So the only difficulty is to deal with
+variables which are not make-variable-buffer-local but only
+make-local-variable where we need to make sure we can always
+unequivocally know whether to use deep or shallow binding.
+
+        Stefan
+</pre>
+
+
+== Approaches ==
+: threads in c.
+
+: coroutines
+: There is a caveat in CoRoutines
+:: `yield' is only valid at top-level in the coroutine, or inside a specially tweaked macro.
+:: does that mean it can't be used to implement concurrency?
+
+:: researching... [http://www.google.com/search?q=coroutines google:coroutines], http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
+
+: engines
+
+here's part of a discussion between PatrickAnderson and EliBarzilay about using engines:
+
+  > On Jun 11, Patrick Anderson wrote:
+    I would like to understand the reason Elisp can't be used to
+    implement something like the 'engines' described in
+    http://www.cs.indiana.edu/~dyb/papers/engines.pdf
+
+  I vaguely remember that engines thing -- but the general principle is
+  pretty well-known: with continuations you can implement co-routines
+  and then continue to a non-preemptive (cooperative? -- the one where
+  threads voluntarily yield) pretty easily, and finally you slap some
+  timer interrupt mechanism and you have normal threads. 
+ 
+    my guess is that first class continuations are not possible in a
+    dynamically scoped language such as elisp, but i really don't
+    understand such things well enough to be sure.
+ 
+  I don't think that there is any issue with dynamic scoping.  The
+  problem is that you need the system to provide you with continuations,
+  like what you get in Scheme.  Otherwise you can sort of mimic this by
+  passing explicit contiuations around but that is not too convenient.
+  The thing is that adding continuations is not that hard -- the
+  standard implementation just uses C's setjmp and longjmp, but it is
+  just as well easy to add threading.
+
+ implementing 'explicit' continuations in elisp is now on my todo list.
+ Maybe that's what CoRoutines already does.  i have alot of reading to do.
+ 
+  The problem with Emacs is that there is a lot of code that relies on
+  being sequential etc.  The most obvious thing is the heavy usage of
+  dynamic scoping -- in the presence of threads, you'll need each thread
+  to have its own value but that leads to a need for something better
+  than just dynamic scoping -- like Scheme's lexical scoping combined
+  with some solid mechanism for dynamic values (MzScheme has parameters,
+  but almost any Scheme implementation has something similar).  Even
+  sawfish (or actually librep) has an implementation of "fluid" values,
+  but that doesn't have threads in any case (and some other questionable
+  design choices).
+ 
+  Generally I think that Emacs is a great tool that can use some heavy
+  rework -- the two heaviest things are threads and a better language
+  (there's the Scheme camp and the Common Lisp camp).  But the bottom
+  line so far is that this will require so much work that it is just not
+  doable so we're stuck for a long time until some solution that can
+  reuse all existing code will be found.  And there is work on that
+  direction.
+
+----
+
+So what does everyone most want to do concurrently? Download mail in the
+background, render webpages while editing, font-lock with 8 CPUs at once, ..?
+Important question! -- LukeGorrie
+
+[new] Most of the times when I would need this is when doing work in dired
+that takes long time; it could be listings on a file server at another office,
+it can be "% g" searches I want to do, etc. Dired is a very handy tool for
+many variants of file operations, but sometimes I have to plan the work so
+that I don't need Emacs during the time dired works. -- MaDa
+
+[new] 
+Check out [https://github.com/jwiegley/emacs-async emacs-async], which has a
+`dired-async' module that can be used to make at least copying and moving to
+remote servers asynchronous. -- JohnWiegley
+
+----
+
+See also DownWithEmacsLisp, NoThreading.
