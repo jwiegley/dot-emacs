@@ -1115,7 +1115,7 @@
          ("A-S-<tab>" . my-iflipb-previous-buffer))
   :init
   (progn
-    (defvar my-iflipb-auto-off-timeout-sec 1)
+    (defvar my-iflipb-auto-off-timeout-sec 3)
     (defvar my-iflipb-auto-off-timer-canceler-internal nil)
     (defvar my-iflipb-ing-internal nil)
 
