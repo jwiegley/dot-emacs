@@ -40,8 +40,7 @@
 
     ;; Configure exec-path based on the new PATH
     (setq exec-path nil)
-    (mapc #'(lambda (path)
-              (add-to-list 'exec-path path))
+    (mapc (apply-partially #'add-to-list 'exec-path)
           (nreverse (split-string (getenv "PATH") ":")))))
 
 ;;;_ , Load customization settings
