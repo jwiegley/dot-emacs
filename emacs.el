@@ -681,7 +681,7 @@
 
 (use-package allout
   :diminish allout-mode
-  :defer t
+  :commands allout-mode
   :config
   (progn
     (defvar allout-unprefixed-keybindings nil)
@@ -2000,78 +2000,86 @@ FORM => (eval FORM)."
 
         (use-package paredit
           :diminish paredit-mode
-          (:init
-           progn
-           (bind-key ")" 'paredit-close-round-and-newline paredit-mode-map)
-           (bind-key "M-)" 'paredit-close-round paredit-mode-map)
+          :init
+          (progn
+            (defun mark-containing-sexp ()
+              (interactive)
+              (paredit-backward-up)
+              (mark-sexp))
 
-           (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
-           (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
-           (bind-key "M-p" 'paredit-splice-sexp paredit-mode-map)
+            (defun paredit-barf-all-the-way-backward ()
+              (interactive)
+              (paredit-split-sexp)
+              (paredit-backward-down)
+              (paredit-splice-sexp))
 
-           (defun paredit-barf-all-the-way-backward ()
-             (interactive)
-             (paredit-split-sexp)
-             (paredit-backward-down)
-             (paredit-splice-sexp))
+            (defun paredit-barf-all-the-way-forward ()
+              (interactive)
+              (paredit-split-sexp)
+              (paredit-forward-down)
+              (paredit-splice-sexp)
+              (if (eolp) (delete-horizontal-space)))
 
-           (defun paredit-barf-all-the-way-forward ()
-             (interactive)
-             (paredit-split-sexp)
-             (paredit-forward-down)
-             (paredit-splice-sexp)
-             (if (eolp) (delete-horizontal-space)))
+            (defun paredit-slurp-all-the-way-backward ()
+              (interactive)
+              (catch 'done
+                (while (not (bobp))
+                  (save-excursion
+                    (paredit-backward-up)
+                    (if (eq (char-before) ?\()
+                        (throw 'done t)))
+                  (paredit-backward-slurp-sexp))))
 
-           (defun paredit-slurp-all-the-way-backward ()
-             (interactive)
-             (catch 'done
-               (while (not (bobp))
-                 (save-excursion
-                   (paredit-backward-up)
-                   (if (eq (char-before) ?\()
-                       (throw 'done t)))
-                 (paredit-backward-slurp-sexp))))
+            (defun paredit-slurp-all-the-way-forward ()
+              (interactive)
+              (catch 'done
+                (while (not (eobp))
+                  (save-excursion
+                    (paredit-forward-up)
+                    (if (eq (char-after) ?\))
+                        (throw 'done t)))
+                  (paredit-forward-slurp-sexp)))))
 
-           (defun paredit-slurp-all-the-way-forward ()
-             (interactive)
-             (catch 'done
-               (while (not (eobp))
-                 (save-excursion
-                   (paredit-forward-up)
-                   (if (eq (char-after) ?\))
-                       (throw 'done t)))
-                 (paredit-forward-slurp-sexp))))
+          :config
+          (progn
+            (bind-key ")" 'paredit-close-round-and-newline paredit-mode-map)
+            (bind-key "M-)" 'paredit-close-round paredit-mode-map)
 
-           (nconc paredit-commands
-                  '("Extreme Barfage & Slurpage"
-                    (("C-M-)")
-                                 paredit-slurp-all-the-way-forward
-                                 ("(foo (bar |baz) quux zot)"
-                                  "(foo (bar |baz quux zot))")
-                                 ("(a b ((c| d)) e f)"
-                                  "(a b ((c| d)) e f)"))
-                    (("C-M-}" "M-F")
-                                 paredit-barf-all-the-way-forward
-                                 ("(foo (bar |baz quux) zot)"
-                                  "(foo (bar|) baz quux zot)"))
-                    (("C-M-(")
-                                 paredit-slurp-all-the-way-backward
-                                 ("(foo bar (baz| quux) zot)"
-                                  "((foo bar baz| quux) zot)")
-                                 ("(a b ((c| d)) e f)"
-                                  "(a b ((c| d)) e f)"))
-                    (("C-M-{" "M-B")
-                                 paredit-barf-all-the-way-backward
-                                 ("(foo (bar baz |quux) zot)"
-                                  "(foo bar baz (|quux) zot)"))))
+            (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
+            (bind-key "M-h" 'mark-containing-sexp paredit-mode-map)
+            (bind-key "M-p" 'paredit-splice-sexp paredit-mode-map)
+            (unbind-key "M-r" paredit-mode-map)
 
-           (paredit-define-keys)
-           (paredit-annotate-mode-with-examples)
-           (paredit-annotate-functions-with-examples)
+            (nconc paredit-commands
+                   '("Extreme Barfage & Slurpage"
+                     (("C-M-)")
+                      paredit-slurp-all-the-way-forward
+                      ("(foo (bar |baz) quux zot)"
+                       "(foo (bar |baz quux zot))")
+                      ("(a b ((c| d)) e f)"
+                       "(a b ((c| d)) e f)"))
+                     (("C-M-}" "M-F")
+                      paredit-barf-all-the-way-forward
+                      ("(foo (bar |baz quux) zot)"
+                       "(foo (bar|) baz quux zot)"))
+                     (("C-M-(")
+                      paredit-slurp-all-the-way-backward
+                      ("(foo bar (baz| quux) zot)"
+                       "((foo bar baz| quux) zot)")
+                      ("(a b ((c| d)) e f)"
+                       "(a b ((c| d)) e f)"))
+                     (("C-M-{" "M-B")
+                      paredit-barf-all-the-way-backward
+                      ("(foo (bar baz |quux) zot)"
+                       "(foo bar baz (|quux) zot)"))))
 
-           (bind-key "C-. b" 'paredit-splice-sexp-killing-backward)
-           (bind-key "C-. d" 'paredit-forward-down)
-           (bind-key "C-. f" 'paredit-splice-sexp-killing-forward)))
+            (paredit-define-keys)
+            (paredit-annotate-mode-with-examples)
+            (paredit-annotate-functions-with-examples)
+
+            (bind-key "C-. b" 'paredit-splice-sexp-killing-backward)
+            (bind-key "C-. d" 'paredit-forward-down)
+            (bind-key "C-. f" 'paredit-splice-sexp-killing-forward)))
 
         (use-package redshank
           :diminish redshank-mode)
@@ -2154,6 +2162,10 @@ FORM => (eval FORM)."
       (auto-fill-mode 1)
       (paredit-mode 1)
       (redshank-mode 1)
+
+      (when (and (boundp 'allout-mode) allout-mode)
+        (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
+        (bind-key "M-h" 'mark-containing-sexp allout-mode-map))
 
       (if (eq major-mode 'emacs-lisp-mode)
           (progn
