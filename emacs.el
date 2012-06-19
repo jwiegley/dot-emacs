@@ -1185,7 +1185,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
         (bind-key "<tab>" 'my-dired-switch-window dired-mode-map)
 
-        (bind-key "M-l" 'async-shell-command dired-mode-map)
+        (bind-key "M-!" 'async-shell-command dired-mode-map)
         (unbind-key "M-G" dired-mode-map)
         (unbind-key "M-s f" dired-mode-map)
 
@@ -1917,9 +1917,11 @@ FORM => (eval FORM)."
     (defun ido-bookmark-jump (bookmark &optional display-func)
       (interactive
        (list
-        (ido-completing-read "Jump to bookmark: "
-                             (mapcar #'car bookmark-alist)
-                             nil 0 nil 'bookmark-history)))
+        (progn
+          (require 'bookmark)
+          (ido-completing-read "Jump to bookmark: "
+                               (mapcar #'car bookmark-alist)
+                               nil 0 nil 'bookmark-history))))
       (unless bookmark
         (error "No bookmark specified"))
       (bookmark-maybe-historicize-string bookmark)
