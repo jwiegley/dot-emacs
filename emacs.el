@@ -2596,6 +2596,19 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
     (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
 
+    ;; expanded folded secitons as required
+    (defun le::maybe-reveal ()
+      (when (and (or (memq major-mode  '(org-mode outline-mode))
+                     (and (boundp 'outline-minor-mode)
+                          outline-minor-mode))
+                 (outline-invisible-p))
+        (if (eq major-mode 'org-mode)
+            (org-reveal)
+          (show-subtree))))
+
+    (add-hook 'session-after-jump-to-last-change-hook
+              'le::maybe-reveal)
+
     (defun save-information ()
       (dolist (func kill-emacs-hook)
         (unless (memq func '(exit-gnus-on-exit server-force-stop))
