@@ -184,3 +184,6 @@
 [submodule "site-lisp/eval-expr"]
 	path = site-lisp/eval-expr
 	url = git://github.com/jwiegley/eval-expr.git
+[submodule "site-lisp/bookmark-plus"]
+	path = site-lisp/bookmark-plus
+	url = https://github.com/emacsmirror/bookmark-plus.git
