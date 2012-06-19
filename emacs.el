@@ -1544,10 +1544,10 @@ FORM => (eval FORM)."
 
   :config
   (progn
-    (grep-apply-setting 'grep-command "grep -nH -e ")
+    (grep-apply-setting 'grep-command "xzegrep -nH -e ")
     (grep-apply-setting
      'grep-find-command
-     '("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52))))
+     '("find . -type f -print0 | xargs -P4 -0 xzegrep -nH -e " . 54))))
 
 ;;;_ , gtags
 
