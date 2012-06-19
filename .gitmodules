@@ -76,9 +76,6 @@
 [submodule "site-lisp/markdown-mode"]
 	path = site-lisp/markdown-mode
 	url = https://github.com/emacsmirror/markdown-mode.git
-[submodule "site-lisp/nxhtml"]
-	path = site-lisp/nxhtml
-	url = https://github.com/jwiegley/nxhtml.git
 [submodule "site-lisp/offlineimap"]
 	path = site-lisp/offlineimap
 	url = https://github.com/emacsmirror/offlineimap.git
