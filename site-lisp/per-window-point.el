@@ -3,7 +3,7 @@
 ;; Copyright (c) 2011 Alp Aker
 
 ;; Author: Alp Aker <alp.tekin.aker@gmail.com>
-;; Version: 1.63
+;; Version: 1.65
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or
@@ -52,9 +52,15 @@
 ;;
 ;; in your .emacs to enable it automatically.
 
+;; A Note on v24 (July, 2011):  The buffer display routines in v24 are
+;; currently being rewritten in preparation for the release of v24.1.  I'm
+;; not going to try to keep up with these changes until the relevant code
+;; stabilizes.  Until then, users who build v24 from source using a recent rev
+;; might see irregular behavior.
+
 ;;; Code: 
 
-(unless (< 21 emacs-major-version)
+(unless (version<= "22" emacs-version)
   (error "Per-window-point requires at least version 22"))
 
 ;;; ---------------------------------------------------------------------
@@ -80,7 +86,7 @@
 When the buffer displayed in a window changes, per-window-point calls each
 function in this list with two arguments, the window in question
 and the buffer about to be displayed.  If any function returns
-nil, Per-Window-Point does not position the buffer."
+nil, per-window-point does not position the buffer."
   :group 'per-window-point
   :type 'hook)
 
@@ -131,7 +137,7 @@ for a description of the mode.")
             replace-buffer-in-windows
             kill-buffer
             bury-buffer)
-          (if (= 22 emacs-major-version)
+          (if (version< emacs-version "23") 
               '(display-buffer))))
 
 ;;; ---------------------------------------------------------------------
@@ -167,7 +173,8 @@ and `pwp-reposition-tests'."
           (ad-activate fn t))
         (dolist (hook pwp-hook-assignments)
           (add-hook (car hook) (cdr hook)))
-        (run-hooks 'pwp-mode-on-hook))
+        (run-hooks 'pwp-mode-on-hook)
+        (message "Per-window-point mode enabled"))
     ;; Disabling
     (setq pwp-alist nil)      
     (ad-disable-regexp "per-window-point")
@@ -175,7 +182,8 @@ and `pwp-reposition-tests'."
       (ad-activate fn))
     (dolist (hook pwp-hook-assignments)
       (remove-hook (car hook) (cdr hook)))
-    (run-hooks 'pwp-mode-off-hook))
+    (run-hooks 'pwp-mode-off-hook)
+    (message "Per-window-point mode disabled"))
   (run-mode-hooks 'pwp-mode-hook))
 
 ;;; ---------------------------------------------------------------------
@@ -197,7 +205,7 @@ and `pwp-reposition-tests'."
   ad-do-it
   (pwp-reposition (ad-get-arg 0)))
 
-(when (= 22 emacs-major-version)
+(when (version< emacs-version "23")
   (defadvice display-buffer (around per-window-point)
     (mapc #'pwp-register-win (window-list))
     ad-do-it
@@ -253,20 +261,30 @@ and `pwp-reposition-tests'."
         (mapcar #'(lambda (x) (delq (assq (current-buffer) x) x))
                 pwp-alist)))
 
-;; Called when the window configuration changes; removes info about any newly
-;; deleted windows from pwp-alist.
+;; Called when the window configuration changes; removes elements from
+;; pwp-alist that are associated with dead windows.
 (defun pwp-forget-dead-windows ()
   (setq pwp-alist 
-        (delq nil (mapcar #'(lambda (x) (and (window-live-p (car x)) x))
+        (delq nil (mapcar #'(lambda (x) (if (window-live-p (car x))
+                                            x
+                                          (pwp-kill-markers x)
+                                          nil))
                           pwp-alist))))
 
 ;; Called when a frame is deleted (that event doesn't run the window
 ;; configuration change hook); removes any windows that become dead as a
 ;; result of frame deletion.
 (defun pwp-forget-frame-windows (frame)
-  (dolist (win (window-list frame 'no-minibuf))
-    (setq pwp-alist 
-          (delq (assq win pwp-alist) pwp-alist))))
+  (let (win-data)
+    (dolist (win (window-list frame 'no-minibuf))
+      (setq win-data (assq win pwp-alist)
+            pwp-alist (delq win-data pwp-alist))
+      (pwp-kill-markers win-data))))
+
+(defun pwp-kill-markers (win-data)
+  (dolist (buf-data (cdr win-data))
+    (move-marker (nth 1 buf-data) nil)
+    (move-marker (nth 2 buf-data) nil)))
 
 ;;; ---------------------------------------------------------------------
 ;;; Recording Data
@@ -337,7 +355,7 @@ and `pwp-reposition-tests'."
   (let ((point (with-current-buffer buf (point)))
         (l1 (mapcar 
              #'(lambda (x) (window-point x))
-             (delq win (get-buffer-window-list buf))))
+             (delq win (get-buffer-window-list buf 'no-minibuf t))))
         (l2 (mapcar 
              #'(lambda (x) 
                  (if (not (eq buf (window-buffer (car x))))

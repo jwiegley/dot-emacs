@@ -1,13 +1,14 @@
-;;; ascii --- ASCII code display.
+;;; ascii.el --- ASCII code display.
 
-;; Copyright (C) 1999-2000 Vinicius Jose Latorre
+;; Copyright (C) 1999, 2000, 2001, 2006, 2007, 2008, 2009, 2010, 2011
+;; Vinicius Jose Latorre
 
-;; Author:     Vinicius Jose Latorre <vinicius@cpqd.com.br>
-;; Maintainer: Vinicius Jose Latorre <vinicius@cpqd.com.br>
-;; Keywords:   data, ascii
-;; Time-stamp: <2000/08/06 19:31:10 vinicius>
-;; Version:    2.0
-;; X-URL: http://www.cpqd.com.br/~vinicius/emacs/Emacs.html
+;; Author:	Vinicius Jose Latorre <viniciusjl@ig.com.br>
+;; Maintainer:	Vinicius Jose Latorre <viniciusjl@ig.com.br>
+;; Time-stamp:	<2011/01/12 00:58:17 vinicius>
+;; Keywords:	data, ascii
+;; Version:	3.1
+;; X-URL:	http://www.emacswiki.org/cgi-bin/wiki/ViniciusJoseLatorre
 
 ;; This file is *NOT* (yet?) part of GNU Emacs.
 
@@ -23,7 +24,7 @@
 
 ;; You should have received a copy of the GNU General Public License along with
 ;; GNU Emacs; see the file COPYING.  If not, write to the Free Software
-;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
 
@@ -35,6 +36,11 @@
 ;; This package provides a way to display ASCII code on a window, that is,
 ;; display in another window an ASCII table highlighting the current character
 ;; code.
+;;
+;; Well, maybe the name "ascii" is not a good name for this package, as this
+;; package also displays non-ASCII code, that is, character code which is
+;; greater than 255.  It also displays characters codified in HTML (&Aacute;),
+;; quoted (=20), escaped (\xFF) and Emacs Lisp character (?\^A).
 ;;
 ;; To use ascii, insert in your ~/.emacs:
 ;;
@@ -53,7 +59,7 @@
 ;;
 ;; This will generate ascii.elc, which will be loaded instead of ascii.el.
 ;;
-;; ascii was tested with GNU Emacs 20.4.1.
+;; It runs on GNU Emacs 20.4.1, 21, 22 and 23.
 ;;
 ;;
 ;; Using ascii
@@ -178,8 +184,10 @@
 ;;    you leave out the current Emacs session.
 ;;
 ;;
-;; Acknowledgements
-;; ----------------
+;; Acknowledgments
+;; ---------------
+;;
+;; Thanks to Steven W. Orr <steveo@syslang.net> for patch to Emacs 23.
 ;;
 ;; Thanks to Roman Belenov <roman@nstl.nnov.ru> for suggestion on dynamic ascii
 ;; table evaluation (depending on character encoding).
@@ -199,7 +207,12 @@
        (not (require 'overlay))
        (error "`ascii' requires `overlay' package.")))
 
-
+
+;; GNU Emacs 20, 21 and 22 compatibility
+(or (fboundp 'characterp)
+    (defalias 'characterp 'char-valid-p))
+
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; User Variables:
 
@@ -289,7 +302,7 @@ A character is displayed if:
   :group 'ascii)
 
 
-(defcustom ascii-keep-window nil
+(defcustom ascii-keep-window t
   "*Non-nil means to keep ASCII window active."
   :type 'boolean
   :group 'ascii)
@@ -308,7 +321,14 @@ A character is displayed if:
 
 
 ;; secondary-selection face
-(defface ascii-ascii-face '((t (:background "paleturquoise")))
+(defface ascii-ascii-face
+  '((((type tty) (class color))
+     (:background "cyan" :foreground "black"))
+    (((class color) (background light))
+     (:background "paleturquoise"))
+    (((class color) (background dark))
+     (:background "SkyBlue4"))
+    (t (:inverse-video t)))
   "Face used to highlight ascii code.")
 
 
@@ -319,10 +339,17 @@ A character is displayed if:
 
 
 ;; highlight face
-(defface ascii-non-ascii-face '((t (:background "darkseagreen2")))
+(defface ascii-non-ascii-face
+  '((((type tty) (class color))
+     (:background "green"))
+    (((class color) (background light))
+     (:background "darkseagreen2"))
+    (((class color) (background dark))
+     (:background "darkolivegreen"))
+    (t (:inverse-video t)))
   "Face used to highlight non-ascii code.")
 
-
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customization
 
@@ -333,7 +360,7 @@ A character is displayed if:
   (interactive)
   (customize-group 'ascii))
 
-
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; User commands
 
@@ -402,144 +429,90 @@ If ARG is anything else, turn on display."
 	       (delete-windows-on buffer)
 	       (kill-buffer buffer)))))))
 
-
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Internal variables
 
 
 (defconst ascii-table
-  " OCT DEC HX               |-  OCT DEC HX    |-  OCT DEC HX    |-  OCT DEC HX
-\\000   0 00  C-@ NUL ^@   || \\040  32 20 SPC|| \\100  64 40  @ \
-|| \\140  96 60  `
-\\001   1 01  C-a SOH ^A   || \\041  33 21  ! || \\101  65 41  A \
-|| \\141  97 61  a
-\\002   2 02  C-b STX ^B   || \\042  34 22  \" || \\102  66 42  B \
-|| \\142  98 62  b
-\\003   3 03  C-c ETX ^C   || \\043  35 23  # || \\103  67 43  C \
-|| \\143  99 63  c
-\\004   4 04  C-d EOT ^D   || \\044  36 24  $ || \\104  68 44  D \
-|| \\144 100 64  d
-\\005   5 05  C-e ENQ ^E   || \\045  37 25  % || \\105  69 45  E \
-|| \\145 101 65  e
-\\006   6 06  C-f ACK ^F   || \\046  38 26  & || \\106  70 46  F \
-|| \\146 102 66  f
-\\007   7 07  C-g BEL ^G \\a|| \\047  39 27  ' || \\107  71 47  G \
-|| \\147 103 67  g
-\\010   8 08  C-h BS  ^H \\b|| \\050  40 28  ( || \\110  72 48  H \
-|| \\150 104 68  h
-\\011   9 09  TAB HT  ^I \\t|| \\051  41 29  ) || \\111  73 49  I \
-|| \\151 105 69  i
-\\012  10 0a  C-j LF  ^J \\n|| \\052  42 2a  * || \\112  74 4a  J \
-|| \\152 106 6a  j
-\\013  11 0b  C-k VT  ^K \\v|| \\053  43 2b  + || \\113  75 4b  K \
-|| \\153 107 6b  k
-\\014  12 0c  C-l FF  ^L \\f|| \\054  44 2c  , || \\114  76 4c  L \
-|| \\154 108 6c  l
-\\015  13 0d  RET CR  ^M \\r|| \\055  45 2d  - || \\115  77 4d  M \
-|| \\155 109 6d  m
-\\016  14 0e  C-n SO  ^N   || \\056  46 2e  . || \\116  78 4e  N \
-|| \\156 110 6e  n
-\\017  15 0f  C-o SI  ^O   || \\057  47 2f  / || \\117  79 4f  O \
-|| \\157 111 6f  o
-\\020  16 10  C-p DLE ^P   || \\060  48 30  0 || \\120  80 50  P \
-|| \\160 112 70  p
-\\021  17 11  C-q DC1 ^Q   || \\061  49 31  1 || \\121  81 51  Q \
-|| \\161 113 71  q
-\\022  18 12  C-r DC2 ^R   || \\062  50 32  2 || \\122  82 52  R \
-|| \\162 114 72  r
-\\023  19 13  C-s DC3 ^S   || \\063  51 33  3 || \\123  83 53  S \
-|| \\163 115 73  s
-\\024  20 14  C-t DC4 ^T   || \\064  52 34  4 || \\124  84 54  T \
-|| \\164 116 74  t
-\\025  21 15  C-u NAK ^U   || \\065  53 35  5 || \\125  85 55  U \
-|| \\165 117 75  u
-\\026  22 16  C-v SYN ^V   || \\066  54 36  6 || \\126  86 56  V \
-|| \\166 118 76  v
-\\027  23 17  C-w ETB ^W   || \\067  55 37  7 || \\127  87 57  W \
-|| \\167 119 77  w
-\\030  24 18  C-x CAN ^X   || \\070  56 38  8 || \\130  88 58  X \
-|| \\170 120 78  x
-\\031  25 19  C-y EM  ^Y   || \\071  57 39  9 || \\131  89 59  Y \
-|| \\171 121 79  y
-\\032  26 1a  C-z SUB ^Z   || \\072  58 3a  : || \\132  90 5a  Z \
-|| \\172 122 7a  z
-\\033  27 1b  ESC ESC ^[ \\e|| \\073  59 3b  ; || \\133  91 5b  [ \
-|| \\173 123 7b  {
-\\034  28 1c  C-\\ FS  ^\\   || \\074  60 3c  < || \\134  92 5c  \\ \
-|| \\174 124 7c  |
-\\035  29 1d  C-] GS  ^]   || \\075  61 3d  = || \\135  93 5d  ] \
-|| \\175 125 7d  }
-\\036  30 1e  C-^ RS  ^^   || \\076  62 3e  > || \\136  94 5e  ^ \
-|| \\176 126 7e  ~
-\\037  31 1f  C-_ US  ^_   || \\077  63 3f  ? || \\137  95 5f  _ \
-|| \\177 127 7f DEL ^?
+  (concat
+   ;; (0 <= x <= 127)
+   " OCT DEC HX               |-  OCT DEC HX    |-  OCT DEC HX    \
+|-  OCT DEC HX\n"
+   (let ((str "")
+	 (c   -1)
+	 (cod [
+	       "C-@ NUL ^@   "		; 0
+	       "C-a SOH ^A   "		; 1
+	       "C-b STX ^B   "		; 2
+	       "C-c ETX ^C   "		; 3
+	       "C-d EOT ^D   "		; 4
+	       "C-e ENQ ^E   "		; 5
+	       "C-f ACK ^F   "		; 6
+	       "C-g BEL ^G \\a"		; 7
+	       "C-h BS  ^H \\b"		; 8
+	       "TAB HT  ^I \\t"		; 9
+	       "C-j LF  ^J \\n"		; 10
+	       "C-k VT  ^K \\v"		; 11
+	       "C-l FF  ^L \\f"		; 12
+	       "RET CR  ^M \\r"		; 13
+	       "C-n SO  ^N   "		; 14
+	       "C-o SI  ^O   "		; 15
+	       "C-p DLE ^P   "		; 16
+	       "C-q DC1 ^Q   "		; 17
+	       "C-r DC2 ^R   "		; 18
+	       "C-s DC3 ^S   "		; 19
+	       "C-t DC4 ^T   "		; 20
+	       "C-u NAK ^U   "		; 21
+	       "C-v SYN ^V   "		; 22
+	       "C-w ETB ^W   "		; 23
+	       "C-x CAN ^X   "		; 24
+	       "C-y EM  ^Y   "		; 25
+	       "C-z SUB ^Z   "		; 26
+	       "ESC ESC ^[ \\e"		; 27
+	       "C-\\ FS  ^\\   "	; 28
+	       "C-] GS  ^]   "		; 29
+	       "C-^ RS  ^^   "		; 30
+	       "C-_ US  ^_   "		; 31
+	       ])
+	 c32 c64 c96)
+     (while (< c 31)
+       (setq c   (1+ c)
+	     c32 (+ c 32)
+	     c64 (+ c 64)
+	     c96 (+ c 96)
+	     str (concat
+		  str
+		  (format "\\%03o %03d %02x  %s|| \\%03o %03d %02x %s|| \
+\\%03o %03d %02x  %c || \\%03o %03d %02x %s\n"
+			  c   c   c (aref cod c)
+			  c32 c32 c32
+			  (if (= c32 ?\x20) "SPC"    (format " %c "c32))
+			  c64 c64 c64 c64
+			  c96 c96 c96
+			  (if (= c96 ?\x7F) "DEL ^?" (format " %c" c96))))))
+     str)
 
- OCT DEC HX               |-  OCT DEC HX    |-  OCT DEC HX    |-  OCT DEC HX
-\\200 128 80  \\200         || \\240 160 a0    || \\300 192 c0  À \
-|| \\340 224 e0  à
-\\201 129 81  \\201         || \\241 161 a1  ¡ || \\301 193 c1  Á \
-|| \\341 225 e1  á
-\\202 130 82  \\202         || \\242 162 a2  ¢ || \\302 194 c2  Â \
-|| \\342 226 e2  â
-\\203 131 83  \\203         || \\243 163 a3  £ || \\303 195 c3  Ã \
-|| \\343 227 e3  ã
-\\204 132 84  \\204         || \\244 164 a4  ¤ || \\304 196 c4  Ä \
-|| \\344 228 e4  ä
-\\205 133 85  \\205         || \\245 165 a5  ¥ || \\305 197 c5  Å \
-|| \\345 229 e5  å
-\\206 134 86  \\206         || \\246 166 a6  ¦ || \\306 198 c6  Æ \
-|| \\346 230 e6  æ
-\\207 135 87  \\207         || \\247 167 a7  § || \\307 199 c7  Ç \
-|| \\347 231 e7  ç
-\\210 136 88  \\210         || \\250 168 a8  ¨ || \\310 200 c8  È \
-|| \\350 232 e8  è
-\\211 137 89  \\211         || \\251 169 a9  © || \\311 201 c9  É \
-|| \\351 233 e9  é
-\\212 138 8a  \\212         || \\252 170 aa  ª || \\312 202 ca  Ê \
-|| \\352 234 ea  ê
-\\213 139 8b  \\213         || \\253 171 ab  « || \\313 203 cb  Ë \
-|| \\353 235 eb  ë
-\\214 140 8c  \\214         || \\254 172 ac  ¬ || \\314 204 cc  Ì \
-|| \\354 236 ec  ì
-\\215 141 8d  \\215         || \\255 173 ad  ­ || \\315 205 cd  Í \
-|| \\355 237 ed  í
-\\216 142 8e  \\216         || \\256 174 ae  ® || \\316 206 ce  Î \
-|| \\356 238 ee  î
-\\217 143 8f  \\217         || \\257 175 af  ¯ || \\317 207 cf  Ï \
-|| \\357 239 ef  ï
-\\220 144 90  \\220         || \\260 176 b0  ° || \\320 208 d0  Ð \
-|| \\360 240 f0  ð
-\\221 145 91  \\221         || \\261 177 b1  ± || \\321 209 d1  Ñ \
-|| \\361 241 f1  ñ
-\\222 146 92  \\222         || \\262 178 b2  ² || \\322 210 d2  Ò \
-|| \\362 242 f2  ò
-\\223 147 93  \\223         || \\263 179 b3  ³ || \\323 211 d3  Ó \
-|| \\363 243 f3  ó
-\\224 148 94  \\224         || \\264 180 b4  ´ || \\324 212 d4  Ô \
-|| \\364 244 f4  ô
-\\225 149 95  \\225         || \\265 181 b5  µ || \\325 213 d5  Õ \
-|| \\365 245 f5  õ
-\\226 150 96  \\226         || \\266 182 b6  ¶ || \\326 214 d6  Ö \
-|| \\366 246 f6  ö
-\\227 151 97  \\227         || \\267 183 b7  · || \\327 215 d7  × \
-|| \\367 247 f7  ÷
-\\230 152 98  \\230         || \\270 184 b8  ¸ || \\330 216 d8  Ø \
-|| \\370 248 f8  ø
-\\231 153 99  \\231         || \\271 185 b9  ¹ || \\331 217 d9  Ù \
-|| \\371 249 f9  ù
-\\232 154 9a  \\232         || \\272 186 ba  º || \\332 218 da  Ú \
-|| \\372 250 fa  ú
-\\233 155 9b  \\233         || \\273 187 bb  » || \\333 219 db  Û \
-|| \\373 251 fb  û
-\\234 156 9c  \\234         || \\274 188 bc  ¼ || \\334 220 dc  Ü \
-|| \\374 252 fc  ü
-\\235 157 9d  \\235         || \\275 189 bd  ½ || \\335 221 dd  Ý \
-|| \\375 253 fd  ý
-\\236 158 9e  \\236         || \\276 190 be  ¾ || \\336 222 de  Þ \
-|| \\376 254 fe  þ
-\\237 159 9f  \\237         || \\277 191 bf  ¿ || \\337 223 df  ß \
-|| \\377 255 ff  ÿ
-"
+   ;; (128 <= x <= 255)
+   "\n OCT DEC HX               |-  OCT DEC HX    |-  OCT DEC HX    \
+|-  OCT DEC HX\n"
+   (let ((str "")
+	 (c   127)
+	 c32 c64 c96)
+     (while (< c 159)
+       (setq c   (1+ c)
+	     c32 (+ c 32)
+	     c64 (+ c 64)
+	     c96 (+ c 96)
+	     str (concat
+		  str
+		  (format "\\%03o %03d %02x  \\%03o         || \
+\\%03o %03d %02x  %c || \\%03o %03d %02x  %c || \\%03o %03d %02x  %c\n"
+			  c   c   c   c
+			  c32 c32 c32 c32
+			  c64 c64 c64 c64
+			  c96 c96 c96 c96))))
+     str))
   "ASCII table.")
 
 
@@ -685,7 +658,7 @@ COL-BEG is the ASCII beginning column.
 COL-END is the ASCII end column.
 COL-INDEX is the ASCII table column index.")
 
-
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Internal functions
 
@@ -760,7 +733,7 @@ COL-INDEX is the ASCII table column index.")
 
 ;; \177  \xFF  \t  \Z  \\
 (defconst ascii-backslash-regexp
-  "\\\\\\([0-8]+\\|x[0-9A-Fa-f]+\\|\n\\|.\\)")
+  "\\\\\\([0-7]+\\|x[0-9A-Fa-f]+\\|\n\\|.\\)")
 
 
 ;; ?A  ?\^A  ?\C-A  ?\177  ?\xFF  ?\t  ?\Z  ?\\
@@ -793,7 +766,7 @@ COL-INDEX is the ASCII table column index.")
 		  ?\n)
 		 ((looking-at "=\\([0-9A-Fa-f][0-9A-Fa-f]\\)")
 		  (set var-sym "Quoted")
-		  (string-to-int (ascii-string-matched 1) 16)))))
+		  (string-to-number (ascii-string-matched 1) 16)))))
      ;; HTML
      ((and (memq 'html ascii-code)
 	   (let ((case-fold-search t))
@@ -802,7 +775,7 @@ COL-INDEX is the ASCII table column index.")
       (let ((str (ascii-string-matched 1)))
 	(cond ((eq (aref str 0) ?#)
 	       (aset str 0 ?\ )
-	       (let ((int (string-to-int str)))
+	       (let ((int (string-to-number str)))
 		 (if (and (<= 0 int) (<= int 255))
 		     int
 		   (set var-sym nil)
@@ -863,7 +836,8 @@ COL-INDEX is the ASCII table column index.")
 	 (set-buffer ascii-buffer-name)
 	 (let ((pos (aref ascii-position code))
 	       beg end)
-	   (goto-line (aref pos 0))
+	   (goto-char (point-min))
+	   (forward-line (1- (aref pos 0)))
 	   (if (and (> code 127) (/= ascii-charset-base 127))
 	       (save-match-data
 		 (re-search-forward
@@ -946,7 +920,7 @@ COL-INDEX is the ASCII table column index.")
 			       nil t)
 			  (delete-char 4)
 			  (setq base (1+ base))
-			  (if (not (char-valid-p base))
+			  (if (not (characterp base))
 			      (insert "?   ")
 			    (insert base)
 			    (let ((cols (- (current-column)
@@ -968,7 +942,7 @@ COL-INDEX is the ASCII table column index.")
 			       nil t)
 			  (delete-char 1)
 			  (setq base (1+ base))
-			  (if (not (char-valid-p base))
+			  (if (not (characterp base))
 			      (insert "?")
 			    (insert base)
 			    (let ((cols (- (current-column)
@@ -991,7 +965,7 @@ COL-INDEX is the ASCII table column index.")
 	      (set-buffer-modified-p nil)
 	      (setq buffer-read-only t)))))))
 
-
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

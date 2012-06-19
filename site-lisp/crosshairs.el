@@ -4,12 +4,12 @@
 ;; Description: Highlight the current line and column.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 2006-2011, Drew Adams, all rights reserved.
+;; Copyright (C) 2006-2012, Drew Adams, all rights reserved.
 ;; Created: Fri Sep 08 13:09:19 2006
 ;; Version: 22.0
-;; Last-Updated: Mon Jan  3 20:26:52 2011 (-0800)
+;; Last-Updated: Fri May 18 07:22:07 2012 (-0700)
 ;;           By: dradams
-;;     Update #: 404
+;;     Update #: 465
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/crosshairs.el
 ;; Keywords: faces, frames, emulation, highlight, cursor, accessibility
 ;; Compatibility: GNU Emacs: 22.x, 23.x
@@ -25,7 +25,14 @@
 ;;  This library highlights the current line and the current column.
 ;;  It combines the features of libraries `hl-line.el', `hl-line+.el',
 ;;  and `col-highlight.el', which let you highlight the line or column
-;;  individually.  See those libraries for more information.
+;;  individually.  See those libraries for more information, in
+;;  particular for user options that affect the behavior.
+;;
+;;  If you want the horizontal and vertical highlighting to look the
+;;  same, then:
+;;
+;;  1. Set option `col-highlight-vline-face-flag' to non-nil.
+;;  2. Customize faces `col-highlight' and `hl-line' to look the same.
 ;;
 ;;  Command `crosshairs-mode' toggles this highlighting on and off.
 ;;  You can do this twice in succession to flash the crosshairs to
@@ -58,8 +65,7 @@
 ;;
 ;;  User options defined here:
 ;;
-;;    `crosshairs-mode', `crosshairs-overlay-priority',
-;;    `crosshairs-vline-same-face-flag'.
+;;    `crosshairs-mode'.
 ;;
 ;;  Commands defined here:
 ;;
@@ -81,8 +87,17 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
-;;; Change log:
+;;; Change Log:
 ;;
+;; 2012/05/18 dadams
+;;     Removed: crosshairs-overlay-priority.  Instead, use vline-overlay-priority
+;;              and col-highlight-overlay-priority.
+;;     crosshairs-mode, crosshairs-(un)highlight:
+;;       Do not set the overlay priority - done using defadvice in hl-line+.el and
+;;       col-highlight.el.
+;; 2012/05/17 dadams
+;;     crosshairs-mode: Made it respect crosshairs-overlay-priority.
+;;     Removed: crosshairs-vline-same-face-flag.
 ;; 2011/01/03 dadams
 ;;     Added autoload cookies for defgroup, defcustoms, commands.
 ;; 2010/06/29 dadams
@@ -157,21 +172,6 @@ Don't forget to mention your Emacs and library versions."))
           "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
   :link '(url-link :tag "Download"
           "http://www.emacswiki.org/cgi-bin/wiki/crosshairs.el"))
-
-;;;###autoload
-(defcustom crosshairs-overlay-priority nil
-  "*Priority to use for overlay `global-hl-line-overlay'."
-  :type '(choice
-          (const   :tag "No priority (default priority)"  nil)
-          (integer :tag "Priority"  100))
-  :group 'crosshairs)
-
-;;;###autoload
-(defcustom crosshairs-vline-same-face-flag t
-  "*Non-nil means use face `hl-line' for column highlighting also.
-nil means highlight the column according to the value of `vline-style'
-and face `vline'."
-  :type 'boolean :group 'crosshairs)
 
 (defvar crosshairs-highlight-when-idle-p nil
   "Non-nil means highlight current line and column when Emacs is idle.
@@ -261,7 +261,7 @@ both for SECONDS seconds."
   (interactive "P")
   (cancel-timer crosshairs-flash-line-timer) ; Cancel to prevent duplication.
   (cancel-timer crosshairs-flash-col-timer)
-  (let ((global-hl-line-mode global-hl-line-mode))
+  (let ((global-hl-line-mode  global-hl-line-mode))
     (col-highlight-unhighlight t)
     (col-highlight-highlight t)
     (when column-highlight-mode (col-highlight-highlight t)) ; Extra - a vline bug.
@@ -320,12 +320,6 @@ Return current position as a marker."
         (setq global-hl-line-overlay (make-overlay 1 1)) ; to be moved
         (overlay-put global-hl-line-overlay 'face hl-line-face))
       (overlay-put global-hl-line-overlay 'window (selected-window))
-      (when crosshairs-overlay-priority
-        (overlay-put global-hl-line-overlay 'priority crosshairs-overlay-priority)
-        (when (boundp 'vline-overlay-table)
-          (mapcar (lambda (ov) (when (overlayp ov)
-                            (overlay-put ov 'priority crosshairs-overlay-priority)))
-                  vline-overlay-table)))
       (hl-line-move global-hl-line-overlay))
     (when (and (fboundp 'col-highlight-highlight) (not (eq mode 'line-only)))
       (redisplay t) ; Force a redisplay, or else it doesn't always show up.
@@ -346,12 +340,11 @@ Optional arg nil means do nothing if this event is a frame switch."
                           (eq (car last-input-event) 'switch-frame))))
     (when (fboundp 'col-highlight-unhighlight) (col-highlight-unhighlight t))
     (when (and (boundp 'global-hl-line-overlay) global-hl-line-overlay)
-      (when crosshairs-overlay-priority
-        (overlay-put global-hl-line-overlay 'priority nil))
+;;       (when crosshairs-overlay-priority
+;;         (overlay-put global-hl-line-overlay 'priority nil))
       (delete-overlay global-hl-line-overlay))
     (remove-hook 'pre-command-hook 'crosshairs-unhighlight)))
 
-      
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (provide 'crosshairs)

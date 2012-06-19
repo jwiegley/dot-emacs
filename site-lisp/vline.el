@@ -1,11 +1,12 @@
 ;;; vline.el --- show vertical line (column highlighting) mode.
 
-;; Copyright (C) 2002, 2008, 2009, 2010 by Taiki SUGAWARA <buzz.taiki@gmail.com>
+;; Copyright (C) 2002, 2008-2012 by Taiki SUGAWARA <buzz.taiki@gmail.com>
 
 ;; Author: Taiki SUGAWARA <buzz.taiki@gmail.com>
+;; Maintainer: Taiki SUGAWARA <buzz.taiki@gmail.com>
 ;; Keywords: faces, editing, emulating
-;; Version: 1.10
-;; Time-stamp: <2010-02-02 19:37:18 UTC taiki>
+;; Version: 1.11
+;; Time-stamp: <2012-01-08 12:40:18 UTC taiki>
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/vline.el
 ;; URL: http://bitbucket.org/buzztaiki/elisp/src/tip/vline.el
 
@@ -24,26 +25,31 @@
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-;;; Usage
+;;; Commentary:
+
 ;; put followings your .emacs
 ;;   (require 'vline)
 ;;
-;; if you display a vertical line, type M-x vline-mode. `vline-mode' doesn't
-;; effect other buffers, because it is a buffer local minor mode. if you hide
+;; if you display a vertical line, type M-x vline-mode.  `vline-mode' doesn't
+;; effect other buffers, because it is a buffer local minor mode.  if you hide
 ;; a vertical line, type M-x vline-mode again.
 ;;
 ;; if you display a vertical line in all buffers, type M-x vline-global-mode.
 ;;
-;; `vline-style' provides a display style of vertical line. see
+;; `vline-style' provides a display style of vertical line.  see
 ;; `vline-style' docstring.
 ;;
-;; if you don't want to visual line highlighting (ex. for performance
+;; if you don't want to visual line highlighting (ex.  for performance
 ;; issue), please to set `vline-visual' to nil.
 ;;
-;; if you don't want to use timer (ex. you want to highlight column
+;; if you don't want to use timer (ex.  you want to highlight column
 ;; during moving cursors), please to set `vline-use-timer' to nil.
 
-;;; Changes
+;;; Change Log:
+
+;; 2012-01-08 taiki
+;; fix for the Lint warnings.
+
 ;; 2010-02-02 taiki
 ;; improve performance.
 
@@ -71,7 +77,7 @@
 ;; fix coding-system problem.
 ;; - Added vline-multiwidth-space-list
 ;; - Use ucs code-point for japanese fullwidth space.
-;; 
+;;
 ;; 2008-01-22 taiki
 ;; applied patch from Lennart Borgman
 ;; - Added :group 'vline
@@ -146,8 +152,7 @@ if `truncate-lines' is non-nil."
   :group 'vline)
 
 (defcustom vline-use-timer t
-  "If non-nil then vline use idle timer instead
-of (post|after)-command-hook."
+  "If non-nil, use idle timer instead of (post|after)-command-hook."
   :type 'boolean
   :group 'vline)
 
@@ -214,7 +219,7 @@ of (post|after)-command-hook."
   (or (eq vline-visual 'force)
       (and (not truncate-lines)
 	   vline-visual)))
-  
+
 (defsubst vline-current-column ()
   (if (or (not (vline-visual-p))
 	  ;; margin for full-width char
@@ -375,5 +380,10 @@ of (post|after)-command-hook."
 	    (vline-forward -1)))))))
 
 (provide 'vline)
+
+;;; Local Variables:
+;;; time-stamp-format: "%:y-%02m-%02d %02H:%02M:%02S %Z %u"
+;;; time-stamp-line-limit: 16
+;;; End:
 
 ;;; vline.el ends here

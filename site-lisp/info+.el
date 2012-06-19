@@ -4,12 +4,12 @@
 ;; Description: Extensions to `info.el'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 1996-2011, Drew Adams, all rights reserved.
+;; Copyright (C) 1996-2012, Drew Adams, all rights reserved.
 ;; Created: Tue Sep 12 16:30:11 1995
 ;; Version: 21.1
-;; Last-Updated: Thu Feb 24 15:34:25 2011 (-0800)
+;; Last-Updated: Sun Jan 15 00:50:02 2012 (-0800)
 ;;           By: dradams
-;;     Update #: 4459
+;;     Update #: 4495
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/info+.el
 ;; Keywords: help, docs, internal
 ;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x
@@ -78,7 +78,9 @@
 ;;  ***** NOTE: The following standard functions defined in `info.el'
 ;;              have been REDEFINED HERE:
 ;;
+;;  `info-display-manual' - Use completion to input manual name.
 ;;  `Info-find-emacs-command-nodes' - Added in-progress message.
+;;  `Info-find-file' (Emacs 23+) - Handle virtual books.
 ;;  `Info-find-node', `Info-find-node-2' -
 ;;     Call `fit-frame' if `Info-fit-frame-flag'.
 ;;  `Info-fontify-node' -
@@ -176,8 +178,15 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;; Change log:
+;;; Change Log:
 ;;
+;; 2012/01/15 dadams
+;;     Added: info-display-manual (redefinition).
+;;     Info-find-file: Do not define for < Emacs 23.2 - no virtual books.
+;; 2011/11/15 dadams
+;;     Added: redefinition of Info-find-file for Emacs 23+, to handle virtual books.
+;; 2011/08/23 dadams
+;;     Removed hard-code removal of info from same-window-(regexps|buffer-names).  Thx to PasJa.
 ;; 2011/02/06 dadams
 ;;     info-user-option-ref-item: Corrected background for light-bg case.
 ;; 2011/02/03 dadams
@@ -473,40 +482,43 @@
 ;;   (require 'icicles nil t)) ;; (no error if not found): icicle-read-string-completing
 
 ;; Quiet the byte compiler a bit.
-(when (< emacs-major-version 21)
-  (eval-when-compile
-   (defvar desktop-save-buffer)
-   (defvar header-line-format)
-   (defvar Info-breadcrumbs-in-mode-line-mode)
-   (defvar Info-fontify-visited-nodes)
-   (defvar Info-hide-note-references)
-   (defvar Info-history-list)
-   (defvar Info-isearch-initial-node)
-   (defvar Info-isearch-search)
-   (defvar Info-menu-entry-name-re)
-   (defvar Info-next-link-keymap)
-   (defvar Info-mode-line-node-keymap)
-   (defvar Info-node-spec-re)
-   (defvar Info-point-loc)
-   (defvar Info-prev-link-keymap)
-   (defvar Info-refill-paragraphs)
-   (defvar Info-saved-nodes)
-   (defvar Info-search-case-fold)
-   (defvar Info-search-history)
-   (defvar Info-search-whitespace-regexp)
-   (defvar info-tool-bar-map)
-   (defvar Info-up-link-keymap)
-   (defvar Info-use-header-line)
-   (defvar widen-automatically)))
+;;
+;; (when (< emacs-major-version 21)
+;;   (eval-when-compile
+(defvar desktop-save-buffer)
+(defvar header-line-format)
+(defvar Info-breadcrumbs-in-mode-line-mode)
+(defvar Info-fontify-visited-nodes)
+(defvar Info-hide-note-references)
+(defvar Info-history-list)
+(defvar Info-isearch-initial-node)
+(defvar Info-isearch-search)
+(defvar Info-menu-entry-name-re)
+(defvar Info-next-link-keymap)
+(defvar Info-mode-line-node-keymap)
+(defvar Info-node-spec-re)
+(defvar Info-point-loc)
+(defvar Info-prev-link-keymap)
+(defvar Info-refill-paragraphs)
+(defvar Info-saved-nodes)
+(defvar Info-search-case-fold)
+(defvar Info-search-history)
+(defvar Info-search-whitespace-regexp)
+(defvar info-tool-bar-map)
+(defvar Info-up-link-keymap)
+(defvar Info-use-header-line)
+(defvar widen-automatically)
 
-(when (< emacs-major-version 23)
-  (eval-when-compile
-   (defvar Info-read-node-completion-table)
-   (defvar Info-breadcrumbs-depth)
-   (defvar Info-breadcrumbs-depth-internal)
-   (defvar Info-breadcrumbs-in-header-flag)
-   (defvar Info-current-node-virtual)
-   (defvar isearch-filter-predicate)))
+;; (when (< emacs-major-version 23)
+;;   (eval-when-compile
+(defvar Info-read-node-completion-table)
+(defvar Info-breadcrumbs-depth)
+(defvar Info-breadcrumbs-depth-internal)
+(defvar Info-breadcrumbs-in-header-flag)
+(defvar Info-current-node-virtual)
+(defvar Info-last-search)
+(defvar Info-title-face-alist)
+(defvar isearch-filter-predicate)
 
 ;;; You will likely get byte-compiler messages saying that variable
 ;;; `node-name' is free.  In older Emacs versions, you might also get
@@ -610,38 +622,38 @@ Don't forget to mention your Emacs and library versions."))
   (set-face-bold-p     'info-xref nil))
 
 ;; Standard faces from vanilla Emacs `info.el', but without `:weight', `:height' and `:inherit'.
-;; ;;;###autoload
-;; (defface info-title-1
-;;     '((((type tty pc) (class color) (background dark))  :foreground "yellow" :weight bold)
-;;       (((type tty pc) (class color) (background light)) :foreground "brown"  :weight bold))
-;;   "*Face for info titles at level 1."
-;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; ;; backward-compatibility alias
-;; (put 'Info-title-1-face 'face-alias 'info-title-1)
+;;;###autoload
+(defface info-title-1
+    '((((type tty pc) (class color) (background dark))  :foreground "yellow" :weight bold)
+      (((type tty pc) (class color) (background light)) :foreground "brown"  :weight bold))
+  "*Face for info titles at level 1."
+  :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; backward-compatibility alias
+(put 'Info-title-1-face 'face-alias 'info-title-1)
 
-;; ;;;###autoload
-;; (defface info-title-2
-;;     '((((type tty pc) (class color)) :foreground "lightblue" :weight bold))
-;;   "*Face for info titles at level 2."
-;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; ;; backward-compatibility alias
-;; (put 'Info-title-2-face 'face-alias 'info-title-2)
+;;;###autoload
+(defface info-title-2
+    '((((type tty pc) (class color)) :foreground "lightblue" :weight bold))
+  "*Face for info titles at level 2."
+  :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; backward-compatibility alias
+(put 'Info-title-2-face 'face-alias 'info-title-2)
 
-;; ;;;###autoload
-;; (defface info-title-3
-;;     '((((type tty pc) (class color)) :weight bold))
-;;   "*Face for info titles at level 3."
-;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; ;; backward-compatibility alias
-;; (put 'Info-title-3-face 'face-alias 'info-title-3)
+;;;###autoload
+(defface info-title-3
+    '((((type tty pc) (class color)) :weight bold))
+  "*Face for info titles at level 3."
+  :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; backward-compatibility alias
+(put 'Info-title-3-face 'face-alias 'info-title-3)
 
-;; ;;;###autoload
-;; (defface info-title-4
-;;     '((((type tty pc) (class color)) :weight bold))
-;;   "*Face for info titles at level 4."
-;;   :group (if (facep 'info-title-1) 'info 'Info-Plus))
-;; ;; backward-compatibility alias
-;; (put 'Info-title-4-face 'face-alias 'info-title-4)
+;;;###autoload
+(defface info-title-4
+    '((((type tty pc) (class color)) :weight bold))
+  "*Face for info titles at level 4."
+  :group (if (facep 'info-title-1) 'info 'Info-Plus))
+;; backward-compatibility alias
+(put 'Info-title-4-face 'face-alias 'info-title-4)
 
 (when (<= emacs-major-version 21)
   (setq Info-title-face-alist  '((?* info-title-1 bold underline)
@@ -922,16 +934,6 @@ For example, type `^Q^L^Q^J* ' to set this to \"\\f\\n* \"."
    ["Quit" quit-window t]))
 
 
-
-;; Do this to counteract what is done in `info.el'.  There is no
-;; reason not to use a separate window, if the user, e.g., sets
-;; `pop-up-windows' or `pop-up-frames' non-nil.
-;;
-(if (>= emacs-major-version 22)
-    (remove-hook 'same-window-regexps "\\*info\\*\\(\\|<[0-9]+>\\)")
-  (remove-hook 'same-window-buffer-names "*info*"))
-
-
 ;; Make `Info-find-emacs-command-nodes' look for these commands in the
 ;; Emacs manual. In particular, don't look for command `info' in Info
 ;; manual, because that has no index.
@@ -959,6 +961,65 @@ For example, type `^Q^L^Q^J* ' to set this to \"\\f\\n* \"."
 
 
 ;; REPLACE ORIGINAL in `info.el':
+;; 
+;; Added final clause to `cond', to handle virtual books.  (Emacs 23.2+)
+;;
+(when (or (> emacs-major-version 23) (and (= emacs-major-version 23) (> emacs-minor-version 1)))
+  (defun Info-find-file (filename &optional noerror)
+    "Return expanded FILENAME, or t if FILENAME is \"dir\".
+Optional second argument NOERROR, if t, means if file is not found
+just return nil (no error)."
+    ;; Convert filename to lower case if not found as specified.
+    ;; Expand it.
+    (cond
+      ((Info-virtual-call (Info-virtual-fun 'find-file filename nil) filename noerror))
+      ((stringp filename)
+       (let (temp temp-downcase found)
+         (setq filename  (substitute-in-file-name filename))
+         (let ((dirs  (if (string-match "^\\./" filename)
+                          '("./")       ; If specified name starts with `./' then just try current dir.
+                        (if (file-name-absolute-p filename)
+                            '(nil)      ; No point in searching for an absolute file name
+                          (if Info-additional-directory-list
+                              (append Info-directory-list Info-additional-directory-list)
+                            Info-directory-list)))))
+           ;; Fall back on the installation directory if we can't find the info node anywhere else.
+           (when installation-directory
+             (setq dirs  (append dirs (list (expand-file-name "info" installation-directory)))))
+           ;; Search the directory list for file FILENAME.
+           (while (and dirs (not found))
+             (setq temp           (expand-file-name filename (car dirs)))
+             (setq temp-downcase  (expand-file-name (downcase filename) (car dirs)))
+             ;; Try several variants of specified name.
+             (let ((suffix-list  Info-suffix-list)
+                   (lfn          (if (fboundp 'msdos-long-file-names) (msdos-long-file-names) t)))
+               (while (and suffix-list (not found))
+                 (cond ((info-file-exists-p
+                         (info-insert-file-contents-1 temp (car (car suffix-list)) lfn))
+                        (setq found temp))
+                       ((info-file-exists-p
+                         (info-insert-file-contents-1 temp-downcase (car (car suffix-list)) lfn))
+                        (setq found temp-downcase))
+                       ((and (fboundp 'msdos-long-file-names)
+                             lfn
+                             (info-file-exists-p
+                              (info-insert-file-contents-1 temp (car (car suffix-list)) nil)))
+                        (setq found  temp)))
+                 (setq suffix-list  (cdr suffix-list))))
+             (setq dirs  (cdr dirs))))
+         (if found
+             (setq filename  found)
+           (if noerror
+               (setq filename nil)
+             (error "Info file %s does not exist" filename)))
+         filename))
+      ((member filename '(apropos history toc))  filename))) ; Handle virtual books - `toc'.
+  )
+
+
+
+;; REPLACE ORIGINAL in `info.el':
+;;
 ;; Call `fit-frame' if `Info-fit-frame-flag'.
 ;;
 (when (< emacs-major-version 21)
@@ -4449,6 +4510,47 @@ These are all of the current Info Mode bindings:
     (set (make-local-variable 'bookmark-make-record-function) 'Info-bookmark-make-record)
     (run-mode-hooks 'Info-mode-hook)))
 
+
+;; REPLACES ORIGINAL in `info.el':
+;;
+;; Use completion for inputting the manual name. 
+;;
+(when (> emacs-major-version 22)
+  (defun info-display-manual (manual)
+    "Go to Info buffer that displays MANUAL, creating it if none already exists."
+    ;;  (interactive "sManual name: ")
+    (interactive
+     (let ((manuals  ()))
+       (condition-case nil
+           (with-temp-buffer
+             (Info-mode)
+             (Info-directory)
+             (goto-char (point-min))
+             (re-search-forward "\\* Menu: *\n" nil t)
+             (let (manual)
+               (while (re-search-forward "\\*.*: *(\\([^)]+\\))" nil t)
+                 ;; `add-to-list' ensures no dups in `manuals', so the `dolist' runs faster.
+                 (setq manual  (match-string 1))
+                 (set-text-properties 0 (length manual) nil manual)
+                 (add-to-list 'manuals (list manual)))))
+         (error nil))
+       (list (completing-read "Display manual: " manuals))))
+    (let ((blist (buffer-list))
+          (manual-re (concat "\\(/\\|\\`\\)" manual "\\(\\.\\|\\'\\)"))
+          (case-fold-search t)
+          found)
+      (dolist (buffer blist)
+        (with-current-buffer buffer
+          (when (and (eq major-mode 'Info-mode)
+                     (stringp Info-current-file)
+                     (string-match manual-re Info-current-file))
+            (setq found  buffer
+                  blist  ()))))
+      (if found
+          (switch-to-buffer found)
+        (info-initialize)
+        (info (Info-find-file manual))))))
+
 (defun Info-display-node-default-header ()
   "Insert node name as header."
   ;; `node-name' is free here - bound in `Info-merge-subnodes'.
@@ -4701,7 +4803,7 @@ subnodes (outside Info)? ")
                 (buffer-enable-undo) (undo-start) ; chars to underline.
                 (untabify (point) (save-excursion (forward-line 1) (point)))
                 (setq menu-item-line  (buffer-substring-no-properties
-                                       (save-excursion (beginning-of-line)(forward-char 2) (point))
+                                       (save-excursion (beginning-of-line) (forward-char 2) (point))
                                        (save-excursion (forward-line 1) (point))))
                 (when pending-undo-list (undo-more 1)) ; Only if did something.
                 (buffer-disable-undo))

@@ -4,12 +4,12 @@
 ;; Description: Set up `mode-line-position'.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 2006-2011, Drew Adams, all rights reserved.
+;; Copyright (C) 2006-2012, Drew Adams, all rights reserved.
 ;; Created: Thu Sep 14 08:15:39 2006
 ;; Version: 22.0
-;; Last-Updated: Tue Jan  4 11:38:58 2011 (-0800)
+;; Last-Updated: Fri May 25 20:06:05 2012 (-0700)
 ;;           By: dradams
-;;     Update #: 78
+;;     Update #: 121
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/modeline-posn.el
 ;; Keywords: mode-line, region, column
 ;; Compatibility: GNU Emacs: 22.x, 23.x
@@ -31,6 +31,23 @@
 ;;
 ;;  2. Make `size-indication-mode' show the size of the region,
 ;;     instead of the buffer size, whenever the region is active.
+;;
+;;  More precisely for #2: When the region is active, the mode line
+;;  displays some information that you can customize - see option
+;;  `modelinepos-style'.  Customization choices for this include (a)
+;;  the number of chars, (b) the number of chars and number of lines,
+;;  and (c) anything else you might want.  Choice (b) is the default.
+;;
+;;  For (c), you provide a `format' expression as separate components:
+;;  the format string and the sexp arguments to be evaluated and
+;;  plugged into the string.  The number of sexp args depends on the
+;;  format string that you use: one for each `%' construct.
+;;
+;;  Choice (c) is provided so that you can choose alternative
+;;  formatting styles.  For example, instead of ` 256 ch, 13 l', you
+;;  could show ` (256 chars, 13 lines)'.  But (c) can really show
+;;  information at all.  It need not have anything to do with the
+;;  region, but it is nevertheless shown when the region is active.
 ;;
 ;;  Note: Loading this library changes the default definition of
 ;;        `mode-line-position'.
@@ -57,6 +74,9 @@
 ;; 
 ;;; Change Log:
 ;;
+;; 2012/05/25 dadams
+;;     Added face modelinepos-region and option modelinepos-style.
+;;     Updated mode-line-position accordingly.  Thx to Jonathan Kotta for the suggestion.
 ;; 2011/01/04 dadams
 ;;     Added autoload cookies for defface, defcustom, and command.
 ;; 2009/06/11 dadams
@@ -97,9 +117,31 @@ This is used when the current column number is greater than
   :group 'Modeline :group 'Convenience :group 'Help :group 'faces)
 
 ;;;###autoload
+(defface modelinepos-region '((t :inherit region))
+  "*Face used to highlight the modeline position and size when
+the region is active."
+  :group 'Modeline :group 'Convenience :group 'Help :group 'faces)
+
+;;;###autoload
 (defcustom modelinepos-column-limit 70
-  "Current column greater than this means highlight column in mode-line."
+  "*Current column greater than this means highlight column in mode-line."
   :type 'integer :group 'Modeline :group 'Convenience :group 'Help)
+
+;;;###autoload
+(defcustom modelinepos-style '(" %d ch, %d l"
+                               (abs (- (mark t) (point)))
+                               (count-lines (mark t) (point)))
+  "*What info to include about the region size, in mode-line.
+Value `chars+lines' means print the number of characters and the number of lines."
+  :type '(choice
+          (const :tag "Characters: \"_ chars\""
+           (" %d chars" (abs (- (mark t) (point)))))
+          (const :tag "Chars & Lines: \"_ ch, _ l\""
+           (" %d ch, %d l" (abs (- (mark t) (point))) (count-lines (mark t) (point))))
+          (list :tag "Customized format"
+           (string :tag "Format string")
+           (repeat :inline t (sexp :tag "Sexp argument for format string"))))
+  :group 'Modeline :group 'Convenience :group 'Help)
 
 
 
@@ -132,10 +174,10 @@ delete others, mouse-3: delete this"))
                     `((-3 ,(propertize "%p" 'help-echo help-echo))
                       (size-indication-mode
                        (8 ,(propertize
-                            (if (and transient-mark-mode mark-active)
-                                (format " %d chars" (abs (- (mark t) (point))))
+                            (if (and transient-mark-mode  mark-active)
+                                (apply #'format (mapcar #'eval modelinepos-style))
                               " of %I")
-                            'face (and transient-mark-mode mark-active 'region)
+                            'face (and transient-mark-mode  mark-active  'modelinepos-region)
                             'help-echo help-echo)))
                       (line-number-mode
                        ((column-number-mode
@@ -169,10 +211,10 @@ delete others, mouse-3: delete this"))
                                      'help-echo "Buffer position, mouse-1: Line/col menu"))
                       (size-indication-mode
                        (8 ,(propertize
-                            (if (and transient-mark-mode mark-active)
-                                (format " %d chars" (abs (- (mark t) (point))))
+                            (if (and transient-mark-mode  mark-active)
+                                (apply #'format (mapcar #'eval modelinepos-style))
                               " of %I")
-                            'face (and transient-mark-mode mark-active 'region)
+                            'face (and transient-mark-mode  mark-active  'modelinepos-region)
                             'local-map mode-line-column-line-number-mode-map
                             'mouse-face 'mode-line-highlight
                             'help-echo "Buffer position, mouse-1: Line/col menu")))

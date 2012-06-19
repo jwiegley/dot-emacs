@@ -1,469 +1,475 @@
-;;;; A major mode for editing CSS.
+;;; css-mode.el
 
-;;; Adds font locking, some rather primitive indentation handling and
-;;; some typing help.
-;;;
-(defvar cssm-version "0.11"
-  "The current version number of css-mode.")
-;;; copyright (c) 1998 Lars Marius Garshol, larsga@ifi.uio.no
-;;; $Id: css-mode.el,v 1.9 2000/01/05 21:21:56 larsga Exp $
+;; css-mode.el             -*- Emacs-Lisp -*-
 
-;;; css-mode is free software; you can redistribute it and/or modify
-;;; it under the terms of the GNU General Public License as published
-;;; by the Free Software Foundation; either version 2, or (at your
-;;; option) any later version.
-;;;
-;;; css-mode is distributed in the hope that it will be useful, but
-;;; WITHOUT ANY WARRANTY; without even the implied warranty of
-;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-;;; General Public License for more details.
-;;;
-;;; You should have received a copy of the GNU General Public License
-;;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;;; Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+;; Mode for editing Cascading Style Sheets
 
-; Send me an email if you want new features (or if you add them yourself).
-; I will do my best to preserve the API to functions not explicitly marked
-; as internal and variables shown as customizable. I make no promises about
-; the rest.
+;; Created:    <Sat Feb 12 13:51:49 EST 2000>
+;; Time-stamp: <2002-11-25 10:21:39 foof>
+;; Author:     Alex Shinn <foof@synthcode.com>
+;; Version:    0.3
+;; Keywords:   html, style sheets, languages
 
-; Bug reports are very welcome. New versions of the package will appear at
-; http://www.stud.ifi.uio.no/~larsga/download/css-mode.html
-; You can register at the same address if you want to be notified when a
-; new version appears.
+;; Copyright (C) 2000-2002 Alex Shinn
 
-; Thanks to Philippe Le Hegaret, Kjetil Kjernsmo, Alf-Ivar Holm and
-; Alfred Correira for much useful feedback. Alf-Ivar Holm also contributed
-; patches.
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2 of
+;; the License, or (at your option) any later version.
+;; 
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;; 
+;; You should have received a copy of the GNU General Public
+;; License along with this program; if not, write to the Free
+;; Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+;; MA 02111-1307 USA
 
-; To install, put this in your .emacs:
-;
-; (autoload 'css-mode "css-mode")
-; (setq auto-mode-alist
-;      (cons '("\\.css\\'" . css-mode) auto-mode-alist))
+;;; Commentary:
+;;
+;; This file provides a major mode for editing level 1 and 2 Cascading
+;; Style Sheets.  It offers syntax highlighting, indentation, and
+;; auto-completion of various CSS elements.
+;;
+;; To use it, put the following in your .emacs:
+;;
+;; (autoload 'css-mode "css-mode" "Mode for editing CSS files" t)
+;;
+;; You may also want something like:
+;;
+;; (setq auto-mode-alist
+;;       (append '(("\\.css$" . css-mode))
+;;               auto-mode-alist))
+;;
 
-;; Todo:
+;;; ChangeLog:
+;;
+;; 2002/11/25 (version 0.3):
+;;   * changed to use indent-to to obey tab preference (Vasily Korytov)
 
-; - must not color URL file name extensions as class selectors (*.css)
-; - color [] and url() constructs correctly, even if quoted strings present
-; - disregard anything inside strings
 
-;; Possible later additions:
-;
-; - forward/backward style/@media rule commands
-; - more complete syntax table
+(defgroup css nil
+  "Customizations for editing Cascading Style Sheets"
+  :group 'languages)
 
-;; Required modules
+(defcustom css-mode-hook nil
+  "*Hook to be run when `css-mode' is entered."
+  :group 'css
+  :type  'hook)
 
-(require 'apropos)
-(require 'font-lock)
-(require 'cl)
+(defcustom css-electric-semi-behavior nil
+  "If non-nil semicolons are electric in css mode"
+  :group 'css
+  :type  'boolean)
 
-;;; The code itself
+(defcustom css-electric-brace-behavior nil
+  "If non-nil braces are electric in css mode"
+  :group 'css
+  :type  'boolean)
 
-; Customizable variables:
+(defcustom css-indent-offset 4
+  "Number of spaces to indent lines in CSS mode"
+  :group 'css
+  :type  'integer)
 
-(defvar cssm-indent-level 2 "The indentation level inside @media rules.")
-(defvar cssm-mirror-mode t
-  "Whether brackets, quotes etc should be mirrored automatically on
-  insertion.")
-(defvar cssm-newline-before-closing-bracket nil
-  "In mirror-mode, controls whether a newline should be inserted before the
-closing bracket or not.")
-(defvar cssm-indent-function #'cssm-old-style-indenter
-  "Which function to use when deciding which column to indent to. To get
-C-style indentation, use cssm-c-style-indenter.")
+(defcustom css-tab-mode 'auto
+  "Behavior of tab in CSS mode"
+  :group 'css
+  :type  '(choice (const :tag "Always insert" insert)
+                  (const :tag "Always indent" indent)
+                  (const :tag "Always complete" complete)
+                  (const :tag "Auto" auto) ))
 
-; The rest of the code:
+(defvar css-mode-abbrev-table nil
+  "Abbreviation table used in `css-mode' buffers.")
+(define-abbrev-table 'css-mode-abbrev-table ())
 
-(defvar cssm-properties
-  '("font-family" "font-style" "font-variant" "font-weight"
-    "font-size" "font" "background-color" "background-image"
-    "background-repeat" "background-attachment" "background-position"
-    "color" "background" "word-spacing" "letter-spacing"
-    "border-top-width" "border-right-width" "border-left-width"
-    "border-bottom-width" "border-width" "list-style-type"
-    "list-style-image" "list-style-position" "text-decoration"
-    "vertical-align" "text-transform" "text-align" "text-indent"
-    "line-height" "margin-top" "margin-right" "margin-bottom"
-    "margin-left" "margin" "padding-top" "padding-right" "padding-bottom"
-    "padding-left" "padding" "border-top" "border-right" "border-bottom"
-    "border-left" "border" "width" "height" "float" "clear" "display"
-    "list-style" "white-space" "border-style" "border-color"
 
-    ; CSS level 2:
+(defvar css-at-rule-keywords nil
+  "Keywords for CSS at rules" )
+(if css-at-rule-keywords nil
+  (setq css-at-rule-keywords
+        '("import" "media" "page" "font-face" "charset") ))
 
-    "azimuth" "border-bottom-color" "border-bottom-style"
-    "border-collapse" "border-left-color" "border-left-style"
-    "border-right-color" "border-right-style" "border-top-color"
-    "border-top-style" "caption-side" "cell-spacing" "clip" "column-span"
-    "content" "cue" "cue-after" "cue-before" "cursor" "direction"
-    "elevation" "font-size-adjust" "left" "marks" "max-height" "max-width"
-    "min-height" "min-width" "orphans" "overflow" "page-break-after"
-    "page-break-before" "pause" "pause-after" "pause-before" "pitch"
-    "pitch-range" "play-during" "position" "richness" "right" "row-span"
-    "size" "speak" "speak-date" "speak-header" "speak-punctuation"
-    "speak-time" "speech-rate" "stress" "table-layout" "text-shadow" "top"
-    "visibility" "voice-family" "volume" "widows" "z-index")
-  "A list of all CSS properties.")
+(defvar css-at-rule-table nil
+  "Table for CSS at rules" )
+(if css-at-rule-table nil
+  (setq css-at-rule-table (make-vector 5 0))
+  (mapcar (lambda (x) (intern x css-at-rule-table))
+          css-at-rule-keywords ))
 
-(defvar cssm-properties-alist
-  (mapcar (lambda(prop)
-	    (cons (concat prop ":") nil)) cssm-properties)
-  "An association list of the CSS properties for completion use.")
+(defvar css-element-keywords nil
+  "Common CSS elements" )
+(if css-element-keywords nil
+  (setq css-element-keywords 
+        '("A" "ADDRESS" "B" "BLOCKQUOTE" "BODY" "BR" "CITE"
+          "CODE" "DIR" "DIV" "DD" "DL" "DT" "EM" "FORM" "H1"
+          "H2" "H3" "H4" "H5" "H6" "HR" "I" "IMG" "KBD" "LI"
+          "MENU" "OL" "P" "PRE" "SAMP" "SPAN" "STRONG" "TABLE"
+          "TR" "TH" "TD" "TT" "UL" "VAR" )))
 
-(defvar cssm-keywords
-  (append '("!\\s-*important"
+(defvar css-element-table nil
+  "Table for CSS elements" )
+(if css-element-table nil
+  (setq css-element-table (make-vector 5 0))
+  (mapcar (lambda (x) (intern x css-element-table))
+          css-element-keywords ))
 
-	  ; CSS level 2:
 
-	    "@media" "@import" "@page" "@font-face")
-	  (mapcar (lambda(property)
-		    (concat property "\\s-*:"))
-		  cssm-properties))
-  "A list of all CSS keywords.")
+(defvar css-property-keywords nil "CSS properties" )
+(if css-property-keywords nil
+  (setq css-property-keywords
+'("azimuth" "background" "background-attachment" "background-color"
+  "background-image" "background-position" "background-repeat" "border"
+  "border-collapse" "border-color" "border-spacing" "border-style"
+  "border-top" "border-right" "border-bottom" "border-left"
+  "border-top-color" "border-right-color" "border-bottom-color"
+  "border-left-color" "border-top-style" "border-right-style"
+  "border-bottom-style" "border-left-style" "border-top-width"
+  "border-right-width" "border-bottom-width" "border-left-width"
+  "border-width" "bottom" "caption-side" "clear" "clip" "color"
+  "content" "counter-increment" "counter-reset" "cue" "cue-after"
+  "cue-before" "cursor" "direction" "display" "elevation" "empty-cells"
+  "float" "font" "font-family" "font-size" "font-size-adjust"
+  "font-stretch" "font-style" "font-variant" "font-weight" "height"
+  "left" "letter-spacing" "line-height" "list-style" "list-style-image"
+  "list-style-position" "list-style-type" "margin" "margin-top"
+  "margin-right" "margin-bottom" "margin-left" "marker-offset" "marks"
+  "max-height" "max-width" "min-height" "min-width" "orphans" "outline"
+  "outline-color" "outline-style" "outline-width" "overflow" "padding"
+  "padding-top" "padding-right" "padding-bottom" "padding-left" "page"
+  "page-break-after" "page-break-before" "page-break-inside" "pause"
+  "pause-after" "pause-before" "pitch" "pitch-range" "play-during"
+  "position" "quotes" "richness" "right" "size" "speak" "speak-header"
+  "speak-numeral" "speak-punctuation" "speech-rate" "stress"
+  "table-layout" "text-align" "text-decoration" "text-indent"
+  "text-shadow" "text-transform" "top" "unicode-bidi" "vertical-align"
+  "visibility" "voice-family" "volume" "white-space" "widows" "width"
+  "word-spacing" "z-index" )))
 
-(defvar cssm-pseudos
-  '("link" "visited" "active" "first-line" "first-letter"
+(defvar css-property-table nil
+  "Table for CSS properties" )
+(if css-property-table nil
+  (setq css-property-table (make-vector 5 0))
+  (mapcar (lambda (x) (intern x css-property-table))
+          css-property-keywords ))
 
-    ; CSS level 2
-    "first-child" "before" "after" "hover")
-  "A list of all CSS pseudo-classes.")
 
-; internal
-(defun cssm-list-2-regexp(altlist)
-  "Takes a list and returns the regexp \\(elem1\\|elem2\\|...\\)"
-  (let ((regexp "\\("))
-    (mapcar (lambda(elem)
-	      (setq regexp (concat regexp elem "\\|")))
-	    altlist)
-    (concat (substring regexp 0 -2) ; cutting the last "\\|"
-	    "\\)")
-    ))
+;; Three levels of highlighting
 
-(defvar cssm-font-lock-keywords
-  (list
-   (cons (cssm-list-2-regexp cssm-keywords) font-lock-keyword-face)
-   (cons "\\.[a-zA-Z][-a-zA-Z0-9.]+" font-lock-variable-name-face)
-   (cons (concat ":" (cssm-list-2-regexp cssm-pseudos))
-	 font-lock-variable-name-face)
-   (cons "#[a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]\\([a-fA-F0-9][a-fA-F0-9][a-fA-F0-9]\\)?"
-	 font-lock-reference-face)
-   (cons "\\[.*\\]" font-lock-variable-name-face)
-   (cons "#[-a-zA-Z0-9]*" font-lock-function-name-face)
-   (cons "rgb(\\s-*[0-9]+\\(\\.[0-9]+\\s-*%\\s-*\\)?\\s-*,\\s-*[0-9]+\\(\\.[0-9]+\\s-*%\\s-*\\)?\\s-*,\\s-*[0-9]+\\(\\.[0-9]+\\s-*%\\s-*\\)?\\s-*)"
-	 font-lock-reference-face)
-   )
-  "Rules for highlighting CSS style sheets.")
+(defconst css-font-lock-keywords-1 nil
+  "Subdued level highlighting for C modes.")
 
-(defvar cssm-mode-map ()
-  "Keymap used in CSS mode.")
-(when (not cssm-mode-map)
-  (setq cssm-mode-map (make-sparse-keymap))
-  (define-key cssm-mode-map (read-kbd-macro "C-c C-c") 'cssm-insert-comment)
-  (define-key cssm-mode-map (read-kbd-macro "C-c C-u") 'cssm-insert-url)
-  (define-key cssm-mode-map (read-kbd-macro "}") 'cssm-insert-right-brace-and-indent)
-  (define-key cssm-mode-map (read-kbd-macro "M-TAB") 'cssm-complete-property))
+(defconst css-font-lock-keywords-2 nil
+  "Medium level highlighting for C modes.")
 
-;;; Cross-version compatibility layer
+(defconst css-font-lock-keywords-3 nil
+  "Gaudy level highlighting for C modes.")
 
-(when (not (or (apropos-macrop 'kbd)
-	     (fboundp 'kbd)))
-    (defmacro kbd (keys)
-      "Convert KEYS to the internal Emacs key representation.
-KEYS should be a string constant in the format used for
-saving keyboard macros (see `insert-kbd-macro')."
-      (read-kbd-macro keys)))
+(defvar css-font-keywords nil
+  "Font lock keywords for `css-mode'." )
 
-;;; Auto-indentation support
+(let* ((css-keywords  "\\(url\\|![ \t]*important\\)")
+       (css-nmstart   "[a-zA-Z]")
+       (css-nmchar    "[a-zA-Z0-9-]")
+       (css-ident     (concat css-nmstart css-nmchar "*"))
+       (css-at-rule   (concat "\\(@" css-ident "\\)"))
+       (css-element-s (concat "^\\(" css-ident "\\)"))
+       (css-element (concat "\\(?:[,+>][ \t]*\\)\\(" css-ident "\\)"))
+       (css-class  (concat css-element "?\\.\\(" css-ident "\\)"))
+       (css-pseudo (concat ":\\(" css-ident "\\)"))
+       (css-attr (concat "\\[\\(" css-ident "\\)\\]"))
+       (css-id (concat "#\\(" css-ident "\\)"))
+       (css-declaration (concat "[ \t][ \t]*\\(\\<" css-ident "\\>\\):")) )
+  (setq css-font-lock-keywords-1
+   (list
+    (list css-keywords    1 'font-lock-keyword-face)
+    (list css-at-rule     1 'font-lock-keyword-face)
+    (list css-element-s   1 'font-lock-function-name-face)
+    (list css-element     1 'font-lock-function-name-face)
+    (list css-class       2 'font-lock-type-face)
+    (list css-pseudo      1 'font-lock-constant-face)
+    (list css-attr        1 'font-lock-variable-name-face)
+    (list css-id          1 'font-lock-string-face)
+    (list css-declaration 1 'font-lock-variable-name-face) ))
+  (setq css-font-lock-keywords-2 css-font-lock-keywords-1)
+  (setq css-font-lock-keywords-3 css-font-lock-keywords-2) )
 
-; internal
-(defun cssm-insert-right-brace-and-indent()
-  (interactive)
-  (insert "}")
-  (cssm-indent-line))
+(defvar css-mode-syntax-table nil
+  "Syntax table used in `css-mode' buffers.")
 
-; internal
-(defun cssm-inside-atmedia-rule()
-  "Decides if point is currently inside an @media rule."
-  (let ((orig-pos (point))
-	(atmedia (re-search-backward "@media" 0 t))
-	(balance 1)   ; used to keep the {} balance, 1 because we start on a {
-	)
-     ; Going to the accompanying {
-    (re-search-forward "{" (point-max) t)
-    (if (null atmedia)
-	nil  ; no @media before this point => not inside
-      (while (and (< (point) orig-pos)
-		  (< 0 balance))
-	(if (null (re-search-forward "[{}]" (point-max) 0))
-	    (goto-char (point-max)) ; break
-	  (setq balance
-		(if (string= (match-string 0) "{")
-		    (+ balance 1)
-		  (- balance 1)))))
-      (= balance 1))
-    ))
-
-; internal
-(defun cssm-rule-is-atmedia()
-  "Decides if point is currently on the { of an @media or ordinary style rule."
-  (let ((result (re-search-backward "[@}{]" 0 t)))
-    (if (null result)
-	nil
-      (string= (match-string 0) "@"))))
-
-; internal
-(defun cssm-find-column(first-char)
-  "Find which column to indent to."
-
-  ; Find out where to indent to by looking at previous lines
-  ; spinning backwards over comments
-  (let (pos)
-    (while (and (setq pos (re-search-backward (cssm-list-2-regexp
-					       '("/\\*" "\\*/" "{" "}"))
-					      (point-min) t))
-		(string= (match-string 0) "*/"))
-      (search-backward "/*" (point-min) t))
-
-    ; did the last search find anything?
-    (if pos
-	(save-excursion
-	  (let ((construct      (match-string 0))
-		(column         (current-column)))
-	    (apply cssm-indent-function
-		   (list (cond
-			  ((string= construct "{")
-			   (cond
-			    ((cssm-rule-is-atmedia)
-			     'inside-atmedia)
-			    ((cssm-inside-atmedia-rule)
-			     'inside-rule-and-atmedia)
-			    (t
-			     'inside-rule)))
-			  ((string= construct "/*")
-			   'inside-comment)
-			  ((string= construct "}")
-			   (if (cssm-inside-atmedia-rule)
-			       'inside-atmedia
-			     'outside))
-			  (t 'outside))
-			 column
-			 first-char))))
-
-      (apply cssm-indent-function
-	     (list 'outside
-		   (current-column)
-		   first-char)))))
-
-(defun cssm-indent-line()
-  "Indents the current line."
-  (interactive)
-  (beginning-of-line)
-  (let* ((beg-of-line (point))
-	 (pos (re-search-forward "[]@#a-zA-Z0-9;,.\"{}/*\n:[]" (point-max) t))
-	 (first (match-string 0))
-	 (start (match-beginning 0)))
-
-    (goto-char beg-of-line)
-
-    (let ((indent-column (cssm-find-column first)))
-      (goto-char beg-of-line)
-
-      ; Remove all leading whitespace on this line (
-      (if (not (or (null pos)
-		   (= beg-of-line start)))
-	  (kill-region beg-of-line start))
-
-      (goto-char beg-of-line)
-
-      ; Indent
-      (while (< 0 indent-column)
-	(insert " ")
-	(setq indent-column (- indent-column 1))))))
-
-;;; Indent-style functions
-
-(defun cssm-old-style-indenter(position column first-char-on-line)
+(if css-mode-syntax-table nil
+  (setq css-mode-syntax-table (make-syntax-table))
+  (modify-syntax-entry ?+  "."    css-mode-syntax-table)
+  (modify-syntax-entry ?=  "."    css-mode-syntax-table)
+  (modify-syntax-entry ?<  "."    css-mode-syntax-table)
+  (modify-syntax-entry ?>  "."    css-mode-syntax-table)
+  (modify-syntax-entry ?-  "w"    css-mode-syntax-table)
+  (modify-syntax-entry ?/  "w"    css-mode-syntax-table)
+  (modify-syntax-entry ?.  "w"    css-mode-syntax-table)
+  (modify-syntax-entry ?\' "\""   css-mode-syntax-table)
   (cond
-   ((eq position 'inside-atmedia)
-    (if (string= "}" first-char-on-line)
-	0
-      cssm-indent-level))
+   ;; XEmacs 19 & 20
+   ((memq '8-bit c-emacs-features)
+    (modify-syntax-entry ?/  ". 1456" css-mode-syntax-table)
+    (modify-syntax-entry ?*  ". 23"   css-mode-syntax-table))
+   ;; Emacs 19 & 20
+   ((memq '1-bit c-emacs-features)
+    (modify-syntax-entry ?/  ". 124b" css-mode-syntax-table)
+    (modify-syntax-entry ?*  ". 23"   css-mode-syntax-table))
+   ;; incompatible
+   (t (error "CSS Mode is incompatible with this version of Emacs")) )
+  (modify-syntax-entry ?\n "> b"  css-mode-syntax-table)
+  ;; Give CR the same syntax as newline, for selective-display
+  (modify-syntax-entry ?\^m "> b" css-mode-syntax-table) )
 
-   ((eq position 'inside-rule)
-    (+ column 2))
 
-   ((eq position 'inside-rule-and-atmedia)
-    (+ column 2))
+(defvar css-mode-map nil
+  "Keymap used in `css-mode' buffers.")
 
-   ((eq position 'inside-comment)
-    (+ column 3))
+(if css-mode-map nil
+  (setq css-mode-map (make-sparse-keymap))
+  (define-key css-mode-map ";"        'css-electric-semicolon)
+  (define-key css-mode-map "{"        'css-electric-brace)
+  (define-key css-mode-map "}"        'css-electric-brace)
+  (define-key css-mode-map "\t"       'css-tab-function)
+  (define-key css-mode-map "\C-c\C-c" 'css-comment-region)
+  (define-key css-mode-map "\C-c\C-a" 'css-complete-at-keyword)
+  (define-key css-mode-map "\C-c\C-e" 'css-complete-element)
+  (define-key css-mode-map "\C-c\C-p" 'css-complete-property) )
 
-   ((eq position 'outside)
-    0)))
 
-(defun cssm-c-style-indenter(position column first-char-on-line)
-  (cond
-   ((or (eq position 'inside-atmedia)
-	(eq position 'inside-rule))
-    (if (string= "}" first-char-on-line)
-	0
-      cssm-indent-level))
+;;; Utility functions
 
-   ((eq position 'inside-rule-and-atmedia)
-    (if (string= "}" first-char-on-line)
-	cssm-indent-level
-      (* 2 cssm-indent-level)))
+(defun css-in-comment-p ()
+  "Check whether we are currently in a comment"
+  (let ((here (point)))
+    (and (search-backward "/*" nil t)
+         (prog1
+             (not (search-forward "*/" here t))
+           (goto-char here) ))))
 
-   ((eq position 'inside-comment)
-    (+ column 3))
 
-   ((eq position 'outside)
-    0)))
+(defun css-complete-symbol (&optional table predicate prettify)
+  (let* ((end (point))
+	 (beg (save-excursion
+		(skip-syntax-backward "w")
+		(point)))
+	 (pattern (buffer-substring beg end))
+	 (table (or table obarray))
+	 (completion (try-completion pattern table predicate)))
+    (cond ((eq completion t))
+	  ((null completion)
+	   (error "Can't find completion for \"%s\"" pattern))
+	  ((not (string-equal pattern completion))
+	   (delete-region beg end)
+	   (insert completion))
+	  (t
+	   (message "Making completion list...")
+	   (let ((list (all-completions pattern table predicate)))
+	     (if prettify
+		 (setq list (funcall prettify list)))
+	     (with-output-to-temp-buffer "*Help*"
+	       (display-completion-list list)))
+	   (message "Making completion list...%s" "done")))))
 
-;;; Typing shortcuts
 
-(define-skeleton cssm-insert-curlies
-  "Inserts a pair of matching curly parenthesises." nil
-  "{ " _ (if cssm-newline-before-closing-bracket "\n" " ")
-  "}")
+(defun css-indent-line ()
+  "Indent the current line"
+  (if (or (css-in-comment-p)
+          (looking-at "[ \t]*/\\*") )
+      nil
+    (save-excursion
+      (let ((here (point))
+            (depth 0))
+        (while (and (forward-line -1)
+                    (or (looking-at "^[ \t]*$")
+                        (css-in-comment-p) ))
+          ; Jump to a non comment/white-space line
+          )
+        (cond ((looking-at "\\([ \t]*\\)\\([^ \t].*\\)?{[ \t]*$")
+               (setq depth (+ (- (match-end 1) (match-beginning 1))
+                              css-indent-offset )))
+              ((looking-at "\\([ \t]*\\)[^ \t]")
+               (setq depth (- (match-end 1) (match-beginning 1))) )
+              (t (setq depth 0)) )
+        (goto-char here)
+        (beginning-of-line)
+        (if (looking-at "[ \t]*}")
+            (setq depth (max (- depth css-indent-offset) 0)) )
+        (if (looking-at "\\([ \t]*\\)")
+            (if (= depth (- (match-end 1) (match-beginning 1)))
+                nil
+              (delete-region (match-beginning 1) (match-end 1))
+              (indent-to depth))
+          (if (> depth 0)
+              (indent-to depth)))))
+    (if (looking-at "[ \t]*")
+        (end-of-line) )))
 
-(define-skeleton cssm-insert-quotes
-  "Inserts a pair of matching quotes." nil
-  "\"" _ "\"")
 
-(define-skeleton cssm-insert-parenthesises
-  "Inserts a pair of matching parenthesises." nil
-  "(" _ ")")
+(defun css-indent-region (start end)
+  "Indent the current line"
+  (save-excursion
+    (save-restriction
+      (narrow-to-region start end)
+      (goto-char start)
+      (while (and (not (eobp)) (forward-line 1))
+        (css-indent-line) ))))
 
-(define-skeleton cssm-insert-comment
-  "Inserts a full comment." nil
-  "/* " _ " */")
 
-(define-skeleton cssm-insert-url
-  "Inserts a URL." nil
-  "url(" _ ")")
+;;; Commands
 
-(define-skeleton cssm-insert-brackets
-  "Inserts a pair of matching brackets." nil
-  "[" _ "]")
+(defun css-electric-semicolon (arg)
+  "Insert a semi-colon, and possibly indent line.
+If numeric argument is not given, or is 1, auto-indent according to
+`css-electric-semi-behavior'.  If arg is 0, do not auto-indent, if
+arg is 2 always auto-indent, and if arg is anything else invert the
+usual behavior."
+  (interactive "P")
+  ;; insert a semicolon
+  (self-insert-command 1)
+  ;; maybe do electric behavior
+  (or (css-in-comment-p)
+      (and (eq arg 1)
+           css-electric-semi-behavior
+           (css-indent-line) )
+      (and (eq arg 2)
+           (css-indent-line) )
+      (eq arg 0)
+      (or (not css-electric-semi-behavior)
+          (css-indent-line) )))
 
-(defun cssm-enter-mirror-mode()
-  "Turns on mirror mode, where quotes, brackets etc are mirrored automatically
-  on insertion."
+
+(defun css-electric-brace (arg)
+  "Insert a brace, and possibly indent line.
+If numeric argument is not given, or is 1, auto-indent according to
+`css-electric-brace-behavior'.  If arg is 0, do not auto-indent, if
+arg is 2 always auto-indent, and if arg is anything else invert the
+usual behavior."
+  (interactive "P")
+  ;; insert a brace
+  (self-insert-command 1)
+  ;; maybe do electric behavior
+  (or (css-in-comment-p)
+      (and (eq arg 1)
+           css-electric-brace-behavior
+           (css-indent-line) )
+      (and (eq arg 2)
+           (css-indent-line) )
+      (eq arg 0)
+      (or (not css-electric-brace-behavior)
+          (css-indent-line) )))
+
+(defun css-complete-at-keyword ()
+  "Complete the standard element at point"
   (interactive)
-  (define-key cssm-mode-map (read-kbd-macro "{")  'cssm-insert-curlies)
-  (define-key cssm-mode-map (read-kbd-macro "\"") 'cssm-insert-quotes)
-  (define-key cssm-mode-map (read-kbd-macro "(")  'cssm-insert-parenthesises)
-  (define-key cssm-mode-map (read-kbd-macro "[")  'cssm-insert-brackets))
+  (let ((completion-ignore-case t))
+    (css-complete-symbol css-at-rule-table) ))
 
-(defun cssm-leave-mirror-mode()
-  "Turns off mirror mode."
+(defun css-complete-element ()
+  "Complete the standard element at point"
   (interactive)
-  (define-key cssm-mode-map (read-kbd-macro "{")  'self-insert-command)
-  (define-key cssm-mode-map (read-kbd-macro "\"") 'self-insert-command)
-  (define-key cssm-mode-map (read-kbd-macro "(")  'self-insert-command)
-  (define-key cssm-mode-map (read-kbd-macro "[")  'self-insert-command))
+  (let ((completion-ignore-case t))
+    (css-complete-symbol css-element-table) ))
 
-;;; Property completion
-
-(defun cssm-property-at-point()
-  "If point is at the end of a property name: returns it."
-  (let ((end (point))
-	(start (+ (re-search-backward "[^-A-Za-z]") 1)))
-    (goto-char end)
-    (buffer-substring start end)))
-
-; internal
-(defun cssm-maximum-common(alt1 alt2)
-  "Returns the maximum common starting substring of alt1 and alt2."
-  (let* ((maxlen (min (length alt1) (length alt2)))
-	 (alt1 (substring alt1 0 maxlen))
-	 (alt2 (substring alt2 0 maxlen)))
-    (while (not (string= (substring alt1 0 maxlen)
-			 (substring alt2 0 maxlen)))
-      (setq maxlen (- maxlen 1)))
-    (substring alt1 0 maxlen)))
-
-; internal
-(defun cssm-common-beginning(alts)
-  "Returns the maximum common starting substring of all alts elements."
-  (let ((common (car alts)))
-    (dolist (alt (cdr alts) common)
-      (setq common (cssm-maximum-common alt common)))))
-
-(defun cssm-complete-property-frame(completions)
-  ; This code stolen from message.el. Kudos to larsi.
-  (let ((cur (current-buffer)))
-    (pop-to-buffer "*Completions*")
-    (buffer-disable-undo (current-buffer))
-    (let ((buffer-read-only nil))
-      (erase-buffer)
-      (let ((standard-output (current-buffer)))
-	(display-completion-list (sort completions 'string<)))
-      (goto-char (point-min))
-      (pop-to-buffer cur))))
-
-(defun cssm-complete-property()
-  "Completes the CSS property being typed at point."
+(defun css-complete-property ()
+  "Complete the standard element at point"
   (interactive)
-  (let* ((prop   (cssm-property-at-point))
-	 (alts   (all-completions prop cssm-properties-alist))
-	 (proplen (length prop)))
-    (if (= (length alts) 1)
-	(insert (substring (car alts) proplen))
-      (let ((beg (cssm-common-beginning alts)))
-	(if (not (string= beg prop))
-	    (insert (substring beg proplen))
-	  (insert (substring
-		   (completing-read "Property: " cssm-properties-alist nil
-				    nil prop)
-		   proplen)))))))
+  (let ((completion-ignore-case t))
+    (css-complete-symbol css-property-table) ))
 
-(defun css-mode()
-  "Major mode for editing CSS style sheets.
-\\{cssm-mode-map}"
+
+(defun css-tab-function (&optional arg)
+  "Function to call when tab is pressed in CSS mode.
+
+With a prefix arg, insert a literal tab.  Otherwise behavior depends
+on the value of `css-tab-mode'.  If it's 'insert, insert a literal
+tab.  If it's 'indent, indent the current line, and if it's 'complete,
+try to complete the expression before point.  A value of 'auto means
+to inspect the current line, and indent if point is at the beginning
+or end of the line, but complete if it's at a word.
+
+There are three possible completions to perform:
+`css-complete-at-keyword' if the point is after an '@',
+`css-complete-property' if point is inside a block, and
+`css-complete-element' otherwise."
+  (interactive "P")
+  (let* ((end (point))
+         (start (prog2
+                    (beginning-of-line)
+                    (point)
+                  (goto-char end) ))
+         (prefix (buffer-substring start end)) )
+    (cond ((or arg (eq css-tab-mode 'insert))
+           (insert "\t"))
+          ((eq css-tab-mode 'indent)
+           (css-indent-line))
+          ((and (not (eq css-tab-mode 'complete))
+                (or (string-match "^[ \t]*[{}]?[ \t]*$" prefix)
+                    (string-match "^.*;[ \t]*" prefix) ))
+           ;; indent at the beginning or end of a line
+           (css-indent-line))
+          ((string-match "^.*@[a-zA-Z0-9-]*$" prefix)
+           (css-complete-at-keyword))
+          ((string-match "^\\([ \t]+.*\\|.*\{[ \t]*[a-zA-Z]+\\)$" prefix)
+           ;; complete properties on non-starting lines
+           (css-complete-property))
+          ;; otherwise try an element
+          (t (css-complete-element)) )))
+
+
+;;;###autoload
+(defun css-mode ()
+  "Major mode for editing CSS files"
   (interactive)
-
-  ; Initializing
   (kill-all-local-variables)
-
-  ; Setting up indentation handling
-  (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'cssm-indent-line)
-
-  ; Setting up font-locking
-  (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults '(cssm-font-lock-keywords nil t nil nil))
-
-  ; Setting up typing shortcuts
-  (make-local-variable 'skeleton-end-hook)
-  (setq skeleton-end-hook nil)
-
-  (when cssm-mirror-mode
-    (cssm-enter-mirror-mode))
-
-  (use-local-map cssm-mode-map)
-
-  ; Setting up syntax recognition
+  (set-syntax-table css-mode-syntax-table)
+  (setq major-mode 'css-mode
+	mode-name "CSS"
+	local-abbrev-table css-mode-abbrev-table)
+  (use-local-map css-mode-map)
+  ;; local variables
+  (make-local-variable 'parse-sexp-ignore-comments)
+  (make-local-variable 'comment-start-skip)
   (make-local-variable 'comment-start)
   (make-local-variable 'comment-end)
-  (make-local-variable 'comment-start-skip)
-
-  (setq comment-start "/* "
-	comment-end " */"
-	comment-start-skip "/\\*[ \n\t]+")
-
-  ; Setting up syntax table
-  (modify-syntax-entry ?* ". 23")
-  (modify-syntax-entry ?/ ". 14")
-
-  ; Final stuff, then we're done
-  (setq mode-name "CSS"
-	major-mode 'css-mode)
+  (make-local-variable 'block-comment-start)
+  (make-local-variable 'block-comment-end)
+  (make-local-variable 'block-comment-left)
+  (make-local-variable 'block-comment-right)
+  (make-local-variable 'block-comment-top-right)
+  (make-local-variable 'block-comment-bot-left)
+  (make-local-variable 'block-comment-char)
+  (make-local-variable 'paragraph-start)
+  (make-local-variable 'paragraph-separate)
+  (make-local-variable 'paragraph-ignore-fill-prefix)
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults '((css-font-lock-keywords-1
+                              css-font-lock-keywords-2
+                              css-font-lock-keywords-3)))
+  ;; now set their values
+  (setq parse-sexp-ignore-comments t
+	comment-start-skip "/\\*+ *\\|// *"
+	comment-start "/\\*"
+	comment-end   "\\*/")
+  (setq block-comment-start     "/*"
+        block-comment-end       "*/"
+        block-comment-left      " * "
+        block-comment-right     " *"
+        block-comment-top-right ""
+        block-comment-bot-left  " "
+        block-comment-char      ?* )
+  (setq indent-line-function   'css-indent-line
+        indent-region-function 'css-indent-region
+	paragraph-ignore-fill-prefix t
+	paragraph-start (concat "\\|$" page-delimiter)
+	paragraph-separate paragraph-start)
   (run-hooks 'css-mode-hook))
+
 
 (provide 'css-mode)
 
-;; CSS-mode ends here
+;;; css-mode.el ends here.

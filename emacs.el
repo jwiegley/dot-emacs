@@ -703,6 +703,20 @@
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
 
+;;;_ , ascii
+
+(use-package ascii
+  :commands ascii-on
+  :init
+  (progn
+    (defun ascii-toggle ()
+      (interactive)
+      (if ascii-display
+          (ascii-off)
+        (ascii-on)))
+
+    (bind-key "C-c e A" 'ascii-toggle)))
+
 ;;;_ , archive-region
 
 (use-package archive-region
@@ -2194,7 +2208,7 @@ FORM => (eval FORM)."
 ;;;_ , macrostep
 
 (use-package macrostep
-  :bind ("C-c x e" . macrostep-expand))
+  :bind ("C-c e m" . macrostep-expand))
 
 ;;;_ , magit
 

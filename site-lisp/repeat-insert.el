@@ -1,5 +1,6 @@
-;; Repetitititive insertion functions.
-;; Copyright (C) 1990 Bard Bloom
+;;; repeat-insert.el --- Repetitititive insertion functions.
+
+;;; Copyright (C) 1990 Bard Bloom
 
 
 ;; A gizmo for quickly generating text with a pattern, and in particular
@@ -88,17 +89,14 @@
 once each.  No error checking -- barfs if either isn't a number.
 VAR is let-bound."
   (let ((high-save (gensym)))
-    (`
-     (let (( (, var) (, low))
-	   ( (, high-save) (, high))
-	   )
-       (while (<= (, var) (, high-save))
-	 (,@ body)
-	 (incf (, var))
-	 )))))
+    `(let ((,var ,low)
+	   (,high-save ,high))
+       (while (<= ,var ,high-save)
+	 ,@body
+	 (incf ,var)))))
 
 (defmacro ins-pat-for-var-low-high-or-list (var low high
-				    &rest body)
+                                                &rest body)
   "For VAR from LOW to HIGH do BODY if LOW is a number numbers,
 For VAR over LOW do BODY (ignoring HIGH) if HIGH is a list.
 It also does a (put VAR 'insert-pat PUT-NUMERIC) or ...PUT-LIST
@@ -111,22 +109,18 @@ depending on which it is.  Insert-patterned uses this feature.
 "
   (let ((low-save  (gensym))
 	(high-save (gensym)))
-    (`
-     (let ((, var)
-	   ( (, low-save)  (, low))
-	   ( (, high-save) (, high))
-	   )
+    `(let (,var
+           (,low-save  ,low)
+           (,high-save ,high))
        (cond
-	((numberp (, low-save))
-	 (setq (, var) (, low-save))
-	 (while (<= (, var) (, high-save))
-	   (,@ body)
-	   (incf (, var))
-	   ))
-	((listp (, low-save))
-	 (dolist ((, var) (, low-save))
-	   (,@ body)))
-	)))))
+        ((numberp ,low-save)
+         (setq ,var ,low-save)
+         (while (<= ,var ,high-save)
+           ,@body
+           (incf ,var)))
+        ((listp ,low-save)
+         (dolist (,var ,low-save)
+           ,@body))))))
 
 (defvar insert-patterned-last-input "")
 
@@ -403,3 +397,5 @@ Otherwise, returns THING itself."
   (condition-case ()
       (eval thing)
     (error thing)))
+
+(provide 'repeat-insert)

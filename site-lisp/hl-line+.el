@@ -4,12 +4,12 @@
 ;; Description: Extensions to hl-line.el.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 2006-2011, Drew Adams, all rights reserved.
+;; Copyright (C) 2006-2012, Drew Adams, all rights reserved.
 ;; Created: Sat Aug 26 18:17:18 2006
 ;; Version: 22.0
-;; Last-Updated: Thu Feb 24 15:22:18 2011 (-0800)
+;; Last-Updated: Fri May 18 07:04:49 2012 (-0700)
 ;;           By: dradams
-;;     Update #: 434
+;;     Update #: 465
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/hl-line+.el
 ;; Keywords: highlight, cursor, accessibility
 ;; Compatibility: GNU Emacs: 22.x, 23.x
@@ -36,11 +36,15 @@
 ;;  3. It provides a face, `hl-line', that you can customize, instead
 ;;     of using option `hl-line-face'.  
 ;;
-;;     I suggested #3 to the Emacs developers, and it has been added
-;;     to Emacs 22, but with a different default value.  If you use
+;;     I suggested #3 to the Emacs developers, and it was added to
+;;     Emacs 22, but with a different default value.  If you use
 ;;     library `crosshairs.el', you might want to customize this to a
 ;;     value similar to what is used there, so that the horizontal and
 ;;     vertical highlights will be the same.
+;;
+;;  4. Option `hl-line-overlay-priority' is provided, so that you can
+;;     make hl-line highlighting appear on top of other overlay
+;;     highlighting that might exist.
 ;;
 ;;  To use this library, put this in your Emacs init file (~/.emacs):
 ;;
@@ -79,7 +83,8 @@
 ;;  User options defined here:
 ;;
 ;;    `hl-line-flash-show-period',
-;;    `hl-line-inhibit-highlighting-for-modes'.
+;;    `hl-line-inhibit-highlighting-for-modes',
+;;    `hl-line-overlay-priority'.
 ;;
 ;;  Commands defined here:
 ;;
@@ -96,10 +101,19 @@
 ;;    `hl-line-idle-interval', `hl-line-idle-timer',
 ;;    `hl-line-when-idle-p'.
 ;;
+;;
+;;  ***** NOTE: The following non-interactive functions defined in
+;;              `hl-line.el' have been ADVISED HERE (to respect option
+;;              `hl-line-overlay-priority'):
+;;
+;;    `global-hl-line-highlight', `hl-line-highlight'.
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
-;;; Change log:
+;;; Change Log:
 ;;
+;; 2012/05/18 dadams
+;;     Added: hl-line-overlay-priority, defadvice for (global-)hl-line-highlight.
 ;; 2011/01/04 dadams
 ;;     Added autoload cookies for defcustom, defface and commands.
 ;; 2010/10/03 dadams
@@ -177,6 +191,16 @@
 A list of `major-mode' values (symbols)."
   :type 'list :group 'hl-line)
 
+;;;###autoload
+(defcustom hl-line-overlay-priority 300
+  "*Priority to use for `hl-line-overlay' and `global-hl-line-overlay'.
+A higher priority can make the hl-line highlighting appear on top of
+other overlays that might exist."
+  :type '(choice
+          (const   :tag "No priority (default priority)"  nil)
+          (integer :tag "Priority"  300))
+  :group 'hl-line)
+
 (defvar hl-line-idle-interval 5
   "Number of seconds to wait before turning on `global-hl-line-mode'.
 Do NOT change this yourself to change the wait period; instead, use
@@ -194,6 +218,14 @@ Do NOT change this yourself to change the wait period; instead, use
 (defvar hl-line-when-idle-p nil
   "Non-nil means to turn on `global-hl-line-mode' whenever Emacs is idle.
 Do NOT change this yourself; instead, use `\\[toggle-hl-line-when-idle]'.")
+
+(defadvice hl-line-highlight (after set-priority activate)
+  "Set the overlay priority to `hl-line-overlay-priority'."
+  (overlay-put hl-line-overlay 'priority hl-line-overlay-priority))
+
+(defadvice global-hl-line-highlight (after set-priority activate)
+  "Set the overlay priority to `hl-line-overlay-priority'."
+  (overlay-put global-hl-line-overlay 'priority hl-line-overlay-priority))
 
 ;;;###autoload
 (defalias 'toggle-hl-line-when-idle 'hl-line-toggle-when-idle)
