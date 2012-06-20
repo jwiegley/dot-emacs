@@ -196,3 +196,6 @@
 [submodule "site-lisp/emacs-edbi"]
 	path = site-lisp/emacs-edbi
 	url = https://github.com/kiwanami/emacs-edbi.git
+[submodule "site-lisp/lusty-emacs"]
+	path = site-lisp/lusty-emacs
+	url = git://github.com/jwiegley/lusty-emacs
