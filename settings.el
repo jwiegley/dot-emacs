@@ -29,7 +29,7 @@
  '(bm-highlight-style (quote bm-highlight-only-fringe))
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
- '(bmkp-last-as-first-bookmark-file "~/.emacs.d/data/emacs.bmk")
+ '(bmkp-last-as-first-bookmark-file "/Users/johnw/.emacs.d/data/emacs.bmk")
  '(bookmark-default-file "~/.emacs.d/data/emacs.bmk")
  '(bookmark-save-flag 1)
  '(browse-url-browser-function (quote ((".*" . browse-url-default-macosx-browser))))
