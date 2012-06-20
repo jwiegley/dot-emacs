@@ -184,3 +184,6 @@
 [submodule "lib/emacs-ctable"]
 	path = lib/emacs-ctable
 	url = https://github.com/kiwanami/emacs-ctable.git
+[submodule "lib/emacs-deferred"]
+	path = lib/emacs-deferred
+	url = https://github.com/kiwanami/emacs-deferred.git
