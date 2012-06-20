@@ -349,7 +349,7 @@
 (bind-key "C-c e z" 'byte-recompile-directory)
 
 (bind-key "C-c f" 'flush-lines)
-(bind-key "C-c g" 'ignore)
+(bind-key "C-c g" 'goto-line)
 
 (bind-key "C-c k" 'keep-lines)
 
@@ -1079,7 +1079,7 @@
 (let ((ad-redefinition-action 'accept))
   (use-package color-moccur
     :commands (isearch-moccur isearch-all)
-    :bind ("M-s o" . moccur)
+    :bind ("M-s O" . moccur)
     :init
     (progn
       (bind-key "M-o" 'isearch-moccur isearch-mode-map)
