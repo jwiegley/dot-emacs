@@ -1,7 +1,7 @@
 ;;_. Initialization
 
-(if window-system
-    (message "Loading %s..." load-file-name))
+(unless noninteractive
+  (message "Loading %s..." load-file-name))
 
 (setq message-log-max 16384)
 
@@ -359,7 +359,7 @@
   (defvar emacs-min-height)
   (defvar emacs-min-width))
 
-(when window-system
+(unless noninteractive
   (if running-alternate-emacs
       (progn
         (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 389 537))
@@ -386,7 +386,7 @@
     (set-background-color "grey85")
     (set-face-background 'fringe "gray80")))
 
-(if window-system
+(if (and window-system (not noninteractive))
     (add-hook 'after-init-hook 'emacs-min))
 
 (defun emacs-max ()
@@ -1374,7 +1374,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , edit-server
 
 (use-package edit-server
-  :if (and window-system (not running-alternate-emacs))
+  :if (and window-system (not running-alternate-emacs)
+           (not noninteractive))
   :init
   (progn
     (add-hook 'after-init-hook 'server-start t)
@@ -2519,7 +2520,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , persistent-scratch
 
 (use-package persistent-scratch
-  :if (and window-system (not running-alternate-emacs)))
+  :if (and window-system (not running-alternate-emacs)
+           (not noninteractive)))
 
 ;;;_ , pp-c-l
 
@@ -2591,7 +2593,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , recentf
 
 (use-package recentf
-  :if window-system
+  :if (not noninteractive)
   :init
   (recentf-mode 1))
 
@@ -2654,7 +2656,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , session
 
 (use-package session
-  :if window-system
+  :if (not noninteractive)
   :load-path "site-lisp/session/lisp/"
   :init
   (progn
@@ -2988,7 +2990,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package winner
   :diminish winner-mode
-  :if window-system
+  :if (not noninteractive)
   :init
   (progn
     (winner-mode 1)
@@ -3001,7 +3003,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (use-package workgroups
   :diminish workgroups-mode
   :commands wg-switch-to-index-1
-  :if window-system
+  :if (not noninteractive)
   :init
   (progn
     (defvar workgroups-preload-map)
@@ -3068,7 +3070,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , yasnippet
 
 (use-package yasnippet
-  :if window-system
+  :if (not noninteractive)
   :diminish yas/minor-mode
   :commands (yas/minor-mode yas/expand)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
