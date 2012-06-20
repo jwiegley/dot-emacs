@@ -67,6 +67,7 @@
  '(delete-old-versions (quote none))
  '(diary-file "~/Documents/Tasks/diary")
  '(directory-free-space-args "-kh")
+ '(dired-async-use-native-commands t)
  '(dired-clean-up-buffers-too nil)
  '(dired-dwim-target t)
  '(dired-guess-shell-gnutar "tar")
