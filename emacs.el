@@ -2495,7 +2495,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
                "(foo (bar |baz quux zot))")
               ("(a b ((c| d)) e f)"
                "(a b ((c| d)) e f)"))
-             (("C-M-}" "M-F")
+             (("C-M-}")
               paredit-barf-all-the-way-forward
               ("(foo (bar |baz quux) zot)"
                "(foo (bar|) baz quux zot)"))
@@ -2505,7 +2505,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
                "((foo bar baz| quux) zot)")
               ("(a b ((c| d)) e f)"
                "(a b ((c| d)) e f)"))
-             (("C-M-{" "M-B")
+             (("C-M-{")
               paredit-barf-all-the-way-backward
               ("(foo (bar baz |quux) zot)"
                "(foo bar baz (|quux) zot)"))))
