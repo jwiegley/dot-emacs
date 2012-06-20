@@ -1919,7 +1919,7 @@ FORM => (eval FORM)."
       (interactive
        (list
         (progn
-          (require 'bookmark)
+          (bookmark-bmenu-list)
           (ido-completing-read "Jump to bookmark: "
                                (mapcar #'car bookmark-alist)
                                nil 0 nil 'bookmark-history))))
