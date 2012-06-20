@@ -2779,6 +2779,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (require 'sunrise-x-tree)
     (require 'sunrise-x-tabs)
     (require 'sunrise-x-loop)
+    (require 'sunrise-x-stack)
 
     (bind-key "/" 'sr-sticky-isearch-forward sr-mode-map)
     (bind-key "l" 'sr-dired-prev-subdir sr-mode-map)
