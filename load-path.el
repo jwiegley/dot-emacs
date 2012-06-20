@@ -24,7 +24,7 @@
 (dolist
     (path
      (nreverse
-      (list "override/eshell/"
+      (list "override/bbdb/lisp/"
             "override/gnus/contrib/"
             "override/gnus/lisp/"
             "override/org-mode/contrib/lisp/"

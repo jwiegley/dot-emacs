@@ -801,6 +801,11 @@
 
     (setq backup-enable-predicate 'my-dont-backup-files-p)))
 
+;;;_ , bbdb
+
+(use-package bbdb-com
+  :bind ("M-B" . bbdb))
+
 ;;;_ , bm
 
 (use-package bm
@@ -1660,7 +1665,7 @@ FORM => (eval FORM)."
             (switch-to-buffer-other-window gud-buf)
           (call-interactively 'gud-gdb))))
 
-    (bind-key "M-B" 'show-debugger))
+    (bind-key "C-. g" 'show-debugger))
 
   :config
   (progn

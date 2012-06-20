@@ -34,6 +34,9 @@
 [submodule "lisp/regex-tool"]
 	path = lisp/regex-tool
 	url = https://github.com/jwiegley/regex-tool.git
+[submodule "override/bbdb"]
+        path = override/bbdb
+        url = git://git.savannah.nongnu.org/bbdb.git
 [submodule "override/gnus"]
 	path = override/gnus
 	url = http://git.gnus.org/gnus.git
