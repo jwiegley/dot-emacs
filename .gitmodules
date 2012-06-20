@@ -181,3 +181,6 @@
 [submodule "site-lisp/bookmark-plus"]
 	path = site-lisp/bookmark-plus
 	url = https://github.com/emacsmirror/bookmark-plus.git
+[submodule "lib/emacs-ctable"]
+	path = lib/emacs-ctable
+	url = https://github.com/kiwanami/emacs-ctable.git
