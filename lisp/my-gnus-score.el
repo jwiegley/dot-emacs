@@ -151,9 +151,6 @@
 (my-gnus-score-defcustom gnus-score-default-duration  'p)
 (my-gnus-score-defcustom gnus-score-expiry-days 30)
 
-(my-gnus-score-defcustom gnus-score-find-score-files-function
-  'gnus-score-find-hierarchical)
-
 (my-gnus-score-defcustom gnus-thread-sort-functions
   '(gnus-thread-sort-by-most-recent-number
     gnus-thread-sort-by-total-score))

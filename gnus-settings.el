@@ -58,7 +58,6 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(gnus-save-newsrc-file nil)
  '(gnus-score-default-duration (quote p))
  '(gnus-score-expiry-days 30)
- '(gnus-score-find-score-files-function (quote (gnus-score-find-hierarchical)))
  '(gnus-select-group-hook (quote (gnus-group-set-timestamp)))
  '(gnus-select-method (quote (nnimap "Local" (nnimap-stream shell) (nnimap-shell-program "/usr/local/libexec/dovecot/imap"))))
  '(gnus-sieve-crosspost nil)
