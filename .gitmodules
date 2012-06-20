@@ -190,3 +190,6 @@
 [submodule "lib/emacs-epc"]
 	path = lib/emacs-epc
 	url = https://github.com/kiwanami/emacs-epc.git
+[submodule "site-lisp/elnode"]
+	path = site-lisp/elnode
+	url = https://github.com/nicferrier/elnode
