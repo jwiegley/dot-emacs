@@ -2109,6 +2109,14 @@ FORM => (eval FORM)."
             (add-to-list 'elint-standard-variables 'emacs-major-version)
             (add-to-list 'elint-standard-variables 'window-system)))
 
+        (use-package highlight-cl
+          :init
+          (progn
+            (add-hook 'emacs-lisp-mode-hook
+                      'highlight-cl-add-font-lock-keywords)
+            (add-hook 'lisp-interaction-mode-hook
+                      'highlight-cl-add-font-lock-keywords)))
+
         (defun my-elisp-indent-or-complete (&optional arg)
           (interactive "p")
           (call-interactively 'lisp-indent-line)
