@@ -790,7 +790,8 @@
   (progn
     (defun backup-each-save-filter (filename)
       (not (string-match
-            "\\(^/tmp\\|\\.emacs\\.d/data/\\|\\.newsrc\\(\\.eld\\)?\\)"
+            (concat "\\(^/tmp\\|\\.emacs\\.d/data\\(-alt\\)?/"
+                    "\\|\\.newsrc\\(\\.eld\\)?\\)")
             filename)))
 
     (setq backup-each-save-filter-function 'backup-each-save-filter)
