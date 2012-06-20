@@ -187,3 +187,6 @@
 [submodule "lib/emacs-deferred"]
 	path = lib/emacs-deferred
 	url = https://github.com/kiwanami/emacs-deferred.git
+[submodule "lib/emacs-epc"]
+	path = lib/emacs-epc
+	url = https://github.com/kiwanami/emacs-epc.git
