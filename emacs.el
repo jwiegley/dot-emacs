@@ -1078,6 +1078,7 @@
 
 (let ((ad-redefinition-action 'accept))
   (use-package color-moccur
+    :commands (isearch-moccur isearch-all)
     :bind ("M-s o" . moccur)
     :init
     (progn
