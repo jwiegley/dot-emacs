@@ -810,13 +810,18 @@
 ;;;_ , bm
 
 (use-package bm
-  :bind (("A-b" . bm-last-in-previous-buffer)
-         ("A-f" . bm-first-in-next-buffer)
-         ("A-g" . bm-previous)
-         ("A-l" . bm-show-all)
-         ("A-m" . bm-toggle)
-         ("A-n" . bm-next)
-         ("A-p" . bm-previous)))
+  :bind (("C-. b b" . bm-last-in-previous-buffer)
+         ("C-. b f" . bm-first-in-next-buffer)
+         ("C-. b g" . bm-previous)
+         ("C-. b l" . bm-show-all)
+         ("C-. b m" . bm-toggle)
+         ("C-. b n" . bm-next)
+         ("C-. b p" . bm-previous))
+  :init
+  (progn
+    (defvar ctl-period-breadcrumb-map)
+    (define-prefix-command 'ctl-period-breadcrumb-map)
+    (bind-key "C-. b" 'ctl-period-breadcrumb-map)))
 
 ;;;_ , bookmark
 
@@ -2180,9 +2185,9 @@ FORM => (eval FORM)."
       (unbind-key "M-r" paredit-mode-map)
       (unbind-key "M-s" paredit-mode-map)
 
-      (bind-key "C-. b" 'paredit-splice-sexp-killing-backward)
-      (bind-key "C-. d" 'paredit-forward-down)
-      (bind-key "C-. f" 'paredit-splice-sexp-killing-forward)
+      (bind-key "C-. d" 'paredit-forward-down paredit-mode-map)
+      (bind-key "C-. B" 'paredit-splice-sexp-killing-backward paredit-mode-map)
+      (bind-key "C-. F" 'paredit-splice-sexp-killing-forward paredit-mode-map)
 
       (if (eq major-mode 'emacs-lisp-mode)
           (progn
@@ -2670,7 +2675,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , selectkey
 
 (use-package selectkey
-  :bind ("C-. b" . selectkey-select-prefix-map))
+  :bind ("C-. s" . selectkey-select-prefix-map))
 
 ;;;_ , session
 
@@ -2744,7 +2749,9 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package smart-compile
   :commands smart-compile
-  :bind ("C-c c" . smart-compile)
+  :bind (("C-c c" . smart-compile)
+         ("A-n"   . next-error)
+         ("A-p"   . previous-error))
   :init
   (progn
     (defun show-compilation ()
