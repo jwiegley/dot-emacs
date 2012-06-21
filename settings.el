@@ -235,6 +235,7 @@
  '(save-interprogram-paste-before-kill t)
  '(save-kill-file-name "~/.emacs.d/data/kill-ring-saved.el")
  '(scroll-bar-mode nil)
+ '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-globals-include (quote ((kill-ring 10 nil) (session-file-alist 200 t) (file-name-history 200 nil) search-ring regexp-search-ring sr-history-registry)))
  '(session-initialize (quote (session places keys)))

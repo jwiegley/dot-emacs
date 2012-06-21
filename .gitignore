@@ -14,3 +14,5 @@ var/
 /compile.log
 /site-lisp/.loaddefs.el
 /site-lisp/.status.el
+/ede-projects.el
+/srecode-map.el

@@ -870,7 +870,9 @@
       (if t
           (progn
             (auto-complete-mode 1)
-            (setq ac-sources '(ac-source-gtags))
+            (setq ac-sources (list (if (featurep 'semantic)
+                                       'ac-source-semantic
+                                     'ac-source-gtags)))
             (bind-key "<A-tab>" 'ac-complete c-mode-base-map))
         (company-mode 1)
         (bind-key "<A-tab>" 'company-complete-common c-mode-base-map))
@@ -927,6 +929,29 @@
     (bind-key ")" 'self-insert-command c-mode-base-map)
     (bind-key "<" 'self-insert-command c++-mode-map)
     (bind-key ">" 'self-insert-command c++-mode-map)
+
+    (use-package cedet-devel-load
+      :disabled t
+      :init
+      (progn
+        ;; Add further minor-modes to be enabled by semantic-mode.  See
+        ;; doc-string of `semantic-default-submodes' for other things you can
+        ;; use here.
+        (dolist (submode '(global-semantic-idle-summary-mode
+                           global-semantic-mru-bookmark-mode
+                           global-semantic-idle-local-symbol-highlight-mode
+                           global-semantic-show-unmatched-syntax-mode))
+          (add-to-list 'semantic-default-submodes submode t))
+
+        ;; Enable Semantic
+        (semantic-mode 1)
+
+        (when nil              ; jww (2012-06-20): this kills buffers
+          ;; if you want to enable support for gnu global
+          (use-package semanticdb-global)
+
+          (semanticdb-enable-gnu-global-databases 'c-mode)
+          (semanticdb-enable-gnu-global-databases 'c++-mode))))
 
     (add-to-list 'c-style-alist
                  '("edg"
