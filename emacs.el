@@ -2005,6 +2005,11 @@ FORM => (eval FORM)."
     (autoload 'ipa-load-annotations-into-buffer "ipa")
     (add-hook 'find-file-hook 'ipa-load-annotations-into-buffer)))
 
+;;;_ , js2-mode
+
+(use-package js2-mode
+  :mode ("\\.js\\'" . js2-mode))
+
 ;;;_ , ledger
 
 (use-package "ldg-new"
