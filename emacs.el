@@ -829,7 +829,17 @@
 (use-package bookmark
   :defer t
   :config
-  (use-package bookmark+))
+  (progn
+    (use-package bookmark+)
+
+    (defun my-bookmark-set ()
+      (interactive)
+      (flet ((bmkp-completing-read-lax
+              (prompt &optional default alist pred hist)
+              (completing-read prompt alist pred nil nil hist default)))
+        (call-interactively #'bookmark-set)))
+
+    (bind-key "C-x r m" 'my-bookmark-set)))
 
 ;;;_ , browse-kill-ring+
 
@@ -1950,22 +1960,7 @@ FORM => (eval FORM)."
         (switch-to-buffer buffer)
         (set (make-local-variable 'mode-line-format) nil)))
 
-    (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)
-
-    (defun ido-bookmark-jump (bookmark &optional display-func)
-      (interactive
-       (list
-        (progn
-          (bookmark-bmenu-list)
-          (ido-completing-read "Jump to bookmark: "
-                               (mapcar #'car bookmark-alist)
-                               nil 0 nil 'bookmark-history))))
-      (unless bookmark
-        (error "No bookmark specified"))
-      (bookmark-maybe-historicize-string bookmark)
-      (bookmark--jump-via bookmark (or display-func 'switch-to-buffer)))
-
-    (bind-key "C-x r b" 'ido-bookmark-jump)))
+    (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)))
 
 ;;;_ , image-file
 
