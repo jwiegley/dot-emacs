@@ -626,8 +626,8 @@
       (forward-line 4)
       (delete-region (point-min) (point)))
     (goto-char (point-max))
-    ;; (funcall current-mode)
-    ))
+    (if (eq current-mode 'emacs-lisp-mode)
+        (funcall current-mode))))
 
 (bind-key "C-h e s" 'scratch)
 (bind-key "C-h e v" 'find-variable)
