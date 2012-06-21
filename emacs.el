@@ -2099,6 +2099,10 @@ FORM => (eval FORM)."
         (use-package cldoc
           :diminish cldoc-mode)
 
+        (use-package ert
+          :commands ert-run-tests-interactively
+          :bind ("C-c e t" . ert-run-tests-interactively))
+
         (use-package elint
           :commands 'elint-initialize
           :init
