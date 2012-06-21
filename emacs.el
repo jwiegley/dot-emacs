@@ -861,6 +861,7 @@
       (whitespace-mode 1)
       (which-function-mode 1)
       (auto-complete-mode 1)
+      (yas/minor-mode 1)
 
       (diminish 'gtags-mode)
       (diminish 'hs-minor-mode)
