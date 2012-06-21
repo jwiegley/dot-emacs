@@ -1592,7 +1592,6 @@ FORM => (eval FORM)."
 ;;;_ , gnus
 
 (use-package dot-gnus
-  :if (not running-alternate-emacs)
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
@@ -2431,7 +2430,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , org-mode
 
 (use-package dot-org
-  :if (not running-alternate-emacs)
   :commands org-agenda-list
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
@@ -2441,11 +2439,12 @@ end tell" account account start duration commodity (if cleared "true" "false")
          ("C-c l" . org-insert-link))
   :init
   (progn
-    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    (unless running-alternate-emacs
+      (run-with-idle-timer 300 t 'jump-to-org-agenda))
 
-    (add-hook 'after-init-hook
-              #'(lambda ()
-                  (unless use-package-verbose
+    (unless use-package-verbose
+      (add-hook 'after-init-hook
+                #'(lambda ()
                     (org-agenda-list)
                     (org-fit-agenda-window)
                     (org-resolve-clocks))) t)))
