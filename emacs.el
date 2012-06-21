@@ -729,7 +729,7 @@
   :defines (latex-help-cmd-alist
             latex-help-file)
   ;; jww (2012-06-15): Do I want to use AucTeX for texinfo-mode?
-  :mode ("\\.tex$" . latex-mode)
+  :mode ("\\.tex\\'" . latex-mode)
   :config
   (progn
     (defun latex-help-get-cmd-alist () ;corrected version:
@@ -1144,7 +1144,7 @@
 ;;;_ , css-mode
 
 (use-package css-mode
-  :mode ("\\.css$" . css-mode))
+  :mode ("\\.css\\'" . css-mode))
 
 ;;;_ , ibuffer
 
@@ -1719,7 +1719,7 @@ FORM => (eval FORM)."
 ;;;_ , haskell-mode
 
 (use-package haskell-mode
-  :mode ("\\.l?hs$" . haskell-mode)
+  :mode ("\\.l?hs\\'" . haskell-mode)
   :config
   (progn
     (use-package inf-haskell)
@@ -2232,12 +2232,12 @@ FORM => (eval FORM)."
 
 (use-package log4j-mode
   :disabled t
-  :mode ("\\.log$" . log4j-mode))
+  :mode ("\\.log\\'" . log4j-mode))
 
 ;;;_ , lua-mode
 
 (use-package lua-mode
-  :mode ("\\.lua$" . lua-mode)
+  :mode ("\\.lua\\'" . lua-mode)
   :interpreter ("lua" . lua-mode))
 
 ;;;_ , lusty-explorer
@@ -2292,7 +2292,7 @@ FORM => (eval FORM)."
 ;;;_ , markdown-mode
 
 (use-package markdown-mode
-  :mode ("\\.md$" . markdown-mode)
+  :mode ("\\.md\\'" . markdown-mode)
   :init
   (progn
     (defun markdown-preview-file ()
@@ -2598,12 +2598,12 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , puppet-mode
 
 (use-package puppet-mode
-  :mode ("\\.pp$" . puppet-mode))
+  :mode ("\\.pp\\'" . puppet-mode))
 
 ;;;_ , python-mode
 
 (use-package python-mode
-  :mode ("\\.py$" . python-mode)
+  :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
   :config
   (progn
@@ -2662,7 +2662,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , ruby-mode
 
 (use-package ruby-mode
-  :mode ("\\.rb$" . ruby-mode)
+  :mode ("\\.rb\\'" . ruby-mode)
   :interpreter ("ruby" . ruby-mode)
   :config
   (progn
@@ -2883,7 +2883,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package texinfo
   :defines texinfo-section-list
-  :mode ("\\.texi$" . texinfo-mode)
+  :mode ("\\.texi\\'" . texinfo-mode)
   :config
   (progn
     (defun my-texinfo-mode-hook ()
@@ -3041,7 +3041,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
         (when (and (file-exists-p file)
                    (not (file-exists-p ".noclean"))
                    (not (and buffer-file-name
-                             (string-match "\\.texi$" buffer-file-name))))
+                             (string-match "\\.texi\\'" buffer-file-name))))
           (add-hook 'write-contents-hooks
                     #'(lambda ()
                         (ignore (whitespace-cleanup))) nil t)
