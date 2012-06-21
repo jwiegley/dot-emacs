@@ -2634,7 +2634,12 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :init
   (progn
     (recentf-mode 1)
-    (use-package recentf-ext)))
+
+    (defun recentf-add-dired-directory ()
+      (if (file-directory-p dired-directory)
+          (recentf-add-file (file-name-nondirectory dired-directory))))
+
+    (add-hook 'dired-mode-hook 'recentf-add-dired-directory)))
 
 ;;;_ , repeat-insert
 

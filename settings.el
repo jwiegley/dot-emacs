@@ -225,6 +225,7 @@
  '(read-buffer-function (quote ido-read-buffer))
  '(recentf-auto-cleanup (quote never))
  '(recentf-exclude (quote ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:")))
+ '(recentf-keep nil)
  '(recentf-max-saved-items 200)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
