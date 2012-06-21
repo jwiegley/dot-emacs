@@ -1846,24 +1846,6 @@ FORM => (eval FORM)."
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
 
-;;;_ , icicles
-
-(use-package icicles
-  :disabled t
-  :if (not running-alternate-emacs)
-  :init
-  (progn
-    (defun icicles-initialize ()
-      (bind-key "C-x b" 'ido-switch-buffer))
-
-    (add-hook 'icicle-mode-hook 'icicles-initialize)
-
-    (icy-mode 1))
-
-  :config
-  (progn
-    (use-package fuzzy-match)))
-
 ;;;_ , ido
 
 (use-package ido
