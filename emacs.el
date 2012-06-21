@@ -2618,7 +2618,9 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (use-package recentf
   :if (not noninteractive)
   :init
-  (recentf-mode 1))
+  (progn
+    (recentf-mode 1)
+    (use-package recentf-ext)))
 
 ;;;_ , repeat-insert
 
