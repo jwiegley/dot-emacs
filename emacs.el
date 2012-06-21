@@ -1433,6 +1433,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package emms-setup
   :load-path "site-lisp/emms/lisp"
+  :defines (emms-info-functions emms-player-simple-process-name)
   :commands (emms-all emms-devel)
   :init
   (progn
@@ -1443,6 +1444,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (unless emms-initialized
         (emms-devel)
         (emms-default-players)
+        (require 'emms-info-libtag)
         (setq emms-info-functions '(emms-info-libtag))
         (setq emms-initialized t))
       (call-interactively #'emms-smart-browse))
