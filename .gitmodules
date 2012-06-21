@@ -46,6 +46,9 @@
 [submodule "override/tramp"]
 	path = override/tramp
 	url = https://github.com/jwiegley/tramp.git
+[submodule "override/cedet"]
+	path = override/cedet
+	url = https://github.com/emacsmirror/cedet.git
 [submodule "site-lisp/ace-jump-mode"]
 	path = site-lisp/ace-jump-mode
 	url = https://github.com/winterTTr/ace-jump-mode.git
@@ -202,9 +205,6 @@
 [submodule "site-lisp/lusty-emacs"]
 	path = site-lisp/lusty-emacs
 	url = git://github.com/jwiegley/lusty-emacs
-[submodule "site-lisp/cedet"]
-	path = site-lisp/cedet
-	url = https://github.com/emacsmirror/cedet.git
 [submodule "site-lisp/emms"]
 	path = site-lisp/emms
 	url = git://git.sv.gnu.org/emms.git
