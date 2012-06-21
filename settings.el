@@ -97,7 +97,7 @@
  '(el-get-dir "~/.emacs.d/site-lisp/")
  '(el-get-generate-autoloads nil)
  '(emacs-lisp-mode-hook (quote (turn-on-auto-fill (lambda nil (ignore-errors (diminish (quote auto-fill-function)))) eldoc-mode (lambda nil (local-set-key [(meta 46)] (quote find-function)) (local-set-key [(control 109)] (quote newline-and-indent))))))
- '(emms-player-mplayer-parameters (quote ("-slave" "-quiet" "-really-quiet" "-volume 15")))
+ '(emms-player-mplayer-parameters (quote ("-slave" "-quiet" "-really-quiet" "-volume" "15")))
  '(emms-source-file-default-directory "/Volumes/Data/Music/iTunes/iTunes Media/")
  '(enable-recursive-minibuffers t)
  '(erc-auto-query (quote window-noselect))
