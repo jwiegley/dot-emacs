@@ -1671,7 +1671,14 @@ FORM => (eval FORM)."
   :diminish gtags-mode
   :config
   (progn
-    (bind-key "M-." 'gtags-find-tag)
+    (defun my-gtags-or-semantic-find-tag ()
+      (interactive)
+      (if (and (fboundp 'semantic-active-p)
+               (funcall #'semantic-active-p))
+          (call-interactively #'semantic-complete-jump)
+        (call-interactively #'gtags-find-tag)))
+
+    (bind-key "M-." 'my-gtags-or-semantic-find-tag gtags-mode-map)
 
     (bind-key "C-c t ." 'gtags-find-rtag)
     (bind-key "C-c t f" 'gtags-find-file)
