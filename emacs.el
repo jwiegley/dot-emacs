@@ -1158,11 +1158,11 @@
 
 (use-package iflipb
   :commands (iflipb-next-buffer iflipb-previous-buffer)
-  :bind (("A-<tab>" . my-iflipb-next-buffer)
+  :bind (("S-<tab>" . my-iflipb-next-buffer)
          ("A-S-<tab>" . my-iflipb-previous-buffer))
   :init
   (progn
-    (defvar my-iflipb-auto-off-timeout-sec 3)
+    (defvar my-iflipb-auto-off-timeout-sec 2)
     (defvar my-iflipb-auto-off-timer-canceler-internal nil)
     (defvar my-iflipb-ing-internal nil)
 
