@@ -2568,6 +2568,12 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :if (and window-system (not running-alternate-emacs)
            (not noninteractive)))
 
+;;;_ , popup-ruler
+
+(use-package popup-ruler
+  :bind (("C-. r" . popup-ruler)
+         ("C-. R" . popup-ruler-vertical)))
+
 ;;;_ , pp-c-l
 
 (use-package pp-c-l
