@@ -631,6 +631,7 @@
 
 (bind-key "C-h e s" 'scratch)
 (bind-key "C-h e v" 'find-variable)
+(bind-key "C-h e V" 'apropos-value)
 
 ;;;_. Packages
 
