@@ -810,18 +810,19 @@
 ;;;_ , bm
 
 (use-package bm
+  :pre-init
+  (progn
+    (defvar ctl-period-breadcrumb-map)
+    (define-prefix-command 'ctl-period-breadcrumb-map)
+    (bind-key "C-. b" 'ctl-period-breadcrumb-map))
+
   :bind (("C-. b b" . bm-last-in-previous-buffer)
          ("C-. b f" . bm-first-in-next-buffer)
          ("C-. b g" . bm-previous)
          ("C-. b l" . bm-show-all)
          ("C-. b m" . bm-toggle)
          ("C-. b n" . bm-next)
-         ("C-. b p" . bm-previous))
-  :init
-  (progn
-    (defvar ctl-period-breadcrumb-map)
-    (define-prefix-command 'ctl-period-breadcrumb-map)
-    (bind-key "C-. b" 'ctl-period-breadcrumb-map)))
+         ("C-. b p" . bm-previous)))
 
 ;;;_ , bookmark
 
