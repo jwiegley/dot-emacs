@@ -1433,7 +1433,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package emms-setup
   :load-path "site-lisp/emms/lisp"
-  :defines (emms-info-functions emms-player-simple-process-name)
+  :defines emms-info-functions
   :commands (emms-all emms-devel)
   :init
   (progn
@@ -1449,7 +1449,13 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (setq emms-initialized t))
       (call-interactively #'emms-smart-browse))
 
-    (bind-key "C-. M" 'my-emms)
+    (bind-key "C-. M" 'my-emms))
+
+  :config
+  (progn
+    (bind-key "S-<f7>" 'emms-previous)
+    (bind-key "S-<f8>" 'emms-pause)
+    (bind-key "S-<f9>" 'emms-next)
 
     (defun emms-player-mplayer-volume-up ()
       "Depends on mplayer’s -slave mode."
