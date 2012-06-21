@@ -1429,6 +1429,41 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (add-hook 'after-init-hook 'server-start t)
     (add-hook 'after-init-hook 'edit-server-start t)))
 
+;;;_ , emms
+
+(use-package emms-setup
+  :load-path "site-lisp/emms/lisp"
+  :commands (emms-all emms-devel)
+  :init
+  (progn
+    (defvar emms-initialized nil)
+
+    (defun my-emms ()
+      (interactive)
+      (unless emms-initialized
+        (emms-devel)
+        (emms-default-players)
+        (setq emms-info-functions '(emms-info-libtag))
+        (setq emms-initialized t))
+      (call-interactively #'emms-smart-browse))
+
+    (bind-key "C-. M" 'my-emms)
+
+    (defun emms-player-mplayer-volume-up ()
+      "Depends on mplayer’s -slave mode."
+      (interactive)
+      (process-send-string
+       emms-player-simple-process-name "volume 1\n"))
+
+    (defun emms-player-mplayer-volume-down ()
+      "Depends on mplayer’s -slave mode."
+      (interactive)
+      (process-send-string
+       emms-player-simple-process-name "volume -1\n"))
+
+    (bind-key "C-. C--" 'emms-player-mplayer-volume-down)
+    (bind-key "C-. C-=" 'emms-player-mplayer-volume-up)))
+
 ;;;_ , erc
 
 (use-package erc

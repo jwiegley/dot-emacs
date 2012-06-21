@@ -205,3 +205,6 @@
 [submodule "site-lisp/cedet"]
 	path = site-lisp/cedet
 	url = https://github.com/emacsmirror/cedet.git
+[submodule "site-lisp/emms"]
+	path = site-lisp/emms
+	url = git://git.sv.gnu.org/emms.git
