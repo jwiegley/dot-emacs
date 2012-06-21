@@ -2716,7 +2716,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (dolist (func kill-emacs-hook)
         (unless (memq func '(exit-gnus-on-exit server-force-stop))
           (funcall func)))
-      (unless (eq 'listen (process-status server-process))
+      (unless (or running-alternate-emacs
+                  (eq 'listen (process-status server-process)))
         (server-start)))
 
     (run-with-idle-timer 300 t 'save-information)
