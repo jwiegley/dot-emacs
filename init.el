@@ -2416,6 +2416,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (set-terminal-coding-system 'utf-8)
     (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))))
 
+;;;_ , multi-term
+
+(use-package multi-term
+  :bind ("C-. t" . multi-term))
+
 ;;;_ , nroff-mode
 
 (use-package nroff-mode
