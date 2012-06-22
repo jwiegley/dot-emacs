@@ -2439,7 +2439,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , multi-term
 
 (use-package multi-term
-  :bind ("C-. t" . multi-term))
+  :bind (("C-. t" . multi-term-next)
+         ("C-. T" . multi-term)))
 
 ;;;_ , nroff-mode
 
