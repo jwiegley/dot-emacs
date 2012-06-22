@@ -206,6 +206,8 @@
  '(magit-process-popup-time 15)
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
+ '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
+ '(mudel-output-filter-functions (quote (ansi-color-process-output)))
  '(next-line-add-newlines nil)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))

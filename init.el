@@ -2321,7 +2321,7 @@ FORM => (eval FORM)."
        (format "open -a /Applications/Marked.app %s"
                (shell-quote-argument (buffer-file-name)))))
 
-    (bind-key "C-c M" 'markdown-preview-file)))
+    (bind-key "C-. M" 'markdown-preview-file)))
 
 ;;;_ , merlin
 
@@ -2416,6 +2416,16 @@ tell application \"Merlin\"
   end if
 end tell" account account start duration commodity (if cleared "true" "false")
           end end))))))
+
+;;;_ , mudel
+
+(use-package mudel
+  :commands mudel
+  :bind ("C-c M" . mud)
+  :init
+  (defun mud ()
+    (interactive)
+    (mudel "4dimensions" "4dimensions.org" 6000)))
 
 ;;;_ , mule
 
