@@ -1208,6 +1208,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                     (eq last-command 'my-iflipb-previous-buffer))
                 my-iflipb-ing-internal)))))
 
+;;;_ , dedicated
+
+(use-package dedicated
+  :bind ("C-. d" . dedicated-mode))
+
 ;;;_ , diff-mode
 
 (use-package diff-mode
