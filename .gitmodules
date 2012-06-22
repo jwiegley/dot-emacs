@@ -208,3 +208,6 @@
 [submodule "site-lisp/emms"]
 	path = site-lisp/emms
 	url = git://github.com/jwiegley/emms
+[submodule "site-lisp/autopair"]
+	path = site-lisp/autopair
+	url = https://github.com/capitaomorte/autopair.git
