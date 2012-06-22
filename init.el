@@ -2242,6 +2242,11 @@ FORM => (eval FORM)."
     (hook-into-modes #'my-lisp-mode-hook
                      '(emacs-lisp-mode-hook))))
 
+;;;_ , llvm-mode
+
+(use-package llvm-mode
+  :mode ("\\.ll\\'" . llvm-mode))
+
 ;;;_ , log4j-mode
 
 (use-package log4j-mode
