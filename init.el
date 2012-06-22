@@ -2903,6 +2903,13 @@ end tell" account account start duration commodity (if cleared "true" "false")
             (sr-scrollable-viewer (current-buffer)))
           (message "Opening \"%s\" ..." fname))))))
 
+;;;_ , tablegen-mode
+
+(use-package tablegen-mode
+  :description "\
+This mode is used for editing .td files in the LLVM/Clang source code."
+  :mode ("\\.td\\'" . tablegen-mode))
+
 ;;;_ , texinfo
 
 (use-package texinfo
