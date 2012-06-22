@@ -207,4 +207,4 @@
 	url = git://github.com/jwiegley/lusty-emacs
 [submodule "site-lisp/emms"]
 	path = site-lisp/emms
-	url = git://git.sv.gnu.org/emms.git
+	url = git://github.com/jwiegley/emms
