@@ -1,4 +1,4 @@
-;;_. Initialization
+;;;_. Initialization
 
 (unless noninteractive
   (message "Loading %s..." load-file-name))
@@ -1912,39 +1912,7 @@ FORM => (eval FORM)."
   (progn
     (use-package ido-hacks
       :init
-      (progn
-        (ido-hacks-mode 1)
-
-        (when nil
-          (defmacro ido-hacks-create-wrapper (command)
-            `(defun ,(intern (concat "ido-hacks-"
-                                     (symbol-name (eval command))))
-               ()
-               (interactive)
-               (flet ((completing-read
-                       (&rest args)
-                       (apply #'ido-hacks-completing-read args)))
-                 (call-interactively ,command))))
-
-          (ido-hacks-create-wrapper 'ido-hacks-execute-extended-command)
-          (ido-hacks-create-wrapper 'describe-function)
-          (ido-hacks-create-wrapper 'describe-variable)
-          (ido-hacks-create-wrapper 'find-function)
-          (ido-hacks-create-wrapper 'find-variable)
-          (ido-hacks-create-wrapper 'find-library)
-          (ido-hacks-create-wrapper 'customize-option)
-          (ido-hacks-create-wrapper 'customize-group)
-
-          (bind-key "M-x" 'ido-hacks-ido-hacks-execute-extended-command)
-          (bind-key "C-h f" 'ido-hacks-describe-function)
-          (bind-key "C-h v" 'ido-hacks-describe-variable)
-
-          (bind-key "C-h e f" 'ido-hacks-find-function)
-          (bind-key "C-h e v" 'ido-hacks-find-variable)
-          (bind-key "C-h e l" 'ido-hacks-find-library)
-
-          (bind-key "C-c o" 'ido-hacks-customize-option)
-          (bind-key "C-c O" 'ido-hacks-customize-group))))
+      (ido-hacks-mode 1))
 
     (defun ido-smart-select-text ()
       "Select the current completed item.  Do NOT descend into directories."
