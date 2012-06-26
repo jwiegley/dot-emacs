@@ -211,3 +211,6 @@
 [submodule "site-lisp/autopair"]
 	path = site-lisp/autopair
 	url = https://github.com/capitaomorte/autopair.git
+[submodule "site-lisp/deft"]
+	path = site-lisp/deft
+	url = git://jblevins.org/git/deft.git
