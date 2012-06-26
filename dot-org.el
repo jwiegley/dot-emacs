@@ -19,6 +19,8 @@
 ;;(require 'ob-haskell)
 (require 'ob-sh)
 
+(require 'async)
+
 ;;(load "org-log" t)
 
 (defun org-find-top-category (&optional pos)
@@ -258,19 +260,21 @@ To use this function, add it to `org-agenda-finalize-hook':
 ;;                      "~/Dropbox/MobileOrg/index.org")))))
 
 (defun my-org-mobile-pre-pull-function ()
-  (do-applescript "tell application \"Dropbox\" to run")
-  (message "Waiting 30 seconds for Dropbox to download tasks...")
-  (sleep-for 30)
-  (message "Waiting 30 seconds for Dropbox to download tasks...done")
-  (do-applescript "tell application \"Dropbox\" to quit")
-  (my-org-convert-incoming-items))
+  (async-start
+   (lambda ()
+     (shell-command "open /Applications/Misc/Dropbox.app")
+     (sleep-for 30)
+     (shell-command "osascript -e 'tell application \"Dropbox\" to quit'"))
+   (lambda (ret)
+     (my-org-convert-incoming-items))))
 
 (defun my-org-mobile-post-push-function ()
-  (do-applescript "tell application \"Dropbox\" to run")
-  (message "Waiting 30 seconds for Dropbox to upload tasks...")
-  (sleep-for 30)
-  (message "Waiting 30 seconds for Dropbox to upload tasks...done")
-  (do-applescript "tell application \"Dropbox\" to quit"))
+  (async-start
+   (lambda ()
+     (shell-command "open /Applications/Misc/Dropbox.app")
+     (sleep-for 30)
+     (shell-command "osascript -e 'tell application \"Dropbox\" to quit'"))
+   'ignore))
 
 (add-hook 'org-mobile-pre-pull-hook 'my-org-mobile-pre-pull-function)
 (add-hook 'org-mobile-post-push-hook 'my-org-mobile-post-push-function)

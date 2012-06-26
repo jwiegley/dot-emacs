@@ -644,13 +644,15 @@
 
 ;;;_ , el-get
 
-(defvar el-get-sources nil)
-
 (use-package el-get
+  :disabled t
   :commands (el-get
              el-get-install
              el-get-update
              el-get-list-packages)
+  :init
+  (defvar el-get-sources nil)
+
   :config
   (defun el-get-read-status-file ()
     (mapcar #'(lambda (entry)
@@ -756,7 +758,7 @@
     (bind-key "<" 'self-insert-command c++-mode-map)
     (bind-key ">" 'self-insert-command c++-mode-map)
 
-    (use-package cedet-devel-load
+    (use-package cedet
       :init
       (progn
         ;; Add further minor-modes to be enabled by semantic-mode.  See
@@ -1105,6 +1107,7 @@
 ;;;_ , bookmark
 
 (use-package bookmark
+  :disabled t
   :defer t
   :config
   (progn
@@ -1165,6 +1168,7 @@
 ;;;_ , iflipb
 
 (use-package iflipb
+  :disabled t
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :bind (("S-<tab>" . my-iflipb-next-buffer)
          ("A-S-<tab>" . my-iflipb-previous-buffer))
@@ -1207,6 +1211,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (not (and (or (eq last-command 'my-iflipb-next-buffer)
                     (eq last-command 'my-iflipb-previous-buffer))
                 my-iflipb-ing-internal)))))
+
+;;;_ , debbugs
+
+(use-package debbugs
+  :commands (debbugs-gnu debbugs-gnu-search))
 
 ;;;_ , dedicated
 
@@ -1995,6 +2004,9 @@ FORM => (eval FORM)."
       (if (> (length (window-list)) 1)
           (delete-window)))))
 
+(use-package info-look
+  :commadns info-lookup-add-help)
+
 ;;;_ , indirect
 
 (use-package indirect
@@ -2321,7 +2333,7 @@ FORM => (eval FORM)."
        (format "open -a /Applications/Marked.app %s"
                (shell-quote-argument (buffer-file-name)))))
 
-    (bind-key "C-. M" 'markdown-preview-file)))
+    (bind-key "C-x M" 'markdown-preview-file)))
 
 ;;;_ , merlin
 
@@ -2441,6 +2453,11 @@ end tell" account account start duration commodity (if cleared "true" "false")
 (use-package multi-term
   :bind (("C-. t" . multi-term-next)
          ("C-. T" . multi-term)))
+
+;;;_ , nf-procmail-mode
+
+(use-package nf-procmail-mode
+  :commands nf-procmail-mode)
 
 ;;;_ , nroff-mode
 
@@ -2613,7 +2630,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package pp-c-l
   :init
-  (hook-into-modes 'pretty-control-l-mode '(emacs-lisp-mode-hook)))
+  (hook-into-modes 'pretty-control-l-mode '(prog-mode-hook)))
 
 ;;;_ , ps-print
 
@@ -2781,12 +2798,14 @@ end tell" account account start duration commodity (if cleared "true" "false")
               'le::maybe-reveal)
 
     (defun save-information ()
+      (message "Saving Emacs information...")
       (dolist (func kill-emacs-hook)
         (unless (memq func '(exit-gnus-on-exit server-force-stop))
           (funcall func)))
       (unless (or running-alternate-emacs
                   (eq 'listen (process-status server-process)))
-        (server-start)))
+        (server-start))
+      (clean-buffer-list))
 
     (run-with-idle-timer 300 t 'save-information)
 
