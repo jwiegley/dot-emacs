@@ -179,8 +179,8 @@ C-u C-w: `archive-region' (move text to archive file) / also in kill-ring
 C-u C-u C-w: `archive-region-open-archive-file-other-window' (open archive file)"
   (interactive "p\nr")
   (case arg
-    (4  (kill-region s e))
-    (1  (condition-case nil
+    (1  (kill-region s e))
+    (4  (condition-case nil
             (progn
               (kill-new (buffer-substring s e))
               (archive-region s e))

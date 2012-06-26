@@ -141,7 +141,7 @@ It calls `compile' or other compile function, which is defined in
        ((and smart-compile-check-makefile
              (or (file-readable-p "Makefile")
                  (file-readable-p "makefile")))
-        (if (y-or-n-p "Makefile is found. Try 'make'? ")
+        (if t
             (progn
               (set (make-local-variable 'compile-command) "make ")
               (call-interactively 'compile)
