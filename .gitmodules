@@ -214,3 +214,6 @@
 [submodule "site-lisp/deft"]
 	path = site-lisp/deft
 	url = git://jblevins.org/git/deft.git
+[submodule "site-lisp/debbugs"]
+	path = site-lisp/debbugs
+	url = git://github.com/jwiegley/debbugs-gnu.git
