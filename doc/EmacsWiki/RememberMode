@@ -1,0 +1,198 @@
+[[es:ModoRemember]]
+RememberMode
+a mode for quickly jotting down things to remember
+
+* Author: JohnWiegley (johnw AT gnu DOT org)
+* Maintainer: Michael Olson (mwolson AT gnu DOT org), and John Sullivan (john AT wjsullivan DOT net)
+* Past maintainers: SachaChua
+* Project page: https://gna.org/p/remember-el
+* Mailing lists: https://gna.org/mail/?group=remember-el (also available in Gmane)
+* Tutorial (unofficial): http://members.optusnet.com.au/~charles57/GTD/remember.html
+
+[new]
+This excellent feature inspired Capture in OrgMode and that is now (Aug2010) recommended for new users, see http://orgmode.org/manual/Capture.html#Capture
+[new]
+
+
+== Introduction ==
+
+Todo lists, schedules, phone databases... everything we use
+databases for is really just a way to extend the power of our
+memory.  To be able to remember what our conscious mind may not
+currently have access to.
+
+There are many different databases out there -- and good ones --
+which this mode is not trying to replace.  Rather, it's how that
+data gets there that's the question.  Most of the time, we just
+want to say "Remember so-and-so's phone number, or that I have to
+buy dinner for the cats tonight."  That's the FACT.  How it's
+stored is really the computer's problem.  But at this point in
+time, it's most definitely also the user's problem, and sometimes
+so laboriously so that people just let data slip, rather than
+expend the effort to record it.
+
+"Remember" is a mode for remembering data.  It uses whatever
+back-end is appropriate to record and correlate the data, but its
+main intention is to allow you to express as _little_ structure as
+possible up front.  If you later want to express more powerful
+relationships between your data, or state assumptions that were at
+first too implicit to be recognized, you can "study" the data later
+and rearrange it.  But the initial "just remember this" impulse
+should be as close to simply throwing the data at Emacs as
+possible.
+
+Remember is often used in conjunction with PlannerMode and/or OrgMode.
+
+== Installation ==
+
+Here, we assume that Planner will be unpacked to the ##~/elisp##
+directory.  It can be placed anywhere you like, really, but this
+is a fairly standard spot to place Emacs Lisp stuff.
+
+=== Getting a release ===
+
+You have two options: stable or development.
+
+==== Getting the stable release ====
+
+Using a tarball:
+
+<pre>
+wget http://download.gna.org/remember-el/remember-2.0.tar.gz
+tar -xzf remember-2.0.tar.gz
+mv remember-2.0 remember
+</pre>
+
+Using a zip file:
+
+<pre>
+wget http://download.gna.org/remember-el/remember-2.0.zip
+unzip remember-2.0.zip
+mv remember-2.0 remember
+</pre>
+
+==== Getting the latest development snapshot ====
+
+Using git:
+
+<pre>
+cd ~/elisp
+git clone git://repo.or.cz/remember-el.git remember
+</pre>
+
+If you are behind a restrictive firewall and wish to use git, then do the following instead:
+
+<pre>
+cd ~/elisp
+git clone http://repo.or.cz/r/remember-el.git remember
+</pre>
+
+Using a downloaded tarball:
+
+<pre>
+cd ~/elisp
+wget http://mwolson.org/static/dist/remember-latest.tar.gz
+tar -xzf remember-latest.tar.gz
+</pre>
+
+Using a downloaded zip file:
+
+<pre>
+cd ~/elisp
+wget http://mwolson.org/static/dist/remember-latest.zip
+tar -xzf remember-latest.zip
+</pre>
+
+=== Setting up ===
+
+[new]
+Now that RememberMode is included in Emacs (as of Emacs 23), activation is as simple as:
+    (require 'remember)
+[new]
+
+After unpacking, install Remember by copying the directory "remember" to a nice spot on the hard drive, say ##~/elisp/remember##.  Add to your .emacs the following statements:
+
+    (add-to-list 'load-path "~/elisp/remember")
+
+==== Setting up for OrgMode ====
+
+[new]
+Now that OrgMode and RememberMode are included in Emacs (as of Emacs 23), activation is as simple as:
+    (org-remember-insinuate)
+
+Note that there is no need for:
+    (require 'remember)
+[new]
+
+Basically you should follow the instructions in the org-mode info file. However this currently forgets that you also need something like this in your .emacs:
+
+    (require 'remember)
+
+If you are, like me, missing the function org-remember-insinuate, try the following
+
+    (setq remember-annotation-functions '(org-remember-annotation))
+    (setq remember-handler-functions '(org-remember-handler))
+    (add-hook 'remember-mode-hook 'org-remember-apply-template)
+
+===== Quick note-taking =====
+
+When you have started your emacs server (<tt>emacs --daemon</tt> in Emacs 23 or above), you can open a new frame for quick note-taking with:
+
+    $ emacsclient -e "(remember-other-frame)"
+
+[new]
+Note: <tt>remember</tt> now includes <tt>remember-other-frame</tt> so if you get an "Autoloading failed to define function", remove the following <tt>defadvice</tt> from your <tt>.emacs</tt>
+[new]
+
+For older versions you may also want that frame like a pop-up for temporal editing add this code to your init file:
+
+    (defadvice remember-other-frame (around remember-frame-parameters activate)
+      "Set some frame parameters for the remember frame."
+      (let ((default-frame-alist (append
+    			      '(
+    				(name . "*Remember*")
+    				(width . 80)
+    				(height . 10)
+    				(vertical-scroll-bars . nil)
+    				(menu-bar-lines . 0)
+    				(tool-bar-lines . 0)
+    				)
+    			      default-frame-alist)))
+        ad-do-it
+        ))
+
+Note that <tt>-c</tt> is not passed to <tt>emacsclient</tt> such that finishing your note or cancelling it leaves your desktop just as it was, but this will only work if you already have an already started <tt>emacsclient</tt>, as otherwise Emacs does not know which terminal type to use.
+
+==== Setting up for PlannerMode ====
+
+[new]
+PlannerMode is somewhat obsoleted by OrgMode, specially since the latter is now included in Emacs (as of Emacs 23).
+
+See http://www.asynchronous.org/blog/archives/2006/11/24/org-mode-vs-planner-mode for a comparison.
+[new]
+I wouldn't say it has been obsoleted by OrgMode, but that the two packages
+address different users. -- JohnWiegley
+
+[new]
+
+Add this to your .emacs:
+
+    (require 'remember-planner)
+    (setq remember-handler-functions '(remember-planner-append))
+    (setq remember-annotation-functions planner-annotation-functions)
+
+According to Dryice Liu, "...if you are using FreeBSD, [the latest version of remember] is in the ports tree deskutils/remember.el"
+
+One more thing.  Remember always puts notes on today's day page.  It does not prompt for a date.  If you'd like a note to appear on a different day's day page, use planner-timewarp to change PlannerMode's idea of what today's date is.  Be sure to change the date back when you're done!
+
+== History ==
+
+2008-04-16: Remember 2.0 released.  Remember is now included with Emacs as of Emacs 23.
+
+2006-08-05: Remember is now group-maintained by Sacha Chua, Michael Olson, and John Sullivan.  Version 1.9 is released.
+
+2006-05-01: "Remember" also works with the version of PlannerMode that's based on EmacsMuse.
+
+2003-11-22: SachaChua now maintains remember.el. A new version (1.7) can be found on her site, together with updated versions of PlannerMode. The new version makes reverse-chronological timestamped entries easier, which means RememberMode + PlannerMode + EmacsWikiMode = blog
+
+CategoryPersonalInformationManager
