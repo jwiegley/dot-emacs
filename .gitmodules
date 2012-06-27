@@ -223,3 +223,6 @@
 [submodule "lisp/planner"]
 	path = lisp/planner
 	url = git://repo.or.cz/planner-el.git
+[submodule "site-lisp/auto-overlays"]
+	path = site-lisp/auto-overlays
+	url = https://github.com/emacsmirror/auto-overlays.git
