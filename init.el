@@ -2604,9 +2604,14 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 ;;;_ , paren
 
-(use-package paren
-  :init
-  (show-paren-mode 1))
+(unless
+    (use-package mic-paren
+          :init
+          (paren-activate))
+
+  (use-package paren
+    :init
+    (show-paren-mode 1)))
 
 ;;;_ , per-window-point
 
