@@ -2282,6 +2282,22 @@ FORM => (eval FORM)."
                 (bind-key "SPC" 'lusty-select-match lusty-mode-map)
                 (bind-key "C-d" 'exit-minibuffer lusty-mode-map)))
 
+    (defun lusty-open-this ()
+      "Open the given file/directory/buffer, creating it if not already present."
+      (interactive)
+      (when lusty--active-mode
+        (ecase lusty--active-mode
+          (:file-explorer
+           (let* ((path (minibuffer-contents-no-properties))
+                  (last-char (aref path (1- (length path)))))
+             (if (and (file-directory-p path)
+                      (not (eq last-char ?/))) ; <-- FIXME nonportable?
+                 ;; Current path is a directory, sans-slash.  Open in dired.
+                 (lusty-select-current-name)
+               ;; Just activate the current match as normal.
+               (lusty-select-match))))
+          (:buffer-explorer (lusty-select-match)))))
+
     (if (featurep 'icicles)
         (defadvice lusty-file-explorer (around lusty-file-explorer-without-icy
                                                activate)
