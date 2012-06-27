@@ -1047,6 +1047,18 @@
     (ac-set-trigger-key "TAB")
     (setq ac-use-menu-map t)))
 
+;;;_ , autopair
+
+(use-package autopair
+  :commands autopair-mode
+  :diminish autopair-mode
+  :init
+  (hook-into-modes #'autopair-mode '(c-mode-common-hook
+                                     text-mode-hook
+                                     ruby-mode-hook
+                                     python-mode-hook
+                                     sh-mode-hook)))
+
 ;;;_ , autorevert
 
 (use-package autorevert
