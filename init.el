@@ -2723,8 +2723,14 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (recentf-mode 1)
 
     (defun recentf-add-dired-directory ()
-      (if (file-directory-p dired-directory)
-          (recentf-add-file (file-name-nondirectory dired-directory))))
+      (if (and dired-directory
+               (file-directory-p dired-directory)
+               (not (string= "/" dired-directory)))
+          (let ((last-idx (1- (length dired-directory))))
+            (recentf-add-file
+             (if (= ?/ (aref dired-directory last-idx))
+                 (substring dired-directory 0 last-idx)
+               dired-directory)))))
 
     (add-hook 'dired-mode-hook 'recentf-add-dired-directory)))
 
