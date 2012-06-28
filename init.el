@@ -2071,6 +2071,8 @@ FORM => (eval FORM)."
         (use-package redshank
           :diminish redshank-mode)
 
+        (use-package elisp-slime-nav)
+
         (use-package edebug)
 
         (use-package eldoc
@@ -2161,6 +2163,7 @@ FORM => (eval FORM)."
       (auto-fill-mode 1)
       (paredit-mode 1)
       (redshank-mode 1)
+      (elisp-slime-nav-mode 1)
 
       (bind-key ")" 'paredit-close-round-and-newline paredit-mode-map)
       (bind-key "M-)" 'paredit-close-round paredit-mode-map)

@@ -232,3 +232,6 @@
 [submodule "site-lisp/command-log-mode"]
 	path = site-lisp/command-log-mode
 	url = https://github.com/lewang/command-log-mode.git
+[submodule "site-lisp/elisp-slime-nav"]
+	path = site-lisp/elisp-slime-nav
+	url = https://github.com/purcell/elisp-slime-nav.git
