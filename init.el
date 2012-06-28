@@ -1361,97 +1361,25 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , ediff
 
 (use-package ediff
-  :defer t
-  :config
+  :pre-init
   (progn
-    (defun ediff-keep-both ()
-      (interactive)
-      (with-current-buffer ediff-buffer-C
-        (beginning-of-line)
-        (assert (or (looking-at "<<<<<<")
-                    (re-search-backward "^<<<<<<" nil t)
-                    (re-search-forward "^<<<<<<" nil t)))
-        (beginning-of-line)
-        (let ((beg (point)))
-          (forward-line)
-          (delete-region beg (point))
-          (re-search-forward "^>>>>>>>")
-          (beginning-of-line)
-          (setq beg (point))
-          (forward-line)
-          (delete-region beg (point))
-          (re-search-forward "^#######")
-          (beginning-of-line)
-          (setq beg (point))
-          (re-search-forward "^=======")
-          (beginning-of-line)
-          (forward-line)
-          (delete-region beg (point)))))
+    (defvar ctl-period-equals-map)
+    (define-prefix-command 'ctl-period-equals-map)
+    (bind-key "C-. =" 'ctl-period-equals-map))
 
-    (add-hook 'ediff-keymap-setup-hook
-              #'(lambda ()
-                  (bind-key "c" 'ediff-keep-both ediff-mode-map)))
-
-    (defun keep-mine ()
-      (interactive)
-      (beginning-of-line)
-      (assert (or (looking-at "<<<<<<")
-                  (re-search-backward "^<<<<<<" nil t)
-                  (re-search-forward "^<<<<<<" nil t)))
-      (goto-char (match-beginning 0))
-      (let ((beg (point))
-            (hashes (re-search-forward "^#######" (+ (point) 10000) t)))
-        (forward-line)
-        (delete-region beg (point))
-        (re-search-forward (if hashes "^>>>>>>>" "^======="))
-        (setq beg (match-beginning 0))
-        (re-search-forward (if hashes "^=======" "^>>>>>>>"))
-        (forward-line)
-        (delete-region beg (point))))
-
-    (defun keep-theirs ()
-      (interactive)
-      (beginning-of-line)
-      (assert (or (looking-at "<<<<<<")
-                  (re-search-backward "^<<<<<<" nil t)
-                  (re-search-forward "^<<<<<<" nil t)))
-      (goto-char (match-beginning 0))
-      (let ((beg (point))
-            (hashes (re-search-forward "^#######" (+ (point) 10000) t)))
-        (re-search-forward (if hashes "^>>>>>>>" "^======="))
-        (forward-line)
-        (delete-region beg (point))
-        (re-search-forward (if hashes "^#######" "^>>>>>>>"))
-        (beginning-of-line)
-        (setq beg (point))
-        (when hashes
-          (re-search-forward "^=======")
-          (beginning-of-line))
-        (forward-line)
-        (delete-region beg (point))))
-
-    (defun keep-both ()
-      (interactive)
-      (beginning-of-line)
-      (assert (or (looking-at "<<<<<<")
-                  (re-search-backward "^<<<<<<" nil t)
-                  (re-search-forward "^<<<<<<" nil t)))
-      (beginning-of-line)
-      (let ((beg (point)))
-        (forward-line)
-        (delete-region beg (point))
-        (re-search-forward "^>>>>>>>")
-        (beginning-of-line)
-        (setq beg (point))
-        (forward-line)
-        (delete-region beg (point))
-        (re-search-forward "^#######")
-        (beginning-of-line)
-        (setq beg (point))
-        (re-search-forward "^=======")
-        (beginning-of-line)
-        (forward-line)
-        (delete-region beg (point))))))
+  :bind (("C-. = b" . ediff-buffers)
+         ("C-. = B" . ediff-buffers3)
+         ("C-. = c" . compare-windows)  ; not an ediff command, but it fits
+         ("C-. = =" . ediff-files)
+         ("C-. = f" . ediff-files)
+         ("C-. = F" . ediff-files3)
+         ("C-. = r" . ediff-revision)
+         ("C-. = p" . ediff-patch-file)
+         ("C-. = P" . ediff-patch-buffer)
+         ("C-. = l" . ediff-regions-linewise)
+         ("C-. = w" . ediff-regions-wordwise))
+  :config
+  (use-package ediff-keep))
 
 ;;;_ , edit-server
 
@@ -2977,6 +2905,13 @@ end tell" account account start duration commodity (if cleared "true" "false")
           (call-interactively 'compile))))
 
     (bind-key "M-O" 'show-compilation)))
+
+;;;_ , smerge-mode
+
+(use-package smerge-mode
+  :commands (smerge-mode smerge-command-prefix)
+  :init
+  (setq smerge-command-prefix (kbd "C-. C-.")))
 
 ;;;_ , springboard
 
