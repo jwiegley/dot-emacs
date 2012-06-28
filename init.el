@@ -1051,6 +1051,7 @@
 ;;;_ , autopair
 
 (use-package autopair
+  :disabled t
   :commands autopair-mode
   :diminish autopair-mode
   :init
