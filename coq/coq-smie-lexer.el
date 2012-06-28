@@ -35,7 +35,9 @@
 	(setq case-fold-search cfs)
 	(not res)))))
 
-
+;; ignore-between is a description of pseudo delimiters of blocks that
+;; should be jumped when searching. There is a bad interaction when
+;; tokens and ignore-bteween are not disjoint
 (defun coq-smie-search-token-forward (tokens &optional end ignore-between)
   "Search for one of TOKENS between point and END.
 Token \".\" is considered only if followed by a space."
@@ -60,6 +62,9 @@ Token \".\" is considered only if followed by a space."
 		 ((member next tokens) (throw 'found next))))))))
     (scan-error nil)))
 
+;; ignore-between is a description of pseudo delimiters of blocks that
+;; should be jumped when searching. There is a bad interaction when
+;; tokens and ignore-bteween are not disjoint
 (defun coq-smie-search-token-backward (tokens &optional end ignore-between)
   "Search for one of TOKENS between point and END.
 Token \".\" is considered only if followed by a space. optional
@@ -96,10 +101,6 @@ command. "
 		   ((member next tokens) (throw 'found next))))))))
       (scan-error nil)))
 
-;; This avoids parenthesized expression containing := and let
-;; .. := ... in. We consider any other occurrence of := as an
-;; evidence of explicit definition by contrast to goal
-;; opening.
 (defun coq-lonely-:=-in-this-command ()
   "Return t if there is a lonely \":=\" from (point) to end of command.
 Non lonely \":=\" are those corresponding to \"let\" or
@@ -187,20 +188,7 @@ The point should be at the beginning of the command name."
 	    "xxx provedby"
 	  (goto-char p)
 	  tok))) ; by tactical
-
-
-    ;;  ((equal tok "Program")
-    ;;   (let ((pos (point))
-    ;;    (next (smie-default-forward-token)))
-    ;;  (if (member next '("Fixpoint" "Declaration" "Lemma" "Instance"))
-    ;;      next
-    ;;    (goto-char pos)
-    ;;    tok)))
-    ;;  ((member tok  '("Definition" "Lemma" "Theorem" "Local"
-    ;;		     "Fact"  "Let" "Program"
-    ;;		     "Class" "Instance"))
-    ;;   (save-excursion (coq-smie-backward-token)))
-
+     
      ((member tok '("Module"))
       (let ((pos (point))
 	    (next (smie-default-forward-token)))
@@ -209,7 +197,7 @@ The point should be at the beginning of the command name."
 
      ((and (zerop (length tok)) (looking-at "{|")) (goto-char (match-end 0)) "{|")
      ;; this must be after detecting "{|":
-     ((and (zerop (length tok)) (looking-at "{"))
+     ((and (zerop (length tok)) (eq (char-after) "{"))
       (if (equal (save-excursion (forward-char 1) (coq-smie-backward-token))
 		 "{ subproof")
 	  (progn (forward-char 1) "{ subproof")
@@ -220,38 +208,27 @@ The point should be at the beginning of the command name."
 		 "} subproof")
 	  (progn (forward-char 1) "} subproof")
 	tok))
-    ;;  ((and (equal tok "|") (eq (char-after) ?\}))
-    ;;   (goto-char (1+ (point))) "|}")
+     ((and (equal tok "|") (eq (char-after) ?\}))
+      (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Obligation")) "Proof")
-    ;; ((equal tok "Proof") ;; put point after with if present
-    ;;   (let ((pos (point))
-    ;;	    (next (smie-default-forward-token)))
-    ;;	(if (equal next "with")
-    ;;	    "Proof"
-    ;;	  (goto-char pos)
-    ;;	  tok)))
-    ;;  ((equal tok "Next")
-    ;;   (let ((pos (point))
-    ;;	    (next (smie-default-forward-token)))
-    ;;	(if (equal next "Obligation")
-    ;;	    next
-    ;;	  (goto-char pos)
-    ;;	  tok)))
-
-
-
-;
-;     ((string-match "[[:alpha:]_]+" tok)
-;      (save-excursion
-;	(if (equal (coq-smie-backward-token) " upperkw")
-;	    " upperkw" tok)))
-;
 
      (tok))))
 
 (defun coq-smie-.-desambiguate ()
-  "Return the token of the command terminator of the current command."
+  "Return the token of the command terminator of the current command.
+For example in:
+
+Proof.
+
+the token of the \".\" is \". proofstart\".
+
+But in
+
+intros.
+
+the token of \".\" is simply \".\".
+"
   (save-excursion
     (let ((p (point)) (beg (coq-find-real-start))) ; moves to real start of command
       (cond
@@ -264,8 +241,7 @@ The point should be at the beginning of the command name."
 	      "." ". proofstart")))
        ((coq-smie-detect-module-or-section-start-command)
 	". modulestart")
-       (t "."))))
-  )
+       (t ".")))))
 
 
 (defun coq-smie-complete-qualid-backward ()
@@ -316,8 +292,10 @@ The point should be at the beginning of the command name."
 	(coq-find-real-start)
 	(if (coq-smie-detect-module-or-section-start-command)
 	    "Module start" "Module def")))
+
      ((and (equal tok "|") (eq (char-before) ?\{))
       (goto-char (1- (point))) "{|")
+
     ;;  ;; FIXME: bugs when { } { } happens for some other reason
     ;;  ;; FIXME: it seems to even loop sometime
     ;;  ;; ((and (equal tok "") (member (char-before) '(?\{ ?\}))
@@ -330,6 +308,14 @@ The point should be at the beginning of the command name."
     ;;  ;;  (if (looking-at "{") "BeginSubproof" "EndSubproof"))
     ;;  ((and (equal tok "") (looking-back "|}" (- (point) 2)))
     ;;   (goto-char (match-beginning 0)) "|}")
+
+     ;; |}
+
+     ;; ((and (zerop (length tok))
+     ;; 	   (eq (char-before) ?\})
+     ;; 	   (eq (char-before (- (point) 1)) ?|))
+     ;;  (forward-char -2)
+     ;;  "|}")
 
      ((and (zerop (length tok)) (member (char-before) '(?\{ ?\}))
 	   (save-excursion
@@ -488,7 +474,9 @@ Lemma foo: forall n,
   :group 'coq)
 
 
-;; FIXME: This does not know about Notations.
+;; - TODO: remove tokens "{ subproof" and "} subproof" but they are
+;;         needed by the lexers at a lot of places.
+;; - FIXME: This does not know about Notations.
 (defconst coq-smie-grammar
   (when (fboundp 'smie-prec2->grammar)
     (smie-prec2->grammar
@@ -567,20 +555,17 @@ Lemma foo: forall n,
       '((assoc "with module") (assoc ":= with") (nonassoc ":"))
       '((assoc "; record")))))
   "Parsing table for Coq.  See `smie-grammar'.")
-;; FIXME: {|\n xx:=y; ...|}
 ;; FIXME:
-; Record rec:Set := {
+; Record rec:Set :=     {
 ;                   fld1:nat;
 ;                   fld2:nat;
 ;                   fld3:bool
 ;                 }.
-; FIXME:
-;  - Si Next Obligation suivi de Proof: pas d'indentation sur le Next
-;    Obligation
-; FIXME:
 ;  rewrite
 ;  in
-;  H.
+;  H
+;  as
+;    h.
 ; FIXME: same thing with "as"
 ; FIXME:
 ; Instance x
@@ -588,14 +573,11 @@ Lemma foo: forall n,
 ; FIXME: idem:
 ; Lemma x
 ; : <- should right shift
-; FIXME:
+; FIXME: as is sometimes a "as morphism" but not detected as such
 ;; Add Parametric Morphism (A : Type) : (mu (A:=A))
 ;;     with signature Oeq ==> Oeq
 ;;                    as mu_eq_morphism.
-;; FIXME:
-;; match x with
-;; C1 => ..
-;; | ...
+
 
 
 ; This fixes a bug in smie that is not yet in regular emacs distribs??
@@ -685,6 +667,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
             (smie-rule-parent)
           (smie-rule-parent 4)))
 
+       ((equal token "in tactic") (smie-rule-parent 2))
+
+
        ((equal token "as morphism") (smie-rule-parent 2))
        ((member token '("xxx provedby" "with signature"))
         (if (smie-rule-parent-p "xxx provedby" "with signature")
@@ -708,7 +693,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
 
 
-;;       ((equal token "as") 2)
+       ((equal token "as")
+	(if (smie-rule-parent-p "in tactic") (smie-rule-parent) 2))
+
 ;;       ((member token '("return" "in match" "as match"))
 ;;        (if (smie-rule-parent-p "match") 3))
        ((equal token "|")
