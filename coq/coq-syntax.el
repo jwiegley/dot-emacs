@@ -323,13 +323,20 @@
 (defvar coq-solve-cheat-tactics-db
   (append
    coq-user-cheat-tactics-db
-   '(
-     ("admit" nil "admit" t "admit")
-     ))
+   '(("admit" nil "admit" t "admit")
+     ("Admitted" nil "Admitted" t "Admitted")))
   "Coq tactic(al)s that solve a subgoal."
   )
 
-
+(setq develock-coq-font-lock-keywords
+  '((develock-find-long-lines
+     (1 'develock-long-line-1 t)
+     (2 'develock-long-line-2 t))
+    ("[^	\n ]\\([	 ]+\\)$"
+     (1 'develock-whitespace-1 t))
+    ("^[	 ]+$"
+     (0 'develock-whitespace-2 append))
+    ("\\.[{}]" 0 'develock-whitespace-2 nil nil)))
 
 
 (defvar coq-tacticals-db
