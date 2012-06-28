@@ -229,3 +229,6 @@
 [submodule "site-lisp/swank-js"]
 	path = site-lisp/swank-js
 	url = https://github.com/swank-js/swank-js.git
+[submodule "site-lisp/command-log-mode"]
+	path = site-lisp/command-log-mode
+	url = https://github.com/lewang/command-log-mode.git
