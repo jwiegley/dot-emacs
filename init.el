@@ -759,6 +759,7 @@
     (bind-key ">" 'self-insert-command c++-mode-map)
 
     (use-package cedet
+      :disabled t
       :init
       (progn
         ;; Add further minor-modes to be enabled by semantic-mode.  See
