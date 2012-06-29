@@ -1876,6 +1876,8 @@ FORM => (eval FORM)."
       :init
       (ido-hacks-mode 1))
 
+    (use-package ido-springboard)
+
     (defun ido-smart-select-text ()
       "Select the current completed item.  Do NOT descend into directories."
       (interactive)
@@ -2919,11 +2921,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :commands (smerge-mode smerge-command-prefix)
   :init
   (setq smerge-command-prefix (kbd "C-. C-.")))
-
-;;;_ , springboard
-
-(use-package springboard
-  :bind ("C-. c" . springboard))
 
 ;;;_ , stopwatch
 
