@@ -347,6 +347,7 @@
 (bind-key "C-c e d" 'debug-on-entry)
 (bind-key "C-c e e" 'toggle-debug-on-error)
 (bind-key "C-c e f" 'emacs-lisp-byte-compile-and-load)
+(bind-key "C-c e j" 'emacs-lisp-mode)
 (bind-key "C-c e l" 'find-library)
 (bind-key "C-c e r" 'eval-region)
 (bind-key "C-c e s" 'scratch)
