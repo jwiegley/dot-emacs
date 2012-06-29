@@ -1109,15 +1109,16 @@
   (progn
     (defvar ctl-period-breadcrumb-map)
     (define-prefix-command 'ctl-period-breadcrumb-map)
-    (bind-key "C-. b" 'ctl-period-breadcrumb-map))
+    (bind-key "C-. c" 'ctl-period-breadcrumb-map))
 
-  :bind (("C-. b b" . bm-last-in-previous-buffer)
-         ("C-. b f" . bm-first-in-next-buffer)
-         ("C-. b g" . bm-previous)
-         ("C-. b l" . bm-show-all)
-         ("C-. b m" . bm-toggle)
-         ("C-. b n" . bm-next)
-         ("C-. b p" . bm-previous)))
+  :bind (("C-. c b" . bm-last-in-previous-buffer)
+         ("C-. c f" . bm-first-in-next-buffer)
+         ("C-. c g" . bm-previous)
+         ("C-. c l" . bm-show-all)
+         ("C-. c c" . bm-toggle)
+         ("C-. c m" . bm-toggle)
+         ("C-. c n" . bm-next)
+         ("C-. c p" . bm-previous)))
 
 ;;;_ , bookmark
 
