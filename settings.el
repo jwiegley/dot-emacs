@@ -105,7 +105,6 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist (quote (("oftc.net" "#llvm") ("localhost" "&bitlbee") ("freenode.net" "#emacs" "#boost" "#ledger") ("irc.oftc.net" "#llvm") ("irc.schmorp.de" "#schmorpforge"))))
  '(erc-autojoin-mode t)
- '(erc-fill-function (quote erc-fill-static))
  '(erc-fill-static-center 12)
  '(erc-fools (quote ("JordiGH")))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
