@@ -489,21 +489,25 @@ SCHEDULED: %t
   (org-set-property "Submitter" (org-get-message-sender)))
 
 (defun org-get-safari-link ()
-  (let ((subject (substring (do-applescript "tell application \"Safari\"
+  (let ((subject (substring (do-applescript
+                             (string-to-multibyte "tell application \"Safari\"
         name of document of front window
-end tell") 1 -1))
-        (url (substring (do-applescript "tell application \"Safari\"
+end tell")) 1 -1))
+        (url (substring (do-applescript
+                         (string-to-multibyte "tell application \"Safari\"
         URL of document of front window
-end tell") 1 -1)))
+end tell")) 1 -1)))
     (org-make-link-string url subject)))
 
 (defun org-get-chrome-link ()
-  (let ((subject (do-applescript "tell application \"Google Chrome\"
+  (let ((subject (do-applescript
+                  (string-to-multibyte "tell application \"Google Chrome\"
         title of active tab of front window
-end tell"))
-        (url (do-applescript "tell application \"Google Chrome\"
-        URL of active tab of front window
 end tell")))
+        (url (do-applescript
+              (string-to-multibyte "tell application \"Google Chrome\"
+        URL of active tab of front window
+end tell"))))
     (org-make-link-string (substring url 1 -1) (substring subject 1 -1))))
 
 (defun org-insert-url-link ()
