@@ -2808,7 +2808,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , sh-toggle
 
 (use-package sh-toggle
-  :bind ("C-x M-z" . shell-toggle))
+  :bind ("C-. C-z" . shell-toggle))
 
 ;;;_ , slime
 
