@@ -5,13 +5,13 @@ SPECIAL	    = cus-dirs.el autoloads.el
 INIT_SOURCE = $(wildcard *.el)
 LIB_SOURCE  = $(wildcard override/*.el) $(wildcard lib/*.el) \
 	      $(wildcard lisp/*.el) $(wildcard site-lisp/*.el)
-TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE))
+TARGET	    = autoloads.elc $(patsubst %.el,%.elc, $(LIB_SOURCE))
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %,$(DIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(TARGET)
+all: $(SPECIAL) $(TARGET)
 	for dir in $(DIRS); do \
 	    $(BATCH_LOAD) -f batch-byte-recompile-directory $$dir; \
 	done
@@ -26,6 +26,8 @@ autoloads.el: Makefile autoloads.in $(LIB_SOURCE)
 	$(EMACS_BATCH) -l $(shell pwd)/autoloads -l easy-mmode \
 	    -f generate-autoloads $(shell pwd)/autoloads.el $(DIRS) \
 	    $(shell find $(DIRS) -maxdepth 1 -type d -print)
+
+autoloads.elc: autoloads.el
 
 %.elc: %.el
 	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
