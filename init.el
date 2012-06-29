@@ -132,6 +132,13 @@
 
 ;;;_  . M-?
 
+(defadvice async-shell-command (before uniqify-running-shell-command activate)
+  (let ((buf (get-buffer "*Async Shell Command*")))
+    (when buf
+      (let ((proc (get-buffer-process buf)))
+            (with-current-buffer buf
+              (rename-uniquely))))))
+
 (bind-key "M-!" 'async-shell-command)
 (bind-key "M-/" 'dabbrev-expand)
 (bind-key "M-'" 'insert-pair)
