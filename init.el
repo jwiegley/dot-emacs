@@ -449,22 +449,6 @@
 (bind-key "C-c o" 'customize-option)
 (bind-key "C-c O" 'customize-group)
 
-(defvar printf-index 0)
-
-(defun insert-counting-printf (arg)
-  (interactive "P")
-  (if arg
-      (setq printf-index 0))
-  (if t
-      (insert (format "std::cerr << \"step %d..\" << std::endl;\n"
-                      (setq printf-index (1+ printf-index))))
-    (insert (format "printf(\"step %d..\\n\");\n"
-                    (setq printf-index (1+ printf-index)))))
-  (forward-line -1)
-  (indent-according-to-mode)
-  (forward-line))
-
-(bind-key "C-c p" 'insert-counting-printf)
 (bind-key "C-c q" 'fill-region)
 (bind-key "C-c r" 'replace-regexp)
 (bind-key "C-c s" 'replace-string)
@@ -681,6 +665,21 @@
               (call-interactively 'auto-complete)
             (call-interactively 'company-complete-common)))))
 
+    (defvar printf-index 0)
+
+    (defun insert-counting-printf (arg)
+      (interactive "P")
+      (if arg
+          (setq printf-index 0))
+      (if t
+          (insert (format "std::cerr << \"step %d..\" << std::endl;\n"
+                          (setq printf-index (1+ printf-index))))
+        (insert (format "printf(\"step %d..\\n\");\n"
+                        (setq printf-index (1+ printf-index)))))
+      (forward-line -1)
+      (indent-according-to-mode)
+      (forward-line))
+
     (defun my-c-mode-common-hook ()
       (abbrev-mode 1)
       (gtags-mode 1)
@@ -694,6 +693,8 @@
       (diminish 'gtags-mode)
       (diminish 'hs-minor-mode)
       (diminish 'hide-ifdef-mode)
+
+      (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
 
       (if t
           (progn
