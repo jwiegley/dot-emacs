@@ -2745,7 +2745,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , selectkey
 
 (use-package selectkey
-  :bind ("C-. s" . selectkey-select-prefix-map))
+  :init
+  (progn
+    (bind-key "C-. b" 'selectkey-select-prefix-map)
+
+    (selectkey-define-select-key compile "c" "\\*compilation")
+    (selectkey-define-select-key shell-command "o" "Shell Command")
+    (selectkey-define-select-key shell "s" "\\*shell" (shell))
+    (selectkey-define-select-key multi-term "t" "\\*terminal" (multi-term-next))
+    (selectkey-define-select-key eshell "z" "\\*eshell" (eshell))))
 
 ;;;_ , session
 
