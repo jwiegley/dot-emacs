@@ -39,7 +39,7 @@
         url = git://git.savannah.nongnu.org/bbdb.git
 [submodule "override/gnus"]
 	path = override/gnus
-	url = http://git.gnus.org/gnus.git
+	url = https://github.com/jwiegley/gnus
 [submodule "override/org-mode"]
 	path = override/org-mode
 	url = https://github.com/jwiegley/org-mode.git
@@ -99,7 +99,7 @@
 	url = https://github.com/jwiegley/session.git
 [submodule "site-lisp/slime"]
 	path = site-lisp/slime
-	url = https://github.com/nablaone/slime.git
+	url = https://github.com/jwiegley/slime.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = https://github.com/jwiegley/yasnippet.git
@@ -156,7 +156,7 @@
 	url = https://github.com/idomagal/ipa.el.git
 [submodule "site-lisp/ido-hacks"]
 	path = site-lisp/ido-hacks
-	url = https://github.com/scottjad/ido-hacks.git
+	url = https://github.com/jwiegley/ido-hacks.git
 [submodule "lisp/bind-key"]
 	path = lisp/bind-key
 	url = git://github.com/jwiegley/bind-key.git
