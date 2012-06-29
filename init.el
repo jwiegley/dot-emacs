@@ -3211,6 +3211,7 @@ This mode is used for editing .td files in the LLVM/Clang source code."
 
     (bind-key "C-\\" 'workgroups-preload-map)
     (bind-key "C-\\" 'wg-switch-to-index-1 workgroups-preload-map)
+    (bind-key "0" 'wg-switch-to-index-1 workgroups-preload-map)
     (bind-key "1" 'wg-switch-to-index-1 workgroups-preload-map))
 
   :config
