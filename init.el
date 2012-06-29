@@ -225,6 +225,7 @@
 
 ;;;_  . C-x ?
 
+(bind-key "C-x B" 'ido-switch-buffer-other-window)
 (bind-key "C-x d" 'delete-whitespace-rectangle)
 (bind-key "C-x F" 'set-fill-column)
 (bind-key "C-x t" 'toggle-truncate-lines)
