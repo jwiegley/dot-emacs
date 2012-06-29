@@ -1583,7 +1583,9 @@ FORM => (eval FORM)."
         (call-process "spawn" nil nil nil "ss" server))
 
       (eval-after-load "em-unix"
-        '(unintern 'eshell/rm)))
+        '(progn
+           (unintern 'eshell/su)
+           (unintern 'eshell/sudo))))
 
     (add-hook 'eshell-first-time-mode-hook 'eshell-initialize)))
 
