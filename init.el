@@ -3103,6 +3103,15 @@ This mode is used for editing .td files in the LLVM/Clang source code."
   (progn
     (setq w3m-command "/opt/local/bin/w3m")
 
+    (setq w3m-coding-system 'utf-8
+          w3m-file-coding-system 'utf-8
+          w3m-file-name-coding-system 'utf-8
+          w3m-input-coding-system 'utf-8
+          w3m-output-coding-system 'utf-8
+          w3m-terminal-coding-system 'utf-8)
+
+    (add-hook ‘w3m-mode-hook ‘w3m-link-numbering-mode)
+
     (autoload 'w3m-session-crash-recovery-remove "w3m-session")
 
     (defun wikipedia-query (term)
@@ -3148,6 +3157,28 @@ This mode is used for editing .td files in the LLVM/Clang source code."
       :requires w3m
       :init
       (add-hook 'w3m-mode-hook 'w3m-type-ahead-mode))
+
+    (add-hook 'w3m-display-hook
+              (lambda (url)
+                (let ((buffer-read-only nil))
+                  (delete-trailing-whitespace))))
+
+    (defun my-w3m-linknum-follow ()
+      (interactive)
+      (w3m-linknum-follow))
+
+    (bind-key "k" 'w3m-delete-buffer w3m-mode-map)
+    (bind-key "i" 'w3m-view-previous-page w3m-mode-map)
+    (bind-key "p" 'w3m-previous-anchor w3m-mode-map)
+    (bind-key "n" 'w3m-next-anchor w3m-mode-map)
+
+    (defun dka-w3m-textarea-hook()
+      (save-excursion
+        (while (re-search-forward "\r\n" nil t)
+          (replace-match "\n" nil nil))
+        (delete-other-windows)))
+
+    (add-hook 'w3m-form-input-textarea-mode-hook 'dka-w3m-textarea-hook)
 
     (bind-key "<return>" 'w3m-view-url-with-external-browser
               w3m-minor-mode-map)))
