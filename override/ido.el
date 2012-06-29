@@ -2373,12 +2373,18 @@ If cursor is not at the end of the user input, move to end of input."
 
       (unless filename
 	(setq ido-saved-vc-hb vc-handled-backends)
-	(let ((minibuffer-completing-file-name t))
-	  (setq filename (ido-read-internal item
-					    (or prompt "Find file: ")
-					    'ido-file-history
-					    (and (eq method 'alt-file) buffer-file-name)
-					    (confirm-nonexistent-file-or-buffer) initial))))
+	(if (featurep 'lusty-explorer)
+	    (let ((dir (ido-springboard-match-directory)))
+	      (when dir
+		(let ((default-directory dir))
+		  (lusty-file-explorer))
+		(quit "")))
+	  (let ((minibuffer-completing-file-name t))
+	    (setq filename (ido-read-internal item
+					      (or prompt "Find file: ")
+					      'ido-file-history
+					      (and (eq method 'alt-file) buffer-file-name)
+					      (confirm-nonexistent-file-or-buffer) initial)))))
 
       ;; Choose the file name: either the text typed in, or the head
       ;; of the list of matches
