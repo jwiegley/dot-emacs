@@ -2390,7 +2390,11 @@ assistant."
 	      (regexp-quote "\n") ;; end-of-line terminated comments
 	    (regexp-quote proof-script-comment-end))))
 
-  ;; BOGUS
+  ;; FIXME: This is clearly bogus: it sets the *start* matcher based on the
+  ;; *end* marker.  But I'm not sure what's the right fix: OT1H the code is
+  ;; careful to build a correct end-matcher, but OTOH it's not as careful as
+  ;; the default code in newcomment.el anyway.  So I'm tempted to just remove
+  ;; this code altogether.
   (make-local-variable 'comment-start-skip)
   (unless comment-start-skip
     (setq comment-start-skip

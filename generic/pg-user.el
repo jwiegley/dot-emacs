@@ -23,9 +23,9 @@
 (require 'proof-script)	        ; we build on proof-script
 
 (require 'cl)
-(eval-when (compile)
-  (require 'completion)		       ; loaded dynamically at runtime
-  (defvar which-func-modes nil))       ; defined by which-func
+(eval-when-compile
+  (require 'completion))                ; Loaded dynamically at runtime.
+(defvar which-func-modes)               ; Defined by which-func.
 
 (declare-function proof-segment-up-to "proof-script") 
 (declare-function proof-interrupt-process "proof-shell") 

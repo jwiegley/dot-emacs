@@ -318,7 +318,7 @@ the lisp variable `proof-assistants', or the contents of `proof-assistant-table'
 	 (regexp	 (or (nth 3 tableentry)
 			     (concat (regexp-quote ".")
 				     (regexp-quote (nth 2 tableentry))
-				     "$")))
+				     "\\'")))
 	 (sname		 (symbol-name assistant))
 	 ;; NB: File name for each prover is the same as its symbol name!
 	 (elisp-file   sname)
