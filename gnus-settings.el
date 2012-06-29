@@ -111,6 +111,7 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(message-interactive t)
  '(message-mail-alias-type nil)
  '(message-mode-hook (quote (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell turn-on-orgstruct (lambda nil (set-fill-column 78)))))
+ '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
  '(message-sent-hook (quote (my-gnus-score-followup)))
