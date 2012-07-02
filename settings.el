@@ -28,6 +28,7 @@
  '(bbdb-default-country "")
  '(bbdb-file "~/Documents/bbdb")
  '(bbdb-message-caching-enabled nil)
+ '(bbdb-no-duplicates t)
  '(bbdb-offer-save (quote savenoprompt))
  '(bbdb-silent-running t)
  '(bbdb-use-pop-up nil)

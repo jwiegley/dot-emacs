@@ -115,7 +115,7 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
  '(message-sent-hook (quote (my-gnus-score-followup)))
- '(message-setup-hook (quote (gnus-harvest-set-from message-check-recipients)))
+ '(message-setup-hook (quote (gnus-alias-determine-identity gnus-harvest-set-from message-check-recipients (lambda nil (bbdb-mail-aliases t)))))
  '(message-signature-separator "^-- *$")
  '(message-subscribed-address-functions (quote (gnus-find-subscribed-addresses)))
  '(message-x-completion-alist (quote (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-harvest-find-address) ((if (boundp (quote message-newgroups-header-regexp)) message-newgroups-header-regexp message-newsgroups-header-regexp) . message-expand-group))))

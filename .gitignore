@@ -1,7 +1,7 @@
 *.elc
 *~
-/autoloads.el
-/cus-dirs.el
+autoloads.el
+cus-dirs.el
 archive/
 backups/
 compile.log
@@ -17,4 +17,5 @@ site-lisp/.loaddefs.el
 site-lisp/.status.el
 srecode-map.el
 var/
-/broken.el
+broken.el
+logs/
