@@ -31,6 +31,24 @@
 (defun quickping (host)
   (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
 
+(defun cleanup-term-log ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (require 'ansi-color)
+  (ansi-color-apply-on-region (point-min) (point-max))
+  (goto-char (point-min))
+  (while (re-search-forward "\\(.\\|$\\|P.+\\\\\n\\)" nil t)
+    (overlay-put (make-overlay (match-beginning 0) (match-end 0))
+                 'invisible t))
+  (set-buffer-modified-p nil))
+
+(add-hook 'find-file-hooks
+          (function
+           (lambda ()
+             (if (string-match "/\\.iTerm/.*\\.log\\'"
+                               (buffer-file-name))
+                 (cleanup-term-log)))))
+
 ;;;_ , Read system environment
 
 (let ((plist (expand-file-name "~/.MacOSX/environment.plist")))
@@ -52,22 +70,24 @@
 
 (defvar running-alternate-emacs nil)
 
-(if (string= invocation-directory
-             "/Applications/EmacsAlt.app/Contents/MacOS/")
+(if (string-match (concat "/Applications/\\(Misc/\\)?"
+                          "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
+                  invocation-directory)
 
     (let ((settings (with-temp-buffer
                       (insert-file-contents
                        (expand-file-name "settings.el" user-emacs-directory))
                       (goto-char (point-min))
-                      (read (current-buffer)))))
+                      (read (current-buffer))))
+          (suffix (downcase (match-string 2 invocation-directory))))
 
       (setq running-alternate-emacs t
             user-data-directory
-            (replace-regexp-in-string "/data/" "/data-alt/"
+            (replace-regexp-in-string "/data/" (format "/data-%s/" suffix)
                                       user-data-directory))
 
       (let* ((regexp "/\\.emacs\\.d/data/")
-             (replace "/.emacs.d/data-alt/"))
+             (replace (format "/.emacs.d/data-%s/" suffix)))
         (dolist (setting settings)
           (let ((value (and (listp setting)
                             (nth 1 (nth 1 setting)))))
@@ -1089,7 +1109,98 @@
   :init
   (progn
     (autoload 'backup-each-save "backup-each-save")
-    (add-hook 'after-save-hook 'backup-each-save))
+    (add-hook 'after-save-hook 'backup-each-save)
+
+    (defun my-make-backup-file-name (file)
+      (make-backup-file-name-1 (file-truename file)))
+
+    (defun show-backups ()
+      (interactive)
+      (require 'find-dired)
+      (let* ((file (make-backup-file-name (buffer-file-name)))
+             (dir (file-name-directory file))
+             (args (concat "-iname '" (file-name-nondirectory file)
+                           ".~*~'"))
+             (dired-buffers dired-buffers)
+             (find-ls-option '("-print0 | xargs -0 ls -lta" . "-lta")))
+        ;; Check that it's really a directory.
+        (or (file-directory-p dir)
+            (error "Backup directory does not exist: %s" dir))
+        (with-current-buffer (get-buffer-create "*Backups*")
+          (let ((find (get-buffer-process (current-buffer))))
+            (when find
+              (if (or (not (eq (process-status find) 'run))
+                      (yes-or-no-p "A `find' process is running; kill it? "))
+                  (condition-case nil
+                      (progn
+                        (interrupt-process find)
+                        (sit-for 1)
+                        (delete-process find))
+                    (error nil))
+                (error "Cannot have two processes in `%s' at once"
+                       (buffer-name)))))
+
+          (widen)
+          (kill-all-local-variables)
+          (setq buffer-read-only nil)
+          (erase-buffer)
+          (setq default-directory dir
+                args (concat find-program " . "
+                             (if (string= args "")
+                                 ""
+                               (concat
+                                (shell-quote-argument "(")
+                                " " args " "
+                                (shell-quote-argument ")")
+                                " "))
+                             (if (string-match "\\`\\(.*\\) {} \\(\\\\;\\|+\\)\\'"
+                                               (car find-ls-option))
+                                 (format "%s %s %s"
+                                         (match-string 1 (car find-ls-option))
+                                         (shell-quote-argument "{}")
+                                         find-exec-terminator)
+                               (car find-ls-option))))
+          ;; Start the find process.
+          (message "Looking for backup files...")
+          (shell-command (concat args "&") (current-buffer))
+          ;; The next statement will bomb in classic dired (no optional arg
+          ;; allowed)
+          (dired-mode dir (cdr find-ls-option))
+          (let ((map (make-sparse-keymap)))
+            (set-keymap-parent map (current-local-map))
+            (define-key map "\C-c\C-k" 'kill-find)
+            (use-local-map map))
+          (make-local-variable 'dired-sort-inhibit)
+          (setq dired-sort-inhibit t)
+          (set (make-local-variable 'revert-buffer-function)
+               `(lambda (ignore-auto noconfirm)
+                  (find-dired ,dir ,find-args)))
+          ;; Set subdir-alist so that Tree Dired will work:
+          (if (fboundp 'dired-simple-subdir-alist)
+              ;; will work even with nested dired format (dired-nstd.el,v 1.15
+              ;; and later)
+              (dired-simple-subdir-alist)
+            ;; else we have an ancient tree dired (or classic dired, where
+            ;; this does no harm)
+            (set (make-local-variable 'dired-subdir-alist)
+                 (list (cons default-directory (point-min-marker)))))
+          (set (make-local-variable 'dired-subdir-switches) find-ls-subdir-switches)
+          (setq buffer-read-only nil)
+          ;; Subdir headlerline must come first because the first marker in
+          ;; subdir-alist points there.
+          (insert "  " dir ":\n")
+          ;; Make second line a ``find'' line in analogy to the ``total'' or
+          ;; ``wildcard'' line.
+          (insert "  " args "\n")
+          (setq buffer-read-only t)
+          (let ((proc (get-buffer-process (current-buffer))))
+            (set-process-filter proc (function find-dired-filter))
+            (set-process-sentinel proc (function find-dired-sentinel))
+            ;; Initialize the process marker; it is used by the filter.
+            (move-marker (process-mark proc) 1 (current-buffer)))
+          (setq mode-line-process '(":%s")))))
+
+    (bind-key "C-x ~" 'show-backups))
 
   :config
   (progn
@@ -2110,7 +2221,8 @@ FORM => (eval FORM)."
         (use-package redshank
           :diminish redshank-mode)
 
-        (use-package elisp-slime-nav)
+        (use-package elisp-slime-nav
+          :diminish elisp-slime-nav-mode)
 
         (use-package edebug)
 
@@ -2122,12 +2234,12 @@ FORM => (eval FORM)."
             :disabled t
             :defer t
             :init
-            (progn
-              (add-hook 'emacs-lisp-mode-hook
-                        #'(lambda () (require 'eldoc-extension)) t)
+            (add-hook 'emacs-lisp-mode-hook
+                      #'(lambda () (require 'eldoc-extension)) t))
 
-              (eldoc-add-command 'paredit-backward-delete
-                                 'paredit-close-round))))
+          :config
+          (eldoc-add-command 'paredit-backward-delete
+                             'paredit-close-round))
 
         (use-package cldoc
           :diminish cldoc-mode)
@@ -2272,12 +2384,8 @@ FORM => (eval FORM)."
           (:file-explorer
            (let* ((path (minibuffer-contents-no-properties))
                   (last-char (aref path (1- (length path)))))
-             (if (and (file-directory-p path)
-                      (not (eq last-char ?/))) ; <-- FIXME nonportable?
-                 ;; Current path is a directory, sans-slash.  Open in dired.
-                 (lusty-select-current-name)
-               ;; Just activate the current match as normal.
-               (lusty-select-match))))
+             (lusty-select-match)
+             (lusty-select-current-name)))
           (:buffer-explorer (lusty-select-match)))))
 
     (if (featurep 'icicles)
@@ -2996,19 +3104,10 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (require 'sunrise-x-tabs)
 
     (bind-key "/" 'sr-sticky-isearch-forward sr-mode-map)
-    (bind-key "l" 'sr-history-stack-pop sr-mode-map)
     (bind-key "<backspace>" 'sr-scroll-quick-view-down sr-mode-map)
     (bind-key "C-x t" 'sr-toggle-truncate-lines sr-mode-map)
 
-    (defun my-sr-history-stack-pop ()
-      (interactive)
-      (let ((history (cdr (assoc sr-selected-window sr-history-registry)))
-            (stack (cdr (assoc sr-selected-window sr-history-stack))))
-        (if (< (abs (cdr stack)) (1- (length history)))
-            (sr-history-stack-move 1)
-          (sr-quit))))
-
-    (bind-key "q" 'my-sr-history-stack-pop sr-mode-map)
+    (bind-key "q" 'sr-history-prev sr-mode-map)
     (bind-key "z" 'sr-quit sr-mode-map)
 
     (unbind-key "C-e" sr-mode-map)
@@ -3098,7 +3197,8 @@ This mode is used for editing .td files in the LLVM/Clang source code."
 ;;;_ , w3m
 
 (use-package w3m
-  :commands w3m-browse-url
+  :commands w3m-search
+  :bind ("C-. u" . w3m-browse-url)
   :init
   (progn
     (setq w3m-command "/opt/local/bin/w3m")
@@ -3110,7 +3210,7 @@ This mode is used for editing .td files in the LLVM/Clang source code."
           w3m-output-coding-system 'utf-8
           w3m-terminal-coding-system 'utf-8)
 
-    (add-hook ‘w3m-mode-hook ‘w3m-link-numbering-mode)
+    (add-hook 'w3m-mode-hook 'w3m-link-numbering-mode)
 
     (autoload 'w3m-session-crash-recovery-remove "w3m-session")
 

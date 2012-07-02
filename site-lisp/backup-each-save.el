@@ -111,8 +111,9 @@ on the system \"/user@host:\"."
 		   (<= (buffer-size) backup-each-save-size-limit)))
       (copy-file bfn (backup-each-save-compute-location bfn) t t t))))
 
-(defun backup-each-save-compute-location (filename)
-  (let* ((containing-dir (file-name-directory filename))
+(defun backup-each-save-compute-location (file)
+  (let* ((filename (file-truename file))
+         (containing-dir (file-name-directory filename))
 	 (basename (file-name-nondirectory filename))
 	 (backup-container
 	  (format "%s/%s"
