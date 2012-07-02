@@ -5,6 +5,8 @@
 
 (define-abbrev-table 'bbdb-mode-abbrev-table '())
 
+(define-abbrev-table 'bibtex-mode-abbrev-table '())
+
 (define-abbrev-table 'bookmark-bmenu-mode-abbrev-table '())
 
 (define-abbrev-table 'browse-kill-ring-edit-mode-abbrev-table '())
@@ -51,7 +53,17 @@
 
 (define-abbrev-table 'global-abbrev-table
   '(
+    ("Abdul" "`Abdu'l-Bahá" nil 0)
+    ("Allahu" "Alláh'u'Abhá" nil 0)
+    ("Aqdas" "Kitáb-i-Aqdas" nil 0)
+    ("Bahai" "Bahá'í" nil 0)
+    ("Bahau" "Bahá'u'lláh" nil 0)
+    ("Iqan" "Kitáb-i-Íqán" nil 0)
+    ("LSA" "Local Spiritual Assembly" nil 0)
+    ("NSA" "National Spiritual Assembly" nil 0)
+    ("UHJ" "Universal House of Justice" nil 0)
     ("allahu" "Alláh'u'Abhá" nil 0)
+    ("bpro" "BoostPro" nil 0)
    ))
 
 (define-abbrev-table 'gnus-article-edit-mode-abbrev-table '())
@@ -100,6 +112,8 @@
 
 (define-abbrev-table 'rebase-mode-abbrev-table '())
 
+(define-abbrev-table 'select-tags-table-mode-abbrev-table '())
+
 (define-abbrev-table 'sh-mode-abbrev-table '())
 
 (define-abbrev-table 'shell-mode-abbrev-table '())
@@ -109,6 +123,12 @@
 (define-abbrev-table 'snippet-mode-abbrev-table '())
 
 (define-abbrev-table 'special-mode-abbrev-table '())
+
+(define-abbrev-table 'sr-mode-abbrev-table '())
+
+(define-abbrev-table 'sr-tree-mode-abbrev-table '())
+
+(define-abbrev-table 'sr-virtual-mode-abbrev-table '())
 
 (define-abbrev-table 'text-mode-abbrev-table '())
 
