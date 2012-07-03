@@ -301,6 +301,7 @@
  '(visible-bell t)
  '(w3m-cookie-accept-bad-cookies (quote ask))
  '(w3m-default-display-inline-images t)
+ '(w3m-fill-column 80)
  '(w3m-new-session-in-background t)
  '(w3m-use-cookies t)
  '(wdired-use-dired-vertical-movement (quote sometimes))
