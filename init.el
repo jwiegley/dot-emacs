@@ -2586,13 +2586,15 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (if (and (eobp) (bolp))
           (delete-char -1)))
 
+    (require 'term)
+
     (add-hook 'term-mode-hook
               (function
                (lambda ()
                  (setq term-pager-count 100))))
 
-    (bind-key "<backspace>" 'term-pager-back-page term-pager-break-map)
-    (bind-key "<delete>" 'term-pager-back-page term-pager-break-map)))
+    (defadvice term-process-pager (after term-process-rebind-keys activate)
+      (define-key term-pager-break-map  "\177" 'term-pager-back-page))))
 
 ;;;_ , nf-procmail-mode
 
