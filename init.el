@@ -1911,78 +1911,24 @@ FORM => (eval FORM)."
     (bind-key "C-c M-x" 'helm-M-x)
     (bind-key "C-h a" 'helm-c-apropos)
     (bind-key "M-s a" 'helm-do-grep)
-
-    (defun my-helm-occur ()
-      (interactive)
-      (require 'helm-regexp)
-      (helm-other-buffer 'helm-c-source-occur "*Helm Occur*"))
-
-    (bind-key "M-s b" 'my-helm-occur)
+    (bind-key "M-s b" 'helm-occur)
     (bind-key "M-s F" 'helm-for-files)
 
-    (defun my-helm-apropos ()
-      (interactive)
-      (require 'helm-elisp)
-      (require 'helm-misc)
-      (let ((default (thing-at-point 'symbol)))
-        (helm
-         :prompt "Info about: "
-         :candidate-number-limit 15
-         :sources
-         (append (mapcar (lambda (func)
-                           (funcall func default))
-                         '(helm-c-source-emacs-commands
-                           helm-c-source-emacs-functions
-                           helm-c-source-emacs-variables
-                           helm-c-source-emacs-faces
-                           helm-c-source-helm-attributes))
-                 '(helm-c-source-info-emacs
-                   helm-c-source-info-elisp
-                   helm-c-source-info-gnus
-                   helm-c-source-info-org
-                   helm-c-source-info-cl
-                   helm-c-source-emacs-source-defun)))))
+    (use-package helm-commands)
 
     (bind-key "C-h e a" 'my-helm-apropos)
-
-    (defun helm-c-source-git-files-init ()
-      "Build `helm-candidate-buffer' of Git files."
-      (with-current-buffer (helm-candidate-buffer 'local)
-        (mapcar
-         (lambda (item)
-           (insert (expand-file-name item) ?\n))
-         (split-string (shell-command-to-string "git ls-files") "\n"))))
-
-    (defun helm-find-git-file ()
-      (interactive)
-      (helm :sources 'helm-c-source-git-files
-            :input ""
-            :prompt "Find file: "
-            :buffer "*Helm git file*"))
-
+    (bind-key "C-x M-!" 'helm-command-from-zsh)
     (bind-key "C-x f" 'helm-find-git-file)
-    (bind-key "M-g g" 'helm-find-git-file)
-    (bind-key "C-h b" 'helm-descbinds))
-
-  :config
-  (progn
-    (helm-match-plugin-mode t)
 
     (use-package helm-descbinds
       :commands helm-descbinds
       :init
       (fset 'describe-bindings 'helm-descbinds))
 
-    (defvar helm-c-source-git-files
-      '((name . "Files under Git version control")
-        (init . helm-c-source-git-files-init)
-        (candidates-in-buffer)
-        (type . file))
-      "Search for files in the current Git project.")
+    (bind-key "C-h b" 'helm-descbinds))
 
-    (eval-after-load "helm-files"
-      '(add-to-list 'helm-for-files-prefered-list
-                    'helm-c-source-git-files))))
+  :config
+  (helm-match-plugin-mode t))
 
 ;;;_ , hi-lock
 
