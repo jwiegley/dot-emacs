@@ -3167,12 +3167,9 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (defun my-activate-sunrise ()
       (interactive)
       (let ((sunrise-exists
-             (catch 'found
-               (mapc (lambda (buf)
-                       (if (string-match " (Sunrise)$"
-                                         (buffer-name buf))
-                           (throw 'found t)))
-                     (buffer-list)))))
+             (loop for buf in (buffer-list)
+                   when (string-match " (Sunrise)$" (buffer-name buf))
+                   return buf)))
         (if sunrise-exists
             (call-interactively 'sunrise)
           (sunrise "~/dl/" "~/Archives/"))))
@@ -3218,7 +3215,25 @@ end tell" account account start duration commodity (if cleared "true" "false")
           (start-process-shell-command "open" nil (format app file))
           (unless (eq buff (current-buffer))
             (sr-scrollable-viewer (current-buffer)))
-          (message "Opening \"%s\" ..." fname))))))
+          (message "Opening \"%s\" ..." fname))))
+
+    (defun sr-goto-dir (dir)
+      "Change the current directory in the active pane to the given one."
+      (interactive (list (progn
+                           (require 'lusty-explorer)
+                           (lusty-read-directory))))
+      (if sr-goto-dir-function
+          (funcall sr-goto-dir-function dir)
+        (unless (and (eq major-mode 'sr-mode)
+                     (sr-equal-dirs dir default-directory))
+          (if (and sr-avfs-root
+                   (null (posix-string-match "#" dir)))
+              (setq dir (replace-regexp-in-string
+                         (expand-file-name sr-avfs-root) "" dir)))
+          (sr-save-aspect
+           (sr-within dir (sr-alternate-buffer (dired dir))))
+          (sr-history-push default-directory)
+          (sr-beginning-of-buffer))))))
 
 ;;;_ , tablegen-mode
 
