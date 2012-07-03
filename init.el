@@ -2603,7 +2603,45 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package multi-term
   :bind (("C-. t" . multi-term-next)
-         ("C-. T" . multi-term)))
+         ("C-. T" . multi-term))
+  :init
+  (defun screen ()
+    (interactive)
+    (let (term-buffer)
+      ;; Set buffer.
+      (setq term-buffer
+            (let ((multi-term-program (executable-find "screen"))
+                  (multi-term-program-switches "-DR"))
+              (multi-term-get-buffer)))
+      (set-buffer term-buffer)
+      ;; Internal handle for `multi-term' buffer.
+      (multi-term-internal)
+      ;; Switch buffer
+      (switch-to-buffer term-buffer)))
+
+  :config
+  (progn
+    (defun my-term-send-raw-at-prompt ()
+      (interactive)
+      (if (save-excursion
+            (search-backward " $ " (line-beginning-position) t))
+          (call-interactively #'term-send-raw)
+        (call-interactively (lookup-key (current-global-map)
+                                        (vector last-command-event)))))
+
+    (defun my-term-end-of-buffer ()
+      (interactive)
+      (call-interactively #'end-of-buffer)
+      (if (and (eobp) (bolp))
+          (delete-char -1)))
+
+    (add-hook 'term-mode-hook
+              (function
+               (lambda ()
+                 (setq term-pager-count 100))))
+
+    (bind-key "<backspace>" 'term-pager-back-page term-pager-break-map)
+    (bind-key "<delete>" 'term-pager-back-page term-pager-break-map)))
 
 ;;;_ , nf-procmail-mode
 
