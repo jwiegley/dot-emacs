@@ -53,6 +53,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'nnheader))
+
 ;;;###autoload
 (defun rs-gnus-summary-tree-arrows-ascii-default ()
   "Use default tree layout with ascii arrows."
