@@ -72,42 +72,59 @@
 (defun shutdown-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*")
-  (safely-kill-process "*fetchmail-news*")
+  (safely-kill-process "*fetchmail-lists*")
+  (safely-kill-process "*fetchnews*")
   (do-applescript "tell application \"Notify\" to quit"))
 
 (defun kick-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*" 'SIGUSR1 "Kicking")
-  (safely-kill-process "*fetchmail-news*" 'SIGUSR1 "Kicking"))
+  (safely-kill-process "*fetchmail-lists*" 'SIGUSR1 "Kicking"))
+
+(defun get-buffer-or-call-func (name func)
+  (let ((buf (get-buffer name)))
+    (or buf
+        (progn
+          (save-window-excursion
+            (save-excursion
+              (funcall func)))
+          (get-buffer name)))))
 
 (defun switch-to-fetchmail ()
   (interactive)
-  (let ((buf (get-buffer "*fetchmail*")))
-    (unless buf
-      (start-fetchmail)
-      (setq buf (get-buffer "*fetchmail*"))
-      (do-applescript "tell application \"Notify\" to run"))
-    (display-buffer buf)))
+  (let ((fetchmail-buf
+         (get-buffer-or-call-func "*fetchmail*" #'start-fetchmail))
+        (fetchmail-lists-buf
+         (get-buffer-or-call-func
+          "*fetchmail-lists*"
+          (function
+           (lambda ()
+             (let ((process-environment (copy-alist process-environment)))
+               (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
+               (start-fetchmail "*fetchmail-lists*"
+                                "-f" (expand-file-name
+                                      "~/Messages/fetchmailrc.news")))))))
+        (fetchnews-buf
+         (get-buffer-or-call-func
+          "*fetchnews*"
+          (apply-partially #'start-process "*fetchnews*"
+                           (get-buffer-create "*fetchnews*")
+                           "fetchnews" "-vvv" "-n")))
+        (cur-buf (current-buffer)))
+    (delete-other-windows)
+    (flet ((switch-in-other-buffer
+            (buf)
+            (when buf
+              (split-window-vertically)
+              (switch-to-buffer-other-window buf))))
+      (switch-to-buffer cur-buf)
+      (switch-in-other-buffer fetchmail-buf)
+      (switch-in-other-buffer fetchmail-lists-buf)
+      (switch-in-other-buffer fetchnews-buf)
+      (select-window (get-buffer-window cur-buf))
+      (balance-windows))))
 
-(defun switch-to-fetchmail-and-news ()
-  (interactive)
-  (fetchnews-fetch)
-  (switch-to-fetchmail))
-
-;; (add-hook 'gnus-agent-plugged-hook 'start-fetchmail)
-;; (add-hook 'gnus-agent-unplugged-hook 'shutdown-fetchmail)
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-fetchmail)
-
-(defun fetchnews-fetch ()
-  (interactive)
-  (let ((buf (get-buffer "*fetchmail-news*")))
-    (unless buf
-      (let ((process-environment (copy-alist process-environment)))
-        (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
-        (start-fetchmail "*fetchmail-news*"
-                         "-f" (expand-file-name "~/Messages/fetchmailrc.news")))
-      (setq buf (get-buffer "*fetchmail-news*")))
-    (display-buffer buf)))
 
 (defun fetchnews-post ()
   (interactive)
@@ -115,13 +132,10 @@
 
 (eval-after-load "gnus-group"
   '(progn
-     (define-key gnus-group-mode-map [?v ?B] 'switch-to-fetchmail-and-news)
      (define-key gnus-group-mode-map [?v ?b] 'switch-to-fetchmail)
      (define-key gnus-group-mode-map [?v ?o] 'start-fetchmail)
      (define-key gnus-group-mode-map [?v ?d] 'shutdown-fetchmail)
      (define-key gnus-group-mode-map [?v ?k] 'kick-fetchmail)
-
-     (define-key gnus-group-mode-map [?v ?f] 'fetchnews-fetch)
      (define-key gnus-group-mode-map [?v ?p] 'fetchnews-post)))
 
 (provide 'fetchmail-ctl)
