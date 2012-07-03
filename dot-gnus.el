@@ -45,9 +45,7 @@
       (when (and (not switch-to-gnus-unplugged)
                  (quickping "imap.gmail.com"))
         (do-applescript "tell application \"Notify\" to run")
-        (start-fetchmail)
-        (save-window-excursion
-          (fetchnews-fetch))))
+        (switch-to-fetchmail)))
 
     (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)))
 

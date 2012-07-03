@@ -107,9 +107,11 @@
         (fetchnews-buf
          (get-buffer-or-call-func
           "*fetchnews*"
-          (apply-partially #'start-process "*fetchnews*"
-                           (get-buffer-create "*fetchnews*")
-                           "fetchnews" "-vvv" "-n")))
+          (function
+           (lambda ()
+             (start-process "*fetchnews*"
+                            (get-buffer-create "*fetchnews*")
+                            (executable-find "fetchnews") "-vvv" "-n")))))
         (cur-buf (current-buffer)))
     (delete-other-windows)
     (flet ((switch-in-other-buffer
