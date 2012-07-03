@@ -197,12 +197,13 @@ The point should be at the beginning of the command name."
 
      ((and (zerop (length tok)) (looking-at "{|")) (goto-char (match-end 0)) "{|")
      ;; this must be after detecting "{|":
-     ((and (zerop (length tok)) (eq (char-after) "{"))
+     ((and (zerop (length tok)) (eq (char-after) ?\{))
+      (message "YOUHOU")
       (if (equal (save-excursion (forward-char 1) (coq-smie-backward-token))
 		 "{ subproof")
 	  (progn (forward-char 1) "{ subproof")
 	tok))
-     ((and (zerop (length tok)) (looking-at "}"))
+     ((and (zerop (length tok)) (eq (char-after) ?\}))
       (if (equal (save-excursion (forward-char 1)
 				 (coq-smie-backward-token))
 		 "} subproof")
@@ -368,15 +369,32 @@ the token of \".\" is simply \".\".
 	   "quantif exists"))
       ((equal tok "∀") "forall")
       ((equal tok "→") "->")
+
+
+     ((and (equal tok "with")
+	   (save-excursion
+	     (equal (coq-smie-search-token-backward '("Inductive" ".")) "Inductive")))
+      "with inductive")
+
+     ((and (equal tok "with")
+	   (save-excursion
+	     (member (coq-smie-search-token-backward
+		      '("Fixpoint" "Function" "Program" "match" ".")
+		      nil
+		      '(("match" . "end")))
+		     '("Fixpoint" "Function" "Program"))))
+      "with fixpoint")
+
+
+     ((and (equal tok "with")
+	   (save-excursion
+	     (equal (coq-smie-search-token-backward '("Module" "match" ".")) "Module")))
+      "with module")
+
      ((and (equal tok "with")
 	   (save-excursion
 	     (equal (coq-smie-search-token-backward '("match" ".")) "match")))
       "with match")
-     ((and (equal tok "with")
-	   (save-excursion
-	     (equal (coq-smie-search-token-backward '("Module" ".")) "Module")))
-      "with module")
-
 
      ((and (equal tok "signature")
 	   (equal (smie-default-backward-token) "with"))
@@ -519,6 +537,9 @@ Lemma foo: forall n,
                           (moduleconstraint "with module" moduleconstraint)
                           (exp ":= with" exp))
 
+	(mutual (exp "with inductive" exp)
+		(exp "with fixpoint" exp))
+
         ;; To deal with indentation inside module declaration and inside
         ;; proofs, we rely on the lexer. The lexer detects "." terminator of
         ;; goal starter and returns the ". proofstart" and ". moduelstart"
@@ -526,7 +547,9 @@ Lemma foo: forall n,
         (bloc ("{ subproof" commands "} subproof")
               (". proofstart" commands  "Proof End")
               (". modulestart" commands  "End")
-              (exp))
+              (mutual)
+	      (exp)
+	      )
         (commands (commands "." commands)
                   (commands "- bullet" commands)
                   (commands "+ bullet" commands)
@@ -540,7 +563,8 @@ Lemma foo: forall n,
       ;;'((assoc "=>") (assoc "|")  (assoc "|-" "=> fun")) ; (assoc ", quantif")
       '((assoc ".") (assoc "Module"))
       '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc "."))
-      '((assoc ":=") (assoc "|") (assoc "=>")
+      '((assoc "with indentation")
+	(assoc ":=") (assoc "|") (assoc "=>")
 	(assoc "xxx provedby")
 	(assoc "as morphism") (assoc "with signature") (assoc "with match") (assoc "in let")
 	(assoc "in eval") (assoc "=> fun") (assoc "then") (assoc "else") (assoc ", quantif")
@@ -577,6 +601,13 @@ Lemma foo: forall n,
 ;; Add Parametric Morphism (A : Type) : (mu (A:=A))
 ;;     with signature Oeq ==> Oeq
 ;;                    as mu_eq_morphism.
+
+;; FIXME:
+;; Proof.
+;;  induction l.
+;;  - simpl.
+;;    { trivial. }
+;;      intro.
 
 
 
