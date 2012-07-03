@@ -1373,9 +1373,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :config
   (progn
     (defun dired-package-initialize ()
-      (unless (featurep 'dired-async)
+      (unless (featurep 'runner)
         (use-package dired-x)
-        (use-package dired-async)
+        ;; (use-package dired-async)
         (use-package dired-sort-map)
         (use-package runner)
 
