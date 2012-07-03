@@ -1504,6 +1504,11 @@ The output appears in the buffer `*Async Shell Command*'."
   :disabled t
   :load-path "site-lisp/doxymacs/lisp/")
 
+;;;_ , dvc
+
+(use-package dvc-autoloads
+  :load-path "site-lisp/dvc/lisp/")
+
 ;;;_ , ediff
 
 (use-package ediff
