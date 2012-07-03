@@ -191,7 +191,7 @@ To use this function, add it to `org-agenda-finalize-hook':
            (goto-char (point-min))
            (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
         ((string= tag "net")
-         (/= 0 (quickping "imap.gmail.com")))
+         (not (quickping "imap.gmail.com")))
         ((string= tag "fun")
          org-clock-current-task))
        (concat "-" tag)))
