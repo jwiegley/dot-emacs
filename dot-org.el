@@ -402,6 +402,22 @@ This can be 0 for immediate, or a floating point value.")
   ;;(org-x-normalize-all-entries)
   )
 
+(defvar my-org-wrap-region-history nil)
+
+(defun my-org-wrap-region (&optional arg)
+  (interactive "P")
+  (save-excursion
+    (goto-char (region-end))
+    (if arg
+        (insert "#+end_src\n")
+      (insert ":END:\n"))
+    (goto-char (region-beginning))
+    (if arg
+        (insert "#+begin_src "
+                (read-string "Language: " nil 'my-org-wrap-region-history)
+                ?\n)
+      (insert ":OUTPUT:\n"))))
+
 (defun org-maybe-remember (&optional done)
   (interactive "P")
   (if (string= (buffer-name) "*Remember*")
@@ -747,6 +763,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (org-defkey org-mode-map [return] 'org-return-indent)
 (org-defkey org-mode-map
             [(control ?c) (control ?x) ?@] 'visible-mode)
+(org-defkey org-mode-map [(control ?c) (meta ?m)] 'my-org-wrap-region)
 
 (defvar my-org-expand-map)
 (define-prefix-command 'my-org-expand-map)
