@@ -318,8 +318,9 @@ is:
 
     (defun gnus-query (query &optional arg)
       (interactive
-       (list (read-string "Mail Query: "
-                          (format-time-string "SINCE %d-%b-%Y "
+       (list (read-string (format "IMAP Query %s: "
+                                  (if current-prefix-arg "All" "Mail"))
+                          (format-time-string "SENTSINCE %d-%b-%Y "
                                               (time-subtract (current-time)
                                                              (days-to-time 90)))
                           'gnus-query-history)
@@ -328,8 +329,24 @@ is:
       (let ((nnir-imap-default-search-key "imap")
             (nnir-ignored-newsgroups
              (if arg
-                 nnir-ignored-newsgroups
-               "\\(list\\.\\|mail\\.\\(spam\\)\\)")))
+                 (concat "\\`" (regexp-opt
+                                '("archive"
+                                  "archive.emacs"
+                                  "list"
+                                  "list.bahai"
+                                  "list.boost"
+                                  "list.clang"
+                                  "list.emacs"
+                                  "list.isocpp"
+                                  "list.ledger"
+                                  "list.llvm"
+                                  "list.wg21"
+                                  "mail"
+                                  "mail.save"
+                                  "Drafts"
+                                  "Sent Messages"))
+                         "\\'")
+               "\\`\\(\\(list\\|archive\\)\\.\\|mail\\.\\(spam\\|save\\)\\)")))
         (gnus-group-make-nnir-group
          nil `((query    . ,query)
                (criteria . "")
