@@ -3465,19 +3465,8 @@ This mode is used for editing .td files in the LLVM/Clang source code."
 
 (use-package workgroups
   :diminish workgroups-mode
-  :commands wg-switch-to-index-1
   :if (not noninteractive)
   :init
-  (progn
-    (defvar workgroups-preload-map)
-    (define-prefix-command 'workgroups-preload-map)
-
-    (bind-key "C-\\" 'workgroups-preload-map)
-    (bind-key "C-\\" 'wg-switch-to-index-1 workgroups-preload-map)
-    (bind-key "0" 'wg-switch-to-index-1 workgroups-preload-map)
-    (bind-key "1" 'wg-switch-to-index-1 workgroups-preload-map))
-
-  :config
   (progn
     (workgroups-mode 1)
 
