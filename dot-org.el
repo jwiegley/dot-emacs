@@ -729,11 +729,17 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
           (let ((org-inhibit-logging t))
             (org-todo ,label)))
         (bind-key (concat "C-c x " (char-to-string  ,(upcase key)))
-          ',org-sym-no-logging)
+                  ',org-sym-no-logging)
 
         (defun ,org-agenda-sym ()
           (interactive)
-          (org-agenda-todo ,label))
+          (let ((org-inhibit-logging
+                 (let ((style (org-entry-get
+                               (get-text-property (point) 'org-marker)
+                               "STYLE")))
+                   (and style (stringp style)
+                        (string= style "habit")))))
+            (org-agenda-todo ,label)))
         (define-key org-todo-state-map [,key] ',org-agenda-sym)
 
         (defun ,org-agenda-sym-no-logging ()
