@@ -397,7 +397,7 @@
 (unless noninteractive
   (if running-alternate-emacs
       (progn
-        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 389 537))
+        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 537))
         (defvar emacs-min-left 9)
         (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 25 35))
         (defvar emacs-min-width 80))
