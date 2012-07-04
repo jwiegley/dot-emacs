@@ -638,6 +638,21 @@
 (bind-key "C-h e k" 'find-function-on-key)
 (bind-key "C-h e l" 'find-library)
 
+(defvar lisp-modes  '(emacs-lisp-mode
+                      inferior-emacs-lisp-mode
+                      ielm-mode
+                      lisp-mode
+                      inferior-lisp-mode
+                      lisp-interaction-mode
+                      slime-repl-mode))
+
+(defvar lisp-mode-hooks
+  (mapcar (function
+           (lambda (mode)
+             (intern
+              (concat (symbol-name mode) "-hook"))))
+          lisp-modes))
+
 (defun scratch ()
   (interactive)
   (let ((current-mode major-mode))
@@ -647,7 +662,7 @@
       (forward-line 4)
       (delete-region (point-min) (point)))
     (goto-char (point-max))
-    (if (eq current-mode 'emacs-lisp-mode)
+    (if (memq current-mode lisp-modes)
         (funcall current-mode))))
 
 (bind-key "C-h e s" 'scratch)
@@ -1009,7 +1024,7 @@
                   (cdr mapping)
                   allout-mode-map))
 
-      (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+      (if (memq major-mode lisp-modes)
           (unbind-key "C-k" allout-mode-map)))
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
@@ -1351,7 +1366,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , debbugs
 
-(use-package debbugs
+(use-package debbugs-gnu
   :commands (debbugs-gnu debbugs-gnu-search))
 
 ;;;_ , dedicated
@@ -2021,6 +2036,32 @@ FORM => (eval FORM)."
 
     (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)))
 
+;;;_ , ielm
+
+(use-package ielm
+  :bind ("C-c :" . ielm)
+  :config
+  (progn
+    (defun my-ielm-return ()
+      (interactive)
+      (let ((end-of-sexp (save-excursion
+                           (goto-char (point-max))
+                           (skip-chars-backward " \t\n\r")
+                           (point))))
+        (if (>= (point) end-of-sexp)
+            (progn
+              (goto-char (point-max))
+              (skip-chars-backward " \t\n\r")
+              (delete-region (point) (point-max))
+              (call-interactively #'ielm-return))
+          (call-interactively #'paredit-newline))))
+
+    (add-hook 'ielm-mode-hook
+              (function
+               (lambda ()
+                 (bind-key "<return>" 'my-ielm-return ielm-map)))
+              t)))
+
 ;;;_ , image-file
 
 (use-package image-file
@@ -2151,16 +2192,12 @@ FORM => (eval FORM)."
     (mapc (lambda (major-mode)
             (font-lock-add-keywords
              major-mode
-             `(("(\\(lambda\\)\\>"
+             '(("(\\(lambda\\)\\>"
                 (0 (ignore
                     (compose-region (match-beginning 1)
                                     (match-end 1) ?λ))))
                ("(\\|)" . 'esk-paren-face))))
-          '(emacs-lisp-mode
-            inferior-emacs-lisp-mode
-            lisp-mode
-            inferior-lisp-mode
-            slime-repl-mode))
+          lisp-modes)
 
     (defvar slime-mode nil)
     (defvar lisp-mode-initialized nil)
@@ -2217,11 +2254,11 @@ FORM => (eval FORM)."
 
         (use-package highlight-cl
           :init
-          (progn
-            (add-hook 'emacs-lisp-mode-hook
-                      'highlight-cl-add-font-lock-keywords)
-            (add-hook 'lisp-interaction-mode-hook
-                      'highlight-cl-add-font-lock-keywords)))
+          (mapc (function
+                 (lambda (mode-hook)
+                   (add-hook mode-hook
+                             'highlight-cl-add-font-lock-keywords)))
+                lisp-mode-hooks))
 
         (defun my-elisp-indent-or-complete (&optional arg)
           (interactive "p")
@@ -2256,8 +2293,7 @@ FORM => (eval FORM)."
                  :regexp "[^][()'\" \t\n]+"
                  :ignore-case t
                  :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
-              '(lisp-mode slime-mode slime-repl-mode
-                          inferior-slime-mode))))
+              lisp-modes)))
 
     (defun my-lisp-mode-hook ()
       (initialize-lisp-mode)
@@ -2267,21 +2303,11 @@ FORM => (eval FORM)."
       (redshank-mode 1)
       (elisp-slime-nav-mode 1)
 
-      (bind-key ")" 'paredit-close-round-and-newline paredit-mode-map)
-      (bind-key "M-)" 'paredit-close-round paredit-mode-map)
+      (local-set-key (kbd "<return>") 'paredit-newline)
 
-      (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
-      (bind-key "M-h" 'mark-containing-sexp paredit-mode-map)
-      (bind-key "M-I" 'paredit-splice-sexp paredit-mode-map)
-
-      (unbind-key "M-r" paredit-mode-map)
-      (unbind-key "M-s" paredit-mode-map)
-
-      (bind-key "C-. d" 'paredit-forward-down paredit-mode-map)
-      (bind-key "C-. B" 'paredit-splice-sexp-killing-backward paredit-mode-map)
-      (bind-key "C-. F" 'paredit-splice-sexp-killing-forward paredit-mode-map)
-
-      (if (eq major-mode 'emacs-lisp-mode)
+      (if (memq major-mode '(emacs-lisp-mode
+                             inferior-emacs-lisp-mode
+                             ielm-mode))
           (progn
             (bind-key "<M-return>" 'outline-insert-heading emacs-lisp-mode-map)
             (bind-key "<tab>" 'my-elisp-indent-or-complete emacs-lisp-mode-map))
@@ -2291,13 +2317,7 @@ FORM => (eval FORM)."
         (bind-key "M-q" 'slime-reindent-defun lisp-mode-map)
         (bind-key "M-l" 'slime-selector lisp-mode-map)))
 
-    (hook-into-modes #'my-lisp-mode-hook
-                     '(lisp-mode-hook
-                       inferior-lisp-mode-hook
-                       slime-repl-mode-hook))
-
-    (hook-into-modes #'my-lisp-mode-hook
-                     '(emacs-lisp-mode-hook))))
+    (hook-into-modes #'my-lisp-mode-hook lisp-mode-hooks)))
 
 ;;;_ , llvm-mode
 
@@ -2576,7 +2596,13 @@ end tell" account account start duration commodity (if cleared "true" "false")
       (interactive)
       (if (save-excursion
             (search-backward " $ " (line-beginning-position) t))
-          (call-interactively #'term-send-raw)
+          (progn
+            (if (memq 'meta (event-modifiers last-command-event))
+                (progn
+                  (term-send-raw-string
+                   (format "\e%c"
+                           (logand last-command-event (lognot #x8000000)))))
+              (call-interactively #'term-send-raw)))
         (call-interactively (lookup-key (current-global-map)
                                         (vector last-command-event)))))
 
@@ -2591,6 +2617,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
     (add-hook 'term-mode-hook
               (function
                (lambda ()
+                 (term-pager-enable)
                  (setq term-pager-count 100))))
 
     (defadvice term-process-pager (after term-process-rebind-keys activate)
@@ -2673,6 +2700,27 @@ end tell" account account start duration commodity (if cleared "true" "false")
   :config
   (progn
     (use-package paredit-ext)
+
+    (bind-key "C-M-l" 'paredit-recentre-on-sexp paredit-mode-map)
+
+    (bind-key ")" 'paredit-close-round-and-newline paredit-mode-map)
+    (bind-key "M-)" 'paredit-close-round paredit-mode-map)
+
+    (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
+    (bind-key "M-h" 'mark-containing-sexp paredit-mode-map)
+    (bind-key "M-I" 'paredit-splice-sexp paredit-mode-map)
+
+    (unbind-key "M-r" paredit-mode-map)
+    (unbind-key "M-s" paredit-mode-map)
+
+    (bind-key "C-. d" 'paredit-forward-down paredit-mode-map)
+    (bind-key "C-. B" 'paredit-splice-sexp-killing-backward paredit-mode-map)
+    (bind-key "C-. C" 'paredit-convolute-sexp paredit-mode-map)
+    (bind-key "C-. F" 'paredit-splice-sexp-killing-forward paredit-mode-map)
+    (bind-key "C-. a" 'paredit-add-to-next-list paredit-mode-map)
+    (bind-key "C-. A" 'paredit-add-to-previous-list paredit-mode-map)
+    (bind-key "C-. j" 'paredit-join-with-next-list paredit-mode-map)
+    (bind-key "C-. J" 'paredit-join-with-previous-list paredit-mode-map)
 
     (add-hook 'allout-mode-hook
               #'(lambda ()
