@@ -1,0 +1,4 @@
+;; -*- emacs-lisp -*-
+;; Debbugs tags connection history.  Don't change this file.
+
+(setq debbugs-gnu-local-tags 'nil)

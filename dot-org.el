@@ -8,6 +8,7 @@
 
 ;;(require 'org-crypt)
 (require 'org-devonthink)
+(require 'org-debbugs)
 (require 'org-magit)
 (require 'org-x)
 (require 'ox-org)

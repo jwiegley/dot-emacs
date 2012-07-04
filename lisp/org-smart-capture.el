@@ -28,6 +28,7 @@
 ;; I use: (define-key global-map [(meta ?m)] 'org-smart-capture)
 
 (require 'gnus-sum)
+(require 'org-capture)
 
 (defgroup org-smart-capture nil
   "Capture Gnus messages as tasks, with context"
@@ -39,11 +40,13 @@
   :group 'org-smart-capture)
 
 (defvar org-subject-transforms
-  '(("\\`\\(Re\\|Fwd\\): "                          . "")
-    ("\\`{ledger} "                                 . "")
-    ("(#[0-9]+)\\'"                                 . "")
-    ("\\`\\[Bug \\([0-9]+\\)\\] New:"               . "[[bug:\\1][#\\1]]")
-    ("\\`\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)" . "[[redmine:\\1][#\\1]]")))
+  '(("\\`\\(Re\\|Fwd\\): "            . "")
+    ("\\`{ledger} "                   . "")
+    ("(#[0-9]+)\\'"                   . "")
+    ("\\`bug#\\([0-9]+\\):"           . "[[x-debbugs-gnu:\\1][#\\1]]")
+    ("\\`\\[Bug \\([0-9]+\\)\\] New:" . "[[bug:\\1][#\\1]]")
+    ("\\`\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)"
+     . "[[redmine:\\1][#\\1]]")))
 
 (defun convert-dates ()
   (interactive)
