@@ -34,6 +34,7 @@
  '(bbdb-use-pop-up nil)
  '(bbdb/mail-auto-create-p nil)
  '(bc-bookmark-file "~/.emacs.d/data/breadcrumb")
+ '(bind-key-segregation-regexp "\\`\\(\\(C-[chx.] \\|M-[gso] \\)\\([CM]-\\)?\\|.+-\\)")
  '(bm-highlight-style (quote bm-highlight-only-fringe))
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
