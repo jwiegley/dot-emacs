@@ -174,7 +174,8 @@ if found, to (point-max) otherwise. return true if found, nil otherwise."
 
 (defun coq-looking-at-comment ()
   "Return non-nil if point is inside a comment."
-  (proof-inside-comment (+ 1 (point))))
+  (or (proof-inside-comment (point))
+      (proof-inside-comment (+ 1 (point)))))
 
 (defun coq-find-comment-start ()
   "Go to the current comment start.
@@ -227,8 +228,7 @@ found, go as far as possible and return nil."
         (if (coq-looking-at-comment)
             (progn (coq-skip-until-one-comment-backward))
           (progn (when submatch (goto-char (match-beginning submatch)))
-                 (setq found t))
-          )))
+                 (setq found t)))))
     (when found (point))))
 
 
