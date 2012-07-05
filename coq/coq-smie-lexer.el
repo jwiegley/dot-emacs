@@ -84,7 +84,7 @@ the token of \".\" is simply \".\".
       (coq-smie-find-unclosed-match-backward)))))
 
 (defun coq-smie-with-deambiguate()
-  (if (save-excursion (coq-smie-find-unclosed-match-backward))
+  (if (coq-smie-find-unclosed-match-backward)
       "with match"
     (coq-find-real-start)
     (cond
@@ -92,6 +92,9 @@ the token of \".\" is simply \".\".
      ((looking-at "Fixpoint\\|Function\\|Program") "with fixpoint")
      ((looking-at "Module\\|Declare") "with module")
      (t "with"))))
+
+
+
 
 ;; ignore-between is a description of pseudo delimiters of blocks that
 ;; should be jumped when searching. There is a bad interaction when
@@ -253,6 +256,9 @@ The point should be at the beginning of the command name."
 	(unless (equal next "Type") (goto-char pos))
 	(save-excursion (coq-smie-backward-token))))
 
+     ((member tok '("End"))
+      (save-excursion (coq-smie-backward-token)))
+
      ((and (zerop (length tok)) (looking-at "{|")) (goto-char (match-end 0)) "{|")
      ;; this must be after detecting "{|":
      ((and (zerop (length tok)) (eq (char-after) ?\{))
@@ -272,6 +278,46 @@ The point should be at the beginning of the command name."
      ((member tok '("Obligation")) "Proof")
 
      (tok))))
+
+
+(defun coq-is-at-command-real-start()
+  (equal (point)
+	 (save-excursion (coq-find-real-start))))
+
+
+(defun coq-smie-:=-deambiguate ()
+  (let ((corresp (coq-smie-search-token-backward
+		  '("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
+		  nil '((("let" "with") . ":=")))))
+    (if (and (equal corresp "with") ; "as "with" belongs to the searched token we can't have it in excluded tokens
+	     (equal (coq-smie-with-deambiguate) "with match"))
+	(coq-smie-:=-deambiguate) ; recursive call if the with found is actually et with match
+      (cond
+       ((equal corresp "Module")
+	(let ((p (point)))
+	  (if (equal (smie-default-backward-token) "with")
+	      ":= with"
+	    (goto-char p)
+	    ":= module")))
+       ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
+       ((equal corresp "let") ":= let")
+       ((equal corresp "with") ":= with")
+       ((or (looking-back "{")) ":= record")
+       (t ":=")))))
+;
+;     ((equal tok ":=")
+;      (save-excursion
+;	;(save-excursion (coq-smie-:=-deambiguate)); TODO
+;	(let ((corresp (coq-smie-search-token-backward
+;			'("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
+;			nil '((("let" "with") . ":="))))) ;("match" . "with")
+;	  (cond
+;	   ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
+;	   ((equal corresp "let") ":= let")
+;	   ((equal corresp "with") ":= with")
+;	   ((or (looking-back "{")) ":= record")
+;	   (t tok)))))
+;
 
 
 (defun coq-smie-backward-token ()
@@ -305,9 +351,13 @@ The point should be at the beginning of the command name."
 
      ((equal tok "Module")
       (save-excursion
-	(coq-find-real-start)
+	;(coq-find-real-start)
 	(if (coq-smie-detect-module-or-section-start-command)
 	    "Module start" "Module def")))
+
+     ;; rhaaa... Some peolple use "End" as a id...
+     ((equal tok "End")
+      (if (coq-is-at-command-real-start) "end module" tok))
 
      ((and (equal tok "|") (eq (char-before) ?\{))
       (goto-char (1- (point))) "{|")
@@ -326,9 +376,10 @@ The point should be at the beginning of the command name."
 
      ((equal tok ":=")
       (save-excursion
+	;(save-excursion (coq-smie-:=-deambiguate))))
 	(let ((corresp (coq-smie-search-token-backward
-			'("let" "Inductive" "Coinductive" "{|" "." "with")
-			nil '(("let" . ":=") ("match" . "with")))))
+			'("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
+			nil '((("let" "with") . ":="))))) ;("match" . "with")
 	  (cond
 	   ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
 	   ((equal corresp "let") ":= let")
@@ -490,8 +541,9 @@ Lemma foo: forall n,
 	(exps (exp) (exp ":= record" exp) (exps "; record" exps))
 	(assigns  (exp ":= let" exp)) ;(assigns "; record" assigns)
 
-	(moduledecl (exp)
-		    (exp ":" moduleconstraint))
+	(moduledef (moduledecl ":= module" exp))
+	(moduledecl (exp) (exp ":" moduleconstraint)
+		    (exp "<:" moduleconstraint))
 	(moduleconstraint (exp)
 			  (moduleconstraint "with module" moduleconstraint)
 			  (exp ":= with" exp))
@@ -505,7 +557,8 @@ Lemma foo: forall n,
 	;; tokens.
 	(bloc ("{ subproof" commands "} subproof")
 	      (". proofstart" commands  "Proof End")
-	      (". modulestart" commands  "End")
+	      (". modulestart" commands  "end module" exp)
+	      (moduledecl)
 	      (mutual)
 	      (exp))
 
@@ -534,8 +587,8 @@ Lemma foo: forall n,
 	(assoc "=?") (assoc "<=?") (assoc "<?") (assoc "^")
 	(assoc "+") (assoc "-") (assoc "*")
 	(assoc ": ltacconstr") (assoc ". selector") (assoc ""))
-      '((assoc ":")(assoc "<"))
-      '((assoc "with module") (assoc ":= with") (nonassoc ":"))
+      '((assoc ":" ":<")  (assoc "<"))
+      '((assoc ". modulestart") (assoc ".") (assoc "with module") (assoc ":= module")  (assoc ":= with") (nonassoc ":"))
       '((assoc "; record")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 ;; FIXME:
@@ -571,15 +624,15 @@ Lemma foo: forall n,
 (defun smie-indent--parent ()
   (or smie--parent
       (save-excursion
-        (let* ((pos (point))
-               (tok (funcall smie-forward-token-function)))
-          (unless (numberp (cadr (assoc tok smie-grammar)))
-            (goto-char pos))
-          (setq smie--parent
-                (or (smie-backward-sexp 'halfsexp)
-                    (let (res)
-                      (while (null (setq res (smie-backward-sexp))))
-                      (list nil (point) (nth 2 res)))))))))
+	(let* ((pos (point))
+	       (tok (funcall smie-forward-token-function)))
+	  (unless (numberp (cadr (assoc tok smie-grammar)))
+	    (goto-char pos))
+	  (setq smie--parent
+		(or (smie-backward-sexp 'halfsexp)
+		    (let (res)
+		      (while (null (setq res (smie-backward-sexp))))
+		      (list nil (point) (nth 2 res)))))))))
 
 (defun coq-smie-rules (kind token)
   "Indentation rules for Coq.  See `smie-rules-function'.
@@ -601,7 +654,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;; Override the default indent step added because of their presence
        ;; in smie-closer-alist.
        ((equal token "with match") 4)
-       ((member token '(":" ":=" ":= with"))
+       ((member token '("<:" "<+" ":" ":=" ":= with"))
 	2)
 
        ((equal token ":= record") 2)
@@ -640,6 +693,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
        ((equal token "as")
 	(if (smie-rule-parent-p "in tactic") (smie-rule-parent) 2))
+
+       ((member token '(":" "<:")) 2)
 
        ((equal token "as morphism") (smie-rule-parent 2))
        ((member token '("xxx provedby" "with signature"))
