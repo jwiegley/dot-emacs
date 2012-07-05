@@ -198,7 +198,6 @@ The point should be at the beginning of the command name."
      ((and (zerop (length tok)) (looking-at "{|")) (goto-char (match-end 0)) "{|")
      ;; this must be after detecting "{|":
      ((and (zerop (length tok)) (eq (char-after) ?\{))
-      (message "YOUHOU")
       (if (equal (save-excursion (forward-char 1) (coq-smie-backward-token))
 		 "{ subproof")
 	  (progn (forward-char 1) "{ subproof")
@@ -251,6 +250,32 @@ the token of \".\" is simply \".\".
     (re-search-backward "[^.[:alnum:]_@]")
     (forward-char 1)
     (buffer-substring (point) p)))
+
+
+(defun coq-smie-find-unclosed-match-backward ()
+  (let ((tok (coq-smie-search-token-backward '("with" "match" "."))))
+    
+    (cond 
+     ((null tok) nil)
+     ((equal tok ".") nil)
+     ((equal tok "match") t)
+     ((equal tok "with")
+      (coq-smie-find-unclosed-match-backward)
+      (coq-smie-find-unclosed-match-backward)))))
+
+(defun coq-smie-with-deambiguate()
+  (if (save-excursion (coq-smie-find-unclosed-match-backward))
+      "with match"
+    (coq-find-real-start)
+    (cond
+     ((looking-at "Inductive") "with inductive")
+     ((looking-at "Fixpoint\\|Function\\|Program") "with fixpoint")
+     ((looking-at "Module\\|Declare") "with module")
+     (t "with")
+     )
+    )
+)
+
 
 (defun coq-smie-backward-token ()
   (let ((tok (smie-default-backward-token)))
@@ -370,31 +395,33 @@ the token of \".\" is simply \".\".
       ((equal tok "∀") "forall")
       ((equal tok "→") "->")
 
+      ((equal tok "with")
+       (save-excursion (coq-smie-with-deambiguate)))
 
-     ((and (equal tok "with")
-	   (save-excursion
-	     (equal (coq-smie-search-token-backward '("Inductive" ".")) "Inductive")))
-      "with inductive")
+     ;; ((and (equal tok "with")
+     ;; 	   (save-excursion
+     ;; 	     (equal (coq-smie-search-token-backward '("Inductive" ".")) "Inductive")))
+     ;;  "with inductive")
 
-     ((and (equal tok "with")
-	   (save-excursion
-	     (member (coq-smie-search-token-backward
-		      '("Fixpoint" "Function" "Program" "match" ".")
-		      nil
-		      '(("match" . "end")))
-		     '("Fixpoint" "Function" "Program"))))
-      "with fixpoint")
+     ;; ((and (equal tok "with")
+     ;; 	   (save-excursion
+     ;; 	     (member (coq-smie-search-token-backward
+     ;; 		      '("Fixpoint" "Function" "Program" "match" ".")
+     ;; 		      nil
+     ;; 		      '(("match" . "end")))
+     ;; 		     '("Fixpoint" "Function" "Program"))))
+     ;;  "with fixpoint")
 
 
-     ((and (equal tok "with")
-	   (save-excursion
-	     (equal (coq-smie-search-token-backward '("Module" "match" ".")) "Module")))
-      "with module")
+     ;; ((and (equal tok "with")
+     ;; 	   (save-excursion
+     ;; 	     (equal (coq-smie-search-token-backward '("Module" "match" ".")) "Module")))
+     ;;  "with module")
 
-     ((and (equal tok "with")
-	   (save-excursion
-	     (equal (coq-smie-search-token-backward '("match" ".")) "match")))
-      "with match")
+     ;; ((and (equal tok "with")
+     ;; 	   (save-excursion
+     ;; 	     (equal (coq-smie-search-token-backward '("match" ".")) "match")))
+     ;;  "with match")
 
      ((and (equal tok "signature")
 	   (equal (smie-default-backward-token) "with"))
@@ -499,7 +526,7 @@ Lemma foo: forall n,
   (when (fboundp 'smie-prec2->grammar)
     (smie-prec2->grammar
      (smie-bnf->prec2
-      '((exp(assoc "|")
+      '((exp
          (exp ":=" exp)
          (exp "|" exp) (exp "=>" exp)
          (exp "xxx provedby" exp)
@@ -515,7 +542,7 @@ Lemma foo: forall n,
          ;;;
          ("(" exp ")") ("{|" exps "|}") ("{" exps "}")
          (exp "; tactic" exp) (exp "in tactic" exp) (exp "as" exp)
-	 (exp "|-" exp)
+	 (exp "by" exp) (exp "with" exp) (exp "|-" exp)
          (exp ":" exp) (exp ":<" exp) (exp "," exp)
          (exp "->" exp) (exp "<->" exp) (exp "/\\" exp) (exp "\\/" exp)
          (exp "==" exp) (exp "=" exp) (exp "<>" exp) (exp "<=" exp)
@@ -548,8 +575,8 @@ Lemma foo: forall n,
               (". proofstart" commands  "Proof End")
               (". modulestart" commands  "End")
               (mutual)
-	      (exp)
-	      )
+	      (exp))
+
         (commands (commands "." commands)
                   (commands "- bullet" commands)
                   (commands "+ bullet" commands)
@@ -563,16 +590,16 @@ Lemma foo: forall n,
       ;;'((assoc "=>") (assoc "|")  (assoc "|-" "=> fun")) ; (assoc ", quantif")
       '((assoc ".") (assoc "Module"))
       '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc "."))
-      '((assoc "with indentation")
+      '((assoc "with inductive")
 	(assoc ":=") (assoc "|") (assoc "=>")
 	(assoc "xxx provedby")
 	(assoc "as morphism") (assoc "with signature") (assoc "with match") (assoc "in let")
 	(assoc "in eval") (assoc "=> fun") (assoc "then") (assoc "else") (assoc ", quantif")
-	(assoc "; tactic") (assoc "in tactic") (assoc "as")
+	(assoc "; tactic") (assoc "in tactic") (assoc "as") (assoc "with")
 	(assoc "|-") (assoc ":" ":<") (assoc ",") (assoc "->") (assoc "<->")
 	(assoc "/\\") (assoc "\\/")
 	(assoc "==") (assoc "=") (assoc "<" ">" "<=" ">=" "<>")
-	(assoc "=?") (assoc "<=?") (assoc "<?") (assoc "^") 
+	(assoc "=?") (assoc "<=?") (assoc "<?") (assoc "^")
 	(assoc "+") (assoc "-") (assoc "*")
 	(assoc ": ltacconstr") (assoc ". selector") (assoc ""))
       '((assoc ":")(assoc "<"))
@@ -585,12 +612,16 @@ Lemma foo: forall n,
 ;                   fld2:nat;
 ;                   fld3:bool
 ;                 }.
+;  induction
+;  as
+;  H
+;
 ;  rewrite
 ;  in
 ;  H
 ;  as
 ;    h.
-; FIXME: same thing with "as"
+; FIXED? FIXME: same thing with "as"
 ; FIXME:
 ; Instance x
 ; := <- should right shift
@@ -662,9 +693,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((equal token "with module") 2)
 
 
-       ((equal token "- bullet") (smie-rule-parent 2))
-       ((equal token "+ bullet") (smie-rule-parent 2))
-       ((equal token "* bullet") (smie-rule-parent 2))
+       ((equal token "- bullet") 2)
+       ((equal token "+ bullet") 2)
+       ((equal token "* bullet") 2)
 
        ((equal token "; tactic") ; "; tactic" maintenant!!
         (cond
@@ -672,7 +703,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
          (t (smie-rule-parent 2))))
 
        ; "as" tactical is not idented correctly
-       ((equal token "as") (smie-rule-parent 2))
+       ((equal token "as") 2)
+       ((equal token "by") 2)
+       ((equal token "in tactic") 2)
        ((equal token "in let") (smie-rule-parent))
 
 
@@ -698,8 +731,15 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
             (smie-rule-parent)
           (smie-rule-parent 4)))
 
-       ((equal token "in tactic") (smie-rule-parent 2))
+       ((member token '("in tactic" "as" "by"))
+	(cond
+	 ((smie-rule-parent-p "- bullet" "+ bullet" "* bullet" "{ subproof" ". proofstart")
+	  (smie-rule-parent 4))
+	 ((smie-rule-parent-p "in tactic") (smie-rule-parent))
+	 (t (smie-rule-parent 2))))
 
+       ((equal token "as")
+	(if (smie-rule-parent-p "in tactic") (smie-rule-parent) 2))
 
        ((equal token "as morphism") (smie-rule-parent 2))
        ((member token '("xxx provedby" "with signature"))
@@ -724,8 +764,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
 
 
-       ((equal token "as")
-	(if (smie-rule-parent-p "in tactic") (smie-rule-parent) 2))
 
 ;;       ((member token '("return" "in match" "as match"))
 ;;        (if (smie-rule-parent-p "match") 3))
