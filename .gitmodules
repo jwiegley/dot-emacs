@@ -238,3 +238,6 @@
 [submodule "site-lisp/dvc"]
 	path = site-lisp/dvc
 	url = https://github.com/emacsmirror/dvc.git
+[submodule "site-lisp/melpa"]
+	path = site-lisp/melpa
+	url = https://github.com/milkypostman/melpa.git
