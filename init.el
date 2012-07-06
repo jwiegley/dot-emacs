@@ -1531,11 +1531,12 @@ The output appears in the buffer `*Async Shell Command*'."
   (progn
     (defvar ctl-period-equals-map)
     (define-prefix-command 'ctl-period-equals-map)
-    (bind-key "C-. =" 'ctl-period-equals-map))
+    (bind-key "C-. =" 'ctl-period-equals-map)
+
+    (bind-key "C-. = c" 'compare-windows)) ; not an ediff command, but it fits
 
   :bind (("C-. = b" . ediff-buffers)
          ("C-. = B" . ediff-buffers3)
-         ("C-. = c" . compare-windows)  ; not an ediff command, but it fits
          ("C-. = =" . ediff-files)
          ("C-. = f" . ediff-files)
          ("C-. = F" . ediff-files3)
