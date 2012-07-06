@@ -2956,7 +2956,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
                   (eq 'listen (process-status server-process)))
         (server-start)))
 
-    (run-with-idle-timer 300 t 'save-information)
+    ;; (run-with-idle-timer 300 t 'save-information)
 
     (if window-system
         (add-hook 'after-init-hook 'session-initialize t))))
