@@ -551,7 +551,8 @@ Lemma foo: forall n,
 	;; it to be indented at a different level than "with".
 	(matchexp (exp) (exp "as match" exp) (exp "in match" exp)
 		  (exp "return" exp) )
-	(exps (exp) (exp ":= record" exp) (exps "; record" exps))
+	(exps (affectrec) (exps "; record" exps))
+	(affectrec (exp ":= record" exp))
 	(assigns  (exp ":= let" exp)) ;(assigns "; record" assigns)
 
 	(moduledef (moduledecl ":= module" exp))
@@ -595,7 +596,7 @@ Lemma foo: forall n,
 	(assoc "in let")
 	(assoc "in eval") (assoc "=> fun") (assoc "then") (assoc "else")
 	(assoc ", quantif")
-	(assoc "; tactic") (assoc "in tactic") (assoc "as") (assoc "with")
+	(assoc "; tactic") (assoc "in tactic") (assoc "as" "by") (assoc "with")
 	(assoc "|-") (assoc ":" ":<") (assoc ",") (assoc "->") (assoc "<->")
 	(assoc "/\\") (assoc "\\/")
 	(assoc "==") (assoc "=") (assoc "<" ">" "<=" ">=" "<>")
@@ -604,9 +605,9 @@ Lemma foo: forall n,
 	(assoc ": ltacconstr") (assoc ". selector") (assoc ""))
       '((assoc ":" ":<")  (assoc "<"))
       '((assoc ". modulestart") (assoc ".") (assoc "Module def")
-	(assoc "with module") (assoc ":= module")
+	(assoc "with module" "module") (assoc ":= module")
 	(assoc ":= with")  (assoc ":" ":<"))
-      '((assoc "; record")))))
+      '((assoc ":=") (assoc "; record") (assoc ":= record")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 ;; FIXME:
 ; Record rec:Set :=     {
@@ -614,18 +615,12 @@ Lemma foo: forall n,
 ;                   fld2:nat;
 ;                   fld3:bool
 ;                 }.
-; FIXME:
-; Instance x
-; := <- should right shift
-; FIXME: idem:
-; Lemma x
-; : <- should right shift
 ; FIXME: as is sometimes a "as morphism" but not detected as such
 ;; Add Parametric Morphism (A : Type) : (mu (A:=A))
 ;;     with signature Oeq ==> Oeq
 ;;                    as mu_eq_morphism.
 
-;; FIXME:
+;; FIXME: have a different token for := corresponding to a "fix"
 ;;Fixpoint join l : key -> elt -> t -> t :=
 ;;      match l with
 ;;        | Leaf => add
@@ -672,19 +667,11 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       (cond
        ;; Override the default indent step added because of their presence
        ;; in smie-closer-alist.
+       ((member token '(":" ":=" ":= with" "- bullet" "+ bullet" "* bullet"
+			"by" "in tactic" "<:" "<+" ":= record"
+			"with module" "as")) 2)
+
        ((equal token "with match") 4)
-       ((member token '("<:" "<+" ":" ":=" ":= with"))
-	2)
-
-       ((equal token "{ subproof") 2)
-
-       ((equal token ":= record") 2)
-       ((equal token "with module") 2)
-
-
-       ((equal token "- bullet") 2)
-       ((equal token "+ bullet") 2)
-       ((equal token "* bullet") 2)
 
        ((equal token "; tactic") ; "; tactic" maintenant!!
 	(cond
@@ -692,13 +679,11 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	 (t (smie-rule-parent 2))))
 
        ; "as" tactical is not idented correctly
-       ((equal token "as") 2)
-       ((equal token "by") 2)
-       ((equal token "in tactic") 2)
        ((equal token "in let") (smie-rule-parent))))
 
      (:before
       (cond
+
        ((equal token "with module")
 	(if (smie-rule-parent-p "with module")
 	    (smie-rule-parent)
@@ -715,7 +700,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((equal token "as")
 	(if (smie-rule-parent-p "in tactic") (smie-rule-parent) 2))
 
-       ((member token '(":" "<:")) 2)
+       ((member token '(":" "<:" ":="))
+	(if (smie-rule-hanging-p) 0 2))
 
        ((equal token "as morphism") (smie-rule-parent 2))
        ((member token '("xxx provedby" "with signature"))
