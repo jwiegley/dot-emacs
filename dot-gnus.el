@@ -329,24 +329,25 @@ is:
       (let ((nnir-imap-default-search-key "imap")
             (nnir-ignored-newsgroups
              (if arg
-                 (concat "\\`" (regexp-opt
-                                '("archive"
-                                  "archive.emacs"
-                                  "list"
-                                  "list.bahai"
-                                  "list.boost"
-                                  "list.clang"
-                                  "list.emacs"
-                                  "list.isocpp"
-                                  "list.ledger"
-                                  "list.llvm"
-                                  "list.wg21"
-                                  "mail"
-                                  "mail.save"
-                                  "Drafts"
-                                  "Sent Messages"))
+                 (concat (regexp-opt
+                          '("archive"
+                            "archive.emacs"
+                            "list"
+                            "list.bahai"
+                            "list.boost"
+                            "list.clang"
+                            "list.emacs"
+                            "list.isocpp"
+                            "list.ledger"
+                            "list.llvm"
+                            "list.wg21"
+                            "mail"
+                            "mail.save"
+                            "Drafts"
+                            "Sent Messages"))
                          "\\'")
-               "\\`\\(\\(list\\|archive\\)\\.\\|mail\\.\\(spam\\|save\\)\\)")))
+               (concat "\\(\\(list\\|archive\\)\\.\\|"
+                       "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)"))))
         (gnus-group-make-nnir-group
          nil `((query    . ,query)
                (criteria . "")
