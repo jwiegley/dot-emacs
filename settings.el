@@ -60,7 +60,6 @@
  '(compilation-context-lines 10)
  '(compilation-scroll-output t)
  '(compilation-skip-threshold 2)
- '(completion-ignored-extensions (quote (".svn/" "CVS/" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".dvi" ".fmt" ".tfm" ".pdf" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".xfasl" ".fasl" ".ufsl" ".fsl" ".dxl" ".pfsl" ".dfsl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-file "/Users/johnw/.emacs.d/settings.el")
