@@ -104,11 +104,25 @@
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
-(defun gmail-report-spam ()
-  "Report the current or marked mails as spam.
-This moves them into the Spam folder."
+(defun open-mail-logs ()
   (interactive)
-  (gnus-summary-move-article nil "mail.spam"))
+  (flet ((switch-in-other-buffer
+          (buf)
+          (when buf
+            (split-window-vertically)
+            (balance-windows)
+            (switch-to-buffer-other-window buf))))
+    (loop initially (delete-other-windows)
+          with first = t
+          for log in (directory-files "~/Messages/" t "\\.log\\'")
+          for buf = (find-file-noselect log)
+          do (if first
+                 (progn
+                   (switch-to-buffer buf)
+                   (setf first nil))
+               (switch-in-other-buffer buf))
+          (with-current-buffer buf
+            (goto-char (point-max))))))
 
 (defun my-gnus-trash-article (arg)
   (interactive "P")
@@ -117,7 +131,6 @@ This moves them into the Spam folder."
     (gnus-summary-move-article arg "mail.trash")))
 
 (define-key gnus-summary-mode-map [(meta ?q)] 'gnus-article-fill-long-lines)
-(define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
 (define-key gnus-summary-mode-map [?B delete] 'gnus-summary-delete-article)
 (define-key gnus-summary-mode-map [?B backspace] 'my-gnus-trash-article)
 
