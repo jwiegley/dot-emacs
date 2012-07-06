@@ -44,10 +44,23 @@
       (interactive)
       (when (and (not switch-to-gnus-unplugged)
                  (quickping "imap.gmail.com"))
-        (do-applescript "tell application \"Notify\" to run")
-        (switch-to-fetchmail)))
+        (async-start
+         (lambda ()
+           (call-process (expand-file-name
+                          "~/Messages/manage-mail/start-mail"))
+           (sleep-for 60))
+         (lambda (&optional ignore)
+           (do-applescript "tell application \"Notify\" to run")
+           (switch-to-fetchmail)))))
 
-    (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)))
+    (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
+
+    (defadvice shutdown-fetchmail (after stop-mail-after-fetchmail activate)
+      (async-start
+       (lambda ()
+         (call-process (expand-file-name "~/Messages/manage-mail/stop-mail")))
+       (lambda (ret)
+         (do-applescript "tell application \"Notify\" to quit"))))))
 
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
