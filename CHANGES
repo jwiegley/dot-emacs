@@ -24,9 +24,26 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** Support proof-tree visualization
 
 *** Indentation improvements using SMIE
-    Limitations:
-**** hard-wired precedence between bullets - < + < *
-**** no "{" following a bullet.
+    Still experimental.
+
+**  Limitations:
+
+**** hard-wired precedence between bullets: - < + < *
+     example:
+     Proof.
+       - split.
+         + split.
+           * auto.
+	   * auto.
+         + intros.
+           auto.
+       - auto.
+     Qed.
+
+**** Always use "Proof." when proving an "Instance".
+     (wrong indentation and slow downs otherwise)
+     As a general rule, try to always introduce a proof with "Proof."
+     (or "Next Obligation").
 
 *** Minor parsing fixes
 

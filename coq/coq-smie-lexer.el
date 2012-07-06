@@ -60,7 +60,7 @@ the token of \".\" is simply \".\".
 	  (goto-char (+ p 1))
 	  (if (equal (smie-default-forward-token) "Proof")
 	      "." ". proofstart")))
-       ((coq-smie-detect-module-or-section-start-command)
+       ((equal (coq-smie-module-deambiguate) "Module start")
 	". modulestart")
        (t ".")))))
 
@@ -84,14 +84,16 @@ the token of \".\" is simply \".\".
       (coq-smie-find-unclosed-match-backward)))))
 
 (defun coq-smie-with-deambiguate()
-  (if (coq-smie-find-unclosed-match-backward)
-      "with match"
-    (coq-find-real-start)
-    (cond
-     ((looking-at "Inductive") "with inductive")
-     ((looking-at "Fixpoint\\|Function\\|Program") "with fixpoint")
-     ((looking-at "Module\\|Declare") "with module")
-     (t "with"))))
+  (let ((p (point)))
+    (if (coq-smie-find-unclosed-match-backward)
+	"with match"
+      (goto-char p)
+      (coq-find-real-start)
+      (cond
+       ((looking-at "Inductive") "with inductive")
+       ((looking-at "Fixpoint\\|Function\\|Program") "with fixpoint")
+       ((looking-at "Module\\|Declare") "with module")
+       (t "with")))))
 
 
 
@@ -189,16 +191,27 @@ force indentation."
     (when (proof-looking-at "\\(Local\\|Global\\)?\
 \\(Definition\\|Lemma\\|Theorem\\|Fact\\|Let\\|Class\
 \\|Add\\(\\s-+Parametric\\)?\\s-+Morphism\\)\\>")
-	(coq-lonely-:=-in-this-command)
-	)))
+	(coq-lonely-:=-in-this-command))))
+
 
 ;; Heuristic to detect a goal opening command: there must be a lonely ":="
-(defun coq-smie-detect-module-or-section-start-command ()
+(defun coq-smie-module-deambiguate ()
   "Return t if the next command is a goal starting command.
 The point should be at the beginning of the command name."
   (save-excursion ; FIXME Is there other module starting commands?
-    (when (proof-looking-at "\\(Module\\|Section\\)\\>")
-      (coq-lonely-:=-in-this-command))))
+    (cond
+     ((looking-back "with\\s-+") "module") ; lowecase means Module that is not a declaration keyword (like in with Module) 
+     ((proof-looking-at "\\(Module\\|Section\\)\\>")
+      (if (coq-lonely-:=-in-this-command) "Module start" "Module def")))))
+
+
+;(defun coq-smie-detect-module-or-section-start-command ()
+;  "Return t if the next command is a goal starting command.
+;The point should be at the beginning of the command name."
+;  (save-excursion ; FIXME Is there other module starting commands?
+;    (when (and (looking-back "with")
+;	       (proof-looking-at "\\(\\(?:Declare\\s-+\\)?Module\\|Section\\)\\>"))
+;      (coq-lonely-:=-in-this-command))))
 
 
 (defconst coq-smie-proof-end-tokens
@@ -250,7 +263,7 @@ The point should be at the beginning of the command name."
 	  (goto-char p)
 	  tok))) ; by tactical
 
-     ((member tok '("Module"))
+     ((member tok '("Module")) ; TODO: Declare
       (let ((pos (point))
 	    (next (smie-default-forward-token)))
 	(unless (equal next "Type") (goto-char pos))
@@ -352,8 +365,7 @@ The point should be at the beginning of the command name."
      ((equal tok "Module")
       (save-excursion
 	;(coq-find-real-start)
-	(if (coq-smie-detect-module-or-section-start-command)
-	    "Module start" "Module def")))
+	(coq-smie-module-deambiguate)))
 
      ;; rhaaa... Some peolple use "End" as a id...
      ((equal tok "End")
@@ -376,16 +388,17 @@ The point should be at the beginning of the command name."
 
      ((equal tok ":=")
       (save-excursion
-	;(save-excursion (coq-smie-:=-deambiguate))))
-	(let ((corresp (coq-smie-search-token-backward
-			'("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
-			nil '((("let" "with") . ":="))))) ;("match" . "with")
-	  (cond
-	   ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
-	   ((equal corresp "let") ":= let")
-	   ((equal corresp "with") ":= with")
-	   ((or (looking-back "{")) ":= record")
-	   (t tok)))))
+	(save-excursion (coq-smie-:=-deambiguate))))
+	;; (let ((corresp (coq-smie-search-token-backward
+	;; 		'("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
+	;; 		nil '((("let" "with") . ":="))))) ;("match" . "with")
+	;;   (cond
+	;;    ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
+	;;    ((equal corresp "let") ":= let")
+	;;    ((equal corresp "with") ":= with")
+	;;    ((or (looking-back "{")) ":= record")
+	;;    (t tok)))
+	;; ))
 
      ((equal tok "=>")
       (save-excursion
@@ -545,7 +558,7 @@ Lemma foo: forall n,
 	(moduledecl (exp) (exp ":" moduleconstraint)
 		    (exp "<:" moduleconstraint))
 	(moduleconstraint (exp)
-			  (moduleconstraint "with module" moduleconstraint)
+			  (moduleconstraint "with module" "module" moduleconstraint)
 			  (exp ":= with" exp))
 
 	(mutual (exp "with inductive" exp)
@@ -559,6 +572,7 @@ Lemma foo: forall n,
 	      (". proofstart" commands  "Proof End")
 	      (". modulestart" commands  "end module" exp)
 	      (moduledecl)
+	      (moduledef)
 	      (mutual)
 	      (exp))
 
@@ -573,13 +587,14 @@ Lemma foo: forall n,
       ;; each line orders tokens by increasing priority
       ;; | C x => fun a => b | C2 x => ...
       ;;'((assoc "=>") (assoc "|")  (assoc "|-" "=> fun")) ; (assoc ", quantif")
-      '((assoc ".") (assoc "Module"))
       '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc "."))
       '((assoc "with inductive")
 	(assoc ":=") (assoc "|") (assoc "=>")
 	(assoc "xxx provedby")
-	(assoc "as morphism") (assoc "with signature") (assoc "with match") (assoc "in let")
-	(assoc "in eval") (assoc "=> fun") (assoc "then") (assoc "else") (assoc ", quantif")
+	(assoc "as morphism") (assoc "with signature") (assoc "with match")
+	(assoc "in let")
+	(assoc "in eval") (assoc "=> fun") (assoc "then") (assoc "else")
+	(assoc ", quantif")
 	(assoc "; tactic") (assoc "in tactic") (assoc "as") (assoc "with")
 	(assoc "|-") (assoc ":" ":<") (assoc ",") (assoc "->") (assoc "<->")
 	(assoc "/\\") (assoc "\\/")
@@ -588,7 +603,9 @@ Lemma foo: forall n,
 	(assoc "+") (assoc "-") (assoc "*")
 	(assoc ": ltacconstr") (assoc ". selector") (assoc ""))
       '((assoc ":" ":<")  (assoc "<"))
-      '((assoc ". modulestart") (assoc ".") (assoc "with module") (assoc ":= module")  (assoc ":= with") (nonassoc ":"))
+      '((assoc ". modulestart") (assoc ".") (assoc "Module def")
+	(assoc "with module") (assoc ":= module")
+	(assoc ":= with")  (assoc ":" ":<"))
       '((assoc "; record")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 ;; FIXME:
@@ -609,12 +626,13 @@ Lemma foo: forall n,
 ;;                    as mu_eq_morphism.
 
 ;; FIXME:
-;; Proof.
-;;  induction l.
-;;  - simpl.
-;;    { trivial. }
-;;      intro.
-
+;;Fixpoint join l : key -> elt -> t -> t :=
+;;      match l with
+;;        | Leaf => add
+;;        | Node ll lx ld lr lh => fun x d =>
+;;                                   fix join_aux (r:t) : t
+;;        := match r with   <---- ??
+;;             | Leaf =>  add x d l
 
 
 ; This fixes a bug in smie that is not yet in regular emacs distribs??
@@ -646,7 +664,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	  ;; second {..} is aligned with the first rather than being indented as
 	  ;; if it were an argument to the first.
 	  ;; FIXME: this gives a strange indentation for ". { \n .. } \n { .. }"
-	  (when (member token '("." ". proofstart"))
+	  (when (member token '("{ subproof" "- bullet" "+ bullet" "* bullet"
+				"." ". proofstart"))
 	    (forward-char 1) ; skip de "."
 	    (equal (coq-smie-forward-token) "{ subproof"))))
      (:after
@@ -656,6 +675,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((equal token "with match") 4)
        ((member token '("<:" "<+" ":" ":=" ":= with"))
 	2)
+
+       ((equal token "{ subproof") 2)
 
        ((equal token ":= record") 2)
        ((equal token "with module") 2)
