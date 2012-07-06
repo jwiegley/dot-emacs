@@ -1032,7 +1032,7 @@
 ;;;_ , ascii
 
 (use-package ascii
-  :commands ascii-on
+  :commands (ascii-on ascii-toggle)
   :init
   (progn
     (defun ascii-toggle ()
