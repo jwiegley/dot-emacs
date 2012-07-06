@@ -73,8 +73,7 @@
   (interactive)
   (safely-kill-process "*fetchmail*")
   (safely-kill-process "*fetchmail-lists*")
-  (safely-kill-process "*fetchnews*")
-  (do-applescript "tell application \"Notify\" to quit"))
+  (safely-kill-process "*fetchnews*"))
 
 (defun kick-fetchmail ()
   (interactive)
@@ -103,7 +102,7 @@
                (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
                (start-fetchmail "*fetchmail-lists*"
                                 "-f" (expand-file-name
-                                      "~/Messages/fetchmailrc.news")))))))
+                                      "~/Messages/fetchmailrc.lists")))))))
         (fetchnews-buf
          (get-buffer-or-call-func
           "*fetchnews*"
