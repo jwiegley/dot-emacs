@@ -1768,6 +1768,11 @@ FORM => (eval FORM)."
       (set-syntax-table emacs-lisp-mode-syntax-table)
       (paredit-mode))))
 
+;;;_ , fetchmail-mode
+
+(use-package fetchmail-mode
+  :commands fetchmail-mode)
+
 ;;;_ , flyspell
 
 (use-package ispell

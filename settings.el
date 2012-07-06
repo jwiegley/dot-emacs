@@ -190,7 +190,7 @@
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-major-mode (quote fundamental-mode))
- '(initsplit-customizations-alist (quote (("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil) ("\\`\\(org-\\)" "~/.emacs.d/org-settings.el" nil nil))))
+ '(initsplit-customizations-alist (quote (("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|spam\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil) ("\\`\\(org-\\)" "~/.emacs.d/org-settings.el" nil nil))))
  '(ipa-file "~/Documents/ipa")
  '(ipa-overlay-position "above")
  '(irfc-directory "~/Archives/Admin/RFC/")
