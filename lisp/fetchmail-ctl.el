@@ -73,12 +73,14 @@
   (interactive)
   (safely-kill-process "*fetchmail*")
   (safely-kill-process "*fetchmail-lists*")
+  (safely-kill-process "*fetchmail-spam*")
   (safely-kill-process "*fetchnews*"))
 
 (defun kick-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*" 'SIGUSR1 "Kicking")
-  (safely-kill-process "*fetchmail-lists*" 'SIGUSR1 "Kicking"))
+  (safely-kill-process "*fetchmail-lists*" 'SIGUSR1 "Kicking")
+  (safely-kill-process "*fetchmail-spam*" 'SIGUSR1 "Kicking"))
 
 (defun get-buffer-or-call-func (name func)
   (let ((buf (get-buffer name)))
@@ -103,6 +105,16 @@
                (start-fetchmail "*fetchmail-lists*"
                                 "-f" (expand-file-name
                                       "~/Messages/fetchmailrc.lists")))))))
+        (fetchmail-spam-buf
+         (get-buffer-or-call-func
+          "*fetchmail-spam*"
+          (function
+           (lambda ()
+             (let ((process-environment (copy-alist process-environment)))
+               (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Maildir"))
+               (start-fetchmail "*fetchmail-spam*"
+                                "-f" (expand-file-name
+                                      "~/Messages/fetchmailrc.spam")))))))
         (fetchnews-buf
          (get-buffer-or-call-func
           "*fetchnews*"
@@ -121,6 +133,7 @@
       (switch-to-buffer cur-buf)
       (switch-in-other-buffer fetchmail-buf)
       (switch-in-other-buffer fetchmail-lists-buf)
+      (switch-in-other-buffer fetchmail-spam-buf)
       (switch-in-other-buffer fetchnews-buf)
       (select-window (get-buffer-window cur-buf))
       (balance-windows))))

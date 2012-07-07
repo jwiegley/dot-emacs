@@ -19,6 +19,31 @@
 
 (bbdb-initialize 'gnus 'message)
 
+(defadvice spam-spamassassin-register-with-sa-learn
+  (after my-report-spam-with-spamassassin
+         (articles spam &optional unregister)
+         activate)
+  "When learning about new spam, also report it to SpamAssassin.
+This ends up reporting the spam to DCC, Pyzor, Razor and SpamCop."
+  (when (and articles spam)
+    (let ((summary-buffer-name (buffer-name)))
+      (with-temp-buffer
+        ;; group the articles into mbox format
+        (dolist (article articles)
+          (let (article-string)
+            (with-current-buffer summary-buffer-name
+              (setq article-string (spam-get-article-as-string article)))
+            (when (stringp article-string)
+              ;; mbox separator
+              (insert (concat "From nobody " (current-time-string) "\n"))
+              (insert article-string)
+              (insert "\n"))))
+          ;; call sa-learn on all messages at the same time
+        (apply 'call-process-region
+               (point-min) (point-max)
+               (executable-find "spamassassin-5.12")
+               nil nil nil '("--mbox" "-r"))))))
+
 (defvar switch-to-gnus-unplugged nil)
 (defvar switch-to-gnus-run nil)
 
@@ -51,14 +76,8 @@
       (interactive)
       (when (and (not switch-to-gnus-unplugged)
                  (quickping "imap.gmail.com"))
-        (async-start
-         (lambda ()
-           (call-process (expand-file-name
-                          "~/Messages/manage-mail/start-mail"))
-           (sleep-for 60))
-         (lambda (&optional ignore)
-           (do-applescript "tell application \"Notify\" to run")
-           (switch-to-fetchmail)))))
+        (do-applescript "tell application \"Notify\" to run")
+        (switch-to-fetchmail)))
 
     (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
 
