@@ -3323,9 +3323,9 @@ This mode is used for editing .td files in the LLVM/Clang source code."
 
     (add-hook 'w3m-form-input-textarea-mode-hook 'dka-w3m-textarea-hook)
 
-    ;; (bind-key "<return>" 'w3m-view-url-with-external-browser
-    ;;           w3m-minor-mode-map)
-    ))
+    (bind-key "<return>" 'w3m-view-url-with-external-browser
+              w3m-minor-mode-map)
+    (bind-key "S-<return>" 'w3m-safe-view-this-url w3m-minor-mode-map)))
 
 ;;;_ , wcount-mode
 
