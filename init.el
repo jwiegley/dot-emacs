@@ -1284,6 +1284,15 @@
   :mode (("CMakeLists\\.txt\\'" . cmake-mode)
          ("\\.cmake\\'"         . cmake-mode)))
 
+;;;_ , compile
+
+(use-package compile
+  :defer t
+  :config
+  (add-hook 'compilation-finish-functions
+            (lambda (buf why)
+              (display-buffer buf))))
+
 ;;;_ , color-moccur
 
 (let ((ad-redefinition-action 'accept))
