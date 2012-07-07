@@ -2629,12 +2629,6 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
     (require 'term)
 
-    (add-hook 'term-mode-hook
-              (function
-               (lambda ()
-                 (term-pager-enable)
-                 (setq term-pager-count 100))))
-
     (defadvice term-process-pager (after term-process-rebind-keys activate)
       (define-key term-pager-break-map  "\177" 'term-pager-back-page))))
 
