@@ -95,6 +95,7 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(gnus-uncacheable-groups "^nnml")
  '(gnus-use-adaptive-scoring (quote (line)))
  '(gnus-use-cache t)
+ '(gnus-verbose 4)
  '(mail-envelope-from (quote header))
  '(mail-host-address "newartisans.com")
  '(mail-setup-with-from nil)

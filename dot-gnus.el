@@ -39,10 +39,11 @@ This ends up reporting the spam to DCC, Pyzor, Razor and SpamCop."
               (insert article-string)
               (insert "\n"))))
           ;; call sa-learn on all messages at the same time
-        (apply 'call-process-region
-               (point-min) (point-max)
-               (executable-find "spamassassin-5.12")
-               nil nil nil '("--mbox" "-r"))))))
+        (with-temp-message "Reporting SPAM to Internet spam servers..."
+          (apply 'call-process-region
+                 (point-min) (point-max)
+                 (executable-find "spamassassin-5.12")
+                 nil nil nil '("--mbox" "-r")))))))
 
 (defvar switch-to-gnus-unplugged nil)
 (defvar switch-to-gnus-run nil)
