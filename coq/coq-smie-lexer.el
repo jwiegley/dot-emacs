@@ -23,6 +23,12 @@
     (smie-indent-line)
     (message "time: %S"(- (time-to-seconds) deb))))
 
+(defun coq-time-indent-region (beg end)
+  (interactive "r")
+  (let ((deb (time-to-seconds)))
+    (indent-region beg end nil)
+    (message "time: %S"(- (time-to-seconds) deb))))
+
 
 
 
@@ -103,7 +109,11 @@ the token of \".\" is simply \".\".
 ;; tokens and ignore-bteween are not disjoint
 (defun coq-smie-search-token-forward (tokens &optional end ignore-between)
   "Search for one of TOKENS between point and END.
-Token \".\" is considered only if followed by a space."
+If some enclosing parenthesis is reached, stop there and return
+nil. Token \".\" is considered only if followed by a space.
+optional IGNORE-BETWEEN defines opener/closer to ignore during
+search. Careful: the search for a opener stays inside the current
+command (and inside parenthesis)."
   (unless end (setq end (point-max)))
   (condition-case nil
       (catch 'found
@@ -115,13 +125,22 @@ Token \".\" is considered only if followed by a space."
 		(let ((parops ; corresponding matcher may be a list
 		       (if (listp parop) (cdr parop)
 			 (cons (cdr parop) nil)))) ; go to corresponding closer
-		      (coq-smie-search-token-forward parops
-						     end ignore-between))
+		  (when (member
+			 (coq-smie-search-token-forward
+			  (append parops (cons "." nil))
+			  end ignore-between)
+			 (cons "." nil))) ;coq-smie-dot-friends
+		  (goto-char (point))
+		  next)
 	      ;; Do not consider "." when not followed by a space
 	      (when (or (not (equal next "."))
 			(looking-at "[[:space:]]"))
 		(cond
-		 ((zerop (length next)) (forward-sexp 1))
+		 ((and (zerop (length next))
+		       (equal (char-syntax ?\)) (char-syntax (char-after))))
+		  (throw 'found nil))
+		 ((zerop (length next)) ;; capture other characters than closing parent
+		  (forward-sexp 1))
 		 ((member next tokens) (throw 'found next))))))))
     (scan-error nil)))
 
@@ -130,10 +149,11 @@ Token \".\" is considered only if followed by a space."
 ;; tokens and ignore-bteween are not disjoint
 (defun coq-smie-search-token-backward (tokens &optional end ignore-between)
   "Search for one of TOKENS between point and END.
-Token \".\" is considered only if followed by a space. optional
-IGNORE-BETWEEN defines opener/closer to ignore during search.
-Careful: the search for a opener stays inside the current
-command. "
+If some enclosing parenthesis is reached, stop there and return
+nil. Token \".\" is considered only if followed by a space.
+optional IGNORE-BETWEEN defines opener/closer to ignore during
+search. Careful: the search for a opener stays inside the current
+command (and inside parenthesis). "
   (unless end (setq end (point-min)))
     (condition-case nil
 	(catch 'found
@@ -160,6 +180,9 @@ command. "
 		(when (or (not (equal next "."))
 			  (looking-at ".[[:space:]]"))
 		  (cond
+		   ((and (zerop (length next))
+			 (equal (char-syntax ?\() (char-syntax (char-before))))
+		    (throw 'found nil))
 		   ((zerop (length next)) (forward-sexp -1))
 		   ((member next tokens) (throw 'found next))))))))
       (scan-error nil)))
@@ -306,17 +329,18 @@ The point should be at the beginning of the command name."
 	     (equal (coq-smie-with-deambiguate) "with match"))
 	(coq-smie-:=-deambiguate) ; recursive call if the with found is actually et with match
       (cond
+       ((equal corresp ".") ":= def") ; := outside of any parenthesis
        ((equal corresp "Module")
 	(let ((p (point)))
 	  (if (equal (smie-default-backward-token) "with")
 	      ":= with"
 	    (goto-char p)
 	    ":= module")))
-       ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
+       ((member corresp '("Inductive" "CoInductive")) ":= inductive"); := inductive
        ((equal corresp "let") ":= let")
        ((equal corresp "with") ":= with")
        ((or (looking-back "{")) ":= record")
-       (t ":=")))))
+       (t ":="))))) ; a parenthesis stopped the search
 ;
 ;     ((equal tok ":=")
 ;      (save-excursion
@@ -524,16 +548,13 @@ Lemma foo: forall n,
     (smie-prec2->grammar
      (smie-bnf->prec2
       '((exp
-	 (exp ":=" exp)
+	 (exp ":= def" exp) (exp ":=" exp) (exp ":= inductive" exp)
 	 (exp "|" exp) (exp "=>" exp)
-	 (exp "xxx provedby" exp)
-	 (exp "as morphism" exp)
+	 (exp "xxx provedby" exp) (exp "as morphism" exp)
 	 (exp "with signature" exp)
 	 ("match" matchexp "with match" exp "end");expssss
-	 ("let" assigns "in let" exp)
-	 ("eval" assigns "in eval" exp)
-	 ("fun" exp "=> fun" exp)
-	 ("if" exp "then" exp "else" exp)
+	 ("let" assigns "in let" exp) ("eval" assigns "in eval" exp)
+	 ("fun" exp "=> fun" exp) ("if" exp "then" exp "else" exp)
 	 ("quantif exists" exp ", quantif" exp)
 	 ("forall" exp ", quantif" exp)
 	 ;;;
@@ -558,12 +579,11 @@ Lemma foo: forall n,
 	(moduledef (moduledecl ":= module" exp))
 	(moduledecl (exp) (exp ":" moduleconstraint)
 		    (exp "<:" moduleconstraint))
-	(moduleconstraint (exp)
-			  (moduleconstraint "with module" "module" moduleconstraint)
-			  (exp ":= with" exp))
+	(moduleconstraint
+	 (exp) (exp ":= with" exp)
+	 (moduleconstraint "with module" "module" moduleconstraint))
 
-	(mutual (exp "with inductive" exp)
-		(exp "with fixpoint" exp))
+	(mutual (exp "with inductive" exp) (exp "with fixpoint" exp))
 
 	;; To deal with indentation inside module declaration and inside
 	;; proofs, we rely on the lexer. The lexer detects "." terminator of
@@ -572,10 +592,7 @@ Lemma foo: forall n,
 	(bloc ("{ subproof" commands "} subproof")
 	      (". proofstart" commands  "Proof End")
 	      (". modulestart" commands  "end module" exp)
-	      (moduledecl)
-	      (moduledef)
-	      (mutual)
-	      (exp))
+	      (moduledecl) (moduledef) (mutual) (exp))
 
 	(commands (commands "." commands)
 		  (commands "- bullet" commands)
@@ -590,7 +607,7 @@ Lemma foo: forall n,
       ;;'((assoc "=>") (assoc "|")  (assoc "|-" "=> fun")) ; (assoc ", quantif")
       '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc "."))
       '((assoc "with inductive")
-	(assoc ":=") (assoc "|") (assoc "=>")
+	(assoc ":= def" ":= inductive") (assoc ":=") (assoc "|") (assoc "=>")
 	(assoc "xxx provedby")
 	(assoc "as morphism") (assoc "with signature") (assoc "with match")
 	(assoc "in let")
@@ -604,10 +621,10 @@ Lemma foo: forall n,
 	(assoc "+") (assoc "-") (assoc "*")
 	(assoc ": ltacconstr") (assoc ". selector") (assoc ""))
       '((assoc ":" ":<")  (assoc "<"))
-      '((assoc ". modulestart") (assoc ".") (assoc "Module def")
+      '((assoc ". modulestart" "." ". proofstart") (assoc "Module def")
 	(assoc "with module" "module") (assoc ":= module")
 	(assoc ":= with")  (assoc ":" ":<"))
-      '((assoc ":=") (assoc "; record") (assoc ":= record")))))
+      '((assoc ":= def") (assoc "; record") (assoc ":= record")))))
   "Parsing table for Coq.  See `smie-grammar'.")
 ;; FIXME:
 ; Record rec:Set :=     {
@@ -667,9 +684,9 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
       (cond
        ;; Override the default indent step added because of their presence
        ;; in smie-closer-alist.
-       ((member token '(":" ":=" ":= with" "- bullet" "+ bullet" "* bullet"
+       ((member token '(":" ":=" ":= with" ":= def" "- bullet" "+ bullet" "* bullet"
 			"by" "in tactic" "<:" "<+" ":= record"
-			"with module" "as")) 2)
+			"with module" "as" ":= inductive" ":= module" )) 2)
 
        ((equal token "with match") 4)
 
@@ -700,9 +717,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((equal token "as")
 	(if (smie-rule-parent-p "in tactic") (smie-rule-parent) 2))
 
-       ((member token '(":" "<:" ":="))
-	(if (smie-rule-hanging-p) 0 2))
-
        ((equal token "as morphism") (smie-rule-parent 2))
        ((member token '("xxx provedby" "with signature"))
 	(if (smie-rule-parent-p "xxx provedby" "with signature")
@@ -724,11 +738,19 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	(save-excursion (coq-find-real-start)
 			`(column . ,(current-column))))
 
+       ((member token '(":= module" ":= inductive" ":= def"))
+	(if (smie-rule-hanging-p)
+	    (save-excursion (coq-find-real-start)
+			    `(column . ,(current-column)))
+	  (save-excursion (coq-find-real-start)
+			  `(column . ,(+ 2 (current-column))))))
+
        ((equal token "|")
 	(cond ((smie-rule-parent-p "with match")
 	       (- (funcall smie-rules-function :after "with match") 2))
 	      ((smie-rule-prev-p ":= inductive")
 	       (- (funcall smie-rules-function :after ":= inductive") 2))
+	       
 	      (t (smie-rule-separator kind))))))))
 
 ;; No need of this hack anymore?
