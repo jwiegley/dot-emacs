@@ -206,17 +206,16 @@ instead."
   (when (gnus-buffer-live-p gnus-summary-buffer)
     (save-excursion
       (save-restriction
-        (goto-char (point-min))
+        (message-narrow-to-headers)
         (let ((refs (mail-fetch-field "references")))
-          (if (and refs
-                   (string-match "\\(<[^<]+>\\)\\'" refs))
+          (if (and refs (string-match "\\(<[^<]+>\\)\\'" refs))
               (progn
                 (set-buffer gnus-summary-buffer)
                 (gnus-summary-score-entry
                  "references" (format "%s" (match-string 1 refs)) 's
                  score (current-time-string)))
-            ;; if we didn't find a reference (probably due to no
-            ;; parent article), we increase the score on subject:
+            ;; if we didn't find a reference (probably due to no parent
+            ;; article), we increase the score on subject:
             (let ((subj (mail-fetch-field "subject")))
               (when subj
                 (set-buffer gnus-summary-buffer)
