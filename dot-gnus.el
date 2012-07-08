@@ -440,7 +440,17 @@ is:
 (use-package supercite
   :commands sc-cite-original
   :init
-  (add-hook 'mail-citation-hook 'sc-cite-original)
+  (progn
+    (add-hook 'mail-citation-hook 'sc-cite-original)
+
+    (defun sc-remove-existing-signature ()
+      (save-excursion
+        (goto-char (region-beginning))
+        (when (re-search-forward message-signature-separator (region-end) t)
+          (delete-region (match-beginning 0) (region-end)))))
+
+    (add-hook 'mail-citation-hook 'sc-remove-existing-signature))
+
   :config
   (defun sc-fill-if-different (&optional prefix)
     "Fill the region bounded by `sc-fill-begin' and point.
