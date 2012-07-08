@@ -145,6 +145,7 @@ http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans
  '(smtpmail-smtp-user "jwiegley@gmail.com")
  '(smtpmail-starttls-credentials (quote (("mail.johnwiegley.com" 587 nil nil) ("smtp.gmail.com" 587 nil nil))))
  '(smtpmail-stream-type (quote starttls))
+ '(spam-assassin-program "/opt/local/bin/spamc-5.12")
  '(spam-report-gmane-use-article-number nil)
  '(spam-sa-learn-program "/opt/local/bin/sa-learn-5.12")
  '(spam-use-regex-headers t)
