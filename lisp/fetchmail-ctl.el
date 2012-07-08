@@ -129,6 +129,7 @@
             (buf)
             (when buf
               (split-window-vertically)
+              (balance-windows)
               (switch-to-buffer-other-window buf))))
       (switch-to-buffer cur-buf)
       (switch-in-other-buffer fetchmail-buf)
