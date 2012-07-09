@@ -49,6 +49,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** New setting for hiding additional goals from the *goals* buffer
 
+*** New commands for Print/Check/Show with Printing All flag
+
 ** HOL Light  [WORK IN PROGRESS]
 
 *** Basic support now works, see hol-light directory  [WORK IN PROGRESS]
