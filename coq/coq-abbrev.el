@@ -89,12 +89,18 @@
     ("OTHER QUERIES"
      ["Print Hint" coq-PrintHint t]
      ["Show ith goal..." coq-Show t]
+     ["Show ith goal... (show implicits)" coq-Show-with-implicits t]
+     ["Show ith goal... (show all)" coq-Show-with-all t]
      ["Show Tree" coq-show-tree t]
      ["Show Proof" coq-show-proof t]
      ["Show Conjectures" coq-show-conjectures t];; maybe not so useful with editing in PG?
      ""
      ["Print..." coq-Print t]
+     ["Print... (show implicits)" coq-Print-with-implicits t]
+     ["Print... (show all)" coq-Print-with-all t]
      ["Check..." coq-Check t]
+     ["Check (show implicits)..." coq-Check-show-implicits t]
+     ["Check (show all)..." coq-Check-show-all t]
      ["About..." coq-About t]
      ["Search..." coq-SearchConstant t]
      ["SearchRewrite..." coq-SearchRewrite t]

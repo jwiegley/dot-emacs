@@ -673,8 +673,55 @@ If locked span already has a state number, then do nothing. Also updates
     (proof-shell-ready-prover)
     (setq cmd (coq-guess-or-ask-for-string ask dontguess))
     (proof-shell-invisible-command
-     (format (concat do " %s . ") (funcall postform cmd))))
-  )
+     (format (concat do " %s . ") (funcall postform cmd)))))
+
+
+(defun coq-command-with-set-unset (setcmd cmd unsetcmd &optional postformatcmd)
+  "Play commands SETCMD then CMD and then silently UNSETCMD."
+  (let* ((postform (if (eq postformatcmd nil) 'identity postformatcmd)))
+    (proof-shell-invisible-command
+     (format " %s . " (funcall postform setcmd)) 'wait)
+    (proof-shell-invisible-command
+     (format " %s . " (funcall postform cmd)) 'wait)
+    (proof-shell-invisible-command-invisible-result
+     (format " %s . " (funcall postform unsetcmd)))))
+
+(defun coq-ask-do-set-unset (ask do setcmd unsetcmd
+                                 &optional dontguess postformatcmd)
+  "Ask for an ident id and execute command DO in SETCMD mode.
+More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
+  (let* ((cmd) (postform (if (eq postformatcmd nil) 'identity postformatcmd)))
+    (proof-shell-ready-prover)
+    (setq cmd (coq-guess-or-ask-for-string ask dontguess))
+    (coq-command-with-set-unset setcmd (concat do " " cmd) unsetcmd postformatcmd)))
+
+
+(defun coq-ask-do-show-implicits (ask do &optional dontguess postformatcmd)
+  "Ask for an ident and print the corresponding term."
+  (coq-ask-do-set-unset ask do
+                        "Set Printing Implicit"
+                        "Unset Printing Implicit"
+                        dontguess postformatcmd))
+
+(defun coq-ask-do-show-all (ask do &optional dontguess postformatcmd)
+  "Ask for an ident and print the corresponding term."
+  (coq-ask-do-set-unset ask do
+                        "Set Printing All"
+                        "Unset Printing All"
+                        dontguess postformatcmd))
+
+
+  ;; (let* ((cmd) (postform (if (eq postformatcmd nil) 'identity postformatcmd)))
+    
+
+  ;;   (proof-shell-ready-prover)
+  ;;   (setq cmd (coq-guess-or-ask-for-string ask dontguess))
+  ;;   (coq-command-with-set-unset
+  ;;    "Set Printing Implicit"
+  ;;    (format (concat do " %s . ") cmd)
+  ;;    "Unset Printing Implicit" )
+  ;;   ))
+
 
 (defsubst coq-put-into-brackets (s)
   (concat "[ " s " ]"))
@@ -714,6 +761,16 @@ This is specific to `coq-mode'."
   "Ask for an ident and print the corresponding term."
   (interactive)
   (coq-ask-do "Print" "Print"))
+
+(defun coq-Print-with-implicits ()
+  "Ask for an ident and print the corresponding term."
+  (interactive)
+  (coq-ask-do-show-implicits "Print" "Print"))
+
+(defun coq-Print-with-all ()
+  "Ask for an ident and print the corresponding term."
+  (interactive)
+  (coq-ask-do-show-all "Print" "Print"))
 
 (defun coq-About ()
   "Ask for an ident and print information on it."
@@ -761,10 +818,30 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do "Check" "Check"))
 
+(defun coq-Check-show-implicits ()
+  "Ask for a term and print its type."
+  (interactive)
+  (coq-ask-do-show-implicits "Check" "Check"))
+
+(defun coq-Check-show-all ()
+  "Ask for a term and print its type."
+  (interactive)
+  (coq-ask-do-show-all "Check" "Check"))
+
 (defun coq-Show ()
   "Ask for a number i and show the ith goal."
   (interactive)
   (coq-ask-do "Show goal number" "Show" t))
+
+(defun coq-Show-with-implicits ()
+  "Ask for a number i and show the ith goal."
+  (interactive)
+  (coq-ask-do-show-implicits "Show goal number" "Show" t))
+
+(defun coq-Show-with-all ()
+  "Ask for a number i and show the ith goal."
+  (interactive)
+  (coq-ask-do-show-all "Show goal number" "Show" t))
 
 
 (proof-definvisible coq-PrintHint "Print Hint. ")
@@ -2147,7 +2224,7 @@ Based on idea mentioned in Coq reference manual."
   (interactive)
   (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
   (proof-assert-next-command-interactive)
-  (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook);as soone as possible
+  (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook);as soon as possible
   (proof-shell-wait)
   (let
       ((str (string-match "<info type=\"infoH\">\\([^<]*\\)</info>"

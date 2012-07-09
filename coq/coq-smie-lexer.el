@@ -121,7 +121,9 @@ command (and inside parenthesis)."
 	  ;; The default lexer is faster and is good enough for our needs.
 	  (let* ((next (smie-default-forward-token))
 		 (parop (assoc next ignore-between)))
-	    (if parop ; if we find something to ignore, we directly
+	    ; if we find something to ignore, we directly jump to the
+	    ; corresponding closer
+	    (if parop
 		(let ((parops ; corresponding matcher may be a list
 		       (if (listp parop) (cdr parop)
 			 (cons (cdr parop) nil)))) ; go to corresponding closer
@@ -137,7 +139,8 @@ command (and inside parenthesis)."
 			(looking-at "[[:space:]]"))
 		(cond
 		 ((and (zerop (length next))
-		       (equal (char-syntax ?\)) (char-syntax (char-after))))
+		       (or (equal (point) (point-max)) ; protecting char-after next line
+			   (equal (char-syntax ?\)) (char-syntax (char-after)))))
 		  (throw 'found nil))
 		 ((zerop (length next)) ;; capture other characters than closing parent
 		  (forward-sexp 1))
@@ -162,8 +165,9 @@ command (and inside parenthesis). "
 	    (let* ((next2 (smie-default-backward-token))
 		   (next (if (member next2 coq-smie-dot-friends) "." next2))
 		   (parop (rassoc next ignore-between)))
-	      ;(message "praop = %S" parop)
-	      (if parop ; if we find something to ignore, we directly
+	      ; if we find something to ignore, we directly jump to the
+	      ; corresponding openner
+	      (if parop
 		  (let ((p (point))
 			(parops ; corresponding matcher may be a list
 			 (if (listp (car parop)) (car parop) (cons (car parop) nil))))
@@ -181,7 +185,8 @@ command (and inside parenthesis). "
 			  (looking-at ".[[:space:]]"))
 		  (cond
 		   ((and (zerop (length next))
-			 (equal (char-syntax ?\() (char-syntax (char-before))))
+			 (or (equal (point) (point-min)) ; protecting char-before next line
+			     (equal (char-syntax ?\() (char-syntax (char-before)))))
 		    (throw 'found nil))
 		   ((zerop (length next)) (forward-sexp -1))
 		   ((member next tokens) (throw 'found next))))))))
