@@ -2607,19 +2607,21 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
   :config
   (progn
-    (defun my-term-send-raw-at-prompt ()
-      (interactive)
-      (if (save-excursion
-            (search-backward " $ " (line-beginning-position) t))
-          (progn
-            (if (memq 'meta (event-modifiers last-command-event))
-                (progn
-                  (term-send-raw-string
-                   (format "\e%c"
-                           (logand last-command-event (lognot #x8000000)))))
-              (call-interactively #'term-send-raw)))
-        (call-interactively (lookup-key (current-global-map)
-                                        (vector last-command-event)))))
+    (if t
+        (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
+      (defun my-term-send-raw-at-prompt ()
+        (interactive)
+        (if (save-excursion
+              (search-backward " $ " (line-beginning-position) t))
+            (progn
+              (if (memq 'meta (event-modifiers last-command-event))
+                  (progn
+                    (term-send-raw-string
+                     (format "\e%c"
+                             (logand last-command-event (lognot #x8000000)))))
+                (call-interactively #'term-send-raw)))
+          (call-interactively (lookup-key (current-global-map)
+                                          (vector last-command-event))))))
 
     (defun my-term-end-of-buffer ()
       (interactive)
