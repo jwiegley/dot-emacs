@@ -212,6 +212,8 @@
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
  '(mudel-output-filter-functions (quote (ansi-color-process-output)))
+ '(multi-term-program "/opt/local/bin/screen")
+ '(multi-term-program-switches "-DR")
  '(multi-term-scroll-show-maximum-output t)
  '(next-line-add-newlines nil)
  '(ns-alternate-modifier (quote alt))
