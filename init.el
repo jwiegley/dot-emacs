@@ -2211,7 +2211,11 @@ FORM => (eval FORM)."
                 (0 (ignore
                     (compose-region (match-beginning 1)
                                     (match-end 1) ?λ))))
-               ("(\\|)" . 'esk-paren-face))))
+               ("(\\|)" . 'esk-paren-face)
+               ("(\\(ert-deftest\\)\\>[ 	'(]*\\(setf[ 	]+\\sw+\\|\\sw+\\)?"
+                (1 font-lock-keyword-face)
+                (2 font-lock-function-name-face
+                 nil t)))))
           lisp-modes)
 
     (defvar slime-mode nil)
@@ -2320,9 +2324,8 @@ FORM => (eval FORM)."
 
       (local-set-key (kbd "<return>") 'paredit-newline)
 
-      (if (memq major-mode '(emacs-lisp-mode
-                             inferior-emacs-lisp-mode
-                             ielm-mode))
+      (if (memq major-mode
+                '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
           (progn
             (bind-key "<M-return>" 'outline-insert-heading emacs-lisp-mode-map)
             (bind-key "<tab>" 'my-elisp-indent-or-complete emacs-lisp-mode-map))
@@ -2330,7 +2333,9 @@ FORM => (eval FORM)."
 
         (bind-key "<tab>" 'my-lisp-indent-or-complete lisp-mode-map)
         (bind-key "M-q" 'slime-reindent-defun lisp-mode-map)
-        (bind-key "M-l" 'slime-selector lisp-mode-map)))
+        (bind-key "M-l" 'slime-selector lisp-mode-map))
+
+      (yas/minor-mode 1))
 
     (hook-into-modes #'my-lisp-mode-hook lisp-mode-hooks)))
 
