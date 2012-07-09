@@ -21,14 +21,20 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 ** Coq changes
 
+*** Multiple file handling for Coq Feature.
+
+    No more experimental. Set coq-load-path to the list of directories
+    for libraries (you can attach it to the file using menu "coq prog
+    args").
+
 *** Support proof-tree visualization
 
 *** Indentation improvements using SMIE
     Still experimental.
 
-**  Limitations:
+****  Limitations:
 
-**** hard-wired precedence between bullets: - < + < *
+***** hard-wired precedence between bullets: - < + < *
      example:
      Proof.
        - split.
@@ -40,16 +46,17 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
        - auto.
      Qed.
 
-**** Always use "Proof." when proving an "Instance".
-     (wrong indentation and slow downs otherwise)
-     As a general rule, try to always introduce a proof with "Proof."
-     (or "Next Obligation").
+***** Always use "Proof." when proving an "Instance". (wrong
+      indentation and slow downs otherwise) As a general rule, try to
+      always introduce a proof with "Proof." (or "Next Obligation").
 
 *** Minor parsing fixes
 
 *** New setting for hiding additional goals from the *goals* buffer
 
 *** New commands for Print/Check/Show with Printing All flag
+
+*** "Insert Requires" now uses completion based on coq-load-path
 
 ** HOL Light  [WORK IN PROGRESS]
 

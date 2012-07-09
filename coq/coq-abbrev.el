@@ -20,7 +20,7 @@
 
 (defconst coq-tactics-menu
   (append '("Tactics (menu)"
-	    ["Intros (smart)" coq-insert-intros t])
+	    ["Intros (smart)" coq-insert-intros :help "Insert \"intros h1 .. hn.\" where hi are the default names given by Coq."])
 	  (coq-build-menu-from-db (append coq-tactics-db coq-solve-tactics-db))))
 
 (defconst coq-tactics-abbrev-table
@@ -80,6 +80,10 @@
 (defpgdefault menu-entries
   `(
     ["Toggle 3 windows mode" proof-three-window-toggle t]
+    ["Toggle tooltips" proof-output-tooltips-toggle
+     :style toggle
+     :selected proof-output-tooltips
+     :help "Toggles tooltips (popup when hovering commands).\nSet `proof-output-tooltips' to nil to disable it by default."]
      ""
     ["Print..." coq-Print t]
     ["Check..." coq-Check t]
@@ -118,16 +122,16 @@
      )
      ""
     ("INSERT"
+     ["Intros (smart)" coq-insert-intros :help "Insert \"intros h1 .. hn.\" where hi are the default names given by Coq."]
      ""
      ["tactic (interactive)" coq-insert-tactic t]
-     ,coq-tactics-menu
      ["tactical (interactive)" coq-insert-tactical t]
-     ,coq-tacticals-menu
-     ""
      ["command (interactive)" coq-insert-command t]
-     ,coq-commands-menu
-     ""
      ["term (interactive)" coq-insert-term t]
+     ""
+     ,coq-tactics-menu
+     ,coq-tacticals-menu
+     ,coq-commands-menu
      ,coq-terms-menu
      ""
      ["Module/Section (smart)" coq-insert-section-or-module t]

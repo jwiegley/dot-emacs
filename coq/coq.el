@@ -2145,6 +2145,24 @@ mouse activation."
   '(("" 1) (":" 2) ("<:" 3))
   "Enumerates the different kinds of type information for modules.")
 
+(defun coq-postfix-.v-p (s)
+  (string-match-p "\\.v\\'" s))
+
+(defun coq-directories-files (l)
+  (let* ((file-list-list (mapcar 'directory-files l))
+         (file-list (apply 'append file-list-list))
+         (filtered-list (remove-if-not 'coq-postfix-.v-p file-list)))
+  filtered-list))
+
+(defun coq-remove-dot-v-extension (s)
+  (substring s 0 -2))
+
+;; TODO cleanup composed elements of coq-load-path (-R option)
+(defun coq-build-accessible-modules-list ()
+  (let* ((pth (or coq-load-path '(".")))
+         (file-list (coq-directories-files pth)))
+    (mapcar 'coq-remove-dot-v-extension file-list)))
+
 (defun coq-insert-section-or-module ()
   "Insert a module or a section after asking right questions."
   (interactive)
@@ -2178,10 +2196,11 @@ mouse activation."
           (completing-read
            "Command (TAB to see list, default Require Export) : "
            reqkinds-kinds-table nil nil nil nil "Require Export")))
-    (setq s (read-string  "Name (empty to stop) : "))
-    (while (not (string-equal s ""))
-      (insert (format "%s %s.\n" reqkind s))
-      (setq s (read-string  "Name (empty to stop) : ")))))
+    (loop do
+          (setq s (completing-read "Name (empty to stop) : "
+                                   (coq-build-accessible-modules-list)))
+          (unless (zerop (length s)) (insert (format "%s %s.\n" reqkind s)))
+          while (not (string-equal s "")))))
 
 (defun coq-end-Section ()
   "Ends a Coq section."
