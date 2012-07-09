@@ -10,7 +10,7 @@
 (require 'org-devonthink)
 (require 'org-debbugs)
 (require 'org-magit)
-(require 'org-x)
+(require 'ox)
 (require 'ox-org)
 (require 'ox-redmine)
 (require 'ob-R)
