@@ -2157,17 +2157,22 @@ mouse activation."
 (defun coq-remove-dot-v-extension (s)
   (substring s 0 -2))
 
-;; TODO cleanup composed elements of coq-load-path (-R option)
+(defun coq-load-path-to-paths (ldpth)
+  (if (listp ldpth) (car ldpth) ldpth))
+
 (defun coq-build-accessible-modules-list ()
   (let* ((pth (or coq-load-path '(".")))
-         (file-list (coq-directories-files pth)))
+         (cleanpth (mapcar 'coq-load-path-to-paths pth))
+         (existingpth (remove-if-not 'file-exists-p cleanpth))
+         (file-list (coq-directories-files existingpth)))
     (mapcar 'coq-remove-dot-v-extension file-list)))
 
 (defun coq-insert-section-or-module ()
   "Insert a module or a section after asking right questions."
   (interactive)
   (let*
-      ((mods (completing-read "Kind of module (TAB to see list): " module-kinds-table))
+      ((mods (completing-read "Kind of module (TAB to see list): "
+                              module-kinds-table))
        (s (read-string  "Name: "))
        (typkind (if (string-equal mods "Section")
                     "" ;; if not a section
@@ -2185,7 +2190,7 @@ mouse activation."
       (holes-set-point-next-hole-destroy))))
 
 (defconst reqkinds-kinds-table
-  '(("Require" 1) ("Require Export" 2) ("Import" 3))
+  '(("Require Import") ("Require Export") ("Require") ("Import"))
   "Enumerates the different kinds of requiring a module.")
 
 (defun coq-insert-requires ()
@@ -2194,8 +2199,8 @@ mouse activation."
   (let* ((s)
          (reqkind
           (completing-read
-           "Command (TAB to see list, default Require Export) : "
-           reqkinds-kinds-table nil nil nil nil "Require Export")))
+           "Command (TAB to see list, default Require Import) : "
+           reqkinds-kinds-table nil nil nil nil "Require Import")))
     (loop do
           (setq s (completing-read "Name (empty to stop) : "
                                    (coq-build-accessible-modules-list)))
