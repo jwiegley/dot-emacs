@@ -1594,6 +1594,7 @@ The output appears in the buffer `*Async Shell Command*'."
     (bind-key "S-<f7>" 'emms-previous)
     (bind-key "S-<f8>" 'emms-pause)
     (bind-key "S-<f9>" 'emms-next)
+    (bind-key "S-<f10>" 'emms-stop)
 
     (defun emms-player-mplayer-volume-up ()
       "Depends on mplayer’s -slave mode."
