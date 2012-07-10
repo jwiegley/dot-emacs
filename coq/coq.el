@@ -676,21 +676,28 @@ If locked span already has a state number, then do nothing. Also updates
      (format (concat do " %s . ") (funcall postform cmd)))))
 
 
-(defun coq-command-with-set-unset (setcmd cmd unsetcmd &optional postformatcmd)
+(defun coq-flag-is-on-p (testcmd)
+  (proof-shell-ready-prover)
+  (proof-shell-invisible-command (format testcmd) 'wait)
+  (let ((resp proof-shell-last-response-output))
+    (string-match "is on\\>" resp))
+
+(defun coq-command-with-set-unset (setcmd cmd unsetcmd &optional postformatcmd testcmd)
   "Play commands SETCMD then CMD and then silently UNSETCMD."
-  (let* ((postform (if (eq postformatcmd nil) 'identity postformatcmd)))
-    (proof-shell-invisible-command
-     (format " %s . " (funcall postform setcmd)) 'wait)
+  (let* ((postform (if (eq postformatcmd nil) 'identity postformatcmd))
+         (flag-is-on (and testcmd (coq-flag-is-on-p testcmd))))
+    (unless flag-is-on (proof-shell-invisible-command
+                        (format " %s . " (funcall postform setcmd)) 'wait))
     (proof-shell-invisible-command
      (format " %s . " (funcall postform cmd)) 'wait)
-    (proof-shell-invisible-command-invisible-result
-     (format " %s . " (funcall postform unsetcmd)))))
+    (unless flag-is-on (proof-shell-invisible-command-invisible-result
+                        (format " %s . " (funcall postform unsetcmd))))))
 
 (defun coq-ask-do-set-unset (ask do setcmd unsetcmd
-                                 &optional dontguess postformatcmd)
+                                 &optional dontguess postformatcmd tescmd)
   "Ask for an ident id and execute command DO in SETCMD mode.
 More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
-  (let* ((cmd) (postform (if (eq postformatcmd nil) 'identity postformatcmd)))
+  (let* ((cmd) (postform (if (eq postformatcmd nil) 'identity postformatcmd tescmd)))
     (proof-shell-ready-prover)
     (setq cmd (coq-guess-or-ask-for-string ask dontguess))
     (coq-command-with-set-unset setcmd (concat do " " cmd) unsetcmd postformatcmd)))
@@ -701,14 +708,16 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
   (coq-ask-do-set-unset ask do
                         "Set Printing Implicit"
                         "Unset Printing Implicit"
-                        dontguess postformatcmd))
+                        dontguess postformatcmd
+                        "Test Printing Implicit"))
 
 (defun coq-ask-do-show-all (ask do &optional dontguess postformatcmd)
   "Ask for an ident and print the corresponding term."
   (coq-ask-do-set-unset ask do
                         "Set Printing All"
                         "Unset Printing All"
-                        dontguess postformatcmd))
+                        dontguess postformatcmd
+                        "Test Printing All"))
 
 
   ;; (let* ((cmd) (postform (if (eq postformatcmd nil) 'identity postformatcmd)))
