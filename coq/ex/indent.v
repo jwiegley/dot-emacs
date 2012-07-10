@@ -19,7 +19,7 @@ Inductive test : nat -> Prop :=
 Lemma toto:nat.
 Proof.
   {{
-     exact 3.
+      exact 3.
   }}
 Qed.
 
@@ -30,6 +30,7 @@ Module Y.
   Qed.
   Lemma L2 : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
   Proof with auto with arith.
+    idtac.
     (* "as" tactical *)
     induction x
       as
@@ -52,37 +53,37 @@ Function div2 (n : nat) {struct n}: nat :=
 Module M1.
   Module M2.
     Lemma l1: forall n:nat, n = n. 
-    auto.
+      auto.
     Qed.
     Lemma l2: forall n:nat, n = n. 
-    auto. Qed.
+      auto. Qed.
     Lemma l3: forall n:nat, n <= n. auto. Qed.
     (*   Lemma l4: forall n:nat, n <= n. Proof. intro. Qed. *)
     Lemma l5 : forall n:nat, n <= n.
     Proof. auto.
     Qed.
     Lemma l6: forall n:nat, n = n. 
-    intros.
-    Lemma l7: forall n:nat, n = n. 
-    destruct n.
-    BeginSubproof.
-      auto.
-    EndSubproof.
-    BeginSubproof.
-      destruct n.
+      intros.
+      Lemma l7: forall n:nat, n = n. 
+        destruct n.
+        BeginSubproof.
+          auto.
+        EndSubproof.
+        BeginSubproof.
+          destruct n.
+          BeginSubproof.
+            auto.
+          EndSubproof.
+          auto.
+        EndSubproof.        
+      Qed.
       BeginSubproof.
-        auto.
+        destruct n.
+        BeginSubproof.
+          auto. EndSubproof.
+        BeginSubproof. auto.
+        EndSubproof.
       EndSubproof.
-      auto.
-    EndSubproof.        
-    Qed.
-    BeginSubproof.
-      destruct n.
-      BeginSubproof.
-        auto. EndSubproof.
-      BeginSubproof. auto.
-      EndSubproof.
-    EndSubproof.
     Qed.
   End M2.
 End M1.
@@ -110,9 +111,9 @@ Module M1'.
         } 
       Qed.
       {destruct n.
-        {
-          auto. }
-        {auto. }
+       {
+         auto. }
+       {auto. }
       }
     Qed.
   End M2'.
@@ -135,8 +136,8 @@ Module M4'.
           + auto.
       Qed.
       {destruct n.
-        - auto.
-        - auto. 
+       - auto.
+       - auto. 
       }
     Qed.
   End M2'.
@@ -146,35 +147,35 @@ End M4'.
 Module M1''.
   Module M2''.
     Lemma l7: forall n:nat, n = n. 
-    destruct n.
-    { auto. }
-    { destruct n.
-      { idtac; [ auto ]. }
-      auto. } 
+      destruct n.
+      { auto. }
+      { destruct n.
+        { idtac; [ auto ]. }
+        auto. } 
     Qed.
   End M2''.
 End M1''.
 
 
 Record rec:Set := { 
-    fld1:nat;
-    fld2:nat;
-    fld3:bool
-  }.
+                   fld1:nat;
+                   fld2:nat;
+                   fld3:bool
+                 }.
 
 Class cla {X:Set}:Set := { 
-    cfld1:nat;
-    cld2:nat;
-    cld3:bool
-  }.
+                          cfld1:nat;
+                          cld2:nat;
+                          cld3:bool
+                        }.
 
 
 
 Module X.
   Lemma l :
-    forall r:rec,
-    exists r':rec,
-      r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
+  forall r:rec,
+  exists r':rec,
+    r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
   Proof.
     intros r.  
     { exists 
@@ -200,20 +201,20 @@ Module X.
   Proof.
     intros r.  
     {{
-       idtac;
-       exists 
-         {|
-           fld1:=r.(fld2);
-           fld2:=r.(fld1);
-           fld3:=false
-         |}.
-       (* ltac *)
-       match goal with
-         | _:rec |- ?a /\ ?b => split
-         | _ => fail    
-       end.
-       { simpl. auto. }
-       { simpl. auto. }}}
+        idtac;
+        exists 
+          {|
+            fld1:=r.(fld2);
+            fld2:=r.(fld1);
+            fld3:=false
+          |}.
+        (* ltac *)
+        match goal with
+          | _:rec |- ?a /\ ?b => split
+          | _ => fail    
+        end.
+        { simpl. auto. }
+        { simpl. auto. }}}
   Qed.
 End X.
 
@@ -245,13 +246,13 @@ Module foo.
     Proper (pointwise_relation A iff ==> iff) (@all A).
   
   Next Obligation.
-    Proof.
-      unfold pointwise_relation, all in * .
-      intro.
-      intros y H.    
-      intuition ; specialize (H x0) ; intuition.
-    Qed.
-    
+  Proof.
+    unfold pointwise_relation, all in * .
+    intro.
+    intros y H.    
+    intuition ; specialize (H x0) ; intuition.
+  Qed.
+  
 End foo.
 
 Require Import Sets.Ensembles.
@@ -274,25 +275,25 @@ Section SET.
     (Vector.t T n) ->  Prop :=
     match v1 with
         Vector.nil =>
-          fun v2 =>
-            match v2 with 
-                Vector.nil => True
-              | _ => False
-            end
+        fun v2 =>
+          match v2 with 
+              Vector.nil => True
+            | _ => False
+          end
       | (Vector.cons x n' v1') =>
-          fun v2 =>
-            (* indentation of dependen "match" clause. *)
-            match v2
-               as
-                 X
-               in
-                 Vector.t _ n''
-               return
-                 (Vector.t T (pred n'') -> Prop) -> Prop
-            with 
-              | Vector.nil => fun _ => False 
-              | (Vector.cons y n'' v2') => fun v2'' => (x y) /\ (v2'' v2')
-            end (setVecProd T n' v1')
+        fun v2 =>
+          (* indentation of dependen "match" clause. *)
+          match v2
+                as
+                X
+                in
+                Vector.t _ n''
+                return
+                (Vector.t T (pred n'') -> Prop) -> Prop
+          with 
+            | Vector.nil => fun _ => False 
+            | (Vector.cons y n'' v2') => fun v2'' => (x y) /\ (v2'' v2')
+          end (setVecProd T n' v1')
     end.
   
 End SET.

@@ -680,7 +680,7 @@ If locked span already has a state number, then do nothing. Also updates
   (proof-shell-ready-prover)
   (proof-shell-invisible-command (format testcmd) 'wait)
   (let ((resp proof-shell-last-response-output))
-    (string-match "is on\\>" resp))
+    (string-match "is on\\>" resp)))
 
 (defun coq-command-with-set-unset (setcmd cmd unsetcmd &optional postformatcmd testcmd)
   "Play commands SETCMD then CMD and then silently UNSETCMD."
