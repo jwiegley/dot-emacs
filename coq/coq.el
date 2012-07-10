@@ -146,7 +146,7 @@ On Windows you might need something like:
 ;;  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
-(defvar coq-shell-proof-completed-regexp "No\\s-+more\\s-+subgoals\\.\\|Subtree\\s-proved!\\|Proof\\s-completed"
+(defvar coq-shell-proof-completed-regexp "No\\s-+more\\s-+subgoals\\.\\|Subtree\\s-proved!\\|Proof\\s-completed\\|there are still unfocused goals"
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar coq-goal-regexp
@@ -1048,8 +1048,8 @@ This is specific to `coq-mode'."
    ;; FIXME: ideally, the eager annotation should just be a single "special" char,
    ;; this requires changes in Coq.
    proof-shell-eager-annotation-start 
-   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug "
-   proof-shell-eager-annotation-start-length 12
+   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|This subproof is complete, but "
+   proof-shell-eager-annotation-start-length 32
 
    proof-shell-interactive-prompt-regexp "TcDebug "
 
@@ -1057,12 +1057,12 @@ This is specific to `coq-mode'."
    ;;        want xml like tags, and I want them removed before warning display.
    ;; I want the same for errors -> pgip
 
-   proof-shell-eager-annotation-end "\377\\|done\\]\\|\\*\\*\\*\\*\\*\\*\\|) >" ; done
+   proof-shell-eager-annotation-end "\377\\|\\.\\|done\\]\\|\\*\\*\\*\\*\\*\\*\\|) >" ; done
    proof-shell-annotated-prompt-regexp coq-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
 
-   proof-shell-start-goals-regexp          "^\\(?:(dependent evars:[^)]*)\\s-+\\)?[0-9]+ subgoals?"
+   proof-shell-start-goals-regexp          "^\\(?:(dependent evars:[^)]*)\\s-+\\)?[0-9]+\\(?: focused\\)? subgoals?"
    proof-shell-end-goals-regexp
    (if coq-hide-additional-subgoals
        (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
@@ -2472,6 +2472,18 @@ buffer."
     (buffer-substring (point)
                       (progn (forward-word 1) (point)))))
 
+(defun coq-get-from-to-paren (reg)
+  "Get the word after first string matching REG in current buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (if (null (re-search-forward reg nil t)) ""
+      (goto-char (match-end 0))
+      (let ((p (point)))
+        (if (null (re-search-forward ")" nil t))
+            ""
+          (goto-char (match-beginning 0))
+          (buffer-substring p (point)))))))
+
 
 (defun coq-show-first-goal ()
   "Scroll the goal buffer so that the first goal is visible.
@@ -2492,8 +2504,9 @@ number of hypothesis displayed, without hiding the goal"
 (defvar coq-modeline-string2 ")")
 (defvar coq-modeline-string1 ")")
 (defvar coq-modeline-string0 " Script(")
-(defun coq-build-subgoals-string (n)
+(defun coq-build-subgoals-string (n s)
   (concat coq-modeline-string0 (int-to-string n)
+          "-" s
           (if (> n 1) coq-modeline-string2
             coq-modeline-string1)))
 
@@ -2501,7 +2514,9 @@ number of hypothesis displayed, without hiding the goal"
   "Modify `minor-mode-alist' to display the number of subgoals in the modeline."
   (when (and proof-goals-buffer proof-script-buffer)
     (let ((nbgoals (with-current-buffer proof-goals-buffer
-                     (string-to-number (coq-first-word-before "subgoal")))))
+                     (string-to-number (coq-first-word-before "focused\\|subgoal"))))
+          (nbunfocused (with-current-buffer proof-goals-buffer
+                         (coq-get-from-to-paren "unfocused: "))))
       (with-current-buffer proof-script-buffer
         (let ((toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
           (while toclean ;; clean minor-mode-alist
@@ -2509,7 +2524,7 @@ number of hypothesis displayed, without hiding the goal"
             (setq toclean (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)))
           (setq minor-mode-alist
                 (append (list (list 'proof-active-buffer-fake-minor-mode
-                                    (coq-build-subgoals-string nbgoals)))
+                                    (coq-build-subgoals-string nbgoals nbunfocused)))
                         minor-mode-alist)))))))
 
 
