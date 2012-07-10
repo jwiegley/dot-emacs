@@ -361,7 +361,7 @@ is:
                     (gnus-group-get-new-news gnus-activate-level))))
             (set-window-configuration win)))))
 
-    (gnus-demon-add-handler 'gnus-demon-scan-news-2 5 2)
+    ;; (gnus-demon-add-handler 'gnus-demon-scan-news-2 5 2)
 
     (defun save-gnus-newsrc ()
       (if (and (fboundp 'gnus-group-exit)
@@ -369,7 +369,9 @@ is:
           (with-current-buffer (get-buffer "*Group*")
             (gnus-save-newsrc-file))))
 
-    (gnus-demon-add-handler 'save-gnus-newsrc nil 1)))
+    (gnus-demon-add-handler 'save-gnus-newsrc nil 1)
+
+    (gnus-demon-add-handler 'gnus-demon-close-connections nil 3)))
 
 (use-package nnir
   :init
