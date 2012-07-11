@@ -56,7 +56,7 @@
 
 (setq load-path (delete-dups load-path))
 
-(require 'autoloads nil t)
+;; (require 'autoloads nil t)
 (require 'cus-load nil t)
 
 (provide 'load-path)
