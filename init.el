@@ -1001,7 +1001,7 @@
 ;;;_ , ace-jump-mode
 
 (use-package ace-jump-mode
-  :bind ("S-<return>" . ace-jump-mode))
+  :bind ("C-. C-s" . ace-jump-mode))
 
 ;;;_ , allout
 
