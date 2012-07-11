@@ -38,45 +38,6 @@ local-vars-list provides two useful functions:
 
 \\[local-vars-list-set] that writes a local variable value at the end of the file.")
 
-;;TOTO: use the code in xemacs-sources/lisp/files.el
-;; in particular the function hack-local-variables-last-page
-
-(defun local-vars-list-insert-empty-zone ()
-  "Insert an empty local variables zone at the end of the buffer.
-Indents the zone according to mode after insertion."
-  (save-excursion
-    (goto-char (point-max))
-    (let ((pt (point)))
-      (cond
-       ((not comment-start)
-	(insert
-	 "
-*** Local Variables: ***
-*** End: ***
-"
-	 ))
-
-       ((string-equal comment-end "")
-	(insert
-	 (format
-	  "
-%s** Local Variables: ***
-%s** End: ***
-"
-	  comment-start comment-start)))
-
-       (t
-	(insert
-	 (format
-	  "
-%s
-*** Local Variables: ***
-*** End: ***
-%s"
-	  comment-start comment-end))
-	))
-      (indent-region pt (point) nil)
-      (message "%s" "Local variables zone added at the end of the buffer."))))
 
 
 (defun local-vars-list-find ()
@@ -145,32 +106,13 @@ variable definition (or at the \"End:\" line)."
 
 
 
-(defun local-vars-list-set-current (val lpat rpat)
-  "Write the value val in the local variable list at current line.
-
-lpat and rpat are the suffix and prefix of the local variable list.
-
-Note: this function must be called when at the beginning of a local
-variable definition (or at the \"End:\" line)."
-  (let ((bol (save-excursion (beginning-of-line) (point)))
-	(eol (save-excursion (end-of-line) (point)))
-	(varname ""))
-    (search-forward lpat eol)
-    (re-search-forward "\\([^ :]+\\):" eol)
-    (setq varname (match-string 1))
-    (let ((boexp (point)))
-      (search-forward rpat eol)
-      (search-backward rpat bol)
-      (kill-region boexp (point))
-      (insert (format " %S " val))
-      )
-    )
-  )
-
-
 (defun local-vars-list-get (symb)
   "Return the value written in the local variable list for variable symb.
-Raises an error if symb is not in the list."
+Raises an error if symb is not in the list.
+
+Note: Using `file-local-variables-alist' is not comfortable here
+since editing by hand the file variable zone does not modify this
+alist. Proceed by looking in the file instead."
   (save-excursion
     (let*
 	((lrpat (local-vars-list-find))
@@ -195,21 +137,7 @@ current buffer."
 If the variable is already specified in the list, replace the
 value. If no local variable list is found, create one at the end
 of the buffer first."
-  (save-excursion
-    (let ((lrpat (local-vars-list-find)))
-      (if (not lrpat)
-          (progn
-            (local-vars-list-insert-empty-zone)
-            (setq lrpat (local-vars-list-find))))
-      (beginning-of-line)
-      (let ((lpat (car lrpat))
-            (rpat (car (cdr lrpat))))
-        (if (local-vars-list-goto-var symb lpat rpat)
-            (progn (beginning-of-line)
-                   (local-vars-list-set-current val lpat rpat))
-          (insert (format "%s%s: %S%s\n" lpat (symbol-name symb) val rpat))
-          (forward-line -1)
-          (indent-according-to-mode))))))
+  (add-file-local-variable symb val))
 
 
 (provide 'local-vars-list)
