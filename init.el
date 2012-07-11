@@ -2959,13 +2959,17 @@ end tell" account account start duration commodity (if cleared "true" "false")
               'le::maybe-reveal)
 
     (defun save-information ()
-      (message "Saving Emacs information...")
-      (dolist (func kill-emacs-hook)
-        (unless (memq func '(exit-gnus-on-exit server-force-stop))
-          (funcall func)))
-      (unless (or running-alternate-emacs
-                  (eq 'listen (process-status server-process)))
-        (server-start)))
+      (with-temp-message "Saving Emacs information..."
+        (recentf-cleanup)
+
+        (loop for func in kill-emacs-hook
+              unless (memq func '(exit-gnus-on-exit server-force-stop))
+              do (funcall func))
+
+        (unless (or noninteractive
+                    running-alternate-emacs
+                    (eq 'listen (process-status server-process)))
+          (server-start))))
 
     (run-with-idle-timer 300 t 'save-information)
 
