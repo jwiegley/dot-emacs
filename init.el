@@ -911,7 +911,7 @@
     (defun opencl ()
       (interactive)
       (find-file "~/src/ansi/opencl.c")
-      (find-file-noselect "~/Contracts/TI/bugslayer/cl_0603o/cl_0603o.c")
+      (find-file-noselect "~/Contracts/TI/bugslayer/cl_0603/cl_0603.c")
       (find-file-noselect "~/Contracts/TI/bugslayer")
       (magit-status "~/src/ansi")
       (gud-gdb "gdb --fullname ~/Contracts/TI/bin/c60/acpia6x"))
