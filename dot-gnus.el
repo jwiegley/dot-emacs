@@ -370,7 +370,6 @@ is:
             (gnus-save-newsrc-file))))
 
     (gnus-demon-add-handler 'save-gnus-newsrc nil 1)
-
     (gnus-demon-add-handler 'gnus-demon-close-connections nil 3)))
 
 (use-package nnir
