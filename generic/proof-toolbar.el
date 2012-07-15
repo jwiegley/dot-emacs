@@ -104,7 +104,8 @@ back the default toolbar."
   (when (proof-toolbar-available-p)
     (unless proof-toolbar-map
       (setq proof-toolbar-map (make-sparse-keymap))
-      (add-to-list 'image-load-path proof-images-directory) ; rude?
+      (if (boundp 'image-load-path)
+	  (add-to-list 'image-load-path proof-images-directory)) ; rude?
       (mapc 'proof-toolbar-make-icon (proof-ass toolbar-entries))
       (proof-toolbar-make-toolbar-items proof-toolbar-map
 					(proof-ass toolbar-entries)))
