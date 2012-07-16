@@ -243,4 +243,4 @@
 	url = https://github.com/milkypostman/melpa.git
 [submodule "site-lisp/ruby-mode"]
 	path = site-lisp/ruby-mode
-	url = http://svn.ruby-lang.org/repos/ruby/trunk/misc
+	url = http://github.com/boostpro/ruby-mode
