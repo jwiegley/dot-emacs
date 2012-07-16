@@ -241,3 +241,6 @@
 [submodule "site-lisp/melpa"]
 	path = site-lisp/melpa
 	url = https://github.com/milkypostman/melpa.git
+[submodule "site-lisp/ruby-mode"]
+	path = site-lisp/ruby-mode
+	url = http://github.com/boostpro/ruby-mode
