@@ -14,6 +14,7 @@
  '(ac-auto-start 3)
  '(ac-clang-flags (quote ("-isystem" "/usr/local/include/c++/v1" "-isystem" "/usr/local/include/boost-1_49" "-isystem" "/opt/local/include" "-I/Users/johnw/Products/ledger/debug" "-include" "/Users/johnw/Products/ledger/debug/system.hh" "-I/Users/johnw/Projects/ledger/src" "-I/Users/johnw/Projects/ledger/lib" "-I/Users/johnw/Projects/ledger/lib/utfcpp/source")))
  '(ac-comphist-file "/Users/johnw/.emacs.d/data/ac-comphist.dat")
+ '(ac-dwim nil)
  '(ac-ignore-case nil)
  '(ac-use-fuzzy nil)
  '(after-save-hook (quote (executable-make-buffer-file-executable-if-script-p)))
