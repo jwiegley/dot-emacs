@@ -52,8 +52,7 @@
       (let ((buf (get-buffer-create procname)))
         (setq fetchmail-process
               (apply #'start-process procname buf
-                     "/opt/local/bin/fetchmail" "-d" "900" "-N" "--idle"
-                     extra-args)))
+                     "/opt/local/bin/fetchmail" "-d" "900" "-N" extra-args)))
       (message "Starting Fetchmail...done"))))
 
 (defun safely-kill-process (name &optional signal verb)
@@ -94,7 +93,11 @@
 (defun switch-to-fetchmail ()
   (interactive)
   (let ((fetchmail-buf
-         (get-buffer-or-call-func "*fetchmail*" #'start-fetchmail))
+         (get-buffer-or-call-func
+          "*fetchmail*"
+          (function
+           (lambda ()
+             (start-fetchmail "*fetchmail*" "--idle")))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
