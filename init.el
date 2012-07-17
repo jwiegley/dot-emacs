@@ -397,9 +397,9 @@
 (unless noninteractive
   (if running-alternate-emacs
       (progn
-        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 537))
-        (defvar emacs-min-left 9)
-        (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 25 35))
+        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 722))
+        (defvar emacs-min-left 5)
+        (defvar emacs-min-height 25)
         (defvar emacs-min-width 80))
 
     (defvar emacs-min-top 22)
@@ -1092,7 +1092,9 @@
   :config
   (progn
     (ac-set-trigger-key "TAB")
-    (setq ac-use-menu-map t)))
+    (setq ac-use-menu-map t)
+
+    (unbind-key "C-s" ac-completing-map)))
 
 ;;;_ , autopair
 
@@ -2797,7 +2799,84 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , puppet-mode
 
 (use-package puppet-mode
-  :mode ("\\.pp\\'" . puppet-mode))
+  :mode ("\\.pp\\'" . puppet-mode)
+
+  :config
+  (progn
+    (push '(ruby-arrow
+            (regexp   . "\\(\\s-*\\)=>\\(\\s-*\\)")
+            (group    . (1 2))
+            (modes    . '(ruby-mode puppet-mode)))
+          align-rules-list)
+
+    (defvar puppet-anchor-point nil)
+
+    (defun puppet-set-anchor ()
+      (interactive)
+      (setq puppet-anchor-point (point-marker))
+      (message "puppet-mode anchor set at %s"
+               (marker-position puppet-anchor-point)))
+
+    (defun puppet-resource-beginning ()
+      (save-excursion
+        (and (re-search-backward
+              "^\\s-*\\(\\S-+\\)\\s-+{\\s-+\\([^:]+\\):" nil t)
+             (list (match-beginning 0)
+                   (match-string 1) (match-string 2)))))
+
+    (defun puppet-resource-end ()
+      (save-excursion
+        (and (re-search-forward "^\\s-*}" nil t)
+             (match-end 0))))
+
+    (defun puppet-create-require ()
+      (interactive)
+      (require 'align)
+      (if (null puppet-anchor-point)
+          (error "Anchor point has not been set")
+        (destructuring-bind (anchored-start resource name)
+            (save-excursion
+              (goto-char puppet-anchor-point)
+              (puppet-resource-beginning))
+          (save-excursion
+            (let ((beginning (car (puppet-resource-beginning)))
+                  (end (puppet-resource-end)))
+              (goto-char end)
+              (backward-char)
+              (let ((current-requires
+                     (when (re-search-backward
+                            "^\\s-*require\\s-*=>\\s-*" beginning t)
+                       (let ((start (match-beginning 0))
+                             (beg (match-end 0)))
+                         (if (looking-at "\\[")
+                             (forward-sexp))
+                         (re-search-forward "\\([,;]\\)?[ \t]*\n")
+                         (prog1
+                             (buffer-substring-no-properties
+                              beg (match-beginning 0))
+                           (delete-region start (point)))))))
+                (save-excursion
+                  (skip-chars-backward " \t\n\r")
+                  (when (looking-back ";")
+                    (delete-backward-char 1)
+                    (insert ?,)))
+                (insert "  require => ")
+                (if current-requires
+                    (insert "[ " current-requires ", "))
+                (insert (capitalize (substring resource 0 1))
+                        (substring resource 1) "[" name "]")
+                (if current-requires
+                    (insert " ]"))
+                (insert ";\n")
+                (mark-paragraph)
+                (align-code (region-beginning) (region-end))))))))
+
+    ;; (define-key puppet-mode-map [(control ?x) ? ] 'puppet-set-anchor)
+    ;; (define-key puppet-mode-map [(control ?x) space] 'puppet-set-anchor)
+    ;; (define-key puppet-mode-map [(control ?c) (control ?r)] 'puppet-create-require)
+
+    (bind-key "C-x SPC" 'puppet-set-anchor puppet-mode-map)
+    (bind-key "C-c C-r" 'puppet-create-require puppet-mode-map)))
 
 ;;;_ , python-mode
 
@@ -3118,6 +3197,7 @@ end tell" account account start duration commodity (if cleared "true" "false")
 ;;;_ , sunrise-commander
 
 (use-package sunrise-commander
+  :disabled t
   :commands (sunrise sunrise-cd)
   :init
   (progn
@@ -3253,7 +3333,9 @@ This mode is used for editing .td files in the LLVM/Clang source code."
 
 (use-package w3m
   :commands w3m-search
-  :bind ("C-. u" . w3m-browse-url)
+  :bind (("C-. u"   . w3m-browse-url)
+         ("C-. U"   . w3m-browse-url-new-session)
+         ("C-. A-u" . w3m-browse-chrome-url-new-session))
   :init
   (progn
     (setq w3m-command "/opt/local/bin/w3m")
@@ -3286,6 +3368,20 @@ This mode is used for editing .td files in the LLVM/Clang source code."
     (defun goto-emacswiki ()
       (interactive)
       (w3m-browse-url "http://www.emacswiki.org"))
+
+    (defun w3m-browse-url-new-session (url)
+      (interactive (progn
+                     (require 'browse-url)
+                     (browse-url-interactive-arg "Emacs-w3m URL: ")))
+      (w3m-browse-url url t))
+
+    (defun w3m-browse-chrome-url-new-session ()
+      (interactive)
+      (let ((url (do-applescript
+                  (string-to-multibyte "tell application \"Google Chrome\"
+        URL of active tab of front window
+end tell"))))
+        (w3m-browse-url (substring url 1 (1- (length url))) t)))
 
     (bind-key "A-M-e" 'goto-emacswiki)
     (bind-key "A-M-g" 'w3m-search)
