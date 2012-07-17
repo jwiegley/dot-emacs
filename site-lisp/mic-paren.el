@@ -3,10 +3,11 @@
 ;;; Copyright (C) 2008, 2012 Thien-Thi Nguyen
 ;;; Copyright (C) 1997 Mikael Sjödin (mic@docs.uu.se)
 
-;; Version: 3.9
-;; Released: 2012-04-08
+;; Version: 3.10
+;; Released: 2012-07-16
 ;; Author: Mikael Sjödin (mic@docs.uu.se)
 ;;         Klaus Berndl  <berndl@sdm.de>
+;;         Jonathan Kotta <jpkotta@gmail.com>
 ;; Maintainer: ttn
 ;; Keywords: languages, faces, parenthesis, matching
 ;;
@@ -130,6 +131,7 @@
 ;; - `paren-message-no-match'
 ;; - `paren-message-show-linenumber'
 ;; - `paren-message-truncate-lines'
+;; - `paren-max-message-length'
 ;; - `paren-ding-unmatched'
 ;; - `paren-delay'
 ;; - `paren-dont-touch-blink'
@@ -167,6 +169,9 @@
 ;;
 ;; ----------------------------------------------------------------------
 ;; Versions:
+;; v3.10   + Added message-length clamping (var `paren-max-message-length').
+;;           Thanks to Jonathan Kotta.
+;;
 ;; v3.9    + Fixed XEmacs bug in `define-mic-paren-nolog-message'.
 ;;           Thanks to Sivaram Neelakantan.
 ;;
@@ -306,7 +311,7 @@
 
 ;;; Code:
 
-(defvar mic-paren-version "3.9"
+(defvar mic-paren-version "3.10"
   "Version of mic-paren.")
 
 (eval-when-compile (require 'cl))
@@ -452,6 +457,13 @@ absolute -- Display the absolute linenumber of the machting paren computed
   "*Non nil means truncate lines for all messages mic-paren can display.
 This option has only an effect with GNU Emacs 21.x!"
   :type 'boolean
+  :group 'mic-paren-matching)
+
+(defcustom paren-max-message-length 0
+  "*If positive, the max length `mic-paren-nolog-message' should output.
+The length is reduced by removing the middle section of the message.
+A value of zero means do not modify the message."
+  :type 'integer
   :group 'mic-paren-matching)
 
 (defcustom paren-ding-unmatched nil
@@ -666,17 +678,36 @@ mode hook, e.g.:
     (fset 'mic-cancel-timer 'cancel-timer)
     (fset 'mic-run-with-idle-timer 'run-with-idle-timer)))
 
+(defun paren-clamp-string-maybe (str)
+  "Remove the middle of STR if it exceeds `paren-max-message-length'.
+However, if STR is `nil' or `paren-max-message-length' is zero,
+simply return STR."
+  (if (or (not str) (zerop paren-max-message-length))
+      str
+    (let ((len (string-width str)))
+      (if (<= len paren-max-message-length)
+          str
+        (let* ((sep "[...]")
+               (cut (ash (- paren-max-message-length
+                            (string-width sep))
+                         -1)))
+          (concat (substring str 0 cut)
+                  sep
+                  (substring str (- len cut))))))))
+
 (eval-when-compile
   (defmacro define-mic-paren-nolog-message (yes no)
     `(defun mic-paren-nolog-message (&rest args)
-       "Work exactly like `message' but without logging."
-       (let ((msg (cond ((or (null args)
-                             (null (car args)))
-                         nil)
-                        ((null (cdr args))
-                         (car args))
-                        (t
-                         (apply 'format args)))))
+       "Work like `message' but without logging.
+See variable `paren-max-message-length'."
+       (let ((msg (paren-clamp-string-maybe
+                   (cond ((or (null args)
+                              (null (car args)))
+                          nil)
+                         ((null (cdr args))
+                          (car args))
+                         (t
+                          (apply 'format args))))))
          (if msg ,yes ,no)
          msg))))
 
