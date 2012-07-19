@@ -2358,8 +2358,16 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
+(define-key coq-goals-mode-map [?r] 'proof-store-response-win)
+(define-key coq-goals-mode-map [?g] 'proof-store-goals-win)
 ;; Window auto-resize makes this bug sometimes. Too bad!.
-;; (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?r)] 'proof-store-response-win)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?g)] 'proof-store-goals-win)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
@@ -2561,21 +2569,28 @@ Only when three-buffer-mode is enabled."
              (get-buffer-window proof-response-buffer))
     (let (;; maxhgth is the max height of both resp and goals buffers to avoid
           ;; make the other disappear
-          (maxhgth (- (window-height) window-min-height))
+          (maxhgth (with-selected-window (get-buffer-window proof-script-buffer)
+                       (- (window-height) window-min-height)))
           hgt-resp nline-resp)
       (with-selected-window (get-buffer-window proof-response-buffer)
         (setq hgt-resp (window-height))
-        (setq nline-resp ; number of lines we want for response buffer
-              (min maxhgth (max window-min-height ; + 1 here for comfort
-                                (+ 1 (count-lines (point-max) (point-min))))))
+        (with-current-buffer proof-response-buffer
+          (setq nline-resp ; number of lines we want for response buffer
+                (min maxhgth (max window-min-height ; + 1 here for comfort
+                                  (+ 1 (count-lines (point-max) (point-min)))))))
         (unless (is-not-split-vertic (selected-window))
           (shrink-window (- hgt-resp nline-resp)))
-        (goto-char (point-min))
-        (recenter)
-      ))))
+        (with-current-buffer proof-response-buffer
+          (goto-char (point-min))
+          (recenter))
+        ))))
+
+
 
 ;; TODO: I would rather have a response-insert-hook thant this two hooks
-;; Careful: optim-resp-windows must be called AFTER proof-show-first-goal
+;; Careful: optim-resp-windows must be called BEFORE proof-show-first-goal,
+;; i.e. added in hook AFTER it.
+
 ;; Adapt when displaying a normal message
 (add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
 ;; Adapt when displaying an error or interrupt
