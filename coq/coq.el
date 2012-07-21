@@ -146,11 +146,11 @@ On Windows you might need something like:
 ;;  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
-(defvar coq-shell-proof-completed-regexp "No\\s-+more\\s-+subgoals\\.\\|Subtree\\s-proved!\\|Proof\\s-completed\\|there are still unfocused goals"
+(defvar coq-shell-proof-completed-regexp "No\\s-+more\\s-+subgoals\\.\\|Subtree\\s-proved!\\|Proof\\s-completed"; \\|This subproof is complete
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar coq-goal-regexp
-  "\\(============================\\)\\|\\(subgoal [0-9]+ is:\\)\n")
+  "\\(============================\\)\\|\\(subgoal [0-9]+\\)\n")
 
 
 
@@ -1048,7 +1048,7 @@ This is specific to `coq-mode'."
    ;; FIXME: ideally, the eager annotation should just be a single "special" char,
    ;; this requires changes in Coq.
    proof-shell-eager-annotation-start 
-   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|This subproof is complete, but "
+   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>"
    proof-shell-eager-annotation-start-length 32
 
    proof-shell-interactive-prompt-regexp "TcDebug "
@@ -1057,12 +1057,13 @@ This is specific to `coq-mode'."
    ;;        want xml like tags, and I want them removed before warning display.
    ;; I want the same for errors -> pgip
 
-   proof-shell-eager-annotation-end "\377\\|\\.\\|done\\]\\|\\*\\*\\*\\*\\*\\*\\|) >" ; done
+   proof-shell-eager-annotation-end "\377\\|\\.\\|done\\]\\|</infomsg>\\|\\*\\*\\*\\*\\*\\*\\|) >" ; done
    proof-shell-annotated-prompt-regexp coq-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
 
-   proof-shell-start-goals-regexp          "^\\(?:(dependent evars:[^)]*)\\s-+\\)?[0-9]+\\(?: focused\\)? subgoals?"
+;   proof-shell-start-goals-regexp          "^\\(?:(dependent evars:[^)]*)\\s-+\\)?[0-9]+\\(?: focused\\)? subgoals?"
+   proof-shell-start-goals-regexp          "[0-9]+\\(?: focused\\)? subgoals?"
    proof-shell-end-goals-regexp
    (if coq-hide-additional-subgoals
        (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
