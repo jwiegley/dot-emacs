@@ -75,21 +75,23 @@
   (coq-install-abbrevs))
 ;;;;;
 
-;; The coq menu mainly built from tables
+;; The coq menu partly built from tables
 
-(defpgdefault menu-entries
+;; Common part (scrit, response and goals buffers)
+(defconst coq-menu-common-entries
   `(
     ["Toggle 3 windows mode" proof-three-window-toggle t]
+    ["Refresh windows layout" proof-layout-windows t]
     ["Toggle tooltips" proof-output-tooltips-toggle
      :style toggle
      :selected proof-output-tooltips
      :help "Toggles tooltips (popup when hovering commands).\nSet `proof-output-tooltips' to nil to disable it by default."]
-     ""
-    ["Print..." coq-Print t]
-    ["Check..." coq-Check t]
-    ["About..." coq-About t]
-    [ "Store response" proof-store-response-win t]
-    [ "Store goal" proof-store-goals-win t]
+    ""
+    ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
+    ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]
+    ["About..." coq-About :help "With prefix arg (C-u): Set Printing All first"]
+    [ "Store response" proof-store-response-win :help "Stores the content of response buffer in a dedicated buffer"]
+    [ "Store goal" proof-store-goals-win  :help "Stores the content of goals buffer in a dedicated buffer"]
     ("OTHER QUERIES"
      ["Print Hint" coq-PrintHint t]
      ["Show ith goal..." coq-Show t]
@@ -99,13 +101,15 @@
      ["Show Proof" coq-show-proof t]
      ["Show Conjectures" coq-show-conjectures t];; maybe not so useful with editing in PG?
      ""
-     ["Print..." coq-Print t]
+     ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
      ["Print... (show implicits)" coq-Print-with-implicits t]
      ["Print... (show all)" coq-Print-with-all t]
-     ["Check..." coq-Check t]
+     ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]
      ["Check (show implicits)..." coq-Check-show-implicits t]
      ["Check (show all)..." coq-Check-show-all t]
-     ["About..." coq-About t]
+     ["About..." coq-About :help "With prefix arg (C-u): Set Printing All first"]
+     ["About...(show implicits)" coq-About-with-implicits t]
+     ["About...(show all)" coq-About-with-all t]
      ["Search..." coq-SearchConstant t]
      ["SearchRewrite..." coq-SearchRewrite t]
      ["SearchAbout..." coq-SearchAbout t]
@@ -118,9 +122,12 @@
      ""
      ["Locate notation..." coq-LocateNotation t]
      ["Print Implicit..." coq-Print t]
-     ["Print Scope/Visibility..." coq-PrintScope t]
-     )
-     ""
+     ["Print Scope/Visibility..." coq-PrintScope t])))
+
+(defpgdefault menu-entries
+  (append coq-menu-common-entries
+  `(
+    ""
     ("INSERT"
      ["Intros (smart)" coq-insert-intros :help "Insert \"intros h1 .. hn.\" where hi are the default names given by Coq."]
      ""
@@ -149,12 +156,14 @@
     ("COQ PROG (ARGS)"
      ["Set coq prog *persistently*" coq-ask-insert-coq-prog-name t]
      ["help on setting persistently" coq-local-vars-list-show-doc t]
-     ["Compile" coq-Compile t])
-    ))
+     ["Compile" coq-Compile t]))))
 
 (defpgdefault help-menu-entries
   '(["help on setting prog name persistently for a file" 
      coq-local-vars-list-show-doc t]))
+
+(defpgdefault other-buffers-menu-entries coq-menu-common-entries)
+
 
 
 (provide 'coq-abbrev)

@@ -766,10 +766,13 @@ This is specific to `coq-mode'."
    "SearchAbout (ex: \"eq_\" eq -bool)"
    "SearchAbout" nil 'coq-put-into-brackets))
 
-(defun coq-Print ()
-  "Ask for an ident and print the corresponding term."
-  (interactive)
-  (coq-ask-do "Print" "Print"))
+(defun coq-Print (withprintingall)
+  "Ask for an ident and print the corresponding term.
+With flag Printing All if some prefix arg is given (C-u)."
+  (interactive "P")
+  (if withprintingall
+      (coq-ask-do-show-all "Print" "Print")
+    (coq-ask-do "Print" "Print")))
 
 (defun coq-Print-with-implicits ()
   "Ask for an ident and print the corresponding term."
@@ -781,10 +784,23 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do-show-all "Print" "Print"))
 
-(defun coq-About ()
+(defun coq-About (withprintingall)
+  "Ask for an ident and print information on it."
+  (interactive "P")
+  (if withprintingall
+      (coq-ask-do-show-all "About" "About")
+    (coq-ask-do "About" "About")))
+
+(defun coq-About-with-implicits ()
   "Ask for an ident and print information on it."
   (interactive)
-  (coq-ask-do "About" "About"))
+  (coq-ask-do-show-implicits "About" "About"))
+
+(defun coq-About-with-all ()
+  "Ask for an ident and print information on it."
+  (interactive)
+  (coq-ask-do-show-all "About" "About"))
+
 
 (defun coq-LocateConstant ()
   "Locate a constant."
@@ -822,10 +838,13 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do "Print Implicit" "Print Implicit"))
 
-(defun coq-Check ()
-  "Ask for a term and print its type."
-  (interactive)
-  (coq-ask-do "Check" "Check"))
+(defun coq-Check (withprintingall)
+  "Ask for a term and print its type.
+With flag Printing All if some prefix arg is given (C-u)."
+  (interactive "P")
+  (if withprintingall
+      (coq-ask-do-show-all "Check" "Check")
+    (coq-ask-do "Check" "Check")))
 
 (defun coq-Check-show-implicits ()
   "Ask for a term and print its type."
@@ -837,10 +856,13 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do-show-all "Check" "Check"))
 
-(defun coq-Show ()
-  "Ask for a number i and show the ith goal."
-  (interactive)
-  (coq-ask-do "Show goal number" "Show" t))
+(defun coq-Show (withprintingall)
+  "Ask for a number i and show the ith goal.
+With flag Printing All if some prefix arg is given (C-u)."
+  (interactive "P")
+  (if withprintingall
+      (coq-ask-do-show-all "Show goal number" "Show" t)
+    (coq-ask-do "Show goal number" "Show" t)))
 
 (defun coq-Show-with-implicits ()
   "Ask for a number i and show the ith goal."
@@ -988,6 +1010,11 @@ This is specific to `coq-mode'."
   ;; span menu
   (setq proof-script-span-context-menu-extensions 'coq-create-span-menu)
 
+  ;; General consensus among users: flickering spans are much too annoying
+  ;; compared to the usefulness of tooltips.
+  ;; Set to t to bring it back
+  (setq proof-output-tooltips nil)
+
   (setq proof-shell-start-silent-cmd "Set Silent. "
         proof-shell-stop-silent-cmd "Unset Silent. ")
 
@@ -1104,6 +1131,21 @@ This is specific to `coq-mode'."
    )
         
   (proof-shell-config-done))
+
+
+
+(proof-eval-when-ready-for-assistant
+    (easy-menu-define proof-goals-mode-aux-menu
+      proof-goals-mode-map
+      "Menu for Proof General goals buffer."
+      (cons "Coq" coq-other-buffers-menu-entries)))
+
+(proof-eval-when-ready-for-assistant
+    (easy-menu-define proof-goals-mode-aux-menu
+      proof-response-mode-map
+      "Menu for Proof General response buffer."
+      (cons "Coq" coq-other-buffers-menu-entries)))
+
 
 (defun coq-goals-mode-config ()
   (setq pg-goals-change-goal "Show %s . ")
@@ -2326,25 +2368,23 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
   (interactive)
   (coq-insert-from-db coq-terms-db "Kind of term"))
 
+;; Insertion commands
 (define-key coq-keymap [(control ?i)] 'coq-insert-intros)
 (define-key coq-keymap [(control ?m)] 'coq-insert-match)
 (define-key coq-keymap [(control ?()] 'coq-insert-section-or-module)
 (define-key coq-keymap [(control ?))] 'coq-end-Section)
-(define-key coq-keymap [(control ?s)] 'coq-Show)
 (define-key coq-keymap [(control ?t)] 'coq-insert-tactic)
 (define-key coq-keymap [?t] 'coq-insert-tactical)
-(define-key coq-keymap [?r] 'proof-store-response-win)
-(define-key coq-keymap [?g] 'proof-store-goals-win)
-
 (define-key coq-keymap [?!] 'coq-insert-solve-tactic) ; will work in tty
-
 (define-key coq-keymap [(control ?\s)] 'coq-insert-term)
 (define-key coq-keymap [(control return)] 'coq-insert-command)
-
-
 (define-key coq-keymap [(control ?r)] 'coq-insert-requires)
-(define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 
+; Query commands
+(define-key coq-keymap [(control ?s)] 'coq-Show)
+(define-key coq-keymap [?r] 'proof-store-response-win)
+(define-key coq-keymap [?g] 'proof-store-goals-win)
+(define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
 (define-key coq-keymap [(control ?a)] 'coq-SearchAbout)
@@ -2353,22 +2393,32 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
 
+;(proof-eval-when-ready-for-assistant
+; (define-key ??? [(control c) (control a)] (proof-ass keymap)))
+
+;(proof-eval-when-ready-for-assistant
+; (define-key ??? [(control c) (control a)] (proof-ass keymap)))
 
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
-(define-key coq-goals-mode-map [?r] 'proof-store-response-win)
-(define-key coq-goals-mode-map [?g] 'proof-store-goals-win)
-;; Window auto-resize makes this bug sometimes. Too bad!.
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?s)] 'coq-Show)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)?r] 'proof-store-response-win)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)?g] 'proof-store-goals-win)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
+
+
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?p)] 'coq-Print)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?s)] 'coq-Show)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?r)] 'proof-store-response-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?g)] 'proof-store-goals-win)
+(define-key coq-response-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
