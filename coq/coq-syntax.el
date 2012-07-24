@@ -328,7 +328,7 @@
   "Coq tactic(al)s that solve a subgoal."
   )
 
-(setq develock-coq-font-lock-keywords
+(defvar develock-coq-font-lock-keywords
   '((develock-find-long-lines
      (1 'develock-long-line-1 t)
      (2 'develock-long-line-2 t))

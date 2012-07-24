@@ -29,10 +29,32 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** Support proof-tree visualization
 
-*** Indentation improvements using SMIE
-    Still experimental.
+*** New commands for Print/Check/About/Show with "Printing All" flag
+    Avoids typing "Printing All" in the buffer. See the menu Coq >
+    Other queries. Thanks to Assia Mahboubi and Frederic Chyzak for
+    the suggestion.
+    Shortcut: add C-u before the usual shortcut
+     (example: C-u C-c C-a C-c for:
+     	        Set Printing All.
+		Check.
+		Unset Printing All. )
 
-****  Limitations:
+*** Coq menu visible in Response and goals buffers.
+    Shortcuts available too (Check, Print etc.) in response and goals
+    buffers.
+
+*** Tooltips hidden by default
+    Flickering when hovering commands is off by default!
+
+*** "Insert Requires" now uses completion based on coq-load-path
+
+*** New setting for hiding additional goals from the *goals* buffer
+    Coq > Settings > Hide additional subgoals
+
+*** Indentation improvements using SMIE. Supporting bullets and { }.
+    Still experimental. Please submit bugs.
+
+****  Limitations of indentation:
 
 ***** hard-wired precedence between bullets: - < + < *
      example:
@@ -51,12 +73,7 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
       always introduce a proof with "Proof." (or "Next Obligation").
 
 *** Minor parsing fixes
-
-*** New setting for hiding additional goals from the *goals* buffer
-
-*** New commands for Print/Check/Show with Printing All flag
-
-*** "Insert Requires" now uses completion based on coq-load-path
+*** Windows resizing fixed
 
 ** HOL Light  [WORK IN PROGRESS]
 

@@ -14,20 +14,23 @@
 ;; - We identify the different types of bullets (First approximation).
 ;; - We distinguish "with match" from other "with".
 
-(setq coq-smie-dot-friends '("*." "-*." "|-*." "*|-*."))
+(require 'coq-indent)
+(require 'smie)
+
+(defconst coq-smie-dot-friends '("*." "-*." "|-*." "*|-*."))
 
 ; for debuging
 (defun coq-time-indent ()
   (interactive)
-  (let ((deb (time-to-seconds)))
+  (let ((deb (float-time)))
     (smie-indent-line)
-    (message "time: %S"(- (time-to-seconds) deb))))
+    (message "time: %S"(- (float-time) deb))))
 
 (defun coq-time-indent-region (beg end)
   (interactive "r")
-  (let ((deb (time-to-seconds)))
+  (let ((deb (float-time)))
     (indent-region beg end nil)
-    (message "time: %S"(- (time-to-seconds) deb))))
+    (message "time: %S"(- (float-time) deb))))
 
 
 
@@ -131,9 +134,9 @@ command (and inside parenthesis)."
 			 (coq-smie-search-token-forward
 			  (append parops (cons "." nil))
 			  end ignore-between)
-			 (cons "." nil))) ;coq-smie-dot-friends
+			 (cons "." nil)) ;coq-smie-dot-friends
 		  (goto-char (point))
-		  next)
+		  next))
 	      ;; Do not consider "." when not followed by a space
 	      (when (or (not (equal next "."))
 			(looking-at "[[:space:]]"))
@@ -656,18 +659,19 @@ Lemma foo: forall n,
 ; To show the bug. Comment this and then try to indent the following:
 ; Module X.
 ; Module Y. <-- here -->  Error: (wrong-type-argument integer-or-marker-p nil)
-(defun smie-indent--parent ()
-  (or smie--parent
-      (save-excursion
-	(let* ((pos (point))
-	       (tok (funcall smie-forward-token-function)))
-	  (unless (numberp (cadr (assoc tok smie-grammar)))
-	    (goto-char pos))
-	  (setq smie--parent
-		(or (smie-backward-sexp 'halfsexp)
-		    (let (res)
-		      (while (null (setq res (smie-backward-sexp))))
-		      (list nil (point) (nth 2 res)))))))))
+; No need anymore?
+;; (defun smie-indent--parent ()
+;;   (or smie--parent
+;;       (save-excursion
+;; 	(let* ((pos (point))
+;; 	       (tok (funcall smie-forward-token-function)))
+;; 	  (unless (numberp (cadr (assoc tok smie-grammar)))
+;; 	    (goto-char pos))
+;; 	  (setq smie--parent
+;; 		(or (smie-backward-sexp 'halfsexp)
+;; 		    (let (res)
+;; 		      (while (null (setq res (smie-backward-sexp))))
+;; 		      (list nil (point) (nth 2 res)))))))))
 
 (defun coq-smie-rules (kind token)
   "Indentation rules for Coq.  See `smie-rules-function'.
