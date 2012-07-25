@@ -1084,7 +1084,7 @@ With flag Printing All if some prefix arg is given (C-u)."
    ;;        want xml like tags, and I want them removed before warning display.
    ;; I want the same for errors -> pgip
 
-   proof-shell-eager-annotation-end "\377\\|\\.\\|done\\]\\|</infomsg>\\|\\*\\*\\*\\*\\*\\*\\|) >" ; done
+   proof-shell-eager-annotation-end "\377\\|done\\]\\|</infomsg>\\|\\*\\*\\*\\*\\*\\*\\|) >" ; done
    proof-shell-annotated-prompt-regexp coq-shell-prompt-pattern
    proof-shell-result-start "\372 Pbp result \373"
    proof-shell-result-end "\372 End Pbp result \373"
