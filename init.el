@@ -700,6 +700,24 @@
          ("\\.mm\\'"                  . c++-mode))
   :init
   (progn
+    (defun llvm-info ()
+      (interactive)
+      (w3m-find-file "/usr/local/stow/clang-3.1/docs/llvm/html/doxygen/classllvm_1_1IRBuilder.html"))
+
+    (defun my-paste-as-check ()
+      (interactive)
+      (save-excursion
+        (insert "/*\n")
+        (let ((beg (point)) end)
+          (yank)
+          (setq end (point-marker))
+          (goto-char beg)
+          (while (< (point) end)
+            (forward-char 2)
+            (insert "CHECK: ")
+            (forward-line 1)))
+        (insert "*/\n")))
+
     (defun my-c-indent-or-complete ()
       (interactive)
       (let ((class (syntax-class (syntax-after (1- (point))))))
@@ -762,6 +780,7 @@
 
       (unbind-key "M-j" c-mode-base-map)
       (bind-key "C-c C-i" 'c-includes-current-file c-mode-base-map)
+      (bind-key "C-c C-y" 'my-paste-as-check c-mode-base-map)
 
       (set (make-local-variable 'parens-require-spaces) nil)
       (setq indicate-empty-lines t)
@@ -775,10 +794,12 @@
            ((string-match "/ledger/" bufname)
             (c-set-style "ledger"))
            ((string-match "/ansi/" bufname)
-            (c-set-style "edg")
+            (c-set-style "ti")
             (substitute-key-definition 'fill-paragraph 'ti-refill-comment
                                        c-mode-base-map global-map)
             (bind-key "M-q" 'ti-refill-comment c-mode-base-map))
+           ((string-match "/edg/" bufname)
+            (c-set-style "edg"))
            (t
             (c-set-style "clang")))))
 
@@ -828,7 +849,7 @@
           (semanticdb-enable-gnu-global-databases 'c++-mode))))
 
     (add-to-list 'c-style-alist
-                 '("edg"
+                 '("ti"
                    (indent-tabs-mode . nil)
                    (c-basic-offset . 3)
                    (c-comment-only-line-offset . (0 . 0))
@@ -846,6 +867,33 @@
                        (statement-cont . +)
                        (arglist-intro . c-lineup-arglist-intro-after-paren)
                        (arglist-close . c-lineup-arglist)
+                       (inline-open . 0)
+                       (brace-list-open . 0)
+                       (topmost-intro-cont
+                        . (first c-lineup-topmost-intro-cont
+                                 c-lineup-gnu-DEFUN-intro-cont))))
+                   (c-special-indent-hook . c-gnu-impose-minimum)
+                   (c-block-comment-prefix . "")))
+
+    (add-to-list 'c-style-alist
+                 '("edg"
+                   (indent-tabs-mode . nil)
+                   (c-basic-offset . 2)
+                   (c-comment-only-line-offset . (0 . 0))
+                   (c-hanging-braces-alist
+                    . ((substatement-open before after)
+                       (arglist-cont-nonempty)))
+                   (c-offsets-alist
+                    . ((statement-block-intro . +)
+                       (knr-argdecl-intro . 5)
+                       (substatement-open . 0)
+                       (substatement-label . 0)
+                       (label . 0)
+                       (case-label . +)
+                       (statement-case-open . 0)
+                       (statement-cont . +)
+                       (arglist-intro . +)
+                       (arglist-close . +)
                        (inline-open . 0)
                        (brace-list-open . 0)
                        (topmost-intro-cont
@@ -1238,6 +1286,7 @@
 ;;;_ , bbdb
 
 (use-package bbdb-com
+  :commands bbdb-create
   :bind ("M-B" . bbdb))
 
 ;;;_ , bm
@@ -1839,14 +1888,16 @@ FORM => (eval FORM)."
                                                  default)
                                          (+ 24 (length default)))
                                    'grep-find-history))))
-      (when command-args
-        (let ((null-device nil))        ; see grep
-          (grep command-args))))
+      (if command-args
+          (let ((null-device nil))      ; see grep
+            (grep command-args))))
 
     (bind-key "M-s p" 'find-grep-in-project))
 
   :config
   (progn
+    (use-package grep-ed)
+
     (grep-apply-setting 'grep-command "egrep -nH -e ")
     (grep-apply-setting
      'grep-find-command
@@ -1920,12 +1971,33 @@ FORM => (eval FORM)."
     (use-package hs-lint)
 
     (use-package ghc
+      :disabled t
       :commands ghc-init
       :init
       (add-hook 'haskell-mode-hook 'ghc-init))
 
+    (use-package scion
+      :disabled t
+      :load-path "site-lisp/scion/emacs"
+      :init
+      (progn
+        ;; if ./cabal/bin is not in your $PATH
+        (setq scion-program (expand-file-name "~/.cabal/bin/scion-server"))
+
+        ;; Use ido-mode completion (matches anywhere, not just beginning)
+        ;;
+        ;; WARNING: This causes some versions of Emacs to fail so badly that
+        ;; Emacs needs to be restarted.
+        (setq scion-completing-read-function 'ido-completing-read)))
+
     (defun my-haskell-mode-hook ()
       (setq haskell-saved-check-command haskell-check-command)
+
+      ;; Whenever we open a file in Haskell mode, also activate Scion
+      (scion-mode 1)
+      ;; Whenever a file is saved, immediately type check it and highlight
+      ;; errors/warnings in the source.
+      (scion-flycheck-on-save 1)
 
       (bind-key "C-c w" 'flymake-display-err-menu-for-current-line
                 haskell-mode-map)
@@ -2800,83 +2872,8 @@ end tell" account account start duration commodity (if cleared "true" "false")
 
 (use-package puppet-mode
   :mode ("\\.pp\\'" . puppet-mode)
-
   :config
-  (progn
-    (push '(ruby-arrow
-            (regexp   . "\\(\\s-*\\)=>\\(\\s-*\\)")
-            (group    . (1 2))
-            (modes    . '(ruby-mode puppet-mode)))
-          align-rules-list)
-
-    (defvar puppet-anchor-point nil)
-
-    (defun puppet-set-anchor ()
-      (interactive)
-      (setq puppet-anchor-point (point-marker))
-      (message "puppet-mode anchor set at %s"
-               (marker-position puppet-anchor-point)))
-
-    (defun puppet-resource-beginning ()
-      (save-excursion
-        (and (re-search-backward
-              "^\\s-*\\(\\S-+\\)\\s-+{\\s-+\\([^:]+\\):" nil t)
-             (list (match-beginning 0)
-                   (match-string 1) (match-string 2)))))
-
-    (defun puppet-resource-end ()
-      (save-excursion
-        (and (re-search-forward "^\\s-*}" nil t)
-             (match-end 0))))
-
-    (defun puppet-create-require ()
-      (interactive)
-      (require 'align)
-      (if (null puppet-anchor-point)
-          (error "Anchor point has not been set")
-        (destructuring-bind (anchored-start resource name)
-            (save-excursion
-              (goto-char puppet-anchor-point)
-              (puppet-resource-beginning))
-          (save-excursion
-            (let ((beginning (car (puppet-resource-beginning)))
-                  (end (puppet-resource-end)))
-              (goto-char end)
-              (backward-char)
-              (let ((current-requires
-                     (when (re-search-backward
-                            "^\\s-*require\\s-*=>\\s-*" beginning t)
-                       (let ((start (match-beginning 0))
-                             (beg (match-end 0)))
-                         (if (looking-at "\\[")
-                             (forward-sexp))
-                         (re-search-forward "\\([,;]\\)?[ \t]*\n")
-                         (prog1
-                             (buffer-substring-no-properties
-                              beg (match-beginning 0))
-                           (delete-region start (point)))))))
-                (save-excursion
-                  (skip-chars-backward " \t\n\r")
-                  (when (looking-back ";")
-                    (delete-backward-char 1)
-                    (insert ?,)))
-                (insert "  require => ")
-                (if current-requires
-                    (insert "[ " current-requires ", "))
-                (insert (capitalize (substring resource 0 1))
-                        (substring resource 1) "[" name "]")
-                (if current-requires
-                    (insert " ]"))
-                (insert ";\n")
-                (mark-paragraph)
-                (align-code (region-beginning) (region-end))))))))
-
-    ;; (define-key puppet-mode-map [(control ?x) ? ] 'puppet-set-anchor)
-    ;; (define-key puppet-mode-map [(control ?x) space] 'puppet-set-anchor)
-    ;; (define-key puppet-mode-map [(control ?c) (control ?r)] 'puppet-create-require)
-
-    (bind-key "C-x SPC" 'puppet-set-anchor puppet-mode-map)
-    (bind-key "C-c C-r" 'puppet-create-require puppet-mode-map)))
+  (use-package puppet-ext))
 
 ;;;_ , python-mode
 

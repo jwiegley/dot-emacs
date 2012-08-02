@@ -14,8 +14,8 @@
  '(gnus-agent-synchronize-flags t)
  '(gnus-alias-default-identity "Gmail")
  '(gnus-alias-identity-alist (quote (("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "") ("BoostPro" "" "\"John Wiegley\" <johnw@boostpro.com>" "BoostPro Computing, Inc." nil "" "John Wiegley
-BoostPro Computing
-http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" ""))))
+BoostPro Computing                  Software Development        Training
+http://www.boostpro.com             Clang/LLVM/EDG Compilers  C++  Boost") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" ""))))
  '(gnus-alias-identity-rules (quote (("Ledger Mailing List" ("To" "ledger-cli@googlegroups\\.com" current) "NewArtisans") ("Emacs Mailing Lists" ("To" "emacs" current) "NewArtisans") ("Emacs Newsgroups" ("Newsgroups" "emacs" current) "NewArtisans") ("BoostPro Mail" ("From" "@boostpro\\.com" current) "BoostPro") ("BoostPro Clients" ("To" "@\\(ti\\)\\.com" current) "BoostPro") ("BoostPro Clients (Copied)" ("Cc" "@\\(ti\\)\\.com" current) "BoostPro") ("C++, LLVM, Boost, and Clang Groups" ("Newsgroups" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" current) "BoostPro") ("C++, LLVM, Boost, and Clang Mailing Lists" ("To" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\|llvm\\|cfe\\)" current) "BoostPro"))))
  '(gnus-alias-override-user-mail-address t)
  '(gnus-alias-unknown-identity-rule (quote error))
