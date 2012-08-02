@@ -244,3 +244,6 @@
 [submodule "site-lisp/ruby-mode"]
 	path = site-lisp/ruby-mode
 	url = https://github.com/jwiegley/ruby-mode.git
+[submodule "lisp/emacs-edg"]
+	path = lisp/emacs-edg
+	url = git://github.com/boostpro/emacs-edg
