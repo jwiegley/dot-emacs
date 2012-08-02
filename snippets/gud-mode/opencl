@@ -1,0 +1,1 @@
+run --abi=eabi --opencl --c -I.. cl_$0.c
