@@ -1963,49 +1963,7 @@ FORM => (eval FORM)."
 
 ;;;_ , haskell-mode
 
-(use-package haskell-mode
-  :mode ("\\.l?hs\\'" . haskell-mode)
-  :config
-  (progn
-    (use-package inf-haskell)
-    (use-package hs-lint)
-
-    (use-package ghc
-      :disabled t
-      :commands ghc-init
-      :init
-      (add-hook 'haskell-mode-hook 'ghc-init))
-
-    (use-package scion
-      :disabled t
-      :load-path "site-lisp/scion/emacs"
-      :init
-      (progn
-        ;; if ./cabal/bin is not in your $PATH
-        (setq scion-program (expand-file-name "~/.cabal/bin/scion-server"))
-
-        ;; Use ido-mode completion (matches anywhere, not just beginning)
-        ;;
-        ;; WARNING: This causes some versions of Emacs to fail so badly that
-        ;; Emacs needs to be restarted.
-        (setq scion-completing-read-function 'ido-completing-read)))
-
-    (defun my-haskell-mode-hook ()
-      (setq haskell-saved-check-command haskell-check-command)
-
-      ;; Whenever we open a file in Haskell mode, also activate Scion
-      (scion-mode 1)
-      ;; Whenever a file is saved, immediately type check it and highlight
-      ;; errors/warnings in the source.
-      (scion-flycheck-on-save 1)
-
-      (bind-key "C-c w" 'flymake-display-err-menu-for-current-line
-                haskell-mode-map)
-      (bind-key "C-c *" 'flymake-start-syntax-check haskell-mode-map)
-      (bind-key "M-n" 'flymake-goto-next-error haskell-mode-map)
-      (bind-key "M-p" 'flymake-goto-prev-error haskell-mode-map))
-
-    (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)))
+(require 'haskell-config)
 
 ;;;_ , helm
 
