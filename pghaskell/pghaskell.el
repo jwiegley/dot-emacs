@@ -14,7 +14,7 @@
 ;;
 ;;  M-x pghaskell-mode
 ;;
-;; in an ordinary .ml file.  (Check that you have enabled the instance
+;; in an ordinary .h file.  (Check that you have enabled the instance
 ;; in proof-site.el).
 ;;
 
@@ -22,10 +22,12 @@
 (require 'proof-easy-config)
 (require 'proof-syntax)
 
-(proof-easy-config 'pgocaml "PG-OCaml"
+(proof-easy-config 'pghaskell "PG-Haskell"
 
  proof-prog-name		     "ghci"
-;; BELOW HERE TODO TODO
+
+;; BELOW HERE TO COMPLETE
+
  proof-terminal-string               ";;"
  proof-script-comment-start          "(*"
  proof-script-comment-end            "*)"
