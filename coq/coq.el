@@ -2590,7 +2590,7 @@ number of hypothesis displayed, without hiding the goal"
 
 
 
-;; This hook must be added before optim-resp-window, in order to be evaluated
+;; This hook must be added before coq-optimise-resp-windows, in order to be evaluated
 ;; *after* windows resizing.
 (add-hook 'proof-shell-handle-delayed-output-hook
 	  'coq-show-first-goal)
@@ -2617,7 +2617,8 @@ number of hypothesis displayed, without hiding the goal"
 Only when three-buffer-mode is enabled."
   (when (and proof-three-window-enable
              (> (frame-height) 10)
-             (get-buffer-window proof-response-buffer))
+             (get-buffer-window proof-response-buffer)
+             (and proof-script-buffer (get-buffer-window proof-script-buffer)))
     (let (;; maxhgth is the max height of both resp and goals buffers to avoid
           ;; make the other disappear
           (maxhgth (with-selected-window (get-buffer-window proof-script-buffer)
