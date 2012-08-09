@@ -2612,7 +2612,7 @@ number of hypothesis displayed, without hiding the goal"
 ;; goals buffer) TODO: Have this linked to proof-resize-window-tofit in
 ;; proof-utils.el + customized by the "shrink to fit" menu entry
 ;;  + have it on by default when in three windows mode.
-(defun optim-resp-windows ()
+(defun coq-optimise-resp-windows ()
   "Resize response buffer to optimal size.
 Only when three-buffer-mode is enabled."
   (when (and proof-three-window-enable
@@ -2639,13 +2639,13 @@ Only when three-buffer-mode is enabled."
 
 
 ;; TODO: I would rather have a response-insert-hook thant this two hooks
-;; Careful: optim-resp-windows must be called BEFORE proof-show-first-goal,
+;; Careful: coq-optimise-resp-windows must be called BEFORE proof-show-first-goal,
 ;; i.e. added in hook AFTER it.
 
 ;; Adapt when displaying a normal message
-(add-hook 'proof-shell-handle-delayed-output-hook 'optim-resp-windows)
+(add-hook 'proof-shell-handle-delayed-output-hook 'coq-optimise-resp-windows)
 ;; Adapt when displaying an error or interrupt
-(add-hook 'proof-shell-handle-error-or-interrupt-hook 'optim-resp-windows)
+(add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-optimise-resp-windows)
 
 (provide 'coq)
 
