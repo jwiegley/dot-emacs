@@ -41,7 +41,7 @@
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
  '(bmkp-last-as-first-bookmark-file "~/Documents/bookmarks")
  '(bookmark-default-file "~/Documents/bookmarks")
- '(browse-url-browser-function (quote ((".*" . browse-url-default-macosx-browser))))
+ '(browse-url-browser-function (quote (("file://" . w3m-browse-url) (".*haskell.*" . w3m-browse-url) (".*" . browse-url-default-macosx-browser))))
  '(byte-compile-verbose nil)
  '(c-default-style (quote ((java-mode . "gnu") (awk-mode . "awk") (other . "gnu"))))
  '(calendar-daylight-time-zone-name "CDT")
