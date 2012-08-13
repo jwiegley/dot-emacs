@@ -3222,7 +3222,7 @@ FORM => (eval FORM)."
 
 (use-package tablegen-mode
   :description "\
-This mode is used for editing .td files in the LLVM/Clang source code."
+  This mode is used for editing .td files in the LLVM/Clang source code."
   :mode ("\\.td\\'" . tablegen-mode))
 
 ;;;_ , texinfo
@@ -3308,7 +3308,7 @@ This mode is used for editing .td files in the LLVM/Clang source code."
     (defun wolfram-alpha-query (term)
       (interactive (list (read-string "Ask Wolfram Alpha: " (word-at-point))))
       (require 'w3m-search)
-      (w3m-browse-url (format "http://m.wolframalpha.com/input/?i=%s"
+      (w3m-browse-url (concat "http://m.wolframalpha.com/input/?i="
                               (w3m-search-escape-query-string term))))
 
     (defun goto-emacswiki ()
@@ -3325,13 +3325,12 @@ This mode is used for editing .td files in the LLVM/Clang source code."
       (interactive)
       (let ((url (do-applescript
                   (string-to-multibyte "tell application \"Google Chrome\"
-        URL of active tab of front window
-end tell"))))
+  URL of active tab of front window
+  end tell"))))
         (w3m-browse-url (substring url 1 (1- (length url))) t)))
 
     (bind-key "A-M-e" 'goto-emacswiki)
     (bind-key "A-M-g" 'w3m-search)
-    (bind-key "A-M-h" 'wolfram-alpha-query)
     (bind-key "A-M-w" 'wikipedia-query))
 
   :config
@@ -3556,10 +3555,10 @@ end tell"))))
         (unless (and choose-instead-of-guess
                      (not (y-or-n-p "Insert a snippet with useful headers? ")))
           (yas/expand-snippet "\
-# -*- mode: snippet -*-
-# name: $1
-# --
-$0"))))
+  # -*- mode: snippet -*-
+  # name: $1
+  # --
+  $0"))))
 
     (bind-key "C-c y TAB" 'yas/expand)
     (bind-key "C-c y n" 'yas/new-snippet)
