@@ -29,6 +29,10 @@
 ;; macro from:
 ;;
 ;;     https://github.com/jwiegley/use-package
+;;
+;; Further, this code currently depends on my fork of haskell-mode:
+;;
+;;     https://github.com/jwiegley/haskell-mode
 
 (require 'use-package)
 
@@ -39,27 +43,14 @@
     (use-package inf-haskell
       :config
       (progn
-        (defun my-inferior-haskell-find-haddock (sym)
-          (interactive
-           (let ((sym (haskell-ident-at-point)))
-             (list (read-string
-                    (if (> (length sym) 0)
-                        (format "Find documentation of (default %s): " sym)
-                      "Find documentation of: ")
-                    nil nil sym))))
-          (flet ((browse-url (url &rest args) (w3m-browse-url url)))
-            (inferior-haskell-find-haddock sym)
-            (goto-char (point-min))
-            (when (re-search-forward (concat "^" sym " :: ") nil t)
-              (goto-char (line-beginning-position))
-              (recenter-top-bottom))))
-
         (defun my-inferior-haskell-find-definition ()
+          "Jump to the definition immediately, the way that SLIME does."
           (interactive)
           (inferior-haskell-find-definition (haskell-ident-at-point))
           (forward-char -1))
 
         (defun my-inferior-haskell-type (expr &optional insert-value)
+          "When used with C-u, don't do any prompting."
           (interactive
            (let ((sym (haskell-ident-at-point)))
              (list (if current-prefix-arg
@@ -93,33 +84,29 @@
         ;; Emacs needs to be restarted.
         (setq scion-completing-read-function 'ido-completing-read)))
 
-    (eval-after-load "haskell-doc"
-      '(defun haskell-doc-sym-doc (sym)
-        (unless (string= "" sym)
-          (let ((result (ignore-errors
-                          (inferior-haskell-type sym))))
-            (if (and result (string-match " :: " result))
-                result
-              (setq result (inferior-haskell-kind sym))
-              (and result (string-match " :: " result) result))))))
-
-    (defadvice haskell-ident-at-point
-      (around my-haskell-ident-at-point activate)
+    (defun my-haskell-reindent-definition (start end)
+      (interactive "r")
       (save-excursion
-        (skip-chars-backward " \t")
-        ad-do-it))
+        (let ((face (get-text-property (point) 'face)))
+          (if (memq face '(font-lock-string-face font-lock-comment-face))
+              (fill-paragraph nil t)
+            (call-process-region
+             start end
+             (expand-file-name "~/.cabal/bin/stylish-haskell") t t)))))
 
     (defun my-haskell-mode-hook ()
-      (bind-key "C-M-x" 'inferior-haskell-send-decl haskell-mode-map)
-      (unbind-key "C-x C-d" haskell-mode-map)
-
       (when (featurep 'inf-haskell)
+        (bind-key "C-c C-d" 'inferior-haskell-find-haddock haskell-mode-map)
+        (bind-key "C-c C-i" 'inferior-haskell-info haskell-mode-map)
+        (bind-key "C-c C-k" 'inferior-haskell-kind haskell-mode-map)
         ;; Use C-u C-c C-t to auto-insert a function's type above it
         (bind-key "C-c C-t" 'my-inferior-haskell-type haskell-mode-map)
-        (bind-key "C-c C-k" 'inferior-haskell-kind haskell-mode-map)
-        (bind-key "C-c C-i" 'inferior-haskell-info haskell-mode-map)
-        (bind-key "C-c C-d" 'my-inferior-haskell-find-haddock haskell-mode-map)
+
         (bind-key "M-." 'my-inferior-haskell-find-definition haskell-mode-map))
+
+      (when (featurep 'ghc)
+        (bind-key "C-c C-s" 'ghc-insert-template haskell-mode-map)
+        (bind-key "A-<tab>" 'ghc-complete haskell-mode-map))
 
       (when (featurep 'scion)
         ;; Whenever we open a file in Haskell mode, also activate Scion
@@ -127,6 +114,12 @@
         ;; Whenever a file is saved, immediately type check it and highlight
         ;; errors/warnings in the source.
         (scion-flycheck-on-save 1))
+
+      (unbind-key "M-t" haskell-mode-map)
+      (bind-key "M-q" 'my-haskell-reindent-definition haskell-mode-map)
+
+      (bind-key "C-M-x" 'inferior-haskell-send-decl haskell-mode-map)
+      (unbind-key "C-x C-d" haskell-mode-map)
 
       (setq haskell-saved-check-command haskell-check-command)
       (flymake-mode 1)
