@@ -41,27 +41,29 @@
 
 ;;;###autoload
 (defun proof-script-new-command-advance ()
-  "Move point to a nice position for a new command.
-Assumes that point is at the end of a command."
+  "Move point to a nice position for a new command, possibly inserting spaces.
+Assumes that point is at the end of a command.  
+No effect if `proof-next-command-insert-space' is nil."
   (interactive)
-  (let (sps)
-    (if (and (proof-next-command-new-line) 
-	     (setq sps (skip-chars-forward " \t"))
-	     ;; don't break existing lines
-	     (eolp))
-	(progn (newline)
-	       (unless proof-next-command-on-new-line
-		 (indent-relative))))
-    (unless (proof-next-command-new-line)
-      ;; Multiple commands per line: skip spaces at point, and insert
-      ;; the 1/0 number of spaces that were skipped in front of point
-      ;; (at least one).  This has the pleasing effect that the spacing
-      ;; policy of the current line is copied: e.g.  <command>;
-      ;; <command>; Tab columns don't work properly, however.
-      (let ((newspace (max (or sps 1) (skip-chars-forward " \t")))
-	    (p (point)))
-      (insert-char ?\040 newspace)
-      (goto-char p)))))
+  (when proof-next-command-insert-space
+    (let (sps)
+      (if (and (proof-next-command-new-line) 
+	       (setq sps (skip-chars-forward " \t"))
+	       ;; don't break existing lines
+	       (eolp))
+	  (progn (newline)
+		 (unless proof-next-command-on-new-line
+		   (indent-relative))))
+      (unless (proof-next-command-new-line)
+	;; Multiple commands per line: skip spaces at point, and insert
+	;; the 1/0 number of spaces that were skipped in front of point
+	;; (at least one).  This has the pleasing effect that the spacing
+	;; policy of the current line is copied: e.g.  <command>;
+	;; <command>; Tab columns don't work properly, however.
+	(let ((newspace (max (or sps 1) (skip-chars-forward " \t")))
+	      (p (point)))
+	  (insert-char ?\040 newspace)
+	  (goto-char p))))))
 
 
 (defun proof-maybe-follow-locked-end (&optional pos)

@@ -1501,8 +1501,11 @@ Process the current (or script) buffer, and maybe move point to the end.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-retract-buffer
-@deffn Command proof-retract-buffer 
-Retract the current buffer, and maybe move point to the start.
+@deffn Command proof-retract-buffer &optional called-interactively
+Retract the current buffer, and maybe move point to the start.@*
+Point is only moved according to @samp{@code{proof-follow-mode}}, if
+@var{called-interactively} is non-nil, which is the case for all
+interactive calls.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-electric-terminator-toggle
@@ -3457,6 +3460,9 @@ regions of the script.
 
 The default value is @code{t}.
 @end defopt
+
+
+
 @node User options
 @section User options
 @c Index entries for each option 'concept'
@@ -3477,7 +3483,7 @@ The default value is @code{t}.
 @c @cindex formatting proof script
 
 Here is a list of the important user options for Proof General, apart from
-the three display options mentioned above.  
+the display options mentioned above.  
 
 User options can be set via the customization system already mentioned,
 via the old-fashioned @code{M-x edit-options} mechanism, or simply by
@@ -3506,6 +3512,15 @@ need to delete the terminator character first.  Just press the
 terminator somewhere nearby.  Electric!
 
 The default value is @code{nil}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-next-command-insert-space
+@defopt proof-next-command-insert-space 
+If non-nil, PG will use heuristics to insert newlines or spaces in scripts.@*
+In particular, if electric terminator is switched on, spaces or newlines will
+be inserted as the user types commands to the prover.
+
+The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-enable

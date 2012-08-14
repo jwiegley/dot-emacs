@@ -8,6 +8,11 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 ** Generic/misc changes
 
+*** Added user option: `proof-next-command-insert-space'
+    Allows the user to turn off the electric behaviour of generating
+    newlines or spaces in the buffer.  Turned on by default, set
+    to nil to revert to PG 3.7 behaviour.
+
 *** Support proof-tree visualization via the external Prooftree program
     Currently only Coq (using Coq version 8.4beta or newer)
     supports proof-tree visualization. If Prooftree is installed,
@@ -18,6 +23,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** Compilation fixes for Emacs 24.
 
 *** Fix "pgshell" mode for shell/CLI prover interaction
+    Also add some quick hacks for scripting OCaml and Haskell
+
 
 ** Coq changes
 

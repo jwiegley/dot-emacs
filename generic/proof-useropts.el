@@ -71,6 +71,14 @@ terminator somewhere nearby.  Electric!"
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defcustom proof-next-command-insert-space t
+  "*If non-nil, PG will use heuristics to insert newlines or spaces in scripts.
+In particular, if electric terminator is switched on, spaces or newlines will
+be inserted as the user types commands to the prover."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
 (defcustom proof-toolbar-enable t
   "*If non-nil, display Proof General toolbar for script buffers."
   :type 'boolean
