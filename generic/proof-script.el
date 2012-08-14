@@ -2219,8 +2219,11 @@ user hasn't saved the latest edits.  Therefore it is right to
 query saves here."
   (if (proof-locked-region-empty-p)
       (error "No locked region")
-    ;; enforces not busy (future: may allow retracting from queue in progress)
     (proof-activate-scripting)
+    ;; enforce not busy to avoid retracting items from the queue region,
+    ;; which is not supported currently, see #443
+    ;; (future: may allow retracting from queue in progress)
+    (proof-shell-ready-prover)
     (unless (proof-locked-region-empty-p) ;; re-opening may discard locked region!
       (let ((span (span-at (point) 'type)))
 	;; If no span at point, retracts the last span in the buffer.
