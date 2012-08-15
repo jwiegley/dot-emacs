@@ -49,6 +49,18 @@
           (inferior-haskell-find-definition (haskell-ident-at-point))
           (forward-char -1))
 
+        (defun my-inferior-haskell-find-haddock (sym)
+          (interactive
+           (let ((sym (haskell-ident-at-point)))
+             (list (read-string
+                    (if (> (length sym) 0)
+                        (format "Find documentation of (default %s): " sym)
+                      "Find documentation of: ")
+                    nil nil sym))))
+          (inferior-haskell-find-haddock sym)
+          (goto-char (point-min))
+          (search-forward sym))
+
         (defun my-inferior-haskell-type (expr &optional insert-value)
           "When used with C-u, don't do any prompting."
           (interactive
@@ -67,7 +79,8 @@
       :commands ghc-init
       :init
       (progn
-        (setq ghc-module-command (expand-file-name "~/.cabal/bin/ghc-mod"))
+        (setq ghc-module-command (expand-file-name "~/.cabal/bin/ghc-mod")
+              ghc-hoogle-command (expand-file-name "~/.cabal/bin/hoogle"))
         (add-hook 'haskell-mode-hook 'ghc-init)))
 
     (use-package scion
@@ -96,7 +109,7 @@
 
     (defun my-haskell-mode-hook ()
       (when (featurep 'inf-haskell)
-        (bind-key "C-c C-d" 'inferior-haskell-find-haddock haskell-mode-map)
+        (bind-key "C-c C-d" 'my-inferior-haskell-find-haddock haskell-mode-map)
         (bind-key "C-c C-i" 'inferior-haskell-info haskell-mode-map)
         (bind-key "C-c C-k" 'inferior-haskell-kind haskell-mode-map)
         ;; Use C-u C-c C-t to auto-insert a function's type above it
