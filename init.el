@@ -3278,7 +3278,7 @@ FORM => (eval FORM)."
 ;;;_ , w3m
 
 (use-package w3m
-  :commands w3m-search
+  :commands (w3m-search w3m-find-file)
   :bind (("C-. u"   . w3m-browse-url)
          ("C-. U"   . w3m-browse-url-new-session)
          ("C-. A-u" . w3m-browse-chrome-url-new-session))
@@ -3296,6 +3296,19 @@ FORM => (eval FORM)."
     (add-hook 'w3m-mode-hook 'w3m-link-numbering-mode)
 
     (autoload 'w3m-session-crash-recovery-remove "w3m-session")
+
+    (defun show-browser ()
+      (interactive)
+      (let ((w3m-buf
+             (catch 'found
+               (dolist (buf (buffer-list))
+                 (if (string-match "\\*w3m" (buffer-name buf))
+                     (throw 'found buf))))))
+        (if w3m-buf
+            (switch-to-buffer-other-window w3m-buf)
+          (call-interactively 'w3m-find-file))))
+
+    (bind-key "C-. w" 'show-browser)
 
     (defun wikipedia-query (term)
       (interactive (list (read-string "Wikipedia search: " (word-at-point))))
