@@ -64,7 +64,7 @@ not listed here, you may not get the correct syntax colouring behaviour.")
 (defface proof-queue-face
   (proof-face-specs
    (:background "mistyrose") ;; was "darksalmon" in PG 3.4,3.5
-   (:background "mediumvioletred")
+   (:background "mediumorchid")
    (:foreground "white" :background "black"))
   "*Face for commands in proof script waiting to be processed."
   :group 'proof-faces)
@@ -74,7 +74,7 @@ not listed here, you may not get the correct syntax colouring behaviour.")
    ;; This colour is quite subjective and may be best chosen according
    ;; to the type of display you have.
    (:background "#eaf8ff")
-   (:background "darkblue")
+   (:background "darkslateblue")
    (:underline t))
   "*Face for locked region of proof script (processed commands)."
   :group 'proof-faces)
