@@ -236,6 +236,21 @@ If QUEUEMODE is supplied, set the lock to that value."
     ;; Otherwise, chars 128-255 get remapped higher, breaking regexps
     (toggle-enable-multibyte-characters -1)))
 
+(defun proof-shell-make-associated-buffers ()
+  "Create the associated buffers and set buffer variables holding them."
+  (let ((goals	"*goals*")
+	(resp	"*response*")
+	(trace	"*trace*")
+	(thms	"*thms*"))
+    (setq proof-goals-buffer    (get-buffer-create goals))
+    (setq proof-response-buffer (get-buffer-create resp))
+    (if proof-shell-trace-output-regexp
+	(setq proof-trace-buffer (get-buffer-create trace)))
+    (if proof-shell-thms-output-regexp
+	(setq proof-thms-buffer (get-buffer-create thms)))
+    ;; Set the special-display-regexps now we have the buffer names
+    (setq pg-response-special-display-regexp
+	  (proof-regexp-alt goals resp trace thms))))
 
 (defun proof-shell-start ()
   "Initialise a shell-like buffer for a proof assistant.
@@ -345,22 +360,8 @@ process command."
 	  ;; Give error now if shell buffer isn't live (process exited)
 	  (setq proof-shell-buffer nil)
 	  (error "Starting process: %s..failed" prog-command-line)))
-
-      ;; Create the associated buffers and set buffer variables
       
-      (let ((goals	"*goals*")
-	    (resp	"*response*")
-	    (trace	"*trace*")
-	    (thms	"*thms*"))
-	(setq proof-goals-buffer    (get-buffer-create goals))
-	(setq proof-response-buffer (get-buffer-create resp))
-	(if proof-shell-trace-output-regexp
-	    (setq proof-trace-buffer (get-buffer-create trace)))
-	(if proof-shell-thms-output-regexp
-	    (setq proof-thms-buffer (get-buffer-create thms)))
-	;; Set the special-display-regexps now we have the buffer names
-	(setq pg-response-special-display-regexp
-	      (proof-regexp-alt goals resp trace thms)))
+      (proof-shell-make-associated-buffers)
 
       (with-current-buffer proof-shell-buffer
 

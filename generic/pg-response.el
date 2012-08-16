@@ -110,7 +110,7 @@ Internal variable, setting this will have no effect!")
   (proof-layout-windows))
 
 (defun proof-select-three-b (b1 b2 b3 &optional nohorizontalsplit)
-  "Select three buffers. Put them into three windows, selecting the last one."
+  "Put the given three buffers into three windows."
   (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
   (delete-other-windows)
   (if nohorizontalsplit
@@ -127,13 +127,12 @@ Internal variable, setting this will have no effect!")
 (defun proof-display-three-b (&optional nohorizontalsplit)
   "Layout three buffers in a single frame.  Only do this if buffers exist."
   (interactive)
-  (when (and proof-script-buffer
-	     (buffer-live-p proof-goals-buffer)
+  (when (and (buffer-live-p proof-goals-buffer)
 	     (buffer-live-p proof-response-buffer))
-    (proof-select-three-b
-     proof-script-buffer proof-goals-buffer proof-response-buffer
-     nohorizontalsplit)))
-
+    (save-excursion
+      (proof-select-three-b
+       proof-script-buffer proof-goals-buffer proof-response-buffer
+       nohorizontalsplit))))
 
 (defvar pg-frame-configuration nil
   "Variable storing last used frame configuration.")

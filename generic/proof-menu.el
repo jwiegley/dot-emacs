@@ -285,6 +285,8 @@ without adjusting window layout."
 (proof-deftoggle proof-delete-empty-windows)
 (proof-deftoggle proof-shrink-windows-tofit)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
+(proof-deftoggle proof-layout-windows-on-visit-file 
+		 proof-layout-windows-eagerly-toggle)
 (proof-deftoggle proof-three-window-enable proof-three-window-toggle)
 (proof-deftoggle proof-auto-raise-buffers proof-auto-raise-toggle)
 (proof-deftoggle proof-disappearing-proofs)
@@ -397,6 +399,10 @@ without adjusting window layout."
       ;; We use non-Emacs terminology "Windows" in this menu to help
       ;; non-Emacs users.  Cf. Gnome usability studies: menus saying
       ;; "Web Browser" more useful to novices than menus saying "Mozilla"!!
+      ["Layout Eagerly" proof-layout-windows-eagerly-toggle
+       :style toggle
+       :selected proof-layout-windows-on-visit-file
+       :help "Display prover output windows when script file is opened."]
       ["Multiple Windows" proof-multiple-frames-toggle
        :active (and window-system t)
        :style toggle

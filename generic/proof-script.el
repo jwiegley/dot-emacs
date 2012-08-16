@@ -29,6 +29,8 @@
 
 (declare-function proof-shell-strip-output-markup "proof-shell"
 		  (string &optional push))
+(declare-function proof-shell-make-associated-buffers "proof-shell" ())
+(declare-function proof-layout-windows "pg-response" (&rest args))
 (declare-function pg-response-warning "pg-response" (&rest args))
 (declare-function proof-segment-up-to "proof-script")
 (declare-function proof-autosend-enable "pg-user")
@@ -2586,9 +2588,14 @@ finish setup which depends on specific proof assistant configuration."
 	     (cons (pg-invisible-prop p) t)))
 	  pg-all-idioms)
 
-  ;; Finally, make sure the user has been welcomed!
-  ;; [NB: this doesn't work well, can get zapped by loading messages]
+  ;; If we're excited to get going straightaway, make and layout windows
+  (when proof-layout-windows-on-visit-file
+      (proof-shell-make-associated-buffers)
+      (proof-layout-windows))
+
+  ;; Make sure the user has been welcomed!
   (proof-splash-message))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
