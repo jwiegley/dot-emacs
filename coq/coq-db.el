@@ -183,9 +183,9 @@ for DB structure."
 
 (defun coq-sort-menu-entries (menu)
   (sort menu
-	'(lambda (x y) (string<
-			(downcase (elt x 0))
-			(downcase (elt y 0))))))
+	#'(lambda (x y) (string<
+			 (downcase (elt x 0))
+			 (downcase (elt y 0))))))
 
 (defun coq-build-menu-from-db (db &optional size)
   "Take a keyword database DB and return a list of insertion menus for them.
