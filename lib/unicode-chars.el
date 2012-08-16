@@ -5065,7 +5065,7 @@ in your emacs font."
       (if (< codept #xffff)
 	  (progn
 	    (insert (format "#x%06x " codept))
-	    (ucs-insert codept)
+	    (insert-char codept 1)
 	    (insert (format " %s\n" name)))))))
 
 (provide 'unicode-chars)
