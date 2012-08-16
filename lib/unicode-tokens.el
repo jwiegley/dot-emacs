@@ -48,6 +48,11 @@
   (require 'maths-menu))		; nuke compile warnings
 
 
+;; Emacs <24 compatibility
+(unless (and (fboundp 'flet)
+	     (not (get 'flet 'byte-obsolete-info)))
+  (defalias 'cl-flet 'flet))
+
 ;;
 ;; Customizable user options
 ;;
@@ -862,7 +867,7 @@ Starts from point."
 	 (regexp-opt (mapcar 'car unicode-tokens-shortcut-replacement-alist))))
     ;; override the display of the regexp because it's huge!
     ;; (doesn't help with C-h: need way to programmatically show string)
-    (flet ((query-replace-descr (str) (if (eq str shortcut-regexp)
+    (cl-flet ((query-replace-descr (str) (if (eq str shortcut-regexp)
 					  "shortcut" str)))
       (perform-replace shortcut-regexp
 		       (cons 'unicode-tokens-replace-shortcut-match nil)
@@ -882,7 +887,7 @@ Starts from point."
   (let ((uchar-regexp unicode-tokens-uchar-regexp))
     ;; override the display of the regexp because it's huge!
     ;; (doesn't help with C-h: need way to programmatically show string)
-    (flet ((query-replace-descr (str) (if (eq str uchar-regexp)
+    (cl-flet ((query-replace-descr (str) (if (eq str uchar-regexp)
 					  "unicode presentation" str)))
       (perform-replace uchar-regexp
 		       (cons 'unicode-tokens-replace-unicode-match nil)
