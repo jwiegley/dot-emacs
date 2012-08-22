@@ -247,3 +247,6 @@
 [submodule "lisp/emacs-edg"]
 	path = lisp/emacs-edg
 	url = git://github.com/boostpro/emacs-edg
+[submodule "lisp/haskell-config"]
+	path = lisp/haskell-config
+	url = git://github.com/jwiegley/haskell-config.git
