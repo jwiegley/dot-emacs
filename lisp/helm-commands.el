@@ -39,7 +39,7 @@
   "Search for files in the current Git project.")
 
 (eval-after-load "helm-files"
-  '(add-to-list 'helm-for-files-prefered-list
+  '(add-to-list 'helm-for-files-preferred-list
                 'helm-c-source-git-files))
 
 (defvar helm-c-source-zsh-history
