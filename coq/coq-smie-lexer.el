@@ -15,7 +15,7 @@
 ;; - We distinguish "with match" from other "with".
 
 (require 'coq-indent)
-(require 'smie)
+(require 'smie nil 'noerror)
 
 (defconst coq-smie-dot-friends '("*." "-*." "|-*." "*|-*."))
 
