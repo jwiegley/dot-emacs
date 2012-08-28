@@ -468,7 +468,8 @@
                 mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
                                  1 font-lock-warning-face t))))
            '(c-mode c++-mode emacs-lisp-mode lisp-mode
-                    python-mode perl-mode java-mode groovy-mode)))
+                    python-mode perl-mode java-mode groovy-mode
+                    haskell-mode literate-haskell-mode)))
       (set symbol value))
   :type 'string
   :group 'mail)
