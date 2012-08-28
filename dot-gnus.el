@@ -13,7 +13,7 @@
 (require 'bbdb-message)
 (require 'async)
 
-(gnus-compile)
+;; (gnus-compile)
 (gnus-delay-initialize)
 (spam-initialize)
 
