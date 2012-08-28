@@ -453,6 +453,10 @@
 
 (bind-key "C-c m" 'emacs-toggle-size)
 
+(defun insert-date ()
+  (interactive)
+  (insert (format-time-string "%Y-%m-%d")))
+
 (defcustom user-initials nil
   "*Initials of this user."
   :set
