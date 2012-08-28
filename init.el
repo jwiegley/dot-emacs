@@ -3503,8 +3503,7 @@ FORM => (eval FORM)."
   (wrap-region-add-wrappers
    '(("$" "$")
      ("/" "/" nil ruby-mode)
-     ("/* " " */" "#" (java-mode javascript-mode css-mode
-                                 c-mode c++-mode))
+     ("/* " " */" "#" (java-mode javascript-mode css-mode c-mode c++-mode))
      ("`" "`" nil (markdown-mode ruby-mode shell-script-mode)))))
 
 ;;;_ , write-room
