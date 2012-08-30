@@ -1,4 +1,4 @@
-;;; coq.el --- Major mode for Coq proof assistant
+;; coq.el --- Major mode for Coq proof assistant
 ;; Copyright (C) 1994-2009 LFCS Edinburgh.
 ;; Authors: Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
@@ -856,13 +856,38 @@ With flag Printing All if some prefix arg is given (C-u)."
   (interactive)
   (coq-ask-do-show-all "Check" "Check"))
 
+(defun coq-get-response-string-at (&optional pt)
+  "go forward from PT and find the first span having 'response property.
+Response span only starts at first non space character of a
+command, so we may have to go forward to find it. Starts
+from (point) if pt is nil. Precondition: pt (or point if nil)
+must be in locked region."
+  (let ((pt (or pt (point))))
+    (save-excursion
+      (goto-char pt)
+      (while (and (not (eq (point) (point-max)))
+                  (not (span-at (point) 'response)))
+        (forward-char))
+      (span-property (span-at (point) 'response) 'response))))
+
 (defun coq-Show (withprintingall)
-  "Ask for a number i and show the ith goal.
-With flag Printing All if some prefix arg is given (C-u)."
+  "Ask for a number i and show the ith goal, or show ancient goal.
+If point is on locked span, show the corresponding coq output (i.e. fr tactics: the goal output after the command at point was sent to Coq).
+Otherwise ask for a number i and show the ith current goal.
+
+With non-nil prefix and not on the locked span, show the goal
+with flag Printing All set."
   (interactive "P")
-  (if withprintingall
-      (coq-ask-do-show-all "Show goal number" "Show" t)
-    (coq-ask-do "Show goal number" "Show" t)))
+  (if (proof-in-locked-region-p)
+      (let ((s (coq-get-response-string-at)))
+        (save-excursion 
+          (set-buffer proof-response-buffer)
+          (let ((inhibit-read-only 'titi))
+            (pg-response-display s)
+            (proof-display-and-keep-buffer proof-response-buffer))))
+    (if withprintingall
+        (coq-ask-do-show-all "Show goal number" "Show" t)
+      (coq-ask-do "Show goal number" "Show" t))))
 
 (defun coq-Show-with-implicits ()
   "Ask for a number i and show the ith goal."
