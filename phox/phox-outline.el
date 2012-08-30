@@ -37,9 +37,9 @@
 
 (defconst phox-outline-heading-end-regexp "\\(\\*)[ \t]*\n\\)\\|\\(\\.[ \t]*\n\\)")
 
-;(if phox-outline
-;    (add-hook 'phox-mode-hook '(lambda()(outline-minor-mode 1)))
-;  )
+;;(if phox-outline
+;;    (add-hook 'phox-mode-hook (lambda () (outline-minor-mode 1)))
+;;  )
 
 (defun phox-outline-level()
   "Find the level of current outline heading in some PhoX libraries."

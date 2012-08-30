@@ -29,17 +29,17 @@
 ;; and byte compilation on save:
 
 (add-hook 'emacs-lisp-mode-hook
-	  '(lambda ()
-	     (checkdoc-minor-mode 1)
-	     (turn-on-eldoc-mode)
-	     (flyspell-prog-mode)
-	     (customize-set-variable 'whitespace-action '(cleanup))
-	     (define-key emacs-lisp-mode-map [(control c)(control c)]
-	       'emacs-lisp-byte-compile)
-	     (add-hook 'write-file-functions
-		       'whitespace-write-file-hook nil t)
-	     (add-hook 'before-save-hook
-		       'copyright-update nil t)))
+	  (lambda ()
+            (checkdoc-minor-mode 1)
+            (turn-on-eldoc-mode)
+            (flyspell-prog-mode)
+            (customize-set-variable 'whitespace-action '(cleanup))
+            (define-key emacs-lisp-mode-map [(control c)(control c)]
+              'emacs-lisp-byte-compile)
+            (add-hook 'write-file-functions
+                      'whitespace-write-file-hook nil t)
+            (add-hook 'before-save-hook
+                      'copyright-update nil t)))
 
 ;; Fill in template for new files
 
@@ -69,11 +69,11 @@
 	     (t 'font-lock-function-name-face))
        nil t)))
 
-; not working, see font-lock.el for usual emacs lisp settings
-;(add-hook 'emacs-lisp-mode-hook
-;	  '(lambda ()
-;	     (font-lock-add-keywords nil
-;				     'pg-dev-lisp-font-lock-keywords)))
+;; Not working, see font-lock.el for usual emacs lisp settings.
+;;(add-hook 'emacs-lisp-mode-hook
+;;	  (lambda ()
+;;	    (font-lock-add-keywords nil
+;;				    'pg-dev-lisp-font-lock-keywords)))
 
 
 ;;

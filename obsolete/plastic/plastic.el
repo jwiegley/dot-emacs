@@ -57,11 +57,11 @@
 ;; Users should not need to change this.
 
 (defvar plastic-shell-handle-output
-  '(lambda (cmd string) 
-      (when (proof-string-match "^Module" cmd)
-	;; prevent output and just give a minibuffer message
-	(setq proof-shell-last-output-kind 'systemspecific)
-	(message "Imports done!")))
+  (lambda (cmd string) 
+    (when (proof-string-match "^Module" cmd)
+      ;; prevent output and just give a minibuffer message
+      (setq proof-shell-last-output-kind 'systemspecific)
+      (message "Imports done!")))
   "Acknowledge end of processing import declarations.")
 
 (defconst plastic-process-config

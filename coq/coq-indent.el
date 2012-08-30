@@ -22,7 +22,7 @@
 
 (defconst coq-indent-inner-regexp
   (proof-regexp-alt
-   "[[]()]" "[^{]|[^}]" "ö’"
+   "[[]()]" "[^{]|[^}]"
    ;; forall with must not be enclosed by \\< and
    ;;\\> . "~" forall but interacts with 'not'
    (proof-ids-to-regexp
@@ -655,13 +655,13 @@ Returns point if found."
 (defun coq-goal-count (l) (coq-add-iter l 'coq-indent-goal-command-p))
 
 (defun coq-save-count (l)
-  (coq-add-iter l '(lambda (x) 
-                     (or (coq-save-command-p nil x)
-                         (eq (proof-string-match "\\<\\(?:EndSubproof\\)\\>\\|}" x) 0)))))
+  (coq-add-iter l (lambda (x) 
+                    (or (coq-save-command-p nil x)
+                        (eq (proof-string-match "\\<\\(?:EndSubproof\\)\\>\\|}" x) 0)))))
 
 (defun coq-proof-count (l)
-  (coq-add-iter l '(lambda (x)
-                     (eq (proof-string-match "\\<\\(?:Proof\\|BeginSubproof\\)\\>\\|{" x) 0))))
+  (coq-add-iter l (lambda (x)
+                    (eq (proof-string-match "\\<\\(?:Proof\\|BeginSubproof\\)\\>\\|{" x) 0))))
 
 ;; returns the difference between goal (and assimilate Proof and BeginSubproof) and
 ;; save commands in a commands list. This is to 

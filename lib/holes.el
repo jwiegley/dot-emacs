@@ -355,13 +355,13 @@ Operate betwenn START and END if non nil."
    'holes-clear-hole (or start (point-min)) (or end (point-max)) 
    'hole))
 
-;;; limit ?
+;; limit ?
 (defun holes-next (pos buffer)
   "Return the first hole after POS in BUFFER.
 Or after the hole at pos if there is one (default pos=point).  If no
 hole found, return nil."
   (holes-map-holes 
-   '(lambda (h x) (and (holes-is-hole-p h) h)) buffer pos))
+   (lambda (h x) (and (holes-is-hole-p h) h)) buffer pos))
 
 (defun holes-next-after-active-hole ()
   "Internal."
@@ -469,7 +469,7 @@ Sets `holes-active-hole' to the next hole if it exists."
 ;; mouse stuff, I want to make something close to `mouse-track-insert'
 ;; of XEmacs, but with modifier ctrl-meta and ctrl-meta-shift
 
-;;; Emacs and XEmacs have different ways of dealing with mouse
+;; Emacs and XEmacs have different ways of dealing with mouse
 ;; selection, but `mouse-track'(XEmacs) mouse-drag-region(Emacs)
 ;; have nearly the same meaning for me.  So I define this
 ;; track-mouse-selection.

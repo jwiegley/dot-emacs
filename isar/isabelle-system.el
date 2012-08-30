@@ -257,9 +257,9 @@ for you, you should disable this behaviour."
   :group 'isabelle)
 
 (defvar isabelle-docs-menu
-  (let ((vc '(lambda (docdes)
-	       (vector (car (cdr docdes))
-		       (list 'isa-view-doc (car docdes)) t))))
+  (let ((vc (lambda (docdes)
+              (vector (car (cdr docdes))
+                      (list 'isa-view-doc (car docdes)) t))))
     (list (cons "Isabelle Documentation" (mapcar vc (isa-tool-list-docs)))))
   "Isabelle documentation menu.  Constructed when PG is loaded.")
 

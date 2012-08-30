@@ -1,6 +1,6 @@
 ;;; maths-menu.el --- insert maths characters from a menu  -*-coding: iso-2022-7bit;-*-
 
-;; Copyright (C) 2003  Free Software Foundation, Inc.
+;; Copyright (C) 2003, 2012  Free Software Foundation, Inc.
 
 ;; Author: Dave Love <fx@gnu.org>
 ;; Keywords: convenience
@@ -53,10 +53,10 @@
 
 ;;; Code:
 
-(defvar maths-menu-filter-predicate '(lambda (char) t)
+(defvar maths-menu-filter-predicate (lambda (char) t)
   "Predicate function used to filter menu elements")
 
-(defvar maths-menu-tokenise-insert '(lambda (char) (insert char))
+(defvar maths-menu-tokenise-insert #'insert
   "Function used to insert possibly formatted or escaped character.")
 
 (defun maths-menu-build-menu (spec)

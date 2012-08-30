@@ -1299,10 +1299,10 @@ when module \"foo\" from directory \"bar\" is required.
 After the substitution the command can be changed in the
 minibuffer if `coq-confirm-external-compilation' is t."
   :type 'string
-  :safe '(lambda (v)
-           (and (stringp v)
-                (or (not (boundp 'coq-confirm-external-compilation))
-                    coq-confirm-external-compilation)))
+  :safe (lambda (v)
+          (and (stringp v)
+               (or (not (boundp 'coq-confirm-external-compilation))
+                   coq-confirm-external-compilation)))
   :group 'coq-auto-compile)
 
 (defconst coq-compile-substitution-list
@@ -1384,7 +1384,7 @@ confirmation."
      "save all coq-mode buffers except the current buffer without confirmation"
      save-coq)
     (const :tag "save all buffers without confirmation" save-all))
-  :safe '(lambda (v) (member v '(ask-coq ask-all save-coq save-all)))
+  :safe (lambda (v) (member v '(ask-coq ask-all save-coq save-all)))
   :group 'coq-auto-compile)
 
 (defcustom coq-lock-ancestors t
@@ -1424,7 +1424,7 @@ compilation. It makes sense to include non-standard coq library
 directories here if they are not changed and if they are so big
 that dependency checking takes noticeable time."
   :type '(repeat regexp)
-  :safe '(lambda (v) (every 'stringp v))
+  :safe (lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-ignore-library-directory t
@@ -1520,19 +1520,19 @@ DEP-MOD-TIMES is empty it returns nil."
   (and
    (listp path)
    (every
-    '(lambda (entry)
-       (or (stringp entry)
-           (and (listp entry)
-                (eq (car entry) 'rec)
-                (every 'stringp (cdr entry))
-                (equal (length entry) 3))
-           (and (listp entry)
-                (eq (car entry) 'nonrec)
-                (every 'stringp (cdr entry))
-                (equal (length entry) 3))
-           (and (listp entry)
-                (every 'stringp entry)
-                (equal (length entry) 2))))
+    (lambda (entry)
+      (or (stringp entry)
+          (and (listp entry)
+               (eq (car entry) 'rec)
+               (every 'stringp (cdr entry))
+               (equal (length entry) 3))
+          (and (listp entry)
+               (eq (car entry) 'nonrec)
+               (every 'stringp (cdr entry))
+               (equal (length entry) 3))
+          (and (listp entry)
+               (every 'stringp entry)
+               (equal (length entry) 2))))
     path)))
 
 ;; Compute command line for starting coqtop
@@ -2622,10 +2622,10 @@ number of hypothesis displayed, without hiding the goal"
 (add-hook 'proof-shell-handle-delayed-output-hook
 	  'coq-update-minor-mode-alist)
 (add-hook 'proof-shell-handle-delayed-output-hook
-          '(lambda ()
-             (if (proof-string-match coq-shell-proof-completed-regexp
-                                     proof-shell-last-output)
-                 (proof-clean-buffer proof-goals-buffer))))
+          (lambda ()
+            (if (proof-string-match coq-shell-proof-completed-regexp
+                                    proof-shell-last-output)
+                (proof-clean-buffer proof-goals-buffer))))
 
 
 (defun is-not-split-vertic (selected-window)
