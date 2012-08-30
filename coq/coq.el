@@ -857,7 +857,7 @@ With flag Printing All if some prefix arg is given (C-u)."
   (coq-ask-do-show-all "Check" "Check"))
 
 (defun coq-get-response-string-at (&optional pt)
-  "go forward from PT and find the first span having 'response property.
+  "Go forward from PT until reaching a 'response property, and return it.
 Response span only starts at first non space character of a
 command, so we may have to go forward to find it. Starts
 from (point) if pt is nil. Precondition: pt (or point if nil)
@@ -872,11 +872,11 @@ must be in locked region."
 
 (defun coq-Show (withprintingall)
   "Ask for a number i and show the ith goal, or show ancient goal.
-If point is on locked span, show the corresponding coq output (i.e. fr tactics: the goal output after the command at point was sent to Coq).
-Otherwise ask for a number i and show the ith current goal.
-
-With non-nil prefix and not on the locked span, show the goal
-with flag Printing All set."
+If point is on a locked span, show the corresponding coq
+output (i.e. for tactics: the goal after the tactic). Otherwise
+ask for a number i and show the ith current goal. With non-nil
+prefix argument and not on the locked span, show the goal with
+flag Printing All set."
   (interactive "P")
   (if (proof-in-locked-region-p)
       (let ((s (coq-get-response-string-at)))
@@ -2672,6 +2672,39 @@ Only when three-buffer-mode is enabled."
 (add-hook 'proof-shell-handle-delayed-output-hook 'coq-optimise-resp-windows)
 ;; Adapt when displaying an error or interrupt
 (add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-optimise-resp-windows)
+
+
+;; Trying to have double hit on colon behave like electric terminator.
+
+(defvar coq-double-hit-delay
+  "The maximum delay between the two hit of a double hit in coq/proofgeneral."
+  .25)
+
+(defvar coq-double-hit-timer nil
+  "the timer used to watch for double hits.")
+
+(defvar coq-double-hit-hot nil
+  "The variable telling that a double hit is still possible.")
+
+
+(defun coq-unset-double-hit-hot ()
+  (cancel-timer coq-double-hit-timer)
+  (setq coq-double-hit-hot nil))
+
+(defun coq-colon-self-insert ()
+  (interactive)
+  (if coq-double-hit-hot
+      (progn (coq-unset-double-hit-hot)
+             (delete-char -1) ; remove previously typed char
+             (proof-assert-electric-terminator)); insert the terminator
+    (self-insert-command 1)
+    (setq coq-double-hit-hot t)
+    (setq coq-double-hit-timer
+          (run-with-timer coq-double-hit-delay
+                          nil 'coq-unset-double-hit-hot))))
+
+(define-key coq-mode-map [(.)] 'coq-colon-self-insert)
+(define-key coq-mode-map ?\; 'coq-colon-self-insert)
 
 (provide 'coq)
 
