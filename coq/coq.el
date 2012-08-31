@@ -2676,9 +2676,8 @@ Only when three-buffer-mode is enabled."
 
 ;; Trying to have double hit on colon behave like electric terminator.
 
-(defvar coq-double-hit-delay
-  "The maximum delay between the two hit of a double hit in coq/proofgeneral."
-  .25)
+(defvar coq-double-hit-delay 0.25
+  "The maximum delay between the two hit of a double hit in coq/proofgeneral.")
 
 (defvar coq-double-hit-timer nil
   "the timer used to watch for double hits.")
@@ -2688,8 +2687,10 @@ Only when three-buffer-mode is enabled."
 
 
 (defun coq-unset-double-hit-hot ()
-  (cancel-timer coq-double-hit-timer)
-  (setq coq-double-hit-hot nil))
+  (unless (null coq-double-hit-timer)
+    (cancel-timer coq-double-hit-timer))
+  (setq coq-double-hit-hot nil)
+  (setq coq-double-hit-timer nil))
 
 (defun coq-colon-self-insert ()
   (interactive)
@@ -2703,8 +2704,8 @@ Only when three-buffer-mode is enabled."
           (run-with-timer coq-double-hit-delay
                           nil 'coq-unset-double-hit-hot))))
 
-(define-key coq-mode-map [(.)] 'coq-colon-self-insert)
-(define-key coq-mode-map ?\; 'coq-colon-self-insert)
+(define-key coq-mode-map (kbd ".") 'coq-colon-self-insert)
+(define-key coq-mode-map (kbd ";") 'coq-colon-self-insert) ; for french keyboards
 
 (provide 'coq)
 
