@@ -139,7 +139,7 @@ you a reprimand!)."
   :set   'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-three-window-enable nil
+(defcustom proof-three-window-enable t
   "*Whether response and goals buffers have dedicated windows.
 If non-nil, Emacs windows displaying messages from the prover will not
 be switchable to display other windows.

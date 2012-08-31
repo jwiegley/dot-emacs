@@ -160,9 +160,11 @@ Emacs windows vertically in equal proportions.  You can then adjust
 the proportions by dragging the separating bars.  In three pane mode,
 the canonical layout is to split both horizontally and vertically, to
 display the prover responses in two panes on the right-hand side, and
-the proof script in a taller pane on the left.  A prefix argument will
-prevent the horizontal split, and result in three windows spanning the
-full width of the Emacs frame.
+the proof script in a taller pane on the left. However if
+`proof-three-window-mode-policy' is set to 'smart (it is by default)
+this layout will not be applied if the width of the frame is too small,
+and result in three windows spanning the full width of the Emacs frame.
+See `proof-three-window-mode-policy' for other splitting policy.
 
 For multiple frame mode, this function obeys the setting of
 `pg-response-eagerly-raise', which see."
