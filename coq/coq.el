@@ -884,7 +884,8 @@ flag Printing All set."
           (set-buffer proof-response-buffer)
           (let ((inhibit-read-only 'titi))
             (pg-response-display s)
-            (proof-display-and-keep-buffer proof-response-buffer))))
+            (proof-display-and-keep-buffer proof-response-buffer)
+            (coq-optimise-resp-windows))))
     (if withprintingall
         (coq-ask-do-show-all "Show goal number" "Show" t)
       (coq-ask-do "Show goal number" "Show" t))))
