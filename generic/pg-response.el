@@ -109,22 +109,32 @@ Internal variable, setting this will have no effect!")
 (defun proof-three-window-enable ()
   (proof-layout-windows))
 
-(defun proof-select-three-b (b1 b2 b3 &optional nohorizontalsplit)
-  "Put the given three buffers into three windows."
+(defun proof-select-three-b (b1 b2 b3 &optional policy)
+  "Put the given three buffers into three windows.
+Following POLICY, which can be one of 'smart, 'horizontal, 'vertical."
   (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
   (delete-other-windows)
-  (if nohorizontalsplit
-      (proof-safe-split-window-vertically)
-    (split-window-horizontally))
   (switch-to-buffer b1)
-  (other-window 1)
-  (proof-safe-split-window-vertically)
-  (switch-to-buffer b2)
-  (other-window 1)
-  (switch-to-buffer b3)
-  (other-window 1))
+  (save-selected-window
+    (cond
+     ((eq policy 'horizontal)
+      (split-window-horizontally)
+      (other-window 1)
+      (switch-to-buffer b2))
+     ((eq policy 'vertically)
+      (split-window-vertically)
+      (other-window 1)
+      (switch-to-buffer b2))
+     ((or (null policy) (eq policy 'smart))
+      (display-buffer b2) ; horizontally if frame large enough
+      (other-window 1)))
+    (proof-safe-split-window-vertically) ; enlarge vertically if necessary
+    (other-window 1)
+    (switch-to-buffer b3)))
 
-(defun proof-display-three-b (&optional nohorizontalsplit)
+
+
+(defun proof-display-three-b (&optional policy)
   "Layout three buffers in a single frame.  Only do this if buffers exist."
   (interactive)
   (when (and (buffer-live-p proof-goals-buffer)
@@ -132,7 +142,7 @@ Internal variable, setting this will have no effect!")
     (save-excursion
       (proof-select-three-b
        proof-script-buffer proof-goals-buffer proof-response-buffer
-       nohorizontalsplit))))
+       policy))))
 
 (defvar pg-frame-configuration nil
   "Variable storing last used frame configuration.")
@@ -142,7 +152,7 @@ Internal variable, setting this will have no effect!")
   "Cache the current frame configuration, between prover restarts."
   (setq pg-frame-configuration (current-frame-configuration)))
 
-(defun proof-layout-windows (&optional nohorizontalsplit)
+(defun proof-layout-windows ()
   "Refresh the display of windows according to current display mode.
 
 For single frame mode, this uses a canonical layout made by splitting
@@ -156,7 +166,7 @@ full width of the Emacs frame.
 
 For multiple frame mode, this function obeys the setting of
 `pg-response-eagerly-raise', which see."
-  (interactive "P")
+  (interactive)
   (cond
    (proof-multiple-frames-enable
     (delete-other-windows) ;; hope we're on the right frame/window
@@ -171,7 +181,7 @@ For multiple frame mode, this function obeys the setting of
    (proof-three-window-enable
     (proof-delete-other-frames)
     (set-window-dedicated-p (selected-window) nil)
-    (proof-display-three-b nohorizontalsplit))
+    (proof-display-three-b proof-three-window-mode-policy))
    ;; Two-of-three window mode.
    ;; Show the response buffer as first in preference order.
    (t

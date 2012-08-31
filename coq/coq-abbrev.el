@@ -80,7 +80,11 @@
 ;; Common part (scrit, response and goals buffers)
 (defconst coq-menu-common-entries
   `(
-    ["Toggle 3 windows mode" proof-three-window-toggle t]
+    ["Toggle 3 windows mode" proof-three-window-toggle 
+     :style toggle
+     :selected proof-three-window-enable
+     :help "Toggles the use of separate windows or frames for Coq responses and goals."
+     ]
     ["Refresh windows layout" proof-layout-windows t]
     ["Toggle tooltips" proof-output-tooltips-toggle
      :style toggle

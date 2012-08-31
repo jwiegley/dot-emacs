@@ -177,6 +177,24 @@ and displayed lazily.  See `proof-layout-windows'."
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defcustom proof-three-window-mode-policy 'smart
+  "*Window splitting policy for three window mode.
+- If 'vertical then never split horizontally.
+- If 'horizontal then always have scripting buffer on the right
+  and goal and response buffers on the left (one above the
+  other).
+- If 'smart or anything else means: 'horizontal when the window
+  is wide enough and horizontally otherwise. The widht threshold
+  is given by `split-width-threshold'.
+
+  See `proof-layout-windows'."
+  :type '(choice
+	  (const :tag "Horizontally if frame wide enough" smart)
+	  (const :tag "Horizontally" horizontal)
+	  (const :tag "Vertically" vertical))
+  :group 'proof-user-options)
+
+
 (defcustom proof-delete-empty-windows nil
   "*If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
