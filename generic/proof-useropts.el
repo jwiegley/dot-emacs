@@ -139,7 +139,7 @@ you a reprimand!)."
   :set   'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-three-window-enable t
+(defcustom proof-three-window-enable nil
   "*Whether response and goals buffers have dedicated windows.
 If non-nil, Emacs windows displaying messages from the prover will not
 be switchable to display other windows.
@@ -167,7 +167,8 @@ the goals and response buffers, by altering the Emacs variable
   :set 'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-layout-windows-on-visit-file t
+; Pierre: I really don't think this option is useful. remove?
+(defcustom proof-layout-windows-on-visit-file nil
   "*Whether to eagerly create auxiliary buffers and display windows.
 If non-nil, the output buffers are created and (re-)displayed as soon
 as a proof script file is visited.  Otherwise, the buffers are created
