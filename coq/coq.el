@@ -880,12 +880,11 @@ flag Printing All set."
   (interactive "P")
   (if (proof-in-locked-region-p)
       (let ((s (coq-get-response-string-at)))
-        (save-excursion 
-          (set-buffer proof-response-buffer)
-          (let ((inhibit-read-only 'titi))
-            (pg-response-display s)
-            (proof-display-and-keep-buffer proof-response-buffer)
-            (coq-optimise-resp-windows))))
+        (set-buffer proof-response-buffer)
+        (let ((inhibit-read-only 'titi))
+          (pg-response-display s)
+          (proof-display-and-keep-buffer proof-response-buffer)
+          (coq-optimise-resp-windows)))
     (if withprintingall
         (coq-ask-do-show-all "Show goal number" "Show" t)
       (coq-ask-do "Show goal number" "Show" t))))
@@ -913,7 +912,7 @@ flag Printing All set."
   "Compiles current buffer."
   (interactive)
   (let* ((n (buffer-name))
-	 (l (string-match ".v" n)))
+         (l (string-match ".v" n)))
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
 
@@ -2632,6 +2631,8 @@ number of hypothesis displayed, without hiding the goal"
 (defun is-not-split-vertic (selected-window)
   (<= (- (frame-height) (window-height)) 2))
 
+;; three window mode needs to be called when starting the script
+(add-hook 'proof-activate-scripting-hook '(lambda () (when proof-three-window-enable (proof-layout-windows))))
 
 ;; *Experimental* auto shrink response buffer in three windows mode. Things get
 ;; a bit messed up if the response buffer is not at the right place (below
