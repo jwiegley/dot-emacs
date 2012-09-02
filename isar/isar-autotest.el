@@ -8,18 +8,17 @@
 (defvar isar-long-tests nil
   "Whether or not to perform lengthy tests")
 
-(eval-when-compile
-  (require 'cl))
+(require 'pg-autotest)
 
 (eval-when (compile)
+  (require 'cl)
   (require 'proof-site)
-  (proof-ready-for-assistant 'isar))  
+  (proof-ready-for-assistant 'isar))
+
 
 (declare-function isar-tracing:auto-quickcheck-toggle "isar.el")
 (declare-function isar-tracing:auto-solve-direct-toggle "isar.el")
 (declare-function isar-proof:parallel-proofs-toggle "isar.el")
-
-(require 'pg-autotest)
 
 (unless noninteractive
 
