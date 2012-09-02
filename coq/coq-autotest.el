@@ -8,12 +8,13 @@
 (eval-when-compile
   (require 'cl))
 
+(require 'pg-autotest)
+
 (eval-when (compile)
   (require 'proof-site)
   (proof-ready-for-assistant 'coq)
   (defvar coq-compile-before-require nil))
 
-(require 'pg-autotest)
 
 (unless noninteractive
 
@@ -36,7 +37,7 @@
 
   (pg-autotest remark "Regression testing bug cases...")
   (pg-autotest script-wholefile "etc/coq/parsingcheck-410.v")
-  (pg-autotest script-wholefile "etc/coq/parsingcheck-412.v")
+  ;(pg-autotest script-wholefile "etc/coq/parsingcheck-412.v")
 
   (pg-autotest remark "Testing prove-as-you-go (not replay)")
   (find-file ".autotest.v")
