@@ -1,4 +1,4 @@
-;;; pg-custom.el --- Proof General global variables
+;;; pg-vars.el --- Proof General global variables
 ;;
 ;; Copyright (C) 2008, 2010 LFCS Edinburgh.
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
