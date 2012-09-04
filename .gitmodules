@@ -250,3 +250,6 @@
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
 	url = git://github.com/jwiegley/haskell-config.git
+[submodule "site-lisp/hpaste"]
+	path = site-lisp/hpaste
+	url = git://git.swclan.homelinux.org/hpaste.git
