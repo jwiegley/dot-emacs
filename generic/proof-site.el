@@ -46,7 +46,7 @@
       ;; (lego "LEGO" "l")
       ;; (ccc    "CASL Consistency Checker" "ccc")
 
-      (hol-light "HOL Light" "ml") ; [for testing]
+      ;; (hol-light "HOL Light" "ml") ; [for testing]
 
       ;; Cut-and-paste management only
 
