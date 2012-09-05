@@ -80,27 +80,35 @@
 ;; Common part (scrit, response and goals buffers)
 (defconst coq-menu-common-entries
   `(
-    ["Toggle 3 windows mode" proof-three-window-toggle 
+    ["Toggle 3 Windows Mode" proof-three-window-toggle 
      :style toggle
      :selected proof-three-window-enable
      :help "Toggles the use of separate windows or frames for Coq responses and goals."
      ]
-    ["Refresh windows layout" proof-layout-windows t]
+    ["Refresh Windows Layout" proof-layout-windows t]
     ["Toggle tooltips" proof-output-tooltips-toggle
      :style toggle
      :selected proof-output-tooltips
-     :help "Toggles tooltips (popup when hovering commands).\nSet `proof-output-tooltips' to nil to disable it by default."]
+     :help "Toggles Tooltips (popup when hovering commands).\nSet `proof-output-tooltips' to nil to disable it by default."]
+    ["Electric Terminator" proof-electric-terminator-toggle
+     :style toggle
+     :selected proof-electric-terminator-enable
+     :help "Automatically send commands when terminator typed"]
+    ["Double Hit Electric Terminator" coq-double-hit-toggle
+     :style toggle
+     :selected coq-double-hit-enable
+     :help "Automatically send commands when terminator typed twiced quickly."]
     ""
     ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
     ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]
     ["About..." coq-About :help "With prefix arg (C-u): Set Printing All first"]
-    [ "Store response" proof-store-response-win :help "Stores the content of response buffer in a dedicated buffer"]
-    [ "Store goal" proof-store-goals-win  :help "Stores the content of goals buffer in a dedicated buffer"]
+    [ "Store Response" proof-store-response-win :help "Stores the content of response buffer in a dedicated buffer"]
+    [ "Store Goal" proof-store-goals-win  :help "Stores the content of goals buffer in a dedicated buffer"]
     ("OTHER QUERIES"
      ["Print Hint" coq-PrintHint t]
-     ["Show ith goal..." coq-Show t]
-     ["Show ith goal... (show implicits)" coq-Show-with-implicits t]
-     ["Show ith goal... (show all)" coq-Show-with-all t]
+     ["Show ith Goal..." coq-Show t]
+     ["Show ith Goal... (show implicits)" coq-Show-with-implicits t]
+     ["Show ith Goal... (show all)" coq-Show-with-all t]
      ["Show Tree" coq-show-tree t]
      ["Show Proof" coq-show-proof t]
      ["Show Conjectures" coq-show-conjectures t];; maybe not so useful with editing in PG?
@@ -135,10 +143,10 @@
     ("INSERT"
      ["Intros (smart)" coq-insert-intros :help "Insert \"intros h1 .. hn.\" where hi are the default names given by Coq."]
      ""
-     ["tactic (interactive)" coq-insert-tactic t]
-     ["tactical (interactive)" coq-insert-tactical t]
-     ["command (interactive)" coq-insert-command t]
-     ["term (interactive)" coq-insert-term t]
+     ["Tactic (interactive)" coq-insert-tactic t]
+     ["Tactical (interactive)" coq-insert-tactical t]
+     ["Command (interactive)" coq-insert-command t]
+     ["Term (interactive)" coq-insert-term t]
      ""
      ,coq-tactics-menu
      ,coq-tacticals-menu
@@ -149,17 +157,17 @@
      ["Require (smart)" coq-insert-requires t])
     ""
     ("ABBREVS"
-     ["Expand at point" expand-abbrev t]
-     ["Unexpand last" unexpand-abbrev t]
-     ["List abbrevs" list-abbrevs t]
-     ["Edit abbrevs" edit-abbrevs t]
-     ["Abbrev mode" abbrev-mode
+     ["Expand At Point" expand-abbrev t]
+     ["Unexpand Last" unexpand-abbrev t]
+     ["List Abbrevs" list-abbrevs t]
+     ["Edit Abbrevs" edit-abbrevs t]
+     ["Abbrev Mode" abbrev-mode
       :style toggle
       :selected (and (boundp 'abbrev-mode) abbrev-mode)])
     ""
     ("COQ PROG (ARGS)"
-     ["Set coq prog *persistently*" coq-ask-insert-coq-prog-name t]
-     ["help on setting persistently" coq-local-vars-list-show-doc t]
+     ["Set Coq Prog *persistently*" coq-ask-insert-coq-prog-name t]
+     ["help" coq-local-vars-list-show-doc t]
      ["Compile" coq-Compile t]))))
 
 (defpgdefault help-menu-entries

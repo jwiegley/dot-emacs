@@ -871,14 +871,23 @@ must be in locked region."
       (span-property (span-at (point) 'response) 'response))))
 
 (defun coq-Show (withprintingall)
-  "Ask for a number i and show the ith goal, or show ancient goal.
-If point is on a locked span, show the corresponding coq
-output (i.e. for tactics: the goal after the tactic). Otherwise
-ask for a number i and show the ith current goal. With non-nil
+  "Ask for a number i and show the ith goal.
+Ask for a number i and show the ith current goal. With non-nil
 prefix argument and not on the locked span, show the goal with
 flag Printing All set."
+; Disabled:
+;  "Ask for a number i and show the ith goal, or show ancient goal.
+;If point is on a locked span, show the corresponding coq
+;output (i.e. for tactics: the goal after the tactic). Otherwise
+;ask for a number i and show the ith current goal. With non-nil
+;prefix argument and not on the locked span, show the goal with
+;flag Printing All set."
+;
   (interactive "P")
-  (if (proof-in-locked-region-p)
+  ;; Disabling this as this relies on 'response attribute that is empty when
+  ;; the command was processed silently. We should first have a coq command
+  ;; asking to print the goal at a given state.
+  (if nil ;(proof-in-locked-region-p)
       (let ((s (coq-get-response-string-at)))
         (set-buffer proof-response-buffer)
         (let ((inhibit-read-only 'titi))
@@ -2634,6 +2643,9 @@ number of hypothesis displayed, without hiding the goal"
 ;; three window mode needs to be called when starting the script
 (add-hook 'proof-activate-scripting-hook '(lambda () (when proof-three-window-enable (proof-layout-windows))))
 
+;; three window mode needs to be called when starting the script
+(add-hook 'proof-activate-scripting-hook '(lambda () (when proof-three-window-enable (proof-layout-windows))))
+
 ;; *Experimental* auto shrink response buffer in three windows mode. Things get
 ;; a bit messed up if the response buffer is not at the right place (below
 ;; goals buffer) TODO: Have this linked to proof-resize-window-tofit in
@@ -2677,6 +2689,34 @@ Only when three-buffer-mode is enabled."
 
 
 ;; Trying to have double hit on colon behave like electric terminator.
+; TODO Have the same for other commands, but with insertion at all.
+
+(defcustom coq-double-hit-enable nil
+  "* Experimental: Whether or not double hit should be enabled in coq mode.
+A double hit is performed by pressing twice a key quickly. If
+this variable is not nil, then 1) it means that electric
+terminator is off and 2) a double hit on the terminator act as
+the usual electric terminator. See `proof-electric-terminator'.
+"
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
+ (defun coq-double-hit-enable ()
+   "Disables electric terminator since double hit is a replacement.
+This function is called by `proof-set-value' on `coq-double-hit-enable'."
+   (when (and coq-double-hit-enable proof-electric-terminator-enable)
+     (proof-electric-terminator-toggle 0)))
+
+(proof-deftoggle coq-double-hit-enable coq-double-hit-toggle)
+
+(defadvice proof-electric-terminator-enable (after coq-unset-double-hit-advice)
+  "Disable double hit terminator since electric terminator is a replacement.
+This is an advice to pg `proof-electric-terminator-enable' function."
+  (when (and coq-double-hit-enable proof-electric-terminator-enable)
+    (coq-double-hit-toggle 0)))
+
+(ad-activate 'proof-electric-terminator-enable)
 
 (defvar coq-double-hit-delay 0.25
   "The maximum delay between the two hit of a double hit in coq/proofgeneral.")
@@ -2689,12 +2729,16 @@ Only when three-buffer-mode is enabled."
 
 
 (defun coq-unset-double-hit-hot ()
-  (unless (null coq-double-hit-timer)
-    (cancel-timer coq-double-hit-timer))
+  "Disable timer `coq-double-hit-timer' and set it to nil. Shut
+off the current double hit if any. This function is supposed to
+be called at double hit timeout."
+  (when coq-double-hit-timer (cancel-timer coq-double-hit-timer))
   (setq coq-double-hit-hot nil)
   (setq coq-double-hit-timer nil))
 
 (defun coq-colon-self-insert ()
+  "Detect a double hit and act as electric terminator if detected.
+Starts a timer for a double hit otherwise."
   (interactive)
   (if coq-double-hit-hot
       (progn (coq-unset-double-hit-hot)
@@ -2706,8 +2750,20 @@ Only when three-buffer-mode is enabled."
           (run-with-timer coq-double-hit-delay
                           nil 'coq-unset-double-hit-hot))))
 
-(define-key coq-mode-map (kbd ".") 'coq-colon-self-insert)
-(define-key coq-mode-map (kbd ";") 'coq-colon-self-insert) ; for french keyboards
+(defun coq-terminator-insert (&optional count)
+  "A wrapper on `proof-electric-terminator' to accept double hits instead if enabled.
+If by accident `proof-electric-terminator-enable' and `coq-double-hit-enable'
+are non-nil at the same time, this gives priority to the former."
+  (interactive)
+  (if proof-electric-terminator-enable (proof-electric-terminator count)
+    (if (and coq-double-hit-enable (null count))
+        (coq-colon-self-insert)
+      (self-insert-command (or count 1)))))
+
+;; Setting the new mapping for terminator
+(define-key coq-mode-map (kbd ".") 'coq-terminator-insert)
+;(define-key coq-mode-map (kbd ";") 'coq-terminator-insert) ; for french keyboards
+
 
 (provide 'coq)
 

@@ -121,7 +121,7 @@ Following POLICY, which can be one of 'smart, 'horizontal, 'vertical."
       (split-window-horizontally)
       (other-window 1)
       (switch-to-buffer b2))
-     ((eq policy 'vertically)
+     ((eq policy 'vertical)
       (split-window-vertically)
       (other-window 1)
       (switch-to-buffer b2))

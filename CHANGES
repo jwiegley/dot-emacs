@@ -28,13 +28,27 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 ** Coq changes
 
-*** Multiple file handling for Coq Feature.
+*** Smarter three windows mode:
+    When the frame is not large enough, the three windows are
+    displayed vertically, otherwise goals and response buffers are
+    displayed on the right. C-c C-l to refresh after resizing the
+    frame.
 
+    If you want to always have goals and response buffers displayed on
+    the right:
+     (setq proof-three-window-mode-policy 'horizontal).
+    Always three buffers diaplayed vertically:
+     (setq proof-three-window-mode-policy 'vertical).
+
+     Or via customization menus.
+
+*** Multiple file handling for Coq Feature.
     No more experimental. Set coq-load-path to the list of directories
     for libraries (you can attach it to the file using menu "coq prog
-    args").
+    args"). Many thanks to Hendrik Tews for that great peace of code!
 
 *** Support proof-tree visualization
+    Many thanks to Hendrik Tews for that too!
 
 *** New commands for Print/Check/About/Show with "Printing All" flag
     Avoids typing "Printing All" in the buffer. See the menu Coq >
@@ -46,9 +60,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 		Check.
 		Unset Printing All. )
 
-*** Coq menu visible in Response and goals buffers.
-    Shortcuts available too (Check, Print etc.) in response and goals
-    buffers.
+*** Coq menus and shortcut in response and goals buffers.
+    Check, Print etc available in these buffers.
 
 *** Tooltips hidden by default
     Flickering when hovering commands is off by default!
@@ -58,12 +71,18 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** New setting for hiding additional goals from the *goals* buffer
     Coq > Settings > Hide additional subgoals
 
+*** Double hit terminator
+    Experimental: Same as electric terminator except you have to type
+    "." twice quickly. Electric terminator will stop getting in the
+    way all the time with module.notations.
+     Coq > Double Hit Electric Terminator.
+
 *** Indentation improvements using SMIE. Supporting bullets and { }.
     Still experimental. Please submit bugs.
 
-****  Limitations of indentation:
+    IMPORTANT: Limitations of indentation:
 
-***** hard-wired precedence between bullets: - < + < *
+    - hard-wired precedence between bullets: - < + < *
      example:
      Proof.
        - split.
@@ -75,9 +94,10 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
        - auto.
      Qed.
 
-***** Always use "Proof." when proving an "Instance". (wrong
-      indentation and slow downs otherwise) As a general rule, try to
-      always introduce a proof with "Proof." (or "Next Obligation").
+    - Always use "Proof." when proving an "Instance" (wrong
+      indentation and slow downs otherwise). As a general rule, try to
+      always introduce a proof with "Proof." (or "Next Obligation"
+      with Program).
 
 *** Minor parsing fixes
 *** Windows resizing fixed
