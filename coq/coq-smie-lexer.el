@@ -272,7 +272,7 @@ The point should be at the beginning of the command name."
 	  (concat tok newtok)))
        (t (save-excursion (coq-smie-backward-token))))) ;; recursive call
      ((member tok
-	      '("=>" ":=" "+" "-" "*" "exists" "in" "as" "∀" "∃" "→" ";" "," ":"))
+	      '("=>" ":=" "+" "-" "*" "exists" "in" "as" "∀" "∃" "→" ";" "," ":" "eval"))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
@@ -490,16 +490,35 @@ The point should be at the beginning of the command name."
 	   ((member prev-interesting '("Morphism" "Relation")) "as morphism")
 	   (t tok)))))
 
+     ((equal tok "by")
+      (let ((p (point)))
+	(if (and (equal (smie-default-backward-token) "proved")
+		 (member (smie-default-backward-token)
+			 '("transitivity" "symmetry" "reflexivity")))
+	    "xxx provedby"
+	  (goto-char p)
+	  tok))) ; by tactical
+
+
+     ((equal tok "eval")
+      (if (member (save-excursion
+		    (forward-char 4)
+		    (smie-default-forward-token))
+		  '("red" "hnf" "compute" "simpl" "cbv" "lazy" "unfold" "fold" "pattern"))
+	  "eval in" tok))
+     
+
      ((equal tok "in")
       (save-excursion
 	(let ((prev-interesting
 	       (coq-smie-search-token-backward
-		'("let" "match" "eval" "." ) nil
+		'("let" "match" ;"eval" should be "eval in" but this is not supported by search-token-backward
+		  "." ) nil
 		'(("match" . "with") (("let" "eval") . "in")))))
 	  (cond
 	   ((member prev-interesting '("." nil)) "in tactic")
 	   ((equal prev-interesting "let") "in let")
-	   ((equal prev-interesting "eval") "in eval")
+	   ((equal prev-interesting "eval in") "in eval")
 	   ((equal prev-interesting "match") "in match")
 	   (t "in tactic")))))
 
@@ -561,7 +580,7 @@ Lemma foo: forall n,
 	 (exp "xxx provedby" exp) (exp "as morphism" exp)
 	 (exp "with signature" exp)
 	 ("match" matchexp "with match" exp "end");expssss
-	 ("let" assigns "in let" exp) ("eval" assigns "in eval" exp)
+	 ("let" assigns "in let" exp) ("eval in" assigns "in eval" exp)
 	 ("fun" exp "=> fun" exp) ("if" exp "then" exp "else" exp)
 	 ("quantif exists" exp ", quantif" exp)
 	 ("forall" exp ", quantif" exp)
