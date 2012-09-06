@@ -514,11 +514,12 @@ The point should be at the beginning of the command name."
 	       (coq-smie-search-token-backward
 		'("let" "match" ;"eval" should be "eval in" but this is not supported by search-token-backward
 		  "." ) nil
-		'(("match" . "with") (("let" "eval") . "in")))))
+		'(("match" . "with") (("let" ;"eval"
+				       ) . "in")))))
 	  (cond
 	   ((member prev-interesting '("." nil)) "in tactic")
 	   ((equal prev-interesting "let") "in let")
-	   ((equal prev-interesting "eval in") "in eval")
+	   ;((equal prev-interesting "eval in") "in eval"); not detectable by coq-smie-search-token-backward
 	   ((equal prev-interesting "match") "in match")
 	   (t "in tactic")))))
 
@@ -580,7 +581,7 @@ Lemma foo: forall n,
 	 (exp "xxx provedby" exp) (exp "as morphism" exp)
 	 (exp "with signature" exp)
 	 ("match" matchexp "with match" exp "end");expssss
-	 ("let" assigns "in let" exp) ("eval in" assigns "in eval" exp)
+	 ("let" assigns "in let" exp) ;("eval in" assigns "in eval" exp) disabled
 	 ("fun" exp "=> fun" exp) ("if" exp "then" exp "else" exp)
 	 ("quantif exists" exp ", quantif" exp)
 	 ("forall" exp ", quantif" exp)
