@@ -653,23 +653,32 @@ If locked span already has a state number, then do nothing. Also updates
     )
   )
 
+(defun coq-remove-trailing-dot (s)
+  "Return the string S without its trailing \".\" if any.
+Return nil if s is nil."
+  (if (and s (string-match "\\.\\>" s)) (substring s 0 (- (length s) 1))
+    symb))
+
 ;; remove trailing dot if any.
 (defun coq-id-at-point ()
+  "Return the identifier at current point.
+Support dot.notation.of.modules."
   (let* ((symb
           (symbol-name (cond 
                         ((fboundp 'symbol-near-point) (symbol-near-point))
                         ((fboundp 'symbol-at-point) (symbol-at-point))
                         (t 'nothing))))
-         (symbclean (if symb
-                        (if (string-match "\\.\\>" symb)
-                            (substring symb 0 (- (length symb) 1))
-                          symb)
-                      nil)))
+         (symbclean (coq-remove-trailing-dot symb)))
     (if (zerop (length symbclean)) nil symbclean)))
 
 
 (defun coq-guess-or-ask-for-string (s &optional dontguess)
-  "Get coq id at point."
+  "Asks for a coq identifier with message S.
+If DONTGUESS is non nil, propose a default value as follows:
+
+If region is active, propose its containt as default value.
+
+Otherwise propose identifier at point if any."
   (let* ((dummy (modify-syntax-entry ?\. "w"))
          (guess
          (cond
