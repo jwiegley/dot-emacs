@@ -663,11 +663,13 @@ Return nil if s is nil."
 (defun coq-id-at-point ()
   "Return the identifier at current point.
 Support dot.notation.of.modules."
+  (dummy (modify-syntax-entry ?\. "w")) ; temporary for dot notation
   (let* ((symb
           (symbol-name (cond 
                         ((fboundp 'symbol-near-point) (symbol-near-point))
                         ((fboundp 'symbol-at-point) (symbol-at-point))
                         (t 'nothing))))
+         (dummy (modify-syntax-entry ?\. ".")) ; go back to ususal syntax
          (symbclean (coq-remove-trailing-dot symb)))
     (if (zerop (length symbclean)) nil symbclean)))
 
@@ -679,13 +681,13 @@ If DONTGUESS is non nil, propose a default value as follows:
 If region is active, propose its containt as default value.
 
 Otherwise propose identifier at point if any."
-  (let* ((dummy (modify-syntax-entry ?\. "w"))
+  (let* (
          (guess
-         (cond
-          (dontguess nil)
-          ((use-region-p)
-           (buffer-substring-no-properties (region-beginning) (region-end)))
-          (t (coq-id-at-point)))))
+          (cond
+           (dontguess nil)
+           ((use-region-p)
+            (buffer-substring-no-properties (region-beginning) (region-end)))
+           (t (coq-id-at-point)))))
     (read-string
      (if guess (concat s " (default " guess "): ") (concat s ": "))
      nil 'proof-minibuffer-history guess)))
@@ -911,13 +913,15 @@ flag Printing All set."
   ;; Disabling this as this relies on 'response attribute that is empty when
   ;; the command was processed silently. We should first have a coq command
   ;; asking to print the goal at a given state.
-  (if nil ;(proof-in-locked-region-p)
+  (if (proof-in-locked-region-p)
       (let ((s (coq-get-response-string-at)))
-        (set-buffer proof-response-buffer)
-        (let ((inhibit-read-only 'titi))
-          (pg-response-display s)
-          (proof-display-and-keep-buffer proof-response-buffer)
-          (coq-optimise-resp-windows)))
+        (if (zerop (length (coq-get-response-string-at)))
+            (message "Cannot show the state at this point: Coq was silent during this command.")
+          (set-buffer proof-response-buffer)
+          (let ((inhibit-read-only 'titi))
+            (pg-response-display s)
+            (proof-display-and-keep-buffer proof-response-buffer)
+            (coq-optimise-resp-windows))))
     (if withprintingall
         (coq-ask-do-show-all "Show goal number" "Show" t)
       (coq-ask-do "Show goal number" "Show" t))))
