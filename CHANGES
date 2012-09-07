@@ -77,6 +77,15 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     way all the time with module.notations.
      Coq > Double Hit Electric Terminator.
 
+    Note 1: Mutually exclusive with usual electric terminator.
+
+    Note 2: For french keyboard it may be convenient to map ";"
+    instead of ".":
+
+(add-hook 'proof-mode-hook
+ (lambda () (define-key coq-mode-map (kbd ";") 'coq-terminator-insert)))
+
+
 *** Indentation improvements using SMIE. Supporting bullets and { }.
     Still experimental. Please submit bugs.
 
@@ -98,6 +107,13 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
       indentation and slow downs otherwise). As a general rule, try to
       always introduce a proof with "Proof." (or "Next Obligation"
       with Program).
+
+*** "Show" shows the (cached) state of the proof at point.
+    If Show goals (C-c C-a C-s) is performed when point is on a locked
+    region, then it shows the prover state as stored by proofgeneral
+    at this point. This works only when the command at point has been
+    processed by "next step" (otherwise coq was silent at this point
+    and nothing were cached).
 
 *** Minor parsing fixes
 *** Windows resizing fixed
