@@ -663,14 +663,14 @@ Return nil if s is nil."
 (defun coq-id-at-point ()
   "Return the identifier at current point.
 Support dot.notation.of.modules."
-  (dummy (modify-syntax-entry ?\. "w")) ; temporary for dot notation
+  (modify-syntax-entry ?\. "w") ; temporary for dot notation
   (let* ((symb
           (symbol-name (cond 
                         ((fboundp 'symbol-near-point) (symbol-near-point))
                         ((fboundp 'symbol-at-point) (symbol-at-point))
                         (t 'nothing))))
-         (dummy (modify-syntax-entry ?\. ".")) ; go back to ususal syntax
          (symbclean (coq-remove-trailing-dot symb)))
+    (modify-syntax-entry ?\. ".") ; go back to ususal syntax
     (if (zerop (length symbclean)) nil symbclean)))
 
 
