@@ -653,15 +653,30 @@ If locked span already has a state number, then do nothing. Also updates
     )
   )
 
+;; remove trailing dot if any.
+(defun coq-id-at-point ()
+  (let* ((symb
+          (symbol-name (cond 
+                        ((fboundp 'symbol-near-point) (symbol-near-point))
+                        ((fboundp 'symbol-at-point) (symbol-at-point))
+                        (t 'nothing))))
+         (symbclean (if symb
+                        (if (string-match "\\.\\>" symb)
+                            (substring symb 0 (- (length symb) 1))
+                          symb)
+                      nil)))
+    (if (zerop (length symbclean)) nil symbclean)))
+
+
 (defun coq-guess-or-ask-for-string (s &optional dontguess)
-  (let ((guess
+  "Get coq id at point."
+  (let* ((dummy (modify-syntax-entry ?\. "w"))
+         (guess
          (cond
           (dontguess nil)
           ((use-region-p)
            (buffer-substring-no-properties (region-beginning) (region-end)))
-          ((fboundp 'symbol-near-point) (symbol-near-point))
-          ((fboundp 'symbol-at-point) (symbol-at-point)))))
-    (if (and guess (symbolp guess)) (setq guess (symbol-name guess)))
+          (t (coq-id-at-point)))))
     (read-string
      (if guess (concat s " (default " guess "): ") (concat s ": "))
      nil 'proof-minibuffer-history guess)))
