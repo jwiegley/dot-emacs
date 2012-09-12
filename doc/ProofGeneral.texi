@@ -4770,6 +4770,12 @@ Starting with Proof General version 4.2 and Coq version 8.4, Coq
 Proof General has full support for proof-tree visualization, 
 @pxref{Graphical Proof-Tree Visualization}.
 
+Proof-tree visualization does currently not support Coq's command 
+``Grab Existential Variables''.
+
+For the visualization to work properly, proofs must be started
+with ``Proof.'', which is encouraged practice anyway (see Coq Bug
+#2776).
 
 @c =================================================================
 @c

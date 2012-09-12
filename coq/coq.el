@@ -199,8 +199,14 @@ See also `coq-hide-additional-subgoals'."
   :group 'coq-config
   :package-version '(ProofGeneral . "4.2"))
 
+;; Ignore all commands that start a proof. Otherwise "Proof" will appear
+;; as superfluous node in the proof tree. Note that we cannot ignore Proof,
+;; because, Fixpoint does not display the proof goal, see Coq bug #2776. 
 (defcustom coq-proof-tree-ignored-commands-regexp
-  "^\\(Show\\)\\|\\(Locate\\)"
+  (concat "^\\(\\(Show\\)\\|\\(Locate\\)\\|"
+          "\\(Theorem\\)\\|\\(Lemma\\)\\|\\(Remark\\)\\|\\(Fact\\)\\|"
+          "\\(Corollary\\)\\|\\(Proposition\\)\\|\\(Definition\\)\\|"
+          "\\(Let\\)\\|\\(Fixpoint\\)\\|\\(CoFixpoint\\)\\)")
   "Regexp for `proof-tree-ignored-commands-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)

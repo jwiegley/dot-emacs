@@ -118,9 +118,12 @@
 (defcustom proof-tree-ignored-commands-regexp nil
   "Commands that should be ignored for the prooftree display.
 The output of commands matching this regular expression is not
-send to prooftree. It should match commands that display
+sent to prooftree. It should match commands that display
 additional information but do not make any proof progress. Leave
-at nil to act on all commands."
+at nil to act on all commands.
+
+For Coq this regular expression should contain all commands such
+as Lemma, that can start a proof."
   :type '(choice regexp (const nil))
   :group 'proof-tree-internals)
 
