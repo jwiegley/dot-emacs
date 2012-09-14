@@ -224,7 +224,8 @@ See also `coq-hide-additional-subgoals'."
   :group 'coq-proof-tree)
 
 (defcustom coq-proof-tree-current-goal-regexp
-  (concat "^[0-9]+ subgoal\\(?:s, subgoal 1\\)? "
+  (concat "^[0-9]+ \\(?:focused \\)?subgoal\\(?:s\\)?"
+          "\\(?: (unfocused: [0-9]+)\\)?\\(?:\\s-*, subgoal 1\\)? "
           "(ID \\([0-9]+\\))\n\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)")
   "Regexp for `proof-tree-current-goal-regexp'."
   :type 'regexp
