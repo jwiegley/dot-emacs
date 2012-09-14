@@ -662,9 +662,10 @@ If locked span already has a state number, then do nothing. Also updates
 
 (defun coq-remove-trailing-dot (s)
   "Return the string S without its trailing \".\" if any.
-Return nil if s is nil."
-  (if (and s (string-match "\\.\\>" s)) (substring s 0 (- (length s) 1))
-    symb))
+Return nil if S is nil."
+  (if (and s (string-match "\\.\\>" s))
+      (substring s 0 (- (length s) 1))
+    s))
 
 ;; remove trailing dot if any.
 (defun coq-id-at-point ()
