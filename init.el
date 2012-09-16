@@ -7,7 +7,17 @@
 (unless noninteractive
   (message "Loading %s..." load-file-name))
 
-(load (expand-file-name "load-path" (file-name-directory load-file-name)))
+;; remember this directory and set as user directory (instead of .emacs.d)
+(setq start-dir
+      (file-name-directory (or load-file-name (buffer-file-name))))
+(setq user-emacs-directory start-dir)
+
+;; pre-ignition config variables
+(if (file-exists-p
+  (expand-file-name (concat user-login-name ".el") start-dir))
+  (load (expand-file-name user-login-name start-dir)))
+
+(load (expand-file-name "load-path" start-dir))
 
 (require 'use-package)
 (eval-when-compile

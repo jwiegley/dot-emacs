@@ -26,27 +26,17 @@
     (if (cadr entry)
         (add-to-load-path (car entry) dir))))
 
-(mapc #'add-to-load-path
-      (nreverse
-       (list
-        user-emacs-directory
+(if (and (boundp 'misc-dirs)
+         misc-dirs)
+    (mapc #'add-to-load-path
+          (nreverse misc-dirs)))
 
-        "override/bbdb/lisp/"
-        "override/gnus/contrib/"
-        "override/gnus/lisp/"
-        "override/org-mode/contrib/lisp/"
-        "override/org-mode/lisp/"
-        "override/tramp/lisp/"
+(if (and (boundp 'override-dirs)
+         override-dirs)
+    (mapc #'add-to-load-path
+          (nreverse override-dirs)))
 
-        ;; Packages located elsewhere on the system...
-        "~/src/ledger/lisp/"
-
-        "/usr/local/share/emacs/site-lisp/"
-        "/opt/local/share/emacs/site-lisp/"
-        "/opt/local/share/doc/git-core/contrib/emacs/"
-        "/Users/johnw/Archives/Languages/Ruby/Sources/ruby/misc/"
-        "/opt/local/share/texmf-texlive-dist/doc/latex/latex2e-help-texinfo/"
-        )))
+(add-to-load-path user-emacs-directory)
 
 (let ((cl-p load-path))
   (while cl-p
