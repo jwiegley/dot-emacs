@@ -729,9 +729,7 @@
         (if (or (bolp) (and (/= 2 class)
                             (/= 3 class)))
             (call-interactively 'indent-according-to-mode)
-          (if t
-              (call-interactively 'auto-complete)
-            (call-interactively 'company-complete-common)))))
+          (call-interactively 'auto-complete))))
 
     (defvar printf-index 0)
 
@@ -764,15 +762,12 @@
 
       (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
 
-      (if t
-          (progn
-            (auto-complete-mode 1)
-            (setq ac-sources (list (if (featurep 'semantic)
-                                       'ac-source-semantic
-                                     'ac-source-gtags)))
-            (bind-key "<A-tab>" 'ac-complete c-mode-base-map))
-        (company-mode 1)
-        (bind-key "<A-tab>" 'company-complete-common c-mode-base-map))
+      (auto-complete-mode 1)
+      (setq ac-sources (list (if (and (fboundp 'semantic-active-p)
+                                      (funcall #'semantic-active-p))
+                                 'ac-source-semantic
+                               'ac-source-gtags)))
+      (bind-key "<A-tab>" 'ac-complete c-mode-base-map)
 
       ;;(doxymacs-mode 1)
       ;;(doxymacs-font-lock)
@@ -1701,7 +1696,10 @@ The output appears in the buffer `*Async Shell Command*'."
                                                 :user "johnw"
                                                 :type 'netrc
                                                 :port 6667))
-                       :secret)))))
+                       :secret))))
+
+    (add-hook 'after-init-hook 'im)
+    (add-hook 'after-init-hook 'irc))
 
   :config
   (progn

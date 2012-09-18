@@ -43,13 +43,30 @@
 
 (define-abbrev-table 'dig-mode-abbrev-table '())
 
+(define-abbrev-table 'dvc-info-buffer-mode-abbrev-table '())
+
+(define-abbrev-table 'dvc-log-buffer-mode-abbrev-table '())
+
+(define-abbrev-table 'dvc-process-buffer-mode-abbrev-table '())
+
 (define-abbrev-table 'edebug-eval-mode-abbrev-table '())
 
 (define-abbrev-table 'emacs-lisp-mode-abbrev-table '())
 
+(define-abbrev-table 'erc-dcc-chat-mode-abbrev-table '())
+
+(define-abbrev-table 'erc-list-menu-mode-abbrev-table '())
+
+(define-abbrev-table 'erc-mode-abbrev-table
+  '(
+    ("bottom" "⊥" nil 3)
+   ))
+
 (define-abbrev-table 'eshell-mode-abbrev-table '())
 
 (define-abbrev-table 'fundamental-mode-abbrev-table '())
+
+(define-abbrev-table 'gist-list-mode-abbrev-table '())
 
 (define-abbrev-table 'global-abbrev-table
   '(
@@ -129,6 +146,8 @@
 (define-abbrev-table 'sr-tree-mode-abbrev-table '())
 
 (define-abbrev-table 'sr-virtual-mode-abbrev-table '())
+
+(define-abbrev-table 'tabulated-list-mode-abbrev-table '())
 
 (define-abbrev-table 'text-mode-abbrev-table '())
 

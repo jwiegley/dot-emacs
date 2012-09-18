@@ -1,1 +1,1 @@
-run -d1 --c --llvm_file_name - ~/src/edg/test/eok_address_of.c
+run --gcc --llvm_file_name - ~/src/edg/test/

@@ -134,9 +134,7 @@ Stores the window cofiguration before creating and/or switching window."
 	 ;; Find out which directory we are in (the method differs for
 	 ;; different buffers)
 	 (or (and make-cd
-		  (buffer-file-name)
-		  (file-name-directory (buffer-file-name))
-		  (concat "cd " (file-name-directory (buffer-file-name))))
+                  (concat "cd " default-directory))
 	     (and make-cd
 		  list-buffers-directory
 		  (concat "cd " list-buffers-directory)))))

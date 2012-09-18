@@ -24,6 +24,8 @@
 
 ;;(load "org-log" t)
 
+(defun org-link-to-named-task ()
+  (interactive))
 (fset 'org-link-to-named-task
    [?\C-  ?\C-  ?\C-e ?\C-w ?\C-s ?\M-y ?\C-a ?\M-f ?\C-c ?S ?\C-u ?\C-  ?\C-c ?\C-l return return ?\C-x ?\C-x ?\C-  ?\C- ])
 
