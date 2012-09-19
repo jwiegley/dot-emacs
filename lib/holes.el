@@ -625,8 +625,9 @@ created.  Return the number of holes created."
        (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
       (t
        (goto-char pos)
-       (message (substitute-command-keys
-		 "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc."))))))
+       (unless (active-minibuffer-window) ; otherwise minibuffer gets hidden
+	 (message (substitute-command-keys
+		   "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))))
 
 
 ;;;###autoload
