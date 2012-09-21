@@ -172,7 +172,7 @@ results will be undefined when files are saved."
     ("-O" . "⊖")
     ("xO" . "⊗")
     ("/O" . "⊘")
-    (".O" . "⊙")
+    ;(".O" . "⊙") ; bad interaction with electric terminatore and double hit terminator
     ("|+" . "†")
     ("|++" . "‡")
     ("<=" . "≤")
