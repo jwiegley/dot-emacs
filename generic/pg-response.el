@@ -150,23 +150,6 @@ Following POLICY, which can be one of 'smart, 'horizontal,
       (other-window 1)
       (switch-to-buffer b3))))))
 
-     ;; ((or (null policy) (eq policy 'smart))
-     ;;  (if (<= (frame-width) (* 1.5 split-width-threshold))
-     ;; 	  (progn
-     ;; 	    (display-buffer b2) ; horizontally if frame large enough
-     ;; 	    (other-window 1)
-     ;; 	    (proof-safe-split-window-vertically) ; enlarge vertically if necessary
-     ;; 	    (other-window 1)
-     ;; 	    (switch-to-buffer b3))
-     ;; 	(display-buffer b2) ; horizontally, should be large enough
-     ;; 	(other-window 1)
-     ;; 	(enlarge-window (/ (window-width) 6) t)
-     ;; 	(split-window-horizontally) ; horizontally again
-     ;; 	(other-window 1)
-     ;; 	(switch-to-buffer b3)))
-
-  ;(proof-equalize-horizontally)
-
 
 
 
@@ -197,8 +180,10 @@ For multiple frame mode, this function obeys the setting of
 For single frame mode:
 
 - In two panes mode, this uses a canonical layout made by splitting
-Emacs windows vertically in equal proportions.  You can then adjust
-the proportions by dragging the separating bars.
+Emacs windows in equal proportions. The splitting is vertical if
+emacs width is smaller than `split-width-threshold' and
+horizontal otherwise. You can then adjust the proportions by
+dragging the separating bars.
 
 - In three pane mode, there are three display modes, depending
   where the three useful buffers are displayed: scripting
