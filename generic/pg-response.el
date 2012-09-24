@@ -201,8 +201,8 @@ Emacs windows vertically in equal proportions.  You can then adjust
 the proportions by dragging the separating bars.
 
 - In three pane mode, there are three display modes, depending
-  where the three useful buffers are dislayed: scripting
-  buffer (s), goals buffer (g) and response buffer (r).
+  where the three useful buffers are displayed: scripting
+  buffer, goals buffer and response buffer.
 
   Here are the three modes:
 
