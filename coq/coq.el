@@ -1011,6 +1011,17 @@ flag Printing All set."
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;; General consensus among users: flickering spans are much too annoying
+;; compared to the usefulness of tooltips.
+;; Set to t to bring it back%%
+;;
+;; FIXME: this always sets proof-output-tooltips to nil, even if the user puts
+;; explicitely the reverse in it sconfig file. I just want to change the
+;; *default* value to nil.
+(custom-set-default 'proof-output-tooltips nil)
+
+
 (defun coq-mode-config ()
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
@@ -1079,11 +1090,6 @@ flag Printing All set."
 
   ;; span menu
   (setq proof-script-span-context-menu-extensions 'coq-create-span-menu)
-
-  ;; General consensus among users: flickering spans are much too annoying
-  ;; compared to the usefulness of tooltips.
-  ;; Set to t to bring it back
-  (setq proof-output-tooltips nil)
 
   (setq proof-shell-start-silent-cmd "Set Silent. "
         proof-shell-stop-silent-cmd "Unset Silent. ")

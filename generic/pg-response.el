@@ -111,26 +111,62 @@ Internal variable, setting this will have no effect!")
 
 (defun proof-select-three-b (b1 b2 b3 &optional policy)
   "Put the given three buffers into three windows.
-Following POLICY, which can be one of 'smart, 'horizontal, 'vertical."
+Following POLICY, which can be one of 'smart, 'horizontal,
+'vertical or 'hybrid."
   (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
   (delete-other-windows)
   (switch-to-buffer b1)
+  (let ((pol))
+    (if (eq policy 'smart)
+	(cond
+	 ((>= (frame-width) (* 1.5 split-width-threshold))
+	  (setq pol 'horizontal))
+	 ((>= (frame-width) split-width-threshold)
+	  (setq pol 'hybrid))
+	 (t (setq pol 'vertical)))
+      (setq pol policy))
+    (message "policy = %S , pol = %S" policy pol)
   (save-selected-window
     (cond
-     ((eq policy 'horizontal)
+     ((eq pol 'hybrid)
       (split-window-horizontally)
       (other-window 1)
-      (switch-to-buffer b2))
-     ((eq policy 'vertical)
+      (switch-to-buffer b2)
+      (proof-safe-split-window-vertically) ; enlarge vertically if necessary
+      (other-window 1)
+      (switch-to-buffer b3))
+     ((eq pol 'vertical)
       (split-window-vertically)
       (other-window 1)
-      (switch-to-buffer b2))
-     ((or (null policy) (eq policy 'smart))
-      (display-buffer b2) ; horizontally if frame large enough
-      (other-window 1)))
-    (proof-safe-split-window-vertically) ; enlarge vertically if necessary
-    (other-window 1)
-    (switch-to-buffer b3)))
+      (switch-to-buffer b2)
+      (proof-safe-split-window-vertically) ; enlarge vertically if necessary
+      (other-window 1)
+      (switch-to-buffer b3))
+     ((eq pol 'horizontal)
+      (display-buffer b2) ; horizontally, should be large enough
+      (other-window 1)
+      (enlarge-window (/ (frame-width) 6) t) ; take 2/3 of width before splitting again
+      (split-window-horizontally) ; horizontally again
+      (other-window 1)
+      (switch-to-buffer b3))))))
+
+     ;; ((or (null policy) (eq policy 'smart))
+     ;;  (if (<= (frame-width) (* 1.5 split-width-threshold))
+     ;; 	  (progn
+     ;; 	    (display-buffer b2) ; horizontally if frame large enough
+     ;; 	    (other-window 1)
+     ;; 	    (proof-safe-split-window-vertically) ; enlarge vertically if necessary
+     ;; 	    (other-window 1)
+     ;; 	    (switch-to-buffer b3))
+     ;; 	(display-buffer b2) ; horizontally, should be large enough
+     ;; 	(other-window 1)
+     ;; 	(enlarge-window (/ (window-width) 6) t)
+     ;; 	(split-window-horizontally) ; horizontally again
+     ;; 	(other-window 1)
+     ;; 	(switch-to-buffer b3)))
+
+  ;(proof-equalize-horizontally)
+
 
 
 
@@ -155,19 +191,41 @@ Following POLICY, which can be one of 'smart, 'horizontal, 'vertical."
 (defun proof-layout-windows ()
   "Refresh the display of windows according to current display mode.
 
-For single frame mode, this uses a canonical layout made by splitting
-Emacs windows vertically in equal proportions.  You can then adjust
-the proportions by dragging the separating bars.  In three pane mode,
-the canonical layout is to split both horizontally and vertically, to
-display the prover responses in two panes on the right-hand side, and
-the proof script in a taller pane on the left. However if
-`proof-three-window-mode-policy' is set to 'smart (it is by default)
-this layout will not be applied if the width of the frame is too small,
-and result in three windows spanning the full width of the Emacs frame.
-See `proof-three-window-mode-policy' for other splitting policy.
-
 For multiple frame mode, this function obeys the setting of
-`pg-response-eagerly-raise', which see."
+`pg-response-eagerly-raise', which see.
+
+For single frame mode:
+
+- In two panes mode, this uses a canonical layout made by splitting
+Emacs windows vertically in equal proportions.  You can then adjust
+the proportions by dragging the separating bars.
+
+- In three pane mode, there are three display modes, depending
+  where the three useful buffers are dislayed: scripting
+  buffer (s), goals buffer (g) and response buffer (r).
+
+  Here are the three modes:
+
+  - vertical: the 3 buffers are displayed in one column.
+  - hybrid: 2 columns mode, left column displays scripting buffer
+    and right column displays the 2 others.
+  - horizontal: 3 columns mode, one for each buffer (script, goals,
+    response).
+
+  By default, the display mode is automatically chosen
+  considering the current emacs frame width: if it is smaller
+  than `split-width-threshold' then vertical mode is chosen,
+  otherwise if it is smaller than 1.5 * `split-width-threshold'
+  then hybrid mode is chosen, finally if the frame is larger than
+  1.5 * `split-width-threshold' then the horizontal mode is chosen.
+
+  You can change the value of `split-width-threshold' at your
+  will.
+
+  If you want to force one of the layouts, you can set variable
+  `proof-three-window-mode-policy' to 'vertical, 'horizontal or
+  'hybrid. The default value is 'smart which sets the automatic
+  behaviour described above."
   (interactive)
   (cond
    (proof-multiple-frames-enable
