@@ -17,7 +17,10 @@
 (require 'coq-indent)
 (require 'smie nil 'noerror)
 
-(defconst coq-smie-dot-friends '("*." "-*." "|-*." "*|-*."))
+;; each element should end with "."
+(defconst coq-smie-dot-friends '("*." "-*." "|-*." "*|-*." ":?."))
+;; this captures ".." which not desirable
+;(defconst coq-smie-dot-friends-regexp "\\s_*\\.")
 
 ; for debuging
 (defun coq-time-indent ()
@@ -122,7 +125,9 @@ command (and inside parenthesis)."
       (catch 'found
 	(while (< (point) end)
 	  ;; The default lexer is faster and is good enough for our needs.
-	  (let* ((next (smie-default-forward-token))
+	  (let* ((next2 (smie-default-forward-token))
+		 (is-dot-friend (member next2 coq-smie-dot-friends))
+		 (next (if is-dot-friend "." next2))
 		 (parop (assoc next ignore-between)))
 	    ; if we find something to ignore, we directly jump to the
 	    ; corresponding closer
@@ -138,7 +143,7 @@ command (and inside parenthesis)."
 		  (goto-char (point))
 		  next))
 	      ;; Do not consider "." when not followed by a space
-	      (when (or (not (equal next "."))
+	      (when (or (not (equal next ".")) ; see backward version
 			(looking-at "[[:space:]]"))
 		(cond
 		 ((and (zerop (length next))
@@ -166,7 +171,8 @@ command (and inside parenthesis). "
 	  (while (> (point) end)
 	    ;; The default lexer is faster and is good enough for our needs.
 	    (let* ((next2 (smie-default-backward-token))
-		   (next (if (member next2 coq-smie-dot-friends) "." next2))
+		   (is-dot-friend (member next2 coq-smie-dot-friends))
+		   (next (if is-dot-friend "." next2))
 		   (parop (rassoc next ignore-between)))
 	      ; if we find something to ignore, we directly jump to the
 	      ; corresponding openner
@@ -184,8 +190,9 @@ command (and inside parenthesis). "
 		      (goto-char (point))
 		      next))
 		;; Do not consider "." when not followed by a space
-		(when (or (not (equal next "."))
-			  (looking-at ".[[:space:]]"))
+		;(message "SPACE?: %S , %S , %S" next2 next (looking-at ".[[:space:]]"))
+		(when (or (not (equal next2 "."))
+			  (looking-at "\\.[[:space:]]"))
 		  (cond
 		   ((and (zerop (length next))
 			 (or (equal (point) (point-min)) ; protecting char-before next line
@@ -320,7 +327,7 @@ The point should be at the beginning of the command name."
       (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Obligation")) "Proof")
-
+     ((member tok coq-smie-dot-friends) ".")
      (tok))))
 
 
@@ -549,6 +556,8 @@ The point should be at the beginning of the command name."
       (forward-char -1)
       (let ((newtok (coq-smie-backward-token))) ; recursive call
 	(concat newtok "." tok)))
+
+     ((member tok coq-smie-dot-friends) ".")
 
      (tok))))
 
