@@ -85,6 +85,35 @@
      :selected proof-three-window-enable
      :help "Toggles the use of separate windows or frames for Coq responses and goals."
      ]
+    ("3 Windows mode layout"
+     ["smart"
+      (progn
+	(customize-set-variable 'proof-three-window-mode-policy 'smart)
+	(proof-layout-windows))
+      :style radio
+      :selected (eq proof-three-window-mode-policy 'smart)
+      :help "Adapt to frame width (C-c C-l to refresh)"]
+     ["hybrid"
+      (progn
+	(customize-set-variable 'proof-three-window-mode-policy 'hybrid)
+	(proof-layout-windows))
+      :style radio
+      :selected (eq proof-three-window-mode-policy 'hybrid)
+      :help "two column mode"]
+     ["horizontal"
+      (progn
+	(customize-set-variable 'proof-three-window-mode-policy 'horizontal)
+	(proof-layout-windows))
+      :style radio
+      :selected (eq proof-three-window-mode-policy 'horizontal)
+      :help "Three column mode"]
+     ["vertical"
+      (progn
+	(customize-set-variable 'proof-three-window-mode-policy 'vertical)
+	(proof-layout-windows))
+      :style radio
+      :selected (eq proof-three-window-mode-policy 'vertical)
+      :help "One column mode"])
     ["Refresh Windows Layout" proof-layout-windows t]
     ["Toggle tooltips" proof-output-tooltips-toggle
      :style toggle
