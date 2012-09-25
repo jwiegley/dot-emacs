@@ -143,8 +143,9 @@ Following POLICY, which can be one of 'smart, 'horizontal,
       (other-window 1)
       (switch-to-buffer b3))
      ((eq pol 'horizontal)
-      (display-buffer b2) ; horizontally, should be large enough
+      (split-window-horizontally) ; horizontally again
       (other-window 1)
+      (switch-to-buffer b2)
       (enlarge-window (/ (frame-width) 6) t) ; take 2/3 of width before splitting again
       (split-window-horizontally) ; horizontally again
       (other-window 1)
@@ -197,7 +198,7 @@ dragging the separating bars.
   - horizontal: 3 columns mode, one for each buffer (script, goals,
     response).
 
-  By default, the display mode is automatically chosen
+  By default, the display mode is automatically chosen by
   considering the current emacs frame width: if it is smaller
   than `split-width-threshold' then vertical mode is chosen,
   otherwise if it is smaller than 1.5 * `split-width-threshold'

@@ -189,9 +189,10 @@ and displayed lazily.  See `proof-layout-windows'."
 
   See `proof-layout-windows'."
   :type '(choice
-	  (const :tag "Horizontally if frame wide enough" smart)
-	  (const :tag "Horizontally" horizontal)
-	  (const :tag "Vertically" vertical))
+	  (const :tag "Adapt to current frame width" smart)
+	  (const :tag "Horizontal (three columns)" horizontal)
+	  (const :tag "Horizontal (two columns)" hybrid)
+	  (const :tag "Vertical" vertical))
   :group 'proof-user-options)
 
 

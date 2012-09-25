@@ -29,18 +29,38 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 ** Coq changes
 
 *** Smarter three windows mode:
-    When the frame is not large enough, the three windows are
-    displayed vertically, otherwise goals and response buffers are
-    displayed on the right. C-c C-l to refresh after resizing the
-    frame.
+  In three pane mode, there are three display modes, depending
+  where the three useful buffers are displayed: scripting
+  buffer, goals buffer and response buffer.
 
-    If you want to always have goals and response buffers displayed on
-    the right:
-     (setq proof-three-window-mode-policy 'horizontal).
-    Always three buffers diaplayed vertically:
-     (setq proof-three-window-mode-policy 'vertical).
+  Here are the three modes:
 
-     Or via customization menus.
+  - vertical: the 3 buffers are displayed in one column.
+  - hybrid: 2 columns mode, left column displays scripting buffer
+    and right column displays the 2 others.
+  - horizontal: 3 columns mode, one for each buffer (script, goals,
+    response).
+
+  By default, the display mode is automatically chosen by
+  considering the current emacs frame width: if it is smaller
+  than `split-width-threshold' then vertical mode is chosen,
+  otherwise if it is smaller than 1.5 * `split-width-threshold'
+  then hybrid mode is chosen, finally if the frame is larger than
+  1.5 * `split-width-threshold' then the horizontal mode is chosen.
+
+  You can change the value of `split-width-threshold' at your
+  will (by default it is 160).
+
+  If you want to force one of the layouts, you can set variable
+  `proof-three-window-mode-policy' to 'vertical, 'horizontal or
+  'hybrid. The default value is 'smart which sets the automatic
+  behaviour described above.
+
+  example:
+
+     (setq proof-three-window-mode-policy 'hybrid).
+
+  Or via customization menus.
 
 *** Multiple file handling for Coq Feature.
     No more experimental. Set coq-load-path to the list of directories
