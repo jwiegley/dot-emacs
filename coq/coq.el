@@ -379,6 +379,8 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s . " undos)))
 
+
+
 ;; make this non recursive?
 (defun build-list-id-from-string (s)
   "Build a list of string from a string S of the form \"id1|id2|...|idn\"."
@@ -952,6 +954,19 @@ flag Printing All set."
 (proof-definvisible coq-show-proof "Show Proof.")
 (proof-definvisible coq-show-conjectures "Show Conjectures.")
 (proof-definvisible coq-show-intros "Show Intros.") ; see coq-insert-intros below
+(proof-definvisible coq-set-implicit-arguments "Set Implicit Arguments.")
+(proof-definvisible coq-unset-implicit-arguments "Unset Implicit Arguments.")
+(proof-definvisible coq-set-printing-all "Set Printing All.")
+(proof-definvisible coq-unset-printing-all "Unset Printing All.")
+(proof-definvisible coq-set-printing-synth "Set Printing Synth.")
+(proof-definvisible coq-unset-printing-synth "Unset Printing Synth.")
+(proof-definvisible coq-set-printing-coercions "Set Printing Coercions.")
+(proof-definvisible coq-unset-printing-coercions "Unset Printing Coercions.")
+(proof-definvisible coq-set-printing-wildcards "Set Printing Wildcard.")
+(proof-definvisible coq-unset-printing-wildcards "Unset Printing Wildcard.")
+; Takes an argument
+;(proof-definvisible coq-set-printing-printing-depth "Set Printing Printing Depth . ")
+;(proof-definvisible coq-unset-printing-printing-depth "Unset Printing Printing Depth . ")
 
 (defun coq-Compile ()
   "Compiles current buffer."
@@ -1001,10 +1016,11 @@ flag Printing All set."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Holes mode switch
-
-(defpacustom use-editing-holes t
-  "Enable holes for editing."
-  :type 'boolean)
+;; TODO: have this plugged agian when we have abbreviation without holes
+;; For now holes are always enabled.
+;(defpacustom use-editing-holes t
+;  "Enable holes for editing."
+;  :type 'boolean)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1101,8 +1117,9 @@ flag Printing All set."
   ;; font-lock
   (setq proof-script-font-lock-keywords coq-font-lock-keywords-1)
 
-  ;; holes
-  (if coq-use-editing-holes (holes-mode 1))
+  ;; FIXME: have abbreviation without holes
+  ;(if coq-use-editing-holes (holes-mode 1))
+  (holes-mode 1)
 
   ;; prooftree config
   (setq
@@ -1260,33 +1277,19 @@ flag Printing All set."
   :eval (coq-hide-additional-subgoals-switch))
 
 
-;; FIXME: to handle "printing all" properly, we should change the state
-;; of the variables that also depend on it.
-;; da: 
-(defpacustom print-fully-explicit nil
-  "Print fully explicit terms."
-  :type 'boolean
-  :setting ("Set Printing All. " . "Unset Printing All. "))
+;
+;;; FIXME: to handle "printing all" properly, we should change the state
+;;; of the variables that also depend on it.
+;;; da:
 
-(defpacustom print-implicit nil
-  "Print implicit arguments in applications."
-  :type 'boolean
-  :setting ("Set Printing Implicit. " . "Unset Printing Implicit. "))
-
-(defpacustom print-coercions nil
-  "Print coercions."
-  :type 'boolean
-  :setting ("Set Printing Coercions. " . "Unset Printing Coercions. "))
-
-(defpacustom print-match-wildcards t
-  "Print underscores for unused variables in matches."
-  :type 'boolean
-  :setting ("Set Printing Wildcard. " . "Unset Printing Wildcard. "))
-
-(defpacustom print-elim-types t
-  "Print synthesised result type for eliminations."
-  :type 'boolean
-  :setting ("Set Printing Synth. " . "Unset Printing Synth. "))
+;;; pc: removed it and others of the same kind. Put an "option" menu instead,
+;;; with no state variable. To have the state we should use coq command that
+;;; output the value of the variables.
+;(defpacustom print-fully-explicit nil
+;  "Print fully explicit terms."
+;  :type 'boolean
+;  :setting ("Set Printing All. " . "Unset Printing All. "))
+;
 
 (defpacustom printing-depth 50
   "Depth of pretty printer formatting, beyond which dots are displayed."

@@ -80,7 +80,7 @@
 ;; Common part (scrit, response and goals buffers)
 (defconst coq-menu-common-entries
   `(
-    ["Toggle 3 Windows Mode" proof-three-window-toggle 
+    ["Toggle 3 Windows Mode" proof-three-window-toggle
      :style toggle
      :selected proof-three-window-enable
      :help "Toggles the use of separate windows or frames for Coq responses and goals."
@@ -163,7 +163,18 @@
      ""
      ["Locate notation..." coq-LocateNotation t]
      ["Print Implicit..." coq-Print t]
-     ["Print Scope/Visibility..." coq-PrintScope t])))
+     ["Print Scope/Visibility..." coq-PrintScope t])
+    ("OPTIONS"
+     ["Set Printing All" coq-set-printing-all t]
+     ["UnSet Printing All" coq-unset-printing-all t]
+     ["Set Implicit Argument" coq-set-implicit-arguments t]
+     ["Unset Implicit Argument" coq-unset-implicit-arguments t]
+     ["Set Printing Synth" coq-set-printing-synth t]
+     ["Unset Printing Synth" coq-unset-printing-synth t]
+     ["Set Printing Coercions" coq-set-printing-coercions t]
+     ["Unset Printing Coercions" coq-unset-printing-coercions t]
+     ["Set Printing Wildcards" coq-set-printing-wildcards t]
+     ["Unset Printing Wildcards" coq-unset-printing-wildcards t])))
 
 (defpgdefault menu-entries
   (append coq-menu-common-entries
