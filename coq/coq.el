@@ -2375,19 +2375,26 @@ Based on idea mentioned in Coq reference manual."
 ;; da: FIXME untested with new generic hybrid code: hope this still works
 (defun coq-insert-as ()
   "Insert \"as\" suffix to next command, names given by \"infoH\" tactical.
-Based on idea mentioned in Coq reference manual."
+Based on idea mentioned in Coq reference manual.
+
+* Warning This will work on coq versions later than 8.4. More
+  precisely: coq trunk on Oct 1st, 2012 (coq svn revision
+  15839)."
   (interactive)
   (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
   (proof-assert-next-command-interactive)
   (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook);as soon as possible
   (proof-shell-wait)
   (let
-      ((str (string-match "<info type=\"infoH\">\\([^<]*\\)</info>"
-                          proof-shell-last-response-output))
-       (substr (match-string 1 proof-shell-last-response-output)))
+      ((str (string-match "<infoH>\\([^<]*\\)</infoH>"
+                          ;proof-shell-last-response-output would be better but
+                          ;since this message is output *before* resulting
+                          ;goals, it is not detected as a response message.
+                          proof-shell-last-output)) 
+       (substr (match-string 1 proof-shell-last-output))) ; idem
     (coq-script-parse-cmdend-backward)
     (let ((inhibit-read-only t))
-      (insert (concat " as " substr)))))
+      (insert (concat " as [" substr "]")))))
 
 
 (defun coq-insert-match ()
