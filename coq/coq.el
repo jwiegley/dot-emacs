@@ -2368,35 +2368,71 @@ Based on idea mentioned in Coq reference manual."
       (insert intros)
       (indent-according-to-mode))))
 
+
 (defun coq-insert-infoH-hook ()
   (with-no-warnings  ;; NB: dynamic scoping of `string'
     (setq string (concat "infoH " string))))
 
+(defcustom coq-auto-insert-as-enable nil
+  "Don't set it manually, use `coq-auto-insert-as-toggle' instead."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
+(defun coq-auto-insert-as-toggle ()
+  "Toggles coq automatic insertion of \"as\" closes."
+  (if coq-auto-insert-as-enable
+      (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
+    (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook))
+  (setq coq-auto-insert-as-enable (not coq-auto-insert-as-enable)))
+
+;; Point supposed to be at the end of locked region, that is
+;; (proof-assert-next-command-interactive) has just finished
+(defun coq-tactic-already-has-an-as-close()
+  "Return t if the last tactic of locked region contains an \"as\" close."
+  (save-excursion
+    (coq-script-parse-cmdend-backward)
+    (let ((endpos (point))
+          (startpos (coq-find-real-start)))
+      (string-match "\\<as\\>" (buffer-substring startpos endpos)))))
+
+
 ;; da: FIXME untested with new generic hybrid code: hope this still works
 (defun coq-insert-as ()
-  "Insert \"as\" suffix to next command, names given by \"infoH\" tactical.
+  "Assert next command and insert \"as\" suffix to it.
+Only if there is not already an as close. Names given by \"infoH\" tactical.
 Based on idea mentioned in Coq reference manual.
 
-* Warning This will work on coq versions later than 8.4. More
-  precisely: coq trunk on Oct 1st, 2012 (coq svn revision
-  15839)."
+* Warning: infoH tactical is implemented in coq versions later
+  than 8.4. More precisely: coq trunk on Oct 1st, 2012 (coq svn
+  revision 15839)."
   (interactive)
-  (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
-  (proof-assert-next-command-interactive)
-  (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook);as soon as possible
-  (proof-shell-wait)
-  (let
-      ((str (string-match "<infoH>\\([^<]*\\)</infoH>"
-                          ;proof-shell-last-response-output would be better but
-                          ;since this message is output *before* resulting
-                          ;goals, it is not detected as a response message.
-                          proof-shell-last-output)) 
-       (substr (match-string 1 proof-shell-last-output))) ; idem
-    (unless (= (length substr) 0)
-      (save-excursion
-        (coq-script-parse-cmdend-backward)
-        (let ((inhibit-read-only t))
-          (insert (concat " as [" substr "]")))))))
+;  (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
+;  (proof-assert-next-command-interactive)
+;  (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook);as soon as possible
+;  (proof-shell-wait)
+  (when (and proof-goals-buffer proof-shell-last-output)
+    (let*
+        (
+         (str (string-match "<infoH>\\([^<]*\\)</infoH>"
+                                        ;proof-shell-last-response-output would be better but
+                                        ;since this message is output *before* resulting
+                                        ;goals, it is not detected as a response message.
+                            proof-shell-last-output)) 
+         (substr  (or (and str (match-string 1 proof-shell-last-output)) "")
+                 )
+         ) ; idem
+      (unless (or (= (length substr) 0)
+                  (coq-tactic-already-has-an-as-close))
+        (save-excursion
+          (coq-script-parse-cmdend-backward)
+          (let ((inhibit-read-only t))
+            (insert (concat " as [" substr "]")))))
+      )))
+
+(add-hook 'proof-state-change-hook 'coq-insert-as)
+;(add-hook 'proof-shell-handle-delayed-output-hook 'coq-insert-as)
+
 
 
 (defun coq-insert-match ()
