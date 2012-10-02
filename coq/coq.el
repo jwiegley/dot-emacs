@@ -2392,9 +2392,11 @@ Based on idea mentioned in Coq reference manual.
                           ;goals, it is not detected as a response message.
                           proof-shell-last-output)) 
        (substr (match-string 1 proof-shell-last-output))) ; idem
-    (coq-script-parse-cmdend-backward)
-    (let ((inhibit-read-only t))
-      (insert (concat " as [" substr "]")))))
+    (unless (= (length substr) 0)
+      (save-excursion
+        (coq-script-parse-cmdend-backward)
+        (let ((inhibit-read-only t))
+          (insert (concat " as [" substr "]")))))))
 
 
 (defun coq-insert-match ()
