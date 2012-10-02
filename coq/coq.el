@@ -2369,9 +2369,13 @@ Based on idea mentioned in Coq reference manual."
       (indent-according-to-mode))))
 
 
+(defvar coq-command-accepting-as (regexp-opt '("destruct" "inversion" "injection")))
+
 (defun coq-insert-infoH-hook ()
-  (with-no-warnings  ;; NB: dynamic scoping of `string'
-    (setq string (concat "infoH " string))))
+  (if (and (eq action 'proof-done-advancing)
+           (string-match coq-command-accepting-as string))
+      (with-no-warnings  ;; NB: dynamic scoping of `string'
+        (setq string (concat "infoH " string)))))
 
 (defcustom coq-auto-insert-as-enable nil
   "Don't set it manually, use `coq-auto-insert-as-toggle' instead."
@@ -2382,8 +2386,11 @@ Based on idea mentioned in Coq reference manual."
 (defun coq-auto-insert-as-toggle ()
   "Toggles coq automatic insertion of \"as\" closes."
   (if coq-auto-insert-as-enable
-      (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
-    (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook))
+      (progn
+        (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
+        (remove-hook 'proof-state-change-hook 'coq-insert-as))
+    (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
+    (add-hook 'proof-state-change-hook 'coq-insert-as))
   (setq coq-auto-insert-as-enable (not coq-auto-insert-as-enable)))
 
 ;; Point supposed to be at the end of locked region, that is
@@ -2413,15 +2420,12 @@ Based on idea mentioned in Coq reference manual.
 ;  (proof-shell-wait)
   (when (and proof-goals-buffer proof-shell-last-output)
     (let*
-        (
-         (str (string-match "<infoH>\\([^<]*\\)</infoH>"
+        ((str (string-match "<infoH>\\([^<]*\\)</infoH>"
                                         ;proof-shell-last-response-output would be better but
                                         ;since this message is output *before* resulting
                                         ;goals, it is not detected as a response message.
                             proof-shell-last-output)) 
-         (substr  (or (and str (match-string 1 proof-shell-last-output)) "")
-                 )
-         ) ; idem
+         (substr  (or (and str (match-string 1 proof-shell-last-output)) ""))) ; idem
       (unless (or (= (length substr) 0)
                   (coq-tactic-already-has-an-as-close))
         (save-excursion
@@ -2430,8 +2434,6 @@ Based on idea mentioned in Coq reference manual.
             (insert (concat " as [" substr "]")))))
       )))
 
-(add-hook 'proof-state-change-hook 'coq-insert-as)
-;(add-hook 'proof-shell-handle-delayed-output-hook 'coq-insert-as)
 
 
 
