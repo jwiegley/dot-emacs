@@ -2444,7 +2444,7 @@ Typically after a proof-assert-next-command.
                             ;; smaller/faster but since this message is output
                             ;; *before* resulting goals, it is not detected as
                             ;; a response message.
-                            proof-shell-last-output)) 
+                            proof-shell-last-output))
          (substr  (or (and str (match-string 1 proof-shell-last-output)) ""))
          ;; emptysubstr = t if substr is empty or contains only spaces and |
          (emptysubstr (and (string-match "\\(\\s-\\||\\)*" substr)
@@ -2462,7 +2462,18 @@ Typically after a proof-assert-next-command.
   ;; this hook will do nothing until infoH is inserted again.
   (setq coq-last-input-action nil))
 
-
+;; Trying to propose insertion of "as" for a whole region. But iterating
+;; proof-assert-next-command-interactive is probably wrong if some error occur
+;; during scripting.
+(defun coq-insert-as-in-region (&optional beg end)
+  (let ((beg (or beg (point-min)))
+        (end (or end (point-max))))
+    (goto-char beg)
+    (while (< (point) end)
+      (coq-script-parse-cmdend-forward)
+      (proof-assert-next-command-interactive)
+      )
+    ))
 
 
 
