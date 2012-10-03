@@ -24,6 +24,9 @@
     (defvar smie-rules-function nil))
   (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook
   (defvar proof-info nil)       ; dynamic scope in proof-tree-urgent-action
+  (defvar action nil)       ; dynamic scope in coq-insert-as stuff
+  (defvar string nil)       ; dynamic scope in coq-insert-as stuff
+  (defvar coq-auto-insert-as nil)    ; defpacustom
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-compile-before-require nil)       ; defpacustom
@@ -2369,29 +2372,42 @@ Based on idea mentioned in Coq reference manual."
       (indent-according-to-mode))))
 
 
-(defvar coq-command-accepting-as (regexp-opt '("destruct" "inversion" "injection")))
+(defvar coq-commands-accepting-as (regexp-opt '("induction" "destruct" "inversion" "injection")))
 
-(defun coq-insert-infoH-hook ()
+(defvar coq-last-input-action nil
+  "For internal use only.
+This variable contains the last action kind that has been issued
+to coq shell, it is set to nil each time it is used by
+`coq-insert-as'. See there why. ")
+
+(defun coq-insert-infoH ()
+  "Insert the tactical into variable `string' if applicable.
+This function is intended to be added to
+`proof-shell-insert-hook', `string' is the command about to be
+issued to Coq. If `string' matches `coq-commands-accepting-as'
+and we are advancing in the script, then script is modified to
+add the info_hyps tactical. This is used for automatic \"as\"
+insertion using another hook."
+  (setq coq-last-input-action action)
   (if (and (eq action 'proof-done-advancing)
-           (string-match coq-command-accepting-as string))
+           (string-match coq-commands-accepting-as string))
       (with-no-warnings  ;; NB: dynamic scoping of `string'
         (setq string (concat "infoH " string)))))
 
-(defcustom coq-auto-insert-as-enable nil
-  "Don't set it manually, use `coq-auto-insert-as-toggle' instead."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-(defun coq-auto-insert-as-toggle ()
-  "Toggles coq automatic insertion of \"as\" closes."
-  (if coq-auto-insert-as-enable
+(defun coq-auto-insert-as ()
+  "This function is called whenever the `auto-insert-as' is set.
+It adds or remove hooks accordingly."
+  (if coq-auto-insert-as
       (progn
-        (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
-        (remove-hook 'proof-state-change-hook 'coq-insert-as))
-    (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
-    (add-hook 'proof-state-change-hook 'coq-insert-as))
-  (setq coq-auto-insert-as-enable (not coq-auto-insert-as-enable)))
+        (add-hook 'proof-shell-insert-hook 'coq-insert-infoH)
+        (add-hook 'proof-state-change-hook 'coq-insert-as))
+    (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH)
+    (remove-hook 'proof-state-change-hook 'coq-insert-as)))
+
+(defpacustom auto-insert-as nil
+  "Insert \"as [ ... | ... ] \" after (compatible) tactics."
+  :type 'boolean)
+
 
 ;; Point supposed to be at the end of locked region, that is
 ;; (proof-assert-next-command-interactive) has just finished
@@ -2404,35 +2420,48 @@ Based on idea mentioned in Coq reference manual."
       (string-match "\\<as\\>" (buffer-substring startpos endpos)))))
 
 
-;; da: FIXME untested with new generic hybrid code: hope this still works
+;; da: FIXME untested with new generic hybrid code: hope this still works ;;
+;; pc: seems ok, some hack was needed below because when backtracking the
+;; coq-state-change-hook is called first with a 'advancing action (issuing the
+;; backtrack command??) and then a second time with the 'retracting action.
+;; Therefore we have to set coq-last-input-action to nil explicitely to avoid
+;; this function to do something wrong with a previous value.
 (defun coq-insert-as ()
   "Assert next command and insert \"as\" suffix to it.
-Only if there is not already an as close. Names given by \"infoH\" tactical.
-Based on idea mentioned in Coq reference manual.
+Only if there is not already an as close. Names given by
+\"infoH\" tactical. Based on idea mentioned in Coq reference
+manual. oint is supposed to be at the end of locked region.
+Typically after a proof-assert-next-command.
 
 * Warning: infoH tactical is implemented in coq versions later
   than 8.4. More precisely: coq trunk on Oct 1st, 2012 (coq svn
   revision 15839)."
   (interactive)
-;  (add-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook)
-;  (proof-assert-next-command-interactive)
-;  (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH-hook);as soon as possible
-;  (proof-shell-wait)
-  (when (and proof-goals-buffer proof-shell-last-output)
+  (when (and (eq coq-last-input-action 'proof-done-advancing) proof-shell-last-output)
     (let*
         ((str (string-match "<infoH>\\([^<]*\\)</infoH>"
-                                        ;proof-shell-last-response-output would be better but
-                                        ;since this message is output *before* resulting
-                                        ;goals, it is not detected as a response message.
+                            ;; proof-shell-last-response-output would be
+                            ;; smaller/faster but since this message is output
+                            ;; *before* resulting goals, it is not detected as
+                            ;; a response message.
                             proof-shell-last-output)) 
-         (substr  (or (and str (match-string 1 proof-shell-last-output)) ""))) ; idem
-      (unless (or (= (length substr) 0)
-                  (coq-tactic-already-has-an-as-close))
+         (substr  (or (and str (match-string 1 proof-shell-last-output)) ""))
+         ;; emptysubstr = t if substr is empty or contains only spaces and |
+         (emptysubstr (and (string-match "\\(\\s-\\||\\)*" substr)
+                           (eq (length substr) (length (match-string 0 substr)))))) ; idem
+      (unless (or emptysubstr (coq-tactic-already-has-an-as-close))
         (save-excursion
+          ;; TODO: look for eqn:XX and go before it.
+          ;; Go just before the last "."
           (coq-script-parse-cmdend-backward)
           (let ((inhibit-read-only t))
-            (insert (concat " as [" substr "]")))))
-      )))
+            (insert (concat " as [" substr "]")))))))
+  ;; HACKY: The hook proof-state-change-hook is called too many times (when
+  ;; backtracking in particular), so once we have inserted the as close (or we
+  ;; have decide not to do so) we erase the action so that the next call to
+  ;; this hook will do nothing until infoH is inserted again.
+  (setq coq-last-input-action nil))
+
 
 
 
@@ -2853,7 +2882,7 @@ are non-nil at the same time, this gives priority to the former."
       (self-insert-command (or count 1)))))
 
 ;; Setting the new mapping for terminator
-(define-key coq-mode-map (kbd ".") 'coq-terminator-insert)
+;(define-key coq-mode-map (kbd ".") 'coq-terminator-insert)
 ;(define-key coq-mode-map (kbd ";") 'coq-terminator-insert) ; for french keyboards
 
 
