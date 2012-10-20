@@ -256,3 +256,6 @@
 [submodule "site-lisp/yaml-mode"]
 	path = site-lisp/yaml-mode
 	url = https://github.com/yoshiki/yaml-mode.git
+[submodule "site-lisp/org-merge-driver"]
+	path = site-lisp/org-merge-driver
+	url = git://orgmode.org/org-merge-driver.git
