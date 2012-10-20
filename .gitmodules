@@ -259,3 +259,6 @@
 [submodule "site-lisp/org-merge-driver"]
 	path = site-lisp/org-merge-driver
 	url = git://orgmode.org/org-merge-driver.git
+[submodule "site-lisp/ac/ac-source-elisp"]
+	path = site-lisp/ac/ac-source-elisp
+	url = git://github.com/auto-complete/ac-source-elisp
