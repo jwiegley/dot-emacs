@@ -271,3 +271,6 @@
 [submodule "site-lisp/ac/auto-complete"]
 	path = site-lisp/ac/auto-complete
 	url = git://github.com/auto-complete/auto-complete
+[submodule "site-lisp/ac/fuzzy-el"]
+	path = site-lisp/ac/fuzzy-el
+	url = git://github.com/auto-complete/fuzzy-el
