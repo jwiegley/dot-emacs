@@ -19,11 +19,13 @@
 
 (bbdb-initialize 'gnus 'message)
 
+(defvar use-spam-filtering nil)
+
 ;; Override definition from spam.el to use async.el
 (defun spam-spamassassin-register-with-sa-learn (articles spam
                                                           &optional unregister)
   "Register articles with spamassassin's sa-learn as spam or non-spam."
-  (if articles
+  (if (and use-spam-filtering articles)
       (let ((action (if unregister spam-sa-learn-unregister-switch
                       (if spam spam-sa-learn-spam-switch
                         spam-sa-learn-ham-switch)))
@@ -144,9 +146,9 @@
 (defun kick-postfix-if-needed ()
   (if (and (quickping "imap.gmail.com")
            (= 0 (call-process "/usr/bin/sudo" nil nil nil
-                              "/opt/local/libexec/postfix/master" "-t")))
+                              "/usr/libexec/postfix/master" "-t")))
       (start-process "postfix" nil "/usr/bin/sudo"
-                     "/opt/local/libexec/postfix/master" "-e" "60")))
+                     "/usr/libexec/postfix/master" "-e" "60")))
 
 (add-hook 'message-sent-hook 'kick-postfix-if-needed)
 

@@ -539,7 +539,7 @@ end tell"))))
 (defun org-set-url-link ()
   "Set a property for the current headline."
   (interactive)
-  (org-set-property "URL" (org-get-chrome-link)))
+  (org-set-property "URL" (org-get-safari-link)))
 
 ;;(defun org-get-file-link ()
 ;;  (let ((subject (do-applescript "tell application \"Finder\"

@@ -121,20 +121,24 @@
   (let*
       ((f-l-name (bbdb-divide-name name))
        (firstname (car f-l-name))
-       (lastname (nth 1 f-l-name))
+       (lastname (cdr f-l-name))
+       (affix nil)
        (aka nil)
        (new-record
-        (vector firstname lastname aka company phones addrs
+        (vector firstname lastname affix aka
+                (and (= (length company) 0)
+                     (list company))
+                phones addrs
                 (if (listp nets) nets (list nets)) notes
                 (make-vector bbdb-cache-length nil)))
-       (old-record (bbdb-search-simple name nets)))
+       (old-record (bbdb-search bbdb-records name nil nets)))
     (if old-record
 	(progn
 	  (setq new-record (bbdb-merge-internally old-record new-record))
 	  (bbdb-delete-record-internal old-record)))
     ;; create  new record
-    (bbdb-invoke-hook 'bbdb-create-hook new-record)
-    (bbdb-change-record new-record t)
+    (run-hook-with-args 'bbdb-create-hook new-record)
+    (bbdb-change-record new-record nil t)
     (bbdb-hash-record new-record)
     new-record))
 
@@ -152,7 +156,8 @@
 	 ;; right, figure out a way to map the several labels to
 	 ;; `bbdb-default-label-list'.  Also, some phone number
 	 ;; conversion may break the format of numbers.
-	 (new-record (bbdb-vcard-merge-interactively name company net nil nil notes)))
+	 (new-record (bbdb-vcard-merge-interactively
+                      name company net addrs phones notes)))
     (setq bbdb-vcard-merged-records (append bbdb-vcard-merged-records 
 					    (list new-record)))))
 

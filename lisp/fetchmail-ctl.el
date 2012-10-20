@@ -52,7 +52,8 @@
       (let ((buf (get-buffer-create procname)))
         (setq fetchmail-process
               (apply #'start-process procname buf
-                     "/opt/local/bin/fetchmail" "-d" "900" "-N" extra-args)))
+                     "/usr/local/bin/fetchmail" "-n" "-d" "900" "-N"
+                     extra-args)))
       (message "Starting Fetchmail...done"))))
 
 (defun safely-kill-process (name &optional signal verb)
@@ -125,7 +126,9 @@
            (lambda ()
              (start-process "*fetchnews*"
                             (get-buffer-create "*fetchnews*")
-                            (executable-find "fetchnews") "-vvv" "-n")))))
+                            (executable-find "fetchnews")
+                            "-F" (expand-file-name "~/Messages/leafnode/config")
+                            "-vvv" "-n")))))
         (cur-buf (current-buffer)))
     (delete-other-windows)
     (flet ((switch-in-other-buffer
@@ -146,7 +149,9 @@
 
 (defun fetchnews-post ()
   (interactive)
-  (async-shell-command "fetchnews -vv -n -P"))
+  (async-shell-command
+   (format "fetchnews -F %s -vv -n -P"
+           (expand-file-name "~/Messages/leafnode/config"))))
 
 (eval-after-load "gnus-group"
   '(progn

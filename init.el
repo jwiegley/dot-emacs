@@ -707,7 +707,7 @@
   (progn
     (defun llvm-info ()
       (interactive)
-      (w3m-find-file "/usr/local/stow/clang-3.1/docs/llvm/html/doxygen/classllvm_1_1IRBuilder.html"))
+      (w3m-find-file "/usr/local/opt/clang/docs/llvm/html/doxygen/classllvm_1_1IRBuilder.html"))
 
     (defun my-paste-as-check ()
       (interactive)
@@ -746,6 +746,13 @@
       (indent-according-to-mode)
       (forward-line))
 
+    (defun my-c-save-buffer ()
+      (interactive)
+      (if (buffer-modified-p)
+          (call-interactively 'save-buffer))
+      (if flymake-mode
+          (flymake-start-syntax-check)))
+
     (defun my-c-mode-common-hook ()
       (abbrev-mode 1)
       (gtags-mode 1)
@@ -759,6 +766,13 @@
       (diminish 'gtags-mode)
       (diminish 'hs-minor-mode)
       (diminish 'hide-ifdef-mode)
+
+      (add-to-list 'load-path "~/.emacs.d/site-lisp/ghc-mod/elisp")
+      (require 'ghc-flymake)            ; jww (2012-09-19): hack!
+      (bind-key "M-?" 'ghc-flymake-display-errors c-mode-base-map)
+      (bind-key "M-p" 'flymake-goto-prev-error c-mode-base-map)
+      (bind-key "M-n" 'flymake-goto-next-error c-mode-base-map)
+      (bind-key "C-x C-s" 'my-c-save-buffer c-mode-base-map)
 
       (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
 
@@ -1135,6 +1149,12 @@
 ;;;_ , auto-complete
 
 (use-package auto-complete-config
+  :load-path ("site-lisp/ac/auto-complete"
+              "site-lisp/ac/ac-source-elisp"
+              "site-lisp/ac/ac-source-semantic"
+              "site-lisp/ac/ac-yasnippet"
+              "site-lisp/ac/fuzzy-el"
+              "site-lisp/ac/popup-el")
   :commands auto-complete-mode
   :diminish auto-complete-mode
   :config
@@ -1454,8 +1474,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (use-package dired-sort-map)
         (use-package runner)
 
-        (setq dired-use-ls-dired t)
-
         (bind-key "l" 'dired-up-directory dired-mode-map)
 
         (defun my-dired-switch-window ()
@@ -1698,7 +1716,7 @@ The output appears in the buffer `*Async Shell Command*'."
                                                 :port 6667))
                        :secret))))
 
-    (add-hook 'after-init-hook 'im)
+    ;; (add-hook 'after-init-hook 'im)
     (add-hook 'after-init-hook 'irc))
 
   :config
@@ -2478,7 +2496,14 @@ FORM => (eval FORM)."
 ;;;_ , magit
 
 (use-package magit
-  :bind ("C-x g" . magit-status)
+  :bind (("C-x g" . magit-status)
+         ("C-x G" . magit-status-with-prefix))
+  :init
+  (defun magit-status-with-prefix ()
+    (interactive)
+    (let ((current-prefix-arg '(4)))
+      (call-interactively 'magit-status)))
+
   :config
   (progn
     (setenv "GIT_PAGER" "")
@@ -2962,9 +2987,7 @@ FORM => (eval FORM)."
     (session-initialize)
 
     (defun remove-session-use-package-from-settings ()
-      (when (string= (buffer-file-name)
-                     (expand-file-name "settings.el"
-                                       user-emacs-directory))
+      (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
         (save-excursion
           (goto-char (point-min))
           (when (re-search-forward "^ '(session-use-package " nil t)
@@ -3107,7 +3130,7 @@ FORM => (eval FORM)."
     (use-package hyperspec
       :init
       (setq common-lisp-hyperspec-root
-            "/opt/local/share/doc/lisp/HyperSpec-7-0/HyperSpec/"))))
+            (expand-file-name "~/Library/Lisp/HyperSpec/")))))
 
 ;;;_ , smart-compile
 
@@ -3287,7 +3310,7 @@ FORM => (eval FORM)."
          ("C-. A-u" . w3m-browse-chrome-url-new-session))
   :init
   (progn
-    (setq w3m-command "/opt/local/bin/w3m")
+    (setq w3m-command "/usr/local/bin/w3m")
 
     (setq w3m-coding-system 'utf-8
           w3m-file-coding-system 'utf-8
@@ -3533,6 +3556,11 @@ FORM => (eval FORM)."
     (setq mode-line-format nil
           fill-column 65)
     (set-window-margins (selected-window) 50 50)))
+
+;;;_ , yaml-mode
+
+(use-package yaml-mode
+  :mode ("\\.ya?ml\\'" . yaml-mode))
 
 ;;;_ , yasnippet
 

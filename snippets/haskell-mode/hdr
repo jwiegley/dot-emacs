@@ -1,0 +1,71 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ExtendedDefaultRules #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
+
+module Main where
+
+import           Control.Concurrent
+import           Control.Concurrent.ParallelIO
+import           Control.Monad.Trans.State
+import           Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
+import           Filesystem (listDirectory)
+import           GHC.Conc
+import           Prelude.Classy
+import           Shelly
+import           System.Console.CmdArgs
+import           System.Environment
+import           System.Log.Logger
+import           System.Posix.Files
+import           Text.Regex.Posix
+
+default (Text)
+
+version :: String
+version = "0.0.1"
+
+copyright :: String
+copyright = "2012"
+
+$1Summary :: String
+$1Summary =
+  "$1 v" ++ version ++ ", (C) John Wiegley " ++ copyright
+
+data $1 = $1 { jobs      :: Int
+                               , verbose   :: Bool
+                               , debug     :: Bool
+                               , arguments :: [String] }
+    deriving (Data, Typeable, Show, Eq)
+
+$1 :: $1
+$1 = $1
+    { jobs      = def &= name "j" &= typ "INT"
+                      &= help "Run INT concurrent jobs (default: 4)"
+    , verbose   = def &= name "v"
+                      &= help "Report $1ress verbosely"
+    , debug     = def &= name "D"
+                      &= help "Report debug information"
+    , arguments = def &= args &= typ "fetch | status" } &=
+    summary $1Summary &=
+    program "$1" &=
+    help "$2"
+
+main :: IO ()
+main = do
+  -- process command-line options
+  mainArgs <- getArgs
+  opts     <- withArgs (if null mainArgs then ["--help"] else mainArgs)
+                       (cmdArgs $1)
+
+  _ <- GHC.Conc.setNumCapabilities $ case jobs opts of 0 -> 4; x -> x
+
+  when (verbose opts) $ updateGlobalLogger "$1" (setLevel INFO)
+  when (debug opts)   $ updateGlobalLogger "$1" (setLevel DEBUG)
+
+  $0
+
+  stopGlobalPool
+
+-- Main.hs ($1) ends here
