@@ -265,3 +265,6 @@
 [submodule "site-lisp/ac/ac-source-semantic"]
 	path = site-lisp/ac/ac-source-semantic
 	url = git://github.com/auto-complete/ac-source-semantic
+[submodule "site-lisp/ac/ac-yasnippet"]
+	path = site-lisp/ac/ac-yasnippet
+	url = git://github.com/auto-complete/ac-yasnippet
