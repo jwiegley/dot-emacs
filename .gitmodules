@@ -253,3 +253,6 @@
 [submodule "site-lisp/hpaste"]
 	path = site-lisp/hpaste
 	url = git://git.swclan.homelinux.org/hpaste.git
+[submodule "site-lisp/yaml-mode"]
+	path = site-lisp/yaml-mode
+	url = https://github.com/yoshiki/yaml-mode.git
