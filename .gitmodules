@@ -268,3 +268,6 @@
 [submodule "site-lisp/ac/ac-yasnippet"]
 	path = site-lisp/ac/ac-yasnippet
 	url = git://github.com/auto-complete/ac-yasnippet
+[submodule "site-lisp/ac/auto-complete"]
+	path = site-lisp/ac/auto-complete
+	url = git://github.com/auto-complete/auto-complete
