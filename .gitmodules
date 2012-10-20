@@ -262,3 +262,6 @@
 [submodule "site-lisp/ac/ac-source-elisp"]
 	path = site-lisp/ac/ac-source-elisp
 	url = git://github.com/auto-complete/ac-source-elisp
+[submodule "site-lisp/ac/ac-source-semantic"]
+	path = site-lisp/ac/ac-source-semantic
+	url = git://github.com/auto-complete/ac-source-semantic
