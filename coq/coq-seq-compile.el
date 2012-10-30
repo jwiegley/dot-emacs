@@ -32,9 +32,9 @@
 
 ;; ancestor (un-)locking
 
-(defun coq-lock-ancestor (span ancestor-src)
+(defun coq-seq-lock-ancestor (span ancestor-src)
   "Lock ancestor ANCESTOR-SRC and register it in SPAN.
-Lock only if `coq-lock-ancestor' is non-nil. Further, do nothing,
+Lock only if `coq-seq-lock-ancestor' is non-nil. Further, do nothing,
 if ANCESTOR-SRC is already a member of
 `proof-included-files-list'. Otherwise ANCESTOR-SRC is locked and
 registered in the 'coq-locked-ancestors property of the SPAN to
@@ -48,21 +48,21 @@ properly unlock ANCESTOR-SRC on retract."
            (cons true-ancestor-src
                  (span-property span 'coq-locked-ancestors)))))))
 
-(defun coq-unlock-ancestor (ancestor-src)
+(defun coq-seq-unlock-ancestor (ancestor-src)
   "Unlock ANCESTOR-SRC."
   (let* ((true-ancestor (file-truename ancestor-src)))
     (setq proof-included-files-list
           (delete true-ancestor proof-included-files-list))
     (proof-restart-buffers (proof-files-to-buffers (list true-ancestor)))))
 
-(defun coq-unlock-all-ancestors-of-span (span)
+(defun coq-seq-unlock-all-ancestors-of-span (span)
   "Unlock all ancestors that have been locked when SPAN was asserted."
-  (mapc 'coq-unlock-ancestor (span-property span 'coq-locked-ancestors))
+  (mapc 'coq-seq-unlock-ancestor (span-property span 'coq-locked-ancestors))
   (span-set-property span 'coq-locked-ancestors ()))
 
 ;; handle Require commands when queue is extended
 
-(defun coq-compile-ignore-file (lib-obj-file)
+(defun coq-seq-compile-ignore-file (lib-obj-file)
   "Check whether ProofGeneral should handle compilation of LIB-OBJ-FILE.
 Return `t' if ProofGeneral should skip LIB-OBJ-FILE and `nil' if
 ProofGeneral should handle the file. For normal users it does, for instance,
@@ -86,12 +86,12 @@ is up-to-date."
          t)
      nil)))
 
-(defun coq-library-src-of-obj-file (lib-obj-file)
+(defun coq-seq-library-src-of-obj-file (lib-obj-file)
   "Return source file name for LIB-OBJ-FILE.
 Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
 
-(defun coq-init-compile-response-buffer (command)
+(defun coq-seq-init-compile-response-buffer (command)
   "Initialize the buffer for the compilation output.
 If `coq-compile-response-buffer' exists, empty it. Otherwise
 create a buffer with name `coq-compile-response-buffer', put
@@ -114,7 +114,7 @@ the command whose output will appear in the buffer."
       (with-current-buffer buffer-object
         (insert "-*- mode: compilation; -*-\n\n" command "\n")))))
 
-(defun coq-display-compile-response-buffer ()
+(defun coq-seq-display-compile-response-buffer ()
   "Display the errors in `coq-compile-response-buffer'."
   (with-current-buffer coq-compile-response-buffer
     ;; fontification enables the error messages
@@ -128,7 +128,7 @@ the command whose output will appear in the buffer."
           (save-selected-window
             (proof-resize-window-tofit window))))))
 
-(defun coq-get-library-dependencies (lib-src-file &optional command-intro)
+(defun coq-seq-get-library-dependencies (lib-src-file &optional command-intro)
   "Compute dependencies of LIB-SRC-FILE.
 Invoke \"coqdep\" on LIB-SRC-FILE and parse the output to
 compute the compiled coq library object files on which
@@ -169,25 +169,25 @@ break."
                                  (cons command-intro this-command)
                                this-command)))
           ;; display the error
-          (coq-init-compile-response-buffer
+          (coq-seq-init-compile-response-buffer
            (mapconcat 'identity full-command " "))
           (let ((inhibit-read-only t))
             (with-current-buffer coq-compile-response-buffer
               (insert coqdep-output)))
-          (coq-display-compile-response-buffer)
+          (coq-seq-display-compile-response-buffer)
           "unsatisfied dependencies")
       (if (string-match ": \\(.*\\)$" coqdep-output)
           (cdr-safe (split-string (match-string 1 coqdep-output)))
         ()))))
 
-(defun coq-compile-library (src-file)
+(defun coq-seq-compile-library (src-file)
   "Recompile coq library SRC-FILE.
 Display errors in buffer `coq-compile-response-buffer'."
   (message "Recompile %s" src-file)
   (let ((coqc-arguments
          (nconc (coq-include-options src-file) (list src-file)))
         coqc-status)
-    (coq-init-compile-response-buffer
+    (coq-seq-init-compile-response-buffer
      (mapconcat 'identity (cons coq-compiler coqc-arguments) " "))
     (if coq-debug-auto-compilation
         (message "call coqc arg list: %s" coqc-arguments))
@@ -200,14 +200,14 @@ Display errors in buffer `coq-compile-response-buffer'."
                  (with-current-buffer coq-compile-response-buffer
                    (buffer-string))))
     (unless (eq coqc-status 0)
-      (coq-display-compile-response-buffer)
+      (coq-seq-display-compile-response-buffer)
       (let ((terminated-text (if (numberp coqc-status)
                                  "terminated with exit status"
                                "was terminated by signal")))
         (error "ERROR: Recompiling coq library %s %s %s"
                src-file terminated-text coqc-status)))))
 
-(defun coq-compile-library-if-necessary (max-dep-obj-time src obj)
+(defun coq-seq-seq-compile-library-if-necessary (max-dep-obj-time src obj)
   "Recompile SRC to OBJ if necessary.
 This function compiles SRC to the coq library object file OBJ
 if one of the following conditions is true:
@@ -235,7 +235,7 @@ OBJ have identical modification times."
   (let (src-time obj-time)
     (if (eq max-dep-obj-time 'just-compiled)
         (progn
-          (coq-compile-library src)
+          (coq-seq-compile-library src)
           'just-compiled)
       (setq src-time (nth 5 (file-attributes src)))
       (setq obj-time (nth 5 (file-attributes obj)))
@@ -247,13 +247,13 @@ OBJ have identical modification times."
                                         ; which is newer than obj
             (time-less-p obj-time max-dep-obj-time)))
           (progn
-            (coq-compile-library src)
+            (coq-seq-compile-library src)
             'just-compiled)
         (if coq-debug-auto-compilation
             (message "Skip compilation of %s" src))
         obj-time))))
 
-(defun coq-make-lib-up-to-date (coq-obj-hash span lib-obj-file)
+(defun coq-seq-make-lib-up-to-date (coq-obj-hash span lib-obj-file)
   "Make library object file LIB-OBJ-FILE up-to-date.
 Check if LIB-OBJ-FILE and all it dependencies are up-to-date
 compiled coq library objects. Recompile the necessary objects, if
@@ -278,38 +278,41 @@ function."
           result)
       ;; lib-obj-file has not been checked -- do it now
       (message "Check %s" lib-obj-file)
-      (if (coq-compile-ignore-file lib-obj-file)
+      (if (coq-seq-compile-ignore-file lib-obj-file)
           ;; return minimal time for ignored files
           (setq result '(0 0))
         (let* ((lib-src-file
-                (expand-file-name (coq-library-src-of-obj-file lib-obj-file)))
+                (expand-file-name
+		 (coq-seq-library-src-of-obj-file lib-obj-file)))
                dependencies deps-mod-time)
           (if (file-exists-p lib-src-file)
               ;; recurse into dependencies now
               (progn
-                (setq dependencies (coq-get-library-dependencies lib-src-file))
+                (setq dependencies
+		      (coq-seq-get-library-dependencies lib-src-file))
                 (if (stringp dependencies)
                     (error "File %s has %s" lib-src-file dependencies))
                 (setq deps-mod-time
                       (mapcar
                        (lambda (dep)
-                         (coq-make-lib-up-to-date coq-obj-hash span dep))
+                         (coq-seq-make-lib-up-to-date coq-obj-hash span dep))
                        dependencies))
                 (setq result
-                      (coq-compile-library-if-necessary
+                      (coq-seq-seq-compile-library-if-necessary
                        (coq-max-dep-mod-time deps-mod-time)
                        lib-src-file lib-obj-file)))
             (message "coq-auto-compile: no source file for %s" lib-obj-file)
             (setq result
                   ;; 5 value: last modification time
                   (nth 5 (file-attributes lib-obj-file))))
-          (coq-lock-ancestor span lib-src-file)))
+          (coq-seq-lock-ancestor span lib-src-file)))
       ;; at this point the result value has been determined
       ;; store it in the hash then
       (puthash lib-obj-file result coq-obj-hash)
       result)))
 
-(defun coq-auto-compile-externally (span qualified-id absolute-module-obj-file)
+(defun coq-seq-auto-compile-externally (span qualified-id
+					     absolute-module-obj-file)
   "Make MODULE up-to-date according to `coq-compile-command'.
 Start a compilation to make ABSOLUTE-MODULE-OBJ-FILE up-to-date.
 The compilation command is derived from `coq-compile-command' by
@@ -324,11 +327,11 @@ span for for proper unlocking on retract.
 
 This function uses the low-level interface `compilation-start',
 therefore the customizations for `compile' do not apply."
-  (unless (coq-compile-ignore-file absolute-module-obj-file)
+  (unless (coq-seq-compile-ignore-file absolute-module-obj-file)
     (let* ((local-compile-command coq-compile-command)
            (physical-dir (file-name-directory absolute-module-obj-file))
            (module-object (file-name-nondirectory absolute-module-obj-file))
-           (module-source (coq-library-src-of-obj-file module-object))
+           (module-source (coq-seq-library-src-of-obj-file module-object))
            (requiring-file buffer-file-name))
       (mapc
        (lambda (substitution)
@@ -348,11 +351,11 @@ therefore the customizations for `compile' do not apply."
       ;; the next line is probably necessary to make recompile work
       (setq-default compilation-directory default-directory)
       (compilation-start local-compile-command)
-      (coq-lock-ancestor
+      (coq-seq-lock-ancestor
        span
-       (coq-library-src-of-obj-file absolute-module-obj-file)))))
+       (coq-seq-library-src-of-obj-file absolute-module-obj-file)))))
 
-(defun coq-map-module-id-to-obj-file (module-id span)
+(defun coq-seq-map-module-id-to-obj-file (module-id span)
   "Map MODULE-ID to the appropriate coq object file.
 The mapping depends of course on `coq-load-path'. The current
 implementation invokes coqdep with a one-line require command.
@@ -376,12 +379,12 @@ function returns () if MODULE-ID comes from the standard library."
           (with-temp-file temp-require-file
             (insert coq-string))
           (setq result
-                (coq-get-library-dependencies
+                (coq-seq-get-library-dependencies
                  temp-require-file
                  (concat "echo \"" coq-string "\" > " temp-require-file))))
       (delete-file temp-require-file))
     (if (stringp result)
-        ;; Error handling: coq-get-library-dependencies was not able to
+        ;; Error handling: coq-seq-get-library-dependencies was not able to
         ;; translate module-id into a file name. We insert now a faked error
         ;; message into coq-compile-response-buffer to make next-error happy.
         (let ((error-message
@@ -399,13 +402,13 @@ function returns () if MODULE-ID comes from the standard library."
           ;;            (with-current-buffer (span-buffer span)
           ;;              (line-number-at-pos (span-start span)))
           ;;            error-message)))
-          ;; (coq-display-compile-response-buffer)
+          ;; (coq-seq-display-compile-response-buffer)
           (error error-message)))
     (assert (<= (length result) 1)
-            "Internal error in coq-map-module-id-to-obj-file")
+            "Internal error in coq-seq-map-module-id-to-obj-file")
     (car-safe result)))
 
-(defun coq-check-module (coq-object-local-hash-symbol span module-id)
+(defun coq-seq-check-module (coq-object-local-hash-symbol span module-id)
   "Locate MODULE-ID and compile if necessary.
 If `coq-compile-command' is not nil the whole task of checking which
 modules need compilation and the compilation itself is done by an external
@@ -419,65 +422,65 @@ for proper unlocking on retract.
 
 Argument COQ-OBJECT-LOCAL-HASH-SYMBOL provides a place to store
 the coq-obj-hash, which is used during internal
-compilation (see `coq-make-lib-up-to-date'). This way one hash
+compilation (see `coq-seq-make-lib-up-to-date'). This way one hash
 will be used for all \"Require\" commands added at once to the
 queue."
-  (let ((module-obj-file (coq-map-module-id-to-obj-file module-id span)))
-    ;; coq-map-module-id-to-obj-file currently returns () for
+  (let ((module-obj-file (coq-seq-map-module-id-to-obj-file module-id span)))
+    ;; coq-seq-map-module-id-to-obj-file currently returns () for
     ;; standard library modules!
     (when module-obj-file
       (if (> (length coq-compile-command) 0)
-          (coq-auto-compile-externally span module-id module-obj-file)
+          (coq-seq-auto-compile-externally span module-id module-obj-file)
         (unless (symbol-value coq-object-local-hash-symbol)
           (set coq-object-local-hash-symbol (make-hash-table :test 'equal)))
-        (coq-make-lib-up-to-date (symbol-value coq-object-local-hash-symbol)
+        (coq-seq-make-lib-up-to-date (symbol-value coq-object-local-hash-symbol)
                                  span module-obj-file)))))
 
-(defvar coq-process-require-current-buffer
-  "Used in `coq-compile-save-some-buffers' and `coq-compile-save-buffer-filter'.
+(defvar coq-seq-process-require-current-buffer
+  "Local variable for two coq-seq-* functions.
 This only locally used variable communicates the current buffer
-from `coq-compile-save-some-buffers' to
-`coq-compile-save-buffer-filter'.")
+from `coq-seq-compile-save-some-buffers' to
+`coq-seq-compile-save-buffer-filter'.")
 
-(defun coq-compile-save-buffer-filter ()
-  "Filter predicate for `coq-compile-save-some-buffers'.
+(defun coq-seq-compile-save-buffer-filter ()
+  "Filter predicate for `coq-seq-compile-save-some-buffers'.
 See also `save-some-buffers'. Returns t for buffers with major mode
-'coq-mode' different from coq-process-require-current-buffer and nil
+'coq-mode' different from coq-seq-process-require-current-buffer and nil
 for all other buffers. The buffer to test must be current."
   (and
    (eq major-mode 'coq-mode)
-   (not (eq coq-process-require-current-buffer
+   (not (eq coq-seq-process-require-current-buffer
             (current-buffer)))))
   
-(defun coq-compile-save-some-buffers ()
+(defun coq-seq-compile-save-some-buffers ()
   "Save buffers according to `coq-compile-auto-save'.
-Uses the local variable coq-process-require-current-buffer to pass the
+Uses the local variable coq-seq-process-require-current-buffer to pass the
 current buffer (which contains the Require command) to
-`coq-compile-save-buffer-filter'."
-  (let ((coq-process-require-current-buffer (current-buffer))
+`coq-seq-compile-save-buffer-filter'."
+  (let ((coq-seq-process-require-current-buffer (current-buffer))
         unconditionally buffer-filter)
     (cond
      ((eq coq-compile-auto-save 'ask-coq)
       (setq unconditionally nil
-            buffer-filter 'coq-compile-save-buffer-filter))
+            buffer-filter 'coq-seq-compile-save-buffer-filter))
      ((eq coq-compile-auto-save 'ask-all)
       (setq unconditionally nil
             buffer-filter nil))
      ((eq coq-compile-auto-save 'save-coq)
       (setq unconditionally t
-            buffer-filter 'coq-compile-save-buffer-filter))
+            buffer-filter 'coq-seq-compile-save-buffer-filter))
      ((eq coq-compile-auto-save 'save-all)
       (setq unconditionally t
             buffer-filter nil)))
     (save-some-buffers unconditionally buffer-filter)))
 
-(defun coq-preprocess-require-commands ()
+(defun coq-seq-preprocess-require-commands ()
   "Coq function for `proof-shell-extend-queue-hook'.
 If `coq-compile-before-require' is non-nil, this function performs the
 compilation (if necessary) of the dependencies."
   (if coq-compile-before-require
       (let (;; coq-object-hash-symbol serves as a pointer to the
-            ;; coq-obj-hash (see coq-make-lib-up-to-date). The hash
+            ;; coq-obj-hash (see coq-seq-make-lib-up-to-date). The hash
             ;; will be initialized when needed and stored in the value
             ;; cell of coq-object-hash-symbol. The symbol is initialized
             ;; here to use one hash for all the requires that are added now.
@@ -492,15 +495,15 @@ compilation (if necessary) of the dependencies."
                 (span-add-delete-action
                  span
                  `(lambda ()
-                    (coq-unlock-all-ancestors-of-span ,span)))
-                (coq-compile-save-some-buffers)
+                    (coq-seq-unlock-all-ancestors-of-span ,span)))
+                (coq-seq-compile-save-some-buffers)
                 ;; now process all required modules
                 (while (string-match coq-require-id-regexp string start)
                   (setq start (match-end 0))
-                  (coq-check-module 'coq-object-hash-symbol span
+                  (coq-seq-check-module 'coq-object-hash-symbol span
                                     (match-string 1 string))))))))))
 
-(add-hook 'proof-shell-extend-queue-hook 'coq-preprocess-require-commands)
+(add-hook 'proof-shell-extend-queue-hook 'coq-seq-preprocess-require-commands)
 
 
 
