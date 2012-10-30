@@ -373,9 +373,25 @@ FILE should be an absolute file name. It can be nil if
     (append coq-prog-args (coq-include-options nil))))
 
 
+;; kill coqtop on script buffer change
+
+(defun coq-switch-buffer-kill-proof-shell ()
+  "Kill the proof shell without asking the user.
+This function is for `proof-deactivate-scripting-hook'. It kills
+the proof shell without asking the user for
+confirmation (assuming she agreed already on switching the active
+scripting buffer). This is needed to ensure the load path is
+correct in the new scripting buffer."
+  (unless proof-shell-exit-in-progress
+    (proof-shell-exit t)))
+
+
+(add-hook 'proof-deactivate-scripting-hook
+          'coq-switch-buffer-kill-proof-shell
+          t)
+
+
 (provide 'coq-compile-common)
-
-
 
 ;;   Local Variables: ***
 ;;   coding: utf-8 ***
