@@ -157,7 +157,7 @@
  '(haskell-config-use-unicode-symbols t)
  '(haskell-doc-use-inf-haskell t)
  '(haskell-hoogle-command nil)
- '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode capitalized-words-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan ghc-init my-haskell-mode-hook)))
+ '(haskell-mode-hook (quote (turn-on-haskell-indentation turn-on-font-lock turn-on-eldoc-mode turn-on-haskell-doc-mode turn-on-haskell-decl-scan ghc-init my-haskell-mode-hook)))
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(hippie-expand-try-functions-list (quote (yas/hippie-try-expand try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol)))

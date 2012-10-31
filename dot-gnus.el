@@ -383,7 +383,11 @@ is:
     (defun gnus-goto-article (message-id)
       (activate-gnus)
       (gnus-summary-read-group "INBOX" 15 t)
-      (gnus-summary-refer-article message-id))
+      (let ((nnir-imap-default-search-key "imap")
+            (nnir-ignored-newsgroups
+             (concat "\\(\\(list\\.wg21\\|archive\\)\\.\\|"
+                     "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)")))
+        (gnus-summary-refer-article message-id)))
 
     (defvar gnus-query-history nil)
 

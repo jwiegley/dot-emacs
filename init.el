@@ -212,8 +212,6 @@
 (bind-key "M-s n" 'find-name-dired)
 (bind-key "M-s o" 'occur)
 
-(bind-key "A-M-w" 'copy-code-as-rtf)
-
 ;;;_  . M-C-?
 
 (bind-key "<C-M-backspace>" 'backward-kill-sexp)
@@ -1091,6 +1089,16 @@
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
 
+;;;_ , apl-ascii
+
+(use-package apl)
+
+;;;_ , archive-region
+
+(use-package archive-region
+  :commands kill-region-or-archive-region
+  :bind ("C-w" . kill-region-or-archive-region))
+
 ;;;_ , ascii
 
 (use-package ascii
@@ -1104,12 +1112,6 @@
         (ascii-on)))
 
     (bind-key "C-c e A" 'ascii-toggle)))
-
-;;;_ , archive-region
-
-(use-package archive-region
-  :commands kill-region-or-archive-region
-  :bind ("C-w" . kill-region-or-archive-region))
 
 ;;;_ , auctex
 
@@ -1377,6 +1379,11 @@
 
     :config
     (use-package moccur-edit)))
+
+;;;_ , copy-code
+
+(use-package copy-code
+  :bind ("A-M-W" . copy-code-as-rtf))
 
 ;;;_ , crosshairs
 
