@@ -277,3 +277,6 @@
 [submodule "site-lisp/ac/popup-el"]
 	path = site-lisp/ac/popup-el
 	url = git://github.com/auto-complete/popup-el
+[submodule "lisp/git-annex-el"]
+	path = lisp/git-annex-el
+	url = git://github.com/jwiegley/git-annex-el
