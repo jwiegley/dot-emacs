@@ -91,43 +91,6 @@ is up-to-date."
 Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
 
-(defun coq-seq-init-compile-response-buffer (command)
-  "Initialize the buffer for the compilation output.
-If `coq-compile-response-buffer' exists, empty it. Otherwise
-create a buffer with name `coq-compile-response-buffer', put
-it into `compilation-mode' and store it in
-`coq-compile-response-buffer' for later use. Argument COMMAND is
-the command whose output will appear in the buffer."
-  (let ((buffer-object (get-buffer coq-compile-response-buffer)))
-    (if buffer-object
-        (let ((inhibit-read-only t))
-          (with-current-buffer buffer-object
-            (erase-buffer)))
-      (setq buffer-object
-            (get-buffer-create coq-compile-response-buffer))
-      (with-current-buffer buffer-object
-        (compilation-mode)))
-    ;; I don't really care if somebody gets the right mode when
-    ;; he saves and reloads this buffer. However, error messages in
-    ;; the first line are not found for some reason ...
-    (let ((inhibit-read-only t))
-      (with-current-buffer buffer-object
-        (insert "-*- mode: compilation; -*-\n\n" command "\n")))))
-
-(defun coq-seq-display-compile-response-buffer ()
-  "Display the errors in `coq-compile-response-buffer'."
-  (with-current-buffer coq-compile-response-buffer
-    ;; fontification enables the error messages
-    (let ((font-lock-verbose nil)) ; shut up font-lock messages
-      (font-lock-fontify-buffer)))
-  ;; Make it so the next C-x ` will use this buffer.
-  (setq next-error-last-buffer (get-buffer coq-compile-response-buffer))
-  (let ((window (display-buffer coq-compile-response-buffer)))
-    (if proof-shrink-windows-tofit
-        (save-excursion
-          (save-selected-window
-            (proof-resize-window-tofit window))))))
-
 (defun coq-seq-get-library-dependencies (lib-src-file &optional command-intro)
   "Compute dependencies of LIB-SRC-FILE.
 Invoke \"coqdep\" on LIB-SRC-FILE and parse the output to
@@ -169,12 +132,12 @@ break."
                                  (cons command-intro this-command)
                                this-command)))
           ;; display the error
-          (coq-seq-init-compile-response-buffer
+          (coq-init-compile-response-buffer
            (mapconcat 'identity full-command " "))
           (let ((inhibit-read-only t))
             (with-current-buffer coq-compile-response-buffer
               (insert coqdep-output)))
-          (coq-seq-display-compile-response-buffer)
+          (coq-display-compile-response-buffer)
           "unsatisfied dependencies")
       (if (string-match ": \\(.*\\)$" coqdep-output)
           (cdr-safe (split-string (match-string 1 coqdep-output)))
@@ -187,7 +150,7 @@ Display errors in buffer `coq-compile-response-buffer'."
   (let ((coqc-arguments
          (nconc (coq-include-options src-file) (list src-file)))
         coqc-status)
-    (coq-seq-init-compile-response-buffer
+    (coq-init-compile-response-buffer
      (mapconcat 'identity (cons coq-compiler coqc-arguments) " "))
     (if coq-debug-auto-compilation
         (message "call coqc arg list: %s" coqc-arguments))
@@ -200,7 +163,7 @@ Display errors in buffer `coq-compile-response-buffer'."
                  (with-current-buffer coq-compile-response-buffer
                    (buffer-string))))
     (unless (eq coqc-status 0)
-      (coq-seq-display-compile-response-buffer)
+      (coq-display-compile-response-buffer)
       (let ((terminated-text (if (numberp coqc-status)
                                  "terminated with exit status"
                                "was terminated by signal")))
@@ -402,7 +365,7 @@ function returns () if MODULE-ID comes from the standard library."
           ;;            (with-current-buffer (span-buffer span)
           ;;              (line-number-at-pos (span-start span)))
           ;;            error-message)))
-          ;; (coq-seq-display-compile-response-buffer)
+          ;; (coq-display-compile-response-buffer)
           (error error-message)))
     (assert (<= (length result) 1)
             "Internal error in coq-seq-map-module-id-to-obj-file")

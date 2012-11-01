@@ -373,6 +373,46 @@ FILE should be an absolute file name. It can be nil if
     (append coq-prog-args (coq-include-options nil))))
 
 
+;; manage coq-compile-respose-buffer
+
+(defun coq-init-compile-response-buffer (command)
+  "Initialize the buffer for the compilation output.
+If `coq-compile-response-buffer' exists, empty it. Otherwise
+create a buffer with name `coq-compile-response-buffer', put
+it into `compilation-mode' and store it in
+`coq-compile-response-buffer' for later use. Argument COMMAND is
+the command whose output will appear in the buffer."
+  (let ((buffer-object (get-buffer coq-compile-response-buffer)))
+    (if buffer-object
+        (let ((inhibit-read-only t))
+          (with-current-buffer buffer-object
+            (erase-buffer)))
+      (setq buffer-object
+            (get-buffer-create coq-compile-response-buffer))
+      (with-current-buffer buffer-object
+        (compilation-mode)))
+    ;; I don't really care if somebody gets the right mode when
+    ;; he saves and reloads this buffer. However, error messages in
+    ;; the first line are not found for some reason ...
+    (let ((inhibit-read-only t))
+      (with-current-buffer buffer-object
+        (insert "-*- mode: compilation; -*-\n\n" command "\n")))))
+
+(defun coq-display-compile-response-buffer ()
+  "Display the errors in `coq-compile-response-buffer'."
+  (with-current-buffer coq-compile-response-buffer
+    ;; fontification enables the error messages
+    (let ((font-lock-verbose nil)) ; shut up font-lock messages
+      (font-lock-fontify-buffer)))
+  ;; Make it so the next C-x ` will use this buffer.
+  (setq next-error-last-buffer (get-buffer coq-compile-response-buffer))
+  (let ((window (display-buffer coq-compile-response-buffer)))
+    (if proof-shrink-windows-tofit
+        (save-excursion
+          (save-selected-window
+            (proof-resize-window-tofit window))))))
+
+
 ;; kill coqtop on script buffer change
 
 (defun coq-switch-buffer-kill-proof-shell ()
