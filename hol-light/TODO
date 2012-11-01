@@ -10,6 +10,8 @@
 * PG: add patch for background startup (needs testing)
   [da to do]
 
-* Integrate Tactic recording/proof refactoring (e.g. menu commands)
+* Integrate Tactic recording/proof refactoring (e.g. menu commands,
+  also load point: if it is to work from Proof General, make it
+  work from here, otherwise distribute it separately)
   [ma to do]
 
