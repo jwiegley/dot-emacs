@@ -373,6 +373,39 @@ FILE should be an absolute file name. It can be nil if
     (append coq-prog-args (coq-include-options nil))))
 
 
+;; ignore library files
+
+(defun coq-compile-ignore-file (lib-obj-file)
+  "Check whether ProofGeneral should handle compilation of LIB-OBJ-FILE.
+Return `t' if ProofGeneral should skip LIB-OBJ-FILE and `nil' if
+ProofGeneral should handle the file. For normal users it does, for instance,
+not make sense to let ProofGeneral check if the coq standard library
+is up-to-date."
+  (or
+   (and
+    coq-compile-ignore-library-directory
+    (eq (compare-strings coq-library-directory 0 nil
+                         lib-obj-file 0 (length coq-library-directory))
+        t)
+    (if coq-debug-auto-compilation
+        (message "Ignore lib file %s" lib-obj-file))
+    t)
+   (if (some
+          (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
+          coq-compile-ignored-directories)
+       (progn
+         (if coq-debug-auto-compilation
+             (message "Ignore %s" lib-obj-file))
+         t)
+     nil)))
+
+;; convert .vo files to .v files
+
+(defun coq-library-src-of-obj-file (lib-obj-file)
+  "Return source file name for LIB-OBJ-FILE.
+Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
+  (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
+
 ;; manage coq-compile-respose-buffer
 
 (defun coq-init-compile-response-buffer (command)

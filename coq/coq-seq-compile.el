@@ -62,35 +62,6 @@ properly unlock ANCESTOR-SRC on retract."
 
 ;; handle Require commands when queue is extended
 
-(defun coq-seq-compile-ignore-file (lib-obj-file)
-  "Check whether ProofGeneral should handle compilation of LIB-OBJ-FILE.
-Return `t' if ProofGeneral should skip LIB-OBJ-FILE and `nil' if
-ProofGeneral should handle the file. For normal users it does, for instance,
-not make sense to let ProofGeneral check if the coq standard library
-is up-to-date."
-  (or
-   (and
-    coq-compile-ignore-library-directory
-    (eq (compare-strings coq-library-directory 0 nil
-                         lib-obj-file 0 (length coq-library-directory))
-        t)
-    (if coq-debug-auto-compilation
-        (message "Ignore lib file %s" lib-obj-file))
-    t)
-   (if (some
-          (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
-          coq-compile-ignored-directories)
-       (progn
-         (if coq-debug-auto-compilation
-             (message "Ignore %s" lib-obj-file))
-         t)
-     nil)))
-
-(defun coq-seq-library-src-of-obj-file (lib-obj-file)
-  "Return source file name for LIB-OBJ-FILE.
-Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
-  (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
-
 (defun coq-seq-get-library-dependencies (lib-src-file &optional command-intro)
   "Compute dependencies of LIB-SRC-FILE.
 Invoke \"coqdep\" on LIB-SRC-FILE and parse the output to
@@ -241,12 +212,12 @@ function."
           result)
       ;; lib-obj-file has not been checked -- do it now
       (message "Check %s" lib-obj-file)
-      (if (coq-seq-compile-ignore-file lib-obj-file)
+      (if (coq-compile-ignore-file lib-obj-file)
           ;; return minimal time for ignored files
           (setq result '(0 0))
         (let* ((lib-src-file
                 (expand-file-name
-		 (coq-seq-library-src-of-obj-file lib-obj-file)))
+		 (coq-library-src-of-obj-file lib-obj-file)))
                dependencies deps-mod-time)
           (if (file-exists-p lib-src-file)
               ;; recurse into dependencies now
@@ -290,11 +261,11 @@ span for for proper unlocking on retract.
 
 This function uses the low-level interface `compilation-start',
 therefore the customizations for `compile' do not apply."
-  (unless (coq-seq-compile-ignore-file absolute-module-obj-file)
+  (unless (coq-compile-ignore-file absolute-module-obj-file)
     (let* ((local-compile-command coq-compile-command)
            (physical-dir (file-name-directory absolute-module-obj-file))
            (module-object (file-name-nondirectory absolute-module-obj-file))
-           (module-source (coq-seq-library-src-of-obj-file module-object))
+           (module-source (coq-library-src-of-obj-file module-object))
            (requiring-file buffer-file-name))
       (mapc
        (lambda (substitution)
@@ -316,7 +287,7 @@ therefore the customizations for `compile' do not apply."
       (compilation-start local-compile-command)
       (coq-seq-lock-ancestor
        span
-       (coq-seq-library-src-of-obj-file absolute-module-obj-file)))))
+       (coq-library-src-of-obj-file absolute-module-obj-file)))))
 
 (defun coq-seq-map-module-id-to-obj-file (module-id span)
   "Map MODULE-ID to the appropriate coq object file.
