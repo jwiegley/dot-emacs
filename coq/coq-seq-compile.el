@@ -82,7 +82,8 @@ dependencies are absolute too and the simplified treatment of
 `coq-load-path-include-current' in `coq-include-options' won't
 break."
   (let ((coqdep-arguments
-         (nconc (coq-include-options lib-src-file) (list lib-src-file)))
+         (nconc (coq-include-options lib-src-file coq-load-path)
+		(list lib-src-file)))
         coqdep-status coqdep-output)
     (if coq-debug-auto-compilation
         (message "call coqdep arg list: %s" coqdep-arguments))
@@ -119,7 +120,7 @@ break."
 Display errors in buffer `coq-compile-response-buffer'."
   (message "Recompile %s" src-file)
   (let ((coqc-arguments
-         (nconc (coq-include-options src-file) (list src-file)))
+         (nconc (coq-include-options src-file coq-load-path) (list src-file)))
         coqc-status)
     (coq-init-compile-response-buffer
      (mapconcat 'identity (cons coq-compiler coqc-arguments) " "))
