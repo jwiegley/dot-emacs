@@ -142,7 +142,7 @@ Display errors in buffer `coq-compile-response-buffer'."
         (error "ERROR: Recompiling coq library %s %s %s"
                src-file terminated-text coqc-status)))))
 
-(defun coq-seq-seq-compile-library-if-necessary (max-dep-obj-time src obj)
+(defun coq-seq-compile-library-if-necessary (max-dep-obj-time src obj)
   "Recompile SRC to OBJ if necessary.
 This function compiles SRC to the coq library object file OBJ
 if one of the following conditions is true:
@@ -233,7 +233,7 @@ function."
                          (coq-seq-make-lib-up-to-date coq-obj-hash span dep))
                        dependencies))
                 (setq result
-                      (coq-seq-seq-compile-library-if-necessary
+                      (coq-seq-compile-library-if-necessary
                        (coq-max-dep-mod-time deps-mod-time)
                        lib-src-file lib-obj-file)))
             (message "coq-auto-compile: no source file for %s" lib-obj-file)
