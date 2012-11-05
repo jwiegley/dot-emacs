@@ -30,36 +30,6 @@
 ;; Multiple file handling -- sequential compilation of required modules
 ;;
 
-;; ancestor (un-)locking
-
-(defun coq-seq-lock-ancestor (span ancestor-src)
-  "Lock ancestor ANCESTOR-SRC and register it in SPAN.
-Lock only if `coq-seq-lock-ancestor' is non-nil. Further, do nothing,
-if ANCESTOR-SRC is already a member of
-`proof-included-files-list'. Otherwise ANCESTOR-SRC is locked and
-registered in the 'coq-locked-ancestors property of the SPAN to
-properly unlock ANCESTOR-SRC on retract."
-  (if coq-lock-ancestors
-      (let ((true-ancestor-src (file-truename ancestor-src)))
-        (unless (member true-ancestor-src proof-included-files-list)
-          (proof-register-possibly-new-processed-file true-ancestor-src)
-          (span-set-property
-           span 'coq-locked-ancestors
-           (cons true-ancestor-src
-                 (span-property span 'coq-locked-ancestors)))))))
-
-(defun coq-seq-unlock-ancestor (ancestor-src)
-  "Unlock ANCESTOR-SRC."
-  (let* ((true-ancestor (file-truename ancestor-src)))
-    (setq proof-included-files-list
-          (delete true-ancestor proof-included-files-list))
-    (proof-restart-buffers (proof-files-to-buffers (list true-ancestor)))))
-
-(defun coq-seq-unlock-all-ancestors-of-span (span)
-  "Unlock all ancestors that have been locked when SPAN was asserted."
-  (mapc 'coq-seq-unlock-ancestor (span-property span 'coq-locked-ancestors))
-  (span-set-property span 'coq-locked-ancestors ()))
-
 ;; handle Require commands when queue is extended
 
 (defun coq-seq-get-library-dependencies (lib-src-file &optional command-intro)
@@ -240,7 +210,7 @@ function."
             (setq result
                   ;; 5 value: last modification time
                   (nth 5 (file-attributes lib-obj-file))))
-          (coq-seq-lock-ancestor span lib-src-file)))
+          (coq-lock-ancestor span lib-src-file)))
       ;; at this point the result value has been determined
       ;; store it in the hash then
       (puthash lib-obj-file result coq-obj-hash)
@@ -286,7 +256,7 @@ therefore the customizations for `compile' do not apply."
       ;; the next line is probably necessary to make recompile work
       (setq-default compilation-directory default-directory)
       (compilation-start local-compile-command)
-      (coq-seq-lock-ancestor
+      (coq-lock-ancestor
        span
        (coq-library-src-of-obj-file absolute-module-obj-file)))))
 
@@ -392,7 +362,7 @@ compilation (if necessary) of the dependencies."
                 (span-add-delete-action
                  span
                  `(lambda ()
-                    (coq-seq-unlock-all-ancestors-of-span ,span)))
+                    (coq-unlock-all-ancestors-of-span ,span)))
                 (coq-compile-save-some-buffers)
                 ;; now process all required modules
                 (while (string-match coq-require-id-regexp string start)
