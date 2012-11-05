@@ -448,6 +448,48 @@ the command whose output will appear in the buffer."
             (proof-resize-window-tofit window))))))
 
 
+;; save some buffers
+
+(defvar coq-compile-buffer-with-current-require
+  "Local variable for two coq-seq-* functions.
+This only locally used variable communicates the current buffer
+from `coq-compile-save-some-buffers' to
+`coq-compile-save-buffer-filter'.")
+
+(defun coq-compile-save-buffer-filter ()
+  "Filter predicate for `coq-compile-save-some-buffers'.
+See also `save-some-buffers'. Returns t for buffers with major
+mode 'coq-mode' different from
+`coq-compile-buffer-with-current-require' and nil for all other
+buffers. The buffer to test must be current."
+  (and
+   (eq major-mode 'coq-mode)
+   (not (eq coq-compile-buffer-with-current-require
+            (current-buffer)))))
+  
+(defun coq-compile-save-some-buffers ()
+  "Save buffers according to `coq-compile-auto-save'.
+Uses the local variable coq-compile-buffer-with-current-require to pass the
+current buffer (which contains the Require command) to
+`coq-compile-save-buffer-filter'."
+  (let ((coq-compile-buffer-with-current-require (current-buffer))
+        unconditionally buffer-filter)
+    (cond
+     ((eq coq-compile-auto-save 'ask-coq)
+      (setq unconditionally nil
+            buffer-filter 'coq-compile-save-buffer-filter))
+     ((eq coq-compile-auto-save 'ask-all)
+      (setq unconditionally nil
+            buffer-filter nil))
+     ((eq coq-compile-auto-save 'save-coq)
+      (setq unconditionally t
+            buffer-filter 'coq-compile-save-buffer-filter))
+     ((eq coq-compile-auto-save 'save-all)
+      (setq unconditionally t
+            buffer-filter nil)))
+    (save-some-buffers unconditionally buffer-filter)))
+
+
 ;; kill coqtop on script buffer change
 
 (defun coq-switch-buffer-kill-proof-shell ()

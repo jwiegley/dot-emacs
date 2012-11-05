@@ -371,44 +371,6 @@ queue."
         (coq-seq-make-lib-up-to-date (symbol-value coq-object-local-hash-symbol)
                                  span module-obj-file)))))
 
-(defvar coq-seq-process-require-current-buffer
-  "Local variable for two coq-seq-* functions.
-This only locally used variable communicates the current buffer
-from `coq-seq-compile-save-some-buffers' to
-`coq-seq-compile-save-buffer-filter'.")
-
-(defun coq-seq-compile-save-buffer-filter ()
-  "Filter predicate for `coq-seq-compile-save-some-buffers'.
-See also `save-some-buffers'. Returns t for buffers with major mode
-'coq-mode' different from coq-seq-process-require-current-buffer and nil
-for all other buffers. The buffer to test must be current."
-  (and
-   (eq major-mode 'coq-mode)
-   (not (eq coq-seq-process-require-current-buffer
-            (current-buffer)))))
-  
-(defun coq-seq-compile-save-some-buffers ()
-  "Save buffers according to `coq-compile-auto-save'.
-Uses the local variable coq-seq-process-require-current-buffer to pass the
-current buffer (which contains the Require command) to
-`coq-seq-compile-save-buffer-filter'."
-  (let ((coq-seq-process-require-current-buffer (current-buffer))
-        unconditionally buffer-filter)
-    (cond
-     ((eq coq-compile-auto-save 'ask-coq)
-      (setq unconditionally nil
-            buffer-filter 'coq-seq-compile-save-buffer-filter))
-     ((eq coq-compile-auto-save 'ask-all)
-      (setq unconditionally nil
-            buffer-filter nil))
-     ((eq coq-compile-auto-save 'save-coq)
-      (setq unconditionally t
-            buffer-filter 'coq-seq-compile-save-buffer-filter))
-     ((eq coq-compile-auto-save 'save-all)
-      (setq unconditionally t
-            buffer-filter nil)))
-    (save-some-buffers unconditionally buffer-filter)))
-
 (defun coq-seq-preprocess-require-commands ()
   "Coq function for `proof-shell-extend-queue-hook'.
 If `coq-compile-before-require' is non-nil, this function performs the
@@ -431,7 +393,7 @@ compilation (if necessary) of the dependencies."
                  span
                  `(lambda ()
                     (coq-seq-unlock-all-ancestors-of-span ,span)))
-                (coq-seq-compile-save-some-buffers)
+                (coq-compile-save-some-buffers)
                 ;; now process all required modules
                 (while (string-match coq-require-id-regexp string start)
                   (setq start (match-end 0))
