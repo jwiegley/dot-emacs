@@ -409,23 +409,8 @@ Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
 
 
-;; ancestor (un-)locking
-
-(defun coq-lock-ancestor (span ancestor-src)
-  "Lock ancestor ANCESTOR-SRC and register it in SPAN.
-Lock only if `coq-lock-ancestor' is non-nil. Further, do nothing,
-if ANCESTOR-SRC is already a member of
-`proof-included-files-list'. Otherwise ANCESTOR-SRC is locked and
-registered in the 'coq-locked-ancestors property of the SPAN to
-properly unlock ANCESTOR-SRC on retract."
-  (if coq-lock-ancestors
-      (let ((true-ancestor-src (file-truename ancestor-src)))
-        (unless (member true-ancestor-src proof-included-files-list)
-          (proof-register-possibly-new-processed-file true-ancestor-src)
-          (span-set-property
-           span 'coq-locked-ancestors
-           (cons true-ancestor-src
-                 (span-property span 'coq-locked-ancestors)))))))
+;;; ancestor unlocking
+;;; (locking is different for sequential and parallel compilation)
 
 (defun coq-unlock-ancestor (ancestor-src)
   "Unlock ANCESTOR-SRC."

@@ -30,7 +30,27 @@
 ;; Multiple file handling -- sequential compilation of required modules
 ;;
 
-;; handle Require commands when queue is extended
+
+;;; ancestor locking
+;;; (unlocking is shared in coq-compile-common.el)
+
+(defun coq-seq-lock-ancestor (span ancestor-src)
+  "Lock ancestor ANCESTOR-SRC and register it in SPAN.
+Lock only if `coq-lock-ancestor' is non-nil. Further, do nothing,
+if ANCESTOR-SRC is already a member of
+`proof-included-files-list'. Otherwise ANCESTOR-SRC is locked and
+registered in the 'coq-locked-ancestors property of the SPAN to
+properly unlock ANCESTOR-SRC on retract."
+  (if coq-lock-ancestors
+      (let ((true-ancestor-src (file-truename ancestor-src)))
+        (unless (member true-ancestor-src proof-included-files-list)
+          (proof-register-possibly-new-processed-file true-ancestor-src)
+          (span-set-property
+           span 'coq-locked-ancestors
+           (cons true-ancestor-src
+                 (span-property span 'coq-locked-ancestors)))))))
+
+;;; handle Require commands when queue is extended
 
 (defun coq-seq-get-library-dependencies (lib-src-file &optional command-intro)
   "Compute dependencies of LIB-SRC-FILE.
@@ -210,7 +230,7 @@ function."
             (setq result
                   ;; 5 value: last modification time
                   (nth 5 (file-attributes lib-obj-file))))
-          (coq-lock-ancestor span lib-src-file)))
+          (coq-seq-lock-ancestor span lib-src-file)))
       ;; at this point the result value has been determined
       ;; store it in the hash then
       (puthash lib-obj-file result coq-obj-hash)
@@ -256,7 +276,7 @@ therefore the customizations for `compile' do not apply."
       ;; the next line is probably necessary to make recompile work
       (setq-default compilation-directory default-directory)
       (compilation-start local-compile-command)
-      (coq-lock-ancestor
+      (coq-seq-lock-ancestor
        span
        (coq-library-src-of-obj-file absolute-module-obj-file)))))
 
