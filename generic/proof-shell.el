@@ -1614,6 +1614,8 @@ Only works when system timer has microsecond count available."
     (setq pg-tracing-slow-mode dontprint)))
 
 (defun pg-finish-tracing-display ()
+  "Handle the end of possibly voluminous tracing-style output.
+If the output update was slowed down, show it now."
   (proof-trace-buffer-finish)
   (when pg-tracing-slow-mode 
     (proof-display-and-keep-buffer proof-trace-buffer)
