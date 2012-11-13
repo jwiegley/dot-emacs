@@ -51,20 +51,24 @@
 
 ;;;_ , Read system environment
 
-(let ((plist (expand-file-name "~/.MacOSX/environment.plist")))
-  (when (file-readable-p plist)
-    (let ((dict (cdr (assq 'dict (cdar (xml-parse-file plist))))))
-      (while dict
-        (if (and (listp (car dict))
-                 (eq 'key (caar dict)))
-            (setenv (car (cddr (car dict)))
-                    (car (cddr (car (cddr dict))))))
-        (setq dict (cdr dict))))
+(defun read-system-environment ()
+  (let ((plist (expand-file-name "~/.MacOSX/environment.plist")))
+    (when (file-readable-p plist)
+      (let ((dict (cdr (assq 'dict (cdar (xml-parse-file plist))))))
+        (while dict
+          (if (and (listp (car dict))
+                   (eq 'key (caar dict)))
+              (setenv (car (cddr (car dict)))
+                      (car (cddr (car (cddr dict))))))
+          (setq dict (cdr dict))))
 
-    ;; Configure exec-path based on the new PATH
-    (setq exec-path nil)
-    (mapc (apply-partially #'add-to-list 'exec-path)
-          (nreverse (split-string (getenv "PATH") ":")))))
+      ;; Configure exec-path based on the new PATH
+      (setq exec-path nil)
+      (mapc (apply-partially #'add-to-list 'exec-path)
+            (nreverse (split-string (getenv "PATH") ":"))))))
+
+(read-system-environment)
+(add-hook 'after-init-hook 'read-system-environment)
 
 ;;;_ , Load customization settings
 
@@ -1362,9 +1366,29 @@
 (use-package compile
   :defer t
   :config
-  (add-hook 'compilation-finish-functions
-            (lambda (buf why)
-              (display-buffer buf))))
+  (progn
+    (defun cmake-project-filename ()
+      (let ((filename (match-string-no-properties 1)))
+        (save-match-data
+          (with-temp-buffer
+            (insert-file-contents-literally "cmake_install.cmake")
+            (goto-char (point-min))
+            (re-search-forward "Install script for directory: \\(.+\\)")
+            (cons filename (match-string-no-properties 1))))))
+
+    (push 'cmake compilation-error-regexp-alist)
+
+    (push '(cmake "^CMake Error at \\(.+?\\):\\([0-9]+\\)"
+                  (cmake-project-filename) 2 2 2)
+          compilation-error-regexp-alist-alist)
+
+    (push '(cmake "^\\(?:CMake Error at \\|  \\)\\(.+?\\):\\([0-9]+\\) ([A-Za-z_][A-Za-z0-9_]*)"
+                  (cmake-project-filename) 2)
+          compilation-error-regexp-alist-alist)
+
+    (add-hook 'compilation-finish-functions
+              (lambda (buf why)
+                (display-buffer buf)))))
 
 ;;;_ , color-moccur
 
@@ -1706,9 +1730,10 @@ The output appears in the buffer `*Async Shell Command*'."
                                                     :type 'netrc
                                                     :port 6667))
                            :secret)))
-      (erc-tls :server "irc.oftc.net"
-               :port 6697
-               :nick "johnw"))
+      ;(erc-tls :server "irc.oftc.net"
+      ;         :port 6697
+      ;         :nick "johnw")
+    )
 
     (defun im ()
       (interactive)
@@ -2970,6 +2995,25 @@ FORM => (eval FORM)."
       (bind-key "<tab>" 'yas/expand-from-trigger-key ruby-mode-map))
 
     (add-hook 'ruby-mode-hook 'my-ruby-mode-hook)))
+
+;;;_ , sage-mode
+
+(use-package sage
+  :load-path "/Applications/Misc/sage/data/emacs/"
+  :init
+  (progn
+    (setq sage-command "/Applications/Misc/sage/sage")
+
+    ;; If you want sage-view to typeset all your output and have plot()
+    ;; commands inline, uncomment the following line and configure sage-view:
+    (require 'sage-view "sage-view")
+    (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
+    (add-hook 'sage-startup-after-prompt-hook 'sage-view)
+    ;; You can use commands like
+    ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-output)
+    (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots)
+    ;; to enable some combination of features
+    ))
 
 ;;;_ , selectkey
 
