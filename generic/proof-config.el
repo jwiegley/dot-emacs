@@ -1633,6 +1633,17 @@ something in scripting buffer, `save-excursion' and/or `set-buffer'."
   :type '(repeat function)
   :group 'proof-shell)
 
+(defcustom proof-shell-signal-interrupt-hook nil
+  "Run when the user tries to interrupt the prover.
+This hook is run inside `proof-interrupt-process' when the user
+tries to interrupt the proof process. It is therefore run earlier
+than `proof-shell-handle-error-or-interrupt-hook', which runs
+when the interrupt is acknowledged inside `proof-shell-exec-loop'.
+
+This hook also runs when the proof assistent is killed."
+  :type '(repeat function)
+  :group 'proof-shell)
+
 (defcustom proof-shell-pre-interrupt-hook
   nil
   "Run immediately after `comint-interrupt-subjob' is called.

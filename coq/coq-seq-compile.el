@@ -21,6 +21,7 @@
 (eval-when (compile)
   (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook
   (defvar coq-compile-before-require nil)       ; defpacustom
+  (defvar coq-compile-parallel-in-background nil)       ; defpacustom
   (defvar coq-confirm-external-compilation nil)); defpacustom
 
 (require 'coq-compile-common)
@@ -389,10 +390,6 @@ compilation (if necessary) of the dependencies."
                   (setq start (match-end 0))
                   (coq-seq-check-module 'coq-object-hash-symbol span
                                     (match-string 1 string))))))))))
-
-(add-hook 'proof-shell-extend-queue-hook 'coq-seq-preprocess-require-commands)
-
-
 
 
 (provide 'coq-seq-compile)

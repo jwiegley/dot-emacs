@@ -83,6 +83,20 @@ See the functions `proof-start-queue' and `proof-shell-exec-loop'.")
       (funcall (nth 2 listitem) (car listitem))
     (error nil)))
 
+(defvar proof-second-action-list-active nil
+  "Signals that some items are waiting outside of `proof-action-list'.
+If this is t it means that some items from the queue region are
+waiting for being processed in a place different from
+`proof-action-list'. In this case Proof General must behave as if
+`proof-action-list' would be non-empty, when it is, in fact,
+empty.
+
+This is used, for instance, for parallel background compilation
+for Coq: The Require command and the following items are not put
+into `proof-action-list' and are stored somewhere else until the
+background compilation finishes. Then those items are put into
+`proof-action-list' for getting processed.")
+
 
 ;; We record the last output from the prover and a flag indicating its
 ;; type, as well as a previous ("delayed") version for when the end
@@ -426,7 +440,8 @@ shell buffer, called by `proof-shell-bail-out' if process exits."
 	 (proc     (get-buffer-process (current-buffer)))
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
-
+    (run-hooks 'proof-shell-signal-interrupt-hook)
+    
     (redisplay t)
     (when (and alive proc)
       (catch 'exited
@@ -786,7 +801,8 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
     (error "Proof process not active!"))
   (setq proof-shell-interrupt-pending t)
   (with-current-buffer proof-shell-buffer
-    (interrupt-process)))
+    (interrupt-process))
+  (run-hooks 'proof-shell-signal-interrupt-hook))
 
 
 
@@ -957,8 +973,12 @@ being processed."
 	    (proof-grab-lock queuemode)
 	    (setq proof-shell-last-output-kind nil)
 	    (proof-shell-insert-action-item (car proof-action-list))))
+      (if proof-second-action-list-active
+	  ;; primary action list is empty, but there are items waiting
+	  ;; somewhere else
+	  (proof-grab-lock queuemode)
       ;; nothing to do: maybe we completed a list of comments without sending them
-      (proof-detach-queue))))
+	(proof-detach-queue)))))
 
 
 ;;;###autoload
@@ -1062,17 +1082,19 @@ contains only invisible elements for Prooftree synchronization."
 	;; process the delayed callbacks now
 	(mapc 'proof-shell-invoke-callback cbitems)	
 
-	(unless proof-action-list	; release lock, cleanup
+	(unless (or proof-action-list proof-second-action-list-active)
+					; release lock, cleanup
 	  (proof-release-lock)
 	  (proof-detach-queue)
 	  (unless flags ; hint after a batch of scripting
 	    (pg-processing-complete-hint))
 	  (pg-finish-tracing-display))
 
-	(or (null proof-action-list)
-	    (every
-	     (lambda (item) (memq 'proof-tree-show-subgoal (nth 3 item)))
-	     proof-action-list))))))
+	(and (not proof-second-action-list-active)
+	     (or (null proof-action-list)
+		 (every
+		  (lambda (item) (memq 'proof-tree-show-subgoal (nth 3 item)))
+		  proof-action-list)))))))
 
 
 (defun proof-shell-insert-loopback-cmd  (cmd)

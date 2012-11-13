@@ -35,6 +35,7 @@
 (require 'coq-local-vars)               ;
 (require 'coq-abbrev)                   ; coq specific menu
 (require 'coq-seq-compile)              ; sequential compilation
+(require 'coq-par-compile)              ; parallel compilation
 
 
 ;; for compilation in Emacs < 23.3 (NB: declare function only works at top level)

@@ -17,6 +17,7 @@
 
 (eval-when (compile)
   (defvar coq-confirm-external-compilation nil); defpacustom
+  (defvar coq-compile-parallel-in-background nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 
@@ -49,7 +50,75 @@
   :group 'coq)
 
 
-;; user options and variables
+;;; enable / disable parallel / sequential compilation
+;; I would rather put these functions into coq-seq-compile and
+;; coq-par-compile, respectively. However, the :initialization
+;; function of a defcustom seems to be evaluated when reading the
+;; defcustom form. Therefore, these functions must be defined already,
+;; when the defpacustum coq-compile-parallel-in-background is read.
+
+(defun coq-par-enable ()
+  "Enable parallel compilation.
+Must be used together with `coq-seq-disable'."
+  (add-hook 'proof-shell-extend-queue-hook
+	    'coq-par-preprocess-require-commands)
+  (add-hook 'proof-shell-signal-interrupt-hook
+	    'coq-par-emergency-cleanup))
+
+(defun coq-par-disable ()
+  "Disable parallel compilation.
+Must be used together with `coq-seq-enable'."
+  (remove-hook 'proof-shell-extend-queue-hook
+	       'coq-par-preprocess-require-commands)
+  (remove-hook 'proof-shell-signal-interrupt-hook
+	       'coq-par-emergency-cleanup))
+
+(defun coq-seq-enable ()
+  "Enable sequential synchronous compilation.
+Must be used together with `coq-par-disable'."
+  (add-hook 'proof-shell-extend-queue-hook
+	    'coq-seq-preprocess-require-commands))
+
+(defun coq-seq-disable ()
+  "Disable sequential synchronous compilation.
+Must be used together with `coq-par-enable'."
+  (remove-hook 'proof-shell-extend-queue-hook
+	       'coq-seq-preprocess-require-commands))
+
+
+;;; utility functions for variables
+
+(defun coq-load-path-safep (path)
+  "Check if PATH is a safe value for `coq-load-path'."
+  (and
+   (listp path)
+   (every
+    (lambda (entry)
+      (or (stringp entry)
+          (and (listp entry)
+               (eq (car entry) 'rec)
+               (every 'stringp (cdr entry))
+               (equal (length entry) 3))
+          (and (listp entry)
+               (eq (car entry) 'nonrec)
+               (every 'stringp (cdr entry))
+               (equal (length entry) 3))
+          (and (listp entry)
+               (every 'stringp entry)
+               (equal (length entry) 2))))
+    path)))
+
+(defun coq-switch-compilation-method ()
+  "Set function for coq-compile-parallel-in-background."
+  (if coq-compile-parallel-in-background
+      (progn
+	(coq-par-enable)
+	(coq-seq-disable))
+    (coq-par-disable)
+    (coq-seq-enable)))
+
+
+;;; user options and variables
 
 (defgroup coq-auto-compile ()
   "Customization for automatic compilation of required files"
@@ -67,6 +136,27 @@ This option can be set/reset via menu
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
+
+(defpacustom compile-parallel-in-background nil
+  "Choose the internal compilation method.
+When Proof General compiles itself, you have the choice between
+two implementations. If this setting is nil, then Proof General
+uses the old implementation and compiles everything sequentially
+with synchronous job. With this old method Proof General is
+locked during compilation. If this setting is t, then the new
+method is used and compilation jobs are dispatched in parallel in
+the background. The maximal number of parallel compilation jobs
+is set with `coq-max-background-compilation-jobs'.
+
+This option can be set/reset via menu
+`Coq -> Settings -> Compile Parallel In Background."
+  :type 'boolean
+  :safe 'booleanp
+  :group 'coq-auto-compile
+  :eval (coq-switch-compilation-method))
+
+;; defpacustom fails to call :eval during inititialization, see trac #456
+(coq-switch-compilation-method)
 
 (defcustom coq-compile-command ""
   "External compilation command. If empty ProofGeneral compiles itself.
@@ -275,7 +365,7 @@ identifier and should therefore not be matched by this regexp.")
   "*Display more messages during compilation")
 
 
-;; basic utilities
+;;; basic utilities
 
 (defun time-less-or-equal (time-1 time-2)
   "Return `t' if time value time-1 is earlier or equal to time-2.
@@ -306,29 +396,7 @@ DEP-MOD-TIMES is empty it returns nil."
     max))
 
 
-;; safety predicate for coq-load-path
-
-(defun coq-load-path-safep (path)
-  "Check if PATH is a safe value for `coq-load-path'."
-  (and
-   (listp path)
-   (every
-    (lambda (entry)
-      (or (stringp entry)
-          (and (listp entry)
-               (eq (car entry) 'rec)
-               (every 'stringp (cdr entry))
-               (equal (length entry) 3))
-          (and (listp entry)
-               (eq (car entry) 'nonrec)
-               (every 'stringp (cdr entry))
-               (equal (length entry) 3))
-          (and (listp entry)
-               (every 'stringp entry)
-               (equal (length entry) 2))))
-    path)))
-
-;; Compute command line for starting coqtop
+;;; Compute command line for starting coqtop
 
 (defun coq-option-of-load-path-entry (entry)
   "Translate a single element from `coq-load-path' into options.
@@ -375,7 +443,7 @@ FILE should be an absolute file name. It can be nil if
     (append coq-prog-args (coq-include-options nil coq-load-path))))
 
 
-;; ignore library files
+;;; ignore library files
 
 (defun coq-compile-ignore-file (lib-obj-file)
   "Check whether ProofGeneral should handle compilation of LIB-OBJ-FILE.
@@ -401,7 +469,7 @@ is up-to-date."
          t)
      nil)))
 
-;; convert .vo files to .v files
+;;; convert .vo files to .v files
 
 (defun coq-library-src-of-obj-file (lib-obj-file)
   "Return source file name for LIB-OBJ-FILE.
@@ -425,7 +493,7 @@ Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (span-set-property span 'coq-locked-ancestors ()))
 
 
-;; manage coq-compile-respose-buffer
+;;; manage coq-compile-respose-buffer
 
 (defun coq-init-compile-response-buffer (command)
   "Initialize the buffer for the compilation output.
@@ -458,14 +526,10 @@ the command whose output will appear in the buffer."
       (font-lock-fontify-buffer)))
   ;; Make it so the next C-x ` will use this buffer.
   (setq next-error-last-buffer (get-buffer coq-compile-response-buffer))
-  (let ((window (display-buffer coq-compile-response-buffer)))
-    (if proof-shrink-windows-tofit
-        (save-excursion
-          (save-selected-window
-            (proof-resize-window-tofit window))))))
+  (proof-display-and-keep-buffer coq-compile-response-buffer 1 t))
 
 
-;; save some buffers
+;;; save some buffers
 
 (defvar coq-compile-buffer-with-current-require
   "Local variable for two coq-seq-* functions.
@@ -507,7 +571,7 @@ current buffer (which contains the Require command) to
     (save-some-buffers unconditionally buffer-filter)))
 
 
-;; kill coqtop on script buffer change
+;;; kill coqtop on script buffer change
 
 (defun coq-switch-buffer-kill-proof-shell ()
   "Kill the proof shell without asking the user.
