@@ -183,8 +183,8 @@ and displayed lazily.  See `proof-layout-windows'."
 - If 'horizontal then always have scripting buffer on the right
   and goal and response buffers on the left (one above the
   other).
-- If 'smart or anything else means: 'horizontal when the window
-  is wide enough and horizontally otherwise. The widht threshold
+- If 'smart or anything else: 'horizontal when the window
+  is wide enough and 'vertical otherwise. The width threshold
   is given by `split-width-threshold'.
 
   See `proof-layout-windows'."
