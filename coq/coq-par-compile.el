@@ -19,7 +19,6 @@
 ;; - add option coq-par-keep-compilation-going
 ;; - check what happens if coq-par-coq-arguments gets a bad load path
 ;; - on error, try to location info into the error message
-;; - handle missing coqdep/coqc gracefully
 ;; 
 
 (eval-when-compile
@@ -335,10 +334,10 @@ Use `coq-par-enqueue' and `coq-par-dequeue' to access the queue.")
 
 
 ;;; error symbols
-;;
-;; These errors are signaled with one data item -- the file name
 
 ;; coq-compile-error-coqdep
+;;
+;; This error is signaled with one data item -- the file name
 
 (put 'coq-compile-error-coqdep 'error-conditions
      '(error coq-compile-error coq-compile-error-coqdep))
@@ -346,11 +345,24 @@ Use `coq-par-enqueue' and `coq-par-dequeue' to access the queue.")
      "Coq compilation error: coqdep fails in")
 
 ;; coq-compile-error-coqc
+;;
+;; This error is signaled with one data item -- the file name
 
 (put 'coq-compile-error-coqc 'error-conditions
      '(error coq-compile-error coq-compile-error-coqc))
 (put 'coq-compile-error-coqc 'error-message
      "Coq compilation error: coqc fails in")
+
+;; coq-compile-error-command-start
+;;
+;; This error is signaled with two data items --
+;; a list consisting of the command and the system error message,
+;; the command itself is a string list of the command name and the options
+
+(put 'coq-compile-error-command-start 'error-conditions
+     '(error coq-compile-error coq-compile-error-command-start))
+(put 'coq-compile-error-command-start 'error-message
+     "Coq compilation error:")
 
 
 ;;; map coq module names to files, using synchronously running coqdep 
@@ -487,11 +499,24 @@ function returns () if MODULE-ID comes from the standard library."
 
 (defun coq-par-kill-all-processes ()
   "Kill all background coqc and coqdep compilation processes."
+  ;; need to first mark processes as killed, because delete process
+  ;; starts running sentinels in the order processes terminated, so
+  ;; after the first delete-process we see sentinentels of non-killed
+  ;; processes running
+  (mapc
+   (lambda (process)
+     (when (process-get process 'coq-compilation-job)
+       (process-put process 'coq-par-process-killed t)))
+   (process-list))
   (mapc
    (lambda (process)
      (when (process-get process 'coq-compilation-job)
        (process-put process 'coq-par-process-killed t)
-       (delete-process process)))
+       (delete-process process)
+       (when coq-debug-auto-compilation
+	 (message "%s %s: kill it"
+		  (get (process-get process 'coq-compilation-job) 'name)
+		  (process-name process)))))
    (process-list))
   (setq coq-current-background-jobs 0))
 
@@ -539,9 +564,17 @@ process finishes successfully."
 	  (message "%s %s: start %s %s"
 		   (get job 'name) process-name
 		   command (mapconcat 'identity arguments " ")))
-      (setq process (apply 'start-process process-name
-			   nil		; no process buffer
-			   command arguments))
+      (condition-case err
+	  ;; If the command is wrong, start-process aborts with an
+	  ;; error. However, in Emacs 23.4.1. it will leave a process
+	  ;; behind, which is in a very strange state: running with no
+	  ;; pid. Emacs 24.2 fixes this.
+	  (setq process (apply 'start-process process-name
+			       nil	; no process buffer
+			       command arguments))
+	(error
+	 (signal 'coq-compile-error-command-start
+		 (list (cons command arguments) (nth 2 err)))))
       (set-process-filter process 'coq-par-process-filter)
       (set-process-sentinel process 'coq-par-process-sentinel)
       (set-process-query-on-exit-flag process nil)
@@ -559,7 +592,11 @@ determines the exit status and calls the continuation function
 that has been registered with that process. Normal compilation
 errors are reported with an error message."
   (condition-case err
-      (unless (process-get process 'coq-par-process-killed)
+      (if (process-get process 'coq-par-process-killed)
+	  (if coq-debug-auto-compilation
+	      (message "%s %s: skip sentinel, process killed"
+		       (get (process-get process 'coq-compilation-job) 'name)
+		       (process-name process)))
 	(let (exit-status)
 	  (if coq-debug-auto-compilation
 	      (message "%s %s: process status changed to %s"
@@ -575,9 +612,14 @@ errors are reported with an error message."
 	  (setq coq-current-background-jobs
 		(max 0 (1- coq-current-background-jobs)))
 	  (coq-par-start-jobs-until-full)))
+    (coq-compile-error-command-start
+     (coq-par-emergency-cleanup)
+     (message "%s \"%s\" in \"%s\""
+	      (get (car err) 'error-message)
+	      (nth 2 err) (mapconcat 'identity (cadr err) " ")))
     (coq-compile-error
-     (message "%s %s" (get (car err) 'error-message) (cdr err))
-     (coq-par-emergency-cleanup))
+     (coq-par-emergency-cleanup)
+     (message "%s %s" (get (car err) 'error-message) (cdr err)))
     (error
      (message "error in sentinel of process %s, error %s"
 	      (process-name process) err)
