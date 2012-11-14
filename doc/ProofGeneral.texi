@@ -3355,7 +3355,7 @@ If you use several frames (the same Emacs in several windows on the
 screen), you can force a frame to stick to showing the goals or
 response buffer.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 Sometimes during script management, there is no response from the proof
@@ -3414,20 +3414,48 @@ without adjusting window layout.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-layout-windows
-@deffn Command proof-layout-windows &optional nohorizontalsplit
+@deffn Command proof-layout-windows 
 Refresh the display of windows according to current display mode.
-
-For single frame mode, this uses a canonical layout made by splitting
-Emacs windows vertically in equal proportions.  You can then adjust
-the proportions by dragging the separating bars.  In three pane mode,
-the canonical layout is to split both horizontally and vertically, to
-display the prover responses in two panes on the right-hand side, and
-the proof script in a taller pane on the left.  A prefix argument will
-prevent the horizontal split, and result in three windows spanning the
-full width of the Emacs frame.
 
 For multiple frame mode, this function obeys the setting of
 @samp{@code{pg-response-eagerly-raise}}, which see.
+
+For single frame mode:
+
+- In two panes mode, this uses a canonical layout made by splitting
+Emacs windows in equal proportions. The splitting is vertical if
+emacs width is smaller than @samp{@code{split-width-threshold}} and
+horizontal otherwise. You can then adjust the proportions by
+dragging the separating bars.
+
+- In three pane mode, there are three display modes, depending
+@lisp
+  where the three useful buffers are displayed: scripting
+  buffer, goals buffer and response buffer.
+
+  Here are the three modes:
+
+  - vertical: the 3 buffers are displayed in one column.
+  - hybrid: 2 columns mode, left column displays scripting buffer
+    and right column displays the 2 others.
+  - horizontal: 3 columns mode, one for each buffer (script, goals,
+    response).
+
+  By default, the display mode is automatically chosen by
+  considering the current emacs frame width: if it is smaller
+  than @samp{@code{split-width-threshold}} then vertical mode is chosen,
+  otherwise if it is smaller than 1.5 * @samp{@code{split-width-threshold}}
+  then hybrid mode is chosen, finally if the frame is larger than
+  1.5 * @samp{@code{split-width-threshold}} then the horizontal mode is chosen.
+
+  You can change the value of @samp{@code{split-width-threshold}} at your
+  will.
+
+  If you want to force one of the layouts, you can set variable
+  @samp{@code{proof-three-window-mode-policy}} to @code{'vertical}, @code{'horizontal} or
+  @code{'hybrid}. The default value is @code{'smart} which sets the automatic
+  behaviour described above.
+@end lisp
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shrink-windows-tofit
@@ -3458,7 +3486,7 @@ If output is not available, the type of the output region is displayed.
 Changes of this option will not be reflected in already-processed 
 regions of the script.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 
@@ -4246,13 +4274,23 @@ necessary files whenever a @code{Require} command is processed.
 The compilation feature does currently not support ML modules.
 @end table
 
-The current version works reliably, even when stress-tested with
-changing random files in large Coq projects. However, some
-features have been spared for the next release, @ref{Current
-Limitations}.
+There are actually two implementations of the Recompilation
+feature. 
 
-To enable the automatic compilation feature there are three
-points to adhere to:
+@table @asis
+@item Synchronous single threaded compilation (stable)
+With synchronous compilation, coqdep and coqc are called
+synchronously for each Require command. Proof General is locked
+until the compilation finishes
+@item Parallel asynchronous compilation (experimental)
+With parallel compilation, coqdep and coqc are launched in the
+background and Proof General stays responsive during compilation.
+Up to `coq-max-background-compilation-jobs' coqdep and coqc
+processes may run in parallel.
+@end table
+
+To enable the automatic compilation feature, you have to follow
+these points:
 
 @itemize @bullet
 @item
@@ -4275,6 +4313,13 @@ compilation command. For standard dependency analysis with
 @code{coqdep} and compilation with @code{coqc} the option
 @code{coq-compile-command} can be left empty. In this case Proof
 General calls @code{coqdep} and @code{coqc} as needed.
+@item
+The default compilation method is synchronous compilation. In
+order to experience parallel background compilation, 
+enable `coq-compile-parallel-in-background' (menu @code{Coq ->
+Settings -> Compile Parallel In Background}) and set
+`coq-max-background-compilation-jobs' to the number of spare
+cores.
 @end itemize
 
 
@@ -4295,9 +4340,9 @@ General looks for @code{Require} commands in text that gets
 asserted (i.e., in text that is moved from the editing region to
 the queue region, @ref{Locked queue and editing regions}). If
 Proof General finds a @code{Require} command, it checks the
-dependencies and (re-)compiles files as necessary. Only after
-this compilation is finished, Proof General starts sending the
-asserted text to the Coq process. 
+dependencies and (re-)compiles files as necessary. The Require
+command and the following text is only sent to Coq after the
+compilation finished.
 
 @code{Declare ML Module} commands are currently not recognized.
 
@@ -4341,11 +4386,6 @@ Note however, that @code{coqdep} does not produce error messages
 with location information, so @code{C-x `} cannot work for errors
 from @code{coqdep}.
 
-For simplicity, internal compilation is currently done with
-synchronously running external commands. Therefore, for internal
-compilation, Emacs is locked and unresponsive until the
-compilation finishes.
-
 Proof General cannot know if some library files have been updated
 outside of Proof General, therefore, it must perform the
 dependency checking for each @code{Require} command. If the
@@ -4361,6 +4401,43 @@ saved. There are two orthogonal choices: One may wish to save all
 or only the Coq source files, and, one may or may not want to
 confirm the saving of each file. 
 
+With `coq-compile-parallel-in-background' (menu @code{Coq ->
+Settings -> Compile Parallel In Background}) you can choose
+between two implementations of internal compilation.
+
+@table @asis
+@item Synchronous single threaded compilation
+This is the stable version supported since Proof General version
+4.1. This method starts coqdep and coqc processes one after each
+other in synchronous subprocesses. Your Emacs session will be
+locked until compilation finishes. Use @code{C-g} to interrupt
+compilation. 
+@item Parallel asynchronous compilation
+This is the new version added in Proof General version 4.3. It
+runs up to `coq-max-background-compilation-jobs' coqdep and coqc
+jobs in parallel in asynchronous subprocesses. Your Emacs
+will stay responsive during compilation. Use @code{C-c C-c} or
+the tool bar icons for interrupt or restart to interrupt
+compilation. 
+
+For the usual case, you have at most
+`coq-max-background-compilation-jobs' parallel processes
+@emph{including} your Proof General process. The usual case
+applies, when the Require commands are the first commands in the
+file. If you have other commands between two Require commands or
+before the first Require, then you may see Proof General and Coq
+running in addition to `coq-max-background-compilation-jobs'
+compilation jobs.
+
+Actually, even with this method, not everything runs
+asynchronously. To translate module identifiers from the Coq
+sources into file names, Proof General runs coqdep on an
+automatically generated, one-line file. These coqdep jobs run
+synchronously while the Require commands are parsed. The coqdep
+jobs on the real source files do run asynchronously in the
+background. 
+@end table
+
 
 @node Locking Ancestors
 @subsection Locking Ancestors
@@ -4372,8 +4449,17 @@ Proof General performs dependency checking and compilation
 itself. If an external command is used, Proof General does not see
 all dependencies and can therefore only lock direct ancestors.
 
-Currently, locking ancestor files might not exactly do what Coq
-users expect. There are two ways around this problem: 
+In the default setting,
+when you want to edit a locked ancestor, you are
+forced to completely retract the current scripting buffer. 
+You can simplify this by setting @code{proof-strict-read-only} to
+@code{'retract} (menu @code{Proof-General -> Quick Options ->
+Read Only -> Undo On Edit}). Then typing in some ancestor will
+immediately retract you current scripting buffer and unlock that
+ancestor.
+
+You have two choices, if you don't like ancestor locking in its
+default way.
 You can either switch ancestor locking completely off via
 @code{coq-lock-ancestors} (@ref{Customizing Coq Multiple
 File Support}) or you can generally permit editing in locked
@@ -4382,17 +4468,13 @@ sections with selecting
 -> @code{Freely Edit} (which will set the option
 @code{proof-strict-read-only} to @code{nil}).
 
-In the default setting,
-when you want to edit a locked ancestor, you are
-forced to completely retract the current scripting buffer. The
-right behaviour for Coq would be to retract the current scripting
-buffer only up to the point before the appropriate @code{Require}
-command. At the users choice it should also be possible to unlock
-the ancestor without retracting the current scripting buffer. The
-latter would be adequate, if you just want to add a lemma in the
-ancestor @emph{and} want to continue the development in the
-current scripting buffer without interruption.
 
+[The right behaviour for Coq, namely to retract the current
+scripting buffer only up to the appropriate @code{Require}
+command, would be quite difficult to implement in the current
+Proof General infrastructure. Further, it has only dubious
+benefit, as Require commands are usually on the top of each
+file.]
 
 
 @node Customizing Coq Multiple File Support
@@ -4431,6 +4513,31 @@ modified Coq buffers, @code{'ask-all} to confirm saving all modified
 buffers, @code{'save-coq} to save all modified Coq buffers without
 confirmation and @code{'save-all} to save all modified buffers without
 confirmation.
+@end defvar
+
+
+The following two options are for the parallel compilation
+method.
+
+@c TEXI DOCSTRING MAGIC: coq-compile-parallel-in-background
+@defvar coq-compile-parallel-in-background 
+Choose the internal compilation method.@*
+When Proof General compiles itself, you have the choice between
+two implementations. If this setting is nil, then Proof General
+uses the old implementation and compiles everything sequentially
+with synchronous job. With this old method Proof General is
+locked during compilation. If this setting is t, then the new
+method is used and compilation jobs are dispatched in parallel in
+the background. The maximal number of parallel compilation jobs
+is set with @samp{@code{coq-max-background-compilation-jobs}}.
+
+This option can be set/reset via menu
+@samp{Coq -> Settings -> Compile Parallel In Background}.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: coq-max-background-compilation-jobs
+@defvar coq-max-background-compilation-jobs 
+Maximal number of parallel jobs, if parallel compilation is enabled.
 @end defvar
 
 
@@ -4629,16 +4736,11 @@ identifier and should therefore not be matched by this regexp.
 
 In the current release some aspects of multiple file support have
 not been implemented. The following points will hopefully
-addressed in the next release:
+be addressed at some stage.
 
 @itemize
 @item
 Support @code{Declare ML Module} commands.
-@item
-Improved undo behaviour for locked ancestors.
-@item
-Use always asynchronous processes for compilation and do not lock
-up Emacs in internal compilation mode.
 @item
 Increase precision when comparing modification times. Because of
 an Emacs limitation, modification time stamps of files have only a
@@ -4646,7 +4748,8 @@ precision of 1 second. If several compiled Coq object files have
 been created in the same second, Proof General is optimistic and
 does not recompile. (Note that GNU make behaves the same on file
 systems that record time stamps only with a precision of 1
-second.)
+second.) Emacs version 24.3 implements high precision time stamps
+on files.
 @end itemize
 
 

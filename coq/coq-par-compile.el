@@ -221,12 +221,6 @@
 
 ;;; Variables
 
-(defcustom coq-max-background-compilation-jobs 1
-  "Maximal number of background compilation jobs."
-  :type 'integer
-  :safe (lambda (v) (and (integerp v) (> v 0)))
-  :group 'coq-auto-compile)
-
 (defvar coq-par-ancestor-files nil
   "Hash remembering the state of locked ancestor files.
 This hash maps true file names (in the sense of `file-truename')

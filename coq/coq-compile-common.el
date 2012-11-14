@@ -149,7 +149,7 @@ the background. The maximal number of parallel compilation jobs
 is set with `coq-max-background-compilation-jobs'.
 
 This option can be set/reset via menu
-`Coq -> Settings -> Compile Parallel In Background."
+`Coq -> Settings -> Compile Parallel In Background'."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile
@@ -157,6 +157,12 @@ This option can be set/reset via menu
 
 ;; defpacustom fails to call :eval during inititialization, see trac #456
 (coq-switch-compilation-method)
+
+(defcustom coq-max-background-compilation-jobs 1
+  "Maximal number of parallel jobs, if parallel compilation is enabled."
+  :type 'integer
+  :safe (lambda (v) (and (integerp v) (> v 0)))
+  :group 'coq-auto-compile)
 
 (defcustom coq-compile-command ""
   "External compilation command. If empty ProofGeneral compiles itself.

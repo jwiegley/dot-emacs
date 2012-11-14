@@ -364,7 +364,7 @@ file for the mode, which will be
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (hol-light "HOL Light" "ml") (pgshell "PG-Shell" "pgsh") (pgocaml "PG-OCaml" "pgml") (pghaskell "PG-Haskell" "pghci"))}.
+The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (pgshell "PG-Shell" "pgsh") (pgocaml "PG-OCaml" "pgml") (pghaskell "PG-Haskell" "pghci"))}.
 @end defopt
 
 
@@ -3216,7 +3216,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'hol-light} @code{'pgshell} @code{'pgocaml} @code{'pghaskell}.
+A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'pgshell} @code{'pgocaml} @code{'pghaskell}.
 If nil, the default will be ALL available proof assistants.
 
 Each proof assistant defines its own instance of Proof General,
@@ -3812,6 +3812,35 @@ are non-empty, interactive cues will be surpressed. (E.g.,
 printing hints).
 
 See the functions @samp{@code{proof-start-queue}} and @samp{@code{proof-shell-exec-loop}}.
+@end defvar
+
+In Proof General 4.2 and earlier it was always the case that all
+items from the queue region were present in
+@code{proof-action-list}. Because of the new parallel background
+compilation for Coq, this is no longer the case. Prover specific
+code may now store items from the queue region somewhere else. To
+notify generic Proof General about this, it must set
+@code{proof-second-action-list-active} for the time where some
+queue items are missing from @code{proof-action-list}. In this
+case Proof General keeps the proof shell lock and the queue span
+even in case @code{proof-action-list} gets empty. Coq uses this
+feature to hold back Require commands and the following text
+until the asynchronous background compilation finishes.
+
+@c TEXI DOCSTRING MAGIC: proof-second-action-list-active
+@defvar proof-second-action-list-active 
+Signals that some items are waiting outside of @samp{@code{proof-action-list}}.@*
+If this is t it means that some items from the queue region are
+waiting for being processed in a place different from
+@samp{@code{proof-action-list}}. In this case Proof General must behave as if
+@samp{@code{proof-action-list}} would be non-empty, when it is, in fact,
+empty.
+
+This is used, for instance, for parallel background compilation
+for Coq: The Require command and the following items are not put
+into @samp{@code{proof-action-list}} and are stored somewhere else until the
+background compilation finishes. Then those items are put into
+@samp{@code{proof-action-list}} for getting processed.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: pg-subterm-anns-use-stack
