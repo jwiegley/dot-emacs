@@ -21,7 +21,6 @@
 ;; - on error, try to location info into the error message
 ;; - handle missing coqdep/coqc gracefully
 ;; - 'all-cores option for coq-max-background-compilation-jobs
-;; - write user manual
 ;; 
 
 (eval-when-compile
@@ -685,7 +684,7 @@ case, the following actions are taken:
 	     (get job 'name))))
     (if coq-debug-auto-compilation
 	(message "%s: has itself no queue dependency" (get job 'name)))
-    (when (get job 'require-span)
+    (when (and (get job 'require-span) coq-lock-ancestors)
       (let ((span (get job 'require-span)))
 	(dolist (f (get job 'ancestor-files))
 	  (unless (eq (gethash f coq-par-ancestor-files) 'asserted)
@@ -821,10 +820,11 @@ Besides starting the background process, the source file is
 locked, registered in the 'ancestor-files property of JOB and in
 `coq-par-ancestor-files'"
   (let ((true-src (file-truename (get job 'src-file))))
-    (proof-register-possibly-new-processed-file true-src)
-    (put job 'ancestor-files (list true-src))
-    (unless (gethash true-src coq-par-ancestor-files)
-      (puthash true-src 'locked coq-par-ancestor-files))
+    (when coq-lock-ancestors
+      (proof-register-possibly-new-processed-file true-src)
+      (put job 'ancestor-files (list true-src))
+      (unless (gethash true-src coq-par-ancestor-files)
+	(puthash true-src 'locked coq-par-ancestor-files)))
     (coq-par-start-process
      coq-dependency-analyzer
      (coq-par-coq-arguments (get job 'src-file) (get job 'load-path))
