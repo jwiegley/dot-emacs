@@ -117,6 +117,36 @@ Must be used together with `coq-par-enable'."
     (coq-par-disable)
     (coq-seq-enable)))
 
+(defun number-of-cpus ()
+  (let (status ncpus)
+    (condition-case nil
+	(with-temp-buffer
+	  (setq status
+		(call-process "getconf" nil (current-buffer) nil 
+			      "_NPROCESSORS_ONLN"))
+	  (setq ncpus (string-to-number (buffer-string))))
+      (error
+       (setq status -1)))
+    (if (and (eq status 0) (> ncpus 0))
+	ncpus
+      nil)))
+
+(defvar coq-internal-max-jobs 1
+  "Value of `coq-max-background-compilation-jobs' translated to a number.")
+
+(defun coq-max-jobs-setter (symbol new-value)
+  ":set function for `coq-max-background-compilation-jobs.
+SYMBOL should be 'coq-max-background-compilation-jobs"
+  (set symbol new-value)
+  (cond
+   ((eq new-value 'all-cpus)
+    (setq new-value (number-of-cpus))
+    (unless new-value
+      (setq new-value 1)))
+   ((and (integerp new-value) (> new-value 0)) t)
+   (t (setq new-value 1)))
+  (setq coq-internal-max-jobs new-value))
+
 
 ;;; user options and variables
 
@@ -158,10 +188,18 @@ This option can be set/reset via menu
 ;; defpacustom fails to call :eval during inititialization, see trac #456
 (coq-switch-compilation-method)
 
-(defcustom coq-max-background-compilation-jobs 1
-  "Maximal number of parallel jobs, if parallel compilation is enabled."
-  :type 'integer
-  :safe (lambda (v) (and (integerp v) (> v 0)))
+(defcustom coq-max-background-compilation-jobs 'all-cpus
+  "Maximal number of parallel jobs, if parallel compilation is enabled.
+Use the number of available CPU cores if this is set to
+'all-cpus. This variable is the user setting. The value that is
+really used is `coq-internal-max-jobs'. Use `coq-max-jobs-setter'
+or the customization system to change this variable. Otherwise
+your change will have no effect, because `coq-internal-max-jobs'
+is not adapted."
+  :type '(choice (const :tag "use all CPU cores" all-cpus)
+		 (integer :tag "fixed number" :value 1))
+  :safe (lambda (v) (or (eq v 'all-cpus) (and (integerp v) (> v 0))))
+  :set 'coq-max-jobs-setter
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-command ""

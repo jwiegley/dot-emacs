@@ -20,7 +20,6 @@
 ;; - check what happens if coq-par-coq-arguments gets a bad load path
 ;; - on error, try to location info into the error message
 ;; - handle missing coqdep/coqc gracefully
-;; - 'all-cores option for coq-max-background-compilation-jobs
 ;; 
 
 (eval-when-compile
@@ -851,8 +850,7 @@ coqdep or coqc are started for it."
   "Start background jobs until the limit is reached."
   (let ((next-job t))
     (while (and next-job
-		(< coq-current-background-jobs
-		   coq-max-background-compilation-jobs))
+		(< coq-current-background-jobs coq-internal-max-jobs))
       (setq next-job (coq-par-dequeue))
       (when next-job
 	(coq-par-start-task next-job)))))
@@ -862,7 +860,7 @@ coqdep or coqc are started for it."
 NEW-JOB goes already into the waiting queue, if the number of
 background jobs is one below the limit. This is in order to leave
 room for Proof General."
-  (if (< (1+ coq-current-background-jobs) coq-max-background-compilation-jobs)
+  (if (< (1+ coq-current-background-jobs) coq-internal-max-jobs)
       (coq-par-start-task new-job)
     (coq-par-enqueue new-job)))
 

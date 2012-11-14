@@ -4315,11 +4315,12 @@ compilation command. For standard dependency analysis with
 General calls @code{coqdep} and @code{coqc} as needed.
 @item
 The default compilation method is synchronous compilation. In
-order to experience parallel background compilation, 
+order to experience parallel background compilation on all your
+CPU cores, 
 enable `coq-compile-parallel-in-background' (menu @code{Coq ->
-Settings -> Compile Parallel In Background}) and set
-`coq-max-background-compilation-jobs' to the number of spare
-cores.
+Settings -> Compile Parallel In Background}). Configure 
+@code{coq-max-background-compilation-jobs} if you want to limit
+the number of parallel background jobs.
 @end itemize
 
 
@@ -4414,11 +4415,12 @@ locked until compilation finishes. Use @code{C-g} to interrupt
 compilation. 
 @item Parallel asynchronous compilation
 This is the new version added in Proof General version 4.3. It
-runs up to `coq-max-background-compilation-jobs' coqdep and coqc
-jobs in parallel in asynchronous subprocesses. Your Emacs
-will stay responsive during compilation. Use @code{C-c C-c} or
-the tool bar icons for interrupt or restart to interrupt
-compilation. 
+runs up to @code{coq-max-background-compilation-jobs} coqdep and
+coqc jobs in parallel in asynchronous subprocesses (or uses all
+your CPU cores if @code{coq-max-background-compilation-jobs}
+equals @code{'all-cpus}). Your Emacs will stay responsive during
+compilation. Use @code{C-c C-c} or the tool bar icons for
+interrupt or restart to interrupt compilation.
 
 For the usual case, you have at most
 `coq-max-background-compilation-jobs' parallel processes
@@ -4537,7 +4539,13 @@ This option can be set/reset via menu
 
 @c TEXI DOCSTRING MAGIC: coq-max-background-compilation-jobs
 @defvar coq-max-background-compilation-jobs 
-Maximal number of parallel jobs, if parallel compilation is enabled.
+Maximal number of parallel jobs, if parallel compilation is enabled.@*
+Use the number of available CPU cores if this is set to
+@code{'all-cpus}. This variable is the user setting. The value that is
+really used is @samp{@code{coq-internal-max-jobs}}. Use @samp{@code{coq-max-jobs-setter}}
+or the customization system to change this variable. Otherwise
+your change will have no effect, because @samp{@code{coq-internal-max-jobs}}
+is not adapted.
 @end defvar
 
 
