@@ -6,7 +6,14 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 * Changes of Proof General 4.3 from Proof General 4.2
 
-*** Nothing Yet!
+** Coq changes
+
+*** Asynchronous parallel compilation of required modules
+    Proof General has now a second implementation for compiling
+    required Coq modules. 
+    Check menu Coq -> Settings -> Compile Parallel In Background
+    to compile modules in parallel in the background while Proof
+    General stays responsive.
 
 
 * Changes of Proof General 4.2 from Proof General 4.1
