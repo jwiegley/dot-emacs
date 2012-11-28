@@ -1067,6 +1067,13 @@
 (use-package ace-jump-mode
   :bind ("C-. C-s" . ace-jump-mode))
 
+;;;_ , agda
+
+(use-package agda2-mode
+  :mode ("\\.agda\\'" . agda2-mode)
+  :init
+  (use-package agda-input))
+
 ;;;_ , allout
 
 (use-package allout
@@ -1092,10 +1099,6 @@
           (unbind-key "C-k" allout-mode-map)))
 
     (add-hook 'allout-mode-hook 'my-allout-mode-hook)))
-
-;;;_ , apl-ascii
-
-(use-package apl)
 
 ;;;_ , archive-region
 
@@ -1161,13 +1164,18 @@
               "site-lisp/ac/ac-yasnippet"
               "site-lisp/ac/fuzzy-el"
               "site-lisp/ac/popup-el")
-  :commands auto-complete-mode
   :diminish auto-complete-mode
+  :init
+  (progn
+    (use-package pos-tip)
+    (ac-config-default))
+
   :config
   (progn
     (ac-set-trigger-key "TAB")
     (setq ac-use-menu-map t)
 
+    (bind-key "A-M-?" 'ac-last-help)
     (unbind-key "C-s" ac-completing-map)))
 
 ;;;_ , autopair
@@ -1409,6 +1417,15 @@
 (use-package copy-code
   :bind ("A-M-W" . copy-code-as-rtf))
 
+;;;_ , coq
+
+(if nil
+    (use-package coq-mode
+      :mode ("\\.v\\'" . coq-mode))
+  (use-package proof-site
+    :command proofgeneral
+    :load-path "site-lisp/proofgeneral/generic/"))
+
 ;;;_ , crosshairs
 
 (use-package crosshairs
@@ -1418,6 +1435,14 @@
 
 (use-package css-mode
   :mode ("\\.css\\'" . css-mode))
+
+;;;_ , cursor-chg
+
+(use-package cursor-chg
+  :init
+  (progn
+    (change-cursor-mode 1)
+    (toggle-cursor-type-when-idle 1)))
 
 ;;;_ , ibuffer
 
@@ -1718,8 +1743,26 @@ The output appears in the buffer `*Async Shell Command*'."
   :if running-alternate-emacs
   :init
   (progn
+    (defun setup-irc-environment ()
+      (interactive)
+      (set-input-method "Agda")
+      (set-frame-font
+       "-*-Lucida Grande-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1" nil
+       nil)
+      (set-frame-parameter (selected-frame) 'width 90)
+      (setq erc-timestamp-only-if-changed-flag nil
+            erc-timestamp-format "%H:%M "
+            erc-fill-prefix "          "
+            erc-fill-column 88
+            erc-insert-timestamp-function 'erc-insert-timestamp-left)
+      (custom-set-faces
+       '(erc-timestamp-face ((t (:foreground "dark violet"))))))
+
+    (add-hook 'erc-mode-hook 'setup-irc-environment)
+
     (defun irc ()
       (interactive)
+
       (erc-tls :server "irc.freenode.net"
                :port 6697
                :nick "johnw"
@@ -1730,10 +1773,11 @@ The output appears in the buffer `*Async Shell Command*'."
                                                     :type 'netrc
                                                     :port 6667))
                            :secret)))
-      ;(erc-tls :server "irc.oftc.net"
-      ;         :port 6697
-      ;         :nick "johnw")
-    )
+
+      (erc :server "irc.well-typed.com"
+           :port 6665
+           :nick "johnw")
+      )
 
     (defun im ()
       (interactive)
