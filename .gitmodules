@@ -283,3 +283,6 @@
 [submodule "site-lisp/bbdb-vcard"]
 	path = site-lisp/bbdb-vcard
 	url = git://github.com/trebb/bbdb-vcard.git
+[submodule "site-lisp/proofgeneral"]
+	path = site-lisp/proofgeneral
+	url = git://github.com/emacsmirror/proofgeneral.git
