@@ -289,3 +289,6 @@
 [submodule "site-lisp/js2-mode"]
 	path = site-lisp/js2-mode
 	url = git://github.com/mooz/js2-mode.git
+[submodule "site-lisp/persistent-soft"]
+	path = site-lisp/persistent-soft
+	url = git://github.com/rolandwalker/persistent-soft.git
