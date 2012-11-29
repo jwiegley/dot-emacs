@@ -1306,15 +1306,16 @@ self inserting commands."
 (defun pabbrev-scavenge-some()
   "Gather some words up from around point"
   (interactive)
-  (save-excursion
-    ;; move somewhat away from point, as this is likely to not contain
-    ;; complete words.
-    (pabbrev-forward-thing -2)
-    (pabbrev-scavenge-words -1
-			    (* 2 pabbrev-scavenge-some-chunk-size))
+  (let ((inhibit-read-only t))
     (save-excursion
-      (pabbrev-forward-thing 2)
-      (pabbrev-scavenge-words 1 pabbrev-scavenge-some-chunk-size))))
+      ;; move somewhat away from point, as this is likely to not contain
+      ;; complete words.
+      (pabbrev-forward-thing -2)
+      (pabbrev-scavenge-words -1
+                              (* 2 pabbrev-scavenge-some-chunk-size))
+      (save-excursion
+        (pabbrev-forward-thing 2)
+        (pabbrev-scavenge-words 1 pabbrev-scavenge-some-chunk-size)))))
 
 (defun pabbrev-scavenge-region()
   (interactive)
@@ -1325,48 +1326,50 @@ self inserting commands."
 (defun pabbrev-scavenge-buffer-fast()
   (interactive)
   (message "pabbrev fast scavenging buffer...")
-  (save-excursion
-    (goto-char (point-min))
-    (while (pabbrev-forward-thing)
+  (let ((inhibit-read-only t))
+    (save-excursion
+      (goto-char (point-min))
+      (while (pabbrev-forward-thing)
       
-      (let* ((bounds (pabbrev-bounds-of-thing-at-point))
-             (start (car bounds))
-             (stop (cdr bounds)))
-        (unless 
-            (pabbrev-bounds-marked-p start stop)
-          (pabbrev-add-word
-           (buffer-substring-no-properties start stop)))))
+        (let* ((bounds (pabbrev-bounds-of-thing-at-point))
+               (start (car bounds))
+               (stop (cdr bounds)))
+          (unless 
+              (pabbrev-bounds-marked-p start stop)
+            (pabbrev-add-word
+             (buffer-substring-no-properties start stop)))))
     
-    (pabbrev-debug-message "Dictionary size %s total usage %s"
-                           (pabbrev-get-usage-dictionary-size))
-    (pabbrev-save-buffer-modified-p
-     (add-text-properties (point-min) (point-max)
-				'(pabbrev-added t)))
-    (message "pabbrev fast scavenging buffer...done.")))
+      (pabbrev-debug-message "Dictionary size %s total usage %s"
+                             (pabbrev-get-usage-dictionary-size))
+      (pabbrev-save-buffer-modified-p
+       (add-text-properties (point-min) (point-max)
+                            '(pabbrev-added t)))
+      (message "pabbrev fast scavenging buffer...done."))))
 
       
 (defun pabbrev-scavenge-buffer()
   (interactive)
-  (save-excursion
-    (goto-char (point-min))
+  (let ((inhibit-read-only t))
+    (save-excursion
+      (goto-char (point-min))
     
-    (working-status-forms "pabbrev scavenging buffer" "done"
-      (while (pabbrev-forward-thing)
-        (working-status (/ (* 100 (point)) (point-max)))
-        ;;(message "pabbrev scavenging (buffer %s words %s line %s done %s %%)..."
-        ;;        (current-buffer)
-        ;;       (pabbrev-get-usage-dictionary-size) 
-        ;;      current-line
-        ;;     (/ (* 100 current-line) total-line))
-        ;;(message "pabbrev scavenging buffer...On line %s"
-        ;;       (count-lines (point-min) (point)))
-        (pabbrev-mark-add-word
-         (pabbrev-bounds-of-thing-at-point)))
-      (working-status t))
+      (working-status-forms "pabbrev scavenging buffer" "done"
+        (while (pabbrev-forward-thing)
+          (working-status (/ (* 100 (point)) (point-max)))
+          ;;(message "pabbrev scavenging (buffer %s words %s line %s done %s %%)..."
+          ;;        (current-buffer)
+          ;;       (pabbrev-get-usage-dictionary-size) 
+          ;;      current-line
+          ;;     (/ (* 100 current-line) total-line))
+          ;;(message "pabbrev scavenging buffer...On line %s"
+          ;;       (count-lines (point-min) (point)))
+          (pabbrev-mark-add-word
+           (pabbrev-bounds-of-thing-at-point)))
+        (working-status t))
     
-    (pabbrev-debug-message "Dictionary size %s total usage %s"
-                           (pabbrev-get-usage-dictionary-size))
-    (message "pabbrev scavenging buffer...done.")))
+      (pabbrev-debug-message "Dictionary size %s total usage %s"
+                             (pabbrev-get-usage-dictionary-size))
+      (message "pabbrev scavenging buffer...done."))))
 
 
 (defun pabbrev-scavenge-words(&optional direction number)
