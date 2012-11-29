@@ -286,3 +286,6 @@
 [submodule "site-lisp/proofgeneral"]
 	path = site-lisp/proofgeneral
 	url = git://github.com/emacsmirror/proofgeneral.git
+[submodule "site-lisp/js2-mode"]
+	path = site-lisp/js2-mode
+	url = git://github.com/mooz/js2-mode.git

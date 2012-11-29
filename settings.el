@@ -235,6 +235,8 @@
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(pp^L-^L-string "                                                                              ")
+ '(proof-electric-terminator-enable t)
+ '(proof-splash-enable nil)
  '(ps-font-size (quote (8 . 10)))
  '(ps-footer-font-size (quote (12 . 14)))
  '(ps-header-font-size (quote (12 . 14)))
