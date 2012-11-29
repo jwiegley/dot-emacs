@@ -1748,18 +1748,22 @@ The output appears in the buffer `*Async Shell Command*'."
   (progn
     (defun setup-irc-environment ()
       (interactive)
-      (set-input-method "Agda")
+
       (set-frame-font
        "-*-Lucida Grande-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1" nil
        nil)
       (set-frame-parameter (selected-frame) 'width 90)
+      (custom-set-faces
+       '(erc-timestamp-face ((t (:foreground "dark violet")))))
+
       (setq erc-timestamp-only-if-changed-flag nil
             erc-timestamp-format "%H:%M "
             erc-fill-prefix "          "
             erc-fill-column 88
             erc-insert-timestamp-function 'erc-insert-timestamp-left)
-      (custom-set-faces
-       '(erc-timestamp-face ((t (:foreground "dark violet"))))))
+
+      (set-input-method "Agda")
+      (pabbrev-mode 1))
 
     (add-hook 'erc-mode-hook 'setup-irc-environment)
 
@@ -2838,6 +2842,12 @@ FORM => (eval FORM)."
                       (org-agenda-list)
                       (org-fit-agenda-window)
                       (org-resolve-clocks))) t)))
+
+;;;_ , pabbrev
+
+(use-package pabbrev
+  :commands pabbrev-mode
+  :diminish pabbrev-mode)
 
 ;;;_ , paredit
 
