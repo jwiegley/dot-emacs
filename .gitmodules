@@ -295,3 +295,6 @@
 [submodule "site-lisp/agda-mode"]
 	path = site-lisp/agda-mode
 	url = git://github.com/jwiegley/agda-mode.git
+[submodule "site-lisp/pandoc-mode"]
+	path = site-lisp/pandoc-mode
+	url = git://github.com/joostkremers/pandoc-mode.git
