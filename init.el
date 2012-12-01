@@ -1417,15 +1417,6 @@
 (use-package copy-code
   :bind ("A-M-W" . copy-code-as-rtf))
 
-;;;_ , coq
-
-(if nil
-    (use-package coq-mode
-      :mode ("\\.v\\'" . coq-mode))
-  (use-package proof-site
-    :command proofgeneral
-    :load-path "site-lisp/proofgeneral/generic/"))
-
 ;;;_ , crosshairs
 
 (use-package crosshairs
@@ -1762,8 +1753,7 @@ The output appears in the buffer `*Async Shell Command*'."
             erc-fill-column 88
             erc-insert-timestamp-function 'erc-insert-timestamp-left)
 
-      (set-input-method "Agda")
-      (pabbrev-mode 1))
+      (set-input-method "Agda"))
 
     (add-hook 'erc-mode-hook 'setup-irc-environment)
 
@@ -2461,6 +2451,8 @@ FORM => (eval FORM)."
 
       (local-set-key (kbd "<return>") 'paredit-newline)
 
+      (add-hook 'after-save-hook 'check-parens nil t)
+
       (if (memq major-mode
                 '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
           (progn
@@ -2918,6 +2910,24 @@ FORM => (eval FORM)."
 (use-package pp-c-l
   :init
   (hook-into-modes 'pretty-control-l-mode '(prog-mode-hook)))
+
+;;;_ , proofgeneral
+
+(use-package proof-site
+  :load-path "site-lisp/proofgeneral/generic/"
+  :config
+  (progn
+    (eval-after-load "coq"
+      '(progn
+         (add-hook 'coq-mode-hook (lambda () (yas/minor-mode 1)))
+         (bind-key "M-RET" 'proof-goto-point coq-mode-map)
+         (bind-key "<tab>" 'yas/expand-from-trigger-key coq-mode-map)))
+
+    (defadvice proof-electric-terminator
+      (around insert-newline-after-terminator activate)
+      (save-excursion
+        ad-do-it)
+      (forward-char))))
 
 ;;;_ , ps-print
 

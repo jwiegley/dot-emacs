@@ -224,7 +224,10 @@ If it is other symbol, display file name in candidates even if classification is
   (let* ((c-source-file save)
          (gtags-select-buffer buffer)
          (helm-candidate-number-limit 9999)
-         (bfn (with-current-buffer c-source-file buffer-file-name))
+         ;; (bfn (with-current-buffer c-source-file buffer-file-name))
+         (bfn 
+          (with-current-buffer c-source-file
+            (or buffer-file-name (concat default-directory "NonExistent"))))
          (pwd (with-current-buffer gtags-select-buffer (file-name-directory bfn)))
          (basename (substring bfn (length pwd)))
          (lineno (with-current-buffer c-source-file

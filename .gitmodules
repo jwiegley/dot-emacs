@@ -292,3 +292,6 @@
 [submodule "site-lisp/persistent-soft"]
 	path = site-lisp/persistent-soft
 	url = git://github.com/rolandwalker/persistent-soft.git
+[submodule "site-lisp/agda-mode"]
+	path = site-lisp/agda-mode
+	url = git://github.com/jwiegley/agda-mode.git
