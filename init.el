@@ -2893,6 +2893,10 @@ FORM => (eval FORM)."
   :init
   (pwp-mode 1))
 
+;;;_ , persian-johnw
+
+(use-package persian-johnw)
+
 ;;;_ , persistent-scratch
 
 (use-package persistent-scratch
@@ -2919,7 +2923,11 @@ FORM => (eval FORM)."
   (progn
     (eval-after-load "coq"
       '(progn
-         (add-hook 'coq-mode-hook (lambda () (yas/minor-mode 1)))
+         (add-hook 'coq-mode-hook
+                   (lambda ()
+                     (yas/minor-mode 1)
+                     (whitespace-mode 1)
+                     (unicode-tokens-use-shortcuts 0)))
          (bind-key "M-RET" 'proof-goto-point coq-mode-map)
          (bind-key "<tab>" 'yas/expand-from-trigger-key coq-mode-map)))
 
