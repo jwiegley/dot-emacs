@@ -1124,13 +1124,11 @@
 
 (use-package tex-site
   :load-path "site-lisp/auctex/preview/"
-  :defines (latex-help-cmd-alist
-            latex-help-file)
-  ;; jww (2012-06-15): Do I want to use AucTeX for texinfo-mode?
+  :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . latex-mode)
   :config
   (progn
-    (defun latex-help-get-cmd-alist () ;corrected version:
+    (defun latex-help-get-cmd-alist ()  ;corrected version:
       "Scoop up the commands in the index of the latex info manual.
    The values are saved in `latex-help-cmd-alist' for speed."
       ;; mm, does it contain any cached entries
@@ -1149,11 +1147,13 @@
     (use-package latex-mode
       :defer t
       :config
-      (info-lookup-add-help :mode 'latex-mode
-                            :regexp ".*"
-                            :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-                            :doc-spec '(("(latex2e)Concept Index" )
-                                        ("(latex2e)Command Index"))))))
+      (progn
+        (use-package preview)
+        (info-lookup-add-help :mode 'latex-mode
+                              :regexp ".*"
+                              :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+                              :doc-spec '(("(latex2e)Concept Index" )
+                                          ("(latex2e)Command Index")))))))
 
 ;;;_ , auto-complete
 
