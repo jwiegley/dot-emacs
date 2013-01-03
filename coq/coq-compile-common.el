@@ -63,6 +63,8 @@ Must be used together with `coq-seq-disable'."
   (add-hook 'proof-shell-extend-queue-hook
 	    'coq-par-preprocess-require-commands)
   (add-hook 'proof-shell-signal-interrupt-hook
+	    'coq-par-emergency-cleanup)
+  (add-hook 'proof-shell-handle-error-or-interrupt-hook
 	    'coq-par-emergency-cleanup))
 
 (defun coq-par-disable ()
@@ -71,6 +73,8 @@ Must be used together with `coq-seq-enable'."
   (remove-hook 'proof-shell-extend-queue-hook
 	       'coq-par-preprocess-require-commands)
   (remove-hook 'proof-shell-signal-interrupt-hook
+	       'coq-par-emergency-cleanup)
+  (remove-hook 'proof-shell-handle-error-or-interrupt-hook
 	       'coq-par-emergency-cleanup))
 
 (defun coq-seq-enable ()

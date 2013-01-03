@@ -681,6 +681,9 @@ unless the FLAGS for the command are non-nil (see `proof-action-list')."
       (save-excursion
 	(proof-script-clear-queue-spans-on-error badspan 
 						 (eq err-or-int 'interrupt))))
+    ;; Note: coq-par-emergency-cleanup, which might be called via
+    ;; proof-shell-handle-error-or-interrupt-hook below, assumes that
+    ;; proof-action-list is empty on error. 
     (setq proof-action-list nil)
     (proof-release-lock)
     (unless flags

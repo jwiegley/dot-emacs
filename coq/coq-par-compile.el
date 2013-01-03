@@ -1166,6 +1166,9 @@ Finally, `proof-second-action-list-active' is set if I keep some
 queue items because they have to wait for a compilation job. Then
 the maximal number of background compilation jobs is started."
   (when coq-compile-before-require
+    (when coq-debug-auto-compilation
+      (message "%d items were added to the queue, scan for require"
+	       (length queueitems)))
     (unless coq-last-compilation-job
       (coq-par-init-compilation-hash)
       (coq-par-init-ancestor-hash))
@@ -1177,6 +1180,7 @@ the maximal number of background compilation jobs is started."
 	    (put coq-last-compilation-job 'queueitems
 		 (nconc (get coq-last-compilation-job 'queueitems)
 			(car splitted-items)))
+	    (setq queueitems nil)
 	    (message "attach first %s items to job %s"
 		     (length (car splitted-items))
 		     (get coq-last-compilation-job 'name)))
