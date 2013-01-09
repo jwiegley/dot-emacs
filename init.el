@@ -253,6 +253,14 @@
 (bind-key "C-x F" 'set-fill-column)
 (bind-key "C-x t" 'toggle-truncate-lines)
 
+(defun toggle-transparency ()
+  (interactive)
+  (if (/= (cadr (frame-parameter nil 'alpha)) 100)
+      (set-frame-parameter nil 'alpha '(100 100))
+    (set-frame-parameter nil 'alpha '(85 50))))
+
+(bind-key "C-x T" 'toggle-transparency)
+
 ;;;_  . C-x C-?
 
 (defun duplicate-line ()
@@ -1512,13 +1520,24 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package dired
   :defer t
+  :init
+  (progn
+    (defvar mark-files-cache (make-hash-table :test #'equal))
+
+    (defun mark-similar-versions (name)
+      (let ((pat name))
+        (if (string-match "^\\(.+?\\)-[0-9._-]+$" pat)
+            (setq pat (match-string 1 pat)))
+        (or (gethash pat mark-files-cache)
+            (ignore (puthash pat t mark-files-cache))))))
+
   :config
   (progn
     (defun dired-package-initialize ()
       (unless (featurep 'runner)
         (use-package dired-x)
         ;; (use-package dired-async)
-        (use-package dired-sort-map)
+        ;; (use-package dired-sort-map)
         (use-package runner)
         (use-package dired-details-hide
           :commands dired-details-toggle)
@@ -1753,27 +1772,70 @@ The output appears in the buffer `*Async Shell Command*'."
             erc-fill-column 88
             erc-insert-timestamp-function 'erc-insert-timestamp-left)
 
-      (set-input-method "Agda"))
+      (set-input-method "Agda")
+
+      (defun reset-erc-track-mode ()
+        (interactive)
+        (setq erc-modified-channels-alist nil)
+        (erc-modified-channels-update))
+
+      (bind-key "C-c r" 'reset-erc-track-mode))
 
     (add-hook 'erc-mode-hook 'setup-irc-environment)
 
     (defun irc ()
       (interactive)
 
-      (erc-tls :server "irc.freenode.net"
-               :port 6697
-               :nick "johnw"
-               :password (funcall
-                          (plist-get
-                           (car (auth-source-search :host "irc.freenode.net"
-                                                    :user "johnw"
-                                                    :type 'netrc
-                                                    :port 6667))
-                           :secret)))
+      (if (or t (quickping "192.168.9.135"))
+          (progn
+            (erc :server "192.168.9.135"
+                 :port 6697
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search :host "192.168.9.135"
+                                                      :user "johnw/freenode"
+                                                      :type 'netrc
+                                                      :port 6697))
+                             :secret)))
+            (erc :server "192.168.9.135"
+                 :port 6697
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search :host "192.168.9.135"
+                                                      :user "johnw/welltyped"
+                                                      :type 'netrc
+                                                      :port 6697))
+                             :secret)))
+            (erc :server "192.168.9.135"
+                 :port 6697
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search :host "192.168.9.135"
+                                                      :user "johnw/oftc"
+                                                      :type 'netrc
+                                                      :port 6697))
+                             :secret))))
+        (erc-tls :server "irc.freenode.net"
+                 :port 6697
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search :host "irc.freenode.net"
+                                                      :user "johnw"
+                                                      :type 'netrc
+                                                      :port 6667))
+                             :secret)))
 
-      (erc :server "irc.well-typed.com"
-           :port 6665
-           :nick "johnw")
+        (erc :server "irc.well-typed.com"
+             :port 6665
+             :nick "johnw"))
+
+      ;; (erc-tls :server "irc.oftc.net"
+      ;;          :port 6697
+      ;;          :nick "johnw")
       )
 
     (defun im ()
@@ -1868,7 +1930,51 @@ FORM => (eval FORM)."
 
     (defun erc-cmd-DEOPME ()
       "Deop myself from current channel."
-      (erc-cmd-DEOP (format "%s" (erc-current-nick))))))
+      (erc-cmd-DEOP (format "%s" (erc-current-nick))))
+
+    (defun erc-cmd-UNTRACK (&optional target)
+      "Add TARGET to the list of target to be tracked."
+      (if target
+          (erc-with-server-buffer
+           (let ((untracked
+                  (car (erc-member-ignore-case target erc-track-exclude))))
+             (if untracked
+                 (erc-display-line
+                  (erc-make-notice
+                   (format "%s is not currently tracked!" target))
+                  'active)
+               (add-to-list 'erc-track-exclude target)
+               (erc-display-line
+                (erc-make-notice (format "Now not tracking %s" target))
+                'active))))
+
+        (if (null erc-track-exclude)
+            (erc-display-line
+             (erc-make-notice "Untracked targets list is empty") 'active)
+
+          (erc-display-line (erc-make-notice "Untracked targets list:") 'active)
+          (mapc #'(lambda (item)
+                    (erc-display-line (erc-make-notice item) 'active))
+                (erc-with-server-buffer erc-track-exclude))))
+      t)
+
+
+    (defun erc-cmd-TRACK (target)
+      "Remove TARGET of the list of targets which they should not be tracked.
+   If no TARGET argument is specified, list contents of `erc-track-exclude'."
+      (when target
+        (erc-with-server-buffer
+         (let ((tracked
+                (not (car (erc-member-ignore-case target erc-track-exclude)))))
+           (if tracked
+               (erc-display-line
+                (erc-make-notice (format "%s is currently tracked!" target))
+                'active)
+             (setq erc-track-exclude (remove target erc-track-exclude))
+             (erc-display-line
+              (erc-make-notice (format "Now tracking %s" target))
+              'active)))))
+      t)))
 
 ;;;_ , eshell
 
@@ -1993,9 +2099,11 @@ FORM => (eval FORM)."
     (use-package grep-ed)
 
     (grep-apply-setting 'grep-command "egrep -nH -e ")
-    (grep-apply-setting
-     'grep-find-command
-     '("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52))))
+    (if t
+        (grep-apply-setting 'grep-find-command '("gf -e " . 7))
+      (grep-apply-setting
+       'grep-find-command
+       '("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52)))))
 
 ;;;_ , gtags
 
@@ -2339,7 +2447,7 @@ FORM => (eval FORM)."
                     (compose-region (match-beginning 1)
                                     (match-end 1) ?λ))))
                ("(\\|)" . 'esk-paren-face)
-               ("(\\(ert-deftest\\)\\>[ 	'(]*\\(setf[ 	]+\\sw+\\|\\sw+\\)?"
+               ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
                 (1 font-lock-keyword-face)
                 (2 font-lock-function-name-face
                  nil t)))))
@@ -2929,13 +3037,11 @@ FORM => (eval FORM)."
                      (whitespace-mode 1)
                      (unicode-tokens-use-shortcuts 0)))
          (bind-key "M-RET" 'proof-goto-point coq-mode-map)
-         (bind-key "<tab>" 'yas/expand-from-trigger-key coq-mode-map)))
-
-    (defadvice proof-electric-terminator
-      (around insert-newline-after-terminator activate)
-      (save-excursion
-        ad-do-it)
-      (forward-char))))
+         (bind-key "<tab>" 'yas/expand-from-trigger-key coq-mode-map)
+         (bind-key "C-c C-p" (lambda ()
+                               (interactive)
+                               (proof-layout-windows)
+                               (proof-prf)) coq-mode-map)))))
 
 ;;;_ , ps-print
 
@@ -3074,7 +3180,7 @@ FORM => (eval FORM)."
 ;;;_ , sage-mode
 
 (use-package sage
-  :load-path "/Applications/Misc/sage/data/emacs/"
+  :load-path "/Applications/Misc/sage/local/share/emacs/"
   :init
   (progn
     (setq sage-command "/Applications/Misc/sage/sage")
@@ -3086,7 +3192,7 @@ FORM => (eval FORM)."
     (add-hook 'sage-startup-after-prompt-hook 'sage-view)
     ;; You can use commands like
     ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-output)
-    (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots)
+    (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t)
     ;; to enable some combination of features
     ))
 

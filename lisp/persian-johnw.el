@@ -178,3 +178,5 @@
  ("\\0" ?0)
 
 )
+
+(provide 'persian-johnw)
