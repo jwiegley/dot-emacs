@@ -298,3 +298,6 @@
 [submodule "site-lisp/pandoc-mode"]
 	path = site-lisp/pandoc-mode
 	url = git://github.com/joostkremers/pandoc-mode.git
+[submodule "site-lisp/erc-track-score"]
+	path = site-lisp/erc-track-score
+	url = git://git.naquadah.org/erc-track-score.git
