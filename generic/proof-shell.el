@@ -243,6 +243,13 @@ If QUEUEMODE is supplied, set the lock to that value."
   :type 'boolean
   :group 'proof-shell)
 
+(defvar proof-shell-filter-active nil
+  "t when `proof-shell-filter' is running.")
+
+(defvar proof-shell-filter-was-blocked nil
+  "t when a recursive call of `proof-shell-filter' was blocked.
+In this case `proof-shell-filter' must be called again after it finished.")
+
 (defun proof-shell-set-text-representation ()
   "Adjust representation for current buffer, to match `proof-shell-unicode'."
   (unless proof-shell-unicode
@@ -277,6 +284,7 @@ process command."
   (interactive)
   (unless (proof-shell-live-buffer)
 
+    (setq proof-shell-filter-active nil)
     (setq proof-included-files-list nil) ; clear some state
 
     (let ((name (buffer-file-name (current-buffer))))
@@ -1288,12 +1296,50 @@ inverse to `proof-register-possibly-new-processed-file'."
 ;; The proof shell process filter
 ;;
 
-(defun proof-shell-filter (str)
+(defun proof-shell-filter-wrapper (str-do-not-use)
+  "Wrapper for `proof-shell-filter', protecting against parallel calls.
+In Emacs a process filter function can be called while the same
+filter is currently running for the same process, for instance,
+when the filter bocks on I/O. This wrapper protects the main
+entry point, `proof-shell-filter' against such parallel,
+overlapping calls.
+
+The argument STR-DO-NOT-USE contains the most recent output, but
+is discarded. `proof-shell-filter' collects the output from
+`proof-shell-buffer' (where it is inserted by
+`scomint-output-filter'), relieving this function from the task
+to buffer the output that arrives during parallel, overlapping
+calls."
+  (if proof-shell-filter-active
+      (progn
+	(setq proof-shell-filter-was-blocked t))
+    (let ((call-proof-shell-filter t))
+      (while call-proof-shell-filter
+	(setq proof-shell-filter-active t
+	      proof-shell-filter-was-blocked nil)
+	(condition-case err
+	    (progn
+	      (proof-shell-filter)
+	      (setq proof-shell-filter-active nil))
+	  ((error quit)
+	   (setq proof-shell-filter-active nil
+		 proof-shell-filter-was-blocked nil)
+	   (signal (car err) (cdr err))))
+	(setq call-proof-shell-filter proof-shell-filter-was-blocked)))))  
+
+
+(defun proof-shell-filter ()
   "Master filter for the proof assistant shell-process.
 A function for `scomint-output-filter-functions'.
 
-Deal with output STR and issue new input from the queue.  This is
-an important internal function.
+Deal with output and issue new input from the queue. This is an
+important internal function. The output must be collected from
+`proof-shell-buffer' for the following reason. This function
+might block inside `process-send-string' when sending input to
+the proof assistant or to prooftree. In this case Emacs might
+call the process filter again while the previous instance is
+still running. `proof-shell-filter-wrapper' detects and delays
+such calls but does not buffer the output.
 
 Handle urgent messages first.  As many as possible are processed,
 using the function `proof-shell-process-urgent-messages'.
@@ -1806,7 +1852,7 @@ Error messages are displayed as usual."
   (setq scomint-output-filter-functions
 	(append
 	 (if proof-shell-strip-crs-from-output 'scomint-strip-ctrl-m)
-	 (list 'proof-shell-filter)))
+	 (list 'proof-shell-filter-wrapper)))
 
   (setq proof-marker 			; follows prompt
 	(make-marker)

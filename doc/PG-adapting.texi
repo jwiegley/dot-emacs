@@ -4229,15 +4229,25 @@ ends with text matching @samp{@code{proof-shell-eager-annotation-end}}.
 @end defun
 
 The main processing point which triggers other actions is
-@code{proof-shell-filter}.
+@code{proof-shell-filter}. It is called from
+@code{proof-shell-filter-wrapper}, which itself is called from an
+ordinary Emacs process filter inside the simplified @code{comint}
+library that is distributed with Proof General (in
+@code{lib/scomint.el}).
 
 @c TEXI DOCSTRING MAGIC: proof-shell-filter
-@defun proof-shell-filter str
+@defun proof-shell-filter 
 Master filter for the proof assistant shell-process.@*
 A function for @samp{@code{scomint-output-filter-functions}}.
 
-Deal with output @var{str} and issue new input from the queue.  This is
-an important internal function.
+Deal with output and issue new input from the queue. This is an
+important internal function. The output must be collected from
+@samp{@code{proof-shell-buffer}} for the following reason. This function
+might block inside @samp{@code{process-send-string}} when sending input to
+the proof assistant or to prooftree. In this case Emacs might
+call the process filter again while the previous instance is
+still running. @samp{@code{proof-shell-filter-wrapper}} detects and delays
+such calls but does not buffer the output.
 
 Handle urgent messages first.  As many as possible are processed,
 using the function @samp{@code{proof-shell-process-urgent-messages}}.
@@ -4295,8 +4305,22 @@ After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue.
 @end defun
 
+@c TEXI DOCSTRING MAGIC: proof-shell-filter-wrapper
+@defun proof-shell-filter-wrapper str-do-not-use
+Wrapper for @samp{@code{proof-shell-filter}}, protecting against parallel calls.@*
+In Emacs a process filter function can be called while the same
+filter is currently running for the same process, for instance,
+when the filter bocks on I/O. This wrapper protects the main
+entry point, @samp{@code{proof-shell-filter}} against such parallel,
+overlapping calls.
 
-
+The argument @var{str-do-not-use} contains the most recent output, but
+is discarded. @samp{@code{proof-shell-filter}} collects the output from
+@samp{@code{proof-shell-buffer}} (where it is inserted by
+@samp{@code{scomint-output-filter}}), relieving this function from the task
+to buffer the output that arrives during parallel, overlapping
+calls.
+@end defun
 
 
 
