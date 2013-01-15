@@ -190,7 +190,8 @@ See also `coq-hide-additional-subgoals'."
   :group 'coq-proof-tree)
 
 (defcustom coq-navigation-command-regexp
-  "^\\(Focus\\)\\|\\(Unfocus\\)"
+  (concat "^\\(\\(Focus\\)\\|\\(Unfocus\\)\\|"
+          "\\(\\+\\)\\|\\(-\\)\\|\\(\\*\\)\\|\\({\\)\\|\\(}\\)\\)")
   "Regexp for `proof-tree-navigation-command-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
@@ -203,8 +204,8 @@ See also `coq-hide-additional-subgoals'."
 
 (defcustom coq-proof-tree-current-goal-regexp
   (concat "^[0-9]+ \\(?:focused \\)?subgoal\\(?:s\\)?"
-          "\\(?: (unfocused: [0-9]+)\\)?\\(?:\\s-*, subgoal 1\\)? "
-          "(ID \\([0-9]+\\))\n\\s-*\n\\(\\(?:.+\n\\)*\\)\\(?:\n\\|$\\)")
+          "\\(?: (unfocused: [-0-9]+)\\)?\\(?:\\s-*, subgoal 1\\)? "
+          "(ID \\([0-9]+\\))\n\\s-*\n\\(\\(?: .*\n\\)+\\)\\(?:\n\\|$\\)")
   "Regexp for `proof-tree-current-goal-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
@@ -244,9 +245,13 @@ See also `coq-hide-additional-subgoals'."
   :type 'regexp
   :group 'coq-proof-tree)
 
-(defcustom coq-proof-tree-proof-finished-regexp
-  "^\\(?:Proof completed\\)\\|\\(?:No more subgoals\\)\\."
-  "Regexp for `proof-tree-proof-finished-regexp'."
+(defcustom coq-proof-tree-branch-finished-regexp
+  (concat "^\\(\\(?:Proof completed\\.\\)\\|\\(?:No more subgoals\\.\\)\\|"
+          "\\(No more subgoals but non-instantiated "
+          "existential variables:\\)\\|"
+          "\\(<infomsg>This subproof is complete, but there are "
+          "still unfocused goals.</infomsg>\\)\\)")
+  "Regexp for `proof-tree-branch-finished-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
 
@@ -1195,7 +1200,7 @@ flag Printing All set."
                         coq-proof-tree-existentials-state-end-regexp
    proof-tree-additional-subgoal-ID-regexp
                               coq-proof-tree-additional-subgoal-ID-regexp
-   proof-tree-proof-finished-regexp coq-proof-tree-proof-finished-regexp
+   proof-tree-branch-finished-regexp coq-proof-tree-branch-finished-regexp
    proof-tree-extract-instantiated-existentials
      'coq-extract-instantiated-existentials
    proof-tree-show-sequent-command 'coq-show-sequent-command

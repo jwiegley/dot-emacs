@@ -3081,7 +3081,16 @@ Query the prover about the identifier near mouse click @var{event}.
 Since version 4.2, Proof General supports proof-tree
 visualization on graphical desktops via the additional program
 Prooftree. Currently, proof-tree visualization is only supported
-for the Coq proof assistant. For installation instructions and
+for the Coq proof assistant. 
+
+This version of Proof General requires Prooftree version 0.11.
+Check the @uref{http://askra.de/software/prooftree/, Prooftree website},
+to see if some later versions are also compatible. (Because of
+the communication protocol, Proof General is always only
+compatible with certain versions of Prooftree.)
+
+
+For installation instructions and
 more detailed information about Prooftree, please refer to the
 @uref{http://askra.de/software/prooftree/, Prooftree website} and
 the @uref{http://askra.de/software/prooftree/prooftree.man.html,
@@ -4879,10 +4888,13 @@ you want to save abbrevs; answer yes.
 
 Starting with Proof General version 4.2 and Coq version 8.4, Coq
 Proof General has full support for proof-tree visualization, 
-@pxref{Graphical Proof-Tree Visualization}.
+@pxref{Graphical Proof-Tree Visualization}. To find out which
+versions of Prooftree are compatible with this version of Proof
+General, @pxref{Graphical Proof-Tree Visualization} or the 
+@uref{http://askra.de/software/prooftree/, Prooftree website}.
 
-Proof-tree visualization does currently neither support bullets
-and braces nor the command ``Grab Existential Variables''.
+Proof-tree visualization does currently not support the command
+``Grab Existential Variables''.
 
 For the visualization to work properly, proofs must be started
 with ``Proof.'', which is encouraged practice anyway (see Coq Bug

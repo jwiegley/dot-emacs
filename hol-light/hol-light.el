@@ -400,7 +400,7 @@ the currently open proof.")
  proof-tree-find-begin-of-unfinished-proof 
            'hol-light-find-begin-of-unfinished-proof
  ;; These ones belong in shell mode
- proof-tree-proof-finished-regexp "No subgoals"	  
+ proof-tree-branch-finished-regexp "No subgoals"	  
  proof-tree-show-sequent-command 
  (lambda (id) (format "print_xgoal_of_id \"%s\";;" id))
 

@@ -6,6 +6,12 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 * Changes of Proof General 4.3 from Proof General 4.2
 
+** Generic/misc changes
+
+*** Require Prooftree version 0.11
+    Check the Prooftree website to see which other versions of
+    Prooftree are compatible with Proof General 4.3.
+
 ** Coq changes
 
 *** Asynchronous parallel compilation of required modules
@@ -15,6 +21,7 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     to compile modules in parallel in the background while Proof
     General stays responsive.
 
+*** Support for bullets and braces for Prooftree.
 
 * Changes of Proof General 4.2 from Proof General 4.1
 

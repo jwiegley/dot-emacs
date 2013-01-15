@@ -211,8 +211,13 @@ the state display expands to the end of the prover output."
   :type '(choice regexp (const nil))
   :group 'proof-tree-internals)
 
-(defcustom proof-tree-proof-finished-regexp nil
-  "Regexp to match the no-more-subgoals message."
+(defcustom proof-tree-branch-finished-regexp nil
+  "Regexp to recognize that the current branch has been finished.
+This must match in precisely the following cases:
+- The current branch has been finished but there is no current
+  open subgoal because the prover has not switched to the next
+  subgoal.
+- The last open goal has been proved. "
   :type 'regexp
   :group 'proof-tree-internals)
 
@@ -472,7 +477,7 @@ variables."
 ;; Low-level communication primitives
 ;;
 
-(defconst proof-tree-protocol-version 2
+(defconst proof-tree-protocol-version 3
   "Version of the communication protocol between Proof General and Prooftree.
 Must be increased if one of the low-level communication
 primitives is changed.")
@@ -547,12 +552,12 @@ DATA as data sections to Prooftree."
 		 (1+ (string-bytes proof-name)))))
     (proof-tree-send-message second-line (list proof-name))))
 
-(defun proof-tree-send-proof-finished (state proof-name cmd-string
+(defun proof-tree-send-branch-finished (state proof-name cmd-string
 					     cheated-flag existential-info)
-  "Send proof-finished to prooftree."
+  "Send branch-finished to prooftree."
   (proof-tree-send-message
    (format
-    (concat "proof-finished state %d %s proof-name-bytes %d command-bytes %d "
+    (concat "branch-finished state %d %s proof-name-bytes %d command-bytes %d "
 	    "existential-bytes %d")
     state
     (if cheated-flag "cheated" "not-cheated")
@@ -820,6 +825,7 @@ This function cuts out the text between
 output, including the matches of these regular expressions. If
 the start regexp is nil, the empty string is returned. If the end
 regexp is nil, the match expands to the end of the prover output."
+  (goto-char start)
   (if (and proof-tree-existentials-state-start-regexp
 	   (proof-re-search-forward proof-tree-existentials-state-start-regexp
 				    end t))
@@ -832,7 +838,7 @@ regexp is nil, the match expands to the end of the prover output."
 	(buffer-substring-no-properties start end))
     ""))
 
-(defun proof-tree-handle-proof-progress (cmd-string proof-info)
+(defun proof-tree-handle-proof-progress (old-proof-marker cmd-string proof-info)
   "Send CMD-STRING and goals in delayed output to prooftree.
 This function is called if there is some real progress in a
 proof. This function sends the current state, the current goal
@@ -840,9 +846,13 @@ and the list of additional open subgoals to Prooftree. Prooftree
 will sort out the rest.
 
 The delayed output is in the region
-\[proof-shell-delayed-output-start, proof-shell-delayed-output-end]."
-  ;; (message "PTHPO cmd |%s| info %s flags %s start %s end %s"
+\[proof-shell-delayed-output-start, proof-shell-delayed-output-end].
+Urgent messages might be before that, following OLD-PROOF-MARKER,
+which contains the position of `proof-marker', before the next
+command was sent to the proof assistant."
+  ;; (message "PTHPO cmd |%s| info %s flags %s proof-marker %s start %s end %s"
   ;; 	   cmd proof-info flags
+  ;; 	   old-proof-marker
   ;; 	   proof-shell-delayed-output-start
   ;; 	   proof-shell-delayed-output-end)
   (let* ((start proof-shell-delayed-output-start)
@@ -852,10 +862,17 @@ The delayed output is in the region
 	 (cheated-flag
 	  (and proof-tree-cheating-regexp
 	       (proof-string-match proof-tree-cheating-regexp cmd-string)))
-	 (current-goals (proof-tree-extract-goals start end))
-	 (existential-info
-	  (proof-tree-extract-existential-info start end)))
-    (if current-goals
+	 current-goals)
+    ;; Check first for special cases, because Coq's output for finished
+    ;; branches is almost identical to proper goals.
+    (goto-char old-proof-marker)
+    (if (proof-re-search-forward proof-tree-branch-finished-regexp end t)
+	(proof-tree-send-branch-finished
+	 proof-state proof-name cmd-string cheated-flag
+	 (proof-tree-extract-existential-info start end))
+      (goto-char start)
+      (setq current-goals (proof-tree-extract-goals start end))
+      (when current-goals
 	(let ((current-sequent-id (car current-goals))
 	      (current-sequent-text (nth 1 current-goals))
 	      ;; nth 2 current-goals  contains the  additional ID's
@@ -867,21 +884,13 @@ The delayed output is in the region
 	   current-sequent-id
 	   current-sequent-text
 	   (nth 2 current-goals)
-	   existential-info)
+	   (proof-tree-extract-existential-info start end))
 	  ;; put current sequent into hash (if it is not there yet)
 	  (unless (gethash current-sequent-id proof-tree-sequent-hash)
 	    (puthash current-sequent-id proof-state proof-tree-sequent-hash))
 	  (proof-tree-register-existentials proof-state
 					    current-sequent-id
-					    current-sequent-text))
-      
-      ;; no current goal found, maybe the proof has been finished?
-      (goto-char start)
-      (if (proof-re-search-forward proof-tree-proof-finished-regexp end t)
-	  (progn
-	    (proof-tree-send-proof-finished
-	     proof-state proof-name cmd-string
-	     cheated-flag existential-info))))))
+					    current-sequent-text))))))
 
 (defun proof-tree-handle-navigation (proof-info)
   "Handle a navigation command.
@@ -901,7 +910,7 @@ The delayed output of the navigation command is in the region
 	  (proof-tree-send-switch-goal proof-state proof-name current-id)))))
 
 
-(defun proof-tree-handle-proof-command (cmd proof-info)
+(defun proof-tree-handle-proof-command (old-proof-marker cmd proof-info)
   "Display current goal in prooftree unless CMD should be ignored."
   ;; (message "PTHPC")
   (let ((proof-state (car proof-info))
@@ -913,7 +922,8 @@ The delayed output of the navigation command is in the region
 	       (proof-string-match proof-tree-navigation-command-regexp
 				   cmd-string))
 	  (proof-tree-handle-navigation proof-info)
-	(proof-tree-handle-proof-progress cmd-string proof-info)))
+	(proof-tree-handle-proof-progress old-proof-marker
+					  cmd-string proof-info)))
     (setq proof-tree-last-state (car proof-info))))
     
 (defun proof-tree-handle-undo (proof-info)
@@ -989,13 +999,19 @@ The delayed output is in the region
 						  sequent-text)))))))
 
 
-(defun proof-tree-handle-delayed-output (cmd flags span)
+(defun proof-tree-handle-delayed-output (old-proof-marker cmd flags span)
   "Process delayed output for prooftree.
 This function is the main entry point of the Proof General
 prooftree support. It examines the delayed output in order to
 take appropriate actions and maintains the internal state.
 
-All arguments are (former) fields of the `proof-action-list'
+The delayed output to handle is in the region
+\[proof-shell-delayed-output-start, proof-shell-delayed-output-end].
+Urgent messages might be before that, following OLD-PROOF-MARKER,
+which contains the position of `proof-marker', before the next
+command was sent to the proof assistant.
+
+All other arguments are (former) fields of the `proof-action-list'
 entry that is now finally retired. CMD is the command, FLAGS are
 the flags and SPAN is the span."
   ;; (message "PTHDO cmd %s flags %s span %s-%s" cmd flags
@@ -1035,7 +1051,8 @@ the flags and SPAN is the span."
 	  (when current-proof-name
 	    ;; we are inside a proof: display something
 	    (proof-tree-ensure-running)
-	    (proof-tree-handle-proof-command cmd proof-info)))))))
+	    (proof-tree-handle-proof-command old-proof-marker
+					     cmd proof-info)))))))
 
 
 ;;
