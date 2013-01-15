@@ -117,7 +117,6 @@ clean:	cleanpgscripts
 	(cd doc; $(MAKE) clean)
 
 distclean: clean
-	rm -f *~ */*~
 
 ##
 ## Install files 
