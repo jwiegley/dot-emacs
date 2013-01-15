@@ -90,13 +90,13 @@ info:   $(DOCNAME).info
 CLEANTARGS:=$(DOCNAME).cp $(DOCNAME).fn $(DOCNAME).vr $(DOCNAME).tp $(DOCNAME).ky $(DOCNAME).kys $(DOCNAME).pg $(DOCNAME).fns $(DOCNAME).vrs $(DOCNAME).cps $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).cp $(DOCNAME).cp0 $(DOCNAME).toc
 clean:
 	rm -f $(CLEANTARGS)
-	rm -f *~
 
 ##
 ## distclean: Remove documentation targets
 ##
 distclean:   clean
 	rm -rf $(DOCNAME).info* $(DOCNAME).pdf $(DOCNAME)
+	rm -f *~
 
 ##
 ## texi: update magic comments in texi from docstrings in code.

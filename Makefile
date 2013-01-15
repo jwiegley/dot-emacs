@@ -113,10 +113,11 @@ all:	compile
 ## Remove generated targets
 ##
 clean:	cleanpgscripts
-	rm -f $(ELC) *~ */*~ .\#* */.\#* */.autotest.log */.profile.log
+	rm -f $(ELC) .\#* */.\#* */.autotest.log */.profile.log
 	(cd doc; $(MAKE) clean)
 
 distclean: clean
+	rm -f *~ */*~
 
 ##
 ## Install files 
