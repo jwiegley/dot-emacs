@@ -1963,13 +1963,13 @@ Only when three-buffer-mode is enabled."
     (let (;; maxhgth is the max height of both resp and goals buffers to avoid
           ;; make the other disappear
           (maxhgth (with-selected-window (get-buffer-window proof-script-buffer)
-                       (- (window-height) window-min-height)))
+                       (- (window-text-height) window-min-height)))
           hgt-resp nline-resp)
       (with-selected-window (get-buffer-window proof-response-buffer)
-        (setq hgt-resp (window-height))
+        (setq hgt-resp (window-text-height))
         (with-current-buffer proof-response-buffer
           (setq nline-resp ; number of lines we want for response buffer
-                (min maxhgth (max window-min-height ; + 1 here for comfort
+                (min maxhgth (max window-min-height ; + 1 for comfort
                                   (+ 1 (count-lines (point-max) (point-min)))))))
         (unless (is-not-split-vertic (selected-window))
           (shrink-window (- hgt-resp nline-resp)))
