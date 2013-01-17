@@ -32,7 +32,7 @@
 ;; the middle of a proof. Therefore, if the user wants to start the
 ;; proof-tree display in the middle of the proof, it is necessary to
 ;; retract to the start of the proof and then to reassert to the
-;; previous end of the locked region. To achieve this one has to call
+;; previous end of the locked region. To achieve this, one has to call
 ;; `accept-process-output' at suitable points to let Proof General
 ;; process the `proof-action-list'.
 ;; 
@@ -73,7 +73,16 @@
 ;; the next real proof command runs. For Coq this needs to be done for
 ;; newly generated subgoals and for goals that contain an existential
 ;; variable that got instantiated in the last proof step.
-
+;;
+;; Actually, for every proof, Prooftree can display a set of disjunct
+;; proof trees, which are organized into layers. More than one proof
+;; tree in more than one layer is needed to support the Grap
+;; Existential Variables command in Coq. There is one proof tree in
+;; the first layer for the original goal. The second layer contains
+;; all the goals that the first Grab Existential Variables command
+;; created from uninstantiated existential variabes in the main proof.
+;; The third layer contains the goals that the second Grap Existential
+;; Variables created.
 
 ;;; Code:
 
@@ -142,6 +151,15 @@ to permit the user to first focus on other parts of the
 development. Examples are \"sorry\" in Isabelle and \"admit\" in
 Coq. Leave at nil if there are no cheating commands."
   :type '(choice regexp (const nil))
+  :group 'proof-tree-internals)
+
+(defcustom proof-tree-new-layer-command-regexp nil
+  "Regexp to match proof commands that add new goals to a proof.
+This regexp must match the command that turns the proof assistant
+into prover mode, which adds the initial goal to the proof. It
+must further match commands that add additional goals after all
+previous goals have been proved."
+  :type 'regexp
   :group 'proof-tree-internals)
 
 (defcustom proof-tree-current-goal-regexp nil
@@ -505,21 +523,23 @@ DATA as data sections to Prooftree."
    ()))
 
 (defun proof-tree-send-goal-state (state proof-name command-string cheated-flag
-				   current-sequent-id current-sequent-text
-				   additional-sequent-ids existential-info)
+				   layer-flag current-sequent-id
+				   current-sequent-text additional-sequent-ids
+				   existential-info)
   "Send the current goal state to prooftree."
   ;; (message "PTSGS id %s sequent %s ex-info %s"
   ;; 	   current-sequent-id current-sequent-text existential-info)
   (let* ((add-id-string (mapconcat 'identity additional-sequent-ids " "))
 	 (second-line
 	  (format
-	   (concat "current-goals state %d current-sequent %s %s "
+	   (concat "current-goals state %d current-sequent %s %s %s "
 		   "proof-name-bytes %d "
 		   "command-bytes %d sequent-text-bytes %d "
 		   "additional-id-bytes %d existential-bytes %d")
 	   state
 	   current-sequent-id
 	   (if cheated-flag "cheated" "not-cheated")
+	   (if layer-flag "new-layer" "current-layer")
 	   (1+ (string-bytes proof-name))
 	   (1+ (string-bytes command-string))
 	   (1+ (string-bytes current-sequent-text))
@@ -876,11 +896,14 @@ command was sent to the proof assistant."
 	(let ((current-sequent-id (car current-goals))
 	      (current-sequent-text (nth 1 current-goals))
 	      ;; nth 2 current-goals  contains the  additional ID's
-	      )
+	      (layer-flag
+	       (and proof-tree-new-layer-command-regexp
+		    (proof-string-match proof-tree-new-layer-command-regexp
+					cmd-string))))
 	  ;; send all to prooftree
 	  (proof-tree-send-goal-state
 	   proof-state proof-name cmd-string
-	   cheated-flag
+	   cheated-flag layer-flag
 	   current-sequent-id
 	   current-sequent-text
 	   (nth 2 current-goals)

@@ -2515,10 +2515,43 @@ in @code{generic/proof-tree.el} as well as in the
 Prooftree program.
 
 @menu
+* A layered set of proof trees::
 * Prerequisites::
 * Proof-Tree Display Internals::
 * Configuring Prooftree for a New Proof Assistant::
 @end menu
+
+
+@node A layered set of proof trees
+@section A layered set of proof trees
+
+Prooftree can actually display more than one proof tree per
+proof. This is necessary to support the 
+@code{Grab Existential Variables} command in Coq. When the main
+goal has been proved, this command turns all open existential
+variables into new proof obligations. All these new proof
+obligations become root nodes for their own proof trees. When
+they all have been proved one can again grab the open existential
+variables...
+
+For each proof, Prooftree can therefore display several layers,
+where each layer can contain several (graphically) independent
+proof trees. The first layer contains one tree for the original
+proof goal. The second layer contains proof trees for goals that
+have been added to the proof after the first proof tree was
+completed. And so on.
+
+To organize the layers, Prooftree must identify those proof
+commands that add new goals to a proof.
+
+@c TEXI DOCSTRING MAGIC: proof-tree-new-layer-command-regexp
+@defvar proof-tree-new-layer-command-regexp 
+Regexp to match proof commands that add new goals to a proof.@*
+This regexp must match the command that turns the proof assistant
+into prover mode, which adds the initial goal to the proof. It
+must further match commands that add additional goals after all
+previous goals have been proved.
+@end defvar
 
 
 @node Prerequisites
@@ -2823,13 +2856,19 @@ assistant is already busy with the next item from
 @code{proof-action-list}. 
 
 @c TEXI DOCSTRING MAGIC: proof-tree-handle-delayed-output
-@defun proof-tree-handle-delayed-output cmd flags span
+@defun proof-tree-handle-delayed-output old-proof-marker cmd flags span
 Process delayed output for prooftree.@*
 This function is the main entry point of the Proof General
 prooftree support. It examines the delayed output in order to
 take appropriate actions and maintains the internal state.
 
-All arguments are (former) fields of the @samp{@code{proof-action-list}}
+The delayed output to handle is in the region
+[@code{proof-shell-delayed-output-start}, @code{proof-shell-delayed-output-end}].
+Urgent messages might be before that, following @var{old-proof-marker},
+which contains the position of @samp{@code{proof-marker}}, before the next
+command was sent to the proof assistant.
+
+All other arguments are (former) fields of the @samp{@code{proof-action-list}}
 entry that is now finally retired. @var{cmd} is the command, @var{flags} are
 the flags and @var{span} is the span.
 @end defun
