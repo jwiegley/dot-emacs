@@ -4893,12 +4893,15 @@ versions of Prooftree are compatible with this version of Proof
 General, @pxref{Graphical Proof-Tree Visualization} or the 
 @uref{http://askra.de/software/prooftree/, Prooftree website}.
 
-Proof-tree visualization does currently not support the command
-``Grab Existential Variables''.
-
 For the visualization to work properly, proofs must be started
-with ``Proof.'', which is encouraged practice anyway (see Coq Bug
-#2776).
+with @code{Proof}, which is encouraged practice anyway (see Coq Bug
+#2776). Without @code{Proof} you lose the initial proof goal,
+possibly having two or more initial goals in the display.
+
+To support @code{Grab Existential Variables} Prooftree can
+actually display several graphically independent proof trees in
+several layers.
+
 
 @c =================================================================
 @c

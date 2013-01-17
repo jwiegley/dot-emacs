@@ -21,7 +21,7 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     to compile modules in parallel in the background while Proof
     General stays responsive.
 
-*** Support for bullets and braces for Prooftree.
+*** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
 * Changes of Proof General 4.2 from Proof General 4.1
 
