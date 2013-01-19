@@ -301,3 +301,6 @@
 [submodule "site-lisp/erc-track-score"]
 	path = site-lisp/erc-track-score
 	url = git://git.naquadah.org/erc-track-score.git
+[submodule "site-lisp/flycheck"]
+	path = site-lisp/flycheck
+	url = https://github.com/magnars/s.el.git
