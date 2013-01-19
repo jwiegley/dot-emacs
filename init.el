@@ -2053,11 +2053,15 @@ FORM => (eval FORM)."
   (progn
     (flycheck-declare-checker haskell-ghc
       "Haskell checker using ghc"
-      :command '("ghc" "-v0" source-inplace)
+      :command '("ghc" "-fno-code" "-v0" source-inplace)
       :error-patterns
       `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
+                  "\\(?5:Warning: \\)?"
                   "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
-         error))
+         (if (let ((out (match-string 5 output)))
+               (and out (string= out "Warning: ")))
+             'warning
+           'error)))
       :modes 'haskell-mode)
 
     (push 'haskell-ghc flycheck-checkers)
@@ -2067,8 +2071,12 @@ FORM => (eval FORM)."
       :command '("hdevtools" "check" source-inplace)
       :error-patterns
       `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
+                  "\\(?5:Warning: \\)?"
                   "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
-         error))
+         (if (let ((out (match-string 5 output)))
+               (and out (string= out "Warning: ")))
+             'warning
+           'error)))
       :modes 'haskell-mode)
 
     (push 'haskell-hdevtools flycheck-checkers)
@@ -2097,27 +2105,90 @@ FORM => (eval FORM)."
 
     (push 'bash flycheck-checkers)
 
-    (defun my-ghc-flymake-display-errors ()
+    (flycheck-declare-checker xmllint
+      "xmllint checker"
+      :command '("xmllint" "--noout" "--postvalid" source)
+      :error-patterns
+      '(("^\\(?1:.*\\):\\(?2:[0-9]+\\): parser error : \\(?4:.*\\)$" error))
+      :modes 'nxml-mode)
+
+    (push 'xmllint flycheck-checkers)
+
+    (flycheck-declare-checker jslint
+      "jslint checker"
+      :command '("jsl" "-process" source)
+      :error-patterns
+      '(("^\\(?1:.*\\)(\\(?2:[0-9]+\\)): error: \\(?4:.*\\)$" error)
+        ("^\\(?1:.*\\)(\\(?2:[0-9]+\\)): \\(\\(lint \\)?warning\\): \\(?4:.*\\)$"
+         warning))
+      :modes 'js2-mode)
+
+    (push 'jslint flycheck-checkers)
+
+    (flycheck-declare-checker clang++-ledger
+      "Clang++ checker for Ledger"
+      :command
+      '("clang++" "-Wall" "-fsyntax-only"
+        "-I/Users/johnw/Products/ledger/debug" "-I../lib"
+        "-I../lib/utfcpp/source"
+        "-I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7"
+        "-include" "system.hh" "-c" source-inplace)
+      :error-patterns
+      '(("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): warning:\\s-*\\(?4:.*\\)"
+         warning)
+        ("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): error:\\s-*\\(?4:.*\\)"
+         error))
+      :modes 'c++-mode
+      :predicate '(string-match "/ledger/" (buffer-file-name)))
+
+    (push 'clang++-ledger flycheck-checkers)
+
+    (defun my-flycheck-show-error-in-window ()
       (interactive)
-      (let ((inhibit-redisplay t)
-            (errs (ghc-flymake-err-list)))
-        (if (= 1 (length errs))
-            (message (car errs))
-          (ghc-flymake-display-errors)
-          (fit-window-to-buffer (get-buffer-window "*GHC Info*")))))
+      (flycheck-cancel-error-display-timer)
+      (when flycheck-mode
+        (let ((buf (get-buffer-create "*Flycheck Info*"))
+              (message (car (flycheck-overlay-messages-at (point)))))
+          (with-current-buffer buf
+            (delete-region (point-min) (point-max))
+            (insert message))
+          (display-buffer buf)
+          (fit-window-to-buffer (get-buffer-window buf)))))
+
+    (defun flycheck-show-error-at-point ()
+      "Show the first error message at point in minibuffer."
+      (interactive)
+      (flycheck-cancel-error-display-timer)
+      (when flycheck-mode
+        (if (flycheck-may-show-message)
+            (let* ((buf (get-buffer-create "*Flycheck Info*"))
+                   (wind (get-buffer-window buf))
+                   (message (car (flycheck-overlay-messages-at (point)))))
+              (if message
+                  (if (> (length (split-string message "\n")) 8)
+                      (my-flycheck-show-error-in-window)
+                    (if wind (delete-window wind))
+                    (message "%s" message))
+                (message nil)))
+          ;; Try again if the minibuffer is busy at the moment
+          (flycheck-show-error-at-point-soon))))
 
     (defun my-flycheck-mode-hook ()
-      (bind-key "M-?" 'flycheck-show-error-at-point flycheck-mode-map)
+      (bind-key "M-?" 'my-flycheck-show-error-in-window flycheck-mode-map)
       (bind-key "M-p" 'previous-error flycheck-mode-map)
       (bind-key "M-n" 'next-error flycheck-mode-map))
 
     (add-hook 'flycheck-mode-hook 'my-flycheck-mode-hook)
 
     (add-hook 'prog-mode-hook 'flycheck-mode)
+    (add-hook 'nxml-mode-hook 'flycheck-mode)
+    (add-hook 'js2-mode-hook 'flycheck-mode)
     (add-hook 'haskell-mode-hook 'flycheck-mode))
 
   :config
-  (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point))
+  (progn
+    (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point)
+    (defalias 's-collapse-whitespace 'identity)))
 
 ;;;_ , flyspell
 
