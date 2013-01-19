@@ -756,13 +756,6 @@
       (indent-according-to-mode)
       (forward-line))
 
-    (defun my-c-save-buffer ()
-      (interactive)
-      (if (buffer-modified-p)
-          (call-interactively 'save-buffer))
-      (if flymake-mode
-          (flymake-start-syntax-check)))
-
     (defun my-c-mode-common-hook ()
       (abbrev-mode 1)
       (gtags-mode 1)
@@ -778,11 +771,6 @@
       (diminish 'hide-ifdef-mode)
 
       (add-to-list 'load-path "~/.emacs.d/site-lisp/ghc-mod/elisp")
-      (require 'ghc-flymake)            ; jww (2012-09-19): hack!
-      (bind-key "M-?" 'ghc-flymake-display-errors c-mode-base-map)
-      (bind-key "M-p" 'flymake-goto-prev-error c-mode-base-map)
-      (bind-key "M-n" 'flymake-goto-next-error c-mode-base-map)
-      (bind-key "C-x C-s" 'my-c-save-buffer c-mode-base-map)
 
       (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
 
@@ -2063,36 +2051,73 @@ FORM => (eval FORM)."
               "site-lisp/flycheck/deps/s.el")
   :init
   (progn
-    (flycheck-declare-checker ghc
+    (flycheck-declare-checker haskell-ghc
       "Haskell checker using ghc"
-      :command '("ghc" "-fno-code" "-v0" source-inplace)
+      :command '("ghc" "-v0" source-inplace)
       :error-patterns
-      '(((concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
-                 "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^[^ \t\n\r]\\|\\'\\)") error))
+      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
+                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
+         error))
       :modes 'haskell-mode)
+
+    (push 'haskell-ghc flycheck-checkers)
 
     (flycheck-declare-checker haskell-hdevtools
       "Haskell checker using hdevtools"
-      :command '("hdevtools" "check" "-g" "-fno-code" source-inplace)
+      :command '("hdevtools" "check" source-inplace)
       :error-patterns
-      '(((concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
-                 "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^[^ \t\n\r]\\|\\'\\)") error))
+      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
+                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
+         error))
       :modes 'haskell-mode)
+
+    (push 'haskell-hdevtools flycheck-checkers)
 
     (flycheck-declare-checker haskell-hlint
       "Haskell checker using hlint"
-      :command '("hlint" "check" "-g" "-fno-code" source-inplace)
+      :command '("hlint" source-inplace)
       :error-patterns
-      '(((concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
-                 "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^[^ \t\n\r]\\|\\'\\)") error))
+      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Error: "
+                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
+         error)
+        (,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Warning: "
+                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
+         warning))
       :modes 'haskell-mode)
+
+    ;;(push 'haskell-hlint flycheck-checkers)
 
     (flycheck-declare-checker bash
       "Bash checker"
       :command '("bash" "--norc" "--noprofile" "-n" source)
-      :error-patterns '(("^\\(?1:.*\\): line \\(?2:[0-9]+\\): \\(?4:.*\\)$" error))
+      :error-patterns
+      '(("^\\(?1:.*\\): line \\(?2:[0-9]+\\): \\(?4:.*\\)$" error))
       :modes 'sh-mode
-      :predicate '(eq sh-shell 'bash))))
+      :predicate '(eq sh-shell 'bash))
+
+    (push 'bash flycheck-checkers)
+
+    (defun my-ghc-flymake-display-errors ()
+      (interactive)
+      (let ((inhibit-redisplay t)
+            (errs (ghc-flymake-err-list)))
+        (if (= 1 (length errs))
+            (message (car errs))
+          (ghc-flymake-display-errors)
+          (fit-window-to-buffer (get-buffer-window "*GHC Info*")))))
+
+    (defun my-flycheck-mode-hook ()
+      (bind-key "M-?" 'flycheck-show-error-at-point flycheck-mode-map)
+      (bind-key "M-p" 'previous-error flycheck-mode-map)
+      (bind-key "M-n" 'next-error flycheck-mode-map))
+
+    (add-hook 'flycheck-mode-hook 'my-flycheck-mode-hook)
+
+    (add-hook 'prog-mode-hook 'flycheck-mode)
+    (add-hook 'haskell-mode-hook 'flycheck-mode))
+
+  :config
+  (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point))
 
 ;;;_ , flyspell
 
