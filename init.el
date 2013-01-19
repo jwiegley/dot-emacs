@@ -1157,6 +1157,16 @@
       :config
       (progn
         (use-package preview)
+        (use-package ac-math)
+
+        (defun ac-latex-mode-setup ()
+          (nconc ac-sources
+                 '(ac-source-math-unicode ac-source-math-latex
+                                          ac-source-latex-commands)))
+
+        (add-to-list 'ac-modes 'latex-mode)
+        (add-hook 'latex-mode-hook 'ac-latex-mode-setup)
+
         (info-lookup-add-help :mode 'latex-mode
                               :regexp ".*"
                               :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
@@ -1529,7 +1539,12 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (if (string-match "^\\(.+?\\)-[0-9._-]+$" pat)
             (setq pat (match-string 1 pat)))
         (or (gethash pat mark-files-cache)
-            (ignore (puthash pat t mark-files-cache))))))
+            (ignore (puthash pat t mark-files-cache)))))
+
+    (defun dired-mark-similar-version ()
+      (interactive)
+      (setq mark-files-cache (make-hash-table :test #'equal))
+      (dired-mark-sexp '(mark-similar-versions name))))
 
   :config
   (progn
@@ -1793,40 +1808,45 @@ The output appears in the buffer `*Async Shell Command*'."
                  :nick "johnw"
                  :password (funcall
                             (plist-get
-                             (car (auth-source-search :host "192.168.9.135"
-                                                      :user "johnw/freenode"
-                                                      :type 'netrc
-                                                      :port 6697))
+                             (car (auth-source-search
+                                   :host "192.168.9.135"
+                                   :user "johnw/freenode"
+                                   :type 'netrc
+                                   :port 6697))
                              :secret)))
             (erc :server "192.168.9.135"
                  :port 6697
                  :nick "johnw"
                  :password (funcall
                             (plist-get
-                             (car (auth-source-search :host "192.168.9.135"
-                                                      :user "johnw/welltyped"
-                                                      :type 'netrc
-                                                      :port 6697))
+                             (car (auth-source-search
+                                   :host "192.168.9.135"
+                                   :user "johnw/welltyped"
+                                   :type 'netrc
+                                   :port 6697))
                              :secret)))
-            (erc :server "192.168.9.135"
-                 :port 6697
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search :host "192.168.9.135"
-                                                      :user "johnw/oftc"
-                                                      :type 'netrc
-                                                      :port 6697))
-                             :secret))))
+            (when nil
+              (erc :server "192.168.9.135"
+                   :port 6697
+                   :nick "johnw"
+                   :password (funcall
+                              (plist-get
+                               (car (auth-source-search
+                                     :host "192.168.9.135"
+                                     :user "johnw/oftc"
+                                     :type 'netrc
+                                     :port 6697))
+                               :secret)))))
         (erc-tls :server "irc.freenode.net"
                  :port 6697
                  :nick "johnw"
                  :password (funcall
                             (plist-get
-                             (car (auth-source-search :host "irc.freenode.net"
-                                                      :user "johnw"
-                                                      :type 'netrc
-                                                      :port 6667))
+                             (car (auth-source-search
+                                   :host "irc.freenode.net"
+                                   :user "johnw"
+                                   :type 'netrc
+                                   :port 6667))
                              :secret)))
 
         (erc :server "irc.well-typed.com"
@@ -1845,10 +1865,11 @@ The output appears in the buffer `*Async Shell Command*'."
            :nick "johnw"
            :password (funcall
                       (plist-get
-                       (car (auth-source-search :host "bitlbee"
-                                                :user "johnw"
-                                                :type 'netrc
-                                                :port 6667))
+                       (car (auth-source-search
+                             :host "bitlbee"
+                             :user "johnw"
+                             :type 'netrc
+                             :port 6667))
                        :secret))))
 
     ;; (add-hook 'after-init-hook 'im)
@@ -2035,6 +2056,44 @@ FORM => (eval FORM)."
 (use-package fetchmail-mode
   :commands fetchmail-mode)
 
+;;;_ , flycheck
+
+(use-package flycheck
+  :load-path ("site-lisp/flycheck/deps/dash.el"
+              "site-lisp/flycheck/deps/s.el")
+  :init
+  (progn
+    (flycheck-declare-checker ghc
+      "Haskell checker using ghc"
+      :command '("ghc" "-fno-code" "-v0" source-inplace)
+      :error-patterns
+      '(((concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
+                 "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^[^ \t\n\r]\\|\\'\\)") error))
+      :modes 'haskell-mode)
+
+    (flycheck-declare-checker haskell-hdevtools
+      "Haskell checker using hdevtools"
+      :command '("hdevtools" "check" "-g" "-fno-code" source-inplace)
+      :error-patterns
+      '(((concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
+                 "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^[^ \t\n\r]\\|\\'\\)") error))
+      :modes 'haskell-mode)
+
+    (flycheck-declare-checker haskell-hlint
+      "Haskell checker using hlint"
+      :command '("hlint" "check" "-g" "-fno-code" source-inplace)
+      :error-patterns
+      '(((concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
+                 "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^[^ \t\n\r]\\|\\'\\)") error))
+      :modes 'haskell-mode)
+
+    (flycheck-declare-checker bash
+      "Bash checker"
+      :command '("bash" "--norc" "--noprofile" "-n" source)
+      :error-patterns '(("^\\(?1:.*\\): line \\(?2:[0-9]+\\): \\(?4:.*\\)$" error))
+      :modes 'sh-mode
+      :predicate '(eq sh-shell 'bash))))
+
 ;;;_ , flyspell
 
 (use-package ispell
@@ -2099,7 +2158,7 @@ FORM => (eval FORM)."
     (use-package grep-ed)
 
     (grep-apply-setting 'grep-command "egrep -nH -e ")
-    (if t
+    (if nil
         (grep-apply-setting 'grep-find-command '("gf -e " . 7))
       (grep-apply-setting
        'grep-find-command
@@ -2691,6 +2750,8 @@ FORM => (eval FORM)."
   (progn
     (setenv "GIT_PAGER" "")
 
+    (unbind-key "M-s" magit-mode-map)
+
     (add-hook 'magit-log-edit-mode-hook
               #'(lambda ()
                   (set-fill-column 72)
@@ -3194,7 +3255,8 @@ FORM => (eval FORM)."
     ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-output)
     (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t)
     ;; to enable some combination of features
-    ))
+
+    (bind-key "C-c Z" 'sage)))
 
 ;;;_ , selectkey
 

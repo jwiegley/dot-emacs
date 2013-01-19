@@ -93,6 +93,14 @@
               (funcall func)))
           (get-buffer name)))))
 
+(defun get-buffer-and-call-func (name func)
+  (let ((buf (get-buffer name)))
+    (if (and buf
+             (or (not (get-buffer-process buf))
+                 (not (eq 'run (process-status (get-buffer-process buf))))))
+        (kill-buffer buf))
+    (get-buffer-or-call-func name func)))
+
 (defun switch-to-fetchmail ()
   (interactive)
   (let ((fetchmail-buf
