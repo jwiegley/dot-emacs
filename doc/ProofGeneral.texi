@@ -3158,6 +3158,8 @@ dependencies.
 given existential variable.
 @item Snapshots of proof trees for reference when you retract
 your proof to try a different approach.
+@item Trigger a retract (undo) operation with a selected sequent
+as target.
 @end itemize
 
 For a more elaborated description please consult the help dialog

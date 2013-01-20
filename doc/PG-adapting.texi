@@ -2740,10 +2740,12 @@ communication between Proof General and Prooftree is almost one
 way only. Proof General sends proof status messages to Prooftree,
 from which Prooftree reconstructs the current proof status and
 the complete proof tree. Prooftree never requests additional
-information from Proof General. The only message that is sent
-from Prooftree to Proof General is a @code{stop-displaying}
-command, when the user closes the proof-tree display of the
-current proof.
+information from Proof General. 
+
+There are only a few messages that Prooftree sends to Proof
+General. These messages communicate user requests to Proof
+General, for instance, when the user selects the undo menu item,
+or when he closes the Prooftree window.
 
 The communication protocol is completely described in the
 @code{ocamldoc} documentation of @code{input.ml} in the Prooftree

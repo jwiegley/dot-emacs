@@ -1115,7 +1115,7 @@ flag Printing All set."
    proof-tree-configured t
    proof-tree-get-proof-info 'coq-proof-tree-get-proof-info
    proof-tree-find-begin-of-unfinished-proof
-     'coq-find-begin-of-unfinished-proof)   
+     'coq-find-begin-of-unfinished-proof)
 
   (proof-config-done)
 
@@ -1211,6 +1211,7 @@ flag Printing All set."
    proof-tree-extract-instantiated-existentials
      'coq-extract-instantiated-existentials
    proof-tree-show-sequent-command 'coq-show-sequent-command
+   proof-tree-find-undo-position 'coq-proof-tree-find-undo-position
    )
         
   (proof-shell-config-done))
@@ -1386,6 +1387,19 @@ The not yet delayed output is in the region
         (span-start span)
       nil)))
     
+(defun coq-proof-tree-find-undo-position (state)
+  "Return the position for undo state STATE.
+This is the Coq incarnation of `proof-tree-find-undo-position'."
+  (let ((span-res nil)
+        (span-cur (span-at (1- (proof-unprocessed-begin)) 'type))
+        (state (1- state)))
+    ;; go backward as long as the statenum property in the span is greater or
+    ;; equal than state
+    (while (<= state (span-property span-cur 'statenum))
+      (setq span-res span-cur)
+      (setq span-cur (span-at (1- (span-start span-cur)) 'type)))
+    (span-start span-res)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

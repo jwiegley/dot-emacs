@@ -305,6 +305,16 @@ proof. If there is no such proof, this function must return nil."
   :type 'function
   :group 'proof-tree-internals)
 
+(defcustom proof-tree-find-undo-position nil
+  "Proof assistant specific function for finding the point to undo to.
+This function is used to convert the state number, which comes
+with an undo command from Prooftree, into a point position for
+`proof-retract-until-point'. This function is called in the
+current scripting buffer with the state number as argument. It
+must return a buffer position."
+  :type 'function
+  :group 'proof-tree-internals)
+
 (defcustom proof-tree-urgent-action-hook ()
   "Normal hook for prooftree actions that cannot be delayed.
 This hook is called (indirectly) from inside
@@ -405,6 +415,17 @@ Needed for undo.")
   (proof-tree-quit-proof)
   (setq proof-tree-external-display nil))
 
+(defun proof-tree-handle-proof-tree-undo (data)
+  "Handle an undo command that arrives from prooftree."
+  (let ((undo-state (string-to-number data)))
+    (if (and (integerp undo-state) (> undo-state 0))
+	(with-current-buffer proof-script-buffer
+	  (goto-char (funcall proof-tree-find-undo-position undo-state))
+	  (proof-retract-until-point))
+      (display-warning
+       '(proof-general proof-tree)
+       "Prooftree sent an invalid state for undo"
+       :warning))))			  
 
 (defun proof-tree-insert-output (string)
   "Insert output or a message into the prooftree process buffer."
@@ -431,6 +452,8 @@ callback function requests."
 	  (cond
 	   ((equal cmd "stop-displaying")
 	    (proof-tree-stop-external-display))
+	   ((equal cmd "undo")
+	    (proof-tree-handle-proof-tree-undo data))
 	   (t
 	    (display-warning
 	     '(proof-general proof-tree)
