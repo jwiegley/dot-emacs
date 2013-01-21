@@ -3160,6 +3160,7 @@ given existential variable.
 your proof to try a different approach.
 @item Trigger a retract (undo) operation with a selected sequent
 as target.
+@item Insert proof scripts from the proof tree in the current buffer.
 @end itemize
 
 For a more elaborated description please consult the help dialog

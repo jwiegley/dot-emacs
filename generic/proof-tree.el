@@ -356,8 +356,11 @@ Controlled by `proof-tree-external-display-toggle'.")
 (defconst proof-tree-process-name "proof-tree"
   "Name of the prooftree process for Emacs lisp.")
 
-(defconst proof-tree-process-buffer
+(defconst proof-tree-process-buffer-name
   (concat "*" proof-tree-process-name "*")
+  "Name of the buffer for stdout and stderr of the prooftree process.")
+
+(defvar proof-tree-process-buffer nil
   "Buffer for stdout and stderr of the prooftree process.")
 
 (defconst proof-tree-emacs-exec-regexp
@@ -408,6 +411,17 @@ Needed for undo.")
 ;; process filter function that receives prooftree output
 ;;
 
+(defvar proof-tree-output-marker nil
+  "Marker in `proof-tree-process-buffer' pointing to new output.
+This marker points to the next piece of output that needs to get processed.")
+
+(defvar proof-tree-filter-continuation nil
+  "Continuation when `proof-tree-process-filter' stops early.
+A function that handles a command from Prooftee might fail
+because not all data from Prooftee has yet arrived. In this case
+the continuation is stored in this variable and will be called
+from `proof-tree-process-filter' when more output arrives.")
+
 (defun proof-tree-stop-external-display ()
   "Prooftree callback for the command \"stop-displaying\"."
   (if proof-tree-current-proof
@@ -425,14 +439,46 @@ Needed for undo.")
       (display-warning
        '(proof-general proof-tree)
        "Prooftree sent an invalid state for undo"
-       :warning))))			  
+       :warning))))
 
-(defun proof-tree-insert-output (string)
-  "Insert output or a message into the prooftree process buffer."
-  (with-current-buffer (get-buffer-create proof-tree-process-buffer)
+(defun proof-tree-insert-script (data)
+  "Handle an insert-command command from Prooftree."
+  (let ((command-length (string-to-number data))) 
+    (if (and (integerp command-length) (> command-length 0))
+	(condition-case nil
+	    (progn
+	      (insert
+	       (with-current-buffer proof-tree-process-buffer
+		 (buffer-substring
+		  proof-tree-output-marker
+		  (+ proof-tree-output-marker command-length))))
+	      ;; received all text -> advance marker
+	      (set-marker proof-tree-output-marker
+			  (+ proof-tree-output-marker command-length)
+			  proof-tree-process-buffer))
+	  (args-out-of-range
+	   ;; buffer substring failed because the end position is not
+	   ;; there yet
+	   ;; need to try again later
+	   (setq proof-tree-filter-continuation
+		 `(lambda () (proof-tree-insert-script ,data)))))
+      (display-warning
+       '(proof-general proof-tree)
+       "Prooftree sent an invalid data length for insert-command"
+       :warning))))
+
+(defun proof-tree-insert-output (string &optional message)
+  "Insert output or a message into the prooftree process buffer.
+If MESSAGE is t, a message is inserted and
+`proof-tree-output-marker' is not touched. Otherwise, if
+`proof-tree-output-marker' is nil, it is set to point to the
+newly arrived output."
+  (with-current-buffer proof-tree-process-buffer
     (let ((moving (= (point) (point-max))))
       (save-excursion
-	;; Insert the text, advancing the process marker.
+	(when (and (not message) (not proof-tree-output-marker))
+	  (setq proof-tree-output-marker (point-max-marker))
+	  (set-marker-insertion-type proof-tree-output-marker nil))
 	(goto-char (point-max))
 	(insert string))
       (if moving (goto-char (point-max))))))
@@ -441,25 +487,57 @@ Needed for undo.")
 (defun proof-tree-process-filter (proc string)
   "Output filter for prooftree.
 Records the output in the prooftree process buffer and checks for
-callback function requests."
+callback function requests. Such callback functions might fail
+because the complete output from Prooftree has not arrived yet.
+In this case they store a continuation function in
+`proof-tree-filter-continuation that will be called when the next
+piece of output arrives. `proof-tree-output-marker' points to the
+next piece of Prooftree output that needs to get processed. If
+everything is processed, the marker is deleted and
+`proof-tree-insert-output' sets it again for the next output."
   (proof-tree-insert-output string)
-  (save-excursion
-    (let ((start 0))
-      (while (proof-string-match proof-tree-emacs-exec-regexp string start)
-	(let ((end (match-end 0))
-	      (cmd (match-string 1 string))
-	      (data (match-string 2 string)))
+  (let ((continuation proof-tree-filter-continuation)
+	command-found command data)
+    ;; clear continuation
+    (setq proof-tree-filter-continuation nil)
+    ;; call continuation -- this might set a continuation again
+    (when continuation
+      (funcall continuation))
+    (unless proof-tree-filter-continuation
+      ;; there was no continuation or the continuation finished successfully
+      ;; need to look for command after output marker
+      (while (< proof-tree-output-marker
+		(1+ (buffer-size proof-tree-process-buffer)))
+	;; there is something after the output marker
+	(with-current-buffer proof-tree-process-buffer
+	  (save-excursion
+	    (goto-char proof-tree-output-marker)
+	    (setq command-found
+		  (proof-re-search-forward proof-tree-emacs-exec-regexp nil t))
+	    (if command-found
+		(progn
+		  (setq command (match-string 1)
+			data (match-string 2))
+		  (set-marker proof-tree-output-marker (point)))
+	      (set-marker proof-tree-output-marker (point-max)))))
+	(when command-found
 	  (cond
-	   ((equal cmd "stop-displaying")
+	   ((equal command "stop-displaying")
 	    (proof-tree-stop-external-display))
-	   ((equal cmd "undo")
+	   ((equal command "undo")
 	    (proof-tree-handle-proof-tree-undo data))
+	   ((equal command "insert-proof-script")
+	    (proof-tree-insert-script data))
 	   (t
 	    (display-warning
 	     '(proof-general proof-tree)
-	     (format "Unknown prooftree command %s" cmd)
-	     :warning)))
-	  (setq start end))))))
+	     (format "Unknown prooftree command %s" command)
+	     :warning))))))
+    ;; one of the handling functions might have set a continuation
+    ;; if not we clear the output marker
+    (unless proof-tree-filter-continuation
+      (set-marker proof-tree-output-marker nil)
+      (setq proof-tree-output-marker nil))))
 
 
 ;;
@@ -469,7 +547,7 @@ callback function requests."
 (defun proof-tree-process-sentinel (proc event)
   "Sentinel for prooftee.
 Runs on process status changes and cleans up when prooftree dies."
-  (proof-tree-insert-output (concat "\nsubprocess status change: " event))
+  (proof-tree-insert-output (concat "\nsubprocess status change: " event) t)
   (unless (proof-tree-is-running)
     (proof-tree-stop-external-display)
     (setq proof-tree-process nil)))
@@ -479,12 +557,20 @@ Runs on process status changes and cleans up when prooftree dies."
 Does also initialize the communication channel and some internal
 variables."
   (let ((old-proof-tree (get-process proof-tree-process-name)))
+    ;; reset output marker
+    (when proof-tree-output-marker
+      (set-marker proof-tree-output-marker nil)
+      (setq proof-tree-output-marker nil))
+    ;; create buffer
+    (setq proof-tree-process-buffer
+	  (get-buffer-create proof-tree-process-buffer-name))
     ;; first clean up any old processes
     (when old-proof-tree
       (delete-process old-proof-tree)
-      (proof-tree-insert-output "\n\nProcess terminated by Proof General\n\n"))
+      (proof-tree-insert-output
+       "\n\nProcess terminated by Proof General\n\n" t))
     ;; now start the new process
-    (proof-tree-insert-output "\nStart new prooftree process\n\n")
+    (proof-tree-insert-output "\nStart new prooftree process\n\n" t)
     (setq proof-tree-process
 	  (apply 'start-process
 	   proof-tree-process-name

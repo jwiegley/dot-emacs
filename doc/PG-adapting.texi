@@ -2755,7 +2755,9 @@ is encoded in the message before the string itself.
 
 For debugging purposes Prooftree can save all input in a file.
 This feature can be turned on in the @code{Debug} tab of the
-Prooftree configuration dialog or with option @code{-tee}.
+Prooftree configuration dialog or with option @code{-tee}. The
+text that Prooftree sends to Proof General can be found in buffer
+@code{*proof-tree*}.
 
 
 @node Guards

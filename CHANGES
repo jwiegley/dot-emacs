@@ -6,11 +6,18 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 * Changes of Proof General 4.3 from Proof General 4.2
 
-** Generic/misc changes
+** Prooftree changes
 
 *** Require Prooftree version 0.11
     Check the Prooftree website to see which other versions of
     Prooftree are compatible with Proof General 4.3.
+
+*** New features
+    One can now trigger an retraction (undo) by selecting the
+    appropriate sequent in Prooftree. One can further send proof
+    commands or proof scripts from whole proof subtrees to Proof
+    General, which will insert them in the current buffer.
+    Prooftree also supports some recent Coq features, see below.
 
 ** Coq changes
 
@@ -22,6 +29,7 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     General stays responsive.
 
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
+
 
 * Changes of Proof General 4.2 from Proof General 4.1
 
