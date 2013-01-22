@@ -138,7 +138,7 @@
                             (get-buffer-create "*fetchnews*")
                             (executable-find "fetchnews")
                             "-F" (expand-file-name "~/Messages/leafnode/config")
-                            "-vvv")))))
+                            "-vvv" "-n")))))
         (cur-buf (current-buffer)))
     (delete-other-windows)
     (flet ((switch-in-other-buffer

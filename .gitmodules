@@ -163,9 +163,6 @@
 [submodule "lisp/use-package"]
 	path = lisp/use-package
 	url = git://github.com/jwiegley/use-package.git
-[submodule "site-lisp/el-get"]
-	path = site-lisp/el-get
-	url = https://github.com/dimitri/el-get.git
 [submodule "site-lisp/zencoding-mode"]
 	path = site-lisp/zencoding-mode
 	url = git://github.com/rooney/zencoding.git
@@ -178,9 +175,6 @@
 [submodule "lisp/erc-yank"]
 	path = lisp/erc-yank
 	url = git://github.com/jwiegley/erc-yank.git
-[submodule "lisp/emacs-async"]
-	path = lisp/emacs-async
-	url = git://github.com/jwiegley/emacs-async.git
 [submodule "site-lisp/eval-expr"]
 	path = site-lisp/eval-expr
 	url = git://github.com/jwiegley/eval-expr.git
@@ -235,12 +229,6 @@
 [submodule "site-lisp/elisp-slime-nav"]
 	path = site-lisp/elisp-slime-nav
 	url = https://github.com/purcell/elisp-slime-nav.git
-[submodule "site-lisp/dvc"]
-	path = site-lisp/dvc
-	url = https://github.com/emacsmirror/dvc.git
-[submodule "site-lisp/melpa"]
-	path = site-lisp/melpa
-	url = https://github.com/milkypostman/melpa.git
 [submodule "site-lisp/ruby-mode"]
 	path = site-lisp/ruby-mode
 	url = https://github.com/jwiegley/ruby-mode.git

@@ -2168,8 +2168,7 @@ FORM => (eval FORM)."
                   (if (> (length (split-string message "\n")) 8)
                       (my-flycheck-show-error-in-window)
                     (if wind (delete-window wind))
-                    (message "%s" message))
-                (message nil)))
+                    (message "%s" message))))
           ;; Try again if the minibuffer is busy at the moment
           (flycheck-show-error-at-point-soon))))
 
