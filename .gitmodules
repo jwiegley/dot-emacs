@@ -295,3 +295,6 @@
 [submodule "site-lisp/dash-el"]
 	path = site-lisp/dash-el
 	url = git://github.com/magnars/dash.el.git
+[submodule "site-lisp/projectile"]
+	path = site-lisp/projectile
+	url = git://github.com/bbatsov/projectile.git
