@@ -292,3 +292,6 @@
 [submodule "site-lisp/flycheck"]
 	path = site-lisp/flycheck
 	url = https://github.com/magnars/s.el.git
+[submodule "site-lisp/dash-el"]
+	path = site-lisp/dash-el
+	url = git://github.com/magnars/dash.el.git
