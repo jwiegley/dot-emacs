@@ -19,3 +19,4 @@ srecode-map.el
 var/
 broken.el
 logs/
+/projectile.cache

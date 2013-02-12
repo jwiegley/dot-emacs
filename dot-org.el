@@ -488,7 +488,8 @@ SCHEDULED: %t
     (with-current-buffer gnus-original-article-buffer
       (setq message-id (substring (message-field-value "message-id") 1 -1)
             subject (or title (message-field-value "subject"))))
-    (org-make-link-string (concat "message://" message-id) subject)))
+    (org-make-link-string (concat "message://" message-id)
+                          (rfc2047-decode-string subject))))
 
 (defun org-insert-message-link (&optional arg)
   (interactive "P")

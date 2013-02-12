@@ -1086,10 +1086,10 @@
                          (?i . allout-show-current-branches)
                          (?e . allout-show-entry)
                          (?o . allout-show-to-offshoot)))
-        (bind-key (concat (format-kbd-macro allout-command-prefix)
-                          " " (char-to-string (car mapping)))
-                  (cdr mapping)
-                  allout-mode-map))
+        (eval `(bind-key ,(concat (format-kbd-macro allout-command-prefix)
+                                  " " (char-to-string (car mapping)))
+                         (quote ,(cdr mapping))
+                         allout-mode-map)))
 
       (if (memq major-mode lisp-modes)
           (unbind-key "C-k" allout-mode-map)))
@@ -1941,6 +1941,25 @@ FORM => (eval FORM)."
       "Deop myself from current channel."
       (erc-cmd-DEOP (format "%s" (erc-current-nick))))
 
+    (defun erc-cmd-BAN (nick)
+      (let* ((chan (erc-default-target))
+             (who (erc-get-server-user nick))
+             (host (erc-server-user-host who))
+             (user (erc-server-user-login who)))
+        (erc-send-command (format "MODE %s +b *!%s@%s" chan user host))))
+
+    (defun erc-cmd-KICKBAN (nick &rest reason)
+      (setq reason (mapconcat #'identity reason " "))
+      (and (string= reason "")
+           (setq reason nil))
+      (erc-cmd-BAN nick)
+      (erc-send-command (format "KICK %s %s %s"
+                                (erc-default-target)
+                                nick
+                                (or reason
+                                    "Kicked (kickban)"))))
+
+
     (defun erc-cmd-UNTRACK (&optional target)
       "Add TARGET to the list of target to be tracked."
       (if target
@@ -2053,13 +2072,13 @@ FORM => (eval FORM)."
   (progn
     (flycheck-declare-checker haskell-ghc
       "Haskell checker using ghc"
-      :command '("ghc" "-fno-code" "-v0" source-inplace)
+      :command '("ghc" "-i." "-i.." "-i../.." "-v0" source-inplace)
       :error-patterns
       `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
-                  "\\(?5:Warning: \\)?"
+                  "\\(?5:Warning:\\)?"
                   "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
          (if (let ((out (match-string 5 output)))
-               (and out (string= out "Warning: ")))
+               (and out (string= out "Warning:")))
              'warning
            'error)))
       :modes 'haskell-mode)
@@ -2071,10 +2090,10 @@ FORM => (eval FORM)."
       :command '("hdevtools" "check" source-inplace)
       :error-patterns
       `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
-                  "\\(?5:Warning: \\)?"
+                  "\\(?5:Warning:\\)?"
                   "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
          (if (let ((out (match-string 5 output)))
-               (and out (string= out "Warning: ")))
+               (and out (string= out "Warning:")))
              'warning
            'error)))
       :modes 'haskell-mode)
@@ -2083,13 +2102,18 @@ FORM => (eval FORM)."
 
     (flycheck-declare-checker haskell-hlint
       "Haskell checker using hlint"
-      :command '("hlint" source-inplace)
+      :command '("hlint++" source-inplace)
       :error-patterns
-      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Error: "
+      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Error:"
                   "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
          error)
-        (,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Warning: "
-                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
+        (,(concat
+           "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Warning:"
+           "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
+         warning)
+        (,(concat
+           "^\\(?1:.*?\\):\\(?2:[0-9]+\\): Warning: "
+           "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
          warning))
       :modes 'haskell-mode)
 
@@ -3030,6 +3054,17 @@ FORM => (eval FORM)."
     (defadvice term-process-pager (after term-process-rebind-keys activate)
       (define-key term-pager-break-map  "\177" 'term-pager-back-page))))
 
+;;;_ , multi-term
+
+(use-package multiple-cursors
+  :bind (("C-S-c C-S-c" . mc/edit-lines)
+
+         ("C->"     . mc/mark-next-like-this)
+         ("C-<"     . mc/mark-previous-like-this)
+         ("C-c C-<" . mc/mark-all-like-this))
+  :init
+  (setq mc/list-file (expand-file-name "mc-lists.el" user-data-directory)))
+
 ;;;_ , nf-procmail-mode
 
 (use-package nf-procmail-mode
@@ -3178,6 +3213,13 @@ FORM => (eval FORM)."
 (use-package pp-c-l
   :init
   (hook-into-modes 'pretty-control-l-mode '(prog-mode-hook)))
+
+;;;_ , projectile
+
+(use-package projectile
+  :diminish projectile-mode
+  :init
+  (projectile-global-mode))
 
 ;;;_ , proofgeneral
 
@@ -3336,10 +3378,10 @@ FORM => (eval FORM)."
 ;;;_ , sage-mode
 
 (use-package sage
-  :load-path "/Applications/Misc/sage/local/share/emacs/"
+  :load-path "~/Applications/sage/local/share/emacs/"
   :init
   (progn
-    (setq sage-command "/Applications/Misc/sage/sage")
+    (setq sage-command "~/Applications/sage/sage")
 
     ;; If you want sage-view to typeset all your output and have plot()
     ;; commands inline, uncomment the following line and configure sage-view:
