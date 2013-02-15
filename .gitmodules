@@ -301,3 +301,6 @@
 [submodule "site-lisp/multiple-cursors-el"]
 	path = site-lisp/multiple-cursors-el
 	url = git://github.com/magnars/multiple-cursors.el.git
+[submodule "lib/anaphora"]
+	path = lib/anaphora
+	url = git://github.com/rolandwalker/anaphora.git

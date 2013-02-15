@@ -3523,8 +3523,6 @@ FORM => (eval FORM)."
     (eval-when-compile
       (defvar slime-repl-mode-map))
 
-
-
     (setq slime-net-coding-system 'utf-8-unix)
 
     (setq slime-lisp-implementations
@@ -3715,6 +3713,12 @@ FORM => (eval FORM)."
             (if entry
                 (nth 1 entry)
               5)))))))
+
+;;;_ , textexpander
+
+(when (= 0 (call-process "using-textexpander"))
+  (bind-key "A-v" 'scroll-down)
+  (bind-key "M-v" 'yank))
 
 ;;;_ , vkill
 
