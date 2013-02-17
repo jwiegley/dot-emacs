@@ -76,7 +76,15 @@
 (alert-add-rule :status 'buried
                 :mode   'erc-mode
                 :predicate #'erc-alert-important-p
-                :style 'growl
+                :style (if (file-executable-p alert-notifier-command)
+                           'notifier
+                         'growl)
+                :append t)
+
+(alert-add-rule :status 'buried
+                :mode   'erc-mode
+                :predicate #'erc-alert-important-p
+                :style 'message
                 :append t)
 
 (alert-add-rule :mode 'erc-mode
