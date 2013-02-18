@@ -503,22 +503,26 @@ function returns () if MODULE-ID comes from the standard library."
   ;; starts running sentinels in the order processes terminated, so
   ;; after the first delete-process we see sentinentels of non-killed
   ;; processes running
-  (mapc
-   (lambda (process)
-     (when (process-get process 'coq-compilation-job)
-       (process-put process 'coq-par-process-killed t)))
-   (process-list))
-  (mapc
-   (lambda (process)
-     (when (process-get process 'coq-compilation-job)
-       (process-put process 'coq-par-process-killed t)
-       (delete-process process)
-       (when coq-debug-auto-compilation
-	 (message "%s %s: kill it"
-		  (get (process-get process 'coq-compilation-job) 'name)
-		  (process-name process)))))
-   (process-list))
-  (setq coq-current-background-jobs 0))
+  (let ((kill-needed))
+    (mapc
+     (lambda (process)
+       (when (process-get process 'coq-compilation-job)
+	 (process-put process 'coq-par-process-killed t)
+	 (setq kill-needed t)))
+     (process-list))
+    (when kill-needed
+      (message "Kill all Coq background compilation processes"))
+    (mapc
+     (lambda (process)
+       (when (process-get process 'coq-compilation-job)
+	 (process-put process 'coq-par-process-killed t)
+	 (delete-process process)
+	 (when coq-debug-auto-compilation
+	   (message "%s %s: kill it"
+		    (get (process-get process 'coq-compilation-job) 'name)
+		    (process-name process)))))
+     (process-list))
+    (setq coq-current-background-jobs 0)))
 
 (defun coq-par-unlock-ancestors-on-error ()
   "Unlock ancestors which are not in an asserted span.
@@ -534,7 +538,6 @@ Used for unlocking ancestors on compilation errors."
   "Emergency cleanup for parallel background compilation.
 Kills all processes, unlocks ancestors, clears the queue region
 and resets the internal state."
-  (message "Kill all Coq background compilation processes")
   (coq-par-kill-all-processes)
   (setq coq-par-compilation-queue coq-par-empty-compilation-queue)
   (setq coq-last-compilation-job nil)
