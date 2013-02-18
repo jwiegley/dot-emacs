@@ -316,3 +316,6 @@
 [submodule "site-lisp/fold-this-el"]
 	path = site-lisp/fold-this-el
 	url = git://github.com/magnars/fold-this.el.git
+[submodule "site-lisp/smart-forward-el"]
+	path = site-lisp/smart-forward-el
+	url = git://github.com/magnars/smart-forward.el.git
