@@ -756,6 +756,10 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
         (define-key org-todo-state-map [,(upcase key)]
           ',org-agenda-sym-no-logging)))))
 
+(bind-key "C-c x b"
+          (lambda (bug)
+            (interactive "sBug: ")
+            (insert (format "[[fpco:%s][fpco#%s]]" bug bug))))
 (bind-key "C-c x e" 'org-export)
 (bind-key "C-c x l" 'org-insert-dtp-link)
 (bind-key "C-c x L" 'org-set-dtp-link)
