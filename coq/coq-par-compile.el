@@ -18,7 +18,7 @@
 ;; - fix -I current-dir argument for coqc invocations
 ;; - add option coq-par-keep-compilation-going
 ;; - check what happens if coq-par-coq-arguments gets a bad load path
-;; - on error, try to location info into the error message
+;; - on error, try to put location info into the error message
 ;; 
 
 (eval-when-compile
@@ -159,7 +159,9 @@
 ;;                      of this job
 ;;   'require-span    - present for top-level jobs only, there it
 ;;                      contains the span that must finally store the
-;;                      ancestors 
+;;                      ancestors
+;;   'visited         - used in the dependency cycle detection to mark
+;;                      visited jobs
 ;;
 ;; 
 ;; State transition of real compilation jobs
@@ -215,6 +217,34 @@
 ;;   'locked   - the file is not yet stored in the
 ;;               'coq-locked-ancestors property of some span
 ;;   'asserted - the file has been stored in some span
+;;
+;;
+;; To print the states of the compilation jobs for debugging, eval
+;; 
+;; (let ((clones))
+;;   (maphash (lambda (k v)
+;; 	     (message "%s type %s for %s state %s dep of %s queue dep of %s"
+;; 		      (get v 'name)
+;; 		      (get v 'type)
+;; 		      (get v 'src-file)
+;; 		      (get v 'state)
+;; 		      (mapcar (lambda (p) (get p 'name)) 
+;; 			      (get v 'coqc-dependants))
+;; 		      (get v 'queue-dependant))
+;; 	     (mapc (lambda (p) (when (eq (get p 'type) 'clone)
+;; 				 (push p clones)))
+;; 		   (get v 'coqc-dependants)))
+;; 	   coq-compilation-object-hash)
+;;   (mapc (lambda (v)
+;; 	  (message "%s type %s for %s state %s dep of %s queue dep of %s"
+;; 		   (get v 'name)
+;; 		   (get v 'type)
+;; 		   (get v 'src-file)
+;; 		   (get v 'state)
+;; 		   (mapcar (lambda (p) (get p 'name)) 
+;; 			   (get v 'coqc-dependants))
+;; 		   (get v 'queue-dependant)))
+;; 	clones))
 
 ;;; Variables
 
@@ -363,6 +393,61 @@ Use `coq-par-enqueue' and `coq-par-dequeue' to access the queue.")
      '(error coq-compile-error coq-compile-error-command-start))
 (put 'coq-compile-error-command-start 'error-message
      "Coq compilation error:")
+
+;; coq-compile-error-circular-dep
+;;
+;; This error is signaled with one data item -- an indication about
+;; the circularity, which is the error message to be appended to the
+;; contents of 'error-message.
+
+(put 'coq-compile-error-circular-dep 'error-conditions
+     '(error coq-compile-error coq-compile-error-circular-dep))
+(put 'coq-compile-error-circular-dep 'error-message
+     "Coq compilation error: Circular dependency")
+
+
+;;; find circular dependencies in non-ready compilation jobs
+
+(defun coq-par-find-dependency-circle-for-job (job path)
+  "Find a dependency cycle in the dependency subtree of JOB.
+Do a depth-first-search to find the cycle. JOB is the current
+node and PATH the stack of visited nodes."
+  (let (cycle (p path))
+    ;; path is reversed. A potential cycle goes from the beginning of
+    ;; path to the first occurence of job.
+    (while p
+      (when (eq (car p) job)
+	(setcdr p nil)
+	(setq cycle path))
+      (setq p (cdr p)))
+    (if cycle
+	cycle
+      (setq path (cons job path))
+      (setq p (get job 'coqc-dependants))
+      (while (and p (not cycle))
+	(when (eq (get (car p) 'state) 'waiting-dep)
+	  (setq cycle (coq-par-find-dependency-circle-for-job (car p) path)))
+	(setq p (cdr p)))
+      (put job 'visited t)
+      cycle)))
+
+(defun coq-par-find-dependency-circle ()
+  "Find a dependency cycle in compilation jobs of state 'waiting-dep.
+If no circle is found return nil, otherwise the list of files
+belonging to the circle."
+  (let (cycle result)
+    (maphash (lambda (key job) (put job 'visited nil))
+	     coq-compilation-object-hash)
+    (maphash
+     (lambda (key job)
+       (when (and (not cycle) (not (get job 'visited))
+		  (eq (get job 'state) 'waiting-dep))
+	 (setq cycle (coq-par-find-dependency-circle-for-job job nil))))
+     coq-compilation-object-hash)
+    (dolist (j cycle)
+      (when (eq (get j 'type) 'file)
+	(push (get j 'src-file) result)))
+    (nreverse result)))
 
 
 ;;; map coq module names to files, using synchronously running coqdep 
@@ -610,11 +695,19 @@ errors are reported with an error message."
 	   ((eq (process-status process) 'exit)
 	    (setq exit-status (process-exit-status process)))
 	   (t (setq exit-status "abnormal termination")))
-	  (funcall (process-get process 'coq-process-continuation)
-		   process exit-status)
 	  (setq coq-current-background-jobs
 		(max 0 (1- coq-current-background-jobs)))
-	  (coq-par-start-jobs-until-full)))
+	  (funcall (process-get process 'coq-process-continuation)
+		   process exit-status)
+	  (coq-par-start-jobs-until-full)
+	  (when (and
+		 (eq coq-current-background-jobs 0)
+		 coq-last-compilation-job)
+	    (let ((cycle (coq-par-find-dependency-circle)))
+	      (if cycle
+		  (signal 'coq-compile-error-circular-dep
+			  (mapconcat 'identity cycle " -> "))
+		(error "deadlock in parallel compilation"))))))
     (coq-compile-error-command-start
      (coq-par-emergency-cleanup)
      (message "%s \"%s\" in \"%s\""
@@ -910,7 +1003,7 @@ room for Proof General."
     (coq-par-enqueue new-job)))
 
 (defun coq-par-create-library-job (module-obj-file coq-load-path queue-dep
-						   require-span)
+						   require-span dependant)
   "Create a new compilation job for MODULE-OBJ-FILE.
 If there is already a job for MODULE-OBJ-FILE a new clone job is
 created. This function initializes all necessary properties of
@@ -923,6 +1016,9 @@ dependency from QUEUE-DEP to the new compilation job. If nil, a
 newly created clone job will proceed to state ready if the
 original job is ready. Argument REQUIRE-SPAN should be present
 when the new job should update the ancestor list in some span.
+Argument DEPENDANT tells who required MODULE-OBJ-FILE, this is
+used only for the error message, in case MODULE-OBJ-FILE refers
+to the current scriping buffer.
 
 If the new job is a clone job, its state is
 - 'waiting-dep if the original file job is not 'ready yet
@@ -967,6 +1063,10 @@ This function returns the newly created job."
       (put new-job 'type 'file)
       (put new-job 'state 'enqueued-coqdep)
       (put new-job 'src-file (coq-library-src-of-obj-file module-obj-file))
+      (when (equal (get new-job 'src-file)
+		   (buffer-file-name proof-script-buffer))
+	(signal 'coq-compile-error-circular-dep
+		(concat dependant " -> scripting buffer")))
       (message "Check %s" (get new-job 'src-file))
       ;; XXX decide what to do if src-file is missing
       (put new-job 'hash-key hash-key)
@@ -1021,7 +1121,8 @@ is directly passed to `coq-par-analyse-coq-dep-exit'."
 	 (unless (coq-compile-ignore-file dep-obj-file)
 	   (let* ((dep-job (coq-par-create-library-job dep-obj-file
 						       (get job 'load-path)
-						       nil nil))
+						       nil nil
+						       (get job 'src-file)))
 		  (dep-time (get dep-job 'youngest-coqc-dependency)))
 	     (when (coq-par-time-less job-max-time dep-time)
 	       (setq job-max-time dep-time))
@@ -1083,7 +1184,8 @@ might be used."
 	       (not (coq-compile-ignore-file module-obj-file)))
       (setq module-job
 	    (coq-par-create-library-job module-obj-file coq-load-path
-					coq-last-compilation-job span))
+					coq-last-compilation-job span
+					"scripting buffer"))
       (setq coq-last-compilation-job module-job)
       (if coq-debug-auto-compilation
 	  (message "%s: this job is the last compilation job now"
@@ -1144,8 +1246,12 @@ queue items at each Require command."
 	 (string-match coq-require-command-regexp string))))
 
 
-(defun coq-par-preprocess-require-commands ()
-  "Coq function for `proof-shell-extend-queue-hook' doing parallel compilation.
+(defun coq-par-preprocess-require-commands-internal ()
+  "Worker for `coq-par-preprocess-require-commands'.
+This function does all the work for
+`coq-par-preprocess-require-commands', except for error
+reporting.
+
 If `coq-compile-before-require' is non-nil, this function starts
 the compilation (if necessary) of the dependencies
 ansynchronously in parallel in the background.
@@ -1168,45 +1274,63 @@ first of these batches, buffers are saved with
 Finally, `proof-second-action-list-active' is set if I keep some
 queue items because they have to wait for a compilation job. Then
 the maximal number of background compilation jobs is started."
-  (when coq-compile-before-require
-    (when coq-debug-auto-compilation
-      (message "%d items were added to the queue, scan for require"
-	       (length queueitems)))
-    (unless coq-last-compilation-job
-      (coq-par-init-compilation-hash)
-      (coq-par-init-ancestor-hash))
-    (let ((splitted-items
-	   (split-list-at-predicate queueitems
-				    'coq-par-item-require-predicate)))
-      (if coq-last-compilation-job
-	  (progn
-	    (put coq-last-compilation-job 'queueitems
-		 (nconc (get coq-last-compilation-job 'queueitems)
-			(car splitted-items)))
-	    (setq queueitems nil)
-	    (message "attach first %s items to job %s"
-		     (length (car splitted-items))
-		     (get coq-last-compilation-job 'name)))
-	(setq queueitems (car splitted-items))
-	(if coq-debug-auto-compilation
-	    (message "attach first %s items directly to queue"
-		     (length (car splitted-items)))))
-      ;; XXX handle external compilation here, compile everything
-      ;; with one command, use compilation-finish-functions to get
-      ;; notification
-      (when (cdr splitted-items)
-	;; save buffers before invoking the first coqdep
-	(coq-compile-save-some-buffers)
-	(mapc (lambda (require-items)
-		(coq-par-handle-require-list require-items))
-	      (cdr splitted-items)))
-      (when coq-last-compilation-job
-	(setq proof-second-action-list-active t))
-      (coq-par-start-jobs-until-full)
+  (when coq-debug-auto-compilation
+    (message "%d items were added to the queue, scan for require"
+	     (length queueitems)))
+  (unless coq-last-compilation-job
+    (coq-par-init-compilation-hash)
+    (coq-par-init-ancestor-hash))
+  (let ((splitted-items
+	 (split-list-at-predicate queueitems
+				  'coq-par-item-require-predicate)))
+    (if coq-last-compilation-job
+	(progn
+	  (put coq-last-compilation-job 'queueitems
+	       (nconc (get coq-last-compilation-job 'queueitems)
+		      (car splitted-items)))
+	  (setq queueitems nil)
+	  (message "attach first %s items to job %s"
+		   (length (car splitted-items))
+		   (get coq-last-compilation-job 'name)))
+      (setq queueitems (car splitted-items))
       (if coq-debug-auto-compilation
-	  (if coq-last-compilation-job
-	      (message "return control, waiting for background jobs")
-	    (message "return control, no background jobs"))))))
+	  (message "attach first %s items directly to queue"
+		   (length (car splitted-items)))))
+    ;; XXX handle external compilation here, compile everything
+    ;; with one command, use compilation-finish-functions to get
+    ;; notification
+    (when (cdr splitted-items)
+      ;; save buffers before invoking the first coqdep
+      (coq-compile-save-some-buffers)
+      (mapc (lambda (require-items)
+	      (coq-par-handle-require-list require-items))
+	    (cdr splitted-items)))
+    (when coq-last-compilation-job
+      (setq proof-second-action-list-active t))
+    (coq-par-start-jobs-until-full)
+    (if coq-debug-auto-compilation
+	(if coq-last-compilation-job
+	    (message "return control, waiting for background jobs")
+	  (message "return control, no background jobs")))))
+
+(defun coq-par-preprocess-require-commands ()
+  "Coq function for `proof-shell-extend-queue-hook' doing parallel compilation.
+If `coq-compile-before-require' is non-nil, this function starts
+the compilation (if necessary) of the dependencies
+ansynchronously in parallel in the background. This function only
+does the error checking/reporting for
+`coq-par-preprocess-require-commands-internal', which does all the work."
+  (when coq-compile-before-require
+    (condition-case err
+	(coq-par-preprocess-require-commands-internal)
+      (coq-compile-error
+       (coq-par-emergency-cleanup)
+       (message "%s %s" (get (car err) 'error-message) (cdr err)))
+      (error
+       (message "unexpected error during parallel compilation: %s"
+		err)
+       (coq-par-emergency-cleanup)
+       (signal (car err) (cdr err))))))
 
 
 (provide 'coq-par-compile)
