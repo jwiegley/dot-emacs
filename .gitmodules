@@ -307,3 +307,6 @@
 [submodule "lib/dash-el"]
 	path = lib/dash-el
 	url = git://github.com/magnars/dash.el.git
+[submodule "site-lisp/expand-region-el"]
+	path = site-lisp/expand-region-el
+	url = git://github.com/magnars/expand-region.el.git
