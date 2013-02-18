@@ -313,3 +313,6 @@
 [submodule "lib/s-el"]
 	path = lib/s-el
 	url = git://github.com/magnars/s.el.git
+[submodule "site-lisp/fold-this-el"]
+	path = site-lisp/fold-this-el
+	url = git://github.com/magnars/fold-this.el.git
