@@ -304,3 +304,6 @@
 [submodule "lib/anaphora"]
 	path = lib/anaphora
 	url = git://github.com/rolandwalker/anaphora.git
+[submodule "lib/dash-el"]
+	path = lib/dash-el
+	url = git://github.com/magnars/dash.el.git
