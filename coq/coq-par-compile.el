@@ -1031,8 +1031,7 @@ there is space, coqdep is started immediately, otherwise the new
 job is put into the compilation queue.
 
 This function returns the newly created job."
-  (let* ((hash-key (list 'file module-obj-file))
-	 (orig-job (gethash hash-key coq-compilation-object-hash))
+  (let* ((orig-job (gethash module-obj-file coq-compilation-object-hash))
 	 (new-job (make-symbol "coq-compile-job-symbol")))
     (put new-job 'name (format "job-%d" coq-par-next-id))
     (setq coq-par-next-id (1+ coq-par-next-id))
@@ -1068,11 +1067,9 @@ This function returns the newly created job."
 	(signal 'coq-compile-error-circular-dep
 		(concat dependant " -> scripting buffer")))
       (message "Check %s" (get new-job 'src-file))
-      ;; XXX decide what to do if src-file is missing
-      (put new-job 'hash-key hash-key)
       (put new-job 'load-path coq-load-path)
       (put new-job 'youngest-coqc-dependency '(0 0))
-      (puthash hash-key new-job coq-compilation-object-hash)
+      (puthash module-obj-file new-job coq-compilation-object-hash)
       (if coq-debug-auto-compilation
 	  (message "%s: create %s compilation for %s"
 		   (get new-job 'name) (get new-job 'type) module-obj-file))
