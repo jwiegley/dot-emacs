@@ -10,9 +10,6 @@
 (require 'org-devonthink)
 (require 'org-debbugs)
 (require 'org-magit)
-(require 'ox)
-(require 'ox-org)
-(require 'ox-redmine)
 (require 'ob-R)
 (require 'ob-python)
 (require 'ob-ruby)
@@ -373,7 +370,8 @@ This can be 0 for immediate, or a floating point value.")
     (while (re-search-forward "\* \\(DONE\\|CANCELED\\) " nil t)
       (if (save-restriction
             (save-excursion
-              (org-x-narrow-to-entry)
+              (error "Need to replace org-x-narrow-to-entry")
+              ;; (org-x-narrow-to-entry)
               (search-forward ":LOGBOOK:" nil t)))
           (forward-line)
         (org-archive-subtree)
@@ -691,8 +689,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
     (cond
      ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
       (call-interactively #'make-ledger-bugzilla-bug))
-     ((string= "BoostPro" (car path))
-      (call-interactively #'org-x-redmine-post-issue))
      (t
       (error "Cannot make bug, unknown category")))))
 
