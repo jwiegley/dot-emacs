@@ -335,11 +335,11 @@ latter greater then everything else."
 
 ;;; job queue
 
-(defconst coq-par-empty-compilation-queue '(nil . nil)
-  "The empty queue for `coq-par-compilation-queue'")
+(defun coq-par-new-compilation-queue ()
+  "Create a new empty queue for `coq-par-compilation-queue'"
+  (cons nil nil))  
 
-(defvar coq-par-compilation-queue
-  coq-par-empty-compilation-queue
+(defvar coq-par-compilation-queue (coq-par-new-compilation-queue)
   "Queue of compilation jobs with in and out end.
 Use `coq-par-enqueue' and `coq-par-dequeue' to access the queue.")
 
@@ -624,7 +624,7 @@ Used for unlocking ancestors on compilation errors."
 Kills all processes, unlocks ancestors, clears the queue region
 and resets the internal state."
   (coq-par-kill-all-processes)
-  (setq coq-par-compilation-queue coq-par-empty-compilation-queue)
+  (setq coq-par-compilation-queue (coq-par-new-compilation-queue))
   (setq coq-last-compilation-job nil)
   (when proof-action-list
     (setq proof-shell-interrupt-pending t))
