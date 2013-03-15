@@ -206,6 +206,8 @@
 (bind-key "M-H" 'mark-paragraph)
 (bind-key "M-D" 'mark-defun)
 
+(bind-key "M-T" 'tags-search)
+
 (bind-key "M-g c" 'goto-char)
 (bind-key "M-g l" 'goto-line)
 
@@ -365,7 +367,18 @@
     (kill-line arg)
     (goto-char here)))
 
+(bind-key "C-c c" 'compile)
 (bind-key "C-c d" 'delete-current-line)
+
+(defun reset-dns ()
+  (interactive)
+  (message "Resetting DNS...")
+  (shell-command "cleardns")
+  (shell-command "launchctl unload ~/Library/LaunchAgents/mac.pdnsd.plist")
+  (shell-command "launchctl load ~/Library/LaunchAgents/mac.pdnsd.plist")
+  (message "Resetting DNS...done"))
+
+(bind-key "C-c D" 'reset-dns)
 
 (bind-key "C-c e E" 'elint-current-buffer)
 
@@ -765,6 +778,7 @@
       (which-function-mode 1)
       (auto-complete-mode 1)
       (yas/minor-mode 1)
+      (bug-reference-prog-mode 1)
 
       (diminish 'gtags-mode)
       (diminish 'hs-minor-mode)
@@ -2202,10 +2216,6 @@ FORM => (eval FORM)."
       (bind-key "M-n" 'next-error flycheck-mode-map))
 
     (add-hook 'flycheck-mode-hook 'my-flycheck-mode-hook)
-
-    (add-hook 'prog-mode-hook 'flycheck-mode)
-    (add-hook 'nxml-mode-hook 'flycheck-mode)
-    (add-hook 'js2-mode-hook 'flycheck-mode)
     (add-hook 'haskell-mode-hook 'flycheck-mode))
 
   :config
@@ -3381,6 +3391,7 @@ FORM => (eval FORM)."
   :load-path "~/Applications/sage/local/share/emacs/"
   :init
   (progn
+    (defvar python-source-modes nil)
     (setq sage-command "~/Applications/sage/sage")
 
     ;; If you want sage-view to typeset all your output and have plot()
@@ -3563,25 +3574,25 @@ FORM => (eval FORM)."
 
 ;;;_ , smart-compile
 
+(defun show-compilation ()
+  (interactive)
+  (let ((compile-buf
+         (catch 'found
+           (dolist (buf (buffer-list))
+             (if (string-match "\\*compilation\\*" (buffer-name buf))
+                 (throw 'found buf))))))
+    (if compile-buf
+        (switch-to-buffer-other-window compile-buf)
+      (call-interactively 'compile))))
+
+(bind-key "M-O" 'show-compilation)
+
 (use-package smart-compile
+  :disabled t
   :commands smart-compile
   :bind (("C-c c" . smart-compile)
          ("A-n"   . next-error)
-         ("A-p"   . previous-error))
-  :init
-  (progn
-    (defun show-compilation ()
-      (interactive)
-      (let ((compile-buf
-             (catch 'found
-               (dolist (buf (buffer-list))
-                 (if (string-match "\\*compilation\\*" (buffer-name buf))
-                     (throw 'found buf))))))
-        (if compile-buf
-            (switch-to-buffer-other-window compile-buf)
-          (call-interactively 'compile))))
-
-    (bind-key "M-O" 'show-compilation)))
+         ("A-p"   . previous-error)))
 
 ;;;_ , smerge-mode
 
@@ -3716,9 +3727,11 @@ FORM => (eval FORM)."
 
 ;;;_ , textexpander
 
-(when (= 0 (call-process "using-textexpander"))
+;; (when (= 0 (call-process "using-textexpander"))
   (bind-key "A-v" 'scroll-down)
-  (bind-key "M-v" 'yank))
+  (bind-key "M-v" 'yank)
+  ;; (bind-key "M-v" 'scroll-down)
+;; )
 
 ;;;_ , vkill
 
