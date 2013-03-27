@@ -199,12 +199,26 @@ other documentation, system downloads, etc.
 
 
 @menu
+* News for Version 4.3::
 * News for Version 4.2::
 * News for Version 4.1::
 * News for Version 4.0::
 * Future::
 * Credits::                     
 @end menu
+
+@node News for Version 4.3
+@unnumberedsec News for Version 4.3
+@cindex news
+
+In Proof General version 4.3, the multiple file handling for Coq
+has been improved. It now supports asynchronous and parallel
+compilation of required modules. 
+
+The proof tree display now supports the newest features of Coq
+8.4. Proof General version 4.3 is compatible with Prooftree
+version 0.11 (or better).
+
 
 @node News for Version 4.2
 @unnumberedsec News for Version 4.2
