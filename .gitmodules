@@ -328,3 +328,6 @@
 [submodule "site-lisp/highlight-indentation"]
 	path = site-lisp/highlight-indentation
 	url = git://github.com/jorgenschaefer/Highlight-Indentation-for-Emacs.git
+[submodule "site-lisp/hsenv"]
+	path = site-lisp/hsenv
+	url = git://github.com/Paczesiowa/hsenv.git
