@@ -1075,7 +1075,8 @@
 ;;;_ , ace-jump-mode
 
 (use-package ace-jump-mode
-  :bind ("C-. C-s" . ace-jump-mode))
+  :bind (("C-. C-s" . ace-jump-mode)
+         ("M-h" . ace-jump-mode)))
 
 ;;;_ , agda
 
@@ -1963,6 +1964,7 @@ FORM => (eval FORM)."
         (erc-send-command (format "MODE %s +b *!%s@%s" chan user host))))
 
     (defun erc-cmd-KICKBAN (nick &rest reason)
+      (erc-cmd-OPME)
       (setq reason (mapconcat #'identity reason " "))
       (and (string= reason "")
            (setq reason nil))
@@ -1971,8 +1973,8 @@ FORM => (eval FORM)."
                                 (erc-default-target)
                                 nick
                                 (or reason
-                                    "Kicked (kickban)"))))
-
+                                    "Kicked (kickban)")))
+      (erc-cmd-DEOPME))
 
     (defun erc-cmd-UNTRACK (&optional target)
       "Add TARGET to the list of target to be tracked."
@@ -2077,14 +2079,14 @@ FORM => (eval FORM)."
 (use-package fetchmail-mode
   :commands fetchmail-mode)
 
-;;;_ , flycheck
+;;;_ , flyparse
 
-(use-package flycheck
-  :load-path ("site-lisp/flycheck/deps/dash.el"
-              "site-lisp/flycheck/deps/s.el")
+(use-package flyparse
+  :load-path ("site-lisp/flyparse/deps/dash.el"
+              "site-lisp/flyparse/deps/s.el")
   :init
   (progn
-    (flycheck-declare-checker haskell-ghc
+    (flyparse-declare-checker haskell-ghc
       "Haskell checker using ghc"
       :command '("ghc" "-i." "-i.." "-i../.." "-v0" source-inplace)
       :error-patterns
@@ -2097,9 +2099,9 @@ FORM => (eval FORM)."
            'error)))
       :modes 'haskell-mode)
 
-    (push 'haskell-ghc flycheck-checkers)
+    (push 'haskell-ghc flyparse-checkers)
 
-    (flycheck-declare-checker haskell-hdevtools
+    (flyparse-declare-checker haskell-hdevtools
       "Haskell checker using hdevtools"
       :command '("hdevtools" "check" source-inplace)
       :error-patterns
@@ -2112,9 +2114,9 @@ FORM => (eval FORM)."
            'error)))
       :modes 'haskell-mode)
 
-    (push 'haskell-hdevtools flycheck-checkers)
+    (push 'haskell-hdevtools flyparse-checkers)
 
-    (flycheck-declare-checker haskell-hlint
+    (flyparse-declare-checker haskell-hlint
       "Haskell checker using hlint"
       :command '("hlint++" source-inplace)
       :error-patterns
@@ -2131,9 +2133,9 @@ FORM => (eval FORM)."
          warning))
       :modes 'haskell-mode)
 
-    ;;(push 'haskell-hlint flycheck-checkers)
+    ;;(push 'haskell-hlint flyparse-checkers)
 
-    (flycheck-declare-checker bash
+    (flyparse-declare-checker bash
       "Bash checker"
       :command '("bash" "--norc" "--noprofile" "-n" source)
       :error-patterns
@@ -2141,18 +2143,18 @@ FORM => (eval FORM)."
       :modes 'sh-mode
       :predicate '(eq sh-shell 'bash))
 
-    (push 'bash flycheck-checkers)
+    (push 'bash flyparse-checkers)
 
-    (flycheck-declare-checker xmllint
+    (flyparse-declare-checker xmllint
       "xmllint checker"
       :command '("xmllint" "--noout" "--postvalid" source)
       :error-patterns
       '(("^\\(?1:.*\\):\\(?2:[0-9]+\\): parser error : \\(?4:.*\\)$" error))
       :modes 'nxml-mode)
 
-    (push 'xmllint flycheck-checkers)
+    (push 'xmllint flyparse-checkers)
 
-    (flycheck-declare-checker jslint
+    (flyparse-declare-checker jslint
       "jslint checker"
       :command '("jsl" "-process" source)
       :error-patterns
@@ -2161,9 +2163,9 @@ FORM => (eval FORM)."
          warning))
       :modes 'js2-mode)
 
-    (push 'jslint flycheck-checkers)
+    (push 'jslint flyparse-checkers)
 
-    (flycheck-declare-checker clang++-ledger
+    (flyparse-declare-checker clang++-ledger
       "Clang++ checker for Ledger"
       :command
       '("clang++" "-Wall" "-fsyntax-only"
@@ -2179,48 +2181,13 @@ FORM => (eval FORM)."
       :modes 'c++-mode
       :predicate '(string-match "/ledger/" (buffer-file-name)))
 
-    (push 'clang++-ledger flycheck-checkers)
+    (push 'clang++-ledger flyparse-checkers)
 
-    (defun my-flycheck-show-error-in-window ()
-      (interactive)
-      (flycheck-cancel-error-display-timer)
-      (when flycheck-mode
-        (let ((buf (get-buffer-create "*Flycheck Info*"))
-              (message (car (flycheck-overlay-messages-at (point)))))
-          (with-current-buffer buf
-            (delete-region (point-min) (point-max))
-            (insert message))
-          (display-buffer buf)
-          (fit-window-to-buffer (get-buffer-window buf)))))
-
-    (defun flycheck-show-error-at-point ()
-      "Show the first error message at point in minibuffer."
-      (interactive)
-      (flycheck-cancel-error-display-timer)
-      (when flycheck-mode
-        (if (flycheck-may-show-message)
-            (let* ((buf (get-buffer-create "*Flycheck Info*"))
-                   (wind (get-buffer-window buf))
-                   (message (car (flycheck-overlay-messages-at (point)))))
-              (if message
-                  (if (> (length (split-string message "\n")) 8)
-                      (my-flycheck-show-error-in-window)
-                    (if wind (delete-window wind))
-                    (message "%s" message))))
-          ;; Try again if the minibuffer is busy at the moment
-          (flycheck-show-error-at-point-soon))))
-
-    (defun my-flycheck-mode-hook ()
-      (bind-key "M-?" 'my-flycheck-show-error-in-window flycheck-mode-map)
-      (bind-key "M-p" 'previous-error flycheck-mode-map)
-      (bind-key "M-n" 'next-error flycheck-mode-map))
-
-    (add-hook 'flycheck-mode-hook 'my-flycheck-mode-hook)
-    (add-hook 'haskell-mode-hook 'flycheck-mode))
+    (add-hook 'haskell-mode-hook 'flyparse-mode))
 
   :config
   (progn
-    (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point)
+    (defalias 'flyparse-show-error-at-point-soon 'flyparse-show-error-at-point)
     (defalias 's-collapse-whitespace 'identity)))
 
 ;;;_ , flyspell
@@ -2879,6 +2846,7 @@ FORM => (eval FORM)."
   (progn
     (setenv "GIT_PAGER" "")
 
+    (unbind-key "M-h" magit-mode-map)
     (unbind-key "M-s" magit-mode-map)
 
     (add-hook 'magit-log-edit-mode-hook
@@ -2889,11 +2857,17 @@ FORM => (eval FORM)."
     (require 'magit-topgit)
     (require 'rebase-mode)
 
+    (defvar magit-git-monitor-process nil)
+    (make-variable-buffer-local 'magit-git-monitor-process)
+
     (defun start-git-monitor ()
       (interactive)
-      (start-process "git-monitor" (current-buffer) "~/bin/git-monitor"))
+      (unless magit-git-monitor-process
+        (setq magit-git-monitor-process
+              (start-process "git-monitor" (current-buffer) "git-monitor"
+                             "-d" (expand-file-name default-directory)))))
 
-    ;;(add-hook 'magit-status-mode-hook 'start-git-monitor)
+    ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
     ))
 
 ;;;_ , markdown-mode
@@ -3165,7 +3139,7 @@ FORM => (eval FORM)."
     (bind-key "M-)" 'paredit-close-round paredit-mode-map)
 
     (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
-    (bind-key "M-h" 'mark-containing-sexp paredit-mode-map)
+    ;; (bind-key "M-h" 'mark-containing-sexp paredit-mode-map)
     (bind-key "M-I" 'paredit-splice-sexp paredit-mode-map)
 
     (unbind-key "M-r" paredit-mode-map)
@@ -3183,7 +3157,8 @@ FORM => (eval FORM)."
     (add-hook 'allout-mode-hook
               #'(lambda ()
                   (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
-                  (bind-key "M-h" 'mark-containing-sexp allout-mode-map)))))
+                  ;; (bind-key "M-h" 'mark-containing-sexp allout-mode-map)
+                  ))))
 
 ;;;_ , paren
 

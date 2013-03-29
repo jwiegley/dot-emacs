@@ -43,7 +43,7 @@
 
 (defun jump-to-org-agenda ()
   (interactive)
-  (let ((recordings-dir "~/Dropbox/iTalk Recordings"))
+  (let ((recordings-dir "~/Dropbox/Dropvox"))
     (if (directory-files recordings-dir nil "\\`[^.]")
         (find-file recordings-dir)))
   (let ((buf (get-buffer "*Org Agenda*"))
