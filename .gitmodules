@@ -322,3 +322,6 @@
 [submodule "site-lisp/flyparse"]
 	path = site-lisp/flyparse
 	url = git://github.com/jwiegley/flyparse.git
+[submodule "site-lisp/elpy"]
+	path = site-lisp/elpy
+	url = git://github.com/jorgenschaefer/elpy.git
