@@ -1262,7 +1262,7 @@ flag Printing All set."
 
 
 (defpacustom hide-additional-subgoals nil
-  "Only show the current goal, hiding additional subgoals."
+  "Show all subgoals if off, show only the current goal if on."
   :type 'boolean
   :safe 'booleanp
   :eval (coq-hide-additional-subgoals-switch))
