@@ -214,6 +214,9 @@
 [submodule "site-lisp/asynk"]
 	path = site-lisp/asynk
 	url = https://github.com/skarra/ASynK.git
+[submodule "lisp/emacs-async"]
+	path = lisp/emacs-async
+	url = https://github.com/jwiegley/emacs-async.git
 [submodule "lisp/planner"]
 	path = lisp/planner
 	url = git://repo.or.cz/planner-el.git
