@@ -67,7 +67,7 @@
 ;;                    being activated
 ;; v1.2 -> v1.3:  fix for some emacsen not having `file-remote-p'
 
-(defvar backup-each-save-mirror-location "~/.emacs.d/backups")
+(defvar backup-each-save-mirror-location "~/.backups")
 
 (defvar backup-each-save-remote-files nil
   "Whether to backup remote files at each save.

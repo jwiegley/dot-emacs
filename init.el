@@ -1642,26 +1642,26 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                      "\\)")))
               (funcall dired-omit-regexp-orig))))))
 
-    (eval-after-load "dired-aux"
-      '(defun dired-do-async-shell-command (command &optional arg file-list)
-         "Run a shell command COMMAND on the marked files asynchronously.
+;;     (eval-after-load "dired-aux"
+;;       '(defun dired-do-async-shell-command (command &optional arg file-list)
+;;          "Run a shell command COMMAND on the marked files asynchronously.
 
-Like `dired-do-shell-command' but if COMMAND doesn't end in ampersand,
-adds `* &' surrounded by whitespace and executes the command asynchronously.
-The output appears in the buffer `*Async Shell Command*'."
-         (interactive
-          (let ((files (dired-get-marked-files t current-prefix-arg)))
-            (list
-             ;; Want to give feedback whether this file or marked files are
-             ;; used:
-             (dired-read-shell-command "& on %s: " current-prefix-arg files)
-             current-prefix-arg
-             files)))
-         (unless (string-match "[ \t][*?][ \t]" command)
-           (setq command (concat command " *")))
-         (unless (string-match "&[ \t]*\\'" command)
-           (setq command (concat command " &")))
-         (dired-do-shell-command command arg file-list)))
+;; Like `dired-do-shell-command' but if COMMAND doesn't end in ampersand,
+;; adds `* &' surrounded by whitespace and executes the command asynchronously.
+;; The output appears in the buffer `*Async Shell Command*'."
+;;          (interactive
+;;           (let ((files (dired-get-marked-files t current-prefix-arg)))
+;;             (list
+;;              ;; Want to give feedback whether this file or marked files are
+;;              ;; used:
+;;              (dired-read-shell-command "& on %s: " current-prefix-arg files)
+;;              current-prefix-arg
+;;              files)))
+;;          (unless (string-match "[ \t][*?][ \t]" command)
+;;            (setq command (concat command " *")))
+;;          (unless (string-match "&[ \t]*\\'" command)
+;;            (setq command (concat command " &")))
+;;          (dired-do-shell-command command arg file-list)))
 
     (add-hook 'dired-mode-hook 'dired-package-initialize)
 
@@ -1964,7 +1964,6 @@ FORM => (eval FORM)."
         (erc-send-command (format "MODE %s +b *!%s@%s" chan user host))))
 
     (defun erc-cmd-KICKBAN (nick &rest reason)
-      (erc-cmd-OPME)
       (setq reason (mapconcat #'identity reason " "))
       (and (string= reason "")
            (setq reason nil))
@@ -1973,8 +1972,7 @@ FORM => (eval FORM)."
                                 (erc-default-target)
                                 nick
                                 (or reason
-                                    "Kicked (kickban)")))
-      (erc-cmd-DEOPME))
+                                    "Kicked (kickban)"))))
 
     (defun erc-cmd-UNTRACK (&optional target)
       "Add TARGET to the list of target to be tracked."
@@ -2483,8 +2481,8 @@ FORM => (eval FORM)."
 
   :config
   (progn
-    (defadvice info-setup (after load-info+ activate)
-      (use-package info+))
+    ;; (defadvice info-setup (after load-info+ activate)
+    ;;   (use-package info+))
 
     (defadvice Info-exit (after remove-info-window activate)
       "When info mode is quit, remove the window."
@@ -3108,8 +3106,9 @@ FORM => (eval FORM)."
          ("C-c l" . org-insert-link))
   :init
   (progn
-    (unless running-alternate-emacs
-      (run-with-idle-timer 300 t 'jump-to-org-agenda))
+    ;; jww (2013-03-29): Remove after the Emacs Conf
+    ;; (unless running-alternate-emacs
+    ;;   (run-with-idle-timer 300 t 'jump-to-org-agenda))
 
     (if (string-match "\\.elc\\'" load-file-name)
         (add-hook 'after-init-hook
@@ -3123,6 +3122,11 @@ FORM => (eval FORM)."
 (use-package pabbrev
   :commands pabbrev-mode
   :diminish pabbrev-mode)
+
+;;;_ , page-break-lines
+
+;; (use-package page-break-lines
+;;   :diminish page-break-lines)
 
 ;;;_ , paredit
 
@@ -3707,6 +3711,13 @@ FORM => (eval FORM)."
   (bind-key "M-v" 'yank)
   ;; (bind-key "M-v" 'scroll-down)
 ;; )
+
+;;;_ , twittering-mode
+
+(use-package twittering-mode
+  :commands twit
+  :init
+  (setq twittering-use-master-password t))
 
 ;;;_ , vkill
 
