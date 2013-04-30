@@ -337,3 +337,6 @@
 [submodule "site-lisp/twittering-mode"]
 	path = site-lisp/twittering-mode
 	url = git://github.com/hayamiz/twittering-mode.git
+[submodule "site-lisp/github-issues-el"]
+	path = site-lisp/github-issues-el
+	url = git://github.com/inkel/github-issues.el.git
