@@ -340,3 +340,6 @@
 [submodule "site-lisp/github-issues-el"]
 	path = site-lisp/github-issues-el
 	url = git://github.com/inkel/github-issues.el.git
+[submodule "site-lisp/gh-el"]
+	path = site-lisp/gh-el
+	url = https://github.com/sigma/gh.el
