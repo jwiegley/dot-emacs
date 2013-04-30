@@ -334,3 +334,6 @@
 [submodule "site-lisp/hsenv"]
 	path = site-lisp/hsenv
 	url = git://github.com/Paczesiowa/hsenv.git
+[submodule "site-lisp/twittering-mode"]
+	path = site-lisp/twittering-mode
+	url = git://github.com/hayamiz/twittering-mode.git
