@@ -346,3 +346,6 @@
 [submodule "site-lisp/org-present"]
 	path = site-lisp/org-present
 	url = git://github.com/rlister/org-present.git
+[submodule "site-lisp/page-break-lines"]
+	path = site-lisp/page-break-lines
+	url = git://github.com/purcell/page-break-lines.git
