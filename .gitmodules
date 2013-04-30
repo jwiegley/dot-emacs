@@ -343,3 +343,6 @@
 [submodule "site-lisp/gh-el"]
 	path = site-lisp/gh-el
 	url = https://github.com/sigma/gh.el
+[submodule "site-lisp/org-present"]
+	path = site-lisp/org-present
+	url = git://github.com/rlister/org-present.git
