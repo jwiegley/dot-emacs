@@ -349,3 +349,6 @@
 [submodule "site-lisp/page-break-lines"]
 	path = site-lisp/page-break-lines
 	url = git://github.com/purcell/page-break-lines.git
+[submodule "site-lisp/bdo"]
+	path = site-lisp/bdo
+	url = git://github.com/chrisdone/bdo.git
