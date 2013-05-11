@@ -352,3 +352,6 @@
 [submodule "site-lisp/bdo"]
 	path = site-lisp/bdo
 	url = git://github.com/chrisdone/bdo.git
+[submodule "site-lisp/shm"]
+	path = site-lisp/shm
+	url = http://chrisdone.com/shm.git
