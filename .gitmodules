@@ -355,3 +355,6 @@
 [submodule "site-lisp/shm"]
 	path = site-lisp/shm
 	url = http://chrisdone.com/shm.git
+[submodule "site-lisp/magit-review"]
+	path = site-lisp/magit-review
+	url = git://gitorious.org/magit-review/magit-review.git
