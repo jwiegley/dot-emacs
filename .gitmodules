@@ -361,3 +361,6 @@
 [submodule "lib/emacs-request"]
 	path = lib/emacs-request
 	url = git://github.com/tkf/emacs-request.git
+[submodule "lib/emacs-web"]
+	path = lib/emacs-web
+	url = git://github.com/nicferrier/emacs-web.git
