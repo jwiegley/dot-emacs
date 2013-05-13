@@ -358,3 +358,6 @@
 [submodule "site-lisp/magit-review"]
 	path = site-lisp/magit-review
 	url = git://gitorious.org/magit-review/magit-review.git
+[submodule "lib/emacs-request"]
+	path = lib/emacs-request
+	url = git://github.com/tkf/emacs-request.git
