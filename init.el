@@ -2171,8 +2171,11 @@ FORM => (eval FORM)."
     (use-package grep-ed)
 
     (grep-apply-setting 'grep-command "egrep -nH -e ")
-    (if nil
-        (grep-apply-setting 'grep-find-command '("gf -e " . 7))
+    (if t
+        (progn
+          (setq-default grep-first-column 1)
+          (grep-apply-setting 'grep-find-command
+                              '("ag --noheading --column " . 25)))
       (grep-apply-setting
        'grep-find-command
        '("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52)))))
