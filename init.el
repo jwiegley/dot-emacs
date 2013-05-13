@@ -2766,6 +2766,10 @@ FORM => (eval FORM)."
   (progn
     (setenv "GIT_PAGER" "")
 
+    (use-package magit-review
+      :commands magit-review
+      :config (require 'json))
+
     (unbind-key "M-h" magit-mode-map)
     (unbind-key "M-s" magit-mode-map)
 
