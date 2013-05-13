@@ -2084,85 +2084,6 @@ FORM => (eval FORM)."
               "site-lisp/flyparse/deps/s.el")
   :init
   (progn
-    (flyparse-declare-checker haskell-ghc
-      "Haskell checker using ghc"
-      :command '("ghc" "-i." "-i.." "-i../.." "-v0" source-inplace)
-      :error-patterns
-      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
-                  "\\(?5:Warning:\\)?"
-                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
-         (if (let ((out (match-string 5 output)))
-               (and out (string= out "Warning:")))
-             'warning
-           'error)))
-      :modes 'haskell-mode)
-
-    (push 'haskell-ghc flyparse-checkers)
-
-    (flyparse-declare-checker haskell-hdevtools
-      "Haskell checker using hdevtools"
-      :command '("hdevtools" "check" source-inplace)
-      :error-patterns
-      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\):[ \t\n\r]*"
-                  "\\(?5:Warning:\\)?"
-                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
-         (if (let ((out (match-string 5 output)))
-               (and out (string= out "Warning:")))
-             'warning
-           'error)))
-      :modes 'haskell-mode)
-
-    (push 'haskell-hdevtools flyparse-checkers)
-
-    (flyparse-declare-checker haskell-hlint
-      "Haskell checker using hlint"
-      :command '("hlint++" source-inplace)
-      :error-patterns
-      `((,(concat "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Error:"
-                  "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
-         error)
-        (,(concat
-           "^\\(?1:.*?\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): Warning:"
-           "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
-         warning)
-        (,(concat
-           "^\\(?1:.*?\\):\\(?2:[0-9]+\\): Warning: "
-           "\\(?4:\\(.\\|[ \t\n\r]\\)+?\\)\\(^\n\\|\\'\\)")
-         warning))
-      :modes 'haskell-mode)
-
-    ;;(push 'haskell-hlint flyparse-checkers)
-
-    (flyparse-declare-checker bash
-      "Bash checker"
-      :command '("bash" "--norc" "--noprofile" "-n" source)
-      :error-patterns
-      '(("^\\(?1:.*\\): line \\(?2:[0-9]+\\): \\(?4:.*\\)$" error))
-      :modes 'sh-mode
-      :predicate '(eq sh-shell 'bash))
-
-    (push 'bash flyparse-checkers)
-
-    (flyparse-declare-checker xmllint
-      "xmllint checker"
-      :command '("xmllint" "--noout" "--postvalid" source)
-      :error-patterns
-      '(("^\\(?1:.*\\):\\(?2:[0-9]+\\): parser error : \\(?4:.*\\)$" error))
-      :modes 'nxml-mode)
-
-    (push 'xmllint flyparse-checkers)
-
-    (flyparse-declare-checker jslint
-      "jslint checker"
-      :command '("jsl" "-process" source)
-      :error-patterns
-      '(("^\\(?1:.*\\)(\\(?2:[0-9]+\\)): error: \\(?4:.*\\)$" error)
-        ("^\\(?1:.*\\)(\\(?2:[0-9]+\\)): \\(\\(lint \\)?warning\\): \\(?4:.*\\)$"
-         warning))
-      :modes 'js2-mode)
-
-    (push 'jslint flyparse-checkers)
-
     (flyparse-declare-checker clang++-ledger
       "Clang++ checker for Ledger"
       :command
@@ -2179,9 +2100,7 @@ FORM => (eval FORM)."
       :modes 'c++-mode
       :predicate '(string-match "/ledger/" (buffer-file-name)))
 
-    (push 'clang++-ledger flyparse-checkers)
-
-    (add-hook 'haskell-mode-hook 'flyparse-mode))
+    (push 'clang++-ledger flyparse-checkers))
 
   :config
   (progn
