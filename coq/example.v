@@ -6,13 +6,13 @@
 
 Module Example.
 
-Goal forall (A B:Prop),(A /\ B) -> (B /\ A). 
-  intros A B.
-  intros H.
-  elim H.
-  split.
-  assumption.
-  assumption.
-Save and_comms.
+  Lemma and_commutative : forall (A B:Prop),(A /\ B) -> (B /\ A).
+  Proof.
+    intros A B H.
+    destruct H.
+    split.
+      trivial.
+    trivial.
+  Qed.
 
 End Example.

@@ -667,8 +667,10 @@ Isabelle for more details.
 @b{Shell Proof General} for shell scripts (not really a proof assistant!)@*
 @xref{Shell Proof General}, for more details.
 @end itemize
+
 Proof General is designed to be generic, so if you know how
 to write regular expressions, you can make:
+
 @itemize @bullet
 @item
 @b{Your Proof General} for your favourite proof assistant.@*
@@ -676,6 +678,7 @@ For more details of how to make Proof General work
 with another proof assistant,
 see the accompanying manual @i{Adapting Proof General}.
 @end itemize
+
 The exact list of Proof Assistants supported may vary according to the
 version of Proof General you have and its local configuration; only the
 standard instances documented in this manual are listed above.
@@ -797,7 +800,8 @@ menus.
 @item
 First, start Emacs with Proof General loaded.  According to how you
 have installed Proof General, this may be by typing
-@code{proofgeneral}, selecting it from a menu, or simply by starting
+@code{proofgeneral} in a terminal, 
+selecting it from a menu, or simply by starting
 Emacs itself.
 @item
 Next, find a new file by @kbd{C-x C-f} and typing as the filename
