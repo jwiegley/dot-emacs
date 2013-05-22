@@ -162,7 +162,7 @@ TAR=tar
 # Files not to include the distribution area or tarball 
 UNFINISHED_ELISP=
 ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/*.txt 
-NONDISTFILES=.cvsignore */.cvsignore Makefile.devel doc/ProofGeneral.jpg etc/trac etc/testsuite $(UNFINISHED_ELISP) $(ETC_FILES)
+NONDISTFILES=.cvsignore */.cvsignore Makefile.devel etc/trac etc/testsuite $(UNFINISHED_ELISP) $(ETC_FILES)
 DOCDISTFILES=ProofGeneral.info PG-adapting.info
 
 # Files not to include in the ordinary distribution tarball, but left
