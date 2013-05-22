@@ -26,7 +26,7 @@ This file is not included with the distribution because it is rather
 large (1.6M).  
 
 Instead of downloading, you may be able to generate an alternative eps
-from the included ProofGeneral.jpg file using an image manipulation
+from the included ProofGeneral-image.jpg file using an image manipulation
 program such as gimp or Imagemagick.  This will give you a slightly
 different (and degraded) image compared to the distributed one
 mentioned above.

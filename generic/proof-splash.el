@@ -49,7 +49,7 @@ Proof General."
     nil
     (proof-get-image "pg-text" t)
     nil
-    (proof-get-image "ProofGeneral")
+    (proof-get-image "ProofGeneral-image")
     nil
     "Welcome to"
     (concat proof-assistant " Proof General!")

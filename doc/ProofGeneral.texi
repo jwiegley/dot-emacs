@@ -93,7 +93,7 @@
 
 @iftex
 @vskip 1cm
-@image{ProofGeneral}
+@image{ProofGeneral-image}
 @end iftex
 @author David Aspinall and Thomas Kleymann
 @author with P. Courtieu, H. Goguen, D. Sequeira, M. Wenzel.
@@ -419,7 +419,7 @@ Thanks to all of you (and apologies to anyone missed)!
 @c would like the logo on the title page really but
 @c it doesn't seem to work there for html.
 @html
-<img src="ProofGeneral.jpg" alt="[ Proof General logo ]" >
+<img src="ProofGeneral-image.jpg" alt="[ Proof General logo ]" >
 @end html
 
 @dfn{Proof General} is a generic Emacs interface for interactive proof
