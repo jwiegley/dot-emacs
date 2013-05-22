@@ -62,7 +62,8 @@ BIN_SCRIPTS = bin/proofgeneral lego/legotags coq/coqtags isar/isartags
 # only during compilation.  Another idea: put a function in proof-site
 # to output the compile-time load path and ELISP_DIRS so these are set
 # just in that one place.
-BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (mapcar (lambda (d) (concat "${PWD}/" (symbol-name d))) (quote (${ELISP_DIRS}))) load-path))' -eval '(progn (require (quote bytecomp)) (require (quote mouse)) (require (quote tool-bar)) (require (quote fontset)) (setq byte-compile-warnings (remove (quote cl-functions) (remove (quote noruntime) byte-compile-warning-types))) (setq byte-compile-error-on-warn t))' -f batch-byte-compile
+ERROR_ON_WARN = nil
+BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (mapcar (lambda (d) (concat "${PWD}/" (symbol-name d))) (quote (${ELISP_DIRS}))) load-path))' -eval '(progn (require (quote bytecomp)) (require (quote mouse)) (require (quote tool-bar)) (require (quote fontset)) (setq byte-compile-warnings (remove (quote cl-functions) (remove (quote noruntime) byte-compile-warning-types))) (setq byte-compile-error-on-warn $(ERROR_ON_WARN)))' -f batch-byte-compile
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
 
@@ -78,11 +79,33 @@ FORCE:
 ## Compiling can show up errors in the code, but be wary of fixing obsoletion
 ## or argument call warnings unless they're valid for all supported Emacsen.
 ##
+## The compile target displays errors as warnings only for compatibility 
+## with newer Emacs versions (see ticket #458).
+##
 compile: $(EL) 
 	@echo "****************************************************************"
 	@echo " Byte compiling... "
 	@echo "****************************************************************"
 	$(MAKE) elc
+	@echo "****************************************************************"
+	@echo " Finished."
+	@echo "****************************************************************"
+
+## 
+## compile : byte compile all lisp files
+##
+## Compiling can show up errors in the code, but be wary of fixing obsoletion
+## or argument call warnings unless they're valid for all supported Emacsen.
+##
+## The check target aborts compilation on any byte-compiler warning.
+## Compile with this target once before commiting your changes to 
+## the repository.
+##
+check: $(EL) 
+	@echo "****************************************************************"
+	@echo " Byte compiling... "
+	@echo "****************************************************************"
+	$(MAKE) ERROR_ON_WARN=t elc
 	@echo "****************************************************************"
 	@echo " Finished."
 	@echo "****************************************************************"
