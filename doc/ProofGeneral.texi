@@ -1,12 +1,7 @@
-\def\fontdefs{\psfamily{bsf}{r}{c}{b}{b}{ri}{ri}{ro}{bo}\def\mainmagstep{1200}}
 \input texinfo
 @c
 @c $Id$
 @c
-@c NB: the first line of this file uses a non-standard TeXinfo
-@c hack to print in Serifa fonts.  It has no effect if you don't have
-@c my hacked version of TeXinfo - da.
-
 @c
 @c TODO:  
 @c   MMM support, Theorem dependencies, history in script and response,
