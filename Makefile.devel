@@ -405,7 +405,7 @@ dist:	cvsexport
 ##     WARNING: RELEASEDIR is not cleaned except to remove
 ##     links, but files there with same names will be overwritten.
 ##
-release: distclean tag dist 
+release: check distclean tag dist 
 	@echo "*************************************************"
 	@echo " Making release (installing tarball distributions)."
 	@echo "*************************************************"
