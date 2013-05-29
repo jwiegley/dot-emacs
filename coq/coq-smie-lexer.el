@@ -463,7 +463,8 @@ The point should be at the beginning of the command name."
 	     (not (member
 		   (coq-smie-backward-token) ;; recursive call
 		   '("." ". proofstart" "; tactic" "[" "]" "|"
-		     "{ subproof" "} subproof"))))
+		     "{ subproof" "} subproof" "- bullet" "+ bullet"
+		     "* bullet"))))
 	   "quantif exists"))
      ((equal tok "∀") "forall")
      ((equal tok "→") "->")
