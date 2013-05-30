@@ -279,7 +279,7 @@ The point should be at the beginning of the command name."
 	  (concat tok newtok)))
        (t (save-excursion (coq-smie-backward-token))))) ;; recursive call
      ((member tok
-	      '("=>" ":=" "+" "-" "*" "exists" "in" "as" "∀" "∃" "→" ";" "," ":" "eval"))
+	      '("=>" ":=" "+" "-" "*" "exists" "in" "as" "∀" "∃" "→" "∨" "∧" ";" "," ":" "eval"))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
       ;; we can.
@@ -468,6 +468,8 @@ The point should be at the beginning of the command name."
 	   "quantif exists"))
      ((equal tok "∀") "forall")
      ((equal tok "→") "->")
+     ((equal tok "∨") "\\/")
+     ((equal tok "∧") "/\\")
 
      ((equal tok "with") ; "with" is a nightmare: at least 4 different uses
       (save-excursion (coq-smie-with-deambiguate)))
