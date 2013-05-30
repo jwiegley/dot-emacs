@@ -2080,6 +2080,14 @@ are non-nil at the same time, this gives priority to the former."
 ;(define-key coq-mode-map (kbd ".") 'coq-terminator-insert)
 ;(define-key coq-mode-map (kbd ";") 'coq-terminator-insert) ; for french keyboards
 
+;; Activation of ML4PG functionality
+
+(defun coq-activate-ml4pg ()
+  (load-file (concatenate 'string proof-home-directory "coq/ML4PG/ml4pg.el"))
+  (ml4pg-select-mode))
+
+
+
 
 (provide 'coq)
 

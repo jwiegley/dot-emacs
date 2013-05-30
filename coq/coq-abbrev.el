@@ -174,7 +174,10 @@
      ["Set Printing Coercions" coq-set-printing-coercions t]
      ["Unset Printing Coercions" coq-unset-printing-coercions t]
      ["Set Printing Wildcards" coq-set-printing-wildcards t]
-     ["Unset Printing Wildcards" coq-unset-printing-wildcards t])))
+     ["Unset Printing Wildcards" coq-unset-printing-wildcards t])
+    ""
+    ["ML4PG" (coq-activate-ml4pg) :help "Activates ML4PG: machine-learning methods for Proof General"]
+    ))
 
 (defpgdefault menu-entries
   (append coq-menu-common-entries
