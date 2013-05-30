@@ -1,0 +1,6 @@
+1 helper_fact_is_theta
+2 fn_fact_is_theta
+3 loop_is_helper_fact
+4 program_is_fn_fact
+5 program_correct_fact
+6 total_correctness_fact

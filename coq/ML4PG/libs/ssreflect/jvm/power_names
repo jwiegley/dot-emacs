@@ -1,0 +1,6 @@
+1 helper_power_is_theta
+2 fn_power_is_theta
+3 loop_is_helper_power
+4 program_is_fn_power
+5 program_correct_power
+6 total_correctness_power
