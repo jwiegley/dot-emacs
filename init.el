@@ -777,7 +777,7 @@
       (whitespace-mode 1)
       (which-function-mode 1)
       (auto-complete-mode 1)
-      (yas/minor-mode 1)
+      (yas-minor-mode 1)
       (bug-reference-prog-mode 1)
 
       (diminish 'gtags-mode)
@@ -800,9 +800,9 @@
 
       (bind-key "<return>" 'newline-and-indent c-mode-base-map)
 
-      (set (make-local-variable 'yas/fallback-behavior)
+      (set (make-local-variable 'yas-fallback-behavior)
            '(apply my-c-indent-or-complete . nil))
-      (bind-key "<tab>" 'yas/expand-from-trigger-key c-mode-base-map)
+      (bind-key "<tab>" 'yas-expand-from-trigger-key c-mode-base-map)
 
       (unbind-key "M-j" c-mode-base-map)
       (bind-key "C-c C-i" 'c-includes-current-file c-mode-base-map)
@@ -1713,6 +1713,14 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :config
   (use-package ediff-keep))
 
+;;;_ , edit-emacs
+
+(use-package edit-server
+  :if (and window-system (not running-alternate-emacs)
+           (not noninteractive))
+  :init
+  (edit-server-start))
+
 ;;;_ , edit-server
 
 (use-package edit-server
@@ -1912,6 +1920,22 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (goto-char (point-max)))
 
     (bind-key "C-c b" 'switch-to-bitlbee)
+
+    (defcustom erc-foolish-content '()
+      "Regular expressions to identify foolish content.
+    Usually what happens is that you add the bots to
+    `erc-ignore-list' and the bot commands to this list."
+      :group 'erc
+      :type '(repeat regexp))
+
+    (defun erc-foolish-content (msg)
+      "Check whether MSG is foolish."
+      (erc-list-match erc-foolish-content msg))
+
+    (add-hook 'erc-insert-pre-hook
+	      (lambda (s)
+		(when (erc-foolish-content s)
+		  (setq erc-insert-this nil))))
 
     (defun erc-cmd-SHOW (&rest form)
       "Eval FORM and send the result and the original form as:
@@ -2647,7 +2671,7 @@ FORM => (eval FORM)."
         (bind-key "M-q" 'slime-reindent-defun lisp-mode-map)
         (bind-key "M-l" 'slime-selector lisp-mode-map))
 
-      (yas/minor-mode 1))
+      (yas-minor-mode 1))
 
     (hook-into-modes #'my-lisp-mode-hook lisp-mode-hooks)))
 
@@ -3146,11 +3170,11 @@ FORM => (eval FORM)."
       '(progn
          (add-hook 'coq-mode-hook
                    (lambda ()
-                     (yas/minor-mode 1)
+                     (yas-minor-mode 1)
                      (whitespace-mode 1)
                      (unicode-tokens-use-shortcuts 0)))
          (bind-key "M-RET" 'proof-goto-point coq-mode-map)
-         (bind-key "<tab>" 'yas/expand-from-trigger-key coq-mode-map)
+         (bind-key "<tab>" 'yas-expand-from-trigger-key coq-mode-map)
          (bind-key "C-c C-p" (lambda ()
                                (interactive)
                                (proof-layout-windows)
@@ -3284,9 +3308,9 @@ FORM => (eval FORM)."
       (bind-key "<return>" 'my-ruby-smart-return ruby-mode-map)
       (bind-key "C-h C-i" 'helm-yari ruby-mode-map)
 
-      (set (make-local-variable 'yas/fallback-behavior)
+      (set (make-local-variable 'yas-fallback-behavior)
            '(apply ruby-indent-command . nil))
-      (bind-key "<tab>" 'yas/expand-from-trigger-key ruby-mode-map))
+      (bind-key "<tab>" 'yas-expand-from-trigger-key ruby-mode-map))
 
     (add-hook 'ruby-mode-hook 'my-ruby-mode-hook)))
 
@@ -3926,11 +3950,11 @@ FORM => (eval FORM)."
 
 (use-package yasnippet
   :if (not noninteractive)
-  :diminish yas/minor-mode
-  :commands (yas/minor-mode yas/expand)
+  :diminish yas-minor-mode
+  :commands (yas-minor-mode yas-expand)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :init
-  (hook-into-modes #'(lambda () (yas/minor-mode 1))
+  (hook-into-modes #'(lambda () (yas-minor-mode 1))
                    '(prog-mode-hook
                      org-mode-hook
                      ruby-mode-hook
@@ -3939,35 +3963,34 @@ FORM => (eval FORM)."
                      erc-mode-hook))
   :config
   (progn
-    (yas/initialize)
-    (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
+    (yas-load-directory (expand-file-name "snippets/" user-emacs-directory))
 
-    (bind-key "<tab>" 'yas/next-field-or-maybe-expand yas/keymap)
+    (bind-key "<tab>" 'yas-next-field-or-maybe-expand yas-keymap)
 
-    (defun yas/new-snippet (&optional choose-instead-of-guess)
+    (defun yas-new-snippet (&optional choose-instead-of-guess)
       (interactive "P")
-      (let ((guessed-directories (yas/guess-snippet-directories)))
+      (let ((guessed-directories (yas-guess-snippet-directories)))
         (switch-to-buffer "*new snippet*")
         (erase-buffer)
         (kill-all-local-variables)
         (snippet-mode)
-        (set (make-local-variable 'yas/guessed-modes)
+        (set (make-local-variable 'yas-guessed-modes)
              (mapcar #'(lambda (d)
-                         (intern (yas/table-name (car d))))
+                         (intern (yas-table-name (car d))))
                      guessed-directories))
         (unless (and choose-instead-of-guess
                      (not (y-or-n-p "Insert a snippet with useful headers? ")))
-          (yas/expand-snippet "\
+          (yas-expand-snippet "\
   # -*- mode: snippet -*-
   # name: $1
   # --
   $0"))))
 
-    (bind-key "C-c y TAB" 'yas/expand)
-    (bind-key "C-c y n" 'yas/new-snippet)
-    (bind-key "C-c y f" 'yas/find-snippets)
-    (bind-key "C-c y r" 'yas/reload-all)
-    (bind-key "C-c y v" 'yas/visit-snippet-file)))
+    (bind-key "C-c y TAB" 'yas-expand)
+    (bind-key "C-c y n" 'yas-new-snippet)
+    (bind-key "C-c y f" 'yas-find-snippets)
+    (bind-key "C-c y r" 'yas-reload-all)
+    (bind-key "C-c y v" 'yas-visit-snippet-file)))
 
 ;;;_ , yaoddmuse
 

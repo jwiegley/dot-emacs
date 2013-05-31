@@ -34,6 +34,7 @@
 (defvar helm-c-source-git-files
   '((name . "Files under Git version control")
     (init . helm-c-source-git-files-init)
+    (action . (("Execute Command" . find-file)))
     (candidates-in-buffer)
     (type . file))
   "Search for files in the current Git project.")
