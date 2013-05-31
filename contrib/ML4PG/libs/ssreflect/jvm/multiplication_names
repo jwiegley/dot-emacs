@@ -1,0 +1,6 @@
+1 helper_mul_is_theta
+2 fn_mul_is_theta
+3 loop_is_helper_mul
+4 program_is_fn_mul
+5 program_correct_mul
+6 total_correctness_mul

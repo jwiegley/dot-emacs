@@ -1,0 +1,6 @@
+1 helper_fib_is_theta
+2 fn_fib_is_theta
+3 loop_is_helper_fib
+4 program_is_fn_fib
+5 program_correct_fib
+6 total_correctness_fib

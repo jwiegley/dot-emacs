@@ -1,0 +1,35 @@
+@relation empty
+
+@attribute '1' real
+@attribute '2' real
+@attribute '3' real
+@attribute '4' real
+@attribute '5' real
+@attribute '6' real
+@attribute '7' real
+@attribute '8' real
+@attribute '9' real
+@attribute '10' real
+@attribute '11' real
+@attribute '12' real
+@attribute '13' real
+@attribute '14' real
+@attribute '15' real
+@attribute '16' real
+@attribute '17' real
+@attribute '18' real
+@attribute '19' real
+@attribute '20' real
+@attribute '21' real
+@attribute '22' real
+@attribute '23' real
+@attribute '24' real
+@attribute '25' real
+@attribute '26' real
+@attribute '27' real
+@attribute '28' real
+@attribute '29' real
+@attribute '30' real
+
+@data
+
