@@ -2083,7 +2083,7 @@ are non-nil at the same time, this gives priority to the former."
 ;; Activation of ML4PG functionality
 
 (defun coq-activate-ml4pg ()
-  (load-file (concatenate 'string proof-home-directory "coq/ML4PG/ml4pg.el"))
+  (load-file (concatenate 'string proof-home-directory "contrib/ML4PG/ml4pg.el"))
   (ml4pg-select-mode))
 
 
