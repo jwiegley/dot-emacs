@@ -541,7 +541,8 @@ golive:
 ##
 releasefinal: release releaseclean 
 # Link the latest version 
-	(cd $(DISTBUILDIR); rm -f $(NAME); ln -sf $(RELEASENAME) $(NAME))
+# 31.5.13: remove this link from tar file, it is unconventional
+#	(cd $(DISTBUILDIR); rm -f $(NAME); ln -sf $(RELEASENAME) $(NAME))
 
 
 ############################################################
