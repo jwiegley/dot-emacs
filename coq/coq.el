@@ -1027,10 +1027,9 @@ override the coq project file's configuration."
 
 
 
-(defun coq-load-coqloadpath ()
-  "Sets `coq-load-path' by reading the dominating _CoqProject file.
-Note that this may conflict with a load path configuration in a
-.dir-locals.el file."
+;; Return a two arg list: '(buffer alreadyopen). alreadyopen is t if the file
+;; was already open in a buffer and nil otherwise.
+(defun coq-find-project-file ()
   (let* ((projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
     (when projectfiledir
       (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
@@ -1038,55 +1037,71 @@ Note that this may conflict with a load path configuration in a
              ;; the coq project buffer at the end
              (projectbufferalreadyopen (find-buffer-visiting projectfile))
              (projectbuffer (or projectbufferalreadyopen
-                                 (find-file-noselect projectfile t t)))
-             (ld-pth nil))
-        (with-current-buffer projectbuffer
-          (goto-char (point-min))
-          ;;lookning for -R options
-          (while (re-search-forward
-                  "Require\\|\\_<-R\\s-+\\_<\\(\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\_<\\(\\(?:\\w\\|_\\|\\.\\)+\\)" nil t)
-            (let ((libR (list (match-string 1) (match-string 2))))
-              (setq ld-pth (cons libR ld-pth))))
-          (goto-char (point-min))
-          ;;lookning for -I options
-          (while (re-search-forward
-                  "\\_<-I\\s-+\\_<\\(\\(?:\\w\\|_\\|\\.\\)+\\)" nil t)
-            (let ((libI (match-string 1)))
-              (setq ld-pth (cons libI ld-pth)))))
-        (unless projectbufferalreadyopen (kill-buffer projectbuffer))
-        (cons "." ld-pth)))))
+                                (find-file-noselect projectfile t t))))
+        (list projectbuffer projectbufferalreadyopen)))))
 
 
-(defun coq-load-coqprogargs ()
-  "Sets `coq-load-path' by reading the dominating _CoqProject file.
-Note that this may conflict with a load path configuration in a
-.dir-locals.el file."
-  (let* ((projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
-    (when projectfiledir
-      (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
-             ;; we store this intermediate result to know if we have to kill
-             ;; the coq project buffer at the end
-             (projectbufferalreadyopen (find-buffer-visiting projectfile))
-             (projectbuffer (or projectbufferalreadyopen
-                                 (find-file-noselect projectfile t t)))
-             (other-args nil))
-        (with-current-buffer projectbuffer
-          (goto-char (point-min))
-          (while (re-search-forward
-                  "\n\\_<\\(-opt\\|-byte\\|-arg\\)\\(?:[[:blank:]]+\\([^ \t\n]+\\)\\)?" nil t)
-            (if (match-string 2) (setq other-args (cons (match-string 2) other-args))
-              (setq other-args (cons (match-string 1) other-args)))))
-        (unless projectbufferalreadyopen (kill-buffer projectbuffer))
-        (cons "-emacs" other-args)))))
+(defconst coq-load-path--R-regexp
+  "Require\\|\\_<-R\\s-+\\_<\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\_<\\(?2:\\(?:\\w\\|_\\|\\.\\)+\\)")
+
+(defconst coq-load-path--I-regexp
+  "\\_<-I\\s-+\\_<\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)")
+
+(defconst coq-prog-args-regexp
+  "\n\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:blank:]]+\\(?1:[^ \t\n#]+\\)\\)?")
+
+;; look for occurrences of regexp in buffer projectbuffer. the interesting
+;; sub-regexp must be numbered 1 and 2 (other ones should unnumbered). If there
+;; is only subexp 1 then it is added as is to the final list, if there are 1
+;; and 2 then a list contining both is added to the final list.
+(defun coq-read-option-from-project-file (projectbuffer regexp)
+  (let ((opt nil))
+    (when projectbuffer
+      (with-current-buffer projectbuffer
+        (goto-char (point-min))
+        (while (re-search-forward regexp nil t)
+          (let ((first (match-string 1))
+                (second (match-string 2)))
+            (if second ;; if two args, consult keeponlysecondarg to know what to do
+                (setq opt (cons (list first second) opt))
+              (setq opt (cons first opt))))))
+      (reverse opt))))
+
+;; Look for -R and -I options in the project buffer
+;; add the default "." too
+(defun coq-search-load-path (projectbuffer)
+  (cons "." 
+        (coq-read-option-from-project-file
+         projectbuffer
+         (concat coq-load-path--R-regexp "\\|" coq-load-path--I-regexp))))
+
+;; Look for other options (like -opt, -arg foo etc) in the project buffer
+;; adds the -emacs option too
+(defun coq-search-prog-args (projectbuffer)
+  (cons
+   "-emacs"
+   (coq-read-option-from-project-file projectbuffer coq-prog-args-regexp)))
+
+
+(defun coq-load-project-file ()
+  "Returns `coq-prog-args' by reading the dominating _CoqProject file.
+Note that this may conflict with a similar configuration in a
+.dir-locals.el file (the latter should overrides the former)."
+  (let* ((projectbuffer-aux (coq-find-project-file))
+         (projectbuffer (and projectbuffer-aux (car projectbuffer-aux)))
+         (need-kill (and projectbuffer-aux (car (cdr projectbuffer-aux)))))
+    (if (not projectbuffer-aux)
+        (message "Coq project file not detected.")
+      (message "Coq project file detected: %s." (buffer-file-name projectbuffer))
+      (setq coq-prog-args (coq-search-prog-args projectbuffer))
+      (setq coq-load-path (coq-search-load-path projectbuffer))
+      (when need-kill (kill-buffer projectbuffer)))))
 
 
 
 (add-hook 'coq-mode-hook
           '(lambda ()
-             (when coq-use-project-file
-               (setq coq-load-path (coq-load-coqloadpath))
-               (setq coq-prog-args (coq-load-coqprogargs))
-               (message "Coq project file detected and loaded."))))
+             (when coq-use-project-file (coq-load-project-file))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
