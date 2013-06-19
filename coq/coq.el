@@ -1002,6 +1002,93 @@ flag Printing All set."
              "-emacs-U"))
         coq-prog-name))))
 
+(defpacustom use-project-file t
+  "If t, when opening a coq file read the dominating _CoqProject.
+If t when a coq file is opened, proofgeneral will look for a
+project file (see `coq-project-filename') somewhere in the
+current directory or its parents directory. If there is one, its
+content is read and used to determine the arguments that must be
+past to coqtop. In particular it sets the load path (including
+the -R lib options) (see `coq-load-path') ."
+  :type 'boolean)
+
+(defpacustom project-filename "_CoqProject"
+  "The name of coq project file.
+The coq project file of a coq developpement (Cf Coq doc on
+makefile generation) should the arguments passed to coq_makefile.
+In particular il contains the -I and -R options (one per line).
+If `coq-use-coqproject' is t, the content of this file will be
+used by proofgeneral to infer the `coq-load-path' and the
+`coq-prog-args' variables that set the coqtop invocation by
+proofgeneral. This is now the recommended way of configuring the
+coqtop invocation. Local file variables may still be used to
+override the coq project file's configuration."
+  :type 'boolean)
+
+
+
+(defun coq-load-coqloadpath ()
+  "Sets `coq-load-path' by reading the dominating _CoqProject file.
+Note that this may conflict with a load path configuration in a
+.dir-locals.el file."
+  (let* ((projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
+    (when projectfiledir
+      (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
+             ;; we store this intermediate result to know if we have to kill
+             ;; the coq project buffer at the end
+             (projectbufferalreadyopen (find-buffer-visiting projectfile))
+             (projectbuffer (or projectbufferalreadyopen
+                                 (find-file-noselect projectfile t t)))
+             (ld-pth nil))
+        (with-current-buffer projectbuffer
+          (goto-char (point-min))
+          ;;lookning for -R options
+          (while (re-search-forward
+                  "Require\\|\\_<-R\\s-+\\_<\\(\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\_<\\(\\(?:\\w\\|_\\|\\.\\)+\\)" nil t)
+            (let ((libR (list (match-string 1) (match-string 2))))
+              (setq ld-pth (cons libR ld-pth))))
+          (goto-char (point-min))
+          ;;lookning for -I options
+          (while (re-search-forward
+                  "\\_<-I\\s-+\\_<\\(\\(?:\\w\\|_\\|\\.\\)+\\)" nil t)
+            (let ((libI (match-string 1)))
+              (setq ld-pth (cons libI ld-pth)))))
+        (unless projectbufferalreadyopen (kill-buffer projectbuffer))
+        (cons "." ld-pth)))))
+
+
+(defun coq-load-coqprogargs ()
+  "Sets `coq-load-path' by reading the dominating _CoqProject file.
+Note that this may conflict with a load path configuration in a
+.dir-locals.el file."
+  (let* ((projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
+    (when projectfiledir
+      (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
+             ;; we store this intermediate result to know if we have to kill
+             ;; the coq project buffer at the end
+             (projectbufferalreadyopen (find-buffer-visiting projectfile))
+             (projectbuffer (or projectbufferalreadyopen
+                                 (find-file-noselect projectfile t t)))
+             (other-args nil))
+        (with-current-buffer projectbuffer
+          (goto-char (point-min))
+          (while (re-search-forward
+                  "\n\\_<\\(-opt\\|-byte\\|-arg\\)\\(?:[[:blank:]]+\\([^ \t\n]+\\)\\)?" nil t)
+            (if (match-string 2) (setq other-args (cons (match-string 2) other-args))
+              (setq other-args (cons (match-string 1) other-args)))))
+        (unless projectbufferalreadyopen (kill-buffer projectbuffer))
+        (cons "-emacs" other-args)))))
+
+
+
+(add-hook 'coq-mode-hook
+          '(lambda ()
+             (when coq-use-project-file
+               (setq coq-load-path (coq-load-coqloadpath))
+               (setq coq-prog-args (coq-load-coqprogargs))
+               (message "Coq project file detected and loaded."))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Holes mode switch
