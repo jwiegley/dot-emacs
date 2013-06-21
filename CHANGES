@@ -30,6 +30,21 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
+*** Suuport for _Coqproject files
+
+    According to Coq documentation, it is advised to use coq_makefile
+    -f _CoqProject -o Makefile to build your Makefile automatically
+    from "profect file" _CoqProject. Such a file should contains the
+    options to pass to coq_makefile, i.e. paths to add to coq load
+    path (-I, -R) and other options to pass to coqc/coqtop (-arg).
+
+    Coqide (and now proofgeneral) do use the information stored in
+    this file to configure the options to add to the coqtop
+    invocation. When opening a coq file, proofgeneral looks for a file
+    _Coqproject in the current directory or a parent directory and
+    reads it. Except for very unlikely situation this should replace
+    the use of local file variables (which remains possible and
+    overrides project file options).
 
 * Changes of Proof General 4.2 from Proof General 4.1
 
