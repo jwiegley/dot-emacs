@@ -364,3 +364,6 @@
 [submodule "lib/emacs-web"]
 	path = lib/emacs-web
 	url = git://github.com/nicferrier/emacs-web.git
+[submodule "snippets/haskell-mode"]
+	path = snippets/haskell-mode
+	url = git://github.com/jwiegley/shnippet.git

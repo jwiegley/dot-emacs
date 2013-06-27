@@ -3662,6 +3662,9 @@ FORM => (eval FORM)."
   ;; (bind-key "M-v" 'scroll-down)
 ;; )
 
+  ;; (bind-key "M-v" 'scroll-down)
+  ;; (bind-key "A-v" 'yank)
+
 ;;;_ , twittering-mode
 
 (use-package twittering-mode
