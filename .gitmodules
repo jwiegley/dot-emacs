@@ -367,3 +367,6 @@
 [submodule "snippets/haskell-mode"]
 	path = snippets/haskell-mode
 	url = git://github.com/jwiegley/shnippet.git
+[submodule "site-lisp/butler"]
+	path = site-lisp/butler
+	url = git://github.com/AshtonKem/Butler.git
