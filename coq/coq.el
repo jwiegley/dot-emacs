@@ -970,7 +970,12 @@ flag Printing All set."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-guess-command-line (filename)
-  "Guess the right command line options to compile FILENAME using `make -n'."
+  "Guess the right command line options to compile FILENAME using `make -n'.
+This function is obsolete, the recommended way of setting the
+coqtop options is to use a _Coqproject file as described in coq
+documentation. ProofGeneral reads this file and sets compilation
+options according to its contents. See `coq-project-filename'. Per file configuration may
+then be set using local file variables."
   (if (local-variable-p 'coq-prog-name (current-buffer))
       coq-prog-name
     (let* ((dir (or (file-name-directory filename) "."))
@@ -1008,28 +1013,30 @@ If t when a coq file is opened, proofgeneral will look for a
 project file (see `coq-project-filename') somewhere in the
 current directory or its parents directory. If there is one, its
 content is read and used to determine the arguments that must be
-past to coqtop. In particular it sets the load path (including
+given to coqtop. In particular it sets the load path (including
 the -R lib options) (see `coq-load-path') ."
   :type 'boolean)
 
 (defpacustom project-filename "_CoqProject"
   "The name of coq project file.
-The coq project file of a coq developpement (Cf Coq doc on
-makefile generation) should the arguments passed to coq_makefile.
-In particular il contains the -I and -R options (one per line).
-If `coq-use-coqproject' is t, the content of this file will be
-used by proofgeneral to infer the `coq-load-path' and the
-`coq-prog-args' variables that set the coqtop invocation by
-proofgeneral. This is now the recommended way of configuring the
-coqtop invocation. Local file variables may still be used to
-override the coq project file's configuration."
+The coq project file of a coq developpement (Cf Coq documentation
+on \"makefile generation\") should contain the arguments given to
+coq_makefile. In particular it contains the -I and -R
+options (one per line). If `coq-use-coqproject' is t (default)
+the content of this file will be used by proofgeneral to infer
+the `coq-load-path' and the `coq-prog-args' variables that set
+the coqtop invocation by proofgeneral. This is now the
+recommended way of configuring the coqtop invocation. Local file
+variables may still be used to override the coq project file's
+configuration. .dir-locals.el files also work and override
+project file settings."
   :type 'boolean)
 
 
 
-;; Return a two arg list: '(buffer alreadyopen). alreadyopen is t if the file
-;; was already open in a buffer and nil otherwise.
 (defun coq-find-project-file ()
+  "Return '(buf alreadyopen) where buf is the buffer visiting coq project file.
+alreadyopen is t if buffer already existed."  
   (let* ((projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
     (when projectfiledir
       (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
@@ -1040,21 +1047,25 @@ override the coq project file's configuration."
                                 (find-file-noselect projectfile t t))))
         (list projectbuffer projectbufferalreadyopen)))))
 
-
+;; No "." no "-" in coq modufe file names
+;; TODO: look exactly at what characters are allowed.
 (defconst coq-load-path--R-regexp
-  "Require\\|\\_<-R\\s-+\\_<\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\_<\\(?2:\\(?:\\w\\|_\\|\\.\\)+\\)")
+  "\\_<-R\\s-+\\_<\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\_<\\(?2:\\(?:\\w\\|_\\|\\.\\)+\\)")
 
 (defconst coq-load-path--I-regexp
   "\\_<-I\\s-+\\_<\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)")
 
+;; match-string 1 must contain the string to add to coqtop command line, so we
+;; ignore -arg, we use numbered subregexpr.
 (defconst coq-prog-args-regexp
-  "\n\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:blank:]]+\\(?1:[^ \t\n#]+\\)\\)?")
+  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:blank:]]+\\(?1:[^ \t\n#]+\\)\\)?")
 
-;; look for occurrences of regexp in buffer projectbuffer. the interesting
-;; sub-regexp must be numbered 1 and 2 (other ones should unnumbered). If there
-;; is only subexp 1 then it is added as is to the final list, if there are 1
-;; and 2 then a list contining both is added to the final list.
 (defun coq-read-option-from-project-file (projectbuffer regexp)
+  "look for occurrences of regexp in buffer projectbuffer and collect subexps.
+The returned sub-regexp are the one numbered 1 and 2 (other ones
+should be unnumbered). If there is only subexp 1 then it is added
+as is to the final list, if there are 1 and 2 then a list
+contining both is added to the final list."
   (let ((opt nil))
     (when projectbuffer
       (with-current-buffer projectbuffer
@@ -1062,7 +1073,7 @@ override the coq project file's configuration."
         (while (re-search-forward regexp nil t)
           (let ((first (match-string 1))
                 (second (match-string 2)))
-            (if second ;; if two args, consult keeponlysecondarg to know what to do
+            (if second
                 (setq opt (cons (list first second) opt))
               (setq opt (cons first opt))))))
       (reverse opt))))
@@ -1070,6 +1081,7 @@ override the coq project file's configuration."
 ;; Look for -R and -I options in the project buffer
 ;; add the default "." too
 (defun coq-search-load-path (projectbuffer)
+  "Read project buffer and retrurn a value for `coq-load-path'."
   (cons "." 
         (coq-read-option-from-project-file
          projectbuffer
@@ -1078,27 +1090,31 @@ override the coq project file's configuration."
 ;; Look for other options (like -opt, -arg foo etc) in the project buffer
 ;; adds the -emacs option too
 (defun coq-search-prog-args (projectbuffer)
+  "Read project buffer and retrurn a value for `coq-prog-args'"
   (cons
    "-emacs"
    (coq-read-option-from-project-file projectbuffer coq-prog-args-regexp)))
 
 
 (defun coq-load-project-file ()
-  "Returns `coq-prog-args' by reading the dominating _CoqProject file.
+  "Return `coq-prog-args' by reading the dominating _CoqProject file.
 Note that this may conflict with a similar configuration in a
-.dir-locals.el file (the latter should overrides the former)."
+.dir-locals.el file or local file variables (both should
+overrides the the settings in _CoqProject). See
+`coq-project-filename' to change the name of the project file,
+and `use-project-file' to disable this feature."
   (let* ((projectbuffer-aux (coq-find-project-file))
          (projectbuffer (and projectbuffer-aux (car projectbuffer-aux)))
-         (need-kill (and projectbuffer-aux (car (cdr projectbuffer-aux)))))
+         (no-kill (and projectbuffer-aux (car (cdr projectbuffer-aux)))))
     (if (not projectbuffer-aux)
         (message "Coq project file not detected.")
       (message "Coq project file detected: %s." (buffer-file-name projectbuffer))
       (setq coq-prog-args (coq-search-prog-args projectbuffer))
       (setq coq-load-path (coq-search-load-path projectbuffer))
-      (when need-kill (kill-buffer projectbuffer)))))
+      (unless no-kill (kill-buffer projectbuffer)))))
 
 
-
+;; TODO: read COQBIN somewhere?
 (add-hook 'coq-mode-hook
           '(lambda ()
              (when coq-use-project-file (coq-load-project-file))))
@@ -1739,6 +1755,7 @@ Typically after a proof-assert-next-command.
         (save-excursion
           ;; TODO: look for eqn:XX and go before it.
           ;; Go just before the last "."
+          (goto-char (proof-unprocessed-begin))
           (coq-script-parse-cmdend-backward)
           (let ((inhibit-read-only t))
             (insert (concat " as [" substr "]")))))))
@@ -1752,14 +1769,13 @@ Typically after a proof-assert-next-command.
 ;; proof-assert-next-command-interactive is probably wrong if some error occur
 ;; during scripting.
 (defun coq-insert-as-in-region (&optional beg end)
+  (interactive "r")
   (let ((beg (or beg (point-min)))
         (end (or end (point-max))))
     (goto-char beg)
     (while (< (point) end)
       (coq-script-parse-cmdend-forward)
-      (proof-assert-next-command-interactive)
-      )
-    ))
+      (proof-assert-next-command-interactive))))
 
 
 
