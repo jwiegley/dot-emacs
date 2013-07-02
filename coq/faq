@@ -1,0 +1,103 @@
+-*- outline -*-  
+
+This is a small FAQ for users of coq proof general.
+
+* Three windows mode
+
+It has been cleaned up. Here is how it works now.
+
+** How do I enable three windows mode?
+
+Menu Coq > toggle 3 windows mode
+
+** How do I enable three windows mode by default?
+
+Put this in you configuration file:
+
+(setq proof-three-window-enable t)
+
+** What are the possible layouts in 3 windows mode
+
+The are three layouts:
+  - vertical: the 3 buffers are displayed in one column.
+  - hybrid: 2 columns mode, left column displays scripting buffer
+    and right column displays the 2 others.
+  - horizontal: 3 columns mode, one for each buffer (script, goals,
+    response).
+
+** What is the default layout?
+
+The default layout is a "smart" one. One of the three layouts is
+chosen depending on the current width of your emacs frame. The
+threshold between is given by variable split-width-threshold:
+
+ width < split-width-threshold ===> vertical mode
+ split-width-threshold <= width < 1.5 * split-width-threshold ===> hybrid mode
+ width <= split-width-threshold ===> horizontal mode
+
+** How do I change the theshold between display modes in default mode?
+
+You can change the value of `split-width-threshold' at your will by
+putting this in your emacs configuration file:
+
+(setq split-width-threshold 140)
+
+Note that this is a global emacs setting, that may affect the way
+frames are split by other modes. See description of function
+`split-window-sensibly' for details.
+
+** I changed the size of my frame and layout did not changed, what happened?
+
+Hit C-c C-l to refresh layout, it will adapt to the new frame width.
+
+** I don't like the default layout of three windows mode, how can I force it?
+
+If you want to force one layout instead of letting emacs chose it for
+you (see above question "what is the default layout?"), you can set
+the variable `proof-three-window-mode-policy'. The three possible
+values are: 'smart (default), 'vertical, 'horizontal, 'hybrid.
+
+For example, putting this in your configuration file will force hybrid
+mode:
+
+(setq proof-three-window-mode-policy 'hybrid)
+
+
+* other interface questions
+
+** How do I disable the splash screen?
+
+Put this in your configuration file:
+
+(setq proof-splash-enable nil)
+
+** How do I enable the "compile before require" mode by default? 
+
+Put this in your configuration file:
+
+(setq coq-compile-before-require t)
+
+** Until now hovering the mouse cursor on the locked region
+   was popping up some windows showing coq output, how do I bring
+   this back?
+
+This was removed because it was considered by many as more annoying
+than useful, you can bring it back by:
+
+Menu Coq / toggle tooltips.
+
+** Electric terminator always goes to next line, how do I change this?
+
+You can disable this by putting this in your configuration file:
+
+(setq coq-one-command-per-line nil)
+
+
+** How do I change the color of the queue/locked region?
+
+(custom-set-faces
+ '(proof-queue-face
+   ((((type x) (class color) (background light))
+     (:background "darksalmon"))) t)
+ '(proof-locked-face
+   ((((type x) (class color) (background light)) (:background "SlateGray3"))) t))
