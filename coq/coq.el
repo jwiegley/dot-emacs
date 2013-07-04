@@ -26,6 +26,8 @@
   (defvar string nil)       ; dynamic scope in coq-insert-as stuff
   (defvar coq-auto-insert-as nil)    ; defpacustom
   (defvar coq-time-commands nil)        ; defpacustom
+  (defvar use-project-file t)        ; defpacustom
+  (defvar coq-project-filename nil)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-hide-additional-subgoals nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq

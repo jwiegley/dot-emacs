@@ -30,7 +30,7 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
-*** Suuport for _Coqproject files
+*** Support for _Coqproject files
 
     According to Coq documentation, it is advised to use coq_makefile
     -f _CoqProject -o Makefile to build your Makefile automatically
@@ -45,6 +45,11 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     reads it. Except for very unlikely situation this should replace
     the use of local file variables (which remains possible and
     overrides project file options).
+
+*** Automatic insertion of "as" clauses.
+
+    Should work for induction and destruct for now. Toggle this option
+    with Coq/Settings/Auto insert As.
 
 * Changes of Proof General 4.2 from Proof General 4.1
 
