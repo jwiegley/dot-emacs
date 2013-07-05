@@ -4025,6 +4025,12 @@ when a file is loaded. File variables and their values
 are written as a list at the end of
 the file.
 
+@emph{Remarque 1:} The examples in the following are for Coq but the
+trick is applicable to other provers. 
+
+@emph{Remarque 2:} For Coq specifically there is a recommended other way
+of configuring coq options: project files (@ref{Using the Coq project file}).
+
 For example, in Coq projects involving multiple directories, it is necessary
 to set the variable @code{coq-load-path} 
 (@ref{Customizing Coq Multiple File Support}). 
@@ -4081,13 +4087,13 @@ want to put each subdirectory into @code{coq-load-path} for every
 file in the project. You can achieve this by storing
 
 @lisp
-((coq-mode . ((coq-load-path . ("../dir_1" "../dir_2" ... )))))
+((coq-mode . ((coq-load-path . (("../util" "util") "../theories")))))
 @end lisp
 
-into the file @code{.dir-locals.el} in one of the parent
-directories. The value in this file must be an alist that maps
-mode names to alists, where these latter alists map variables to
-values, @inforef{Directory Variables, ,emacs}.
+into the file @code{.dir-locals.el} in one of the parent directories.
+The value in this file must be an alist that maps mode names to alists,
+where these latter alists map variables to values. You can aso put
+arbitrary code in this file @inforef{Directory Variables, ,emacs}.
 
 
 
@@ -4268,6 +4274,40 @@ Inserts ``End <section-name>.'' (this should work well with nested sections).
 @item C-c C-a C-o
 Prompts for a SearchIsos argument.
 @end table
+
+
+@node Using the Coq project file
+@section Using the Coq project file
+
+Before starting the Coq process, one need to set @code{coqtop} options,
+in particular the -I and -R command that set the directories to have in
+the coq load path. You can use file variables (@ref{Using file
+variables}) as it was recommended on previous versions of ProofGeneral
+but there is now a better way. ProofGeneral knows how to extract this
+information from the Coq project file if there is one. The Coq project
+file must be named @code{_CoqProject} and be on the root directory of
+your development.
+
+It should contain something like:
+
+@lisp
+-R foo bar
+-I foo2
+-arg -foo3
+@end lisp
+
+The intial use of this file is to be given to the @code{coq_makefile}
+tool to generate a Makefile (see Coq documentation for details). It is
+parsed by ProofGeneral to guess the command line option. In this example
+the command line built by Proofgeneral will be @code{coqtop -foo3 -R foo
+bar -I foo2}.
+
+This is the recommended way of configuring coqtop options for coq
+compilation, CoqIde and Proofgeneral. Its main advantage is that it
+avoids duplicating informations between these three tools.
+
+For specific (and rare) per file configuration one can still use file
+variables (@ref{Using file variables}).
 
 
 @node Multiple File Support
