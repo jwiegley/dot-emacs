@@ -57,7 +57,7 @@ See -k option for Isabelle interface script."
 (defpgdefault completion-table isar-keywords-major)
 
 (defcustom isar-web-page
-  "http://isabelle.in.tum.de/Isar/"
+  "http://isabelle.in.tum.de/"
   "URL of web page for Isabelle/Isar."
   :type 'string
   :group 'isabelle-isar)
