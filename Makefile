@@ -5,6 +5,7 @@
 ##
 ##  make		- do "compile" targets
 ##  make compile	- make .elc's 
+##  make check          - compile with warning flags enabled
 ##  make scripts	- edit paths to bash/perl/PGHOME in scripts
 ##  make install	- install into system directories
 ##  make clean		- return to clean source
