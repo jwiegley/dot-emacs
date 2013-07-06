@@ -17,10 +17,14 @@
 (require 'coq-indent)
 (require 'smie nil 'noerror)
 
-;; each element should end with "."
-(defconst coq-smie-dot-friends '("*." "-*." "|-*." "*|-*." ":?."))
-;; this captures ".." which not desirable
-;(defconst coq-smie-dot-friends-regexp "\\s_*\\.")
+;; As any user defined notation ending with "." will break
+;; proofgeneral synchronization anyway, let us consider that any
+;; combination of symbols ending with "." is an end of command for
+;; indentation purposes. One noticeable exception is .. that may
+;; happen inside notations and is dealt with by pg synchro.
+(defun coq-dot-friend-p (s)
+  (and (not (string-equal ".." s)) ;; string-equal because ... should return t.
+       (string-match "[^[:word:]]\\.\\'" s)))
 
 ; for debuging
 (defun coq-time-indent ()
@@ -126,7 +130,7 @@ command (and inside parenthesis)."
 	(while (< (point) end)
 	  ;; The default lexer is faster and is good enough for our needs.
 	  (let* ((next2 (smie-default-forward-token))
-		 (is-dot-friend (member next2 coq-smie-dot-friends))
+		 (is-dot-friend (coq-dot-friend-p next2))
 		 (next (if is-dot-friend "." next2))
 		 (parop (assoc next ignore-between)))
 	    ; if we find something to ignore, we directly jump to the
@@ -139,7 +143,7 @@ command (and inside parenthesis)."
 			 (coq-smie-search-token-forward
 			  (append parops (cons "." nil))
 			  end ignore-between)
-			 (cons "." nil)) ;coq-smie-dot-friends
+			 (cons "." nil))
 		  (goto-char (point))
 		  next))
 	      ;; Do not consider "." when not followed by a space
@@ -171,7 +175,7 @@ command (and inside parenthesis). "
 	  (while (> (point) end)
 	    ;; The default lexer is faster and is good enough for our needs.
 	    (let* ((next2 (smie-default-backward-token))
-		   (is-dot-friend (member next2 coq-smie-dot-friends))
+		   (is-dot-friend (coq-dot-friend-p next2))
 		   (next (if is-dot-friend "." next2))
 		   (parop (rassoc next ignore-between)))
 	      ; if we find something to ignore, we directly jump to the
@@ -184,9 +188,9 @@ command (and inside parenthesis). "
 		    ;(message "newpatterns = %S" (append parops (cons "." nil)))
 		    (when (member
 			   (coq-smie-search-token-backward
-			    (append parops (cons "." nil)) ;coq-smie-dot-friends
+			    (append parops (cons "." nil))
 			    end ignore-between)
-			   (cons "." nil)) ;coq-smie-dot-friends
+			   (cons "." nil))
 		      (goto-char (point))
 		      next))
 		;; Do not consider "." when not followed by a space
@@ -327,7 +331,7 @@ The point should be at the beginning of the command name."
       (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Obligation")) "Proof")
-     ((member tok coq-smie-dot-friends) ".")
+     ((coq-dot-friend-p tok) ".")
      (tok))))
 
 
@@ -560,7 +564,7 @@ The point should be at the beginning of the command name."
       (let ((newtok (coq-smie-backward-token))) ; recursive call
 	(concat newtok "." tok)))
 
-     ((member tok coq-smie-dot-friends) ".")
+     ((coq-dot-friend-p tok) ".")
 
      ((and (equal tok "") (eq (point) (point-min))) "b o f")
 
