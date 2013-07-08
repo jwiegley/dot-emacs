@@ -2,6 +2,64 @@
 
 This is a small FAQ for users of coq proof general.
 
+* Configuration of coqtop
+** How do I configure the options for coqtop?
+
+*** Answer 1: Recommended way of setting coqtop options: use coq project file _CoqProject
+
+The recommended way is to have a _CoqProject file in the root
+directory of your develpment, as recommended by the coq documentation
+(section "Creating a Makefile for Coq modules"). This file should
+contain, among other things, lines like these:
+
+-I foo
+-R bar baz
+-arg -fuo
+
+which will be read by proofgeneral to set up the coqtop command line.
+In this example it will be:
+
+coqtop -I foo -R bar baz -fuo
+
+The -emacs option will be added automatically too. File variables (see
+below) can be used to overwrite this configuration.
+
+*** Answer 2:  Alternative way (also allows to overwrite file project file settings)
+
+In the case you need to configure a specific file differently than
+others, or if you have only one file, you may use the "File Variables"
+mechanism of emacs to set the value of the variable coq-load-path and
+coq-prog-args using this syntax:
+
+    (*
+     *** Local Variables: ***
+     *** coq-load-path: ("foo" ("bar" "baz")) ***
+     *** coq-prog-args: ("-fuo") ***
+     *** End: ***
+     *)
+
+This must be at the end of the file. See emacs documentation on File
+Variables for more details. See also ProofGeneral documentation
+section "Using file varaiables".
+
+** How to  configure the coqtop binary?
+
+Add the following line to the local variables explained above to set
+the binary to use for coqtop (if not in the path):
+
+    *** coq-prog-name: ("xxx/bin/coqtop") ***
+ 
+* Ergonomy
+
+** How can I tell coq to recompile the files that need to be recompiled?
+
+Use option Coq > Settings > Compile before Require
+
+Each time ProofGeneral scripts a "Require" command, it will decide if
+the file needs to be recompiled by computing the dependencies between
+files and comparing modification dates of files. A special Thanks to
+Hendrik Tews for this cool feature.
+
 * Three windows mode
 
 It has been cleaned up. Here is how it works now.
@@ -101,3 +159,6 @@ You can disable this by putting this in your configuration file:
      (:background "darksalmon"))) t)
  '(proof-locked-face
    ((((type x) (class color) (background light)) (:background "SlateGray3"))) t))
+
+
+
