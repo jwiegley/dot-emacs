@@ -566,8 +566,6 @@ The point should be at the beginning of the command name."
 
      ((coq-dot-friend-p tok) ".")
 
-     ((and (equal tok "") (eq (point) (point-min))) "b o f")
-
      (tok))))
 
 
@@ -642,15 +640,7 @@ Lemma foo: forall n,
 	      (moduledecl) (moduledef) (mutual) (exp))
 
 
-	;; unknown tokens make smie fallback to backward-sexp, which
-	;; behaves badly on ill-formed comments. Generally we always
-	;; find a known token except when reaching the top of the
-	;; file. Therefore we need to have the "beginning of file"
-	;; token ("b o f") somewhere to avoid falling back on
-	;; backward-sexp. This is the reasonable place probably. The
-	;; best would be that smiefallback ignore comments.
-	(commands ("b o f" commands)
-		  (commands "." commands)
+	(commands (commands "." commands)
 		  (commands "- bullet" commands)
 		  (commands "+ bullet" commands)
 		  (commands "* bullet" commands)
@@ -661,8 +651,7 @@ Lemma foo: forall n,
       ;; each line orders tokens by increasing priority
       ;; | C x => fun a => b | C2 x => ...
       ;;'((assoc "=>") (assoc "|")  (assoc "|-" "=> fun")) ; (assoc ", quantif")
-      '((assoc "b o f") ;; beginning of file
-	(assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc "."))
+      '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc "."))
       '((assoc "with inductive")
 	(assoc ":= def" ":= inductive") (assoc ":=") (assoc "|") (assoc "=>")
 	(assoc "xxx provedby")

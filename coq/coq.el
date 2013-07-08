@@ -1148,6 +1148,8 @@ and `use-project-file' to disable this feature."
 
 
 (defun coq-mode-config ()
+  ; smie needs this
+  (set (make-local-variable 'parse-sexp-ignore-comments) t)
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
   ;; Coq defninition never start by a parenthesis
