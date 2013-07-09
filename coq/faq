@@ -3,6 +3,7 @@
 This is a small FAQ for users of coq proof general.
 
 * Configuration of coqtop
+
 ** How do I configure the options for coqtop?
 
 *** Answer 1: Recommended way of setting coqtop options: use coq project file _CoqProject
@@ -48,8 +49,79 @@ Add the following line to the local variables explained above to set
 the binary to use for coqtop (if not in the path):
 
     *** coq-prog-name: ("xxx/bin/coqtop") ***
+
+** OK I want to use a coq project file but with another name, can I?
+
+Yes you can:
+
+(setq coq-project-filename "myprojectfile")
+
+or:
+
+(setq (make-local-variable 'coq-project-filename) "myprojectfile")
+
+If this is for a whole project, the best is probably to have a
+.dir-locals.el file as explained in the section of proofgeneral manual
+(section "Using file variables"). This file should contain something
+like:
+
+((coq-mode . ((coq-project-filename . "myprojectfile"))))
+
+or equivalently:
+
+((coq-mode
+  .
+  ((eval
+    .
+    (progn 
+      (make-local-variable 'coq-project-filename)
+      (setq coq-project-filename  "myprojectfile"))))))
+
  
 * Ergonomy
+
+** What are the shortcuts I should know?
+
+The one for navigation:
+
+*** C-c C-n for one step
+*** C-c C-enter to go to cursor.
+You may want to bind these to more convenient non-standard shortcuts.
+ProofGeneral follows emacs policy: it avoids polluting the "short"
+shortcuts with its bindings and let the user configure them at will
+instead.
+
+Other useful shortcuts for queries to coq:
+
+*** C-c C-a C-i
+Inserts ``intros '' and also introduces the name of the hypothesis
+proposed by coq on the current goal.
+
+*** C-c C-a C-s
+Show the goal (enter for the current goal, i <enter> for the ith
+goal).
+
+IMPORTANT: Add the prefix C-u to see the answer with all pretty
+printing options temporarily disable (Set Printing All).
+
+*** C-c C-a C-c   
+Prompts for ``Check '' query arguments, the default input name is built
+from the identifier under the cursor.
+
+IMPORTANT: Add the prefix C-u to see the answer with all pretty
+printing options temporarily disable (Set Printing All).
+
+*** C-c C-a C-p The same for a ``Print '' query.
+*** C-c C-a C-b The same for a ``About '' query.
+*** C-c C-a C-a The same for a ``SearchAbout '' query (no C-u prefix).
+*** C-c C-a C-o The same for a Search ``SearchIsos'' (no C-u prefix).
+
+** I hate menus, why do you have menus?
+
+Indeed, very few emacs users use menus, which is understandable.
+However you should have a look at Coq menu and PG menu from time to
+time to see the features they propose, then remember the shortcut and
+hide the menu again.
 
 ** How can I tell coq to recompile the files that need to be recompiled?
 
@@ -59,6 +131,10 @@ Each time ProofGeneral scripts a "Require" command, it will decide if
 the file needs to be recompiled by computing the dependencies between
 files and comparing modification dates of files. A special Thanks to
 Hendrik Tews for this cool feature.
+
+Notice that this feature will only work if the the coq load path is
+the same for all files. To configure the load path, see the question
+"How do I configure the options for coqtop?" in this faq.
 
 * Three windows mode
 

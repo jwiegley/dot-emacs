@@ -1039,7 +1039,8 @@ project file settings."
 (defun coq-find-project-file ()
   "Return '(buf alreadyopen) where buf is the buffer visiting coq project file.
 alreadyopen is t if buffer already existed."  
-  (let* ((projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
+  (let* (
+         (projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
     (when projectfiledir
       (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
              ;; we store this intermediate result to know if we have to kill
@@ -1116,10 +1117,24 @@ and `use-project-file' to disable this feature."
       (unless no-kill (kill-buffer projectbuffer)))))
 
 
-;; TODO: read COQBIN somewhere?
+
+;; Since coq-project-filename can be set via .dir-locals.el or file variable,
+;; we need to call coq-load-coq-project-file only *after* local variables are
+;; set. But coq-mode-hook is called BEFORE local variables are read. Therefore
+;; coq-load-coq-project-file is added to hack-local-variables-hook instead. To
+;; avoid adding for other modes , the setting is performed inside
+;; coq-mode-hook. This is described in www.emacswiki.org/emacs/LocalVariables
+
+(defun coq-local-variables-if-enabled ()
+  (when coq-use-project-file (coq-load-project-file)))
+
+;; TODO: also read COQBIN somewhere?
+;; Note: this does not need to be at a particular place in the hook, but we
+;; need to make this hook local.
 (add-hook 'coq-mode-hook
-          '(lambda ()
-             (when coq-use-project-file (coq-load-project-file))))
+          '(lambda () (add-hook 'hack-local-variables-hook
+                                'coq-local-variables-if-enabled
+                                nil t)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1647,6 +1662,7 @@ mouse activation."
           (unless (zerop (length s)) (insert (format "%s %s.\n" reqkind s)))
           while (not (string-equal s "")))))
 
+;; TODO add module closing
 (defun coq-end-Section ()
   "Ends a Coq section."
   (interactive)
