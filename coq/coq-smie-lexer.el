@@ -113,7 +113,6 @@ the token of \".\" is simply \".\".
 
 
 
-
 ;; ignore-between is a description of pseudo delimiters of blocks that
 ;; should be jumped when searching. There is a bad interaction when
 ;; tokens and ignore-bteween are not disjoint
@@ -462,14 +461,20 @@ The point should be at the beginning of the command name."
 	     (let ((prev (coq-smie-backward-token))) ;; recursive call
 	       (member prev '("." ". proofstart" "{ subproof" "} subproof")))))
       (concat tok " bullet"))
+
+
+
      ((and (member tok '("exists" "∃"))
 	   (save-excursion
 	     (not (member
-		   (coq-smie-backward-token) ;; recursive call
-		   '("." ". proofstart" "; tactic" "[" "]" "|"
+		   (coq-smie-backward-token) ;; recursive call looking at the ptoken immediately before
+		   '("." ". proofstart" "; tactic" "[" "]" "|" "=>" ;; => may be wrong here but rare (have "=> ltac"?)
 		     "{ subproof" "} subproof" "- bullet" "+ bullet"
-		     "* bullet"))))
-	   "quantif exists"))
+		     "* bullet")))))
+      "quantif exists")
+
+
+
      ((equal tok "∀") "forall")
      ((equal tok "→") "->")
      ((equal tok "∨") "\\/")
