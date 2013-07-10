@@ -231,6 +231,7 @@ force indentation."
   (save-excursion ; FIXME add other commands that potentialy open goals
     (when (proof-looking-at "\\(Local\\|Global\\)?\
 \\(Definition\\|Lemma\\|Theorem\\|Fact\\|Let\\|Class\
+\\|Proposition\\|Remark\\|Instance\\|Corollary\\|Goal\
 \\|Add\\(\\s-+Parametric\\)?\\s-+Morphism\\)\\>")
 	(coq-lonely-:=-in-this-command))))
 
@@ -468,7 +469,7 @@ The point should be at the beginning of the command name."
 	   (save-excursion
 	     (not (member
 		   (coq-smie-backward-token) ;; recursive call looking at the ptoken immediately before
-		   '("." ". proofstart" "; tactic" "[" "]" "|" "=>" ;; => may be wrong here but rare (have "=> ltac"?)
+		   '("." ". proofstart" "; tactic" "[" "]" "|" "=>" ;; => may be wrong here but rare (h0ave "=> ltac"?)
 		     "{ subproof" "} subproof" "- bullet" "+ bullet"
 		     "* bullet")))))
       "quantif exists")
