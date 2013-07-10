@@ -467,6 +467,7 @@
     ("Instance goal" "instg" "Instance #:#.\n#\nDefined." t);; careful
     ("Lemma" "l" "Lemma # : #.\nProof.\n#\nQed." t "Lemma")
     ("Program Lemma" "pl" "Program Lemma # : #.\nProof.\n#\nQed." t "Program\\s-+Lemma")
+    ("Proposition" "l" "Proposition # : #.\nProof.\n#\nQed." t "Proposition")
     ("Module! (interactive)" nil "Module # : #.\n#\nEnd #." nil nil coq-insert-section-or-module)
     ("Module Type" "mti" "Module Type #.\n#\nEnd #." t "Module\\s-+Type") ; careful
     ("Module :" "moi" "Module # : #.\n#\nEnd #." t "Module") ; careful
