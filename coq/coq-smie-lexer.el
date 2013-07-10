@@ -232,7 +232,8 @@ force indentation."
     (when (proof-looking-at "\\(Local\\|Global\\)?\
 \\(Definition\\|Lemma\\|Theorem\\|Fact\\|Let\\|Class\
 \\|Proposition\\|Remark\\|Instance\\|Corollary\\|Goal\
-\\|Add\\(\\s-+Parametric\\)?\\s-+Morphism\\)\\>")
+\\|Add\\(\\s-+Parametric\\)?\\s-+Morphism\
+\\|Fixpoint\\)\\>") ;; Yes Fixpoint can start a proof like Definition
 	(coq-lonely-:=-in-this-command))))
 
 
