@@ -56,20 +56,24 @@
   "Return the token of the command terminator of the current command.
 For example in:
 
-Proof.
+Proof.       or        Proof with ... .
 
 the token of the \".\" is \". proofstart\".
 
 But in
 
-intros.
+intros.      or        Proof foo.
 
 the token of \".\" is simply \".\".
 "
   (save-excursion
     (let ((p (point)) (beg (coq-find-real-start))) ; moves to real start of command
       (cond
-       ((looking-at "Proof\\>\\|BeginSubproof\\>") ". proofstart")
+       ((looking-at "BeginSubproof\\>") ". proofstart")
+       ((looking-at "Proof\\>")
+	(forward-char 5)
+	(coq-find-not-in-comment-forward "[^[:space:]]") ;; skip spaces and comments
+	(if (looking-at "\\.\\|with") ". proofstart" "."))
        ((or (looking-at "Next\\s-+Obligation\\>")
 	    (coq-smie-detect-goal-command))
 	(save-excursion
@@ -221,7 +225,7 @@ proof-mode starter in Coq."
 ;; \\|\\(Declare\\s-+\\)?Instance is not detected as it is not
 ;; syntactically decidable to know if some goals are created. Same for
 ;; Program Fixpoint but with Program Next Obligation is mandatory for
-;; each goal.
+;; each goal anyway.
 (defun coq-smie-detect-goal-command ()
   "Return t if the next command is a goal starting to be indented.
 The point should be at the beginning of the command name. As
@@ -231,7 +235,7 @@ force indentation."
   (save-excursion ; FIXME add other commands that potentialy open goals
     (when (proof-looking-at "\\(Local\\|Global\\)?\
 \\(Definition\\|Lemma\\|Theorem\\|Fact\\|Let\\|Class\
-\\|Proposition\\|Remark\\|Instance\\|Corollary\\|Goal\
+\\|Proposition\\|Remark\\|Corollary\\|Goal\
 \\|Add\\(\\s-+Parametric\\)?\\s-+Morphism\
 \\|Fixpoint\\)\\>") ;; Yes Fixpoint can start a proof like Definition
 	(coq-lonely-:=-in-this-command))))
