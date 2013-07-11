@@ -172,10 +172,11 @@ Class cla {X:Set}:Set := {
 
 
 Module X.
-  Lemma l :
-  forall r:rec,
-  exists r':rec,
-    r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
+  Lemma l
+  :
+    forall r:rec,
+    exists r':rec,
+      r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
   Proof.
     intros r.  
     { exists 

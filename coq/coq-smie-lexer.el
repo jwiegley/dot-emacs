@@ -110,8 +110,8 @@ the token of \".\" is simply \".\".
       (goto-char p)
       (coq-find-real-start)
       (cond
-       ((looking-at "Inductive") "with inductive")
-       ((looking-at "Fixpoint\\|Function\\|Program") "with fixpoint")
+       ((looking-at "\\(Co\\)?Inductive") "with inductive")
+       ((looking-at "\\(Co\\)?Fixpoint\\|Function\\|Program") "with fixpoint")
        ((looking-at "Module\\|Declare") "with module")
        (t "with")))))
 
@@ -347,38 +347,28 @@ The point should be at the beginning of the command name."
 
 (defun coq-smie-:=-deambiguate ()
   (let ((corresp (coq-smie-search-token-backward
-		  '("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
+		  '("let" "Inductive" "CoInductive" "{|" "." "with" "Module" "where");
 		  nil '((("let" "with") . ":=")))))
-    (if (and (equal corresp "with") ; "as "with" belongs to the searched token we can't have it in excluded tokens
-	     (equal (coq-smie-with-deambiguate) "with match"))
-	(coq-smie-:=-deambiguate) ; recursive call if the with found is actually et with match
-      (cond
-       ((equal corresp ".") ":= def") ; := outside of any parenthesis
-       ((equal corresp "Module")
-	(let ((p (point)))
-	  (if (equal (smie-default-backward-token) "with")
-	      ":= with"
-	    (goto-char p)
-	    ":= module")))
-       ((member corresp '("Inductive" "CoInductive")) ":= inductive"); := inductive
-       ((equal corresp "let") ":= let")
-       ((equal corresp "with") ":= with")
-       ((or (looking-back "{")) ":= record")
-       (t ":="))))) ; a parenthesis stopped the search
-;
-;     ((equal tok ":=")
-;      (save-excursion
-;	;(save-excursion (coq-smie-:=-deambiguate)); TODO
-;	(let ((corresp (coq-smie-search-token-backward
-;			'("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
-;			nil '((("let" "with") . ":="))))) ;("match" . "with")
-;	  (cond
-;	   ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
-;	   ((equal corresp "let") ":= let")
-;	   ((equal corresp "with") ":= with")
-;	   ((or (looking-back "{")) ":= record")
-;	   (t tok)))))
-;
+    (cond
+     ((equal corresp "with")
+      (let ((corresptok (coq-smie-with-deambiguate)))
+	(cond ;; recursive call if the with found is actually et with match
+	 ((equal corresptok "with match") (coq-smie-:=-deambiguate))
+	 ((equal corresptok "with inductive") ":= inductive")
+	 (t ":=")
+	 )))
+     ((equal corresp ".") ":= def") ; := outside of any parenthesis
+     ((equal corresp "Module")
+      (let ((p (point)))
+	(if (equal (smie-default-backward-token) "with")
+	    ":= with"
+	  (goto-char p)
+	  ":= module")))
+     ((member corresp '("Inductive" "CoInductive")) ":= inductive")
+     ((equal corresp "let") ":= let")
+     ((equal corresp "where") ":= inductive") ;; inductive or fixpoint, nevermind
+     ((or (looking-back "{")) ":= record")
+     (t ":=")))) ; a parenthesis stopped the search
 
 
 (defun coq-smie-backward-token ()
@@ -437,16 +427,6 @@ The point should be at the beginning of the command name."
      ((equal tok ":=")
       (save-excursion
 	(save-excursion (coq-smie-:=-deambiguate))))
-	;; (let ((corresp (coq-smie-search-token-backward
-	;; 		'("let" "Inductive" "Coinductive" "{|" "." "with" "Module")
-	;; 		nil '((("let" "with") . ":="))))) ;("match" . "with")
-	;;   (cond
-	;;    ((member corresp '("Inductive" "CoInductive")) ":="); := inductive
-	;;    ((equal corresp "let") ":= let")
-	;;    ((equal corresp "with") ":= with")
-	;;    ((or (looking-back "{")) ":= record")
-	;;    (t tok)))
-	;; ))
 
      ((equal tok "=>")
       (save-excursion
@@ -488,6 +468,8 @@ The point should be at the beginning of the command name."
 
      ((equal tok "with") ; "with" is a nightmare: at least 4 different uses
       (save-excursion (coq-smie-with-deambiguate)))
+     ((equal tok "where") ; "with" is a nightmare: at least 4 different uses
+      "where")
 
      ((and (equal tok "signature")
 	   (equal (smie-default-backward-token) "with"))
@@ -598,12 +580,18 @@ Lemma foo: forall n,
 ;; - TODO: remove tokens "{ subproof" and "} subproof" but they are
 ;;         needed by the lexers at a lot of places.
 ;; - FIXME: This does not know about Notations.
+;; - TODO Actually there are two grammars: one at script level, for
+;;   indenting each command with respect to the previous commands, and
+;;   a standard one inside commands. Separating the two grammars would
+;;   greatly simplify this file. We should ask Stefan Monnier how to
+;;   have two grammars with smie.
 (defconst coq-smie-grammar
   (when (fboundp 'smie-prec2->grammar)
     (smie-prec2->grammar
      (smie-bnf->prec2
       '((exp
-	 (exp ":= def" exp) (exp ":=" exp) (exp ":= inductive" exp)
+	 (exp ":= def" exp)
+	 (exp ":=" exp) (exp ":= inductive" exp) 
 	 (exp "|" exp) (exp "=>" exp)
 	 (exp "xxx provedby" exp) (exp "as morphism" exp)
 	 (exp "with signature" exp)
@@ -639,8 +627,6 @@ Lemma foo: forall n,
 	 (exp) (exp ":= with" exp)
 	 (moduleconstraint "with module" "module" moduleconstraint))
 
-	(mutual (exp "with inductive" exp) (exp "with fixpoint" exp))
-
 	;; To deal with indentation inside module declaration and inside
 	;; proofs, we rely on the lexer. The lexer detects "." terminator of
 	;; goal starter and returns the ". proofstart" and ". moduelstart"
@@ -648,13 +634,20 @@ Lemma foo: forall n,
 	(bloc ("{ subproof" commands "} subproof")
 	      (". proofstart" commands  "Proof End")
 	      (". modulestart" commands  "end module" exp)
-	      (moduledecl) (moduledef) (mutual) (exp))
+	      (moduledecl) (moduledef)
+	      (exp))
 
 
 	(commands (commands "." commands)
 		  (commands "- bullet" commands)
 		  (commands "+ bullet" commands)
 		  (commands "* bullet" commands)
+		  ;; "with" of mutual definition should act like "."
+		  ;; same for "where" (introduction of a notation
+		  ;; after a inductive or fixpoint)
+		  (commands "with inductive" commands)
+		  (commands "with fixpoint" commands)
+		  (commands "where" commands)
 		  (bloc)))
 
 
@@ -662,10 +655,11 @@ Lemma foo: forall n,
       ;; each line orders tokens by increasing priority
       ;; | C x => fun a => b | C2 x => ...
       ;;'((assoc "=>") (assoc "|")  (assoc "|-" "=> fun")) ; (assoc ", quantif")
-      '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc "."))
-      '((assoc "with inductive")
-	(assoc ":= def" ":= inductive") (assoc ":=") (assoc "|") (assoc "=>")
-	(assoc "xxx provedby")
+      '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc ".")
+	(assoc "with inductive" "with fixpoint" "where"))
+      '((assoc "|") (assoc "=>")
+	(assoc ":= def" ":= inductive")
+	(assoc ":=")	(assoc "xxx provedby")
 	(assoc "as morphism") (assoc "with signature") (assoc "with match")
 	(assoc "in let")
 	(assoc "in eval") (assoc "=> fun") (assoc "then") (assoc "else")
@@ -676,7 +670,7 @@ Lemma foo: forall n,
 	(assoc "==") (assoc "=") (assoc "<" ">" "<=" ">=" "<>")
 	(assoc "=?") (assoc "<=?") (assoc "<?") (assoc "^")
 	(assoc "+") (assoc "-") (assoc "*")
-	(assoc ": ltacconstr") (assoc ". selector") (assoc ""))
+	(assoc ": ltacconstr") (assoc ". selector"))
       '((assoc ":" ":<")  (assoc "<"))
       '((assoc ". modulestart" "." ". proofstart") (assoc "Module def")
 	(assoc "with module" "module") (assoc ":= module")
@@ -694,8 +688,9 @@ Lemma foo: forall n,
 ;;     with signature Oeq ==> Oeq
 ;;                    as mu_eq_morphism.
 
-;; FIXME: have a different token for := corresponding to a "fix"
-;;Fixpoint join l : key -> elt -> t -> t :=
+;; FIXME: have a different token for := corresponding to a "fix" (not
+;; Fixpoint)
+;;Definition join l : key -> elt -> t -> t :=
 ;;      match l with
 ;;        | Leaf => add
 ;;        | Node ll lx ld lr lh => fun x d =>
@@ -758,7 +753,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
      (:before
       (cond
-
        ((equal token "with module")
 	(if (smie-rule-parent-p "with module")
 	    (smie-rule-parent)
