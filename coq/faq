@@ -43,7 +43,7 @@ This must be at the end of the file. See emacs documentation on File
 Variables for more details. See also ProofGeneral documentation
 section "Using file varaiables".
 
-** How to  configure the coqtop binary?
+** How to configure the coqtop binary?
 
 Add the following line to the local variables explained above to set
 the binary to use for coqtop (if not in the path):
@@ -136,6 +136,18 @@ Notice that this feature will only work if the the coq load path is
 the same for all files. To configure the load path, see the question
 "How do I configure the options for coqtop?" in this faq.
 
+** Why does library compilation lock up my Emacs? Can it use more than one core for compilation? 
+
+Enable Coq > Settings > Compile Parallel in Background to use the
+more recent compilation engine, which compiles in parallel (in
+case your dependencies permit this) and in the background.
+
+** How can I display the proof tree of some proof?
+
+Install Prooftree from http://askra.de/software/prooftree/,
+restart Proof General and select menu entry
+Proof-General > Start/Stop Prooftree or type C-c C-d .
+
 * Three windows mode
 
 It has been cleaned up. Here is how it works now.
@@ -143,10 +155,13 @@ It has been cleaned up. Here is how it works now.
 ** How do I enable three windows mode?
 
 Menu Coq > toggle 3 windows mode
+or Proof-General > Quick Options > Display > Use Three Panes.
 
 ** How do I enable three windows mode by default?
 
-Put this in you configuration file:
+Choose Proof-General > Quick Options > Save Options
+
+Alternatively, put this in you configuration file:
 
 (setq proof-three-window-enable t)
 
@@ -201,13 +216,22 @@ mode:
 
 ** How do I disable the splash screen?
 
-Put this in your configuration file:
+Choose Proof-General > Customize Options and disable "Proof
+Splash Enable" (at the bottom) and choose "Save for Future
+Sessions" by clicking on the state button.
+
+Alternatively, put this in your configuration file:
 
 (setq proof-splash-enable nil)
 
+Type M-x proof-splash-display-screen to enjoy the splash screen
+once.
+
 ** How do I enable the "compile before require" mode by default? 
 
-Put this in your configuration file:
+Choose Coq > Settings > Save Settings.
+
+Alternatively, put this in your configuration file:
 
 (setq coq-compile-before-require t)
 
