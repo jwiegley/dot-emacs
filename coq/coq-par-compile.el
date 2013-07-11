@@ -725,6 +725,11 @@ errors are reported with an error message."
 
 ;;; background job tasks
 
+(defun coq-par-job-coqc-finished (job)
+  "t if JOB has state 'waiting-queue or 'ready."
+  (or (eq (get job 'state) 'waiting-queue)
+      (eq (get job 'state) 'ready)))
+
 (defun coq-par-job-is-ready (job)
   "t if compilation job JOB is ready."
   (eq (get job 'state) 'ready))
@@ -855,7 +860,8 @@ case, the following actions are taken:
 	  (setq coq-last-compilation-job nil)
 	  (setq proof-second-action-list-active nil)
 	  (if coq-debug-auto-compilation
-	      (message "clear last compilation job")))
+	      (message "clear last compilation job"))
+	  (message "Library compilation finished"))
 	(if coq-debug-auto-compilation
 	    (message "%s: no queue dependant, queue kickoff finished"
 		     (get job 'name)))))))
@@ -872,7 +878,7 @@ compilation, compilation is started or enqueued and JOB stays in
       (coq-par-start-or-enqueue job)
     (if coq-debug-auto-compilation
 	(message "%s: up-to-date, no compilation" (get job 'name)))
-    (coq-par-kickoff-coqc-dependants job (get job 'youngest-coqc-dependency))))  
+    (coq-par-kickoff-coqc-dependants job (get job 'youngest-coqc-dependency))))
 
 (defun coq-par-decrease-coqc-dependency (dependant dependee-time
 						   dependee-ancestor-files)
@@ -926,12 +932,11 @@ This function makes the following actions.
 - Clear the dependency from JOB to all its dependants, thereby
   propagating the ancestors of JOB and the maximum of DEP-TIME
   and the modification time of the .vo of JOB.
+- save the maximum of DEP-TIME and .vo modification time in
+  'youngest-coqc-dependency, in case we later create a clone of this job
 - put JOB into state 'waiting-queue
 - try to trigger the transition 'waiting-queue -> ready for JOB"
   (let ((ancestor-files (get job 'ancestor-files)))
-    (if coq-debug-auto-compilation
-	(message "%s: kickoff %d coqc dependencies with time %s"
-		 (get job 'name) (length (get job 'coqc-dependants)) dep-time))
     ;; take max of dep-time and obj-mod-time
     ;; 
     ;; dep-time is either 'just-compiled or 'youngest-coqc-dependency of
@@ -941,6 +946,13 @@ This function makes the following actions.
     ;; original file.
     (unless (or (eq dep-time 'just-compiled) (eq (get job 'type) 'clone))
       (setq dep-time (coq-par-get-obj-mod-time job)))
+    (put job 'youngest-coqc-dependency dep-time)
+    (if coq-debug-auto-compilation
+	(message "%s: kickoff %d coqc dependencies with time %s"
+		 (get job 'name) (length (get job 'coqc-dependants))
+		 (if (eq dep-time 'just-compiled)
+		     'just-compiled
+		   (current-time-string dep-time))))
     (put job 'state 'waiting-queue)
     (mapc
      (lambda (dependant)
@@ -1047,7 +1059,7 @@ This function returns the newly created job."
 		       (get new-job 'name) (get new-job 'type) module-obj-file))
 	  (when queue-dep
 	    (coq-par-add-queue-dependency queue-dep new-job))
-	  (if (coq-par-job-is-ready orig-job)
+	  (if (coq-par-job-coqc-finished orig-job)
 	      (progn
 		(if queue-dep
 		    (put new-job 'state 'waiting-queue)
@@ -1123,7 +1135,7 @@ is directly passed to `coq-par-analyse-coq-dep-exit'."
 		  (dep-time (get dep-job 'youngest-coqc-dependency)))
 	     (when (coq-par-time-less job-max-time dep-time)
 	       (setq job-max-time dep-time))
-	     (unless (coq-par-job-is-ready dep-job)
+	     (unless (coq-par-job-coqc-finished dep-job)
 	       (coq-par-add-coqc-dependency dep-job job)))))
        dependencies-or-error)
       (put job 'youngest-coqc-dependency job-max-time)
@@ -1229,6 +1241,7 @@ there is no last compilation job."
 		       (get coq-last-compilation-job 'name)
 		       (length require-items))))
       ;; or add them directly to queueitems if there is no compilation job
+      ;; (this happens if the modules are ignored for compilation)
       (setq queueitems (nconc queueitems require-items))
       (if coq-debug-auto-compilation
 	  (message "attach %s items to queueitems" (length require-items))))))
