@@ -1053,29 +1053,34 @@ alreadyopen is t if buffer already existed."
 ;; No "." no "-" in coq modufe file names
 ;; TODO: look exactly at what characters are allowed.
 (defconst coq-load-path--R-regexp
-  "\\_<-R\\s-+\\_<\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\_<\\(?2:\\(?:\\w\\|_\\|\\.\\)+\\)")
+  "\\_<-R\\s-+\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\(?2:\\(?:\\w\\|_\\|\\.\\)+\\)")
 
 (defconst coq-load-path--I-regexp
-  "\\_<-I\\s-+\\_<\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)")
+  "\\_<-I\\s-+\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)")
 
 ;; match-string 1 must contain the string to add to coqtop command line, so we
 ;; ignore -arg, we use numbered subregexpr.
 (defconst coq-prog-args-regexp
   "\\_<\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:blank:]]+\\(?1:[^ \t\n#]+\\)\\)?")
 
-(defun coq-read-option-from-project-file (projectbuffer regexp)
+(defun coq-read-option-from-project-file (projectbuffer regexp &optional dirprefix)
   "look for occurrences of regexp in buffer projectbuffer and collect subexps.
 The returned sub-regexp are the one numbered 1 and 2 (other ones
 should be unnumbered). If there is only subexp 1 then it is added
 as is to the final list, if there are 1 and 2 then a list
-contining both is added to the final list."
+contining both is added to the final list. If optional DIRPREFIX
+is non nil, then options ar considered as directory or file names
+and will be made absolute from directory named DIRPREFIX. This
+allows to call coqtop from a subdirectory of the project."
   (let ((opt nil))
     (when projectbuffer
       (with-current-buffer projectbuffer
         (goto-char (point-min))
         (while (re-search-forward regexp nil t)
-          (let ((first (match-string 1))
-                (second (match-string 2)))
+          (let* ((firstfname (match-string 1))
+                (second (match-string 2))
+                (first (if (null dirprefix) firstfname
+                         (expand-file-name firstfname dirprefix))))
             (if second
                 (setq opt (cons (list first second) opt))
               (setq opt (cons first opt))))))
@@ -1088,7 +1093,8 @@ contining both is added to the final list."
   (cons "." 
         (coq-read-option-from-project-file
          projectbuffer
-         (concat coq-load-path--R-regexp "\\|" coq-load-path--I-regexp))))
+         (concat coq-load-path--R-regexp "\\|" coq-load-path--I-regexp)
+         (file-name-directory (buffer-file-name projectbuffer)))))
 
 ;; Look for other options (like -opt, -arg foo etc) in the project buffer
 ;; adds the -emacs option too
