@@ -26,7 +26,7 @@
   (defvar string nil)       ; dynamic scope in coq-insert-as stuff
   (defvar coq-auto-insert-as nil)    ; defpacustom
   (defvar coq-time-commands nil)        ; defpacustom
-  (defvar use-project-file t)        ; defpacustom
+  (defvar coq-use-project-file t)        ; defpacustom
   (defvar coq-project-filename nil)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-hide-additional-subgoals nil) ; defpacustom
@@ -1111,7 +1111,7 @@ Note that this may conflict with a similar configuration in a
 .dir-locals.el file or local file variables (both should
 overrides the the settings in _CoqProject). See
 `coq-project-filename' to change the name of the project file,
-and `use-project-file' to disable this feature."
+and `coq-use-project-file' to disable this feature."
   (let* ((projectbuffer-aux (coq-find-project-file))
          (projectbuffer (and projectbuffer-aux (car projectbuffer-aux)))
          (no-kill (and projectbuffer-aux (car (cdr projectbuffer-aux)))))
