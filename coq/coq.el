@@ -1047,8 +1047,7 @@ recommended way of configuring the coqtop invocation. Local file
 variables may still be used to override the coq project file's
 configuration. .dir-locals.el files also work and override
 project file settings."
-  :type 'boolean)
-
+  :type 'string)
 
 
 (defun coq-find-project-file ()
