@@ -621,11 +621,26 @@ If locked span already has a state number, then do nothing. Also updates
 
 (defun coq-hide-additional-subgoals-switch ()
   "Function invoked when the user switches `coq-hide-additional-subgoals'."
-  (if coq-hide-additional-subgoals
-      (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
-    (setq proof-shell-end-goals-regexp coq-end-goals-regexp-show-subgoals)))
+  (if coq-time-commands
+      (progn
+        (setq coq-hide-additional-subgoals nil)
+        (error
+         "You must disable ``Time Commands'' (var coq-time-commands) first"))
+    (if coq-hide-additional-subgoals
+        (setq proof-shell-end-goals-regexp coq-end-goals-regexp-hide-subgoals)
+      (setq proof-shell-end-goals-regexp coq-end-goals-regexp-show-subgoals))))
 
-
+(defun coq-time-commands-switch ()
+  "Function invoked when the user switches `coq-time-commands'.
+Resets `coq-hide-additional-subgoals' and puts nil into
+`proof-shell-end-goals-regexp' to ensure the timing is visible in
+the *goals* buffer."
+  (if coq-time-commands
+      (progn
+        (let ((coq-time-commands nil))
+          (customize-set-variable 'coq-hide-additional-subgoals nil))
+        (setq proof-shell-end-goals-regexp nil))
+    (coq-hide-additional-subgoals-switch)))
 
 ;;
 ;; Commands for Coq
@@ -1437,7 +1452,8 @@ and `coq-use-project-file' to disable this feature."
 
 (defpacustom time-commands nil
   "Whether to display timing information for each command."
-  :type 'boolean)
+  :type 'boolean
+  :eval (coq-time-commands-switch))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
