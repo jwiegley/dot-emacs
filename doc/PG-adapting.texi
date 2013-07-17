@@ -91,7 +91,7 @@ END-INFO-DIR-ENTRY
 
 @iftex
 @vskip 1cm
-@image{ProofGeneral}
+@image{ProofGeneral-image}
 @end iftex
 @author David Aspinall with T. Kleymann
 @page
