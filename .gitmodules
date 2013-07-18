@@ -373,3 +373,6 @@
 [submodule "site-lisp/fringe-helper-el"]
 	path = site-lisp/fringe-helper-el
 	url = git://github.com/nschum/fringe-helper.el
+[submodule "site-lisp/git-gutter-plus"]
+	path = site-lisp/git-gutter-plus
+	url = git://github.com/nonsequitur/git-gutter-plus
