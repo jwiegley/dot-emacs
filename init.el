@@ -1413,6 +1413,39 @@
                   (cmake-project-filename) 2)
           compilation-error-regexp-alist-alist)
 
+    (defun find-directory (dir name)
+      (catch 'file
+        (let ((files
+               (delete
+                nil
+                (mapcar
+                 (lambda (entry)
+                   (and (not (string-match
+                              "\\`\\." (file-name-nondirectory entry)))
+                        (file-directory-p entry)
+                        entry))
+                 (directory-files dir t)))))
+          (dolist (file files)
+            (if (string= (file-name-nondirectory file) name)
+                (throw 'file file)))
+          (dolist (file files)
+            (let ((result (find-directory file name)))
+              (if result (throw 'file result)))))))
+
+    (defun ghc-project-filename ()
+      (let ((filename (match-string-no-properties 1)))
+        (save-excursion
+          (goto-char (point-min))
+          (if (re-search-forward "^Building \\(.+?\\)-[0-9]" nil t)
+              (cons filename (find-directory default-directory
+                                             (match-string 1)))))))
+
+    ;; (push 'ghc compilation-error-regexp-alist)
+
+    ;; (push '(ghc "^\\(.+?\\.hs\\):\\([0-9]+\\):\\([0-9]+\\):"
+    ;;             (ghc-project-filename) 2 3)
+    ;;       compilation-error-regexp-alist-alist)
+
     (add-hook 'compilation-finish-functions
               (lambda (buf why)
                 (display-buffer buf)))))
@@ -1991,7 +2024,7 @@ FORM => (eval FORM)."
       (setq reason (mapconcat #'identity reason " "))
       (and (string= reason "")
            (setq reason nil))
-      (erc-cmd-OPME nick)
+      (erc-cmd-OPME)
       (sleep-for 0 250)
       (erc-cmd-BAN nick)
       (erc-send-command (format "KICK %s %s %s"
@@ -2004,7 +2037,7 @@ FORM => (eval FORM)."
       (setq reason (mapconcat #'identity reason " "))
       (and (string= reason "")
            (setq reason nil))
-      (erc-cmd-OPME nick)
+      (erc-cmd-OPME)
       (sleep-for 0 250)
       (erc-cmd-BAN nick nil t)
       (erc-send-command (format "KICK %s %s %s"
@@ -2017,7 +2050,7 @@ FORM => (eval FORM)."
       (setq reason (mapconcat #'identity reason " "))
       (and (string= reason "")
            (setq reason nil))
-      (erc-cmd-OPME nick)
+      (erc-cmd-OPME)
       (sleep-for 0 250)
       (erc-cmd-BAN nick "$#haskell-ops")
       (erc-send-command (format "KICK %s %s %s"
@@ -2185,6 +2218,17 @@ FORM => (eval FORM)."
 
 (use-package gist
   :bind ("C-c G" . gist-region-or-buffer))
+
+;;;_ , git-gutter+
+
+(use-package git-gutter+
+  :diminish git-gutter+-mode
+  :config
+  (progn
+    (use-package git-gutter-fringe+
+      :config
+      (git-gutter-fr+-minimal))
+    (global-git-gutter+-mode 1)))
 
 ;;;_ , gnus
 
