@@ -370,3 +370,6 @@
 [submodule "site-lisp/butler"]
 	path = site-lisp/butler
 	url = git://github.com/AshtonKem/Butler.git
+[submodule "site-lisp/fringe-helper-el"]
+	path = site-lisp/fringe-helper-el
+	url = git://github.com/nschum/fringe-helper.el
