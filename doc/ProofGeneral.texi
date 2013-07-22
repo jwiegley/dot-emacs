@@ -4258,23 +4258,45 @@ assistant.  It supports most of the generic features of Proof General.
 @section Coq-specific commands
 @kindex C-c C-a C-i
 @kindex C-c C-a C-a
+@kindex C-c C-a C-b
 @kindex C-c C-a C-s
-@kindex C-c C-a C-e
+@kindex C-c C-a C-)
+@kindex C-c C-a C-p
+@kindex C-c C-a C-c
 @kindex C-c C-a C-o
 
 Coq Proof General supplies the following key-bindings:
 @table @kbd
 @item C-c C-a C-i   
-Inserts ``Intros '' 
-@item C-c C-a C-a
-Inserts ``Apply '' 
+Inserts ``intros '' and also introduces the name of the hypothesis
+proposed by coq on the current goal.
+
 @item C-c C-a C-s
-Inserts ``Section ''
-@item C-c C-a C-e
-Inserts ``End <section-name>.'' (this should work well with nested sections).
+Show the goal (enter for the current goal, i <enter> for the ith goal).
+
+Add the prefix C-u to see the answer with all pretty printing options
+temporarily disable (Set Printing All).
+
+@item C-c C-a C-c   
+Prompts for ``Check '' query arguments, the default input name is built
+from the identifier under the cursor.
+
+Add the prefix C-u to see the answer with all pretty printing options
+temporarily disable (Set Printing All).
+
+@item C-c C-a C-p
+The same for a ``Print '' query.
+@item C-c C-a C-b
+The same for a ``About '' query.
+@item C-c C-a C-a
+The same for a ``SearchAbout '' query (no C-u prefix).
 @item C-c C-a C-o
-Prompts for a SearchIsos argument.
+The same for a Search ``SearchIsos'' (no C-u prefix).
+
+@item C-c C-a C-)
+Inserts ``End <section-name>.'' (this should work well with nested sections).
 @end table
+
 
 
 @node Using the Coq project file
@@ -4286,16 +4308,16 @@ the coq load path. You can use file variables (@ref{Using file
 variables}) as it was recommended on previous versions of ProofGeneral
 but there is now a better way. ProofGeneral knows how to extract this
 information from the Coq project file if there is one. The Coq project
-file must be named @code{_CoqProject} and be on the root directory of
-your development.
+file must be named following variable `coq-project-filename' (default:
+@code{_CoqProject}) and be on the root directory of your development.
 
 It should contain something like:
 
-@lisp
+@verbatim
 -R foo bar
 -I foo2
 -arg -foo3
-@end lisp
+@end verbatim
 
 The intial use of this file is to be given to the @code{coq_makefile}
 tool to generate a Makefile (see Coq documentation for details). It is
@@ -4310,6 +4332,55 @@ avoids duplicating informations between these three tools.
 For specific (and rare) per file configuration one can still use file
 variables (@ref{Using file variables}).
 
+@menu
+* Changing the name of the coq project file::
+* Disabling the coq project file mechanism::
+@end menu
+
+@node Changing the name of the coq project file
+@subsection Changing the name of the coq project file
+
+One can change the name of the project file by:
+
+(setq coq-project-filename "myprojectfile")
+
+or:
+
+(setq (make-local-variable 'coq-project-filename) "myprojectfile")
+
+If this is for a project, the best is probably to have a .dir-locals.el
+at the root of the project, as explained in  @ref{Using file
+variables}. This file should contain something like:
+
+@lisp
+((coq-mode . ((coq-project-filename . "myprojectfile"))))
+@end lisp
+
+or equivalently:
+
+@lisp
+((coq-mode
+  .
+  ((eval
+    .
+    (progn 
+      (make-local-variable 'coq-project-filename)
+      (setq coq-project-filename  "myprojectfile"))))))
+@end lisp
+
+@node Disabling the coq project file mechanism
+@subsection Disabling the coq project file mechanism
+
+If the variable `coq-use-project-file' is nil, then Proofgeneral will
+not look at project file. therefore you can put this in your config file
+(.emacs) to disable the use of project file:
+
+@lisp
+(setq coq-use-project-file nil)
+@end lisp
+
+You can also use the .dir-locals.el as above to configure this setting
+on a per project basis.
 
 @node Multiple File Support
 @section Multiple File Support
