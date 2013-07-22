@@ -22,10 +22,35 @@
 ;;; Code:
 (defconst coq-local-vars-doc nil
   "Documentation-only variable.
-A very convenient way to customize file-specific variables is to
-use File Variables (info:(Emacs)File Variables). This feature of
-Emacs allows to set Emacs variables on a per-file basis. File
-Variables are (usually) written as a list at the end of the file.
+
+PROJECT FILE
+
+The recommended way of setting coqtop options (-I, -R and others)
+is to use a project file. See the coq documentation (\"generating
+makefile\") for details. The default name of the project file is
+\"_CoqProject\" (can be configured via `coq-project-filename')
+and its content should be a list of options to be given to
+coq_makefile (one option per line). Here is an example:
+
+-R foo bar
+-I foo2
+-arg -foo3
+...(optionally followed by all .v files to be compiled)
+
+If `coq-use-project-file' is t (default) ProofGeneral reads the
+project file and sets coqtop options accordingly (via variables
+`coq-load-path' and `coq-prog-args'). In this example the coqtop
+invocation will be:
+
+coqtop -foo3 -R foo bar -I foo2
+
+FILE VARIABLES
+
+If for some reason you want to avoid or override the project file
+method, you can use the file variables (info:(Emacs)File
+Variables). This feature of Emacs allows to set Emacs variables
+on a per-file basis. File Variables are (usually) written as a
+list at the end of the file.
 
 We provide the following feature to help you:
 

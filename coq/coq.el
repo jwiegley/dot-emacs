@@ -27,7 +27,6 @@
   (defvar coq-auto-insert-as nil)    ; defpacustom
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-use-project-file t)        ; defpacustom
-  (defvar coq-project-filename nil)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-hide-additional-subgoals nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
@@ -1024,7 +1023,8 @@ then be set using local file variables."
              "-emacs-U"))
         coq-prog-name))))
 
-(defpacustom use-project-file t
+
+(defcustom coq-use-project-file t
   "If t, when opening a coq file read the dominating _CoqProject.
 If t when a coq file is opened, proofgeneral will look for a
 project file (see `coq-project-filename') somewhere in the
@@ -1032,9 +1032,10 @@ current directory or its parents directory. If there is one, its
 content is read and used to determine the arguments that must be
 given to coqtop. In particular it sets the load path (including
 the -R lib options) (see `coq-load-path') ."
-  :type 'boolean)
+  :type 'boolean
+  :group 'coq)
 
-(defpacustom project-filename "_CoqProject"
+(defcustom coq-project-filename "_CoqProject"
   "The name of coq project file.
 The coq project file of a coq developpement (Cf Coq documentation
 on \"makefile generation\") should contain the arguments given to
@@ -1064,13 +1065,12 @@ alreadyopen is t if buffer already existed."
                                 (find-file-noselect projectfile t t))))
         (list projectbuffer projectbufferalreadyopen)))))
 
-;; No "." no "-" in coq modufe file names
+;; No "." no "-" in coq module file names, but we do not check
 ;; TODO: look exactly at what characters are allowed.
 (defconst coq-load-path--R-regexp
-  "\\_<-R\\s-+\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)\\s-+\\(?2:\\(?:\\w\\|_\\|\\.\\)+\\)")
+  "\\_<-R\\s-+\\(?1:[^[:space:]]+\\)\\s-+\\(?2:[^[:space:]]+\\)")
 
-(defconst coq-load-path--I-regexp
-  "\\_<-I\\s-+\\(?1:\\(?:\\w\\|_\\|\\.\\)+\\)")
+(defconst coq-load-path--I-regexp "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)")
 
 ;; match-string 1 must contain the string to add to coqtop command line, so we
 ;; ignore -arg, we use numbered subregexpr.
@@ -1104,11 +1104,12 @@ allows to call coqtop from a subdirectory of the project."
 ;; add the default "." too
 (defun coq-search-load-path (projectbuffer)
   "Read project buffer and retrurn a value for `coq-load-path'."
-  (cons "." 
-        (coq-read-option-from-project-file
-         projectbuffer
-         (concat coq-load-path--R-regexp "\\|" coq-load-path--I-regexp)
-         (file-name-directory (buffer-file-name projectbuffer)))))
+;;  no automatic insertion of "." here because some people want to do "-R . foo" so
+;;  let us avoid conflicts.
+  (coq-read-option-from-project-file
+   projectbuffer
+   (concat coq-load-path--R-regexp "\\|" coq-load-path--I-regexp)
+   (file-name-directory (buffer-file-name projectbuffer))))
 
 ;; Look for other options (like -opt, -arg foo etc) in the project buffer
 ;; adds the -emacs option too
@@ -1119,23 +1120,56 @@ allows to call coqtop from a subdirectory of the project."
    (coq-read-option-from-project-file projectbuffer coq-prog-args-regexp)))
 
 
-(defun coq-load-project-file ()
-  "Return `coq-prog-args' by reading the dominating _CoqProject file.
-Note that this may conflict with a similar configuration in a
-.dir-locals.el file or local file variables (both should
-overrides the the settings in _CoqProject). See
-`coq-project-filename' to change the name of the project file,
-and `coq-use-project-file' to disable this feature."
+;; optional args allow to implement the precedence of dir/file local vars
+(defun coq-load-project-file-with-avoid (&optional avoidargs avoidpath)
   (let* ((projectbuffer-aux (coq-find-project-file))
          (projectbuffer (and projectbuffer-aux (car projectbuffer-aux)))
          (no-kill (and projectbuffer-aux (car (cdr projectbuffer-aux)))))
     (if (not projectbuffer-aux)
         (message "Coq project file not detected.")
-      (message "Coq project file detected: %s." (buffer-file-name projectbuffer))
-      (setq coq-prog-args (coq-search-prog-args projectbuffer))
-      (setq coq-load-path (coq-search-load-path projectbuffer))
+      (unless avoidargs (setq coq-prog-args (coq-search-prog-args projectbuffer)))
+      (unless avoidpath (setq coq-load-path (coq-search-load-path projectbuffer)))
+      (let ((msg
+             (cond
+              ((and avoidpath avoidargs) "Coqtop args and load path")
+              (avoidpath "Coqtop load path")
+              (avoidargs "Coqtop args")
+              (t ""))))
+        (message
+         "Coq project file detected: %s%s." (buffer-file-name projectbuffer)
+         (if (or avoidpath avoidargs)
+             (concat "\n(" msg " overridden by dir/file local values)")
+           "")))
       (unless no-kill (kill-buffer projectbuffer)))))
 
+
+
+(defun coq-load-project-file ()
+  "Set `coq-prog-args' and `coq-load-path' according to _CoqProject file.
+Obeys `coq-use-project-file'. Note that if a variable is already
+set by dir/file local variables, this function will not override
+its value.
+See `coq-project-filename' to change the name of the
+project file, and `coq-use-project-file' to disable this
+feature."
+  (when coq-use-project-file
+    ;; Let us reread dir/file local vars, in case the user mmodified them
+    (let* ((oldargs (assoc 'coq-prog-args file-local-variables-alist))
+           (oldpath (assoc 'coq-load-path file-local-variables-alist)))
+      (coq-load-project-file-with-avoid oldargs oldpath))))
+
+
+(defun coq-load-project-file-rehack ()
+  "Reread file/dir local vars and call `coq-load-project-file'.
+Does nothing if `coq-use-project-file' is nil.
+Warning: 
+"
+  (when coq-use-project-file
+    ;; Let us reread dir/file local vars, in case the user mmodified them
+    (hack-local-variables)
+    ;; Useless since coq-load-project-file is in hack-local-variables-hook:
+    ;;(coq-load-project-file)
+    ))
 
 
 ;; Since coq-project-filename can be set via .dir-locals.el or file variable,
@@ -1145,16 +1179,28 @@ and `coq-use-project-file' to disable this feature."
 ;; avoid adding for other modes , the setting is performed inside
 ;; coq-mode-hook. This is described in www.emacswiki.org/emacs/LocalVariables
 
-(defun coq-local-variables-if-enabled ()
-  (when coq-use-project-file (coq-load-project-file)))
-
 ;; TODO: also read COQBIN somewhere?
 ;; Note: this does not need to be at a particular place in the hook, but we
 ;; need to make this hook local.
+;; hack-local-variables-hook seems to hack local and dir local vars.
 (add-hook 'coq-mode-hook
           '(lambda () (add-hook 'hack-local-variables-hook
-                                'coq-local-variables-if-enabled
+                                'coq-load-project-file
                                 nil t)))
+
+
+
+(defun coq-toggle-use-project-file ()
+  (interactive)
+  (setq coq-use-project-file (not coq-use-project-file))
+  (when coq-use-project-file (coq-load-project-file-rehack))
+  ;; FIXME What should we do when disabling project file? since
+  ;; local variables override project file anyway, reading them
+  ;; again is useless. Let us do nothing.
+  ;;(setq coq-load-path nil)
+  ;;(setq coq-prog-args nil)
+  ;;(coq-build-prog-args)
+  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

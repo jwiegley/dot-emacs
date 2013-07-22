@@ -75,6 +75,7 @@
   (coq-install-abbrevs))
 ;;;;;
 
+
 ;; The coq menu partly built from tables
 
 ;; Common part (scrit, response and goals buffers)
@@ -209,6 +210,10 @@
       :selected (and (boundp 'abbrev-mode) abbrev-mode)])
     ""
     ("COQ PROG (ARGS)"
+     ["Use project file" coq-toggle-use-project-file
+      :style toggle
+      :selected (and (boundp 'coq-use-project-file) coq-use-project-file)
+      ]
      ["Set Coq Prog *persistently*" coq-ask-insert-coq-prog-name t]
      ["help" coq-local-vars-list-show-doc t]
      ["Compile" coq-Compile t]))))
