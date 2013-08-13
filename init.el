@@ -709,14 +709,15 @@
   (defvar el-get-sources nil)
 
   :config
-  (defun el-get-read-status-file ()
-    (mapcar #'(lambda (entry)
-                (cons (plist-get entry :symbol)
-                      `(status "installed" recipe ,entry)))
-            el-get-sources))
+  (progn
+    (defun el-get-read-status-file ()
+      (mapcar #'(lambda (entry)
+                  (cons (plist-get entry :symbol)
+                        `(status "installed" recipe ,entry)))
+              el-get-sources))
 
-  (defalias 'el-get-init 'ignore
-    "Don't use el-get for making packages available for use."))
+    (defalias 'el-get-init 'ignore
+      "Don't use el-get for making packages available for use.")))
 
 ;;;_ , cc-mode
 
@@ -1073,8 +1074,7 @@
 ;;;_ , ace-jump-mode
 
 (use-package ace-jump-mode
-  :bind (("C-. C-s" . ace-jump-mode)
-         ("M-h" . ace-jump-mode)))
+  :bind ("M-h" . ace-jump-mode))
 
 ;;;_ , agda
 
@@ -2219,6 +2219,11 @@ FORM => (eval FORM)."
 (use-package gist
   :bind ("C-c G" . gist-region-or-buffer))
 
+;;;_ , git-blame
+
+(use-package git-blame
+  :commands git-blame-mode)
+
 ;;;_ , git-gutter+
 
 (use-package git-gutter+
@@ -2381,6 +2386,7 @@ FORM => (eval FORM)."
 ;;;_ , hl-line
 
 (use-package hl-line
+  :commands hl-line-mode
   :bind ("M-o h" . hl-line-mode)
   :config
   (use-package hl-line+))
@@ -2508,7 +2514,7 @@ FORM => (eval FORM)."
           (delete-window)))))
 
 (use-package info-look
-  :commadns info-lookup-add-help)
+  :commands info-lookup-add-help)
 
 ;;;_ , indirect
 
@@ -2853,10 +2859,25 @@ FORM => (eval FORM)."
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :init
-  (defun magit-status-with-prefix ()
-    (interactive)
-    (let ((current-prefix-arg '(4)))
-      (call-interactively 'magit-status)))
+  (progn
+    (defun magit-status-with-prefix ()
+      (interactive)
+      (let ((current-prefix-arg '(4)))
+        (call-interactively 'magit-status)))
+
+    (defun eshell/git (&rest args)
+      (cond
+       ((or (null args)
+            (and (string= (car args) "status") (null (cdr args))))
+        (magit-status default-directory))
+       ((and (string= (car args) "log") (null (cdr args)))
+        (magit-log))
+       (t (throw 'eshell-replace-command
+                 (eshell-parse-command
+                  (concat "*" command)
+                  (eshell-stringify-list (eshell-flatten-list args)))))))
+
+    (add-hook 'magit-mode-hook 'hl-line-mode))
 
   :config
   (progn
@@ -3128,16 +3149,15 @@ FORM => (eval FORM)."
          ("C-c l" . org-insert-link))
   :init
   (progn
-    ;; jww (2013-03-29): Remove after the Emacs Conf
-    ;; (unless running-alternate-emacs
-    ;;   (run-with-idle-timer 300 t 'jump-to-org-agenda))
+    (unless running-alternate-emacs
+      (run-with-idle-timer 300 t 'jump-to-org-agenda))
 
-    (if (string-match "\\.elc\\'" load-file-name)
-        (add-hook 'after-init-hook
-                  #'(lambda ()
-                      (org-agenda-list)
-                      (org-fit-agenda-window)
-                      (org-resolve-clocks))) t)))
+    (unless running-alternate-emacs
+      (add-hook 'after-init-hook
+                #'(lambda ()
+                    (org-agenda-list)
+                    (org-fit-agenda-window)
+                    (org-resolve-clocks))) t)))
 
 ;;;_ , pabbrev
 
@@ -3595,6 +3615,12 @@ FORM => (eval FORM)."
          ("A-n"   . next-error)
          ("A-p"   . previous-error)))
 
+;;;_ , smartparens
+
+(use-package smartparens
+  :commands (smartparens-mode show-smartparens-mode)
+  :config (require 'smartparens-config))
+
 ;;;_ , smerge-mode
 
 (use-package smerge-mode
@@ -3688,8 +3714,6 @@ FORM => (eval FORM)."
 ;;;_ , tablegen-mode
 
 (use-package tablegen-mode
-  :description "\
-  This mode is used for editing .td files in the LLVM/Clang source code."
   :mode ("\\.td\\'" . tablegen-mode))
 
 ;;;_ , texinfo
@@ -4113,4 +4137,3 @@ FORM => (eval FORM)."
 ;; End:
 
 ;;; init.el ends here
-(put 'dired-find-alternate-file 'disabled nil)
