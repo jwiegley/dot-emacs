@@ -379,3 +379,6 @@
 [submodule "site-lisp/git-gutter-fringe-plus"]
 	path = site-lisp/git-gutter-fringe-plus
 	url = git://github.com/nonsequitur/git-gutter-fringe-plus
+[submodule "site-lisp/smartparens"]
+	path = site-lisp/smartparens
+	url = git://github.com/Fuco1/smartparens.git
