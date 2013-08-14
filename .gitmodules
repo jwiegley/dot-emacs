@@ -220,9 +220,6 @@
 [submodule "lisp/planner"]
 	path = lisp/planner
 	url = git://repo.or.cz/planner-el.git
-[submodule "site-lisp/auto-overlays"]
-	path = site-lisp/auto-overlays
-	url = https://github.com/emacsmirror/auto-overlays.git
 [submodule "site-lisp/swank-js"]
 	path = site-lisp/swank-js
 	url = https://github.com/swank-js/swank-js.git
