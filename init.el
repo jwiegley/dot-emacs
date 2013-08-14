@@ -2162,6 +2162,12 @@ FORM => (eval FORM)."
 (use-package fetchmail-mode
   :commands fetchmail-mode)
 
+;;;_ , flycheck
+
+(use-package flycheck
+  :config
+  (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point))
+
 ;;;_ , flyparse
 
 (use-package flyparse
