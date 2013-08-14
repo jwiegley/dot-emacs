@@ -319,9 +319,6 @@
 [submodule "site-lisp/smart-forward-el"]
 	path = site-lisp/smart-forward-el
 	url = git://github.com/magnars/smart-forward.el.git
-[submodule "site-lisp/flyparse"]
-	path = site-lisp/flyparse
-	url = git://github.com/jwiegley/flyparse.git
 [submodule "site-lisp/elpy"]
 	path = site-lisp/elpy
 	url = git://github.com/jorgenschaefer/elpy.git
