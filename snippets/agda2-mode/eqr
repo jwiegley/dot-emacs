@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# expand-env: nil
+# --
+
+$>    begin
+$>        ?
+$>    ≡⟨ ? ⟩
+$>        ?
+$>    ∎

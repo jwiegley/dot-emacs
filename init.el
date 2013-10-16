@@ -1720,6 +1720,14 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 (use-package dvc-autoloads
   :load-path "site-lisp/dvc/lisp/")
 
+;;;_ , easy-kill
+
+(use-package easy-kill
+  :init
+  (progn
+    (global-set-key [remap kill-ring-save] 'easy-kill)
+    (global-set-key [remap mark-sexp] 'easy-mark-sexp)))
+
 ;;;_ , ediff
 
 (use-package ediff
@@ -2058,6 +2066,27 @@ FORM => (eval FORM)."
                                 nick
                                 (or reason
                                     "Kicked (kicktroll)"))))
+
+    ;; this is essentially a refactored `erc-cmd-KICK'
+    (defun erc-cmd-REMOVE (target &optional reason-or-nick &rest reasonwords)
+      "Remove a user from the default or specified channel.
+    LINE has the format: \"#CHANNEL NICK REASON\" or \"NICK REASON\"."
+      (let* ((target-channel-p (erc-channel-p target))
+             (channel (if target-channel-p target (erc-default-target)))
+             (nick (if target-channel-p reason-or-nick target))
+             (reason
+              (mapconcat 'identity
+                         (or (if target-channel-p reasonwords
+                               (and reason-or-nick
+                                    (cons reason-or-nick reasonwords)))
+                             `("Requested by" ,(erc-current-nick)))
+                         " "))
+             (server-command (format "REMOVE %s %s :%s" channel nick reason)))
+        (if (not channel)
+            (erc-display-message nil 'error (current-buffer)
+                                 'no-default-channel)
+          (erc-log (format "cmd: REMOVE: %s/%s: %s" channel nick reason))
+          (erc-server-send server-command))))
 
     (defun erc-cmd-UNTRACK (&optional target)
       "Add TARGET to the list of target to be tracked."

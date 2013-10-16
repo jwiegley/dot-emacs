@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# expand-env: ((yas-indent-line 'fixed))
+# --
+begin
+    $0
+≡⟨ ? ⟩
+    ?
+∎
