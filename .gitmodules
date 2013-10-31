@@ -385,3 +385,6 @@
 [submodule "site-lisp/git-modes"]
 	path = site-lisp/git-modes
 	url = git://github.com/magit/git-modes.git
+[submodule "site-lisp/emacs-cl"]
+	path = site-lisp/emacs-cl
+	url = git://github.com/larsbrinkhoff/emacs-cl.git
