@@ -382,3 +382,6 @@
 [submodule "site-lisp/helm-swoop"]
 	path = site-lisp/helm-swoop
 	url = git://github.com/ShingoFukuyama/helm-swoop.git
+[submodule "site-lisp/git-modes"]
+	path = site-lisp/git-modes
+	url = git://github.com/magit/git-modes.git
