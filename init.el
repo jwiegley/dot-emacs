@@ -216,7 +216,8 @@
   (delete-indentation t))
 
 (bind-key "M-s n" 'find-name-dired)
-(bind-key "M-s o" 'occur)
+;;(bind-key "M-s o" 'occur)
+(bind-key "M-s o" 'helm-swoop)
 
 ;;;_  . M-C-?
 
@@ -1722,11 +1723,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , easy-kill
 
-(use-package easy-kill
-  :init
-  (progn
-    (global-set-key [remap kill-ring-save] 'easy-kill)
-    (global-set-key [remap mark-sexp] 'easy-mark-sexp)))
+;; (use-package easy-kill
+;;   :init
+;;   (progn
+;;     (global-set-key [remap kill-ring-save] 'easy-kill)
+;;     (global-set-key [remap mark-sexp] 'easy-mark-sexp)))
 
 ;;;_ , ediff
 
@@ -1864,6 +1865,19 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                                    :type 'netrc
                                    :port 6697))
                              :secret)))
+
+            (erc :server "192.168.9.135"
+                 :port 6697
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search
+                                   :host "192.168.9.135"
+                                   :user "johnw/fpcomplete"
+                                   :type 'netrc
+                                   :port 6697))
+                             :secret)))
+
             (erc :server "192.168.9.135"
                  :port 6697
                  :nick "johnw"
@@ -1874,19 +1888,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                                    :user "johnw/welltyped"
                                    :type 'netrc
                                    :port 6697))
-                             :secret)))
-            (when nil
-              (erc :server "192.168.9.135"
-                   :port 6697
-                   :nick "johnw"
-                   :password (funcall
-                              (plist-get
-                               (car (auth-source-search
-                                     :host "192.168.9.135"
-                                     :user "johnw/oftc"
-                                     :type 'netrc
-                                     :port 6697))
-                               :secret)))))
+                             :secret))))
+
         (erc-tls :server "irc.freenode.net"
                  :port 6697
                  :nick "johnw"
@@ -1899,14 +1902,21 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                                    :port 6667))
                              :secret)))
 
+        (erc-tls :server "ircbrowse.net"
+                 :port 6668
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search
+                                   :host "ircbrowse.net"
+                                   :user "johnw"
+                                   :type 'netrc
+                                   :port 6668))
+                             :secret)))
+
         (erc :server "irc.well-typed.com"
              :port 6665
-             :nick "johnw"))
-
-      ;; (erc-tls :server "irc.oftc.net"
-      ;;          :port 6697
-      ;;          :nick "johnw")
-      )
+             :nick "johnw")))
 
     (defun im ()
       (interactive)
@@ -2092,17 +2102,17 @@ FORM => (eval FORM)."
       "Add TARGET to the list of target to be tracked."
       (if target
           (erc-with-server-buffer
-            (let ((untracked
-                   (car (erc-member-ignore-case target erc-track-exclude))))
-              (if untracked
-                  (erc-display-line
-                   (erc-make-notice
-                    (format "%s is not currently tracked!" target))
-                   'active)
-                (add-to-list 'erc-track-exclude target)
-                (erc-display-line
-                 (erc-make-notice (format "Now not tracking %s" target))
-                 'active))))
+           (let ((untracked
+                  (car (erc-member-ignore-case target erc-track-exclude))))
+             (if untracked
+                 (erc-display-line
+                  (erc-make-notice
+                   (format "%s is not currently tracked!" target))
+                  'active)
+               (add-to-list 'erc-track-exclude target)
+               (erc-display-line
+                (erc-make-notice (format "Now not tracking %s" target))
+                'active))))
 
         (if (null erc-track-exclude)
             (erc-display-line
@@ -2120,16 +2130,16 @@ FORM => (eval FORM)."
    If no TARGET argument is specified, list contents of `erc-track-exclude'."
       (when target
         (erc-with-server-buffer
-          (let ((tracked
-                 (not (car (erc-member-ignore-case target erc-track-exclude)))))
-            (if tracked
-                (erc-display-line
-                 (erc-make-notice (format "%s is currently tracked!" target))
-                 'active)
-              (setq erc-track-exclude (remove target erc-track-exclude))
-              (erc-display-line
-               (erc-make-notice (format "Now tracking %s" target))
-               'active)))))
+         (let ((tracked
+                (not (car (erc-member-ignore-case target erc-track-exclude)))))
+           (if tracked
+               (erc-display-line
+                (erc-make-notice (format "%s is currently tracked!" target))
+                'active)
+             (setq erc-track-exclude (remove target erc-track-exclude))
+             (erc-display-line
+              (erc-make-notice (format "Now tracking %s" target))
+              'active)))))
       t)))
 
 ;;;_ , eshell
@@ -2400,6 +2410,8 @@ FORM => (eval FORM)."
       :commands helm-descbinds
       :init
       (fset 'describe-bindings 'helm-descbinds))
+
+    (use-package helm-swoop)
 
     (bind-key "C-h b" 'helm-descbinds))
 
