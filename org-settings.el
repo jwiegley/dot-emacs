@@ -24,7 +24,7 @@
  '(org-agenda-skip-scheduled-if-deadline-is-shown t)
  '(org-agenda-skip-scheduled-if-done t)
  '(org-agenda-skip-unavailable-files t)
- '(org-agenda-sorting-strategy (quote ((agenda habit-down time-up todo-state-up priority-down tag-up category-keep) (todo priority-down category-keep) (tags priority-down category-keep) (search category-keep))))
+ '(org-agenda-sorting-strategy (quote ((agenda habit-down time-up todo-state-up priority-down category-keep tag-up) (todo priority-down category-keep) (tags priority-down category-keep) (search category-keep))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-start-with-log-mode nil)
  '(org-agenda-tags-column -100)

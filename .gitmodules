@@ -388,3 +388,6 @@
 [submodule "site-lisp/emacs-cl"]
 	path = site-lisp/emacs-cl
 	url = git://github.com/larsbrinkhoff/emacs-cl.git
+[submodule "site-lisp/emacs_chrome"]
+	path = site-lisp/emacs_chrome
+	url = git://github.com/stsquad/emacs_chrome

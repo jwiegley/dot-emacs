@@ -437,6 +437,7 @@ is:
     (gnus-harvest-install)))
 
 (use-package gnus-alias
+  :disabled t
   :commands (gnus-alias-determine-identity
              gnus-alias-message-x-completion
              gnus-alias-select-identity)

@@ -10,8 +10,8 @@
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
 (require 'use-package)
-(eval-when-compile
-  (setq use-package-verbose (null byte-compile-current-file)))
+;; (eval-when-compile
+;;   (setq use-package-verbose (null byte-compile-current-file)))
 
 ;;;_ , Utility macros and functions
 
@@ -153,6 +153,12 @@
     (bury-buffer)))
 
 (bind-key "C-z" 'collapse-or-expand)
+
+(defun reformat-json ()
+  (interactive)
+  (save-excursion
+    (shell-command-on-region
+     (mark) (point) "python -m json.tool" (buffer-name) t)))
 
 ;;;_  . M-?
 
@@ -1192,7 +1198,8 @@
 
   :config
   (progn
-    (ac-set-trigger-key "TAB")
+    ;;(ac-set-trigger-key "TAB")
+    (ac-set-trigger-key "<backtab>")
     (setq ac-use-menu-map t)
 
     (bind-key "A-M-?" 'ac-last-help)
@@ -1766,6 +1773,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 (use-package edit-server
   :if (and window-system (not running-alternate-emacs)
            (not noninteractive))
+  :load-path "site-lisp/emacs_chrome/servers/"
   :init
   (progn
     (add-hook 'after-init-hook 'server-start t)
@@ -1852,39 +1860,39 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (defun irc ()
       (interactive)
 
-      (if (or t (quickping "192.168.9.135"))
+      (if (quickping "192.168.9.133")
           (progn
-            (erc :server "192.168.9.135"
+            (erc :server "192.168.9.133"
                  :port 6697
                  :nick "johnw"
                  :password (funcall
                             (plist-get
                              (car (auth-source-search
-                                   :host "192.168.9.135"
+                                   :host "192.168.9.133"
                                    :user "johnw/freenode"
                                    :type 'netrc
                                    :port 6697))
                              :secret)))
 
-            (erc :server "192.168.9.135"
+            (erc :server "192.168.9.133"
                  :port 6697
                  :nick "johnw"
                  :password (funcall
                             (plist-get
                              (car (auth-source-search
-                                   :host "192.168.9.135"
+                                   :host "192.168.9.133"
                                    :user "johnw/fpcomplete"
                                    :type 'netrc
                                    :port 6697))
                              :secret)))
 
-            (erc :server "192.168.9.135"
+            (erc :server "192.168.9.133"
                  :port 6697
                  :nick "johnw"
                  :password (funcall
                             (plist-get
                              (car (auth-source-search
-                                   :host "192.168.9.135"
+                                   :host "192.168.9.133"
                                    :user "johnw/welltyped"
                                    :type 'netrc
                                    :port 6697))
@@ -2387,6 +2395,15 @@ FORM => (eval FORM)."
 ;;;_ , haskell-mode
 
 (require 'haskell-config)
+
+(defun snippet (name)
+  (interactive "sName: ")
+  (find-file (expand-file-name (concat name ".hs") "~/Dropbox/Notes"))
+  (haskell-mode)
+  (goto-char (point-min))
+  (when (eobp)
+    (insert "hdr")
+    (yas-expand)))
 
 ;;;_ , helm
 
@@ -2942,8 +2959,8 @@ FORM => (eval FORM)."
                   (set-fill-column 72)
                   (flyspell-mode)))
 
-    (require 'magit-topgit)
-    (require 'rebase-mode)
+    ;; (require 'magit-topgit)
+    ;; (require 'rebase-mode)
 
     (defvar magit-git-monitor-process nil)
     (make-variable-buffer-local 'magit-git-monitor-process)
@@ -3196,15 +3213,14 @@ FORM => (eval FORM)."
          ("C-c l" . org-insert-link))
   :init
   (progn
-    (unless running-alternate-emacs
-      (run-with-idle-timer 300 t 'jump-to-org-agenda))
-
-    (unless running-alternate-emacs
-      (add-hook 'after-init-hook
-                #'(lambda ()
-                    (org-agenda-list)
-                    (org-fit-agenda-window)
-                    (org-resolve-clocks))) t)))
+    ;; (unless running-alternate-emacs
+    ;;   (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    ;;   (add-hook 'after-init-hook
+    ;;             #'(lambda ()
+    ;;                 (org-agenda-list)
+    ;;                 (org-fit-agenda-window)
+    ;;                 (org-resolve-clocks))) t)
+    ))
 
 ;;;_ , pabbrev
 
@@ -3277,6 +3293,7 @@ FORM => (eval FORM)."
 ;;;_ , persistent-scratch
 
 (use-package persistent-scratch
+  :disabled t
   :if (and window-system (not running-alternate-emacs)
            (not noninteractive)))
 
@@ -3799,14 +3816,14 @@ FORM => (eval FORM)."
 
 ;;;_ , textexpander
 
-;; (when (= 0 (call-process "using-textexpander"))
-  (bind-key "A-v" 'scroll-down)
-  (bind-key "M-v" 'yank)
-  ;; (bind-key "M-v" 'scroll-down)
-;; )
+;; ;; (when (= 0 (call-process "using-textexpander"))
+;;   (bind-key "A-v" 'scroll-down)
+;;   (bind-key "M-v" 'yank)
+;;   ;; (bind-key "M-v" 'scroll-down)
+;; ;; )
 
-  ;; (bind-key "M-v" 'scroll-down)
-  ;; (bind-key "A-v" 'yank)
+;;   ;; (bind-key "M-v" 'scroll-down)
+;;   ;; (bind-key "A-v" 'yank)
 
 ;;;_ , twittering-mode
 
