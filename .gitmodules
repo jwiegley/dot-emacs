@@ -370,9 +370,6 @@
 [submodule "site-lisp/smartparens"]
 	path = site-lisp/smartparens
 	url = git://github.com/Fuco1/smartparens.git
-[submodule "site-lisp/hi2"]
-	path = site-lisp/hi2
-	url = git://github.com/errge/hi2.git
 [submodule "site-lisp/helm-swoop"]
 	path = site-lisp/helm-swoop
 	url = git://github.com/ShingoFukuyama/helm-swoop.git
