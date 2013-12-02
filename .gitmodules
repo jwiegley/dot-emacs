@@ -57,7 +57,7 @@
 	url = https://github.com/jwiegley/anything-config.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
-	url = https://github.com/jwiegley/auctex.git
+	url = git://git.savannah.gnu.org/auctex.git
 [submodule "site-lisp/doxymacs"]
 	path = site-lisp/doxymacs
 	url = git://doxymacs.git.sourceforge.net/gitroot/doxymacs/doxymacs
@@ -123,7 +123,7 @@
 	url = https://github.com/rejeep/wrap-region.git
 [submodule "site-lisp/ghc-mod"]
 	path = site-lisp/ghc-mod
-	url = https://github.com/kazu-yamamoto/ghc-mod.git
+	url = https://github.com/jwiegley/ghc-mod.git
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
 	url = https://github.com/jwiegley/auto-complete.git
