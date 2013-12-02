@@ -1,60 +1,60 @@
 [submodule "lib/apel"]
 	path = lib/apel
-	url = https://github.com/emacsmirror/apel.git
+	url = git://github.com/emacsmirror/apel.git
 [submodule "lib/popup-el"]
 	path = lib/popup-el
-	url = https://github.com/m2ym/popup-el.git
+	url = git://github.com/m2ym/popup-el.git
 [submodule "lib/fuzzy-el"]
 	path = lib/fuzzy-el
-	url = https://github.com/m2ym/fuzzy-el.git
+	url = git://github.com/m2ym/fuzzy-el.git
 [submodule "lib/gh-el"]
 	path = lib/gh-el
-	url = https://github.com/sigma/gh.el.git
+	url = git://github.com/sigma/gh.el.git
 [submodule "lib/logito"]
 	path = lib/logito
-	url = https://github.com/sigma/logito.git
+	url = git://github.com/sigma/logito.git
 [submodule "lib/pcache"]
 	path = lib/pcache
-	url = https://github.com/sigma/pcache.git
+	url = git://github.com/sigma/pcache.git
 [submodule "lisp/alert"]
 	path = lisp/alert
-	url = https://github.com/jwiegley/alert.git
+	url = git://github.com/jwiegley/alert.git
 [submodule "lisp/chess"]
 	path = lisp/chess
-	url = https://github.com/jwiegley/emacs-chess.git
+	url = git://github.com/jwiegley/emacs-chess.git
 [submodule "lisp/gnus-harvest"]
 	path = lisp/gnus-harvest
-	url = https://github.com/jwiegley/gnus-harvest.git
+	url = git://github.com/jwiegley/gnus-harvest.git
 [submodule "lisp/initsplit"]
 	path = lisp/initsplit
-	url = https://github.com/jwiegley/initsplit.git
+	url = git://github.com/jwiegley/initsplit.git
 [submodule "lisp/muse"]
 	path = lisp/muse
-	url = https://github.com/jwiegley/muse.git
+	url = git://github.com/jwiegley/muse.git
 [submodule "lisp/regex-tool"]
 	path = lisp/regex-tool
-	url = https://github.com/jwiegley/regex-tool.git
+	url = git://github.com/jwiegley/regex-tool.git
 [submodule "override/bbdb"]
         path = override/bbdb
         url = git://git.savannah.nongnu.org/bbdb.git
 [submodule "override/gnus"]
 	path = override/gnus
-	url = https://github.com/jwiegley/gnus
+	url = git://github.com/jwiegley/gnus
 [submodule "override/org-mode"]
 	path = override/org-mode
-	url = https://github.com/jwiegley/org-mode.git
+	url = git://github.com/jwiegley/org-mode.git
 [submodule "override/tramp"]
 	path = override/tramp
-	url = https://github.com/jwiegley/tramp.git
+	url = git://github.com/jwiegley/tramp.git
 [submodule "override/cedet"]
 	path = override/cedet
-	url = https://github.com/emacsmirror/cedet.git
+	url = git://github.com/emacsmirror/cedet.git
 [submodule "site-lisp/ace-jump-mode"]
 	path = site-lisp/ace-jump-mode
-	url = https://github.com/winterTTr/ace-jump-mode.git
+	url = git://github.com/winterTTr/ace-jump-mode.git
 [submodule "site-lisp/anything"]
 	path = site-lisp/anything
-	url = https://github.com/jwiegley/anything-config.git
+	url = git://github.com/jwiegley/anything-config.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
 	url = git://git.savannah.gnu.org/auctex.git
@@ -63,100 +63,100 @@
 	url = git://doxymacs.git.sourceforge.net/gitroot/doxymacs/doxymacs
 [submodule "site-lisp/emacs-w3m"]
 	path = site-lisp/emacs-w3m
-	url = https://github.com/jwiegley/emacs-w3m.git
+	url = git://github.com/jwiegley/emacs-w3m.git
 [submodule "site-lisp/ess"]
 	path = site-lisp/ess
-	url = https://github.com/emacs-ess/ESS.git
+	url = git://github.com/emacs-ess/ESS.git
 [submodule "site-lisp/gist"]
 	path = site-lisp/gist
-	url = https://github.com/defunkt/gist.el.git
+	url = git://github.com/defunkt/gist.el.git
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
-	url = https://github.com/jwiegley/haskell-mode.git
+	url = git://github.com/jwiegley/haskell-mode.git
 [submodule "site-lisp/info-lookmore"]
 	path = site-lisp/info-lookmore
-	url = https://github.com/emacsmirror/info-lookmore.git
+	url = git://github.com/emacsmirror/info-lookmore.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
-	url = https://github.com/jwiegley/magit.git
+	url = git://github.com/jwiegley/magit.git
 [submodule "site-lisp/markdown-mode"]
 	path = site-lisp/markdown-mode
-	url = https://github.com/emacsmirror/markdown-mode.git
+	url = git://github.com/emacsmirror/markdown-mode.git
 [submodule "site-lisp/offlineimap"]
 	path = site-lisp/offlineimap
-	url = https://github.com/emacsmirror/offlineimap.git
+	url = git://github.com/emacsmirror/offlineimap.git
 [submodule "site-lisp/org-mac-protocol"]
 	path = site-lisp/org-mac-protocol
-	url = https://github.com/emacsmirror/org-mac-protocol.git
+	url = git://github.com/emacsmirror/org-mac-protocol.git
 [submodule "site-lisp/org-magit"]
 	path = site-lisp/org-magit
-	url = https://github.com/sigma/org-magit.git
+	url = git://github.com/sigma/org-magit.git
 [submodule "site-lisp/python-mode"]
 	path = site-lisp/python-mode
-	url = https://github.com/jwiegley/python-mode.git
+	url = git://github.com/jwiegley/python-mode.git
 [submodule "site-lisp/session"]
 	path = site-lisp/session
-	url = https://github.com/jwiegley/session.git
+	url = git://github.com/jwiegley/session.git
 [submodule "site-lisp/slime"]
 	path = site-lisp/slime
-	url = https://github.com/jwiegley/slime.git
+	url = git://github.com/jwiegley/slime.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
-	url = https://github.com/capitaomorte/yasnippet.git
+	url = git://github.com/capitaomorte/yasnippet.git
 [submodule "site-lisp/zencoding"]
 	path = site-lisp/zencoding
-	url = https://github.com/rooney/zencoding.git
+	url = git://github.com/rooney/zencoding.git
 [submodule "site-lisp/boxquote"]
 	path = site-lisp/boxquote
-	url = https://github.com/emacsmirror/boxquote.git
+	url = git://github.com/emacsmirror/boxquote.git
 [submodule "site-lisp/workgroups"]
 	path = site-lisp/workgroups
-	url = https://github.com/tlh/workgroups.el.git
+	url = git://github.com/tlh/workgroups.el.git
 [submodule "site-lisp/dired-sync"]
 	path = site-lisp/dired-sync
-	url = https://github.com/renard/dired-sync.git
+	url = git://github.com/renard/dired-sync.git
 [submodule "site-lisp/yari-with-buttons"]
 	path = site-lisp/yari-with-buttons
-	url = https://github.com/pedz/yari-with-buttons.git
+	url = git://github.com/pedz/yari-with-buttons.git
 [submodule "site-lisp/wrap-region"]
 	path = site-lisp/wrap-region
-	url = https://github.com/rejeep/wrap-region.git
+	url = git://github.com/rejeep/wrap-region.git
 [submodule "site-lisp/ghc-mod"]
 	path = site-lisp/ghc-mod
-	url = https://github.com/jwiegley/ghc-mod.git
+	url = git://github.com/jwiegley/ghc-mod.git
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
-	url = https://github.com/jwiegley/auto-complete.git
+	url = git://github.com/jwiegley/auto-complete.git
 [submodule "site-lisp/git-commit-mode"]
 	path = site-lisp/git-commit-mode
-	url = https://github.com/jwiegley/git-commit-mode.git
+	url = git://github.com/jwiegley/git-commit-mode.git
 [submodule "site-lisp/sunrise-commander"]
 	path = site-lisp/sunrise-commander
-	url = https://github.com/jwiegley/sunrise-commander.git
+	url = git://github.com/jwiegley/sunrise-commander.git
 [submodule "site-lisp/bm"]
 	path = site-lisp/bm
-	url = https://github.com/joodland/bm.git
+	url = git://github.com/joodland/bm.git
 [submodule "site-lisp/lua-mode"]
 	path = site-lisp/lua-mode
-	url = https://github.com/immerrr/lua-mode.git
+	url = git://github.com/immerrr/lua-mode.git
 [submodule "site-lisp/emacs-quickrun"]
 	path = site-lisp/emacs-quickrun
-	url = https://github.com/syohex/emacs-quickrun.git
+	url = git://github.com/syohex/emacs-quickrun.git
 [submodule "site-lisp/helm"]
 	path = site-lisp/helm
-	url = https://github.com/emacs-helm/helm.git
+	url = git://github.com/emacs-helm/helm.git
 [submodule "site-lisp/helm-descbinds"]
 	path = site-lisp/helm-descbinds
-	url = https://github.com/emacs-helm/helm-descbinds.git
+	url = git://github.com/emacs-helm/helm-descbinds.git
 [submodule "lisp/springboard"]
 	path = lisp/springboard
 	url = git://github.com/jwiegley/springboard.git
 [submodule "site-lisp/ipa-el"]
 	path = site-lisp/ipa-el
-	url = https://github.com/idomagal/ipa.el.git
+	url = git://github.com/idomagal/ipa.el.git
 [submodule "site-lisp/ido-hacks"]
 	path = site-lisp/ido-hacks
-	url = https://github.com/jwiegley/ido-hacks.git
+	url = git://github.com/jwiegley/ido-hacks.git
 [submodule "lisp/bind-key"]
 	path = lisp/bind-key
 	url = git://github.com/jwiegley/bind-key.git
@@ -168,10 +168,10 @@
 	url = git://github.com/rooney/zencoding.git
 [submodule "site-lisp/macrostep"]
 	path = site-lisp/macrostep
-	url = https://github.com/jwiegley/macrostep.git
+	url = git://github.com/jwiegley/macrostep.git
 [submodule "site-lisp/Enhanced-Ruby-Mode"]
 	path = site-lisp/Enhanced-Ruby-Mode
-	url = http://github.com/jacott/Enhanced-Ruby-Mode.git
+	url = git://github.com/jacott/Enhanced-Ruby-Mode.git
 [submodule "lisp/erc-yank"]
 	path = lisp/erc-yank
 	url = git://github.com/jwiegley/erc-yank.git
@@ -180,22 +180,22 @@
 	url = git://github.com/jwiegley/eval-expr.git
 [submodule "site-lisp/bookmark-plus"]
 	path = site-lisp/bookmark-plus
-	url = https://github.com/emacsmirror/bookmark-plus.git
+	url = git://github.com/emacsmirror/bookmark-plus.git
 [submodule "lib/emacs-ctable"]
 	path = lib/emacs-ctable
-	url = https://github.com/kiwanami/emacs-ctable.git
+	url = git://github.com/kiwanami/emacs-ctable.git
 [submodule "lib/emacs-deferred"]
 	path = lib/emacs-deferred
-	url = https://github.com/kiwanami/emacs-deferred.git
+	url = git://github.com/kiwanami/emacs-deferred.git
 [submodule "lib/emacs-epc"]
 	path = lib/emacs-epc
-	url = https://github.com/kiwanami/emacs-epc.git
+	url = git://github.com/kiwanami/emacs-epc.git
 [submodule "site-lisp/elnode"]
 	path = site-lisp/elnode
-	url = https://github.com/nicferrier/elnode
+	url = git://github.com/nicferrier/elnode
 [submodule "site-lisp/emacs-edbi"]
 	path = site-lisp/emacs-edbi
-	url = https://github.com/kiwanami/emacs-edbi.git
+	url = git://github.com/kiwanami/emacs-edbi.git
 [submodule "site-lisp/lusty-emacs"]
 	path = site-lisp/lusty-emacs
 	url = git://github.com/jwiegley/lusty-emacs
@@ -204,7 +204,7 @@
 	url = git://github.com/jwiegley/emms
 [submodule "site-lisp/autopair"]
 	path = site-lisp/autopair
-	url = https://github.com/capitaomorte/autopair.git
+	url = git://github.com/capitaomorte/autopair.git
 [submodule "site-lisp/deft"]
 	path = site-lisp/deft
 	url = git://jblevins.org/git/deft.git
@@ -213,25 +213,25 @@
 	url = git://github.com/jwiegley/debbugs-gnu.git
 [submodule "site-lisp/asynk"]
 	path = site-lisp/asynk
-	url = https://github.com/skarra/ASynK.git
+	url = git://github.com/skarra/ASynK.git
 [submodule "lisp/emacs-async"]
 	path = lisp/emacs-async
-	url = https://github.com/jwiegley/emacs-async.git
+	url = git://github.com/jwiegley/emacs-async.git
 [submodule "lisp/planner"]
 	path = lisp/planner
 	url = git://repo.or.cz/planner-el.git
 [submodule "site-lisp/swank-js"]
 	path = site-lisp/swank-js
-	url = https://github.com/swank-js/swank-js.git
+	url = git://github.com/swank-js/swank-js.git
 [submodule "site-lisp/command-log-mode"]
 	path = site-lisp/command-log-mode
-	url = https://github.com/lewang/command-log-mode.git
+	url = git://github.com/lewang/command-log-mode.git
 [submodule "site-lisp/elisp-slime-nav"]
 	path = site-lisp/elisp-slime-nav
-	url = https://github.com/purcell/elisp-slime-nav.git
+	url = git://github.com/purcell/elisp-slime-nav.git
 [submodule "site-lisp/ruby-mode"]
 	path = site-lisp/ruby-mode
-	url = https://github.com/jwiegley/ruby-mode.git
+	url = git://github.com/jwiegley/ruby-mode.git
 [submodule "lisp/emacs-edg"]
 	path = lisp/emacs-edg
 	url = git://github.com/boostpro/emacs-edg
@@ -243,7 +243,7 @@
 	url = git://git.swclan.homelinux.org/hpaste.git
 [submodule "site-lisp/yaml-mode"]
 	path = site-lisp/yaml-mode
-	url = https://github.com/yoshiki/yaml-mode.git
+	url = git://github.com/yoshiki/yaml-mode.git
 [submodule "site-lisp/org-merge-driver"]
 	path = site-lisp/org-merge-driver
 	url = git://orgmode.org/org-merge-driver.git
@@ -333,7 +333,7 @@
 	url = git://github.com/inkel/github-issues.el.git
 [submodule "site-lisp/gh-el"]
 	path = site-lisp/gh-el
-	url = https://github.com/sigma/gh.el
+	url = git://github.com/sigma/gh.el
 [submodule "site-lisp/org-present"]
 	path = site-lisp/org-present
 	url = git://github.com/rlister/org-present.git
