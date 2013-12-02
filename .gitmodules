@@ -102,7 +102,7 @@
 	url = https://github.com/jwiegley/slime.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
-	url = https://github.com/jwiegley/yasnippet.git
+	url = https://github.com/capitaomorte/yasnippet.git
 [submodule "site-lisp/zencoding"]
 	path = site-lisp/zencoding
 	url = https://github.com/rooney/zencoding.git
