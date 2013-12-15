@@ -388,3 +388,6 @@
 [submodule "lib/ht-el"]
 	path = lib/ht-el
 	url = git://github.com/Wilfred/ht.el.git
+[submodule "site-lisp/prodigy"]
+	path = site-lisp/prodigy
+	url = git://github.com/rejeep/prodigy.el.git
