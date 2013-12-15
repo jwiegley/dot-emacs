@@ -385,3 +385,6 @@
 [submodule "lib/f-el"]
 	path = lib/f-el
 	url = git://github.com/rejeep/f.el.git
+[submodule "lib/ht-el"]
+	path = lib/ht-el
+	url = git://github.com/Wilfred/ht.el.git
