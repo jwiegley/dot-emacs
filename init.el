@@ -3309,6 +3309,22 @@ FORM => (eval FORM)."
   :init
   (hook-into-modes 'pretty-control-l-mode '(prog-mode-hook)))
 
+;;;_ , prodigy
+
+(use-package prodigy
+  :commands prodigy
+  :init
+  (prodigy-define-service
+    :name "IR"
+    :command "devel-manager"
+    :cwd "~/fpco"
+    :path '("~/fpco/.hsenvs/ghc-7.4.2.9/.hsenv/cabal/bin")
+    :port 6000
+    :tags '(work fpco haskell)
+    :init (lambda ()
+            ;; Setup RVM
+            )))
+
 ;;;_ , projectile
 
 (use-package projectile

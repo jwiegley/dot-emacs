@@ -1,7 +1,0 @@
-#name : agenda
-# --
-***** NOTE BoostPro status meeting agenda for `(with-temp-buffer (org-insert-time-stamp (current-time) nil t))`
-$0
-:PROPERTIES:
-:ID:       `(shell-command-to-string "uuidgen")`:CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
-:END:
