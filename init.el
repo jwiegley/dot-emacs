@@ -1717,6 +1717,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
     (bind-key "C-c J" 'dired-double-jump)))
 
+;;;_ , discover
+
+(use-package discover)
+
 ;;;_ , doxymacs
 
 (use-package doxymacs
@@ -1726,6 +1730,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , dvc
 
 (use-package dvc-autoloads
+  :disabled t
   :load-path "site-lisp/dvc/lisp/")
 
 ;;;_ , easy-kill
@@ -1759,14 +1764,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("C-. = w" . ediff-regions-wordwise))
   :config
   (use-package ediff-keep))
-
-;;;_ , edit-emacs
-
-(use-package edit-server
-  :if (and window-system (not running-alternate-emacs)
-           (not noninteractive))
-  :init
-  (edit-server-start))
 
 ;;;_ , edit-server
 
@@ -2218,6 +2215,7 @@ FORM => (eval FORM)."
 ;;;_ , flyparse
 
 (use-package flyparse
+  :disabled t
   :load-path ("site-lisp/flyparse/deps/dash.el"
               "site-lisp/flyparse/deps/s.el")
   :init
@@ -3312,6 +3310,7 @@ FORM => (eval FORM)."
 ;;;_ , prodigy
 
 (use-package prodigy
+  :disabled t
   :commands prodigy
   :init
   (prodigy-define-service
@@ -3489,6 +3488,7 @@ FORM => (eval FORM)."
 ;;;_ , sage-mode
 
 (use-package sage
+  :disabled t
   :load-path "~/Applications/sage/local/share/emacs/"
   :init
   (progn

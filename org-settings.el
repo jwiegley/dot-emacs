@@ -75,7 +75,7 @@ SCHEDULED: %t
  '(org-insert-heading-respect-content t)
  '(org-irc-link-to-logs t t)
  '(org-mobile-agendas (quote ("Z")))
- '(org-mobile-directory "~/Dropbox/MobileOrg")
+ '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
  '(org-mobile-files (quote ("~/Documents/Tasks/todo.txt")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
  '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
