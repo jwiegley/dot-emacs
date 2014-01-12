@@ -400,3 +400,6 @@
 [submodule "lib/makey"]
 	path = lib/makey
 	url = https://github.com/mickeynp/makey.git
+[submodule "lib/pkg-info"]
+	path = lib/pkg-info
+	url = git://github.com/lunaryorn/pkg-info.el.git
