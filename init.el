@@ -3327,6 +3327,7 @@ FORM => (eval FORM)."
 ;;;_ , projectile
 
 (use-package projectile
+  :disabled t
   :diminish projectile-mode
   :init
   (projectile-global-mode))
