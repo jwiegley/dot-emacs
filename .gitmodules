@@ -406,3 +406,6 @@
 [submodule "site-lisp/discover"]
 	path = site-lisp/discover
 	url = https://github.com/mickeynp/discover.el.git
+[submodule "site-lisp/hdevtools-emacs"]
+	path = site-lisp/hdevtools-emacs
+	url = https://github.com/lightquake/hdevtools-emacs.git
