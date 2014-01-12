@@ -403,3 +403,6 @@
 [submodule "lib/pkg-info"]
 	path = lib/pkg-info
 	url = git://github.com/lunaryorn/pkg-info.el.git
+[submodule "site-lisp/discover"]
+	path = site-lisp/discover
+	url = https://github.com/mickeynp/discover.el.git
