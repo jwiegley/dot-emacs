@@ -397,3 +397,6 @@
 [submodule "lib/epl"]
 	path = lib/epl
 	url = git://github.com/cask/epl.git
+[submodule "lib/makey"]
+	path = lib/makey
+	url = https://github.com/mickeynp/makey.git
