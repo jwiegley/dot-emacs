@@ -394,3 +394,6 @@
 [submodule "site-lisp/shm"]
 	path = site-lisp/shm
 	url = git://github.com/chrisdone/structured-haskell-mode.git
+[submodule "lib/epl"]
+	path = lib/epl
+	url = git://github.com/cask/epl.git
