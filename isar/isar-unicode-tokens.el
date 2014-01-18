@@ -353,7 +353,10 @@
     ("hungarumlaut" "ʺ")
     ("spacespace" " ")  ;; #x002001
     ("module" "⟨module⟩" bold)
-    ("some" "ϵ"))
+    ("some" "ϵ")
+    ("open" "‹")
+    ("close" "›")
+    ("newline" "⏎"))
   "Symbol token map for Isabelle.  The standard set of Isabelle symbols."
   :type 'unicode-tokens-token-symbol-map
   :group 'isabelle-tokens
