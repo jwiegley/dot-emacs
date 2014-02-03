@@ -2396,7 +2396,7 @@ FORM => (eval FORM)."
 
 (defun snippet (name)
   (interactive "sName: ")
-  (find-file (expand-file-name (concat name ".hs") "~/Dropbox/Notes"))
+  (find-file (expand-file-name (concat name ".hs") "~/src/notes"))
   (haskell-mode)
   (goto-char (point-min))
   (when (eobp)
@@ -2946,6 +2946,7 @@ FORM => (eval FORM)."
     (setenv "GIT_PAGER" "")
 
     (use-package magit-review
+      :disabled t
       :commands magit-review
       :config (require 'json))
 
