@@ -5,7 +5,7 @@
 ;;		Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; $Id$
+;; pg-response.el,v 12.10 2012/09/25 09:44:18 pier Exp
 ;;
 ;;; Commentary:
 ;;
@@ -97,13 +97,14 @@ Internal variable, setting this will have no effect!")
   "List of GNU Emacs frame parameters for secondary frames.")
 
 (defun proof-multiple-frames-enable ()
-  (let ((spdres (cons
-		 pg-response-special-display-regexp
-		 proof-multiframe-parameters)))
-    (if proof-multiple-frames-enable
-	(add-to-list 'special-display-regexps spdres)
-      (setq special-display-regexps
-	    (delete spdres special-display-regexps))))
+  (unless (eval-when-compile (boundp 'display-buffer-alist))
+    (let ((spdres (cons
+                   pg-response-special-display-regexp
+                   proof-multiframe-parameters)))
+      (if proof-multiple-frames-enable
+          (add-to-list 'special-display-regexps spdres)
+        (setq special-display-regexps
+              (delete spdres special-display-regexps)))))
   (proof-layout-windows))
 
 (defun proof-three-window-enable ()
@@ -468,7 +469,12 @@ and start at the first error."
 		     (rebufwindow
 		      (or (get-buffer-window proof-response-buffer 'visible)
 			  ;; Pop up a window.
-			  (display-buffer proof-response-buffer))))
+			  (display-buffer
+                           proof-response-buffer
+                           (and (eval-when-compile
+                                  (boundp 'display-buffer-alist))
+                                proof-multiple-frames-enable
+                                (cons nil proof-multiframe-parameters))))))
 		  ;; Make sure the response buffer stays where it is,
 		  ;; and make sure source buffer is visible
 		  (select-window rebufwindow)
