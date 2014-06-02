@@ -1,4 +1,4 @@
-;; coq.el --- Major mode for Coq proof assistant
+;; coq.el --- Major mode for Coq proof assistant  -*- coding: utf-8 -*-
 ;; Copyright (C) 1994-2009 LFCS Edinburgh.
 ;; Authors: Healfdene Goguen, Pierre Courtieu
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
@@ -301,24 +301,24 @@ See also `coq-hide-additional-subgoals'."
 ;; Derived modes
 ;;
 
-(eval-and-compile
+(eval-and-compile ;; FIXME: Why?
   (define-derived-mode coq-shell-mode proof-shell-mode
     "Coq Shell" nil
     (coq-shell-mode-config)))
 
-(eval-and-compile
+(eval-and-compile ;; FIXME: Why?
   (define-derived-mode coq-response-mode proof-response-mode
   "Coq Response" nil
     (coq-response-config)))
 
-(eval-and-compile
+(eval-and-compile ;; FIXME: Why?
   (define-derived-mode coq-mode proof-mode "Coq"
     "Major mode for Coq scripts.
 
 \\{coq-mode-map}"
     (coq-mode-config)))
 
-(eval-and-compile
+(eval-and-compile ;; FIXME: Why?
   (define-derived-mode coq-goals-mode proof-goals-mode
     "Coq Goals" nil
     (coq-goals-mode-config)))
@@ -1228,8 +1228,27 @@ Warning:
 (custom-set-default 'proof-output-tooltips nil)
 
 
+(defconst coq-prettify-symbols-alist
+  '(("not"	. ?¬)
+    ;; ("/\\"	. ?∧)
+    ("/\\"	. ?⋀)
+    ;; ("\\/"	. ?∨)
+    ("\\/"	. ?⋁)
+    ;;("forall"	. ?∀)
+    ("forall"	. ?Π)
+    ("fun"	. ?λ)
+    ("->"	. ?→)
+    ("<-"	. ?←)
+    ("=>"	. ?⇒)
+    ;; ("~>"	. ?↝) ;; less desirable
+    ;; ("-<"	. ?↢) ;; Paterson's arrow syntax
+    ;; ("-<"	. ?⤙) ;; nicer but uncommon
+    ("::"	. ?∷)
+    ))
+
+
 (defun coq-mode-config ()
-  ; smie needs this
+  ;; SMIE needs this.
   (set (make-local-variable 'parse-sexp-ignore-comments) t)
   ;; Coq error messages are thrown off by TAB chars.
   (set (make-local-variable 'indent-tabs-mode) nil)
@@ -1240,11 +1259,11 @@ Warning:
   (setq proof-script-parse-function 'coq-script-parse-function)
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
-  (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip
-        (if (string-equal "" proof-script-comment-start)
-            (regexp-quote "\n") ;; end-of-line terminated comments
-          (regexp-quote proof-script-comment-start)))
+
+  (set (make-local-variable 'comment-start-skip)
+       (regexp-quote (if (string-equal "" proof-script-comment-start)
+                         "\n" ;; end-of-line terminated comments
+                       proof-script-comment-start)))
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
 
   (setq proof-assistant-home-page coq-www-home-page)
@@ -1323,19 +1342,18 @@ Warning:
   (proof-config-done)
 
   ;; outline
-  (make-local-variable 'outline-regexp)
-  (setq outline-regexp coq-outline-regexp)
-
-  (make-local-variable 'outline-heading-end-regexp)
-  (setq outline-heading-end-regexp coq-outline-heading-end-regexp)
+  (set (make-local-variable 'outline-regexp) coq-outline-regexp)
+  (set (make-local-variable 'outline-heading-end-regexp)
+       coq-outline-heading-end-regexp)
 
   ;; tags
   (if (file-exists-p coq-tags)
       (set (make-local-variable 'tags-table-list)
            (cons coq-tags tags-table-list)))
   
-  (set (make-local-variable
-        'blink-matching-paren-dont-ignore-comments) t)
+  (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
+  (set (make-local-variable 'prettify-symbols-alist)
+       coq-prettify-symbols-alist)
 
   (setq proof-cannot-reopen-processed-files nil)
 
