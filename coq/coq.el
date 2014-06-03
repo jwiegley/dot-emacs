@@ -332,7 +332,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
   :group 'coq)
 
 (require 'smie nil 'noerror)
-(require 'coq-smie-lexer nil 'noerror)
+(require 'coq-smie nil 'noerror)
 
 
 ;;

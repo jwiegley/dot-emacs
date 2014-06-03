@@ -9,12 +9,19 @@ Record a : Type := make_a {
                        aa : nat
                      }.
 
-Inductive test : nat -> Prop :=
-| C1 : forall n, test n
-| C2 : forall n, test n
-| C3 : forall n, test n
-| C4 : forall n, test n.
+{
+  Inductive test : nat -> Prop :=
+  | C1 : forall n, test n
+  | C2 : forall n, test n
+  | C3 : forall n, test n
+  | C4 : forall n, test n.
 
+  Inductive test2 : nat -> Prop
+    := C1 : forall n, test n
+     | C2 : forall n, test n
+     | C3 : forall n, test n
+     | C4 : forall n, test n.
+}
 
 Lemma toto:nat.
 Proof.

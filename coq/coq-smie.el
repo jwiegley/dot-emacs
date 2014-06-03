@@ -1,3 +1,14 @@
+;;; coq-smie.el --- SMIE lexer, grammar, and indent rules for Coq
+
+;; Copyright (C) 2014  Free Software Foundation, Inc
+
+;; Authors: Pierre Courtieu
+;;          Stefan Monnier
+;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
+;; License:     GPLv3+ (GNU GENERAL PUBLIC LICENSE version 3 or later)
+
+;;; Commentary:
+
 ;; Lexer.
 ;; - We distinguish ":=" from ":= inductive" to avoid the circular precedence
 ;;   constraint ":= < | < ; < :=" where ":= < |" is due to Inductive
@@ -13,6 +24,8 @@
 ;;   parsing) than to get the parser to handle it correctly.
 ;; - We identify the different types of bullets (First approximation).
 ;; - We distinguish "with match" from other "with".
+
+;;; Code:
 
 (require 'coq-indent)
 (require 'smie nil 'noerror)
@@ -591,7 +604,7 @@ Lemma foo: forall n,
      (smie-bnf->prec2
       '((exp
 	 (exp ":= def" exp)
-	 (exp ":=" exp) (exp ":= inductive" exp) 
+	 (exp ":=" exp) (exp ":= inductive" exp)
 	 (exp "|" exp) (exp "=>" exp)
 	 (exp "xxx provedby" exp) (exp "as morphism" exp)
 	 (exp "with signature" exp)
@@ -657,8 +670,8 @@ Lemma foo: forall n,
       ;;'((assoc "=>") (assoc "|")  (assoc "|-" "=> fun")) ; (assoc ", quantif")
       '((assoc "- bullet") (assoc "+ bullet") (assoc "* bullet") (assoc ".")
 	(assoc "with inductive" "with fixpoint" "where"))
-      '((assoc "|") (assoc "=>")
-	(assoc ":= def" ":= inductive")
+      '((assoc ":= def" ":= inductive")
+	(assoc "|") (assoc "=>")
 	(assoc ":=")	(assoc "xxx provedby")
 	(assoc "as morphism") (assoc "with signature") (assoc "with match")
 	(assoc "in let")
@@ -723,6 +736,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
    (case kind
      (:elem (case token
 	      (basic proof-indent)))
+     (:close-all t)
      (:list-intro
       (or (member token '("fun" "forall" "quantif exists"))
 	  ;; We include "." in list-intro for the ". { .. } \n { .. }" so the
@@ -739,7 +753,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;; in smie-closer-alist.
        ((member token '(":" ":=" ":= with" ":= def" "- bullet" "+ bullet" "* bullet"
 			"by" "in tactic" "<:" "<+" ":= record"
-			"with module" "as" ":= inductive" ":= module" )) 2)
+			"with module" "as" ":= inductive" ":= module" ))
+        2)
 
        ((equal token "with match") 4)
 
@@ -822,4 +837,5 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
 
 
-(provide 'coq-smie-lexer)
+(provide 'coq-smie)
+;;; coq-smie.el ends here
