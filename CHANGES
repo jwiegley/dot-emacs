@@ -51,6 +51,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Should work for induction and destruct for now. Toggle this option
     with Coq/Settings/Auto insert As.
 
+*** Support for prettify-symbols-mode.
+
 * Changes of Proof General 4.2 from Proof General 4.1
 
 ** Generic/misc changes

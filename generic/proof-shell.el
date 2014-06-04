@@ -863,7 +863,7 @@ used in `proof-add-to-queue' when we start processing a queue, and in
 
       ;; Replace CRs from string with spaces to avoid spurious prompts.
       (if proof-shell-strip-crs-from-input
-	  (setq string (subst-char-in-string ?\n ?\  string t)))
+	  (setq string (subst-char-in-string ?\n ?\  string)))
 
       (insert string)
 

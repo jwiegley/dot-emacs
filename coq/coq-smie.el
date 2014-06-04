@@ -77,8 +77,7 @@ But in
 
 intros.      or        Proof foo.
 
-the token of \".\" is simply \".\".
-"
+the token of \".\" is simply \".\"."
   (save-excursion
     (let ((p (point)) (beg (coq-find-real-start))) ; moves to real start of command
       (cond
@@ -91,8 +90,17 @@ the token of \".\" is simply \".\".
 	    (coq-smie-detect-goal-command))
 	(save-excursion
 	  (goto-char (+ p 1))
-	  (if (equal (smie-default-forward-token) "Proof")
-	      "." ". proofstart")))
+          (let ((tok (smie-default-forward-token)))
+            (cond
+             ;; If the next token is "Proof", then the current command does
+             ;; introduce a proof, but the user opted to use the explicit
+             ;; "Proof" command, so the current command doesn't itself start
+             ;; the proof.
+             ((equal tok "Proof") ".")
+             ;; If the next command is a new definition, then the current
+             ;; command didn't actually start a proof!
+             ((member tok '("Let" "Definition" "Inductive" "Fixpoint")) ".")
+             (t ". proofstart")))))
        ((equal (coq-smie-module-deambiguate) "Module start")
 	". modulestart")
        (t ".")))))
@@ -554,7 +562,7 @@ The point should be at the beginning of the command name."
       ;; qualifier.
       (let ((nxtnxt (char-after (+ (point) (length tok)))))
 	(if (eq nxtnxt ?\() ". selector"
-	  (if (eq (char-syntax nxtnxt) ?\ )
+	  (if (or (null nxtnxt) (eq (char-syntax nxtnxt) ?\ ))
 	      ;; command terminator: ". proofstart" et al
 	      (save-excursion (forward-char (- (length tok) 1))
 			      (coq-smie-.-deambiguate))
@@ -805,12 +813,15 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	(save-excursion (coq-find-real-start)
 			`(column . ,(current-column))))
 
-       ((member token '(":= module" ":= inductive" ":= def"))
-	(if (smie-rule-hanging-p)
-	    (save-excursion (coq-find-real-start)
-			    `(column . ,(current-column)))
-	  (save-excursion (coq-find-real-start)
-			  `(column . ,(+ 2 (current-column))))))
+       ((or (member token '(":= module" ":= inductive" ":= def"))
+            (and (equal token ":") (smie-rule-parent-p ".")))
+        (let ((pcol
+               (save-excursion
+                 ;; Indent relative to the beginning of the current command
+                 ;; rather than relative to the previous command.
+                 (smie-backward-sexp token)
+                 (current-column))))
+          `(column . ,(if (smie-rule-hanging-p) pcol (+ 2 pcol)))))
 
        ((equal token "|")
 	(cond ((smie-rule-parent-p "with match")
