@@ -240,7 +240,7 @@ This is simply to display the dependency somehow."
       (let ((span (cadar nmspans)))
 	(proof-depends-save-old-face span)
 	(span-set-property span 'face 'proof-highlight-dependency-face)
-	(span-set-property span 'priority pg-dep-span-priority)
+	;; (span-set-property span 'priority pg-dep-span-priority)
 	(span-set-property span 'mouse-highlight nil)
 	(span-set-property span 'help-echo helpmsg))
       (setq nmspans (cdr nmspans)))))
@@ -251,7 +251,7 @@ This is simply to display the dependency somehow."
       (let ((span (cadar nmspans)))
 	(proof-depends-save-old-face span)
 	(span-set-property span 'face 'proof-highlight-dependent-face)
-	(span-set-property span 'priority pg-dep-span-priority)
+	;; (span-set-property span 'priority pg-dep-span-priority)
 	(span-set-property span 'mouse-highlight nil)
 	(span-set-property span 'help-echo helpmsg)
 	(span-set-property span 'balloon-help helpmsg))
@@ -277,7 +277,7 @@ This is simply to display the dependency somehow."
       (while span
 	(pg-set-span-helphighlights span 'nohighlight)
 	(proof-depends-restore-old-face span)
-	(span-set-property span 'priority pg-ordinary-span-priority)
+	;; (span-set-property span 'priority pg-ordinary-span-priority)
 	(setq span (next-span span 'type))))))
 
 

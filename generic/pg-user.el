@@ -875,9 +875,9 @@ a popup with the information in it."
 	   (lambda (x)
 	     (save-excursion
 	       (let ((idspan (span-make s e)))
-	       (span-set-property idspan 'priority 90) ; highest
-	       (span-set-property idspan 'help-echo
-				  (pg-last-output-displayform))))))))))
+                 ;; (span-set-property idspan 'priority 90) ; highest
+                 (span-set-property idspan 'help-echo
+                                    (pg-last-output-displayform))))))))))
 
 (defvar proof-query-identifier-history nil
   "History for `proof-query-identifier'.")

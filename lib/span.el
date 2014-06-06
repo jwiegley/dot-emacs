@@ -147,7 +147,11 @@ A span is before PT if it begins before the character before PT."
 
 (defsubst span-raise (span)
   "Set priority of SPAN to make it appear above other spans."
-  (span-set-property span 'priority 100))
+  ;; FIXME: Emacs already uses a "shorter goes above" which takes care of
+  ;; preventing a span from seeing another.  So don't play with
+  ;; priorities, please!
+  ;; (span-set-property span 'priority 100)
+  )
 
 (defsubst span-string (span)
   (with-current-buffer (overlay-buffer span)

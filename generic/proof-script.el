@@ -227,7 +227,8 @@ Also clear list of script portions."
   ;; Initialise queue span, remove it from buffer.
   (unless proof-queue-span
     (setq proof-queue-span (span-make 1 1))
-    (span-raise proof-queue-span))
+    ;; (span-raise proof-queue-span)
+    )
   (span-set-property proof-queue-span 'start-closed t)
   (span-set-property proof-queue-span 'end-open t)
   (proof-span-read-only proof-queue-span 'always)
@@ -236,7 +237,8 @@ Also clear list of script portions."
   ;; Initialise locked span, remove it from buffer
   (unless proof-locked-span
       (setq proof-locked-span (span-make 1 1))
-      (span-raise proof-locked-span))
+      ;; (span-raise proof-locked-span)
+      )
   (span-set-property proof-locked-span 'start-closed t)
   (span-set-property proof-locked-span 'end-open t)
   (proof-span-read-only proof-locked-span)
@@ -653,7 +655,7 @@ IDIOMSYM is a symbol and ID is a strings."
     (span-set-property controlspan 'children
 		       (cons span (span-property controlspan 'children)))
     (pg-set-span-helphighlights span proof-region-mouse-highlight-face)
-    (span-set-property span 'priority 10)  ; lower than default
+    ;; (span-set-property span 'priority 10) ; lower than default
     (if proof-disappearing-proofs
 	(pg-make-element-invisible 'proof proofid))))
 
@@ -729,7 +731,7 @@ also as the 'response property on the span.
 
 Optional argument MOUSEFACE means use the given face as a mouse highlight
 face, if it is a face, otherwise, if it is non-nil but not a face,
-do not add a mouse highlight.  
+do not add a mouse highlight.
 
 In any case, a mouse highlight and tooltip are only set if
 `proof-output-tooltips' is non-nil.
@@ -775,7 +777,8 @@ Argument FACE means add 'face property FACE to the span."
 	  (span-set-property newspan 'mouse-face mouseface)))
     (if face
 	(span-set-property newspan 'face face))
-    (span-set-property newspan 'priority 50)))
+    ;; (span-set-property newspan 'priority 50)
+    ))
 
 
 
