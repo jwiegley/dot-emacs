@@ -4,7 +4,7 @@
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
 
-;; $Id$
+;; coq-syntax.el,v 11.13 2013/07/10 14:59:08 pier Exp
 
 (require 'proof-syntax)
 (require 'proof-utils)                  ; proof-locate-executable
@@ -20,9 +20,9 @@
 
 (defcustom coq-user-tactics-db nil
   "User defined tactic information.  See `coq-syntax-db' for
- syntax. It is not necessary to add your own tactics here (it is not
- needed by the synchronizing/backtracking system). You may however do
- so for the following reasons:
+syntax. It is not necessary to add your own tactics here (it is not
+needed by the synchronizing/backtracking system). You may however do
+so for the following reasons:
 
    1 your tactics will be colorized by font-lock
 
@@ -289,6 +289,21 @@
      ("unfold in" "unfi" "unfold # in #" t)
      ("unfold at" "unfa" "unfold # at #" t)
      ("vm_compute" "vmc" "vm_compute." t "vm_compute")
+     ;; SSReflect tactics.
+     ("nat_congr" "ncongr"  "nat_congr" t "nat_congr")
+     ("nat_norm" "nnorm"  "nat_norm" t "nat_norm")
+     ("bool_congr" "bcongr"  "bool_congr" t "bool_congr")
+     ("prop_congr" "prcongr"  "prop_congr" t "prop_congr")
+     ("move" "m"  "move" t "move")
+     ("pose" "po"  "pose # := #" t "pose")
+     ("set" "set"  "set # := #" t "set")
+     ("have" "hv" "have # : #" t "have")
+     ("congr" "con" "congr #" t "congr")
+     ("wlog" "wlog" "wlog : / #" t "wlog")
+     ("without loss" "wilog" "without loss #" t "without loss")
+     ("unlock" "unlock" "unlock #" t "unlock")
+     ("suffices" "suffices" "suffices # : #" t "suffices")
+     ("suff" "suff" "suff # : #" t "suff")
      ))
   "Coq tactics information list. See `coq-syntax-db' for syntax. "
   )
@@ -316,6 +331,8 @@
      ("ring" "ring" "ring #" t "ring")
      ("solve" nil "solve [ # | # ]" nil "solve")
      ("tauto" "ta" "tauto" t "tauto")
+     ;; SSReflect solving tactics.
+     ("done" nil "done" nil "done")
      ))
   "Coq tactic(al)s that solve a subgoal."
   )
@@ -357,6 +374,8 @@
      ("progress" nil "progress #" nil "progress")
      ("|" nil "[ # | # ]" nil)
      ("||" nil "# || #" nil)
+     ;; SSReflect tacticals.
+     ("last" "lst" nil t "last")
      ))
   "Coq tacticals information list.  See `coq-syntax-db' for syntax.")
 
@@ -619,9 +638,14 @@
    "Command that are not declarations, definition or goal starters."
   )
 
+(defvar coq-ssreflect-commands-db
+  '(("Unset Strict Implicit" "unsti" nil t "Strict\\s-+Implicit")
+    ("Prenex Implicits" "pi" "Prenex Implicits #" t "Prenex\\s-+Implicits")
+    ("Hint View for" "hv" "Hint View for #" t "Hint\\s-+View\\s-+for")))
+
 (defvar coq-commands-db
   (append coq-decl-db coq-defn-db coq-goal-starters-db
-          coq-other-commands-db coq-user-commands-db)
+          coq-other-commands-db coq-ssreflect-commands-db coq-user-commands-db)
   "Coq all commands keywords information list. See `coq-syntax-db' for syntax. "
   )
 
@@ -841,7 +865,9 @@ It is used:
      "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
      "return" "struct" "else" "end" "if" "in" "into" "let" "then"
      "using" "with" "beta" "delta" "iota" "zeta" "after" "until"
-     "at" "Sort" "Time" "dest" "where"))
+     "at" "Sort" "Time" "dest" "where"
+     ;; SSReflect user reserved.
+     "is" "nosimpl" "of"))
   "Reserved keywords of Coq.")
 
 (defvar coq-reserved-regexp 
@@ -1023,7 +1049,6 @@ It is used:
     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face)
     ;; Remove spurious variable and function faces on commas.
     '(proof-zap-commas))))
-
 (defvar coq-font-lock-keywords coq-font-lock-keywords-1)
 
 (defun coq-init-syntax-table ()
@@ -1060,9 +1085,10 @@ It is used:
 		  1))
 	  (append coq-keywords-decl coq-keywords-defn coq-keywords-goal)))
 
-(provide 'coq-syntax)
- ;;; coq-syntax.el ends here
 
-; Local Variables: ***
-; indent-tabs-mode: nil ***
-; End: ***
+;; Local Variables: ***
+;; indent-tabs-mode: nil ***
+;; End: ***
+
+(provide 'coq-syntax)
+;;; coq-syntax.el ends here

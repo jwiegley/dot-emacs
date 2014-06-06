@@ -40,6 +40,12 @@ Proof.
   }}
 Qed.
 
+Let x                        (* Precedence of "else" w.r.t "," and "->"!  *)
+  : if true then nat * nat else nat ->
+                                nat
+  := (if true then 1 else 2,
+      3).
+
 Module Y.
   Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
   Proof with auto with arith.
