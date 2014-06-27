@@ -54,7 +54,7 @@
         (unless once (nconc args '("-d" "900")))
         (setq fetchmail-process
               (apply #'start-process procname buf
-                     "/usr/local/bin/fetchmail" "-n" "-N" args)))
+                     "fetchmail" "-n" "-N" args)))
       (message "Starting Fetchmail...done"))))
 
 (defun safely-kill-process (name &optional signal verb)
@@ -137,6 +137,7 @@
              (start-process "*fetchnews*"
                             (get-buffer-create "*fetchnews*")
                             (executable-find "fetchnews")
+                            "-d" (expand-file-name "~/Messages/Newsdir")
                             "-F" (expand-file-name "~/Messages/leafnode/config")
                             "-vvv" "-n")))))
         (cur-buf (current-buffer)))

@@ -1,4 +1,3 @@
-#binding : C-c C-e C-s
 # --
 #+begin_src haskell
 $0#+end_src

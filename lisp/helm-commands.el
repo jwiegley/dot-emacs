@@ -39,10 +39,10 @@
     (type . file))
   "Search for files in the current Git project.")
 
-(defvar helm-c-source-zsh-history
-  '((name . "Zsh History")
-    (candidates . helm-c-zsh-history-set-candidates)
-    (action . (("Execute Command" . helm-c-zsh-history-action)))
+(defvar helm-c-source-bash-history
+  '((name . "Bash History")
+    (candidates . helm-c-bash-history-set-candidates)
+    (action . (("Execute Command" . helm-c-bash-history-action)))
     (volatile)
     (requires-pattern . 3)
     (delayed)))
@@ -70,14 +70,14 @@
                helm-c-source-info-cl
                helm-c-source-emacs-source-defun)))))
 
-(defun helm-c-zsh-history-set-candidates (&optional request-prefix)
+(defun helm-c-bash-history-set-candidates (&optional request-prefix)
   (let ((pattern (replace-regexp-in-string
                   " " ".*"
                   (or (and request-prefix
                            (concat request-prefix
                                    " " helm-pattern))
                       helm-pattern))))
-    (with-current-buffer (find-file-noselect "~/.zsh_history" t t)
+    (with-current-buffer (find-file-noselect "~/.bash_history" t t)
       (auto-revert-mode -1)
       (goto-char (point-max))
       (loop for pos = (re-search-backward pattern nil t)
@@ -87,13 +87,13 @@
                      (buffer-substring (line-beginning-position)
                                        (line-end-position)))))))
 
-(defun helm-c-zsh-history-action (candidate)
+(defun helm-c-bash-history-action (candidate)
   (async-shell-command candidate))
 
-(defun helm-command-from-zsh ()
+(defun helm-command-from-bash ()
   (interactive)
   (require 'helm)
-  (helm-other-buffer 'helm-c-source-zsh-history "*helm zsh history*"))
+  (helm-other-buffer 'helm-c-source-bash-history "*helm bash history*"))
 
 (defun helm-c-git-find-file (candidate)
   (let ((dir (substring

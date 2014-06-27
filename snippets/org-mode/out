@@ -1,5 +1,4 @@
 #name : :OUTPUT: ... :END:
-#binding : C-c C-e C-o
 # --
 :OUTPUT:
 $0:END:

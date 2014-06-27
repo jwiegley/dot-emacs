@@ -11,6 +11,9 @@
 (defconst user-override-directory
   (expand-file-name "override/" user-emacs-directory))
 
+(defconst nix-site-lisp-directory
+  (expand-file-name "~/.nix-profile/share/emacs/site-lisp"))
+
 (defun add-to-load-path (path &optional dir)
   (setq load-path
         (cons (expand-file-name path (or dir user-emacs-directory)) load-path)))
@@ -31,20 +34,13 @@
        (list
         user-emacs-directory
 
-        "override/bbdb/lisp/"
         "override/gnus/contrib/"
         "override/gnus/lisp/"
-        "override/org-mode/contrib/lisp/"
-        "override/org-mode/lisp/"
+        ;; "override/org-mode/contrib/lisp/"
+        ;; "override/org-mode/lisp/"
         "override/tramp/lisp/"
 
-        ;; Packages located elsewhere on the system...
-        "~/src/ledger/lisp/"
-
-        "/usr/local/share/emacs/site-lisp/"
-        "/usr/local/opt/git/share/git-core/contrib/emacs/"
-        "/Users/johnw/Archives/Languages/Ruby/Sources/ruby/misc/"
-        ;;"/opt/local/share/texmf-texlive-dist/doc/latex/latex2e-help-texinfo/"
+        nix-site-lisp-directory
         )))
 
 (let ((cl-p load-path))

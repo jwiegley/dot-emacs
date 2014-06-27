@@ -145,8 +145,9 @@ To use this function, add it to `org-agenda-finalize-hook':
 (autoload 'gnus-string-remove-all-properties "gnus-util")
 
 (defun org-my-message-open (message-id)
-  (gnus-goto-article
-   (gnus-string-remove-all-properties (substring message-id 2))))
+  (let (gnus-mark-article-hook)
+    (gnus-goto-article
+     (gnus-string-remove-all-properties (substring message-id 2)))))
 
 ;;(defun org-my-message-open (message-id)
 ;;  (condition-case err
@@ -387,9 +388,9 @@ This can be 0 for immediate, or a floating point value.")
           (progn
             (org-sort-entries t ?a)
             (org-sort-entries t ?p)
-            (org-sort-entries t ?o)
-            (forward-line))
-        (error nil)))
+            (org-sort-entries t ?o))
+        (error nil))
+      (forward-line))
     (goto-char (point-min))
     (while (re-search-forward "\* PROJECT " nil t)
       (goto-char (line-beginning-position))
@@ -753,9 +754,10 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
           ',org-agenda-sym-no-logging)))))
 
 (bind-key "C-c x b"
-          (lambda (bug)
-            (interactive "sBug: ")
-            (insert (format "[[fpco:%s][#%s]]" bug bug))))
+          (lambda (bug) (error "Define bug syntax!")
+            ;; (interactive "sBug: ")
+            ;; (insert (format "[[fpco:%s][#%s]]" bug bug))
+            ))
 (bind-key "C-c x e" 'org-export)
 (bind-key "C-c x l" 'org-insert-dtp-link)
 (bind-key "C-c x L" 'org-set-dtp-link)
@@ -779,11 +781,11 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
             [(control ?c) (control ?x) ?@] 'visible-mode)
 (org-defkey org-mode-map [(control ?c) (meta ?m)] 'my-org-wrap-region)
 
-(defvar my-org-expand-map)
-(define-prefix-command 'my-org-expand-map)
-(define-key org-mode-map [(control ?c) (control ?e)] 'my-org-expand-map)
+;; (defvar my-org-expand-map)
+;; (define-prefix-command 'my-org-expand-map)
+;; (define-key org-mode-map [(control ?c) (control ?e)] 'my-org-expand-map)
 
-(define-key my-org-expand-map [(control ?t)] 'ledger-test-create)
+;; (define-key my-org-expand-map [(control ?t)] 'ledger-test-create)
 
 (eval-when-compile
   (defvar yas/trigger-key)
@@ -820,7 +822,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (define-key map [(meta ?n)] 'org-agenda-later)
   (define-key map "x" 'org-todo-state-map)
 
-  (define-key map ">" 'org-agenda-filter-by-top-category)
+  (define-key map ">" 'org-agenda-filter-by-top-headline)
 
   (define-key org-todo-state-map "z" 'make-bug-link))
 
@@ -888,6 +890,15 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
         (save-buffer))))
   ad-do-it
   (org-fit-agenda-window))
+
+(defadvice org-archive-subtree (before set-billcode-before-archiving activate)
+  "Before archiving a task, set its BILLCODE and TASKCODE."
+  (let ((billcode (org-entry-get (point) "BILLCODE" t))
+        (taskcode (org-entry-get (point) "TASKCODE" t))
+        (project  (org-entry-get (point) "PROJECT" t)))
+    (if billcode (org-entry-put (point) "BILLCODE" billcode))
+    (if taskcode (org-entry-put (point) "TASKCODE" taskcode))
+    (if project (org-entry-put (point) "PROJECT" project))))
 
 (provide 'dot-org)
 

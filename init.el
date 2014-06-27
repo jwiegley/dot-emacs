@@ -67,8 +67,9 @@
       (mapc (apply-partially #'add-to-list 'exec-path)
             (nreverse (split-string (getenv "PATH") ":"))))))
 
-(read-system-environment)
-(add-hook 'after-init-hook 'read-system-environment)
+(unless (string-match "/nix/store" (getenv "PATH"))
+  (read-system-environment)
+  (add-hook 'after-init-hook 'read-system-environment))
 
 ;;;_ , Load customization settings
 
@@ -103,6 +104,8 @@
         (eval settings)))
 
   (load (expand-file-name "settings" user-emacs-directory)))
+
+;; (setenv "TZ" "UTC+5")
 
 ;;;_ , Enable disabled commands
 
@@ -223,7 +226,6 @@
 
 (bind-key "M-s n" 'find-name-dired)
 ;;(bind-key "M-s o" 'occur)
-(bind-key "M-s o" 'helm-swoop)
 
 ;;;_  . M-C-?
 
@@ -417,22 +419,28 @@
 (bind-key "C-c k" 'keep-lines)
 
 (eval-when-compile
-  (defvar emacs-min-top)
-  (defvar emacs-min-left)
   (defvar emacs-min-height)
   (defvar emacs-min-width))
 
 (unless noninteractive
   (if running-alternate-emacs
       (progn
-        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 574 722))
-        (defvar emacs-min-left 5)
+        (defun emacs-min-top ()
+          (let ((height (display-pixel-height)))
+            (cond ((= 1050 height) 574)
+                  ((= 900 height) 425)
+                  (t 722))))
+        (defun emacs-min-left () 5)
         (defvar emacs-min-height 25)
         (defvar emacs-min-width 80))
 
-    (defvar emacs-min-top 22)
-    (defvar emacs-min-left (- (x-display-pixel-width) 918))
-    (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 55 64))
+    (defun emacs-min-top () 22)
+    (defun emacs-min-left ()
+      (let ((width (display-pixel-width)))
+        (cond
+         ((= width 3360) 1000)
+         (t (- width 918)))))
+    (defvar emacs-min-height (if (= 1050 (display-pixel-height)) 55 65))
     (defvar emacs-min-width 100)))
 
 (defun emacs-min ()
@@ -440,8 +448,8 @@
   (set-frame-parameter (selected-frame) 'fullscreen nil)
   (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
   (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'top emacs-min-top)
-  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  (set-frame-parameter (selected-frame) 'top (emacs-min-top))
+  (set-frame-parameter (selected-frame) 'left (emacs-min-left))
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width)
 
@@ -734,10 +742,6 @@
          ("\\.mm\\'"                  . c++-mode))
   :init
   (progn
-    (defun llvm-info ()
-      (interactive)
-      (w3m-find-file "/usr/local/opt/clang/docs/llvm/html/doxygen/classllvm_1_1IRBuilder.html"))
-
     (defun my-paste-as-check ()
       (interactive)
       (save-excursion
@@ -789,8 +793,6 @@
       (diminish 'gtags-mode)
       (diminish 'hs-minor-mode)
       (diminish 'hide-ifdef-mode)
-
-      (add-to-list 'load-path "~/.emacs.d/site-lisp/ghc-mod/elisp")
 
       (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
 
@@ -1086,9 +1088,38 @@
 ;;;_ , agda
 
 (use-package agda2-mode
+  :load-path "~/.nix-profile/share/x86_64-osx-ghc-7.8.2/Agda-2.4.0.1/emacs-mode/"
   :mode ("\\.agda\\'" . agda2-mode)
   :init
-  (use-package agda-input))
+  (use-package agda-input)
+  :config
+  (progn
+    ;; (defadvice agda2-status-action (after agda-color-after-status-change activate)
+    ;;   "Color the buffer green or red depending on type checking status."
+    ;;   (set-background-color
+    ;;    (if (string= agda2-buffer-external-status "Checked")
+    ;;        "honeydew"
+    ;;      "seashell")))
+
+    (defun agda2-insert-helper-function (&optional prefix)
+      (interactive "P")
+      (let ((func-def (with-current-buffer "*Agda information*"
+                        (buffer-string))))
+        (save-excursion
+          (forward-paragraph)
+          (let ((name (car (split-string func-def " "))))
+            (insert "  where\n    " func-def "    " name " x = ?\n")))))
+
+    (bind-key "C-c C-i" 'agda2-insert-helper-function agda2-mode-map)
+
+    (defun char-mapping (key char)
+      (bind-key key `(lambda () (interactive) (insert ,char)) agda2-mode-map))
+
+    (char-mapping "A-L" "Γ")
+    (char-mapping "A-l" "λ x → ")
+    (char-mapping "A-r" "→")
+    (char-mapping "A-=" "≡")
+    ))
 
 ;;;_ , allout
 
@@ -1184,12 +1215,6 @@
 ;;;_ , auto-complete
 
 (use-package auto-complete-config
-  :load-path ("site-lisp/ac/auto-complete"
-              "site-lisp/ac/ac-source-elisp"
-              "site-lisp/ac/ac-source-semantic"
-              "site-lisp/ac/ac-yasnippet"
-              "site-lisp/ac/fuzzy-el"
-              "site-lisp/ac/popup-el")
   :diminish auto-complete-mode
   :init
   (progn
@@ -1347,6 +1372,7 @@
 ;;;_ , bbdb
 
 (use-package bbdb-com
+  :disabled t
   :commands bbdb-create
   :bind ("M-B" . bbdb))
 
@@ -1869,30 +1895,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                                    :user "johnw/freenode"
                                    :type 'netrc
                                    :port 6697))
-                             :secret)))
-
-            (erc :server "192.168.9.133"
-                 :port 6697
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search
-                                   :host "192.168.9.133"
-                                   :user "johnw/fpcomplete"
-                                   :type 'netrc
-                                   :port 6697))
-                             :secret)))
-
-            (erc :server "192.168.9.133"
-                 :port 6697
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search
-                                   :host "192.168.9.133"
-                                   :user "johnw/welltyped"
-                                   :type 'netrc
-                                   :port 6697))
                              :secret))))
 
         (erc-tls :server "irc.freenode.net"
@@ -1905,23 +1907,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                                    :user "johnw"
                                    :type 'netrc
                                    :port 6667))
-                             :secret)))
-
-        (erc-tls :server "ircbrowse.net"
-                 :port 6668
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search
-                                   :host "ircbrowse.net"
-                                   :user "johnw"
-                                   :type 'netrc
-                                   :port 6668))
-                             :secret)))
-
-        (erc :server "irc.well-typed.com"
-             :port 6665
-             :nick "johnw")))
+                             :secret)))))
 
     (defun im ()
       (interactive)
@@ -2041,7 +2027,7 @@ FORM => (eval FORM)."
              (user (erc-server-user-login who)))
         (erc-send-command
          (format "MODE %s +b *!%s@%s%s"
-                 chan (if whole-ip "*" user) host redirect))))
+                 chan (if whole-ip "*" user) host (or redirect "")))))
 
     (defun erc-cmd-KICKBAN (nick &rest reason)
       (setq reason (mapconcat #'identity reason " "))
@@ -2054,7 +2040,9 @@ FORM => (eval FORM)."
                                 (erc-default-target)
                                 nick
                                 (or reason
-                                    "Kicked (kickban)"))))
+                                    "Kicked (kickban)")))
+      (sleep-for 0 250)
+      (erc-cmd-DEOPME))
 
     (defun erc-cmd-KICKBANIP (nick &rest reason)
       (setq reason (mapconcat #'identity reason " "))
@@ -2067,7 +2055,9 @@ FORM => (eval FORM)."
                                 (erc-default-target)
                                 nick
                                 (or reason
-                                    "Kicked (kickbanip)"))))
+                                    "Kicked (kickbanip)")))
+      (sleep-for 0 250)
+      (erc-cmd-DEOPME))
 
     (defun erc-cmd-KICKTROLL (nick &rest reason)
       (setq reason (mapconcat #'identity reason " "))
@@ -2080,7 +2070,9 @@ FORM => (eval FORM)."
                                 (erc-default-target)
                                 nick
                                 (or reason
-                                    "Kicked (kicktroll)"))))
+                                    "Kicked (kicktroll)")))
+      (sleep-for 0 250)
+      (erc-cmd-DEOPME))
 
     ;; this is essentially a refactored `erc-cmd-KICK'
     (defun erc-cmd-REMOVE (target &optional reason-or-nick &rest reasonwords)
@@ -2107,17 +2099,17 @@ FORM => (eval FORM)."
       "Add TARGET to the list of target to be tracked."
       (if target
           (erc-with-server-buffer
-           (let ((untracked
-                  (car (erc-member-ignore-case target erc-track-exclude))))
-             (if untracked
-                 (erc-display-line
-                  (erc-make-notice
-                   (format "%s is not currently tracked!" target))
-                  'active)
-               (add-to-list 'erc-track-exclude target)
-               (erc-display-line
-                (erc-make-notice (format "Now not tracking %s" target))
-                'active))))
+            (let ((untracked
+                   (car (erc-member-ignore-case target erc-track-exclude))))
+              (if untracked
+                  (erc-display-line
+                   (erc-make-notice
+                    (format "%s is not currently tracked!" target))
+                   'active)
+                (add-to-list 'erc-track-exclude target)
+                (erc-display-line
+                 (erc-make-notice (format "Now not tracking %s" target))
+                 'active))))
 
         (if (null erc-track-exclude)
             (erc-display-line
@@ -2135,16 +2127,16 @@ FORM => (eval FORM)."
    If no TARGET argument is specified, list contents of `erc-track-exclude'."
       (when target
         (erc-with-server-buffer
-         (let ((tracked
-                (not (car (erc-member-ignore-case target erc-track-exclude)))))
-           (if tracked
-               (erc-display-line
-                (erc-make-notice (format "%s is currently tracked!" target))
-                'active)
-             (setq erc-track-exclude (remove target erc-track-exclude))
-             (erc-display-line
-              (erc-make-notice (format "Now tracking %s" target))
-              'active)))))
+          (let ((tracked
+                 (not (car (erc-member-ignore-case target erc-track-exclude)))))
+            (if tracked
+                (erc-display-line
+                 (erc-make-notice (format "%s is currently tracked!" target))
+                 'active)
+              (setq erc-track-exclude (remove target erc-track-exclude))
+              (erc-display-line
+               (erc-make-notice (format "Now tracking %s" target))
+               'active)))))
       t)))
 
 ;;;_ , eshell
@@ -2278,6 +2270,7 @@ FORM => (eval FORM)."
 ;;;_ , git-gutter+
 
 (use-package git-gutter+
+  :disabled t
   :diminish git-gutter+-mode
   :config
   (progn
@@ -2327,7 +2320,7 @@ FORM => (eval FORM)."
         (progn
           (setq-default grep-first-column 1)
           (grep-apply-setting 'grep-find-command
-                              '("ag --noheading --column " . 25)))
+                              '("ag --noheading --nocolor --smart-case --nogroup --column -- " . 61)))
       (grep-apply-setting
        'grep-find-command
        '("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52)))))
@@ -2425,8 +2418,6 @@ FORM => (eval FORM)."
       :commands helm-descbinds
       :init
       (fset 'describe-bindings 'helm-descbinds))
-
-    (use-package helm-swoop)
 
     (bind-key "C-h b" 'helm-descbinds))
 
@@ -2604,7 +2595,8 @@ FORM => (eval FORM)."
 
 ;;;_ , ledger
 
-(use-package "ldg-new"
+(use-package "ledger-mode"
+  :load-path "~/src/ledger/lisp/"
   :commands ledger-mode
   :init
   (progn
@@ -3153,6 +3145,11 @@ FORM => (eval FORM)."
   :init
   (setq mc/list-file (expand-file-name "mc-lists.el" user-data-directory)))
 
+;;;_ , nix-mode
+
+(use-package nix-mode
+  :mode ("\\.nix\\'" . nix-mode))
+
 ;;;_ , nf-procmail-mode
 
 (use-package nf-procmail-mode
@@ -3196,9 +3193,9 @@ FORM => (eval FORM)."
       (interactive)
       (save-excursion
         (call-process-region (point-min) (point-max) "tidy" t t nil
-                             "-xml" "-i" "-wrap" "0" "-omit" "-q")))
+                             "-xml" "-i" "-wrap" "0" "-omit" "-q" "-utf8")))
 
-    (bind-key "C-H" 'tidy-xml-buffer nxml-mode-map)))
+    (bind-key "C-c M-h" 'tidy-xml-buffer nxml-mode-map)))
 
 ;;;_ , org-mode
 
@@ -3308,50 +3305,77 @@ FORM => (eval FORM)."
   :init
   (hook-into-modes 'pretty-control-l-mode '(prog-mode-hook)))
 
-;;;_ , prodigy
-
-(use-package prodigy
-  :disabled t
-  :commands prodigy
-  :init
-  (prodigy-define-service
-    :name "IR"
-    :command "devel-manager"
-    :cwd "~/fpco"
-    :path '("~/fpco/.hsenvs/ghc-7.4.2.9/.hsenv/cabal/bin")
-    :port 6000
-    :tags '(work fpco haskell)
-    :init (lambda ()
-            ;; Setup RVM
-            )))
-
 ;;;_ , projectile
 
 (use-package projectile
   :disabled t
   :diminish projectile-mode
-  :init
-  (projectile-global-mode))
+  :init (projectile-global-mode))
 
 ;;;_ , proofgeneral
 
+(defun nix-lisp-path (part)
+  (list (expand-file-name part nix-site-lisp-directory)))
+
+(defun my-proof-display-and-keep-buffer (buffer &optional pos force)
+  (if (or force proof-auto-raise-buffers)
+      (save-excursion
+        (save-selected-window
+          (let ((window (proof-get-window-for-buffer buffer)))
+            (if (window-live-p window) ;; [fails sometimes?]
+                (progn
+                  (if proof-three-window-enable
+                      (set-window-dedicated-p window nil))
+                  (select-window window)
+                  (if proof-shrink-windows-tofit
+                      (proof-resize-window-tofit)
+                    ;; If we're not shrinking to fit, allow the size of
+                    ;; this window to change.  [NB: might be nicer to
+                    ;; fix the size based on user choice]
+                    (setq window-size-fixed nil))
+                  ;; For various reasons, point may get moved around in
+                  ;; response buffer.  Attempt to normalise its position.
+                  (goto-char (or pos (point-max)))
+                  (if pos
+                      (beginning-of-line)
+                    (skip-chars-backward "\n\t "))
+                  ;; Ensure point visible.  Again, window may have died
+                  ;; inside shrink to fit, for some reason
+                  (when (window-live-p window)
+                    (unless (pos-visible-in-window-p (point) window)
+                      (recenter -1))
+                    (with-current-buffer buffer
+                      (if (window-bottom-p window)
+                          (unless (local-variable-p 'mode-line-format)
+                            ;; Don't show any mode line.
+                            (set (make-local-variable 'mode-line-format) nil))
+                        (unless mode-line-format
+                          ;; If the buffer gets displayed elsewhere, re-add
+                          ;; the modeline.
+                          (kill-local-variable 'mode-line-format))))))))))))
+
 (use-package proof-site
-  :load-path "site-lisp/proofgeneral/generic/"
+  :load-path (lambda () (nix-lisp-path "ProofGeneral/generic"))
   :config
   (progn
-    (eval-after-load "coq"
-      '(progn
-         (add-hook 'coq-mode-hook
-                   (lambda ()
-                     (yas-minor-mode 1)
-                     (whitespace-mode 1)
-                     (unicode-tokens-use-shortcuts 0)))
-         (bind-key "M-RET" 'proof-goto-point coq-mode-map)
-         (bind-key "<tab>" 'yas-expand-from-trigger-key coq-mode-map)
-         (bind-key "C-c C-p" (lambda ()
-                               (interactive)
-                               (proof-layout-windows)
-                               (proof-prf)) coq-mode-map)))))
+    (use-package coq
+      :mode ("\\.v\\'" . coq-mode)
+      :load-path (lambda () (nix-lisp-path "ProofGeneral/coq"))
+      :config
+      (progn
+        (add-hook 'coq-mode-hook
+                  (lambda ()
+                    (yas-minor-mode 1)
+                    (whitespace-mode 1)
+                    (unicode-tokens-use-shortcuts 0)
+                    (defalias 'proof-display-and-keep-buffer
+                      'my-proof-display-and-keep-buffer)))
+        (bind-key "M-RET" 'proof-goto-point coq-mode-map)
+        (bind-key "<tab>" 'yas-expand-from-trigger-key coq-mode-map)
+        (bind-key "C-c C-p" (lambda ()
+                              (interactive)
+                              (proof-layout-windows)
+                              (proof-prf)) coq-mode-map)))))
 
 ;;;_ , ps-print
 
@@ -3718,7 +3742,6 @@ FORM => (eval FORM)."
 ;;;_ , sunrise-commander
 
 (use-package sunrise-commander
-  :disabled t
   :commands (sunrise sunrise-cd)
   :init
   (progn
@@ -3875,7 +3898,7 @@ FORM => (eval FORM)."
          ("C-. A-u" . w3m-browse-chrome-url-new-session))
   :init
   (progn
-    (setq w3m-command "/usr/local/bin/w3m")
+    (setq w3m-command "w3m")
 
     (setq w3m-coding-system 'utf-8
           w3m-file-coding-system 'utf-8

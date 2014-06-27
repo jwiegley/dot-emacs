@@ -1,4 +1,4 @@
-### -*- mode: makefile-gmake -*-
+## -*- mode: makefile-gmake -*-
 
 DIRS	    = override lib lisp site-lisp
 SPECIAL	    = cus-dirs.el autoloads.el
