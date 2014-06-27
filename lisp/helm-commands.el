@@ -76,11 +76,14 @@
                   (or (and request-prefix
                            (concat request-prefix
                                    " " helm-pattern))
-                      helm-pattern))))
+                      helm-pattern)))
+        (fun (if helm-buffers-fuzzy-matching
+                 #'helm--mapconcat-candidate
+               #'identity)))
     (with-current-buffer (find-file-noselect "~/.bash_history" t t)
       (auto-revert-mode -1)
       (goto-char (point-max))
-      (loop for pos = (re-search-backward pattern nil t)
+      (loop for pos = (re-search-backward (funcall fun pattern) nil t)
             while pos
             collect (replace-regexp-in-string
                      "\\`:.+?;" ""
