@@ -183,6 +183,7 @@
  '(haskell-process-type (quote ghci))
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
+ '(helm-buffers-fuzzy-matching t)
  '(hi2-ifte-offset 4)
  '(hi2-layout-offset 4)
  '(hi2-left-offset 4)

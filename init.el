@@ -1117,8 +1117,8 @@
 
     (char-mapping "A-L" "Γ")
     (char-mapping "A-l" "λ x → ")
-    (char-mapping "A-r" "→")
-    (char-mapping "A-=" "≡")
+    (char-mapping "A-r" " → ")
+    (char-mapping "A-=" " ≡ ")
     ))
 
 ;;;_ , allout
@@ -1520,15 +1520,6 @@
   (progn
     (change-cursor-mode 1)
     (toggle-cursor-type-when-idle 1)))
-
-;;;_ , ibuffer
-
-(use-package ibuffer
-  :defer t
-  :init
-  (add-hook 'ibuffer-mode-hook
-            #'(lambda ()
-                (ibuffer-switch-to-saved-filter-groups "default"))))
 
 ;;;_ , iflipb
 
@@ -2399,7 +2390,6 @@ FORM => (eval FORM)."
 ;;;_ , helm
 
 (use-package helm-config
-  :if (not running-alternate-emacs)
   :init
   (progn
     (bind-key "C-c M-x" 'helm-M-x)
@@ -2412,6 +2402,7 @@ FORM => (eval FORM)."
 
     (bind-key "C-h e a" 'my-helm-apropos)
     (bind-key "C-x M-!" 'helm-command-from-zsh)
+    (bind-key "C-x C-b" 'helm-buffers-list)
     (bind-key "C-x f" 'helm-find-git-file)
 
     (use-package helm-descbinds
@@ -2419,7 +2410,17 @@ FORM => (eval FORM)."
       :init
       (fset 'describe-bindings 'helm-descbinds))
 
-    (bind-key "C-h b" 'helm-descbinds))
+    (bind-key "C-h b" 'helm-descbinds)
+
+    (defadvice helm-buffers-list
+      (around expand-window-helm-buffers-list activate)
+      (let ((c (current-window-configuration)))
+        (condition-case err
+            (progn
+              (delete-other-windows)
+              ad-do-it)
+          (t
+           (set-window-configuration c))))))
 
   :config
   (helm-match-plugin-mode t))
@@ -2447,7 +2448,12 @@ FORM => (eval FORM)."
 ;;;_ , ibuffer
 
 (use-package ibuffer
-  :bind ("C-x C-b" . ibuffer))
+  :disabled t
+  :bind ("C-x C-b" . ibuffer)
+  :init
+  (add-hook 'ibuffer-mode-hook
+            #'(lambda ()
+                (ibuffer-switch-to-saved-filter-groups "default"))))
 
 ;;;_ , ido
 
