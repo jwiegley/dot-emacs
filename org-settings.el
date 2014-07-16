@@ -33,6 +33,8 @@
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
+ '(org-babel-load-languages (quote ((emacs-lisp . t) (ditaa . t) (haskell . t) (calc . t))))
+ '(org-beamer-frame-default-options "fragile")
  '(org-capture-templates (quote (("t" "Task" entry (file+headline "~/Documents/Tasks/todo.txt" "Inbox") "* TODO %?
 SCHEDULED: %t
 :PROPERTIES:

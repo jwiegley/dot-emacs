@@ -21,6 +21,37 @@
 
 ;;(load "org-log" t)
 
+(defun org-show-context (&optional key)
+  "Make sure point and context are visible.
+How much context is shown depends upon the variables
+`org-show-hierarchy-above', `org-show-following-heading',
+`org-show-entry-below' and `org-show-siblings'."
+  (let ((heading-p   (org-at-heading-p t))
+	(hierarchy-p (org-get-alist-option org-show-hierarchy-above key))
+	(following-p (org-get-alist-option org-show-following-heading key))
+	(entry-p     (org-get-alist-option org-show-entry-below key))
+	(siblings-p  (org-get-alist-option org-show-siblings key)))
+    ;; Show heading or entry text
+    (if (and heading-p (not entry-p))
+	(org-flag-heading nil)    ; only show the heading
+      (and (or entry-p (outline-invisible-p) (org-invisible-p2))
+	   (org-show-hidden-entry)))    ; show entire entry
+    (when following-p
+      ;; Show next sibling, or heading below text
+      (save-excursion
+	(and (if heading-p (org-goto-sibling) (outline-next-heading))
+	     (org-flag-heading nil))))
+    (when siblings-p (org-show-siblings))
+    (when hierarchy-p
+      ;; show all higher headings, possibly with siblings
+      (save-excursion
+	(while (and (condition-case nil
+			(progn (org-up-heading-all 1) t)
+		      (error nil))
+		    (not (bobp)))
+	  (org-flag-heading nil)
+	  (when siblings-p (org-show-siblings)))))))
+
 (defun org-link-to-named-task ()
   (interactive))
 (fset 'org-link-to-named-task

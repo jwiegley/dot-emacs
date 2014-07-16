@@ -34,10 +34,11 @@
        (list
         user-emacs-directory
 
+        "override/"
         "override/gnus/contrib/"
         "override/gnus/lisp/"
-        ;; "override/org-mode/contrib/lisp/"
-        ;; "override/org-mode/lisp/"
+        "override/org-mode/contrib/lisp/"
+        "override/org-mode/lisp/"
         "override/tramp/lisp/"
 
         nix-site-lisp-directory

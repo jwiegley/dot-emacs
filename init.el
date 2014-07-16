@@ -1088,7 +1088,7 @@
 ;;;_ , agda
 
 (use-package agda2-mode
-  :load-path "~/.nix-profile/share/x86_64-osx-ghc-7.8.2/Agda-2.4.0.1/emacs-mode/"
+  :load-path "~/.nix-profile/share/x86_64-osx-ghc-7.8.3/Agda-2.4.0.1/emacs-mode/"
   :mode ("\\.agda\\'" . agda2-mode)
   :init
   (use-package agda-input)
@@ -3215,14 +3215,13 @@ FORM => (eval FORM)."
          ("C-c l" . org-insert-link))
   :init
   (progn
-    ;; (unless running-alternate-emacs
-    ;;   (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    ;;   (add-hook 'after-init-hook
-    ;;             #'(lambda ()
-    ;;                 (org-agenda-list)
-    ;;                 (org-fit-agenda-window)
-    ;;                 (org-resolve-clocks))) t)
-    ))
+    (unless running-alternate-emacs
+      (run-with-idle-timer 300 t 'jump-to-org-agenda)
+      (add-hook 'after-init-hook
+                #'(lambda ()
+                    (org-agenda-list)
+                    (org-fit-agenda-window)
+                    (org-resolve-clocks))) t)))
 
 ;;;_ , pabbrev
 
@@ -3373,7 +3372,6 @@ FORM => (eval FORM)."
                   (lambda ()
                     (yas-minor-mode 1)
                     (whitespace-mode 1)
-                    (unicode-tokens-use-shortcuts 0)
                     (defalias 'proof-display-and-keep-buffer
                       'my-proof-display-and-keep-buffer)))
         (bind-key "M-RET" 'proof-goto-point coq-mode-map)
@@ -4175,7 +4173,7 @@ FORM => (eval FORM)."
   (progn
     (yas-load-directory (expand-file-name "snippets/" user-emacs-directory))
 
-    (bind-key "<tab>" 'yas-next-field-or-maybe-expand yas-keymap)
+    (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap)
 
     (defun yas-new-snippet (&optional choose-instead-of-guess)
       (interactive "P")
