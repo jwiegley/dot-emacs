@@ -1,0 +1,5 @@
+Lemma $1 : forall $2,
+  $3.
+Proof.
+  $0
+Qed.

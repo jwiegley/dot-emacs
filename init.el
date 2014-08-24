@@ -427,11 +427,11 @@
       (progn
         (defun emacs-min-top ()
           (let ((height (display-pixel-height)))
-            (cond ((= 1050 height) 574)
-                  ((= 900 height) 425)
-                  (t 722))))
+            (cond ((= 1050 height) 22)
+                  ((= 900 height) 22)
+                  (t 22))))
         (defun emacs-min-left () 5)
-        (defvar emacs-min-height 25)
+        (defvar emacs-min-height (if (= 1050 (display-pixel-height)) 47 64))
         (defvar emacs-min-width 80))
 
     (defun emacs-min-top () 22)
@@ -1087,9 +1087,17 @@
 
 ;;;_ , agda
 
+(defun agda-site-lisp ()
+  (let ((agda (nth 1 (split-string
+                      (shell-command-to-string "load-env-agda which agda")
+                      "\n"))))
+    (and agda
+         (expand-file-name "../share/x86_64-osx-ghc-7.8.3/Agda-2.4.0.2/emacs-mode"
+                           (file-name-directory agda)))))
+
 (use-package agda2-mode
-  :load-path "~/.nix-profile/share/x86_64-osx-ghc-7.8.3/Agda-2.4.0.1/emacs-mode/"
   :mode ("\\.agda\\'" . agda2-mode)
+  :pre-init (add-to-list 'load-path (agda-site-lisp))
   :init
   (use-package agda-input)
   :config
@@ -1110,16 +1118,17 @@
           (let ((name (car (split-string func-def " "))))
             (insert "  where\n    " func-def "    " name " x = ?\n")))))
 
-    (bind-key "C-c C-i" 'agda2-insert-helper-function agda2-mode-map)
+    (bind-key "C-c C-i" 'agda2-insert-helper-function agda2-mode-map)))
 
-    (defun char-mapping (key char)
-      (bind-key key `(lambda () (interactive) (insert ,char)) agda2-mode-map))
+(defun char-mapping (key char)
+  (bind-key key `(lambda () (interactive) (insert ,char))))
 
-    (char-mapping "A-L" "Γ")
-    (char-mapping "A-l" "λ x → ")
-    (char-mapping "A-r" " → ")
-    (char-mapping "A-=" " ≡ ")
-    ))
+(char-mapping "A-G" "Γ")
+(char-mapping "A-l" "λ x → ")
+(char-mapping "A-:" " ∷ ")
+(char-mapping "A-r" " → ")
+(char-mapping "A-~" " ≅ ")
+(char-mapping "A-=" " ≡ ")
 
 ;;;_ , allout
 
@@ -1520,6 +1529,16 @@
   (progn
     (change-cursor-mode 1)
     (toggle-cursor-type-when-idle 1)))
+
+;;;_ , idris
+
+(use-package idris-mode
+  :mode ("\\.idr\\'" . idris-mode)
+  :config
+  (defadvice idris-load-file (around my-idris-load-file activate)
+    (let ((wind (selected-window)))
+      ad-do-it
+      (select-window wind))))
 
 ;;;_ , iflipb
 
@@ -2311,10 +2330,10 @@ FORM => (eval FORM)."
         (progn
           (setq-default grep-first-column 1)
           (grep-apply-setting 'grep-find-command
-                              '("ag --noheading --nocolor --smart-case --nogroup --column -- " . 61)))
+                              '("ag -G '\\.hs$' --noheading --nocolor --smart-case --nogroup --column -- " . 72)))
       (grep-apply-setting
        'grep-find-command
-       '("find . -type f -print0 | xargs -P4 -0 egrep -nH -e " . 52)))))
+       '("find . -name '*.hs' -type f -print0 | xargs -P4 -0 egrep -nH " . 62)))))
 
 ;;;_ , gtags
 
@@ -2402,7 +2421,7 @@ FORM => (eval FORM)."
 
     (bind-key "C-h e a" 'my-helm-apropos)
     (bind-key "C-x M-!" 'helm-command-from-zsh)
-    (bind-key "C-x C-b" 'helm-buffers-list)
+    ;; (bind-key "C-x C-b" 'helm-buffers-list)
     (bind-key "C-x f" 'helm-find-git-file)
 
     (use-package helm-descbinds
@@ -2448,7 +2467,6 @@ FORM => (eval FORM)."
 ;;;_ , ibuffer
 
 (use-package ibuffer
-  :disabled t
   :bind ("C-x C-b" . ibuffer)
   :init
   (add-hook 'ibuffer-mode-hook
@@ -3214,14 +3232,13 @@ FORM => (eval FORM)."
          ("C-c S" . org-store-link)
          ("C-c l" . org-insert-link))
   :init
-  (progn
-    (unless running-alternate-emacs
-      (run-with-idle-timer 300 t 'jump-to-org-agenda)
-      (add-hook 'after-init-hook
-                #'(lambda ()
-                    (org-agenda-list)
-                    (org-fit-agenda-window)
-                    (org-resolve-clocks))) t)))
+  (when (and (not running-alternate-emacs) (quickping "192.168.9.133"))
+    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    (add-hook 'after-init-hook
+              #'(lambda ()
+                  (org-agenda-list)
+                  (org-fit-agenda-window)
+                  (org-resolve-clocks))) t))
 
 ;;;_ , pabbrev
 
@@ -3372,6 +3389,7 @@ FORM => (eval FORM)."
                   (lambda ()
                     (yas-minor-mode 1)
                     (whitespace-mode 1)
+                    (set-input-method "Agda")
                     (defalias 'proof-display-and-keep-buffer
                       'my-proof-display-and-keep-buffer)))
         (bind-key "M-RET" 'proof-goto-point coq-mode-map)
@@ -3518,22 +3536,42 @@ FORM => (eval FORM)."
 ;;;_ , sage-mode
 
 (use-package sage
-  :disabled t
-  :load-path "~/Applications/sage/local/share/emacs/"
+  :load-path "/Applications/Misc/sage/local/share/emacs/site-lisp/sage-mode/"
   :init
   (progn
     (defvar python-source-modes nil)
-    (setq sage-command "~/Applications/sage/sage")
+    (setq sage-command "/Applications/Misc/sage/sage")
 
     ;; If you want sage-view to typeset all your output and have plot()
     ;; commands inline, uncomment the following line and configure sage-view:
-    (require 'sage-view "sage-view")
+    (require 'sage-view)
     (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
     (add-hook 'sage-startup-after-prompt-hook 'sage-view)
     ;; You can use commands like
     ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-output)
     (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t)
     ;; to enable some combination of features
+
+    (setq sage-startup-before-prompt-command "")
+
+    (let* ((str (shell-command-to-string
+                 (concat "find /nix/store/*-tetex-* -path "
+                         "'*/share/texmf-dist/tex/latex/preview' -type d | head -1")))
+           (texinputs (concat ".:" (substring str 0 (1- (length str))) ":")))
+      (setenv "TEXINPUTS" texinputs)
+
+      (eval
+       `(defadvice sage (around my-sage activate)
+          (let ((process-environment
+                 (cons
+                  (concat "TEXINPUTS=" ,texinputs)
+                  (mapcar
+                   (lambda (x)
+                     (if (string-match "\\`PATH=" x)
+                         (concat "PATH=/usr/bin:/bin:"
+                                 (expand-file-name "~/.nix-profile/bin")) x))
+                   process-environment))))
+            ad-do-it))))
 
     (bind-key "C-c Z" 'sage)))
 
@@ -4238,6 +4276,13 @@ FORM => (eval FORM)."
                  (message "Loading %s...done (%.3fs) [after-init]"
                           ,load-file-name elapsed)))
             t))
+
+(eval-after-load "tramp"
+  '(progn
+     (require 'tramp-sh)
+     (setq tramp-remote-path
+           (append tramp-remote-path
+                   '("/run/current-system/sw/bin" tramp-own-remote-path)))))
 
 ;; Local Variables:
 ;;   mode: emacs-lisp

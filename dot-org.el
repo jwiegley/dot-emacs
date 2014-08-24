@@ -14,12 +14,48 @@
 (require 'ob-python)
 (require 'ob-ruby)
 (require 'ob-emacs-lisp)
-;;(require 'ob-haskell)
+(require 'ob-haskell)
 (require 'ob-sh)
+(require 'ob-ditaa)
 
 (require 'async)
 
 ;;(load "org-log" t)
+
+(defun org-babel-execute:ditaa (body params)
+  "Execute a block of Ditaa code with org-babel.
+This function is called by `org-babel-execute-src-block'."
+  (let* ((result-params (split-string (or (cdr (assoc :results params)) "")))
+	 (out-file (let ((el (cdr (assoc :file params))))
+                     (or el
+                         (error
+                          "ditaa code block requires :file header argument"))))
+	 (cmdline (cdr (assoc :cmdline params)))
+	 (java (cdr (assoc :java params)))
+	 (in-file (org-babel-temp-file "ditaa-"))
+	 (eps (cdr (assoc :eps params)))
+         (pdf-cmd (when (and (or (string= (file-name-extension out-file) "pdf")
+                                 (cdr (assoc :pdf params))))
+                    (concat
+                     "epstopdf"
+                     " " (org-babel-process-file-name (concat in-file ".eps"))
+                     " -o=" (org-babel-process-file-name out-file))))
+	 (cmd (concat org-babel-ditaa-java-cmd
+		      " " java " " org-ditaa-jar-option " "
+		      (shell-quote-argument
+		       (expand-file-name
+			(if eps org-ditaa-eps-jar-path org-ditaa-jar-path)))
+		      " " cmdline
+		      " " (org-babel-process-file-name in-file)
+                      " " (if pdf-cmd
+                              (org-babel-process-file-name (concat in-file ".eps"))
+                            (org-babel-process-file-name out-file)))))
+    (unless (file-exists-p org-ditaa-jar-path)
+      (error "Could not find ditaa.jar at %s" org-ditaa-jar-path))
+    (with-temp-file in-file (insert body))
+    (message cmd) (shell-command cmd)
+    (when pdf-cmd (message pdf-cmd) (shell-command pdf-cmd))
+    nil))
 
 (defun org-show-context (&optional key)
   "Make sure point and context are visible.
