@@ -30,7 +30,7 @@
 
 (defcustom persistent-scratch-file-name "~/.emacs-persistent-scratch"
   "Location of *scratch* file contents for persistent-scratch."
-  :type 'directory
+  :type 'file
   :group 'persistent-scratch)
 
 (defun save-persistent-scratch ()
