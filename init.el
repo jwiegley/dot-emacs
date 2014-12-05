@@ -75,8 +75,7 @@
 
 (defvar running-alternate-emacs nil)
 
-(if (string-match (concat "/Applications/\\(Misc/\\)?"
-                          "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
+(if (string-match (concat "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
                   invocation-directory)
 
     (let ((settings (with-temp-buffer
@@ -84,7 +83,7 @@
                        (expand-file-name "settings.el" user-emacs-directory))
                       (goto-char (point-min))
                       (read (current-buffer))))
-          (suffix (downcase (match-string 2 invocation-directory))))
+          (suffix (downcase (match-string 1 invocation-directory))))
 
       (setq running-alternate-emacs t
             user-data-directory
@@ -434,13 +433,16 @@
         (defvar emacs-min-height (if (= 1050 (display-pixel-height)) 47 64))
         (defvar emacs-min-width 80))
 
-    (defun emacs-min-top () 22)
+    (defun emacs-min-top () 23)
     (defun emacs-min-left ()
       (let ((width (display-pixel-width)))
         (cond
          ((= width 3360) 1000)
-         (t (- width 918)))))
-    (defvar emacs-min-height (if (= 1050 (display-pixel-height)) 55 65))
+         ((= width 2560) 1537))))
+    (defvar emacs-min-height
+      (cond
+       ((= 1050 (display-pixel-height)) 55)
+       ((= 1440 (display-pixel-height)) 63)))
     (defvar emacs-min-width 100)))
 
 (defun emacs-min ()
@@ -452,6 +454,12 @@
   (set-frame-parameter (selected-frame) 'left (emacs-min-left))
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width)
+
+  (let ((width (display-pixel-width)))
+    (cond
+     ((= width 3760)
+      (set-frame-font
+       "-*-Source Code Pro-normal-normal-normal-*-17-*-*-*-m-0-iso10646-1"))))
 
   (when running-alternate-emacs
     (set-background-color "grey85")
@@ -1092,7 +1100,7 @@
                       (shell-command-to-string "load-env-agda which agda")
                       "\n"))))
     (and agda
-         (expand-file-name "../share/x86_64-osx-ghc-7.8.3/Agda-2.4.0.2/emacs-mode"
+         (expand-file-name "../share/x86_64-osx-ghc-7.8.3/Agda-2.4.2.1/emacs-mode"
                            (file-name-directory agda)))))
 
 (use-package agda2-mode
@@ -1179,9 +1187,9 @@
 ;;;_ , auctex
 
 (use-package tex-site
-  :load-path "site-lisp/auctex/preview/"
+  ;; :load-path "site-lisp/auctex/preview/"
   :defines (latex-help-cmd-alist latex-help-file)
-  :mode ("\\.tex\\'" . latex-mode)
+  :mode ("\\.tex\\'" . TeX-latex-mode)
   :config
   (progn
     (defun latex-help-get-cmd-alist ()  ;corrected version:
@@ -1804,6 +1812,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , edit-server
 
 (use-package edit-server
+  :disabled t
   :if (and window-system (not running-alternate-emacs)
            (not noninteractive))
   :load-path "site-lisp/emacs_chrome/servers/"
@@ -1867,8 +1876,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (interactive)
 
       (set-frame-font
-       "-*-Lucida Grande-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1" nil
-       nil)
+       "-*-Myriad Pro-normal-normal-normal-*-18-*-*-*-p-0-iso10646-1"
+       ;; "-*-Lucida Grande-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+       nil nil)
       (set-frame-parameter (selected-frame) 'width 90)
       (custom-set-faces
        '(erc-timestamp-face ((t (:foreground "dark violet")))))
@@ -2330,7 +2340,7 @@ FORM => (eval FORM)."
         (progn
           (setq-default grep-first-column 1)
           (grep-apply-setting 'grep-find-command
-                              '("ag -G '\\.hs$' --noheading --nocolor --smart-case --nogroup --column -- " . 72)))
+                              '("ag --noheading --nocolor --smart-case --nogroup --column -- " . 61)))
       (grep-apply-setting
        'grep-find-command
        '("find . -name '*.hs' -type f -print0 | xargs -P4 -0 egrep -nH " . 62)))))
@@ -2442,7 +2452,12 @@ FORM => (eval FORM)."
            (set-window-configuration c))))))
 
   :config
-  (helm-match-plugin-mode t))
+  (progn
+    (helm-match-plugin-mode t)
+
+    (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
+    (bind-key "C-i" 'helm-execute-persistent-action helm-map)
+    (bind-key "C-z" 'helm-select-action helm-map)))
 
 ;;;_ , hi-lock
 
@@ -3233,7 +3248,7 @@ FORM => (eval FORM)."
          ("C-c l" . org-insert-link))
   :init
   (when (and (not running-alternate-emacs) (quickping "192.168.9.133"))
-    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    ;; (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (add-hook 'after-init-hook
               #'(lambda ()
                   (org-agenda-list)
@@ -3376,6 +3391,41 @@ FORM => (eval FORM)."
                           ;; the modeline.
                           (kill-local-variable 'mode-line-format))))))))))))
 
+(defun my-coq-seq-get-library-dependencies (lib-src-file &optional command-intro)
+  (let ((coqdep-arguments
+         (nconc (coq-include-options lib-src-file coq-load-path)
+                (list lib-src-file)))
+        coqdep-status coqdep-output)
+    (if coq-debug-auto-compilation
+        (message "call coqdep arg list: %s" coqdep-arguments))
+    (with-temp-buffer
+      (setq coqdep-status
+            (apply 'call-process
+                   coq-dependency-analyzer nil (current-buffer) nil
+                   coqdep-arguments))
+      (setq coqdep-output (buffer-string)))
+    (if coq-debug-auto-compilation
+        (message "coqdep status %s, output on %s: %s"
+                 coqdep-status lib-src-file coqdep-output))
+    (if (string-match coq-coqdep-error-regexp coqdep-output)
+        ()
+      (if (eq coqdep-status 0)
+          (if (string-match ": \\(.*\\)$" coqdep-output)
+              (cdr-safe (split-string (match-string 1 coqdep-output)))
+            ())
+        (let* ((this-command (cons coq-dependency-analyzer coqdep-arguments))
+               (full-command (if command-intro
+                                 (cons command-intro this-command)
+                               this-command)))
+          ;; display the error
+          (coq-init-compile-response-buffer
+           (mapconcat 'identity full-command " "))
+          (let ((inhibit-read-only t))
+            (with-current-buffer coq-compile-response-buffer
+              (insert coqdep-output)))
+          (coq-display-compile-response-buffer)
+          "unsatisfied dependencies")))))
+
 (use-package proof-site
   :load-path (lambda () (nix-lisp-path "ProofGeneral/generic"))
   :config
@@ -3385,19 +3435,36 @@ FORM => (eval FORM)."
       :load-path (lambda () (nix-lisp-path "ProofGeneral/coq"))
       :config
       (progn
-        (add-hook 'coq-mode-hook
-                  (lambda ()
-                    (yas-minor-mode 1)
-                    (whitespace-mode 1)
-                    (set-input-method "Agda")
-                    (defalias 'proof-display-and-keep-buffer
-                      'my-proof-display-and-keep-buffer)))
+        (add-hook
+         'coq-mode-hook
+         (lambda ()
+           (yas-minor-mode 1)
+           (whitespace-mode 1)
+           (set-input-method "Agda")
+           (add-hook 'proof-shell-extend-queue-hook
+                     (lambda ()
+                       (set-window-dedicated-p (selected-window) t)))
+           (defalias 'proof-display-and-keep-buffer
+             'my-proof-display-and-keep-buffer)))
+
         (bind-key "M-RET" 'proof-goto-point coq-mode-map)
+        (bind-key "RET" 'newline-and-indent coq-mode-map)
         (bind-key "<tab>" 'yas-expand-from-trigger-key coq-mode-map)
         (bind-key "C-c C-p" (lambda ()
                               (interactive)
                               (proof-layout-windows)
-                              (proof-prf)) coq-mode-map)))))
+                              (proof-prf)) coq-mode-map)
+        (bind-key "C-c C-a C-s" 'coq-SearchConstant coq-mode-map)
+
+        (eval-after-load 'coq-seq-compile
+          '(defalias 'coq-seq-get-library-dependencies
+             'my-coq-seq-get-library-dependencies))
+
+        (eval-after-load 'pg-user
+          '(defadvice proof-retract-buffer
+               (around my-proof-retract-buffer activate)
+             (condition-case err ad-do-it
+               (error (shell-command "killall ssrcoq")))))))))
 
 ;;;_ , ps-print
 
@@ -3899,14 +3966,8 @@ FORM => (eval FORM)."
 
 ;;;_ , textexpander
 
-;; ;; (when (= 0 (call-process "using-textexpander"))
-;;   (bind-key "A-v" 'scroll-down)
-;;   (bind-key "M-v" 'yank)
-;;   ;; (bind-key "M-v" 'scroll-down)
-;; ;; )
-
-;;   ;; (bind-key "M-v" 'scroll-down)
-;;   ;; (bind-key "A-v" 'yank)
+(bind-key "A-v" 'scroll-down)
+(bind-key "M-v" 'yank)
 
 ;;;_ , twittering-mode
 

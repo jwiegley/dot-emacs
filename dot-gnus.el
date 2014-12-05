@@ -94,7 +94,7 @@
       (interactive)
       (when (and (not switch-to-gnus-unplugged)
                  (quickping "imap.gmail.com"))
-        (do-applescript "tell application \"Notify\" to run")
+        ;; (do-applescript "tell application \"Notify\" to run")
         (switch-to-fetchmail)))
 
     (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
@@ -104,7 +104,8 @@
        (lambda ()
          (call-process (expand-file-name "~/Messages/manage-mail/stop-mail")))
        (lambda (ret)
-         (do-applescript "tell application \"Notify\" to quit"))))))
+         ;; (do-applescript "tell application \"Notify\" to quit")
+         )))))
 
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
@@ -424,9 +425,11 @@ is:
                (concat "\\(\\(list\\|archive\\)\\.\\|"
                        "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)"))))
         (gnus-group-make-nnir-group
-         nil `((query    . ,query)
-               (criteria . "")
-               (server   . "nnimap:Local")))))
+         nil (list (cons 'nnir-query-spec
+                         (list (cons 'query query)
+                               (cons 'criteria "")))
+                   (cons 'nnir-group-spec
+                         (list (list "nnimap:Local")))))))
 
     (define-key global-map [(alt meta ?f)] 'gnus-query)))
 

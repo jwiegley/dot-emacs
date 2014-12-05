@@ -116,13 +116,14 @@ between 0 and 255."
 twelve digits of the MD5 message digest of the nickname as
 color (#rrrrggggbbbb)."
   (with-syntax-table erc-button-syntax-table
-    (let (bounds word color new-nick-face)
+    (let (color new-nick-face)
       (goto-char (point-min))
       (while (re-search-forward "\\w+" nil t)
-        (setq bounds (bounds-of-thing-at-point 'word))
-        (setq word (buffer-substring-no-properties
-                    (car bounds) (cdr bounds)))
-        (when (erc-get-server-user word)
+        (let* ((bounds (bounds-of-thing-at-point 'word))
+               (word (ignore-errors
+                       (buffer-substring-no-properties
+                        (car bounds) (cdr bounds)))))
+          (when (and word (erc-get-server-user word))
           (setq new-nick-face (gethash word erc-highlight-face-table))
           (unless new-nick-face
             (setq color (concat "#" (substring (md5 (downcase word)) 0 12)))
@@ -137,7 +138,7 @@ color (#rrrrggggbbbb)."
             (copy-face 'erc-highlight-nick-base-face new-nick-face)
             (set-face-foreground new-nick-face color)
             (puthash word new-nick-face erc-highlight-face-table))
-          (erc-button-add-face (car bounds) (cdr bounds) new-nick-face))))))
+          (erc-button-add-face (car bounds) (cdr bounds) new-nick-face)))))))
 
 (define-erc-module highlight-nicknames nil
   "Search through the buffer for nicknames, and highlight."

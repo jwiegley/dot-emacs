@@ -1,0 +1,10 @@
+\input texinfo   @c -*-texinfo-*-
+
+@c texinfo 4.2
+@copying
+@end copying
+
+@c texinfo 4.6
+@indent
+
+@bye
