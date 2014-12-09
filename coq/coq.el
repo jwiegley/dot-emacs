@@ -776,6 +776,9 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
 (defsubst coq-put-into-brackets (s)
   (concat "[ " s " ]"))
 
+(defsubst coq-put-into-brackets-remove-useless (s)
+  (concat "[ " s " -\"ind\" - \"rect\" -\"rec\" ]"))
+
 (defsubst coq-put-into-quotes (s)
   (concat "\"" s "\""))
 
@@ -801,7 +804,22 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do "SearchRewrite" "SearchRewrite" nil))
 
+;
+;(defun coq-SearchAbout (showall)
+;  (interactive "P")
+;  (coq-ask-do
+;   "SearchAbout (ex: \"eq_\" eq -bool)"
+;   "SearchAbout" nil (if showall 'coq-put-into-brackets 'coq-put-into-brackets-remove-useless)))
+;
+
 (defun coq-SearchAbout ()
+  (interactive)
+  (coq-ask-do
+   "SearchAbout (ex: \"eq_\" eq -bool)"
+   "SearchAbout" nil 'coq-put-into-brackets-remove-useless)
+  (message "use `coq-SearchAbout-all' to see constants ending with \"ind\", \"rec\", etc"))
+
+(defun coq-SearchAbout-all ()
   (interactive)
   (coq-ask-do
    "SearchAbout (ex: \"eq_\" eq -bool)"
@@ -1961,6 +1979,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
 (define-key coq-keymap [(control ?a)] 'coq-SearchAbout)
+(define-key coq-keymap [(control shift ?a)] 'coq-SearchAbout-all)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [?h] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
@@ -1977,6 +1996,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control shift ?a)] 'coq-SearchAbout-all)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?s)] 'coq-Show)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?r] 'proof-store-response-win)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?g] 'proof-store-goals-win)
