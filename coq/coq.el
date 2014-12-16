@@ -339,6 +339,31 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 ;; Auxiliary code for Coq modes
 ;;
 
+;; Due to the architecture of proofgeneral, informative message put *before*
+;; the goal disappear unless marked as "urgent", i.e. being enclosed with
+;; "eager-annotation" syntax. Since we don't want the Warning color to be used
+;; for simple informative message, we have to redefine this function to use
+;; normal face when the "eager annotation" is acutally not a warning. This is a
+;; modified version of the same function in generic/proof-shell.el.
+(defun proof-shell-process-urgent-message-default (start end)
+  "A subroutine of `proof-shell-process-urgent-message'."
+  ;; Clear the response buffer this time, but not next, leave window.
+  (pg-response-maybe-erase nil nil)
+  (proof-minibuffer-message
+   (buffer-substring-no-properties
+    (save-excursion
+      (re-search-forward proof-shell-eager-annotation-start end nil)
+      (point))
+    (min end
+         (save-excursion (end-of-line) (point))
+         (+ start 75))))
+  (let ((face
+        (progn (goto-char start)
+               (if (looking-at "<infomsg>") 'default-face
+                 'proof-eager-annotation-face))))
+    (pg-response-display-with-face
+     (proof-shell-strip-eager-annotations start end)
+     face)))
 
 
 ;;;;;;;;;;; Trying to accept { and } as terminator for empty commands. Actually
@@ -1454,7 +1479,6 @@ Warning:
    )
         
   (proof-shell-config-done))
-
 
 
 (proof-eval-when-ready-for-assistant
