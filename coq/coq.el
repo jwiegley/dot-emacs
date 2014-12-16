@@ -339,6 +339,11 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 ;; Auxiliary code for Coq modes
 ;;
 
+(defun coq-remove-trailing-blanks (s)
+  (let ((pos (string-match "[[:blank:]]*\\'" s)))
+    (substring s 0 pos)))
+
+
 ;; Due to the architecture of proofgeneral, informative message put *before*
 ;; the goal disappear unless marked as "urgent", i.e. being enclosed with
 ;; "eager-annotation" syntax. Since we don't want the Warning color to be used
@@ -357,13 +362,13 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
     (min end
          (save-excursion (end-of-line) (point))
          (+ start 75))))
-  (let ((face
+  (let* ((face
         (progn (goto-char start)
                (if (looking-at "<infomsg>") 'default-face
-                 'proof-eager-annotation-face))))
-    (pg-response-display-with-face
-     (proof-shell-strip-eager-annotations start end)
-     face)))
+                 'proof-eager-annotation-face)))
+        (str (proof-shell-strip-eager-annotations start end))
+        (strnotrailingspace (coq-remove-trailing-blanks str)))
+    (pg-response-display-with-face strnotrailingspace face)))
 
 
 ;;;;;;;;;;; Trying to accept { and } as terminator for empty commands. Actually
