@@ -752,6 +752,11 @@ Elisp errors will be trapped when evaluating; set
   :type 'string
   :group 'proof-script)
 
+(defcustom proof-script-insert-newlines t
+  "if non-nil inserts a newline between each message in response buffer."
+  :type 'boolean
+  :group 'proof-script)
+
 
 (defcustom proof-script-font-lock-keywords nil
   "Value of `font-lock-keywords' used to fontify proof scripts.

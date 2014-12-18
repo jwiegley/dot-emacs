@@ -357,8 +357,9 @@ Returns non-nil if response buffer was cleared."
 	;; with warnings after delayed output (non newline terminated).
 	(goto-char (point-max))
 	;; insert a newline before the new message unless the
-	;; buffer is empty
-	(unless (eq (point-min) (point-max))
+	;; buffer is empty or proof-script-insert-newlines is nil
+	(unless (or (not proof-script-insert-newlines)
+		    (eq (point-min) (point-max)))
 	  (newline))
 	(setq start (point))
 	(insert str)

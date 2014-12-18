@@ -252,12 +252,13 @@ See also `coq-hide-additional-subgoals'."
   :type 'regexp
   :group 'coq-proof-tree)
 
+;; pc: <infomsg> now has a newline (better output indentation)
 (defcustom coq-proof-tree-branch-finished-regexp
   (concat "^\\(\\(?:Proof completed\\.\\)\\|\\(?:No more subgoals\\.\\)\\|"
           "\\(No more subgoals but non-instantiated "
           "existential variables:\\)\\|"
-          "\\(<infomsg>This subproof is complete, but there are "
-          "still unfocused goals.</infomsg>\\)\\)")
+          "\\(<infomsg>\\s-*This subproof is complete, but there are "
+          "still unfocused goals.\\s-*</infomsg>\\)\\)")
   "Regexp for `proof-tree-branch-finished-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
@@ -340,8 +341,12 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 ;;
 
 (defun coq-remove-trailing-blanks (s)
-  (let ((pos (string-match "[[:blank:]]*\\'" s)))
+  (let ((pos (string-match "\\s-*\\'" s)))
     (substring s 0 pos)))
+
+(defun coq-remove-starting-blanks (s)
+  (string-match "\\`\\s-*" s)
+  (substring s (match-end 0) (length s)))
 
 
 ;; Due to the architecture of proofgeneral, informative message put *before*
@@ -362,12 +367,15 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
     (min end
          (save-excursion (end-of-line) (point))
          (+ start 75))))
-  (let* ((face
+  (let*
+      ((face
         (progn (goto-char start)
-               (if (looking-at "<infomsg>") 'default-face
+               (if (looking-at "<infomsg>") 'default
                  'proof-eager-annotation-face)))
-        (str (proof-shell-strip-eager-annotations start end))
-        (strnotrailingspace (coq-remove-trailing-blanks str)))
+       (str (proof-shell-strip-eager-annotations start end))
+       (strnotrailingspace
+        (coq-remove-starting-blanks (coq-remove-trailing-blanks str))))
+    (message "STR = %S" strnotrailingspace)
     (pg-response-display-with-face strnotrailingspace face)))
 
 
@@ -1307,7 +1315,7 @@ Warning:
   (setq proof-script-parse-function 'coq-script-parse-function)
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
-
+  (setq proof-script-insert-newlines nil)
   (set (make-local-variable 'comment-start-skip)
        (regexp-quote (if (string-equal "" proof-script-comment-start)
                          "\n" ;; end-of-line terminated comments
