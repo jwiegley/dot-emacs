@@ -352,15 +352,14 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "##categorytheory" "##typetheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "#wigfam" "##hott" "#ghc" "#haskell-infrastructure"))))
+    (("freenode.net" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "#wigfam" "##hott" "#ghc" "#haskell-infrastructure"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
- '(erc-foolish-content (quote ("MichaelSnoyman" "HirotomoMoriwaki" "shachaf")))
+ '(erc-foolish-content (quote ("MichaelSnoyman" "BrendanHay")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
- '(erc-ignore-list (quote ("shachaf")))
  '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
  '(erc-log-channels-directory "~/Messages/ERC")
  '(erc-log-write-after-send t)
@@ -376,6 +375,7 @@
  '(erc-services-mode t)
  '(erc-text-matched-hook (quote (erc-hide-fools my-erc-hook)))
  '(erc-track-enable-keybindings t)
+ '(erc-track-exclude (quote ("#idris" "#emacs" "#ghc")))
  '(erc-track-exclude-types
    (quote
     ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
@@ -601,6 +601,10 @@
  '(magit-stage-all-confirm nil)
  '(magit-unstage-all-confirm nil)
  '(make-backup-file-name-function (quote my-make-backup-file-name))
+ '(markdown-command "pandoc -f markdown_mmd -S")
+ '(markdown-command-needs-filename t)
+ '(markdown-enable-math t)
+ '(markdown-open-command "open-markdown")
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))

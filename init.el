@@ -421,45 +421,55 @@
   (defvar emacs-min-height)
   (defvar emacs-min-width))
 
+(setq display-name
+      (let ((width (display-pixel-width)))
+        (cond
+         ((= width 2560)
+          'retina-imac)
+         ((= width 1440)
+          'retina-macbook-pro))))
+
 (unless noninteractive
   (if running-alternate-emacs
       (progn
-        (defun emacs-min-top ()
-          (let ((height (display-pixel-height)))
-            (cond ((= 1050 height) 22)
-                  ((= 900 height) 22)
-                  (t 22))))
+        (defun emacs-min-top () 22)
         (defun emacs-min-left () 5)
-        (defvar emacs-min-height (if (= 1050 (display-pixel-height)) 47 64))
-        (defvar emacs-min-width 80))
+        (defvar emacs-min-height 57)
+        (defvar emacs-min-width 90))
 
     (defun emacs-min-top () 23)
     (defun emacs-min-left ()
-      (let ((width (display-pixel-width)))
-        (cond
-         ((= width 3360) 1000)
-         ((= width 2560) 1537))))
+      (cond
+       ((eq display-name 'retina-imac) 975)
+       (t 521)))
     (defvar emacs-min-height
       (cond
-       ((= 1050 (display-pixel-height)) 55)
-       ((= 1440 (display-pixel-height)) 63)))
+       ((eq display-name 'retina-imac) 55)
+       (t 44)))
     (defvar emacs-min-width 100)))
 
 (defun emacs-min ()
   (interactive)
+
   (set-frame-parameter (selected-frame) 'fullscreen nil)
   (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
   (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+
   (set-frame-parameter (selected-frame) 'top (emacs-min-top))
   (set-frame-parameter (selected-frame) 'left (emacs-min-left))
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width)
 
-  (let ((width (display-pixel-width)))
-    (cond
-     ((= width 3760)
-      (set-frame-font
-       "-*-Source Code Pro-normal-normal-normal-*-17-*-*-*-m-0-iso10646-1"))))
+  (set-frame-font
+   (cond
+    ((eq display-name 'retina-imac)
+     (if running-alternate-emacs
+         "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+       "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"))
+    (t
+     (if running-alternate-emacs
+         "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
+       "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"))))
 
   (when running-alternate-emacs
     (set-background-color "grey85")
@@ -470,24 +480,9 @@
 
 (defun emacs-max ()
   (interactive)
-  (if t
-      (progn
-        (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
-        (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-        (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
-    (set-frame-parameter (selected-frame) 'top 26)
-    (set-frame-parameter (selected-frame) 'left 2)
-    (set-frame-parameter (selected-frame) 'width
-                         (floor (/ (float (x-display-pixel-width)) 9.15)))
-    (if (= 1050 (x-display-pixel-height))
-        (set-frame-parameter (selected-frame) 'height
-                             (if (>= emacs-major-version 24)
-                                 66
-                               55))
-      (set-frame-parameter (selected-frame) 'height
-                           (if (>= emacs-major-version 24)
-                               75
-                             64)))))
+  (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
 
 (defun emacs-toggle-size ()
   (interactive)
@@ -764,13 +759,13 @@
             (forward-line 1)))
         (insert "*/\n")))
 
-    (defun my-c-indent-or-complete ()
-      (interactive)
-      (let ((class (syntax-class (syntax-after (1- (point))))))
-        (if (or (bolp) (and (/= 2 class)
-                            (/= 3 class)))
-            (call-interactively 'indent-according-to-mode)
-          (call-interactively 'auto-complete))))
+    ;; (defun my-c-indent-or-complete ()
+    ;;   (interactive)
+    ;;   (let ((class (syntax-class (syntax-after (1- (point))))))
+    ;;     (if (or (bolp) (and (/= 2 class)
+    ;;                         (/= 3 class)))
+    ;;         (call-interactively 'indent-according-to-mode)
+    ;;       (call-interactively 'auto-complete))))
 
     (defvar printf-index 0)
 
@@ -794,7 +789,7 @@
       (hide-ifdef-mode 1)
       (whitespace-mode 1)
       (which-function-mode 1)
-      (auto-complete-mode 1)
+      ;; (auto-complete-mode 1)
       (yas-minor-mode 1)
       (bug-reference-prog-mode 1)
 
@@ -804,21 +799,20 @@
 
       (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
 
-      (auto-complete-mode 1)
-      (setq ac-sources (list (if (and (fboundp 'semantic-active-p)
-                                      (funcall #'semantic-active-p))
-                                 'ac-source-semantic
-                               'ac-source-gtags)))
-      (bind-key "<A-tab>" 'ac-complete c-mode-base-map)
+      ;; (setq ac-sources (list (if (and (fboundp 'semantic-active-p)
+      ;;                                 (funcall #'semantic-active-p))
+      ;;                            'ac-source-semantic
+      ;;                          'ac-source-gtags)))
+      ;; (bind-key "<A-tab>" 'ac-complete c-mode-base-map)
 
       ;;(doxymacs-mode 1)
       ;;(doxymacs-font-lock)
 
       (bind-key "<return>" 'newline-and-indent c-mode-base-map)
 
-      (set (make-local-variable 'yas-fallback-behavior)
-           '(apply my-c-indent-or-complete . nil))
-      (bind-key "<tab>" 'yas-expand-from-trigger-key c-mode-base-map)
+      ;; (set (make-local-variable 'yas-fallback-behavior)
+      ;;      '(apply my-c-indent-or-complete . nil))
+      ;; (bind-key "<tab>" 'yas-expand-from-trigger-key c-mode-base-map)
 
       (unbind-key "M-j" c-mode-base-map)
       (bind-key "C-c C-i" 'c-includes-current-file c-mode-base-map)
@@ -1073,6 +1067,7 @@
 ;;;_ , abbrev
 
 (use-package abbrev
+  :disabled t
   :commands abbrev-mode
   :diminish abbrev-mode
   :init
@@ -1100,8 +1095,9 @@
                       (shell-command-to-string "load-env-agda which agda")
                       "\n"))))
     (and agda
-         (expand-file-name "../share/x86_64-osx-ghc-7.8.3/Agda-2.4.2.1/emacs-mode"
-                           (file-name-directory agda)))))
+         (expand-file-name
+          "../share/x86_64-osx-ghc-7.8.3/Agda-2.4.2.2/emacs-mode"
+          (file-name-directory agda)))))
 
 (use-package agda2-mode
   :mode ("\\.agda\\'" . agda2-mode)
@@ -1110,13 +1106,6 @@
   (use-package agda-input)
   :config
   (progn
-    ;; (defadvice agda2-status-action (after agda-color-after-status-change activate)
-    ;;   "Color the buffer green or red depending on type checking status."
-    ;;   (set-background-color
-    ;;    (if (string= agda2-buffer-external-status "Checked")
-    ;;        "honeydew"
-    ;;      "seashell")))
-
     (defun agda2-insert-helper-function (&optional prefix)
       (interactive "P")
       (let ((func-def (with-current-buffer "*Agda information*"
@@ -1141,6 +1130,7 @@
 ;;;_ , allout
 
 (use-package allout
+  :disabled t
   :diminish allout-mode
   :commands allout-mode
   :config
@@ -1167,6 +1157,7 @@
 ;;;_ , archive-region
 
 (use-package archive-region
+  :disabled t
   :commands kill-region-or-archive-region
   :bind ("C-w" . kill-region-or-archive-region))
 
@@ -1232,6 +1223,7 @@
 ;;;_ , auto-complete
 
 (use-package auto-complete-config
+  :disabled t
   :diminish auto-complete-mode
   :init
   (progn
@@ -1396,6 +1388,7 @@
 ;;;_ , bm
 
 (use-package bm
+  :disabled t
   :pre-init
   (progn
     (defvar ctl-period-breadcrumb-map)
@@ -1514,6 +1507,11 @@
 
     :config
     (use-package moccur-edit)))
+
+;;;_ , company-mode
+
+(use-package company
+  :commands company-mode)
 
 ;;;_ , copy-code
 
@@ -1725,27 +1723,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                      "\\)")))
               (funcall dired-omit-regexp-orig))))))
 
-;;     (eval-after-load "dired-aux"
-;;       '(defun dired-do-async-shell-command (command &optional arg file-list)
-;;          "Run a shell command COMMAND on the marked files asynchronously.
-
-;; Like `dired-do-shell-command' but if COMMAND doesn't end in ampersand,
-;; adds `* &' surrounded by whitespace and executes the command asynchronously.
-;; The output appears in the buffer `*Async Shell Command*'."
-;;          (interactive
-;;           (let ((files (dired-get-marked-files t current-prefix-arg)))
-;;             (list
-;;              ;; Want to give feedback whether this file or marked files are
-;;              ;; used:
-;;              (dired-read-shell-command "& on %s: " current-prefix-arg files)
-;;              current-prefix-arg
-;;              files)))
-;;          (unless (string-match "[ \t][*?][ \t]" command)
-;;            (setq command (concat command " *")))
-;;          (unless (string-match "&[ \t]*\\'" command)
-;;            (setq command (concat command " &")))
-;;          (dired-do-shell-command command arg file-list)))
-
     (add-hook 'dired-mode-hook 'dired-package-initialize)
 
     (defun dired-double-jump (first-dir second-dir)
@@ -1763,7 +1740,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , discover
 
-(use-package discover)
+(use-package discover
+  :disabled t)
 
 ;;;_ , doxymacs
 
@@ -1824,6 +1802,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , emms
 
 (use-package emms-setup
+  :disabled t
   :load-path "site-lisp/emms/lisp"
   :defines emms-info-functions
   :commands (emms-all emms-devel)
@@ -1868,18 +1847,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , erc
 
 (use-package erc
-  ;; :commands erc
   :if running-alternate-emacs
   :init
   (progn
     (defun setup-irc-environment ()
-      (interactive)
-
-      (set-frame-font
-       "-*-Myriad Pro-normal-normal-normal-*-18-*-*-*-p-0-iso10646-1"
-       ;; "-*-Lucida Grande-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
-       nil nil)
-      (set-frame-parameter (selected-frame) 'width 90)
       (custom-set-faces
        '(erc-timestamp-face ((t (:foreground "dark violet")))))
 
@@ -1904,18 +1875,17 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (interactive)
 
       (if (quickping "192.168.9.133")
-          (progn
-            (erc :server "192.168.9.133"
-                 :port 6697
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search
-                                   :host "192.168.9.133"
-                                   :user "johnw/freenode"
-                                   :type 'netrc
-                                   :port 6697))
-                             :secret))))
+          (erc :server "192.168.9.133"
+               :port 6697
+               :nick "johnw"
+               :password (funcall
+                          (plist-get
+                           (car (auth-source-search
+                                 :host "192.168.9.133"
+                                 :user "johnw/freenode"
+                                 :type 'netrc
+                                 :port 6697))
+                           :secret)))
 
         (erc-tls :server "irc.freenode.net"
                  :port 6697
@@ -1929,21 +1899,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                                    :port 6667))
                              :secret)))))
 
-    (defun im ()
-      (interactive)
-      (erc :server "localhost"
-           :port 6667
-           :nick "johnw"
-           :password (funcall
-                      (plist-get
-                       (car (auth-source-search
-                             :host "bitlbee"
-                             :user "johnw"
-                             :type 'netrc
-                             :port 6667))
-                       :secret))))
-
-    ;; (add-hook 'after-init-hook 'im)
     (add-hook 'after-init-hook 'irc))
 
   :config
@@ -1973,14 +1928,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                 (message msg))
             (message (concat "No definition found for " (upcase term)))))))
 
-    (defun switch-to-bitlbee ()
-      (interactive)
-      (switch-to-buffer-other-window "&bitlbee")
-      (call-interactively 'erc-channel-names)
-      (goto-char (point-max)))
-
-    (bind-key "C-c b" 'switch-to-bitlbee)
-
     (defcustom erc-foolish-content '()
       "Regular expressions to identify foolish content.
     Usually what happens is that you add the bots to
@@ -1993,32 +1940,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (erc-list-match erc-foolish-content msg))
 
     (add-hook 'erc-insert-pre-hook
-	      (lambda (s)
+              (lambda (s)
 		(when (erc-foolish-content s)
-		  (setq erc-insert-this nil))))
-
-    (defun erc-cmd-SHOW (&rest form)
-      "Eval FORM and send the result and the original form as:
-FORM => (eval FORM)."
-      (let* ((form-string (mapconcat 'identity form " "))
-             (result
-              (condition-case err
-                  (eval (read-from-whole-string form-string))
-                (error
-                 (format "Error: %s" err)))))
-        (erc-send-message (format "%s => %S" form-string result))))
-
-    (defun erc-cmd-INFO (&rest ignore)
-      "Send current info node."
-      (unless (get-buffer "*info*")
-        (error "No *info* buffer"))
-      (let (output)
-        (with-current-buffer "*info*"
-          (let* ((file (file-name-nondirectory Info-current-file))
-                 (node Info-current-node))
-            (setq output (format "(info \"(%s)%s\") <-- hit C-x C-e to evaluate"
-                                 file node))))
-        (erc-send-message output)))
+                  (setq erc-insert-this nil))))
 
     (eval-when-compile
       (defvar erc-fools))
@@ -2119,17 +2043,17 @@ FORM => (eval FORM)."
       "Add TARGET to the list of target to be tracked."
       (if target
           (erc-with-server-buffer
-            (let ((untracked
-                   (car (erc-member-ignore-case target erc-track-exclude))))
-              (if untracked
-                  (erc-display-line
-                   (erc-make-notice
-                    (format "%s is not currently tracked!" target))
-                   'active)
-                (add-to-list 'erc-track-exclude target)
-                (erc-display-line
-                 (erc-make-notice (format "Now not tracking %s" target))
-                 'active))))
+           (let ((untracked
+                  (car (erc-member-ignore-case target erc-track-exclude))))
+             (if untracked
+                 (erc-display-line
+                  (erc-make-notice
+                   (format "%s is not currently tracked!" target))
+                  'active)
+               (add-to-list 'erc-track-exclude target)
+               (erc-display-line
+                (erc-make-notice (format "Now not tracking %s" target))
+                'active))))
 
         (if (null erc-track-exclude)
             (erc-display-line
@@ -2141,22 +2065,21 @@ FORM => (eval FORM)."
                 (erc-with-server-buffer erc-track-exclude))))
       t)
 
-
     (defun erc-cmd-TRACK (target)
       "Remove TARGET of the list of targets which they should not be tracked.
    If no TARGET argument is specified, list contents of `erc-track-exclude'."
       (when target
         (erc-with-server-buffer
-          (let ((tracked
-                 (not (car (erc-member-ignore-case target erc-track-exclude)))))
-            (if tracked
-                (erc-display-line
-                 (erc-make-notice (format "%s is currently tracked!" target))
-                 'active)
-              (setq erc-track-exclude (remove target erc-track-exclude))
-              (erc-display-line
-               (erc-make-notice (format "Now tracking %s" target))
-               'active)))))
+         (let ((tracked
+                (not (car (erc-member-ignore-case target erc-track-exclude)))))
+           (if tracked
+               (erc-display-line
+                (erc-make-notice (format "%s is currently tracked!" target))
+                'active)
+             (setq erc-track-exclude (remove target erc-track-exclude))
+             (erc-display-line
+              (erc-make-notice (format "Now tracking %s" target))
+              'active)))))
       t)))
 
 ;;;_ , eshell
@@ -2222,17 +2145,10 @@ FORM => (eval FORM)."
 
 (use-package flycheck
   :config
-  (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point))
-
-;;;_ , flyparse
-
-(use-package flyparse
-  :disabled t
-  :load-path ("site-lisp/flyparse/deps/dash.el"
-              "site-lisp/flyparse/deps/s.el")
+  (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point)
   :init
   (progn
-    (flyparse-declare-checker clang++-ledger
+    (flycheck-define-checker clang++-ledger
       "Clang++ checker for Ledger"
       :command
       '("clang++" "-Wall" "-fsyntax-only"
@@ -2248,12 +2164,7 @@ FORM => (eval FORM)."
       :modes 'c++-mode
       :predicate '(string-match "/ledger/" (buffer-file-name)))
 
-    (push 'clang++-ledger flyparse-checkers))
-
-  :config
-  (progn
-    (defalias 'flyparse-show-error-at-point-soon 'flyparse-show-error-at-point)
-    (defalias 's-collapse-whitespace 'identity)))
+    (push 'clang++-ledger flycheck-checkers)))
 
 ;;;_ , flyspell
 
@@ -2270,13 +2181,6 @@ FORM => (eval FORM)."
   :config
   (define-key flyspell-mode-map [(control ?.)] nil))
 
-;;;_ , fold-dwim
-
-(use-package fold-dwim
-  :bind (("<f13>" . fold-dwim-toggle)
-         ("<f14>" . fold-dwim-hide-all)
-         ("<f15>" . fold-dwim-show-all)))
-
 ;;;_ , gist
 
 (use-package gist
@@ -2286,18 +2190,6 @@ FORM => (eval FORM)."
 
 (use-package git-blame
   :commands git-blame-mode)
-
-;;;_ , git-gutter+
-
-(use-package git-gutter+
-  :disabled t
-  :diminish git-gutter+-mode
-  :config
-  (progn
-    (use-package git-gutter-fringe+
-      :config
-      (git-gutter-fr+-minimal))
-    (global-git-gutter+-mode 1)))
 
 ;;;_ , gnus
 
@@ -2339,11 +2231,14 @@ FORM => (eval FORM)."
     (if t
         (progn
           (setq-default grep-first-column 1)
-          (grep-apply-setting 'grep-find-command
-                              '("ag --noheading --nocolor --smart-case --nogroup --column -- " . 61)))
+          (grep-apply-setting
+           'grep-find-command
+           '("ag --noheading --nocolor --smart-case --nogroup --column -- "
+             . 61)))
       (grep-apply-setting
        'grep-find-command
-       '("find . -name '*.hs' -type f -print0 | xargs -P4 -0 egrep -nH " . 62)))))
+       '("find . -name '*.hs' -type f -print0 | xargs -P4 -0 egrep -nH "
+         . 62)))))
 
 ;;;_ , gtags
 
@@ -2405,7 +2300,8 @@ FORM => (eval FORM)."
 
 ;;;_ , haskell-mode
 
-(require 'haskell-config)
+(use-package haskell-config
+  :mode ("\\.l?hs\\'" . haskell-mode))
 
 (defun snippet (name)
   (interactive "sName: ")
@@ -2685,9 +2581,9 @@ FORM => (eval FORM)."
 
 ;;;_ , lisp-mode
 
-;; Utilities every Emacs Lisp coders should master:
+;; Utilities every Emacs Lisp coder should master:
 ;;
-;;   paredit          Let's you manipulate sexps with ease
+;;   paredit          Lets you manipulate sexps with ease
 ;;   redshank         Think: Lisp refactoring
 ;;   edebug           Knowing the traditional debugger is good too
 ;;   eldoc
@@ -2695,6 +2591,7 @@ FORM => (eval FORM)."
 ;;   elint
 ;;   elp
 ;;   ert
+;;   ielm
 
 (use-package lisp-mode
   ;; :load-path "site-lisp/slime/contrib/"
@@ -2851,12 +2748,6 @@ FORM => (eval FORM)."
 (use-package llvm-mode
   :mode ("\\.ll\\'" . llvm-mode))
 
-;;;_ , log4j-mode
-
-(use-package log4j-mode
-  :disabled t
-  :mode ("\\.log\\'" . log4j-mode))
-
 ;;;_ , lua-mode
 
 (use-package lua-mode
@@ -2875,7 +2766,8 @@ FORM => (eval FORM)."
                 (bind-key "C-d" 'exit-minibuffer lusty-mode-map)))
 
     (defun lusty-open-this ()
-      "Open the given file/directory/buffer, creating it if not already present."
+      "Open the given file/directory/buffer, creating it if not
+    already present."
       (interactive)
       (when lusty--active-mode
         (ecase lusty--active-mode
@@ -3008,17 +2900,9 @@ FORM => (eval FORM)."
 ;;;_ , markdown-mode
 
 (use-package markdown-mode
-  :mode ("\\.md\\'" . markdown-mode)
-  :init
-  (progn
-    (defun markdown-preview-file ()
-      "run Marked on the current file and revert the buffer"
-      (interactive)
-      (shell-command
-       (format "open -a /Applications/Marked.app %s"
-               (shell-quote-argument (buffer-file-name)))))
-
-    (bind-key "C-x M" 'markdown-preview-file)))
+  :mode (("\\`README\\.md\\'" . gfm-mode)
+         ("\\.md\\'"          . markdown-mode)
+         ("\\.markdown\\'"    . markdown-mode)))
 
 ;;;_ , merlin
 
@@ -3056,58 +2940,58 @@ FORM => (eval FORM)."
           (if (string-match "\\([0-9.][0-9.a-z]+\\)" account)
               (setq account (match-string 1 account)))
           (do-applescript
-           (format
-            "
-          tell application \"Merlin\"
-          activate
+           (format "
+  tell application \"Merlin\"
+  activate
 
-          set act to 0
+  set act to 0
 
-          set listActivity to every activity of first document
-          repeat with oneActivity in listActivity
-          if subtitle of oneActivity is \"%s\" then
-          set act to oneActivity
-          exit repeat
-          end if
-          end repeat
+  set listActivity to every activity of first document
+  repeat with oneActivity in listActivity
+  if subtitle of oneActivity is \"%s\" then
+  set act to oneActivity
+  exit repeat
+  end if
+  end repeat
 
-          if act is 0 then
-          set myselection to selected object of main window of first document as list
+  if act is 0 then
+  set myselection to selected object of main window of first document as list
 
-          if (count of myselection) is 0 then
-          display dialog \"Please select activity to set time for\" buttons {\"OK\"}
-          else
-          set act to beginning of myselection
-          end if
-          end if
+  if (count of myselection) is 0 then
+  display dialog \"Please select activity to set time for\" buttons {\"OK\"}
+  else
+  set act to beginning of myselection
+  end if
+  end if
 
-          if act is 0 or (class of act is project) or (is milestone of act is true) then
-          display dialog \"Cannot locate activity for %s\" buttons {\"OK\"}
-          else
-          tell act
-          if ((class is not project) and (is milestone is not true)) then
-          set actual start date to (date \"%s\")
-          if %s then
-          set actual end date to (date \"%s\")
-          delete last actuals reporting date
+  if act is 0 or (class of act is project) or (is milestone of act is true) then
+  display dialog \"Cannot locate activity for %s\" buttons {\"OK\"}
+  else
+  tell act
+  if ((class is not project) and (is milestone is not true)) then
+  set actual start date to (date \"%s\")
+  if %s then
+  set actual end date to (date \"%s\")
+  delete last actuals reporting date
 
-          set given remaining work to {amount:0, unit:hours, floating:false, ¬
-          relative error:0}
-          else
-          delete actual end date
-          set last actuals reporting date to (date \"%s\")
-          end if
-          set given actual work to {amount:%s, unit:%s, floating:false, ¬
-          relative error:0}
-          end if
-          end tell
-          end if
-          end tell" account account start (if cleared "true" "false")
+  set given remaining work to {amount:0, unit:hours, floating:false, ¬
+  relative error:0}
+  else
+  delete actual end date
+  set last actuals reporting date to (date \"%s\")
+  end if
+  set given actual work to {amount:%s, unit:%s, floating:false, ¬
+  relative error:0}
+  end if
+  end tell
+  end if
+  end tell" account account start (if cleared "true" "false")
             end end  duration commodity))))))
 
 ;;;_ , mudel
 
 (use-package mudel
+  :disabled t
   :commands mudel
   :bind ("C-c M" . mud)
   :init
@@ -3304,11 +3188,9 @@ FORM => (eval FORM)."
 
 ;;;_ , paren
 
-(unless
-    (use-package mic-paren
+(unless (use-package mic-paren
           :init
           (paren-activate))
-
   (use-package paren
     :init
     (show-paren-mode 1)))
@@ -3321,7 +3203,8 @@ FORM => (eval FORM)."
 
 ;;;_ , persian-johnw
 
-(use-package persian-johnw)
+(use-package persian-johnw
+  :disabled t)
 
 ;;;_ , persistent-scratch
 
@@ -3391,7 +3274,8 @@ FORM => (eval FORM)."
                           ;; the modeline.
                           (kill-local-variable 'mode-line-format))))))))))))
 
-(defun my-coq-seq-get-library-dependencies (lib-src-file &optional command-intro)
+(defun my-coq-seq-get-library-dependencies
+    (lib-src-file &optional command-intro)
   (let ((coqdep-arguments
          (nconc (coq-include-options lib-src-file coq-load-path)
                 (list lib-src-file)))
@@ -3440,7 +3324,7 @@ FORM => (eval FORM)."
          (lambda ()
            (yas-minor-mode 1)
            (whitespace-mode 1)
-           (set-input-method "Agda")
+           ;; (set-input-method "Agda")
            (add-hook 'proof-shell-extend-queue-hook
                      (lambda ()
                        (set-window-dedicated-p (selected-window) t)))
@@ -3851,6 +3735,7 @@ FORM => (eval FORM)."
 ;;;_ , sunrise-commander
 
 (use-package sunrise-commander
+  :disabled t
   :commands (sunrise sunrise-cd)
   :init
   (progn
@@ -3972,6 +3857,7 @@ FORM => (eval FORM)."
 ;;;_ , twittering-mode
 
 (use-package twittering-mode
+  :disabled t
   :commands twit
   :init
   (setq twittering-use-master-password t))
@@ -4270,7 +4156,7 @@ FORM => (eval FORM)."
                      erc-mode-hook))
   :config
   (progn
-    (yas-load-directory (expand-file-name "snippets/" user-emacs-directory))
+    (yas-load-directory "~/.emacs.d/snippets/")
 
     (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap)
 
@@ -4309,6 +4195,7 @@ FORM => (eval FORM)."
 ;;;_ , zencoding-mode
 
 (use-package zencoding-mode
+  :disabled t
   :commands zencoding-mode
   :init
   (progn

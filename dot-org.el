@@ -331,21 +331,9 @@ To use this function, add it to `org-agenda-finalize-hook':
 ;;                      "~/Dropbox/MobileOrg/index.org")))))
 
 (defun my-org-mobile-pre-pull-function ()
-  (async-start
-   (lambda ()
-     (shell-command "open /Applications/Misc/Dropbox.app")
-     (sleep-for 30)
-     (shell-command "osascript -e 'tell application \"Dropbox\" to quit'"))
-   (lambda (ret)
-     (my-org-convert-incoming-items))))
+  (my-org-convert-incoming-items))
 
-(defun my-org-mobile-post-push-function ()
-  (async-start
-   (lambda ()
-     (shell-command "open /Applications/Misc/Dropbox.app")
-     (sleep-for 30)
-     (shell-command "osascript -e 'tell application \"Dropbox\" to quit'"))
-   'ignore))
+(defun my-org-mobile-post-push-function ())
 
 (add-hook 'org-mobile-pre-pull-hook 'my-org-mobile-pre-pull-function)
 (add-hook 'org-mobile-post-push-hook 'my-org-mobile-post-push-function)
@@ -601,12 +589,12 @@ end tell"))))
 
 (defun org-insert-url-link ()
   (interactive)
-  (insert (org-get-chrome-link)))
+  (insert (org-get-safari-link)))
 
 (defun org-set-url-link ()
   "Set a property for the current headline."
   (interactive)
-  (org-set-property "URL" (org-get-chrome-link)))
+  (org-set-property "URL" (org-get-safari-link)))
 
 ;;(defun org-get-file-link ()
 ;;  (let ((subject (do-applescript "tell application \"Finder\"
