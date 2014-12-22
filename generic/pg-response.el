@@ -84,7 +84,8 @@
 ;;
 
 (defvar pg-response-special-display-regexp nil
-  "Regexp for `special-display-regexps' for multiple frame use.
+  "Regexp for `special-display-regexps' (now display-buffer-alist)
+for multiple frame use.
 Internal variable, setting this will have no effect!")
 
 (defconst proof-multiframe-parameters
@@ -97,14 +98,33 @@ Internal variable, setting this will have no effect!")
   "List of GNU Emacs frame parameters for secondary frames.")
 
 (defun proof-multiple-frames-enable ()
+  ; special-display-regexps is obsolete, let us let it for a while and
+  ; remove it later
   (unless (eval-when-compile (boundp 'display-buffer-alist))
     (let ((spdres (cons
-                   pg-response-special-display-regexp
-                   proof-multiframe-parameters)))
+		   pg-response-special-display-regexp
+		   proof-multiframe-parameters)))
       (if proof-multiple-frames-enable
-          (add-to-list 'special-display-regexps spdres)
-        (setq special-display-regexps
-              (delete spdres special-display-regexps)))))
+	  (add-to-list 'special-display-regexps spdres)
+	(setq special-display-regexps
+	      (delete spdres special-display-regexps)))))
+  ; This is the current way to do it
+  (when (eval-when-compile (boundp 'display-buffer-alist))
+    (let
+	((display-buffer-entry
+	  (cons pg-response-special-display-regexp
+	    `((display-buffer-reuse-window display-buffer-pop-up-frame) .
+	      ((reusable-frames . nil)
+	       (pop-up-frame-parameters
+		.
+		,proof-multiframe-parameters))))))
+      (if proof-multiple-frames-enable
+	  (add-to-list
+	   'display-buffer-alist
+	   display-buffer-entry)
+	;(add-to-list 'display-buffer-alist (proof-buffer-dislay))
+	(setq display-buffer-alist
+	      (delete display-buffer-entry display-buffer-alist)))))
   (proof-layout-windows))
 
 (defun proof-three-window-enable ()
@@ -126,7 +146,6 @@ Following POLICY, which can be one of 'smart, 'horizontal,
 	  (setq pol 'hybrid))
 	 (t (setq pol 'vertical)))
       (setq pol policy))
-    (message "policy = %S , pol = %S" policy pol)
   (save-selected-window
     (cond
      ((eq pol 'hybrid)

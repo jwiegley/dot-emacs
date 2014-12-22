@@ -375,7 +375,6 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
        (str (proof-shell-strip-eager-annotations start end))
        (strnotrailingspace
         (coq-remove-starting-blanks (coq-remove-trailing-blanks str))))
-    (message "STR = %S" strnotrailingspace)
     (pg-response-display-with-face strnotrailingspace face)))
 
 
