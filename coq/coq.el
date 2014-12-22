@@ -1282,7 +1282,7 @@ Warning:
 ;; *default* value to nil.
 (custom-set-default 'proof-output-tooltips nil)
 
-
+;; This seems xemacs only code, remove?
 (defconst coq-prettify-symbols-alist
   '(("not"	. ?¬)
     ;; ("/\\"	. ?∧)
@@ -1407,8 +1407,9 @@ Warning:
            (cons coq-tags tags-table-list)))
   
   (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
-  (set (make-local-variable 'prettify-symbols-alist)
-       coq-prettify-symbols-alist)
+; xemacs related, remove?
+;  (set (make-local-variable 'prettify-symbols-alist)
+;       coq-prettify-symbols-alist)
 
   (setq proof-cannot-reopen-processed-files nil)
 

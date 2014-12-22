@@ -114,7 +114,7 @@ Internal variable, setting this will have no effect!")
 	((display-buffer-entry
 	  (cons pg-response-special-display-regexp
 	    `((display-buffer-reuse-window display-buffer-pop-up-frame) .
-	      ((reusable-frames . nil)
+	      ((reusable-frames . t)
 	       (pop-up-frame-parameters
 		.
 		,proof-multiframe-parameters))))))
@@ -235,22 +235,29 @@ dragging the separating bars.
   (interactive)
   (cond
    (proof-multiple-frames-enable
+    ;; If we are coming from single frame mode, delete associated
+    ;; windows (and only them).
     (delete-other-windows) ;; hope we're on the right frame/window
     (if proof-script-buffer
 	(switch-to-buffer proof-script-buffer))
-    (proof-map-buffers (proof-associated-buffers)
-      (if pg-response-eagerly-raise
-	  (proof-display-and-keep-buffer (current-buffer) nil 'force)))
+    (proof-map-buffers
+     (proof-associated-buffers)
+     (if pg-response-eagerly-raise
+	 (proof-display-and-keep-buffer (current-buffer) nil 'force)))
     ;; Restore an existing frame configuration (seems buggy, typical)
     (if pg-frame-configuration
 	(set-frame-configuration pg-frame-configuration 'nodelete)))
-   (proof-three-window-enable
+   (proof-three-window-enable ; single frame
+    ;; If we are coming from multiple frame mode, delete associated
+    ;; frames (and only them).
     (proof-delete-other-frames)
     (set-window-dedicated-p (selected-window) nil)
     (proof-display-three-b proof-three-window-mode-policy))
    ;; Two-of-three window mode.
    ;; Show the response buffer as first in preference order.
    (t
+    ;; If we are coming from multiple frame mode, delete associated
+    ;; frames (and only them).
     (proof-delete-other-frames)
     (set-window-dedicated-p (selected-window) nil)
     (delete-other-windows)
