@@ -29,6 +29,10 @@
   (defvar coq-use-project-file t)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-hide-additional-subgoals nil) ; defpacustom
+  (defvar coq-may-use-prettify nil) ; may become t below
+  (if (fboundp 'prettify-symbols-mode)
+      (defvar coq-may-use-prettify t)
+    (defvar prettify-symbols-alist nil))
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 (require 'proof)
@@ -1407,9 +1411,10 @@ Warning:
            (cons coq-tags tags-table-list)))
   
   (set (make-local-variable 'blink-matching-paren-dont-ignore-comments) t)
-; xemacs related, remove?
-;  (set (make-local-variable 'prettify-symbols-alist)
-;       coq-prettify-symbols-alist)
+
+  (when coq-may-use-prettify
+    (set (make-local-variable 'prettify-symbols-alist)
+         coq-prettify-symbols-alist))
 
   (setq proof-cannot-reopen-processed-files nil)
 
