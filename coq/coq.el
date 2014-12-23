@@ -29,10 +29,6 @@
   (defvar coq-use-project-file t)        ; defpacustom
   (defvar coq-use-editing-holes nil)    ; defpacustom
   (defvar coq-hide-additional-subgoals nil) ; defpacustom
-  (defvar coq-may-use-prettify nil) ; may become t below
-  (if (fboundp 'prettify-symbols-mode)
-      (defvar coq-may-use-prettify t)
-    (defvar prettify-symbols-alist nil))
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 (require 'proof)
@@ -54,6 +50,13 @@
 
 (declare-function some "cl-extra")      ; spurious bytecomp warning
 
+;; prettify is in emacs > 24.4
+;; FIXME: this should probably be done like for smie above.
+(defvar coq-may-use-prettify nil) ; may become t below
+(eval-when-compile
+  (if (fboundp 'prettify-symbols-mode)
+      (defvar coq-may-use-prettify t)
+    (defvar prettify-symbols-alist nil)))
 
 
 ;; ----- coq-shell configuration options
@@ -1112,7 +1115,7 @@ project file settings."
 
 (defun coq-find-project-file ()
   "Return '(buf alreadyopen) where buf is the buffer visiting coq project file.
-alreadyopen is t if buffer already existed."  
+alreadyopen is t if buffer already existed."
   (let* (
          (projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
     (when projectfiledir
