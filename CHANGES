@@ -28,6 +28,11 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     to compile modules in parallel in the background while Proof
     General stays responsive.
 
+*** Support for more bullets (coq 8.5): -- --- ++ +++ ** ***
+    Scripting supports bullets of any length. 
+    Indentation supports only bullets of length <= 4 (like ----). Longer
+    may be supported if needed.
+
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
 *** Support for _Coqproject files

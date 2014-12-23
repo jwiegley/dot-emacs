@@ -90,6 +90,8 @@ detect if they start something or not."
 
 
 ;; matches regular command end (. and ... followed by a space or buffer end)
+;; ". " and "... " are command endings, ".. " is not, same as in
+;; proof-script-command-end-regexp in coq.el
 (defconst coq-period-end-command
   "\\(?2:[^.]\\|\\=\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)")
 
@@ -99,19 +101,23 @@ detect if they start something or not."
 (defconst coq-curlybracket-end-command
   "\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\|\\=\\)\\(?1:}\\)")
 
+
+
+;; bullets must be preceded by a space but since we usually
+;; search for this expression from the first non white char of the
+;; command, so we give two versions of this regexp
+
 ;; matches bullets. WARNING this matches more than real bullets as - +
 ;; and * may match this when used in regular expressions
+;(defconst coq-bullet-end-command
+;  "\\(?2:\\s-\\|\\=\\)\\(?:\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)\\)")
+;; Allowing - -- --- and + ++ +++ ...
 (defconst coq-bullet-end-command
-  "\\(?2:\\s-\\|\\=\\)\\(?:\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)\\)")
+  "\\(?2:\\s-\\|\\=\\)\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
-;; ". " and "... " are command endings, ".. " is not, same as in
-;; proof-script-command-end-regexp in coq.el
+(defconst coq-bullet-regexp-nospace
+  "\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
-;; HACK: bullets must be preceded by a space but since we usually
-;; search for this expression from the first non white char of the
-;; command, the space will not be seen by re-search-forward, so we
-;; allow + - and * to be detected
-;;
 
 
 (defconst coq-end-command-regexp
@@ -127,7 +133,7 @@ detect if they start something or not."
 WARNING: this regexp accepts curly brackets (if not preceded by
 '|') and bullets (+ - *) (if preceded by a space or at cursor).
 This is of course not correct and some more check is needed to
-distinguish between the different uses of this characters. ")
+distinguish between the different uses of this characters. This is done below and also in coq-smie.el.")
 
 
 (defun coq-search-comment-delimiter-forward ()
