@@ -1157,8 +1157,9 @@ allows to call coqtop from a subdirectory of the project."
                 (second (match-string 2))
                 (first (if (null dirprefix) firstfname
                          (expand-file-name firstfname dirprefix))))
-            (if second
-                (setq opt (cons (list first second) opt))
+            (if second ; if second arg is "" (two doublequotes), it means empty string
+                (let ((sec (if (string-equal second "\"\"") "" second)))
+                  (setq opt (cons (list first sec) opt)))
               (setq opt (cons first opt))))))
       (reverse opt))))
 
