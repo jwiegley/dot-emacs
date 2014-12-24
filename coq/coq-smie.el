@@ -448,6 +448,17 @@ The point should be at the beginning of the command name."
 		"; tactic"
 	      "; record"))))))
 
+     ; Same for "->" : rewrite or intro arg or term's implication
+     ; FIXME: user defined arrows will be considered a term
+     ((equal tok "->")
+      (save-excursion
+	(let ((backtok (coq-smie-search-token-backward '("intro" "intros" "rewrite" "."))))
+	  (cond
+	   ((equal backtok ".") "->")
+	   ((equal backtok nil) "->")
+	   (t "-> tactic")))))
+
+
      ((equal tok "Module")
       (save-excursion
 	;(coq-find-real-start)
@@ -503,12 +514,10 @@ The point should be at the beginning of the command name."
 	   (save-excursion
 	     ;; recursive call looking at the ptoken immediately before
 	     (let ((prevtok (coq-smie-backward-token)))
-	        ;; => may be wrong here but rare (have "=> ltac"?)
+	       ;; => may be wrong here but rare (have "=> ltac"?)
 	       (not (or (coq-is-cmdend-token prevtok)
 			(member prevtok '("; tactic" "[" "]" "|" "=>")))))))
       "quantif exists")
-
-
 
      ((equal tok "∀") "forall")
      ((equal tok "→") "->")
@@ -517,7 +526,7 @@ The point should be at the beginning of the command name."
 
      ((equal tok "with") ; "with" is a nightmare: at least 4 different uses
       (save-excursion (coq-smie-with-deambiguate)))
-     ((equal tok "where") ; "with" is a nightmare: at least 4 different uses
+     ((equal tok "where")
       "where")
 
      ((and (equal tok "signature")
