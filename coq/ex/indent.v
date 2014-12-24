@@ -15,22 +15,22 @@ Record a : Type := make_a {
   | C2 : forall n, test n
   | C3 : forall n, test n
   | C4 : forall n, test n.
-
+  
   Inductive test2 : nat -> Prop
     := C1 : forall n, test n
      | C2 : forall n, test n
      | C3 : forall n, test n
      | C4 : forall n, test n.
-
+  
   Let x : = 1.  Let y := 2.
-                
+  
   Let y := (1, 2, 3,
             4, 5).
   
-    Inductive test3             (* fixindent *)
-      : nat -> Prop
-      := C1 : forall n, test n
-       | C2 : forall n, test n
+  Inductive test3             (* fixindent *)
+    : nat -> Prop
+    := C1 : forall n, test n
+     | C2 : forall n, test n
 }
 
 Lemma toto:nat.

@@ -478,8 +478,7 @@ The point should be at the beginning of the command name."
 	   (save-excursion
 	     (forward-char -1)
 	     (let ((nxttok (coq-smie-backward-token))) ;; recursive call
-	       (coq-is-cmdend-token nxttok)
-	       )))
+	       (coq-is-cmdend-token nxttok))))
       (forward-char -1)
       (if (looking-at "{") "{ subproof" "} subproof"))
 
@@ -505,13 +504,8 @@ The point should be at the beginning of the command name."
      ; for "unfold in *|-*;"
      ((member tok '("*;" "-*;" "|-*;" "*|-*;")) (forward-char 1) "; tactic")
      ((and (string-match coq-bullet-regexp-nospace tok)
-	   (save-excursion
-	     (let ((prev (coq-smie-backward-token))) ;; recursive call
-	       (or (coq-is-subproof-token prev)
-		   (coq-is-dot-token prev)))))
+	   (save-excursion (coq-empty-command-p)))
       (concat tok " bullet"))
-
-
 
      ((and (member tok '("exists" "∃"))
 	   (save-excursion

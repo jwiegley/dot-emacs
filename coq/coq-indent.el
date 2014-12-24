@@ -133,7 +133,10 @@ detect if they start something or not."
 WARNING: this regexp accepts curly brackets (if not preceded by
 '|') and bullets (+ - *) (if preceded by a space or at cursor).
 This is of course not correct and some more check is needed to
-distinguish between the different uses of this characters. This is done below and also in coq-smie.el.")
+distinguish between the different uses of this characters.
+Currently bullets are always ending an empty command, so we just
+need to check that the command ended by the bullet-like regexp is empty.
+This is done below and also in coq-smie.el.")
 
 
 (defun coq-search-comment-delimiter-forward ()
@@ -309,11 +312,16 @@ command end regexp."
                          (match-end 1)))
                   (setq next-pos (+ 1 (match-beginning 0)))
                   (or
-                      (if (or (string-equal (match-string 1) "}")
-                              (string-equal (match-string 1) "{")
-                              (string-equal (match-string 1) "-")
-                              (string-equal (match-string 1) "+")
-                              (string-equal (match-string 1) "*"))
+                      (if (not (or (string-equal (match-string 1) ".")
+                                   (string-equal (match-string 1) "...")))
+                          ; command-end that are not a dot are + ++ -
+                          ; -- etc or { or } to ensure this is really
+                          ; a bullet (and not one of the numerous
+                          ; other possible uses of those tokens) we
+                          ; check that the command ended by it is
+                          ; empty. example:
+                          ; destruct x.
+                          ; - (* - here ends an empty command*)
                           (save-excursion
                             (goto-char (match-beginning 1))
                             (not (coq-empty-command-p)))
