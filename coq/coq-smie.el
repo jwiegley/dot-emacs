@@ -369,13 +369,16 @@ The point should be at the beginning of the command name."
      ((member tok '("End"))
       (save-excursion (coq-smie-backward-token)))
 
+     ; empty token if a prenthesis is met.
      ((and (zerop (length tok)) (looking-at "{|")) (goto-char (match-end 0)) "{|")
+
      ;; this must be after detecting "{|":
      ((and (zerop (length tok)) (eq (char-after) ?\{))
       (if (equal (save-excursion (forward-char 1) (coq-smie-backward-token))
 		 "{ subproof")
 	  (progn (forward-char 1) "{ subproof")
 	tok))
+
      ((and (zerop (length tok)) (eq (char-after) ?\}))
       (if (equal (save-excursion (forward-char 1)
 				 (coq-smie-backward-token))
@@ -475,7 +478,7 @@ The point should be at the beginning of the command name."
 	   (save-excursion
 	     (forward-char -1)
 	     (let ((nxttok (coq-smie-backward-token))) ;; recursive call
-	       (coq-is-cmdend-token tok)
+	       (coq-is-cmdend-token nxttok)
 	       )))
       (forward-char -1)
       (if (looking-at "{") "{ subproof" "} subproof"))
