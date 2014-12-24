@@ -30,6 +30,21 @@
 (require 'coq-indent)
 (require 'smie nil 'noerror)
 
+(defun coq-string-suffix-p (str1 str2 &optional ignore-case)
+  "Return non-nil if STR1 is a prefix of STR2.
+If IGNORE-CASE is non-nil, the comparison is done without paying
+attention to case differences."
+  (let ((begin2 (- (length str2) (length str1)))
+	(end2 (length str2)))
+    (when (< begin2 0) (setq begin2 0)) ; to avoid negative begin2
+    (eq t (compare-strings str1 nil nil str2 begin2 end2 ignore-case))))
+
+;; Replacement for emacs < 24.4, borrowed from sindikat at
+;; stackoverflow efficient if bytecompiled, builtin version is
+;; probably better when it exists
+(unless (fboundp 'string-suffix-p)
+  (fset 'string-suffix-p 'coq-string-suffix-p))
+
 ;; As any user defined notation ending with "." will break
 ;; proofgeneral synchronization anyway, let us consider that any
 ;; combination of symbols ending with "." is an end of command for
