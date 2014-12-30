@@ -293,6 +293,8 @@ directory (see `coq-load-path-include-current')."
   :safe 'coq-load-path-safep
   :group 'coq-auto-compile)
 
+(make-variable-buffer-local 'coq-load-path)
+
 (defcustom coq-compile-auto-save 'ask-coq
   "Buffers to save before checking dependencies for compilation.
 There are two orthogonal choices: Firstly one can save all or only the coq

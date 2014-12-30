@@ -10,6 +10,11 @@
 ;;; Commentary:
 
 ;; Lexer.
+
+;; Due to the verycomplex grammar of Coq, and to the architecture of
+;; smie, we deambiguate all kinds of tokens during lexing. This is a
+;; complex piece of code but it allows for all smie goodies.
+;; Some examples of deambigations:
 ;; - We distinguish ":=" from ":= inductive" to avoid the circular precedence
 ;;   constraint ":= < | < ; < :=" where ":= < |" is due to Inductive
 ;;   definitions, "| < ;" is due to tactics precedence, "; < :=" is due to
@@ -139,6 +144,7 @@ the token of \".\" is simply \".\"."
       (coq-smie-find-unclosed-match-backward)
       (coq-smie-find-unclosed-match-backward)))))
 
+;; point supposed to be at start of the "with"
 (defun coq-smie-with-deambiguate()
   (let ((p (point)))
     (if (coq-smie-find-unclosed-match-backward)
@@ -147,7 +153,7 @@ the token of \".\" is simply \".\"."
       (coq-find-real-start)
       (cond
        ((looking-at "\\(Co\\)?Inductive") "with inductive")
-       ((looking-at "\\(Co\\)?Fixpoint\\|Function\\|Program") "with fixpoint")
+       ((looking-at "\\(Co\\)?Fixpoint\\|Function\\|Program\\|Lemma") "with fixpoint")
        ((looking-at "Module\\|Declare") "with module")
        (t "with")))))
 

@@ -9,7 +9,7 @@ Record a : Type := make_a {
                        aa : nat
                      }.
 
-{
+Module foo.
   Inductive test : nat -> Prop :=
   | C1 : forall n, test n
   | C2 : forall n, test n
@@ -17,21 +17,34 @@ Record a : Type := make_a {
   | C4 : forall n, test n.
   
   Inductive test2 : nat -> Prop
-    := C1 : forall n, test n
-     | C2 : forall n, test n
-     | C3 : forall n, test n
-     | C4 : forall n, test n.
+    := C21 : forall n, test2 n
+     | C22 : forall n, test2 n
+     | C23 : forall n, test2 n
+     | C24 : forall n, test2 n.
+
+  Inductive test' : nat -> Prop :=
+  | C1' : forall n, test' n
+  | C2' : forall n, test' n
+  | C3' : forall n, test' n
+  | C4' : forall n, test' n
+  with
+  test2' : nat -> Prop :=
+    C21' : forall n, test2' n
+  | C22' : forall n, test2' n
+  | C23' : forall n, test2' n
+  | C24' : forall n, test2' n.
   
-  Let x : = 1.  Let y := 2.
+  Let x := 1.  Let y := 2.
   
-  Let y := (1, 2, 3,
-            4, 5).
+  Let y2 := (1, 2, 3,
+             4, 5).
   
   Inductive test3             (* fixindent *)
     : nat -> Prop
-    := C1 : forall n, test n
-     | C2 : forall n, test n
-}
+    := C31 : forall n, test3 n
+     | C32 : forall n, test3 n.
+
+End foo.
 
 Lemma toto:nat.
 Proof.
@@ -40,7 +53,7 @@ Proof.
   }}
 Qed.
 
-Let x                        (* Precedence of "else" w.r.t "," and "->"!  *)
+Let xxx                        (* Precedence of "else" w.r.t "," and "->"!  *)
   : if true then nat * nat else nat ->
                                 nat
   := (if true then 1 else 2,
@@ -49,6 +62,7 @@ Let x                        (* Precedence of "else" w.r.t "," and "->"!  *)
 Module Y.
   Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
   Proof with auto with arith.
+    intros x.
     induction x;simpl;intros...
   Qed.
   Lemma L2 : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
@@ -62,6 +76,13 @@ Module Y.
     - simpl.
       intros.
       auto with arith.
+  Qed.
+
+  Lemma L' : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x
+  with L'' : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
+  Proof with auto with arith.
+    - induction x;simpl;intros...
+    - induction x;simpl;intros...
   Qed.
 End Y.
 
@@ -87,26 +108,26 @@ Module M1.
     Qed.
     Lemma l6: forall n:nat, n = n. 
       intros.
-      Lemma l7: forall n:nat, n = n. 
+      Lemma l7: forall n:nat, n = n.
         destruct n.
-        BeginSubproof.
+        {
           auto.
-        EndSubproof.
-        BeginSubproof.
+        }
+        {
           destruct n.
-          BeginSubproof.
+          {
             auto.
-          EndSubproof.
+          }
           auto.
-        EndSubproof.        
+        }
       Qed.
-      BeginSubproof.
+      {
         destruct n.
-        BeginSubproof.
-          auto. EndSubproof.
-        BeginSubproof. auto.
-        EndSubproof.
-      EndSubproof.
+        {
+          auto. }
+        { auto.
+        }
+      }
     Qed.
   End M2.
 End M1.
@@ -114,10 +135,10 @@ End M1.
 
 Module M1'.
   Module M2'.
-    Lemma l6: forall n:nat, n = n. 
+    Lemma l6: forall n:nat, n = n.
     Proof.
       intros.
-      Lemma l7: forall n:nat, n = n. 
+      Lemma l7: forall n:nat, n = n.
       Proof.
         destruct n.
         {
@@ -142,7 +163,7 @@ Module M1'.
   End M2'.
 End M1'.
 
-
+(* TODO: add multichar bullets once coq 8.5 is out *)
 Module M4'.
   Module M2'.
     Lemma l6: forall n:nat, n = n. 
@@ -156,7 +177,9 @@ Module M4'.
           + idtac;[
               auto
             ].
-          + auto.
+          + destruct n.
+            * auto.
+            * auto.
       Qed.
       {destruct n.
        - auto.
@@ -180,13 +203,13 @@ Module M1''.
 End M1''.
 
 
-Record rec:Set := { 
+Record rec:Set := {
                    fld1:nat;
                    fld2:nat;
                    fld3:bool
                  }.
 
-Class cla {X:Set}:Set := { 
+Class cla {X:Set}:Set := {
                           cfld1:nat;
                           cld2:nat;
                           cld3:bool
@@ -201,8 +224,8 @@ Module X.
     exists r':rec,
       r'.(fld1) = r.(fld2)/\ r'.(fld2) = r.(fld1).
   Proof.
-    intros r.  
-    { exists 
+    intros r.
+    { exists
         {|
           fld1:=r.(fld2);
           fld2:=r.(fld1);
@@ -223,10 +246,10 @@ Module X.
       /\ r.(fld2)
          = r'.(fld1).
   Proof.
-    intros r.  
+    intros r.
     {{
         idtac;
-        exists 
+        exists
           {|
             fld1:=r.(fld2);
             fld2:=r.(fld1);
@@ -235,7 +258,7 @@ Module X.
         (* ltac *)
         match goal with
           | _:rec |- ?a /\ ?b => split
-          | _ => fail    
+          | _ => fail
         end.
         { simpl. auto. }
         { simpl. auto. }}}
@@ -247,7 +270,7 @@ Generalizable All Variables.
 Open Local Scope signature_scope.
 Require Import RelationClasses.
 
-Module foo.
+Module TC.
   Instance: (@RewriteRelation nat) impl.
   (* No goal created *)
   Definition XX := 0.
@@ -277,7 +300,7 @@ Module foo.
     intuition ; specialize (H x0) ; intuition.
   Qed.
   
-End foo.
+End TC.
 
 Require Import Sets.Ensembles.
 Require Import Bool.Bvector.

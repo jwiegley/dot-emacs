@@ -327,6 +327,7 @@ command end regexp."
                             (not (coq-empty-command-p)))
                         nil)
                       (and
+                       (message "ICI")
                        (goto-char foundend)
                        (proof-buffer-syntactic-context))))
         ;; go back as far as possible before the start of the current
@@ -367,11 +368,8 @@ and return nil."
                          (re-search-backward proof-script-command-end-regexp limit 'dummy)
                          (match-beginning 1)))
                   (setq next-pos (- (match-end 0) 1))
-                  (or (if (or (string-equal (match-string 1) "}")
-                              (string-equal (match-string 1) "{")
-                              (string-equal (match-string 1) "-")
-                              (string-equal (match-string 1) "+")
-                              (string-equal (match-string 1) "*"))
+                  (or (if (not (or (string-equal (match-string 1) ".")
+                                   (string-equal (match-string 1) "...")))
                           (save-excursion
                             (goto-char (match-beginning 1))
                             (not (coq-empty-command-p)))
