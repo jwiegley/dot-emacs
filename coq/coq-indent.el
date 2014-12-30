@@ -327,7 +327,6 @@ command end regexp."
                             (not (coq-empty-command-p)))
                         nil)
                       (and
-                       (message "ICI")
                        (goto-char foundend)
                        (proof-buffer-syntactic-context))))
         ;; go back as far as possible before the start of the current
