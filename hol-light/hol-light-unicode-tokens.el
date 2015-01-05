@@ -69,10 +69,10 @@
     ;; logic
     ("forall" "∀")
     ("exists" "∃")
-    (":num" ":ℕ" type) ;; ?
-    (":complex" ":ℂ" type)
-    (":real" ":ℝ" type)
-    (":int" ":ℤ" type)
+    ("num" "ℕ" type) ;; ?
+    ("complex" "ℂ" type)
+    ("real" "ℝ" type)
+    ("int" "ℤ" type)
     ("rat" "ℚ" type)
     ("bool" "B" underline type)
     ("false" "false" bold sans)
