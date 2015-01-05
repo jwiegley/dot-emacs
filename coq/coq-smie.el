@@ -625,11 +625,12 @@ The point should be at the beginning of the command name."
 
 (defcustom coq-indent-box-style nil
   "If non-nil, Coq mode will try to indent with a box style (SMIE code only).
-Box style looke like this:
+Box style looks like this:
+
 Lemma foo: forall n,
              n = n.
 
-instead of
+instead of:
 
 Lemma foo: forall n,
   n = n.
@@ -671,7 +672,9 @@ Lemma foo: forall n,
 	 (exp "==" exp) (exp "=" exp) (exp "<>" exp) (exp "<=" exp)
 	 (exp "<" exp) (exp ">=" exp) (exp ">" exp)
 	 (exp "=?" exp) (exp "<=?" exp) (exp "<?" exp)
-	 (exp "^" exp) (exp "+" exp) (exp "-" exp) (exp "*" exp)
+	 (exp "^" exp)
+	 (exp "+" exp) (exp "-" exp)
+	 (exp "*" exp)
 	 (exp ": ltacconstr" exp)(exp ". selector" exp))
 	;; Having "return" here rather than as a separate rule in `exp' causes
 	;; it to be indented at a different level than "with".
@@ -774,23 +777,14 @@ Lemma foo: forall n,
 ;;             | Leaf =>  add x d l
 
 
-; This fixes a bug in smie that is not yet in regular emacs distribs??
-; To show the bug. Comment this and then try to indent the following:
-; Module X.
-; Module Y. <-- here -->  Error: (wrong-type-argument integer-or-marker-p nil)
-; No need anymore?
-;; (defun smie-indent--parent ()
-;;   (or smie--parent
-;;       (save-excursion
-;; 	(let* ((pos (point))
-;; 	       (tok (funcall smie-forward-token-function)))
-;; 	  (unless (numberp (cadr (assoc tok smie-grammar)))
-;; 	    (goto-char pos))
-;; 	  (setq smie--parent
-;; 		(or (smie-backward-sexp 'halfsexp)
-;; 		    (let (res)
-;; 		      (while (null (setq res (smie-backward-sexp))))
-;; 		      (list nil (point) (nth 2 res)))))))))
+(defun coq-is-at-first-line-of-def-decl ()
+  (let ((pt (point)))
+    (save-excursion
+      (and
+       (member (coq-smie-backward-token) '(":" ":="))
+       (equal (line-number-at-pos) (line-number-at-pos pt))
+       (or (back-to-indentation) t)
+       (looking-at "Lemma\\|Defintion\\|Theorem\\|Corollary")))))
 
 (defun coq-smie-rules (kind token)
   "Indentation rules for Coq.  See `smie-rules-function'.
@@ -818,7 +812,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	    (member token '(":" ":=" ":= with" ":= def"
 			    "by" "in tactic" "<:" "<+" ":= record"
 			    "with module" "as" ":= inductive" ":= module" )))
-        2)
+	2)
 
        ((equal token "with match") 4)
 
@@ -828,7 +822,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	 (t (smie-rule-parent 2))))
 
        ; "as" tactical is not idented correctly
-       ((equal token "in let") (smie-rule-parent))))
+       ((equal token "in let") (smie-rule-parent))
+       ))
 
      (:before
       (cond
@@ -858,9 +853,52 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	  (smie-rule-parent 4)))
 
 
+
+
+;       ((and (member token '("{ subproof"))
+;	     (not coq-indent-box-style)
+;	     (not (smie-rule-bolp)))
+;	(if (smie-rule-parent-p "Proof")
+;	    (smie-rule-parent 2)
+;	  (smie-rule-parent)))
+
+
+
+       ;; This applies to forall located on the same line than "Lemma"
+       ;; & co. This says that "if it would be on the beginning of
+       ;; line" (which it is not) it would be indented of 2 wrt
+       ;; "Lemma". This never applies directly to indent the forall,
+       ;; but it is used to guess indentation of the next line. This
+       ;; allows fo the following indentation:
+       ;;  Lemma foo: forall x:nat,
+       ;;      x <= 0 -> x = 0.
+       ;; which refer to:
+       ;;  Lemma foo:
+       ;;    forall x:nat, <--- if it where on its own line it would be on column 2
+       ;;      x <= 0 -> x = 0. <--- therefore this is on column 4.
+       ;; instead of:
+       ;;  Lemma foo: forall x:nat,
+       ;;               x <= 0 -> x = 0.
+
+;; Replaced by the code below relying on smie-rule-bolp ;
+;       ((and (member token '("forall" "quantif exists"))
+;	     (message "ICI 1")
+;	     (not coq-indent-box-style)
+;	     (coq-is-at-first-line-of-def-decl))
+;	(message "ICI")
+;	(back-to-indentation)
+;	`(column . ,(+ 2 (current-column))))
+;
+       ;; TEST THIS BEFORE COMMITING.
        ((and (member token '("forall" "quantif exists"))
-	     (smie-rule-parent-p "forall" "exists quantif"))
+	     (not coq-indent-box-style)
+	     (not (smie-rule-bolp)))
+	(smie-rule-parent 2))
+
+       ((and (member token '("forall" "quantif exists"))
+	     (smie-rule-parent-p "forall" "quantif exists"))
 	(smie-rule-parent))
+
 
        ;; This rule allows "End Proof" to align with corresponding ".
        ;; proofstart" PARENT instead of ". proofstart" itself
@@ -888,7 +926,8 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	      ((smie-rule-prev-p ":= inductive")
 	       (- (funcall smie-rules-function :after ":= inductive") 2))
 	       
-	      (t (smie-rule-separator kind))))))))
+	      (t (smie-rule-separator kind))))))
+     ))
 
 ;; No need of this hack anymore?
 ;;       ((and (equal token "Proof End")

@@ -33,6 +33,19 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Indentation supports only bullets of length <= 4 (like ----). Longer
     may be supported if needed.
 
+*** by default, forall at the start of a lemma are not indented as a box
+    For instance, this is indented like this:
+
+    Lemma foo: forall x y,
+      x = 0 -> ... .
+
+    instead of:
+
+    Lemma foo: forall x y,
+                 x = 0 -> ... .
+
+    Put (setq coq-indent-box-style t) to bring the box style back.
+
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
 *** Support for _Coqproject files

@@ -43,7 +43,7 @@ Module foo.
     : nat -> Prop
     := C31 : forall n, test3 n
      | C32 : forall n, test3 n.
-
+  
 End foo.
 
 Lemma toto:nat.
