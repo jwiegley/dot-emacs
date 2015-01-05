@@ -1,4 +1,4 @@
-;; pgocaml.el - Proof General for Haskell scripts.
+;; pghaskell.el - Proof General for Haskell scripts.
 ;;
 ;; David Aspinall.  $Id$
 ;;
@@ -33,7 +33,7 @@
  proof-script-comment-end            "*)"
  proof-shell-annotated-prompt-regexp "^# "  ;; matches interpreter prompts
 
- ;; Syntax table suitable for OCaml; see Elisp documentation of `modify-syntax-entry'
+ ;; Syntax table suitable for Haskell; see Elisp documentation of `modify-syntax-entry'
  proof-script-syntax-table-entries
  '(?\` "\""
    ?\$ "."
