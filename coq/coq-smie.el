@@ -48,7 +48,8 @@ attention to case differences."
 ;; stackoverflow efficient if bytecompiled, builtin version is
 ;; probably better when it exists
 (unless (fboundp 'string-suffix-p)
-  (fset 'string-suffix-p 'coq-string-suffix-p))
+  (fset 'string-suffix-p 'coq-string-suffix-p)
+  (declare-function string-suffix-p "smie"))
 
 ;; As any user defined notation ending with "." will break
 ;; proofgeneral synchronization anyway, let us consider that any
