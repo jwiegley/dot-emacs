@@ -267,7 +267,7 @@ End X.
 
 Require Import Morphisms.
 Generalizable All Variables.
-Open Local Scope signature_scope.
+Local Open Scope signature_scope.
 Require Import RelationClasses.
 
 Module TC.
@@ -344,3 +344,55 @@ Section SET.
     end.
   
 End SET.
+
+Module curlybracesatend.
+
+  Lemma foo: forall n: nat,
+    exists m:nat,
+      m = n + 1.
+  Proof.
+    intros n.
+    destruct n. {
+      exists 1.
+      reflexivity. }
+    exists (S (S n)).
+    simpl.
+    rewrite NPeano.Nat.add_1_r.
+    reflexivity.
+  Qed.
+  
+  Lemma foo2: forall n: nat,
+      exists m:nat,  (* This is strange compared to the same line in the previous lemma *)
+        m = n + 1.
+  Proof.
+    intros n.
+    destruct n. {
+      exists 1.
+      reflexivity. }
+    
+    exists (S (S n)).
+    simpl.
+    rewrite NPeano.Nat.add_1_r.
+    reflexivity.
+  Qed.
+  
+  Lemma foo3: forall n: nat,
+      exists m:nat,  (* This is strange compared to the same line in the previous lemma *)
+        m = n + 1.
+  Proof.
+    intros n. cut (n = n). {
+      destruct n. {
+        exists 1.
+        reflexivity. } {
+        exists (S (S n)).
+        simpl.
+        rewrite NPeano.Nat.add_1_r.
+        reflexivity. }
+    }
+    idtac.
+    reflexivity.
+  Qed.
+
+  
+End curlybracesatend.
+

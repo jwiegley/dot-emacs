@@ -334,7 +334,9 @@ See also `coq-hide-additional-subgoals'."
 ;; Indentation and navigation support via SMIE.
 
 (defcustom coq-use-smie t
-  "If non-nil, Coq mode will try to use SMIE for indentation.
+  "OBSOLETE. smie code is always used now.
+
+If non-nil, Coq mode will try to use SMIE for indentation.
 SMIE is a navigation and indentation framework available in Emacs >= 23.3."
   :type 'boolean
   :group 'coq)
@@ -1310,6 +1312,23 @@ Warning:
     ))
 
 
+;
+;(defun coq-is-at-cmd-first-line-p ()
+;  (save-excursion
+;    (let ((l1 (line-number-at-pos)))
+;      (coq-find-real-start)
+;      (equal l1 (line-number-at-pos)))))
+;
+
+;
+;(defun coq-indent-command ()
+;  (save-excursion
+;    (when (coq-is-at-cmd-first-line-p)
+;      (let ((kind (coq-back-to-indentation-prevline)))
+;        (if 
+;        (current-column))))))
+;
+
 (defun coq-mode-config ()
   ;; SMIE needs this.
   (set (make-local-variable 'parse-sexp-ignore-comments) t)
@@ -1362,10 +1381,11 @@ Warning:
 	proof-nested-undo-regexp coq-state-changing-commands-regexp
         proof-script-imenu-generic-expression coq-generic-expression)
 
-  (if (and coq-use-smie (fboundp 'smie-setup))
-      (smie-setup coq-smie-grammar #'coq-smie-rules
-                  :forward-token #'coq-smie-forward-token
-                  :backward-token #'coq-smie-backward-token)
+  (if (fboundp 'smie-setup) ; always use smie, old indentation code removed
+      (progn
+        (smie-setup coq-smie-grammar #'coq-smie-rules
+                    :forward-token #'coq-smie-forward-token
+                    :backward-token #'coq-smie-backward-token))
     (require 'coq-indent)
     (setq
      ;; indentation is implemented in coq-indent.el

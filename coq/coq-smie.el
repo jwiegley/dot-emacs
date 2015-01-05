@@ -702,8 +702,7 @@ Lemma foo: forall n,
 	      (moduledecl) (moduledef)
 	      (exp))
 
-
-	(commands (commands "." commands)
+      	(commands (commands "." commands)
 		  (commands "- bullet" commands)
 		  (commands "+ bullet" commands)
 		  (commands "* bullet" commands)
@@ -800,11 +799,12 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	  ;; second {..} is aligned with the first rather than being indented as
 	  ;; if it were an argument to the first.
 	  ;; FIXME: this gives a strange indentation for ". { \n .. } \n { .. }"
-	  (when (or (coq-is-bullet-token token)
-		    (coq-is-dot-token token)
-		    (member token '("{ subproof")))
-	    (forward-char 1) ; skip de "."
-	    (equal (coq-smie-forward-token) "{ subproof"))))
+;	  (when (or (coq-is-bullet-token token)
+;		    (coq-is-dot-token token)
+;		    (member token '("{ subproof")))
+;	    (forward-char 1) ; skip de "."
+;	    (equal (coq-smie-forward-token) "{ subproof"))
+	  ))
      (:after
       (cond
        ;; Override the default indent step added because of their presence
@@ -824,10 +824,21 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
        ; "as" tactical is not idented correctly
        ((equal token "in let") (smie-rule-parent))
+
+       ((equal token "} subproof") (smie-rule-parent))
        ))
 
      (:before
       (cond
+
+;       ((and (member token '("{ subproof"))
+;	     (not coq-indent-box-style)
+;	     (not (smie-rule-bolp)))
+;	(if (smie-rule-parent-p "Proof")
+;	    (smie-rule-parent 2)
+;	  (smie-rule-parent)))
+
+
        ((equal token "with module")
 	(if (smie-rule-parent-p "with module")
 	    (smie-rule-parent)
@@ -856,17 +867,11 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
 
 
-;       ((and (member token '("{ subproof"))
-;	     (not coq-indent-box-style)
-;	     (not (smie-rule-bolp)))
-;	(if (smie-rule-parent-p "Proof")
-;	    (smie-rule-parent 2)
-;	  (smie-rule-parent)))
 
 
 
        ;; This applies to forall located on the same line than "Lemma"
-       ;; & co. This says that "if it would be on the beginning of
+       ;; & co. This says that "if it *were* be on the beginning of
        ;; line" (which it is not) it would be indented of 2 wrt
        ;; "Lemma". This never applies directly to indent the forall,
        ;; but it is used to guess indentation of the next line. This
@@ -881,16 +886,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;;  Lemma foo: forall x:nat,
        ;;               x <= 0 -> x = 0.
 
-;; Replaced by the code below relying on smie-rule-bolp ;
-;       ((and (member token '("forall" "quantif exists"))
-;	     (message "ICI 1")
-;	     (not coq-indent-box-style)
-;	     (coq-is-at-first-line-of-def-decl))
-;	(message "ICI")
-;	(back-to-indentation)
-;	`(column . ,(+ 2 (current-column))))
-;
-       ;; TEST THIS BEFORE COMMITING.
        ((and (member token '("forall" "quantif exists"))
 	     (not coq-indent-box-style)
 	     (not (smie-rule-bolp)))
@@ -898,7 +893,11 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
        ((and (member token '("forall" "quantif exists"))
 	     (smie-rule-parent-p "forall" "quantif exists"))
-	(smie-rule-parent))
+	(if (save-excursion
+	      (coq-smie-search-token-backward '("forall" "quantif exists"))
+	      (equal (current-column) (current-indentation)))
+	    (smie-rule-parent)
+	  (smie-rule-parent 2)))
 
 
        ;; This rule allows "End Proof" to align with corresponding ".
