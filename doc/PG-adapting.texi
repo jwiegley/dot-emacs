@@ -1,8 +1,5 @@
-
-\def\fontdefs{\psfamily{bsf}{r}{c}{b}{b}{ri}{ri}{ro}{bo}\def\mainmagstep{1200}}
 \input texinfo
 @c TODO: setting for configuring proof hidden regions.
-@c
 @c
 @c $Id$
 @c
@@ -2298,8 +2295,7 @@ undoing, @code{proof-shell-retract-files-regexp} and
 urgent messages from proof process}.  To tell the prover about files
 handled with script management, use
  @code{proof-shell-inform-file-processed-cmd} and
- @code{proof-shell-inform-file-retracted-cmd}.  @xref{Proof shell
- commands}.
+ @code{proof-shell-inform-file-retracted-cmd}.  @xref{Proof shell commands}.
 If your prover does not allow re-opening of closed
 files, set @code{proof-cannot-reopen-processed-files} to @code{t}.
   Finally, set the flag @code{proof-auto-multiple-files} 
