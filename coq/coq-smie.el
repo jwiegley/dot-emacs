@@ -891,6 +891,14 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	     (not (smie-rule-bolp)))
 	(smie-rule-parent 2))
 
+       ;; trying to indent "{" at the end of line for records, but the
+       ;; parent is not what I think.
+;       ((and (member token '("{" "{|"))
+;	     (not coq-indent-box-style)
+;	     (not (smie-rule-bolp)))
+;	(smie-rule-parent))
+
+
        ((and (member token '("forall" "quantif exists"))
 	     (smie-rule-parent-p "forall" "quantif exists"))
 	(if (save-excursion
