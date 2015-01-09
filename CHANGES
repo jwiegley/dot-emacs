@@ -33,18 +33,29 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Indentation supports only bullets of length <= 4 (like ----). Longer
     may be supported if needed.
 
-*** by default, forall at the start of a lemma are not indented as a box
-    For instance, this is indented like this:
+*** smie indentation is now the only choice.
+    Old code removed. will work only if emacs >= 23.3.
+
+*** indentation now supports { at end of line:
+    example:
+
+    assert (h:n = k). {
+      apply foo.
+      reflexivity. }
+    apply h.
+
+*** Default indentation of forall and exists is not boxed anymore
+    For instance, this is now indented like this:
 
     Lemma foo: forall x y,
-      x = 0 -> ... .
+        x = 0 -> ... . (* like if forall x y, was on its own line *)
 
     instead of:
 
     Lemma foo: forall x y,
                  x = 0 -> ... .
 
-    Put (setq coq-indent-box-style t) to bring the box style back.
+    do this: (setq coq-indent-box-style t) to bring the box style back.
 
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
@@ -52,7 +63,7 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
     According to Coq documentation, it is advised to use coq_makefile
     -f _CoqProject -o Makefile to build your Makefile automatically
-    from "profect file" _CoqProject. Such a file should contains the
+    from "profect file" _CoqProject. Such a file should contain the
     options to pass to coq_makefile, i.e. paths to add to coq load
     path (-I, -R) and other options to pass to coqc/coqtop (-arg).
 
@@ -63,11 +74,6 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     reads it. Except for very unlikely situation this should replace
     the use of local file variables (which remains possible and
     overrides project file options).
-
-*** Automatic insertion of "as" clauses.
-
-    Should work for induction and destruct for now. Toggle this option
-    with Coq/Settings/Auto insert As.
 
 *** Support for prettify-symbols-mode.
 

@@ -1381,22 +1381,23 @@ Warning:
 	proof-nested-undo-regexp coq-state-changing-commands-regexp
         proof-script-imenu-generic-expression coq-generic-expression)
 
-  (if (fboundp 'smie-setup) ; always use smie, old indentation code removed
-      (progn
-        (smie-setup coq-smie-grammar #'coq-smie-rules
-                    :forward-token #'coq-smie-forward-token
-                    :backward-token #'coq-smie-backward-token))
-    (require 'coq-indent)
-    (setq
-     ;; indentation is implemented in coq-indent.el
-     indent-line-function 'coq-indent-line
-     proof-indent-any-regexp      coq-indent-any-regexp
-     proof-indent-open-regexp     coq-indent-open-regexp
-     proof-indent-close-regexp    coq-indent-close-regexp)
+  (when (fboundp 'smie-setup) ; always use smie, old indentation code removed
+    (smie-setup coq-smie-grammar #'coq-smie-rules
+                  :forward-token #'coq-smie-forward-token
+                  :backward-token #'coq-smie-backward-token))
 
-    (make-local-variable 'indent-region-function)
-    (setq indent-region-function 'coq-indent-region))
-
+  ;; old indentation code.
+  ;; (require 'coq-indent)
+  ;; (setq
+  ;;  ;; indentation is implemented in coq-indent.el
+  ;;  indent-line-function 'coq-indent-line
+  ;;  proof-indent-any-regexp      coq-indent-any-regexp
+  ;;  proof-indent-open-regexp     coq-indent-open-regexp
+  ;;  proof-indent-close-regexp    coq-indent-close-regexp)
+  ;; (make-local-variable 'indent-region-function)
+  ;; (setq indent-region-function 'coq-indent-region)
+  
+  
 
   ;; span menu
   (setq proof-script-span-context-menu-extensions 'coq-create-span-menu)
