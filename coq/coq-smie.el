@@ -639,6 +639,18 @@ Lemma foo: forall n,
   :type 'boolean
   :group 'coq)
 
+(defcustom coq-match-indent 2
+  "Number of space used to indent cases of a match expression.
+If the \"|\" separator is used, indentation will be reduced by 2.
+For example the default value 2 makes indetation like this:
+
+match n with
+  O => ...
+| S n => ...
+end
+
+Typical values are 2 or 4."
+  :type 'integer :group 'coq)
 
 ;; - TODO: remove tokens "{ subproof" and "} subproof" but they are
 ;;         needed by the lexers at a lot of places.
@@ -702,7 +714,7 @@ Lemma foo: forall n,
 	      (moduledecl) (moduledef)
 	      (exp))
 
-      	(commands (commands "." commands)
+	(commands (commands "." commands)
 		  (commands "- bullet" commands)
 		  (commands "+ bullet" commands)
 		  (commands "* bullet" commands)
@@ -815,7 +827,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 			    "with module" "as" ":= inductive" ":= module" )))
 	2)
 
-       ((equal token "with match") 4)
+       ((equal token "with match") coq-match-indent)
 
        ((equal token "; tactic")
 	(cond

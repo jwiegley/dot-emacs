@@ -47,15 +47,26 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** Default indentation of forall and exists is not boxed anymore
     For instance, this is now indented like this:
 
-    Lemma foo: forall x y,
-        x = 0 -> ... . (* like if forall x y, was on its own line *)
-
+       Lemma foo: forall x y,
+           x = 0 -> ... .
     instead of:
-
-    Lemma foo: forall x y,
-                 x = 0 -> ... .
-
+       Lemma foo: forall x y,
+                    x = 0 -> ... .
     do this: (setq coq-indent-box-style t) to bring the box style back.
+
+*** Default indentation cases of "match with" are now indented by 2 instead of 4.
+     "|" is indented by zero:
+
+        match n with                   
+          0 => ...	     
+        | S n => ...                   
+        end                            
+     instead of: 
+        match n with  
+            0 => ...       
+          | S n => ...
+        end
+     do this: (setq coq-match-indent 4) to bring old behaviour back.
 
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
