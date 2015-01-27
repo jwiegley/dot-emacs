@@ -391,7 +391,9 @@ and return nil."
 The point is put exactly after the end of previous command, or at the (point-min if
 there is no previous command)."
   (coq-script-parse-cmdend-backward)
-  (if (proof-looking-at "\\.\\s-\\|{\\|}") (forward-char 1)) ; else = no match found
+  (when
+      (proof-looking-at "\\.\\s-\\|{\\|}\\|\\++\\|\\*+\\|-+")
+    (forward-char (- (match-end 0) (match-beginning 0)))) ; else = no match found
   (point))
 
 

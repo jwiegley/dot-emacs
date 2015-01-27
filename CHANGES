@@ -36,6 +36,19 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** smie indentation is now the only choice.
     Old code removed. will work only if emacs >= 23.3.
 
+*** indentation of match with cases:
+    by default the indentation is like this now:
+    match n with
+      O => ...
+    | S n => ...
+    end
+    do this: (setq coq-match-indent 4) to get back the
+    previous indetation style:
+    match n with
+        O => ...
+      | S n => ...
+    end    
+
 *** indentation now supports { at end of line:
     example:
 
