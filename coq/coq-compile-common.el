@@ -108,6 +108,10 @@ Must be used together with `coq-par-enable'."
                (every 'stringp (cdr entry))
                (equal (length entry) 3))
           (and (listp entry)
+               (eq (car entry) 'recnoimport)
+               (every 'stringp (cdr entry))
+               (equal (length entry) 3))
+          (and (listp entry)
                (every 'stringp entry)
                (equal (length entry) 2))))
     path)))
@@ -270,6 +274,11 @@ forms of include options ('-I' and '-R'). An element can be
   - A list of the form '(rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
     logical path 'path' ('-R dir -as path').
+  - A list of the form '(recnoimport dir path)' (where dir and
+    path are strings) specifying a directory to be recursively
+    mapped to the logical path 'path' ('-Q dir path'), but not
+    imported (modules accessible for import with qualified names
+    only).
   - A list of the form '(norec dir path)', specifying a directory
     to be mapped to the logical path 'path' ('-I dir -as path').
 
@@ -283,6 +292,11 @@ directory (see `coq-load-path-include-current')."
                          (list :tag
                                "recursive directory with path (-R ... -as ...)"
                                (const rec)
+                               (string :tag "directory")
+                               (string :tag "log path"))
+			 (list :tag
+                               "recursive directory without recursive inport with path (-Q ... ...)"
+                               (const recnoimport)
                                (string :tag "directory")
                                (string :tag "log path"))
                          (list :tag
@@ -457,6 +471,8 @@ options they are translated."
     (list "-I" (expand-file-name entry)))
    ((eq (car entry) 'nonrec)
     (list "-I" (expand-file-name (nth 1 entry)) "-as" (nth 2 entry)))
+   ((eq (car entry) 'recnoimport)
+    (list "-Q" (expand-file-name (nth 1 entry)) (nth 2 entry)))
    (t
     (if (eq (car entry) 'rec)
         (setq entry (cdr entry)))

@@ -1134,19 +1134,26 @@ alreadyopen is t if buffer already existed."
 (defconst coq-load-path--R-regexp
   "\\_<-R\\s-+\\(?1:[^[:space:]]+\\)\\s-+\\(?2:[^[:space:]]+\\)")
 
-(defconst coq-load-path--I-regexp "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)")
+(defconst coq-load-path--Q-regexp
+  "\\_<-Q\\s-+\\(?1:[^[:space:]]+\\)\\s-+\\(?2:[^[:space:]]+\\)")
+
+;; second arg of -I is optional (and should become obsolete one day)
+(defconst coq-load-path--I-regexp
+  "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)\\(?:[:space:]+\\(?2:[^[:space:]]+\\)\\)?")
+
+;(defconst coq-load-path--I-regexp "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)")
 
 ;; match-string 1 must contain the string to add to coqtop command line, so we
 ;; ignore -arg, we use numbered subregexpr.
 (defconst coq-prog-args-regexp
-  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:blank:]]+\\(?1:[^ \t\n#]+\\)\\)?")
+  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:space:]]+\\(?1:[^ \t\n#]+\\)\\)?")
 
 (defun coq-read-option-from-project-file (projectbuffer regexp &optional dirprefix)
   "look for occurrences of regexp in buffer projectbuffer and collect subexps.
 The returned sub-regexp are the one numbered 1 and 2 (other ones
 should be unnumbered). If there is only subexp 1 then it is added
 as is to the final list, if there are 1 and 2 then a list
-contining both is added to the final list. If optional DIRPREFIX
+containing both is added to the final list. If optional DIRPREFIX
 is non nil, then options ar considered as directory or file names
 and will be made absolute from directory named DIRPREFIX. This
 allows to call coqtop from a subdirectory of the project."
@@ -1161,7 +1168,9 @@ allows to call coqtop from a subdirectory of the project."
                          (expand-file-name firstfname dirprefix))))
             (if second ; if second arg is "" (two doublequotes), it means empty string
                 (let ((sec (if (string-equal second "\"\"") "" second)))
-                  (setq opt (cons (list first sec) opt)))
+                  (if (string-match coq-load-path--R-regexp (match-string 0))
+                      (setq opt (cons (list first sec) opt))
+                    (setq opt (cons (list 'recnoimport first sec) opt))))
               (setq opt (cons first opt))))))
       (reverse opt))))
 
@@ -1173,7 +1182,7 @@ allows to call coqtop from a subdirectory of the project."
 ;;  let us avoid conflicts.
   (coq-read-option-from-project-file
    projectbuffer
-   (concat coq-load-path--R-regexp "\\|" coq-load-path--I-regexp)
+   (concat coq-load-path--R-regexp "\\|" coq-load-path--Q-regexp "\\|" coq-load-path--I-regexp)
    (file-name-directory (buffer-file-name projectbuffer))))
 
 ;; Look for other options (like -opt, -arg foo etc) in the project buffer
