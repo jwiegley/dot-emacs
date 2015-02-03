@@ -101,6 +101,11 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** Support for prettify-symbols-mode.
 
+*** Colors in response and goals buffers
+
+    Experimental: colorize hypothesis names and some parts of error
+    and warning messages. For readability.
+
 * Changes of Proof General 4.2 from Proof General 4.1
 
 ** Generic/misc changes

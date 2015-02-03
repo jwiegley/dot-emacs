@@ -1571,7 +1571,7 @@ Warning:
   (setq pg-goals-change-goal "Show %s . ")
   (setq pg-goals-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
-  (setq proof-goals-font-lock-keywords coq-font-lock-keywords-1)
+  (setq proof-goals-font-lock-keywords coq-goals-font-lock-keywords)
   (proof-goals-config-done))
 
 (defun coq-response-config ()

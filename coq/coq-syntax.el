@@ -1058,8 +1058,16 @@ It is used:
      (cons coq-error-regexp 'proof-error-face)
      (cons (proof-regexp-alt-list-symb (list "In environment" "The term" "has type")) 'proof-error-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
+     (cons "^[^\n:()]+:" 'proof-declaration-name-face)
      (list "^\\([^ \n]+\\) \\(is defined\\)"
            (list 1 'font-lock-function-name-face t)))))
+
+(defvar coq-goals-font-lock-keywords
+   (append
+    coq-font-lock-terms
+    (list
+     (cons "^[^\n:()]+:" 'proof-declaration-name-face)
+     (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))
 
 
 
