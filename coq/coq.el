@@ -387,6 +387,7 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
     (pg-response-display-with-face strnotrailingspace face)))
 
 
+
 ;;;;;;;;;;; Trying to accept { and } as terminator for empty commands. Actually
 ;;;;;;;;;;; I am experimenting two new commands "{" and "}" (without no
 ;;;;;;;;;;; trailing ".") which behave like BeginSubProof and EndSubproof. The
@@ -2122,16 +2123,17 @@ If PARSERESP and CLEAN are non-nil, delete the error location from the response
 buffer."
   (if (not parseresp) last-coq-error-location
     ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
+    ;; then highlight the corresponding error location
     (proof-with-current-buffer-if-exists proof-response-buffer
       (goto-char (point-max))
-      (when (re-search-backward "\n> \\(.*\\)\n> \\([^^]*\\)\\(\\^+\\)\n" nil t)
+      (when (re-search-backward "^> \\(.*\\)\n> \\([^^]*\\)\\(\\^+\\)\n" nil t)
         (let ((text (match-string 1))
               (pos (length (match-string 2)))
               (len (length (match-string 3))))
           ;; clean the response buffer from ultra-ugly underlined command line
           ;; parsed above. Don't kill the first \n
           (let ((inhibit-read-only t))
-            (when clean (delete-region (+ (match-beginning 0) 1) (match-end 0))))
+            (when clean (delete-region (match-beginning 0) (match-end 0))))
           (when proof-shell-unicode ;; TODO: remove this (when...) when coq-8.3 is out.
             ;; `pos' and `len' are actually specified in bytes, apparently. So
             ;; let's convert them, assuming the encoding used is utf-8.
