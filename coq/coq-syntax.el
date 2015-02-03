@@ -931,6 +931,9 @@ It is used:
 (defvar coq-error-regexp "^\\(Error:\\|Discarding pattern\\|Syntax error:\\|System Error:\\|User Error:\\|User error:\\|Anomaly[:.]\\|Toplevel input[,]\\)"
   "A regexp indicating that the Coq process has identified an error.")
 
+(defvar coq-shell-eager-annotation-start
+   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>")
+
 (defvar coq-id proof-id)
 (defvar coq-id-shy "@?\\(?:\\w\\|\\s_\\)+")
 
@@ -1034,12 +1037,6 @@ It is used:
     (cons (proof-regexp-alt-list coq-tacticals) 'proof-tacticals-name-face)
     (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
     (cons "============================" 'font-lock-keyword-face)
-    (cons "Subtree proved!" 'font-lock-keyword-face)
-    (cons "subgoal [0-9]+ is:" 'font-lock-keyword-face)
-    (list "^\\([^ \n]+\\) \\(is defined\\)"
-          (list 2 'font-lock-keyword-face t)
-          (list 1 'font-lock-function-name-face t))
-
     (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face))
     (if coq-variable-highlight-enable
         (list (list coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)))
@@ -1049,7 +1046,22 @@ It is used:
     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face)
     ;; Remove spurious variable and function faces on commas.
     '(proof-zap-commas))))
-(defvar coq-font-lock-keywords coq-font-lock-keywords-1)
+
+;; We define a slightly different set of keywords for response buffer.
+
+(defvar coq-response-font-lock-keywords
+   (append
+    coq-font-lock-terms
+    (list
+     (cons coq-keywords-regexp 'font-lock-keyword-face)
+     (cons coq-shell-eager-annotation-start 'proof-warning-face)
+     (cons coq-error-regexp 'proof-error-face)
+     (cons (proof-regexp-alt-list-symb (list "In environment" "The term" "has type")) 'proof-error-face)
+     (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
+     (list "^\\([^ \n]+\\) \\(is defined\\)"
+           (list 1 'font-lock-function-name-face t)))))
+
+
 
 (defun coq-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."

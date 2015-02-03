@@ -384,8 +384,29 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
        (str (proof-shell-strip-eager-annotations start end))
        (strnotrailingspace
         (coq-remove-starting-blanks (coq-remove-trailing-blanks str))))
-    (pg-response-display-with-face strnotrailingspace face)))
+    (pg-response-display-with-face strnotrailingspace))) ; face
 
+
+(defun proof-shell-handle-error-output (start-regexp append-face)
+"A replacement fo `proof-shell-handle-error-output' for Coq.
+No global coloring of the error with error-face
++ removes useless location."
+  (let ((string proof-shell-last-output) pos)
+    (if (and start-regexp
+             (setq pos (string-match start-regexp string)))
+        (setq string (substring string pos)))
+
+    ;; Erase if need be, and erase next time round too.
+    (pg-response-maybe-erase t nil)
+    (pg-response-display-with-face string) ;removed this:append-face
+    ;; first highlight the error regexp in response buffer
+    (proof-with-current-buffer-if-exists proof-response-buffer
+      ;; remove location TODO: put this in coq-highlight-error?
+      (goto-char (point-min))
+      (when (looking-at "Toplevel input[^:]+:")
+        (let ((inhibit-read-only t))
+          (kill-line 1)
+          (setq kill-ring (cdr kill-ring)))))))
 
 
 ;;;;;;;;;;; Trying to accept { and } as terminator for empty commands. Actually
@@ -1473,8 +1494,7 @@ Warning:
 
    ;; FIXME: ideally, the eager annotation should just be a single "special" char,
    ;; this requires changes in Coq.
-   proof-shell-eager-annotation-start 
-   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>"
+   proof-shell-eager-annotation-start coq-shell-eager-annotation-start
    proof-shell-eager-annotation-start-length 32
 
    proof-shell-interactive-prompt-regexp "TcDebug "
@@ -1556,11 +1576,10 @@ Warning:
 
 (defun coq-response-config ()
   (coq-init-syntax-table)
-  (setq proof-response-font-lock-keywords coq-font-lock-keywords-1)
+  (setq proof-response-font-lock-keywords coq-response-font-lock-keywords)
   ;; The line wrapping in this buffer just seems to make it less readable.
   (setq truncate-lines t)
   (proof-response-config-done))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
