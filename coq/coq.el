@@ -387,28 +387,6 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
     (pg-response-display-with-face strnotrailingspace))) ; face
 
 
-(defun proof-shell-handle-error-output (start-regexp append-face)
-"A replacement fo `proof-shell-handle-error-output' for Coq.
-No global coloring of the error with error-face
-+ removes useless location."
-  (let ((string proof-shell-last-output) pos)
-    (if (and start-regexp
-             (setq pos (string-match start-regexp string)))
-        (setq string (substring string pos)))
-
-    ;; Erase if need be, and erase next time round too.
-    (pg-response-maybe-erase t nil)
-    (pg-response-display-with-face string) ;removed this:append-face
-    ;; first highlight the error regexp in response buffer
-    (proof-with-current-buffer-if-exists proof-response-buffer
-      ;; remove location TODO: put this in coq-highlight-error?
-      (goto-char (point-min))
-      (when (looking-at "Toplevel input[^:]+:")
-        (let ((inhibit-read-only t))
-          (kill-line 1)
-          (setq kill-ring (cdr kill-ring)))))))
-
-
 ;;;;;;;;;;; Trying to accept { and } as terminator for empty commands. Actually
 ;;;;;;;;;;; I am experimenting two new commands "{" and "}" (without no
 ;;;;;;;;;;; trailing ".") which behave like BeginSubProof and EndSubproof. The
@@ -1367,6 +1345,8 @@ Warning:
   (set (make-local-variable 'indent-tabs-mode) nil)
   ;; Coq defninition never start by a parenthesis
   (set (make-local-variable 'open-paren-in-column-0-is-defun-start) nil)
+  ;; coq-mode colorize errors better than the generic mechanism
+  (setq proof-script-color-error-messages nil)
   (setq proof-terminal-string ".")
   (setq proof-script-command-end-regexp coq-script-command-end-regexp)
   (setq proof-script-parse-function 'coq-script-parse-function)
@@ -2144,14 +2124,15 @@ buffer."
     ;; proof-shell-handle-error-or-interrupt-hook is called from shell buffer
     ;; then highlight the corresponding error location
     (proof-with-current-buffer-if-exists proof-response-buffer
-      (goto-char (point-max))
-      (when (re-search-backward "^> \\(.*\\)\n> \\([^^]*\\)\\(\\^+\\)\n" nil t)
+      (goto-char (point-max)) ;\nToplevel input, character[^:]:\n
+      (when (re-search-backward "^Toplevel input[^:]+:\n> \\(.*\\)\n> \\([^^]*\\)\\(\\^+\\)\n" nil t)
         (let ((text (match-string 1))
               (pos (length (match-string 2)))
               (len (length (match-string 3))))
           ;; clean the response buffer from ultra-ugly underlined command line
           ;; parsed above. Don't kill the first \n
           (let ((inhibit-read-only t))
+            (message "YOUHOU")
             (when clean (delete-region (match-beginning 0) (match-end 0))))
           (when proof-shell-unicode ;; TODO: remove this (when...) when coq-8.3 is out.
             ;; `pos' and `len' are actually specified in bytes, apparently. So

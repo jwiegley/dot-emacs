@@ -757,6 +757,11 @@ Elisp errors will be trapped when evaluating; set
   :type 'boolean
   :group 'proof-script)
 
+(defcustom proof-script-color-error-messages t
+  "if non-nil error messages will be globally colored with corresponding face.
+If prover mode has a better coloring mechanism for errors, set this to nil."
+  :type 'boolean
+  :group 'proof-script)
 
 (defcustom proof-script-font-lock-keywords nil
   "Value of `font-lock-keywords' used to fontify proof scripts.

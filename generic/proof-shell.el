@@ -619,7 +619,11 @@ This is a subroutine of `proof-shell-handle-error'."
 
       ;; Erase if need be, and erase next time round too.
       (pg-response-maybe-erase t nil)
-      (pg-response-display-with-face string append-face)))
+      ;; Coloring the whole message may be ugly ad hide better
+      ;; coloring mechanism.
+      (if proof-script-color-error-messages
+	  (pg-response-display-with-face string append-face)
+	(pg-response-display-with-face string))))
 
 
 
