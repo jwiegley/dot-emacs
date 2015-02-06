@@ -2132,7 +2132,6 @@ buffer."
           ;; clean the response buffer from ultra-ugly underlined command line
           ;; parsed above. Don't kill the first \n
           (let ((inhibit-read-only t))
-            (message "YOUHOU")
             (when clean (delete-region (match-beginning 0) (match-end 0))))
           (when proof-shell-unicode ;; TODO: remove this (when...) when coq-8.3 is out.
             ;; `pos' and `len' are actually specified in bytes, apparently. So
