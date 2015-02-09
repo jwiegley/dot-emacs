@@ -873,8 +873,13 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
       (concat "\"" s "\"")
     s))
 
+(defsubst coq-put-into-double-quote-if-notation-remove-ind (s)
+  (if (equal (char-syntax (string-to-char s)) ?\.)
+      (concat "\"" s "\" " "-\"_ind\" - \"_rect\" -\"_rec\"")
+    s))
+
 (defsubst coq-put-into-brackets-remove-useless (s)
-  (concat "[ " s " -\"_ind\" - \"_rect\" -\"_rec\" ]"))
+  (concat s " -\"_ind\" - \"_rect\" -\"_rec\""))
 
 (defsubst coq-put-into-quotes (s)
   (concat "\"" s "\""))
@@ -900,7 +905,7 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do
    "SearchAbout (ex: \"eq_\" eq -bool)"
-   "SearchAbout" nil 'coq-put-into-double-quote-if-notation)
+   "SearchAbout" nil 'coq-put-into-double-quote-if-notation-remove-ind)
   (message "use `coq-SearchAbout-all' to see constants ending with \"_ind\", \"_rec\", etc"))
 
 (defun coq-SearchAbout-all ()
