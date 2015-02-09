@@ -720,20 +720,66 @@ Return nil if S is nil."
       (substring s 0 (- (length s) 1))
     s))
 
+(defun coq-grab-punctuation-left (pos)
+  (let ((res nil)
+        (currpos pos))
+    (while (equal (char-syntax (char-before currpos)) ?\.)
+      (setq res (concat (char-to-string (char-before currpos)) res))
+      (setq currpos (- currpos 1)))
+    res))
+
+
+(defun coq-grab-punctuation-right (pos)
+  (let ((res nil)
+        (currpos pos))
+    (while (equal (char-syntax (char-after currpos)) ?\.)
+      (setq res (concat res (char-to-string (char-after currpos))))
+      (setq currpos (+ currpos 1)))
+    res))
+
+(defun coq-notation-at-position (pos)
+  "Return the notation at current point.
+Support dot.notation.of.modules."
+  (modify-syntax-entry ?\. "w") ; temporary for dot notation
+  (when (or (coq-grab-punctuation-left pos) (coq-grab-punctuation-right pos))
+    (concat (coq-grab-punctuation-left pos) (coq-grab-punctuation-right pos))))
+
+
 ;; remove trailing dot if any.
 (defun coq-id-at-point ()
   "Return the identifier at current point.
 Support dot.notation.of.modules."
   (modify-syntax-entry ?\. "w") ; temporary for dot notation
-  (let* ((symb
-          (symbol-name (cond 
-                        ((fboundp 'symbol-near-point) (symbol-near-point))
-                        ((fboundp 'symbol-at-point) (symbol-at-point))
-                        (t 'nothing))))
-         (symbclean (coq-remove-trailing-dot symb)))
+  (let* ((symb (cond
+                ((fboundp 'symbol-near-point) (symbol-near-point))
+                ((fboundp 'symbol-at-point) (symbol-at-point))))
+         (symbclean (when symb (coq-remove-trailing-dot (symbol-name symb)))))
     (modify-syntax-entry ?\. ".") ; go back to ususal syntax
-    (if (zerop (length symbclean)) nil symbclean)))
+    (when (and symb (not (zerop (length symbclean)))) symbclean)))
 
+(defun coq-id-or-notation-at-point ()
+  (or (coq-id-at-point) (coq-notation-at-position (point))))
+
+(defun coq-id-under-mouse-query (event)
+  "Query the prover about the identifier or notation near mouse click EVENT."
+  (interactive "e")
+  (save-selected-window
+    (save-selected-frame
+     (save-excursion
+       (mouse-set-point event)
+       (let* ((id (coq-id-at-point))
+              (notat (coq-notation-at-position (point)))
+              (modifs (event-modifiers event))
+              (shft (member 'shift modifs))
+              (ctrl (member 'control modifs))
+              (cmd (when (or id notat)
+                     (if shft (if id "About" "Locate") (if ctrl (if id "Print" "Locate")
+                                                         (if id "Check" "Locate"))))))
+         (message "COMMAND:%S" cmd)
+         (proof-shell-invisible-command
+          (format (concat  cmd " %s . ")
+                  ;; Notation need to be surrounded by ""
+                  (if id id (concat "\"" notat "\"")))))))))
 
 (defun coq-guess-or-ask-for-string (s &optional dontguess)
   "Asks for a coq identifier with message S.
@@ -748,7 +794,7 @@ Otherwise propose identifier at point if any."
            (dontguess nil)
            ((use-region-p)
             (buffer-substring-no-properties (region-beginning) (region-end)))
-           (t (coq-id-at-point)))))
+           (t (coq-id-or-notation-at-point)))))
     (read-string
      (if guess (concat s " (default " guess "): ") (concat s ": "))
      nil 'proof-minibuffer-history guess)))
@@ -822,6 +868,11 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
 (defsubst coq-put-into-brackets (s)
   (concat "[ " s " ]"))
 
+(defsubst coq-put-into-double-quote-if-notation (s)
+  (if (equal (char-syntax (string-to-char s)) ?\.)
+      (concat "\"" s "\"")
+    s))
+
 (defsubst coq-put-into-brackets-remove-useless (s)
   (concat "[ " s " -\"_ind\" - \"_rect\" -\"_rec\" ]"))
 
@@ -838,84 +889,71 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchConstant ()
   (interactive)
-  (coq-ask-do "Search constant" "Search" nil))
-
-(defun coq-Searchregexp ()
-  (interactive)
-  (coq-ask-do
-   "Search regexp (ex: \"eq_\" nat)"
-   "SearchAbout" nil 'coq-put-into-brackets))
+  (coq-ask-do "Search constant" "Search" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-SearchRewrite ()
   (interactive)
   (coq-ask-do "SearchRewrite" "SearchRewrite" nil))
 
-;
-;(defun coq-SearchAbout (showall)
-;  (interactive "P")
-;  (coq-ask-do
-;   "SearchAbout (ex: \"eq_\" eq -bool)"
-;   "SearchAbout" nil (if showall 'coq-put-into-brackets 'coq-put-into-brackets-remove-useless)))
-;
-
+;; TODO SearchAbout become Search in v8.5, change when V8.4 becomes old.
 (defun coq-SearchAbout ()
   (interactive)
   (coq-ask-do
    "SearchAbout (ex: \"eq_\" eq -bool)"
-   "SearchAbout" nil 'coq-put-into-brackets-remove-useless)
+   "SearchAbout" nil 'coq-put-into-double-quote-if-notation)
   (message "use `coq-SearchAbout-all' to see constants ending with \"_ind\", \"_rec\", etc"))
 
 (defun coq-SearchAbout-all ()
   (interactive)
   (coq-ask-do
    "SearchAbout (ex: \"eq_\" eq -bool)"
-   "SearchAbout" nil 'coq-put-into-brackets))
+   "SearchAbout" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-Print (withprintingall)
   "Ask for an ident and print the corresponding term.
 With flag Printing All if some prefix arg is given (C-u)."
   (interactive "P")
   (if withprintingall
-      (coq-ask-do-show-all "Print" "Print")
-    (coq-ask-do "Print" "Print")))
+      (coq-ask-do-show-all "Print" "Print" nil 'coq-put-into-double-quote-if-notation)
+    (coq-ask-do "Print" "Print" nil 'coq-put-into-double-quote-if-notation)))
 
 (defun coq-Print-with-implicits ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do-show-implicits "Print" "Print"))
+  (coq-ask-do-show-implicits "Print" "Print" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-Print-with-all ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do-show-all "Print" "Print"))
+  (coq-ask-do-show-all "Print" "Print" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-About (withprintingall)
   "Ask for an ident and print information on it."
   (interactive "P")
   (if withprintingall
-      (coq-ask-do-show-all "About" "About")
-    (coq-ask-do "About" "About")))
+      (coq-ask-do-show-all "About" "About" nil 'coq-put-into-double-quote-if-notation)
+    (coq-ask-do "About" "About" nil 'coq-put-into-double-quote-if-notation)))
 
 (defun coq-About-with-implicits ()
   "Ask for an ident and print information on it."
   (interactive)
-  (coq-ask-do-show-implicits "About" "About"))
+  (coq-ask-do-show-implicits "About" "About" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-About-with-all ()
   "Ask for an ident and print information on it."
   (interactive)
-  (coq-ask-do-show-all "About" "About"))
+  (coq-ask-do-show-all "About" "About" nil 'coq-put-into-double-quote-if-notation))
 
 
 (defun coq-LocateConstant ()
   "Locate a constant."
   (interactive)
-  (coq-ask-do "Locate" "Locate"))
+  (coq-ask-do "Locate" "Locate" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-LocateLibrary ()
   "Locate a library."
   (interactive)
-  (coq-ask-do "Locate Library" "Locate Library"))
+  (coq-ask-do "Locate Library" "Locate Library" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-LocateNotation ()
   "Locate a notation.  Put it automatically into quotes.
@@ -923,7 +961,7 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do
    "Locate notation (ex: \'exists\' _ , _)" "Locate"
-   t 'coq-put-into-quotes))
+   nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-Pwd ()
   "Display the current Coq working directory."
@@ -941,25 +979,25 @@ This is specific to `coq-mode'."
 (defun coq-Print-implicit ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do "Print Implicit" "Print Implicit"))
+  (coq-ask-do "Print Implicit" "Print Implicit" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-Check (withprintingall)
   "Ask for a term and print its type.
 With flag Printing All if some prefix arg is given (C-u)."
   (interactive "P")
   (if withprintingall
-      (coq-ask-do-show-all "Check" "Check")
-    (coq-ask-do "Check" "Check")))
+      (coq-ask-do-show-all "Check" "Check" nil 'coq-put-into-double-quote-if-notation)
+    (coq-ask-do "Check" "Check" nil 'coq-put-into-double-quote-if-notation)))
 
 (defun coq-Check-show-implicits ()
   "Ask for a term and print its type."
   (interactive)
-  (coq-ask-do-show-implicits "Check" "Check"))
+  (coq-ask-do-show-implicits "Check" "Check" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-Check-show-all ()
   "Ask for a term and print its type."
   (interactive)
-  (coq-ask-do-show-all "Check" "Check"))
+  (coq-ask-do-show-all "Check" "Check" nil 'coq-put-into-double-quote-if-notation))
 
 (defun coq-get-response-string-at (&optional pt)
   "Go forward from PT until reaching a 'response property, and return it.
@@ -1384,6 +1422,8 @@ Warning:
         proof-state-preserving-p 'coq-state-preserving-p)
 
   (setq proof-query-identifier-command "Check %s.")
+  ;;TODO: from v8.5 this wold be better:
+  ;;(setq proof-query-identifier-command "About %s.")
 
   (setq proof-save-command-regexp coq-save-command-regexp
         proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
