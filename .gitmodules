@@ -427,3 +427,6 @@
 [submodule "site-lisp/org-opml"]
 	path = site-lisp/org-opml
 	url = https://github.com/edavis/org-opml.git
+[submodule "site-lisp/org-download"]
+	path = site-lisp/org-download
+	url = git://github.com/abo-abo/org-download.git
