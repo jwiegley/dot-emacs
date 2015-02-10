@@ -3819,6 +3819,13 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("A-n"   . next-error)
          ("A-p"   . previous-error)))
 
+(defun compilation-ansi-color-process-output ()
+  (ansi-color-process-output nil)
+  (set (make-local-variable 'comint-last-output-start)
+       (point-marker)))
+
+(add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output)
+
 ;;;_ , smartparens
 
 (use-package smartparens
