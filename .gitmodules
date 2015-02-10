@@ -439,3 +439,6 @@
 [submodule "site-lisp/orgaggregate"]
 	path = site-lisp/orgaggregate
 	url = https://github.com/tbanel/orgaggregate.git
+[submodule "site-lisp/esup"]
+	path = site-lisp/esup
+	url = https://github.com/jschaf/esup.git
