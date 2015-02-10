@@ -424,3 +424,6 @@
 [submodule "site-lisp/hydra"]
 	path = site-lisp/hydra
 	url = https://github.com/abo-abo/hydra.git
+[submodule "site-lisp/org-opml"]
+	path = site-lisp/org-opml
+	url = https://github.com/edavis/org-opml.git
