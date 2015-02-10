@@ -436,3 +436,6 @@
 [submodule "site-lisp/undo-tree"]
 	path = site-lisp/undo-tree
 	url = https://github.com/emacsmirror/undo-tree.git
+[submodule "site-lisp/orgaggregate"]
+	path = site-lisp/orgaggregate
+	url = https://github.com/tbanel/orgaggregate.git
