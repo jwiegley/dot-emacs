@@ -418,3 +418,6 @@
 [submodule "site-lisp/helm-ls-git"]
 	path = site-lisp/helm-ls-git
 	url = git://github.com/emacs-helm/helm-ls-git.git
+[submodule "site-lisp/helm-slime"]
+	path = site-lisp/helm-slime
+	url = git://github.com/emacs-helm/helm-slime.git
