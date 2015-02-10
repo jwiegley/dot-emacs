@@ -416,8 +416,19 @@
 (bind-key "C-c e z" 'byte-recompile-directory)
 
 (bind-key "C-c f" 'flush-lines)
-(bind-key "C-c g" 'goto-line)
 
+(global-set-key [remap goto-line] 'goto-line-with-feedback)
+
+(defun goto-line-with-feedback ()
+  "Show line numbers temporarily, while prompting for the line number input"
+  (interactive)
+  (unwind-protect
+      (progn
+        (linum-mode 1)
+        (goto-line (read-number "Goto line: ")))
+    (linum-mode -1)))
+
+(bind-key "C-c g" 'goto-line)
 (bind-key "C-c k" 'keep-lines)
 
 (eval-when-compile
@@ -1089,7 +1100,12 @@
 ;;;_ , ace-jump-mode
 
 (use-package ace-jump-mode
-  :bind ("M-h" . ace-jump-mode))
+  :bind ("M-h" . ace-jump-mode)
+  :config
+  (setq ace-jump-mode-submode-list
+        '(ace-jump-char-mode
+          ace-jump-word-mode
+          ace-jump-line-mode)))
 
 ;;;_ , agda
 
@@ -1878,17 +1894,30 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (interactive)
 
       (if (slowping "192.168.9.133")
-          (erc :server "192.168.9.133"
-               :port 6697
-               :nick "johnw"
-               :password (funcall
-                          (plist-get
-                           (car (auth-source-search
-                                 :host "192.168.9.133"
-                                 :user "johnw/freenode"
-                                 :type 'netrc
-                                 :port 6697))
-                           :secret)))
+          (progn
+            (erc :server "192.168.9.133"
+                 :port 6697
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search
+                                   :host "192.168.9.133"
+                                   :user "johnw/freenode"
+                                   :type 'netrc
+                                   :port 6697))
+                             :secret)))
+
+            (erc :server "192.168.9.133"
+                 :port 6698
+                 :nick "johnw"
+                 :password (funcall
+                            (plist-get
+                             (car (auth-source-search
+                                   :host "192.168.9.133"
+                                   :user "johnw"
+                                   :type 'netrc
+                                   :port 6698))
+                             :secret))))
 
         (erc-tls :server "irc.freenode.net"
                  :port 6697
@@ -2319,9 +2348,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , helm
 
 (use-package helm-config
+  :diminish helm-mode
   :init
   (progn
-    (bind-key "C-c M-x" 'helm-M-x)
+    (bind-key "C-c h" 'helm-command-prefix)
+    (bind-key "M-x" 'helm-M-x)
     (bind-key "C-h a" 'helm-c-apropos)
     (bind-key "M-s a" 'helm-do-grep)
     (bind-key "M-s b" 'helm-occur)
@@ -2330,9 +2361,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (use-package helm-commands)
 
     (bind-key "C-h e a" 'my-helm-apropos)
-    (bind-key "C-x M-!" 'helm-command-from-zsh)
-    ;; (bind-key "C-x C-b" 'helm-buffers-list)
     (bind-key "C-x f" 'helm-find-git-file)
+
+    (bind-key "C-x C-d" 'helm-ff-run-browse-project helm-find-files-map)
 
     (use-package helm-descbinds
       :commands helm-descbinds
@@ -2349,15 +2380,23 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
               (delete-other-windows)
               ad-do-it)
           (t
-           (set-window-configuration c))))))
+           (set-window-configuration c)))))
+
+    ;; (bind-key "C-x C-b" 'helm-buffers-list)
+    )
 
   :config
   (progn
+    (helm-mode 1)
     (helm-match-plugin-mode t)
+    (helm-autoresize-mode t)
 
     (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
     (bind-key "C-i" 'helm-execute-persistent-action helm-map)
-    (bind-key "C-z" 'helm-select-action helm-map)))
+    (bind-key "C-z" 'helm-select-action helm-map)
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))))
 
 ;;;_ , hi-lock
 
@@ -3343,6 +3382,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                               (proof-layout-windows)
                               (proof-prf)) coq-mode-map)
         (bind-key "C-c C-a C-s" 'coq-SearchConstant coq-mode-map)
+        (unbind-key "C-c h" coq-mode-map)
 
         (eval-after-load 'coq-seq-compile
           '(defalias 'coq-seq-get-library-dependencies
@@ -3866,6 +3906,12 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :commands twit
   :init
   (setq twittering-use-master-password t))
+
+;;;_ , undo-tree
+
+(use-package undo-tree
+  :init
+  (global-undo-tree-mode))
 
 ;;;_ , vkill
 
