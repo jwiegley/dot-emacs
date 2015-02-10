@@ -445,3 +445,6 @@
 [submodule "site-lisp/company-mode"]
 	path = site-lisp/company-mode
 	url = git://github.com/company-mode/company-mode.git
+[submodule "site-lisp/company-ghc"]
+	path = site-lisp/company-ghc
+	url = git://github.com/iquiw/company-ghc.git
