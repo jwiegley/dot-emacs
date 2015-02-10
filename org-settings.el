@@ -311,6 +311,6 @@ SCHEDULED: %t
  '(org-habit-overdue-future-face ((((background light)) (:background "#fc9590"))))
  '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
  '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
- '(org-headline-done ((t (:foreground "RosyBrown" :strike-through t))))
+ '(org-headline-done ((t nil)))
  '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown")))))

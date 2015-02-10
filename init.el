@@ -226,7 +226,7 @@
   (interactive)
   (delete-indentation t))
 
-(bind-key "M-s n" 'find-name-dired)
+;;(bind-key "M-s n" 'find-name-dired)
 ;;(bind-key "M-s o" 'occur)
 
 ;;;_  . M-C-?
@@ -2238,7 +2238,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
-         ("M-s f" . find-grep)
+         ;; ("M-s f" . find-grep)
          ("M-s g" . grep))
   :init
   (progn
@@ -2349,15 +2349,19 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package helm-config
   :diminish helm-mode
-  :bind '(("C-x C-f" . helm-find-files)
+  :bind '(
           ("C-c h"   . helm-command-prefix)
-          ("M-x"     . helm-M-x)
           ("C-h a"   . helm-c-apropos)
+          ("C-h e a" . my-helm-apropos)
+          ("C-x C-f" . helm-find-files)
+          ("C-x f"   . helm-ls-git-ls)
+          ("M-s F"   . helm-for-files)
           ("M-s a"   . helm-do-grep)
           ("M-s b"   . helm-occur)
-          ("M-s F"   . helm-for-files)
-          ("C-h e a" . my-helm-apropos)
-          ("C-x f"   . helm-ls-git-ls))
+          ("M-s f"   . my-helm-do-grep)
+          ("M-s n"   . my-helm-find)
+          ("M-s o"   . helm-occur)
+          )
   :init
   (progn
     (use-package helm-commands)
@@ -2380,7 +2384,14 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
            (set-window-configuration c)))))
 
     ;; (bind-key "C-x C-b" 'helm-buffers-list)
-    )
+
+    (defun my-helm-do-grep ()
+      (interactive)
+      (helm-do-grep-1 (list default-directory)))
+
+    (defun my-helm-find ()
+      (interactive)
+      (helm-find nil)))
 
   :config
   (progn
@@ -2395,7 +2406,12 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (bind-key "C-z" 'helm-select-action helm-map)
 
     (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))))
+      (setq helm-google-suggest-use-curl-p t))
+
+    (when (executable-find "ack")
+      (setq helm-grep-default-command "ack -Hn --no-group --no-color %e %p %f"
+            helm-grep-default-recurse-command
+            "ack -H --no-group --no-color %e %p %f"))))
 
 ;;;_ , hi-lock
 
