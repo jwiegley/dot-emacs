@@ -141,7 +141,7 @@
 (defun org-smart-capture (&optional arg)
   (interactive "P")
   (if (not (memq major-mode '(gnus-summary-mode gnus-article-mode)))
-      (org-capture nil "t")
+      (call-interactively #'org-capture)
 
     (cond ((eq major-mode 'gnus-article-mode)
            (org-smart-capture-article)

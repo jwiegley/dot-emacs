@@ -143,7 +143,7 @@
  '(org-agenda-skip-unavailable-files t)
  '(org-agenda-sorting-strategy
    (quote
-    ((agenda habit-down time-up todo-state-up priority-down category-keep tag-up)
+    ((agenda habit-down time-up todo-state-up priority-down user-defined-down)
      (todo priority-down category-keep)
      (tags priority-down category-keep)
      (search category-keep))))
@@ -168,6 +168,12 @@
       (file+headline "~/Documents/Tasks/todo.txt" "Inbox")
       "* TODO %?
 SCHEDULED: %t
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("n" "Note" entry
+      (file+headline "~/Documents/Tasks/notes.txt" "Notes")
+      "* NOTE %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t))))

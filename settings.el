@@ -375,7 +375,7 @@
  '(erc-services-mode t)
  '(erc-text-matched-hook (quote (erc-hide-fools my-erc-hook)))
  '(erc-track-enable-keybindings t)
- '(erc-track-exclude (quote ("#idris" "#emacs" "#ghc")))
+ '(erc-track-exclude (quote ("#idris" "#emacs" "#ghc" "#haskell-emacs" "#agda")))
  '(erc-track-exclude-types
    (quote
     ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
@@ -679,6 +679,7 @@
  '(save-kill-file-name "~/.emacs.d/data/kill-ring-saved.el")
  '(scroll-bar-mode nil)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
+ '(sendmail-program "/Users/johnw/.nix-profile/bin/msmtp")
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-globals-include
    (quote

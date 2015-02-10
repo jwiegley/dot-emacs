@@ -31,6 +31,9 @@
 (defun quickping (host)
   (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
 
+(defun slowping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W5000" "-q" host)))
+
 (defun cleanup-term-log ()
   "Do not show ^M in files containing mixed UNIX and DOS line endings."
   (interactive)
@@ -1096,7 +1099,7 @@
                       "\n"))))
     (and agda
          (expand-file-name
-          "../share/x86_64-osx-ghc-7.8.3/Agda-2.4.2.2/emacs-mode"
+          "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.2/emacs-mode"
           (file-name-directory agda)))))
 
 (use-package agda2-mode
@@ -1874,7 +1877,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (defun irc ()
       (interactive)
 
-      (if (quickping "192.168.9.133")
+      (if (slowping "192.168.9.133")
           (erc :server "192.168.9.133"
                :port 6697
                :nick "johnw"
@@ -2146,25 +2149,26 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 (use-package flycheck
   :config
   (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point)
-  :init
-  (progn
-    (flycheck-define-checker clang++-ledger
-      "Clang++ checker for Ledger"
-      :command
-      '("clang++" "-Wall" "-fsyntax-only"
-        "-I/Users/johnw/Products/ledger/debug" "-I../lib"
-        "-I../lib/utfcpp/source"
-        "-I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7"
-        "-include" "system.hh" "-c" source-inplace)
-      :error-patterns
-      '(("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): warning:\\s-*\\(?4:.*\\)"
-         warning)
-        ("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): error:\\s-*\\(?4:.*\\)"
-         error))
-      :modes 'c++-mode
-      :predicate '(string-match "/ledger/" (buffer-file-name)))
+  ;; :init
+  ;; (progn
+  ;;   (flycheck-define-checker clang++-ledger
+  ;;     "Clang++ checker for Ledger"
+  ;;     :command
+  ;;     '("clang++" "-Wall" "-fsyntax-only"
+  ;;       "-I/Users/johnw/Products/ledger/debug" "-I../lib"
+  ;;       "-I../lib/utfcpp/source"
+  ;;       "-I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7"
+  ;;       "-include" "system.hh" "-c" source-inplace)
+  ;;     :error-patterns
+  ;;     '(("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): warning:\\s-*\\(?4:.*\\)"
+  ;;        warning)
+  ;;       ("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): error:\\s-*\\(?4:.*\\)"
+  ;;        error))
+  ;;     :modes 'c++-mode
+  ;;     :predicate '(string-match "/ledger/" (buffer-file-name)))
 
-    (push 'clang++-ledger flycheck-checkers)))
+  ;;   (push 'clang++-ledger flycheck-checkers))
+  )
 
 ;;;_ , flyspell
 
@@ -3581,7 +3585,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
         (unless (or noninteractive
                     running-alternate-emacs
-                    (eq 'listen (process-status server-process)))
+                    (and server-process
+                         (eq 'listen (process-status server-process))))
           (server-start))))
 
     (run-with-idle-timer 300 t 'save-information)
@@ -4156,7 +4161,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                      erc-mode-hook))
   :config
   (progn
-    (yas-load-directory "~/.emacs.d/snippets/")
+    ;; (yas-load-directory "~/.emacs.d/snippets/")
 
     (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap)
 
