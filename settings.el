@@ -471,6 +471,7 @@
  '(helm-buffers-fuzzy-matching t)
  '(helm-ff-file-name-history-use-recentf t)
  '(helm-ff-search-library-in-sexp t)
+ '(helm-ff-skip-boring-files t)
  '(helm-ls-git-show-abs-or-relative (quote relative))
  '(helm-scroll-amount 8)
  '(helm-split-window-in-side-p t)

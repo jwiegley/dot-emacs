@@ -2355,13 +2355,12 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
           ("C-h a"   . helm-c-apropos)
           ("M-s a"   . helm-do-grep)
           ("M-s b"   . helm-occur)
-          ("M-s F"   . helm-for-files))
+          ("M-s F"   . helm-for-files)
+          ("C-h e a" . my-helm-apropos)
+          ("C-x f"   . helm-ls-git-ls))
   :init
   (progn
     (use-package helm-commands)
-
-    (bind-key "C-h e a" 'my-helm-apropos)
-    (bind-key "C-x f" 'helm-ls-git-ls)
 
     (use-package helm-descbinds
       :commands helm-descbinds
@@ -2442,7 +2441,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   (progn
     (use-package ido-hacks
       :init
-      (ido-hacks-mode 1))
+      (ido-hacks-mode 1)
+      :config
+      ;; ido-hacks takes over M-x
+      (bind-key "M-x" 'helm-M-x))
 
     (use-package ido-springboard)
 
@@ -2800,14 +2802,55 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , lusty-explorer
 
 (use-package lusty-explorer
-  :disabled t
   :bind ("C-x C-f" . lusty-file-explorer)
   :config
   (progn
-    (add-hook 'lusty-setup-hook
-              (lambda ()
-                (bind-key "SPC" 'lusty-select-match lusty-mode-map)
-                (bind-key "C-d" 'exit-minibuffer lusty-mode-map)))
+    (defvar my-lusty-directory nil)
+
+    (defun my-lusty-current-directory ()
+      (let ((path (minibuffer-contents-no-properties)))
+        (lusty-normalize-dir (file-name-directory path))))
+
+    (defun my-lusty-helm-do-grep ()
+      (interactive)
+      (run-at-time "0.1 seconds" nil
+                   (lambda ()
+                     (jump-to-register ?L)
+                     (helm-do-grep-1 (list default-directory))))
+      (delete-window (get-buffer-window lusty-buffer-name))
+      (window-configuration-to-register ?L)
+      (exit-minibuffer))
+
+    (defun my-lusty-helm-find ()
+      (interactive)
+      (run-at-time "0.1 seconds" nil
+                   (lambda ()
+                     (jump-to-register ?L)
+                     (call-interactively #'helm-find)))
+      (delete-window (get-buffer-window lusty-buffer-name))
+      (window-configuration-to-register ?L)
+      (exit-minibuffer))
+
+    (defun my-lusty-helm-ls-git-ls ()
+      (interactive)
+      (run-at-time "0.1 seconds" nil
+                   (lambda ()
+                     (jump-to-register ?L)
+                     (let ((default-directory my-lusty-directory))
+                       (call-interactively #'helm-ls-git-ls))))
+      (setq my-lusty-directory (my-lusty-current-directory))
+      (delete-window (get-buffer-window lusty-buffer-name))
+      (window-configuration-to-register ?L)
+      (exit-minibuffer))
+
+    (defun my-lusty-setup-hook ()
+      (bind-key "SPC" 'lusty-select-match lusty-mode-map)
+      (bind-key "C-d" 'exit-minibuffer lusty-mode-map)
+      (bind-key "C-s" 'my-lusty-helm-do-grep lusty-mode-map)
+      (bind-key "C-c /" 'my-lusty-helm-find lusty-mode-map)
+      (bind-key "C-x f" 'my-lusty-helm-ls-git-ls lusty-mode-map))
+
+    (add-hook 'lusty-setup-hook #'my-lusty-setup-hook)
 
     (defun lusty-open-this ()
       "Open the given file/directory/buffer, creating it if not
