@@ -2363,8 +2363,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (bind-key "C-h e a" 'my-helm-apropos)
     (bind-key "C-x f" 'helm-find-git-file)
 
-    (bind-key "C-x C-d" 'helm-ff-run-browse-project helm-find-files-map)
-
     (use-package helm-descbinds
       :commands helm-descbinds
       :init
@@ -2387,9 +2385,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
   :config
   (progn
-    (helm-mode 1)
+    ;; (helm-mode 1)
     (helm-match-plugin-mode t)
     (helm-autoresize-mode t)
+
+    (use-package helm-ls-git)
 
     (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
     (bind-key "C-i" 'helm-execute-persistent-action helm-map)
