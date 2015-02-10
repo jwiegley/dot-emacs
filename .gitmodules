@@ -409,3 +409,6 @@
 [submodule "site-lisp/powerline"]
 	path = site-lisp/powerline
 	url = https://github.com/milkypostman/powerline.git
+[submodule "site-lisp/helm-c-yasnippet"]
+	path = site-lisp/helm-c-yasnippet
+	url = git://github.com/emacs-helm/helm-c-yasnippet.git
