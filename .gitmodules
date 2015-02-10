@@ -433,3 +433,6 @@
 [submodule "site-lisp/tbx2org"]
 	path = site-lisp/tbx2org
 	url = https://github.com/istib/tbx2org.git
+[submodule "site-lisp/undo-tree"]
+	path = site-lisp/undo-tree
+	url = https://github.com/emacsmirror/undo-tree.git
