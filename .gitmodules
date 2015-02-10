@@ -442,3 +442,6 @@
 [submodule "site-lisp/esup"]
 	path = site-lisp/esup
 	url = https://github.com/jschaf/esup.git
+[submodule "site-lisp/company-mode"]
+	path = site-lisp/company-mode
+	url = git://github.com/company-mode/company-mode.git
