@@ -2349,19 +2349,19 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package helm-config
   :diminish helm-mode
+  :bind '(("C-x C-f" . helm-find-files)
+          ("C-c h"   . helm-command-prefix)
+          ("M-x"     . helm-M-x)
+          ("C-h a"   . helm-c-apropos)
+          ("M-s a"   . helm-do-grep)
+          ("M-s b"   . helm-occur)
+          ("M-s F"   . helm-for-files))
   :init
   (progn
-    (bind-key "C-c h" 'helm-command-prefix)
-    (bind-key "M-x" 'helm-M-x)
-    (bind-key "C-h a" 'helm-c-apropos)
-    (bind-key "M-s a" 'helm-do-grep)
-    (bind-key "M-s b" 'helm-occur)
-    (bind-key "M-s F" 'helm-for-files)
-
     (use-package helm-commands)
 
     (bind-key "C-h e a" 'my-helm-apropos)
-    (bind-key "C-x f" 'helm-find-git-file)
+    (bind-key "C-x f" 'helm-ls-git-ls)
 
     (use-package helm-descbinds
       :commands helm-descbinds
@@ -2371,7 +2371,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (bind-key "C-h b" 'helm-descbinds)
 
     (defadvice helm-buffers-list
-      (around expand-window-helm-buffers-list activate)
+        (around expand-window-helm-buffers-list activate)
       (let ((c (current-window-configuration)))
         (condition-case err
             (progn
@@ -2800,6 +2800,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , lusty-explorer
 
 (use-package lusty-explorer
+  :disabled t
   :bind ("C-x C-f" . lusty-file-explorer)
   :config
   (progn
