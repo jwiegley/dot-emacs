@@ -130,7 +130,7 @@ Must be used together with `coq-par-enable'."
     (condition-case nil
 	(with-temp-buffer
 	  (setq status
-		(call-process "getconf" nil (current-buffer) nil 
+		(call-process "getconf" nil (current-buffer) t 
 			      "_NPROCESSORS_ONLN"))
 	  (setq ncpus (string-to-number (buffer-string))))
       (error
@@ -576,7 +576,12 @@ the command whose output will appear in the buffer."
       (setq buffer-object
             (get-buffer-create coq-compile-response-buffer))
       (with-current-buffer buffer-object
-        (compilation-mode)))
+        (compilation-mode)
+	;; read-only-mode makes compilation fail if some messages need
+	;; to be displayed by compilation. there was a bug in emacs 23
+	;; which make it work some time without this, but now it seems
+	;; mandatory:
+	(read-only-mode 0)))
     ;; I don't really care if somebody gets the right mode when
     ;; he saves and reloads this buffer. However, error messages in
     ;; the first line are not found for some reason ...
