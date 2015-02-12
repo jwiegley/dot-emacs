@@ -448,3 +448,6 @@
 [submodule "site-lisp/company-ghc"]
 	path = site-lisp/company-ghc
 	url = git://github.com/iquiw/company-ghc.git
+[submodule "site-lisp/HaRe"]
+	path = site-lisp/HaRe
+	url = https://github.com/alanz/HaRe.git
