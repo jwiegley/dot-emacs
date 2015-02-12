@@ -460,3 +460,6 @@
 [submodule "site-lisp/git-timemachine"]
 	path = site-lisp/git-timemachine
 	url = https://github.com/pidu/git-timemachine.git
+[submodule "site-lisp/multifiles-el"]
+	path = site-lisp/multifiles-el
+	url = https://github.com/magnars/multifiles.el.git
