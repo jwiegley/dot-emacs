@@ -451,3 +451,6 @@
 [submodule "site-lisp/HaRe"]
 	path = site-lisp/HaRe
 	url = https://github.com/alanz/HaRe.git
+[submodule "site-lisp/ace-link"]
+	path = site-lisp/ace-link
+	url = https://github.com/abo-abo/ace-link.git
