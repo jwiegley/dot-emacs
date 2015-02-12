@@ -2800,6 +2800,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (bind-key "M-q" 'slime-reindent-defun lisp-mode-map)
         (bind-key "M-l" 'slime-selector lisp-mode-map))
 
+      (autoload 'yas-minor-mode "yasnippet")
       (yas-minor-mode 1))
 
     (hook-into-modes #'my-lisp-mode-hook lisp-mode-hooks)))
@@ -3114,6 +3115,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , multi-term
 
 (use-package multi-term
+  :disabled t
   :bind (("C-. t" . multi-term-next)
          ("C-. T" . multi-term))
   :init
@@ -3415,6 +3417,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package proof-site
   :load-path (lambda () (nix-lisp-path "ProofGeneral/generic"))
+  :init
+  (progn
+    (defvar coq-compile-parallel-in-background nil)
+    (eval-when-compile
+      (require 'coq)))
   :config
   (progn
     (use-package coq
@@ -3592,6 +3599,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , sage-mode
 
 (use-package sage
+  :disabled t
   :load-path "/Applications/Misc/sage/local/share/emacs/site-lisp/sage-mode/"
   :init
   (progn
@@ -3720,6 +3728,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , slime
 
 (use-package slime
+  :disabled t
   :commands (sbcl slime)
   :init
   (add-hook
@@ -4267,7 +4276,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :init
   (hook-into-modes #'(lambda () (yas-minor-mode 1))
-                   '(prog-mode-hook
+                   '(haskell-mode-hook
+                     coq-mode-hook
                      org-mode-hook
                      ruby-mode-hook
                      message-mode-hook
@@ -4275,7 +4285,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                      erc-mode-hook))
   :config
   (progn
-    ;; (yas-load-directory "~/.emacs.d/snippets/")
+    (yas-load-directory "~/.emacs.d/snippets/")
 
     (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap)
 

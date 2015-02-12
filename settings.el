@@ -661,7 +661,7 @@
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
  '(regex-tool-backend (quote perl))
- '(runner-init-file "~/.emacs.d/runner-conf.el")
+ '(runner-init-file "~/.emacs.d/data/runner-conf.el")
  '(safe-local-variable-values
    (quote
     ((nix-package-name . "pkgs.haskellPackages_ghc782.newartisans")
@@ -852,7 +852,6 @@
  '(yas-prompt-functions
    (quote
     (yas-ido-prompt yas-completing-prompt yas-no-prompt)))
- '(yas-snippet-dirs (quote ("~/.emacs.d/snippets")) nil (yasnippet))
  '(yas-triggers-in-field t)
  '(yas-wrap-around-region t)
  '(zencoding-preview-default nil))

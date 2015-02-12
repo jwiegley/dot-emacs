@@ -27,7 +27,8 @@
                     user-lisp-directory
                     user-lib-directory
                     user-site-lisp-directory
-                     user-elpa-directory)))
+                    ;; user-elpa-directory
+                    )))
   (dolist (entry (nreverse (directory-files-and-attributes dir)))
     (if (cadr entry)
         (add-to-load-path (car entry) dir))))
