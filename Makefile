@@ -2,6 +2,7 @@
 
 DIRS	    = override lib lisp site-lisp \
 	      $(HOME)/src/ledger/lisp
+SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 -type d -print)
 #SPECIAL	    = cus-dirs.el autoloads.el
 SPECIAL	    = cus-dirs.el
 LIB_SOURCE  = $(wildcard override/*.el) $(wildcard lib/*.el) \
@@ -14,15 +15,13 @@ TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE)) \
                  settings.el dot-gnus.el dot-org.el init.el)
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) -Q -batch
-MY_LOADPATH = -L . $(patsubst %,-L %,$(DIRS))
+MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
 all: $(SPECIAL) $(TARGET)
 
 compile:
-	for dir in $(DIRS); do \
-	    ($(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' $$dir); \
-	done
+	$(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' $(DIRS)
 
 cus-dirs.el: Makefile $(LIB_SOURCE)
 	$(EMACS_BATCH) -l cus-dep -f custom-make-dependencies $(DIRS)
