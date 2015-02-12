@@ -457,3 +457,6 @@
 [submodule "site-lisp/emacs-git-messenger"]
 	path = site-lisp/emacs-git-messenger
 	url = https://github.com/syohex/emacs-git-messenger.git
+[submodule "site-lisp/git-timemachine"]
+	path = site-lisp/git-timemachine
+	url = https://github.com/pidu/git-timemachine.git
