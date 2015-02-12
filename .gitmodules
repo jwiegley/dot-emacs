@@ -472,3 +472,6 @@
 [submodule "site-lisp/iflipb"]
 	path = site-lisp/iflipb
 	url = https://github.com/jrosdahl/iflipb.git
+[submodule "site-lisp/osx-bbdb"]
+	path = site-lisp/osx-bbdb
+	url = https://github.com/chrisbarrett/osx-bbdb.git
