@@ -1892,7 +1892,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
     (defun irc ()
       (interactive)
-
       (if (slowping "192.168.9.133")
           (progn
             (erc :server "192.168.9.133"
@@ -1906,17 +1905,16 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                                    :type 'netrc
                                    :port 6697))
                              :secret)))
-
             (erc :server "192.168.9.133"
-                 :port 6698
+                 :port 6697
                  :nick "johnw"
                  :password (funcall
                             (plist-get
                              (car (auth-source-search
                                    :host "192.168.9.133"
-                                   :user "johnw"
+                                   :user "johnw/bitlbee"
                                    :type 'netrc
-                                   :port 6698))
+                                   :port 6697))
                              :secret))))
 
         (erc-tls :server "irc.freenode.net"
@@ -2237,6 +2235,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , grep
 
 (use-package grep
+  :disabled t
   :bind (("M-s d" . find-grep-dired)
          ;; ("M-s f" . find-grep)
          ("M-s g" . grep))
@@ -2347,21 +2346,31 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , helm
 
+(defun my-helm-do-grep ()
+  (interactive)
+  (helm-do-grep-1 (list default-directory)))
+
+(defun my-helm-do-grep-r ()
+  (interactive)
+  (helm-do-grep-1 (list default-directory) t))
+
+(defun my-helm-find ()
+  (interactive)
+  (helm-find nil))
+
 (use-package helm-config
   :diminish helm-mode
-  :bind '(
-          ("C-c h"   . helm-command-prefix)
-          ("C-h a"   . helm-c-apropos)
-          ("C-h e a" . my-helm-apropos)
-          ("C-x C-f" . helm-find-files)
-          ("C-x f"   . helm-ls-git-ls)
-          ("M-s F"   . helm-for-files)
-          ("M-s a"   . helm-do-grep)
-          ("M-s b"   . helm-occur)
-          ("M-s f"   . my-helm-do-grep)
-          ("M-s n"   . my-helm-find)
-          ("M-s o"   . helm-occur)
-          )
+  :commands (helm-do-grep-1 helm-find)
+  :bind (("C-c h"   . helm-command-prefix)
+         ("C-h a"   . helm-c-apropos)
+         ("C-h e a" . my-helm-apropos)
+         ("C-x C-f" . helm-find-files)
+         ("M-s F"   . helm-for-files)
+         ("M-s b"   . helm-occur)
+         ("M-s f"   . my-helm-do-grep-r)
+         ("M-s g"   . my-helm-do-grep)
+         ("M-s n"   . my-helm-find)
+         ("M-s o"   . helm-occur))
   :init
   (progn
     (use-package helm-commands)
@@ -2384,22 +2393,13 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
            (set-window-configuration c)))))
 
     ;; (bind-key "C-x C-b" 'helm-buffers-list)
-
-    (defun my-helm-do-grep ()
-      (interactive)
-      (helm-do-grep-1 (list default-directory)))
-
-    (defun my-helm-find ()
-      (interactive)
-      (helm-find nil)))
+    )
 
   :config
   (progn
     ;; (helm-mode 1)
     (helm-match-plugin-mode t)
     (helm-autoresize-mode t)
-
-    (use-package helm-ls-git)
 
     (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
     (bind-key "C-i" 'helm-execute-persistent-action helm-map)
@@ -2412,6 +2412,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (setq helm-grep-default-command "ack -Hn --no-group --no-color %e %p %f"
             helm-grep-default-recurse-command
             "ack -H --no-group --no-color %e %p %f"))))
+
+(use-package helm-ls-git
+  :bind ("C-x f" . helm-ls-git-ls))
 
 ;;;_ , hi-lock
 
@@ -2457,10 +2460,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   (progn
     (use-package ido-hacks
       :init
-      (ido-hacks-mode 1)
-      :config
-      ;; ido-hacks takes over M-x
-      (bind-key "M-x" 'helm-M-x))
+      (ido-hacks-mode 1))
 
     (use-package ido-springboard)
 
@@ -3425,6 +3425,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (add-hook
          'coq-mode-hook
          (lambda ()
+           (holes-mode -1)
            (yas-minor-mode 1)
            (whitespace-mode 1)
            ;; (set-input-method "Agda")
