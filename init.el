@@ -1568,9 +1568,9 @@
 ;;;_ , iflipb
 
 (use-package iflipb
-  :disabled t
   :commands (iflipb-next-buffer iflipb-previous-buffer)
-  :bind (("S-<tab>" . my-iflipb-next-buffer)
+  :bind (("M-`" . my-iflipb-next-buffer)
+         ("S-<tab>" . my-iflipb-next-buffer)
          ("A-S-<tab>" . my-iflipb-previous-buffer))
   :init
   (progn

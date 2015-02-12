@@ -10,6 +10,8 @@
   (expand-file-name "site-lisp/" user-emacs-directory))
 (defconst user-override-directory
   (expand-file-name "override/" user-emacs-directory))
+(defconst user-elpa-directory
+  (expand-file-name "elpa/packages/" user-emacs-directory))
 
 (defconst nix-site-lisp-directory
   (expand-file-name "~/.nix-profile/share/emacs/site-lisp"))
@@ -24,7 +26,8 @@
               (list user-override-directory
                     user-lisp-directory
                     user-lib-directory
-                    user-site-lisp-directory)))
+                    user-site-lisp-directory
+                     user-elpa-directory)))
   (dolist (entry (nreverse (directory-files-and-attributes dir)))
     (if (cadr entry)
         (add-to-load-path (car entry) dir))))
@@ -35,6 +38,7 @@
         user-emacs-directory
 
         "override/"
+        "override/bbdb/lisp/"
         "override/gnus/contrib/"
         "override/gnus/lisp/"
         "override/org-mode/contrib/lisp/"
