@@ -463,3 +463,6 @@
 [submodule "site-lisp/multifiles-el"]
 	path = site-lisp/multifiles-el
 	url = https://github.com/magnars/multifiles.el.git
+[submodule "elpa"]
+	path = elpa
+	url = http://git.savannah.gnu.org/cgit/emacs/elpa.git
