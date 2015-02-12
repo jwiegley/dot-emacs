@@ -454,3 +454,6 @@
 [submodule "site-lisp/ace-link"]
 	path = site-lisp/ace-link
 	url = https://github.com/abo-abo/ace-link.git
+[submodule "site-lisp/emacs-git-messenger"]
+	path = site-lisp/emacs-git-messenger
+	url = https://github.com/syohex/emacs-git-messenger.git
