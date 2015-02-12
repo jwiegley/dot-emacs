@@ -466,3 +466,6 @@
 [submodule "elpa"]
 	path = elpa
 	url = http://git.savannah.gnu.org/cgit/emacs/elpa.git
+[submodule "site-lisp/ASynK"]
+	path = site-lisp/ASynK
+	url = https://github.com/skarra/ASynK.git
