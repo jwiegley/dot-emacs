@@ -475,3 +475,6 @@
 [submodule "site-lisp/osx-bbdb"]
 	path = site-lisp/osx-bbdb
 	url = https://github.com/chrisbarrett/osx-bbdb.git
+[submodule "melpa"]
+	path = melpa
+	url = https://github.com/milkypostman/melpa.git
