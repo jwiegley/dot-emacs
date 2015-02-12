@@ -294,7 +294,7 @@
 	url = git://github.com/magnars/dash.el.git
 [submodule "site-lisp/projectile"]
 	path = site-lisp/projectile
-	url = git://github.com/bbatsov/projectile.git
+	url = https://github.com/bbatsov/projectile.git
 [submodule "site-lisp/multiple-cursors-el"]
 	path = site-lisp/multiple-cursors-el
 	url = git://github.com/magnars/multiple-cursors.el.git
