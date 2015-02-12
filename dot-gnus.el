@@ -8,16 +8,16 @@
 (require 'message)
 (require 'spam)
 (require 'spam-report)
-;; (require 'bbdb)
-;; (require 'bbdb-gnus)
-;; (require 'bbdb-message)
+(require 'bbdb)
+(require 'bbdb-gnus)
+(require 'bbdb-message)
 (require 'async)
 
 ;; (gnus-compile)
 (gnus-delay-initialize)
 (spam-initialize)
 
-;; (bbdb-initialize 'gnus 'message)
+(bbdb-initialize 'gnus 'message)
 
 (defvar use-spam-filtering nil)
 

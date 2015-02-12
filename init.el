@@ -1400,7 +1400,6 @@
 ;;;_ , bbdb
 
 (use-package bbdb-com
-  :disabled t
   :commands bbdb-create
   :bind ("M-B" . bbdb))
 
@@ -2372,31 +2371,18 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("M-s n"   . my-helm-find)
          ("M-s o"   . helm-occur))
   :init
-  (progn
-    (use-package helm-commands)
-
-    (use-package helm-descbinds
-      :commands helm-descbinds
-      :init
-      (fset 'describe-bindings 'helm-descbinds))
-
-    (bind-key "C-h b" 'helm-descbinds)
-
-    (defadvice helm-buffers-list
-        (around expand-window-helm-buffers-list activate)
-      (let ((c (current-window-configuration)))
-        (condition-case err
-            (progn
-              (delete-other-windows)
-              ad-do-it)
-          (t
-           (set-window-configuration c)))))
-
-    ;; (bind-key "C-x C-b" 'helm-buffers-list)
-    )
+  (use-package helm-descbinds
+    :bind ("C-h b" . helm-descbinds)
+    :init
+    (fset 'describe-bindings 'helm-descbinds))
 
   :config
   (progn
+    (use-package helm-commands)
+    (use-package helm-files)
+    (use-package helm-grep)
+    (use-package helm-ls-git)
+
     ;; (helm-mode 1)
     (helm-match-plugin-mode t)
     (helm-autoresize-mode t)
@@ -2408,10 +2394,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (when (executable-find "curl")
       (setq helm-google-suggest-use-curl-p t))
 
-    (when (executable-find "ack")
-      (setq helm-grep-default-command "ack -Hn --no-group --no-color %e %p %f"
-            helm-grep-default-recurse-command
-            "ack -H --no-group --no-color %e %p %f"))))
+    ;; (when (executable-find "ack")
+    ;;   (setq helm-grep-default-command "ack -Hn --no-group --no-color %e %p %f"
+    ;;         helm-grep-default-recurse-command
+    ;;         "ack -H --no-group --no-color %e %p %f"))
+    ))
 
 (use-package helm-ls-git
   :bind ("C-x f" . helm-ls-git-ls))

@@ -5,8 +5,8 @@
 (require 'org)
 (require 'org-agenda)
 (require 'org-smart-capture)
-
-;;(require 'org-crypt)
+(require 'org-crypt)
+(require 'org-bbdb)
 (require 'org-devonthink)
 (require 'org-debbugs)
 (require 'org-magit)
