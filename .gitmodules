@@ -469,3 +469,6 @@
 [submodule "site-lisp/ASynK"]
 	path = site-lisp/ASynK
 	url = https://github.com/skarra/ASynK.git
+[submodule "site-lisp/iflipb"]
+	path = site-lisp/iflipb
+	url = https://github.com/jrosdahl/iflipb.git
