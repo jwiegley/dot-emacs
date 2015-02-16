@@ -10,6 +10,7 @@
 (require 'org-devonthink)
 (require 'org-debbugs)
 (require 'org-magit)
+(require 'org-velocity)
 (require 'ob-R)
 (require 'ob-python)
 (require 'ob-ruby)
@@ -240,7 +241,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
+  (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -307,7 +308,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
+        (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -492,7 +493,7 @@ This can be 0 for immediate, or a floating point value.")
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" "~/Documents/Tasks/todo.txt" "Inbox"))))
+:END:" "~/Documents/todo.txt" "Inbox"))))
         (org-remember))))
   (set-fill-column 72))
 
@@ -899,7 +900,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   "Fit the Org Agenda to its buffer."
   (let ((notes (directory-files
                 "~/Dropbox/Apps/Drafts/" t "[0-9].*\\.txt\\'" nil)))
-    (with-current-buffer (find-file-noselect "~/Documents/Tasks/todo.txt")
+    (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
       (save-excursion
         (goto-char (point-min))
         (re-search-forward "^\\* Inbox$")
@@ -974,6 +975,16 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
   (setq org-completion-handler 'org-helm-completion-handler))
 
+(defun org-show-pending ()
+  (interactive)
+  (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward
+              "\\(^<\\|DEADLINE: <\\)\\([0-9]\\{4\\}-.*?\\)>" nil t)
+        (let ((due-date (match-string 2)))
+          (message due-date))))))
+
 (defun org-todo-score (&optional ignore)
   "Compute the score of an Org-mode task.
 Age gradually decreases the value given to a task.  After 28
@@ -990,7 +1001,7 @@ Effort should act as a multiplier on the value."
         org-categories-completed-hashmap (make-hash-table :test 'equal))
   (dolist (file '("todo.txt" "archive.txt"))
     (with-current-buffer
-        (find-file-noselect (expand-file-name file "~/Documents/Tasks"))
+        (find-file-noselect (expand-file-name file "~/Documents"))
       (save-excursion
         (goto-char (point-min))
         (while (not (eobp))

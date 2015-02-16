@@ -10,8 +10,7 @@
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
 (require 'use-package)
-;; (eval-when-compile
-;;   (setq use-package-verbose (null byte-compile-current-file)))
+;;;(setq use-package-verbose t)
 
 ;;;_ , Utility macros and functions
 
@@ -107,8 +106,6 @@
 
   (load (expand-file-name "settings" user-emacs-directory)))
 
-;; (setenv "TZ" "UTC+5")
-
 ;;;_ , Enable disabled commands
 
 (put 'downcase-region  'disabled nil)   ; Let downcasing work
@@ -143,7 +140,7 @@
 
 ;;;_ , global-map
 
-;;;_  . C-?
+;;;_  . C-
 
 (defvar ctl-period-map)
 (define-prefix-command 'ctl-period-map)
@@ -157,15 +154,9 @@
       (delete-other-windows)
     (bury-buffer)))
 
-(bind-key "C-z" 'collapse-or-expand)
+(bind-key "C-z" 'delete-other-windows)
 
-(defun reformat-json ()
-  (interactive)
-  (save-excursion
-    (shell-command-on-region
-     (mark) (point) "python -m json.tool" (buffer-name) t)))
-
-;;;_  . M-?
+;;;_  . M-
 
 (defadvice async-shell-command (before uniqify-running-shell-command activate)
   (let ((buf (get-buffer "*Async Shell Command*")))
@@ -189,7 +180,7 @@
       (align beg end-mark))))
 
 (bind-key "M-[" 'align-code)
-(bind-key "M-`" 'other-frame)
+;;;(bind-key "M-`" 'other-frame)
 
 (bind-key "M-j" 'delete-indentation-forward)
 (bind-key "M-J" 'delete-indentation)
@@ -217,8 +208,6 @@
 (bind-key "M-H" 'mark-paragraph)
 (bind-key "M-D" 'mark-defun)
 
-(bind-key "M-T" 'tags-search)
-
 (bind-key "M-g c" 'goto-char)
 (bind-key "M-g l" 'goto-line)
 
@@ -226,10 +215,10 @@
   (interactive)
   (delete-indentation t))
 
-;;(bind-key "M-s n" 'find-name-dired)
-;;(bind-key "M-s o" 'occur)
+;;;(bind-key "M-s n" 'find-name-dired)
+;;;(bind-key "M-s o" 'occur)
 
-;;;_  . M-C-?
+;;;_  . M-C-
 
 (bind-key "<C-M-backspace>" 'backward-kill-sexp)
 
@@ -247,34 +236,25 @@
 
 (bind-key "C-M-s" 'isearch-forward-other-window)
 
-;; Some further isearch bindings
 (bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
 (bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
 (bind-key "C-^" 'isearch-edit-string isearch-mode-map)
 (bind-key "C-i" 'isearch-complete isearch-mode-map)
 
-;;;_  . A-?
+;;;_  . A-
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
 ;;;_ , ctl-x-map
 
-;;;_  . C-x ?
+;;;_  . C-x
 
 (bind-key "C-x B" 'ido-switch-buffer-other-window)
 (bind-key "C-x d" 'delete-whitespace-rectangle)
 (bind-key "C-x F" 'set-fill-column)
 (bind-key "C-x t" 'toggle-truncate-lines)
 
-(defun toggle-transparency ()
-  (interactive)
-  (if (/= (cadr (frame-parameter nil 'alpha)) 100)
-      (set-frame-parameter nil 'alpha '(100 100))
-    (set-frame-parameter nil 'alpha '(85 50))))
-
-(bind-key "C-x T" 'toggle-transparency)
-
-;;;_  . C-x C-?
+;;;_  . C-x C-
 
 (defun duplicate-line ()
   "Duplicate the line containing point."
@@ -295,14 +275,13 @@
 (bind-key "C-x C-e" 'pp-eval-last-sexp)
 (bind-key "C-x C-n" 'next-line)
 
-
 (defun find-alternate-file-with-sudo ()
   (interactive)
   (find-alternate-file (concat "/sudo::" (buffer-file-name))))
 
 (bind-key "C-x C-v" 'find-alternate-file-with-sudo)
 
-;;;_  . C-x M-?
+;;;_  . C-x M-
 
 (bind-key "C-x M-n" 'set-goal-column)
 
@@ -343,7 +322,7 @@
 
 ;;;_ , mode-specific-map
 
-;;;_  . C-c ?
+;;;_  . C-c
 
 (bind-key "C-c <tab>" 'ff-find-other-file)
 (bind-key "C-c SPC" 'just-one-space)
@@ -369,6 +348,8 @@
        (error "Current window is the only window in its frame")
      (delete-other-windows))))
 
+(bind-key "C-c c" 'compile)
+
 (defun delete-current-line (&optional arg)
   (interactive "p")
   (let ((here (point)))
@@ -376,18 +357,7 @@
     (kill-line arg)
     (goto-char here)))
 
-(bind-key "C-c c" 'compile)
 (bind-key "C-c d" 'delete-current-line)
-
-(defun reset-dns ()
-  (interactive)
-  (message "Resetting DNS...")
-  (shell-command "cleardns")
-  (shell-command "launchctl unload ~/Library/LaunchAgents/mac.pdnsd.plist")
-  (shell-command "launchctl load ~/Library/LaunchAgents/mac.pdnsd.plist")
-  (message "Resetting DNS...done"))
-
-(bind-key "C-c D" 'reset-dns)
 
 (bind-key "C-c e E" 'elint-current-buffer)
 
@@ -406,18 +376,9 @@
 (bind-key "C-c e r" 'eval-region)
 (bind-key "C-c e s" 'scratch)
 (bind-key "C-c e v" 'edit-variable)
-
-(defun find-which (name)
-  (interactive "sCommand name: ")
-  (find-file-other-window
-   (substring (shell-command-to-string (format "which %s" name)) 0 -1)))
-
-(bind-key "C-c e w" 'find-which)
 (bind-key "C-c e z" 'byte-recompile-directory)
 
 (bind-key "C-c f" 'flush-lines)
-
-(global-set-key [remap goto-line] 'goto-line-with-feedback)
 
 (defun goto-line-with-feedback ()
   "Show line numbers temporarily, while prompting for the line number input"
@@ -429,19 +390,18 @@
     (linum-mode -1)))
 
 (bind-key "C-c g" 'goto-line)
+(global-set-key [remap goto-line] 'goto-line-with-feedback)
+
 (bind-key "C-c k" 'keep-lines)
 
 (eval-when-compile
   (defvar emacs-min-height)
   (defvar emacs-min-width))
 
-(setq display-name
-      (let ((width (display-pixel-width)))
-        (cond
-         ((= width 2560)
-          'retina-imac)
-         ((= width 1440)
-          'retina-macbook-pro))))
+(defvar display-name
+  (let ((width (display-pixel-width)))
+    (cond ((= width 2560) 'retina-imac)
+          ((= width 1440) 'retina-macbook-pro))))
 
 (unless noninteractive
   (if running-alternate-emacs
@@ -453,13 +413,11 @@
 
     (defun emacs-min-top () 23)
     (defun emacs-min-left ()
-      (cond
-       ((eq display-name 'retina-imac) 975)
-       (t 521)))
+      (cond ((eq display-name 'retina-imac) 975)
+            (t 521)))
     (defvar emacs-min-height
-      (cond
-       ((eq display-name 'retina-imac) 55)
-       (t 44)))
+      (cond ((eq display-name 'retina-imac) 55)
+            (t 44)))
     (defvar emacs-min-width 100)))
 
 (defun emacs-min ()
@@ -506,10 +464,6 @@
 
 (bind-key "C-c m" 'emacs-toggle-size)
 
-(defun insert-date ()
-  (interactive)
-  (insert (format-time-string "%Y-%m-%d")))
-
 (defcustom user-initials nil
   "*Initials of this user."
   :set
@@ -542,31 +496,6 @@
 (bind-key "C-c s" 'replace-string)
 (bind-key "C-c u" 'rename-uniquely)
 
-(autoload 'auth-source-search "auth-source")
-
-(defun tinify-url (url)
-  (interactive "sURL to shorten: ")
-  (let* ((api-login "jwiegley")
-         (api-key
-          (funcall
-           (plist-get
-            (car (auth-source-search :host "api.j.mp" :user api-login
-                                     :type 'netrc :port 80))
-            :secret))))
-    (flet ((message (&rest ignore)))
-      (with-current-buffer
-          (let ((query
-                 (format "format=txt&longUrl=%s&login=%s&apiKey=%s"
-                         (url-hexify-string url) api-login api-key)))
-            (url-retrieve-synchronously
-             (concat "http://api.j.mp/v3/shorten?" query)))
-        (goto-char (point-min))
-        (re-search-forward "^$")
-        (prog1
-            (kill-new (buffer-substring (1+ (point)) (1- (point-max))))
-          (kill-buffer (current-buffer)))))))
-
-(bind-key "C-c U" 'tinify-url)
 (bind-key "C-c v" 'ffap)
 
 (defun view-clipboard ()
@@ -576,9 +505,7 @@
   (let ((inhibit-read-only t))
     (erase-buffer)
     (clipboard-yank)
-    (goto-char (point-min))
-    (html-mode)
-    (view-mode)))
+    (goto-char (point-min))))
 
 (bind-key "C-c V" 'view-clipboard)
 (bind-key "C-c z" 'clean-buffer-list)
@@ -587,7 +514,7 @@
 (bind-key "C-c =" 'count-matches)
 (bind-key "C-c ;" 'comment-or-uncomment-region)
 
-;;;_  . C-c C-?
+;;;_  . C-c C-
 
 (defun delete-to-end-of-buffer ()
   (interactive)
@@ -595,7 +522,7 @@
 
 (bind-key "C-c C-z" 'delete-to-end-of-buffer)
 
-;;;_  . C-c M-?
+;;;_  . C-c M-
 
 (defun unfill-paragraph (arg)
   (interactive "*p")
@@ -632,11 +559,9 @@
 
 ;;;_ , ctl-period-map
 
-;;;_  . C-. ?
+;;;_  . C-.
 
 (bind-key "C-. m" 'kmacro-keymap)
-
-;;;_  . C-. C-i
 
 (bind-key "C-. C-i" 'indent-rigidly)
 
@@ -647,7 +572,7 @@
 
 (bind-key "C-h e" 'lisp-find-map)
 
-;;;_  . C-h e ?
+;;;_  . C-h e
 
 (bind-key "C-h e c" 'finder-commentary)
 (bind-key "C-h e e" 'view-echo-area-messages)
@@ -728,28 +653,6 @@
 (bind-key "C-h e V" 'apropos-value)
 
 ;;;_. Packages
-
-;;;_ , el-get
-
-(use-package el-get
-  :disabled t
-  :commands (el-get
-             el-get-install
-             el-get-update
-             el-get-list-packages)
-  :init
-  (defvar el-get-sources nil)
-
-  :config
-  (progn
-    (defun el-get-read-status-file ()
-      (mapcar #'(lambda (entry)
-                  (cons (plist-get entry :symbol)
-                        `(status "installed" recipe ,entry)))
-              el-get-sources))
-
-    (defalias 'el-get-init 'ignore
-      "Don't use el-get for making packages available for use.")))
 
 ;;;_ , cc-mode
 
@@ -1277,109 +1180,108 @@
   :commands auto-revert-mode
   :diminish auto-revert-mode
   :init
-  (add-hook 'find-file-hook
-            #'(lambda ()
-                (auto-revert-mode 1))))
+  (add-hook 'find-file-hook #'(lambda () (auto-revert-mode 1))))
 
 ;;;_ , backup-each-save
 
+(defun show-backups ()
+  (interactive)
+  (require 'find-dired)
+  (let* ((file (make-backup-file-name (buffer-file-name)))
+         (dir (file-name-directory file))
+         (args (concat "-iname '" (file-name-nondirectory file)
+                       ".~*~'"))
+         (dired-buffers dired-buffers)
+         (find-ls-option '("-print0 | xargs -0 ls -lta" . "-lta")))
+    ;; Check that it's really a directory.
+    (or (file-directory-p dir)
+        (error "Backup directory does not exist: %s" dir))
+    (with-current-buffer (get-buffer-create "*Backups*")
+      (let ((find (get-buffer-process (current-buffer))))
+        (when find
+          (if (or (not (eq (process-status find) 'run))
+                  (yes-or-no-p "A `find' process is running; kill it? "))
+              (condition-case nil
+                  (progn
+                    (interrupt-process find)
+                    (sit-for 1)
+                    (delete-process find))
+                (error nil))
+            (error "Cannot have two processes in `%s' at once"
+                   (buffer-name)))))
+
+      (widen)
+      (kill-all-local-variables)
+      (setq buffer-read-only nil)
+      (erase-buffer)
+      (setq default-directory dir
+            args (concat
+                  find-program " . "
+                  (if (string= args "")
+                      ""
+                    (concat
+                     (shell-quote-argument "(")
+                     " " args " "
+                     (shell-quote-argument ")")
+                     " "))
+                  (if (string-match "\\`\\(.*\\) {} \\(\\\\;\\|+\\)\\'"
+                                    (car find-ls-option))
+                      (format "%s %s %s"
+                              (match-string 1 (car find-ls-option))
+                              (shell-quote-argument "{}")
+                              find-exec-terminator)
+                    (car find-ls-option))))
+      ;; Start the find process.
+      (message "Looking for backup files...")
+      (shell-command (concat args "&") (current-buffer))
+      ;; The next statement will bomb in classic dired (no optional arg
+      ;; allowed)
+      (dired-mode dir (cdr find-ls-option))
+      (let ((map (make-sparse-keymap)))
+        (set-keymap-parent map (current-local-map))
+        (define-key map "\C-c\C-k" 'kill-find)
+        (use-local-map map))
+      (make-local-variable 'dired-sort-inhibit)
+      (setq dired-sort-inhibit t)
+      (set (make-local-variable 'revert-buffer-function)
+           `(lambda (ignore-auto noconfirm)
+              (find-dired ,dir ,find-args)))
+      ;; Set subdir-alist so that Tree Dired will work:
+      (if (fboundp 'dired-simple-subdir-alist)
+          ;; will work even with nested dired format (dired-nstd.el,v 1.15
+          ;; and later)
+          (dired-simple-subdir-alist)
+        ;; else we have an ancient tree dired (or classic dired, where
+        ;; this does no harm)
+        (set (make-local-variable 'dired-subdir-alist)
+             (list (cons default-directory (point-min-marker)))))
+      (set (make-local-variable 'dired-subdir-switches)
+           find-ls-subdir-switches)
+      (setq buffer-read-only nil)
+      ;; Subdir headlerline must come first because the first marker in
+      ;; subdir-alist points there.
+      (insert "  " dir ":\n")
+      ;; Make second line a ``find'' line in analogy to the ``total'' or
+      ;; ``wildcard'' line.
+      (insert "  " args "\n")
+      (setq buffer-read-only t)
+      (let ((proc (get-buffer-process (current-buffer))))
+        (set-process-filter proc (function find-dired-filter))
+        (set-process-sentinel proc (function find-dired-sentinel))
+        ;; Initialize the process marker; it is used by the filter.
+        (move-marker (process-mark proc) 1 (current-buffer)))
+      (setq mode-line-process '(":%s")))))
+
+(bind-key "C-x ~" 'show-backups)
+
 (use-package backup-each-save
-  :defer t
+  :commands backup-each-save
   :init
   (progn
-    (autoload 'backup-each-save "backup-each-save")
-    (add-hook 'after-save-hook 'backup-each-save)
-
     (defun my-make-backup-file-name (file)
       (make-backup-file-name-1 (file-truename file)))
 
-    (defun show-backups ()
-      (interactive)
-      (require 'find-dired)
-      (let* ((file (make-backup-file-name (buffer-file-name)))
-             (dir (file-name-directory file))
-             (args (concat "-iname '" (file-name-nondirectory file)
-                           ".~*~'"))
-             (dired-buffers dired-buffers)
-             (find-ls-option '("-print0 | xargs -0 ls -lta" . "-lta")))
-        ;; Check that it's really a directory.
-        (or (file-directory-p dir)
-            (error "Backup directory does not exist: %s" dir))
-        (with-current-buffer (get-buffer-create "*Backups*")
-          (let ((find (get-buffer-process (current-buffer))))
-            (when find
-              (if (or (not (eq (process-status find) 'run))
-                      (yes-or-no-p "A `find' process is running; kill it? "))
-                  (condition-case nil
-                      (progn
-                        (interrupt-process find)
-                        (sit-for 1)
-                        (delete-process find))
-                    (error nil))
-                (error "Cannot have two processes in `%s' at once"
-                       (buffer-name)))))
-
-          (widen)
-          (kill-all-local-variables)
-          (setq buffer-read-only nil)
-          (erase-buffer)
-          (setq default-directory dir
-                args (concat find-program " . "
-                             (if (string= args "")
-                                 ""
-                               (concat
-                                (shell-quote-argument "(")
-                                " " args " "
-                                (shell-quote-argument ")")
-                                " "))
-                             (if (string-match "\\`\\(.*\\) {} \\(\\\\;\\|+\\)\\'"
-                                               (car find-ls-option))
-                                 (format "%s %s %s"
-                                         (match-string 1 (car find-ls-option))
-                                         (shell-quote-argument "{}")
-                                         find-exec-terminator)
-                               (car find-ls-option))))
-          ;; Start the find process.
-          (message "Looking for backup files...")
-          (shell-command (concat args "&") (current-buffer))
-          ;; The next statement will bomb in classic dired (no optional arg
-          ;; allowed)
-          (dired-mode dir (cdr find-ls-option))
-          (let ((map (make-sparse-keymap)))
-            (set-keymap-parent map (current-local-map))
-            (define-key map "\C-c\C-k" 'kill-find)
-            (use-local-map map))
-          (make-local-variable 'dired-sort-inhibit)
-          (setq dired-sort-inhibit t)
-          (set (make-local-variable 'revert-buffer-function)
-               `(lambda (ignore-auto noconfirm)
-                  (find-dired ,dir ,find-args)))
-          ;; Set subdir-alist so that Tree Dired will work:
-          (if (fboundp 'dired-simple-subdir-alist)
-              ;; will work even with nested dired format (dired-nstd.el,v 1.15
-              ;; and later)
-              (dired-simple-subdir-alist)
-            ;; else we have an ancient tree dired (or classic dired, where
-            ;; this does no harm)
-            (set (make-local-variable 'dired-subdir-alist)
-                 (list (cons default-directory (point-min-marker)))))
-          (set (make-local-variable 'dired-subdir-switches) find-ls-subdir-switches)
-          (setq buffer-read-only nil)
-          ;; Subdir headlerline must come first because the first marker in
-          ;; subdir-alist points there.
-          (insert "  " dir ":\n")
-          ;; Make second line a ``find'' line in analogy to the ``total'' or
-          ;; ``wildcard'' line.
-          (insert "  " args "\n")
-          (setq buffer-read-only t)
-          (let ((proc (get-buffer-process (current-buffer))))
-            (set-process-filter proc (function find-dired-filter))
-            (set-process-sentinel proc (function find-dired-sentinel))
-            ;; Initialize the process marker; it is used by the filter.
-            (move-marker (process-mark proc) 1 (current-buffer)))
-          (setq mode-line-process '(":%s")))))
-
-    (bind-key "C-x ~" 'show-backups))
+    (add-hook 'after-save-hook 'backup-each-save))
 
   :config
   (progn
@@ -1425,20 +1327,8 @@
 ;;;_ , bookmark
 
 (use-package bookmark
-  :disabled t
-  :defer t
   :config
-  (progn
-    (use-package bookmark+)
-
-    (defun my-bookmark-set ()
-      (interactive)
-      (flet ((bmkp-completing-read-lax
-              (prompt &optional default alist pred hist)
-              (completing-read prompt alist pred nil nil hist default)))
-        (call-interactively #'bookmark-set)))
-
-    (bind-key "C-x r m" 'my-bookmark-set)))
+  (use-package bookmark+))
 
 ;;;_ , browse-kill-ring+
 
@@ -1529,11 +1419,13 @@
 ;;;_ , company-mode
 
 (use-package company
+  :disabled t
   :commands company-mode)
 
 ;;;_ , copy-code
 
 (use-package copy-code
+  :disabled t
   :bind ("A-M-W" . copy-code-as-rtf))
 
 ;;;_ , crosshairs
@@ -1614,6 +1506,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , debbugs
 
 (use-package debbugs-gnu
+  :disabled t
   :commands (debbugs-gnu debbugs-gnu-search))
 
 ;;;_ , dedicated
@@ -1756,30 +1649,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
     (bind-key "C-c J" 'dired-double-jump)))
 
-;;;_ , discover
-
-(use-package discover
-  :disabled t)
-
 ;;;_ , doxymacs
 
 (use-package doxymacs
   :disabled t
   :load-path "site-lisp/doxymacs/lisp/")
-
-;;;_ , dvc
-
-(use-package dvc-autoloads
-  :disabled t
-  :load-path "site-lisp/dvc/lisp/")
-
-;;;_ , easy-kill
-
-;; (use-package easy-kill
-;;   :init
-;;   (progn
-;;     (global-set-key [remap kill-ring-save] 'easy-kill)
-;;     (global-set-key [remap mark-sexp] 'easy-mark-sexp)))
 
 ;;;_ , ediff
 
@@ -1891,6 +1765,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
     (defun irc ()
       (interactive)
+      (require 'auth-source)
       (if (slowping "192.168.9.133")
           (progn
             (erc :server "192.168.9.133"
@@ -1944,18 +1819,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (bind-key "C-y" 'erc-yank erc-mode-map))
 
     (use-package wtf
-      :commands wtf-is
-      :init
-      (defun erc-cmd-WTF (term &rest ignore)
-        "Look up definition for TERM."
-        (let ((def (wtf-is term)))
-          (if def
-              (let ((msg (concat "{Term} " (upcase term) " is " def)))
-                (with-temp-buffer
-                  (insert msg)
-                  (kill-ring-save (point-min) (point-max)))
-                (message msg))
-            (message (concat "No definition found for " (upcase term)))))))
+      :commands wtf-is)
 
     (defcustom erc-foolish-content '()
       "Regular expressions to identify foolish content.
@@ -1973,149 +1837,25 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 		(when (erc-foolish-content s)
                   (setq erc-insert-this nil))))
 
-    (eval-when-compile
-      (defvar erc-fools))
-
-    (defun erc-cmd-FOOL (term &rest ignore)
-      (add-to-list 'erc-fools term))
-
-    (defun erc-cmd-UNFOOL (term &rest ignore)
-      (setq erc-fools (delete term erc-fools)))
-
-    (defun erc-cmd-OPME ()
-      "Request chanserv to op me."
-      (erc-message "PRIVMSG"
-                   (format "chanserv op %s %s"
-                           (erc-default-target)
-                           (erc-current-nick)) nil))
-
-    (defun erc-cmd-DEOPME ()
-      "Deop myself from current channel."
-      (erc-cmd-DEOP (format "%s" (erc-current-nick))))
-
-    (defun erc-cmd-BAN (nick &optional redirect whole-ip)
-      (let* ((chan (erc-default-target))
-             (who (erc-get-server-user nick))
-             (host (erc-server-user-host who))
-             (user (erc-server-user-login who)))
-        (erc-send-command
-         (format "MODE %s +b *!%s@%s%s"
-                 chan (if whole-ip "*" user) host (or redirect "")))))
-
-    (defun erc-cmd-KICKBAN (nick &rest reason)
-      (setq reason (mapconcat #'identity reason " "))
-      (and (string= reason "")
-           (setq reason nil))
-      (erc-cmd-OPME)
-      (sleep-for 0 250)
-      (erc-cmd-BAN nick)
-      (erc-send-command (format "KICK %s %s %s"
-                                (erc-default-target)
-                                nick
-                                (or reason
-                                    "Kicked (kickban)")))
-      (sleep-for 0 250)
-      (erc-cmd-DEOPME))
-
-    (defun erc-cmd-KICKBANIP (nick &rest reason)
-      (setq reason (mapconcat #'identity reason " "))
-      (and (string= reason "")
-           (setq reason nil))
-      (erc-cmd-OPME)
-      (sleep-for 0 250)
-      (erc-cmd-BAN nick nil t)
-      (erc-send-command (format "KICK %s %s %s"
-                                (erc-default-target)
-                                nick
-                                (or reason
-                                    "Kicked (kickbanip)")))
-      (sleep-for 0 250)
-      (erc-cmd-DEOPME))
-
-    (defun erc-cmd-KICKTROLL (nick &rest reason)
-      (setq reason (mapconcat #'identity reason " "))
-      (and (string= reason "")
-           (setq reason nil))
-      (erc-cmd-OPME)
-      (sleep-for 0 250)
-      (erc-cmd-BAN nick "$#haskell-ops")
-      (erc-send-command (format "KICK %s %s %s"
-                                (erc-default-target)
-                                nick
-                                (or reason
-                                    "Kicked (kicktroll)")))
-      (sleep-for 0 250)
-      (erc-cmd-DEOPME))
-
-    ;; this is essentially a refactored `erc-cmd-KICK'
-    (defun erc-cmd-REMOVE (target &optional reason-or-nick &rest reasonwords)
-      "Remove a user from the default or specified channel.
-    LINE has the format: \"#CHANNEL NICK REASON\" or \"NICK REASON\"."
-      (let* ((target-channel-p (erc-channel-p target))
-             (channel (if target-channel-p target (erc-default-target)))
-             (nick (if target-channel-p reason-or-nick target))
-             (reason
-              (mapconcat 'identity
-                         (or (if target-channel-p reasonwords
-                               (and reason-or-nick
-                                    (cons reason-or-nick reasonwords)))
-                             `("Requested by" ,(erc-current-nick)))
-                         " "))
-             (server-command (format "REMOVE %s %s :%s" channel nick reason)))
-        (if (not channel)
-            (erc-display-message nil 'error (current-buffer)
-                                 'no-default-channel)
-          (erc-log (format "cmd: REMOVE: %s/%s: %s" channel nick reason))
-          (erc-server-send server-command))))
-
-    (defun erc-cmd-UNTRACK (&optional target)
-      "Add TARGET to the list of target to be tracked."
-      (if target
-          (erc-with-server-buffer
-           (let ((untracked
-                  (car (erc-member-ignore-case target erc-track-exclude))))
-             (if untracked
-                 (erc-display-line
-                  (erc-make-notice
-                   (format "%s is not currently tracked!" target))
-                  'active)
-               (add-to-list 'erc-track-exclude target)
-               (erc-display-line
-                (erc-make-notice (format "Now not tracking %s" target))
-                'active))))
-
-        (if (null erc-track-exclude)
-            (erc-display-line
-             (erc-make-notice "Untracked targets list is empty") 'active)
-
-          (erc-display-line (erc-make-notice "Untracked targets list:") 'active)
-          (mapc #'(lambda (item)
-                    (erc-display-line (erc-make-notice item) 'active))
-                (erc-with-server-buffer erc-track-exclude))))
-      t)
-
-    (defun erc-cmd-TRACK (target)
-      "Remove TARGET of the list of targets which they should not be tracked.
-   If no TARGET argument is specified, list contents of `erc-track-exclude'."
-      (when target
-        (erc-with-server-buffer
-         (let ((tracked
-                (not (car (erc-member-ignore-case target erc-track-exclude)))))
-           (if tracked
-               (erc-display-line
-                (erc-make-notice (format "%s is currently tracked!" target))
-                'active)
-             (setq erc-track-exclude (remove target erc-track-exclude))
-             (erc-display-line
-              (erc-make-notice (format "Now tracking %s" target))
-              'active)))))
-      t)))
+    (use-package erc-macros)))
 
 ;;;_ , eshell
 
+(defvar eshell-isearch-map
+  (let ((map (copy-keymap isearch-mode-map)))
+    (define-key map [(control ?m)] 'eshell-isearch-return)
+    (define-key map [return] 'eshell-isearch-return)
+    (define-key map [(control ?r)] 'eshell-isearch-repeat-backward)
+    (define-key map [(control ?s)] 'eshell-isearch-repeat-forward)
+    (define-key map [(control ?g)] 'eshell-isearch-abort)
+    (define-key map [backspace] 'eshell-isearch-delete-char)
+    (define-key map [delete] 'eshell-isearch-delete-char)
+    map)
+  "Keymap used in isearch in Eshell.")
+
 (use-package eshell
-  :defer t
-  :init
+  :commands (eshell eshell-command)
+  :config
   (progn
     (defun eshell-initialize ()
       (defun eshell-spawn-external-command (beg end)
@@ -2306,6 +2046,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , gud
 
 (use-package gud
+  :disabled t
   :commands gud-gdb
   :init
   (progn
@@ -2382,8 +2123,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (use-package helm-files)
     (use-package helm-grep)
     (use-package helm-ls-git)
+    (use-package helm-match-plugin)
 
-    ;; (helm-mode 1)
     (helm-match-plugin-mode t)
     (helm-autoresize-mode t)
 
@@ -2392,13 +2133,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (bind-key "C-z" 'helm-select-action helm-map)
 
     (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))
-
-    ;; (when (executable-find "ack")
-    ;;   (setq helm-grep-default-command "ack -Hn --no-group --no-color %e %p %f"
-    ;;         helm-grep-default-recurse-command
-    ;;         "ack -H --no-group --no-color %e %p %f"))
-    ))
+      (setq helm-google-suggest-use-curl-p t))))
 
 (use-package helm-ls-git
   :bind ("C-x f" . helm-ls-git-ls))
@@ -2434,6 +2169,32 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , ido
 
+(defun ido-smart-select-text ()
+  "Select the current completed item.  Do NOT descend into directories."
+  (interactive)
+  (when (and (or (not ido-require-match)
+                 (if (memq ido-require-match
+                           '(confirm confirm-after-completion))
+                     (if (or (eq ido-cur-item 'dir)
+                             (eq last-command this-command))
+                         t
+                       (setq ido-show-confirm-message t)
+                       nil))
+                 (ido-existing-item-p))
+             (not ido-incomplete-regexp))
+    (when ido-current-directory
+      (setq ido-exit 'takeprompt)
+      (unless (and ido-text (= 0 (length ido-text)))
+        (let ((match (ido-name (car ido-matches))))
+          (throw 'ido
+                 (setq ido-selected
+                       (if match
+                           (replace-regexp-in-string "/\\'" "" match)
+                         ido-text)
+                       ido-text ido-selected
+                       ido-final-text ido-text)))))
+    (exit-minibuffer)))
+
 (use-package ido
   :defines (ido-cur-item
             ido-require-match
@@ -2449,55 +2210,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       :init
       (ido-hacks-mode 1))
 
-    (use-package ido-springboard)
-
-    (defun ido-smart-select-text ()
-      "Select the current completed item.  Do NOT descend into directories."
-      (interactive)
-      (when (and (or (not ido-require-match)
-                     (if (memq ido-require-match
-                               '(confirm confirm-after-completion))
-                         (if (or (eq ido-cur-item 'dir)
-                                 (eq last-command this-command))
-                             t
-                           (setq ido-show-confirm-message t)
-                           nil))
-                     (ido-existing-item-p))
-                 (not ido-incomplete-regexp))
-        (when ido-current-directory
-          (setq ido-exit 'takeprompt)
-          (unless (and ido-text (= 0 (length ido-text)))
-            (let ((match (ido-name (car ido-matches))))
-              (throw 'ido
-                     (setq ido-selected
-                           (if match
-                               (replace-regexp-in-string "/\\'" "" match)
-                             ido-text)
-                           ido-text ido-selected
-                           ido-final-text ido-text)))))
-        (exit-minibuffer)))
 
     (add-hook 'ido-minibuffer-setup-hook
               #'(lambda ()
                   (bind-key "<return>" 'ido-smart-select-text
-                            ido-file-completion-map)))
-
-    (defun ido-switch-buffer-tiny-frame (buffer)
-      (interactive (list (ido-read-buffer "Buffer: " nil t)))
-      (with-selected-frame
-          (make-frame '((width                . 80)
-                        (height               . 22)
-                        (left-fringe          . 0)
-                        (right-fringe         . 0)
-                        (vertical-scroll-bars . nil)
-                        (unsplittable         . t)
-                        (has-modeline-p       . nil)
-                        ;;(background-color     . "grey80")
-                        (minibuffer           . nil)))
-        (switch-to-buffer buffer)
-        (set (make-local-variable 'mode-line-format) nil)))
-
-    (bind-key "C-x 5 t" 'ido-switch-buffer-tiny-frame)))
+                            ido-file-completion-map)))))
 
 ;;;_ , ielm
 
@@ -2559,8 +2276,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , initsplit
 
-(eval-after-load "cus-edit"
-  '(use-package initsplit))
+(use-package initsplit)
 
 ;;;_ , ipa
 
@@ -2595,37 +2311,37 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (insert ?\n))
       (insert (format-time-string "%Y/%m/%d ")))
 
-    (bind-key "C-c L" 'my-ledger-start-entry)
+    (bind-key "C-c L" 'my-ledger-start-entry)))
 
-    (defun ledger-matchup ()
-      (interactive)
-      (while (re-search-forward "\\(\\S-+Unknown\\)\\s-+\\$\\([-,0-9.]+\\)"
-                                nil t)
-        (let ((account-beg (match-beginning 1))
-              (account-end (match-end 1))
-              (amount (match-string 2))
-              account answer)
-          (goto-char account-beg)
+(defun ledger-matchup ()
+  (interactive)
+  (while (re-search-forward "\\(\\S-+Unknown\\)\\s-+\\$\\([-,0-9.]+\\)"
+                            nil t)
+    (let ((account-beg (match-beginning 1))
+          (account-end (match-end 1))
+          (amount (match-string 2))
+          account answer)
+      (goto-char account-beg)
+      (set-window-point (get-buffer-window) (point))
+      (recenter)
+      (redraw-display)
+      (with-current-buffer (get-buffer "nrl-mastercard-old.dat")
+        (goto-char (point-min))
+        (when (re-search-forward (concat "\\(\\S-+\\)\\s-+\\$" amount)
+                                 nil t)
+          (setq account (match-string 1))
+          (goto-char (match-beginning 1))
           (set-window-point (get-buffer-window) (point))
           (recenter)
           (redraw-display)
-          (with-current-buffer (get-buffer "nrl-mastercard-old.dat")
-            (goto-char (point-min))
-            (when (re-search-forward (concat "\\(\\S-+\\)\\s-+\\$" amount)
-                                     nil t)
-              (setq account (match-string 1))
-              (goto-char (match-beginning 1))
-              (set-window-point (get-buffer-window) (point))
-              (recenter)
-              (redraw-display)
-              (setq answer
-                    (read-char (format "Is this a match for %s (y/n)? "
-                                       account)))))
-          (when (eq answer ?y)
-            (goto-char account-beg)
-            (delete-region account-beg account-end)
-            (insert account))
-          (forward-line))))))
+          (setq answer
+                (read-char (format "Is this a match for %s (y/n)? "
+                                   account)))))
+      (when (eq answer ?y)
+        (goto-char account-beg)
+        (delete-region account-beg account-end)
+        (insert account))
+      (forward-line))))
 
 ;;;_ , lisp-mode
 
@@ -2809,50 +2525,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :bind ("C-x C-f" . lusty-file-explorer)
   :config
   (progn
-    (defvar my-lusty-directory nil)
-
-    (defun my-lusty-current-directory ()
-      (let ((path (minibuffer-contents-no-properties)))
-        (lusty-normalize-dir (file-name-directory path))))
-
-    (defun my-lusty-helm-do-grep ()
-      (interactive)
-      (run-at-time "0.1 seconds" nil
-                   (lambda ()
-                     (jump-to-register ?L)
-                     (helm-do-grep-1 (list default-directory))))
-      (delete-window (get-buffer-window lusty-buffer-name))
-      (window-configuration-to-register ?L)
-      (exit-minibuffer))
-
-    (defun my-lusty-helm-find ()
-      (interactive)
-      (run-at-time "0.1 seconds" nil
-                   (lambda ()
-                     (jump-to-register ?L)
-                     (call-interactively #'helm-find)))
-      (delete-window (get-buffer-window lusty-buffer-name))
-      (window-configuration-to-register ?L)
-      (exit-minibuffer))
-
-    (defun my-lusty-helm-ls-git-ls ()
-      (interactive)
-      (run-at-time "0.1 seconds" nil
-                   (lambda ()
-                     (jump-to-register ?L)
-                     (let ((default-directory my-lusty-directory))
-                       (call-interactively #'helm-ls-git-ls))))
-      (setq my-lusty-directory (my-lusty-current-directory))
-      (delete-window (get-buffer-window lusty-buffer-name))
-      (window-configuration-to-register ?L)
-      (exit-minibuffer))
-
     (defun my-lusty-setup-hook ()
       (bind-key "SPC" 'lusty-select-match lusty-mode-map)
-      (bind-key "C-d" 'exit-minibuffer lusty-mode-map)
-      (bind-key "C-s" 'my-lusty-helm-do-grep lusty-mode-map)
-      (bind-key "C-c /" 'my-lusty-helm-find lusty-mode-map)
-      (bind-key "C-x f" 'my-lusty-helm-ls-git-ls lusty-mode-map))
+      (bind-key "C-d" 'exit-minibuffer lusty-mode-map))
 
     (add-hook 'lusty-setup-hook #'my-lusty-setup-hook)
 
@@ -2898,7 +2573,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (let ((lusty--active-mode :file-explorer))
         (lusty--define-mode-map)
         (let* ((lusty--ignored-extensions-regex
-                (concat "\\(?:" (regexp-opt completion-ignored-extensions) "\\)$"))
+                (concat "\\(?:" (regexp-opt completion-ignored-extensions)
+                        "\\)$"))
                (minibuffer-local-filename-completion-map lusty-mode-map)
                (lusty-only-directories t))
           (lusty--run 'read-directory-name default-directory ""))))
@@ -2909,20 +2585,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (let ((lusty--active-mode :file-explorer))
         (lusty--define-mode-map)
         (let* ((lusty--ignored-extensions-regex
-                (concat "\\(?:" (regexp-opt completion-ignored-extensions) "\\)$"))
+                (concat "\\(?:" (regexp-opt completion-ignored-extensions)
+                        "\\)$"))
                (minibuffer-local-filename-completion-map lusty-mode-map)
                (lusty-only-directories nil))
-          (lusty--run 'read-file-name default-directory ""))))
-
-    (if (featurep 'icicles)
-        (defadvice lusty-file-explorer (around lusty-file-explorer-without-icy
-                                               activate)
-          (flet ((message (&rest ignore)))
-            (let ((icy-was-on icicle-mode))
-              (if icy-was-on (icy-mode 0))
-              (unwind-protect
-                  ad-do-it
-                (if icy-was-on (icy-mode 1)))))))))
+          (lusty--run 'read-file-name default-directory ""))))))
 
 ;;;_ , macrostep
 
@@ -2972,21 +2639,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                   (set-fill-column 72)
                   (flyspell-mode)))
 
-    ;; (require 'magit-topgit)
-    ;; (require 'rebase-mode)
-
-    (defvar magit-git-monitor-process nil)
-    (make-variable-buffer-local 'magit-git-monitor-process)
-
-    (defun start-git-monitor ()
-      (interactive)
-      (unless magit-git-monitor-process
-        (setq magit-git-monitor-process
-              (start-process "git-monitor" (current-buffer) "git-monitor"
-                             "-d" (expand-file-name default-directory)))))
-
-    ;; (add-hook 'magit-status-mode-hook 'start-git-monitor)
-    ))
+    (add-hook 'magit-status-mode-hook 'magit-monitor)))
 
 ;;;_ , markdown-mode
 
@@ -2994,90 +2647,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode)))
-
-;;;_ , merlin
-
-(defun merlin-record-times ()
-  (interactive)
-  (require 'rx)
-  (let* ((text (buffer-substring-no-properties (line-beginning-position)
-                                               (line-end-position)))
-         (regex
-          (rx (and string-start (0+ space)
-                   (group (and (= 2 num) ?/ (= 2 num) ?/ (= 2 num)
-                               space (= 2 num) ?: (= 2 num) space
-                               (in "AP") ?M)) (1+ space)
-                   (group (and (= 2 num) ?/ (= 2 num) ?/ (= 2 num)
-                               space (= 2 num) ?: (= 2 num) space
-                               (in "AP") ?M)) (1+ space)
-                   (? (and (group ?*) (1+ space)))
-                   (group (1+ (or digit (in ".hms"))))
-                   (1+ space) (group (1+ nonl)) string-end))))
-    (if (string-match regex text)
-        (let ((start (match-string 1 text))
-              (end (match-string 2 text))
-              (cleared (match-string 3 text))
-              (duration (match-string 4 text)) commodity
-              (account (match-string 5 text)))
-          (when (string-match "\\([0-9.]+\\)\\([mhs]\\)" duration)
-            (setq commodity (match-string 2 duration)
-                  duration (match-string 1 duration))
-            (cond ((string= commodity "h")
-                   (setq commodity "hours"))
-                  ((string= commodity "m")
-                   (setq commodity "minutes"))
-                  ((string= commodity "s")
-                   (setq commodity "seconds"))))
-          (if (string-match "\\([0-9.][0-9.a-z]+\\)" account)
-              (setq account (match-string 1 account)))
-          (do-applescript
-           (format "
-  tell application \"Merlin\"
-  activate
-
-  set act to 0
-
-  set listActivity to every activity of first document
-  repeat with oneActivity in listActivity
-  if subtitle of oneActivity is \"%s\" then
-  set act to oneActivity
-  exit repeat
-  end if
-  end repeat
-
-  if act is 0 then
-  set myselection to selected object of main window of first document as list
-
-  if (count of myselection) is 0 then
-  display dialog \"Please select activity to set time for\" buttons {\"OK\"}
-  else
-  set act to beginning of myselection
-  end if
-  end if
-
-  if act is 0 or (class of act is project) or (is milestone of act is true) then
-  display dialog \"Cannot locate activity for %s\" buttons {\"OK\"}
-  else
-  tell act
-  if ((class is not project) and (is milestone is not true)) then
-  set actual start date to (date \"%s\")
-  if %s then
-  set actual end date to (date \"%s\")
-  delete last actuals reporting date
-
-  set given remaining work to {amount:0, unit:hours, floating:false, ¬
-  relative error:0}
-  else
-  delete actual end date
-  set last actuals reporting date to (date \"%s\")
-  end if
-  set given actual work to {amount:%s, unit:%s, floating:false, ¬
-  relative error:0}
-  end if
-  end tell
-  end if
-  end tell" account account start (if cleared "true" "false")
-            end end  duration commodity))))))
 
 ;;;_ , mudel
 
@@ -3122,21 +2691,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
   :config
   (progn
-    (if t
-        (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
-      (defun my-term-send-raw-at-prompt ()
-        (interactive)
-        (if (save-excursion
-              (search-backward " $ " (line-beginning-position) t))
-            (progn
-              (if (memq 'meta (event-modifiers last-command-event))
-                  (progn
-                    (term-send-raw-string
-                     (format "\e%c"
-                             (logand last-command-event (lognot #x8000000)))))
-                (call-interactively #'term-send-raw)))
-          (call-interactively (lookup-key (current-global-map)
-                                          (vector last-command-event))))))
+    (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
 
     (defun my-term-end-of-buffer ()
       (interactive)
@@ -3152,6 +2707,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , multi-term
 
 (use-package multiple-cursors
+  :disabled t
   :bind (("C-S-c C-S-c" . mc/edit-lines)
 
          ("C->"     . mc/mark-next-like-this)
@@ -3221,7 +2777,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("M-M"   . org-inline-note)
          ("C-c a" . org-agenda)
          ("C-c S" . org-store-link)
-         ("C-c l" . org-insert-link))
+         ("C-c l" . org-insert-link)
+         ("C-. n" . org-velocity-read))
   :init
   (when (and (not running-alternate-emacs) (quickping "192.168.9.133"))
     ;; (run-with-idle-timer 300 t 'jump-to-org-agenda)
@@ -3234,13 +2791,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , pabbrev
 
 (use-package pabbrev
+  :disabled t
   :commands pabbrev-mode
   :diminish pabbrev-mode)
-
-;;;_ , page-break-lines
-
-;; (use-package page-break-lines
-;;   :diminish page-break-lines)
 
 ;;;_ , paredit
 
@@ -3330,41 +2883,40 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   (list (expand-file-name part nix-site-lisp-directory)))
 
 (defun my-proof-display-and-keep-buffer (buffer &optional pos force)
-  (if (or force proof-auto-raise-buffers)
-      (save-excursion
-        (save-selected-window
-          (let ((window (proof-get-window-for-buffer buffer)))
-            (if (window-live-p window) ;; [fails sometimes?]
-                (progn
-                  (if proof-three-window-enable
-                      (set-window-dedicated-p window nil))
-                  (select-window window)
-                  (if proof-shrink-windows-tofit
-                      (proof-resize-window-tofit)
-                    ;; If we're not shrinking to fit, allow the size of
-                    ;; this window to change.  [NB: might be nicer to
-                    ;; fix the size based on user choice]
-                    (setq window-size-fixed nil))
-                  ;; For various reasons, point may get moved around in
-                  ;; response buffer.  Attempt to normalise its position.
-                  (goto-char (or pos (point-max)))
-                  (if pos
-                      (beginning-of-line)
-                    (skip-chars-backward "\n\t "))
-                  ;; Ensure point visible.  Again, window may have died
-                  ;; inside shrink to fit, for some reason
-                  (when (window-live-p window)
-                    (unless (pos-visible-in-window-p (point) window)
-                      (recenter -1))
-                    (with-current-buffer buffer
-                      (if (window-bottom-p window)
-                          (unless (local-variable-p 'mode-line-format)
-                            ;; Don't show any mode line.
-                            (set (make-local-variable 'mode-line-format) nil))
-                        (unless mode-line-format
-                          ;; If the buffer gets displayed elsewhere, re-add
-                          ;; the modeline.
-                          (kill-local-variable 'mode-line-format))))))))))))
+  (when (or force proof-auto-raise-buffers)
+    (save-excursion
+      (save-selected-window
+        (let ((window (proof-get-window-for-buffer buffer)))
+          (when (window-live-p window) ;; [fails sometimes?]
+            (if proof-three-window-enable
+                (set-window-dedicated-p window nil))
+            (select-window window)
+            (if proof-shrink-windows-tofit
+                (proof-resize-window-tofit)
+              ;; If we're not shrinking to fit, allow the size of
+              ;; this window to change.  [NB: might be nicer to
+              ;; fix the size based on user choice]
+              (setq window-size-fixed nil))
+            ;; For various reasons, point may get moved around in
+            ;; response buffer.  Attempt to normalise its position.
+            (goto-char (or pos (point-max)))
+            (if pos
+                (beginning-of-line)
+              (skip-chars-backward "\n\t "))
+            ;; Ensure point visible.  Again, window may have died
+            ;; inside shrink to fit, for some reason
+            (when (window-live-p window)
+              (unless (pos-visible-in-window-p (point) window)
+                (recenter -1))
+              (with-current-buffer buffer
+                (if (window-bottom-p window)
+                    (unless (local-variable-p 'mode-line-format)
+                      ;; Don't show any mode line.
+                      (set (make-local-variable 'mode-line-format) nil))
+                  (unless mode-line-format
+                    ;; If the buffer gets displayed elsewhere, re-add
+                    ;; the modeline.
+                    (kill-local-variable 'mode-line-format)))))))))))
 
 (defun my-coq-seq-get-library-dependencies
     (lib-src-file &optional command-intro)
@@ -3467,6 +3019,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , puppet-mode
 
 (use-package puppet-mode
+  :disabled t
   :mode ("\\.pp\\'" . puppet-mode)
   :config
   (use-package puppet-ext))
@@ -3510,7 +3063,13 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , quickrun
 
 (use-package quickrun
+  :disabled t
   :bind ("C-c C-r" . quickrun))
+
+;;;_ , rainbow-mode
+
+(use-package rainbow-mode
+  :commands rainbow-mode)
 
 ;;;_ , recentf
 
@@ -3599,15 +3158,18 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
     (add-hook 'sage-startup-after-prompt-hook 'sage-view)
     ;; You can use commands like
-    ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-output)
+    ;; (add-hook 'sage-startup-after-prompt-hook
+    ;;           'sage-view-disable-inline-output)
     (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t)
     ;; to enable some combination of features
 
     (setq sage-startup-before-prompt-command "")
 
-    (let* ((str (shell-command-to-string
-                 (concat "find /nix/store/*-tetex-* -path "
-                         "'*/share/texmf-dist/tex/latex/preview' -type d | head -1")))
+    (let* ((str
+            (shell-command-to-string
+             (concat
+              "find /nix/store/*-tetex-* -path "
+              "'*/share/texmf-dist/tex/latex/preview' -type d | head -1")))
            (texinputs (concat ".:" (substring str 0 (1- (length str))) ":")))
       (setenv "TEXINPUTS" texinputs)
 
@@ -3629,6 +3191,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , selectkey
 
 (use-package selectkey
+  :disabled t
   :init
   (progn
     (bind-key "C-. b" 'selectkey-select-prefix-map)
@@ -3649,7 +3212,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (session-initialize)
 
     (defun remove-session-use-package-from-settings ()
-      (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
+      (when (string= (file-name-nondirectory (buffer-file-name))
+                     "settings.el")
         (save-excursion
           (goto-char (point-min))
           (when (re-search-forward "^ '(session-use-package " nil t)
@@ -3668,8 +3232,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
             (org-reveal)
           (show-subtree))))
 
-    (add-hook 'session-after-jump-to-last-change-hook
-              'le::maybe-reveal)
+    (add-hook 'session-after-jump-to-last-change-hook 'le::maybe-reveal)
 
     (defun save-information ()
       (with-temp-message "Saving Emacs information..."
@@ -3809,19 +3372,19 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (bind-key "M-O" 'show-compilation)
 
-(use-package smart-compile
-  :disabled t
-  :commands smart-compile
-  :bind (("C-c c" . smart-compile)
-         ("A-n"   . next-error)
-         ("A-p"   . previous-error)))
-
 (defun compilation-ansi-color-process-output ()
   (ansi-color-process-output nil)
   (set (make-local-variable 'comint-last-output-start)
        (point-marker)))
 
 (add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output)
+
+(use-package smart-compile
+  :disabled t
+  :commands smart-compile
+  :bind (("C-c c" . smart-compile)
+         ("A-n"   . next-error)
+         ("A-p"   . previous-error)))
 
 ;;;_ , smartparens
 
@@ -3975,7 +3538,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package undo-tree
   :init
-  (global-undo-tree-mode))
+  (global-undo-tree-mode 1))
 
 ;;;_ , vkill
 
@@ -3996,6 +3559,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , w3m
 
 (use-package w3m
+  :disabled t
   :commands (w3m-search w3m-find-file)
   :bind (("C-. u"   . w3m-browse-url)
          ("C-. U"   . w3m-browse-url-new-session)
@@ -4219,36 +3783,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
      ("/* " " */" "#" (java-mode javascript-mode css-mode c-mode c++-mode))
      ("`" "`" nil (markdown-mode ruby-mode shell-script-mode)))))
 
-;;;_ , write-room
-
-(defun write-room ()
-  "Make a frame without any bling."
-  (interactive)
-  ;; to restore:
-  ;; (setq mode-line-format (default-value 'mode-line-format))
-  (let ((frame (make-frame
-                '((minibuffer . nil)
-                  (vertical-scroll-bars . nil)
-                  (left-fringe . 0); no fringe
-                  (right-fringe . 0)
-                  (background-mode . dark)
-                  (background-color . "cornsilk")
-                  (foreground-color . "black")
-                  (cursor-color . "green")
-                  (border-width . 0)
-                  (border-color . "black"); should be unnecessary
-                  (internal-border-width . 64); whitespace!
-                  (cursor-type . box)
-                  (menu-bar-lines . 0)
-                  (tool-bar-lines . 0)
-                  (fullscreen . fullboth)  ; this should work
-                  (unsplittable . t)))))
-    (select-frame frame)
-    (find-file "~/Documents/Notes.txt")
-    (setq mode-line-format nil
-          fill-column 65)
-    (set-window-margins (selected-window) 50 50)))
-
 ;;;_ , yaml-mode
 
 (use-package yaml-mode
@@ -4290,10 +3824,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
         (unless (and choose-instead-of-guess
                      (not (y-or-n-p "Insert a snippet with useful headers? ")))
           (yas-expand-snippet "\
-  # -*- mode: snippet -*-
-  # name: $1
-  # --
-  $0"))))
+# -*- mode: snippet -*-
+# name: $1
+# --
+$0"))))
 
     (bind-key "C-c y TAB" 'yas-expand)
     (bind-key "C-c y n" 'yas-new-snippet)
@@ -4341,16 +3875,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                           ,load-file-name elapsed)))
             t))
 
-(eval-after-load "tramp"
-  '(progn
-     (require 'tramp-sh)
-     (setq tramp-remote-path
-           (append tramp-remote-path
-                   '("/run/current-system/sw/bin" tramp-own-remote-path)))))
-
 ;; Local Variables:
 ;;   mode: emacs-lisp
-;;   mode: allout
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
 ;; End:
 

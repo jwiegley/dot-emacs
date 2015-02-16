@@ -2,7 +2,7 @@
 
 DIRS	    = override lib lisp site-lisp \
 	      $(HOME)/src/ledger/lisp
-SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 -type d -print)
+SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 ! -name .git -type d -print)
 #SPECIAL	    = cus-dirs.el autoloads.el
 SPECIAL	    = cus-dirs.el
 LIB_SOURCE  = $(wildcard override/*.el) $(wildcard lib/*.el) \
@@ -11,8 +11,7 @@ LIB_SOURCE  = $(wildcard override/*.el) $(wildcard lib/*.el) \
 #              $(patsubst %.el,%.elc, $(LIB_SOURCE) $(INIT_SOURCE))
 TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE)) \
               $(patsubst %.el,%.elc, \
-                 load-path.el cus-dirs.el gnus-settings.el org-settings.el \
-                 settings.el dot-gnus.el dot-org.el init.el)
+                 load-path.el cus-dirs.el dot-gnus.el dot-org.el init.el)
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
@@ -36,23 +35,11 @@ autoloads.el: Makefile autoloads.in $(LIB_SOURCE)
 
 autoloads.elc: autoloads.el
 
-settings.elc: settings.el
-	@rm -f $@
-	$(BATCH_LOAD) -l init -f batch-byte-compile $<
-
 init.elc: init.el
 	@rm -f $@
 	$(BATCH_LOAD) -l init -f batch-byte-compile $<
 
-org-settings.elc: org-settings.el
-	@rm -f $@
-	$(BATCH_LOAD) -l init -f batch-byte-compile $<
-
 dot-org.elc: dot-org.el
-	@rm -f $@
-	$(BATCH_LOAD) -l init -f batch-byte-compile $<
-
-gnus-settings.elc: gnus-settings.el
 	@rm -f $@
 	$(BATCH_LOAD) -l init -f batch-byte-compile $<
 

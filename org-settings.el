@@ -43,7 +43,7 @@
      ("z" "Computer-related tasks" tags "AREA=\"Computer\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-files
         (quote
-         ("~/Documents/Tasks/todo.txt")))
+         ("~/Documents/todo.txt")))
        (org-agenda-overriding-header "Computer-related tasks: ")
        (org-agenda-skip-function
         (quote
@@ -59,7 +59,7 @@
      ("u" "Unscheduled tasks" tags "AREA<>{Contracts}&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-files
         (quote
-         ("~/Documents/Tasks/todo.txt")))
+         ("~/Documents/todo.txt")))
        (org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         (quote
@@ -75,7 +75,7 @@
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-files
         (quote
-         ("~/Documents/Tasks/todo.txt")))
+         ("~/Documents/todo.txt")))
        (org-agenda-overriding-header "Deferred tasks:")))
      ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
       ((org-agenda-overriding-header "Someday tasks:")))
@@ -83,7 +83,7 @@
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         (quote
-         ("~/Documents/Tasks/todo.txt")))
+         ("~/Documents/todo.txt")))
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))
@@ -97,14 +97,14 @@
       ((org-agenda-overriding-header "Work-related tasks")
        (org-agenda-files
         (quote
-         ("~/Documents/Tasks/todo.txt")))
+         ("~/Documents/todo.txt")))
        (org-agenda-sorting-strategy
         (quote
          (alpha-down)))))
      ("n" "Notes" tags "TODO=\"NOTE\""
       ((org-agenda-files
         (quote
-         ("~/Documents/Tasks/archive-2009.txt" "~/Documents/Tasks/archive-2010.txt" "~/Documents/Tasks/archive-2011.txt" "~/Documents/Tasks/archive-2012.txt" "~/Documents/Tasks/archive.txt" "~/Documents/Tasks/notes.txt")))
+         ("~/Documents/archive/archive-2009.txt" "~/Documents/archive/archive-2010.txt" "~/Documents/archive/archive-2011.txt" "~/Documents/archive/archive-2012.txt" "~/Documents/archives/archive.txt" "~/Documents/archives/notes.txt")))
        (org-agenda-overriding-header "Notes")
        (org-agenda-sorting-strategy
         (quote
@@ -112,16 +112,14 @@
      ("S" "Assembly Action Items" tags-todo "TODO<>\"PROJECT\""
       ((org-agenda-files
         (quote
-         ("~/Documents/Tasks/assembly.txt")))
+         ("~/Documents/assembly.txt")))
        (org-agenda-overriding-header "Assembly Action Items")
        (org-agenda-sorting-strategy
         (quote
          (alpha-up time-up))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files
-   (quote
-    ("~/doc/math-fp/math-abstractions.org" "~/Documents/Tasks/todo.txt" "~/Documents/Tasks/assembly.txt")))
+ '(org-agenda-files (quote ("~/Documents/todo.txt" "~/Documents/assembly.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-log-mode-items (quote (closed clock state)))
@@ -165,15 +163,22 @@
  '(org-capture-templates
    (quote
     (("t" "Task" entry
-      (file+headline "~/Documents/Tasks/todo.txt" "Inbox")
+      (file+headline "~/Documents/todo.txt" "Inbox")
       "* TODO %?
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("n" "Note" entry
-      (file+headline "~/Documents/Tasks/notes.txt" "Notes")
+      (file+headline "~/Documents/notes.txt" "Notes")
       "* NOTE %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("a" "Appointment" entry
+      (file+headline "~/Documents/todo.txt" "Inbox")
+      "* APPT %?
+SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t))))
@@ -192,8 +197,8 @@ SCHEDULED: %t
  '(org-crypt-disable-auto-save nil)
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Documents/Tasks/todo.txt")
- '(org-directory "~/Documents/Tasks/")
+ '(org-default-notes-file "~/Documents/todo.txt")
+ '(org-directory "~/Documents/")
  '(org-ditaa-jar-path "~/bin/DitaaEps/DitaaEps.jar")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-edit-src-content-indentation 0)
@@ -259,9 +264,9 @@ SCHEDULED: %t
   "\\tolerance=1000")))
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
- '(org-mobile-files (quote ("~/Documents/Tasks/todo.txt")))
+ '(org-mobile-files (quote ("~/Documents/todo.txt")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull "~/Documents/Tasks/from-mobile.org")
+ '(org-mobile-inbox-for-pull "~/Documents/from-mobile.org")
  '(org-modules (quote (org-gnus org-id org-info org-habit org-depend)))
  '(org-priority-faces
 (quote
@@ -269,10 +274,9 @@ SCHEDULED: %t
   (67 :foreground "dark gray" :slant italic))))
  '(org-refile-targets
 (quote
- (("~/Documents/Tasks/todo.txt" :level . 1)
-  ("~/Documents/Tasks/todo.txt" :todo . "PROJECT")
-  ("~/Documents/Tasks/assembly.txt" :todo . "PROJECT")
-  ("~/Documents/Tasks/notes.txt" :level . 1))))
+ (("~/Documents/todo.txt" :level . 1)
+  ("~/Documents/todo.txt" :todo . "PROJECT")
+  ("~/Documents/assembly.txt" :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-src-fontify-natively t)
@@ -293,6 +297,20 @@ SCHEDULED: %t
  '(org-use-property-inheritance (quote ("AREA")))
  '(org-use-speed-commands t)
  '(org-use-tag-inheritance nil)
+ '(org-velocity-always-use-bucket t)
+ '(org-velocity-bucket "~/Documents/notes.txt")
+ '(org-velocity-capture-templates
+(quote
+ (("v" "Velocity" entry
+   (file "~/Documents/notes.txt")
+   "* NOTE %:search
+%i%?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \\\"uuidgen\\\"):CREATED:  %U
+:END:" :prepend t))))
+ '(org-velocity-exit-on-match t)
+ '(org-velocity-force-new t)
+ '(org-velocity-search-method (quote regexp))
  '(org-x-backends (quote (ox-org ox-redmine)))
  '(org-x-redmine-title-prefix-function (quote org-x-redmine-title-prefix))
  '(org-x-redmine-title-prefix-match-function (quote org-x-redmine-title-prefix-match)))
