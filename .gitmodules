@@ -478,3 +478,6 @@
 [submodule "melpa"]
 	path = melpa
 	url = https://github.com/milkypostman/melpa.git
+[submodule "site-lisp/fancy-narrow"]
+	path = site-lisp/fancy-narrow
+	url = https://github.com/Bruce-Connor/fancy-narrow.git
