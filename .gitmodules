@@ -499,3 +499,6 @@
 [submodule "site-lisp/irony-mode"]
 	path = site-lisp/irony-mode
 	url = https://github.com/Sarcasm/irony-mode.git
+[submodule "site-lisp/tiny"]
+	path = site-lisp/tiny
+	url = https://github.com/abo-abo/tiny.git
