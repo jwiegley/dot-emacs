@@ -57,7 +57,7 @@
 	url = git://github.com/jwiegley/anything-config.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
-	url = git://git.savannah.gnu.org/auctex.git
+	url = git://git.sv.gnu.org/auctex.git
 [submodule "site-lisp/doxymacs"]
 	path = site-lisp/doxymacs
 	url = git://doxymacs.git.sourceforge.net/gitroot/doxymacs/doxymacs
