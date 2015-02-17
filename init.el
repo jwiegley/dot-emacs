@@ -222,25 +222,6 @@
 
 (bind-key "<C-M-backspace>" 'backward-kill-sexp)
 
-(defun isearch-backward-other-window ()
-  (interactive)
-  (split-window-vertically)
-  (call-interactively 'isearch-backward))
-
-(bind-key "C-M-r" 'isearch-backward-other-window)
-
-(defun isearch-forward-other-window ()
-  (interactive)
-  (split-window-vertically)
-  (call-interactively 'isearch-forward))
-
-(bind-key "C-M-s" 'isearch-forward-other-window)
-
-(bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
-(bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
-(bind-key "C-^" 'isearch-edit-string isearch-mode-map)
-(bind-key "C-i" 'isearch-complete isearch-mode-map)
-
 ;;;_  . A-
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
@@ -1445,63 +1426,6 @@
     (change-cursor-mode 1)
     (toggle-cursor-type-when-idle 1)))
 
-;;;_ , idris
-
-(use-package idris-mode
-  :mode ("\\.idr\\'" . idris-mode)
-  :config
-  (defadvice idris-load-file (around my-idris-load-file activate)
-    (let ((wind (selected-window)))
-      ad-do-it
-      (select-window wind))))
-
-;;;_ , iflipb
-
-(use-package iflipb
-  :commands (iflipb-next-buffer iflipb-previous-buffer)
-  :bind (("M-`" . my-iflipb-next-buffer)
-         ("S-<tab>" . my-iflipb-next-buffer)
-         ("A-S-<tab>" . my-iflipb-previous-buffer))
-  :init
-  (progn
-    (defvar my-iflipb-auto-off-timeout-sec 2)
-    (defvar my-iflipb-auto-off-timer-canceler-internal nil)
-    (defvar my-iflipb-ing-internal nil)
-
-    (defun my-iflipb-auto-off ()
-      (message nil)
-      (setq my-iflipb-auto-off-timer-canceler-internal nil
-            my-iflipb-ing-internal nil))
-
-    (defun my-iflipb-next-buffer (arg)
-      (interactive "P")
-      (iflipb-next-buffer arg)
-      (if my-iflipb-auto-off-timer-canceler-internal
-          (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
-      (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
-      (setq my-iflipb-ing-internal t))
-
-    (defun my-iflipb-previous-buffer ()
-      (interactive)
-      (iflipb-previous-buffer)
-      (if my-iflipb-auto-off-timer-canceler-internal
-          (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
-      (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
-      (setq my-iflipb-ing-internal t)))
-
-  :config
-  (progn
-    (setq iflipb-always-ignore-buffers
-          "\\`\\( \\|diary\\|ipa\\|\\.newsrc-dribble\\'\\)"
-          iflipb-wrap-around t)
-
-    (defun iflipb-first-iflipb-buffer-switch-command ()
-      "Determines whether this is the first invocation of
-iflipb-next-buffer or iflipb-previous-buffer this round."
-      (not (and (or (eq last-command 'my-iflipb-next-buffer)
-                    (eq last-command 'my-iflipb-previous-buffer))
-                my-iflipb-ing-internal)))))
-
 ;;;_ , debbugs
 
 (use-package debbugs-gnu
@@ -1909,6 +1833,17 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
       (set-syntax-table emacs-lisp-mode-syntax-table)
       (paredit-mode))))
 
+;;;_ , eww
+
+(use-package eww
+  :defer t
+  :init
+  (bind-key "A-M-g" 'eww)
+  :config
+  (progn
+    (bind-key "f" 'eww-lnum-follow eww-mode-map)
+    (bind-key "F" 'eww-lnum-universal eww-mode-map)))
+
 ;;;_ , fetchmail-mode
 
 (use-package fetchmail-mode
@@ -2074,6 +2009,15 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (bind-key "<f11>" 'gud-step)
     (bind-key "S-<f11>" 'gud-finish)))
 
+;;;_ , guide-key
+
+(use-package guide-key
+  :init
+  (progn
+    (setq guide-key/guide-key-sequence
+          '("C-x r" "C-x 4" "C-x 5" "C-h e" "C-." "M-s" "M-o"))
+    (guide-key-mode 1)))
+
 ;;;_ , haskell-mode
 
 (use-package haskell-config
@@ -2220,6 +2164,16 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                   (bind-key "<return>" 'ido-smart-select-text
                             ido-file-completion-map)))))
 
+;;;_ , idris
+
+(use-package idris-mode
+  :mode ("\\.idr\\'" . idris-mode)
+  :config
+  (defadvice idris-load-file (around my-idris-load-file activate)
+    (let ((wind (selected-window)))
+      ad-do-it
+      (select-window wind))))
+
 ;;;_ , ielm
 
 (use-package ielm
@@ -2245,6 +2199,52 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                (lambda ()
                  (bind-key "<return>" 'my-ielm-return ielm-map)))
               t)))
+
+;;;_ , iflipb
+
+(use-package iflipb
+  :commands (iflipb-next-buffer iflipb-previous-buffer)
+  :bind (("M-`"   . my-iflipb-next-buffer)
+         ("M-S-`" . my-iflipb-previous-buffer))
+  :init
+  (progn
+    (defvar my-iflipb-auto-off-timeout-sec 2)
+    (defvar my-iflipb-auto-off-timer-canceler-internal nil)
+    (defvar my-iflipb-ing-internal nil)
+
+    (defun my-iflipb-auto-off ()
+      (message nil)
+      (setq my-iflipb-auto-off-timer-canceler-internal nil
+            my-iflipb-ing-internal nil))
+
+    (defun my-iflipb-next-buffer (arg)
+      (interactive "P")
+      (iflipb-next-buffer arg)
+      (if my-iflipb-auto-off-timer-canceler-internal
+          (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
+      (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
+      (setq my-iflipb-ing-internal t))
+
+    (defun my-iflipb-previous-buffer ()
+      (interactive)
+      (iflipb-previous-buffer)
+      (if my-iflipb-auto-off-timer-canceler-internal
+          (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
+      (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
+      (setq my-iflipb-ing-internal t)))
+
+  :config
+  (progn
+    (setq iflipb-always-ignore-buffers
+          "\\`\\( \\|diary\\|ipa\\|\\.newsrc-dribble\\'\\)"
+          iflipb-wrap-around t)
+
+    (defun iflipb-first-iflipb-buffer-switch-command ()
+      "Determines whether this is the first invocation of
+iflipb-next-buffer or iflipb-previous-buffer this round."
+      (not (and (or (eq last-command 'my-iflipb-next-buffer)
+                    (eq last-command 'my-iflipb-previous-buffer))
+                my-iflipb-ing-internal)))))
 
 ;;;_ , image-file
 
@@ -2290,6 +2290,30 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   (progn
     (autoload 'ipa-load-annotations-into-buffer "ipa")
     (add-hook 'find-file-hook 'ipa-load-annotations-into-buffer)))
+
+;;;_ , isearch
+
+(defun isearch-backward-other-window ()
+  (interactive)
+  (split-window-vertically)
+  (call-interactively 'isearch-backward))
+
+(defun isearch-forward-other-window ()
+  (interactive)
+  (split-window-vertically)
+  (call-interactively 'isearch-forward))
+
+(use-package isearch
+  :defer t
+  :config
+  (progn
+    (bind-key "C-M-r" 'isearch-backward-other-window)
+    (bind-key "C-M-s" 'isearch-forward-other-window)
+
+    (bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
+    (bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
+    (bind-key "C-^" 'isearch-edit-string isearch-mode-map)
+    (bind-key "C-i" 'isearch-complete isearch-mode-map)))
 
 ;;;_ , js2-mode
 
@@ -3532,6 +3556,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (bind-key "A-v" 'scroll-down)
 (bind-key "M-v" 'yank)
+
+;;;_ , tiny
+
+(use-package tiny
+  :bind ("C-. N" . tiny-expand))
 
 ;;;_ , twittering-mode
 

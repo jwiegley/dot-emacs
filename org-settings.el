@@ -172,7 +172,7 @@ SCHEDULED: %t
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("n" "Note" entry
-      (file+headline "~/Documents/notes.txt" "Notes")
+      (file "~/Documents/notes.txt")
       "* NOTE %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U

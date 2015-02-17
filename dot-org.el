@@ -8,22 +8,46 @@
 (require 'org-crypt)
 (require 'org-bbdb)
 (require 'org-devonthink)
-(require 'org-debbugs)
 (require 'org-magit)
 (require 'org-velocity)
-(require 'ob-R)
 (require 'ob-python)
 (require 'ob-ruby)
 (require 'ob-emacs-lisp)
 (require 'ob-haskell)
 (require 'ob-sh)
-(require 'ob-ditaa)
 (require 'ox-md)
 (require 'ox-opml)
 
-(require 'async)
-
 ;;(load "org-log" t)
+
+(defun org-clock-get-clock-string ()
+  "Form a clock-string, that will be shown in the mode line.
+If an effort estimate was defined for the current item, use
+01:30/01:50 format (clocked/estimated).
+If not, show simply the clocked time like 01:50."
+  (let ((clocked-time (org-clock-get-clocked-time)))
+    (if org-clock-effort
+	(let* ((effort-in-minutes
+		(org-duration-string-to-minutes org-clock-effort))
+	       (work-done-str
+		(org-propertize
+		 (org-minutes-to-clocksum-string clocked-time)
+		 'face (if (and org-clock-task-overrun
+                                (not org-clock-task-overrun-text))
+			   'org-mode-line-clock-overrun 'org-mode-line-clock)))
+	       (effort-str (org-minutes-to-clocksum-string effort-in-minutes))
+	       (clockstr
+                (org-propertize
+                 (concat  " [%s/" effort-str
+                          "] ("
+                          (replace-regexp-in-string "%" "%%" org-clock-heading)
+                          ")")
+                 'face 'org-mode-line-clock)))
+	  (format clockstr work-done-str))
+      (org-propertize (concat "[" (org-minutes-to-clocksum-string clocked-time)
+			      (if (string= "" org-clock-heading) ""
+				(format " (%s)" org-clock-heading)) "]  ")
+		      'face 'org-mode-line-clock))))
 
 (defun org-babel-execute:ditaa (body params)
   "Execute a block of Ditaa code with org-babel.

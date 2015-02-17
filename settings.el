@@ -424,6 +424,68 @@
     ("vi" "top" "screen" "less" "lynx" "rlogin" "telnet")))
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(eval-expr-print-function (quote pp))
+ '(eww-lnum-actions-link-alist
+   (quote
+    ("----  Link   ----"
+     (102 eww-lnum-visit "Visit")
+     (101
+      (lambda
+        (info)
+        (eww-lnum-visit info nil t))
+      "Edit URL and visit")
+     (70
+      (lambda
+        (info)
+        (eww-lnum-visit info t))
+      "Visit in new buffer")
+     (69
+      (lambda
+        (info)
+        (eww-lnum-visit info t t))
+      "Edit URL and visit in new buffer")
+     (98
+      (lambda
+        (info)
+        (eww-lnum-visit info :background))
+      "Open in background")
+     (66
+      (lambda
+        (info)
+        (eww-lnum-visit info :background t))
+      "Edit URL and open in background")
+     (100
+      (lambda
+        (info)
+        (save-excursion
+          (goto-char
+           (cadr info))
+          (eww-download)))
+      "Download")
+     (119
+      (lambda
+        (info)
+        (let
+            ((url
+              (car info)))
+          (kill-new url)
+          (message url)))
+      "Copy")
+     (38
+      (lambda
+        (info)
+        (eww-browse-with-external-browser
+         (car info)))
+      "Open in external browser")
+     (68
+      (lambda
+        (info)
+        (shell-command
+         (concat "aria2c -d ~/Downloads -x5 '"
+                 (car info)
+                 "' &")
+         "*Aria*"))
+      "Download with Aria"))))
+ '(eww-search-prefix "https://startpage.com/do/m/mobilesearch?query=")
  '(fill-column 78)
  '(find-ls-subdir-switches "-alh")
  '(flycheck-display-errors-delay 0.0)
