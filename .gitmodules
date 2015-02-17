@@ -126,7 +126,7 @@
 	url = git://github.com/jwiegley/ghc-mod.git
 [submodule "site-lisp/auto-complete"]
 	path = site-lisp/auto-complete
-	url = git://github.com/jwiegley/auto-complete.git
+	url = https://github.com/auto-complete/auto-complete.git
 [submodule "site-lisp/git-commit-mode"]
 	path = site-lisp/git-commit-mode
 	url = git://github.com/jwiegley/git-commit-mode.git
