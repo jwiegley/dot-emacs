@@ -484,3 +484,6 @@
 [submodule "site-lisp/eww-lnum"]
 	path = site-lisp/eww-lnum
 	url = https://github.com/m00natic/eww-lnum.git
+[submodule "site-lisp/ee"]
+	path = site-lisp/ee
+	url = git://git.sv.gnu.org/ee.git
