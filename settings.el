@@ -319,7 +319,8 @@
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
- '(display-time-mail-function (quote (lambda nil (file-exists-p "/tmp/unread"))))
+ '(display-time-mail-function (lambda nil (= 0 (call-process "~/bin/newmail"))))
+ '(display-time-mode t)
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
  '(ediff-combination-pattern
@@ -478,6 +479,7 @@
  '(helm-ff-file-name-history-use-recentf t)
  '(helm-ff-search-library-in-sexp t)
  '(helm-ff-skip-boring-files t)
+ '(helm-ff-transformer-show-only-basename nil)
  '(helm-ls-git-show-abs-or-relative (quote relative))
  '(helm-scroll-amount 8)
  '(helm-split-window-in-side-p t)

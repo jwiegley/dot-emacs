@@ -239,6 +239,18 @@ John Wiegley, Chairperson"))))
       (to-address . "coq-club@inria.fr")
       (to-list . "coq-club@inria.fr")
       (list-identifier . "\\[Coq-Club\\]"))
+     ("list\\.agda\\.devel$"
+      (to-address . "agda@lists.chalmers.se")
+      (to-list . "agda@lists.chalmers.se")
+      (list-identifier . "\\[Agda\\]"))
+     ("list\\.idris\\.devel$"
+      (to-address . "idris-lang@googlegroups.com")
+      (to-list . "idris-lang@googlegroups.com")
+      (list-identifier . "\\[Idris\\]"))
+     ("list\\.safe\\.verify$"
+      (to-address . "safe-verif@lists.crash-safe.org")
+      (to-list . "safe-verif@lists.crash-safe.org")
+      (list-identifier . "\\[Safe-verif\\]"))
      ("list\\.coq\\.ssreflect"
       (to-address . "ssreflect@msr-inria.inria.fr")
       (to-list . "ssreflect@msr-inria.inria.fr")

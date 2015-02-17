@@ -35,20 +35,20 @@ autoloads.el: Makefile autoloads.in $(LIB_SOURCE)
 
 autoloads.elc: autoloads.el
 
-init.elc: init.el
+init.elc: init.el dot-org.elc dot-gnus.elc
 	@rm -f $@
-	$(BATCH_LOAD) -l init -f batch-byte-compile $<
+	@$(BATCH_LOAD) -l init -f batch-byte-compile init.el
 
 dot-org.elc: dot-org.el
 	@rm -f $@
-	$(BATCH_LOAD) -l init -f batch-byte-compile $<
+	@$(BATCH_LOAD) -l init -f batch-byte-compile dot-org.el
 
 dot-gnus.elc: dot-gnus.el
 	@rm -f $@
-	$(BATCH_LOAD) -l init -f batch-byte-compile $<
+	@$(BATCH_LOAD) -l init -f batch-byte-compile dot-gnus.el
 
 %.elc: %.el
-	$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
+	@$(BATCH_LOAD) -l load-path -f batch-byte-compile $<
 
 clean:
 	rm -f autoloads.el* cus-dirs.el *.elc

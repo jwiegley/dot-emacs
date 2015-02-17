@@ -119,7 +119,9 @@
          (alpha-up time-up))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
- '(org-agenda-files (quote ("~/Documents/todo.txt" "~/Documents/assembly.txt")))
+ '(org-agenda-files
+   (quote
+    ("~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt" "~/Documents/BAE.txt" "~/Documents/assembly.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-log-mode-items (quote (closed clock state)))
@@ -182,6 +184,7 @@ SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t))))
+ '(org-clock-heading-function (lambda (&ignore rest) ""))
  '(org-clock-idle-time 10)
  '(org-clock-in-resume t)
  '(org-clock-in-switch-to-state "STARTED")
@@ -191,6 +194,7 @@ SCHEDULED: %t
  '(org-clock-out-remove-zero-time-clocks t)
  '(org-clock-out-switch-to-state nil)
  '(org-clock-persist (quote history))
+ '(org-clock-resolve-expert t)
  '(org-completion-use-ido t)
  '(org-confirm-elisp-link-function nil)
  '(org-confirm-shell-link-function nil)
@@ -275,8 +279,7 @@ SCHEDULED: %t
  '(org-refile-targets
 (quote
  (("~/Documents/todo.txt" :level . 1)
-  ("~/Documents/todo.txt" :todo . "PROJECT")
-  ("~/Documents/assembly.txt" :todo . "PROJECT"))))
+  (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-src-fontify-natively t)

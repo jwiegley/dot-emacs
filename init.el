@@ -375,7 +375,6 @@
 (bind-key "C-c e l" 'find-library)
 (bind-key "C-c e r" 'eval-region)
 (bind-key "C-c e s" 'scratch)
-(bind-key "C-c e v" 'edit-variable)
 (bind-key "C-c e z" 'byte-recompile-directory)
 
 (bind-key "C-c f" 'flush-lines)
@@ -1691,6 +1690,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (add-hook 'after-init-hook 'server-start t)
     (add-hook 'after-init-hook 'edit-server-start t)))
 
+;;;_ , edit-var
+
+(use-package edit-var
+  :bind ("C-c e v" . edit-variable))
+
 ;;;_ , emms
 
 (use-package emms-setup
@@ -2972,6 +2976,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          'coq-mode-hook
          (lambda ()
            (holes-mode -1)
+           (undo-tree-mode 1)
            (yas-minor-mode 1)
            (whitespace-mode 1)
            ;; (set-input-method "Agda")
@@ -3233,6 +3238,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
           (show-subtree))))
 
     (add-hook 'session-after-jump-to-last-change-hook 'le::maybe-reveal)
+
+    (defvar server-process nil)
 
     (defun save-information ()
       (with-temp-message "Saving Emacs information..."
@@ -3536,9 +3543,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , undo-tree
 
-(use-package undo-tree
-  :init
-  (global-undo-tree-mode 1))
+(use-package undo-tree)
 
 ;;;_ , vkill
 

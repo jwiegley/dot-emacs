@@ -105,11 +105,9 @@ How much context is shown depends upon the variables
              (while (ignore-errors (outline-up-heading 1) t))
              (ignore-errors
                (nth 4 (org-heading-components)))))))
-    (if (and cat (string= cat "BoostPro"))
-        cat
-      (save-excursion
-        (with-current-buffer (if pos (marker-buffer pos) (current-buffer))
-          (org-entry-get pos "OVERLAY" t))))))
+    (save-excursion
+      (with-current-buffer (if pos (marker-buffer pos) (current-buffer))
+        (org-entry-get pos "OVERLAY" t)))))
 
 (defun jump-to-org-agenda ()
   (interactive)
@@ -142,6 +140,12 @@ How much context is shown depends upon the variables
          (kill-buffer (current-buffer))
          (setq index (1+ index)))
      "LEVEL=2")))
+
+(defun org-get-global-property (name)
+  (save-excursion
+    (goto-char (point-min))
+    (and (re-search-forward (concat "#\\+PROPERTY: " name " \\(.*\\)") nil t)
+         (match-string 1))))
 
 (defun org-agenda-add-overlays (&optional line)
   "Add overlays found in OVERLAY properties to agenda items.
@@ -195,7 +199,10 @@ To use this function, add it to `org-agenda-finalize-hook':
                      (not (get-text-property (point) 'org-habit-p))
                      (string-match "\\(sched\\|dead\\|todo\\)"
                                    (get-text-property (point) 'type)))
-            (let ((overlays (org-entry-get org-marker "OVERLAY" t)))
+            (let ((overlays
+                   (or (org-entry-get org-marker "OVERLAY" t)
+                       (with-current-buffer (marker-buffer org-marker)
+                         (org-get-global-property "OVERLAY")))))
               (when overlays
                 (goto-char (line-end-position))
                 (let ((rest (- (window-width) (current-column))))
