@@ -490,3 +490,6 @@
 [submodule "lib/popwin-el"]
 	path = lib/popwin-el
 	url = https://github.com/m2ym/popwin-el.git
+[submodule "site-lisp/cmake-font-lock"]
+	path = site-lisp/cmake-font-lock
+	url = https://github.com/Lindydancer/cmake-font-lock.git
