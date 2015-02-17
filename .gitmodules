@@ -487,3 +487,6 @@
 [submodule "site-lisp/ee"]
 	path = site-lisp/ee
 	url = git://git.sv.gnu.org/ee.git
+[submodule "lib/popwin-el"]
+	path = lib/popwin-el
+	url = https://github.com/m2ym/popwin-el.git
