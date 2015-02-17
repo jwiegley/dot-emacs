@@ -6,7 +6,7 @@
 	url = git://github.com/m2ym/popup-el.git
 [submodule "lib/fuzzy-el"]
 	path = lib/fuzzy-el
-	url = git://github.com/m2ym/fuzzy-el.git
+	url = https://github.com/auto-complete/fuzzy-el.git
 [submodule "lib/gh-el"]
 	path = lib/gh-el
 	url = git://github.com/sigma/gh.el.git
