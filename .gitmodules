@@ -481,3 +481,6 @@
 [submodule "site-lisp/fancy-narrow"]
 	path = site-lisp/fancy-narrow
 	url = https://github.com/Bruce-Connor/fancy-narrow.git
+[submodule "site-lisp/eww-lnum"]
+	path = site-lisp/eww-lnum
+	url = https://github.com/m00natic/eww-lnum.git
