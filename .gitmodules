@@ -493,3 +493,6 @@
 [submodule "site-lisp/cmake-font-lock"]
 	path = site-lisp/cmake-font-lock
 	url = https://github.com/Lindydancer/cmake-font-lock.git
+[submodule "site-lisp/guide-key"]
+	path = site-lisp/guide-key
+	url = https://github.com/kai2nenobu/guide-key.git
