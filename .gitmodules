@@ -3,7 +3,7 @@
 	url = git://github.com/emacsmirror/apel.git
 [submodule "lib/popup-el"]
 	path = lib/popup-el
-	url = git://github.com/m2ym/popup-el.git
+	url = https://github.com/auto-complete/popup-el.git
 [submodule "lib/fuzzy-el"]
 	path = lib/fuzzy-el
 	url = https://github.com/auto-complete/fuzzy-el.git
