@@ -502,3 +502,6 @@
 [submodule "site-lisp/tiny"]
 	path = site-lisp/tiny
 	url = https://github.com/abo-abo/tiny.git
+[submodule "site-lisp/visual-regexp"]
+	path = site-lisp/visual-regexp
+	url = https://github.com/benma/visual-regexp.el.git
