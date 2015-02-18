@@ -8,6 +8,7 @@
 (require 'org-crypt)
 (require 'org-bbdb)
 (require 'org-devonthink)
+(require 'org-mac-link)
 (require 'org-magit)
 (require 'org-velocity)
 (require 'ob-python)
@@ -17,121 +18,6 @@
 (require 'ob-sh)
 (require 'ox-md)
 (require 'ox-opml)
-
-;;(load "org-log" t)
-
-(defun org-clock-get-clock-string ()
-  "Form a clock-string, that will be shown in the mode line.
-If an effort estimate was defined for the current item, use
-01:30/01:50 format (clocked/estimated).
-If not, show simply the clocked time like 01:50."
-  (let ((clocked-time (org-clock-get-clocked-time)))
-    (if org-clock-effort
-	(let* ((effort-in-minutes
-		(org-duration-string-to-minutes org-clock-effort))
-	       (work-done-str
-		(org-propertize
-		 (org-minutes-to-clocksum-string clocked-time)
-		 'face (if (and org-clock-task-overrun
-                                (not org-clock-task-overrun-text))
-			   'org-mode-line-clock-overrun 'org-mode-line-clock)))
-	       (effort-str (org-minutes-to-clocksum-string effort-in-minutes))
-	       (clockstr
-                (org-propertize
-                 (concat  " [%s/" effort-str
-                          "] ("
-                          (replace-regexp-in-string "%" "%%" org-clock-heading)
-                          ")")
-                 'face 'org-mode-line-clock)))
-	  (format clockstr work-done-str))
-      (org-propertize (concat "[" (org-minutes-to-clocksum-string clocked-time)
-			      (if (string= "" org-clock-heading) ""
-				(format " (%s)" org-clock-heading)) "]  ")
-		      'face 'org-mode-line-clock))))
-
-(defun org-babel-execute:ditaa (body params)
-  "Execute a block of Ditaa code with org-babel.
-This function is called by `org-babel-execute-src-block'."
-  (let* ((result-params (split-string (or (cdr (assoc :results params)) "")))
-	 (out-file (let ((el (cdr (assoc :file params))))
-                     (or el
-                         (error
-                          "ditaa code block requires :file header argument"))))
-	 (cmdline (cdr (assoc :cmdline params)))
-	 (java (cdr (assoc :java params)))
-	 (in-file (org-babel-temp-file "ditaa-"))
-	 (eps (cdr (assoc :eps params)))
-         (pdf-cmd (when (and (or (string= (file-name-extension out-file) "pdf")
-                                 (cdr (assoc :pdf params))))
-                    (concat
-                     "epstopdf"
-                     " " (org-babel-process-file-name (concat in-file ".eps"))
-                     " -o=" (org-babel-process-file-name out-file))))
-	 (cmd (concat org-babel-ditaa-java-cmd
-		      " " java " " org-ditaa-jar-option " "
-		      (shell-quote-argument
-		       (expand-file-name
-			(if eps org-ditaa-eps-jar-path org-ditaa-jar-path)))
-		      " " cmdline
-		      " " (org-babel-process-file-name in-file)
-                      " " (if pdf-cmd
-                              (org-babel-process-file-name (concat in-file ".eps"))
-                            (org-babel-process-file-name out-file)))))
-    (unless (file-exists-p org-ditaa-jar-path)
-      (error "Could not find ditaa.jar at %s" org-ditaa-jar-path))
-    (with-temp-file in-file (insert body))
-    (message cmd) (shell-command cmd)
-    (when pdf-cmd (message pdf-cmd) (shell-command pdf-cmd))
-    nil))
-
-(defun org-show-context (&optional key)
-  "Make sure point and context are visible.
-How much context is shown depends upon the variables
-`org-show-hierarchy-above', `org-show-following-heading',
-`org-show-entry-below' and `org-show-siblings'."
-  (let ((heading-p   (org-at-heading-p t))
-	(hierarchy-p (org-get-alist-option org-show-hierarchy-above key))
-	(following-p (org-get-alist-option org-show-following-heading key))
-	(entry-p     (org-get-alist-option org-show-entry-below key))
-	(siblings-p  (org-get-alist-option org-show-siblings key)))
-    ;; Show heading or entry text
-    (if (and heading-p (not entry-p))
-	(org-flag-heading nil)    ; only show the heading
-      (and (or entry-p (outline-invisible-p) (org-invisible-p2))
-	   (org-show-hidden-entry)))    ; show entire entry
-    (when following-p
-      ;; Show next sibling, or heading below text
-      (save-excursion
-	(and (if heading-p (org-goto-sibling) (outline-next-heading))
-	     (org-flag-heading nil))))
-    (when siblings-p (org-show-siblings))
-    (when hierarchy-p
-      ;; show all higher headings, possibly with siblings
-      (save-excursion
-	(while (and (condition-case nil
-			(progn (org-up-heading-all 1) t)
-		      (error nil))
-		    (not (bobp)))
-	  (org-flag-heading nil)
-	  (when siblings-p (org-show-siblings)))))))
-
-(defun org-link-to-named-task ()
-  (interactive))
-(fset 'org-link-to-named-task
-   [?\C-  ?\C-  ?\C-e ?\C-w ?\C-s ?\M-y ?\C-a ?\M-f ?\C-c ?S ?\C-u ?\C-  ?\C-c ?\C-l return return ?\C-x ?\C-x ?\C-  ?\C- ])
-
-(defun org-find-top-category (&optional pos)
-  (let ((cat
-         (save-excursion
-           (with-current-buffer (if pos (marker-buffer pos) (current-buffer))
-             (if pos (goto-char pos))
-             ;; Skip up to the topmost parent
-             (while (ignore-errors (outline-up-heading 1) t))
-             (ignore-errors
-               (nth 4 (org-heading-components)))))))
-    (save-excursion
-      (with-current-buffer (if pos (marker-buffer pos) (current-buffer))
-        (org-entry-get pos "OVERLAY" t)))))
 
 (defun jump-to-org-agenda ()
   (interactive)
@@ -152,18 +38,6 @@ How much context is shown depends upon the variables
             (with-selected-window (display-buffer buf)
               (org-fit-window-to-buffer))))
       (call-interactively 'org-agenda-list))))
-
-(defun org-export-tasks ()
-  (interactive)
-  (let ((index 1))
-    (org-map-entries
-     #'(lambda ()
-         (outline-mark-subtree)
-         (org-export-as-html 3)
-         (write-file (format "%d.html" index))
-         (kill-buffer (current-buffer))
-         (setq index (1+ index)))
-     "LEVEL=2")))
 
 (defun org-get-global-property (name)
   (save-excursion
@@ -246,18 +120,13 @@ To use this function, add it to `org-agenda-finalize-hook':
 (autoload 'gnus-string-remove-all-properties "gnus-util")
 
 (defun org-my-message-open (message-id)
-  (let (gnus-mark-article-hook)
-    (gnus-goto-article
-     (gnus-string-remove-all-properties (substring message-id 2)))))
-
-;;(defun org-my-message-open (message-id)
-;;  (condition-case err
-;;      (if (get-buffer "*Group*")
-;;          (gnus-goto-article
-;;           (gnus-string-remove-all-properties (substring message-id 2)))
-;;        (org-mac-message-open message-id))
-;;    (error
-;;     (org-mac-message-open message-id))))
+  (condition-case err
+      (if (get-buffer "*Group*")
+          (gnus-goto-article
+           (gnus-string-remove-all-properties (substring message-id 2)))
+        (org-mac-message-open message-id))
+    (error
+     (org-mac-message-open message-id))))
 
 (add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
 
@@ -349,35 +218,15 @@ To use this function, add it to `org-agenda-finalize-hook':
             (if (and tasks (> (length tasks) 0))
                 (insert tasks ?\n))))))))
 
-;;;_Don't sync agendas.org to MobileOrg.  I do this because I only use
-;;;_MobileOrg for recording new tasks on the phone, and never for viewing
-;;;_tasks.  This allows MobileOrg to start up and sync extremely quickly.
-
-;;(add-hook 'org-mobile-post-push-hook
-;;          (function
-;;           (lambda ()
-;;             (shell-command "/bin/rm -f ~/Dropbox/MobileOrg/agendas.org")
-;;             (shell-command
-;;              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
-;;                      "~/Dropbox/MobileOrg/checksums.dat"))
-;;             (shell-command
-;;              (concat "perl -i -ne 'print unless /agendas\\.org/;'"
-;;                      "~/Dropbox/MobileOrg/index.org")))))
-
 (defun my-org-mobile-pre-pull-function ()
   (my-org-convert-incoming-items))
 
-(defun my-org-mobile-post-push-function ())
-
 (add-hook 'org-mobile-pre-pull-hook 'my-org-mobile-pre-pull-function)
-(add-hook 'org-mobile-post-push-hook 'my-org-mobile-post-push-function)
 
 (defun org-my-state-after-clock-out (state)
-  (if (string= state "STARTED")
-      "TODO"
-    state))
+  (if (string= state "STARTED") "TODO" state))
 
-(defvar org-my-archive-expiry-days 1
+(defvar org-my-archive-expiry-days 9
   "The number of days after which a completed task should be auto-archived.
 This can be 0 for immediate, or a floating point value.")
 
@@ -405,7 +254,7 @@ This can be 0 for immediate, or a floating point value.")
     (goto-char end)
     end-time))
 
-(defun org-my-archive-done-tasks ()
+(defun org-archive-expired-tasks ()
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -419,7 +268,23 @@ This can be 0 for immediate, or a floating point value.")
             (org-archive-subtree))))
     (save-buffer)))
 
-(defalias 'archive-done-tasks 'org-my-archive-done-tasks)
+(defalias 'archive-expired-tasks 'org-archive-expired-tasks)
+
+(defun org-archive-done-tasks ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "\* \\(DONE\\|CANCELED\\) " nil t)
+      (if (save-restriction
+            (save-excursion
+              (error "Need to replace org-x-narrow-to-entry")
+              ;; (org-x-narrow-to-entry)
+              (search-forward ":LOGBOOK:" nil t)))
+          (forward-line)
+        (org-archive-subtree)
+        (goto-char (line-beginning-position))))))
+
+(defalias 'archive-done-tasks 'org-archive-done-tasks)
 
 (defun org-get-inactive-time ()
   (float-time (org-time-string-to-time
@@ -431,11 +296,14 @@ This can be 0 for immediate, or a floating point value.")
   (let ((begin (point)))
     (save-excursion
       (outline-next-heading)
-      (and (re-search-backward "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELED\\)\"\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)" begin t)
+      (and (re-search-backward
+            (concat "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELED\\)\""
+                    "\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)")
+            begin t)
            (float-time (org-time-string-to-time (or (match-string 3)
                                                     (match-string 4))))))))
 
-(defun org-my-sort-done-tasks ()
+(defun org-sort-done-tasks ()
   (interactive)
   (goto-char (point-min))
   (org-sort-entries t ?F #'org-get-inactive-time #'<)
@@ -451,21 +319,7 @@ This can be 0 for immediate, or a floating point value.")
     (save-buffer))
   (org-overview))
 
-(defalias 'sort-done-tasks 'org-my-sort-done-tasks)
-
-(defun org-archive-done-tasks ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward "\* \\(DONE\\|CANCELED\\) " nil t)
-      (if (save-restriction
-            (save-excursion
-              (error "Need to replace org-x-narrow-to-entry")
-              ;; (org-x-narrow-to-entry)
-              (search-forward ":LOGBOOK:" nil t)))
-          (forward-line)
-        (org-archive-subtree)
-        (goto-char (line-beginning-position))))))
+(defalias 'sort-done-tasks 'org-sort-done-tasks)
 
 (defun org-sort-all ()
   (interactive)
@@ -491,10 +345,8 @@ This can be 0 for immediate, or a floating point value.")
 
 (defun org-cleanup ()
   (interactive)
-  (org-archive-done-tasks)
-  (org-sort-all)
-  ;;(org-x-normalize-all-entries)
-  )
+  (org-archive-expired-tasks)
+  (org-sort-all))
 
 (defvar my-org-wrap-region-history nil)
 
@@ -511,64 +363,6 @@ This can be 0 for immediate, or a floating point value.")
                 (read-string "Language: " nil 'my-org-wrap-region-history)
                 ?\n)
       (insert ":OUTPUT:\n"))))
-
-(defun org-maybe-remember (&optional done)
-  (interactive "P")
-  (if (string= (buffer-name) "*Remember*")
-      (call-interactively 'org-ctrl-c-ctrl-c)
-    (if (null done)
-        (call-interactively 'org-remember)
-      (let ((org-capture-templates
-             '((110 "* STARTED %?
-- State \"STARTED\"    %U
-SCHEDULED: %t
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" "~/Documents/todo.txt" "Inbox"))))
-        (org-remember))))
-  (set-fill-column 72))
-
-(defun org-inline-note ()
-  (interactive)
-  (switch-to-buffer-other-window "todo.txt")
-  (goto-char (point-min))
-  (re-search-forward "^\\* Inbox$")
-  (re-search-forward "^:END:")
-  (forward-line)
-  (goto-char (line-beginning-position))
-  (insert "** NOTE ")
-  (save-excursion
-    (insert (format "
-:PROPERTIES:
-:ID:       %s   :VISIBILITY: folded
-:CREATED:  %s
-:END:" (shell-command-to-string "uuidgen")
-   (format-time-string (org-time-stamp-format t t))))
-    (insert ?\n))
-  (save-excursion
-    (forward-line)
-    (org-cycle)))
-
-;;(defun org-get-apple-message-link ()
-;;  (let ((subject (do-applescript "tell application \"Mail\"
-;;        set theMessages to selection
-;;        subject of beginning of theMessages
-;;end tell"))
-;;        (message-id (do-applescript "tell application \"Mail\"
-;;        set theMessages to selection
-;;        message id of beginning of theMessages
-;;end tell")))
-;;    (org-make-link-string (concat "message://" message-id) subject)))
-;;
-;;(defun org-get-message-sender ()
-;;  (do-applescript "tell application \"Mail\"
-;;        set theMessages to selection
-;;        sender of beginning of theMessages
-;;end tell"))
-;;
-;;(defun org-insert-apple-message-link ()
-;;  (interactive)
-;;  (insert (org-get-apple-message-link)))
 
 (defun org-get-message-link (&optional title)
   (assert (get-buffer "*Group*"))
@@ -630,25 +424,29 @@ end tell"))))
   (interactive)
   (org-set-property "URL" (org-get-safari-link)))
 
-;;(defun org-get-file-link ()
-;;  (let ((subject (do-applescript "tell application \"Finder\"
-;;      set theItems to the selection
-;;      name of beginning of theItems
-;;end tell"))
-;;        (path (do-applescript "tell application \"Finder\"
-;;      set theItems to the selection
-;;      POSIX path of (beginning of theItems as text)
-;;end tell")))
-;;    (org-make-link-string (concat "file:" path) subject)))
-;;
-;;(defun org-insert-file-link ()
-;;  (interactive)
-;;  (insert (org-get-file-link)))
-;;
-;;(defun org-set-file-link ()
-;;  "Set a property for the current headline."
-;;  (interactive)
-;;  (org-set-property "File" (org-get-file-link)))
+(defun org-get-file-link ()
+  (let* ((subject (do-applescript "tell application \"Path Finder\"
+     set theItems to the selection
+     name of beginning of theItems
+end tell"))
+         (path (do-applescript "tell application \"Path Finder\"
+     set theItems to the selection
+     (POSIX path of beginning of theItems) as text
+end tell"))
+         (short-path
+          (replace-regexp-in-string abbreviated-home-dir "~/"
+                                    (substring path 1 -1))))
+    (org-make-link-string (concat "file:" short-path)
+                          (substring subject 1 -1))))
+
+(defun org-insert-file-link ()
+ (interactive)
+ (insert (org-get-file-link)))
+
+(defun org-set-file-link ()
+ "Set a property for the current headline."
+ (interactive)
+ (org-set-property "File" (org-get-file-link)))
 
 (defun org-set-dtp-link ()
   "Set a property for the current headline."
@@ -666,9 +464,6 @@ This will use the command `open' with the message URL."
         open window for record (get beginning of searchResults)
 end tell" (match-string 1))))
 
-(fset 'orgify-line
-   [?\C-k ?\C-o ?t ?o ?d ?o tab ?\C-y backspace ?\C-a ?l ?\C-u ?\C-n ?\C-n ?\C-n])
-
 (add-hook 'org-log-buffer-setup-hook
           (lambda ()
             (setq fill-column (- fill-column 5))))
@@ -676,14 +471,14 @@ end tell" (match-string 1))))
 (defun org-message-reply ()
   (interactive)
   (let* ((org-marker (get-text-property (point) 'org-marker))
-         (submitter (org-entry-get (or org-marker (point)) "Submitter"))
+         (author (org-entry-get (or org-marker (point)) "Author"))
          (subject (if org-marker
                       (with-current-buffer (marker-buffer org-marker)
                         (goto-char org-marker)
                         (nth 4 (org-heading-components)))
                     (nth 4 (org-heading-components)))))
     (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
-    (compose-mail-other-window submitter (concat "Re: " subject))))
+    (compose-mail-other-window author (concat "Re: " subject))))
 
 ;;;_  . make-bug-link
 
@@ -765,7 +560,9 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
                   (setq bug (match-string 1))))))
           (save-excursion
             (org-back-to-heading t)
-            (re-search-forward "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\) \\(\\[#[ABC]\\] \\)?")
+            (re-search-forward
+             (concat "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\)"
+                     " \\(\\[#[ABC]\\] \\)?"))
             (insert (format "[[bug:%s][#%s]] " bug bug)))))))
   (org-agenda-redo))
 
@@ -845,7 +642,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (bind-key "C-c x b"
           (lambda (bug) (error "Define bug syntax!")
             ;; (interactive "sBug: ")
-            ;; (insert (format "[[fpco:%s][#%s]]" bug bug))
+            ;; (insert (format "[[project:%s][#%s]]" bug bug))
             ))
 (bind-key "C-c x e" 'org-export)
 (bind-key "C-c x l" 'org-insert-dtp-link)
@@ -857,40 +654,28 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (bind-key "C-c x f" 'org-insert-file-link)
 (bind-key "C-c x F" 'org-set-file-link)
 
-(autoload 'ledger-test-create "ldg-test" nil t)
-(autoload 'ledger-test-run "ldg-test" nil t)
-
-(add-to-list 'auto-mode-alist '("\\.test$" . ledger-mode))
-
 (org-defkey org-mode-map [(control meta return)]
             'org-insert-heading-after-current)
 (org-defkey org-mode-map [(control return)] 'other-window)
 (org-defkey org-mode-map [return] 'org-return-indent)
-(org-defkey org-mode-map
-            [(control ?c) (control ?x) ?@] 'visible-mode)
+(org-defkey org-mode-map [(control ?c) (control ?x) ?@] 'visible-mode)
 (org-defkey org-mode-map [(control ?c) (meta ?m)] 'my-org-wrap-region)
-
-;; (defvar my-org-expand-map)
-;; (define-prefix-command 'my-org-expand-map)
-;; (define-key org-mode-map [(control ?c) (control ?e)] 'my-org-expand-map)
-
-;; (define-key my-org-expand-map [(control ?t)] 'ledger-test-create)
 
 (eval-when-compile
   (defvar yas/trigger-key)
   (defvar yas/keymap)
-
   (autoload 'yas/expand "yasnippet"))
 
 (defun yas/org-very-safe-expand ()
   (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
 
-(add-hook 'org-mode-hook
-          (lambda ()
-            (require 'yasnippet)
-            (set (make-local-variable 'yas/trigger-key) [tab])
-            (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-            (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
+(defun yas/org-setup-keybinding ()
+  (require 'yasnippet)
+  (set (make-local-variable 'yas/trigger-key) [tab])
+  (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand))
+
+(add-hook 'org-mode-hook 'yas/org-setup-keybinding)
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
@@ -989,95 +774,11 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
     (if taskcode (org-entry-put (point) "TASKCODE" taskcode))
     (if project (org-entry-put (point) "PROJECT" project))))
 
-(when (and (boundp 'org-completion-handler)
-           (require 'helm nil t))
-  (defun org-helm-completion-handler
-      (prompt collection &optional predicate require-match
-              initial-input hist def inherit-input-method)
-    (helm-comp-read prompt
-                    collection
-                    ;; the character \ is filtered out by default ;(
-                    :fc-transformer nil
-                    :test predicate
-                    :must-match require-match
-                    :initial-input initial-input
-                    :history hist
-                    :default def))
-
-  (setq org-completion-handler 'org-helm-completion-handler))
-
-(defun org-show-pending ()
-  (interactive)
-  (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward
-              "\\(^<\\|DEADLINE: <\\)\\([0-9]\\{4\\}-.*?\\)>" nil t)
-        (let ((due-date (match-string 2)))
-          (message due-date))))))
-
-(defun org-todo-score (&optional ignore)
-  "Compute the score of an Org-mode task.
-Age gradually decreases the value given to a task.  After 28
-days, its score is zero.
-Effort should act as a multiplier on the value."
-  1)
-
-(defvar org-categories-pending-hashmap nil)
-(defvar org-categories-completed-hashmap nil)
-
-(defun org-compute-category-totals ()
-  (interactive)
-  (setq org-categories-pending-hashmap (make-hash-table :test 'equal)
-        org-categories-completed-hashmap (make-hash-table :test 'equal))
-  (dolist (file '("todo.txt" "archive.txt"))
-    (with-current-buffer
-        (find-file-noselect (expand-file-name file "~/Documents"))
-      (save-excursion
-        (goto-char (point-min))
-        (while (not (eobp))
-          (outline-next-heading)
-          (let* ((state (org-get-todo-state))
-                 (category
-                  (or (org-entry-get (point) "ARCHIVE_CATEGORY" t)
-                      (org-entry-get (point) "CATEGORY" t)))
-                 (hashmap
-                  (cond
-                   ((string= state "TODO") org-categories-pending-hashmap)
-                   ((string= state "DONE") org-categories-completed-hashmap)))
-                 (value (and hashmap (gethash category hashmap 0))))
-            (if hashmap
-                (puthash category (+ value (org-todo-score)) hashmap))))))))
-
-(defun org-category-total (category)
-  ;; A category's final score is the sum of all open tasks (which raises the
-  ;; value), subtracted by the sum of all closed tasks.  Thus, a category with
-  ;; a higher score deserves more attention (it has been neglected or has not
-  ;; seen much activity), while a category with a low score deserves less.
-  ;;
-  ;; Note that this score is affected by several heuristics.  See
-  ;; `org-todo-score'.
-  (unless org-categories-pending-hashmap
-    (org-compute-category-totals))
-  (- (gethash category org-categories-pending-hashmap 0)
-     (gethash category org-categories-completed-hashmap 0)))
-
-(defun org-cmp-category-totals (a b)
-  (let ((cat-a (get-text-property 1 'org-category a))
-        (cat-b (get-text-property 1 'org-category b)))
-    (if (> (org-category-total cat-a)
-           (org-category-total cat-b))
-        1
-      -1)))
-
-;; (setq org-agenda-cmp-user-defined 'org-cmp-category-totals)
-
 (provide 'dot-org)
 
 ;; Local Variables:
 ;;   mode: emacs-lisp
-;;   mode: allout
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
 ;; End:
 
-;;; dot-gnus.el ends here
+;;; dot-org.el ends here

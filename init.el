@@ -1080,7 +1080,7 @@
 ;;;_ , auctex
 
 (use-package tex-site
-  ;; :load-path "site-lisp/auctex/preview/"
+  :load-path "site-lisp/auctex/preview/"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :config
@@ -2303,17 +2303,13 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   (split-window-vertically)
   (call-interactively 'isearch-forward))
 
-(use-package isearch
-  :defer t
-  :config
-  (progn
-    (bind-key "C-M-r" 'isearch-backward-other-window)
-    (bind-key "C-M-s" 'isearch-forward-other-window)
+(bind-key "C-M-r" 'isearch-backward-other-window)
+(bind-key "C-M-s" 'isearch-forward-other-window)
 
-    (bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
-    (bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
-    (bind-key "C-^" 'isearch-edit-string isearch-mode-map)
-    (bind-key "C-i" 'isearch-complete isearch-mode-map)))
+(bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
+(bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
+(bind-key "C-^" 'isearch-edit-string isearch-mode-map)
+(bind-key "C-i" 'isearch-complete isearch-mode-map)
 
 ;;;_ , js2-mode
 

@@ -348,7 +348,7 @@ John Wiegley, Chairperson"))))
     (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell
                  (lambda nil
                    (set-fill-column 78))
-                 turn-on-orgstruct++)))
+                 turn-on-orgstruct++ turn-on-orgtbl)))
  '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))

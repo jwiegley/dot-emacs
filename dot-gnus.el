@@ -568,7 +568,6 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
 
 ;; Local Variables:
 ;;   mode: emacs-lisp
-;;   mode: allout
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
 ;; End:
 

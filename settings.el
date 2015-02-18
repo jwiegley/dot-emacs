@@ -523,6 +523,7 @@
  '(glasses-uncapitalize-p t)
  '(global-auto-complete-mode t)
  '(global-font-lock-mode t nil (font-lock))
+ '(global-undo-tree-mode t)
  '(grep-find-command (quote ("ag --noheading --column --ignore branches " . 43)))
  '(haskell-check-command "hlintall")
  '(haskell-config-use-unicode-symbols t)

@@ -184,7 +184,7 @@ SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t))))
- '(org-clock-heading-function (lambda (&ignore rest) ""))
+ '(org-clock-heading-function (lambda (&rest ignore) ""))
  '(org-clock-idle-time 10)
  '(org-clock-in-resume t)
  '(org-clock-in-switch-to-state "STARTED")
