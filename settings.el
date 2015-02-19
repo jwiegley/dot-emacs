@@ -187,6 +187,7 @@
  '(allout-command-prefix ".")
  '(ansi-color-names-vector
    ["black" "red" "green" "brown" "blue" "magenta" "blue" "white"])
+ '(appt-message-warning-time 60)
  '(auto-compression-mode t nil (jka-compr))
  '(auto-save-file-name-transforms (quote (("\\`/[^/]*:.*" "/tmp" t))))
  '(auto-save-interval 64)

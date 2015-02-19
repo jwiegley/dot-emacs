@@ -28,11 +28,15 @@
 
     (defun my-calendar ()
       (interactive)
-      (cfw:open-calendar-buffer
-       :contents-sources
-       (list
-        (cfw:org-create-source "Dark Blue")
-        (cfw:cal-create-source "Dark Orange")))))
+      (delete-other-windows)
+      (let ((buf (get-buffer "*cfw-calendar*")))
+        (if buf
+            (switch-to-buffer buf)
+          (cfw:open-calendar-buffer
+           :contents-sources
+           (list
+            (cfw:org-create-source "Dark Blue")
+            (cfw:cal-create-source "Dark Orange")))))))
 
   :config
   (progn

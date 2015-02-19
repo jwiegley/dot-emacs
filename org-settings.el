@@ -28,11 +28,6 @@
          (org-agenda-skip-entry-if
           (quote regexp)
           "\\=.*\\[#C\\]")))))
-     ("E" "Errands (next 7 days)" tags "Errand&TODO<>\"DONE\"&TODO<>\"CANCELED\"&STYLE<>\"habit\"&SCHEDULED<\"<+7d>\""
-      ((org-agenda-overriding-header "Errands (next 7 days)")))
-     ("Z" "Agenda (next 7 days)" agenda ""
-      ((org-agenda-ndays 7)
-       (org-agenda-overriding-header "Agenda (next 7 days)")))
      ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2"
       ((org-agenda-overriding-header "Uncategorized items")))
      ("W" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\""
@@ -41,10 +36,7 @@
         (quote
          (todo-state-up priority-down category-up)))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
-      ((org-agenda-files
-        (quote
-         ("~/Documents/todo.txt")))
-       (org-agenda-overriding-header "Unscheduled tasks: ")
+      ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         (quote
          (org-agenda-skip-entry-if
@@ -77,22 +69,6 @@
           (quote scheduled)
           (quote deadline)
           (quote timestamp))))))
-     ("v" "All work-related tasks" tags "AREA=\"Contracts\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
-      ((org-agenda-overriding-header "Work-related tasks")
-       (org-agenda-files
-        (quote
-         ("~/Documents/todo.txt")))
-       (org-agenda-sorting-strategy
-        (quote
-         (alpha-down)))))
-     ("n" "Notes" tags "TODO=\"NOTE\""
-      ((org-agenda-files
-        (quote
-         ("~/Documents/archive/archive-2009.txt" "~/Documents/archive/archive-2010.txt" "~/Documents/archive/archive-2011.txt" "~/Documents/archive/archive-2012.txt" "~/Documents/archives/archive.txt" "~/Documents/archives/notes.txt")))
-       (org-agenda-overriding-header "Notes")
-       (org-agenda-sorting-strategy
-        (quote
-         (time-down)))))
      ("S" "Assembly Action Items" tags-todo "TODO<>\"PROJECT\""
       ((org-agenda-files
         (quote
@@ -240,6 +216,7 @@ SCHEDULED: %t
  '(org-habit-today-glyph 45)
  '(org-hide-leading-stars t)
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
+ '(org-image-actual-width (quote (800)))
  '(org-insert-heading-respect-content t)
  '(org-irc-link-to-logs t t)
  '(org-latex-default-packages-alist

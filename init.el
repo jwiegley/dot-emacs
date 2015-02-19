@@ -2801,6 +2801,12 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
     (bind-key "C-c M-h" 'tidy-xml-buffer nxml-mode-map)))
 
+;;;_ , on-screen
+
+(use-package on-screen
+  :init
+  (on-screen-global-mode 1))
+
 ;;;_ , org-mode
 
 (use-package dot-org
@@ -2819,6 +2825,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
               #'(lambda ()
                   (org-agenda-list)
                   (org-fit-agenda-window)
+                  (org-agenda-to-appt)
                   (org-resolve-clocks))) t))
 
 ;;;_ , pabbrev
