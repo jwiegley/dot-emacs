@@ -511,3 +511,6 @@
 [submodule "site-lisp/git-wip"]
 	path = site-lisp/git-wip
 	url = https://github.com/bartman/git-wip.git
+[submodule "site-lisp/on-screen"]
+	path = site-lisp/on-screen
+	url = https://github.com/michael-heerdegen/on-screen.el.git
