@@ -135,4 +135,24 @@
           'active)))))
   t)
 
+(defun erc-cmd-HOWMANY (&rest ignore)
+  "Display how many users (and ops) the current channel has."
+  (erc-display-message
+   nil 'notice (current-buffer)
+   (let ((hash-table (with-current-buffer
+                         (erc-server-buffer)
+                       erc-server-users))
+         (users 0)
+         (ops 0))
+     (maphash (lambda (k v)
+                (when (member (current-buffer)
+                              (erc-server-user-buffers v))
+                  (incf users))
+                (when (erc-channel-user-op-p k)
+                  (incf ops)))
+              hash-table)
+     (format
+      "There are %s users (%s ops) on the current channel"
+      users ops))))
+
 (provide 'erc-macros)

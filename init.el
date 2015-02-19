@@ -1900,6 +1900,13 @@
 (use-package git-blame
   :commands git-blame-mode)
 
+;;;_ , git-wip
+
+(use-package git-wip-mode
+  :load-path "site-lisp/git-wip/emacs/"
+  :demand t
+  :diminish git-wip-mode)
+
 ;;;_ , gnus
 
 (use-package dot-gnus
@@ -2012,6 +2019,7 @@
 ;;;_ , guide-key
 
 (use-package guide-key
+  :diminish guide-key-mode
   :init
   (progn
     (setq guide-key/guide-key-sequence
@@ -2047,6 +2055,7 @@
   (helm-find nil))
 
 (use-package helm-config
+  :demand t
   :diminish helm-mode
   :commands (helm-do-grep-1 helm-find)
   :bind (("C-c h"   . helm-command-prefix)
@@ -2996,7 +3005,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          'coq-mode-hook
          (lambda ()
            (holes-mode -1)
-           (undo-tree-mode 1)
            (yas-minor-mode 1)
            (whitespace-mode 1)
            ;; (set-input-method "Agda")
@@ -3568,7 +3576,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , undo-tree
 
-(use-package undo-tree)
+(use-package undo-tree
+  :commands undo-tree-mode
+  :init
+  (add-hook 'find-file-hook (lambda () (undo-tree-mode 1))))
 
 ;;;_ , vkill
 

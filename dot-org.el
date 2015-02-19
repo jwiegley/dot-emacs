@@ -19,6 +19,40 @@
 (require 'ox-md)
 (require 'ox-opml)
 
+(use-package calfw
+  :bind ("C-c A" . my-calendar)
+  :init
+  (progn
+    (use-package calfw-cal)
+    (use-package calfw-org)
+
+    (defun my-calendar ()
+      (interactive)
+      (cfw:open-calendar-buffer
+       :contents-sources
+       (list
+        (cfw:org-create-source "Dark Blue")
+        (cfw:cal-create-source "Dark Orange")))))
+
+  :config
+  (progn
+    ;; Unicode characters
+    (setq cfw:fchar-junction ?╋
+          cfw:fchar-vertical-line ?┃
+          cfw:fchar-horizontal-line ?━
+          cfw:fchar-left-junction ?┣
+          cfw:fchar-right-junction ?┫
+          cfw:fchar-top-junction ?┯
+          cfw:fchar-top-left-corner ?┏
+          cfw:fchar-top-right-corner ?┓)
+
+    (bind-key "j" 'cfw:navi-goto-date-command cfw:calendar-mode-map)
+    (bind-key "g" 'cfw:refresh-calendar-buffer cfw:calendar-mode-map)))
+
+(defadvice org-refile-get-location (before clear-refile-history activate)
+  "Fit the Org Agenda to its buffer."
+  (setq org-refile-history nil))
+
 (defun jump-to-org-agenda ()
   (interactive)
   (let ((recordings-dir "~/Dropbox/Apps/Dropvox"))
@@ -277,8 +311,7 @@ This can be 0 for immediate, or a floating point value.")
     (while (re-search-forward "\* \\(DONE\\|CANCELED\\) " nil t)
       (if (save-restriction
             (save-excursion
-              (error "Need to replace org-x-narrow-to-entry")
-              ;; (org-x-narrow-to-entry)
+              (org-narrow-to-subtree)
               (search-forward ":LOGBOOK:" nil t)))
           (forward-line)
         (org-archive-subtree)
@@ -644,7 +677,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
             ;; (interactive "sBug: ")
             ;; (insert (format "[[project:%s][#%s]]" bug bug))
             ))
-(bind-key "C-c x e" 'org-export)
 (bind-key "C-c x l" 'org-insert-dtp-link)
 (bind-key "C-c x L" 'org-set-dtp-link)
 (bind-key "C-c x m" 'org-insert-message-link)

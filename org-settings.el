@@ -40,23 +40,7 @@
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))))
-     ("z" "Computer-related tasks" tags "AREA=\"Computer\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
-      ((org-agenda-files
-        (quote
-         ("~/Documents/todo.txt")))
-       (org-agenda-overriding-header "Computer-related tasks: ")
-       (org-agenda-skip-function
-        (quote
-         (org-agenda-skip-entry-if
-          (quote scheduled)
-          (quote deadline)
-          (quote timestamp)
-          (quote regexp)
-          "\\* \\(DEFERRED\\|SOMEDAY\\)")))
-       (org-agenda-sorting-strategy
-        (quote
-         (priority-down)))))
-     ("u" "Unscheduled tasks" tags "AREA<>{Contracts}&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-files
         (quote
          ("~/Documents/todo.txt")))
@@ -79,11 +63,11 @@
        (org-agenda-overriding-header "Deferred tasks:")))
      ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
       ((org-agenda-overriding-header "Someday tasks:")))
-     ("w" "Unscheduled work-related tasks" tags "AREA=\"Contracts\"&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         (quote
-         ("~/Documents/todo.txt")))
+         ("~/Documents/BAE.txt")))
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))
@@ -116,12 +100,22 @@
        (org-agenda-overriding-header "Assembly Action Items")
        (org-agenda-sorting-strategy
         (quote
-         (alpha-up time-up))))))))
+         (alpha-up time-up)))))
+     ("c" "Appointment Calendar" agenda ""
+      ((org-agenda-overriding-header "Appointment Calendar")
+       (org-agenda-sorting-strategy
+        (quote
+         (time-up)))
+       (org-agenda-span 14)
+       (org-agenda-ndays 14)
+       (org-agenda-regexp-filter-preset
+        (quote
+         ("+APPT"))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt" "~/Documents/BAE.txt" "~/Documents/assembly.txt")))
+    ("~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt" "~/Documents/BAE.txt" "~/Documents/assembly.txt" "~/Documents/IL-05/IL-05.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-log-mode-items (quote (closed clock state)))
@@ -184,7 +178,6 @@ SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t))))
- '(org-clock-heading-function (lambda (&rest ignore) ""))
  '(org-clock-idle-time 10)
  '(org-clock-in-resume t)
  '(org-clock-in-switch-to-state "STARTED")
