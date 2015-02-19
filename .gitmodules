@@ -505,3 +505,6 @@
 [submodule "site-lisp/visual-regexp"]
 	path = site-lisp/visual-regexp
 	url = https://github.com/benma/visual-regexp.el.git
+[submodule "site-lisp/emacs-calfw"]
+	path = site-lisp/emacs-calfw
+	url = git://github.com/jwiegley/emacs-calfw
