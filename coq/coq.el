@@ -872,13 +872,23 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
       (concat "\"" s "\"")
     s))
 
-(defsubst coq-put-into-double-quote-if-notation-remove-ind (s)
-  (if (equal (char-syntax (string-to-char s)) ?\.)
-      (concat "\"" s "\" " "-\"_ind\" - \"_rect\" -\"_rec\"")
-    s))
+(defcustom coq-removed-patterns-when-search
+  '("_ind" "_rect" "_rec")
+  "String list to remove from search request to coq environment."
+  :type '(repeat string)
+  :group 'coq)
 
-(defsubst coq-put-into-brackets-remove-useless (s)
-  (concat s " -\"_ind\" - \"_rect\" -\"_rec\""))
+(defun coq-build-removed-pattern (s)
+  (concat " -\"" s "\""))
+
+(defun coq-build-removed-patterns (l)
+  (mapcar 'coq-build-removed-pattern l))
+
+(defsubst coq-put-into-double-quote-if-notation-remove-ind (s)
+  (let ((removed (coq-build-removed-patterns coq-removed-patterns-when-search)))
+    (if (equal (char-syntax (string-to-char s)) ?\.)
+        (apply 'concat (cons "\"" (cons s (cons "\"" removed))))
+      (apply 'concat (cons s removed)))))
 
 (defsubst coq-put-into-quotes (s)
   (concat "\"" s "\""))
