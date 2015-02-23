@@ -1096,6 +1096,16 @@ It is used:
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4"))
 
+;; use this to evaluate code with "." being consisdered a symbol
+;; constituent (better behavior for thing-at and maybe font-lock too,
+;; for indentation we use ad hoc smie lexers).
+(defmacro coq-with-altered-syntax-table (&rest code)
+  (let ((res (make-symbol "res")))
+    `(unwind-protect
+	 (progn (modify-syntax-entry ?\. "_")
+                (let ((,res (progn ,@code)))
+                  (modify-syntax-entry ?\. ".")
+                  ,res)))))
 
 (defconst coq-generic-expression
   (mapcar (lambda (kw)

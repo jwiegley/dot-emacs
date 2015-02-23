@@ -740,22 +740,22 @@ Return nil if S is nil."
 (defun coq-notation-at-position (pos)
   "Return the notation at current point.
 Support dot.notation.of.modules."
-  (modify-syntax-entry ?\. "w") ; temporary for dot notation
-  (when (or (coq-grab-punctuation-left pos) (coq-grab-punctuation-right pos))
-    (concat (coq-grab-punctuation-left pos) (coq-grab-punctuation-right pos))))
+  (coq-with-altered-syntax-table
+   (when (or (coq-grab-punctuation-left pos) (coq-grab-punctuation-right pos))
+     (concat (coq-grab-punctuation-left pos)
+             (coq-grab-punctuation-right pos)))))
 
 
 ;; remove trailing dot if any.
 (defun coq-id-at-point ()
   "Return the identifier at current point.
 Support dot.notation.of.modules."
-  (modify-syntax-entry ?\. "w") ; temporary for dot notation
-  (let* ((symb (cond
-                ((fboundp 'symbol-near-point) (symbol-near-point))
-                ((fboundp 'symbol-at-point) (symbol-at-point))))
-         (symbclean (when symb (coq-remove-trailing-dot (symbol-name symb)))))
-    (modify-syntax-entry ?\. ".") ; go back to ususal syntax
-    (when (and symb (not (zerop (length symbclean)))) symbclean)))
+  (coq-with-altered-syntax-table
+   (let* ((symb (cond
+                 ((fboundp 'symbol-near-point) (symbol-near-point))
+                 ((fboundp 'symbol-at-point) (symbol-at-point))))
+          (symbclean (when symb (coq-remove-trailing-dot (symbol-name symb)))))
+     (when (and symb (not (zerop (length symbclean)))) symbclean))))
 
 (defun coq-id-or-notation-at-point ()
   (or (coq-id-at-point) (coq-notation-at-position (point))))
@@ -788,8 +788,7 @@ If DONTGUESS is non nil, propose a default value as follows:
 If region is active, propose its containt as default value.
 
 Otherwise propose identifier at point if any."
-  (let* (
-         (guess
+  (let* ((guess
           (cond
            (dontguess nil)
            ((use-region-p)
