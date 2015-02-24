@@ -67,8 +67,7 @@
 
 (defun switch-to-gnus (&optional arg)
   (interactive "P")
-  (let* ((alist '("\\`\\*unsent" "\\`\\*Article"
-                  "\\`\\*Summary" "\\`\\*Group"))
+  (let* ((alist '("\\`\\*unsent" "\\`\\*Summary" "\\`\\*Group"))
          (candidate
           (catch 'found
             (dolist (regexp alist)
@@ -83,7 +82,8 @@
           (if (string-match "Group" (buffer-name candidate))
               (gnus-group-get-new-news)))
       (let ((switch-to-gnus-unplugged arg))
-        (gnus)
+        ;; (gnus)
+        (gnus-unplugged)
         (gnus-group-list-groups gnus-activate-level)
         (setq switch-to-gnus-run t)))))
 

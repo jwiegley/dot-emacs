@@ -35,7 +35,7 @@
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))))
-     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}&CATEGORY<>{Chess\\|Ledger\\|Assembly\\|Eshell}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         (quote
@@ -249,10 +249,13 @@ SCHEDULED: %t
  '(org-refile-targets
 (quote
  (("~/Documents/todo.txt" :level . 1)
-  (org-agenda-files :todo . "PROJECT"))))
+  ("~/Documents/OSS.txt" :level . 1)
+  ("~/Documents/BAE.txt" :level . 1)
+  ("~/Documents/todo.txt" :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-src-fontify-natively t)
+ '(org-stuck-projects (quote ("TODO=\"PROJECT\"" nil nil "SCHEDULED:")))
  '(org-tags-column -97)
  '(org-time-clocksum-use-fractional t)
  '(org-todo-keyword-faces

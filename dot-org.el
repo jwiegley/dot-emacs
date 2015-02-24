@@ -26,17 +26,19 @@
     (use-package calfw-cal)
     (use-package calfw-org)
 
+    (bind-key "M-n" 'cfw:navi-next-month-command cfw:calendar-mode-map)
+    (bind-key "M-p" 'cfw:navi-previous-month-command cfw:calendar-mode-map)
+
     (defun my-calendar ()
       (interactive)
-      (delete-other-windows)
       (let ((buf (get-buffer "*cfw-calendar*")))
         (if buf
-            (switch-to-buffer buf)
+            (pop-to-buffer buf nil)
           (cfw:open-calendar-buffer
            :contents-sources
-           (list
-            (cfw:org-create-source "Dark Blue")
-            (cfw:cal-create-source "Dark Orange")))))))
+           (list (cfw:org-create-source "Dark Blue")
+                 (cfw:cal-create-source "Dark Orange"))
+           :view 'two-weeks)))))
 
   :config
   (progn
@@ -157,14 +159,29 @@ To use this function, add it to `org-agenda-finalize-hook':
 (autoload 'gnus-goto-article ".gnus")
 (autoload 'gnus-string-remove-all-properties "gnus-util")
 
+(defun gnus-summary-mark-read-and-unread-as-read (&optional new-mark)
+  "Intended to be used by `gnus-mark-article-hook'."
+  (let ((mark (gnus-summary-article-mark)))
+    (when (or (gnus-unread-mark-p mark)
+	      (gnus-read-mark-p mark))
+      (ignore-errors
+        (gnus-summary-mark-article gnus-current-article
+                                   (or new-mark gnus-read-mark))))))
+
 (defun org-my-message-open (message-id)
-  (condition-case err
-      (if (get-buffer "*Group*")
-          (gnus-goto-article
-           (gnus-string-remove-all-properties (substring message-id 2)))
-        (org-mac-message-open message-id))
-    (error
-     (org-mac-message-open message-id))))
+  (if (get-buffer "*Group*")
+      (gnus-goto-article
+       (gnus-string-remove-all-properties (substring message-id 2)))
+    (org-mac-message-open message-id)))
+
+;; (defun org-my-message-open (message-id)
+;;   (condition-case err
+;;       (if (get-buffer "*Group*")
+;;           (gnus-goto-article
+;;            (gnus-string-remove-all-properties (substring message-id 2)))
+;;         (org-mac-message-open message-id))
+;;     (error
+;;      (org-mac-message-open message-id))))
 
 (add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
 

@@ -187,6 +187,7 @@
  '(allout-command-prefix ".")
  '(ansi-color-names-vector
    ["black" "red" "green" "brown" "blue" "magenta" "blue" "white"])
+ '(appt-display-interval 30)
  '(appt-message-warning-time 60)
  '(auto-compression-mode t nil (jka-compr))
  '(auto-save-file-name-transforms (quote (("\\`/[^/]*:.*" "/tmp" t))))
@@ -723,6 +724,7 @@
  '(pp^L-^L-string
    "                                                                              ")
  '(proof-auto-action-when-deactivating-scripting (quote retract))
+ '(proof-autosend-enable nil)
  '(proof-electric-terminator-enable t)
  '(proof-shell-fiddle-frames nil)
  '(proof-splash-enable nil)

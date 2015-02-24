@@ -398,51 +398,70 @@
     (defvar emacs-min-height
       (cond ((eq display-name 'retina-imac) 55)
             (t 44)))
-    (defvar emacs-min-width 100)))
+    (defvar emacs-min-width 100))
 
-(defun emacs-min ()
-  (interactive)
+  (defvar emacs-min-font
+    (cond
+     ((eq display-name 'retina-imac)
+      (if running-alternate-emacs
+          "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+        "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"))
+     (t
+      (if running-alternate-emacs
+          "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
+        "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"))))
 
-  (set-frame-parameter (selected-frame) 'fullscreen nil)
-  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+  (let ((frame-alist
+         (list (cons 'top (emacs-min-top))
+               (cons 'left (emacs-min-left))
+               (cons 'height emacs-min-height)
+               (cons 'width emacs-min-width)
+               (cons 'font emacs-min-font))))
+    (setq initial-frame-alist frame-alist))
 
-  (set-frame-parameter (selected-frame) 'top (emacs-min-top))
-  (set-frame-parameter (selected-frame) 'left (emacs-min-left))
-  (set-frame-parameter (selected-frame) 'height emacs-min-height)
-  (set-frame-parameter (selected-frame) 'width emacs-min-width)
+  (defun emacs-min ()
+    (interactive)
 
-  (set-frame-font
-   (cond
-    ((eq display-name 'retina-imac)
-     (if running-alternate-emacs
-         "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-       "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"))
-    (t
-     (if running-alternate-emacs
-         "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
-       "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"))))
+    (set-frame-parameter (selected-frame) 'fullscreen nil)
+    (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+    (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
 
-  (when running-alternate-emacs
-    (set-background-color "grey85")
-    (set-face-background 'fringe "gray80")))
+    (set-frame-parameter (selected-frame) 'top (emacs-min-top))
+    (set-frame-parameter (selected-frame) 'left (emacs-min-left))
+    (set-frame-parameter (selected-frame) 'height emacs-min-height)
+    (set-frame-parameter (selected-frame) 'width emacs-min-width)
 
-(if window-system
-    (add-hook 'after-init-hook 'emacs-min))
+    (set-frame-font
+     (cond
+      ((eq display-name 'retina-imac)
+       (if running-alternate-emacs
+           "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+         "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"))
+      (t
+       (if running-alternate-emacs
+           "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
+         "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"))))
 
-(defun emacs-max ()
-  (interactive)
-  (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
-  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
+    (when running-alternate-emacs
+      (set-background-color "grey85")
+      (set-face-background 'fringe "gray80")))
 
-(defun emacs-toggle-size ()
-  (interactive)
-  (if (> (cdr (assq 'width (frame-parameters))) 100)
-      (emacs-min)
-    (emacs-max)))
+  (if window-system
+      (add-hook 'after-init-hook 'emacs-min))
 
-(bind-key "C-c m" 'emacs-toggle-size)
+  (defun emacs-max ()
+    (interactive)
+    (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+    (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+    (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
+
+  (defun emacs-toggle-size ()
+    (interactive)
+    (if (> (cdr (assq 'width (frame-parameters))) 100)
+        (emacs-min)
+      (emacs-max)))
+
+  (bind-key "C-c m" 'emacs-toggle-size))
 
 (defcustom user-initials nil
   "*Initials of this user."
@@ -1268,13 +1287,14 @@
     (defun backup-each-save-filter (filename)
       (not (string-match
             (concat "\\(^/tmp\\|\\.emacs\\.d/data\\(-alt\\)?/"
-                    "\\|\\.newsrc\\(\\.eld\\)?\\)")
+                    "\\|\\.newsrc\\(\\.eld\\)?\\|"
+                    "\\(archive/sent/\\|recentf\\`\\)\\)")
             filename)))
 
     (setq backup-each-save-filter-function 'backup-each-save-filter)
 
     (defun my-dont-backup-files-p (filename)
-      (unless (string-match filename "/\\(archive/sent/\\|recentf$\\)")
+      (unless (string-match filename "\\(archive/sent/\\|recentf\\`\\)")
         (normal-backup-enable-predicate filename)))
 
     (setq backup-enable-predicate 'my-dont-backup-files-p)))
@@ -1666,71 +1686,60 @@
 
 ;;;_ , erc
 
+(defun lookup-password (host user port)
+  (require 'auth-source)
+  (funcall (plist-get
+            (car (auth-source-search
+                  :host host
+                  :user user
+                  :type 'netrc
+                  :port port))
+            :secret)))
+
+(defun irc ()
+  (interactive)
+  (if (slowping "192.168.9.133")
+      (progn
+        (erc :server "192.168.9.133"
+             :port 6697
+             :nick "johnw"
+             :password (lookup-password "192.168.9.133" "johnw/freenode" 6697))
+        (erc :server "192.168.9.133"
+             :port 6697
+             :nick "johnw"
+             :password (lookup-password "192.168.9.133" "johnw/bitlbee" 6697)))
+
+    (erc-tls :server "irc.freenode.net"
+             :port 6697
+             :nick "johnw"
+             :password (lookup-password "irc.freenode.net" "johnw" 6667))))
+
+(defun setup-irc-environment ()
+  (custom-set-faces
+   '(erc-timestamp-face ((t (:foreground "dark violet")))))
+
+  (setq erc-timestamp-only-if-changed-flag nil
+        erc-timestamp-format "%H:%M "
+        erc-fill-prefix "          "
+        erc-fill-column 88
+        erc-insert-timestamp-function 'erc-insert-timestamp-left)
+
+  (set-input-method "Agda")
+
+  (defun reset-erc-track-mode ()
+    (interactive)
+    (setq erc-modified-channels-alist nil)
+    (erc-modified-channels-update)
+    (erc-modified-channels-display)
+    (force-mode-line-update))
+
+  (bind-key "C-c r" 'reset-erc-track-mode))
+
 (use-package erc
   :if running-alternate-emacs
   :init
   (progn
-    (defun setup-irc-environment ()
-      (custom-set-faces
-       '(erc-timestamp-face ((t (:foreground "dark violet")))))
-
-      (setq erc-timestamp-only-if-changed-flag nil
-            erc-timestamp-format "%H:%M "
-            erc-fill-prefix "          "
-            erc-fill-column 88
-            erc-insert-timestamp-function 'erc-insert-timestamp-left)
-
-      (set-input-method "Agda")
-
-      (defun reset-erc-track-mode ()
-        (interactive)
-        (setq erc-modified-channels-alist nil)
-        (erc-modified-channels-update))
-
-      (bind-key "C-c r" 'reset-erc-track-mode))
-
     (add-hook 'erc-mode-hook 'setup-irc-environment)
-
-    (defun irc ()
-      (interactive)
-      (require 'auth-source)
-      (if (slowping "192.168.9.133")
-          (progn
-            (erc :server "192.168.9.133"
-                 :port 6697
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search
-                                   :host "192.168.9.133"
-                                   :user "johnw/freenode"
-                                   :type 'netrc
-                                   :port 6697))
-                             :secret)))
-            (erc :server "192.168.9.133"
-                 :port 6697
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search
-                                   :host "192.168.9.133"
-                                   :user "johnw/bitlbee"
-                                   :type 'netrc
-                                   :port 6697))
-                             :secret))))
-
-        (erc-tls :server "irc.freenode.net"
-                 :port 6697
-                 :nick "johnw"
-                 :password (funcall
-                            (plist-get
-                             (car (auth-source-search
-                                   :host "irc.freenode.net"
-                                   :user "johnw"
-                                   :type 'netrc
-                                   :port 6667))
-                             :secret)))))
-
     (add-hook 'after-init-hook 'irc))
 
   :config
@@ -1741,6 +1750,7 @@
     (use-package erc-alert)
     (use-package erc-highlight-nicknames)
     (use-package erc-patch)
+    (use-package erc-macros)
 
     (use-package erc-yank
       :init
@@ -1763,9 +1773,7 @@
     (add-hook 'erc-insert-pre-hook
               (lambda (s)
 		(when (erc-foolish-content s)
-                  (setq erc-insert-this nil))))
-
-    (use-package erc-macros)))
+                  (setq erc-insert-this nil))))))
 
 ;;;_ , eshell
 
@@ -1840,9 +1848,11 @@
   :init
   (bind-key "A-M-g" 'eww)
   :config
-  (progn
-    (bind-key "f" 'eww-lnum-follow eww-mode-map)
-    (bind-key "F" 'eww-lnum-universal eww-mode-map)))
+  (use-package eww-lnum
+    :init
+    (progn
+      (bind-key "f" 'eww-lnum-follow eww-mode-map)
+      (bind-key "F" 'eww-lnum-universal eww-mode-map))))
 
 ;;;_ , fetchmail-mode
 
@@ -2672,7 +2682,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                   (set-fill-column 72)
                   (flyspell-mode)))
 
-    (add-hook 'magit-status-mode-hook 'magit-monitor)))
+    (add-hook 'magit-status-mode-hook (lambda () (magit-monitor t)))))
 
 ;;;_ , markdown-mode
 
@@ -2809,6 +2819,28 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , org-mode
 
+(defun my-org-startup ()
+  (org-agenda-list)
+  (org-fit-agenda-window)
+  (org-agenda-to-appt)
+  (other-window 1)
+  (my-calendar)
+  (run-with-idle-timer
+   0.1 nil
+   (lambda ()
+     (let ((wind (get-buffer-window "*Org Agenda*")))
+       (when wind
+         (set-frame-selected-window nil wind)
+         (call-interactively #'org-agenda-redo)))
+     (let ((wind (get-buffer-window "*cfw-calendar*")))
+       (when wind
+         (set-frame-selected-window nil wind)
+         (call-interactively #'cfw:refresh-calendar-buffer)))
+     (let ((wind (get-buffer-window "*Org Agenda*")))
+       (when wind
+         (set-frame-selected-window nil wind)
+         (call-interactively #'org-resolve-clocks))))))
+
 (use-package dot-org
   :commands org-agenda-list
   :bind (("M-C"   . jump-to-org-agenda)
@@ -2819,14 +2851,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("C-c l" . org-insert-link)
          ("C-. n" . org-velocity-read))
   :init
-  (when (and (not running-alternate-emacs) (quickping "192.168.9.133"))
-    ;; (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (add-hook 'after-init-hook
-              #'(lambda ()
-                  (org-agenda-list)
-                  (org-fit-agenda-window)
-                  (org-agenda-to-appt)
-                  (org-resolve-clocks))) t))
+  (when (and (not running-alternate-emacs)
+             ;; (quickping "192.168.9.133")
+             )
+    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    (add-hook 'after-init-hook #'my-org-startup)))
 
 ;;;_ , pabbrev
 
@@ -3290,7 +3319,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                          (eq 'listen (process-status server-process))))
           (server-start))))
 
-    (run-with-idle-timer 300 t 'save-information)
+    (run-with-idle-timer 60 t 'save-information)
 
     (if window-system
         (add-hook 'after-init-hook 'session-initialize t))))
