@@ -412,8 +412,47 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 ;;;;;;;;;;;;;;;;;;;;;;;;;; End of "{" and "} experiments ;;;;;;;;;;;;
 
 
-(defun coq-set-undo-limit (undos)
-  (proof-shell-invisible-command (format "Set Undo %s . " undos)))
+;;;;;;;;;;;;;;;;;;;;;;;;;; Freeze buffers ;;;;;;;;;;;;
+;; For storing output of respnse and goals buffers into a permanent buffer.
+
+(defun coq-clone-buffer-response-mode (s &optional erase)
+  (let ((already-existing (get-buffer s))
+        (nb (get-buffer-create s)))
+    (save-window-excursion
+      (switch-to-buffer nb)
+      (unless already-existing
+        (coq-response-mode)
+        (read-only-mode 0))
+      (goto-char (point-min))
+      (insert "\n************************************\n")
+      (goto-char (point-min)))
+    (if erase (copy-to-buffer nb (point-min) (point-max))
+      (append-to-buffer nb (point-min) (point-max)))
+    ;; (set-window-point window pos)
+    nb))
+
+;; copy the content of proof-response-buffer into the "response-freeze" buffer,
+;; resetting its content if ERASE non nil.
+(defun proof-store-buffer-win (buffer &optional erase)
+  (proof-with-current-buffer-if-exists buffer
+    (let ((newbuffer nil))
+      (set-buffer buffer)
+      (setq newbuffer (coq-clone-buffer-response-mode "*response-freeze*" erase))
+      (let ((win (display-buffer-other-frame newbuffer))
+            (win-point-min (save-window-excursion
+                             (switch-to-buffer-other-frame newbuffer)
+                             (point-min))))
+      (set-window-point win win-point-min)))))
+
+(defun proof-store-response-win (&optional erase)
+  (interactive "P")
+  (proof-store-buffer-win proof-response-buffer erase))
+
+(defun proof-store-goals-win (&optional erase)
+  (interactive "P")
+  (proof-store-buffer-win proof-goals-buffer erase))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
@@ -501,39 +540,6 @@ Initially 1 because Coq initial state has number 1.")
 (defsubst proof-last-locked-span ()
   (with-current-buffer proof-script-buffer
     (span-at (- (proof-unprocessed-begin) 1) 'type)))
-
-(defun proof-clone-buffer (s &optional erase)
-  (let ((nb (get-buffer-create s)))
-    (save-window-excursion
-      (switch-to-buffer nb)
-      (goto-char (point-min))
-      (insert "\n************************************\n")
-      (goto-char (point-min)))
-    (if erase (copy-to-buffer nb (point-min) (point-max))
-      (append-to-buffer nb (point-min) (point-max)))
-    ;; (set-window-point window pos)
-    nb))
-
-;; copy the content of proof-response-buffer into the "response-freeze" buffer,
-;; resetting its content if ERASE non nil.
-(defun proof-store-buffer-win (buffer &optional erase)
-  (proof-with-current-buffer-if-exists buffer
-    (let ((newbuffer nil))
-      (set-buffer buffer)
-      (setq newbuffer (proof-clone-buffer "*response-freeze*" erase))
-      (let ((win (display-buffer-other-frame newbuffer))
-            (win-point-min (save-window-excursion
-                             (switch-to-buffer-other-frame newbuffer)
-                             (point-min))))
-      (set-window-point win win-point-min)))))
-
-(defun proof-store-response-win (&optional erase)
-  (interactive "P")
-  (proof-store-buffer-win proof-response-buffer erase))
-
-(defun proof-store-goals-win (&optional erase)
-  (interactive "P")
-  (proof-store-buffer-win proof-goals-buffer erase))
 
 ;; Each time the state changes (hook below), (try to) put the state number in
 ;; the last locked span (will fail if there is already a number which should
@@ -976,6 +982,9 @@ This is specific to `coq-mode'."
   (coq-ask-do
    "Locate notation (ex: \'exists\' _ , _)" "Locate"
    nil 'coq-put-into-double-quote-if-notation))
+
+(defun coq-set-undo-limit (undos)
+  (proof-shell-invisible-command (format "Set Undo %s . " undos)))
 
 (defun coq-Pwd ()
   "Display the current Coq working directory."
