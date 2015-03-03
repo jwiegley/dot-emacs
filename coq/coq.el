@@ -766,8 +766,22 @@ Support dot.notation.of.modules."
 (defun coq-id-or-notation-at-point ()
   (or (coq-id-at-point) (coq-notation-at-position (point))))
 
+
+(defcustom coq-remap-mouse-1 nil
+  "Wether coq mode should remap mouse button 1 to coq queries.
+
+This overrides the default global binding of (control mouse-1) and
+(shift mouse-1) (buffers and faces menus). Hence it is nil by
+default."
+  :type 'boolean
+  :group 'coq)
+
+
+;; On a mouse event, try to query the id at point clicked.
 (defun coq-id-under-mouse-query (event)
-  "Query the prover about the identifier or notation near mouse click EVENT."
+  "Query the prover about the identifier or notation near mouse click EVENT.
+This is mapped to control/shift mouse-1, unless coq-remap-mouse-1
+is nil (t by default)."
   (interactive "e")
   (save-selected-window
     (save-selected-frame
@@ -779,9 +793,9 @@ Support dot.notation.of.modules."
               (shft (member 'shift modifs))
               (ctrl (member 'control modifs))
               (cmd (when (or id notat)
-                     (if shft (if id "About" "Locate") (if ctrl (if id "Print" "Locate")
-                                                         (if id "Check" "Locate"))))))
-         (message "COMMAND:%S" cmd)
+                     (if (and ctrl shft) (if id "Check" "Locate")
+                       (if shft (if id "About" "Locate")
+                         (if ctrl (if id "Print" "Locate")))))))
          (proof-shell-invisible-command
           (format (concat  cmd " %s . ")
                   ;; Notation need to be surrounded by ""
@@ -2151,6 +2165,29 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?r)] 'proof-store-response-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?g)] 'proof-store-goals-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
+
+(eval-when-compile
+  (when coq-remap-mouse-1
+    (define-key proof-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-mode-map [(control mouse-1)] '(lambda () (interactive)))
+    (define-key proof-mode-map [(shift mouse-1)] '(lambda () (interactive)))
+    (define-key proof-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-mode-map [(control shift mouse-1)] '(lambda () (interactive)))
+
+    (define-key proof-response-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-response-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-response-mode-map [(control mouse-1)] '(lambda () (interactive)))
+    (define-key proof-response-mode-map [(shift mouse-1)] '(lambda () (interactive)))
+    (define-key proof-response-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-response-mode-map [(control shift mouse-1)] '(lambda () (interactive)))
+
+    (define-key proof-goals-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-goals-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-goals-mode-map [(control mouse-1)] '(lambda () (interactive)))
+    (define-key proof-goals-mode-map [(shift mouse-1)] '(lambda () (interactive)))
+    (define-key proof-goals-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
+    (define-key proof-goals-mode-map [(control shift mouse-1)] '(lambda () (interactive)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
