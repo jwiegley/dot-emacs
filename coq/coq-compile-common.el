@@ -654,10 +654,10 @@ correct in the new scripting buffer."
   (unless proof-shell-exit-in-progress
     (proof-shell-exit t)))
 
-
-(add-hook 'proof-deactivate-scripting-hook
-          'coq-switch-buffer-kill-proof-shell
-          t)
+;; This is now always done (in coq.el)
+;(add-hook 'proof-deactivate-scripting-hook
+;          'coq-switch-buffer-kill-proof-shell
+;          t)
 
 
 (provide 'coq-compile-common)

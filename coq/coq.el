@@ -2511,8 +2511,14 @@ are non-nil at the same time, this gives priority to the former."
   (let ((filename (concatenate 'string proof-home-directory "contrib/ML4PG/ml4pg.el")))
     (when (file-exists-p filename) (load-file filename) (ml4pg-select-mode))))
 
+;;;;;;;;;;;;;;
 
-
+;; This was done in coq-compile-common, but it is actually a good idea even
+;; when "compile when require" is off. When switching scripting buffer, let us
+;; restart the coq shell process, so that it applies local coqtop options. 
+(add-hook 'proof-deactivate-scripting-hook
+          'coq-switch-buffer-kill-proof-shell ;; this function is in coq-compile-common
+          t)
 
 (provide 'coq)
 
