@@ -517,3 +517,6 @@
 [submodule "lib/button-lock"]
 	path = lib/button-lock
 	url = https://github.com/rolandwalker/button-lock
+[submodule "site-lisp/liquid-types-el"]
+	path = site-lisp/liquid-types-el
+	url = https://github.com/ucsd-progsys/liquid-types.el.git
