@@ -106,6 +106,21 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Experimental: colorize hypothesis names and some parts of error
     and warning messages. For readability.
 
+*** mouse Queries
+
+    This remaps standard emacs key bindings (faces and buffers menus
+    popup), so this is not enabled by default, use (setq
+    coq-remap-mouse-1 t) to enable.
+
+    - (control mouse-1) on an identifier sends a Print query on that id.
+    - (shift mouse-1) on an identifier sends a About query on that id.
+    - (control shift mouse-1) on an identifier sends a Check query on
+      that id.
+
+    As most of the bindings, they are active in the three buffer
+    (script, goals, response).
+
+
 * Changes of Proof General 4.2 from Proof General 4.1
 
 ** Generic/misc changes

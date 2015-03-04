@@ -2166,28 +2166,27 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?g)] 'proof-store-goals-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 
-(eval-when-compile
-  (when coq-remap-mouse-1
-    (define-key proof-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-mode-map [(control mouse-1)] '(lambda () (interactive)))
-    (define-key proof-mode-map [(shift mouse-1)] '(lambda () (interactive)))
-    (define-key proof-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-mode-map [(control shift mouse-1)] '(lambda () (interactive)))
+(when coq-remap-mouse-1
+  (define-key proof-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-mode-map [(control mouse-1)] '(lambda () (interactive)))
+  (define-key proof-mode-map [(shift mouse-1)] '(lambda () (interactive)))
+  (define-key proof-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-mode-map [(control shift mouse-1)] '(lambda () (interactive)))
 
-    (define-key proof-response-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-response-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-response-mode-map [(control mouse-1)] '(lambda () (interactive)))
-    (define-key proof-response-mode-map [(shift mouse-1)] '(lambda () (interactive)))
-    (define-key proof-response-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-response-mode-map [(control shift mouse-1)] '(lambda () (interactive)))
+  (define-key proof-response-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-response-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-response-mode-map [(control mouse-1)] '(lambda () (interactive)))
+  (define-key proof-response-mode-map [(shift mouse-1)] '(lambda () (interactive)))
+  (define-key proof-response-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-response-mode-map [(control shift mouse-1)] '(lambda () (interactive)))
 
-    (define-key proof-goals-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-goals-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-goals-mode-map [(control mouse-1)] '(lambda () (interactive)))
-    (define-key proof-goals-mode-map [(shift mouse-1)] '(lambda () (interactive)))
-    (define-key proof-goals-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
-    (define-key proof-goals-mode-map [(control shift mouse-1)] '(lambda () (interactive)))))
+  (define-key proof-goals-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-goals-mode-map [(shift down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-goals-mode-map [(control mouse-1)] '(lambda () (interactive)))
+  (define-key proof-goals-mode-map [(shift mouse-1)] '(lambda () (interactive)))
+  (define-key proof-goals-mode-map [(control shift down-mouse-1)] 'coq-id-under-mouse-query)
+  (define-key proof-goals-mode-map [(control shift mouse-1)] '(lambda () (interactive))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; error handling
