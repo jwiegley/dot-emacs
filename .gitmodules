@@ -514,3 +514,6 @@
 [submodule "site-lisp/on-screen"]
 	path = site-lisp/on-screen
 	url = https://github.com/michael-heerdegen/on-screen.el.git
+[submodule "lib/button-lock"]
+	path = lib/button-lock
+	url = https://github.com/rolandwalker/button-lock
