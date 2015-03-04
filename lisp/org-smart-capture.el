@@ -94,7 +94,7 @@
              (setq fname (match-string 1 name)
                    lname ""))))
 
-    (org-capture nil "t")
+    (org-capture nil "a")
 
     (when (stringp fname)
       (insert ?\( fname)

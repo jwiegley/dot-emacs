@@ -1,7 +1,6 @@
 ## -*- mode: makefile-gmake -*-
 
-DIRS	    = override lib lisp site-lisp \
-	      $(HOME)/src/ledger/lisp
+DIRS	    = override lib lisp site-lisp $(HOME)/src/ledger/lisp
 SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 ! -name .git -type d -print)
 #SPECIAL	    = cus-dirs.el autoloads.el
 SPECIAL	    = cus-dirs.el
@@ -20,7 +19,10 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 all: $(SPECIAL) $(TARGET)
 
 compile:
-	$(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' $(DIRS)
+	$(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' override
+	$(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' lib
+	$(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' lisp
+	$(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' site-lisp
 
 cus-dirs.el: Makefile $(LIB_SOURCE)
 	$(EMACS_BATCH) -l cus-dep -f custom-make-dependencies $(DIRS)

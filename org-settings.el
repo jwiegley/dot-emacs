@@ -86,7 +86,11 @@
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         (quote
-         ("+APPT"))))))))
+         ("+APPT")))))
+     ("Z" "MobileOrg Tasks" agenda ""
+      ((org-agenda-overriding-header "MobileOrg Tasks")
+       (org-agenda-span 14)
+       (org-agenda-ndays 14))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
@@ -134,7 +138,7 @@
  '(org-beamer-frame-default-options "fragile")
  '(org-capture-templates
    (quote
-    (("t" "Task" entry
+    (("a" "Add Task" entry
       (file+headline "~/Documents/todo.txt" "Inbox")
       "* TODO %?
 SCHEDULED: %t
@@ -147,9 +151,16 @@ SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
-     ("a" "Appointment" entry
+     ("c" "Calendar" entry
       (file+headline "~/Documents/todo.txt" "Inbox")
       "* APPT %?
+SCHEDULED: %t
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("t" "Add Task" entry
+      (file+headline "~/Documents/todo.txt" "Inbox")
+      "* TODO %?
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
@@ -162,7 +173,8 @@ SCHEDULED: %t
  '(org-clock-modeline-total (quote current))
  '(org-clock-out-remove-zero-time-clocks t)
  '(org-clock-out-switch-to-state nil)
- '(org-clock-persist (quote history))
+ '(org-clock-persist t)
+ '(org-clock-persist-file "~/.emacs.d/data/org-clock-save.el")
  '(org-clock-resolve-expert t)
  '(org-completion-use-ido t)
  '(org-confirm-elisp-link-function nil)
@@ -251,7 +263,8 @@ SCHEDULED: %t
  (("~/Documents/todo.txt" :level . 1)
   ("~/Documents/OSS.txt" :level . 1)
   ("~/Documents/BAE.txt" :level . 1)
-  ("~/Documents/todo.txt" :todo . "PROJECT"))))
+  ("~/Documents/assembly.txt" :level . 1)
+  (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-src-fontify-natively t)

@@ -254,7 +254,11 @@ John Wiegley, Chairperson"))))
      ("list\\.coq\\.ssreflect"
       (to-address . "ssreflect@msr-inria.inria.fr")
       (to-list . "ssreflect@msr-inria.inria.fr")
-      (list-identifier . "\\[ssreflect\\]")))))
+      (list-identifier . "\\[ssreflect\\]"))
+     ("list\\.hott"
+      (to-address . "hott-cafe@googlegroups.com")
+      (to-list . "hott-cafe@googlegroups.com")
+      (list-identifier . "\\[hott-cafe\\]")))))
  '(gnus-permanently-visible-groups "INBOX")
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
