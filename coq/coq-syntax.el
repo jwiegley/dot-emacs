@@ -741,7 +741,7 @@ Used by `coq-goal-command-p'"
 (defun coq-section-command-p (str)
   (proof-string-match "\\`\\(Section\\|Chapter\\)\\>" str))
 
-
+;; unused anymore (for good)
 (defun coq-goal-command-str-p (str)
   "Decide syntactically whether STR is a goal start or not. Use
 `coq-goal-command-p' on a span instead if possible."
@@ -776,7 +776,8 @@ Used by `coq-goal-command-p'"
         (or (coq-section-command-p str)
             (coq-module-opening-p str)))))
 
-;; TODO: rely on coq response nistead for span grouping
+;; TODO: rely on coq response nistead for span grouping Or better have
+;; coq change its syntax for something better.
 (defvar coq-keywords-save-strict
   '("Defined" "Save" "Qed" "End" "Admitted" "Abort" )
   "This regexp must match *exactly* commands that close a goal/Module.
@@ -793,9 +794,7 @@ It is used:
   "Decide whether argument is a Save command or not"
   (or (proof-string-match coq-save-command-regexp-strict str)
       (and (proof-string-match "\\`Proof\\>" str)
-           (not (proof-string-match "Proof\\s-*\\(\\.\\|\\<with\\>\\)" str)))
-      )
-  )
+           (not (proof-string-match "Proof\\s-*\\(\\.\\|\\<with\\>\\|using\\)" str)))))
 
 
 ;; ----- keywords for font-lock.

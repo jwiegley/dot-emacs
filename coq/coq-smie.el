@@ -106,7 +106,7 @@ the token of \".\" is simply \".\"."
        ((looking-at "Proof\\>")
 	(forward-char 5)
 	(coq-find-not-in-comment-forward "[^[:space:]]") ;; skip spaces and comments
-	(if (looking-at "\\.\\|with") ". proofstart" "."))
+	(if (looking-at "\\.\\|with\\|using") ". proofstart" "."))
        ((or (looking-at "Next\\s-+Obligation\\>")
 	    (coq-smie-detect-goal-command))
 	(save-excursion
