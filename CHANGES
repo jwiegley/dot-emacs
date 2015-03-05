@@ -32,11 +32,13 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Scripting supports bullets of any length. 
     Indentation supports only bullets of length <= 4 (like ----). Longer
     may be supported if needed.
+    For indentation to work well, please use this precedence:
+    - + * -- ++ ** --- +++ *** ...
 
 *** smie indentation is now the only choice.
     Old code removed. will work only if emacs >= 23.3.
 
-*** indentation off modules, sections and proofs are customizable
+*** indentation of modules, sections and proofs are customizable
 
     (setq coq-indent-modulestart X) will set indentation width for
     modules and sections to X characters
