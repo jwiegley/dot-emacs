@@ -249,7 +249,7 @@ given OBJ under `phox-sym-lock-adobe-symbol-face' and all other characters to
 the empty string. OBJ may either be a string or a character."
   (let* ((name (phox-sym-lock-gen-symbol "face"))
 	 (table (make-display-table))
-	 (tface (make-face name "phox-sym-lock-remap-face")))
+	 (tface (make-face name)))
     (fillarray table "")
     (aset table (string-to-char (substring pat (1- pos) pos))
 	  (phox-sym-lock-translate-char-or-string obj))
@@ -266,7 +266,7 @@ the empty string. OBJ may either be a string or a character."
 (defvar phox-sym-lock-clear-face
   (let* ((name (phox-sym-lock-gen-symbol "face"))
 	 (table (make-display-table))
-	 (tface (make-face name "phox-sym-lock-remap-face")))
+	 (tface (make-face name)))
     (fillarray table "")
     (set-face-property tface 'display-table table)
     (set-face-property tface 'phox-sym-lock-remap 1) ; mark it
