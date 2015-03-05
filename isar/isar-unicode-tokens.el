@@ -18,6 +18,8 @@
   (require 'unicode-tokens)	    ; it's loaded dynamically at runtime
   (require 'proof-unicode-tokens))  ; that file loads us at runtime
 
+(declare-function isar-markup-ml "isar")
+
 ;;
 ;; Customization
 ;;
