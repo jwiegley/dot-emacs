@@ -639,6 +639,16 @@ Lemma foo: forall n,
   :type 'boolean
   :group 'coq)
 
+(defcustom coq-indent-proofstart 2
+  "Number of spaces used to indent after a proof start."
+  :type 'integer
+  :group 'coq)
+
+(defcustom coq-indent-modulestart 2
+  "Number of spaces used to indent after a module or section start."
+  :type 'integer
+  :group 'coq)
+
 (defcustom coq-match-indent 2
   "Number of space used to indent cases of a match expression.
 If the \"|\" separator is used, indentation will be reduced by 2.
@@ -838,6 +848,13 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((equal token "in let") (smie-rule-parent))
 
        ((equal token "} subproof") (smie-rule-parent))
+
+       ; using user customized variable to set indentation of modules,
+       ; section and proofs.
+       ((equal token ". proofstart")
+	(smie-rule-parent coq-indent-proofstart))
+       ((equal token ". modulestart")
+	(smie-rule-parent coq-indent-modulestart))
        ))
 
      (:before

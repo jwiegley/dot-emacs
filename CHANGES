@@ -36,6 +36,14 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** smie indentation is now the only choice.
     Old code removed. will work only if emacs >= 23.3.
 
+*** indentation off modules, sections and proofs are customizable
+
+    (setq coq-indent-modulestart X) will set indentation width for
+    modules and sections to X characters
+
+    (setq coq-indent-proofstart X) will set indentation width for
+    modules and sections to X characters
+
 *** indentation of match with cases:
     by default the indentation is like this now:
     match n with
