@@ -31,7 +31,7 @@
 (add-hook 'emacs-lisp-mode-hook
 	  (lambda ()
             (checkdoc-minor-mode 1)
-            (turn-on-eldoc-mode)
+            (eldoc-mode 1)
             (flyspell-prog-mode)
             (customize-set-variable 'whitespace-action '(cleanup))
             (define-key emacs-lisp-mode-map [(control c)(control c)]
