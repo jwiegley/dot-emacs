@@ -6,6 +6,9 @@
 ;; Adjust toolbar entries.  (Must be done before proof-toolbar is
 ;; loaded).
 
+(eval-when-compile
+  (defvar phox-toolbar-entries nil))
+
 (eval-after-load "pg-custom"
   '(setq phox-toolbar-entries
     (assq-delete-all 'context phox-toolbar-entries)))
