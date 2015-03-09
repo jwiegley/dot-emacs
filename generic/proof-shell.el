@@ -925,6 +925,15 @@ track what happens in the proof queue."
 	  ;; More efficient: keep track of size of queue as modified.
 	  (>= (length proof-action-list) proof-shell-silent-threshold)))
 
+(defsubst proof-shell-should-not-be-silent ()
+  "Non-nil if we should switch to non silent mode based on size of queue."
+  (if (and proof-shell-stop-silent-cmd ; configured
+	   proof-shell-silent)	; already non silent
+	  ;; NB: to be more accurate we should only count number
+	  ;; of scripting items in the list (not e.g. invisibles).
+	  ;; More efficient: keep track of size of queue as modified.
+	  (< (length proof-action-list) proof-shell-silent-threshold)))
+
 
 (defsubst proof-shell-insert-action-item (item)
   "Insert ITEM from `proof-action-list' into the proof shell."
@@ -975,7 +984,7 @@ being processed."
   
     (if proof-action-list ;; something to do
 	(progn
-	  (if (proof-shell-should-be-silent)
+	  (when (proof-shell-should-be-silent)
 	      ;; do this ASAP, either first or just after current command
 	      (setq proof-action-list
 		    (if nothingthere ; the first thing
@@ -984,6 +993,17 @@ being processed."
 		      (cons (car proof-action-list) ; after current
 			    (cons (proof-shell-start-silent-item)
 				  (cdr proof-action-list))))))
+	  ;; Sometimes the non silent mode needs to be set because a
+	  ;; previous error prevented to go back to non silent mode
+	  (when (proof-shell-should-not-be-silent)
+	      ;; do this ASAP, either first or just after current command
+	      (setq proof-action-list
+		    (if nothingthere ; the first thing
+			(cons (proof-shell-stop-silent-item)
+			      proof-action-list)
+		      (cons (car proof-action-list) ; after current
+			    (cons (proof-shell-stop-silent-item)
+				  (cdr proof-action-list))))))	  
 	  (when nothingthere  ; start sending commands
 	    (proof-grab-lock queuemode)
 	    (setq proof-shell-last-output-kind nil)
