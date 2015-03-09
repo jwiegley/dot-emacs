@@ -130,6 +130,11 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     As most of the bindings, they are active in the three buffer
     (script, goals, response).
 
+*** bug fixes
+    - Annoying cursor jump when hitting ".".
+    - random missing output due to the prover left in silent mode by
+      a previously scripted error.
+    - Better display of warnings (less messages lost).
 
 * Changes of Proof General 4.2 from Proof General 4.1
 
