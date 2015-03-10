@@ -192,6 +192,7 @@
  '(auto-compression-mode t nil (jka-compr))
  '(auto-save-file-name-transforms (quote (("\\`/[^/]*:.*" "/tmp" t))))
  '(auto-save-interval 64)
+ '(auto-save-list-file-prefix "~/.emacs.d/data/auto-save-list/.saves-")
  '(auto-save-timeout 2)
  '(backup-directory-alist
    (quote
@@ -553,13 +554,15 @@
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(helm-buffers-fuzzy-matching t)
+ '(helm-delete-minibuffer-contents-from-point t)
  '(helm-ff-file-name-history-use-recentf t)
  '(helm-ff-search-library-in-sexp t)
  '(helm-ff-skip-boring-files t)
- '(helm-ff-transformer-show-only-basename nil)
+ '(helm-for-files-preferred-list
+   (quote
+    (helm-source-files-in-current-dir helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-buffers-list helm-source-locate helm-source-ls-git)))
  '(helm-ls-git-show-abs-or-relative (quote relative))
- '(helm-scroll-amount 8)
- '(helm-split-window-in-side-p t)
+ '(helm-recentf-fuzzy-match t)
  '(hi2-ifte-offset 4)
  '(hi2-layout-offset 4)
  '(hi2-left-offset 4)
@@ -967,6 +970,7 @@
  '(helm-candidate-number ((t (:background "#faffb5" :foreground "black"))))
  '(helm-ls-git-modified-not-staged-face ((t (:foreground "orange red"))))
  '(helm-selection ((t (:background "#b5ffd1" :underline t))))
+ '(helm-selection-line ((t (:underline t))))
  '(helm-separator ((t (:foreground "#ffbfb5"))))
  '(helm-source-header ((t (:background "#abd7f0" :foreground "black" :underline t))))
  '(helm-visible-mark ((t (:background "#d1f5ae"))))

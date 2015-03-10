@@ -2072,13 +2072,14 @@
   :bind (("C-c h"   . helm-command-prefix)
          ("C-h a"   . helm-c-apropos)
          ("C-h e a" . my-helm-apropos)
+         ("C-x f"   . helm-multi-files)
          ("C-x C-f" . helm-find-files)
          ("M-s F"   . helm-for-files)
          ("M-s b"   . helm-occur)
          ("M-s f"   . my-helm-do-grep-r)
          ("M-s g"   . my-helm-do-grep)
          ("M-s n"   . my-helm-find)
-         ("M-s o"   . helm-occur))
+         ("M-s o"   . helm-swoop))
   :init
   (use-package helm-descbinds
     :bind ("C-h b" . helm-descbinds)
@@ -2089,9 +2090,11 @@
   (progn
     (use-package helm-commands)
     (use-package helm-files)
+    (use-package helm-buffers)
     (use-package helm-grep)
     (use-package helm-ls-git)
     (use-package helm-match-plugin)
+    (use-package helm-swoop)
 
     (helm-match-plugin-mode t)
     (helm-autoresize-mode t)
@@ -2099,12 +2102,13 @@
     (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
     (bind-key "C-i" 'helm-execute-persistent-action helm-map)
     (bind-key "C-z" 'helm-select-action helm-map)
+    (bind-key "A-v" 'helm-previous-page helm-map)
 
     (when (executable-find "curl")
       (setq helm-google-suggest-use-curl-p t))))
 
-(use-package helm-ls-git
-  :bind ("C-x f" . helm-ls-git-ls))
+;; (use-package helm-ls-git
+;;   :bind ("C-x f" . helm-ls-git-ls))
 
 ;;;_ , hi-lock
 
@@ -2566,6 +2570,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , lusty-explorer
 
 (use-package lusty-explorer
+  :disabled t
   :bind ("C-x C-f" . lusty-file-explorer)
   :config
   (progn
@@ -3845,6 +3850,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :commands (whitespace-buffer
              whitespace-cleanup
              whitespace-mode)
+  :demand t
   :init
   (progn
     (hook-into-modes 'whitespace-mode
