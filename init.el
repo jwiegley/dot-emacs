@@ -2079,7 +2079,8 @@
          ("M-s f"   . my-helm-do-grep-r)
          ("M-s g"   . my-helm-do-grep)
          ("M-s n"   . my-helm-find)
-         ("M-s o"   . helm-swoop))
+         ("M-s o"   . helm-swoop)
+         ("M-s /"   . helm-multi-swoop))
   :init
   (use-package helm-descbinds
     :bind ("C-h b" . helm-descbinds)

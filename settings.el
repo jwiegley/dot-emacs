@@ -553,8 +553,10 @@
  '(haskell-process-type (quote ghci))
  '(haskell-program-name "ghci")
  '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
+ '(helm-adaptive-history-file "~/.emacs.d/data/helm-adaptive-history")
  '(helm-buffers-fuzzy-matching t)
  '(helm-delete-minibuffer-contents-from-point t)
+ '(helm-ff-auto-update-initial-value t)
  '(helm-ff-file-name-history-use-recentf t)
  '(helm-ff-search-library-in-sexp t)
  '(helm-ff-skip-boring-files t)
@@ -562,6 +564,7 @@
    (quote
     (helm-source-files-in-current-dir helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-buffers-list helm-source-locate helm-source-ls-git)))
  '(helm-ls-git-show-abs-or-relative (quote relative))
+ '(helm-quick-update t)
  '(helm-recentf-fuzzy-match t)
  '(hi2-ifte-offset 4)
  '(hi2-layout-offset 4)
