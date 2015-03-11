@@ -49,7 +49,10 @@
       (proof-locate-executable "isabelle" nil
 			       (list
 				;; support default unpack in home dir situation
-				(concat (getenv "HOME") "/Isabelle/bin/")))
+				(concat (getenv "HOME") "/Isabelle/bin/")
+				;; or Mac Package for Isabelle2014
+				"/Applications/Isabelle2014.app/Isabelle/bin/"
+				))
       "path_to_isabelle_is_unknown")
   "Command to invoke the main Isabelle wrapper 'isabelle'.
 Emacs should be able to find `isabelle' if it is on the PATH when
