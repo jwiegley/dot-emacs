@@ -2631,6 +2631,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
     (defun lusty-read-directory ()
       "Launch the file/directory mode of LustyExplorer."
       (interactive)
+      (require 'lusty-explorer)
       (let ((lusty--active-mode :file-explorer))
         (lusty--define-mode-map)
         (let* ((lusty--ignored-extensions-regex
@@ -2660,15 +2661,15 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , magit
 
 (use-package magit
-  :bind (("C-x g" . lusty-magit-status)
-         ("C-x G" . lusty-magit-status-with-prefix))
+  :bind (("C-x g" . magit-status)
+         ("C-x G" . magit-status-with-prefix))
   :commands magit-status
   :init
   (progn
-    (defun lusty-magit-status-with-prefix ()
+    (defun magit-status-with-prefix ()
       (interactive)
       (let ((current-prefix-arg '(4)))
-        (call-interactively 'lusty-magit-status)))
+        (call-interactively 'magit-status)))
 
     (defun lusty-magit-status (dir &optional switch-function)
       (interactive (list (if current-prefix-arg
