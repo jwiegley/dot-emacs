@@ -1010,6 +1010,11 @@
           ace-jump-word-mode
           ace-jump-line-mode)))
 
+;;;_ , ag
+
+(use-package ag
+  :commands (ag ag-regexp))
+
 ;;;_ , agda
 
 (defun agda-site-lisp ()
@@ -2654,6 +2659,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 (use-package magit
   :bind (("C-x g" . lusty-magit-status)
          ("C-x G" . lusty-magit-status-with-prefix))
+  :commands magit-status
   :init
   (progn
     (defun lusty-magit-status-with-prefix ()
