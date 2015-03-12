@@ -1013,7 +1013,10 @@
 ;;;_ , ag
 
 (use-package ag
-  :commands (ag ag-regexp))
+  :commands (ag ag-regexp)
+  :init
+  (use-package helm-ag
+    :commands helm-ag))
 
 ;;;_ , agda
 
@@ -2581,7 +2584,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package lusty-explorer
   :bind ("C-x C-f" . lusty-file-explorer)
-  :config
+  :init
   (progn
     (defun my-lusty-setup-hook ()
       (bind-key "SPC" 'lusty-select-match lusty-mode-map)
