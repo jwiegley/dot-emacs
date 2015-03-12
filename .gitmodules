@@ -529,3 +529,6 @@
 [submodule "site-lisp/helm-google"]
 	path = site-lisp/helm-google
 	url = https://github.com/steckerhalter/helm-google.git
+[submodule "site-lisp/perspective"]
+	path = site-lisp/perspective
+	url = https://github.com/nex3/perspective-el
