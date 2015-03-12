@@ -535,3 +535,6 @@
 [submodule "site-lisp/ag-el"]
 	path = site-lisp/ag-el
 	url = https://github.com/Wilfred/ag.el.git
+[submodule "site-lisp/emacs-helm-ag"]
+	path = site-lisp/emacs-helm-ag
+	url = https://github.com/syohex/emacs-helm-ag.git
