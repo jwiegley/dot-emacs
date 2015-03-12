@@ -2073,7 +2073,7 @@
          ("C-h a"   . helm-c-apropos)
          ("C-h e a" . my-helm-apropos)
          ("C-x f"   . helm-multi-files)
-         ("C-x C-f" . helm-find-files)
+         ;; ("C-x C-f" . helm-find-files)
          ("M-s F"   . helm-for-files)
          ("M-s b"   . helm-occur)
          ("M-s f"   . my-helm-do-grep-r)
@@ -2183,6 +2183,10 @@
       :init
       (ido-hacks-mode 1))
 
+    (use-package flx-ido
+      :disabled t
+      :init
+      (flx-ido-mode 1))
 
     (add-hook 'ido-minibuffer-setup-hook
               #'(lambda ()
@@ -2571,7 +2575,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , lusty-explorer
 
 (use-package lusty-explorer
-  :disabled t
   :bind ("C-x C-f" . lusty-file-explorer)
   :config
   (progn
@@ -2649,14 +2652,21 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , magit
 
 (use-package magit
-  :bind (("C-x g" . magit-status)
-         ("C-x G" . magit-status-with-prefix))
+  :bind (("C-x g" . lusty-magit-status)
+         ("C-x G" . lusty-magit-status-with-prefix))
   :init
   (progn
-    (defun magit-status-with-prefix ()
+    (defun lusty-magit-status-with-prefix ()
       (interactive)
       (let ((current-prefix-arg '(4)))
-        (call-interactively 'magit-status)))
+        (call-interactively 'lusty-magit-status)))
+
+    (defun lusty-magit-status (dir &optional switch-function)
+      (interactive (list (if current-prefix-arg
+                             (lusty-read-directory)
+                           (or (magit-get-top-dir)
+                               (lusty-read-directory)))))
+      (magit-status dir switch-function))
 
     (defun eshell/git (&rest args)
       (cond
@@ -2934,6 +2944,14 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :if (and window-system (not running-alternate-emacs)
            (not noninteractive)))
 
+;;;_ , perspective
+
+(use-package perspective
+  :disabled t
+  :init (persp-mode)
+  :config
+  (use-package persp-projectile))
+
 ;;;_ , popup-ruler
 
 (use-package popup-ruler
@@ -3026,9 +3044,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , projectile
 
 (use-package projectile
-  :disabled t
   :diminish projectile-mode
-  :init (projectile-global-mode))
+  :init (projectile-global-mode)
+  :config
+  (use-package helm-projectile))
 
 ;;;_ , proofgeneral
 
