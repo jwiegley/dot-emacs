@@ -532,3 +532,6 @@
 [submodule "site-lisp/perspective"]
 	path = site-lisp/perspective
 	url = https://github.com/nex3/perspective-el
+[submodule "site-lisp/ag-el"]
+	path = site-lisp/ag-el
+	url = https://github.com/Wilfred/ag.el.git
