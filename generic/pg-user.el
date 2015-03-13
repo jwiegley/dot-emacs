@@ -1,4 +1,3 @@
-
 ;;; pg-user.el --- User level commands for Proof General
 ;;
 ;; Copyright (C) 2000-2010 LFCS Edinburgh.
@@ -506,9 +505,12 @@ This is intended as a value for `proof-activate-scripting-hook'"
 			       proof-terminal-string)))))))
 
 ;;;###autoload
-(defun proof-electric-terminator-enable ()
+(defun proof-electric-terminator-enable (&optional arg)
   "Ensure modeline update to display new value for electric terminator.
-This a function is called by the custom-set property 'proof-set-value."
+This a function is called by the custom-set property 'proof-set-value.
+It can also be used as a minor mode function: with ARG, turn on iff ARG>0"
+  (unless (null arg)
+    (setq proof-electric-terminator-enable (> (prefix-numeric-value arg) 0)))
   (force-mode-line-update))
 
 (proof-deftoggle proof-electric-terminator-enable
