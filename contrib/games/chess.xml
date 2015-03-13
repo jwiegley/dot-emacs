@@ -1,0 +1,57 @@
+<game style="san">
+<location>
+  <site></site>
+  <event></event>
+  <setting>tournament|club|informal|correspondence</setting>
+</location>
+<players>
+  <white>
+    <name>
+      <last></last>
+      <first></first>
+      <middle></middle>
+    </name>
+    <city></city>
+    <country></country>
+    <rating system="elo"></rating>
+  </white>
+  <black></black>
+</players>
+<rules>
+  <control></control>
+  <variation></variation>>
+</rules>
+<info></info>
+<play>
+  <move>
+    <position style="fen">FEN-string</position>
+    <text style="desc-en"></text>
+    <sic style="san"></sic>
+    <ann style="nag"></ann>
+    <diagram/>
+    <comment></comment>
+    <variation></variation>
+    <adjourned until="DATE TIME"/>  <!-- indicates the game adjourned here -->
+  </move>
+</play>
+<!-- The <result> tag indicates the final result of the game.
+     The method field specifies the type of defeat.
+     The justification field is necessary if the method of
+       defeat is not clear.
+  -->
+<result method="resigned">
+  <score>0-1</score>
+  <method>
+       resigned
+       mated
+       stalemated
+       repetition
+       draw accepted
+       flag fell
+       aborted
+       judgment
+       other
+  </method>
+  <justification></justification>
+</result>
+</game>
