@@ -1,0 +1,193 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename monky.info
+@settitle Monky User Manual
+@c %**end of header
+
+@copying
+Copyright @copyright{} 2010 Anantha Kumaran.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.
+@end quotation
+@end copying
+
+@node Top
+@top Monky User Manual
+
+Monky is an emacs extension, provides an interactive interface for Hg
+
+@menu
+* Introduction::
+* Sections::
+* Status::
+* Untracked files::
+* Missing Files::
+* Staging and Committing::
+* Merged Files::
+* Pushing and Pulling::
+* Log::
+* Blame::
+* Branch::
+* Queue::
+* Using Hg Directly::
+@end menu
+
+@node Introduction
+@chapter Introduction
+
+Monky provides an interactive interface for Hg. Using Monky, your can
+selectively commit files, view the diffs and other things.
+
+@node Sections
+@chapter Sections
+
+All items in the Monky buffers are nested 'sections'. The visibility
+of the current section can be toggled using @kbd{TAB} key. When a
+section is hidden, only its first line is shown and all its children
+are completely invisible.
+
+@node Status
+@chapter Status
+
+Running @kbd{M-x monky-status} while visiting any file in a repo
+displays the status of the hg repo. The status buffer list down the
+missing files, untracked files and changed files. By default the diff
+of the files are invisible. Use @kbd{TAB} key to toggle the visibility.
+
+During a merge the buffer will show the list of merged files, and
+files unmodified during the merge.
+
+@node Untracked files
+@chapter Untracked files
+
+you can add a untracked file by typing key @kbd{s}. Type @kbd{k} to
+delete the file.
+
+@node Missing Files
+@chapter Missing Files
+
+This section list the files missing from the repo. Typing @kbd{s} will
+remove the file from the repo. To restore the file type @kbd{k}.
+
+@node Staging and Committing
+@chapter Staging and Committing
+
+@emph{Changes} section will list all the changes in the repo. Using
+monky you can select a subset of your changes and commit it. Type
+@kbd{s} to stage a file. Typing @kbd{S} will stage all files.
+
+@emph{Staged Changes} section will list all the staged changes in the
+repo. Type @kbd{u} to unstage a file. Typing @kbd{U} will unstage all
+the previously staged files.
+
+Once you staged all the necessary files type @kbd{c}. This will pop-up
+a buffer for the commit message. Typing @kbd{C-c C-c} will commit all
+the staged files.
+
+You can reset the current working directory by typing @kbd{X}.
+
+Hg doesn't have any staging area. So staging and unstaging won't make
+any changes to your repo unless you commit.
+
+@node Merged Files
+@chapter Merged Files
+
+After a merge, this section will list the files merged. Typing @kbd{m}
+will mark the file as resolved and @kbd{x} will mark the file as
+unresolved. After a merge, Hg doesn't allows to commit a subset of
+changes. so files can't be staged or unstaged. So committing after a
+merge will commit all the merged and unmodified files during the
+merge.
+
+@node Pushing and Pulling
+@chapter Pushing and Pulling
+
+Type @kbd{P} to push the current branch, @kbd{f} to pull changes
+from remote and @kbd{F} to fetch changes from the remote. You can
+specify the source/destination to the previous commands  with a prefix
+argument.
+
+@node Log
+@chapter Log
+
+Typing @kbd{l} will bring up the log buffer. This will list the commit
+logs of the repo. You can use @kbd{n} and @kbd{p} to move to the
+previous and next commit. Type @kbd{RET} to see the commit
+information, @kbd{C} to checkout the commit.
+
+Monky will show only @code{monky-log-cutoff-length} entries. Typing
+@kbd{e} will show twice as many entries. @kbd{C-u e} will show all
+entries, and given a numeric prefix argument, @kbd{e} will add this
+number of entries.
+
+@node Blame
+@chapter Blame
+
+Run @kbd{M-x monky-blame-current-file} to see the annotation of the
+current file. Type @kbd{RET} to see the commit which
+introduced/changed the current line.
+
+@node Branch
+@chapter Branch
+
+Typing @kbd{b} will bring up the branch buffer. This will list all the
+branches. You can use @kbd{C} to checkout a branch.
+
+@node Queue
+@chapter Queue
+
+Use @kbd{M-x monky-queue} or @kbd{Q} from the status buffer to view
+the queue buffer. The queue buffer will list the @emph{Applied
+Patches}, @emph{UnApplied Patches} and the @emph{Series}.
+
+@multitable @columnfractions .15 .85
+@headitem Key @tab Description
+@item u
+@tab pop the selected patch and all the patches before it
+@item U
+@tab pop all the applied patches
+@item s
+@tab push the selected patch and all the patches before it
+@item S
+@tab push all the unapplied patches
+@item r
+@tab refresh(update) the current patch with the changes in working
+directory
+@item C-u r
+@tab refresh the current patch and allows to edit the commit message
+@item R
+@tab rename the selected patch
+@item k
+@tab remove the selected patch
+@item N
+@tab create a new patch on top of current patch
+@item C-u N
+@tab same as N except this will also read the commit message for the patch
+@item i
+@tab import(qimport) patches from change sets. a change set at the point
+or change sets in a selected region (when selected) will be imported.
+@item d
+@tab fold the selected patch into the current patch
+@item f
+@tab apply(qfinish) the selected patch into repo history
+@item F
+@tab apply(qfinish) all applied patches into repo history
+@item G
+@tab reset the guards of the selected patch with new guards
+@item o
+@tab pop all patches and edit .hg/patches/series file to reorder them
+@end multitable
+
+@node Using Hg Directly
+@chapter Using Hg Directly
+
+To run a Hg command directly type @kbd{:} and enter the command in the
+minibuffer. This will refresh the status buffer after the execution of
+command.  The output of the command can be viewed by typing @kbd{$}.
+
+@bye
