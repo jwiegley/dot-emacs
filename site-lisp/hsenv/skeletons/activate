@@ -1,0 +1,135 @@
+if [ -n "${HSENV}" ]; then
+    if [ "<HSENV>" = "${HSENV}" -a "<HSENV_NAME>" = "${HSENV_NAME}" ]; then
+        echo "${HSENV_NAME} Virtual Haskell Environment is already active."
+    else
+        echo "There is already ${HSENV_NAME} Virtual Haskell Environment activated."
+        echo "(at ${HSENV})"
+        echo "Deactivate it first (using command 'deactivate_hsenv'), to activate"
+        echo "<HSENV_NAME> environment."
+    fi
+    return 1
+fi
+
+# Source a user script.
+hsenv_bin() {
+    if [ -f ~/.hsenv/bin/$1 ]; then
+        . ~/.hsenv/bin/$1
+    fi
+}
+
+export HSENV="<HSENV>"
+export HSENV_NAME="<HSENV_NAME>"
+
+echo "Activating ${HSENV_NAME} Virtual Haskell Environment (at ${HSENV})."
+echo ""
+echo "Use regular Haskell tools (ghc, ghci, ghc-pkg, cabal) to manage your Haskell environment."
+echo ""
+echo "To exit from this virtual environment, enter command 'deactivate_hsenv'."
+
+hsenv_bin pre-activate
+
+HSENV_PATH_BACKUP="$PATH"
+
+if <MODIFY_PS1>; then
+    HSENV_PS1_BACKUP="$PS1"
+fi
+
+deactivate_hsenv() {
+    echo "Deactivating ${HSENV_NAME} Virtual Haskell Environment (at ${HSENV})."
+    echo "Restoring previous environment settings."
+
+    hsenv_bin pre-deactivate
+
+    export PATH="$HSENV_PATH_BACKUP"
+    unset -v HSENV_PATH_BACKUP
+
+    if <MODIFY_PS1>; then
+        PS1="$HSENV_PS1_BACKUP"
+        unset -v HSENV_PS1_BACKUP
+    fi
+
+    hsenv_bin post-deactivate
+
+    unset -v PACKAGE_DB_FOR_CABAL
+    unset -v PACKAGE_DB_FOR_GHC_PKG
+    unset -v PACKAGE_DB_FOR_GHC
+    unset -v PACKAGE_DB_FOR_GHC_MOD
+    unset -v HSENV
+    unset -v HSENV_NAME
+    unset -v HASKELL_PACKAGE_SANDBOX
+    unset -f deactivate_hsenv
+    unset -f hsenv_bin
+
+    if [ -n "$BASH" -o -n "$ZSH_VERSION" ]; then
+        hash -r
+    fi
+}
+
+PATH_PREPENDIX="$(cat <HSENV_DIR>/path_var_prependix)"
+export PATH="${PATH_PREPENDIX}:${PATH}"
+unset -v PATH_PREPENDIX
+
+unset -v PACKAGE_DB_FOR_GHC
+ghc --version > /dev/null
+if [ "$?" -ne 0 ]; then
+    echo "Failed to get ghc version. Deactivating environment..."
+    deactivate_hsenv
+    exit 1
+fi
+
+# To compare version numbers as ints, split at dots, check them all.
+GHC_VERSION_OUTPUT="$(ghc --version)"
+GHC_VERSION_NUMBER="$(echo $GHC_VERSION_OUTPUT | sed 's/.* //' | tr '.' ' ')"
+
+item=1
+for check_num in 7 6 1
+do
+  cur_num=$(echo $GHC_VERSION_NUMBER | awk "{ print \$$item; }")
+
+  if [ "$cur_num" -lt "$check_num" ]
+  then
+    PKG_DB_OPT_SUFFIX="conf"
+    break
+  fi
+  item=$(expr $item + 1)
+done
+
+# If it's still unset, we're >= 7.6.1
+if [ -z "$PKG_DB_OPT_SUFFIX" ]
+then
+    PKG_DB_OPT_SUFFIX="db"
+fi
+
+export HASKELL_PACKAGE_SANDBOX="`<<HSENV_DIR>/ghc_package_path_var`"
+
+GHC_PACKAGE_PATH_REPLACEMENT="$(cat <HSENV_DIR>/ghc_package_path_var | sed -e 's/^/:/' -e 's/::*/:/g' -e 's/:\s*$//')"
+
+replace_pkg () {
+  replacement=$1
+
+  echo "$GHC_PACKAGE_PATH_REPLACEMENT" | sed -e "s/:/ $replacement/g"
+}
+
+export PACKAGE_DB_FOR_CABAL="$(replace_pkg '--package-db=')"
+export PACKAGE_DB_FOR_GHC_PKG=" --no-user-package-${PKG_DB_OPT_SUFFIX} $(replace_pkg --package-${PKG_DB_OPT_SUFFIX}=)"
+export PACKAGE_DB_FOR_GHC=" -no-user-package-${PKG_DB_OPT_SUFFIX} $(replace_pkg -package-${PKG_DB_OPT_SUFFIX}=)"
+export PACKAGE_DB_FOR_GHC_MOD=" -g -no-user-package-${PKG_DB_OPT_SUFFIX} $(replace_pkg '-g -package-'${PKG_DB_OPT_SUFFIX}=)"
+
+if <MODIFY_PS1>; then
+    if [ -n "$HSENV_NAME" ]; then
+        PS1="($HSENV_NAME)$PS1"
+    else
+        PS1="[hsenv]$PS1"
+    fi
+fi
+
+unset -v GHC_VERSION_OUTPUT
+unset -v GHC_VERSION_NUMBER
+unset -v PKG_DB_OPT_SUFFIX
+unset -v GHC_PACKAGE_PATH_REPLACEMENT
+
+if [ -n "$BASH" -o -n "$ZSH_VERSION" ]; then
+    hash -r
+fi
+
+hsenv_bin post-activate

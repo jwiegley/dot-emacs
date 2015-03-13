@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PATH_ELEMS="$(echo ${PATH} | tr -s ':' '\n')"
+
+ORIG_GHC_MOD_BINARY=""
+
+for PATH_ELEM in ${PATH_ELEMS}; do
+    GHC_MOD_CANDIDATE="${PATH_ELEM}/ghc-mod"
+    if command -v "${GHC_MOD_CANDIDATE}" > /dev/null 2> /dev/null; then
+        if [ "${0}" != "${GHC_MOD_CANDIDATE}" ]; then
+            if [ -z "${ORIG_GHC_MOD_BINARY}" ]; then
+                ORIG_GHC_MOD_BINARY="${GHC_MOD_CANDIDATE}"
+            fi
+        fi
+    fi
+done
+
+if [ -z "${ORIG_GHC_MOD_BINARY}" ]; then
+    echo "ghc-mod wrapper: Couldn't find real ghc-mod program"
+    exit 1
+fi
+
+exec "$ORIG_GHC_MOD_BINARY" ${PACKAGE_DB_FOR_GHC_MOD} "$@"
