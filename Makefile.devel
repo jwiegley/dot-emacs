@@ -134,7 +134,7 @@ CVS_RELEASENAME = Release-$(CVS_VERSION)
 
 # Where to release (i.e. copy) a new distribution to.
 # This may be the final directory (local) or temporary directory.
-# was: RELEASEDIR = /home/proofgen/www
+# # was: RELEASEDIR = /home/proofgen/www
 RELEASEDIR = /tmp/proofgeneral-www
 
 # How to make the release "live".  (Could be "true" to do nothing).
@@ -412,7 +412,7 @@ release: check distclean tag dist
 	mkdir -p $(RELEASEDIR)
 	(cd $(DISTBUILDIR); rm -f $(NAME))
 	(cd $(RELEASEDIR); rm -rf $(RELEASENAME))
-	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
+	cp -pfR $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(LATESTNAME); ln -s  $(RELEASENAME) $(LATESTNAME))
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETGZ) $(LATESTNAME).tgz)
 	(cd $(RELEASEDIR); echo $(PRERELEASE_TAG) > $(PREREL_TAG_FILE))
