@@ -1,0 +1,180 @@
+-*- mode:org -*-
+#+Title: Org Merge Driver
+* Introduction
+This is Org Merge Driver, a program for merging changes to Org mode
+files.
+
+This project is currently being developed under Google Summer of Code
+2012 for the Gnu organization.
+
+- The project page can be found [[http://orgmode.org/worg/org-contrib/gsoc2012/student-projects/git-merge-tool/index.html][here]].
+- The homepage of Org-mode is [[http://orgmode.org][here]].
+
+* Obtaining the source code
+The source code may be obtained from the GIT repository hosted at
+Orgmode.org.
+
+#+begin_src sh
+  git clone git://orgmode.org/org-merge-driver.git
+#+end_src
+
+* Compiling
+Compiling this program requires that you have autotools installed. To
+compile this program, you should only have to run:
+
+#+begin_src sh
+  autoreconf --install && ./configure && make
+#+end_src
+
+If this fails because of missing dependencies, please see [[Dependencies][dependencies]]
+below.
+
+* Quick Start
+** Using and Installation
+** Git users:
+1. Add to your git configuration located in either
+   ${GIT_DIR}/.git/config (for repository local configuration) or
+   ~/.gitconfig (for global configuration) the following lines:
+
+#+begin_src sh
+  [merge "merge-orgmode"]
+  name = Org Mode merge driver
+  driver = /usr/local/bin/org-merge-driver -- %O %A %B %A
+#+end_src
+
+2. In every work tree you wish to you the org-merge-driver, make a
+   .gitattributes file or .git/info/attributes if you don't want to have
+   the file committed with the project.  Add the following line to this
+   file:
+
+#+begin_src
+*.org merge=merge-orgmode
+#+end_src
+
+(See "man 5 gitattributes" for more info.)
+
+** Bazaar users:
+1. Install the [[http://doc.bazaar.canonical.com/plugins/en/index.html][extmerge bzr plug-in]]
+2. Add to your ~/.bazaar/bazaar.conf the line
+
+#+begin_src sh
+  external_merge = org-merge-driver -- %b %T %o %T
+#+end_src
+
+3. Then, to merge a conflict in a ChangeLog file, use
+
+#+begin_src sh
+  bzr extmerge --all --verbose
+#+end_src
+
+** Mercurial users:
+1. Add to your $HOME/.hgrc the lines
+
+#+begin_src sh
+  [merge-patterns]
+  ,**.org = org-merge-driver
+  
+  [merge-tools]
+  org-merge-driver.executable = /usr/local/bin/org-merge-driver
+  org-merge-driver.args = -- $base $local $other $local
+#+end_src
+
+See [[http://www.selenic.com/mercurial/hgrc.5.html][Configuration files for Mercurial]], section merge-tools for
+reference.
+
+* Options
+This program currently supports the following options:
+
+| Short | Long                | Description                         |
+|-------+---------------------+-------------------------------------|
+| -m,   | --rmargin=COLUMN    | Set the right margin of headings    |
+| -N,   | --notabs            | Use only spaces in the output       |
+| -p,   | --priority=PRIORITY | Specify an accepted prority         |
+| -t,   | --todo=STATE        | Specify an accepted todo state.     |
+| -T,   | --usetabs           | Use tabs in the output, unused.     |
+| -W,   | --tabwidth=WIDTH    | The width of tabs in spaces, unused |
+| -?,   | --help              | Give this help list                 |
+|       | --usage             | Give a short usage message          |
+| -V,   | --version           | Print program version               |
+
+** "TODO" States
+If you have defined TODO states, you can describe them with this
+command. The defaults are set to "TODO" and "DONE". Declaring a single
+todo state causes the default set of todo states to be
+discarded. Because of this, you must declare all TODO states used.
+
+At this time, Todo states can only be configured on the command line.
+
+#+begin_example
+  org-merge-driver -tDONE --todo=TODO
+#+end_example
+
+** Priority Cookies
+If you have defined more priority states system-wide, you can describe
+them with this command. The defaults are set to 'A', 'B', and 'C'. You
+must declare all priority states used (all defaults are immediately
+overridden). Currently, priority cookies may only be a single ASCII
+character.
+
+#+begin_example
+  org-merge-driver -pA -pB --priority=C
+#+end_example
+
+** Right Margin
+Org-merge-driver will attempt to minimize reformatting, but it is
+sometimes necessary for org-merge-driver to realign text on the right
+margin of the text. This can happen after merging lists of heading
+TAGS.
+
+You can set the preferred right margin value (in spaces) with the
+=--rmargin== command. If the margin is not large enough to fit a line
+of text, it will extend past the margin. The default margin value is
+77 spaces.
+
+#+begin_example
+  org-merge-driver -m77
+#+end_example
+
+** Specify Input and Out Files
+To perform a merge, org-merge-driver requires three files -- your copy
+of a file, a remotely updated file, and a common ancestor file. These
+are given to org-merge-driver in the order ancestor, local, remote.
+
+To ensure that the file names are not confused with command line
+options, you can seperate them from the rest of the arguments with
+=--=.
+
+By default, org-merge-driver prints the merged file to stdout.  To
+have the output printed to a file, specify a fourth file on the
+command line.
+
+#+begin_example
+  org-merge-driver -- ancestor.org local-update.org remote-update.org output.org
+#+end_example
+
+* Dependencies
+To compile org-merge-driver, you may need: [[http://www.gnu.org/software/gnulib/][Gnulib]], [[http://flex.sourceforge.net/][Flex]] (not lex) and
+GNU Autotools installed.  Install Flex and autotools using your desired
+package manager.  To obtain gnulib follow the instructions below.
+
+** To obtain Gnulib:
+You must obtain Gnulib by it's source code, there is no binary
+distribution.  Through git or cvs:
+#+begin_src sh
+  git clone git://git.savannah.gnu.org/gnulib.git
+  # or
+  cvs -d :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git co -d gnulib HEAD
+#+end_src
+
+** Reimporting gnulib-tool dependencies
+#+begin_src sh
+  cd $(top_srcdir)
+  /PATH/TO/GNULIB/gnulib-tool --add-import
+#+end_src
+
+** Compiling
+To compile,  run:
+#+begin_src sh
+  autoreconf -i
+  ./configure && make
+#+end_src
