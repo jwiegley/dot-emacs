@@ -1,0 +1,81 @@
+This is extension to the Emacs browser [[http://www.emacswiki.org/emacs/eww][eww]] that adds [[http://conkeror.org][conkeror]] like
+functionality[1].  More specifically, the following commands are
+provided:
+
+*eww-lnum-follow* activates numbering and visits selected link,
+activates/moves to form field or pushes button.
+
+*eww-lnum-universal* activates numbering and offers appropriate
+actions for the selection.
+
+[[https://www.youtube.com/watch?v=BKc3vgZH5ZE][Screencast]] (use the highest video quality)
+
+* Setup
+
+Here's example how to assign key bindings for the above commands:
+
+#+BEGIN_SRC emacs-lisp
+  (eval-after-load "eww"
+    '(progn (define-key eww-mode-map "f" 'eww-lnum-follow)
+            (define-key eww-mode-map "F" 'eww-lnum-universal)))
+#+END_SRC
+
+* Customize
+
+*eww-lnum-quick-browsing* determines shortcutting method during
+selection.
+
+*eww-lnum-context-alist* is a way to extend context of matching
+elements while filtering.  This can be convenient for example to
+connect article with comment link on sites like reddit.
+
+* Hacking
+
+** Extend universal dispatch
+
+Actions offered after "universal" selection are determined by
+*eww-lnum-actions-general* (present for all elements),
+*eww-lnum-actions-link-alist* (added for links) and
+*eww-lnum-actions-button-alist* (added for buttons, checkboxes or
+radio) variables.  Here's example how to add Curl integration to
+download links (this is actualy built-in):
+
+#+BEGIN_SRC emacs-lisp
+  (setq eww-lnum-actions-link-alist
+        (append eww-lnum-actions-link-alist
+                '((?D (lambda (info)
+                        (let ((olddir default-directory))
+                          (cd (read-directory-name
+                               "Save to: " eww-download-directory
+                               nil t))
+                          (shell-command
+                           (concat "curl -k -O '" (car info) "' &")
+                           "*Curl*")
+                          (cd olddir)))
+                      "Download with Curl"))))
+#+END_SRC
+
+** Use link numbering to create new commands
+
+The *eww-lnum-get-action* function can be used to invoke numbering
+with all filtering, bells and whistles and return what the user has
+chosen.  Here's example:
+
+#+BEGIN_SRC emacs-lisp
+  (eww-lnum-get-action "Follow: ")
+#+END_SRC
+
+If returned is not nil, it has the following form:
+
+#+BEGIN_EXAMPLE
+  (href/eww-form position)
+#+END_EXAMPLE
+
+Look at the usage in *eww-lnum-follow*.
+
+* Footnotes
+
+[1] In short, currently visible links, forms, buttons are temporarily assigned
+numbers with which the former can be immediately activated.  Also
+filtering can be applied so selection can be incrementally confined in
+[[http://www.emacswiki.org/emacs/IncrementalSearch][Isearch]] manner.
