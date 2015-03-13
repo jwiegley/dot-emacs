@@ -2960,7 +2960,14 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :disabled t
   :init (persp-mode)
   :config
-  (use-package persp-projectile))
+  (progn
+    (use-package persp-projectile)
+    (use-package helm-projectile
+      :demand t
+      :init
+      (progn
+        (setq projectile-completion-system 'helm)
+        (helm-projectile-on)))))
 
 ;;;_ , popup-ruler
 
