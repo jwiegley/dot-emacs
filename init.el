@@ -1501,11 +1501,9 @@
         ;; (use-package dired-async)
         ;; (use-package dired-sort-map)
         (use-package runner)
-        (use-package dired-details-hide
-          :commands dired-details-toggle)
+        (use-package dired+)
 
         (bind-key "l" 'dired-up-directory dired-mode-map)
-        (bind-key "H" 'dired-details-toggle dired-mode-map)
 
         (defun my-dired-switch-window ()
           (interactive)
@@ -3610,7 +3608,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , sunrise-commander
 
 (use-package sunrise-commander
-  :disabled t
   :commands (sunrise sunrise-cd)
   :init
   (progn
