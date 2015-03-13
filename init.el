@@ -1920,6 +1920,7 @@
 ;;;_ , git-wip
 
 (use-package git-wip-mode
+  :disabled t
   :load-path "site-lisp/git-wip/emacs/"
   :demand t
   :diminish git-wip-mode)
