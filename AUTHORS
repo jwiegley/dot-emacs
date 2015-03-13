@@ -1,0 +1,28 @@
+This file lists all people who contributed more than a few lines to
+emms.  This is necessary to keep track of people who have copyright
+claims on sources, so please don't be too humble and add yourself.
+
+Damien Elmes <emacs@repose.cx>
+Daniel Brockman <daniel@brockman.se>
+Jean-Philippe Theberge <jphiltheberge@videotron.ca>
+Jorgen Schaefer <forcer@forcix.cx>
+Lawrence Mitchell <wence@gmx.li>
+Lucas Bonnet <lucas@rincevent.net>
+Mario Domgörgen <kanaldrache@gmx.de>
+Mario Lang <mlang@delYsid.org>
+Martin Schoenmakers <aiviru@diamond-age.net>
+Matthew Kennedy <mkennedy@gentoo.org>
+Michael Olson <mwolson@gnu.org>
+Tassilo Horn <tassilo@member.fsf.org>
+Trent Buck <trentbuck@gmail.com>
+Ulrik Jensen <terryp@daimi.au.dk>
+William Xu <william.xwl@gmail.com>
+Ye Wenbin <wenbinye@gmail.com>
+Yoni Rabkin Katzenell <yoni-r@actcom.com>
+Jesse Weinstein <jessw@netwood.net>
+David Engster <deng@randomsample.de>
+Bram van der Kroef <bram@fortfrances.com>
+
+;; Local variables:
+;; coding: utf-8
+;; End:
