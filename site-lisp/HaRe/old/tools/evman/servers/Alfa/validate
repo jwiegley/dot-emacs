@@ -1,0 +1,153 @@
+#!/bin/bash
+
+# Script to validate Alfa certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA", "$certsDir" and "$SERVERDIR" to be set.
+# It also expects the name of a certificate on the command line.
+
+type=Alfa
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh" # defines $module, $conc, $attr, $certpath, etc
+hyp=`getattr hyp "$attr"`
+
+proof_dir=alfa
+
+### Auxiliary functions ########################################################
+
+## Use for testing, works without Alfa:
+fakealfacheck() {
+  grep -wq "$proof" "$proof_file" && ! fgrep -q '?' "$proof_file"
+}
+
+# Create the proposition to be proved (an implication from $hyp to $conc)
+createprop() {
+  prop=""
+  sep=""
+  oldIFS="$IFS"
+  IFS=", "
+  for h in $* ; do
+    [ "$h" = "" -o "$h" = ".." ] || { prop="$prop$sep Module_$h"; sep=" ->"; }
+  done
+  prop="$prop$sep Module_$assertion"
+  IFS="$oldIFS"
+}
+
+## Proper check, requires Alfa >= 2003-07-15
+alfacheck() {
+  # Assumes that $proof_file and $proof are set
+  wrapper_file="$proof_dir/wrapper.alfa"
+
+  # Compute a path to $proof_file, relative to $wrapper_file:
+  case "$proof_file" in
+    $proof_dir/*) proof_path="${proof_file#$proof_dir/}";;
+    /*) proof_path="$proof_file";;
+    *) proof_path="../$proof_file"
+  esac
+
+  rm -f "$wrapper_file"
+  echo '--#include "'"$module.alfa"'"' >$wrapper_file
+  echo '--#include "'"$proof_path"'"' >>$wrapper_file
+  echo "proof :: $prop = $proof" >>$wrapper_file
+
+  echo >&2 "Running Alfa"
+  FUD_solvecnt="${FUD_solvecnt-300}"; export FUD_solvecnt
+  (unset DISPLAY ; alfa "$wrapper_file" -check > "$output"  2>&1)
+  #rm "$wrapper_file"
+}
+
+validate() {
+  mkdir -p "$proof_dir"
+  ( cd "$proof_dir"; ln -sf $SERVERDIR/*.alfa . )
+  case "$simple" in
+    True) pfecmd="alfa -simplepats" ;;
+    *) pfecmd=alfa
+  esac
+  #echo "createprop $hyp"
+  createprop $hyp
+  echo "pfe $pfecmd $module"
+  if pfe $pfecmd $module >"$output" 2>&1 ; then
+    if [ -r "$proof_file" ] ; then
+      echo "Proof missing" >"$output"
+      if alfacheck; then 
+	markvalid
+      else 
+	#echo "Proof missing or incomplete."
+	tail -1 "$output" # Hmm. Error message can be longer than 1 line!!
+	echo "Put your proof in $proof_file and call it $proof."
+	markinvalid
+      fi
+    else
+      echo '--#include "'"$proof_dir/$module.alfa"'"' >$proof_file
+      echo "$proof :: $prop = ?" >>$proof_file
+      abort "Open $proof_file in Alfa and create a proof called $proof, then validate again."
+    fi
+  else
+    cat "$output"
+    markinvalid
+  fi
+}
+
+validatenew() {
+  validate
+}
+
+auxfilechange() {
+  while read file ; do
+    if [ "$file" -nt "$certpath/valid" ] ; then
+      return 0
+    fi
+  done < <(certauxfiles "$certpath")
+  return 1
+}
+
+revalidate() {
+  tmpdiff="$certsDir/diff$$"
+  if [ "$attr" -nt "$certpath/valid" ] ; then
+    echo "Certificate attributes have changed."
+    validate
+  elif auxfilechange ; then
+    # This assumes that all relevant Alfa files are mentioned in $attrs!!!
+    echo "Some auxiliary certificate file has changed."
+    validate
+  elif ! pfe tadiff "$deps" "$assertion" >"$tmpdiff" || [ -s "$tmpdiff" ] ; then
+    #echo "The following changes might affect the validity of"
+    echo "There has been changes that might affect the validity of"
+    echo "the $type certificate $cert."
+    #echo ""
+    #cat "$tmpdiff"
+    echo ""
+    validate
+  else
+    echo "There has been no changes affecting the validity of"
+    echo "the $type certificate $cert. Marking it as still valid."
+    datestamp valid $certpath $module
+  fi
+  status=$?
+  rm -f "$tmpdiff"
+  return $status
+}
+
+### Here we go... ##############################################################
+
+proof_file="`getattr file/proof "$attr"`"
+proof="`getattr proof "$attr"`"
+simple="`getattr SimplePatterns "$attr"`"
+
+if [ -z "$proof_file" ] ; then
+  # Default Alfa file for proofs. The user can change this.
+  proof_file="${module}Proofs.alfa"
+  setattr file/proof "$proof_file" "$attr"
+fi
+
+if [ -z "$proof" ] ; then
+  proof="proof$conc"
+  setattr proof "$proof" "$attr"
+fi
+
+
+if [ -r "$certpath/valid" ] && [ -r "$deps" ] ; then
+  revalidate
+else
+  validatenew
+fi

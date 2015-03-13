@@ -1,0 +1,9 @@
+-- ghci startup file
+
+:set -i./src
+:set -i../src
+:set -i./test
+:set -i./dist/build/autogen
+:set -package ghc
+:set -hide-package monads-tf
+

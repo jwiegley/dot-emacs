@@ -1,0 +1,33 @@
+(* From ../../examples/ChannelSeparation/FM.hs:4,25 : *)
+Hol_datatype `FM = ('a # 'b) list`
+handle e => (print "Type synonym FM failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/FM.hs:6,24 *)
+(* From ../../examples/ChannelSeparation/FM.hs:7,25 : *)
+val emptyFM_def = Define `emptyFM = []`
+handle e => (print "CAF emptyFM failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/FM.hs:9,24 *)
+(* From ../../examples/ChannelSeparation/FM.hs:10,25 : *)
+val at_def = Define `at fm x =
+			 head (* Not supported: list comprehension *)`
+handle e => (print "Function at failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/FM.hs:12,24 *)
+(* From ../../examples/ChannelSeparation/FM.hs:13,25 : *)
+val extend_def = Define `(extend x fx [] = [(x, fx)]) /\
+			 (* Not supported: guarded function/CAF definiton from ../../examples/ChannelSeparation/FM.hs:15,13 *)`
+handle e => (print "Function extend failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 

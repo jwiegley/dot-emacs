@@ -1,0 +1,1109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+  ><TITLE
+    >GlobalPW</TITLE
+    ><LINK HREF = "haddock.css" REL = "stylesheet" TYPE = "text/css"
+    ></HEAD
+  ><BODY
+  ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+    ><TR
+      ><TD CLASS = "topbar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><IMG SRC = "haskell_icon.gif" WIDTH = "16" HEIGHT = "16" ALT = " "
+		></TD
+	      ><TD CLASS = "title"
+	      ></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "index.html"
+		>Contents</A
+		></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "doc-index.html"
+		>Index</A
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "modulebar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><FONT SIZE = "6"
+		>GlobalPW</FONT
+		></TD
+	      ><TD ALIGN = "right"
+	      ><TABLE CLASS = "narrow" CELLSPACING = "0" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "infohead"
+		    >Portability</TD
+		    ><TD CLASS = "infoval"
+		    >  portable</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Stability</TD
+		    ><TD CLASS = "infoval"
+		    >  experimental</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Maintainer</TD
+		    ><TD CLASS = "infoval"
+		    >  jproenca@di.uminho.pt</TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "section4"
+	      ><B
+		>Contents</B
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD
+	      ><DL
+		><DT
+		  ><A HREF = "#1"
+		    >Data Type</A
+		    ></DT
+		  ><DT
+		  ><A HREF = "#2"
+		    >Conversion of an haskell expression to a GlobalPW term</A
+		    ></DT
+		  ><DT
+		  ><A HREF = "#3"
+		    >Conversion of a GlobalPW term to a <A HREF = "PWCore.html"
+		      >PWCore</A
+		      > term</A
+		    ></DT
+		  ></DL
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Description</TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >A global pointwise syntax and its relation with:
+</P
+	  ><UL
+	  ><LI
+	    > An expression in programatica's abstract syntax tree;
+</LI
+	    ><LI
+	    > A pointwise core - <A HREF = "PWCore.html"
+	      >PWCore</A
+	      >.
+</LI
+	    ></UL
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Synopsis</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "body"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "decl"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    ><SPAN CLASS = "keyword"
+		      >data</SPAN
+		      > <A HREF = "#t%3AGLTerm"
+		      >GLTerm</A
+		      > </TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "body"
+		    ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+		      ><TR
+			><TD CLASS = "decl"
+			  >= <A HREF = "#v%3AStar"
+			    >Star</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AV"
+			    >V</A
+			    > String</TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A-%3A"
+			    >(:-:)</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ALam"
+			    >Lam</A
+			    > String <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A%26%3A"
+			    >(:&amp;:)</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3APi1"
+			    >Pi1</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3APi2"
+			    >Pi2</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AInl'"
+			    >Inl'</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AInr'"
+			    >Inr'</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ACase'"
+			    >Case'</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > (String, <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    >) (String, <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    >)</TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AIn'"
+			    >In'</A
+			    > HsExpP <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AOut'"
+			    >Out'</A
+			    > HsExpP <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AFix'"
+			    >Fix'</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AT'"
+			    >T'</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AF'"
+			    >F'</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AZ'"
+			    >Z'</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ASuc"
+			    >Suc</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3APred"
+			    >Pred</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AIsZ"
+			    >IsZ</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AIte"
+			    >Ite</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AN'"
+			    >N'</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A%3A%3A"
+			    >(:::)</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AHd"
+			    >Hd</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ATl"
+			    >Tl</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AIsN"
+			    >IsN</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ALetrec"
+			    >Letrec</A
+			    > String <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ARecNat"
+			    >RecNat</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ARecList"
+			    >RecList</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    > <A HREF = "GlobalPW.html#t%3AGLTerm"
+			    >GLTerm</A
+			    ></TD
+			  ></TR
+			></TABLE
+		      ></TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "s8"
+	      ></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "decl"
+	      ><A HREF = "#v%3Aexp2Global"
+		>exp2Global</A
+		> :: Monad m =&gt; HsExpI PNT -&gt; m <A HREF = "GlobalPW.html#t%3AGLTerm"
+		>GLTerm</A
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "s8"
+	      ></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "decl"
+	      ><A HREF = "#v%3Aglobal2core"
+		>global2core</A
+		> :: <A HREF = "GlobalPW.html#t%3AGLTerm"
+		>GLTerm</A
+		> -&gt; <A HREF = "PWCore.html#t%3APWTerm"
+		>PWTerm</A
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	><A NAME = "1"
+	  >Data Type</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >Represents a pointwise language that:
+</P
+	  ><OL
+	  ><LI
+	    > is very similar to the way we are used to program in haskell;
+</LI
+	    ><LI
+	    > not the most general one, since it only deals with booleans, natural numbers and lists.
+</LI
+	    ></OL
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "decl"
+	><SPAN CLASS = "keyword"
+	  >data</SPAN
+	  > <A NAME = "t%3AGLTerm"
+	  ></A
+	  ><B
+	  >GLTerm</B
+	  > </TD
+	></TR
+      ><TR
+      ><TD CLASS = "body"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "section4"
+	      >Constructors</TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "body"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "1" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AStar"
+		      ></A
+		      ><B
+		      >Star</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Unit</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AV"
+		      ></A
+		      ><B
+		      >V</B
+		      > String</TD
+		    ><TD CLASS = "rdoc"
+		    >Variable</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A-%3A"
+		      ></A
+		      ><B
+		      >(:-:)</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Aplication</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ALam"
+		      ></A
+		      ><B
+		      >Lam</B
+		      > String <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Abstraction</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A%26%3A"
+		      ></A
+		      ><B
+		      >(:&amp;:)</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Pair</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3APi1"
+		      ></A
+		      ><B
+		      >Pi1</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise first</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3APi2"
+		      ></A
+		      ><B
+		      >Pi2</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise second</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AInl'"
+		      ></A
+		      ><B
+		      >Inl'</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise left injection</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AInr'"
+		      ></A
+		      ><B
+		      >Inr'</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise right injection</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ACase'"
+		      ></A
+		      ><B
+		      >Case'</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > (String, <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      >) (String, <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      >)</TD
+		    ><TD CLASS = "rdoc"
+		    >Case of</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AIn'"
+		      ></A
+		      ><B
+		      >In'</B
+		      > HsExpP <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Injection on a specified type</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AOut'"
+		      ></A
+		      ><B
+		      >Out'</B
+		      > HsExpP <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Extraction of the functor of a specified type</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AFix'"
+		      ></A
+		      ><B
+		      >Fix'</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Fixed-point</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AT'"
+		      ></A
+		      ><B
+		      >T'</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Constant True</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AF'"
+		      ></A
+		      ><B
+		      >F'</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Constant False</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AZ'"
+		      ></A
+		      ><B
+		      >Z'</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Constant Zero</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ASuc"
+		      ></A
+		      ><B
+		      >Suc</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Successor</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3APred"
+		      ></A
+		      ><B
+		      >Pred</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Predecessor</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AIsZ"
+		      ></A
+		      ><B
+		      >IsZ</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >is zero?</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AIte"
+		      ></A
+		      ><B
+		      >Ite</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >if then else</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AN'"
+		      ></A
+		      ><B
+		      >N'</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Empty list</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A%3A%3A"
+		      ></A
+		      ><B
+		      >(:::)</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Constructor for lists</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AHd"
+		      ></A
+		      ><B
+		      >Hd</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Head of a list</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ATl"
+		      ></A
+		      ><B
+		      >Tl</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Tail of a list</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AIsN"
+		      ></A
+		      ><B
+		      >IsN</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >is the list empty?</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ALetrec"
+		      ></A
+		      ><B
+		      >Letrec</B
+		      > String <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >recursive let</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ARecNat"
+		      ></A
+		      ><B
+		      >RecNat</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Primitive recursion on Nat's</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ARecList"
+		      ></A
+		      ><B
+		      >RecList</B
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      > <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Primitive recursion on List's</TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "section4"
+	      >Instances</TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "body"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "1" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    >Show <A HREF = "GlobalPW.html#t%3AGLTerm"
+		      >GLTerm</A
+		      ></TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	><A NAME = "2"
+	  >Conversion of an haskell expression to a GlobalPW term</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "decl"
+	><A NAME = "v%3Aexp2Global"
+	  ></A
+	  ><B
+	  >exp2Global</B
+	  > :: Monad m =&gt; HsExpI PNT -&gt; m <A HREF = "GlobalPW.html#t%3AGLTerm"
+	  >GLTerm</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >Applies a simple transformation from an expression of programatica's
+abstract syntax tree to <TT
+	    ><A HREF = "GlobalPW.html#t%3AGLTerm"
+	      >GLTerm</A
+	      ></TT
+	    >.
+</P
+	  ><P
+	  >The recognized grammar is:
+</P
+	  ><DL
+	  ><DT
+	    >G, G1, G2, G3 <TT
+	      >::=</TT
+	      ></DT
+	    ><DD
+	    >
+(G) | <TT
+	      >undefined</TT
+	      > | <TT
+	      >()</TT
+	      > | <TT
+	      >_L</TT
+	      > | <TT
+	      >inN (_L::</TT
+	      ><EM
+	      >type</EM
+	      ><TT
+	      >) </TT
+	      >G |<TT
+	      > ouT (_L::</TT
+	      ><EM
+	      >type</EM
+	      ><TT
+	      >)</TT
+	      > 
+|<TT
+	      > True </TT
+	      >|<TT
+	      > False </TT
+	      >|<TT
+	      > 0 </TT
+	      >|<TT
+	      > [] </TT
+	      >|<TT
+	      > <EM
+		>n, n&gt;0</EM
+		> </TT
+	      >|<TT
+	      > [</TT
+	      >G1<TT
+	      >, </TT
+	      >G2<TT
+	      >, ... ] </TT
+	      >| G1<TT
+	      > : </TT
+	      >G2 |<TT
+	      > succ </TT
+	      >G |<TT
+	      > pred </TT
+	      >G
+|<TT
+	      > (==0) </TT
+	      >G |<TT
+	      > </TT
+	      >G<TT
+	      > == 0 </TT
+	      >|<TT
+	      > head </TT
+	      >G<TT
+	      > </TT
+	      >|<TT
+	      > tail </TT
+	      >G<TT
+	      > </TT
+	      >|<TT
+	      > null </TT
+	      >
+|<TT
+	      > recNat </TT
+	      >G1<TT
+	      > </TT
+	      >G2<TT
+	      > </TT
+	      >G3<TT
+	      > </TT
+	      >|<TT
+	      > recList </TT
+	      >G1<TT
+	      > </TT
+	      >G2<TT
+	      > </TT
+	      >G3
+|<TT
+	      > fix </TT
+	      >G<TT
+	      > </TT
+	      >|<TT
+	      > if </TT
+	      >G1<TT
+	      > then </TT
+	      >G2<TT
+	      > else </TT
+	      >G3<TT
+	      > </TT
+	      >|<TT
+	      > <EM
+		>var</EM
+		> </TT
+	      >|<TT
+	      > (</TT
+	      >G1<TT
+	      >,</TT
+	      >G2<TT
+	      >) </TT
+	      >|<TT
+	      > fst </TT
+	      >|<TT
+	      > snd </TT
+	      >|<TT
+	      > Left </TT
+	      >|<TT
+	      > Right </TT
+	      >
+|<TT
+	      > </TT
+	      >G1<TT
+	      > <EM
+		>infixOp</EM
+		> </TT
+	      >G2<TT
+	      > </TT
+	      >|<TT
+	      > \<EM
+		>var1 var2 ...</EM
+		> -&gt; </TT
+	      >G
+|<TT
+	      > case </TT
+	      >G1<TT
+	      > of Left <EM
+		>var1</EM
+		> -&gt; </TT
+	      >G2<TT
+	      >; Right <EM
+		>var2</EM
+		> -&gt;</TT
+	      >G3 
+|<TT
+	      > let <EM
+		>var</EM
+		> = </TT
+	      >G1<TT
+	      > in </TT
+	      >G2<TT
+	      > 
+</TT
+	      > 
+</DD
+	    ></DL
+	  ><P
+	  >where types are read as the pretty print string, and <EM
+	    >var</EM
+	    >, <EM
+	    >var1</EM
+	    > and <EM
+	    >var2</EM
+	    > are variables that are read as strings also.
+</P
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	><A NAME = "3"
+	  >Conversion of a GlobalPW term to a <A HREF = "PWCore.html"
+	    >PWCore</A
+	    > term</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "decl"
+	><A NAME = "v%3Aglobal2core"
+	  ></A
+	  ><B
+	  >global2core</B
+	  > :: <A HREF = "GlobalPW.html#t%3AGLTerm"
+	  >GLTerm</A
+	  > -&gt; <A HREF = "PWCore.html#t%3APWTerm"
+	  >PWTerm</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	>Converts a <TT
+	  ><A HREF = "GlobalPW.html#t%3AGLTerm"
+	    >GLTerm</A
+	    ></TT
+	  > to a <TT
+	  ><A HREF = "PWCore.html#t%3APWTerm"
+	    >PWTerm</A
+	    ></TT
+	  >, which is a more general representation for
+pointwise terms, but with less pratical constructors (in <A HREF = "PWCore.html"
+	  >PWCore</A
+	  >).
+</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "botbar"
+	>Produced by <A HREF = "http://www.haskell.org/haddock/"
+	  >Haddock</A
+	  > version 0.6</TD
+	></TR
+      ></TABLE
+    ></BODY
+  ></HTML
+>

@@ -1,0 +1,9 @@
+DerivingUtils.hs: -fno-monomorphism-restriction
+DerivingEq.hs: -fno-monomorphism-restriction
+DerivingShow.hs: -fno-monomorphism-restriction
+DerivingBounded.hs: -fno-monomorphism-restriction
+DerivingEnum.hs: -fno-monomorphism-restriction
+DerivingOrd.hs: -fno-monomorphism-restriction
+DerivingRead.hs: -fno-monomorphism-restriction
+DerivingIx.hs: -fno-monomorphism-restriction
+Deriving.hs: -fno-monomorphism-restriction

@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<head>
+<title>Compiling and installing the Tools from the Programatica project</title>
+<link rel=parent href="./" title="Programatica Tools">
+<link rel=author href="http://www.cse.ogi.edu/~hallgren/" title="Thomas Hallgren">
+<link rel=copyright href="LICENSE">
+<link rel="alternate stylesheet" type="text/css" HREF="/~hallgren/src2.css" title="Midnight Hacker">
+<link rel="stylesheet" type="text/css" HREF="/~hallgren/src.css" title="Normal">
+<link rel=icon type="image/gif" href="web/icon1.png">
+</head>
+
+<body>
+<h1><img align=right src="web/icon1.png" alt="">Compiling and installing
+the Tools from the Programatica project</h1>
+<h2>What you need to compile the tools</h2>
+
+<div>
+You need Linux (or SunOS or FreeBSD or Mac&nbsp;OS&nbsp;X or something similar)
+(with the X&nbsp;Window system) and the following additional software and
+tools:
+
+<ul>
+  <li><a href="http://www.haskell.org/ghc/">GHC</a> 5.02 or later.
+  <li><a href="http://www.haskell.org/happy/">Happy</a> 1.11 or later.
+  <li><a href="http://www.cse.ogi.edu/~hallgren/Programatica/download/alfaforpfe.tar.gz">alfaforpfe.tar.gz</a>, part of
+      <a href="http://www.cs.chalmers.se/~hallgren/Alfa/">Alfa</a>, needed for
+      the Haskell-to-Alfa translator. It should be untared in the
+      <a href="hs2alfa/">hs2alfa</a> subdirectory.
+  <li>For pfebrowser, you also need
+      <ul>
+      <li><a href="http://www.cs.chalmers.se/Fudgets/">Fudgets</a> and
+      <a href="http://www.cs.chalmers.se/~hallgren/InternetLib/">InternetLib</a>     (get <a href="http://www.cse.ogi.edu/~hallgren/untested/">recent snapshots</a>),
+      </ul>
+</ul>
+
+<p>
+Regarding hardware requirements: we compile and test the tools under Linux on
+machines ranging from a 800MHz P-III laptop with 256MB RAM to a 1.9GHZ
+P4 servers with 2GB RAM.
+(To limit the amount of memory used by GHC (and programs compiled with GHC),
+you can set the environment variable <code>GHCRTS</code> to for example
+<code>-M150M</code>.)
+</div>
+<h2>How to compile and install the tools</h2>
+<div>
+
+<p>
+The following command sequence should work:
+<ol>
+<!--
+<li><code class=code>./configure</code>
+-->
+<li><code class=code>make</code>
+<li><code class=code>make install</code>
+</ol>
+
+This will compile all of the code with optimization (ghc -O).
+You can replace the
+<code class=code>make</code> step with <code class=code>make OPT=</code>
+to turn off optimization. This will speed up compilation with a
+factor of ~4, but slow down the resulting tools by a factor of ~2.
+
+<p>
+The <code>Makefile</code> in this directory has the following useful targets:
+
+<dl>
+<dt><code>all</code> (this is the default)
+<dd>This compiles pfe and pfebrowser. It also creates the <code>bin/</code>
+    and <code>lib/</code> subdirectories containing a template of the things
+    that get installed by <code>make install</code>.
+<dt><code>install</code>
+<dd>This installs all the programs and library files.
+    Use <code class=code>make PREFIX=...</code> to control where things get installed.
+<dt><code>tar</code>
+<dd>creates a tar file containing the programs and the library files, allowing
+    easy installation of them on another computer.
+<dt><code>clean</code>
+<dd>removes (almost all) automatically generated files.
+</dl>
+
+</div>
+<h3>Testing without installing</h3>
+<div>
+<p>
+To test the tools without installing them first, add the
+<code class=code>bin/</code> subdirectory to your <code class=code>$PATH</code>
+and set <code class=code>$PROGRAMATICA</code> to point to the
+<code class=code>lib/Programatica</code> subdirectory. (If you are using
+(t)csh, do <code class=code>source scripts/setEnv.csh</code> from this
+directory.)
+<!--
+<p>
+Some additional test programs can be compiled by going
+to one of the subdirectories running the command <code>make</code> there.
+-->
+</div>

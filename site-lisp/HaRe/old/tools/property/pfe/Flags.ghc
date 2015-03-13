@@ -1,0 +1,2 @@
+PfePropCmds.hs: -fno-monomorphism-restriction
+PFE_Certs.hs: -fno-monomorphism-restriction

@@ -1,0 +1,23 @@
+TestCases{refactorCmd="introPattern",
+positive=[(["EitherIn1.hs"],["10","3"]),
+          (["MultiParamIn1.hs"],["12","12"]),
+          (["MultiParamIn2.hs"],["12","12"]),
+          (["MultiParamIn3.hs"],["12","12"]),
+          (["MultiParamIn4.hs"],["13","14"]),
+          (["MultiParamIn5.hs"],["13","14"]),
+          (["TupleIn1.hs"],["5","3"]),
+          (["TupleIn2.hs"],["7","3"]),
+          (["UnitIn1.hs"],["5","3"]),
+          (["IrrefutableIn1.hs"],["6","4"]),
+	      (["RecordIn1.hs"],["9","9"]),
+	      (["WhereIn1.hs"],["16","12"])
+
+],
+negative=[(["A1.hs"],["13","9"]),
+          (["A2.hs"],["13","3"]),
+          (["EitherIn2.hs"],["10","3"]),
+          (["TypeVariable1.hs"],["6","3"]),
+          (["MultiEquationIn1.hs"],["6","12"])
+          
+          ]
+}

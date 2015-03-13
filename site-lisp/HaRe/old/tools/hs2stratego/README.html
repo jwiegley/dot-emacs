@@ -1,0 +1,112 @@
+<h2>What is in this directory (hs2stratego)</h2>
+<div>
+The code in this directory implements a simple translation of Haskell code
+to the Stratego representation defined in ../../Plogic. There is one new
+pfe command:
+
+<pre>
+    pfe stratego M
+</pre>
+
+For the time being, it translates a Haskell module M to a list of Decl (defined
+below). Unsupported forms of declarations are ignored. The translation is
+made before type checking.
+<p>
+The command <code>pfe prove</code>, which provided an earlier version of
+the translation to Stratego, has been removed. The code is still available
+in <a href="../Phugs/"><code>../Phugs</code</a>.
+</div>
+
+<h3>Files</h3>
+
+<div>
+<p>The subdirectory <code>AST</code> contains the Haskell implementation of the
+abstract syntax in <code>../../Plogic</code>:</p>
+
+<table>
+<tr><th>File<th>Corresponds to
+<tr><td>AST/StrategoPattern.hs		<td>Pattern.r
+<tr><td>AST/StrategoProp.hs		<td>Prop.r, Pred.r
+<tr><td>AST/StrategoTerm.hs		<td>Term.r
+<tr><td>AST/StrategoType.hs		<td>Type.r
+<tr><td>AST/StrategoDecl.hs		<td>a type for top-level declarations
+<tr><td>AST/StrategoAST2.hs		<td>collects and re-exports all
+</table>
+
+<p>
+This directory contains the translation functions and the code to hook
+into the PFE framework.</p>
+
+<table>
+<tr><th>File<th>Purpose
+<tr><td>StrategoCmds.hs			<td> hook it into the PFE framework
+<tr><td>BaseStruct2Stratego2.hs		<td> base syntax translation
+<tr><td>PropStruct2Stratego2.hs		<td> P-logic translation
+<tr><td>Prop2Stratego2.hs		<td> knot-tying definitions
+<tr><td>Flags.ghc                       <td> compiler flags for GHC
+</table>
+</div>
+<h3>About the translation</h3>
+
+
+<ul>
+<li>A new data type for top-level declarations have been introduced,
+see <a href="AST/StrategoDecl.hs">AST/StrategoDecl.hs</a>.
+<li>
+All top-level names are replaced with their original name (qualified name).
+<li>
+Function bindings and list comprehensions are simplified as in the
+Haskell&nbsp;98 report.
+<li>
+The output is produced by using derived <code>Show</code> instances,
+so these has to be an <strong>exact</strong> correspondence between
+the Haskell data types in the AST directory and the data structures
+expected in Stratego.
+</ul>
+
+<h3>Changes that should be made in the Stratego files</h3>
+
+<ul>
+<li>Some constructors names with hyphen have to be renamed:
+    <ul>
+    <li>     Prop-decl ==> PropDecl
+    <li>     Lfp-Pred ==> LfpPred
+    <li>     Gfp-Pred ==> GfpPred
+    <li>     Pred-abs ==> PredAbs
+    <li>     Pred-decl ==> PredDecl
+    </ul>
+<li>
+The sort HBranch used in the constructor HCase isn't declared.
+The result of the constructor HBranch is declared to be Term, but should
+presumably be HBranch.
+</ul>
+
+<h3>Other things TODO</h3>
+
+<ul>
+<li>
+HAbs takes a single pattern, but should probably take a list of patterns, since
+      "\ p1 p2 -> e" is not the same as "\ p1 -> \ p2 -> e".
+
+<li>
+Make room for literals other than integers (strings, characters, fractional)
+<li>
+Make room for the record syntax (or translate it away).
+<li>
+Make sure the translation of types makes sense.
+<li>
+Make room for qualified types.
+<li>
+Make room for negation in patterns?
+<li>
+Make room for the equivalence connective <==>.
+<li>
+Are constructor applications assumed to be saturated?
+<li>
+Make room for type signatures in expressions, e.g. (+)::(Int->Int->Int)
+<li>
+...
+</ul>
+<hr>
+<address>Authors: TH</address>
+<address>Contact: <a href="http://www.cse.ogi.edu/~hallgren/">TH</address>

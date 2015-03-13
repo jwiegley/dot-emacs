@@ -1,0 +1,7 @@
+
+B=../base
+PARSE_DIRS=$B/parse2/Lexer
+SRC_DIRS=.:$PARSE_DIRS:$B/AST:$B/lib:$B/lib/Monads:$B/pretty
+
+GHCFLAGS="-fno-allow-overlapping-instances -fglasgow-exts -package lang -package data -package text"
+ #-Wall -fwarn-incomplete-patterns

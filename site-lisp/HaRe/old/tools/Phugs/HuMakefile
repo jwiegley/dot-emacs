@@ -1,0 +1,5 @@
+
+PROP=../property
+. $PROP/HuMakefile
+
+SRC_DIRS=.:$SRC_DIRS

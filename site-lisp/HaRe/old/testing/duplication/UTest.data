@@ -1,0 +1,14 @@
+TestCases{refactorCmd="duplicateDef",
+positive=[(["D1.hs"],["anotherFun","6","1"]),
+          (["D2.hs","C2.hs","A2.hs"],["anotherFun","6","1"]),
+          (["D3.hs","C3.hs","A3.hs"],["anotherFun","6","1"]),
+          (["CaseIn1.hs"],["y","16","22"]),
+          (["LetIn1.hs"],["dref","14","12"]),
+          (["WhereIn1.hs"],["sums","12","1"]),
+          (["WhereIn2.hs"],["anotherFoo","11","1"]),
+          (["WhereIn3.hs"],["xs","17","9"]),
+          (["RecursionIn1.hs"],["anotherFac","8","1"])],
+negative=[(["WhereIn4.hs"],["x","13","9"]),
+           (["WhereIn5.hs"],["AnotherFoo","8","1"]),
+           (["WhereIn6.hs"],["tup1","16","7"])]
+}

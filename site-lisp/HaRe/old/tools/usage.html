@@ -1,0 +1,357 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Programatica Tools - Usage</title>
+<link rel=parent href="./" title="Programatica Tools">
+<link rel=author href="/~hallgren/" title="Thomas Hallgren">
+<link rel="alternate stylesheet" type="text/css" HREF="/~hallgren/src2.css" title="Midnight Hacker">
+<link rel="stylesheet" type="text/css" HREF="/~hallgren/src.css" title="Normal">
+<link rel=icon type="image/gif" href="web/icon1.png">
+</head>
+<body>
+<h1><img align=right src="web/icon1.png" alt="">Programatica Tools</h1>
+
+<p>The Programatica tools currently consist of the following programs,
+which are described in more detail below:</p>
+
+<table>
+<tr><td><a href="#pfe"><strong><code>pfe</code></strong></a>
+<td>The Preliminary Front-End tool.
+    (Or perhaps the Programatica Front-End tool :-)
+<tr><td><a href="#pfesetup"><strong><code>pfesetup</code></strong></a>
+<td>A front-end to pfe, for simple creation of PFE projects, using a command
+line interface similar to that of Hugs or GHC.
+<tr><td><a href="#pfebrowser"><strong><code>pfebrowser</code></strong></a>
+<td>A Haskell browser tool (runs under the X11 Window system). It also has
+    some support for certificate management.
+<tr><td><a href="#cert"><strong><code>cert</code></strong></a>
+<td>Certificate manipulation tool.
+</table>
+
+<p>
+Except for <code>pfebrowser</code>, these are all command-line tools.
+
+<p>
+We also provide a version of the Haskell 98 <code>Prelude</code> and standard
+libraries for use with PFE. We also adapted a version of the
+Haskell Hierarchical Libraries for use with PFE.
+
+<h2>Where to get the tools</h2>
+<div>
+<p>
+Binary snapshots and installation instructions are available in the
+<a href="http://www.cse.ogi.edu/~hallgren/Programatica/download/">download directory</a>.
+
+<p>
+If you are a local PacSoft member and you just want to test the tools,
+they are already installed in
+
+<ul>
+  <li><code>/home/projects/pacsoft/tools/bin</code>
+</ul>
+
+<p>
+(along with various other Linux tools)
+so just log in on one of the Linux computers (kokotni, watiya, turing ,...)
+and add that directory to your path. 
+
+</div>
+
+<h2>Usage</h2>
+
+<p>Common to all the tools is that they operate on a PFE <em>project</em>,
+i.e., a collection of files containing Haskell modules. A PFE project is
+created in a specific directory and the PFE tools operate on the project
+in the current directory. Except for the source files, which can be located
+anywhere in the file system, the PFE tools keep all information relating to a
+project in a subdirectory called <code>hi</code>.
+
+<h3 id=pfesetup>pfesetup</h3>
+<code>pfesetup</code> creates a new PFE project.
+Usage:
+<blockquote><code>
+  pfesetup [<var>options</var>]
+  <var>path<sub>1</sub></var> <var>...</var> <var>path<sub>n</sub></var>
+</code></blockquote> 
+<p>
+where the <var>path</var>s are Haskell files to include in the project.
+<p>
+<code>pfesetup</code> is designed to ease the transition from other Haskell
+implementations (hugs, ghc, hbc, nhc) by providing a similar command line
+interface.
+<p>
+Options:
+<table>
+<tr><td>
+  (-P|-I|-i)<var>path<sub>1</sub></var>:...:<var>path<sub>n</sub></var>
+<td>Directories to search for imported modules.
+<tr><td>[no]cpp
+<td>Pass source files through the C preprocessor (or not).
+    The default is nocpp.
+<tr><td>[no]prelude
+<td>All modules implicitly import the Prelude (or not).
+<tr><td>[no]plogic
+<td>Enable (or disable) support for the P-logic extension. When enabled,
+    <code>assert</code> and <code>property</code> are reserved identifiers
+    and text in <code>{-P: comments like this -}</code> is treated as ordinary
+    code
+<tr><td>+h|hierarchical
+<td>Use the Haskell Hierarchical Libraries
+<tr><td>-h|nohierarchical
+<td>Use the plain Haskell 98 Libraries (this is the default)
+</table>
+
+<p>
+<code>pfesetup</code> does its work by using the <code>pfe new</code>
+and <code>pfe chase</code> commands. (<code>pfe chase</code> is the only
+command that assumes a relationship between file names and module names.)
+
+<h3 id=pfe>pfe</h3>
+Usage:
+<blockquote><code>
+pfe [<var>options</var>] <var>command</var>
+</code></blockquote>
+<p>
+where <var>options</var> include
+<p>
+<table>
+<tr><td>[no]plogic<td>Enable (or disable) support for the P-logic extension.
+        When enabled,
+    <code>assert</code> and <code>property</code> are reserved identifiers.
+<tr><td>[no]cpp<td>Pass source code through the C preprocessor (or not)
+<tr><td>cpp=<var>command</var><td>Pass source code through a user supplied preprocessor
+<tr><td>[no]prelude<td>All modules implicitly import the Prelude (or not)
+<tr><td>(+|-)debug<td>Turn on (or off) verbose debugging info in pretty printed output
+<tr><td>(+|-)tinfo<td>Include (or not) extra type information in pretty printed output
+<tr><td>(+|-)utf8<td>Turn on (or off) the use of Unicode symbols and UTF-8 encoding of pretty printed output
+<tr><td>layout=<var>layout</var><td>Change the pretty printer's layout style
+    to one of PPOffsideRule, PPSemiColon, PPUtrecht, PPInLine, PPNoLayout.
+    (Not all layout styles are implemented)
+
+</table>
+
+<p>
+and where <var>command</var> is one of:
+<p>
+
+<table>
+<tr><th colspan=2>Level 0: basic project management
+<tr><td>new [-quiet] <var>files</var>
+    <td>create a new project containing (zero or more) <var>files</var>
+<tr><td>add [-quiet] <var>files</var>
+    <td>add <var>files</var> to the project
+<tr><td>remove [-quiet] <var>files</var>
+    <td>remove <var>files</var> from the project
+<tr><td>files<td>list files in the project
+<tr><td>options<td>show options in effect
+<tr><td>modules <var>modules</var><td>list modules in the project
+
+<tr><th colspan=2>Module graph queries
+<tr><td>graph [-rev] [-dot] [-dir] <var>modules</var>
+    <td>show module dependecy (sub)graph
+<tr><td>unused <var>modules</var><td>show unimported and unreachable modules
+<tr><td>prune <var>modules</var><td>remove unreachable modules from the project
+<tr><td>file <var>modules</var><td>which file is the module in
+<tr><td>module <var>files</var><td>which module does the file contain
+
+<tr><th colspan=2>Import chasing
+<tr><td>chase <var>files</var><td>look for imported modules in given files/directories
+
+<tr><th colspan=2>Level 1: simple, local module queries
+<tr><td>defined <var>modules</var><td>list entities defined in the module
+<tr><td>free <var>modules</var><td>list names referenced but not defined in the module
+<tr><td>pragmas <var>modules</var><td>extract pragmas from modules
+<tr><td>lex <var>files</var><td>show the result of lexical analysis
+<tr><td>lexl <var>files</var>
+    <td>show the result of lexical analysis + layout preprocessing
+<tr><td>preparse <var>files</var>
+    <td>preparse and show abstract syntax
+
+<tr><th colspan=2>Level 2: module system queries (import/export, top level environment)
+<tr><td>exports <var>modules</var><td>list entities exported by the modules
+<tr><td>find <var>identifiers</var><td>find exported entities with the given names
+<tr><td>inscope <var>modules</var><td>list entities in modules' top-level environment
+
+<tr><th colspan=2>Level 3: proper parsing (and name resolution)
+<tr><td>pp <var>modules</var><td>parse and pretty-print modules
+<tr><td>parse <var>modules</var><td>parse and show abstract syntax
+
+<tr><th colspan=2>HTML
+<tr><td>htmlfiles <var>modules</var><td>generate HTML files for modules
+         (to be used with pfe.cgi for dynamically generated web pages)
+<tr><td>webpages <var>modules</var><td>generate static web pages for modules
+
+<tr><th colspan=2>Program transformation
+<tr><td>rmpatbind <var>modules</var><td>remove pattern bindings
+<tr><td>patmatch <var>modules</var><td>simplify pattern matches
+<tr><td>funbind <var>modules</var><td>simplify function bindings
+
+<tr><th colspan=2>Level 4: type checking
+<tr><td>tc [-pm] [-pb] [-lc] <var>modules</var>
+    <td>type check and display decorated modules
+<tr><td>types <var>modules</var><td>show types/kinds of top-level entities
+<tr><td>typeof <var>M1.x1 ... Mn.xn</var>
+    <td>show types of named top-level entities
+<tr><td>kindof <var>M1.x1 ... Mn.xn</var>
+    <td>show kinds of named top-level entities
+<tr><td>instances <var>modules</var><td>list instances defined in a module
+<tr><td>iface <var>modules</var><td>show the interfaces of modules
+<tr><td>usedtypes <var>modules</var><td>show what types identifers are used at
+
+<tr><th colspan=2>Level 5: function level dependencies
+<tr><td>deps [-dot] [-untyped] <var>modules</var>
+    <td>compute dependency graph for definitions
+<tr><td>needed [-untyped] <var>M1.x1 ... Mn.xn</var><td>needed definitions
+<tr><td>neededmodules [-untyped] <var>M1.x1 ... Mn.xn</var><td>names of modules containing needed values
+<tr><td>dead [-untyped] <var>M1.x1 ... Mn.xn</var><td>dead code (default: Main.main)
+<tr><td>uses [type|class|value|con] <var>M.x</var>
+    <td>find all uses of an entity
+
+<tr><th colspan=2>Metrics
+<tr><td>loc <var>modules</var><td>number of lines of code
+<tr><td>sizemetrics<td>number of lines per module metrics
+<tr><td>locmetrics<td>number of lines of code per module metrics
+<tr><td>importmetrics<td>number of imports per module metrics
+<tr><td>exportmetrics<td>number of exports (importers) per module metrics
+<tr><td>classmetrics<td>number of instances per class metrics
+
+<tr><th colspan=2>Commands to support certificate servers
+<tr><td>assertions <var>modules</var><td>list names of named assertion
+<tr><td>asig <var>M.x</var><td>write an assertion signature to stdout
+<tr><td>tasig <var>M.x</var><td>write an assertion signature to stdout
+<tr><td>adiff <var>M.x</var><td>compare an assertion signature with stdin
+<tr><td>tadiff <var>M.x</var><td>compare an assertion signature with stdin
+<tr><td>qc <var>modules</var><td>translate to QuickCheck
+<tr><td>slice <var>M.x</var><td>extract a slice (needed part) of the program
+<tr><td>pqc <var>M.x</var><td>pruned translation to QuickCheck
+<tr><td>qcslice <var>M.x</var><td>translate a slice to QuickCheck
+<tr><td>stratego <var>modules</var><td>simple translation of one module to Stratego
+<tr><td>strategoslice <var>modules</var><td>translate a slice to Stratego
+<tr><td>alfa [-simplepats] <var>modules</var><td>translate modules to Alfa
+
+<tr><th colspan=2>Cleaning
+<tr><td>clean<td>remove cache files
+
+<tr><th colspan=2>Interactive/server mode
+<tr><td>interactive<td>read pfe commands from stdin
+<tr><td>server<td>start a PFE server
+
+<tr><th colspan=2>Documentation
+<tr><td>help<td>list available commands
+<tr><td>version<td>display version number
+</table> 
+
+<p>
+(TODO: many commands need to be explained in more detailed. Some related
+commands should be combined into one command with options.)
+
+<h3 id=cert>cert</h3>
+
+Usage:
+<blockquote><code>
+cert <var>command</var>
+</code></blockquote> 
+
+where the <var>command</var> is one of
+<p>
+<table>
+<tr><td>types<td>list supported certificate types
+<tr><td>ls<td>list certificates
+<tr><td>dotgraph<td>output dot format certificate dependency graph
+<tr><td>todo<td>list uncertified assertions
+<tr><td>new <var>type</var> <var>M/c</var> <var>conc</var> ...
+     <td>create a new certificate
+<tr><td>info <var>M/c</var><td>show certificate details
+<tr><td>validate <var>M/c</var><td>validate a certificate
+<tr><td>validate -all<td>validate all certificates
+<tr><td>sign <var>M/c</var><td>add a PGP signature to a certifiacte
+<tr><td>verify <var>M/c</var><td>verify the PGP signature of a certificate
+<tr><td>rm <var>M/c</var><td>remove a certificate
+<tr><td>recreate<td>generate a list of <code>cert new</code> commands to recreate all certificates
+</table>
+
+<p>
+(TODO: describe commands in more detail. Add more functionality.)
+
+<h3 id=pfebrowser>pfebrowser</h3>
+
+Usage:
+<blockquote><code>
+pfebrowser [<var>options</var>]
+</code></blockquote> 
+
+where the <var>options</var> are the same as for
+<a href="#pfe"><code>pfe</code></a>.
+
+<p>
+Since <code>pfebrowser</code> currently doesn't provide any project
+management functionality, before you start pfebrowser, you should
+create a PFE project with the
+<a href="#pfesetup"><code>pfesetup</code></a> or
+<a href="#pfe"><code>pfe</code></a> command.
+Also, if files are added or removed from the
+project, you need to restart <code>pfebrowser</code>.
+
+<h4>Browsing</h4>
+
+<p>
+In the source display area, clicking on identifiers have the following effect:
+</p>
+
+<table>
+<tr><th>Button 1 (Left)
+    <td>Jumps to the definition
+
+<tr><th>Button 2 (Middle)
+    <td>Displays information about the identifier,
+        such as where it was originally defined and what type of entity
+	it represents.
+	<br>
+	If type checking is turned on, pfebrowser also displays the type
+	of the identifier, both it's general type scheme and the instance
+	it is used at. For an identifier denoting a type or a class, its
+	kind is shown.
+<tr><th>Button 3 (Right)
+    <td>Highlight all references to the same entity in the current module.
+</table>
+
+<h4>Type checking</h4>
+
+Type checking is turned off by default. To turn it on, select
+<strong>Type Info</strong> in the <strong>View</strong> menu.
+Type checking is turned off when a type error is encountered.
+
+<h4>Auxiliary windows</h4>
+
+<p>
+The <strong>Windows</strong> menu lists the following windows that display
+additional views of the current module.
+</p>
+
+<table>
+<tr><th>CertInfo
+    <td>Details about the currently selected certificates.
+        (Opens automatically when clicking on a certificate icons.)
+<tr><th>CertTypes
+    <td>Lists known certificate types.
+<tr><th>Evidence
+    <td>List assertions and certificates in the current module
+<tr><th>Exports
+    <td>Lists entities exported from the current module
+<tr><th>Interface
+    <td>Lists types/kinds of entities exported from the current module,
+        provided type checking is turned on.
+<tr><th>Pretty
+    <td>Displays a pretty printed view of the current module.
+</table>
+
+<h4>Certificate management</h4>
+
+<p>
+(TODO: document how to manipulate certificates with pfebrowser...)
+<p>
+(TODO: there is probably more functionality in pfebrowser that needs to be
+documented.)
+
+</body>
+</html>

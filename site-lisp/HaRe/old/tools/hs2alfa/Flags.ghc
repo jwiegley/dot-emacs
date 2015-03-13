@@ -1,0 +1,4 @@
+Hs2Alfa.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+BaseStruct2Alfa.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+Prop2Alfa.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+PfeAlfaCmds.hs: -fno-monomorphism-restriction

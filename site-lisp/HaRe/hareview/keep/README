@@ -1,0 +1,50 @@
+Playing with astview to visualise the parse tree.
+
+cd /tmp
+cabal unpack astview
+cd cd astview-0.1.4/
+cabal configure && cabal build
+
+fix the error by changing l to (Just l) in line 312 of
+src/Language/Astview/GUI.hs
+
+cabal install
+[may have to cabal install astview-utils first]
+
+-----------------
+
+The files Parsers.hs and HaskellGhcParser.hs belong in 
+~/.cabal/share/astview-0.1.4/data
+
+--------------------------------------------
+
+Test so long [not working, sedfaults] by
+
+user@host:path$ cd ~/.cabal/share/astview-0.1.4/data
+user@host:~/.cabal/share/astview-0.1.4/data$ ghci Parsers.hs
+
+-- ghci package-messages stripped
+
+:set -package ghc
+:set -i./astview
+
+*Parsers> :info Parser
+data Parser
+  = Parser {name :: !String,
+            exts :: [String],
+            tree :: String -> Tree String}
+
+-- show all registered parsers
+*Parsers> map name parsers                                            
+["Lines and Words","Haskell"]
+
+-- get haskell parser
+*Parsers> let haskell = head $ reverse parsers                                 
+
+-- build a sample tree of strings
+*Parsers> let sample = tree haskell "main = putStrLn \"Hello World\""
+
+-- draw the tree
+*Parsers> putStrLn $ Data.Tree.drawTree sample
+
+-- lengthy output follows

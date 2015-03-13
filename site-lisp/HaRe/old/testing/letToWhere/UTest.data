@@ -1,0 +1,22 @@
+TestCases{refactorCmd="letToWhere",
+positive=[
+          (["Test1.hs"],["3", "9"]),
+          (["Test2.hs"],["3", "9"]),
+          (["Test3.hs"],["4", "16"]),
+          (["MultiMatchesIn4.hs"], ["5", "18"]),
+          (["MultiMatchesIn5.hs"], ["3", "18"]),
+          (["MultiMatchesIn6.hs"], ["3", "18"]),
+          (["Monad1.hs"], ["6", "12"]),
+          (["Monad2.hs"], ["4", "12"])
+           ],
+negative=[(["Fail1.hs"],["3", "1"]),
+          (["Fail2.hs"],["3", "7"]),
+          (["MultiMatchesIn1.hs"], ["11", "9"]),
+          (["MultiMatchesIn2.hs"], ["5", "18"]),
+          (["MultiMatchesIn3.hs"], ["3", "18"]),
+          (["Monad2.hs"], ["4", "12"]),
+          (["Monad4.hs"], ["4", "12"])
+
+]
+
+}

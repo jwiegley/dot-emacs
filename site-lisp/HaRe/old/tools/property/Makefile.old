@@ -1,0 +1,63 @@
+# $Id: Makefile.old,v 1.1 2002/03/25 22:40:36 hallgren Exp $
+
+HC = ghc
+HINT = ghci
+HC_LOCAL_LIB = ${HOME}/lib
+BASE = ../base
+HC_INC = ${BASE}/parse ${BASE}/pretty ${BASE}/AST ${BASE}/SA ${BASE}/TC \
+         ${BASE}/lib ${HC_LOCAL_LIB} \
+         parse/extras syntax AST command .
+
+HC_PKG = lang concurrent util
+HC_DEP = ${HC} -M
+HC_INCI = ${addprefix -i,${HC_INC}}
+HC_PKGI = ${addprefix -package,${HC_PKG}}
+HC_LIBI = ${addprefix -l,${HC_LIBS}}
+HC_XOPTS = -recomp -fno-monomorphism-restriction -fwarn-incomplete-patterns -H128M -fglasgow-exts
+HC_OPTS = ${$*_HC_OPTS} ${HC_XOPTS} ${HC_INCI} ${HC_PKGI}
+
+HINT_OPTS = ${HC_OPTS}
+DEP_OPTS = ${HC_INCI}
+HC_LDOPTS = ${HC_OPTS} ${addprefix -L,${HC_INC}} ${HC_LIBI}
+
+HAPPY      = happy
+HAPPYFLAGS = # --ghc makes parser unusable for Hugs
+RUNTIMEFLAGS = # +RTS -H75M
+PRINTER    = lj12
+ENSCRIPT   = enscript
+
+HAPPYSRC   = parse/extras/PropParser.y
+MAINSRC    = Main.hs
+
+RM         = rm -f
+
+MAIN       = pgc
+
+%.hs: %.y
+	$(HAPPY) $(HAPPYFLAGS) $< --info $(RUNTIMEFLAGS) -o $(HAPPYSRC:.y=.hs)
+
+$(MAIN): $(HAPPYSRC:.y=.hs)
+	${HC} --make $(MAINSRC) -o $@ ${HC_OPTS}
+
+parser: parse/extras/PropParser.hs
+
+develop:
+	$(HINT) $(MAINSRC) ${HINT_OPTS}
+
+tidy:
+	${RM} ${BASE}/parse/Lexer.hi
+
+clean:
+	$(RM) ${HC_OBJ} $(MAIN).aux $(MAIN).hp $(MAIN).prof core \
+           $(MAIN).ps profile.* *~ .depend* $(HAPPYSRC:.y=.info) 
+	find . '(' -name '*.o' -o -name '*.hi' ')' -exec $(RM) '{}' ';'
+
+printsource:
+	$(ENSCRIPT) -1 -d $(PRINTER) -G $(HC_SRC)
+
+veryclean: clean
+	$(RM) $(MAIN) TAGS $(HAPPYSRC:.y=.hs)
+
+TAGS: ${HC_SRC}
+	hstags ${HC_SRC}
+

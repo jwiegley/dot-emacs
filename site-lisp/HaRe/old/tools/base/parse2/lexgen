@@ -1,0 +1,16 @@
+#!/bin/sh
+
+out=$1
+tmp=$1.tmp
+
+update() {
+  if cmp $1 $2 ; then
+    rm $1
+  else
+    mv $1 $2
+  fi
+}
+
+
+LexerGen/HsLexerGen >$tmp
+update $tmp $out

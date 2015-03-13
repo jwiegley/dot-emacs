@@ -1,0 +1,11 @@
+
+PFE_DIR=pfe
+BASE=base
+HS2HTML_DIR=hs2html
+STRATEGO=hs2stratego
+PROP=property
+HS2ALFA_DIR=hs2alfa
+
+. $HS2ALFA_DIR/HuMakefile
+
+SRC_DIRS=$APFE_DIRS:$BPARSE_DIRS

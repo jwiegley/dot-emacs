@@ -1,0 +1,1316 @@
+\documentclass{entcs} \usepackage{entcsmacro}
+\usepackage{graphicx}
+
+\include{psinput}
+\include{psfig}
+\include{global-defs}
+% New definitions
+\newcommand{\hletexp}[2]{\ensuremath{let\;#1\;in\;#2}}
+\newcommand{\hlambda}[2]{\ensuremath{\backslash #1 \mbox{{\tt ->}}\, #2}}
+\newcommand{\hsem}[1]{\ensuremath{\standard{\mathtt{#1}}}}
+
+\def\lastname{Sheard, Harrison, and Hook}
+\begin{document}
+\begin{frontmatter}
+  \title{Modeling Fine Control of Demand in Haskell} 
+      \author{Tim Sheard\thanksref{ALL}\thanksref{myemail}}
+      \author{William Harrison\thanksref{coemail}}
+      \author{James Hook\thanksref{triemail}}
+      \address{Pacific Software Research Center\\
+               Oregon Graduate Institute\\
+               Beaverton, Oregon}                
+      \thanks[ALL]{The work described here was supported by NSF Grant CDA-9703218, 
+                   the M.J. Murdock Charitable Trust and the Department of Defense.} 
+      \thanks[myemail]{Email: {\texttt{\normalshape sheard@cse.ogi.edu}}} 
+      \thanks[coemail]{Email: {\texttt{\normalshape wlh@cse.ogi.edu}}}
+      \thanks[triemail]{Email: {\texttt{\normalshape hook@cse.ogi.edu}}}
+    
+    
+\begin{abstract} 
+The lazy functional language Haskell can be viewed at many levels.  At the 
+highest level it can be manipulated as if it were the call-by-name lambda 
+calculus.  Slightly below this level is the model of the call-by-need 
+lambda calculus, where control over duplication of computation becomes 
+explicit. Underneath this level is a more detailed model that provides 
+precise control over the evaluation of data constructors and 
+destructors.  Expert Haskell programmers move between these three levels 
+with ease, often making detailed operational arguments about program 
+representations when discussing the third level.  One of the attributes 
+that makes Haskell so successful is the extraordinary semantic coherence 
+between these three levels.  This paper introduces a compositional 
+meta-circular interpreter for Haskell that articulates the ``third level" of 
+semantics, in which the fine control of evaluation in data construction and 
+analysis is made precise.
+
+\end{abstract}
+\end{frontmatter}
+
+\section{Introduction}\label{intro}
+
+Haskell is a large, lazy, industrial-strength language, that is usable and
+efficient across a wide variety of domains. We commonly refer to Haskell as
+a {\em lazy} language, but technically it is really {\em non-strict}
+because it contains constructs that make small changes to standard lazy
+evaluation. These features make Haskell both more efficient
+and harder to understand.
+
+In this paper we present a meta-circular\cite{Steele-Sussman78b,Abelson-Sussman-Sussman96,Kamin,Friedman}
+interpreter (of Haskell, written in Haskell) which provides a unified model of
+these constructs and their interactions with Haskell's other features. Our
+interpreter is a compositional monadic interpreter written in the style of
+Liang, Hudak, and Jones \cite{LiangHudak}.
+
+In particular, we model nested patterns, several different forms of lazy
+pattern matching, guards and {\tt where} clauses on equations, strict
+constructor functions, the {\tt newtype} datatype definition facility, and
+the {\tt seq} operator. All these features make subtle changes to the
+default lazy evaluation strategy of Haskell, and all for compelling reasons.
+But, these slight changes are not always easy for programmers to
+understand. A simple concise model of these features, understandable by
+ordinary Haskell users is of significant benefit to the Haskell community.
+
+\subsection{Rationale}
+
+As part of the {\em Programatica}\cite{programatica} project at the Oregon Graduate
+Institute, we are attempting to develop both a theory of Haskell programs, and some
+automated tools for manipulating this theory. An important part of our work is to develop a
+logic with which to manipulate Haskell terms. In order to develop sound rules of inference
+for the logic, we need to know the meaning of the terms. This led us to the literature,
+which to our surprise, was lacking in formal descriptions of the {\em big picture} of
+Haskell. There are plenty of papers about particular features of Haskell, (its
+laziness\cite{PeytonJone92a}, its class system\cite{JonesMark93,Hall:1994:TCH}, etc.) but
+very little work which unifies the {\em essence of Haskell} with all the fine-control
+mechanisms that have been added and refined over the years. Just how does Haskell differ
+from the lazy lambda calculus\cite{Stoy,Gunter}?
+
+This work started as an exercise to satisfy our own curiosity. Could we write a
+Haskell interpreter that successfully modeled {\em all} of the control structures of
+Haskell, yet remain simple and concise? Soon, the exercise became more than just a
+simple toy. It became a model by which we judged much of our other work. We did not
+anticipate that the model could be as simple and elegant as it turned out to
+be. We quickly gained a deep appreciation for the continuity and semantic coherence of
+all of the control features of Haskell. In addition to being simple, concise, and
+elegant the model is useful! We wish to share it with the Haskell community at large.
+
+Two important questions one might ask are {\em Why use Haskell to describe
+Haskell?} and {\em What features should be described?}  We use Haskell because
+many of those most interested in a semantics for Haskell features already have a
+good, although not precise, appreciation for the meaning of Haskell programs.
+Thus, those interested in Haskell, can use our interpreter as a concise
+description or standard to which other descriptions (or implementations) can be
+compared. It also provides a common language in which extensions and additions
+to Haskell can be described precisely and concisely.
+
+What criteria should be used to select the features of Haskell to be represented in our
+interpreter? Our goal was (and still is) to describe all of Haskell, yet the features of
+Haskell that deal with modules, type classes, comprehensions, and the {\tt do} notation,
+depend upon programs being annotated with type information. The work reported in this paper
+deals with a core fragment that does not require type annotations for unambiguous
+interpretation. This fragment includes all the control structures in Haskell. We see this
+work as a key step towards a denotational semantics for all of Haskell.
+
+What strategy we should use in writing our interpreter? The Haskell'98
+report\cite{Haskell98} uses a strategy of translating many complex constructs into a
+simpler core language\cite{newcore}, that is really just a slightly extended
+lambda-calculus. We feel that the translation based approach, while useful, is semantically
+problematic. Many of the translation schemas in the Haskell Report rely on two devices.
+First, the introduction of new variables; and second, the restructuring of code to avoid
+duplication (usually to maintain sharing and to avoid code blowup). The semantics of
+languages with binding mechanisms are very complex. When one defines a language feature by
+a translation that introduces new variables, one leaves the well understood world of
+domains and continuous functions, and moves into a much more complicated world. Recent work
+on languages with binding mechanisms suggests that these kinds of transformations are by no
+means trivial to model correctly\cite{Moggi,Pitts00}. For this reason we eschew such
+techniques when there are relatively simple alternatives. A significantly larger core, but
+with many fewer and simpler translations is more apt for describing the control features of
+Haskell. These features were introduced to give the programmer explicit control over
+evaluation in a {\em high-level} manner. It is incongruous to give these features meaning
+in terms of a translation into the very same convoluted programs the features were meant to
+replace.
+
+One of the reasons for our research is to provide a concise model of Haskell. We
+wish to point at a particular line of code in our model, and proclaim, if you
+change {\em that line}, then {\em this change} will become evident in the model.
+We particularly wanted to be able to do this with the control features of
+Haskell. Our interpreter is meant to provide a mechanism to make such fine
+distinctions.
+
+Our goals for this research are three-fold. First to collect together in one place a formal
+description of a larger subset of Haskell than has been previously described. Second, to
+provide a concise description that can be used to communicate about Haskell
+implementations. Last, we view this work as the first step in a program to define a formal
+logic of Haskell programs, ultimately to be embedded into a large automated
+toolset\cite{programatica}.
+
+
+\section{A Model for Haskell}
+
+This section presents a call-by-name model of Haskell as a
+compositional meta-circular monadic interpreter; a call-by-need
+strategy is discussed in Section~\ref{callbyneed}.  Call-by-name
+is appropriate for a theory of program correctness, but may be
+inappropriate for a theory of program optimization. A call-by-need
+approach tries to model sharing, and thus resources consumed.  Based
+on the work of Sabry and Liang we expect that the primary difference
+between the call-by-name and call-by-need interpreters will be in the
+underlying monad of computation selected\cite{JFP::Sabry1998}.
+
+When Moggi\cite{MoggiE90a} introduced monads as a technique to structure semantics, he
+introduced the distinction between a value of a type and a computation of a given type.
+Using this basic distinction, Danvy\cite{Danvy} identified two basic forms of monadic
+interpreters for functional languages:  the Kleisli interpreter that models functions as
+mappings from values to computations, and the Reynolds\cite{Reynolds} interpreter that
+models functions as transformations on computations.  The difference between the two is
+that the Reynolds interpreter makes the evaluation strategy (call-by-value vs.
+call-by-name) of the language being modeled explicit without depending upon the evaluation
+strategy of the meta-language. A Reynolds interpreter can be used to express either
+call-by-name or call-by-value (or something in between like Haskell), irregardless of the
+evaluation strategy of the meta-language. Only a lazy meta-language can implement a
+call-by-name strategy using a Kleisli interpreter.
+
+The meta-circular interpreter developed here reflects the structure of
+the Reynolds interpreter in several ways.  First, the notion of value
+of the interpreter corresponds to terms in weak-head-normal form, with
+computations ({\tt M Value}), rather than base values (simply {\tt
+Value}), embedded recursively.
+
+{\small
+\begin{verbatim}
+data Value                   -- Models values in Haskell
+   = Z Integer                -- Scalars
+   | FV (M Value -> M Value)  -- CBN functions
+   | Tagged Name [M Value]    -- Algebraic structured data
+   | TupleVal [M Value]       -- Tuples
+\end{verbatim}
+}
+
+Secondly, the environment maps names to computations, not to values.
+That is, it is possible to put a computation in the environment that
+may not even have a weak-head-normal form value.  This is expressed:
+
+{\small
+\begin{verbatim}
+type Env = Name -> M Value        -- Maps Names to computations
+type EnvFrag = [(Name,M Value)]   -- Intensional environment fragment
+data Error a = Ok a | Err String  -- A run-time error
+
+newtype M a = M (Env -> (Error a)) -- M is an environment monad
+                                    -- with errors. See Figure 1.
+\end{verbatim}
+}
+
+Finally, the types of the meaning functions defining the interpreter yield
+computations (as opposed to values) as their ranges. These functions have the
+following structure. For each syntactic category of the language, {\tt T},
+there is a function, {\tt mT :: T -> t1}. We say that {\tt mT} computes the
+{\em meaning of} {\tt T}, and associates the type {\tt t1} with this meaning.
+The type {\tt t1} often has the form ({\tt M t2}) or ({\tt M t3 -> M t4}),
+where {\tt M} is the computation monad.
+
+To be concrete, consider meaning functions for the datatypes defined in
+Figure \ref{AST}. We have divided our Haskell subset into many syntactic
+categories, three of which are called {\tt Exp}, {\tt Dec}, {\tt Pat} (for
+expressions, declarations, and patterns).  Each has a corresponding meaning
+function:
+
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+mDecs :: [Dec] -> M a -> M a
+mPat :: Pat -> M Value -> M (Maybe EnvFrag)
+\end{verbatim}
+}
+
+We have found the following analogy to be a useful intuition for thinking about such
+meaning functions. Functions such as {\tt mExp :: Exp -> M Value}, can be thought of as
+computation producers. The function {\tt mExp} produces a computation from an {\tt Exp}.
+This computation computes a result of type {\tt Value}.
+
+Functions such as {\tt mDecs :: [Dec] -> M a -> M a} can be thought of as producing
+computation transformers. The term {\tt (mDecs ds):: M a -> M a} is a computation
+transformer. Taking one computation as input, and producing a different but related
+computation that adds the bindings indicated by {\tt ds} to the original computation.
+It adds the necessary computational steps to extend the environment with the meaning of
+the values bound in {\em ds}. The function {\tt mDecs} is used to give meaning to the
+Haskell expression {\tt (let {\em ds} in {\em e})} by transforming the translation of
+{\em e} as follows: {\tt (mDecs {\em ds} (mExp {\em e}))}.
+
+
+A compositional interpreter must have the following additional property: the
+meaning of any term in a syntactic category {\tt T} must depend, in a purely
+functional manner, only on the meaning of its subterms. Monadic interpreters
+have the ability to cleanly separate different concerns\cite{Wadler92}, and
+are remarkably concise and reusable.  Haskell has introduced explicit support
+for monadic abstractions in the  {\tt do} notation. The {\tt do} notation
+combines monadic expressions (computations) into larger monadic expressions
+(bigger computations). The {\tt do} notation both composes computations, and
+makes clear the order in which the computations are to be run.
+
+\begin{figure}
+{\small
+\begin{center}
+{\bf Definition of monad {\tt M}.}
+\end{center}
+\begin{verbatim}
+instance Monad Error where
+   return = Ok
+   (>>=) x f = case x of
+                (Ok v) -> f v
+                (Err msg) -> (Err msg)
+
+instance Monad M where
+   return a = M (\rho -> return a)
+   (>>=) x f = M g
+     where g rho = do { v <- (deM x) rho ; deM (f v) rho }
+           deM (M x) = x
+
+-- Non-standard Morphisms
+lift :: Error a -> M a
+lift ec = M (\ _ ->  ec)
+
+raise :: String -> M a
+raise = \msg -> lift (Err msg)
+
+rdEnv :: M Env
+rdEnv = M (\rho -> return rho)
+
+inEnv :: Env -> M a -> M a
+inEnv rho (M x) = M (\ _ -> x rho)
+
+instance Functor M where
+    fmap f x = do { x' <- x; return(f x') }
+\end{verbatim}
+\caption{A computation has type{\tt (M Value)}.
+{\tt M} is an environment monad with errors.}\label{Monad}
+}
+\hrule
+\end{figure}
+
+
+
+\subsection{Which Monad?}
+
+The definition of our monad in Haskell can be found in Figure \ref{Monad}. We call
+our computational monad {\tt M}. It is an environment monad with errors. We define
+it in the monad transformer style\cite{LiangHudak,LiangThesis,Espinosa95PHD}.
+First defining a pure {\tt Error} monad, and then laying the environment features
+on top.
+
+The monad abstracts away the additional structure necessary to build compositional
+interpreters. In Haskell, this additional structure must deal correctly with two
+features: suspended computation, and the possibility of failure.
+
+In Haskell, there are several distinct kinds of failures. Only one of which is
+modeled in the monad {\tt M}. 
+
+\begin{enumerate}
+
+\item The first kind of failure, which is modeled within the monad, arises from
+      run-time errors, such as division by zero, and non-exhaustive pattern match
+      coverage. Taking the {\tt head} of the empty list is an example of this kind
+      of failure.
+
+\item The second kind of failure, stems from non-terminating computations. This
+      kind of failure is captured by the model itself not terminating when
+      given a non-terminating Haskell program as input.
+
+\item The third kind of failure, stems from pattern-matching failure in a context
+      where the failure can be caught, and control then proceeds to the next
+      {\tt Match} of a case, or the next {\tt Clause} of a multi-line function
+      definition. We model this outside the monad, as a computation of type
+      {\tt M(Maybe a)}. We call such computations {\em partial} computations.
+      A partial computation can become a failure of the first kind, if it occurs
+      in a context with no {\em next} {\tt Match} or {\tt Clause}.
+\end{enumerate}
+
+In our semantics, a failure of the first kind is reported by using the non-standard
+morphism {\tt raise}. The monad propagates failures once they are raised.
+
+Suspensions are built using an environment. The environment component of {\tt M} is a
+function ({\tt Name -> M Value}), which binds the free variables found in terms to
+computations. This environment is used to build suspended computations. Intuitively, a
+suspended computation is like a thunk or closure. It contains two components: a set of
+instructions to execute, and a set of bindings for the free variables that appear in the
+instructions. Suspensions are built at the monadic level using a classic pattern. The
+nonstandard morphism {\tt rdEnv} is used to capture the current static mapping, and the
+morphism {\tt inEnv} takes a captured mapping and a computation, and is used to create a
+new computation that will run under the captured mapping.
+
+The structure of {\tt Values} and the monad {\tt M} are conventional. We assume the
+reader has some familiarity with monads\cite{Wadler92,Wad92:monads,Wadler:1995:MFP}
+and interpreters\cite{LiangHudak,Espinosa95PHD,DSL99*81}
+
+
+\subsection{Monadic Control Structures}
+
+A nice property of monadic computation in Haskell is that it is easy to capture
+patterns of control and abstract them into functions at the monadic level. A
+familiar pattern that occurs many times in our semantics is a monadic conditional.
+While interpreting a syntactic category, some computation, called the {\em
+discriminant}, is evaluated lazily, just enough to make a choice between one of two
+alternate paths. This pattern occurs about a dozen times in our semantics. These
+fall into one of three categories, depending upon the {\em type} of the
+discriminant.
+
+When the discriminant has type ({\tt M Value}), and that value is representing
+a {\tt Bool} type, as it would in an if-then-else or guarded-body expression,
+we have a simple lifting of the {\tt if-then-else} expression of Haskell. We
+capture this pattern with the function {\tt ifV}.
+{\small
+\begin{verbatim}
+ifV :: M Value -> M b -> M b -> M b
+ifV test thenM elseM =
+  do { v <- test
+     ; case v of
+         Tagged "True" [] -> thenM 
+         Tagged "False" [] -> elseM 
+         other -> raise "Not a Bool in ifV" }
+\end{verbatim}
+}
+
+
+A second kind of choice is captured by the function {\tt caseM}. It is used when
+describing pattern matching. Pattern matching is inherently partial. For example in
+a {\tt case} expression, when a pattern does not match, control passes to the next
+arm of the case. When matching succeeds, additional information is captured: the
+bindings for the variables bound by the pattern. This type of behavior is captured
+by a discriminant with type {\tt M(Maybe a)}. The two arms of the conditional
+correspond to the computation producing {\tt Nothing} or {\tt (Just x)}. The arm
+for the {\tt (Just x)} case should be a function that produces a computation when
+applied to {\tt x}. {\small
+
+\begin{verbatim} 
+caseM :: M (Maybe b) -> M c -> (b -> M c) -> M c 
+caseM test noMatch matchF = 
+  do { vbl <- test ; 
+       case vbl of 
+         Nothing -> noMatch
+         Just x -> matchF x }
+\end{verbatim} }
+
+The last form of conditional is called {\tt hasTag} and is used to do dynamic
+matching of tags in algebraic structured data. This kind of conditional compares a
+statically known tag against the tag of a dynamically produced {\tt Tagged} value.
+If the tag matches, take one path, if it does not match, take the other path. In
+either case, additional information becomes available that is useful on the chosen
+path. If the match is successful, the list of pairs binding variables
+(representing the variables bound by the pattern) to suspended computations
+(representing the data stored in the algebraic type), becomes known. If the tags
+are not the same, then the non-matching tag name (useful for reporting failure)
+becomes known. Thus the arms of {\tt hasTag} are both represented by functions.
+
+{\small
+\begin{verbatim}     
+hasTag :: String -> M Value -> 
+          ([M Value] -> M b) -> (String -> M b) -> M b     
+hasTag tag arg mPatf nomPatf =
+  do { v <- arg
+     ; case v of
+         (Tagged t mvals) -> if t==tag then mPatf mvals else nomPatf t
+         other -> raise "Not a Tagged Value in hasTag" }
+\end{verbatim}
+}
+
+
+ 
+\begin{figure}[t]
+\begin{center} {\small {\bf Haskell Subset Abstract Syntax}}
+\end{center}
+{\small 
+\begin{verbatim}
+type Name = String
+data Op = Plus | Mult | IntEq | IntLess
+data LS = Lazy | Strict deriving Eq
+
+data Pat 
+  = Pconst Integer            -- { 5 }
+  | Pvar Name                 -- { x }
+  | Ptuple [Pat]              -- { (p1,p2) }
+  | Pcondata Name [Pat]       -- data T1 = C1 t1 t2; {C1 p1 p1} = e 
+  | Pnewdata Name Pat         -- newtype T2 = C2 t1;  {C2 p1} = e
+  | Ptilde Pat                -- { ~p }
+  
+data Exp 
+  = Var Name                  -- { x }
+  | Const Integer             -- { 5 }
+  | App Exp Exp               -- { f x }
+  | Abs [Pat] Exp             -- { \ p1 p2 -> e }
+  | TupleExp [Exp]            -- { (e1,e2) }
+  | ConApp Name [(Exp,LS)]    -- data T1 = C1 t1 t2; p = {C1 e1 e2}
+  | NewApp Name Exp           -- newtype T2 = C2 t1; p = {C2 e1}
+  | Seq Exp Exp               -- { seq e1 e2 }               
+  | Bin Op Exp Exp            -- { e1 + e2 }
+  | Cond Exp Exp Exp          -- { if e1 then e2 else e3 }
+  | Let [Dec] Exp             -- { let x=e1;   y=e2 in e3 }
+  | Case Exp [Match]          -- { case e of m1; m2 }
+  
+type Match = (Pat,Body,[Dec]) -- case e of { pat -> body where decs } 
+data Dec 
+  = Fun Name [Clause]         -- { f p1 p2 = b where decs }
+  | Val Pat Body [Dec]        -- { p = b where decs }
+
+type Clause = ([Pat],Body,[Dec]) -- f { p1 p2 = body where decs }
+data Body
+  = Guarded [(Exp,Exp)]       -- f p { | e1 = e2 | e3 = e4 } where ds
+  | Normal Exp                -- f p = { e } where ds
+\end{verbatim}
+}
+\caption{{\footnotesize The comments following each constructor function are meant to
+illustrate the concrete syntax represented by that constructor. Each comment
+has the form {\em context\{ example \}} where {\em context} is possibly empty.
+The {\em context} is supposed to place the {\em example} (which could be
+a possibly ambiguous program text fragment) into perspective. In the examples, we use semicolon
+(;) where the offsides rule would normally be used.}}\label{AST}
+\hrule
+\end{figure}
+
+\section{The Abstract Syntax}
+
+Haskell is a rich language with many features. Our subset identifies 9 different
+syntactic categories. These categories include names, operators, strictness
+annotations, matches, clauses,  bodies, expressions, declarations, and patterns.
+
+In Figure \ref{AST} we display the {\tt data} definitions in Haskell that represent
+our abstract syntax. Our definitions are conventional and we have used
+comments to relate the abstract syntax to the concrete syntax of Haskell. The
+missing syntax, necessary to complete a Haskell definition, has mostly to do with
+the module system, classes, list comprehensions, and the do notation.
+
+
+\section{The Meaning of Expressions}
+
+The heart of a functional language like Haskell is the expression language. The meaning
+of a Haskell program is given in terms of the meaning of the expressions it contains.
+In our semantics, the meaning of a Haskell program is a computation producing a {\tt
+Value}.
+
+The rest of this section is a detailed explanation of the function {\tt mExp}. It is
+divided into subsections. Each subsection describes a few related clauses making up
+the definition of {\tt mExp} along with the auxiliary functions necessary for those
+clauses. These auxiliary functions supply meaning for the other syntactic categories
+of Haskell.
+
+For pedagogical reasons, the text of the paper breaks the definition into a few clauses
+at a time. An actual implementation would need to collect them all together in a
+single place.
+
+\subsection{Simple Expressions}
+
+
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+mExp (Var n) = do { rho <- rdEnv ; rho n }
+mExp (Const i) = return (Z i)
+mExp (TupleExp es) = 
+   do { rho <- rdEnv 
+      ; return (TupleVal (map (inEnv rho . mExp) es)) }
+mExp (Cond l1 l2 l3) = ifV (mExp l1) (mExp l2) (mExp l3)
+\end{verbatim}
+}
+
+The meaning of a variable is obtained by extracting the current environment ({\tt rho})
+and then applying it to the variables name. It is useful to think of the {\tt do}
+notation as building a computation. Lookup the computation stored in the
+environment {\tt rho}, and return it.
+
+Constants are simply turned into values and returned. No complicated translation
+necessary.
+
+In the case for tuples, the laziness of Haskell first becomes apparent. Each of the
+subexpressions (the {\tt es}), must be suspended, and the resulting list of
+computations is then wrapped by the {\tt TupleVal} constructor. To suspend a
+computation one must first grab the current environment ({\tt rho}), translate the
+expression, then apply the computation transformer {\tt (inEnv rho)} to enable the
+computation to find the correct environment when it is later run. This is repeated
+for each sub-expression in the tuple. We will see this pattern many times. One
+cannot tell when, or where, a computation must be run, so it is suspended before
+being embedded inside a {\tt Value}.
+ 
+Conditional expressions, are easily translated using the control operator {\tt ifV}.
+
+\subsection{Application and Abstraction}
+
+Function application and abstraction are the key to any functional
+language. Care must 
+be taken to implement Haskell's laziness correctly.
+
+{\small\label{CBNapplication}
+\begin{verbatim}
+mExp :: Exp -> M Value
+mExp (App f x) =
+   do { rho <- rdEnv
+      ; (FV f1) <- mExp f
+      ; f1 (inEnv rho (mExp x)) }
+mExp (Abs ps l) = arrow ps (mExp l)
+\end{verbatim}
+}
+
+To compute the meaning of an application, grab the current environment, evaluate
+the function part ({\tt f}), to obtain a function value ({\tt FV f1}). Then apply
+{\tt f1} to the suspended argument. The argument is suspended by first translating
+{\tt x}, then transforming this computation to run in the current environment using
+{\tt inEnv}. This is the {\em spot} where we specify a {\em Reynolds Style}
+interpreter\cite{Reynolds}.
+
+As we saw in the {\tt App} case the meaning of a function is a {\tt Value} of the form
+{\tt FV f}, where {\tt f} is a function with type {\tt (M Value -> M Value)}. The meaning
+of an abstraction must compute such a value. This is accomplished by translating the
+body of the abstraction ({\tt l}), then applying the computation transformer {\tt
+arrow}.
+
+{\small
+\begin{verbatim}
+arrow :: [Pat] -> M Value -> M Value
+arrow [] b = b
+arrow (p:ps) b =
+   do { rho <- rdEnv
+      ; let f v = 
+             caseM (mPat p v) 
+                   (raise "mPat Error in Fun")
+                   (\ vl -> inEnv (addBindings rho vl) (arrow ps b))
+      ; return(FV f)
+      }
+\end{verbatim}
+}
+
+The key to understanding {\tt (arrow [p1, ... pn] body)} is that it builds a
+nested sequence of {\tt FV} objects {\tt FV(\ v1 -> ... (FV \ vn -> body))}
+where {\tt n} is the length of the list of patterns. The body of each of the
+{\tt FV}s is a suspended computation, which incrementally adds the bindings to
+the variables found in each {\tt pi}. The hard work is performed by the
+transformer {\tt mPat}. The meaning of binding constructs, like patterns, in our
+semantics is always associated with the production of an {\tt EnvFrag}. An {\tt
+EnvFrag} is a list pairing {\tt Name}s to computations. An {\tt EnvFrag} can be
+used to extend an {\tt Env} using the function {\tt addBindings :: Env ->
+EnvFrag -> Env}.
+
+\subsection{Patterns}\label{pattern}
+
+Pattern matching nested patterns is a challenging problem when describing the
+semantics of Haskell. We consider our treatment of nested patterns one of the
+major contributions of this paper. Patterns can occur in several different
+syntactic contexts. In lambda expressions ({\tt \ p1 p2 -> e}), in let
+expressions ({\tt let p = e1 in e2}), in matches ({\tt case e1 of p -> e2}), and
+in clauses in multi-line function definitions ({\tt f p1 p2 = e}). Patterns also
+appear as sub-patterns inside other patterns.
+
+Patterns are used in two distinctly separate semantic ways in Haskell. The way a
+pattern is used is decided by the syntactic context in which it appears. We call
+the two semantic meanings of patterns, {\em optimistic lazy} patterns, and {\em
+discriminant strict} patterns. Optimistic lazy patterns occur in {\tt let}
+expressions and where patterns are annotated as lazy (\verb+~p+). Discriminant
+strict patterns occur in all other contexts. 
+
+The two different meanings of patterns produce different kinds of transformers.
+Both meanings of a pattern can be thought of as computation transformers. They
+are used to transform the computation of the expression appearing in the
+scope where the variables of the pattern are bound.
+
+The function {\tt mPat} defines the meaning of discriminant strict patterns. The
+function {\tt mPatLazy} defines the meaning of optimistic lazy patterns. Both
+meanings for patterns are {\em lazy} in some sense. Discriminant strict patterns
+are lazy in that they force only enough evaluation to determine if the
+pattern matches. Optimistic lazy patterns are lazy in that they never force
+any evaluation at all. They are optimistic in the sense that it is assumed that
+the pattern will match, and computation proceeds on the assumption that it will.
+If later events invalidate this assumption, then a failure of the first type
+will be raised.
+
+The types of the functions {\tt mPat :: Pat -> M Value -> M(Maybe EnvFrag)} and
+{\tt mPatLazy :: Pat -> M Value -> EnvFrag} encode this information. 
+
+The function {\tt mPat} gives meaning to discriminant strict patterns. The
+partiality of discriminant strict patterns shows up as the {\tt Maybe} type.
+Because discriminant strict patterns may force computation in the discriminant
+the resulting {\tt M(Maybe EnvFrag)} is a monadic computation. The partiality of
+{\tt mPat} is used as a signal to advance to the next {\em match} of a {\tt
+case}, or the next {\em clause} of a multi-line function definition.
+
+The function {\tt mPatLazy} gives meaning to optimistic lazy patterns. It
+optimistically returns an {\tt EnvFrag} without forcing any evaluation. It only
+forces evaluation of the discriminant when one of the variables bound in the
+pattern is demanded. If the value can't be matched to the optimistic pattern a
+failure of the first type is raised. Failure is delayed. Advancing to the next arm
+in a multi-arm {\tt case} guarded by a lazy pattern is not possible, since an
+arm guarded by an optimistic lazy pattern is irrevocably chosen. This is illustrated in the table
+below. The first 3 lines of the table correspond to {\tt mPat} matching, and the
+last two lines correspond to {\tt mPatLazy} matching.
+
+\[
+{\small
+\begin{tabular}{|l|c|l|} \hline
+{\em example} & {\em value} & {\em comment} \\ \hline
+\verb+(\ x -> 3) bottom+  & 3 & succeeds  \\ \hline
+\verb+(\ (x:xs) -> 3) bottom+  & bottom & diverges  \\ \hline
+\verb+(\ (x:xs) -> 3) []+ & Failure & match failure \\ \hline
+\verb+let x:xs = [] in 3+  & 3 &  succeeds \\ \hline
+\verb+case [] of { ~(x:xs) -> x; [] -> 3 }+ &  Failure & delayed error \\ \hline
+\end{tabular}
+}
+\]
+
+The transformer, {\tt (mPat p)}, has type {\tt (M Value -> M (Maybe EnvFrag))}, and
+transforms its translated argument into another computation which (at run-time of the
+computation) computes a {\tt Maybe} type. The {\tt Maybe} type can be observed dynamically
+and different courses of action can be taken. The result of a successful match is {\tt
+(Just (x::EnvFrag))}. Recall that\\ \verb+type EnvFrag = [(Name,M Value)]+.\\ One can
+think of an {\tt EnvFrag} as a dispatch table, pairing each variable with a computation
+which needs to be executed to get that variable's value. These computations may be
+non-trivial, as only a small amount of the computation necessary to produce the value that
+the pattern was matched against may have been forced.
+
+We now give the definition of {\tt mPat}. As for {\tt mExp} we will discuss
+it a few clauses at a time.
+
+{\small
+\begin{verbatim}
+mPat :: Pat -> M Value -> M (Maybe EnvFrag)
+mPat (Pvar x) arg = return (Just [(x,arg)])
+mPat (Pconst i) arg = 
+    do { (Z v) <- arg
+       ; if v==i 
+            then return(Just [])
+            else return Nothing
+       }
+\end{verbatim}
+}
+
+Matching a variable never forces any computation, and always succeeds, so a simple list
+with a single pair is immediately returned. To match a pattern constant, the argument
+must be forced so that its value can be compared against the constant in the pattern.
+
+Tuples and structured data have much in common so we discuss both these cases
+together. The key is to force only enough evaluation to match against
+the pattern, and no more.
+
+
+{\small
+\begin{verbatim}  
+mPat :: Pat -> M Value -> M (Maybe EnvFrag)
+mPat (Ptuple ps) arg = 
+    do { (TupleVal mvals) <- arg
+       ; mfrags <- sequence(zipWith mPat ps mvals)
+       ; return(allJust mfrags)
+       }
+mPat (Pcondata tag ps) arg = 
+    hasTag tag arg
+        (\ mvals -> do { mfrags <- sequence (zipWith mPat ps mvals)
+                       ; return(allJust mfrags)
+                       })
+        (\ t -> return Nothing)
+
+\end{verbatim}
+}
+
+For {\tt Ptuple}, {\tt arg} must be forced to get at the underlying tuple. Then each
+sub-pattern is recursively matched against the sub-components of the tuple. Note that
+if all the sub-patterns of the tuple are variables, no more computation will be
+forced. If some are not variables, just those components of the argument tuple will be
+forced. By zipping {\tt mPat} over the sub-patterns, and the suspended computations
+that make up the body of the tuple, we compute a list of recursive results.
+Each of the recursive results could either be {\tt (Just frag)} or {\tt Nothing}. If
+they are {\em all} of the form {\tt (Just frag)} the subfragments are combined
+into one large fragment.
+
+{\small
+\begin{verbatim}  
+allJust :: [Maybe [a]] -> Maybe [a]  
+allJust [] = Just[]
+allJust (Just x : xs) = fmap (x ++) (allJust xs)
+allJust (Nothing : xs) = Nothing  
+\end{verbatim}
+}
+
+Structured data is similar. The {\tt hasTag} conditional operator forces
+evaluation of the argument. If the tag matches, the first arm proceeds as for
+tuples; If the tag does not match, the other arm immediately returns a partial
+result.
+
+
+{\small
+\begin{verbatim}
+mPat :: Pat -> M Value -> M (Maybe EnvFrag)
+mPat (Pnewdata n p) arg = mPat p arg
+mPat (Ptilde p) arg = return (Just (mPatLazy p arg))
+\end{verbatim}
+}
+
+The constructor function introduced by a {\tt newtype} declaration acts like the
+identity function. Thus to match a {\tt Pnewdata} pattern against an argument,
+just match its sub-pattern against the argument. A similar rule is found in the
+evaluation of {\tt newtype} constructor functions in the function {\tt mExp}.
+
+A pattern annotated as lazy ({\verb+~p+), is treated as an optimistic lazy
+pattern, regardless of its context. The function {\tt mPatLazy} always immediately
+succeeds without forcing any computation at all. Since {\tt mPat} returns a {\tt
+Maybe} result, and the call to {\tt mPatLazy} always returns just an {\tt
+EnvFrag}, we must wrap the {\tt Just} constructor around the result of {\tt
+mPatLazy}.
+
+The meaning of an optimistic lazy pattern is a computation transformer. Since
+matching an optimistic lazy pattern is never partial, the transformer transforms
+the argument directly into an {\tt EnvFrag} (rather than a {\tt Maybe EnvFrag}),
+binding variables to computations. Each such computation demands the argument when
+one of the variables in the pattern is demanded. If the pattern does not match the
+argument, these computations must incorporate a delayed match error. The key to
+understanding {\tt mPatLazy} is to understand how the argument computation is
+lazily incorporated into each computation in the {\tt EnvFrag}.
+
+
+{\small
+\begin{verbatim}
+mPatLazy :: Pat -> M Value -> EnvFrag
+mPatLazy (Pconst k) mv = []         
+mPatLazy (Pvar x) mv = [(x,mv)]
+mPatLazy (Ptilde p) mv = mPatLazy p mv
+mPatLazy (Pcondata n ps) mv = concat(zipWith argN [1..] ps)
+    where argN i p = mPatLazy p (subValue i)
+          subValue i = do { vs <- hasTag n mv return error; vs !! (i-1)}
+          error tag  = raise ("Tag " ++ n ++ " != " ++ tag)
+mPatLazy (Pnewdata n p) mv = mPatLazy p mv                    
+mPatLazy (Ptuple ps) mvals = concat(zipWith select [1..] ps)
+    where select i p = mPatLazy p (proj i mvals)
+          proj :: Int -> M Value -> M Value
+          proj n phi = do { (TupleVal mvals) <- phi ; mvals !! (n-1)  } 
+\end{verbatim}
+}
+
+For structured data, each sub-pattern may bind some variables, each of these patterns
+pulls on the original argument when one of their variables is demanded. This happens
+when calling {\tt subValue i} which in turn pulls on {\tt mv} through the call 
+\verb+(hasTag n mv return error)+. A similar action takes place through the use of
+the function {\tt proj} in the tuple case.
+
+Optimistic lazy patterns with constant sub-patterns are worth thinking about
+for a moment. An optimistic pattern always matches immediately, delayed
+failure is raised only if pulling on the variables in the pattern discovers
+that the value being matched does not have the structure of the pattern. An
+optimistic lazy constant pattern always matches, and since it has no
+variables, it never causes delayed failure. A constant pattern in an
+optimistic lazy context acts as a wildcard pattern!
+
+We now return to further discussion of the meaning of expressions.
+
+\subsection{Constructor Application}
+
+Constructor applications are evaluated in a manner much like tuples. The key
+difference is the possibility that constructors can have some of their arguments
+annotated as strict arguments. For example in Haskell, we might write\\ {\tt data
+T = C String !Int}, to denote that the second argument to {\tt C} should be forced
+into head normal form before the {\tt C} object is allocated in the heap. We
+denote this in our abstract syntax by pairing each sub-argument with a strictness
+annotation ({\tt LS}).
+
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+mExp (ConApp n es) = 
+   do { rho <- rdEnv
+      ; let f (e,Lazy) es   = 
+              do { cs <- es; return ((inEnv rho (mExp e)):cs) }
+            f (e,Strict) es = 
+              do { c <- mExp e; cs <- es; return((return c):cs)}
+      ; cs <- foldr f (return []) es
+      ; return(Tagged n cs)
+      }  
+\end{verbatim}
+}
+
+Lazy arguments are suspended (using {\tt rdEnv} and {\tt inEnv}) in the current
+environment, strict ones are evaluated immediately.  Inspecting the interpreter
+shows that strict constructors store computations which are already in head-normal
+form.
+
+\subsection{Case Expressions}
+
+In {\tt case} expressions we use the pattern matching transformers defined in
+Section \ref{pattern}. A {\tt case} contains a {\em discriminant} ({\tt e}), and a
+list of {\em matches} ({\tt ms}). A {\tt Match} consists of a pattern, a body, and
+an optional list of local declarations\footnote{We discuss {\tt where} clause
+declarations in Section \ref{decs}.}. The pattern of each {\tt Match} is matched
+against {\tt e} in turn, returning the meaning of the body of the first successful
+match. Since a match may be partial, our semantics must handle this properly. The meaning
+of a match of the form ({\tt pat -> body}), is a transformer taking the meaning of
+the discriminant to a computation returning a {\tt (Maybe Value)}. This has the
+form {\tt (Just (mExp body))} if the pattern matches, and {\tt Nothing} if it does
+not. For example, the case expression, {\tt (case x of m1; m2)} is given meaning
+by the expression:
+
+{\small
+\[ \verb+(mMatch m1) (mExp x)+ \;[\!]\; \verb+(mMatch m3) (mExp x)+ \;[\!]\; \verb+raise "Match Failure"+ \] 
+}
+
+Here the right associative infix {\em fatbar} operator ($\;[\!]\;$), returns the first
+(left most) operand that returns a {\tt Just} value. We make this precise by:
+
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+mExp (Case e ms) =  
+   foldr (fatbar (mExp e)) (raise "Match Failure") (map mMatch ms)
+  where fatbar arg mm next = caseM (mm arg) next return
+\end{verbatim}
+}
+
+The meaning of a {\tt Match} is computed by {\tt mMatch ::  Match -> M Value ->
+M(Maybe Value)}.  Like {\tt mPat}, {\tt mMatch} may force computation, and it may
+also be partial.  Unlike a {\tt Pat},  {\tt mMatch} transforms a computation into
+a {\tt (Maybe Value)} rather than a {\tt (Maybe EnvFrag)}.
+The partiality of a {\tt Match} can stem from two causes.
+Consider: 
+\begin{verbatim} 
+f (x:xs) | even x = 1 
+\end{verbatim} 
+The term {\tt (f [])} is partial because of pattern match failure; the term {\tt
+(f [1])} is partial because of guard failure. 
+{\small
+\begin{verbatim}
+mMatch :: Match -> M Value -> M(Maybe Value)
+mMatch (p,body,ds) arg = 
+   caseM (mPat p arg) 
+     (return Nothing)
+     (\frag ->  do { rho <- rdEnv
+                   ; inEnv (addBindings rho frag) 
+                             (mDecs ds (mBody body))
+                   })                    
+\end{verbatim}
+}
+
+The function {\tt mMatch} is basically an extension of {\tt mPat}, executing the
+corresponding {\em body} in an environment extended with two additional sets of
+bindings. The first set is the bindings found in the {\tt EnvFrag} computed by a
+successful match, and the second is the bindings found in the {\tt where} clause {\tt
+ds}. We discuss {\tt mDecs} in Section \ref{decs}.
+
+A {\tt Body} is either a single expression or a list of guarded expressions.
+
+{\small
+\begin{verbatim}      
+  where mBody :: Body -> M(Maybe Value)
+        mBody (Normal e) = do { x <- mExp e; return(Just x)}
+        mBody (Guarded guards) = mExpGuardList guards
+        mExpGuardList :: [(Exp,Exp)] -> M (Maybe Value)
+        mExpGuardList [] = return Nothing
+        mExpGuardList ((g,b):gs) =
+            ifV (mExp g)
+                (do { x <- mExp b; return(Just x) })
+                (mExpGuardList gs)
+\end{verbatim}
+}
+
+The partiality of {\tt mBody} is made necessary by guarded expressions; it is
+possible for all the guards to be partial. If this happens, the whole {\tt Match}
+is partial as well, and control should pass to the next {\tt Match} in the
+enclosing {\tt case} expression.
+
+
+\subsection{Declarations and Let Expressions}\label{decs}
+
+Sets of mutually recursive definitions appear in {\tt let} expressions, {\tt
+where} clauses, and at the top-level of Haskell programs. The difference
+between these is a subtle distinction of scope. The semantics of a set of
+mutually recursive definitions is always a transformer. The distinction in
+scope is made by the way the transformer is applied.
+
+The meaning of a set of mutually recursive definitions is given by {\tt mDecs :: [Dec]
+-> M Value -> M Value}. It is a transformer that transforms the computation in the scope
+of the definitions into another that knows how to access those definitions. The difficulty
+in defining a meaning function for a set of {\em mutually recursive} definitions, is the
+{\em recursion}. The {\em use} of such a transformer is quite straightforward. For example,
+the meaning of a {\tt let} expression can be given simply by:
+
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+Exp (Let ds body) = mDecs ds (mExp body)
+\end{verbatim}
+}
+
+The {\em definition} of {\tt mDecs} is more problematic. The meaning of
+binding constructs in our semantics is always associated with the production
+of an {\tt EnvFrag}. An {\tt EnvFrag} is a list of pairs. Each pair consists
+of a {\tt Name}, and computation. For a set of {\em mutually recursive}
+declarations, the computations inside the {\tt EnvFrag} must include the
+bindings for the names declared in the set. But this {\tt Environment} can
+only be constructed once the {\tt EnvFrag} is complete. Thus we have a
+chicken and egg problem. What comes first, the {\tt Env} or the {\tt
+EnvFrag}?
+
+Fortunately this problem is easy to solve using the recursion of the meta-language
+Haskell. We expect the following recursive equation to hold of our semantics:
+
+{\small
+\begin{verbatim}
+newEnv = addBindings oldEnv (makeDsFrag newEnv ds)
+\end{verbatim}
+}
+
+Here {\tt makeDsFrag} produces an {\tt EnvFrag} given the {\tt Env} which
+already contains bindings for the names declared in {\tt ds}. However this
+equation is non-compositional. We give a compositional definition of {\tt newEnv}
+below that satisfies this equation.
+
+The function {\tt mDecs} builds a transformer that extends the environment with the
+variables bound by the set of declarations. We make the recursion that solves the
+chicken and egg problem explicit, by using an explicit {\tt fix} operator. The function
+{\tt mDecs} works by grabbing the current environment, adding the bindings produced by
+{\tt makeDsFrag} to make a new {\tt Env}, and using the {\tt inEnv} transformer to build
+a suspension that will evaluate the original computation in this environment.
+
+{\small
+\begin{verbatim}
+mDecs :: [Dec] -> M a -> M a
+mDecs ds mExp =
+     do { rho <- rdEnv
+        ; let newEnv = fix (\ r -> addBindings rho (makeDsFrag r ds))
+          in inEnv newEnv mExp
+        }
+\end{verbatim}
+}               
+
+The function {\tt makeDsFrag} is straight forward. There are two kinds of declarations,
+{\tt Val} and {\tt Fun}. For each kind of declaration build a pair, pairing the names
+bound with their associated computations. Recall that {\tt r} is an environment that
+will contain the bindings we are now constructing.
+
+
+{\small
+\begin{verbatim}
+makeDsFrag :: Env -> [Dec] -> EnvFrag
+makeDsFrag r ds = foldr mDec [] ds
+ where mDec (Val p body ds) frag = 
+            mPatLazy p (inEnv r (mDecs ds (mBody body))) ++ frag
+       mDec (Fun nm cls) frag = (nm,mExpCls cls) : frag
+       mExpCls :: [([Pat],Body,[Dec])] -> M Value
+       mExpCls [] = raise "no guard matches"
+       mExpCls ((ps,body,ds):cls) = 
+            arrow ps (inEnv r (mDecs ds (mBody body)))  
+\end{verbatim}
+}
+
+Recall that the meaning of a declaration must never perform any computation,
+only build new environments. Thus the use of {\tt mPatLazy} in the {\tt Val}
+clause of the function {\tt mDec}. Note also the recursive use of {\tt mDecs}
+to handle {\tt where} clauses inside each declaration.
+
+
+\subsection{Newtype Constructor Application}
+
+A {\tt newtype} constructor acts like the identity function, thus it is easy to define
+the clause of {\tt mExp} for {\tt newtype} constructors:
+
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+mExp (NewApp n x) = mExp x
+\end{verbatim}
+}
+
+\subsection{Miscellaneous expressions}
+
+Finally, we come to the last few miscellaneous expression forms, the {\tt seq} operator,
+and primitive binary operators. We assume that the primitive operators are strict in their
+operands.
+
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+mExp (Seq x y) = do { mExp x; mExp y }
+mExp (Bin op l1 l2) =
+   do { (Z i1) <- mExp l1
+      ; (Z i2) <- mExp l2
+      ; return(mOp op i1 i2)
+      }
+ where mOp :: Op -> Integer -> Integer -> Value
+       mOp Plus x y = Z(x + y)
+       mOp Mult x y = Z(x * y)
+       mOp IntEq x y = fromBool(x==y)
+       mOp IntLess x y = fromBool(x < y)
+       fromBool True = Tagged "True" []
+       fromBool False = Tagged "False" []
+\end{verbatim}
+}
+
+The {\tt Seq} operation needs some explanation. {\tt Seq} evaluates
+its first operand, then evaluates and returns the value of its second
+operand. The benefit of {\tt Seq} is only evident in a monad that models
+the sharing of a call by need semantics. In such a model, one uses {\tt Seq}
+to force computation of the first operand, so that subsequent shared demands
+will perform only a small constant amount of computation. The most common
+use of {\tt Seq} is to define a strict application operator.
+
+{\small
+\begin{verbatim}
+strictApply f x = seq x (f x)
+\end{verbatim}
+}
+
+For this to usefully, we would have to change our monad to encode sharing.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Using the interpreter: adding call-by-need evaluation}\label{callbyneed}
+
+With a few simple changes, the interpreter developed here can be made call-by-need
+rather than call-by-name. This is a happy consequence of parameterizing our
+interpreter by a monad structured with monad
+transformers\cite{LiangHudak,LiangThesis}. The only changes necessary are adding a
+heap structure to the monad {\tt M} and replacing the closures that are formed
+through function application with self-updating thunks. In this section, we outline
+these changes. Our treatment follows Liang's dissertation\cite{LiangThesis}
+closely.
+
+Previously, we defined {\tt M} as:
+\begin{verbatim}
+       M a = Env -> (Error a)
+\end{verbatim}
+The first change is to include a heap in the definition of {\tt M}:
+\begin{verbatim}
+       M a = Env -> (Error (Heap a))
+\end{verbatim}
+\noindent where:
+\begin{verbatim}
+       Heap a = Sto -> (Sto,a)
+       Sto = (Loc,[(Loc,M Value)])
+       Loc = Int
+\end{verbatim}
+
+\noindent {\tt Heap} is a state monad with heap structure {\tt Sto}. The first
+component of {\tt Sto}, {\tt Loc}, represents the next free address in the heap. The
+second component of {\tt Sto}, {\tt [(Loc,M Value)]}, represents the heap itself.
+That is, each pair \verb+(l,thk)+ in the list, represents a thunk {\tt thk} stored at
+location {\tt l}. With the new definition of {\tt M}, it is a simple matter to
+specify operations {\tt (alloc : M Loc)}, {\tt (read : Loc -> M Value)}, and {\tt
+(write : Loc -> M Value)} which allocate a new location in the heap, and read (and
+write) from (and to) heap locations, respectively.
+
+Now, the only necessary change to our interpreter is to replace closures with
+thunks in the definition of function application:
+{\small
+\begin{verbatim}
+mExp :: Exp -> M Value
+mExp (App f x) =
+   do { rho <- rdEnv
+      ; (FV f1) <- mExp f
+      ; loc <- alloc
+      ; write loc (mkthunk rho loc (mExp x))
+      ; f1 (read loc) }
+where
+     mkthunk r l phi = 
+           do { v <- inEnv r phi ; write l (return v) ; return v }
+\end{verbatim}
+}
+
+The first two lines of this code are identical to those in the
+original call-by-name definition in Section \ref{CBNapplication}.
+Then, a new location {\tt loc} is allocated in the heap, and a thunk for
+the argument {\tt x} (i.e., {\tt mkthunk rho loc (mExp x)}), is written to {\tt
+loc}. Now, rather than passing the closure {\tt (inEnv rho (mExp x))} as one
+would in call-by-name, a reference to {\tt loc} is 
+passed: {\tt (f1 (read loc))}. 
+
+Defining application in this manner implements call-by-need evaluation. The first
+time {\tt x} is evaluated within {\tt f}, the thunk {\tt (mkthunk rho loc (mExp x))}
+will evaluate the closure {\tt (inEnv rho (mExp x))} to value {\tt v}, and will then
+update itself by writing the unit computation {\tt (return v)} to {\tt loc}.
+Successive evaluations of {\tt x} will share {\tt (return v)} rather than the
+original closure, as call-by-name would.
+
+To fully exploit the sharing of call-by-need in our interpreter we would have to rephrase
+the pattern binding within matches in a case expression {\tt (case e of m1 ... mn)} so that
+incremental evaluation of {\tt e} is performed.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Using the interpreter: evaluation subtleties}
+
+\newcommand{\undef}{\ensuremath{\perp}}
+
+Consider the following example taken from the Haskell'98
+Report\cite{Haskell98} (page 43) which demonstrates the subtle
+differences in evaluation between constructors introduced with {\tt
+data},
+{\tt data} with strictness annotations, and {\tt newtype}:
+\begin{verbatim}
+     data D1 = D1 Int                      d1 (D1 i) = 42
+     data D2 = D2 !Int                     d2 (D2 i) = 42
+     newtype N = N Int                     n (N i) = 42
+\end{verbatim}
+
+The differences in evaluation between {\tt D1}, {\tt D2}, and {\tt N} are then
+illustrated by the following equivalences:
+
+{\small
+\begin{center}
+\begin{tabular}{|c|c|}\hline
+Haskell Terms & Equivalent to: \\
+\hline
+{\tt (d1 \undef)},\quad {\tt (d2 \undef)}, \quad {\tt (d2 (D2 \undef))} & \undef\\
+\hline
+{\tt (n \undef)},\quad {\tt (n (N \undef))},\quad  {\tt (d1 (D1 \undef))} & {\tt
+42}\\
+\hline
+{\tt (N \undef)},\quad {\tt (D2 \undef)}, \quad ({\em but not} {\tt (D1 \undef)}) &
+\undef\\
+\hline
+\end{tabular}
+\end{center}
+}
+
+It is possible to point to lines in the code presented here which explain this
+behavior! For example, exactly why is {\tt (D1 \undef)} not \undef, while {\tt (D2
+\undef)} and {\tt (N \undef)} are? Just look at the clauses defining the various
+flavors of constructor application:
+
+%\vspace*{.5in}
+\begin{minipage}[h]{6in}
+{\footnotesize
+\begin{verbatim}
+         mExp (ConApp n es) =
+           do { rho <- rdEnv
+              ; let f (e,Lazy) es   =
+{-1-}                 do { cs <- es; return ((inEnv rho (mExp e)):cs) }
+                    f (e,Strict) es =
+{-2-}                 do { c <- mExp e; cs <- es; return((return c):cs)}
+              ; cs <- foldr f (return []) es
+              ; return(Tagged n cs)
+              }
+{-3-}    mExp (NewApp n x) = mExp x
+
+\end{verbatim}
+}
+\end{minipage}
+
+%\vspace{.2in}
+
+\noindent  {\tt (D1 \undef)} is evaluated as a lazy constructor application, and its
+meaning (from the line marked ``{\small \verb+{-1-}+}'') is the non-\undef\/ suspension {\tt
+(return (inEnv r \undef))}. Having a strictness annotation, {\tt D2} evaluates its
+argument on the line marked ``{\small \verb+{-2-}+}'' with {\tt do \{ c <- \undef ; ...\}},
+and so {\tt (D2 \undef)} produces \undef. A constructor introduced by {\tt newtype}
+is not treated as a {\em bona fide} semantic function, as {\tt data} constructors
+are, and as shown on line ``{\small \verb+{-3-}+}'', {\tt (N i)} and {\tt i} are semantically the same thing. Thus, {\tt (N
+\undef)} and \undef\/ are equivalent.
+
+Why does {\tt d1} behave strictly (i.e., {\tt (d1 \undef)} is equivalent to \undef),
+while {\tt n} is lazy (i.e., {\tt (n \undef)} is equivalent to 42)? Just consider
+the three lines defining pattern-matching on {\tt data} and {\tt newtype}
+constructors:
+
+{\footnotesize
+\begin{verbatim}
+     mPat (Pcondata tag ps) arg = hasTag tag arg  (...) (...)
+     mPat (Pnewdata n p) arg = mPat p arg
+     mPat (Pvar x) arg = return (Just [(x,arg)])
+\end{verbatim}
+}
+\noindent It is enough to know that the discriminant {\tt hasTag} evaluates
+its argument {\tt arg} to see that {\tt (d1 \undef)} is equivalent to \undef. 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Pattern-matching compilation is not just desugaring}
+
+If a pattern {\tt p} is \(\mathtt{(C}\; \mathtt{t_1}\ldots \mathtt{t_n)}\) where
+$\mathtt{t_i}$ are variables, and $\mathtt{C}$ is a constructor function, then
+{\tt p} is a {\em simple} pattern. However, if one or more of the $\mathtt{t_i}$
+are not variable patterns, then {\tt p} is a {\em nested} pattern.
+Pattern-matching compilation\cite{PeytonJones86,SCP::JonesS1998} is typically performed as part of
+the front-end (as it is in GHC and Hugs), because it yields more efficient
+programs (see Chapter 5 by Wadler in \cite{PeytonJones86} for further details).
+Figure~\ref{SyntacticSaccharin} shows an example of pattern-match compilation in
+which the definition of a Haskell function {\tt nodups} with nested patterns is
+transformed into a similar definition without nested patterns. One feature of this
+transformation was the necessity of generating new variables {\tt x}, {\tt x'},
+{\tt xs}, and {\tt xs'} along the way.
+
+
+\begin{figure}
+\hrule
+\vspace{1.5ex}
+
+{\small
+\begin{verbatim}
+nodups1 l =      -- Original with nested patterns:
+  case l of
+    [] -> []      
+    [x] -> [x]
+    (y:(x:xs)) -> if x==y then (nodups1 (x:xs)) 
+                          else (y:(nodups1 (x:xs)))
+                          
+nodups2 xs'' =   -- After pattern-match compilation: 
+  case xs'' of 
+    [] -> []      
+     x':xs' -> case xs' of
+                [] -> [x']
+                x:xs -> if x'==x then (nodups2 (x:xs)) 
+                                 else (x':(nodups2 (x:xs)))
+\end{verbatim}
+}
+%\vspace{-0.5cm}
+\caption{Syntactic Saccharin}
+%I checked the Merriam-Webster dictionary-this is the correct spelling of 
+% ``Saccharin''
+\vspace{1.5ex}
+\hrule
+\label{SyntacticSaccharin}
+\end{figure}
+
+
+Previous attempts\cite{PeytonJone92a,PeytonJones:1998:TBO} to define a denotational semantics for the core of
+Haskell concentrate on the fragment of the language without nested patterns (the
+kind of programs produced by pattern-match compilation). This semantics for
+``unnested'' Haskell core could be extended simply to the full language by
+defining the meaning of a term with nested patterns to be the meaning of its
+compilation. For example, the meaning of {\tt nodups1} is identified with that of
+{\tt nodups2}. Observe that, within this extended semantics, there is an implicit
+reliance on the ability to generate fresh names just as {\tt x}, {\tt x'}, {\tt
+xs}, and {\tt xs'} were generated. The implicit assumption in this approach
+that pattern-match compilation is essentially a semantically irrelevant
+elimination of syntactic sugar.
+
+One drawback of this extended semantics is that it is no longer compositional. A
+much more serious flaw, however, derives from the reliance on fresh name
+generation within the pattern-matching compilation. Recent
+developments\cite{Moggi,Gabbay99lics} in the semantics of staged languages reveal that the
+structural consequences of including name generation within a denotational
+semantics are considerable. This would have serious consequences for
+developing a simple logic for Haskell programs.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Conclusions}
+
+Haskell is commonly referred to as a lazy functional language, but it is more properly
+understood as a non-strict language because it contains features (patterns, the {\tt
+seq} operator, etc.) which introduce strict perturbations of the default lazy
+evaluation mechanism. These perturbations are important for practical reasons: expert Haskell
+programmers may use strictness sparingly in their programs to avoid some of the
+computational overhead associated with laziness without giving it up entirely.
+
+However, this mixed evaluation order complicates Haskell from a
+semantic point of view. We have modeled Haskell's control of demand by
+using a Reynolds style interpreter, which can model the full range, from
+fully strict to fully lazy languages. We used a monadic style to get fine control
+over demand, and to encapsulate the various effects of Haskell.
+
+The present work is the first formal treatment of the fine control of demand in Haskell. We
+present a language definition that clearly separates lazy and normal patterns. The patterns
+considered were nested patterns, and we did not resort to pattern-match compilation to simplify
+the task. The work clearly defines the interaction between {\tt data} (with and without
+strictness annotations) and {\tt newtype} data constructors with Haskell's other features. This
+definition lays the foundation for an equational reasoning system about real Haskell programs.
+The code presented in this paper is available online at {\tt www.cse.ogi.edu/\verb+~+sheard/}.
+
+\bibliographystyle{entcs}
+\bibliography{body}  
+
+
+\end{document}

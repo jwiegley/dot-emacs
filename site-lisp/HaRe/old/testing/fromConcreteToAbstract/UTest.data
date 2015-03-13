@@ -1,0 +1,7 @@
+TestCases{refactorCmd="fromAlgebraicToADT",
+
+positive=[(["C1.hs"],["3","6"])
+         ],
+
+negative=[]
+}

@@ -1,0 +1,102 @@
+<title>Extensible Haskell front-end for the Programatica project -
+        directory base</title>
+
+<h1>Extensible Haskell front-end for the Programatica project</h1>
+
+<h2>What is in this directory (base)</h2>
+
+<p>
+This directory contains the code that deals with the base language, i.e.,
+more or less Haskell 98. It is structured to allow most of the code to
+be reused without changes in extended versions of the language.
+
+<!--
+<h3>Test applications to run</h3>
+
+Things are still rather transient, but here is what's available at the moment.
+
+<dl>
+<dt><code>tstModules</code> <var>options</var> <var>command</var> <var>modules</var>
+<dd>Various tests of the front-end code, including production of cross
+    reference info used by <code>hs2html</code>.
+    Depending on the <var>command</var>, output
+    appears on stdout or in files in the subdirectory <code>hi</code>.
+<dt><code>tstTI</code> <var>options</var> <var>modules</var>
+<dd>Tests the type checker. Pretty-prints a decorated syntax tree on stdout.
+</dl>
+
+More detailed descriptions are available on request.
+<p>
+There are also some additional, obsolete test programs.
+-->
+
+<h3>Obsolete subdirectories</h3>
+
+<p>
+<code>parse</code>, <code>SA</code>, <code>TC</code>
+
+<h3>Active subdirectories</h3>
+
+<dl>
+<dt><a href="AST/"><code>AST</code></a>
+<dd>nonrecursive data structures for the abstract syntax
+    (reusable in extensions),
+
+<dt><code>syntax</code>
+<dd>knot-tying recursive definitions for the base language
+    (not reusable in extensions),
+
+<dt><a href="parse2/"><code>parse2</code></a>
+<dd>Happy parser (not reusable), lexer, lexer generator.
+    The lexer is described in
+    <a href="http://www.cse.ogi.edu/~hallgren/Talks/LHiH/">A Lexer for
+     Haskell in Haskell</a>.
+<dt><a href="Modules/"><code>Modules</code></a>
+<dd>implementation of Haskell's module system, as described in the
+    paper <a href="/~diatchki/hsmod/"><cite>A Formal Specification for the
+    Haskell&nbsp;98 Module System</cite></a>,
+
+<dt><a href="defs/"><code>defs</code></a>
+<dd>defined names, free names, mapping over names, scoping information,
+    infix operator reassociation
+    (both reusable parts and knot-tying parts for the base language),
+
+<dt><a href="TI/"><code>TI</code></a>
+<dd>type checker (both reusable parts and knot-tying parts for the base language),
+
+<dt><code>pretty</code>
+<dd>library of pretty printing combinators,
+
+<dt><a href="lib/"><code>lib</code></a>
+<dd>general library modules (does not depend on anything else here),
+
+<dt><a href="transforms/"><code>transforms</code></a>
+<dd>Source level transformations (e.g., pattern match simplification).
+    Generation of code for derived instances.
+
+<dt><code>tests</code>
+<dd>test input,
+<dt><a href="tests/HaskellLibraries"><code>tests/HaskellLibraries</code></a>
+<dd>Haskell 98 Prelude and Standard Libraries, with some minor changes to
+    make them go through our type checker. (This is now an important part
+    of our tools and doesn't belong in the test subdirectory anymore!)
+
+</dl>
+<!--
+<h3>A test run</h3>
+
+When you have compiled <code>tstTI</code>, you can try
+<pre>
+  cd tests/HaskellLibraries
+  ../../tstTI . +RTS -K5M
+</pre>
+
+This will type check the Prelude and the standard libraries, and output
+annotated code on stdout. This takes about 40s on turing, 20s on kokotni.
+<small>
+(The flags <code>+RTS -K5M</code> prevents the pretty printer from running out
+of stack space...)</small>
+-->
+<hr>
+<address>Authors: various</address>
+<address>Contact: <a href="http://www.cse.ogi.edu/~hallgren/">TH</address>

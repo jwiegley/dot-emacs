@@ -1,0 +1,86 @@
+#!/bin/sh
+
+# Script to validate QuickCheck certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA", "$SERVERDIR" and "$certsDir" to be set.
+# It also expects the name of a certificate on the command line.
+
+type=QuickCheck
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh"
+
+tmpdir=slice
+
+### Auxiliary functions ########################################################
+
+sourcedirs() {
+  subgraphfiles $module | grep -v ^hi/libs/ | while read path ; do
+    dirname $path
+  done | sort -u
+}
+
+getAttrWithDefault() {
+  v="`getattr $1 $attr`"
+  echo "${v:-$2}"
+}
+
+validate() {
+  tmpmod="$tmpdir/$module.hs"
+  pfe qcslice "$module.$conc"
+  hugspath=:$SERVERDIR/lib # :$PROGRAMATICA/libs/Monads
+  #srcdirs=`sourcedirs`
+  #hugspath=$hugspath:`echo $srcdirs | sed 's/ /:/g'` # needed for 1st & 2nd ver
+  #echo "hugspath=$hugspath"
+  maxTest="`getAttrWithDefault maxTest 100`"
+  maxFail="`getAttrWithDefault maxFail 1000`"
+  qcverbose="`getAttrWithDefault verbose False`"
+  # generators...?
+  echo 'Test did not run' >"$output"
+  echo "QC.testToStdout $maxTest $maxFail $qcverbose assert_$conc"
+  echo "QC.testToStdout $maxTest $maxFail $qcverbose assert_$conc" | 
+    ${HUGS-hugs} -w +q -98 -P$hugspath $tmpmod > "$output" # no interactive feedback
+    #ghci -fglasgow-exts -package util -i$hugspath $tmpmod  > "$output"
+  #rm -f $tmpmod
+  if tail "$output" | grep -q "OK, passed " ; then  # not very reliable!!
+    markvalid
+  else 
+    markinvalid
+  fi
+}
+
+validatenew() {
+  validate
+}
+
+revalidate() {
+  if [ -s "$tmpdiff" ] ; then
+    #echo "The following changes might affect the validity of"
+    echo "There has been changes that might affect the validity of"
+    echo "the $type certificate $cert."
+    #echo ""
+    #cat "$tmpdiff"
+    echo ""
+    validate
+  elif [ "$attr" -nt "$certpath/valid" ] ; then
+    echo "Certificate attributes have changed."
+    validate
+  else
+    echo "There has been no changes affecting the validity of"
+    echo "the $type certificate $cert. Marking it as still valid."
+    datestamp valid $certpath $module
+  fi
+}
+
+### Here we go... ##############################################################
+
+tmpdiff="$certsDir/diff$$"
+
+if [ -r "$deps" ] && pfe tadiff "$deps" "$assertion" >"$tmpdiff" ; then
+  revalidate
+else
+  validatenew
+fi
+status=$?
+rm -f "$tmpdiff"
+exit $status

@@ -1,0 +1,304 @@
+--#include "Alfa/Types.alfa"
+
+--#include "Alfa/Bool.alfa"
+
+--#include "Alfa/Natural.alfa"
+
+--#include "Alfa/List.alfa"
+
+--#include "Alfa/Tuples.alfa"
+
+package Integers where
+  open Types  use  Digit,  Sign,  IntLit
+  open Booleans
+   use  Bool,  ifTrue,  ifFalse,  ifD,  if_then_else,  not,  (&&),
+        (||),  boolEq
+  open Natural
+   use  Nat,  succ,  (+),  (*),  isZero,  natRec,  natEq,  max,  (-),
+        natLte,  natLt,  natGt
+  open Lists  use  List,  reverse,  null
+  open Tuples  use  Pair,  fst,  snd
+  Integer = IntLit
+  one = succ Zero@_
+  two = succ one
+  three = succ two
+  four = succ three
+  five = succ four
+  six = succ five
+  seven = succ six
+  eight = succ seven
+  nine = succ eight
+  digitToNat (d::Digit) :: Nat
+    = case d of {
+        (D0) -> Zero@_;
+        (D1) -> one;
+        (D2) -> two;
+        (D3) -> three;
+        (D4) -> four;
+        (D5) -> five;
+        (D6) -> six;
+        (D7) -> seven;
+        (D8) -> eight;
+        (D9) -> nine;}
+  isZeroDigit (d::Digit) :: Bool
+    = isZero (digitToNat d)
+  eqSign (s1::Sign)(s2::Sign) :: Bool
+    = case s1 of {
+        (Neg) ->
+          case s2 of {
+            (Neg) -> True@_;
+            (Pos) -> False@_;};
+        (Pos) ->
+          case s2 of {
+            (Neg) -> False@_;
+            (Pos) -> True@_;};}
+  eqDigit (d1::Digit)(d2::Digit) :: Bool
+    = natEq (digitToNat d1) (digitToNat d2)
+  eqDigits (ds1::List Digit)(ds2::List Digit) :: Bool
+    = case ds1 of {
+        (Nil) ->
+          case ds2 of {
+            (Nil) -> True@_;
+            (Cons x xs) -> False@_;};
+        (Cons x xs) ->
+          case ds2 of {
+            (Nil) -> False@_;
+            (Cons x' xs') -> (eqDigit x x' && eqDigits xs xs');};}
+  normDigits (ds::List Digit) :: List Digit
+    = case ds of {
+        (Nil) -> Nil@_;
+        (Cons x xs) ->
+          case isZeroDigit x of {
+            (True) -> normDigits xs;
+            (False) -> ds;};}
+  zeroInteger ::Integer
+    = Pair@_ Pos@_ (Cons@_ D0@_ Nil@_)
+  -- addSign: create +0 rather than -0
+  addSign (s::Sign)(ds::List Digit) :: Integer
+    = if_then_else Integer (null Digit ds) zeroInteger (Pair@_ s ds)
+  normInteger (i::Integer) :: Integer
+    = case i of { (Pair s ds) -> addSign s (normDigits ds);}
+  primNormIntegerEq (i1::Integer)(i2::Integer) :: Bool
+    = case i1 of {
+        (Pair s1 ds1) ->
+          case i2 of {
+            (Pair s2 ds2) ->
+              (eqSign s1 s2 && eqDigits (normDigits ds1) (normDigits ds2));};}
+  primIntegerEq (x::Integer)(y::Integer) :: Bool
+    = primNormIntegerEq (normInteger x) (normInteger y)
+  succDigit (d::Digit) :: Digit
+    = case d of {
+        (D0) -> D1@_;
+        (D1) -> D2@_;
+        (D2) -> D3@_;
+        (D3) -> D4@_;
+        (D4) -> D5@_;
+        (D5) -> D6@_;
+        (D6) -> D7@_;
+        (D7) -> D8@_;
+        (D8) -> D9@_;
+        (D9) -> D0@_;}
+  predDigit (d::Digit) :: Digit
+    = case d of {
+        (D0) -> D9@_;
+        (D1) -> D0@_;
+        (D2) -> D1@_;
+        (D3) -> D2@_;
+        (D4) -> D3@_;
+        (D5) -> D4@_;
+        (D6) -> D5@_;
+        (D7) -> D6@_;
+        (D8) -> D7@_;
+        (D9) -> D8@_;}
+  carryDigit (d::Digit) :: Bool
+    = case d of {
+        (D0) -> False@_;
+        (D1) -> False@_;
+        (D2) -> False@_;
+        (D3) -> False@_;
+        (D4) -> False@_;
+        (D5) -> False@_;
+        (D6) -> False@_;
+        (D7) -> False@_;
+        (D8) -> False@_;
+        (D9) -> True@_;}
+  borrowDigit (d::Digit) :: Bool
+    = case d of {
+        (D0) -> True@_;
+        (D1) -> False@_;
+        (D2) -> False@_;
+        (D3) -> False@_;
+        (D4) -> False@_;
+        (D5) -> False@_;
+        (D6) -> False@_;
+        (D7) -> False@_;
+        (D8) -> False@_;
+        (D9) -> False@_;}
+  succDigits (ds::List Digit) :: List Digit
+    = case ds of {
+        (Nil) -> Cons@_ D1@_ Nil@_;
+        (Cons x xs) ->
+          Cons@_ (succDigit x) (let it ::List Digit
+                                      = case carryDigit x of {
+                                          (True) -> succDigits xs;
+                                          (False) -> xs;}
+                                in  it);}
+  predDigits (ds::List Digit) :: List Digit
+    = case ds of {
+        (Nil) -> Nil@_;
+        (Cons x xs) ->
+          Cons@_ (predDigit x) (let it ::List Digit
+                                      = case borrowDigit x of {
+                                          (True) -> predDigits xs;
+                                          (False) -> xs;}
+                                in  it);}
+  incDigits (n::Nat)(ds::List Digit) :: List Digit
+    = case n of {
+        (Zero) -> ds;
+        (Succ n') -> succDigits (incDigits n' ds);}
+  decDigits (n::Nat)(ds::List Digit) :: List Digit
+    = case n of {
+        (Zero) -> ds;
+        (Succ n') -> predDigits (decDigits n' ds);}
+  mutual addDigits (ds1::List Digit)(ds2::List Digit) :: List Digit
+           = case ds1 of {
+               (Nil) -> ds2;
+               (Cons x xs) -> addDigits' xs (incDigits (digitToNat x) ds2);}
+         addDigits' (ds1::List Digit)(ds2::List Digit) :: List Digit
+           = case ds2 of {
+               (Nil) -> Cons@_ D0@_ ds1;
+               (Cons x xs) -> Cons@_ x (addDigits ds1 xs);}
+  addUnsigned (ds1::List Digit)(ds2::List Digit) :: List Digit
+    = reverse Digit (addDigits (reverse Digit ds1) (reverse Digit ds2))
+  O ::Set
+    = data LT | EQ | GT
+  lexOrd (o1::O)(o2::O) :: O
+    = case o1 of {
+        (LT) -> LT@_;
+        (EQ) -> o2;
+        (GT) -> GT@_;}
+  lte (o::O) :: Bool
+    = case o of {
+        (LT) -> True@_;
+        (EQ) -> True@_;
+        (GT) -> False@_;}
+  lt (o::O) :: Bool
+    = case o of {
+        (LT) -> True@_;
+        (EQ) -> False@_;
+        (GT) -> False@_;}
+  compareNat (n1::Nat)(n2::Nat) :: O
+    = if_then_else O (natLte n1 n2) (if_then_else O (natEq n1 n2) EQ@_ LT@_) GT@_
+  compareDigit (d1::Digit)(d2::Digit) :: O
+    = compareNat (digitToNat d1) (digitToNat d2)
+  compareDigits (ds1::List Digit)(ds2::List Digit) :: O
+    = case ds1 of {
+        (Nil) ->
+          case ds2 of {
+            (Nil) -> EQ@_;
+            (Cons x xs) -> LT@_;};
+        (Cons x xs) ->
+          case ds2 of {
+            (Nil) -> GT@_;
+            (Cons x' xs') -> lexOrd (compareDigits xs xs') (compareDigit x x');};}
+  compareUnsigned (ds1::List Digit)(ds2::List Digit) :: O
+    = compareDigits (reverse Digit ds1) (reverse Digit ds2)
+  compareNormInteger (i1::Integer)(i2::Integer) :: O
+    = case i1 of {
+        (Pair s1 ds1) ->
+          case i2 of {
+            (Pair s2 ds2) ->
+              case s1 of {
+                (Neg) ->
+                  case s2 of {
+                    (Neg) -> compareUnsigned ds2 ds1;
+                    (Pos) -> LT@_;};
+                (Pos) ->
+                  case s2 of {
+                    (Neg) -> GT@_;
+                    (Pos) -> compareUnsigned ds1 ds2;};};};}
+  compareInteger (i1::Integer)(i2::Integer) :: O
+    = compareNormInteger (normInteger i1) (normInteger i2)
+  primIntegerLte (i1::Integer)(i2::Integer) :: Bool
+    = lte (compareInteger i1 i2)
+  mutual subDigits (ds1::List Digit)(ds2::List Digit) :: List Digit
+           = case ds2 of {
+               (Nil) -> ds1;
+               (Cons x xs) -> subDigits' (decDigits (digitToNat x) ds1) xs;}
+         subDigits' (ds1::List Digit)(ds2::List Digit) :: List Digit
+           = case ds1 of {
+               (Nil) -> Nil@_;
+               (Cons x xs) -> Cons@_ x (subDigits xs ds2);}
+  posSubDigits (ds1::List Digit)(ds2::List Digit) :: List Digit
+    = reverse Digit (subDigits (reverse Digit ds1) (reverse Digit ds2))
+  subNormUnsigned (ds1::List Digit)(ds2::List Digit) :: Integer
+    = case lt (compareUnsigned ds1 ds2) of {
+        (True) -> Pair@_ Neg@_ (posSubDigits ds2 ds1);
+        (False) -> Pair@_ Pos@_ (posSubDigits ds1 ds2);}
+  subUnsigned (ds1::List Digit)(ds2::List Digit) :: Integer
+    = subNormUnsigned (normDigits ds1) (normDigits ds2)
+  primIntegerAdd (i1::Integer)(i2::Integer) :: Integer
+    = case i1 of {
+        (Pair s1 ds1) ->
+          case i2 of {
+            (Pair s2 ds2) ->
+              case s1 of {
+                (Neg) ->
+                  case s2 of {
+                    (Neg) -> Pair@_ Neg@_ (addUnsigned ds1 ds2);
+                    (Pos) -> subUnsigned ds2 ds1;};
+                (Pos) ->
+                  case s2 of {
+                    (Neg) -> subUnsigned ds1 ds2;
+                    (Pos) -> Pair@_ Pos@_ (addUnsigned ds1 ds2);};};};}
+  negateSign (s::Sign) :: Sign
+    = case s of {
+        (Neg) -> Pos@_;
+        (Pos) -> Neg@_;}
+  primIntegerNegate (i::Integer) :: Integer
+    = case i of { (Pair s ds) -> Pair@_ (negateSign s) ds;}
+  primIntegerSub (i1::Integer)(i2::Integer) :: Integer
+    = primIntegerAdd i1 (primIntegerNegate i2)
+  primIntegerAbs (i::Integer) :: Integer
+    = Pair@_ Pos@_ (snd Sign (List Digit) i)
+  primNormIntegerSignum (s::Sign)(ds::List Digit) :: Integer
+    = case ds of {
+        (Nil) -> Pair@_ Pos@_ (Cons@_ D0@_ Nil@_);
+        (Cons x xs) ->
+          case s of {
+            (Neg) -> Pair@_ Neg@_ (Cons@_ D1@_ Nil@_);
+            (Pos) -> Pair@_ Pos@_ (Cons@_ D1@_ Nil@_);};}
+  primIntegerSignum (i::Integer) :: Integer
+    = case i of { (Pair s ds) -> primNormIntegerSignum s (normDigits ds);}
+  mulDigit (n::Nat)(ds::List Digit) :: List Digit
+    = case n of {
+        (Zero) -> Nil@_;
+        (Succ n') -> addDigits ds (mulDigit n' ds);}
+  mulUnsigned (ds1::List Digit)(ds2::List Digit) :: List Digit
+    = case ds1 of {
+        (Nil) -> Nil@_;
+        (Cons x xs) ->
+          addDigits (mulDigit (digitToNat x) ds2) (mulUnsigned xs (Cons@_ D0@_ ds2));}
+  mulSign (s1::Sign)(s2::Sign) :: Sign
+    = case s1 of {
+        (Neg) -> negateSign s2;
+        (Pos) -> s2;}
+  primIntegerMul (i1::Integer)(i2::Integer) :: Integer
+    = case i1 of {
+        (Pair s1 ds1) ->
+          case i2 of {
+            (Pair s2 ds2) ->
+              Pair@_ (mulSign s1 s2) (reverse Digit (mulUnsigned (reverse Digit ds1) (reverse Digit ds2)));};}
+  postulate primIntegerRem :: Integer -> Integer -> Integer
+  postulate primIntegerQuot :: Integer -> Integer -> Integer
+{-# Alfa unfoldgoals off
+brief on
+hidetypeannots off
+wide
+
+nd
+hiding on
+var "eqSign" infix 4 as "=="
+var "eqDigit" infix 4 as "=="
+var "eqDigits" infix 4 as "=="
+ #-}

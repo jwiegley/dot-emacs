@@ -1,0 +1,232 @@
+<!-- This file included by the web server in the automatically generated
+     directory index.
+-->
+<h2>What is in this directory (evman)</h2>
+
+This directory contains files relating to evidence (certificate)
+management, in particular the command line tool <code>cert</code> and
+the implementation of the certificate servers.
+
+<p>
+The code for certificate managment provided here is mostly inteded to
+serve as <strong>glue</strong> between the main Programatica tools
+(pfe) and external tools, such as theorem provers, and is implemented
+as shell scripts (but perhaps it would be better to do all of this in
+Haskell...).
+
+<h3>Files</h3>
+
+<dl>
+<dt><a href="cert.sh"><code>cert.sh</code></a>
+<dd>This is the main command-line based certificate management tool.
+    It is also used from pfebrowser, so interaction with the user has to
+    be designed so that it works both from the command line and in the
+    GUI provided by pfebrowser.
+    <p>
+    Some generic certificate management functionality is implemented directly
+    in <code>cert.sh</code>, while certificate type specific work is delegated
+    to scripts in the <code>servers</code> subdirectory.
+    At present, two functions are delegated: <code>new</code> to create new
+    certificate and <code>validate</code> to validate certificates.
+<dt><a href="functions.sh"><code>functions.sh</code></a>,
+    <a href="validation.sh"><code>validation.sh</code></a>
+<dd>Auxiliary shell functions used by many of the certificate management
+    scripts.
+<dt><code>Makefile</code>
+<dd>Guess what...
+</dl>
+
+<h3>Subdirectories</h3>
+
+<dl>
+<dt>icons
+<dd>A collection of certificate icons provided by Mark P. Jones.
+<dt>servers
+<dd>This directory contains implementation of servers for specific
+    certificate types, with one subdirectory per server.
+</dl>
+
+<h3>Certificate server implementation</h3>
+
+The following is required for each certificate server (some of these
+things might be created automatically, using the Makefile):
+
+<ol>
+<li>Certificate type description file: <code>server.attr</code>
+    (more details are given below),
+<li>Certificate icons: <code>invalid.gif</code>,
+    <code>unknown.gif</code>, <code>valid.gif</code>,
+<li>The program <code>new</code> for creating new certificates, invoked
+    from <code>cert.sh</code>,
+<li>The program <code>validate</code> for validating certificates, invoked
+    from <code>cert.sh</code>.
+</ol>
+
+The existing servers have <code>new</code> and <code>validate</code>
+programs that are implemented as fairly short shell scripts.
+An easy way to create a new server is to copy and modify an existing
+one. When common patterns emerge, functions can be moved to the
+<code>funtions.sh</code> or <code>validation.sh</code> files.
+<p>
+There is no requirement that the programs <code>new</code> and
+<code>validate</code> are implemented as shell scripts. All that is
+required is that the files are executable and behave as expected.
+
+<h4>Certificate files maintained by certificate servers</h4>
+<p>
+Certificate servers are expected to create and maintain a number of
+files for each certificate:
+
+<table>
+<tr><th>File<th>What it is used for
+<tr>
+<td><code>cert.attrs</code>
+<td>This file holds various certificate attributes. Attribute files and
+    certificate attributes are described in more detail below.
+<tr><td><code>valid</code><br><code>invalid</code>
+<td>These files are datestamps to indicate when the certificate was last
+    marked valid or invalid. This helps tools quickly determine if a
+    certificate is valid, invalid or if a more thorough test is needed to
+    determine its status.
+<tr><td><code>deps</code>
+<td>This file records a signature of the parts of the source code that
+    the certified assertion depends on. It can be generated with the
+    command
+    <blockquote><code>pfe tasig <var>M.A</var> >.../deps</code></blockquote>
+    It allows tools to tell the
+    difference between source code changes that affect the validity of
+    an assertion from irrelevant changes, so that needless revalidation
+    can be avoided.  It also allows the <code>I_say_so</code>
+    certificate server to use the command <code>pfe tadiff ...</code> to
+    present a list of relevant changes to the user.
+<tr><td><code>srclist.txt</code>
+<td>This file caches the list of source files containing code that the
+    certified assertion depends on. Together with the <code>valid</code>
+    and <code>invalid</code> datestamp files, it is often possible to
+    determine the validity of a certificate just by consulting
+    the last modification date of files. It is used by the command
+    <code>cert ls</code>.
+<tr><td><code>output.txt</code>
+    <td>This is the standard place for diagnostic output from the certificate
+        server. The user can consult this, for example to find out why
+        certificate validation failed.
+</table>
+
+<h3>Attribute files</h3>
+
+Both servers and the certificates they create are described by a set of
+attributes that are stored in <em>attribute files</em>. There are both
+Haskell functions and shell script functions to parse attribute
+files.
+
+<h4>Attribute file format</h4>
+
+ Attribute files use a textual file format for association lists.
+ Each line in an attribute file may specify a binding of a tag
+ string to a value string using a single colon to separate the
+ two.  If the colon is omitted, then a value of "" is assumed.
+ Leading whitespace at the beginning of each line and preceding
+ the value (i.e., after the first, if any, colon) is ignored.
+ Lines containing only whitespace, or in which the first
+ non-whitespace character is a '#' are treated as comments.
+ (Despite this, we do not intend attribute files to be a
+ human-readable format under normal circumstances.)
+
+<p>
+Here is a sample attribute file:
+
+<blockquote><pre>
+ # This is a comment
+ 
+ foo: your name here!
+ date:today
+ 
+ # here is a line with no value ...
+ set filec
+ 
+ foo:bar
+ # if the same tag is used more than once, then
+ # we simply get multiple attribute values with
+ # the same tag.
+</pre></blockquote>
+
+<h3>Server attributes</h3>
+
+Certificate <strong>server attributes</strong> are stored in a file called
+<code>server.attr</code> in the server's directory. For an example,
+see <a href="servers/Alfa/server.attr">servers/Alfa/server.attr</a>
+
+<p>
+<p>The tools currently assumes the following attributes to be present:</p>
+
+<table>
+<tr><th>Attribute name<th>Attribute meaning
+<tr><td><code>name</code>
+<td>The name of the server
+<tr><td><code>description</code>
+<td>A one-line explanation of what kind of certificates the server creates.
+<tr><td><code>attribute</code>
+<td>Certificate attribute description. This can be given any number of times
+to describe what user editable attributes are present in certificates created
+by this server. (These have a specific syntax that should be documented
+in more detail!)
+
+</table>
+
+<p>Additional fields can be present.
+
+<h3>Certificate attributes</h3>
+
+<p>
+<strong>Certificate attributes</strong> are (to some extent) defined by the
+different certificate servers. However, some attributes are expected to have
+the same meaning in all certificates:</p>
+
+<table>
+<tr><th>Attribute name<th>Attribute meaning
+<tr><td><code>type</code>
+    <td>The name of the server that created the certificate.
+<tr><td><code>conc</code>
+<td>Conclusion. This is the name of the assertion that the certificate serves
+    as evidence for. It should be an <em>unqualified</em> assertion identifer.
+    (This is not meaningful in all certificate types.)
+<tr><td><code>hyp<code>
+    <td>Hypotheses. This is either <code>..</code> or a list of <em>qualified</em>
+        identifiers. A more detailed description is given below.
+<tr><td><code>file</code><br><code>file/</code><var>type</var>
+    <td>Names of auxiliary files used to establish the validity of
+        the certificate. For example, for Alfa certificates, the name of the
+	file containing the proof is recorded in the attribute
+        <code>file/proof</code>.
+</table>
+
+<p>Additional fields can be present.
+
+<h4>Hypotheses</h4>
+
+For certificates that certify a sequent
+ <code><var>hyp</var>|-<var>conc</var></code>, the <code>hyp</code>
+ has the following forms:
+
+<ul>
+<li><p><code>..</code>, which means that the validity of the certificate
+	can depend on <em>everything</em> referenced (directly or indirectly) from the
+	assertion named in the <code>conc</code> attribute.
+
+<li>A list of qualified identifiers.
+    Each identifier in the list should denote either an assertion or a value.
+     <ul>
+	<li>For assertion names, the hypothesis is that the
+	named assertion is valid.
+        <li>For value names, the validity of the
+	certificate can depend on the definition of that name.
+     </ul>
+     	Definitions of names that are free in the assertion, or in
+	definitions of explicitly listed names, do not influence the validity
+	of the assertion. (In effect, free names are implicitly universally
+	quantified.)
+
+</ul>
+<hr>
+<address>Authors: various</address>
+<address>Contact: <a href="/~hallgren/">Thomas Hallgren</a></address>

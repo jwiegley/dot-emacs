@@ -1,0 +1,80 @@
+% HaReTheHaskellRefactorer-AH.tex
+\begin{hcarentry}[updated]{HaRe --- The Haskell Refactorer}
+\label{hare}
+\report{Alan Zimmerman}%11/14
+\participants{Francisco Soares, Chris Brown, Stephen Adams, Huiqing Li}
+\makeheader
+
+Refactorings are source-to-source program transformations which change
+program structure and organization, but not program functionality.
+Documented in catalogs and supported by tools, refactoring provides
+the means to adapt and improve the design of existing code, and has
+thus enabled the trend towards modern agile software development
+processes.
+
+Our project, \emph{Refactoring Functional Programs}, has as its major
+goal to build a tool to support refactorings in Haskell. The HaRe tool
+is now in its seventh major release. HaRe supports full Haskell 2010,
+and is integrated with (X)Emacs. All the refactorings that HaRe
+supports, including renaming, scope change, generalization and a
+number of others, are \emph{module-aware}, so that a change will be
+reflected in all the modules in a project, rather than just in the
+module where the change is initiated.
+
+Snapshots of HaRe are available from our GitHub repository (see below)
+and Hackage. There are related presentations and publications from the
+group (including LDTA'05, TFP'05, SCAM'06, PEPM'08, PEPM'10, TFP'10,
+Huiqing's PhD thesis and Chris's PhD thesis). The final report for the
+project appears on the University of Kent Refactoring Functional
+Programs page (see below).
+
+There is also a Google+ community called HaRe, and an IRC channel on
+freenode called \#haskell-refactorer.
+
+Currently HaRe only supports GHC 7.4.x and 7.6.x. The changes for GHC
+7.8.3 showed up the brittleness of the token management process.
+
+As a result, the focus over the last few months has been on improving
+the support in the GHC API for this. This work is summarized here
+\url{https://ghc.haskell.org/trac/ghc/wiki/GhcApi}, but
+the lightning summary is
+
+\begin{compactitem}
+
+\item More parser entry points, to allow parsing fragments.
+\item Removal of landmines from the AST, allowing traversals with
+  freedom.
+\item The parser can now produce annotations, which can be used to
+  reproduce the original source from the AST and the annotations only.
+
+\end{compactitem}
+
+The engine for reproducing the source is here \url{https://github.com/alanz/ghc-exactprint/tree/ghc-7.9}.
+
+\subsubsection*{Recent developments}
+\begin{compactitem}
+
+\item HaRe 0.7, which is a major change from 0.6 as it makes use of
+  the GHC library for analysis, has been released; HaRe 0.7 is
+  available on Hackage, and also downloadable from our GitHub page
+
+\item HaRe 0.7 is alpha software, and comes with a limited number of
+  refactorings, as the work so far has concentrated on getting the new
+  architecture in place to make use of the GHC AST. The new
+  architecture has stabilised and the token management while
+  manipulating the AST is able to preserve layout, thus maintaining
+  the original layout as well as syntactically correct alignment as
+  new elements are added or have their size changed.
+
+\item There is plenty to do, so anyone who has an interest is welcome
+  to fork the repo and get stuck in.
+\item Stephen Adams is continuing his PhD at the University of Kent and
+  will be working on data refactoring in Haskell.
+\end{compactitem}
+
+\FurtherReading
+\begin{compactitem}
+\item \url{http://www.cs.kent.ac.uk/projects/refactor-fp/}
+\item \url{https://github.com/alanz/HaRe}
+\end{compactitem}
+\end{hcarentry}

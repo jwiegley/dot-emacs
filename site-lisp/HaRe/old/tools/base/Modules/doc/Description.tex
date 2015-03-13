@@ -1,0 +1,93 @@
+%\documentclass[11pt,a4paper]{article}
+%\documentclass[preprint]{sig-alt-full} 
+\documentclass[preprint]{sigplan-proc}
+%\documentclass[acmtocl,acmnow]{acmtrans2m}
+%\documentclass{acmtrans2m}
+\usepackage{pphs}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{isolatin1}
+
+% \linespread{1.6}
+
+%\addtolength{\textwidth}{1cm}
+
+\def\SPACE{\mbox{\ \ \ \ \ }}
+
+\newcommand{\ent}[2]{\ensuremath{\mathsf{{#1}}_{#2}}}
+\newcommand{\tent}[2]{\ensuremath{\ent{#1}{#2}}^{\mathrm{type}}}
+\newcommand{\cent}[2]{\ensuremath{\ent{#1}{#2}}^{\mathrm{class}}}
+\newcommand{\set}[1]{\{{#1}\}}
+\newcommand{\pr}[2]{{#1} \mapsto {#2}}
+
+\newenvironment{ex}
+{\vspace{3mm}\textbf{Example:}}
+{\ensuremath{\Box}}
+
+%\markboth{Diatchki, Jones \& Hallgren}{A Formal Specification for the Haskell 98 Module System}  % left and right page headers
+
+%\title{A Formal Specification of the Haskell 98 Module System}
+
+%\author{Iavor S.~Diatchki \SPACE Mark P.~Jones \SPACE Thomas Hallgren\\%
+%	Department of Computer Science and Engineering \\%
+%        OGI School of Science and Engineering \\%
+%        Oregon Health \& Science University}
+
+%------------------------------------------------------------------------------
+\begin{document}
+\conferenceinfo{Haskell'02,}{October 3, 2002, Pittsburgh, Pennsylvania, USA.}
+\CopyrightYear{2002}
+\crdata{1-58113-605-6/02/0010}
+\setcounter{page}{17}
+
+\title{A Formal Specification of the Haskell 98 Module System}
+%\titlenote{A full version of this paper is available as a tech-report}
+
+
+\numberofauthors{1}
+\author{\alignauthor Iavor S. Diatchki, Mark P. Jones, Thomas Hallgren\\
+           \affaddr{OGI School of Science \& Engineering}\\
+           \affaddr{Oregon Health \& Science University}\\
+           \affaddr{20000 NW Walker Rd, Beaverton, Oregon, USA}\\
+           \email{\{diatchki,mpj,hallgren\}@cse.ogi.edu}\\
+%        \alignauthor{Mark P Jones}\\
+%           \affaddr{OGI School of Science \& Engineering}\\
+%           \affaddr{Oregon Health \& Science University}\\
+%           \email{mpj@cse.ogi.edu}\\
+%        \alignauthor{Thomas Hallgren}\\
+%           \affaddr{OGI School of Science \& Engineering}\\
+%           \affaddr{Oregon Health \& Science University}\\
+%           \email{hallgren@cse.ogi.edu}\\
+  }
+
+% \date{May 24, 2002}
+\maketitle
+
+
+%\makeatactive
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\category{D.3.1}{Programming Languages}{Formal Definitions and Theory}[semantics, Haskell]
+\category{D.3.3}{Programming Languages}{Language Constructs and Features}[Modules, packages, Recursion, Haskell]
+\terms{Documentation,Standardization,Languages}
+\keywords{Specification, Haskell, module system}
+
+\input{intro}
+\input{Relations}
+\input{NamesEntities}
+\input{ModSysAST}
+\input{Modules}
+\input{CheckModules}
+\input{ModSysSem}
+\input{related_work}
+\input{conclusion}
+
+\bibliography{Description}
+\bibliographystyle{abbrv}
+% \bibliographystyle{plain}
+
+\end{document}
+

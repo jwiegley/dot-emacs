@@ -1,0 +1,45 @@
+#!/bin/sh
+
+### The purpose of this script is to update the copy of the Programatica
+### CVS repository on the anonymous CVS server on glass.cse.ogi.edu.
+
+RSYNC_RSH=ssh; export RSYNC_RSH
+
+## Where the anonymous CVS repository mirror is located:
+#anoncvshost=glass.cse.ogi.edu
+anoncvshost=cvs.haskell.org
+#anoncvsdir=/home/cvs/anon/cvs/programatica
+anoncvsdir=/home/cvs/root/programatica
+todir=$anoncvshost:$anoncvsdir
+
+## Where the source CVS repository is located:
+cvsdir=/projects/pacsoft/cvs/programatica
+subdirs="tools hOp" # only copy this subdirectories
+fromdirs="$cvsdir/tools $cvsdir/hOp"
+exclude="--exclude=hOp/kernel/L4"
+tmpdir=/tmp/programatica-cvs-tmp-copy
+[ -d $tmpdir ] || mkdir -m go-rwx $tmpdir || exit 1
+
+before=$tmpdir/before
+after=$tmpdir/after
+locks=$tmpdir/locks
+
+### First try to make a consistent copy of the CVS repository:
+find $fromdirs -ls >$after || exit 1
+until
+  mv $after $before &&
+  rsync -a --delete --delete-excluded $exclude $fromdirs $tmpdir &&
+  find $fromdirs -ls >$after || exit 1
+  find $tmpdir -name '#cvs.*' >$locks || exit 1
+  ! [ -s $locks ] && cmp $before $after
+do
+  [ -s $locks ] && echo "Found some lock files."
+  cmp -s $before $after || echo "Repository changed during copy."
+  echo "Trying again."
+  sleep 10
+done
+
+### Assume we now have a consistent copy of the repository.
+### Go ahead and upload it.
+
+(cd $tmpdir && rsync -av --delete $subdirs $todir)

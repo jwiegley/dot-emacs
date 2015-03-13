@@ -1,0 +1,98 @@
+<h1>Extensible Haskell front-end for the Programatica project</h1>
+
+<h2>What is in this directory (base/TI)</h2>
+
+This directory contains a type checker for the base
+language (i.e., more or less Haskell 98). It is structured to allow large
+parts to be reusable in extended versions of the language.
+<p>
+At present,
+the type inference monad is fixed, and the AST for inferred types is fixed,
+but it might be possible to factor out these aspects too.
+
+<p>
+Although various details differ, this type checker is influenced by
+
+<ul>
+<li>Mark Jones'
+    <a href="http://www.cse.ogi.edu/~mpj/thih/"><cite>Typing Haskell in
+    Haskell</cite></a> (general guidance, some naming conventions, the class
+    <code>Types</code> and operations on substitutions, ...),
+<li>one of Johan Nordlander's type checkers for
+    <a href="http://www.cs.chalmers.se/~nordland/ohaskell/">O'Haskell</a>
+    (that avoids both threading an accumulating substitution and
+    applying substitutions to the environment),
+<li>and also somewhat by the type checker in
+    <a href="http://www.cs.chalmers.se/~augustss/hbc/hbc.html">HBC</a>.
+   (HBC serves as a proof that you don't need to resort to imperative
+   unification to implement efficient type inference, nor do you need
+   to sweep things under the carpet with a monad to make a purely
+   functional type checker readable.)
+</ul>
+
+<h3>Modules for the basic type inference machinery</h3>
+
+<ul>
+<li>TiMonad (NewTiMonad or OrigTiMonad),
+TiClasses,
+TiConstraints,
+TiEnv,
+TiFresh,
+TiKinds,
+TiSolve,
+TiTypes,
+TiUtil,
+TI,
+TiPretty,
+TiNames,
+Unification.
+
+</ul>
+
+
+<h3>Instances and context reduction</h3>
+
+<ul>
+<li>
+TiBySuper,
+TiContextReduction,
+TiDefault,
+TiDerivedInstances,
+TiInstanceDB.
+</ul>
+
+
+<h3>Type inference for the base language structure</h3>
+These should be reusable in extended versions of the language.
+
+<ul>
+<li>Declarations: TiD, TiClassInst, TiDkc,
+<li>Expressions, patterns, etc: TiE, TiFields, TiLit,TiP, TiRhs,
+<li>Kinds inference for type expressions: TiT,
+<li>Modules: TiModule,
+<li>Collects everything: TiBaseStruct.
+
+</ul>
+
+<h3>Knot-tying definitions for the base language</h3>
+
+<ul>
+<li>TiBase, TiDecorate, NameMapsDecorate
+</ul>
+
+<h3>Type inference for sequences of declarations</h3>
+<ul>
+<li>TiDs.
+</ul>
+
+<h3>Interfaces to other pieces of reusable code</h3>
+
+<ul>
+<li>TiSCC, TiDefinedNames, TiFreeNames.
+</ul>
+
+<h3>Other modules</h3>
+<ul>
+<li>
+TiPrelude, TiHsName
+</ul>

@@ -1,0 +1,320 @@
+--#include "Sort.alfa"
+
+--#include "Alfa/PropositionalCalculus.alfa"
+
+--#include "PreludeProperties.alfa"
+
+{- Error: Error in the definition of LteAllTrans because:
+Type does not contain constructor: List A in :-}
+
+package SortProperties where
+  open Propositional
+   use  Prop,  Absurdity,  AbsurdityElim,  Triviality,  TrivialityIntro,
+        Pred,  And,  AndIntro,  AndElimCont,  Implies,  ImpliesIntro,
+        ImpliesElim,  Not
+  open Module_Sort  use  insert,  sort
+  open Module_Prelude  use  List,  Bool,  Ord,  (<=)
+  open PreludeProperties
+   use  IsTrue,  AllElems,  TotalOrder,  ifProp,  IsLte,  trans,
+        antisym
+  -- The property that x is less than or equal to all elements of the list xs:
+  LteAll (A::Star)(ordA::Ord A)(x::A)(xs::List A) :: Prop
+    = AllElems A (IsLte A ordA x) xs
+  -- The property that a lists is ordered:
+  IsOrdered (A::Star)(ordA::Ord A)(xs::List A) :: Prop
+    = case xs of {
+        (Nil) -> Triviality;
+        (Cons x1 xs') -> And (LteAll A ordA x1 xs') (IsOrdered A ordA xs');}
+  -- If x1<=x2 and x2 is lte all elements of xs then x1 is lte all elements of xs:
+  LteAllTrans (A::Star)
+              (ordA::Ord A)
+              (x1::A)
+              (x2::A)
+              (xs::List A)
+              (totord::TotalOrder A ordA)
+              (lt1::IsLte A ordA x1 x2)
+              (lta::LteAll A ordA x2 xs)
+    :: LteAll A ordA x1 xs
+    = case xs of {
+        (Nil) ->
+          let ndgoal :: LteAll A ordA x1 Nil@_
+                = TrivialityIntro
+          in  ndgoal;
+        (Cons x1' x2') ->
+          let ndgoal :: LteAll A ordA x1 (Cons@_ x1' x2')
+                = AndElimCont (IsLte A ordA x2 x1')
+                    (AllElems A (IsLte A ordA x2) x2')
+                    (LteAll A ordA x1 (Cons@_ x1' x2'))
+                    (let ndgoal
+                           :: And (IsLte A ordA x2 x1')
+                                (AllElems A (IsLte A ordA x2) x2')
+                           = lta
+                     in  ndgoal)
+                    (\(a::IsLte A ordA x2 x1') ->
+                     \(b::AllElems A (IsLte A ordA x2) x2') ->
+                     let ndgoal :: LteAll A ordA x1 (Cons@_ x1' x2')
+                           = AndIntro (IsLte A ordA x1 x1')
+                               (AllElems A (IsLte A ordA x1) x2')
+                               (let ndgoal :: IsLte A ordA x1 x1'
+                                      = trans A ordA totord x1 x2 x1'
+                                          (let ndgoal :: IsLte A ordA x1 x2
+                                                 = lt1
+                                           in  ndgoal)
+                                          (let ndgoal :: IsLte A ordA x2 x1'
+                                                 = a
+                                           in  ndgoal)
+                                in  ndgoal)
+                               (let ndgoal :: AllElems A (IsLte A ordA x1) x2'
+                                      = LteAllTrans A ordA x1 x2 x2' totord
+                                          (let ndgoal :: IsLte A ordA x1 x2
+                                                 = lt1
+                                           in  ndgoal)
+                                          (let ndgoal :: LteAll A ordA x2 x2'
+                                                 = b
+                                           in  ndgoal)
+                                in  ndgoal)
+                     in  ndgoal)
+          in  ndgoal;}
+  -- If x1 is lte x2 and x2 is lte all elements of xs, then x1 is lte all elements of x2:xs
+  LteFirst (A::Star)
+           (ordA::Ord A)
+           (x1::A)
+           (x2::A)
+           (xs::List A)
+           (totord::TotalOrder A ordA)
+           (x1p::IsLte A ordA x1 x2)
+           (x2p::LteAll A ordA x2 xs)
+    :: LteAll A ordA x1 (Cons@_ x2 xs)
+    = let ndgoal :: LteAll A ordA x1 (Cons@_ x2 xs)
+            = AndIntro (IsLte A ordA x1 x2) (AllElems A (IsLte A ordA x1) xs)
+                (let ndgoal :: IsLte A ordA x1 x2
+                       = x1p
+                 in  ndgoal)
+                (let ndgoal :: LteAll A ordA x1 xs
+                       = LteAllTrans A ordA x1 x2 xs totord
+                           (let ndgoal :: IsLte A ordA x1 x2
+                                  = x1p
+                            in  ndgoal)
+                           (let ndgoal :: LteAll A ordA x2 xs
+                                  = x2p
+                            in  ndgoal)
+                 in  ndgoal)
+      in  ndgoal
+  insertLemma (A::Star)
+              (ordA::Ord A)
+              (x1::A)
+              (x2::A)
+              (xs::List A)
+              (x1x2::IsLte A ordA x1 x2)
+              (x1xs::LteAll A ordA x1 xs)
+    :: LteAll A ordA x1 (insert A ordA x2 xs)
+    = case xs of {
+        (Nil) ->
+          let ndgoal :: LteAll A ordA x1 (insert A ordA x2 Nil@_)
+                = AndIntro (IsLte A ordA x1 x2)
+                    (AllElems A (IsLte A ordA x1) Nil@_)
+                    (let ndgoal :: IsLte A ordA x1 x2
+                           = x1x2
+                     in  ndgoal)
+                    (let ndgoal :: AllElems A (IsLte A ordA x1) Nil@_
+                           = TrivialityIntro
+                     in  ndgoal)
+          in  ndgoal;
+        (Cons x1' x2') ->
+          let ndgoal :: LteAll A ordA x1 (insert A ordA x2 (Cons@_ x1' x2'))
+                = ifProp (List A) ((<=) A ordA x2 x1')
+                    (Cons@_ x2 (Cons@_ x1' x2'))
+                    (Cons@_ x1' (insert A ordA x2 x2'))
+                    (\(h::List A) -> LteAll A ordA x1 h)
+                    (\(h::IsLte A ordA x2 x1') ->
+                     let ndgoal :: LteAll A ordA x1 (Cons@_ x2 (Cons@_ x1' x2'))
+                           = AndIntro (IsLte A ordA x1 x2)
+                               (AllElems A (IsLte A ordA x1) (Cons@_ x1' x2'))
+                               (let ndgoal :: IsLte A ordA x1 x2
+                                      = x1x2
+                                in  ndgoal)
+                               (let ndgoal
+                                      :: AllElems A (IsLte A ordA x1)
+                                           (Cons@_ x1' x2')
+                                      = x1xs
+                                in  ndgoal)
+                     in  ndgoal)
+                    (\(h::Not (IsLte A ordA x2 x1')) ->
+                     let ndgoal
+                           :: LteAll A ordA x1
+                                (Cons@_ x1' (insert A ordA x2 x2'))
+                           = AndElimCont (IsLte A ordA x1 x1')
+                               (AllElems A (IsLte A ordA x1) x2')
+                               (LteAll A ordA x1
+                                  (Cons@_ x1' (insert A ordA x2 x2')))
+                               (let ndgoal
+                                      :: And (IsLte A ordA x1 x1')
+                                           (AllElems A (IsLte A ordA x1) x2')
+                                      = x1xs
+                                in  ndgoal)
+                               (\(a::IsLte A ordA x1 x1') ->
+                                \(b::AllElems A (IsLte A ordA x1) x2') ->
+                                let ndgoal
+                                      :: LteAll A ordA x1
+                                           (Cons@_ x1' (insert A ordA x2 x2'))
+                                      = AndIntro (IsLte A ordA x1 x1')
+                                          (AllElems A (IsLte A ordA x1)
+                                             (insert A ordA x2 x2'))
+                                          (let ndgoal :: IsLte A ordA x1 x1'
+                                                 = a
+                                           in  ndgoal)
+                                          (let ndgoal
+                                                 :: AllElems A (IsLte A ordA x1)
+                                                      (insert A ordA x2 x2')
+                                                 = insertLemma A ordA x1 x2 x2'
+                                                     (let ndgoal
+                                                            :: IsLte A ordA x1
+                                                                 x2
+                                                            = x1x2
+                                                      in  ndgoal)
+                                                     (let ndgoal
+                                                            :: LteAll A ordA x1
+                                                                 x2'
+                                                            = b
+                                                      in  ndgoal)
+                                           in  ndgoal)
+                                in  ndgoal)
+                     in  ndgoal)
+          in  ndgoal;}
+  -- Inserting an element in an ordered lists yields and ordered list:
+  insertProp (A::Star)
+             (ordA::Ord A)
+             (totord::TotalOrder A ordA)
+             (x::A)
+             (xs::List A)
+             (pxs::IsOrdered A ordA xs)
+    :: IsOrdered A ordA (insert A ordA x xs)
+    = case xs of {
+        (Nil) ->
+          let ndgoal :: IsOrdered A ordA (insert A ordA x Nil@_)
+                = AndIntro (LteAll A ordA x Nil@_) (IsOrdered A ordA Nil@_)
+                    (let ndgoal :: LteAll A ordA x Nil@_
+                           = TrivialityIntro
+                     in  ndgoal)
+                    (let ndgoal :: IsOrdered A ordA Nil@_
+                           = TrivialityIntro
+                     in  ndgoal)
+          in  ndgoal;
+        (Cons x1 x2) ->
+          let ndgoal :: IsOrdered A ordA (insert A ordA x (Cons@_ x1 x2))
+                = AndElimCont (LteAll A ordA x1 x2) (IsOrdered A ordA x2)
+                    (IsOrdered A ordA (insert A ordA x (Cons@_ x1 x2)))
+                    (let ndgoal
+                           :: And (LteAll A ordA x1 x2) (IsOrdered A ordA x2)
+                           = pxs
+                     in  ndgoal)
+                    (\(a::LteAll A ordA x1 x2) ->
+                     \(b::IsOrdered A ordA x2) ->
+                     let ndgoal
+                           :: IsOrdered A ordA (insert A ordA x (Cons@_ x1 x2))
+                           = ifProp (List A) ((<=) A ordA x x1)
+                               (Cons@_ x (Cons@_ x1 x2))
+                               (Cons@_ x1 (insert A ordA x x2))
+                               (\(h::List A) -> IsOrdered A ordA h)
+                               (\(h::IsLte A ordA x x1) ->
+                                let ndgoal
+                                      :: IsOrdered A ordA
+                                           (Cons@_ x (Cons@_ x1 x2))
+                                      = AndIntro (LteAll A ordA x (Cons@_ x1 x2))
+                                          (IsOrdered A ordA (Cons@_ x1 x2))
+                                          (let ndgoal
+                                                 :: LteAll A ordA x
+                                                      (Cons@_ x1 x2)
+                                                 = LteFirst A ordA x x1 x2
+                                                     totord
+                                                     (let ndgoal
+                                                            :: IsLte A ordA x x1
+                                                            = h
+                                                      in  ndgoal)
+                                                     (let ndgoal
+                                                            :: LteAll A ordA x1
+                                                                 x2
+                                                            = a
+                                                      in  ndgoal)
+                                           in  ndgoal)
+                                          (let ndgoal
+                                                 :: IsOrdered A ordA
+                                                      (Cons@_ x1 x2)
+                                                 = pxs
+                                           in  ndgoal)
+                                in  ndgoal)
+                               (\(h::Not (IsLte A ordA x x1)) ->
+                                let ndgoal
+                                      :: IsOrdered A ordA
+                                           (Cons@_ x1 (insert A ordA x x2))
+                                      = AndIntro
+                                          (LteAll A ordA x1 (insert A ordA x x2))
+                                          (IsOrdered A ordA (insert A ordA x x2))
+                                          (let ndgoal
+                                                 :: LteAll A ordA x1
+                                                      (insert A ordA x x2)
+                                                 = insertLemma A ordA x1 x x2
+                                                     (let ndgoal
+                                                            :: IsLte A ordA x1 x
+                                                            = antisym A ordA
+                                                                totord
+                                                                x
+                                                                x1
+                                                                (let ndgoal
+                                                                       :: Not
+                                                                            (IsLte
+                                                                               A
+                                                                               ordA
+                                                                               x
+                                                                               x1)
+                                                                       = h
+                                                                 in  ndgoal)
+                                                      in  ndgoal)
+                                                     (let ndgoal
+                                                            :: LteAll A ordA x1
+                                                                 x2
+                                                            = a
+                                                      in  ndgoal)
+                                           in  ndgoal)
+                                          (let ndgoal
+                                                 :: IsOrdered A ordA
+                                                      (insert A ordA x x2)
+                                                 = insertProp A ordA totord x x2
+                                                     (let ndgoal
+                                                            :: IsOrdered A ordA
+                                                                 x2
+                                                            = b
+                                                      in  ndgoal)
+                                           in  ndgoal)
+                                in  ndgoal)
+                     in  ndgoal)
+          in  ndgoal;}
+  -- The output of the sort function is an ordered list:
+  sortProp (A::Star)(ordA::Ord A)(totord::TotalOrder A ordA)(xs::List A)
+    :: IsOrdered A ordA (sort A ordA xs)
+    = case xs of {
+        (Nil) ->
+          let ndgoal :: IsOrdered A ordA (sort A ordA Nil@_)
+                = TrivialityIntro
+          in  ndgoal;
+        (Cons x1 x2) ->
+          let ndgoal :: IsOrdered A ordA (sort A ordA (Cons@_ x1 x2))
+                = insertProp A ordA totord x1 (sort A ordA x2)
+                    (sortProp A ordA totord x2)
+          in  ndgoal;}
+
+{-# GF  Eng IsOrdered A ordA xs = mkSent (xs.s!pnv++["is ordered by"]++ordA.s!pnv)  #-}
+
+{-# Alfa hiding on
+var "IsOrderedCons" hide 2
+var "IsOrdered" hide 2
+var "ifProp" hide 5
+var "AllElems" hide 1
+var "LteAll" hide 2
+var "LteFirst" hide 6
+var "insertProp" hide 5
+var "insertLemma" hide 5
+var "AntiSymmetry" hide 1
+var "LteAllTrans" hide 6
+var "sortProp" hide 3
+ #-}

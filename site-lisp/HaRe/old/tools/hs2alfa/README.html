@@ -1,0 +1,97 @@
+<h2>What is in this directory (hs2alfa)</h2>
+
+This directory contains the translator from Haskell to Alfa, which is built
+on top of the <a href="../pfe">PFE</a> framework and parts of
+<a href="http://www.cs.chalmers.se/~hallgren/Alfa/">Alfa</a>.
+
+<p>
+By running <code>make</code> you can create <code>apfe</code>, a command line
+tool that has all the functionality of the PFE framework, plus the
+ability to translate Haskell files to Alfa files.
+
+<p>
+There are also two (obsolete) test programs that don't depend on the PFE
+framework: <code>tstHs2Alfa</code> (for the base language, Haskell 98)
+and <code>tstProp2Alfa</code> (for Hasell 98 + property declarations).
+They can be compiled with <code>make</code> <var>progamname</var>.
+
+<p>
+The code compiles with GHC, provided that the directory
+<code>AlfaSource</code>, containing certain modules from Alfa, is present
+(get <a href="http://www.cse.ogi.edu/~hallgren/Programatica/download/alfaforpfe.tar.gz">alfaforpfe.tar.gz</a>
+and unpack it in this directory).
+
+<h3>Limitations</h3>
+
+The translator is work in progress (as everything else here).
+It does handle
+
+<ul>
+<li>the most common forms of declarations and expressions,
+<li>polymorphism,
+<li>classes and overloading (by the dictionary translation, which is
+    performed mostly by the Haskell type checker in
+     <a href="../base/TI/">../base/TI/</a>),
+<li>data types and (some forms of) pattern matching,
+<li>the list comprehension syntax,
+<li>mutually recursive modules (by combining them into one module, name
+    clashes can cause problems).
+</ul>
+
+The translator does not yet (fully) support
+
+<ul>
+<li>pattern matching with guards,
+<li>literals in patterns,
+<li>data constructors with labelled fields,
+<!--
+<li>references to default methods in instance declarations
+<li>pattern bindings
+<li>partially applied constructors
+<li>right sections, e.g. (+1)
+<li>classes with superclasses
+<li>instance declarations that refer to methods of the same class
+<li>instances with contexts
+<li>polymorphic functions where the quantified variables have kinds other than *
+-->
+<li>names that are reserved in Alfa but not in Haskell
+    (but <code>sig</code>, <code>.</code> and <code>Type</code> are translated).
+<li>certain constructions that the Agda type checker rejects, e.g.
+    <code>case let ... in ... of ...</code>
+</ul>
+
+Other problems:
+<ul>
+<li>Type signatures containing synonyms for function types (like ReadS) 
+    can cause problems. (Workaround: comment out the type signature or
+    manually expand the type synonym.)
+<li>Name capture can occur, for example, in the translation of
+    <pre><code>
+    class Functor f where fmap :: (a->b)->f a->f b
+    instance Ix a => Ix (Array a) where fmap = ...
+    </code></pre>
+    there will be a problem with capture of the type variable <code>a</code>.
+</ul>
+
+The translator can translate P-logic predicate definitions and property
+assertions, but
+
+<ul>
+<li>the fixed point operators <code>Lfp</code> and <code>Gfp</code> are
+    translated, but their meaning in Alfa is probably not what it should be.
+<li>the use of constructors lifted to predicates is not yet supported,
+<li>the P-logic equality operator (<code>===</code>) is translated to
+    intentional equality, which differs for functions.
+<!--
+-->
+<li>the comprehension syntax is restricted.
+</ul>
+
+<p>
+The subdirectory <a href="tests/">tests</a> contains sample Haskell modules
+that the translator can translate. (There are also some test files in
+this directory.)
+
+<hr>
+<address>Author: Thomas Hallgren</address>
+<address>Contact: <a href="http://www.cse.ogi.edu/~hallgren/">TH</address>

@@ -1,0 +1,8 @@
+TestCases{refactorCmd="refacDataNewType",
+positive=[(["Test1.hs"], ["3","6"]),
+          (["Test2.hs"], ["5","6"])],
+negative=[(["Test3.hs"], ["3","6"]),
+          (["Test4.hs"], ["3","6"]),
+          (["Test5.hs"], ["3","1"])]
+}
+

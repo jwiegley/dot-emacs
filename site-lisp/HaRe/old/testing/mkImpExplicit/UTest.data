@@ -1,0 +1,10 @@
+TestCases{refactorCmd="mkImpExplicit",
+
+positive=[(["A1.hs"],["5","8"]),
+          (["A2.hs"],["6","8"]),
+          (["B1.hs"],["6","8"]),
+          (["B2.hs"],["8","8"]),
+          (["A3.hs"],["6","8"])],
+
+negative=[]
+}

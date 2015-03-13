@@ -1,0 +1,18 @@
+TiFields.hs: -fallow-undecidable-instances
+TiRhs.hs: -fallow-undecidable-instances
+TiFree.hs: -fallow-undecidable-instances
+TiE.hs: -fallow-undecidable-instances
+TiD.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+TiDinst.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+TiDs.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+TiDkc.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+TiClassInst.hs: -fno-monomorphism-restriction
+TiClassInst2.hs: -fno-monomorphism-restriction
+TiT.hs: -fallow-undecidable-instances
+TiUtil.hs: -fno-monomorphism-restriction
+
+TiPrelude.hs: -fno-monomorphism-restriction
+TiDerivedInstances.hs: -fno-monomorphism-restriction
+TiModule.hs: -fno-monomorphism-restriction
+TiBase.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+TiDecorate.hs: -fallow-undecidable-instances -fno-monomorphism-restriction

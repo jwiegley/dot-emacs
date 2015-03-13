@@ -1,0 +1,8 @@
+TestCases{refactorCmd="refacInstantiate",
+positive=[(["Mod2.hs"], ["8", "1", "0", "l" ]),
+          (["Mod4.hs"], ["7", "1", "_", "\"hi\""]),
+          (["Mod5.hs"], ["7", "1", "0", "\"hi\""])],
+negative=[(["Mod1.hs"], ["8", "1", "0"]),
+          (["Mod3.hs"], ["7", "1", "n", "l"])]
+
+}

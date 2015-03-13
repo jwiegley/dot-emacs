@@ -1,0 +1,16 @@
+RELEASE_ROOT=${RELEASE_ROOT-..}
+PFE_DIR=${PFE_DIR-$RELEASE_ROOT/tools/pfe}
+BASE=${BASE-$RELEASE_ROOT/tools/base}
+. $BASE/HuMakefile
+HS2HTML_DIR=$PFE_DIR/../hs2html
+
+DRIFTTOOLS=${DRIFTTOOLS-$RELEASE_ROOT/DriftStructUtils}
+
+#STRATEGIES=${STRATEGIES-$RELEASE_ROOT/StrategyLib-3.0/src}
+STRATEGIES=${STRATEGIES-$RELEASE_ROOT/StrategyLib-4.0-beta/library}
+
+SFMODEL=${SFMODEL-$RELEASE_ROOT/StrategyLib-4.0-beta/models/deriving}
+
+DIFF_DIRS=../diffs/tools/base/lib/Monads
+PWPF=./PwPf
+SRC_DIRS=$PFE_DIR:$BASE:$MODSRC_DIRS:$BPARSE_DIRS:$HS2HTML_DIR:$DRIFTTOOLS:$STRATEGIES:$SFMODEL:$PWPF:/usr/local/lib/ghc-6.5.20060117/hslibs/imports/ghc/

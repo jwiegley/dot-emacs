@@ -1,0 +1,243 @@
+--#include "Alfa/Types.alfa"
+
+--#include "Alfa/Bool.alfa"
+
+--#include "Logic.alfa"
+
+--#include "Alfa/Natural.alfa"
+
+--#include "Integer.alfa"
+
+-- Some definitions used by hs2alfa to make the translated code look more Haskell-like
+
+Class = Type
+
+Star = Set
+
+Assertion = Type
+
+-- super is a trick used in the type checker when referring to superclasses
+
+super (C::Class)(inst::C) :: C
+  = inst
+
+TypeSig (A::Set)(a::A) :: A
+  = a
+
+public open Booleans  use  if_then_else
+
+open Logic
+ use  Prop,  Pred,  Rel,  Absurdity,  AbsurdityElim,  Triviality,
+      TrivialityIntro,  NDGoal,  And,  AndIntro,  AndElim1,  AndElim2,
+      AndElimCont,  Or,  OrIntro1,  OrIntro2,  OrElim,  Implies,
+      ImpliesIntro,  ImpliesElim,  Not,  NotElim,  Equivalence,
+      ForAll,  ForAllI,  ForAllElim,  Exists,  ExistsIntro,
+      ExistsElim
+
+package PreludeFromAlfa where
+  public open Types  use  Char,  List
+  open Types  use  Digit,  Pair,  Sign,  String
+  public open Booleans  use  Bool
+  open Booleans  use  (&&)
+  public open Logic  use  Prop
+  public open Integers
+          use  Integer,  primIntegerEq,  eqSign,  primIntegerAdd,
+               primIntegerNegate,  primIntegerSub,  primIntegerAbs,
+               primIntegerSignum,  primIntegerMul,  primIntegerRem,
+               primIntegerQuot,  primIntegerLte
+  primUnicodeMaxChar ::Char
+    = C@_ NF@_ NF@_
+  Ratio (a::Star) :: Star
+    = data (:%) (n::a) (d::a)
+  Rational = Ratio Integer
+  primIntegerNeg (i::Integer) :: Bool
+    = case i of {
+        (Pair fst snd) ->
+          case fst of {
+            (Neg) -> True@_;
+            (Pos) -> False@_;};}
+  primIntegerDigits (i::Integer) :: List (List Bool)
+    = case i of {
+        (Pair fst snd) ->
+          let convDigit (d::Digit) :: List Bool
+                = case d of {
+                    (D0) -> Nil@_;
+                    (D1) -> Cons@_ True@_ Nil@_;
+                    (D2) -> Cons@_ True@_ (Cons@_ False@_ Nil@_);
+                    (D3) -> Cons@_ True@_ (Cons@_ True@_ Nil@_);
+                    (D4) ->
+                      Cons@_ True@_ (Cons@_ False@_ (Cons@_ False@_ Nil@_));
+                    (D5) -> Cons@_ True@_ (Cons@_ False@_ (Cons@_ True@_ Nil@_));
+                    (D6) -> Cons@_ True@_ (Cons@_ True@_ (Cons@_ False@_ Nil@_));
+                    (D7) -> Cons@_ True@_ (Cons@_ True@_ (Cons@_ True@_ Nil@_));
+                    (D8) ->
+                      Cons@_ True@_ (Cons@_ False@_ (Cons@_ False@_ (Cons@_ False@_ Nil@_)));
+                    (D9) ->
+                      Cons@_ True@_ (Cons@_ False@_ (Cons@_ False@_ (Cons@_ True@_ Nil@_)));}
+              convDigits (ds::List Digit) :: List (List Bool)
+                = case ds of {
+                    (Nil) -> Nil@_;
+                    (Cons x xs) -> Cons@_ (convDigit x) (convDigits xs);}
+          in  convDigits snd;}
+  Int = Integer
+  primInteger2Int ::Integer -> Int
+    =  \(h::Integer) -> h
+  primInt2Integer ::Int -> Integer
+    =  \(h::Int) -> h
+  primIntEq = primIntegerEq
+  primIntLte = primIntegerLte
+  postulate primIntToChar :: Int -> Char
+  postulate primCharToInt :: Char -> Int
+  primIntAdd = primIntegerAdd
+  primIntNegate = primIntegerNegate
+  primIntSub = primIntegerSub
+  primIntMul = primIntegerMul
+  primIntRem = primIntegerRem
+  primIntQuot = primIntegerQuot
+  primIntAbs = primIntegerAbs
+  primIntSignum = primIntegerSignum
+  (->) (a::Star)(b::Star) :: Star
+    = a -> b
+  Unit ::Star
+    = data Unit
+  Tuple2 (a::Star)(b::Star) :: Star
+    = data Tuple2 (x1::a) (x2::b)
+  Tuple3 (a::Star)(b::Star)(c::Star) :: Star
+    = data Tuple3 (a::a) (b::b) (c::c)
+  Tuple4 (a::Star)(b::Star)(c::Star)(d::Star) :: Star
+    = data Tuple4 (a::a) (b::b) (c::c) (d::d)
+  Tuple5 (a::Star)(b::Star)(c::Star)(d::Star)(e::Star) :: Star
+    = data Tuple5 (a::a) (b::b) (c::c) (d::d) (e::e)
+  Tuple6 (a::Star)(b::Star)(c::Star)(d::Star)(e::Star)(f::Star) :: Star
+    = data Tuple6 (a::a) (b::b) (c::c) (d::d) (e::e) (f::f)
+  Tuple7 (a::Star)(b::Star)(c::Star)(d::Star)(e::Star)(f::Star)(g::Star) ::
+    Star
+    = data Tuple7 (a::a) (b::b) (c::c) (d::d) (e::e) (f::f) (g::g)
+  abstract postulate Float :: Star
+  abstract postulate Double :: Star
+  public postulate primError (a::Star)(s::String) :: a
+  abstract postulate IO (a::Star) :: Star
+  postulate getContents :: IO String
+  postulate readFile (path::String) :: IO String
+  postulate writeFile (path::String)(contents::String) :: IO Unit
+  postulate appendFile (path::String)(contents::String) :: IO Unit
+  postulate putStr (str::String) :: IO Unit
+  postulate Handle :: Star
+  -- Hugs.Prelude stuff:
+  postulate Addr :: Star
+  postulate ForeignObj :: Star
+  postulate FunPtr (a::Star) :: Star
+  postulate Object (a::Star) :: Star
+  postulate Ptr (a::Star) :: Star
+  postulate StablePtr (a::Star) :: Star
+  postulate ForeignPtr (a::Star) :: Star
+  postulate Word :: Star
+  postulate Word8 :: Star
+  postulate Word16 :: Star
+  postulate Word32 :: Star
+  postulate Word64 :: Star
+  postulate Int8 :: Star
+  postulate Int16 :: Star
+  postulate Int32 :: Star
+  postulate Int64 :: Star
+  primSeq (a::Star)(b::Star)(x::a)(y::b) :: b
+    = y
+  -- The P-Logic predicate []:
+  IsNil (A::Star)(xs::List A) :: Prop
+    = case xs of {
+        (Nil) -> Triviality;
+        (Cons x xs') -> Absurdity;}
+  Cons (A::Star)(Px::Pred A)(Pxs::Pred (List A))(xs::List A) :: Prop
+    = case xs of {
+        (Nil) -> Absurdity;
+        (Cons x xs') -> And (Px x) (Pxs xs');}
+  -- The P-Logic lifting operator:
+  Lift (A::Star)(f::A -> Bool)(x::A) :: Prop
+    = Logic.IsTrue (f x)
+  Arrow (A::Star)(B::Star)(P::Pred A)(Q::Pred B)(f::A -> B) :: Prop
+    = ForAll A ( \(x::A) -> Implies (P x) (Q (f x)))
+  -- A deep embedding of predicate types:
+  PredT ::Type
+    = data Prop | Pred (t::Star) (p::PredT)
+  predT (pt::PredT) :: Type
+    = case pt of {
+        (Prop) -> Prop;
+        (Pred t p) -> t -> predT p;}
+  PropKind = PredT
+  NegPred (A::PredT)(p::predT A) :: predT A
+    = case A of {
+        (Prop) -> Not p;
+        (Pred t p') ->  \(a::t) -> NegPred p' (p a);}
+  -- (Old) Lifting a binary operator to unary predicates:
+  liftPropOp (A::Star)(op::Prop -> Prop -> Prop)(p1::Pred A)(p2::Pred A) ::
+    Pred A
+    =  \(a::A) -> op (p1 a) (p2 a)
+  -- Lifting a binary operator to arbitrary arity predicates:
+  predOp (pt::PredT)
+         (op::Prop -> Prop -> Prop)
+         (p1::predT pt)
+         (p2::predT pt) ::
+    predT pt
+    = case pt of {
+        (Prop) -> op p1 p2;
+        (Pred t p) ->  \(a::t) -> predOp p op (p1 a) (p2 a);}
+  -- The types of Lfp and Gfp are too general (to allow arbitrary arity predicates)...
+  open Natural
+   use  Nat,  (+),  (*),  isZero,  natRec,  natEq,  max,  (-),  natLte,
+        natLt,  natGt
+  iter (A::Star)(P::Pred A -> Pred A)(n::Nat) :: Pred A -> Pred A
+    = case n of {
+        (Zero) ->  \(h::Pred A) -> h;
+        (Succ n') ->  \(h::Pred A) -> P (iter A P n' h);}
+  Lfp (A::Set)(P::Pred A -> Pred A) :: Pred A
+    =  \(a::A) ->
+      Exists Nat ( \(n::Nat) -> iter A P n ( \(h'::A) -> Absurdity) a)
+  Gfp (A::Set)(P::Pred A -> Pred A) :: Pred A
+    =  \(a::A) ->
+      ForAll Nat ( \(n::Nat) -> iter A P n ( \(h'::A) -> Triviality) a)
+
+open Logic  use  (===)
+
+open PreludeFromAlfa
+ use  IsNil,  Lift,  Arrow,  NegPred,  liftPropOp,  PropKind,  predT,
+      predOp,  Lfp,  Gfp,  Cons
+{-# Alfa unfoldgoals off
+brief on
+hidetypeannots off
+wide
+
+nd
+hiding on
+var "Unit" tuple as "()"
+con "Unit" as "()"
+con "Nil" as "[]"
+con ":" infix rightassoc 5
+var "List" mixfix as "[_]"
+var "Star" as "*" with symbolfont
+var "Tuple2" tuple
+con "Tuple2" tuple
+var "super" hide 1
+var "Tuple3" tuple
+var "Tuple4" tuple
+var "Tuple5" tuple
+var "Tuple6" tuple
+var "Tuple7" tuple
+con "Tuple3" tuple
+con "Tuple4" tuple
+con "Tuple5" tuple
+con "Tuple6" tuple
+con "Tuple7" tuple
+var "IsNil" hide 1 as "[]"
+var "Lift" hide 1 as "!" with symbolfont
+var "Arrow" hide 2 infix as "®" with symbolfont
+var "primError" hide 1
+var "primSeq" hide 2
+var "liftPropOp" hide 1 mixfix as "2 1 3"
+var "NegPred" hide 1 as "Ø" with symbolfont
+var "Gfp" hide 1 quantifier domain on
+var "Lfp" hide 1 quantifier domain on
+var "Cons" hide 1 infix rightassoc 5 as ":"
+var "TypeSig" mixfix as "2 :: 1"
+var "iter" hide 1
+con "Pred" infix rightassoc as "®" with symbolfont
+ #-}

@@ -1,0 +1,1 @@
+Pat (HsPTuple ("Pat1.hs",140,10,8) [Pat (HsPId (HsVar (PNT (PN (UnQual "n1_2") (S ("Pat1.hs",141,10,9))) Value (N (Just ("Pat1.hs",141,10,9)))))),Pat (HsPId (HsVar (PNT (PN (UnQual "n2_2") (S ("Pat1.hs",147,10,15))) Value (N (Just ("Pat1.hs",147,10,15))))))])

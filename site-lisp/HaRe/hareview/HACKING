@@ -1,0 +1,50 @@
+Here some information for potential developers:
+
+0) source layout
+   70 chars line length, 
+   2 spaces indent where possible
+
+1a) naming conventions for gtk widgets:
+  
+  widget                   shortcut (name in glade and hs source)
+
+  menuitemName          -> mName
+  menuName              -> menuName
+  scrolledwindowName    -> swName
+  labelName             -> lblName
+  buttonName            -> btnName
+  entryName             -> entryName
+  dialogName            -> dlgName
+  clipboardName         -> cbName
+  separatorName         -> sepName
+  (h|v)boxName          -> (h|v)boxName
+  dialogActionAreaName  -> daaName
+  hpaned                -> hpnName
+  window                -> nameWindow  
+
+1b) widget attributes
+  
+  Until now we prefer 
+
+    widgetSetAttribute w value
+
+  over 
+
+    set w [ attribute := value ]
+
+  or 
+  
+    w `widgetSetAttribute` value
+
+  (but I dont know why ...)
+
+2) $ or () ?
+  lookup functions and guiactions are mainly written in ( ):
+  doSomeThingWith (dlgSave gui)
+  doSomeThingWith (name parser)
+  addAction (btnA gui) (actionHassenichGesehen args gui)
+
+3) Standardnames in functions
+  gui      -> gui-compound
+  parsers  -> parser-liste
+  parser   -> current parser

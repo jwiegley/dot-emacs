@@ -1,0 +1,21 @@
+load "bossLib";
+open bossLib; 
+load "stringLib";
+load "setLib";
+load "integerTheory";
+load "arithmeticTheory";
+load "pairTools";
+open pairTools;
+load "simpLib";
+open simpLib;
+load "pairTheory";
+open pairTheory;
+load "listTheory";
+open listTheory;
+
+show_types := true;
+
+val dummy_thm = CURRY_UNCURRY_THM;
+val dummy_term = ``0``;
+
+

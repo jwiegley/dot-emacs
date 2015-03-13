@@ -1,0 +1,540 @@
+
+                      _   _         ____
+                     | | | | __ _  |  _ \ ___
+                     | |_| |/ _` | | |_) / _ \
+                     |  _  | (_| | |  _ <  __/
+                     |_| |_|\__,_| |_| \_\___|
+
+                    HaRe, the Haskell Refactorer
+                a snapshot of our current prototype
+                             01/08/2012
+      http://www.cs.kent.ac.uk/projects/refactor-fp/hare.html
+
+--------------------------------------------------------------------------------
+
+This snapshot includes most dependencies (version A below), and
+should build and work on Windows/Cygwin and Unix, with either gvim
+6.2 or with emacs 21.4.
+
+HaRe_07072010 (HaRe 0.6) is still a prototype, made available so
+you can play with basic refactoring support for Haskell, and give us
+feedback or bug reports (see below for changes since HaRe 0.5 and
+known remaining issues). The major new feature in this 0.6 release -
+apart from bug fixes - is a number of new refactorings.
+WE DO NOT RECOMMEND TO USE THIS PROTOTYPE ON YOUR PRODUCTION SOURCES JUST YET!
+
+--------------------------------------------------------------------------------
+
+--------------- what you need
+
+0 basics:
+
+  1. ghc-6.12.1
+  2. hint-0.3.2.3 (available from cabal)
+  3. unix/gnu tools (or cygwin tools, if on windows)
+  4. vim or emacs (we've tested with gvim 6.2 and with emacs 21.4)
+  5. If you intend on running the test suite, HUnit-1.0.
+
+A [recommended] partial build
+
+  (fewer tools needed, but tied to particular snapshot):
+
+  1. fetch refactorer snapshot. this includes:
+    - modified Programatica snapshot (includes happy output)
+    - refactorer sources
+
+
+--------------- one easy way to arrange these things
+
+the following text assumes this directory structure
+and unix/cygwin tools (adapt makefile if necessary):
+
+
+  README.txt            <- you're reading this
+  makefile
+  editors               <- editor interface scripts for Vim/Emacs
+  refactorer            <- refactorer
+
+  StrategyLib-4.0-beta  <- Strafunski's library for strategic programming
+  diffs                 <- modified files for tools
+  tools                 <- programatica snapshot
+
+You might want to check the paths in makefile,
+refactorer/HuMakefile and refactorer/myghc--make for sanity wrt to
+your system (you should not actually need Happy for A). They should
+work without change on windows/cygwin (windows/mingw has also been
+reported to work), and feedback from the first release suggests the
+same for unixish systems, from Max OS X to Linux (please let us know
+if not, or if you can add new platforms).
+
+If on Suns, the call to ghc in refactorer/myghc--make needs a little
+looking after: in principle, you could remove the SunOS*) case and
+use the default case *). In practice, at least on Suns, you will
+want to make sure that ghc uses the linker from binutils instead of
+the Sun linker (order of magnitude difference in linking time..),
+which is what setting GCC_EXEC_PREFIX before calling ghc does - just
+put in the path to your local binutils installation.
+
+***IMPORTANT*** for Mac OS users: please make sure that the .gvimrc
+file contains the lines
+
+          set noguipty
+          set nocompatible
+
+
+--------------- how to build
+
+  1. run:
+          runhaskell Setup.hs configure --prefix /path/to/hare
+          (where /path/to/hare is a folder with read/write access)
+          runhaskell Setup.hs build
+          runhaskell Setup.hs install
+
+          export PATH=/path/to/hare/bin:$PATH
+
+--------------- how to use
+
+  2. load the scripted interface into your favourite editor
+     (you may or may not want to include this in your standard
+      startup files for Haskell)
+
+    - emacs:
+      M-x load-file /path/to/hare/share/hare-0.6/haskell-refac.el
+      M-x haskell-refac-mode
+      (to switch off: M-x haskell-refac-mode)
+      You will then need to customize HaRe to point to your installation
+      so Programatica can find its chase files.
+      In the refactoring menu, go to customize -> chasepaths.
+      Replace HaskellLibraries with:  /path/to/hare/share/hare-0.6
+      Choose Save.
+
+    - gvim:
+      :source editors/refactor.vim
+      :RefacStart	(or select start from menu)
+      :RefacStop	(or select stop from menu)
+      You will then need to customize HaRe to point to your installation
+      so Programatica can find its chase files.
+      In the refactoring menu, go to customize -> chasepaths.
+      Replace HaskellLibraries with:  /path/to/hare/share/hare-0.6
+      Choose Save.
+
+  3. this should give you a menu with refactoring commands,
+     and a separate refactoring process.
+
+  4. the Programatica frontend we use is project-based.  before
+     doing any refactorings, you have to start a project (select
+     "new" to start a project with only the current module in it,
+     then select "chase" to add the Prelude modules). project
+     settings are kept in a "hi" directory, created in the current
+     directory (it is recommended to edit files from within the
+     directory they reside in).
+
+     ***IMPORTANT:*** Please re-create your projects once you have
+     updated your HaRe to a new snapshot/release.
+
+  5. for most refactorings, the editor interface will pass the
+     current filename (should be the module name, as well), the
+     refactoring command, and the current cursor position. For
+     some refactorings, you'll also need to highlight an
+     expression, or enter a new name. Here's the current list:
+
+     Introduce Pattern Match    : place cursor over pattern variable
+
+     Introduce Sub pattern      : place cursor over pattern variable
+
+     Introduce Case Expression  : place cursor over pattern variable
+
+     Generative Fold            : highlight expression to fold.
+                                  Must have equation in comment directly before
+                                  definition of highlighted expression.
+
+     Clone Analysis             : select from menu
+
+     Clone Extraction           : highlight clone from the clone class to extract, follow
+                                  step-by-step instructions.
+
+     Converting Let to Where    : place cursor at start of identifer whose
+                                  definition is to be moved
+
+     Converting Where to Let    : place cursor at start of identifer whose
+                                  definition is to be moved.
+
+     create type signatures     : select from menu
+
+     remove redundant declarations
+                                : highlight definition to clean up
+
+     add constructor to data
+    type                        : place cursor at start of data type, you'll
+                                  be prompted to add the new Constructor
+                                  name, followed by any Type parameters as a
+                                  complete string
+     Split a tuple              : place cureso at start of top level definition that
+                                  returns a tuple.
+
+     Slicing based on a subexpression
+                                : highlight sub-expression to extract.
+
+     Instantiate a general pattern
+                                : select a function equation and enter
+                                  the new instances for each pattern in the argument set.
+
+
+
+     Extract an expression      : highlight an expression within a definition
+     Convert data type to
+     newtype                    : place cursor at start of data type
+
+     add definition to merge    : place cursor at start of definition that is to be merged
+
+     merge definitions          : use "add definition for merge" for each definition to be merged.
+                                  then choose merge definitions from menu.
+
+     fold function definition   : highlight function equation to fold against.
+
+     fold constant definition   : highlight constant equation to foldl against.
+
+     convert pattern to an as pattern
+                                : highlight pattern to convert.
+
+     unfold references to as patterns
+                                : place cursor over as pattern name.
+
+     remove field from a data type
+                                : place cursor at start of field to remove.
+
+     add field to data type
+                                : place cursor over start of constructor.
+                                  enter new field name.
+
+
+
+     add debug information      : add trace calls to function by placing cursor at the
+                                  start of the function to trace
+
+
+     rename                     : place cursor at start of identifier to
+                                  be renamed, you'll be prompted for a
+                                  new name
+
+     Lift def to top level      : place cursor at start of identifier
+                                  whose definition is to be moved
+     Lift def one level         : place cursor at start of identifier
+                                  whose definition is to be moved
+     Demote                     : place cursor at start of identifier
+                                  whose definition is to be moved
+     Introduce new def          : highlight expression to be named,
+                                  you'll be prompted for a new name
+     Unfold def                 : place cursor at start of identifier
+                                  where its definition is to be unfolded
+     Generalise def             : place cursor at start of identifier
+                                  where its definition is to be unfolded
+     Remove def                 : place cursor at start of identifier
+                                  whose definition is to be removed
+     Duplicate def              : place cursor at start of identifier
+                                  whose definition is to be duplicated,
+                                  you'll be prompted for a new name
+
+     Add one parameter          : place cursor at start of identifier
+                                  whose definition is to be modified,
+                                  you'll be prompted for a new name
+     rm one parameter           : place cursor in formal parameter
+                                  which is to be removed
+
+     Move def to another module : place cursor at start of the identifier
+                                  whose definition is to be moved, you'll
+                                  be prompted for the module name
+     Clean imports              : cursor position does not matter, just
+                                  choose the command from the refactor menu
+     Make import explicit       : place cursor at the start of the module
+                                  name in the import declaration
+     Add to export              : place cursor at start of the identifier
+                                  which is to be added to the export
+     Remove from export         : place cursor at start of the entry to
+                                  be removed in the export list
+     From concrete to abstract data type: place cursor at start of the data type name
+     Add field names            : place cursor at start of the data type name
+     Add discriminators         : place cursor at start of the data type name
+     Add constructors           : place cursor at start of the data type name
+     Eliminate nested patterns  : place cursor at start of the data type name
+     Eliminate patterns         : place cursor at start of the data type name
+     Create an ADT module       : place cursor at start of the data type name
+     Eliminate intermidiate list: cusor position does not matter, just choose
+                                  the command from the menu.
+6. If the 'Customize' menu in Emacs does not work, you can do the customisation by:
+   M-x customize-group / haskell-refac
+
+
+--------------- known issues
+
+- the editor interface still needs improvement, although
+  all known bugs have been fixed (windows vim users: it is
+  recommended to install vim in its standard location).
+
+- there is no standard for associating comments with
+  semantic entities. we use heuristics to decide when
+  to move/remove comments together with definitions
+  => these heuristics may not match everyone's
+     commenting style
+
+  outline:
+
+    when (re-)moving a definition, we also (re-)move the last
+    consecutive comments right before this definition (with at most one
+    empty line between the comments and the definition); we also
+    (re-)move the comment whose start location is in the same line as
+    the definition's last line of code.
+
+  Example:
+
+    ....
+    --Comment1
+
+    --Comment2
+    --Comment3
+
+    fun1 x =  x+1  --Comment4
+    --Comment5
+
+    ...
+
+  In this case, Comment2, Comment3 and Comment4 belong to function fun1.
+
+- if you're routinely working in a mixed Windows/Unix setup, you'll
+  notice that the file-format (encoding of line endings) of HaRe
+  output depends on whether you're using a Windows or a Unix HaRe,
+  not on whether the input is in Windows or Unix format.
+
+- the Programatica frontend is currently limited to Haskell 98
+
+- the Programatica frontend does not work with no-source files.
+
+---------------change from 08/05/2009
+-- general
+   + make HaRe compatible with the latest version of GHC
+   + ported to hint library, as an abstraction for GHC API.
+   + bug fixes.
+
+---------------change from 22/11/2006
+-- general
+   + make HaRE compatible with the latest version of GHC
+   + several refactorings and bug fixes relating to slicing refactorings have
+     been added
+   + API has been extended
+   + Now uses GHC API for some refactorings
+
+---------------changes from 15/04/2005
+-- general
+   + make HaRe compatable with the latest version of GHC and Programatica.
+   + Several refactorings related to slicing and data types have been
+     added.
+   + A pointwise to pointfree transformation has been added.
+
+---------------changes from 11/03/2005
+-- bugfix
+   -- Introduce new defintion: only replaced the highlighted expression if the expression
+      contains negative numbers.
+   -- checking for inscoped identifiers.
+   -- checking for conflicting export list.
+---------------changes from 03/12/2004
+--gereral
+  removed the unnecessary files in the snapshot.
+
+--bugfix
+   -- Introduce new definition: only replaced the highlighted expression if the expression
+      contains literals.
+----------------changes from 19/11/2004
+
+-- general
+
+   + Updated to a new Programatica version which supports hierarchical modules.
+
+   + Adding an refactoring to the editor now only need to modify only file.
+
+-- bugfixes
+   + the 'Customize' menu did not work.
+
+----------------changes from 16/09/2004
+
+-- general
+
+  + The API. An API for program analysis and tranformation. Together with Programatica and Strafunski,
+    this API can be used for the implementation for elementary refactorings. The file that contains
+    this API is RefacUtils.hs (the module name is RefacUtils). You can find the documentation for the
+    API at HaRe_20012008/refactorer/doc.
+
+  + The hidden token stream manipulation. The basic idea is to move the token stream manipulations
+    from the implementation of individual refactorings to the API, so that a program transformation
+    function from the API modifies not only the AST but also the token stream. This liberates the
+    implementator of refactoring from caring about the token stream.
+
+  + For those users who are interested in the implementation of refactorings, we have written and
+    documented the implementation of two very simple refactorings: swapping the first two arguments
+    of a function, and from it-then-else expression to case expression. You can find the implementation
+    at HaRe_20012008/refactorer/RefacSwapArgs.hs, and HaRe_20012008/refactorer/RefacCase.hs.
+
+  + We have a test suite to HaRe 0.3, and you can find it at HaRe_20012008/testing. There is a README file
+    to explain how it works.
+
+
+--------------- changes from  09/08/2004
+
+-- bugfixes
+   + demote directly recursive definition.
+   + non-break space
+
+---------------changes from 26/04/2004
+- features
+   + The refactor menu has been switched to hierarchical menus to reduce clutter.
+   + In 'generalise a definition', 'replace all' has been switched on.
+
+- refactoring
+   - new refactorings:
+    + 'from concrete to abstract data type': transforms a concrete data type defintion into an abstract one.
+      This is a composite refactoring. It consists of five elementary refactorings:
+      + 'Add field names': add field names to a data type declaration.
+      + 'Add disriminators': add a discriminator for each data constructor defined in the identified data type.
+      + 'Add constructors': add a constructor function for each data constructor defined in the identified data type.
+      + 'Eliminate nested patterns': remove patterns nested in a pattern specified by the data constructor defined
+                                     in the identified data type.
+      + 'Eliminate patterns': remove those patterns specified by the data constructor defined in the identified data type.
+      + 'Create an ADT module': create the ADT module interface.
+    + 'eliminate intermidiate list' (this refactoring is still in an experimental stage)
+
+   -bug fixes
+    + After generalising a function with a type signature, the type signature is now commented out in the program source.
+    + wrong layout when refactoring on operator functions.
+    + wrong layout when refactoring on an expression ending with [] or ()
+
+--------------- changes from 26/02/2004
+
+- general
+
+   - update to a new Programmatica version
+
+- refactoring
+
+   - new refactorings:
+     + 'move def to another module' : move a definition from the current
+                                      module to a user-specified module
+     + 'clean imports'        : remove redundancies from the imports
+     + 'make import implicit' : make the used entities from an
+                                import explicit in the declaration
+     + 'add to export'        : add an entity to the export list
+     + 'remove from export'   : remove an entity from the export list
+
+   - bugfixes:
+
+    + qualified uses of a top-level identifier becomes
+      unqualified after its definition has been demoted.
+
+--------------- changes from 27/01/2004
+
+- refactoring
+
+  - features:
+    + in 'introduce a new definition', 'replace all' has been
+      switched on. The refactorer should be able to detect all
+      identical expressions in the scope.
+    + operators can now be renamed
+
+  - bugfixes:
+    + module names can differ from file names
+    + avoid dangling parenthesis after unfoldDef
+      (could trigger layout rule syntax errors)
+    + do not reverse names of new variables introduced
+      by unfoldDef (did you know that 0_x is legal?-)
+    + do not trip over hard tabs
+    + give an error message when trying to lifting a definition
+      in a class/instance declaration to the top level.
+    + only write client modules when they are really changed.
+    + renaming data types should not rename data constructors as well
+    + lifting defs should not add globally available ids as parameters
+    + the reported layout bugs with lifitng and intro new defs have
+      been fixed
+
+  - known issues
+    + hard tabs are not counted correctly yet
+    + refactorings shouldn't introduce hard tabs!
+
+- editor interfaces
+
+  - features:
+    + Emacs: thanks to help from JP Bernardy, we have now moved the
+      emacs lisp script to a subset that both Emacs and XEmacs can
+      work with; in the process, the gui has been cleaned up a bit
+      and should now operate more like a normal minor mode..
+    + Vim: don't try to open files modified by the refactorer,
+      unless they are already associated with a buffer; show
+      warning dialog instead (now in line with emacs version)
+
+  - bugfixes:
+    + Emacs: don't create separate refactoring processes per buffer
+
+  - known issues
+    + in Vim, it is still possible to start refactorings while
+      there are modified buffers (fixed in Emacs a while ago)
+
+--------------- changes from 01/10/2003
+
+- general:
+
+  - Programatica and HaRe have added workarounds for the Template
+    Haskell syntax problems in ghc-6.0, so HaRe now builds with
+    ghc-6.0.1 (ghc-6.2.1 has introduced yet another change, so does
+    not work yet..)
+
+  - upgraded to StrategyLib-4.0-beta
+
+- refactoring:
+
+  - Programatica frontend does now give source location information
+    for all literals
+    => refactorings should no longer have problems with String and
+       Char literals
+
+  - HaRe is now module-aware: all refactorings have been updated to
+    try and take import/export relations into account.
+
+  - following your requests, HaRe can now work with literate Haskell
+    files. This relies on some guesswork, so expect to find some
+    rough corners - please report your experience so we can try to
+    fix problems. Might also interact oddly with our heuristics for
+    attaching comments to definitions.
+
+  - Automatic renaming has been disabled during liftOneLevel,
+    liftToTopLevel, demote and generaliseDef. In the case that one
+    of these refactorings will cause name clash/capture, the user
+    will be prompted to do renaming first.
+
+  - refactoring bugfixes:
+    + introNewDef and generaliseDef now replace the marked expression
+      itself, not the first occurrence of the marked expression
+    + wrong layout during liftOneLevel
+    + non-exhaustive case in RefacLocUtils.hs
+    + missing parentheses during generaliseDef
+    + a parameter can be now be removed from a direct recursive
+      definition if it is not used in the definition.
+    + when adding an parameter to a direct recursive definition, use
+      the new formal parameter name, instead of the default actual argument
+      name, as the actual argument inside this function.
+    + the way to created a new name has been changed. For example add a
+      new parameter 'y' to a definition 'f', the default argument name is
+      f_y instead of 'f_y_1'.
+    + erroneous caching of export list
+    + multi-module undo
+    ...
+
+- editor interfaces:
+
+  - Emacs now reloads files modified by the refactorer without
+    prompting the user, and warns when a refactoring has changed
+    files not currently opened.
+
+  - editor interface bugfixes:
+    Emacs:
+    + the error-in-mini-buffer effects preventing file reloading
+      in some Emacs configurations were finally traced and
+      eliminated (the stopwatch issue also seems to be gone).
+    + refac buffer now automatically scrolls to last line
+    + refactorings are now blocked while there are unsaved buffers

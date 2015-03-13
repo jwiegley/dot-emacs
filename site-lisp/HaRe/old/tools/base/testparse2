@@ -1,0 +1,6 @@
+#!/bin/sh
+
+for FILE in *.hs */*.hs ; do
+    printf "$FILE                 \r"
+   ./ParseOld $FILE > tests/parser/`basename $FILE`.parsed # 2>&1
+done

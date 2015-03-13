@@ -1,0 +1,80 @@
+NAME
+
+stripcomments - strip blank lines and comments from Haskell files.
+
+layout - simple conversion of layout to explicit braces and semicolons
+
+USAGE
+
+	stripcomments file_1 ... file_n
+	layout file_1 ... file_n
+
+DESCRIPTION
+
+stripcomments reads Haskell files named on the command line and strips
+away comments and blank lines. Layout and syntactic correctness is
+preserved. The result is sent to the standard output.
+
+layout reads Haskell files named on the command line and outputs them
+on stdout with the braces and semicolons implied by layout made
+explicit. Comments and white space is preserved. (See also limitations
+below.)
+
+Files whose names end with '.lhs' are assumed to contain literate style
+Haskell, other files are assumed to contain plain Haskell.
+
+HOW TO COMPILE AND INSTALL
+
+	make
+	cp stripcomments /usr/local/bin     # or some other suitable directory
+	cp layout /usr/local/bin	    # or some other suitable directory
+
+REQUIREMENTS
+
+The Makefile assumes that a version of GHC that supports --make is
+installed. GHC 5.02 or later is recommended. Be prepared that
+Lexer/HsLex.hs takes a long time to compile.
+
+The programs are implemented in pure Haskell 98, and can also be loaded
+in Hugs 98.
+
+LIMITATIONS
+
+The program layout does not support full Haskell 98 layout: it does
+not implement the part that requires interaction with the parser. For
+example, the program will not correctly translate
+
+	let x=1 in x+x
+
+but will correctly translate
+
+	let x=1
+	in x+x
+
+Also, the program layout handles literate style Haskell files by converting
+literate comments to ordinary nested comments. This can result in incorrect
+code when literate comments contain "{-" or "-}".
+
+LINKS
+
+http://www.cse.ogi.edu/~hallgren/hsutils/
+http://www.cse.ogi.edu/~hallgren/Talks/LHiH/
+http://www.haskell.org/ghc/
+http://www.haskell.org/hugs/
+
+VERSIONS
+
+1.2 Package renamed to hsutils and includes the program layout in addition
+    to stripcomments.
+
+1.1 Bug fix: avoid outputting a leading blank line for modules that start
+             with one or more lines of whitespace
+
+1.0 Initial release
+
+AUTHOR
+
+Thomas Hallgren  http://www.cse.ogi.edu/~hallgren/
+
+OGI School of Science & Engineering
+Oregon Health & Science University

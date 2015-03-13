@@ -1,0 +1,171 @@
+--#include "alfa/ListProp.alfa"
+
+open Logic  use  refl,  cong,  subst,  substSym
+
+open Module_Prelude
+ use  Eq,  elem,  List,  (++),  PredTrue,  Bool,  (||),  (==),  tail,
+      filter,  not,  PredNil,  PredFalse,  asTypeOf
+
+open Module_List  use  nub,  nubBy
+
+open Module_ListProp  use  ElemProp,  NubByProp,  NubProp,  Reflexive
+
+orRightLemma (a::Bool)(b::Bool)(bp::PredTrue b) :: PredTrue (a || b)
+  = case a of {
+      (False) -> bp;
+      (True) -> TrivialityIntro;}
+
+mutual --#S
+       proofElemProp :: ElemProp
+         = let proof (t2::Star)(d6::Eq t2)(y::t2)(xs::List t2)(ys::List t2)
+                 :: Implies
+                      (PredTrue (elem t2 d6 y ys))
+                      (PredTrue (elem t2 d6 y ((++) t2 xs ys)))
+                 = let lemma (xs::List t2)(hyp::PredTrue (elem t2 d6 y ys))
+                         :: PredTrue (elem t2 d6 y ((++) t2 xs ys))
+                         = case xs of {
+                             (Nil) -> hyp;
+                             (Cons x xs') ->
+                               orRightLemma
+                                 ((==) t2 d6 y x)
+                                 (elem t2 d6 y ((++) t2 xs' ys))
+                                 (lemma xs' hyp);}
+                   in  ImpliesIntro
+                         (PredTrue (elem t2 d6 y ys))
+                         (PredTrue (elem t2 d6 y ((++) t2 xs ys)))
+                         (lemma xs)
+           in  proof
+
+lemmaNubByNil (a::Star)
+              (eq::a -> a -> Bool)
+              (xs::List a)
+              (p::(===) (List a) xs Nil@_)
+  :: (===) (List a) (nubBy a eq xs) Nil@_
+  = substSym
+      (List a)
+      xs
+      Nil@_
+      (\(h::List a) -> (===) (List a) (nubBy a eq h) Nil@_)
+      p
+      Ref@_
+
+lemmaIfFalse (a::Star)
+             (b::Bool)
+             (th::a)
+             (el::a)
+             (P::a -> Prop)
+             (pb::PredFalse b)
+             (pel::P el)
+  :: P (if a b th el)
+  = case b of {
+      (False) -> pel;
+      (True) -> case pb of { };}
+
+lemmaNotFalse (b::Bool)(p::PredTrue b) :: PredFalse (not b)
+  = case b of {
+      (False) -> case p of { };
+      (True) -> p;}
+
+cons (a::Star)(x::a)(xs::List a) :: List a
+  = Cons@_ x xs
+
+lemmaNubBy (t22::Star)
+           (eq::t22 -> t22 -> Bool)
+           (hyp::Reflexive t22 eq)
+           (x::t22)
+  :: (===)
+       (Module_Prelude.List t22)
+       (nubBy t22 eq (Cons@_ x (Cons@_ x Nil@_)))
+       (Cons@_ x Nil@_)
+  = NDGoal
+      ((===)
+         (Module_Prelude.List t22)
+         (nubBy t22 eq (Cons@_ x (Cons@_ x Nil@_)))
+         (Cons@_ x Nil@_))
+      (cong
+         (PreludeFromAlfa.List t22)
+         (Module_Prelude.List t22)
+         (nubBy
+            t22
+            eq
+            (filter t22 (\(y::t22) -> not (eq x y)) (Cons@_ x Nil@_)))
+         Nil@_
+         (cons t22 x)
+         (NDGoal
+            ((===)
+               (PreludeFromAlfa.List t22)
+               (nubBy
+                  t22
+                  eq
+                  (filter t22 (\(y::t22) -> not (eq x y)) (Cons@_ x Nil@_)))
+               Nil@_)
+            (lemmaNubByNil
+               t22
+               eq
+               (filter t22 (\(y::t22) -> not (eq x y)) (Cons@_ x Nil@_))
+               (NDGoal
+                  ((===)
+                     (List t22)
+                     (filter t22 (\(y::t22) -> not (eq x y)) (Cons@_ x Nil@_))
+                     Nil@_)
+                  (lemmaIfFalse
+                     (List t22)
+                     (not (eq x x))
+                     (Cons@_ x Nil@_)
+                     Nil@_
+                     (\(h::List t22) -> (===) (List t22) h Nil@_)
+                     (NDGoal
+                        (PredFalse (not (eq x x)))
+                        (lemmaNotFalse
+                           (eq x x)
+                           (NDGoal (PredTrue (eq x x)) (hyp x))))
+                     (NDGoal
+                        ((===) (List t22) Nil@_ Nil@_)
+                        (refl (List t22) Nil@_)))))))
+
+proofNubByProp :: NubByProp
+  = \(t22::Star) ->
+    \(eq::(h::t22) -> (h'::t22) -> Module_Prelude.Bool) ->
+    ImpliesIntro
+      ((x::t22) -> Module_Prelude.PredTrue (eq x x))
+      ((x::t22) ->
+       (===)
+         (Module_Prelude.List t22)
+         (Module_List.nubBy t22 eq (Cons@_ x (Cons@_ x Nil@_)))
+         (Cons@_ x Nil@_))
+      (lemmaNubBy t22 eq)
+
+proofNubProp :: NubProp
+  = \(t31::Star) ->
+    \(d34::Module_Prelude.Eq t31) ->
+    \(x::t31) ->
+    ImpliesIntro
+      ((x'::t31) ->
+       Module_Prelude.PredTrue
+         (Module_Prelude.(==) t31 d34 (Module_Prelude.asTypeOf t31 x' x) x'))
+      ((===)
+         (Module_Prelude.List t31)
+         (Module_List.nub t31 d34 (Cons@_ x (Cons@_ x Nil@_)))
+         (Cons@_ x Nil@_))
+      (\(hyp::(x'::t31) ->
+              Module_Prelude.PredTrue
+                (Module_Prelude.(==)
+                   t31
+                   d34
+                   (Module_Prelude.asTypeOf t31 x' x)
+                   x')) ->
+       lemmaNubBy t31 (t31 == d34) hyp x)
+{-# Alfa unfoldgoals on
+brief on
+hidetypeannots on
+wide
+
+nd
+hiding on
+var "lemma" hide 1
+var "cons" hide 1
+var "NubByNil" hide 3
+var "proofNubByNil" hide 3
+var "lemmaIfFalse" hide 5
+var "lemmaNotFalse" hide 1
+ #-}

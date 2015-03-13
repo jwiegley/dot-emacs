@@ -1,0 +1,6 @@
+#!/bin/sh
+
+. HuMakefile
+GHCFLAGS="$GHCFLAGS -fno-monomorphism-restriction -fallow-undecidable-instances"
+ghci $GHCFLAGS -i${SRC_DIRS} $*
+

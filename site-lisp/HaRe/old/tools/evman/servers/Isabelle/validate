@@ -1,0 +1,110 @@
+#!/bin/bash
+
+# Script to validate Isabelle certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA", "$certsDir" and "$SERVERDIR" to be set.
+# It also expects the name of a certificate on the command line.
+
+type=Isabelle
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh" # defines $module, $conc, $attr, $certpath, etc
+hyp=`getattr hyp "$attr"`
+
+proof_dir=isabelle
+
+### Auxiliary functions ########################################################
+
+
+isabellecheck() {
+  isabelle -e "with_path \"$SERVERDIR/lib\" use_thy \"${proof_file%.thy}\";" -q HOLCF Output >"$output"
+  grep -q 'val it = () : unit' "$output"
+}
+
+validate() {
+  pfecmd=isabelle
+  echo "pfe $pfecmd $module"
+  echo "Translating $module..." >"$output"
+  if pfe $pfecmd $module >"$module.thy" 2>>"$output" ; then
+    if [ -r "$proof_file" ] ; then
+      echo "Proof missing" >"$output"
+      if isabellecheck; then 
+	markvalid
+      else 
+	#echo "Proof missing or incomplete."
+	tail -1 "$output" # Hmm. Error message can be longer than 1 line!!
+	#echo "Put your proof in $proof_file and call it $proof."
+	markinvalid
+      fi
+    else
+      abort "Put your proof in $proof_file, then validate again."
+    fi
+  else
+    cat "$output"
+    markinvalid
+  fi
+}
+
+validatenew() {
+  validate
+}
+
+auxfilechange() {
+  while read file ; do
+    if [ "$file" -nt "$certpath/valid" ] ; then
+      return 0
+    fi
+  done < <(certauxfiles "$certpath")
+  return 1
+}
+
+revalidate() {
+  tmpdiff="$certsDir/diff$$"
+  if [ "$attr" -nt "$certpath/valid" ] ; then
+    echo "Certificate attributes have changed."
+    validate
+  elif auxfilechange ; then
+    # This assumes that all relevant files are mentioned in $attrs!!!
+    echo "Some auxiliary certificate file has changed."
+    validate
+  elif ! pfe tadiff "$deps" "$assertion" >"$tmpdiff" || [ -s "$tmpdiff" ] ; then
+    #echo "The following changes might affect the validity of"
+    echo "There has been changes that might affect the validity of"
+    echo "the $type certificate $cert."
+    #echo ""
+    #cat "$tmpdiff"
+    echo ""
+    validate
+  else
+    echo "There has been no changes affecting the validity of"
+    echo "the $type certificate $cert. Marking it as still valid."
+    datestamp valid $certpath $module
+  fi
+  status=$?
+  rm -f "$tmpdiff"
+  return $status
+}
+
+### Here we go... ##############################################################
+
+proof_file="`getattr file/proof "$attr"`"
+proof="`getattr proof "$attr"`"
+simple="`getattr SimplePatterns "$attr"`"
+
+if [ -z "$proof_file" ] ; then
+  # Default file for proofs. The user can change this.
+  proof_file="${module}_Proofs.thy"
+  setattr file/proof "$proof_file" "$attr"
+fi
+
+if [ -z "$proof" ] ; then
+  proof="proof$conc"
+  setattr proof "$proof" "$attr"
+fi
+
+
+if [ -r "$certpath/valid" ] && [ -r "$deps" ] ; then
+  revalidate
+else
+  validatenew
+fi

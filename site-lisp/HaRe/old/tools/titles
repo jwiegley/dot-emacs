@@ -1,0 +1,36 @@
+. Root of Programica Tools Source Directory
+TFF Theorems for Free
+base Base Language and Base Functionalty
+evman Evidence Management
+hs2alfa Haskell-to-Alfa translator
+hs2html Haskell-to-HTML renderer
+hs2stratego Haskell-to-Stratego (Plover) translator
+pfe Programatica Front-end Framework and command-line interface
+base/AST Abstract Syntax (non-recursive structure)
+base/Modules Haskell Module System
+base/TI Type Inference Infrastructure and Type Inference for the Base Language
+base/defs Scoping (name resolution)
+base/lib General utility library
+base/lib/Monads Iavor's Monads and Monad Transformers
+base/lib/Monads/docs
+base/parse2 Haskell 98 Parser
+base/parse2/Lexer The Haskell Lexer (generated and hand-written modules)
+base/parse2/LexerGen Lexer Generator
+base/parse2/LexerSpec Haskell Lexical Syntax Specification
+base/parse2/Parser Haskell 98 Happy Parser
+base/pretty Pretty Printing Library
+base/syntax Base Language Abstract Syntax Knot-tying recursive definitions
+base/transforms Program transformation
+base/transforms/Deriving Derived instance code generation
+pfe/Browser Programatica Haskell Browser
+property/AST AST for the Plogic extention (non-recursive structure)
+property The Plogic extension
+property/TI Type inference for the Plogic extension
+property/defs Scoping (name resolution) for the Plogic extension
+property/parse2 Parser for Haskell + the Plogic extension
+property/parse2/Parser
+property/pfe Command-line interface additions for the Plogic extension
+property/syntax Knot-tying recursive definitions for the Plogic extention AST
+property/transforms Program transformation for the Plogic extension
+scripts Shell scripts to support the build process
+web Files for the web pages

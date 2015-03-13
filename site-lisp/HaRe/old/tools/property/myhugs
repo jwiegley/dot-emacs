@@ -1,0 +1,4 @@
+
+. HuMakefile
+hugs -98 -P$SRC_DIRS: "$@"
+# -h4M

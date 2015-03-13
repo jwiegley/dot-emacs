@@ -1,0 +1,48 @@
+Installation and Configuration
+------------------------------
+
+
+Dependencies
+------------
+
+Astview depends on a number of packages:
+
+  * hint,   the haskell interpreter, allows to load custom parsers at
+            startup. 
+  * gtk2hs, the haskell-bindings to the GTK GUI framework
+  * syb,    the 'scrap-your-boilerplate' approach to generic
+            programming
+
+
+For details see file 'astview.cabal' and the documentation of gtk2hs
+(especially for required system-libraries like gtksourceview)
+
+The parsers that are initally configured require the packages
+
+  * parsec
+  * haskell-src-exts
+
+
+Installation
+------------
+
+We use a custom build to generate HTML-documentation. The custom
+Setup.hs needs the package hscolour. You have to install it via
+
+  cabal install hscolour
+
+To install astview, just run 'cabal install' in the astview-directory.
+
+To launch astview, just issue the command 'astview' in your
+'.cabal/bin' directory.
+
+
+Configuration
+-------------
+
+To add custom parsers, you have to edit the file
+~/.cabal/share/astview-a.b/Parsers.hs and conform to the signatures of
+the exported function. The parsers have to generate haskell terms
+which are fully (i.e. all used types) in the Data class.
+
+... detailed instructions will follow ...

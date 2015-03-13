@@ -1,0 +1,48 @@
+Haskell is complex,
+
+No one has ever given a precise semantics for all the little
+corners such as, nested patterns, lazy pattern matching, guards etc.
+
+Why in Haskell?
+  common vocabulary
+      easier for Haskell programmers to understand
+      
+  executable
+      Part of the programatica project (worlds slowest haskell implementation)
+      
+  unlike the haskell report gives a finer grain definition
+  
+  Standard against which to compare other implementations
+  
+  Introduce examples which illustrate the subtleties
+  
+Format 
+
+0) Whats wrong with other descriptions
+        patterns are always simple
+        distinction between case, let, lambda, lazy patterns
+        Sematics as translation introduces Variable introduction problem
+        Guards are subtle, they may force unnecesary evaluation
+        
+
+1) Why a Monadic description?
+   what monad?
+
+2) Call by name vs lazy description
+
+3) The meaning of patterns
+        Different uses of patterns
+        case, let, lambda
+        Lazy patterns
+        nested patterns
+        
+4) Guards
+
+5) Other things
+        Strict Data constructors
+        newtypes and lifting
+        
+6) Type classes, 
+        suggestion library introduction transform
+        
+7)        

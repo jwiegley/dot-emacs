@@ -1,0 +1,86 @@
+<title>Extensible Haskell front-end for the Programatica projects -
+        directory base/parse2</title>
+
+<h1>Extensible Haskell front-end for the Programatica projects</h1>
+
+<h2>What is in this directory (base/defs)</h2>
+
+<p>
+This directory defines functions for identifiers in abstract syntax trees.
+We use overloading to allow the same function names to be reused in extended
+versions of the syntax. The functions are thus methods in a small number of
+classes. These classes are:
+
+<table>
+<tr><th>Class
+    <th>Description
+<tr><td><b class=tcon>DefinedNames</b>
+        <br><b class=tcon>ClassMethods</b>
+	<br>...
+    <td>A method to compute the set of names introduced by declarations and
+        patterns. Also, in a separate class, a method to compute the set of
+	methods defined by a class declaration.
+<tr><td><b class=tcon>FreeNames
+    <td>A method to compute the set of names that occur free in declarations,
+        expressions, patterns and type expressions
+<tr><td><b class=tcon>NameMaps</b>
+    <td>Traverse an abstract syntax tree and apply a given function to every
+        identifier. Some context information is provided by the
+	traversal function.
+<tr><td><b class=tcon>ReAssoc</b>
+    <td>Rewrite expressions according to operator precedence and associativity.
+<tr><td><b class=tcon>ScopeNames</b>
+    <td>Pair identifiers with the environment in which it should be interpreted.
+</table>
+
+<p>
+For each of these classes, there is
+<ol>
+<li>one module defining the class and some related auxiliary functions,
+<li>one module defining re-usable instances for the base language structure,
+<li>one module defining the knot-tying recursive definitions for the
+    base language (Haskell 98).
+</ol>
+
+<table>
+<caption>Modules</caption>
+<tr><th>Class definition
+    <th>re-usable instances
+    <th>knot-tying instances
+<tr><td><b class=mod>DefinedNames</b>
+    <td><b class=mod>DefinedNamesBaseStruct</b>
+    <td><b class=mod>DefinedNamesBase</b>
+<tr><td><b class=mod>FreeNames</b>
+    <td><b class=mod>FreeNamesBaseStruct</b>
+    <td><b class=mod>FreeNamesBase</b>
+<tr><td><b class=mod>NameMaps</b>
+    <td><b class=mod>NameMapsBaseStruct</b>
+    <td><b class=mod>NameMapsBase</b>
+<tr><td><b class=mod>ReAssoc</b>
+    <td><b class=mod>ReAssocBaseStruct</b>
+    <td><b class=mod>ReAssocBase</b>
+<tr><td><b class=mod>ScopeNames</b>
+    <td><b class=mod>ScopeNamesBaseStruct</b>
+    <td><b class=mod>ScopeNamesBase</b>
+</table>
+
+<p>
+There are some additional modules in this directory:
+
+<table><tr><th>Module<th>Purpose
+<tr><td><b class=mod>PNT</b>
+<td>A data type <b class=tcon>PNT</b>
+    for identifiers carrying information on what unique entity
+    it refers to, what type of entity it is (class, type, value, ...) and
+    the position where it occurred in the source code.
+<tr><td><b class=mod>UniqueNames</b>
+<td>Data type <b class=tcon>Orig</b> (origin) to identity where something is
+    defined.
+    Data type <b class=tcon>PN</b> to tag an identifier with an origin.
+<tr><td><b class=mod>ReAssocModule</b>
+<td>A function for applying the reAssoc method to a module in the appropriate
+    top level environment.
+<tr><td><b class=mod>ScopeModule</b>
+<td>Functions for applying the scoping pass to a module. The output is an
+    abstract syntax tree containing identifiers of type <b class=tcon>PNT</b>.
+</table>

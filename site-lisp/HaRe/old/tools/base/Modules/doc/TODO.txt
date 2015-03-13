@@ -1,0 +1,109 @@
+Sec 5
+
+Wouldn't a better type for mProgram be:
+
+  ... -> [Either [ModSysErr qn m n ent] (Rel qn ent, Rel n ent)]
+
+or is this impossible?
+
+
+
+References
+
+Are you aware of Cardelli's paper on modules and linking?
+
+  Luca Cardelli. Program fragments, linking, and modularization. Conference
+  Record of POPL'97: The 24th ACM SIGPLAN-SIGACT Symposium on Principles of
+  Programming Languages, Papers Presented at the Symposium, Paris, France,
+  15-17 January 1997. ACM Press, New York, 1997, ISBN 0-89791-853-3. pp
+  266-277.
+  http://www.luca.demon.co.uk/Bibliography.html
+
+-------------------------------------------------------------------------
+
+   - Section 1.1 The term "interface" is used in a confusing way (many
+     of us think of an interface as a file containing information
+     about the exports of a module for the compiler).  Here it seems
+     to mean the export list, or information derived from it.  It
+     might be less confusing to say this earlier.
+
+
+-- XXX: don't like this very much.
+     "The main use of this feature is to avoid cluttering other
+     modules with spurious names":  perhaps instead "The main use of
+     this feature is to hide certain names defined in a module from
+     other modules which import it".
+  
+
+   - Section 5: "The definition of this function is straightforward":
+     then give it!
+
+     "This function should check...":  which function - mProgram,
+     computeInsOuts, or chkModule?
+
+   - Section 5.1: the code could perhaps go in a figure, to make it
+     easier to refer to while reading the text, and to avoid splitting
+     it over two pages.
+
+   - Section 5.3.  The code for mImp is particularly beatiful :-)
+
+   - Section 5.4. "this will not be very practical for large systems".
+     Practicality hasn't been addressed at all yet - indeed the
+     specification so far has happily ignored questions of efficiency
+     in favour of clarity, so it seems strange at this point to make a
+     concession to practicality.  If the fixpoint calculation would
+     give the same answer without first breaking down the module
+     structure into SCCs, then do it that way for clarity and
+     consistency, but note also that for efficiency in a real
+     implementation one might want to break down the structure into
+     SCCs first.
+
+     I would welcome some comments about efficiency too: perhaps
+     suggestions for more efficient data structures than the
+     ubiquitous Rel: eg. is 'FiniteMap a [b]' a better choice than
+     'Rel a b' for some parts of the algorithm?.
+
+--- XXX: we talked about such an approach, but I am not sure where it 
+--- could be placed in the paper
+     Perhaps another way to disambiguation the export/import lists
+     would be to use the keywords 'class', 'data', 'newtype' and
+     'type' before an entity name.  This would also have the side
+     effect of separating the class and type constructor namespaces
+     (which may or may not be a good idea).
+
+   - General comments on presentation: I would have preferred the code
+     to be typeset in a typewriter font (perhaps with keywords
+     emboldened), but that's maybe a personal preference.  
+
+     "qualified" should be bold (page 18)
+
+     In several places the branches of case expressions need to be
+     indented further to the right than the 'case' on the line above.
+
+-------------------------------------------------------------------------
+
+  This paper formally explores the module system, a part of the
+  Haskell language which, although it appears simple on the surface,
+  actually turns out to have sufficient complexity for many people
+  to express occasional surprise.
+
+  The authors present their formalisation as Haskell code, following
+  the style of Jones `Typing Haskell in Haskell'.  Algorithms are
+  presented which: (1) computes the `in-scope' relation of a single
+  module, i.e. resolves imports  (2) computes the `export' relation
+  of a single module, and (3) detects errors, i.e. ambiguity or
+  missing entities.
+
+  The presentation is solid, and the algorithms straightforward
+  to understand.  A highlight is the specification (at last) of
+  what recursive modules mean.
+
+  One minor criticism might be the assumption that all modules are
+  available to the algorithm - there is not enough discussion of
+  how separate compilation might work in this setting.  Of course
+  separate compilation does not cope with recursive modules, but
+  nevertheless I think there are some potentially interesting angles
+  to discover there.
+
+-------------------------------------------------------------------------
+

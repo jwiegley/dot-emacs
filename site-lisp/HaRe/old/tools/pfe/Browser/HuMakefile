@@ -1,0 +1,10 @@
+PFE_DIR=..
+BASE=../../base
+PROP=../../property
+. $PROP/HuMakefile
+SRC_DIRS=.:$SRC_DIRS
+#LIB_DIRS=InternetLib
+GHCFLAGS="-cpp $GHCFLAGS -package lang"
+
+#LDFLAGS="InternetLib/libInternetLib.a $LDFLAGS"
+#LDFLAGS="-LInternetLib -lInternetLib $LDFLAGS"

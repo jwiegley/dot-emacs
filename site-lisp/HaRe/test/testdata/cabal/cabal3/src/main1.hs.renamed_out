@@ -1,0 +1,5 @@
+(Main.main = System.IO.putStrLn "foo"
+ Main.baz = 3 GHC.Num.+ Foo.Bar.baz,
+ [import (implicit) Prelude, import qualified Foo.Bar as B],
+ Just [Main.main],
+ Nothing)
