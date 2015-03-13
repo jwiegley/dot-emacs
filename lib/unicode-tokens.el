@@ -936,7 +936,7 @@ Starts from point."
 				(forward-line -1) (point))
 			      (point))
 			     'face
-			     '(background-color . "gray90")))
+			     'header-line))
 	    (insert " "))
 	  (incf count)
 	  (if (null toks)
@@ -963,7 +963,7 @@ Starts from point."
 	  (if (setq grey (not grey))
 	      (overlay-put (make-overlay start (point))
 			   'face
-			   '(background-color . "gray90"))))))))
+			   'header-line)))))))
 
 (defalias 'unicode-tokens-list-unicode-chars 'unicode-chars-list-chars)
 
