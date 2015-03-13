@@ -1,0 +1,9 @@
+(web
+ :files 
+ ("web.el")
+ :test 
+ (:requires 
+  ((fakir "0.0.10")
+   (elnode "0.9.9.6.2"))
+  :files
+  ("web-test.el")))
