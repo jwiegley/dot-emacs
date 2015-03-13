@@ -1,6 +1,3 @@
-[submodule "lib/apel"]
-	path = lib/apel
-	url = git://github.com/emacsmirror/apel.git
 [submodule "lib/popup-el"]
 	path = lib/popup-el
 	url = https://github.com/auto-complete/popup-el.git
@@ -52,9 +49,6 @@
 [submodule "site-lisp/ace-jump-mode"]
 	path = site-lisp/ace-jump-mode
 	url = git://github.com/winterTTr/ace-jump-mode.git
-[submodule "site-lisp/anything"]
-	path = site-lisp/anything
-	url = git://github.com/jwiegley/anything-config.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
 	url = git://git.sv.gnu.org/auctex.git
@@ -157,9 +151,6 @@
 [submodule "site-lisp/ido-hacks"]
 	path = site-lisp/ido-hacks
 	url = git://github.com/jwiegley/ido-hacks.git
-[submodule "lisp/bind-key"]
-	path = lisp/bind-key
-	url = git://github.com/jwiegley/bind-key.git
 [submodule "lisp/use-package"]
 	path = lisp/use-package
 	url = git://github.com/jwiegley/use-package.git
@@ -211,9 +202,6 @@
 [submodule "site-lisp/debbugs"]
 	path = site-lisp/debbugs
 	url = git://github.com/jwiegley/debbugs-gnu.git
-[submodule "site-lisp/asynk"]
-	path = site-lisp/asynk
-	url = git://github.com/skarra/ASynK.git
 [submodule "lisp/emacs-async"]
 	path = lisp/emacs-async
 	url = git://github.com/jwiegley/emacs-async.git
@@ -238,24 +226,12 @@
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
 	url = git://github.com/jwiegley/haskell-config.git
-[submodule "site-lisp/hpaste"]
-	path = site-lisp/hpaste
-	url = git://git.swclan.homelinux.org/hpaste.git
 [submodule "site-lisp/yaml-mode"]
 	path = site-lisp/yaml-mode
 	url = git://github.com/yoshiki/yaml-mode.git
 [submodule "site-lisp/org-merge-driver"]
 	path = site-lisp/org-merge-driver
 	url = git://orgmode.org/org-merge-driver.git
-[submodule "site-lisp/ac/ac-source-elisp"]
-	path = site-lisp/ac/ac-source-elisp
-	url = git://github.com/auto-complete/ac-source-elisp
-[submodule "site-lisp/ac/ac-source-semantic"]
-	path = site-lisp/ac/ac-source-semantic
-	url = git://github.com/auto-complete/ac-source-semantic
-[submodule "site-lisp/ac/ac-yasnippet"]
-	path = site-lisp/ac/ac-yasnippet
-	url = git://github.com/auto-complete/ac-yasnippet
 [submodule "site-lisp/ac/auto-complete"]
 	path = site-lisp/ac/auto-complete
 	url = git://github.com/auto-complete/auto-complete
@@ -463,9 +439,6 @@
 [submodule "elpa"]
 	path = elpa
 	url = http://git.savannah.gnu.org/cgit/emacs/elpa.git
-[submodule "site-lisp/ASynK"]
-	path = site-lisp/ASynK
-	url = https://github.com/skarra/ASynK.git
 [submodule "site-lisp/iflipb"]
 	path = site-lisp/iflipb
 	url = https://github.com/jrosdahl/iflipb.git
