@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PATH_ELEMS="$(echo ${PATH} | tr -s ':' '\n')"
+
+ORIG_GHCI_BINARY=""
+
+for PATH_ELEM in ${PATH_ELEMS}; do
+    GHCI_CANDIDATE="${PATH_ELEM}/ghci"
+    if command -v "${GHCI_CANDIDATE}" > /dev/null 2> /dev/null; then
+        if [ "${0}" != "${GHCI_CANDIDATE}" ]; then
+            if [ -z "${ORIG_GHCI_BINARY}" ]; then
+                ORIG_GHCI_BINARY="${GHCI_CANDIDATE}"
+            fi
+        fi
+    fi
+done
+
+if [ -z "${ORIG_GHCI_BINARY}" ]; then
+    echo "ghci wrapper: Couldn't find real ghci program"
+    exit 1
+fi
+
+exec "$ORIG_GHCI_BINARY" ${PACKAGE_DB_FOR_GHC} "$@"
