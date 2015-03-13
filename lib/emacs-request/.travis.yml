@@ -1,0 +1,35 @@
+language: python
+env:
+  matrix:
+    - EMACS=emacs
+    - EMACS=emacs24
+    - EMACS=emacs-snapshot
+  global:
+    - CARTON=$HOME/.carton/bin/carton
+matrix:
+  allow_failures:
+    - env:
+        - EMACS=emacs-snapshot
+        - CARTON=$HOME/.carton/bin/carton
+before_install:
+  - pip install -q flask tornado
+  - curl -fsSkL
+        --max-time 10
+        --retry 10
+        --retry-delay 10
+        https://raw.github.com/rejeep/carton/master/go | sh
+  - if [ "$EMACS" = "emacs24" ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs24 emacs24-el;
+    fi
+  - if [ "$EMACS" = 'emacs-snapshot' ]; then
+      sudo add-apt-repository -y ppa:cassou/emacs &&
+      sudo apt-get update -qq &&
+      sudo apt-get install -qq
+          emacs-snapshot-el emacs-snapshot-gtk emacs-snapshot;
+    fi
+script:
+  make travis-ci
+after_failure:
+  - cat elpa/install.log
