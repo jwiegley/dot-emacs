@@ -1,0 +1,33 @@
+«x:#
+# This file contains snippets of CMakeLists.txt files containing
+# uncommon constructs.
+#
+»
+«f:add_compiler_rt_static_runtime»(clang_rt.asan-«D:${»«v:arch»«D:}» «D:${»«v:arch»«D:}»
+      SOURCES «D:${»«v:ASAN_SOURCES»«D:}»
+              $<«c:TARGET_OBJECTS»:RTInterception.«D:${»«v:arch»«D:}»>
+              $<«c:TARGET_OBJECTS»:RTSanitizerCommon.«D:${»«v:arch»«D:}»>
+      CFLAGS «D:${»«v:ASAN_CFLAGS»«D:}»
+      DEFS «D:${»«v:ASAN_COMMON_DEFINITIONS»«D:}»)
+
+«f:source_group»(alpha «t:FILES» test.c)
+«f:source_group»(alpha\\beta «t:FILES» test.c)
+
+«x:# Target names may contain "."
+»«f:add_library»(«c:foo»     allan.c)
+«f:add_library»(«c:foo.ENU» allan.c)
+«f:set_target_properties»(«c:foo.ENU» «t:PROPERTIES» «c:prop» value «c:prop2» value2)
+«f:set_target_properties»(«c:foo»     «t:PROPERTIES» «c:prop» value «c:prop2» value2)
+
+«f:foo»(«D:{»«v:allan»«D:}»)
+«f:foo»(«D:${»«v:allan»«D:}»)
+«f:foo»(«D:$»«v:sune»«D:{»«c:allan»«D:}»)
+
+«f:foo»(«D:$»«v:sune»«D:{${»«v:one»«D:}}»)
+«f:foo»(«D:$»«v:sune»«D:{»«c:nested»«D:${»«v:one»«D:}»«c:nested»«D:}»)
+«f:foo»(«D:$»«v:sune»«D:{$»«v:sune»«D:{»«c:one»«D:}}»)
+«f:foo»(«D:$»«v:sune»«D:{»«c:nested»«D:$»«v:sune»«D:{»«c:one»«D:}»«c:nested»«D:}»)
+
+«f:set»(«v:ENV»«D:{»«c:allan»«D:}» test «D:$»«v:ENV»«D:{»«c:foo»«D:}» «D:$»«v:nonstandard»«D:{»«c:allan»«D:}»)
+
+«f:set» («v:ENV»«D:{»«c:LD_LIBRARY_PATH»«D:}» «D:${»«v:LD_LIBRARY_PATH»«D:}»:«D:$»«v:ENV»«D:{»«c:LD_LIBRARY_PATH»«D:}»)
