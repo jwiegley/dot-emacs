@@ -1,0 +1,18 @@
+Frequently Asked Questions about emms.  Please read this before
+submitting a bug report.
+
+Q: I seem unable to play files with accents in them.  Why?
+A: Emacs doesn't know the coding system of your files, and it
+   apparently decodes them the wrong way.  Set
+   `default-file-name-coding-system' to the correct encoding of your
+   file names.  It might even work to set it to 'undecided and let
+   Emacs guess.
+
+Q: Emms skips some songs in the playlist for no apparent reason.  When
+   I select them manually, everything works.  Why?
+A: Increase `emms-player-delay' until it works.  The problem is that
+   emms is told by Emacs that a player finished, so it starts a new
+   one.  But in reality, the player has not yet freed the audio
+   device, so the next player gets an error when trying to play.  The
+   best way to fix this is by using ALSA or other sound systems which
+   allow concurrent access.
