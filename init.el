@@ -10,7 +10,7 @@
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
 (require 'use-package)
-(setq use-package-verbose t)
+;;(setq use-package-verbose t)
 
 ;;;_ , Utility macros and functions
 
@@ -3963,7 +3963,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :init
   (progn
     (winner-mode 1)
-
     (bind-key "M-N" 'winner-redo)
     (bind-key "M-P" 'winner-undo)))
 
