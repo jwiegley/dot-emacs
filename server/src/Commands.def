@@ -1,0 +1,25 @@
+/**-*-C++-*-
+ * \file
+ * \author Guillaume Papin <guillaume.papin@epitech.eu>
+ *
+ * \brief Command list.
+ *
+ * This file is distributed under the GNU General Public License. See
+ * COPYING for details.
+ */
+
+#ifndef X
+#error Please define the 'X(id, command, description)' macro before inclusion!
+#endif
+
+X(Complete, "complete", "FILE LINE COL - perform code completion at a given location")
+X(Diagnostics, "diagnostics", "print the diagnostics of the last parse")
+X(Exit, "exit", "exit interactive mode, print nothing")
+X(Help, "help", "show this message")
+X(Parse, "parse", "FILE - parse the given file")
+X(SetDebug, "set-debug", "[on|off] - enable or disable verbose logging")
+
+// sentinel value, should be the last one
+X(Unknown, "<unkown>",  "<unspecified>")
+
+#undef X
