@@ -613,9 +613,11 @@ created.  Return the number of holes created."
 
 
 
-(defun holes-replace-string-by-holes-backward-jump (pos &optional noindent)
+(defun holes-replace-string-by-holes-backward-jump (pos &optional noindent alwaysjump)
   "Put holes between POS and point, backward, indenting.
-\"#\" and \"@{..}\" between this positions will become holes."
+\"#\" and \"@{..}\" between this positions will become holes. If
+ALWAYSJUMP is non nil, jump to the first hole even if more than
+one."
   (unless noindent (save-excursion (indent-region pos (point) nil)))
   (let ((n (holes-replace-string-by-holes-backward pos)))
     (case n
@@ -625,6 +627,7 @@ created.  Return the number of holes created."
        (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
       (t
        (goto-char pos)
+       (when alwaysjump (holes-set-point-next-hole-destroy))
        (unless (active-minibuffer-window) ; otherwise minibuffer gets hidden
 	 (message (substitute-command-keys
 		   "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))))
