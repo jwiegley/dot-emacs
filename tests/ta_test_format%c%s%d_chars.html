@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <title>Text Area Test (URL with format chars)</title>
+
+    <script language="javascript" type="text/javascript">
+      function seeTextArea (form) {
+          alert (form.children[1].value);
+      }
+      </script>
+	
+  </head>
+
+  <body>
+
+
+    <h1>Introduction</h1>
+
+    <p>
+      This page is a test cases for checking Edit with Emacs can correctly find and tag text areas
+      and edit them when the URL contains format characters.
+    </p>
+
+    <h1>Simple Text Area</h1>
+
+    <form name="myform">
+      <input type="button" name="ta1_test" value="Test" onclick="seeTextArea(this.form)"/>
+      <textarea name="first_textarea" cols="40" rows="5" id="foo">
+	Text Area 1
+      </textarea>
+    </form>
+
+  </body>
+</html>
+
