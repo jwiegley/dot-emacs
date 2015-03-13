@@ -1,0 +1,37 @@
+2009-08-05  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-insert-file-contents): Cause epa-file-handler
+	to be ignored.
+
+2009-06-18  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex.el (muse-latex-slides-header)
+	(muse-latex-lecture-notes-header): Handle images.  Generate title
+	page correctly.  Generate table of contents page if requested.
+
+2009-06-17  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex.el (muse-latex-pdf-cruft): Remove additional
+	cruft files from beamer.
+
+2009-01-03  Michael Olson  <mwolson@gnu.org>
+
+	* contrib/ikiwiki/Ikiwiki/Plugin/muse.pm: Move here from
+	examples/ikiwiki/IkiWiki/Plugin/muse.pm.
+
+	* contrib/Makefile (htmlize-hack.elc): Don't byte-compile
+	htmlize-hack.el, since it is only useful if htmlize.el is
+	installed.
+
+	* contrib/cgi.el: Add compatibility functions for calendar, so
+	that it works with both Emacs 21 and Emacs 23.  Thanks to Brent
+	Goodrick for the report.
+
+	* texi/muse.texi (Using Muse Mode): Fix typo.
+
+
+See ChangeLog.5 for earlier changes.
+
+;; Local Variables:
+;; coding: utf-8
+;; End:

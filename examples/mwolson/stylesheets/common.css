@@ -1,0 +1,281 @@
+/* Michael Olson's tweaked Muse stylesheet
+
+   Common elements.
+
+   License: Modification and propagation of this document is
+            permitted.  Attribution of credit to me is optional.
+*/
+
+/* Normal elements */
+
+a.nonexistent {
+  background-color: white;
+  color: red;
+  font-weight: bold;
+}
+
+a.nonexistent:visited {
+  background-color: white;
+  color: red;
+}
+
+a:link.top, a:visited.top {
+  color: #F5DEB3;               /* wheat */
+  line-height: 90%;
+  position: relative;
+  text-decoration: none;
+  top: -13px;
+}
+
+a:link:hover, a:visited:hover {
+  background-color: #F5F5F5;    /* white smoke */
+}
+
+h1 a:link:hover, h1 a:visited:hover {
+  background-color: #708090;    /* slate gray */
+}
+
+a:visited {
+  color: #556B2F;               /* dark olive green */
+}
+
+a:link {
+  color: #0000CD;               /* blue */
+}
+
+blockquote {
+  border-left: 2px solid #CCCCCC; /* gray80 */
+  padding: 5px;
+  font-style: italic;
+  margin: 5px 20px;
+}
+
+body {
+  background-color: #E5E5E5;    /* gainsboro */
+  color: black;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 1%;
+}
+
+code {
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+dt {
+  font-weight: bold;
+  margin-top: .5em;
+  padding: 3px;
+}
+
+em {
+  font-style: italic;
+}
+
+h1 {
+  background-color: #2F4F4F;    /* dark slate gray */
+  color: #F5DEB3;               /* wheat */
+  border: 1px solid black;
+  font-size: large;
+  overflow: hidden;             /* don't crowd the menu */
+  padding: 0;
+  white-space: nowrap;
+}
+
+h2 {
+  border-bottom: solid 2px #708090; /* slate gray */
+  clear: left;
+  font-size: large;
+  margin-top: 2.5em;
+  margin-bottom: .5em;
+  overflow: hidden;             /* don't crowd the menu */
+  padding-right: 6px;
+}
+
+h3 {
+  border-bottom: solid 1px #708090; /* slate gray */
+  border-right: solid 2px #E5E5E5;  /* gainsboro */
+  font-size: medium;
+  margin-top: 2em;
+  margin-bottom: .5em;
+  overflow: hidden;             /* don't crowd the menu */
+  padding-right: 6px;
+}
+
+h4 {
+  border-bottom: dashed 1px #BEBEBE;    /* light gray */
+  border-right: solid 2px #E5E5E5;      /* gainsboro */
+  margin-top: 1.5em;
+  margin-bottom: .7em;
+  overflow: hidden;             /* don't crowd the menu */
+  padding-right: 6px;
+}
+
+hr {
+  clear: both;
+}
+
+img {
+  border: 0;
+}
+
+li {
+  line-height: 1.2em;
+  margin-top: .7em;
+}
+
+p.verse {
+  clear: left;
+  line-height: 2em;
+  margin-left: 3%;
+}
+
+p {
+  line-height: 120%;
+}
+
+pre.example {
+  margin-left: 3%;
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+  /* clear: right; */
+}
+
+pre.src {
+  margin-left: 0%;
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+  /* clear: right;   */
+}
+
+pre.verse {
+  font-family: inherit;
+  line-height: 2em;
+  margin-left: 3%;
+}
+
+pre {
+  font-family: monospace;
+  margin-left: 3%;
+  white-space: pre;
+}
+
+span.footdate {
+  color: #556B2F;               /* dark olive green */
+  font-weight: bold;
+}
+
+strong {
+  font-weight: bold;
+}
+
+table {
+  overflow: hidden;             /* don't crowd the menu */
+}
+
+table.image {
+  clear: right;
+}
+
+ul {
+  list-style-type: disc;
+  margin-bottom: 1.5em;
+}
+
+/* Menu */
+
+.menu {
+  background-color: #CDCDCD;    /* gray/gainsboro */
+  border: 1px solid black;
+  display: inline;
+  float: right;
+  clear: both;
+  margin-left: 10px;
+  margin-bottom: 5px;
+  padding: 3px;
+}
+
+.menuitem {
+  background-color: #E5E5E5;    /* gainsboro */
+  margin: 0;
+  padding-top: 2px;
+  padding-bottom: 3px;
+  padding-left: 2px;
+  padding-right: 2px;
+  text-align: left;
+}
+
+.menuitem a:link, .menuitem a:visited {
+  color: #0000CD;               /* blue */
+  display: block;
+  margin: 0;
+  padding-top: 2px;
+  padding-bottom: 3px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.menuitem a:link:hover, .menuitem a:visited:hover { 
+  background-color: #F5F5F5;    /* white smoke */
+}
+
+.menuother {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+#tooltipbox {
+  float: right;
+  visibility: hidden;
+}
+
+#tooltip {
+  color: #006400;               /* dark green */
+}
+
+/* Footnote */
+
+.navfoot hr {
+  margin-top: 20px;
+  margin-bottom: 2px;
+  padding: 0;
+  height: 4px;
+}
+
+.navfoot a img {
+  padding-top: 2px;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 2px;
+}
+
+.navfoot table {
+  border-spacing: 0;
+  border-width: 0;
+  clear: right;
+  margin: 0;
+  padding: 0;
+}
+
+.navfoot td {
+  border-spacing: 0;
+  border-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.navfoot td.iconbox {
+  background-color: #F5F5F5;    /* white smoke */
+  border-spacing: 0;
+  border-width: 1;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  border-right: 1px solid #D3D3D3;    /* light gray */
+  border-bottom: 1px solid #D3D3D3;   /* light gray */
+  margin: 0;
+  padding-top: 2px;
+  padding-right: 5px;
+  padding-bottom: 2px;
+  padding-left: 2px;
+}

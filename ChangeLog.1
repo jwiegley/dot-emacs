@@ -1,0 +1,350 @@
+2004-12-30  Michael Olson  <mwolson@gnu.org>
+
+	* muse.el (muse-link-regexp): Allow spaces in the first part of
+	links.
+
+	* muse-colors.el, muse-convert.el, muse-docbook.el: Use
+	customizable alternatives to extended character classes.
+
+	* muse-html.el, muse-mode.el, muse-publish.el: Ditto.
+
+2004-12-29  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile: Change path to `publish' script.
+
+	* muse.el: Change Copyright notice to FSF.  Change Maintainer to
+	myself.  Update URL.
+
+	* muse-regexps.el: New file that implements regexp handling.
+	Generalized regexp options will be moved to it eventually.
+
+	* contrib/pcomplete.el: New file that is used by Muse without
+	actually being a part of it: hence its location in the contrib
+	directory.
+
+	* contrib/cgi.el, contrib/httpd.el: New location.
+
+	* examples/muse-johnw.el, examples/publish-johnw: Ditto.
+
+	* scripts/publish, scripts/publish-project: Ditto.
+
+2004-12-11  Michael Olson  <mwolson@gnu.org>
+
+	* muse-project.el (muse-project-save-buffers): Attempt to fix
+	Emacs CVS-ism in use of `save-some-buffers-action-alist'.  Since
+	it looks like this is somewhat optional, only use it if it is
+	bound.
+
+2004-12-06  Michael Olson  <mwolson@gnu.org>
+
+	* muse-mode.el: Do not use the third argument of `require' since
+	it seems to be an Emacs CVS-ism.
+
+2004-11-30  Michael Olson  <mwolson@gnu.org>
+
+	* muse.el (muse-tag-regexp, muse-link-regexp): Replace use of "
+	\t\n(\r)" with "[:space:]" and " \t" with "[:blank:]".  This
+	should fix the problem reported by Pascal Quesseveur concerning
+	processing of emphasized text.
+
+	* muse-colors.el (muse-colors-verbatim, muse-colors-markup)
+	(muse-colors-custom-tags): Ditto.
+
+	* muse-convert.el (muse-write-citation): Ditto.
+
+	* muse-docbook.el (muse-docbook-markup-regexps)
+	(muse-docbook-markup-table): Ditto.
+
+	* muse-html.el (muse-html-markup-regexps)
+	(muse-html-insert-anchor, muse-html-markup-footnote): Ditto.
+
+	* muse-mode.el (muse-current-word, muse-link-at-point): Ditto.
+
+	* muse-publish.el (muse-publish-markup-regexps)
+	(muse-publish-markup-tag, muse-publish-markup-footnote)
+	(muse-publish-surround-text, muse-forward-paragraph)
+	(muse-publish-markup-list): Ditto.
+
+2004-11-17  Michael Olson  <mwolson@gnu.org>
+
+	* muse-latexcjk.el (muse-latexcjk-transform-content-type): Use
+	`muse-latexcjk-encoding-default' instead of
+	`muse-latexcjk-coding-default'.  Thanks to Kenneth Geisshirt for
+	reporting this.
+
+2004-10-26  Michael Olson  <mwolson@gnu.org>
+
+	* muse-html.el (muse-html-style-sheet): Make part of "muse-html"
+	group, not "muse-message" group.
+
+2004-10-14  Li Daobing  <lidaobing@gmail.com>
+
+	* muse-latexcjk.el: New file that provides LaTeX publishing with
+	CJK support.
+
+2004-10-09  Li Daobing  <lidaobing@gmail.com>
+
+	* muse-html.el (muse-html-encoding-map): Add entries for
+	mule-utf8, chinese-iso-8bit, and chinese-gbk.
+	(muse-html-transform-content-type): Change use of cadr to cdr so
+	that the content type is chosen correctly.
+
+2004-04-27  Sandra Jean Chua (Sacha)  <sacha@free.net.ph>
+
+	* muse-colors.el (muse-link-face): If a file has no project, check
+	for links in the current directory.
+
+	* muse-mode.el (muse-visit-link): Find file if nonexistent.
+
+2004-03-24  John Wiegley  <johnw@newartisans.com>
+
+	* muse-texinfo.el (muse-texinfo-markup-table): Fixed table markup.
+
+	* muse-latex.el (muse-latex-markup-table): Fixed table markup.
+
+	* muse-html.el: Removed the <redirect> tag.
+	(muse-html-markup-table): Fixed table markup.
+
+2004-03-24  John Wiegley  <johnw@newartisans.com>
+
+	* muse-html.el, muse-latex.el, muse-publish.el, muse-texinfo.el:
+	Change the way the <contents> tag is handled.  It is handled now
+	during :after (for HTML), or in the -header (for other styles),
+	and not before the buffer is marked up.
+
+	* muse-html.el (muse-html-contents-tag): Don't generate contents
+	for section titles that have been marked read-only (such as those
+	within an example section).
+
+	* muse-mode.el (muse-mode-hook): Added `turn-on-auto-fill' to the
+	:options section.
+
+	* muse-colors.el (muse-colors-verbatim): Improved end check.
+	(muse-colors-markup): Improved verbatim regexp.
+
+2004-03-23  John Wiegley  <johnw@newartisans.com>
+
+	* Many changes, mostly as part of sweeping through and adding
+	documentation and cleaning up.  Also, markup-rules are no longer a
+	list of three element vectors, but a list of three element lists.
+	There was no reason to be using vectors, and it just complicated
+	things.
+
+2004-03-22  John Wiegley  <johnw@newartisans.com>
+
+	* muse-colors.el (muse-colors-emphasized): Corrected bugs.
+
+	* muse-book.el (muse-book-publish-chapter): Don't process tags a
+	second time, since no header or footer has been inserted.
+	(muse-book-publish-project): Don't process tags for the whole
+	book; now `muse-insert-file-or-string' will do it for just the
+	header/footer.
+
+	* muse-project.el (muse-project-delete-output-files): Added a
+	command to cleanup all the output files of a project.  Dangerous!
+
+	* muse-journal.el (muse-journal-anchorize-title): Remove tags and
+	quoting characters from anchor titles in the RDF file.
+
+	* muse-publish.el (muse-publish-comment-tag): Added a "comment"
+	tag, which just deletes the text within the comment.
+	(muse-publish-markup-tags): Added "comment" tag.
+	(muse-publish-markup-buffer): Don't process tags for entire file
+	after inserting the header and footer.
+	(muse-insert-file-or-string): Instead, only process the <lisp> tag
+	for just the text in the header and footer.
+
+	* muse-journal.el (muse-journal-html-munge-buffer): Added local
+	binding for `datestamp'.
+
+	* muse-colors.el (muse-colors-emphasized): Rewrote this function,
+	which is now hundreds of times faster.  Removed
+	`muse-colors-ok-context-p', since I could not figure out what it
+	was doing, and it was slowing things down tremendously (to the
+	point of making font-lock unusable in larger buffers).
+	(muse-colors-underlined): Rewrite.
+	(muse-colors-verbatim): Rewrite.
+
+2004-03-22  John Wiegley  <johnw@newartisans.com>
+
+	* muse-html.el (muse-html-markup-paragraph): Use `looking-at',
+	rather than just checking `char-after'.
+
+	* muse-journal.el (muse-journal-anchorize-title): Call
+	save-match-data, or else infinite loops occur.
+
+2004-03-21  John Wiegley  <johnw@newartisans.com>
+
+	* muse-journal.el (muse-journal-html-munge-buffer): Simplified,
+	since :before-end is now used to call the function.
+
+	* muse-html.el (muse-html-markup-rules): Fixed rule for adding
+	final </p>.
+
+	* muse-poem.el (muse-poem-prepare-buffer): Make sure to set
+	`muse-poem-longest-line' as a local variable.
+
+2004-03-20  John Wiegley  <johnw@newartisans.com>
+
+	* muse-html.el (muse-html-header): Corrected author reference in
+	header.
+
+	* muse-docbook.el (muse-docbook-markup-table): Removed reference
+	to `muse-docbook-table-attributes', which doesn't exist.
+
+	* muse-publish.el (muse-publish-markup-footnote): Improved
+	functionality so that, if the style supports it, it can handle
+	footnote references.
+
+	* muse-latex.el (muse-latex-markup-rules): Use
+	`muse-publish-markup-footnote'.
+	(muse-latex-markup-strings): Added footnote markup strings.
+	(muse-latex-prepare-buffer): Removed initialization of
+	`muse-latex-footnotes', which is now gone.
+
+2004-03-20  John Wiegley  <johnw@newartisans.com>
+
+	* muse-texinfo.el (muse-texinfo-markup-rules): Use general
+	footnote facility.
+	(muse-texinfo-markup-strings): Added footnote markup strings.
+
+	* muse-publish.el (muse-publish-markup-buffer): Added :before-end
+	style hook, which gets run after markup is done, but before the
+	header and footer are inserted.
+	(muse-publish-markup-footnote): Added a generic form of footnote
+	markup, which all the styles will use.
+
+	* muse-mode.el (muse-mode-hook): Removed support for `table'
+	package.
+	(muse-html-markup-table): ditto.
+
+	* muse-html.el (muse-html-markup-rules): Removed support for
+	`table' package.
+
+	* muse-docbook.el: Added new publishing style.
+
+	* muse-colors.el (muse-colors-markup): Highlight #title even if
+	not at beginning of buffer (not really a speed hit).
+
+	* muse-publish.el (muse-publish-markup-buffer): Default "author"
+	to (user-full-name).
+
+	* muse-book.el (muse-book-latex-header): "author" directive now
+	defaults to (user-full-name).
+
+	* muse-latex.el (muse-latex-header): "author" directive now
+	defaults to (user-full-name).
+
+	* muse-poem.el (muse-chapbook-latex-header): "author" directive
+	now defaults to (user-full-name).
+
+	* muse-texinfo.el (muse-texinfo-header): "author" directive now
+	defaults to (user-full-name).
+
+2004-03-20  John Wiegley  <johnw@newartisans.com>
+
+	* muse-mode.el (muse-visit-link): Was missing the string argument
+	in call to `substring'.  Also, if an anchor was specified in the
+	link name, search for it (if it exists).
+	(muse-mode-map): Bind C-c C-a to `muse-index'.
+	(muse-index): Added back project index generation code.
+
+	* muse-colors.el (muse-mode-local-map): Added back the old
+	local-map, which allows hitting RET on link names in a Muse
+	buffer.
+
+	* muse-publish.el (muse-publish-file): Use `muse-page-name'
+	instead of `file-name-nondirectory'.
+	(muse-publish-output-name): Use `muse-page-name'.
+
+2004-03-20  John Wiegley  <johnw@newartisans.com>
+
+	* muse-publish.el (muse-publish-markup-buffer): Remove leading
+	trailing whitespace from a buffer before marking it up.
+	(muse-publish-get-output-dir): Corrected insertion of :path.
+
+	* muse-texinfo.el, muse-latex.el, muse-html.el: Removed default
+	directories.  Use project definitions to set directories!
+
+	* muse-arabic.el: Changed "arabic" tool to "atranslit".
+
+	* muse-latex.el (muse-latex-markup-rules): Only join like tables
+	and lists; before, it was joining tables to lists.
+
+	* muse-project.el (muse-project-publish-file): Changed :regexp to
+	:include/:exclude.
+
+	* muse-mode.el (muse-mode-hook): Initialize with nil.
+
+2004-03-19  John Wiegley  <johnw@newartisans.com>
+
+	* muse-colors.el (muse-link-face): Strip anchors before checking
+	if a project page exists.
+
+	* muse-arabic.el: Added new module for rendering Arabic text
+	within Muse pages.
+
+	* muse-http.el (muse-http-render-page): Set
+	`muse-publishing-current-file' before marking up buffer.
+
+	* muse-project.el (muse-project-set-variables): Changed
+	`make-local-var' to `make-local-variable'.
+	Avoid byte compiler warnings from use of `make-local-hook'.
+
+	* muse-journal.el (muse-journal-latex-munge-buffer): Use a let
+	form to avoid free variable.
+
+	* muse-book.el (muse-book-publish-project): Set
+	`muse-current-project' when publishing a book.
+
+	* muse-publish.el (muse-publish-markup-list-or-quote): Removed
+	extraneous code I had added long ago for handling indented
+	paragraphs; but it messes up handling of single line quotations.
+
+	* muse-poem.el (muse-poem-markup-tag): Added "nohead" attribute.
+	Also, add "poem" tag to `muse-publish-markup-tags'.
+
+	* muse-colors.el (muse-colors-markup): Removed '''', and only
+	highlight title if it begins the buffer.
+	(muse-colors-region): Removed some extraneous code.
+	(muse-link-face): Added `save-match-data', and use of
+	`muse-file-regexp'.
+	(muse-colors-link): match-string was called with 0, should be 2.
+
+	* muse-journal.el: Added anchor generation (for RDF).
+	(muse-journal-latex-munge-buffer): Make sections and subsections
+	within a journal enter into the tableofcontents as chapters and
+	sections.
+
+	* muse-book.el (muse-book-publish-chapter): Set
+	`muse-publishing-current-file' to the file which is being inserted
+	as a chapter.  This helps the hooks know which file the contents
+	has come from, which may influence stylistic decisions.
+
+	* muse-journal.el: Added a first approach at creating journals; it
+	still needs to be cleaned up and better architected, but is at
+	least working and proving the concept.  Still too hackish, though.
+
+	Also, "rdf" is available as a style, which can convert journal
+	pages into an RDF that represents a summary of the content in that
+	page.
+
+2004-03-18  John Wiegley  <johnw@newartisans.com>
+
+	* muse-publish.el (muse-publish-output-name): First argument is
+	now optional, defaults to current file.
+
+2004-03-18  Sacha Chua  <sacha@free.net.ph>
+
+	* muse-project.el (muse-project-set-variables): New. Sets
+	buffer-local variables based on :set keyword. Use like this:
+	:set (sym val sym val ...).
+
+	* muse-mode.el (muse-mode): Set variables.
+	(muse-visit-link): Allow override of `visit-link-function' using
+	the new :visit-link keyword.
+
+
+;; Local Variables:
+;; coding: utf-8
+;; End:
