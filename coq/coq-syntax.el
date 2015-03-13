@@ -503,6 +503,9 @@ so for the following reasons:
   )
 
 ;; TODO: dig other queries from the refman.
+;; Extraction command may go here
+;; all Print, Show and Test stuff
+;; Some of the Set/Unset (like Set Printing All, Set Extraction Inline etc)
 (defvar coq-queries-commands-db
    '(
      ("About" nil "About #." nil "About")
