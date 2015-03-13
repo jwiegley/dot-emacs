@@ -132,6 +132,7 @@
     ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
     ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]
     ["About..." coq-About :help "With prefix arg (C-u): Set Printing All first"]
+    ["Other..." coq-query]
     [ "Store Response" proof-store-response-win :help "Stores the content of response buffer in a dedicated buffer"]
     [ "Store Goal" proof-store-goals-win  :help "Stores the content of goals buffer in a dedicated buffer"]
     ("OTHER QUERIES"

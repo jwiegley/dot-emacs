@@ -67,11 +67,12 @@ Explanation of the first line: the tactic menu entry mytac, abbreviated by mt,
 will insert \"mytac # #\" where #s are holes to fill, and \"mytac\" becomes a
 new keyword to colorize.")
 
-(defun coq-insert-from-db (db prompt)
+(defun coq-insert-from-db (db prompt &optional alwaysjump)
   "Ask for a keyword, with completion on keyword database DB and insert.
-Insert corresponding string with holes at point.  If an insertion function is
-present for the keyword, call it instead.  see `coq-syntax-db' for DB
-structure."
+Insert corresponding string with holes at point. If an insertion
+function is present for the keyword, call it instead. see
+`coq-syntax-db' for DB structure. If ALWAYSJUMP is non nil, jump
+to the first hole even if more than one."
   (let* ((tac (completing-read (concat prompt " (TAB for completion): ")
 			       db nil nil))
 	 (infos (cddr (assoc tac db)))
@@ -80,8 +81,42 @@ structure."
 	 (pt (point)))
     (if f (funcall f) ; call f if present
       (insert (or s tac)) ; insert completion and indent otherwise
-      (holes-replace-string-by-holes-backward-jump pt)
+      (holes-replace-string-by-holes-backward-jump pt nil alwaysjump)
       (indent-according-to-mode))))
+
+
+
+(defun coq-build-command-from-db (db prompt &optional preformatquery)
+  "Ask for a keyword, with completion on keyword database DB and send to coq.
+See `coq-syntax-db' for DB structure."
+  ;; Next invocation of minibuffer (read-string below) will first recursively
+  ;; ask for a command in db and expand it with holes. This way the cursor will
+  ;; be at the right place.
+  (minibuffer-with-setup-hook
+      (lambda () (coq-insert-from-db db prompt t))
+    ;; I use recursive edition on the minibuffer here, because I want the cursor
+    ;; to be moved inside the initial content
+    (let ((enable-recursive-minibuffers t)) ; invo
+      (read-string (concat prompt " : "))
+;      (read-from-minibuffer (concat prompt " : "))
+      )))
+;
+;(defun coq-build-command-from-db (db prompt &optional preformatquery)
+;  "Ask for a keyword, with completion on keyword database DB and send to coq.
+;See `coq-syntax-db' for DB structure."
+;  (let* ((query (completing-read (concat prompt " (TAB for completion): ")
+;				 db nil nil))
+;	 (infos (cddr (assoc query db)))
+;	 (s (car infos))
+;	 ; default format is add a space at the end of query, for arguments.
+;	 (preformat (or preformatquery '(lambda (s) (concat s " "))))
+;	 (initialvalue (funcall preformat query))
+;	 (whole-query
+;	  (minibuffer-with-setup-hook
+;	      'coq-move-cursor-at-sharp
+;	    (read-string (concat prompt " : ") initialvalue t nil))))
+;    whole-query))
+;
 
 
 

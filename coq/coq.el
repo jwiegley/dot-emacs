@@ -2112,6 +2112,17 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
   (interactive)
   (coq-insert-from-db coq-terms-db "Kind of term"))
 
+
+(defun coq-query (showall)
+  "Ask for a query, with completion, and send to Coq."
+  (interactive "P")
+  (let ((q (coq-build-command-from-db coq-queries-commands-db "which Query?")))
+    (if showall
+        (coq-command-with-set-unset
+         "Set Printing All" q "Unset Printing All" nil "Test Printing All")
+      (proof-shell-invisible-command q))))
+
+
 ;; Insertion commands
 (define-key coq-keymap [(control ?i)] 'coq-insert-intros)
 (define-key coq-keymap [(control ?m)] 'coq-insert-match)
@@ -2122,6 +2133,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [?!] 'coq-insert-solve-tactic) ; will work in tty
 (define-key coq-keymap [(control ?\s)] 'coq-insert-term)
 (define-key coq-keymap [(control return)] 'coq-insert-command)
+(define-key coq-keymap [(control ?q)] 'coq-query)
 (define-key coq-keymap [(control ?r)] 'coq-insert-requires)
 
 ; Query commands
@@ -2154,6 +2166,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?r] 'proof-store-response-win)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?g] 'proof-store-goals-win)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
 
 
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
@@ -2165,6 +2178,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?r)] 'proof-store-response-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?g)] 'proof-store-goals-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
 
 (when coq-remap-mouse-1
   (define-key proof-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)

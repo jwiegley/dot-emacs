@@ -116,7 +116,20 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Experimental: colorize hypothesis names and some parts of error
     and warning messages. For readability.
 
-*** mouse Queries
+*** Coq Querying facilities
+
+**** Minibuffer interactive queries
+
+    Menu Coq/Other Queries (C-c C-a C-q) allows to send queries (like
+    Print, Locate...) (à la auctex) without inserting them in the
+    buffer. Queries are TAB completed and the usual history mechanism
+    applies. Completion allows only a set of state preserving
+    commands. The list is not exhaustive yet.
+
+    This should replace the C-c C-v usual command mechanism (which has
+    no completion).
+
+**** Mouse Queries
 
     This remaps standard emacs key bindings (faces and buffers menus
     popup), so this is not enabled by default, use (setq
@@ -128,7 +141,8 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
       that id.
 
     As most of the bindings, they are active in the three buffer
-    (script, goals, response).
+    (script, goals, response). Obeys C-u prefix for "Printing all"
+    flag.
 
 *** bug fixes
     - Annoying cursor jump when hitting ".".

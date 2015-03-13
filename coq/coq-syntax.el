@@ -502,6 +502,37 @@ so for the following reasons:
   "Coq goal starters keywords information list. See `coq-syntax-db' for syntax. "
   )
 
+;; TODO: dig other queries from the refman.
+(defvar coq-queries-commands-db
+   '(
+     ("About" nil "About #." nil "About")
+     ("Check" nil "Check" nil "Check")
+     ("Inspect" nil "Inspect #." nil "Inspect")
+     ("Locate File" nil "Locate File \"#\"." nil "Locate\\s-+File")
+     ("Locate Library" nil "Locate Library #." nil "Locate\\s-+Library")
+     ("Locate Notation" nil "Locate Notation (#) #" nil "Locate\\s-+Notation")
+     ("Locate" nil "Locate" nil "Locate")
+     ("Print Coercions" nil "Print Coercions." nil "Print\\s-+Coercions")
+     ("Print Hint" nil "Print Hint." nil "Print\\s-+Hint" coq-PrintHint)
+     ("Print" "p" "Print #." nil "Print")
+     ("Pwd" nil "Pwd." nil "Pwd")
+     ("Search" nil "Search #" nil "Search")
+     ("SearchAbout" nil "SearchAbout #" nil "SearchAbout")
+     ("SearchPattern" nil "SearchPattern (#)" nil "SearchPattern")
+     ("SearchRewrite" nil "SearchRewrite #" nil "SearchRewrite")
+     ("Show" nil "Show #." nil "Show")
+     ("Test" nil "Test" nil "Test" nil t)
+     ("Test Printing Depth" nil "Test Printing Depth." nil "Test\\s-+Printing\\s-+Depth")
+     ("Test Printing If" nil "Test Printing If #." nil "Test\\s-+Printing\\s-+If")
+     ("Test Printing Let" nil "Test Printing Let #." nil "Test\\s-+Printing\\s-+Let")
+     ("Test Printing Synth" nil "Test Printing Synth." nil "Test\\s-+Printing\\s-+Synth")
+     ("Test Printing Width" nil "Test Printing Width." nil "Test\\s-+Printing\\s-+Width")
+     ("Test Printing Wildcard" nil "Test Printing Wildcard." nil "Test\\s-+Printing\\s-+Wildcard")
+     )
+   "Coq queries command, that deserve a separate menu for sending them to coq without insertion. "
+   )
+
+
 ;; command that are not declarations, definition or goal starters
 (defvar coq-other-commands-db
    '(
@@ -509,7 +540,6 @@ so for the following reasons:
      ("BeginSubproof" "bs" "BeginSubproof.\n#\nEndSubproof." t "BeginSubproof")
      ("EndSubproof" "es" "EndSubproof.#" t "EndSubproof")
      ;; ("Abort" nil "Abort." t "Abort" nil nil);don't appear in menu
-     ("About" nil "About #." nil "About")
 ;     ("Add" nil "Add #." nil "Add" nil t)
      ("Add Abstract Ring" nil "Add Abstract Ring #." t "Add\\s-+Abstract\\s-+Ring")
      ("Add Abstract Semi Ring" nil "Add Abstract Semi Ring #." t "Add\\s-+Abstract\\s-+Semi\\s-+Ring")
@@ -529,7 +559,6 @@ so for the following reasons:
      ("Bind Scope" "bndsc" "Bind Scope @{scope} with @{type}" t "Bind\\s-+Scope")
      ("Canonical Structure" nil "Canonical Structure #." t "Canonical\\s-+Structure")
      ("Cd" nil "Cd #." nil "Cd")
-     ("Check" nil "Check" nil "Check")
      ("Local Close Scope" "lclsc" "Local Close Scope #" t "Local\\s-+Close\\s-+Scope")
      ("Close Scope" "clsc" "Close Scope #" t "Close\\s-+Scope")
      ("Comments" nil "Comments #." nil "Comments")
@@ -556,10 +585,6 @@ so for the following reasons:
      ("Implicit Types" nil "Implicit Types # : #." t "Implicit\\s-+Types")
      ("Import" nil "Import #." t "Import")
      ("Infix" "inf" "Infix \"#\" := # (at level #) : @{scope}." t "Infix")
-     ("Inspect" nil "Inspect #." nil "Inspect")
-     ("Locate File" nil "Locate File \"#\"." nil "Locate\\s-+File")
-     ("Locate Library" nil "Locate Library #." nil "Locate\\s-+Library")
-     ("Locate" nil "Locate" nil "Locate")
      ("Notation (assoc)" "notas" "Notation \"#\" := # (at level #, # associativity)." t)
      ("Notation (at assoc)" "notassc" "Notation \"#\" := # (at level #, # associativity) : @{scope}." t)
      ("Notation (at at scope)" "notasc" "Notation \"#\" := # (at level #, # at level #) : @{scope}." t)
@@ -575,11 +600,7 @@ so for the following reasons:
      ("Open Local Scope" nil "Open Local Scope #" t "Open\\s-+Local\\s-+Scope")
      ("Open Scope" "opsc" "Open Scope #" t "Open\\s-+Scope")
      ("Preterm" nil "Preterm." nil "Preterm")
-     ("Print Coercions" nil "Print Coercions." nil "Print\\s-+Coercions")
-     ("Print Hint" nil "Print Hint." nil "Print\\s-+Hint" coq-PrintHint)
-     ("Print" "p" "Print #." nil "Print")
      ("Qed" nil "Qed." nil "Qed")
-     ("Pwd" nil "Pwd." nil "Pwd")
      ("Recursive Extraction" "recextr" "Recursive Extraction @{id}." nil "Recursive\\s-+Extraction")
      ("Recursive Extraction Library" "recextrl" "Recursive Extraction Library @{id}." nil "Recursive\\s-+Extraction\\s-+Library")
      ("Recursive Extraction Module" "recextrm" "Recursive Extraction Module @{id}." nil "Recursive\\s-+Extraction\\s-+Module")
@@ -593,10 +614,6 @@ so for the following reasons:
      ("Reserved Notation" nil "Reserved Notation" nil "Reserved\\s-+Notation")
      ("Reset Extraction Inline" nil "Reset Extraction Inline." t "Reset\\s-+Extraction\\s-+Inline")
      ("Save" nil "Save." t "Save")
-     ("Search" nil "Search #" nil "Search")
-     ("SearchAbout" nil "SearchAbout #" nil "SearchAbout")
-     ("SearchPattern" nil "SearchPattern #" nil "SearchPattern")
-     ("SearchRewrite" nil "SearchRewrite #" nil "SearchRewrite")
      ("Set Extraction AutoInline" nil "Set Extraction AutoInline" t "Set\\s-+Extraction\\s-+AutoInline")
      ("Set Extraction Optimize" nil "Set Extraction Optimize" t "Set\\s-+Extraction\\s-+Optimize")
      ("Set Implicit Arguments" nil "Set Implicit Arguments" t "Set\\s-+Implicit\\s-+Arguments")
@@ -608,16 +625,8 @@ so for the following reasons:
      ("Set Printing Coercions" nil "Set Printing Coercions." t "Set\\s-+Printing\\s-+Coercions")
      ("Set Printing Notations" "sprn" "Set Printing Notations" t "Set\\s-+Printing\\s-+Notations")
      ("Set Undo" nil "Set Undo #." nil "Set\\s-+Undo")
-     ("Show" nil "Show #." nil "Show")
      ("Solve Obligations" "oblssolve" "Solve Obligations using #." t "Solve\\s-+Obligations")
      ("Tactic Notation" nil "Tactic Notation # := #." t "Tactic\\s-+Notation")
-     ("Test" nil "Test" nil "Test" nil t)
-     ("Test Printing Depth" nil "Test Printing Depth." nil "Test\\s-+Printing\\s-+Depth")
-     ("Test Printing If" nil "Test Printing If #." nil "Test\\s-+Printing\\s-+If")
-     ("Test Printing Let" nil "Test Printing Let #." nil "Test\\s-+Printing\\s-+Let")
-     ("Test Printing Synth" nil "Test Printing Synth." nil "Test\\s-+Printing\\s-+Synth")
-     ("Test Printing Width" nil "Test Printing Width." nil "Test\\s-+Printing\\s-+Width")
-     ("Test Printing Wildcard" nil "Test Printing Wildcard." nil "Test\\s-+Printing\\s-+Wildcard")
      ("Transparent" nil "Transparent #." nil "Transparent")
 
      ("Unfocus" nil "Unfocus." nil "Unfocus")
@@ -645,6 +654,7 @@ so for the following reasons:
 
 (defvar coq-commands-db
   (append coq-decl-db coq-defn-db coq-goal-starters-db
+          coq-queries-commands-db
           coq-other-commands-db coq-ssreflect-commands-db coq-user-commands-db)
   "Coq all commands keywords information list. See `coq-syntax-db' for syntax. "
   )
