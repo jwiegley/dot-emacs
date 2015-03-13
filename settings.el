@@ -735,6 +735,7 @@
  '(pp^L-^L-string
    "                                                                              ")
  '(projectile-enable-caching t)
+ '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
  '(projectile-switch-project-action (quote helm-projectile))
  '(proof-auto-action-when-deactivating-scripting (quote retract))
  '(proof-autosend-enable nil)
