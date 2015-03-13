@@ -1,0 +1,411 @@
+Python Mode News
+================
+
+New in version 6.0.8
+--------------------
+
+- `py-pep8-run', new command checking formatting
+   `py-pep8-help'
+
+- `py-pyflake-run', new command 
+   Pyflakes is a simple program which checks Python
+   source files for errors. - It is similar to
+   PyChecker in scope, but differs in - that it does
+   not execute the modules to check them.
+   `py-pyflake-help'
+
+- `py-pylint-run', new command calls Pylint, 
+  a Python source code analyzer which looks for
+  programming errors, helps enforcing a coding standard
+  and sniffs for some code smells (as defined in Martin
+  Fowler's Refactoring book) . 
+
+  Pylint checks length of lines of code, if variable
+  names are well-formed according to your coding
+  standard, if declared interfaces are truly
+  implemented, and much more. Additionally, it is
+  possible to write plugins.
+  `py-pylint-doku', `py-pylint-help'
+
+- py-pyflakespep8-run, combines calls to pyflakes and pep8
+  
+- respective flymake-modes,
+  `pyflakespep8-flymake-mode', `pylint-flymake-mode'
+  etc. See meny PyTools
+
+New in version 6.0.7
+--------------------
+
+- make every Python shell acces its own history-file
+  .python3_history
+  .python_history
+  .ipython_history etc.
+
+- related to shell used
+  `toggle-force-py-shell-name-p'
+  `force-py-shell-name-p-on'/off
+
+  making it easier to enforce default py-shell upon execution
+
+  `toggle-force-local-shell'
+  `py-force-local-shell-on'/off
+
+  If locally indicated Python shell should be taken and
+  enforced upon sessions execute commands, lp:988091
+
+- specific completion:
+  py-python2-shell-complete, py-python3-shell-complete,
+  py-python2-script-complete, py-python3-script-complete
+
+New in version 6.0.6
+--------------------
+
+- files inside a virtual machine made visible for pdbtrack
+
+- new commands `py-toggle-split-windows-on-execute', ...-on, ...-off
+  `py-toggle-shell-switch-buffers-on-execute', ...-on, ...-off
+  allow `py-execute-buffer' etc. to split/not-split windows,
+  move cursor onto output or not
+
+- Behavior of C-u M-x `py-shell' closer to common shell
+
+  C-u 4 prompts for a buffer,
+  i.e. when a "*Python*" shell is running,
+  C-u M-x `py-shell' opens a "*Python<2>*" per default
+  C-u 2 M-x py-shell promts for command-arguments as known from 5th-series
+
+- `py-intend-tabs-mode' sets default of `indent-tabs-mode', lp:953765
+
+-- New boolean variable `py-intend-tabs-mode'
+  Permits value independent from Emacs-wide `indent-tabs-mode'
+  Commands `py-toggle-indent-tabs-mode', ...-on, ...-off
+  menu PyTools "Toggle indent-tabs-mode"
+
+- Extended py-execute-... forms provided for "line"
+
+- new commands py-beginning/end-of-line
+  while introduced for internal reasons --because of it's
+  return values-- they allow repeats, i.e. when already
+  at end-of-line, jumping to next end etc.
+
+- new boolean `py-force-py-shell-name-p'
+  When `t', execution with Python specified in `py-shell-name' is en  forced, shebang will have no effect. Default is nil.
+
+-  customizable `py-separator-char', a string, see report lp:975539
+  Precedes guessing when not empty, is returned by
+  function `py-separator-char'
+
+- nicer `org-cycle' behavior: when new `py-org-cycle-p' it `t',
+  command `org-cycle' is available at shift-TAB, <backtab>
+
+New in version 6.0.5
+--------------------
+
+- Menu reworked and extended
+
+- extended commands combine executing statement/block... with dedidi  cated/switch... etc. This may remove some need of customization.
+
+- local environments support started
+  If calls to common `py-shell' should use local executable
+  instead of default system Python set
+  `py-use-local-default' alongside with
+  `py-shell-local-path'
+
+- `py-toggle-shells' alias of more powerful `py-switch-shells'
+  Toggles between the interpreter customized in `py-shell-toggle-1' resp. `py-shell-toggle-2'. Was hard-coded CPython and Jython in earlier versions, now starts with Python2 and Python3 by default.
+
+- `py-shell-name' accepts PATH/TO/EXECUTABLE
+  in addition to name of an installed default Python-Shell.
+  Permits installing commands like
+  (defun python-XYZ-shell (&optional argprompt)
+    "Start an Python-XYZ interpreter ... "
+    (interactive)
+    (let ((py-shell-name "PATH/TO/PYTHON-XYZ"))
+      (py-shell argprompt)))
+
+-  new commands `indent-tabs-mode', `toggle-indent-tabs-mode',
+  `indent-tabs-mode-on', `indent-tabs-mode-off'
+
+  feature after a request at Stack Exchange asked Jul
+  13 '11 at 13:23 saying
+  `tab-width' now follows `py-indent-offset'
+
+- new command `py-execute-region-default' forces the
+  systems default Python interpreter to execute, ignores
+  shebang
+
+  related functions redesigned, `async' argument dropped
+  `py-execute-region' now reads:
+
+  (defun py-execute-region (start end &optional shell dedicated)
+    "Send the region to a Python interpreter.
+
+  When called with \\[univeral-argument], execution through `default-value' of `py-shell-name' is forced.
+  When called with \\[univeral-argument] followed by a number different from 4 and 1, user is prompted to specify a shell. This might be the name of a system-wide shell or include the path to a virtual environment.
+
+  When called from a programm, it accepts a string specifying a shell which will be forced upon execute as argument. "
+  [ ... ]
+
+- new `py-number-face',
+  visible only when customized and `py-use-number-face-p' is `t',
+  inherits default face
+  With large files fontifying numbers may cause a delay
+  Credits to github.com/fgallina/python.el/issues42
+
+- new boolean `py-verbose-p'
+  if `t', reached indent level etc. is messaged
+
+- new commands py-execute-buffer-dedicated, py-execute-buffer-switch  -dedicated
+
+- `toggle-py-smart-indentation' new command
+   also `py-smart-indentation-on', -off
+
+New in version 6.0.4
+--------------------
+
+- Python shell starts with `python-mode'
+  that's needed by completion for now
+  boolean customizable `py-start-run-py-shell'
+
+- outline-(minor-)mode enabled providing regular
+  expressions. Customize `py-outline-minor-mode-p' to
+  switch it on with python-mode
+
+- Hook delivered to start hs-minor-mode from python-mode
+  Customize `py-hide-show-minor-mode-p'
+  Key setting example:
+  (global-set-key [(super s)] 'hs-hide-all)
+  (global-set-key [(super S)] 'hs-show-all)
+
+- Listing of available commands in org-mode and reST
+  format in directory "doc"
+
+- Python shells and executing forms may be called as
+  dedicated process. See commands available \w suffix
+  "-dedicated".
+
+- completion fixed: M-TAB completes in Python buffer, TAB
+  completes in Python shells
+
+- py-down-FORM-lc commands
+  Goto beginning of line following end of FORM.
+  \"-lc\" stands for \"left-corner\" - a complementary command travelling left, whilst `py-end-of-FORM' stops at right corner.
+  Implemented forms are "block", "clause", "def", "class", "statement".
+
+- py-down-FORM commands
+
+  like py-down-block introduced in version 6.0.3,
+  implemented also for "clause", "def", "class",
+  "statement".
+  Go to the beginning of next block below
+  current level.
+
+New in version 6.0.3
+--------------------
+
+- ipython integration started
+
+- commands `ipython', `python2', `python3', `jython', `python'
+  opening a respective python shell
+
+-  py-shift-block-left, py-shift-block-right etc.
+  Implemented forms that way are
+  "paragraph" "block" "clause" "def" "class" "line" "statement"
+
+- py-dedent
+  Dedent line according to `py-indent-offset'. With
+  arg, do it that many times. If point is between
+  indent levels, dedent to next level. Stops at BOL.
+  Returns column reached, if dedent done, nil otherwise.
+
+- py-indent-forward-line
+  Indent line and move one line forward. If
+  `py-kill-empty-line' is non-nil, delete an empty
+  line. When closing a form, use py-close-block et al,
+  which will move and indent likewise. Returns position.
+
+- py-close-block, -clause, -def, class
+  Set indent level to that of beginning of definition.
+  If final line isn't empty and
+  `py-close-block-provides-newline' non-nil, insert a
+  newline. Returns column.
+
+- new commands specifying the shell override
+  `py-shell-name' for execution
+  implemented shells are "python" "python2" "python2.7"
+  "python3" "python3.2" "jython"
+
+  available with default, -switch and -no-switch
+  option, i.e.
+  py-execute-region-python3.2
+  py-execute-region-python3.2-switch
+  py-execute-region-python3.2-no-switch etc.
+
+  Docstring of py-execute-region-python3.2-switch for
+  example: "Send the region to a common shell calling the
+  python3.2 interpreter. Ignores setting of
+  `py-shell-switch-buffers-on-execute', output-buffer
+  will being switched to."
+
+- Declarations
+  Deal with assigments resp. statements in current
+  level which don't open blocks. Provides common edit
+  functions as copy, mark, kill, goto beg/end.
+
+  Functions will be used typically to grasp
+  initialisations resp. assignements of variables
+  between the definition of a class or method and it's
+  body, likewise global stuff at the head of a file.
+
+- column-marker.el
+  Commands `column-marker-1', `column-marker-2', and
+  `column-marker-3' each highlight a given column
+  (using different background colors by default).
+
+  M-x column-marker-1 highlights the column where the
+  cursor is, in face `column-marker-1'.
+
+  C-u 70 M-x column-marker-2 highlights column 70 in
+  face `column-marker-2'.
+
+  C-u 70 M-x column-marker-3 highlights column 70 in
+  face `column-marker-3'. The face `column-marker-2'
+  highlighting no longer shows.
+
+  C-u M-x column-marker-3 turns off highlighting for
+  column-marker-3, so face `column-marker-2'
+  highlighting shows again for column 70.
+
+  C-u C-u M-x column-marker-1 (or -2 or -3) erases all
+  column highlighting.
+
+  ;;
+
+  Thanks a lot to it's author Rick Bielawski <rbielaws@i1.net>,
+  to Drew Adams for his care and Emacs Wiki hosting it.
+
+New in version 6.0.2
+--------------------
+
+- py-electric-comment
+
+  "Insert a comment. If starting a comment, indent
+   accordingly. If a numeric argument ARG is provided,
+   that many colons are inserted non-electrically. With
+   universal-prefix-key C-u a \"#\" Electric behavior
+   is inhibited inside a string or comment."
+
+- New commands `py-partial-expression':
+
+  "." operators delimit a partial-expression on it's
+  level.
+
+  Given the function below, `py-partial-expression'
+  called at pipe symbol would copy and return:
+
+  def usage():
+      print """Usage: %s
+      ....""" % (
+          os.path.basename(sys.argv[0]))
+  ------------|-------------------------
+  ==> path
+
+          os.path.basename(sys.argv[0]))
+  ------------------|-------------------
+  ==> basename(sys.argv[0]))
+
+          os.path.basename(sys.argv[0]))
+  --------------------------|-----------
+  ==> sys
+
+          os.path.basename(sys.argv[0]))
+  ------------------------------|-------
+  ==> argv[0]
+
+  while `py-expression' would copy and return
+
+  (
+          os.path.basename(sys.argv[0]))
+
+  ;;;;;
+
+  Also for existing commands a shorthand is defined:
+
+  (defalias 'py-statement 'py-copy-statement)
+
+  which will mark, copy and return.
+
+- Commands implementing a behavior which customizing of
+ `py-shell-switch-buffers-on-execute' would do:
+
+  py-execute-buffer-no-switch
+  py-execute-buffer-switch
+  py-execute-region-no-switch
+  py-execute-region-switch
+
+- Several bugfixes.
+
+New in version 6.0.1
+--------------------
+
+- New commands py-expression:
+
+  py-copy-expression
+  py-mark-expression
+  py-beginning-of-expression
+  py-end-of-expression
+  py-kill-expression
+
+  Also several of bugfixes are done.
+
+New in version 6.0
+--------------------
+
+- Finer grained commands, core re-write.
+
+  As shown below for the `mark'-command, delete,
+  copy, jump to beginning and end of the respective
+  programming-expressions:
+
+  py-mark-statement
+  py-mark-block
+  py-mark-block-or-clause
+  py-mark-def
+  py-mark-def-or-class
+  py-mark-class
+  py-mark-clause
+
+- Also a couple of bugfixes are done.
+
+New in version 5.2.1
+--------------------
+
+- Syntax highlight as a keyword "lambda:" just like "lambda x:".  Given by Dan
+  Davison.
+- Add "python3" as a key for python-mode in interpreter-mode-alist and
+  auto-mode-alist.
+
+New in version 5.2.0
+--------------------
+
+- Fixed filling of triple-quoted strings.
+
+- Add new font-lock faces for class names and exception names.
+
+- Do not fill when calling fill-paragraph with point in a region of code.
+
+- Fixed font-locking of exception names in parenthesized lists.
+
+- Fixed font-locking of decorators with arguments.
+
+- Fixed font-locking of triple-quoted strings; single quotes appearing in
+  triple-quoted strings no longer upset font-locking.
+
+- Fixed the stack-entry regexp used by pdbtrack so that it now works with
+  module-level frames.
+
+- Do not bind C-c C-h; `py-help-at-point' is now on C-c C-e by default.
+
+- hide-show mode is now supported.
+
+- When shifting regions right and left, keep the region active in Emacs.

@@ -1,0 +1,24 @@
+Put the respective lines into your Emacs initialisation file:
+
+(add-to-list 'load-path "PATH/TO/PYTHON-MODE/") 
+(setq py-install-directory "PATH/TO/PYTHON-MODE/")
+(require 'python-mode)
+
+To change the Python default shell use 
+
+M-x customize-variable py-shell-name 
+
+or write 
+
+(setq py-shell-name "MY-PYTHON")
+resp.
+(setq py-shell-name "PATH/TO/MY-PYTHON")
+
+IPython users for example may insert "ipython" with
+M-x customize-variable py-shell-name 
+
+or in init-file
+
+(setq py-shell-name "ipython")
+resp.
+(setq py-shell-name "PATH/TO/ipython")
