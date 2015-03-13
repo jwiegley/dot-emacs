@@ -922,6 +922,7 @@ If CALLBACK is set, we invoke that when the command completes."
 ;; Imenu and Speedbar
 ;;
 
+(declare-function speedbar-add-supported-extension "speedbar")
 (eval-after-load "speedbar"
   '(and proof-assistant-symbol ;; *should* be set by now
 	(speedbar-add-supported-extension
