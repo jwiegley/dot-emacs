@@ -1,0 +1,6 @@
+[submodule "doc/eldomain"]
+	path = doc/eldomain
+	url = git://github.com/tkf/sphinx-eldomain.git
+[submodule "tools/el4t"]
+	path = tools/el4t
+	url = git://github.com/tkf/el4t.git
