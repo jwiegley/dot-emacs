@@ -547,3 +547,6 @@
 [submodule "site-lisp/helm-ls-hg"]
 	path = site-lisp/helm-ls-hg
 	url = git://github.com/emacs-helm/helm-ls-hg
+[submodule "site-lisp/monky"]
+	path = site-lisp/monky
+	url = git://github.com/ananthakumaran/monky
