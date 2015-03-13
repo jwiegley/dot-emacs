@@ -2076,7 +2076,8 @@
 (use-package helm-config
   :demand t
   :diminish helm-mode
-  :commands (helm-do-grep-1 helm-find)
+  :commands (helm-do-grep-1 helm-find
+             helm-completing-read-with-cands-in-buffer)
   :bind (("C-c h"   . helm-command-prefix)
          ("C-h a"   . helm-c-apropos)
          ("C-h e a" . my-helm-apropos)
@@ -2689,6 +2690,18 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                  (eshell-parse-command
                   (concat "*" command)
                   (eshell-stringify-list (eshell-flatten-list args)))))))
+
+    (defun magit-monitor (&optional no-display)
+      "Start git-monitor in the current directory."
+      (interactive)
+      (when (string-match "\\*magit: \\(.+?\\)\\*" (buffer-name))
+        (let ((name (format "*git-monitor: %s*"
+                            (match-string 1 (buffer-name)))))
+          (or (get-buffer name)
+              (let ((buf (get-buffer-create name)))
+                (start-process "*git-monitor*" buf "git-monitor"
+                               "-d" (expand-file-name default-directory))
+                buf)))))
 
     (add-hook 'magit-mode-hook 'hl-line-mode))
 
