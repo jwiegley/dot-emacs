@@ -1,0 +1,3 @@
+Revision 0.01, based on git-gutter-fringe 0.12
+   - Fix fringe overlays not getting deleted properly
+   - Add git-gutter-fr+-minimal skin
