@@ -541,3 +541,6 @@
 [submodule "site-lisp/helm-emms"]
 	path = site-lisp/helm-emms
 	url = git://github.com/emacs-helm/helm-emms
+[submodule "site-lisp/helm-ipython"]
+	path = site-lisp/helm-ipython
+	url = git://github.com/emacs-helm/helm-ipython
