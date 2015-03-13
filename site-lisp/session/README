@@ -1,0 +1,23 @@
+### README for session.el: Session Management for Emacs
+
+## Copyright 2002 Free Software Foundation, Inc.
+##
+## Author: Christoph Wedler <wedler@users.sourceforge.net>
+## Keywords: Emacs, session, session management, desktop, data, tools
+## X-URL: http://emacs-session.sourceforge.net/
+
+
+When you start Emacs, package Session restores various variables (e.g.,
+input histories) from your last session.  It also provides a menu
+containing recently changed/visited files and restores the places (e.g.,
+point) of such a file when you revisit it.
+
+
+Files in the distribution (top level directory "session"):
+
+ * README: this file
+ * INSTALL: how to install "lisp/session.el"
+ * lisp/session.el: main file
+ * lisp/ChangeLog: its detailed ChangeLog file
+
+## README ends here

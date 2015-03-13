@@ -1,0 +1,71 @@
+### INSTALL for session.el: Session Management for Emacs
+
+## Copyright 2002, 2011 Free Software Foundation, Inc.
+##
+## Author: Christoph Wedler <wedler@users.sourceforge.net>
+## Keywords: Emacs, session, session management, desktop, data, tools
+## X-URL: http://emacs-session.sourceforge.net/
+
+
+The installation process with explanations (all files mentioned here are
+relative to top-level directory "session/" in the distribution) for a
+user-specific use (check the initial comment section of lisp/session.el
+for a system- or distribution-wide installation):
+
+
+ 1. Copy file "lisp/session.el" to your load-path.  That means:
+
+    Use C-h v load-path RET to check the value and the documentation of
+    Emacs' load-path.
+
+    You must copy "lisp/session.el" to one of the directories in the
+    value list.  If no directory in the default value is appropriate,
+    you must add "your own" directory to that list.
+
+    The cases:
+
+      (a) You want to copy the file to DIR, i.e., one of the listed
+          directories: copy "lisp/session.el" to DIR.
+
+      (b) You use Emacs and install Session in your home directory:
+          create directory "~/.emacs.d/lisp/" and copy "lisp/session.el"
+          to it.  Add the following lines at the beginning of your Emacs
+          init file:
+
+             (setq load-path
+                   (cons (expand-file-name "~/.emacs.d/lisp") load-path))
+
+      (c) You use XEmacs-20.3 or higher and install Session in your
+          home directory: create directory
+          "~/.xemacs/xemacs-packages/lisp/".  It will be automatically
+          added to `load-path' if you start XEmacs the next time.
+
+      (d) You install Session system-wide: the target directory is
+          "EMACS/site-lisp/" or "XEMACS/site-packages/lisp/".  But you
+          probably know that if you are responsible for Emacs or XEmacs
+	  on your site.
+
+
+ 2. Byte-compile file "session.el": visit file "session.el" (that is,
+    the copy) and use menu entry
+
+       "Emacs-Lisp"/"Lisp" >> "Byte-compile This File"
+    or
+        M-x byte-compile-file RET session.el RET.
+
+    Note: during compilation, you get warnings about missing functions.
+    You can ignore them, since these functions will not be used in the
+    Emacs/XEmacs branch or version you are using.
+
+
+ 3. Use Emacs' customization to enable package Session:
+
+      (a) Start customization with M-x customize-group RET session RET
+          or the menu [Options][Customize...]...[Data][Session].
+
+      (b) Toggle the [Session Use Package] option to "in use".
+
+      (c) Save your customization via [Save for future sessions].
+
+
+### INSTALL ends here
