@@ -1,0 +1,145 @@
+###
+### Notes
+###
+### The travis web interface may choke silently and fail to
+### update when there are issues with the .travis.yml file.
+###
+### The "travis-lint" command-line tool does not catch all
+### errors which may lead to silent failure.
+###
+### Shell-style comments must have "#" as the first character
+### of the line.
+###
+
+###
+### language
+###
+
+language: emacs-lisp
+
+###
+### defining the build matrix
+###
+### ===>                                                       <===
+### ===> each variation in env/matrix will be built and tested <===
+### ===>                                                       <===
+###
+### variables under env/global are available to the build process
+### but don't cause the creation of a separate variation
+###
+
+env:
+  matrix:
+    - EMACS=emacs22
+    - EMACS=emacs23
+    - EMACS=emacs24
+    - EMACS=emacs-snapshot
+  global:
+    - SOME_TOKEN=some_value
+
+###
+### allowing failures
+###
+### note that global variables must be included again
+### verbatim
+###
+
+matrix:
+  allow_failures:
+    - env:
+        - EMACS=emacs22
+        - SOME_TOKEN=some_value
+    - env:
+        - EMACS=emacs-snapshot
+        - SOME_TOKEN=some_value
+
+###
+### limit build attempts to defined branches
+###
+
+# branches:
+#   only:
+#     - master
+
+###
+### runtime initialization
+###
+### notes
+###
+### emacs22 is extracted manually from Ubuntu Maverick.
+###
+### emacs23 is the stock default, but is updated anyway to
+### a GUI-capable version, which will have certain additional
+### functions compiled in.
+###
+### emacs24 (current stable release) is obtained from the
+### cassou PPA: http://launchpad.net/~cassou/+archive/emacs
+###
+### emacs-snapshot (trunk) is obtained from the cassou PPA.
+### For the emacs-snapshot build, bleeding-edge versions
+### of all test dependencies are also used.
+###
+
+before_install:
+  - git submodule --quiet update --init --recursive
+
+install:
+  - if [ "$EMACS" = 'emacs22' ]; then
+        curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22_22.2-0ubuntu9_i386.deb &&
+        curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22-bin-common_22.2-0ubuntu9_i386.deb &&
+        curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22-common_22.2-0ubuntu9_all.deb &&
+        curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22-el_22.2-0ubuntu9_all.deb &&
+        curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22-gtk_22.2-0ubuntu9_i386.deb &&
+        sudo apt-get update -qq &&
+        sudo apt-get remove -qq emacs emacs23-bin-common emacs23-common emacs23-nox &&
+        sudo apt-get install -qq libjpeg62 xaw3dg &&
+        sudo dpkg -i emacs22_22.2-0ubuntu9_i386.deb emacs22-bin-common_22.2-0ubuntu9_i386.deb emacs22-common_22.2-0ubuntu9_all.deb emacs22-el_22.2-0ubuntu9_all.deb emacs22-gtk_22.2-0ubuntu9_i386.deb &&
+        sudo update-alternatives --set emacs22 /usr/bin/emacs22-gtk;
+    fi
+  - if [ "$EMACS" = 'emacs23' ]; then
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs23-gtk emacs23-el;
+    fi
+  - if [ "$EMACS" = 'emacs24' ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs24 emacs24-el;
+    fi
+  - if [ "$EMACS" = 'emacs-snapshot' ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs-snapshot &&
+        sudo apt-get install -qq emacs-snapshot-el emacs-snapshot-gtk;
+    fi
+
+before_script:
+  - if [ "$EMACS" = 'emacs-snapshot' ]; then
+        make downloads-latest;
+    else
+        make downloads;
+    fi
+
+###
+### the actual build/test command
+###
+
+script:
+  $EMACS --version && make test EMACS=$EMACS
+
+###
+### settings
+###
+
+notifications:
+  email: false
+
+#
+# Emacs
+#
+# Local Variables:
+# indent-tabs-mode: nil
+# mangle-whitespace: t
+# require-final-newline: t
+# coding: utf-8
+# End:
+#
