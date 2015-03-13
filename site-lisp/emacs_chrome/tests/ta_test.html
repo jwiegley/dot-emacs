@@ -1,0 +1,141 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <style type="text/css">
+      h1,h2,h3 {
+	  clear:both;
+      }
+      
+      div.editable {
+	  width: 339px;
+	  border-width: 1px;
+	  box-sizing: border-box;
+	  word-wrap: break-word;
+      }
+
+      div.left {
+	  float:left;
+      }
+
+      div.right {
+	  float:right;
+      }
+    </style>
+
+    <title>Text Area Test</title>
+
+    <script type="text/javascript" src="../lib/jquery-1.7.min.js"></script>
+
+    <script language="javascript" type="text/javascript">
+      function seeTextArea (form) {
+          alert (form.children[1].value);
+      }
+
+      function duplicateDiv(id, button) {
+	  old_div=$("div[id="+id+"]")
+	  new_div=old_div.clone();
+	  new_div.removeClass("left");
+	  old_div.after(new_div);
+	  // and remove the button
+	  $(button).remove();
+      }
+    </script>
+
+  </head>
+
+  <body>
+
+
+    <h1>Introduction</h1>
+
+    <p>
+      This page is a simple set of test cases for checking Edit with Emacs can correctly find and tag text areas.
+      It contains examples of textareas, editable divs and dynamic updates.
+    </p>
+
+    <h1>Class Text Areas</h1>
+
+    <h2>pre-filled</h2>
+    <div class="left" id="first">
+      <form name="myform">
+	<input type="button" name="ta1_test" value="Test" onclick="seeTextArea(this.form)"/>
+	<textarea name="first_textarea" cols="40" rows="5" id="foo">
+	  Text Area 1
+	</textarea>
+      </form>
+    </div>
+
+    <button onclick="duplicateDiv('first',this)">Duplicate Me</button>
+
+    <h2>empty</h2>
+    <div class="left" id="second">
+      <form name="myform2">
+	<input type="button" name="ta2_test" value="Test" onclick="seeTextArea(this.form)"/>
+	<textarea name="second_textarea" cols="40" rows="5" id="bar"></textarea>
+      </form>
+    </div>
+
+    <button onclick="duplicateDiv('second',this)">Duplicate Me</button>
+
+    <h2>read-only</h2>
+    <div class="left" id="third">
+    <form name="myroform">
+      <input type="button" name="ro_button" value="Test" onclick="seeTextArea(this.form)"/>
+      <textarea name="read" cols="40" rows="5" id="baz" readonly="readonly">
+This is some read-only text
+      </textarea>
+    </form>
+    </div>
+    <button onclick="duplicateDiv('third',this)">Duplicate Me</button>
+
+    <h1>Editable DIVs</h1>
+    <h2>pre-filled</h2>
+    <div class="left" id="fourth">
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce1)"/>
+      <div class="editable" id="ce1" contenteditable="true">
+	This is an editable div....
+      </div>
+    </div>
+    <button onclick="duplicateDiv('fourth',this)">Duplicate Me</button>
+
+    <h2>Empty but editable</h2>
+    <div class="left" id="fifth">  
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce2)"/>
+      <div class="editable" id="ce2" contenteditable="true"></div>
+    </div>
+    <button onclick="duplicateDiv('fifth',this)">Duplicate Me</button>
+
+    <h2>pre-filled with plain text</h2>
+    <div class="left" id="sixth">  
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce3)"/>
+      <div class="editable" id="ce3" contenteditable="plaintext-only">
+	Some content is plain text only...
+      </div>
+    </div>
+    <button onclick="duplicateDiv('sixth',this)">Duplicate Me</button>
+
+    <h2>Empty with plain text</h2>
+    <div class="left" id="seventh">  
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce4)"/>
+      <div class="editable" id="ce4" contenteditable="plaintext-only"></div>
+    </div>
+    <button onclick="duplicateDiv('seventh',this)">Duplicate Me</button>
+
+    <h1>Embedded iframes</h1>
+
+    <p>
+      Currently having content scripts access contained iframes is forbidden by
+      Chrome. However the all_frames: true manifest property causes issues (see <a href="https://github.com/stsquad/emacs_chrome/issues/75">here</a>)
+    </p>
+    
+    <div class="left" id="eighth">  
+      <iframe id="a_frame" src="ta_test_frame.html">
+    </div>
+    <div class="right" id="ninth">  
+      <iframe id="b_frame" src="ta_test_frame.html">
+    </div>
+
+  </body>
+</html>
+
