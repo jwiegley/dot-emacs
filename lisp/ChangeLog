@@ -1,0 +1,544 @@
+2011-04-12  Christoph Wedler  <Christoph.Wedler@sap.com>
+
+	* session.el 2.3a: 
+
+2011-04-12  Christoph Wedler  <Christoph.Wedler@sap.com>
+
+	* session.el: Make session better interact with org-mode.
+	Suggested by Le Wang <l26wang@gmail.com>.
+	(session-after-jump-to-last-change-hook): New variable.
+	(session-jump-to-last-change): Use it.
+
+2011-01-15  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el 2.3 is released.
+
+2010-12-12  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Improve [File][Open...Recently...] menus.
+	Suggested by Eli <eli@beach.weizmann.ac.il>.
+	(session-kill-buffer-hook): Delete file names from both file
+	lists with prefix arg -2 or lower to M-x kill-this-buffer.
+	(session-file-opened-recompute): New function for new menu entry
+	[...Recently Visited][Move File Names Of All Buffers To Top].
+	(session-file-changed-recompute): New function for new menu entry
+	[...Recently Changed][Perform Evaluation For All Buffers].
+	(session-initialize-menus): Add them.
+	(session-find-file): New command, always set history.
+	(session-file-changed-menu-filter): Use it.
+
+	* session.el: Minor file menu improvements.
+	(session-menu-max-size): Change value from 30 to 36.
+	(session-file-menu-max-string): Always use value 50 on Emacs,
+	there are no buffer names in Emacs' File menu.
+	(session-set-file-name-exclude-regexp): Change for MS-Windows.
+	(session-initialize-menus): Use toggle [Permanently List Current
+	Buffer] instead action [Toggle Permanent Flag...].
+	(session-file-changed-menu-filter): Display more info about file
+	buffer - p for permanent entries, and r/v or s/c for currently
+	visited files without or with changes (read-only/not-read-only,
+	with saved/unsaved changes).
+
+2010-12-11  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Improve installation, via customization.  See the
+	initial comment section, checked with custom themes.
+	Suggested by Peter S Galbraith <psg@debian.org>.
+	Suggested by Volkan Yazici <yazicivo@ttmail.com>.
+	(session-use-package): Make it a proper customization option.
+	(session-initialize-and-set): New function as custom :set for
+	`session-use-package'.
+	(session-initialize-do): Renamed from `session-initialize'.
+	(session-initialize): Compatibility function which sets
+	`session-use-package', has no dummy parameter anymore.  No need to
+	add it to `after-init-hook' yourself.
+	(session-set-file-name-history): Check `session-use-package'.
+	(session-find-file-hook): Check `session-use-package'.
+	(session-find-file-not-found-hook): Check `session-use-package'.
+	(session-kill-buffer-hook): Check `session-use-package'.
+	(session-save-session): Check `session-use-package' when not used
+	interactively.
+	
+	* session.el: New save file, minor installation improvements.
+	(session-save-file): Use Emacs user directory for init value.
+	Suggested by Peter S Galbraith <psg@debian.org>.
+	(session-old-save-file): New variable for compatibility.
+	(session-initialize): No `defunx' here, would break autoload.
+	Reported by Peter S Galbraith <psg@debian.org>.
+	(session-jump-to-last-change): Add autoload cookie.
+	(session-register-swap-out): Remove top-level add-hook of
+	`kill-buffer-hook'.
+	(session-initialize-do): Add `session-register-swap-out' here.
+
+2010-11-28  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Exiting Emacs might have failed due to buffers
+	visiting remote files with lost connections.
+	Reported by Julian Scheid <julians37@googlemail.com>.
+	(session-default-buffer-check-p): Use function in variable
+	`session-abbrev-inhibit-function' to not check for remote files.
+	(session-save-session): Be robust against file access errors.
+	(session-set-file-name-history): Don't check for readable file.
+
+	* session.el: Saving the session file would infloop due to
+	variables with recursive values (often in rings).
+	Reported by many people...
+	(session-globals-include): Explicitly add variables `search-ring'
+	and `regexp-search-ring' in case "-ring" variables are excluded.
+	(session-globals-exclude): Add recursive variables `org-mark-ring'
+	and `planner-browser-file-display-rule-ring'.
+	(session-save-print-spec): New non-customizable user option for
+	binding `print-circle', `print-level and `print-length' when
+	printing an element of the variable list to the save-file.
+	(session-save-insert-variable): Use it, only save variables with
+	true-list-p values and without level-1 recursions, ignore elements
+	which are non-readable or have a level-n recursion.
+
+2010-11-27  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Refactorings and minor corrections.
+	(session-globals-include): Correct custom spec.
+	(session-undo-position): Refactor, minor correction.
+	(session-jump-to-last-change): Minor correction.
+	(session-file-prune-name): New function.
+	(session-file-changed-menu-filter): Use it
+	(session-change-menu-item): Deletia, not worth the effort.
+	(session-menu-maybe-accelerator): Don't use it anymore.
+	(session-save-insert-variable): New function.
+	(session-save-session): Use it.
+	(session-next-range-char): New function (int/char)
+	(session-save-registers): Use it.
+	(session-initialize-keys): New function.
+	(session-initialize-menus): New function.
+	(session-initialize): Use them.
+
+2003-08-19  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el 2.2a.
+
+2003-07-22  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el (session-find-file-hook): Don't display "Mark set".
+	From Glenn Morris <gmorris@ast.cam.ac.uk>.
+
+2003-04-04  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Provide possibility for other packages like template
+	v3.1c or higher to disable the restoration of places.
+	(session-find-file-hook): Don't restore places if `this-command'
+	has value `session-disable'.
+
+2003-03-14  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el 2.2 is released.
+
+2003-03-10  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Improve "jump to the position of the last change",
+	now jumps successively to change positions by repeated invocation
+	of the command.  Better computation of undo positions.
+	Suggestion from Le Wang <lewang@yahoo.com>.
+	(session-jump-undo-remember): New user option.
+	(session-jump-to-last-change): Changed completely.
+	(session-jump-to-last-change-counter): New variable.
+	(session-jump-to-last-change-recent): New variable.
+	(session-undo-position): Changed completely.
+	(session-store-buffer-places): Change accordingly.
+
+	* session.el: Simplify Emacs/XEmacs compatiblity.
+	(cond-emacs-xemacs): New compile-time macro.
+	(defunx): New compile-time macro.
+	(session-save-file-coding-system): Use macro for value.
+	(session-after-load-save-file-hook): Ditto.
+	(session-use-truenames-default): Ditto.
+	(session-refresh-yank-menu): Define as `ignore' in XEmacs.
+	(session-subst-char-in-string-0): Deletia.
+	(session-subst-char-in-string): Use macro.
+	(session-abbrev-file-name): Ditto.
+	(session-store-buffer-places): Ditto.
+	(session-minibuffer-history-help): Ditto.
+	(session-add-submenu): Ditto.
+	(session-initialize): Ditto.
+	(session-menu-accelerator-support): Value is a function.
+	(session-menu-maybe-accelerator): Use it.
+
+2002-08-30  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el 2.1c.
+
+2002-08-29  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Save session file as private file.
+	(session-save-file-modes): New variable.
+	(session-save-session): Use it.
+	(session-use-truenames-default): New constant.
+	(session-use-truenames): Use it.
+
+	* session.el: Better Emacs/XEmacs compatibility handling.
+	(session-emacs-xemacs): New compile-time macro.
+	(session-save-file-coding-system): Use it.
+	(session-abbrev-file-name): Ditto.
+	(session-save-session): Ditto.
+	(session-minibuffer-history-help): Ditto.
+	(session-add-submenu): Ditto.
+	(session-initialize): Ditto.
+	(session-abbreviate-file-name): Deletia.
+	(session-display-completion-list): Deletia.
+
+2002-06-25  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Use same sequence for the new two File submenus
+	on Emacs and XEmacs, the XEmacs one was the intended one.
+	Suggested by Le Wang <le.wang@sun.com>.
+	(session-add-submenu): No hardcoded BEFORE for `add-submenu'.
+	(session-initialize): Change sequence of `session-add-submenu's.
+
+2002-06-07  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el 2.1b.
+
+2002-06-04  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Make sure that the user is always asked whether to
+	exit, if the session file could not be written because...
+	(session-save-session): ...the directory is not writable.
+	Patch by Le Wang <le.wang@sun.com>.
+	(session-save-session): ...the session file is remote.
+
+2002-05-24  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el 2.1a.
+
+2002-05-16  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: When adding submenus, always check for menu support
+	and parent menus, always change default menubar.
+	(session-add-submenu): Check for "File" menu.
+	(session-initialize): Check for "Edit" menu.
+
+	* session.el (session-globals-include): By default, keep 200
+	instead 100 entries in `file-name-history'.
+	(session-history-help-string): Append two newlines to string.
+	(session-abbrev-inhibit-function): Use `ange-ftp-ftp-name' if
+	fboundp, is the one defined in Emacs.
+	(session-use-truenames): Use correct test whether on Windows-NT.
+
+2002-02-27  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session 2.1 is released.
+
+2002-02-23  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el: Menus and keybindings work with Emacs-21, too.
+	(session-add-submenu): New function.
+	(session-toggle-permanent-flag): Return nil instead of " ".
+	(session-refresh-yank-menu): New function.
+	(session-after-load-save-file-hook): New variable.
+	(session-initialize): Use it.  Also do menu setup for Emacs.
+	(session-abbrev-inhibit-function): Use `file-remote-p'.
+	(cl): Don't require package at runtime.
+
+2002-02-09  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* session.el 1.5b.
+
+	* session.el (session): Moved to SourceForge.net.
+
+2002-02-07  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-compact-yank-gap-regexp): Customize.
+	(session-popup-yank-menu): Use menu name "Select and Paste".
+	(session-initialize): Use submenu name "Open...recently visited".
+
+2001-12-17  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el 1.5a.
+
+2001-12-02  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Bug fixes.
+	(session-save-file-coding-system): New variable.
+	(session-save-session): Use it.  Multi-byte strings stored in
+	~/.session would get corrupted.
+	Reported by Christian Wittern <wittern@iis.sinica.edu.tw>.
+	(session-find-file-hook): Would activate mark in Emacs.
+	Reported by Michael John Downes <mjd@ams.org>.
+	(session-find-file-hook): Also restore point if at `point-max'.
+	From Colin Marquardt <colin.marquardt@usa.alcatel.com>.
+
+	* session.el: Adaption to XEmacs-21.4 or higher.
+	(session-yank-menu-filter): Disable `interprogram-paste-function'.
+	From Alastair Burt <burt@dfki.de>.
+	(session-yank): New command, works like `yank'.
+	(session-menu-accelerator-support): New variable.
+	(session-menu-maybe-accelerator): New function, use it.
+	(session-change-menu-item): Ditto.
+	(session-yank-menu-filter): Use it.
+	(session-file-changed-menu-filter): Ditto.
+
+	* session.el: New commands.
+	(session-toggle-permanent-flag): New command.
+	Suggested by Le Wang <lewang@yahoo.com>.
+	(session-initialize): Used in "recently changed" menu.
+	(session-store-buffer-places): Try to reuse top entry in
+	`session-file-alist'.
+	(session-minibuffer-message): New alias.
+	(session-minibuffer-history-help): New command.  Command might not
+	work with non-empty minibuffer and XEmacs before v21.4.7.
+	(session-initialize): Bind it to M-? in minibuffer for XEmacs.
+	(session-history-help-string): New variable.
+	(session-display-completion-list): New function.
+	
+	* session.el: Menu cleanup.
+	(session-initialize): Renamed "Edit" menu entry "Yank...recently
+	killed" to "Select and Paste" and move it behind "Paste".
+	(session-compact-yank-gap-regexp): New user option.
+	(session-yank-string): Use it, show less whitespace.
+	(session-yank-menu-filter): Don't show whitespace-only entries.
+	Remove extra entry for `yank-pop', it was confusing.
+	(session-file-menu-max-string): Allow cons.
+	(session-file-changed-menu-filter): Changed accordingly.  Would
+	not shorten long file name with very long directory part.
+	(session-no-selection-hook): Deletia, was needed for yank-pop.
+	(session-initialize): Delete from `menu-no-selection-hook'.
+
+2000-06-04  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.5 is released.
+
+1999-12-18  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Ask user to delete the permanent flag -if it exists-
+	when visiting a non-existent file.  Deleting the flag when killing
+	the buffer with [C-- M-x kill-this-buffer] still works, of course.
+	(session-file-not-found-hook): New function.
+	(session-initialize): Add to end of `find-file-not-found-hooks'.
+
+	* session.el: Only add/set entries for existing, readable files.
+	(session-default-buffer-check-p): ...when storing buffer places.
+	(session-set-file-name-history): ...in `find-file-hooks'.
+	(session-mode-disable-list): Delete `change-log-mode'.
+
+	* session.el: Minor bug fix and Emacs/XEmacs bug workaround.
+	(session-save-session): Store places for remaining buffers in
+	correct order.  `signal-error' is not defined in Emacs.
+	(session-use-truenames): Don't use truenames by
+	default if `abbreviate-file-name' doesn't work properly.  As a
+	workaround, you might want to set `abbreviated-home-dir' yourself.
+
+	* session.el: XEmacs/NT bug workaround for `file-truename'.
+	(session-use-truenames): Allow functions as value.
+	(session-xemacs-buffer-local-mswindows-file-p): New function.
+	(session-buffer-file-name): New function.
+	(session-find-file-hook): Use it.
+	(session-store-buffer-places): Ditto.
+
+	* session.el: Replace TABs by spaces in yank menu --for XEmacs/NT.
+	(session-subst-char-in-string-0): New function.  From Emacs-20.4.
+	(session-yank-string): Use it via `session-subst-char-in-string'.
+
+1999-06-12  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.4c.
+
+1999-06-12  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-save-session): Create directory for session
+	file when necessary.  Handle error during saving of session file.
+	(session-initialize): Under XEmacs, also bind C-x C-/ to
+ 	`session-jump-to-last-change'.
+
+1999-03-13  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.4b.
+
+1999-02-20  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Make directory splitting work with Windows-NT.
+	(session-directory-sep-char): New variable.
+	(session-file-changed-menu-filter): Use it.
+
+1999-01-30  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.  Copyright transferred to the FSF.
+
+1999-01-29  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.4a.
+
+1999-01-27  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-mode-disable-list): Include `tar-mode'.
+
+1999-01-25  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.4 is released.
+
+1999-01-22  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Easier info for package and test of package.
+ 	(session): Provide `emacs-commentary-link'.
+	(session-miscellaneous): Group renamed from `session-menus'.
+	(session-initialize): New element `de-saveplace'.
+	(session-initialize): Use it, i.e., de-install package saveplace.
+	(session-use-package): New pseudo variable.
+	(session-initialize): Set it.  Might be used as its :action
+ 	function.  Only load session file once.
+
+1999-01-21  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.3d.
+
+1999-01-20  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Make it easier to jump to really different changes.
+	(session-jump-undo-threshold): New user option.
+ 	(session-last-change): Deletia.
+	(session-undo-position): New function.
+	(session-store-buffer-places): Change accordingly.
+	(session-jump-to-last-change): Ditto.  Use negative argument.
+	(session-kill-buffer-commands): Delete `kill-buffer' since this
+	command uses the minibuffer, i.e., `current-prefix-arg' is lost.
+	(session-name-disable-regexp): `temp-directory' can be undefined.
+	(session-popup-yank-menu): Don't popup menu for empty `kill-ring'.
+	(session-initialize): Don't show menu for empty `kill-ring'.
+
+1999-01-18  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.3c.
+
+1999-01-15  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Package has been customized (->Data->Session).
+	(session): New group.
+	(session-globals): New group.
+	(session-places): New group.
+	(session-menus): New group.
+ 	(session-version): New constant.
+	(session-initialize): Rename item `bindings' to keys'.
+	(session-store-buffer-places): Make `session-locals-predicate'
+ 	work as documented, i.e., allow values nil and t.
+	(session-name-disable-regexp): Regexp quote temp dir.
+	(session-kill-buffer-hook): Protect against errors.
+	(session-find-file-hook): Ditto, i.e., the local vars part.
+
+1999-01-13  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.3b.
+
+	* session.el (session-file-changed-menu-filter): Would also
+	shorten file name, not just name for menu entry.
+
+1999-01-11  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.3a.
+
+1999-01-08  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Full initialization.  Better commentary.
+ 	(session-initialize): New variable.
+	(session-initialize): Use it.  Under XEmacs, also initialize
+ 	bindings and menus by default.
+
+	* session.el: Provide menu to insert strings from the `kill-ring'.
+ 	(session-edit-menu-max-string): New variable.
+	(session-popup-yank-menu): New command.
+	(session-yank-menu-filter): New function.
+	(session-yank-string): New function.
+	(session-no-selection-hook): New function.
+	(session-file-menu-max-string): Renamed.
+	(session-file-changed-menu-filter): Changed accordingly.
+
+1998-12-14  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.3 is released.
+
+1998-11-23  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-menu-max-string): New user option.
+	(session-file-changed-menu-filter): Use it.  Make sure the file
+	submenus fit on the right side of the file menu.
+	(session-globals-exclude): Exclude `flyspell-auto-correct-ring'.
+	It is circular, i.e., printing would not terminate.
+	(session-name-disable-regexp): Don't store places for files in
+	`temp-directory' by default.
+	
+1998-10-19  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.2a.
+
+1998-09-19  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-use-truenames): New variable with value t,
+	old behaviour would be value nil.
+ 	(session-find-file-hook): Use it.
+	(session-store-buffer-places): Ditto.  Check for non-nil file name.
+
+1998-03-03  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session 1.2 is released.
+
+1998-01-04  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-store-buffer-places): Delete arguments
+ 	BUFFER and FILE.
+	(session-kill-buffer-hook): Only supply argument ARG to it.
+	(session-save-session): Ditto.  Run swap-out on all buffers first.
+
+1997-12-18  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: For a complete installation, you now have to call
+ 	`session-initialize' explicitly.
+	(session-after-init-hook): Renamed to `session-initialize'.
+	(after-init-hook): Do not call `session-after-init-hook'.
+
+1997-12-16  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: One feature of this package made it into standard
+ 	Emacs as `register-swap-out'.
+	(session-register-swap-out): New function.
+	(session-register-swap-out): New configuration variable.
+	(kill-buffer-hook): Use it.
+	(session-registers-marker-to-file): Deletia.
+	(session-before-save-hook): Don't use it anymore.
+	(session-kill-buffer-hook): Ditto.
+	(session-save-registers): New function.
+	(session-save-session): Use it.
+	(session-registers): Only used in `session-save-registers' now.
+  	Can also be used for regions in registers.  In default value, add
+ 	registers a-z for regions.
+	(session-registers-max-string): New user option.
+
+1997-03-17  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-save-session): Delete old session file
+	before writing instead of reading the old one.
+
+1996-11-15  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el (session-save-session): Turn off font-lock for Emacs.
+  	Do not make the previous ~/.session a backup file.
+
+1996-09-19  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* session.el: Works with Emacs-19.33+.
+	(session-abbreviate-file-name): New Emacs/XEmacs dependent
+ 	function.
+	(session-abbrev-file-name): Use it.
+	(session-globals-max-size): Is a user option now.
+	(session-globals-max-string): Ditto.
+	(session-auto-store): Ditto.
+	(session-undo-check): Ditto.
+	(session-store-buffer-places): Use `save-excursion'-`set-buffer'
+ 	instead of `symbol-value-in-buffer' and the additional buffer
+ 	argument for `point', `mark', `point-min', `point-max',
+ 	`buffer-size'.
+	(session-default-buffer-check-p): Since BUFFER=(current-buffer),
+ 	drop the `symbol-value-in-buffer' thing.
+	(session-save-session): Use `set-buffer' instead of
+ 	`switch-to-buffer'...oops.
+	(session-default-buffer-check-p): Bug fix: wouldn't work with a
+ 	pair as the value of `session-undo-check'.
+	(session-kill-buffer-commands): New configuration variable.
+	(session-kill-buffer-hook): Use it.
+
