@@ -1,0 +1,19 @@
+bbdb-vcard.el
+=============
+
+bbdb-vcard.el imports and exports vCards (version 3.0) as defined in
+RFC 2425 and RFC 2426 to/from The Insidious Big Brother Database
+(BBDB).  Version 2.1 vCards are converted into version 3.0 on import.
+
+On a file, a buffer or a region containing one or more vCards, use
+`bbdb-vcard-import-file', `bbdb-vcard-import-buffer', or
+`bbdb-vcard-import-region' respectively to import them into BBDB.
+
+In buffer *BBDB*, press v to export the record under point.  Press * v
+to export all records in buffer into one vCard file.  Press * C-u v to
+export them into one file each.
+
+To put one or all vCard(s) into the kill ring, press V or * V
+respectively.
+
+Refer to the Commentary in file bbdb-vcard.el for further information.
