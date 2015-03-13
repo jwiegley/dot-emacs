@@ -1,0 +1,70 @@
+BBDB todo List                                                   -*-outline-*-
+
+Copyright (C) 2011-2014 Roland Winkler <winkler@gnu.org>
+See the end of the file for license conditions.
+
+* Bug fixes
+
+* Release BBDB v3.
+
+** Facilitate update BBDB v2.x to v3
+   Compile list of changes BBDB v3 versus v2.x.
+   Which variables / functions / commands / key bindings / concepts
+   in v3 have replaced which ones from v2?
+
+   Is it possible / meaningful to set up a file bbdb-v2.el with
+   aliases for v2 variable and function names mapping to the names
+   used in v3?
+
+** Update / rewrite texinfo manual
+
+** Copyright
+   Identify contributors.  Assign copyright to FSF.
+
+** Get BBDB on the GNU ELPA
+
+** Write BBDB tests using ERT
+
+* Features
+
+** Command bbdb-copy-fields-as-kill
+
+** Prioritize BBDB records
+   2011-04-11 Sam Steingold <sds@gnu.org>
+   Records with low priority are not considered for printing etc.
+
+** Prioritize email addresses of a record
+   2011-04-11 Sam Steingold <sds@gnu.org>
+   Records with low priority are still considered for identifying
+   old emails and news messages.  But they are ignored for new
+   emails (e.g., completion).
+
+** Import / export BBDB records (e.g. vcard or its XML derivative)
+   2011-04-05 Leo <sdl.web@gmail.com>
+
+** Allow splitting of bbdb-file into multiple files
+
+** bbdb-narrow-display: Inverse of bbdb-append-display
+
+* Internals
+
+** Remove bbdb-auto-notes-rules-expanded?
+   2011-05-05 Leo <sdl.web@gmail.com>
+
+
+Copyright (C) 2011-2014 Roland Winkler <winkler@gnu.org>
+
+This file is part of the Insidious Big Brother Database (aka BBDB),
+
+BBDB is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BBDB is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BBDB.  If not, see <http://www.gnu.org/licenses/>.

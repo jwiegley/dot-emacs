@@ -1,0 +1,224 @@
+Copyright (C) 2010-2014 Roland Winkler <winkler@gnu.org>
+See the end of the file for license conditions.
+
+BBDB is the Insidious Big Brother Database for GNU Emacs.
+It provides an address book for email and snail mail addresses,
+phone numbers and the like.  It can be linked with various Emacs mail
+clients (Message and Mail mode, Rmail, Gnus, MH-E, and VM).
+BBDB is fully customizable.
+
+BBDB is available at
+http://savannah.nongnu.org/projects/bbdb/
+To check it out, use
+git clone git://git.savannah.nongnu.org/bbdb.git
+
+Questions, comments, suggestions, and bug reports may be directed to
+the BBDB mailing list at bbdb-info@lists.sourceforge.net.
+To subscribe, send mail to bbdb-info-request@lists.sourceforge.net,
+with 'subscribe' as the subject.
+
+==================================================================
+Installation:   (see also the generic file INSTALL)
+
+To compile and install BBDB with `make':
+
+0) (BBDB development version only)
+
+   Configure the configure process:
+
+   Run `autogen.sh' in the top directory of the BBDB code.
+   This creates the `configure' script required for step 1).
+
+1) Configure the build process:
+
+   Run the `configure' script in the top directory of the BBDB code.
+   This performs a number of checks on your system and generates the
+   Makefiles accordingly.  You need at least GNU Emacs 23.
+
+   The `configure' script comes with various options:
+
+   `--with-vm-dir=DIR' specifies the path where VM can be found.
+     Without this option the resulting BBDB build does not support VM.
+
+   `--with-lispdir=DIR' specifies where to install the lisp files.
+
+   Use `configure --help' to see all available options.
+
+2) Build BBDB:
+
+   To build BBDB type 'make'.
+
+   If you use the BBDB development version, but you do not have autoconf,
+   go to the lisp directory and type 'make --makefile=./makefile-temp'.
+
+3) Install BBDB:
+
+   To install BBDB type `make install'.
+   This installs all files in their usual system directories.
+   You can override these defaults via respective options
+   for the configure script.
+
+   The TeX files in the tex directories are installed in ${datadir}
+   which defaults to /usr/local/share/bbdb/.  These files are only
+   used by BBDB.  They need not be made known to your local TeX
+   installation.  See the user variable bbdb-print-tex-path below.
+
+   `make install' is not required to run BBDB.
+
+4) Activate BBDB:
+
+   i)   If the BBDB lisp files are in a directory
+        "/path/to/bbdb/lisp" you can use in your emacs init file
+
+        (require 'bbdb-loaddefs "/path/to/bbdb/lisp/bbdb-loaddefs.el")
+
+        This adds "/path/to/bbdb/lisp" to the load-path; so it is all
+        you need to make BBDB known to your Emacs.
+
+   ii)  The user variable bbdb-print-tex-path should point to the directory
+        where the BBDB TeX files reside (default /usr/local/share/bbdb).
+
+===============================================================================
+Usage notes
+
+BBDB 3.1 is the first release of BBDB after a long time.
+It requires GNU Emacs 23 or newer.  Its code is still under development.
+While it should work reliably, users of previous versions of BBDB
+are advised that the format of the BBDB database file has changed.
+Migration to the new format should happen automatically.
+Yet it is recommended to make a copy of the old file, in case
+something unexpected happens or you might want to go back.
+
+As compared with BBDB 2.xx, many variables, functions, and commands
+have changed in BBDB 3.  Most likely you will have to review your
+customizations carefully.  You may want to call bbdb-undocumented-variables
+to identify outdated (i.e., now usually undocumented) variables in
+your init file.  All user variables for the core of BBDB 3 are listed
+at the beginning of bbdb.el.  Some extensions of BBDB 3 define their
+user variables at the beginning of the respective files.
+
+Generally the default values for user variables are chosen such that they make
+BBDB the least aggressive.  You can customize this behavior in many ways.
+See below for an overview.
+
+The BBDB info manual is still awaiting a more complete overhaul.
+
+
+BBDB interface with mail user agents (MUAs)
+===========================================
+
+BBDB can interface with various mail user agents (MUAs).
+These include Rmail, Gnus, VM, MH-E, Message and Mail mode.
+This lets you
+
+ - display the BBDB records for the sender and/or recipients of a
+   message you are viewing
+
+ - create or update the BBDB records for the sender and/or
+   recipients of a message
+
+ - add annotations to the BBDB records for the sender and/or
+   recipients of a message
+
+There are two ways for BBDB to interface with MUAs:
+
+Interactive commands
+--------------------
+
+Call bbdb-initialize (usually in your init file) to initialize
+the MUA interfaces based on interactive commands
+
+MUA commands include
+
+ bbdb-mua-display-records, bbdb-mua-display-sender, bbdb-mua-display-recipients
+ bbdb-annotate-record, bbdb-mua-annotate-sender, bbdb-mua-annotate-recipients
+ bbdb-mua-edit-field, bbdb-mua-edit-field-sender, bbdb-mua-edit-field-recipients
+
+These MUA commands operate either on existing records only.  Or they
+can create new records.
+
+They are all controlled by bbdb-mua-update-interactive-p.
+This is a cons pair (WITHOUT-PREFIX . WITH-PREFIX).
+The car is used if the command is called without a prefix.
+The cdr is used if the command is called with a prefix (and if the prefix
+        is not used for another purpose).
+
+WITHOUT-PREFIX and WITH-PREFIX may take the values
+(here ADDRESS is an email address found in a message):
+ nil          Do nothing.
+ search       Search for existing records matching ADDRESS.
+ update       Search for existing records matching ADDRESS;
+                update name and mail field if necessary.
+ query        Search for existing records matching ADDRESS;
+                query for creation of a new record if the record does not exist.
+ create or t  Search for existing records matching ADDRESS;
+                create a new record if it does not yet exist.
+ a function   This functions will be called with no arguments.
+                It should return one of the above values (see below).
+ read         Read the value interactively.
+
+BBDB 2 also used MUA-specific variables bbdb/MUA-update-records-mode
+to control its interfaces with MUAs.  In BBDB 3 the variables
+bbdb/MUA-update-records-p are only used as fallback if the generic
+(MUA-independent) variables bbdb-mua-update-interactive-p,
+bbdb-update-records-p or bbdb-mua-auto-update-p result in a value of
+nil for the arg UPDATE-P of bbdb-update-records.
+
+Noninteractive functions
+------------------------
+
+Call bbdb-mua-auto-update-init (usually in your init file)
+to hook BBDB's hook function bbdb-mua-auto-update into the MUAs.
+
+bbdb-mua-auto-update automatically updates the BBDB records for the
+sender and/or recipients of a message.  If bbdb-mua-pop-up is non-nil,
+the matching records are also displayed in a continuously updated BBDB window,
+
+The behavior of bbdb-mua-auto-update is controlled by bbdb-mua-auto-update-p.
+This may take the same values as bbdb-mua-update-interactive-p (except read).
+Binding this to a function is often most helpful for noninteractive use.
+For example, you may want to bind bbdb-mua-auto-update-p to the function
+bbdb-select-message,  see bbdb-accept-message-alist and
+bbdb-ignore-message-alist.  If a message is accepted by bbdb-select-message,
+the actual action performed by BBDB (i.e., the return value of
+bbdb-select-message) is given by bbdb-update-records-p.
+
+==================================================================
+
+Notes for BBDB lisp hackers:
+----------------------------
+
+If you write your own functions and commands to modify BBDB records,
+do not call the low-level functions bbdb-record-set-* such as
+bbdb-record-set-aka, bbdb-record-set-mail etc.  The recommended
+sequence of calls is
+
+- one or multiple calls of bbdb-record-set-field for the respective
+  fields to be changed.  This not only sets the fields, but it also
+  ensures the integrity of the database.  Also, this makes your code
+  more robust with respect to possible future changes of BBDB's
+  innermost internals.
+
+- a call of bbdb-change-record which updates the database after a
+  change of record and redisplays the records.
+
+- To display newly created records call bbdb-display-records.
+
+==================================================================
+
+Copyright (C) 2010-2014 Roland Winkler <winkler@gnu.org>
+
+This file is part of the Insidious Big Brother Database (aka BBDB),
+
+BBDB is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BBDB is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BBDB.  If not, see <http://www.gnu.org/licenses/>.
