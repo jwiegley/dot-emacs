@@ -1,0 +1,82 @@
+
+\catcode `\÷ = \active
+\def ÷{\penalty10000\hskip0.001pt-\penalty\hyphenpenalty\hskip0.001pt\relax}
+
+\def \newpagestyle#1#2#3{\@namedef{ps@#1}{\def\@oddhead{#2}\def\@oddfoot{#3}%
+        \let\@evenhead\@oddhead \let\@evenfoot\@oddfoot}}
+\def \newdoublepagestyle#1#2#3#4#5{\@namedef{ps@#1}{\def\@evenhead{#2}%
+        \def\@oddhead{#3}%
+        \def\@evenfoot{#4}%
+        \def\@oddfoot{#5}}}
+
+\newlength{\headtextwidth}
+\setlength{\headtextwidth}{\textwidth}
+\addtolength{\headtextwidth}{2cm}
+\newlength{\headetextwidth}
+\setlength{\headetextwidth}{\headtextwidth}
+\addtolength{\headetextwidth}{-0.5cm}
+\newlength{\headotextwidth}
+\setlength{\headotextwidth}{\headtextwidth}
+\addtolength{\headotextwidth}{-0.35cm}
+ 
+\def\outputpage{%
+  \let \protect \noexpand
+  \shipout \vbox{%
+    \set@typeset@protect
+    \aftergroup\set@typeset@protect
+    \@shipoutsetup
+    \@begindvi
+    \vskip \topmargin
+    \moveright\@themargin \vbox {%
+      \setbox\@tempboxa \vbox to\headheight{%
+        \vfil
+        \color@hbox
+          \normalcolor
+          \hb@xt@ \headtextwidth {%
+            \let \label \@gobble
+            \let \index \@gobble
+            \let \glossary \@gobble %% 21 Jun 91
+            \@thehead
+            }%
+        \color@endbox
+        }%                        %% 22 Feb 87
+      \ifodd\c@page
+         \dp\@tempboxa \z@
+         \box\@tempboxa \mbox{} \\
+         \ifx \@oddhead\@empty\else
+   %      \rule{\headotextwidth}{0.5pt}
+         \fi
+      \else
+         \hskip -2.2cm
+         \dp\@tempboxa \z@
+         \box\@tempboxa \mbox{}
+        \\\mbox{}
+         \vskip 2pt
+         \hskip -2.0cm 
+         \ifx \@oddhead\@empty\else
+    %     \rule{\headetextwidth}{0.5pt}
+         \fi
+      \fi  
+      \vskip \headsep
+      \box\@outputbox
+      \baselineskip \footskip
+      \color@hbox
+        \normalcolor
+        \hb@xt@\textwidth{%
+          \let \label \@gobble
+          \let \index \@gobble      %% 22 Feb 87
+          \let \glossary \@gobble   %% 21 Jun 91
+          \@thefoot
+          }%
+      \color@endbox
+      }%
+    }%
+  \global \@colht \textheight
+  \stepcounter{page}%
+  \let\firstmark\botmark
+}
+
+\def\@makechapterhead#1{\gnuspagechapter{#1}}
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}

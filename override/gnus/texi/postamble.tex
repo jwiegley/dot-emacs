@@ -1,0 +1,50 @@
+\gnuscleardoublepage
+
+\pagestyle{gnusindex}
+
+\renewcommand\indexname{Key Index}
+\renewcommand{\gnuschaptername}{Key Index}
+\input{gnus.kind}
+\gnuscleardoublepage
+
+\renewcommand\indexname{Function and Variable Index}
+\renewcommand{\gnuschaptername}{Function and Variable Index}
+\input{gnus.gind}
+\gnuscleardoublepage
+\thispagestyle{empty}
+
+\renewcommand\indexname{Concept Index}
+\renewcommand{\gnuschaptername}{Concept Index}
+\input{gnus.cind}
+
+\mbox{}
+%\thispagestyle{empty}\mbox{}\clearpage\thispagestyle{empty}\mbox{}\clearpage
+\ifodd\count0\else\thispagestyle{empty}\clearpage\fi
+\mbox{}
+\thispagestyle{empty}
+\vfill
+
+This manual was written by Lars Magne Ingebrigtsen (1968 --- ) who
+resides in Oslo, Norway and poses as a student, but doesn't get much
+studying done, for some strange reason or other.  When not worshipping
+at the altar of Emacs, he can often be found slouching on his couch
+reading while bopping his head gently to some obscure music.  He does
+not have a cat.
+
+\marginpar[\vspace*{-2.5cm}\epsfig{figure=ps/larsi,height=2cm}]{\vspace*{-2.2cm}\epsfig{figure=ps/larsi,height=2.5cm}}
+
+Graphics by Luis Fernandes.  \gnususefonts{}
+
+\clearpage
+\mbox{}
+\thispagestyle{empty}
+\begin{picture}(500,500)(0,0)
+\put(-35,325){\makebox(480,350)[tr]{\epsfig{figure=ps/new-herd-section}}}
+\end{picture}
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

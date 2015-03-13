@@ -1,0 +1,36 @@
+2011-03-16  Teodor Zlatanov  <tzz@lifelogs.com>
+
+	* git.gnus.org/index.html: Updates about the CACert certificate.
+
+2011-03-02  Teodor Zlatanov  <tzz@lifelogs.com>
+
+	* git.gnus.org/index.html: Adjust icon to gnus-icon.png.
+
+2011-03-02  Adam Sjøgren  <asjo@koldfront.dk>
+
+	* git.gnus.org/gnus-icon.png: Add icon.
+
+2011-03-01  Adam Sjøgren  <asjo@koldfront.dk>
+
+	* git.gnus.org/gnus-cgit.png: Add logo.
+	* git.gnus.org/index.html: Use it.  Add information about the
+	gnus-html.git repository.
+
+2010-04-20  Teodor Zlatanov  <tzz@lifelogs.com>
+
+	* git.gnus.org/index.html: Tell about the cgit repository.
+
+2010-04-19  Teodor Zlatanov  <tzz@lifelogs.com>
+
+	* git.gnus.org/index.html: Tell about server setup.  Tell about
+	commit cvslog@quimby.gnus.org address.  Tell about subject prefix.
+	Tell about git-http-backend again.  Tell about the other commit
+	ding-commits@quimby.gnus.org address.
+
+2010-04-18  Teodor Zlatanov  <tzz@lifelogs.com>
+
+	* git.gnus.org/index.html: Fix 'comit' typos.
+
+2010-04-17  Teodor Zlatanov  <tzz@lifelogs.com>
+
+	* git.gnus.org/index.html: Added index.html for git.gnus.org.

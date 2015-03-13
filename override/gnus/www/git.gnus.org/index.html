@@ -1,0 +1,77 @@
+<HTML> 
+<HEAD> 
+<link rel="icon" href="gnus-icon.png" type="image/png" />
+<TITLE>Gnus Git Repo</TITLE> 
+</HEAD> 
+<BODY>
+<a href="https://git.gnus.org/gnus.git">The writeable repository</a>
+<a href="/gnus.git">The read-only repository</a>
+<a href="/cgit/gnus.git/">A cgit web interface to the read-only repository</a>
+<hr>
+<a href="https://git.gnus.org/gnus-html.git">The writeable HTML repository</a>
+<a href="/gnus-html.git">The read-only HTML repository</a>
+<a href="/cgit/gnus-html.git/">A cgit web interface to the read-only HTML repository</a>
+
+<hr>
+Instructions for checking Gnus out:<p>
+    The server uses packed refs.  Make sure your version of Git
+    can handle them (1.7.0.4 and later definitely do).  
+<p>
+    <ul>
+      <li>Public access:<pre>git clone http://git.gnus.org/gnus.git</pre></li>
+      <li>Committer access (note the SSL certificate is signed with CACert.org and you <b>may</b> need to import their certificate bundle):
+        <i>(note: prepend <pre>GIT_SSL_NO_VERIFY=1 </pre> to each of the commands below to disable SSL verification if you can't import the CACert certificates.)</i>
+<pre>
+# this will print lots of debugging info
+GIT_CURL_VERBOSE=1 git clone https://git.gnus.org/gnus.git
+
+# this will be less verbose and probably OK
+git clone https://git.gnus.org/gnus.git
+
+# this will be necessary if you have to use a proxy
+HTTPS_PROXY=proxy.example.com:8080 git clone https://git.gnus.org/gnus.git
+
+# repeat the same steps for https://git.gnus.org/gnus-html.git if you want the HTML pages
+
+cd gnus
+	</pre>
+
+<pre>
+# if you needed GIT_SSL_NO_VERIFY above, do this to tell git not to check the certificate
+# DO NOT DO THIS UNLESS YOU ABSOLUTELY NEED IT!!!  git config http.sslVerify false
+</pre>
+
+	The committer should also have a <b>~/.netrc</b> file that says
+	<pre>machine git.gnus.org login yourlogin password yourpassword</pre>
+	<p>
+	  If your password has a space in it or if you are a rebel,
+	  use <pre>https://yourlogin:yourpassword@git.gnus.org/gnus.git</pre>
+	  as the address and you won't need a <b>~/.netrc</b> file.
+	  It's not recommended.
+	<p>
+	  Also the server config says
+<pre>
+[receive]
+        denyDeletes = true
+        denyNonFastForwards = true
+</pre> 
+so that will, we hope, prevent unfortunate accidents.
+	<p>
+	Send e-mail
+	to <a href="mailto:tzz@lifelogs.com">tzz@lifelogs.com</a> to
+	get access, especially if you had CVS committer access
+	already.
+
+      </li>
+      <li>Server setup: Apache 2 using git-http-backend.  Commits go
+	to <b>cvslog@quimby.gnus.org</b>
+	and <b>ding-commits@quimby.gnus.org</b>, prefixed
+	with <b>[git] </b> and the envelope sender
+	is <b>git-logger</b>.  There are two (HTTP and HTTPS) Apache 2
+	servers but they both run git-http-backend so "smart" clients
+	are faster for committers and anonymous readers.
+      </li>
+    </ul>
+
+
+</BODY></HTML> 
