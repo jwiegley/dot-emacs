@@ -1,0 +1,627 @@
+# -*- mode: org; -*-
+#+TITLE: Aggregate Values in a Table
+#+OPTIONS: ^:{} author:Thierry Banel toc:nil
+
+Aggregating a table is creating a new table by computing sums,
+averages, and so on, out of material from the frist table.
+
+* Examples
+A very simple example. We have a table of activities and quantities
+(whatever they are) over several days.
+
+#+BEGIN_EXAMPLE
+#+TBLNAME: original
+| Day       | Color | Level | Quantity |
+|-----------+-------+-------+----------|
+| Monday    | Red   |    30 |       11 |
+| Monday    | Blue  |    25 |        3 |
+| Thuesday  | Red   |    51 |       12 |
+| Thuesday  | Red   |    45 |       15 |
+| Thuesday  | Blue  |    33 |       18 |
+| Wednesday | Red   |    27 |       23 |
+| Wednesday | Blue  |    12 |       16 |
+| Wednesday | Blue  |    15 |       15 |
+| Turdsday  | Red   |    39 |       24 |
+| Turdsday  | Red   |    41 |       29 |
+| Turdsday  | Red   |    49 |       30 |
+| Friday    | Blue  |     7 |        5 |
+| Friday    | Blue  |     6 |        8 |
+| Friday    | Blue  |    11 |        9 |
+#+END_EXAMPLE
+
+We want to aggregate this table for each day (because several rows
+exist for each day). First we give a name to the table through the
+=#+TBLNAME:= tag, just above the table. Then we create a /dynamic
+block/ to receive the aggregation:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table original :cols "Day mean(Level) sum(Quantity)"
+#+END
+#+END_EXAMPLE
+
+Now typing =C-c C-c= in the dynamic block computes the aggregation:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table original :cols "Day mean(Level) sum(Quantity)"
+| Day       | mean(Level) | sum(Quantity) |
+|-----------+-------------+---------------|
+| Monday    |        27.5 |            14 |
+| Thuesday  |          43 |            45 |
+| Wednesday |          18 |            54 |
+| Turdsday  |          43 |            83 |
+| Friday    |           8 |            22 |
+#+END
+#+END_EXAMPLE
+
+The source table is not change in any way.
+
+To get this result, we specified columns in this way, after the
+=:cols= parameter:
+
+- =Day= : we got the same column as in the source table, except
+  entries are not duplicated.  We may specify as many columns as we
+  want in this way. We get only one aggregated row for each different
+  combination of values of those columns.
+
+- =mean(Level)= : this instructs Org to compute the average of values
+  found in the =Level= column, grouped by the same =Day=.
+
+- =sum(Quantity)=: Org computes the sum of values found in the
+  =Quantity= column, one sum for each =Day=.
+
+* SQL equivalent
+
+If you are familiar with SQL, you would get a similar result with the
+=GROUP BY= statement:
+
+#+begin_src sql
+select Day, mean(Level), sum(Quantity)
+from original
+group by Day;
+#+end_src
+
+* R equivalent
+
+If you are familiar with the R statistical package, you would get a
+similar result with =factors= and =aggregate= functions:
+
+#+begin_src R
+original <- the table as a data.frame
+day_factor <- factor(original$Day)
+aggregate (original$Level   , list(Day=day_factor), mean)
+aggregate (original$Quantity, list(Day=day_factor), sum )
+#+end_src
+
+* Key-binding & Wizard
+
+Type =C-c C-x i= to launch a wizard for creating new /dynamic blocks/.
+Then answer =aggregate= for the type of block, and follow the instructions.
+(There are several other /dynamic blocks/ that can be built this way:
+~columnview~, ~clocktable~, ~propview~, ~invoice~, ~transpose~, and any
+future block).
+
+This is given by the file =org-insert-dblock.el=, which extends
+the original =C-c C-x i= key-binding to any dynamic block.
+If for any reason you do not want to load this file, you can still
+create dynamic aggregate blocks by typing
+=M-x org-dblock-write:aggregate=.
+
+* Other examples
+
+Maybe we are just interested in the sum of =Quantities=, regardless of
+=Days=. We just type:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table "original" :cols "sum(Quantity)"
+| sum(Quantity) |
+|---------------|
+|           218 |
+#+END
+#+END_EXAMPLE
+
+Or we may want to count the number of rows for each combination of
+=Day= and =Color=:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table "original" :cols "count() Day Color"
+| count() | Day       | Color |
+|---------+-----------+-------|
+|       1 | Monday    | Red   |
+|       1 | Monday    | Blue  |
+|       2 | Thuesday  | Red   |
+|       1 | Thuesday  | Blue  |
+|       1 | Wednesday | Red   |
+|       2 | Wednesday | Blue  |
+|       3 | Turdsday  | Red   |
+|       3 | Friday    | Blue  |
+#+END
+#+END_EXAMPLE
+
+If we want to get measurments for =Colors= rather than =Days=, we
+type:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table "original" :cols "Color mean(Level) sum(Quantity)"
+| Color |   mean(Level) | sum(Quantity) |
+|-------+---------------+---------------|
+| Red   | 40.2857142857 |           144 |
+| Blue  | 15.5714285714 |            74 |
+#+END
+#+END_EXAMPLE
+
+* The :cols parameter
+
+The =:cols= parameter lists the columns of the resulting table. It
+contains in any order, grouping columns and aggregation formulas.
+
+The names of the columns in the original table may be
+- the names as they appear in the header of the source table,
+- or $1, $2, $3 and so on (as in spreadsheet formulas),
+- additionaly, the special column =hline= is used to group
+  parts of the source table separated by horizontal lines.
+
+* Grouping specifications in :cols
+
+Grouping is done on columns of the source table.
+Just name the columns.
+
+Additionally, the =hline= specification means that rows between two
+horizontal lines should be grouped.
+
+Grouping columns and =hline= are used to group rows of the source
+table with uniq combinations of those columns.
+
+* hline example
+
+Here is a source table containing 3 blocks separated by horizontal
+lines:
+
+#+BEGIN_EXAMPLE
+#+TBLNAME: originalhl
+| Color | Level | Quantity |
+|-------+-------+----------|
+| Red   |    30 |       11 |
+| Blue  |    25 |        3 |
+| Red   |    51 |       12 |
+| Red   |    45 |       15 |
+| Blue  |    33 |       18 |
+|-------+-------+----------|
+| Red   |    27 |       23 |
+| Blue  |    12 |       16 |
+| Blue  |    15 |       15 |
+| Red   |    39 |       24 |
+| Red   |    41 |       29 |
+|-------+-------+----------|
+| Red   |    49 |       30 |
+| Blue  |     7 |        5 |
+| Blue  |     6 |        8 |
+| Blue  |    11 |        9 |
+#+END_EXAMPLE
+
+And here is the aggregation by those 3 blocks:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table originalhl :cols "hline mean(Level) sum(Quantity)"
+| hline | mean(Level) | sum(Quantity) |
+|-------+-------------+---------------|
+|     0 |        36.8 |            59 |
+|     1 |        26.8 |           107 |
+|     2 |       18.25 |            52 |
+#+END:
+#+END_EXAMPLE
+
+If we want additionnal details with the =Color= column, we just name it:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table originalhl :cols "hline Color mean(Level) sum(Quantity)"
+| hline | Color |   mean(Level) | sum(Quantity) |
+|-------+-------+---------------+---------------|
+|     0 | Red   |            42 |            38 |
+|     0 | Blue  |            29 |            21 |
+|     1 | Red   | 35.6666666667 |            76 |
+|     1 | Blue  |          13.5 |            31 |
+|     2 | Red   |            49 |            30 |
+|     2 | Blue  |             8 |            22 |
+#+END:
+#+END_EXAMPLE
+
+* Aggregation formulas in :cols
+
+Aggregation formulas are applied for each of those groupings, on the
+specified columns.
+
+We saw examples with =sum=, =mean=, =count= aggregations. There are
+many other aggregations. They are based on functions provided by Calc:
+
+- =count()=
+  + in Calc: =`u #' (`calc-vector-count') [`vcount'])=
+  + gives the number of elements being aggregated
+
+- =sum=
+  + in Calc: =`u +' (`calc-vector-sum') [`vsum']=
+  + computes the sum of elements being aggregated
+
+- =max=
+  + in Calc: =`u X' (`calc-vector-max') [`vmax']=
+  + gives the largest of the elements being aggregated
+
+- =min=
+  + in Calc: =`u N' (`calc-vector-min') [`vmin']=
+  + gives the smallest of the elements being aggregated
+
+- =mean=
+  + in Calc: =`u M' (`calc-vector-mean') [`vmean']=
+  + computes the average (arithmetic mean) of elements being aggregated
+
+- =meane=
+  + in Calc: =`I u M' (`calc-vector-mean-error') [`vmeane']=
+  + computes the average (as mean) along with the estimated error of elements being aggregated
+
+- =median=
+  + in Calc: =`H u M' (`calc-vector-median') [`vmedian']=
+  + computes the median of elements being aggregated, by taken the middle element after sorting them
+
+- =hmean=
+  + in Calc: =`H I u M' (`calc-vector-harmonic-mean') [`vhmean']=
+  + computes the harmonic mean of elements being aggregated
+ 
+- =gmean=
+  + in Calc: =`u G' (`calc-vector-geometric-mean') [`vgmean']=
+  + computes the geometric mean of elements being aggregated
+
+- =sdev=
+  + in Calc: =`u S' (`calc-vector-sdev') [`vsdev']=
+  + computes the standard deviation of elements being aggregated
+
+- =psdev=
+  + in Calc: =`I u S' (`calc-vector-pop-sdev') [`vpsdev']=
+  + computes the population standard deviation (divide by N instead of N-1)
+
+- =pvar=
+  + in Calc: =`H u S' (`calc-vector-variance') [`vvar']=
+  + computes the variance of elements being aggregated
+
+- =pcov=
+  + in Calc: =`I u C' (`calc-vector-pop-covariance') [`vpcov']=
+  + computes the population covariance of elements being aggregated from two columns (divides by N)
+
+- =cov=
+  + in Calc: =`u C' (`calc-vector-covariance') [`vcov']=
+  + computes the sample covariance of elements being aggregated from two columns (divides by N-1)
+
+- =corr=
+  + in Calc: =`H u C' (`calc-vector-correlation') [`vcorr']=
+  + computes the linear correlation coefficient of elements being aggregated in two columns
+
+- =prod=
+  + computes the product of elements being aggregated
+
+- =list=
+  + gives the list of elements being aggregated, without processing
+
+* The :cond filtering
+
+This parameter is optional. If present, it specifies a lisp
+expression which tells whether or not a row should be kept. When the
+expression evaluates to nil, the row is discarded.
+
+Examples of useful expressions includes:
+- =:cond (equal Color "Red")=
+  + to keep only rows where Color is Red
+- =:cond (> (string-to-number Quantity) 19)=
+  + to keep only rows for which Quantity is more than 19
+  + note the call to =string-to-number=; without this call, =Quantity= would be used as a string
+- =:cond (> (* (string-to-number Level) 2.5) (string-to-number Quantity))=
+  + to keep only rows for which =2.5*Level > Quantity=
+
+* Pull & Push
+
+Two modes are available: /pull/ & /push/.
+
+In the /pull/ mode, we use so called "dynamic blocks".
+The resulting table knows how to build itself.
+Example:
+
+We have a source table which is unaware that it will be derived in an
+aggregated table:
+
+#+BEGIN_EXAMPLE
+#+TBLNAME: source1
+| Day       | Color | Level | Quantity |
+|-----------+-------+-------+----------|
+| Monday    | Red   |    30 |       11 |
+| Monday    | Blue  |    25 |        3 |
+| Thuesday  | Red   |    51 |       12 |
+| Thuesday  | Red   |    45 |       15 |
+| Thuesday  | Blue  |    33 |       18 |
+| Wednesday | Red   |    27 |       23 |
+| Wednesday | Blue  |    12 |       16 |
+| Wednesday | Blue  |    15 |       15 |
+| Turdsday  | Red   |    39 |       24 |
+| Turdsday  | Red   |    41 |       29 |
+| Turdsday  | Red   |    49 |       30 |
+| Friday    | Blue  |     7 |        5 |
+| Friday    | Blue  |     6 |        8 |
+| Friday    | Blue  |    11 |        9 |
+#+END_EXAMPLE
+
+We create somewhere else a /dynamic block/ which carries the
+specification of the aggregation:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table "source1" :cols "Day mean(Level) sum(Quantity)"
+| Day       | mean(Level) | sum(Quantity) |
+|-----------+-------------+---------------|
+| Monday    |        27.5 |            14 |
+| Thuesday  |          43 |            45 |
+| Wednesday |          18 |            54 |
+| Turdsday  |          43 |            83 |
+| Friday    |           8 |            22 |
+#+END
+#+END_EXAMPLE
+
+Typing =C-c C-c= in the dynamic block recomputes it freshly.
+
+In /push/ mode, the source table drives the creation of derived
+tables. We specify the wanted results in =#+ORGTBL: SEND= directives
+(as many as desired):
+
+#+BEGIN_EXAMPLE
+#+ORGTBL: SEND derived1 orgtbl-to-aggregated-table :cols "mean(Level) sum(Quantity)"
+#+ORGTBL: SEND derived2 orgtbl-to-aggregated-table :cols "Day mean(Level) sum(Quantity)"
+| Day       | Color | Level | Quantity |
+|-----------+-------+-------+----------|
+| Monday    | Red   |    30 |       11 |
+| Monday    | Blue  |    25 |        3 |
+| Thuesday  | Red   |    51 |       12 |
+| Thuesday  | Red   |    45 |       15 |
+| Thuesday  | Blue  |    33 |       18 |
+| Wednesday | Red   |    27 |       23 |
+| Wednesday | Blue  |    12 |       16 |
+| Wednesday | Blue  |    15 |       15 |
+| Turdsday  | Red   |    39 |       24 |
+| Turdsday  | Red   |    41 |       29 |
+| Turdsday  | Red   |    49 |       30 |
+| Friday    | Blue  |     7 |        5 |
+| Friday    | Blue  |     6 |        8 |
+| Friday    | Blue  |    11 |        9 |
+#+END_EXAMPLE
+
+We must create the receiving blocks somewhere else in the same file:
+
+#+BEGIN_EXAMPLE
+#+BEGIN RECEIVE ORGTBL derived1
+#+END RECEIVE ORGTBL derived1
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+#+BEGIN RECEIVE ORGTBL derived2
+#+END RECEIVE ORGTBL derived2
+#+END_EXAMPLE
+
+Then we come back to the source table and type =C-c C-c= with the
+cursor on the 1st pipe of the table, to refresh the derived tables:
+
+#+BEGIN_EXAMPLE
+#+BEGIN RECEIVE ORGTBL derived1
+|   mean(Level) | sum(Quantity) |
+|---------------+---------------|
+| 27.9285714286 |           218 |
+#+END RECEIVE ORGTBL derived1
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+#+BEGIN RECEIVE ORGTBL derived2
+| Day       | mean(Level) | sum(Quantity) |
+|-----------+-------------+---------------|
+| Monday    |        27.5 |            14 |
+| Thuesday  |          43 |            45 |
+| Wednesday |          18 |            54 |
+| Turdsday  |          43 |            83 |
+| Friday    |           8 |            22 |
+#+END RECEIVE ORGTBL derived2
+#+END_EXAMPLE
+
+Pull & push modes use the same engine in the background.
+Thus, using either is just a matter of convenience.
+
+* Symbolic computation
+
+The computations are based on Calc, which is a symbolic calculator.
+Thus, symbolic computations are built-in. Example:
+
+This is the source table:
+
+#+BEGIN_EXAMPLE
+#+TBLNAME: symtable
+| Day       | Color |  Level | Quantity |
+|-----------+-------+--------+----------|
+| Monday    | Red   |   30+x |     11+a |
+| Monday    | Blue  | 25+3*x |        3 |
+| Thuesday  | Red   | 51+2*x |       12 |
+| Thuesday  | Red   |   45-x |       15 |
+| Thuesday  | Blue  |     33 |       18 |
+| Wednesday | Red   |     27 |       23 |
+| Wednesday | Blue  |   12+x |       16 |
+| Wednesday | Blue  |     15 |   15-6*a |
+| Turdsday  | Red   |     39 |   24-5*a |
+| Turdsday  | Red   |     41 |       29 |
+| Turdsday  | Red   |   49+x |   30+9*a |
+| Friday    | Blue  |      7 |      5+a |
+| Friday    | Blue  |      6 |        8 |
+| Friday    | Blue  |     11 |        9 |
+#+END_EXAMPLE
+
+And here is the aggregated, symbolic result:
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table "symtable" :cols "Day mean(Level) sum(Quantity)"
+| Day       | mean(Level)           | sum(Quantity) |
+|-----------+-----------------------+---------------|
+| Monday    | 2. x + 27.5           | a + 14        |
+| Thuesday  | 0.333333333334 x + 43 | 45            |
+| Wednesday | x / 3 + 18            | 54 - 6 a      |
+| Turdsday  | x / 3 + 43.           | 4 a + 83      |
+| Friday    | 8                     | a + 22        |
+#+END
+#+END_EXAMPLE
+
+Symbolic calculations are correctly performed on =x= and =a=, which
+are symbolic (as opposed to numeric) expressions.
+
+* Correlation of two columns
+
+Some aggregations work on two columns (rather than one column for
+=sum()=, =mean()=).
+Those aggregations are =cov(,)=, =pcov(,)=, =corr(,)=.
+- =corr(,)= computes the linear correlation between two columns.
+- =cov(,)= and =pcov(,)= compute the covariance of two columns.
+
+Example. We create a table where column =y= is a noisy version of
+column =x=:
+
+#+BEGIN_EXAMPLE
+#+TBLNAME: noisydata
+| bin   |  x |       y |
+|-------+----+---------|
+| small |  1 |  10.454 |
+| small |  2 |  21.856 |
+| small |  3 |  30.678 |
+| small |  4 |  41.392 |
+| small |  5 |  51.554 |
+| large |  6 |  61.824 |
+| large |  7 |  71.538 |
+| large |  8 |  80.476 |
+| large |  9 |  90.066 |
+| large | 10 | 101.070 |
+| large | 11 | 111.748 |
+| large | 12 | 121.084 |
+#+TBLFM: $3=$2*10+random(1000)/500;%.3f
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table noisydata :cols "bin corr(x,y) cov(x,y) pcov(x,y)"
+| bin   |      corr(x,y) |      cov(x,y) |     pcov(x,y) |
+|-------+----------------+---------------+---------------|
+| small | 0.999459736649 |        25.434 |       20.3472 |
+| large | 0.999542438688 | 46.4656666667 | 39.8277142857 |
+#+END
+#+END_EXAMPLE
+
+We see that the correlation between =x= and =y= is very close to =1=,
+meaning that both columns are correlated. Indeed they are, as the =y=
+is computed from =x= with the formula =y = 10*x +
+noise_between_0_and_2=.
+
+* Dates
+
+Some (limited) aggregation is possible on dates.
+
+Example. Here is a source table containing dates:
+
+#+BEGIN_EXAMPLE
+#+tblname: datetable
+| Date                    |
+|-------------------------|
+| [2013-12-22 dim. 09:01] |
+| [2013-11-23 sam. 13:04] |
+| [2011-09-24 sam. 13:54] |
+| [2013-09-25 mer. 03:54] |
+| [2014-02-26 mer. 16:11] |
+| [2014-01-18 sam. 03:51] |
+| [2013-12-25 mer. 00:00] |
+| [2012-12-25 mar. 00:00] |
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table datetable :cols "min(Date) max(Date) mean(Date)"
+| min(Date)                  | max(Date)                  |    mean(Date) |
+|----------------------------+----------------------------+---------------|
+| <2011-09-24 sat. 13:54:00> | <2014-02-26 wed. 16:11:00> | 735074.937066 |
+#+END:
+#+END_EXAMPLE
+
+* Empty and malformed input cells
+
+The input table may contain malformed mathematical text.  For instance,
+a cell containing =5+= is malformed, because an expression is missing
+after the =+= symbol.  In this case, the value will be replaced by
+=INPUT_ERROR= which will appear in the aggregated table, signaling the
+problem.
+
+An input cell may be empty.  In this case, it is ignored (rather than
+converted to zero)
+- This makes no difference for =sum= and =count=.
+- For =prod=, empty input do not result in zero.
+- For =mean=, only non-empty cells participate
+  (if empty cells were zero, they would count in the division).
+- For =min= and =max=, a possibly empty list of values is possible,
+  resulting in =inf= or =-inf=
+
+Some aggregation functions operate on two columns.  In this case, a
+pair of empty cells is ignored.  But a pair of an empty and a
+non-empty cell is added to the aggregation, by replacing the missing
+value with zero.
+
+On output, a blank value may result from the aggregation. This happens
+when not enough input is available. For instance, a =mean= does not
+make sense when the input set is empty (it would generate a division
+by zero). On the other hand, some aggregations do have a mathematical
+meaning with an enpty input set. For instance, =prod= on an empty set
+yields =1=. Here is the minimun number of values for each aggregation:
+
+| function | minimum required values |
+|----------+-------------------------|
+| mean     |                       1 |
+| meane    |                       2 |
+| gmean    |                       1 |
+| hmean    |                       1 |
+| median   |                       1 |
+| sum      |                       0 |
+| min      |                       0 |
+| max      |                       0 |
+| prod     |                       0 |
+| pvar     |                       1 |
+| sdev     |                       2 |
+| psdev    |                       1 |
+| corr     |                       2 |
+| cov      |                       2 |
+| pcov     |                       1 |
+
+* Additional formulas
+
+A formula can be computed on top of an aggregation.  With a previous
+example, adding a =:formula= parameter, we specify a new column =$4=
+which uses aggregated columns.  It is translated into a usual =#+TBLFM:=
+spreadsheet line.
+
+#+BEGIN_EXAMPLE
+#+BEGIN: aggregate :table original :cols "Day mean(Level) sum(Quantity)" :formula "$4=$2*$3"
+| Day       | mean(Level) | sum(Quantity) |      |
+|-----------+-------------+---------------+------|
+| Monday    |        27.5 |            14 | 385. |
+| Thuesday  |          43 |            45 | 1935 |
+| Wednesday |          18 |            54 |  972 |
+| Turdsday  |          43 |            83 | 3569 |
+| Friday    |           8 |            22 |  176 |
+#+TBLFM: $4=$2*$3
+#+END_EXAMPLE
+
+Moreover, if a =#+TBLFM:= was already there, it survives aggregation re-computations.
+
+This happens in /pull mode/ only.
+
+* Author, contributors
+- Thierry Banel, author
+- Eric Abrahamsen, non-ascii column names
+- Michael Brand, =#+TBLFM= survival, empty input cells, empty output.
+
+* Changes
+- Wizard now correctly ask for columns with =$1, $2...= names
+  when table header is missing
+- Handle tables begining with hlines
+- Handle non-ascii column names
+- =:formula= parameter and =#+TBLFM= survival
+- Empty cells are ignored.
+- Empty output upon too small input set.
+- Fix ordering of output values
