@@ -1,0 +1,328 @@
+#!/bin/sh
+#
+# Copyright Bart Trojanowski <bart@jukie.net>
+# 
+# git-wip is a script that will manage Work In Progress (or WIP) branches.
+# WIP branches are mostly throw away but identify points of development
+# between commits.  The intent is to tie this script into your editor so
+# that each time you save your file, the git-wip script captures that
+# state in git.  git-wip also helps you return back to a previous state of
+# development.
+#
+# See also http://github.com/bartman/git-wip
+#
+# The code is licensed as GPL v2 or, at your option, any later version.
+# Please see http://www.gnu.org/licenses/gpl-2.0.txt
+#
+
+USAGE='[ info | save <message> [ --editor | --untracked ] | log [ --pretty ] | delete ] [ [--] <file>... ]'
+LONG_USAGE="Manage Work In Progress branches
+
+Commands:
+        git wip                   - create a new WIP commit
+        git wip save <message>    - create a new WIP commit with custom message
+        git wip info [<branch>]   - brief WIP info
+        git wip log [<branch>]    - show changes on the WIP branch
+        git wip delete [<branch>] - delete a WIP branch
+
+Options for save:
+        -e --editor               - be less verbose, assume called from an editor
+        -u --untracked            - capture also untracked files
+        -i --ignored              - capture also ignored files
+
+Options for log:
+        -p --pretty               - show a pretty graph
+"
+
+SUBDIRECTORY_OK=Yes
+OPTIONS_SPEC=
+
+. "$(git --exec-path)/git-sh-setup"
+
+require_work_tree
+
+TMP="$GIT_DIR/.git-wip.$$"
+trap 'rm -f "$TMP-*"' 0
+
+WIP_INDEX="$TMP-INDEX"
+
+WIP_PREFIX=refs/wip/
+WIP_COMMAND=
+WIP_MESSAGE=WIP
+EDITOR_MODE=false
+
+dbg() {
+	if test -n "$WIP_DEBUG"
+	then
+		printf '# %s\n' "$*"
+	fi
+}
+
+# some errors are not worth reporting in --editor mode
+report_soft_error () {
+	$EDITOR_MODE && exit 0
+	die "$@"
+}
+
+cleanup () {
+	rm -f "$TMP-*"
+}
+
+get_work_branch () {
+	ref=$(git symbolic-ref -q HEAD) \
+	|| report_soft_error "git-wip requires a branch"
+
+
+	branch=${ref#refs/heads/}
+	if [ $branch = $ref ] ; then
+		die "git-wip requires a local branch"
+	fi
+
+	echo $branch
+}
+
+get_wip_branch () {
+	return 0
+}
+
+check_files () {
+	local files=$@
+
+	for f in $files
+	do
+		[ -f "$f" -o -d "$f" ] || die "$f: No such file or directory."
+	done
+}
+
+build_new_tree () {
+	local untracked=$1 ; shift
+	local ignored=$1 ; shift
+	local files=$@
+
+	(
+	set -e
+	rm -f "$WIP_INDEX"
+	cp -p "$GIT_DIR/index" "$WIP_INDEX"
+	export GIT_INDEX_FILE="$WIP_INDEX"
+	git read-tree $wip_parent
+	if [ -n "$files" ]
+	then
+		git add -f $files
+	else
+		git add --update .
+	fi
+	[ -n "$untracked" ] && git add .
+	[ -n "$ignored" ] && git add -f -A .
+	git write-tree
+	rm -f "$WIP_INDEX"
+	)
+}
+
+do_save () {
+	local msg="$1" ; shift
+	local add_untracked=
+	local add_ignored=
+
+	while test $# != 0
+	do
+		case "$1" in
+		-e|--editor)
+			EDITOR_MODE=true
+			;;
+		-u|--untracked)
+			add_untracked=t
+			;;
+		-i|--ignored)
+			add_ignored=t
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			[ -f "$1" ] && break
+			die "Unknown option '$1'."
+			;;
+		esac
+		shift
+	done
+	local files=$@
+	local "add_untracked=$add_untracked"
+	local "add_ignored=$add_ignored"
+
+	if test ${#files} -gt 0
+	then
+		check_files $files
+	fi
+
+	dbg "msg=$msg"
+	dbg "files=$files"
+
+	local work_branch=$(get_work_branch)
+	local wip_branch="$WIP_PREFIX$work_branch"
+
+	dbg "work_branch=$work_branch"
+	dbg "wip_branch=$wip_branch"
+
+	# enable reflog
+	local wip_branch_file="$GIT_DIR/logs/$wip_branch"
+	dbg "wip_branch_file=$wip_branch_file"
+	mkdir -p "$(dirname "$wip_branch_file")"
+	: >>"$wip_branch_file"
+
+	if ! work_last=$(git rev-parse --verify $work_branch)
+	then
+		report_soft_error "'$work_branch' branch has no commits."
+	fi
+
+	dbg "work_last=$work_last"
+
+	if wip_last=$(git rev-parse --quiet --verify $wip_branch)
+	then
+		local base=$(git merge-base $wip_last $work_last) \
+		|| die "'work_branch' and '$wip_branch' are unrelated."
+
+		if [ $base = $work_last ] ; then
+			wip_parent=$wip_last
+		else
+			wip_parent=$work_last
+		fi
+	else
+		wip_parent=$work_last
+	fi
+
+	dbg "wip_parent=$wip_parent"
+
+	new_tree=$( build_new_tree "$add_untracked" "$add_ignored" $files ) \
+	|| die "Cannot save the current worktree state."
+
+	dbg "new_tree=$new_tree"
+
+	if git diff-tree --exit-code --quiet $new_tree $wip_parent ; then
+		report_soft_error "no changes"
+	fi
+
+	dbg "... has changes"
+
+	new_wip=$(printf '%s\n' "$msg" | git commit-tree $new_tree -p $wip_parent) \
+	|| die "Cannot record working tree state"
+
+	dbg "new_wip=$new_wip"
+
+	msg1=$(printf '%s\n' "$msg" | sed -e 1q)
+	git update-ref -m "git-wip: $msg1" $wip_branch $new_wip $wip_last
+
+	dbg "SUCCESS"
+}
+
+do_info () {
+	local branch=$1
+
+	die "info not implemented"
+}
+
+do_log () {
+	local work_branch=$1
+	[ -z $branch ] && work_branch=$(get_work_branch)
+	local wip_branch="$WIP_PREFIX$work_branch"
+
+	local git_log="git log"
+	if [ "$1" = --pretty -o "$1" = -p ]
+	then
+		shift
+		git_log="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative"
+	fi
+
+	if ! work_last=$(git rev-parse --verify $work_branch)
+	then
+		die "'$work_branch' branch has no commits."
+	fi
+
+	dbg work_last=$work_last
+
+	if ! wip_last=$(git rev-parse --quiet --verify $wip_branch)
+	then
+		die "'$work_branch' branch has no commits."
+	fi
+
+	dbg wip_last=$wip_last
+
+	local base=$(git merge-base $wip_last $work_last)
+
+	dbg base=$base
+
+	echo $git_log $@ $wip_last $work_last "^$base~1" | sh
+}
+
+do_delete () {
+	local branch=$1
+
+	die "delete not implemented"
+}
+
+do_help () {
+	local rc=$1
+
+	cat <<END
+Usage: git wip $USAGE
+
+$LONG_USAGE
+END
+	exit $rc
+}
+
+
+if test $# -eq 0
+then
+	dbg "no arguments"
+
+	do_save "WIP"
+	exit $?
+fi
+
+dbg "args: $@"
+
+case "$1" in
+save)
+	WIP_COMMAND=$1
+	shift
+	if [ -n "$1" ]
+	then
+		WIP_MESSAGE="$1"
+		shift
+	fi
+	;;
+info|log|delete)
+	WIP_COMMAND=$1
+	shift
+	;;
+help)
+	do_help 0
+	;;
+--*)
+	;;
+*)
+	[ -f "$1" ] || die "Unknown command '$1'."
+	;;
+esac
+
+case $WIP_COMMAND in
+save)
+	do_save "$WIP_MESSAGE" $@
+	;;
+info)
+	do_info $@
+	;;
+log)
+	do_log $@
+	;;
+delete)
+	do_delete $@
+	;;
+*)
+	usage
+	exit 1
+	;;
+esac
+
+# vim: set noet sw=8
