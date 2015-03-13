@@ -1,0 +1,10 @@
+# pandoc-mode settings file for manual.text #
+# saved on 2012.02.26 22:57 #
+
+number-sections::t
+standalone::t
+read::markdown
+write::latex
+output::pandoc-mode-manual.tex
+output-dir::~/src/pandoc-mode/website/
+latex-engine::xelatex

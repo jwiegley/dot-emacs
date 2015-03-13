@@ -1,0 +1,8 @@
+# pandoc-mode settings file for pandoc-mode.text #
+# saved on 2012.04.11 20:41 #
+
+standalone::t
+read::markdown
+write::texinfo
+output::t
+include-before-body::~/src/pandoc-mode/manual/texi-before-body
