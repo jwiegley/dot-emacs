@@ -1,10 +1,23 @@
-FAQs for using Proof General 
-============================
+FAQs for using/installing Proof General 
+=======================================
 
 With thanks to the anonymous authors of questions/answers below.
 
 For latest version, see http://proofgeneral.inf.ed.ac.uk/FAQ
 Please also check the BUGS file.
+
+-----------------------------------------------------------------
+
+Q. The prover process produces some useful output I'd like to
+   keep a note of, how do I do that?
+
+A. Some people cut and paste into comments in their source files.
+   But you can easily make new files or temporary buffers in Emacs:
+
+    * copy text from *response* or *goals* buffer
+    * C-x b <enter new name> RET
+    * Switch to correct mode, e.g.: M-x isar-response-mode RET
+    * Paste text, the highlighting/sumbols should appear correctly.
 
 -----------------------------------------------------------------
 
