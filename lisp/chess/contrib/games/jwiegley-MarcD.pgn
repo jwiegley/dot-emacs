@@ -1,0 +1,21 @@
+[Event "ICS rated blitz match"]
+[Site "69.36.243.188"]
+[Date "2005.05.27"]
+[Round "-"]
+[White "jwiegley"]
+[Black "MarcD"]
+[Result "1-0"]
+[WhiteElo "1130"]
+[BlackElo "1520"]
+[TimeControl "120+5"]
+
+1. c4 c5 2. Nc3 Nc6 3. g3 Nf6 4. Bg2 e6 5. Nf3 d6 6. d3 Be7 7. Bg5 Bd7 8.
+Bxf6 Bxf6 9. O-O a6 10. Rb1 O-O 11. a3 Rb8 12. Nd2 b5 13. Nde4 Be7 14. b3
+b4 15. axb4 Nxb4 16. Qc1 h6 17. e3 Nxd3 18. Qd2 Nb4 19. Nxd6 Qc7 20. Nde4
+Rfd8 21. Qe2 Bc6 22. Rfc1 Rd7 23. Qg4 Rbd8 24. Na4 Bxa4 25. bxa4 Nd3 26.
+Rc2 Ne5 27. Qh5 Nd3 28. Rd2 Nb4 29. Rxd7 Rxd7 30. Rb2 Qa5 31. Nc3 Nd3 32.
+Rb8+ Bf8 33. Bc6 Rd8 34. Rb7 Qxc3 35. Qxf7+ Kh8 36. Qxe6 Qe1+ 37. Kg2 Qxf2+
+38. Kh3 Qf1+ 39. Kh4 Nf2 40. Bd5 g5+ 41. Kh5 Qh3+ 42. Kg6 Qxe6+ 43. Bxe6
+Bg7 44. Rxg7 Ne4 45. Rh7#
+{MarcD checkmated} 1-0
+
