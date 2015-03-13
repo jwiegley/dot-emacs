@@ -1,3 +1,6 @@
 [submodule "lisp/use-package"]
 	path = lisp/use-package
 	url = git://github.com/jwiegley/use-package.git
+[submodule "site-lisp/magit"]
+	path = site-lisp/magit
+	url = git://github.com/magit/magit.git
