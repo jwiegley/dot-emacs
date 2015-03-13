@@ -1,0 +1,284 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Doxymacs = Doxygen + Emacs</title>
+  </head>
+
+  <body>
+    <h1>Doxymacs</h1>
+    <p>
+      Doxymacs is <a href="http://www.doxygen.org">Doxygen</a> +
+      {X}Emacs.
+    </p>
+
+    <p>
+      The purpose of the doxymacs project is to create a LISP package
+      that will make using Doxygen from within {X}Emacs easier.
+    </p>
+
+    <p>
+      <a
+      href="http://sourceforge.net/project/showfiles.php?group_id=23584&amp;release_id=514962">Version 1.8.0</a>,
+      released 2007-06-10, has the following features:
+    </p>
+
+    <ul>
+      <li>
+	ability to <a
+	href="http://sourceforge.net/project/screenshots.php?group_id=23584&amp;ssid=13275">look
+	up documentation</a> for symbols from {X}Emacs in the browser
+	of your choice.
+      </li>
+
+      <li>
+	<a
+	href="http://sourceforge.net/project/screenshots.php?group_id=23584&amp;ssid=13271">easily
+	insert Doxygen style comments</a> into source.
+      </li>
+
+      <li>
+	optionally use an "external" (<i>i.e.</i> written in C) XML
+	parser to speed up building the completion list.
+      </li>
+
+      <li>
+	<a
+	href="http://sourceforge.net/project/screenshots.php?group_id=23584&amp;ssid=13277">fontify
+	Doxygen keywords</a>.
+      </li>
+    </ul>
+
+    <p>
+      Please direct any bug reports or feature requests to the
+      appropriate forum on <a
+      href="http://sourceforge.net/projects/doxymacs/">Doxymacs'
+      SourceForge</a> page.
+    </p>
+
+    <h2>Requirements</h2>
+
+    Doxymacs depends on the following packages:
+
+    <ul>
+
+      <li>
+	<a href="http://www.cs.indiana.edu/usr/local/www/elisp/w3/docs.html">W3</a>
+      </li>
+
+      <li>
+	<a href="http://www.lysator.liu.se/~davidk/elisp/">tempo</a>
+      </li>
+
+      <li>
+	version 2.6.13 or greater of <a
+	href="http://www.libxml.org/">libxml2</a>.
+      </li>
+    </ul>
+
+    Make sure these are properly configured and installed before
+    proceeding.
+
+    <h2>Installation</h2>
+
+    <ul>
+
+      <li>
+	Use the configure script to configure and build doxymacs:
+	<pre>
+$ ./configure
+$ make
+$ make install
+	</pre>
+
+	Be sure to put <code>${datadir}/share/${EMACS}/site-lisp</code>
+	in your <code>load-path</code> in your <code>.emacs</code>
+	file, or wherever you configured the .elc files to end up.
+	<br /><br />
+	<b>NOTE</b> If you get:
+	<pre>
+!! File error (("Cannot open load file" "url"))
+	</pre>
+	(or something similar) when you do <code>make</code>,
+	then set the variable <code>EMACSLOADPATH</code>:
+	<pre>
+$ EMACSLOADPATH=... make
+        </pre>
+        where <code>...</code> is a colon separated list of directories
+	to seach for packages.
+	<br /><br />
+        To byte compile with XEmacs, set the variable <code>EMACS</code>:
+        <pre>
+$ EMACS=xemacs make
+        </pre>
+
+	If you want to avoid byte-compiling altogether:
+	<pre>
+$ make ELCFILES=
+$ make install ELCFILES=
+	</pre>
+
+	For a complete list of configuration options:
+	<pre>
+$ ./configure --help
+        </pre>
+
+    	If you do not want to run or cannot run <code>configure</code>
+    	then pre-baked <code>.el</code> files are available in the
+    	<code>no-autoconf/</code> directory; simply
+	copy these to somewhere in your <code>load-path</code>.
+
+      </li>
+
+      <li>
+	Customise the variables <code>doxymacs-doxygen-root</code> and
+	<code>doxymacs-doxygen-tags</code>. You can customise these
+	via the customisation menu Programming | Tools | Doxymacs.
+      </li>
+
+      <li>
+	(Optional) Customise <code>doxymacs-doxygen-style</code>.  The
+	default is "JavaDoc".  See <a
+	href="http://www.stack.nl/~dimitri/doxygen/docblocks.html#docblocks">the
+	Doxygen manual</a> for examples of the four available styles
+	(JavaDoc, Qt, C++ and C++!).
+      </li>
+
+      <li>
+	To use the external XML parser, set
+	<code>doxymacs-use-external-xml-parser</code> to non-nil (can
+	be done via the customisation menu).
+      </li>
+
+      <li>
+	Put <code>(require 'doxymacs)</code> in your <code>.emacs</code>
+	file.
+      </li>
+
+      <li>
+	Invoke <code>doxymacs-mode</code> with <code>M-x
+	doxymacs-mode</code>. To have <code>doxymacs-mode</code>
+	automatically come up whenever you visit a C/C++ file, put
+	<code>(add-hook 'c-mode-common-hook'doxymacs-mode)</code> in
+	your <code>.emacs</code>.
+      </li>
+
+      <li>
+	If you want Doxygen keywords fontified use <code>M-x
+	doxymacs-font-lock</code>. To do it automatically, add
+	the following to your <code>.emacs</code>:
+
+	<pre>
+  (defun my-doxymacs-font-lock-hook ()
+    (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+        (doxymacs-font-lock)))
+  (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
+	</pre>
+
+	This will add the Doxygen keywords to c-mode and c++-mode
+	only.
+      </li>
+
+      <li>
+	Default key bindings are:
+
+	<ul>
+
+	  <li>
+	    <code>C-c d ?</code> will look up documentation for the symbol
+	    under the point.
+	  </li>
+
+	  <li>
+	    <code>C-c d r</code> will rescan your Doxygen tags file.
+	  </li>
+
+	  <li>
+	    <code>C-c d f</code> will insert a Doxygen comment for the
+	    next function.
+	  </li>
+
+	  <li>
+	    <code>C-c d i</code> will insert a Doxygen comment for the
+	    current file.
+	  </li>
+
+	  <li>
+	    <code>C-c d ;</code> will insert a Doxygen comment for a
+	    member variable on the current line (like <code>M-;</code>).
+	  </li>
+
+	  <li>
+	    <code>C-c d m</code> will insert a blank multi-line Doxygen
+	    comment.
+	  </li>
+
+	  <li>
+	    <code>C-c d s</code> will insert a blank single-line Doxygen
+	    comment.
+	  </li>
+
+	  <li>
+	    <code>C-c d @</code> will insert grouping comments around the
+	    current region.
+	  </li>
+	</ul>
+      </li>
+  </ul>
+
+    Doxymacs has been tested on and works with:
+
+    <ul>
+      <li>GNU Emacs 20.7.1, 21.1.1, 21.2.1, 21.3, 21.4.1, 23.1.1.</li>
+      <li>XEmacs 21.1 (patch 14), XEmacs 21.4 (patch 4, 5, 6, 17).</li>
+      <li>Up to doxygen version 1.4.4</li>
+    </ul>
+
+    If you have success or failure with other versions of {X}Emacs and
+    doxygen, please let the authors know.
+
+    <p>
+
+    <h2>Links</h2>
+
+    <ul>
+
+      <li>
+	<a href="http://sourceforge.net/projects/doxymacs/">Doxymacs
+	  SourceForge Project.</a> Go here to request help, submit a
+	patch, or ask for a feature.
+      </li>
+
+      <li>
+	<a
+	   href="http://sourceforge.net/project/showfiles.php?group_id=23584&amp;release_id=514962">Release
+	  1.8.0</a> Download it now.
+      </li>
+
+      <li>
+	<a href="https://sourceforge.net/scm/?type=git&group_id=23584">Git
+	  Repository</a> For bleeding edge people and developers.
+      </li>
+    </ul>
+
+    <p>
+      <a href="http://sourceforge.net"> <img src="http://sourceforge.net/sflogo.php?group_id=23584" width="88" height="31" border="0" alt="SourceForge Logo"></A>
+    </p>
+
+    <p>
+      <a href="http://validator.w3.org/check/referer"><img border="0"
+          src="http://www.w3.org/Icons/valid-html401"
+          alt="Valid HTML 4.01!" height="31" width="88"></a>
+    </p>
+
+    <hr>
+    <address><a href="mailto:ryan.sammartino@gmail.com">Ryan T. Sammartino</a></address>
+    <!-- Created: Sun Jan  5 18:21:52 PST 2003 -->
+    <!-- hhmts start -->Last modified: Fri Feb 19 21:39:29 GMT 2010 <!-- hhmts end -->
+  </body>
+</html>
+
+<!-- Local Variables: -->
+<!-- mode: html -->
+<!-- sgml-indent-step: 2 -->
+<!-- End: -->
