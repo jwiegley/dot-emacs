@@ -1,0 +1,17 @@
+
+. HuMakefile
+flags="-fallow-undecidable-instances -fno-monomorphism-restriction"
+srcdirs="`echo $SRC_DIRS | sed 's/:/ -i/g'`"
+libdirs="`echo $LIB_DIRS | sed 's/:/ -P/g'`"
+if [ -n "$libdirs" ] ; then
+  libdirs="-P$libdirs"
+fi
+
+if [ "x$1" = "x-contrib" ] ; then
+  flags="-contrib $flags"
+  shift
+fi
+
+#[ -n "$HIDE" ] && mv "$HIDE" "$HIDE.hidefromhmake" #hmake-3.07 bug workaround
+ghcxmake $flags $GHCFLAGS -i$srcdirs $libdirs "$@"
+#[ -n "$HIDE" ] && mv "$HIDE.hidefromhmake" "$HIDE" #hmake-3.07 bug workaround

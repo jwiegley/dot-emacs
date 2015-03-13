@@ -1,0 +1,36 @@
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* From ../../examples/ChannelSeparation/Alg.hs:8,14 : *)
+Hol_datatype `Alg = Addr -> RegFile -> Code`
+handle e => (print "Type synonym Alg failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/Alg.hs:9,14 : *)
+Hol_datatype `RegFile = Memory`
+handle e => (print "Type synonym RegFile failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/Alg.hs:11,6 : *)
+Hol_datatype `Code = Done of RegFile
+		     | Read of Addr => Word -> Code
+		       | Write of Addr => Word => Code`
+handle e => (print "Datatype Code failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/Alg.hs:15,24 *)
+(* From ../../examples/ChannelSeparation/Alg.hs:16,25 : *)
+val runAlg_def = Define `(runAlg (Done regs) = return regs) /\
+			 (runAlg (Read a cont) = (* Not supported: do notation *)) /\
+			 runAlg (Write a v cont) = (* Not supported: do notation *)`
+handle e => (print "Function runAlg failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 

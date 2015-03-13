@@ -1,0 +1,1 @@
+hugs -98 -P:../base:../base/AST:../base/pretty:../base/syntax:../base/lib $*

@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>P-logic syntax, as implemented by PFE</title>
+<link rel=stylesheet href="../web/src.css" title=Normal>
+<link rel=parent href="./">
+<link rel=author href="/~hallgren/" title="Thomas Hallgren">
+<link rel=icon type="image/gif" href="../web/icon1.png">
+</head>
+<body>
+<h1><img align=right src="../web/icon1.png" alt="">P-logic syntax,
+as implemented by PFE</h1>
+
+<small>Extracted from
+<a href="parse2/Parser/PropParser.y">parse2/Parser/PropParser.y</a>
+on 2004-09-01.</small>
+
+<h3>Notational Conventions</h3>
+<p>
+As in the <a href="http://www.haskell.org/onlinereport/syntax-iso.html">
+Haskell 98 syntax reference</a>:
+</p>
+
+<table>
+<tr><th>Notation<th>Meaning
+<tr><td class=code>[<i>pattern</i>]
+    <td>optional
+<tr><td class=code>{<i>pattern</i>}
+    <td>zero or more repetitions
+<tr><td class=code>(<i>pattern</i>)
+    <td>grouping
+<tr><td class=code><i>pat<sub>1</sub></i>|<i>pat<sub>2</sub></i>
+    <td>choice
+<tr><td class=code><code><b>assert</b></code>
+    <td>terminal syntax
+</table>
+
+<h2>Context-Free Syntax</h2>
+P-logic is added to Haskell 98 by extending the declaration syntax with
+<em>property assertions</em> and <em>predicate definitions</em>,
+as defined by the nonterminals
+<code>assertion</code> and <code>property</code> below, respectively.
+
+<pre class=code>
+assertion : <b>assert</b> [conid <b>=</b>] prop
+
+property  : <b>property</b> conid {var|con} <b>=</b> formula
+
+prop    : pqcon {predarg}
+        | (<b>All</b> | <b>Exist</b>) var [<b>::</b> ctype] <b>.</b> prop
+        | <b>-/</b> prop
+        | prop propop prop
+        | pexp <b>===</b> pexp
+        | pexp <b>:::</b> formula
+        | <b>(</b> prop <b>)</b>
+
+propop : <b>/\</b> | <b>\/</b> | <b>==&gt;</b> | <b>&lt;==&gt;</b>
+
+pexp    : <b>{</b> exp <b>}</b>
+        | qvar
+        | pqcon
+	| literal		
+
+formula : aformula
+        | formula <b>-&gt;</b> formula
+        | formula qconop formula
+        | <b>-/</b> formula		
+        | formula propop formula		
+        | <b>Lfp</b> conid <b>.</b> formula
+        | <b>Gfp</b> conid <b>.</b> formula
+        | pqcon {predarg}
+
+predarg : <b>{</b> exp <b>}</b>
+        | qvar
+	| literal		
+        | aformula
+
+aformula
+        : pqcon
+        | <b>[</b> <b>]</b>
+	| <b>!</b> aexp1
+        | <b>$</b> aformula
+        | <b>(</b> formulas <b>)</b>
+        | <b>{|</b> typedpats <b>|</b> prop <b>|}</b>
+
+typedpats : typedpat { <b>,</b> typedpat }
+
+typedpat : pat [<b>::</b> ctype]
+
+formulas : formula { <b>,</b> formula }
+
+pqconid	: CONID | QCONID | tupcon
+
+pqcon   : pqconid
+	| <b>(</b> gconsym <b>)</b>
+</pre>
+<h2>Reserverd keywords</h2>
+<dl>
+<dt>In Haskell
+<dd>Two new keywords are reserved:
+    <code class=code><b>assert</b></code> and
+    <code class=code><b>property</b></code>.
+Apart from this, all valid Haskell 98 syntax remains valid in the extended
+language.
+
+<dt>In P-logic
+<dd><ul>
+     <li>All words that are reserved in Haskell 98 are reserved in P-logic.
+     <li>The following additional words are reserved within the P-logic syntax:
+         <blockquote class=code>
+         <b><code>All</code></b>, <b><code>Exist</code></b>,
+	 <b><code>Gfp</code></b>, <b><code>Lfp</code></b>,
+	 <br>
+	<b><code>!</code></b>, <b><code>.</code></b>, <b><code>$</code></b>, <b><code>-/</code></b>,
+	 <b><code>/\</code></b>, <b><code>\/</code></b>, <b><code>===</code></b>, <b><code>==></code></b>,
+	  <b><code>&lt;==></code></b>
+	  </blockquote>
+     </ul> 
+</dl>
+
+<h2>Precedences</h2>
+<table>
+<caption>Precedences, from lowest to highest</caption>
+<tr><th>Associativity<th>Operator
+<tr><td>right<td class=code><b><code>Gfp</code></b>, <b><code>Lfp</code></b>,
+                 <b><code>All</code></b>, <b><code>Exist</code></b>
+<tr><td>right<td class=code><b><code>-></code></b>, qconop
+<tr><td>left<td class=code><b><code><==></code></b>
+<tr><td>right<td class=code><b><code>==></code></b>
+<tr><td>left<td class=code><b><code>/\</code></b>, <b><code>\/</code></b>, <b><code>-/</code></b>,
+                <b><code>===</code></b>
+<tr><td>left<td class=code><b><code>:::</code></b>
+</table>
+
+</body>
+</html>

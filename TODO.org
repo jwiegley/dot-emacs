@@ -1,0 +1,126 @@
+* HaRe todo
+** TODO renaming : check that new name is not the same as the old
+** TODO when using a cabal sandbox with 'cabal add-source', refactor into the added src too
+** TODO Renaming does not rename exported type in exports list
+   -- See
+   /home/alanz/mysrc/github/alanz/htelehash/src/TeleHash/Utils.hs.2014-04-03T13:03:21+0200
+   renaming HashContainer to HashCrypto at (97,11)
+** TODO Renaming in htelehash Switch.hs complains of Crypto1a.hs not loaded
+   (1137,7) rename mpath to path
+   send mpath msg mto = do
+   [Just /home/alanz/mysrc/github/alanz/htelehash/htelehash.cabal])
+   Refactoring failed: "attempting to use module `main:TeleHash.Crypto1a' (/home/alanz/mysrc/github/alanz/htelehash/src/TeleHash/Crypto1a.hs) which is not loaded
+
+
+   alanz@alanz-laptop:~/mysrc/github/alanz/htelehash$ ghc-hare -v rename ./src/TeleHash/Switch.hs path 1137 7
+   initGhcSession:targets=(["TeleHash.Switch","TeleHash.Utils","TeleHash.Crypto1a","TeleHash.Packet"],["/home/alanz/mysrc/github/alanz/htelehash/./ping.hs"],[],[])
+   initGhcSession:(libTgts,exeTgts)=(["TeleHash.Switch","TeleHash.Utils","TeleHash.Crypto1a","TeleHash.Packet"],["/home/alanz/mysrc/github/alanz/htelehash/./ping.hs"])
+   Renaming.comp: (fileName,newName,(row,col))=("./src/TeleHash/Switch.hs","path",(1137,7))
+   activateModule:(["/home/alanz/mysrc/github/alanz/htelehash/ping.hs"],TeleHash.Switch)
+   ensureTargetLoaded: loading:["/home/alanz/mysrc/github/alanz/htelehash/ping.hs"]
+   (error "attempting to use module `main:TeleHash.Crypto1a' (/home/alanz/mysrc/github/alanz/htelehash/src/TeleHash/Crypto1a.hs) which is not loaded\n"[Just "/home/alanz/mysrc/github/alanz/htelehash/htelehash.cabal"])
+
+   root cause is program cannot load due to syntax errors. Provide
+   decent error reporting
+
+** TODO cannot select (data) item to be renamed from the module exports list
+** TODO when renaming, tell the user the original name, in the elisp
+** TODO liftToTopLevel does not update the signature when adding a param
+    e.g.for lifting 'uses' in MoveDef.hs line 1374 now complains
+    about requiring an existential type.
+    - Consider offering a version that does the lift but comments out
+      the proposed signature
+** TODO rationalise all the various hsFreeAndDeclaredXX functions
+** TODO The elisp test for buffers to save includes directories that have been modified
+** TODO Provide a warning if refactoring is done on code using CPP.
+     State that refactoring may only affect current flags code, not others.
+** TODO Make undo (M-x u) undo a refactoring.
+** TODO add tests for command-line invocation of ghc-hare
+** TODO look at using ordnub
+** TODO check .lhs support
+** TODO add command line param to turn off timestamping of log lines when -v
+** TODO add more granularity on logging control, e.g wether to show tokens while working, whether to dump initial AST
+** TODO Look at refactoring Data.Vault.Lazy. Uses include process
+    [2013-09-09 Mon]
+** TODO Use null instead of isEmptyList/nonEmptyList
+** TODO after accepting a refactoring, reload the buffer into emacs
+** TODO add a "roundtrip" function to ghc-hare to simply parse and output a file, comparing for fidelity
+** TODO clientModsAndFiles must take the nub of all files generated from the various targets
+** TODO use GHC.NameSet for hsFreeAndDeclaredGhc,hsVisibleDs etc
+** TODO manage RefactGhc to separate Hare exceptions from GHC ones
+   see http://parenz.wordpress.com/2013/07/23/on-custom-error-handlers-for-ghc-api/
+** TODO elisp: cancel option is not implemented
+** TODO SwapArgs does not process client files
+** TODO demote does not process client files
+** TODO provide simple wrapper for one-file refactor in the API
+** TODO note: haddock 2.11.0 builds the 7.4.2 docs without problem
+** TODO renaming: what if the old name appears in comments too?
+** TODO from the source files
+   :PROPERTIES:
+   :ID:       2930a92b-9989-427f-b02e-e47ca11a84de
+   :END:
+*** TODO Check that the components are in range
+    :PROPERTIES:
+    :ID:       5318a78f-d18b-4df0-a664-506400ee1b67
+    :END:
+    [2013-07-11 Thu]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TokenUtils.hs::--%20TODO:%20check%20that%20the%20components%20are%20in%20range][file:.//src/Language/Haskell/Refact/Utils/TokenUtils.hs::-- TODO: check that the components are in range]]
+*** TODO This should be in splitSubToks
+    :PROPERTIES:
+    :ID:       74497dc3-e597-4892-a55b-ad126e1a2c31
+    :END:
+    [2013-07-11 Thu]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TokenUtils.hs::then%20--%20TODO:%20This%20should%20be%20in%20splitSubToks][file:.//src/Language/Haskell/Refact/Utils/TokenUtils.hs::then -- TODO: This should be in splitSubToks]]
+*** TODO Calculate end gap in splitSubToks
+    :PROPERTIES:
+    :ID:       b3691446-2a8d-4a61-8172-a61a0abe7993
+    :END:
+    [2013-07-11 Thu]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TokenUtils.hs::egs%20%3D%20(0,0)%20--%20TODO:%20calculate%20this][file:.//src/Language/Haskell/Refact/Utils/TokenUtils.hs::egs = (0,0) -- TODO: calculate this]]
+*** TODO Consider comment boundaries in splitSubToks
+    :PROPERTIES:
+    :ID:       b04c3f84-f728-4086-b7be-005e5657d75a
+    :END:
+    [2013-07-11 Thu]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TokenUtils.hs::--%20TODO:%20ignoring%20comment%20boundaries%20to%20start][file:./src/Language/Haskell/Refact/Utils/TokenUtils.hs::-- TODO: ignoring comment boundaries to start]]
+*** TODO goDeleteGapsToks - use start and end toks not sspan, there may be comments
+    :PROPERTIES:
+    :ID:       809fcc7a-3ba1-4241-a850-ad4a5040d699
+    :END:
+    [2013-07-11 Thu]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TokenUtils.hs::--%20TODO:%20use%20actual%20first%20and%20last%20toks,%20may%20be%20comments][file:.//src/Language/Haskell/Refact/Utils/TokenUtils.hs::-- TODO: use actual first and last toks, may be comments]]
+*** TODO goDeleteGapsToks : deal with deletion within a line
+    :PROPERTIES:
+    :ID:       51d8c773-a255-4fbe-8d53-d1c18d17326f
+    :END:
+    [2013-07-11 Thu]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TokenUtils.hs::--%20TODO:%20what%20about%20deletion%20within%20a%20line?][file:./src/Language/Haskell/Refact/Utils/TokenUtils.hs::-- TODO: what about deletion within a line?]]
+*** TODO This looks like a no-op?
+    :PROPERTIES:
+    :ID:       26e11bee-d04c-46e1-80af-4181157ebadd
+    :END:
+    [2013-07-11 Thu]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TokenUtils.hs::--%20TODO:%20This%20looks%20like%20a%20no-op?][file:./src/Language/Haskell/Refact/Utils/TokenUtils.hs::-- TODO: This looks like a no-op?]]
+*** TODO move buffers-saved test into hare-refactor-command
+    [2013-07-20 Sat]
+    [[file:~/mysrc/github/alanz/HaRe/elisp/hare.el::TODO:%20move%20this%20test%20into%20hare-refactor-command][file:~/mysrc/github/alanz/HaRe/elisp/hare.el::TODO: move this test into hare-refactor-command]]
+*** TODO Complete SwapArgs
+    [2013-07-23 Tue]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/SwapArgs.hs::module%20Language.Haskell.Refact.SwapArgs%20(swapArgs)%20where][file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/SwapArgs.hs::module Language.Haskell.Refact.SwapArgs (swapArgs) where]]
+*** TODO "renamePN:***ERROR**:do not use getSrcSpan"
+    Consider using a generic zipper, and UpUntil to find the nearest
+    enclosing SrcSpan
+
+    Seems the problem is that the existing spans may have been
+    modified. So, drill down into the token tree to the closest
+    enclosing span, and use the toks from that.
+
+    No. Problem is that we are trying to work with a type declaration,
+    it is in a different place in the RenamedSourcs, so getSrcSpan
+    returns wrong point.
+    [2013-07-23 Tue]
+    [[file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TypeUtils.hs::logm%20$%20"renamePN:***ERROR**:do%20not%20use%20getSrcSpan"][file:~/mysrc/github/alanz/HaRe/src/Language/Haskell/Refact/Utils/TypeUtils.hs::logm $ "renamePN:***ERROR**:do not use getSrcSpan"]]
+    
+*** DONE cmdtheline 0.2.2 has broken output for --help
+    [2013-07-31 Wed]
+    [[file:~/mysrc/github/erudify/colog/colog.cabal::cmdtheline%20>%3D%200.2%20&&%20<%200.2.2,][file:~/mysrc/github/erudify/colog/colog.cabal::cmdtheline >= 0.2 && < 0.2.2,]]

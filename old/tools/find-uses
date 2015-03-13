@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for FILE in `find . \( -name '*.hs'  -or \
+                       -name '*.lhs' -or \
+                       -name '*.y'   -or \
+                       -name '*.ly'      \
+                    \) -print` ; do 
+    grep -n "$1" "$FILE" /dev/null | grep -v CVS
+done

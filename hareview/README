@@ -1,0 +1,11 @@
+Astview is a graphical viewer for abstract syntax trees. It is
+implemented on the basis of scrap-your-boilerplate (i.e.  data2tree)
+and works with all parsers that generate trees that are instances of
+the Data.Data class.  Custom parsers can be dynamically loaded (via
+package hint) at startup.
+
+Copyright (c) Pascal Hof <pascal.hof@udo.edu> and Sebastian Menge
+<sebastian.menge@udo.edu>
+
+Details on installation and configuration of custom parsers can be
+found in INSTALL

@@ -1,0 +1,31 @@
+package Prelude where
+  Unit :: Set
+    = data Unit
+  Bool :: Set
+    = data False | True
+  Char :: Set
+    = data A | B | C
+  List (A::Set) :: Set
+    = data Nil | (:) (x::A) (xs::List A)
+  postulate undefined (A::Set) ::A
+
+Class :: #2
+  = Type
+
+Star :: Type
+  = Set
+
+if (A::Star)(cnd::Prelude.Bool)(thn::A)(els::A) :: A
+  = case cnd of {
+      (False) -> els;
+      (True) -> thn;}
+{-# Alfa hiding on
+var "Unit" as "()"
+con "Unit" as "()"
+con "Nil" as "[]"
+con "Cons" infix rightassoc 5 as ":"
+con ":" infix rightassoc 5
+var "List" mixfix as "[_]"
+var "Star" as "*" with symbolfont
+var "if" hide 1 mixfix as "if _ then _ else _"
+ #-}

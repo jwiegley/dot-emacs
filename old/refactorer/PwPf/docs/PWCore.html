@@ -1,0 +1,490 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+  ><TITLE
+    >PWCore</TITLE
+    ><LINK HREF = "haddock.css" REL = "stylesheet" TYPE = "text/css"
+    ></HEAD
+  ><BODY
+  ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+    ><TR
+      ><TD CLASS = "topbar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><IMG SRC = "haskell_icon.gif" WIDTH = "16" HEIGHT = "16" ALT = " "
+		></TD
+	      ><TD CLASS = "title"
+	      ></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "index.html"
+		>Contents</A
+		></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "doc-index.html"
+		>Index</A
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "modulebar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><FONT SIZE = "6"
+		>PWCore</FONT
+		></TD
+	      ><TD ALIGN = "right"
+	      ><TABLE CLASS = "narrow" CELLSPACING = "0" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "infohead"
+		    >Portability</TD
+		    ><TD CLASS = "infoval"
+		    >  portable</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Stability</TD
+		    ><TD CLASS = "infoval"
+		    >  experimental</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Maintainer</TD
+		    ><TD CLASS = "infoval"
+		    >  jproenca@di.uminho.pt</TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Description</TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	>A syntax of a general pointwise language.
+</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Synopsis</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "body"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "decl"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    ><SPAN CLASS = "keyword"
+		      >data</SPAN
+		      > <A HREF = "#t%3APWTerm"
+		      >PWTerm</A
+		      > </TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "body"
+		    ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+		      ><TR
+			><TD CLASS = "decl"
+			  >= <A HREF = "#v%3AUnit"
+			    >Unit</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AVar'"
+			    >Var'</A
+			    > String</TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A%40%3A"
+			    >(:@:)</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AAbstr"
+			    >Abstr</A
+			    > String <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A%3E%3C%3A"
+			    >(:&gt;&lt;:)</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AFst"
+			    >Fst</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ASnd"
+			    >Snd</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AInl"
+			    >Inl</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AInr"
+			    >Inr</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ACase"
+			    >Case</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    > (String, <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    >) (String, <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    >)</TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AIn"
+			    >In</A
+			    > HsExpP <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AOut"
+			    >Out</A
+			    > HsExpP <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AFix"
+			    >Fix</A
+			    > <A HREF = "PWCore.html#t%3APWTerm"
+			    >PWTerm</A
+			    ></TD
+			  ></TR
+			></TABLE
+		      ></TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Documentation</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >A simple definition of a pointwise language where:
+</P
+	  ><UL
+	  ><LI
+	    > products and sums are allowed;
+</LI
+	    ><LI
+	    > constants are dealed by the use of <EM
+	      >in</EM
+	      > and <EM
+	      >out</EM
+	      > functions that
+allows to go from any type that has an associated base functor to and
+from a representation of that base functor using sums and products;
+</LI
+	    ><LI
+	    > recursion is only possible by the use of the fixed point constructor.
+</LI
+	    ></UL
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "decl"
+	><SPAN CLASS = "keyword"
+	  >data</SPAN
+	  > <A NAME = "t%3APWTerm"
+	  ></A
+	  ><B
+	  >PWTerm</B
+	  > </TD
+	></TR
+      ><TR
+      ><TD CLASS = "body"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "section4"
+	      >Constructors</TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "body"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "1" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AUnit"
+		      ></A
+		      ><B
+		      >Unit</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Unit</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AVar'"
+		      ></A
+		      ><B
+		      >Var'</B
+		      > String</TD
+		    ><TD CLASS = "rdoc"
+		    >Variable</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A%40%3A"
+		      ></A
+		      ><B
+		      >(:@:)</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Aplication</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AAbstr"
+		      ></A
+		      ><B
+		      >Abstr</B
+		      > String <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Abstraction</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A%3E%3C%3A"
+		      ></A
+		      ><B
+		      >(:&gt;&lt;:)</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Pair</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AFst"
+		      ></A
+		      ><B
+		      >Fst</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise first</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ASnd"
+		      ></A
+		      ><B
+		      >Snd</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise second</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AInl"
+		      ></A
+		      ><B
+		      >Inl</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise left injection</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AInr"
+		      ></A
+		      ><B
+		      >Inr</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-wise right injection</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ACase"
+		      ></A
+		      ><B
+		      >Case</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      > (String, <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      >) (String, <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      >)</TD
+		    ><TD CLASS = "rdoc"
+		    >Case of</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AIn"
+		      ></A
+		      ><B
+		      >In</B
+		      > HsExpP <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Injection on a specified type</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AOut"
+		      ></A
+		      ><B
+		      >Out</B
+		      > HsExpP <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Extraction of the functor of a specified type</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AFix"
+		      ></A
+		      ><B
+		      >Fix</B
+		      > <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Fixed point</TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "section4"
+	      >Instances</TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "body"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "1" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    >Show <A HREF = "PWCore.html#t%3APWTerm"
+		      >PWTerm</A
+		      ></TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "botbar"
+	>Produced by <A HREF = "http://www.haskell.org/haddock/"
+	  >Haddock</A
+	  > version 0.6</TD
+	></TR
+      ></TABLE
+    ></BODY
+  ></HTML
+>

@@ -1,0 +1,75 @@
+#!/bin/sh
+
+# This script should be invoked from cert
+# It expects "$PROGRAMATICA", "$SERVERDIR" and "$certsDir" to be set.
+
+type=Cut
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/functions.sh"
+[ -n "$certsDir" ] || abort 'Bug: $certsDir is not set'
+[ -n "$SERVERDIR" ] || abort 'Bug: $SERVERDIR is not set'
+. $SERVERDIR/functions.sh # cut()
+
+u="Usage: cert new $type <module/cert> <module/leftcert> <module/rightcert>
+   or: cert new $type <module/cert> conc"
+
+usage() { abort "$u"; }
+
+createcert() {
+  mkdir -p "$1"
+  cat >"$1/cert.attr" <<EOF
+type: $type
+version: `getserverattr version`
+conc: $conc
+hyp: $hyp
+pivot: $pivot
+left: $leftpath
+right: $rightpath
+who: $USER
+date: `LANG=C date`
+EOF
+}
+
+[ -n "$1" ] || usage
+cert="$1"
+
+[ -n "$2" ] || usage
+case "$2" in
+  [A-Z]*/*)
+    left="$2"
+    [ -n "$3" ] || usage
+    right="$3"
+    conc=""
+    shift;shift;shift ;;
+  *)
+    # Create incomplete certificate (this is the usage pfebrowser assumes)
+    conc="$2"
+    left=""; right=""
+    shift;shift
+esac
+
+[ -n "$*" ] && usage
+
+checkproject
+
+module="${cert%/*}"
+certname="${cert##*/}"
+#checkcertannot "$module" "$certname"
+certpath="$module/$certname"
+[ -d "$certsDir$certpath" ] && abort "$cert already exists"
+leftpath="$left";rightpath="$right" # Hmm.
+if [ -n "$conc" ] ; then
+  hyp=""
+else
+  (checkcert "$leftpath")
+  (checkcert "$rightpath")
+  cut "$leftpath" "$rightpath"
+fi
+
+# Some debugging output:
+echo "Hyp: $hyp"
+echo "Pivot: $pivot"
+echo "Conclusion: $conc"
+
+createcert "$certsDir$certpath"

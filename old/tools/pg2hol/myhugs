@@ -1,0 +1,2 @@
+#!/bin/bash
+hugs -98 -P{Hugs}/lib:{Hugs}/lib/hugs:{Hugs}/lib/exts:.:..:../base/AST:../base/TC:../base/parse:../property/AST:../property/command:../property/parse/extras:../base/pretty:../base/SA:../property/syntax -h4M

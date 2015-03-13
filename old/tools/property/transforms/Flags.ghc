@@ -1,0 +1,2 @@
+ToQC.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+RemoveListCompProp.hs: -fallow-undecidable-instances

@@ -1,0 +1,54 @@
+<h1>Extensible Haskell front-end for the Programatica project</h1>
+
+<h2>What is in this directory (base/AST)</h2>
+
+This directory defines datatypes and associated functions for the
+nonrecursive part of the structure of the base abstract syntax. These types
+and functions should be reusable in extended versions of the language.
+
+<p>
+The modules are factorized according to syntactic category and functionality.
+This is illustrated in the following table:
+
+<p>
+<table border=1>
+<caption>For every x, there is a module called
+<code>Hs</code>&lt;<var>category</var>&gt;&lt<var>functionality</var>&gt;
+</caption>
+<tr><th><th>Decl<th>Exp<th>Fields<th>Guards<th>Kind<th>Pat<th>Type<th>collected
+<tr><th>Struct<td>x<td>x<td>x<td>x<td>x<td>x<td>x<td>BaseSyntaxStruct
+<tr><th>Maps<td>x<td>x<td>x<td>x<td>x<td>x<td>x<td>BaseSyntaxMaps
+<tr><th>Pretty<td>x<td>x<td>x<td>x<td>x<td>x<td>x<td>BaseSyntaxPretty
+<tr><th>Util<td>x<td>x<td>-<td>x<td>x<td>x<td>x<td>BaseSyntaxUtil
+<tr><th>collected<td>HsDecl<td>HsExp<td>HsFields<td>HsGuards<td>HsKind<td>HsPat<td>HsType<td>BaseSyntax
+</table>
+
+<p>
+There is also a small number of auxiliary modules.
+<p>
+The modules in the row and column marked <em>collected</em> just import
+and reexport the modules in the respective row or column. The module
+<code>BaseSyntax</code> exports everything defined in this directory.
+<p>
+The modules in the first row (Struct) define the data types and
+are self-contained: they do not depend
+on any other modules (except some types from the Haskell 98 Prelude).
+
+<p>
+The modules in the second row (Maps) define the three operations acc, map
+and seq. These modules depend on the modules in the first row
+(mostly the ones directly above)
+and some auxiliary modules (AccList and MUtils, available in ../lib),
+which in turn depend on some Haskell 98 Standrad Library Modules (List and
+Monad).
+
+<p>
+The modules in the third row (Pretty) define instances in a pretty printing
+class, and some auxiliary pretty printing functions.
+They depend on a pretty printing library, which is provided in ../pretty,
+modules on rows above, and in some cases, modules in the Util row.
+
+<p>
+The modules in the fourth row (Util) are more ad-hoc...
+<p>
+The modules in the last row are not used anymore...

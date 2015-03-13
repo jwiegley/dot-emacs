@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# This script should be invoked from cert
+# It expects "$PROGRAMATICA", "$SERVERDIR" and "$certsDir" to be set
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/functions.sh"
+[ -n "$certsDir" ] || abort 'Bug: $certsDir is not set'
+
+type=TestCase
+
+usage() { abort "Usage: cert new $type <module/cert> <test>"; }
+
+createcert() {
+  mkdir -p "$1"
+  cat >"$1/cert.attr" <<EOF
+type: $type
+version: `getserverattr version`
+test: $2
+who: $USER
+date: `LANG=C date`
+EOF
+}
+
+[ -n "$1" ] || usage
+cert="$1"
+
+[ -n "$2" ] || usage
+test="$2"
+shift;shift;
+[ -n "$*" ] && usage
+
+checkproject
+
+module="${cert%/*}"
+certname="${cert##*/}"
+checkcertannot "$module" "$certname"
+certpath="$module/$certname"
+[ -d "$certsDir$certpath" ] && abort "$cert already exists"
+pfe types "$module" | grep -qw "^$test :: IO ()\$" ||
+  abort "Error: $test is not present in module $module, or does not have type IO ()"
+
+createcert "$certsDir$certpath" "$test"

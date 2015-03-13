@@ -1,0 +1,19 @@
+
+#adjustscript inserts a suitable default definition of a configuration
+#option into a script. Input is excepected on stdin, output is sent to stdout.
+#
+# 'adjuscript VAR good' will change a line looking like this:
+#
+#     defaultVAR="anything"
+#
+# (where anything is anything) into
+#
+#     defaultVAR="good"
+#
+
+[ $# = 2 ] || {
+  echo >&2 "Usage: adjustscript <varible> <default>"
+  exit 1
+}
+
+sed "s%default$1=\"[^\"]*\"%default$1=\"$2\"%"

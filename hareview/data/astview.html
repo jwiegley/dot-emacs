@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"/>
+  <title>astview - Documentation</title>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+
+<script LANGUAGE="JavaScript">
+  function mailme(name, domain) {location.href='mailto:'+ name + '@'+ domain;}
+</script>
+
+<body>
+<h1>Astview - Documentation</h1>
+
+<p>Astview is a little desktop program to be used by people that want
+to investigate syntax trees, e.g. students and lecturers in compiler
+construction courses. Given a parse function <code>p :: String -&gt;
+a</code>, where <code>a</code> is a member of haskell's Data
+typeclass, astview can show syntax trees in a standard tree
+widget.</p>
+
+<p>The program evolved as a case study in a) generic programming and
+b) building graphical user interfaces in haskell.</p>
+
+<ul>
+<li><a href="#user-guide">User Guide</a></li>
+<li><a href="#adding-parsers">Adding Custom Parsers</a></li>
+<li><a href="#developer-notes">Developer Notes</a></li>
+</ul>
+
+<h2>User Guide <a name="user-guide"/> </h2>
+<h3>Working with source files</h3>
+<p>We tried to make the user interface as common as possible by
+following the <a href="http://library.gnome.org/devel/hig-book/stable/">
+GNOME human interface guidelines</a> closely. You can open a file by
+giving the filename at the CLI:
+<pre>astview .../path/to/mysource.hs</pre>
+or simply open it via the file menu. The file's extension will
+determine the parser automaticall. When there are multiple parsers for
+one extension, the first one will be taken. Launching astview without
+any files will enable the "lines and words"-parser. Saving works as
+expected: Ctrl-S saves, Save-As has to be done via the menu. When the
+file was changed, the usual star appears in the title bar, next to the
+filename.</p>
+
+<p>Cut-and-Paste functionality works as usual (Ctrl-C/P/X), allowing
+to copy-paste source code to or from other programs.</p>
+
+<p>Astview uses the same syntax-higlighting sourceview widget as
+GNOME's standard editor gedit, so any language recognized there will
+be highlighted by astview. For syntax-highlighting, the language is
+determined by the name of the parser.</p>
+
+<h3>Choosing Parsers</h3>
+<p>As noted above, the parser is chosen automatically when opening a
+file. When editing source code, one can change the parser using the
+parser menu issuing an immediate reparse. Ctrl-P reparses the source
+at any time.</p>
+
+<h2>Adding Custom Parsers <a name="adding-parsers"/></h2>
+<p>Astview loads the available parsers <i>at runtime</i> using the
+GHC-API wrapper <a href="http://hackage.haskell.org/package/hint"
+>hint</a>. In this section we show how to add custom parsers.</p>
+
+<p>A parser is described by a 3-tuple</p>
+
+<!-- Example EX1 follows: -->
+<pre><span class='hs-keyword'>data</span> <span class='hs-conid'>Parser</span> 
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Parser</span> <span class='hs-layout'>{</span> <span class='hs-varid'>name</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span>
+           <span class='hs-layout'>,</span> <span class='hs-varid'>exts</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span>
+           <span class='hs-layout'>,</span> <span class='hs-varid'>tree</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Tree</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+</pre>
+<!-- Example EX1 done. -->
+
+<p>The <i>name></i> of the parser is shown in the parser menu and is
+used to determine syntax highlighting. The list of extensions
+<i>exts</i> is used to determine the parser when opening a file.
+Finally - the magic bit of the whole tool - the buildTree function
+constructs a tree of Strings (Data.Tree String) from a haskell value.
+Each node of this tree denotes a constructor. This tree can be
+constructed using the data2tree function from the SYB approach to
+generic programming <i>(TODO: ref)</i>, which is delivered with astview.
+Here is an example:</p>
+
+<!-- Example EX2 follows: -->
+<pre><span class='hs-definition'>haskell</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>Parser</span>
+<span class='hs-definition'>haskell</span> <span class='hs-keyglyph'>=</span>  <span class='hs-conid'>Parser</span> <span class='hs-str'>"Haskell"</span> <span class='hs-keyglyph'>[</span><span class='hs-str'>".hs"</span><span class='hs-keyglyph'>]</span> <span class='hs-varid'>buildTreeHaskell</span>
+
+<span class='hs-definition'>buildTreeHaskell</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Tree</span> <span class='hs-conid'>String</span>
+<span class='hs-definition'>buildTreeHaskell</span> <span class='hs-varid'>s</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>parseHaskell</span> <span class='hs-varid'>s</span> <span class='hs-keyword'>of</span>
+     <span class='hs-conid'>Right</span> <span class='hs-varid'>ast</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>flat</span> <span class='hs-varop'>$</span> <span class='hs-varid'>data2tree</span> <span class='hs-layout'>(</span><span class='hs-varid'>ast</span><span class='hs-keyglyph'>::</span><span class='hs-conid'>HsModule</span><span class='hs-layout'>)</span>
+     <span class='hs-conid'>Left</span> <span class='hs-conid'>ParseError</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Node</span> <span class='hs-str'>"ParseError"</span> <span class='hs-conid'>[]</span>
+
+<span class='hs-definition'>parseHaskell</span> <span class='hs-keyglyph'>::</span> <span class='hs-layout'>(</span><span class='hs-conid'>Data</span> <span class='hs-varid'>a</span><span class='hs-layout'>)</span> <span class='hs-keyglyph'>=&gt;</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Either</span> <span class='hs-conid'>ParseError</span> <span class='hs-varid'>a</span>
+<span class='hs-definition'>parseHaskell</span> <span class='hs-varid'>s</span> <span class='hs-keyglyph'>=</span> <span class='hs-keyword'>case</span> <span class='hs-varid'>parseModule</span> <span class='hs-varid'>s</span> <span class='hs-keyword'>of</span>
+  <span class='hs-conid'>ParseOk</span> <span class='hs-varid'>p</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>unsafeCoerce</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Right</span> <span class='hs-varid'>p</span>
+  <span class='hs-keyword'>_</span>         <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Left</span> <span class='hs-conid'>ParseError</span>
+</pre>
+<!-- Example EX2 done. -->
+
+<p>You can simply put such a parser into the file </p>
+<pre>~/.cabal/share/astview-0.2/data/Parsers.hs</pre>
+<p>which exports a list of all parsers:</p>
+
+<!-- Example EX3 follows: -->
+<pre><span class='hs-definition'>parsers</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>Parser</span><span class='hs-keyglyph'>]</span>
+<span class='hs-definition'>parsers</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>haskell</span><span class='hs-conop'>:</span><span class='hs-varid'>stdParserData</span>
+</pre>
+<!-- Example EX3 done. -->
+
+<p>Here, the predefined list of parsers <code>stdParserData</code> is
+extended with the new haskell-parser.</p>
+
+<p>If your Parser needs additional modules, these modules have either
+be exposed to GHC's package-management, or have to exist as
+source-file under the data-Directory of astview. Remember that these
+modules are linked in at runtime!</p>
+
+<p>To test your parser consider the following ghci-session:</p>
+
+<!-- Example EX4 follows: -->
+<pre><span class='hs-definition'>user</span><span class='hs-keyglyph'>@</span><span class='hs-varid'>host</span><span class='hs-conop'>:</span><span class='hs-varid'>path</span><span class='hs-varop'>$</span> <span class='hs-varid'>cd</span> <span class='hs-varop'>~/.</span><span class='hs-varid'>cabal</span><span class='hs-varop'>/</span><span class='hs-varid'>share</span><span class='hs-varop'>/</span><span class='hs-varid'>astview</span><span class='hs-comment'>-</span><span class='hs-num'>0.2</span><span class='hs-varop'>/</span><span class='hs-keyword'>data</span>
+<span class='hs-definition'>user</span><span class='hs-keyglyph'>@</span><span class='hs-varid'>host</span><span class='hs-conop'>:~/.</span><span class='hs-varid'>cabal</span><span class='hs-varop'>/</span><span class='hs-varid'>share</span><span class='hs-varop'>/</span><span class='hs-varid'>astview</span><span class='hs-comment'>-</span><span class='hs-num'>0.2</span><span class='hs-varop'>/</span><span class='hs-keyword'>data</span><span class='hs-varop'>$</span> <span class='hs-varid'>ghci</span> <span class='hs-conid'>Parsers</span><span class='hs-varop'>.</span><span class='hs-varid'>hs</span>
+
+<span class='hs-comment'>-- ghci package-messages stripped</span>
+
+<span class='hs-varop'>*</span><span class='hs-conid'>Parsers</span><span class='hs-varop'>&gt;</span> <span class='hs-conop'>:</span><span class='hs-varid'>info</span> <span class='hs-conid'>Parser</span>
+<span class='hs-keyword'>data</span> <span class='hs-conid'>Parser</span>
+  <span class='hs-keyglyph'>=</span> <span class='hs-conid'>Parser</span> <span class='hs-layout'>{</span><span class='hs-varid'>name</span> <span class='hs-keyglyph'>::</span> <span class='hs-varop'>!</span><span class='hs-conid'>String</span><span class='hs-layout'>,</span>
+            <span class='hs-varid'>exts</span> <span class='hs-keyglyph'>::</span> <span class='hs-keyglyph'>[</span><span class='hs-conid'>String</span><span class='hs-keyglyph'>]</span><span class='hs-layout'>,</span>
+            <span class='hs-varid'>tree</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>String</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-conid'>Tree</span> <span class='hs-conid'>String</span><span class='hs-layout'>}</span>
+
+<span class='hs-comment'>-- show all registered parsers</span>
+<span class='hs-varop'>*</span><span class='hs-conid'>Parsers</span><span class='hs-varop'>&gt;</span> <span class='hs-varid'>map</span> <span class='hs-varid'>name</span> <span class='hs-varid'>parsers</span>                                            
+<span class='hs-keyglyph'>[</span><span class='hs-str'>"Haskell"</span><span class='hs-layout'>,</span><span class='hs-str'>"CSV"</span><span class='hs-layout'>,</span><span class='hs-str'>"Expr"</span><span class='hs-layout'>,</span><span class='hs-str'>"Java"</span><span class='hs-layout'>,</span><span class='hs-str'>"IsoPascal"</span><span class='hs-layout'>,</span><span class='hs-str'>"C"</span><span class='hs-layout'>,</span><span class='hs-str'>"Glade"</span><span class='hs-layout'>,</span><span class='hs-str'>"List"</span><span class='hs-keyglyph'>]</span>
+
+<span class='hs-comment'>-- get haskell parser</span>
+<span class='hs-varop'>*</span><span class='hs-conid'>Parsers</span><span class='hs-varop'>&gt;</span> <span class='hs-keyword'>let</span> <span class='hs-varid'>haskell</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>head</span> <span class='hs-varid'>parsers</span>                                 
+
+<span class='hs-comment'>-- build a sample tree of strings</span>
+<span class='hs-varop'>*</span><span class='hs-conid'>Parsers</span><span class='hs-varop'>&gt;</span> <span class='hs-keyword'>let</span> <span class='hs-varid'>sample</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>tree</span> <span class='hs-varid'>haskell</span> <span class='hs-str'>"main = putStrLn \"Hello World\""</span>
+
+<span class='hs-comment'>-- draw the tree</span>
+<span class='hs-varop'>*</span><span class='hs-conid'>Parsers</span><span class='hs-varop'>&gt;</span> <span class='hs-varid'>putStrLn</span> <span class='hs-varop'>$</span> <span class='hs-conid'>Data</span><span class='hs-varop'>.</span><span class='hs-conid'>Tree</span><span class='hs-varop'>.</span><span class='hs-varid'>drawTree</span> <span class='hs-varid'>sample</span>
+
+<span class='hs-comment'>-- lengthy output follows</span>
+</pre>
+<!-- Example EX4 done. -->
+
+<p>If <code>drawString</code> works for your sourcecode, astview will
+too, since ghci uses the parsers in interpreted mode just as astview
+does.</p>
+
+<i>describe background, especially unsafeCast, describe hin</i>
+
+<h2>Developer Notes <a name="developer-notes"/></h2>
+<p><i>Notes for Developers, Short Module descriptions, references to
+haddock (include haddock !?), code conventions, history, GTK
+things</i></p>

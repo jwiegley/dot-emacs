@@ -1,0 +1,13 @@
+TestCases{refactorCmd="rmOneParameter",
+positive=[
+          (["D1.hs","A1.hs"],["6","19"]),
+          (["D2.hs","A2.hs"],["7","19"]),
+          (["FunIn1.hs"],["8","5"]),
+          (["FunIn2.hs"],["8","5"]),
+          (["FunIn3.hs"],["7","5"]),
+          (["FunIn5.hs"],["7","6"]),
+          (["FunIn6.hs"],["7","5"]),
+          (["FunIn0.hs"],["10","7"])],
+negative=[(["FunIn4.hs"],["7","6"]),
+          (["FunIn7.hs"],["10","4"])]
+}

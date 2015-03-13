@@ -1,0 +1,17 @@
+TestCases{refactorCmd="whereToLet",
+positive=[(["A1.hs"],["5","9"]),
+          (["B1.hs"],["5","9"]),
+          (["Guards1.hs"], ["7","8"]),
+          (["Guards2.hs"], ["7","8"]),
+          (["Guards3.hs"], ["7","8"]),
+          (["GuardsCase1.hs"], ["7","18"]),
+          (["GuardsCase2.hs"], ["8","18"])
+          
+          ],
+negative=[(["Scope1.hs"],["6","11"]),
+          (["Scope2.hs"],["6","11"]),
+          (["Scope3.hs"],["3","9"])
+
+
+]
+}

@@ -1,0 +1,924 @@
+% Document-style for Electronic Notes in Theoretical Computer Science
+% Adopted from document-style for journals published by Elsevier Science. 
+% To be used with LaTeX version 2.09 of 14 January 1992 (or later) 
+%
+% Version: 1.10
+% Date:    13 February 1998
+%
+% Copyright (C) 1998. All rights reserved.
+%
+% IMPORTANT NOTICE:
+%
+% You are not allowed to change this file. You may however copy this file 
+% to a file with a different name and then change the copy. 
+% 
+% You are NOT ALLOWED to distribute this file alone. You are NOT ALLOWED 
+% to take money for the distribution or use of this file (or a changed 
+% version) except for a nominal charge for copying etc. 
+% 
+% You are allowed to distribute this file under the condition that it is 
+% distributed together with all files mentioned in readme.els. 
+% 
+% If you receive only some of these files from someone, complain! 
+% 
+%
+\def\esp@fileversion{2.12}
+\def\esp@filedate{2 June 1994}
+\def\@shortjnl{\@nil}
+\def\@@shortjnl{\@nil}
+\def\@journal{Elsevier Science}
+\def\@issn{0}
+\def\@jid{ENTCS} \def\@shortjid{encs}
+\typeout{Electronic Notes in Theoretcial Computer Science document style
+\esp@fileversion \space\space <\esp@filedate>}
+\def\partname{Part}
+\def\contentsname{Contents}
+\def\listfigurename{List of Figures}
+\def\listtablename{List of Tables}
+\def\refname{References}
+\def\indexname{Index}
+\def\figurename{Fig.}
+\def\tablename{Table}
+\def\abstractname{Abstract}
+\def\@ptsize{2}
+\def\ds@twoside{\@twosidetrue
+                \@mparswitchtrue}
+\def\ds@oneside{\@twosidefalse
+                \@mparswitchfalse}
+\@twocolumnfalse
+\newif\if@TwoColumn
+\def\ds@onecolumn{\@twocolumnfalse
+                  \@TwoColumnfalse}
+\def\ds@twocolumn{\@twocolumnfalse
+                  \@TwoColumntrue}
+\@TwoColumnfalse
+\@twosidefalse
+\@namedef{ds@10pt}{}
+\@namedef{ds@11pt}{}
+\def\ds@fleqn{}
+\def\@pagenumprefix{}
+\newif\if@draft \@draftfalse
+\def\query{}
+\def\ds@draft{%
+\@drafttrue
+\def\query{\marginpar{???}}%
+\overfullrule 5pt}
+\let\snm\relax \let\cty\relax \let\cny\relax
+\newif\if@seceqn
+\@seceqnfalse
+\def\ds@seceqn{\@seceqntrue}
+\newif\if@secthm
+\@secthmfalse
+\def\ds@secthm{\@secthmtrue}
+\newif\if@nameyear
+\@nameyearfalse
+\def\ds@nameyear{\@nameyeartrue}
+\newif\if@nfss
+\@ifundefined{selectfont}{\@nfssfalse}{\@nfsstrue}
+\@options
+\input entcs12.sty\relax
+\def\links@label#1{{#1}\hss}
+\def\rechts@label#1{\hss\llap{#1}}
+\def\thick@label#1{\hspace\labelsep #1}
+\newcount\@maxlistdepth \@maxlistdepth=2
+\def\labelitemi{\lower.5ex\hbox{$^\bullet$}}%originally -- changed 15-2-95
+\def\labelitemii{$\cdot$}%originally \cdot changed 15-2-95
+\def\labelenumi{(\theenumi)}        \def\theenumi{\roman{enumi}}
+\def\labelenumii{(\theenumii)}      \def\theenumii{\alph{enumii}}
+\def\enumerate{%
+  \ifnum \@enumdepth >\@maxlistdepth
+    \@toodeep
+  \else
+    \advance\@enumdepth \@ne
+    \edef\@enumctr{enum\romannumeral\the\@enumdepth}%
+    \list{\csname label\@enumctr\endcsname}%
+       {\usecounter{\@enumctr}
+       \let\makelabel=\rechts@label}
+  \fi}
+\def\itemize{%
+  \ifnum \@itemdepth >\@maxlistdepth
+    \@toodeep
+  \else
+    \advance\@itemdepth \@ne
+    \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%
+    \setleftmargin{i}{--}%
+    \setleftmargin{ii}{$\cdot$}%
+    \list{\csname\@itemitem\endcsname}%
+       {\let\makelabel\rechts@label}
+  \fi}
+\def\verse{\let\\=\@centercr
+  \list{}{\itemsep\z@
+  \itemindent \z@
+  \listparindent\z@
+  \rightmargin 1em
+  \leftmargin \rightmargin}\item[]}
+\let\endverse\endlist
+\def\quotation{\list{}{\itemindent\z@
+  \leftmargin 1em \rightmargin \z@
+  \parsep 0pt plus 1pt}\item[]}
+\let\endquotation=\endlist
+\def\quote{\list{}{\itemindent\z@
+  \leftmargin 1em \rightmargin\z@}\item[]}
+\let\endquote=\endlist
+\def\descriptionlabel#1{\hspace\labelsep \bf #1}
+\def\description{\list{}{\labelwidth\z@
+  \leftmargin 1em \itemindent-\leftmargin
+  \let\makelabel\descriptionlabel}}
+\let\enddescription\endlist
+\def\operatorname#1{\mathop{\mathrm{#1}}\nolimits}
+\def\lefteqn#1{\hbox to\z@{$\displaystyle {#1}$\hss}}
+\newskip\eqnbaselineskip
+\jot=2pt
+\newskip\eqnlineskip
+\eqnbaselineskip=14pt  \eqnlineskip=2pt
+\newdimen\mathindent
+\if@TwoColumn
+  \mathindent 0em
+\else
+  \mathindent 2em
+\fi
+\def\[{\relax\ifmmode\@badmath
+  \else%
+  \@beginparpenalty\predisplaypenalty
+  \@endparpenalty\postdisplaypenalty
+  \begin{trivlist}\@topsep \eqntopsep
+   \@topsepadd \eqntopsep
+  \item[]\leavevmode
+  \hbox to\linewidth\bgroup$ \displaystyle
+  \hskip\mathindent\bgroup\fi}
+\def\]{\relax\ifmmode \egroup $\hfil \egroup
+  \end{trivlist}%
+  \else \@badmath \fi}
+\def\equation{\@beginparpenalty\predisplaypenalty
+  \@endparpenalty\postdisplaypenalty
+\refstepcounter{equation}\trivlist
+   \@topsep \eqntopsep
+   \@topsepadd \eqntopsep
+   \item[]\leavevmode
+  \hbox to\linewidth\bgroup $ \displaystyle \hskip\mathindent\bgroup}
+\def\endequation{\egroup$\hfil \displaywidth\linewidth
+  \@eqnnum\egroup \endtrivlist}
+\def\eqnarray{%
+  \par
+  \noindent
+  \baselineskip\eqnbaselineskip\lineskip\eqnlineskip
+  \lineskiplimit\eqnlineskip
+  \stepcounter{equation}%
+  \let\@currentlabel=\theequation
+  \global\@eqnswtrue
+  \global\@eqcnt\z@ \tabskip\mathindent \let\\=\@eqncr
+  \abovedisplayskip\eqntopsep\ifvmode\advance\abovedisplayskip\partopsep\fi
+  \belowdisplayskip\abovedisplayskip
+  \belowdisplayshortskip\abovedisplayskip
+  \abovedisplayshortskip\abovedisplayskip
+  $$\halign to \displaywidth\bgroup\@eqnsel
+    \pre@coli$\displaystyle\tabskip\z@{##}$\post@coli
+    &\global\@eqcnt\@ne
+    \pre@colii$\displaystyle{##}$\post@colii
+    &\global\@eqcnt\tw@
+    \pre@coliii $\displaystyle\tabskip\z@{##}$\post@coliii
+    \tabskip\@centering&\llap{##}\tabskip\z@\cr}
+\def\endeqnarray{\@@eqncr\egroup
+ \global\advance\c@equation\m@ne$$\global\@ignoretrue }
+\def\pre@coli{\hskip\@centering}              \def\post@coli{}
+\def\pre@colii{\hskip 2\eqnarraycolsep \hfil} \def\post@colii{\hfil}
+\def\pre@coliii{\hskip 2\eqnarraycolsep}      \def\post@coliii{\hfil}
+\arraycolsep 2pt
+\tabcolsep 6pt
+\def\arraystretch{1.5}
+\arrayrulewidth 0.4pt
+\doublerulesep 2pt
+\tabbingsep \labelsep
+\skip\@mpfootins = 6pt plus 2pt
+\fboxsep = 7pt
+\fboxrule = 0.4pt
+\newcounter{part}
+\newcounter{section}
+\newcounter{subsection}[section]
+\newcounter{subsubsection}[subsection]
+\newcounter{paragraph}[subsubsection]
+\newcounter{subparagraph}[paragraph]
+\def\thepart {\Roman{part}}
+\if@seceqn
+ \@addtoreset{equation}{section}
+ \@addtoreset{table}{section}
+ \@addtoreset{figure}{section}
+ \def\theequation{\arabic{section}.\arabic{equation}}
+ \def\thetable{\thesection.\arabic{table}}
+ \def\thefigure{\thesection.\arabic{figure}}
+\else
+ \def\theequation{\arabic{equation}}
+ \def\thefigure{\arabic{figure}}
+ \def\thetable{\arabic{table}}
+\fi
+\def\thesection      {\arabic{section}}
+\def\thesubsection   {\thesection.\arabic{subsection}}
+\def\thesubsubsection{\thesubsection.\arabic{subsubsection}}
+\def\theparagraph    {\thesubsubsection.\arabic{paragraph}}
+\def\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+\def\qed{\relax\ifmmode\hfill \Box\else\unskip\nobreak\hfill $\Box$\fi}
+\let\proof@headerfont\bf
+\ifx\normalshape\undefined
+  \gdef\normalshape{\rm}
+\fi
+\newenvironment{pf}%
+  {\par\addvspace{.6pc plus .2pc minus .1pc}
+%\addvspace{\@bls plus 0.5\@bls minus 0.1\@bls} Changed 20-2-95 MWM
+   \noindent
+   {\bf\proofname}\enspace\ignorespaces}%
+  {\par\addvspace{.6pc plus .2pc minus .1pc}}
+%\par\addvspace{\@bls plus 0.5\@bls minus 0.1\@bls}} Changed 20-2-95 MWM
+\def\proofname{Proof.}
+\@namedef{pf*}#1{\par\begingroup\def\proofname{#1}\pf\endgroup\ignorespaces}
+\expandafter\let\csname endpf*\endcsname=\endpf
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{claim}[thm]{Claim}
+\newtheorem{axiom}[thm]{Axiom}
+\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{fact}[thm]{Fact}
+\newtheorem{hypo}[thm]{Hypothesis}
+\newtheorem{assum}[thm]{Assumption}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{crit}[thm]{Criterion}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{exmp}[thm]{Example}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem{prob}[thm]{Problem}
+\newtheorem{prin}[thm]{Principle}
+\newtheorem{alg}{Algorithm}
+\long\def\@makealgocaption#1#2{\vskip 2ex \small
+  \hbox to \hsize{\parbox[t]{\hsize}{{\bf #1.} #2}}}
+\newcounter{algorithm}
+\def\thealgorithm{\@arabic\c@algorithm}
+\def\fps@algorithm{tbp}
+\def\ftype@algorithm{4}
+\def\ext@algorithm{lof}
+\def\fnum@algorithm{Algorithm \thealgorithm}
+\def\algorithm{\let\@makecaption\@makealgocaption\@float{algorithm}}
+\let\endalgorithm\end@float
+\newtheorem{note}{Note}
+\newtheorem{summ}{Summary}
+\newtheorem{case}{Case}
+\def\@pnumwidth{2.55em}
+\def\@tocrmarg{2.55em plus 5em}
+\def\@dotsep{-2.5}
+\setcounter{tocdepth}{2}
+\def\tableofcontents{%
+  \section*{\contentsname}%
+  \@starttoc{toc}}
+\def\l@section{\@dottedtocline{1}{0.0em}{1.40em}}
+\def\l@subsection{\@dottedtocline{2}{1.40em}{2.24em}}
+\def\l@subsubsection{\@dottedtocline{3}{2.24em}{3.09em}}
+\def\thebibliography{%
+  \@startsection{section}{1}{\z@}{20pt plus 8pt minus 4pt}
+  {\@bls}{\large\bf}*{\refname}%
+  \addcontentsline{toc}{section}{\refname}%
+  \@thebibliography}
+\let\endthebibliography=\endlist
+\def\@thebibliography#1{\frenchspacing\small
+  \list{\@biblabel{\arabic{enumiv}}}{\settowidth\labelwidth{\@biblabel{#1}}
+  \if@nameyear
+    \labelwidth\z@ \labelsep\z@ \leftmargin\parindent
+    \itemindent-\parindent
+  \else
+    \labelsep 3pt \itemindent\z@
+    \leftmargin\labelwidth \advance\leftmargin\labelsep
+\fi
+    \itemsep 0.3\@bls plus 0.1\@bls minus 0.1\@bls
+    \usecounter{enumiv}\let\p@enumiv\@empty
+    \def\theenumiv{\arabic{enumiv}}}%
+    \def\newblock{\hskip 0.11em plus 0.33em minus -0.07em}
+    \tolerance\@M \hyphenpenalty\@M \hbadness5000 \sfcode`\.=1000\relax}
+\if@nameyear
+  \def\@biblabel#1{}
+\else
+  \def\@biblabel#1{\hskip \z@ plus 1filll[#1]}
+\fi
+\newcount\@tempcntc
+\def\@citex[#1]#2{\if@filesw\immediate\write\@auxout{\string\citation{#2}}\fi
+ \@tempcnta\z@\@tempcntb\m@ne\def\@citea{}\@cite{\@for\@citeb:=#2\do
+  {\@ifundefined
+   {b@\@citeb}{\@citeo\@tempcntb\m@ne\@citea\def\@citea{,}{\bf ?}\@warning
+   {Citation `\@citeb' on page \thepage \space undefined}}%
+  {\setbox\z@\hbox{\global\@tempcntc0\csname b@\@citeb\endcsname\relax}%
+   \ifnum\@tempcntc=\z@ \@citeo\@tempcntb\m@ne
+    \@citea\def\@citea{,}\hbox{\csname b@\@citeb\endcsname}%
+   \else
+    \advance\@tempcntb\@ne
+    \ifnum\@tempcntb=\@tempcntc
+    \else\advance\@tempcntb\m@ne\@citeo
+    \@tempcnta\@tempcntc\@tempcntb\@tempcntc\fi\fi}}\@citeo}{#1}}
+\def\@citeo{\ifnum\@tempcnta>\@tempcntb\else\@citea\def\@citea{,}%
+ \ifnum\@tempcnta=\@tempcntb\the\@tempcnta\else
+  {\advance\@tempcnta\@ne\ifnum\@tempcnta=\@tempcntb \else \def\@citea{--}\fi
+   \advance\@tempcnta\m@ne\the\@tempcnta\@citea\the\@tempcntb}\fi\fi}
+\@namedef{cv*}{\section*{Curriculum Vitae}\cv}
+\def\cv{\hangindent=7pc \hangafter=-12 \parskip\bigskipamount \small}
+\def\footnote{\@ifnextchar[{\@xfootnote}{\refstepcounter
+   {\@mpfn}\xdef\@thefnmark{\thempfn}\@footnotemark\@footnotetext}}
+\def\footnotemark{\@ifnextchar[{\@xfootnotemark
+    }{\refstepcounter{footnote}\xdef\@thefnmark{\thefootnote}\@footnotemark}}
+\def\footnoterule{\kern-3\p@
+  \hrule width 3pc
+  \kern 2.6\p@}
+\def\thempfootnote{\alph{mpfootnote}}
+\def\mpfootnotemark{%
+  \@ifnextchar[{\@xmpfootnotemark}{\stepcounter{mpfootnote}%
+  \begingroup
+    \let\protect\noexpand
+    \xdef\@thefnmark{\thempfootnote}%
+  \endgroup
+  \@footnotemark}}
+\def\@xmpfootnotemark[#1]{%
+  \begingroup
+    \c@mpfootnote #1\relax
+    \let\protect\noexpand
+    \xdef\@thefnmark{\thempfootnote}%
+  \endgroup
+  \@footnotemark}
+\def\@mpmakefnmark{\,\hbox{$^{\mathrm{\@thefnmark}}$}}
+\long\def\@mpmakefntext#1{\noindent
+                     \hbox{$^{\mathrm{\@thefnmark}}$} #1}
+\def\@iminipage[#1]#2{\leavevmode
+  \@pboxswfalse
+  \if #1b\vbox
+  \else \if #1t\vtop
+  \else \ifmmode \vcenter
+  \else \@pboxswtrue $\vcenter
+  \fi \fi \fi
+  \bgroup \hsize #2\textwidth\hsize \columnwidth\hsize
+  \@parboxrestore
+  \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
+  \let\@footnotetext\@mpfootnotetext
+  \let\@makefntext\@mpmakefntext
+  \let\@makefnmark\@mpmakefnmark
+  \let\@listdepth\@mplistdepth \@mplistdepth\z@
+  \@minipagerestore\global\@minipagetrue
+  \everypar{\global\@minipagefalse\everypar{}}}
+\def\fn@presym{}
+\long\def\@makefntext#1{\noindent\hbox to 1em
+  {\hfil$^{\fn@presym\mathrm{\@thefnmark}}$}\,#1}
+\def\@makefnmark{\,\hbox{$^{\fn@presym\mathrm{\@thefnmark}}$}\,}
+\setcounter{topnumber}{5}
+\def\topfraction{0.99}
+\def\textfraction{0.05}
+\def\floatpagefraction{0.9}
+\setcounter{bottomnumber}{5}
+\def\bottomfraction{0.99}
+\setcounter{totalnumber}{10}
+\def\dbltopfraction{0.99}
+\def\dblfloatpagefraction{0.8}
+\setcounter{dbltopnumber}{5}
+\newbox\@tempboxb
+\def\@maketablecaption#1#2{\medbreak
+  \hbox to \hsize{\parbox[t]{\hsize}{ \centerline{\small#1 \ #2}}}}
+\long\def\@makefigurecaption#1#2{\small
+  \vskip 8pt
+  \setbox\@tempboxa\hbox{#1. #2}
+  \ifdim \wd\@tempboxa >\hsize
+    \unhbox\@tempboxa\par
+  \else
+    \hbox to\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi}
+\def\conttablecaption{\par \begingroup \@parboxrestore \normalsize
+  \@makecaption{\fnum@table\,---\,continued}{}\par
+  \vskip-1pc \endgroup}
+\def\contfigurecaption{\vskip-1pc \par \begingroup \@parboxrestore \normalsize
+  \@makecaption{\fnum@figure\,---\,continued}{}\par
+  \endgroup}
+\newcounter{figure}
+\def\thefigure{\@arabic\c@figure}
+\def\fps@figure{tbp}
+\def\ftype@figure{1}
+\def\ext@figure{lof}
+\def\fnum@figure{\figurename~\thefigure}
+\def\figure{\par\vspace{-\lastskip}
+        \addvspace{1pc plus .2pc minus .1pc}
+       \let\@makecaption\@makefigurecaption
+  \let\contcaption\contfigurecaption \@float{figure}}
+%\let\endfigure\end@float
+\def\endfigure{\addvspace{.2pc plus .2pc minus .1pc}\end@float}
+\@namedef{figure*}{\let\@makecaption\@makefigurecaption
+  \let\contcaption\contfigurecaption \@dblfloat{figure}}
+\@namedef{endfigure*}{\end@dblfloat}
+\newcounter{table}
+\def\thetable{\@arabic\c@table}
+\def\fps@table{tbp}
+\def\ftype@table{2}
+\def\ext@table{lot}
+\def\fnum@table{\tablename~\thetable}
+\def\table{\par\vspace{-\lastskip}
+        \addvspace{1pc plus .2pc minus .1pc}
+        \let\@makecaption\@maketablecaption \small
+  \let\footnoterule\relax
+  \let\contcaption\conttablecaption \@float{table}}
+%\let\endtable\end@float
+\def\endtable{\addvspace{.2pc plus .2pc minus .1pc}\end@float}
+\@namedef{table*}{\vspace{-\lastskip}\par
+        \addvspace{.6pc plus .2pc minus .1pc}
+       \let\@makecaption\@maketablecaption \small
+  \let\footnoterule\relax
+  \let\contcaption\conttablecaption \@dblfloat{table}}
+\@namedef{endtable*}{\end@dblfloat}
+\newtoks\t@glob@notes
+\newtoks\t@loc@notes
+\newcount\note@cnt
+\newcounter{author}
+\newcount\n@author
+\def\n@author@{}
+\newcounter{collab}
+\newcount\n@collab
+\def\n@collab@{}
+\newcounter{address}
+\newdimen\sv@mathsurround
+\newcount\sv@hyphenpenalty
+\newcount\prev@elem \prev@elem=0
+\newcount\cur@elem  \cur@elem=0
+\chardef\e@title=1
+\chardef\e@subtitle=1
+\chardef\e@author=2
+\chardef\e@collab=3
+\chardef\e@address=4
+\newif\if@newelem
+\newif\if@firstauthor
+\newif\if@preface
+\newif\if@hasabstract
+\newbox\fm@box
+\newdimen\fm@size
+\newbox\t@abstract
+\newbox\t@keyword
+\let\report@elt\@gobble
+\def\add@tok#1#2{\global#1\expandafter{\the#1#2}}
+\def\add@xtok#1#2{\begingroup
+  \no@harm
+  \xdef\@act{\global\noexpand#1{\the#1#2}}\@act
+\endgroup}
+\def\beg@elem{\global\t@loc@notes={}\global\note@cnt\z@}
+\def\@xnamedef#1{\expandafter\xdef\csname #1\endcsname}
+\def\no@harm{%
+  \let\\=\relax  \let\rm\relax
+  \let\ss=\relax \let\ae=\relax \let\oe=\relax
+  \let\AE=\relax \let\OE=\relax
+  \let\o=\relax  \let\O=\relax
+  \let\i=\relax  \let\j=\relax
+  \let\aa=\relax \let\AA=\relax
+  \let\l=\relax  \let\L=\relax
+  \let\d=\relax  \let\b=\relax \let\c=\relax
+  \let\bar=\relax
+  \def\protect{\noexpand\protect\noexpand}}
+\def\proc@elem#1#2{\begingroup
+    \no@harm
+    \let\thanksref\@gobble
+    \@xnamedef{@#1}{#2}%
+  \endgroup
+  \prev@elem=\cur@elem
+  \cur@elem=\csname e@#1\endcsname
+  \expandafter\elem@nothanksref#2\thanksref\relax}
+\def\elem@nothanksref#1\thanksref{\futurelet\@peektok\elem@thanksref}
+\def\elem@thanksref{\ifx\@peektok\relax
+  \else \expandafter\elem@morethanksref \fi}
+\def\elem@morethanksref#1{\add@thanksref{#1}\elem@nothanksref}
+\def\add@thanksref#1{\global\advance\note@cnt\@ne
+  \ifnum\note@cnt>\@ne \add@xtok\t@loc@notes{\note@sep}\fi
+  \add@tok\t@loc@notes{\ref{#1}}}
+\def\note@sep{,}
+\def\thanks{\@ifnextchar[{\@tempswatrue
+  \thanks@optarg}{\@tempswafalse\thanks@optarg[]}}
+\def\thanks@optarg[#1]#2{\refstepcounter{footnote}\if@tempswa
+  \label{#1}\else\relax\fi
+  \add@tok\t@glob@notes{\footnotetext}%
+  \add@xtok\t@glob@notes{[\the\c@footnote]}%
+  \add@tok\t@glob@notes{{#2}}}
+\def\frontmatter{\label{FirstPage}%
+  \let\@corresp@note\relax
+  \global\t@glob@notes={}\global\c@author\z@
+  \global\c@collab\z@ \global\c@address\z@
+  \sv@mathsurround\mathsurround \m@th
+  \global\n@author=0\n@author@\relax
+  \global\n@collab=0\n@collab@\relax
+  \global\advance\n@author\m@ne
+  \global\advance\n@collab\m@ne
+  \global\@firstauthortrue
+  \global\@hasabstractfalse
+  \global\@prefacefalse
+  \@ifundefined{RIfM@}{}{\undo@AMS}%
+  \parskip 4\p@
+  \open@fm \ignorespaces}
+\def\preface{\@prefacetrue}
+\def\endfrontmatter{\global\n@author=\c@author
+  \global\n@collab=\c@collab \@writecount
+  \global\@topnum\z@
+  \ifx\@firstpage\@lastpage
+    \gdef\@pagerange{\@pagenumprefix\@firstpage}
+  \else
+    \gdef\@pagerange{\@pagenumprefix\@firstpage--\@pagenumprefix\@lastpage}
+  \fi
+  \thispagestyle{copyright}%
+  \if@preface \else
+  \history@fmt
+  \newcount\c@sv@footnote
+  \global\c@sv@footnote=\c@footnote
+  \if@hasabstract
+    \vskip 24pt plus 6pt minus 3pt
+    \hrule height 0.4pt
+    \vskip 8pt
+    \unvbox\t@abstract
+    \unvbox\t@keyword
+    \vskip 10pt
+    \hrule height 0.4pt
+  \fi
+  \dedicated@fmt
+  \vskip 18pt
+  \fi
+  \close@fm
+  \output@glob@notes
+  \global\c@footnote=\c@sv@footnote
+  \global\@prefacefalse
+  \global\leftskip\z@
+  \global\@rightskip\z@
+  \global\rightskip\@rightskip
+  \global\mathsurround\sv@mathsurround
+  \let\title\relax       \let\author\relax
+  \let\collab\relax      \let\address\relax
+  \let\frontmatter\relax \let\endfrontmatter\relax
+  \let\@maketitle\relax  \let\@@maketitle\relax
+  \normal@text}
+\let\maketitle\relax
+\newdimen\t@xtheight
+\t@xtheight\textheight \advance\t@xtheight-\splittopskip
+\def\open@fm{\global\setbox\fm@box=\vbox\bgroup
+  \hsize=\textwidth
+  \centering
+  \sv@hyphenpenalty\hyphenpenalty
+  \hyphenpenalty\@M}
+\def\close@fm{\egroup
+  \fm@size=\dp\fm@box \advance\fm@size by \ht\fm@box
+  \@whiledim\fm@size>\t@xtheight \do{%
+    \global\setbox\@tempboxa=\vsplit\fm@box to \t@xtheight
+    \unvbox\@tempboxa \newpage
+    \fm@size=\dp\fm@box \advance\fm@size by \ht\fm@box}
+  \if@TwoColumn
+    \emergencystretch=1pc \twocolumn[\unvbox\fm@box]
+  \else
+    \unvbox\fm@box
+  \fi}
+\def\output@glob@notes{\bgroup
+  \the\t@glob@notes
+  \egroup}
+\def\justify@off{\let\\=\@normalcr
+  \leftskip\z@ \@rightskip\@flushglue \rightskip\@rightskip}
+\def\justify@on{\let\\=\@normalcr
+  \leftskip\z@ \@rightskip\z@ \rightskip\@rightskip}
+\def\normal@text{\global\let\\=\@normalcr
+  \global\leftskip\z@ \global\@rightskip\z@ \global\rightskip\@rightskip
+  \global\parfillskip\@flushglue}
+\def\@writecount{\write\@mainaux{\string\global
+  \string\@namedef{n@author@}{\the\n@author}}%
+  \write\@mainaux{\string\global\string
+  \@namedef{n@collab@}{\the\n@collab}}}
+\def\title{\@ifnextchar[{\@@title}{\@@title[]}}
+\def\@@title[#1]#2{%
+  \beg@elem
+  \title@note@fmt
+  \add@tok\t@glob@notes
+    {\title@note@fmt}%
+  \proc@elem{title}{#2}%
+  \def\title@notes{\the\t@loc@notes}%
+  \title@fmt{\@title}{\title@notes}%
+  \ignorespaces}
+\def\subtitle#1{%
+  \beg@elem
+  \proc@elem{subtitle}{#1}%
+  \def\title@notes{\the\t@loc@notes}%
+  \subtitle@fmt{\@subtitle}{\title@notes}%
+  \ignorespaces}
+\newdimen \@logoheight \@logoheight 5pc
+\def\@Lhook{\vrule height \@logoheight width 0pt \vrule height 10pt width 0.2pt \vrule height 0.2pt width 10pt}
+\def\@Rhook{\vrule height 0.2pt width 10pt \vrule height 10pt width 0.2pt \vrule height \@logoheight width 0pt}
+\def\title@fmt#1#2{%
+  \vspace*{16pt}
+  {\LARGE #1\,\hbox{$^{#2}$}\par}%
+  \vskip 24pt
+  }
+\def\subtitle@fmt#1#2{%
+  {\Large #1\,\hbox{$^{#2}$}}\par}
+\def\title@note@fmt{\def\thefootnote{\fnstar{footnote}}}
+\def\author{\@ifnextchar[{\author@optarg}{\author@optarg[]}}
+\def\author@optarg[#1]#2{\stepcounter{author}%
+  \beg@elem
+  \@for\@tempa:=#1\do{\expandafter\add@thanksref\expandafter{\@tempa}}%
+  \report@elt{author}\proc@elem{author}{#2}%
+  \author@fmt{\the\c@author}{\the\t@loc@notes}{\@author}}%
+\def\author@fmt#1#2#3{\@newelemtrue
+  \if@firstauthor
+  \first@author \global\@firstauthorfalse \fi
+  \ifnum\prev@elem=\e@author \global\@newelemfalse \fi
+  \if@newelem \author@fmt@init \fi
+  \edef\@tempb{#2}\ifx\@tempb\@empty
+    \hbox{#3}\else
+    \hbox{#3\,$^{\mathrm{#2}}$}%
+  \fi}
+\def\first@author{\author@note@fmt
+  \add@tok\t@glob@notes
+    {\author@note@fmt\@corresp@note}}%
+\def\author@fmt@init{%
+  \par
+  \vskip 8pt plus 4pt minus 2pt
+  \large
+  \leavevmode}
+\def\and{\unskip~and~}
+\def\collab{\@ifstar{\collab@arg}{\collab@arg}}
+\let\collaboration=\collab
+\def\collab@arg#1{\stepcounter{collab}%
+  \if@firstauthor \first@collab \global\@firstauthorfalse \fi
+  \beg@elem
+  \proc@elem{collab}{#1}%
+  \collab@fmt{\the\c@collab}{\the\t@loc@notes}{\@collab}%
+  \ignorespaces}
+\def\collab@fmt#1#2#3{\@newelemtrue
+  \ifnum\prev@elem=\e@collab \global\@newelemfalse \fi
+  \if@newelem \collab@fmt@init \fi
+  \par
+  {\large #3\,$^{\mathrm{#2}}$}}
+\def\first@collab{
+  \collab@note@fmt
+  \add@tok\t@glob@notes
+    {\collab@note@fmt}}%
+\def\collab@fmt@init{\vskip 1em}
+\def\author@note@fmt{\setcounter{footnote}{0}%
+  \def\thefootnote{\xarabic{footnote}}}
+\let\collab@note@fmt=\author@note@fmt
+\def\xarabic#1{%
+  \expandafter\expandafter\expandafter\ifnum\expandafter\the\@nameuse{c@#1}<0
+  *\else\arabic{#1} \fi}
+\def\address{\@ifstar{\address@star}%
+  {\@ifnextchar[{\address@optarg}{\address@noptarg}}}
+\def\address@optarg[#1]#2{\refstepcounter{address}%
+  \beg@elem
+  \report@elt{address}\proc@elem{address}{#2}%
+  \address@fmt{\the\c@address}{\the\t@loc@notes}{\@address}\label{#1}%
+  \ignorespaces}
+\def\address@noptarg#1{\refstepcounter{address}%
+  \beg@elem
+  \proc@elem{address}{#1}%
+  \address@fmt{\z@}{\the\t@loc@notes}{\@address}%
+  \ignorespaces}
+\def\address@star#1{%
+  \beg@elem
+  \proc@elem{address}{#1}%
+  \address@fmt{\m@ne}{\the\t@loc@notes}{\@address}%
+  \ignorespaces}
+\def\theaddress{\alph{address}}
+\def\address@fmt#1#2#3{\@newelemtrue
+  \ifnum\prev@elem=\e@address \@newelemfalse \fi
+  \if@newelem \address@fmt@init \fi
+  \noindent \bgroup \small\it
+  \ifnum#1=\z@
+    #3\,$^{\mathrm{#2}}$\space%
+  \else
+    \ifnum#1=\m@ne
+      $^{\phantom{\mathrm{\theaddress}}}$\space #3\,$^{\mathrm{#2}}$%
+    \else
+      $^{\mathrm{\theaddress}}$\space #3\,$^{\mathrm{#2}}$%
+    \fi
+  \fi
+  \par \egroup}
+\def\address@fmt@init{%
+  \par
+  \vskip 6pt plus 3pt minus 1.5pt}
+\def\abstract{\@ifnextchar[{\@abstract}{\@abstract[]}}
+\def\@abstract[#1]{%
+  \global\@hasabstracttrue
+  \hyphenpenalty\sv@hyphenpenalty
+  \global\setbox\t@abstract=\vbox\bgroup
+  \leftskip\z@
+  \@rightskip\z@ \rightskip\@rightskip \parfillskip\@flushglue
+  \small
+  \parindent 1em
+  \noindent {\bf\abstractname}
+  \par\noindent%\vskip 0.5\@bls Changed 23-2-95 by MWM
+  \ignorespaces}
+\def\endabstract{\par \egroup}
+\def\keyword{%
+  \global\@hasabstracttrue
+  \hyphenpenalty\sv@hyphenpenalty
+  \def\sep{\unskip; }
+  \def\MSC{\par\leavevmode\hbox {\it 1991 MSC:\ }}%
+  \def\PACS{\par\leavevmode\hbox {\it PACS:\ }}%
+  \def\JEL{\par\leavevmode\hbox {\it JEL classification:\ }}%
+  \let\UK\relax \let\CK\relax
+  \global\setbox\t@keyword=\vbox\bgroup
+  \small
+  \parskip\z@
+  \vskip 10pt plus 2pt minus 2pt
+  \noindent {\it Keywords:\ }%
+  \justify@off
+  \ignorespaces}
+\def\endkeyword{\par \egroup}
+\def\journal#1{\gdef\@journal{#1}}
+\def\volume#1{\gdef\@volume{#1}}       \def\@volume{0}
+\def\issue#1{\gdef\@issue{#1}}         \def\@issue{0}
+\newcount\@pubyear
+\newcount\@copyear
+\@pubyear=\number\year
+\@copyear\@pubyear \advance\@copyear-1900
+\def\pubyear#1{\global\@pubyear#1
+  \global\@copyear\@pubyear \global\advance\@copyear-1900
+  \ignorespaces}
+\def\firstpage#1{\def\@tempa{#1}\ifx\@tempa\@empty\else
+  \gdef\@firstpage{#1}\gdef\@lastpage{#1}%
+  \global\c@page=#1 \ignorespaces\fi
+  }
+\def\@firstpage{1}
+\def\lastpage#1{\def\@tempa{#1}\ifx\@tempa\@empty\else
+  \gdef\@lastpage{#1}\ignorespaces\fi}
+\def\@lastpage{0}
+\def\@pagerange{1--0}
+\def\date#1{\gdef\@date{#1}}                  \def\@date{\today}
+\def\aid#1{}
+\def\ssdi#1#2{}
+\def\received#1{\def\@tempa{#1}\ifx\@tempa\@empty\else\gdef\@received{#1}\fi}
+  \def\@received{\@nil}
+\def\revised#1{\def\@tempa{#1}\ifx\@tempa\@empty\else\gdef\@revised{#1}\fi}
+  \def\@revised{\@nil}
+\def\accepted#1{\def\@tempa{#1}\ifx\@tempa\@empty\else\gdef\@accepted{#1}\fi}
+  \def\@accepted{\@nil}
+\def\communicated#1{\def\@tempa{#1}\ifx\@tempa\@empty\else\gdef\@communicated{#1}\fi}
+  \def\@communicated{\@nil}
+\def\dedicated#1{\def\@tempa{#1}\ifx\@tempa\@empty\else\gdef\@dedicated{#1}\fi}
+  \def\@dedicated{\@nil}
+\def\presented#1{\def\@tempa{#1}\ifx\@tempa\@empty\else\gdef\@presented{#1}\fi}
+  \def\@presented{\@nil}
+\def\articletype#1{\gdef\@articletype{#1}}
+  \@ifundefined{@articletype}{\def\@articletype{}}{}
+\def\received@prefix{Received~}
+\def\revised@prefix{; revised~}
+\def\accepted@prefix{; accepted~}
+\def\communicated@prefix{\\Communicated~by~}
+\def\history@prefix{}
+\def\received@postfix{}
+\def\revised@postfix{}
+\def\accepted@postfix{}
+\def\communicated@postfix{}
+\def\history@postfix{}
+\def\empty@data{\@nil}
+\def\history@fmt{%
+  \bgroup
+  \small
+  \vskip 6pt plus 2pt minus 1pt
+  \ifx\@received\empty@data \else
+    \leavevmode
+    \history@prefix
+    \received@prefix\@received \received@postfix%
+    \ifx\@revised\empty@data \else
+      \revised@prefix\@revised \revised@postfix%
+    \fi
+    \ifx\@accepted\empty@data \else
+      \accepted@prefix\@accepted \accepted@postfix%
+    \fi
+    \ifx\@communicated\empty@data \else
+      \communicated@prefix\@communicated \communicated@postfix%
+    \fi
+    \history@postfix
+  \fi
+  \par \egroup}
+\def\dedicated@fmt{%
+  \ifx\@dedicated\empty@data \else
+    \vskip 4pt plus 3pt
+    \normalsize\it\centering \@dedicated
+    \fi}
+\def\@ialph#1{\ifcase#1\or \or \or \or \or e\or f\or g\or h\or i\or j\or
+  k\or \ell\or m\or n\or o\or p\or q\or r\or s\or t\or u\or v\or w\or x\or
+  y\or z\or aa\or ab\or ac\or ad\or ae\or af\or ag\or ah\or ai\or aj\or
+  ak\or a\ell\or am\or an\or ao\or ap\or aq\or ar\or as\or at\or au\or av\or
+  aw\or ay\or az\or ba\or bb\or bc\or bd\or be\or bf\or bg\or bh\or bi\or
+  bj\or bk\or b\ell\or bm\or bn\or bo\or bp\or bq\or br\or bs\or bt\or
+  bu\or bw\or bx\or by\or bz\or ca\or cb\or cc\or cd\or ce\or cf\or cg\or
+  ch\or ci\or cj\or ck\or c\ell\or cm\or cn\or co\or cp\or cq\or cr\or
+  cs\or ct\or cu\or cw\or cx\or cy\or cz\else\@ctrerr\fi}
+\def\fnstar#1{\@fnstar{\@nameuse{c@#1}}}
+\def\@fnstar#1{\ifcase#1\or
+    \hbox{$\star$}\or
+    \hbox{$\star\star$}\or
+    \hbox{$\star\star\star$}\or
+    \hbox{$\star\star\star\star$}\or
+    \hbox{$\star\star\star\star\star$}\or
+    \hbox{$\star\star\star\star\star\star$}
+  \else
+    \@ctrerr
+  \fi
+  \relax}
+\mark{{}{}}
+\def\rightheadline{}
+\def\leftheadline{}
+\def\annum{\the\@pubyear}
+\def\firstheadline{}
+\def\firstfootline{}
+\def\ps@plain{\let\@mkboth\@gobbletwo
+        \def\@oddhead{\rightheadline}
+        \def\@evenhead{\leftheadline}
+  \def\@oddfoot{\hfil {\rm\thepage} \hfil}%
+ \let\@evenfoot\@oddfoot}
+\def\@copyright{\@issn/\the\@copyear\ $\copyright$\ \the\@pubyear\
+  Elsevier Science B.V. All rights reserved}
+\def\@jou@vol@pag{\@journal\ \@volume\ (\the\@pubyear)}
+\let\@j@v@p\@jou@vol@pag
+\let\@@j@v@p\@jou@vol@pag
+\def\sectionmark#1{}
+\def\subsectionmark#1{}
+\def\ps@copyright{\let\@mkboth\@gobbletwo
+  \def\@oddhead{\ifnum\value{page}=1\firstheadline
+              \else\rightheadline\fi}
+        \def\@evenhead{\ifnum\value{page}=1\firstheadline
+              \else\leftheadline\fi}
+  \def\@oddfoot{\small\sl
+    \def\@tempa{0}
+    \ifx\@volume\@tempa
+      Preprint submitted to \@journal\hfil\@date\/%
+    \else
+      \firstfootline\fi}%
+  \let\@evenfoot\@oddfoot
+}
+\let\ps@noissn\ps@empty
+\let\ps@headings\ps@plain
+\def\today{\number\day\space\ifcase\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\year}
+\if@nfss \relax \else
+  \def\mathrm#1{{\rm #1}}
+  \let\@@mit=\mit
+  \def\mit#1{{\@@mit #1}}
+\fi
+\def\nuc#1#2{\relax\ifmmode{}^{#1}{\protect\text{#2}}\else${}^{#1}$#2\fi}
+\def\itnuc#1#2{\setbox\@tempboxa=\hbox{\scriptsize\it #1}
+  \def\@tempa{{}^{\box\@tempboxa}\!\protect\text{\it #2}}\relax
+  \ifmmode \@tempa \else $\@tempa$\fi}
+\let\old@vec\vec
+\def\pol#1{\old@vec{#1}}
+\def\@bfvec#1{\boldsymbol{#1}}
+\def\@pmbfvec#1{\pmb{#1}}
+\def\undo@AMS{\global\let\vec\@bfvec}
+\def\half{{\textstyle {1\over2}}}
+\def\threehalf{{\textstyle {3\over2}}}
+\def\quart{{\textstyle {1\over4}}}
+\def\d{\,\mathrm{d}}
+\def\e{\mathop{\mathrm{e}}\nolimits}
+\def\int{\intop}
+\def\oint{\ointop}
+\newbox\slashbox \setbox\slashbox=\hbox{$/$}
+\newbox\Slashbox \setbox\Slashbox=\hbox{\large$/$}
+\def\pFMslash#1{\setbox\@tempboxa=\hbox{$#1$}
+  \@tempdima=0.5\wd\slashbox \advance\@tempdima 0.5\wd\@tempboxa
+  \copy\slashbox \kern-\@tempdima \box\@tempboxa}
+\def\pFMSlash#1{\setbox\@tempboxa=\hbox{$#1$}
+  \@tempdima=0.5\wd\Slashbox \advance\@tempdima 0.5\wd\@tempboxa
+  \copy\Slashbox \kern-\@tempdima \box\@tempboxa}
+\def\FMslash{\protect\pFMslash}
+\def\FMSlash{\protect\pFMSlash}
+\mathchardef\Gamma="0000
+\mathchardef\Delta="0001
+\mathchardef\Theta="0002
+\mathchardef\Lambda="0003
+\mathchardef\Xi="0004
+\mathchardef\Pi="0005
+\mathchardef\Sigma="0006
+\mathchardef\Upsilon="0007
+\mathchardef\Phi="0008
+\mathchardef\Psi="0009
+\mathchardef\Omega="000A
+\mathchardef\varGamma="0100
+\mathchardef\varDelta="0101
+\mathchardef\varTheta="0102
+\mathchardef\varLambda="0103
+\mathchardef\varXi="0104
+\mathchardef\varPi="0105
+\mathchardef\varSigma="0106
+\mathchardef\varUpsilon="0107
+\mathchardef\varPhi="0108
+\mathchardef\varPsi="0109
+\mathchardef\varOmega="010A
+\if@nfss
+  \def\Cset{\Bbb{C}}
+  \def\Hset{\Bbb{H}}
+  \def\Nset{\Bbb{N}}
+  \def\Qset{\Bbb{Q}}
+  \def\Rset{\Bbb{R}}
+  \def\Zset{\Bbb{Z}}
+\fi
+\ps@headings
+\pagenumbering{arabic}
+\def\thepage{\@pagenumprefix\arabic{page}}
+
+\def\enddocument{\label{LastPage}\@checkend{document}\clearpage\begingroup  
+\if@filesw \immediate\closeout\@mainaux 
+\def\global\@namedef##1##2{}\def\newlabel{\@testdef r}%
+\def\bibcite{\@testdef b}\@tempswafalse \makeatletter\input \jobname.aux
+\if@tempswa \@warning{Label(s) may have changed.  Rerun to get
+cross-references right}\fi\fi\endgroup\deadcycles\z@\@@end}
+
+\endinput
+
+%%%end of entcs.sty%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

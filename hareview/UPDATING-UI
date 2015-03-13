@@ -1,0 +1,32 @@
+The user interface is defined via glade.
+
+glade/gtk seems to be a tool that is evolving, and getting the right
+version to edit with is a problem.
+
+If the version on your machine does not work, do the following
+
+1. Install vagrant from http://vagrantup.com/
+
+2. Start up the vagrant box
+
+    $ vagrant box add base http://files.vagrantup.com/lucid32.box
+    $ vagrant up
+    $ ssh -p 2222 -X vagrant@localhost
+      [password is vagrant]
+
+3. In the vagrant box
+
+    $ sudo apt-get install -y glade
+    $ glade /vagrant/data/astview.glade &
+    [ Note: it may fail with an X error the first time you run it, it runs fine after that]
+
+The vagrant box has mounted the current directory in /vagrant, so any
+changes you save will update the underlying project.
+
+4. When you are done
+    
+    $ exit # from the vagrant box
+    $ vagrant suspend
+
+
+

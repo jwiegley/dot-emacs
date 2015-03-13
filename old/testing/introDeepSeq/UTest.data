@@ -1,0 +1,9 @@
+TestCases{refactorCmd="refacDeepSeq",
+positive=[(["A1.hs"],["19", "28", "19", "32"]),
+          (["Qualified1.hs"], ["19", "28", "19", "36"]),
+          (["Import1.hs"], ["19", "28", "19", "32"])
+],
+negative=[(["Hidden1.hs"], ["19", "28", "19", "32"]),
+          (["Hidden2.hs"], ["19", "28", "19", "32"]),
+          (["Hidden3.hs"], ["19", "28", "19", "32"])  ]
+}

@@ -1,0 +1,14 @@
+--#include "Prop.alfa"
+
+--#include "tst1b.alfa"
+
+IsTrue (b::Bool) :: Prop
+  = case b of {
+      (False) -> Absurdity;
+      (True) -> Triviality;}
+
+Thm1 (A::Set)(B::Set)(f::A -> B)(xs::List A) :: IsTrue (mapLengthProp A B f xs)
+  = ?
+{-# Alfa hiding on
+var "Thm1" hide 2
+ #-}

@@ -1,0 +1,26 @@
+--#include "Prop.alfa"
+
+--#include "tst1b.alfa"
+
+IsTrue (b::Bool) :: Prop
+  = case b of {
+      (False) -> Absurdity;
+      (True) -> Triviality;}
+
+Thm1 (A::Set)(B::Set)(f::A -> B)(xs::List A) :: IsTrue (mapLengthProp A B f xs)
+  = let ndgoal :: IsTrue (mapLengthProp A B f xs)
+          = listInd A (\(h::List A) -> IsTrue (mapLengthProp A B f h)) xs
+              (let ndgoal :: IsTrue (mapLengthProp A B f Nil@_)
+                     = TrivialityIntro
+               in  ndgoal)
+              (\(x::A) ->
+               \(xs'::List A) ->
+               \(pxs::IsTrue (mapLengthProp A B f xs')) ->
+               let ndgoal :: IsTrue (mapLengthProp A B f ((:)@_ x xs'))
+                     = pxs
+               in  ndgoal)
+    in  ndgoal
+{-# Alfa hiding on
+var "Thm1" hide 2
+var "Thm1b" hide 2
+ #-}

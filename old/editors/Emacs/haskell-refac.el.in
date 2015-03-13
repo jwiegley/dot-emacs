@@ -1,0 +1,298 @@
+;; a minor mode for Haskell refactoring
+;
+; (generated automatically, manual edits may be lost)
+;
+;  put this file in your Emacs load-path, and add something 
+;  like this to your .emacs (the hook assumes that you're 
+;  using haskell-mode, and always want to enable the refactoring
+;  minor mode when entering haskell-mode):
+;
+;   (autoload 'haskell-refac-mode "haskell-refac"
+;      "Minor mode for refactoring Haskell programs" t)
+;   (add-hook 'haskell-mode-hook 'haskell-refac-mode)
+;
+
+;; menu silently disappears if this defvar is moved after define-minor-mode..
+(defvar haskell-refac-mode-map (make-sparse-keymap "Refactor"))
+(define-minor-mode haskell-refac-mode
+  "Toggle Haskell Refactoring mode.
+   With no argument, this command toggles the mode. 
+   Non-null prefix argument turns on the mode.
+   Null prefix argument turns off the mode.
+
+   When Haskell Refactoring mode is enabled, the \"Refactor\"
+   menu provides access to a list of refactorings. These are
+   implemented as commands of an external refactoring tool
+   (default @@REFACTORER@@, see option haskell-refac-refactorer).
+   "
+  ;; The initial value.
+  nil
+  ;; The indicator for the mode line.
+  " @@HARE_VERSION@@ "
+  ;; The minor mode bindings.
+  nil
+)
+
+;;JP: Quick & dirty: add hooks for the mode we are defining...
+;; Alternative is not to use define-minor-mode
+(add-hook 'haskell-refac-mode-on-hook 'turn-on-haskell-refac)
+(add-hook 'haskell-refac-mode-off-hook 'turn-off-haskell-refac)
+
+;;JP: moved to top
+(defvar haskell-refac-output-marker (make-marker))
+(defvar haskell-refac-buffer-list nil)
+
+(defgroup haskell-refac nil "Haskell refactoring options")
+
+(defcustom haskell-refac-refactorer "@@REFACTOR_PRG@@"
+	"*Path to Haskell refactoring tool"
+	:type 'file
+	:group 'haskell-refac)
+
+(defcustom haskell-refac-chasePaths (cons (expand-file-name ".") '(@@LIBRARIES@@))
+	"*List of directories to chase for missing files (including Prelude!)"
+	:type '(repeat directory)
+	:group 'haskell-refac)
+
+;;JP: easy-menu should work with Emacs too
+(easy-menu-define
+ haskell-refac-menu
+ haskell-refac-mode-map
+ "Haskell refactorer minor mode menu"
+ '("Refactor"
+
+
+@@MENU_ENTRIES@@
+
+   "-"
+   ["Customize" (customize-group 'haskell-refac) t]
+   ))
+
+(defun turn-on-haskell-refac ()
+  "Turn on Haskell Refactoring support"
+  (interactive)
+
+  (if (not (buffer-file-name))
+    (message-box "Error: can only refactor if buffer is associated with file")
+
+    (progn 
+      ;; keep track of buffers involved in refactoring
+
+      (add-to-list 'haskell-refac-buffer-list (buffer-name) )
+
+      ;; key bindings and menu entries
+
+      (easy-menu-add haskell-refac-menu)
+      (hare-selection-init)
+
+      ;; refactoring sub-process, only one, please
+
+      (unless (get-process "haskell-refac-process")
+        (start-process "haskell-refac-process" "*refac*"
+            haskell-refac-refactorer "emacs")
+
+        ; does this work on unix as well, or do we need to be os-specific?
+        ;;JP: XEmacs doesn't know this
+        ;;(set-process-coding-system (get-process "haskell-refac-process") 
+        ;;                           'raw-text-dos 'raw-text-unix)
+
+        (set-marker haskell-refac-output-marker 0 (get-buffer-create "*refac*"))
+
+        (set-process-filter (get-process "haskell-refac-process") 
+                            'haskell-refac-process-filter) ) ) )
+)
+
+(defun haskell-refac-process-filter (proc string)
+     (let* ((refac-buffer (process-buffer proc)) 
+            (refac-end-mark (process-mark proc))
+            (refac-buffer-window (display-buffer refac-buffer))
+            (modified nil))
+       (with-current-buffer refac-buffer
+           ;; Insert the text, advancing the process marker.
+           (goto-char refac-end-mark)
+           (insert string)
+           (set-marker refac-end-mark (point))
+           ;; has the refactorer changed files on disk?
+           (save-excursion
+               (goto-char (marker-position haskell-refac-output-marker))
+               (let ((found nil))
+                  (while (setq found (re-search-forward "^\\(message\\|modified\\): \\(.*\\)\n" nil t)) 
+                    (progn
+                      (let ((cmd (match-string 1)) (param (match-string 2)))
+                       (goto-char found)
+                       (set-marker haskell-refac-output-marker found)
+                       (cond
+                         ((string= cmd "modified") (setq modified (cons param modified)))
+                         ((string= cmd "message")  (message-box param))
+                         )
+                      )
+                     ) )
+               )
+           )
+       )
+       (save-selected-window 
+         (select-window refac-buffer-window)
+         (goto-char (marker-position refac-end-mark))
+         (recenter -2))
+       (dolist (f modified) 
+         (let ((buffer (get-file-buffer f)))
+           (if buffer (with-current-buffer buffer (revert-buffer nil t t))
+             (message-box (format "modified unopened file: %s" f)))))
+     )
+)
+
+(defun turn-off-haskell-refac ()
+  "Turn off Haskell Refactoring support"
+  (interactive)
+  (delete (buffer-name) haskell-refac-buffer-list)
+  (easy-menu-remove haskell-refac-menu)
+  (if (null haskell-refac-buffer-list) 
+    (set-process-filter (get-process "haskell-refac-process") nil)
+    (kill-process "haskell-refac-process")
+    (kill-buffer "*refac*")
+  )
+  )
+
+;; try to provide command to call pfe with current
+;; file name and position in file
+
+(defun line-no ()
+  "grmpff. does anyone understand count-lines?"
+  (+ (if (eq 0 (current-column)) 1 0)
+     (count-lines (point-min) (point)))
+  )
+
+(defun line-no-pos (pos)
+  "grmpff. why no parameter to current-column?"
+  (save-excursion
+    (goto-char pos)
+    (+ (if (eq 0 (current-column)) 1 0)
+       (count-lines (point-min) (point))))
+  )
+
+(defun current-column-pos (pos)
+  "grmpff. why no parameter to current-column?"
+  (save-excursion
+    (goto-char pos) (current-column))
+  )
+
+@@FUNCTIONS@@
+
+; ----------------------------- Hare selection
+
+(defun hare-selection-init ()
+  (interactive)
+  (define-minor-mode hare-selection-mode
+    "Hare selection
+     In selection buffer, use [tab] to jump to current entry,
+     and [(control k)] to delete current entry.
+    "
+    nil
+    " Hare selection "
+    '(([tab] . hare-select-goto)
+      ([(control k)] . hare-select-goto-delete)
+      )
+    )
+  (with-current-buffer (get-buffer-create "*hare-selection*")
+    (hare-selection-mode t)
+    )
+  (defvar hare-selection '())
+  (easy-menu-change '("Refactor") "Selection"
+    '(["Clear selection" hare-select-clear :active t]
+      ["Add to selection" hare-select-add :active t]
+      ["Delete from selection" hare-select-delete :active t]
+      ["Show selection" hare-select-display :active t]
+      ["Visit next entry" hare-select-goto-next :active t]
+      ["Visit current entry" hare-select-goto :active t]
+      ["Visit previous entry" hare-select-goto-previous :active t]
+     )
+    )
+  )
+(defun hare-select-clear()
+  (interactive)
+  (setq hare-selection '())
+  (hare-select-update)
+  )
+(defun hare-select-add () 
+  (interactive) 
+  (setq hare-selection
+        (append hare-selection
+                `((,(point) ,(current-buffer) ,(thing-at-point 'line)))
+                )
+        )
+  (hare-select-update)
+  )
+(defun hare-select-goto-delete ()
+  (interactive)
+  (hare-select-goto)
+  (hare-select-delete)
+  )
+(defun hare-select-delete ()
+  (interactive)
+  (setq hare-selection 
+	(hare-select-delete-aux `(,(point) ,(current-buffer)) hare-selection)
+	)
+  (hare-select-update)
+  )
+(defun hare-select-delete-aux (e l)
+  (if (null l)
+      l
+      (let ((h (car l)) (r (cdr l)))
+	(if (equal e `(,(nth 0 h) ,(nth 1 h)))
+	  (hare-select-delete-aux e r)
+	  (cons h (hare-select-delete-aux e r))
+	  )
+	)
+      )
+  )
+(defun hare-select-update ()
+  (interactive)
+  (save-excursion
+    (set-buffer (get-buffer-create "*hare-selection*"))
+    (erase-buffer)
+    (insert (mapconcat 'hare-select-get-line hare-selection ""))
+    (delete-blank-lines)
+    )
+  )
+(defun hare-select-display ()
+  (interactive)
+  (save-excursion
+    (pop-to-buffer (get-buffer-create "*hare-selection*"))
+    (erase-buffer)
+    (insert (mapconcat 'hare-select-get-line hare-selection ""))
+    (shrink-window-if-larger-than-buffer)
+    )
+  )
+(defun hare-select-goto-next ()
+  (interactive)
+  (set-buffer (get-buffer-create "*hare-selection*"))
+  (forward-line 1)
+  (hare-select-goto)
+  )
+(defun hare-select-goto-previous ()
+  (interactive)
+  (set-buffer (get-buffer-create "*hare-selection*"))
+  (forward-line -1)
+  (hare-select-goto)
+  )
+(defun hare-select-goto ()
+  (interactive)
+  (set-buffer (get-buffer-create "*hare-selection*"))
+  (let ((i (- (line-no-pos (point)) 1)))
+    (message (concat (number-to-string i) (buffer-name (nth 1 (nth i hare-selection)))))
+    (pop-to-buffer (nth 1 (nth i hare-selection)))
+    (goto-char (nth 0 (nth i hare-selection)))
+    )
+  )
+(defun hare-select-get-line (pos)
+  (save-excursion
+    (set-buffer (cadr pos))
+    (goto-char (car pos))
+    (concat 
+	 "\"" (buffer-file-name (cadr pos)) "\" "
+	 (number-to-string (line-no-pos (car pos))) " "
+	 (number-to-string (current-column-pos (car pos))) " : "
+	 (nth 2 pos)
+	 )
+    )
+  )

@@ -1,0 +1,53 @@
+--#include "SortProps.alfa"
+
+--#include "Haskell.alfa"
+
+open Module_Prelude  use  Int
+
+open Module_SortProps  use  S0,  S1,  S2
+
+open Module_Sort  use  insert,  sort
+
+open Identity
+ use  (==),  refl,  subst,  sym,  trans,  cong,  cong2,  cong1
+
+proof0 :: S0
+  = \(t8::Star) ->
+    \(d7::Module_Prelude.Ord t8) ->
+    let ndgoal :: IsNil t8 (sort t8 d7 Nil@_)
+          = TrivialityIntro
+    in  ndgoal
+
+proof1 :: S1
+  = \(t11::Star) ->
+    \(d13::Module_Prelude.Ord t11) ->
+    \(x::t11) ->
+    let ndgoal
+          :: Identical (Module_Prelude.List t11) (sort t11 d13 (Cons@_ x Nil@_))
+               (Cons@_ x Nil@_)
+          = refl (Module_Prelude.List t11) (sort t11 d13 (Cons@_ x Nil@_))
+    in  ndgoal
+
+proof2 :: S2
+  = \(t16::Star) ->
+    \(d18::Module_Prelude.Ord t16) ->
+    \(x1::t16) ->
+    \(x2::t16) ->
+    let ndgoal
+          :: Or
+               (Identical (Module_Prelude.List t16)
+                  (sort t16 d18 (Cons@_ x1 (Cons@_ x2 Nil@_)))
+                  (Cons@_ x1 (Cons@_ x2 Nil@_)))
+               (Identical (Module_Prelude.List t16)
+                  (sort t16 d18 (Cons@_ x1 (Cons@_ x2 Nil@_)))
+                  (Cons@_ x2 (Cons@_ x1 Nil@_)))
+          = ?
+    in  ndgoal
+{-# Alfa unfoldgoals off
+brief on
+hidetypeannots off
+wide
+
+nd
+hiding on
+ #-}

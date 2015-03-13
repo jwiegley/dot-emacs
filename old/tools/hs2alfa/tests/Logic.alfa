@@ -1,0 +1,70 @@
+--#include "Alfa/Types.alfa"
+
+--#include "Alfa/PropositionalCalculus.alfa"
+
+--#include "Alfa/PredicateCalculus.alfa"
+
+--#include "Alfa/Identity.alfa"
+
+package Logic where
+  public open Propositions
+          use  Prop,  Absurdity,  AbsurdityElim,  Triviality,  TrivialityIntro,
+               Pred,  Rel,  NDGoal,  IsTrue
+  public open Propositional
+          use  And,  AndIntro,  AndElim1,  AndElim2,  AndElimCont,  Or,
+               OrIntro1,  OrIntro2,  OrElim,  Implies,  ImpliesIntro,
+               ImpliesElim,  Not,  NotElim,  Equivalence
+  public open PredicateCalculus
+          use  ForAll,  ForAllI,  ForAllElim,  Exists,  ExistsIntro,
+               ExistsElim
+  public open Identity
+          use  refl,  subst,  substSym,  sym,  trans,  cong,  cong2,  cong1
+  (===) :: (A::Set) -> (a::A) -> (b::A) -> Set
+    = Identity.(==)
+{-# Alfa unfoldgoals off
+brief on
+hidetypeannots off
+wide
+
+nd
+hiding on
+var "NDGoal" proofgoal
+var "Absurdity" as "^" with symbolfont
+var "AbsurditElim" hide 1
+var "AbsurdityElim" hide 1 as "^E" with symbolfont
+var "Triviality" as "T" with symbolfont
+var "TrivialityIntro" as "TI" with symbolfont
+var "And" infix 3 as "Ù" with symbolfont
+var "AndIntro" hide 2 as "ÙI" with symbolfont
+var "AndElim1" hide 2 as "ÙE1" with symbolfont
+var "AndElim2" hide 2 as "ÙE2" with symbolfont
+var "Or" infix 2 as "Ú" with symbolfont
+var "OrIntro1" hide 2 as "ÚI1" with symbolfont
+var "OrIntro2" hide 2 as "ÚI2" with symbolfont
+var "OrElim" hide 3 as "ÚE" with symbolfont
+var "Implies" infix rightassoc 1 as "®" with symbolfont
+var "ImpliesIntro" hide 2 as "®I" with symbolfont
+var "ImpliesElim" hide 2 as "®E" with symbolfont
+var "Equivalence" infix 1 as "«" with symbolfont
+var "Not" as "Ø" with symbolfont
+con "AndI" infix 3 as "ÙI" with symbolfont
+var "AndElimCont" hide 3 as "ÙE+" with symbolfont
+var "NotElim" hide 1 as "ØE" with symbolfont
+var "ForAll" hide 1 quantifier domain on as "\"" with symbolfont
+var "ForAllI" hide 2 as "\"I" with symbolfont
+var "ForAllElim" hide 3 as "\"E" with symbolfont
+var "Exists" hide 1 quantifier domain on as "$" with symbolfont
+var "ExistsIntro" hide 2 as "$I" with symbolfont
+var "ExistsElim" hide 3 as "$E" with symbolfont
+con "existsI" as "$I" with symbolfont
+con "forallI" as "\"I" with symbolfont
+var "===" distfix3 4
+var "refl" hide 2
+var "subst" hide 3
+var "substSym" hide 3
+var "sym" hide 3
+var "trans" hide 4
+var "cong" hide 4
+var "cong2" hide 7
+var "cong1" hide 6
+ #-}

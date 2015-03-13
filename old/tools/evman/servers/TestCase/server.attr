@@ -1,0 +1,9 @@
+name: TestCase
+version: 0.01
+release: 08 April 2004
+src: http://www.cse.ogi.edu/~hallgren/Programatica/
+description: Test cases for regression testing
+has_sequent: no
+
+attribute: name=test, type=string, label="Test (identifier of type IO ())", required
+attribute: name=Comment, type=string

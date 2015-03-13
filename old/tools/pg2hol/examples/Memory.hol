@@ -1,0 +1,95 @@
+(* Not supported: import declaration *)
+(* From ../../examples/ChannelSeparation/Memory.hs:6,19 : *)
+Hol_datatype `Addr = Word`
+handle e => (print "Type synonym Addr failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/Memory.hs:7,19 : *)
+Hol_datatype `Word = int`
+handle e => (print "Type synonym Word failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/Memory.hs:8,19 : *)
+Hol_datatype `Memory = Addr # Addr -> Word`
+handle e => (print "Type synonym Memory failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/Memory.hs:9,19 : *)
+Hol_datatype `Range = Addr # Addr`
+handle e => (print "Type synonym Range failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/Memory.hs:11,18 *)
+(* From ../../examples/ChannelSeparation/Memory.hs:12,19 : *)
+val initMem_def = Define `initMem = (0, \ a -> 0)`
+handle e => (print "CAF initMem failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/Memory.hs:14,18 *)
+(* From ../../examples/ChannelSeparation/Memory.hs:15,19 : *)
+val readMem_def = Define `readMem a m = snd m a`
+handle e => (print "Function readMem failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/Memory.hs:17,18 *)
+(* From ../../examples/ChannelSeparation/Memory.hs:19,19 : *)
+val writeMem_def = Define `writeMem a w (free, mem) =
+			       (free,
+				\ a' ->
+				    if a == a' then
+					w
+				    else
+					mem a')`
+handle e => (print "Function writeMem failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/Memory.hs:21,17 *)
+(* From ../../examples/ChannelSeparation/Memory.hs:22,19 : *)
+val readRange_def = Define `readRange (l, u) m =
+				(* Not supported: list comprehension *)`
+handle e => (print "Function readRange failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/Memory.hs:24,18 *)
+(* From ../../examples/ChannelSeparation/Memory.hs:26,19 : *)
+val allocMem_def = Define `allocMem ws (free, mem) =
+			       let size = length ws
+			       in  let lb = free
+				   in  let ub = + free size
+				       in  let rng = (lb, ub)
+					   in  let mem' =
+						       \ a .
+							   if includes rng a then
+							       !! ws (- a lb)
+							   else
+							       mem a
+					       in  (rng, (ub, mem'))`
+handle e => (print "Function allocMem failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/Memory.hs:35,18 *)
+(* From ../../examples/ChannelSeparation/Memory.hs:36,19 : *)
+val includes_def = Define `includes (l, u) a = < && <= l a a u`
+handle e => (print "Function includes failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 

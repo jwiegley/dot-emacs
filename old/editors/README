@@ -1,0 +1,9 @@
+2012-08-01
+
+In the original repo this directory was used to construct the
+installed settings.
+
+This has been discontinued, it is no longer part of the build.
+
+The LocalSettings.hs file has been moved into refactorer, where it
+makes use of Cabal directores to manage the install location.

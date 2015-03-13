@@ -1,0 +1,223 @@
+Overview
+========
+
+The view taken in this description of the module system is
+that a program consists of a number of modules.  Each module
+provides (exports) some entities to be used by other modules.
+The entities exported by a module may either be defined in the
+module, or imported from another module.  
+
+The task of the module system is to keep track of the relations between
+names and the entities they refer to.  Examples of the kinds of questions
+one might expect the module system to answer are: which entity does a
+name refer to, what names are in scope, what entities are exported by a module.
+The module system is fairly independent of the rest of Haskell.  In fact,
+it is possible to convert a program consisting of multiple modules into
+a program consisting of a single module by concatenating the modules and
+replacing each name in the program with a unique name identifying the entity
+to which it refers.  There are a few technicalities about such a conversion
+related to the defaulting mechanism of Haskell, but this is not 
+relevant to our discussion (REPORT REFERENCE).   
+
+
+
+Entities
+--------
+
+_Entities_ are introduced in a program by declarations.  They are
+the "building blocks" for other objects in a program.  Programmers
+use _names_ to refer to entities.  For example, the declaration:
+
+> f x = x + 2
+
+introduces one entity - a function named #f#. We only consider top
+level declarations as those are the ones which may be exported
+for use by other modules. 
+
+Another slightly more complicated (but nevertheless common in practice) example:
+
+> data List a = EmptyList | List { hd :: a, tl :: List a }
+
+There are five entities introduced by this declaration:
+    * a type constructor named #List#
+    * two value constructors named #Nil# and #List# respectively
+    * two field selectors - #hd# and #tl#
+
+We note that it is possible to have different entities with the same
+name (e.g. the two #List# entities above).  
+
+
+There are six varieties of entities:
+    * functions
+    * type constructors
+    * value constructors
+    * field selectors
+    * classes
+    * class methods
+
+One could perhaps also consider class instances to be entities as they
+are also introduced by declarations, but since in Haskell 98 there is 
+no way to name them (and hence refer to them directly in a program)
+we choose not to. The varieties of entities are not very essential as the
+Haskell module system is reasonably uniform in the sense that all entities
+(with one exception to be discussed later) are treated in the same way. 
+
+Other examples of non-entities are expressions, types and patterns.
+There is a subtle distinction we make between types and type constructors - 
+types are made out of type constructors, so even though #List# and #Int#
+are entities #List Int# is not.  Furthermore we distinguish between 
+#Int# as a nullary type constructor and #Int# as a type (i.e. the application
+of the type constructor to no arguments).
+
+
+
+Subordinate entities
+--------------------
+
+As the reader might have noticed there are relations between some entities.
+If we look at the #List# example above, we note that the 
+value constructors #List# and #EmptyList#, and the filed selectors
+#hd# and #tl# "belong" to the type constructor #List#.  Such entities
+are called _subordinate_ entities.  Another example of subordinate entities
+are the methods of a class (as they belong to the class).  The Haskell
+module system provides special mechanism to control which of those 
+subordinate entities are to be imported/exported from a module.
+
+
+TODO: Where to put this?
+
+A module defines a type:
+
+| data T = A | B | C
+
+To export the type T and just the A value constructor:
+| module A ( T(A) ) where
+
+To export the type T and all its constructors:
+| module A (T(..)) where
+
+To export just the type T:
+| module A (T) where
+or
+| module a (T()) where
+
+There is no way to export just a constructor without the type, while
+the situation is slightly different when dealing with classes.  For
+details of the semantics see the functions bellow.
+
+
+
+Quick tour of Haskell module system
+===================================
+
+The basic unit of a program is the _module_.  Every module has a 
+name used to identify the module.  This name is used when a programmer
+needs to _import_ a module, i.e. specify that she will be using (some of)
+the entities defined in the module.  
+
+To refer to entities programmers use names.  Most of the time simple names
+(plain old identifiers) are sufficient, but sometimes if two entities happen
+to have the same name one may use a _qualified name_ to disambiguate which 
+one is meant.
+
+
+Exports
+-------
+
+To reduce the number of name clashes in programs, a programmer may
+restrict which entities (or rather names of entities) may be used by other
+modules (i.e. are _exported_ by the module) and which are just local "helper"
+entities.  This
+is done with the module's export specification.  If the programmer wishes
+to export just the locally defined names of a module no export specification
+needs to be provided, however if a finer control over the exports of a module
+is desired an explicit export specification has to be written.
+It consists of an enumeration of the entities to be export, plus a few 
+ways to abbreviate whole groups of entities are available.  For example:
+
+| module A where
+| f = True
+
+is a module (with a name #A#) which will just export the locally defined
+entity #f#.   However:
+
+| module A(g) where
+| f = True
+| g = 'a'
+
+will only export the entity #g#, while #f# may not be named in other modules.
+
+So far in out description we have been somewhat informal, freely mixing the
+notions of _names_ and _entities_.  It is however important to be careful and
+keep in mind that those are different.   Just because an entity is not exported
+by a module does not mean it may not be used by other modules.  However
+there will be no way for a programmer to directly name this entity.  For
+example if a type constructor defined in a module is not exported,
+programmers won't be able to write type signatures involving this type
+constructor in other modules,  however they might still be able to create 
+values of types made out of the type constructor.  Similarly, 
+if a function uses another function in its definition, but the
+second function is not in exported, in other modules programmers may use the
+first function but not the second.
+
+
+Imports
+-------
+
+In the large majority of modules, programmers make use of entities
+defined in other modules - either libraries or components of the project
+being designed.  To achieve this, a programmer needs to first import 
+the entities using an _import declaration_, which specifies a module and 
+some entities to be imported from it.
+
+Entities are exported with just a simple name.  When they are imported
+one may typically refer to them either using the simple name or
+by qualifying the name with the name of the module from which the
+entity was imported (to avoid an ambiguity if there
+are two entities with the same simple name, or for readability purposes).
+For example suppose module #A# exports an entity with a name #f#, then
+
+| import A
+|
+| p = f       -- use the unqualified name
+| q = A.f     -- use the qualified name
+
+Sometimes however, it is more convenient to qualify the entity names
+not using the module name, but rather some other name.  To achieve
+this one may use the #as# clause of an import declaration. For example:
+
+| import A_Module_With_A_Long_Name as M
+| 
+| p = f                               -- use the unqualified name
+| q = M.f                             -- use the qualified name
+| 
+| -- r = A_Module_With_A_Long_Name.f     error
+
+Another use of the #as# clause is to "combine" imports.  For example
+if module #A# exports #f#, and module #B# exports #g#, then:
+
+| import A as M
+| import B as M
+| 
+| p = f               --  use unqualified name
+| q = g               --  use unqualified name
+| r = M.f             --  use qualified name
+| s = M.g             --  use qualified name 
+| -- t = A.f              error
+| -- u = B.f              error
+
+Finally in some situations it is more convenient not to have unqualified
+names at all, i.e. a programmer might want to ensure that she always 
+refers to entities using the qualified names.  This is achieved using
+the #qualified# clause in an import.  If module #A# exports #f#:
+
+| import qualified A
+| 
+| -- p = f               error, the unqualified name is not available
+| q = A.f             -- use the qualified names
+
+One may also combine those clauses.   TODO...
+
+
+
+

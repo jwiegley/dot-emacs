@@ -1,0 +1,67 @@
+pretty/Pretty.lhs tests/HaskellLibraries/Ratio.hs tests/HaskellLibraries/Monad.hs tests/GhcLibraries/IOExts.hs tests/HaskellLibraries/Ix.hs tests/HaskellLibraries/Maybe.hs lib/AccList.hs AST/HsGuardsUtil.hs AST/HsTypeStruct.hs AST/HsKindStruct.hs lib/Recursive.hs TI/TiEnv.hs TI/TiConstraints.hs lib/OpTypes.hs lib/Products.hs lib/Monads/HasEnv.lhs lib/Monads/MonadRec.hs lib/Monads/HasState.hs parse2/Lexer/HsTokens.hs tests/GhcLibraries/FiniteMap.hs lib/NoEq.hs tests/HaskellLibraries/System.hs tests/HaskellLibraries/Directory.hs lib/UTF8.hs tests/HaskellLibraries/IO.hs
+pretty/PrettyM.hs tests/HaskellLibraries/List.hs AST/HsAssoc.hs AST/HsTypeUtil.hs AST/HsKindUtil.hs lib/Monads/EnvM.hs lib/Monads/StateM.hs lib/Monads/HasOutput.hs parse2/Lexer/HsLayoutPre.hs parse2/Lexer/HsLexUtils.hs lib/Assoc1.hs lib/UTF8Util.hs
+pretty/PrettyPrint.hs tests/HaskellLibraries/Array.hs lib/MUtils.hs lib/Assoc.hs lib/NewSCC.hs lib/Lists.hs lib/Monads/OutputM.hs
+AST/SrcLoc.hs tests/HaskellLibraries/Numeric.hs tests/HaskellLibraries/Char.hs AST/HsIdent.hs AST/HsLiteral.hs AST/HsTypeMaps.hs AST/HsKindPretty.hs AST/HsKindMaps.hs TI/Unification.hs lib/Lift.hs lib/DirUtils.hs
+pretty/PrettyUtil.hs AST/HsName.hs AST/HsGuardsStruct.hs AST/HsPatStruct.hs AST/HsTypePretty.hs AST/HsKind.hs parse2/Lexer/HsLex.hs lib/Unlit.hs defs/ReAssoc.hs
+AST/HsModule.hs AST/HsDeclStruct.hs AST/HsGuardsPretty.hs AST/HsGuardsMaps.hs AST/HsExpStruct.hs AST/HsPatPretty.hs AST/HsPatMaps.hs AST/HsType.hs TI/TiNames.hs Modules/TypedIds.hs AST/HasBaseName.hs parse2/Lexer/HsLexerPass1.hs parse2/LexUtil.hs
+AST/HsDeclPretty.hs AST/HsDeclMaps.hs AST/HsExpMaps.hs AST/HsGuards.hs AST/HsPatUtil.hs defs/DefinedNames.hs AST/HsConstants.hs Modules/NamesEntities.lhs defs/NameMaps.hs parse2/ParseMonad.hs
+AST/HsDeclUtil.hs AST/HsExpUtil.hs AST/HsPat.hs TI/TiDefinedNames.hs defs/FreeNames.hs Modules/Modules.lhs defs/ScopeNames.hs parse2/Lexer/HsLexer.hs
+AST/HsDecl.hs AST/HsExpPretty.hs TI/TiFreeNames.hs Modules/AST4ModSys.hs Modules/CheckModules.lhs
+AST/HsExp.hs Modules/PPModules.hs
+AST/BaseSyntaxStruct.hs
+AST/HasBaseStruct.hs defs/DefinedNamesBaseStruct.hs Modules/SCMs.hs defs/FreeNamesBaseStruct.hs defs/NameMapsBaseStruct.hs defs/ReAssocBaseStruct.hs
+syntax/SyntaxRec.hs TI/TiPrelude.hs Modules/WorkModule.hs defs/ScopeNamesBaseStruct.hs
+syntax/Syntax.hs ParseProgram.hs
+TI/TiTypes.hs defs/DefinedNamesBase.hs defs/UniqueNames.hs
+TI/TiKinds.hs defs/FreeNamesBase.hs syntax/SyntaxUtil.hs parse2/SourceNames.hs defs/NameMapsBase.hs defs/ReAssocBase.hs
+TI/TiSolve.hs TI/TiPretty.hs parse2/Parser/PosSyntax.hs parse2/NumberNames.hs parse2/Parser/ParseUtil.hs defs/ScopeNamesBase.hs
+TI/TiBySuper.hs TI/TiInstanceDB.hs parse2/ParsedSyntax.hs parse2/Parser/HsParser.hs
+TI/TiMonad.hs ScopeProgram.hs
+TI/TiClasses.hs TI/TiHsName.hs
+TI/TiContextReduction.hs TI/TiSCC.hs
+TI/TiUtil.hs
+TI/TI.hs
+TI/TiRhs.hs TI/TiLit.hs TI/TiT.hs
+TI/TiP.hs TI/TiE.hs
+TI/TiD.hs
+TI/TiBaseStruct.hs
+TI/TiBase.hs TiProgram.hs
+TI/TiDecorate.hs
+tstTI.hs
+
+tests/HaskellLibraries/Prelude.hs
+tests/HaskellLibraries/PreludeBuiltin.hs
+tests/HaskellLibraries/PreludeList.hs
+tests/HaskellLibraries/PreludeIO.hs
+tests/HaskellLibraries/PreludeText.hs
+tests/HaskellLibraries/Time.hs
+tests/HaskellLibraries/Locale.hs
+
+tests/GhcLibraries/Int.hs
+pretty/PPU.hs
+lib/Monads/Tree.hs
+lib/Monads/MT.hs
+Modules/Entity.hs
+Modules/Relations.lhs
+AST/HsFieldsStruct.hs
+AST/HsFieldsPretty.hs
+AST/HsFieldsMaps.hs
+AST/HsFields.hs
+TI/TiFields.hs
+parse2/ParserOptions.hs
+AST/HsAssocStruct.hs
+AST/HsAssocPretty.hs
+AST/HsAssocUtil.hs
+AST/HsIdentPretty.hs
+AST/HsLiteralPretty.hs
+AST/BaseSyntax.hs
+AST/BaseSyntaxMaps.hs
+AST/BaseSyntaxPretty.hs
+AST/BaseSyntaxUtil.hs
+AST/SrcLocPretty.hs
+lib/AbstractIO.hs
+defs/ReAssocModule.hs
+defs/ScopeModule.hs
+pretty/PrettySymbols.hs
+tests/GhcLibraries/Set.hs
+TI/TiModule.hs

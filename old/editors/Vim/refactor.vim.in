@@ -1,0 +1,297 @@
+" Vim/GVim interface to Haskell refactorer
+" (generated automatically - manual edits may be lost)
+
+" use :source <file> to load this into vim/gvim
+
+
+let g:haskell_refac_version = "@@HARE_VERSION@@"
+
+if !exists("g:haskell_refac_refactorer")
+	let g:haskell_refac_refactorer = "@@REFACTORER@@"
+endif
+
+if !exists("g:haskell_refac_refactorer_client")
+	let g:haskell_refac_refactorer_client = "@@REFACTORER_CLIENT@@"
+endif
+
+if !exists("g:haskell_refac_chasePaths")
+	let g:haskell_refac_chasePaths = getcwd() . " @@LIBRARIES_NOQ@@"
+endif
+
+if !exists("g:haskell_refac_showWindow")
+	let g:haskell_refac_showWindow = 1
+endif
+
+function! Myinput(p)
+     if version >=602
+        call inputsave()
+     endif
+        let x=input(a:p)
+     if version >=602
+        call inputrestore()
+     endif
+        return x
+endfunction
+
+@@FUNCTIONS@@
+
+@@COMMANDS@@
+
+" --------------------------------------------------- menu
+if has("menu")
+	if exists("b:haskell_refac_menu")
+		aunmenu Haskell(Refac)
+	endif
+
+	200amenu Haskell(Refac).-Change-      :
+
+@@MENU_ENTRIES@@
+
+	amenu Haskell(Refac).-Custom- :
+	amenu Haskell(Refac).version :echo g:haskell_refac_version<cr>
+	amenu Haskell(Refac).customize :call Customize()<cr>
+	tmenu Haskell(Refac).customize customize paths and options
+	amenu Haskell(Refac).start :RefacStart<cr>
+	tmenu Haskell(Refac).start start refactorer
+	amenu Haskell(Refac).stop :RefacStop<cr>
+	tmenu Haskell(Refac).stop stop refactorer
+
+	amenu disable Haskell(Refac).*
+	amenu enable Haskell(Refac).version
+	amenu enable Haskell(Refac).customize
+	amenu enable Haskell(Refac).start
+
+
+	let b:haskell_refac_menu = "yes"
+endif
+
+function! Customize()
+  let current=bufname("%")
+  if bufexists("customize")
+      set switchbuf+=useopen
+      sbuf ^customize$
+    else
+      new customize
+  endif
+  set buftype=nofile
+  set bufhidden=delete
+  set noswapfile
+  execute "%d"
+  set tw=0
+  map <buffer> _ok :exe getline(3)<cr>:exe getline(4)<cr>:exe getline(5)<cr>:q<cr>
+  call append(0,"let g:haskell_refac_showWindow=".g:haskell_refac_showWindow)
+  call append(0,"let g:haskell_refac_chasePaths='".g:haskell_refac_chasePaths."'")
+  call append(0,"let g:haskell_refac_refactorer='".g:haskell_refac_refactorer."'")
+  call append(0,"\" (you might want to add these lines to your vimrc)")
+  call append(0,"\" To customize, edit values, then type \"_ok\"")
+endfunction
+
+if has("win32")
+  function! Haskell_refac_start()
+    let @r=''
+    redir @r
+    silent execute ":!start /min ".g:haskell_refac_refactorer." vim ".escape($VIMRUNTIME,' ')."\\".v:progname." ".v:servername
+    au VimLeave * call Haskell_refac_client_cmd('stop')
+    redir END
+    call Haskell_refac_msg(0,@r)
+  
+    amenu enable Haskell(Refac).*
+    amenu disable Haskell(Refac).start
+    amenu disable Haskell(Refac).customize
+  endfunction
+
+  function! Haskell_refac_client_cmd(cmd)
+    let @r=''
+    redir @r
+    "to rescue users of behave mswin
+    normal gV
+    silent execute ":!start /min ".g:haskell_refac_refactorer_client." ".a:cmd
+    redir END
+    call Haskell_refac_msg(0,@r)
+  endfunction
+else
+  if executable(v:progname)
+    function! Haskell_refac_start()
+      let @r=''
+      redir @r
+      silent execute ":!".g:haskell_refac_refactorer." vim ".v:progname." ".v:servername." >log.txt 2>&1 &"
+      au VimLeave * call Haskell_refac_client_cmd('stop')
+      redir END
+      call Haskell_refac_msg(0,@r)
+    
+      amenu enable Haskell(Refac).*
+      amenu disable Haskell(Refac).start
+      amenu disable Haskell(Refac).customize
+    endfunction
+
+    function! Haskell_refac_client_cmd(cmd)
+      let @r=''
+      redir @r
+      silent execute ":!".g:haskell_refac_refactorer_client." ".a:cmd
+      redir END
+      call Haskell_refac_msg(0,@r)
+    endfunction
+  else
+  echoerr "cannot find path to executable"
+  endif
+endif
+
+function! Haskell_refac_stop()
+  call Haskell_refac_client_cmd('stop')
+
+  amenu disable Haskell(Refac).*
+  amenu enable Haskell(Refac).start
+  amenu enable Haskell(Refac).version
+  amenu enable Haskell(Refac).customize
+endfunction
+
+command! RefacStart :call Haskell_refac_start()
+command! RefacStop :call Haskell_refac_stop()
+
+function! Haskell_refac_modified(f)
+    set switchbuf+=useopen
+    if bufexists(a:f)
+      execute ":sbuf ".a:f
+      edit
+    else
+      call Haskell_refac_msg(1,"modified file: ".a:f."  (not currently opened)")
+    endif
+endfunction
+
+function! Haskell_refac_msg(dialog,msg)
+  let visible = bufwinnr('^refac$')
+  if bufexists('^refac$')
+    set switchbuf+=useopen
+    sbuf ^refac$
+    call append(line('$'),a:msg)
+    if visible==-1 
+      hide 
+    else 
+      sbuf % 
+    endif
+  else
+    hide new refac
+    set bufhidden=hide
+    set buftype=nofile
+    set noswapfile
+    call append(line('$'),a:msg)
+    hide
+  endif
+ if a:dialog
+   call confirm(a:msg)
+ endif
+endfunction
+
+"--------------------- HaRe selection
+
+function! Hare_withSelection(existsCmd,emptyCmd)
+  let visible = bufwinnr('^hare-selection$')
+  if bufexists('hare-selection')
+    set switchbuf+=useopen
+    sbuf ^hare-selection$
+
+    exe a:existsCmd
+
+    if visible==-1 
+      hide 
+    else 
+      sbuf % 
+    endif
+  else
+
+    exe a:emptyCmd
+    
+  endif
+endfunction
+
+function! Hare_createSelection(entry)
+  hide new hare-selection
+  set bufhidden=hide
+  set buftype=nofile
+  set noswapfile
+  map <buffer> <cr> :call Hare_sel_goto(0) <cr>
+  call setline(1,a:entry)
+  hide
+endfunction
+
+function! Hare_sel_clear()
+  call Hare_withSelection(":bunload! hare-selection",":call confirm('empty selection')")
+endfunction
+
+function! Hare_sel_add_aux(entry)
+  if nextnonblank(1)
+    call append(line('$'),a:entry)
+  else
+    call setline(1,a:entry)
+  endif
+endfunction
+
+function! Hare_sel_add()
+  let l=line(".")
+  let c=col(".")
+  let entry="\"" . bufname("") . "\" " . l . " " . c . " : " . getline(l)
+  let entry='"'.escape(entry,'"').'"'
+  call Hare_withSelection(":call Hare_sel_add_aux(".entry.")",":call Hare_createSelection(".entry.")")
+endfunction
+
+function! Hare_sel_delete()
+  let l=line(".")
+  let c=col(".")
+  let prefix="\"" . bufname("") . "\" " . l . " " . c . " : "
+  call Hare_withSelection(":g/^".prefix."/d",":call confirm('empty selection')")
+endfunction
+
+function! Hare_sel_display()
+  if bufexists('hare-selection')
+    set switchbuf+=useopen
+    sbuf ^hare-selection$
+    normal J
+    resize 5
+  else
+    call confirm('empty selection')
+  endif
+endfunction
+
+function! Hare_sel_goto(motion)
+  let visible = bufwinnr('^hare-selection$')
+  if bufexists('hare-selection')
+    set switchbuf+=useopen
+    sbuf ^hare-selection$
+    call cursor(line(".")+a:motion,0)
+    let l=getline(".")
+    let buffer=matchstr(l,"\"[^\"]*\" ")
+    let buffer=strpart(buffer,1,strlen(buffer)-3)
+    let i=matchend(l,"\"[^\"]*\" ")
+    let l=strpart(l,i)
+    let lnr=matchstr(l,"[0-9][0-9]*")
+    let j=stridx(l," ")
+    let cnr=matchstr(l,"[0-9][0-9]*",j)
+    if visible==-1 
+      hide 
+    else 
+      sbuf % 
+    endif
+    "call confirm(buffer ." ".lnr." ".cnr)
+    exe ":sbuf " . buffer
+    call cursor(lnr,cnr)
+  else
+    call confirm('empty selection')
+  endif
+endfunction
+
+amenu Haskell(Refac).Selection.Clear\ selection :call Hare_sel_clear()<cr>
+tmenu Haskell(Refac).Selection.Clear\ selection clear selection
+amenu Haskell(Refac).Selection.Add\ to\ selection :call Hare_sel_add()<cr>
+tmenu Haskell(Refac).Selection.Add\ to\ selection add current position to selection
+amenu Haskell(Refac).Selection.Delete\ from\ selection :call Hare_sel_delete()<cr>
+tmenu Haskell(Refac).Selection.Delete\ from\ selection delete current position from selection
+amenu Haskell(Refac).Selection.Show\ selection :call Hare_sel_display()<cr>
+tmenu Haskell(Refac).Selection.Show\ selection show selection
+amenu Haskell(Refac).Selection.Visit\ next\ entry :call Hare_sel_goto(1)<cr>
+tmenu Haskell(Refac).Selection.Visit\ next\ entry visit next entry
+amenu Haskell(Refac).Selection.Visit\ current\ entry :call Hare_sel_goto(0)<cr>
+tmenu Haskell(Refac).Selection.Visit\ current\ entry visit current entry
+amenu Haskell(Refac).Selection.Visit\ previous\ entry :call Hare_sel_goto(-1)<cr>
+tmenu Haskell(Refac).Selection.Visit\ previous\ entry visit previous entry
+
+

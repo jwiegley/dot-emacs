@@ -1,0 +1,183 @@
+--#include "alfa/SPS.alfa"
+
+open Module_Prelude
+ use  List,  Tuple2,  unzip,  zip,  fst,  snd,  undefined
+
+open Logic
+ use  Prop,  Pred,  Rel,  Absurdity,  AbsurdityElim,  Triviality,
+      TrivialityIntro,  NDGoal,  And,  AndIntro,  AndElim1,  AndElim2,
+      AndElimCont,  Or,  OrIntro1,  OrIntro2,  OrElim,  Implies,
+      ImpliesIntro,  ImpliesElim,  Not,  NotElim,  Equivalence,
+      ForAll,  ForAllI,  ForAllElim,  Exists,  ExistsIntro,
+      ExistsElim,  IsTrue,  (===),  refl,  subst,  substSym,  sym,
+      trans,  cong,  cong2,  cong1
+
+open Module_SPS
+ use  S,  runS,  mapS,  mapAccumS,  (>*<),  Separation1,  feed,
+      continue
+
+separationLemma (i1::Star)
+                (o1::Star)
+                (i2::Star)
+                (o2::Star)
+                (sps1::S i1 o1)
+                (sps2::S i2 o2)
+                (is1::List i1)
+                (is2::List i2)
+  :: (===)
+       (List (Tuple2 o1 o2))
+       (runS
+          (Tuple2 i1 i2)
+          (Tuple2 o1 o2)
+          ((>*<) i1 o1 i2 o2 sps1 sps2)
+          (zip i1 i2 is1 is2))
+       (zip o1 o2 (runS i1 o1 sps1 is1) (runS i2 o2 sps2 is2))
+  = case is1 of {
+      (Nil) ->
+        let ndgoal
+              :: (===)
+                   (List (Tuple2 o1 o2))
+                   (runS
+                      (Tuple2 i1 i2)
+                      (Tuple2 o1 o2)
+                      ((>*<) i1 o1 i2 o2 sps1 sps2)
+                      (zip i1 i2 Nil@_ is2))
+                   (zip o1 o2 (runS i1 o1 sps1 Nil@_) (runS i2 o2 sps2 is2))
+              = refl
+                  (List (Tuple2 o1 o2))
+                  (runS
+                     (Tuple2 i1 i2)
+                     (Tuple2 o1 o2)
+                     ((>*<) i1 o1 i2 o2 sps1 sps2)
+                     (zip i1 i2 Nil@_ is2))
+        in  ndgoal;
+      (Cons x xs) ->
+        case is2 of {
+          (Nil) ->
+            let ndgoal
+                  :: (===)
+                       (List (Tuple2 o1 o2))
+                       (runS
+                          (Tuple2 i1 i2)
+                          (Tuple2 o1 o2)
+                          ((>*<) i1 o1 i2 o2 sps1 sps2)
+                          (zip i1 i2 (Cons@_ x xs) Nil@_))
+                       (zip
+                          o1
+                          o2
+                          (runS i1 o1 sps1 (Cons@_ x xs))
+                          (runS i2 o2 sps2 Nil@_))
+                  = refl
+                      (List (Tuple2 o1 o2))
+                      (runS
+                         (Tuple2 i1 i2)
+                         (Tuple2 o1 o2)
+                         ((>*<) i1 o1 i2 o2 sps1 sps2)
+                         (zip i1 i2 (Cons@_ x xs) Nil@_))
+            in  ndgoal;
+          (Cons x' xs') ->
+            case sps1 of {
+              (S sps1') ->
+                case sps2 of {
+                  (S sps2') ->
+                    let it
+                          :: (===)
+                               (List (Tuple2 o1 o2))
+                               (runS
+                                  (Tuple2 i1 i2)
+                                  (Tuple2 o1 o2)
+                                  ((>*<) i1 o1 i2 o2 (S@_ sps1') (S@_ sps2'))
+                                  (zip i1 i2 (Cons@_ x xs) (Cons@_ x' xs')))
+                               (zip
+                                  o1
+                                  o2
+                                  (runS i1 o1 (S@_ sps1') (Cons@_ x xs))
+                                  (runS i2 o2 (S@_ sps2') (Cons@_ x' xs')))
+                          = let c1 = sps1' x
+                                c2 = sps2' x'
+                                indhyp
+                                  :: (===)
+                                       (Module_Prelude.List (Tuple2 o1 o2))
+                                       (runS
+                                          (Tuple2 i1 i2)
+                                          (Tuple2 o1 o2)
+                                          ((>*<)
+                                             i1
+                                             o1
+                                             i2
+                                             o2
+                                             (snd o1 (S i1 o1) c1)
+                                             (snd o2 (S i2 o2) c2))
+                                          (zip i1 i2 xs xs'))
+                                       (zip
+                                          o1
+                                          o2
+                                          (runS i1 o1 (snd o1 (S i1 o1) c1) xs)
+                                          (runS i2 o2 (snd o2 (S i2 o2) c2) xs'))
+                                  = separationLemma
+                                      i1
+                                      o1
+                                      i2
+                                      o2
+                                      (snd o1 (S i1 o1) c1)
+                                      (snd o2 (S i2 o2) c2)
+                                      xs
+                                      xs'
+                            in  cong2
+                                  (Tuple2 o1 o2)
+                                  (Module_Prelude.List (Tuple2 o1 o2))
+                                  (List (Tuple2 o1 o2))
+                                  (Tuple2@_
+                                     (Module_Prelude.fst o1 (S i1 o1) (sps1' x))
+                                     (Module_Prelude.fst o2 (S i2 o2) (sps2' x')))
+                                  (runS
+                                     (Tuple2 i1 i2)
+                                     (Tuple2 o1 o2)
+                                     ((>*<)
+                                        i1
+                                        o1
+                                        i2
+                                        o2
+                                        (snd o1 (S i1 o1) c1)
+                                        (snd o2 (S i2 o2) c2))
+                                     (zip i1 i2 xs xs'))
+                                  (Tuple2@_
+                                     (Module_Prelude.fst o1 (S i1 o1) (sps1' x))
+                                     (Module_Prelude.fst o2 (S i2 o2) (sps2' x')))
+                                  (zip
+                                     o1
+                                     o2
+                                     (runS i1 o1 (snd o1 (S i1 o1) c1) xs)
+                                     (runS i2 o2 (snd o2 (S i2 o2) c2) xs'))
+                                  (\(h::Tuple2 o1 o2) ->
+                                   \(h'::Module_Prelude.List (Tuple2 o1 o2)) ->
+                                   Cons@_ h h')
+                                  (refl
+                                     (Tuple2 o1 o2)
+                                     (Tuple2@_
+                                        (Module_Prelude.fst
+                                           o1
+                                           (S i1 o1)
+                                           (sps1' x))
+                                        (Module_Prelude.fst
+                                           o2
+                                           (S i2 o2)
+                                           (sps2' x'))))
+                                  indhyp
+                    in  it;};};};}
+
+separationProof :: Separation1
+  = separationLemma
+{-# Alfa unfoldgoals on
+brief on
+hidetypeannots off
+wide
+
+topdown
+hiding on
+var "separationLemma" hide 4
+var "parFeedLemma" hide 4
+var "fstEq" hide 4
+var "sndEq" hide 4
+var "ForAllI2" hide 3 as "\"I2" with symbolfont
+ #-}

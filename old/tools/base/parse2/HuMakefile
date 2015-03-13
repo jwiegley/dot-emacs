@@ -1,0 +1,1 @@
+SRC_DIRS=.:LexerGen:Lexer:LexerSpec:../lib:../lib/Monads:../tests/HbcLibraries

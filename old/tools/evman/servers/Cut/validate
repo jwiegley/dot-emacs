@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# Script to validate Cut certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA", "$SERVERDIR" and "$certsDir" to be set.
+
+type=Cut
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh" # Sets assertion, attr, conc, deps, module
+[ -n "$SERVERDIR" ] || abort 'Bug: $SERVERDIR is not set'
+. $SERVERDIR/functions.sh  # cut()
+
+
+### Auxiliary functions ########################################################
+
+checkcut() {
+  cut "$1" "$2"
+  conc2=`getattr conc $attr`
+  hyp2=`getattr hyp $attr`
+  err=0
+  [ "$conc" = "$conc2" ] || { echo "Conclusion doesn't match"; err=1; }
+  if [ -n "$hyp2" ] ; then
+    [ "$hyp" = "$hyp2" ] || { echo "Hypothesis doesn't match"; err=1; }
+  else
+    setattr hyp "$hyp" "$attr"
+  fi
+  return $err
+}
+
+validate() {
+  left=`getattr left $attr`
+  right=`getattr right $attr`
+  case "$left,$right" in
+    ?*/?*,?*/?*)
+      if checkcut "$left" "$right" >"$output"; then
+	vl="`cd $certsDir && quickvalidate $left`"
+	vh="`cd $certsDir && quickvalidate $right`"
+	echo "$left $vl, $right $vh" | tee "$output"
+	case "$vl,$vh" in
+	  Valid,Valid) trivialmarkvalid ;;
+	  *) markinvalid
+	esac
+      else
+	markinvalid
+      fi ;;
+    *)
+      { echo "Bad/missing names for certificate to cut (should be <Module/certname>):"
+        echo "left certificate: $left"
+        echo "right certificate: $right"
+      } | tee "$output"
+      markinvalid
+  esac
+}
+
+### Here we go... ##############################################################
+
+validate

@@ -1,0 +1,4 @@
+PPU.hs: -fno-monomorphism-restriction
+PrettyPrint2.hs: -fno-monomorphism-restriction
+NewPrettyPrint.hs: -fno-monomorphism-restriction
+PrettyDoc.hs: -fno-monomorphism-restriction

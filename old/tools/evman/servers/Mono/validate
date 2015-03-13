@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Script to validate Mono certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA" and "$certsDir" to be set.
+# It also expects the name of a certificate on the command line.
+
+type=Mono
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh" # Sets assertion, attr, conc, deps, module
+
+
+### Auxiliary functions ########################################################
+
+# * A Mono certificate is wellformed if all hypotheses are names of existing
+#   assertions.
+# * A Mono certificate is valid if it is wellformed and the conclusion is
+#   one of the hypotheses.
+
+validate() {
+  wellformed=yes
+  valid=no
+  hyp=`getattr hyp "$attr"`
+  for h in $hyp ; do
+    checkassertion "$h" || { wellformed=no; errmsg "$h ??"; }
+    [ "$module.$conc" = "$h" ] && valid=yes
+  done
+  if [ "$valid,$wellformed" = "yes,yes" ] ; then
+    trivialmarkvalid
+  else
+    markinvalid
+  fi
+}
+
+### Here we go... ##############################################################
+
+validate

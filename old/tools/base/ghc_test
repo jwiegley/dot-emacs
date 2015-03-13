@@ -1,0 +1,2 @@
+
+ghc -i. -iparse -ipretty -ilib -iAST -iSA -iTC -i/home/moran/lib  -cpp -recomp -fwarn-incomplete-patterns -H55M -fglasgow-exts -fmax-simplifier-iterations5 -package lang -package concurrent  -c "$1_pretty.hs" -o "$1_pretty.o"

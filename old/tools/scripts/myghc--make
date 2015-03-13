@@ -1,0 +1,4 @@
+
+. HuMakefile
+flags="-fallow-undecidable-instances -fno-monomorphism-restriction"
+${GHC-ghc} --make $flags $GHCFLAGS -i$SRC_DIRS "$@"

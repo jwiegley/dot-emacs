@@ -1,0 +1,459 @@
+
+
+@InProceedings{Haskell::Jones1999,
+  title =        "Typing Haskell in Haskell",
+  author =       "Mark P. Jones",
+  pages =        "68--78",
+  booktitle =    "Proceedings of the 1999 Haskell Workshop",
+  month =        "21--24 " # oct,
+  year =         "1999",
+  address =      "Paris, France",
+  note = "Published in Technical Report UU-CS-1999-28, Department of
+Computer Science, University of Utrecht"
+}
+
+@TechReport{Steele-Sussman78b,
+  key =          "Steele \& Sussman",
+  author =       "Guy Lewis {Steele Jr.} and Gerald Jay Sussman",
+  title =        "The Art of the Interpreter or, The Modularity Complex
+                 (Parts Zero, One, and Two)",
+  institution =  "Massachusetts Institute of Technology, Artificial
+                 Intelligence Laboratory",
+  year =         "1978",
+  month =        may,
+  type =         "AI Memo",
+  number =       "453",
+  annote =       "Several metacircular interpreters for different
+                 variants of LISP. Discussion of how the language design
+                 decisions affect the programming styles available to
+                 the user of the language. 24 references.",
+}
+
+@Book{Abelson-Sussman-Sussman96,
+  key =          "Abelson \& Sussman \& Sussman",
+  author =       "Harold Abelson and Gerald Jay Sussman and Julie
+                 Sussman",
+  title =        "Structure and Interpretation of Computer Programs",
+  publisher =    "McGraw Hill",
+  address =      "Cambridge, Mass.",
+  year =         "1996",
+  edition =      "second",
+  ISBN =         "0-07-000484-6",
+  annote =       "Introductory programming text using the Scheme dialect
+                 of Lisp. Many references.",
+}
+
+@InProceedings{LiangHudak,
+  author =       "Sheng Liang and Paul Hudak and Mark Jones",
+  title =        "Monad transformers and modular interpreters",
+  editor =       "{ACM}",
+  booktitle =    "Conference record of {POPL} '95, 22nd {ACM}
+                 {SIGPLAN-SIGACT} Symposium on Principles of Programming
+                 Languages: papers presented at the Symposium: San
+                 Francisco, California, January 22--25, 1995",
+  publisher =    "ACM Press",
+  address =      "New York, NY, USA",
+  year =         "1995",
+  ISBN =         "0-89791-692-1",
+  pages =        "333--343",
+  bibdate =      "Mon May 3 12:52:30 MDT 1999",
+  OPTurl =          "http://www.acm.org:80/pubs/citations/proceedings/plan/199448/p333-liang/",
+  abstract =     "We show how a set of {\em building blocks\/} can be
+                 used to construct programming language interpreters,
+                 and present implementations of such building blocks
+                 capable of supporting many commonly known features,
+                 including simple expressions, three different function
+                 call mechanisms (call-by-name, call-by-value and lazy
+                 evaluation), references and assignment, nondeterminism,
+                 first-class continuations, and program tracing. The
+                 underlying mechanism of our system is {\em monad
+                 transformers\/}, a simple form of abstraction for
+                 introducing a wide range of computational behaviors,
+                 such as state, I/O, continuations, and exceptions. Our
+                 work is significant in the following respects. First,
+                 we have succeeded in designing a fully modular
+                 interpreter based on monad transformers that incudes
+                 features missing from Steele's, Espinosa's, and
+                 Wadler's earlier efforts. Second, we have found new
+                 ways to lift monad operations through monad
+                 transformers, in particular difficult cases not
+                 achieved in Moggi's original work. Third, we have
+                 demonstrated that interactions between features are
+                 reflected in liftings and that semantics can be changed
+                 by reordering monad transformers. Finally, we have
+                 implemented our interpreter in Gofer, whose constructor
+                 classes provide just the added power over Haskell's
+                 type classes to allow precise and convenient expression
+                 of our ideas. This implementation includes a method for
+                 constructing extensible unions and a form of subtyping
+                 that is interesting in its own right.",
+  acknowledgement = ack-nhfb,
+  keywords =     "algorithms; design; languages",
+  subject =      "{\bf D.3.4} Software, PROGRAMMING LANGUAGES,
+                 Processors, Interpreters. {\bf F.3.2} Theory of
+                 Computation, LOGICS AND MEANINGS OF PROGRAMS, Semantics
+                 of Programming Languages, Denotational semantics. {\bf
+                 D.3.3} Software, PROGRAMMING LANGUAGES, Language
+                 Constructs and Features, Data types and structures.",
+}
+
+
+@Book{Stoy,
+  author =       "J. E. Stoy",
+  title =        "{Denotational Semantics: The Scott-Strachey Approach
+                 to Programming Language Semantics}",
+  publisher =    "MIT Press",
+  address =      "Cambridge, Massachusetts",
+  year =         "1977",
+}
+ 
+
+@Book{Gunter,
+  author =       "Carl A. Gunter",
+  title =        "Semantics of Programming Languages: Programming
+                 Techniques",
+  publisher =    "The {MIT} Press",
+  year =         "1992",
+  address =      "Cambridge, Massachusetts",
+  topic =        "semantics-of-programming-languages;",
+}
+
+@InCollection{Mog:meta,
+  author =       "Eugenio Moggi",
+  title =        "Metalanguages and Applications",
+  editor =       "A. M. Pitts and P. Dybjer",
+  booktitle =    "Semantics and Logics of Computation",
+  series =       "Publications of the Newton Institute",
+  volume =       "14",
+  pages =        "185--239",
+  publisher =    "Cambridge University Press",
+  address =      "Cambridge",
+  year =         "1997",
+}
+
+@Article{Moggi,
+  author =       "E. Moggi",
+  title =        "Functor Categories and Two-Level Languages",
+  journal =      "Lecture Notes in Computer Science",
+  volume =       "1378",
+  pages =        "211--??",
+  year =         "1998",
+  coden =        "LNCSD9",
+  ISSN =         "0302-9743",
+  bibdate =      "Tue Apr 28 08:51:33 MDT 1998",
+  acknowledgement = ack-nhfb,
+}
+
+
+
+@InProceedings{Pitts00,
+  author =       "A. M. Pitts and M. J. Gabbay",
+  title =        "A Metalanguage for Programming with Bound Names Modulo Renaming",
+  booktitle =    "Mathematics of Programme Construction",
+  pages =        "230-255",
+  year =         2000,
+  volume =       1837,
+  series =       "LNCS",
+  publisher =    "Springer-Verlag",
+}
+
+@Article{JFP::Sabry1998,
+  title =        "What is a purely functional language?",
+  author =       "Amr Sabry",
+  pages =        "1--22",
+  journal =      "Journal of Functional Programming",
+  month =        jan,
+  year =         "1998",
+  volume =       "8",
+  number =       "1",
+  references =   "\cite{JFP::AriolaF1997} \cite{POPL::AriolaFMOW1995}
+                 \cite{POPL::CartwrightF1992} \cite{TCS::FelleisenH1992}
+                 \cite{POPL::Filinski1994} \cite{POPL::OderskyRH1993}
+                 \cite{JFP::OHearn1996} \cite{POPL::PeytonJonesW1993}
+                 \cite{TCS::Plotkin1975} \cite{TCS::Plotkin1977}
+                 \cite{POPL::WeeksF1993}",
+}
+
+@Article{Reynolds,
+  author =       "John Reynolds",
+  year =         "1972",
+  publisher =    "ACM",
+  journal =      "ACM Conference Proceedings",
+  pages =        "717--740",
+  title =        "Definitional Interpreters for Higher Order Programming
+                 Languages",
+}
+
+
+@PhdThesis{Espinosa95PHD,
+  author =       "David Espinosa",
+  title =        "Semantic {Lego}",
+  year =         "1995",
+  school =       "Columbia University",
+  url =          "http://www-swiss.ai.mit.edu/ftpdir/users/dae/home.html",
+  keywords =     "action semantics, monads",
+}
+
+@Article{Wad92:monads,
+  author =       "P. Wadler",
+  title =        "Comprehending monads",
+  journal =      "Mathematical Structures in Computer Science",
+  pages =        "461--493",
+  year =         "1992",
+  volume =       "2",
+  OPTnote =         "Category theorists invented {\em monads\/} in the
+                 1960's to concisely express certain aspects of
+                 universal algebra. Functional programmers invented {\em
+                 list comprehensions\/} in the 1970's to concisely
+                 express certain programs involving lists. This paper
+                 shows how list comprehensions may be generalised to an
+                 arbitrary monad, and how the resulting programming
+                 feature can concisely express in a pure functional
+                 language some programs that manipulate state, handle
+                 exceptions, parse text, or invoke continuations. A new
+                 solution to the old problem of destructive array update
+                 is also presented. No knowledge of category theory is
+                 assumed.",
+}
+
+@Article{Wadler:1995:MFP,
+  author =       "P. Wadler",
+  title =        "Monads for functional programming",
+  journal =      "Lecture Notes in Computer Science",
+  volume =       "925",
+  pages =        "24--52",
+  year =         "1995",
+  coden =        "LNCSD9",
+  ISSN =         "0302-9743",
+  bibdate =      "Sat May 11 13:45:32 MDT 1996",
+  acknowledgement = ack-nhfb,
+}
+
+@InProceedings{DSL99*81,
+  author =       "Tim Sheard and Zine-el-abidine Benaissa and Emir
+                 Pasalic",
+  title =        "{DSL} Implementation Using Staging and Monads",
+  pages =        "81--94",
+  booktitle =    "Proceedings of the 2nd Conference on Domain-Specific
+                 Languages",
+  month =        oct # "~3--5",
+  publisher =    "USENIX Association",
+  address =      "Berkeley, CA",
+  year =         "1999",
+}
+
+@Book{PeytonJones86,
+  author =       "Simon L. Peyton Jones",
+  title =        "The Implementation of Functional Programming
+                 Languages",
+  publisher =    "Prentice-Hall",
+  year =         "1987",
+  ISBN =         "0-13-453325-9",
+  series =       "Computer Science",
+}
+
+
+@Book{Kamin,
+  author =       "Samuel N. Kamin",
+  title =        "Programming Languages, An Interpreter-Based Approach",
+  publisher =    "Addison Wesley",
+  year =         "1990",
+  ISBN =         "0-201-06824-9",
+}
+
+@Book{Friedman,
+  author =       "Daniel P. Friedman and Mitchell Wand and Christopher
+                 T. Haynes",
+  title =        "Essentials of Programming Languages",
+  publisher =    "McGraw-Hill Book Co.",
+  edition =      "second",
+  year =         "2001",
+  address =      "New York, N.Y.",
+  annote =       "Graduate text on programming languages, concentrating
+                 on semantics of imperative languages using
+                 interpreters. Also some disucssion of compilation. 59
+                 references.",
+  source =       "Leavens bib",
+}
+
+
+@InProceedings{Gabbay99lics,
+  author =       "Murdoch Gabbay and Andrew Pitts",
+  title =        "A New Approach to Abstract Syntax Involving Binders",
+  editor =       "G. Longo",
+  pages =        "214--224",
+  booktitle =    "Proceedings of the 14th Annual Symposium on Logic in
+                 Computer Science (LICS'99)",
+  year =         "1999",
+  publisher =    "IEEE Computer Society Press",
+  address =      "Trento, Italy",
+  month =        jul,
+  keywords =     "misc",
+}
+
+@TechReport{Haskell98,
+  author =       "Simon Peyton Jones and John Hughes, editors",
+  title =        "Report on the Programming Language {Haskell 98}",
+  institution =  "Yale University, CS Dept.",
+  type =         "Technical Report",
+  number =       "YALEU/DCS/RR-1106",
+  month =        feb,
+  year =         "1999",
+}
+
+
+@PhdThesis{LiangThesis,
+  author =       {Sheng Liang},
+  title =        {Modular Monadic Semantics and Compilation},
+  school =       {Yale University},
+  year =         {1997},
+  OPTkey =       {},
+  OPTtype =      {},
+  OPTaddress =   {},
+  OPTmonth =     {},
+  OPTnote =      {},
+  OPTannote =    {}
+}
+
+@Article{PeytonJone92a,
+  author =       "Simon L. Peyton Jones",
+  journal =      "Journal of Functional Programming",
+  title =        "Implementing lazy functional languages on stock
+                 hardware: the Spineless Tagless {G}-machine",
+  year =         "92",
+  document-size = "211.2 kbytes",
+  OPTurl =          "ftp://ftp.dcs.gla.ac.uk/pub/glasgow-fp/papers/spineless-tagless-gmachine.ps.Z",
+  month =        jul,
+  number =       "2",
+  pages =        "127--202",
+  volume =       "2",
+  scope =        "implemen",
+}
+
+@Article{PeytonJones:1998:TBO,
+  author =       "Simon L. {Peyton Jones} and Andr{\'e} L. M. Santos",
+  title =        "A transformation-based optimiser for {Haskell}",
+  journal =      "Science of Computer Programming",
+  volume =       "32",
+  number =       "1--3",
+  pages =        "3--47",
+  day =          "1",
+  month =        sep,
+  year =         "1998",
+  coden =        "SCPGD4",
+  ISSN =         "0167-6423",
+  bibdate =      "Mon Oct 11 18:07:09 MDT 1999",
+  OPTurl =          "http://www.elsevier.com/cas/tree/store/scico/sub/1998/32/1-3/538.pdf",
+  acknowledgement = ack-nhfb,
+  affiliation =  "Univ of Glasgow",
+  affiliationaddress = "Glasgow, UK",
+  classification = "723.1; 723.1.1; 921.3; 921.5",
+  journalabr =   "Sci Comput Program",
+  keywords =     "Computer programming languages; Glasgow Haskell
+                 compiler (ghc); Mathematical transformations;
+                 Optimization; Program compilers; Second-order lambda
+                 calculus",
+  xxtitle =      "Transformation-based optimizer for {Haskell}",
+}
+
+
+@Article{SCP::JonesS1998,
+  title =        "A transformation-based optimiser for~{Haskell}",
+  author =       "Simon L. Peyton Jones and Andr{\'e} L. M. Santos",
+  pages =        "3--47",
+  journal =      "Science of Computer Programming",
+  month =        sep,
+  year =         "1998",
+  volume =       "32",
+  number =       "1--3",
+  preliminary =  "ESOP::Jones1996:18",
+}
+
+@Article{Wadler92,
+  author =       "P. Wadler",
+  title =        "The essence of functional programming.",
+  journal =      "19th POPL",
+  pages =        "1--14",
+  publisher =    "ACM",
+  month =        jan,
+  year =         "1992",
+  keywords =     "FP, functional programming, monad, monads, exception,
+                 state, continuations, type, types, POPL, POPL19,
+                 POPL92",
+}
+ 
+
+@Misc{programatica,
+  OPTcrossref = "http://www.cse.ogi.edu/PacSoft/projects/programatica/default.htm",
+  key = "Programatica, a Pacific Software Research Center Project",
+  author = "{James Hook, Prinicpal Investigator}",
+  title = "Programatica Home Page",
+  howpublished = "http://www.cse.ogi.edu/PacSoft/projects/programatica/default.htm",
+  year = "2001"
+  }
+  
+
+
+@InProceedings{JonesMark93,
+  author =       "Mark P. Jones",
+  booktitle =    "FPCA '93: Conference on Functional Programming and
+                 Computer Architecture, Copenhagen, Denmark",
+  title =        "{A} system of constructor classes: overloading and
+                 implicit higher-order polymorphism",
+  year =         "1993",
+  publisher =    "ACM Press",
+  address =      "New York, N.Y.",
+  OPTurl =          "ftp://nebula.cs.yale.edu/pub/yale-fp/papers/fpca93.dvi.Z",
+  month =        jun,
+  pages =        "52--61",
+}
+
+@Article{Hall:1994:TCH,
+  author =       "C. Hall and K. Hammond and S. Peyton Jones and P.
+                 Wadler",
+  title =        "Type classes in Haskell",
+  journal =      "Lecture Notes in Computer Science",
+  volume =       "788",
+  pages =        "241--??",
+  year =         "1994",
+  coden =        "LNCSD9",
+  ISSN =         "0302-9743",
+  bibdate =      "Mon May 13 11:52:14 MDT 1996",
+  acknowledgement = ack-nhfb,
+}
+
+@Article{newcore,
+  author = "Simon L. Peyton-Jones and Simon Marlowe",
+  title = "Secrets of the Glasgow Haskell Compiler Inliner",
+  journal = "IDL'99",
+  note = "http://research.microsoft.com/Users/simonpj/papers/inline.ps.gz"
+  }
+  
+@TechReport{Danvy,
+  author =       "O Danvy and J Koslowski and K Malmkjaer",
+  institution =  "Kansas State University",
+  title =        "Compiling Monads",
+  year =         "91",
+  address =      "Manhattan, Kansas",
+  document-size = "34.1 kbytes",
+  url =          "ftp://ftp.diku.dk/pub/diku/semantics/papers/D-154.dvi.Z",
+  keywords =     "computational monads, lambda-interpreters, partial
+                 evaluation",
+  month =        dec,
+  number =       "CIS-92-3",
+  scope =        "monads",
+}
+
+@TechReport{MoggiE90a,
+  author =       "E Moggi",
+  institution =  "Dept. of Computer Science, Edinburgh Univ.",
+  title =        "An Abstract View of Programming Languages",
+  year =         "90",
+  document-size = "63.3 kbytes",
+  url =          "http://theory.doc.ic.ac.uk/papers/MoggiE/abs-view.dvi.gz",
+  number =       "ECS-LFCS-90-113",
+  scope =        "monads",
+}
+
+
+  

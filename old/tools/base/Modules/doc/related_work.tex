@@ -1,0 +1,28 @@
+\section{Related work}
+\label{related}
+
+We are aware of at least two attempts to formalize the static semantics
+of Haskell, but neither of them fully specifies the module system.  In
+the static semantics by Peyton Jones and Wadler \cite{SPJWad92}, the 
+specification of imports was left as future work.  The authors rated it as
+one of the highest-priority items on their todo list.  More recently,
+Faxén also worked on the static semantics of Haskell \cite{Faxen02}.  
+In this work, he gave semantics to some parts of the module system, 
+but also deviated from the report, opting for what he considered to be a
+simpler (although non Haskell 98 compatible) specification 
+(Section 4.2, \cite{Faxen02}).  Faxén's work is consistent with the
+report in that it does not specify how to treat mutually recursive
+modules.
+
+Our specification of the Haskell module system is relatively independent
+of Haskell itself.  In this respect it is similar to Leroy's work 
+on ML's module system \cite{Leroy-modular-modules}.
+There have been numerous studies on advanced module systems, and the use 
+of type theory to formalize them \cite{harper+:sharing,MacQueen:86}.
+In the same spirit, there has recently been a proposal
+for a replacement of the Haskell module system by Shields and Peyton Jones
+\cite{shields-pj:first-class-modules}.
+
+
+
+

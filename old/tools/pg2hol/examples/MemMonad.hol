@@ -1,0 +1,31 @@
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: class declaration from ../../examples/ChannelSeparation/MemMonad.hs:8,7 *)
+(* Not supported: instance declaration from ../../examples/ChannelSeparation/MemMonad.hs:23,10 *)
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/MemMonad.hs:27,15 *)
+(* From ../../examples/ChannelSeparation/MemMonad.hs:28,16 : *)
+val malloc_def = Define `malloc ws = ST (allocMem ws)`
+handle e => (print "Function malloc failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/MemMonad.hs:30,15 *)
+(* From ../../examples/ChannelSeparation/MemMonad.hs:31,16 : *)
+val readPacket_def = Define `readPacket rng =
+				 ST (\ s . (readRange rng s, s))`
+handle e => (print "Function readPacket failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: instance declaration from ../../examples/ChannelSeparation/MemMonad.hs:35,10 *)
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/MemMonad.hs:41,14 *)
+(* From ../../examples/ChannelSeparation/MemMonad.hs:44,15 : *)
+val runProtected_def = Define `runProtected = runStateE`
+handle e => (print "CAF runProtected failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 

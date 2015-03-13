@@ -1,0 +1,93 @@
+#!/bin/sh
+
+# Script to validate QuickCheck certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA", "$SERVERDIR" and "$certsDir" to be set.
+# It also expects the name of a certificate on the command line.
+
+type=TestCase
+has_sequent=no
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh"
+
+#tmpdir=slice
+
+### Auxiliary functions ########################################################
+
+sourcedirs() {
+  subgraphfiles $module | grep -v ^hi/libs/ | while read path ; do
+    dirname $path
+  done | sort -u
+}
+
+runtest() {
+  srcdirs=`sourcedirs`
+  hugspath=`echo $srcdirs | sed 's/ /:/g'`
+  echo "$test" | hugs -w +q -98 -P:$hugspath "$hsfile" >"$lastoutput" 2>&1
+}
+
+validate() {
+  runtest
+  echo "The following differences were detected:" >"$output"
+  if diff "$expected" "$lastoutput" >>"$output" ; then
+    echo "Output agrees with reference output."
+    markvalid
+    echo "The output from the last run of the test agrees with the reference output:" >"$output"
+    echo "" >>"$output"
+    cat "$lastoutput" >>"$output"
+  else 
+    markinvalid
+    echo "See diagnostic output for more info."
+  fi
+}
+
+validatenew() {
+  runtest
+  mv "$lastoutput" "$expected"
+  echo "This is the first time this test has been run." >"$output"
+  echo "Using the following output as reference to test against in future runs." >>"$output"
+  echo "" >>$output
+  cat "$expected" >>"$output"
+  cat "$output"
+  markvalid
+}
+
+revalidate() {
+  if [ -s "$tmpdiff" ] ; then
+    #echo "The following changes might affect the validity of"
+    echo "There has been changes that might affect the validity of"
+    echo "the $type certificate $cert. Re-running test."
+    #echo ""
+    #cat "$tmpdiff"
+    echo ""
+    validate
+  elif [ "$attr" -nt "$certpath/valid" ] ; then
+    echo "Certificate attributes have changed."
+    validate
+  else
+    echo "There has been no changes affecting the validity of"
+    echo "the $type certificate $cert. Marking it as still valid."
+    datestamp valid $certpath $module
+  fi
+}
+
+### Here we go... ##############################################################
+
+test=`getattr test "$attr"`
+assertion="$module.$test"
+hsfile="`pfe file "$module" | sed "s/$module: //"`"
+#echo "hsfile=$hsfile"
+expected="$certpath/expected.txt"
+lastoutput="$certpath/last.txt"
+
+tmpdiff="$certsDir/diff$$"
+
+if [ -r "$deps" ] && pfe tadiff "$deps" "$assertion" >"$tmpdiff" ; then
+  revalidate
+else
+  validatenew
+fi
+status=$?
+rm -f "$tmpdiff"
+exit $status

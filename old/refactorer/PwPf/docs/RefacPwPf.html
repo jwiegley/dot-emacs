@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+  ><TITLE
+    >RefacPwPf</TITLE
+    ><LINK HREF = "haddock.css" REL = "stylesheet" TYPE = "text/css"
+    ></HEAD
+  ><BODY
+  ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+    ><TR
+      ><TD CLASS = "topbar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><IMG SRC = "haskell_icon.gif" WIDTH = "16" HEIGHT = "16" ALT = " "
+		></TD
+	      ><TD CLASS = "title"
+	      ></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "index.html"
+		>Contents</A
+		></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "doc-index.html"
+		>Index</A
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "modulebar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><FONT SIZE = "6"
+		>RefacPwPf</FONT
+		></TD
+	      ><TD ALIGN = "right"
+	      ><TABLE CLASS = "narrow" CELLSPACING = "0" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "infohead"
+		    >Portability</TD
+		    ><TD CLASS = "infoval"
+		    >  portable</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Stability</TD
+		    ><TD CLASS = "infoval"
+		    >  experimental</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Maintainer</TD
+		    ><TD CLASS = "infoval"
+		    >  jproenca@di.uminho.pt</TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "section4"
+	      ><B
+		>Contents</B
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD
+	      ><DL
+		><DT
+		  ><A HREF = "#1"
+		    >Refactoring  </A
+		    ></DT
+		  ><DT
+		  ><A HREF = "#2"
+		    >Limitations</A
+		    ></DT
+		  ></DL
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Description</TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >Refactoring tool that converts a pointwise to a pointfree expression.
+</P
+	  ><P
+	  >It uses the modules <A HREF = "GlobalPW.html"
+	    >GlobalPW</A
+	    >, <A HREF = "PWCore.html"
+	    >PWCore</A
+	    >, <A HREF = "PwPfConversion.html"
+	    >PwPfConversion</A
+	    > and <A HREF = "Pointfree.html"
+	    >Pointfree</A
+	    >
+</P
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Synopsis</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "body"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "decl"
+	      ><A HREF = "#v%3ApwToPf"
+		>pwToPf</A
+		> :: [String] -&gt; State' IO ()</TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	><A NAME = "1"
+	  >Refactoring  </A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >Converts an expression in pointwise to pointfree by the following steps:
+</P
+	  ><OL
+	  ><LI
+	    > Reads the expression to be evaluated obtained by programatica's tools;
+</LI
+	    ><LI
+	    > Tries to convert the expression to a GLTerm by the use of the
+monadic function <TT
+	      ><A HREF = "GlobalPW.html#v%3Aexp2Global"
+		>exp2Global</A
+		></TT
+	      >, in <A HREF = "GlobalPW.html"
+	      >GlobalPW</A
+	      > module;
+</LI
+	    ><LI
+	    > Converts the GLTerm to a PWTerm, which is more general pointwise
+representation that can be found in module <A HREF = "PWCore.html"
+	      >PWCore</A
+	      >, by the use of
+the function <TT
+	      ><A HREF = "GlobalPW.html#v%3Aglobal2core"
+		>global2core</A
+		></TT
+	      >;
+</LI
+	    ><LI
+	    > Converts the PWTerm to a PFTerm, which is a pointfree expression,
+by the use of the function <TT
+	      ><A HREF = "PwPfConversion.html#v%3Acore2Pf"
+		>core2Pf</A
+		></TT
+	      >;
+</LI
+	    ><LI
+	    > Writes the resulting pointfree expression into an expression of
+programatica's abstract syntax tree, by the use of the function <TT
+	      ><A HREF = "Pointfree.html#v%3Apf2Exp"
+		>pf2Exp</A
+		></TT
+	      >.
+</LI
+	    ></OL
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "decl"
+	><A NAME = "v%3ApwToPf"
+	  ></A
+	  ><B
+	  >pwToPf</B
+	  > :: [String] -&gt; State' IO ()</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	><A NAME = "2"
+	  >Limitations</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >This refactoring is not complete, since only the grammar specified for
+the function <TT
+	    ><A HREF = "GlobalPW.html#v%3Aexp2Global"
+	      >exp2Global</A
+	      ></TT
+	    > can be recognized,
+and later translated into a pointfree expression.
+</P
+	  ><P
+	  >There are also some limitations. Some of them are presented bellow.
+</P
+	  ><UL
+	  ><LI
+	    > Types inside <EM
+	      >IN</EM
+	      >, <EM
+	      >OUT</EM
+	      > and <EM
+	      >PARA</EM
+	      > have the type information correct, but
+the variable &quot;_L&quot; sometimes don't have the correct location information,
+and lists are represented by <TT
+	      >[a]</TT
+	      >, where the letter <TT
+	      >a</TT
+	      > may already be bounded; 
+</LI
+	    ><LI
+	    > The source location information is ignored in most cases, since the
+expression is completely changed;
+</LI
+	    ><LI
+	    > Scope information is lost, except for prelude functions;
+</LI
+	    ><LI
+	    > Aditional information to the expression, like type information, cannot
+be added inside the selected expression, since only the specified grammar
+is recognized.
+</LI
+	    ></UL
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "botbar"
+	>Produced by <A HREF = "http://www.haskell.org/haddock/"
+	  >Haddock</A
+	  > version 0.6</TD
+	></TR
+      ></TABLE
+    ></BODY
+  ></HTML
+>

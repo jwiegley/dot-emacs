@@ -1,0 +1,44 @@
+<title>Extensible Haskell front-end for the Programatica project -
+       directory base/transforms/Deriving</title>
+
+<h1>Extensible Haskell front-end for the Programatica project</h1>
+
+<h2>What is in this directory (base/transforms)</h2>
+
+<p>
+This directory contains implementations of various source level
+program transformations.
+The subdirectory <a href="Deriving/"><code>Deriving/</code></a> contains
+modules that generate code for derived instances.
+
+<!--
+<p>
+We use overloading to allow the same function names to be reused in extended
+versions of the syntax. Each transformation is thus a method in a class.
+The class, re-usable instances for the base language structure, knot-tying
+-->
+
+<table>
+<tr><th>Modules<th>Purpose
+<tr><td>FieldSelectors
+    <td>A function that
+        generates selector functions for data constructors with labelled fields
+<tr><td>MapDeclM, MapDeclMBase, MapDeclMBaseStruct
+    <td>Monadic traversal of all declarations in an abstract syntax tree
+<tr><td>RemoveIrrefPats, RemoveIrrefPatsBase, RemoveIrrefPatsBaseStruct
+    <td>Transform away irrefutable patterns
+<tr><td>RemoveListComp, RemoveListCompBase
+    <td>Transform away list comprehensions
+        (section 3.11 in the Haskell 98 report)
+<tr><td>RemovePatBinds
+    <td>Transform away pattern bindings
+<tr><td>SimpFunBinds
+    <td>Simplify function bindings
+        (similar to section 4.4.3.1 in the Haskell 98 report)
+<tr><td>SimpPatMatch, SimpPatMatchBase
+    <td>Pattern match simplification (as described in section 3.17.3 of the
+        Haskell 98 report)
+<tr><td>Substitute, SubstituteBase, SubstituteBaseStruct
+    <td>Substitute expressions for variables in expressions.
+        Apply a function to all expressions in a larger structure.
+</table>

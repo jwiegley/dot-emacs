@@ -1,0 +1,2 @@
+
+FUD_batch=${FUD_batch-yes} ghumake "$@"

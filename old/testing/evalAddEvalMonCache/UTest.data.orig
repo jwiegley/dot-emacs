@@ -1,0 +1,7 @@
+TestCases{cacheCmd="refacAddEvalMonCache",
+          refactorCmd="refacEvalMon",
+positive=[(["A1.hs"],(["11", "8", "11", "12"], ["10","8","10","10"]))
+
+],
+negative=[]
+}

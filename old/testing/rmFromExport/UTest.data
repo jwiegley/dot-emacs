@@ -1,0 +1,7 @@
+TestCases{refactorCmd="rmFromExport",
+
+positive=[(["C2.hs"],["4","20"]),
+          (["C3.hs"],["6","30"])],
+      
+negative=[(["C1.hs","A1.hs"],["5","21"])]
+}

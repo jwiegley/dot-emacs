@@ -1,0 +1,90 @@
+<!-- This file included by the web server in the automatically generated
+     directory index.
+-->
+<title>Tools for the Programatica project</title>
+
+<h1>Tools for the Programatica project</h1>
+
+<div>
+<p>
+This directory contains the sources for (some of) the tools implemented
+as part of the Programatica project.
+<p>
+<strong>This is all work in progress (including this documentation)!</strong>
+</div>
+
+<h2 id=what>What tools are provided?</h2>
+<div>
+<p>
+See the
+ <a href="features.html"><cite>Features</cite></a>
+ and
+ <a href="usage.html"><cite>Usage</cite></a>
+ pages for documentation of the main tools. There are also some additional
+tidbits lying around.
+</div>
+
+<h2>How to compile and install the tools</h2>
+
+<div>
+<p>
+See the <a href="INSTALL.html">INSTALL</a> page.
+</div>
+
+<h2>Subdirectories</h2>
+<div>
+
+<p>
+The code that has been actively developed recently is located in the following
+subdirectories, some of which contain additional README files:
+
+<table>
+<tr><th>Directory<th>Description
+<tr><td><a href="base/"><code>base</code></a>
+<td>Extensible Haskell front-end and base language (Haskell 98) tools.
+    There is a <a href="base/README.html">README</a> file with further
+    details.
+
+<tr><td><a href="pfe/"><code>pfe</code></a>
+<td>PFE - the preliminary front-end framework and command-line tools.
+    There is a <a href="pfe/README.html">README</a> file with further
+    details.
+
+<tr><td><a href="pfe/Browser/"><code>pfe/Browser</code></a>
+<td>The Programatica Haskell Browser.
+
+<tr><td><a href="property/"><code>property</code></a>
+<td>Extension of the base language with P-logic property declarations,
+    including a new parser and an extended type checker.
+    (An awful lot of work for a small extension...)
+
+<tr><td><code>hs2html</code>
+<td>Haskell to HTML translator. (Little extra work for a potentially useful
+    tool.)
+
+<tr><td><a href="hs2alfa/"><code>hs2alfa</code></a>
+<td>Haskell to Alfa translator.
+
+<tr><td><a href="hs2stratego/"><code>hs2stratego</code></a>
+<td>Haskell to Stratego translator.
+
+<tr><td><code>hsutils</code>
+<td>Small spin-off Haskell utility programs.
+
+<tr><td><a href="evman/"><code>evman</code></a>
+<td>Files relating to evidence (certificate) management, in particular
+    the command line tool <code>cert</code> and the implementation of
+    the certificate servers.
+
+<tr><td><code>scripts</code>
+<td>Various shell scripts, some of which are used in the build process.
+
+<tr><td><code>bin</code>, <code>lib</code>
+<td>There are directores created by the Makefile to hold a template of
+    things that get installed by <code>make install</code>.
+    (See <a href="INSTALL.html">INSTALL.html</a>).
+</table>
+</div>
+<hr>
+<address>Authors: various</address>
+<address>Contact: <a href="http://www.cse.ogi.edu/~hallgren/">TH</address>

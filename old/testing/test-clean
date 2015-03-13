@@ -1,0 +1,58 @@
+#!/bin/bash
+
+DIRS="addCon
+addField
+addOneParameter
+addToExport
+asPatterns
+cleanImports
+demote
+duplication
+evalAddEvalMon
+evalAddEvalMonCache
+evalMonad
+foldDef
+foldPatterns
+fromConcreteToAbstract
+generaliseDef
+generativeFold
+instantiate
+introCase
+introNewDef
+introPattern
+introThreshold
+letToWhere
+liftOneLevel
+liftToToplevel
+merging
+mkImpExplicit
+moveDefBtwMods
+pointwiseToPointfree
+refacDataNewType
+refacFunDef
+refacRedunDec
+refacSlicing
+removeCon
+removeDef
+removeField
+renaming
+rmFromExport
+rmOneParameter
+simplifyExpr
+subIntroPattern
+unfoldAsPatterns
+unfoldDef
+whereToLet
+"
+
+rm -f UTest
+rm -f UTest.exe
+rm -f *.o *.hi
+
+for d in $DIRS
+do
+   cd $d
+   rm -rf hi
+   rm -f log.txt
+   cd ..
+done   

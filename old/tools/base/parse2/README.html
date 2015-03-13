@@ -1,0 +1,78 @@
+<title>Extensible Haskell front-end for the Programatica project -
+        directory base/parse2</title>
+
+<h1>Extensible Haskell front-end for the Programatica project</h1>
+
+<h2>What is in this directory (base/parse2)</h2>
+
+This directory contains a new version of the base language lexer and
+parser. There are two main differences from the old version.
+
+<h4>Changes to the parser</h4>
+
+The new parser produces a variant av the abstract syntax where every
+identifier is paired with its position in the source file. This
+variant of the syntax is defined in module <code>PosSyntax</code>. It
+reuses the names of all types from the plain abstract syntax, to
+minimize the number of changes required in the grammar file. The type
+used for identifiers with source position is called <code>SN</code>
+and defined in module <code>SourceNames</code>.
+
+<h4><a name=lexer>Changes to the lexer</a></h4>
+
+(See also the slides from the talk
+ <a href="http://www.cse.ogi.edu/~hallgren/Talks/LHiH/">A Lexer for  Haskell
+ in Haskell</a>).
+<p>
+Instead of being handwritten in Haskell, the new lexer is generated from a
+lexical syntax specification. The advantages with this approach are that
+
+      <ul>
+        <li>it allows the lexer to be implemented in a modular way, closely
+            resembling the specification in the Haskell report, so it should be
+            much easier to verify that the implementation agrees with what the
+            Haskell report specifies. (The old lexer was buggy.)
+
+        <li>it should be much easier to adapt the implementation to changes of
+	    the Haskell report (and there has been subtle changes in the lexical
+	    syntax in every new version of the Haskell report, I believe).
+	    (The old lexer was outdated.)
+
+	<li>it is still as efficient as the old handwritten, monolithic lexer.
+      </ul>
+	
+      <p>
+      The specification is expressed in Haskell, using simple regular
+      expression combinators, and then compiled to a
+      <abbr title="Deterministic Finite Automaton">DFA</abbr>
+      using standard text book algorithms. The regular expression compiler is
+      implemented in Haskell, and the DFAs it generates are output in the form
+      of Haskell source code.
+
+      <p>
+      Two pieces of handwritten code accompany the automatically generated
+      code:
+      <ul>
+        <li>A small function to recognize nested comments, since these can't be
+	    described using regular expressions.
+	<li>Functions to implement Haskell's layout convention.
+	    The structure of the implementation of these closely follow the
+	    specifications in the Haskell report
+	    (<a href="http://www.haskell.org/onlinereport/syntax-iso.html#sectB.3">appendix B.3</a>).
+      </ul>
+
+<h3>Subdirectories</h3>
+
+<dl>
+<dt><a href="Lexer/"><code>Lexer</code></a>
+<dd>Handwritten and automatically generated code for the lexer.
+
+<dt><a href="LexerGen/"><code>LexerGen</code></a>
+<dd>The regular expression compiler.
+
+<dt><a href="LexerSpec/"><code>LexerSpec</code></a>
+<dd>The lexical syntax specification for Haskell 98 (based on appendix B.2).
+
+<dt><a href="Parser/"><code>Parser</code></a>
+<dd>The Happy parser for the context free grammar (based on appendix B.4).
+</dl>
