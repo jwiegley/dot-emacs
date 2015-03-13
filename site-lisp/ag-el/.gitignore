@@ -1,0 +1,3 @@
+*.elc
+docs/_build
+.cask
