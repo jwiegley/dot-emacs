@@ -1,0 +1,229 @@
+% SHOWIDX DOCUMENT-STYLE OPTION - released 16 June 1991
+%    for LaTeX version 2.09
+% Copyright (C) 1985, 1988, 1989, 1991 by Leslie Lamport
+% Modified by Lars Ingebrigtsen 1993
+%
+% Prints \index entries in outer margin. For use with book or report
+% style.  Note: makes \flushbottom the default.
+
+\typeout{Document style option `showidx' - released 16 June 1991}
+\typeout{Modified for use in eyesore.}
+
+\newbox\eye@boxa
+\newbox\eye@boxb
+\newbox\eye@boxc
+\newbox\eye@boxd
+\newbox\eye@boxe
+\newbox\eye@boxf
+\newbox\eye@boxg
+\newbox\eye@box
+\newbox\new@box
+
+  \global \setbox \eye@boxa \hbox{}
+  \global \setbox \eye@boxb \hbox{}
+  \global \setbox \eye@boxc \hbox{}
+  \global \setbox \eye@boxd \hbox{}
+  \global \setbox \eye@boxe \hbox{}
+  \global \setbox \eye@boxf \hbox{}
+  \global \setbox \eye@boxg \hbox{}
+
+\newdimen\eye@boxadim \global\eye@boxadim\z@
+\newdimen\eye@boxbdim \global\eye@boxbdim\z@
+\newdimen\eye@boxcdim \global\eye@boxcdim\z@
+\newdimen\eye@boxddim \global\eye@boxddim\z@
+\newdimen\eye@boxedim \global\eye@boxedim\z@
+\newdimen\eye@boxfdim \global\eye@boxfdim\z@
+\newdimen\eye@boxgdim \global\eye@boxgdim\z@
+
+\newdimen\gnus@horiz \global\gnus@horiz\z@
+\newdimen\gnus@vert \global\gnus@vert\z@
+
+
+\newdimen\eye@height
+\global\eye@height\textheight
+% \global\advance\eye@height 8cm
+
+\newdimen\eyeins@height
+\global\eyeins@height\z@
+
+\newdimen\eye@adjust
+\global\eye@adjust 0cm
+
+\newinsert\indexbox
+\dimen\indexbox=\maxdimen
+
+\newinsert\gnusbox
+\dimen\gnusbox=\maxdimen
+
+\newdimen\eye@dim
+\newdimen\new@dim
+\newdimen\doinsert
+
+\newdimen\eye@strutd
+\def\eye@strut#1{%
+  \eye@strutd#1
+  \advance\eye@strutd\eye@adjust
+  \advance\eye@strutd -1mm
+  \raisebox{-\eye@strutd}[0pt][0pt]{\rule{1mm}{\eye@strutd}}
+}
+
+\newdimen\eye@tmpd
+\newbox\eye@tmpba
+\newbox\eye@tmpbb
+\def\eye@insbox#1#2#3{%
+  \eye@dim#2
+  \advance\eye@dim\ht#3
+  \advance\eye@dim\eye@adjust
+  \ifdim \eye@dim < \eye@height 
+    \global#2\eye@dim
+    \global\setbox#1
+       \hbox{\unhbox#1
+%             \eye@strut{\ht#3}
+             \unhbox#3
+             \vrule \@height 1cm \@width\z@}
+    \setbox #3 \hbox{}
+  \fi}
+
+\def\@showidx#1{
+  \setbox\new@box\hbox{#1}
+  % \typeout{Vi er i showidx.}
+  \new@dim\z@
+  \ifdim \ht\new@box > \z@
+    \eye@insbox\eye@boxa\eye@boxadim\new@box 
+    \ifdim \ht\new@box > \z@
+    \eye@insbox\eye@boxb\eye@boxbdim\new@box 
+    \ifdim \ht\new@box > \z@
+    \eye@insbox\eye@boxc\eye@boxcdim\new@box 
+    \ifdim \ht\new@box > \z@
+    \eye@insbox\eye@boxd\eye@boxddim\new@box 
+    \ifdim \ht\new@box > \z@
+    \eye@insbox\eye@boxe\eye@boxedim\new@box 
+    \ifdim \ht\new@box > \z@
+    \eye@insbox\eye@boxf\eye@boxfdim\new@box 
+    \ifdim \ht\new@box > \z@
+    \eye@insbox\eye@boxg\eye@boxgdim\new@box 
+    \ifdim \ht\new@box > \z@
+    \else
+      \typeout{Discarding index.}
+    \fi\fi\fi\fi\fi\fi\fi
+  \fi
+
+    \doinsert \z@
+    \ifdim \eyeins@height > \z@
+      \eye@dim\eyeins@height
+      \advance\eye@dim\eye@boxadim
+      \ifdim \eye@dim < \eye@height 
+         \global\eyeins@height\eye@dim
+         \doinsert 1pt
+      \fi
+   \else
+     \doinsert 1pt
+     \global\eyeins@height\eye@boxadim
+   \fi
+
+  \ifdim \ht\eye@boxa > \z@
+  
+    \ifdim \doinsert > \z@
+%      \typeout{Vi inserter i indexbox.}
+      \insert\indexbox{
+         \small
+         \hsize\marginparwidth
+         \hangindent\marginparsep 
+         \parindent\z@
+         \parfillskip\@flushglue
+         \everypar{}\let\par\@@par 
+         \lineskip\normallineskip
+         \baselineskip .8\normalbaselineskip
+         \ifodd\c@page\raggedleft\else\raggedright\fi
+         \leavevmode
+         \relax
+         \unhbox\eye@boxa
+         \relax
+      }
+      \global \setbox \eye@boxa \copy\eye@boxb
+      \global \setbox \eye@boxb \copy\eye@boxc
+      \global \setbox \eye@boxc \copy\eye@boxd
+      \global \setbox \eye@boxd \copy\eye@boxe
+      \global \setbox \eye@boxe \copy\eye@boxf
+      \global \setbox \eye@boxf \copy\eye@boxg
+      \global \setbox \eye@boxg \hbox{}
+      \global \eye@boxadim\eye@boxbdim
+      \global \eye@boxbdim\eye@boxcdim
+      \global \eye@boxcdim\eye@boxddim
+      \global \eye@boxddim\eye@boxedim
+      \global \eye@boxedim\eye@boxfdim
+      \global \eye@boxfdim\eye@boxgdim
+      \global \eye@boxgdim\z@
+    \fi
+  \fi
+
+}
+
+\def\@rightidx{\hskip\columnwidth \hskip\marginparsep}
+\def\@leftidx{\hskip-\marginparsep \hskip-\marginparwidth}
+
+\def\@mkidx{
+
+%  \typeout{Vi er i mkidx 1.}
+
+  \vbox to \z@{
+    \vskip \gnus@vert
+    \hbox{
+      \hskip \gnus@horiz
+      \box\gnusbox
+    }\vss
+  }
+  \vbox to \z@{ 
+    \ifdim \eyeins@height < \textheight
+      \eye@dim \textheight
+      \advance \eye@dim -\eyeins@height
+%      \vskip \eye@dim
+    \else 
+      \eye@dim \eye@height
+      \advance \eye@dim -3cm
+      \ifdim \eyeins@height > \eye@dim
+      %   \vskip -3cm
+    \fi\fi
+    \hbox{
+      \ifodd\c@page \@rightidx \else \@leftidx \fi
+      \box\indexbox
+    }\vss
+  }
+
+  \global\eyeins@height\z@
+
+}
+
+\def\raggedbottom{\def\@textbottom{\vskip
+      \z@ plus.0001fil}\let\@texttop\@mkidx}
+\def\flushbottom{\let\@textbottom\relax \let\@texttop\@mkidx}
+
+\def\margindex#1{\@bsphack
+\begingroup\@sanitize\catcode32=10\relax\@showidx{#1}
+ \endgroup\@esphack}
+
+\def\@gnusfig#1{
+  \insert\gnusbox{
+     \small
+     \hsize\textwidth
+     \hangindent\marginparsep 
+     \parindent\z@
+     \parfillskip\@flushglue
+     \everypar{}\let\par\@@par 
+     \lineskip\normallineskip
+     \baselineskip .8\normalbaselineskip
+     \ifodd\c@page\raggedleft\else\raggedright\fi
+     \leavevmode
+     \relax
+     #1
+     \relax
+  }
+}
+
+\def\gnusfig#1#2#3{\@bsphack
+\begingroup\@sanitize\catcode32=10\relax\@gnusfig{#3}\global\gnus@horiz#1 \global\gnus@vert#2
+ \endgroup\@esphack}
+
+\flushbottom
+
+\endinput

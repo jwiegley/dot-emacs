@@ -1,0 +1,61 @@
+#!/bin/bash
+name="Ma Gnus"
+
+if [ `whoami` != "larsi" ]; then
+    echo "This script is for larsi only"
+    exit
+fi
+
+# First do a release commit on the current version.
+
+version=`grep "defconst gnus-version-number" lisp/gnus.el | \
+    sed 's/[^.0-9]//g'`
+
+initial=`echo "$name" | sed 's/^\([A-Z]\).*/\1/g' | tr A-Z a-z`
+
+prefix=`echo $version | sed 's/^\(.*[.]\)\([0-9][0-9]*\)/\1/'`
+next_version=`echo $version | sed 's/^\(.*[.]\)\([0-9][0-9]*\)/\2/'`
+next_version=`expr $next_version + 1`
+next_version="$prefix$next_version"
+
+date=`TZ=Z date "+%Y-%m-%d"`
+echo -e "$date  Lars Magne Ingebrigtsen  <lars@ingebrigtsen.no>\n\n\t* gnus.el: $name v$next_version is released.\n"\
+  > /tmp/changelog
+cat lisp/ChangeLog >> /tmp/changelog
+mv /tmp/changelog lisp/ChangeLog
+
+# Then update the sources to the next version.
+
+sed "s/$name v[.0-9]*/$name v$next_version/" texi/gnus.texi > g.texi.tmp
+mv g.texi.tmp texi/gnus.texi
+sed "s/$name v[.0-9]*/$name v$next_version/" texi/message.texi > m.texi.tmp
+mv m.texi.tmp texi/message.texi
+sed "s/defconst gnus-version-number \"$version\"/defconst gnus-version-number \"$next_version\"/" lisp/gnus.el > g.el.tmp
+mv g.el.tmp lisp/gnus.el
+
+git commit -a -m "$name v$next_version is released"
+
+tversion=`echo $next_version | sed 's/[.]/-/g'`
+
+git tag -a "$initial$tversion" -m "$name v$next_version is released"
+
+git push && git push origin tag "$initial$tversion"
+
+# Increase the number, yet again, to start the next development cycle.
+
+version=$next_version
+
+prefix=`echo $version | sed 's/^\(.*[.]\)\([0-9][0-9]*\)/\1/'`
+next_version=`echo $version | sed 's/^\(.*[.]\)\([0-9][0-9]*\)/\2/'`
+next_version=`expr $next_version + 1`
+next_version="$prefix$next_version"
+
+sed "s/$name v[.0-9]*/$name v$next_version/" texi/gnus.texi > g.texi.tmp
+mv g.texi.tmp texi/gnus.texi
+sed "s/$name v[.0-9]*/$name v$next_version/" texi/message.texi > m.texi.tmp
+mv m.texi.tmp texi/message.texi
+sed "s/defconst gnus-version-number \"$version\"/defconst gnus-version-number \"$next_version\"/" lisp/gnus.el > g.el.tmp
+mv g.el.tmp lisp/gnus.el
+
+git commit -a -m "$name v$next_version is begun"
+git push

@@ -1,0 +1,113 @@
+CONTENTS
+
+This file (GNUS-NEWS) contains some Gnus specific informations or other
+information that not relevant for Emacs.  For information relevant to Emacs,
+see README, smilies/README, mail/README, and gnus/README.  Don't modify these
+files in Gnus' repository unless the change should also be included in the
+Emacs incarnation of the files.
+
+
+COPYRIGHT AND LICENSE INFORMATION FOR IMAGE FILES
+
+See README, smilies/README, mail/README and gnus/README.
+
+
+ORIGIN OF THE IMAGE FILES
+
+The following icons are from GNOME 2.6:
+
+    attach.xpm (stock_attach)
+    connect.xpm (stock_connect)
+    contact.xpm (stock_contact)
+    delete.xpm (stock_delete)
+    describe.xpm (stock_properties)
+    disconnect.xpm (stock_disconnect)
+    exit.xpm (stock_exit)
+    lock-broken.xpm (stock_lock_broken)
+    lock-ok.xpm (stock_lock_ok)
+    lock.xpm (stock_lock)
+    next-page.xpm (stock_next-page)
+    refresh.xpm (stock_refresh)
+    sort-ascending.xpm (stock_sort-ascending)
+    sort-column-ascending.xpm (stock_sort-column-ascending)
+    sort-criteria.xpm (stock_sort-criteria)
+    sort-descending.xpm (stock_sort-descending)
+    sort-row-ascending.xpm (stock_sort-row-ascending)
+
+    gnus/toggle-subscription.xpm (stock_task-recurring)
+
+    mail/compose.xpm (stock_mail-compose)
+    mail/copy.xpm (stock_mail-copy)
+    mail/forward.xpm (stock_mail-forward)
+    mail/inbox.xpm (stock_inbox)
+    mail/move.xpm (stock_mail-move)
+    mail/not-spam.xpm (stock_not-spam)
+    mail/outbox.xpm (stock_outbox)
+    mail/reply-all.xpm (stock_mail-reply-to-all)
+    mail/reply.xpm (stock_mail-reply)
+    mail/save-draft.xpm (stock_mail-handling)
+    mail/send.xpm (stock_mail-send)
+    mail/spam.xpm (stock_spam)
+
+
+The following icons were contributed by Adam Sjøgren <asjo@koldfront.dk>:
+
+    mail/preview.xpm (combining stock_mail and stock_zoom)
+    mail/save.xpm    (combining stock_mail, stock_save and stock_convert) 
+
+
+The folling icon are duplicated from Emacs 22.  They are either not present in
+Emacs 21 or look different there.
+
+    cancel.xpm
+    close.xpm
+    copy.xpm
+    cut.xpm
+    diropen.xpm
+    help.xpm
+    home.xpm
+    index.xpm
+    jump-to.xpm
+    left-arrow.xpm
+    new.xpm
+    next-node.xpm
+    open.xpm
+    paste.xpm
+    preferences.xpm
+    prev-node.xpm
+    print.xpm
+    redo.xpm
+    right-arrow.xpm
+    save.xpm
+    saveas.xpm
+    search.xpm
+    separator.xpm
+    spell.xpm
+
+You might want to use the following code to get Gnome icons in Emacs 21:
+
+  ;; Only for Emacs 21:
+  (when (and (not (featurep 'xemacs))
+  	   (not (boundp 'image-load-path))
+  	   tool-bar-mode)
+    (push "/path/to/etc/images/" image-load-path)
+    (setq tool-bar-map (make-sparse-keymap))
+    (clear-image-cache)
+    (tool-bar-setup))
+
+
+CONVERSION OF PNG FILES TO XPM
+
+The GNOME's stock_*.png files were converted to XPM using the following GIMP
+script:
+
+;; -*- scheme -*-
+;; Put this file in ~/.gimp-*/scripts/
+;; gimp -i -b '(rs-save-as-xpm "foo.png" "foo.xpm" 127)'  '(gimp-quit 0)'
+(define (rs-save-as-xpm filename filename2 threshold)
+  (let* ((image (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))
+	 (drawable (car (gimp-image-get-active-layer image))))
+    (file-xpm-save RUN-NONINTERACTIVE image drawable
+		   filename2 filename2 threshold)
+    (gimp-image-delete image)))
+;; end
