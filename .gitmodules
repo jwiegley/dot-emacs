@@ -538,3 +538,6 @@
 [submodule "site-lisp/helm-cmd-t"]
 	path = site-lisp/helm-cmd-t
 	url = git://github.com/emacs-helm/helm-cmd-t
+[submodule "site-lisp/helm-emms"]
+	path = site-lisp/helm-emms
+	url = git://github.com/emacs-helm/helm-emms
