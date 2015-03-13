@@ -1,0 +1,98 @@
+REGEX-TOOL  -*- mode: org; fill-column: 78 -*-
+
+#+STARTUP: overview
+#+ARCHIVE: TODO-OLD::
+#+SEQ_TODO: TODO(@) STARTED(@) WAITING(@) DELEGATED(@) | DONE(@) DEFERRED(@) CANCELLED(@) WONTFIX(@) WORKSFORME(@) INVALID(@) DUPLICATE(@) NOTE
+#+TAGS: FEATURE(f) DOCS(d) WEBSITE(w) BUILD(b) ATTACH(a)
+#+CATEGORY: rgx-tool
+
+* TODO [#B] Add regex-tool patch for Emacs 21 support
+  (from e-mail [[message://47A86418.6000704@trueposition.com][regex-tool]]): Works okay in emacs 22, but I had to add this
+  [attached] to backport to emacs 21.
+  :PROPERTIES:
+  :Submitter: Mitchell Perilstein <mperilstein@trueposition.com>
+  :ID: 064CDAC0-D021-422C-BB16-F563CCF575A6
+  :Attachments: remove-overlays.el
+  :END:
+  [2008-02-05 Tue]
+* TODO [#B] T. Kurt Bond suggested several changes to regex-tool	:ATTACH:
+  (from e-mail [[message://uabovlded.fsf@tkb.mpl.com][regex-tool.el patch]]): I've enclosed a patch that adds two
+  things:
+  
+  1. An *Elisp* buffer that shows a quoted version of the regex suitable for
+     cutting and pasting into emacs lisp source.  Unfortunately, I didn't take
+     into account the perl backend, so it would need some tweaking.
+  
+  2. Allows more than 9 matches to be displayed, so that 
+       \(1\)\(2\)\(3\)\(4\)\(5\)\(6\)\(7\)\(8\)\(9\)\(a\)\(b\)\(c\)\(d\)\(e\)\(f\)
+     matched against
+       123456789abcdef
+     shows all 15 individual matches in addition to the group 0 match.
+     (Just look for the change to dotimes.)
+  :PROPERTIES:
+  :Submitter: T. Kurt Bond <tkb@tkb.mpl.com>
+  :ID: F7E77C16-2EB1-4447-A192-B1916DE45279
+  :Attachments: bond.patch
+  :END:
+  [2007-11-30 Fri]
+* TODO [#B] Patch for / characters in a regular expression		:ATTACH:
+  I found a minor bug though: in perl mode it uses m// syntax, but slashes
+  aren't escaped in elisp code, which makes the tool fail if I have '/' in
+  regexp.  This patch helped me [attached].
+  :PROPERTIES:
+  :Submitter: Marcin Bachry <hegel@op.pl>
+  :ID: 597BF019-56C5-4C72-B13C-E8D8C930ADC5
+  :Attachments: guard-slash.patch
+  :END:
+  [2008-03-27 Thu]
+* TODO [#B] Apply patch to regex-tool sent by Christian Stucchio	:ATTACH:
+  (from e-mail [[message://60424aeb0712270704q263ba990h7b5c7db9eaea058c@mail.gmail.com][regex-tool.el]]): So far, I've only found one thing I dislike:
+  the fact that it opens a new frame. I prefer it to open in the current
+  frame.
+  
+  I've attached a slightly modified version in which that behavior is
+  customizable. If regex-tool-new-frame is t (the default), the current
+  behavior is preserved. If nil, the current frame is used. Steal the code if
+  you like it.
+  :PROPERTIES:
+  :Submitter: Christian Stucchio <stucchio@cims.nyu.edu>
+  :ID: C37A5A8A-8EF2-4788-855A-961DA72C69E7
+  :Attachments: reuse-frame.patch
+  :END:
+  [2007-12-27 Thu]
+* TODO [#B] Johan LindstrXm found a typo in regex-tool
+  (from e-mail [[message://200801202048.BYP36673@imap.infopop.com][Regex Tool - wrong description?]]): This defun looks like it was
+  copied from org-mode and not cleaned up properly :)
+  :OUTPUT:
+(defgroup regex-tool nil
+ "Outline-based notes management and organizer."
+ :tag "Org"
+ :group 'programming)
+  :END:
+  :PROPERTIES:
+  :Submitter: Johan LindstrXm <johanl@DarSerMan.com>
+  :ID: 107D4BC7-5949-4933-9D94-0E682C9748F0
+  :END:
+  [2008-01-20 Sun]
+* TODO [#A] Apply Johan LindstrXm's regex-tool patch			:ATTACH:
+  (from e-mail [[message://200801202043.BYP36639@imap.infopop.com][Regex Tool]]): I just recently started using your excellent Emacs
+  Regex Tool.  Very useful, so hats off for that!
+
+  One thing I missed though was the ability of specifying Perl regex
+  modifiers, such as /x etc.  So I wrote a patch to change the Perl regex
+  syntax from 'MY-REGEX' to '/MY-REGEX/MODIFIERS'
+
+  (It is still aware of /g and multiple matches if needed)
+
+  This patch would change the usage in an incompatible way from before, but
+  OTOH this tool is supposedly not used programmatically anyway so that's
+  probably not a big deal.
+  
+  If you think this sounds like a good idea, I'd be very happy for you to
+  incorporate it with your package.
+  :PROPERTIES:
+  :Submitter: Johan LindstrXm <johanl@DarSerMan.com>
+  :ID: 915929F6-4A97-43E0-861C-25B9B7FE9AF9
+  :Attachments: regex-modifiers.patch
+  :END:
+  [2008-01-20 Sun]
